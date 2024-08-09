@@ -1,0 +1,9 @@
+{
+    "YEARS": 50,
+    "USE_SYNTHETIC": false,
+    "TICKER_1": "SPY",
+    "TICKER_2": "QQQ",
+    "EMA_FAST": 11,
+    "EMA_SLOW": 20,
+    "USE_HOURLY_DATA": false
+}

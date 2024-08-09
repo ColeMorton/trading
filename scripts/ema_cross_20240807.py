@@ -16,15 +16,19 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime, timedelta
 from typing import Tuple, List
+import json
 
-# Constants
-YEARS = 50
-USE_HOURLY_DATA = False
-USE_SYNTHETIC = False
-TICKER_1 = 'BTC-USD'
-TICKER_2 = 'QQQ'
-EMA_FAST = 11
-EMA_SLOW = 20
+# Load constants from config.json
+with open('config.json', 'r') as file:
+    config = json.load(file)
+
+YEARS = config['YEARS']
+USE_HOURLY_DATA = config['USE_HOURLY_DATA']
+USE_SYNTHETIC = config['USE_SYNTHETIC']
+TICKER_1 = config['TICKER_1']
+TICKER_2 = config['TICKER_2']
+EMA_FAST = config['EMA_FAST']
+EMA_SLOW = config['EMA_SLOW']
 
 class TradingStrategy:
     def __init__(self, use_hourly: bool = USE_HOURLY_DATA, use_synthetic: bool = USE_SYNTHETIC):
