@@ -25,6 +25,7 @@ with open('config.json', 'r') as file:
 YEARS = config['YEARS']
 USE_HOURLY_DATA = config['USE_HOURLY_DATA']
 USE_SYNTHETIC = config['USE_SYNTHETIC']
+TICKER = config['TICKER_1']
 TICKER_1 = config['TICKER_1']
 TICKER_2 = config['TICKER_2']
 EMA_FAST = config['EMA_FAST']
@@ -175,8 +176,8 @@ def run() -> None:
             data = create_synthetic_data()
             synthetic_ticker = f"{TICKER_1[:3]}{TICKER_2[:3]}"
         else:
-            data = download_data(TICKER_1, USE_HOURLY_DATA)
-            synthetic_ticker = TICKER_1
+            data = download_data(TICKER, USE_HOURLY_DATA)
+            synthetic_ticker = TICKER
 
         data = calculate_ema(data, EMA_FAST, EMA_SLOW)
         data = generate_signals(data, EMA_FAST)
