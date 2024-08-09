@@ -76,12 +76,16 @@ def backtest_strategy(data: pd.DataFrame) -> vbt.Portfolio:
     """Backtest the EMA cross strategy."""
     logging.info("Starting strategy backtest")
     try:
+        # Determine frequency based on the data
+        freq = 'H' if USE_HOURLY_DATA else 'D'
+        
         portfolio = vbt.Portfolio.from_signals(
             close=data['Close'],
             entries=data['Signal'] == 1,
             exits=data['Signal'] == -1,
             init_cash=1000,
-            fees=0.001
+            fees=0.001,
+            freq=freq  # Set the frequency here
         )
         logging.info("Backtest completed successfully")
         return portfolio
