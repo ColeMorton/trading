@@ -64,11 +64,13 @@ def filter_data_by_timeframe(data, filter_timeframe):
     if filter_timeframe == "D":
         current_day_of_year = datetime.now().timetuple().tm_yday
         logging.info("current_day_of_year: %s", current_day_of_year)
-        return data[data.index.dayofyear == current_day_of_year]
+        filtered_data = data[data.index.dayofyear == current_day_of_year]
+        return filtered_data
     elif filter_timeframe == "Day of Week":
         current_day = datetime.now().strftime('%A')
         logging.info("Current day of the week: %s", current_day)
-        return data[data.index.day_name() == current_day]
+        filtered_data = data[data.index.day_name() == current_day]
+        return filtered_data
     # Additional filtering logic can be added here for other timeframes
     return data
 
@@ -98,16 +100,21 @@ def plot_return_distribution(returns, var_68, var_95, var_99, ticker, period, us
     plt.axvline(x=mean, color='green', linestyle='--', linewidth=2, label=f'Mean = {mean:.2%}')
     plt.axvline(x=median, color='orange', linestyle='--', linewidth=2, label=f'Median = {median:.2%}')
     plt.axvline(0, color='k', linestyle='-', label='Zero')
-    
+
+    if use_filter_timeframe:
+        # Calculate the return of the current filter_timeframe
+        current_return = returns[-1]
+        plt.axvline(x=current_return, color='purple', linestyle='--', linewidth=2, label=f'Current {filter_timeframe} Return = {current_return:.2%}')
+
     std_dev = returns.std()
     skewness = returns.skew()
     kurtosis = returns.kurtosis()
 
-    plt.text(0.95, 0.95, f'Std Dev: {std_dev:.2%}\nSkewness: {skewness:.2f}\nKurtosis: {kurtosis:.2f}', 
+    plt.text(0.95, 0.95, f'Std Dev: {std_dev:.2%}\nSkewness: {skewness:.2f}\nKurtosis: {kurtosis:.2f}',
              transform=plt.gca().transAxes, verticalalignment='top', horizontalalignment='right', fontsize=10)
 
     plt.title(f'{ticker} Return Distribution (VaR, Mean, Median)', fontsize=14)
-    xlabel = f'{period} Return' if not use_filter_timeframe else f'{period} Return ({filter_timeframe})'
+    xlabel = f'{period} Return' if not use_filter_timeframe else f'{filter_timeframe} Return'
     plt.xlabel(xlabel, fontsize=12)
     plt.ylabel('Frequency', fontsize=12)
     plt.legend()
