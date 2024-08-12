@@ -2,6 +2,7 @@ import yfinance as yf
 from datetime import datetime, timedelta
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 import json
 import logging
 
@@ -72,21 +73,40 @@ def filter_data_by_timeframe(data, filter_timeframe):
     return data
 
 def calculate_var(returns):
-    """Calculate Value at Risk (VaR) at 95% and 99% confidence levels."""
+    """Calculate Value at Risk (VaR)"""
     logging.info("Calculating VaR for returns.")
+    var_68 = np.percentile(returns, 32)
     var_95 = np.percentile(returns, 5)
     var_99 = np.percentile(returns, 1)
     logging.info("VaR calculated successfully.")
-    return var_95, var_99
+    return var_68, var_95, var_99
 
-def plot_return_distribution(returns, var_95, var_99, ticker, period, use_filter_timeframe, filter_timeframe):
-    """Plot the return distribution with VaR lines."""
-    logging.info("Plotting return distribution for ticker: %s, period: %s", ticker, period)
+def plot_return_distribution(returns, var_68, var_95, var_99, ticker, period, use_filter_timeframe, filter_timeframe):
+    """Plot the return distribution with VaR lines and additional statistics."""
+    logging.info("Plotting return distribution for ticker: %s, period: %s, use_filter_timeframe: %s, filter_timeframe: %s", ticker, period, use_filter_timeframe, filter_timeframe)
+
+    # Calculate additional statistics
+    mean = np.mean(returns)
+    median = np.median(returns)
+    std_dev = np.std(returns)
+
     plt.figure(figsize=(10, 6))
-    plt.hist(returns, bins=50, alpha=0.6, color='blue', edgecolor='black')
+    sns.histplot(returns, bins=200, alpha=0.5, color='blue', edgecolor='black')
+    plt.axvline(x=var_68, color='red', linestyle='--', linewidth=2, label=f'68% VaR = {var_68:.2%}')
     plt.axvline(x=var_95, color='indigo', linestyle='--', linewidth=2, label=f'95% VaR = {var_95:.2%}')
     plt.axvline(x=var_99, color='cyan', linestyle='--', linewidth=2, label=f'99% VaR = {var_99:.2%}')
-    plt.title(f'{ticker} Return Distribution (95% and 99%)', fontsize=14)
+    plt.axvline(x=mean, color='green', linestyle='--', linewidth=2, label=f'Mean = {mean:.2%}')
+    plt.axvline(x=median, color='orange', linestyle='--', linewidth=2, label=f'Median = {median:.2%}')
+    plt.axvline(0, color='k', linestyle='-', label='Zero')
+    
+    std_dev = returns.std()
+    skewness = returns.skew()
+    kurtosis = returns.kurtosis()
+
+    plt.text(0.95, 0.95, f'Std Dev: {std_dev:.2%}\nSkewness: {skewness:.2f}\nKurtosis: {kurtosis:.2f}', 
+             transform=plt.gca().transAxes, verticalalignment='top', horizontalalignment='right', fontsize=10)
+
+    plt.title(f'{ticker} Return Distribution (VaR, Mean, Median)', fontsize=14)
     xlabel = f'{period} Return' if not use_filter_timeframe else f'{period} Return ({filter_timeframe})'
     plt.xlabel(xlabel, fontsize=12)
     plt.ylabel('Frequency', fontsize=12)
@@ -106,7 +126,7 @@ def main():
     YEARS = config['YEARS']
     TICKER = config['TICKER']
     timeframe = config['TIMEFRAME']
-    USE_FILTER_TIMEFRAME = config['FILTER_TIMEFRAME']
+    USE_FILTER_TIMEFRAME = config['USE_FILTER_TIMEFRAME']
     FILTER_TIMEFRAME = config['FILTER_TIMEFRAME']
 
     if not USE_DATES:
@@ -114,7 +134,7 @@ def main():
         end_date = datetime.now()
         start_date = end_date - timedelta(365 * YEARS)
         logging.info("end_date: %s", end_date)
-        logging.info("start_date: %s", end_date)
+        logging.info("start_date: %s", start_date)
 
     # Fetch asset price data
     data = fetch_data(TICKER, start_date, end_date)
@@ -136,10 +156,10 @@ def main():
     returns, period = calculate_returns(data, timeframe)
 
     # Calculate Historical Simulation VaR (95% and 99%)
-    var_95, var_99 = calculate_var(returns)
+    var_68, var_95, var_99 = calculate_var(returns)
 
     # Plot Return Distribution
-    plot_return_distribution(returns, var_95, var_99, TICKER, period, USE_FILTER_TIMEFRAME, FILTER_TIMEFRAME)
+    plot_return_distribution(returns, var_68, var_95, var_99, TICKER, period, USE_FILTER_TIMEFRAME, FILTER_TIMEFRAME)
 
     # Print some diagnostic information
     print(f"\nTotal days of data: {len(data)}")
