@@ -16,7 +16,7 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-logging.info("Starting the Cryptocurrency Trading Strategy Backtester script")
+logging.info('Parameter Sensitivity Analysis EMA Cross')
 
 # Load constants from config.json
 with open('config.json', 'r') as file:
