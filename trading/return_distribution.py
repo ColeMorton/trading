@@ -109,8 +109,16 @@ def plot_return_distribution(returns, var_68, var_95, var_99, ticker, period, us
     current_return = returns[-1]
     plt.axvline(x=current_return, color='purple', linestyle='--', linewidth=2, label=f'Current Return = {current_return:.2%}')
 
-    # Calculate Rarity
-    rarity = norm.cdf(current_return, loc=mean, scale=std_dev)
+    # Calculate Rarity based on the sign of the current return
+    if current_return < 0:
+        # Use only negative returns
+        negative_returns = returns[returns < 0]
+        rarity = norm.cdf(current_return, loc=np.mean(negative_returns), scale=np.std(negative_returns))
+    else:
+        # Use only positive returns
+        positive_returns = returns[returns > 0]
+        rarity = norm.cdf(current_return, loc=np.mean(positive_returns), scale=np.std(positive_returns))
+
     rarity_percentage = (1 - rarity) * 100  # Convert to percentage
 
     std_dev = returns.std()
