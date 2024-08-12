@@ -33,8 +33,10 @@ def fetch_data(ticker, start_date, end_date):
 def calculate_returns(data, timeframe):
     """Calculate returns based on the specified timeframe."""
     logging.info("Calculating returns for timeframe: %s", timeframe)
-    data['Return'] = data['Adj Close'].pct_change()
-    
+
+    # Use .loc to avoid SettingWithCopyWarning
+    data.loc[:, 'Return'] = data['Adj Close'].pct_change()
+
     if timeframe == "D":
         returns = data['Return'].dropna()
         period = 'Daily'
@@ -47,13 +49,27 @@ def calculate_returns(data, timeframe):
     else:
         logging.error("Invalid timeframe specified: %s", timeframe)
         raise ValueError("Invalid timeframe specified. Use 'D', '2W', or 'W'.")
-    
+
     if returns.empty:
         logging.error("No valid returns calculated. Try increasing the date range.")
         raise ValueError("No valid returns calculated. Try increasing the date range.")
-    
+
     logging.info("Returns calculated successfully.")
     return returns, period
+
+def filter_data_by_timeframe(data, filter_timeframe):
+    """Filter data based on the specified timeframe."""
+    logging.info("Filtering data by timeframe: %s", filter_timeframe)
+    if filter_timeframe == "D":
+        current_day_of_year = datetime.now().timetuple().tm_yday
+        logging.info("current_day_of_year: %s", current_day_of_year)
+        return data[data.index.dayofyear == current_day_of_year]
+    elif filter_timeframe == "Day of Week":
+        current_day = datetime.now().strftime('%A')
+        logging.info("Current day of the week: %s", current_day)
+        return data[data.index.day_name() == current_day]
+    # Additional filtering logic can be added here for other timeframes
+    return data
 
 def calculate_var(returns):
     """Calculate Value at Risk (VaR) at 95% and 99% confidence levels."""
@@ -63,7 +79,7 @@ def calculate_var(returns):
     logging.info("VaR calculated successfully.")
     return var_95, var_99
 
-def plot_return_distribution(returns, var_95, var_99, ticker, period):
+def plot_return_distribution(returns, var_95, var_99, ticker, period, use_filter_timeframe, filter_timeframe):
     """Plot the return distribution with VaR lines."""
     logging.info("Plotting return distribution for ticker: %s, period: %s", ticker, period)
     plt.figure(figsize=(10, 6))
@@ -71,7 +87,8 @@ def plot_return_distribution(returns, var_95, var_99, ticker, period):
     plt.axvline(x=var_95, color='indigo', linestyle='--', linewidth=2, label=f'95% VaR = {var_95:.2%}')
     plt.axvline(x=var_99, color='cyan', linestyle='--', linewidth=2, label=f'99% VaR = {var_99:.2%}')
     plt.title(f'{ticker} Return Distribution (95% and 99%)', fontsize=14)
-    plt.xlabel(f'{period} Return', fontsize=12)
+    xlabel = f'{period} Return' if not use_filter_timeframe else f'{period} Return ({filter_timeframe})'
+    plt.xlabel(xlabel, fontsize=12)
     plt.ylabel('Frequency', fontsize=12)
     plt.legend()
     plt.grid(True)
@@ -81,40 +98,53 @@ def plot_return_distribution(returns, var_95, var_99, ticker, period):
 def main():
     """Main function to execute the return distribution analysis."""
     logging.info("Starting return distribution analysis.")
-    
-    # Load constants from config.json
     config = load_config()
-    
-    # Constants
+
     USE_DATES = config['USE_DATES']
     start_date = config['START_DATE']
     end_date = config['END_DATE']
     YEARS = config['YEARS']
     TICKER = config['TICKER']
-    TIMEFRAME = config['TIMEFRAME']
-    
+    timeframe = config['TIMEFRAME']
+    USE_FILTER_TIMEFRAME = config['FILTER_TIMEFRAME']
+    FILTER_TIMEFRAME = config['FILTER_TIMEFRAME']
+
     if not USE_DATES:
         logging.info("Using default date range based on YEARS.")
         end_date = datetime.now()
         start_date = end_date - timedelta(365 * YEARS)
+        logging.info("end_date: %s", end_date)
+        logging.info("start_date: %s", end_date)
 
     # Fetch asset price data
     data = fetch_data(TICKER, start_date, end_date)
 
+    # Filter data if USE_FILTER_TIMEFRAME is true
+    if USE_FILTER_TIMEFRAME:
+        data = filter_data_by_timeframe(data, FILTER_TIMEFRAME)
+        logging.info("filter_data_by_timeframe: %s", data)
+
+        if FILTER_TIMEFRAME == "Day of Week" or FILTER_TIMEFRAME == "Day of Month":
+            timeframe = "D"
+        elif FILTER_TIMEFRAME == "Week of Year":
+            timeframe = "W"
+        elif FILTER_TIMEFRAME == "Month of Year":
+            timeframe = "M"
+        else: timeframe = "D"
+
     # Calculate returns based on the toggles
-    returns, period = calculate_returns(data, TIMEFRAME)
+    returns, period = calculate_returns(data, timeframe)
 
     # Calculate Historical Simulation VaR (95% and 99%)
     var_95, var_99 = calculate_var(returns)
 
     # Plot Return Distribution
-    plot_return_distribution(returns, var_95, var_99, TICKER, period)
+    plot_return_distribution(returns, var_95, var_99, TICKER, period, USE_FILTER_TIMEFRAME, FILTER_TIMEFRAME)
 
     # Print some diagnostic information
     print(f"\nTotal days of data: {len(data)}")
     print(f"Number of {period.lower()} returns: {len(returns)}")
     print(f"Date range: {data.index[0]} to {data.index[-1]}")
-    
     logging.info("Return distribution analysis completed.")
 
 if __name__ == "__main__":
