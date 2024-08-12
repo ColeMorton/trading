@@ -10,10 +10,12 @@ import logging
 
 # Set up logging
 logging.basicConfig(
-    filename='logs/ema_stop_loss.log',
+    filename='logs/ema_rsi.log',
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
+
+logging.info("RSI Threshold Sensitivity Analysis")
 
 with open('config.json') as f:
     config = json.load(f)
@@ -98,6 +100,7 @@ def backtest(data: pl.DataFrame, rsi_threshold: float) -> List[Tuple[float, floa
     return trades
 
 def calculate_metrics(trades: List[Tuple[float, float]]) -> Tuple[float, float, int, float]:
+    logging.info("Starting metrics calculation")
     if not trades:
         return 0, 0, 0, 0
 
@@ -128,6 +131,7 @@ def run_sensitivity_analysis(data: pl.DataFrame, rsi_range: np.ndarray) -> pl.Da
     return pl.DataFrame(results)
 
 def find_prominent_peaks(x: np.ndarray, y: np.ndarray, prominence: float = 1, distance: int = 10) -> np.ndarray:
+    logging.info("Finding prominent peaks")
     peaks, _ = find_peaks(y, prominence=prominence, distance=distance)
     return peaks
 
@@ -196,7 +200,6 @@ def main():
     results_df = run_sensitivity_analysis(data, rsi_range)
 
     pl.Config.set_fmt_str_lengths(20)
-    print(results_df)
 
     plot_results(results_df)
 
