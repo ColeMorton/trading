@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import json
 import logging
+from scipy.stats import norm
 
 # Set up logging
 logging.basicConfig(
@@ -47,9 +48,12 @@ def calculate_returns(data, timeframe):
     elif timeframe == "W":
         returns = data['Return'].resample('W-MON').sum().dropna()
         period = 'Weekly'
+    elif timeframe == "3D":
+        returns = data['Return'].resample('3D').sum().dropna()
+        period = '3-Day'
     else:
         logging.error("Invalid timeframe specified: %s", timeframe)
-        raise ValueError("Invalid timeframe specified. Use 'D', '2W', or 'W'.")
+        raise ValueError("Invalid timeframe specified. Use 'D', '2W', 'W', or '3D'.")
 
     if returns.empty:
         logging.error("No valid returns calculated. Try increasing the date range.")
@@ -101,20 +105,23 @@ def plot_return_distribution(returns, var_68, var_95, var_99, ticker, period, us
     plt.axvline(x=median, color='orange', linestyle='--', linewidth=2, label=f'Median = {median:.2%}')
     plt.axvline(0, color='k', linestyle='-', label='Zero')
 
-    if use_filter_timeframe:
-        # Calculate the return of the current filter_timeframe
-        current_return = returns[-1]
-        plt.axvline(x=current_return, color='purple', linestyle='--', linewidth=2, label=f'Current {filter_timeframe} Return = {current_return:.2%}')
+    # Calculate the return of the current filter_timeframe
+    current_return = returns[-1]
+    plt.axvline(x=current_return, color='purple', linestyle='--', linewidth=2, label=f'Current Return = {current_return:.2%}')
+
+    # Calculate Rarity
+    rarity = norm.cdf(current_return, loc=mean, scale=std_dev)
+    rarity_percentage = (1 - rarity) * 100  # Convert to percentage
 
     std_dev = returns.std()
     skewness = returns.skew()
     kurtosis = returns.kurtosis()
 
-    plt.text(0.95, 0.95, f'Std Dev: {std_dev:.2%}\nSkewness: {skewness:.2f}\nKurtosis: {kurtosis:.2f}',
+    plt.text(0.95, 0.95, f'Std Dev: {std_dev:.2%}\nSkewness: {skewness:.2f}\nKurtosis: {kurtosis:.2f}\nRarity: {rarity_percentage:.2f}%', 
              transform=plt.gca().transAxes, verticalalignment='top', horizontalalignment='right', fontsize=10)
 
     plt.title(f'{ticker} Return Distribution (VaR, Mean, Median)', fontsize=14)
-    xlabel = f'{period} Return' if not use_filter_timeframe else f'{filter_timeframe} Return'
+    xlabel = f'{period} Return' if not use_filter_timeframe else f'{period} Return ({filter_timeframe})'
     plt.xlabel(xlabel, fontsize=12)
     plt.ylabel('Frequency', fontsize=12)
     plt.legend()
