@@ -62,15 +62,15 @@ def calculate_returns(data, timeframe):
     logging.info("Returns calculated successfully.")
     return returns, period
 
-def filter_data_by_timeframe(data, filter_timeframe):
+def filter_data_by_timeframe(data, timeframe_of):
     """Filter data based on the specified timeframe."""
-    logging.info("Filtering data by timeframe: %s", filter_timeframe)
-    if filter_timeframe == "D":
+    logging.info("Filtering data by timeframe: %s", timeframe_of)
+    if timeframe_of == "D":
         current_day_of_year = datetime.now().timetuple().tm_yday
         logging.info("current_day_of_year: %s", current_day_of_year)
         filtered_data = data[data.index.dayofyear == current_day_of_year]
         return filtered_data
-    elif filter_timeframe == "Day of Week":
+    elif timeframe_of == "Day of Week":
         current_day = datetime.now().strftime('%A')
         logging.info("Current day of the week: %s", current_day)
         filtered_data = data[data.index.day_name() == current_day]
@@ -87,9 +87,9 @@ def calculate_var(returns):
     logging.info("VaR calculated successfully.")
     return var_68, var_95, var_99
 
-def plot_return_distribution(returns, var_68, var_95, var_99, ticker, period, use_filter_timeframe, filter_timeframe):
+def plot_return_distribution(returns, var_68, var_95, var_99, ticker, period, use_timeframe_of, timeframe_of):
     """Plot the return distribution with VaR lines and additional statistics."""
-    logging.info("Plotting return distribution for ticker: %s, period: %s, use_filter_timeframe: %s, filter_timeframe: %s", ticker, period, use_filter_timeframe, filter_timeframe)
+    logging.info("Plotting return distribution for ticker: %s, period: %s, use_timeframe_of: %s, timeframe_of: %s", ticker, period, use_timeframe_of, timeframe_of)
 
     # Calculate additional statistics
     mean = np.mean(returns)
@@ -105,7 +105,7 @@ def plot_return_distribution(returns, var_68, var_95, var_99, ticker, period, us
     plt.axvline(x=median, color='orange', linestyle='--', linewidth=2, label=f'Median = {median:.2%}')
     plt.axvline(0, color='k', linestyle='-', label='Zero')
 
-    # Calculate the return of the current filter_timeframe
+    # Calculate the return of the current
     current_return = returns[-1]
     plt.axvline(x=current_return, color='purple', linestyle='--', linewidth=2, label=f'Current Return = {current_return:.2%}')
 
@@ -121,7 +121,7 @@ def plot_return_distribution(returns, var_68, var_95, var_99, ticker, period, us
              transform=plt.gca().transAxes, verticalalignment='top', horizontalalignment='right', fontsize=10)
 
     plt.title(f'{ticker} Return Distribution (VaR, Mean, Median)', fontsize=14)
-    xlabel = f'{period} Return' if not use_filter_timeframe else f'{period} Return ({filter_timeframe})'
+    xlabel = f'{period} Return' if not use_timeframe_of else f'{period} Return ({timeframe_of})'
     plt.xlabel(xlabel, fontsize=12)
     plt.ylabel('Frequency', fontsize=12)
     plt.legend()
@@ -140,8 +140,8 @@ def main():
     YEARS = config['YEARS']
     TICKER = config['TICKER']
     timeframe = config['TIMEFRAME']
-    USE_FILTER_TIMEFRAME = config['USE_FILTER_TIMEFRAME']
-    FILTER_TIMEFRAME = config['FILTER_TIMEFRAME']
+    USE_TIMEFRAME_OF = config['USE_TIMEFRAME_OF']
+    TIMEFRAME_OF = config['TIMEFRAME_OF']
 
     if not USE_DATES:
         logging.info("Using default date range based on YEARS.")
@@ -153,18 +153,17 @@ def main():
     # Fetch asset price data
     data = fetch_data(TICKER, start_date, end_date)
 
-    # Filter data if USE_FILTER_TIMEFRAME is true
-    if USE_FILTER_TIMEFRAME:
-        data = filter_data_by_timeframe(data, FILTER_TIMEFRAME)
+    # Filter data if TIMEFRAME_OF is true
+    if USE_TIMEFRAME_OF:
+        data = filter_data_by_timeframe(data, TIMEFRAME_OF)
         logging.info("filter_data_by_timeframe: %s", data)
 
-        if FILTER_TIMEFRAME == "Day of Week" or FILTER_TIMEFRAME == "Day of Month":
+        if TIMEFRAME_OF == "Day of Week" or TIMEFRAME_OF == "Day of Month":
             timeframe = "D"
-        elif FILTER_TIMEFRAME == "Week of Year":
+        elif TIMEFRAME_OF == "Week of Year":
             timeframe = "W"
-        elif FILTER_TIMEFRAME == "Month of Year":
+        elif TIMEFRAME_OF == "Month of Year":
             timeframe = "M"
-        else: timeframe = "D"
 
     # Calculate returns based on the toggles
     returns, period = calculate_returns(data, timeframe)
@@ -173,7 +172,7 @@ def main():
     var_68, var_95, var_99 = calculate_var(returns)
 
     # Plot Return Distribution
-    plot_return_distribution(returns, var_68, var_95, var_99, TICKER, period, USE_FILTER_TIMEFRAME, FILTER_TIMEFRAME)
+    plot_return_distribution(returns, var_68, var_95, var_99, TICKER, period, USE_TIMEFRAME_OF, TIMEFRAME_OF)
 
     # Print some diagnostic information
     print(f"\nTotal days of data: {len(data)}")
