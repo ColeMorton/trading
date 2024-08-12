@@ -24,7 +24,7 @@ with open('config.json', 'r') as file:
 YEARS = config['YEARS']
 USE_HOURLY_DATA = config['USE_HOURLY_DATA']
 USE_SYNTHETIC = config['USE_SYNTHETIC']
-TICKER = config['TICKER_1']
+TICKER = config['TICKER']
 EMA_FAST = config['EMA_FAST']
 EMA_SLOW = config['EMA_SLOW']
 RSI_PERIOD = config['RSI_PERIOD']

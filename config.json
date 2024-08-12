@@ -1,4 +1,10 @@
 {
+    "USE_DATES": false,
+    "START_DATE": "2011-01-01",
+    "END_DATE": "2024-08-02",
+    "USE_TIMEFRAME": false,
+    "TIMEFRAME": "W",
+    "TIMEFRAMES": ["H", "4H", "D", "2D", "3D", "W", "2W", "M"],
     "YEARS": 50,
     "USE_SYNTHETIC": false,
     "TICKER": "SPY",
