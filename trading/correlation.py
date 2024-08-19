@@ -1,6 +1,7 @@
 import yfinance as yf
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib import gridspec
 from datetime import datetime, timedelta
 from scipy.cluster.hierarchy import linkage, dendrogram, leaves_list
 from scipy.spatial.distance import squareform
@@ -28,7 +29,6 @@ correlation_matrix = returns.corr()
 
 # Step 5: Perform hierarchical clustering
 # Compute the linkage matrix using correlation as distance
-# The correlation values are converted to distances as (1 - correlation)
 distance_matrix = 1 - correlation_matrix
 
 # Convert the distance matrix to a condensed form to avoid the ClusterWarning
@@ -38,24 +38,30 @@ condensed_distance = squareform(distance_matrix, checks=False)
 linkage_matrix = linkage(condensed_distance, method='average')
 
 # Step 6: Reorder the correlation matrix based on the clustering
-# Get the order of the assets after clustering
 ordered_assets = leaves_list(linkage_matrix)
-
-# Reorder the correlation matrix based on the clustering
 reordered_correlation_matrix = correlation_matrix.iloc[ordered_assets, ordered_assets]
 
-# Step 7: Visualize the reordered correlation matrix with hierarchical clustering
-plt.figure(figsize=(12, 8))
+# Step 7: Plot the heatmap and dendrogram side by side
+fig = plt.figure(figsize=(15, 8))
 
-# Draw the heatmap with the reordered correlation matrix
-sns.heatmap(reordered_correlation_matrix, annot=True, cmap="coolwarm", linewidths=.5, vmin=-1, vmax=1)
+# Create a grid layout with 2 rows and 1 column, height ratios for dendrogram and heatmap
+gs = gridspec.GridSpec(2, 1, height_ratios=[1, 3])
+
+# Plot the dendrogram at the top (1st row)
+ax_dendro = fig.add_subplot(gs[0])
+dendrogram(linkage_matrix, labels=np.array(ASSETS)[ordered_assets], leaf_rotation=90)
+ax_dendro.set_yticklabels([])  # Hide y-axis labels to make it cleaner
+plt.title("Dendrogram of Asset Correlation")
+
+# Plot the heatmap at the bottom (2nd row)
+ax_heatmap = fig.add_subplot(gs[1])
+sns.heatmap(reordered_correlation_matrix, annot=True, cmap="coolwarm", linewidths=.5, vmin=-1, vmax=1, ax=ax_heatmap)
 
 # Title for the heatmap
 plt.title(f'Asset Correlation Matrix with Hierarchical Clustering ({DAYS}-day look-back)')
-plt.show()
 
-# Optional: Visualize the dendrogram
-plt.figure(figsize=(10, 5))
-dendrogram(linkage_matrix, labels=np.array(ASSETS)[ordered_assets], leaf_rotation=90)
-plt.title("Dendrogram of Asset Correlation")
+# Adjust the layout so that there's no overlap between plots
+plt.tight_layout()
+
+# Show the combined plot
 plt.show()
