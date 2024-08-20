@@ -4,7 +4,7 @@ import numpy as np
 from datetime import datetime
 
 # Constants
-TICKER = 'BTC-USD'
+TICKER = 'LLY'
 USE_PORTFOLIO = False
 PORTFOLIO = {'BTC-USD': 0.56, 'SPY': 0.44}
 
@@ -63,7 +63,10 @@ def plot_daily_returns(data_dict, ticker):
     axs = axs.flatten()
 
     for i, (period, data) in enumerate(data_dict.items()):
-        daily_returns = data['Daily Return'].dropna()
+        daily_returns = data['Daily Return'].dropna() * 100
+
+        # daily_returns = data['Adj Close'].pct_change() * 100
+        daily_returns = daily_returns.dropna()
 
         # Plot daily returns
         axs[i].plot(data.index, daily_returns, label='Daily Return')
@@ -74,10 +77,10 @@ def plot_daily_returns(data_dict, ticker):
         std_dev = daily_returns.std()
 
         axs[i].axhline(y=0, color='black', linestyle='-', linewidth=1, label='Zero Line')
-        axs[i].axhline(y=mean, color='blue', linestyle='--', linewidth=1, alpha=0.5, label=f'Mean Line ({mean})')
-        axs[i].axhline(y=median, color='green', linestyle='-.', linewidth=1, alpha=0.7, label=f'Median Line ({median})')
-        axs[i].axhline(y=mean + std_dev, color='red', linestyle=':', linewidth=1, alpha=0.7, label=f'+1 Std Dev ({mean + std_dev})')
-        axs[i].axhline(y=mean - std_dev, color='red', linestyle=':', linewidth=1, alpha=0.7, label=f'-1 Std Dev ({mean - std_dev})')
+        axs[i].axhline(y=mean, color='blue', linestyle='--', linewidth=1, alpha=0.5, label=f'Mean Line {mean:.2f}%')
+        axs[i].axhline(y=median, color='green', linestyle='-.', linewidth=1, alpha=0.7, label=f'Median Line {median:.2f}%')
+        axs[i].axhline(y=mean + std_dev, color='red', linestyle=':', linewidth=1, alpha=0.7, label=f'+1 Std Dev {mean + std_dev:.2f}%')
+        axs[i].axhline(y=mean - std_dev, color='red', linestyle=':', linewidth=1, alpha=0.7, label=f'-1 Std Dev {mean - std_dev:.2f}%')
 
         axs[i].set_title(f'Last {period} Days')
         axs[i].set_xlabel('Date')
