@@ -3,18 +3,35 @@ import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
 
+# Constants
+TICKER = 'BTC-USD'
+USE_PORTFOLIO = False
+PORTFOLIO = {'BTC-USD': 0.56, 'SPY': 0.44}
+
 def download_stock_data(ticker, period="1y"):
     """
-    Downloads historical stock data for the given ticker and period.
+    Downloads historical stock data for the given ticker or portfolio and period.
 
     Parameters:
-    ticker (str): Stock ticker symbol.
+    ticker (str or dict): Stock ticker symbol or dictionary of tickers with weights.
     period (str): Period for which to download data (default: "1y").
 
     Returns:
     pandas.DataFrame: Stock data with a 'Daily Return' column.
     """
-    data = yf.download(ticker, period=period)
+    if isinstance(ticker, dict):
+        data = None
+        for symbol, weight in ticker.items():
+            ticker_data = yf.download(symbol, period=period)['Adj Close']
+            weighted_data = ticker_data * weight
+            if data is None:
+                data = weighted_data
+            else:
+                data += weighted_data
+        data = data.to_frame(name='Adj Close')
+    else:
+        data = yf.download(ticker, period=period)
+
     data['Daily Return'] = data['Adj Close'].pct_change()
     return data
 
@@ -57,10 +74,10 @@ def plot_daily_returns(data_dict, ticker):
         std_dev = daily_returns.std()
 
         axs[i].axhline(y=0, color='black', linestyle='-', linewidth=1, label='Zero Line')
-        axs[i].axhline(y=mean, color='blue', linestyle='--', linewidth=1, alpha=0.5, label='Mean Line')
-        axs[i].axhline(y=median, color='green', linestyle='-.', linewidth=1, alpha=0.7, label='Median Line')
-        axs[i].axhline(y=mean + std_dev, color='red', linestyle=':', linewidth=1, alpha=0.7, label='+1 Std Dev')
-        axs[i].axhline(y=mean - std_dev, color='red', linestyle=':', linewidth=1, alpha=0.7, label='-1 Std Dev')
+        axs[i].axhline(y=mean, color='blue', linestyle='--', linewidth=1, alpha=0.5, label=f'Mean Line ({mean})')
+        axs[i].axhline(y=median, color='green', linestyle='-.', linewidth=1, alpha=0.7, label=f'Median Line ({median})')
+        axs[i].axhline(y=mean + std_dev, color='red', linestyle=':', linewidth=1, alpha=0.7, label=f'+1 Std Dev ({mean + std_dev})')
+        axs[i].axhline(y=mean - std_dev, color='red', linestyle=':', linewidth=1, alpha=0.7, label=f'-1 Std Dev ({mean - std_dev})')
 
         axs[i].set_title(f'Last {period} Days')
         axs[i].set_xlabel('Date')
@@ -75,7 +92,7 @@ def main():
     """
     Main function to download stock data, filter it by different periods, and plot the results.
     """
-    ticker = "SPY"  # Stock ticker symbol
+    ticker = PORTFOLIO if USE_PORTFOLIO else TICKER
     periods = [180, 90, 60, 30]  # Different periods to visualize
 
     # Download and filter the data
@@ -83,7 +100,7 @@ def main():
     data_dict = {days: filter_data_by_days(data, days) for days in periods}
 
     # Plot the daily returns for the different periods
-    plot_daily_returns(data_dict, ticker)
+    plot_daily_returns(data_dict, ticker if isinstance(ticker, str) else "Portfolio")
 
 if __name__ == "__main__":
     main()
