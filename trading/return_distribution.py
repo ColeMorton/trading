@@ -81,13 +81,14 @@ def filter_data_by_timeframe(data, timeframe_of):
 def calculate_var(returns):
     """Calculate Value at Risk (VaR)"""
     logging.info("Calculating VaR for returns.")
-    var_68 = np.percentile(returns, 32)
+    std_pos = np.percentile(returns, 68)
+    std_neg = np.percentile(returns, 32)
     var_95 = np.percentile(returns, 5)
     var_99 = np.percentile(returns, 1)
     logging.info("VaR calculated successfully.")
-    return var_68, var_95, var_99
+    return std_pos, std_neg, var_95, var_99
 
-def plot_return_distribution(returns, var_68, var_95, var_99, ticker, period, use_timeframe_of, timeframe_of):
+def plot_return_distribution(returns, std_pos, std_neg, var_95, var_99, ticker, period, use_timeframe_of, timeframe_of):
     """Plot the return distribution with VaR lines and additional statistics."""
     logging.info("Plotting return distribution for ticker: %s, period: %s, use_timeframe_of: %s, timeframe_of: %s", ticker, period, use_timeframe_of, timeframe_of)
 
@@ -98,16 +99,17 @@ def plot_return_distribution(returns, var_68, var_95, var_99, ticker, period, us
 
     plt.figure(figsize=(10, 6))
     sns.histplot(returns, bins=200, alpha=0.5, color='blue', edgecolor='black')
-    plt.axvline(x=var_68, color='red', linestyle='--', linewidth=2, label=f'68% VaR = {var_68:.2%}')
-    plt.axvline(x=var_95, color='indigo', linestyle='--', linewidth=2, label=f'95% VaR = {var_95:.2%}')
-    plt.axvline(x=var_99, color='cyan', linestyle='--', linewidth=2, label=f'99% VaR = {var_99:.2%}')
-    plt.axvline(x=mean, color='green', linestyle='--', linewidth=2, label=f'Mean = {mean:.2%}')
-    plt.axvline(x=median, color='orange', linestyle='--', linewidth=2, label=f'Median = {median:.2%}')
-    plt.axvline(0, color='k', linestyle='-', label='Zero')
+    plt.axvline(x=std_pos, color='red', linestyle='--', linewidth=1, label=f'+1 Std Dev = {std_pos:.2%}')
+    plt.axvline(x=std_neg, color='red', linestyle='--', linewidth=1, label=f'-1 Std Dev = {std_neg:.2%}')
+    plt.axvline(x=var_95, color='indigo', linestyle='--', linewidth=1, label=f'95% VaR = {var_95:.2%}')
+    plt.axvline(x=var_99, color='cyan', linestyle='--', linewidth=1, label=f'99% VaR = {var_99:.2%}')
+    plt.axvline(x=mean, color='green', linestyle='--', linewidth=1, label=f'Mean = {mean:.2%}')
+    plt.axvline(x=median, color='orange', linestyle='--', linewidth=1, label=f'Median = {median:.2%}')
+    plt.axvline(0, color='k', linestyle='-', linewidth=1, label='Zero')
 
     # Calculate the return of the current
     current_return = returns[-1]
-    plt.axvline(x=current_return, color='purple', linestyle='--', linewidth=2, label=f'Current Return = {current_return:.2%}')
+    plt.axvline(x=current_return, color='purple', linestyle='--', linewidth=1, label=f'Current Return = {current_return:.2%}')
 
     # Calculate Rarity based on the sign of the current return
     if current_return < 0:
@@ -125,7 +127,7 @@ def plot_return_distribution(returns, var_68, var_95, var_99, ticker, period, us
     skewness = returns.skew()
     kurtosis = returns.kurtosis()
 
-    plt.text(0.95, 0.95, f'Std Dev: {std_dev:.2%}\nSkewness: {skewness:.2f}\nKurtosis: {kurtosis:.2f}\nRarity: {rarity_percentage:.2f}%', 
+    plt.text(0.99, 0.99, f'Std Dev: {std_dev:.2%}\nSkewness: {skewness:.2f}\nKurtosis: {kurtosis:.2f}\nRarity: {rarity_percentage:.2f}%', 
              transform=plt.gca().transAxes, verticalalignment='top', horizontalalignment='right', fontsize=10)
 
     plt.title(f'{ticker} Return Distribution (VaR, Mean, Median)', fontsize=14)
@@ -177,10 +179,10 @@ def main():
     returns, period = calculate_returns(data, timeframe)
 
     # Calculate Historical Simulation VaR (95% and 99%)
-    var_68, var_95, var_99 = calculate_var(returns)
+    std_pos, std_neg, var_95, var_99 = calculate_var(returns)
 
     # Plot Return Distribution
-    plot_return_distribution(returns, var_68, var_95, var_99, TICKER, period, USE_TIMEFRAME_OF, TIMEFRAME_OF)
+    plot_return_distribution(returns, std_pos, std_neg, var_95, var_99, TICKER, period, USE_TIMEFRAME_OF, TIMEFRAME_OF)
 
     # Print some diagnostic information
     print(f"\nTotal days of data: {len(data)}")

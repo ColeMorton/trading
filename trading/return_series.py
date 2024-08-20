@@ -4,8 +4,8 @@ import numpy as np
 from datetime import datetime
 
 # Constants
-TICKER = 'LLY'
-USE_PORTFOLIO = False
+TICKER = 'AUDHKD=X'
+USE_PORTFOLIO = True
 PORTFOLIO = {'BTC-USD': 0.56, 'SPY': 0.44}
 
 def download_stock_data(ticker, period="1y"):

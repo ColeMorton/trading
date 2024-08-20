@@ -10,7 +10,7 @@
     "TIMEFRAME_OF": "Day of Week",
     "USE_TIMEFRAME_OF": false,
     "USE_SYNTHETIC": false,
-    "TICKER": "SOL-USD",    
+    "TICKER": "BTC-USD",    
     "TICKER_1": "META",
     "TICKER_2": "QQQ",
     "EMA_FAST": 7,
