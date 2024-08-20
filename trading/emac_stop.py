@@ -28,6 +28,8 @@ TICKER = config['TICKER']
 EMA_FAST = config['EMA_FAST']
 EMA_SLOW = config['EMA_SLOW']
 RSI_PERIOD = config['RSI_PERIOD']
+RSI_THRESHOLD = config['RSI_THRESHOLD']
+USE_RSI = config['USE_RSI']
 
 def download_data(symbol: str, years: int, use_hourly_data: bool) -> pl.DataFrame:
     end_date = datetime.now()
@@ -53,7 +55,7 @@ def calculate_rsi(data: pl.DataFrame, period: int) -> pl.DataFrame:
     rsi = 100 - (100 / (1 + rs))
     return data.with_columns([rsi.alias('RSI')])
 
-def backtest(data: pl.DataFrame, stop_loss_percentage: float, rsi_threshold: float) -> List[Tuple[float, float]]:
+def backtest(data: pl.DataFrame, stop_loss_percentage: float, rsi_threshold: float, use_rsi: bool) -> List[Tuple[float, float]]:
     position, entry_price = 0, 0
     trades = []
 
@@ -61,7 +63,7 @@ def backtest(data: pl.DataFrame, stop_loss_percentage: float, rsi_threshold: flo
         if position == 0:
             if (data['EMA_FAST'][i] > data['EMA_SLOW'][i] and 
                 data['EMA_FAST'][i-1] <= data['EMA_SLOW'][i-1] and 
-                data['RSI'][i] >= rsi_threshold):
+                (not use_rsi or data['RSI'][i] >= rsi_threshold)):
                 position, entry_price = 1, data['Close'][i]
         elif position == 1:
             if data['Close'][i] < entry_price * (1 - stop_loss_percentage / 100):
@@ -83,10 +85,10 @@ def calculate_metrics(trades: List[Tuple[float, float]]) -> Tuple[float, float]:
 
     return total_return * 100, win_rate * 100
 
-def run_sensitivity_analysis(data: pl.DataFrame, stop_loss_range: np.ndarray, rsi_threshold: float) -> pl.DataFrame:
+def run_sensitivity_analysis(data: pl.DataFrame, stop_loss_range: np.ndarray, rsi_threshold: float, use_rsi: bool) -> pl.DataFrame:
     results = []
     for stop_loss_percentage in stop_loss_range:
-        trades = backtest(data, stop_loss_percentage, rsi_threshold)
+        trades = backtest(data, stop_loss_percentage, rsi_threshold, use_rsi)
         total_return, win_rate = calculate_metrics(trades)
 
         results.append({
@@ -145,13 +147,15 @@ def main():
     logging.info("Starting main execution")
 
     stop_loss_range = np.arange(0, 21, 0.01)
-    rsi_threshold = RSI_PERIOD
+    rsi_threshold = RSI_THRESHOLD if USE_RSI else 0
 
     data = download_data(TICKER, YEARS, USE_HOURLY_DATA)
     data = calculate_emas(data, EMA_FAST, EMA_SLOW)
-    data = calculate_rsi(data, RSI_PERIOD)
+    
+    if USE_RSI:
+        data = calculate_rsi(data, RSI_PERIOD)
 
-    results_df = run_sensitivity_analysis(data, stop_loss_range, rsi_threshold)
+    results_df = run_sensitivity_analysis(data, stop_loss_range, rsi_threshold, USE_RSI)
 
     pl.Config.set_fmt_str_lengths(20)
 
