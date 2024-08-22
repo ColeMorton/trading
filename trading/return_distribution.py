@@ -74,12 +74,12 @@ def plot_return_distribution(returns, var_95, var_99, ticker, timeframe, ax):
     kurtosis = returns.kurtosis()
     
     sns.histplot(returns, bins=50, kde=True, ax=ax, alpha=0.2)
-    ax.axvline(x=std_pos, color='blue', linestyle='-', linewidth=1, label=f'+1 Std Dev = {std_pos:.2%}')
-    ax.axvline(x=std_neg, color='blue', linestyle='-', linewidth=1, label=f'-1 Std Dev = {std_neg:.2%}')
+    ax.axvline(x=std_pos, color='blue', linestyle=':', linewidth=2, label=f'+1 Std Dev = {std_pos:.2%}')
+    ax.axvline(x=std_neg, color='blue', linestyle=':', linewidth=2, label=f'-1 Std Dev = {std_neg:.2%}')
     ax.axvline(x=var_95, color='red', linestyle='-', linewidth=1, label=f'95% VaR = {var_95:.2%}')
     ax.axvline(x=var_99, color='red', linestyle='-', linewidth=1, label=f'99% VaR = {var_99:.2%}')
     ax.axvline(x=mean, color='green', linestyle='-', linewidth=1, label=f'Mean = {mean:.2%}')
-    ax.axvline(x=median, color='yellow', linestyle='-', linewidth=1, label=f'Median = {median:.2%}')
+    ax.axvline(x=median, color='orange', linestyle='-', linewidth=1, label=f'Median = {median:.2%}')
     ax.axvline(0, color='k', linestyle='-', linewidth=1, label='Zero')
     
     # Calculate Rarity based on the sign of the current return
