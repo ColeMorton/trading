@@ -5,7 +5,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import json
 import logging
-from scipy.stats import norm
+from scipy.stats import norm, percentileofscore
+
+TICKER = 'BTC-USD'
 
 # Set up logging
 logging.basicConfig(
@@ -76,10 +78,10 @@ def plot_return_distribution(returns, var_95, var_99, ticker, timeframe, ax):
     sns.histplot(returns, bins=50, kde=True, ax=ax, alpha=0.2)
     ax.axvline(x=std_pos, color='blue', linestyle=':', linewidth=2, label=f'+1 Std Dev = {std_pos:.2%}')
     ax.axvline(x=std_neg, color='blue', linestyle=':', linewidth=2, label=f'-1 Std Dev = {std_neg:.2%}')
-    ax.axvline(x=var_95, color='red', linestyle='-', linewidth=1, label=f'95% VaR = {var_95:.2%}')
-    ax.axvline(x=var_99, color='red', linestyle='-', linewidth=1, label=f'99% VaR = {var_99:.2%}')
+    ax.axvline(x=var_95, color='red', linestyle='--', linewidth=1, label=f'95% VaR = {var_95:.2%}')
+    ax.axvline(x=var_99, color='red', linestyle='--', linewidth=1, label=f'99% VaR = {var_99:.2%}')
     ax.axvline(x=mean, color='green', linestyle='-', linewidth=1, label=f'Mean = {mean:.2%}')
-    ax.axvline(x=median, color='orange', linestyle='-', linewidth=1, label=f'Median = {median:.2%}')
+    ax.axvline(x=median, color='orange', linestyle='-.', linewidth=1, label=f'Median = {median:.2%}')
     ax.axvline(0, color='k', linestyle='-', linewidth=1, label='Zero')
     
     # Calculate Rarity based on the sign of the current return
@@ -92,9 +94,17 @@ def plot_return_distribution(returns, var_95, var_99, ticker, timeframe, ax):
         rarity = norm.cdf(current_return, loc=np.mean(positive_returns), scale=np.std(positive_returns))
     rarity_percentage = (1 - rarity) * 100  # Convert to percentage
 
+    # Calculate Rarity based on the sign of the current return
+    if current_return < 0:
+        negative_returns = returns[returns < 0]
+        percentile = percentileofscore(negative_returns, current_return, kind='rank')
+    else:
+        positive_returns = returns[returns > 0]
+        percentile = percentileofscore(positive_returns, current_return, kind='rank')
+
     ax.axvline(x=current_return, color='purple', linestyle='--', linewidth=2, label=f'Current Return = {current_return:.2%}')
     
-    ax.text(0.99, 0.99, f'Std Dev: {std_dev:.2%}\nSkewness: {skewness:.2f}\nKurtosis: {kurtosis:.2f}\nRarity: {rarity_percentage:.2f}%',
+    ax.text(0.99, 0.99, f'Std Dev: {std_dev:.2%}\nSkewness: {skewness:.2f}\nKurtosis: {kurtosis:.2f}\nRarity: {rarity_percentage:.2f}\nPercentile: {percentile:.2f}%',
             transform=ax.transAxes, verticalalignment='top', horizontalalignment='right', fontsize=8)
     
     ax.set_title(f'{timeframe} Return Distribution', fontsize=10)
@@ -108,7 +118,7 @@ def main():
     """Main function to execute the return distribution analysis."""
     logging.info("Starting return distribution analysis.")
     config = load_config()
-    TICKER = config['TICKER']
+    # TICKER = config['TICKER']
     
     # Fetch asset price data
     data = fetch_data(TICKER)
