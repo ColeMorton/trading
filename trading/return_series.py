@@ -5,7 +5,7 @@ from datetime import datetime
 from scipy.stats import norm, percentileofscore
 
 # Constants
-TICKER = 'CDW'
+TICKER = 'SPY'
 USE_PORTFOLIO = False
 PORTFOLIO = {'BTC-USD': 0.56, 'SPY': 0.44}
 # PORTFOLIO = {'LLY': 0.25, 'BLDR': 0.25, 'MPO': 0.25, 'EOG': 0.25}
@@ -120,7 +120,7 @@ def main():
     Main function to download stock data, filter it by different periods, and plot the results.
     """
     ticker = PORTFOLIO if USE_PORTFOLIO else TICKER
-    periods = [180, 90, 60, 30]  # Different periods to visualize
+    periods = [180, 60, 30, 15]  # Different periods to visualize
 
     # Download and filter the data
     data = download_stock_data(ticker)
