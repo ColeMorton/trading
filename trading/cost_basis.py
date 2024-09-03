@@ -1,8 +1,7 @@
 LEVELS = {
-    528.22: 35,
-    545.21: 15,
-    551.01: 7,
-    558.47: 3
+    532: 40,
+    545.51: 30,
+    555.06: 18
 }
 
 # Calculate the total cost and total quantity
