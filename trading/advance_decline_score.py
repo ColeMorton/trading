@@ -1,22 +1,18 @@
 import yfinance as yf
 import matplotlib.pyplot as plt
 import pandas as pd
-from datetime import datetime, timedelta
 import matplotlib.dates as mdates
 
 # Constants
-TICKER = 'SPY'
+TICKER = 'WST'
 USE_PORTFOLIO = False
 PORTFOLIO = {'BTC-USD': 0.56, 'SPY': 0.44}
 
 def download_stock_data(ticker, period="1y"):
-    end_date = datetime.now().date()
-    start_date = end_date - timedelta(days=365)  # This ensures we get a full year of data
-
     if isinstance(ticker, dict):
         data = None
         for symbol, weight in ticker.items():
-            ticker_data = yf.download(symbol, start=start_date, end=end_date)['Adj Close']
+            ticker_data = yf.download(symbol, period=period)['Adj Close']
             weighted_data = ticker_data * weight
             if data is None:
                 data = weighted_data
@@ -24,7 +20,7 @@ def download_stock_data(ticker, period="1y"):
                 data += weighted_data
         data = data.to_frame(name='Adj Close')
     else:
-        data = yf.download(ticker, start=start_date, end=end_date)
+        data = yf.download(ticker, period=period)
 
     data['Daily Return'] = data['Adj Close'].pct_change()
     return data
@@ -42,7 +38,7 @@ def calculate_score(returns, mean, std_dev):
 
 def plot_score(data_dict, ticker):
     fig, ax = plt.subplots(figsize=(14, 6))
-    fig.suptitle(f'Score Across All Periods for {ticker}')
+    fig.suptitle(f'{ticker}')
 
     # Calculate scores for each period
     scores = {}
@@ -64,7 +60,7 @@ def plot_score(data_dict, ticker):
     ax.set_title('Score Across All Periods (Last 60 Days)')
     ax.set_xlabel('Date')
     ax.set_ylabel('Score')
-    ax.set_ylim(0, 3)
+    ax.set_ylim(0, 5)
     ax.set_xlim(last_60_days[0], last_60_days[-1])
     ax.legend()
 
