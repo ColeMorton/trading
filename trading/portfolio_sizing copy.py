@@ -1,56 +1,76 @@
 import numpy as np
-import matplotlib.pyplot as plt
+import yfinance as yf
 
 # Define parameters
 TOTAL_PORTFOLIO_VALUE = 30000  # Example total portfolio value
-ASSET_1_LEVERAGE = 4.7  # Example leverage factor for Asset 1
+ASSET_1_TICKER = "BTC-USD"
+ASSET_2_TICKER = "SPY"
+ASSET_1_LEVERAGE = 4  # Example leverage factor for Asset 1
 ASSET_2_LEVERAGE = 9.5  # Example leverage factor for Asset 2
+USE_EMA = False
+EMA_PERIOD = 21
 
-# Generate x-axis values (from 0 to TOTAL_PORTFOLIO_VALUE, divided into 1000 points)
-x = np.linspace(0, TOTAL_PORTFOLIO_VALUE, 1000)
+# Target ratio between Asset 2 Leveraged value and Asset 1 Leveraged value
+# Adjust RATIO in order to get the desired Allocations
+RATIO = 0.5
 
-# Calculate Leveraged Values
-leveraged_value_1 = ASSET_1_LEVERAGE * x
-leveraged_value_2 = ASSET_2_LEVERAGE * x
+def get_price_or_ema(ticker, use_ema, ema_period):
+    """Fetch the current price or EMA for a given ticker."""
+    data = yf.Ticker(ticker).history(period="1mo")
+    if use_ema:
+        return data['Close'].ewm(span=ema_period, adjust=False).mean().iloc[-1]
+    return data['Close'].iloc[-1]
 
-# Calculate the reversed second line
-reversed_leveraged_value_2 = leveraged_value_2[::-1]
+def get_intersection_index(x):
+    # Calculate Leveraged Values
+    leveraged_value_1 = ASSET_1_LEVERAGE * x
+    leveraged_value_2 = ASSET_2_LEVERAGE * x
 
-# Find the intersection point by minimizing the absolute difference
-diff = np.abs(leveraged_value_1 - reversed_leveraged_value_2)
-intersection_index = np.argmin(diff)
+    # Calculate the reversed second line
+    reversed_leveraged_value_2 = RATIO * leveraged_value_2[::-1]
 
-initial_asset_1_value = x[intersection_index]
-initial_asset_2_value = TOTAL_PORTFOLIO_VALUE - initial_asset_1_value
-total_leveraged_value = leveraged_value_1[intersection_index]
+    # Find the intersection point by minimizing the absolute difference
+    diff = np.abs(leveraged_value_1 - reversed_leveraged_value_2)
+    return np.argmin(diff)
 
-print(f"Asset 1 Initial (pre-leverage) value: ${initial_asset_1_value:.6f}")
-print(f"Asset 1 Leveraged value: ${initial_asset_1_value*ASSET_1_LEVERAGE:.6f}")
-print(f"Asset 2 Initial (pre-leverage) value: ${initial_asset_2_value:.6f}")
-print(f"Asset 2 Leveraged value: ${initial_asset_2_value*ASSET_2_LEVERAGE:.6f}")
-print(f"Total Leveraged Portfolio Value: ${total_leveraged_value:.6f}")
+def print_asset_details(ticker, initial_value, leverage, position_size, leveraged_value, allocation):
+    """Print details for an asset."""
+    print(f"\nAsset: {ticker}")
+    print(f"  Initial (pre-leverage) value: ${initial_value:.2f}")
+    print(f"  Leverage: {leverage:.2f}")
+    print(f"  Leveraged value: ${leveraged_value:.2f}")
+    print(f"  Position size: {position_size:.6f}")
+    print(f"  Allocation: {allocation:.2f}%")
 
-# Plotting the results
-plt.figure(figsize=(10, 6))
+def main():
+    # Fetch asset prices
+    asset_1_price = get_price_or_ema(ASSET_1_TICKER, USE_EMA, EMA_PERIOD)
+    asset_2_price = get_price_or_ema(ASSET_2_TICKER, USE_EMA, EMA_PERIOD)
 
-# Plot for Asset 1
-plt.plot(x, leveraged_value_1, label=f'Leveraged Value (Leverage = {ASSET_1_LEVERAGE})', color='b')
+    # Generate x-axis values (from 0 to TOTAL_PORTFOLIO_VALUE, divided into 1000 points)
+    x = np.linspace(0, TOTAL_PORTFOLIO_VALUE, 1000)
 
-# Plot for Asset 2
-plt.plot(x, reversed_leveraged_value_2, label=f'Leveraged Value (Leverage = {ASSET_2_LEVERAGE})', color='r')
+    # Get intersection index
+    intersection_index = get_intersection_index(x)
 
-# Plot the intersection point
-plt.scatter(initial_asset_1_value, total_leveraged_value, color='g', zorder=5)
-plt.text(initial_asset_1_value, total_leveraged_value, 
-         f'Intersection: ({initial_asset_1_value:.6f}, {total_leveraged_value:.6f})',
-         horizontalalignment='left', verticalalignment='bottom', color='green')
+    initial_asset_1_value = x[intersection_index]
+    initial_asset_2_value = TOTAL_PORTFOLIO_VALUE - initial_asset_1_value
+    levered_asset_1_value = initial_asset_1_value*ASSET_1_LEVERAGE
+    levered_asset_2_value = initial_asset_2_value*ASSET_2_LEVERAGE
+    levered_total_value = levered_asset_1_value+levered_asset_2_value
+    position_size_asset_1_value = levered_asset_1_value/asset_1_price
+    position_size_asset_2_value = levered_asset_2_value/asset_2_price
+    allocation_asset_1_value = levered_asset_1_value/levered_total_value*100
+    allocation_asset_2_value = levered_asset_2_value/levered_total_value*100
 
-# Adding labels and title
-plt.xlabel('Total Portfolio Value')
-plt.ylabel('Leveraged Value')
-plt.title('Leveraged Value vs Total Portfolio Value')
-plt.legend()
-plt.grid(True)
+    # Print results
+    print_asset_details(ASSET_1_TICKER, initial_asset_1_value, ASSET_1_LEVERAGE, position_size_asset_1_value,
+                        levered_asset_1_value, allocation_asset_1_value)
+    print_asset_details(ASSET_2_TICKER, initial_asset_2_value, ASSET_2_LEVERAGE, position_size_asset_2_value,
+                        levered_asset_2_value, allocation_asset_2_value)
+    
+    print(f"\nInitial Portfolio Value: ${TOTAL_PORTFOLIO_VALUE:.2f}")
+    print(f"Total Leveraged Portfolio Value: ${levered_total_value:.2f}")
 
-# Show the plot
-plt.show()
+if __name__ == "__main__":
+    main()

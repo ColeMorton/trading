@@ -1,16 +1,18 @@
+import numpy as np
 import yfinance as yf
 
-# Constants
-ASSET_1_TICKER = "SPY"
-ASSET_2_TICKER = "BTC-USD"
-ASSET_1_ALLOCATION = 0.5
-ASSET_2_ALLOCATION = 0.5
-TOTAL_PORTFOLIO_VALUE = 30000
-USE_EMA = True
+# Define parameters
+TOTAL_PORTFOLIO_VALUE = 30000  # Example total portfolio value
+ASSET_1_TICKER = "BTC-USD"
+ASSET_2_TICKER = "SPY"
+ASSET_1_LEVERAGE = 4  # Example leverage factor for Asset 1
+ASSET_2_LEVERAGE = 9.5  # Example leverage factor for Asset 2
+USE_EMA = False
 EMA_PERIOD = 21
-USE_LEVERAGE = True
-ASSET_1_LEVERAGE = 9.5
-ASSET_2_LEVERAGE = 4.7
+
+# Target ratio between Asset 2 Leveraged value and Asset 1 Leveraged value
+# Adjust RATIO in order to get the desired Allocations
+RATIO = 0.5
 
 def get_price_or_ema(ticker, use_ema, ema_period):
     """Fetch the current price or EMA for a given ticker."""
@@ -19,24 +21,25 @@ def get_price_or_ema(ticker, use_ema, ema_period):
         return data['Close'].ewm(span=ema_period, adjust=False).mean().iloc[-1]
     return data['Close'].iloc[-1]
 
-def calculate_effective_portfolio_value(total_value, alloc1, alloc2, lev1, lev2):
-    """Calculate the effective portfolio value considering leverage."""
-    return total_value / ((alloc1 / lev1) + (alloc2 / lev2))
+def get_intersection_index(x):
+    # Calculate Leveraged Values
+    leveraged_value_1 = ASSET_1_LEVERAGE * x
+    leveraged_value_2 = ASSET_2_LEVERAGE * x
 
-def calculate_position_size(effective_value, allocation, price):
-    """Calculate the position size for an asset."""
-    return (effective_value * allocation) / price
+    # Calculate the reversed second line
+    reversed_leveraged_value_2 = RATIO * leveraged_value_2[::-1]
 
-def calculate_dollar_value(position_size, price):
-    """Calculate the dollar value of a position."""
-    return position_size * price
+    # Find the intersection point by minimizing the absolute difference
+    diff = np.abs(leveraged_value_1 - reversed_leveraged_value_2)
+    return np.argmin(diff)
 
-def print_asset_details(ticker, initial_value, position_size, leveraged_value, allocation):
+def print_asset_details(ticker, initial_value, leverage, position_size, leveraged_value, allocation):
     """Print details for an asset."""
     print(f"\nAsset: {ticker}")
     print(f"  Initial (pre-leverage) value: ${initial_value:.2f}")
-    print(f"  Position size: {position_size:.6f}")
+    print(f"  Leverage: {leverage:.2f}")
     print(f"  Leveraged value: ${leveraged_value:.2f}")
+    print(f"  Position size: {position_size:.6f}")
     print(f"  Allocation: {allocation:.2f}%")
 
 def main():
@@ -44,40 +47,30 @@ def main():
     asset_1_price = get_price_or_ema(ASSET_1_TICKER, USE_EMA, EMA_PERIOD)
     asset_2_price = get_price_or_ema(ASSET_2_TICKER, USE_EMA, EMA_PERIOD)
 
-    # Calculate effective portfolio value
-    effective_value = calculate_effective_portfolio_value(
-        TOTAL_PORTFOLIO_VALUE, ASSET_1_ALLOCATION, ASSET_2_ALLOCATION,
-        ASSET_1_LEVERAGE, ASSET_2_LEVERAGE
-    )
+    # Generate x-axis values (from 0 to TOTAL_PORTFOLIO_VALUE, divided into 1000 points)
+    x = np.linspace(0, TOTAL_PORTFOLIO_VALUE, 1000)
 
-    # Calculate initial values
-    initial_asset_1_value = TOTAL_PORTFOLIO_VALUE * ASSET_1_ALLOCATION
-    initial_asset_2_value = TOTAL_PORTFOLIO_VALUE * ASSET_2_ALLOCATION
+    # Get intersection index
+    intersection_index = get_intersection_index(x)
 
-    # Calculate position sizes
-    asset_1_position = calculate_position_size(effective_value, ASSET_1_ALLOCATION, asset_1_price)
-    asset_2_position = calculate_position_size(effective_value, ASSET_2_ALLOCATION, asset_2_price)
-
-    # Calculate leveraged values
-    asset_1_leveraged_value = calculate_dollar_value(asset_1_position, asset_1_price)
-    asset_2_leveraged_value = calculate_dollar_value(asset_2_position, asset_2_price)
-
-    # Calculate total leveraged value
-    total_leveraged_value = asset_1_leveraged_value + asset_2_leveraged_value
-
-    # Calculate allocations
-    asset_1_allocation = (asset_1_leveraged_value / total_leveraged_value) * 100
-    asset_2_allocation = (asset_2_leveraged_value / total_leveraged_value) * 100
+    initial_asset_1_value = x[intersection_index]
+    initial_asset_2_value = TOTAL_PORTFOLIO_VALUE - initial_asset_1_value
+    levered_asset_1_value = initial_asset_1_value*ASSET_1_LEVERAGE
+    levered_asset_2_value = initial_asset_2_value*ASSET_2_LEVERAGE
+    levered_total_value = levered_asset_1_value+levered_asset_2_value
+    position_size_asset_1_value = levered_asset_1_value/asset_1_price
+    position_size_asset_2_value = levered_asset_2_value/asset_2_price
+    allocation_asset_1_value = levered_asset_1_value/levered_total_value*100
+    allocation_asset_2_value = levered_asset_2_value/levered_total_value*100
 
     # Print results
-    print_asset_details(ASSET_1_TICKER, initial_asset_1_value, asset_1_position, 
-                        asset_1_leveraged_value, asset_1_allocation)
-    print_asset_details(ASSET_2_TICKER, initial_asset_2_value, asset_2_position, 
-                        asset_2_leveraged_value, asset_2_allocation)
-
+    print_asset_details(ASSET_1_TICKER, initial_asset_1_value, ASSET_1_LEVERAGE, position_size_asset_1_value,
+                        levered_asset_1_value, allocation_asset_1_value)
+    print_asset_details(ASSET_2_TICKER, initial_asset_2_value, ASSET_2_LEVERAGE, position_size_asset_2_value,
+                        levered_asset_2_value, allocation_asset_2_value)
+    
     print(f"\nInitial Portfolio Value: ${TOTAL_PORTFOLIO_VALUE:.2f}")
-    print(f"Total Leveraged Portfolio Value: ${total_leveraged_value:.2f}")
-    print(f"Effective Portfolio Value: ${effective_value:.2f}")
+    print(f"Total Leveraged Portfolio Value: ${levered_total_value:.2f}")
 
 if __name__ == "__main__":
     main()
