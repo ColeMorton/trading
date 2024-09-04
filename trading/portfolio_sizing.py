@@ -10,9 +10,8 @@ ASSET_2_LEVERAGE = 9.5  # Example leverage factor for Asset 2
 USE_EMA = False
 EMA_PERIOD = 21
 
-# Target ratio between Asset 2 Leveraged value and Asset 1 Leveraged value
-# Adjust RATIO in order to get the desired Allocations
-RATIO = 0.5
+# Target allocation for Asset 1 (as a percentage)
+ASSET_1_ALLOCATION = 35
 
 def get_price_or_ema(ticker, use_ema, ema_period):
     """Fetch the current price or EMA for a given ticker."""
@@ -26,8 +25,11 @@ def get_intersection_index(x):
     leveraged_value_1 = ASSET_1_LEVERAGE * x
     leveraged_value_2 = ASSET_2_LEVERAGE * x
 
+    # Calculate RATIO based on ASSET_1_ALLOCATION
+    ratio = ASSET_1_ALLOCATION / (100 - ASSET_1_ALLOCATION)
+
     # Calculate the reversed second line
-    reversed_leveraged_value_2 = RATIO * leveraged_value_2[::-1]
+    reversed_leveraged_value_2 = ratio * leveraged_value_2[::-1]
 
     # Find the intersection point by minimizing the absolute difference
     diff = np.abs(leveraged_value_1 - reversed_leveraged_value_2)
