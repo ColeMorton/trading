@@ -2,12 +2,12 @@ import numpy as np
 import yfinance as yf
 
 # Define parameters
-TOTAL_PORTFOLIO_VALUE = 30000  # Example total portfolio value
+TOTAL_PORTFOLIO_VALUE = 16000  # Example total portfolio value
 ASSET_1_TICKER = "BTC-USD"
 ASSET_2_TICKER = "SPY"
 ASSET_1_LEVERAGE = 4  # Example leverage factor for Asset 1
-ASSET_2_LEVERAGE = 9.5  # Example leverage factor for Asset 2
-USE_EMA = False
+ASSET_2_LEVERAGE = 7.6  # Example leverage factor for Asset 2
+USE_EMA = True
 EMA_PERIOD = 21
 
 # Target allocation for Asset 1 (as a percentage)
