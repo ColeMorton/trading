@@ -7,11 +7,12 @@ from scipy.signal import find_peaks
 
 # Constants for easy configuration
 YEARS = 30  # Set timeframe in years
-TICKER = 'EURUSD=X'  # Change this to analyze different assets
-USE_HOURLY_DATA = True  # Set to True to use hourly data, False for daily data
+TICKER = 'TSLA'  # Change this to analyze different assets
+USE_HOURLY_DATA = False  # Set to True to use hourly data, False for daily data
 SHORT_PERIOD = 20
-LONG_PERIOD = 34
-SIGNAL_PERIOD = 13
+LONG_PERIOD = 33
+SIGNAL_PERIOD = 10
+SHORT = True  # Set to True for short-only strategy, False for long-only strategy
 
 def download_data(symbol, years, use_hourly_data):
     end_date = datetime.now()
@@ -25,7 +26,8 @@ def download_data(symbol, years, use_hourly_data):
 def calculate_macd(data, short_period, long_period, signal_period):
     df = pl.DataFrame({
         'Close': data['Close'].values,
-        'Low': data['Low'].values
+        'Low': data['Low'].values,
+        'High': data['High'].values
     })
     df = df.with_columns([
         (pl.col('Close').ewm_mean(span=short_period) - pl.col('Close').ewm_mean(span=long_period)).alias('MACD'),
@@ -41,14 +43,25 @@ def backtest(data, stop_loss_pct):
 
     for i in range(1, data.shape[0]):
         if position == 0:
-            if data['MACD'][i] > data['Signal'][i] and data['MACD'][i-1] <= data['Signal'][i-1]:
-                position, entry_price = 1, data['Close'][i]
+            if SHORT:
+                if data['MACD'][i] < data['Signal'][i] and data['MACD'][i-1] >= data['Signal'][i-1]:
+                    position, entry_price = -1, data['Close'][i]
+            else:
+                if data['MACD'][i] > data['Signal'][i] and data['MACD'][i-1] <= data['Signal'][i-1]:
+                    position, entry_price = 1, data['Close'][i]
         elif position == 1:
             if data['MACD'][i] < data['Signal'][i] and data['MACD'][i-1] >= data['Signal'][i-1]:
                 position, exit_price = 0, data['Close'][i]
                 trades.append((entry_price, exit_price))
             elif data['Low'][i] <= entry_price * (1 - stop_loss_pct):
                 position, exit_price = 0, entry_price * (1 - stop_loss_pct)
+                trades.append((entry_price, exit_price))
+        elif position == -1:
+            if data['MACD'][i] > data['Signal'][i] and data['MACD'][i-1] <= data['Signal'][i-1]:
+                position, exit_price = 0, data['Close'][i]
+                trades.append((entry_price, exit_price))
+            elif data['High'][i] >= entry_price * (1 + stop_loss_pct):
+                position, exit_price = 0, entry_price * (1 + stop_loss_pct)
                 trades.append((entry_price, exit_price))
 
     return trades
@@ -57,7 +70,11 @@ def calculate_metrics(trades):
     if not trades:
         return 0, 0, 0, 0
 
-    returns = [(exit_price / entry_price - 1) for entry_price, exit_price in trades]
+    if SHORT:
+        returns = [(entry_price / exit_price - 1) for entry_price, exit_price in trades]
+    else:
+        returns = [(exit_price / entry_price - 1) for entry_price, exit_price in trades]
+    
     total_return = np.prod([1 + r for r in returns]) - 1
     avg_return = np.mean(returns)
     num_trades = len(trades)
@@ -142,9 +159,7 @@ def plot_results(results_df):
     plt.show()
 
 def main():
-    # stop_loss_range = np.arange(0.0001, 0.05, 0.0001)  # 0.01% to 5%
     stop_loss_range = np.arange(0.0001, 0.1, 0.0001)  # 0.01% to 10%
-    # stop_loss_range = np.arange(0.001, 0.2, 0.001)  # 0.1% to 20%
 
     data = download_data(TICKER, YEARS, USE_HOURLY_DATA)
     data = calculate_macd(data, SHORT_PERIOD, LONG_PERIOD, SIGNAL_PERIOD)
