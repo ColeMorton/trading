@@ -2,16 +2,20 @@ import numpy as np
 import yfinance as yf
 
 # Define parameters
-TOTAL_PORTFOLIO_VALUE = 16000  # Example total portfolio value
+# total portfolio value
+# TOTAL_PORTFOLIO_VALUE = 5000  # current
+TOTAL_PORTFOLIO_VALUE = 10000  # target 1
+# TOTAL_PORTFOLIO_VALUE = 16000  # target 2
+# TOTAL_PORTFOLIO_VALUE = 24800  # target 3
 ASSET_1_TICKER = "BTC-USD"
 ASSET_2_TICKER = "SPY"
 ASSET_1_LEVERAGE = 4  # Example leverage factor for Asset 1
-ASSET_2_LEVERAGE = 7.6  # Example leverage factor for Asset 2
-USE_EMA = True
+ASSET_2_LEVERAGE = 7  # Example leverage factor for Asset 2
+USE_EMA = False
 EMA_PERIOD = 21
 
 # Target allocation for Asset 1 (as a percentage)
-ASSET_1_ALLOCATION = 35
+ASSET_1_ALLOCATION = 50
 
 def get_price_or_ema(ticker, use_ema, ema_period):
     """Fetch the current price or EMA for a given ticker."""
@@ -41,7 +45,9 @@ def print_asset_details(ticker, initial_value, leverage, position_size, leverage
     print(f"  Initial (pre-leverage) value: ${initial_value:.2f}")
     print(f"  Leverage: {leverage:.2f}")
     print(f"  Leveraged value: ${leveraged_value:.2f}")
-    print(f"  Position size: {position_size:.6f}")
+    print(f"  Position size (Target): {position_size:.6f}")
+    print(f"  Position size (Max): {position_size*1.191:.6f}")
+    print(f"  Position size (Min): {position_size*0.809:.6f}")
     print(f"  Allocation: {allocation:.2f}%")
 
 def main():
