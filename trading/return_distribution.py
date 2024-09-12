@@ -7,9 +7,9 @@ import json
 import logging
 from scipy.stats import norm, percentileofscore
 
-TICKER = 'SPY'
+TICKER = 'SOL-USD'
 
-# Set up logging
+# Set up logging    
 logging.basicConfig(
     filename='logs/return_distribution.log',
     level=logging.INFO,

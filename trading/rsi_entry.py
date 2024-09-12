@@ -45,7 +45,8 @@ rsi_oversold_values = range(15, 46, 1)  # RSI oversold values from 15 to 45
 results = pd.DataFrame(index=rsi_windows, columns=rsi_oversold_values)
 
 # Download historical data
-data = yf.download('BLDR', start='2014-01-01', end='2024-01-01', interval='1d')
+data = yf.download('BTC-USD', start='2017-01-01', end='2024-01-01', interval='1d')
+# data = yf.download('BTC-USD', period='max', interval='1d')
 
 # Iterate over all combinations of RSI window and oversold values
 for window in rsi_windows:

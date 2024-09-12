@@ -9,13 +9,18 @@ TOTAL_PORTFOLIO_VALUE = 10000  # target 1
 # TOTAL_PORTFOLIO_VALUE = 24800  # target 3
 ASSET_1_TICKER = "BTC-USD"
 ASSET_2_TICKER = "SPY"
-ASSET_1_LEVERAGE = 4  # Example leverage factor for Asset 1
+ASSET_1_LEVERAGE = 7  # Example leverage factor for Asset 1
 ASSET_2_LEVERAGE = 7  # Example leverage factor for Asset 2
 USE_EMA = False
 EMA_PERIOD = 21
+ASSET_1_ALLOCATION = 50 # Target allocation for Asset 1 (as a percentage)
 
-# Target allocation for Asset 1 (as a percentage)
-ASSET_1_ALLOCATION = 50
+# TOTAL_PORTFOLIO_VALUE = 6000  # current
+# ASSET_1_TICKER = "BTC-USD"
+# ASSET_2_TICKER = "SOL-USD"
+# ASSET_1_LEVERAGE = 14  # Example leverage factor for Asset 1
+# ASSET_2_LEVERAGE = 5  # Example leverage factor for Asset 2
+# ASSET_1_ALLOCATION = 66 # Target allocation for Asset 1 (as a percentage)
 
 def get_price_or_ema(ticker, use_ema, ema_period):
     """Fetch the current price or EMA for a given ticker."""

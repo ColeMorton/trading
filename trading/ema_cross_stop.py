@@ -30,6 +30,7 @@ EMA_SLOW = config['EMA_SLOW']
 RSI_PERIOD = config['RSI_PERIOD']
 RSI_THRESHOLD = config['RSI_THRESHOLD']
 USE_RSI = config['USE_RSI']
+SHORT = False
 
 def download_data(symbol: str, years: int, use_hourly_data: bool) -> pl.DataFrame:
     end_date = datetime.now()
@@ -61,15 +62,32 @@ def backtest(data: pl.DataFrame, stop_loss_percentage: float, rsi_threshold: flo
 
     for i in range(1, len(data)):
         if position == 0:
-            if (data['EMA_FAST'][i] > data['EMA_SLOW'][i] and 
-                data['EMA_FAST'][i-1] <= data['EMA_SLOW'][i-1] and 
-                (not use_rsi or data['RSI'][i] >= rsi_threshold)):
-                position, entry_price = 1, data['Close'][i]
+            if SHORT:
+                # Short entry condition
+                if (data['EMA_FAST'][i] < data['EMA_SLOW'][i] and 
+                    data['EMA_FAST'][i-1] >= data['EMA_SLOW'][i-1] and 
+                    (not use_rsi or data['RSI'][i] <= 100 - rsi_threshold)):
+                    position, entry_price = -1, data['Close'][i]
+            else:
+                # Long entry condition
+                if (data['EMA_FAST'][i] > data['EMA_SLOW'][i] and 
+                    data['EMA_FAST'][i-1] <= data['EMA_SLOW'][i-1] and 
+                    (not use_rsi or data['RSI'][i] >= rsi_threshold)):
+                    position, entry_price = 1, data['Close'][i]
         elif position == 1:
+            # Long exit condition
             if data['Close'][i] < entry_price * (1 - stop_loss_percentage / 100):
                 position, exit_price = 0, data['Close'][i]
                 trades.append((entry_price, exit_price))
             elif data['EMA_FAST'][i] < data['EMA_SLOW'][i] and data['EMA_FAST'][i-1] >= data['EMA_SLOW'][i-1]:
+                position, exit_price = 0, data['Close'][i]
+                trades.append((entry_price, exit_price))
+        elif position == -1:
+            # Short exit condition
+            if data['Close'][i] > entry_price * (1 + stop_loss_percentage / 100):
+                position, exit_price = 0, data['Close'][i]
+                trades.append((entry_price, exit_price))
+            elif data['EMA_FAST'][i] > data['EMA_SLOW'][i] and data['EMA_FAST'][i-1] <= data['EMA_SLOW'][i-1]:
                 position, exit_price = 0, data['Close'][i]
                 trades.append((entry_price, exit_price))
 
@@ -79,7 +97,7 @@ def calculate_metrics(trades: List[Tuple[float, float]]) -> Tuple[float, float]:
     if not trades:
         return 0, 0
 
-    returns = [(exit_price / entry_price - 1) for entry_price, exit_price in trades]
+    returns = [(exit_price / entry_price - 1) if SHORT else (exit_price / entry_price - 1) for entry_price, exit_price in trades]
     total_return = np.prod([1 + r for r in returns]) - 1
     win_rate = sum(1 for r in returns if r > 0) / len(trades)
 

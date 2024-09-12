@@ -1,8 +1,8 @@
 LEVELS = {
-    532: 40,
-    545.51: 30,
-    555.06: 18
+    549.01: 13,
+    533.32: 42
 }
+
 
 # Calculate the total cost and total quantity
 total_cost = sum(price * quantity for price, quantity in LEVELS.items())

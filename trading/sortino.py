@@ -5,7 +5,15 @@ import matplotlib.dates as mdates
 from datetime import datetime, timedelta
 
 # Define the list of assets
-ASSETS = ['AUDUSD=X', 'AUDHKD=X']
+# ASSETS = ['SPY', 'QQQ', 'BTC-USD', 'SOL-USD']
+
+# ASSETS = ['BLDR', 'LLY', 'BTC-USD', 'SPY', 'FDX', 'CDW']
+
+# ASSETS = ['CARE', 'MOFG', 'CADE', 'JANX']
+
+# ASSETS = ['EURSEK=X', 'EURHUF=X', 'EURZAR=X', 'EURPLN=X']
+
+ASSETS = ['FIGS', 'FAST']
 
 def download_data(assets, start_date, end_date):
     """Download historical adjusted close data for the given assets."""

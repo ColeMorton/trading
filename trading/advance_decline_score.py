@@ -4,9 +4,9 @@ import pandas as pd
 import matplotlib.dates as mdates
 
 # Constants
-TICKER = 'WST'
+TICKER = 'SPY'
 USE_PORTFOLIO = False
-PORTFOLIO = {'BTC-USD': 0.56, 'SPY': 0.44}
+PORTFOLIO = {'BTC-USD': 0.35, 'SPY': 0.65}
 
 def download_stock_data(ticker, period="1y"):
     if isinstance(ticker, dict):

@@ -8,10 +8,11 @@ from datetime import datetime, timedelta
 
 # Constants for easy configuration
 YEARS = 30  # Set timeframe in years for daily data
-USE_HOURLY_DATA = False  # Set to False for daily data
+USE_HOURLY_DATA = True  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
 TICKER_1 = 'SOL-USD'  # Ticker for X to USD exchange rate
 TICKER_2 = 'QQQ'  # Ticker for Y to USD exchange rate
+SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 
 interval = '1h' if USE_HOURLY_DATA else '1d'
 
@@ -28,18 +29,33 @@ def calculate_macd(data, short_window=12, long_window=26, signal_window=9):
 def generate_signals(data):
     """Generate trading signals based on MACD cross."""
     data['Signal'] = 0  # Initialize the Signal column with zeros
-    data['Signal'] = np.where(data['MACD'] > data['Signal_Line'], 1, -1)
+    if SHORT:
+        # Short-only strategy
+        data['Signal'] = np.where(data['MACD'] < data['Signal_Line'], -1, 0)
+    else:
+        # Long-only strategy
+        data['Signal'] = np.where(data['MACD'] > data['Signal_Line'], 1, 0)
     data['Position'] = data['Signal'].shift()
 
 def backtest_strategy(data):
     """Backtest the MACD cross strategy."""
-    portfolio = vbt.Portfolio.from_signals(
-        close=data['Close'],
-        entries=data['Signal'] == 1,
-        exits=data['Signal'] == -1,
-        init_cash=1000,
-        fees=0.001
-    )
+    if SHORT:
+        # For short-only strategy, we need to inverse the signals
+        portfolio = vbt.Portfolio.from_signals(
+            close=data['Close'],
+            short_entries=data['Signal'] == -1,
+            short_exits=data['Signal'] == 0,
+            init_cash=100,
+            fees=0.01
+        )
+    else:
+        portfolio = vbt.Portfolio.from_signals(
+            close=data['Close'],
+            entries=data['Signal'] == 1,
+            exits=data['Signal'] == 0,
+            init_cash=100,
+            fees=0.01
+        )
     return portfolio
 
 def parameter_sensitivity_analysis(data, short_windows, long_windows, signal_windows):
@@ -133,7 +149,8 @@ def main():
     
     # Print performance metrics for the best parameter combination
     portfolio_stats = portfolio.stats()
-    print(f"Performance metrics for the best parameter combination ({interval} {synthetic_ticker}):")
+    strategy_type = "Short-only" if SHORT else "Long-only"
+    print(f"Performance metrics for the best parameter combination ({interval} {synthetic_ticker}, {strategy_type}):")
     print(portfolio_stats)
     print(f"Best parameters for {interval} {synthetic_ticker}: Short period: {short_period}, Long period: {long_period}, Signal period: {signal_period}")
     print(f"Best total return: {best_return}")

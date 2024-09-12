@@ -7,12 +7,12 @@ from scipy.signal import find_peaks
 
 # Constants for easy configuration
 YEARS = 30  # Set timeframe in years
-TICKER = 'TSLA'  # Change this to analyze different assets
-USE_HOURLY_DATA = False  # Set to True to use hourly data, False for daily data
+TICKER = 'SOL-USD'  # Change this to analyze different assets
+USE_HOURLY_DATA = True  # Set to True to use hourly data, False for daily data
 SHORT_PERIOD = 20
-LONG_PERIOD = 33
-SIGNAL_PERIOD = 10
-SHORT = True  # Set to True for short-only strategy, False for long-only strategy
+LONG_PERIOD = 28
+SIGNAL_PERIOD = 13
+SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 
 def download_data(symbol, years, use_hourly_data):
     end_date = datetime.now()
@@ -114,52 +114,42 @@ def add_peak_labels(ax, x, y, peaks, fmt='.2f'):
                     arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=0'))
 
 def plot_results(results_df):
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 20))
+    fig, ax1 = plt.subplots(figsize=(12, 10))
 
-    # Plot returns
-    ax1.plot(results_df['Stop Loss %'].to_numpy(), results_df['Total Return'].to_numpy(), label='Total Return')
-    ax1.plot(results_df['Stop Loss %'].to_numpy(), results_df['Avg Return per Trade'].to_numpy(), label='Avg Return per Trade')
+    # Plot Total Return
+    color1 = 'tab:blue'
     ax1.set_xlabel('Stop Loss %')
-    ax1.set_ylabel('Return %')
-    ax1.set_title('Stop Loss Sensitivity Analysis')
-    ax1.legend()
-    ax1.grid(True)
+    ax1.set_ylabel('Total Return %', color=color1)
+    ax1.plot(results_df['Stop Loss %'].to_numpy(), results_df['Total Return'].to_numpy(), color=color1, label='Total Return')
+    ax1.tick_params(axis='y', labelcolor=color1)
 
     # Add peak labels for Total Return
     total_return_peaks = find_prominent_peaks(results_df['Stop Loss %'].to_numpy(), results_df['Total Return'].to_numpy())
     add_peak_labels(ax1, results_df['Stop Loss %'].to_numpy(), results_df['Total Return'].to_numpy(), total_return_peaks)
 
-    # Add peak labels for Avg Return per Trade
-    avg_return_peaks = find_prominent_peaks(results_df['Stop Loss %'].to_numpy(), results_df['Avg Return per Trade'].to_numpy())
-    add_peak_labels(ax1, results_df['Stop Loss %'].to_numpy(), results_df['Avg Return per Trade'].to_numpy(), avg_return_peaks)
-
-    # Plot win rate and number of trades
-    color1 = 'tab:red'
-    ax2.set_xlabel('Stop Loss %')
-    ax2.set_ylabel('Win Rate %', color=color1)
-    ax2.plot(results_df['Stop Loss %'].to_numpy(), results_df['Win Rate'].to_numpy(), color=color1)
-    ax2.tick_params(axis='y', labelcolor=color1)
-
-    ax3 = ax2.twinx()
-    color2 = 'tab:blue'
-    ax3.set_ylabel('Number of Trades', color=color2)
-    ax3.plot(results_df['Stop Loss %'].to_numpy(), results_df['Number of Trades'].to_numpy(), color=color2)
-    ax3.tick_params(axis='y', labelcolor=color2)
+    # Plot Win Rate on the same axis
+    color2 = 'tab:red'
+    ax2 = ax1.twinx()
+    ax2.set_ylabel('Win Rate %', color=color2)
+    ax2.plot(results_df['Stop Loss %'].to_numpy(), results_df['Win Rate'].to_numpy(), color=color2, label='Win Rate')
+    ax2.tick_params(axis='y', labelcolor=color2)
 
     # Add peak labels for Win Rate
     win_rate_peaks = find_prominent_peaks(results_df['Stop Loss %'].to_numpy(), results_df['Win Rate'].to_numpy())
     add_peak_labels(ax2, results_df['Stop Loss %'].to_numpy(), results_df['Win Rate'].to_numpy(), win_rate_peaks)
 
-    # Add peak labels for Number of Trades
-    num_trades_peaks = find_prominent_peaks(results_df['Stop Loss %'].to_numpy(), results_df['Number of Trades'].to_numpy())
-    add_peak_labels(ax3, results_df['Stop Loss %'].to_numpy(), results_df['Number of Trades'].to_numpy(), num_trades_peaks, fmt='d')
+    # Combine legends
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
 
-    ax2.set_title('Win Rate and Number of Trades vs Stop Loss %')
+    ax1.set_title('Stop Loss Sensitivity Analysis')
+    ax1.grid(True)
     fig.tight_layout()
     plt.show()
 
 def main():
-    stop_loss_range = np.arange(0.0001, 0.1, 0.0001)  # 0.01% to 10%
+    stop_loss_range = np.arange(0.0001, 0.15, 0.0001)  # 0.01% to 10%
 
     data = download_data(TICKER, YEARS, USE_HOURLY_DATA)
     data = calculate_macd(data, SHORT_PERIOD, LONG_PERIOD, SIGNAL_PERIOD)

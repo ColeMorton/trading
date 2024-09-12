@@ -7,7 +7,11 @@ from scipy.cluster.hierarchy import linkage, dendrogram, leaves_list
 from scipy.spatial.distance import squareform
 import numpy as np
 
-ASSETS = ['BLDR', 'LLY', 'BTC-USD', 'SPY', 'MPC', 'EOG', 'AUDHKD=X']
+# ASSETS = ['BLDR', 'BTC-USD', 'SPY', 'HUM', 'FDX', 'WST', 'EPAM', 'TSLA', 'CARE', 'MOFG', 'CADE', 'JANX']
+
+ASSETS = ['BLDR', 'BTC-USD', 'SPY', 'EPAM', 'TSLA', 'FAST', 'FIGS']
+
+# ASSETS = ['WST', 'FDS', 'DFS', 'ALB', 'LIT', 'XLE', 'FITB']
 
 # 292 bars per year
 # DAYS = 292

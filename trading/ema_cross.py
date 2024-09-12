@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime, timedelta
 import json
-from typing import Tuple, List
+from typing import Dict, Optional, Tuple, List
 
 # Set up logging
 logging.basicConfig(
@@ -30,6 +30,7 @@ TICKER_1 = config['TICKER_1']
 TICKER_2 = config['TICKER_2']
 EMA_FAST = config['EMA_FAST']
 EMA_SLOW = config['EMA_SLOW']
+SHORT = True
 
 def download_data(ticker: str, use_hourly: bool) -> pd.DataFrame:
     """Download historical data from Yahoo Finance."""
@@ -63,9 +64,16 @@ def generate_signals(data: pd.DataFrame, short_window: int) -> pd.DataFrame:
     logging.info("Generating trading signals")
     try:
         data['Signal'] = 0
-        data.iloc[short_window:, data.columns.get_loc('Signal')] = np.where(
-            data['EMA_short'].iloc[short_window:] > data['EMA_long'].iloc[short_window:], 1, -1
-        )
+        if SHORT:
+            # Short-only strategy
+            data.iloc[short_window:, data.columns.get_loc('Signal')] = np.where(
+                data['EMA_short'].iloc[short_window:] < data['EMA_long'].iloc[short_window:], -1, 0
+            )
+        else:
+            # Long-only strategy
+            data.iloc[short_window:, data.columns.get_loc('Signal')] = np.where(
+                data['EMA_short'].iloc[short_window:] > data['EMA_long'].iloc[short_window:], 1, 0
+            )
         data['Position'] = data['Signal'].shift()
         logging.info("Trading signals generated successfully")
         return data
@@ -80,14 +88,26 @@ def backtest_strategy(data: pd.DataFrame) -> vbt.Portfolio:
         # Determine frequency based on the data
         freq = 'H' if USE_HOURLY_DATA else 'D'
         
-        portfolio = vbt.Portfolio.from_signals(
-            close=data['Close'],
-            entries=data['Signal'] == 1,
-            exits=data['Signal'] == -1,
-            init_cash=1000,
-            fees=0.001,
-            freq=freq  # Set the frequency here
-        )
+        if SHORT:
+            # Short-only strategy
+            portfolio = vbt.Portfolio.from_signals(
+                close=data['Close'],
+                short_entries=data['Signal'] == -1,
+                short_exits=data['Signal'] == 0,
+                init_cash=100,
+                fees=0.01,
+                freq=freq
+            )
+        else:
+            # Long-only strategy
+            portfolio = vbt.Portfolio.from_signals(
+                close=data['Close'],
+                entries=data['Signal'] == 1,
+                exits=data['Signal'] == 0,
+                init_cash=100,
+                fees=0.01,
+                freq=freq
+            )
         logging.info("Backtest completed successfully")
         return portfolio
     except Exception as e:

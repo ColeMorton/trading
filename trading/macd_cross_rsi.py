@@ -6,17 +6,17 @@ import seaborn as sns
 from datetime import datetime, timedelta
 
 # Constants
-END_DATE = '2024-09-11'
-ASSET = 'BTC-USD'
-STOP_LOSS = 4.5
+END_DATE = '2024-09-12'
+ASSET = 'SOL-USD'
+STOP_LOSS = 11.1
 USE_LOG_Y = True
 SHORT_PERIOD = 20
-LONG_PERIOD = 34
+LONG_PERIOD = 28
 SIGNAL_PERIOD = 13
 RSI_PERIOD = 14
 USE_HOURLY_DATA = True  # Set to False for daily data
-LOSERS_ONLY = True  # Set to True to analyze only losing trades
-WINNERS_ONLY = False  # Set to True to analyze only winning trades
+LOSERS_ONLY = False  # Set to True to analyze only losing trades
+WINNERS_ONLY = True  # Set to True to analyze only winning trades
 
 class MACDCrossStrategy:
     """
