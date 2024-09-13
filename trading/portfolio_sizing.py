@@ -3,14 +3,14 @@ import yfinance as yf
 import scipy.stats as st
 
 # Define parameters
-TOTAL_PORTFOLIO_VALUE = 14000  # target
+TOTAL_PORTFOLIO_VALUE = 12000  # target
 ASSET_1_TICKER = "BTC-USD"
 ASSET_2_TICKER = "SPY"
 ASSET_1_LEVERAGE = 7  # Example leverage factor for Asset 1
 ASSET_2_LEVERAGE = 7  # Example leverage factor for Asset 2
 USE_EMA = False
 EMA_PERIOD = 21
-ASSET_1_ALLOCATION = 40 # Target allocation for Asset 1 (as a percentage)
+ASSET_1_ALLOCATION = 30 # Target allocation for Asset 1 (as a percentage)
 VAR_CONFIDENCE_LEVEL = 0.95
 
 def get_price_or_ema(ticker, use_ema, ema_period):
@@ -47,7 +47,7 @@ def get_intersection_index(x):
     diff = np.abs(leveraged_value_1 - reversed_leveraged_value_2)
     return np.argmin(diff)
 
-def print_asset_details(ticker, initial_value, leverage, position_size, leveraged_value, allocation, var, cvar):
+def print_asset_details(ticker, initial_value, leverage, position_size, leveraged_value, allocation, var_pct, cvar_pct, var_monetary, cvar_monetary):
     """Print details for an asset."""
     print(f"\nAsset: {ticker}")
     print(f"  Initial (pre-leverage) value: ${initial_value:.2f}")
@@ -55,8 +55,10 @@ def print_asset_details(ticker, initial_value, leverage, position_size, leverage
     print(f"  Leveraged value: ${leveraged_value:.2f}")
     print(f"  Position size (Target): {position_size:.6f}")
     print(f"  Allocation: {allocation:.2f}%")
-    print(f"  VaR (95%): {var:.4f}")
-    print(f"  CVaR (95%): {cvar:.4f}")
+    print(f"  VaR (95%): {var_pct:.4f}%")
+    print(f"  CVaR (95%): {cvar_pct:.4f}%")
+    print(f"  VaR Monetary Loss (95%): ${var_monetary:.2f}")
+    print(f"  CVaR Monetary Loss (95%): ${cvar_monetary:.2f}")
 
 def main():
     # Fetch asset prices
@@ -83,15 +85,26 @@ def main():
     returns_asset_1 = get_returns(ASSET_1_TICKER)
     returns_asset_2 = get_returns(ASSET_2_TICKER)
     
-    # Calculate VaR and CVaR for both assets
-    var_asset_1, cvar_asset_1 = calculate_var_cvar(returns_asset_1, VAR_CONFIDENCE_LEVEL)
-    var_asset_2, cvar_asset_2 = calculate_var_cvar(returns_asset_2, VAR_CONFIDENCE_LEVEL)
+    # Calculate VaR and CVaR for both assets (in percentage)
+    var_asset_1_pct, cvar_asset_1_pct = calculate_var_cvar(returns_asset_1, VAR_CONFIDENCE_LEVEL)
+    var_asset_2_pct, cvar_asset_2_pct = calculate_var_cvar(returns_asset_2, VAR_CONFIDENCE_LEVEL)
+
+    # Convert VaR and CVaR percentages to monetary losses
+    var_asset_1_monetary = var_asset_1_pct * levered_asset_1_value
+    cvar_asset_1_monetary = cvar_asset_1_pct * levered_asset_1_value
+    var_asset_2_monetary = var_asset_2_pct * levered_asset_2_value
+    cvar_asset_2_monetary = cvar_asset_2_pct * levered_asset_2_value
 
     # Print results
     print_asset_details(ASSET_1_TICKER, initial_asset_1_value, ASSET_1_LEVERAGE, position_size_asset_1_value,
-                        levered_asset_1_value, allocation_asset_1_value, var_asset_1, cvar_asset_1)
+                        levered_asset_1_value, allocation_asset_1_value, 
+                        var_asset_1_pct * 100, cvar_asset_1_pct * 100,  # Convert to percentage
+                        var_asset_1_monetary, cvar_asset_1_monetary)
+    
     print_asset_details(ASSET_2_TICKER, initial_asset_2_value, ASSET_2_LEVERAGE, position_size_asset_2_value,
-                        levered_asset_2_value, allocation_asset_2_value, var_asset_2, cvar_asset_2)
+                        levered_asset_2_value, allocation_asset_2_value, 
+                        var_asset_2_pct * 100, cvar_asset_2_pct * 100,  # Convert to percentage
+                        var_asset_2_monetary, cvar_asset_2_monetary)
     
     print(f"\nInitial Portfolio Value: ${TOTAL_PORTFOLIO_VALUE:.2f}")
     print(f"Total Leveraged Portfolio Value: ${levered_total_value:.2f}")
