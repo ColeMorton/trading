@@ -28,9 +28,16 @@ USE_SYNTHETIC = config['USE_SYNTHETIC']
 TICKER = config['TICKER']
 TICKER_1 = config['TICKER_1']
 TICKER_2 = config['TICKER_2']
-EMA_FAST = config['EMA_FAST']
-EMA_SLOW = config['EMA_SLOW']
-SHORT = True
+SHORT = False
+
+# Constants for easy configuration
+YEARS = 2  # Set timeframe in years
+USE_HOURLY_DATA = False  # Set to True to use hourly data, False for daily data
+USE_SYNTHETIC = False
+TICKER = 'HWM'
+TICKER_1 = 'BTC-USD'
+TICKER_2 = 'SPY'
+SHORT = False
 
 def download_data(ticker: str, use_hourly: bool) -> pd.DataFrame:
     """Download historical data from Yahoo Finance."""
@@ -86,7 +93,7 @@ def backtest_strategy(data: pd.DataFrame) -> vbt.Portfolio:
     logging.info("Starting strategy backtest")
     try:
         # Determine frequency based on the data
-        freq = 'H' if USE_HOURLY_DATA else 'D'
+        freq = 'h' if USE_HOURLY_DATA else 'D'
         
         if SHORT:
             # Short-only strategy
@@ -184,6 +191,7 @@ def print_best_parameters(results: pd.DataFrame, ticker: str) -> None:
         logging.info(f"Best total return: {best_return}")
         print(f"Best parameters for {ticker}: Short period: {best_params[0]}, Long period: {best_params[1]}")
         print(f"Best total return: {best_return}")
+        return best_params[0], best_params[1]
     except Exception as e:
         logging.error(f"Failed to find or print best parameters: {e}")
         raise
@@ -199,15 +207,16 @@ def run() -> None:
             data = download_data(TICKER, USE_HOURLY_DATA)
             synthetic_ticker = TICKER
 
-        data = calculate_ema(data, EMA_FAST, EMA_SLOW)
-        data = generate_signals(data, EMA_FAST)
-        portfolio = backtest_strategy(data)
-        print_performance_metrics(portfolio, synthetic_ticker)
-
         short_windows = np.linspace(5, 12, 8, dtype=int)
         long_windows = np.linspace(13, 34, 21, dtype=int)
         results = parameter_sensitivity_analysis(data, short_windows, long_windows)
-        print_best_parameters(results, synthetic_ticker)
+        short_window, long_windows = print_best_parameters(results, synthetic_ticker)
+
+        data = calculate_ema(data, short_window, long_windows)
+        data = generate_signals(data, short_window)
+        portfolio = backtest_strategy(data)
+        print_performance_metrics(portfolio, synthetic_ticker)
+
         plot_heatmap(results, synthetic_ticker, USE_HOURLY_DATA)
 
         logging.info("Execution finished successfully")
