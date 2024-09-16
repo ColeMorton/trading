@@ -18,18 +18,6 @@ logging.basicConfig(
 
 logging.info('Parameter Sensitivity Analysis EMA Cross')
 
-# Load constants from config.json
-with open('config.json', 'r') as file:
-    config = json.load(file)
-
-YEARS = config['YEARS']
-USE_HOURLY_DATA = config['USE_HOURLY_DATA']
-USE_SYNTHETIC = config['USE_SYNTHETIC']
-TICKER = config['TICKER']
-TICKER_1 = config['TICKER_1']
-TICKER_2 = config['TICKER_2']
-SHORT = False
-
 # Constants for easy configuration
 YEARS = 2  # Set timeframe in years
 USE_HOURLY_DATA = False  # Set to True to use hourly data, False for daily data
@@ -121,38 +109,48 @@ def backtest_strategy(data: pd.DataFrame) -> vbt.Portfolio:
         logging.error(f"Backtest failed: {e}")
         raise
 
-def parameter_sensitivity_analysis(data: pd.DataFrame, short_windows: List[int], long_windows: List[int]) -> pd.DataFrame:
+def parameter_sensitivity_analysis(data: pd.DataFrame, short_windows: List[int], long_windows: List[int]) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Perform parameter sensitivity analysis."""
     logging.info("Starting parameter sensitivity analysis")
     try:
-        results = pd.DataFrame(index=short_windows, columns=long_windows)
+        results_return = pd.DataFrame(index=short_windows, columns=long_windows)
+        results_expectancy = pd.DataFrame(index=short_windows, columns=long_windows)
         for short in short_windows:
             for long in long_windows:
                 if short < long:
                     temp_data = calculate_ema(data.copy(), short, long)
                     temp_data = generate_signals(temp_data, short)
                     portfolio = backtest_strategy(temp_data)
-                    results.loc[short, long] = portfolio.total_return()
+                    results_return.loc[short, long] = portfolio.total_return()
+                    results_expectancy.loc[short, long] = portfolio.total_profit() / portfolio.num_trades()
         logging.info("Parameter sensitivity analysis completed successfully")
-        return results
+        return results_return, results_expectancy
     except Exception as e:
         logging.error(f"Parameter sensitivity analysis failed: {e}")
         raise
 
-def plot_heatmap(results: pd.DataFrame, ticker: str, use_hourly: bool) -> None:
-    """Plot heatmap of the results."""
-    logging.info("Plotting heatmap")
+def plot_heatmaps(results_return: pd.DataFrame, results_expectancy: pd.DataFrame, ticker: str, use_hourly: bool) -> None:
+    """Plot heatmaps of the results."""
+    logging.info("Plotting heatmaps")
     try:
-        plt.figure(figsize=(21, 8))
-        sns.heatmap(results.astype(float), annot=True, fmt=".2f", cmap="YlGnBu", cbar_kws={'label': 'Total Return'})
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 8))
+        
+        sns.heatmap(results_return.astype(float), annot=True, fmt=".2f", cmap="YlGnBu", cbar_kws={'label': 'Total Return'}, ax=ax1)
         timeframe = "Hourly" if use_hourly else "Daily"
-        plt.title(f'Parameter Sensitivity Analysis - EMA Cross ({timeframe}) for {ticker}')
-        plt.xlabel('Long Period')
-        plt.ylabel('Short Period')
+        ax1.set_title(f'Total Return - EMA Cross ({timeframe}) for {ticker}')
+        ax1.set_xlabel('Long Period')
+        ax1.set_ylabel('Short Period')
+        
+        sns.heatmap(results_expectancy.astype(float), annot=True, fmt=".2f", cmap="YlOrRd", cbar_kws={'label': 'Expectancy'}, ax=ax2)
+        ax2.set_title(f'Expectancy - EMA Cross ({timeframe}) for {ticker}')
+        ax2.set_xlabel('Long Period')
+        ax2.set_ylabel('Short Period')
+        
+        plt.tight_layout()
         plt.show()
-        logging.info("Heatmap plotted successfully")
+        logging.info("Heatmaps plotted successfully")
     except Exception as e:
-        logging.error(f"Failed to plot heatmap: {e}")
+        logging.error(f"Failed to plot heatmaps: {e}")
         raise
 
 def create_synthetic_data() -> pd.DataFrame:
@@ -182,16 +180,100 @@ def print_performance_metrics(portfolio: vbt.Portfolio, ticker: str) -> None:
         logging.error(f"Failed to print performance metrics: {e}")
         raise
 
-def print_best_parameters(results: pd.DataFrame, ticker: str) -> None:
-    """Find and print the best parameter combination."""
+def print_best_parameters(results_return: pd.DataFrame, results_expectancy: pd.DataFrame, ticker: str) -> None:
+    """Find and print the best parameter combinations for return and expectancy."""
     try:
-        best_params = results.stack().idxmax()
-        best_return = results.stack().max()
-        logging.info(f"Best parameters for {ticker}: Short period: {best_params[0]}, Long period: {best_params[1]}")
+        best_params_return = results_return.stack().idxmax()
+        best_return = results_return.stack().max()
+        best_params_expectancy = results_expectancy.stack().idxmax()
+        best_expectancy = results_expectancy.stack().max()
+        
+        logging.info(f"Best parameters for {ticker} (Total Return): Short period: {best_params_return[0]}, Long period: {best_params_return[1]}")
         logging.info(f"Best total return: {best_return}")
-        print(f"Best parameters for {ticker}: Short period: {best_params[0]}, Long period: {best_params[1]}")
+        logging.info(f"Best parameters for {ticker} (Expectancy): Short period: {best_params_expectancy[0]}, Long period: {best_params_expectancy[1]}")
+        logging.info(f"Best expectancy: {best_expectancy}")
+        
+        print(f"Best parameters for {ticker} (Total Return): Short period: {best_params_return[0]}, Long period: {best_params_return[1]}")
         print(f"Best total return: {best_return}")
-        return best_params[0], best_params[1]
+        print(f"Best parameters for {ticker} (Expectancy): Short period: {best_params_expectancy[0]}, Long period: {best_params_expectancy[1]}")
+        print(f"Best expectancy: {best_expectancy}")
+        
+        return best_params_return[0], best_params_return[1], best_params_expectancy[0], best_params_expectancy[1]
+    except Exception as e:
+        logging.error(f"Failed to find or print best parameters: {e}")
+        raise
+
+def parameter_sensitivity_analysis(data: pd.DataFrame, short_windows: List[int], long_windows: List[int]) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Perform parameter sensitivity analysis."""
+    logging.info("Starting parameter sensitivity analysis")
+    try:
+        results_return = pd.DataFrame(index=short_windows, columns=long_windows)
+        results_expectancy = pd.DataFrame(index=short_windows, columns=long_windows)
+        for short in short_windows:
+            for long in long_windows:
+                if short < long:
+                    temp_data = calculate_ema(data.copy(), short, long)
+                    temp_data = generate_signals(temp_data, short)
+                    portfolio = backtest_strategy(temp_data)
+                    results_return.loc[short, long] = portfolio.total_return()
+                    
+                    # Calculate expectancy
+                    trades = portfolio.trades
+                    if len(trades) > 0:
+                        expectancy = trades.pnl.mean()
+                        results_expectancy.loc[short, long] = expectancy
+                    else:
+                        results_expectancy.loc[short, long] = np.nan
+
+        logging.info("Parameter sensitivity analysis completed successfully")
+        return results_return, results_expectancy
+    except Exception as e:
+        logging.error(f"Parameter sensitivity analysis failed: {e}")
+        raise
+
+def plot_heatmaps(results_return: pd.DataFrame, results_expectancy: pd.DataFrame, ticker: str, use_hourly: bool) -> None:
+    """Plot heatmaps of the results."""
+    logging.info("Plotting heatmaps")
+    try:
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 8))
+        
+        sns.heatmap(results_return.astype(float), annot=True, fmt=".2f", cmap="YlGnBu", cbar_kws={'label': 'Total Return'}, ax=ax1)
+        timeframe = "Hourly" if use_hourly else "Daily"
+        ax1.set_title(f'Total Return - EMA Cross ({timeframe}) for {ticker}')
+        ax1.set_xlabel('Long Period')
+        ax1.set_ylabel('Short Period')
+        
+        sns.heatmap(results_expectancy.astype(float), annot=True, fmt=".2f", cmap="YlOrRd", cbar_kws={'label': 'Expectancy'}, ax=ax2)
+        ax2.set_title(f'Expectancy - EMA Cross ({timeframe}) for {ticker}')
+        ax2.set_xlabel('Long Period')
+        ax2.set_ylabel('Short Period')
+        
+        plt.tight_layout()
+        plt.show()
+        logging.info("Heatmaps plotted successfully")
+    except Exception as e:
+        logging.error(f"Failed to plot heatmaps: {e}")
+        raise
+
+def print_best_parameters(results_return: pd.DataFrame, results_expectancy: pd.DataFrame, ticker: str) -> None:
+    """Find and print the best parameter combinations for return and expectancy."""
+    try:
+        best_params_return = results_return.stack().idxmax()
+        best_return = results_return.stack().max()
+        best_params_expectancy = results_expectancy.stack().idxmax()
+        best_expectancy = results_expectancy.stack().max()
+        
+        logging.info(f"Best parameters for {ticker} (Total Return): Short period: {best_params_return[0]}, Long period: {best_params_return[1]}")
+        logging.info(f"Best total return: {best_return}")
+        logging.info(f"Best parameters for {ticker} (Expectancy): Short period: {best_params_expectancy[0]}, Long period: {best_params_expectancy[1]}")
+        logging.info(f"Best expectancy: {best_expectancy}")
+        
+        print(f"Best parameters for {ticker} (Total Return): Short period: {best_params_return[0]}, Long period: {best_params_return[1]}")
+        print(f"Best total return: {best_return}")
+        print(f"Best parameters for {ticker} (Expectancy): Short period: {best_params_expectancy[0]}, Long period: {best_params_expectancy[1]}")
+        print(f"Best expectancy: {best_expectancy}")
+        
+        return best_params_return[0], best_params_return[1], best_params_expectancy[0], best_params_expectancy[1]
     except Exception as e:
         logging.error(f"Failed to find or print best parameters: {e}")
         raise
@@ -209,15 +291,16 @@ def run() -> None:
 
         short_windows = np.linspace(5, 12, 8, dtype=int)
         long_windows = np.linspace(13, 34, 21, dtype=int)
-        results = parameter_sensitivity_analysis(data, short_windows, long_windows)
-        short_window, long_windows = print_best_parameters(results, synthetic_ticker)
+        results_return, results_expectancy = parameter_sensitivity_analysis(data, short_windows, long_windows)
+        short_window_return, long_window_return, short_window_expectancy, long_window_expectancy = print_best_parameters(results_return, results_expectancy, synthetic_ticker)
 
-        data = calculate_ema(data, short_window, long_windows)
-        data = generate_signals(data, short_window)
+        # You can choose which parameters to use for the final backtest
+        data = calculate_ema(data, short_window_return, long_window_return)
+        data = generate_signals(data, short_window_return)
         portfolio = backtest_strategy(data)
         print_performance_metrics(portfolio, synthetic_ticker)
 
-        plot_heatmap(results, synthetic_ticker, USE_HOURLY_DATA)
+        plot_heatmaps(results_return, results_expectancy, synthetic_ticker, USE_HOURLY_DATA)
 
         logging.info("Execution finished successfully")
     except Exception as e:
