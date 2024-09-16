@@ -3,24 +3,24 @@ import yfinance as yf
 import scipy.stats as st
 
 # Define parameters
-# TOTAL_PORTFOLIO_VALUE = 12000  # target
-# ASSET_1_TICKER = "BTC-USD"
-# ASSET_2_TICKER = "SPY"
-# ASSET_1_LEVERAGE = 7  # Example leverage factor for Asset 1
-# ASSET_2_LEVERAGE = 7  # Example leverage factor for Asset 2
-# USE_EMA = False
-# EMA_PERIOD = 21
-# ASSET_1_ALLOCATION = 30 # Target allocation for Asset 1 (as a percentage)
-# VAR_CONFIDENCE_LEVEL = 0.95
+TOTAL_PORTFOLIO_VALUE = 15000  # target 2
+ASSET_1_TICKER = "BTC-USD"
+ASSET_2_TICKER = "SPY"
+ASSET_1_LEVERAGE = 5  # Example leverage factor for Asset 1
+ASSET_2_LEVERAGE = 7  # Example leverage factor for Asset 2
+USE_EMA = False
+EMA_PERIOD = 21
+ASSET_1_ALLOCATION = 23.6 # Target allocation for Asset 1 (as a percentage)
+VAR_CONFIDENCE_LEVEL = 0.95
 
-TOTAL_PORTFOLIO_VALUE = 3600  # target
+TOTAL_PORTFOLIO_VALUE = 4400  # target
 ASSET_1_TICKER = "BTC-USD"
 ASSET_2_TICKER = "SOL-USD"
-ASSET_1_LEVERAGE = 8  # Example leverage factor for Asset 1
+ASSET_1_LEVERAGE = 6  # Example leverage factor for Asset 1
 ASSET_2_LEVERAGE = 5  # Example leverage factor for Asset 2
 USE_EMA = False
 EMA_PERIOD = 21
-ASSET_1_ALLOCATION = 65 # Target allocation for Asset 1 (as a percentage)
+ASSET_1_ALLOCATION = 75 # Target allocation for Asset 1 (as a percentage)
 VAR_CONFIDENCE_LEVEL = 0.95
 
 def get_price_or_ema(ticker, use_ema, ema_period):
@@ -64,8 +64,8 @@ def print_asset_details(ticker, initial_value, leverage, position_size, leverage
     print(f"  Leverage: {leverage:.2f}")
     print(f"  Leveraged value: ${leveraged_value:.2f}")
     print(f"  Position size (Target): {position_size:.6f}")
-    print(f"  Position size (Max): {position_size*1.191:.6f}")
-    print(f"  Position size (Min): {position_size*0.809:.6f}")
+    print(f"  Position size (Daily): {position_size*0.618:.6f}")
+    print(f"  Position size (Hourly): {position_size*0.382:.6f}")
     print(f"  Allocation: {allocation:.2f}%")
     print(f"  VaR (95%): {var_pct:.4f}%")
     print(f"  CVaR (95%): {cvar_pct:.4f}%")
