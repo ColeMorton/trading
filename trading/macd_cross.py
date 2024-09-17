@@ -8,9 +8,9 @@ from datetime import datetime, timedelta
 
 # Constants for easy configuration
 YEARS = 30  # Set timeframe in years for daily data
-USE_HOURLY_DATA = True  # Set to False for daily data
+USE_HOURLY_DATA = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'SOL-USD'  # Ticker for X to USD exchange rate
+TICKER_1 = 'TPH'  # Ticker for X to USD exchange rate
 TICKER_2 = 'QQQ'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 
@@ -58,9 +58,33 @@ def backtest_strategy(data):
         )
     return portfolio
 
+def calculate_expectancy(portfolio):
+    """Calculate the expectancy of the trading strategy."""
+    trades = portfolio.trades
+    
+    if len(trades.records_arr) == 0:
+        return 0
+    
+    returns = trades.returns.values  # Get the numpy array of returns
+    
+    winning_trades = returns[returns > 0]
+    losing_trades = returns[returns <= 0]
+    
+    win_rate = len(winning_trades) / len(returns)
+    avg_win = np.mean(winning_trades) if len(winning_trades) > 0 else 0
+    avg_loss = abs(np.mean(losing_trades)) if len(losing_trades) > 0 else 0
+    
+    if avg_loss == 0:
+        return 0  # Avoid division by zero
+    
+    r_ratio = avg_win / avg_loss
+    expectancy = (win_rate * r_ratio) - (1 - win_rate)
+    return expectancy
+
 def parameter_sensitivity_analysis(data, short_windows, long_windows, signal_windows):
     """Perform parameter sensitivity analysis."""
     results = pd.DataFrame(index=pd.MultiIndex.from_product([short_windows, long_windows]), columns=signal_windows)
+    expectancy_results = pd.DataFrame(index=pd.MultiIndex.from_product([short_windows, long_windows]), columns=signal_windows)
     for short in short_windows:
         for long in long_windows:
             if short < long:
@@ -69,32 +93,42 @@ def parameter_sensitivity_analysis(data, short_windows, long_windows, signal_win
                     generate_signals(data)
                     portfolio = backtest_strategy(data)
                     results.loc[(short, long), signal] = portfolio.total_return()
-    return results
+                    expectancy_results.loc[(short, long), signal] = calculate_expectancy(portfolio)
+    return results, expectancy_results
 
-def plot_3d_scatter(results):
-    """Plot 3D scatter plot of the results."""
-    fig = plt.figure(figsize=(12, 8))
-    ax = fig.add_subplot(111, projection='3d')
+def plot_3d_scatter(results, expectancy_results):
+    """Plot two 3D scatter plots: one for Total Return and one for Expectancy."""
+    fig = plt.figure(figsize=(20, 8))
     
-    # Prepare data for 3D scatter plot
+    # Total Return plot
+    ax1 = fig.add_subplot(121, projection='3d')
+    plot_single_3d_scatter(fig, ax1, results, 'Total Return')
+    
+    # Expectancy plot
+    ax2 = fig.add_subplot(122, projection='3d')
+    plot_single_3d_scatter(fig, ax2, expectancy_results, 'Expectancy')
+    
+    plt.tight_layout()
+    plt.show()
+
+def plot_single_3d_scatter(fig, ax, data, title):
+    """Plot a single 3D scatter plot."""
     short_windows, long_windows, signal_windows = np.array([]), np.array([]), np.array([])
-    returns = np.array([])
+    values = np.array([])
     
-    for (short, long), row in results.iterrows():
-        for signal, ret in row.items():
+    for (short, long), row in data.iterrows():
+        for signal, val in row.items():
             short_windows = np.append(short_windows, short)
             long_windows = np.append(long_windows, long)
             signal_windows = np.append(signal_windows, signal)
-            returns = np.append(returns, ret)
+            values = np.append(values, val)
     
-    # Plotting the data
-    sc = ax.scatter(short_windows, long_windows, signal_windows, c=returns, cmap='viridis')
+    sc = ax.scatter(short_windows, long_windows, signal_windows, c=values, cmap='viridis')
     ax.set_xlabel('Short Window')
     ax.set_ylabel('Long Window')
     ax.set_zlabel('Signal Window')
-    ax.set_title('3D Scatter Plot of Total Returns')
-    fig.colorbar(sc, ax=ax, label='Total Return')
-    plt.show()
+    ax.set_title(f'3D Scatter Plot of {title}')
+    fig.colorbar(sc, ax=ax, label=title)
 
 def main():
     # Set the end_date to the current datetime
@@ -133,9 +167,9 @@ def main():
         synthetic_ticker = TICKER_1
 
     # Perform sensitivity analysis
-    results = parameter_sensitivity_analysis(data, short_windows, long_windows, signal_windows)
+    results, expectancy_results = parameter_sensitivity_analysis(data, short_windows, long_windows, signal_windows)
     
-    # Find the best parameter combination
+    # Find the best parameter combination for Total Return
     best_params = results.stack().idxmax()
     best_return = results.stack().max()
     short_period, long_period, signal_period = best_params[0], best_params[1], best_params[2]
@@ -154,9 +188,10 @@ def main():
     print(portfolio_stats)
     print(f"Best parameters for {interval} {synthetic_ticker}: Short period: {short_period}, Long period: {long_period}, Signal period: {signal_period}")
     print(f"Best total return: {best_return}")
+    print(f"Expectancy for best parameters: {calculate_expectancy(portfolio)}")
     
-    # Display 3D scatter plot of the results
-    plot_3d_scatter(results)
+    # Display 3D scatter plots of the results
+    plot_3d_scatter(results, expectancy_results)
 
 if __name__ == "__main__":
     main()
