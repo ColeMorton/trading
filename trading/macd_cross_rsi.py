@@ -6,13 +6,13 @@ import seaborn as sns
 from datetime import datetime, timedelta
 
 # Constants
-END_DATE = '2024-09-12'
-ASSET = 'SOL-USD'
-STOP_LOSS = 11.1
+END_DATE = '2024-09-14'
+ASSET = 'SPY'
+STOP_LOSS = 0.86
 USE_LOG_Y = True
-SHORT_PERIOD = 20
-LONG_PERIOD = 28
-SIGNAL_PERIOD = 13
+SHORT_PERIOD = 10
+LONG_PERIOD = 15
+SIGNAL_PERIOD = 6
 RSI_PERIOD = 14
 USE_HOURLY_DATA = True  # Set to False for daily data
 LOSERS_ONLY = False  # Set to True to analyze only losing trades
@@ -56,9 +56,9 @@ class MACDCrossStrategy:
     def set_start_date(self):
         """Set the start date based on whether hourly or daily data is used."""
         if self.use_hourly_data:
-            self.start_date = self.end_date - timedelta(days=365)
+            self.start_date = self.end_date - timedelta(days=720)
         else:
-            self.start_date = self.end_date - timedelta(days=365 * 10)  # 10 years for daily data
+            self.start_date = self.end_date - timedelta(days=365 * 30)  # 30 years for daily data
 
     def fetch_data(self) -> None:
         """Fetch asset price data from Yahoo Finance."""
@@ -146,8 +146,8 @@ class MACDCrossStrategy:
         stats = {
             'Mean': data['RSI_Open'].mean(),
             'Median': data['RSI_Open'].median(),
-            '75th Percentile': data['RSI_Open'].quantile(0.75),
-            '25th Percentile': data['RSI_Open'].quantile(0.25)
+            '95th Percentile': data['RSI_Open'].quantile(0.95),
+            '5th Percentile': data['RSI_Open'].quantile(0.05)
         }
 
         colors = ['r', 'g', 'purple', 'orange']

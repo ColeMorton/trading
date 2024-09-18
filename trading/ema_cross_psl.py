@@ -3,14 +3,22 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
 
-TICKER = 'FIGS'
-EMA_FAST = 5
-EMA_SLOW = 13
-SHORT = True  # Set to True for short-only strategy, False for long-only
+YEARS = 30  # Set timeframe in years
+TICKER = 'SPY'
+EMA_FAST = 8
+EMA_SLOW = 34
+SHORT = False  # Set to True for short-only strategy, False for long-only
+USE_HOURLY_DATA = True  # Set to True to use hourly data, False for daily data
 
-# Download historical data
-data = yf.download(TICKER, interval='1d', period='max')
+end_date = datetime.now()
+if USE_HOURLY_DATA:
+    start_date = end_date - timedelta(days=730)
+else:
+    start_date = end_date - timedelta(days=365 * YEARS)
+interval = '1h' if USE_HOURLY_DATA else '1d'
+data = yf.download(TICKER, start=start_date, end=end_date, interval=interval)
 
 # Calculate EMAs
 data['EMA_short'] = data['Close'].ewm(span=EMA_FAST, adjust=False).mean()

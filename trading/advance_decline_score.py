@@ -6,9 +6,9 @@ import matplotlib.dates as mdates
 # Constants
 TICKER = 'SPY'
 USE_PORTFOLIO = False
-PORTFOLIO = {'BTC-USD': 0.35, 'SPY': 0.65}
+PORTFOLIO = {'BTC-USD': 0.5, 'SPY': 0.5}
 
-def download_stock_data(ticker, period="1y"):
+def download_stock_data(ticker, period="2y"):
     if isinstance(ticker, dict):
         data = None
         for symbol, weight in ticker.items():

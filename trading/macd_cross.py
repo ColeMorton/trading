@@ -8,9 +8,9 @@ from datetime import datetime, timedelta
 
 # Constants for easy configuration
 YEARS = 30  # Set timeframe in years for daily data
-USE_HOURLY_DATA = False  # Set to False for daily data
+USE_HOURLY_DATA = True  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'TPH'  # Ticker for X to USD exchange rate
+TICKER_1 = 'SPY'  # Ticker for X to USD exchange rate
 TICKER_2 = 'QQQ'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 
@@ -45,16 +45,16 @@ def backtest_strategy(data):
             close=data['Close'],
             short_entries=data['Signal'] == -1,
             short_exits=data['Signal'] == 0,
-            init_cash=100,
-            fees=0.01
+            init_cash=1000,
+            fees=0.001
         )
     else:
         portfolio = vbt.Portfolio.from_signals(
             close=data['Close'],
             entries=data['Signal'] == 1,
             exits=data['Signal'] == 0,
-            init_cash=100,
-            fees=0.01
+            init_cash=1000,
+            fees=0.001
         )
     return portfolio
 
@@ -136,7 +136,7 @@ def main():
     
     # Set initial short-term and long-term windows
     if USE_HOURLY_DATA:
-        start_date = end_date - timedelta(days=365)
+        start_date = end_date - timedelta(days=730)
     else:
         start_date = end_date - timedelta(days=365 * YEARS)
 

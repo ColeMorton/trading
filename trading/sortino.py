@@ -7,13 +7,15 @@ from datetime import datetime, timedelta
 # Define the list of assets
 # ASSETS = ['SPY', 'QQQ', 'BTC-USD', 'SOL-USD']
 
-# ASSETS = ['BLDR', 'LLY', 'BTC-USD', 'SPY', 'FDX', 'CDW']
+ASSETS = ['CEG', 'VRTX', 'VST', 'SLV', 'ANET', 'HWM']
 
-# ASSETS = ['CARE', 'MOFG', 'CADE', 'JANX']
+# ASSETS = ['CEG', 'VRTX', 'VST', 'AMD', 'MPWR', 'URI', 'BTC-USD', 'SPY']
 
 # ASSETS = ['EURSEK=X', 'EURHUF=X', 'EURZAR=X', 'EURPLN=X']
 
-ASSETS = ['FIGS', 'FAST']
+# ASSETS = ['GWW','WAB','TSLA','AMZN','IDXX','LOW','ETN','ANET','MSFT','HD','AVGO','RCL']
+
+# ASSETS = ['PALL', 'SPY', 'SGOL', 'BTC-USD', 'TLT', 'SIVR']
 
 def download_data(assets, start_date, end_date):
     """Download historical adjusted close data for the given assets."""

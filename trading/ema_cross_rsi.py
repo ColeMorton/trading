@@ -22,10 +22,10 @@ with open('config.json') as f:
 
 # Constants for easy configuration
 YEARS = 30  # Set timeframe in years
-TICKER = 'SPY'
-USE_HOURLY_DATA = True  # Set to True to use hourly data, False for daily data
-EMA_FAST = 8
-EMA_SLOW = 34
+TICKER = 'HWM'
+USE_HOURLY_DATA = False  # Set to True to use hourly data, False for daily data
+EMA_FAST = 11
+EMA_SLOW = 18
 RSI_PERIOD = 14
 
 def download_data(symbol: str, years: int, use_hourly_data: bool) -> pl.DataFrame:
@@ -186,7 +186,7 @@ def plot_results(results_df: pl.DataFrame):
 
 def main():
     logging.info("Starting main execution")
-    rsi_range = np.arange(19, 79, 1)  # 20 to 80
+    rsi_range = np.arange(29, 79, 1)  # 30 to 80
     data = download_data(TICKER, YEARS, USE_HOURLY_DATA)
     data = calculate_emas(data, EMA_FAST, EMA_SLOW)
     data = calculate_rsi(data, RSI_PERIOD)

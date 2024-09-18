@@ -7,11 +7,11 @@ from datetime import datetime, timedelta
 
 # Constants for easy configuration
 YEARS = 30  # Set timeframe in years
-TICKER = 'SOL-USD'
+TICKER = 'SPY'
 USE_HOURLY_DATA = True  # Set to True to use hourly data, False for daily data
-FAST_PERIOD = 20
-SLOW_PERIOD = 28
-SIGNAL_PERIOD = 13
+FAST_PERIOD = 10    
+SLOW_PERIOD = 15
+SIGNAL_PERIOD = 6
 SHORT = False  # Set to True for short-only strategy, False for long-only
 
 def download_data(symbol, years, use_hourly_data):

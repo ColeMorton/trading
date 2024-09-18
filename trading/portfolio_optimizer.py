@@ -6,29 +6,32 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 # start_date = '2019-09-01'
-# end_date = '2019-12-01'
+# end_date = '2020-02-01'
+
+# start_date = '2019-09-01'
+# end_date = '2020-09-01'
 
 # start_date = '2023-09-01'
 # end_date = '2023-12-01'
 
 # start_date = '2010-01-01'
-# end_date = '2024-09-07'
+# end_date = '2024-09-13'
 
-# start_date = '2020-09-07'
-# end_date = '2024-09-07'
+start_date = '2019-11-13'
+end_date = '2024-09-13'
 
-# start_date = '2023-09-07'
-# end_date = '2024-09-07'
+# start_date = '2023-09-13'
+# end_date = '2024-09-13'
 
-# start_date = '2024-03-07'
-# end_date = '2024-09-07'
+# start_date = '2024-03-13'
+# end_date = '2024-09-13'
 
-# start_date = '2024-05-07'
-# end_date = '2024-09-07'
+# start_date = '2024-05-13'
+# end_date = '2024-09-13'
 
 # ASSETS = ['SNX', 'ENPH', 'CHFGBP=X', 'BTC-USD', 'ON']
 
-ASSETS = ['BTC-USD', 'SPY']
+# ASSETS = ['BTC-USD', 'SPY']
 
 ASSETS = ['BTC-USD', 'SOL-USD']
 

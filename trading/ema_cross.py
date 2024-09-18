@@ -11,7 +11,7 @@ from typing import Tuple, List
 # Configuration
 YEARS = 30
 USE_HOURLY_DATA = False
-TICKER = 'KTB'
+TICKER = 'SHAK'
 SHORT = False
 
 # Logging setup
@@ -63,8 +63,8 @@ def backtest_strategy(data: pd.DataFrame) -> vbt.Portfolio:
                 close=data['Close'],
                 short_entries=data['Signal'] == -1,
                 short_exits=data['Signal'] == 0,
-                init_cash=100,
-                fees=0.01,
+                init_cash=1000,
+                fees=0.001,
                 freq=freq
             )
         else:
@@ -72,8 +72,8 @@ def backtest_strategy(data: pd.DataFrame) -> vbt.Portfolio:
                 close=data['Close'],
                 entries=data['Signal'] == 1,
                 exits=data['Signal'] == 0,
-                init_cash=100,
-                fees=0.01,
+                init_cash=1000,
+                fees=0.001,
                 freq=freq
             )
         

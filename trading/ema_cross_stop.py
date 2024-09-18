@@ -30,6 +30,16 @@ EMA_SLOW = config['EMA_SLOW']
 RSI_PERIOD = config['RSI_PERIOD']
 RSI_THRESHOLD = config['RSI_THRESHOLD']
 USE_RSI = config['USE_RSI']
+
+YEARS = 30
+USE_HOURLY_DATA = False
+USE_SYNTHETIC = False
+TICKER = 'HWM'
+EMA_FAST = 9
+EMA_SLOW = 16
+RSI_PERIOD = 14
+RSI_THRESHOLD = 55
+USE_RSI = False
 SHORT = False
 
 def download_data(symbol: str, years: int, use_hourly_data: bool) -> pl.DataFrame:
