@@ -176,7 +176,7 @@ def plot_results(ticker: str, results_df: pl.DataFrame):
     win_rate_peaks = find_prominent_peaks(results_df['Stop Loss Percentage'].to_numpy(), results_df['Win Rate'].to_numpy())
     add_peak_labels(ax2, results_df['Stop Loss Percentage'].to_numpy(), results_df['Win Rate'].to_numpy(), win_rate_peaks)
 
-    ax1.set_title(f'Total Return and Win Rate vs Stop Loss Percentage: {ticker}')
+    ax1.set_title(f'{ticker} Total Return and Win Rate vs Stop Loss Percentage')
     fig.tight_layout()
     plt.show()
 

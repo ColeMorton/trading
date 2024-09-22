@@ -5,20 +5,48 @@ import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 
-YEARS = 30  # Set timeframe in years
-TICKER = 'QQQ'
+YEARS = 30  # Set timeframe in years for daily data
+USE_HOURLY_DATA = False  # Set to False for daily data
+USE_SYNTHETIC = True  # Toggle between synthetic and original ticker
+TICKER_1 = 'QQQ'  # Ticker for X to USD exchange rate
+TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
 EMA_FAST = 8
 EMA_SLOW = 32
 SHORT = False  # Set to True for short-only strategy, False for long-only
-USE_HOURLY_DATA = True  # Set to True to use hourly data, False for daily data
 
-end_date = datetime.now()
-if USE_HOURLY_DATA:
-    start_date = end_date - timedelta(days=730)
+def download_data(ticker: str, use_hourly: bool) -> pd.DataFrame:
+    """Download historical data from Yahoo Finance."""
+    interval = '1h' if use_hourly else '1d'
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=730 if use_hourly else 365 * YEARS)
+    
+    try:
+        data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
+        return data
+    except Exception as e:
+        raise
+
+if USE_SYNTHETIC:
+    # Download historical data for TICKER_1 and TICKER_2
+    data_ticker_1 = download_data(TICKER_1, USE_HOURLY_DATA)
+    data_ticker_2 = download_data(TICKER_2, USE_HOURLY_DATA)
+    
+    # Create synthetic ticker XY
+    data_ticker_1['Close'] = data_ticker_1['Close'].fillna(method='ffill')
+    data_ticker_2['Close'] = data_ticker_2['Close'].fillna(method='ffill')
+    data_ticker_3 = pd.DataFrame(index=data_ticker_1.index)
+    data_ticker_3['Close'] = data_ticker_1['Close'] / data_ticker_2['Close']
+    data_ticker_3 = data_ticker_3.dropna()
+    data = data_ticker_3
+    
+    # Extracting base and quote currencies from tickers
+    base_currency = TICKER_1[:3]  # X
+    quote_currency = TICKER_2[:3]  # Y
+    synthetic_ticker = base_currency + quote_currency
 else:
-    start_date = end_date - timedelta(days=365 * YEARS)
-interval = '1h' if USE_HOURLY_DATA else '1d'
-data = yf.download(TICKER, start=start_date, end=end_date, interval=interval)
+    # Download historical data for TICKER_1 only
+    data = download_data(TICKER_1, USE_HOURLY_DATA)
+    synthetic_ticker = TICKER_1
 
 # Calculate EMAs
 data['EMA_short'] = data['Close'].ewm(span=EMA_FAST, adjust=False).mean()
@@ -82,6 +110,6 @@ ax2.plot(holding_periods, num_positions, color=color)
 ax2.tick_params(axis='y', labelcolor=color)
 
 strategy_type = "Short-only" if SHORT else "Long-only"
-plt.title(f'Parameter Sensitivity: Holding Period vs Expectancy ({strategy_type} Strategy)')
+plt.title(f'{synthetic_ticker} Parameter Sensitivity: Holding Period vs Expectancy ({strategy_type} Strategy)')
 plt.grid(True)
 plt.show()

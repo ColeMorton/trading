@@ -21,25 +21,29 @@ with open('config.json') as f:
     config = json.load(f)
 
 # Constants for easy configuration
-YEARS = 30  # Set timeframe in years
-TICKER = 'QQQ'
-USE_HOURLY_DATA = False  # Set to True to use hourly data, False for daily data
+YEARS = 30  # Set timeframe in years for daily data
+USE_HOURLY_DATA = False  # Set to False for daily data
+USE_SYNTHETIC = True  # Toggle between synthetic and original ticker
+TICKER_1 = 'QQQ'  # Ticker for X to USD exchange rate
+TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
 EMA_FAST = 11
 EMA_SLOW = 32
 RSI_PERIOD = 14
 
-def download_data(symbol: str, years: int, use_hourly_data: bool) -> pl.DataFrame:
-    logging.info(f"Downloading data for symbol: {symbol}, years: {years}, use_hourly_data: {use_hourly_data}")
+def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
+    """Download historical data from Yahoo Finance."""
+    interval = '1h' if use_hourly else '1d'
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=730 if use_hourly else 365 * years)
+    
+    logging.info(f"Downloading data for symbol: {ticker}, years: {years}, use_hourly_data: {use_hourly}")
     try:
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=730 if use_hourly_data else 365 * years)
-        interval = '1h' if use_hourly_data else '1d'
-        data = yf.download(symbol, start=start_date, end=end_date, interval=interval)
+        data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
+        logging.info(f"Data download for {ticker} completed successfully")
         data.reset_index(inplace=True)  # Reset index to make 'Date' a column
-        logging.info("Data download completed successfully")
         return pl.DataFrame(data)
     except Exception as e:
-        logging.error(f"Failed to download data: {e}")
+        logging.error(f"Failed to download data for {ticker}: {e}")
         raise
 
 def calculate_emas(data: pl.DataFrame, ema_fast: int, ema_slow: int) -> pl.DataFrame:
@@ -138,7 +142,7 @@ def add_peak_labels(ax: plt.Axes, x: np.ndarray, y: np.ndarray, peaks: np.ndarra
                     bbox=dict(boxstyle='round,pad=0.5', fc='cyan', alpha=0.5),
                     arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=0'))
 
-def plot_results(results_df: pl.DataFrame):
+def plot_results(ticker: str, results_df: pl.DataFrame):
     logging.info("Plotting results")
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 16), sharex=True)
     
@@ -154,7 +158,7 @@ def plot_results(results_df: pl.DataFrame):
     ax1_twin.plot(results_df['RSI Threshold'], results_df['Win Rate'], color=color2)
     ax1_twin.tick_params(axis='y', labelcolor=color2)
     
-    ax1.set_title('Total Return % and Win Rate % vs RSI Threshold')
+    ax1.set_title(f'Total Return % and Win Rate % vs RSI Threshold: {ticker}')
     
     # Plot expectancy and number of positions
     color3 = 'tab:green'
@@ -169,7 +173,7 @@ def plot_results(results_df: pl.DataFrame):
     ax2_twin.plot(results_df['RSI Threshold'], results_df['Number of Positions'], color=color4)
     ax2_twin.tick_params(axis='y', labelcolor=color4)
     
-    ax2.set_title('Expectancy and Number of Positions vs RSI Threshold')
+    ax2.set_title(f'Expectancy and Number of Positions vs RSI Threshold: {ticker}')
     
     # Add peak labels for all plots
     add_peak_labels(ax1, results_df['RSI Threshold'].to_numpy(), results_df['Total Return'].to_numpy(), 
@@ -187,12 +191,34 @@ def plot_results(results_df: pl.DataFrame):
 def main():
     logging.info("Starting main execution")
     rsi_range = np.arange(29, 79, 1)  # 30 to 80
-    data = download_data(TICKER, YEARS, USE_HOURLY_DATA)
+
+    if USE_SYNTHETIC:
+        # Download historical data for TICKER_1 and TICKER_2
+        data_ticker_1 = download_data(TICKER_1, YEARS, USE_HOURLY_DATA)
+        data_ticker_2 = download_data(TICKER_2, YEARS, USE_HOURLY_DATA)
+
+        # Perform an inner join on 'Date' to ensure both have matching rows
+        data_merged = data_ticker_1.join(data_ticker_2, on='Date', how='inner', suffix="_2")
+
+        # Now calculate the ratio of 'Close' columns
+        data = pl.DataFrame({
+            'Close': data_merged['Close'] / data_merged['Close_2']
+        })
+        
+        # Extracting base and quote currencies from tickers
+        base_currency = TICKER_1[:3]  # X
+        quote_currency = TICKER_2[:3]  # Y
+        synthetic_ticker = base_currency + quote_currency
+    else:
+        # Download historical data for TICKER_1 only
+        data = download_data(TICKER_1, YEARS, USE_HOURLY_DATA)
+        synthetic_ticker = TICKER_1
+
     data = calculate_emas(data, EMA_FAST, EMA_SLOW)
     data = calculate_rsi(data, RSI_PERIOD)
     results_df = run_sensitivity_analysis(data, rsi_range)
     pl.Config.set_fmt_str_lengths(20)
-    plot_results(results_df)
+    plot_results(synthetic_ticker, results_df)
     logging.info("Main execution completed")
 
 if __name__ == "__main__":
