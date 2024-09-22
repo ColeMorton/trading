@@ -9,10 +9,12 @@ from datetime import datetime, timedelta
 from typing import Tuple, List
 
 # Configuration
-YEARS = 30
-USE_HOURLY_DATA = False
-TICKER = 'SHAK'
-SHORT = False
+YEARS = 30  # Set timeframe in years for daily data
+USE_HOURLY_DATA = False  # Set to False for daily data
+USE_SYNTHETIC = True  # Toggle between synthetic and original ticker
+TICKER_1 = 'QQQ'  # Ticker for X to USD exchange rate
+TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
+SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 
 # Logging setup
 logging.basicConfig(filename='logs/ema_cross.log', level=logging.INFO,
@@ -153,21 +155,40 @@ def run() -> None:
     """Main execution method."""
     logging.info("Execution started")
     try:
-        data = download_data(TICKER, USE_HOURLY_DATA)
-        
         short_windows = np.linspace(5, 12, 8, dtype=int)
         long_windows = np.linspace(13, 34, 21, dtype=int)
         
+        if USE_SYNTHETIC:
+            # Download historical data for TICKER_1 and TICKER_2
+            data_ticker_1 = download_data(TICKER_1, USE_HOURLY_DATA)
+            data_ticker_2 = download_data(TICKER_2, USE_HOURLY_DATA)
+            
+            # Create synthetic ticker XY
+            data_ticker_1['Close'] = data_ticker_1['Close'].fillna(method='ffill')
+            data_ticker_2['Close'] = data_ticker_2['Close'].fillna(method='ffill')
+            data_ticker_3 = pd.DataFrame(index=data_ticker_1.index)
+            data_ticker_3['Close'] = data_ticker_1['Close'] / data_ticker_2['Close']
+            data_ticker_3 = data_ticker_3.dropna()
+            data = data_ticker_3
+            
+            # Extracting base and quote currencies from tickers
+            base_currency = TICKER_1[:3]  # X
+            quote_currency = TICKER_2[:3]  # Y
+            synthetic_ticker = base_currency + quote_currency
+        else:
+            # Download historical data for TICKER_1 only
+            data = download_data(TICKER_1, USE_HOURLY_DATA)
+            synthetic_ticker = TICKER_1
+
         results_return, results_expectancy = parameter_sensitivity_analysis(data, short_windows, long_windows)
-        short_window_return, long_window_return, _, _ = print_best_parameters(results_return, results_expectancy, TICKER)
+        short_window_return, long_window_return, _, _ = print_best_parameters(results_return, results_expectancy, synthetic_ticker)
         
         # Perform final backtest with best parameters
+        print(f"\nPerformance metrics for {synthetic_ticker}:")
         data = calculate_ema_and_signals(data, short_window_return, long_window_return)
-        portfolio = backtest_strategy(data)
-        print(f"\nPerformance metrics for {TICKER}:")
+        portfolio = backtest_strategy(data)      
         print(portfolio.stats())
-        
-        plot_heatmaps(results_return, results_expectancy, TICKER)
+        plot_heatmaps(results_return, results_expectancy, synthetic_ticker)
         
         logging.info("Execution finished successfully")
     except Exception as e:
