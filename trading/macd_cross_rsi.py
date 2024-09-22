@@ -6,15 +6,15 @@ import seaborn as sns
 from datetime import datetime, timedelta
 
 # Constants
-END_DATE = '2024-09-14'
+END_DATE = '2024-09-19'
 ASSET = 'SPY'
-STOP_LOSS = 0.86
+STOP_LOSS = 7.9
 USE_LOG_Y = True
-SHORT_PERIOD = 10
-LONG_PERIOD = 15
-SIGNAL_PERIOD = 6
+SHORT_PERIOD = 15
+LONG_PERIOD = 26
+SIGNAL_PERIOD = 13
 RSI_PERIOD = 14
-USE_HOURLY_DATA = True  # Set to False for daily data
+USE_HOURLY_DATA = False  # Set to False for daily data
 LOSERS_ONLY = False  # Set to True to analyze only losing trades
 WINNERS_ONLY = True  # Set to True to analyze only winning trades
 

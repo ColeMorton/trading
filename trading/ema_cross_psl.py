@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 
 YEARS = 30  # Set timeframe in years
-TICKER = 'SPY'
+TICKER = 'QQQ'
 EMA_FAST = 8
-EMA_SLOW = 34
+EMA_SLOW = 32
 SHORT = False  # Set to True for short-only strategy, False for long-only
 USE_HOURLY_DATA = True  # Set to True to use hourly data, False for daily data
 

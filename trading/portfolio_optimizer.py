@@ -5,47 +5,49 @@ from scipy.optimize import minimize
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-# start_date = '2019-09-01'
+# start_date = '2019-11-01'
 # end_date = '2020-02-01'
 
-# start_date = '2019-09-01'
-# end_date = '2020-09-01'
+# start_date = '2019-11-01'
+# end_date = '2020-11-01'
 
 # start_date = '2023-09-01'
 # end_date = '2023-12-01'
 
 # start_date = '2010-01-01'
-# end_date = '2024-09-13'
+# end_date = '2024-09-20'
 
-start_date = '2019-11-13'
-end_date = '2024-09-13'
+start_date = '2019-11-20'
+end_date = '2024-09-20'
 
-# start_date = '2023-09-13'
-# end_date = '2024-09-13'
+# start_date = '2023-09-20'
+# end_date = '2024-09-20'
 
-# start_date = '2024-03-13'
-# end_date = '2024-09-13'
+# start_date = '2024-03-20'
+# end_date = '2024-09-20'
 
-# start_date = '2024-05-13'
-# end_date = '2024-09-13'
+# start_date = '2024-05-20'
+# end_date = '2024-09-20'
 
 # ASSETS = ['SNX', 'ENPH', 'CHFGBP=X', 'BTC-USD', 'ON']
 
 # ASSETS = ['BTC-USD', 'SPY']
 
-ASSETS = ['BTC-USD', 'SOL-USD']
+ASSETS = ['QQQ', 'SPY']
 
 # Download the data
 data = yf.download(ASSETS, start=start_date, end=end_date)['Adj Close']
 
+print(f'Start Date: {start_date} End Date: {end_date}')
+
 # Display the first few rows of the data
-print(data.head())
+# print(data.head())
 
 # Calculate daily returns
 returns = data.pct_change().dropna()
 
 # Display the first few rows of the returns
-print(returns.head())
+# print(returns.head())
 
 def portfolio_performance(weights, mean_returns, cov_matrix):
     returns = np.dot(weights, mean_returns)

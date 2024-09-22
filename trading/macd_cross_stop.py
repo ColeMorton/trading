@@ -7,11 +7,11 @@ from scipy.signal import find_peaks
 
 # Constants for easy configuration
 YEARS = 30  # Set timeframe in years
-TICKER = 'SPY'  # Change this to analyze different assets
-USE_HOURLY_DATA = True  # Set to True to use hourly data, False for daily data
-SHORT_PERIOD = 10
-LONG_PERIOD = 15
-SIGNAL_PERIOD = 6
+TICKER = 'QQQ'  # Change this to analyze different assets
+USE_HOURLY_DATA = False  # Set to True to use hourly data, False for daily data
+SHORT_PERIOD = 15
+LONG_PERIOD = 34
+SIGNAL_PERIOD = 5
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 
 def download_data(symbol, years, use_hourly_data):

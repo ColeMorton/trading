@@ -5,7 +5,7 @@ from datetime import datetime
 from scipy.stats import norm, percentileofscore
 
 # Constants
-TICKER = 'FDX'
+TICKER = 'SOL-USD'
 USE_PORTFOLIO = False
 PORTFOLIO = {'BTC-USD': 0.56, 'SPY': 0.44}
 # PORTFOLIO = {'LLY': 0.25, 'BLDR': 0.25, 'MPO': 0.25, 'EOG': 0.25}

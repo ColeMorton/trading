@@ -22,10 +22,10 @@ with open('config.json') as f:
 
 # Constants for easy configuration
 YEARS = 30  # Set timeframe in years
-TICKER = 'HWM'
+TICKER = 'QQQ'
 USE_HOURLY_DATA = False  # Set to True to use hourly data, False for daily data
 EMA_FAST = 11
-EMA_SLOW = 18
+EMA_SLOW = 32
 RSI_PERIOD = 14
 
 def download_data(symbol: str, years: int, use_hourly_data: bool) -> pl.DataFrame:
