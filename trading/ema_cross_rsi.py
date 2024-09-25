@@ -20,15 +20,19 @@ logging.info("RSI Threshold Sensitivity Analysis")
 with open('config.json') as f:
     config = json.load(f)
 
-# Constants for easy configuration
+# Configuration
 YEARS = 30  # Set timeframe in years for daily data
-USE_HOURLY_DATA = False  # Set to False for daily data
-USE_SYNTHETIC = True  # Toggle between synthetic and original ticker
-TICKER_1 = 'QQQ'  # Ticker for X to USD exchange rate
+USE_HOURLY_DATA = True  # Set to False for daily data
+USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
+TICKER_1 = 'TSLA'  # Ticker for X to USD exchange rate
 TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
-EMA_FAST = 11
-EMA_SLOW = 32
+SHORT = False  # Set to True for short-only strategy, False for long-only strategy
+
+EMA_FAST = 12
+EMA_SLOW = 34
 RSI_PERIOD = 14
+RSI_THRESHOLD = 55
+USE_RSI = False
 
 def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
     """Download historical data from Yahoo Finance."""
