@@ -10,11 +10,12 @@ from typing import Tuple, List
 
 # Configuration
 YEARS = 30  # Set timeframe in years for daily data
-USE_HOURLY_DATA = False  # Set to False for daily data
-USE_SYNTHETIC = True  # Toggle between synthetic and original ticker
-TICKER_1 = 'QQQ'  # Ticker for X to USD exchange rate
+USE_HOURLY_DATA = True  # Set to False for daily data
+USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
+TICKER_1 = 'BTC-USD'  # Ticker for X to USD exchange rate
 TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
+USE_SMA = True  # Set to True to use SMAs, False to use EMAs
 
 # Logging setup
 logging.basicConfig(filename='logs/ema_cross.log', level=logging.INFO,
@@ -35,27 +36,32 @@ def download_data(ticker: str, use_hourly: bool) -> pd.DataFrame:
         logging.error(f"Failed to download data for {ticker}: {e}")
         raise
 
-def calculate_ema_and_signals(data: pd.DataFrame, short_window: int, long_window: int) -> pd.DataFrame:
-    """Calculate EMAs and generate trading signals."""
-    logging.info(f"Calculating EMAs and signals with short window {short_window} and long window {long_window}")
+def calculate_ma_and_signals(data: pd.DataFrame, short_window: int, long_window: int) -> pd.DataFrame:
+    """Calculate MAs and generate trading signals."""
+    ma_type = "SMA" if USE_SMA else "EMA"
+    logging.info(f"Calculating {ma_type}s and signals with short window {short_window} and long window {long_window}")
     try:
-        data['EMA_short'] = data['Close'].ewm(span=short_window, adjust=False).mean()
-        data['EMA_long'] = data['Close'].ewm(span=long_window, adjust=False).mean()
+        if USE_SMA:
+            data['MA_short'] = data['Close'].rolling(window=short_window).mean()
+            data['MA_long'] = data['Close'].rolling(window=long_window).mean()
+        else:
+            data['MA_short'] = data['Close'].ewm(span=short_window, adjust=False).mean()
+            data['MA_long'] = data['Close'].ewm(span=long_window, adjust=False).mean()
         
         if SHORT:
-            data['Signal'] = np.where(data['EMA_short'] < data['EMA_long'], -1, 0)
+            data['Signal'] = np.where(data['MA_short'] < data['MA_long'], -1, 0)
         else:
-            data['Signal'] = np.where(data['EMA_short'] > data['EMA_long'], 1, 0)
+            data['Signal'] = np.where(data['MA_short'] > data['MA_long'], 1, 0)
         
         data['Position'] = data['Signal'].shift()
-        logging.info("EMAs and signals calculated successfully")
+        logging.info(f"{ma_type}s and signals calculated successfully")
         return data
     except Exception as e:
-        logging.error(f"Failed to calculate EMAs and signals: {e}")
+        logging.error(f"Failed to calculate {ma_type}s and signals: {e}")
         raise
 
 def backtest_strategy(data: pd.DataFrame) -> vbt.Portfolio:
-    """Backtest the EMA cross strategy."""
+    """Backtest the MA cross strategy."""
     logging.info("Starting strategy backtest")
     try:
         freq = 'h' if USE_HOURLY_DATA else 'D'
@@ -95,7 +101,7 @@ def parameter_sensitivity_analysis(data: pd.DataFrame, short_windows: List[int],
         for short in short_windows:
             for long in long_windows:
                 if short < long:
-                    temp_data = calculate_ema_and_signals(data.copy(), short, long)
+                    temp_data = calculate_ma_and_signals(data.copy(), short, long)
                     portfolio = backtest_strategy(temp_data)
                     results_return.loc[short, long] = portfolio.total_return()
                     trades = portfolio.trades
@@ -115,12 +121,13 @@ def plot_heatmaps(results_return: pd.DataFrame, results_expectancy: pd.DataFrame
         
         sns.heatmap(results_return.astype(float), annot=True, fmt=".2f", cmap="YlGnBu", cbar_kws={'label': 'Total Return'}, ax=ax1)
         timeframe = "Hourly" if USE_HOURLY_DATA else "Daily"
-        ax1.set_title(f'Total Return - EMA Cross ({timeframe}) for {ticker}')
+        ma_type = "SMA" if USE_SMA else "EMA"
+        ax1.set_title(f'Total Return - {ma_type} Cross ({timeframe}) for {ticker}')
         ax1.set_xlabel('Long Period')
         ax1.set_ylabel('Short Period')
         
         sns.heatmap(results_expectancy.astype(float), annot=True, fmt=".2f", cmap="YlOrRd", cbar_kws={'label': 'Expectancy'}, ax=ax2)
-        ax2.set_title(f'Expectancy - EMA Cross ({timeframe}) for {ticker}')
+        ax2.set_title(f'Expectancy - {ma_type} Cross ({timeframe}) for {ticker}')
         ax2.set_xlabel('Long Period')
         ax2.set_ylabel('Short Period')
         
@@ -139,7 +146,8 @@ def print_best_parameters(results_return: pd.DataFrame, results_expectancy: pd.D
         best_params_expectancy = results_expectancy.stack().idxmax()
         best_expectancy = results_expectancy.stack().max()
         
-        print(f"Best parameters for {ticker}:")
+        ma_type = "SMA" if USE_SMA else "EMA"
+        print(f"Best parameters for {ticker} using {ma_type}:")
         print(f"Total Return: Short period: {best_params_return[0]}, Long period: {best_params_return[1]}")
         print(f"Best total return: {best_return:.2f}")
         print(f"Expectancy: Short period: {best_params_expectancy[0]}, Long period: {best_params_expectancy[1]}")
@@ -184,8 +192,9 @@ def run() -> None:
         short_window_return, long_window_return, _, _ = print_best_parameters(results_return, results_expectancy, synthetic_ticker)
         
         # Perform final backtest with best parameters
-        print(f"\nPerformance metrics for {synthetic_ticker}:")
-        data = calculate_ema_and_signals(data, short_window_return, long_window_return)
+        ma_type = "SMA" if USE_SMA else "EMA"
+        print(f"\nPerformance metrics for {synthetic_ticker} using {ma_type}:")
+        data = calculate_ma_and_signals(data, short_window_return, long_window_return)
         portfolio = backtest_strategy(data)      
         print(portfolio.stats())
         plot_heatmaps(results_return, results_expectancy, synthetic_ticker)
