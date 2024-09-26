@@ -32,17 +32,21 @@ RSI_PERIOD = config['RSI_PERIOD']
 RSI_THRESHOLD = config['RSI_THRESHOLD']
 USE_RSI = config['USE_RSI']
 
+# Configuration
 YEARS = 30  # Set timeframe in years for daily data
 USE_HOURLY_DATA = False  # Set to False for daily data
-USE_SYNTHETIC = True  # Toggle between synthetic and original ticker
-TICKER_1 = 'QQQ'  # Ticker for X to USD exchange rate
+USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
+TICKER_1 = 'AVY'  # Ticker for X to USD exchange rate
 TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
-EMA_FAST = 12
+SHORT = False  # Set to True for short-only strategy, False for long-only strategy
+USE_SMA = False  # Set to True to use SMAs, False to use EMAs
+
+EMA_FAST = 8
 EMA_SLOW = 32
 RSI_PERIOD = 14
-RSI_THRESHOLD = 55
+RSI_THRESHOLD = 50
+
 USE_RSI = False
-SHORT = False
 
 def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
     """Download historical data from Yahoo Finance."""
