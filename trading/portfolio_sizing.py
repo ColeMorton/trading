@@ -4,7 +4,8 @@ import scipy.stats as st
 
 # Define parameters
 TOTAL_PORTFOLIO_VALUE = 8500  # target 1
-# TOTAL_PORTFOLIO_VALUE = 11000  # target 2
+# TOTAL_PORTFOLIO_VALUE = 9750  # target 2
+# TOTAL_PORTFOLIO_VALUE = 11000  # target 3
 ASSET_1_TICKER = "BTC-USD"
 ASSET_2_TICKER = "SPY"
 ASSET_1_LEVERAGE = 7  # Example leverage factor for Asset 1
@@ -65,8 +66,8 @@ def print_asset_details(ticker, initial_value, leverage, position_size, leverage
     print(f"  Leverage: {leverage:.2f}")
     print(f"  Leveraged value: ${leveraged_value:.2f}")
     print(f"  Position size (Target): {position_size:.6f}")
-    print(f"  Position size (Daily): {position_size*0.618:.6f}")
-    print(f"  Position size (Hourly): {position_size*0.382:.6f}")
+    print(f"  Position size (Daily): {position_size*0.764:.6f}")
+    print(f"  Position size (Hourly): {position_size*0.236:.6f}")
     print(f"  Allocation: {allocation:.2f}%")
     print(f"  VaR (95%): {var_pct:.4f}%")
     print(f"  CVaR (95%): {cvar_pct:.4f}%")
