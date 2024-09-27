@@ -7,7 +7,7 @@ import json
 import logging
 from scipy.stats import norm, percentileofscore
 
-TICKER = 'SOL-USD'
+TICKER = 'TSLA'
 
 # Set up logging    
 logging.basicConfig(
@@ -63,7 +63,7 @@ def calculate_var(returns):
     logging.info("VaR calculated successfully.")
     return var_95, var_99
 
-def plot_return_distribution(returns, var_95, var_99, ticker, timeframe, ax):
+def plot_return_distribution(returns, var_95, var_99, ticker, timeframe, ax, current_return):
     """Plot the return distribution with VaR lines and additional statistics."""
     logging.info("Plotting return distribution for ticker: %s, timeframe: %s", ticker, timeframe)
     # Calculate additional statistics
@@ -85,7 +85,7 @@ def plot_return_distribution(returns, var_95, var_99, ticker, timeframe, ax):
     ax.axvline(0, color='k', linestyle='-', linewidth=1, label='Zero')
     
     # Calculate Rarity based on the sign of the current return
-    current_return = returns.iloc[-1]  # Use .iloc[-1] instead of [-1]
+    # current_return = returns.iloc[-1]  # Use .iloc[-1] instead of [-1]
     if current_return < 0:
         negative_returns = returns[returns < 0]
         rarity = norm.cdf(current_return, loc=np.mean(negative_returns), scale=np.std(negative_returns))
@@ -130,9 +130,32 @@ def main():
     # Calculate returns and plot for each timeframe
     timeframes = ['2W', 'W', '3D', 'D']
     for timeframe, ax in zip(timeframes, axs.flatten()):
+        # Get the last adjusted close price and the one before the resampled period
+        current_adj_close = data['Adj Close'].iloc[-1]
+
+        # Standard trading days logic
+        if timeframe == '3D':
+            previous_adj_close = data['Adj Close'].iloc[-4]  # 3 days before (plus 1 to account for pct_change offset)
+
+        # Check if the ticker contains "-USD"
+        if "-USD" in TICKER:
+            # Use 7 trading days for W and 14 trading days for 2W
+            if timeframe == 'W':
+                previous_adj_close = data['Adj Close'].iloc[-8]  # 7 trading days ago
+            elif timeframe == '2W':
+                previous_adj_close = data['Adj Close'].iloc[-15] # 14 trading days ago
+        else:
+            if timeframe == 'W':
+                previous_adj_close = data['Adj Close'].iloc[-6]  # 5 trading days ago
+            elif timeframe == '2W':
+                previous_adj_close = data['Adj Close'].iloc[-11] # 10 trading days ago
+
+        # Calculate the current return
+        current_return = (current_adj_close - previous_adj_close) / previous_adj_close
+
         returns = calculate_returns(data, timeframe)
         var_95, var_99 = calculate_var(returns)
-        plot_return_distribution(returns, var_95, var_99, TICKER, timeframe, ax)
+        plot_return_distribution(returns, var_95, var_99, TICKER, timeframe, ax, current_return)
     
     plt.tight_layout()
     plt.show()
