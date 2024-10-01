@@ -5,16 +5,22 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime, timedelta
 
-# Constants
-END_DATE = '2024-09-19'
-ASSET = 'SPY'
-STOP_LOSS = 7.9
-USE_LOG_Y = True
-SHORT_PERIOD = 15
-LONG_PERIOD = 26
-SIGNAL_PERIOD = 13
-RSI_PERIOD = 14
+# Constants for easy configuration
+YEARS = 30  # Set timeframe in years for daily data
 USE_HOURLY_DATA = False  # Set to False for daily data
+USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
+TICKER_1 = 'INCY'  # Ticker for X to USD exchange rate
+TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
+SHORT = False  # Set to True for short-only strategy, False for long-only strategy
+
+SHORT_PERIOD = 9
+LONG_PERIOD = 31
+SIGNAL_PERIOD = 5
+
+END_DATE = '2024-09-30'
+STOP_LOSS = 9.85
+USE_LOG_Y = True
+RSI_PERIOD = 14
 LOSERS_ONLY = False  # Set to True to analyze only losing trades
 WINNERS_ONLY = True  # Set to True to analyze only winning trades
 
@@ -164,9 +170,9 @@ class MACDCrossStrategy:
         plt.show()
 
 def main():
-    strategy = MACDCrossStrategy(ASSET, END_DATE, SHORT_PERIOD, LONG_PERIOD, SIGNAL_PERIOD, STOP_LOSS, RSI_PERIOD, USE_HOURLY_DATA, LOSERS_ONLY, WINNERS_ONLY)
+    strategy = MACDCrossStrategy(TICKER_1, END_DATE, SHORT_PERIOD, LONG_PERIOD, SIGNAL_PERIOD, STOP_LOSS, RSI_PERIOD, USE_HOURLY_DATA, LOSERS_ONLY, WINNERS_ONLY)
     strategy_data = strategy.run_strategy()
-    MACDCrossStrategy.plot_rsi_distribution(strategy_data, ASSET, SHORT_PERIOD, LONG_PERIOD, SIGNAL_PERIOD, USE_LOG_Y, USE_HOURLY_DATA, LOSERS_ONLY, WINNERS_ONLY)
+    MACDCrossStrategy.plot_rsi_distribution(strategy_data, TICKER_1, SHORT_PERIOD, LONG_PERIOD, SIGNAL_PERIOD, USE_LOG_Y, USE_HOURLY_DATA, LOSERS_ONLY, WINNERS_ONLY)
 
 if __name__ == "__main__":
     main()
