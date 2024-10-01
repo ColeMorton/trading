@@ -6,13 +6,16 @@ import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 
 # Constants for easy configuration
-YEARS = 30  # Set timeframe in years
-TICKER = 'QQQ'  # Change this to analyze different assets
-USE_HOURLY_DATA = False  # Set to True to use hourly data, False for daily data
-SHORT_PERIOD = 15
-LONG_PERIOD = 34
-SIGNAL_PERIOD = 5
+YEARS = 30  # Set timeframe in years for daily data
+USE_HOURLY_DATA = False  # Set to False for daily data
+USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
+TICKER_1 = 'HNI'  # Ticker for X to USD exchange rate
+TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
+
+SHORT_PERIOD = 12
+LONG_PERIOD = 26
+SIGNAL_PERIOD = 9
 
 def download_data(symbol, years, use_hourly_data):
     end_date = datetime.now()
@@ -151,7 +154,7 @@ def plot_results(results_df):
 def main():
     stop_loss_range = np.arange(0.0001, 0.15, 0.0001)  # 0.01% to 10%
 
-    data = download_data(TICKER, YEARS, USE_HOURLY_DATA)
+    data = download_data(TICKER_1, YEARS, USE_HOURLY_DATA)
     data = calculate_macd(data, SHORT_PERIOD, LONG_PERIOD, SIGNAL_PERIOD)
 
     results_df = run_sensitivity_analysis(data, stop_loss_range)
