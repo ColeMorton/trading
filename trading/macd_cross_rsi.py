@@ -1,178 +1,248 @@
-import yfinance as yf
+import polars as pl
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+import yfinance as yf
 from datetime import datetime, timedelta
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+from typing import List, Tuple
+import json
+import logging
+import os
 
-# Constants for easy configuration
+# Ensure the logs directory exists
+os.makedirs('logs', exist_ok=True)
+
+# Set up logging to overwrite the file each time
+logging.basicConfig(
+    filename='logs/macd_rsi.log',
+    filemode='w',  # 'w' mode overwrites the file
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
+logging.info("RSI Threshold Sensitivity Analysis - New Execution")
+
+with open('config.json') as f:
+    config = json.load(f)
+
+# Configuration
 YEARS = 30  # Set timeframe in years for daily data
 USE_HOURLY_DATA = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'INCY'  # Ticker for X to USD exchange rate
+TICKER_1 = 'HNI'  # Ticker for X to USD exchange rate
 TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 
 SHORT_PERIOD = 9
 LONG_PERIOD = 31
 SIGNAL_PERIOD = 5
-
-END_DATE = '2024-09-30'
-STOP_LOSS = 9.85
-USE_LOG_Y = True
 RSI_PERIOD = 14
-LOSERS_ONLY = False  # Set to True to analyze only losing trades
-WINNERS_ONLY = True  # Set to True to analyze only winning trades
 
-class MACDCrossStrategy:
-    """
-    A class to implement and analyze the MACD Crossover trading strategy.
-    """
+def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
+    """Download historical data from Yahoo Finance."""
+    interval = '1h' if use_hourly else '1d'
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=730 if use_hourly else 365 * years)
+    
+    logging.info(f"Downloading data for symbol: {ticker}, years: {years}, use_hourly_data: {use_hourly}")
+    try:
+        data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
+        logging.info(f"Data download for {ticker} completed successfully")
+        data.reset_index(inplace=True)  # Reset index to make 'Date' a column
+        return pl.DataFrame(data)
+    except Exception as e:
+        logging.error(f"Failed to download data for {ticker}: {e}")
+        raise
 
-    def __init__(self, asset: str, end_date: str, 
-                 short_period: int, long_period: int, signal_period: int, stop_loss: float, rsi_period: int,
-                 use_hourly_data: bool, losers_only: bool, winners_only: bool):
-        """
-        Initialize the MACDCrossStrategy with given parameters.
+def calculate_macd(data: pl.DataFrame, short_period: int, long_period: int, signal_period: int) -> pl.DataFrame:
+    logging.info(f"Calculating MACD with short period: {short_period}, long period: {long_period}, signal period: {signal_period}")
+    try:
+        exp1 = data['Close'].ewm_mean(span=short_period)
+        exp2 = data['Close'].ewm_mean(span=long_period)
+        macd = exp1 - exp2
+        signal = macd.ewm_mean(span=signal_period)
+        return data.with_columns([
+            macd.alias('MACD'),
+            signal.alias('Signal_Line')
+        ])
+    except Exception as e:
+        logging.error(f"Failed to calculate MACD: {e}")
+        raise
 
-        :param asset: The asset symbol
-        :param end_date: End date for data analysis
-        :param short_period: Short period for MACD
-        :param long_period: Long period for MACD
-        :param signal_period: Signal period for MACD
-        :param stop_loss: Stop loss percentage
-        :param rsi_period: Period for RSI calculation
-        :param use_hourly_data: Whether to use hourly data (True) or daily data (False)
-        :param losers_only: Whether to analyze only losing trades
-        :param winners_only: Whether to analyze only winning trades
-        """
-        self.asset = asset
-        self.end_date = datetime.strptime(end_date, '%Y-%m-%d')
-        self.short_period = short_period
-        self.long_period = long_period
-        self.signal_period = signal_period
-        self.stop_loss = stop_loss
-        self.rsi_period = rsi_period
-        self.use_hourly_data = use_hourly_data
-        self.losers_only = losers_only
-        self.winners_only = winners_only
-        self.data = None
-        self.set_start_date()
+def calculate_rsi(data: pl.DataFrame, period: int) -> pl.DataFrame:
+    logging.info(f"Calculating RSI with period: {period}")
+    try:
+        delta = data['Close'].diff()
+        gain = (delta.fill_null(0) > 0) * delta.fill_null(0)
+        loss = (delta.fill_null(0) < 0) * -delta.fill_null(0)
+        avg_gain = gain.rolling_mean(window_size=period)
+        avg_loss = loss.rolling_mean(window_size=period)
+        rs = avg_gain / avg_loss
+        rsi = 100 - (100 / (1 + rs))
+        return data.with_columns([rsi.alias('RSI')])
+    except Exception as e:
+        logging.error(f"Failed to calculate RSI: {e}")
+        raise
 
-    def set_start_date(self):
-        """Set the start date based on whether hourly or daily data is used."""
-        if self.use_hourly_data:
-            self.start_date = self.end_date - timedelta(days=720)
-        else:
-            self.start_date = self.end_date - timedelta(days=365 * 30)  # 30 years for daily data
+def backtest(data: pl.DataFrame, rsi_threshold: float) -> List[Tuple[float, float]]:
+    logging.info(f"Running backtest with RSI threshold: {rsi_threshold}")
+    position, entry_price = 0, 0
+    trades = []
+    for i in range(1, len(data)):
+        if position == 0:
+            if (data['MACD'][i] > data['Signal_Line'][i] and
+                data['MACD'][i-1] <= data['Signal_Line'][i-1] and
+                data['RSI'][i] is not None and
+                data['RSI'][i] >= rsi_threshold):
+                position, entry_price = 1, data['Close'][i]
+                logging.info(f"Entered long position at price: {entry_price}, RSI: {data['RSI'][i]}")
+        elif position == 1:
+            if (data['MACD'][i] < data['Signal_Line'][i] and
+                data['MACD'][i-1] >= data['Signal_Line'][i-1]):
+                position, exit_price = 0, data['Close'][i]
+                trades.append((entry_price, exit_price))
+                logging.info(f"Exited long position at price: {exit_price}, RSI: {data['RSI'][i]}")
+    
+    logging.info(f"Total trades: {len(trades)}")
+    return trades
 
-    def fetch_data(self) -> None:
-        """Fetch asset price data from Yahoo Finance."""
-        interval = '1h' if self.use_hourly_data else '1d'
-        self.data = yf.download(self.asset, start=self.start_date, end=self.end_date, interval=interval)
-        if self.data.empty:
-            raise ValueError("No data fetched for the given asset and date range.")
-        
-        # For hourly data, we need to handle potential missing hours
-        if self.use_hourly_data:
-            self.data = self.data.resample('h').ffill()  # Forward fill missing hourly data
+def calculate_metrics(trades: List[Tuple[float, float]]) -> Tuple[float, float, float, int]:
+    logging.info("Starting metrics calculation")
+    if not trades:
+        return 0, 0, 0, 0
+    returns = [(exit_price / entry_price - 1) for entry_price, exit_price in trades]
+    total_return = np.prod([1 + r for r in returns]) - 1
+    win_rate = sum(1 for r in returns if r > 0) / len(trades)
+    
+    average_win = np.mean([r for r in returns if r > 0]) if any(r > 0 for r in returns) else 0
+    average_loss = np.mean([r for r in returns if r <= 0]) if any(r <= 0 for r in returns) else 0
+    expectancy = (win_rate * average_win) - ((1 - win_rate) * abs(average_loss))
+    
+    num_positions = len(trades)
+    
+    logging.info(f"Metrics - Total Return: {total_return * 100}%, Win Rate: {win_rate * 100}%, Expectancy: {expectancy}, Number of Positions: {num_positions}")
+    return total_return * 100, win_rate * 100, expectancy, num_positions
 
-    def calculate_indicators(self) -> None:
-        """Calculate MACD and RSI."""
-        # Calculate MACD
-        exp1 = self.data['Adj Close'].ewm(span=self.short_period, adjust=False).mean()
-        exp2 = self.data['Adj Close'].ewm(span=self.long_period, adjust=False).mean()
-        self.data['MACD'] = exp1 - exp2
-        self.data['Signal_Line'] = self.data['MACD'].ewm(span=self.signal_period, adjust=False).mean()
-        
-        # Calculate RSI
-        delta = self.data['Adj Close'].diff()
-        gain = (delta.where(delta > 0, 0)).rolling(window=self.rsi_period).mean()
-        loss = (-delta.where(delta < 0, 0)).rolling(window=self.rsi_period).mean()
-        rs = gain / loss
-        self.data['RSI'] = 100 - (100 / (1 + rs))
+def run_sensitivity_analysis(data: pl.DataFrame, rsi_range: np.ndarray) -> pl.DataFrame:
+    logging.info("Starting sensitivity analysis")
+    results = []
+    for rsi_threshold in rsi_range:
+        trades = backtest(data, rsi_threshold)
+        total_return, win_rate, expectancy, num_positions = calculate_metrics(trades)
+        results.append({
+            'RSI Threshold': rsi_threshold,
+            'Total Return': total_return,
+            'Win Rate': win_rate,
+            'Expectancy': expectancy,
+            'Number of Positions': num_positions
+        })
+    return pl.DataFrame(results)
 
-    def generate_signals(self) -> None:
-        """Generate trading signals based on MACD crossover and stop loss."""
-        self.data['Signal'] = np.where(self.data['MACD'] > self.data['Signal_Line'], 1, 0)
-        self.data['Stop_Loss'] = self.data['Adj Close'] * (1 - self.stop_loss)
-        self.data['Stop_Loss'] = self.data['Stop_Loss'].where(self.data['Signal'] == 1).ffill()
-        
-        self.data['Position'] = 0
-        mask = (self.data['Signal'] == 1) & (self.data['Adj Close'] > self.data['Stop_Loss'].shift(1))
-        self.data.loc[mask, 'Position'] = 1
+def find_prominent_peaks(x: np.ndarray, y: np.ndarray, prominence: float = 1, distance: int = 10) -> np.ndarray:
+    logging.info("Finding prominent peaks")
+    peaks, _ = find_peaks(y, prominence=prominence, distance=distance)
+    return peaks
 
-    def calculate_returns(self) -> None:
-        """Calculate strategy returns."""
-        self.data['Strategy_Return'] = self.data['Adj Close'].pct_change() * self.data['Position'].shift(1)
-        self.data['Trade_Return'] = self.data['Strategy_Return']
-        self.data['RSI_Open'] = self.data['RSI'].where(self.data['Position'].shift(1) == 1)
+def add_peak_labels(ax: plt.Axes, x: np.ndarray, y: np.ndarray, peaks: np.ndarray, fmt: str = '.2f'):
+    for peak in peaks:
+        ax.annotate(f'({x[peak]:.2f}, {y[peak]:{fmt}})',
+                    (x[peak], y[peak]),
+                    xytext=(0, 10),
+                    textcoords='offset points',
+                    ha='center',
+                    va='bottom',
+                    bbox=dict(boxstyle='round,pad=0.5', fc='cyan', alpha=0.5),
+                    arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=0'))
 
-    def filter_trades(self) -> None:
-        """Filter trades based on user preferences."""
-        if self.losers_only:
-            self.data = self.data[self.data['Trade_Return'] < 0].copy()
-        elif self.winners_only:
-            self.data = self.data[self.data['Trade_Return'] > 0].copy()
-        self.data = self.data.dropna(subset=['RSI_Open'])
-
-    def run_strategy(self) -> pd.DataFrame:
-        """Execute the complete strategy and return the resulting DataFrame."""
-        self.fetch_data()
-        self.calculate_indicators()
-        self.generate_signals()
-        self.calculate_returns()
-        self.filter_trades()
-        return self.data
-
-    @staticmethod
-    def plot_rsi_distribution(data: pd.DataFrame, asset: str, short: int, long: int, signal: int, use_log_y: bool, use_hourly_data: bool, losers_only: bool, winners_only: bool) -> None:
-        """
-        Plot the distribution of RSI values at the time of open/long signals.
-
-        :param data: DataFrame containing the strategy data
-        :param asset: Asset symbol
-        :param short: Short period for MACD
-        :param long: Long period for MACD
-        :param signal: Signal period for MACD
-        :param use_log_y: Whether to use logarithmic scale for Y-axis
-        :param use_hourly_data: Whether hourly data was used
-        :param losers_only: Whether only losing trades are analyzed
-        :param winners_only: Whether only winning trades are analyzed
-        """
-        plt.figure(figsize=(12, 8))
-        sns.histplot(data['RSI_Open'], kde=True, bins=100, stat='density')
-        interval = "Hourly (365 days)" if use_hourly_data else "Daily (10 years)"
-        trade_type = "Losing Trades" if losers_only else "Winning Trades" if winners_only else "All Trades"
-        plt.title(f'{asset} MACD ({short},{long},{signal}) Crossover Strategy RSI Distribution\n{interval}, {trade_type}', fontsize=16)
-        plt.xlabel('RSI Value', fontsize=12)
-        plt.ylabel('Density', fontsize=12)
-        plt.grid(True, alpha=0.3)
-
-        stats = {
-            'Mean': data['RSI_Open'].mean(),
-            'Median': data['RSI_Open'].median(),
-            '95th Percentile': data['RSI_Open'].quantile(0.95),
-            '5th Percentile': data['RSI_Open'].quantile(0.05)
-        }
-
-        colors = ['r', 'g', 'purple', 'orange']
-        for (label, value), color in zip(stats.items(), colors):
-            plt.axvline(value, color=color, linestyle='--', label=f'{label}: {value:.2f}')
-
-        plt.axvline(50, color='k', linestyle='-', label='Neutral (50)')
-
-        if use_log_y:
-            plt.yscale('log')
-
-        plt.legend(fontsize=10, loc='upper left')
-        plt.tight_layout()
-        plt.show()
+def plot_results(ticker: str, results_df: pl.DataFrame):
+    logging.info("Plotting results")
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 16), sharex=True)
+    
+    # Plot returns and win rate
+    color1 = 'tab:blue'
+    ax1.set_ylabel('Total Return %', color=color1)
+    ax1.plot(results_df['RSI Threshold'], results_df['Total Return'], color=color1)
+    ax1.tick_params(axis='y', labelcolor=color1)
+    
+    color2 = 'tab:red'
+    ax1_twin = ax1.twinx()
+    ax1_twin.set_ylabel('Win Rate %', color=color2)
+    ax1_twin.plot(results_df['RSI Threshold'], results_df['Win Rate'], color=color2)
+    ax1_twin.tick_params(axis='y', labelcolor=color2)
+    
+    ax1.set_title(f'Total Return % and Win Rate % vs RSI Threshold: {ticker}')
+    
+    # Plot expectancy and number of positions
+    color3 = 'tab:green'
+    ax2.set_xlabel('RSI Threshold')
+    ax2.set_ylabel('Expectancy', color=color3)
+    ax2.plot(results_df['RSI Threshold'], results_df['Expectancy'], color=color3)
+    ax2.tick_params(axis='y', labelcolor=color3)
+    
+    color4 = 'tab:orange'
+    ax2_twin = ax2.twinx()
+    ax2_twin.set_ylabel('Number of Positions', color=color4)
+    ax2_twin.plot(results_df['RSI Threshold'], results_df['Number of Positions'], color=color4)
+    ax2_twin.tick_params(axis='y', labelcolor=color4)
+    
+    ax2.set_title(f'Expectancy and Number of Positions vs RSI Threshold: {ticker}')
+    
+    # Add peak labels for all plots
+    add_peak_labels(ax1, results_df['RSI Threshold'].to_numpy(), results_df['Total Return'].to_numpy(), 
+                    find_prominent_peaks(results_df['RSI Threshold'].to_numpy(), results_df['Total Return'].to_numpy()))
+    add_peak_labels(ax1_twin, results_df['RSI Threshold'].to_numpy(), results_df['Win Rate'].to_numpy(), 
+                    find_prominent_peaks(results_df['RSI Threshold'].to_numpy(), results_df['Win Rate'].to_numpy()))
+    add_peak_labels(ax2, results_df['RSI Threshold'].to_numpy(), results_df['Expectancy'].to_numpy(), 
+                    find_prominent_peaks(results_df['RSI Threshold'].to_numpy(), results_df['Expectancy'].to_numpy()))
+    add_peak_labels(ax2_twin, results_df['RSI Threshold'].to_numpy(), results_df['Number of Positions'].to_numpy(), 
+                    find_prominent_peaks(results_df['RSI Threshold'].to_numpy(), results_df['Number of Positions'].to_numpy()))
+    
+    fig.tight_layout()
+    plt.show()
 
 def main():
-    strategy = MACDCrossStrategy(TICKER_1, END_DATE, SHORT_PERIOD, LONG_PERIOD, SIGNAL_PERIOD, STOP_LOSS, RSI_PERIOD, USE_HOURLY_DATA, LOSERS_ONLY, WINNERS_ONLY)
-    strategy_data = strategy.run_strategy()
-    MACDCrossStrategy.plot_rsi_distribution(strategy_data, TICKER_1, SHORT_PERIOD, LONG_PERIOD, SIGNAL_PERIOD, USE_LOG_Y, USE_HOURLY_DATA, LOSERS_ONLY, WINNERS_ONLY)
+    logging.info("Starting main execution")
+    rsi_range = np.arange(29, 79, 1)  # 30 to 80
+
+    if USE_SYNTHETIC:
+        # Download historical data for TICKER_1 and TICKER_2
+        data_ticker_1 = download_data(TICKER_1, YEARS, USE_HOURLY_DATA)
+        data_ticker_2 = download_data(TICKER_2, YEARS, USE_HOURLY_DATA)
+
+        # Perform an inner join on 'Date' to ensure both have matching rows
+        data_merged = data_ticker_1.join(data_ticker_2, on='Date', how='inner', suffix="_2")
+
+        # Now calculate the ratio of 'Close' columns
+        data = pl.DataFrame({
+            'Date': data_merged['Date'],
+            'Close': data_merged['Close'] / data_merged['Close_2'],
+            'Open': data_merged['Open'] / data_merged['Open_2'],
+            'High': data_merged['High'] / data_merged['High_2'],
+            'Low': data_merged['Low'] / data_merged['Low_2'],
+            'Volume': data_merged['Volume']  # Keep original volume
+        })
+        
+        # Extracting base and quote currencies from tickers
+        base_currency = TICKER_1[:3]  # X
+        quote_currency = TICKER_2[:3]  # Y
+        synthetic_ticker = f"{base_currency}/{quote_currency}"
+    else:
+        # Download historical data for TICKER_1 only
+        data = download_data(TICKER_1, YEARS, USE_HOURLY_DATA)
+        synthetic_ticker = TICKER_1
+
+    data = calculate_macd(data, SHORT_PERIOD, LONG_PERIOD, SIGNAL_PERIOD)
+    data = calculate_rsi(data, RSI_PERIOD)
+    
+    # Log some statistics about the data
+    logging.info(f"Data statistics: Close price - Min: {data['Close'].min()}, Max: {data['Close'].max()}, Mean: {data['Close'].mean()}")
+    logging.info(f"RSI statistics: Min: {data['RSI'].min()}, Max: {data['RSI'].max()}, Mean: {data['RSI'].mean()}")
+    
+    results_df = run_sensitivity_analysis(data, rsi_range)
+    
+    pl.Config.set_fmt_str_lengths(20)
+    plot_results(synthetic_ticker, results_df)
+    logging.info("Main execution completed")
 
 if __name__ == "__main__":
     main()
