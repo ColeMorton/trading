@@ -5,49 +5,29 @@ from scipy.optimize import minimize
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-# start_date = '2019-11-01'
-# end_date = '2020-02-01'
+# Set date range and assets
+start_date = '2019-11-01'
+end_date = '2024-09-26'
 
 # start_date = '2019-11-01'
 # end_date = '2020-11-01'
 
-# start_date = '2023-09-01'
-# end_date = '2023-12-01'
+# start_date = '2020-09-26'
+# end_date = '2024-09-26'
 
-# start_date = '2010-01-01'
-# end_date = '2024-09-20'
-
-start_date = '2019-11-20'
-end_date = '2024-09-20'
-
-# start_date = '2023-09-20'
-# end_date = '2024-09-20'
-
-# start_date = '2024-03-20'
-# end_date = '2024-09-20'
-
-# start_date = '2024-05-20'
-# end_date = '2024-09-20'
-
-# ASSETS = ['SNX', 'ENPH', 'CHFGBP=X', 'BTC-USD', 'ON']
+# start_date = '2023-09-26'
+# end_date = '2024-09-26'
 
 # ASSETS = ['BTC-USD', 'SPY']
 
-ASSETS = ['QQQ', 'SPY']
+ASSETS = ['BTC-USD', 'MSTR']
 
 # Download the data
 data = yf.download(ASSETS, start=start_date, end=end_date)['Adj Close']
-
 print(f'Start Date: {start_date} End Date: {end_date}')
-
-# Display the first few rows of the data
-# print(data.head())
 
 # Calculate daily returns
 returns = data.pct_change().dropna()
-
-# Display the first few rows of the returns
-# print(returns.head())
 
 def portfolio_performance(weights, mean_returns, cov_matrix):
     returns = np.dot(weights, mean_returns)
@@ -62,6 +42,23 @@ def negative_sortino_ratio(weights, mean_returns, returns, target=0, risk_free_r
     p_return, _ = portfolio_performance(weights, mean_returns, cov_matrix)
     dd = downside_deviation(np.dot(returns, weights), target)
     return -(p_return - risk_free_rate) / dd
+
+def negative_sharpe_ratio(weights, mean_returns, cov_matrix, risk_free_rate=0):
+    p_return, p_std = portfolio_performance(weights, mean_returns, cov_matrix)
+    return -(p_return - risk_free_rate) / p_std
+
+def max_drawdown(returns):
+    # Convert the NumPy array to a Pandas Series to use cummax()
+    cumulative_returns = pd.Series((1 + returns).cumprod())
+    peak = cumulative_returns.cummax()
+    drawdown = (cumulative_returns - peak) / peak
+    return drawdown.min()
+
+def calmar_ratio(weights, mean_returns, returns):
+    p_return, _ = portfolio_performance(weights, mean_returns, cov_matrix)
+    portfolio_returns = np.dot(returns, weights)
+    mdd = max_drawdown(portfolio_returns)
+    return p_return / abs(mdd)
 
 # Calculate mean returns and covariance matrix
 mean_returns = returns.mean()
@@ -79,23 +76,46 @@ constraints = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1})
 # Bounds (weights must be between 0 and 1)
 bounds = tuple((0, 1) for asset in range(num_assets))
 
-# Perform optimization
-result = minimize(negative_sortino_ratio, init_guess, args=(mean_returns, returns), 
-                  method='SLSQP', bounds=bounds, constraints=constraints)
+# Perform optimization for Sortino Ratio
+result_sortino = minimize(negative_sortino_ratio, init_guess, args=(mean_returns, returns), 
+                          method='SLSQP', bounds=bounds, constraints=constraints)
 
-# Get the optimal weights
-optimal_weights = result.x
+# Get the optimal weights for Sortino Ratio
+optimal_weights_sortino = result_sortino.x
+optimal_return_sortino, optimal_std_sortino = portfolio_performance(optimal_weights_sortino, mean_returns, cov_matrix)
+optimal_sortino = -(result_sortino.fun)  # Since we minimized the negative sortino ratio
 
-print(f"Optimal Weights: {optimal_weights}")
+print(f"Optimal Sortino Weights: {optimal_weights_sortino}")
+print(f"Optimal Sortino Portfolio Return: {optimal_return_sortino}")
+print(f"Optimal Sortino Portfolio Volatility: {optimal_std_sortino}")
+print(f"Optimal Sortino Ratio: {optimal_sortino}")
 
-# Portfolio performance
-optimal_return, optimal_std = portfolio_performance(optimal_weights, mean_returns, cov_matrix)
+# Perform optimization for Sharpe Ratio
+result_sharpe = minimize(negative_sharpe_ratio, init_guess, args=(mean_returns, cov_matrix), 
+                         method='SLSQP', bounds=bounds, constraints=constraints)
+
+# Get the optimal weights for Sharpe Ratio
+optimal_weights_sharpe = result_sharpe.x
+optimal_return_sharpe, optimal_std_sharpe = portfolio_performance(optimal_weights_sharpe, mean_returns, cov_matrix)
+optimal_sharpe = -(result_sharpe.fun)  # Since we minimized the negative sharpe ratio
+
+print(f"\nOptimal Sharpe Weights: {optimal_weights_sharpe}")
+print(f"Optimal Sharpe Portfolio Return: {optimal_return_sharpe}")
+print(f"Optimal Sharpe Portfolio Volatility: {optimal_std_sharpe}")
+print(f"Optimal Sharpe Ratio: {optimal_sharpe}")
+
+# Calculate Sharpe and Calmar ratios for optimal weights
+optimal_calmar_sortino = calmar_ratio(optimal_weights_sortino, mean_returns, returns)
+optimal_calmar_sharpe = calmar_ratio(optimal_weights_sharpe, mean_returns, returns)
+
+print(f"Optimal Sortino Calmar Ratio: {optimal_calmar_sortino}")
+print(f"Optimal Sharpe Calmar Ratio: {optimal_calmar_sharpe}")
 
 # Plot efficient frontier
 def plot_efficient_frontier(mean_returns, cov_matrix, returns, num_portfolios=10000, risk_free_rate=0):
-    results = np.zeros((3, num_portfolios))
+    results = np.zeros((4, num_portfolios))  # Adding Sharpe ratio to results array
     weights_record = []
-    
+
     for i in range(num_portfolios):
         weights = np.random.random(len(mean_returns))
         weights /= np.sum(weights)
@@ -104,26 +124,32 @@ def plot_efficient_frontier(mean_returns, cov_matrix, returns, num_portfolios=10
         dd = downside_deviation(np.dot(returns, weights))
         results[0, i] = portfolio_return
         results[1, i] = portfolio_std
-        results[2, i] = (portfolio_return - risk_free_rate) / dd
-    
+        results[2, i] = (portfolio_return - risk_free_rate) / dd  # Sortino ratio
+        results[3, i] = (portfolio_return - risk_free_rate) / portfolio_std  # Sharpe ratio
+
     max_sortino_idx = np.argmax(results[2])
-    sdp, rp = results[1, max_sortino_idx], results[0, max_sortino_idx]
+    max_sharpe_idx = np.argmax(results[3])
+
+    sdp_sortino, rp_sortino = results[1, max_sortino_idx], results[0, max_sortino_idx]
+    sdp_sharpe, rp_sharpe = results[1, max_sharpe_idx], results[0, max_sharpe_idx]
+
     max_sortino_allocation = pd.DataFrame(weights_record[max_sortino_idx], index=mean_returns.index, columns=['allocation'])
     max_sortino_allocation.allocation = [round(i*100, 2) for i in max_sortino_allocation.allocation]
-    
+
     plt.figure(figsize=(10, 7))
     plt.scatter(results[1, :], results[0, :], c=results[2, :], cmap='YlGnBu', marker='o')
-    plt.scatter(sdp, rp, marker='*', color='r', s=200, label='Maximum Sortino ratio')
-    plt.title('Efficient Frontier')
+    plt.scatter(sdp_sortino, rp_sortino, marker='*', color='r', s=200, label='Maximum Sortino ratio')
+    plt.scatter(sdp_sharpe, rp_sharpe, marker='*', color='b', s=200, label='Maximum Sharpe ratio')
+    plt.title('Efficient Frontier with Sharpe and Sortino Ratios')
     plt.xlabel('Volatility (Std. Deviation)')
     plt.ylabel('Expected Returns')
     plt.colorbar(label='Sortino ratio')
     plt.legend(labelspacing=0.8)
-    
+
     return max_sortino_allocation
 
 max_sortino_allocation = plot_efficient_frontier(mean_returns, cov_matrix, returns)
 
-print("Maximum Sortino Ratio Portfolio Allocation\n")
+print("\nMaximum Sortino Ratio Portfolio Allocation\n")
 print(max_sortino_allocation)
 plt.show()
