@@ -6,13 +6,16 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 
 # Constants for easy configuration
-YEARS = 30  # Set timeframe in years
-TICKER = 'ZIM'
-USE_HOURLY_DATA = False  # Set to True to use hourly data, False for daily data
-FAST_PERIOD = 19
-SLOW_PERIOD = 25
-SIGNAL_PERIOD = 10
-SHORT = False  # Set to True for short-only strategy, False for long-only
+YEARS = 30  # Set timeframe in years for daily data
+USE_HOURLY_DATA = False  # Set to False for daily data
+USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
+TICKER_1 = 'INCY'  # Ticker for X to USD exchange rate
+TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
+SHORT = False  # Set to True for short-only strategy, False for long-only strategy
+
+SHORT_PERIOD = 9
+LONG_PERIOD = 31
+SIGNAL_PERIOD = 5
 
 def download_data(symbol, years, use_hourly_data):
     end_date = datetime.now()
@@ -24,13 +27,13 @@ def download_data(symbol, years, use_hourly_data):
     return yf.download(symbol, start=start_date, end=end_date, interval=interval)
 
 def main():
-    data = download_data(TICKER, YEARS, USE_HOURLY_DATA)
+    data = download_data(TICKER_1, YEARS, USE_HOURLY_DATA)
 
     # Calculate MACD
     macd_indicator = vbt.MACD.run(
         data['Close'],
-        fast_window=FAST_PERIOD,
-        slow_window=SLOW_PERIOD,
+        fast_window=SHORT_PERIOD,
+        slow_window=LONG_PERIOD,
         signal_window=SIGNAL_PERIOD
     )
 
