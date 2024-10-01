@@ -5,17 +5,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 
-# Constants for easy configuration
+# Configuration
 YEARS = 30  # Set timeframe in years for daily data
 USE_HOURLY_DATA = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'INCY'  # Ticker for X to USD exchange rate
-TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
+TICKER_1 = 'HNI'  # Ticker for X to USD exchange rate
+TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
+USE_SMA = False  # Set to True to use SMAs, False to use EMAs
 
-SHORT_PERIOD = 9
-LONG_PERIOD = 31
-SIGNAL_PERIOD = 5
+SHORT_PERIOD = 12
+LONG_PERIOD = 26
+SIGNAL_PERIOD = 9
+
+RSI_THRESHOLD = 55
+USE_RSI = False
 
 def download_data(symbol, years, use_hourly_data):
     end_date = datetime.now()

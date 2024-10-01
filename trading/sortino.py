@@ -7,7 +7,9 @@ from datetime import datetime, timedelta
 # Define the list of assets
 # ASSETS = ['SPY', 'QQQ', 'BTC-USD', 'SOL-USD']
 
-ASSETS = ['MPWR', 'TER', 'ZIM', 'QCOM', 'GDDY']
+# ASSETS = ['BTC-USD', 'IDEX-USD', 'ONDO-USD', 'DYDX-USD', 'YFI-USD', 'RVN-USD', 'LRC-USD']
+
+ASSETS = ['HNI', 'ICE', 'VLTO', 'ISRG', 'CINF', 'GRMN']
 
 # ASSETS = ['CEG', 'VRTX', 'VST', 'AMD', 'MPWR', 'URI', 'BTC-USD', 'SPY']
 

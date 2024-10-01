@@ -25,17 +25,17 @@ logging.info("RSI Threshold Sensitivity Analysis - New Execution")
 with open('config.json') as f:
     config = json.load(f)
 
-# Configuration
+# Constants for easy configuration
 YEARS = 30  # Set timeframe in years for daily data
 USE_HOURLY_DATA = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'HNI'  # Ticker for X to USD exchange rate
+TICKER_1 = 'GRMN'  # Ticker for X to USD exchange rate
 TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 
-SHORT_PERIOD = 9
-LONG_PERIOD = 31
-SIGNAL_PERIOD = 5
+SHORT_PERIOD = 10
+LONG_PERIOD = 20
+SIGNAL_PERIOD = 8
 RSI_PERIOD = 14
 
 def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:

@@ -21,19 +21,32 @@ from datetime import datetime, timedelta
 from typing import Tuple
 
 # Configuration
+YEARS = 30  # Set timeframe in years for daily data
+USE_HOURLY_DATA = False  # Set to False for daily data
+USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
+TICKER_1 = 'ISRG'  # Ticker for X to USD exchange rate
+TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
+SHORT = False  # Set to True for short-only strategy, False for long-only strategy
+USE_SMA = False  # Set to True to use SMAs, False to use EMAs
+
+EMA_FAST = 9
+EMA_SLOW = 13
+RSI_PERIOD = 14
+
+# Configuration
 CONFIG = {
-    "YEARS": 30,  # Set timeframe in years for daily data
-    "USE_HOURLY_DATA": False,  # Set to False for daily data
-    "USE_SYNTHETIC": False,  # Toggle between synthetic and original ticker
-    "TICKER_1": 'ICE',  # Ticker for X to USD exchange rate
-    "TICKER_2": 'BTC-USD',  # Ticker for Y to USD exchange rate
-    "SHORT": False,  # Set to True for short-only strategy, False for long-only strategy
-    "USE_SMA": False,  # Set to True to use SMAs, False to use EMAs
-    "EMA_FAST": 6,
-    "EMA_SLOW": 17,
-    "RSI_PERIOD": 14,
+    "YEARS": YEARS,  # Set timeframe in years for daily data
+    "USE_HOURLY_DATA": USE_HOURLY_DATA,  # Set to False for daily data
+    "USE_SYNTHETIC": USE_SYNTHETIC,  # Toggle between synthetic and original ticker
+    "TICKER_1": TICKER_1,  # Ticker for X to USD exchange rate
+    "TICKER_2": TICKER_2,  # Ticker for Y to USD exchange rate
+    "SHORT": SHORT,  # Set to True for short-only strategy, False for long-only strategy
+    "USE_SMA": USE_SMA,  # Set to True to use SMAs, False to use EMAs
+    "EMA_FAST": EMA_FAST,
+    "EMA_SLOW": EMA_SLOW,
+    "RSI_PERIOD": RSI_PERIOD,
     "RSI_THRESHOLD": 55,
-    "USE_RSI": True
+    "USE_RSI": False
 }
 
 def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:

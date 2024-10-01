@@ -9,8 +9,8 @@ from datetime import datetime, timedelta
 # Constants for easy configuration
 YEARS = 30  # Set timeframe in years for daily data
 USE_HOURLY_DATA = False  # Set to False for daily data
-USE_SYNTHETIC = True  # Toggle between synthetic and original ticker
-TICKER_1 = 'QQQ'  # Ticker for X to USD exchange rate
+USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
+TICKER_1 = 'GRMN'  # Ticker for X to USD exchange rate
 TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 

@@ -7,15 +7,15 @@ from scipy.cluster.hierarchy import linkage, dendrogram, leaves_list
 from scipy.spatial.distance import squareform
 import numpy as np
 
-# ASSETS = ['BTC-USD', 'SPY', 'CEG', 'DFS', 'FAST', 'ANET', 'TSLA', 'SLV', 'MPWR', 'TER', 'ZIM', 'QCOM', 'GDDY']
+# ASSETS = ['BTC-USD', 'IDEX-USD', 'ONDO-USD', 'DYDX-USD', 'YFI-USD', 'RVN-USD', 'LRC-USD']
 
-# ASSETS = ['PALL', 'BTC-USD', 'SPY', 'EPAM', 'TSLA', 'FAST', 'FIGS']
+ASSETS = ['BTC-USD', 'SPY', 'DFS', 'FAST', 'AAPL', 'AKAM', 'TSLA', 'AMD', 'SLV', 'MPWR', 'TER', 'HNI', 'ICE', 'VLTO', 'ISRG', 'CINF', 'GRMN', 'TYL', 'ODFL', 'PANW']
+
+# ASSETS = ['BTC-USD', 'SPY', 'DFS', 'FAST', 'ANET', 'TSLA', 'SLV', 'MPWR', 'TER', 'SE', 'AVGO', 'AMD', 'GDDY', 'AAPL', 'APH', 'LHX', 'META']
 
 # ASSETS = ['PALL', 'SPY', 'QQQ', 'SGOL', 'BTC-USD', 'TLT', 'SIVR']
 
-# ASSETS = ['IAU', 'COPX', 'URA', 'SLV', 'LIT', 'BTC-USD', 'SPY', 'EIS', 'EWL', 'EDEN', 'EWP', 'INDY', 'EPU']
-
-ASSETS = ['BTC-USD', 'SPY', 'QQQ']
+# ASSETS = ['BTC-USD', 'SPY', 'QQQ']
 
 # 292 bars per year
 # DAYS = 292

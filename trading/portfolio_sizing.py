@@ -3,8 +3,8 @@ import yfinance as yf
 import scipy.stats as st
 
 # Define parameters
-TOTAL_PORTFOLIO_VALUE = 8500  # target 1
-# TOTAL_PORTFOLIO_VALUE = 9750  # target 2
+# TOTAL_PORTFOLIO_VALUE = 8500  # target 1
+TOTAL_PORTFOLIO_VALUE = 9750  # target 2
 # TOTAL_PORTFOLIO_VALUE = 11000  # target 3
 ASSET_1_TICKER = "BTC-USD"
 ASSET_2_TICKER = "SPY"
@@ -12,7 +12,7 @@ ASSET_1_LEVERAGE = 7  # Example leverage factor for Asset 1
 ASSET_2_LEVERAGE = 7  # Example leverage factor for Asset 2
 USE_EMA = False
 EMA_PERIOD = 21
-ASSET_1_ALLOCATION = 40.41 # Target allocation for Asset 1 (as a percentage)
+ASSET_1_ALLOCATION = 45 # Target allocation for Asset 1 (as a percentage)
 VAR_CONFIDENCE_LEVELS = [0.95, 0.99]
 
 # TOTAL_PORTFOLIO_VALUE = 6500  # target
@@ -74,8 +74,6 @@ def print_asset_details(ticker, initial_value, leverage, position_size, leverage
     print(f"  Allocation: {allocation:.2f}%")
     
     for cl, (var, cvar) in var_cvar_results.items():
-        print(f"  VaR ({cl*100:.0f}%): {var*100:.4f}%")
-        print(f"  CVaR ({cl*100:.0f}%): {cvar*100:.4f}%")
         print(f"  VaR Monetary Loss ({cl*100:.0f}%): ${abs(var*leveraged_value):.2f}")
         print(f"  CVaR Monetary Loss ({cl*100:.0f}%): ${abs(cvar*leveraged_value):.2f}")
 

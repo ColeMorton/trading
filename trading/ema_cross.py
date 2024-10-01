@@ -10,12 +10,12 @@ from typing import Tuple, List
 
 # Configuration
 YEARS = 30  # Set timeframe in years for daily data
-USE_HOURLY_DATA = True  # Set to False for daily data
+USE_HOURLY_DATA = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'BTC-USD'  # Ticker for X to USD exchange rate
-TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
+TICKER_1 = 'GRMN'  # Ticker for X to USD exchange rate
+TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
-USE_SMA = True  # Set to True to use SMAs, False to use EMAs
+USE_SMA = False  # Set to True to use SMAs, False to use EMAs
 
 # Logging setup
 logging.basicConfig(filename='logs/ema_cross.log', level=logging.INFO,

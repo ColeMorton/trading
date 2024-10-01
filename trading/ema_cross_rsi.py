@@ -28,14 +28,14 @@ with open('config.json') as f:
 # Configuration
 YEARS = 30  # Set timeframe in years for daily data
 USE_HOURLY_DATA = False  # Set to False for daily data
-USE_SYNTHETIC = True  # Toggle between synthetic and original ticker
-TICKER_1 = 'QQQ'  # Ticker for X to USD exchange rate
-TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
+USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
+TICKER_1 = 'ISRG'  # Ticker for X to USD exchange rate
+TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 USE_SMA = False  # Set to True to use SMAs, False to use EMAs
 
-EMA_FAST = 12
-EMA_SLOW = 32
+EMA_FAST = 9
+EMA_SLOW = 13
 RSI_PERIOD = 14
 
 def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
