@@ -41,17 +41,17 @@ USE_RSI = config['USE_RSI']
 YEARS = 30  # Set timeframe in years for daily data
 USE_HOURLY_DATA = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'ISRG'  # Ticker for X to USD exchange rate
+TICKER_1 = 'BTC-USD'  # Ticker for X to USD exchange rate
 TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
-USE_SMA = False  # Set to True to use SMAs, False to use EMAs
+USE_SMA = True  # Set to True to use SMAs, False to use EMAs
 
-EMA_FAST = 9
-EMA_SLOW = 13
+EMA_FAST = 27
+EMA_SLOW = 28
 RSI_PERIOD = 14
 
-RSI_THRESHOLD = 55
-USE_RSI = False
+RSI_THRESHOLD = 58
+USE_RSI = True
 
 def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
     """Download historical data from Yahoo Finance."""
@@ -69,11 +69,23 @@ def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
         logging.error(f"Failed to download data for {ticker}: {e}")
         raise
 
-def calculate_emas(data: pl.DataFrame, ema_fast: int, ema_slow: int) -> pl.DataFrame:
-    return data.with_columns([
-        pl.col('Close').ewm_mean(span=ema_fast).alias('EMA_FAST'),
-        pl.col('Close').ewm_mean(span=ema_slow).alias('EMA_SLOW')
-    ])
+def calculate_emas(data: pl.DataFrame, short_window: int, long_window: int) -> pl.DataFrame:
+    ma_type = "SMA" if USE_SMA else "EMA"
+    logging.info(f"Calculating {ma_type}s and signals with short window {short_window} and long window {long_window}")
+    try:
+        if USE_SMA:
+            return data.with_columns([
+                pl.col('Close').rolling_mean(window_size=short_window).fill_null(strategy='forward').alias('EMA_FAST'),
+                pl.col('Close').rolling_mean(window_size=long_window).fill_null(strategy='forward').alias('EMA_SLOW')
+            ])
+        else:
+            return data.with_columns([
+                pl.col('Close').ewm_mean(span=short_window).fill_null(strategy='forward').alias('EMA_FAST'),
+                pl.col('Close').ewm_mean(span=long_window).fill_null(strategy='forward').alias('EMA_SLOW')
+            ])
+    except Exception as e:
+        logging.error(f"Failed to calculate EMAs: {e}")
+        raise
 
 def calculate_rsi(data: pl.DataFrame, period: int) -> pl.DataFrame:
     delta = data['Close'].diff()
@@ -90,6 +102,9 @@ def backtest(data: pl.DataFrame, stop_loss_percentage: float, rsi_threshold: flo
     trades = []
 
     for i in range(1, len(data)):
+        if any(data[col][i] is None for col in ['EMA_FAST', 'EMA_SLOW', 'Close']):
+            continue  # Skip this iteration if any required value is None
+
         if position == 0:
             if SHORT:
                 # Short entry condition

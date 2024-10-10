@@ -29,13 +29,13 @@ with open('config.json') as f:
 YEARS = 30  # Set timeframe in years for daily data
 USE_HOURLY_DATA = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'ISRG'  # Ticker for X to USD exchange rate
+TICKER_1 = 'BTC-USD'  # Ticker for X to USD exchange rate
 TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
-USE_SMA = False  # Set to True to use SMAs, False to use EMAs
+USE_SMA = True  # Set to True to use SMAs, False to use EMAs
 
-EMA_FAST = 9
-EMA_SLOW = 13
+EMA_FAST = 27
+EMA_SLOW = 28
 RSI_PERIOD = 14
 
 def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
@@ -54,13 +54,20 @@ def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
         logging.error(f"Failed to download data for {ticker}: {e}")
         raise
 
-def calculate_emas(data: pl.DataFrame, ema_fast: int, ema_slow: int) -> pl.DataFrame:
-    logging.info(f"Calculating EMAs with fast window: {ema_fast}, slow window: {ema_slow}")
+def calculate_emas(data: pl.DataFrame, short_window: int, long_window: int) -> pl.DataFrame:
+    ma_type = "SMA" if USE_SMA else "EMA"
+    logging.info(f"Calculating {ma_type}s and signals with short window {short_window} and long window {long_window}")
     try:
-        return data.with_columns([
-            pl.col('Close').ewm_mean(span=ema_fast).alias('EMA_FAST'),
-            pl.col('Close').ewm_mean(span=ema_slow).alias('EMA_SLOW')
-        ])
+        if USE_SMA:
+            return data.with_columns([
+                pl.col('Close').rolling_mean(window_size=short_window).alias('EMA_FAST'),
+                pl.col('Close').rolling_mean(window_size=long_window).alias('EMA_SLOW')
+            ])
+        else:
+            return data.with_columns([
+                pl.col('Close').ewm_mean(span=short_window).alias('EMA_FAST'),
+                pl.col('Close').ewm_mean(span=long_window).alias('EMA_SLOW')
+            ])
     except Exception as e:
         logging.error(f"Failed to calculate EMAs: {e}")
         raise
@@ -85,19 +92,26 @@ def backtest(data: pl.DataFrame, rsi_threshold: float) -> List[Tuple[float, floa
     position, entry_price = 0, 0
     trades = []
     for i in range(1, len(data)):
+        ema_fast_prev, ema_slow_prev = data['EMA_FAST'][i-1], data['EMA_SLOW'][i-1]
+        ema_fast_curr, ema_slow_curr = data['EMA_FAST'][i], data['EMA_SLOW'][i]
+        rsi_curr = data['RSI'][i]
+        
+        # Skip this iteration if any of the required values are None
+        if any(v is None for v in [ema_fast_prev, ema_slow_prev, ema_fast_curr, ema_slow_curr, rsi_curr]):
+            continue
+        
         if position == 0:
-            if (data['EMA_FAST'][i] > data['EMA_SLOW'][i] and
-                data['EMA_FAST'][i-1] <= data['EMA_SLOW'][i-1] and
-                data['RSI'][i] is not None and
-                data['RSI'][i] >= rsi_threshold):
+            if (ema_fast_curr > ema_slow_curr and
+                ema_fast_prev <= ema_slow_prev and
+                rsi_curr >= rsi_threshold):
                 position, entry_price = 1, data['Close'][i]
-                logging.info(f"Entered long position at price: {entry_price}, RSI: {data['RSI'][i]}")
+                logging.info(f"Entered long position at price: {entry_price}, RSI: {rsi_curr}")
         elif position == 1:
-            if (data['EMA_FAST'][i] < data['EMA_SLOW'][i] and
-                data['EMA_FAST'][i-1] >= data['EMA_SLOW'][i-1]):
+            if (ema_fast_curr < ema_slow_curr and
+                ema_fast_prev >= ema_slow_prev):
                 position, exit_price = 0, data['Close'][i]
                 trades.append((entry_price, exit_price))
-                logging.info(f"Exited long position at price: {exit_price}, RSI: {data['RSI'][i]}")
+                logging.info(f"Exited long position at price: {exit_price}, RSI: {rsi_curr}")
     
     logging.info(f"Total trades: {len(trades)}")
     return trades
