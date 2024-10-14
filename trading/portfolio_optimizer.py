@@ -6,21 +6,28 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 # Set date range and assets
-start_date = '2019-11-01'
-end_date = '2024-09-26'
+# start_date = '2020-01-01'
+# end_date = '2021-01-01'
 
-# start_date = '2019-11-01'
-# end_date = '2020-11-01'
+# start_date = '2020-01-01'
+# end_date = '2024-10-10'
 
-# start_date = '2020-09-26'
-# end_date = '2024-09-26'
-
-# start_date = '2023-09-26'
-# end_date = '2024-09-26'
+start_date = '2023-10-10'
+end_date = '2024-10-10'
 
 # ASSETS = ['BTC-USD', 'SPY']
 
-ASSETS = ['BTC-USD', 'MSTR']
+ASSETS = ['BTC-USD', 'SOL-USD']
+
+# ASSETS = ['BTC-USD', 'QQQ']
+
+# ASSETS = ['BTC-USD', 'MSTR', 'SOL-USD']
+
+# ASSETS = ['BTC-USD', 'SPY', 'QQQ', 'SOL-USD', 'MSTR']
+
+# ASSETS = ['BTC-USD', 'SOL-USD', 'MSTR']
+
+# ASSETS = ['SPY', 'QQQ']
 
 # Download the data
 data = yf.download(ASSETS, start=start_date, end=end_date)['Adj Close']
