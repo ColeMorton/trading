@@ -4,34 +4,87 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
+from typing import List, Tuple
+import logging
+import os
 
-# Configuration
+# Ensure the logs directory exists
+os.makedirs('logs', exist_ok=True)
+
+# Set up logging to overwrite the file each time
+logging.basicConfig(
+    filename='logs/macd_cross_psl.log',
+    filemode='w',  # 'w' mode overwrites the file
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
+logging.info("Total Return, Win Rate, and Expectancy vs Stop Loss Percentage")
+
+# Constants for easy configuration
 YEARS = 30  # Set timeframe in years for daily data
-USE_HOURLY_DATA = False  # Set to False for daily data
-USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'HNI'  # Ticker for X to USD exchange rate
+USE_HOURLY_DATA = True  # Set to False for daily data
+USE_SYNTHETIC = True  # Toggle between synthetic and original ticker
+TICKER_1 = 'SOL-USD'  # Ticker for X to USD exchange rate
 TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
-USE_SMA = False  # Set to True to use SMAs, False to use EMAs
 
-SHORT_PERIOD = 12
-LONG_PERIOD = 26
-SIGNAL_PERIOD = 9
+SHORT_PERIOD = 20
+LONG_PERIOD = 34
+SIGNAL_PERIOD = 13
+RSI_PERIOD = 14
 
-RSI_THRESHOLD = 55
-USE_RSI = False
+RSI_THRESHOLD = 48
+USE_RSI = True
 
-def download_data(symbol, years, use_hourly_data):
+# Logging setup
+logging.basicConfig(filename='logs/macd_cross_psl.log', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+def download_data(ticker: str, use_hourly: bool) -> pd.DataFrame:
+    """Download historical data from Yahoo Finance."""
+    interval = '1h' if use_hourly else '1d'
     end_date = datetime.now()
-    if USE_HOURLY_DATA:
-        start_date = end_date - timedelta(days=730)
-    else:
-        start_date = end_date - timedelta(days=365 * years)
-    interval = '1h' if use_hourly_data else '1d'
-    return yf.download(symbol, start=start_date, end=end_date, interval=interval)
+    start_date = end_date - timedelta(days=730 if use_hourly else 365 * YEARS)
+    
+    logging.info(f"Downloading data for {ticker}")
+    try:
+        data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
+        logging.info(f"Data download for {ticker} completed successfully")
+        return data
+    except Exception as e:
+        logging.error(f"Failed to download data for {ticker}: {e}")
+        raise
+
+def calculate_rsi(data, period: int):
+    delta = data['Close'].diff()
+    gain = (delta > 0).astype(int) * delta
+    loss = (delta < 0).astype(int) * -delta
+    avg_gain = gain.rolling(window=period).mean()
+    avg_loss = loss.rolling(window=period).mean()
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+    return data.assign(RSI=rsi)
 
 def main():
-    data = download_data(TICKER_1, YEARS, USE_HOURLY_DATA)
+    logging.info("Starting main execution")
+
+    if USE_SYNTHETIC:
+        # Download historical data for TICKER_1 and TICKER_2
+        data_ticker_1 = download_data(TICKER_1, USE_HOURLY_DATA)
+        data_ticker_2 = download_data(TICKER_2, USE_HOURLY_DATA)
+        
+        # Create synthetic ticker XY
+        data_ticker_1['Close'] = data_ticker_1['Close'].ffill()
+        data_ticker_2['Close'] = data_ticker_2['Close'].ffill()
+        data_ticker_3 = pd.DataFrame(index=data_ticker_1.index)
+        data_ticker_3['Close'] = data_ticker_1['Close'] / data_ticker_2['Close']
+        data_ticker_3 = data_ticker_3.dropna()
+        data = data_ticker_3
+    else:
+        # Download historical data for TICKER_1 only
+        data = download_data(TICKER_1, USE_HOURLY_DATA)
+        synthetic_ticker = TICKER_1
 
     # Calculate MACD
     macd_indicator = vbt.MACD.run(
@@ -45,12 +98,25 @@ def main():
     data['MACD'] = macd_indicator.macd
     data['Signal'] = macd_indicator.signal
 
+    if USE_RSI:
+        data = calculate_rsi(data, RSI_PERIOD)
+
     # Generate entry and exit signals based on SHORT flag
     if SHORT:
-        entries = data['MACD'] < data['Signal']
+        macd_condition = data['MACD'] < data['Signal']
+        if USE_RSI:
+            rsi_condition = data['RSI'] <= (100 - RSI_THRESHOLD)
+            entries = macd_condition & rsi_condition
+        else:
+            entries = macd_condition
         exits_macd = data['MACD'] > data['Signal']
     else:
-        entries = data['MACD'] > data['Signal']
+        macd_condition = data['MACD'] > data['Signal']
+        if USE_RSI:
+            rsi_condition = data['RSI'] >= RSI_THRESHOLD
+            entries = macd_condition & rsi_condition
+        else:
+            entries = macd_condition
         exits_macd = data['MACD'] < data['Signal']
 
     def psl_exit(price, entry_price, holding_period, short=False):
