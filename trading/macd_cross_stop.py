@@ -13,7 +13,7 @@ os.makedirs('logs', exist_ok=True)
 
 # Set up logging to overwrite the file each time
 logging.basicConfig(
-    filename='logs/macd_cross.log',
+    filename='logs/macd_cross_stop.log',
     filemode='w',  # 'w' mode overwrites the file
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
@@ -23,19 +23,19 @@ logging.info("Total Return, Win Rate, and Expectancy vs Stop Loss Percentage")
 
 # Constants for easy configuration
 YEARS = 30  # Set timeframe in years for daily data
-USE_HOURLY_DATA = False  # Set to False for daily data
-USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'ISRG'  # Ticker for X to USD exchange rate
-TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
+USE_HOURLY_DATA = True  # Set to False for daily data
+USE_SYNTHETIC = True  # Toggle between synthetic and original ticker
+TICKER_1 = 'SOL-USD'  # Ticker for X to USD exchange rate
+TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 
-SHORT_PERIOD = 3
-LONG_PERIOD = 10
-SIGNAL_PERIOD = 16
+SHORT_PERIOD = 20
+LONG_PERIOD = 34
+SIGNAL_PERIOD = 13
 RSI_PERIOD = 14
 
-RSI_THRESHOLD = 55
-USE_RSI = False
+RSI_THRESHOLD = 48
+USE_RSI = True
 
 def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
     """Download historical data from Yahoo Finance."""
@@ -178,12 +178,25 @@ def main():
         data_ticker_1 = download_data(TICKER_1, YEARS, USE_HOURLY_DATA)
         data_ticker_2 = download_data(TICKER_2, YEARS, USE_HOURLY_DATA)
 
-        # Perform an inner join on 'Date' to ensure both have matching rows
-        data_merged = data_ticker_1.join(data_ticker_2, on='Date', how='inner', suffix="_2")
+        # Log column names
+        logging.info(f"Columns in data_ticker_1: {data_ticker_1.columns}")
+        logging.info(f"Columns in data_ticker_2: {data_ticker_2.columns}")
+
+        # Check if 'Date' column exists, if not, try to use 'Datetime' or create it
+        date_column = 'Date'
+        if 'Date' not in data_ticker_1.columns:
+            if 'Datetime' in data_ticker_1.columns:
+                date_column = 'Datetime'
+            else:
+                logging.error("Neither 'Date' nor 'Datetime' column found in data_ticker_1")
+                return
+
+        # Perform an inner join on the date column
+        data_merged = data_ticker_1.join(data_ticker_2, on=date_column, how='inner', suffix="_2")
 
         # Now calculate the ratio of 'Close' columns
         data = pl.DataFrame({
-            'Date': data_merged['Date'],
+            date_column: data_merged[date_column],
             'Close': data_merged['Close'] / data_merged['Close_2'],
             'Open': data_merged['Open'] / data_merged['Open_2'],
             'High': data_merged['High'] / data_merged['High_2'],
@@ -192,8 +205,8 @@ def main():
         })
         
         # Extracting base and quote currencies from tickers
-        base_currency = TICKER_1[:3]  # X
-        quote_currency = TICKER_2[:3]  # Y
+        base_currency = TICKER_1.split('-')[0]  # X
+        quote_currency = TICKER_2.split('-')[0]  # Y
         synthetic_ticker = f"{base_currency}/{quote_currency}"
     else:
         # Download historical data for TICKER_1 only
