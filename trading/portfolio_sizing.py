@@ -3,26 +3,26 @@ import yfinance as yf
 import scipy.stats as st
 
 # Define parameters
-# TOTAL_PORTFOLIO_VALUE = 8500  # target 1
-TOTAL_PORTFOLIO_VALUE = 9750  # target 2
+TOTAL_PORTFOLIO_VALUE = 8000  # target 1
+# TOTAL_PORTFOLIO_VALUE = 10000  # target 2
 # TOTAL_PORTFOLIO_VALUE = 11000  # target 3
 ASSET_1_TICKER = "BTC-USD"
-ASSET_2_TICKER = "SPY"
+ASSET_2_TICKER = "QQQ"
 ASSET_1_LEVERAGE = 7  # Example leverage factor for Asset 1
 ASSET_2_LEVERAGE = 7  # Example leverage factor for Asset 2
 USE_EMA = False
 EMA_PERIOD = 21
-ASSET_1_ALLOCATION = 45 # Target allocation for Asset 1 (as a percentage)
+ASSET_1_ALLOCATION = 43.4 # Target allocation for Asset 1 (as a percentage)
 VAR_CONFIDENCE_LEVELS = [0.95, 0.99]
 
-# TOTAL_PORTFOLIO_VALUE = 6500  # target
+# TOTAL_PORTFOLIO_VALUE = 6250  # target
 # ASSET_1_TICKER = "BTC-USD"
 # ASSET_2_TICKER = "SOL-USD"
-# ASSET_1_LEVERAGE = 6  # Example leverage factor for Asset 1
-# ASSET_2_LEVERAGE = 5  # Example leverage factor for Asset 2
+# ASSET_1_LEVERAGE = 7  # Example leverage factor for Asset 1
+# ASSET_2_LEVERAGE = 2  # Example leverage factor for Asset 2
 # USE_EMA = False
 # EMA_PERIOD = 21
-# ASSET_1_ALLOCATION = 40.41 # Target allocation for Asset 1 (as a percentage)
+# ASSET_1_ALLOCATION = 50 # Target allocation for Asset 1 (as a percentage)
 # VAR_CONFIDENCE_LEVELS = [0.95, 0.99]
 
 def get_price_or_ema(ticker, use_ema, ema_period):
@@ -68,9 +68,7 @@ def print_asset_details(ticker, initial_value, leverage, position_size, leverage
     print(f"  Initial (pre-leverage) value: ${initial_value:.2f}")
     print(f"  Leverage: {leverage:.2f}")
     print(f"  Leveraged value: ${leveraged_value:.2f}")
-    print(f"  Position size (Target): {position_size:.6f}")
-    print(f"  Position size (Daily): {position_size*0.764:.6f}")
-    print(f"  Position size (Hourly): {position_size*0.236:.6f}")
+    print(f"  Position size: {position_size:.6f}")
     print(f"  Allocation: {allocation:.2f}%")
     
     for cl, (var, cvar) in var_cvar_results.items():
