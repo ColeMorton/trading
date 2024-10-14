@@ -11,7 +11,7 @@ from typing import Tuple, List
 YEARS = 30  # Set timeframe in years for daily data
 USE_HOURLY_DATA = True  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'BTC-USD'  # Ticker for X to USD exchange rate
+TICKER_1 = 'TSLA'  # Ticker for X to USD exchange rate
 TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 
@@ -23,7 +23,7 @@ def download_data(ticker: str, use_hourly: bool) -> pd.DataFrame:
     """Download historical data from Yahoo Finance."""
     interval = '1h' if use_hourly else '1d'
     end_date = datetime.now()
-    start_date = end_date - timedelta(days=208 if use_hourly else 365 * YEARS)
+    start_date = end_date - timedelta(days=730 if use_hourly else 365 * YEARS)
     
     logging.info(f"Downloading data for {ticker}")
     try:
