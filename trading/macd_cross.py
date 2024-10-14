@@ -8,10 +8,10 @@ from datetime import datetime, timedelta
 
 # Constants for easy configuration
 YEARS = 30  # Set timeframe in years for daily data
-USE_HOURLY_DATA = False  # Set to False for daily data
-USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'GRMN'  # Ticker for X to USD exchange rate
-TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
+USE_HOURLY_DATA = True  # Set to False for daily data
+USE_SYNTHETIC = True  # Toggle between synthetic and original ticker
+TICKER_1 = 'SOL-USD'  # Ticker for X to USD exchange rate
+TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 
 interval = '1h' if USE_HOURLY_DATA else '1d'
@@ -150,10 +150,14 @@ def main():
         data_ticker_2 = download_data(TICKER_2, start_date, end_date)
         
         # Create synthetic ticker XY
-        data_ticker_1['Close'] = data_ticker_1['Close'].fillna(method='ffill')
-        data_ticker_2['Close'] = data_ticker_2['Close'].fillna(method='ffill')
+        data_ticker_1['Close'] = data_ticker_1['Close'].ffill()
+        data_ticker_2['Close'] = data_ticker_2['Close'].ffill()
         data_ticker_3 = pd.DataFrame(index=data_ticker_1.index)
         data_ticker_3['Close'] = data_ticker_1['Close'] / data_ticker_2['Close']
+        data_ticker_3['Open'] = data_ticker_1['Open'] / data_ticker_2['Open']
+        data_ticker_3['High'] = data_ticker_1['High'] / data_ticker_2['High']
+        data_ticker_3['Low'] = data_ticker_1['Low'] / data_ticker_2['Low']
+        data_ticker_3['Volume'] = (data_ticker_1['Volume'] + data_ticker_2['Volume']) / 2
         data_ticker_3 = data_ticker_3.dropna()
         data = data_ticker_3
         
@@ -174,6 +178,11 @@ def main():
     best_return = results.stack().max()
     short_period, long_period, signal_period = best_params[0], best_params[1], best_params[2]
     
+    best_params_expectancy = expectancy_results.stack().idxmax()
+    best_expectancy_value = expectancy_results.stack().max()
+
+    short_period_expectancy , long_period_expectancy , signal_period_expectancy = best_params_expectancy[0], best_params_expectancy[1], best_params_expectancy[2]
+
     # Calculate MACD and generate signals with best parameters
     calculate_macd(data, short_window=short_period, long_window=long_period, signal_window=signal_period)
     generate_signals(data)
@@ -189,6 +198,8 @@ def main():
     print(f"Best parameters for {interval} {synthetic_ticker}: Short period: {short_period}, Long period: {long_period}, Signal period: {signal_period}")
     print(f"Best total return: {best_return}")
     print(f"Expectancy for best parameters: {calculate_expectancy(portfolio)}")
+    print(f"Best parameters for Expectancy: Short period: {short_period_expectancy}, Long period: {long_period_expectancy}, Signal period: {signal_period_expectancy}")
+    print(f"Best expectancy value: {best_expectancy_value}")
     
     # Display 3D scatter plots of the results
     plot_3d_scatter(results, expectancy_results)
