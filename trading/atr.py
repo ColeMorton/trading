@@ -11,7 +11,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # Constants for easy configuration
 USE_HOURLY_DATA: bool = True  # Set to False for daily data
-USE_SYNTHETIC: bool = True  # Toggle between synthetic and original ticker
+USE_SYNTHETIC: bool = False  # Toggle between synthetic and original ticker
 TICKER_1: str = 'SOL-USD'  # Ticker for X to USD
 TICKER_2: str = 'BTC-USD'  # Ticker for Y to USD
 
@@ -143,7 +143,7 @@ def main() -> None:
     start_date: datetime = end_date - timedelta(days=365 * years)
 
     atr_lengths: List[int] = list(range(2, 15))
-    atr_multipliers: List[float] = list(np.arange(1, 10, 0.5))
+    atr_multipliers: List[float] = list(np.arange(2.5, 12.5, 0.5))
 
     if USE_SYNTHETIC:
         data_ticker_1: pd.DataFrame = download_data(TICKER_1, start_date, end_date)
