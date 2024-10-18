@@ -36,7 +36,7 @@ def calculate_mas(data: pl.DataFrame, short_window: int, long_window: int, use_s
     except Exception as e:
         raise
 
-def generate_ma_signals(data: pl.DataFrame, config: dict) -> Tuple[np.ndarray, np.ndarray]:
+def generate_ma_signals(data: pl.DataFrame, config: dict = { 'SHORT': False, 'USE_RSI': False, 'RSI_THRESHOLD': False }) -> Tuple[np.ndarray, np.ndarray]:
     """
     Generate entry and exit signals based on the strategy configuration.
 

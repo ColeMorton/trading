@@ -3,49 +3,13 @@ import json
 import numpy as np
 from typing import List
 import random
+from app.monte_carlo.utils import get_data, calculate_performance_metrics
 
 TICKER = 'BTC-USD'
 BASE_INITIAL_PORTFOLIO_VALUE = 10000
 
-def calculate_cumulative_return(returns: List[float]) -> float:
-    """Calculate the cumulative return of a sequence of trades."""
-    return np.prod(1 + np.array(returns)) - 1
-
-def calculate_max_drawdown(returns: List[float]) -> float:
-    """Calculate the maximum drawdown of a sequence of trades."""
-    cumulative = np.cumprod(1 + np.array(returns))
-    peak = np.maximum.accumulate(cumulative)
-    drawdown = (cumulative - peak) / peak
-    return np.min(drawdown)
-
-def calculate_sharpe_ratio(returns: List[float], risk_free_rate: float = 0.02) -> float:
-    """Calculate the Sharpe ratio of a sequence of trades."""
-    excess_returns = np.array(returns) - risk_free_rate / 252  # Assuming 252 trading days in a year
-    return np.sqrt(252) * np.mean(excess_returns) / np.std(excess_returns)
-
-def calculate_final_portfolio_value(returns: List[float], initial_value: float) -> float:
-    """Calculate the final portfolio value given a sequence of returns."""
-    return initial_value * np.prod(1 + np.array(returns))
-
-def calculate_performance_metrics(sequence: pl.DataFrame, initial_value: float) -> dict:
-    """Calculate performance metrics for a single sequence."""
-    returns = sequence['Return (%)'].to_list()
-    cumulative_return = calculate_cumulative_return(returns)
-    max_drawdown = calculate_max_drawdown(returns)
-    sharpe_ratio = calculate_sharpe_ratio(returns)
-    final_portfolio_value = calculate_final_portfolio_value(returns, initial_value)
-    
-    return {
-        'cumulative_return': cumulative_return,
-        'max_drawdown': max_drawdown,
-        'sharpe_ratio': sharpe_ratio,
-        'final_portfolio_value': final_portfolio_value,
-        'initial_portfolio_value': initial_value
-    }
-
 # Read the JSON file
-with open(f'json/monte_carlo/{TICKER}_ema_cross_permutations.json', 'r') as file:
-    data = json.load(file)
+data = get_data(TICKER)
 
 # Get the original trade data
 original_trades = data['permutations'][0]

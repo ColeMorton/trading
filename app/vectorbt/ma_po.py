@@ -5,8 +5,8 @@ import plotly.graph_objs as go
 import numpy as np
 
 # Change the frequency to 1 hour
-# FREQ = '1D'
-FREQ = '1H'
+FREQ = '1D'
+# FREQ = '1H'
 
 # Add constant to determine whether to use SMA or EMA
 USE_SMA = False  # Set to True to use SMAs, False to use EMAs
