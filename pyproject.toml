@@ -16,6 +16,8 @@ flask = "^3.0.3"
 jupyter = "^1.1.1"
 notebook = "^7.2.2"
 ipywidgets = "^8.1.5"
+pybit = "^5.8.0"
+python-dotenv = "^1.0.1"
 
 [build-system]
 requires = ["poetry-core"]
