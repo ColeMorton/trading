@@ -52,6 +52,7 @@ for i in range(num_simulations):
         print(f"Max drawdown: {metrics['max_drawdown']}")
         print(f"Sharpe ratio: {metrics['sharpe_ratio']}")
         print(f"Final portfolio value: {metrics['final_portfolio_value']}")
+        print(f"Loss streak probability: {metrics['loss_streak_probability']}")
 
 # Convert results to a DataFrame
 results_df = pl.DataFrame(results)
@@ -68,7 +69,10 @@ summary_stats = {
     'mean_final_portfolio_value': results_df['final_portfolio_value'].mean(),
     'std_final_portfolio_value': results_df['final_portfolio_value'].std(),
     'worst_case_portfolio_value': results_df['final_portfolio_value'].min(),
-    'var_5_percent': np.percentile(results_df['final_portfolio_value'].to_numpy(), 5)
+    'var_5_percent': np.percentile(results_df['final_portfolio_value'].to_numpy(), 5),
+    'mean_loss_streak_probability': results_df['loss_streak_probability'].mean(),
+    'median_loss_streak_probability': results_df['loss_streak_probability'].median(),
+    'max_loss_streak_probability': results_df['loss_streak_probability'].max()
 }
 
 # Add summary statistics to the results DataFrame

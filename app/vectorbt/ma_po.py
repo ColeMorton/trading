@@ -14,6 +14,8 @@ USE_SMA = False  # Set to True to use SMAs, False to use EMAs
 symbols = ["BTC-USD", "WLD-USD", "SOL-USD"]
 price = vbt.YFData.download(symbols, missing_index='drop').get('Close')
 
+print(price)
+
 windows = np.arange(2, 101)
 # Use SMA if USE_SMA is True, otherwise use EMA
 if USE_SMA:

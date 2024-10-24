@@ -11,11 +11,13 @@ import numpy as np
 
 # ASSETS = ['BTC-USD', 'SPY', 'DFS', 'FAST', 'ANET', 'TSLA', 'SLV', 'MPWR', 'TER', 'SE', 'AVGO', 'AMD', 'GDDY', 'AAPL', 'APH', 'LHX', 'META']
 
-ASSETS = ['PANW', 'VRSK', 'TSLA', 'AAPL', 'LLY', 'CSGP', 'BTC-USD', 'SPY', 'QQQ', 'TDG']
+ASSETS = ['PANW', 'AAPL', 'UHS', 'EVRG', 'MSFT', 'BTC-USD', 'SPY', 'COST', 'RTX', 'EXC']
 
 # ASSETS = ['BTC-USD', 'SPY', 'QQQ', 'SOL-USD', 'MSTR']
 
 # ASSETS = ['BTC-USD', 'WLD-USD', 'SC-USD', 'RSR-USD', 'AERGO-USD', 'UNI-USD', 'AGLD-USD']
+
+# ASSETS = ['MSTR', 'CORZ', 'WULF', 'HUT', 'MARA', 'CLSK', 'CIFR', 'BTC-USD', 'SPY', 'QQQ']
 
 # 292 bars per year
 # DAYS = 292

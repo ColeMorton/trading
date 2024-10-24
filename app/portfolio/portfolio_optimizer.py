@@ -6,18 +6,18 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 # Set date range and assets
-# start_date = '2020-01-01'
-# end_date = '2021-01-01'
+start_date = '2020-01-01'
+end_date = '2021-01-01'
 
 # start_date = '2020-01-01'
 # end_date = '2024-10-15'
 
-start_date = '2023-10-15'
-end_date = '2024-10-15'
+# start_date = '2023-10-15'
+# end_date = '2024-10-15'
 
-# ASSETS = ['BTC-USD', 'SPY']
+ASSETS = ['BTC-USD', 'SPY']
 
-ASSETS = ['BTC-USD', 'SOL-USD']
+# ASSETS = ['BTC-USD', 'SOL-USD']
 
 # ASSETS = ['BTC-USD', 'QQQ']
 

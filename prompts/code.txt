@@ -1,0 +1,2 @@
+Anaylze my code base @/app/ for potential modifications.
+Purpose: refactoring, simplifying, consistency, and documenting. Finally: Generate a list of recommended modifications including reasoning.

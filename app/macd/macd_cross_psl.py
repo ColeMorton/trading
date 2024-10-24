@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 from typing import List, Tuple
 import logging
 import os
+import polars as pl
+from app.utils import download_data
 
 # Ensure the logs directory exists
 os.makedirs('logs', exist_ok=True)
@@ -23,38 +25,19 @@ logging.info("Total Return, Win Rate, and Expectancy vs Stop Loss Percentage")
 
 # Constants for easy configuration
 YEARS = 30  # Set timeframe in years for daily data
-USE_HOURLY_DATA = True  # Set to False for daily data
+USE_HOURLY_DATA = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'DXCM'  # Ticker for X to USD exchange rate
+TICKER_1 = 'EVRG'  # Ticker for X to USD exchange rate
 TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 
-SHORT_PERIOD = 19
-LONG_PERIOD = 34
-SIGNAL_PERIOD = 12
+SHORT_PERIOD = 8
+LONG_PERIOD = 15
+SIGNAL_PERIOD = 7
 RSI_PERIOD = 14
 
 RSI_THRESHOLD = 48
 USE_RSI = False
-
-# Logging setup
-logging.basicConfig(filename='logs/macd_cross_psl.log', level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-
-def download_data(ticker: str, use_hourly: bool) -> pd.DataFrame:
-    """Download historical data from Yahoo Finance."""
-    interval = '1h' if use_hourly else '1d'
-    end_date = datetime.now()
-    start_date = end_date - timedelta(days=730 if use_hourly else 365 * YEARS)
-    
-    logging.info(f"Downloading data for {ticker}")
-    try:
-        data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
-        logging.info(f"Data download for {ticker} completed successfully")
-        return data
-    except Exception as e:
-        logging.error(f"Failed to download data for {ticker}: {e}")
-        raise
 
 def calculate_rsi(data, period: int):
     delta = data['Close'].diff()
@@ -71,10 +54,12 @@ def main():
 
     if USE_SYNTHETIC:
         # Download historical data for TICKER_1 and TICKER_2
-        data_ticker_1 = download_data(TICKER_1, USE_HOURLY_DATA)
-        data_ticker_2 = download_data(TICKER_2, USE_HOURLY_DATA)
+        data_ticker_1 = download_data(TICKER_1, USE_HOURLY_DATA, YEARS)
+        data_ticker_2 = download_data(TICKER_2, USE_HOURLY_DATA, YEARS)
         
         # Create synthetic ticker XY
+        data_ticker_1 = data_ticker_1.to_pandas()
+        data_ticker_2 = data_ticker_2.to_pandas()
         data_ticker_1['Close'] = data_ticker_1['Close'].ffill()
         data_ticker_2['Close'] = data_ticker_2['Close'].ffill()
         data_ticker_3 = pd.DataFrame(index=data_ticker_1.index)
@@ -83,7 +68,7 @@ def main():
         data = data_ticker_3
     else:
         # Download historical data for TICKER_1 only
-        data = download_data(TICKER_1, USE_HOURLY_DATA)
+        data = download_data(TICKER_1, USE_HOURLY_DATA, YEARS).to_pandas()
         synthetic_ticker = TICKER_1
 
     # Calculate MACD

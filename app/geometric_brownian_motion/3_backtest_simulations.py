@@ -3,11 +3,11 @@ import numpy as np
 import vectorbt as vbt
 import matplotlib.pyplot as plt
 
-TICKER = 'SPY'
-# ANNUAL_TRADING_DAYS = 365
-ANNUAL_TRADING_DAYS = 252
+TICKER = 'BTC-USD'
+ANNUAL_TRADING_DAYS = 365
+# ANNUAL_TRADING_DAYS = 252
 
-ema_fast = 10
+ema_fast = 11
 ema_slow = 30
 
 # Load the simulations

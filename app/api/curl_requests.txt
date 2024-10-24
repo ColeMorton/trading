@@ -1,0 +1,51 @@
+curl -X POST "https://am82v977h5.execute-api.eu-north-1.amazonaws.com/test" \
+-H "Content-Type: application/json" \
+-d '{"symbol": "ETH-USD", "action": "BUY", "quantity": 50, "category": "linear"}'
+
+curl -X POST "https://am82v977h5.execute-api.eu-north-1.amazonaws.com/trendspider" \
+-H "Content-Type: application/json" \
+-d '{"symbol": "BTC-USD", "action": "BUY", "quantity": 5, "category": "linear"}'
+
+curl -X POST "https://am82v977h5.execute-api.eu-north-1.amazonaws.com/trendspider" \
+-H "Content-Type: application/json" \
+-H "X-requester: trendspider" \
+-H "X-reason: alert-webhook" \
+-d '{
+  "symbol": "BTCUSDT",
+  "category": "linear",
+  "action": "buy",
+  "quantity": 0.999
+}'
+
+curl -X POST "https://am82v977h5.execute-api.eu-north-1.amazonaws.com/trendspider" \
+-H "Content-Type: application/json" \
+-H "X-requester: trendspider" \
+-H "X-reason: alert-webhook" \
+-d '{
+  "symbol": "BTCUSDT",
+  "category": "linear",
+  "action": "sell",
+  "quantity": 0.999
+}'
+
+curl -X POST "https://am82v977h5.execute-api.eu-north-1.amazonaws.com/trendspider" \
+-H "Content-Type: application/json" \
+-H "X-requester: trendspider" \
+-H "X-reason: alert-webhook" \
+-d '{
+  "symbol": "AAPL",
+  "class": "cfd",
+  "action": "buy",
+  "quantity": 10
+}'
+
+curl -X POST "https://am82v977h5.execute-api.eu-north-1.amazonaws.com/trendspider" \
+-H "Content-Type: application/json" \
+-H "X-requester: trendspider" \
+-H "X-reason: alert-webhook" \
+-d '{
+  "symbol": "BIGTIMEUSDT",
+  "category": "linear",
+  "action": "buy",
+  "quantity": 31
+}'
