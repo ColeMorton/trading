@@ -1,5 +1,7 @@
 from app.tools.get_config import get_config
 from app.utils import get_data, calculate_ma_and_signals, backtest_strategy
+import polars as pl
+import pandas as pd
 
 # Default Configuration
 CONFIG = {
@@ -30,28 +32,40 @@ portfolio = backtest_strategy(data, CONFIG)
 
 print(portfolio.stats())
 
-fig = portfolio.plot(subplots=[
-    'value',
-    'drawdowns',
-    'cum_returns',
-    'assets',
-    'orders',
-    'trades',
-    'trade_pnl',
-    'asset_flow',
-    'cash_flow',
-    'asset_value',
-    'cash',
-    'underwater',
-    'gross_exposure',
-    'net_exposure',
-],
-show_titles=True)
+# Extract value series and convert to DataFrame
+value_series = portfolio.value()
+print(portfolio.value())
+initial_value = value_series[0]
+equity_curve = pl.DataFrame({
+    'Date': value_series.index,
+    'Close': value_series.values / initial_value
+})
 
-fig.update_layout(
-    width=1600,
-    height=10000,
-    autosize=True
-)
+# Export to CSV
+equity_curve.write_csv('csv/ma_cross/equity_curve/BTC.csv')
 
-fig.show()
+# fig = portfolio.plot(subplots=[
+#     'value',
+#     'drawdowns',
+#     'cum_returns',
+#     'assets',
+#     'orders',
+#     'trades',
+#     'trade_pnl',
+#     'asset_flow',
+#     'cash_flow',
+#     'asset_value',
+#     'cash',
+#     'underwater',
+#     'gross_exposure',
+#     'net_exposure',
+# ],
+# show_titles=True)
+
+# fig.update_layout(
+#     width=1600,
+#     height=10000,
+#     autosize=True
+# )
+
+# fig.show()
