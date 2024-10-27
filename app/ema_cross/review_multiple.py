@@ -13,7 +13,7 @@ config: Config = {
             'short_window': 2,
             'long_window': 25,
             'stop_loss': None,
-            'position_size': 0.5,
+            'position_size': 0.25,
             'use_sma': True
         },
         'BTC_Strategy_2': {
@@ -21,12 +21,29 @@ config: Config = {
             'short_window': 27,
             'long_window': 29,
             'stop_loss': None,
-            'position_size': 0.5,
+            'position_size': 0.25,
+            'use_sma': True
+        },
+        'SOL_Strategy_1': {
+            'symbol': 'SOL-USD',
+            'short_window': 14,
+            'long_window': 32,
+            'stop_loss': None,
+            'position_size': 0.25,
+            'use_sma': True
+        },
+        'SOL_Strategy_2': {
+            'symbol': 'SOL-USD',
+            'short_window': 27,
+            'long_window': 30,
+            'stop_loss': None,
+            'position_size': 0.25,
             'use_sma': True
         }
     },
+    # 'start_date': '2004-10-27',
     'start_date': '2020-01-01',
-    'end_date': '2024-10-25',
+    'end_date': '2024-10-27',
     'init_cash': 1000,
     'fees': 0.001
 }

@@ -21,6 +21,25 @@ CONFIG_BTC = {
     "WINDOWS": 55
 }
 
+CONFIG_SOL = {
+    "YEARS": 30,
+    "USE_YEARS": False,
+    "PERIOD": 'max',
+    "USE_HOURLY": False,
+    "TICKER": 'SOL-USD',
+    "USE_SYNTHETIC": False,
+    "TICKER_1": 'BTC-USD',
+    "TICKER_2": 'SPY',
+    "SHORT_WINDOW": 14,
+    "LONG_WINDOW": 32,
+    "STOP_LOSS": None,
+    "SHORT": False,
+    "USE_GBM": False,
+    "USE_SMA": True,
+    "BASE_DIR": 'C:/Projects/trading',
+    "WINDOWS": 55
+}
+
 CONFIG_SPY = {
     "YEARS": 30,
     "USE_YEARS": False,
@@ -39,7 +58,7 @@ CONFIG_SPY = {
     "WINDOWS": 55
 }
 
-config = get_config(CONFIG_BTC)
+config = get_config(CONFIG_SOL)
 
 data = get_data(config)
 
