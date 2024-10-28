@@ -3,9 +3,9 @@ import os
 import numpy as np
 import polars as pl
 from app.utils import get_data
+from app.tools.get_config import get_config
 from tools.parameter_sensitivity_analysis import parameter_sensitivity_analysis
 from tools.filter_portfolios import filter_portfolios
-from tools.plot_heatmaps import plot_heatmap
 
 # Logging setup
 log_dir = 'logs'
@@ -19,29 +19,29 @@ CONFIG = {
     "YEARS": 30,
     "USE_YEARS": False,
     "PERIOD": 'max',
-    "USE_HOURLY": False,
+    "USE_HOURLY": True,
+    "TICKER": 'BTC-USD',
     "USE_SYNTHETIC": False,
-    "TICKER_1": 'SOL-USD',
-    "TICKER_2": 'BTC-USD',
+    "TICKER_1": 'BTC-USD',
+    "TICKER_2": 'SPY',
     "SHORT_WINDOW": 11,
     "LONG_WINDOW": 17,
     "SHORT": False,
     "USE_GBM": False,
     "USE_SMA": False,
     "BASE_DIR": 'C:/Projects/trading',
-    "SHORT_WINDOWS": 100,
-    "LONG_WINDOWS": 100
+    "WINDOWS": 55
 }
 
-# Create distinct integer values for windows
-short_windows = np.arange(2, CONFIG["SHORT_WINDOWS"] + 1)  # [2, 3, ..., SHORT_WINDOWS]
-long_windows = np.arange(3, CONFIG["LONG_WINDOWS"] + 1)  # [3, 4, ..., LONG_WINDOWS]
+config = get_config(CONFIG)
 
-portfolios = parameter_sensitivity_analysis(get_data(CONFIG), short_windows, long_windows, CONFIG)
+# Create distinct integer values for windows
+short_windows = np.arange(2, config["WINDOWS"] + 1)  # [2, 3, ..., WINDOWS]
+long_windows = np.arange(3, config["WINDOWS"] + 1)  # [3, 4, ..., WINDOWS]
+
+portfolios = parameter_sensitivity_analysis(get_data(config), short_windows, long_windows, config)
 
 print(portfolios)
 
-filtered_portfolios = filter_portfolios(pl.DataFrame(portfolios), CONFIG)
+filtered_portfolios = filter_portfolios(pl.DataFrame(portfolios), config)
 print(filtered_portfolios)
-
-# plot_heatmap(get_data(CONFIG), CONFIG["TICKER_1"], CONFIG)

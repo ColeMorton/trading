@@ -27,13 +27,13 @@ with open('config.json') as f:
 YEARS = 30  # Set timeframe in years for daily data
 USE_HOURLY_DATA = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'BTC-USD'  # Ticker for X to USD exchange rate
+TICKER_1 = 'NXPI'  # Ticker for X to USD exchange rate
 TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 USE_SMA = False  # Set to True to use SMAs, False to use EMAs
 
-EMA_FAST = 6
-EMA_SLOW = 8
+EMA_FAST = 2
+EMA_SLOW = 54
 RSI_PERIOD = 14
 
 def backtest(data: pl.DataFrame, rsi_threshold: float) -> List[Tuple[float, float]]:
@@ -143,7 +143,7 @@ def plot_results(ticker: str, results_df: pl.DataFrame):
     fig.tight_layout()
 
     # Save the plot with the correct filename
-    plot_filename = f'images/ema_cross/parameter_sensitivity/{ticker}_ema_cross_rsi.png'
+    plot_filename = f'png/ema_cross/parameter_sensitivity/{ticker}_ema_cross_rsi.png'
     plt.savefig(plot_filename)
     logging.info(f"Plot saved as {plot_filename}")
     

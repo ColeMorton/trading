@@ -23,17 +23,17 @@ from app.utils import download_data, calculate_rsi
 YEARS = 30  # Set timeframe in years for daily data
 USE_HOURLY_DATA = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'BTC-USD'  # Ticker for X to USD exchange rate
+TICKER_1 = 'GOOG'  # Ticker for X to USD exchange rate
 TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 USE_SMA = False  # Set to True to use SMAs, False to use EMAs
 
-EMA_FAST = 5
-EMA_SLOW = 13
+EMA_FAST = 4
+EMA_SLOW = 50
 RSI_PERIOD = 14
 
 RSI_THRESHOLD = 48
-USE_RSI = True
+USE_RSI = False
 
 # Configuration
 CONFIG = {

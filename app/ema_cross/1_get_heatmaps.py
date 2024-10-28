@@ -1,7 +1,9 @@
 import logging
 import os
 from app.utils import get_data
+from app.tools.get_config import get_config
 from tools.plot_heatmaps import plot_heatmap
+from app.geometric_brownian_motion.get_median import get_median
 
 # Logging setup
 log_dir = 'logs'
@@ -15,18 +17,25 @@ CONFIG = {
     "YEARS": 30,
     "USE_YEARS": False,
     "PERIOD": 'max',
-    "USE_HOURLY": False,
+    "USE_HOURLY": True,
+    "TICKER": 'BTC-USD',
     "USE_SYNTHETIC": False,
-    "TICKER_1": 'SOL-USD',
-    "TICKER_2": 'BTC-USD',
+    "TICKER_1": 'BTC-USD',
+    "TICKER_2": 'SPY',
     "SHORT_WINDOW": 11,
     "LONG_WINDOW": 17,
     "SHORT": False,
     "USE_GBM": False,
     "USE_SMA": False,
     "BASE_DIR": 'C:/Projects/trading',
-    "SHORT_WINDOWS": 100,
-    "LONG_WINDOWS": 100
+    "WINDOWS": 100
 }
 
-plot_heatmap(get_data(CONFIG), CONFIG["TICKER_1"], CONFIG)
+config = get_config(CONFIG)
+
+if config.get('USE_GBM', False) == True:
+    data = get_median(config)
+else:
+    data = get_data(config)
+
+plot_heatmap(data, config)
