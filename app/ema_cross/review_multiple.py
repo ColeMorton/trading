@@ -1,10 +1,25 @@
-from typing import List, Dict
+from typing import List, Dict, TypedDict, NotRequired
+
+class StrategyConfig(TypedDict):
+    symbol: str
+    short_window: int
+    long_window: int
+    stop_loss: float
+    position_size: float
+    use_sma: bool
+
+class Config(TypedDict):
+    strategies: Dict[str, StrategyConfig]
+    start_date: str
+    end_date: str
+    init_cash: float
+    fees: float
+
 import vectorbt as vbt
 import yfinance as yf
 import polars as pl
 import pandas as pd
 import numpy as np
-from app.ema_cross.tools.generate_signals import generate_signals, Config
 
 # Configuration for the strategy
 config: Config = {
@@ -42,9 +57,8 @@ config: Config = {
             'use_sma': True
         }
     },
-    # 'start_date': '2020-04-10',  # Updated to SOL-USD's start date
-    'start_date': '2014-10-27',  # Updated to SOL-USD's start date
-    'end_date': '2024-10-29',
+    'start_date': '2014-01-01',  # Updated start date to ensure SOL-USD data availability
+    'end_date': '2024-10-28',
     'init_cash': 10000,
     'fees': 0.001
 }
@@ -55,30 +69,56 @@ symbols: List[str] = list(set(strategy['symbol'] for strategy in config['strateg
 # Download historical data for all symbols
 data_dict: Dict[str, pd.DataFrame] = {}
 for symbol in symbols:
-    data_dict[symbol] = yf.download(symbol, start=config['start_date'], end=config['end_date'])
+    # Download with yfinance (returns pandas DataFrame)
+    pd_df = yf.download(symbol, start=config['start_date'], end=config['end_date'])
+    # Ensure index is datetime
+    pd_df.index = pd.to_datetime(pd_df.index)
+    data_dict[symbol] = pd_df
 
-# Prepare benchmark data
-benchmark_close = pd.DataFrame()
-for symbol in symbols:
-    benchmark_close[symbol] = data_dict[symbol]['Close']
+# Find common date range
+common_dates = None
+for df in data_dict.values():
+    if common_dates is None:
+        common_dates = set(df.index)
+    else:
+        common_dates = common_dates.intersection(set(df.index))
+common_dates = sorted(list(common_dates))
 
-# Create benchmark entries (always True after first row)
-benchmark_entries = pd.DataFrame(index=benchmark_close.index)
-for symbol in symbols:
-    entries = np.full(len(benchmark_close), True)
-    entries[0] = False  # First entry is False to allow for position sizing
-    benchmark_entries[symbol] = entries
+# Reindex all dataframes to common dates
+for symbol in data_dict:
+    data_dict[symbol] = data_dict[symbol].reindex(index=common_dates)
 
-# Create benchmark position sizes (50/50 split)
-benchmark_sizes = pd.DataFrame(index=benchmark_close.index)
-for symbol in symbols:
-    benchmark_sizes[symbol] = 0.5
+# Create price DataFrame for each strategy
+price_df = pd.DataFrame(index=common_dates)
+for strategy_name, strategy in config['strategies'].items():
+    price_df[strategy_name] = data_dict[strategy['symbol']]['Close']
 
-# Create benchmark portfolio
-benchmark_portfolio = vbt.Portfolio.from_signals(
-    close=benchmark_close,
-    entries=benchmark_entries,
-    size=benchmark_sizes,
+# Generate signals for each strategy using vectorbt
+entries = pd.DataFrame(False, index=common_dates, columns=price_df.columns)
+exits = pd.DataFrame(False, index=common_dates, columns=price_df.columns)
+
+for strategy_name, strategy in config['strategies'].items():
+    # Calculate moving averages using vectorbt
+    if strategy['use_sma']:
+        fast_ma = vbt.MA.run(price_df[strategy_name], window=strategy['short_window'], short_name='fast')
+        slow_ma = vbt.MA.run(price_df[strategy_name], window=strategy['long_window'], short_name='slow')
+    else:
+        fast_ma = vbt.MA.run(price_df[strategy_name], window=strategy['short_window'], short_name='fast', ewm=True)
+        slow_ma = vbt.MA.run(price_df[strategy_name], window=strategy['long_window'], short_name='slow', ewm=True)
+    
+    # Generate crossover signals
+    entries[strategy_name] = fast_ma.ma_crossed_above(slow_ma)
+    exits[strategy_name] = fast_ma.ma_crossed_below(slow_ma)
+
+# Create size DataFrame (position sizes for each strategy)
+sizes = pd.DataFrame(1.0, index=common_dates, columns=price_df.columns)
+
+# Run the portfolio simulation
+portfolio = vbt.Portfolio.from_signals(
+    close=price_df,
+    entries=entries,
+    exits=exits,
+    size=sizes,
     init_cash=config['init_cash'],
     fees=config['fees'],
     freq='1D',
@@ -86,32 +126,23 @@ benchmark_portfolio = vbt.Portfolio.from_signals(
     cash_sharing=True
 )
 
-# Convert strategy data to polars and prepare for signals
-data_pl: pl.DataFrame = pl.from_pandas(data_dict[symbols[0]])
-close_data: pl.Series = data_pl.select("Close").to_series()
-close_data.index = data_dict[symbols[0]].index
+# Prepare benchmark data
+benchmark_close = pd.DataFrame(index=common_dates)
+for symbol in symbols:
+    benchmark_close[symbol] = data_dict[symbol]['Close']
 
-# Create position sizing DataFrame with strategy names as columns
-size_pl: pl.DataFrame = pl.DataFrame({"Date": close_data.index})
-for strategy_name, strategy in config['strategies'].items():
-    size_pl = size_pl.with_columns(pl.Series(name=strategy_name, values=[strategy['position_size']] * len(close_data)))
-size_pd: pd.DataFrame = size_pl.to_pandas().set_index("Date")
+# Create benchmark entries (always True after first row)
+benchmark_entries = pd.DataFrame(False, index=common_dates, columns=symbols)
+benchmark_entries.iloc[1:] = True
 
-# Generate signals using the utility function
-entries, exits = generate_signals(close_data, config)
+# Create benchmark position sizes (50/50 split)
+benchmark_sizes = pd.DataFrame(0.5, index=common_dates, columns=symbols)
 
-# Prepare price data for portfolio
-price_pl: pl.DataFrame = pl.DataFrame({"Date": close_data.index})
-for strategy_name in config['strategies'].keys():
-    price_pl = price_pl.with_columns(pl.Series(name=strategy_name, values=close_data))
-price_pd: pd.DataFrame = price_pl.to_pandas().set_index("Date")
-
-# Run the portfolio simulation
-portfolio: vbt.Portfolio = vbt.Portfolio.from_signals(
-    price_pd,  # Use prepared price data
-    entries,
-    exits,
-    size=size_pd,
+# Create benchmark portfolio
+benchmark_portfolio = vbt.Portfolio.from_signals(
+    close=benchmark_close,
+    entries=benchmark_entries,
+    size=benchmark_sizes,
     init_cash=config['init_cash'],
     fees=config['fees'],
     freq='1D',
@@ -136,12 +167,7 @@ print("===================")
 print(f"VaR 99%: {var_99:.2%}")
 print(f"CVaR 99%: {cvar_99:.2%}")
 
-print("\nBenchmark Portfolio Statistics (50/50 BTC-USD/SOL-USD):")
-print("===================")
-print(benchmark_portfolio.stats())
-
 # Create comparison plots
-# portfolio.plot_value().show()  # Plot strategy portfolio value
 benchmark_portfolio.plot_value().show()  # Plot benchmark portfolio value
 
 # Plot additional metrics for strategy portfolio

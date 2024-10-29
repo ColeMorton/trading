@@ -1,95 +1,79 @@
-from typing import Dict, Tuple, TypedDict, Optional
-import vectorbt as vbt
+from typing import Dict, Tuple
 import polars as pl
-import numpy as np
 import pandas as pd
+import numpy as np
+from app.ema_cross.tools.calculate_ma_and_signals import calculate_ma_and_signals
 
-class StrategyConfig(TypedDict):
-    symbol: str
-    short_window: int
-    long_window: int
-    stop_loss: Optional[float]
-    position_size: float
-    use_sma: bool
-
-class Config(TypedDict):
-    strategies: Dict[str, StrategyConfig]
-    start_date: str
-    end_date: str
-    init_cash: float
-    fees: float
-
-def generate_signals(close_data: pl.Series, config: Config) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def generate_signals(data_dict: Dict[str, pd.DataFrame], config: Dict) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Generate MA cross signals for multiple strategies.
+    Generate entry and exit signals for multiple strategies.
     
     Args:
-        close_data: Close price data
-        config: Configuration containing parameters for each strategy
+        data_dict (Dict[str, pd.DataFrame]): Dictionary of price data for each symbol
+        config (Dict): Configuration dictionary containing strategy parameters
         
     Returns:
-        Tuple containing (entries DataFrame, exits DataFrame)
+        Tuple[pd.DataFrame, pd.DataFrame]: Entry and exit signals for each strategy
     """
-    # Convert polars Series to pandas for vectorbt
-    close_pd: pd.Series = pl.DataFrame({
-        "Close": close_data,
-        "Date": close_data.index
-    }).to_pandas().set_index("Date")["Close"]
+    # Get a reference index from the first dataframe
+    reference_index = next(iter(data_dict.values())).index
     
-    # Create DataFrames for entries and exits with strategy names as columns
-    entries: pl.DataFrame = pl.DataFrame({"Date": close_data.index})
-    exits: pl.DataFrame = pl.DataFrame({"Date": close_data.index})
+    # Initialize DataFrames for entries and exits
+    entries_df = pd.DataFrame(index=reference_index)
+    exits_df = pd.DataFrame(index=reference_index)
     
-    for strategy_name, strategy_config in config['strategies'].items():
-        # Determine whether to use SMA or EMA
-        ewm: bool = False if strategy_config.get('use_sma', False) else True
+    # Process each strategy
+    for strategy_name, strategy in config['strategies'].items():
+        symbol = strategy['symbol']
+        df = data_dict[symbol]
         
-        # Calculate fast and slow MAs using vectorbt (requires pandas)
-        fast_ma: pd.Series = vbt.MA.run(close_pd, strategy_config['short_window'], ewm=ewm).ma
-        slow_ma: pd.Series = vbt.MA.run(close_pd, strategy_config['long_window'], ewm=ewm).ma
+        # Create polars Series from Close prices
+        close_series = pl.Series('Close', df['Close'].values)
         
-        # Generate base entry/exit signals from MA cross
-        base_entries: np.ndarray = (fast_ma > slow_ma).to_numpy()
-        base_exits: np.ndarray = (fast_ma < slow_ma).to_numpy()
+        # Calculate moving averages and initial signals
+        ma_signals = calculate_ma_and_signals(
+            close_series,
+            strategy['short_window'],
+            strategy['long_window'],
+            strategy['use_sma']
+        )
         
-        if strategy_config.get('stop_loss'):
-            # Initialize arrays for tracking positions and stop losses
-            position_active: np.ndarray = np.zeros(len(close_data), dtype=bool)
-            entry_prices: np.ndarray = np.full(len(close_data), np.nan)
-            stop_loss_exits: np.ndarray = np.zeros(len(close_data), dtype=bool)
+        # Convert to numpy for easier manipulation
+        close_np = df['Close'].to_numpy()
+        entries_np = ma_signals['entries'].to_numpy()
+        exits_np = ma_signals['exits'].to_numpy()
+        
+        # Initialize arrays for tracking position and entry price
+        in_position = False
+        entry_price = 0.0
+        stop_loss_price = 0.0
+        
+        # Process stop loss
+        for i in range(len(close_np)):
+            current_price = close_np[i]
             
-            # Process each day
-            close_np: np.ndarray = close_pd.to_numpy()
-            for i in range(1, len(close_data)):
-                current_price: float = close_np[i]
-                
-                # Check if we have an entry signal
-                if base_entries[i] and not position_active[i-1]:
-                    position_active[i] = True
-                    entry_prices[i] = current_price
-
-                # Maintain position and entry price if still active
-                elif position_active[i-1] and not base_exits[i] and not stop_loss_exits[i-1]:
-                    position_active[i] = True
-                    entry_prices[i] = entry_prices[i-1]
-                
-                # Check stop loss if position is active
-                if position_active[i] and entry_prices[i] is not np.nan:
-                    stop_price: float = entry_prices[i] * (1 - strategy_config['stop_loss']/100)
-                    if current_price <= stop_price:
-                        stop_loss_exits[i] = True
-                        position_active[i] = False
-            
-            # Final entry/exit signals combining MA cross and stop loss
-            entries = entries.with_columns(pl.Series(name=strategy_name, values=base_entries & ~position_active))
-            exits = exits.with_columns(pl.Series(name=strategy_name, values=base_exits | stop_loss_exits))
-        else:
-            # For strategies without stop loss, use base signals
-            entries = entries.with_columns(pl.Series(name=strategy_name, values=base_entries))
-            exits = exits.with_columns(pl.Series(name=strategy_name, values=base_exits))
+            if not in_position:
+                if entries_np[i]:
+                    # Enter position
+                    in_position = True
+                    entry_price = current_price
+                    # Calculate stop loss price
+                    stop_loss_price = entry_price * (1 - strategy['stop_loss'] / 100)
+            else:
+                # Check for stop loss or regular exit
+                if current_price <= stop_loss_price or exits_np[i]:
+                    # Exit position
+                    in_position = False
+                    entries_np[i] = False
+                    exits_np[i] = True
+                    entry_price = 0.0
+                    stop_loss_price = 0.0
+                else:
+                    # Still in position, prevent new entry signals
+                    entries_np[i] = False
+        
+        # Add signals to DataFrames
+        entries_df[strategy_name] = entries_np
+        exits_df[strategy_name] = exits_np
     
-    # Convert back to pandas for vectorbt
-    entries_pd: pd.DataFrame = entries.to_pandas().set_index("Date")
-    exits_pd: pd.DataFrame = exits.to_pandas().set_index("Date")
-            
-    return entries_pd, exits_pd
+    return entries_df, exits_df
