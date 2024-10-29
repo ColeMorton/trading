@@ -29,7 +29,7 @@ config: Config = {
             'symbol': 'SOL-USD',
             'short_window': 14,
             'long_window': 32,
-            'stop_loss': None,
+            'stop_loss': 12.5,
             'position_size': 1,
             'use_sma': True
         },
@@ -37,14 +37,14 @@ config: Config = {
             'symbol': 'SOL-USD',
             'short_window': 27,
             'long_window': 30,
-            'stop_loss': None,
+            'stop_loss': 8.8,
             'position_size': 1,
             'use_sma': True
         }
     },
     # 'start_date': '2020-04-10',  # Updated to SOL-USD's start date
     'start_date': '2014-10-27',  # Updated to SOL-USD's start date
-    'end_date': '2024-10-27',
+    'end_date': '2024-10-29',
     'init_cash': 10000,
     'fees': 0.001
 }

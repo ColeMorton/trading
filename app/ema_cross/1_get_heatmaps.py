@@ -17,18 +17,18 @@ CONFIG = {
     "YEARS": 30,
     "USE_YEARS": False,
     "PERIOD": 'max',
-    "USE_HOURLY": True,
-    "TICKER": 'BTC-USD',
+    "USE_HOURLY": False,
+    "TICKER": 'SMCI',
     "USE_SYNTHETIC": False,
-    "TICKER_1": 'BTC-USD',
+    "TICKER_1": 'BCH-USD',
     "TICKER_2": 'SPY',
     "SHORT_WINDOW": 11,
     "LONG_WINDOW": 17,
     "SHORT": False,
     "USE_GBM": False,
-    "USE_SMA": False,
+    "USE_SMA": True,
     "BASE_DIR": 'C:/Projects/trading',
-    "WINDOWS": 100
+    "WINDOWS": 55
 }
 
 config = get_config(CONFIG)
