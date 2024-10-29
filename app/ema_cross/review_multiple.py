@@ -108,7 +108,36 @@ for strategy_name, strategy in config['strategies'].items():
     
     # Generate crossover signals
     entries[strategy_name] = fast_ma.ma_crossed_above(slow_ma)
-    exits[strategy_name] = fast_ma.ma_crossed_below(slow_ma)
+    
+    # Calculate stop-loss exits
+    price_series = price_df[strategy_name]
+    returns = price_series.pct_change()
+    
+    # Initialize arrays for tracking position and entry price
+    position = np.zeros(len(price_series))
+    entry_price = np.zeros(len(price_series))
+    stop_loss_exits = np.zeros(len(price_series), dtype=bool)
+    
+    # Track positions and check for stop-loss
+    for i in range(1, len(price_series)):
+        if entries.iloc[i, entries.columns.get_loc(strategy_name)]:
+            position[i] = 1
+            entry_price[i] = price_series.iloc[i]
+        elif i > 0:
+            position[i] = position[i-1]
+            entry_price[i] = entry_price[i-1] if position[i] == 1 else 0
+            
+        if position[i] == 1 and entry_price[i] > 0:
+            # Calculate drawdown from entry
+            current_drawdown = (price_series.iloc[i] - entry_price[i]) / entry_price[i] * 100
+            if current_drawdown <= -strategy['stop_loss']:
+                stop_loss_exits[i] = True
+                position[i] = 0
+                entry_price[i] = 0
+    
+    # Combine MA crossover exits with stop-loss exits
+    ma_cross_exits = fast_ma.ma_crossed_below(slow_ma)
+    exits[strategy_name] = ma_cross_exits | pd.Series(stop_loss_exits, index=price_series.index)
 
 # Create size DataFrame (position sizes for each strategy)
 sizes = pd.DataFrame(1.0, index=common_dates, columns=price_df.columns)
