@@ -179,3 +179,11 @@ portfolio.plot([
     'net_exposure',
 ],
 show_titles=True).show()
+
+# Check which strategies have open positions at the end
+print("\nStrategies with Open Positions:")
+print("===================")
+positions = portfolio.positions.values[-1]  # Get positions at the last timestamp
+for strategy_name, position in zip(price_df.columns, positions):
+    if position != 0:
+        print(f"{strategy_name}: {position:.2f} units")
