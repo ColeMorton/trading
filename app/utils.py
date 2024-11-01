@@ -7,7 +7,6 @@ import pandas as pd
 import vectorbt as vbt
 import logging
 import os
-from app.geometric_brownian_motion.get_median import get_median
 
 def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
     """Download historical data from Yahoo Finance."""
@@ -15,19 +14,32 @@ def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
     end_date = datetime.now()
     start_date = end_date - timedelta(days=730 if use_hourly else 365 * years)
     
+    # Download data using yfinance (returns pandas DataFrame)
     data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
-    return pl.from_pandas(data.reset_index())
+    
+    # Reset index to make the datetime index a column
+    data = data.reset_index()
+    
+    # Convert to Polars DataFrame with explicit schema
+    df = pl.DataFrame({
+        'Date': pl.Series(data['Datetime'] if use_hourly else data['Date']),
+        'Open': pl.Series(data['Open'], dtype=pl.Float64),
+        'High': pl.Series(data['High'], dtype=pl.Float64),
+        'Low': pl.Series(data['Low'], dtype=pl.Float64),
+        'Close': pl.Series(data['Close'], dtype=pl.Float64),
+        'Adj Close': pl.Series(data['Adj Close'], dtype=pl.Float64),
+        'Volume': pl.Series(data['Volume'], dtype=pl.Float64)
+    })
+    
+    return df
 
 def get_data(config: dict) -> pl.DataFrame:
-    if config.get('USE_GBM', False) == True:
-        return get_median(config)
+    if config.get('USE_SYNTHETIC', False) == False:
+        data = download_data(config['TICKER'], config['YEARS'], config['USE_HOURLY'])
+    else:
+        data, _ = use_synthetic(config['TICKER_1'], config['TICKER_2'], config['USE_HOURLY'])
 
-    if config['PERIOD'] == 'max' and config['USE_SYNTHETIC'] == False:
-        """Download historical data from Yahoo Finance."""
-        interval = '1h' if config['USE_HOURLY'] else '1d'
-
-        data = yf.download(config['TICKER_1'], period=config['PERIOD'], interval=interval)
-        return pl.from_pandas(data.reset_index())
+    return data
 
 def use_synthetic(ticker1: str, ticker2: str, use_hourly: bool) -> Tuple[pl.DataFrame, str]:
     """Create a synthetic pair from two tickers."""
@@ -38,11 +50,11 @@ def use_synthetic(ticker1: str, ticker2: str, use_hourly: bool) -> Tuple[pl.Data
     
     data = pl.DataFrame({
         'Date': data_merged['Date'],
-        'Close': data_merged['Close'] / data_merged['Close_2'],
-        'Open': data_merged['Open'] / data_merged['Open_2'],
-        'High': data_merged['High'] / data_merged['High_2'],
-        'Low': data_merged['Low'] / data_merged['Low_2'],
-        'Volume': data_merged['Volume']  # Keep original volume
+        'Close': (data_merged['Close'] / data_merged['Close_2']).cast(pl.Float64),
+        'Open': (data_merged['Open'] / data_merged['Open_2']).cast(pl.Float64),
+        'High': (data_merged['High'] / data_merged['High_2']).cast(pl.Float64),
+        'Low': (data_merged['Low'] / data_merged['Low_2']).cast(pl.Float64),
+        'Volume': data_merged['Volume'].cast(pl.Float64)  # Keep original volume
     })
     
     base_currency = ticker1[:3]
@@ -53,35 +65,42 @@ def use_synthetic(ticker1: str, ticker2: str, use_hourly: bool) -> Tuple[pl.Data
 
 def calculate_mas(data: pl.DataFrame, fast_period: int, slow_period: int, use_sma: bool = False) -> pl.DataFrame:
     """Calculate Moving Averages (SMA or EMA)."""
+    # Convert to pandas for calculations
+    df = data.to_pandas()
+    
+    # Ensure numeric type for Close column
+    df['Close'] = pd.to_numeric(df['Close'], errors='coerce')
+    
     if use_sma:
-        data = data.with_columns([
-            pl.col('Close').rolling_mean(window_size=fast_period).alias('MA_FAST'),
-            pl.col('Close').rolling_mean(window_size=slow_period).alias('MA_SLOW')
-        ])
+        df['MA_FAST'] = df['Close'].rolling(window=fast_period).mean()
+        df['MA_SLOW'] = df['Close'].rolling(window=slow_period).mean()
     else:
-        data = data.with_columns([
-            pl.col('Close').ewm_mean(span=fast_period, adjust=False).alias('MA_FAST'),
-            pl.col('Close').ewm_mean(span=slow_period, adjust=False).alias('MA_SLOW')
-        ])
-    return data
+        df['MA_FAST'] = df['Close'].ewm(span=fast_period, adjust=False).mean()
+        df['MA_SLOW'] = df['Close'].ewm(span=slow_period, adjust=False).mean()
+    
+    # Convert back to polars
+    return pl.from_pandas(df)
 
 def calculate_rsi(data: pl.DataFrame, period: int) -> pl.DataFrame:
     """Calculate RSI."""
-    print("Data type before calculation:", type(data))
-    delta = data['Close'].diff()
-    gain = np.maximum(delta, 0)  # Corrected line
-    loss = -np.minimum(delta, 0)
+    # Convert to pandas for calculations
+    df = data.to_pandas()
     
-    avg_gain = gain.rolling_mean(window_size=period)
-    avg_loss = loss.rolling_mean(window_size=period)
+    # Ensure numeric type for Close column
+    df['Close'] = pd.to_numeric(df['Close'], errors='coerce')
+    
+    delta = df['Close'].diff()
+    gain = delta.clip(lower=0)
+    loss = -delta.clip(upper=0)
+    
+    avg_gain = gain.rolling(window=period).mean()
+    avg_loss = loss.rolling(window=period).mean()
     
     rs = avg_gain / avg_loss
-    rsi = 100 - (100 / (1 + rs))
-    print("RSI type:", type(rsi))
-    print("RSI value:", rsi)
-    print("Data type before return:", type(data))
+    df['RSI'] = 100 - (100 / (1 + rs))
     
-    return data.with_columns([rsi.alias('RSI')])  # Updated to use with_columns
+    # Convert back to polars
+    return pl.from_pandas(df)
 
 def generate_ma_signals(data: pl.DataFrame, config: dict) -> Tuple[pl.Series, pl.Series]:
     """Generate entry and exit signals based on MA crossover."""
@@ -178,28 +197,6 @@ def backtest_strategy(data: pl.DataFrame, config: dict) -> vbt.Portfolio:
         logging.error(f"Backtest failed: {e}")
         raise
 
-def calculate_ma_and_signals(data: pl.DataFrame, short_window: int, long_window: int, config: dict) -> pl.DataFrame:
-    """Calculate MAs and generate trading signals."""
-    ma_type = "SMA" if config.get('USE_SMA', False) else "EMA"
-    logging.info(f"Calculating {ma_type}s and signals with short window {short_window} and long window {long_window}")
-    try:
-        data = calculate_mas(data, short_window, long_window, config.get('USE_SMA', False))
-        entries, exits = generate_ma_signals(data, config)
-        
-        data = data.with_columns([
-            pl.when(entries).then(1).otherwise(0).alias("Signal")
-        ])
-        
-        data = data.with_columns([
-            pl.col("Signal").shift(1).alias("Position")
-        ])
-        
-        logging.info(f"{ma_type}s and signals calculated successfully")
-        return data
-    except Exception as e:
-        logging.error(f"Failed to calculate {ma_type}s and signals: {e}")
-        raise
-
 def parameter_sensitivity_analysis(data: pl.DataFrame, short_windows: List[int], long_windows: List[int], config: dict) -> List[pl.DataFrame]:
     """Perform parameter sensitivity analysis."""
     logging.info("Starting parameter sensitivity analysis")
@@ -228,7 +225,7 @@ def parameter_sensitivity_analysis(data: pl.DataFrame, short_windows: List[int],
         portfolios = portfolios.sort("Total Return [%]", descending=True)
 
         # Export to CSV
-        csv_path = os.path.join(config['BASE_DIR'], f'csv/ma_cross/{config['TICKER_1']}_parameter_portfolios.csv')
+        csv_path = os.path.join(config['BASE_DIR'], f'csv/ma_cross/{config["TICKER_1"]}_parameter_portfolios.csv')
         portfolios.write_csv(csv_path)
 
         print(f"Analysis complete. Portfolios written to {csv_path}")
@@ -239,12 +236,19 @@ def parameter_sensitivity_analysis(data: pl.DataFrame, short_windows: List[int],
         logging.error(f"Parameter sensitivity analysis failed: {e}")
         raise
 
-def getFilename(ticker: str, config: dict) -> str:
-    filename = f'images/ema_cross/parameter_sensitivity/{ticker}{"_H" if config.get("USE_HOURLY_DATA", False) else "_D"}{"_SMA" if config.get("USE_SMA", False) else "_EMA"}{"_" + datetime.now().strftime("%Y%m%d") if config.get("SHOW_LAST", True) else ""}.png'
+def get_filename(type: str, config: dict) -> str:
+    filename = f'{config["TICKER"]}{"_H" if config.get("USE_HOURLY_DATA", False) else "_D"}{"_SMA" if config.get("USE_SMA", False) else "_EMA"}{"_GBM" if config.get("USE_GBM", False) else ""}{"_" + datetime.now().strftime("%Y%m%d") if config.get("SHOW_LAST", False) else ""}.{type}'
 
     return filename
 
-def getPath(type: str, feature1: str, config: dict, feature2: str = "") -> str:
+def get_path(type: str, feature1: str, config: dict, feature2: str = "") -> str:
     path = os.path.join(config['BASE_DIR'], f'{type}/{feature1}{"/" + feature2 if feature2 != "" else ""}')
 
     return path
+
+def save_csv(data: pl.DataFrame, feature1: str, config: dict, feature2: str = "") -> None:
+    csv_path = get_path("csv", feature1, config, feature2)
+    csv_filename = get_filename("csv", config)
+    data.write_csv(csv_path + "/" + csv_filename)
+
+    print(f"{len(data)} rows exported to {csv_path}.csv")

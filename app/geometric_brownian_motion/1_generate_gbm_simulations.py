@@ -1,62 +1,46 @@
 import polars as pl
 import numpy as np
 import matplotlib.pyplot as plt
-import os
-from app.utils import get_data
-
-# Configuration
-TICKER_1 = 'SPY'  # Ticker for X to USD exchange rate
-TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
-YEARS = 30  # Set timeframe in years for data
-PERIOD = 'max' # Set time period for maximum data
-USE_HOURLY = False  # Set to False for data
-USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-BASE_DIR = 'C:/Projects/trading'
-TIME_HORIZON = 10 #Time horizon (in years)
-SIMULATIONS = 1000
-
-ANNUAL_TRADING_DAYS = 365
-# ANNUAL_TRADING_DAYS = 252
+from app.tools.get_config import get_config
+from app.utils import get_data, get_path, get_filename, save_csv
 
 # Default Configuration
-CONFIG_DEFAULT = {
+CONFIG = {
+    "YEARS": 30,
+    "USE_YEARS": False,
     "PERIOD": 'max',
     "USE_HOURLY": False,
+    "TICKER": 'CFG',
     "USE_SYNTHETIC": False,
-    "TICKER_1": TICKER_1,
-    "TICKER_2": TICKER_2,
-    "BASE_DIR": BASE_DIR,
-    "ANNUAL_TRADING_DAYS": 252,
-    "TIME_HORIZON": 1,
+    "TICKER_1": 'BTC-USD',
+    "TICKER_2": 'SPY',
+    "SHORT_WINDOW": 33,
+    "LONG_WINDOW": 46,
+    "SHORT": False,
+    "USE_GBM": True,
+    "USE_SMA": True,
+    "BASE_DIR": 'C:/Projects/trading',
+    "WINDOWS": 55,
+    "ANNUAL_TRADING_DAYS": 365,
+    "TIME_HORIZON": 10,
     "SIMULATIONS": 1000
 }
 
-# Custom Configuration
-CONFIG_CUSTOM = {
-    "PERIOD": PERIOD,
-    "USE_HOURLY": USE_HOURLY,
-    "USE_SYNTHETIC": USE_SYNTHETIC,
-    "TICKER_1": TICKER_1,
-    "TICKER_2": TICKER_2,
-    "BASE_DIR": BASE_DIR,
-    "ANNUAL_TRADING_DAYS": ANNUAL_TRADING_DAYS,
-    "TIME_HORIZON": TIME_HORIZON,
-    "SIMULATIONS": SIMULATIONS
-}
+config = get_config(CONFIG)
 
-CONFIG = CONFIG_CUSTOM
+config["USE_GBM"] = True
 
 dt = 0.00273972602  # Time step (in years)
-n_steps = int(CONFIG['TIME_HORIZON'] / dt)  # Number of time steps
+n_steps = int(config['TIME_HORIZON'] / dt)  # Number of time steps
 
 # Download BTC-USD data
-data = get_data(CONFIG)
+data = get_data(config)
 
 # Calculate required fields
 initial_price = data["Close"][0]
 returns = data["Close"].pct_change().drop_nulls()
-drift = returns.mean() * ANNUAL_TRADING_DAYS  # Annualized return
-volatility = returns.std() * np.sqrt(ANNUAL_TRADING_DAYS)  # Annualized standard deviation
+drift = returns.mean() * config["ANNUAL_TRADING_DAYS"]  # Annualized return
+volatility = returns.std() * np.sqrt(config["ANNUAL_TRADING_DAYS"])  # Annualized standard deviation
 
 gbm_params = pl.DataFrame({
     "Initial Price": [initial_price],
@@ -67,11 +51,11 @@ gbm_params = pl.DataFrame({
 print(gbm_params)
 
 # Simulate simulations
-simulations = np.zeros((CONFIG['SIMULATIONS'], n_steps))
+simulations = np.zeros((config['SIMULATIONS'], n_steps))
 simulations[:, 0] = initial_price
 
 for i in range(1, n_steps):
-    Z = np.random.standard_normal(CONFIG['SIMULATIONS'])  # Random shocks (Wiener process)
+    Z = np.random.standard_normal(config['SIMULATIONS'])  # Random shocks (Wiener process)
     simulations[:, i] = simulations[:, i - 1] * np.exp((drift - 0.5 * volatility**2) * dt + volatility * np.sqrt(dt) * Z)
 
 # Plot the simulated simulations
@@ -80,7 +64,10 @@ plt.plot(simulations.T, lw=0.5)
 plt.title('Geometric Brownian Motion Simulated Simulations')
 plt.xlabel('Time Steps')
 plt.ylabel('Price')
-plt.savefig(os.path.join(BASE_DIR, f'images/geometric_brownian_motion/{CONFIG['TICKER_1']}_geometric_brownian_motion.png'))
+png_path = get_path("png", "geometric_brownian_motion", config, 'simulations')
+png_filename = get_filename("png", config)
+plt.savefig(png_path + "/" + png_filename)
+
 plt.close()
 
 # Convert simulations to a polars DataFrame
@@ -94,8 +81,5 @@ df = df.with_columns(pl.Series("Timestamp", timestamps))
 columns = df.columns
 df = df.select(["Timestamp"] + [col for col in columns if col != "Timestamp"])
 
-# Export to CSV
-csv_path = os.path.join(BASE_DIR, f'csv/geometric_brownian_motion/{CONFIG['TICKER_1']}_gbm_simulations.csv')
-df.write_csv(csv_path)
-
-print(f"{len(simulations)} GBM simulations exported to {csv_path}")
+# Save full data to CSV
+save_csv(df, "geometric_brownian_motion", config, 'simulations')

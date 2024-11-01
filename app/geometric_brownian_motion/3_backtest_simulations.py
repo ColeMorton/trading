@@ -1,17 +1,50 @@
+import logging
+import os
+import vectorbt as vbt
 import pandas as pd
 import numpy as np
-import vectorbt as vbt
 import matplotlib.pyplot as plt
+from app.tools.get_config import get_config
+from app.utils import get_path, get_filename
 
-TICKER = 'BTC-USD'
-ANNUAL_TRADING_DAYS = 365
-# ANNUAL_TRADING_DAYS = 252
+# Logging setup
+log_dir = 'logs'
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+logging.basicConfig(filename=os.path.join(log_dir, 'ema_cross.log'), level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
-ema_fast = 11
-ema_slow = 30
+# Default Configuration
+CONFIG = {
+    "YEARS": 30,
+    "USE_YEARS": False,
+    "PERIOD": 'max',
+    "USE_HOURLY": False,
+    "TICKER": 'CFG',
+    "USE_SYNTHETIC": False,
+    "TICKER_1": 'BTC-USD',
+    "TICKER_2": 'SPY',
+    "SHORT_WINDOW": 33,
+    "LONG_WINDOW": 46,
+    "SHORT": False,
+    "USE_GBM": True,
+    "USE_SMA": True,
+    "BASE_DIR": 'C:/Projects/trading',
+    "WINDOWS": 55,
+    "ANNUAL_TRADING_DAYS": 365,
+    "TIME_HORIZON": 10,
+    "SIMULATIONS": 1000
+}
 
-# Load the simulations
-df = pd.read_csv(f'csv/geometric_brownian_motion/{TICKER}_gbm_extracted_simulations.csv', index_col='timestamp', parse_dates=True)
+config = get_config(CONFIG)
+
+# Read the CSV file
+filename = get_filename("csv", config)
+path = get_path("csv", "geometric_brownian_motion", config, 'filtered_simulations')
+fullpath = f"{path}/{filename}"
+
+# df = pd.read_csv(f'csv/geometric_brownian_motion/{TICKER}_gbm_extracted_simulations.csv', index_col='timestamp', parse_dates=True)
+df = pd.read_csv(fullpath, index_col='Date', parse_dates=True)
 
 print(f"Loaded DataFrame shape: {df.shape}")
 
@@ -25,8 +58,8 @@ for column in df.columns:
     print(f"Price series shape: {price.shape}")
     
     # Calculate EMAs
-    ema_fast_series = vbt.MA.run(price, window=ema_fast, ewm=True).ma
-    ema_slow_series = vbt.MA.run(price, window=ema_slow, ewm=True).ma
+    ema_fast_series = vbt.MA.run(price, window=config["SHORT_WINDOW"], ewm=True).ma
+    ema_slow_series = vbt.MA.run(price, window=config["LONG_WINDOW"], ewm=True).ma
     
     # Generate entry and exit signals
     entries = (ema_fast_series > ema_slow_series) & (ema_fast_series.shift(1) <= ema_slow_series.shift(1))
@@ -114,8 +147,10 @@ else:
     fig.delaxes(axes[2, 1])
 
     plt.tight_layout()
-    plt.savefig(f'images/geometric_brownian_motion/{TICKER}_backtest_results.png')
-    print("\nBacktest results visualization saved to images/geometric_brownian_motion/backtest_results.png")
+
+    # plt.show()
+    # plt.savefig(f'images/geometric_brownian_motion/{TICKER}_backtest_results.png')
+    # print("\nBacktest results visualization saved to images/geometric_brownian_motion/backtest_results.png")
 
     # Print combined results with formatted numbers
     print("\nCombined Backtest Results:")
@@ -134,8 +169,9 @@ else:
         plt.ylabel('Portfolio Value (Normalized)')
         plt.legend()
         plt.tight_layout()
-        plt.savefig(f'images/geometric_brownian_motion/{TICKER}_gbm_equity_curves.png')
-        print("Equity curves visualization saved to images/geometric_brownian_motion/equity_curves.png")
+        plt.show()
+        # plt.savefig(f'images/geometric_brownian_motion/{TICKER}_gbm_equity_curves.png')
+        # print("Equity curves visualization saved to images/geometric_brownian_motion/equity_curves.png")
     except Exception as e:
         print(f"Error while plotting equity curves: {str(e)}")
 

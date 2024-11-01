@@ -1,11 +1,9 @@
 import polars as pl
-import json
 import numpy as np
-from typing import List
 import random
 from app.monte_carlo.utils import get_data, calculate_performance_metrics
 
-TICKER = 'BTC-USD'
+TICKER = 'ETH-USD'
 BASE_INITIAL_PORTFOLIO_VALUE = 10000
 
 # Read the JSON file
@@ -79,10 +77,12 @@ summary_stats = {
 for key, value in summary_stats.items():
     results_df = results_df.with_columns(pl.lit(value).alias(key))
 
-# Save results to a CSV file
-results_df.write_csv(f'csv/{TICKER}_monte_carlo_performance.csv')
+fullpath = f'csv/monte_carlo/{TICKER}_performance.csv'
 
-print(f"\nProcessed {num_simulations} permutations. Results saved to 'csv/{TICKER}_monte_carlo_performance.csv'.")
+# Save results to a CSV file
+results_df.write_csv(fullpath)
+
+print(f"\nProcessed {num_simulations} permutations. Results saved to '{fullpath}'.")
 print("\nSummary Statistics:")
 for key, value in summary_stats.items():
     print(f"{key}: {value}")

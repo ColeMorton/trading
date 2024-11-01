@@ -24,13 +24,13 @@ logging.info("Total Return, Win Rate, and Expectancy vs Stop Loss Percentage")
 YEARS = 30  # Set timeframe in years for daily data
 USE_HOURLY_DATA = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'SOL-USD'  # Ticker for X to USD exchange rate
+TICKER_1 = 'CFG'  # Ticker for X to USD exchange rate
 TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 USE_SMA = True  # Set to True to use SMAs, False to use EMAs
 
-EMA_FAST = 27
-EMA_SLOW = 30
+EMA_FAST = 33
+EMA_SLOW = 46
 RSI_PERIOD = 14
 
 RSI_THRESHOLD = 43

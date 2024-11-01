@@ -4,7 +4,7 @@ import numpy as np
 from scipy import stats
 import os
 
-TICKER = 'BTC-USD'
+TICKER = 'ETH-USD'
 BASE_DIR = 'C:/Projects/trading'  # Add this line
 
 def visualize_performance(csv_file):
@@ -26,7 +26,7 @@ def visualize_performance(csv_file):
     plt.title('Distribution of Maximum Drawdowns')
     plt.xlabel('Maximum Drawdown')
     plt.ylabel('Frequency')
-    plt.savefig(os.path.join(BASE_DIR, f'images/monte_carlo/max_drawdown_distribution/{TICKER}_monte_carlo_max_drawdown_distribution.png'))
+    plt.savefig(os.path.join(BASE_DIR, f'png/monte_carlo/max_drawdown_distribution/{TICKER}.png'))
     plt.close()
 
     # Visualize the cumulative distribution of returns
@@ -37,7 +37,7 @@ def visualize_performance(csv_file):
     plt.title('Cumulative Distribution of Returns')
     plt.xlabel('Cumulative Return')
     plt.ylabel('Cumulative Probability')
-    plt.savefig(os.path.join(BASE_DIR, f'images/monte_carlo/returns_cumulative_distribution/{TICKER}_monte_carlo_returns_cumulative_distribution.png'))
+    plt.savefig(os.path.join(BASE_DIR, f'png/monte_carlo/returns_cumulative_distribution/{TICKER}.png'))
     plt.close()
 
     # Visualize the distribution of Sharpe ratios
@@ -46,7 +46,7 @@ def visualize_performance(csv_file):
     plt.title('Distribution of Sharpe Ratios')
     plt.xlabel('Sharpe Ratio')
     plt.ylabel('Frequency')
-    plt.savefig(os.path.join(BASE_DIR, f'images/monte_carlo/sharpe_ratio_distribution/{TICKER}_monte_carlo_sharpe_ratio_distribution.png'))
+    plt.savefig(os.path.join(BASE_DIR, f'png/monte_carlo/sharpe_ratio_distribution/{TICKER}.png'))
     plt.close()
 
     # Visualize the distribution of final portfolio values
@@ -74,9 +74,9 @@ def visualize_performance(csv_file):
     plt.axvline(x=df['var_5_percent'][0], color='g', linestyle='dashed', linewidth=2, label='5% VaR')
     plt.legend()
     plt.tight_layout()
-    plt.savefig(os.path.join(BASE_DIR, f'images/monte_carlo/final_portfolio_value_distribution/{TICKER}_monte_carlo_final_portfolio_value_distribution.png'))
+    plt.savefig(os.path.join(BASE_DIR, f'png/monte_carlo/final_portfolio_value_distribution/{TICKER}.png'))
     plt.close()
 
 if __name__ == "__main__":
-    visualize_performance(os.path.join(BASE_DIR, f'csv/monte_carlo/{TICKER}_monte_carlo_performance.csv'))
+    visualize_performance(os.path.join(BASE_DIR, f'csv/monte_carlo/{TICKER}_performance.csv'))
     print("Visualization complete. Check the output directory for the generated plots.")

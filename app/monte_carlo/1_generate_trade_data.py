@@ -1,19 +1,20 @@
 import os
 import numpy as np
 import pandas as pd
-from app.utils import download_data, calculate_mas, generate_ma_signals, run_backtest
+from app.utils import download_data, backtest_strategy
+from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 
 # Configuration
 YEARS = 30  # Set timeframe in years for daily data
 USE_HOURLY_DATA = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'BTC-USD'  # Ticker for X to USD exchange rate
+TICKER_1 = 'ETH-USD'  # Ticker for X to USD exchange rate
 TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 USE_SMA = False  # Set to True to use SMAs, False to use EMAs
 
-EMA_FAST = 11
-EMA_SLOW = 17
+EMA_FAST = 14
+EMA_SLOW = 32
 RSI_PERIOD = 14
 
 RSI_THRESHOLD = 55
@@ -48,15 +49,11 @@ def calculate_max_drawdown(prices):
     return max_drawdown
 
 # Download historical data
-data = download_data(TICKER_1)
+data = download_data(CONFIG["TICKER_1"], CONFIG["YEARS"], CONFIG["USE_HOURLY_DATA"])
 
-# Calculate EMAs
-data = calculate_mas(data, EMA_FAST, EMA_SLOW, USE_SMA)
+data = calculate_ma_and_signals(data, EMA_FAST, EMA_SLOW, CONFIG)
 
-entries, exits = generate_ma_signals(data, CONFIG)
-
-# Backtest using vectorbt
-portfolio = run_backtest(data, entries.to_numpy(), exits.to_numpy(), CONFIG)
+portfolio = backtest_strategy(data, CONFIG)
 
 print(portfolio.stats())
 

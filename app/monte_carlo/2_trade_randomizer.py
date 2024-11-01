@@ -1,12 +1,11 @@
 import polars as pl
-import random
 from typing import List
 import logging
 import os
 import json
 import matplotlib.pyplot as plt
 
-TICKER = 'BTC-USD'
+TICKER = 'ETH-USD'
 NUM_PERMUTATIONS = 1000
 
 # Set up logging
@@ -67,7 +66,7 @@ def plot_permutations(permutations: List[pl.DataFrame], original_trades: pl.Data
     plt.legend()
     
     # Save the plot
-    plot_filename = f'images/monte_carlo/permutations/{TICKER}_monte_carlo_permutations.png'
+    plot_filename = f'png/monte_carlo/permutations/{TICKER}_monte_carlo_permutations.png'
     plt.savefig(plot_filename)
     logging.info(f"Plot saved as {plot_filename}")
 

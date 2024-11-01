@@ -1,50 +1,36 @@
 import csv
 from io import StringIO
 import numpy as np
-import pandas as pd
+import polars as pl
 from typing import List, Tuple
-
-# Configuration
-TICKER_1 = 'SPY'  # Ticker for X to USD exchange rate
-TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
-YEARS = 30  # Set timeframe in years for data
-PERIOD = 'max' # Set time period for maximum data
-USE_HOURLY = False  # Set to False for data
-USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-BASE_DIR = 'C:/Projects/trading'
-TIME_HORIZON = 10 #Time horizon (in years)
-SIMULATIONS = 1000
-
-ANNUAL_TRADING_DAYS = 365
-# ANNUAL_TRADING_DAYS = 252
+from app.tools.get_config import get_config
+from app.utils import get_path, get_filename, save_csv
 
 # Default Configuration
-CONFIG_DEFAULT = {
+CONFIG = {
+    "YEARS": 30,
+    "USE_YEARS": False,
     "PERIOD": 'max',
     "USE_HOURLY": False,
+    "TICKER": 'CFG',
     "USE_SYNTHETIC": False,
-    "TICKER_1": TICKER_1,
-    "TICKER_2": TICKER_2,
-    "BASE_DIR": BASE_DIR,
-    "ANNUAL_TRADING_DAYS": 252,
-    "TIME_HORIZON": 1,
+    "TICKER_1": 'BTC-USD',
+    "TICKER_2": 'SPY',
+    "SHORT_WINDOW": 33,
+    "LONG_WINDOW": 46,
+    "SHORT": False,
+    "USE_GBM": True,
+    "USE_SMA": True,
+    "BASE_DIR": 'C:/Projects/trading',
+    "WINDOWS": 55,
+    "ANNUAL_TRADING_DAYS": 365,
+    "TIME_HORIZON": 10,
     "SIMULATIONS": 1000
 }
 
-# Custom Configuration
-CONFIG_CUSTOM = {
-    "PERIOD": PERIOD,
-    "USE_HOURLY": USE_HOURLY,
-    "USE_SYNTHETIC": USE_SYNTHETIC,
-    "TICKER_1": TICKER_1,
-    "TICKER_2": TICKER_2,
-    "BASE_DIR": BASE_DIR,
-    "ANNUAL_TRADING_DAYS": ANNUAL_TRADING_DAYS,
-    "TIME_HORIZON": TIME_HORIZON,
-    "SIMULATIONS": SIMULATIONS
-}
+config = get_config(CONFIG)
 
-CONFIG = CONFIG_CUSTOM
+config["USE_GBM"] = True
 
 def read_csv_data(csv_content: str) -> Tuple[List[str], List[List[float]]]:
     csv_file = StringIO(csv_content)
@@ -64,7 +50,7 @@ def read_csv_data(csv_content: str) -> Tuple[List[str], List[List[float]]]:
 def calculate_performance(prices: List[float]) -> float:
     return (prices[-1] - prices[0]) / prices[0] * 100
 
-def extract_simulations(csv_content: str) -> Tuple[dict, pd.DataFrame]:
+def extract_simulations(csv_content: str) -> Tuple[dict, pl.DataFrame]:
     timestamps, simulations = read_csv_data(csv_content)
     performances = [calculate_performance(sim) for sim in simulations]
     
@@ -79,7 +65,7 @@ def extract_simulations(csv_content: str) -> Tuple[dict, pd.DataFrame]:
         df_dict = {"timestamp": timestamps}
         for i, sim in enumerate(simulations):
             df_dict[f"simulation_{i+1}"] = sim
-        df = pd.DataFrame(df_dict)
+        df = pl.DataFrame(df_dict)
     else:
         # If 7 or more simulations, export the specific 6 simulations
         results = {
@@ -99,7 +85,7 @@ def extract_simulations(csv_content: str) -> Tuple[dict, pd.DataFrame]:
         percentile_25_sim = simulations[performances.index(min(performances, key=lambda x: abs(x - np.percentile(performances, 25))))]
         percentile_75_sim = simulations[performances.index(min(performances, key=lambda x: abs(x - np.percentile(performances, 75))))]
         
-        df = pd.DataFrame({
+        df = pl.DataFrame({
             "timestamp": timestamps,
             "highest": highest_sim,
             "lowest": lowest_sim,
@@ -109,11 +95,19 @@ def extract_simulations(csv_content: str) -> Tuple[dict, pd.DataFrame]:
             "75th_percentile": percentile_75_sim
         })
     
-    df.set_index("timestamp", inplace=True)
+    # Set timestamp as index by making it the first column
+    df = df.with_columns(pl.col("timestamp").alias("Date")).select(
+        ["Date"] + [col for col in df.columns if col != "timestamp"]
+    )
+    
     return results, df
 
 # Read the CSV file
-with open(f'csv/geometric_brownian_motion/{CONFIG['TICKER_1']}_gbm_simulations.csv', 'r') as file:
+filename = get_filename("csv", config)
+path = get_path("csv", "geometric_brownian_motion", config, 'simulations')
+fullpath = f"{path}/{filename}"
+
+with open(fullpath, 'r') as file:
     csv_content = file.read()
 
 # Extract simulations
@@ -126,7 +120,9 @@ for key, value in results.items():
 
 print(simulations_df)
 
-# Save the simulations to a CSV file
-simulations_df.to_csv(f'csv/geometric_brownian_motion/{CONFIG['TICKER_1']}_gbm_extracted_simulations.csv')
-print(f"Simulations saved to csv/geometric_brownian_motion/{CONFIG['TICKER_1']}_gbm_extracted_simulations.csv")
-print(f"Number of rows in extracted simulations: {len(simulations_df)}")
+save_csv(simulations_df, "geometric_brownian_motion", config, 'filtered_simulations')
+
+# # Save the simulations to a CSV file
+# simulations_df.to_csv(f'csv/geometric_brownian_motion/{config['TICKER']}_gbm_extracted_simulations.csv')
+# print(f"Simulations saved to csv/geometric_brownian_motion/{config['TICKER']}_gbm_extracted_simulations.csv")
+# print(f"Number of rows in extracted simulations: {len(simulations_df)}")

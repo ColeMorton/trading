@@ -2,6 +2,7 @@ import pandas as pd
 import yfinance as yf
 import riskfolio as rp
 import numpy as np
+import matplotlib.pyplot as plt
 
 def download_data(ticker, start_date, end_date):
     data = yf.download(ticker, start=start_date, end=end_date)
@@ -10,13 +11,13 @@ def download_data(ticker, start_date, end_date):
 try:
     # Download data
     start_date = '2020-01-01'
-    end_date = '2024-03-20'
+    end_date = '2024-10-25'
     btc_data = download_data('BTC-USD', start_date, end_date)
-    spy_data = download_data('SPY', start_date, end_date)
+    spy_data = download_data('SOL-USD', start_date, end_date)
 
     # Combine data
     data = pd.concat([btc_data, spy_data], axis=1)
-    data.columns = ['BTC-USD', 'SPY']
+    data.columns = ['BTC-USD', 'SOL-USD']
 
     # Calculate returns
     returns = data.pct_change(fill_method=None).dropna()
@@ -38,6 +39,12 @@ try:
     hist = True  # Use historical scenarios for risk measures that depend on scenarios
     rf = 0  # Risk-free rate
     l = 0  # Risk aversion factor, only useful when obj is 'Utility'
+
+    # Sortino Ratio
+    # rm = 'MSV'  # Risk measure: 'MV' (Variance), 'MAD' (Mean Absolute Deviation), 'MSV' (Semi Variance), etc.
+    # obj = 'MaxRet'  # Objective function: 'MinRisk', 'MaxRet', 'Utility', 'Sharpe' (Maximize Sharpe ratio)
+
+    rm = 'CVaR'  # Risk measure: 'MV' (Variance), 'MAD' (Mean Absolute Deviation), 'MSV' (Semi Variance), etc.
 
     # Optimize portfolio
     w = port.optimization(model=model, rm=rm, obj=obj, rf=rf, l=l, hist=hist)
@@ -71,6 +78,9 @@ try:
         print(f"Annualized Volatility: {asset_annualized_volatility:.2%}")
         print(f"Sharpe Ratio: {asset_sharpe_ratio:.2f}")
 
+    ax = rp.plot_pie(w=w, title='Sharpe Mean Variance', others=0.05, nrow=25, cmap = "tab20", height=6, width=10, ax=None)
+    plt.show()
+    
 except Exception as e:
     print(f"An error occurred: {str(e)}")
     import sys

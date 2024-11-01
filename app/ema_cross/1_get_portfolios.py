@@ -20,7 +20,7 @@ CONFIG = {
     "USE_YEARS": False,
     "PERIOD": 'max',
     "USE_HOURLY": False,
-    "TICKER": 'BCH-USD',
+    "TICKER": 'AMZN',
     "USE_SYNTHETIC": False,
     "TICKER_1": 'BCH-USD',
     "TICKER_2": 'SPY',

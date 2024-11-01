@@ -1,5 +1,6 @@
 from app.tools.get_config import get_config
-from app.utils import get_data, calculate_ma_and_signals, backtest_strategy
+from app.utils import get_data, backtest_strategy
+from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 import polars as pl
 
 CONFIG_BTC = {

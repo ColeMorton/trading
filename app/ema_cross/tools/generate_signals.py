@@ -1,8 +1,7 @@
 from typing import Dict, Tuple
 import polars as pl
 import pandas as pd
-import numpy as np
-from app.ema_cross.tools.calculate_ma_and_signals import calculate_ma_and_signals
+from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 
 def generate_signals(data_dict: Dict[str, pd.DataFrame], config: Dict) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """

@@ -2,7 +2,7 @@ import logging
 import polars as pl
 from typing import List
 from app.utils import get_data
-from app.ema_cross.tools.calculate_ma_and_signals import calculate_ma_and_signals
+from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 
 # Default Configuration
 CONFIG = {

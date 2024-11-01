@@ -18,7 +18,7 @@ CONFIG = {
     "USE_YEARS": False,
     "PERIOD": 'max',
     "USE_HOURLY": False,
-    "TICKER": 'SMCI',
+    "TICKER": 'SPY',
     "USE_SYNTHETIC": False,
     "TICKER_1": 'BCH-USD',
     "TICKER_2": 'SPY',
@@ -28,7 +28,7 @@ CONFIG = {
     "USE_GBM": False,
     "USE_SMA": True,
     "BASE_DIR": 'C:/Projects/trading',
-    "WINDOWS": 55
+    "WINDOWS": 100
 }
 
 config = get_config(CONFIG)

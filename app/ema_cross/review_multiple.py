@@ -57,8 +57,9 @@ config: Config = {
             'use_sma': True
         }
     },
-    'start_date': '2014-01-01',  # Updated start date to ensure SOL-USD data availability
-    'end_date': '2024-10-28',
+    # 'start_date': '2014-01-01',  # Updated start date to ensure SOL-USD data availability
+    'start_date': '2020-01-01',  # Updated start date to ensure SOL-USD data availability
+    'end_date': '2024-10-29',
     'init_cash': 10000,
     'fees': 0.001
 }

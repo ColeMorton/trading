@@ -4,8 +4,8 @@ from typing import List
 import pandas as pd
 import vectorbt as vbt
 import logging
-from app.utils import getPath
-from app.ema_cross.tools.calculate_ma_and_signals import calculate_ma_and_signals
+from app.utils import get_path, get_filename
+from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.ema_cross.tools.get_current_signals import is_signal_current
 
 # Convert stats to compatible format
@@ -90,8 +90,8 @@ def parameter_sensitivity_analysis(data: pl.DataFrame, short_windows: List[int],
         portfolios = portfolios.sort("Total Return [%]", descending=True)
 
         # Export to CSV
-        csv_path = getPath("csv", "ma_cross", config, 'portfolios')
-        csv_filename = f'{config["TICKER_1"]}{"_H" if config.get("USE_HOURLY_DATA", False) else "_D"}{"_SMA" if config.get("USE_SMA", False) else "_EMA"}{"_" + datetime.now().strftime("%Y%m%d") if config.get("SHOW_LAST", True) else ""}.csv'
+        csv_path = get_path("csv", "ma_cross", config, 'portfolios')
+        csv_filename = get_filename("csv", config)
         portfolios.write_csv(csv_path + "/" + csv_filename)
 
         print(f"Analysis complete. Portfolios written to {csv_path}")

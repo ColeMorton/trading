@@ -1,7 +1,5 @@
 import polars as pl
-import os
-from datetime import datetime
-from app.utils import getPath
+from app.utils import get_path, get_filename
 
 # Function to get row for metric extremes
 def get_metric_rows(df, column):
@@ -88,13 +86,9 @@ def filter_portfolios(df, config):
     cols = ['Metric Type'] + [col for col in result_df.columns if col != 'Metric Type']
     result_df = result_df.select(cols)
 
-    # # Export to CSV
-    # csv_path = os.path.join(config['BASE_DIR'], f'csv/ma_cross/{config['TICKER_1']}_filtered_portfolios_{"SMA" if config.get('USE_SMA', False) else "EMA"}.csv')
-    # result_df.write_csv(csv_path)
-
     # Export to CSV
-    csv_path = getPath("csv", "ma_cross", config, 'portfolios')
-    csv_filename = f'{config["TICKER_1"]}{"_H" if config.get("USE_HOURLY_DATA", False) else "_D"}{"_SMA" if config.get("USE_SMA", False) else "_EMA"}{"_" + datetime.now().strftime("%Y%m%d") if config.get("SHOW_LAST", True) else ""}_filtered.csv'
+    csv_path = get_path("csv", "ma_cross", config, 'portfolios_filtered')
+    csv_filename = get_filename("csv", config)
     result_df.write_csv(csv_path + "/" + csv_filename)
 
     print(f"Analysis complete. Results written to {csv_path}")
