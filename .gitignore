@@ -163,3 +163,8 @@ cython_debug/
 
 # logging
 /logs
+
+# Custom
+/png
+/csv
+/json
