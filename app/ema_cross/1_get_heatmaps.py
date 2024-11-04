@@ -14,11 +14,11 @@ logging.basicConfig(filename=os.path.join(log_dir, 'ema_cross.log'), level=loggi
 
 # Default Configuration
 CONFIG = {
-    "YEARS": 30,
+    "YEARS": 15,
     "USE_YEARS": False,
     "PERIOD": 'max',
     "USE_HOURLY": False,
-    "TICKER": 'SPY',
+    "TICKER": 'MSTR',
     "USE_SYNTHETIC": False,
     "TICKER_1": 'BCH-USD',
     "TICKER_2": 'SPY',
@@ -28,7 +28,7 @@ CONFIG = {
     "USE_GBM": False,
     "USE_SMA": True,
     "BASE_DIR": 'C:/Projects/trading',
-    "WINDOWS": 100
+    "WINDOWS": 50
 }
 
 config = get_config(CONFIG)

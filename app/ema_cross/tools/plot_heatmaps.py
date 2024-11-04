@@ -1,7 +1,5 @@
 import logging
 import polars as pl
-import matplotlib.pyplot as plt
-import seaborn as sns
 import vectorbt as vbt
 import numpy as np
 from app.utils import get_filename, get_path

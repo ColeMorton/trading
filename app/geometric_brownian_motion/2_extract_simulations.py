@@ -8,11 +8,11 @@ from app.utils import get_path, get_filename, save_csv
 
 # Default Configuration
 CONFIG = {
-    "YEARS": 30,
-    "USE_YEARS": False,
+    "YEARS": 8.8,
+    "USE_YEARS": True,
     "PERIOD": 'max',
     "USE_HOURLY": False,
-    "TICKER": 'CFG',
+    "TICKER": 'MSTR',
     "USE_SYNTHETIC": False,
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'SPY',
@@ -24,7 +24,7 @@ CONFIG = {
     "BASE_DIR": 'C:/Projects/trading',
     "WINDOWS": 55,
     "ANNUAL_TRADING_DAYS": 365,
-    "TIME_HORIZON": 10,
+    "TIME_HORIZON": 4.44,
     "SIMULATIONS": 1000
 }
 

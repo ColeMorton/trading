@@ -9,11 +9,14 @@ warnings.filterwarnings("ignore")
 pd.options.display.float_format = '{:.4%}'.format
 
 # Date range
+start_date = '2020-05-02'
+end_date = '2024-11-03'
+
 # start_date = '2020-01-01'
 # end_date = '2021-01-01'
 
-start_date = '2020-01-01'
-end_date = '2024-10-24'
+# start_date = '2020-01-01'
+# end_date = '2024-10-24'
 
 # start_date = '2023-10-24'
 # end_date = '2024-10-24'
@@ -23,8 +26,9 @@ end_date = '2024-10-24'
 
 # Tickers of assets
 # assets = ['BTC-USD', 'SOL-USD', 'SPY', 'QQQ', 'MSTR', 'WULF']
-assets = ['BTC-USD', 'SPY']
+assets = ['BTC-USD', 'MSTR']
 # assets = ['BTC-USD', 'SOL-USD']
+# assets = ['BTC-USD', 'SOL-USD', 'MSTR']
 assets.sort()
 
 # Downloading data

@@ -5,7 +5,10 @@ from typing import List, Tuple
 import json
 import logging
 import os
-from app.utils import download_data, calculate_mas, calculate_rsi, use_synthetic, find_prominent_peaks, add_peak_labels
+from app.tools.get_config import get_config
+from app.utils import download_data, use_synthetic, find_prominent_peaks, add_peak_labels
+from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
+from app.tools.calculate_rsi import calculate_rsi
 
 # Ensure the logs directory exists
 os.makedirs('logs', exist_ok=True)
@@ -23,18 +26,27 @@ logging.info("RSI Threshold Sensitivity Analysis - New Execution")
 with open('config.json') as f:
     config = json.load(f)
 
-# Configuration
-YEARS = 30  # Set timeframe in years for daily data
-USE_HOURLY_DATA = False  # Set to False for daily data
-USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'VMC'  # Ticker for X to USD exchange rate
-TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
-SHORT = False  # Set to True for short-only strategy, False for long-only strategy
-USE_SMA = True  # Set to True to use SMAs, False to use EMAs
+# Default Configuration
+CONFIG = {
+    "YEARS": 30,
+    "USE_YEARS": False,
+    "PERIOD": 'max',
+    "USE_HOURLY": False,
+    "TICKER": 'AMZN',
+    "USE_SYNTHETIC": False,
+    "TICKER_1": 'BCH-USD',
+    "TICKER_2": 'SPY',
+    "SHORT_WINDOW": 11,
+    "LONG_WINDOW": 17,
+    "SHORT": False,
+    "USE_GBM": False,
+    "USE_SMA": True,
+    "BASE_DIR": 'C:/Projects/trading',
+    "WINDOWS": 100,
+    "RSI_PERIOD": 14
+}
 
-EMA_FAST = 19
-EMA_SLOW = 22
-RSI_PERIOD = 14
+config = get_config(CONFIG)
 
 def backtest(data: pl.DataFrame, rsi_threshold: float) -> List[Tuple[float, float]]:
     logging.info(f"Running backtest with RSI threshold: {rsi_threshold}")
@@ -153,16 +165,16 @@ def main():
     logging.info("Starting main execution")
     rsi_range = np.arange(29, 79, 1)  # 30 to 80
 
-    if USE_SYNTHETIC:
+    if config["USE_SYNTHETIC"]:
         # Download historical data for TICKER_1 and TICKER_2
-        data, synthetic_ticker = use_synthetic(TICKER_1, TICKER_2, USE_HOURLY_DATA)
+        data, synthetic_ticker = use_synthetic(config["TICKER_1"], config["TICKER_2"], config["USE_HOURLY"])
     else:
-        # Download historical data for TICKER_1 only
-        data = download_data(TICKER_1, YEARS, USE_HOURLY_DATA)
-        synthetic_ticker = TICKER_1
+        # Download historical data for TICKER only
+        data = download_data(config["TICKER"], config["YEARS"], config["USE_HOURLY"])
+        synthetic_ticker = config["TICKER"]
 
-    data = calculate_mas(data, EMA_FAST, EMA_SLOW, USE_SMA)
-    data = calculate_rsi(data, RSI_PERIOD)
+    data = calculate_ma_and_signals(data, config["SHORT_WINDOW"], config["LONG_WINDOW"], config)
+    data = calculate_rsi(data, config["RSI_PERIOD"])
     
     # Log some statistics about the data
     logging.info(f"Data statistics: Close price - Min: {data['Close'].min()}, Max: {data['Close'].max()}, Mean: {data['Close'].mean()}")

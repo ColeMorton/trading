@@ -3,26 +3,30 @@ import pandas as pd
 import numpy as np
 from scipy.optimize import minimize
 import matplotlib.pyplot as plt
-from datetime import datetime
 
 # Set date range and assets
-# start_date = '2020-01-01'
-# end_date = '2021-01-01'
+# start_date = '2020-06-02'
+# end_date = '2024-11-02'
 
-start_date = '2020-01-01'
-end_date = '2024-10-24'
+# start_date = '2020-01-01'
+# end_date = '2024-11-02'
+
+# start_date = '2020-01-01'
+# end_date = '2024-11-02'
 
 # start_date = '2023-10-24'
-# end_date = '2024-10-24'
+# end_date = '2024-11-02'
 
-# start_date = '2021-01-01'
-# end_date = '2022-01-01'
+start_date = '2021-01-01'
+end_date = '2024-11-02'
 
 # ASSETS = ['BTC-USD', 'SPY']
 
-ASSETS = ['BTC-USD', 'SOL-USD']
+# ASSETS = ['BTC-USD', 'SOL-USD', 'MSTR']
 
 # ASSETS = ['BTC-USD', 'QQQ']
+
+ASSETS = ['BTC-USD', 'MSTR']
 
 # ASSETS = ['BTC-USD', 'MSTR', 'SOL-USD']
 

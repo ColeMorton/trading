@@ -4,7 +4,7 @@ import numpy as np
 from scipy import stats
 import os
 
-TICKER = 'ETH-USD'
+TICKER = 'BTC-USD'
 BASE_DIR = 'C:/Projects/trading'  # Add this line
 
 def visualize_performance(csv_file):

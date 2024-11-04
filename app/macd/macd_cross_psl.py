@@ -1,14 +1,11 @@
 import vectorbt as vbt
-import yfinance as yf
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
-from typing import List, Tuple
 import logging
 import os
-import polars as pl
 from app.utils import download_data
+from app.tools.calculate_rsi import calculate_rsi
 
 # Ensure the logs directory exists
 os.makedirs('logs', exist_ok=True)

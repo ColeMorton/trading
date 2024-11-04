@@ -2,7 +2,7 @@ import polars as pl
 import numpy as np
 import yfinance as yf
 from datetime import datetime, timedelta
-from typing import Tuple, List
+from typing import Tuple
 import pandas as pd
 import vectorbt as vbt
 import logging
@@ -62,62 +62,6 @@ def use_synthetic(ticker1: str, ticker2: str, use_hourly: bool) -> Tuple[pl.Data
     synthetic_ticker = f"{base_currency}/{quote_currency}"
     
     return data, synthetic_ticker
-
-def calculate_mas(data: pl.DataFrame, fast_period: int, slow_period: int, use_sma: bool = False) -> pl.DataFrame:
-    """Calculate Moving Averages (SMA or EMA)."""
-    # Convert to pandas for calculations
-    df = data.to_pandas()
-    
-    # Ensure numeric type for Close column
-    df['Close'] = pd.to_numeric(df['Close'], errors='coerce')
-    
-    if use_sma:
-        df['MA_FAST'] = df['Close'].rolling(window=fast_period).mean()
-        df['MA_SLOW'] = df['Close'].rolling(window=slow_period).mean()
-    else:
-        df['MA_FAST'] = df['Close'].ewm(span=fast_period, adjust=False).mean()
-        df['MA_SLOW'] = df['Close'].ewm(span=slow_period, adjust=False).mean()
-    
-    # Convert back to polars
-    return pl.from_pandas(df)
-
-def calculate_rsi(data: pl.DataFrame, period: int) -> pl.DataFrame:
-    """Calculate RSI."""
-    # Convert to pandas for calculations
-    df = data.to_pandas()
-    
-    # Ensure numeric type for Close column
-    df['Close'] = pd.to_numeric(df['Close'], errors='coerce')
-    
-    delta = df['Close'].diff()
-    gain = delta.clip(lower=0)
-    loss = -delta.clip(upper=0)
-    
-    avg_gain = gain.rolling(window=period).mean()
-    avg_loss = loss.rolling(window=period).mean()
-    
-    rs = avg_gain / avg_loss
-    df['RSI'] = 100 - (100 / (1 + rs))
-    
-    # Convert back to polars
-    return pl.from_pandas(df)
-
-def generate_ma_signals(data: pl.DataFrame, config: dict) -> Tuple[pl.Series, pl.Series]:
-    """Generate entry and exit signals based on MA crossover."""
-    use_rsi = config.get('USE_RSI', False)
-
-    if config['SHORT']:
-        entries = (data['MA_FAST'] < data['MA_SLOW'])
-        if use_rsi:
-            entries = entries & (data['RSI'] <= (100 - config['RSI_THRESHOLD']))
-        exits = data['MA_FAST'] > data['MA_SLOW']
-    else:
-        entries = (data['MA_FAST'] > data['MA_SLOW'])
-        if use_rsi:
-            entries = entries & (data['RSI'] >= config['RSI_THRESHOLD'])
-        exits = data['MA_FAST'] < data['MA_SLOW']
-    
-    return entries, exits
 
 def calculate_metrics(trades: list, short: bool) -> Tuple[float, float, float]:
     """Calculate performance metrics from a list of trades."""
@@ -195,45 +139,6 @@ def backtest_strategy(data: pl.DataFrame, config: dict) -> vbt.Portfolio:
         return portfolio
     except Exception as e:
         logging.error(f"Backtest failed: {e}")
-        raise
-
-def parameter_sensitivity_analysis(data: pl.DataFrame, short_windows: List[int], long_windows: List[int], config: dict) -> List[pl.DataFrame]:
-    """Perform parameter sensitivity analysis."""
-    logging.info("Starting parameter sensitivity analysis")
-    try:
-        portfolios = []
-        
-        for short in short_windows:
-            for long in long_windows:
-                if short < long:
-                    temp_data = data.clone()
-                    temp_data = calculate_ma_and_signals(temp_data, short, long, config)
-                    portfolio = backtest_strategy(temp_data, config)
-
-                    stats = portfolio.stats()
-                    converted_stats = convert_stats(stats)
-                    # Add short_window and long_window to the stats
-                    converted_stats['short_window'] = short
-                    converted_stats['long_window'] = long
-                    portfolios.append(converted_stats)
-
-        logging.info("Parameter sensitivity analysis completed successfully")
-
-        portfolios = pl.DataFrame(portfolios)
-        
-        # Sort portfolios by Total Return [%] in descending order
-        portfolios = portfolios.sort("Total Return [%]", descending=True)
-
-        # Export to CSV
-        csv_path = os.path.join(config['BASE_DIR'], f'csv/ma_cross/{config["TICKER_1"]}_parameter_portfolios.csv')
-        portfolios.write_csv(csv_path)
-
-        print(f"Analysis complete. Portfolios written to {csv_path}")
-        print(f"Total rows in output: {len(portfolios)}")
-
-        return portfolios
-    except Exception as e:
-        logging.error(f"Parameter sensitivity analysis failed: {e}")
         raise
 
 def get_filename(type: str, config: dict) -> str:

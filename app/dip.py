@@ -8,10 +8,10 @@ from datetime import datetime, timedelta
 from typing import Tuple, List
 
 # Configuration
-YEARS = 30  # Set timeframe in years for daily data
-USE_HOURLY_DATA = True  # Set to False for daily data
+YEARS = 4.4  # Set timeframe in years for daily data
+USE_HOURLY_DATA = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'TSLA'  # Ticker for X to USD exchange rate
+TICKER_1 = 'MSTR'  # Ticker for X to USD exchange rate
 TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 

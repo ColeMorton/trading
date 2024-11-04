@@ -17,7 +17,8 @@ import polars as pl
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Tuple
-from app.utils import download_data, calculate_rsi
+from app.utils import download_data
+from app.tools.calculate_rsi import calculate_rsi
 
 # Configuration
 YEARS = 30  # Set timeframe in years for daily data

@@ -8,13 +8,13 @@ from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 YEARS = 30  # Set timeframe in years for daily data
 USE_HOURLY_DATA = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'ETH-USD'  # Ticker for X to USD exchange rate
+TICKER_1 = 'BTC-USD'  # Ticker for X to USD exchange rate
 TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
-USE_SMA = False  # Set to True to use SMAs, False to use EMAs
+USE_SMA = True  # Set to True to use SMAs, False to use EMAs
 
-EMA_FAST = 14
-EMA_SLOW = 32
+EMA_FAST = 27
+EMA_SLOW = 29
 RSI_PERIOD = 14
 
 RSI_THRESHOLD = 55

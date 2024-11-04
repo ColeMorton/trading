@@ -5,7 +5,10 @@ from scipy.signal import find_peaks
 from typing import List, Tuple
 import logging
 import os
-from app.utils import download_data, calculate_mas, calculate_rsi, use_synthetic, generate_ma_signals, calculate_metrics
+from app.tools.calculate_mas import calculate_mas
+from app.utils import download_data, use_synthetic, calculate_metrics
+from app.tools.calculate_rsi import calculate_rsi
+from app.tools.calculate_ma_signals import calculate_ma_signals
 
 # Ensure the logs directory exists
 os.makedirs('logs', exist_ok=True)
@@ -21,16 +24,16 @@ logging.basicConfig(
 logging.info("Total Return, Win Rate, and Expectancy vs Stop Loss Percentage")
 
 # Configuration
-YEARS = 30  # Set timeframe in years for daily data
+YEARS = 4.4  # Set timeframe in years for daily data
 USE_HOURLY_DATA = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'CFG'  # Ticker for X to USD exchange rate
+TICKER_1 = 'MSTR'  # Ticker for X to USD exchange rate
 TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 USE_SMA = True  # Set to True to use SMAs, False to use EMAs
 
-EMA_FAST = 33
-EMA_SLOW = 46
+EMA_FAST = 4
+EMA_SLOW = 12
 RSI_PERIOD = 14
 
 RSI_THRESHOLD = 43
@@ -53,7 +56,7 @@ CONFIG = {
 }
 
 def backtest(data: pl.DataFrame, stop_loss_percentage: float, config: dict) -> List[Tuple[float, float]]:
-    entries, exits = generate_ma_signals(data, config)
+    entries, exits = calculate_ma_signals(data, config)
     position, entry_price = 0, 0
     trades = []
 

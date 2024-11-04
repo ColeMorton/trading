@@ -35,6 +35,18 @@ VAR_CONFIDENCE_LEVELS = [0.95, 0.99]
 # ASSET_1_ALLOCATION = 22.7 # Target allocation for Asset 1 (as a percentage)
 # VAR_CONFIDENCE_LEVELS = [0.95, 0.99]
 
+TOTAL_PORTFOLIO_VALUE = 7400  # target
+ASSET_1_TICKER = "BTC-USD"
+ASSET_2_TICKER = "SOL-USD"
+ASSET_3_TICKER = "MSTR"
+ASSET_1_LEVERAGE = 7  # Example leverage factor for Asset 1
+ASSET_2_LEVERAGE = 3  # Example leverage factor for Asset 2
+ASSET_3_LEVERAGE = 3  # Example leverage factor for Asset 3
+USE_EMA = False
+EMA_PERIOD = 21
+ASSET_1_ALLOCATION = 50 # Target allocation for Asset 1 (as a percentage)
+VAR_CONFIDENCE_LEVELS = [0.95, 0.99]
+
 def get_price_or_ema(ticker, use_ema, ema_period):
     """Fetch the current price or EMA for a given ticker."""
     data = yf.Ticker(ticker).history(period="1mo")

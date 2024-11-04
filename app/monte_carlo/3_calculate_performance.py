@@ -3,7 +3,7 @@ import numpy as np
 import random
 from app.monte_carlo.utils import get_data, calculate_performance_metrics
 
-TICKER = 'ETH-USD'
+TICKER = 'BTC-USD'
 BASE_INITIAL_PORTFOLIO_VALUE = 10000
 
 # Read the JSON file

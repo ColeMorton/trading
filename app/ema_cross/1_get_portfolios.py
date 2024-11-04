@@ -27,7 +27,7 @@ CONFIG = {
     "SHORT_WINDOW": 11,
     "LONG_WINDOW": 17,
     "SHORT": False,
-    "USE_GBM": False,
+    "USE_GBM": True,
     "USE_SMA": True,
     "BASE_DIR": 'C:/Projects/trading',
     "WINDOWS": 100

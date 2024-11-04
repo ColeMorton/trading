@@ -1,7 +1,7 @@
 import logging
 import polars as pl
-from app.utils import calculate_mas
-from app.tools.generate_ma_signals import generate_ma_signals
+from app.tools.calculate_mas import calculate_mas
+from app.tools.calculate_ma_signals import calculate_ma_signals
 
 def calculate_ma_and_signals(data: pl.DataFrame, short_window: int, long_window: int, config: dict) -> pl.DataFrame:
     """Calculate MAs and generate trading signals."""
@@ -13,7 +13,7 @@ def calculate_ma_and_signals(data: pl.DataFrame, short_window: int, long_window:
         data = calculate_mas(data, short_window, long_window, config.get('USE_SMA', False))
         
         # Generate signals based on MA crossovers
-        entries, exits = generate_ma_signals(data, config)
+        entries, exits = calculate_ma_signals(data, config)
         
         # Add Signal column (1 for entry, 0 for no signal)
         data = data.with_columns([

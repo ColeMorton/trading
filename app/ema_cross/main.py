@@ -1,6 +1,8 @@
 import argparse
 from config import CONFIG
-from app.utils import download_data, use_synthetic, calculate_mas, calculate_rsi, generate_ma_signals
+from app.utils import download_data, use_synthetic
+from app.tools.calculate_mas import calculate_mas
+from app.tools.calculate_rsi import calculate_rsi
 import importlib
 
 def main():

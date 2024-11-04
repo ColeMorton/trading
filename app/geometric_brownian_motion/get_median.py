@@ -34,9 +34,9 @@ def get_median(config: dict) -> pl.DataFrame:
     # Read the CSV file
     df = pl.read_csv(fullpath)
     
-    # Select and rename columns, converting index to datetime
+    # Select and rename columns, using Date column directly
     df = df.select([
-        pl.col("index").str.to_datetime().alias("Date"),
+        pl.col("Date").str.to_datetime().alias("Date"),
         pl.col("median").alias("Close")
     ])
 
