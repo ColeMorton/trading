@@ -5,10 +5,13 @@ from scipy.signal import find_peaks
 from typing import List, Tuple
 import logging
 import os
+from app.tools.get_config import get_config
+from typing import TypedDict, NotRequired
 from app.tools.calculate_mas import calculate_mas
-from app.utils import download_data, use_synthetic, calculate_metrics
-from app.tools.calculate_rsi import calculate_rsi
 from app.tools.calculate_ma_signals import calculate_ma_signals
+from app.tools.get_data import get_data
+from app.utils import find_prominent_peaks, add_peak_labels, calculate_metrics
+from app.tools.calculate_rsi import calculate_rsi
 
 # Ensure the logs directory exists
 os.makedirs('logs', exist_ok=True)
@@ -23,36 +26,28 @@ logging.basicConfig(
 
 logging.info("Total Return, Win Rate, and Expectancy vs Stop Loss Percentage")
 
-# Configuration
-YEARS = 4.4  # Set timeframe in years for daily data
-USE_HOURLY_DATA = False  # Set to False for daily data
-USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'MSTR'  # Ticker for X to USD exchange rate
-TICKER_2 = 'SPY'  # Ticker for Y to USD exchange rate
-SHORT = False  # Set to True for short-only strategy, False for long-only strategy
-USE_SMA = True  # Set to True to use SMAs, False to use EMAs
+class Config(TypedDict):
+    TICKER: str
+    SHORT_WINDOW: int
+    LONG_WINDOW: int
+    USE_RSI: NotRequired[bool]
+    RSI_PERIOD: NotRequired[int]
+    RSI_THRESHOLD: NotRequired[float]
+    SHORT: NotRequired[bool]
+    USE_SMA: NotRequired[bool]
+    USE_HOURLY: NotRequired[bool]
+    USE_YEARS: NotRequired[bool]
+    YEARS: NotRequired[float]
+    USE_GBM: NotRequired[bool]
+    USE_SYNTHETIC: NotRequired[bool]
+    TICKER_1: NotRequired[str]
+    TICKER_2: NotRequired[str]
 
-EMA_FAST = 4
-EMA_SLOW = 12
-RSI_PERIOD = 14
-
-RSI_THRESHOLD = 43
-USE_RSI = False
-
-# Configuration
-CONFIG = {
-    "YEARS": YEARS,  # Set timeframe in years for daily data
-    "USE_HOURLY_DATA": USE_HOURLY_DATA,  # Set to False for daily data
-    "USE_SYNTHETIC": USE_SYNTHETIC,  # Toggle between synthetic and original ticker
-    "TICKER_1": TICKER_1,  # Ticker for X to USD exchange rate
-    "TICKER_2": TICKER_2,  # Ticker for Y to USD exchange rate
-    "SHORT": SHORT,  # Set to True for short-only strategy, False for long-only strategy
-    "USE_SMA": USE_SMA,  # Set to True to use SMAs, False to use EMAs
-    "EMA_FAST": EMA_FAST,
-    "EMA_SLOW": EMA_SLOW,
-    "RSI_PERIOD": RSI_PERIOD,
-    "RSI_THRESHOLD": RSI_THRESHOLD,
-    "USE_RSI": USE_RSI
+# Default Configuration
+config: Config = {
+    "TICKER": 'BTC-USD',
+    "SHORT_WINDOW": 11,
+    "LONG_WINDOW": 17
 }
 
 def backtest(data: pl.DataFrame, stop_loss_percentage: float, config: dict) -> List[Tuple[float, float]]:
@@ -139,32 +134,30 @@ def plot_results(ticker: str, results_df: pl.DataFrame):
 
     plt.show()
 
-def main():
+def run(config: Config = config) -> bool:
     logging.info("Starting main execution")
 
-    # stop_loss_range = np.arange(0, 15, 0.01)
-    stop_loss_range = np.arange(0, 30, 0.1)
+    config = get_config(config)
+    stop_loss_range = np.arange(0, 15, 0.01)
+    # stop_loss_range = np.arange(0, 30, 0.1)
 
-    if USE_SYNTHETIC:
-        # Download historical data for TICKER_1 and TICKER_2
-        data, synthetic_ticker = use_synthetic(TICKER_1, TICKER_2, USE_HOURLY_DATA)
-    else:
-        # Download historical data for TICKER_1 only
-        data = download_data(TICKER_1, YEARS, USE_HOURLY_DATA)
-        synthetic_ticker = TICKER_1
-
-    data = calculate_mas(data, EMA_FAST, EMA_SLOW, USE_SMA)
+    data = get_data(config["TICKER"], config)
+    data = calculate_mas(data, config['SHORT_WINDOW'], config['LONG_WINDOW'], config.get('USE_SMA', False))
     
-    if USE_RSI:
-        data = calculate_rsi(data, RSI_PERIOD)
+    if config.get('USE_RSI', False):
+        data = calculate_rsi(data, config['RSI_PERIOD'])
 
-    results_df = run_sensitivity_analysis(data, stop_loss_range, CONFIG)
+    results_df = run_sensitivity_analysis(data, stop_loss_range, config)
 
     pl.Config.set_fmt_str_lengths(20)
 
-    plot_results(synthetic_ticker, results_df)
+    plot_results(config["TICKER"], results_df)
 
     logging.info("Main execution completed")
 
 if __name__ == "__main__":
-    main()
+    try:
+        run()
+    except Exception as e:
+        logging.error(f"Execution failed: {e}")
+        raise

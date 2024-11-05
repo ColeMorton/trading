@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm
 from scipy.optimize import minimize
 import os
-from app.utils import download_data
+from app.tools.get_data import download_data
 
 TICKER = 'SPY'
 USE_MERTON = False

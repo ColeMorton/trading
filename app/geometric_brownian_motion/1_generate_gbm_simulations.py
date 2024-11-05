@@ -1,8 +1,9 @@
 import polars as pl
 import numpy as np
 import matplotlib.pyplot as plt
+from app.tools.get_data import get_data
 from app.tools.get_config import get_config
-from app.utils import get_data, get_path, get_filename, save_csv
+from app.utils import get_path, get_filename, save_csv
 
 # Default Configuration
 CONFIG = {

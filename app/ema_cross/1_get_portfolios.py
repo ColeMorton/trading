@@ -1,8 +1,9 @@
 import logging
 import os
+from typing import TypedDict, NotRequired
 import numpy as np
 import polars as pl
-from app.utils import get_data
+from app.tools.get_data import get_data
 from app.tools.get_config import get_config
 from tools.parameter_sensitivity_analysis import parameter_sensitivity_analysis
 from tools.filter_portfolios import filter_portfolios
@@ -14,34 +15,44 @@ if not os.path.exists(log_dir):
 logging.basicConfig(filename=os.path.join(log_dir, 'ema_cross.log'), level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
+class Config(TypedDict):
+    TICKER: str
+    WINDOWS: int
+    SHORT: NotRequired[bool]
+    USE_SMA: NotRequired[bool]
+    USE_HOURLY: NotRequired[bool]
+    USE_YEARS: NotRequired[bool]
+    YEARS: NotRequired[float]
+    USE_GBM: NotRequired[bool]
+    USE_SYNTHETIC: NotRequired[bool]
+    TICKER_1: NotRequired[str]
+    TICKER_2: NotRequired[str]
+
 # Default Configuration
-CONFIG = {
-    "YEARS": 30,
-    "USE_YEARS": False,
-    "PERIOD": 'max',
-    "USE_HOURLY": False,
-    "TICKER": 'AMZN',
-    "USE_SYNTHETIC": False,
-    "TICKER_1": 'BCH-USD',
-    "TICKER_2": 'SPY',
-    "SHORT_WINDOW": 11,
-    "LONG_WINDOW": 17,
-    "SHORT": False,
-    "USE_GBM": True,
-    "USE_SMA": True,
-    "BASE_DIR": 'C:/Projects/trading',
-    "WINDOWS": 100
+config: Config = {
+    "TICKER": 'BTC-USD',
+    "WINDOWS": 55
 }
 
-config = get_config(CONFIG)
+def run(config: Config = config) -> bool:
+    config = get_config(config)
 
-# Create distinct integer values for windows
-short_windows = np.arange(2, config["WINDOWS"] + 1)  # [2, 3, ..., WINDOWS]
-long_windows = np.arange(3, config["WINDOWS"] + 1)  # [3, 4, ..., WINDOWS]
+    # Create distinct integer values for windows
+    short_windows = np.arange(2, config["WINDOWS"] + 1)  # [2, 3, ..., WINDOWS]
+    long_windows = np.arange(3, config["WINDOWS"] + 1)  # [3, 4, ..., WINDOWS]
 
-portfolios = parameter_sensitivity_analysis(get_data(config), short_windows, long_windows, config)
+    portfolios = parameter_sensitivity_analysis(get_data(config["TICKER"], config), short_windows, long_windows, config)
 
-print(portfolios)
+    print(portfolios)
 
-filtered_portfolios = filter_portfolios(pl.DataFrame(portfolios), config)
-print(filtered_portfolios)
+    filtered_portfolios = filter_portfolios(pl.DataFrame(portfolios), config)
+    print(filtered_portfolios)
+
+    return True
+
+if __name__ == "__main__":
+    try:
+        run()
+    except Exception as e:
+        logging.error(f"Execution failed: {e}")
+        raise

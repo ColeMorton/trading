@@ -1,6 +1,7 @@
 import argparse
+from app.tools.get_data import download_data
 from config import CONFIG
-from app.utils import download_data, use_synthetic
+from app.tools.get_data import use_synthetic
 from app.tools.calculate_mas import calculate_mas
 from app.tools.calculate_rsi import calculate_rsi
 import importlib

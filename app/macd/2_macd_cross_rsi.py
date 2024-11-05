@@ -7,7 +7,7 @@ import logging
 import os
 from app.tools.calculate_rsi import calculate_rsi
 from app.tools.calculate_macd import calculate_macd
-from app.utils import get_data
+from app.tools.get_data import get_data
 from app.macd.config import config
 
 # Ensure the logs directory exists

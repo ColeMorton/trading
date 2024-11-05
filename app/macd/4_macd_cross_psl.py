@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import logging
 import os
-from app.utils import download_data
+from app.tools.get_data import download_data
 from app.tools.calculate_rsi import calculate_rsi
 
 # Ensure the logs directory exists

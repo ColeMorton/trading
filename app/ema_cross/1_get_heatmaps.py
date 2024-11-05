@@ -1,6 +1,7 @@
 import logging
 import os
-from app.utils import get_data
+from typing import TypedDict, NotRequired
+from app.tools.get_data import get_data
 from app.tools.get_config import get_config
 from tools.plot_heatmaps import plot_heatmap
 from app.geometric_brownian_motion.get_median import get_median
@@ -12,29 +13,41 @@ if not os.path.exists(log_dir):
 logging.basicConfig(filename=os.path.join(log_dir, 'ema_cross.log'), level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
+class Config(TypedDict):
+    TICKER: str
+    WINDOWS: int
+    SHORT: NotRequired[bool]
+    USE_SMA: NotRequired[bool]
+    USE_HOURLY: NotRequired[bool]
+    USE_YEARS: NotRequired[bool]
+    YEARS: NotRequired[float]
+    USE_GBM: NotRequired[bool]
+    USE_SYNTHETIC: NotRequired[bool]
+    TICKER_1: NotRequired[str]
+    TICKER_2: NotRequired[str]
+
 # Default Configuration
-CONFIG = {
-    "YEARS": 30,
-    "USE_YEARS": False,
-    "PERIOD": 'max',
-    "USE_HOURLY": False,
-    "TICKER": 'BA',
-    "USE_SYNTHETIC": False,
-    "TICKER_1": 'BCH-USD',
-    "TICKER_2": 'SPY',
-    "SHORT_WINDOW": 11,
-    "LONG_WINDOW": 17,
-    "SHORT": False,
-    "USE_GBM": False,
-    "USE_SMA": False,
+config: Config = {
+    "USE_SMA": True,
+    "TICKER": 'MSTR',
+    "USE_SYNTHETIC": True,
+    "TICKER_1": 'MSTR',
+    "TICKER_2": 'BTC-USD',
     "WINDOWS": 100
 }
 
-config = get_config(CONFIG)
+def run(config: Config = config) -> bool:
+    config = get_config(config)
 
-if config.get('USE_GBM', False) == True:
-    data = get_median(config)
-else:
     data = get_data(config["TICKER"], config)
 
-plot_heatmap(data, config)
+    plot_heatmap(data, config)
+
+    return True
+
+if __name__ == "__main__":
+    try:
+        run()
+    except Exception as e:
+        logging.error(f"Execution failed: {e}")
+        raise

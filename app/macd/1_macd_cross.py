@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from app.macd.tools.parameter_sensitivity_analysis import parameter_sensitivity_analysis
-from app.utils import get_data
+from app.tools.get_data import get_data
 from typing import TypedDict
 from app.tools.get_config import get_config
 

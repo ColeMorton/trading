@@ -5,10 +5,13 @@ from typing import List, Tuple
 import json
 import logging
 import os
+from typing import TypedDict, NotRequired
+from app.tools.get_data import get_data
 from app.tools.get_config import get_config
-from app.utils import download_data, use_synthetic, find_prominent_peaks, add_peak_labels
+from app.utils import find_prominent_peaks, add_peak_labels
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.calculate_rsi import calculate_rsi
+from app.geometric_brownian_motion.get_median import get_median
 
 # Ensure the logs directory exists
 os.makedirs('logs', exist_ok=True)
@@ -26,27 +29,28 @@ logging.info("RSI Threshold Sensitivity Analysis - New Execution")
 with open('config.json') as f:
     config = json.load(f)
 
+class Config(TypedDict):
+    TICKER: str
+    SHORT_WINDOW: int
+    LONG_WINDOW: int
+    RSI_PERIOD: int
+    SHORT: NotRequired[bool]
+    USE_SMA: NotRequired[bool]
+    USE_HOURLY: NotRequired[bool]
+    USE_YEARS: NotRequired[bool]
+    YEARS: NotRequired[float]
+    USE_GBM: NotRequired[bool]
+    USE_SYNTHETIC: NotRequired[bool]
+    TICKER_1: NotRequired[str]
+    TICKER_2: NotRequired[str]
+
 # Default Configuration
-CONFIG = {
-    "YEARS": 30,
-    "USE_YEARS": False,
-    "PERIOD": 'max',
-    "USE_HOURLY": False,
-    "TICKER": 'AMZN',
-    "USE_SYNTHETIC": False,
-    "TICKER_1": 'BCH-USD',
-    "TICKER_2": 'SPY',
+config: Config = {
+    "TICKER": 'BTC-USD',
     "SHORT_WINDOW": 11,
     "LONG_WINDOW": 17,
-    "SHORT": False,
-    "USE_GBM": False,
-    "USE_SMA": True,
-    "BASE_DIR": 'C:/Projects/trading',
-    "WINDOWS": 100,
     "RSI_PERIOD": 14
 }
-
-config = get_config(CONFIG)
 
 def backtest(data: pl.DataFrame, rsi_threshold: float) -> List[Tuple[float, float]]:
     logging.info(f"Running backtest with RSI threshold: {rsi_threshold}")
@@ -161,18 +165,13 @@ def plot_results(ticker: str, results_df: pl.DataFrame):
     
     plt.show()
 
-def main():
+def run(config: Config = config) -> bool:
     logging.info("Starting main execution")
+
+    config = get_config(config)
     rsi_range = np.arange(29, 79, 1)  # 30 to 80
 
-    if config["USE_SYNTHETIC"]:
-        # Download historical data for TICKER_1 and TICKER_2
-        data, synthetic_ticker = use_synthetic(config["TICKER_1"], config["TICKER_2"], config["USE_HOURLY"])
-    else:
-        # Download historical data for TICKER only
-        data = download_data(config["TICKER"], config["YEARS"], config["USE_HOURLY"])
-        synthetic_ticker = config["TICKER"]
-
+    data = get_data(config["TICKER"], config)
     data = calculate_ma_and_signals(data, config["SHORT_WINDOW"], config["LONG_WINDOW"], config)
     data = calculate_rsi(data, config["RSI_PERIOD"])
     
@@ -183,8 +182,14 @@ def main():
     results_df = run_sensitivity_analysis(data, rsi_range)
     
     pl.Config.set_fmt_str_lengths(20)
-    plot_results(synthetic_ticker, results_df)
+    plot_results(config["TICKER"], results_df)
     logging.info("Main execution completed")
 
+    return True
+
 if __name__ == "__main__":
-    main()
+    try:
+        run()
+    except Exception as e:
+        logging.error(f"Execution failed: {e}")
+        raise

@@ -1,7 +1,8 @@
 import os
 import numpy as np
 import pandas as pd
-from app.utils import download_data, backtest_strategy
+from app.tools.get_data import download_data
+from app.utils import backtest_strategy
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 
 # Configuration
