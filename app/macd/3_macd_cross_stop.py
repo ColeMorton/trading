@@ -7,6 +7,11 @@ from scipy.signal import find_peaks
 from typing import List, Tuple
 import logging
 import os
+from app.tools.calculate_rsi import calculate_rsi
+from app.tools.calculate_macd import calculate_macd
+from app.tools.calculate_macd_signals import calculate_macd_signals
+from app.utils import get_data
+from app.macd.config import config
 
 # Ensure the logs directory exists
 os.makedirs('logs', exist_ok=True)
@@ -18,22 +23,6 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
-
-# Constants for easy configuration
-YEARS = 30  # Set timeframe in years for daily data
-USE_HOURLY_DATA = False  # Set to False for daily data
-USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'MSTR'  # Ticker for X to USD exchange rate
-TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
-SHORT = False  # Set to True for short-only strategy, False for long-only strategy
-
-SHORT_PERIOD = 9
-LONG_PERIOD = 13
-SIGNAL_PERIOD = 5
-RSI_PERIOD = 14
-
-RSI_THRESHOLD = 48
-USE_RSI = False
 
 def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
     """Download historical data from Yahoo Finance."""
@@ -51,26 +40,21 @@ def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
         logging.error(f"Failed to download data for {ticker}: {e}")
         raise
 
-def calculate_macd(data: pl.DataFrame, short_period: int, long_period: int, signal_period: int) -> pl.DataFrame:
-    return data.with_columns([
-        (pl.col('Close').ewm_mean(span=short_period) - pl.col('Close').ewm_mean(span=long_period)).alias('MACD'),
-    ]).with_columns([
-        pl.col('MACD').ewm_mean(span=signal_period).alias('Signal')
-    ])
-
-def backtest(data: pl.DataFrame, stop_loss_percentage: float) -> List[Tuple[float, float]]:
+def backtest(data: pl.DataFrame, stop_loss_percentage: float, rsi_threshold: float = 70) -> List[Tuple[float, float]]:
     position, entry_price = 0, 0
     trades = []
 
     for i in range(1, len(data)):
         if position == 0:
-            if SHORT:
+            if config['SHORT']:
                 # Short entry condition
-                if data['MACD'][i] < data['Signal'][i] and data['MACD'][i-1] >= data['Signal'][i-1]:
+                if (data['MACD'][i] < data['Signal'][i] and data['MACD'][i-1] >= data['Signal'][i-1] and
+                    data['RSI'][i] is not None and data['RSI'][i] <= rsi_threshold):
                     position, entry_price = -1, data['Close'][i]
             else:
                 # Long entry condition
-                if data['MACD'][i] > data['Signal'][i] and data['MACD'][i-1] <= data['Signal'][i-1]:
+                if (data['MACD'][i] > data['Signal'][i] and data['MACD'][i-1] <= data['Signal'][i-1] and
+                    data['RSI'][i] is not None and data['RSI'][i] >= rsi_threshold):
                     position, entry_price = 1, data['Close'][i]
         elif position == 1:
             # Long exit condition
@@ -95,7 +79,7 @@ def calculate_metrics(trades: List[Tuple[float, float]]) -> Tuple[float, float, 
     if not trades:
         return 0, 0, 0
 
-    returns = [(exit_price / entry_price - 1) if SHORT else (exit_price / entry_price - 1) for entry_price, exit_price in trades]
+    returns = [(exit_price / entry_price - 1) if config['SHORT'] else (exit_price / entry_price - 1) for entry_price, exit_price in trades]
     total_return = np.prod([1 + r for r in returns]) - 1
     win_rate = sum(1 for r in returns if r > 0) / len(trades)
     
@@ -171,53 +155,16 @@ def main():
 
     stop_loss_range = np.arange(0, 21, 0.01)
 
-    if USE_SYNTHETIC:
-        # Download historical data for TICKER_1 and TICKER_2
-        data_ticker_1 = download_data(TICKER_1, YEARS, USE_HOURLY_DATA)
-        data_ticker_2 = download_data(TICKER_2, YEARS, USE_HOURLY_DATA)
-
-        # Log column names
-        logging.info(f"Columns in data_ticker_1: {data_ticker_1.columns}")
-        logging.info(f"Columns in data_ticker_2: {data_ticker_2.columns}")
-
-        # Check if 'Date' column exists, if not, try to use 'Datetime' or create it
-        date_column = 'Date'
-        if 'Date' not in data_ticker_1.columns:
-            if 'Datetime' in data_ticker_1.columns:
-                date_column = 'Datetime'
-            else:
-                logging.error("Neither 'Date' nor 'Datetime' column found in data_ticker_1")
-                return
-
-        # Perform an inner join on the date column
-        data_merged = data_ticker_1.join(data_ticker_2, on=date_column, how='inner', suffix="_2")
-
-        # Now calculate the ratio of 'Close' columns
-        data = pl.DataFrame({
-            date_column: data_merged[date_column],
-            'Close': data_merged['Close'] / data_merged['Close_2'],
-            'Open': data_merged['Open'] / data_merged['Open_2'],
-            'High': data_merged['High'] / data_merged['High_2'],
-            'Low': data_merged['Low'] / data_merged['Low_2'],
-            'Volume': data_merged['Volume']  # Keep original volume
-        })
-        
-        # Extracting base and quote currencies from tickers
-        base_currency = TICKER_1.split('-')[0]  # X
-        quote_currency = TICKER_2.split('-')[0]  # Y
-        synthetic_ticker = f"{base_currency}/{quote_currency}"
-    else:
-        # Download historical data for TICKER_1 only
-        data = download_data(TICKER_1, YEARS, USE_HOURLY_DATA)
-        synthetic_ticker = TICKER_1
-
-    data = calculate_macd(data, SHORT_PERIOD, LONG_PERIOD, SIGNAL_PERIOD)
+    data = get_data(config["TICKER"], config)
+    data = calculate_macd(data, config['SHORT_PERIOD'], config['LONG_PERIOD'], config['SIGNAL_PERIOD'])
+    data = calculate_rsi(data, config['RSI_PERIOD'])
+    data = calculate_macd_signals(data, config)
 
     results_df = run_sensitivity_analysis(data, stop_loss_range)
 
     pl.Config.set_fmt_str_lengths(20)
 
-    plot_results(synthetic_ticker, results_df)
+    plot_results(config['TICKER'], results_df)
 
     logging.info("Main execution completed")
 

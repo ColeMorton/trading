@@ -61,7 +61,7 @@ CONFIG_SPY = {
 
 config = get_config(CONFIG_SOL)
 
-data = get_data(config)
+data = get_data(config["TICKER"], config)
 
 data = calculate_ma_and_signals(data, config["SHORT_WINDOW"], config["LONG_WINDOW"], config)
 

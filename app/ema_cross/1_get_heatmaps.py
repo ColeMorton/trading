@@ -14,11 +14,11 @@ logging.basicConfig(filename=os.path.join(log_dir, 'ema_cross.log'), level=loggi
 
 # Default Configuration
 CONFIG = {
-    "YEARS": 15,
+    "YEARS": 30,
     "USE_YEARS": False,
     "PERIOD": 'max',
     "USE_HOURLY": False,
-    "TICKER": 'MSTR',
+    "TICKER": 'BA',
     "USE_SYNTHETIC": False,
     "TICKER_1": 'BCH-USD',
     "TICKER_2": 'SPY',
@@ -26,9 +26,8 @@ CONFIG = {
     "LONG_WINDOW": 17,
     "SHORT": False,
     "USE_GBM": False,
-    "USE_SMA": True,
-    "BASE_DIR": 'C:/Projects/trading',
-    "WINDOWS": 50
+    "USE_SMA": False,
+    "WINDOWS": 100
 }
 
 config = get_config(CONFIG)
@@ -36,6 +35,6 @@ config = get_config(CONFIG)
 if config.get('USE_GBM', False) == True:
     data = get_median(config)
 else:
-    data = get_data(config)
+    data = get_data(config["TICKER"], config)
 
 plot_heatmap(data, config)

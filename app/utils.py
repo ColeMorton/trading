@@ -8,14 +8,29 @@ import vectorbt as vbt
 import logging
 import os
 
-def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
+def download_data(ticker: str, config: dict) -> pl.DataFrame:
     """Download historical data from Yahoo Finance."""
-    interval = '1h' if use_hourly else '1d'
-    end_date = datetime.now()
-    start_date = end_date - timedelta(days=730 if use_hourly else 365 * years)
+    logging.info(f"\nDownloading data for {ticker}")
     
-    # Download data using yfinance (returns pandas DataFrame)
-    data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
+    use_hourly = config.get('USE_HOURLY', False)
+    interval = '1h' if use_hourly else '1d'
+    
+    # Calculate date range
+    end_date = datetime.now()
+    if use_hourly or config.get('USE_YEARS', False):
+        days = (730 if use_hourly else 365 * config.get("YEARS", 30))
+        start_date = end_date - timedelta(days=days)
+        logging.info(f"Using date range: {start_date} to {end_date}")
+        data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
+    else:
+        period = config.get("PERIOD", "max")
+        logging.info(f"Using period: {period}")
+        data = yf.download(ticker, period=period, interval=interval)
+    
+    logging.info(f"Downloaded {len(data)} records")
+    
+    if len(data) == 0:
+        raise ValueError(f"No data downloaded for {ticker}")
     
     # Reset index to make the datetime index a column
     data = data.reset_index()
@@ -31,20 +46,24 @@ def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
         'Volume': pl.Series(data['Volume'], dtype=pl.Float64)
     })
     
+    # Log data statistics
+    logging.info(f"Date range: {df['Date'].min()} to {df['Date'].max()}")
+    logging.info(f"Price range: {df['Close'].min():.2f} to {df['Close'].max():.2f}")
+    
     return df
 
-def get_data(config: dict) -> pl.DataFrame:
-    if config.get('USE_SYNTHETIC', False) == False:
-        data = download_data(config['TICKER'], config['YEARS'], config['USE_HOURLY'])
+def get_data(ticker: str, config: dict) -> pl.DataFrame:
+    if config.get('USE_SYNTHETIC', False):
+        data, _ = use_synthetic(config['TICKER_1'], config['TICKER_2'], config)
     else:
-        data, _ = use_synthetic(config['TICKER_1'], config['TICKER_2'], config['USE_HOURLY'])
+        data = download_data(ticker, config)
 
     return data
 
-def use_synthetic(ticker1: str, ticker2: str, use_hourly: bool) -> Tuple[pl.DataFrame, str]:
+def use_synthetic(ticker1: str, ticker2: str, config: dict) -> Tuple[pl.DataFrame, str]:
     """Create a synthetic pair from two tickers."""
-    data_ticker_1 = download_data(ticker1, 30, use_hourly)
-    data_ticker_2 = download_data(ticker2, 30, use_hourly)
+    data_ticker_1 = download_data(ticker1, config)
+    data_ticker_2 = download_data(ticker2, config)
     
     data_merged = data_ticker_1.join(data_ticker_2, on='Date', how='inner', suffix="_2")
     
@@ -96,8 +115,8 @@ def add_peak_labels(ax, x: np.ndarray, y: np.ndarray, peaks: np.ndarray, fmt: st
                     bbox=dict(boxstyle='round,pad=0.5', fc='cyan', alpha=0.5),
                     arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=0'))
 
-# Convert stats to compatible format
 def convert_stats(stats):
+    """Convert stats to compatible format."""
     converted = {}
     for k, v in stats.items():
         if k == 'Start' or k == 'End':
@@ -143,17 +162,14 @@ def backtest_strategy(data: pl.DataFrame, config: dict) -> vbt.Portfolio:
 
 def get_filename(type: str, config: dict) -> str:
     filename = f'{config["TICKER"]}{"_H" if config.get("USE_HOURLY_DATA", False) else "_D"}{"_SMA" if config.get("USE_SMA", False) else "_EMA"}{"_GBM" if config.get("USE_GBM", False) else ""}{"_" + datetime.now().strftime("%Y%m%d") if config.get("SHOW_LAST", False) else ""}.{type}'
-
     return filename
 
 def get_path(type: str, feature1: str, config: dict, feature2: str = "") -> str:
     path = os.path.join(config['BASE_DIR'], f'{type}/{feature1}{"/" + feature2 if feature2 != "" else ""}')
-
     return path
 
 def save_csv(data: pl.DataFrame, feature1: str, config: dict, feature2: str = "") -> None:
     csv_path = get_path("csv", feature1, config, feature2)
     csv_filename = get_filename("csv", config)
     data.write_csv(csv_path + "/" + csv_filename)
-
     print(f"{len(data)} rows exported to {csv_path}.csv")

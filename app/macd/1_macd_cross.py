@@ -1,12 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import TypedDict
-from app.tools.calculate_macd import calculate_macd
-from app.tools.calculate_macd_signals import calculate_macd_signals
 from app.macd.tools.parameter_sensitivity_analysis import parameter_sensitivity_analysis
-from app.macd.tools.backtest_strategy import backtest_strategy
-from app.macd.tools.calculate_expectancy import calculate_expectancy
 from app.utils import get_data
+from typing import TypedDict
 from app.tools.get_config import get_config
 
 class Config(TypedDict):
@@ -19,23 +15,34 @@ class Config(TypedDict):
     TICKER_1: str
     TICKER_2: str
     SHORT: bool
+    USE_GBM: bool
+    USE_SMA: bool
+    SHORT_PERIOD: bool
+    LONG_PERIOD: bool
+    SIGNAL_PERIOD: bool
+    RSI_PERIOD: bool
+    RSI_THRESHOLD: float
+    USE_RSI: bool
 
 # Default Configuration
 CONFIG: Config = {
-    "YEARS": 4.4,
-    "USE_YEARS": True,
+    "TICKER": 'SOL-USD',
+    "YEARS": 30,
+    "USE_YEARS": False,
     "PERIOD": 'max',
-    "USE_HOURLY": False,
-    "TICKER": 'MSTR',
-    "USE_SYNTHETIC": True,
+    "USE_HOURLY": True,
+    "USE_SYNTHETIC": False,
     "TICKER_1": 'MSTR',
     "TICKER_2": 'BTC-USD',
-    "SHORT_WINDOW": 11,
-    "LONG_WINDOW": 17,
     "SHORT": False,
     "USE_GBM": False,
-    "USE_SMA": True,
-    "WINDOWS": 55
+    "USE_SMA": False,
+    "SHORT_PERIOD": 14,
+    "LONG_PERIOD": 23,
+    "SIGNAL_PERIOD": 12,
+    "RSI_PERIOD": 14,
+    "RSI_THRESHOLD": 46,
+    "USE_RSI": False
 }
 
 config = get_config(CONFIG)
@@ -74,47 +81,45 @@ def plot_single_3d_scatter(fig, ax, data, title):
     ax.set_title(f'3D Scatter Plot of {title}')
     fig.colorbar(sc, ax=ax, label=title)
 
-def main():
+def main(config = config):
     short_windows = np.linspace(8, 20, 13, dtype=int)  # 13 values from 8 to 20 days
     long_windows = np.linspace(13, 34, 22, dtype=int)  # 22 values from 13 to 34 days
     signal_windows = np.linspace(5, 13, 9, dtype=int)  # 9 values from 5 to 13 days
 
-    data = get_data(config)
+    data = get_data(config["TICKER"], config)
 
     # Perform sensitivity analysis
-    results, expectancy_results = parameter_sensitivity_analysis(data, short_windows, long_windows, signal_windows, config["SHORT"])
+    (results, expectancy_results, sharpe_results, sortino_results, calmar_results,
+     best_params, best_expectancy_params, best_sharpe_params, best_sortino_params, best_calmar_params,
+     best_return, best_expectancy, best_sharpe, best_sortino, best_calmar) = parameter_sensitivity_analysis(
+        data, short_windows, long_windows, signal_windows, config)
     
-    # Find the best parameter combination for Total Return
-    best_params = results.stack().idxmax()
-    best_return = results.stack().max()
-    short_window, long_window, signal_window = best_params[0], best_params[1], best_params[2]
-    
-    best_params_expectancy = expectancy_results.stack().idxmax()
-    best_expectancy_value = expectancy_results.stack().max()
-
-    short_period_expectancy , long_period_expectancy , signal_period_expectancy = best_params_expectancy[0], best_params_expectancy[1], best_params_expectancy[2]
-
-    # Calculate MACD and generate signals with best parameters
-    data = calculate_macd(data, short_window=short_window, long_window=long_window, signal_window=signal_window)
-    data = calculate_macd_signals(data, config["SHORT"])
-    
-    # Backtest the strategy with best parameters
-    portfolio = backtest_strategy(data, config["SHORT"])
-    
-    # Print performance metrics for the best parameter combination
-    portfolio_stats = portfolio.stats()
-    strategy_type = "Short-only" if config["SHORT"] else "Long-only"
+    # Print performance metrics for all parameter combinations
     interval = '1h' if config["USE_HOURLY"] else '1d'
-    print(f"Performance metrics for the best parameter combination ({interval} {config["TICKER"]}, {strategy_type}):")
-    print(portfolio_stats)
-    print(f"Best parameters for {interval} {config["TICKER"]}: Short window: {short_window}, Long window: {long_window}, Signal window: {signal_window}")
-    print(f"Best total return: {best_return}")
-    print(f"Expectancy for best parameters: {calculate_expectancy(portfolio)}")
-    print(f"Best parameters for Expectancy: Short window: {short_period_expectancy}, Long window: {long_period_expectancy}, Signal window: {signal_period_expectancy}")
-    print(f"Best expectancy value: {best_expectancy_value}")
+    print(f"\nBest parameters for {interval} {config['TICKER']}:")
+    
+    print(f"\nTotal Return:")
+    print(f"Short window: {best_params[0]}, Long window: {best_params[1]}, Signal window: {best_params[2]}")
+    print(f"Best total return: {best_return:.2%}")
+    
+    print(f"\nExpectancy:")
+    print(f"Short window: {best_expectancy_params[0]}, Long window: {best_expectancy_params[1]}, Signal window: {best_expectancy_params[2]}")
+    print(f"Best expectancy value: {best_expectancy:.4f}")
+    
+    print(f"\nSharpe Ratio:")
+    print(f"Short window: {best_sharpe_params[0]}, Long window: {best_sharpe_params[1]}, Signal window: {best_sharpe_params[2]}")
+    print(f"Best Sharpe ratio: {best_sharpe:.4f}")
+    
+    print(f"\nSortino Ratio:")
+    print(f"Short window: {best_sortino_params[0]}, Long window: {best_sortino_params[1]}, Signal window: {best_sortino_params[2]}")
+    print(f"Best Sortino ratio: {best_sortino:.4f}")
+    
+    print(f"\nCalmar Ratio:")
+    print(f"Short window: {best_calmar_params[0]}, Long window: {best_calmar_params[1]}, Signal window: {best_calmar_params[2]}")
+    print(f"Best Calmar ratio: {best_calmar:.4f}")
     
     # Display 3D scatter plots of the results
     plot_3d_scatter(results, expectancy_results)
 
 if __name__ == "__main__":
-    main()
+    main(config)

@@ -34,7 +34,7 @@ dt = 0.00273972602  # Time step (in years)
 n_steps = int(config['TIME_HORIZON'] / dt)  # Number of time steps
 
 # Download BTC-USD data
-data = get_data(config)
+data = get_data(config["TICKER"], config)
 
 # Calculate required fields
 initial_price = data["Close"][0]

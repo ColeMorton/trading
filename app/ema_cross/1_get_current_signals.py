@@ -21,7 +21,7 @@ CONFIG: Config = {
     "USE_YEARS": False,
     "PERIOD": 'max',
     "USE_HOURLY": False,
-    "TICKER": 'BTC-USD',
+    "TICKER": 'BA',
     "USE_SYNTHETIC": False,
     "TICKER_1": 'BCH-USD',
     "TICKER_2": 'SPY',
@@ -29,8 +29,8 @@ CONFIG: Config = {
     "LONG_WINDOW": 17,
     "SHORT": False,
     "USE_GBM": False,
-    "USE_SMA": True,
-    "WINDOWS": 55
+    "USE_SMA": False,
+    "WINDOWS": 100
 }
 
 config = get_config(CONFIG)
@@ -73,7 +73,7 @@ def run() -> None:
     if config.get('USE_GBM', False) == True:
         data = get_median(config)
     else:
-        data = get_data(config)
+        data = get_data(config["TICKER"], config)
 
     current_signals = get_current_signals(data, short_windows, long_windows, config)
 

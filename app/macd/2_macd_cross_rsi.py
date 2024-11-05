@@ -5,50 +5,10 @@ from scipy.signal import find_peaks
 from typing import List, Tuple
 import logging
 import os
-from typing import TypedDict
 from app.tools.calculate_rsi import calculate_rsi
 from app.tools.calculate_macd import calculate_macd
-from app.tools.get_config import get_config
 from app.utils import get_data
-
-class Config(TypedDict):
-    PERIOD: str
-    YEARS: float
-    USE_YEARS: bool
-    USE_HOURLY: bool
-    USE_SYNTHETIC: bool
-    TICKER: str
-    TICKER_1: str
-    TICKER_2: str
-    SHORT: bool
-    SHORT_PERIOD: bool
-    LONG_PERIOD: bool
-    SIGNAL_PERIOD: bool
-    RSI_PERIOD: bool
-
-# Default Configuration
-CONFIG: Config = {
-    "YEARS": 4.4,
-    "USE_YEARS": True,
-    "PERIOD": 'max',
-    "USE_HOURLY": False,
-    "TICKER": 'MSTR',
-    "USE_SYNTHETIC": True,
-    "TICKER_1": 'MSTR',
-    "TICKER_2": 'BTC-USD',
-    "SHORT_WINDOW": 11,
-    "LONG_WINDOW": 17,
-    "SHORT": False,
-    "USE_GBM": False,
-    "USE_SMA": True,
-    "WINDOWS": 55,
-    "SHORT_PERIOD": 10,
-    "LONG_PERIOD": 13,
-    "SIGNAL_PERIOD": 7,
-    "RSI_PERIOD": 14,
-}
-
-config = get_config(CONFIG)
+from app.macd.config import config
 
 # Ensure the logs directory exists
 os.makedirs('logs', exist_ok=True)
@@ -183,7 +143,7 @@ def main():
     logging.info("Starting main execution")
     rsi_range = np.arange(29, 79, 1)  # 30 to 80
 
-    data = get_data(config)
+    data = get_data(config["TICKER"], config)
     data = calculate_macd(data, config['SHORT_PERIOD'], config['LONG_PERIOD'], config['SIGNAL_PERIOD'])
     data = calculate_rsi(data, config['RSI_PERIOD'])
     

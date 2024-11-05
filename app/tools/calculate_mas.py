@@ -1,20 +1,14 @@
 import polars as pl
-import pandas as pd
 
 def calculate_mas(data: pl.DataFrame, fast_window: int, slow_window: int, use_sma: bool = False) -> pl.DataFrame:
     """Calculate Moving Averages (SMA or EMA)."""
-    # Convert to pandas for calculations
-    df = data.to_pandas()
-    
-    # Ensure numeric type for Close column
-    df['Close'] = pd.to_numeric(df['Close'], errors='coerce')
-    
     if use_sma:
-        df['MA_FAST'] = df['Close'].rolling(window=fast_window).mean()
-        df['MA_SLOW'] = df['Close'].rolling(window=slow_window).mean()
+        return data.with_columns([
+            pl.col("Close").cast(pl.Float64).rolling_mean(window_size=fast_window).alias("MA_FAST"),
+            pl.col("Close").cast(pl.Float64).rolling_mean(window_size=slow_window).alias("MA_SLOW")
+        ])
     else:
-        df['MA_FAST'] = df['Close'].ewm(span=fast_window, adjust=False).mean()
-        df['MA_SLOW'] = df['Close'].ewm(span=slow_window, adjust=False).mean()
-    
-    # Convert back to polars
-    return pl.from_pandas(df)
+        return data.with_columns([
+            pl.col("Close").cast(pl.Float64).ewm_mean(span=fast_window, adjust=False).alias("MA_FAST"),
+            pl.col("Close").cast(pl.Float64).ewm_mean(span=slow_window, adjust=False).alias("MA_SLOW")
+        ])
