@@ -31,40 +31,26 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "USE_SMA": True,  # Changed to True since we're reading TXN_D_SMA.csv
+    "USE_SMA": False,  # Changed to True since we're reading TXN_D_SMA.csv
     "TICKER": 'TXN',
     "WINDOWS": 89,
     "USE_CURRENT": True
 }
 
 def run(config: Config = config) -> bool:
+    """
+    Run the EMA cross strategy analysis.
+    When USE_CURRENT is True, only current window combinations are emphasized in the heatmap.
+
+    Args:
+        config: Configuration dictionary
+
+    Returns:
+        bool: True if execution successful
+    """
     config = get_config(config)
-
-    if config.get("USE_CURRENT", False):
-        config["BASE_DIR"] = "."
-
-        # Read the CSV file
-        filename = get_filename("csv", config)
-        path = get_path("csv", "ma_cross", config, 'current_signals')
-        fullpath = f"{path}/{filename}"
-        
-        # Debug prints
-        print(f"Generated filename: {filename}")
-        print(f"Generated path: {path}")
-        print(f"Full path: {fullpath}")
-        print(f"File exists: {os.path.exists(fullpath)}")
-        
-        if not os.path.exists(fullpath):
-            raise FileNotFoundError(f"CSV file not found at: {fullpath}")
-
-        df = pd.read_csv(fullpath)
-
-        print(f"Loaded DataFrame shape: {df.shape}")
-
     data = get_data(config["TICKER"], config)
-
     plot_heatmap(data, config)
-
     return True
 
 if __name__ == "__main__":
