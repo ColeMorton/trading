@@ -102,7 +102,7 @@ def plot_heatmap(results_pl: pl.DataFrame, config: dict) -> None:
                             z=matrix,
                             x=windows,  # Short window on x-axis
                             y=windows,  # Long window on y-axis
-                            colorscale='RdYlGn',
+                            colorscale='Viridis',
                             colorbar=dict(title='Total return', tickformat='%'),
                             hoverongaps=False
                         ))
@@ -140,7 +140,7 @@ def plot_heatmap(results_pl: pl.DataFrame, config: dict) -> None:
         fig = returns.vbt.heatmap(
             symmetric=True,
             trace_kwargs=dict(
-                colorscale='RdYlGn',
+                colorscale='Viridis',
                 colorbar=dict(title='Total return', tickformat='%'),
                 showscale=True
             )

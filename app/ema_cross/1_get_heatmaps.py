@@ -1,5 +1,6 @@
 import logging
 import os
+import pandas as pd
 from typing import TypedDict, NotRequired
 from app.tools.get_data import get_data
 from app.tools.get_config import get_config
@@ -24,21 +25,31 @@ class Config(TypedDict):
     USE_SYNTHETIC: NotRequired[bool]
     TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
+    USE_CURRENT: NotRequired[bool]
+    BASE_DIR: NotRequired[str]
 
 # Default Configuration
 config: Config = {
     "USE_SMA": False,
-    "TICKER": 'TXN',
-    "WINDOWS": 89
+    "TICKER": 'QCOM',
+    "WINDOWS": 89,
+    "USE_CURRENT": False
 }
 
 def run(config: Config = config) -> bool:
+    """
+    Run the EMA cross strategy analysis.
+    When USE_CURRENT is True, only current window combinations are emphasized in the heatmap.
+
+    Args:
+        config: Configuration dictionary
+
+    Returns:
+        bool: True if execution successful
+    """
     config = get_config(config)
-
     data = get_data(config["TICKER"], config)
-
     plot_heatmap(data, config)
-
     return True
 
 if __name__ == "__main__":
