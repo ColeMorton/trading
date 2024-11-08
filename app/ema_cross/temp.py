@@ -31,8 +31,8 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "USE_SMA": False,  # Changed to True since we're reading TXN_D_SMA.csv
-    "TICKER": 'TXN',
+    "USE_SMA": False,
+    "TICKER": 'QCOM',
     "WINDOWS": 89,
     "USE_CURRENT": True
 }
