@@ -18,10 +18,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import TypedDict, NotRequired
 from app.tools.get_config import get_config
-from app.tools.calculate_mas import calculate_mas
 from app.tools.get_data import get_data
 from app.tools.calculate_mas import calculate_mas
 from app.tools.calculate_ma_signals import calculate_ma_signals
+from app.tools.calculate_rsi import calculate_rsi
 
 class Config(TypedDict):
     TICKER: str
@@ -42,9 +42,14 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'BTC-USD',
-    "SHORT_WINDOW": 11,
-    "LONG_WINDOW": 17
+    "TICKER": 'QCOM',
+    "SHORT_WINDOW": 8,
+    "LONG_WINDOW": 28,
+    "RSI_PERIOD": 14,
+    "USE_HOURLY": False,
+    "USE_SMA": False,
+    "USE_RSI": True,
+    "RSI_THRESHOLD": 56
 }
 
 def psl_exit(price: np.ndarray, entry_price: np.ndarray, holding_period: int, short: bool) -> np.ndarray:
@@ -102,8 +107,8 @@ def analyze_holding_periods(data: pl.DataFrame, entries: pl.Series, exits_ema: p
     Returns:
         list: A list of tuples containing results for each holding period.
     """
-    # Convert entries to numpy array for entry price calculation
-    entries_np = entries.to_numpy()
+    # Convert entries to numpy array and ensure boolean type
+    entries_np = entries.to_numpy().astype(bool)
     
     entry_price = data.with_columns(
         pl.when(pl.lit(entries_np))
@@ -117,12 +122,12 @@ def analyze_holding_periods(data: pl.DataFrame, entries: pl.Series, exits_ema: p
     longest_trade = pl.Series((entries_np != np.roll(entries_np, 1)).cumsum())
     longest_holding_period = longest_trade.value_counts().select(pl.col('count').max()).item()
 
-    # Convert exits_ema to numpy array
-    exits_ema_np = exits_ema.to_numpy()
+    # Convert exits_ema to numpy array and ensure boolean type
+    exits_ema_np = exits_ema.to_numpy().astype(bool)
 
     results = []
     for holding_period in range(longest_holding_period, 0, -1):
-        exits_psl = psl_exit(data['Close'].to_numpy(), entry_price.to_numpy(), holding_period, short=config["SHORT"])
+        exits_psl = psl_exit(data['Close'].to_numpy(), entry_price.to_numpy(), holding_period, short=config.get("SHORT", False))
         # Combine exits using numpy operations
         exits = np.logical_or(exits_ema_np, exits_psl)
 
@@ -159,7 +164,7 @@ def plot_results(results: list, synthetic_ticker: str, config: dict):
     ax2.plot(holding_periods, num_positions, color=color)
     ax2.tick_params(axis='y', labelcolor=color)
 
-    strategy_type = "Short-only" if config["SHORT"] else "Long-only"
+    strategy_type = "Short-only" if config.get("SHORT", False) else "Long-only"
     rsi_info = f" with RSI({config['RSI_PERIOD']}) >= {config['RSI_THRESHOLD']}" if config.get("USE_RSI", False) else ""
     plt.title(f'{synthetic_ticker} Parameter Sensitivity: Holding Period vs Expectancy ({strategy_type} Strategy{rsi_info})')
     plt.grid(True)
@@ -173,6 +178,8 @@ def run(config: Config = config) -> bool:
         config = get_config(config)
         data = get_data(config["TICKER"], config)
         data = calculate_mas(data, config['SHORT_WINDOW'], config['LONG_WINDOW'], config.get('USE_SMA', False))
+        if config.get('USE_RSI', False):
+            data = calculate_rsi(data, config['RSI_PERIOD'])
         entries, exits_ema = calculate_ma_signals(data, config)
         results = analyze_holding_periods(data, entries, exits_ema, config)
         plot_results(results, config["TICKER"], config)

@@ -7,29 +7,29 @@ from app.utils import get_path, get_filename, save_csv
 
 # Default Configuration
 CONFIG = {
-    "YEARS": 8.8,
+    "YEARS": 4.44,
     "USE_YEARS": True,
     "PERIOD": 'max',
     "USE_HOURLY": False,
-    "TICKER": 'MSTR',
+    "TICKER": 'SOL-USD',
     "USE_SYNTHETIC": False,
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'SPY',
     "SHORT_WINDOW": 33,
     "LONG_WINDOW": 46,
     "SHORT": False,
-    "USE_GBM": True,
+    "USE_GBM": False,
     "USE_SMA": True,
     "BASE_DIR": 'C:/Projects/trading',
     "WINDOWS": 55,
     "ANNUAL_TRADING_DAYS": 365,
-    "TIME_HORIZON": 4.44,
+    "TIME_HORIZON": 8.88,
     "SIMULATIONS": 1000
 }
 
 config = get_config(CONFIG)
 
-config["USE_GBM"] = True
+config["USE_GBM"] = False
 
 dt = 0.00273972602  # Time step (in years)
 n_steps = int(config['TIME_HORIZON'] / dt)  # Number of time steps

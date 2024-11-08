@@ -21,24 +21,24 @@ class Config(TypedDict):
     USE_RSI: bool
 
 # Default Configuration
-DEFAULT_CONFIG: Config = {
+CONFIG: Config = {
     "TICKER": 'SOL-USD',
     "YEARS": 30,
     "USE_YEARS": False,
     "PERIOD": 'max',
-    "USE_HOURLY": True,
+    "USE_HOURLY": False,
     "USE_SYNTHETIC": False,
     "TICKER_1": 'MSTR',
     "TICKER_2": 'BTC-USD',
     "SHORT": False,
     "USE_GBM": False,
     "USE_SMA": False,
-    "SHORT_PERIOD": 14,
-    "LONG_PERIOD": 23,
-    "SIGNAL_PERIOD": 12,
+    "SHORT_PERIOD": 19,
+    "LONG_PERIOD": 33,
+    "SIGNAL_PERIOD": 13,
     "RSI_PERIOD": 14,
     "RSI_THRESHOLD": 46,
     "USE_RSI": False
 }
 
-config = get_base_config(DEFAULT_CONFIG)
+config = get_base_config(CONFIG)

@@ -46,10 +46,14 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'BTC-USD',
-    "SHORT_WINDOW": 11,
-    "LONG_WINDOW": 17,
-    "RSI_PERIOD": 14
+    "TICKER": 'QCOM',
+    "SHORT_WINDOW": 8,
+    "LONG_WINDOW": 28,
+    "RSI_PERIOD": 14,
+    "USE_HOURLY": False,
+    "USE_SMA": False,
+    "USE_RSI": False,
+    "RSI_THRESHOLD": 58
 }
 
 def backtest(data: pl.DataFrame, rsi_threshold: float) -> List[Tuple[float, float]]:

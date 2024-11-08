@@ -28,12 +28,9 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "USE_SMA": True,
-    "TICKER": 'MSTR',
-    "USE_SYNTHETIC": True,
-    "TICKER_1": 'MSTR',
-    "TICKER_2": 'BTC-USD',
-    "WINDOWS": 100
+    "USE_SMA": False,
+    "TICKER": 'TXN',
+    "WINDOWS": 89
 }
 
 def run(config: Config = config) -> bool:

@@ -9,7 +9,7 @@ import numpy as np
 
 # ASSETS = ['BTC-USD', 'SPY', 'DFS', 'FAST', 'AAPL', 'AKAM', 'TSLA', 'AMD', 'SLV', 'MPWR', 'TER', 'HNI', 'ICE', 'VLTO', 'ISRG', 'CINF', 'GRMN', 'TYL', 'ODFL', 'PANW']
 
-ASSETS = ['CFG', 'BTC-USD', 'AMZN', 'PANW', 'AAPL', 'MSFT', 'INTU']
+ASSETS = ['SOL-USD', 'BTC-USD', 'MU', 'HES', 'TXN', 'LRCX', 'FDS', 'CHD', 'HAL', 'QCOM']
 
 # ASSETS = ['BTC-USD', 'SPY', 'QQQ', 'SOL-USD', 'MSTR']
 

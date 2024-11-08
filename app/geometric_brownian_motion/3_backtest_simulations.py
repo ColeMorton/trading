@@ -16,27 +16,29 @@ logging.basicConfig(filename=os.path.join(log_dir, 'ema_cross.log'), level=loggi
 
 # Default Configuration
 CONFIG = {
-    "YEARS": 8.8,
+    "YEARS": 4.44,
     "USE_YEARS": True,
     "PERIOD": 'max',
     "USE_HOURLY": False,
-    "TICKER": 'MSTR',
+    "TICKER": 'SOL-USD',
     "USE_SYNTHETIC": False,
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'SPY',
     "SHORT_WINDOW": 33,
     "LONG_WINDOW": 46,
     "SHORT": False,
-    "USE_GBM": True,
+    "USE_GBM": False,
     "USE_SMA": True,
     "BASE_DIR": 'C:/Projects/trading',
     "WINDOWS": 55,
     "ANNUAL_TRADING_DAYS": 365,
-    "TIME_HORIZON": 4.44,
+    "TIME_HORIZON": 8.88,
     "SIMULATIONS": 1000
 }
 
 config = get_config(CONFIG)
+
+config["USE_GBM"] = False
 
 # Read the CSV file
 filename = get_filename("csv", config)

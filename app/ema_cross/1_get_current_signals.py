@@ -24,8 +24,9 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'BTC-USD',
-    "WINDOWS": 55
+    "USE_SMA": False,
+    "TICKER": 'TXN',
+    "WINDOWS": 89
 }
 
 # Logging setup
@@ -52,7 +53,7 @@ def create_heatmap(df_pandas):
     plt.gca().invert_yaxis()  # Invert the Y-axis
     plt.xlabel('Short Window')
     plt.ylabel('Long Window')
-    plt.title('EMA Cross Signals: Short vs Long Windows')
+    plt.title(f'{"SMA" if config.get("USE_SMA", False) else "EMA"} Cross Signals: Short vs Long Windows')
 
     plt.show()
 
