@@ -1,9 +1,11 @@
 import logging
 import os
+import pandas as pd
 from typing import TypedDict, NotRequired
 from app.tools.get_data import get_data
 from app.tools.get_config import get_config
 from tools.plot_heatmaps import plot_heatmap
+from app.utils import get_path, get_filename
 
 # Logging setup
 log_dir = 'logs'
@@ -24,16 +26,40 @@ class Config(TypedDict):
     USE_SYNTHETIC: NotRequired[bool]
     TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
+    USE_CURRENT: NotRequired[bool]
+    BASE_DIR: NotRequired[str]
 
 # Default Configuration
 config: Config = {
-    "USE_SMA": False,
+    "USE_SMA": True,  # Changed to True since we're reading TXN_D_SMA.csv
     "TICKER": 'TXN',
-    "WINDOWS": 89
+    "WINDOWS": 89,
+    "USE_CURRENT": True
 }
 
 def run(config: Config = config) -> bool:
     config = get_config(config)
+
+    if config.get("USE_CURRENT", False):
+        config["BASE_DIR"] = "."
+
+        # Read the CSV file
+        filename = get_filename("csv", config)
+        path = get_path("csv", "ma_cross", config, 'current_signals')
+        fullpath = f"{path}/{filename}"
+        
+        # Debug prints
+        print(f"Generated filename: {filename}")
+        print(f"Generated path: {path}")
+        print(f"Full path: {fullpath}")
+        print(f"File exists: {os.path.exists(fullpath)}")
+        
+        if not os.path.exists(fullpath):
+            raise FileNotFoundError(f"CSV file not found at: {fullpath}")
+
+        df = pd.read_csv(fullpath)
+
+        print(f"Loaded DataFrame shape: {df.shape}")
 
     data = get_data(config["TICKER"], config)
 
