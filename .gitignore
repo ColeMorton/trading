@@ -162,9 +162,9 @@ cython_debug/
 #.idea/
 
 # logging
-/logs
+logs/
 
 # Custom
-/png
-/csv
-/json
+png/
+csv/
+json/

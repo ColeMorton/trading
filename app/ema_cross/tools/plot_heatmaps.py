@@ -9,13 +9,8 @@ from app.ema_cross.tools.create_full_heatmap import create_full_heatmap
 from app.ema_cross.tools.create_current_heatmap import create_current_heatmap
 from app.ema_cross.tools.get_current_window_combinations import get_current_window_combinations
 from app.ema_cross.tools.prepare_price_data import prepare_price_data
-
-# Logging setup
-logging.basicConfig(
-    filename='./logs/ema_cross.log',
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+from app.ema_cross.tools.generate_current_signals import generate_current_signals
+from app.ema_cross.tools.is_file_from_today import is_file_from_today
 
 def plot_heatmap(results_pl: pl.DataFrame, config: Dict) -> None:
     """
@@ -45,6 +40,11 @@ def plot_heatmap(results_pl: pl.DataFrame, config: Dict) -> None:
     if config.get("USE_CURRENT", False):
         filename = f"{config['TICKER']}_D_{ma_type}.csv"
         filepath = f"csv/ma_cross/current_signals/{filename}"
+        
+        # Check if file exists and was created today
+        if not is_file_from_today(filepath):
+            logging.info(f"Generating new signals for {config['TICKER']}")
+            generate_current_signals(config)
         
         current_windows = get_current_window_combinations(filepath)
         if current_windows is None:

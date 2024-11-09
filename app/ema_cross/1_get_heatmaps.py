@@ -30,8 +30,8 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "USE_SMA": True,
-    "TICKER": 'BTC-USD',
+    "USE_SMA": False,
+    "TICKER": 'BCH-USD',
     "WINDOWS": 89,
     "USE_CURRENT": True
 }
