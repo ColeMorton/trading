@@ -30,10 +30,10 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "USE_SMA": False,
-    "TICKER": 'QCOM',
+    "USE_SMA": True,
+    "TICKER": 'BTC-USD',
     "WINDOWS": 89,
-    "USE_CURRENT": False
+    "USE_CURRENT": True
 }
 
 def run(config: Config = config) -> bool:
