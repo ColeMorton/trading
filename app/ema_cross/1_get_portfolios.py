@@ -50,7 +50,7 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'MKR-USD',
+    "TICKER": ['AMZN', 'TSLA'],
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "REFRESH": False
@@ -97,6 +97,7 @@ def run(config: Config = config) -> bool:
             logger.info(f"Getting data...")
             data = get_data(ticker, config_copy)
 
+            logger.info(f"Beginning analysis...")
             portfolios = parameter_sensitivity_analysis(data, short_windows, long_windows, config_copy)
 
         print(f"\nResults for {ticker} {"SMA" if config.get("USE_SMA", False) else "EMA"}:")

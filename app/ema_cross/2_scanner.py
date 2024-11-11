@@ -18,10 +18,7 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "USE_SMA": True,
-    "TICKER": 'ZEC-USD',
-    "WINDOWS": 89,
-    "USE_HOURLY": False
+    "WINDOWS": 89
 }
 
 # Logging setup
