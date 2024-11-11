@@ -50,10 +50,9 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'LINK-USD',
+    "TICKER": 'MKR-USD',
     "WINDOWS": 89,
     "USE_HOURLY": False,
-    "USE_SMA": True,
     "REFRESH": False
 }
 
