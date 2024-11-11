@@ -33,9 +33,10 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": ['TRX-USD', 'AVAX-USD', 'ETH-USD', 'AAVE-USD'],
+    "TICKER": ['UNI-USD', 'MKR-USD'],
     "WINDOWS": 89,
-    "USE_HOURLY": False
+    "USE_HOURLY": False,
+    "USE_SMA": False
 }
 
 def run(config: Config = config) -> bool:

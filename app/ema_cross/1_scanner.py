@@ -1,7 +1,6 @@
 import logging
-import pandas as pd
 import polars as pl
-from typing import TypedDict, NotRequired
+from typing import TypedDict, NotRequired, List, Dict
 from app.ema_cross.tools.generate_current_signals import generate_current_signals
 
 class Config(TypedDict):
@@ -29,81 +28,93 @@ config: Config = {
 logging.basicConfig(filename='./logs/ma_cross/1_scanner.log', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
+def check_signal_match(signals: List[Dict], fast_window: int, slow_window: int) -> bool:
+    """
+    Check if any signal matches the given window combination.
+
+    Args:
+        signals: List of signal dictionaries containing window information
+        fast_window: Fast window value to match
+        slow_window: Slow window value to match
+
+    Returns:
+        bool: True if a matching signal is found, False otherwise
+    """
+    if not signals:
+        return False
+    
+    return any(
+        signal["Short Window"] == fast_window and 
+        signal["Long Window"] == slow_window
+        for signal in signals
+    )
+
+def process_ma_signals(ticker: str, ma_type: str, config: Config, 
+                      fast_window: int, slow_window: int) -> None:
+    """
+    Process moving average signals for a given ticker and configuration.
+
+    Args:
+        ticker: The ticker symbol to process
+        ma_type: Type of moving average ('SMA' or 'EMA')
+        config: Configuration dictionary
+        fast_window: Fast window value from scanner
+        slow_window: Slow window value from scanner
+
+    Returns:
+        None
+    """
+    ma_config = config.copy()
+    ma_config.update({
+        "TICKER": ticker,
+        "USE_SMA": ma_type == "SMA"
+    })
+    
+    signals = generate_current_signals(ma_config)
+    
+    is_current = check_signal_match(
+        signals.to_dicts() if len(signals) > 0 else [], 
+        fast_window, 
+        slow_window
+    )
+    
+    message = (
+        f"{ticker} {ma_type} - {'Current signal found' if is_current else 'No matching current signals'} "
+        f"for windows {fast_window}/{slow_window}"
+    )
+    logging.info(message)
+    print(message)
+
 def process_scanner():
     """
     Process each ticker in SCANNER.csv with both SMA and EMA configurations.
     Checks if current signals match the window combinations in SCANNER.csv.
-    
-    For each ticker:
-    - Processes with both SMA and EMA
-    - Checks if the signal windows match those in SCANNER.csv
-    - Sets Current flag based on signal match
     """
     try:
-        # Read scanner data
-        scanner_df = pd.read_csv('app/ema_cross/SCANNER.csv')
+        # Read scanner data using polars
+        scanner_df = pl.read_csv('app/ema_cross/SCANNER.csv')
         
-        for _, row in scanner_df.iterrows():
+        for row in scanner_df.iter_rows(named=True):
             ticker = row['TICKER']
             logging.info(f"Processing {ticker}")
             
-            # Process with SMA
-            sma_config = config.copy()
-            sma_config.update({
-                "TICKER": ticker,
-                "USE_SMA": True
-            })
+            # Process SMA signals
+            process_ma_signals(
+                ticker=ticker,
+                ma_type="SMA",
+                config=config,
+                fast_window=row['SMA_FAST'],
+                slow_window=row['SMA_SLOW']
+            )
             
-            # Get current SMA signals
-            sma_signals = generate_current_signals(sma_config)
-            
-            # Check if any signal matches SCANNER.csv windows
-            if len(sma_signals) > 0:
-                sma_current = any(
-                    (signal["Short Window"] == row['SMA_FAST'] and 
-                     signal["Long Window"] == row['SMA_SLOW'])
-                    for signal in sma_signals.to_dicts()
-                )
-            else:
-                sma_current = False
-            
-            if sma_current:
-                message = f"{ticker} SMA - Current signal found matching windows {row['SMA_FAST']}/{row['SMA_SLOW']}"
-                logging.info(message)
-                print(message)
-            else:
-                message = f"{ticker} SMA - No matching current signals for windows {row['SMA_FAST']}/{row['SMA_SLOW']}"
-                logging.info(message)
-                print(message)
-            
-            # Process with EMA
-            ema_config = config.copy()
-            ema_config.update({
-                "TICKER": ticker,
-                "USE_SMA": False
-            })
-            
-            # Get current EMA signals
-            ema_signals = generate_current_signals(ema_config)
-            
-            # Check if any signal matches SCANNER.csv windows
-            if len(ema_signals) > 0:
-                ema_current = any(
-                    (signal["Short Window"] == row['EMA_FAST'] and 
-                     signal["Long Window"] == row['EMA_SLOW'])
-                    for signal in ema_signals.to_dicts()
-                )
-            else:
-                ema_current = False
-            
-            if ema_current:
-                message = f"{ticker} EMA - Current signal found matching windows {row['EMA_FAST']}/{row['EMA_SLOW']}"
-                logging.info(message)
-                print(message)
-            else:
-                message = f"{ticker} EMA - No matching current signals for windows {row['EMA_FAST']}/{row['EMA_SLOW']}"
-                logging.info(message)
-                print(message)
+            # Process EMA signals
+            process_ma_signals(
+                ticker=ticker,
+                ma_type="EMA",
+                config=config,
+                fast_window=row['EMA_FAST'],
+                slow_window=row['EMA_SLOW']
+            )
                 
     except Exception as e:
         logging.error(f"Error processing scanner: {e}")
@@ -112,10 +123,8 @@ def process_scanner():
 if __name__ == "__main__":
     try:
         config["USE_SCANNER"] = True
-
         process_scanner()
-
-        logging.info(f"Execution Success!")
+        logging.info("Execution Success!")
     except Exception as e:
         logging.error(f"Execution failed: {e}")
         raise
