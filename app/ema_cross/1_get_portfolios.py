@@ -30,8 +30,9 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'BTC-USD',
-    "WINDOWS": 55
+    "TICKER": 'ZEC-USD',
+    "WINDOWS": 89,
+    "USE_HOURLY": False
 }
 
 def run(config: Config = config) -> bool:
@@ -52,7 +53,23 @@ def run(config: Config = config) -> bool:
 
 if __name__ == "__main__":
     try:
-        run()
+        config_copy = config.copy()
+        
+        # Check if USE_SMA exists in config
+        if "USE_SMA" not in config_copy:
+            # Run with USE_SMA = False
+            config_copy["USE_SMA"] = False
+            logging.info("Running with USE_SMA = False")
+            run(config_copy)
+            
+            # Run with USE_SMA = True
+            config_copy["USE_SMA"] = True
+            logging.info("Running with USE_SMA = True")
+            run(config_copy)
+        else:
+            # Run with existing USE_SMA value
+            run(config_copy)
+            
     except Exception as e:
         logging.error(f"Execution failed: {e}")
         raise
