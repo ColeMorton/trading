@@ -19,6 +19,7 @@ class Config(TypedDict):
     USE_SYNTHETIC: NotRequired[bool]
     TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
+    USE_SCANNER: NotRequired[bool]
 
 def generate_current_signals(config: Config) -> List:
     """Main execution method."""
@@ -32,15 +33,16 @@ def generate_current_signals(config: Config) -> List:
     data = get_data(config["TICKER"], config)
     current_signals = get_current_signals(data, short_windows, long_windows, config)
 
-    save_csv(current_signals, "ma_cross", config, 'current_signals')
-    
-    # Display full data
-    pd.set_option('display.max_rows', None)
-    print("\nFull data table:")
-    print(current_signals)
+    if config.get("USE_SCANNER", False) == False:
+        save_csv(current_signals, "ma_cross", config, 'current_signals')
+        
+        # Display full data
+        pd.set_option('display.max_rows', None)
+        print("\nFull data table:")
+        print(current_signals)
 
-    if len(current_signals) == 0:
-        print("No signals found for today")
+        if len(current_signals) == 0:
+            print("No signals found for today")
     
     return current_signals
 

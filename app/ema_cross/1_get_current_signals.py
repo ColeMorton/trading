@@ -17,20 +17,25 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "USE_SMA": True,
-    "TICKER": 'ZEC-USD',
+    "USE_SMA": False,
+    "TICKER": 'CTRA',
     "WINDOWS": 89,
-    "USE_HOURLY": False,
-    "USE_SCANNER": True
+    "USE_HOURLY": False
 }
 
 # Logging setup
 logging.basicConfig(filename='./logs/ma_cross/1_get_current_signals.log', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
+def run(config: Config = config) -> bool:
+    generate_current_signals(config)
+
+    return True
+
 if __name__ == "__main__":
     try:
-        generate_current_signals(config)
+        result = run()
+
         logging.info(f"Execution Success!")
     except Exception as e:
         logging.error(f"Execution failed: {e}")
