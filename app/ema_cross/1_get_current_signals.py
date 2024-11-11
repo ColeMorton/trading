@@ -20,7 +20,8 @@ config: Config = {
     "USE_SMA": True,
     "TICKER": 'ZEC-USD',
     "WINDOWS": 89,
-    "USE_HOURLY": False
+    "USE_HOURLY": False,
+    "USE_SCANNER": True
 }
 
 # Logging setup
