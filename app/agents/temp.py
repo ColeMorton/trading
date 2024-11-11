@@ -67,7 +67,7 @@ def analyze_portfolio(agent, question):
 
 def main():
     # File path for portfolio statistics
-    file_path = 'csv/ma_cross/BTC-USD_filtered_portfolios.csv'
+    file_path = 'csv/ma_cross/BTC-USD_portfolios_filtered.csv'
     
     print("Loading portfolio data...")
     df = load_mock_csv(file_path)

@@ -83,7 +83,7 @@ def filter_portfolios(df: pl.DataFrame, config: dict) -> pl.DataFrame:
         filtered_df = pl.DataFrame(rows)
         
         # Export to CSV
-        csv_path = get_path("csv", "ma_cross", config, 'filtered_portfolios')
+        csv_path = get_path("csv", "ma_cross", config, 'portfolios_filtered')
         csv_filename = get_filename("csv", config)
         filtered_df.write_csv(csv_path + "/" + csv_filename)
         

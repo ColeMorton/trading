@@ -8,15 +8,32 @@ from app.tools.get_data import get_data
 from app.tools.get_config import get_config
 from tools.parameter_sensitivity_analysis import parameter_sensitivity_analysis
 from tools.filter_portfolios import filter_portfolios
+from tools.is_file_from_today import is_file_from_today
+
+# Get the absolute path to the project root
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 # Logging setup
-log_dir = 'logs'
-if not os.path.exists(log_dir):
-    os.makedirs(log_dir)
-logging.basicConfig(filename=os.path.join(log_dir, '1_get_portfolios.log'), 
-                   filemode='w',  # Overwrite file instead of append
-                   level=logging.INFO,
-                   format='%(asctime)s - %(levelname)s - %(message)s')
+log_dir = os.path.join(project_root, 'logs', 'ma_cross')
+os.makedirs(log_dir, exist_ok=True)
+
+# Configure logging with explicit handler
+logger = logging.getLogger('portfolio_logger')
+logger.setLevel(logging.INFO)
+
+# Clear any existing handlers
+logger.handlers = []
+
+# Create file handler
+log_file = os.path.join(log_dir, '1_get_portfolios.log')
+file_handler = logging.FileHandler(log_file, mode='w')
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+
+# Force immediate writing
+logger.info("Logging initialized")
+file_handler.flush()
 
 class Config(TypedDict):
     TICKER: Union[str, List[str]]
@@ -33,10 +50,11 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'UNI-USD',
+    "TICKER": 'LINK-USD',
     "WINDOWS": 89,
     "USE_HOURLY": False,
-    "USE_SMA": True
+    "USE_SMA": True,
+    "REFRESH": False
 }
 
 def run(config: Config = config) -> bool:
@@ -55,15 +73,32 @@ def run(config: Config = config) -> bool:
     tickers = [config["TICKER"]] if isinstance(config["TICKER"], str) else config["TICKER"]
     
     for ticker in tickers:
-        logging.info(f"Processing ticker: {ticker}")
+        logger.info(f"Processing ticker: {ticker}")
+        file_handler.flush()
+        
         config_copy = config.copy()
         config_copy["TICKER"] = ticker
         
-        # Create distinct integer values for windows
-        short_windows = np.arange(2, config["WINDOWS"] + 1)  # [2, 3, ..., WINDOWS]
-        long_windows = np.arange(3, config["WINDOWS"] + 1)  # [3, 4, ..., WINDOWS]
+        # Construct file path
+        file_name = f'{ticker}{"_H" if config.get("USE_HOURLY_DATA", False) else "_D"}{"_SMA" if config.get("USE_SMA", False) else "_EMA"}'
+        file_path = f'./csv/ma_cross/portfolios/{file_name}.csv'
 
-        portfolios = parameter_sensitivity_analysis(get_data(ticker, config_copy), short_windows, long_windows, config_copy)
+        logger.info(f"Checking existing portfolio data from {file_path}")
+        
+        # Check if file exists and was created today
+        if config.get("REFRESH", True) == False and os.path.exists(file_path) and is_file_from_today(file_path):
+            logger.info(f"Loading existing portfolio data.")
+            file_handler.flush()
+            portfolios = pl.read_csv(file_path)
+        else:
+            # Create distinct integer values for windows
+            short_windows = np.arange(2, config["WINDOWS"] + 1)  # [2, 3, ..., WINDOWS]
+            long_windows = np.arange(3, config["WINDOWS"] + 1)  # [3, 4, ..., WINDOWS]
+
+            logger.info(f"Getting data...")
+            data = get_data(ticker, config_copy)
+
+            portfolios = parameter_sensitivity_analysis(data, short_windows, long_windows, config_copy)
 
         print(f"\nResults for {ticker} {"SMA" if config.get("USE_SMA", False) else "EMA"}:")
         print(portfolios)
@@ -76,7 +111,8 @@ def run(config: Config = config) -> bool:
 if __name__ == "__main__":
     try:
         start_time = time.time()
-        logging.info("Starting execution")
+        logger.info("Starting execution")
+        file_handler.flush()
         
         config_copy = config.copy()
         
@@ -84,12 +120,14 @@ if __name__ == "__main__":
         if "USE_SMA" not in config_copy:
             # Run with USE_SMA = False
             config_copy["USE_SMA"] = False
-            logging.info("Running with EMA")
+            logger.info("Running with EMA")
+            file_handler.flush()
             run(config_copy)
             
             # Run with USE_SMA = True
             config_copy["USE_SMA"] = True
-            logging.info("Running with SMA")
+            logger.info("Running with SMA")
+            file_handler.flush()
             run(config_copy)
         else:
             # Run with existing USE_SMA value
@@ -99,8 +137,10 @@ if __name__ == "__main__":
         execution_time = end_time - start_time
         execution_msg = f"Total execution time: {execution_time:.2f} seconds"
         print(execution_msg)
-        logging.info(execution_msg)
+        logger.info(execution_msg)
+        file_handler.flush()
             
     except Exception as e:
-        logging.error(f"Execution failed: {e}")
+        logger.error(f"Execution failed: {e}")
+        file_handler.flush()
         raise
