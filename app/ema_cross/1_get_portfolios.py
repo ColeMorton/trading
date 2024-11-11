@@ -33,10 +33,10 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": ['UNI-USD', 'MKR-USD'],
+    "TICKER": 'UNI-USD',
     "WINDOWS": 89,
     "USE_HOURLY": False,
-    "USE_SMA": False
+    "USE_SMA": True
 }
 
 def run(config: Config = config) -> bool:

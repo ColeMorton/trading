@@ -1,97 +1,97 @@
 import polars as pl
+import logging
+from typing import List, Dict, Any
 from app.utils import get_path, get_filename
 
-# Function to get row for metric extremes
-def get_metric_rows(df, column):
-    # Get the row index for max value
-    max_idx = df[column].arg_max()
-    max_row = df.row(max_idx)
+def get_metric_rows(df: pl.DataFrame, metric: str) -> List[Dict[str, Any]]:
+    """
+    Get metric rows with proper error handling.
     
-    # Get the row index for min value
-    min_idx = df[column].arg_min()
-    min_row = df.row(min_idx)
+    Args:
+        df: Input DataFrame
+        metric: Metric name to process
+        
+    Returns:
+        List of dictionaries containing metric information
+    """
+    try:
+        # Sort by the metric in descending order
+        df_sorted = df.sort(metric, descending=True)
+        
+        if len(df_sorted) == 0:
+            return []
+            
+        # Get the top row
+        top_row = df_sorted.row(0)
+        
+        # Get the bottom row
+        bottom_row = df_sorted.row(-1)
+        
+        # Calculate mean values
+        mean_row = df_sorted.mean().row(0)
+        
+        return [
+            {**{'Metric Type': f'Best {metric}'}, **{col: val for col, val in zip(df.columns, top_row)}},
+            {**{'Metric Type': f'Worst {metric}'}, **{col: val for col, val in zip(df.columns, bottom_row)}},
+            {**{'Metric Type': f'Mean {metric}'}, **{col: val for col, val in zip(df.columns, mean_row)}}
+        ]
+    except Exception as e:
+        logging.error(f"Error processing metric {metric}: {str(e)}")
+        return []
+
+def filter_portfolios(df: pl.DataFrame, config: dict) -> pl.DataFrame:
+    """
+    Filter and analyze portfolios based on various metrics.
     
-    # For numeric columns, also get mean and median
-    if df[column].dtype in [pl.Float64, pl.Int64]:
-        mean_val = df[column].mean()
-        # Find row closest to mean
-        mean_idx = (df[column] - mean_val).abs().arg_min()
-        mean_row = df.row(mean_idx)
+    Args:
+        df: Input DataFrame containing portfolio results
+        config: Configuration dictionary
         
-        median_val = df[column].median()
-        # Find row closest to median
-        median_idx = (df[column] - median_val).abs().arg_min()
-        median_row = df.row(median_idx)
+    Returns:
+        DataFrame containing filtered and analyzed results
+    """
+    try:
+        if len(df) == 0:
+            logging.warning("Empty DataFrame provided to filter_portfolios")
+            return pl.DataFrame()
+            
+        metrics = [
+            'Total Return [%]',
+            'Sharpe Ratio',
+            'Calmar Ratio',
+            'Max. Drawdown [%]',
+            'Avg. Winning Trade [%]',
+            'Avg. Losing Trade [%]',
+            'Win Rate [%]',
+            'Profit Factor',
+            'Expectancy',
+            'Sortino Ratio',
+            'Omega Ratio'
+        ]
         
-        return [max_row, min_row, mean_row, median_row]
-    else:
-        # For duration columns, only return max and min
-        return [max_row, min_row]
-
-# List of numeric metrics
-numeric_metrics = [
-    'Total Return [%]',
-    'Total Fees Paid',
-    'Max Drawdown [%]',
-    'Total Trades',
-    'Win Rate [%]',
-    'Best Trade [%]',
-    'Worst Trade [%]',
-    'Avg Winning Trade [%]',
-    'Avg Losing Trade [%]',
-    'Profit Factor',
-    'Expectancy',
-    'Sharpe Ratio',
-    'Calmar Ratio',
-    'Omega Ratio',
-    'Sortino Ratio'
-]
-
-# List of duration metrics
-duration_metrics = [
-    'Max Drawdown Duration',
-    'Avg Winning Trade Duration',
-    'Avg Losing Trade Duration'
-]
-
-def filter_portfolios(df, config):
-    # Initialize result array
-    result_rows = []
-
-    # Process numeric metrics
-    for metric in numeric_metrics:
-        rows = get_metric_rows(df, metric)
-        result_rows.extend([
-            {**{'Metric Type': f'Most {metric}'}, **{col: val for col, val in zip(df.columns, rows[0])}},
-            {**{'Metric Type': f'Least {metric}'}, **{col: val for col, val in zip(df.columns, rows[1])}},
-            {**{'Metric Type': f'Mean {metric}'}, **{col: val for col, val in zip(df.columns, rows[2])}},
-            {**{'Metric Type': f'Median {metric}'}, **{col: val for col, val in zip(df.columns, rows[3])}}
-        ])
-
-    # Process duration metrics
-    for metric in duration_metrics:
-        rows = get_metric_rows(df, metric)
-        result_rows.extend([
-            {**{'Metric Type': f'Most {metric}'}, **{col: val for col, val in zip(df.columns, rows[0])}},
-            {**{'Metric Type': f'Least {metric}'}, **{col: val for col, val in zip(df.columns, rows[1])}}
-        ])
-
-    # Convert results to DataFrame
-    result_df = pl.DataFrame(result_rows)
-
-    # Sort portfolios by Total Return [%] in descending order
-    result_df = result_df.sort("Total Return [%]", descending=True)
-
-    # Reorder columns to put Metric Type first
-    cols = ['Metric Type'] + [col for col in result_df.columns if col != 'Metric Type']
-    result_df = result_df.select(cols)
-
-    # Export to CSV
-    csv_path = get_path("csv", "ma_cross", config, 'portfolios_filtered')
-    csv_filename = get_filename("csv", config)
-    result_df.write_csv(csv_path + "/" + csv_filename)
-
-    print(f"Analysis complete. Results written to {csv_path}")
-    print(f"Total rows in output: {len(result_rows)}")
-
-    return result_df
+        rows = []
+        for metric in metrics:
+            if metric in df.columns:
+                metric_rows = get_metric_rows(df, metric)
+                rows.extend(metric_rows)
+        
+        if not rows:
+            logging.warning("No valid metrics found for filtering")
+            return pl.DataFrame()
+            
+        # Create filtered DataFrame
+        filtered_df = pl.DataFrame(rows)
+        
+        # Export to CSV
+        csv_path = get_path("csv", "ma_cross", config, 'filtered_portfolios')
+        csv_filename = get_filename("csv", config)
+        filtered_df.write_csv(csv_path + "/" + csv_filename)
+        
+        print(f"\nFiltered portfolios written to {csv_path}")
+        print(f"Total rows in filtered output: {len(filtered_df)}")
+        
+        return filtered_df
+        
+    except Exception as e:
+        logging.error(f"Error in filter_portfolios: {str(e)}")
+        return pl.DataFrame()
