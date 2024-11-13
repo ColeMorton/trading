@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 
 # ASSETS = ['TDG', 'SPY', 'BTC-USD', 'MSTR', 'SOL-USD', 'QQQ']
 
-ASSETS = ['HAL', 'TXN', 'QCOM']
+ASSETS = ['VLO', 'LKQ', 'SBUX', 'CMG', 'SLB']
 
 # ASSETS = ['SPY', 'BTC-USD', 'MSTR']
 

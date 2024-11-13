@@ -48,9 +48,10 @@ class Config(TypedDict):
     TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
 
+
 # Default Configuration
 config: Config = {
-    "TICKER": ['AMZN', 'TSLA'],
+    "TICKER": ['SPY', 'QQQ', 'TLT', 'IWM', 'PLTR'],
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "REFRESH": False

@@ -31,16 +31,19 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     "USE_CURRENT": True,
-    "USE_SMA": True,
-    "TICKER": 'BTC-USD',
+    "USE_SMA": False,
+    "TICKER": 'LKQ',
+    "TICKER_1": 'BTC-USD',
+    "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,
-    "USE_HOURLY": True
+    "USE_HOURLY": False,
+    "USE_SYNTHETIC": False
 }
 
 def run(config: Config = config) -> bool:
     """
     Run the EMA cross strategy analysis.
-    When USE_CURRENT is True, only current window combinations are emphasized in the heatmap.
+    When USE_CURRENT is True, only current window (occured yesterday) combinations are emphasized in the heatmap.
 
     Args:
         config: Configuration dictionary

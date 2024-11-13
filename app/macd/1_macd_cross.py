@@ -26,7 +26,7 @@ class Config(TypedDict):
 
 # Default Configuration
 CONFIG: Config = {
-    "TICKER": 'SOL-USD',
+    "TICKER": 'LKQ',
     "YEARS": 30,
     "USE_YEARS": False,
     "PERIOD": 'max',
@@ -35,7 +35,7 @@ CONFIG: Config = {
     "TICKER_1": 'MSTR',
     "TICKER_2": 'BTC-USD',
     "SHORT": False,
-    "USE_GBM": True,
+    "USE_GBM": False,
     "USE_SMA": False,
     "SHORT_PERIOD": 14,
     "LONG_PERIOD": 23,

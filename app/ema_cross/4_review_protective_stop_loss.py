@@ -42,14 +42,14 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'QCOM',
-    "SHORT_WINDOW": 8,
-    "LONG_WINDOW": 28,
+    "TICKER": 'LRCX',
+    "SHORT_WINDOW": 67,
+    "LONG_WINDOW": 73,
     "RSI_PERIOD": 14,
     "USE_HOURLY": False,
-    "USE_SMA": False,
-    "USE_RSI": True,
-    "RSI_THRESHOLD": 56
+    "USE_SMA": True,
+    "USE_RSI": False,
+    "RSI_THRESHOLD": 58
 }
 
 def psl_exit(price: np.ndarray, entry_price: np.ndarray, holding_period: int, short: bool) -> np.ndarray:

@@ -15,7 +15,7 @@ import scipy.stats as st
 # ASSET_1_ALLOCATION = 50 # Target allocation for Asset 1 (as a percentage)
 # VAR_CONFIDENCE_LEVELS = [0.95, 0.99]
 
-TOTAL_PORTFOLIO_VALUE = 8000  # target
+TOTAL_PORTFOLIO_VALUE = 10500  # target
 ASSET_1_TICKER = "BTC-USD"
 ASSET_2_TICKER = "SOL-USD"
 ASSET_1_LEVERAGE = 7.7  # Example leverage factor for Asset 1
@@ -23,7 +23,7 @@ ASSET_2_LEVERAGE = 2.8  # Example leverage factor for Asset 2
 USE_EMA = False
 EMA_PERIOD = 21
 ASSET_1_ALLOCATION = 50 # Target allocation for Asset 1 (as a percentage)
-VAR_CONFIDENCE_LEVELS = [0.99]
+VAR_CONFIDENCE_LEVELS = [0.95, 0.99]
 
 # TOTAL_PORTFOLIO_VALUE = 23000  # target
 # ASSET_1_TICKER = "BTC-USD"
@@ -123,6 +123,17 @@ def main():
     
     print(f"\nInitial Portfolio Value: ${TOTAL_PORTFOLIO_VALUE:.2f}")
     print(f"Total Leveraged Portfolio Value: ${levered_total_value:.2f}")
+
+    # Calculate and print total portfolio VaR and CVaR for each confidence level
+    for cl in VAR_CONFIDENCE_LEVELS:
+        var_1, cvar_1 = var_cvar_asset_1[cl]
+        var_2, cvar_2 = var_cvar_asset_2[cl]
+        
+        total_var_loss = abs(var_1 * levered_asset_1_value) + abs(var_2 * levered_asset_2_value)
+        total_cvar_loss = abs(cvar_1 * levered_asset_1_value) + abs(cvar_2 * levered_asset_2_value)
+        
+        print(f"Total VaR Monetary Loss ({cl*100:.0f}%): ${total_var_loss:.2f}")
+        print(f"Total CVaR Monetary Loss ({cl*100:.0f}%): ${total_cvar_loss:.2f}")
 
 if __name__ == "__main__":
     main()

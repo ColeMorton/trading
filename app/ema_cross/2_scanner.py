@@ -76,8 +76,8 @@ def process_ma_signals(ticker: str, ma_type: str, config: Config,
     )
     
     message = (
-        f"{ticker} {ma_type} - {'Current signal found' if is_current else 'No matching current signals'} "
-        f"for windows {fast_window}/{slow_window}"
+        f"{ticker} {ma_type} - {'Current signal found' if is_current else 'No signals'} "
+        f"for {fast_window}/{slow_window}{'!!!!!' if is_current else ''}"
     )
     logging.info(message)
     print(message)

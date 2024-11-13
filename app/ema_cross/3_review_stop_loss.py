@@ -18,7 +18,7 @@ os.makedirs('logs', exist_ok=True)
 
 # Set up logging to overwrite the file each time
 logging.basicConfig(
-    filename='logs/ema_cross/3_stop_loss.log',
+    filename='logs/ma_cross/3_stop_loss.log',
     filemode='w',  # 'w' mode overwrites the file
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
@@ -45,14 +45,14 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'QCOM',
-    "SHORT_WINDOW": 8,
-    "LONG_WINDOW": 28,
+    "TICKER": 'LKQ',
+    "SHORT_WINDOW": 65,
+    "LONG_WINDOW": 73,
     "RSI_PERIOD": 14,
     "USE_HOURLY": False,
-    "USE_SMA": False,
-    "USE_RSI": True,
-    "RSI_THRESHOLD": 56
+    "USE_SMA": True,
+    "USE_RSI": False,
+    "RSI_THRESHOLD": 58
 }
 
 def backtest(data: pl.DataFrame, stop_loss_percentage: float, config: dict) -> List[Tuple[float, float]]:
