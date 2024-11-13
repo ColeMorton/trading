@@ -1,5 +1,4 @@
 import os
-import time
 from typing import TypedDict, NotRequired, Union, List
 import numpy as np
 import polars as pl
@@ -15,8 +14,7 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..
 
 # Setup logging
 log_dir = os.path.join(project_root, 'logs', 'ma_cross')
-log = setup_logging('portfolio_logger', log_dir, '1_get_portfolios.log')
-log("Logging initialized")
+log, log_close, _, _ = setup_logging('ma_cross', log_dir, '1_get_portfolios.log')
 
 class Config(TypedDict):
     TICKER: Union[str, List[str]]
@@ -34,7 +32,7 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": ['ADA-USD', 'DOT-USD'],
+    "TICKER": 'MATIC-USD',
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "REFRESH": False
@@ -92,9 +90,6 @@ def run(config: Config = config) -> bool:
 
 if __name__ == "__main__":
     try:
-        start_time = time.time()
-        log("Starting execution")
-        
         config_copy = config.copy()
         
         # Check if USE_SMA exists in config
@@ -112,11 +107,7 @@ if __name__ == "__main__":
             # Run with existing USE_SMA value
             run(config_copy)
             
-        end_time = time.time()
-        execution_time = end_time - start_time
-        execution_msg = f"Total execution time: {execution_time:.2f} seconds"
-        print(execution_msg)
-        log(execution_msg)
+        log_close()
             
     except Exception as e:
         log(f"Execution failed: {e}", "error")

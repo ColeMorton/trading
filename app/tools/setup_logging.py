@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 from typing import Optional, Callable, Any
 
 def setup_logging(
@@ -59,4 +60,16 @@ def setup_logging(
         log_method(message)
         file_handler.flush()
 
-    return log, logger, file_handler
+    log("Logging initialized")
+
+    start_time = time.time()
+    log("Starting execution")
+
+    def log_close():
+        end_time = time.time()
+        execution_time = end_time - start_time
+        execution_msg = f"Total execution time: {execution_time:.2f} seconds"
+        print(execution_msg)
+        log(execution_msg)
+
+    return log, log_close, logger, file_handler

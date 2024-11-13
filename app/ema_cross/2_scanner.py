@@ -89,7 +89,7 @@ def process_scanner():
     """
     try:
         # Read scanner data using polars
-        scanner_df = pl.read_csv('app/ema_cross/SCANNER.csv')
+        scanner_df = pl.read_csv('app/ema_cross/scanner_lists/DAILY.csv')
         
         for row in scanner_df.iter_rows(named=True):
             ticker = row['TICKER']
