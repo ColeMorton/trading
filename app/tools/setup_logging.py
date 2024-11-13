@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Optional
+from typing import Optional, Callable, Any
 
 def setup_logging(
     logger_name: str,
@@ -8,9 +8,9 @@ def setup_logging(
     log_file: str,
     level: int = logging.INFO,
     mode: str = 'w'
-) -> tuple[logging.Logger, logging.FileHandler]:
+) -> tuple[logging.Logger, logging.FileHandler, Callable[[str, str], None]]:
     """
-    Sets up logging configuration with file handler.
+    Sets up logging configuration with file handler and returns a pre-configured logging function.
 
     Args:
         logger_name (str): Name of the logger
@@ -20,7 +20,8 @@ def setup_logging(
         mode (str): File mode ('w' for write, 'a' for append) (default: 'w')
 
     Returns:
-        tuple[logging.Logger, logging.FileHandler]: Configured logger and file handler
+        tuple[logging.Logger, logging.FileHandler, Callable[[str, str], None]]: 
+            Configured logger, file handler, and pre-configured logging function
     """
     # Create log directory if it doesn't exist
     os.makedirs(log_dir, exist_ok=True)
@@ -43,26 +44,19 @@ def setup_logging(
     # Add handler to logger
     logger.addHandler(file_handler)
 
-    return logger, file_handler
+    def log(message: str, level: str = 'info') -> None:
+        """
+        Pre-configured logging function with immediate flush.
 
-def log_and_flush(
-    logger: logging.Logger,
-    handler: logging.FileHandler,
-    message: str,
-    level: str = 'info'
-) -> None:
-    """
-    Logs a message and immediately flushes the handler.
+        Args:
+            message (str): Message to log
+            level (str): Logging level ('info', 'error', 'warning', 'debug') (default: 'info')
 
-    Args:
-        logger (logging.Logger): Logger instance
-        handler (logging.FileHandler): File handler instance
-        message (str): Message to log
-        level (str): Logging level ('info', 'error', 'warning', 'debug') (default: 'info')
+        Returns:
+            None
+        """
+        log_method = getattr(logger, level.lower())
+        log_method(message)
+        file_handler.flush()
 
-    Returns:
-        None
-    """
-    log_method = getattr(logger, level.lower())
-    log_method(message)
-    handler.flush()
+    return log, logger, file_handler
