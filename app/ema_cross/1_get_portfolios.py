@@ -32,10 +32,11 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": ['NCLH', 'NOW', 'TRGP', 'HWM', 'PODD', 'BKR', 'RJF'],
+    "TICKER": ['MATIC-USD'],
     "WINDOWS": 89,
     "USE_HOURLY": False,
-    "REFRESH": False
+    "REFRESH": False,
+    "USE_SMA": True
 }
 
 def run(config: Config = config) -> bool:
