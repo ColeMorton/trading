@@ -86,7 +86,7 @@ def backtest_strategy(data: pl.DataFrame, config: dict) -> vbt.Portfolio:
         raise
 
 def get_filename(type: str, config: dict) -> str:
-    filename = f'{config["TICKER"]}{"_H" if config.get("USE_HOURLY_DATA", False) else "_D"}{"_SMA" if config.get("USE_SMA", False) else "_EMA"}{"_GBM" if config.get("USE_GBM", False) else ""}{"_" + datetime.now().strftime("%Y%m%d") if config.get("SHOW_LAST", False) else ""}.{type}'
+    filename = f'{(config["TICKER"] + "_") if config.get("TICKER", False) else ""}{"H" if config.get("USE_HOURLY_DATA", False) else "D"}{"_SMA" if config.get("USE_SMA", False) else "_EMA"}{"_GBM" if config.get("USE_GBM", False) else ""}{"_" + datetime.now().strftime("%Y%m%d") if config.get("SHOW_LAST", False) else ""}.{type}'
     return filename
 
 def get_path(type: str, feature1: str, config: dict, feature2: str = "") -> str:

@@ -32,7 +32,7 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'MATIC-USD',
+    "TICKER": ['NCLH', 'NOW', 'TRGP', 'HWM', 'PODD', 'BKR', 'RJF'],
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "REFRESH": False

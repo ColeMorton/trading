@@ -1,8 +1,10 @@
 import os
 import polars as pl
-from typing import TypedDict, NotRequired, List, Dict
+from typing import TypedDict, NotRequired
 from app.tools.setup_logging import setup_logging
-from app.ema_cross.tools.generate_current_signals import generate_current_signals
+from app.tools.get_config import get_config
+from app.utils import get_path, get_filename
+from app.ema_cross.tools.process_ma_signals import process_ma_signals
 
 # Get the absolute path to the project root
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -29,67 +31,10 @@ config: Config = {
     "WINDOWS": 89
 }
 
-def check_signal_match(signals: List[Dict], fast_window: int, slow_window: int) -> bool:
-    """
-    Check if any signal matches the given window combination.
-
-    Args:
-        signals: List of signal dictionaries containing window information
-        fast_window: Fast window value to match
-        slow_window: Slow window value to match
-
-    Returns:
-        bool: True if a matching signal is found, False otherwise
-    """
-    if not signals:
-        return False
-    
-    return any(
-        signal["Short Window"] == fast_window and 
-        signal["Long Window"] == slow_window
-        for signal in signals
-    )
-
-def process_ma_signals(ticker: str, ma_type: str, config: Config, 
-                      fast_window: int, slow_window: int) -> None:
-    """
-    Process moving average signals for a given ticker and configuration.
-
-    Args:
-        ticker: The ticker symbol to process
-        ma_type: Type of moving average ('SMA' or 'EMA')
-        config: Configuration dictionary
-        fast_window: Fast window value from scanner
-        slow_window: Slow window value from scanner
-
-    Returns:
-        None
-    """
-    ma_config = config.copy()
-    ma_config.update({
-        "TICKER": ticker,
-        "USE_SMA": ma_type == "SMA"
-    })
-    
-    signals = generate_current_signals(ma_config)
-    
-    is_current = check_signal_match(
-        signals.to_dicts() if len(signals) > 0 else [], 
-        fast_window, 
-        slow_window
-    )
-    
-    message = (
-        f"{ticker} {ma_type} - {'Current signal found' if is_current else 'No signals'} "
-        f"for {fast_window}/{slow_window}{'!!!!!' if is_current else ''}"
-    )
-    log(message)
-    print(message)
-
 def process_scanner():
     """
     Process each ticker in csv with both SMA and EMA configurations.
-    Checks if current signals match the window combinations in csv.
+    Creates a DataFrame with results and exports to CSV.
     """
     try:
         # Determine which CSV file to use based on USE_HOURLY config
@@ -98,12 +43,15 @@ def process_scanner():
         # Read scanner data using polars
         scanner_df = pl.read_csv(f'app/ema_cross/scanner_lists/{csv_filename}')
         
+        # Initialize empty lists to store results
+        results_data = []
+        
         for row in scanner_df.iter_rows(named=True):
             ticker = row['TICKER']
             log(f"Processing {ticker}")
             
             # Process SMA signals
-            process_ma_signals(
+            sma_current = process_ma_signals(
                 ticker=ticker,
                 ma_type="SMA",
                 config=config,
@@ -112,13 +60,29 @@ def process_scanner():
             )
             
             # Process EMA signals
-            process_ma_signals(
+            ema_current = process_ma_signals(
                 ticker=ticker,
                 ma_type="EMA",
                 config=config,
                 fast_window=row['EMA_FAST'],
                 slow_window=row['EMA_SLOW']
             )
+            
+            # Add results to list
+            results_data.append({
+                "TICKER": ticker,
+                "SMA": sma_current,
+                "EMA": ema_current
+            })
+        
+        # Create results DataFrame
+        results_df = pl.DataFrame(results_data)
+        
+        # Export results to CSV
+        if not config.get("USE_HOURLY", False):
+            csv_path = get_path("csv", "ma_cross", config, 'portfolios_scanned')
+            csv_filename = get_filename("csv", config)
+            results_df.write_csv(csv_path + "/" + csv_filename)
                 
     except Exception as e:
         log(f"Error processing scanner: {e}", "error")
@@ -126,6 +90,7 @@ def process_scanner():
 
 if __name__ == "__main__":
     try:
+        config = get_config(config)
         config["USE_SCANNER"] = True
         process_scanner()
         log_close()
