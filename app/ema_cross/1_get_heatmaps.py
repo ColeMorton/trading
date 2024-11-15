@@ -32,7 +32,7 @@ class Config(TypedDict):
 config: Config = {
     "USE_CURRENT": True,
     "USE_SMA": False,
-    "TICKER": 'LKQ',
+    "TICKER": 'CB',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,

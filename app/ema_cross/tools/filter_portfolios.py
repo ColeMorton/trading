@@ -64,6 +64,11 @@ duration_metrics = [
 ]
 
 def filter_portfolios(df, config):
+    # Check if DataFrame is empty
+    if len(df) == 0:
+        print("No portfolios to filter - returning empty DataFrame")
+        return df  # Return the empty DataFrame as is
+        
     # Initialize result array
     result_rows = []
 
@@ -92,6 +97,11 @@ def filter_portfolios(df, config):
                 {**{'Metric Type': f'Most {metric}'}, **{col: val for col, val in zip(df.columns, rows[0])}},
                 {**{'Metric Type': f'Least {metric}'}, **{col: val for col, val in zip(df.columns, rows[1])}}
             ])
+
+    # If no results were generated, return empty DataFrame
+    if not result_rows:
+        print("No results generated - returning empty DataFrame")
+        return pl.DataFrame()
 
     # Convert results to DataFrame
     result_df = pl.DataFrame(result_rows)

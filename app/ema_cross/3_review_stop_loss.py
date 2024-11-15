@@ -45,9 +45,9 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'LKQ',
-    "SHORT_WINDOW": 65,
-    "LONG_WINDOW": 73,
+    "TICKER": 'EXPD',
+    "SHORT_WINDOW": 67,
+    "LONG_WINDOW": 80,
     "RSI_PERIOD": 14,
     "USE_HOURLY": False,
     "USE_SMA": True,

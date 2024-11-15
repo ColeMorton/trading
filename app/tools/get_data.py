@@ -16,7 +16,7 @@ class Config(TypedDict):
     TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
 
-def download_data(ticker: str, config: Config) -> pl.DataFrame:
+def download_data(ticker: str, config: Config = {}) -> pl.DataFrame:
     """Download historical data from Yahoo Finance."""
     logging.info(f"\nDownloading data for {ticker}")
 

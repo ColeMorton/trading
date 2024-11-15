@@ -5,7 +5,7 @@ import os
 import json
 import matplotlib.pyplot as plt
 
-TICKER = 'BTC-USD'
+TICKER = 'SUI20947-USD'
 NUM_PERMUTATIONS = 1000
 
 # Set up logging

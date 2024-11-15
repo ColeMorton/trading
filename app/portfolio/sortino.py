@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 
 # ASSETS = ['TDG', 'SPY', 'BTC-USD', 'MSTR', 'SOL-USD', 'QQQ']
 
-ASSETS = ['VLO', 'LKQ', 'SBUX', 'CMG', 'SLB']
+ASSETS = ['DDOG', 'INTC', 'CB', 'MSFT', 'AAPL', 'LULU', 'EXPD']
 
 # ASSETS = ['SPY', 'BTC-USD', 'MSTR']
 
@@ -37,7 +37,7 @@ def plot_rolling_sortino(rolling_sortino_dict, assets):
     fig, axs = plt.subplots(2, 2, figsize=(14, 10))
     fig.suptitle('Rolling Annualized Sortino Ratios for Different Look-back Periods', fontsize=16)
     
-    periods = ['180 Days', '90 Days', '60 Days', '30 Days']
+    periods = ['120 Days', '90 Days', '60 Days', '30 Days']
     
     for ax, period in zip(axs.flatten(), periods):
         rolling_sortino = rolling_sortino_dict[period]
@@ -75,7 +75,7 @@ def main():
 
     # Calculate the rolling annualized Sortino Ratios for different look-back periods
     rolling_sortino_dict = {
-        '180 Days': calculate_rolling_sortino(returns, window=180),
+        '120 Days': calculate_rolling_sortino(returns, window=120),
         '90 Days': calculate_rolling_sortino(returns, window=90),
         '60 Days': calculate_rolling_sortino(returns, window=60),
         '30 Days': calculate_rolling_sortino(returns, window=30),

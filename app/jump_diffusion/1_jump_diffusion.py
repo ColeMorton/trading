@@ -6,11 +6,11 @@ from scipy.optimize import minimize
 import os
 from app.tools.get_data import download_data
 
-TICKER = 'SPY'
+TICKER = 'SUI20947-USD'
 USE_MERTON = False
 
 # Fetch historical data
-gbm_data = download_data(TICKER, False, 30)
+gbm_data = download_data(TICKER)
 
 # Print data info for debugging
 print("Data columns:")
@@ -117,10 +117,10 @@ plt.legend()
 plt.grid(True)
 
 # Create directory if it doesn't exist
-os.makedirs('images/jump_diffusion', exist_ok=True)
+os.makedirs('png/jump_diffusion', exist_ok=True)
 
 # Save the plot
-plt.savefig(f'images/jump_diffusion/{TICKER}_merton_vs_gbm.png')
+plt.savefig(f'png/jump_diffusion/{TICKER}_merton_vs_gbm.png')
 plt.close()
 
 print("Merton Jump-Diffusion Model simulation completed and plot saved.")

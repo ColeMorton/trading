@@ -15,7 +15,7 @@ import scipy.stats as st
 # ASSET_1_ALLOCATION = 50 # Target allocation for Asset 1 (as a percentage)
 # VAR_CONFIDENCE_LEVELS = [0.95, 0.99]
 
-TOTAL_PORTFOLIO_VALUE = 10500  # target
+TOTAL_PORTFOLIO_VALUE = 10600  # target
 ASSET_1_TICKER = "BTC-USD"
 ASSET_2_TICKER = "SOL-USD"
 ASSET_1_LEVERAGE = 7.7  # Example leverage factor for Asset 1
@@ -25,14 +25,14 @@ EMA_PERIOD = 21
 ASSET_1_ALLOCATION = 50 # Target allocation for Asset 1 (as a percentage)
 VAR_CONFIDENCE_LEVELS = [0.95, 0.99]
 
-# TOTAL_PORTFOLIO_VALUE = 23000  # target
+# TOTAL_PORTFOLIO_VALUE = 8500  # target
 # ASSET_1_TICKER = "BTC-USD"
 # ASSET_2_TICKER = "SOL-USD"
-# ASSET_1_LEVERAGE = 1  # Example leverage factor for Asset 1
-# ASSET_2_LEVERAGE = 1  # Example leverage factor for Asset 2
+# ASSET_1_LEVERAGE = 7.7  # Example leverage factor for Asset 1
+# ASSET_2_LEVERAGE = 2.8  # Example leverage factor for Asset 2
 # USE_EMA = False
 # EMA_PERIOD = 21
-# ASSET_1_ALLOCATION = 22.7 # Target allocation for Asset 1 (as a percentage)
+# ASSET_1_ALLOCATION = 50 # Target allocation for Asset 1 (as a percentage)
 # VAR_CONFIDENCE_LEVELS = [0.95, 0.99]
 
 def get_price_or_ema(ticker, use_ema, ema_period):

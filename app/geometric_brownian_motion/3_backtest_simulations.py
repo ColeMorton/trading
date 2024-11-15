@@ -16,23 +16,23 @@ logging.basicConfig(filename=os.path.join(log_dir, 'ema_cross.log'), level=loggi
 
 # Default Configuration
 CONFIG = {
-    "YEARS": 4.44,
+    "YEARS": 1.5369,
     "USE_YEARS": True,
     "PERIOD": 'max',
     "USE_HOURLY": False,
-    "TICKER": 'SOL-USD',
+    "TICKER": 'SUI20947-USD',
     "USE_SYNTHETIC": False,
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'SPY',
-    "SHORT_WINDOW": 33,
-    "LONG_WINDOW": 46,
+    "SHORT_WINDOW": 38,
+    "LONG_WINDOW": 59,
     "SHORT": False,
-    "USE_GBM": False,
+    "USE_GBM": True,
     "USE_SMA": True,
     "BASE_DIR": 'C:/Projects/trading',
-    "WINDOWS": 55,
+    "WINDOWS": 89,
     "ANNUAL_TRADING_DAYS": 365,
-    "TIME_HORIZON": 8.88,
+    "TIME_HORIZON": 3.07397,
     "SIMULATIONS": 1000
 }
 

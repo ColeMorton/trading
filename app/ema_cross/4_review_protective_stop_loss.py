@@ -42,12 +42,12 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'LRCX',
-    "SHORT_WINDOW": 67,
-    "LONG_WINDOW": 73,
+    "TICKER": 'CB',
+    "SHORT_WINDOW": 9,
+    "LONG_WINDOW": 66,
     "RSI_PERIOD": 14,
     "USE_HOURLY": False,
-    "USE_SMA": True,
+    "USE_SMA": False,
     "USE_RSI": False,
     "RSI_THRESHOLD": 58
 }

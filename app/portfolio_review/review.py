@@ -20,7 +20,7 @@ CONFIG_BTC = {
     "USE_GBM": False,
     "USE_SMA": False,
     "BASE_DIR": 'C:/Projects/trading',
-    "WINDOWS": 55
+    "WINDOWS": 89
 }
 
 CONFIG_SOL = {
@@ -39,7 +39,26 @@ CONFIG_SOL = {
     "USE_GBM": False,
     "USE_SMA": True,
     "BASE_DIR": 'C:/Projects/trading',
-    "WINDOWS": 55
+    "WINDOWS": 89
+}
+
+CONFIG_SUI = {
+    "YEARS": 1.5369,
+    "USE_YEARS": True,
+    "PERIOD": 'max',
+    "USE_HOURLY": False,
+    "TICKER": 'SUI20947-USD',
+    "USE_SYNTHETIC": False,
+    "TICKER_1": 'BTC-USD',
+    "TICKER_2": 'SPY',
+    "SHORT_WINDOW": 38,
+    "LONG_WINDOW": 59,
+    "STOP_LOSS": None,
+    "SHORT": False,
+    "USE_GBM": False,
+    "USE_SMA": True,
+    "BASE_DIR": 'C:/Projects/trading',
+    "WINDOWS": 89
 }
 
 CONFIG_SPY = {
@@ -57,10 +76,28 @@ CONFIG_SPY = {
     "USE_GBM": False,
     "USE_SMA": False,
     "BASE_DIR": 'C:/Projects/trading',
-    "WINDOWS": 55
+    "WINDOWS": 89
 }
 
-config = get_config(CONFIG_SOL)
+CONFIG_OP = {
+    "YEARS": 30,
+    "USE_YEARS": False,
+    "PERIOD": 'max',
+    "USE_HOURLY": False,
+    "TICKER": 'OP-USD',
+    "USE_SYNTHETIC": False,
+    "TICKER_1": 'BTC-USD',
+    "TICKER_2": 'SPY',
+    "SHORT_WINDOW": 81,
+    "LONG_WINDOW": 83,
+    "SHORT": False,
+    "USE_GBM": False,
+    "USE_SMA": True,
+    "BASE_DIR": 'C:/Projects/trading',
+    "WINDOWS": 89
+}
+
+config = get_config(CONFIG_OP)
 
 data = get_data(config["TICKER"], config)
 

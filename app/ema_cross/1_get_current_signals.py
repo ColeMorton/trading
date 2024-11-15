@@ -17,8 +17,8 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "USE_SMA": False,
-    "TICKER": 'CTRA',
+    "USE_SMA": True,
+    "TICKER": 'SUI20947-USD',
     "WINDOWS": 89,
     "USE_HOURLY": False
 }

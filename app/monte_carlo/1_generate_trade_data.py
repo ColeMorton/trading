@@ -9,13 +9,13 @@ from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 YEARS = 30  # Set timeframe in years for daily data
 USE_HOURLY_DATA = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = 'BTC-USD'  # Ticker for X to USD exchange rate
+TICKER_1 = 'SUI20947-USD'  # Ticker for X to USD exchange rate
 TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
-USE_SMA = True  # Set to True to use SMAs, False to use EMAs
+USE_SMA = False  # Set to True to use SMAs, False to use EMAs
 
-EMA_FAST = 27
-EMA_SLOW = 29
+EMA_FAST = 19
+EMA_SLOW = 34
 RSI_PERIOD = 14
 
 RSI_THRESHOLD = 55
@@ -50,7 +50,7 @@ def calculate_max_drawdown(prices):
     return max_drawdown
 
 # Download historical data
-data = download_data(CONFIG["TICKER_1"], CONFIG["YEARS"], CONFIG["USE_HOURLY_DATA"])
+data = download_data(CONFIG["TICKER_1"], CONFIG)
 
 data = calculate_ma_and_signals(data, EMA_FAST, EMA_SLOW, CONFIG)
 

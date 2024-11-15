@@ -17,24 +17,40 @@ def generate_signals(data_dict: Dict[str, pd.DataFrame], config: Dict) -> Tuple[
     # Get a reference index from the first dataframe
     reference_index = next(iter(data_dict.values())).index
     
+    # Find common date range across all dataframes
+    common_index = reference_index
+    for df in data_dict.values():
+        common_index = common_index.intersection(df.index)
+    
     # Initialize DataFrames for entries and exits
-    entries_df = pd.DataFrame(index=reference_index)
-    exits_df = pd.DataFrame(index=reference_index)
+    entries_df = pd.DataFrame(index=common_index)
+    exits_df = pd.DataFrame(index=common_index)
     
     # Process each strategy
     for strategy_name, strategy in config['strategies'].items():
         symbol = strategy['symbol']
         df = data_dict[symbol]
         
+        # Filter to common date range
+        df = df.loc[common_index]
+        
         # Create polars Series from Close prices
         close_series = pl.Series('Close', df['Close'].values)
+        
+        # Create strategy-specific config
+        strategy_config = {
+            'USE_SMA': strategy.get('use_sma', config.get('USE_SMA', False)),
+            'USE_RSI': strategy.get('use_rsi', config.get('USE_RSI', False)),
+            'RSI_THRESHOLD': strategy.get('rsi_threshold', config.get('RSI_THRESHOLD', 70)),
+            'SHORT': strategy.get('short', config.get('SHORT', False))
+        }
         
         # Calculate moving averages and initial signals
         ma_signals = calculate_ma_and_signals(
             close_series,
             strategy['short_window'],
             strategy['long_window'],
-            strategy['use_sma']
+            strategy_config
         )
         
         # Convert to numpy for easier manipulation
