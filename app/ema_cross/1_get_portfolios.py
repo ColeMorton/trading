@@ -32,11 +32,10 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": ['MATIC-USD'],
+    "TICKER": 'SOFI',
     "WINDOWS": 89,
     "USE_HOURLY": False,
-    "REFRESH": False,
-    "USE_SMA": True
+    "REFRESH": True
 }
 
 def run(config: Config = config) -> bool:

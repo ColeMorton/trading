@@ -2,86 +2,12 @@ import polars as pl
 from datetime import datetime
 from typing import List, Dict, Any
 import pandas as pd
-import vectorbt as vbt
 import logging
 from app.utils import get_path, get_filename
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.ema_cross.tools.get_current_signals import is_signal_current
-
-def convert_stats(stats: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Convert stats to compatible format, ensuring proper type handling.
-    
-    Args:
-        stats: Dictionary containing portfolio statistics
-        
-    Returns:
-        Dictionary with properly formatted values
-    """
-    converted = {}
-    
-    # Handle window values first, ensuring they remain integers
-    if 'Short Window' in stats:
-        converted['Short Window'] = int(stats['Short Window'])
-    if 'Long Window' in stats:
-        converted['Long Window'] = int(stats['Long Window'])
-    
-    # Then handle the rest of the stats
-    for k, v in stats.items():
-        if k not in ['Short Window', 'Long Window']:
-            if k == 'Start' or k == 'End':
-                converted[k] = v.strftime('%Y-%m-%d %H:%M:%S') if isinstance(v, datetime) else str(v)
-            elif isinstance(v, pd.Timedelta):
-                converted[k] = str(v)
-            elif isinstance(v, (int, float)):
-                # Keep numeric values as is
-                converted[k] = v
-            else:
-                converted[k] = str(v)
-    
-    return converted
-
-def backtest_strategy(data: pl.DataFrame, config: dict) -> vbt.Portfolio:
-    """
-    Backtest the MA cross strategy.
-    
-    Args:
-        data: Price data with signals
-        config: Configuration dictionary
-        
-    Returns:
-        Portfolio object with backtest results
-    """
-    try:
-        freq = 'h' if config.get('USE_HOURLY', False) else 'D'
-        
-        # Convert polars DataFrame to pandas DataFrame for vectorbt
-        data_pd = data.to_pandas()
-        
-        if config.get('SHORT', False):
-            portfolio = vbt.Portfolio.from_signals(
-                close=data_pd['Close'],
-                short_entries=data_pd['Signal'] == 1,
-                short_exits=data_pd['Signal'] == 0,
-                init_cash=1000,
-                fees=0.001,
-                freq=freq
-            )
-        else:
-            portfolio = vbt.Portfolio.from_signals(
-                close=data_pd['Close'],
-                entries=data_pd['Signal'] == 1,
-                exits=data_pd['Signal'] == 0,
-                init_cash=1000,
-                fees=0.001,
-                freq=freq
-            )
-        
-        logging.info("Backtest completed successfully")
-        return portfolio
-    except Exception as e:
-        logging.error(f"Backtest failed: {e}")
-        raise
+from app.ema_cross.tools.convert_stats import convert_stats
+from app.ema_cross.tools.backtest_strategy import backtest_strategy
 
 def parameter_sensitivity_analysis(data: pl.DataFrame, short_windows: List[int], long_windows: List[int], config: dict) -> pl.DataFrame:
     """
