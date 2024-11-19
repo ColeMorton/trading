@@ -1,7 +1,5 @@
 Core Development Principles
 
-Files should be no longer than 100 to 200 lines in length.
-
 1. Package Management
 - Use Poetry for dependency management
 
@@ -40,6 +38,8 @@ except Exception as e:
 5. Code Organization
 - Group related functionality in the tools/ directory
 - Use clear module naming that reflects purpose
+- Files should have a single purpose and reuse existing code to reduce duplication
+- Files should be no longer than 150 lines in length
 
 6. Documentation
 - Add docstrings to all functions following this format:

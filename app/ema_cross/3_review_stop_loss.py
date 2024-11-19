@@ -9,15 +9,14 @@ performance metrics including returns, win rate, and expectancy.
 import os
 import polars as pl
 import numpy as np
-import matplotlib.pyplot as plt
-from typing import List, Tuple, TypedDict, NotRequired, Callable
+from typing import TypedDict, NotRequired, Callable, Tuple
 from app.tools.setup_logging import setup_logging
 from app.tools.get_config import get_config
 from app.tools.calculate_mas import calculate_mas
-from app.tools.calculate_ma_signals import calculate_ma_signals
 from app.tools.get_data import get_data
-from app.utils import find_prominent_peaks, add_peak_labels, calculate_metrics
 from app.tools.calculate_rsi import calculate_rsi
+from tools.stop_loss_analysis import run_sensitivity_analysis
+from tools.stop_loss_plotting import plot_results
 
 class Config(TypedDict):
     """
@@ -84,110 +83,6 @@ def setup_logging_for_stop_loss() -> Tuple[Callable, Callable, Callable, object]
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
     log_dir = os.path.join(project_root, 'logs', 'ma_cross')
     return setup_logging('ma_cross', log_dir, '3_review_stop_loss.log')
-
-def backtest(data: pl.DataFrame, stop_loss_percentage: float, config: dict) -> List[Tuple[float, float]]:
-    """
-    Run backtest with stop loss.
-
-    Args:
-        data (pl.DataFrame): Price and indicator data
-        stop_loss_percentage (float): Stop loss percentage
-        config (dict): Configuration dictionary
-
-    Returns:
-        List[Tuple[float, float]]: List of entry/exit price pairs for trades
-    """
-    entries, exits = calculate_ma_signals(data, config)
-    position, entry_price = 0, 0
-    trades = []
-
-    for i in range(1, len(data)):
-        if position == 0:
-            if entries[i]:
-                position = -1 if config["SHORT"] else 1
-                entry_price = data['Close'][i]
-        elif position == 1:
-            # Long exit condition
-            if data['Close'][i] < entry_price * (1 - stop_loss_percentage / 100) or exits[i]:
-                position, exit_price = 0, data['Close'][i]
-                trades.append((entry_price, exit_price))
-        elif position == -1:
-            # Short exit condition
-            if data['Close'][i] > entry_price * (1 + stop_loss_percentage / 100) or exits[i]:
-                position, exit_price = 0, data['Close'][i]
-                trades.append((entry_price, exit_price))
-
-    return trades
-
-def run_sensitivity_analysis(data: pl.DataFrame, stop_loss_range: np.ndarray, config: dict) -> pl.DataFrame:
-    """
-    Run sensitivity analysis across stop loss percentages.
-
-    Args:
-        data (pl.DataFrame): Price and indicator data
-        stop_loss_range (np.ndarray): Array of stop loss percentages to test
-        config (dict): Configuration dictionary
-
-    Returns:
-        pl.DataFrame: Results of sensitivity analysis with metrics for each stop loss percentage
-    """
-    results = []
-    for stop_loss_percentage in stop_loss_range:
-        trades = backtest(data, stop_loss_percentage, config)
-        total_return, win_rate, expectancy = calculate_metrics(trades, config["SHORT"])
-
-        results.append({
-            'Stop Loss Percentage': stop_loss_percentage,
-            'Total Return': total_return,
-            'Win Rate': win_rate,
-            'Expectancy': expectancy
-        })
-
-    return pl.DataFrame(results)
-
-def plot_results(ticker: str, results_df: pl.DataFrame, log: Callable) -> None:
-    """
-    Plot sensitivity analysis results.
-
-    Args:
-        ticker (str): Ticker symbol
-        results_df (pl.DataFrame): Results dataframe
-        log (Callable): Logging function
-    """
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 16), sharex=True)
-
-    # Plot total return and win rate
-    ax1.plot(results_df['Stop Loss Percentage'], results_df['Total Return'], label='Total Return')
-    ax1.set_ylabel('Return %')
-    ax1.legend(loc='upper left')
-    ax1.grid(True)
-
-    ax1_twin = ax1.twinx()
-    ax1_twin.plot(results_df['Stop Loss Percentage'], results_df['Win Rate'], color='tab:red', label='Win Rate')
-    ax1_twin.set_ylabel('Win Rate %', color='tab:red')
-    ax1_twin.tick_params(axis='y', labelcolor='tab:red')
-    ax1_twin.legend(loc='upper right')
-
-    # Add peak labels for Total Return
-    total_return_peaks = find_prominent_peaks(results_df['Stop Loss Percentage'].to_numpy(), results_df['Total Return'].to_numpy())
-    add_peak_labels(ax1, results_df['Stop Loss Percentage'].to_numpy(), results_df['Total Return'].to_numpy(), total_return_peaks)
-
-    # Plot expectancy
-    ax2.plot(results_df['Stop Loss Percentage'], results_df['Expectancy'], label='Expectancy', color='tab:green')
-    ax2.set_xlabel('Stop Loss Percentage')
-    ax2.set_ylabel('Expectancy %')
-    ax2.legend()
-    ax2.grid(True)
-
-    fig.suptitle(f'{ticker} Total Return, Win Rate, and Expectancy vs Stop Loss Percentage')
-    plt.tight_layout()
-
-    # Save the plot
-    plot_filename = f'png/ema_cross/parameter_sensitivity/{ticker}_stop_loss.png'
-    plt.savefig(plot_filename)
-    log(f"Plot saved as {plot_filename}")
-
-    plt.show()
 
 def run(config: Config = config) -> bool:
     """

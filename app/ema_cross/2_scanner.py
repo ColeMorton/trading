@@ -8,12 +8,14 @@ and can handle both new scans and updates to existing results.
 
 import os
 import polars as pl
-from typing import TypedDict, NotRequired, Callable, Tuple, List, Dict
+from typing import TypedDict, NotRequired
 from app.tools.setup_logging import setup_logging
 from app.tools.get_config import get_config
-from app.utils import get_path, get_filename
-from app.ema_cross.tools.signal_generation import process_ma_signals
-from app.tools.file_utils import is_file_from_today
+from tools.scanner_processing import (
+    load_existing_results,
+    process_ticker,
+    export_results
+)
 
 class Config(TypedDict):
     """
@@ -54,56 +56,6 @@ config: Config = {
     "SCANNER_LIST": 'DAILY copy.csv'
 }
 
-def setup_logging_for_scanner() -> Tuple[Callable, Callable, Callable, object]:
-    """
-    Set up logging configuration for market scanner.
-
-    Returns:
-        Tuple[Callable, Callable, Callable, object]: Tuple containing:
-            - log function
-            - log_close function
-            - logger object
-            - file handler object
-    """
-    # Get the absolute path to the project root
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    
-    # Setup logging
-    log_dir = os.path.join(project_root, 'logs', 'ma_cross')
-    return setup_logging('ma_cross', log_dir, '2_scanner.log')
-
-def load_existing_results(config: Config, log: Callable) -> Tuple[set, List[Dict]]:
-    """
-    Load existing scanner results from today if available.
-
-    Args:
-        config (Config): Configuration dictionary
-        log (Callable): Logging function
-
-    Returns:
-        Tuple[set, List[Dict]]: Tuple containing:
-            - Set of already processed tickers
-            - List of existing results data
-    """
-    existing_tickers = set()
-    results_data = []
-    
-    if not config.get("USE_HOURLY", False):
-        csv_path = get_path("csv", "ma_cross", config, 'portfolios_scanned')
-        results_filename = get_filename("csv", config)
-        full_path = os.path.join(csv_path, results_filename)
-        
-        if is_file_from_today(full_path):
-            try:
-                existing_results = pl.read_csv(full_path)
-                existing_tickers = set(existing_results['TICKER'].to_list())
-                results_data = existing_results.to_dicts()
-                log(f"Found existing results from today with {len(existing_tickers)} tickers")
-            except Exception as e:
-                log(f"Error reading existing results: {e}", "error")
-    
-    return existing_tickers, results_data
-
 def process_scanner() -> bool:
     """
     Process each ticker in the scanner list with both SMA and EMA configurations.
@@ -121,7 +73,12 @@ def process_scanner() -> bool:
     Raises:
         Exception: If scanner processing fails
     """
-    log, log_close, _, _ = setup_logging_for_scanner()
+    # Get the absolute path to the project root
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+    
+    # Setup logging
+    log_dir = os.path.join(project_root, 'logs', 'ma_cross')
+    log, log_close, _, _ = setup_logging('ma_cross', log_dir, '2_scanner.log')
     
     try:
         # Determine which CSV file to use based on USE_HOURLY config
@@ -143,41 +100,11 @@ def process_scanner() -> bool:
                 continue
                 
             log(f"Processing {ticker}")
-            
-            # Process SMA signals
-            sma_current = process_ma_signals(
-                ticker=ticker,
-                ma_type="SMA",
-                config=config,
-                fast_window=row['SMA_FAST'],
-                slow_window=row['SMA_SLOW']
-            )
-            
-            # Process EMA signals
-            ema_current = process_ma_signals(
-                ticker=ticker,
-                ma_type="EMA",
-                config=config,
-                fast_window=row['EMA_FAST'],
-                slow_window=row['EMA_SLOW']
-            )
-            
-            # Add results to list
-            results_data.append({
-                "TICKER": ticker,
-                "SMA": sma_current,
-                "EMA": ema_current
-            })
+            result = process_ticker(ticker, row, config)
+            results_data.append(result)
         
-        # Create results DataFrame
-        results_df = pl.DataFrame(results_data)
-        
-        # Export results to CSV
-        if not config.get("USE_HOURLY", False):
-            csv_path = get_path("csv", "ma_cross", config, 'portfolios_scanned')
-            csv_filename = get_filename("csv", config)
-            results_df.write_csv(csv_path + "/" + csv_filename)
-            log(f"Results exported to {csv_filename}")
+        # Export results
+        export_results(results_data, config, log)
         
         log_close()
         return True
