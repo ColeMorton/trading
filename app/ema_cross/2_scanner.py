@@ -17,6 +17,7 @@ log, log_close, _, _ = setup_logging('ma_cross', log_dir, '2_scanner.log')
 class Config(TypedDict):
     TICKER: str
     WINDOWS: int
+    SCANNER_LIST: str
     SHORT: NotRequired[bool]
     USE_SMA: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]
@@ -29,7 +30,8 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "WINDOWS": 89
+    "WINDOWS": 89,
+    "SCANNER_LIST": 'DAILY.csv'
 }
 
 def process_scanner():
@@ -39,7 +41,7 @@ def process_scanner():
     """
     try:
         # Determine which CSV file to use based on USE_HOURLY config
-        csv_filename = 'HOURLY.csv' if config.get("USE_HOURLY", False) else 'DAILY.csv'
+        csv_filename = 'HOURLY.csv' if config.get("USE_HOURLY", False) else config.get("SCANNER_LIST", 'DAILY.csv')
         
         # Read scanner data using polars
         scanner_df = pl.read_csv(f'app/ema_cross/scanner_lists/{csv_filename}')
