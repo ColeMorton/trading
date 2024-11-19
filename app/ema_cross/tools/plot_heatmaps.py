@@ -1,16 +1,12 @@
 import logging
-from typing import Dict
-
 import numpy as np
-import polars as pl
+from typing import Dict
 
 from app.utils import get_filename, get_path
 from app.ema_cross.tools.create_heatmaps import create_full_heatmap, create_current_heatmap
-from app.tools.file_utils import get_current_window_combinations, is_file_from_today
-from app.ema_cross.tools.prepare_price_data import prepare_price_data
-from app.ema_cross.tools.signal_generation import generate_current_signals
+from app.ema_cross.tools.heatmap_data import prepare_heatmap_data, validate_window_combinations
 
-def plot_heatmap(results_pl: pl.DataFrame, config: Dict) -> None:
+def plot_heatmap(results_pl, config: Dict) -> None:
     """
     Plot heatmap of MA cross strategy performance.
     
@@ -30,36 +26,23 @@ def plot_heatmap(results_pl: pl.DataFrame, config: Dict) -> None:
     Returns:
         None. Saves the plot to a file and displays it.
     """
-    price_data = prepare_price_data(results_pl, config["TICKER"])
+    # Prepare data
+    price_data, window_combs, use_ewm = prepare_heatmap_data(results_pl, config)
+    if price_data is None:
+        logging.error("Failed to prepare heatmap data")
+        return
+
+    # Generate windows array
     windows = np.arange(2, config["WINDOWS"])
-    use_ewm = not config.get("USE_SMA", False)
     ma_type = "SMA" if config.get("USE_SMA", False) else "EMA"
     
-    if config.get("USE_CURRENT", False):
-        filename = f"{config['TICKER']}_D_{ma_type}.csv"
-        filepath = f"csv/ma_cross/current_signals/{filename}"
-        
-        # Check if file exists and was created today
-        if not is_file_from_today(filepath):
-            logging.info(f"Generating new signals for {config['TICKER']}")
-            generate_current_signals(config)
-        
-        current_windows = get_current_window_combinations(filepath)
-        if current_windows is None:
-            logging.info(f"Falling back to full heatmap for {config['TICKER']}")
-            config["USE_CURRENT"] = False
-        else:
-            window_combs = [(short, long) for short, long in current_windows 
-                           if short in windows and long in windows]
-            if not window_combs:
-                logging.warning(f"No valid window combinations found for {config['TICKER']}")
-                config["USE_CURRENT"] = False
-            else:
-                window_combs.sort()
-                fig = create_current_heatmap(price_data, windows, window_combs, use_ewm)
-                title_suffix = "Current Signals Only"
-    
-    if not config.get("USE_CURRENT", False):
+    # Create appropriate heatmap
+    if config.get("USE_CURRENT", False) and validate_window_combinations(window_combs, windows, config):
+        window_combs = list(window_combs)  # Convert set to list before sorting
+        window_combs.sort()
+        fig = create_current_heatmap(price_data, windows, window_combs, use_ewm)
+        title_suffix = "Current Signals Only"
+    else:
         fig = create_full_heatmap(price_data, windows, use_ewm)
         title_suffix = "All Signals"
     

@@ -1,17 +1,13 @@
-import polars as pl
-from datetime import datetime
-from typing import List, Dict, Any, Optional
 import logging
+import polars as pl
+from typing import Dict, Any, Optional
 from app.utils import get_path, get_filename
-from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
-from app.ema_cross.tools.signal_generation import is_signal_current
-from app.tools.file_utils import convert_stats
-from app.ema_cross.tools.backtest_strategy import backtest_strategy
+from app.ema_cross.tools.sensitivity_analysis import analyze_parameter_combinations
 
 def analyze_parameter_sensitivity(
     data: pl.DataFrame,
-    short_windows: List[int],
-    long_windows: List[int],
+    short_windows: list[int],
+    long_windows: list[int],
     config: Dict[str, Any]
 ) -> Optional[pl.DataFrame]:
     """
@@ -28,35 +24,8 @@ def analyze_parameter_sensitivity(
     """
     logging.info("Starting parameter sensitivity analysis")
     try:
-        portfolios = []
-        
-        for short in short_windows:
-            for long in long_windows:
-                if short < long:
-                    try:
-                        temp_data = data.clone()
-                        # Handle data quality
-                        if len(temp_data) < max(short, long):
-                            logging.warning(f"Insufficient data for windows {short}, {long}")
-                            continue
-                            
-                        temp_data = calculate_ma_and_signals(temp_data, short, long, config)
-                        if temp_data is None or len(temp_data) == 0:
-                            logging.warning(f"No signals generated for windows {short}, {long}")
-                            continue
-                            
-                        current = is_signal_current(temp_data)
-                        portfolio = backtest_strategy(temp_data, config)
-
-                        stats = portfolio.stats()
-                        stats['Short Window'] = short
-                        stats['Long Window'] = long
-                        converted_stats = convert_stats(stats)
-                        converted_stats['Current'] = int(current)
-                        portfolios.append(converted_stats)
-                    except Exception as e:
-                        logging.warning(f"Failed to process windows {short}, {long}: {str(e)}")
-                        continue
+        # Analyze all parameter combinations
+        portfolios = analyze_parameter_combinations(data, short_windows, long_windows, config)
 
         if not portfolios:
             logging.warning("No valid portfolios generated")

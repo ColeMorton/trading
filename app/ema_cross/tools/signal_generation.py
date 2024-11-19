@@ -2,56 +2,13 @@ import logging
 import polars as pl
 import numpy as np
 import pandas as pd
-from typing import List, Dict, TypedDict, NotRequired
+from typing import List, Dict
 from app.tools.get_data import get_data
 from app.tools.get_config import get_config
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.utils import save_csv
-
-class Config(TypedDict):
-    """Configuration type definition.
-
-    Required Fields:
-        TICKER (str): Trading symbol
-        WINDOWS (int): Maximum window size to test
-
-    Optional Fields:
-        SHORT (NotRequired[bool]): Whether to use short positions
-        USE_SMA (NotRequired[bool]): Whether to use SMA instead of EMA
-        USE_HOURLY (NotRequired[bool]): Whether to use hourly data
-        USE_YEARS (NotRequired[bool]): Whether to limit data by years
-        YEARS (NotRequired[float]): Number of years of data to use
-        USE_GBM (NotRequired[bool]): Whether to use GBM simulation
-        USE_SYNTHETIC (NotRequired[bool]): Whether to use synthetic data
-        TICKER_1 (NotRequired[str]): First ticker for synthetic pair
-        TICKER_2 (NotRequired[str]): Second ticker for synthetic pair
-        USE_SCANNER (NotRequired[bool]): Whether to use scanner mode
-    """
-    TICKER: str
-    WINDOWS: int
-    SHORT: NotRequired[bool]
-    USE_SMA: NotRequired[bool]
-    USE_HOURLY: NotRequired[bool]
-    USE_YEARS: NotRequired[bool]
-    YEARS: NotRequired[float]
-    USE_GBM: NotRequired[bool]
-    USE_SYNTHETIC: NotRequired[bool]
-    TICKER_1: NotRequired[str]
-    TICKER_2: NotRequired[str]
-    USE_SCANNER: NotRequired[bool]
-
-def is_signal_current(signals: pl.DataFrame) -> bool:
-    """
-    Check if there is a current entry signal.
-    
-    Args:
-        signals: DataFrame containing Signal and Position columns
-    
-    Returns:
-        bool: True if there is a current entry signal, False otherwise
-    """
-    last_row = signals.tail(1)
-    return (last_row.get_column("Signal") == 1).item() and (last_row.get_column("Position") == 0).item()
+from app.ema_cross.tools.signal_types import Config
+from app.ema_cross.tools.signal_utils import is_signal_current, check_signal_match
 
 def get_current_signals(
     data: pl.DataFrame,
@@ -132,31 +89,6 @@ def generate_current_signals(config: Config) -> pl.DataFrame:
     except Exception as e:
         logging.error(f"Failed to generate current signals: {e}")
         return pl.DataFrame()
-
-def check_signal_match(
-    signals: List[Dict],
-    fast_window: int,
-    slow_window: int
-) -> bool:
-    """
-    Check if any signal matches the given window combination.
-
-    Args:
-        signals: List of signal dictionaries containing window information
-        fast_window: Fast window value to match
-        slow_window: Slow window value to match
-
-    Returns:
-        bool: True if a matching signal is found, False otherwise
-    """
-    if not signals:
-        return False
-    
-    return any(
-        signal["Short Window"] == fast_window and 
-        signal["Long Window"] == slow_window
-        for signal in signals
-    )
 
 def process_ma_signals(
     ticker: str,

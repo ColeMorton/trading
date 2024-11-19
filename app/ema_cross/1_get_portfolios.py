@@ -50,7 +50,7 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'HAL',
+    "TICKER": 'BTC-USD',
     "WINDOWS": 5,
     "USE_HOURLY": False,
     "REFRESH": False,

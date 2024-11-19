@@ -1,5 +1,4 @@
 import polars as pl
-import pandas as pd
 import vectorbt as vbt
 import logging
 
