@@ -9,7 +9,7 @@ It processes a single ticker and generates signals based on the most recent data
 import os
 from typing import TypedDict, NotRequired, Callable
 from app.tools.setup_logging import setup_logging
-from app.ema_cross.tools.generate_current_signals import generate_current_signals
+from app.ema_cross.tools.signal_generation import generate_current_signals
 
 class Config(TypedDict):
     """

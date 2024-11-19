@@ -13,9 +13,9 @@ import polars as pl
 from app.tools.get_data import get_data
 from app.tools.get_config import get_config
 from app.tools.setup_logging import setup_logging
-from tools.parameter_sensitivity_analysis import parameter_sensitivity_analysis
+from tools.parameter_sensitivity import analyze_parameter_sensitivity
 from tools.filter_portfolios import filter_portfolios
-from tools.is_file_from_today import is_file_from_today
+from app.tools.file_utils import is_file_from_today
 
 class Config(TypedDict):
     """
@@ -51,9 +51,9 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     "TICKER": 'HAL',
-    "WINDOWS": 89,
+    "WINDOWS": 5,
     "USE_HOURLY": False,
-    "REFRESH": False
+    "REFRESH": False,
 }
 
 def process_single_ticker(
@@ -94,7 +94,7 @@ def process_single_ticker(
     data = get_data(ticker, config_copy)
 
     log(f"Beginning analysis...")
-    return parameter_sensitivity_analysis(data, short_windows, long_windows, config_copy)
+    return analyze_parameter_sensitivity(data, short_windows, long_windows, config_copy)
 
 def run(config: Config = config) -> bool:
     """

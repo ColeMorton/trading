@@ -12,7 +12,7 @@ from typing import Optional, Tuple, Dict, Callable, List
 from app.tools.setup_logging import setup_logging
 from app.tools.get_config import get_config
 from app.ema_cross.tools.process_ma_portfolios import process_ma_portfolios
-from app.ema_cross.tools.convert_stats import convert_stats
+from app.tools.file_utils import convert_stats
 from app.ema_cross.tools.export_portfolios import export_portfolios
 
 def setup_logging_for_summary() -> Tuple[Callable, Callable, Callable, object]:

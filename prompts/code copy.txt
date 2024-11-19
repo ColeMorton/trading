@@ -1,5 +1,7 @@
 Core Development Principles
 
+Files should be no longer than 100 to 200 lines in length.
+
 1. Package Management
 - Use Poetry for dependency management
 

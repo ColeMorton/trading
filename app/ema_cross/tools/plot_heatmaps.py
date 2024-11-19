@@ -5,12 +5,10 @@ import numpy as np
 import polars as pl
 
 from app.utils import get_filename, get_path
-from app.ema_cross.tools.create_full_heatmap import create_full_heatmap
-from app.ema_cross.tools.create_current_heatmap import create_current_heatmap
-from app.ema_cross.tools.get_current_window_combinations import get_current_window_combinations
+from app.ema_cross.tools.create_heatmaps import create_full_heatmap, create_current_heatmap
+from app.tools.file_utils import get_current_window_combinations, is_file_from_today
 from app.ema_cross.tools.prepare_price_data import prepare_price_data
-from app.ema_cross.tools.generate_current_signals import generate_current_signals
-from app.ema_cross.tools.is_file_from_today import is_file_from_today
+from app.ema_cross.tools.signal_generation import generate_current_signals
 
 def plot_heatmap(results_pl: pl.DataFrame, config: Dict) -> None:
     """

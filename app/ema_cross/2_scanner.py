@@ -12,8 +12,8 @@ from typing import TypedDict, NotRequired, Callable, Tuple, List, Dict
 from app.tools.setup_logging import setup_logging
 from app.tools.get_config import get_config
 from app.utils import get_path, get_filename
-from app.ema_cross.tools.process_ma_signals import process_ma_signals
-from app.ema_cross.tools.is_file_from_today import is_file_from_today
+from app.ema_cross.tools.signal_generation import process_ma_signals
+from app.tools.file_utils import is_file_from_today
 
 class Config(TypedDict):
     """
@@ -51,7 +51,7 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     "WINDOWS": 89,
-    "SCANNER_LIST": 'DAILY.csv'
+    "SCANNER_LIST": 'DAILY copy.csv'
 }
 
 def setup_logging_for_scanner() -> Tuple[Callable, Callable, Callable, object]:

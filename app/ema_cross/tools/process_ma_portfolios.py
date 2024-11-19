@@ -3,7 +3,6 @@ from app.tools.get_data import get_data
 from app.tools.setup_logging import setup_logging
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.ema_cross.tools.backtest_strategy import backtest_strategy
-from app.ema_cross.tools.convert_stats import convert_stats
 from typing import Optional, Tuple
 import os
 
