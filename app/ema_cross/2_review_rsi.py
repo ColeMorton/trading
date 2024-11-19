@@ -1,35 +1,44 @@
+"""
+RSI Analysis Module for EMA Cross Strategy
+
+This module performs sensitivity analysis on RSI (Relative Strength Index) parameters
+in combination with EMA cross signals. It analyzes how different RSI thresholds affect
+strategy performance metrics including returns, win rate, and expectancy.
+"""
+
+import os
 import polars as pl
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import List, Tuple
-import json
-import logging
-import os
-from typing import TypedDict, NotRequired
+from typing import List, Tuple, TypedDict, NotRequired, Callable
+from app.tools.setup_logging import setup_logging
 from app.tools.get_data import get_data
 from app.tools.get_config import get_config
 from app.utils import find_prominent_peaks, add_peak_labels
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.calculate_rsi import calculate_rsi
-from app.geometric_brownian_motion.get_median import get_median
-
-# Ensure the logs directory exists
-os.makedirs('logs', exist_ok=True)
-
-# Set up logging to overwrite the file each time
-logging.basicConfig(
-    filename='logs/ema_rsi.log',
-    filemode='w',  # 'w' mode overwrites the file
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-
-logging.info("RSI Threshold Sensitivity Analysis - New Execution")
-
-with open('config.json') as f:
-    config = json.load(f)
 
 class Config(TypedDict):
+    """
+    Configuration type definition for RSI analysis.
+
+    Required Fields:
+        TICKER (str): Ticker symbol to analyze
+        SHORT_WINDOW (int): Period for short moving average
+        LONG_WINDOW (int): Period for long moving average
+        RSI_PERIOD (int): Period for RSI calculation
+
+    Optional Fields:
+        SHORT (NotRequired[bool]): Whether to enable short positions
+        USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average instead of EMA
+        USE_HOURLY (NotRequired[bool]): Whether to use hourly data
+        USE_YEARS (NotRequired[bool]): Whether to limit data by years
+        YEARS (NotRequired[float]): Number of years of data to use
+        USE_GBM (NotRequired[bool]): Whether to use Geometric Brownian Motion
+        USE_SYNTHETIC (NotRequired[bool]): Whether to create synthetic pairs
+        TICKER_1 (NotRequired[str]): First ticker for synthetic pairs
+        TICKER_2 (NotRequired[str]): Second ticker for synthetic pairs
+    """
     TICKER: str
     SHORT_WINDOW: int
     LONG_WINDOW: int
@@ -46,9 +55,9 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'CB',
-    "SHORT_WINDOW": 9,
-    "LONG_WINDOW": 66,
+    "TICKER": 'EQR',
+    "SHORT_WINDOW": 33,
+    "LONG_WINDOW": 42,
     "RSI_PERIOD": 14,
     "USE_HOURLY": False,
     "USE_SMA": False,
@@ -56,8 +65,32 @@ config: Config = {
     "RSI_THRESHOLD": 58
 }
 
+def setup_logging_for_rsi() -> Tuple[Callable, Callable, Callable, object]:
+    """
+    Set up logging configuration for RSI analysis.
+
+    Returns:
+        Tuple[Callable, Callable, Callable, object]: Tuple containing:
+            - log function
+            - log_close function
+            - logger object
+            - file handler object
+    """
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+    log_dir = os.path.join(project_root, 'logs', 'ma_cross')
+    return setup_logging('ma_cross', log_dir, '2_review_rsi.log')
+
 def backtest(data: pl.DataFrame, rsi_threshold: float) -> List[Tuple[float, float]]:
-    logging.info(f"Running backtest with RSI threshold: {rsi_threshold}")
+    """
+    Run backtest with RSI threshold filtering.
+
+    Args:
+        data (pl.DataFrame): Price and indicator data
+        rsi_threshold (float): RSI threshold for entry signals
+
+    Returns:
+        List[Tuple[float, float]]: List of entry/exit price pairs for trades
+    """
     position, entry_price = 0, 0
     trades = []
     for i in range(1, len(data)):
@@ -65,7 +98,6 @@ def backtest(data: pl.DataFrame, rsi_threshold: float) -> List[Tuple[float, floa
         ema_fast_curr, ema_slow_curr = data['MA_FAST'][i], data['MA_SLOW'][i]
         rsi_curr = data['RSI'][i]
         
-        # Skip this iteration if any of the required values are None
         if any(v is None for v in [ema_fast_prev, ema_slow_prev, ema_fast_curr, ema_slow_curr, rsi_curr]):
             continue
         
@@ -74,19 +106,28 @@ def backtest(data: pl.DataFrame, rsi_threshold: float) -> List[Tuple[float, floa
                 ema_fast_prev <= ema_slow_prev and
                 rsi_curr >= rsi_threshold):
                 position, entry_price = 1, data['Close'][i]
-                logging.info(f"Entered long position at price: {entry_price}, RSI: {rsi_curr}")
         elif position == 1:
             if (ema_fast_curr < ema_slow_curr and
                 ema_fast_prev >= ema_slow_prev):
                 position, exit_price = 0, data['Close'][i]
                 trades.append((entry_price, exit_price))
-                logging.info(f"Exited long position at price: {exit_price}, RSI: {rsi_curr}")
     
-    logging.info(f"Total trades: {len(trades)}")
     return trades
 
 def calculate_metrics(trades: List[Tuple[float, float]]) -> Tuple[float, float, float, int]:
-    logging.info("Starting metrics calculation")
+    """
+    Calculate performance metrics from trades.
+
+    Args:
+        trades (List[Tuple[float, float]]): List of entry/exit price pairs
+
+    Returns:
+        Tuple[float, float, float, int]: Tuple containing:
+            - Total return percentage
+            - Win rate percentage
+            - Expectancy
+            - Number of positions
+    """
     if not trades:
         return 0, 0, 0, 0
     returns = [(exit_price / entry_price - 1) for entry_price, exit_price in trades]
@@ -99,11 +140,19 @@ def calculate_metrics(trades: List[Tuple[float, float]]) -> Tuple[float, float, 
     
     num_positions = len(trades)
     
-    logging.info(f"Metrics - Total Return: {total_return * 100}%, Win Rate: {win_rate * 100}%, Expectancy: {expectancy}, Number of Positions: {num_positions}")
     return total_return * 100, win_rate * 100, expectancy, num_positions
 
 def run_sensitivity_analysis(data: pl.DataFrame, rsi_range: np.ndarray) -> pl.DataFrame:
-    logging.info("Starting sensitivity analysis")
+    """
+    Run sensitivity analysis across RSI thresholds.
+
+    Args:
+        data (pl.DataFrame): Price and indicator data
+        rsi_range (np.ndarray): Array of RSI thresholds to test
+
+    Returns:
+        pl.DataFrame: Results of sensitivity analysis with metrics for each threshold
+    """
     results = []
     for rsi_threshold in rsi_range:
         trades = backtest(data, rsi_threshold)
@@ -117,8 +166,15 @@ def run_sensitivity_analysis(data: pl.DataFrame, rsi_range: np.ndarray) -> pl.Da
         })
     return pl.DataFrame(results)
 
-def plot_results(ticker: str, results_df: pl.DataFrame):
-    logging.info("Plotting results")
+def plot_results(ticker: str, results_df: pl.DataFrame, log: Callable) -> None:
+    """
+    Plot sensitivity analysis results.
+
+    Args:
+        ticker (str): Ticker symbol
+        results_df (pl.DataFrame): Results dataframe
+        log (Callable): Logging function
+    """
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 16), sharex=True)
     
     # Plot returns and win rate
@@ -150,50 +206,84 @@ def plot_results(ticker: str, results_df: pl.DataFrame):
     
     ax2.set_title(f'Expectancy and Number of Positions vs RSI Threshold: {ticker}')
     
-    # Add peak labels for all plots
-    add_peak_labels(ax1, results_df['RSI Threshold'].to_numpy(), results_df['Total Return'].to_numpy(), 
-                    find_prominent_peaks(results_df['RSI Threshold'].to_numpy(), results_df['Total Return'].to_numpy()))
-    add_peak_labels(ax1_twin, results_df['RSI Threshold'].to_numpy(), results_df['Win Rate'].to_numpy(), 
-                    find_prominent_peaks(results_df['RSI Threshold'].to_numpy(), results_df['Win Rate'].to_numpy()))
-    add_peak_labels(ax2, results_df['RSI Threshold'].to_numpy(), results_df['Expectancy'].to_numpy(), 
-                    find_prominent_peaks(results_df['RSI Threshold'].to_numpy(), results_df['Expectancy'].to_numpy()))
-    add_peak_labels(ax2_twin, results_df['RSI Threshold'].to_numpy(), results_df['Number of Positions'].to_numpy(), 
-                    find_prominent_peaks(results_df['RSI Threshold'].to_numpy(), results_df['Number of Positions'].to_numpy()))
+    # Add peak labels
+    for ax, y_col in [(ax1, 'Total Return'), (ax1_twin, 'Win Rate'),
+                      (ax2, 'Expectancy'), (ax2_twin, 'Number of Positions')]:
+        peaks = find_prominent_peaks(
+            results_df['RSI Threshold'].to_numpy(),
+            results_df[y_col].to_numpy()
+        )
+        add_peak_labels(
+            ax,
+            results_df['RSI Threshold'].to_numpy(),
+            results_df[y_col].to_numpy(),
+            peaks
+        )
     
     fig.tight_layout()
 
-    # Save the plot with the correct filename
+    # Save the plot
     plot_filename = f'png/ema_cross/parameter_sensitivity/{ticker}_ema_cross_rsi.png'
     plt.savefig(plot_filename)
-    logging.info(f"Plot saved as {plot_filename}")
+    log(f"Plot saved as {plot_filename}")
     
     plt.show()
 
 def run(config: Config = config) -> bool:
-    logging.info("Starting main execution")
+    """
+    Run RSI threshold sensitivity analysis.
 
-    config = get_config(config)
-    rsi_range = np.arange(29, 79, 1)  # 30 to 80
+    This function:
+    1. Sets up logging
+    2. Prepares data with moving averages and RSI
+    3. Runs sensitivity analysis across RSI thresholds
+    4. Generates and saves visualization plots
 
-    data = get_data(config["TICKER"], config)
-    data = calculate_ma_and_signals(data, config["SHORT_WINDOW"], config["LONG_WINDOW"], config)
-    data = calculate_rsi(data, config["RSI_PERIOD"])
-    
-    # Log some statistics about the data
-    logging.info(f"Data statistics: Close price - Min: {data['Close'].min()}, Max: {data['Close'].max()}, Mean: {data['Close'].mean()}")
-    logging.info(f"RSI statistics: Min: {data['RSI'].min()}, Max: {data['RSI'].max()}, Mean: {data['RSI'].mean()}")
-    
-    results_df = run_sensitivity_analysis(data, rsi_range)
-    
-    pl.Config.set_fmt_str_lengths(20)
-    plot_results(config["TICKER"], results_df)
-    logging.info("Main execution completed")
+    Args:
+        config (Config): Configuration dictionary containing strategy parameters
 
-    return True
+    Returns:
+        bool: True if analysis successful, raises exception otherwise
+
+    Raises:
+        Exception: If analysis fails
+    """
+    log, log_close, _, _ = setup_logging_for_rsi()
+    
+    try:
+        config = get_config(config)
+        log(f"Starting RSI analysis for {config['TICKER']}")
+        
+        rsi_range = np.arange(29, 79, 1)  # 30 to 80
+        log(f"Using RSI range: {rsi_range[0]} to {rsi_range[-1]}")
+
+        data = get_data(config["TICKER"], config)
+        data = calculate_ma_and_signals(data, config["SHORT_WINDOW"], config["LONG_WINDOW"], config)
+        data = calculate_rsi(data, config["RSI_PERIOD"])
+        
+        log(f"Data statistics: Close price - Min: {data['Close'].min()}, Max: {data['Close'].max()}, Mean: {data['Close'].mean()}")
+        log(f"RSI statistics: Min: {data['RSI'].min()}, Max: {data['RSI'].max()}, Mean: {data['RSI'].mean()}")
+        
+        results_df = run_sensitivity_analysis(data, rsi_range)
+        log("Sensitivity analysis completed")
+        
+        pl.Config.set_fmt_str_lengths(20)
+        plot_results(config["TICKER"], results_df, log)
+        log("Results plotted successfully")
+        
+        log_close()
+        return True
+        
+    except Exception as e:
+        log(f"Execution failed: {str(e)}", "error")
+        log_close()
+        raise
 
 if __name__ == "__main__":
     try:
-        run()
+        result = run()
+        if result:
+            print("Execution completed successfully!")
     except Exception as e:
-        logging.error(f"Execution failed: {e}")
+        print(f"Execution failed: {str(e)}")
         raise

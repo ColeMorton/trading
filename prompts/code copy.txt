@@ -1,15 +1,13 @@
-# Custom Instructions for Trading Project
-
-## Core Development Principles
+Core Development Principles
 
 1. Package Management
 - Use Poetry for dependency management
-- Maintain consistent package versions across the project
 
 2. Data Processing
 - Use Polars as the primary data processing library
 - Avoid mixing Pandas and Polars in the same module
 - Leverage Polars' optimized operations for large datasets
+- vectorbt requires Polars to be converted first to Pandas
 
 3. Type System
 - Use TypedDict for configuration objects
@@ -40,17 +38,6 @@ except Exception as e:
 5. Code Organization
 - Group related functionality in the tools/ directory
 - Use clear module naming that reflects purpose
-- Follow this file structure pattern:
-```
-module_name/
-    __init__.py
-    config.py
-    main.py
-    tools/
-        specific_tool1.py
-        specific_tool2.py
-    logs/
-```
 
 6. Documentation
 - Add docstrings to all functions following this format:
@@ -97,7 +84,6 @@ class Config(TypedDict):
 
 9. Analysis Tools
 - Use vectorbt for backtesting
-- Implement parameter sensitivity analysis
 - Include visualization of results
 - Save plots with consistent naming
 
@@ -105,11 +91,6 @@ class Config(TypedDict):
 - Place reusable functions in app/tools/
 - Keep utility functions focused and well-documented
 - Use type hints and docstrings consistently
-
-11. Testing
-- Add unit tests for critical functions
-- Include test data fixtures
-- Test edge cases and error conditions
 
 12. Performance
 - Use Polars' optimized operations
@@ -133,5 +114,3 @@ class Config(TypedDict):
 - Use consistent naming conventions
 - Keep functions focused and manageable
 - Add comments for complex logic
-
-These instructions are derived from and aligned with the existing codebase in app/ema_cross/, ensuring consistency and maintainability across the project.
