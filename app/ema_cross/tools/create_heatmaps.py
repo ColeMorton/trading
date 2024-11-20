@@ -14,6 +14,7 @@ def create_heatmap_figure(
 ) -> go.Figure:
     """
     Create a vectorbt heatmap figure with consistent styling.
+    Makes the heatmap symmetrical by mirroring values across the diagonal.
 
     Args:
         returns: Series of returns
@@ -23,28 +24,36 @@ def create_heatmap_figure(
     Returns:
         Plotly figure object
     """
-    # Use vectorbt's heatmap with symmetric=True
-    fig = returns.vbt.heatmap(
-        x_level='fast_window',
-        y_level='slow_window',
-        symmetric=True,
-        trace_kwargs=dict(
-            colorbar=dict(
-                title='Total Return',
-                tickformat='%'
-            )
-        )
-    )
+    # Create a blank heatmap matrix
+    max_window = max(windows)
+    heatmap = np.full((max_window + 1, max_window + 1), np.nan)
+    
+    # Fill in values and mirror them for symmetry
+    for (slow, fast), value in returns.items():
+        heatmap[slow, fast] = value
+        # Mirror the same value across diagonal (if not on diagonal)
+        if slow != fast:
+            heatmap[fast, slow] = value  # Mirror the same value
+    
+    # Create the heatmap using plotly
+    fig = go.Figure(data=go.Heatmap(
+        z=heatmap,
+        x=np.arange(max_window + 1),
+        y=np.arange(max_window + 1),
+        colorbar=dict(title='Total Return', tickformat='%'),
+        zmid=0,  # Center the color scale at 0
+        colorscale='plasma'
+    ))
     
     # Update layout
     fig.update_layout(
-        xaxis_title='Short Window',
-        yaxis_title='Long Window',
         title=dict(
             text=f'Moving Average Cross Strategy Returns<br><sup>{subtitle}</sup>',
             x=0.5,
             xanchor='center'
-        )
+        ),
+        xaxis_title='Short Window',
+        yaxis_title='Long Window'
     )
     
     return fig
@@ -69,12 +78,22 @@ def create_current_heatmap(
     Returns:
         Plotly figure object containing the heatmap
     """
-    # Extract windows ensuring correct order (fast_window, slow_window)
+    # Ensure window_combs is a list of tuples
+    if isinstance(window_combs, set):
+        window_combs = list(window_combs)
+    
+    # Extract windows maintaining exact combinations
     fast_windows = []
     slow_windows = []
-    for comb in window_combs:
-        fast_windows.append(min(comb))  # Short window is always smaller
-        slow_windows.append(max(comb))  # Long window is always larger
+    for short, long in window_combs:
+        # Only include combinations where both windows are in the valid range
+        if short in windows and long in windows and short < long:
+            fast_windows.append(short)
+            slow_windows.append(long)
+    
+    # Only proceed if we have valid combinations
+    if not fast_windows or not slow_windows:
+        raise ValueError("No valid window combinations found")
     
     returns = calculate_returns(price_data, fast_windows, slow_windows, use_ewm, freq)
     return create_heatmap_figure(returns, windows, "Current Signals Only")

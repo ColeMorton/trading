@@ -4,7 +4,7 @@ from typing import Dict, Tuple
 def calculate_ma_signals(data: pl.DataFrame, config: Dict) -> Tuple[pl.Series, pl.Series]:
     """
     Generate entry and exit signals based on the strategy configuration.
-    Checks for crossovers on the most recent trading day.
+    A signal is generated when the fast MA is above/below the slow MA on the last trading day.
 
     Args:
         data (pl.DataFrame): The input DataFrame containing MA_FAST and MA_SLOW columns
@@ -15,29 +15,22 @@ def calculate_ma_signals(data: pl.DataFrame, config: Dict) -> Tuple[pl.Series, p
     """
     use_rsi = config.get('USE_RSI', False)
 
-    # Get the previous trading day's values
-    # shift(1) will give us the last trading day since yfinance only returns trading days
-    ma_fast_prev = pl.col('MA_FAST').shift(1)
-    ma_slow_prev = pl.col('MA_SLOW').shift(1)
-    
-    # Get the trading day before that to detect crossover
-    ma_fast_prev2 = pl.col('MA_FAST').shift(2)
-    ma_slow_prev2 = pl.col('MA_SLOW').shift(2)
+    # Get the last trading day's values
+    ma_fast = pl.col('MA_FAST')
+    ma_slow = pl.col('MA_SLOW')
 
     if config.get('SHORT', False):
-        # For short positions, check if fast MA crossed below slow MA on the last trading day
-        # This means: fast > slow two days ago, and fast < slow on the last trading day
-        entries = (ma_fast_prev2 > ma_slow_prev2) & (ma_fast_prev < ma_slow_prev)
+        # For short positions, check if fast MA is below slow MA on the last trading day
+        entries = ma_fast < ma_slow
         if use_rsi:
             entries = entries & (pl.col('RSI') <= (100 - config.get('RSI_THRESHOLD', 70)))
-        exits = (ma_fast_prev2 < ma_slow_prev2) & (ma_fast_prev > ma_slow_prev)
+        exits = ma_fast > ma_slow
     else:
-        # For long positions, check if fast MA crossed above slow MA on the last trading day
-        # This means: fast < slow two days ago, and fast > slow on the last trading day
-        entries = (ma_fast_prev2 < ma_slow_prev2) & (ma_fast_prev > ma_slow_prev)
+        # For long positions, check if fast MA is above slow MA on the last trading day
+        entries = ma_fast > ma_slow
         if use_rsi:
             entries = entries & (pl.col('RSI') >= config.get('RSI_THRESHOLD', 70))
-        exits = (ma_fast_prev2 > ma_slow_prev2) & (ma_fast_prev < ma_slow_prev)
+        exits = ma_fast < ma_slow
     
     # Apply conditions to DataFrame
     result = data.with_columns([

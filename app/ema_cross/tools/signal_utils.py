@@ -24,13 +24,15 @@ def get_last_trading_day(today: date = date.today()) -> date:
 
 def is_signal_current(signals: pl.DataFrame) -> bool:
     """
-    Check if there is an entry signal that occurred on the last trading day.
+    Check if there is a valid signal on the last trading day.
+    A valid signal is when the fast MA is above the slow MA (for longs)
+    or below the slow MA (for shorts) on the last trading day.
     
     Args:
-        signals: DataFrame containing Signal, Position and Date/Datetime columns
+        signals: DataFrame containing Signal, Position, MA_FAST, MA_SLOW and Date/Datetime columns
     
     Returns:
-        bool: True if there is an entry signal from the last trading day, False otherwise
+        bool: True if there is a valid signal from the last trading day, False otherwise
     """
     last_row = signals.tail(1)
     
@@ -51,7 +53,7 @@ def is_signal_current(signals: pl.DataFrame) -> bool:
     # Get the last trading day
     last_trading_day = get_last_trading_day()
     
-    # Check if signal is specifically from the last trading day and is a valid entry signal
+    # Check if we're on the last trading day and have a valid entry signal
     return (
         last_date == last_trading_day and
         signal == 1 and 

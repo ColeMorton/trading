@@ -96,12 +96,23 @@ def validate_window_combinations(
         print(f"No valid window combinations found for {config['TICKER']}")
         sys.exit(0)
 
-    valid_combs = [(short, long) for short, long in window_combs 
-                   if short in windows and long in windows]
+    # Convert window_combs to a list of tuples if it's not already
+    if isinstance(window_combs, set):
+        window_combs = list(window_combs)
+
+    # Ensure each combination is valid and within the windows range
+    valid_combs = []
+    for short, long in window_combs:
+        if short in windows and long in windows and short < long:
+            valid_combs.append((short, long))
     
     if not valid_combs:
         logging.warning(f"No valid window combinations found for {config['TICKER']}")
         print(f"No valid window combinations found for {config['TICKER']}")
         sys.exit(0)
+
+    # Update the window_combs in place with only valid combinations
+    window_combs.clear()
+    window_combs.extend(valid_combs)
         
     return True

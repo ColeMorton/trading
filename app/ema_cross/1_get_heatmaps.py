@@ -60,7 +60,8 @@ config: Config = {
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "USE_SYNTHETIC": False,
-    "REFRESH": False  # Default to not forcing signal regeneration
+    "REFRESH": True,  # Default to not forcing signal regeneration
+    "BASE_DIR": "."  # Set base directory to current directory
 }
 
 def setup_logging_for_heatmaps() -> Tuple[Callable, Callable, Callable, object]:

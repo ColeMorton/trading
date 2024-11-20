@@ -26,8 +26,9 @@ def calculate_returns(
     returns_list = []
     indices = []
     
+    # Process each window combination individually
     for fast, slow in zip(fast_windows, slow_windows):
-        # Calculate MAs
+        # Calculate MAs for this specific combination
         fast_ma = vbt.MA.run(
             price_data,
             window=fast,
@@ -41,23 +42,32 @@ def calculate_returns(
             short_name='slow'
         )
         
-        # Generate signals
+        # Generate signals for this combination
         entries = fast_ma.ma_crossed_above(slow_ma)
         exits = fast_ma.ma_crossed_below(slow_ma)
         
-        # Calculate portfolio returns
-        pf_kwargs = dict(size=np.inf, fees=0.001, freq=freq)
-        pf = vbt.Portfolio.from_signals(price_data, entries, exits, **pf_kwargs)
+        # Calculate portfolio returns for this combination
+        pf = vbt.Portfolio.from_signals(
+            price_data,
+            entries,
+            exits,
+            size=np.inf,
+            fees=0.001,
+            freq=freq
+        )
         
-        # Store results - handle Series properly
+        # Store results
         total_return = pf.total_return()
         if isinstance(total_return, pd.Series):
             returns_list.append(float(total_return.iloc[0]))
         else:
             returns_list.append(float(total_return))
-        indices.append((slow, fast))
+        indices.append((slow, fast))  # Keep original order (slow, fast)
     
     # Create Series with proper index
+    if not returns_list:
+        return pd.Series(dtype=float)
+    
     return pd.Series(
         returns_list,
         index=pd.MultiIndex.from_tuples(
@@ -84,28 +94,13 @@ def calculate_full_returns(
     Returns:
         Series of returns for all window combinations
     """
-    fast_ma, slow_ma = vbt.MA.run_combs(
-        price_data,
-        window=windows,
-        r=2,
-        short_names=['fast', 'slow'],
-        ewm=use_ewm
-    )
+    # Generate all valid combinations where fast < slow
+    fast_windows = []
+    slow_windows = []
+    for fast in windows:
+        for slow in windows:
+            if fast < slow:
+                fast_windows.append(fast)
+                slow_windows.append(slow)
     
-    entries = fast_ma.ma_crossed_above(slow_ma)
-    exits = fast_ma.ma_crossed_below(slow_ma)
-
-    pf_kwargs = dict(size=np.inf, fees=0.001, freq=freq)
-    pf = vbt.Portfolio.from_signals(price_data, entries, exits, **pf_kwargs)
-    
-    returns = pf.total_return()
-    # Handle Series properly
-    if isinstance(returns, pd.Series):
-        returns = returns.apply(lambda x: float(x) if isinstance(x, pd.Series) else float(x))
-    
-    returns.index = pd.MultiIndex.from_tuples(
-        [(idx[2], idx[0]) for idx in returns.index],
-        names=['slow_window', 'fast_window']
-    )
-    
-    return returns
+    return calculate_returns(price_data, fast_windows, slow_windows, use_ewm, freq)
