@@ -3,6 +3,7 @@ from typing import Dict, Optional, Tuple
 import polars as pl
 import pandas as pd
 import os
+import sys
 
 from app.tools.file_utils import get_current_window_combinations, is_file_from_today
 from app.ema_cross.tools.prepare_price_data import prepare_price_data
@@ -24,6 +25,9 @@ def prepare_heatmap_data(
         - price_data: Pandas DataFrame prepared for vectorbt
         - window_combs: List of window combinations (for current signals)
         - use_ewm: Boolean indicating whether to use EMA
+
+    Exits:
+        If USE_CURRENT is True and no signals are found for today
     """
     try:
         price_data = prepare_price_data(results_pl, config["TICKER"])
@@ -55,9 +59,12 @@ def prepare_heatmap_data(
             # Get window combinations from the file
             window_combs = get_current_window_combinations(filepath)
             
+            # Exit if no signals found
             if window_combs is None or len(window_combs) == 0:
-                logging.info(f"No valid signals found, falling back to full heatmap for {config['TICKER']}")
-                config["USE_CURRENT"] = False
+                message = f"No signals found for {config['TICKER']} {'SMA' if config['USE_SMA'] else 'EMA'}"
+                logging.info(message)
+                print(message)
+                sys.exit(0)
 
         return price_data, window_combs, use_ewm
 
@@ -80,16 +87,21 @@ def validate_window_combinations(
 
     Returns:
         bool: True if combinations are valid, False otherwise
+
+    Exits:
+        If no valid window combinations are found
     """
     if window_combs is None or len(window_combs) == 0:
-        return False
+        logging.info(f"No valid window combinations found for {config['TICKER']}")
+        print(f"No valid window combinations found for {config['TICKER']}")
+        sys.exit(0)
 
     valid_combs = [(short, long) for short, long in window_combs 
                    if short in windows and long in windows]
     
     if not valid_combs:
         logging.warning(f"No valid window combinations found for {config['TICKER']}")
-        config["USE_CURRENT"] = False
-        return False
+        print(f"No valid window combinations found for {config['TICKER']}")
+        sys.exit(0)
         
     return True

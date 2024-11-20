@@ -45,7 +45,7 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     "USE_SMA": True,
-    "TICKER": 'BTC-USD',
+    "TICKER": 'NRG',
     "WINDOWS": 89,
     "USE_HOURLY": False
 }
