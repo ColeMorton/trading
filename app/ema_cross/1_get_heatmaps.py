@@ -54,7 +54,7 @@ class Config(TypedDict):
 config: Config = {
     "USE_CURRENT": True,
     "USE_SMA": True,
-    "TICKER": 'NRG',
+    "TICKER": 'CME',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,

@@ -33,7 +33,7 @@ def get_current_signals(
         
         for short in short_windows:
             for long in long_windows:
-                if short < long:
+                if short < long:  # Ensure short window is always less than long window
                     temp_data = data.clone()
                     temp_data = calculate_ma_and_signals(temp_data, short, long, config)
                     
@@ -82,9 +82,9 @@ def generate_current_signals(config: Config) -> pl.DataFrame:
     try:
         config = get_config(config)
 
-        # Create distinct integer values for windows
+        # Create distinct integer values for windows starting at 2 for both ranges
         short_windows = np.arange(2, config["WINDOWS"])
-        long_windows = np.arange(3, config["WINDOWS"])
+        long_windows = np.arange(2, config["WINDOWS"])
 
         data = get_data(config["TICKER"], config)
         if data is None:

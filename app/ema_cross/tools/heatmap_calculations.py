@@ -49,8 +49,12 @@ def calculate_returns(
         pf_kwargs = dict(size=np.inf, fees=0.001, freq=freq)
         pf = vbt.Portfolio.from_signals(price_data, entries, exits, **pf_kwargs)
         
-        # Store results
-        returns_list.append(pf.total_return())
+        # Store results - handle Series properly
+        total_return = pf.total_return()
+        if isinstance(total_return, pd.Series):
+            returns_list.append(float(total_return.iloc[0]))
+        else:
+            returns_list.append(float(total_return))
         indices.append((slow, fast))
     
     # Create Series with proper index
@@ -95,6 +99,10 @@ def calculate_full_returns(
     pf = vbt.Portfolio.from_signals(price_data, entries, exits, **pf_kwargs)
     
     returns = pf.total_return()
+    # Handle Series properly
+    if isinstance(returns, pd.Series):
+        returns = returns.apply(lambda x: float(x) if isinstance(x, pd.Series) else float(x))
+    
     returns.index = pd.MultiIndex.from_tuples(
         [(idx[2], idx[0]) for idx in returns.index],
         names=['slow_window', 'fast_window']

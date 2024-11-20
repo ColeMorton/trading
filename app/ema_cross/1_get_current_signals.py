@@ -46,7 +46,7 @@ class Config(TypedDict):
 config: Config = {
     "USE_SMA": True,
     "TICKER": 'NRG',
-    "WINDOWS": 89,
+    "WINDOWS": 10,
     "USE_HOURLY": False
 }
 

@@ -1,16 +1,36 @@
 import polars as pl
 from typing import List, Dict
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
+
+def get_last_trading_day(today: date = date.today()) -> date:
+    """
+    Get the last trading day before the given date.
+    
+    Args:
+        today: The reference date to find the last trading day from
+    
+    Returns:
+        date: The last trading day
+    """
+    # If today is Monday, last trading day was Friday
+    if today.weekday() == 0:  # Monday
+        return today - timedelta(days=3)
+    # If today is Sunday, last trading day was Friday
+    elif today.weekday() == 6:  # Sunday
+        return today - timedelta(days=2)
+    # Otherwise, last trading day was yesterday
+    else:
+        return today - timedelta(days=1)
 
 def is_signal_current(signals: pl.DataFrame) -> bool:
     """
-    Check if there is a current entry signal that occurred TODAY.
+    Check if there is an entry signal that occurred on the last trading day.
     
     Args:
         signals: DataFrame containing Signal, Position and Date/Datetime columns
     
     Returns:
-        bool: True if there is a current entry signal from today, False otherwise
+        bool: True if there is an entry signal from the last trading day, False otherwise
     """
     last_row = signals.tail(1)
     
@@ -24,11 +44,18 @@ def is_signal_current(signals: pl.DataFrame) -> bool:
     elif isinstance(last_date, str):
         last_date = datetime.strptime(last_date, "%Y-%m-%d").date()
     
-    # Check if signal is from today and is a valid entry signal
+    # Get signal and position from last row
+    signal = last_row.get_column("Signal").item()
+    position = last_row.get_column("Position").item()
+    
+    # Get the last trading day
+    last_trading_day = get_last_trading_day()
+    
+    # Check if signal is specifically from the last trading day and is a valid entry signal
     return (
-        last_date == date.today() and
-        (last_row.get_column("Signal") == 1).item() and 
-        (last_row.get_column("Position") == 0).item()
+        last_date == last_trading_day and
+        signal == 1 and 
+        position == 0
     )
 
 def check_signal_match(
