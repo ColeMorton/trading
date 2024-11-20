@@ -71,14 +71,37 @@ def get_current_window_combinations(filepath: str) -> set:
         return set()
 
     try:
-        import polars as pl
-        current_signals = pl.read_csv(filepath)
-        if current_signals.height == 0:
+        # Read the file content
+        with open(filepath, 'r') as f:
+            lines = f.readlines()
+        
+        if len(lines) <= 1:  # Only header or empty
             return set()
-
-        return set(zip(
-            current_signals.get_column('Short Window').cast(pl.Int32).to_list(),
-            current_signals.get_column('Long Window').cast(pl.Int32).to_list()
-        ))
+        
+        # Process header to find column positions
+        header = lines[0].strip()
+        if 'Short Window' in header and 'Long Window' in header:
+            # Standard CSV format
+            import polars as pl
+            current_signals = pl.read_csv(filepath)
+            return set(zip(
+                current_signals.get_column('Short Window').cast(pl.Int32).to_list(),
+                current_signals.get_column('Long Window').cast(pl.Int32).to_list()
+            ))
+        else:
+            # Malformed CSV - try to parse as space-separated values
+            window_combs = set()
+            for line in lines[1:]:  # Skip header
+                try:
+                    # Split on any whitespace and convert to integers
+                    windows = [int(w) for w in line.strip().split()]
+                    if len(windows) == 2:
+                        short_window, long_window = windows
+                        window_combs.add((short_window, long_window))
+                except (ValueError, IndexError):
+                    continue
+            return window_combs
+            
     except Exception as e:
+        print(f"Error reading window combinations: {str(e)}")
         return set()

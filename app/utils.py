@@ -112,7 +112,28 @@ def get_path(type: str, feature1: str, config: dict, feature2: str = "") -> str:
     return path
 
 def save_csv(data: pl.DataFrame, feature1: str, config: dict, feature2: str = "") -> None:
-    csv_path = get_path("csv", feature1, config, feature2)
-    csv_filename = get_filename("csv", config)
-    data.write_csv(csv_path + "/" + csv_filename)
-    print(f"{len(data)} rows exported to {csv_path}.csv")
+    """Save DataFrame to CSV with proper formatting.
+    
+    Args:
+        data: Polars DataFrame to save
+        feature1: First feature directory
+        config: Configuration dictionary
+        feature2: Second feature directory (optional)
+    """
+    try:
+        # Ensure directory exists
+        csv_path = get_path("csv", feature1, config, feature2)
+        os.makedirs(csv_path, exist_ok=True)
+        
+        # Get full file path
+        csv_filename = get_filename("csv", config)
+        full_path = os.path.join(csv_path, csv_filename)
+        
+        # Write CSV with explicit separator and line terminator
+        data.write_csv(full_path, separator=",")
+        
+        print(f"{len(data)} rows exported to {full_path}")
+        
+    except Exception as e:
+        logging.error(f"Failed to save CSV: {e}")
+        raise

@@ -33,6 +33,7 @@ class Config(TypedDict):
         USE_GBM (NotRequired[bool]): Whether to use Geometric Brownian Motion
         USE_SYNTHETIC (NotRequired[bool]): Whether to create synthetic pairs
         BASE_DIR (NotRequired[str]): Base directory for file operations
+        REFRESH (NotRequired[bool]): Whether to force regeneration of signals
     """
     TICKER: str
     WINDOWS: int
@@ -47,17 +48,19 @@ class Config(TypedDict):
     USE_GBM: NotRequired[bool]
     USE_SYNTHETIC: NotRequired[bool]
     BASE_DIR: NotRequired[str]
+    REFRESH: NotRequired[bool]
 
 # Default Configuration
 config: Config = {
-    "USE_CURRENT": False,
-    "USE_SMA": True,
-    "TICKER": 'BTC-USD',
+    "USE_CURRENT": True,
+    "USE_SMA": False,
+    "TICKER": 'EQIX',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,
     "USE_HOURLY": False,
-    "USE_SYNTHETIC": False
+    "USE_SYNTHETIC": False,
+    "REFRESH": False  # Default to not forcing signal regeneration
 }
 
 def setup_logging_for_heatmaps() -> Tuple[Callable, Callable, Callable, object]:
@@ -98,6 +101,7 @@ def run(config: Config = config) -> bool:
             - USE_CURRENT: Whether to emphasize current windows
             - USE_SMA: Whether to use SMA instead of EMA
             - USE_HOURLY: Whether to use hourly data
+            - REFRESH: Whether to force regeneration of signals
             - Other optional parameters
 
     Returns:

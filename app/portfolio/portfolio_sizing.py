@@ -15,7 +15,7 @@ import scipy.stats as st
 # ASSET_1_ALLOCATION = 50 # Target allocation for Asset 1 (as a percentage)
 # VAR_CONFIDENCE_LEVELS = [0.95, 0.99]
 
-TOTAL_PORTFOLIO_VALUE = 10600  # target
+TOTAL_PORTFOLIO_VALUE = 11675  # target
 ASSET_1_TICKER = "BTC-USD"
 ASSET_2_TICKER = "SOL-USD"
 ASSET_1_LEVERAGE = 7.7  # Example leverage factor for Asset 1
@@ -53,7 +53,7 @@ def calculate_var_cvar(returns, confidence_levels=[0.95, 0.99]):
 
 def get_returns(ticker):
     """Fetch historical returns for a given ticker."""
-    data = yf.Ticker(ticker).history(period="1y")  # 1 year of historical data
+    data = yf.Ticker(ticker).history(period="max")
     returns = data['Close'].pct_change().dropna()  # Calculate daily returns
     return returns
 

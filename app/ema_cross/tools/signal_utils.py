@@ -1,18 +1,35 @@
 import polars as pl
 from typing import List, Dict
+from datetime import datetime, date
 
 def is_signal_current(signals: pl.DataFrame) -> bool:
     """
-    Check if there is a current entry signal.
+    Check if there is a current entry signal that occurred TODAY.
     
     Args:
-        signals: DataFrame containing Signal and Position columns
+        signals: DataFrame containing Signal, Position and Date/Datetime columns
     
     Returns:
-        bool: True if there is a current entry signal, False otherwise
+        bool: True if there is a current entry signal from today, False otherwise
     """
     last_row = signals.tail(1)
-    return (last_row.get_column("Signal") == 1).item() and (last_row.get_column("Position") == 0).item()
+    
+    # Get the date from the last row
+    date_col = "Date" if "Date" in signals.columns else "Datetime"
+    last_date = last_row.get_column(date_col).item()
+    
+    # Convert last_date to date object if it's datetime
+    if isinstance(last_date, datetime):
+        last_date = last_date.date()
+    elif isinstance(last_date, str):
+        last_date = datetime.strptime(last_date, "%Y-%m-%d").date()
+    
+    # Check if signal is from today and is a valid entry signal
+    return (
+        last_date == date.today() and
+        (last_row.get_column("Signal") == 1).item() and 
+        (last_row.get_column("Position") == 0).item()
+    )
 
 def check_signal_match(
     signals: List[Dict],

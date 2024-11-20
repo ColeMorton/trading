@@ -41,14 +41,33 @@ def get_current_signals(
                         current = is_signal_current(temp_data)
                         if current:
                             signals.append({
-                                "Short Window": short,
-                                "Long Window": long
+                                "Short Window": int(short),
+                                "Long Window": int(long)
                             })
 
-        return pl.DataFrame(signals)
+        # Create DataFrame with explicit schema
+        if signals:
+            return pl.DataFrame(
+                signals,
+                schema={
+                    "Short Window": pl.Int32,
+                    "Long Window": pl.Int32
+                }
+            )
+        return pl.DataFrame(
+            schema={
+                "Short Window": pl.Int32,
+                "Long Window": pl.Int32
+            }
+        )
     except Exception as e:
         logging.error(f"Failed to get current signals: {e}")
-        return pl.DataFrame()
+        return pl.DataFrame(
+            schema={
+                "Short Window": pl.Int32,
+                "Long Window": pl.Int32
+            }
+        )
 
 def generate_current_signals(config: Config) -> pl.DataFrame:
     """
@@ -70,7 +89,12 @@ def generate_current_signals(config: Config) -> pl.DataFrame:
         data = get_data(config["TICKER"], config)
         if data is None:
             logging.error("Failed to get price data")
-            return pl.DataFrame()
+            return pl.DataFrame(
+                schema={
+                    "Short Window": pl.Int32,
+                    "Long Window": pl.Int32
+                }
+            )
 
         current_signals = get_current_signals(data, short_windows, long_windows, config)
 
@@ -88,7 +112,12 @@ def generate_current_signals(config: Config) -> pl.DataFrame:
 
     except Exception as e:
         logging.error(f"Failed to generate current signals: {e}")
-        return pl.DataFrame()
+        return pl.DataFrame(
+            schema={
+                "Short Window": pl.Int32,
+                "Long Window": pl.Int32
+            }
+        )
 
 def process_ma_signals(
     ticker: str,

@@ -5,8 +5,8 @@ from typing import List, Tuple
 
 def calculate_returns(
     price_data: pd.DataFrame,
-    short_windows: List[int],
-    long_windows: List[int],
+    fast_windows: List[int],
+    slow_windows: List[int],
     use_ewm: bool,
     freq: str = '1D'
 ) -> pd.Series:
@@ -15,24 +15,52 @@ def calculate_returns(
 
     Args:
         price_data: Price data DataFrame (Pandas format required for vectorbt)
-        short_windows: List of short window lengths
-        long_windows: List of long window lengths
+        fast_windows: List of fast (short) window lengths
+        slow_windows: List of slow (long) window lengths
         use_ewm: Whether to use EMA (True) or SMA (False)
         freq: Frequency for portfolio calculation
 
     Returns:
         Series of returns for each window combination
     """
-    fast_ma = vbt.MA.run(price_data, list(short_windows), short_name='fast', ewm=use_ewm)
-    slow_ma = vbt.MA.run(price_data, list(long_windows), short_name='slow', ewm=use_ewm)
-
-    entries = fast_ma.ma_crossed_above(slow_ma)
-    exits = fast_ma.ma_crossed_below(slow_ma)
-
-    pf_kwargs = dict(size=np.inf, fees=0.001, freq=freq)
-    pf = vbt.Portfolio.from_signals(price_data, entries, exits, **pf_kwargs)
+    returns_list = []
+    indices = []
     
-    return pf.total_return()
+    for fast, slow in zip(fast_windows, slow_windows):
+        # Calculate MAs
+        fast_ma = vbt.MA.run(
+            price_data,
+            window=fast,
+            ewm=use_ewm,
+            short_name='fast'
+        )
+        slow_ma = vbt.MA.run(
+            price_data,
+            window=slow,
+            ewm=use_ewm,
+            short_name='slow'
+        )
+        
+        # Generate signals
+        entries = fast_ma.ma_crossed_above(slow_ma)
+        exits = fast_ma.ma_crossed_below(slow_ma)
+        
+        # Calculate portfolio returns
+        pf_kwargs = dict(size=np.inf, fees=0.001, freq=freq)
+        pf = vbt.Portfolio.from_signals(price_data, entries, exits, **pf_kwargs)
+        
+        # Store results
+        returns_list.append(pf.total_return())
+        indices.append((slow, fast))
+    
+    # Create Series with proper index
+    return pd.Series(
+        returns_list,
+        index=pd.MultiIndex.from_tuples(
+            indices,
+            names=['slow_window', 'fast_window']
+        )
+    )
 
 def calculate_full_returns(
     price_data: pd.DataFrame,
@@ -73,30 +101,3 @@ def calculate_full_returns(
     )
     
     return returns
-
-def create_returns_matrix(
-    returns: pd.Series,
-    windows: np.ndarray,
-    window_combs: List[Tuple[int, int]] = None
-) -> np.ndarray:
-    """
-    Create a matrix of returns for heatmap visualization.
-
-    Args:
-        returns: Series of returns from calculate_returns or calculate_full_returns
-        windows: Array of window values
-        window_combs: Optional list of (short, long) window combinations to display
-
-    Returns:
-        2D numpy array containing the returns matrix
-    """
-    if window_combs is not None:
-        matrix = np.full((len(windows), len(windows)), np.nan)
-        for i, (short, long) in enumerate(window_combs):
-            long_idx = np.where(windows == long)[0][0]
-            short_idx = np.where(windows == short)[0][0]
-            matrix[long_idx, short_idx] = returns.iloc[i]
-    else:
-        matrix = returns.unstack().values
-        
-    return matrix

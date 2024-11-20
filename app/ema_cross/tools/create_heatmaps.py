@@ -4,34 +4,40 @@ import plotly.graph_objects as go
 from typing import List, Tuple
 from app.ema_cross.tools.heatmap_calculations import (
     calculate_returns,
-    calculate_full_returns,
-    create_returns_matrix
+    calculate_full_returns
 )
 
 def create_heatmap_figure(
-    matrix: np.ndarray,
+    returns: pd.Series,
     windows: np.ndarray,
     subtitle: str
 ) -> go.Figure:
     """
-    Create a Plotly heatmap figure with consistent styling.
+    Create a vectorbt heatmap figure with consistent styling.
 
     Args:
-        matrix: 2D array of values for the heatmap
+        returns: Series of returns
         windows: Array of window values for axes
         subtitle: Subtitle for the plot
 
     Returns:
         Plotly figure object
     """
-    return go.Figure(data=go.Heatmap(
-        z=matrix,
-        x=windows,
-        y=windows,
-        colorscale='Viridis',
-        colorbar=dict(title='Total Return', tickformat='%'),
-        hoverongaps=False
-    )).update_layout(
+    # Use vectorbt's heatmap with symmetric=True
+    fig = returns.vbt.heatmap(
+        x_level='fast_window',
+        y_level='slow_window',
+        symmetric=True,
+        trace_kwargs=dict(
+            colorbar=dict(
+                title='Total Return',
+                tickformat='%'
+            )
+        )
+    )
+    
+    # Update layout
+    fig.update_layout(
         xaxis_title='Short Window',
         yaxis_title='Long Window',
         title=dict(
@@ -40,6 +46,8 @@ def create_heatmap_figure(
             xanchor='center'
         )
     )
+    
+    return fig
 
 def create_current_heatmap(
     price_data: pd.DataFrame,
@@ -61,10 +69,15 @@ def create_current_heatmap(
     Returns:
         Plotly figure object containing the heatmap
     """
-    short_windows, long_windows = zip(*window_combs)
-    returns = calculate_returns(price_data, short_windows, long_windows, use_ewm, freq)
-    matrix = create_returns_matrix(returns, windows, window_combs)
-    return create_heatmap_figure(matrix, windows, "Current Signals Only")
+    # Extract windows ensuring correct order (fast_window, slow_window)
+    fast_windows = []
+    slow_windows = []
+    for comb in window_combs:
+        fast_windows.append(min(comb))  # Short window is always smaller
+        slow_windows.append(max(comb))  # Long window is always larger
+    
+    returns = calculate_returns(price_data, fast_windows, slow_windows, use_ewm, freq)
+    return create_heatmap_figure(returns, windows, "Current Signals Only")
 
 def create_full_heatmap(
     price_data: pd.DataFrame,
@@ -85,5 +98,4 @@ def create_full_heatmap(
         Plotly figure object containing the heatmap
     """
     returns = calculate_full_returns(price_data, windows, use_ewm, freq)
-    matrix = create_returns_matrix(returns, windows)
-    return create_heatmap_figure(matrix, windows, "All Signals")
+    return create_heatmap_figure(returns, windows, "All Signals")

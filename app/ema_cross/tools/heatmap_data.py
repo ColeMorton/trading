@@ -2,6 +2,7 @@ import logging
 from typing import Dict, Optional, Tuple
 import polars as pl
 import pandas as pd
+import os
 
 from app.tools.file_utils import get_current_window_combinations, is_file_from_today
 from app.ema_cross.tools.prepare_price_data import prepare_price_data
@@ -30,17 +31,32 @@ def prepare_heatmap_data(
         window_combs = None
 
         if config.get("USE_CURRENT", False):
+            # Determine filename and filepath
             filename = f"{config['TICKER']}_D_{'SMA' if config.get('USE_SMA', False) else 'EMA'}.csv"
             filepath = f"csv/ma_cross/current_signals/{filename}"
             
-            if not is_file_from_today(filepath):
-                logging.info(f"Generating new signals for {config['TICKER']}")
+            # Generate new signals if:
+            # 1. REFRESH is True
+            # 2. OR for daily data (not hourly), file is not from today
+            # 3. OR file doesn't exist
+            should_generate = (
+                config.get("REFRESH", False) or
+                (not config.get("USE_HOURLY", False) and not is_file_from_today(filepath)) or
+                not os.path.exists(filepath)
+            )
+            
+            if should_generate:
+                reason = "REFRESH=True" if config.get("REFRESH", False) else \
+                        "daily data needs refresh" if not config.get("USE_HOURLY", False) else \
+                        "file doesn't exist"
+                logging.info(f"Generating new signals for {config['TICKER']} ({reason})")
                 generate_current_signals(config)
             
+            # Get window combinations from the file
             window_combs = get_current_window_combinations(filepath)
             
-            if window_combs is None:
-                logging.info(f"Falling back to full heatmap for {config['TICKER']}")
+            if window_combs is None or len(window_combs) == 0:
+                logging.info(f"No valid signals found, falling back to full heatmap for {config['TICKER']}")
                 config["USE_CURRENT"] = False
 
         return price_data, window_combs, use_ewm
@@ -65,7 +81,7 @@ def validate_window_combinations(
     Returns:
         bool: True if combinations are valid, False otherwise
     """
-    if window_combs is None:
+    if window_combs is None or len(window_combs) == 0:
         return False
 
     valid_combs = [(short, long) for short, long in window_combs 
