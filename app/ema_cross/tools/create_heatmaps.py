@@ -35,11 +35,11 @@ def create_heatmap_figure(
         if slow != fast:
             heatmap[fast, slow] = value  # Mirror the same value
     
-    # Create the heatmap using plotly
+    # Create the heatmap using plotly, starting from index 2
     fig = go.Figure(data=go.Heatmap(
-        z=heatmap,
-        x=np.arange(max_window + 1),
-        y=np.arange(max_window + 1),
+        z=heatmap[2:, 2:],  # Slice the heatmap to start at index 2
+        x=np.arange(2, max_window + 1),  # Start x axis at 2
+        y=np.arange(2, max_window + 1),  # Start y axis at 2
         colorbar=dict(title='Total Return', tickformat='%'),
         zmid=0,  # Center the color scale at 0
         colorscale='plasma'
