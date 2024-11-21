@@ -60,7 +60,7 @@ config: Config = {
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "USE_SYNTHETIC": False,
-    "REFRESH": True,  # Default to not forcing signal regeneration
+    "REFRESH": False,  # Default to not forcing signal regeneration
     "BASE_DIR": "."  # Set base directory to current directory
 }
 

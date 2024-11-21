@@ -35,13 +35,19 @@ def create_heatmap_figure(
         if slow != fast:
             heatmap[fast, slow] = value  # Mirror the same value
     
+    # Get the actual min and max values from the data (excluding NaN)
+    valid_data = heatmap[~np.isnan(heatmap)]
+    zmin = np.min(valid_data)
+    zmax = np.max(valid_data)
+    
     # Create the heatmap using plotly, starting from index 2
     fig = go.Figure(data=go.Heatmap(
         z=heatmap[2:, 2:],  # Slice the heatmap to start at index 2
         x=np.arange(2, max_window + 1),  # Start x axis at 2
         y=np.arange(2, max_window + 1),  # Start y axis at 2
         colorbar=dict(title='Total Return', tickformat='%'),
-        zmid=0,  # Center the color scale at 0
+        zmin=zmin,  # Set minimum value from data
+        zmax=zmax,  # Set maximum value from data
         colorscale='plasma'
     ))
     
