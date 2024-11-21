@@ -47,11 +47,10 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": ['BTC-USD', 'ETH-USD'],
-    "WINDOWS": 5,
-    "USE_HOURLY": False,
-    "REFRESH": True,
-    "USE_SMA": False
+    "TICKER": 'SOL-USD',
+    "WINDOWS": 89,
+    "USE_HOURLY": True,
+    "REFRESH": True
 }
 
 def run(config: Config = config) -> bool:
@@ -109,18 +108,13 @@ if __name__ == "__main__":
     try:
         config_copy = config.copy()
         
-        # Check if USE_SMA exists in config
-        if "USE_SMA" not in config_copy:
-            # Run with USE_SMA = False
-            config_copy["USE_SMA"] = False
-            run(config_copy)
-            
-            # Run with USE_SMA = True
-            config_copy["USE_SMA"] = True
-            run(config_copy)
-        else:
-            # Run with existing USE_SMA value
-            run(config_copy)
+        # Run with USE_SMA = False (EMA)
+        config_copy["USE_SMA"] = False
+        run(config_copy)
+        
+        # Run with USE_SMA = True (SMA)
+        config_copy["USE_SMA"] = True
+        run(config_copy)
             
     except Exception as e:
         print(f"Execution failed: {str(e)}")

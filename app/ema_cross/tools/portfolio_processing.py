@@ -33,7 +33,7 @@ def process_single_ticker(
     config_copy["TICKER"] = ticker
     
     # Construct file path
-    file_name = f'{ticker}{"_H" if config.get("USE_HOURLY_DATA", False) else "_D"}{"_SMA" if config.get("USE_SMA", False) else "_EMA"}'
+    file_name = f'{ticker}{"_H" if config.get("USE_HOURLY", False) else "_D"}{"_SMA" if config.get("USE_SMA", False) else "_EMA"}'
     file_path = f'./csv/ma_cross/portfolios/{file_name}.csv'
 
     log(f"Checking existing portfolio data from {file_path}")

@@ -55,14 +55,12 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'EQR',
-    "SHORT_WINDOW": 33,
-    "LONG_WINDOW": 42,
+    "TICKER": 'BTC-USD',
+    "SHORT_WINDOW": 65,
+    "LONG_WINDOW": 74,
     "RSI_PERIOD": 14,
-    "USE_HOURLY": False,
-    "USE_SMA": False,
-    "USE_RSI": False,
-    "RSI_THRESHOLD": 58
+    "USE_HOURLY": True,
+    "USE_SMA": False
 }
 
 def setup_logging_for_rsi() -> Tuple[Callable, Callable, Callable, object]:
