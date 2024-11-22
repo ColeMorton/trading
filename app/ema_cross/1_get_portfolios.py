@@ -56,7 +56,8 @@ config: Config = {
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "REFRESH": False,
-    "USE_CURRENT": False
+    "USE_CURRENT": True,
+    "USE_SMA": False
 }
 
 def run(config: Config = config) -> bool:

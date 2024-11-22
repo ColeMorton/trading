@@ -103,10 +103,6 @@ def generate_current_signals(config: Config) -> pl.DataFrame:
             
             if len(current_signals) == 0:
                 print("No signals found for today")
-            else:
-                pd.set_option('display.max_rows', None)
-                print("\nFull data table:")
-                print(current_signals)
         
         return current_signals
 
