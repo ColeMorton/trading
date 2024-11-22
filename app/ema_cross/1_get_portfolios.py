@@ -11,8 +11,11 @@ from typing import TypedDict, NotRequired, Union, List
 import polars as pl
 from app.tools.get_config import get_config
 from app.tools.setup_logging import setup_logging
+from app.tools.get_data import get_data
 from tools.filter_portfolios import filter_portfolios
 from tools.portfolio_processing import process_single_ticker
+from tools.signal_generation import generate_current_signals
+from tools.sensitivity_analysis import analyze_window_combination
 
 class Config(TypedDict):
     """
@@ -23,7 +26,7 @@ class Config(TypedDict):
         WINDOWS (int): Maximum window size for parameter analysis
 
     Optional Fields:
-        USE_CURRENT (bool): Whether to emphasize current window combinations
+        USE_CURRENT (NotRequired[bool]): Whether to emphasize current window combinations
         SHORT (NotRequired[bool]): Whether to enable short positions
         USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average instead of EMA
         USE_HOURLY (NotRequired[bool]): Whether to use hourly data
@@ -49,11 +52,11 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'MSTR',
+    "TICKER": 'NTAP',
     "WINDOWS": 89,
-    "USE_HOURLY": True,
-    "REFRESH": True,
-    "USE_CURRENT": True
+    "USE_HOURLY": False,
+    "REFRESH": False,
+    "USE_CURRENT": False
 }
 
 def run(config: Config = config) -> bool:
@@ -88,16 +91,59 @@ def run(config: Config = config) -> bool:
         for ticker in tickers:
             log(f"Processing ticker: {ticker}")
             
-            portfolios = process_single_ticker(ticker, config, log)
-            if portfolios is None:
-                log(f"Failed to process {ticker}", "error")
-                continue
+            if config.get("USE_CURRENT", False):
+                log("Using current window combinations...")
+                config_copy = config.copy()
+                config_copy["TICKER"] = ticker
+                
+                # Get current signals
+                current_signals = generate_current_signals(config_copy)
+                
+                if len(current_signals) == 0:
+                    print("No current signals found")
+                    continue
+                    
+                print(f"\nCurrent signals for {ticker} {"SMA" if config.get("USE_SMA", False) else "EMA"}:")
+                print(current_signals)
+                
+                # Get price data for analysis
+                data = get_data(ticker, config_copy)
+                if data is None:
+                    log(f"Failed to get price data for {ticker}", "error")
+                    continue
+                
+                # Analyze each current signal combination
+                portfolios = []
+                for row in current_signals.iter_rows(named=True):
+                    result = analyze_window_combination(
+                        data,
+                        row['Short Window'],
+                        row['Long Window'],
+                        config_copy
+                    )
+                    if result is not None:
+                        portfolios.append(result)
+                
+                if not portfolios:
+                    log(f"No valid portfolios for current signals", "warning")
+                    continue
+                
+                # Create DataFrame and filter results
+                portfolios_df = pl.DataFrame(portfolios)
+                filtered_portfolios = filter_portfolios(portfolios_df, config_copy)
+                print(filtered_portfolios)
+                
+            else:
+                portfolios = process_single_ticker(ticker, config, log)
+                if portfolios is None:
+                    log(f"Failed to process {ticker}", "error")
+                    continue
 
-            print(f"\nResults for {ticker} {"SMA" if config.get("USE_SMA", False) else "EMA"}:")
-            print(portfolios)
+                print(f"\nResults for {ticker} {"SMA" if config.get("USE_SMA", False) else "EMA"}:")
+                print(portfolios)
 
-            filtered_portfolios = filter_portfolios(pl.DataFrame(portfolios), config)
-            print(filtered_portfolios)
+                filtered_portfolios = filter_portfolios(pl.DataFrame(portfolios), config)
+                print(filtered_portfolios)
 
         log_close()
         return True
