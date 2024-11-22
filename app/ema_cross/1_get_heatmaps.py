@@ -52,9 +52,9 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     "USE_SMA": False,
-    "TICKER": 'BTC-USD',
+    "TICKER": 'LRCX',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,

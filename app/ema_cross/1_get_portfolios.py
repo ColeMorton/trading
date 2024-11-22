@@ -23,6 +23,7 @@ class Config(TypedDict):
         WINDOWS (int): Maximum window size for parameter analysis
 
     Optional Fields:
+        USE_CURRENT (bool): Whether to emphasize current window combinations
         SHORT (NotRequired[bool]): Whether to enable short positions
         USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average instead of EMA
         USE_HOURLY (NotRequired[bool]): Whether to use hourly data
@@ -35,6 +36,7 @@ class Config(TypedDict):
     """
     TICKER: Union[str, List[str]]
     WINDOWS: int
+    USE_CURRENT: NotRequired[bool]
     SHORT: NotRequired[bool]
     USE_SMA: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]
@@ -47,10 +49,11 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'SOL-USD',
+    "TICKER": 'MSTR',
     "WINDOWS": 89,
     "USE_HOURLY": True,
-    "REFRESH": True
+    "REFRESH": True,
+    "USE_CURRENT": True
 }
 
 def run(config: Config = config) -> bool:

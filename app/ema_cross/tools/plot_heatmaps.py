@@ -47,8 +47,9 @@ def plot_heatmap(results_pl, config: Dict) -> None:
         title_suffix = "All Signals"
     
     # Update layout
+    timeframe = "H" if config.get("USE_HOURLY", False) else "D"
     fig.update_layout(
-        title=f'{config["TICKER"]} {ma_type} Cross Strategy Returns ({title_suffix})',
+        title=f'{config["TICKER"]} {timeframe} {ma_type} Cross Strategy Returns ({title_suffix})',
         xaxis_title='Short Window',
         yaxis_title='Long Window'
     )
