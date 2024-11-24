@@ -59,13 +59,13 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'HUM',
-    "SHORT_WINDOW": 15,
-    "LONG_WINDOW": 35,
+    "TICKER": 'BTC-USD',
+    "SHORT_WINDOW": 65,
+    "LONG_WINDOW": 74,
     "RSI_PERIOD": 14,
-    "USE_HOURLY": False,
-    "USE_SMA": False,
-    "USE_RSI": True,
+    "USE_HOURLY": True,
+    "USE_SMA": True,
+    "USE_RSI": False,
     "RSI_THRESHOLD": 53
 }
 

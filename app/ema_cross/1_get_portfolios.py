@@ -51,12 +51,12 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'BTC-USD',      # Default ticker symbol
-    "WINDOWS": 89,         # Maximum window size for parameter analysis
-    "USE_HOURLY": True,   # Use hourly data
-    "REFRESH": True,      # Don't refresh data by default
-    "USE_CURRENT": False,   # Emphasize current window combinations
-    "BASE_DIR": os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))  # Add BASE_DIR
+    "TICKER": 'BTC-USD',
+    "WINDOWS": 89,
+    "USE_HOURLY": True,
+    "REFRESH": True,
+    "USE_CURRENT": False,
+    "BASE_DIR": os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 }
 
 def process_current_signals(ticker: str, config: Config, log) -> pl.DataFrame | None:
@@ -117,10 +117,10 @@ def run(config: Config = config) -> bool:
     Returns:
         bool: True if execution successful
     """
-    # Setup logging
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    log_dir = os.path.join(project_root, 'logs', 'ma_cross')
-    log, log_close, _, _ = setup_logging('ma_cross', log_dir, '1_get_portfolios.log')
+    log, log_close, _, _ = setup_logging(
+        module_name='ma_cross',
+        log_file='1_get_portfolios.log'
+    )
     
     try:
         # Initialize configuration and tickers

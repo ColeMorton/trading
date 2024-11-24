@@ -50,24 +50,6 @@ config: Config = {
     "USE_HOURLY": False
 }
 
-def setup_logging_for_signals() -> tuple[Callable, Callable, Callable, object]:
-    """
-    Set up logging configuration for signal generation.
-
-    Returns:
-        tuple[Callable, Callable, Callable, object]: Tuple containing:
-            - log function
-            - log_close function
-            - logger object
-            - file handler object
-    """
-    # Get the absolute path to the project root
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    
-    # Setup logging
-    log_dir = os.path.join(project_root, 'logs', 'ma_cross')
-    return setup_logging('ma_cross', log_dir, '1_get_current_signals.log')
-
 def run(config: Config = config) -> bool:
     """
     Run the signal generation process.
@@ -91,7 +73,10 @@ def run(config: Config = config) -> bool:
     Raises:
         Exception: If signal generation fails
     """
-    log, log_close, _, _ = setup_logging_for_signals()
+    log, log_close, _, _ = setup_logging(
+        module_name='ma_cross',
+        log_file='1_get_current_signals.log'
+    )
     
     try:
         generate_current_signals(config)

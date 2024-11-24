@@ -60,27 +60,9 @@ config: Config = {
     "WINDOWS": 89,
     "USE_HOURLY": True,
     "USE_SYNTHETIC": False,
-    "REFRESH": True,  # Default to not forcing signal regeneration
-    "BASE_DIR": "."  # Set base directory to current directory
+    "REFRESH": True,
+    "BASE_DIR": "."
 }
-
-def setup_logging_for_heatmaps() -> Tuple[Callable, Callable, Callable, object]:
-    """
-    Set up logging configuration for heatmap generation.
-
-    Returns:
-        Tuple[Callable, Callable, Callable, object]: Tuple containing:
-            - log function
-            - log_close function
-            - logger object
-            - file handler object
-    """
-    # Get the absolute path to the project root
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    
-    # Setup logging
-    log_dir = os.path.join(project_root, 'logs', 'ma_cross')
-    return setup_logging('ma_cross', log_dir, '1_get_heatmaps.log')
 
 def run(config: Config = config) -> bool:
     """
@@ -111,7 +93,10 @@ def run(config: Config = config) -> bool:
     Raises:
         Exception: If data retrieval or heatmap generation fails
     """
-    log, log_close, _, _ = setup_logging_for_heatmaps()
+    log, log_close, _, _ = setup_logging(
+        module_name='ma_cross',
+        log_file='1_get_heatmaps.log'
+    )
     
     try:
         config = get_config(config)
