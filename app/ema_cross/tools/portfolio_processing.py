@@ -32,9 +32,14 @@ def process_single_ticker(
     config_copy = config.copy()
     config_copy["TICKER"] = ticker
     
-    # Construct file path
+    # Construct file path using BASE_DIR
     file_name = f'{ticker}{"_H" if config.get("USE_HOURLY", False) else "_D"}{"_SMA" if config.get("USE_SMA", False) else "_EMA"}'
-    file_path = f'./csv/ma_cross/portfolios/{file_name}.csv'
+    portfolios_dir = os.path.join(config['BASE_DIR'], 'csv', 'ma_cross', 'portfolios')
+    
+    # Ensure directory exists
+    os.makedirs(portfolios_dir, exist_ok=True)
+    
+    file_path = os.path.join(portfolios_dir, f'{file_name}.csv')
 
     log(f"Checking existing portfolio data from {file_path}")
     

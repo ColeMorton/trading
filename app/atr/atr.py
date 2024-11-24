@@ -10,7 +10,7 @@ from functools import lru_cache
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # Constants for easy configuration
-USE_HOURLY_DATA: bool = False  # Set to False for daily data
+USE_HOURLY: bool = False  # Set to False for daily data
 USE_SYNTHETIC: bool = False  # Toggle between synthetic and original ticker
 TICKER_1: str = 'UHS'  # Ticker for X to USD
 TICKER_2: str = 'BTC-USD'  # Ticker for Y to USD
@@ -19,7 +19,7 @@ USE_EMA: bool = False
 EMA_FAST: int = 9  # Fast EMA period
 EMA_SLOW: int = 31  # Slow EMA period
 
-interval: str = '1h' if USE_HOURLY_DATA else '1d'
+interval: str = '1h' if USE_HOURLY else '1d'
 
 @lru_cache(maxsize=None)
 def download_data(ticker: str, start_date: datetime, end_date: datetime) -> pd.DataFrame:
@@ -130,7 +130,7 @@ def plot_heatmap(results: pd.DataFrame, ticker: str) -> None:
     """Plot heatmap of the results."""
     plt.figure(figsize=(12, 8))
     sns.heatmap(results.astype(float), annot=True, cmap="YlGnBu", fmt='.3f', cbar_kws={'label': 'Total Return'})
-    timeframe: str = "Hourly" if USE_HOURLY_DATA else "Daily"
+    timeframe: str = "Hourly" if USE_HOURLY else "Daily"
     plt.title(f'Parameter Sensitivity Analysis - ATR Trailing Stop ({timeframe}) for {ticker}')
     plt.xlabel('ATR Multiplier')
     plt.ylabel('ATR Length')
@@ -139,7 +139,7 @@ def plot_heatmap(results: pd.DataFrame, ticker: str) -> None:
 
 def main() -> None:
     end_date: datetime = datetime.now()
-    years: int = 2 if USE_HOURLY_DATA else 10
+    years: int = 2 if USE_HOURLY else 10
     start_date: datetime = end_date - timedelta(days=365 * years)
 
     atr_lengths: List[int] = list(range(2, 15))

@@ -13,7 +13,7 @@ class Config(TypedDict):
 
     Required Fields:
         YEARS (int): Number of years of historical data to analyze
-        USE_HOURLY_DATA (bool): Whether to use hourly data instead of daily
+        USE_HOURLY (bool): Whether to use hourly data instead of daily
         USE_SYNTHETIC (bool): Whether to create synthetic pairs
         TICKER (str): Primary ticker symbol for analysis
         TICKER_1 (str): First ticker for synthetic pairs
@@ -35,7 +35,7 @@ class Config(TypedDict):
     """
     # Required fields
     YEARS: int
-    USE_HOURLY_DATA: bool
+    USE_HOURLY: bool
     USE_SYNTHETIC: bool
     TICKER: str
     TICKER_1: str
@@ -57,7 +57,7 @@ class Config(TypedDict):
 
 # General settings
 YEARS: int = 3  # Reduced years since SOFI has limited history
-USE_HOURLY_DATA: bool = False
+USE_HOURLY: bool = False
 USE_SYNTHETIC: bool = False
 TICKER: str = 'SOFI'
 TICKER_1: str = 'SOFI'
@@ -80,7 +80,7 @@ STOP_LOSS_RANGE: Tuple[float, float, float] = (0.0, 15.0, 0.01)
 # Configuration dictionary
 CONFIG: Config = {
     "YEARS": YEARS,
-    "USE_HOURLY_DATA": USE_HOURLY_DATA,
+    "USE_HOURLY": USE_HOURLY,
     "USE_SYNTHETIC": USE_SYNTHETIC,
     "TICKER": TICKER,
     "TICKER_1": TICKER_1,

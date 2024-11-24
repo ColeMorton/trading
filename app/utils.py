@@ -104,7 +104,7 @@ def get_filename(type: str, config: dict) -> str:
             ticker_prefix = f"{config['TICKER'][0]}_"
         # For multiple tickers, don't include ticker in filename
     
-    filename = f'{ticker_prefix}{"H" if config.get("USE_HOURLY_DATA", False) else "D"}{"_SMA" if config.get("USE_SMA", False) else "_EMA"}{"_GBM" if config.get("USE_GBM", False) else ""}{"_" + datetime.now().strftime("%Y%m%d") if config.get("SHOW_LAST", False) else ""}.{type}'
+    filename = f'{ticker_prefix}{"H" if config.get("USE_HOURLY", False) else "D"}{"_SMA" if config.get("USE_SMA", False) else "_EMA"}{"_GBM" if config.get("USE_GBM", False) else ""}{"_" + datetime.now().strftime("%Y%m%d") if config.get("SHOW_LAST", False) else ""}.{type}'
     return filename
 
 def get_path(type: str, feature1: str, config: dict, feature2: str = "") -> str:

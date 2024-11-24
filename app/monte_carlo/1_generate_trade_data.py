@@ -7,7 +7,7 @@ from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 
 # Configuration
 YEARS = 30  # Set timeframe in years for daily data
-USE_HOURLY_DATA = False  # Set to False for daily data
+USE_HOURLY = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
 TICKER_1 = 'SUI20947-USD'  # Ticker for X to USD exchange rate
 TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
@@ -24,7 +24,7 @@ USE_RSI = False
 # Configuration
 CONFIG = {
     "YEARS": YEARS,  # Set timeframe in years for daily data
-    "USE_HOURLY_DATA": USE_HOURLY_DATA,  # Set to False for daily data
+    "USE_HOURLY": USE_HOURLY,  # Set to False for daily data
     "USE_SYNTHETIC": USE_SYNTHETIC,  # Toggle between synthetic and original ticker
     "TICKER_1": TICKER_1,  # Ticker for X to USD exchange rate
     "TICKER_2": TICKER_2,  # Ticker for Y to USD exchange rate

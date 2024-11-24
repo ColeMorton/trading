@@ -51,11 +51,12 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'SOL-USD',      # Default ticker symbol
+    "TICKER": 'BTC-USD',      # Default ticker symbol
     "WINDOWS": 89,         # Maximum window size for parameter analysis
-    "USE_HOURLY": True,   # Use daily data by default
+    "USE_HOURLY": True,   # Use hourly data
     "REFRESH": True,      # Don't refresh data by default
     "USE_CURRENT": False,   # Emphasize current window combinations
+    "BASE_DIR": os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))  # Add BASE_DIR
 }
 
 def process_current_signals(ticker: str, config: Config, log) -> pl.DataFrame | None:

@@ -21,7 +21,7 @@ def function_name(param1: type1, param2: type2) -> return_type:
 ```
 
 4. Logging
-- Use app/tools/setup_logging.py for consistent logging setup
+- Use app/tools/setup_logging.py for consistent logging implementation
 - Follow this logging pattern:
 ```python
 log, log_close, _, _ = setup_logging('module_name', log_dir, 'filename.log')

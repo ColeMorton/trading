@@ -1,0 +1,14 @@
+1: Analyze the CSV data below.
+2: Cross compare the EMA and SMA strategies in great detail.
+3: Formulate an in-depth, highly detailed report on the findings of the analysis.
+4: Finally, summarize the findings and pose recommendations.
+
+CSV Column Headings:
+
+Moving Average Type,Short Window,Long Window,Start,End,Period,Start Value,End Value,Total Return [%],Benchmark Return [%],Max Gross Exposure [%],Total Fees Paid,Max Drawdown [%],Max Drawdown Duration,Total Trades,Total Closed Trades,Total Open Trades,Open Trade PnL,Win Rate [%],Best Trade [%],Worst Trade [%],Avg Winning Trade [%],Avg Losing Trade [%],Avg Winning Trade Duration,Avg Losing Trade Duration,Profit Factor,Expectancy,Sharpe Ratio,Calmar Ratio,Omega Ratio,Sortino Ratio
+
+Row 1 (EMA Strategy)
+EMA,18,63,0,17434,726 days 11:00:00,1000.0,17904.280754377338,1690.428075437734,1647.774447250802,100.0,1604.851108571957,35.32538885010186,143 days 11:00:00,132,132,0,0.0,37.121212121212125,126.49884498608903,-8.054869060420517,12.284162449050644,-2.6885985421685383,5 days 16:00:00,1 days 06:39:45.542168674,2.343703406902088,128.06273298770708,2.421728431832542,9.231908188820936,1.1138247596756985,3.7094616102650027
+
+Row 2 (SMA Strategy)
+SMA,10,69,0,17434,726 days 11:00:00,1000.0,19207.374191552535,1820.7374191552535,1649.7761116494241,100.0,1967.369710811892,33.134648188259206,209 days 16:00:00,173,173,0,0.0,38.72832369942196,48.413090740262156,-10.957381418524397,9.488154425383543,-2.6293225338549497,3 days 23:14:19.701492537,0 days 23:53:12.452830188,2.096941861381557,105.24493752342507,2.5040682242032477,10.304343015221688,1.1199384228563378,3.876604410860312

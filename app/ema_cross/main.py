@@ -33,13 +33,13 @@ def prepare_data(config: Config) -> Tuple[pl.DataFrame, str]:
         data, synthetic_ticker = use_synthetic(
             config['TICKER_1'], 
             config['TICKER_2'], 
-            config['USE_HOURLY_DATA']
+            config['USE_HOURLY']
         )
     else:
         data = download_data(
             config['TICKER_1'], 
             config['YEARS'], 
-            config['USE_HOURLY_DATA']
+            config['USE_HOURLY']
         )
         synthetic_ticker = config['TICKER_1']
 

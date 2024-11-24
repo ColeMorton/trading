@@ -9,7 +9,7 @@ from typing import Tuple, List
 
 # Configuration
 YEARS = 4.4  # Set timeframe in years for daily data
-USE_HOURLY_DATA = False  # Set to False for daily data
+USE_HOURLY = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
 TICKER_1 = 'MSTR'  # Ticker for X to USD exchange rate
 TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
@@ -65,7 +65,7 @@ def backtest_strategy(data: pd.DataFrame) -> vbt.Portfolio:
     """Backtest the mean reversion strategy with 1-candle exit."""
     logging.info("Starting strategy backtest")
     try:
-        freq = 'h' if USE_HOURLY_DATA else 'D'
+        freq = 'h' if USE_HOURLY else 'D'
         
         portfolio = vbt.Portfolio.from_signals(
             close=data['Close'],
@@ -134,7 +134,7 @@ def plot_results(results: pd.DataFrame, ticker: str) -> None:
         ax2.plot(results['Distance %'], results['Expectancy'], color='tab:orange', label='Expectancy')
         ax2.tick_params(axis='y', labelcolor='tab:orange')
         
-        timeframe = "Hourly" if USE_HOURLY_DATA else "Daily"
+        timeframe = "Hourly" if USE_HOURLY else "Daily"
         plt.title(f'Mean Reversion Strategy Performance ({timeframe}) for {ticker}\nExit: 1 Candle')
         fig.legend(loc="upper right", bbox_to_anchor=(1,1), bbox_transform=ax1.transAxes)
         plt.grid(True)
@@ -153,8 +153,8 @@ def run() -> None:
 
         if USE_SYNTHETIC:
             # Download historical data for TICKER_1 and TICKER_2
-            data_ticker_1 = download_data(TICKER_1, USE_HOURLY_DATA)
-            data_ticker_2 = download_data(TICKER_2, USE_HOURLY_DATA)
+            data_ticker_1 = download_data(TICKER_1, USE_HOURLY)
+            data_ticker_2 = download_data(TICKER_2, USE_HOURLY)
             
             # Create synthetic ticker XY
             data_ticker_1['Close'] = data_ticker_1['Close'].ffill()
@@ -170,7 +170,7 @@ def run() -> None:
             synthetic_ticker = f"{base_currency}{quote_currency}"
         else:
             # Download historical data for TICKER_1 only
-            data = download_data(TICKER_1, USE_HOURLY_DATA)
+            data = download_data(TICKER_1, USE_HOURLY)
             synthetic_ticker = TICKER_1
 
         results = parameter_sensitivity_analysis(data, distances)

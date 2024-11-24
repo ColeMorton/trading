@@ -22,6 +22,7 @@ def download_data(ticker: str, config: Config = {}) -> pl.DataFrame:
 
     use_hourly = config.get('USE_HOURLY', False)
     interval = '1h' if use_hourly else '1d'
+    logging.info(f"Using interval: {interval}")
 
     # Calculate date range
     end_date = datetime.now()
@@ -57,6 +58,7 @@ def download_data(ticker: str, config: Config = {}) -> pl.DataFrame:
     # Log data statistics
     logging.info(f"Date range: {df['Date'].min()} to {df['Date'].max()}")
     logging.info(f"Price range: {df['Close'].min():.2f} to {df['Close'].max():.2f}")
+    logging.info(f"Data frequency: {'Hourly' if use_hourly else 'Daily'}")
 
     return df
 

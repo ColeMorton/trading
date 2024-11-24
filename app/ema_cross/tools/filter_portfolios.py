@@ -1,6 +1,7 @@
 import polars as pl
+import os
 from typing import Dict
-from app.utils import get_path, get_filename
+from app.tools.setup_logging import setup_logging
 from app.ema_cross.tools.portfolio_metrics import (
     NUMERIC_METRICS,
     DURATION_METRICS,
@@ -19,48 +20,84 @@ def filter_portfolios(df: pl.DataFrame, config: Dict) -> pl.DataFrame:
     Returns:
         DataFrame containing filtered and analyzed portfolio data
     """
-    # Check if DataFrame is empty
-    if len(df) == 0:
-        print("No portfolios to filter - returning empty DataFrame")
-        return df
+    # Setup logging
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+    log_dir = os.path.join(project_root, 'logs', 'ma_cross')
+    log, log_close, _, _ = setup_logging('ma_cross', log_dir, 'filter_portfolios.log')
+    
+    try:
+        # Check if DataFrame is empty
+        if len(df) == 0:
+            log("No portfolios to filter - returning empty DataFrame", "warning")
+            log_close()
+            return df
+            
+        # Initialize result array
+        result_rows = []
+
+        # Process numeric metrics
+        for metric in NUMERIC_METRICS:
+            if metric in df.columns:
+                rows = get_metric_rows(df, metric)
+                result_rows.extend(create_metric_result(metric, rows, df.columns))
+
+        # Process duration metrics
+        for metric in DURATION_METRICS:
+            if metric in df.columns:
+                rows = get_metric_rows(df, metric)
+                result_rows.extend(create_metric_result(metric, rows, df.columns))
+
+        # If no results were generated, return empty DataFrame
+        if not result_rows:
+            log("No results generated - returning empty DataFrame", "warning")
+            log_close()
+            return pl.DataFrame()
+
+        # Convert results to DataFrame
+        result_df = pl.DataFrame(result_rows)
+
+        # Sort portfolios by Total Return [%] in descending order
+        if 'Total Return [%]' in result_df.columns:
+            result_df = result_df.sort("Total Return [%]", descending=True)
+
+        # Reorder columns to put Metric Type first
+        cols = ['Metric Type'] + [col for col in result_df.columns if col != 'Metric Type']
+        result_df = result_df.select(cols)
+
+        # Get base directory from config
+        base_dir = config.get('BASE_DIR', os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
         
-    # Initialize result array
-    result_rows = []
+        # Construct paths
+        portfolios_dir = os.path.join(base_dir, 'csv', 'ma_cross', 'portfolios_filtered')
+        
+        # Ensure directory exists
+        os.makedirs(portfolios_dir, exist_ok=True)
+        
+        # Construct filename
+        ticker = config.get("TICKER", "")
+        use_hourly = config.get("USE_HOURLY", False)
+        use_sma = config.get("USE_SMA", False)
+        
+        filename = f"{ticker}_{'H' if use_hourly else 'D'}_{'SMA' if use_sma else 'EMA'}.csv"
+        full_path = os.path.join(portfolios_dir, filename)
+        
+        # Log configuration details
+        log(f"Filtering results for {ticker}")
+        log(f"USE_HOURLY: {use_hourly}")
+        log(f"USE_SMA: {use_sma}")
+        log(f"Saving to: {full_path}")
+        
+        # Save file
+        result_df.write_csv(full_path)
+        
+        log(f"Filtered results exported successfully")
+        print(f"Analysis complete. Results written to {portfolios_dir}")
+        print(f"Total rows in output: {len(result_rows)}")
 
-    # Process numeric metrics
-    for metric in NUMERIC_METRICS:
-        if metric in df.columns:
-            rows = get_metric_rows(df, metric)
-            result_rows.extend(create_metric_result(metric, rows, df.columns))
-
-    # Process duration metrics
-    for metric in DURATION_METRICS:
-        if metric in df.columns:
-            rows = get_metric_rows(df, metric)
-            result_rows.extend(create_metric_result(metric, rows, df.columns))
-
-    # If no results were generated, return empty DataFrame
-    if not result_rows:
-        print("No results generated - returning empty DataFrame")
-        return pl.DataFrame()
-
-    # Convert results to DataFrame
-    result_df = pl.DataFrame(result_rows)
-
-    # Sort portfolios by Total Return [%] in descending order
-    if 'Total Return [%]' in result_df.columns:
-        result_df = result_df.sort("Total Return [%]", descending=True)
-
-    # Reorder columns to put Metric Type first
-    cols = ['Metric Type'] + [col for col in result_df.columns if col != 'Metric Type']
-    result_df = result_df.select(cols)
-
-    # Export to CSV
-    csv_path = get_path("csv", "ma_cross", config, 'portfolios_filtered')
-    csv_filename = get_filename("csv", config)
-    result_df.write_csv(csv_path + "/" + csv_filename)
-
-    print(f"Analysis complete. Results written to {csv_path}")
-    print(f"Total rows in output: {len(result_rows)}")
-
-    return result_df
+        log_close()
+        return result_df
+        
+    except Exception as e:
+        log(f"Failed to filter portfolios: {e}", "error")
+        log_close()
+        raise

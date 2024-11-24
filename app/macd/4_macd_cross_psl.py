@@ -22,7 +22,7 @@ logging.info("Total Return, Win Rate, and Expectancy vs Stop Loss Percentage")
 
 # Constants for easy configuration
 YEARS = 30  # Set timeframe in years for daily data
-USE_HOURLY_DATA = False  # Set to False for daily data
+USE_HOURLY = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
 TICKER_1 = 'EVRG'  # Ticker for X to USD exchange rate
 TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
@@ -51,8 +51,8 @@ def main():
 
     if USE_SYNTHETIC:
         # Download historical data for TICKER_1 and TICKER_2
-        data_ticker_1 = download_data(TICKER_1, USE_HOURLY_DATA, YEARS)
-        data_ticker_2 = download_data(TICKER_2, USE_HOURLY_DATA, YEARS)
+        data_ticker_1 = download_data(TICKER_1, USE_HOURLY, YEARS)
+        data_ticker_2 = download_data(TICKER_2, USE_HOURLY, YEARS)
         
         # Create synthetic ticker XY
         data_ticker_1 = data_ticker_1.to_pandas()
@@ -65,7 +65,7 @@ def main():
         data = data_ticker_3
     else:
         # Download historical data for TICKER_1 only
-        data = download_data(TICKER_1, USE_HOURLY_DATA, YEARS).to_pandas()
+        data = download_data(TICKER_1, USE_HOURLY, YEARS).to_pandas()
         synthetic_ticker = TICKER_1
 
     # Calculate MACD
