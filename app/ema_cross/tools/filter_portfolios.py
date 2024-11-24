@@ -1,7 +1,6 @@
 import polars as pl
 import os
-from typing import Dict
-from app.tools.setup_logging import setup_logging
+from typing import Dict, Callable
 from app.ema_cross.tools.portfolio_metrics import (
     NUMERIC_METRICS,
     DURATION_METRICS,
@@ -9,27 +8,22 @@ from app.ema_cross.tools.portfolio_metrics import (
     create_metric_result
 )
 
-def filter_portfolios(df: pl.DataFrame, config: Dict) -> pl.DataFrame:
+def filter_portfolios(df: pl.DataFrame, config: Dict, log: Callable) -> pl.DataFrame:
     """
     Filter and analyze portfolio metrics, creating a summary of extreme values.
 
     Args:
         df: DataFrame containing portfolio data
         config: Configuration dictionary
+        log: Logging function for recording events and errors
 
     Returns:
         DataFrame containing filtered and analyzed portfolio data
     """
-    # Setup logging
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-    log_dir = os.path.join(project_root, 'logs', 'ma_cross')
-    log, log_close, _, _ = setup_logging('ma_cross', 'filter_portfolios.log', log_subdir=log_dir)
-    
     try:
         # Check if DataFrame is empty
         if len(df) == 0:
             log("No portfolios to filter - returning empty DataFrame", "warning")
-            log_close()
             return df
             
         # Initialize result array
@@ -50,7 +44,6 @@ def filter_portfolios(df: pl.DataFrame, config: Dict) -> pl.DataFrame:
         # If no results were generated, return empty DataFrame
         if not result_rows:
             log("No results generated - returning empty DataFrame", "warning")
-            log_close()
             return pl.DataFrame()
 
         # Convert results to DataFrame
@@ -94,10 +87,8 @@ def filter_portfolios(df: pl.DataFrame, config: Dict) -> pl.DataFrame:
         print(f"Analysis complete. Results written to {portfolios_dir}")
         print(f"Total rows in output: {len(result_rows)}")
 
-        log_close()
         return result_df
         
     except Exception as e:
         log(f"Failed to filter portfolios: {e}", "error")
-        log_close()
         raise

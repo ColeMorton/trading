@@ -78,7 +78,7 @@ def process_scanner() -> bool:
     
     # Setup logging
     log_dir = os.path.join(project_root, 'logs', 'ma_cross')
-    log, log_close, _, _ = setup_logging('ma_cross', log_dir, '2_scanner.log')
+    log, log_close, _, _ = setup_logging('ma_cross', '2_scanner.log', log_subdir=log_dir)
     
     try:
         # Determine which CSV file to use based on USE_HOURLY config
@@ -100,7 +100,7 @@ def process_scanner() -> bool:
                 continue
                 
             log(f"Processing {ticker}")
-            result = process_ticker(ticker, row, config)
+            result = process_ticker(ticker, row, config, log)  # Pass log function here
             results_data.append(result)
         
         # Export results

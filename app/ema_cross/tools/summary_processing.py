@@ -50,7 +50,8 @@ def process_ticker_portfolios(ticker: str, row: dict, log: Callable) -> Optional
             sma_fast=row['SMA_FAST'],
             sma_slow=row['SMA_SLOW'],
             ema_fast=row['EMA_FAST'],
-            ema_slow=row['EMA_SLOW']
+            ema_slow=row['EMA_SLOW'],
+            log=log
         )
         
         if result is None:
@@ -97,7 +98,7 @@ def export_summary_results(portfolios: List[Dict], scanner_list: str, log: Calla
     if portfolios:
         config = get_config({})  # Empty config as we don't need specific settings
         config["TICKER"] = None
-        _, success = export_portfolios(portfolios, config, 'portfolios_summary', scanner_list)
+        _, success = export_portfolios(portfolios, config, 'portfolios_summary', scanner_list, log)
         if not success:
             log("Failed to export portfolios", "error")
             return False

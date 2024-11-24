@@ -6,8 +6,7 @@ window combinations for the EMA cross strategy. It supports both current window 
 and historical performance visualization.
 """
 
-import os
-from typing import TypedDict, NotRequired, Callable, Tuple
+from typing import TypedDict, NotRequired
 from app.tools.setup_logging import setup_logging
 from app.tools.get_data import get_data
 from app.tools.get_config import get_config
@@ -54,11 +53,11 @@ class Config(TypedDict):
 config: Config = {
     "USE_CURRENT": True,
     "USE_SMA": False,
-    "TICKER": 'MSTR',
+    "TICKER": 'FTM-USD',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,
-    "USE_HOURLY": True,
+    "USE_HOURLY": False,
     "USE_SYNTHETIC": False,
     "REFRESH": True,
     "BASE_DIR": "."
@@ -105,7 +104,7 @@ def run(config: Config = config) -> bool:
         data = get_data(config["TICKER"], config)
         log("Data retrieved successfully")
         
-        plot_heatmap(data, config)
+        plot_heatmap(data, config, log)
         log("Heatmap generated successfully")
         
         log_close()

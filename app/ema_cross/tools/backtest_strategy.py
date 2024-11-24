@@ -1,14 +1,15 @@
 import polars as pl
 import vectorbt as vbt
-import logging
+from typing import Dict, Callable
 
-def backtest_strategy(data: pl.DataFrame, config: dict) -> vbt.Portfolio:
+def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Portfolio:
     """
     Backtest the MA cross strategy.
     
     Args:
         data: Price data with signals
         config: Configuration dictionary
+        log: Logging function for recording events and errors
         
     Returns:
         Portfolio object with backtest results
@@ -38,8 +39,7 @@ def backtest_strategy(data: pl.DataFrame, config: dict) -> vbt.Portfolio:
                 freq=freq
             )
         
-        logging.info("Backtest completed successfully")
         return portfolio
     except Exception as e:
-        logging.error(f"Backtest failed: {e}")
+        log(f"Backtest failed: {e}", "error")
         raise

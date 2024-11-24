@@ -1,5 +1,4 @@
-import logging
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, Callable
 import polars as pl
 import pandas as pd
 import os
@@ -11,7 +10,8 @@ from app.ema_cross.tools.signal_generation import generate_current_signals
 
 def prepare_heatmap_data(
     results_pl: pl.DataFrame,
-    config: Dict
+    config: Dict,
+    log: Callable
 ) -> Tuple[Optional[pd.DataFrame], Optional[list], Optional[bool]]:
     """
     Prepare data for heatmap visualization.
@@ -19,6 +19,7 @@ def prepare_heatmap_data(
     Args:
         results_pl: Polars DataFrame containing price data
         config: Configuration dictionary
+        log: Logging function for recording events and errors
 
     Returns:
         Tuple containing:
@@ -53,8 +54,8 @@ def prepare_heatmap_data(
                 reason = "REFRESH=True" if config.get("REFRESH", False) else \
                         "daily data needs refresh" if not config.get("USE_HOURLY", False) else \
                         "file doesn't exist"
-                logging.info(f"Generating new signals for {config['TICKER']} ({reason})")
-                generate_current_signals(config)
+                log(f"Generating new signals for {config['TICKER']} ({reason})")
+                generate_current_signals(config, log)
             
             # Get window combinations from the file
             window_combs = get_current_window_combinations(filepath)
@@ -62,20 +63,21 @@ def prepare_heatmap_data(
             # Exit if no signals found
             if window_combs is None or len(window_combs) == 0:
                 message = f"No signals found for {config['TICKER']} {'SMA' if config['USE_SMA'] else 'EMA'}"
-                logging.info(message)
+                log(message)
                 print(message)
                 sys.exit(0)
 
         return price_data, window_combs, use_ewm
 
     except Exception as e:
-        logging.error(f"Failed to prepare heatmap data: {e}")
+        log(f"Failed to prepare heatmap data: {e}", "error")
         return None, None, None
 
 def validate_window_combinations(
     window_combs: list,
     windows: list,
-    config: Dict
+    config: Dict,
+    log: Callable
 ) -> bool:
     """
     Validate window combinations for current signal heatmap.
@@ -84,6 +86,7 @@ def validate_window_combinations(
         window_combs: List of window combinations
         windows: List of window values
         config: Configuration dictionary
+        log: Logging function for recording events and errors
 
     Returns:
         bool: True if combinations are valid, False otherwise
@@ -92,7 +95,7 @@ def validate_window_combinations(
         If no valid window combinations are found
     """
     if window_combs is None or len(window_combs) == 0:
-        logging.info(f"No valid window combinations found for {config['TICKER']}")
+        log(f"No valid window combinations found for {config['TICKER']}")
         print(f"No valid window combinations found for {config['TICKER']}")
         sys.exit(0)
 
@@ -107,7 +110,7 @@ def validate_window_combinations(
             valid_combs.append((short, long))
     
     if not valid_combs:
-        logging.warning(f"No valid window combinations found for {config['TICKER']}")
+        log(f"No valid window combinations found for {config['TICKER']}")
         print(f"No valid window combinations found for {config['TICKER']}")
         sys.exit(0)
 

@@ -8,15 +8,15 @@ including loading existing data and analyzing parameter sensitivity.
 import os
 import polars as pl
 import numpy as np
-from typing import Optional
+from typing import Optional, Callable
 from app.tools.get_data import get_data
 from app.tools.file_utils import is_file_from_today
-from tools.parameter_sensitivity import analyze_parameter_sensitivity
+from app.ema_cross.tools.parameter_sensitivity import analyze_parameter_sensitivity
 
 def process_single_ticker(
     ticker: str,
     config: dict,
-    log: callable
+    log: Callable
 ) -> Optional[pl.DataFrame]:
     """
     Process portfolio analysis for a single ticker.
@@ -24,7 +24,7 @@ def process_single_ticker(
     Args:
         ticker (str): Ticker symbol to analyze
         config (dict): Configuration dictionary
-        log (callable): Logging function
+        log (callable): Logging function for recording events and errors
 
     Returns:
         Optional[pl.DataFrame]: Portfolio analysis results or None if processing fails
@@ -56,4 +56,4 @@ def process_single_ticker(
     data = get_data(ticker, config_copy)
 
     log(f"Beginning analysis...")
-    return analyze_parameter_sensitivity(data, short_windows, long_windows, config_copy)
+    return analyze_parameter_sensitivity(data, short_windows, long_windows, config_copy, log)

@@ -6,8 +6,7 @@ EMA (Exponential Moving Average) or SMA (Simple Moving Average) crossovers.
 It processes a single ticker and generates signals based on the most recent data.
 """
 
-import os
-from typing import TypedDict, NotRequired, Callable
+from typing import TypedDict, NotRequired
 from app.tools.setup_logging import setup_logging
 from app.ema_cross.tools.signal_generation import generate_current_signals
 
@@ -79,7 +78,7 @@ def run(config: Config = config) -> bool:
     )
     
     try:
-        generate_current_signals(config)
+        generate_current_signals(config, log)
         log("Signal generation completed successfully")
         log_close()
         return True

@@ -74,7 +74,7 @@ def process_current_signals(ticker: str, config: Config, log) -> pl.DataFrame | 
     config_copy["TICKER"] = ticker
     
     # Generate and validate current signals
-    current_signals = generate_current_signals(config_copy)
+    current_signals = generate_current_signals(config_copy, log)
     if len(current_signals) == 0:
         print("No current signals found")
         return None
@@ -95,7 +95,8 @@ def process_current_signals(ticker: str, config: Config, log) -> pl.DataFrame | 
             data,
             row['Short Window'],
             row['Long Window'],
-            config_copy
+            config_copy,
+            log
         )
         if result is not None:
             portfolios.append(result)
@@ -147,7 +148,7 @@ def run(config: Config = config) -> bool:
                 print(portfolios_df)
 
             # Filter and display results
-            filtered_portfolios = filter_portfolios(portfolios_df, config)
+            filtered_portfolios = filter_portfolios(portfolios_df, config, log)
             print(filtered_portfolios)
 
         log_close()

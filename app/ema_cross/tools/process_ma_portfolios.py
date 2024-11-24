@@ -1,19 +1,17 @@
 import polars as pl
+from typing import Optional, Tuple, Dict, Callable
 from app.tools.get_data import get_data
-from app.tools.setup_logging import setup_logging
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.ema_cross.tools.backtest_strategy import backtest_strategy
-from typing import Optional, Tuple
-import os
 
-# Get the absolute path to the project root
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-
-# Setup logging
-log_dir = os.path.join(project_root, 'logs', 'ma_cross')
-log, log_close, _, _ = setup_logging('ma_cross', log_dir, 'process_ma_portfolios.log')
-
-def process_ma_portfolios(ticker: str, sma_fast: int, sma_slow: int, ema_fast: int, ema_slow: int) -> Optional[Tuple[pl.DataFrame, pl.DataFrame, dict]]:
+def process_ma_portfolios(
+    ticker: str, 
+    sma_fast: int, 
+    sma_slow: int, 
+    ema_fast: int, 
+    ema_slow: int,
+    log: Callable
+) -> Optional[Tuple[pl.DataFrame, pl.DataFrame, dict]]:
     """
     Process both SMA and EMA portfolios for a given ticker.
 
@@ -23,6 +21,7 @@ def process_ma_portfolios(ticker: str, sma_fast: int, sma_slow: int, ema_fast: i
         sma_slow: Slow SMA window
         ema_fast: Fast EMA window
         ema_slow: Slow EMA window
+        log: Logging function for recording events and errors
 
     Returns:
         Optional tuple of (SMA portfolio DataFrame, EMA portfolio DataFrame, config)
@@ -47,7 +46,7 @@ def process_ma_portfolios(ticker: str, sma_fast: int, sma_slow: int, ema_fast: i
         if sma_data is None:
             log(f"Failed to calculate SMA signals for {ticker}", "error")
             return None
-        sma_portfolio = backtest_strategy(sma_data, config)
+        sma_portfolio = backtest_strategy(sma_data, config, log)
         if sma_portfolio is None:
             log(f"Failed to backtest SMA strategy for {ticker}", "error")
             return None
@@ -58,7 +57,7 @@ def process_ma_portfolios(ticker: str, sma_fast: int, sma_slow: int, ema_fast: i
         if ema_data is None:
             log(f"Failed to calculate EMA signals for {ticker}", "error")
             return None
-        ema_portfolio = backtest_strategy(ema_data, config)
+        ema_portfolio = backtest_strategy(ema_data, config, log)
         if ema_portfolio is None:
             log(f"Failed to backtest EMA strategy for {ticker}", "error")
             return None

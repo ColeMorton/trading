@@ -1,12 +1,11 @@
-import logging
 import numpy as np
-from typing import Dict
+from typing import Dict, Callable
 
 from app.utils import get_filename, get_path
 from app.ema_cross.tools.create_heatmaps import create_full_heatmap, create_current_heatmap
 from app.ema_cross.tools.heatmap_data import prepare_heatmap_data, validate_window_combinations
 
-def plot_heatmap(results_pl, config: Dict) -> None:
+def plot_heatmap(results_pl, config: Dict, log: Callable) -> None:
     """
     Plot heatmap of MA cross strategy performance.
     
@@ -22,14 +21,15 @@ def plot_heatmap(results_pl, config: Dict) -> None:
             - WINDOWS: int, maximum window size to test
             - USE_SMA: bool, whether to use SMA instead of EMA
             - USE_CURRENT: bool, whether to show only current signals
+        log: Logging function for recording events and errors
 
     Returns:
         None. Saves the plot to a file and displays it.
     """
     # Prepare data
-    price_data, window_combs, use_ewm = prepare_heatmap_data(results_pl, config)
+    price_data, window_combs, use_ewm = prepare_heatmap_data(results_pl, config, log)
     if price_data is None:
-        logging.error("Failed to prepare heatmap data")
+        log("Failed to prepare heatmap data", "error")
         return
 
     # Generate windows array
@@ -37,13 +37,13 @@ def plot_heatmap(results_pl, config: Dict) -> None:
     ma_type = "SMA" if config.get("USE_SMA", False) else "EMA"
     
     # Create appropriate heatmap
-    if config.get("USE_CURRENT", False) and validate_window_combinations(window_combs, windows, config):
+    if config.get("USE_CURRENT", False) and validate_window_combinations(window_combs, windows, config, log):
         window_combs = list(window_combs)  # Convert set to list before sorting
         window_combs.sort()
-        fig = create_current_heatmap(price_data, windows, window_combs, use_ewm)
+        fig = create_current_heatmap(price_data, windows, window_combs, use_ewm, log)
         title_suffix = "Current Signals Only"
     else:
-        fig = create_full_heatmap(price_data, windows, use_ewm)
+        fig = create_full_heatmap(price_data, windows, use_ewm, log)
         title_suffix = "All Signals"
     
     # Update layout
@@ -60,5 +60,5 @@ def plot_heatmap(results_pl, config: Dict) -> None:
     full_path = f"{png_path}/{png_filename}"
     
     fig.write_image(full_path)
-    logging.info(f"Plot saved as {full_path}")
+    log(f"Plot saved as {full_path}")
     fig.show()

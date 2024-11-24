@@ -44,7 +44,7 @@ def load_existing_results(config: dict, log: Callable) -> Tuple[set, List[Dict]]
     
     return existing_tickers, results_data
 
-def process_ticker(ticker: str, row: dict, config: dict) -> Dict:
+def process_ticker(ticker: str, row: dict, config: dict, log: Callable) -> Dict:
     """
     Process a single ticker with both SMA and EMA configurations.
 
@@ -52,6 +52,7 @@ def process_ticker(ticker: str, row: dict, config: dict) -> Dict:
         ticker (str): Ticker symbol to process
         row (dict): Row data containing window parameters
         config (dict): Configuration dictionary
+        log (Callable): Logging function
 
     Returns:
         Dict: Results dictionary containing SMA and EMA signals
@@ -62,7 +63,8 @@ def process_ticker(ticker: str, row: dict, config: dict) -> Dict:
         ma_type="SMA",
         config=config,
         fast_window=row['SMA_FAST'],
-        slow_window=row['SMA_SLOW']
+        slow_window=row['SMA_SLOW'],
+        log=log
     )
     
     # Process EMA signals
@@ -71,7 +73,8 @@ def process_ticker(ticker: str, row: dict, config: dict) -> Dict:
         ma_type="EMA",
         config=config,
         fast_window=row['EMA_FAST'],
-        slow_window=row['EMA_SLOW']
+        slow_window=row['EMA_SLOW'],
+        log=log
     )
     
     return {

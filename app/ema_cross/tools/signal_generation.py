@@ -1,8 +1,7 @@
-import logging
 import polars as pl
 import numpy as np
 import pandas as pd
-from typing import List, Dict
+from typing import List, Dict, Callable
 from app.tools.get_data import get_data
 from app.tools.get_config import get_config
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
@@ -14,7 +13,8 @@ def get_current_signals(
     data: pl.DataFrame,
     short_windows: List[int],
     long_windows: List[int],
-    config: Dict
+    config: Dict,
+    log: Callable
 ) -> pl.DataFrame:
     """
     Get current signals for all window combinations.
@@ -24,6 +24,7 @@ def get_current_signals(
         short_windows: List of short window periods
         long_windows: List of long window periods
         config: Configuration dictionary
+        log: Logging function for recording events and errors
     
     Returns:
         DataFrame containing window combinations with current signals
@@ -61,7 +62,7 @@ def get_current_signals(
             }
         )
     except Exception as e:
-        logging.error(f"Failed to get current signals: {e}")
+        log(f"Failed to get current signals: {e}", "error")
         return pl.DataFrame(
             schema={
                 "Short Window": pl.Int32,
@@ -69,12 +70,13 @@ def get_current_signals(
             }
         )
 
-def generate_current_signals(config: Config) -> pl.DataFrame:
+def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
     """
     Generate current signals for a given configuration.
     
     Args:
         config: Configuration dictionary
+        log: Logging function for recording events and errors
     
     Returns:
         DataFrame containing current signals
@@ -88,7 +90,7 @@ def generate_current_signals(config: Config) -> pl.DataFrame:
 
         data = get_data(config["TICKER"], config)
         if data is None:
-            logging.error("Failed to get price data")
+            log("Failed to get price data", "error")
             return pl.DataFrame(
                 schema={
                     "Short Window": pl.Int32,
@@ -96,7 +98,7 @@ def generate_current_signals(config: Config) -> pl.DataFrame:
                 }
             )
 
-        current_signals = get_current_signals(data, short_windows, long_windows, config)
+        current_signals = get_current_signals(data, short_windows, long_windows, config, log)
 
         if not config.get("USE_SCANNER", False):
             export_csv(current_signals, "ma_cross", config, 'current_signals')
@@ -107,7 +109,7 @@ def generate_current_signals(config: Config) -> pl.DataFrame:
         return current_signals
 
     except Exception as e:
-        logging.error(f"Failed to generate current signals: {e}")
+        log(f"Failed to generate current signals: {e}", "error")
         return pl.DataFrame(
             schema={
                 "Short Window": pl.Int32,
@@ -120,7 +122,8 @@ def process_ma_signals(
     ma_type: str,
     config: Config,
     fast_window: int,
-    slow_window: int
+    slow_window: int,
+    log: Callable
 ) -> bool:
     """
     Process moving average signals for a given ticker and configuration.
@@ -131,6 +134,7 @@ def process_ma_signals(
         config: Configuration dictionary
         fast_window: Fast window value from scanner
         slow_window: Slow window value from scanner
+        log: Logging function for recording events and errors
 
     Returns:
         bool: True if current signal is found, False otherwise
@@ -141,7 +145,7 @@ def process_ma_signals(
         "USE_SMA": ma_type == "SMA"
     })
     
-    signals = generate_current_signals(ma_config)
+    signals = generate_current_signals(ma_config, log)
     
     is_current = check_signal_match(
         signals.to_dicts() if len(signals) > 0 else [], 
