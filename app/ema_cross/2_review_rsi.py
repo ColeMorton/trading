@@ -55,12 +55,12 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'BTC-USD',
-    "SHORT_WINDOW": 65,
-    "LONG_WINDOW": 74,
+    "TICKER": 'SOL-USD',
+    "SHORT_WINDOW": 16,
+    "LONG_WINDOW": 78,
     "RSI_PERIOD": 14,
     "USE_HOURLY": True,
-    "USE_SMA": False
+    "USE_SMA": True
 }
 
 def setup_logging_for_rsi() -> Tuple[Callable, Callable, Callable, object]:

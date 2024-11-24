@@ -59,14 +59,14 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'EQIX',
-    "SHORT_WINDOW": 2,
-    "LONG_WINDOW": 6,
+    "TICKER": 'HUM',
+    "SHORT_WINDOW": 15,
+    "LONG_WINDOW": 35,
     "RSI_PERIOD": 14,
     "USE_HOURLY": False,
     "USE_SMA": False,
-    "USE_RSI": False,
-    "RSI_THRESHOLD": 58
+    "USE_RSI": True,
+    "RSI_THRESHOLD": 53
 }
 
 def setup_logging_for_stop_loss() -> Tuple[Callable, Callable, Callable, object]:

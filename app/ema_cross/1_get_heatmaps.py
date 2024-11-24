@@ -52,15 +52,15 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     "USE_SMA": False,
-    "TICKER": 'NTAP',
+    "TICKER": 'MSTR',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,
-    "USE_HOURLY": False,
+    "USE_HOURLY": True,
     "USE_SYNTHETIC": False,
-    "REFRESH": False,  # Default to not forcing signal regeneration
+    "REFRESH": True,  # Default to not forcing signal regeneration
     "BASE_DIR": "."  # Set base directory to current directory
 }
 

@@ -51,11 +51,11 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": ['NXPI', 'NTAP', 'HUM', 'ROST', 'EXR', 'AVB', 'DXCM', 'DPZ', 'MAA', 'NKE', 'PODD', 'NCLH'],      # Default ticker symbol
+    "TICKER": 'SOL-USD',      # Default ticker symbol
     "WINDOWS": 89,         # Maximum window size for parameter analysis
-    "USE_HOURLY": False,   # Use daily data by default
-    "REFRESH": False,      # Don't refresh data by default
-    "USE_CURRENT": True,   # Emphasize current window combinations
+    "USE_HOURLY": True,   # Use daily data by default
+    "REFRESH": True,      # Don't refresh data by default
+    "USE_CURRENT": False,   # Emphasize current window combinations
 }
 
 def process_current_signals(ticker: str, config: Config, log) -> pl.DataFrame | None:

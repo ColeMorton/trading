@@ -61,14 +61,14 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'EQR',
-    "SHORT_WINDOW": 33,
-    "LONG_WINDOW": 42,
+    "TICKER": 'HUM',
+    "SHORT_WINDOW": 15,
+    "LONG_WINDOW": 35,
     "RSI_PERIOD": 14,
     "USE_HOURLY": False,
     "USE_SMA": False,
-    "USE_RSI": False,
-    "RSI_THRESHOLD": 58
+    "USE_RSI": True,
+    "RSI_THRESHOLD": 53
 }
 
 def setup_logging_for_psl() -> Tuple[Callable, Callable, Callable, object]:
