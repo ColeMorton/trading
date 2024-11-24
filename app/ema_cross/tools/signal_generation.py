@@ -6,7 +6,7 @@ from typing import List, Dict
 from app.tools.get_data import get_data
 from app.tools.get_config import get_config
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
-from app.utils import save_csv
+from app.tools.export_csv import export_csv
 from app.ema_cross.tools.signal_types import Config
 from app.ema_cross.tools.signal_utils import is_signal_current, check_signal_match
 
@@ -99,7 +99,7 @@ def generate_current_signals(config: Config) -> pl.DataFrame:
         current_signals = get_current_signals(data, short_windows, long_windows, config)
 
         if not config.get("USE_SCANNER", False):
-            save_csv(current_signals, "ma_cross", config, 'current_signals')
+            export_csv(current_signals, "ma_cross", config, 'current_signals')
             
             if len(current_signals) == 0:
                 print("No signals found for today")

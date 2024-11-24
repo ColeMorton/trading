@@ -23,7 +23,7 @@ def filter_portfolios(df: pl.DataFrame, config: Dict) -> pl.DataFrame:
     # Setup logging
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
     log_dir = os.path.join(project_root, 'logs', 'ma_cross')
-    log, log_close, _, _ = setup_logging('ma_cross', log_dir, 'filter_portfolios.log')
+    log, log_close, _, _ = setup_logging('ma_cross', 'filter_portfolios.log', log_subdir=log_dir)
     
     try:
         # Check if DataFrame is empty

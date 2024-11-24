@@ -51,7 +51,7 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'BTC-USD',
+    "TICKER": 'SPY',
     "WINDOWS": 89,
     "USE_HOURLY": True,
     "REFRESH": True,
