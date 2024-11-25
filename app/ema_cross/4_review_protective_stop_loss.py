@@ -9,8 +9,7 @@ The PSL strategy differs from regular stop loss by monitoring price action over 
 specified holding period, rather than using a fixed percentage threshold.
 """
 
-import os
-from typing import TypedDict, NotRequired, Callable, Tuple
+from typing import TypedDict, NotRequired
 from app.tools.setup_logging import setup_logging
 from app.tools.get_config import get_config
 from app.tools.get_data import get_data
@@ -47,6 +46,7 @@ class Config(TypedDict):
     SHORT_WINDOW: int
     LONG_WINDOW: int
     RSI_PERIOD: int
+    STOP_LOSS: NotRequired[float]
     USE_RSI: NotRequired[bool]
     RSI_THRESHOLD: NotRequired[float]
     SHORT: NotRequired[bool]
@@ -68,23 +68,9 @@ config: Config = {
     "USE_HOURLY": False,
     "USE_SMA": False,
     "USE_RSI": True,
-    "RSI_THRESHOLD": 53
+    "RSI_THRESHOLD": 53,
+    "STOP_LOSS": 0.03
 }
-
-def setup_logging_for_psl() -> Tuple[Callable, Callable, Callable, object]:
-    """
-    Set up logging configuration for protective stop loss analysis.
-
-    Returns:
-        Tuple[Callable, Callable, Callable, object]: Tuple containing:
-            - log function
-            - log_close function
-            - logger object
-            - file handler object
-    """
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    log_dir = os.path.join(project_root, 'logs', 'ma_cross')
-    return setup_logging('ma_cross', log_dir, '4_review_protective_stop_loss.log')
 
 def run(config: Config = config) -> bool:
     """
@@ -105,7 +91,10 @@ def run(config: Config = config) -> bool:
     Raises:
         Exception: If analysis fails
     """
-    log, log_close, _, _ = setup_logging_for_psl()
+    log, log_close, _, _ = setup_logging(
+        module_name='ma_cross',
+        log_file='4_review_protective_stop_loss.log'
+    )
     
     try:
         config = get_config(config)

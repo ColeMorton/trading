@@ -53,7 +53,7 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     "WINDOWS": 89,
-    "SCANNER_LIST": 'DAILY.csv'
+    "SCANNER_LIST": 'BEST.csv'
 }
 
 def process_scanner() -> bool:
@@ -73,12 +73,14 @@ def process_scanner() -> bool:
     Raises:
         Exception: If scanner processing fails
     """
-    # Get the absolute path to the project root
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+    # # Get the absolute path to the project root
+    # project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
     
-    # Setup logging
-    log_dir = os.path.join(project_root, 'logs', 'ma_cross')
-    log, log_close, _, _ = setup_logging('ma_cross', '2_scanner.log', log_subdir=log_dir)
+    # # Setup logging
+    # log_dir = os.path.join(project_root, 'logs', 'ma_cross')
+    # log, log_close, _, _ = setup_logging('ma_cross', '2_scanner.log', log_subdir=log_dir)
+
+    log, log_close, _, _ = setup_logging('ma_cross', '2_scanner.log')
     
     try:
         # Determine which CSV file to use based on USE_HOURLY config

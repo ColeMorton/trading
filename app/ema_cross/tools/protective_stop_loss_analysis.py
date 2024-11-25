@@ -98,9 +98,10 @@ def analyze_holding_periods(
     # Convert exits_ema to numpy array and ensure boolean type
     exits_ema_np = exits_ema.to_numpy().astype(bool)
 
+
+    log(f"Processing holding periods...")
     results = []
     for holding_period in range(longest_holding_period, 0, -1):
-        log(f"Processing holding period: {holding_period}")
         exits_psl = psl_exit(data['Close'].to_numpy(), entry_price.to_numpy(), holding_period, short=config.get("SHORT", False))
         # Combine exits using numpy operations
         exits = np.logical_or(exits_ema_np, exits_psl)

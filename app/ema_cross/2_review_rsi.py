@@ -6,10 +6,9 @@ in combination with EMA cross signals. It analyzes how different RSI thresholds 
 strategy performance metrics including returns, win rate, and expectancy.
 """
 
-import os
 import polars as pl
 import numpy as np
-from typing import TypedDict, NotRequired, Callable, Tuple
+from typing import TypedDict, NotRequired
 from app.tools.setup_logging import setup_logging
 from app.tools.get_data import get_data
 from app.tools.get_config import get_config
@@ -63,21 +62,6 @@ config: Config = {
     "USE_SMA": True
 }
 
-def setup_logging_for_rsi() -> Tuple[Callable, Callable, Callable, object]:
-    """
-    Set up logging configuration for RSI analysis.
-
-    Returns:
-        Tuple[Callable, Callable, Callable, object]: Tuple containing:
-            - log function
-            - log_close function
-            - logger object
-            - file handler object
-    """
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    log_dir = os.path.join(project_root, 'logs', 'ma_cross')
-    return setup_logging('ma_cross', log_dir, '2_review_rsi.log')
-
 def run(config: Config = config) -> bool:
     """
     Run RSI threshold sensitivity analysis.
@@ -97,7 +81,10 @@ def run(config: Config = config) -> bool:
     Raises:
         Exception: If analysis fails
     """
-    log, log_close, _, _ = setup_logging_for_rsi()
+    log, log_close, _, _ = setup_logging(
+        module_name='ma_cross',
+        log_file='2_review_rsi.log'
+    )
     
     try:
         config = get_config(config)

@@ -51,9 +51,9 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'SPY',
+    "TICKER": ['PGR', 'DECK'],
     "WINDOWS": 89,
-    "USE_HOURLY": True,
+    "USE_HOURLY": False,
     "REFRESH": True,
     "USE_CURRENT": False,
     "BASE_DIR": os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -132,14 +132,18 @@ def run(config: Config = config) -> bool:
         for ticker in tickers:
             log(f"Processing ticker: {ticker}")
             
+            # Create a config copy with single ticker
+            ticker_config = config.copy()
+            ticker_config["TICKER"] = ticker
+            
             # Handle current signal analysis if enabled
             if config.get("USE_CURRENT", False):
-                portfolios_df = process_current_signals(ticker, config, log)
+                portfolios_df = process_current_signals(ticker, ticker_config, log)
                 if portfolios_df is None:
                     continue
             else:
                 # Process single ticker without current signals
-                portfolios = process_single_ticker(ticker, config, log)
+                portfolios = process_single_ticker(ticker, ticker_config, log)
                 if portfolios is None:
                     log(f"Failed to process {ticker}", "error")
                     continue
@@ -147,9 +151,11 @@ def run(config: Config = config) -> bool:
                 print(f"\nResults for {ticker} {'SMA' if config.get('USE_SMA', False) else 'EMA'}:")
                 print(portfolios_df)
 
-            # Filter and display results
-            filtered_portfolios = filter_portfolios(portfolios_df, config, log)
-            print(filtered_portfolios)
+            # Filter portfolios for individual ticker
+            filtered_portfolios = filter_portfolios(portfolios_df, ticker_config, log)
+            if filtered_portfolios is not None:
+                print(f"\nFiltered results for {ticker}:")
+                print(filtered_portfolios)
 
         log_close()
         return True

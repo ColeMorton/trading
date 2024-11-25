@@ -28,7 +28,6 @@ def setup_logging_for_summary() -> Tuple[Callable, Callable, Callable, object]:
     """
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
     log_dir = os.path.join(project_root, 'logs', 'ma_cross')
-    os.makedirs(log_dir, exist_ok=True)
     return setup_logging('ma_cross', '3_scanned_summary.log', log_subdir=log_dir)
 
 def run(scanner_list: str = 'DAILY.csv') -> bool:
@@ -50,7 +49,10 @@ def run(scanner_list: str = 'DAILY.csv') -> bool:
     Raises:
         Exception: If processing fails
     """
-    log, log_close, _, _ = setup_logging_for_summary()
+    log, log_close, _, _ = setup_logging(
+        module_name='ma_cross',
+        log_file='3_scanned_summary.log'
+    )
     
     try:
         # Read scanner list

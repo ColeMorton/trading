@@ -1,0 +1,177 @@
+OBJECTIVE:
+
+I converted my personal fund into a mutual fund to allow my wife (Nana) to be able to invest in my earning potential.
+
+There are potential 5 actions that Nana and I can make in the mutual fund that are described as follows:
+
+ 
+
+Action ID: 1
+
+Action Name: Nana buys stake/Nana pays for me
+
+Action Description:
+
+Nana wishes to invest (buy stake/share) in the mutual fund or I wish for her to make a payment on my behalf in order to maintain the funds inside the mutual fund.
+
+Action ID: 2
+
+Action Name: I buy stake/pay for Nana/Nana sells stake
+
+Action Description:
+
+I wish to increase my exposure and decrease Nana's exposure through buying back her stake/share in the mutual fund. Or Nana wishes to realize profit or rebalance by decreasing her exposure.
+
+Action ID: 3
+
+Action Name: I pay for myself and Nana
+
+Action Description:
+
+I make a payment using the funds of the mutual fund to cover a mutual expense split 50/50 between us.
+
+Action ID: 4
+
+Action Name: I pay for myself
+
+Action Description:
+
+I make a payment using the funds of the mutual fund to cover a personal expense.
+
+Action ID: 5
+
+Action Name: We receive money
+
+Action Description:
+
+We receive an incoming payment or deposit where the funds are split 50/50 between us.
+
+MUTUAL FUND LOGIC:
+
+I've provided three Notion formulas that provide the logic behind the mutual fund actions.
+
+Firstly, BALANCE FORMULA defines the "real" value to adjust the mutual fund by.
+
+When prop("Balance") is positive: Nana receives stake.
+
+When prop("Balance") is negative: Nana returns stake.
+
+Secondly, STAKE CHANGE % defines the percentage that Nana's stake should increase or decrease.
+
+Thirdly, STAKE NEW % defines the new total stake %.
+
+BALANCE FORMULA (prop("Balance")):
+
+let(
+
+  /* Define a variable 'x' to store the repeated expression */
+
+  x, if(or(prop("Action ID") == 1, prop("Action ID") == 5), prop("Amount €"), -prop("Amount €")),
+
+  /*  Main logic starts here */
+
+  if(
+
+    prop("Action ID") == 5,
+
+    /* Case when Action is 5 */
+
+    if(
+
+      prop("Action ID") == 5,
+
+      x / 2  (-1  prop("Stake %") / 2),
+
+      x
+
+    ),
+
+    /* Case when Action is not 5 */
+
+    if(
+
+      and(x > 0, not(prop("Action ID") == 5)),
+
+      /* Sub-case when x is positive and Action is not 5 */
+
+      if(
+
+        prop("Action ID") == 4,
+
+        -x * prop("Stake %"),
+
+        x
+
+      ),
+
+      /* Other cases */
+
+      if(
+
+        or(
+
+          and(not(prop("Action ID") == 4), not(prop("Action ID") == 3), not(prop("Action ID") == 5)),
+
+          and(not(prop("Action ID") == 4), prop("Action ID") == 3, not(prop("Action ID") == 5))
+
+        ),
+
+        /* Sub-case when Action is 3 */
+
+        if(
+
+          prop("Action ID") == 3,
+
+           (x / 2)  (1 - prop("Stake %")) + (prop("Amount €") / 2)  prop("Stake %"),
+
+           x * (1 - prop("Stake %"))
+
+        ),
+
+        /* Sub-case when Action is 4 */
+
+        if(
+
+          and(prop("Action ID") == 4, not(prop("Action ID") == 3), not(prop("Action ID") == 5)),
+
+          -x * prop("Stake %"),
+
+          x
+
+        )
+
+      )
+
+    )
+
+  )
+
+)
+
+STAKE CHANGE % (prop("Stake Change %")):
+
+round((
+
+  let(stake, prop("Balance") / (prop("Net Worth €") + prop("Balance")),
+
+    prop("Balance") > 0 ? (1 - prop("Stake %"))  stake : prop("Stake %")  stake
+
+  )
+
+) * 1000000) / 1000000
+
+STAKE NEW % FORMULA:
+
+prop("Stake Change %") != 0 ?
+
+  round((
+
+    and(prop("Stake %") > 0.5, prop("Balance") > 0) ? prop("Stake %") + prop("Stake Change %")  (1 - (prop("Stake %")- 0.5)  2) : prop("Stake %") + prop("Stake Change %")
+
+  ) * 1000000 ) / 1000000 :
+
+  0
+
+DATA:
+
+A full historical record of all actions and their associated amount can be found in: stakesholders.csv
