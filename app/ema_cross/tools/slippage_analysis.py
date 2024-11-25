@@ -18,7 +18,7 @@ def analyze_trades(data: pl.DataFrame, slippage: float, config: dict) -> List[Tu
     Args:
         data (pl.DataFrame): Price and indicator data
         slippage (float): Slippage percentage (positive means worse price)
-        config (dict): Configuration dictionary
+        config (dict): Configuration dictionary containing STOP_LOSS percentage
 
     Returns:
         List[Tuple[float, float]]: List of (entry_price, exit_price) pairs
@@ -29,6 +29,7 @@ def analyze_trades(data: pl.DataFrame, slippage: float, config: dict) -> List[Tu
     close_prices = data['Close'].to_list()
     position = 0
     entry_price = 0.0
+    stop_loss = config.get("STOP_LOSS", None)
 
     for i in range(1, len(data)):
         # Entry logic
@@ -41,11 +42,30 @@ def analyze_trades(data: pl.DataFrame, slippage: float, config: dict) -> List[Tu
             entry_price = close_prices[i] * slippage_multiplier
             
         # Exit logic
-        elif position != 0 and exits[i]:
-            exit_price = close_prices[i]
-            trades.append((entry_price, exit_price))
-            position = 0
-            entry_price = 0.0
+        elif position != 0:
+            # Check stop loss first
+            if stop_loss is not None:
+                if position > 0:  # Long position
+                    stop_price = entry_price * (1 - stop_loss)
+                    if close_prices[i] <= stop_price:
+                        trades.append((entry_price, close_prices[i]))
+                        position = 0
+                        entry_price = 0.0
+                        continue
+                else:  # Short position
+                    stop_price = entry_price * (1 + stop_loss)
+                    if close_prices[i] >= stop_price:
+                        trades.append((entry_price, close_prices[i]))
+                        position = 0
+                        entry_price = 0.0
+                        continue
+            
+            # Regular exit signal
+            if exits[i]:
+                exit_price = close_prices[i]
+                trades.append((entry_price, exit_price))
+                position = 0
+                entry_price = 0.0
 
     # Close any open position at the end
     if position != 0:

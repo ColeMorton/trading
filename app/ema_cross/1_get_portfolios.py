@@ -51,7 +51,7 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": ['CL', 'HRL', 'EXPD', 'PLD', 'UDR', 'UBER', 'AOS', 'WY', 'EXR'],
+    "TICKER": 'HIMS',
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "REFRESH": True,
