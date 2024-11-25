@@ -10,18 +10,20 @@ import polars as pl
 import numpy as np
 from typing import List, Tuple
 
-def psl_exit(price: np.ndarray, entry_price: np.ndarray, holding_period: int, short: bool) -> np.ndarray:
+def psl_exit(price: np.ndarray, entry_price: np.ndarray, holding_period: int, short: bool, stop_loss: float = None) -> np.ndarray:
     """
     Generate Price Stop Loss (PSL) exit signals.
 
     The PSL strategy monitors price action over a specified holding period and
     generates exit signals based on adverse price movements during that period.
+    If stop_loss is provided, also exits when price moves against position by stop_loss percentage.
 
     Args:
         price (np.ndarray): Array of price data
         entry_price (np.ndarray): Array of entry prices
         holding_period (int): The holding period for the PSL
         short (bool): True if it's a short trade, False for long trades
+        stop_loss (float, optional): Stop loss percentage as decimal (e.g. 0.03 for 3%)
 
     Returns:
         np.ndarray: Array of PSL exit signals (1 for exit, 0 for hold)
@@ -29,12 +31,25 @@ def psl_exit(price: np.ndarray, entry_price: np.ndarray, holding_period: int, sh
     exit_signal = np.zeros_like(price)
     for i in range(len(price)):
         if i >= holding_period:
+            # Check protective stop loss condition over holding period
             if short:
                 if np.any(price[i-holding_period:i] >= entry_price[i-holding_period]):
                     exit_signal[i] = 1
             else:
                 if np.any(price[i-holding_period:i] <= entry_price[i-holding_period]):
                     exit_signal[i] = 1
+                    
+            # Check stop loss condition on current bar
+            if stop_loss is not None:
+                if short:
+                    # For shorts, exit if price rises above entry by stop loss percentage
+                    if price[i] >= entry_price[i] * (1 + stop_loss):
+                        exit_signal[i] = 1
+                else:
+                    # For longs, exit if price falls below entry by stop loss percentage
+                    if price[i] <= entry_price[i] * (1 - stop_loss):
+                        exit_signal[i] = 1
+                        
     return exit_signal
 
 def run_backtest(data: pl.DataFrame, entries: np.ndarray, exits: np.ndarray, config: dict) -> vbt.Portfolio:
@@ -98,11 +113,21 @@ def analyze_holding_periods(
     # Convert exits_ema to numpy array and ensure boolean type
     exits_ema_np = exits_ema.to_numpy().astype(bool)
 
+    # Get stop loss from config
+    stop_loss = config.get('STOP_LOSS', None)
+    if stop_loss is not None:
+        log(f"Using stop loss of {stop_loss*100}%")
 
     log(f"Processing holding periods...")
     results = []
     for holding_period in range(longest_holding_period, 0, -1):
-        exits_psl = psl_exit(data['Close'].to_numpy(), entry_price.to_numpy(), holding_period, short=config.get("SHORT", False))
+        exits_psl = psl_exit(
+            data['Close'].to_numpy(), 
+            entry_price.to_numpy(), 
+            holding_period, 
+            short=config.get("SHORT", False),
+            stop_loss=stop_loss
+        )
         # Combine exits using numpy operations
         exits = np.logical_or(exits_ema_np, exits_psl)
 
