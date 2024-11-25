@@ -54,12 +54,15 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'BTC-USD',
-    "SHORT_WINDOW": 65,
-    "LONG_WINDOW": 74,
-    "RSI_PERIOD": 14,
-    "USE_HOURLY": True,
-    "USE_SMA": True
+    "USE_SMA": True,
+    "TICKER": 'CSX',
+    "TICKER_1": 'BTC-USD',
+    "TICKER_2": 'BTC-USD',
+    "USE_HOURLY": False,
+    "USE_SYNTHETIC": False,
+    "SHORT_WINDOW": 75,
+    "LONG_WINDOW": 83,
+    "RSI_PERIOD": 14
 }
 
 def run(config: Config = config) -> bool:

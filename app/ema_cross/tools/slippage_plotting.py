@@ -23,14 +23,45 @@ def plot_results(ticker: str, results_df: pl.DataFrame, log: Callable) -> None:
     # Plot total return and win rate
     ax1.plot(results_df['Slippage Percentage'], results_df['Total Return'], label='Total Return')
     ax1.set_ylabel('Return %')
-    ax1.legend(loc='upper left')
     ax1.grid(True)
+
+    # Calculate max Total Return and target levels
+    max_return = results_df['Total Return'].max()
+    target_levels = {
+        '5%': max_return * 0.95,
+        '10%': max_return * 0.90,
+        '15%': max_return * 0.85
+    }
+
+    # Add vertical lines at target levels
+    colors = ['green', 'yellow', 'red']
+    lines = []  # Store line objects for legend
+    for (label, target), color in zip(target_levels.items(), colors):
+        # Find the first slippage percentage where Total Return drops below target
+        mask = results_df['Total Return'] <= target
+        if mask.any():
+            slippage_at_target = results_df.filter(mask)['Slippage Percentage'][0]
+            line = ax1.axvline(x=slippage_at_target, color=color, linestyle='--', alpha=0.5)
+            lines.append((line, f'{label} below max at {slippage_at_target:.2f}% slippage'))
+            ax1.text(slippage_at_target, ax1.get_ylim()[1], f'{slippage_at_target:.2f}%',
+                    rotation=90, va='top')
 
     ax1_twin = ax1.twinx()
     ax1_twin.plot(results_df['Slippage Percentage'], results_df['Win Rate'], color='tab:red', label='Win Rate')
     ax1_twin.set_ylabel('Win Rate %', color='tab:red')
     ax1_twin.tick_params(axis='y', labelcolor='tab:red')
-    ax1_twin.legend(loc='upper right')
+
+    # Create combined legend
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax1_twin.get_legend_handles_labels()
+    
+    # Extract vertical lines and labels
+    vertical_lines = [line for line, _ in lines]
+    vertical_labels = [label for _, label in lines]
+    
+    all_lines = lines1 + lines2 + vertical_lines
+    all_labels = labels1 + labels2 + vertical_labels
+    ax1.legend(all_lines, all_labels, loc='center left', bbox_to_anchor=(1.15, 0.5))
 
     # Add peak labels for Total Return
     total_return_peaks = find_prominent_peaks(
@@ -56,7 +87,7 @@ def plot_results(ticker: str, results_df: pl.DataFrame, log: Callable) -> None:
 
     # Save the plot
     plot_filename = f'png/ema_cross/parameter_sensitivity/{ticker}_slippage.png'
-    plt.savefig(plot_filename)
+    plt.savefig(plot_filename, bbox_inches='tight')
     log(f"Plot saved as {plot_filename}")
 
     plt.show()

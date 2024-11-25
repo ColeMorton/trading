@@ -53,7 +53,7 @@ class Config(TypedDict):
 config: Config = {
     "USE_CURRENT": True,
     "USE_SMA": False,
-    "TICKER": 'FTM-USD',
+    "TICKER": 'UPS',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,

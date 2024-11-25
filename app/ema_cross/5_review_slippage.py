@@ -49,6 +49,7 @@ class Config(TypedDict):
     USE_RSI: bool
     RSI_PERIOD: int
     RSI_THRESHOLD: float
+    STOP_LOSS: NotRequired[float]
     SHORT: NotRequired[bool]
     USE_SMA: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]
@@ -61,14 +62,18 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'VLO',
-    "SHORT_WINDOW": 10,
-    "LONG_WINDOW": 22,
-    "RSI_PERIOD": 14,
+    "USE_SMA": True,
+    "TICKER": 'CSX',
+    "TICKER_1": 'BTC-USD',
+    "TICKER_2": 'BTC-USD',
     "USE_HOURLY": False,
-    "USE_SMA": False,
+    "USE_SYNTHETIC": False,
+    "SHORT_WINDOW": 75,
+    "LONG_WINDOW": 83,
+    "RSI_PERIOD": 14,
     "USE_RSI": False,
-    "RSI_THRESHOLD": 50
+    "RSI_THRESHOLD": 53,
+    "STOP_LOSS": 0.0416
 }
 
 def run(config: Config = config) -> bool:
