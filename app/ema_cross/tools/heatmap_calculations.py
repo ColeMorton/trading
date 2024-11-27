@@ -9,7 +9,7 @@ def calculate_returns(
     slow_windows: List[int],
     use_ewm: bool,
     freq: str = '1D'
-) -> pd.Series:
+) -> Tuple[pd.Series, pd.Series]:
     """
     Calculate returns for given window combinations using vectorbt.
 
@@ -21,9 +21,10 @@ def calculate_returns(
         freq: Frequency for portfolio calculation
 
     Returns:
-        Series of returns for each window combination
+        Tuple[pd.Series, pd.Series]: Returns and expectancy for each window combination
     """
     returns_list = []
+    expectancy_list = []
     indices = []
     
     # Process each window combination individually
@@ -62,18 +63,28 @@ def calculate_returns(
             returns_list.append(float(total_return.iloc[0]))
         else:
             returns_list.append(float(total_return))
+
+        # Store expectancy
+        expectancy = pf.trades.expectancy()
+        if isinstance(expectancy, pd.Series):
+            expectancy_list.append(float(expectancy.iloc[0]))
+        else:
+            expectancy_list.append(float(expectancy))
+
         indices.append((slow, fast))  # Keep original order (slow, fast)
     
     # Create Series with proper index
     if not returns_list:
-        return pd.Series(dtype=float)
+        return pd.Series(dtype=float), pd.Series(dtype=float)
     
-    return pd.Series(
-        returns_list,
-        index=pd.MultiIndex.from_tuples(
-            indices,
-            names=['slow_window', 'fast_window']
-        )
+    index = pd.MultiIndex.from_tuples(
+        indices,
+        names=['slow_window', 'fast_window']
+    )
+    
+    return (
+        pd.Series(returns_list, index=index),
+        pd.Series(expectancy_list, index=index)
     )
 
 def calculate_full_returns(
@@ -81,7 +92,7 @@ def calculate_full_returns(
     windows: np.ndarray,
     use_ewm: bool,
     freq: str = '1D'
-) -> pd.Series:
+) -> Tuple[pd.Series, pd.Series]:
     """
     Calculate returns for all window combinations using vectorbt.
 
@@ -92,7 +103,7 @@ def calculate_full_returns(
         freq: Frequency for portfolio calculation
 
     Returns:
-        Series of returns for all window combinations
+        Tuple[pd.Series, pd.Series]: Returns and expectancy for all window combinations
     """
     # Generate all valid combinations where fast < slow
     fast_windows = []
