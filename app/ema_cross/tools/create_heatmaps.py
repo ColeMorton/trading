@@ -1,31 +1,32 @@
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from app.ema_cross.tools.heatmap_calculations import (
     calculate_returns,
     calculate_full_returns
 )
 
-def create_heatmap_figure(
+def create_heatmap_figures(
     returns: pd.Series,
     expectancy: pd.Series,
     windows: np.ndarray,
-    subtitle: str
-) -> go.Figure:
+    subtitle: str,
+    ticker: str
+) -> Dict[str, go.Figure]:
     """
-    Create a vectorbt heatmap figure with consistent styling.
-    Makes the heatmap symmetrical by mirroring values across the diagonal.
-    Creates two heatmaps stacked vertically - returns and expectancy.
+    Create separate vectorbt heatmap figures for returns and expectancy with consistent styling.
+    Makes the heatmaps symmetrical by mirroring values across the diagonal.
 
     Args:
         returns: Series of returns
         expectancy: Series of expectancy values
         windows: Array of window values for axes
-        subtitle: Subtitle for the plot
+        subtitle: Subtitle for the plots
+        ticker: Ticker symbol for the plots
 
     Returns:
-        Plotly figure object
+        Dictionary containing two Plotly figure objects - one for returns and one for expectancy
     """
     # Create blank heatmap matrices
     max_window = max(windows)
@@ -54,71 +55,69 @@ def create_heatmap_figure(
     expectancy_zmin = np.min(valid_expectancy)
     expectancy_zmax = np.max(valid_expectancy)
     
-    # Create figure with subplots
-    fig = go.Figure()
-    
-    # Add returns heatmap
-    fig.add_trace(go.Heatmap(
+    # Create returns figure
+    returns_fig = go.Figure()
+    returns_fig.add_trace(go.Heatmap(
         z=returns_heatmap[2:, 2:],  # Slice the heatmap to start at index 2
         x=np.arange(2, max_window + 1),  # Start x axis at 2
         y=np.arange(2, max_window + 1),  # Start y axis at 2
-        colorbar=dict(title='Total Return', tickformat='%', y=0.75, len=0.45),
+        colorbar=dict(title='Total Return', tickformat='%'),
         zmin=returns_zmin,
         zmax=returns_zmax,
-        colorscale='plasma',
-        yaxis='y'
+        colorscale='plasma'
     ))
     
-    # Add expectancy heatmap
-    fig.add_trace(go.Heatmap(
-        z=expectancy_heatmap[2:, 2:],  # Slice the heatmap to start at index 2
-        x=np.arange(2, max_window + 1),  # Start x axis at 2
-        y=np.arange(2, max_window + 1),  # Start y axis at 2
-        colorbar=dict(title='Expectancy', y=0.25, len=0.45),
-        zmin=expectancy_zmin,
-        zmax=expectancy_zmax,
-        colorscale='plasma',
-        yaxis='y2'
-    ))
-    
-    # Update layout to create two vertically stacked plots
-    fig.update_layout(
+    returns_fig.update_layout(
         title=dict(
-            text=f'Moving Average Cross Strategy Analysis<br><sup>{subtitle}</sup>',
+            text=f'{ticker} - Moving Average Cross Strategy Returns<br><sup>{subtitle}</sup>',
             x=0.5,
             xanchor='center'
         ),
-        yaxis=dict(
-            title='Long Window',
-            domain=[0.55, 1]
-        ),
-        yaxis2=dict(
-            title='Long Window',
-            domain=[0, 0.45]
-        ),
-        xaxis=dict(
-            title='Short Window',
-            domain=[0.1, 0.9]
-        ),
-        xaxis2=dict(
-            title='Short Window',
-            domain=[0.1, 0.9],
-            anchor='y2'
-        ),
-        height=1280  # Increase height to accommodate both heatmaps
+        yaxis=dict(title='Long Window'),
+        xaxis=dict(title='Short Window'),
+        autosize=True,  # Enable auto-sizing
+        margin=dict(l=50, r=50, t=100, b=50)  # Adjust margins for better fit
     )
     
-    return fig
+    # Create expectancy figure
+    expectancy_fig = go.Figure()
+    expectancy_fig.add_trace(go.Heatmap(
+        z=expectancy_heatmap[2:, 2:],  # Slice the heatmap to start at index 2
+        x=np.arange(2, max_window + 1),  # Start x axis at 2
+        y=np.arange(2, max_window + 1),  # Start y axis at 2
+        colorbar=dict(title='Expectancy'),
+        zmin=expectancy_zmin,
+        zmax=expectancy_zmax,
+        colorscale='plasma'
+    ))
+    
+    expectancy_fig.update_layout(
+        title=dict(
+            text=f'{ticker} - Moving Average Cross Strategy Expectancy<br><sup>{subtitle}</sup>',
+            x=0.5,
+            xanchor='center'
+        ),
+        yaxis=dict(title='Long Window'),
+        xaxis=dict(title='Short Window'),
+        autosize=True,  # Enable auto-sizing
+        margin=dict(l=50, r=50, t=100, b=50)  # Adjust margins for better fit
+    )
+    
+    return {
+        'returns': returns_fig,
+        'expectancy': expectancy_fig
+    }
 
 def create_current_heatmap(
     price_data: pd.DataFrame,
     windows: np.ndarray,
     window_combs: List[Tuple[int, int]],
     use_ewm: bool,
-    freq: str = '1D'
-) -> go.Figure:
+    freq: str = '1D',
+    ticker: str = ''
+) -> Dict[str, go.Figure]:
     """
-    Create a heatmap showing only current signal combinations.
+    Create heatmaps showing only current signal combinations.
 
     Args:
         price_data: Price data DataFrame (Pandas format required for vectorbt)
@@ -126,9 +125,10 @@ def create_current_heatmap(
         window_combs: List of (short, long) window combinations to display
         use_ewm: Whether to use EMA (True) or SMA (False)
         freq: Frequency for portfolio calculation
+        ticker: Ticker symbol for the plots
 
     Returns:
-        Plotly figure object containing the heatmap
+        Dictionary containing two Plotly figure objects - one for returns and one for expectancy
     """
     # Ensure window_combs is a list of tuples
     if isinstance(window_combs, set):
@@ -148,25 +148,27 @@ def create_current_heatmap(
         raise ValueError("No valid window combinations found")
     
     returns, expectancy = calculate_returns(price_data, fast_windows, slow_windows, use_ewm, freq)
-    return create_heatmap_figure(returns, expectancy, windows, "Current Signals Only")
+    return create_heatmap_figures(returns, expectancy, windows, "Current Signals Only", ticker)
 
 def create_full_heatmap(
     price_data: pd.DataFrame,
     windows: np.ndarray,
     use_ewm: bool,
-    freq: str = '1D'
-) -> go.Figure:
+    freq: str = '1D',
+    ticker: str = ''
+) -> Dict[str, go.Figure]:
     """
-    Create a full heatmap for all window combinations using vectorbt.
+    Create full heatmaps for all window combinations using vectorbt.
 
     Args:
         price_data: Price data DataFrame (Pandas format required for vectorbt)
         windows: Array of window values to test
         use_ewm: Whether to use EMA (True) or SMA (False)
         freq: Frequency for portfolio calculation
+        ticker: Ticker symbol for the plots
 
     Returns:
-        Plotly figure object containing the heatmap
+        Dictionary containing two Plotly figure objects - one for returns and one for expectancy
     """
     returns, expectancy = calculate_full_returns(price_data, windows, use_ewm, freq)
-    return create_heatmap_figure(returns, expectancy, windows, "All Signals")
+    return create_heatmap_figures(returns, expectancy, windows, "All Signals", ticker)

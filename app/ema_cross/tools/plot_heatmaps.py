@@ -7,10 +7,10 @@ from app.ema_cross.tools.heatmap_data import prepare_heatmap_data, validate_wind
 
 def plot_heatmap(results_pl, config: Dict, log: Callable) -> None:
     """
-    Plot heatmap of MA cross strategy performance.
+    Plot heatmaps of MA cross strategy performance.
     
-    Creates either a full heatmap of all possible window combinations or a focused
-    heatmap showing only current signal combinations based on configuration.
+    Creates either full heatmaps of all possible window combinations or focused
+    heatmaps showing only current signal combinations based on configuration.
     Uses Polars for data processing where possible, converting to Pandas only
     when required for vectorbt operations.
 
@@ -24,7 +24,7 @@ def plot_heatmap(results_pl, config: Dict, log: Callable) -> None:
         log: Logging function for recording events and errors
 
     Returns:
-        None. Saves the plot to a file and displays it.
+        None. Saves the plots to files and displays them.
     """
     # Prepare data
     price_data, window_combs, use_ewm = prepare_heatmap_data(results_pl, config, log)
@@ -34,31 +34,33 @@ def plot_heatmap(results_pl, config: Dict, log: Callable) -> None:
 
     # Generate windows array
     windows = np.arange(2, config["WINDOWS"])
-    ma_type = "SMA" if config.get("USE_SMA", False) else "EMA"
     
-    # Create appropriate heatmap
+    # Create appropriate heatmaps
     if config.get("USE_CURRENT", False) and validate_window_combinations(window_combs, windows, config, log):
         window_combs = list(window_combs)  # Convert set to list before sorting
         window_combs.sort()
-        fig = create_current_heatmap(price_data, windows, window_combs, use_ewm, log)
-        title_suffix = "Current Signals Only"
+        figures = create_current_heatmap(
+            price_data, 
+            windows, 
+            window_combs, 
+            use_ewm,
+            ticker=config["TICKER"]
+        )
     else:
-        fig = create_full_heatmap(price_data, windows, use_ewm, log)
-        title_suffix = "All Signals"
+        figures = create_full_heatmap(
+            price_data, 
+            windows, 
+            use_ewm,
+            ticker=config["TICKER"]
+        )
     
-    # Update layout
-    timeframe = "H" if config.get("USE_HOURLY", False) else "D"
-    fig.update_layout(
-        title=f'{config["TICKER"]} {timeframe} {ma_type} Cross Strategy Returns ({title_suffix})',
-        xaxis_title='Short Window',
-        yaxis_title='Long Window'
-    )
-    
-    # Save plot
+    # Save and display plots
     png_path = get_path("png", "ema_cross", config, 'heatmap')
-    png_filename = get_filename("png", config)
-    full_path = f"{png_path}/{png_filename}"
+    base_filename = get_filename("png", config).replace('.png', '')
     
-    fig.write_image(full_path)
-    log(f"Plot saved as {full_path}")
-    fig.show()
+    for plot_type, fig in figures.items():
+        filename = f"{base_filename}_{plot_type}.png"
+        full_path = f"{png_path}/{filename}"
+        fig.write_image(full_path)
+        log(f"{plot_type.capitalize()} plot saved as {full_path}")
+        fig.show()
