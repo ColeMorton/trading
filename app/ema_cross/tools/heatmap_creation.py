@@ -52,7 +52,7 @@ def create_current_heatmap(
         raise ValueError("No valid window combinations found")
     
     returns, expectancy = calculate_returns(price_data, fast_windows, slow_windows, use_ewm, freq, ticker, log)
-    return create_heatmap_figures(returns, expectancy, windows, "Current Signals Only", ticker)
+    return create_heatmap_figures(returns, expectancy, windows, "Current Signals Only", ticker, use_sma=not use_ewm)
 
 def create_full_heatmap(
     price_data: pd.DataFrame,
@@ -77,4 +77,4 @@ def create_full_heatmap(
         Dictionary containing two Plotly figure objects - one for returns and one for expectancy
     """
     returns, expectancy = calculate_full_returns(price_data, windows, use_ewm, freq, ticker, log)
-    return create_heatmap_figures(returns, expectancy, windows, "All Signals", ticker)
+    return create_heatmap_figures(returns, expectancy, windows, "All Signals", ticker, use_sma=not use_ewm)

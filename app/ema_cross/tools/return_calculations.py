@@ -1,14 +1,12 @@
-import os
 import numpy as np
 import pandas as pd
 import vectorbt as vbt
-from typing import List, Tuple, Callable, Optional
+from typing import List, Tuple, Callable, Optional, Dict
 from app.ema_cross.tools.cache_management import (
-    get_cache_path,
-    load_cached_data,
-    save_to_cache,
-    is_file_from_today
+    get_portfolio_path,
+    load_portfolio_data
 )
+from app.tools.file_utils import convert_stats
 
 def calculate_returns(
     price_data: pd.DataFrame,
@@ -21,7 +19,7 @@ def calculate_returns(
 ) -> Tuple[pd.Series, pd.Series]:
     """
     Calculate returns for given window combinations using vectorbt.
-    Uses caching to improve performance.
+    First attempts to load from portfolio file, calculates if not found.
 
     Args:
         price_data: Price data DataFrame (Pandas format required for vectorbt)
@@ -29,50 +27,43 @@ def calculate_returns(
         slow_windows: List of slow (long) window lengths
         use_ewm: Whether to use EMA (True) or SMA (False)
         freq: Frequency for portfolio calculation
-        ticker: Ticker symbol for caching
+        ticker: Ticker symbol for portfolio lookup
         log: Optional logging function
 
     Returns:
         Tuple[pd.Series, pd.Series]: Returns and expectancy for each window combination
     """
     if ticker:
-        cache_path = get_cache_path(ticker, use_ewm, freq, log)
+        portfolio_path = get_portfolio_path(ticker, use_ewm, freq, log)
         
-        # Check if cache exists and is from today (for daily data)
-        if os.path.exists(cache_path):
+        # Try to load from portfolio file
+        if log:
+            log(f"Attempting to load from portfolio: {portfolio_path}")
+        returns, expectancy = load_portfolio_data(portfolio_path, log)
+        if not returns.empty and not expectancy.empty:
             if log:
-                log(f"Found existing cache: {cache_path}")
-            if freq != '1D' or is_file_from_today(cache_path):
-                if log:
-                    log("Cache is valid, attempting to load")
-                cached_returns, cached_expectancy = load_cached_data(cache_path, log)
-                if not cached_returns.empty and not cached_expectancy.empty:
-                    if log:
-                        log("Successfully loaded data from cache")
-                    return cached_returns, cached_expectancy
-            elif log:
-                log("Cache is outdated (not from today)")
+                log("Successfully loaded data from portfolio")
+            return returns, expectancy
         elif log:
-            log("No existing cache found")
+            log("Portfolio data not found or empty, calculating...")
 
     if log:
         log("Calculating returns and expectancy")
     
-    returns_list = []
-    expectancy_list = []
+    stats_list = []
     indices = []
     
     # Process each window combination individually
     for fast, slow in zip(fast_windows, slow_windows):
         # Calculate MAs for this specific combination
         fast_ma = vbt.MA.run(
-            price_data,
+            price_data['Close'],  # Use only Close price
             window=fast,
             ewm=use_ewm,
             short_name='fast'
         )
         slow_ma = vbt.MA.run(
-            price_data,
+            price_data['Close'],  # Use only Close price
             window=slow,
             ewm=use_ewm,
             short_name='slow'
@@ -84,7 +75,7 @@ def calculate_returns(
         
         # Calculate portfolio returns for this combination
         pf = vbt.Portfolio.from_signals(
-            price_data,
+            price_data['Close'],  # Use only Close price
             entries,
             exits,
             size=np.inf,
@@ -92,26 +83,24 @@ def calculate_returns(
             freq=freq
         )
         
-        # Store results
-        total_return = pf.total_return()
-        if isinstance(total_return, pd.Series):
-            returns_list.append(float(total_return.iloc[0]))
-        else:
-            returns_list.append(float(total_return))
-
-        # Store expectancy
-        expectancy = pf.trades.expectancy()
-        if isinstance(expectancy, pd.Series):
-            expectancy_list.append(float(expectancy.iloc[0]))
-        else:
-            expectancy_list.append(float(expectancy))
-
+        # Get portfolio statistics
+        stats = pf.stats()
+        # Add window information
+        stats['Short Window'] = fast
+        stats['Long Window'] = slow
+        stats['Use SMA'] = not use_ewm
+        if ticker:
+            stats['Ticker'] = ticker
+        
+        # Convert stats using existing utility
+        converted_stats = convert_stats(stats)
+        stats_list.append(converted_stats)
         indices.append((slow, fast))  # Keep original order (slow, fast)
     
     # Create Series with proper index
-    if not returns_list:
+    if not stats_list:
         if log:
-            log("No results to cache")
+            log("No results calculated")
         return pd.Series(dtype=float), pd.Series(dtype=float)
     
     index = pd.MultiIndex.from_tuples(
@@ -119,14 +108,9 @@ def calculate_returns(
         names=['slow_window', 'fast_window']
     )
     
-    returns = pd.Series(returns_list, index=index)
-    expectancy = pd.Series(expectancy_list, index=index)
-    
-    # Cache the results if ticker is provided
-    if ticker:
-        if log:
-            log("Caching calculation results")
-        save_to_cache(returns, expectancy, cache_path, log)
+    # Extract returns and expectancy
+    returns = pd.Series([stats['Total Return [%]'] for stats in stats_list], index=index)
+    expectancy = pd.Series([stats['Expectancy'] for stats in stats_list], index=index)
     
     return returns, expectancy
 
@@ -146,7 +130,7 @@ def calculate_full_returns(
         windows: Array of window values to test
         use_ewm: Whether to use EMA (True) or SMA (False)
         freq: Frequency for portfolio calculation
-        ticker: Ticker symbol for caching
+        ticker: Ticker symbol for portfolio lookup
         log: Optional logging function
 
     Returns:

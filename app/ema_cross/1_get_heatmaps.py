@@ -52,7 +52,7 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     "USE_CURRENT": False,
-    "USE_SMA": True,
+    "USE_SMA": False,
     "TICKER": 'AAPL',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
