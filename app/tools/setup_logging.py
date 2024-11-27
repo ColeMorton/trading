@@ -56,6 +56,8 @@ def setup_logging(
     # Configure logger
     logger = logging.getLogger(f"{module_name}.{log_file}")
     logger.setLevel(level)
+    # Prevent propagation to root logger
+    logger.propagate = False
 
     # Clear any existing handlers
     logger.handlers = []
