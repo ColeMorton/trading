@@ -5,31 +5,31 @@ from typing import Dict
 
 def create_heatmap_figures(
     returns: pd.Series,
-    expectancy: pd.Series,
+    trades: pd.Series,
     windows: np.ndarray,
     title: str,
     ticker: str,
     use_sma: bool = True
 ) -> Dict[str, go.Figure]:
     """
-    Create separate heatmap figures for returns and expectancy with consistent styling.
+    Create separate heatmap figures for returns and total trades with consistent styling.
     Makes the heatmaps symmetrical by mirroring values across the diagonal.
 
     Args:
         returns: Series with MultiIndex (slow, fast) containing return values
-        expectancy: Series with MultiIndex (slow, fast) containing expectancy values
+        trades: Series with MultiIndex (slow, fast) containing total trades values
         windows: Array of window values for axes
         title: Title/subtitle for the plots
         ticker: Ticker symbol for the plots
         use_sma: Whether to use SMA (True) or EMA (False)
 
     Returns:
-        Dictionary containing two Plotly figure objects - one for returns and one for expectancy
+        Dictionary containing two Plotly figure objects - one for returns and one for trades
     """
     # Create blank heatmap matrices
     size = len(windows)
     returns_heatmap = np.full((size, size), np.nan)
-    expectancy_heatmap = np.full((size, size), np.nan)
+    trades_heatmap = np.full((size, size), np.nan)
     
     # Create window index mapping
     window_to_idx = {w: i for i, w in enumerate(windows)}
@@ -44,23 +44,23 @@ def create_heatmap_figures(
             if slow != fast:
                 returns_heatmap[fast_idx, slow_idx] = value
             
-    for (slow, fast), value in expectancy.items():
+    for (slow, fast), value in trades.items():
         if slow in window_to_idx and fast in window_to_idx:
             slow_idx = window_to_idx[slow]
             fast_idx = window_to_idx[fast]
-            expectancy_heatmap[slow_idx, fast_idx] = value
+            trades_heatmap[slow_idx, fast_idx] = value
             # Mirror the same value across diagonal (if not on diagonal)
             if slow != fast:
-                expectancy_heatmap[fast_idx, slow_idx] = value
+                trades_heatmap[fast_idx, slow_idx] = value
     
     # Get the actual min and max values from the data (excluding NaN)
     valid_returns = returns_heatmap[~np.isnan(returns_heatmap)]
     returns_zmin = np.min(valid_returns) if len(valid_returns) > 0 else 0
     returns_zmax = np.max(valid_returns) if len(valid_returns) > 0 else 0
     
-    valid_expectancy = expectancy_heatmap[~np.isnan(expectancy_heatmap)]
-    expectancy_zmin = np.min(valid_expectancy) if len(valid_expectancy) > 0 else 0
-    expectancy_zmax = np.max(valid_expectancy) if len(valid_expectancy) > 0 else 0
+    valid_trades = trades_heatmap[~np.isnan(trades_heatmap)]
+    trades_zmin = np.min(valid_trades) if len(valid_trades) > 0 else 0
+    trades_zmax = 200  # Set maximum value to 200 for trades heatmap
     
     # Determine MA type for title
     ma_type = "SMA" if use_sma else "EMA"
@@ -89,21 +89,21 @@ def create_heatmap_figures(
         margin=dict(l=50, r=50, t=100, b=50)
     )
     
-    # Create expectancy figure
-    expectancy_fig = go.Figure()
-    expectancy_fig.add_trace(go.Heatmap(
-        z=expectancy_heatmap,
+    # Create trades figure
+    trades_fig = go.Figure()
+    trades_fig.add_trace(go.Heatmap(
+        z=trades_heatmap,
         x=windows,
         y=windows,
-        colorbar=dict(title='Expectancy'),
-        zmin=expectancy_zmin,
-        zmax=expectancy_zmax,
+        colorbar=dict(title='Total Trades'),
+        zmin=trades_zmin,
+        zmax=trades_zmax,  # Use fixed maximum of 200
         colorscale='plasma'
     ))
     
-    expectancy_fig.update_layout(
+    trades_fig.update_layout(
         title=dict(
-            text=f'{ticker} - {ma_type} Cross Strategy Expectancy<br><sup>{title}</sup>',
+            text=f'{ticker} - {ma_type} Cross Strategy Total Trades<br><sup>{title}</sup>',
             x=0.5,
             xanchor='center'
         ),
@@ -115,5 +115,5 @@ def create_heatmap_figures(
     
     return {
         'returns': returns_fig,
-        'expectancy': expectancy_fig
+        'trades': trades_fig
     }

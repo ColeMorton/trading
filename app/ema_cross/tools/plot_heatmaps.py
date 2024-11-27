@@ -16,7 +16,7 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> N
 
     Args:
         portfolio_data: Polars DataFrame containing portfolio performance data with columns:
-            - metric: str, type of metric (returns or expectancy)
+            - metric: str, type of metric (returns or trades)
             - value: float, value of the metric
             - fast_window: int, short moving average window
             - slow_window: int, long moving average window
@@ -53,23 +53,23 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> N
             )
         )
         
-        # Create expectancy Series
-        expectancy_df = df[df['metric'] == 'expectancy']
-        expectancy = pd.Series(
-            expectancy_df['value'].values,
+        # Create trades Series
+        trades_df = df[df['metric'] == 'trades']
+        trades = pd.Series(
+            trades_df['value'].values,
             index=pd.MultiIndex.from_arrays(
-                [expectancy_df['slow_window'].values, expectancy_df['fast_window'].values],
+                [trades_df['slow_window'].values, trades_df['fast_window'].values],
                 names=['slow', 'fast']
             )
         )
         
-        if len(returns) == 0 or len(expectancy) == 0:
-            raise ValueError("Portfolio data missing required metrics (returns and/or expectancy)")
+        if len(returns) == 0 or len(trades) == 0:
+            raise ValueError("Portfolio data missing required metrics (returns and/or trades)")
         
         # Create heatmap figures
         figures = create_heatmap_figures(
             returns=returns,
-            expectancy=expectancy,
+            trades=trades,
             windows=windows,
             title="Portfolio Performance",
             ticker=config["TICKER"],

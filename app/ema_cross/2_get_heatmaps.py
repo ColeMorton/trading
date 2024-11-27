@@ -74,7 +74,7 @@ def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
             - Short Window
             - Long Window
             - Total Return [%]
-            - Expectancy
+            - Total Trades
 
     Returns:
         pl.DataFrame: Transformed data with columns:
@@ -91,16 +91,16 @@ def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
         'slow_window': data['Long Window']
     })
 
-    # Create expectancy data
-    expectancy_data = pl.DataFrame({
-        'metric': ['expectancy'] * len(data),
-        'value': data['Expectancy'],
+    # Create trades data, converting Total Trades to float
+    trades_data = pl.DataFrame({
+        'metric': ['trades'] * len(data),
+        'value': data['Total Trades'].cast(pl.Float64),
         'fast_window': data['Short Window'],
         'slow_window': data['Long Window']
     })
 
     # Combine both metrics
-    return pl.concat([returns_data, expectancy_data])
+    return pl.concat([returns_data, trades_data])
 
 def run(config: Config = config) -> bool:
     """

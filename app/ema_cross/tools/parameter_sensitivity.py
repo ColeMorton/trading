@@ -1,5 +1,4 @@
 import polars as pl
-import os
 from typing import Dict, Any, Optional, Callable
 from app.ema_cross.tools.sensitivity_analysis import analyze_parameter_combinations
 from app.tools.export_csv import export_csv

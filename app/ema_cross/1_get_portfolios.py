@@ -27,7 +27,6 @@ class Config(TypedDict):
     Optional Fields:
         USE_CURRENT (NotRequired[bool]): Whether to emphasize current window combinations
         SHORT (NotRequired[bool]): Whether to enable short positions
-        USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average instead of EMA
         USE_HOURLY (NotRequired[bool]): Whether to use hourly data
         USE_YEARS (NotRequired[bool]): Whether to limit data by years
         YEARS (NotRequired[float]): Number of years of data to use
@@ -40,7 +39,6 @@ class Config(TypedDict):
     WINDOWS: int
     USE_CURRENT: NotRequired[bool]
     SHORT: NotRequired[bool]
-    USE_SMA: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]
     USE_YEARS: NotRequired[bool]
     YEARS: NotRequired[float]
@@ -51,7 +49,7 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": ['REG', 'PRU', 'LKQ', 'NXPI', 'AMZN', 'D', 'MSFT', 'MMM', 'VRSN'],
+    "TICKER": ['AMZN', 'D', 'FSLR', 'LEN', 'LKQ', 'MMM', 'MSFT', 'NXPI', 'PRU', 'REG', 'UDR', 'VRSN'],
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "REFRESH": False,
