@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 import polars as pl
 from typing import List, Dict, Tuple, Callable
 from app.utils import get_path, get_filename
@@ -33,6 +34,12 @@ def export_portfolios(
 
         # Create export directory if it doesn't exist
         csv_path = get_path("csv", "ma_cross", config, export_type)
+        
+        # If USE_CURRENT is True, create a date subdirectory
+        if config.get("USE_CURRENT", False):
+            today = datetime.now().strftime("%Y%m%d")
+            csv_path = os.path.join(csv_path, today)
+        
         os.makedirs(csv_path, exist_ok=True)
         
         # Export results to CSV

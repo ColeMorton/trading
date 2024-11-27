@@ -51,10 +51,10 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'UDR',
+    "TICKER": 'AAPL',
     "WINDOWS": 89,
     "USE_HOURLY": False,
-    "REFRESH": False,
+    "REFRESH": True,
     "USE_CURRENT": True,
     "BASE_DIR": os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 }

@@ -108,6 +108,17 @@ def get_filename(type: str, config: dict) -> str:
     return filename
 
 def get_path(type: str, feature1: str, config: dict, feature2: str = "") -> str:
+    """Generate path based on configuration.
+    
+    Args:
+        type (str): Directory type (e.g., 'csv', 'png')
+        feature1 (str): First feature directory
+        config (dict): Configuration dictionary
+        feature2 (str): Second feature directory (optional)
+        
+    Returns:
+        str: Generated path
+    """
     path = os.path.join(config['BASE_DIR'], f'{type}/{feature1}{"/" + feature2 if feature2 != "" else ""}')
     return path
 
@@ -123,6 +134,12 @@ def save_csv(data: pl.DataFrame, feature1: str, config: dict, feature2: str = ""
     try:
         # Ensure directory exists
         csv_path = get_path("csv", feature1, config, feature2)
+        
+        # If USE_CURRENT is True, create a date subdirectory
+        if config.get("USE_CURRENT", False):
+            today = datetime.now().strftime("%Y%m%d")
+            csv_path = os.path.join(csv_path, today)
+            
         os.makedirs(csv_path, exist_ok=True)
         
         # Get full file path

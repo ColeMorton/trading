@@ -1,5 +1,6 @@
 import polars as pl
 import os
+from datetime import datetime
 from typing import Dict, Callable
 from app.ema_cross.tools.portfolio_metrics import (
     NUMERIC_METRICS,
@@ -60,8 +61,13 @@ def filter_portfolios(df: pl.DataFrame, config: Dict, log: Callable) -> pl.DataF
         # Get base directory from config
         base_dir = config.get('BASE_DIR', os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
         
-        # Construct paths
+        # Construct base path
         portfolios_dir = os.path.join(base_dir, 'csv', 'ma_cross', 'portfolios_filtered')
+        
+        # If USE_CURRENT is True, add date subdirectory
+        if config.get("USE_CURRENT", False):
+            today = datetime.now().strftime("%Y%m%d")
+            portfolios_dir = os.path.join(portfolios_dir, today)
         
         # Ensure directory exists
         os.makedirs(portfolios_dir, exist_ok=True)
@@ -78,6 +84,7 @@ def filter_portfolios(df: pl.DataFrame, config: Dict, log: Callable) -> pl.DataF
         log(f"Filtering results for {ticker}")
         log(f"USE_HOURLY: {use_hourly}")
         log(f"USE_SMA: {use_sma}")
+        log(f"USE_CURRENT: {config.get('USE_CURRENT', False)}")
         log(f"Saving to: {full_path}")
         
         # Save file

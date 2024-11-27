@@ -25,6 +25,7 @@ class ExportConfig(TypedDict):
         USE_SMA (NotRequired[bool]): Whether SMA is used instead of EMA
         USE_GBM (NotRequired[bool]): Whether GBM simulation is used
         SHOW_LAST (NotRequired[bool]): Whether to include date in filename
+        USE_CURRENT (NotRequired[bool]): Whether to use date subdirectory
     """
     BASE_DIR: str
     TICKER: NotRequired[Union[str, list[str]]]
@@ -32,6 +33,7 @@ class ExportConfig(TypedDict):
     USE_SMA: NotRequired[bool]
     USE_GBM: NotRequired[bool]
     SHOW_LAST: NotRequired[bool]
+    USE_CURRENT: NotRequired[bool]
 
 def _get_ticker_prefix(config: ExportConfig) -> str:
     """Generate ticker prefix for filename.
@@ -92,6 +94,11 @@ def _get_export_path(feature1: str, config: ExportConfig, feature2: str = "") ->
     
     if feature2:
         path_components.append(feature2)
+        
+    # If USE_CURRENT is True, add date subdirectory
+    if config.get("USE_CURRENT", False):
+        today = datetime.now().strftime("%Y%m%d")
+        path_components.append(today)
         
     return os.path.join(*path_components)
 
