@@ -51,7 +51,7 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'AAPL',
+    "TICKER": 'UDR',
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "REFRESH": True,

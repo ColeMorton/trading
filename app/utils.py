@@ -1,18 +1,34 @@
+"""
+Core Utility Functions Module
+
+This module provides core utility functions for data processing,
+visualization, and analysis.
+"""
+
 import polars as pl
 import numpy as np
 from datetime import datetime
-from typing import Tuple
+from typing import Tuple, Dict, Any, List, Optional, Union
 import pandas as pd
 import vectorbt as vbt
 import logging
 import os
 
-def calculate_metrics(trades: list, short: bool) -> Tuple[float, float, float]:
-    """Calculate performance metrics from a list of trades."""
+def calculate_metrics(trades: List[Tuple[float, float]], short: bool) -> Tuple[float, float, float]:
+    """Calculate performance metrics from a list of trades.
+    
+    Args:
+        trades: List of (entry_price, exit_price) tuples
+        short: Whether trades are short positions
+        
+    Returns:
+        Tuple of (total_return_pct, win_rate_pct, expectancy)
+    """
     if not trades:
         return 0, 0, 0
     
-    returns = [(exit_price / entry_price - 1) * (-1 if short else 1) for entry_price, exit_price in trades]
+    returns = [(exit_price / entry_price - 1) * (-1 if short else 1) 
+              for entry_price, exit_price in trades]
     total_return = np.prod([1 + r for r in returns]) - 1
     win_rate = sum(1 for r in returns if r > 0) / len(returns)
     
@@ -22,26 +38,64 @@ def calculate_metrics(trades: list, short: bool) -> Tuple[float, float, float]:
     
     return total_return * 100, win_rate * 100, expectancy
 
-def find_prominent_peaks(x: np.ndarray, y: np.ndarray, prominence: float = 1, distance: int = 10) -> np.ndarray:
-    """Find prominent peaks in a dataset."""
+def find_prominent_peaks(
+    x: np.ndarray, 
+    y: np.ndarray, 
+    prominence: float = 1, 
+    distance: int = 10
+) -> np.ndarray:
+    """Find prominent peaks in a dataset.
+    
+    Args:
+        x: X-axis values
+        y: Y-axis values
+        prominence: Required prominence of peaks
+        distance: Required distance between peaks
+        
+    Returns:
+        Array of peak indices
+    """
     from scipy.signal import find_peaks
     peaks, _ = find_peaks(y, prominence=prominence, distance=distance)
     return peaks
 
-def add_peak_labels(ax, x: np.ndarray, y: np.ndarray, peaks: np.ndarray, fmt: str = '.2f'):
-    """Add labels to peaks in a plot."""
+def add_peak_labels(
+    ax: Any, 
+    x: np.ndarray, 
+    y: np.ndarray, 
+    peaks: np.ndarray, 
+    fmt: str = '.2f'
+) -> None:
+    """Add labels to peaks in a plot.
+    
+    Args:
+        ax: Matplotlib axis object
+        x: X-axis values
+        y: Y-axis values
+        peaks: Array of peak indices
+        fmt: Number format string
+    """
     for peak in peaks:
-        ax.annotate(f'({x[peak]:.2f}, {y[peak]:{fmt}})',
-                    (x[peak], y[peak]),
-                    xytext=(0, 10),
-                    textcoords='offset points',
-                    ha='center',
-                    va='bottom',
-                    bbox=dict(boxstyle='round,pad=0.5', fc='cyan', alpha=0.5),
-                    arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=0'))
+        ax.annotate(
+            f'({x[peak]:.2f}, {y[peak]:{fmt}})',
+            (x[peak], y[peak]),
+            xytext=(0, 10),
+            textcoords='offset points',
+            ha='center',
+            va='bottom',
+            bbox=dict(boxstyle='round,pad=0.5', fc='cyan', alpha=0.5),
+            arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=0')
+        )
 
-def convert_stats(stats):
-    """Convert stats to compatible format."""
+def convert_stats(stats: Dict[str, Any]) -> Dict[str, Any]:
+    """Convert stats to compatible format.
+    
+    Args:
+        stats: Dictionary of statistics
+        
+    Returns:
+        Dictionary with converted values
+    """
     converted = {}
     for k, v in stats.items():
         if k == 'Start' or k == 'End':
@@ -52,8 +106,19 @@ def convert_stats(stats):
             converted[k] = v
     return converted
 
-def backtest_strategy(data: pl.DataFrame, config: dict) -> vbt.Portfolio:
-    """Backtest the MA cross strategy."""
+def backtest_strategy(data: pl.DataFrame, config: Dict[str, Any]) -> Optional[vbt.Portfolio]:
+    """Backtest the MA cross strategy.
+    
+    Args:
+        data: Price data DataFrame
+        config: Configuration dictionary
+        
+    Returns:
+        Portfolio object or None if backtest fails
+        
+    Raises:
+        Exception: If backtest fails
+    """
     try:
         freq = 'h' if config.get('USE_HOURLY', False) else 'D'
         
@@ -81,16 +146,17 @@ def backtest_strategy(data: pl.DataFrame, config: dict) -> vbt.Portfolio:
         
         logging.info("Backtest completed successfully")
         return portfolio
+        
     except Exception as e:
         logging.error(f"Backtest failed: {e}")
         raise
 
-def get_filename(type: str, config: dict) -> str:
+def get_filename(type: str, config: Dict[str, Any]) -> str:
     """Generate filename based on configuration.
     
     Args:
-        type (str): File type/extension
-        config (dict): Configuration dictionary
+        type: File type/extension
+        config: Configuration dictionary
         
     Returns:
         str: Generated filename
@@ -102,55 +168,41 @@ def get_filename(type: str, config: dict) -> str:
             ticker_prefix = f"{config['TICKER']}_"
         elif isinstance(config["TICKER"], list) and len(config["TICKER"]) == 1:
             ticker_prefix = f"{config['TICKER'][0]}_"
-        # For multiple tickers, don't include ticker in filename
     
-    filename = f'{ticker_prefix}{"H" if config.get("USE_HOURLY", False) else "D"}{"_SMA" if config.get("USE_SMA", False) else "_EMA"}{"_GBM" if config.get("USE_GBM", False) else ""}{"_" + datetime.now().strftime("%Y%m%d") if config.get("SHOW_LAST", False) else ""}.{type}'
-    return filename
+    components = [
+        ticker_prefix,
+        "H" if config.get("USE_HOURLY", False) else "D",
+        "_SMA" if config.get("USE_SMA", False) else "_EMA",
+        "_GBM" if config.get("USE_GBM", False) else "",
+        f"_{datetime.now().strftime('%Y%m%d')}" if config.get("SHOW_LAST", False) else ""
+    ]
+    
+    return f"{''.join(components)}.{type}"
 
-def get_path(type: str, feature1: str, config: dict, feature2: str = "") -> str:
+def get_path(type: str, feature1: str, config: Dict[str, Any], feature2: str = "") -> str:
     """Generate path based on configuration.
     
     Args:
-        type (str): Directory type (e.g., 'csv', 'png')
-        feature1 (str): First feature directory
-        config (dict): Configuration dictionary
-        feature2 (str): Second feature directory (optional)
+        type: Directory type (e.g., 'csv', 'png')
+        feature1: First feature directory
+        config: Configuration dictionary
+        feature2: Secondary feature directory (optional)
         
     Returns:
         str: Generated path
     """
-    path = os.path.join(config['BASE_DIR'], f'{type}/{feature1}{"/" + feature2 if feature2 != "" else ""}')
-    return path
-
-def save_csv(data: pl.DataFrame, feature1: str, config: dict, feature2: str = "") -> None:
-    """Save DataFrame to CSV with proper formatting.
+    path_components = [
+        config['BASE_DIR'],
+        type,
+        feature1
+    ]
     
-    Args:
-        data: Polars DataFrame to save
-        feature1: First feature directory
-        config: Configuration dictionary
-        feature2: Second feature directory (optional)
-    """
-    try:
-        # Ensure directory exists
-        csv_path = get_path("csv", feature1, config, feature2)
+    if feature2:
+        path_components.append(feature2)
         
-        # If USE_CURRENT is True, create a date subdirectory
-        if config.get("USE_CURRENT", False):
-            today = datetime.now().strftime("%Y%m%d")
-            csv_path = os.path.join(csv_path, today)
-            
-        os.makedirs(csv_path, exist_ok=True)
+    # If USE_CURRENT is True, add date subdirectory
+    if config.get("USE_CURRENT", False):
+        today = datetime.now().strftime("%Y%m%d")
+        path_components.append(today)
         
-        # Get full file path
-        csv_filename = get_filename("csv", config)
-        full_path = os.path.join(csv_path, csv_filename)
-        
-        # Write CSV with explicit separator and line terminator
-        data.write_csv(full_path, separator=",")
-        
-        print(f"{len(data)} rows exported to {full_path}")
-        
-    except Exception as e:
-        logging.error(f"Failed to save CSV: {e}")
-        raise
+    return os.path.join(*path_components)

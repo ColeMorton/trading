@@ -9,7 +9,7 @@ and proper CSV formatting.
 import os
 import logging
 from datetime import datetime
-from typing import Union, TypedDict, NotRequired
+from typing import Union, TypedDict, NotRequired, List, Dict, Tuple, Optional, Callable
 import polars as pl
 import pandas as pd
 
@@ -28,7 +28,7 @@ class ExportConfig(TypedDict):
         USE_CURRENT (NotRequired[bool]): Whether to use date subdirectory
     """
     BASE_DIR: str
-    TICKER: NotRequired[Union[str, list[str]]]
+    TICKER: NotRequired[Union[str, List[str]]]
     USE_HOURLY: NotRequired[bool]
     USE_SMA: NotRequired[bool]
     USE_GBM: NotRequired[bool]
@@ -54,14 +54,15 @@ def _get_ticker_prefix(config: ExportConfig) -> str:
         return f"{ticker[0]}_"
     return ""
 
-def _get_filename(config: ExportConfig) -> str:
+def _get_filename(config: ExportConfig, extension: str = "csv") -> str:
     """Generate standardized filename based on configuration.
     
     Args:
         config: Export configuration dictionary
+        extension: File extension without dot
         
     Returns:
-        str: Generated filename with .csv extension
+        str: Generated filename with extension
     """
     ticker_prefix = _get_ticker_prefix(config)
     
@@ -73,7 +74,7 @@ def _get_filename(config: ExportConfig) -> str:
         f"_{datetime.now().strftime('%Y%m%d')}" if config.get("SHOW_LAST", False) else ""
     ]
     
-    return f"{''.join(components)}.csv"
+    return f"{''.join(components)}.{extension}"
 
 def _get_export_path(feature1: str, config: ExportConfig, feature2: str = "") -> str:
     """Generate full export path.
@@ -103,12 +104,14 @@ def _get_export_path(feature1: str, config: ExportConfig, feature2: str = "") ->
     return os.path.join(*path_components)
 
 def export_csv(
-    data: Union[pl.DataFrame, pd.DataFrame],
+    data: Union[pl.DataFrame, pd.DataFrame, List[Dict]],
     feature1: str,
     config: ExportConfig,
-    feature2: str = ""
-) -> None:
-    """Export DataFrame to CSV with proper formatting.
+    feature2: str = "",
+    filename: Optional[str] = None,
+    log: Optional[Callable] = None
+) -> Tuple[pl.DataFrame, bool]:
+    """Export data to CSV with proper formatting.
     
     This function handles:
     1. Directory creation if needed
@@ -117,22 +120,31 @@ def export_csv(
     4. Support for both Polars and Pandas DataFrames
     
     Args:
-        data: DataFrame to export (Polars or Pandas)
+        data: Data to export (DataFrame or list of dictionaries)
         feature1: Primary feature directory
         config: Export configuration dictionary
         feature2: Secondary feature directory (optional)
+        filename: Optional custom filename
+        log: Optional logging function
+        
+    Returns:
+        Tuple of (DataFrame, success status)
         
     Raises:
         Exception: If export fails
     """
     try:
+        # Convert list of dictionaries to Polars DataFrame if needed
+        if isinstance(data, list):
+            data = pl.DataFrame(data)
+        
         # Create export directory
         export_path = _get_export_path(feature1, config, feature2)
         os.makedirs(export_path, exist_ok=True)
         
         # Generate full file path
-        filename = _get_filename(config)
-        full_path = os.path.join(export_path, filename)
+        full_path = os.path.join(export_path, 
+                               filename if filename else _get_filename(config))
         
         # Export based on DataFrame type
         if isinstance(data, pl.DataFrame):
@@ -140,11 +152,20 @@ def export_csv(
         elif isinstance(data, pd.DataFrame):
             data.to_csv(full_path, index=False)
         else:
-            raise TypeError("Data must be either a Polars or Pandas DataFrame")
+            raise TypeError("Data must be either a DataFrame or list of dictionaries")
         
-        logging.info(f"{len(data)} rows exported to {full_path}")
-        print(f"{len(data)} rows exported to {full_path}")
+        # Log success
+        message = f"{len(data)} rows exported to {full_path}"
+        if log:
+            log(f"Successfully exported results to {full_path}")
+        logging.info(message)
+        print(message)
+        
+        return data if isinstance(data, pl.DataFrame) else pl.DataFrame(data), True
         
     except Exception as e:
-        logging.error(f"Failed to export CSV: {str(e)}")
-        raise
+        error_msg = f"Failed to export CSV: {str(e)}"
+        if log:
+            log(error_msg, "error")
+        logging.error(error_msg)
+        return pl.DataFrame(), False

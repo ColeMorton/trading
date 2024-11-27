@@ -1,7 +1,13 @@
+"""
+Portfolio Filtering Module
+
+This module handles the filtering and analysis of portfolio metrics,
+creating summaries of extreme values.
+"""
+
 import polars as pl
-import os
-from datetime import datetime
-from typing import Dict, Callable
+from typing import Dict, Callable, List
+from app.tools.export_csv import export_csv, ExportConfig
 from app.ema_cross.tools.portfolio_metrics import (
     NUMERIC_METRICS,
     DURATION_METRICS,
@@ -9,9 +15,52 @@ from app.ema_cross.tools.portfolio_metrics import (
     create_metric_result
 )
 
-def filter_portfolios(df: pl.DataFrame, config: Dict, log: Callable) -> pl.DataFrame:
+def _process_metrics(
+    df: pl.DataFrame,
+    metrics: List[str],
+    columns: List[str]
+) -> List[Dict]:
+    """Process a list of metrics and create result rows.
+    
+    Args:
+        df: DataFrame containing portfolio data
+        metrics: List of metrics to process
+        columns: DataFrame columns
+        
+    Returns:
+        List of result dictionaries
     """
-    Filter and analyze portfolio metrics, creating a summary of extreme values.
+    result_rows = []
+    for metric in metrics:
+        if metric in df.columns:
+            rows = get_metric_rows(df, metric)
+            result_rows.extend(create_metric_result(metric, rows, columns))
+    return result_rows
+
+def _prepare_result_df(result_rows: List[Dict]) -> pl.DataFrame:
+    """Prepare and format the result DataFrame.
+    
+    Args:
+        result_rows: List of result dictionaries
+        
+    Returns:
+        Formatted Polars DataFrame
+    """
+    if not result_rows:
+        return pl.DataFrame()
+        
+    result_df = pl.DataFrame(result_rows)
+    
+    # Sort portfolios by Total Return [%] in descending order
+    if 'Total Return [%]' in result_df.columns:
+        result_df = result_df.sort("Total Return [%]", descending=True)
+    
+    # Reorder columns to put Metric Type first
+    cols = ['Metric Type'] + [col for col in result_df.columns if col != 'Metric Type']
+    return result_df.select(cols)
+
+def filter_portfolios(df: pl.DataFrame, config: ExportConfig, log: Callable) -> pl.DataFrame:
+    """Filter and analyze portfolio metrics, creating a summary of extreme values.
 
     Args:
         df: DataFrame containing portfolio data
@@ -27,73 +76,33 @@ def filter_portfolios(df: pl.DataFrame, config: Dict, log: Callable) -> pl.DataF
             log("No portfolios to filter - returning empty DataFrame", "warning")
             return df
             
-        # Initialize result array
+        # Process metrics
         result_rows = []
-
-        # Process numeric metrics
-        for metric in NUMERIC_METRICS:
-            if metric in df.columns:
-                rows = get_metric_rows(df, metric)
-                result_rows.extend(create_metric_result(metric, rows, df.columns))
-
-        # Process duration metrics
-        for metric in DURATION_METRICS:
-            if metric in df.columns:
-                rows = get_metric_rows(df, metric)
-                result_rows.extend(create_metric_result(metric, rows, df.columns))
-
-        # If no results were generated, return empty DataFrame
-        if not result_rows:
+        result_rows.extend(_process_metrics(df, NUMERIC_METRICS, df.columns))
+        result_rows.extend(_process_metrics(df, DURATION_METRICS, df.columns))
+        
+        # Prepare result DataFrame
+        result_df = _prepare_result_df(result_rows)
+        if len(result_df) == 0:
             log("No results generated - returning empty DataFrame", "warning")
-            return pl.DataFrame()
-
-        # Convert results to DataFrame
-        result_df = pl.DataFrame(result_rows)
-
-        # Sort portfolios by Total Return [%] in descending order
-        if 'Total Return [%]' in result_df.columns:
-            result_df = result_df.sort("Total Return [%]", descending=True)
-
-        # Reorder columns to put Metric Type first
-        cols = ['Metric Type'] + [col for col in result_df.columns if col != 'Metric Type']
-        result_df = result_df.select(cols)
-
-        # Get base directory from config
-        base_dir = config.get('BASE_DIR', os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
-        
-        # Construct base path
-        portfolios_dir = os.path.join(base_dir, 'csv', 'ma_cross', 'portfolios_filtered')
-        
-        # If USE_CURRENT is True, add date subdirectory
-        if config.get("USE_CURRENT", False):
-            today = datetime.now().strftime("%Y%m%d")
-            portfolios_dir = os.path.join(portfolios_dir, today)
-        
-        # Ensure directory exists
-        os.makedirs(portfolios_dir, exist_ok=True)
-        
-        # Construct filename
-        ticker = config.get("TICKER", "")
-        use_hourly = config.get("USE_HOURLY", False)
-        use_sma = config.get("USE_SMA", False)
-        
-        filename = f"{ticker}_{'H' if use_hourly else 'D'}_{'SMA' if use_sma else 'EMA'}.csv"
-        full_path = os.path.join(portfolios_dir, filename)
-        
+            return result_df
+            
         # Log configuration details
-        log(f"Filtering results for {ticker}")
-        log(f"USE_HOURLY: {use_hourly}")
-        log(f"USE_SMA: {use_sma}")
+        log(f"Filtering results for {config.get('TICKER', '')}")
+        log(f"USE_HOURLY: {config.get('USE_HOURLY', False)}")
+        log(f"USE_SMA: {config.get('USE_SMA', False)}")
         log(f"USE_CURRENT: {config.get('USE_CURRENT', False)}")
-        log(f"Saving to: {full_path}")
         
-        # Save file
-        result_df.write_csv(full_path)
+        # Export filtered results
+        export_csv(
+            data=result_df,
+            feature1="ma_cross",
+            config=config,
+            feature2="portfolios_filtered",
+            log=log
+        )
         
-        log(f"Filtered results exported successfully")
-        print(f"Analysis complete. Results written to {portfolios_dir}")
-        print(f"Total rows in output: {len(result_rows)}")
-
+        print(f"Analysis complete. Total rows in output: {len(result_rows)}")
         return result_df
         
     except Exception as e:
