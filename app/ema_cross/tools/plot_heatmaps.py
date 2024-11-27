@@ -16,7 +16,7 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> N
 
     Args:
         portfolio_data: Polars DataFrame containing portfolio performance data with columns:
-            - metric: str, type of metric (returns, trades, or sortino)
+            - metric: str, type of metric (returns, trades, or sharpe)
             - value: float, value of the metric
             - fast_window: int, short moving average window
             - slow_window: int, long moving average window
@@ -63,24 +63,24 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> N
             )
         )
 
-        # Create Sortino Series
-        sortino_df = df[df['metric'] == 'sortino']
-        sortino = pd.Series(
-            sortino_df['value'].values,
+        # Create Sharpe Series
+        sharpe_df = df[df['metric'] == 'sharpe']
+        sharpe = pd.Series(
+            sharpe_df['value'].values,
             index=pd.MultiIndex.from_arrays(
-                [sortino_df['slow_window'].values, sortino_df['fast_window'].values],
+                [sharpe_df['slow_window'].values, sharpe_df['fast_window'].values],
                 names=['slow', 'fast']
             )
         )
         
-        if len(returns) == 0 or len(trades) == 0 or len(sortino) == 0:
-            raise ValueError("Portfolio data missing required metrics (returns, trades, and/or sortino)")
+        if len(returns) == 0 or len(trades) == 0 or len(sharpe) == 0:
+            raise ValueError("Portfolio data missing required metrics (returns, trades, and/or sharpe)")
         
         # Create heatmap figures
         figures = create_heatmap_figures(
             returns=returns,
             trades=trades,
-            sortino=sortino,
+            sortino=sharpe,  # Keep parameter name as sortino for backwards compatibility
             windows=windows,
             title="Portfolio Performance",
             ticker=config["TICKER"],

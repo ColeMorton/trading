@@ -75,7 +75,7 @@ def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
             - Long Window
             - Total Return [%]
             - Total Trades
-            - Sortino Ratio
+            - Sharpe Ratio
 
     Returns:
         pl.DataFrame: Transformed data with columns:
@@ -100,16 +100,16 @@ def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
         'slow_window': data['Long Window']
     })
 
-    # Create Sortino Ratio data
-    sortino_data = pl.DataFrame({
-        'metric': ['sortino'] * len(data),
-        'value': data['Sortino Ratio'],
+    # Create Sharpe Ratio data
+    sharpe_data = pl.DataFrame({
+        'metric': ['sharpe'] * len(data),
+        'value': data['Sharpe Ratio'],
         'fast_window': data['Short Window'],
         'slow_window': data['Long Window']
     })
 
     # Combine all metrics
-    return pl.concat([returns_data, trades_data, sortino_data])
+    return pl.concat([returns_data, trades_data, sharpe_data])
 
 def run(config: Config = config) -> bool:
     """
