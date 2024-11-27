@@ -1,11 +1,8 @@
 import numpy as np
 import pandas as pd
+import polars as pl
 import vectorbt as vbt
 from typing import List, Tuple, Callable, Optional, Dict
-from app.ema_cross.tools.cache_management import (
-    get_portfolio_path,
-    load_portfolio_data
-)
 from app.tools.file_utils import convert_stats
 
 def calculate_returns(
@@ -19,7 +16,6 @@ def calculate_returns(
 ) -> Tuple[pd.Series, pd.Series]:
     """
     Calculate returns for given window combinations using vectorbt.
-    First attempts to load from portfolio file, calculates if not found.
 
     Args:
         price_data: Price data DataFrame (Pandas format required for vectorbt)
@@ -33,20 +29,6 @@ def calculate_returns(
     Returns:
         Tuple[pd.Series, pd.Series]: Returns and expectancy for each window combination
     """
-    if ticker:
-        portfolio_path = get_portfolio_path(ticker, use_ewm, freq, log)
-        
-        # Try to load from portfolio file
-        if log:
-            log(f"Attempting to load from portfolio: {portfolio_path}")
-        returns, expectancy = load_portfolio_data(portfolio_path, log)
-        if not returns.empty and not expectancy.empty:
-            if log:
-                log("Successfully loaded data from portfolio")
-            return returns, expectancy
-        elif log:
-            log("Portfolio data not found or empty, calculating...")
-
     if log:
         log("Calculating returns and expectancy")
     
