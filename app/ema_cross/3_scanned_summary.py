@@ -6,29 +6,12 @@ It aggregates and analyzes the performance of both SMA and EMA strategies across
 multiple tickers, calculating key metrics like expectancy and tradability.
 """
 
-import os
 import polars as pl
-from typing import Tuple, Callable
 from app.tools.setup_logging import setup_logging
 from tools.summary_processing import (
     process_ticker_portfolios,
     export_summary_results
 )
-
-def setup_logging_for_summary() -> Tuple[Callable, Callable, Callable, object]:
-    """
-    Set up logging configuration for scanner summary.
-
-    Returns:
-        Tuple[Callable, Callable, Callable, object]: Tuple containing:
-            - log function
-            - log_close function
-            - logger object
-            - file handler object
-    """
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    log_dir = os.path.join(project_root, 'logs', 'ma_cross')
-    return setup_logging('ma_cross', '3_scanned_summary.log', log_subdir=log_dir)
 
 def run(scanner_list: str = 'DAILY.csv') -> bool:
     """
@@ -84,7 +67,7 @@ def run(scanner_list: str = 'DAILY.csv') -> bool:
 
 if __name__ == "__main__":
     try:
-        result = run()
+        result = run('20241126.csv')
         if result:
             print("Execution completed successfully!")
     except Exception as e:

@@ -83,6 +83,37 @@ def process_ticker_portfolios(ticker: str, row: dict, log: Callable) -> Optional
         log(f"Failed to process stats for {ticker}: {e}", "error")
         return None
 
+def reorder_columns(portfolio: Dict) -> Dict:
+    """
+    Reorder columns to match required format.
+
+    Args:
+        portfolio (Dict): Portfolio statistics
+
+    Returns:
+        Dict: Portfolio with reordered columns
+    """
+    first_columns = [
+        'Ticker',
+        'Use SMA',
+        'Short Window',
+        'Long Window',
+        'Expectancy Adjusted',
+        'Tradability'
+    ]
+    
+    reordered = {}
+    # Add first columns in specified order
+    for col in first_columns:
+        reordered[col] = portfolio[col]
+    
+    # Add remaining columns
+    for key, value in portfolio.items():
+        if key not in first_columns:
+            reordered[key] = value
+            
+    return reordered
+
 def export_summary_results(portfolios: List[Dict], scanner_list: str, log: Callable) -> bool:
     """
     Export portfolio summary results to CSV.
@@ -96,9 +127,12 @@ def export_summary_results(portfolios: List[Dict], scanner_list: str, log: Calla
         bool: True if export successful, False otherwise
     """
     if portfolios:
+        # Reorder columns for each portfolio
+        reordered_portfolios = [reorder_columns(p) for p in portfolios]
+        
         config = get_config({})  # Empty config as we don't need specific settings
         config["TICKER"] = None
-        _, success = export_portfolios(portfolios, config, 'portfolios_summary', scanner_list, log)
+        _, success = export_portfolios(reordered_portfolios, config, 'portfolios_summary', scanner_list, log)
         if not success:
             log("Failed to export portfolios", "error")
             return False

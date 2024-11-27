@@ -52,14 +52,14 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     "USE_CURRENT": True,
-    "USE_SMA": False,
-    "TICKER": 'UPS',
+    "USE_SMA": True,
+    "TICKER": 'UDR',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "USE_SYNTHETIC": False,
-    "REFRESH": True,
+    "REFRESH": False,
     "BASE_DIR": "."
 }
 

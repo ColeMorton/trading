@@ -64,11 +64,11 @@ config: Config = {
     "TICKER_2": 'BTC-USD',
     "USE_HOURLY": False,
     "USE_SYNTHETIC": False,
-    "SHORT_WINDOW": 75,
-    "LONG_WINDOW": 83,
+    "SHORT_WINDOW": 79,
+    "LONG_WINDOW": 88,
     "RSI_PERIOD": 14,
     "USE_RSI": False,
-    "RSI_THRESHOLD": 53
+    "RSI_THRESHOLD": 46
 }
 
 def run(config: Config = config) -> bool:

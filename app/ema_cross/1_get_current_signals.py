@@ -44,7 +44,7 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     "USE_SMA": True,
-    "TICKER": 'CPZ',
+    "TICKER": 'LOW',
     "WINDOWS": 89,
     "USE_HOURLY": False
 }

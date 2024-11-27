@@ -51,11 +51,11 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'HIMS',
+    "TICKER": 'UDR',
     "WINDOWS": 89,
     "USE_HOURLY": False,
-    "REFRESH": True,
-    "USE_CURRENT": False,
+    "REFRESH": False,
+    "USE_CURRENT": True,
     "BASE_DIR": os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 }
 
