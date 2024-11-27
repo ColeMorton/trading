@@ -59,16 +59,16 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     "USE_SMA": True,
-    "TICKER": 'CSX',
+    "TICKER": 'AAPL',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "USE_HOURLY": False,
     "USE_SYNTHETIC": False,
-    "SHORT_WINDOW": 79,
-    "LONG_WINDOW": 88,
+    "SHORT_WINDOW": 8,
+    "LONG_WINDOW": 36,
     "RSI_PERIOD": 14,
-    "USE_RSI": False,
-    "RSI_THRESHOLD": 46
+    "USE_RSI": True,
+    "RSI_THRESHOLD": 56
 }
 
 def run(config: Config = config) -> bool:
@@ -99,7 +99,7 @@ def run(config: Config = config) -> bool:
         config = get_config(config)
         log(f"Starting stop loss analysis for {config['TICKER']}")
         
-        stop_loss_range = np.arange(0, 15, 0.01)
+        stop_loss_range = np.arange(0, 20, 0.01)
         log(f"Using stop loss range: {stop_loss_range[0]}% to {stop_loss_range[-1]}%")
 
         data = get_data(config["TICKER"], config)

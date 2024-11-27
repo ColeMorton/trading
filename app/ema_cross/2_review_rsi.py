@@ -55,13 +55,13 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     "USE_SMA": True,
-    "TICKER": 'UDR',
+    "TICKER": 'AAPL',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "USE_HOURLY": False,
     "USE_SYNTHETIC": False,
-    "SHORT_WINDOW": 16,
-    "LONG_WINDOW": 34,
+    "SHORT_WINDOW": 8,
+    "LONG_WINDOW": 36,
     "RSI_PERIOD": 14
 }
 
