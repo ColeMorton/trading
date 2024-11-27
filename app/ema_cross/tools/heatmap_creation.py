@@ -1,31 +1,26 @@
 import numpy as np
 import pandas as pd
+import polars as pl
 import plotly.graph_objects as go
 from typing import List, Tuple, Dict, Callable, Optional
-from app.ema_cross.tools.return_calculations import (
-    calculate_returns,
-    calculate_full_returns
-)
 from app.ema_cross.tools.heatmap_figures import create_heatmap_figures
 
 def create_current_heatmap(
-    price_data: pd.DataFrame,
+    portfolio_data: pl.DataFrame,
     windows: np.ndarray,
     window_combs: List[Tuple[int, int]],
     use_ewm: bool,
-    freq: str = '1D',
     ticker: str = '',
     log: Optional[Callable] = None
 ) -> Dict[str, go.Figure]:
     """
-    Create heatmaps showing only current signal combinations.
+    Create heatmaps showing only current signal combinations using pre-calculated portfolio data.
 
     Args:
-        price_data: Price data DataFrame (Pandas format required for vectorbt)
+        portfolio_data: Portfolio data DataFrame containing performance metrics
         windows: Array of window values
         window_combs: List of (short, long) window combinations to display
-        use_ewm: Whether to use EMA (True) or SMA (False)
-        freq: Frequency for portfolio calculation
+        use_ewm: Whether EMA (True) or SMA (False) was used
         ticker: Ticker symbol for the plots
         log: Optional logging function
 
@@ -36,45 +31,66 @@ def create_current_heatmap(
     if isinstance(window_combs, set):
         window_combs = list(window_combs)
     
-    # Extract windows maintaining exact combinations
-    fast_windows = []
-    slow_windows = []
-    for short, long in window_combs:
-        # Only include combinations where both windows are in the valid range
-        if short in windows and long in windows and short < long:
-            fast_windows.append(short)
-            slow_windows.append(long)
+    # Filter portfolio data for specified window combinations
+    filtered_data = portfolio_data.filter(
+        pl.col('Short Window').is_in([w[0] for w in window_combs]) &
+        pl.col('Long Window').is_in([w[1] for w in window_combs])
+    )
     
     # Only proceed if we have valid combinations
-    if not fast_windows or not slow_windows:
+    if len(filtered_data) == 0:
         if log:
             log("No valid window combinations found", "error")
         raise ValueError("No valid window combinations found")
     
-    returns, expectancy = calculate_returns(price_data, fast_windows, slow_windows, use_ewm, freq, ticker, log)
+    # Convert to pandas for heatmap creation
+    returns = pd.Series(
+        filtered_data['Total Return [%]'].to_list(),
+        index=pd.MultiIndex.from_tuples(
+            list(zip(filtered_data['Long Window'].to_list(), filtered_data['Short Window'].to_list())),
+            names=['slow_window', 'fast_window']
+        )
+    )
+    
+    expectancy = pd.Series(
+        filtered_data['Expectancy'].to_list(),
+        index=returns.index
+    )
+    
     return create_heatmap_figures(returns, expectancy, windows, "Current Signals Only", ticker, use_sma=not use_ewm)
 
 def create_full_heatmap(
-    price_data: pd.DataFrame,
+    portfolio_data: pl.DataFrame,
     windows: np.ndarray,
     use_ewm: bool,
-    freq: str = '1D',
     ticker: str = '',
     log: Optional[Callable] = None
 ) -> Dict[str, go.Figure]:
     """
-    Create full heatmaps for all window combinations using vectorbt.
+    Create full heatmaps for all window combinations using pre-calculated portfolio data.
 
     Args:
-        price_data: Price data DataFrame (Pandas format required for vectorbt)
-        windows: Array of window values to test
-        use_ewm: Whether to use EMA (True) or SMA (False)
-        freq: Frequency for portfolio calculation
+        portfolio_data: Portfolio data DataFrame containing performance metrics
+        windows: Array of window values
+        use_ewm: Whether EMA (True) or SMA (False) was used
         ticker: Ticker symbol for the plots
         log: Optional logging function
 
     Returns:
         Dictionary containing two Plotly figure objects - one for returns and one for expectancy
     """
-    returns, expectancy = calculate_full_returns(price_data, windows, use_ewm, freq, ticker, log)
+    # Convert to pandas for heatmap creation
+    returns = pd.Series(
+        portfolio_data['Total Return [%]'].to_list(),
+        index=pd.MultiIndex.from_tuples(
+            list(zip(portfolio_data['Long Window'].to_list(), portfolio_data['Short Window'].to_list())),
+            names=['slow_window', 'fast_window']
+        )
+    )
+    
+    expectancy = pd.Series(
+        portfolio_data['Expectancy'].to_list(),
+        index=returns.index
+    )
+    
     return create_heatmap_figures(returns, expectancy, windows, "All Signals", ticker, use_sma=not use_ewm)
