@@ -26,6 +26,8 @@ def plot_heatmap(results_pl, config: Dict, log: Callable) -> None:
     Returns:
         None. Saves the plots to files and displays them.
     """
+    log("Starting heatmap generation")
+    
     # Prepare data
     price_data, window_combs, use_ewm = prepare_heatmap_data(results_pl, config, log)
     if price_data is None:
@@ -34,9 +36,15 @@ def plot_heatmap(results_pl, config: Dict, log: Callable) -> None:
 
     # Generate windows array
     windows = np.arange(2, config["WINDOWS"])
+    log(f"Generated windows array up to {config['WINDOWS']}")
+    
+    # Get frequency
+    freq = '1H' if config.get("USE_HOURLY", False) else '1D'
+    log(f"Using frequency: {freq}")
     
     # Create appropriate heatmaps
     if config.get("USE_CURRENT", False) and validate_window_combinations(window_combs, windows, config, log):
+        log("Creating current signals heatmap")
         window_combs = list(window_combs)  # Convert set to list before sorting
         window_combs.sort()
         figures = create_current_heatmap(
@@ -44,23 +52,33 @@ def plot_heatmap(results_pl, config: Dict, log: Callable) -> None:
             windows, 
             window_combs, 
             use_ewm,
-            ticker=config["TICKER"]
+            freq=freq,
+            ticker=config["TICKER"],
+            log=log
         )
     else:
+        log("Creating full heatmap")
         figures = create_full_heatmap(
             price_data, 
             windows, 
             use_ewm,
-            ticker=config["TICKER"]
+            freq=freq,
+            ticker=config["TICKER"],
+            log=log
         )
     
     # Save and display plots
     png_path = get_path("png", "ema_cross", config, 'heatmap')
     base_filename = get_filename("png", config).replace('.png', '')
+    log(f"Saving plots to directory: {png_path}")
     
     for plot_type, fig in figures.items():
         filename = f"{base_filename}_{plot_type}.png"
         full_path = f"{png_path}/{filename}"
+        log(f"Saving {plot_type} plot to: {full_path}")
         fig.write_image(full_path)
-        log(f"{plot_type.capitalize()} plot saved as {full_path}")
+        log(f"{plot_type.capitalize()} plot saved successfully")
         fig.show()
+        log(f"{plot_type.capitalize()} plot displayed")
+    
+    log("Heatmap generation completed")
