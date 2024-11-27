@@ -49,11 +49,11 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": ['AMZN', 'D', 'FSLR', 'LEN', 'LKQ', 'MMM', 'MSFT', 'NXPI', 'PRU', 'REG', 'UDR', 'VRSN'],
+    "TICKER": 'AMZN',
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "REFRESH": False,
-    "USE_CURRENT": True,
+    "USE_CURRENT": False,
     "BASE_DIR": os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 }
 

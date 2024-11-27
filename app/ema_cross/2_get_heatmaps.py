@@ -55,7 +55,7 @@ class Config(TypedDict):
 config: Config = {
     "USE_CURRENT": False,
     "USE_SMA": True,
-    "TICKER": 'AAPL',
+    "TICKER": 'AMZN',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,
@@ -75,6 +75,7 @@ def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
             - Long Window
             - Total Return [%]
             - Total Trades
+            - Sortino Ratio
 
     Returns:
         pl.DataFrame: Transformed data with columns:
@@ -99,8 +100,16 @@ def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
         'slow_window': data['Long Window']
     })
 
-    # Combine both metrics
-    return pl.concat([returns_data, trades_data])
+    # Create Sortino Ratio data
+    sortino_data = pl.DataFrame({
+        'metric': ['sortino'] * len(data),
+        'value': data['Sortino Ratio'],
+        'fast_window': data['Short Window'],
+        'slow_window': data['Long Window']
+    })
+
+    # Combine all metrics
+    return pl.concat([returns_data, trades_data, sortino_data])
 
 def run(config: Config = config) -> bool:
     """

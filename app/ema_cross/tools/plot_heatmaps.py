@@ -16,7 +16,7 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> N
 
     Args:
         portfolio_data: Polars DataFrame containing portfolio performance data with columns:
-            - metric: str, type of metric (returns or trades)
+            - metric: str, type of metric (returns, trades, or sortino)
             - value: float, value of the metric
             - fast_window: int, short moving average window
             - slow_window: int, long moving average window
@@ -62,14 +62,25 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> N
                 names=['slow', 'fast']
             )
         )
+
+        # Create Sortino Series
+        sortino_df = df[df['metric'] == 'sortino']
+        sortino = pd.Series(
+            sortino_df['value'].values,
+            index=pd.MultiIndex.from_arrays(
+                [sortino_df['slow_window'].values, sortino_df['fast_window'].values],
+                names=['slow', 'fast']
+            )
+        )
         
-        if len(returns) == 0 or len(trades) == 0:
-            raise ValueError("Portfolio data missing required metrics (returns and/or trades)")
+        if len(returns) == 0 or len(trades) == 0 or len(sortino) == 0:
+            raise ValueError("Portfolio data missing required metrics (returns, trades, and/or sortino)")
         
         # Create heatmap figures
         figures = create_heatmap_figures(
             returns=returns,
             trades=trades,
+            sortino=sortino,
             windows=windows,
             title="Portfolio Performance",
             ticker=config["TICKER"],
