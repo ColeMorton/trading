@@ -7,19 +7,19 @@ def create_heatmap_figures(
     returns: pd.Series,
     expectancy: pd.Series,
     windows: np.ndarray,
-    subtitle: str,
+    title: str,
     ticker: str,
     use_sma: bool = True
 ) -> Dict[str, go.Figure]:
     """
-    Create separate vectorbt heatmap figures for returns and expectancy with consistent styling.
+    Create separate heatmap figures for returns and expectancy with consistent styling.
     Makes the heatmaps symmetrical by mirroring values across the diagonal.
 
     Args:
-        returns: Series of returns
-        expectancy: Series of expectancy values
+        returns: Series with MultiIndex (slow, fast) containing return values
+        expectancy: Series with MultiIndex (slow, fast) containing expectancy values
         windows: Array of window values for axes
-        subtitle: Subtitle for the plots
+        title: Title/subtitle for the plots
         ticker: Ticker symbol for the plots
         use_sma: Whether to use SMA (True) or EMA (False)
 
@@ -27,8 +27,6 @@ def create_heatmap_figures(
         Dictionary containing two Plotly figure objects - one for returns and one for expectancy
     """
     # Create blank heatmap matrices
-    max_window = max(windows)
-    min_window = min(windows)
     size = len(windows)
     returns_heatmap = np.full((size, size), np.nan)
     expectancy_heatmap = np.full((size, size), np.nan)
@@ -71,8 +69,8 @@ def create_heatmap_figures(
     returns_fig = go.Figure()
     returns_fig.add_trace(go.Heatmap(
         z=returns_heatmap,
-        x=windows,  # Use actual window values
-        y=windows,  # Use actual window values
+        x=windows,
+        y=windows,
         colorbar=dict(title='Total Return', tickformat='%'),
         zmin=returns_zmin,
         zmax=returns_zmax,
@@ -81,22 +79,22 @@ def create_heatmap_figures(
     
     returns_fig.update_layout(
         title=dict(
-            text=f'{ticker} - {ma_type} Cross Strategy Returns<br><sup>{subtitle}</sup>',
+            text=f'{ticker} - {ma_type} Cross Strategy Returns<br><sup>{title}</sup>',
             x=0.5,
             xanchor='center'
         ),
         yaxis=dict(title='Long Window'),
         xaxis=dict(title='Short Window'),
-        autosize=True,  # Enable auto-sizing
-        margin=dict(l=50, r=50, t=100, b=50)  # Adjust margins for better fit
+        autosize=True,
+        margin=dict(l=50, r=50, t=100, b=50)
     )
     
     # Create expectancy figure
     expectancy_fig = go.Figure()
     expectancy_fig.add_trace(go.Heatmap(
         z=expectancy_heatmap,
-        x=windows,  # Use actual window values
-        y=windows,  # Use actual window values
+        x=windows,
+        y=windows,
         colorbar=dict(title='Expectancy'),
         zmin=expectancy_zmin,
         zmax=expectancy_zmax,
@@ -105,14 +103,14 @@ def create_heatmap_figures(
     
     expectancy_fig.update_layout(
         title=dict(
-            text=f'{ticker} - {ma_type} Cross Strategy Expectancy<br><sup>{subtitle}</sup>',
+            text=f'{ticker} - {ma_type} Cross Strategy Expectancy<br><sup>{title}</sup>',
             x=0.5,
             xanchor='center'
         ),
         yaxis=dict(title='Long Window'),
         xaxis=dict(title='Short Window'),
-        autosize=True,  # Enable auto-sizing
-        margin=dict(l=50, r=50, t=100, b=50)  # Adjust margins for better fit
+        autosize=True,
+        margin=dict(l=50, r=50, t=100, b=50)
     )
     
     return {

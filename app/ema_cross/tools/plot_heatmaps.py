@@ -1,84 +1,97 @@
 import numpy as np
+import polars as pl
+import pandas as pd
 from typing import Dict, Callable
+import plotly.graph_objects as go
 
 from app.utils import get_filename, get_path
-from app.ema_cross.tools.create_heatmaps import create_full_heatmap, create_current_heatmap
-from app.ema_cross.tools.heatmap_data import prepare_heatmap_data, validate_window_combinations
+from app.ema_cross.tools.heatmap_figures import create_heatmap_figures
 
-def plot_heatmap(results_pl, config: Dict, log: Callable) -> None:
+def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> None:
     """
-    Plot heatmaps of MA cross strategy performance.
+    Plot heatmaps of MA cross strategy performance from portfolio data.
     
-    Creates either full heatmaps of all possible window combinations or focused
-    heatmaps showing only current signal combinations based on configuration.
-    Uses Polars for data processing where possible, converting to Pandas only
-    when required for vectorbt operations.
+    Creates heatmaps showing the performance metrics from pre-calculated portfolio data.
+    Uses Polars for data processing.
 
     Args:
-        results_pl: Polars DataFrame containing price data with Date/Datetime and Close columns
+        portfolio_data: Polars DataFrame containing portfolio performance data with columns:
+            - metric: str, type of metric (returns or expectancy)
+            - value: float, value of the metric
+            - fast_window: int, short moving average window
+            - slow_window: int, long moving average window
         config: Configuration dictionary containing:
             - TICKER: str, ticker symbol
-            - WINDOWS: int, maximum window size to test
+            - WINDOWS: int, maximum window size
             - USE_SMA: bool, whether to use SMA instead of EMA
             - USE_CURRENT: bool, whether to show only current signals
         log: Logging function for recording events and errors
 
     Returns:
         None. Saves the plots to files and displays them.
-    """
-    log("Starting heatmap generation")
-    
-    # Prepare data
-    price_data, window_combs, use_ewm = prepare_heatmap_data(results_pl, config, log)
-    if price_data is None:
-        log("Failed to prepare heatmap data", "error")
-        return
 
-    # Generate windows array
-    windows = np.arange(2, config["WINDOWS"])
-    log(f"Generated windows array up to {config['WINDOWS']}")
+    Raises:
+        Exception: If there's an error during heatmap generation
+    """
+    log("Starting heatmap generation from portfolio data")
     
-    # Get frequency
-    freq = '1H' if config.get("USE_HOURLY", False) else '1D'
-    log(f"Using frequency: {freq}")
-    
-    # Create appropriate heatmaps
-    if config.get("USE_CURRENT", False) and validate_window_combinations(window_combs, windows, config, log):
-        log("Creating current signals heatmap")
-        window_combs = list(window_combs)  # Convert set to list before sorting
-        window_combs.sort()
-        figures = create_current_heatmap(
-            price_data, 
-            windows, 
-            window_combs, 
-            use_ewm,
-            freq=freq,
-            ticker=config["TICKER"],
-            log=log
+    try:
+        # Generate windows array
+        windows = np.arange(2, config["WINDOWS"])
+        log(f"Generated windows array up to {config['WINDOWS']}")
+        
+        # Convert portfolio data to pandas and prepare Series
+        df = portfolio_data.to_pandas()
+        
+        # Create returns Series
+        returns_df = df[df['metric'] == 'returns']
+        returns = pd.Series(
+            returns_df['value'].values,
+            index=pd.MultiIndex.from_arrays(
+                [returns_df['slow_window'].values, returns_df['fast_window'].values],
+                names=['slow', 'fast']
+            )
         )
-    else:
-        log("Creating full heatmap")
-        figures = create_full_heatmap(
-            price_data, 
-            windows, 
-            use_ewm,
-            freq=freq,
-            ticker=config["TICKER"],
-            log=log
+        
+        # Create expectancy Series
+        expectancy_df = df[df['metric'] == 'expectancy']
+        expectancy = pd.Series(
+            expectancy_df['value'].values,
+            index=pd.MultiIndex.from_arrays(
+                [expectancy_df['slow_window'].values, expectancy_df['fast_window'].values],
+                names=['slow', 'fast']
+            )
         )
-    
-    # Save and display plots
-    png_path = get_path("png", "ema_cross", config, 'heatmap')
-    base_filename = get_filename("png", config).replace('.png', '')
-    log(f"Saving plots to directory: {png_path}")
-    
-    for plot_type, fig in figures.items():
-        filename = f"{base_filename}_{plot_type}.png"
-        full_path = f"{png_path}/{filename}"
-        log(f"Saving {plot_type} plot to: {full_path}")
-        fig.write_image(full_path)
-        log(f"{plot_type.capitalize()} plot saved successfully")
-        fig.show()
-        log(f"{plot_type.capitalize()} plot displayed")
-    
-    log("Heatmap generation completed")
+        
+        if len(returns) == 0 or len(expectancy) == 0:
+            raise ValueError("Portfolio data missing required metrics (returns and/or expectancy)")
+        
+        # Create heatmap figures
+        figures = create_heatmap_figures(
+            returns=returns,
+            expectancy=expectancy,
+            windows=windows,
+            title="Portfolio Performance",
+            ticker=config["TICKER"],
+            use_sma=config.get("USE_SMA", False)
+        )
+        
+        # Save and display plots
+        png_path = get_path("png", "ema_cross", config, 'heatmap')
+        base_filename = get_filename("png", config).replace('.png', '')
+        log(f"Saving plots to directory: {png_path}")
+        
+        for plot_type, fig in figures.items():
+            filename = f"{base_filename}_{plot_type}.png"
+            full_path = f"{png_path}/{filename}"
+            log(f"Saving {plot_type} plot to: {full_path}")
+            fig.write_image(full_path)
+            log(f"{plot_type.capitalize()} plot saved successfully")
+            fig.show()
+            log(f"{plot_type.capitalize()} plot displayed")
+        
+        log("Heatmap generation completed")
+        
+    except Exception as e:
+        log(f"Error generating heatmaps: {str(e)}", "error")
+        raise

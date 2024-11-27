@@ -64,12 +64,17 @@ def setup_logging(
     log_path = os.path.join(log_base_dir, log_file)
     file_handler = logging.FileHandler(log_path, mode=mode)
     
+    # Create console handler
+    console_handler = logging.StreamHandler()
+    
     # Set formatter with consistent format
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
     
-    # Add handler to logger
+    # Add handlers to logger
     logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
 
     def log(message: str, level: str = 'info') -> None:
         """
@@ -93,7 +98,6 @@ def setup_logging(
         end_time = time.time()
         execution_time = end_time - start_time
         execution_msg = f"Total execution time: {execution_time:.2f} seconds"
-        print(execution_msg)
         log(execution_msg)
 
     return log, log_close, logger, file_handler
