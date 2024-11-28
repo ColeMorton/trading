@@ -70,13 +70,19 @@ def analyze_rsi_parameters(
             converted_stats = convert_stats(stats)
             
             # Handle NaN values by replacing with 0
-            returns_matrix[i, j] = converted_stats.get('Total Return [%]', 0) or 0
-            winrate_matrix[i, j] = converted_stats.get('Win Rate [%]', 0) or 0
-            expectancy_matrix[i, j] = converted_stats.get('Expectancy', 0) or 0
-            trades_matrix[i, j] = converted_stats.get('Total Closed Trades', 0) or 0
+            returns_matrix[i, j] = np.nan_to_num(converted_stats.get('Total Return [%]', 0), 0)
+            winrate_matrix[i, j] = np.nan_to_num(converted_stats.get('Win Rate [%]', 0), 0)
+            expectancy_matrix[i, j] = np.nan_to_num(converted_stats.get('Expectancy', 0), 0)
+            trades_matrix[i, j] = np.nan_to_num(converted_stats.get('Total Closed Trades', 0), 0)
             
             if log:
                 log(f"Analyzed RSI window {window}, threshold {threshold}")
+    
+    # Ensure no NaN values in final matrices
+    returns_matrix = np.nan_to_num(returns_matrix, 0)
+    winrate_matrix = np.nan_to_num(winrate_matrix, 0)
+    expectancy_matrix = np.nan_to_num(expectancy_matrix, 0)
+    trades_matrix = np.nan_to_num(trades_matrix, 0)
     
     return {
         'trades': trades_matrix,
@@ -107,6 +113,9 @@ def create_rsi_heatmap(
     
     # Create heatmap for each metric
     for metric_name, matrix in metric_matrices.items():
+        # Ensure no NaN values in matrix
+        matrix = np.nan_to_num(matrix, 0)
+        
         fig = go.Figure()
         
         # Add heatmap trace

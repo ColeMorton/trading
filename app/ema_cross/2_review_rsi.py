@@ -40,7 +40,6 @@ class Config(TypedDict):
     TICKER: str
     SHORT_WINDOW: int
     LONG_WINDOW: int
-    RSI_PERIOD: int
     SHORT: NotRequired[bool]
     USE_SMA: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]
@@ -54,14 +53,13 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     "USE_SMA": True,
-    "TICKER": 'BTC-USD',
+    "TICKER": 'FSLR',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "USE_HOURLY": False,
     "USE_SYNTHETIC": False,
-    "SHORT_WINDOW": 27,
-    "LONG_WINDOW": 29,
-    "RSI_PERIOD": 14
+    "SHORT_WINDOW": 24,
+    "LONG_WINDOW": 26
 }
 
 def run(config: Config = config) -> bool:
