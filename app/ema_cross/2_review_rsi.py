@@ -14,8 +14,6 @@ from app.tools.get_data import get_data
 from app.tools.get_config import get_config
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.calculate_rsi import calculate_rsi
-from app.ema_cross.tools.rsi_analysis import run_sensitivity_analysis
-from app.ema_cross.tools.rsi_plotting import plot_results
 from app.ema_cross.tools.rsi_heatmap import analyze_rsi_parameters, create_rsi_heatmap
 
 class Config(TypedDict):
@@ -56,13 +54,13 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     "USE_SMA": True,
-    "TICKER": 'SOL-USD',
+    "TICKER": 'BTC-USD',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "USE_HOURLY": False,
     "USE_SYNTHETIC": False,
-    "SHORT_WINDOW": 14,
-    "LONG_WINDOW": 32,
+    "SHORT_WINDOW": 27,
+    "LONG_WINDOW": 29,
     "RSI_PERIOD": 14
 }
 
@@ -108,27 +106,17 @@ def run(config: Config = config) -> bool:
         log(f"Data statistics: Close price - Min: {data['Close'].min()}, Max: {data['Close'].max()}, Mean: {data['Close'].mean()}")
         log(f"RSI statistics: Min: {data['RSI'].min()}, Max: {data['RSI'].max()}, Mean: {data['RSI'].mean()}")
         
-        # Run threshold sensitivity analysis
-        results_df = run_sensitivity_analysis(data, rsi_thresholds)
-        log("Threshold sensitivity analysis completed")
-        
         # Run parameter sensitivity analysis and create heatmap
         metric_matrices = analyze_rsi_parameters(data, rsi_thresholds, rsi_windows, log)
         log("Parameter sensitivity analysis completed")
         
-        # Create heatmap figures
+        # Create and display heatmap figures
         figures = create_rsi_heatmap(metric_matrices, rsi_thresholds, rsi_windows, config["TICKER"])
         log("Heatmap figures created")
         
-        # Display heatmaps in browser
         for metric_name, fig in figures.items():
             fig.show()
             log(f"Displayed {metric_name} heatmap")
-        
-        # Create traditional plots
-        pl.Config.set_fmt_str_lengths(20)
-        plot_results(config["TICKER"], results_df, log)
-        log("Traditional plots created successfully")
         
         log_close()
         return True
