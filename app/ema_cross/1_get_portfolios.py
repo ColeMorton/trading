@@ -8,101 +8,16 @@ sensitivity analysis and portfolio filtering.
 
 import os
 import polars as pl
+from typing import Union, List
+
 from app.tools.get_config import get_config
 from app.tools.setup_logging import setup_logging
-from app.tools.get_data import get_data
-from tools.filter_portfolios import filter_portfolios
-from tools.portfolio_processing import process_single_ticker
-from tools.signal_generation import generate_current_signals
-from tools.sensitivity_analysis import analyze_window_combination
-from tools.export_portfolios import export_portfolios
-from typing import TypedDict, NotRequired, Union, List
+from app.ema_cross.tools.filter_portfolios import filter_portfolios
+from app.ema_cross.tools.export_portfolios import export_portfolios, PortfolioExportError
+from app.ema_cross.tools.signal_processing import process_ticker_portfolios
+from app.ema_cross.config_types import PortfolioConfig, DEFAULT_CONFIG
 
-class Config(TypedDict):
-    """Configuration type definition for portfolio analysis.
-
-    Required Fields:
-        TICKER (Union[str, List[str]]): Single ticker or list of tickers to analyze
-        WINDOWS (int): Maximum window size for parameter analysis
-
-    Optional Fields:
-        USE_CURRENT (NotRequired[bool]): Whether to emphasize current window combinations
-        SHORT (NotRequired[bool]): Whether to enable short positions
-        USE_HOURLY (NotRequired[bool]): Whether to use hourly data
-        USE_YEARS (NotRequired[bool]): Whether to limit data by years
-        YEARS (NotRequired[float]): Number of years of data to use
-        USE_GBM (NotRequired[bool]): Whether to use Geometric Brownian Motion
-        USE_SYNTHETIC (NotRequired[bool]): Whether to create synthetic pairs
-        TICKER_1 (NotRequired[str]): First ticker for synthetic pairs
-        TICKER_2 (NotRequired[str]): Second ticker for synthetic pairs
-    """
-    TICKER: Union[str, List[str]]
-    WINDOWS: int
-    USE_CURRENT: NotRequired[bool]
-    SHORT: NotRequired[bool]
-    USE_HOURLY: NotRequired[bool]
-    USE_YEARS: NotRequired[bool]
-    YEARS: NotRequired[float]
-    USE_GBM: NotRequired[bool]
-    USE_SYNTHETIC: NotRequired[bool]
-    TICKER_1: NotRequired[str]
-    TICKER_2: NotRequired[str]
-
-# Default Configuration
-config: Config = {
-    "TICKER": 'FANG',
-    "WINDOWS": 89,
-    "USE_HOURLY": False,
-    "REFRESH": False,
-    "USE_CURRENT": True,
-    "BASE_DIR": os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-}
-
-def process_current_signals(ticker: str, config: Config, log) -> pl.DataFrame | None:
-    """Process current signals for a ticker.
-    
-    Args:
-        ticker (str): The ticker symbol to process
-        config (Config): Configuration dictionary
-        log: Logging function
-        
-    Returns:
-        pl.DataFrame | None: DataFrame of portfolios or None if processing fails
-    """
-    config_copy = config.copy()
-    config_copy["TICKER"] = ticker
-    
-    # Generate and validate current signals
-    current_signals = generate_current_signals(config_copy, log)
-    if len(current_signals) == 0:
-        print("No current signals found")
-        return None
-        
-    print(f"\nCurrent signals for {ticker} {'SMA' if config.get('USE_SMA', False) else 'EMA'}:")
-    print(current_signals)
-    
-    # Get and validate price data
-    data = get_data(ticker, config_copy)
-    if data is None:
-        log(f"Failed to get price data for {ticker}", "error")
-        return None
-    
-    # Analyze each window combination
-    portfolios = []
-    for row in current_signals.iter_rows(named=True):
-        result = analyze_window_combination(
-            data,
-            row['Short Window'],
-            row['Long Window'],
-            config_copy,
-            log
-        )
-        if result is not None:
-            portfolios.append(result)
-    
-    return pl.DataFrame(portfolios) if portfolios else None
-
-def run(config: Config = config) -> bool:
+def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
     """Run portfolio analysis for single or multiple tickers.
     
     This function handles the main workflow of portfolio analysis:
@@ -112,10 +27,13 @@ def run(config: Config = config) -> bool:
     4. Displays and saves results
     
     Args:
-        config (Config): Configuration dictionary containing analysis parameters
+        config (PortfolioConfig): Configuration dictionary containing analysis parameters
         
     Returns:
         bool: True if execution successful
+        
+    Raises:
+        Exception: If portfolio analysis fails
     """
     log, log_close, _, _ = setup_logging(
         module_name='ma_cross',
@@ -135,48 +53,53 @@ def run(config: Config = config) -> bool:
             ticker_config = config.copy()
             ticker_config["TICKER"] = ticker
             
-            # Handle current signal analysis if enabled
+            # Process portfolios for ticker
+            portfolios_df = process_ticker_portfolios(ticker, ticker_config, log)
+            if portfolios_df is None:
+                continue
+                
+            # Export unfiltered portfolios if using current signals
             if config.get("USE_CURRENT", False):
-                portfolios_df = process_current_signals(ticker, ticker_config, log)
-                if portfolios_df is None:
+                try:
+                    export_portfolios(
+                        portfolios=portfolios_df.to_dicts(),
+                        config=ticker_config,
+                        export_type="portfolios",
+                        log=log
+                    )
+                except (ValueError, PortfolioExportError) as e:
+                    log(f"Failed to export portfolios for {ticker}: {str(e)}", "error")
                     continue
-                    
-                # Export unfiltered portfolios
-                export_portfolios(
-                    portfolios=portfolios_df.to_dicts(),
-                    config=ticker_config,
-                    export_type="portfolios",
-                    csv_filename=None,
-                    log=log
-                )
-            else:
-                # Process single ticker without current signals
-                portfolios = process_single_ticker(ticker, ticker_config, log)
-                if portfolios is None:
-                    log(f"Failed to process {ticker}", "error")
-                    continue
-                portfolios_df = pl.DataFrame(portfolios)
-                print(f"\nResults for {ticker} {'SMA' if config.get('USE_SMA', False) else 'EMA'}:")
-                print(portfolios_df)
 
             # Filter portfolios for individual ticker
             filtered_portfolios = filter_portfolios(portfolios_df, ticker_config, log)
             if filtered_portfolios is not None:
-                print(f"\nFiltered results for {ticker}:")
+                log(f"Filtered results for {ticker}")
                 print(filtered_portfolios)
+
+                # Export filtered portfolios
+                try:
+                    export_portfolios(
+                        portfolios=filtered_portfolios.to_dicts(),
+                        config=ticker_config,
+                        export_type="portfolios_filtered",
+                        log=log
+                    )
+                except (ValueError, PortfolioExportError) as e:
+                    log(f"Failed to export filtered portfolios for {ticker}: {str(e)}", "error")
 
         log_close()
         return True
             
     except Exception as e:
-        log(f"Execution failed: {e}", "error")
+        log(f"Execution failed: {str(e)}", "error")
         log_close()
         raise
 
 if __name__ == "__main__":
     try:
         # Run analysis with both EMA and SMA
-        config_copy = config.copy()
+        config_copy = DEFAULT_CONFIG.copy()
         run({**config_copy, "USE_SMA": False})  # Run with EMA
         run({**config_copy, "USE_SMA": True})   # Run with SMA
     except Exception as e:

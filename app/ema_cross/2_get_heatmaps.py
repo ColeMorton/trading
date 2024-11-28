@@ -13,47 +13,69 @@ import polars as pl
 
 from app.tools.setup_logging import setup_logging
 from app.tools.get_config import get_config
+from app.tools.export_csv import ExportConfig
 from tools.plot_heatmaps import plot_heatmap
+from tools.portfolio_transformation import transform_portfolio_data
 
-class Config(TypedDict):
-    """
-    Configuration type definition for heatmap generation.
+class Config(TypedDict, total=False):
+    """Configuration type definition for heatmap generation.
 
     Required Fields:
         TICKER (str): Ticker symbol to analyze
         WINDOWS (int): Maximum window size for parameter analysis
-        USE_CURRENT (bool): Whether to emphasize current window combinations
-        USE_SMA (bool): Whether to use Simple Moving Average instead of EMA
-        TICKER_1 (str): First ticker (same as TICKER for non-synthetic)
-        TICKER_2 (str): Second ticker (same as TICKER for non-synthetic)
+        BASE_DIR (str): Base directory for file operations
 
     Optional Fields:
-        SHORT (NotRequired[bool]): Whether to enable short positions
+        USE_CURRENT (NotRequired[bool]): Whether to use date subdirectory
+        USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average
         USE_HOURLY (NotRequired[bool]): Whether to use hourly data
-        USE_YEARS (NotRequired[bool]): Whether to limit data by years
-        YEARS (NotRequired[float]): Number of years of data to use
         USE_GBM (NotRequired[bool]): Whether to use Geometric Brownian Motion
         USE_SYNTHETIC (NotRequired[bool]): Whether to create synthetic pairs
-        BASE_DIR (NotRequired[str]): Base directory for file operations
         REFRESH (NotRequired[bool]): Whether to force regeneration of signals
+        SHORT (NotRequired[bool]): Whether to enable short positions
+        USE_YEARS (NotRequired[bool]): Whether to limit data by years
+        YEARS (NotRequired[float]): Number of years of data to use
+        TICKER_1 (NotRequired[str]): First ticker (same as TICKER for non-synthetic)
+        TICKER_2 (NotRequired[str]): Second ticker (same as TICKER for non-synthetic)
     """
     TICKER: str
     WINDOWS: int
-    USE_CURRENT: bool
-    USE_SMA: bool
-    TICKER_1: str
-    TICKER_2: str
-    SHORT: NotRequired[bool]
+    BASE_DIR: str
+    USE_CURRENT: NotRequired[bool]
+    USE_SMA: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]
-    USE_YEARS: NotRequired[bool]
-    YEARS: NotRequired[float]
     USE_GBM: NotRequired[bool]
     USE_SYNTHETIC: NotRequired[bool]
-    BASE_DIR: NotRequired[str]
     REFRESH: NotRequired[bool]
+    SHORT: NotRequired[bool]
+    USE_YEARS: NotRequired[bool]
+    YEARS: NotRequired[float]
+    TICKER_1: NotRequired[str]
+    TICKER_2: NotRequired[str]
 
-# Default Configuration
-config: Config = {
+def get_portfolio_path(config: Config) -> str:
+    """Generate the portfolio file path based on configuration.
+
+    Args:
+        config (Config): Configuration dictionary
+
+    Returns:
+        str: Full path to portfolio file
+    """
+    path_components = ['csv/ma_cross/portfolios/']
+
+    if config.get("USE_CURRENT", False):
+        today = datetime.now().strftime("%Y%m%d")
+        path_components.append(today)
+
+    ma_type = 'SMA' if config.get('USE_SMA', False) else 'EMA'
+    freq_type = 'H' if config.get('USE_HOURLY', False) else 'D'
+    
+    path_components.append(f'{config["TICKER"]}_{freq_type}_{ma_type}.csv')
+    
+    return os.path.join(*path_components)
+
+def run(config: Config = {
     "USE_CURRENT": True,
     "USE_SMA": True,
     "TICKER": 'FANG',
@@ -64,109 +86,35 @@ config: Config = {
     "USE_SYNTHETIC": False,
     "REFRESH": False,
     "BASE_DIR": "."
-}
-
-def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
-    """
-    Transform portfolio data into the format expected by plot_heatmap.
-
-    Args:
-        data (pl.DataFrame): Raw portfolio data with columns including:
-            - Short Window
-            - Long Window
-            - Total Return [%]
-            - Total Trades
-            - Sharpe Ratio
-
-    Returns:
-        pl.DataFrame: Transformed data with columns:
-            - metric
-            - value
-            - fast_window
-            - slow_window
-    """
-    # Create returns data
-    returns_data = pl.DataFrame({
-        'metric': ['returns'] * len(data),
-        'value': data['Total Return [%]'],
-        'fast_window': data['Short Window'],
-        'slow_window': data['Long Window']
-    })
-
-    # Create trades data, converting Total Trades to float
-    trades_data = pl.DataFrame({
-        'metric': ['trades'] * len(data),
-        'value': data['Total Trades'].cast(pl.Float64),
-        'fast_window': data['Short Window'],
-        'slow_window': data['Long Window']
-    })
-
-    # Create Sharpe Ratio data
-    sharpe_data = pl.DataFrame({
-        'metric': ['sharpe'] * len(data),
-        'value': data['Sharpe Ratio'],
-        'fast_window': data['Short Window'],
-        'slow_window': data['Long Window']
-    })
-
-    # Combine all metrics
-    return pl.concat([returns_data, trades_data, sharpe_data])
-
-def run(config: Config = config) -> bool:
-    """
-    Run the heatmap generation process.
+}) -> bool:
+    """Run the heatmap generation process.
 
     This function:
     1. Sets up logging
     2. Checks for portfolio data existence
     3. Loads portfolio data
     4. Generates heatmaps based on portfolio performance
-    5. Handles any errors during the process
-
-    When USE_CURRENT is True, only current window combinations (occurred yesterday)
-    are emphasized in the heatmap, helping identify recent optimal parameters.
 
     Args:
-        config (Config): Configuration dictionary containing:
-            - TICKER: Symbol to analyze
-            - WINDOWS: Maximum window size
-            - USE_CURRENT: Whether to emphasize current windows
-            - USE_SMA: Whether to use SMA instead of EMA
-            - USE_HOURLY: Whether to use hourly data
-            - REFRESH: Whether to force regeneration of signals
-            - Other optional parameters
+        config (Config): Configuration dictionary
 
     Returns:
-        bool: True if heatmap generation successful, raises exception otherwise
+        bool: True if heatmap generation successful
 
     Raises:
         Exception: If portfolio data is missing or heatmap generation fails
     """
     log, log_close, _, _ = setup_logging(
         module_name='ma_cross',
-        log_file='1_get_heatmaps.log'
+        log_file='2_get_heatmaps.log'
     )
     
     try:
         config = get_config(config)
         log(f"Processing ticker: {config['TICKER']}")
 
-        path_components = ['csv/ma_cross/portfolios/']
-
-        # If USE_CURRENT is True, add date subdirectory
-        if config.get("USE_CURRENT", False):
-            today = datetime.now().strftime("%Y%m%d")
-            path_components.append(today)
-
-        # Determine portfolio file path
-        ma_type = 'SMA' if config.get('USE_SMA', False) else 'EMA'
-        freq_type = 'H' if config.get('USE_HOURLY', False) else 'D'
-
-        path_components.append(f'{config['TICKER']}_{freq_type}_{ma_type}.csv')
-
-        portfolio_file = os.path.join(*path_components)
+        portfolio_file = get_portfolio_path(config)
         
-        # Check if portfolio file exists
         if not os.path.exists(portfolio_file):
             message = f"Portfolio file not found: {portfolio_file}"
             log(message)
@@ -174,15 +122,13 @@ def run(config: Config = config) -> bool:
             log_close()
             sys.exit(0)
             
-        # Load portfolio data
         log(f"Loading portfolio data from: {portfolio_file}")
         raw_data = pl.read_csv(portfolio_file)
         
-        # Transform data into expected format
         log("Transforming portfolio data")
         data = transform_portfolio_data(raw_data)
         
-        # Generate heatmaps
+        log("Generating heatmaps")
         plot_heatmap(data, config, log)
         log("Heatmap generated successfully")
         
