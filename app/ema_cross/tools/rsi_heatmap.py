@@ -69,10 +69,11 @@ def analyze_rsi_parameters(
             stats = portfolio.stats()
             converted_stats = convert_stats(stats)
             
-            returns_matrix[i, j] = converted_stats['Total Return [%]']
-            winrate_matrix[i, j] = converted_stats['Win Rate [%]']
-            expectancy_matrix[i, j] = converted_stats['Expectancy']
-            trades_matrix[i, j] = converted_stats['Total Closed Trades']
+            # Handle NaN values by replacing with 0
+            returns_matrix[i, j] = converted_stats.get('Total Return [%]', 0) or 0
+            winrate_matrix[i, j] = converted_stats.get('Win Rate [%]', 0) or 0
+            expectancy_matrix[i, j] = converted_stats.get('Expectancy', 0) or 0
+            trades_matrix[i, j] = converted_stats.get('Total Closed Trades', 0) or 0
             
             if log:
                 log(f"Analyzed RSI window {window}, threshold {threshold}")
