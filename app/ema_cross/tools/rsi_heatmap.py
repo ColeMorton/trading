@@ -7,8 +7,9 @@ This module contains functions for creating heatmaps to visualize RSI parameter 
 import polars as pl
 import numpy as np
 import plotly.graph_objects as go
-from typing import List, Tuple, Dict, Optional, Callable
-from app.ema_cross.tools.rsi_analysis import backtest, calculate_metrics
+from typing import Dict, Optional, Callable
+from app.ema_cross.tools.rsi_analysis import backtest
+from app.tools.file_utils import convert_stats
 
 def analyze_rsi_parameters(
     data: pl.DataFrame,
@@ -64,13 +65,14 @@ def analyze_rsi_parameters(
         ])
         
         for j, threshold in enumerate(rsi_thresholds):
-            trades = backtest(data_with_rsi, threshold)
-            total_return, win_rate, expectancy, num_trades = calculate_metrics(trades)
+            portfolio = backtest(data_with_rsi, threshold)
+            stats = portfolio.stats()
+            converted_stats = convert_stats(stats)
             
-            returns_matrix[i, j] = total_return
-            winrate_matrix[i, j] = win_rate
-            expectancy_matrix[i, j] = expectancy
-            trades_matrix[i, j] = num_trades
+            returns_matrix[i, j] = converted_stats['Total Return [%]']
+            winrate_matrix[i, j] = converted_stats['Win Rate [%]']
+            expectancy_matrix[i, j] = converted_stats['Expectancy']
+            trades_matrix[i, j] = converted_stats['Total Closed Trades']
             
             if log:
                 log(f"Analyzed RSI window {window}, threshold {threshold}")

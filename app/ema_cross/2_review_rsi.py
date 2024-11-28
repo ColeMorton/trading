@@ -97,7 +97,6 @@ def run(config: Config = config) -> bool:
         # Define parameter ranges
         rsi_thresholds = np.arange(30, 81, 1)  # 30 to 80
         rsi_windows = np.arange(2, 31, 1)  # 2 to 30
-        # rsi_windows = np.arange(12, 19, 1)  # Tight range for testing! DO NOT REMOVE!
         log(f"Using RSI thresholds: {rsi_thresholds[0]} to {rsi_thresholds[-1]}")
         log(f"Using RSI windows: {rsi_windows[0]} to {rsi_windows[-1]}")
 

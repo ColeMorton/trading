@@ -6,10 +6,11 @@ parameters in combination with EMA cross signals.
 """
 
 import polars as pl
-import numpy as np
-from typing import List, Tuple
+import vectorbt as vbt
+from typing import Dict
+from app.tools.file_utils import convert_stats
 
-def backtest(data: pl.DataFrame, rsi_threshold: float) -> List[Tuple[float, float]]:
+def backtest(data: pl.DataFrame, rsi_threshold: float) -> vbt.Portfolio:
     """
     Run backtest with RSI threshold filtering.
 
@@ -18,79 +19,63 @@ def backtest(data: pl.DataFrame, rsi_threshold: float) -> List[Tuple[float, floa
         rsi_threshold (float): RSI threshold for entry signals
 
     Returns:
-        List[Tuple[float, float]]: List of entry/exit price pairs for trades
+        vbt.Portfolio: Portfolio object containing backtest results
     """
-    position, entry_price = 0, 0
-    trades = []
-    for i in range(1, len(data)):
-        ema_fast_prev, ema_slow_prev = data['MA_FAST'][i-1], data['MA_SLOW'][i-1]
-        ema_fast_curr, ema_slow_curr = data['MA_FAST'][i], data['MA_SLOW'][i]
-        rsi_curr = data['RSI'][i]
-        
-        if any(v is None for v in [ema_fast_prev, ema_slow_prev, ema_fast_curr, ema_slow_curr, rsi_curr]):
-            continue
-        
-        if position == 0:
-            if (ema_fast_curr > ema_slow_curr and
-                ema_fast_prev <= ema_slow_prev and
-                rsi_curr >= rsi_threshold):
-                position, entry_price = 1, data['Close'][i]
-        elif position == 1:
-            if (ema_fast_curr < ema_slow_curr and
-                ema_fast_prev >= ema_slow_prev):
-                position, exit_price = 0, data['Close'][i]
-                trades.append((entry_price, exit_price))
+    # Convert to pandas for vectorbt
+    data_pd = data.to_pandas()
     
-    return trades
-
-def calculate_metrics(trades: List[Tuple[float, float]]) -> Tuple[float, float, float, int]:
-    """
-    Calculate performance metrics from trades.
-
-    Args:
-        trades (List[Tuple[float, float]]): List of entry/exit price pairs
-
-    Returns:
-        Tuple[float, float, float, int]: Tuple containing:
-            - Total return percentage
-            - Win rate percentage
-            - Expectancy
-            - Number of positions
-    """
-    if not trades:
-        return 0, 0, 0, 0
-    returns = [(exit_price / entry_price - 1) for entry_price, exit_price in trades]
-    total_return = np.prod([1 + r for r in returns]) - 1
-    win_rate = sum(1 for r in returns if r > 0) / len(trades)
+    # Generate entry/exit signals
+    entries = (
+        (data_pd['MA_FAST'] > data_pd['MA_SLOW']) & 
+        (data_pd['MA_FAST'].shift(1) <= data_pd['MA_SLOW'].shift(1)) &
+        (data_pd['RSI'] >= rsi_threshold)
+    )
     
-    average_win = np.mean([r for r in returns if r > 0]) if any(r > 0 for r in returns) else 0
-    average_loss = np.mean([r for r in returns if r <= 0]) if any(r <= 0 for r in returns) else 0
-    expectancy = (win_rate * average_win) - ((1 - win_rate) * abs(average_loss))
+    exits = (
+        (data_pd['MA_FAST'] < data_pd['MA_SLOW']) & 
+        (data_pd['MA_FAST'].shift(1) >= data_pd['MA_SLOW'].shift(1))
+    )
     
-    num_positions = len(trades)
+    # Create portfolio
+    portfolio = vbt.Portfolio.from_signals(
+        close=data_pd['Close'],
+        entries=entries,
+        exits=exits,
+        init_cash=1000,
+        fees=0.001,
+        freq='D'
+    )
     
-    return total_return * 100, win_rate * 100, expectancy, num_positions
+    return portfolio
 
-def run_sensitivity_analysis(data: pl.DataFrame, rsi_range: np.ndarray) -> pl.DataFrame:
+def run_sensitivity_analysis(data: pl.DataFrame, rsi_range: pl.Series) -> pl.DataFrame:
     """
     Run sensitivity analysis across RSI thresholds.
 
     Args:
         data (pl.DataFrame): Price and indicator data
-        rsi_range (np.ndarray): Array of RSI thresholds to test
+        rsi_range (pl.Series): Array of RSI thresholds to test
 
     Returns:
         pl.DataFrame: Results of sensitivity analysis with metrics for each threshold
     """
     results = []
     for rsi_threshold in rsi_range:
-        trades = backtest(data, rsi_threshold)
-        total_return, win_rate, expectancy, num_positions = calculate_metrics(trades)
+        portfolio = backtest(data, rsi_threshold)
+        stats = portfolio.stats()
+        
+        # Add RSI threshold to stats
+        stats['RSI Threshold'] = rsi_threshold
+        
+        # Convert stats to proper format
+        converted_stats = convert_stats(stats)
+        
         results.append({
             'RSI Threshold': rsi_threshold,
-            'Total Return': total_return,
-            'Win Rate': win_rate,
-            'Expectancy': expectancy,
-            'Number of Positions': num_positions
+            'Total Return': converted_stats['Total Return [%]'],
+            'Win Rate': converted_stats['Win Rate [%]'],
+            'Expectancy': converted_stats['Expectancy'],
+            'Number of Positions': converted_stats['Total Closed Trades']
         })
+    
     return pl.DataFrame(results)
