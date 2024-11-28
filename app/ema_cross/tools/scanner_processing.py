@@ -81,7 +81,11 @@ def process_ticker(ticker: str, row: dict, config: dict, log: Callable) -> Dict:
     return {
         "TICKER": ticker,
         "SMA": sma_current,
-        "EMA": ema_current
+        "EMA": ema_current,
+        "SMA_FAST": row['SMA_FAST'],
+        "SMA_SLOW": row['SMA_SLOW'],
+        "EMA_FAST": row['EMA_FAST'],
+        "EMA_SLOW": row['EMA_SLOW']
     }
 
 def export_results(results_data: List[Dict], config: dict, log: Callable) -> None:
@@ -93,11 +97,22 @@ def export_results(results_data: List[Dict], config: dict, log: Callable) -> Non
         config (dict): Configuration dictionary
         log (Callable): Logging function
     """
-    # Create results DataFrame
-    results_df = pl.DataFrame(results_data)
-    
-    # Export results to CSV
     if not config.get("USE_HOURLY", False):
+        # Transform results to match input CSV format
+        transformed_data = []
+        for result in results_data:
+            row = {
+                "TICKER": result["TICKER"],
+                "SMA_FAST": result["SMA_FAST"] if result["SMA"] else None,
+                "SMA_SLOW": result["SMA_SLOW"] if result["SMA"] else None,
+                "EMA_FAST": result["EMA_FAST"] if result["EMA"] else None,
+                "EMA_SLOW": result["EMA_SLOW"] if result["EMA"] else None
+            }
+            transformed_data.append(row)
+        
+        # Create results DataFrame
+        results_df = pl.DataFrame(transformed_data)
+        
         # Get base path
         csv_path = get_path("csv", "ma_cross", config, 'portfolios_scanned')
         
