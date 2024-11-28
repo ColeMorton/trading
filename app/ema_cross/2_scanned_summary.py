@@ -7,6 +7,8 @@ multiple tickers, calculating key metrics like expectancy and tradability.
 """
 
 import polars as pl
+from datetime import datetime
+from pathlib import Path
 from app.tools.setup_logging import setup_logging
 from tools.summary_processing import (
     process_ticker_portfolios,
@@ -44,8 +46,20 @@ def run(scanner_list: str) -> bool:
     )
     
     try:
-        # Read scanner list
-        daily_df = pl.read_csv(f'./app/ema_cross/scanner_lists/{scanner_list}')
+        # Determine file path based on config
+        if config["USE_CURRENT"]:
+            today = datetime.now().strftime("%Y%m%d")
+            file_path = Path(f'./csv/ma_cross/portfolios_scanned/{today}/{scanner_list}')
+            
+            if not file_path.exists():
+                log(f"File not found: {file_path}", "error")
+                log_close()
+                return False
+                
+            daily_df = pl.read_csv(file_path)
+        else:
+            daily_df = pl.read_csv(f'./app/ema_cross/scanner_lists/{scanner_list}')
+            
         log(f"Loaded scanner list: {scanner_list}")
 
         portfolios = []
@@ -57,8 +71,7 @@ def run(scanner_list: str) -> bool:
             
             result = process_ticker_portfolios(ticker, row, log)
             if result:
-                sma_stats, ema_stats = result
-                portfolios.extend([sma_stats, ema_stats])
+                portfolios.extend(result)
 
         # Export results
         success = export_summary_results(portfolios, scanner_list, log)
@@ -73,7 +86,7 @@ def run(scanner_list: str) -> bool:
 
 if __name__ == "__main__":
     try:
-        result = run(config.get(["SCANNER_LIST"], 'DAILY.csv'))
+        result = run(config.get("SCANNER_LIST", 'DAILY.csv'))
         if result:
             print("Execution completed successfully!")
     except Exception as e:

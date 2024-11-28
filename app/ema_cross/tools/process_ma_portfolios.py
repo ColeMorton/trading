@@ -1,31 +1,31 @@
 import polars as pl
-from typing import Optional, Tuple, Dict, Callable
+from typing import Optional, Tuple, Dict, Callable, Union
 from app.tools.get_data import get_data
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.ema_cross.tools.backtest_strategy import backtest_strategy
 
 def process_ma_portfolios(
     ticker: str, 
-    sma_fast: int, 
-    sma_slow: int, 
-    ema_fast: int, 
-    ema_slow: int,
+    sma_fast: Optional[int], 
+    sma_slow: Optional[int], 
+    ema_fast: Optional[int], 
+    ema_slow: Optional[int],
     log: Callable
-) -> Optional[Tuple[pl.DataFrame, pl.DataFrame, dict]]:
+) -> Optional[Tuple[Optional[pl.DataFrame], Optional[pl.DataFrame], dict]]:
     """
-    Process both SMA and EMA portfolios for a given ticker.
+    Process SMA and/or EMA portfolios for a given ticker.
 
     Args:
         ticker: Ticker symbol
-        sma_fast: Fast SMA window
-        sma_slow: Slow SMA window
-        ema_fast: Fast EMA window
-        ema_slow: Slow EMA window
+        sma_fast: Fast SMA window (optional)
+        sma_slow: Slow SMA window (optional)
+        ema_fast: Fast EMA window (optional)
+        ema_slow: Slow EMA window (optional)
         log: Logging function for recording events and errors
 
     Returns:
-        Optional tuple of (SMA portfolio DataFrame, EMA portfolio DataFrame, config)
-        Returns None if processing fails
+        Optional tuple of (SMA portfolio DataFrame or None, EMA portfolio DataFrame or None, config)
+        Returns None if processing fails entirely
     """
     try:
         config = {
@@ -39,30 +39,38 @@ def process_ma_portfolios(
         if data is None or len(data) == 0:
             log(f"No data available for {ticker}", "error")
             return None
+            
+        sma_portfolio = None
+        ema_portfolio = None
         
-        # Process SMA
-        config["USE_SMA"] = True
-        sma_data = calculate_ma_and_signals(data.clone(), sma_fast, sma_slow, config)
-        if sma_data is None:
-            log(f"Failed to calculate SMA signals for {ticker}", "error")
-            return None
-        sma_portfolio = backtest_strategy(sma_data, config, log)
-        if sma_portfolio is None:
-            log(f"Failed to backtest SMA strategy for {ticker}", "error")
-            return None
+        # Process SMA if both windows provided
+        if sma_fast is not None and sma_slow is not None:
+            config["USE_SMA"] = True
+            sma_data = calculate_ma_and_signals(data.clone(), sma_fast, sma_slow, config)
+            if sma_data is not None:
+                sma_portfolio = backtest_strategy(sma_data, config, log)
+                if sma_portfolio is None:
+                    log(f"Failed to backtest SMA strategy for {ticker}", "error")
+            else:
+                log(f"Failed to calculate SMA signals for {ticker}", "error")
         
-        # Process EMA
-        config["USE_SMA"] = False
-        ema_data = calculate_ma_and_signals(data.clone(), ema_fast, ema_slow, config)
-        if ema_data is None:
-            log(f"Failed to calculate EMA signals for {ticker}", "error")
-            return None
-        ema_portfolio = backtest_strategy(ema_data, config, log)
-        if ema_portfolio is None:
-            log(f"Failed to backtest EMA strategy for {ticker}", "error")
-            return None
+        # Process EMA if both windows provided
+        if ema_fast is not None and ema_slow is not None:
+            config["USE_SMA"] = False
+            ema_data = calculate_ma_and_signals(data.clone(), ema_fast, ema_slow, config)
+            if ema_data is not None:
+                ema_portfolio = backtest_strategy(ema_data, config, log)
+                if ema_portfolio is None:
+                    log(f"Failed to backtest EMA strategy for {ticker}", "error")
+            else:
+                log(f"Failed to calculate EMA signals for {ticker}", "error")
         
-        return sma_portfolio, ema_portfolio, config
+        # Return results if at least one strategy was processed
+        if sma_portfolio is not None or ema_portfolio is not None:
+            return sma_portfolio, ema_portfolio, config
+        else:
+            log(f"No valid strategies processed for {ticker}", "error")
+            return None
         
     except Exception as e:
         log(f"Failed to process {ticker}: {e}", "error")

@@ -29,7 +29,7 @@ def calculate_adjusted_metrics(stats: Dict) -> Dict:
     stats['Tradability'] = stats['Total Closed Trades'] / stats['End'] * 1000
     return stats
 
-def process_ticker_portfolios(ticker: str, row: dict, log: Callable) -> Optional[Tuple[dict, dict]]:
+def process_ticker_portfolios(ticker: str, row: dict, log: Callable) -> Optional[List[dict]]:
     """
     Process SMA and EMA portfolios for a single ticker.
 
@@ -39,18 +39,30 @@ def process_ticker_portfolios(ticker: str, row: dict, log: Callable) -> Optional
         log (Callable): Logging function
 
     Returns:
-        Optional[Tuple[dict, dict]]: Tuple containing:
-            - SMA portfolio statistics
-            - EMA portfolio statistics
-            Or None if processing fails
+        Optional[List[dict]]: List containing valid portfolio statistics (SMA and/or EMA)
+        or None if processing fails
     """
     try:
+        portfolios = []
+        has_sma = row['SMA_FAST'] and row['SMA_SLOW']
+        has_ema = row['EMA_FAST'] and row['EMA_SLOW']
+        
+        if not (has_sma or has_ema):
+            log(f"Skipping {ticker}: No valid window combinations provided")
+            return None
+            
+        # Convert window values to integers if present
+        sma_fast = int(row['SMA_FAST']) if has_sma else None
+        sma_slow = int(row['SMA_SLOW']) if has_sma else None
+        ema_fast = int(row['EMA_FAST']) if has_ema else None
+        ema_slow = int(row['EMA_SLOW']) if has_ema else None
+            
         result = process_ma_portfolios(
             ticker=ticker,
-            sma_fast=row['SMA_FAST'],
-            sma_slow=row['SMA_SLOW'],
-            ema_fast=row['EMA_FAST'],
-            ema_slow=row['EMA_SLOW'],
+            sma_fast=sma_fast,
+            sma_slow=sma_slow,
+            ema_fast=ema_fast,
+            ema_slow=ema_slow,
             log=log
         )
         
@@ -59,25 +71,29 @@ def process_ticker_portfolios(ticker: str, row: dict, log: Callable) -> Optional
             
         sma_portfolio, ema_portfolio, config = result
 
-        # Process SMA stats
-        sma_stats = sma_portfolio.stats()
-        sma_stats['Ticker'] = ticker
-        sma_stats['Use SMA'] = True
-        sma_stats['Short Window'] = row['SMA_FAST']
-        sma_stats['Long Window'] = row['SMA_SLOW']
-        sma_stats = calculate_adjusted_metrics(sma_stats)
-        sma_converted_stats = convert_stats(sma_stats)
+        # Process SMA stats if portfolio exists
+        if has_sma and sma_portfolio is not None:
+            sma_stats = sma_portfolio.stats()
+            sma_stats['Ticker'] = ticker
+            sma_stats['Use SMA'] = True
+            sma_stats['Short Window'] = sma_fast
+            sma_stats['Long Window'] = sma_slow
+            sma_stats = calculate_adjusted_metrics(sma_stats)
+            sma_converted_stats = convert_stats(sma_stats)
+            portfolios.append(sma_converted_stats)
 
-        # Process EMA stats
-        ema_stats = ema_portfolio.stats()
-        ema_stats['Ticker'] = ticker
-        ema_stats['Use SMA'] = False
-        ema_stats['Short Window'] = row['EMA_FAST']
-        ema_stats['Long Window'] = row['EMA_SLOW']
-        ema_stats = calculate_adjusted_metrics(ema_stats)
-        ema_converted_stats = convert_stats(ema_stats)
+        # Process EMA stats if portfolio exists
+        if has_ema and ema_portfolio is not None:
+            ema_stats = ema_portfolio.stats()
+            ema_stats['Ticker'] = ticker
+            ema_stats['Use SMA'] = False
+            ema_stats['Short Window'] = ema_fast
+            ema_stats['Long Window'] = ema_slow
+            ema_stats = calculate_adjusted_metrics(ema_stats)
+            ema_converted_stats = convert_stats(ema_stats)
+            portfolios.append(ema_converted_stats)
 
-        return sma_converted_stats, ema_converted_stats
+        return portfolios if portfolios else None
 
     except Exception as e:
         log(f"Failed to process stats for {ticker}: {e}", "error")
