@@ -35,6 +35,7 @@ def analyze_rsi_parameters(
     returns_matrix = np.zeros((num_windows, num_thresholds))
     winrate_matrix = np.zeros((num_windows, num_thresholds))
     expectancy_matrix = np.zeros((num_windows, num_thresholds))
+    trades_matrix = np.zeros((num_windows, num_thresholds))
     
     # Analyze each combination
     for i, window in enumerate(rsi_windows):
@@ -64,19 +65,21 @@ def analyze_rsi_parameters(
         
         for j, threshold in enumerate(rsi_thresholds):
             trades = backtest(data_with_rsi, threshold)
-            total_return, win_rate, expectancy, _ = calculate_metrics(trades)
+            total_return, win_rate, expectancy, num_trades = calculate_metrics(trades)
             
             returns_matrix[i, j] = total_return
             winrate_matrix[i, j] = win_rate
             expectancy_matrix[i, j] = expectancy
+            trades_matrix[i, j] = num_trades
             
             if log:
                 log(f"Analyzed RSI window {window}, threshold {threshold}")
     
     return {
+        'trades': trades_matrix,
         'returns': returns_matrix,
-        'winrate': winrate_matrix,
-        'expectancy': expectancy_matrix
+        'expectancy': expectancy_matrix,
+        'winrate': winrate_matrix 
     }
 
 def create_rsi_heatmap(
@@ -111,7 +114,8 @@ def create_rsi_heatmap(
             colorscale='plasma',
             colorbar=dict(
                 title=metric_name.capitalize(),
-                tickformat='.1f' if metric_name == 'expectancy' else '.1%'
+                tickformat='.1f' if metric_name == 'expectancy' else 
+                          '.0f' if metric_name == 'trades' else '.1%'
             )
         ))
         
@@ -135,8 +139,8 @@ def create_rsi_heatmap(
                 ticktext=[f'{x:.0f}' for x in rsi_windows],
                 tickvals=rsi_windows
             ),
-            width=900,
-            height=600
+            autosize=True,
+            margin=dict(l=50, r=50, t=100, b=50)
         )
         
         figures[metric_name] = fig

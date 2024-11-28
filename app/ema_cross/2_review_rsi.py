@@ -56,13 +56,13 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     "USE_SMA": True,
-    "TICKER": 'FSLR',
+    "TICKER": 'SOL-USD',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "USE_HOURLY": False,
     "USE_SYNTHETIC": False,
-    "SHORT_WINDOW": 24,
-    "LONG_WINDOW": 26,
+    "SHORT_WINDOW": 14,
+    "LONG_WINDOW": 32,
     "RSI_PERIOD": 14
 }
 
@@ -74,7 +74,7 @@ def run(config: Config = config) -> bool:
     1. Sets up logging
     2. Prepares data with moving averages and RSI
     3. Runs sensitivity analysis across RSI parameters
-    4. Generates and saves visualization plots and heatmaps
+    4. Displays interactive heatmaps in browser
 
     Args:
         config (Config): Configuration dictionary containing strategy parameters
@@ -97,6 +97,7 @@ def run(config: Config = config) -> bool:
         # Define parameter ranges
         rsi_thresholds = np.arange(30, 81, 1)  # 30 to 80
         rsi_windows = np.arange(2, 31, 1)  # 2 to 30
+        # rsi_windows = np.arange(12, 19, 1)  # Tight range for testing! DO NOT REMOVE!
         log(f"Using RSI thresholds: {rsi_thresholds[0]} to {rsi_thresholds[-1]}")
         log(f"Using RSI windows: {rsi_windows[0]} to {rsi_windows[-1]}")
 
@@ -120,11 +121,10 @@ def run(config: Config = config) -> bool:
         figures = create_rsi_heatmap(metric_matrices, rsi_thresholds, rsi_windows, config["TICKER"])
         log("Heatmap figures created")
         
-        # Save heatmaps as HTML files
+        # Display heatmaps in browser
         for metric_name, fig in figures.items():
-            filename = f"rsi_heatmap_{metric_name}.html"
-            fig.write_html(filename)
-            log(f"Saved {metric_name} heatmap to {filename}")
+            fig.show()
+            log(f"Displayed {metric_name} heatmap")
         
         # Create traditional plots
         pl.Config.set_fmt_str_lengths(20)
