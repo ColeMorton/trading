@@ -13,7 +13,13 @@ from tools.summary_processing import (
     export_summary_results
 )
 
-def run(scanner_list: str = 'DAILY.csv') -> bool:
+# Default Configuration
+config = {
+    "SCANNER_LIST": '20241128.csv',
+    "USE_CURRENT": True
+}
+
+def run(scanner_list: str) -> bool:
     """
     Process scanner list and generate portfolio summary.
 
@@ -67,7 +73,7 @@ def run(scanner_list: str = 'DAILY.csv') -> bool:
 
 if __name__ == "__main__":
     try:
-        result = run('20241126.csv')
+        result = run(config.get(["SCANNER_LIST"], 'DAILY.csv'))
         if result:
             print("Execution completed successfully!")
     except Exception as e:
