@@ -98,6 +98,15 @@ def export_results(results_data: List[Dict], config: dict, log: Callable) -> Non
         log (Callable): Logging function
     """
     if not config.get("USE_HOURLY", False):
+        # Log signals
+        log("\nSignals detected:")
+        for result in results_data:
+            ticker = result["TICKER"]
+            if result["SMA"]:
+                log(f"SMA Signal - {ticker}: Fast={result['SMA_FAST']}, Slow={result['SMA_SLOW']}")
+            if result["EMA"]:
+                log(f"EMA Signal - {ticker}: Fast={result['EMA_FAST']}, Slow={result['EMA_SLOW']}")
+        
         # Transform results to match input CSV format
         transformed_data = []
         for result in results_data:
@@ -128,4 +137,4 @@ def export_results(results_data: List[Dict], config: dict, log: Callable) -> Non
         # Export to dated subdirectory with scanner list name
         output_path = os.path.join(date_dir, f"{scanner_filename}.csv")
         results_df.write_csv(output_path)
-        log(f"Results exported to {output_path}")
+        log(f"\nResults exported to {output_path}")
