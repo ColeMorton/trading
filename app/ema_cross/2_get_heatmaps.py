@@ -78,7 +78,7 @@ def get_portfolio_path(config: Config) -> str:
 def run(config: Config = {
     "USE_CURRENT": True,
     "USE_SMA": True,
-    "TICKER": 'FANG',
+    "TICKER": 'IREN',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,

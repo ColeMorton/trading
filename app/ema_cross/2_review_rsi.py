@@ -2,8 +2,8 @@
 RSI Analysis Module for EMA Cross Strategy
 
 This module performs sensitivity analysis on RSI (Relative Strength Index) parameters
-in combination with EMA cross signals. It analyzes how different RSI thresholds affect
-strategy performance metrics including returns, win rate, and expectancy.
+in combination with EMA cross signals. It analyzes how different RSI thresholds and
+window lengths affect strategy performance metrics including returns, win rate, and expectancy.
 """
 
 import polars as pl
@@ -14,8 +14,9 @@ from app.tools.get_data import get_data
 from app.tools.get_config import get_config
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.calculate_rsi import calculate_rsi
-from tools.rsi_analysis import run_sensitivity_analysis
-from tools.rsi_plotting import plot_results
+from app.ema_cross.tools.rsi_analysis import run_sensitivity_analysis
+from app.ema_cross.tools.rsi_plotting import plot_results
+from app.ema_cross.tools.rsi_heatmap import analyze_rsi_parameters, create_rsi_heatmap
 
 class Config(TypedDict):
     """
@@ -55,25 +56,25 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     "USE_SMA": True,
-    "TICKER": 'AAPL',
+    "TICKER": 'FSLR',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "USE_HOURLY": False,
     "USE_SYNTHETIC": False,
-    "SHORT_WINDOW": 8,
-    "LONG_WINDOW": 36,
+    "SHORT_WINDOW": 24,
+    "LONG_WINDOW": 26,
     "RSI_PERIOD": 14
 }
 
 def run(config: Config = config) -> bool:
     """
-    Run RSI threshold sensitivity analysis.
+    Run RSI parameter sensitivity analysis.
 
     This function:
     1. Sets up logging
     2. Prepares data with moving averages and RSI
-    3. Runs sensitivity analysis across RSI thresholds
-    4. Generates and saves visualization plots
+    3. Runs sensitivity analysis across RSI parameters
+    4. Generates and saves visualization plots and heatmaps
 
     Args:
         config (Config): Configuration dictionary containing strategy parameters
@@ -93,9 +94,13 @@ def run(config: Config = config) -> bool:
         config = get_config(config)
         log(f"Starting RSI analysis for {config['TICKER']}")
         
-        rsi_range = np.arange(29, 79, 1)  # 30 to 80
-        log(f"Using RSI range: {rsi_range[0]} to {rsi_range[-1]}")
+        # Define parameter ranges
+        rsi_thresholds = np.arange(30, 81, 1)  # 30 to 80
+        rsi_windows = np.arange(2, 31, 1)  # 2 to 30
+        log(f"Using RSI thresholds: {rsi_thresholds[0]} to {rsi_thresholds[-1]}")
+        log(f"Using RSI windows: {rsi_windows[0]} to {rsi_windows[-1]}")
 
+        # Get and prepare data
         data = get_data(config["TICKER"], config)
         data = calculate_ma_and_signals(data, config["SHORT_WINDOW"], config["LONG_WINDOW"], config)
         data = calculate_rsi(data, config["RSI_PERIOD"])
@@ -103,12 +108,28 @@ def run(config: Config = config) -> bool:
         log(f"Data statistics: Close price - Min: {data['Close'].min()}, Max: {data['Close'].max()}, Mean: {data['Close'].mean()}")
         log(f"RSI statistics: Min: {data['RSI'].min()}, Max: {data['RSI'].max()}, Mean: {data['RSI'].mean()}")
         
-        results_df = run_sensitivity_analysis(data, rsi_range)
-        log("Sensitivity analysis completed")
+        # Run threshold sensitivity analysis
+        results_df = run_sensitivity_analysis(data, rsi_thresholds)
+        log("Threshold sensitivity analysis completed")
         
+        # Run parameter sensitivity analysis and create heatmap
+        metric_matrices = analyze_rsi_parameters(data, rsi_thresholds, rsi_windows, log)
+        log("Parameter sensitivity analysis completed")
+        
+        # Create heatmap figures
+        figures = create_rsi_heatmap(metric_matrices, rsi_thresholds, rsi_windows, config["TICKER"])
+        log("Heatmap figures created")
+        
+        # Save heatmaps as HTML files
+        for metric_name, fig in figures.items():
+            filename = f"rsi_heatmap_{metric_name}.html"
+            fig.write_html(filename)
+            log(f"Saved {metric_name} heatmap to {filename}")
+        
+        # Create traditional plots
         pl.Config.set_fmt_str_lengths(20)
         plot_results(config["TICKER"], results_df, log)
-        log("Results plotted successfully")
+        log("Traditional plots created successfully")
         
         log_close()
         return True
