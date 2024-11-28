@@ -6,6 +6,7 @@ window combinations for the EMA cross strategy from portfolio data.
 """
 
 import os
+from datetime import datetime
 import sys
 from typing import TypedDict, NotRequired
 import polars as pl
@@ -53,9 +54,9 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     "USE_SMA": True,
-    "TICKER": 'AMZN',
+    "TICKER": 'FANG',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,
@@ -149,11 +150,21 @@ def run(config: Config = config) -> bool:
     try:
         config = get_config(config)
         log(f"Processing ticker: {config['TICKER']}")
-        
+
+        path_components = ['csv/ma_cross/portfolios/']
+
+        # If USE_CURRENT is True, add date subdirectory
+        if config.get("USE_CURRENT", False):
+            today = datetime.now().strftime("%Y%m%d")
+            path_components.append(today)
+
         # Determine portfolio file path
         ma_type = 'SMA' if config.get('USE_SMA', False) else 'EMA'
         freq_type = 'H' if config.get('USE_HOURLY', False) else 'D'
-        portfolio_file = f"csv/ma_cross/portfolios/{config['TICKER']}_{freq_type}_{ma_type}.csv"
+
+        path_components.append(f'{config['TICKER']}_{freq_type}_{ma_type}.csv')
+
+        portfolio_file = os.path.join(*path_components)
         
         # Check if portfolio file exists
         if not os.path.exists(portfolio_file):

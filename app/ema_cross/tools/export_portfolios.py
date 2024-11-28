@@ -31,6 +31,8 @@ def export_portfolios(
     if not portfolios:
         log("No portfolios to export", "warning")
         return pl.DataFrame(), False
+    else:
+        log("Exporting portfolios...", "info")
 
     return export_csv(
         data=portfolios,

@@ -43,8 +43,8 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "USE_SMA": True,
-    "TICKER": 'LOW',
+    "USE_SMA": False,
+    "TICKER": 'HUT',
     "WINDOWS": 89,
     "USE_HOURLY": False
 }
@@ -76,6 +76,8 @@ def run(config: Config = config) -> bool:
         module_name='ma_cross',
         log_file='1_get_current_signals.log'
     )
+
+    config["USE_CURRENT"] = True
     
     try:
         generate_current_signals(config, log)

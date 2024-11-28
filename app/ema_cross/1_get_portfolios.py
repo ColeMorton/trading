@@ -15,6 +15,7 @@ from tools.filter_portfolios import filter_portfolios
 from tools.portfolio_processing import process_single_ticker
 from tools.signal_generation import generate_current_signals
 from tools.sensitivity_analysis import analyze_window_combination
+from tools.export_portfolios import export_portfolios
 from typing import TypedDict, NotRequired, Union, List
 
 class Config(TypedDict):
@@ -49,11 +50,11 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": 'AMZN',
+    "TICKER": 'FANG',
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "REFRESH": False,
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     "BASE_DIR": os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 }
 
@@ -139,6 +140,15 @@ def run(config: Config = config) -> bool:
                 portfolios_df = process_current_signals(ticker, ticker_config, log)
                 if portfolios_df is None:
                     continue
+                    
+                # Export unfiltered portfolios
+                export_portfolios(
+                    portfolios=portfolios_df.to_dicts(),
+                    config=ticker_config,
+                    export_type="portfolios",
+                    csv_filename=None,
+                    log=log
+                )
             else:
                 # Process single ticker without current signals
                 portfolios = process_single_ticker(ticker, ticker_config, log)
