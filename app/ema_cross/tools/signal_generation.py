@@ -153,10 +153,10 @@ def process_ma_signals(
         slow_window
     )
     
-    message = (
-        f"{ticker} {ma_type} - {'Current signal found' if is_current else 'No signals'} "
-        f"for {fast_window}/{slow_window}{'!!!!!' if is_current else ''}"
-    )
-    print(message)
+    # message = (
+    #     f"{ticker} {ma_type} - {'Current signal found' if is_current else 'No signals'} "
+    #     f"for {fast_window}/{slow_window}{'!!!!!' if is_current else ''}"
+    # )
+    # print(message)
     
     return is_current

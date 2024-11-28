@@ -6,6 +6,7 @@ and processing new tickers for both SMA and EMA configurations.
 """
 
 import os
+from datetime import datetime
 import polars as pl
 from typing import Tuple, List, Dict, Callable
 from app.utils import get_path, get_filename
@@ -85,7 +86,7 @@ def process_ticker(ticker: str, row: dict, config: dict, log: Callable) -> Dict:
 
 def export_results(results_data: List[Dict], config: dict, log: Callable) -> None:
     """
-    Export scanner results to CSV.
+    Export scanner results to CSV in a date-specific subdirectory.
 
     Args:
         results_data (List[Dict]): List of results dictionaries
@@ -97,7 +98,19 @@ def export_results(results_data: List[Dict], config: dict, log: Callable) -> Non
     
     # Export results to CSV
     if not config.get("USE_HOURLY", False):
+        # Get base path
         csv_path = get_path("csv", "ma_cross", config, 'portfolios_scanned')
-        csv_filename = get_filename("csv", config)
-        results_df.write_csv(csv_path + "/" + csv_filename)
-        log(f"Results exported to {csv_filename}")
+        
+        # Create date subdirectory
+        today = datetime.now().strftime("%Y%m%d")
+        date_dir = os.path.join(csv_path, today)
+        os.makedirs(date_dir, exist_ok=True)
+        
+        # Get scanner list filename without extension
+        scanner_list_path = config["SCANNER_LIST"]
+        scanner_filename = os.path.splitext(os.path.basename(scanner_list_path))[0]
+        
+        # Export to dated subdirectory with scanner list name
+        output_path = os.path.join(date_dir, f"{scanner_filename}.csv")
+        results_df.write_csv(output_path)
+        log(f"Results exported to {output_path}")
