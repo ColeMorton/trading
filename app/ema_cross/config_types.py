@@ -45,7 +45,7 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": ['FSLR', 'AIG'],
+    "TICKER": 'AIG',
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "REFRESH": False,

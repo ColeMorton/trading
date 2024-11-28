@@ -6,10 +6,6 @@ single ticker and multiple ticker analysis. It includes functionality for parame
 sensitivity analysis and portfolio filtering.
 """
 
-import os
-import polars as pl
-from typing import Union, List
-
 from app.tools.get_config import get_config
 from app.tools.setup_logging import setup_logging
 from app.ema_cross.tools.filter_portfolios import filter_portfolios

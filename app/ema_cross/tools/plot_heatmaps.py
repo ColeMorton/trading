@@ -16,7 +16,7 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> N
 
     Args:
         portfolio_data: Polars DataFrame containing portfolio performance data with columns:
-            - metric: str, type of metric (returns, trades, or sharpe)
+            - metric: str, type of metric (returns, trades, sharpe, or win_rate)
             - value: float, value of the metric
             - fast_window: int, short moving average window
             - slow_window: int, long moving average window
@@ -72,15 +72,26 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> N
                 names=['slow', 'fast']
             )
         )
+
+        # Create Win Rate Series
+        win_rate_df = df[df['metric'] == 'win_rate']
+        win_rate = pd.Series(
+            win_rate_df['value'].values,
+            index=pd.MultiIndex.from_arrays(
+                [win_rate_df['slow_window'].values, win_rate_df['fast_window'].values],
+                names=['slow', 'fast']
+            )
+        )
         
-        if len(returns) == 0 or len(trades) == 0 or len(sharpe) == 0:
-            raise ValueError("Portfolio data missing required metrics (returns, trades, and/or sharpe)")
+        if len(returns) == 0 or len(trades) == 0 or len(sharpe) == 0 or len(win_rate) == 0:
+            raise ValueError("Portfolio data missing required metrics (returns, trades, sharpe, and/or win_rate)")
         
         # Create heatmap figures
         figures = create_heatmap_figures(
             returns=returns,
             trades=trades,
             sortino=sharpe,  # Keep parameter name as sortino for backwards compatibility
+            win_rate=win_rate,
             windows=windows,
             title="Portfolio Performance",
             ticker=config["TICKER"],

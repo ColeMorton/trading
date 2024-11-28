@@ -18,6 +18,7 @@ def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
             - Total Return [%]
             - Total Trades
             - Sharpe Ratio
+            - Win Rate [%]
 
     Returns:
         pl.DataFrame: Transformed data with columns:
@@ -29,7 +30,8 @@ def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
     metrics = [
         ('returns', 'Total Return [%]'),
         ('trades', 'Total Trades'),
-        ('sharpe', 'Sharpe Ratio')
+        ('sharpe', 'Sharpe Ratio'),
+        ('win_rate', 'Win Rate [%]')
     ]
     
     transformed_data = []
