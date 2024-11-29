@@ -12,6 +12,7 @@ from app.ema_cross.tools.backtest_strategy import backtest_strategy
 from app.tools.file_utils import convert_stats
 from app.tools.calculate_rsi import calculate_rsi
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
+from app.tools.export_csv import export_csv, ExportConfig
 
 def analyze_rsi_parameters(
     data: pl.DataFrame,
@@ -41,6 +42,9 @@ def analyze_rsi_parameters(
     expectancy_matrix = np.zeros((num_windows, num_thresholds))
     trades_matrix = np.zeros((num_windows, num_thresholds))
     
+    # Store portfolios for export
+    portfolios = []
+    
     # Analyze each combination
     for i, window in enumerate(rsi_windows):
         # Calculate RSI using the dedicated function
@@ -62,6 +66,11 @@ def analyze_rsi_parameters(
             stats = portfolio.stats()
             converted_stats = convert_stats(stats)
             
+            # Add RSI parameters to stats
+            converted_stats["RSI Window"] = window
+            converted_stats["RSI Threshold"] = threshold
+            portfolios.append(converted_stats)
+            
             # Handle NaN values by replacing with 0
             returns_matrix[i, j] = np.nan_to_num(converted_stats.get('Total Return [%]', 0), 0)
             winrate_matrix[i, j] = np.nan_to_num(converted_stats.get('Win Rate [%]', 0), 0)
@@ -70,6 +79,17 @@ def analyze_rsi_parameters(
             
             if log:
                 log(f"Analyzed RSI window {window}, threshold {threshold}")
+    
+    # Create filename with MA windows
+    ticker_prefix = config.get("TICKER", "")
+    if isinstance(ticker_prefix, list):
+        ticker_prefix = ticker_prefix[0] if ticker_prefix else ""
+    
+    filename = f"{ticker_prefix}_D_{'SMA' if config.get('USE_SMA', False) else 'EMA'}_{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}.csv"
+    
+    # Export portfolios
+    export_config = ExportConfig(BASE_DIR=config["BASE_DIR"], TICKER=config.get("TICKER"))
+    export_csv(portfolios, "ma_cross", export_config, "rsi", filename)
     
     # Ensure no NaN values in final matrices
     returns_matrix = np.nan_to_num(returns_matrix, 0)
