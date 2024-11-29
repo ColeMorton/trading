@@ -33,47 +33,46 @@ def psl_exit(
         np.ndarray: Array of PSL exit signals (1 for exit, 0 for hold)
     """
     exit_signal = np.zeros_like(price)
-    position_active = np.zeros_like(price, dtype=bool)
-    entry_prices = np.zeros_like(price)
+    entry_indices = np.zeros_like(price, dtype=int) - 1  # -1 indicates no entry
     
-    # Track active positions and their entry prices
+    # Track entry points
     for i in range(len(price)):
         if entries[i]:
-            position_active[i:] = True
-            entry_prices[i:] = price[i]
+            entry_indices[i:] = i
         elif exit_signal[i]:
-            position_active[i:] = False
-            entry_prices[i:] = 0
+            entry_indices[i:] = -1
             
-        if i >= holding_period and position_active[i]:
-            entry_idx = i - holding_period
-            if entries[entry_idx] and entry_prices[entry_idx] > 0:  # Check valid entry point
-                # Calculate PnL relative to entry price
-                if short:
-                    pnl = (entry_prices[entry_idx] - price[i]) / entry_prices[entry_idx]
-                else:
-                    pnl = (price[i] - entry_prices[entry_idx]) / entry_prices[entry_idx]
-                
-                # Exit if PnL is negative after holding period
-                if pnl < 0:
-                    exit_signal[i] = 1
-                    position_active[i:] = False
-                    entry_prices[i:] = 0
-        
-        # Check stop loss condition
-        if stop_loss is not None and position_active[i] and entry_prices[i] > 0:
+        # Check stop loss condition first
+        if entry_indices[i] >= 0 and stop_loss is not None:
+            entry_price = price[entry_indices[i]]
             if short:
                 # For shorts, exit if price rises above entry by stop loss percentage
-                if price[i] >= entry_prices[i] * (1 + stop_loss):
+                if price[i] >= entry_price * (1 + stop_loss):
                     exit_signal[i] = 1
-                    position_active[i:] = False
-                    entry_prices[i:] = 0
+                    entry_indices[i:] = -1
             else:
                 # For longs, exit if price falls below entry by stop loss percentage
-                if price[i] <= entry_prices[i] * (1 - stop_loss):
+                if price[i] <= entry_price * (1 - stop_loss):
                     exit_signal[i] = 1
-                    position_active[i:] = False
-                    entry_prices[i:] = 0
+                    entry_indices[i:] = -1
+        
+        # Then check holding period condition
+        if entry_indices[i] >= 0:
+            days_held = i - entry_indices[i]
+            if days_held == holding_period:  # Only check at exact holding period
+                entry_price = price[entry_indices[i]]
+                # Calculate PnL at holding period
+                if short:
+                    pnl = (entry_price - price[i]) / entry_price
+                else:
+                    pnl = (price[i] - entry_price) / entry_price
+                
+                # Exit only if PnL is negative at holding period
+                if pnl < 0:
+                    exit_signal[i] = 1
+                
+                # Clear position tracking after holding period regardless of PnL
+                entry_indices[i:] = -1
                     
     return exit_signal
 

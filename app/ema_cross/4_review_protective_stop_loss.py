@@ -20,15 +20,15 @@ from app.ema_cross.tools.protective_stop_loss_plotting import create_protective_
 
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
-    "TICKER": "NKE",
-    "SHORT_WINDOW": 2,
-    "LONG_WINDOW": 33,
+    "TICKER": "WDC",
+    "SHORT_WINDOW": 27,
+    "LONG_WINDOW": 42,
     "BASE_DIR": ".",
     "USE_SMA": False,
     "USE_RSI": True,
-    "RSI_PERIOD": 23,
-    "RSI_THRESHOLD": 47,
-    "STOP_LOSS": 0.0196,
+    "RSI_PERIOD": 14,
+    "RSI_THRESHOLD": 57,
+    "STOP_LOSS": 0.1778,
     "REFRESH": True  # Force refresh to use new implementation
 }
 
