@@ -87,25 +87,6 @@ def add_peak_labels(
             arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=0')
         )
 
-def convert_stats(stats: Dict[str, Any]) -> Dict[str, Any]:
-    """Convert stats to compatible format.
-    
-    Args:
-        stats: Dictionary of statistics
-        
-    Returns:
-        Dictionary with converted values
-    """
-    converted = {}
-    for k, v in stats.items():
-        if k == 'Start' or k == 'End':
-            converted[k] = v.strftime('%Y-%m-%d %H:%M:%S') if isinstance(v, datetime) else str(v)
-        elif isinstance(v, pd.Timedelta):
-            converted[k] = str(v)
-        else:
-            converted[k] = v
-    return converted
-
 def backtest_strategy(data: pl.DataFrame, config: Dict[str, Any]) -> Optional[vbt.Portfolio]:
     """Backtest the MA cross strategy.
     
