@@ -41,12 +41,12 @@ def analyze_stop_loss_parameters(
     
     # Store portfolios for export
     portfolios = []
-    
+
     # Add RSI if enabled
     if config.get('USE_RSI', False):
         data = calculate_rsi(data, config['RSI_PERIOD'])
-        log(f"Added RSI with period {config['RSI_PERIOD']}")
-    
+        log(f"RSI enabled with period: {config['RSI_PERIOD']} and threshold: {config['RSI_THRESHOLD']}")
+
     # Calculate MA and base signals
     data_with_signals = calculate_ma_and_signals(
         data,

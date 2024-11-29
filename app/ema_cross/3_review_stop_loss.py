@@ -8,12 +8,10 @@ performance metrics including returns, win rate, and expectancy.
 
 import os
 import numpy as np
-import polars as pl
-from typing import Dict, TypedDict, NotRequired, Union, List
+from typing import TypedDict, NotRequired, Union, List
 from app.tools.setup_logging import setup_logging
 from app.tools.get_data import get_data
 from app.tools.get_config import get_config
-from app.tools.calculate_rsi import calculate_rsi
 from app.tools.file_utils import load_cached_stop_loss_analysis, get_stop_loss_cache_filepath
 from app.ema_cross.tools.stop_loss_analysis import analyze_stop_loss_parameters
 from app.ema_cross.tools.stop_loss_plotting import create_stop_loss_heatmap
@@ -59,6 +57,19 @@ class StopLossConfig(TypedDict):
     TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
     REFRESH: NotRequired[bool]
+
+# Default configuration
+default_config: StopLossConfig = {
+    "TICKER": "NKE",
+    "SHORT_WINDOW": 2,
+    "LONG_WINDOW": 33,
+    "BASE_DIR": ".",
+    "USE_SMA": False,
+    "USE_RSI": True,
+    "RSI_PERIOD": 23,
+    "RSI_THRESHOLD": 47,
+    "REFRESH": False
+}
 
 def run(config: StopLossConfig) -> bool:
     """
@@ -110,11 +121,6 @@ def run(config: StopLossConfig) -> bool:
             log("Running new stop loss analysis")
             data = get_data(config["TICKER"], config)
             
-            # Add RSI if enabled
-            if config.get('USE_RSI', False):
-                data = calculate_rsi(data, config['RSI_PERIOD'])
-                log(f"RSI enabled with period: {config['RSI_PERIOD']} and threshold: {config['RSI_THRESHOLD']}")
-            
             metric_matrices = analyze_stop_loss_parameters(
                 data=data,
                 config=config,
@@ -153,19 +159,6 @@ def run(config: StopLossConfig) -> bool:
         raise
 
 if __name__ == "__main__":
-    # Default configuration
-    default_config: StopLossConfig = {
-        "TICKER": "NKE",
-        "SHORT_WINDOW": 2,
-        "LONG_WINDOW": 33,
-        "BASE_DIR": ".",
-        "USE_SMA": False,
-        "USE_RSI": True,
-        "RSI_PERIOD": 23,
-        "RSI_THRESHOLD": 47,
-        "REFRESH": False
-    }
-    
     try:
         result = run(default_config)
         if result:
