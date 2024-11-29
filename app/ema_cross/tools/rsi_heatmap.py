@@ -7,16 +7,18 @@ This module contains functions for creating heatmaps to visualize RSI parameter 
 import polars as pl
 import numpy as np
 import plotly.graph_objects as go
-from typing import Dict, Optional, Callable
+from typing import Dict, Callable
 from app.ema_cross.tools.backtest_strategy import backtest_strategy
 from app.tools.file_utils import convert_stats
+from app.tools.calculate_rsi import calculate_rsi
+from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 
 def analyze_rsi_parameters(
     data: pl.DataFrame,
     config,
     rsi_thresholds: np.ndarray,
     rsi_windows: np.ndarray,
-    log: Optional[Callable] = None
+    log: Callable
 ) -> Dict[str, np.ndarray]:
     """
     Analyze RSI parameters across different thresholds and window lengths.
@@ -39,53 +41,22 @@ def analyze_rsi_parameters(
     expectancy_matrix = np.zeros((num_windows, num_thresholds))
     trades_matrix = np.zeros((num_windows, num_thresholds))
     
-    # Default logging function if none provided
-    if log is None:
-        log = lambda msg, level="info": None
-    
     # Analyze each combination
     for i, window in enumerate(rsi_windows):
-        # Calculate up and down moves
-        data_with_moves = data.with_columns([
-            pl.when(pl.col('Close').diff() > 0)
-            .then(pl.col('Close').diff())
-            .otherwise(0)
-            .alias('up_move'),
-            
-            pl.when(pl.col('Close').diff() < 0)
-            .then(abs(pl.col('Close').diff()))
-            .otherwise(0)
-            .alias('down_move')
-        ])
-        
-        # Calculate rolling means
-        data_with_means = data_with_moves.with_columns([
-            pl.col('up_move').rolling_mean(window_size=window).alias('up_mean'),
-            pl.col('down_move').rolling_mean(window_size=window).alias('down_mean')
-        ])
-        
-        # Calculate RSI
-        data_with_rsi = data_with_means.with_columns([
-            (100 - (100 / (1 + pl.col('up_mean') / pl.col('down_mean')))).alias('RSI')
-        ])
+        # Calculate RSI using the dedicated function
+        data_with_rsi = calculate_rsi(data, window)
         
         for j, threshold in enumerate(rsi_thresholds):
             config["RSI_THRESHOLD"] = threshold
+            config["USE_RSI"] = True  # Enable RSI filtering
             
-            # Generate Signal column based on MA cross and RSI conditions
-            data_with_signals = data_with_rsi.with_columns([
-                pl.when(
-                    (pl.col('MA_FAST') > pl.col('MA_SLOW')) & 
-                    (pl.col('MA_FAST').shift(1) <= pl.col('MA_SLOW').shift(1)) &
-                    (pl.col('RSI') >= threshold)
-                ).then(1)
-                .when(
-                    (pl.col('MA_FAST') < pl.col('MA_SLOW')) & 
-                    (pl.col('MA_FAST').shift(1) >= pl.col('MA_SLOW').shift(1))
-                ).then(0)
-                .otherwise(None)
-                .alias('Signal')
-            ])
+            # Use existing MA and signal calculation infrastructure
+            data_with_signals = calculate_ma_and_signals(
+                data_with_rsi,
+                config["SHORT_WINDOW"],
+                config["LONG_WINDOW"],
+                config
+            )
             
             portfolio = backtest_strategy(data_with_signals, config, log)
             stats = portfolio.stats()

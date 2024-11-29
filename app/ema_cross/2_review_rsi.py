@@ -105,7 +105,6 @@ def run(config: Config = config) -> bool:
         
         # Run parameter sensitivity analysis and create heatmap
         metric_matrices = analyze_rsi_parameters(data, config, rsi_thresholds, rsi_windows, log)
-        log("Parameter sensitivity analysis completed")
         
         # Create and display heatmap figures
         figures = create_rsi_heatmap(metric_matrices, rsi_thresholds, rsi_windows, config["TICKER"])
