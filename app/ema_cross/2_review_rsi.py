@@ -6,6 +6,8 @@ in combination with EMA cross signals. It analyzes how different RSI thresholds 
 window lengths affect strategy performance metrics including returns, win rate, and expectancy.
 """
 
+import os
+import polars as pl
 import numpy as np
 from typing import TypedDict, NotRequired
 from app.tools.setup_logging import setup_logging
@@ -33,6 +35,7 @@ class Config(TypedDict):
         USE_SYNTHETIC (NotRequired[bool]): Whether to create synthetic pairs
         TICKER_1 (NotRequired[str]): First ticker for synthetic pairs
         TICKER_2 (NotRequired[str]): Second ticker for synthetic pairs
+        REFRESH (NotRequired[bool]): Whether to force refresh analysis
     """
     TICKER: str
     SHORT_WINDOW: int
@@ -46,6 +49,7 @@ class Config(TypedDict):
     USE_SYNTHETIC: NotRequired[bool]
     TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
+    REFRESH: NotRequired[bool]
 
 # Default Configuration
 config: Config = {
@@ -56,7 +60,8 @@ config: Config = {
     "USE_HOURLY": False,
     "USE_SYNTHETIC": False,
     "SHORT_WINDOW": 24,
-    "LONG_WINDOW": 26
+    "LONG_WINDOW": 26,
+    "REFRESH": False
 }
 
 def run(config: Config = config) -> bool:
@@ -93,12 +98,63 @@ def run(config: Config = config) -> bool:
         log(f"Using RSI thresholds: {rsi_thresholds[0]} to {rsi_thresholds[-1]}")
         log(f"Using RSI windows: {rsi_windows[0]} to {rsi_windows[-1]}")
 
-        # Get and prepare data
-        data = get_data(config["TICKER"], config)
-        log(f"Data statistics: Close price - Min: {data['Close'].min()}, Max: {data['Close'].max()}, Mean: {data['Close'].mean()}")
-        
-        # Run parameter sensitivity analysis and create heatmap
-        metric_matrices = analyze_rsi_parameters(data, config, rsi_thresholds, rsi_windows, log)
+        # Check if we should use cached results
+        if not config.get("REFRESH", False):
+            # Construct the expected filename
+            ticker_prefix = config["TICKER"]
+            if isinstance(ticker_prefix, list):
+                ticker_prefix = ticker_prefix[0] if ticker_prefix else ""
+            
+            filename = f"{ticker_prefix}_D_{'SMA' if config.get('USE_SMA', False) else 'EMA'}_{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}.csv"
+            filepath = os.path.join(config['BASE_DIR'], 'csv', 'ma_cross', 'rsi', filename)
+            
+            if os.path.exists(filepath):
+                log(f"Loading cached RSI analysis from {filepath}")
+                # Load the cached data
+                df = pl.read_csv(filepath)
+                
+                # Reconstruct matrices from cached data
+                num_thresholds = len(rsi_thresholds)
+                num_windows = len(rsi_windows)
+                
+                returns_matrix = np.zeros((num_windows, num_thresholds))
+                winrate_matrix = np.zeros((num_windows, num_thresholds))
+                expectancy_matrix = np.zeros((num_windows, num_thresholds))
+                trades_matrix = np.zeros((num_windows, num_thresholds))
+                
+                for row in df.iter_rows(named=True):
+                    window_idx = np.where(rsi_windows == row['RSI Window'])[0][0]
+                    threshold_idx = np.where(rsi_thresholds == row['RSI Threshold'])[0][0]
+                    
+                    returns_matrix[window_idx, threshold_idx] = row.get('Total Return [%]', 0)
+                    winrate_matrix[window_idx, threshold_idx] = row.get('Win Rate [%]', 0)
+                    expectancy_matrix[window_idx, threshold_idx] = row.get('Expectancy', 0)
+                    trades_matrix[window_idx, threshold_idx] = row.get('Total Closed Trades', 0)
+                
+                metric_matrices = {
+                    'trades': trades_matrix,
+                    'returns': returns_matrix,
+                    'expectancy': expectancy_matrix,
+                    'winrate': winrate_matrix
+                }
+                
+                log("Successfully loaded cached RSI analysis")
+            else:
+                log("No cached analysis found, running new analysis")
+                # Get and prepare data
+                data = get_data(config["TICKER"], config)
+                log(f"Data statistics: Close price - Min: {data['Close'].min()}, Max: {data['Close'].max()}, Mean: {data['Close'].mean()}")
+                
+                # Run parameter sensitivity analysis and create heatmap
+                metric_matrices = analyze_rsi_parameters(data, config, rsi_thresholds, rsi_windows, log)
+        else:
+            log("Refresh requested, running new analysis")
+            # Get and prepare data
+            data = get_data(config["TICKER"], config)
+            log(f"Data statistics: Close price - Min: {data['Close'].min()}, Max: {data['Close'].max()}, Mean: {data['Close'].mean()}")
+            
+            # Run parameter sensitivity analysis and create heatmap
+            metric_matrices = analyze_rsi_parameters(data, config, rsi_thresholds, rsi_windows, log)
         
         # Create and display heatmap figures
         figures = create_rsi_heatmap(metric_matrices, rsi_thresholds, rsi_windows, config["TICKER"])
