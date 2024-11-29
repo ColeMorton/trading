@@ -46,8 +46,9 @@ def find_last_negative_candle(
     log: Optional[Callable] = None
 ) -> int:
     """
-    Find the last candle where any trade has negative PnL, defined by price being below
-    entry price for long trades or above entry price for short trades.
+    Find the last candle where any trade has negative PnL, checking at each candle
+    after entry. This aligns with PSL exit logic which checks for negative PnL
+    at OR AFTER the holding period.
 
     Args:
         price (np.ndarray): Array of price data
@@ -61,6 +62,7 @@ def find_last_negative_candle(
     """
     entry_indices = np.zeros_like(price, dtype=int) - 1  # -1 indicates no entry
     max_negative_duration = 0
+    last_negative_found = False
     
     # Track entry points and find longest duration to negative PnL
     for i in range(len(price)):
@@ -71,20 +73,27 @@ def find_last_negative_candle(
             entry_price = price[entry_indices[i]]
             days_held = i - entry_indices[i]
             
-            # Check if price is below entry price (long) or above entry price (short)
+            # Calculate PnL
             if short:
-                is_negative = price[i] > entry_price  # Short trade loses when price rises above entry
+                pnl = (entry_price - price[i]) / entry_price
             else:
-                is_negative = price[i] < entry_price  # Long trade loses when price falls below entry
-                
-            if is_negative:
-                max_negative_duration = max(max_negative_duration, days_held)
+                pnl = (price[i] - entry_price) / entry_price
+            
+            # Check for negative PnL
+            if pnl < 0:
+                max_negative_duration = days_held
+                last_negative_found = True
+            elif not last_negative_found:
+                # Keep updating max_negative_duration until we find our first negative PnL
+                # This handles the case where early candles are all positive
+                max_negative_duration = days_held
                 
             # Check stop loss condition if provided
             if stop_loss is not None:
                 if (short and price[i] >= entry_price * (1 + stop_loss)) or \
                    (not short and price[i] <= entry_price * (1 - stop_loss)):
                     max_negative_duration = max(max_negative_duration, days_held)
+                    last_negative_found = True
     
     if log:
         log(f"Last negative PnL found at {max_negative_duration} days")

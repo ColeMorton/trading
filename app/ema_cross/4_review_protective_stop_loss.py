@@ -30,7 +30,7 @@ default_config: CacheConfig = {
     "RSI_PERIOD": 26,
     "RSI_THRESHOLD": 43,
     "STOP_LOSS": 0.125,
-    "REFRESH": False
+    "REFRESH": True
 }
 
 def run(config: CacheConfig) -> bool:

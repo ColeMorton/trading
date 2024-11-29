@@ -18,14 +18,17 @@ def psl_exit(
     """
     Generate Price Stop Loss (PSL) exit signals.
 
-    The PSL strategy monitors price action over a specified holding period and
-    generates exit signals based on negative PnL at the end of the holding period.
-    If stop_loss is provided, also exits when price moves against position by stop_loss percentage.
+    The PSL strategy monitors price action and generates exit signals based on:
+    1. Stop loss being hit (if configured)
+    2. Negative PnL at OR AFTER the specified holding period
+    
+    A trade that reaches the holding period will continue to be monitored for
+    negative PnL until it exits, ensuring we catch any late drawdowns.
 
     Args:
         price (np.ndarray): Array of price data
         entries (np.ndarray): Array of entry signals (boolean)
-        holding_period (int): The holding period for the PSL
+        holding_period (int): The minimum holding period before PSL checks begin
         short (bool): True if it's a short trade, False for long trades
         stop_loss (float, optional): Stop loss percentage as decimal (e.g. 0.03 for 3%)
 
@@ -56,23 +59,21 @@ def psl_exit(
                     exit_signal[i] = 1
                     entry_indices[i:] = -1
         
-        # Then check holding period condition
+        # Then check PnL condition for positions that have reached holding period
         if entry_indices[i] >= 0:
             days_held = i - entry_indices[i]
-            if days_held == holding_period:  # Only check at exact holding period
+            if days_held >= holding_period:  # Check at OR AFTER holding period
                 entry_price = price[entry_indices[i]]
-                # Calculate PnL at holding period
+                # Calculate PnL
                 if short:
                     pnl = (entry_price - price[i]) / entry_price
                 else:
                     pnl = (price[i] - entry_price) / entry_price
                 
-                # Exit only if PnL is negative at holding period
+                # Exit if PnL is negative at or after holding period
                 if pnl < 0:
                     exit_signal[i] = 1
-                
-                # Clear position tracking after holding period regardless of PnL
-                entry_indices[i:] = -1
+                    entry_indices[i:] = -1
                     
     return exit_signal
 
