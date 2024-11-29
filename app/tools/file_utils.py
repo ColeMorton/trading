@@ -198,31 +198,37 @@ def load_cached_stop_loss_analysis(
 
     try:
         df = pl.read_csv(filepath)
+        
+        # Extract unique stop loss values from the CSV and convert to numpy array
+        csv_stop_losses = df.get_column('Stop Loss [%]').unique().sort().to_numpy()
+        
+        # Initialize arrays with the same size as stop_loss_range
         num_stops = len(stop_loss_range)
+        returns_array = np.zeros(num_stops)
+        win_rate_array = np.zeros(num_stops)
+        sharpe_ratio_array = np.zeros(num_stops)
+        trades_array = np.zeros(num_stops)
         
-        # Initialize matrices
-        returns_matrix = np.zeros(num_stops)
-        win_rate_matrix = np.zeros(num_stops)
-        sharpe_ratio_matrix = np.zeros(num_stops)
-        trades_matrix = np.zeros(num_stops)
-        
-        # Populate matrices from cached data
-        for row in df.iter_rows(named=True):
-            stop_idx = np.where(stop_loss_range == row['Stop Loss [%]'])[0][0]
+        # For each stop loss in the range, find the closest value in CSV
+        for i, target_stop in enumerate(stop_loss_range):
+            # Find the closest stop loss value in the CSV
+            closest_stop = csv_stop_losses[np.abs(csv_stop_losses - target_stop).argmin()]
+            row = df.filter(pl.col('Stop Loss [%]') == closest_stop).row(0, named=True)
             
-            returns_matrix[stop_idx] = row.get('Total Return [%]', 0)
-            win_rate_matrix[stop_idx] = row.get('Win Rate [%]', 0)
-            sharpe_ratio_matrix[stop_idx] = row.get('Sharpe Ratio', 0)
-            trades_matrix[stop_idx] = row.get('Total Closed Trades', 0)
+            returns_array[i] = row.get('Total Return [%]', 0)
+            win_rate_array[i] = row.get('Win Rate [%]', 0)
+            sharpe_ratio_array[i] = row.get('Sharpe Ratio', 0)
+            trades_array[i] = row.get('Total Closed Trades', 0)
         
         return {
-            'trades': trades_matrix,
-            'returns': returns_matrix,
-            'sharpe_ratio': sharpe_ratio_matrix,
-            'win_rate': win_rate_matrix
+            'trades': trades_array,
+            'returns': returns_array,
+            'sharpe_ratio': sharpe_ratio_array,
+            'win_rate': win_rate_array
         }
         
-    except Exception:
+    except Exception as e:
+        print(f"Error loading cached stop loss analysis: {str(e)}")
         return None
 
 def get_stop_loss_cache_filepath(config: Dict[str, Any]) -> Tuple[str, str]:

@@ -2,6 +2,7 @@ import logging
 import polars as pl
 from app.tools.calculate_mas import calculate_mas
 from app.tools.calculate_ma_signals import calculate_ma_signals
+from app.tools.calculate_rsi import calculate_rsi
 
 def calculate_ma_and_signals(data: pl.DataFrame, short_window: int, long_window: int, config: dict) -> pl.DataFrame:
     """Calculate MAs and generate trading signals."""
@@ -11,6 +12,10 @@ def calculate_ma_and_signals(data: pl.DataFrame, short_window: int, long_window:
     try:
         # Calculate moving averages
         data = calculate_mas(data, short_window, long_window, config.get('USE_SMA', False))
+        
+        # Calculate RSI if needed
+        if config.get('USE_RSI', False):
+            data = calculate_rsi(data, config.get('RSI_PERIOD', 14))
         
         # Generate signals based on MA crossovers
         entries, exits = calculate_ma_signals(data, config)

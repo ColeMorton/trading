@@ -88,9 +88,9 @@ def run(config: StopLossConfig) -> bool:
         config = get_config(config)
         log(f"Starting stop loss analysis for {config['TICKER']}")
         
-        # Define parameter ranges
-        stop_loss_range = np.arange(0, 20, 0.01)
-        log(f"Using stop loss range: {stop_loss_range[0]}% to {stop_loss_range[-1]}%")
+        # Define parameter ranges with explicit 2 decimal place precision
+        stop_loss_range = np.round(np.arange(0, 15, 0.01), decimals=2)
+        log(f"Using stop loss range: {stop_loss_range[0]:.2f}% to {stop_loss_range[-1]:.2f}%")
 
         # Check for cached results
         cache_dir, cache_file = get_stop_loss_cache_filepath(config)
