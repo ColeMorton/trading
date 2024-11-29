@@ -6,7 +6,6 @@ in combination with EMA cross signals. It analyzes how different RSI thresholds 
 window lengths affect strategy performance metrics including returns, win rate, and expectancy.
 """
 
-import polars as pl
 import numpy as np
 from typing import TypedDict, NotRequired
 from app.tools.setup_logging import setup_logging
@@ -105,7 +104,7 @@ def run(config: Config = config) -> bool:
         log(f"RSI statistics: Min: {data['RSI'].min()}, Max: {data['RSI'].max()}, Mean: {data['RSI'].mean()}")
         
         # Run parameter sensitivity analysis and create heatmap
-        metric_matrices = analyze_rsi_parameters(data, rsi_thresholds, rsi_windows, log)
+        metric_matrices = analyze_rsi_parameters(data, config, rsi_thresholds, rsi_windows, log)
         log("Parameter sensitivity analysis completed")
         
         # Create and display heatmap figures

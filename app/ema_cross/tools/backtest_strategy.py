@@ -1,6 +1,6 @@
 import polars as pl
 import vectorbt as vbt
-from typing import Dict, Callable
+from typing import Callable
 
 def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Portfolio:
     """

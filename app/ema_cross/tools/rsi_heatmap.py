@@ -8,11 +8,12 @@ import polars as pl
 import numpy as np
 import plotly.graph_objects as go
 from typing import Dict, Optional, Callable
-from app.ema_cross.tools.rsi_analysis import backtest
+from app.ema_cross.tools.backtest_strategy import backtest_strategy
 from app.tools.file_utils import convert_stats
 
 def analyze_rsi_parameters(
     data: pl.DataFrame,
+    config,
     rsi_thresholds: np.ndarray,
     rsi_windows: np.ndarray,
     log: Optional[Callable] = None
@@ -37,6 +38,10 @@ def analyze_rsi_parameters(
     winrate_matrix = np.zeros((num_windows, num_thresholds))
     expectancy_matrix = np.zeros((num_windows, num_thresholds))
     trades_matrix = np.zeros((num_windows, num_thresholds))
+    
+    # Default logging function if none provided
+    if log is None:
+        log = lambda msg, level="info": None
     
     # Analyze each combination
     for i, window in enumerate(rsi_windows):
@@ -65,7 +70,24 @@ def analyze_rsi_parameters(
         ])
         
         for j, threshold in enumerate(rsi_thresholds):
-            portfolio = backtest(data_with_rsi, threshold)
+            config["RSI_THRESHOLD"] = threshold
+            
+            # Generate Signal column based on MA cross and RSI conditions
+            data_with_signals = data_with_rsi.with_columns([
+                pl.when(
+                    (pl.col('MA_FAST') > pl.col('MA_SLOW')) & 
+                    (pl.col('MA_FAST').shift(1) <= pl.col('MA_SLOW').shift(1)) &
+                    (pl.col('RSI') >= threshold)
+                ).then(1)
+                .when(
+                    (pl.col('MA_FAST') < pl.col('MA_SLOW')) & 
+                    (pl.col('MA_FAST').shift(1) >= pl.col('MA_SLOW').shift(1))
+                ).then(0)
+                .otherwise(None)
+                .alias('Signal')
+            ])
+            
+            portfolio = backtest_strategy(data_with_signals, config, log)
             stats = portfolio.stats()
             converted_stats = convert_stats(stats)
             

@@ -8,7 +8,7 @@ parameters in combination with EMA cross signals.
 import polars as pl
 import vectorbt as vbt
 
-def backtest(data: pl.DataFrame, rsi_threshold: float) -> vbt.Portfolio:
+def backtest(data: pl.DataFrame, config) -> vbt.Portfolio:
     """
     Run backtest with RSI threshold filtering.
 
@@ -26,7 +26,7 @@ def backtest(data: pl.DataFrame, rsi_threshold: float) -> vbt.Portfolio:
     entries = (
         (data_pd['MA_FAST'] > data_pd['MA_SLOW']) & 
         (data_pd['MA_FAST'].shift(1) <= data_pd['MA_SLOW'].shift(1)) &
-        (data_pd['RSI'] >= rsi_threshold)
+        (data_pd['RSI'] >= config["RSI_THRESHOLD"])
     )
     
     exits = (
