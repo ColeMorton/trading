@@ -7,7 +7,6 @@ metrics including returns, win rate, and expectancy.
 """
 
 import os
-import numpy as np
 from app.tools.setup_logging import setup_logging
 from app.tools.get_data import get_data
 from app.tools.get_config import get_config
@@ -29,8 +28,8 @@ default_config: CacheConfig = {
     "USE_RSI": True,
     "RSI_PERIOD": 23,
     "RSI_THRESHOLD": 47,
-    "STOP_LOSS": 0.0843,
-    "REFRESH": False
+    "STOP_LOSS": 0.0196,
+    "REFRESH": True  # Force refresh to use new implementation
 }
 
 def run(config: CacheConfig) -> bool:
