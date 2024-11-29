@@ -7,6 +7,7 @@ metrics including returns, win rate, and expectancy.
 """
 
 import os
+import numpy as np
 from app.tools.setup_logging import setup_logging
 from app.tools.get_data import get_data
 from app.tools.get_config import get_config
@@ -20,16 +21,16 @@ from app.ema_cross.tools.protective_stop_loss_plotting import create_protective_
 
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
-    "TICKER": "WDC",
-    "SHORT_WINDOW": 27,
-    "LONG_WINDOW": 42,
+    "TICKER": "SOL-USD",
+    "SHORT_WINDOW": 14,
+    "LONG_WINDOW": 32,
     "BASE_DIR": ".",
-    "USE_SMA": False,
+    "USE_SMA": True,
     "USE_RSI": True,
-    "RSI_PERIOD": 14,
-    "RSI_THRESHOLD": 57,
-    "STOP_LOSS": 0.1778,
-    "REFRESH": True  # Force refresh to use new implementation
+    "RSI_PERIOD": 26,
+    "RSI_THRESHOLD": 43,
+    "STOP_LOSS": 0.125,
+    "REFRESH": False
 }
 
 def run(config: CacheConfig) -> bool:
