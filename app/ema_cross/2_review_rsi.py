@@ -11,8 +11,6 @@ from typing import TypedDict, NotRequired
 from app.tools.setup_logging import setup_logging
 from app.tools.get_data import get_data
 from app.tools.get_config import get_config
-from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
-from app.tools.calculate_rsi import calculate_rsi
 from app.ema_cross.tools.rsi_heatmap import analyze_rsi_parameters, create_rsi_heatmap
 
 class Config(TypedDict):
@@ -97,11 +95,7 @@ def run(config: Config = config) -> bool:
 
         # Get and prepare data
         data = get_data(config["TICKER"], config)
-        data = calculate_ma_and_signals(data, config["SHORT_WINDOW"], config["LONG_WINDOW"], config)
-        data = calculate_rsi(data, config["RSI_PERIOD"])
-        
         log(f"Data statistics: Close price - Min: {data['Close'].min()}, Max: {data['Close'].max()}, Mean: {data['Close'].mean()}")
-        log(f"RSI statistics: Min: {data['RSI'].min()}, Max: {data['RSI'].max()}, Mean: {data['RSI'].mean()}")
         
         # Run parameter sensitivity analysis and create heatmap
         metric_matrices = analyze_rsi_parameters(data, config, rsi_thresholds, rsi_windows, log)
