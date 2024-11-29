@@ -15,7 +15,9 @@ def calculate_ma_and_signals(data: pl.DataFrame, short_window: int, long_window:
         
         # Calculate RSI if needed
         if config.get('USE_RSI', False):
-            data = calculate_rsi(data, config.get('RSI_PERIOD', 14))
+            # Use RSI_WINDOW from config for sensitivity analysis
+            rsi_window = config.get('RSI_WINDOW', 14)  # Changed from RSI_PERIOD to RSI_WINDOW
+            data = calculate_rsi(data, rsi_window)
         
         # Generate signals based on MA crossovers
         entries, exits = calculate_ma_signals(data, config)

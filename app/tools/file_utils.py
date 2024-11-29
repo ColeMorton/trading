@@ -2,9 +2,8 @@
 
 import os
 from datetime import datetime
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Set
 import pandas as pd
-import numpy as np
 import polars as pl
 
 def is_file_from_today(filepath: str) -> bool:
@@ -60,7 +59,7 @@ def convert_stats(stats: Dict[str, Any]) -> Dict[str, Any]:
     
     return converted
 
-def get_current_window_combinations(filepath: str) -> set:
+def get_current_window_combinations(filepath: str) -> Set[tuple]:
     """
     Read and validate current signal combinations from a file.
 
@@ -86,7 +85,6 @@ def get_current_window_combinations(filepath: str) -> set:
         header = lines[0].strip()
         if 'Short Window' in header and 'Long Window' in header:
             # Standard CSV format
-            import polars as pl
             current_signals = pl.read_csv(filepath)
             return set(zip(
                 current_signals.get_column('Short Window').cast(pl.Int32).to_list(),
@@ -109,224 +107,3 @@ def get_current_window_combinations(filepath: str) -> set:
     except Exception as e:
         print(f"Error reading window combinations: {str(e)}")
         return set()
-
-def load_cached_rsi_analysis(
-    filepath: str,
-    rsi_thresholds: np.ndarray,
-    rsi_windows: np.ndarray
-) -> Optional[Dict[str, np.ndarray]]:
-    """
-    Load cached RSI analysis results from a CSV file.
-
-    Args:
-        filepath (str): Path to the cached analysis file
-        rsi_thresholds (np.ndarray): Array of RSI thresholds used
-        rsi_windows (np.ndarray): Array of RSI window lengths used
-
-    Returns:
-        Optional[Dict[str, np.ndarray]]: Dictionary containing metric matrices if cache exists,
-                                       None if cache doesn't exist or is invalid
-    """
-    if not os.path.exists(filepath):
-        return None
-
-    try:
-        df = pl.read_csv(filepath)
-        num_thresholds = len(rsi_thresholds)
-        num_windows = len(rsi_windows)
-        
-        # Initialize matrices
-        returns_matrix = np.zeros((num_windows, num_thresholds))
-        win_rate_matrix = np.zeros((num_windows, num_thresholds))
-        sharpe_ratio_matrix = np.zeros((num_windows, num_thresholds))
-        trades_matrix = np.zeros((num_windows, num_thresholds))
-        
-        # Populate matrices from cached data
-        for row in df.iter_rows(named=True):
-            window_idx = np.where(rsi_windows == row['RSI Window'])[0][0]
-            threshold_idx = np.where(rsi_thresholds == row['RSI Threshold'])[0][0]
-            
-            returns_matrix[window_idx, threshold_idx] = row.get('Total Return [%]', 0)
-            win_rate_matrix[window_idx, threshold_idx] = row.get('Win Rate [%]', 0)
-            sharpe_ratio_matrix[window_idx, threshold_idx] = row.get('Sharpe Ratio', 0)
-            trades_matrix[window_idx, threshold_idx] = row.get('Total Closed Trades', 0)
-        
-        return {
-            'trades': trades_matrix,
-            'returns': returns_matrix,
-            'sharpe_ratio': sharpe_ratio_matrix,
-            'win_rate': win_rate_matrix
-        }
-        
-    except Exception:
-        return None
-
-def get_rsi_cache_filepath(config: Dict[str, Any]) -> Tuple[str, str]:
-    """
-    Generate filepath for RSI analysis cache.
-
-    Args:
-        config (Dict[str, Any]): Configuration dictionary
-
-    Returns:
-        Tuple[str, str]: Tuple containing (directory_path, filename)
-    """
-    ticker_prefix = config.get("TICKER", "")
-    if isinstance(ticker_prefix, list):
-        ticker_prefix = ticker_prefix[0] if ticker_prefix else ""
-    
-    filename = f"{ticker_prefix}_D_{'SMA' if config.get('USE_SMA', False) else 'EMA'}_{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}.csv"
-    directory = os.path.join(config["BASE_DIR"], "csv", "ma_cross", "rsi")
-    
-    return directory, filename
-
-def load_cached_stop_loss_analysis(
-    filepath: str,
-    stop_loss_range: np.ndarray
-) -> Optional[Dict[str, np.ndarray]]:
-    """
-    Load cached stop loss analysis results from a CSV file.
-
-    Args:
-        filepath (str): Path to the cached analysis file
-        stop_loss_range (np.ndarray): Array of stop loss percentages used
-
-    Returns:
-        Optional[Dict[str, np.ndarray]]: Dictionary containing metric matrices if cache exists,
-                                       None if cache doesn't exist or is invalid
-    """
-    if not os.path.exists(filepath):
-        return None
-
-    try:
-        df = pl.read_csv(filepath)
-        
-        # Extract unique stop loss values from the CSV and convert to numpy array
-        csv_stop_losses = df.get_column('Stop Loss [%]').unique().sort().to_numpy()
-        
-        # Initialize arrays with the same size as stop_loss_range
-        num_stops = len(stop_loss_range)
-        returns_array = np.zeros(num_stops)
-        win_rate_array = np.zeros(num_stops)
-        sharpe_ratio_array = np.zeros(num_stops)
-        trades_array = np.zeros(num_stops)
-        
-        # For each stop loss in the range, find the closest value in CSV
-        for i, target_stop in enumerate(stop_loss_range):
-            # Find the closest stop loss value in the CSV
-            closest_stop = csv_stop_losses[np.abs(csv_stop_losses - target_stop).argmin()]
-            row = df.filter(pl.col('Stop Loss [%]') == closest_stop).row(0, named=True)
-            
-            returns_array[i] = row.get('Total Return [%]', 0)
-            win_rate_array[i] = row.get('Win Rate [%]', 0)
-            sharpe_ratio_array[i] = row.get('Sharpe Ratio', 0)
-            trades_array[i] = row.get('Total Closed Trades', 0)
-        
-        return {
-            'trades': trades_array,
-            'returns': returns_array,
-            'sharpe_ratio': sharpe_ratio_array,
-            'win_rate': win_rate_array
-        }
-        
-    except Exception as e:
-        print(f"Error loading cached stop loss analysis: {str(e)}")
-        return None
-
-def get_stop_loss_cache_filepath(config: Dict[str, Any]) -> Tuple[str, str]:
-    """
-    Generate filepath for stop loss analysis cache.
-
-    Args:
-        config (Dict[str, Any]): Configuration dictionary
-
-    Returns:
-        Tuple[str, str]: Tuple containing (directory_path, filename)
-    """
-    ticker_prefix = config.get("TICKER", "")
-    if isinstance(ticker_prefix, list):
-        ticker_prefix = ticker_prefix[0] if ticker_prefix else ""
-    
-    rsi_suffix = f"_RSI_{config['RSI_PERIOD']}_{config['RSI_THRESHOLD']}" if config.get('USE_RSI', False) else ""
-    filename = f"{ticker_prefix}_D_{'SMA' if config.get('USE_SMA', False) else 'EMA'}_{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}{rsi_suffix}.csv"
-    directory = os.path.join(config["BASE_DIR"], "csv", "ma_cross", "stop_loss")
-    
-    return directory, filename
-
-def load_cached_protective_stop_loss_analysis(
-    filepath: str,
-    holding_period_range: Optional[np.ndarray] = None
-) -> Optional[Dict[str, np.ndarray]]:
-    """
-    Load cached protective stop loss analysis results from a CSV file.
-
-    Args:
-        filepath (str): Path to the cached analysis file
-        holding_period_range (Optional[np.ndarray]): Array of holding periods used
-
-    Returns:
-        Optional[Dict[str, np.ndarray]]: Dictionary containing metric matrices if cache exists,
-                                       None if cache doesn't exist or is invalid
-    """
-    if not os.path.exists(filepath):
-        return None
-
-    try:
-        df = pl.read_csv(filepath)
-        
-        # Extract unique holding periods from the CSV and convert to numpy array
-        csv_periods = df.get_column('Holding Period').unique().sort().to_numpy()
-        
-        if holding_period_range is None:
-            holding_period_range = csv_periods
-        
-        # Initialize arrays with the same size as holding_period_range
-        num_periods = len(holding_period_range)
-        returns_array = np.zeros(num_periods)
-        win_rate_array = np.zeros(num_periods)
-        sharpe_ratio_array = np.zeros(num_periods)
-        trades_array = np.zeros(num_periods)
-        
-        # For each holding period in the range, find the closest value in CSV
-        for i, target_period in enumerate(holding_period_range):
-            # Find the closest holding period value in the CSV
-            closest_period = csv_periods[np.abs(csv_periods - target_period).argmin()]
-            row = df.filter(pl.col('Holding Period') == closest_period).row(0, named=True)
-            
-            returns_array[i] = row.get('Total Return [%]', 0)
-            win_rate_array[i] = row.get('Win Rate [%]', 0)
-            sharpe_ratio_array[i] = row.get('Sharpe Ratio', 0)
-            trades_array[i] = row.get('Total Closed Trades', 0)
-        
-        return {
-            'trades': trades_array,
-            'returns': returns_array,
-            'sharpe_ratio': sharpe_ratio_array,
-            'win_rate': win_rate_array
-        }
-        
-    except Exception as e:
-        print(f"Error loading cached protective stop loss analysis: {str(e)}")
-        return None
-
-def get_protective_stop_loss_cache_filepath(config: Dict[str, Any]) -> Tuple[str, str]:
-    """
-    Generate filepath for protective stop loss analysis cache.
-
-    Args:
-        config (Dict[str, Any]): Configuration dictionary
-
-    Returns:
-        Tuple[str, str]: Tuple containing (directory_path, filename)
-    """
-    ticker_prefix = config.get("TICKER", "")
-    if isinstance(ticker_prefix, list):
-        ticker_prefix = ticker_prefix[0] if ticker_prefix else ""
-    
-    rsi_suffix = f"_RSI_{config['RSI_PERIOD']}_{config['RSI_THRESHOLD']}" if config.get('USE_RSI', False) else ""
-    stop_loss_suffix = f"_SL_{config['STOP_LOSS']}" if config.get('STOP_LOSS') is not None else ""
-    
-    filename = f"{ticker_prefix}_D_{'SMA' if config.get('USE_SMA', False) else 'EMA'}_{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}{rsi_suffix}{stop_loss_suffix}.csv"
-    directory = os.path.join(config["BASE_DIR"], "csv", "ma_cross", "protective_stop_loss")
-    
-    return directory, filename

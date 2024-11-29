@@ -36,27 +36,27 @@ def analyze_rsi_parameters(
     num_thresholds = len(rsi_thresholds)
     num_windows = len(rsi_windows)
     
-    # Initialize result matrices
-    returns_matrix = np.zeros((num_windows, num_thresholds))
-    win_rate_matrix = np.zeros((num_windows, num_thresholds))
-    sharpe_ratio_matrix = np.zeros((num_windows, num_thresholds))
-    trades_matrix = np.zeros((num_windows, num_thresholds))
+    # Initialize result matrices with dimensions (thresholds x windows)
+    returns_matrix = np.zeros((num_thresholds, num_windows))
+    win_rate_matrix = np.zeros((num_thresholds, num_windows))
+    sharpe_ratio_matrix = np.zeros((num_thresholds, num_windows))
+    trades_matrix = np.zeros((num_thresholds, num_windows))
     
     # Store portfolios for export
     portfolios = []
     
     # Analyze each combination
-    for i, window in enumerate(rsi_windows):
-        # Calculate RSI using the dedicated function
-        data_with_rsi = calculate_rsi(data, window)
+    for i, threshold in enumerate(rsi_thresholds):
+        config["RSI_THRESHOLD"] = threshold
+        config["USE_RSI"] = True  # Enable RSI filtering
         
-        for j, threshold in enumerate(rsi_thresholds):
-            config["RSI_THRESHOLD"] = threshold
-            config["USE_RSI"] = True  # Enable RSI filtering
+        for j, window in enumerate(rsi_windows):
+            # Set RSI window in config
+            config["RSI_WINDOW"] = window
             
             # Use existing MA and signal calculation infrastructure
             data_with_signals = calculate_ma_and_signals(
-                data_with_rsi,
+                data,
                 config["SHORT_WINDOW"],
                 config["LONG_WINDOW"],
                 config
@@ -71,7 +71,7 @@ def analyze_rsi_parameters(
             converted_stats["RSI Threshold"] = threshold
             portfolios.append(converted_stats)
             
-            # Handle NaN values by replacing with 0
+            # Store metrics in matrices with correct indexing
             returns_matrix[i, j] = np.nan_to_num(converted_stats.get('Total Return [%]', 0), 0)
             win_rate_matrix[i, j] = np.nan_to_num(converted_stats.get('Win Rate [%]', 0), 0)
             sharpe_ratio_matrix[i, j] = np.nan_to_num(converted_stats.get('Sharpe Ratio', 0), 0)
@@ -91,17 +91,12 @@ def analyze_rsi_parameters(
     export_config = ExportConfig(BASE_DIR=config["BASE_DIR"], TICKER=config.get("TICKER"))
     export_csv(portfolios, "ma_cross", export_config, "rsi", filename)
     
-    # Ensure no NaN values in final matrices
-    returns_matrix = np.nan_to_num(returns_matrix, 0)
-    win_rate_matrix = np.nan_to_num(win_rate_matrix, 0)
-    sharpe_ratio_matrix = np.nan_to_num(sharpe_ratio_matrix, 0)
-    trades_matrix = np.nan_to_num(trades_matrix, 0)
-    
+    # Transpose matrices to swap axes
     return {
-        'trades': trades_matrix,
-        'returns': returns_matrix,
-        'sharpe_ratio': sharpe_ratio_matrix,
-        'win_rate': win_rate_matrix 
+        'trades': trades_matrix.T,
+        'returns': returns_matrix.T,
+        'sharpe_ratio': sharpe_ratio_matrix.T,
+        'win_rate': win_rate_matrix.T
     }
 
 def create_rsi_heatmap(
@@ -126,16 +121,13 @@ def create_rsi_heatmap(
     
     # Create heatmap for each metric
     for metric_name, matrix in metric_matrices.items():
-        # Ensure no NaN values in matrix
-        matrix = np.nan_to_num(matrix, 0)
-        
         fig = go.Figure()
         
         # Add heatmap trace
         fig.add_trace(go.Heatmap(
             z=matrix,
-            x=rsi_thresholds,
-            y=rsi_windows,
+            x=rsi_thresholds,  # Thresholds on x-axis
+            y=rsi_windows,     # Windows on y-axis
             colorscale='plasma',
             colorbar=dict(
                 title=metric_name.capitalize().replace('_', ' '),
@@ -144,7 +136,7 @@ def create_rsi_heatmap(
             )
         ))
         
-        # Update layout
+        # Update layout with improved labels
         title_text = f'{ticker} - RSI Parameter Sensitivity: {metric_name.capitalize().replace("_", " ")}'
         fig.update_layout(
             title=dict(
@@ -156,7 +148,8 @@ def create_rsi_heatmap(
                 title='RSI Threshold',
                 tickmode='array',
                 ticktext=[f'{x:.0f}' for x in rsi_thresholds],
-                tickvals=rsi_thresholds
+                tickvals=rsi_thresholds,
+                tickangle=0
             ),
             yaxis=dict(
                 title='RSI Window Length',

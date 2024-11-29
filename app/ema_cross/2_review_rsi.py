@@ -8,51 +8,27 @@ window lengths affect strategy performance metrics.
 
 import os
 import numpy as np
-import polars as pl
-from typing import Dict, TypedDict, NotRequired, Union, List
 from app.tools.setup_logging import setup_logging
 from app.tools.get_data import get_data
 from app.tools.get_config import get_config
-from app.tools.file_utils import load_cached_rsi_analysis, get_rsi_cache_filepath
+from app.tools.cache_utils import (
+    CacheConfig,
+    get_cache_filepath,
+    load_cached_analysis
+)
 from app.ema_cross.tools.rsi_heatmap import analyze_rsi_parameters, create_rsi_heatmap
 
-class RSIConfig(TypedDict):
-    """Configuration type definition for RSI analysis.
+# Use CacheConfig from cache_utils.py
+default_config: CacheConfig = {
+    "TICKER": "NKE",
+    "SHORT_WINDOW": 2,
+    "LONG_WINDOW": 33,
+    "BASE_DIR": ".",
+    "USE_SMA": False,
+    "REFRESH": False
+}
 
-    Required Fields:
-        TICKER (Union[str, List[str]]): Ticker symbol to analyze
-        SHORT_WINDOW (int): Period for short moving average
-        LONG_WINDOW (int): Period for long moving average
-        BASE_DIR (str): Base directory for file operations
-
-    Optional Fields:
-        SHORT (NotRequired[bool]): Whether to enable short positions
-        USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average
-        USE_HOURLY (NotRequired[bool]): Whether to use hourly data
-        USE_YEARS (NotRequired[bool]): Whether to limit data by years
-        YEARS (NotRequired[float]): Number of years of data to use
-        USE_GBM (NotRequired[bool]): Whether to use Geometric Brownian Motion
-        USE_SYNTHETIC (NotRequired[bool]): Whether to create synthetic pairs
-        TICKER_1 (NotRequired[str]): First ticker for synthetic pairs
-        TICKER_2 (NotRequired[str]): Second ticker for synthetic pairs
-        REFRESH (NotRequired[bool]): Whether to force refresh analysis
-    """
-    TICKER: Union[str, List[str]]
-    SHORT_WINDOW: int
-    LONG_WINDOW: int
-    BASE_DIR: str
-    SHORT: NotRequired[bool]
-    USE_SMA: NotRequired[bool]
-    USE_HOURLY: NotRequired[bool]
-    USE_YEARS: NotRequired[bool]
-    YEARS: NotRequired[float]
-    USE_GBM: NotRequired[bool]
-    USE_SYNTHETIC: NotRequired[bool]
-    TICKER_1: NotRequired[str]
-    TICKER_2: NotRequired[str]
-    REFRESH: NotRequired[bool]
-
-def run(config: RSIConfig) -> bool:
+def run(config: CacheConfig) -> bool:
     """
     Run RSI parameter sensitivity analysis.
 
@@ -63,7 +39,7 @@ def run(config: RSIConfig) -> bool:
     4. Displaying interactive heatmaps in browser
 
     Args:
-        config (RSIConfig): Configuration dictionary containing strategy parameters
+        config (CacheConfig): Configuration dictionary containing strategy parameters
 
     Returns:
         bool: True if analysis successful
@@ -82,20 +58,23 @@ def run(config: RSIConfig) -> bool:
         
         # Define parameter ranges
         rsi_thresholds = np.arange(30, 81, 1)  # 30 to 80
+        # rsi_thresholds = np.arange(30, 33, 1)  # TESTING
         rsi_windows = np.arange(2, 31, 1)      # 2 to 30
         log(f"Using RSI thresholds: {rsi_thresholds[0]} to {rsi_thresholds[-1]}")
         log(f"Using RSI windows: {rsi_windows[0]} to {rsi_windows[-1]}")
 
         # Check for cached results
-        cache_dir, cache_file = get_rsi_cache_filepath(config)
+        cache_dir, cache_file = get_cache_filepath(config, 'rsi')
         cache_path = os.path.join(cache_dir, cache_file)
         metric_matrices = None
         
         if not config.get("REFRESH", False):
-            metric_matrices = load_cached_rsi_analysis(
-                cache_path,
-                rsi_thresholds,
-                rsi_windows
+            metric_matrices = load_cached_analysis(
+                filepath=cache_path,
+                param_range=rsi_thresholds,
+                param_column='RSI Threshold',
+                param_range_2=rsi_windows,
+                param_column_2='RSI Window'
             )
             if metric_matrices is not None:
                 log("Using cached RSI analysis results")
@@ -144,16 +123,6 @@ def run(config: RSIConfig) -> bool:
         raise
 
 if __name__ == "__main__":
-    # Default configuration
-    default_config: RSIConfig = {
-        "TICKER": "NKE",
-        "SHORT_WINDOW": 2,
-        "LONG_WINDOW": 33,
-        "BASE_DIR": ".",
-        "USE_SMA": False,
-        "REFRESH": False
-    }
-    
     try:
         result = run(default_config)
         if result:

@@ -8,58 +8,19 @@ performance metrics including returns, win rate, and expectancy.
 
 import os
 import numpy as np
-from typing import TypedDict, NotRequired, Union, List
 from app.tools.setup_logging import setup_logging
 from app.tools.get_data import get_data
 from app.tools.get_config import get_config
-from app.tools.file_utils import load_cached_stop_loss_analysis, get_stop_loss_cache_filepath
+from app.tools.cache_utils import (
+    CacheConfig,
+    get_cache_filepath,
+    load_cached_analysis
+)
 from app.ema_cross.tools.stop_loss_analysis import analyze_stop_loss_parameters
 from app.ema_cross.tools.stop_loss_plotting import create_stop_loss_heatmap
 
-class StopLossConfig(TypedDict):
-    """Configuration type definition for stop loss analysis.
-
-    Required Fields:
-        TICKER (Union[str, List[str]]): Ticker symbol to analyze
-        SHORT_WINDOW (int): Period for short moving average
-        LONG_WINDOW (int): Period for long moving average
-        BASE_DIR (str): Base directory for file operations
-        USE_RSI (bool): Whether to enable RSI filtering
-        RSI_PERIOD (int): Period for RSI calculation if USE_RSI is True
-        RSI_THRESHOLD (float): RSI threshold for signal filtering if USE_RSI is True
-
-    Optional Fields:
-        SHORT (NotRequired[bool]): Whether to enable short positions
-        USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average
-        USE_HOURLY (NotRequired[bool]): Whether to use hourly data
-        USE_YEARS (NotRequired[bool]): Whether to limit data by years
-        YEARS (NotRequired[float]): Number of years of data to use
-        USE_GBM (NotRequired[bool]): Whether to use Geometric Brownian Motion
-        USE_SYNTHETIC (NotRequired[bool]): Whether to create synthetic pairs
-        TICKER_1 (NotRequired[str]): First ticker for synthetic pairs
-        TICKER_2 (NotRequired[str]): Second ticker for synthetic pairs
-        REFRESH (NotRequired[bool]): Whether to force refresh analysis
-    """
-    TICKER: Union[str, List[str]]
-    SHORT_WINDOW: int
-    LONG_WINDOW: int
-    BASE_DIR: str
-    USE_RSI: bool
-    RSI_PERIOD: int
-    RSI_THRESHOLD: float
-    SHORT: NotRequired[bool]
-    USE_SMA: NotRequired[bool]
-    USE_HOURLY: NotRequired[bool]
-    USE_YEARS: NotRequired[bool]
-    YEARS: NotRequired[float]
-    USE_GBM: NotRequired[bool]
-    USE_SYNTHETIC: NotRequired[bool]
-    TICKER_1: NotRequired[str]
-    TICKER_2: NotRequired[str]
-    REFRESH: NotRequired[bool]
-
-# Default configuration
-default_config: StopLossConfig = {
+# Use CacheConfig from cache_utils.py
+default_config: CacheConfig = {
     "TICKER": "NKE",
     "SHORT_WINDOW": 2,
     "LONG_WINDOW": 33,
@@ -71,7 +32,7 @@ default_config: StopLossConfig = {
     "REFRESH": False
 }
 
-def run(config: StopLossConfig) -> bool:
+def run(config: CacheConfig) -> bool:
     """
     Run stop loss parameter sensitivity analysis.
 
@@ -82,7 +43,7 @@ def run(config: StopLossConfig) -> bool:
     4. Displaying interactive heatmaps in browser
 
     Args:
-        config (StopLossConfig): Configuration dictionary containing strategy parameters
+        config (CacheConfig): Configuration dictionary containing strategy parameters
 
     Returns:
         bool: True if analysis successful
@@ -104,14 +65,15 @@ def run(config: StopLossConfig) -> bool:
         log(f"Using stop loss range: {stop_loss_range[0]:.2f}% to {stop_loss_range[-1]:.2f}%")
 
         # Check for cached results
-        cache_dir, cache_file = get_stop_loss_cache_filepath(config)
+        cache_dir, cache_file = get_cache_filepath(config, 'stop_loss')
         cache_path = os.path.join(cache_dir, cache_file)
         metric_matrices = None
         
         if not config.get("REFRESH", False):
-            metric_matrices = load_cached_stop_loss_analysis(
-                cache_path,
-                stop_loss_range
+            metric_matrices = load_cached_analysis(
+                filepath=cache_path,
+                param_range=stop_loss_range,
+                param_column='Stop Loss [%]'
             )
             if metric_matrices is not None:
                 log("Using cached stop loss analysis results")

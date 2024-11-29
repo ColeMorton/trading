@@ -146,6 +146,10 @@ def export_csv(
         full_path = os.path.join(export_path, 
                                filename if filename else _get_filename(config))
         
+        # Remove existing file if it exists
+        if os.path.exists(full_path):
+            os.remove(full_path)
+        
         # Export based on DataFrame type
         if isinstance(data, pl.DataFrame):
             data.write_csv(full_path, separator=",")
