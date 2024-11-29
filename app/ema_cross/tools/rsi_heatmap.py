@@ -10,7 +10,6 @@ import plotly.graph_objects as go
 from typing import Dict, Callable
 from app.ema_cross.tools.backtest_strategy import backtest_strategy
 from app.tools.file_utils import convert_stats
-from app.tools.calculate_rsi import calculate_rsi
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.export_csv import export_csv, ExportConfig
 
@@ -123,16 +122,19 @@ def create_rsi_heatmap(
     for metric_name, matrix in metric_matrices.items():
         fig = go.Figure()
         
+        # For returns and win_rate, divide by 100 to convert to whole percentages
+        display_matrix = matrix / 100 if metric_name in ['returns', 'win_rate'] else matrix
+        
         # Add heatmap trace
         fig.add_trace(go.Heatmap(
-            z=matrix,
+            z=display_matrix,
             x=rsi_thresholds,  # Thresholds on x-axis
             y=rsi_windows,     # Windows on y-axis
             colorscale='plasma',
             colorbar=dict(
                 title=metric_name.capitalize().replace('_', ' '),
                 tickformat='.2f' if metric_name == 'sharpe_ratio' else 
-                          '.0f' if metric_name == 'trades' else '.1%'
+                          '.0f' if metric_name == 'trades' else '.0%'
             )
         ))
         
