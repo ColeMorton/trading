@@ -1,62 +1,81 @@
 """
 Stop Loss Plotting Module
 
-This module contains functions for visualizing stop loss analysis results through plots.
+This module contains functions for creating visualizations of stop loss parameter sensitivity.
 """
 
-import matplotlib.pyplot as plt
-import polars as pl
-from typing import Callable
-from app.utils import find_prominent_peaks, add_peak_labels
+import numpy as np
+import plotly.graph_objects as go
+from typing import Dict
 
-def plot_results(ticker: str, results_df: pl.DataFrame, log: Callable) -> None:
+def create_stop_loss_heatmap(
+    metric_matrices: Dict[str, np.ndarray],
+    stop_loss_range: np.ndarray,
+    ticker: str
+) -> Dict[str, go.Figure]:
     """
-    Plot sensitivity analysis results.
+    Create line plots for stop loss parameter analysis.
 
     Args:
-        ticker (str): Ticker symbol
-        results_df (pl.DataFrame): Results dataframe
-        log (Callable): Logging function
+        metric_matrices (Dict[str, np.ndarray]): Dictionary containing metric arrays
+        stop_loss_range (np.ndarray): Array of stop loss percentages used
+        ticker (str): Ticker symbol for plot titles
+
+    Returns:
+        Dict[str, go.Figure]: Dictionary containing Plotly figures for each metric
     """
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 16), sharex=True)
-
-    # Plot total return and win rate
-    ax1.plot(results_df['Stop Loss Percentage'], results_df['Total Return'], label='Total Return')
-    ax1.set_ylabel('Return %')
-    ax1.legend(loc='upper left')
-    ax1.grid(True)
-
-    ax1_twin = ax1.twinx()
-    ax1_twin.plot(results_df['Stop Loss Percentage'], results_df['Win Rate'], color='tab:red', label='Win Rate')
-    ax1_twin.set_ylabel('Win Rate %', color='tab:red')
-    ax1_twin.tick_params(axis='y', labelcolor='tab:red')
-    ax1_twin.legend(loc='upper right')
-
-    # Add peak labels for Total Return
-    total_return_peaks = find_prominent_peaks(
-        results_df['Stop Loss Percentage'].to_numpy(),
-        results_df['Total Return'].to_numpy()
-    )
-    add_peak_labels(
-        ax1,
-        results_df['Stop Loss Percentage'].to_numpy(),
-        results_df['Total Return'].to_numpy(),
-        total_return_peaks
-    )
-
-    # Plot expectancy
-    ax2.plot(results_df['Stop Loss Percentage'], results_df['Expectancy'], label='Expectancy', color='tab:green')
-    ax2.set_xlabel('Stop Loss Percentage')
-    ax2.set_ylabel('Expectancy %')
-    ax2.legend()
-    ax2.grid(True)
-
-    fig.suptitle(f'{ticker} Total Return, Win Rate, and Expectancy vs Stop Loss Percentage')
-    plt.tight_layout()
-
-    # Save the plot
-    plot_filename = f'png/ema_cross/parameter_sensitivity/{ticker}_stop_loss.png'
-    plt.savefig(plot_filename)
-    log(f"Plot saved as {plot_filename}")
-
-    plt.show()
+    figures = {}
+    
+    # Create line plot for each metric
+    for metric_name, array in metric_matrices.items():
+        # Ensure no NaN values
+        array = np.nan_to_num(array, 0)
+        
+        fig = go.Figure()
+        
+        # Add line trace
+        fig.add_trace(go.Scatter(
+            x=stop_loss_range,
+            y=array,
+            mode='lines+markers',
+            name=metric_name.capitalize().replace('_', ' '),
+            line=dict(width=2),
+            marker=dict(size=6)
+        ))
+        
+        # Update layout
+        title_text = f'{ticker} - Stop Loss Sensitivity: {metric_name.capitalize().replace("_", " ")}'
+        
+        # Format y-axis based on metric
+        if metric_name in ['returns', 'win_rate']:
+            yaxis_format = '.1%'
+        elif metric_name == 'sharpe_ratio':
+            yaxis_format = '.2f'
+        else:  # trades
+            yaxis_format = '.0f'
+        
+        fig.update_layout(
+            title=dict(
+                text=title_text,
+                x=0.5,
+                xanchor='center'
+            ),
+            xaxis=dict(
+                title='Stop Loss [%]',
+                tickmode='array',
+                ticktext=[f'{x:.1f}%' for x in stop_loss_range],
+                tickvals=stop_loss_range
+            ),
+            yaxis=dict(
+                title=metric_name.capitalize().replace('_', ' '),
+                tickformat=yaxis_format
+            ),
+            showlegend=False,
+            autosize=True,
+            margin=dict(l=50, r=50, t=100, b=50),
+            grid=dict(rows=1, columns=1)
+        )
+        
+        figures[metric_name] = fig
+    
+    return figures

@@ -177,3 +177,70 @@ def get_rsi_cache_filepath(config: Dict[str, Any]) -> Tuple[str, str]:
     directory = os.path.join(config["BASE_DIR"], "csv", "ma_cross", "rsi")
     
     return directory, filename
+
+def load_cached_stop_loss_analysis(
+    filepath: str,
+    stop_loss_range: np.ndarray
+) -> Optional[Dict[str, np.ndarray]]:
+    """
+    Load cached stop loss analysis results from a CSV file.
+
+    Args:
+        filepath (str): Path to the cached analysis file
+        stop_loss_range (np.ndarray): Array of stop loss percentages used
+
+    Returns:
+        Optional[Dict[str, np.ndarray]]: Dictionary containing metric matrices if cache exists,
+                                       None if cache doesn't exist or is invalid
+    """
+    if not os.path.exists(filepath):
+        return None
+
+    try:
+        df = pl.read_csv(filepath)
+        num_stops = len(stop_loss_range)
+        
+        # Initialize matrices
+        returns_matrix = np.zeros(num_stops)
+        win_rate_matrix = np.zeros(num_stops)
+        sharpe_ratio_matrix = np.zeros(num_stops)
+        trades_matrix = np.zeros(num_stops)
+        
+        # Populate matrices from cached data
+        for row in df.iter_rows(named=True):
+            stop_idx = np.where(stop_loss_range == row['Stop Loss [%]'])[0][0]
+            
+            returns_matrix[stop_idx] = row.get('Total Return [%]', 0)
+            win_rate_matrix[stop_idx] = row.get('Win Rate [%]', 0)
+            sharpe_ratio_matrix[stop_idx] = row.get('Sharpe Ratio', 0)
+            trades_matrix[stop_idx] = row.get('Total Closed Trades', 0)
+        
+        return {
+            'trades': trades_matrix,
+            'returns': returns_matrix,
+            'sharpe_ratio': sharpe_ratio_matrix,
+            'win_rate': win_rate_matrix
+        }
+        
+    except Exception:
+        return None
+
+def get_stop_loss_cache_filepath(config: Dict[str, Any]) -> Tuple[str, str]:
+    """
+    Generate filepath for stop loss analysis cache.
+
+    Args:
+        config (Dict[str, Any]): Configuration dictionary
+
+    Returns:
+        Tuple[str, str]: Tuple containing (directory_path, filename)
+    """
+    ticker_prefix = config.get("TICKER", "")
+    if isinstance(ticker_prefix, list):
+        ticker_prefix = ticker_prefix[0] if ticker_prefix else ""
+    
+    rsi_suffix = f"_RSI_{config['RSI_PERIOD']}_{config['RSI_THRESHOLD']}" if config.get('USE_RSI', False) else ""
+    filename = f"{ticker_prefix}_D_{'SMA' if config.get('USE_SMA', False) else 'EMA'}_{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}{rsi_suffix}.csv"
+    directory = os.path.join(config["BASE_DIR"], "csv", "ma_cross", "stop_loss")
+    
+    return directory, filename
