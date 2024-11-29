@@ -8,9 +8,15 @@ in combination with EMA cross signals.
 import vectorbt as vbt
 import polars as pl
 import numpy as np
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Optional, Callable
+from app.tools.file_utils import convert_stats
+from app.tools.calculate_mas import calculate_mas
+from app.tools.calculate_ma_signals import calculate_ma_signals
+from app.tools.calculate_rsi import calculate_rsi
+from app.ema_cross.tools.backtest_strategy import backtest_strategy
+from app.tools.export_csv import export_csv, ExportConfig
 
-def psl_exit(price: np.ndarray, entry_price: np.ndarray, holding_period: int, short: bool, stop_loss: float = None) -> np.ndarray:
+def psl_exit(price: np.ndarray, entry_price: np.ndarray, holding_period: int, short: bool, stop_loss: Optional[float] = None) -> np.ndarray:
     """
     Generate Price Stop Loss (PSL) exit signals.
 
@@ -52,23 +58,129 @@ def psl_exit(price: np.ndarray, entry_price: np.ndarray, holding_period: int, sh
                         
     return exit_signal
 
-def run_backtest(data: pl.DataFrame, entries: np.ndarray, exits: np.ndarray, config: dict) -> vbt.Portfolio:
+def analyze_protective_stop_loss_parameters(
+    data: pl.DataFrame,
+    config: dict,
+    log: Callable
+) -> Tuple[Dict[str, np.ndarray], np.ndarray]:
     """
-    Run a backtest using the generated signals.
+    Analyze different holding periods and their impact on strategy performance.
 
     Args:
         data (pl.DataFrame): The input DataFrame containing price data
-        entries (np.ndarray): Array of entry signals
-        exits (np.ndarray): Array of exit signals
         config (dict): The configuration dictionary
+        log (callable): Logging function
 
     Returns:
-        vbt.Portfolio: A vectorbt Portfolio object containing the backtest results
+        Tuple containing:
+            - Dict[str, np.ndarray]: Dictionary containing metric arrays for:
+                - trades: Number of trades
+                - returns: Total returns
+                - sharpe_ratio: Sharpe ratios
+                - win_rate: Win rates
+            - np.ndarray: Array of holding periods used
     """
-    if config["SHORT"]:
-        return vbt.Portfolio.from_signals(data['Close'].to_numpy(), short_entries=entries, short_exits=exits)
-    else:
-        return vbt.Portfolio.from_signals(data['Close'].to_numpy(), entries, exits)
+    # Calculate moving averages
+    data = calculate_mas(
+        data, 
+        config['SHORT_WINDOW'], 
+        config['LONG_WINDOW'], 
+        config.get('USE_SMA', False)
+    )
+    
+    # Calculate RSI if enabled
+    if config.get("USE_RSI", False):
+        data = calculate_rsi(data, config['RSI_PERIOD'])
+        log(f"RSI calculated with period {config['RSI_PERIOD']}")
+    
+    # Generate entry/exit signals
+    entries, _ = calculate_ma_signals(data, config)
+    entries = entries.to_numpy().astype(bool)
+    
+    # Get entry prices for PSL calculation
+    entry_price = data.with_columns(
+        pl.when(pl.lit(entries))
+        .then(pl.col('Close'))
+        .otherwise(None)
+        .forward_fill()
+        .alias('entry_price')
+    )['entry_price']
+    
+    # Calculate longest holding period from actual trades
+    longest_trade = pl.Series((entries != np.roll(entries, 1)).cumsum())
+    longest_holding_period = longest_trade.value_counts().select(pl.col('count').max()).item()
+    log(f"Calculated longest holding period: {longest_holding_period} days")
+    
+    # Create holding period range from 1 to longest holding period
+    holding_period_range = np.arange(1, longest_holding_period + 1)
+    
+    # Initialize metric matrices
+    num_periods = len(holding_period_range)
+    trades_matrix = np.zeros(num_periods)
+    returns_matrix = np.zeros(num_periods)
+    sharpe_matrix = np.zeros(num_periods)
+    win_rate_matrix = np.zeros(num_periods)
+    
+    # Get stop loss from config if enabled
+    stop_loss = config.get('STOP_LOSS', None)
+    if stop_loss is not None:
+        log(f"Using stop loss of {stop_loss*100}%")
+
+    # Store portfolios for export
+    portfolios = []
+
+    # Test each holding period
+    for i, holding_period in enumerate(holding_period_range):
+        log(f"Testing holding period: {holding_period} days")
+        
+        # Generate PSL exit signals
+        exits_psl = psl_exit(
+            data['Close'].to_numpy(),
+            entry_price.to_numpy(),
+            holding_period,
+            short=config.get("SHORT", False),
+            stop_loss=stop_loss
+        )
+        
+        # Create signal column (1 for entry, 0 for exit)
+        data = data.with_columns(
+            pl.Series(name="Signal", values=np.where(entries, 1, np.where(exits_psl, 0, 0)))
+        )
+        
+        # Run backtest using backtest_strategy module
+        pf = backtest_strategy(data, config, log)
+        stats = pf.stats()
+        converted_stats = convert_stats(stats)
+        
+        # Add holding period parameter to stats
+        converted_stats["Holding Period"] = holding_period
+        portfolios.append(converted_stats)
+
+        # Store metrics
+        trades_matrix[i] = pf.positions.count()
+        returns_matrix[i] = pf.total_return()
+        sharpe_matrix[i] = pf.sharpe_ratio()
+        win_rate_matrix[i] = pf.trades.win_rate()
+
+    # Create filename with MA windows and RSI if used
+    ticker_prefix = config.get("TICKER", "")
+    if isinstance(ticker_prefix, list):
+        ticker_prefix = ticker_prefix[0] if ticker_prefix else ""
+    
+    rsi_suffix = f"_RSI_{config['RSI_PERIOD']}_{config['RSI_THRESHOLD']}" if config.get('USE_RSI', False) else ""
+    stop_loss_suffix = f"_SL_{config['STOP_LOSS']}" if config.get('STOP_LOSS') is not None else ""
+    filename = f"{ticker_prefix}_D_{'SMA' if config.get('USE_SMA', False) else 'EMA'}_{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}{rsi_suffix}{stop_loss_suffix}.csv"
+    
+    # Export portfolios
+    export_config = ExportConfig(BASE_DIR=config["BASE_DIR"], TICKER=config.get("TICKER"))
+    export_csv(portfolios, "ma_cross", export_config, "protective_stop_loss", filename)
+    
+    return {
+        'trades': trades_matrix,
+        'returns': returns_matrix,
+        'sharpe_ratio': sharpe_matrix,
+        'win_rate': win_rate_matrix
+    }, holding_period_range
 
 def analyze_holding_periods(
     data: pl.DataFrame,
@@ -130,8 +242,15 @@ def analyze_holding_periods(
         )
         # Combine exits using numpy operations
         exits = np.logical_or(exits_ema_np, exits_psl)
-
-        pf = run_backtest(data, entries_np, exits, config)
+        
+        # Create signal column (1 for entry, 0 for exit)
+        data_with_signals = data.with_columns(
+            pl.Series(name="Signal", values=np.where(entries_np, 1, np.where(exits, 0, 0)))
+        )
+        
+        # Run backtest using backtest_strategy module
+        pf = backtest_strategy(data_with_signals, config, log)
+        
         total_return = pf.total_return()
         num_positions = pf.positions.count()
         expectancy = pf.trades.expectancy()

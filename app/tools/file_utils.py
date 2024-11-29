@@ -1,3 +1,5 @@
+"""File utility functions for data loading and caching."""
+
 import os
 from datetime import datetime
 from typing import Dict, Any, Optional, Tuple
@@ -248,5 +250,83 @@ def get_stop_loss_cache_filepath(config: Dict[str, Any]) -> Tuple[str, str]:
     rsi_suffix = f"_RSI_{config['RSI_PERIOD']}_{config['RSI_THRESHOLD']}" if config.get('USE_RSI', False) else ""
     filename = f"{ticker_prefix}_D_{'SMA' if config.get('USE_SMA', False) else 'EMA'}_{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}{rsi_suffix}.csv"
     directory = os.path.join(config["BASE_DIR"], "csv", "ma_cross", "stop_loss")
+    
+    return directory, filename
+
+def load_cached_protective_stop_loss_analysis(
+    filepath: str,
+    holding_period_range: Optional[np.ndarray] = None
+) -> Optional[Dict[str, np.ndarray]]:
+    """
+    Load cached protective stop loss analysis results from a CSV file.
+
+    Args:
+        filepath (str): Path to the cached analysis file
+        holding_period_range (Optional[np.ndarray]): Array of holding periods used
+
+    Returns:
+        Optional[Dict[str, np.ndarray]]: Dictionary containing metric matrices if cache exists,
+                                       None if cache doesn't exist or is invalid
+    """
+    if not os.path.exists(filepath):
+        return None
+
+    try:
+        df = pl.read_csv(filepath)
+        
+        # Extract unique holding periods from the CSV and convert to numpy array
+        csv_periods = df.get_column('Holding Period').unique().sort().to_numpy()
+        
+        if holding_period_range is None:
+            holding_period_range = csv_periods
+        
+        # Initialize arrays with the same size as holding_period_range
+        num_periods = len(holding_period_range)
+        returns_array = np.zeros(num_periods)
+        win_rate_array = np.zeros(num_periods)
+        sharpe_ratio_array = np.zeros(num_periods)
+        trades_array = np.zeros(num_periods)
+        
+        # For each holding period in the range, find the closest value in CSV
+        for i, target_period in enumerate(holding_period_range):
+            # Find the closest holding period value in the CSV
+            closest_period = csv_periods[np.abs(csv_periods - target_period).argmin()]
+            row = df.filter(pl.col('Holding Period') == closest_period).row(0, named=True)
+            
+            returns_array[i] = row.get('Total Return [%]', 0)
+            win_rate_array[i] = row.get('Win Rate [%]', 0)
+            sharpe_ratio_array[i] = row.get('Sharpe Ratio', 0)
+            trades_array[i] = row.get('Total Closed Trades', 0)
+        
+        return {
+            'trades': trades_array,
+            'returns': returns_array,
+            'sharpe_ratio': sharpe_ratio_array,
+            'win_rate': win_rate_array
+        }
+        
+    except Exception as e:
+        print(f"Error loading cached protective stop loss analysis: {str(e)}")
+        return None
+
+def get_protective_stop_loss_cache_filepath(config: Dict[str, Any]) -> Tuple[str, str]:
+    """
+    Generate filepath for protective stop loss analysis cache.
+
+    Args:
+        config (Dict[str, Any]): Configuration dictionary
+
+    Returns:
+        Tuple[str, str]: Tuple containing (directory_path, filename)
+    """
+    ticker_prefix = config.get("TICKER", "")
+    if isinstance(ticker_prefix, list):
+        ticker_prefix = ticker_prefix[0] if ticker_prefix else ""
+    
+    rsi_suffix = f"_RSI_{config['RSI_PERIOD']}_{config['RSI_THRESHOLD']}" if config.get('USE_RSI', False) else ""
+    stop_loss_suffix = f"_SL_{config['STOP_LOSS']}" if config.get('STOP_LOSS') is not None else ""
+    
+    filename = f"{ticker_prefix}_D_{'SMA' if config.get('USE_SMA', False) else 'EMA'}_{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}{rsi_suffix}{stop_loss_suffix}.csv"
+    directory = os.path.join(config["BASE_DIR"], "csv", "ma_cross", "protective_stop_loss")
     
     return directory, filename
