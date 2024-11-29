@@ -134,7 +134,7 @@ def export_results(results_data: List[Dict], config: dict, log: Callable) -> Non
         scanner_list_path = config["SCANNER_LIST"]
         scanner_filename = os.path.splitext(os.path.basename(scanner_list_path))[0]
         
-        # Export to dated subdirectory with scanner list name
+        # Export to dated subdirectory with scanner list name, explicitly set to overwrite
         output_path = os.path.join(date_dir, f"{scanner_filename}.csv")
-        results_df.write_csv(output_path)
+        results_df.write_csv(output_path, overwrite=True)
         log(f"\nResults exported to {output_path}")

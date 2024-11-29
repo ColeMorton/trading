@@ -49,6 +49,6 @@ DEFAULT_CONFIG: PortfolioConfig = {
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "REFRESH": False,
-    "USE_CURRENT": True,
+    "USE_CURRENT": False,
     "BASE_DIR": "."
 }
