@@ -135,8 +135,8 @@ def load_cached_rsi_analysis(
         
         # Initialize matrices
         returns_matrix = np.zeros((num_windows, num_thresholds))
-        winrate_matrix = np.zeros((num_windows, num_thresholds))
-        expectancy_matrix = np.zeros((num_windows, num_thresholds))
+        win_rate_matrix = np.zeros((num_windows, num_thresholds))
+        sharpe_ratio_matrix = np.zeros((num_windows, num_thresholds))
         trades_matrix = np.zeros((num_windows, num_thresholds))
         
         # Populate matrices from cached data
@@ -145,15 +145,15 @@ def load_cached_rsi_analysis(
             threshold_idx = np.where(rsi_thresholds == row['RSI Threshold'])[0][0]
             
             returns_matrix[window_idx, threshold_idx] = row.get('Total Return [%]', 0)
-            winrate_matrix[window_idx, threshold_idx] = row.get('Win Rate [%]', 0)
-            expectancy_matrix[window_idx, threshold_idx] = row.get('Expectancy', 0)
+            win_rate_matrix[window_idx, threshold_idx] = row.get('Win Rate [%]', 0)
+            sharpe_ratio_matrix[window_idx, threshold_idx] = row.get('Sharpe Ratio', 0)
             trades_matrix[window_idx, threshold_idx] = row.get('Total Closed Trades', 0)
         
         return {
             'trades': trades_matrix,
             'returns': returns_matrix,
-            'expectancy': expectancy_matrix,
-            'winrate': winrate_matrix
+            'sharpe_ratio': sharpe_ratio_matrix,
+            'win_rate': win_rate_matrix
         }
         
     except Exception:

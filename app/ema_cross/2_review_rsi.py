@@ -89,6 +89,7 @@ def run(config: RSIConfig) -> bool:
         # Check for cached results
         cache_dir, cache_file = get_rsi_cache_filepath(config)
         cache_path = os.path.join(cache_dir, cache_file)
+        metric_matrices = None
         
         if not config.get("REFRESH", False):
             metric_matrices = load_cached_rsi_analysis(
@@ -100,7 +101,7 @@ def run(config: RSIConfig) -> bool:
                 log("Using cached RSI analysis results")
         
         # If no cache or refresh requested, run new analysis
-        if config.get("REFRESH", False) or metric_matrices is None:
+        if metric_matrices is None:
             log("Running new RSI analysis")
             data = get_data(config["TICKER"], config)
             metric_matrices = analyze_rsi_parameters(
@@ -111,7 +112,10 @@ def run(config: RSIConfig) -> bool:
                 log=log
             )
         
-        # Create and display heatmap figures
+        if metric_matrices is None:
+            raise Exception("Failed to generate or load metric matrices")
+            
+        # Create heatmap figures
         figures = create_rsi_heatmap(
             metric_matrices=metric_matrices,
             rsi_thresholds=rsi_thresholds,
@@ -119,9 +123,17 @@ def run(config: RSIConfig) -> bool:
             ticker=str(config["TICKER"])
         )
         
-        for metric_name, fig in figures.items():
-            fig.show()
-            log(f"Displayed {metric_name} heatmap")
+        if not figures:
+            raise Exception("Failed to create heatmap figures")
+            
+        # Display all heatmaps in specific order
+        metrics_to_display = ['trades', 'returns', 'sharpe_ratio', 'win_rate']
+        for metric_name in metrics_to_display:
+            if metric_name in figures:
+                figures[metric_name].show()
+                log(f"Displayed {metric_name} heatmap")
+            else:
+                raise Exception(f"Required {metric_name} heatmap not found in figures dictionary")
         
         log_close()
         return True

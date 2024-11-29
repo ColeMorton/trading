@@ -31,15 +31,15 @@ def analyze_rsi_parameters(
         log: Optional logging function
 
     Returns:
-        Dict[str, np.ndarray]: Dictionary containing metric matrices for returns, win rates, and expectancy
+        Dict[str, np.ndarray]: Dictionary containing metric matrices for returns, win rates, and Sharpe Ratio
     """
     num_thresholds = len(rsi_thresholds)
     num_windows = len(rsi_windows)
     
     # Initialize result matrices
     returns_matrix = np.zeros((num_windows, num_thresholds))
-    winrate_matrix = np.zeros((num_windows, num_thresholds))
-    expectancy_matrix = np.zeros((num_windows, num_thresholds))
+    win_rate_matrix = np.zeros((num_windows, num_thresholds))
+    sharpe_ratio_matrix = np.zeros((num_windows, num_thresholds))
     trades_matrix = np.zeros((num_windows, num_thresholds))
     
     # Store portfolios for export
@@ -73,8 +73,8 @@ def analyze_rsi_parameters(
             
             # Handle NaN values by replacing with 0
             returns_matrix[i, j] = np.nan_to_num(converted_stats.get('Total Return [%]', 0), 0)
-            winrate_matrix[i, j] = np.nan_to_num(converted_stats.get('Win Rate [%]', 0), 0)
-            expectancy_matrix[i, j] = np.nan_to_num(converted_stats.get('Expectancy', 0), 0)
+            win_rate_matrix[i, j] = np.nan_to_num(converted_stats.get('Win Rate [%]', 0), 0)
+            sharpe_ratio_matrix[i, j] = np.nan_to_num(converted_stats.get('Sharpe Ratio', 0), 0)
             trades_matrix[i, j] = np.nan_to_num(converted_stats.get('Total Closed Trades', 0), 0)
             
             if log:
@@ -93,15 +93,15 @@ def analyze_rsi_parameters(
     
     # Ensure no NaN values in final matrices
     returns_matrix = np.nan_to_num(returns_matrix, 0)
-    winrate_matrix = np.nan_to_num(winrate_matrix, 0)
-    expectancy_matrix = np.nan_to_num(expectancy_matrix, 0)
+    win_rate_matrix = np.nan_to_num(win_rate_matrix, 0)
+    sharpe_ratio_matrix = np.nan_to_num(sharpe_ratio_matrix, 0)
     trades_matrix = np.nan_to_num(trades_matrix, 0)
     
     return {
         'trades': trades_matrix,
         'returns': returns_matrix,
-        'expectancy': expectancy_matrix,
-        'winrate': winrate_matrix 
+        'sharpe_ratio': sharpe_ratio_matrix,
+        'win_rate': win_rate_matrix 
     }
 
 def create_rsi_heatmap(
@@ -138,14 +138,14 @@ def create_rsi_heatmap(
             y=rsi_windows,
             colorscale='plasma',
             colorbar=dict(
-                title=metric_name.capitalize(),
-                tickformat='.1f' if metric_name == 'expectancy' else 
+                title=metric_name.capitalize().replace('_', ' '),
+                tickformat='.2f' if metric_name == 'sharpe_ratio' else 
                           '.0f' if metric_name == 'trades' else '.1%'
             )
         ))
         
         # Update layout
-        title_text = f'{ticker} - RSI Parameter Sensitivity: {metric_name.capitalize()}'
+        title_text = f'{ticker} - RSI Parameter Sensitivity: {metric_name.capitalize().replace("_", " ")}'
         fig.update_layout(
             title=dict(
                 text=title_text,
