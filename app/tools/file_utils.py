@@ -1,7 +1,9 @@
 import os
 from datetime import datetime
-from typing import Dict, Any
+from typing import Dict, Any, Optional, Tuple
 import pandas as pd
+import numpy as np
+import polars as pl
 
 def is_file_from_today(filepath: str) -> bool:
     """
@@ -105,3 +107,73 @@ def get_current_window_combinations(filepath: str) -> set:
     except Exception as e:
         print(f"Error reading window combinations: {str(e)}")
         return set()
+
+def load_cached_rsi_analysis(
+    filepath: str,
+    rsi_thresholds: np.ndarray,
+    rsi_windows: np.ndarray
+) -> Optional[Dict[str, np.ndarray]]:
+    """
+    Load cached RSI analysis results from a CSV file.
+
+    Args:
+        filepath (str): Path to the cached analysis file
+        rsi_thresholds (np.ndarray): Array of RSI thresholds used
+        rsi_windows (np.ndarray): Array of RSI window lengths used
+
+    Returns:
+        Optional[Dict[str, np.ndarray]]: Dictionary containing metric matrices if cache exists,
+                                       None if cache doesn't exist or is invalid
+    """
+    if not os.path.exists(filepath):
+        return None
+
+    try:
+        df = pl.read_csv(filepath)
+        num_thresholds = len(rsi_thresholds)
+        num_windows = len(rsi_windows)
+        
+        # Initialize matrices
+        returns_matrix = np.zeros((num_windows, num_thresholds))
+        winrate_matrix = np.zeros((num_windows, num_thresholds))
+        expectancy_matrix = np.zeros((num_windows, num_thresholds))
+        trades_matrix = np.zeros((num_windows, num_thresholds))
+        
+        # Populate matrices from cached data
+        for row in df.iter_rows(named=True):
+            window_idx = np.where(rsi_windows == row['RSI Window'])[0][0]
+            threshold_idx = np.where(rsi_thresholds == row['RSI Threshold'])[0][0]
+            
+            returns_matrix[window_idx, threshold_idx] = row.get('Total Return [%]', 0)
+            winrate_matrix[window_idx, threshold_idx] = row.get('Win Rate [%]', 0)
+            expectancy_matrix[window_idx, threshold_idx] = row.get('Expectancy', 0)
+            trades_matrix[window_idx, threshold_idx] = row.get('Total Closed Trades', 0)
+        
+        return {
+            'trades': trades_matrix,
+            'returns': returns_matrix,
+            'expectancy': expectancy_matrix,
+            'winrate': winrate_matrix
+        }
+        
+    except Exception:
+        return None
+
+def get_rsi_cache_filepath(config: Dict[str, Any]) -> Tuple[str, str]:
+    """
+    Generate filepath for RSI analysis cache.
+
+    Args:
+        config (Dict[str, Any]): Configuration dictionary
+
+    Returns:
+        Tuple[str, str]: Tuple containing (directory_path, filename)
+    """
+    ticker_prefix = config.get("TICKER", "")
+    if isinstance(ticker_prefix, list):
+        ticker_prefix = ticker_prefix[0] if ticker_prefix else ""
+    
+    filename = f"{ticker_prefix}_D_{'SMA' if config.get('USE_SMA', False) else 'EMA'}_{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}.csv"
+    directory = os.path.join(config["BASE_DIR"], "csv", "ma_cross", "rsi")
+    
+    return directory, filename
