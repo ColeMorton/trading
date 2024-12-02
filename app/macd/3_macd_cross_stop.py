@@ -5,23 +5,16 @@ from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 from typing import List, Tuple
-import logging
-import os
+from app.tools.setup_logging import setup_logging
 from app.tools.calculate_rsi import calculate_rsi
 from app.tools.calculate_macd import calculate_macd
 from app.tools.calculate_macd_signals import calculate_macd_signals
 from app.tools.get_data import get_data
 from app.macd.config import config
 
-# Ensure the logs directory exists
-os.makedirs('logs', exist_ok=True)
-
-# Set up logging to overwrite the file each time
-logging.basicConfig(
-    filename='logs/macd_cross_stop.log',
-    filemode='w',  # 'w' mode overwrites the file
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+log, log_close, _, _ = setup_logging(
+    module_name='macd_cross',
+    log_file='3_macd_cross_stop.log'
 )
 
 def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
@@ -30,14 +23,14 @@ def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
     end_date = datetime.now()
     start_date = end_date - timedelta(days=730 if use_hourly else 365 * years)
     
-    logging.info(f"Downloading data for {ticker}")
+    log(f"Downloading data for {ticker}")
     try:
         data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
-        logging.info(f"Data download for {ticker} completed successfully")
+        log(f"Data download for {ticker} completed successfully")
         data.reset_index(inplace=True)  # Reset index to make 'Date' a column
         return pl.DataFrame(data)
     except Exception as e:
-        logging.error(f"Failed to download data for {ticker}: {e}")
+        log(f"Failed to download data for {ticker}: {e}")
         raise
 
 def backtest(data: pl.DataFrame, stop_loss_percentage: float, rsi_threshold: float = 70) -> List[Tuple[float, float]]:
@@ -151,7 +144,7 @@ def plot_results(ticker: str, results_df: pl.DataFrame):
     plt.show()
 
 def main():
-    logging.info("Starting main execution")
+    log("Starting main execution")
 
     stop_loss_range = np.arange(0, 21, 0.01)
 
@@ -166,7 +159,7 @@ def main():
 
     plot_results(config['TICKER'], results_df)
 
-    logging.info("Main execution completed")
+    log("Main execution completed")
 
 if __name__ == "__main__":
     main()

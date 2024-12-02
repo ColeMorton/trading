@@ -3,28 +3,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 from typing import List, Tuple
-import logging
-import os
+from app.tools.setup_logging import setup_logging
 from app.tools.calculate_rsi import calculate_rsi
 from app.tools.calculate_macd import calculate_macd
 from app.tools.get_data import get_data
 from app.macd.config import config
 
-# Ensure the logs directory exists
-os.makedirs('logs', exist_ok=True)
-
-# Set up logging to overwrite the file each time
-logging.basicConfig(
-    filename='logs/macd_rsi.log',
-    filemode='w',  # 'w' mode overwrites the file
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+log, log_close, _, _ = setup_logging(
+    module_name='macd_cross',
+    log_file='2_macd_cross_rsi.log'
 )
 
-logging.info("RSI Threshold Sensitivity Analysis - New Execution")
-
 def backtest(data: pl.DataFrame, rsi_threshold: float) -> List[Tuple[float, float]]:
-    logging.info(f"Running backtest with RSI threshold: {rsi_threshold}")
+    log(f"Running backtest with RSI threshold: {rsi_threshold}")
     position, entry_price = 0, 0
     trades = []
     for i in range(1, len(data)):
@@ -34,19 +25,19 @@ def backtest(data: pl.DataFrame, rsi_threshold: float) -> List[Tuple[float, floa
                 data['RSI'][i] is not None and
                 data['RSI'][i] >= rsi_threshold):
                 position, entry_price = 1, data['Close'][i]
-                logging.info(f"Entered long position at price: {entry_price}, RSI: {data['RSI'][i]}")
+                log(f"Entered long position at price: {entry_price}, RSI: {data['RSI'][i]}")
         elif position == 1:
             if (data['MACD'][i] < data['Signal_Line'][i] and
                 data['MACD'][i-1] >= data['Signal_Line'][i-1]):
                 position, exit_price = 0, data['Close'][i]
                 trades.append((entry_price, exit_price))
-                logging.info(f"Exited long position at price: {exit_price}, RSI: {data['RSI'][i]}")
+                log(f"Exited long position at price: {exit_price}, RSI: {data['RSI'][i]}")
     
-    logging.info(f"Total trades: {len(trades)}")
+    log(f"Total trades: {len(trades)}")
     return trades
 
 def calculate_metrics(trades: List[Tuple[float, float]]) -> Tuple[float, float, float, int]:
-    logging.info("Starting metrics calculation")
+    log("Starting metrics calculation")
     if not trades:
         return 0, 0, 0, 0
     returns = [(exit_price / entry_price - 1) for entry_price, exit_price in trades]
@@ -59,11 +50,11 @@ def calculate_metrics(trades: List[Tuple[float, float]]) -> Tuple[float, float, 
     
     num_positions = len(trades)
     
-    logging.info(f"Metrics - Total Return: {total_return * 100}%, Win Rate: {win_rate * 100}%, Expectancy: {expectancy}, Number of Positions: {num_positions}")
+    log(f"Metrics - Total Return: {total_return * 100}%, Win Rate: {win_rate * 100}%, Expectancy: {expectancy}, Number of Positions: {num_positions}")
     return total_return * 100, win_rate * 100, expectancy, num_positions
 
 def run_sensitivity_analysis(data: pl.DataFrame, rsi_range: np.ndarray) -> pl.DataFrame:
-    logging.info("Starting sensitivity analysis")
+    log("Starting sensitivity analysis")
     results = []
     for rsi_threshold in rsi_range:
         trades = backtest(data, rsi_threshold)
@@ -78,7 +69,7 @@ def run_sensitivity_analysis(data: pl.DataFrame, rsi_range: np.ndarray) -> pl.Da
     return pl.DataFrame(results)
 
 def find_prominent_peaks(x: np.ndarray, y: np.ndarray, prominence: float = 1, distance: int = 10) -> np.ndarray:
-    logging.info("Finding prominent peaks")
+    log("Finding prominent peaks")
     peaks, _ = find_peaks(y, prominence=prominence, distance=distance)
     return peaks
 
@@ -94,7 +85,7 @@ def add_peak_labels(ax: plt.Axes, x: np.ndarray, y: np.ndarray, peaks: np.ndarra
                     arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=0'))
 
 def plot_results(ticker: str, results_df: pl.DataFrame):
-    logging.info("Plotting results")
+    log("Plotting results")
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 16), sharex=True)
     
     # Plot returns and win rate
@@ -140,7 +131,7 @@ def plot_results(ticker: str, results_df: pl.DataFrame):
     plt.show()
 
 def main():
-    logging.info("Starting main execution")
+    log("RSI Threshold Sensitivity Analysis - New Execution")
     rsi_range = np.arange(29, 79, 1)  # 30 to 80
 
     data = get_data(config["TICKER"], config)
@@ -148,14 +139,16 @@ def main():
     data = calculate_rsi(data, config['RSI_PERIOD'])
     
     # Log some statistics about the data
-    logging.info(f"Data statistics: Close price - Min: {data['Close'].min()}, Max: {data['Close'].max()}, Mean: {data['Close'].mean()}")
-    logging.info(f"RSI statistics: Min: {data['RSI'].min()}, Max: {data['RSI'].max()}, Mean: {data['RSI'].mean()}")
+    log(f"Data statistics: Close price - Min: {data['Close'].min()}, Max: {data['Close'].max()}, Mean: {data['Close'].mean()}")
+    log(f"RSI statistics: Min: {data['RSI'].min()}, Max: {data['RSI'].max()}, Mean: {data['RSI'].mean()}")
     
     results_df = run_sensitivity_analysis(data, rsi_range)
     
     pl.Config.set_fmt_str_lengths(20)
     plot_results(config['TICKER'], results_df)
-    logging.info("Main execution completed")
+    log("Main execution completed")
+
+    log_close()
 
 if __name__ == "__main__":
     main()
