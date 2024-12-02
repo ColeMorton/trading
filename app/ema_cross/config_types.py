@@ -17,7 +17,6 @@ class PortfolioConfig(TypedDict, total=False):
 
     Optional Fields:
         USE_CURRENT (NotRequired[bool]): Whether to emphasize current window combinations
-        USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average
         USE_HOURLY (NotRequired[bool]): Whether to use hourly data
         USE_GBM (NotRequired[bool]): Whether to use Geometric Brownian Motion
         USE_SYNTHETIC (NotRequired[bool]): Whether to create synthetic pairs
@@ -32,7 +31,6 @@ class PortfolioConfig(TypedDict, total=False):
     WINDOWS: int
     BASE_DIR: str
     USE_CURRENT: NotRequired[bool]
-    USE_SMA: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]
     USE_GBM: NotRequired[bool]
     USE_SYNTHETIC: NotRequired[bool]
@@ -45,10 +43,10 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": 'AIG',
+    "TICKER": 'FSLR',
     "WINDOWS": 89,
     "USE_HOURLY": False,
-    "REFRESH": False,
-    "USE_CURRENT": False,
+    "REFRESH": True,
+    "USE_CURRENT": True,
     "BASE_DIR": "."
 }

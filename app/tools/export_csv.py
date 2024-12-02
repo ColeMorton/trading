@@ -54,6 +54,23 @@ def _get_ticker_prefix(config: ExportConfig) -> str:
         return f"{ticker[0]}_"
     return ""
 
+def _get_filename_components(config: ExportConfig) -> List[str]:
+    """Generate standardized filename components based on configuration.
+    
+    Args:
+        config: Export configuration dictionary
+        
+    Returns:
+        List[str]: List of filename components
+    """
+    return [
+        _get_ticker_prefix(config),
+        "H" if config.get("USE_HOURLY", False) else "D",
+        "_SMA" if config.get("USE_SMA", False) else "_EMA",
+        "_GBM" if config.get("USE_GBM", False) else "",
+        f"_{datetime.now().strftime('%Y%m%d')}" if config.get("SHOW_LAST", False) else ""
+    ]
+
 def _get_filename(config: ExportConfig, extension: str = "csv") -> str:
     """Generate standardized filename based on configuration.
     
@@ -64,17 +81,29 @@ def _get_filename(config: ExportConfig, extension: str = "csv") -> str:
     Returns:
         str: Generated filename with extension
     """
-    ticker_prefix = _get_ticker_prefix(config)
-    
-    components = [
-        ticker_prefix,
-        "H" if config.get("USE_HOURLY", False) else "D",
-        "_SMA" if config.get("USE_SMA", False) else "_EMA",
-        "_GBM" if config.get("USE_GBM", False) else "",
-        f"_{datetime.now().strftime('%Y%m%d')}" if config.get("SHOW_LAST", False) else ""
-    ]
-    
+    components = _get_filename_components(config)
     return f"{''.join(components)}.{extension}"
+
+def _combine_with_custom_filename(config: ExportConfig, custom_filename: str) -> str:
+    """Combine custom filename with standard components.
+    
+    Args:
+        config: Export configuration dictionary
+        custom_filename: Custom filename to combine with standard components
+        
+    Returns:
+        str: Combined filename
+    """
+    # Get standard components
+    components = _get_filename_components(config)
+    
+    # Split custom filename into name and extension
+    name, ext = os.path.splitext(custom_filename)
+    if not ext:
+        ext = '.csv'
+    
+    # Insert custom name before the extension
+    return f"{''.join(components)}_{name}{ext}"
 
 def _get_export_path(feature1: str, config: ExportConfig, feature2: str = "") -> str:
     """Generate full export path.
@@ -142,9 +171,9 @@ def export_csv(
         export_path = _get_export_path(feature1, config, feature2)
         os.makedirs(export_path, exist_ok=True)
         
-        # Generate full file path
-        full_path = os.path.join(export_path, 
-                               filename if filename else _get_filename(config))
+        # Generate full file path with proper filename
+        final_filename = _combine_with_custom_filename(config, filename) if filename else _get_filename(config)
+        full_path = os.path.join(export_path, final_filename)
         
         # Remove existing file if it exists
         if os.path.exists(full_path):

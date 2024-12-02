@@ -80,14 +80,17 @@ def analyze_rsi_parameters(
                 log(f"Analyzed RSI window {window}, threshold {threshold}")
     
     # Create filename with MA windows
-    ticker_prefix = config.get("TICKER", "")
-    if isinstance(ticker_prefix, list):
-        ticker_prefix = ticker_prefix[0] if ticker_prefix else ""
+    filename = f"{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}.csv"
     
-    filename = f"{ticker_prefix}_D_{'SMA' if config.get('USE_SMA', False) else 'EMA'}_{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}.csv"
+    # Export portfolios with proper config
+    export_config = ExportConfig(
+        BASE_DIR=config["BASE_DIR"],
+        TICKER=config.get("TICKER"),
+        USE_HOURLY=config.get("USE_HOURLY", False),
+        USE_SMA=config.get("USE_SMA", False)
+    )
     
     # Export portfolios
-    export_config = ExportConfig(BASE_DIR=config["BASE_DIR"], TICKER=config.get("TICKER"))
     export_csv(portfolios, "ma_cross", export_config, "rsi", filename)
     
     # Transpose matrices to swap axes

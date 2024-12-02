@@ -134,7 +134,10 @@ def export_results(results_data: List[Dict], config: dict, log: Callable) -> Non
         scanner_list_path = config["SCANNER_LIST"]
         scanner_filename = os.path.splitext(os.path.basename(scanner_list_path))[0]
         
-        # Export to dated subdirectory with scanner list name, explicitly set to overwrite
+        # Export to dated subdirectory with scanner list name
         output_path = os.path.join(date_dir, f"{scanner_filename}.csv")
-        results_df.write_csv(output_path, overwrite=True)
+        # Remove file if it exists since Polars doesn't have an overwrite parameter
+        if os.path.exists(output_path):
+            os.remove(output_path)
+        results_df.write_csv(output_path)
         log(f"\nResults exported to {output_path}")

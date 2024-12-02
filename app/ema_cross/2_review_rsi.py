@@ -20,12 +20,13 @@ from app.ema_cross.tools.rsi_heatmap import analyze_rsi_parameters, create_rsi_h
 
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
-    "TICKER": "NKE",
-    "SHORT_WINDOW": 2,
-    "LONG_WINDOW": 33,
+    "TICKER": "SOL-USD",
+    "SHORT_WINDOW": 20,
+    "LONG_WINDOW": 60,
     "BASE_DIR": ".",
     "USE_SMA": False,
-    "REFRESH": False
+    "REFRESH": True,
+    "USE_HOURLY": True
 }
 
 def run(config: CacheConfig) -> bool:

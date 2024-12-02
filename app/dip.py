@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from typing import Tuple, List
 
 # Configuration
-YEARS = 4.4  # Set timeframe in years for daily data
+YEARS = 35  # Set timeframe in years for daily data
 USE_HOURLY = False  # Set to False for daily data
 USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
 TICKER_1 = 'MSTR'  # Ticker for X to USD exchange rate

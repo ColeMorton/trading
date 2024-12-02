@@ -17,7 +17,7 @@ from tools.summary_processing import (
 
 # Default Configuration
 config = {
-    "SCANNER_LIST": '20241128.csv',
+    "SCANNER_LIST": '20241202.csv',
     "USE_CURRENT": True
 }
 
