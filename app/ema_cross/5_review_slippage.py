@@ -62,16 +62,16 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": "VLO",
-    "SHORT_WINDOW": 24,
-    "LONG_WINDOW": 50,
+    "TICKER": "AMD",
+    "SHORT_WINDOW": 2,
+    "LONG_WINDOW": 24,
     "BASE_DIR": ".",
     "USE_SMA": True,
-    "REFRESH": True,
+    "REFRESH": False,
     "USE_RSI": False,
     "RSI_PERIOD": 22,
     "RSI_THRESHOLD": 45,
-    "STOP_LOSS": 0.0881
+    "STOP_LOSS": 0.0846
 }
 
 def run(config: Config = config) -> bool:
