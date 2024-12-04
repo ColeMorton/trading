@@ -112,15 +112,28 @@ def export_results(results_data: List[Dict], config: dict, log: Callable) -> Non
         for result in results_data:
             row = {
                 "TICKER": result["TICKER"],
-                "SMA_FAST": result["SMA_FAST"] if result["SMA"] else None,
-                "SMA_SLOW": result["SMA_SLOW"] if result["SMA"] else None,
-                "EMA_FAST": result["EMA_FAST"] if result["EMA"] else None,
-                "EMA_SLOW": result["EMA_SLOW"] if result["EMA"] else None
+                "SMA_FAST": result["SMA_FAST"],
+                "SMA_SLOW": result["SMA_SLOW"],
+                "EMA_FAST": result["EMA_FAST"],
+                "EMA_SLOW": result["EMA_SLOW"],
+                "SMA_SIGNAL": result["SMA"],
+                "EMA_SIGNAL": result["EMA"]
             }
             transformed_data.append(row)
         
+        # Create results DataFrame with explicit schema
+        schema = {
+            "TICKER": pl.Utf8,
+            "SMA_FAST": pl.Int64,
+            "SMA_SLOW": pl.Int64,
+            "EMA_FAST": pl.Int64,
+            "EMA_SLOW": pl.Int64,
+            "SMA_SIGNAL": pl.Boolean,
+            "EMA_SIGNAL": pl.Boolean
+        }
+        
         # Create results DataFrame
-        results_df = pl.DataFrame(transformed_data)
+        results_df = pl.DataFrame(transformed_data, schema=schema)
         
         # Get base path
         csv_path = get_path("csv", "ma_cross", config, 'portfolios_scanned')

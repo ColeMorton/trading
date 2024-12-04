@@ -17,8 +17,8 @@ from tools.summary_processing import (
 
 # Default Configuration
 config = {
-    "SCANNER_LIST": '20241202.csv',
-    "USE_CURRENT": True
+    "SCANNER_LIST": 'DAILY.csv',
+    "USE_CURRENT": False
 }
 
 def run(scanner_list: str) -> bool:

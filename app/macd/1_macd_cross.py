@@ -27,7 +27,7 @@ class Config(TypedDict):
 
 # Default Configuration
 CONFIG: Config = {
-    "TICKER": 'BTC-USD',
+    "TICKER": 'SOL-USD',
     "YEARS": 30,
     "USE_YEARS": False,
     "PERIOD": 'max',
@@ -38,8 +38,8 @@ CONFIG: Config = {
     "SHORT": False,
     "USE_GBM": False,
     "USE_SMA": False,
-    "SHORT_PERIOD": 14,
-    "LONG_PERIOD": 23,
+    "SHORT_PERIOD": 19,
+    "LONG_PERIOD": 33,
     "SIGNAL_PERIOD": 13,
     "RSI_PERIOD": 14,
     "RSI_THRESHOLD": 46,
