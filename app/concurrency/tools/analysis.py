@@ -64,6 +64,7 @@ def analyze_concurrency(
     # Calculate statistics
     total_periods = len(aligned_data[0])
     concurrent_periods = np.sum(active_strategies >= 2)
+    exclusive_periods = np.sum(active_strategies == 1)  # Exactly one strategy in position
     max_concurrent = int(np.max(active_strategies))
     avg_concurrent = float(np.mean(active_strategies))
     
@@ -77,7 +78,9 @@ def analyze_concurrency(
     stats: ConcurrencyStats = {
         "total_periods": total_periods,
         "total_concurrent_periods": int(concurrent_periods),
+        "exclusive_periods": int(exclusive_periods),
         "concurrency_ratio": float(concurrent_periods / total_periods),
+        "exclusive_ratio": float(exclusive_periods / total_periods),
         "avg_concurrent_strategies": avg_concurrent,
         "max_concurrent_strategies": max_concurrent,
         "strategy_correlations": correlations,

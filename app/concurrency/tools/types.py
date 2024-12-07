@@ -1,6 +1,6 @@
 """Type definitions for concurrency analysis module."""
 
-from typing import TypedDict, NotRequired
+from typing import TypedDict, NotRequired, Dict
 
 class StrategyConfig(TypedDict):
     """Configuration type definition for strategy parameters.
@@ -36,14 +36,22 @@ class ConcurrencyStats(TypedDict):
     """Statistics from concurrency analysis.
 
     Required Fields:
-        total_days (int): Total number of days analyzed
-        concurrent_days (int): Number of days with concurrent positions
-        concurrency_ratio (float): Ratio of concurrent days to total days
+        total_periods (int): Total number of periods analyzed
+        total_concurrent_periods (int): Number of periods with concurrent positions
+        exclusive_periods (int): Number of periods with exactly one strategy in position
+        concurrency_ratio (float): Ratio of concurrent periods to total periods
+        exclusive_ratio (float): Ratio of periods with exactly one strategy in position
+        avg_concurrent_strategies (float): Average number of concurrent strategies
+        max_concurrent_strategies (int): Maximum number of concurrent strategies
+        strategy_correlations (Dict[str, float]): Pairwise correlations between strategies
         avg_position_length (float): Average length of positions
-        correlation (float): Correlation between position signals
     """
-    total_days: int
-    concurrent_days: int
+    total_periods: int
+    total_concurrent_periods: int
+    exclusive_periods: int
     concurrency_ratio: float
+    exclusive_ratio: float
+    avg_concurrent_strategies: float
+    max_concurrent_strategies: int
+    strategy_correlations: Dict[str, float]
     avg_position_length: float
-    correlation: float
