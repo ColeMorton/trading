@@ -83,6 +83,19 @@ def analyze_concurrency(
     # Calculate risk concentration index
     risk_concentration_index = avg_concurrent / max_concurrent if max_concurrent > 0 else 0.0
     
+    # Calculate efficiency score using Expectancy per Day
+    strategy_usage = [np.mean(pos_array) for pos_array in position_arrays]
+    total_usage = sum(strategy_usage)
+    if total_usage > 0:
+        # Weight each strategy's expectancy by its usage
+        weighted_expectancies = [
+            (usage / total_usage) * config.get('Expectancy per Day', 0)
+            for usage, config in zip(strategy_usage, config_list)
+        ]
+        efficiency_score = sum(weighted_expectancies)
+    else:
+        efficiency_score = 0.0
+    
     stats: ConcurrencyStats = {
         "total_periods": total_periods,
         "total_concurrent_periods": int(concurrent_periods),
@@ -96,7 +109,8 @@ def analyze_concurrency(
         "strategy_correlations": correlations,
         "avg_position_length": float(
             sum(df["Position"].sum() for df in aligned_data) / len(aligned_data)
-        )
+        ),
+        "efficiency_score": efficiency_score
     }
     
     return stats, aligned_data

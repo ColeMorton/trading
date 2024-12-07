@@ -41,7 +41,8 @@ class ConcurrencyStats(TypedDict):
         exclusive_periods (int): Number of periods with exactly one strategy in position
         concurrency_ratio (float): Ratio of concurrent periods to total periods
         exclusive_ratio (float): Ratio of periods with exactly one strategy in position
-        exclusive_ratio (float): Ratio of periods with no active strategies
+        inactive_ratio (float): Ratio of periods with no active strategies
+        efficiency_score (float): Risk-Adjusted Performance
         avg_concurrent_strategies (float): Average number of concurrent strategies
         max_concurrent_strategies (int): Maximum number of concurrent strategies
         strategy_correlations (Dict[str, float]): Pairwise correlations between strategies
@@ -53,6 +54,7 @@ class ConcurrencyStats(TypedDict):
     concurrency_ratio: float
     exclusive_ratio: float
     inactive_ratio: float
+    efficiency_score: float
     avg_concurrent_strategies: float
     max_concurrent_strategies: int
     strategy_correlations: Dict[str, float]

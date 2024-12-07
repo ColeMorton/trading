@@ -78,6 +78,7 @@ def run(strategies: List[StrategyConfig]) -> bool:
         log(f"Average concurrent strategies: {stats['avg_concurrent_strategies']:.2f}")
         log(f"Max concurrent strategies: {stats['max_concurrent_strategies']}")
         log(f"Risk Concentration Index: {stats['risk_concentration_index']}")
+        log(f"Efficiency Score: {stats['efficiency_score']:.4f}")
         
         # Create and display unified visualization
         fig = plot_concurrency(
