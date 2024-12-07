@@ -113,7 +113,7 @@ def plot_concurrency(
             x=data_list[0]["Date"],
             y=['Concurrent Strategies'],
             z=[active_strategies],
-            colorscale='Viridis',
+            colorscale='Plasma',
             showscale=True,
             name="Active Strategies"
         ),
