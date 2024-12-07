@@ -43,9 +43,9 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": ['ZEC-USD','BNB-USD','FTM-USD','RUNE-USD','SOL-USD','AAVE-USD','AVAX-USD','TRX-USD','ETH-USD','DOGE-USD','LINK-USD','MKR-USD','ADA-USD','DOT-USD','MATIC-USD','SUI20947-USD','FET-USD','ARB11841-USD','APT21794-USD','OP-USD','CAKE-USD','SHIB-USD','PENDLE-USD','UNI7083-USD','NEAR-USD','SEI-USD','GRT6719-USD','STX4847-USD'],
+    "TICKER": 'CLX',
     "WINDOWS": 89,
-    "USE_HOURLY": True,
+    "USE_HOURLY": False,
     "REFRESH": True,
     "USE_CURRENT": False,
     "BASE_DIR": "."

@@ -17,9 +17,10 @@ from tools.summary_processing import (
 
 # Default Configuration
 config = {
-    "SCANNER_LIST": 'HOURLY Crypto.csv',
-    "USE_CURRENT": False,
-    "USE_HOURLY": True
+    "SCANNER_LIST": '20241207.csv',
+    "USE_CURRENT": True,
+    "USE_HOURLY": False,
+    "BASE_DIR": 'C:/Projects/trading'  # Added BASE_DIR for export configuration
 }
 
 def run(scanner_list: str) -> bool:
@@ -70,12 +71,13 @@ def run(scanner_list: str) -> bool:
             ticker = row['TICKER']
             log(f"Processing {ticker}")
             
-            result = process_ticker_portfolios(ticker, row, log)
+            # Pass the config to process_ticker_portfolios
+            result = process_ticker_portfolios(ticker, row, config, log)
             if result:
                 portfolios.extend(result)
 
-        # Export results
-        success = export_summary_results(portfolios, scanner_list, log)
+        # Export results with config
+        success = export_summary_results(portfolios, scanner_list, log, config)
         
         log_close()
         return success

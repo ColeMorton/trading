@@ -29,13 +29,14 @@ def calculate_adjusted_metrics(stats: Dict) -> Dict:
     stats['Tradability'] = stats['Total Closed Trades'] / stats['End'] * 1000
     return stats
 
-def process_ticker_portfolios(ticker: str, row: dict, log: Callable) -> Optional[List[dict]]:
+def process_ticker_portfolios(ticker: str, row: dict, config: dict, log: Callable) -> Optional[List[dict]]:
     """
     Process SMA and EMA portfolios for a single ticker.
 
     Args:
         ticker (str): Ticker symbol
         row (dict): Row data containing window parameters
+        config (dict): Configuration dictionary including USE_HOURLY setting
         log (Callable): Logging function
 
     Returns:
@@ -63,13 +64,14 @@ def process_ticker_portfolios(ticker: str, row: dict, log: Callable) -> Optional
             sma_slow=sma_slow,
             ema_fast=ema_fast,
             ema_slow=ema_slow,
+            config=config,  # Pass the config through
             log=log
         )
         
         if result is None:
             return None
             
-        sma_portfolio, ema_portfolio, config = result
+        sma_portfolio, ema_portfolio, result_config = result
 
         # Process SMA stats if portfolio exists
         if has_sma and sma_portfolio is not None:
@@ -130,7 +132,7 @@ def reorder_columns(portfolio: Dict) -> Dict:
             
     return reordered
 
-def export_summary_results(portfolios: List[Dict], scanner_list: str, log: Callable) -> bool:
+def export_summary_results(portfolios: List[Dict], scanner_list: str, log: Callable, config: Optional[Dict] = None) -> bool:
     """
     Export portfolio summary results to CSV.
 
@@ -138,6 +140,7 @@ def export_summary_results(portfolios: List[Dict], scanner_list: str, log: Calla
         portfolios (List[Dict]): List of portfolio statistics
         scanner_list (str): Name of the scanner list file
         log (Callable): Logging function
+        config (Optional[Dict]): Configuration dictionary including USE_HOURLY setting
 
     Returns:
         bool: True if export successful, False otherwise
@@ -146,9 +149,11 @@ def export_summary_results(portfolios: List[Dict], scanner_list: str, log: Calla
         # Reorder columns for each portfolio
         reordered_portfolios = [reorder_columns(p) for p in portfolios]
         
-        config = get_config({})  # Empty config as we don't need specific settings
-        config["TICKER"] = None
-        _, success = export_portfolios(reordered_portfolios, config, 'portfolios_summary', scanner_list, log)
+        # Use provided config or get default if none provided
+        export_config = config if config is not None else get_config({})
+        export_config["TICKER"] = None
+        
+        _, success = export_portfolios(reordered_portfolios, export_config, 'portfolios_summary', scanner_list, log)
         if not success:
             log("Failed to export portfolios", "error")
             return False

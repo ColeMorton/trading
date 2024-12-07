@@ -53,7 +53,8 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     "WINDOWS": 89,
-    "SCANNER_LIST": 'DAILY.csv',
+    "SCANNER_LIST": 'HOURLY Crypto.csv',
+    # "SCANNER_LIST": 'DAILY.csv',
     "USE_HOURLY": False
 }
 

@@ -14,7 +14,7 @@ import yfinance as yf
 # ASSET_1_ALLOCATION = 50 # Target allocation for Asset 1 (as a percentage)
 # VAR_CONFIDENCE_LEVELS = [0.95, 0.99]
 
-TOTAL_PORTFOLIO_VALUE = 11500  # target
+TOTAL_PORTFOLIO_VALUE = 9500  # target
 ASSET_1_TICKER = "BTC-USD"
 ASSET_2_TICKER = "SOL-USD"
 ASSET_1_LEVERAGE = 7.7  # Example leverage factor for Asset 1
