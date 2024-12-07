@@ -106,7 +106,7 @@ def create_heatmap_figures(
         colorbar=dict(title='Total Return', tickformat='%'),
         zmin=returns_zmin,
         zmax=returns_zmax,
-        colorscale='plasma'
+        colorscale='ice'
     ))
     
     returns_fig.update_layout(
@@ -130,7 +130,7 @@ def create_heatmap_figures(
         colorbar=dict(title='Total Trades'),
         zmin=trades_zmin,
         zmax=trades_zmax,  # Use fixed maximum of 200
-        colorscale='plasma'
+        colorscale='ice'
     ))
     
     trades_fig.update_layout(
@@ -154,7 +154,7 @@ def create_heatmap_figures(
         colorbar=dict(title='Sharpe Ratio'),
         zmin=sharpe_zmin,
         zmax=sharpe_zmax,
-        colorscale='plasma'
+        colorscale='ice'
     ))
     
     sharpe_fig.update_layout(
@@ -178,7 +178,7 @@ def create_heatmap_figures(
         colorbar=dict(title='Win Rate', tickformat='%'),
         zmin=win_rate_zmin,
         zmax=win_rate_zmax,
-        colorscale='plasma'
+        colorscale='ice'
     ))
     
     win_rate_fig.update_layout(

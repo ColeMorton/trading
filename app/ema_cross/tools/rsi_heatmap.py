@@ -133,7 +133,7 @@ def create_rsi_heatmap(
             z=display_matrix,
             x=rsi_thresholds,  # Thresholds on x-axis
             y=rsi_windows,     # Windows on y-axis
-            colorscale='plasma',
+            colorscale='ice',
             colorbar=dict(
                 title=metric_name.capitalize().replace('_', ' '),
                 tickformat='.2f' if metric_name == 'sharpe_ratio' else 

@@ -85,7 +85,7 @@ def create_protective_stop_loss_heatmap(
         fig.add_trace(go.Heatmap(
             z=heatmap_data,
             x=holding_period_range,
-            colorscale='plasma',
+            colorscale='ice',
             colorbar=dict(
                 title=dict(
                     text=metric_name.capitalize().replace('_', ' '),

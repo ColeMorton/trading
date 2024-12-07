@@ -40,7 +40,7 @@ def create_stop_loss_heatmap(
         fig.add_trace(go.Heatmap(
             z=heatmap_data,
             x=stop_loss_range,
-            colorscale='plasma',
+            colorscale='ice',
             colorbar=dict(
                 title=dict(
                     text=metric_name.capitalize().replace('_', ' '),
