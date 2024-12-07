@@ -3,7 +3,8 @@ Concurrency Analysis Module for Trading Strategies.
 
 This module analyzes the concurrent exposure between multiple trading strategies.
 It identifies periods of overlapping positions and calculates key statistics
-about the concurrent exposure.
+about the concurrent exposure. Supports analysis of strategies with different
+timeframes by resampling hourly data to daily when needed.
 """
 
 from app.tools.setup_logging import setup_logging
@@ -18,6 +19,7 @@ def run(config_1: StrategyConfig, config_2: StrategyConfig) -> bool:
 
     Performs a comprehensive analysis of concurrent positions between two
     trading strategies, including data preparation, analysis, and visualization.
+    Handles different timeframes by resampling hourly data to daily when needed.
 
     Args:
         config_1 (StrategyConfig): Configuration for first strategy
@@ -36,6 +38,8 @@ def run(config_1: StrategyConfig, config_2: StrategyConfig) -> bool:
     
     try:
         log(f"Starting concurrency analysis for {config_1['TICKER']} vs {config_2['TICKER']}")
+        log(f"Strategy 1 timeframe: {'Hourly' if config_1.get('USE_HOURLY', False) else 'Daily'}")
+        log(f"Strategy 2 timeframe: {'Hourly' if config_2.get('USE_HOURLY', False) else 'Daily'}")
         
         # Get and prepare data for both strategies
         data_1 = get_data(config_1["TICKER"], config_1)
@@ -56,8 +60,13 @@ def run(config_1: StrategyConfig, config_2: StrategyConfig) -> bool:
             config_2
         )
         
-        # Analyze concurrency
-        stats, data_1_aligned, data_2_aligned = analyze_concurrency(data_1, data_2)
+        # Analyze concurrency with timeframe handling
+        stats, data_1_aligned, data_2_aligned = analyze_concurrency(
+            data_1, 
+            data_2,
+            config_1,
+            config_2
+        )
         log(f"Concurrency analysis completed. Concurrent ratio: {stats['concurrency_ratio']:.2%}")
         
         # Create and display visualization
@@ -89,6 +98,20 @@ if __name__ == "__main__":
     }
 
     strategy_2: StrategyConfig = {
+        "TICKER": "BTC-USD",
+        "SHORT_WINDOW": 65,
+        "LONG_WINDOW": 74,
+        "BASE_DIR": ".",
+        "USE_SMA": True,
+        "USE_HOURLY": True,
+        "REFRESH": True,
+        "USE_RSI": True,
+        "RSI_PERIOD": 29,
+        "RSI_THRESHOLD": 30,
+        "STOP_LOSS": 0.0565
+    }
+
+    strategy_3: StrategyConfig = {
         "TICKER": "SOL-USD",
         "SHORT_WINDOW": 14,
         "LONG_WINDOW": 32,

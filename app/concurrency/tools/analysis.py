@@ -3,22 +3,27 @@
 from typing import Tuple
 import polars as pl
 import numpy as np
-from app.concurrency.tools.types import ConcurrencyStats
+from app.concurrency.tools.types import ConcurrencyStats, StrategyConfig
 from app.concurrency.tools.data_alignment import align_data
 
 def analyze_concurrency(
     data_1: pl.DataFrame,
-    data_2: pl.DataFrame
+    data_2: pl.DataFrame,
+    config_1: StrategyConfig,
+    config_2: StrategyConfig
 ) -> Tuple[ConcurrencyStats, pl.DataFrame, pl.DataFrame]:
     """Analyze concurrent positions between two strategies.
 
     Calculates various statistics about the concurrent positions between
     two trading strategies, including the number of concurrent days,
-    concurrency ratio, and position correlation.
+    concurrency ratio, and position correlation. Handles different timeframes
+    by resampling hourly data to daily when needed.
 
     Args:
         data_1 (pl.DataFrame): Data with signals for first strategy
         data_2 (pl.DataFrame): Data with signals for second strategy
+        config_1 (StrategyConfig): Configuration for first strategy
+        config_2 (StrategyConfig): Configuration for second strategy
 
     Returns:
         Tuple[ConcurrencyStats, pl.DataFrame, pl.DataFrame]: Tuple containing:
@@ -35,8 +40,13 @@ def analyze_concurrency(
         if missing:
             raise ValueError(f"Missing required columns: {missing}")
 
-    # Align data by date
-    data_1_aligned, data_2_aligned = align_data(data_1, data_2)
+    # Align data by date and handle timeframe differences
+    data_1_aligned, data_2_aligned = align_data(
+        data_1, 
+        data_2,
+        is_hourly_1=config_1.get('USE_HOURLY', False),
+        is_hourly_2=config_2.get('USE_HOURLY', False)
+    )
     
     # Calculate concurrent positions
     concurrent_positions = (

@@ -18,6 +18,7 @@ class StrategyConfig(TypedDict):
         USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average instead of EMA
         REFRESH (NotRequired[bool]): Whether to refresh data
         BASE_DIR (NotRequired[str]): Base directory for data storage
+        USE_HOURLY (NotRequired[bool]): Whether to use hourly timeframe instead of daily
     """
     TICKER: str
     SHORT_WINDOW: int
@@ -29,6 +30,7 @@ class StrategyConfig(TypedDict):
     USE_SMA: NotRequired[bool]
     REFRESH: NotRequired[bool]
     BASE_DIR: NotRequired[str]
+    USE_HOURLY: NotRequired[bool]
 
 class ConcurrencyStats(TypedDict):
     """Statistics from concurrency analysis.
