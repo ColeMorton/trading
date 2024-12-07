@@ -16,7 +16,6 @@ from app.concurrency.tools.analysis import analyze_concurrency
 from app.concurrency.tools.visualization import plot_concurrency
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.file_utils import convert_stats
-import polars as pl
 
 def run(strategies: List[StrategyConfig]) -> bool:
     """Run concurrency analysis across multiple strategies.

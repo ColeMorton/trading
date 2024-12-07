@@ -31,19 +31,31 @@ def create_stats_annotation(stats: ConcurrencyStats) -> Dict:
     stats_text += "<br><b>Risk Metrics:</b><br>"
     risk_metrics = stats['risk_metrics']
     
-    # Add strategy risk contributions
-    for key in sorted(risk_metrics.keys()):
-        if key.startswith('strategy_'):
-            stats_text += f"Strategy {key.split('_')[1]} Risk Contribution: {risk_metrics[key]:.2%}<br>"
+    # Add strategy risk contributions and alpha values
+    strategy_nums = sorted(list({k.split('_')[1] for k in risk_metrics.keys() 
+                               if k.startswith('strategy_') and 
+                               (k.endswith('_risk_contrib') or k.endswith('_alpha'))}))
+    
+    for strategy_num in strategy_nums:
+        risk_key = f"strategy_{strategy_num}_risk_contrib"
+        alpha_key = f"strategy_{strategy_num}_alpha"
+        
+        if risk_key in risk_metrics:
+            stats_text += f"Strategy {strategy_num} Risk Contribution: {risk_metrics[risk_key]:.2%}<br>"
+        if alpha_key in risk_metrics:
+            stats_text += f"Strategy {strategy_num} Alpha: {risk_metrics[alpha_key]:.4%}<br>"
     
     # Add risk overlaps
-    for key in sorted(risk_metrics.keys()):
-        if key.startswith('risk_overlap_'):
-            stats_text += f"Risk Overlap {key.split('_')[2]}-{key.split('_')[3]}: {risk_metrics[key]:.2%}<br>"
+    overlap_keys = [k for k in sorted(risk_metrics.keys()) if k.startswith('risk_overlap_')]
+    for key in overlap_keys:
+        strat1, strat2 = key.split('_')[2:4]
+        stats_text += f"Risk Overlap {strat1}-{strat2}: {risk_metrics[key]:.2%}<br>"
     
-    # Add total portfolio risk
+    # Add total portfolio risk and benchmark return
     if 'total_portfolio_risk' in risk_metrics:
         stats_text += f"Total Portfolio Risk: {risk_metrics['total_portfolio_risk']:.4f}<br>"
+    if 'benchmark_return' in risk_metrics:
+        stats_text += f"Benchmark Return: {risk_metrics['benchmark_return']:.4%}<br>"
 
     return {
         "xref": "paper",
