@@ -68,7 +68,10 @@ def analyze_concurrency(
     exclusive_periods = np.sum(active_strategies == 1)  # Exactly one strategy in position
     inactive_periods = np.sum(active_strategies == 0)  # No active strategies
     max_concurrent = int(np.max(active_strategies))
-    avg_concurrent = float(np.mean(active_strategies))
+    
+    # Calculate average concurrent strategies only for active periods
+    active_mask = active_strategies >= 1
+    avg_concurrent = float(np.mean(active_strategies[active_mask])) if np.any(active_mask) else 0.0
     
     # Calculate pairwise correlations
     correlations: Dict[str, float] = {}
