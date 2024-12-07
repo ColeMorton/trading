@@ -15,6 +15,8 @@ from app.concurrency.tools.types import StrategyConfig
 from app.concurrency.tools.analysis import analyze_concurrency
 from app.concurrency.tools.visualization import plot_concurrency
 from app.tools.backtest_strategy import backtest_strategy
+from app.tools.file_utils import convert_stats
+import polars as pl
 
 def run(strategies: List[StrategyConfig]) -> bool:
     """Run concurrency analysis across multiple strategies.
@@ -56,38 +58,11 @@ def run(strategies: List[StrategyConfig]) -> bool:
                 config['LONG_WINDOW'], 
                 config
             )
-            strategy_data.append(data)
-            
-        # Create array of expectancy_day values from each strategy's portfolio
-        expectancy_days = []
-        for data, config in zip(strategy_data, strategies):
+            # Add Expectancy per Day to the strategy config
             portfolio = backtest_strategy(data, config, log)
-            stats = portfolio.stats()
-            
-            # Calculate total days in position
-            total_trades = stats['Total Trades']
-            win_rate = stats['Win Rate [%]'] / 100  # Convert percentage to decimal
-            num_winning_trades = int(total_trades * win_rate)
-            num_losing_trades = total_trades - num_winning_trades
-            
-            avg_winning_duration = stats['Avg Winning Trade Duration']
-            avg_losing_duration = stats['Avg Losing Trade Duration']
-            
-            total_days_in_position = (
-                num_winning_trades * avg_winning_duration +
-                num_losing_trades * avg_losing_duration
-            )
-            
-            # Calculate trades per day using total_days_in_position
-            total_days = len(data)  # Total number of periods in the data
-            trades_per_day = total_days_in_position / total_days
-            
-            # Calculate expectancy per day
-            expectancy = stats['Expectancy']
-            expectancy_day = expectancy / trades_per_day if trades_per_day > 0 else 0
-            expectancy_days.append(expectancy_day)
-
-        print(expectancy_days)
+            stats = convert_stats(portfolio.stats(), config)
+            config['Expectancy per Day'] = stats['Expectancy per Day']
+            strategy_data.append(data)
         
         # Analyze concurrency across all strategies simultaneously
         stats, aligned_data = analyze_concurrency(
@@ -171,7 +146,7 @@ if __name__ == "__main__":
         # This breakdown helps understand the true independence of the strategies, showing that 40% of the time they are making completely independent trading decisions.
 
         # Run unified analysis across all strategies
-        result = run([strategy_1, strategy_2])
+        result = run([strategy_1, strategy_3])
         if result:
             print("Unified concurrency analysis completed successfully!")
     except Exception as e:

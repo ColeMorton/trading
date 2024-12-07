@@ -2,7 +2,7 @@
 
 import os
 from datetime import datetime
-from typing import Dict, Any, Set
+from typing import Dict, Any, Set, Optional
 import pandas as pd
 import polars as pl
 
@@ -26,7 +26,7 @@ def is_file_from_today(filepath: str) -> bool:
             file_time.month == current_time.month and 
             file_time.day == current_time.day)
 
-def convert_stats(stats: Dict[str, Any]) -> Dict[str, Any]:
+def convert_stats(stats: Dict[str, Any], config: Optional[Dict]) -> Dict[str, Any]:
     """
     Convert stats to compatible format, ensuring proper type handling.
     
@@ -36,6 +36,33 @@ def convert_stats(stats: Dict[str, Any]) -> Dict[str, Any]:
     Returns:
         Dictionary with properly formatted values
     """
+
+    # Calculate adjusted performance metrics.
+    stats['Expectancy Adjusted'] = (
+        stats['Expectancy'] * 
+        min(1, 0.01 * stats['Win Rate [%]'] / 0.5) * 
+        min(1, stats['Total Closed Trades'] / 50)
+    )
+    stats['Tradability'] = stats['Total Closed Trades'] / stats['End'] * 1000
+
+    # Calculate total days in position
+    if config.get('USE_HOURLY', False) == False:
+        total_trades = stats['Total Trades']
+        
+        # Calculate total days between start and end
+        total_days = stats['End'] - stats['Start']
+        if total_days == 0:  # Handle case where backtest is less than a day
+            total_days = 1
+        
+        # Calculate trades per day - using actual number of trades divided by total days
+        stats['Trades per Day'] = float(total_trades) / total_days
+
+        # Calculate expectancy per day
+        expectancy = stats['Expectancy']
+        trades_per_day = stats['Trades per Day']
+        expectancy_day = trades_per_day if trades_per_day > 0 else 0 / expectancy
+        stats['Expectancy per Day'] = expectancy_day
+
     converted = {}
     
     # Handle window values first, ensuring they remain integers

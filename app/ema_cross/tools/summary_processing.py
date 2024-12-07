@@ -5,29 +5,11 @@ This module handles the processing of scanner summary data, including calculatin
 adjusted metrics and processing portfolio statistics.
 """
 
-from typing import Optional, Tuple, Dict, Callable, List
+from typing import Optional, Dict, Callable, List
 from app.ema_cross.tools.process_ma_portfolios import process_ma_portfolios
 from app.tools.file_utils import convert_stats
 from app.ema_cross.tools.export_portfolios import export_portfolios
 from app.tools.get_config import get_config
-
-def calculate_adjusted_metrics(stats: Dict) -> Dict:
-    """
-    Calculate adjusted performance metrics.
-
-    Args:
-        stats (Dict): Raw portfolio statistics
-
-    Returns:
-        Dict: Statistics with adjusted metrics added
-    """
-    stats['Expectancy Adjusted'] = (
-        stats['Expectancy'] * 
-        min(1, 0.01 * stats['Win Rate [%]'] / 0.5) * 
-        min(1, stats['Total Closed Trades'] / 50)
-    )
-    stats['Tradability'] = stats['Total Closed Trades'] / stats['End'] * 1000
-    return stats
 
 def process_ticker_portfolios(ticker: str, row: dict, config: dict, log: Callable) -> Optional[List[dict]]:
     """
@@ -80,7 +62,6 @@ def process_ticker_portfolios(ticker: str, row: dict, config: dict, log: Callabl
             sma_stats['Use SMA'] = True
             sma_stats['Short Window'] = sma_fast
             sma_stats['Long Window'] = sma_slow
-            sma_stats = calculate_adjusted_metrics(sma_stats)
             sma_converted_stats = convert_stats(sma_stats)
             portfolios.append(sma_converted_stats)
 
@@ -91,7 +72,6 @@ def process_ticker_portfolios(ticker: str, row: dict, config: dict, log: Callabl
             ema_stats['Use SMA'] = False
             ema_stats['Short Window'] = ema_fast
             ema_stats['Long Window'] = ema_slow
-            ema_stats = calculate_adjusted_metrics(ema_stats)
             ema_converted_stats = convert_stats(ema_stats)
             portfolios.append(ema_converted_stats)
 
