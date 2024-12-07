@@ -120,10 +120,11 @@ def plot_concurrency(
         row=n_strategies + 1, col=1
     )
 
-    # Add statistics as annotations   
+    # Add statistics as annotations
     stats_text = (
         f"Analysis Period: {data_list[0]['Date'].min().strftime('%Y-%m-%d')} to "
         f"{data_list[0]['Date'].max().strftime('%Y-%m-%d')}<br>"
+        f"<br><b>Concurrency Metrics:</b><br>"
         f"Total Periods: {stats['total_periods']}<br>"
         f"Concurrent Periods: {stats['total_concurrent_periods']}<br>"
         f"Concurrency Ratio: {stats['concurrency_ratio']:.2%}<br>"
@@ -134,6 +135,24 @@ def plot_concurrency(
         f"Risk Concentration Index: {stats['risk_concentration_index']:.2f}<br>"
         f"Efficiency Score: {stats['efficiency_score']:.2f}<br>"
     )
+
+    # Add risk metrics section
+    stats_text += "<br><b>Risk Metrics:</b><br>"
+    risk_metrics = stats['risk_metrics']
+    
+    # Add strategy risk contributions
+    for key in sorted(risk_metrics.keys()):
+        if key.startswith('strategy_'):
+            stats_text += f"Strategy {key.split('_')[1]} Risk Contribution: {risk_metrics[key]:.2%}<br>"
+    
+    # Add risk overlaps
+    for key in sorted(risk_metrics.keys()):
+        if key.startswith('risk_overlap_'):
+            stats_text += f"Risk Overlap {key.split('_')[2]}-{key.split('_')[3]}: {risk_metrics[key]:.2%}<br>"
+    
+    # Add total portfolio risk
+    if 'total_portfolio_risk' in risk_metrics:
+        stats_text += f"Total Portfolio Risk: {risk_metrics['total_portfolio_risk']:.4f}<br>"
     
     fig.add_annotation(
         xref="paper", yref="paper",
