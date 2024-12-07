@@ -131,6 +131,7 @@ def plot_concurrency(
         f"Inactive (Remaining): {stats['inactive_ratio']:.2%}<br>"
         f"Avg Concurrent Strategies: {stats['avg_concurrent_strategies']:.2f}<br>"
         f"Max Concurrent Strategies: {stats['max_concurrent_strategies']}<br>"
+        f"Risk Concentration Index: {stats['risk_concentration_index']:.2f}<br>"
     )
     
     fig.add_annotation(

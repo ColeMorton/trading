@@ -80,6 +80,9 @@ def analyze_concurrency(
             key = f"correlation_{i+1}_{j+1}"
             correlations[key] = float(np.corrcoef(position_arrays[i], position_arrays[j])[0, 1])
     
+    # Calculate risk concentration index
+    risk_concentration_index = avg_concurrent / max_concurrent if max_concurrent > 0 else 0.0
+    
     stats: ConcurrencyStats = {
         "total_periods": total_periods,
         "total_concurrent_periods": int(concurrent_periods),
@@ -88,6 +91,7 @@ def analyze_concurrency(
         "exclusive_ratio": float(exclusive_periods / total_periods),
         "inactive_ratio": float(inactive_periods / total_periods),
         "avg_concurrent_strategies": avg_concurrent,
+        "risk_concentration_index": risk_concentration_index,
         "max_concurrent_strategies": max_concurrent,
         "strategy_correlations": correlations,
         "avg_position_length": float(
