@@ -7,6 +7,7 @@ about the concurrent exposure. Supports analysis of strategies with different
 timeframes by resampling hourly data to daily when needed.
 """
 
+from typing import List
 from app.tools.setup_logging import setup_logging
 from app.tools.get_data import get_data
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
@@ -14,16 +15,16 @@ from app.concurrency.tools.types import StrategyConfig
 from app.concurrency.tools.analysis import analyze_concurrency
 from app.concurrency.tools.visualization import plot_concurrency
 
-def run(config_1: StrategyConfig, config_2: StrategyConfig) -> bool:
-    """Run concurrency analysis between two strategies.
+def run(strategies: List[StrategyConfig]) -> bool:
+    """Run concurrency analysis across multiple strategies.
 
-    Performs a comprehensive analysis of concurrent positions between two
-    trading strategies, including data preparation, analysis, and visualization.
-    Handles different timeframes by resampling hourly data to daily when needed.
+    Performs a comprehensive analysis of concurrent positions across all
+    provided trading strategies simultaneously, including data preparation,
+    analysis, and visualization. Handles different timeframes by resampling
+    hourly data to daily when needed.
 
     Args:
-        config_1 (StrategyConfig): Configuration for first strategy
-        config_2 (StrategyConfig): Configuration for second strategy
+        strategies (List[StrategyConfig]): List of strategy configurations to analyze
 
     Returns:
         bool: True if analysis successful
@@ -37,43 +38,45 @@ def run(config_1: StrategyConfig, config_2: StrategyConfig) -> bool:
     )
     
     try:
-        log(f"Starting concurrency analysis for {config_1['TICKER']} vs {config_2['TICKER']}")
-        log(f"Strategy 1 timeframe: {'Hourly' if config_1.get('USE_HOURLY', False) else 'Daily'}")
-        log(f"Strategy 2 timeframe: {'Hourly' if config_2.get('USE_HOURLY', False) else 'Daily'}")
+        if len(strategies) < 2:
+            raise ValueError("At least two strategies are required for concurrency analysis")
+            
+        log(f"Starting unified concurrency analysis across {len(strategies)} strategies")
+        for i, config in enumerate(strategies, 1):
+            log(f"Strategy {i} - {config['TICKER']}: {'Hourly' if config.get('USE_HOURLY', False) else 'Daily'}")
         
-        # Get and prepare data for both strategies
-        data_1 = get_data(config_1["TICKER"], config_1)
-        data_2 = get_data(config_2["TICKER"], config_2)
+        # Get and prepare data for all strategies
+        strategy_data = []
+        for config in strategies:
+            data = get_data(config["TICKER"], config)
+            data = calculate_ma_and_signals(
+                data, 
+                config['SHORT_WINDOW'], 
+                config['LONG_WINDOW'], 
+                config
+            )
+            strategy_data.append(data)
         
-        # Calculate MAs and signals for both strategies
-        data_1 = calculate_ma_and_signals(
-            data_1, 
-            config_1['SHORT_WINDOW'], 
-            config_1['LONG_WINDOW'], 
-            config_1
+        # Analyze concurrency across all strategies simultaneously
+        stats, aligned_data = analyze_concurrency(
+            strategy_data,
+            strategies
         )
         
-        data_2 = calculate_ma_and_signals(
-            data_2, 
-            config_2['SHORT_WINDOW'], 
-            config_2['LONG_WINDOW'], 
-            config_2
-        )
+        log(f"Overall concurrency statistics:")
+        log(f"Total concurrent periods: {stats['total_concurrent_periods']}")
+        log(f"Average concurrent strategies: {stats['avg_concurrent_strategies']:.2f}")
+        log(f"Max concurrent strategies: {stats['max_concurrent_strategies']}")
         
-        # Analyze concurrency with timeframe handling
-        stats, data_1_aligned, data_2_aligned = analyze_concurrency(
-            data_1, 
-            data_2,
-            config_1,
-            config_2
+        # Create and display unified visualization
+        fig = plot_concurrency(
+            aligned_data,
+            stats,
+            strategies
         )
-        log(f"Concurrency analysis completed. Concurrent ratio: {stats['concurrency_ratio']:.2%}")
-        
-        # Create and display visualization
-        fig = plot_concurrency(data_1_aligned, data_2_aligned, stats, config_1, config_2)
         fig.show()
-        log("Visualization displayed successfully")
         
+        log("Unified concurrency analysis completed successfully")
         log_close()
         return True
         
@@ -125,9 +128,10 @@ if __name__ == "__main__":
     }
 
     try:
-        result = run(strategy_1, strategy_2)
+        # Run unified analysis across all strategies
+        result = run([strategy_1, strategy_2, strategy_3])
         if result:
-            print("Concurrency analysis completed successfully!")
+            print("Unified concurrency analysis completed successfully!")
     except Exception as e:
         print(f"Execution failed: {str(e)}")
         raise

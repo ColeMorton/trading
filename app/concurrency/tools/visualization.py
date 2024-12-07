@@ -1,31 +1,26 @@
 """Visualization utilities for concurrency analysis."""
 
-from typing import Dict
+from typing import Dict, List
 import polars as pl
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from app.concurrency.tools.types import StrategyConfig, ConcurrencyStats
 
 def plot_concurrency(
-    data_1: pl.DataFrame,
-    data_2: pl.DataFrame,
+    data_list: List[pl.DataFrame],
     stats: ConcurrencyStats,
-    config_1: StrategyConfig,
-    config_2: StrategyConfig
+    config_list: List[StrategyConfig]
 ) -> go.Figure:
-    """Create visualization of concurrent positions.
+    """Create visualization of concurrent positions across multiple strategies.
 
-    Creates a three-panel plot showing:
-    1. First strategy's price and positions
-    2. Second strategy's price and positions
-    3. Concurrent position periods
+    Creates a multi-panel plot showing:
+    1. Individual strategy price and positions (one panel per strategy)
+    2. Combined concurrency heatmap showing overlap between strategies
 
     Args:
-        data_1 (pl.DataFrame): Data with signals for first strategy
-        data_2 (pl.DataFrame): Data with signals for second strategy
+        data_list (List[pl.DataFrame]): List of dataframes with signals for each strategy
         stats (ConcurrencyStats): Concurrency statistics
-        config_1 (StrategyConfig): Configuration for first strategy
-        config_2 (StrategyConfig): Configuration for second strategy
+        config_list (List[StrategyConfig]): List of configurations for each strategy
 
     Returns:
         go.Figure: Plotly figure object containing the visualization
@@ -34,121 +29,113 @@ def plot_concurrency(
         ValueError: If required columns are missing from dataframes
     """
     required_cols = ["Date", "Close", "Position"]
-    for df in [data_1, data_2]:
+    for df in data_list:
         missing = [col for col in required_cols if col not in df.columns]
         if missing:
             raise ValueError(f"Missing required columns: {missing}")
 
+    n_strategies = len(data_list)
+    
+    # Create subplot layout: n strategy panels + 1 concurrency panel
+    subplot_titles = (
+        [f"Price and Positions ({config['TICKER']})" for config in config_list] +
+        ["Strategy Concurrency"]
+    )
+    
     fig = make_subplots(
-        rows=3, cols=1,
-        subplot_titles=(
-            f"Price and Positions ({config_1['TICKER']})",
-            f"Price and Positions ({config_2['TICKER']})",
-            "Position Concurrency"
-        ),
-        vertical_spacing=0.1,
-        row_heights=[0.35, 0.35, 0.3]
+        rows=n_strategies + 1,
+        cols=1,
+        subplot_titles=subplot_titles,
+        vertical_spacing=0.05,
+        row_heights=[0.8/n_strategies] * n_strategies + [0.2]
     )
 
-    # First strategy plot - Base price line
+    # Define colors for each strategy
+    strategy_colors = [
+        'rgba(0,0,255,0.2)',   # blue
+        'rgba(255,0,0,0.2)',   # red
+        'rgba(0,255,0,0.2)',   # green
+        'rgba(128,0,128,0.2)', # purple
+        'rgba(255,165,0,0.2)', # orange
+        'rgba(165,42,42,0.2)', # brown
+        'rgba(255,192,203,0.2)'# pink
+    ]
+    
+    # Plot each strategy's price and positions
+    for i, (data, config) in enumerate(zip(data_list, config_list), 1):
+        color = strategy_colors[i-1 % len(strategy_colors)]
+        
+        # Base price line
+        fig.add_trace(
+            go.Scatter(
+                x=data["Date"],
+                y=data["Close"],
+                name=f"{config['TICKER']} Price",
+                line=dict(color="black", width=1)
+            ),
+            row=i, col=1
+        )
+
+        # Position highlighting
+        for j in range(len(data)):
+            if data["Position"][j] == 1:
+                fig.add_trace(
+                    go.Scatter(
+                        x=[data["Date"][j], data["Date"][j]],
+                        y=[0, data["Close"][j]],
+                        mode='lines',
+                        line=dict(color=color, width=1),
+                        showlegend=False,
+                        hoverinfo='skip'
+                    ),
+                    row=i, col=1
+                )
+
+        # Legend entry for positions
+        fig.add_trace(
+            go.Scatter(
+                x=[data["Date"][0]],
+                y=[data["Close"][0]],
+                name=f"{config['TICKER']} Positions",
+                mode='lines',
+                line=dict(color=color, width=10),
+                showlegend=True
+            ),
+            row=i, col=1
+        )
+
+    # Create concurrency heatmap
+    position_arrays = [df["Position"].fill_null(0).to_numpy() for df in data_list]
+    active_strategies = sum(position_arrays)
+    
     fig.add_trace(
-        go.Scatter(
-            x=data_1["Date"],
-            y=data_1["Close"],
-            name=f"{config_1['TICKER']} Price",
-            line=dict(color="black", width=1)
+        go.Heatmap(
+            x=data_list[0]["Date"],
+            y=['Concurrent Strategies'],
+            z=[active_strategies],
+            colorscale='Viridis',
+            showscale=True,
+            name="Active Strategies"
         ),
-        row=1, col=1
-    )
-
-    # Add position highlighting for first strategy
-    for i in range(len(data_1)):
-        if data_1["Position"][i] == 1:
-            fig.add_trace(
-                go.Scatter(
-                    x=[data_1["Date"][i], data_1["Date"][i]],
-                    y=[0, data_1["Close"][i]],
-                    mode='lines',
-                    line=dict(color='rgba(0,0,255,0.2)', width=1),
-                    showlegend=False,
-                    hoverinfo='skip'
-                ),
-                row=1, col=1
-            )
-
-    # Second strategy plot - Base price line
-    fig.add_trace(
-        go.Scatter(
-            x=data_2["Date"],
-            y=data_2["Close"],
-            name=f"{config_2['TICKER']} Price",
-            line=dict(color="black", width=1)
-        ),
-        row=2, col=1
-    )
-
-    # Add position highlighting for second strategy
-    for i in range(len(data_2)):
-        if data_2["Position"][i] == 1:
-            fig.add_trace(
-                go.Scatter(
-                    x=[data_2["Date"][i], data_2["Date"][i]],
-                    y=[0, data_2["Close"][i]],
-                    mode='lines',
-                    line=dict(color='rgba(255,0,0,0.2)', width=1),
-                    showlegend=False,
-                    hoverinfo='skip'
-                ),
-                row=2, col=1
-            )
-
-    # Add legend entries for positions
-    fig.add_trace(
-        go.Scatter(
-            x=[data_1["Date"][0]],
-            y=[data_1["Close"][0]],
-            name=f"{config_1['TICKER']} Positions",
-            mode='lines',
-            line=dict(color='rgba(0,0,255,0.2)', width=10),
-            showlegend=True
-        ),
-        row=1, col=1
-    )
-
-    fig.add_trace(
-        go.Scatter(
-            x=[data_2["Date"][0]],
-            y=[data_2["Close"][0]],
-            name=f"{config_2['TICKER']} Positions",
-            mode='lines',
-            line=dict(color='rgba(255,0,0,0.2)', width=10),
-            showlegend=True
-        ),
-        row=2, col=1
-    )
-
-    # Concurrent positions
-    concurrent = (data_1["Position"] & data_2["Position"]).cast(pl.Int32)
-    fig.add_trace(
-        go.Scatter(
-            x=data_1["Date"],
-            y=concurrent,
-            name="Concurrent Positions",
-            fill="tozeroy",
-            fillcolor='rgba(0,255,0,0.3)',
-            line=dict(color="green", width=1)
-        ),
-        row=3, col=1
+        row=n_strategies + 1, col=1
     )
 
     # Add statistics as annotations
+    correlations = stats.get('strategy_correlations', {})
+    correlation_text = "<br>".join([
+        f"Correlation {k.replace('correlation_', '')}: {v:.2f}"
+        for k, v in correlations.items()
+    ])
+    
     stats_text = (
-        f"Analysis Period: {data_1['Date'].min().strftime('%Y-%m-%d')} to "
-        f"{data_1['Date'].max().strftime('%Y-%m-%d')}<br>"
-        f"Total Days: {stats['total_days']}<br>"
-        f"Concurrent Days: {stats['concurrent_days']}<br>"
+        f"Analysis Period: {data_list[0]['Date'].min().strftime('%Y-%m-%d')} to "
+        f"{data_list[0]['Date'].max().strftime('%Y-%m-%d')}<br>"
+        f"Total Periods: {stats['total_periods']}<br>"
+        f"Concurrent Periods: {stats['total_concurrent_periods']}<br>"
         f"Concurrency Ratio: {stats['concurrency_ratio']:.2%}<br>"
-        f"Signal Correlation: {stats['correlation']:.2f}"
+        f"Avg Concurrent Strategies: {stats['avg_concurrent_strategies']:.2f}<br>"
+        f"Max Concurrent Strategies: {stats['max_concurrent_strategies']}<br>"
+        f"{correlation_text}"
     )
     
     fig.add_annotation(
@@ -164,13 +151,16 @@ def plot_concurrency(
     )
 
     # Update layout
+    height = 300 * (n_strategies + 1)  # Dynamic height based on number of strategies
     fig.update_layout(
-        height=1000,
-        title_text=f"Concurrency Analysis: {config_1['TICKER']} vs {config_2['TICKER']}",
-        showlegend=True,
-        yaxis=dict(title="Price"),
-        yaxis2=dict(title="Price"),
-        yaxis3=dict(title="Concurrent")
+        height=height,
+        title_text="Multi-Strategy Concurrency Analysis",
+        showlegend=True
     )
+
+    # Update y-axis titles
+    for i in range(1, n_strategies + 1):
+        fig.update_yaxes(title="Price", row=i, col=1)
+    fig.update_yaxes(title="Concurrency", row=n_strategies + 1, col=1)
 
     return fig
