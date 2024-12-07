@@ -128,7 +128,7 @@ def plot_concurrency(data_1: pl.DataFrame, data_2: pl.DataFrame, stats: Dict, co
         row_heights=[0.35, 0.35, 0.3]
     )
 
-    # First strategy plot
+    # First strategy plot - Base price line
     fig.add_trace(
         go.Scatter(
             x=data_1["Date"],
@@ -139,19 +139,22 @@ def plot_concurrency(data_1: pl.DataFrame, data_2: pl.DataFrame, stats: Dict, co
         row=1, col=1
     )
 
-    position_dates_1 = data_1.filter(pl.col("Position") == 1)["Date"]
-    fig.add_trace(
-        go.Scatter(
-            x=position_dates_1,
-            y=data_1.filter(pl.col("Position") == 1)["Close"],
-            name=f"{config_1['TICKER']} Positions",
-            mode="markers",
-            marker=dict(color="blue", size=8)
-        ),
-        row=1, col=1
-    )
+    # Add position highlighting for first strategy
+    for i in range(len(data_1)):
+        if data_1["Position"][i] == 1:
+            fig.add_trace(
+                go.Scatter(
+                    x=[data_1["Date"][i], data_1["Date"][i]],
+                    y=[0, data_1["Close"][i]],
+                    mode='lines',
+                    line=dict(color='rgba(0,0,255,0.2)', width=1),
+                    showlegend=False,
+                    hoverinfo='skip'
+                ),
+                row=1, col=1
+            )
 
-    # Second strategy plot
+    # Second strategy plot - Base price line
     fig.add_trace(
         go.Scatter(
             x=data_2["Date"],
@@ -162,14 +165,42 @@ def plot_concurrency(data_1: pl.DataFrame, data_2: pl.DataFrame, stats: Dict, co
         row=2, col=1
     )
 
-    position_dates_2 = data_2.filter(pl.col("Position") == 1)["Date"]
+    # Add position highlighting for second strategy
+    for i in range(len(data_2)):
+        if data_2["Position"][i] == 1:
+            fig.add_trace(
+                go.Scatter(
+                    x=[data_2["Date"][i], data_2["Date"][i]],
+                    y=[0, data_2["Close"][i]],
+                    mode='lines',
+                    line=dict(color='rgba(255,0,0,0.2)', width=1),
+                    showlegend=False,
+                    hoverinfo='skip'
+                ),
+                row=2, col=1
+            )
+
+    # Add legend entries for positions
     fig.add_trace(
         go.Scatter(
-            x=position_dates_2,
-            y=data_2.filter(pl.col("Position") == 1)["Close"],
+            x=[data_1["Date"][0]],
+            y=[data_1["Close"][0]],
+            name=f"{config_1['TICKER']} Positions",
+            mode='lines',
+            line=dict(color='rgba(0,0,255,0.2)', width=10),
+            showlegend=True
+        ),
+        row=1, col=1
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=[data_2["Date"][0]],
+            y=[data_2["Close"][0]],
             name=f"{config_2['TICKER']} Positions",
-            mode="markers",
-            marker=dict(color="red", size=8)
+            mode='lines',
+            line=dict(color='rgba(255,0,0,0.2)', width=10),
+            showlegend=True
         ),
         row=2, col=1
     )
@@ -182,7 +213,8 @@ def plot_concurrency(data_1: pl.DataFrame, data_2: pl.DataFrame, stats: Dict, co
             y=concurrent,
             name="Concurrent Positions",
             fill="tozeroy",
-            line=dict(color="green")
+            fillcolor='rgba(0,255,0,0.3)',
+            line=dict(color="green", width=1)
         ),
         row=3, col=1
     )
@@ -208,10 +240,14 @@ def plot_concurrency(data_1: pl.DataFrame, data_2: pl.DataFrame, stats: Dict, co
         borderwidth=1
     )
 
+    # Update layout
     fig.update_layout(
         height=1000,
         title_text=f"Concurrency Analysis: {config_1['TICKER']} vs {config_2['TICKER']}",
-        showlegend=True
+        showlegend=True,
+        yaxis=dict(title="Price"),
+        yaxis2=dict(title="Price"),
+        yaxis3=dict(title="Concurrent")
     )
 
     return fig

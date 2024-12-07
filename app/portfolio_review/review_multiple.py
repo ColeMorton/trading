@@ -10,10 +10,9 @@ from app.ema_cross.tools.generate_signals import generate_signals
 from app.tools.file_utils import convert_stats
 
 # Setup logging
-log, log_close, logger, file_handler = setup_logging(
-    logger_name="portfolio_review",
-    log_dir="logs/portfolio_review",
-    log_file="review_multiple.log"
+log, log_close, _, _ = setup_logging(
+    module_name='portfolio_review',
+    log_file='review_multiple.log'
 )
 
 try:
