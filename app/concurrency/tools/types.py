@@ -19,6 +19,7 @@ class StrategyConfig(TypedDict):
         REFRESH (NotRequired[bool]): Whether to refresh data
         BASE_DIR (NotRequired[str]): Base directory for data storage
         USE_HOURLY (NotRequired[bool]): Whether to use hourly timeframe instead of daily
+        Expectancy per Day (NotRequired[float]): Expected daily return
     """
     TICKER: str
     SHORT_WINDOW: int
@@ -31,6 +32,19 @@ class StrategyConfig(TypedDict):
     REFRESH: NotRequired[bool]
     BASE_DIR: NotRequired[str]
     USE_HOURLY: NotRequired[bool]
+    Expectancy_per_Day: NotRequired[float]
+
+class RiskMetrics(TypedDict):
+    """Risk metrics for concurrent strategies.
+
+    Required Fields:
+        total_portfolio_risk (float): Overall portfolio risk measure
+        strategy_risk_contributions (Dict[str, float]): Risk contribution per strategy
+        risk_overlaps (Dict[str, float]): Pairwise risk overlaps between strategies
+    """
+    total_portfolio_risk: float
+    strategy_risk_contributions: Dict[str, float]
+    risk_overlaps: Dict[str, float]
 
 class ConcurrencyStats(TypedDict):
     """Statistics from concurrency analysis.
@@ -47,6 +61,10 @@ class ConcurrencyStats(TypedDict):
         max_concurrent_strategies (int): Maximum number of concurrent strategies
         strategy_correlations (Dict[str, float]): Pairwise correlations between strategies
         avg_position_length (float): Average length of positions
+        risk_concentration_index (float): Measure of risk concentration
+        risk_metrics (Dict[str, float]): Risk metrics and contributions
+        start_date (NotRequired[str]): Start date of analysis period
+        end_date (NotRequired[str]): End date of analysis period
     """
     total_periods: int
     total_concurrent_periods: int
@@ -59,3 +77,7 @@ class ConcurrencyStats(TypedDict):
     max_concurrent_strategies: int
     strategy_correlations: Dict[str, float]
     avg_position_length: float
+    risk_concentration_index: float
+    risk_metrics: Dict[str, float]
+    start_date: NotRequired[str]
+    end_date: NotRequired[str]

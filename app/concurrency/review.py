@@ -148,14 +148,8 @@ if __name__ == "__main__":
     }
 
     try:
-        # For example, if we have:
-        #     concurrency_ratio = 35.17% (both strategies in position)
-        #     exclusive_ratio = 40.00% (exactly one strategy in position)
-        #     inactive_ratio 24.83% = neither strategy in position
-        # This breakdown helps understand the true independence of the strategies, showing that 40% of the time they are making completely independent trading decisions.
-
         # Run unified analysis across all strategies
-        result = run([strategy_1, strategy_3])
+        result = run([strategy_1, strategy_2, strategy_3])
         if result:
             print("Unified concurrency analysis completed successfully!")
     except Exception as e:
