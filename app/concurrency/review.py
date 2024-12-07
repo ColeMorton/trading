@@ -123,7 +123,7 @@ if __name__ == "__main__":
         "REFRESH": True,
         "USE_RSI": True,
         "RSI_PERIOD": 26,
-        "RSI_THRESHOLD": 43,
+        "RSI_THRESHOLD": 43,    
         "STOP_LOSS": 0.125
     }
 
@@ -131,7 +131,7 @@ if __name__ == "__main__":
         # For example, if we have:
         #     concurrency_ratio = 35.17% (both strategies in position)
         #     exclusive_ratio = 40.00% (exactly one strategy in position)
-        #     remaining 24.83% = neither strategy in position
+        #     inactive_ratio 24.83% = neither strategy in position
         # This breakdown helps understand the true independence of the strategies, showing that 40% of the time they are making completely independent trading decisions.
 
         # Run unified analysis across all strategies

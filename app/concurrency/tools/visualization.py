@@ -120,22 +120,17 @@ def plot_concurrency(
         row=n_strategies + 1, col=1
     )
 
-    # Add statistics as annotations
-    correlations = stats.get('strategy_correlations', {})
-    correlation_text = "<br>".join([
-        f"Correlation {k.replace('correlation_', '')}: {v:.2f}"
-        for k, v in correlations.items()
-    ])
-    
+    # Add statistics as annotations   
     stats_text = (
         f"Analysis Period: {data_list[0]['Date'].min().strftime('%Y-%m-%d')} to "
         f"{data_list[0]['Date'].max().strftime('%Y-%m-%d')}<br>"
         f"Total Periods: {stats['total_periods']}<br>"
         f"Concurrent Periods: {stats['total_concurrent_periods']}<br>"
         f"Concurrency Ratio: {stats['concurrency_ratio']:.2%}<br>"
+        f"Exclusive Ratio: {stats['exclusive_ratio']:.2%}<br>"
+        f"Inactive (Remaining): {stats['inactive_ratio']:.2%}<br>"
         f"Avg Concurrent Strategies: {stats['avg_concurrent_strategies']:.2f}<br>"
         f"Max Concurrent Strategies: {stats['max_concurrent_strategies']}<br>"
-        f"{correlation_text}"
     )
     
     fig.add_annotation(

@@ -14,8 +14,9 @@ def analyze_concurrency(
 
     Calculates various statistics about the concurrent positions across
     all provided trading strategies, including the number of concurrent periods,
-    average number of concurrent strategies, and maximum concurrent strategies.
-    Handles different timeframes by resampling hourly data to daily when needed.
+    average number of concurrent strategies, maximum concurrent strategies, and
+    the ratio of periods with no active strategies. Handles different timeframes 
+    by resampling hourly data to daily when needed.
 
     Args:
         data_list (List[pl.DataFrame]): List of dataframes with signals for each strategy
@@ -65,6 +66,7 @@ def analyze_concurrency(
     total_periods = len(aligned_data[0])
     concurrent_periods = np.sum(active_strategies >= 2)
     exclusive_periods = np.sum(active_strategies == 1)  # Exactly one strategy in position
+    inactive_periods = np.sum(active_strategies == 0)  # No active strategies
     max_concurrent = int(np.max(active_strategies))
     avg_concurrent = float(np.mean(active_strategies))
     
@@ -81,6 +83,7 @@ def analyze_concurrency(
         "exclusive_periods": int(exclusive_periods),
         "concurrency_ratio": float(concurrent_periods / total_periods),
         "exclusive_ratio": float(exclusive_periods / total_periods),
+        "inactive_ratio": float(inactive_periods / total_periods),
         "avg_concurrent_strategies": avg_concurrent,
         "max_concurrent_strategies": max_concurrent,
         "strategy_correlations": correlations,
