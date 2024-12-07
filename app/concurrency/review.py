@@ -14,6 +14,7 @@ from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.concurrency.tools.types import StrategyConfig
 from app.concurrency.tools.analysis import analyze_concurrency
 from app.concurrency.tools.visualization import plot_concurrency
+from app.tools.backtest_strategy import backtest_strategy
 
 def run(strategies: List[StrategyConfig]) -> bool:
     """Run concurrency analysis across multiple strategies.
@@ -56,6 +57,15 @@ def run(strategies: List[StrategyConfig]) -> bool:
                 config
             )
             strategy_data.append(data)
+            
+        # Create array of expectancies from each strategy's portfolio
+        expectancies = []
+        for data, config in zip(strategy_data, strategies):
+            portfolio = backtest_strategy(data, config, log)
+            expectancy = portfolio.stats()['Expectancy']
+            expectancies.append(expectancy)
+
+        print(expectancies)
         
         # Analyze concurrency across all strategies simultaneously
         stats, aligned_data = analyze_concurrency(
