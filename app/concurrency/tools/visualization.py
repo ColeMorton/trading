@@ -50,15 +50,15 @@ def plot_concurrency(
         row_heights=[0.8/n_strategies] * n_strategies + [0.2]
     )
 
-    # Define colors for each strategy
+    # Define colors for each strategy aligned with ice colorscale
     strategy_colors = [
-        'rgba(0,0,255,0.2)',   # blue
-        'rgba(255,0,0,0.2)',   # red
-        'rgba(0,255,0,0.2)',   # green
-        'rgba(128,0,128,0.2)', # purple
-        'rgba(255,165,0,0.2)', # orange
-        'rgba(165,42,42,0.2)', # brown
-        'rgba(255,192,203,0.2)'# pink
+        'rgba(9,30,135,0.2)',   # dark blue
+        'rgba(25,75,165,0.2)',  # medium-dark blue
+        'rgba(65,105,185,0.2)', # medium blue
+        'rgba(95,145,205,0.2)', # light-medium blue
+        'rgba(135,175,225,0.2)',# light blue
+        'rgba(175,205,235,0.2)',# very light blue
+        'rgba(205,225,245,0.2)' # ultra light blue
     ]
     
     # Plot each strategy's price and positions
@@ -113,7 +113,7 @@ def plot_concurrency(
             x=data_list[0]["Date"],
             y=['Concurrent Strategies'],
             z=[active_strategies],
-            colorscale='Tempo',
+            colorscale='ice',
             showscale=True,
             name="Active Strategies"
         ),
