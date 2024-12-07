@@ -58,14 +58,36 @@ def run(strategies: List[StrategyConfig]) -> bool:
             )
             strategy_data.append(data)
             
-        # Create array of expectancies from each strategy's portfolio
-        expectancies = []
+        # Create array of expectancy_day values from each strategy's portfolio
+        expectancy_days = []
         for data, config in zip(strategy_data, strategies):
             portfolio = backtest_strategy(data, config, log)
-            expectancy = portfolio.stats()['Expectancy']
-            expectancies.append(expectancy)
+            stats = portfolio.stats()
+            
+            # Calculate total days in position
+            total_trades = stats['Total Trades']
+            win_rate = stats['Win Rate [%]'] / 100  # Convert percentage to decimal
+            num_winning_trades = int(total_trades * win_rate)
+            num_losing_trades = total_trades - num_winning_trades
+            
+            avg_winning_duration = stats['Avg Winning Trade Duration']
+            avg_losing_duration = stats['Avg Losing Trade Duration']
+            
+            total_days_in_position = (
+                num_winning_trades * avg_winning_duration +
+                num_losing_trades * avg_losing_duration
+            )
+            
+            # Calculate trades per day using total_days_in_position
+            total_days = len(data)  # Total number of periods in the data
+            trades_per_day = total_days_in_position / total_days
+            
+            # Calculate expectancy per day
+            expectancy = stats['Expectancy']
+            expectancy_day = expectancy / trades_per_day if trades_per_day > 0 else 0
+            expectancy_days.append(expectancy_day)
 
-        print(expectancies)
+        print(expectancy_days)
         
         # Analyze concurrency across all strategies simultaneously
         stats, aligned_data = analyze_concurrency(
