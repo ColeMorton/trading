@@ -132,7 +132,7 @@ def plot_concurrency(
         f"Avg Concurrent Strategies: {stats['avg_concurrent_strategies']:.2f}<br>"
         f"Max Concurrent Strategies: {stats['max_concurrent_strategies']}<br>"
         f"Risk Concentration Index: {stats['risk_concentration_index']:.2f}<br>"
-        f"Efficiency Score: {stats['efficiency_score']:.4f}<br>"
+        f"Efficiency Score: {stats['efficiency_score']:.2f}<br>"
     )
     
     fig.add_annotation(

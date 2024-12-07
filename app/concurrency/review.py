@@ -78,7 +78,7 @@ def run(strategies: List[StrategyConfig]) -> bool:
         log(f"Average concurrent strategies: {stats['avg_concurrent_strategies']:.2f}")
         log(f"Max concurrent strategies: {stats['max_concurrent_strategies']}")
         log(f"Risk Concentration Index: {stats['risk_concentration_index']}")
-        log(f"Efficiency Score: {stats['efficiency_score']:.4f}")
+        log(f"Efficiency Score: {stats['efficiency_score']:.2f}")
         
         # Create and display unified visualization
         fig = plot_concurrency(
@@ -147,7 +147,7 @@ if __name__ == "__main__":
         # This breakdown helps understand the true independence of the strategies, showing that 40% of the time they are making completely independent trading decisions.
 
         # Run unified analysis across all strategies
-        result = run([strategy_1, strategy_3])
+        result = run([strategy_1, strategy_2, strategy_3])
         if result:
             print("Unified concurrency analysis completed successfully!")
     except Exception as e:

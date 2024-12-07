@@ -32,6 +32,7 @@ def convert_stats(stats: Dict[str, Any], config: Optional[Dict]) -> Dict[str, An
     
     Args:
         stats: Dictionary containing portfolio statistics
+        config: Configuration dictionary containing settings like USE_HOURLY and TICKER
         
     Returns:
         Dictionary with properly formatted values
@@ -45,23 +46,42 @@ def convert_stats(stats: Dict[str, Any], config: Optional[Dict]) -> Dict[str, An
     )
     stats['Tradability'] = stats['Total Closed Trades'] / stats['End'] * 1000
 
-    # Calculate total days in position
-    if config.get('USE_HOURLY', False) == False:
-        total_trades = stats['Total Trades']
-        
-        # Calculate total days between start and end
-        total_days = stats['End'] - stats['Start']
-        if total_days == 0:  # Handle case where backtest is less than a day
-            total_days = 1
-        
-        # Calculate trades per day - using actual number of trades divided by total days
-        stats['Trades per Day'] = float(total_trades) / total_days
+    total_trades = stats['Total Trades']
+    
+    # Calculate total days between start and end
+    total_days = stats['End'] - stats['Start']
+    if total_days == 0:  # Handle case where backtest is less than a day
+        total_days = 1
 
+    if config.get('USE_HOURLY', False):
+        # For hourly data, determine if it's a crypto asset
+        is_crypto = "-USD" in config.get('TICKER', '')
+        
+        # Convert total_days to actual trading hours
+        if is_crypto:
+            # Crypto trades 24 hours per day
+            total_hours = total_days * 24
+            trading_hours_per_day = 24
+        else:
+            # Stocks trade 6.5 hours per day
+            total_hours = total_days * 6.5
+            trading_hours_per_day = 6.5
+        
+        # Calculate trades per day by first getting trades per hour
+        trades_per_hour = float(total_trades) / total_hours
+        stats['Trades per Day'] = trades_per_hour * trading_hours_per_day
+        
+        # Calculate expectancy per day for hourly data
+        expectancy = stats['Expectancy']
+        stats['Expectancy per Day'] = stats['Trades per Day'] * expectancy
+    else:
+        # Original daily calculations
+        stats['Trades per Day'] = float(total_trades) / total_days
+        
         # Calculate expectancy per day
         expectancy = stats['Expectancy']
         trades_per_day = stats['Trades per Day']
-        expectancy_day = trades_per_day if trades_per_day > 0 else 0 / expectancy
-        stats['Expectancy per Day'] = expectancy_day
+        stats['Expectancy per Day'] = trades_per_day * expectancy
 
     converted = {}
     

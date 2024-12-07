@@ -75,24 +75,43 @@ def analyze_concurrency(
     
     # Calculate pairwise correlations
     correlations: Dict[str, float] = {}
+    avg_correlation = 0.0
+    correlation_count = 0
     for i in range(len(position_arrays)):
         for j in range(i+1, len(position_arrays)):
+            correlation = float(np.corrcoef(position_arrays[i], position_arrays[j])[0, 1])
             key = f"correlation_{i+1}_{j+1}"
-            correlations[key] = float(np.corrcoef(position_arrays[i], position_arrays[j])[0, 1])
+            correlations[key] = correlation
+            avg_correlation += abs(correlation)  # Use absolute correlation
+            correlation_count += 1
+    
+    # Calculate average absolute correlation
+    avg_correlation = avg_correlation / correlation_count if correlation_count > 0 else 0.0
     
     # Calculate risk concentration index
     risk_concentration_index = avg_concurrent / max_concurrent if max_concurrent > 0 else 0.0
     
-    # Calculate efficiency score using Expectancy per Day
-    strategy_usage = [np.mean(pos_array) for pos_array in position_arrays]
-    total_usage = sum(strategy_usage)
-    if total_usage > 0:
-        # Weight each strategy's expectancy by its usage
-        weighted_expectancies = [
-            (usage / total_usage) * config.get('Expectancy per Day', 0)
-            for usage, config in zip(strategy_usage, config_list)
-        ]
-        efficiency_score = sum(weighted_expectancies)
+    # Calculate improved efficiency score
+    strategy_expectancies = [config.get('Expectancy per Day', 0) for config in config_list]
+    total_expectancy = sum(strategy_expectancies)
+    
+    if total_expectancy > 0:
+        # Calculate diversification multiplier (penalizes high correlations)
+        diversification_multiplier = 1 - avg_correlation
+        
+        # Calculate strategy independence multiplier (rewards exclusive trading periods)
+        independence_multiplier = exclusive_periods / (concurrent_periods + exclusive_periods) if (concurrent_periods + exclusive_periods) > 0 else 0
+        
+        # Calculate activity multiplier (penalizes inactive periods)
+        activity_multiplier = 1 - (inactive_periods / total_periods)
+        
+        # Calculate final efficiency score
+        efficiency_score = (
+            total_expectancy * 
+            diversification_multiplier * 
+            independence_multiplier * 
+            activity_multiplier
+        )
     else:
         efficiency_score = 0.0
     
