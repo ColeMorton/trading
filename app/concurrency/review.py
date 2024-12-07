@@ -6,9 +6,10 @@ It identifies periods of overlapping positions and calculates key statistics
 about the concurrent exposure.
 """
 
+import os
 import polars as pl
 import numpy as np
-from typing import TypedDict, NotRequired, Dict, List
+from typing import TypedDict, NotRequired, Dict, List, Tuple
 from app.tools.setup_logging import setup_logging
 from app.tools.get_config import get_config
 from app.tools.get_data import get_data
@@ -25,7 +26,7 @@ class StrategyConfig(TypedDict):
         SHORT_WINDOW (int): Period for short moving average
         LONG_WINDOW (int): Period for long moving average
         USE_RSI (bool): Whether to enable RSI filtering
-        RSI_WINDOW (int): Period for RSI calculation
+        RSI_PERIOD (int): Period for RSI calculation
         RSI_THRESHOLD (float): RSI threshold for signal filtering
         STOP_LOSS (float): Stop loss percentage
 
@@ -38,12 +39,37 @@ class StrategyConfig(TypedDict):
     SHORT_WINDOW: int
     LONG_WINDOW: int
     USE_RSI: bool
-    RSI_WINDOW: int
+    RSI_PERIOD: int
     RSI_THRESHOLD: float
     STOP_LOSS: float
     USE_SMA: NotRequired[bool]
     REFRESH: NotRequired[bool]
     BASE_DIR: NotRequired[str]
+
+def align_data(data_1: pl.DataFrame, data_2: pl.DataFrame) -> Tuple[pl.DataFrame, pl.DataFrame]:
+    """
+    Align two dataframes by date.
+
+    Args:
+        data_1 (pl.DataFrame): First dataframe
+        data_2 (pl.DataFrame): Second dataframe
+
+    Returns:
+        Tuple[pl.DataFrame, pl.DataFrame]: Aligned dataframes
+    """
+    # Find common date range
+    min_date = max(data_1["Date"].min(), data_2["Date"].min())
+    max_date = min(data_1["Date"].max(), data_2["Date"].max())
+    
+    # Filter both dataframes to common date range
+    data_1_aligned = data_1.filter(
+        (pl.col("Date") >= min_date) & (pl.col("Date") <= max_date)
+    )
+    data_2_aligned = data_2.filter(
+        (pl.col("Date") >= min_date) & (pl.col("Date") <= max_date)
+    )
+    
+    return data_1_aligned, data_2_aligned
 
 def analyze_concurrency(data_1: pl.DataFrame, data_2: pl.DataFrame) -> Dict:
     """
@@ -56,25 +82,28 @@ def analyze_concurrency(data_1: pl.DataFrame, data_2: pl.DataFrame) -> Dict:
     Returns:
         Dict: Dictionary containing concurrency statistics
     """
-    # Convert Position columns to numpy arrays for correlation calculation
-    pos_1 = data_1["Position"].fill_null(0).to_numpy()
-    pos_2 = data_2["Position"].fill_null(0).to_numpy()
+    # Align data by date
+    data_1_aligned, data_2_aligned = align_data(data_1, data_2)
     
-    concurrent_positions = (data_1["Position"] & data_2["Position"]).cast(pl.Int32)
-    total_days = len(data_1)
+    # Convert Position columns to numpy arrays for correlation calculation
+    pos_1 = data_1_aligned["Position"].fill_null(0).to_numpy()
+    pos_2 = data_2_aligned["Position"].fill_null(0).to_numpy()
+    
+    concurrent_positions = (data_1_aligned["Position"] & data_2_aligned["Position"]).cast(pl.Int32)
+    total_days = len(data_1_aligned)
     concurrent_days = concurrent_positions.sum()
     
     stats = {
         "total_days": total_days,
         "concurrent_days": int(concurrent_days),
         "concurrency_ratio": float(concurrent_days / total_days),
-        "avg_position_length": float((data_1["Position"].sum() + data_2["Position"].sum()) / 2),
+        "avg_position_length": float((data_1_aligned["Position"].sum() + data_2_aligned["Position"].sum()) / 2),
         "correlation": float(np.corrcoef(pos_1, pos_2)[0, 1])
     }
     
-    return stats
+    return stats, data_1_aligned, data_2_aligned
 
-def plot_concurrency(data_1: pl.DataFrame, data_2: pl.DataFrame, stats: Dict, config_1: StrategyConfig, config_2: StrategyConfig) -> None:
+def plot_concurrency(data_1: pl.DataFrame, data_2: pl.DataFrame, stats: Dict, config_1: StrategyConfig, config_2: StrategyConfig) -> go.Figure:
     """
     Create visualization of concurrent positions.
 
@@ -84,51 +113,65 @@ def plot_concurrency(data_1: pl.DataFrame, data_2: pl.DataFrame, stats: Dict, co
         stats (Dict): Concurrency statistics
         config_1 (StrategyConfig): Configuration for first strategy
         config_2 (StrategyConfig): Configuration for second strategy
+
+    Returns:
+        go.Figure: Plotly figure object
     """
     fig = make_subplots(
-        rows=2, cols=1,
+        rows=3, cols=1,
         subplot_titles=(
             f"Price and Positions ({config_1['TICKER']})",
+            f"Price and Positions ({config_2['TICKER']})",
             "Position Concurrency"
         ),
-        vertical_spacing=0.15
+        vertical_spacing=0.1,
+        row_heights=[0.35, 0.35, 0.3]
     )
 
-    # Price and positions plot
+    # First strategy plot
     fig.add_trace(
         go.Scatter(
             x=data_1["Date"],
             y=data_1["Close"],
-            name="Price",
+            name=f"{config_1['TICKER']} Price",
             line=dict(color="black", width=1)
         ),
         row=1, col=1
     )
 
-    # Strategy 1 positions
     position_dates_1 = data_1.filter(pl.col("Position") == 1)["Date"]
     fig.add_trace(
         go.Scatter(
             x=position_dates_1,
             y=data_1.filter(pl.col("Position") == 1)["Close"],
-            name="Strategy 1 Positions",
+            name=f"{config_1['TICKER']} Positions",
             mode="markers",
             marker=dict(color="blue", size=8)
         ),
         row=1, col=1
     )
 
-    # Strategy 2 positions
+    # Second strategy plot
+    fig.add_trace(
+        go.Scatter(
+            x=data_2["Date"],
+            y=data_2["Close"],
+            name=f"{config_2['TICKER']} Price",
+            line=dict(color="black", width=1)
+        ),
+        row=2, col=1
+    )
+
     position_dates_2 = data_2.filter(pl.col("Position") == 1)["Date"]
     fig.add_trace(
         go.Scatter(
             x=position_dates_2,
             y=data_2.filter(pl.col("Position") == 1)["Close"],
-            name="Strategy 2 Positions",
+            name=f"{config_2['TICKER']} Positions",
             mode="markers",
             marker=dict(color="red", size=8)
         ),
-        row=1, col=1
+        row=2, col=1
     )
 
     # Concurrent positions
@@ -141,11 +184,12 @@ def plot_concurrency(data_1: pl.DataFrame, data_2: pl.DataFrame, stats: Dict, co
             fill="tozeroy",
             line=dict(color="green")
         ),
-        row=2, col=1
+        row=3, col=1
     )
 
     # Add statistics as annotations
     stats_text = (
+        f"Analysis Period: {data_1['Date'].min().strftime('%Y-%m-%d')} to {data_1['Date'].max().strftime('%Y-%m-%d')}<br>"
         f"Total Days: {stats['total_days']}<br>"
         f"Concurrent Days: {stats['concurrent_days']}<br>"
         f"Concurrency Ratio: {stats['concurrency_ratio']:.2%}<br>"
@@ -165,12 +209,12 @@ def plot_concurrency(data_1: pl.DataFrame, data_2: pl.DataFrame, stats: Dict, co
     )
 
     fig.update_layout(
-        height=800,
-        title_text=f"Concurrency Analysis: {config_1['TICKER']}",
+        height=1000,
+        title_text=f"Concurrency Analysis: {config_1['TICKER']} vs {config_2['TICKER']}",
         showlegend=True
     )
 
-    fig.write_html("concurrency_analysis.html")
+    return fig
 
 def run(config_1: StrategyConfig, config_2: StrategyConfig) -> bool:
     """
@@ -192,7 +236,7 @@ def run(config_1: StrategyConfig, config_2: StrategyConfig) -> bool:
     )
     
     try:
-        log(f"Starting concurrency analysis for {config_1['TICKER']}")
+        log(f"Starting concurrency analysis for {config_1['TICKER']} vs {config_2['TICKER']}")
         
         # Get and prepare data for both strategies
         data_1 = get_data(config_1["TICKER"], config_1)
@@ -214,12 +258,13 @@ def run(config_1: StrategyConfig, config_2: StrategyConfig) -> bool:
         )
         
         # Analyze concurrency
-        stats = analyze_concurrency(data_1, data_2)
+        stats, data_1_aligned, data_2_aligned = analyze_concurrency(data_1, data_2)
         log(f"Concurrency analysis completed. Concurrent ratio: {stats['concurrency_ratio']:.2%}")
         
-        # Create visualization
-        plot_concurrency(data_1, data_2, stats, config_1, config_2)
-        log("Visualization created successfully")
+        # Create and display visualization
+        fig = plot_concurrency(data_1_aligned, data_2_aligned, stats, config_1, config_2)
+        fig.show()
+        log("Visualization displayed successfully")
         
         log_close()
         return True
@@ -232,29 +277,29 @@ def run(config_1: StrategyConfig, config_2: StrategyConfig) -> bool:
 if __name__ == "__main__":
     # Example configurations
     strategy_1: StrategyConfig = {
-        "TICKER": "MCD",
-        "SHORT_WINDOW": 32,
-        "LONG_WINDOW": 38,
+        "TICKER": "BTC-USD",
+        "SHORT_WINDOW": 27,
+        "LONG_WINDOW": 29,
         "BASE_DIR": ".",
-        "USE_SMA": False,
+        "USE_SMA": True,
         "REFRESH": True,
         "USE_RSI": False,
-        "RSI_WINDOW": 22,
-        "RSI_THRESHOLD": 45,
-        "STOP_LOSS": 0.0423
+        "RSI_PERIOD": 14,
+        "RSI_THRESHOLD": 50,
+        "STOP_LOSS": 0.0911
     }
 
     strategy_2: StrategyConfig = {
-        "TICKER": "MCD",
-        "SHORT_WINDOW": 32,
-        "LONG_WINDOW": 38,
+        "TICKER": "SOL-USD",
+        "SHORT_WINDOW": 14,
+        "LONG_WINDOW": 32,
         "BASE_DIR": ".",
-        "USE_SMA": False,
+        "USE_SMA": True,
         "REFRESH": True,
-        "USE_RSI": False,
-        "RSI_WINDOW": 22,
-        "RSI_THRESHOLD": 45,
-        "STOP_LOSS": 0.0423
+        "USE_RSI": True,
+        "RSI_PERIOD": 26,
+        "RSI_THRESHOLD": 43,
+        "STOP_LOSS": 0.125
     }
 
     try:
