@@ -139,7 +139,7 @@ if __name__ == "__main__":
         # This breakdown helps understand the true independence of the strategies, showing that 40% of the time they are making completely independent trading decisions.
 
         # Run unified analysis across all strategies
-        result = run([strategy_1, strategy_2, strategy_3])
+        result = run([strategy_1, strategy_2])
         if result:
             print("Unified concurrency analysis completed successfully!")
     except Exception as e:

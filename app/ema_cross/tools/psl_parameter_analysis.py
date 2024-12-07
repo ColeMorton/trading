@@ -7,10 +7,10 @@ on strategy performance.
 
 import numpy as np
 import polars as pl
-from typing import Callable, List, Tuple
-from app.ema_cross.tools.backtest_strategy import backtest_strategy
+from typing import Callable
+from app.tools.backtest_strategy import backtest_strategy
 from app.tools.export_csv import export_csv, ExportConfig
-from app.ema_cross.tools.psl_types import PSLConfig, MetricMatrices, AnalysisResult, HoldingPeriodResult
+from app.ema_cross.tools.psl_types import PSLConfig, AnalysisResult, HoldingPeriodResult
 from app.ema_cross.tools.psl_exit import psl_exit
 from app.ema_cross.tools.psl_metrics import (
     initialize_metric_matrices,

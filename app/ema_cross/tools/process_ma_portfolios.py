@@ -1,8 +1,8 @@
 import polars as pl
-from typing import Optional, Tuple, Dict, Callable, Union
+from typing import Optional, Tuple, Callable
 from app.tools.get_data import get_data
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
-from app.ema_cross.tools.backtest_strategy import backtest_strategy
+from app.tools.backtest_strategy import backtest_strategy
 
 def process_ma_portfolios(
     ticker: str, 

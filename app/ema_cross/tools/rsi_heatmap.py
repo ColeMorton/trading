@@ -8,7 +8,7 @@ import polars as pl
 import numpy as np
 import plotly.graph_objects as go
 from typing import Dict, Callable
-from app.ema_cross.tools.backtest_strategy import backtest_strategy
+from app.tools.backtest_strategy import backtest_strategy
 from app.tools.file_utils import convert_stats
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.export_csv import export_csv, ExportConfig

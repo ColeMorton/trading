@@ -6,12 +6,10 @@ for protective stop loss analysis.
 """
 
 import numpy as np
-import polars as pl
 import vectorbt as vbt
-from typing import Dict, List, Tuple, Callable
+from typing import Dict
 from app.ema_cross.tools.psl_types import MetricMatrices
 from app.tools.file_utils import convert_stats
-from app.ema_cross.tools.backtest_strategy import backtest_strategy
 
 def initialize_metric_matrices(num_periods: int) -> MetricMatrices:
     """
