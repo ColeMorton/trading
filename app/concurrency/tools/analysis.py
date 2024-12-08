@@ -3,6 +3,7 @@
 from typing import Tuple, List, Dict
 import polars as pl
 import numpy as np
+from datetime import timedelta, datetime
 from app.concurrency.tools.types import ConcurrencyStats, StrategyConfig
 from app.concurrency.tools.data_alignment import align_data
 from app.concurrency.tools.risk_metrics import calculate_risk_contributions
@@ -82,17 +83,109 @@ def analyze_concurrency(
         if missing:
             raise ValueError(f"Missing required columns: {missing}")
 
-    # Align all data by date and handle timeframe differences
-    aligned_data = [data_list[0]]
-    for i in range(1, len(data_list)):
-        df_aligned, next_aligned = align_data(
-            aligned_data[-1],
-            data_list[i],
-            is_hourly_1=config_list[i-1].get('USE_HOURLY', False),
-            is_hourly_2=config_list[i].get('USE_HOURLY', False)
+    # First, resample hourly data to daily where needed and ensure consistent datetime precision
+    resampled_data = []
+    for i, df in enumerate(data_list):
+        # Ensure consistent datetime precision and truncate to start of day
+        df = df.with_columns([
+            pl.col("Date").dt.replace_time_zone(None).dt.truncate("1d").cast(pl.Datetime("ns")).alias("Date")
+        ])
+        
+        if config_list[i].get('USE_HOURLY', False):
+            # For hourly data, resample to daily
+            df = df.group_by_dynamic(
+                "Date",
+                every="1d",
+                closed="right",
+                by=[]
+            ).agg([
+                pl.col("Open").first().alias("Open"),
+                pl.col("High").max().alias("High"),
+                pl.col("Low").min().alias("Low"),
+                pl.col("Close").last().alias("Close"),
+                pl.col("Volume").sum().alias("Volume"),
+                pl.col("Position").last().alias("Position")
+            ])
+        
+        resampled_data.append(df)
+
+    # Print initial shapes and date ranges
+    print("\nInitial data:")
+    for i, df in enumerate(resampled_data):
+        print(f"DF {i} shape: {df.shape}")
+        print(f"DF {i} date range: {df['Date'].min()} to {df['Date'].max()}")
+
+    # Find common date range
+    min_dates = [df["Date"].min() for df in resampled_data]
+    max_dates = [df["Date"].max() for df in resampled_data]
+    min_date = max(min_dates)
+    max_date = min(max_dates)
+    
+    print(f"\nCommon date range:")
+    print(f"Min dates: {min_dates}")
+    print(f"Max dates: {max_dates}")
+    print(f"Selected min_date: {min_date}")
+    print(f"Selected max_date: {max_date}")
+
+    # Filter all dataframes to common date range first
+    filtered_data = []
+    for df in resampled_data:
+        filtered = df.filter(
+            (pl.col("Date") >= min_date) & (pl.col("Date") <= max_date)
         )
-        aligned_data[-1] = df_aligned
-        aligned_data.append(next_aligned)
+        filtered_data.append(filtered)
+
+    # Print filtered shapes
+    print("\nFiltered data:")
+    for i, df in enumerate(filtered_data):
+        print(f"DF {i} shape: {df.shape}")
+        print(f"DF {i} date range: {df['Date'].min()} to {df['Date'].max()}")
+
+    # Find dates that exist in all dataframes
+    common_dates = set(filtered_data[0]["Date"].to_list())
+    for df in filtered_data[1:]:
+        common_dates.intersection_update(df["Date"].to_list())
+    
+    # Sort dates
+    common_dates = sorted(list(common_dates))
+    print(f"\nCommon dates:")
+    print(f"Number of dates: {len(common_dates)}")
+    print(f"First date: {common_dates[0]}")
+    print(f"Last date: {common_dates[-1]}")
+
+    # Create common dates DataFrame
+    common_dates_df = pl.DataFrame({
+        "Date": pl.Series(common_dates, dtype=pl.Datetime("ns"))
+    })
+
+    # Align all dataframes to common dates
+    aligned_data = []
+    required_columns = ["Date", "Open", "High", "Low", "Close", "Volume", "Position"]
+    
+    for i, df in enumerate(filtered_data):
+        # Join with common dates and fill any missing values
+        aligned = df.join(
+            common_dates_df,
+            on="Date",
+            how="inner"
+        ).select(required_columns)
+        
+        # Fill any missing values
+        aligned = aligned.with_columns([
+            pl.col("Position").fill_null(0),
+            pl.col("Volume").fill_null(0),
+            pl.col(["Open", "High", "Low", "Close"]).forward_fill()
+        ])
+        
+        aligned_data.append(aligned)
+        print(f"\nAligned DF {i}:")
+        print(f"Shape: {aligned.shape}")
+        print(f"Date range: {aligned['Date'].min()} to {aligned['Date'].max()}")
+
+    # Verify all dataframes have the same shape
+    shapes = [df.shape for df in aligned_data]
+    if len(set(shapes)) > 1:
+        raise ValueError(f"Aligned dataframes have different shapes: {shapes}")
     
     # Calculate concurrent positions
     position_arrays = [df["Position"].fill_null(0).to_numpy() for df in aligned_data]

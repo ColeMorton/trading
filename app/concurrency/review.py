@@ -146,9 +146,23 @@ if __name__ == "__main__":
         "STOP_LOSS": 0.125
     }
 
+    strategy_4: StrategyConfig = {
+        "TICKER": "SOL-USD",
+        "SHORT_WINDOW": 20,
+        "LONG_WINDOW": 60,
+        "BASE_DIR": ".",
+        "USE_SMA": False,
+        "USE_HOURLY": True,
+        "REFRESH": True,
+        "USE_RSI": False,
+        "RSI_PERIOD": 26,
+        "RSI_THRESHOLD": 43,    
+        "STOP_LOSS": 0.125
+    }
+
     try:
         # Run unified analysis across all strategies
-        result = run([strategy_1, strategy_2, strategy_3])
+        result = run([strategy_1, strategy_2, strategy_3, strategy_4])
         if result:
             print("Unified concurrency analysis completed successfully!")
     except Exception as e:
