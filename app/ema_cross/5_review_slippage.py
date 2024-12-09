@@ -62,16 +62,16 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": "MCD",
-    "SHORT_WINDOW": 32,
-    "LONG_WINDOW": 38,
+    "TICKER": "GOOGL",
+    "SHORT_WINDOW": 9,
+    "LONG_WINDOW": 39,
     "BASE_DIR": ".",
-    "USE_SMA": False,
+    "USE_SMA": True,
     "REFRESH": True,
     "USE_RSI": False,
     "RSI_PERIOD": 22,
     "RSI_THRESHOLD": 45,
-    "STOP_LOSS": 0.0423
+    "STOP_LOSS": 0.0685
 }
 
 def run(config: Config = config) -> bool:

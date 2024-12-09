@@ -6,7 +6,7 @@ This module contains functions for analyzing stop loss parameter sensitivity.
 
 import polars as pl
 import numpy as np
-from typing import Dict, Callable
+from typing import Dict, Callable, Any
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.file_utils import convert_stats
 from app.tools.calculate_rsi import calculate_rsi
@@ -15,7 +15,7 @@ from app.tools.export_csv import export_csv, ExportConfig
 
 def analyze_stop_loss_parameters(
     data: pl.DataFrame,
-    config: Dict,
+    config: Dict[str, Any],
     stop_loss_range: np.ndarray,
     log: Callable
 ) -> Dict[str, np.ndarray]:
@@ -63,7 +63,7 @@ def analyze_stop_loss_parameters(
         
         portfolio = backtest_strategy(data_with_signals, config, log)
         stats = portfolio.stats()
-        converted_stats = convert_stats(stats)
+        converted_stats = convert_stats(stats, config)
         
         # Add stop loss parameter to stats
         converted_stats["Stop Loss [%]"] = stop_loss

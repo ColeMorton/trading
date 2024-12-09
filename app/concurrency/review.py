@@ -74,7 +74,7 @@ def run(strategies: List[StrategyConfig]) -> bool:
         log(f"Total concurrent periods: {stats['total_concurrent_periods']}")
         log(f"Concurrency Ratio: {stats['concurrency_ratio']:.2f}")
         log(f"Exclusive Ratio: {stats['exclusive_ratio']:.2f}")
-        log(f"Inactive (Remaining): {stats['inactive_ratio']:.2f}")
+        log(f"Inactive Ratio: {stats['inactive_ratio']:.2f}")
         log(f"Average concurrent strategies: {stats['avg_concurrent_strategies']:.2f}")
         log(f"Max concurrent strategies: {stats['max_concurrent_strategies']}")
         log(f"Risk Concentration Index: {stats['risk_concentration_index']}")

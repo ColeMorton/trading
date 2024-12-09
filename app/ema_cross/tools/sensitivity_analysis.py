@@ -41,7 +41,7 @@ def analyze_window_combination(
         stats = portfolio.stats()
         stats['Short Window'] = short
         stats['Long Window'] = long
-        converted_stats = convert_stats(stats)
+        converted_stats = convert_stats(stats, config)
         converted_stats['Current'] = int(current)
         
         return converted_stats

@@ -16,17 +16,19 @@ from app.tools.cache_utils import (
     get_cache_filepath,
     load_cached_analysis
 )
-from app.ema_cross.tools.rsi_heatmap import analyze_rsi_parameters, create_rsi_heatmap
+from app.ema_cross.tools.rsi_heatmap import analyze_rsi_parameters
+from app.ema_cross.tools.rsi_visualization import create_rsi_heatmap
 
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
-    "TICKER": "NVDA",
-    "SHORT_WINDOW": 4,
-    "LONG_WINDOW": 30,
+    "TICKER": "GOOGL",
+    "SHORT_WINDOW": 9,
+    "LONG_WINDOW": 39,
     "BASE_DIR": ".",
-    "USE_SMA": True,
-    "REFRESH": True,
-    "USE_HOURLY": False
+    "USE_SMA": False,
+    "REFRESH": False,
+    "USE_HOURLY": False,
+    "RELATIVE": True
 }
 
 def run(config: CacheConfig) -> bool:

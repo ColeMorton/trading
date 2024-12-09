@@ -164,7 +164,7 @@ try:
 
     # Convert and print portfolio statistics
     stats = portfolio.stats()
-    converted_stats = convert_stats(stats)
+    converted_stats = convert_stats(stats, config)
     
     print("\nStrategy Portfolio Statistics:")
     print("===================")

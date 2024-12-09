@@ -11,7 +11,7 @@ from app.tools.file_utils import convert_stats
 from app.ema_cross.tools.export_portfolios import export_portfolios
 from app.tools.get_config import get_config
 
-def process_ticker_portfolios(ticker: str, row: dict, config: dict, log: Callable) -> Optional[List[dict]]:
+def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], log: Callable) -> Optional[List[dict]]:
     """
     Process SMA and EMA portfolios for a single ticker.
 
@@ -62,7 +62,7 @@ def process_ticker_portfolios(ticker: str, row: dict, config: dict, log: Callabl
             sma_stats['Use SMA'] = True
             sma_stats['Short Window'] = sma_fast
             sma_stats['Long Window'] = sma_slow
-            sma_converted_stats = convert_stats(sma_stats)
+            sma_converted_stats = convert_stats(sma_stats, config)
             portfolios.append(sma_converted_stats)
 
         # Process EMA stats if portfolio exists
@@ -72,7 +72,7 @@ def process_ticker_portfolios(ticker: str, row: dict, config: dict, log: Callabl
             ema_stats['Use SMA'] = False
             ema_stats['Short Window'] = ema_fast
             ema_stats['Long Window'] = ema_slow
-            ema_converted_stats = convert_stats(ema_stats)
+            ema_converted_stats = convert_stats(ema_stats, config)
             portfolios.append(ema_converted_stats)
 
         return portfolios if portfolios else None

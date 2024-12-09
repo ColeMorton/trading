@@ -21,16 +21,16 @@ from app.ema_cross.tools.stop_loss_plotting import create_stop_loss_heatmap
 
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
-    "TICKER": "MSTR",
-    "SHORT_WINDOW": 37,
-    "LONG_WINDOW": 43,
+    "TICKER": "ZS",
+    "SHORT_WINDOW": 2,
+    "LONG_WINDOW": 6,
     "BASE_DIR": ".",
     "USE_SMA": False,
     "REFRESH": True,
-    "USE_HOURLY": True,
-    "USE_RSI": False,
-    "RSI_PERIOD": 27,
-    "RSI_THRESHOLD": 47
+    "USE_HOURLY": False,
+    "USE_RSI": True,
+    "RSI_PERIOD": 23,
+    "RSI_THRESHOLD": 37
 }
 
 def run(config: CacheConfig) -> bool:

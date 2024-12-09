@@ -20,7 +20,7 @@ def create_stats_annotation(stats: ConcurrencyStats) -> Dict:
         f"Concurrent Periods: {stats['total_concurrent_periods']}<br>"
         f"Concurrency Ratio: {stats['concurrency_ratio']:.2%}<br>"
         f"Exclusive Ratio: {stats['exclusive_ratio']:.2%}<br>"
-        f"Inactive (Remaining): {stats['inactive_ratio']:.2%}<br>"
+        f"Inactive Ratio: {stats['inactive_ratio']:.2%}<br>"
         f"Avg Concurrent Strategies: {stats['avg_concurrent_strategies']:.2f}<br>"
         f"Max Concurrent Strategies: {stats['max_concurrent_strategies']}<br>"
         f"Risk Concentration Index: {stats['risk_concentration_index']:.2f}<br>"

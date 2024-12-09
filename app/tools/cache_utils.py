@@ -33,6 +33,7 @@ class CacheConfig(TypedDict):
     RSI_THRESHOLD: float
     STOP_LOSS: float
     REFRESH: bool
+    RELATIVE: bool
 
 T = TypeVar('T', bound=np.ndarray)
 
