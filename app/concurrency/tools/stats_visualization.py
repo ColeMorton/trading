@@ -24,8 +24,15 @@ def create_stats_annotation(stats: ConcurrencyStats) -> Dict:
         f"Avg Concurrent Strategies: {stats['avg_concurrent_strategies']:.2f}<br>"
         f"Max Concurrent Strategies: {stats['max_concurrent_strategies']}<br>"
         f"Risk Concentration Index: {stats['risk_concentration_index']:.2f}<br>"
-        f"Efficiency Score: {stats['efficiency_score']:.2f}<br>"
     )
+
+    # Add efficiency metrics section
+    stats_text += "<br><b>Efficiency Metrics:</b><br>"
+    stats_text += f"Total Expectancy: {float(stats['total_expectancy']):.4f}<br>"
+    stats_text += f"Diversification Multiplier: {float(stats['diversification_multiplier']):.2f}<br>"
+    stats_text += f"Independence Multiplier: {float(stats['independence_multiplier']):.2f}<br>"
+    stats_text += f"Activity Multiplier: {float(stats['activity_multiplier']):.2f}<br>"
+    stats_text += f"Efficiency Score: {float(stats['efficiency_score']):.2f}<br>"
 
     # Add risk metrics section
     stats_text += "<br><b>Risk Metrics:</b><br>"

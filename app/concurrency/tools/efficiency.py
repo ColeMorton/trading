@@ -69,7 +69,7 @@ def calculate_efficiency_score(
         )
         
         log(f"Final efficiency score: {efficiency_score}", "info")
-        return efficiency_score
+        return efficiency_score, total_expectancy, diversification_multiplier, independence_multiplier, activity_multiplier
         
     except Exception as e:
         log(f"Error calculating efficiency score: {str(e)}", "error")

@@ -39,7 +39,7 @@ def compile_statistics(
     aligned_data: List[pl.DataFrame],
     position_metrics: Tuple[dict, float, int, int, int, int, float],
     risk_metrics: dict,
-    efficiency_score: float
+    efficiency_metrics: Tuple[float, float, float, float, float]
 ) -> ConcurrencyStats:
     """Compile analysis statistics.
 
@@ -47,7 +47,7 @@ def compile_statistics(
         aligned_data (List[pl.DataFrame]): Aligned dataframes
         position_metrics (Tuple): Position-based metrics
         risk_metrics (dict): Risk contribution metrics
-        efficiency_score (float): Strategy efficiency score
+        efficiency_metrics (Tuple): Efficiency score and components
 
     Returns:
         ConcurrencyStats: Compiled statistics
@@ -61,6 +61,14 @@ def compile_statistics(
         max_concurrent,
         avg_concurrent
     ) = position_metrics
+
+    (
+        efficiency_score,
+        total_expectancy,
+        diversification_multiplier,
+        independence_multiplier,
+        activity_multiplier
+    ) = efficiency_metrics
 
     total_periods = len(aligned_data[0])
     risk_concentration_index = (
@@ -84,6 +92,10 @@ def compile_statistics(
             sum(df["Position"].sum() for df in aligned_data) / len(aligned_data)
         ),
         "efficiency_score": efficiency_score,
+        "total_expectancy": total_expectancy,
+        "diversification_multiplier": diversification_multiplier,
+        "independence_multiplier": independence_multiplier,
+        "activity_multiplier": activity_multiplier,
         "risk_metrics": risk_metrics,
         "start_date": str(aligned_data[0]["Date"].min()),
         "end_date": str(aligned_data[0]["Date"].max())
@@ -128,7 +140,7 @@ def analyze_concurrency(
             config.get('expectancy_per_day', 0)
             for config in config_list
         ]
-        efficiency_score = calculate_efficiency_score(
+        efficiency_metrics = calculate_efficiency_score(
             strategy_expectancies,
             position_metrics[1],  # avg_correlation
             position_metrics[2],  # concurrent_periods
@@ -143,7 +155,7 @@ def analyze_concurrency(
             aligned_data,
             position_metrics,
             risk_metrics,
-            efficiency_score
+            efficiency_metrics
         )
         
         log("Analysis completed successfully", "info")
