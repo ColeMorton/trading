@@ -66,25 +66,40 @@ def create_strategy_subplot(
 
 def create_concurrency_heatmap(
     data_list: List[pl.DataFrame],
-    position_arrays: List[pl.Series]
+    position_arrays: List[pl.Series],
+    n_strategies: int
 ) -> go.Heatmap:
     """Create heatmap showing concurrent strategies over time.
 
     Args:
         data_list (List[pl.DataFrame]): List of strategy data
         position_arrays (List[pl.Series]): List of position arrays
+        n_strategies (int): Number of strategies being analyzed
 
     Returns:
         go.Heatmap: Concurrency heatmap trace
     """
     active_strategies = sum(position_arrays)
+    
+    # Calculate colorbar position to align with last subplot
+    # The last subplot takes up 20% of the total height
+    # Position the colorbar in the center of the last subplot
+    y_position = 0.08  # Slightly lower than previous value
+    colorbar_len = 0.18  # Slightly larger to match subplot height
+    
     return go.Heatmap(
         x=data_list[0]["Date"],
-        y=['Concurrent Strategies'],
         z=[active_strategies],
         colorscale='ice',
         showscale=True,
-        name="Active Strategies"
+        name="Active Strategies",
+        colorbar=dict(
+            len=colorbar_len,      # Length of colorbar relative to plot height
+            y=y_position,          # Y-position of colorbar center
+            yanchor='middle',      # Anchor point for y position
+            thickness=20,          # Make the colorbar slightly thicker
+            ticks="outside"        # Place ticks outside the colorbar
+        )
     )
 
 def plot_concurrency(
@@ -147,7 +162,7 @@ def plot_concurrency(
 
     # Add concurrency heatmap
     position_arrays = [df["Position"].fill_null(0) for df in data_list]
-    heatmap = create_concurrency_heatmap(data_list, position_arrays)
+    heatmap = create_concurrency_heatmap(data_list, position_arrays, n_strategies)
     fig.add_trace(heatmap, row=n_strategies + 1, col=1)
 
     # Add statistics annotation
@@ -166,6 +181,14 @@ def plot_concurrency(
     # Update y-axis titles
     for i in range(1, n_strategies + 1):
         fig.update_yaxes(title="Price", row=i, col=1)
-    fig.update_yaxes(title="Concurrency", row=n_strategies + 1, col=1)
+    
+    # Update y-axis for heatmap to remove text, numbers and scale
+    fig.update_yaxes(
+        showticklabels=False,
+        showline=False,
+        title=None,
+        row=n_strategies + 1,
+        col=1
+    )
 
     return fig
