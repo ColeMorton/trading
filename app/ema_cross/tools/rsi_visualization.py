@@ -6,13 +6,14 @@ This module contains functions for creating heatmap visualizations of RSI parame
 
 import numpy as np
 import plotly.graph_objects as go
-from typing import Dict
+from typing import Dict, Any
 
 def create_rsi_heatmap(
     metric_matrices: Dict[str, np.ndarray],
     rsi_thresholds: np.ndarray,
     rsi_windows: np.ndarray,
-    ticker: str
+    ticker: str,
+    config: Dict[str, Any]
 ) -> Dict[str, go.Figure]:
     """
     Create heatmap figures for RSI parameter analysis.
@@ -22,6 +23,7 @@ def create_rsi_heatmap(
         rsi_thresholds (np.ndarray): Array of RSI thresholds used
         rsi_windows (np.ndarray): Array of RSI window lengths used
         ticker (str): Ticker symbol for plot titles
+        config (Dict[str, Any]): Strategy configuration
 
     Returns:
         Dict[str, go.Figure]: Dictionary containing Plotly figures for each metric
@@ -59,6 +61,12 @@ def create_rsi_heatmap(
         fig = go.Figure()
         format_info = metric_formats[metric_name]
         
+        # Conditionally set title suffix based on config['RELATIVE']
+        if config.get('RELATIVE', True):
+            title_suffix = format_info['title_suffix']
+        else:
+            title_suffix = ''
+
         abs_max = max(abs(matrix.min()), abs(matrix.max())) if format_info['center'] else None
         zmin, zmax = (-abs_max, abs_max) if format_info['center'] else (matrix.min(), matrix.max())
         
@@ -71,7 +79,7 @@ def create_rsi_heatmap(
             zmin=zmin,
             zmax=zmax,
             colorbar=dict(
-                title=f"{metric_name.capitalize().replace('_', ' ')} {format_info['title_suffix']}",
+                title=f"{metric_name.capitalize().replace('_', ' ')} {title_suffix}", # Use conditional title_suffix
                 tickformat=format_info['format']
             )
         ))

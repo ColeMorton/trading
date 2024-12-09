@@ -102,7 +102,8 @@ def run(config: CacheConfig) -> bool:
             metric_matrices=metric_matrices,
             rsi_thresholds=rsi_thresholds,
             rsi_windows=rsi_windows,
-            ticker=str(config["TICKER"])
+            ticker=str(config["TICKER"]),
+            config=config # Pass config to create_rsi_heatmap
         )
         
         if not figures:

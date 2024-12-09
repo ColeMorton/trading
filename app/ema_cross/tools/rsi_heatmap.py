@@ -41,30 +41,31 @@ def analyze_rsi_parameters(
     }
     portfolios = []
     
-    # Get baseline performance
-    baseline_config = {**config, "USE_RSI": False}
-    baseline_data = calculate_ma_and_signals(
-        data,
-        baseline_config["SHORT_WINDOW"],
-        baseline_config["LONG_WINDOW"],
-        baseline_config
-    )
-    baseline_portfolio = backtest_strategy(baseline_data, baseline_config, log)
-    baseline_stats = convert_stats(baseline_portfolio.stats(), baseline_config)
+    # Get baseline performance ONLY IF RELATIVE is True
+    if config.get('RELATIVE', True):
+        baseline_config = {**config, "USE_RSI": False}
+        baseline_data = calculate_ma_and_signals(
+            data,
+            baseline_config["SHORT_WINDOW"],
+            baseline_config["LONG_WINDOW"],
+            baseline_config
+        )
+        baseline_portfolio = backtest_strategy(baseline_data, baseline_config, log)
+        baseline_stats = convert_stats(baseline_portfolio.stats(), baseline_config)
     
-    # Store baseline metrics
-    baseline_metrics = {
-        'returns': float(baseline_stats.get('Total Return [%]', 0)),
-        'win_rate': float(baseline_stats.get('Win Rate [%]', 0)),
-        'sharpe_ratio': float(baseline_stats.get('Sharpe Ratio', 0)),
-        'trades': float(baseline_stats.get('Total Closed Trades', 0))
-    }
+        # Store baseline metrics
+        baseline_metrics = {
+            'returns': float(baseline_stats.get('Total Return [%]', 0)),
+            'win_rate': float(baseline_stats.get('Win Rate [%]', 0)),
+            'sharpe_ratio': float(baseline_stats.get('Sharpe Ratio', 0)),
+            'trades': float(baseline_stats.get('Total Closed Trades', 0))
+        }
     
-    if log:
-        log(f"Baseline metrics - Returns: {baseline_metrics['returns']:.2f}%, "
-            f"Win Rate: {baseline_metrics['win_rate']:.2f}%, "
-            f"Sharpe: {baseline_metrics['sharpe_ratio']:.2f}, "
-            f"Trades: {baseline_metrics['trades']}")
+        if log:
+            log(f"Baseline metrics - Returns: {baseline_metrics['returns']:.2f}%, "
+                f"Win Rate: {baseline_metrics['win_rate']:.2f}%, "
+                f"Sharpe: {baseline_metrics['sharpe_ratio']:.2f}, "
+                f"Trades: {baseline_metrics['trades']}")
     
     # Analyze each combination
     for i, threshold in enumerate(rsi_thresholds):
@@ -87,7 +88,7 @@ def analyze_rsi_parameters(
             stats.update({"RSI Window": window, "RSI Threshold": threshold})
             portfolios.append(stats)
             
-            # Calculate relative metrics
+            # Calculate relative metrics ONLY IF RELATIVE is True
             for metric in matrices.keys():
                 current = float(stats.get(
                     {'returns': 'Total Return [%]',
@@ -104,7 +105,7 @@ def analyze_rsi_parameters(
                     else:
                         matrices[metric][i, j] = current - baseline
                 else:
-                    matrices[metric][i, j] = current
+                    matrices[metric][i, j] = current # Use absolute value when RELATIVE is False
             
             if log:
                 log(f"Analyzed RSI window {window}, threshold {threshold}")
