@@ -16,6 +16,7 @@ from app.concurrency.tools.analysis import analyze_concurrency
 from app.concurrency.tools.visualization import plot_concurrency
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.file_utils import convert_stats
+from app.concurrency.portfolios.mstr_1 import portfolio
 
 def run(strategies: List[StrategyConfig]) -> bool:
     """Run concurrency analysis across multiple strategies.
@@ -106,64 +107,9 @@ def run(strategies: List[StrategyConfig]) -> bool:
         raise
 
 if __name__ == "__main__":
-    # Example configurations
-    strategy_1: StrategyConfig = {
-        "TICKER": "BTC-USD",
-        "SHORT_WINDOW": 27,
-        "LONG_WINDOW": 29,
-        "BASE_DIR": ".",
-        "USE_SMA": True,
-        "REFRESH": True,
-        "USE_RSI": True,
-        "RSI_PERIOD": 14,
-        "RSI_THRESHOLD": 50,
-        "STOP_LOSS": 0.0911
-    }
-
-    strategy_2: StrategyConfig = {
-        "TICKER": "BTC-USD",
-        "SHORT_WINDOW": 65,
-        "LONG_WINDOW": 74,
-        "BASE_DIR": ".",
-        "USE_SMA": True,
-        "USE_HOURLY": True,
-        "REFRESH": True,
-        "USE_RSI": True,
-        "RSI_PERIOD": 29,
-        "RSI_THRESHOLD": 30,
-        "STOP_LOSS": 0.0565
-    }
-
-    strategy_3: StrategyConfig = {
-        "TICKER": "SOL-USD",
-        "SHORT_WINDOW": 14,
-        "LONG_WINDOW": 32,
-        "BASE_DIR": ".",
-        "USE_SMA": True,
-        "REFRESH": True,
-        "USE_RSI": True,
-        "RSI_PERIOD": 26,
-        "RSI_THRESHOLD": 43,    
-        "STOP_LOSS": 0.125
-    }
-
-    strategy_4: StrategyConfig = {
-        "TICKER": "SOL-USD",
-        "SHORT_WINDOW": 20,
-        "LONG_WINDOW": 60,
-        "BASE_DIR": ".",
-        "USE_SMA": False,
-        "USE_HOURLY": True,
-        "REFRESH": True,
-        "USE_RSI": False,
-        "RSI_PERIOD": 26,
-        "RSI_THRESHOLD": 43,    
-        "STOP_LOSS": 0.125
-    }
-
     try:
         # Run unified analysis across all strategies
-        result = run([strategy_1, strategy_2, strategy_3, strategy_4])
+        result = run(portfolio)
         if result:
             print("Unified concurrency analysis completed successfully!")
     except Exception as e:
