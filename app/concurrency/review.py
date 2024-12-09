@@ -57,10 +57,10 @@ def run(strategies: List[StrategyConfig]) -> bool:
                 config['LONG_WINDOW'], 
                 config
             )
-            # Add Expectancy per Day to the strategy config
+            # Add expectancy per day to the strategy config
             portfolio = backtest_strategy(data, config, log)
             stats = convert_stats(portfolio.stats(), config)
-            config['Expectancy per Day'] = stats['Expectancy per Day']
+            config['expectancy_per_day'] = stats['Expectancy per Day']
             strategy_data.append(data)
         
         # Analyze concurrency across all strategies simultaneously
