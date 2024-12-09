@@ -67,12 +67,12 @@ def create_stats_annotation(stats: ConcurrencyStats) -> Dict:
     return {
         "xref": "paper",
         "yref": "paper",
-        "x": 1.0,
+        "x": 0.0,
         "y": 1.0,
         "text": stats_text,
         "showarrow": False,
         "font": dict(size=10),
-        "align": "right",
+        "align": "left",
         "bgcolor": "rgba(255,255,255,0.8)",
         "bordercolor": "black",
         "borderwidth": 1

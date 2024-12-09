@@ -1,0 +1,1 @@
+Reduce the file length of @/app/ema_cross/tools/rsi_heatmap.py  in accordance with the Core Development Principles
