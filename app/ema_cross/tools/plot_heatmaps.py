@@ -2,7 +2,6 @@ import numpy as np
 import polars as pl
 import pandas as pd
 from typing import Dict, Callable
-import plotly.graph_objects as go
 
 from app.utils import get_filename, get_path
 from app.ema_cross.tools.heatmap_figures import create_heatmap_figures

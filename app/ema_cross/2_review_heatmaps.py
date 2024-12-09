@@ -13,7 +13,6 @@ import polars as pl
 
 from app.tools.setup_logging import setup_logging
 from app.tools.get_config import get_config
-from app.tools.export_csv import ExportConfig
 from tools.plot_heatmaps import plot_heatmap
 from tools.portfolio_transformation import transform_portfolio_data
 

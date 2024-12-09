@@ -43,7 +43,7 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": 'CLX',
+    "TICKER": 'GOOGL',
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "REFRESH": True,
