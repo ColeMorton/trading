@@ -66,7 +66,8 @@ def run(strategies: List[StrategyConfig]) -> bool:
         # Analyze concurrency across all strategies simultaneously
         stats, aligned_data = analyze_concurrency(
             strategy_data,
-            strategies
+            strategies,
+            log
         )
         
         log(f"Overall concurrency statistics:")
