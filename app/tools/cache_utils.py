@@ -22,6 +22,7 @@ class CacheConfig(TypedDict):
         RSI_THRESHOLD (NotRequired[float]): RSI threshold value
         STOP_LOSS (NotRequired[float]): Stop loss percentage
         REFRESH (NotRequired[bool]): Whether to force refresh analysis
+        RELATIVE (NotRequired[bool]): When True, all metrics are relative to the baseline analysis; when False, all metrics are absolute.
     """
     BASE_DIR: str
     TICKER: Union[str, List[str]]

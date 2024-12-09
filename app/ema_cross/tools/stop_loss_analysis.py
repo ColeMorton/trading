@@ -55,6 +55,26 @@ def analyze_stop_loss_parameters(
         config
     )
     
+    # Get baseline performance ONLY IF RELATIVE is True
+    if config.get('RELATIVE', True):
+        baseline_config = {**config, "STOP_LOSS": None}
+        baseline_portfolio = backtest_strategy(data_with_signals, baseline_config, log)
+        baseline_stats = convert_stats(baseline_portfolio.stats(), baseline_config)
+        
+        # Store baseline metrics
+        baseline_metrics = {
+            'returns': float(baseline_stats.get('Total Return [%]', 0)),
+            'win_rate': float(baseline_stats.get('Win Rate [%]', 0)),
+            'sharpe_ratio': float(baseline_stats.get('Sharpe Ratio', 0)),
+            'trades': float(baseline_stats.get('Total Closed Trades', 0))
+        }
+        
+        if log:
+            log(f"Baseline metrics - Returns: {baseline_metrics['returns']:.2f}%, "
+                f"Win Rate: {baseline_metrics['win_rate']:.2f}%, "
+                f"Sharpe: {baseline_metrics['sharpe_ratio']:.2f}, "
+                f"Trades: {baseline_metrics['trades']}")
+    
     # Analyze each stop loss percentage
     for i, stop_loss in enumerate(stop_loss_range):
         # Round stop loss to 2 decimal places
@@ -69,11 +89,34 @@ def analyze_stop_loss_parameters(
         converted_stats["Stop Loss [%]"] = stop_loss
         portfolios.append(converted_stats)
         
-        # Handle NaN values by replacing with 0
-        returns_array[i] = np.nan_to_num(converted_stats.get('Total Return [%]', 0), 0)
-        win_rate_array[i] = np.nan_to_num(converted_stats.get('Win Rate [%]', 0), 0)
-        sharpe_ratio_array[i] = np.nan_to_num(converted_stats.get('Sharpe Ratio', 0), 0)
-        trades_array[i] = np.nan_to_num(converted_stats.get('Total Closed Trades', 0), 0)
+        # Calculate metrics
+        current_metrics = {
+            'returns': float(converted_stats.get('Total Return [%]', 0)),
+            'win_rate': float(converted_stats.get('Win Rate [%]', 0)),
+            'sharpe_ratio': float(converted_stats.get('Sharpe Ratio', 0)),
+            'trades': float(converted_stats.get('Total Closed Trades', 0))
+        }
+        
+        # Calculate relative or absolute metrics based on config
+        if config.get('RELATIVE', True):
+            returns_array[i] = current_metrics['returns'] - baseline_metrics['returns']
+            win_rate_array[i] = current_metrics['win_rate'] - baseline_metrics['win_rate']
+            
+            # For Sharpe and trades, use percentage change when baseline is non-zero
+            if baseline_metrics['sharpe_ratio'] != 0:
+                sharpe_ratio_array[i] = ((current_metrics['sharpe_ratio'] / baseline_metrics['sharpe_ratio']) * 100 - 100)
+            else:
+                sharpe_ratio_array[i] = current_metrics['sharpe_ratio']
+                
+            if baseline_metrics['trades'] != 0:
+                trades_array[i] = ((current_metrics['trades'] / baseline_metrics['trades']) * 100 - 100)
+            else:
+                trades_array[i] = current_metrics['trades']
+        else:
+            returns_array[i] = current_metrics['returns']
+            win_rate_array[i] = current_metrics['win_rate']
+            sharpe_ratio_array[i] = current_metrics['sharpe_ratio']
+            trades_array[i] = current_metrics['trades']
         
         if log:
             log(f"Analyzed stop loss {stop_loss:.2f}%")

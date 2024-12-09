@@ -4,6 +4,10 @@ Stop Loss Analysis Module for EMA Cross Strategy
 This module performs sensitivity analysis on stop loss parameters in combination with
 EMA cross signals. It analyzes how different stop loss percentages affect strategy
 performance metrics including returns, win rate, and expectancy.
+
+The analysis can be performed in relative or absolute terms based on the config:
+- When config['RELATIVE'] is True, all metrics are relative to the baseline analysis
+- When config['RELATIVE'] is False, all metrics are absolute
 """
 
 import os
@@ -31,7 +35,7 @@ default_config: CacheConfig = {
     "USE_RSI": False,
     "RSI_PERIOD": 23,
     "RSI_THRESHOLD": 37,
-    "RELATIVE": True
+    "RELATIVE": False
 }
 
 def run(config: CacheConfig) -> bool:
@@ -45,7 +49,9 @@ def run(config: CacheConfig) -> bool:
     4. Displaying interactive heatmaps in browser
 
     Args:
-        config (CacheConfig): Configuration dictionary containing strategy parameters
+        config (CacheConfig): Configuration dictionary containing strategy parameters.
+            When config['RELATIVE'] is True, metrics are relative to baseline analysis.
+            When config['RELATIVE'] is False, metrics are absolute.
 
     Returns:
         bool: True if analysis successful
@@ -99,7 +105,8 @@ def run(config: CacheConfig) -> bool:
         figures = create_stop_loss_heatmap(
             metric_matrices=metric_matrices,
             stop_loss_range=stop_loss_range,
-            ticker=str(config["TICKER"])
+            ticker=str(config["TICKER"]),
+            config=config # Pass config to create_stop_loss_heatmap
         )
         
         if not figures:
