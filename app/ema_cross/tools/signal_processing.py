@@ -5,13 +5,13 @@ This module provides utilities for processing trading signals and portfolios.
 """
 
 import polars as pl
-from typing import Optional
+from typing import Optional, Callable
 from app.tools.get_data import get_data
 from app.ema_cross.tools.signal_generation import generate_current_signals
 from app.ema_cross.tools.sensitivity_analysis import analyze_window_combination
 from app.ema_cross.config_types import PortfolioConfig
 
-def process_current_signals(ticker: str, config: PortfolioConfig, log) -> Optional[pl.DataFrame]:
+def process_current_signals(ticker: str, config: PortfolioConfig, log: Callable) -> Optional[pl.DataFrame]:
     """Process current signals for a ticker.
     
     Args:
@@ -35,7 +35,7 @@ def process_current_signals(ticker: str, config: PortfolioConfig, log) -> Option
         log(f"Current signals for {ticker} {'SMA' if config.get('USE_SMA', False) else 'EMA'}")
         
         # Get and validate price data
-        data = get_data(ticker, config_copy)
+        data = get_data(ticker, config_copy, log)
         if data is None:
             log(f"Failed to get price data for {ticker}", "error")
             return None

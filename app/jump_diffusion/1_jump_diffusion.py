@@ -5,12 +5,18 @@ from scipy.stats import norm
 from scipy.optimize import minimize
 import os
 from app.tools.get_data import download_data
+from app.tools.setup_logging import setup_logging
+
+log, log_close, _, _ = setup_logging(
+    module_name='ma_cross',
+    log_file='1_jump_diffusion.log'
+)
 
 TICKER = 'SUI20947-USD'
 USE_MERTON = False
 
 # Fetch historical data
-gbm_data = download_data(TICKER)
+gbm_data = download_data(TICKER, log)
 
 # Print data info for debugging
 print("Data columns:")

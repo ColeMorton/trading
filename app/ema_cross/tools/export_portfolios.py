@@ -56,6 +56,8 @@ def export_portfolios(
     if log:
         log(f"Exporting {len(portfolios)} portfolios as {export_type}...", "info")
 
+    config["USE_MA"] = True
+
     try:
         return export_csv(
             data=portfolios,

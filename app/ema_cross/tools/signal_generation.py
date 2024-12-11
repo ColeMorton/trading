@@ -88,7 +88,7 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
         short_windows = np.arange(2, config["WINDOWS"])
         long_windows = np.arange(2, config["WINDOWS"])
 
-        data = get_data(config["TICKER"], config)
+        data = get_data(config["TICKER"], config, log)  # Added log parameter here
         if data is None:
             log("Failed to get price data", "error")
             return pl.DataFrame(
