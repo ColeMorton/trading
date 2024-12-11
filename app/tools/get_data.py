@@ -5,7 +5,7 @@ from app.tools.data_types import DataConfig
 from app.tools.download_data import download_data
 from app.tools.use_synthetic import use_synthetic
 from app.geometric_brownian_motion.get_median import get_median
-from app.tools.file_utils import is_file_from_today
+from app.tools.file_utils import is_file_from_today, is_file_from_this_hour
 
 def valid_data(ticker: str, config: DataConfig, log: Callable):
     if config.get("REFRESH", True) == False:
@@ -21,12 +21,21 @@ def valid_data(ticker: str, config: DataConfig, log: Callable):
 
         log(f"Checking existing data from {file_path}.")
         
-        # Check if file exists and was created today
-        if os.path.exists(file_path) and is_file_from_today(file_path):
-            log(f"Loading existing data from {file_path}.")
-            return pl.read_csv(file_path)
+        # Check if file exists and was created in the appropriate timeframe
+        if os.path.exists(file_path):
+            is_valid = (
+                is_file_from_this_hour(file_path) 
+                if config.get("USE_HOURLY", False) 
+                else is_file_from_today(file_path)
+            )
+            if is_valid:
+                log(f"Loading existing data from {file_path}.")
+                return pl.read_csv(file_path)
+            else:
+                timeframe = "hour" if config.get("USE_HOURLY", False) else "day"
+                log(f"File exists but wasn't created this {timeframe}. Downloading new data.")
         else:
-            log("File doesn't exist or wasn't created today. Downloading new data.")
+            log("File doesn't exist. Downloading new data.")
     else:
         log("REFRESH is True. Downloading new data.")
     

@@ -26,6 +26,27 @@ def is_file_from_today(filepath: str) -> bool:
             file_time.month == current_time.month and 
             file_time.day == current_time.day)
 
+def is_file_from_this_hour(filepath: str) -> bool:
+    """
+    Check if a file was created within the current hour.
+
+    Args:
+        filepath: Path to the file to check
+
+    Returns:
+        bool: True if file was created in the current hour, False otherwise
+    """
+    if not os.path.exists(filepath):
+        return False
+    
+    file_time = datetime.fromtimestamp(os.path.getctime(filepath))
+    current_time = datetime.now()
+    
+    return (file_time.year == current_time.year and 
+            file_time.month == current_time.month and 
+            file_time.day == current_time.day and
+            file_time.hour == current_time.hour)
+
 def convert_stats(stats: Dict[str, Any], config: Optional[Dict]) -> Dict[str, Any]:
     """
     Convert stats to compatible format, ensuring proper type handling.
