@@ -7,9 +7,9 @@ from scipy.cluster.hierarchy import linkage, dendrogram, leaves_list
 from scipy.spatial.distance import squareform
 import numpy as np
 
-# ASSETS = ['SOL-USD', 'BTC-USD', 'FDS', 'ALGN', 'EW', 'JD', 'CSX', 'WDC', 'POOL', 'AAPL', 'NTES', 'SIRI', 'AMD', 'NVDA', 'MCD', 'MSTR']
+# ASSETS = ['SOL-USD', 'BTC-USD', 'FDS', 'ALGN', 'EW', 'JD', 'WDC', 'POOL', 'AAPL', 'NTES', 'SIRI', 'GOOGL', 'NVDA', 'MCD',]
 
-ASSETS = ['SOL-USD', 'BTC-USD', 'FDS', 'ALGN', 'EW', 'JD', 'CSX', 'WDC', 'POOL', 'AAPL', 'NTES', 'SIRI', 'AMD', 'NVDA', 'MCD', 'MSTR', 'ZS', 'GOOGL', 'GFS', 'CLX', 'LOW', 'LRCX']
+ASSETS = ['SOL-USD', 'BTC-USD', 'FDS', 'ALGN', 'EW', 'JD', 'WDC', 'POOL', 'AAPL', 'NTES', 'SIRI', 'GOOGL', 'NVDA', 'MCD', 'YUM', 'CRL', 'XYL', 'STZ', 'PARA', 'LRCX', 'HRL', 'SWKS']
 
 # ASSETS = ['BTC-USD', 'SPY', 'QQQ', 'SOL-USD', 'MSTR']
 

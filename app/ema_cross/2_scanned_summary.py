@@ -17,11 +17,32 @@ from tools.summary_processing import (
 
 # Default Configuration
 config = {
-    "SCANNER_LIST": '20241207.csv',
+    "SCANNER_LIST": '20241210.csv',
     "USE_CURRENT": True,
     "USE_HOURLY": False,
     "BASE_DIR": 'C:/Projects/trading'  # Added BASE_DIR for export configuration
 }
+
+def read_scanner_list(file_path: Path, log: callable) -> pl.DataFrame:
+    """
+    Read scanner list with proper handling of empty values.
+
+    Args:
+        file_path (Path): Path to the scanner list file
+        log (callable): Logging function
+
+    Returns:
+        pl.DataFrame: DataFrame with scanner list data
+    """
+    # Read CSV with null_values option to handle empty strings
+    df = pl.read_csv(file_path, null_values=[''])
+    
+    # Convert numeric columns to appropriate types, handling null values
+    numeric_cols = ['SMA_FAST', 'SMA_SLOW', 'EMA_FAST', 'EMA_SLOW']
+    for col in numeric_cols:
+        df = df.with_columns(pl.col(col).cast(pl.Int64, strict=False))
+    
+    return df
 
 def run(scanner_list: str) -> bool:
     """
@@ -48,21 +69,30 @@ def run(scanner_list: str) -> bool:
     )
     
     try:
-        # Determine file path based on config
+        daily_df = None
+        
+        # Try current date directory first if USE_CURRENT is True
         if config["USE_CURRENT"]:
             today = datetime.now().strftime("%Y%m%d")
-            file_path = Path(f'./csv/ma_cross/portfolios_scanned/{today}/{scanner_list}')
+            current_path = Path(f'./csv/ma_cross/portfolios_scanned/{today}/{scanner_list}')
             
-            if not file_path.exists():
-                log(f"File not found: {file_path}", "error")
+            if current_path.exists():
+                log(f"Reading from current date directory: {current_path}")
+                daily_df = read_scanner_list(current_path, log)
+        
+        # If file wasn't found in current directory or USE_CURRENT is False,
+        # try scanner_lists directory
+        if daily_df is None:
+            scanner_path = Path(f'./app/ema_cross/scanner_lists/{scanner_list}')
+            if scanner_path.exists():
+                log(f"Reading from scanner lists directory: {scanner_path}")
+                daily_df = read_scanner_list(scanner_path, log)
+            else:
+                log(f"Scanner list not found in any location", "error")
                 log_close()
                 return False
-                
-            daily_df = pl.read_csv(file_path)
-        else:
-            daily_df = pl.read_csv(f'./app/ema_cross/scanner_lists/{scanner_list}')
-            
-        log(f"Loaded scanner list: {scanner_list}")
+
+        log(f"Successfully loaded scanner list with {len(daily_df)} entries")
 
         portfolios = []
         

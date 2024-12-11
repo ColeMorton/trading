@@ -1,7 +1,7 @@
 """
 Portfolio Analysis Module for EMA Cross Strategy
 
-This module handles portfolio analysis for the EMA cross strategy, supporting both
+This module handles portfolio analysis for the EMA annd SMA cross strategies, supporting both
 single ticker and multiple ticker analysis. It includes functionality for parameter
 sensitivity analysis and portfolio filtering.
 """

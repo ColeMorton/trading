@@ -62,7 +62,6 @@ def download_data(ticker: str, config: Config = {}) -> pl.DataFrame:
 
     return df
 
-
 def use_synthetic(ticker1: str, ticker2: str, config: Config) -> pl.DataFrame:
     """Create a synthetic pair from two tickers."""
     data_ticker_1 = download_data(ticker1, config)
@@ -80,7 +79,6 @@ def use_synthetic(ticker1: str, ticker2: str, config: Config) -> pl.DataFrame:
     })
 
     return data
-
 
 def get_data(ticker: str, config: Config) -> pl.DataFrame:
     if config.get('USE_GBM', False):

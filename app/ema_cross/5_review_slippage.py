@@ -62,9 +62,9 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": "GOOGL",
-    "SHORT_WINDOW": 9,
-    "LONG_WINDOW": 39,
+    "TICKER": "STZ",
+    "SHORT_WINDOW": 11,
+    "LONG_WINDOW": 41,
     "BASE_DIR": ".",
     "USE_SMA": True,
     "REFRESH": True,

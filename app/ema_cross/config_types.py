@@ -43,10 +43,10 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": ['BILI', 'FUTU', 'XPEV', 'LI'],
+    "TICKER": ['XPEV', 'SWKS', 'LI', 'PARA', 'STZ', 'MRK', 'XYL', 'LOW', 'NIO', 'CRL', 'HRL', 'LRCX', 'YUM', 'LKQ', 'ALLE', 'ABNB', 'PLD'],
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "REFRESH": True,
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     "BASE_DIR": "."
 }
