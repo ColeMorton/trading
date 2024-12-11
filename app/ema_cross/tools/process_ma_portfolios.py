@@ -35,8 +35,8 @@ def process_ma_portfolios(
         strategy_config["TICKER"] = ticker
         strategy_config["SHORT"] = False  # Long-only strategy
         
-        # Get data
-        data = get_data(ticker, strategy_config)
+        # Get data - now passing the log parameter
+        data = get_data(ticker, strategy_config, log)
         if data is None or len(data) == 0:
             log(f"No data available for {ticker}", "error")
             return None

@@ -1,0 +1,1 @@
+Refactor the code in the file located at {file-path} to adhere to the Core Development Principles. Ensure that all changes enhance code quality, maintainability, and performance while following the specified guidelines.
