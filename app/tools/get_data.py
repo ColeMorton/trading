@@ -1,9 +1,38 @@
 from typing import Callable, Union, Tuple
+import os
 import polars as pl
 from app.tools.data_types import DataConfig
 from app.tools.download_data import download_data
 from app.tools.use_synthetic import use_synthetic
 from app.geometric_brownian_motion.get_median import get_median
+from app.tools.file_utils import is_file_from_today
+
+def valid_data(ticker: str, config: DataConfig, log: Callable):
+    if config.get("REFRESH", True) == False:
+        # Construct file path using BASE_DIR
+        file_name = f'{ticker}{"_H" if config.get("USE_HOURLY", False) else "_D"}'
+        directory = os.path.join(config['BASE_DIR'], 'csv', 'price_data')
+        
+        # Ensure directory exists
+        os.makedirs(directory, exist_ok=True)
+        
+        # Use absolute path
+        file_path = os.path.abspath(os.path.join(directory, f'{file_name}.csv'))
+
+        log(f"Checking existing data from {file_path}.")
+        
+        # Check if file exists and was created today
+        if os.path.exists(file_path) and is_file_from_today(file_path):
+            log(f"Loading existing data from {file_path}.")
+            return pl.read_csv(file_path)
+        else:
+            log("File doesn't exist or wasn't created today. Downloading new data.")
+    else:
+        log("REFRESH is True. Downloading new data.")
+    
+    # Only download if we haven't returned existing data
+    return download_data(ticker, config, log)
+
 
 def get_data(ticker: str, config: DataConfig, log: Callable) -> Union[pl.DataFrame, Tuple[pl.DataFrame, str]]:
     """Get data based on configuration settings.
@@ -31,8 +60,10 @@ def get_data(ticker: str, config: DataConfig, log: Callable) -> Union[pl.DataFra
             log(f"Data retrieval completed with {len(data)} records")
             return data, synthetic_ticker
         else:
-            log(f"Downloading market data for {ticker}")
-            data = download_data(ticker, config, log)
+            log(f"Retrieving market data for {ticker}")
+            data = valid_data(ticker, config, log)
+            if data is None:
+                raise ValueError(f"Failed to retrieve data for {ticker}")
             log("Market data download completed successfully")
 
         log(f"Data retrieval completed with {len(data)} records")

@@ -43,10 +43,10 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": 'TSLA',
+    "TICKER": 'ABNB',
     "WINDOWS": 89,
     "USE_HOURLY": False,
-    "REFRESH": True,
+    "REFRESH": False,
     "USE_CURRENT": True,
     "BASE_DIR": "."
 }

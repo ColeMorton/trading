@@ -32,21 +32,22 @@ def process_single_ticker(
     config_copy = config.copy()
     config_copy["TICKER"] = ticker
     
-    # Construct file path using BASE_DIR
-    file_name = f'{ticker}{"_H" if config.get("USE_HOURLY", False) else "_D"}{"_SMA" if config.get("USE_SMA", False) else "_EMA"}'
-    portfolios_dir = os.path.join(config['BASE_DIR'], 'csv', 'ma_cross', 'portfolios')
-    
-    # Ensure directory exists
-    os.makedirs(portfolios_dir, exist_ok=True)
-    
-    file_path = os.path.join(portfolios_dir, f'{file_name}.csv')
+    if config.get("REFRESH", True) == False:
+        # Construct file path using BASE_DIR
+        file_name = f'{ticker}{"_H" if config.get("USE_HOURLY", False) else "_D"}{"_SMA" if config.get("USE_SMA", False) else "_EMA"}'
+        directory = os.path.join(config['BASE_DIR'], 'csv', 'ma_cross', 'portfolios')
+        
+        # Ensure directory exists
+        os.makedirs(directory, exist_ok=True)
+        
+        file_path = os.path.join(directory, f'{file_name}.csv')
 
-    log(f"Checking existing portfolio data from {file_path}")
-    
-    # Check if file exists and was created today
-    if config.get("REFRESH", True) == False and os.path.exists(file_path) and is_file_from_today(file_path):
-        log(f"Loading existing portfolio data.")
-        return pl.read_csv(file_path)
+        log(f"Checking existing data from {file_path}.")
+        
+        # Check if file exists and was created today
+        if os.path.exists(file_path) and is_file_from_today(file_path):
+            log(f"Loading existing data from {file_path}.")
+            return pl.read_csv(file_path)
     
     # Create distinct integer values for windows
     short_windows = np.arange(2, config["WINDOWS"] + 1)  # [2, 3, ..., WINDOWS]

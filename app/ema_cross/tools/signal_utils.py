@@ -44,7 +44,19 @@ def is_signal_current(signals: pl.DataFrame) -> bool:
     if isinstance(last_date, datetime):
         last_date = last_date.date()
     elif isinstance(last_date, str):
-        last_date = datetime.strptime(last_date, "%Y-%m-%d").date()
+        try:
+            # Try parsing with timestamp first
+            last_date = datetime.strptime(last_date, "%Y-%m-%d %H:%M:%S").date()
+        except ValueError:
+            try:
+                # Try parsing with just date if timestamp fails
+                last_date = datetime.strptime(last_date, "%Y-%m-%d").date()
+            except ValueError:
+                try:
+                    # Try parsing ISO format if both above fail
+                    last_date = datetime.fromisoformat(last_date).date()
+                except ValueError as e:
+                    raise ValueError(f"Unable to parse date: {last_date}. Error: {str(e)}")
     
     # Get signal and position from last row
     signal = last_row.get_column("Signal").item()
