@@ -51,12 +51,13 @@ def run(strategies: List[StrategyConfig]) -> bool:
         # Get and prepare data for all strategies
         strategy_data = []
         for config in strategies:
-            data = get_data(config["TICKER"], config)
+            data = get_data(config["TICKER"], config, log)
             data = calculate_ma_and_signals(
                 data, 
                 config['SHORT_WINDOW'], 
                 config['LONG_WINDOW'], 
-                config
+                config,
+                log  # Pass the log parameter here
             )
             # Add expectancy per day to the strategy config
             portfolio = backtest_strategy(data, config, log)

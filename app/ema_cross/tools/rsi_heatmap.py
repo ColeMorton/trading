@@ -48,7 +48,8 @@ def analyze_rsi_parameters(
             data,
             baseline_config["SHORT_WINDOW"],
             baseline_config["LONG_WINDOW"],
-            baseline_config
+            baseline_config,
+            log
         )
         baseline_portfolio = backtest_strategy(baseline_data, baseline_config, log)
         baseline_stats = convert_stats(baseline_portfolio.stats(), baseline_config)
@@ -78,7 +79,8 @@ def analyze_rsi_parameters(
                 data,
                 config["SHORT_WINDOW"],
                 config["LONG_WINDOW"],
-                config
+                config,
+                log
             )
             
             portfolio = backtest_strategy(data_with_signals, config, log)

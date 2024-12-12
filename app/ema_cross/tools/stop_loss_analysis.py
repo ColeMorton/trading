@@ -52,7 +52,8 @@ def analyze_stop_loss_parameters(
         data,
         config["SHORT_WINDOW"],
         config["LONG_WINDOW"],
-        config
+        config,
+        log  # Pass the log parameter here
     )
     
     # Get baseline performance ONLY IF RELATIVE is True
