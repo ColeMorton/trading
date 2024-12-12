@@ -88,7 +88,7 @@ def run(config: CacheConfig) -> bool:
         # If no cache or refresh requested, run new analysis
         if metric_matrices is None:
             log("Running new protective stop loss analysis")
-            data = get_data(config["TICKER"], config)
+            data = get_data(config["TICKER"], config, log)
             
             metric_matrices, holding_period_range = analyze_protective_stop_loss_parameters(
                 data=data,

@@ -1,13 +1,31 @@
-import logging
+from typing import Callable
 import polars as pl
 from app.tools.calculate_mas import calculate_mas
 from app.tools.calculate_ma_signals import calculate_ma_signals
 from app.tools.calculate_rsi import calculate_rsi
 
-def calculate_ma_and_signals(data: pl.DataFrame, short_window: int, long_window: int, config: dict) -> pl.DataFrame:
-    """Calculate MAs and generate trading signals."""
+def calculate_ma_and_signals(
+    data: pl.DataFrame,
+    short_window: int,
+    long_window: int,
+    config: dict,
+    log: Callable
+) -> pl.DataFrame:
+    """
+    Calculate MAs and generate trading signals.
+    
+    Args:
+        data (pl.DataFrame): Input price data
+        short_window (int): Short moving average window
+        long_window (int): Long moving average window
+        config (dict): Configuration dictionary
+        log (Callable): Logging function
+        
+    Returns:
+        pl.DataFrame: Data with moving averages and signals
+    """
     ma_type = "SMA" if config.get('USE_SMA', False) else "EMA"
-    logging.info(f"Calculating {ma_type}s and signals with short window {short_window} and long window {long_window}")
+    log(f"Calculating {ma_type}s and signals with short window {short_window} and long window {long_window}")
     
     try:
         # Calculate moving averages
@@ -35,5 +53,5 @@ def calculate_ma_and_signals(data: pl.DataFrame, short_window: int, long_window:
         return data
         
     except Exception as e:
-        logging.error(f"Failed to calculate {ma_type}s and signals: {e}")
+        log(f"Failed to calculate {ma_type}s and signals: {e}", "error")
         raise

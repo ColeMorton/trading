@@ -62,16 +62,18 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": "STZ",
-    "SHORT_WINDOW": 11,
-    "LONG_WINDOW": 41,
+    "TICKER": "ABNB",
+    "SHORT_WINDOW": 27,
+    "LONG_WINDOW": 30,
     "BASE_DIR": ".",
     "USE_SMA": True,
-    "REFRESH": True,
+    "REFRESH": False,
+    "USE_HOURLY": False,
+    "RELATIVE": True,
     "USE_RSI": False,
-    "RSI_PERIOD": 22,
-    "RSI_THRESHOLD": 45,
-    "STOP_LOSS": 0.0685
+    "RSI_PERIOD": 23,
+    "RSI_THRESHOLD": 37,
+    "STOP_LOSS": 0.0322
 }
 
 def run(config: Config = config) -> bool:
@@ -110,7 +112,7 @@ def run(config: Config = config) -> bool:
         slippage_range = np.arange(0, 5.01, 0.01)
         log(f"Using slippage range: {slippage_range[0]}% to {slippage_range[-1]}%")
         
-        data = get_data(config["TICKER"], config)
+        data = get_data(config["TICKER"], config, log)
         data = calculate_mas(data, config['SHORT_WINDOW'], config['LONG_WINDOW'], config.get('USE_SMA', False))
         
         if config.get('USE_RSI', False):

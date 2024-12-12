@@ -30,7 +30,7 @@ def analyze_window_combination(
             log(f"Insufficient data for windows {short}, {long}", "warning")
             return None
             
-        temp_data = calculate_ma_and_signals(data.clone(), short, long, config)
+        temp_data = calculate_ma_and_signals(data.clone(), short, long, config, log)  # Added log parameter
         if temp_data is None or len(temp_data) == 0:
             log(f"No signals generated for windows {short}, {long}", "warning")
             return None

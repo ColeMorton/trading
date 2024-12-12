@@ -54,7 +54,7 @@ def process_single_ticker(
     long_windows = np.arange(3, config["WINDOWS"] + 1)  # [3, 4, ..., WINDOWS]
 
     log(f"Getting data...")
-    data = get_data(ticker, config_copy)
+    data = get_data(ticker, config_copy, log)
 
     log(f"Beginning analysis...")
     return analyze_parameter_sensitivity(data, short_windows, long_windows, config_copy, log)

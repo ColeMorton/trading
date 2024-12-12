@@ -92,7 +92,7 @@ def main(config = config):
     long_windows = np.linspace(13, 34, 22, dtype=int)  # 22 values from 13 to 34 days
     signal_windows = np.linspace(5, 13, 9, dtype=int)  # 9 values from 5 to 13 days
 
-    data = get_data(config["TICKER"], config)
+    data = get_data(config["TICKER"], config, log)
 
     # Perform sensitivity analysis
     (results, expectancy_results, sharpe_results, sortino_results, calmar_results,

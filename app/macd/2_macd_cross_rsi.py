@@ -134,7 +134,7 @@ def main():
     log("RSI Threshold Sensitivity Analysis - New Execution")
     rsi_range = np.arange(29, 79, 1)  # 30 to 80
 
-    data = get_data(config["TICKER"], config)
+    data = get_data(config["TICKER"], config, log)
     data = calculate_macd(data, config['SHORT_PERIOD'], config['LONG_PERIOD'], config['SIGNAL_PERIOD'])
     data = calculate_rsi(data, config['RSI_PERIOD'])
     

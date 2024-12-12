@@ -48,6 +48,7 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
             # Create a config copy with single ticker
             ticker_config = config.copy()
             ticker_config["TICKER"] = ticker
+            ticker_config["USE_MA"] = True  # Ensure USE_MA is set for proper filename suffix
             
             # Process portfolios for ticker
             portfolios_df = process_ticker_portfolios(ticker, ticker_config, log)
@@ -96,6 +97,7 @@ if __name__ == "__main__":
     try:
         # Run analysis with both EMA and SMA
         config_copy = DEFAULT_CONFIG.copy()
+        config_copy["USE_MA"] = True  # Ensure USE_MA is set for proper filename suffix
         run({**config_copy, "USE_SMA": False})  # Run with EMA
         run({**config_copy, "USE_SMA": True})   # Run with SMA
     except Exception as e:

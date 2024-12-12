@@ -1,6 +1,5 @@
 import polars as pl
 import numpy as np
-import pandas as pd
 from typing import List, Dict, Callable
 from app.tools.get_data import get_data
 from app.tools.get_config import get_config
@@ -36,7 +35,7 @@ def get_current_signals(
             for long in long_windows:
                 if short < long:  # Ensure short window is always less than long window
                     temp_data = data.clone()
-                    temp_data = calculate_ma_and_signals(temp_data, short, long, config)
+                    temp_data = calculate_ma_and_signals(temp_data, short, long, config, log)  # Added log parameter
                     
                     if temp_data is not None and len(temp_data) > 0:
                         current = is_signal_current(temp_data)
@@ -88,7 +87,7 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
         short_windows = np.arange(2, config["WINDOWS"])
         long_windows = np.arange(2, config["WINDOWS"])
 
-        data = get_data(config["TICKER"], config, log)  # Added log parameter here
+        data = get_data(config["TICKER"], config, log)
         if data is None:
             log("Failed to get price data", "error")
             return pl.DataFrame(
@@ -152,11 +151,5 @@ def process_ma_signals(
         fast_window, 
         slow_window
     )
-    
-    # message = (
-    #     f"{ticker} {ma_type} - {'Current signal found' if is_current else 'No signals'} "
-    #     f"for {fast_window}/{slow_window}{'!!!!!' if is_current else ''}"
-    # )
-    # print(message)
     
     return is_current

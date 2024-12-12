@@ -29,7 +29,7 @@ def process_current_signals(ticker: str, config: PortfolioConfig, log: Callable)
         # Generate and validate current signals
         current_signals = generate_current_signals(config_copy, log)
         if len(current_signals) == 0:
-            log("No current signals found", "warning")
+            log(f"No current signals found for {ticker} {'SMA' if config.get('USE_SMA', False) else 'EMA'}", "warning")
             return None
             
         log(f"Current signals for {ticker} {'SMA' if config.get('USE_SMA', False) else 'EMA'}")
@@ -59,13 +59,13 @@ def process_current_signals(ticker: str, config: PortfolioConfig, log: Callable)
         log(f"Failed to process current signals: {str(e)}", "error")
         return None
 
-def process_ticker_portfolios(ticker: str, config: PortfolioConfig, log) -> Optional[pl.DataFrame]:
+def process_ticker_portfolios(ticker: str, config: PortfolioConfig, log: Callable) -> Optional[pl.DataFrame]:
     """Process portfolios for a single ticker.
     
     Args:
         ticker (str): The ticker symbol to process
         config (PortfolioConfig): Configuration dictionary
-        log: Logging function
+        log (Callable): Logging function
         
     Returns:
         Optional[pl.DataFrame]: DataFrame of portfolios or None if processing fails

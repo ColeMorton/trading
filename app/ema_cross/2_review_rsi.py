@@ -21,13 +21,13 @@ from app.ema_cross.tools.rsi_visualization import create_rsi_heatmap
 
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
-    "TICKER": "PARA",
-    "SHORT_WINDOW": 8,
-    "LONG_WINDOW": 32,
+    "TICKER": "FET-USD",
+    "SHORT_WINDOW": 42,
+    "LONG_WINDOW": 54,
     "BASE_DIR": ".",
     "USE_SMA": True,
-    "REFRESH": True,
-    "USE_HOURLY": False,
+    "REFRESH": False,
+    "USE_HOURLY": True,
     "RELATIVE": True
 }
 
@@ -85,7 +85,7 @@ def run(config: CacheConfig) -> bool:
         # If no cache or refresh requested, run new analysis
         if metric_matrices is None:
             log("Running new RSI analysis")
-            data = get_data(config["TICKER"], config)
+            data = get_data(config["TICKER"], config, log)
             metric_matrices = analyze_rsi_parameters(
                 data=data,
                 config=config,
