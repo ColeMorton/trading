@@ -29,26 +29,68 @@ def generate_json_report(
         "strategies": [],
         "metrics": {
             "concurrency": {
-                "total_concurrent_periods": stats['total_concurrent_periods'],
-                "concurrency_ratio": stats['concurrency_ratio'],
-                "exclusive_ratio": stats['exclusive_ratio'],
-                "inactive_ratio": stats['inactive_ratio'],
-                "avg_concurrent_strategies": stats['avg_concurrent_strategies'],
-                "max_concurrent_strategies": stats['max_concurrent_strategies']
+                "total_concurrent_periods": {
+                    "value": stats['total_concurrent_periods'],
+                    "description": "Number of periods with concurrent positions"
+                },
+                "concurrency_ratio": {
+                    "value": stats['concurrency_ratio'],
+                    "description": "Ratio of concurrent periods to total periods"
+                },
+                "exclusive_ratio": {
+                    "value": stats['exclusive_ratio'],
+                    "description": "Ratio of periods with exactly one strategy in position"
+                },
+                "inactive_ratio": {
+                    "value": stats['inactive_ratio'],
+                    "description": "Ratio of periods with no active strategies"
+                },
+                "avg_concurrent_strategies": {
+                    "value": stats['avg_concurrent_strategies'],
+                    "description": "Average number of concurrent strategies"
+                },
+                "max_concurrent_strategies": {
+                    "value": stats['max_concurrent_strategies'],
+                    "description": "Maximum number of concurrent strategies"
+                }
             },
             "efficiency": {
-                "efficiency_score": stats['efficiency_score'],
-                "total_expectancy": stats['total_expectancy'],
-                "diversification_multiplier": stats['diversification_multiplier'],
-                "independence_multiplier": stats['independence_multiplier'],
-                "activity_multiplier": stats['activity_multiplier']
+                "efficiency_score": {
+                    "value": stats['efficiency_score'],
+                    "description": "Risk-Adjusted Performance"
+                },
+                "total_expectancy": {
+                    "value": stats['total_expectancy'],
+                    "description": "Combined expected return across all strategies"
+                },
+                "diversification_multiplier": {
+                    "value": stats['diversification_multiplier'],
+                    "description": "Multiplier effect from strategy diversification"
+                },
+                "independence_multiplier": {
+                    "value": stats['independence_multiplier'],
+                    "description": "Multiplier effect from strategy independence"
+                },
+                "activity_multiplier": {
+                    "value": stats['activity_multiplier'],
+                    "description": "Multiplier effect from strategy activity levels"
+                }
             },
             "risk": {
-                "risk_concentration_index": stats['risk_concentration_index'],
-                **stats['risk_metrics']
+                "risk_concentration_index": {
+                    "value": stats['risk_concentration_index'],
+                    "description": "Measure of risk concentration"
+                }
             }
         }
     }
+
+    # Add risk metrics with descriptions
+    for key, value in stats['risk_metrics'].items():
+        report["metrics"]["risk"][key] = {
+            "value": value,
+            "description": f"Risk metric: {key}"
+        }
 
     log("Compiled metrics data for concurrency, efficiency, and risk analysis", "info")
 
@@ -58,26 +100,56 @@ def generate_json_report(
         
         # Convert internal strategy config format to output format
         strategy_info = {
-            "ticker": strategy["TICKER"],
-            "timeframe": "Hourly" if strategy.get("USE_HOURLY", False) else "Daily",
-            "type": "MACD" if "SIGNAL_PERIOD" in strategy else "EMA",
-            "short_window": strategy["SHORT_WINDOW"],
-            "long_window": strategy["LONG_WINDOW"],
-            "stop_loss": strategy["STOP_LOSS"]
+            "ticker": {
+                "value": strategy["TICKER"],
+                "description": "Ticker symbol to analyze"
+            },
+            "timeframe": {
+                "value": "Hourly" if strategy.get("USE_HOURLY", False) else "Daily",
+                "description": "Trading timeframe (Hourly or Daily)"
+            },
+            "type": {
+                "value": "MACD" if "SIGNAL_PERIOD" in strategy else "EMA",
+                "description": "Strategy type (MACD or EMA)"
+            },
+            "short_window": {
+                "value": strategy["SHORT_WINDOW"],
+                "description": "Period for short moving average or MACD fast line"
+            },
+            "long_window": {
+                "value": strategy["LONG_WINDOW"],
+                "description": "Period for long moving average or MACD slow line"
+            },
+            "stop_loss": {
+                "value": strategy["STOP_LOSS"],
+                "description": "Stop loss percentage"
+            }
         }
         
         # Add RSI parameters if present
         if strategy.get("USE_RSI", False) and "RSI_PERIOD" in strategy:
-            strategy_info["rsi_period"] = strategy["RSI_PERIOD"]
-            strategy_info["rsi_threshold"] = strategy["RSI_THRESHOLD"]
+            strategy_info["rsi_period"] = {
+                "value": strategy["RSI_PERIOD"],
+                "description": "Period for RSI calculation"
+            }
+            strategy_info["rsi_threshold"] = {
+                "value": strategy["RSI_THRESHOLD"],
+                "description": "RSI threshold for signal filtering"
+            }
             
         # Add MACD signal period if present
         if "SIGNAL_PERIOD" in strategy:
-            strategy_info["signal_period"] = strategy["SIGNAL_PERIOD"]
+            strategy_info["signal_period"] = {
+                "value": strategy["SIGNAL_PERIOD"],
+                "description": "Period for MACD signal line"
+            }
             
         # Add expectancy per day
         if "EXPECTANCY_PER_DAY" in strategy:
-            strategy_info["expectancy_per_day"] = strategy["EXPECTANCY_PER_DAY"]
+            strategy_info["expectancy_per_day"] = {
+                "value": strategy["EXPECTANCY_PER_DAY"],
+                "description": "Expected daily return"
+            }
         
         report["strategies"].append(strategy_info)
 
