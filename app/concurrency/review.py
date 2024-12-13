@@ -7,7 +7,9 @@ about the concurrent exposure. Supports analysis of strategies with different
 timeframes by resampling hourly data to daily when needed.
 """
 
-from typing import List
+from typing import List, Dict, Any
+import json
+from pathlib import Path
 from app.tools.setup_logging import setup_logging
 from app.tools.get_data import get_data
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
@@ -20,6 +22,75 @@ from app.tools.backtest_strategy import backtest_strategy
 from app.tools.file_utils import convert_stats
 from app.concurrency.portfolios.current_daily import portfolio
 import polars as pl
+
+def generate_json_report(
+    strategies: List[StrategyConfig], 
+    stats: Dict[str, Any], 
+    log: callable
+) -> Dict[str, Any]:
+    """Generate a comprehensive JSON report of the concurrency analysis.
+
+    Args:
+        strategies (List[StrategyConfig]): List of strategy configurations
+        stats (Dict[str, Any]): Statistics from the concurrency analysis
+        log (callable): Logging function
+
+    Returns:
+        Dict[str, Any]: Complete report in dictionary format
+    """
+    report = {
+        "strategies": [],
+        "metrics": {
+            "concurrency": {
+                "total_concurrent_periods": stats['total_concurrent_periods'],
+                "concurrency_ratio": stats['concurrency_ratio'],
+                "exclusive_ratio": stats['exclusive_ratio'],
+                "inactive_ratio": stats['inactive_ratio'],
+                "avg_concurrent_strategies": stats['avg_concurrent_strategies'],
+                "max_concurrent_strategies": stats['max_concurrent_strategies']
+            },
+            "efficiency": {
+                "efficiency_score": stats['efficiency_score'],
+                "total_expectancy": stats['total_expectancy'],
+                "diversification_multiplier": stats['diversification_multiplier'],
+                "independence_multiplier": stats['independence_multiplier'],
+                "activity_multiplier": stats['activity_multiplier']
+            },
+            "risk": {
+                "risk_concentration_index": stats['risk_concentration_index'],
+                **stats['risk_metrics']
+            }
+        }
+    }
+
+    # Add strategy details
+    for strategy in strategies:
+        strategy_info = {
+            "ticker": strategy["TICKER"],
+            "timeframe": "Hourly" if strategy.get("USE_HOURLY", False) else "Daily",
+            "expectancy_per_day": strategy.get("EXPECTANCY_PER_DAY", 0),
+        }
+        
+        # Add strategy-specific parameters
+        if "SIGNAL_PERIOD" in strategy:
+            strategy_info.update({
+                "type": "MACD",
+                "short_window": strategy["SHORT_WINDOW"],
+                "long_window": strategy["LONG_WINDOW"],
+                "signal_period": strategy["SIGNAL_PERIOD"]
+            })
+        else:
+            # Determine if it's EMA or SMA Cross
+            ma_type = "EMA Cross" if strategy.get("USE_EMA", True) else "SMA Cross"
+            strategy_info.update({
+                "type": ma_type,
+                "short_window": strategy["SHORT_WINDOW"],
+                "long_window": strategy["LONG_WINDOW"]
+            })
+        
+        report["strategies"].append(strategy_info)
+
+    return report
     
 def run(strategies: List[StrategyConfig]) -> bool:
     """Run concurrency analysis across multiple strategies.
@@ -118,6 +189,20 @@ def run(strategies: List[StrategyConfig]) -> bool:
             strategies
         )
         fig.show()
+
+        # Generate and save JSON report
+        report = generate_json_report(strategies, stats, log)
+        
+        # Ensure the json/concurrency directory exists
+        json_dir = Path("json/concurrency")
+        json_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Save the report
+        report_path = json_dir / "concurrency_report.json"
+        with open(report_path, 'w') as f:
+            json.dump(report, f, indent=4)
+        
+        log(f"JSON report saved to {report_path}")
         
         log("Unified concurrency analysis completed successfully")
         log_close()
