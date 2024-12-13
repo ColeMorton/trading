@@ -15,6 +15,20 @@ strategy_1: StrategyConfig = {
 
 strategy_2: StrategyConfig = {
     "TICKER": "BTC-USD",
+    "SHORT_WINDOW": 14,
+    "LONG_WINDOW": 23,
+    "SIGNAL_PERIOD": 13,
+    "BASE_DIR": ".",
+    "USE_HOURLY": False,
+    "REFRESH": True,
+    "USE_RSI": True,
+    "RSI_PERIOD": 14,
+    "RSI_THRESHOLD": 45,    
+    "STOP_LOSS": 0.088
+}
+
+strategy_3: StrategyConfig = {
+    "TICKER": "BTC-USD",
     "SHORT_WINDOW": 65,
     "LONG_WINDOW": 74,
     "BASE_DIR": ".",
@@ -27,7 +41,7 @@ strategy_2: StrategyConfig = {
     "STOP_LOSS": 0.0565
 }
 
-strategy_3: StrategyConfig = {
+strategy_4: StrategyConfig = {
     "TICKER": "SOL-USD",
     "SHORT_WINDOW": 14,
     "LONG_WINDOW": 32,
@@ -35,20 +49,6 @@ strategy_3: StrategyConfig = {
     "USE_SMA": True,
     "REFRESH": True,
     "USE_RSI": True,
-    "RSI_PERIOD": 26,
-    "RSI_THRESHOLD": 43,    
-    "STOP_LOSS": 0.125
-}
-
-strategy_4: StrategyConfig = {
-    "TICKER": "SOL-USD",
-    "SHORT_WINDOW": 20,
-    "LONG_WINDOW": 60,
-    "BASE_DIR": ".",
-    "USE_SMA": False,
-    "USE_HOURLY": True,
-    "REFRESH": True,
-    "USE_RSI": False,
     "RSI_PERIOD": 26,
     "RSI_THRESHOLD": 43,    
     "STOP_LOSS": 0.125
@@ -68,4 +68,18 @@ strategy_5: StrategyConfig = {
     "STOP_LOSS": 0.189
 }
 
-portfolio = [strategy_1, strategy_2, strategy_3, strategy_4, strategy_5]
+strategy_6: StrategyConfig = {
+    "TICKER": "SOL-USD",
+    "SHORT_WINDOW": 20,
+    "LONG_WINDOW": 60,
+    "BASE_DIR": ".",
+    "USE_SMA": False,
+    "USE_HOURLY": True,
+    "REFRESH": True,
+    "USE_RSI": False,
+    "RSI_PERIOD": 26,
+    "RSI_THRESHOLD": 43,    
+    "STOP_LOSS": 0.125
+}
+
+portfolio = [strategy_1, strategy_2, strategy_3, strategy_4, strategy_5, strategy_6]

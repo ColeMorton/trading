@@ -7,14 +7,15 @@ class StrategyConfig(TypedDict):
 
     Required Fields:
         TICKER (str): Ticker symbol to analyze
-        SHORT_WINDOW (int): Period for short moving average
-        LONG_WINDOW (int): Period for long moving average
+        SHORT_WINDOW (int): Period for short moving average or MACD fast line
+        LONG_WINDOW (int): Period for long moving average or MACD slow line
         USE_RSI (bool): Whether to enable RSI filtering
         RSI_PERIOD (int): Period for RSI calculation
         RSI_THRESHOLD (float): RSI threshold for signal filtering
         STOP_LOSS (float): Stop loss percentage
 
     Optional Fields:
+        SIGNAL_PERIOD (NotRequired[int]): Period for MACD signal line (makes it a MACD strategy)
         USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average instead of EMA
         REFRESH (NotRequired[bool]): Whether to refresh data
         BASE_DIR (NotRequired[str]): Base directory for data storage
@@ -28,6 +29,7 @@ class StrategyConfig(TypedDict):
     RSI_PERIOD: int
     RSI_THRESHOLD: float
     STOP_LOSS: float
+    SIGNAL_PERIOD: NotRequired[int]
     USE_SMA: NotRequired[bool]
     REFRESH: NotRequired[bool]
     BASE_DIR: NotRequired[str]

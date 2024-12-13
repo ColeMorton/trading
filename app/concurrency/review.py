@@ -11,13 +11,16 @@ from typing import List
 from app.tools.setup_logging import setup_logging
 from app.tools.get_data import get_data
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
+from app.tools.calculate_macd import calculate_macd
+from app.tools.calculate_macd_signals import calculate_macd_signals
 from app.concurrency.tools.types import StrategyConfig
 from app.concurrency.tools.analysis import analyze_concurrency
 from app.concurrency.tools.visualization import plot_concurrency
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.file_utils import convert_stats
-from app.concurrency.portfolios.crypto import portfolio
-
+from app.concurrency.portfolios.current import portfolio
+import polars as pl
+    
 def run(strategies: List[StrategyConfig]) -> bool:
     """Run concurrency analysis across multiple strategies.
 
@@ -52,13 +55,31 @@ def run(strategies: List[StrategyConfig]) -> bool:
         strategy_data = []
         for config in strategies:
             data = get_data(config["TICKER"], config, log)
-            data = calculate_ma_and_signals(
-                data, 
-                config['SHORT_WINDOW'], 
-                config['LONG_WINDOW'], 
-                config,
-                log  # Pass the log parameter here
-            )
+            
+            # Check if this is a MACD strategy by looking for SIGNAL_PERIOD
+            if 'SIGNAL_PERIOD' in config:
+                log(f"Processing MACD strategy with periods: {config['SHORT_WINDOW']}/{config['LONG_WINDOW']}/{config['SIGNAL_PERIOD']}")
+                data = calculate_macd(
+                    data,
+                    short_window=config['SHORT_WINDOW'],
+                    long_window=config['LONG_WINDOW'],
+                    signal_window=config['SIGNAL_PERIOD']
+                )
+                data = calculate_macd_signals(data, config.get('SHORT', False))
+                # Add Position column (shifted Signal) for MACD strategies
+                data = data.with_columns([
+                    pl.col("Signal").shift(1).fill_null(0).alias("Position")
+                ])
+            else:
+                log(f"Processing MA cross strategy with windows: {config['SHORT_WINDOW']}/{config['LONG_WINDOW']}")
+                data = calculate_ma_and_signals(
+                    data, 
+                    config['SHORT_WINDOW'], 
+                    config['LONG_WINDOW'], 
+                    config,
+                    log
+                )
+            
             # Add expectancy per day to the strategy config
             portfolio = backtest_strategy(data, config, log)
             stats = convert_stats(portfolio.stats(), config)
