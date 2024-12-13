@@ -20,7 +20,7 @@ class StrategyConfig(TypedDict):
         REFRESH (NotRequired[bool]): Whether to refresh data
         BASE_DIR (NotRequired[str]): Base directory for data storage
         USE_HOURLY (NotRequired[bool]): Whether to use hourly timeframe instead of daily
-        Expectancy per Day (NotRequired[float]): Expected daily return
+        EXPECTANCY_PER_DAY (NotRequired[float]): Expected daily return
     """
     TICKER: str
     SHORT_WINDOW: int
@@ -34,7 +34,7 @@ class StrategyConfig(TypedDict):
     REFRESH: NotRequired[bool]
     BASE_DIR: NotRequired[str]
     USE_HOURLY: NotRequired[bool]
-    Expectancy_per_Day: NotRequired[float]
+    EXPECTANCY_PER_DAY: NotRequired[float]
 
 class RiskMetrics(TypedDict):
     """Risk metrics for concurrent strategies.

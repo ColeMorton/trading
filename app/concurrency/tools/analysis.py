@@ -137,7 +137,7 @@ def analyze_concurrency(
         # Calculate risk and efficiency metrics
         risk_metrics = calculate_risk_contributions(position_arrays, aligned_data)
         strategy_expectancies = [
-            config.get('expectancy_per_day', 0)
+            config.get('EXPECTANCY_PER_DAY', 0)
             for config in config_list
         ]
         efficiency_metrics = calculate_efficiency_score(

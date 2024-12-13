@@ -18,7 +18,7 @@ from app.concurrency.tools.analysis import analyze_concurrency
 from app.concurrency.tools.visualization import plot_concurrency
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.file_utils import convert_stats
-from app.concurrency.portfolios.current import portfolio
+from app.concurrency.portfolios.current_daily import portfolio
 import polars as pl
     
 def run(strategies: List[StrategyConfig]) -> bool:
@@ -83,7 +83,7 @@ def run(strategies: List[StrategyConfig]) -> bool:
             # Add expectancy per day to the strategy config
             portfolio = backtest_strategy(data, config, log)
             stats = convert_stats(portfolio.stats(), config)
-            config['expectancy_per_day'] = stats['Expectancy per Day']
+            config['EXPECTANCY_PER_DAY'] = stats['Expectancy per Day']
             strategy_data.append(data)
         
         # Analyze concurrency across all strategies simultaneously
