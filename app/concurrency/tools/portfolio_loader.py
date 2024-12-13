@@ -59,7 +59,8 @@ def load_portfolio_from_json(json_path: Path, log: Callable[[str, str], None], c
             "STOP_LOSS": float(row.get("stop_loss", 0.0)),
             "USE_RSI": has_rsi,
             "USE_HOURLY": timeframe.lower() == "hourly",
-            "USE_SMA": False  # Default to EMA
+            "USE_SMA": strategy_type == "SMA",  # Set based on strategy type
+            "STRATEGY_TYPE": strategy_type  # Store the actual strategy type
         }
         
         # Add RSI fields only if both exist and have non-None values

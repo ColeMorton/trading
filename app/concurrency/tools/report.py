@@ -98,6 +98,9 @@ def generate_json_report(
     for idx, strategy in enumerate(strategies, 1):
         log(f"Processing strategy {idx}/{len(strategies)}: {strategy['TICKER']}", "info")
         
+        # Use the stored strategy type directly
+        strategy_type = strategy.get("STRATEGY_TYPE", "EMA")  # Default to EMA if not found
+        
         # Convert internal strategy config format to output format
         strategy_info = {
             "ticker": {
@@ -109,8 +112,8 @@ def generate_json_report(
                 "description": "Trading timeframe (Hourly or Daily)"
             },
             "type": {
-                "value": "MACD" if "SIGNAL_PERIOD" in strategy else "EMA",
-                "description": "Strategy type (MACD or EMA)"
+                "value": strategy_type,
+                "description": "Strategy type (MACD, SMA, or EMA)"
             },
             "short_window": {
                 "value": strategy["SHORT_WINDOW"],
