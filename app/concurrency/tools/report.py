@@ -23,6 +23,8 @@ def generate_json_report(
             - strategies: List of strategy details and parameters
             - metrics: Dictionary of concurrency, efficiency and risk metrics
     """
+    log(f"Starting JSON report generation for {len(strategies)} strategies", "info")
+
     report = {
         "strategies": [],
         "metrics": {
@@ -48,8 +50,11 @@ def generate_json_report(
         }
     }
 
+    log("Compiled metrics data for concurrency, efficiency, and risk analysis", "info")
+
     # Add strategy details
-    for strategy in strategies:
+    for idx, strategy in enumerate(strategies, 1):
+        log(f"Processing strategy {idx}/{len(strategies)}: {strategy['TICKER']}", "info")
         strategy_info = {
             "ticker": strategy["TICKER"],
             "timeframe": "Hourly" if strategy.get("USE_HOURLY", False) else "Daily",
@@ -75,4 +80,5 @@ def generate_json_report(
         
         report["strategies"].append(strategy_info)
 
+    log("Successfully generated JSON report", "info")
     return report

@@ -10,6 +10,7 @@ timeframes by resampling hourly data to daily when needed.
 from typing import List
 import json
 from pathlib import Path
+import inspect
 from app.tools.setup_logging import setup_logging
 from app.tools.get_data import get_data
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
@@ -129,8 +130,17 @@ def run(strategies: List[StrategyConfig]) -> bool:
         json_dir = Path("json/concurrency")
         json_dir.mkdir(parents=True, exist_ok=True)
         
+        # Get the portfolio module filename
+        portfolio_module = inspect.getmodule(strategies)
+        if portfolio_module:
+            portfolio_filename = Path(portfolio_module.__file__).stem
+            report_filename = f"{portfolio_filename}.json"
+        else:
+            report_filename = "concurrency_report.json"
+            log("Could not determine portfolio filename, using default name", "warning")
+        
         # Save the report
-        report_path = json_dir / "concurrency_report.json"
+        report_path = json_dir / report_filename
         with open(report_path, 'w') as f:
             json.dump(report, f, indent=4)
         
@@ -148,6 +158,7 @@ def run(strategies: List[StrategyConfig]) -> bool:
 if __name__ == "__main__":
     try:
         # Run unified analysis across all strategies
+        portfolio_name = 'current.csv'
         result = run(portfolio)
         if result:
             print("Unified concurrency analysis completed successfully!")
