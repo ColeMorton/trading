@@ -10,15 +10,13 @@ class StrategyConfig(TypedDict):
         SHORT_WINDOW (int): Period for short moving average or MACD fast line
         LONG_WINDOW (int): Period for long moving average or MACD slow line
         USE_RSI (bool): Whether to enable RSI filtering
-        RSI_PERIOD (int): Period for RSI calculation
-        RSI_THRESHOLD (float): RSI threshold for signal filtering
         STOP_LOSS (float): Stop loss percentage
 
     Optional Fields:
+        RSI_PERIOD (NotRequired[int]): Period for RSI calculation (required if USE_RSI is True)
+        RSI_THRESHOLD (NotRequired[float]): RSI threshold for signal filtering (required if USE_RSI is True)
         SIGNAL_PERIOD (NotRequired[int]): Period for MACD signal line (makes it a MACD strategy)
         USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average instead of EMA
-        REFRESH (NotRequired[bool]): Whether to refresh data
-        BASE_DIR (NotRequired[str]): Base directory for data storage
         USE_HOURLY (NotRequired[bool]): Whether to use hourly timeframe instead of daily
         EXPECTANCY_PER_DAY (NotRequired[float]): Expected daily return
     """
@@ -26,13 +24,11 @@ class StrategyConfig(TypedDict):
     SHORT_WINDOW: int
     LONG_WINDOW: int
     USE_RSI: bool
-    RSI_PERIOD: int
-    RSI_THRESHOLD: float
     STOP_LOSS: float
+    RSI_PERIOD: NotRequired[int]
+    RSI_THRESHOLD: NotRequired[float]
     SIGNAL_PERIOD: NotRequired[int]
     USE_SMA: NotRequired[bool]
-    REFRESH: NotRequired[bool]
-    BASE_DIR: NotRequired[str]
     USE_HOURLY: NotRequired[bool]
     EXPECTANCY_PER_DAY: NotRequired[float]
 

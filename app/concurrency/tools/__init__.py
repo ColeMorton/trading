@@ -4,7 +4,7 @@ from app.concurrency.tools.types import StrategyConfig, ConcurrencyStats
 from app.concurrency.tools.data_alignment import align_data
 from app.concurrency.tools.analysis import analyze_concurrency
 from app.concurrency.tools.visualization import plot_concurrency
-from app.concurrency.tools.portfolio_loader import load_portfolio_from_csv
+from app.concurrency.tools.portfolio_loader import load_portfolio_from_json
 
 __all__ = [
     'StrategyConfig',
@@ -12,5 +12,5 @@ __all__ = [
     'align_data',
     'analyze_concurrency',
     'plot_concurrency',
-    'load_portfolio_from_csv'
+    'load_portfolio_from_json'
 ]

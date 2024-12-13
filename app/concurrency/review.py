@@ -20,7 +20,7 @@ from app.concurrency.tools.types import StrategyConfig
 from app.concurrency.tools.analysis import analyze_concurrency
 from app.concurrency.tools.visualization import plot_concurrency
 from app.concurrency.tools.report import generate_json_report
-from app.concurrency.tools.portfolio_loader import load_portfolio_from_csv
+from app.concurrency.tools.portfolio_loader import load_portfolio_from_json
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.file_utils import convert_stats
 
@@ -149,7 +149,7 @@ def run(strategies: List[StrategyConfig], log: Callable[[str, str], None], confi
 
 # Default Configuration
 config = {
-    "PORTFOLIO": "current.csv",
+    "PORTFOLIO": "current.json",  # Updated to use JSON file
     "BASE_DIR": ".",
     "REFRESH": True
 }
@@ -164,8 +164,8 @@ if __name__ == "__main__":
         # Run unified analysis across all strategies
         portfolio_path = Path(__file__).parent / 'portfolios' / config["PORTFOLIO"]
         
-        # Load portfolio from CSV
-        strategies = load_portfolio_from_csv(portfolio_path, log, config)
+        # Load portfolio from JSON
+        strategies = load_portfolio_from_json(portfolio_path, log, config)
         
         # Run unified analysis
         result = run(strategies, log, config)
