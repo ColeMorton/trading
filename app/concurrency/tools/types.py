@@ -79,3 +79,18 @@ class ConcurrencyStats(TypedDict):
     risk_metrics: Dict[str, float]
     start_date: NotRequired[str]
     end_date: NotRequired[str]
+
+class ConcurrencyConfig(TypedDict):
+    """Configuration type definition for concurrency analysis.
+
+    Required Fields:
+        PORTFOLIO (str): Path to the portfolio JSON file
+        BASE_DIR (str): Base directory for file operations
+        REFRESH (bool): Whether to refresh data
+
+    Optional Fields:
+        None currently defined
+    """
+    PORTFOLIO: str
+    BASE_DIR: str
+    REFRESH: bool
