@@ -23,7 +23,7 @@ class Config(TypedDict):
         EMA_FAST (int): Period for fast EMA
         EMA_SLOW (int): Period for slow EMA
         RSI_PERIOD (int): Period for RSI calculation
-        RSI_THRESHOLD (float): RSI threshold for signal generation
+        RSI_THRESHOLD (int): RSI threshold for signal generation
         USE_RSI (bool): Whether to enable RSI filtering
         WINDOWS (int): Maximum window size for parameter analysis
 
@@ -45,7 +45,7 @@ class Config(TypedDict):
     EMA_FAST: int
     EMA_SLOW: int
     RSI_PERIOD: int
-    RSI_THRESHOLD: float
+    RSI_THRESHOLD: int
     USE_RSI: bool
     WINDOWS: int
     
@@ -71,7 +71,7 @@ EMA_SLOW: int = 10
 
 # RSI settings
 RSI_PERIOD: int = 14
-RSI_THRESHOLD: float = 55.0
+RSI_THRESHOLD: int = 55  # Changed from float to int
 USE_RSI: bool = False
 
 # Stop loss settings

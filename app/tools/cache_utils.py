@@ -19,7 +19,7 @@ class CacheConfig(TypedDict):
         USE_SMA (NotRequired[bool]): Whether to use SMA instead of EMA
         USE_RSI (NotRequired[bool]): Whether RSI filter is enabled
         RSI_PERIOD (NotRequired[int]): RSI calculation period
-        RSI_THRESHOLD (NotRequired[float]): RSI threshold value
+        RSI_THRESHOLD (NotRequired[int]): RSI threshold value
         STOP_LOSS (NotRequired[float]): Stop loss percentage
         REFRESH (NotRequired[bool]): Whether to force refresh analysis
         RELATIVE (NotRequired[bool]): When True, all metrics are relative to the baseline analysis; when False, all metrics are absolute.
@@ -31,7 +31,7 @@ class CacheConfig(TypedDict):
     USE_SMA: bool
     USE_RSI: bool
     RSI_PERIOD: int
-    RSI_THRESHOLD: float
+    RSI_THRESHOLD: int
     STOP_LOSS: float
     REFRESH: bool
     RELATIVE: bool

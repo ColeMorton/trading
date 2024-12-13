@@ -30,7 +30,7 @@ class Config(TypedDict):
         LONG_WINDOW (int): Period for long moving average
         USE_RSI (bool): Whether to enable RSI filtering
         RSI_PERIOD (int): Period for RSI calculation
-        RSI_THRESHOLD (float): RSI threshold for signal filtering
+        RSI_THRESHOLD (int): RSI threshold for signal filtering
 
     Optional Fields:
         SHORT (NotRequired[bool]): Whether to enable short positions
@@ -48,7 +48,7 @@ class Config(TypedDict):
     LONG_WINDOW: int
     USE_RSI: bool
     RSI_PERIOD: int
-    RSI_THRESHOLD: float
+    RSI_THRESHOLD: int
     STOP_LOSS: NotRequired[float]
     SHORT: NotRequired[bool]
     USE_SMA: NotRequired[bool]
@@ -72,7 +72,7 @@ config: Config = {
     "RELATIVE": True,
     "USE_RSI": False,
     "RSI_PERIOD": 22,
-    "RSI_THRESHOLD": 36,
+    "RSI_THRESHOLD": 36,  # Changed from float to int
     "STOP_LOSS": 0.1007
 }
 

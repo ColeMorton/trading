@@ -52,31 +52,32 @@ def generate_json_report(
 
     log("Compiled metrics data for concurrency, efficiency, and risk analysis", "info")
 
-    # Add strategy details
+    # Add strategy details - preserve all original properties and add expectancy_per_day
     for idx, strategy in enumerate(strategies, 1):
         log(f"Processing strategy {idx}/{len(strategies)}: {strategy['TICKER']}", "info")
+        
+        # Convert internal strategy config format to output format
         strategy_info = {
             "ticker": strategy["TICKER"],
             "timeframe": "Hourly" if strategy.get("USE_HOURLY", False) else "Daily",
-            "expectancy_per_day": strategy.get("EXPECTANCY_PER_DAY", 0),
+            "type": "MACD" if "SIGNAL_PERIOD" in strategy else "EMA",
+            "short_window": strategy["SHORT_WINDOW"],
+            "long_window": strategy["LONG_WINDOW"],
+            "stop_loss": strategy["STOP_LOSS"]
         }
         
-        # Add strategy-specific parameters
+        # Add RSI parameters if present
+        if strategy.get("USE_RSI", False) and "RSI_PERIOD" in strategy:
+            strategy_info["rsi_period"] = strategy["RSI_PERIOD"]
+            strategy_info["rsi_threshold"] = strategy["RSI_THRESHOLD"]
+            
+        # Add MACD signal period if present
         if "SIGNAL_PERIOD" in strategy:
-            strategy_info.update({
-                "type": "MACD",
-                "short_window": strategy["SHORT_WINDOW"],
-                "long_window": strategy["LONG_WINDOW"],
-                "signal_period": strategy["SIGNAL_PERIOD"]
-            })
-        else:
-            # Determine if it's EMA or SMA Cross
-            ma_type = "EMA Cross" if strategy.get("USE_EMA", True) else "SMA Cross"
-            strategy_info.update({
-                "type": ma_type,
-                "short_window": strategy["SHORT_WINDOW"],
-                "long_window": strategy["LONG_WINDOW"]
-            })
+            strategy_info["signal_period"] = strategy["SIGNAL_PERIOD"]
+            
+        # Add expectancy per day
+        if "EXPECTANCY_PER_DAY" in strategy:
+            strategy_info["expectancy_per_day"] = strategy["EXPECTANCY_PER_DAY"]
         
         report["strategies"].append(strategy_info)
 

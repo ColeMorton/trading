@@ -14,7 +14,7 @@ log, log_close, _, _ = setup_logging(
     log_file='2_macd_cross_rsi.log'
 )
 
-def backtest(data: pl.DataFrame, rsi_threshold: float) -> List[Tuple[float, float]]:
+def backtest(data: pl.DataFrame, rsi_threshold: int) -> List[Tuple[float, float]]:
     log(f"Running backtest with RSI threshold: {rsi_threshold}")
     position, entry_price = 0, 0
     trades = []

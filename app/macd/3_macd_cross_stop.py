@@ -33,7 +33,7 @@ def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
         log(f"Failed to download data for {ticker}: {e}")
         raise
 
-def backtest(data: pl.DataFrame, stop_loss_percentage: float, rsi_threshold: float = 70) -> List[Tuple[float, float]]:
+def backtest(data: pl.DataFrame, stop_loss_percentage: float, rsi_threshold: int = 70) -> List[Tuple[float, float]]:
     position, entry_price = 0, 0
     trades = []
 

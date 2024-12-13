@@ -17,7 +17,7 @@ class Config(TypedDict):
     LONG_PERIOD: bool
     SIGNAL_PERIOD: bool
     RSI_PERIOD: bool
-    RSI_THRESHOLD: float
+    RSI_THRESHOLD: int
     USE_RSI: bool
 
 # Default Configuration
@@ -37,7 +37,7 @@ CONFIG: Config = {
     "LONG_PERIOD": 23,
     "SIGNAL_PERIOD": 13,
     "RSI_PERIOD": 14,
-    "RSI_THRESHOLD": 45,
+    "RSI_THRESHOLD": 45,  # Already an integer value
     "USE_RSI": True
 }
 
