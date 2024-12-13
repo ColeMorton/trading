@@ -43,7 +43,7 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": 'TON-USD',
+    "TICKER": ['ZEREBRO-USD','AIXBT-USD'],
     "WINDOWS": 89,
     "USE_HOURLY": True,
     "REFRESH": False,

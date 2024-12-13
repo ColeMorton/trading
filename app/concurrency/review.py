@@ -16,7 +16,7 @@ from app.concurrency.tools.analysis import analyze_concurrency
 from app.concurrency.tools.visualization import plot_concurrency
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.file_utils import convert_stats
-from app.concurrency.portfolios.mstr_1 import portfolio
+from app.concurrency.portfolios.crypto import portfolio
 
 def run(strategies: List[StrategyConfig]) -> bool:
     """Run concurrency analysis across multiple strategies.

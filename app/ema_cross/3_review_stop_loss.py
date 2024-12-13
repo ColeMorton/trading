@@ -25,17 +25,17 @@ from app.ema_cross.tools.stop_loss_plotting import create_stop_loss_heatmap
 
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
-    "TICKER": "MSTR",
-    "SHORT_WINDOW": 2,
-    "LONG_WINDOW": 13,
+    "TICKER": "SCHW",
+    "SHORT_WINDOW": 7,
+    "LONG_WINDOW": 14,
     "BASE_DIR": ".",
     "USE_SMA": True,
-    "REFRESH": False,
+    "REFRESH": True,
     "USE_HOURLY": False,
     "RELATIVE": True,
-    "USE_RSI": False,
+    "USE_RSI": True,
     "RSI_PERIOD": 23,
-    "RSI_THRESHOLD": 37
+    "RSI_THRESHOLD": 54
 }
 
 def run(config: CacheConfig) -> bool:
@@ -70,6 +70,7 @@ def run(config: CacheConfig) -> bool:
         
         # Define parameter ranges with explicit 2 decimal place precision
         stop_loss_range = np.round(np.arange(0, 15, 0.01), decimals=2)
+        # stop_loss_range = np.round(np.arange(0, 25, 0.1), decimals=2)
         log(f"Using stop loss range: {stop_loss_range[0]:.2f}% to {stop_loss_range[-1]:.2f}%")
 
         # Check for cached results

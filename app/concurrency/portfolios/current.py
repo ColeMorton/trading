@@ -54,4 +54,18 @@ strategy_4: StrategyConfig = {
     "STOP_LOSS": 0.125
 }
 
-portfolio = [strategy_1, strategy_2, strategy_3, strategy_4]
+strategy_5: StrategyConfig = {
+    "TICKER": "SOL-USD",
+    "SHORT_WINDOW": 19,
+    "LONG_WINDOW": 33,
+    "SIGNAL_PERIOD": 13,
+    "BASE_DIR": ".",
+    "USE_HOURLY": False,
+    "REFRESH": True,
+    "USE_RSI": False,
+    "RSI_PERIOD": 26,
+    "RSI_THRESHOLD": 43,    
+    "STOP_LOSS": 0.189
+}
+
+portfolio = [strategy_1, strategy_2, strategy_3, strategy_4, strategy_5]

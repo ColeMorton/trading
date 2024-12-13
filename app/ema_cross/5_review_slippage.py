@@ -62,18 +62,18 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": "ABNB",
-    "SHORT_WINDOW": 27,
-    "LONG_WINDOW": 30,
+    "TICKER": "WST",
+    "SHORT_WINDOW": 62,
+    "LONG_WINDOW": 84,
     "BASE_DIR": ".",
-    "USE_SMA": True,
-    "REFRESH": False,
+    "USE_SMA": False,
+    "REFRESH": True,
     "USE_HOURLY": False,
     "RELATIVE": True,
     "USE_RSI": False,
-    "RSI_PERIOD": 23,
-    "RSI_THRESHOLD": 37,
-    "STOP_LOSS": 0.0322
+    "RSI_PERIOD": 22,
+    "RSI_THRESHOLD": 36,
+    "STOP_LOSS": 0.1007
 }
 
 def run(config: Config = config) -> bool:
