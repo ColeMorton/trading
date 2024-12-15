@@ -126,12 +126,15 @@ def generate_json_report(
             "long_window": {
                 "value": strategy["LONG_WINDOW"],
                 "description": "Period for long moving average or MACD slow line"
-            },
-            "stop_loss": {
+            }
+        }
+        
+        # Add stop_loss only if present
+        if "STOP_LOSS" in strategy:
+            strategy_info["stop_loss"] = {
                 "value": strategy["STOP_LOSS"],
                 "description": "Stop loss percentage"
             }
-        }
         
         # Add RSI parameters if present
         if strategy.get("USE_RSI", False) and "RSI_PERIOD" in strategy:

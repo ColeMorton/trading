@@ -59,13 +59,17 @@ def load_portfolio_from_json(json_path: Path, log: Callable[[str, str], None], c
             "LONG_WINDOW": int(row["long_window"]),
             "BASE_DIR": config["BASE_DIR"],
             "REFRESH": config["REFRESH"],
-            "STOP_LOSS": float(row.get("stop_loss", 0.0)),
             "USE_RSI": has_rsi,
             "USE_HOURLY": timeframe.lower() == "hourly",
             "USE_SMA": strategy_type == "SMA",  # Set based on strategy type
             "STRATEGY_TYPE": strategy_type,  # Store the actual strategy type
             "DIRECTION": direction  # Store direction with default "Long"
         }
+        
+        # Only add STOP_LOSS if explicitly provided and not None
+        stop_loss = row.get("stop_loss")
+        if stop_loss is not None:
+            config_entry["STOP_LOSS"] = float(stop_loss)
         
         # Add RSI fields only if both exist and have non-None values
         if has_rsi:
@@ -84,9 +88,12 @@ def load_portfolio_from_json(json_path: Path, log: Callable[[str, str], None], c
             f"Timeframe: {timeframe}",
             f"SHORT_WINDOW: {config_entry['SHORT_WINDOW']}",
             f"LONG_WINDOW: {config_entry['LONG_WINDOW']}",
-            f"STOP_LOSS: {config_entry['STOP_LOSS']}",
             f"USE_RSI: {config_entry['USE_RSI']}"
         ]
+        
+        # Only add STOP_LOSS to log if it exists
+        if "STOP_LOSS" in config_entry:
+            strategy_details.append(f"STOP_LOSS: {config_entry['STOP_LOSS']}")
         
         # Only add RSI details if RSI is enabled
         if has_rsi:
