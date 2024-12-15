@@ -10,7 +10,7 @@ from app.concurrency.tools.types import ConcurrencyConfig
 
 # Default configuration
 DEFAULT_CONFIG: ConcurrencyConfig = {
-    "PORTFOLIO": "short.json",
+    "PORTFOLIO": "short_single.json",
     "BASE_DIR": ".",
     "REFRESH": True
 }

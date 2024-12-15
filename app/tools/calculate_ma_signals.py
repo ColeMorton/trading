@@ -19,7 +19,7 @@ def calculate_ma_signals(data: pl.DataFrame, config: Dict) -> Tuple[pl.Series, p
     ma_fast = pl.col('MA_FAST')
     ma_slow = pl.col('MA_SLOW')
 
-    if config.get('SHORT', False):
+    if config.get('DIRECTION', 'Long') == 'Short':
         # For short positions, check if fast MA is below slow MA on the last trading day
         entries = ma_fast < ma_slow
         if use_rsi:

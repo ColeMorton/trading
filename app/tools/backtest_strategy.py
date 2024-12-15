@@ -10,7 +10,7 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
         data: Price data with signals
         config: Configuration dictionary containing:
             - USE_HOURLY (bool): Whether to use hourly data
-            - SHORT (bool): Whether to enable short positions
+            - DIRECTION (str): 'Long' or 'Short' for position direction
             - STOP_LOSS (float, optional): Stop loss percentage (0-100). If not provided, no stop loss is used.
         log: Logging function for recording events and errors
         
@@ -35,7 +35,7 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
         if "STOP_LOSS" in config and config["STOP_LOSS"] is not None:
             params['sl_stop'] = config["STOP_LOSS"] / 100  # Convert percentage to fraction
         
-        if config.get('SHORT', False):
+        if config.get('DIRECTION', 'Long').lower() == 'short':
             # For short positions, enter when Signal is -1 (fast MA crosses below slow MA)
             params['short_entries'] = data_pd['Signal'] == -1
             params['short_exits'] = data_pd['Signal'] == 0

@@ -25,7 +25,7 @@ def calculate_ma_and_signals(
         pl.DataFrame: Data with moving averages and signals
     """
     ma_type = "SMA" if config.get('USE_SMA', False) else "EMA"
-    direction = "Short" if config.get('SHORT', False) else "Long"
+    direction = "Short" if config.get('DIRECTION', 'Long') == 'Short' else "Long"
     log(f"Calculating {direction} {ma_type}s and signals with short window {short_window} and long window {long_window}")
     
     try:
@@ -42,7 +42,7 @@ def calculate_ma_and_signals(
         entries, exits = calculate_ma_signals(data, config)
         
         # Add Signal column (-1 for short entry, 1 for long entry, 0 for no signal)
-        if config.get('SHORT', False):
+        if config.get('DIRECTION', 'Long') == 'Short':
             data = data.with_columns([
                 pl.when(entries).then(-1).otherwise(0).alias("Signal")
             ])
