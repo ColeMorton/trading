@@ -1,0 +1,50 @@
+[
+    {
+        "ticker": "BTC-USD",
+        "timeframe": "Daily",
+        "direction": "Short",
+        "type": "EMA",
+        "short_window": 9,
+        "long_window": 85
+    },
+    {
+        "ticker": "BTC-USD",
+        "timeframe": "Daily",
+        "direction": "Short",
+        "type": "EMA",
+        "short_window": 7,
+        "long_window": 89
+    },
+    {
+        "ticker": "BTC-USD",
+        "timeframe": "Daily",
+        "direction": "Short",
+        "type": "EMA",
+        "short_window": 24,
+        "long_window": 64
+    },
+    {
+        "ticker": "BTC-USD",
+        "timeframe": "Daily",
+        "direction": "Short",
+        "type": "EMA",
+        "short_window": 22,
+        "long_window": 68
+    },
+    {
+        "ticker": "BTC-USD",
+        "timeframe": "Hourly",
+        "direction": "Short",
+        "type": "EMA",
+        "short_window": 50,
+        "long_window": 82
+    },
+    {
+        "ticker": "BTC-USD",
+        "timeframe": "Hourly",
+        "direction": "Short",
+        "type": "EMA",
+        "short_window": 49,
+        "long_window": 84
+    }
+]

@@ -25,7 +25,8 @@ def calculate_ma_and_signals(
         pl.DataFrame: Data with moving averages and signals
     """
     ma_type = "SMA" if config.get('USE_SMA', False) else "EMA"
-    log(f"Calculating {ma_type}s and signals with short window {short_window} and long window {long_window}")
+    direction = "Short" if config.get('SHORT', False) else "Long"
+    log(f"Calculating {direction} {ma_type}s and signals with short window {short_window} and long window {long_window}")
     
     try:
         # Calculate moving averages
@@ -58,5 +59,5 @@ def calculate_ma_and_signals(
         return data
         
     except Exception as e:
-        log(f"Failed to calculate {ma_type}s and signals: {e}", "error")
+        log(f"Failed to calculate {direction} {ma_type}s and signals: {e}", "error")
         raise

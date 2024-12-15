@@ -115,6 +115,10 @@ def generate_json_report(
                 "value": strategy_type,
                 "description": "Strategy type (MACD, SMA, or EMA)"
             },
+            "direction": {
+                "value": strategy.get("DIRECTION", "Long"),
+                "description": "Trading direction (Long or Short)"
+            },
             "short_window": {
                 "value": strategy["SHORT_WINDOW"],
                 "description": "Period for short moving average or MACD fast line"

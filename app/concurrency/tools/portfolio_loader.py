@@ -50,6 +50,9 @@ def load_portfolio_from_json(json_path: Path, log: Callable[[str, str], None], c
         rsi_threshold = row.get("rsi_threshold")
         has_rsi = rsi_period is not None and rsi_threshold is not None
         
+        # Get direction with default to "Long"
+        direction = row.get("direction", "Long")
+        
         config_entry: StrategyConfig = {
             "TICKER": ticker,
             "SHORT_WINDOW": int(row["short_window"]),
@@ -60,7 +63,8 @@ def load_portfolio_from_json(json_path: Path, log: Callable[[str, str], None], c
             "USE_RSI": has_rsi,
             "USE_HOURLY": timeframe.lower() == "hourly",
             "USE_SMA": strategy_type == "SMA",  # Set based on strategy type
-            "STRATEGY_TYPE": strategy_type  # Store the actual strategy type
+            "STRATEGY_TYPE": strategy_type,  # Store the actual strategy type
+            "DIRECTION": direction  # Store direction with default "Long"
         }
         
         # Add RSI fields only if both exist and have non-None values
@@ -76,6 +80,7 @@ def load_portfolio_from_json(json_path: Path, log: Callable[[str, str], None], c
         strategy_details = [
             f"TICKER: {config_entry['TICKER']}",
             f"Strategy Type: {strategy_type}",
+            f"Direction: {direction}",
             f"Timeframe: {timeframe}",
             f"SHORT_WINDOW: {config_entry['SHORT_WINDOW']}",
             f"LONG_WINDOW: {config_entry['LONG_WINDOW']}",

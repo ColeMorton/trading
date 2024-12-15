@@ -37,15 +37,20 @@ def process_strategies(
         
     log(f"Processing {len(strategies)} strategies")
     for i, strategy_config in enumerate(strategies, 1):
+        direction = "Short" if strategy_config.get("DIRECTION", "Long") == "Short" else "Long"
         log(f"Strategy {i} - {strategy_config['TICKER']}: "
-            f"{'Hourly' if strategy_config.get('USE_HOURLY', False) else 'Daily'}")
+            f"{'Hourly' if strategy_config.get('USE_HOURLY', False) else 'Daily'} ({direction})")
     
     strategy_data = []
     for strategy_config in strategies:
         data = get_data(strategy_config["TICKER"], strategy_config, log)
         
+        # Determine if this is a short strategy
+        is_short = strategy_config.get("DIRECTION", "Long") == "Short"
+        direction = "Short" if is_short else "Long"
+        
         if 'SIGNAL_PERIOD' in strategy_config:
-            log(f"Processing MACD strategy with periods: "
+            log(f"Processing {direction} MACD strategy with periods: "
                 f"{strategy_config['SHORT_WINDOW']}/{strategy_config['LONG_WINDOW']}/"
                 f"{strategy_config['SIGNAL_PERIOD']}")
             data = calculate_macd(
@@ -54,12 +59,12 @@ def process_strategies(
                 long_window=strategy_config['LONG_WINDOW'],
                 signal_window=strategy_config['SIGNAL_PERIOD']
             )
-            data = calculate_macd_signals(data, strategy_config.get('SHORT', False))
+            data = calculate_macd_signals(data, is_short)
             data = data.with_columns([
                 pl.col("Signal").shift(1).fill_null(0).alias("Position")
             ])
         else:
-            log(f"Processing MA cross strategy with windows: "
+            log(f"Processing {direction} MA cross strategy with windows: "
                 f"{strategy_config['SHORT_WINDOW']}/{strategy_config['LONG_WINDOW']}")
             data = calculate_ma_and_signals(
                 data, 

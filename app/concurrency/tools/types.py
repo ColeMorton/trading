@@ -1,6 +1,6 @@
 """Type definitions for concurrency analysis module."""
 
-from typing import TypedDict, NotRequired, Dict
+from typing import TypedDict, NotRequired, Dict, Literal
 
 class StrategyConfig(TypedDict):
     """Configuration type definition for strategy parameters.
@@ -19,6 +19,7 @@ class StrategyConfig(TypedDict):
         USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average instead of EMA
         USE_HOURLY (NotRequired[bool]): Whether to use hourly timeframe instead of daily
         EXPECTANCY_PER_DAY (NotRequired[float]): Expected daily return
+        DIRECTION (NotRequired[Literal["Long", "Short"]]): Trading direction (default: "Long")
     """
     TICKER: str
     SHORT_WINDOW: int
@@ -31,6 +32,7 @@ class StrategyConfig(TypedDict):
     USE_SMA: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]
     EXPECTANCY_PER_DAY: NotRequired[float]
+    DIRECTION: NotRequired[Literal["Long", "Short"]]
 
 class RiskMetrics(TypedDict):
     """Risk metrics for concurrent strategies.

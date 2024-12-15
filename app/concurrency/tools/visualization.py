@@ -32,9 +32,12 @@ def create_strategy_traces(
         )
     ]
     
-    # Add position highlighting
-    positions = data.filter(pl.col("Position") == 1)
-    for date, close in zip(positions["Date"], positions["Close"]):
+    # Add position highlighting for both long and short positions
+    long_positions = data.filter(pl.col("Position") == 1)
+    short_positions = data.filter(pl.col("Position") == -1)
+    
+    # Highlight long positions
+    for date, close in zip(long_positions["Date"], long_positions["Close"]):
         traces.append(
             go.Scatter(
                 x=[date, date],
@@ -46,17 +49,43 @@ def create_strategy_traces(
             )
         )
     
-    # Add legend entry
-    traces.append(
-        go.Scatter(
-            x=[data["Date"][0]],
-            y=[data["Close"][0]],
-            name=f"{config['TICKER']} Positions",
-            mode='lines',
-            line=dict(color=color, width=10),
-            showlegend=True
+    # Highlight short positions with a different pattern (dashed line)
+    for date, close in zip(short_positions["Date"], short_positions["Close"]):
+        traces.append(
+            go.Scatter(
+                x=[date, date],
+                y=[0, close],
+                mode='lines',
+                line=dict(color=color, width=1, dash='dash'),
+                showlegend=False,
+                hoverinfo='skip'
+            )
         )
-    )
+    
+    # Add legend entries for both long and short positions if they exist
+    if len(long_positions) > 0:
+        traces.append(
+            go.Scatter(
+                x=[data["Date"][0]],
+                y=[data["Close"][0]],
+                name=f"{config['TICKER']} Long Positions",
+                mode='lines',
+                line=dict(color=color, width=10),
+                showlegend=True
+            )
+        )
+    
+    if len(short_positions) > 0:
+        traces.append(
+            go.Scatter(
+                x=[data["Date"][0]],
+                y=[data["Close"][0]],
+                name=f"{config['TICKER']} Short Positions",
+                mode='lines',
+                line=dict(color=color, width=10, dash='dash'),
+                showlegend=True
+            )
+        )
     
     return traces
 
@@ -85,7 +114,10 @@ def plot_concurrency(
             raise ValueError(f"Missing required columns: {missing}")
 
     n_strategies = len(data_list)
-    subplot_titles = [f"Price and Positions ({c['TICKER']})" for c in config_list] + ["Strategy Concurrency"]
+    subplot_titles = [
+        f"Price and Positions ({c['TICKER']}) - {c.get('DIRECTION', 'Long')}" 
+        for c in config_list
+    ] + ["Strategy Concurrency"]
     
     fig = make_subplots(
         rows=n_strategies + 1,
@@ -103,7 +135,7 @@ def plot_concurrency(
             
     # Add concurrency heatmap
     position_arrays = [df["Position"].fill_null(0) for df in data_list]
-    active_strategies = sum(position_arrays)
+    active_strategies = sum(abs(pl.Series(arr)) for arr in position_arrays)  # Use abs to count both long and short positions
     heatmap_config = get_heatmap_config()
     fig.add_trace(
         go.Heatmap(
