@@ -28,8 +28,13 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
 
         # Calculate date range
         end_date = datetime.now()
-        if use_hourly or config.get('USE_YEARS', False):
-            days = (730 if use_hourly else 365 * config.get("YEARS", 30))
+        if use_hourly:
+            start_date = end_date - timedelta(days=730)
+            log(f"Setting date range: {start_date} to {end_date}")
+            data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
+        elif config.get('USE_YEARS', False) and config.get("YEARS", False):
+            # Convert years to days for timedelta
+            days = config["YEARS"] * 365
             start_date = end_date - timedelta(days=days)
             log(f"Setting date range: {start_date} to {end_date}")
             data = yf.download(ticker, start=start_date, end=end_date, interval=interval)

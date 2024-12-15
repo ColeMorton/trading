@@ -43,10 +43,13 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": ['ZEREBRO-USD','AIXBT-USD'],
+    "TICKER": 'BTC-USD',
     "WINDOWS": 89,
     "USE_HOURLY": True,
-    "REFRESH": False,
+    "REFRESH": True,
     "USE_CURRENT": False,
-    "BASE_DIR": "."
+    "BASE_DIR": ".",
+    "USE_YEARS": False,
+    "YEARS": 15,
+    "SHORT": True
 }

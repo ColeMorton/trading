@@ -40,10 +40,15 @@ def calculate_ma_and_signals(
         # Generate signals based on MA crossovers
         entries, exits = calculate_ma_signals(data, config)
         
-        # Add Signal column (1 for entry, 0 for no signal)
-        data = data.with_columns([
-            pl.when(entries).then(1).otherwise(0).alias("Signal")
-        ])
+        # Add Signal column (-1 for short entry, 1 for long entry, 0 for no signal)
+        if config.get('SHORT', False):
+            data = data.with_columns([
+                pl.when(entries).then(-1).otherwise(0).alias("Signal")
+            ])
+        else:
+            data = data.with_columns([
+                pl.when(entries).then(1).otherwise(0).alias("Signal")
+            ])
         
         # Add Position column (shifted Signal)
         data = data.with_columns([

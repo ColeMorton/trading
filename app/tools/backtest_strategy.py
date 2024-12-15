@@ -36,9 +36,11 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
             params['sl_stop'] = config["STOP_LOSS"] / 100  # Convert percentage to fraction
         
         if config.get('SHORT', False):
-            params['short_entries'] = data_pd['Signal'] == 1
+            # For short positions, enter when Signal is -1 (fast MA crosses below slow MA)
+            params['short_entries'] = data_pd['Signal'] == -1
             params['short_exits'] = data_pd['Signal'] == 0
         else:
+            # For long positions, enter when Signal is 1 (fast MA crosses above slow MA)
             params['entries'] = data_pd['Signal'] == 1
             params['exits'] = data_pd['Signal'] == 0
         
