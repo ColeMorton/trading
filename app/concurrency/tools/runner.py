@@ -48,9 +48,11 @@ def run_analysis(
     """
     try:
         # Process strategies and get data
+        log("Processing strategy data", "info")
         strategy_data, updated_strategies = process_strategies(strategies, log)
         
         # Analyze concurrency
+        log("Running concurrency analysis", "info")
         stats, aligned_data = analyze_concurrency(
             strategy_data,
             updated_strategies,
@@ -58,6 +60,7 @@ def run_analysis(
         )
         
         # Log statistics
+        log("Logging analysis statistics", "info")
         log(f"Overall concurrency statistics:")
         log(f"Total concurrent periods: {stats['total_concurrent_periods']}")
         log(f"Concurrency Ratio: {stats['concurrency_ratio']:.2f}")
@@ -77,14 +80,18 @@ def run_analysis(
                 log(f"{key}: {value}")
         
         # Create visualization
+        log("Creating visualization", "info")
         fig = plot_concurrency(
             aligned_data,
             stats,
-            updated_strategies
+            updated_strategies,
+            log
         )
         fig.show()
+        log("Visualization displayed", "info")
 
         # Generate and save JSON report
+        log("Generating JSON report", "info")
         report = generate_json_report(updated_strategies, stats, log)
         
         # Ensure the json/concurrency directory exists
@@ -97,11 +104,12 @@ def run_analysis(
         
         # Save the report
         report_path = json_dir / report_filename
+        log(f"Saving JSON report to {report_path}", "info")
         with open(report_path, 'w') as f:
             json.dump(report, f, indent=4)
         
-        log(f"JSON report saved to {report_path}")
-        log("Unified concurrency analysis completed successfully")
+        log(f"JSON report saved to {report_path}", "info")
+        log("Unified concurrency analysis completed successfully", "info")
         return True
         
     except Exception as e:
@@ -123,12 +131,18 @@ def main(config: ConcurrencyConfig) -> bool:
             log_file='concurrency_analysis.log'
         )
 
+        log("Starting concurrency analysis", "info")
+        
         # Load portfolio from JSON
+        log("Loading portfolio configuration", "info")
         portfolio_path = get_portfolio_path(config)
         strategies = load_portfolio_from_json(portfolio_path, log, config)
         
         # Run analysis
+        log("Running analysis", "info")
         result = run_analysis(strategies, log, config)
+        
+        log("Analysis completed", "info")
         log_close()
         return result
         

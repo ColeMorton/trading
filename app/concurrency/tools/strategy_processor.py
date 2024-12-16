@@ -29,55 +29,96 @@ def process_strategies(
         Tuple[List[pl.DataFrame], List[StrategyConfig]]: Processed data and updated configs
 
     Raises:
-        ValueError: If fewer than two strategies are provided
+        ValueError: If fewer than two strategies are provided or invalid configuration
         Exception: If processing fails for any strategy
     """
-    if len(strategies) < 2:
-        raise ValueError("At least two strategies are required for concurrency analysis")
+    try:
+        # Validate input
+        if not strategies:
+            log("No strategies provided", "error")
+            raise ValueError("Strategies list cannot be empty")
+            
+        if len(strategies) < 2:
+            log("Insufficient number of strategies", "error")
+            raise ValueError("At least two strategies are required for concurrency analysis")
         
-    log(f"Processing {len(strategies)} strategies")
-    for i, strategy_config in enumerate(strategies, 1):
-        direction = "Short" if strategy_config.get("DIRECTION", "Long") == "Short" else "Long"
-        log(f"Strategy {i} - {strategy_config['TICKER']}: "
-            f"{'Hourly' if strategy_config.get('USE_HOURLY', False) else 'Daily'} ({direction})")
-    
-    strategy_data = []
-    for strategy_config in strategies:
-        data = get_data(strategy_config["TICKER"], strategy_config, log)
+        log(f"Processing {len(strategies)} strategies", "info")
         
-        # Determine if this is a short strategy
-        is_short = strategy_config.get("DIRECTION", "Long") == "Short"
-        direction = "Short" if is_short else "Long"
+        # Validate strategy configurations
+        for i, strategy_config in enumerate(strategies, 1):
+            log(f"Validating strategy {i} configuration", "info")
+            
+            required_fields = ["TICKER", "SHORT_WINDOW", "LONG_WINDOW"]
+            missing_fields = [field for field in required_fields if field not in strategy_config]
+            if missing_fields:
+                log(f"Strategy {i} missing required fields: {missing_fields}", "error")
+                raise ValueError(f"Strategy {i} missing required fields: {missing_fields}")
+            
+            direction = "Short" if strategy_config.get("DIRECTION", "Long") == "Short" else "Long"
+            timeframe = "Hourly" if strategy_config.get("USE_HOURLY", False) else "Daily"
+            log(f"Strategy {i} - {strategy_config['TICKER']}: {timeframe} ({direction})", "info")
         
-        if 'SIGNAL_PERIOD' in strategy_config:
-            log(f"Processing {direction} MACD strategy with periods: "
-                f"{strategy_config['SHORT_WINDOW']}/{strategy_config['LONG_WINDOW']}/"
-                f"{strategy_config['SIGNAL_PERIOD']}")
-            data = calculate_macd(
-                data,
-                short_window=strategy_config['SHORT_WINDOW'],
-                long_window=strategy_config['LONG_WINDOW'],
-                signal_window=strategy_config['SIGNAL_PERIOD']
-            )
-            data = calculate_macd_signals(data, is_short)
-            data = data.with_columns([
-                pl.col("Signal").shift(1).fill_null(0).alias("Position")
-            ])
-        else:
-            log(f"Processing {direction} MA cross strategy with windows: "
-                f"{strategy_config['SHORT_WINDOW']}/{strategy_config['LONG_WINDOW']}")
-            data = calculate_ma_and_signals(
-                data, 
-                strategy_config['SHORT_WINDOW'], 
-                strategy_config['LONG_WINDOW'], 
-                strategy_config,
-                log
-            )
+        strategy_data = []
+        for i, strategy_config in enumerate(strategies, 1):
+            try:
+                log(f"Fetching data for strategy {i}: {strategy_config['TICKER']}", "info")
+                data = get_data(strategy_config["TICKER"], strategy_config, log)
+                
+                # Determine if this is a short strategy
+                is_short = strategy_config.get("DIRECTION", "Long") == "Short"
+                direction = "Short" if is_short else "Long"
+                
+                # Process based on strategy type
+                if 'SIGNAL_PERIOD' in strategy_config:
+                    log(f"Processing {direction} MACD strategy {i}/{len(strategies)}", "info")
+                    log(f"MACD periods: {strategy_config['SHORT_WINDOW']}/"
+                        f"{strategy_config['LONG_WINDOW']}/"
+                        f"{strategy_config['SIGNAL_PERIOD']}", "info")
+                        
+                    data = calculate_macd(
+                        data,
+                        short_window=strategy_config['SHORT_WINDOW'],
+                        long_window=strategy_config['LONG_WINDOW'],
+                        signal_window=strategy_config['SIGNAL_PERIOD']
+                    )
+                    data = calculate_macd_signals(data, is_short)
+                    data = data.with_columns([
+                        pl.col("Signal").shift(1).fill_null(0).alias("Position")
+                    ])
+                    log(f"MACD signals calculated for {strategy_config['TICKER']}", "info")
+                    
+                else:
+                    log(f"Processing {direction} MA cross strategy {i}/{len(strategies)}", "info")
+                    log(f"MA windows: {strategy_config['SHORT_WINDOW']}/"
+                        f"{strategy_config['LONG_WINDOW']}", "info")
+                        
+                    data = calculate_ma_and_signals(
+                        data, 
+                        strategy_config['SHORT_WINDOW'], 
+                        strategy_config['LONG_WINDOW'], 
+                        strategy_config,
+                        log
+                    )
+                    log(f"MA signals calculated for {strategy_config['TICKER']}", "info")
+                
+                # Calculate expectancy
+                log(f"Running backtest for {strategy_config['TICKER']}", "info")
+                portfolio = backtest_strategy(data, strategy_config, log)
+                stats = convert_stats(portfolio.stats(), strategy_config)
+                strategy_config['EXPECTANCY_PER_DAY'] = stats['Expectancy per Day']
+                log(f"Expectancy per day for {strategy_config['TICKER']}: "
+                    f"{stats['Expectancy per Day']:.4f}", "info")
+                
+                strategy_data.append(data)
+                log(f"Successfully processed strategy {i}: {strategy_config['TICKER']}", "info")
+                
+            except Exception as e:
+                log(f"Error processing strategy {i} ({strategy_config['TICKER']}): {str(e)}", "error")
+                raise
         
-        # Add expectancy per day to the strategy config
-        portfolio = backtest_strategy(data, strategy_config, log)
-        stats = convert_stats(portfolio.stats(), strategy_config)
-        strategy_config['EXPECTANCY_PER_DAY'] = stats['Expectancy per Day']
-        strategy_data.append(data)
-    
-    return strategy_data, strategies
+        log(f"Successfully processed all {len(strategies)} strategies", "info")
+        return strategy_data, strategies
+        
+    except Exception as e:
+        log(f"Error in strategy processing: {str(e)}", "error")
+        raise
