@@ -43,11 +43,11 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": ['ASML','TSM'],
+    "TICKER": 'HYPE-USD',
     "WINDOWS": 89,
-    "USE_HOURLY": False,
+    "USE_HOURLY": True,
     "REFRESH": True,
-    "USE_CURRENT": True,
+    "USE_CURRENT": False,
     "BASE_DIR": ".",
     "USE_YEARS": False,
     "YEARS": 15,

@@ -38,8 +38,8 @@ def convert_stats(stats: Dict[str, Any], config: StatsConfig | None = None) -> D
                        calculated metrics including:
                        - Expectancy Adjusted
                        - Tradability
-                       - Trades per Day
-                       - Expectancy per Day
+                       - Trades per Month
+                       - Expectancy per Month
     
     Raises:
         KeyError: If required statistics are missing from input
@@ -62,10 +62,13 @@ def convert_stats(stats: Dict[str, Any], config: StatsConfig | None = None) -> D
     if total_days == 0:  # Handle case where backtest is less than a day
         total_days = 1
 
+    # Determine if it's a crypto asset
+    is_crypto = "-USD" in config.get('TICKER', '')
+    
+    # Set trading days per month based on asset type
+    trading_days_per_month = 30 if is_crypto else 21
+
     if config.get('USE_HOURLY', False):
-        # For hourly data, determine if it's a crypto asset
-        is_crypto = "-USD" in config.get('TICKER', '')
-        
         # Convert total_days to actual trading hours
         if is_crypto:
             # Crypto trades 24 hours per day
@@ -76,21 +79,22 @@ def convert_stats(stats: Dict[str, Any], config: StatsConfig | None = None) -> D
             total_hours = total_days * 6.5
             trading_hours_per_day = 6.5
         
-        # Calculate trades per day by first getting trades per hour
+        # Calculate trades per month by first getting trades per hour
         trades_per_hour = float(total_trades) / total_hours
-        stats['Trades per Day'] = trades_per_hour * trading_hours_per_day
+        trades_per_day = trades_per_hour * trading_hours_per_day
+        stats['Trades per Month'] = trades_per_day * trading_days_per_month
         
-        # Calculate expectancy per day for hourly data
+        # Calculate expectancy per month for hourly data
         expectancy = stats['Expectancy']
-        stats['Expectancy per Day'] = stats['Trades per Day'] * expectancy
+        stats['Expectancy per Month'] = stats['Trades per Month'] * expectancy
     else:
-        # Original daily calculations
-        stats['Trades per Day'] = float(total_trades) / total_days
+        # Calculate monthly metrics directly
+        trades_per_day = float(total_trades) / total_days
+        stats['Trades per Month'] = trades_per_day * trading_days_per_month
         
-        # Calculate expectancy per day
+        # Calculate expectancy per month
         expectancy = stats['Expectancy']
-        trades_per_day = stats['Trades per Day']
-        stats['Expectancy per Day'] = trades_per_day * expectancy
+        stats['Expectancy per Month'] = stats['Trades per Month'] * expectancy
 
     converted = {}
     

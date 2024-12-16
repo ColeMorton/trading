@@ -96,8 +96,15 @@ def reorder_columns(portfolio: Dict) -> Dict:
         'Use SMA',
         'Short Window',
         'Long Window',
+        'Total Trades',
+        'Win Rate [%]',
+        'Profit Factor',
+        'Tradability',
+        'Expectancy',
         'Expectancy Adjusted',
-        'Tradability'
+        'Trades per Month',
+        'Expectancy per Month',
+        'Sortino'
     ]
     
     reordered = {}
