@@ -33,7 +33,7 @@ class Config(TypedDict):
         RSI_THRESHOLD (int): RSI threshold for signal filtering
 
     Optional Fields:
-        SHORT (NotRequired[bool]): Whether to enable short positions
+        DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
         USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average instead of EMA
         USE_HOURLY (NotRequired[bool]): Whether to use hourly data
         USE_YEARS (NotRequired[bool]): Whether to limit data by years
@@ -50,7 +50,7 @@ class Config(TypedDict):
     RSI_PERIOD: int
     RSI_THRESHOLD: int
     STOP_LOSS: NotRequired[float]
-    SHORT: NotRequired[bool]
+    DIRECTION: NotRequired[str]
     USE_SMA: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]
     USE_YEARS: NotRequired[bool]
@@ -73,7 +73,8 @@ config: Config = {
     "USE_RSI": False,
     "RSI_PERIOD": 22,
     "RSI_THRESHOLD": 36,  # Changed from float to int
-    "STOP_LOSS": 0.1007
+    "STOP_LOSS": 0.1007,
+    "DIRECTION": "Long"  # Default to Long position
 }
 
 def run(config: Config = config) -> bool:

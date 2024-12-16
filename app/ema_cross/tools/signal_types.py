@@ -8,7 +8,7 @@ class Config(TypedDict):
         WINDOWS (int): Maximum window size to test
 
     Optional Fields:
-        SHORT (NotRequired[bool]): Whether to use short positions
+        DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
         USE_SMA (NotRequired[bool]): Whether to use SMA instead of EMA
         USE_HOURLY (NotRequired[bool]): Whether to use hourly data
         USE_YEARS (NotRequired[bool]): Whether to limit data by years
@@ -21,7 +21,7 @@ class Config(TypedDict):
     """
     TICKER: str
     WINDOWS: int
-    SHORT: NotRequired[bool]
+    DIRECTION: NotRequired[str]
     USE_SMA: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]
     USE_YEARS: NotRequired[bool]

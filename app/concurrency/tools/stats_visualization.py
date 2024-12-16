@@ -26,6 +26,16 @@ def create_stats_annotation(stats: ConcurrencyStats) -> Dict:
         f"Risk Concentration Index: {stats['risk_concentration_index']:.2f}<br>"
     )
 
+    # Add signal metrics section
+    stats_text += "<br><b>Signal Metrics:</b><br>"
+    signal_metrics = stats['signal_metrics']
+    stats_text += f"Mean Signals/Month: {signal_metrics['mean_signals']:.2f}<br>"
+    stats_text += f"Median Signals/Month: {signal_metrics['median_signals']:.2f}<br>"
+    stats_text += f"Signal Range: {signal_metrics['std_below_mean']:.2f} to {signal_metrics['std_above_mean']:.2f}<br>"
+    stats_text += f"Signal Volatility: {signal_metrics['signal_volatility']:.2f}<br>"
+    stats_text += f"Monthly Range: {signal_metrics['min_monthly_signals']:.0f} to {signal_metrics['max_monthly_signals']:.0f}<br>"
+    stats_text += f"Total Signals: {signal_metrics['total_signals']:.0f}<br>"
+
     # Add efficiency metrics section
     stats_text += "<br><b>Efficiency Metrics:</b><br>"
     stats_text += f"Total Expectancy: {float(stats['total_expectancy']):.4f}<br>"

@@ -18,7 +18,7 @@ class Config(TypedDict):
         TICKER (str): Primary ticker symbol for analysis
         TICKER_1 (str): First ticker for synthetic pairs
         TICKER_2 (str): Second ticker for synthetic pairs
-        SHORT (bool): Whether to enable short positions
+        DIRECTION (str): Trading direction ("Long" or "Short")
         USE_SMA (bool): Whether to use Simple Moving Average instead of EMA
         EMA_FAST (int): Period for fast EMA
         EMA_SLOW (int): Period for slow EMA
@@ -40,7 +40,7 @@ class Config(TypedDict):
     TICKER: str
     TICKER_1: str
     TICKER_2: str
-    SHORT: bool
+    DIRECTION: str
     USE_SMA: bool
     EMA_FAST: int
     EMA_SLOW: int
@@ -62,7 +62,7 @@ USE_SYNTHETIC: bool = False
 TICKER: str = 'SOFI'
 TICKER_1: str = 'SOFI'
 TICKER_2: str = 'SOFI'
-SHORT: bool = False
+DIRECTION: str = "Long"  # Default to Long position
 USE_SMA: bool = False  # Keep EMA but with adjusted parameters
 
 # EMA settings - adjusted for SOFI's characteristics
@@ -85,7 +85,7 @@ CONFIG: Config = {
     "TICKER": TICKER,
     "TICKER_1": TICKER_1,
     "TICKER_2": TICKER_2,
-    "SHORT": SHORT,
+    "DIRECTION": DIRECTION,
     "USE_SMA": USE_SMA,
     "EMA_FAST": EMA_FAST,
     "EMA_SLOW": EMA_SLOW,

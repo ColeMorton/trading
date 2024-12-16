@@ -21,7 +21,7 @@ class PortfolioConfig(TypedDict, total=False):
         USE_GBM (NotRequired[bool]): Whether to use Geometric Brownian Motion
         USE_SYNTHETIC (NotRequired[bool]): Whether to create synthetic pairs
         REFRESH (NotRequired[bool]): Whether to force regeneration of signals
-        SHORT (NotRequired[bool]): Whether to enable short positions
+        DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
         USE_YEARS (NotRequired[bool]): Whether to limit data by years
         YEARS (NotRequired[float]): Number of years of data to use
         TICKER_1 (NotRequired[str]): First ticker for synthetic pairs
@@ -35,7 +35,7 @@ class PortfolioConfig(TypedDict, total=False):
     USE_GBM: NotRequired[bool]
     USE_SYNTHETIC: NotRequired[bool]
     REFRESH: NotRequired[bool]
-    SHORT: NotRequired[bool]
+    DIRECTION: NotRequired[str]
     USE_YEARS: NotRequired[bool]
     YEARS: NotRequired[float]
     TICKER_1: NotRequired[str]
@@ -43,13 +43,13 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": 'BTC-USD',
+    "TICKER": ['WBA','SMH','MU','KLAC','APA','INTU','FTNT','ARM','ROKU','ASR','ZTS','HOOD','PANW','GRAB'],
     "WINDOWS": 89,
-    "USE_HOURLY": True,
+    "USE_HOURLY": False,
     "REFRESH": True,
     "USE_CURRENT": False,
     "BASE_DIR": ".",
     "USE_YEARS": False,
     "YEARS": 15,
-    "SHORT": True
+    "DIRECTION": "Long"
 }

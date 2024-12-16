@@ -27,7 +27,7 @@ class Config(TypedDict):
         SCANNER_LIST (str): Name of the scanner list file
 
     Optional Fields:
-        SHORT (NotRequired[bool]): Whether to enable short positions
+        DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
         USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average instead of EMA
         USE_HOURLY (NotRequired[bool]): Whether to use hourly data
         USE_YEARS (NotRequired[bool]): Whether to limit data by years
@@ -40,7 +40,7 @@ class Config(TypedDict):
     TICKER: str
     WINDOWS: int
     SCANNER_LIST: str
-    SHORT: NotRequired[bool]
+    DIRECTION: NotRequired[str]
     USE_SMA: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]
     USE_YEARS: NotRequired[bool]
@@ -53,11 +53,12 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     "WINDOWS": 89,
-    "SCANNER_LIST": 'HOURLY Crypto.csv',
+    # "SCANNER_LIST": 'HOURLY Crypto.csv',
     # "SCANNER_LIST": 'DAILY Crypto.csv',
-    # "SCANNER_LIST": 'DAILY.csv',
+    "SCANNER_LIST": 'DAILY.csv',
     "USE_HOURLY": False,
-    "REFRESH": False
+    "REFRESH": False,
+    "DIRECTION": "Long"  # Default to Long position
 }
 
 def process_scanner() -> bool:

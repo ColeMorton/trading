@@ -31,7 +31,7 @@ class Config(TypedDict, total=False):
         USE_GBM (NotRequired[bool]): Whether to use Geometric Brownian Motion
         USE_SYNTHETIC (NotRequired[bool]): Whether to create synthetic pairs
         REFRESH (NotRequired[bool]): Whether to force regeneration of signals
-        SHORT (NotRequired[bool]): Whether to enable short positions
+        DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
         USE_YEARS (NotRequired[bool]): Whether to limit data by years
         YEARS (NotRequired[float]): Number of years of data to use
         TICKER_1 (NotRequired[str]): First ticker (same as TICKER for non-synthetic)
@@ -46,7 +46,7 @@ class Config(TypedDict, total=False):
     USE_GBM: NotRequired[bool]
     USE_SYNTHETIC: NotRequired[bool]
     REFRESH: NotRequired[bool]
-    SHORT: NotRequired[bool]
+    DIRECTION: NotRequired[str]
     USE_YEARS: NotRequired[bool]
     YEARS: NotRequired[float]
     TICKER_1: NotRequired[str]
@@ -84,7 +84,8 @@ def run(config: Config = {
     "USE_HOURLY": False,
     "USE_SYNTHETIC": False,
     "REFRESH": False,
-    "BASE_DIR": "."
+    "BASE_DIR": ".",
+    "DIRECTION": "Long"  # Default to Long position
 }) -> bool:
     """Run the heatmap generation process.
 

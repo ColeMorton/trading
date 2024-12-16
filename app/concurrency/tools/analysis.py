@@ -7,6 +7,7 @@ from app.concurrency.tools.data_alignment import align_multiple_data
 from app.concurrency.tools.risk_metrics import calculate_risk_contributions
 from app.concurrency.tools.efficiency import calculate_efficiency_score
 from app.concurrency.tools.position_metrics import calculate_position_metrics
+from app.concurrency.tools.signal_metrics import calculate_signal_metrics
 
 def validate_inputs(
     data_list: List[pl.DataFrame],
@@ -39,7 +40,8 @@ def compile_statistics(
     aligned_data: List[pl.DataFrame],
     position_metrics: Tuple[dict, float, int, int, int, int, float],
     risk_metrics: dict,
-    efficiency_metrics: Tuple[float, float, float, float, float]
+    efficiency_metrics: Tuple[float, float, float, float, float],
+    signal_metrics: dict
 ) -> ConcurrencyStats:
     """Compile analysis statistics.
 
@@ -48,6 +50,7 @@ def compile_statistics(
         position_metrics (Tuple): Position-based metrics
         risk_metrics (dict): Risk contribution metrics
         efficiency_metrics (Tuple): Efficiency score and components
+        signal_metrics (dict): Signal-based metrics
 
     Returns:
         ConcurrencyStats: Compiled statistics
@@ -97,6 +100,7 @@ def compile_statistics(
         "independence_multiplier": independence_multiplier,
         "activity_multiplier": activity_multiplier,
         "risk_metrics": risk_metrics,
+        "signal_metrics": signal_metrics,
         "start_date": str(aligned_data[0]["Date"].min()),
         "end_date": str(aligned_data[0]["Date"].max())
     }
@@ -134,8 +138,10 @@ def analyze_concurrency(
         ]
         position_metrics = calculate_position_metrics(position_arrays)
         
-        # Calculate risk and efficiency metrics
+        # Calculate risk metrics
         risk_metrics = calculate_risk_contributions(position_arrays, aligned_data)
+
+        # Calculate efficiency metrics
         strategy_expectancies = [
             config.get('EXPECTANCY_PER_DAY', 0)
             for config in config_list
@@ -149,13 +155,17 @@ def analyze_concurrency(
             len(aligned_data[0]),  # total_periods
             log
         )
+
+        # Calculate signal metrics
+        signal_metrics = calculate_signal_metrics(aligned_data)
         
         # Compile final statistics
         stats = compile_statistics(
             aligned_data,
             position_metrics,
             risk_metrics,
-            efficiency_metrics
+            efficiency_metrics,
+            signal_metrics
         )
         
         log("Analysis completed successfully", "info")

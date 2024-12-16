@@ -46,6 +46,28 @@ class RiskMetrics(TypedDict):
     strategy_risk_contributions: Dict[str, float]
     risk_overlaps: Dict[str, float]
 
+class SignalMetrics(TypedDict):
+    """Signal metrics for concurrent strategies.
+
+    Required Fields:
+        mean_signals (float): Average number of signals per month
+        median_signals (float): Median number of signals per month
+        std_below_mean (float): One standard deviation below mean signals
+        std_above_mean (float): One standard deviation above mean signals
+        signal_volatility (float): Standard deviation of monthly signals
+        max_monthly_signals (float): Maximum signals in any month
+        min_monthly_signals (float): Minimum signals in any month
+        total_signals (float): Total number of signals across period
+    """
+    mean_signals: float
+    median_signals: float
+    std_below_mean: float
+    std_above_mean: float
+    signal_volatility: float
+    max_monthly_signals: float
+    min_monthly_signals: float
+    total_signals: float
+
 class ConcurrencyStats(TypedDict):
     """Statistics from concurrency analysis.
 
@@ -63,6 +85,7 @@ class ConcurrencyStats(TypedDict):
         avg_position_length (float): Average length of positions
         risk_concentration_index (float): Measure of risk concentration
         risk_metrics (Dict[str, float]): Risk metrics and contributions
+        signal_metrics (SignalMetrics): Signal-based metrics
         start_date (NotRequired[str]): Start date of analysis period
         end_date (NotRequired[str]): End date of analysis period
     """
@@ -79,6 +102,7 @@ class ConcurrencyStats(TypedDict):
     avg_position_length: float
     risk_concentration_index: float
     risk_metrics: Dict[str, float]
+    signal_metrics: SignalMetrics
     start_date: NotRequired[str]
     end_date: NotRequired[str]
 

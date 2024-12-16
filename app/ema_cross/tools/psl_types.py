@@ -19,7 +19,7 @@ class PSLConfig(TypedDict):
         RSI_PERIOD (NotRequired[int]): RSI calculation period
         RSI_THRESHOLD (NotRequired[int]): RSI threshold for signals
         STOP_LOSS (NotRequired[float]): Stop loss percentage
-        SHORT (NotRequired[bool]): Enable short positions
+        DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
         REFRESH (NotRequired[bool]): Force refresh of analysis
     """
     SHORT_WINDOW: int
@@ -31,7 +31,7 @@ class PSLConfig(TypedDict):
     RSI_PERIOD: NotRequired[int]
     RSI_THRESHOLD: NotRequired[int]
     STOP_LOSS: NotRequired[float]
-    SHORT: NotRequired[bool]
+    DIRECTION: NotRequired[str]
     REFRESH: NotRequired[bool]
 
 class MetricMatrices(TypedDict):

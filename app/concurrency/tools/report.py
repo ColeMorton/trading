@@ -21,7 +21,7 @@ def generate_json_report(
     Returns:
         Dict[str, Any]: Complete report in dictionary format containing:
             - strategies: List of strategy details and parameters
-            - metrics: Dictionary of concurrency, efficiency and risk metrics
+            - metrics: Dictionary of concurrency, efficiency, risk and signal metrics
     """
     log(f"Starting JSON report generation for {len(strategies)} strategies", "info")
 
@@ -81,6 +81,40 @@ def generate_json_report(
                     "value": stats['risk_concentration_index'],
                     "description": "Measure of risk concentration"
                 }
+            },
+            "signals": {
+                "mean_signals": {
+                    "value": stats['signal_metrics']['mean_signals'],
+                    "description": "Average number of signals per month"
+                },
+                "median_signals": {
+                    "value": stats['signal_metrics']['median_signals'],
+                    "description": "Median number of signals per month"
+                },
+                "std_below_mean": {
+                    "value": stats['signal_metrics']['std_below_mean'],
+                    "description": "One standard deviation below mean signals"
+                },
+                "std_above_mean": {
+                    "value": stats['signal_metrics']['std_above_mean'],
+                    "description": "One standard deviation above mean signals"
+                },
+                "signal_volatility": {
+                    "value": stats['signal_metrics']['signal_volatility'],
+                    "description": "Standard deviation of monthly signals"
+                },
+                "max_monthly_signals": {
+                    "value": stats['signal_metrics']['max_monthly_signals'],
+                    "description": "Maximum signals in any month"
+                },
+                "min_monthly_signals": {
+                    "value": stats['signal_metrics']['min_monthly_signals'],
+                    "description": "Minimum signals in any month"
+                },
+                "total_signals": {
+                    "value": stats['signal_metrics']['total_signals'],
+                    "description": "Total number of signals across period"
+                }
             }
         }
     }
@@ -92,7 +126,7 @@ def generate_json_report(
             "description": f"Risk metric: {key}"
         }
 
-    log("Compiled metrics data for concurrency, efficiency, and risk analysis", "info")
+    log("Compiled metrics data for concurrency, efficiency, risk, and signal analysis", "info")
 
     # Add strategy details - preserve all original properties and add expectancy_per_day
     for idx, strategy in enumerate(strategies, 1):

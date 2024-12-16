@@ -1,11 +1,11 @@
 [
     {
-        "ticker": "BTC-USD",
+        "ticker": "EOS-USD",
         "timeframe": "Daily",
         "direction": "Short",
         "type": "EMA",
-        "short_window": 7,
-        "long_window": 89
+        "short_window": 19,
+        "long_window": 58
     },
     {
         "ticker": "BTC-USD",

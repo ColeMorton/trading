@@ -27,6 +27,7 @@ class ExportConfig(TypedDict):
         USE_GBM (NotRequired[bool]): Whether GBM simulation is used
         SHOW_LAST (NotRequired[bool]): Whether to include date in filename
         USE_CURRENT (NotRequired[bool]): Whether to use date subdirectory
+        DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
     """
     BASE_DIR: str
     TICKER: NotRequired[Union[str, List[str]]]
@@ -36,6 +37,7 @@ class ExportConfig(TypedDict):
     USE_GBM: NotRequired[bool]
     SHOW_LAST: NotRequired[bool]
     USE_CURRENT: NotRequired[bool]
+    DIRECTION: NotRequired[str]
 
 def _get_ticker_prefix(config: ExportConfig) -> str:
     """Generate ticker prefix for filename.
@@ -69,6 +71,10 @@ def _get_filename_components(config: ExportConfig) -> List[str]:
         _get_ticker_prefix(config),
         "H" if config.get("USE_HOURLY", False) else "D"
     ]
+    
+    # Add SHORT suffix if direction is Short
+    if config.get("DIRECTION") == "Short":
+        components.append("_SHORT")
     
     # Only add MA suffix if USE_MA is True
     if config.get("USE_MA", False):
