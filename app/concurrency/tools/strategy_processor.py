@@ -12,7 +12,7 @@ from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.calculate_macd import calculate_macd
 from app.tools.calculate_macd_signals import calculate_macd_signals
 from app.tools.backtest_strategy import backtest_strategy
-from app.tools.file_utils import convert_stats
+from app.tools.stats_converter import convert_stats
 from app.concurrency.tools.types import StrategyConfig
 
 def process_strategies(

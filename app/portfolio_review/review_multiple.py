@@ -7,7 +7,7 @@ from config import config
 from app.tools.get_data import get_data
 from app.tools.setup_logging import setup_logging
 from app.ema_cross.tools.generate_signals import generate_signals
-from app.tools.file_utils import convert_stats
+from app.tools.stats_converter import convert_stats
 
 # Setup logging
 log, log_close, _, _ = setup_logging(

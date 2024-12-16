@@ -2,8 +2,7 @@
 
 import os
 from datetime import datetime
-from typing import Dict, Any, Set, Optional
-import pandas as pd
+from typing import Set
 import polars as pl
 
 def is_file_from_today(filepath: str) -> bool:
@@ -46,86 +45,6 @@ def is_file_from_this_hour(filepath: str) -> bool:
             file_time.month == current_time.month and 
             file_time.day == current_time.day and
             file_time.hour == current_time.hour)
-
-def convert_stats(stats: Dict[str, Any], config: Optional[Dict]) -> Dict[str, Any]:
-    """
-    Convert stats to compatible format, ensuring proper type handling.
-    
-    Args:
-        stats: Dictionary containing portfolio statistics
-        config: Configuration dictionary containing settings like USE_HOURLY and TICKER
-        
-    Returns:
-        Dictionary with properly formatted values
-    """
-
-    # Calculate adjusted performance metrics.
-    stats['Expectancy Adjusted'] = (
-        stats['Expectancy'] * 
-        min(1, 0.01 * stats['Win Rate [%]'] / 0.5) * 
-        min(1, stats['Total Closed Trades'] / 50)
-    )
-    stats['Tradability'] = stats['Total Closed Trades'] / stats['End'] * 1000
-
-    total_trades = stats['Total Trades']
-    
-    # Calculate total days between start and end
-    total_days = stats['End'] - stats['Start']
-    if total_days == 0:  # Handle case where backtest is less than a day
-        total_days = 1
-
-    if config.get('USE_HOURLY', False):
-        # For hourly data, determine if it's a crypto asset
-        is_crypto = "-USD" in config.get('TICKER', '')
-        
-        # Convert total_days to actual trading hours
-        if is_crypto:
-            # Crypto trades 24 hours per day
-            total_hours = total_days * 24
-            trading_hours_per_day = 24
-        else:
-            # Stocks trade 6.5 hours per day
-            total_hours = total_days * 6.5
-            trading_hours_per_day = 6.5
-        
-        # Calculate trades per day by first getting trades per hour
-        trades_per_hour = float(total_trades) / total_hours
-        stats['Trades per Day'] = trades_per_hour * trading_hours_per_day
-        
-        # Calculate expectancy per day for hourly data
-        expectancy = stats['Expectancy']
-        stats['Expectancy per Day'] = stats['Trades per Day'] * expectancy
-    else:
-        # Original daily calculations
-        stats['Trades per Day'] = float(total_trades) / total_days
-        
-        # Calculate expectancy per day
-        expectancy = stats['Expectancy']
-        trades_per_day = stats['Trades per Day']
-        stats['Expectancy per Day'] = trades_per_day * expectancy
-
-    converted = {}
-    
-    # Handle window values first, ensuring they remain integers
-    if 'Short Window' in stats:
-        converted['Short Window'] = int(stats['Short Window'])
-    if 'Long Window' in stats:
-        converted['Long Window'] = int(stats['Long Window'])
-    
-    # Then handle the rest of the stats
-    for k, v in stats.items():
-        if k not in ['Short Window', 'Long Window']:
-            if k == 'Start' or k == 'End':
-                converted[k] = v.strftime('%Y-%m-%d %H:%M:%S') if isinstance(v, datetime) else str(v)
-            elif isinstance(v, pd.Timedelta):
-                converted[k] = str(v)
-            elif isinstance(v, (int, float)):
-                # Keep numeric values as is
-                converted[k] = v
-            else:
-                converted[k] = str(v)
-    
-    return converted
 
 def get_current_window_combinations(filepath: str) -> Set[tuple]:
     """

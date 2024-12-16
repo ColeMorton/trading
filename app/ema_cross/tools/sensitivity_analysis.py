@@ -2,7 +2,7 @@ import polars as pl
 from typing import List, Dict, Any, Optional, Callable
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.ema_cross.tools.signal_generation import is_signal_current
-from app.tools.file_utils import convert_stats
+from app.tools.stats_converter import convert_stats
 from app.tools.backtest_strategy import backtest_strategy
 
 def analyze_window_combination(

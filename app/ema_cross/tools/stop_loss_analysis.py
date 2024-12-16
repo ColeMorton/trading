@@ -8,7 +8,7 @@ import polars as pl
 import numpy as np
 from typing import Dict, Callable, Any
 from app.tools.backtest_strategy import backtest_strategy
-from app.tools.file_utils import convert_stats
+from app.tools.stats_converter import convert_stats
 from app.tools.calculate_rsi import calculate_rsi
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.export_csv import export_csv, ExportConfig

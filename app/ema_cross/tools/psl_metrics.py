@@ -9,7 +9,7 @@ import numpy as np
 import vectorbt as vbt
 from typing import Dict, Any
 from app.ema_cross.tools.psl_types import MetricMatrices
-from app.tools.file_utils import convert_stats
+from app.tools.stats_converter import convert_stats
 
 def initialize_metric_matrices(num_periods: int) -> MetricMatrices:
     """

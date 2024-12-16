@@ -7,7 +7,7 @@ adjusted metrics and processing portfolio statistics.
 
 from typing import Optional, Dict, Callable, List, Any
 from app.ema_cross.tools.process_ma_portfolios import process_ma_portfolios
-from app.tools.file_utils import convert_stats
+from app.tools.stats_converter import convert_stats
 from app.ema_cross.tools.export_portfolios import export_portfolios
 from app.tools.get_config import get_config
 
