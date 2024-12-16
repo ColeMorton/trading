@@ -18,7 +18,7 @@ class StrategyConfig(TypedDict):
         SIGNAL_PERIOD (NotRequired[int]): Period for MACD signal line (makes it a MACD strategy)
         USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average instead of EMA
         USE_HOURLY (NotRequired[bool]): Whether to use hourly timeframe instead of daily
-        EXPECTANCY_PER_DAY (NotRequired[float]): Expected daily return
+        EXPECTANCY_PER_MONTH (NotRequired[float]): Expected monthly return
         DIRECTION (NotRequired[Literal["Long", "Short"]]): Trading direction (default: "Long")
     """
     TICKER: str
@@ -31,7 +31,7 @@ class StrategyConfig(TypedDict):
     SIGNAL_PERIOD: NotRequired[int]
     USE_SMA: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]
-    EXPECTANCY_PER_DAY: NotRequired[float]
+    EXPECTANCY_PER_MONTH: NotRequired[float]
     DIRECTION: NotRequired[Literal["Long", "Short"]]
 
 class RiskMetrics(TypedDict):

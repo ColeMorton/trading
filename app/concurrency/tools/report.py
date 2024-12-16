@@ -157,7 +157,7 @@ def generate_json_report(
 
         log("Compiled metrics data for concurrency, efficiency, risk, and signal analysis", "info")
 
-        # Add strategy details - preserve all original properties and add expectancy_per_day
+        # Add strategy details - preserve all original properties and add expectancy_per_month
         log("Processing strategy details", "info")
         for idx, strategy in enumerate(strategies, 1):
             log(f"Processing strategy {idx}/{len(strategies)}: {strategy['TICKER']}", "info")
@@ -225,10 +225,10 @@ def generate_json_report(
                     "description": "Period for MACD signal line"
                 }
                 
-            if "EXPECTANCY_PER_DAY" in strategy:
-                strategy_info["expectancy_per_day"] = {
-                    "value": strategy["EXPECTANCY_PER_DAY"],
-                    "description": "Expected daily return"
+            if "EXPECTANCY_PER_MONTH" in strategy:
+                strategy_info["expectancy_per_month"] = {
+                    "value": strategy["EXPECTANCY_PER_MONTH"],
+                    "description": "Expected monthly return"
                 }
             
             report["strategies"].append(strategy_info)

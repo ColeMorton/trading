@@ -47,15 +47,15 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
     Raises:
         KeyError: If required statistics are missing from input
     """
+    if config is None:
+        config = {}
+        log("No config provided, using defaults", "info")
+
+    # Get ticker from stats if not in config
+    ticker = config.get('TICKER') or stats.get('Ticker', 'Unknown')
+    log(f"Converting stats for {ticker}", "info")
+
     try:
-        if config is None:
-            config = {}
-            log("No config provided, using defaults", "info")
-
-        # Get ticker from stats if not in config
-        ticker = config.get('TICKER') or stats.get('Ticker', 'Unknown')
-        log(f"Converting stats for {ticker}", "info")
-
         # Calculate adjusted performance metrics
         try:
             stats['Expectancy Adjusted'] = (

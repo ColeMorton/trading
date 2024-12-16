@@ -161,7 +161,7 @@ def analyze_concurrency(
         # Calculate efficiency metrics
         log("Calculating efficiency metrics", "info")
         strategy_expectancies = [
-            config.get('EXPECTANCY_PER_DAY', 0)
+            config.get('EXPECTANCY_PER_MONTH', 0) / (30 if config.get('USE_HOURLY', False) else 21)
             for config in config_list
         ]
         efficiency_metrics = calculate_efficiency_score(

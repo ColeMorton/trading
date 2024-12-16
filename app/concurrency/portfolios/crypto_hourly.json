@@ -1,0 +1,138 @@
+[
+    {
+        "ticker": "VIRTUAL-USD",
+        "timeframe": "Hourly",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 3,
+        "long_window": 10
+    },
+    {
+        "ticker": "PENDLE-USD",
+        "timeframe": "Hourly",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 50,
+        "long_window": 79
+    },
+    {
+        "ticker": "FET-USD",
+        "timeframe": "Hourly",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 48,
+        "long_window": 58
+    },
+    {
+        "ticker": "GRT6719-USD",
+        "timeframe": "Hourly",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 54,
+        "long_window": 75
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Hourly",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 20,
+        "long_window": 60
+    },
+    {
+        "ticker": "RUNE-USD",
+        "timeframe": "Hourly",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 38,
+        "long_window": 89
+    },
+    {
+        "ticker": "STX4847-USD",
+        "timeframe": "Hourly",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 16,
+        "long_window": 38
+    },
+    {
+        "ticker": "SHIB-USD",
+        "timeframe": "Hourly",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 42,
+        "long_window": 87
+    },
+    {
+        "ticker": "OP-USD",
+        "timeframe": "Hourly",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 38,
+        "long_window": 66
+    },
+    {
+        "ticker": "APT21794-USD",
+        "timeframe": "Hourly",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 40,
+        "long_window": 79
+    },
+    {
+        "ticker": "SUI20947-USD",
+        "timeframe": "Hourly",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 41,
+        "long_window": 76
+    },
+    {
+        "ticker": "DOGE-USD",
+        "timeframe": "Hourly",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 39,
+        "long_window": 83
+    },
+    {
+        "ticker": "DOT-USD",
+        "timeframe": "Hourly",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 45,
+        "long_window": 85
+    },
+    {
+        "ticker": "AAVE-USD",
+        "timeframe": "Hourly",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 59,
+        "long_window": 75
+    },
+    {
+        "ticker": "TRX-USD",
+        "timeframe": "Hourly",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 15,
+        "long_window": 55
+    },
+    {
+        "ticker": "LINK-USD",
+        "timeframe": "Hourly",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 80,
+        "long_window": 86
+    },
+    {
+        "ticker": "FTM-USD",
+        "timeframe": "Hourly",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 65,
+        "long_window": 82
+    }
+]
