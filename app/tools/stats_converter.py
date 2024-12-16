@@ -85,23 +85,18 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
 
         if config.get('USE_HOURLY', False):
             log(f"Processing hourly data for {ticker}", "info")
-            # Convert total_days to actual trading hours
-            if is_crypto:
-                # Crypto trades 24 hours per day
-                total_hours = total_days * 24
-                trading_hours_per_day = 24
-            else:
-                # Stocks trade 6.5 hours per day
-                total_hours = total_days * 6.5
-                trading_hours_per_day = 6.5
             
-            # Calculate trades per month by first getting trades per hour
+            # Calculate total hours in the period
+            total_hours = total_days * 24 if is_crypto else total_days * 6.5
+            
+            # Calculate trades and signals per hour
             trades_per_hour = float(total_trades) / total_hours
             signals_per_hour = float(total_signals) / total_hours
-            trades_per_day = trades_per_hour * trading_hours_per_day
-            signals_per_day = signals_per_hour * trading_hours_per_day
-            stats['Trades per Month'] = trades_per_day * trading_days_per_month
-            stats['Signals per Month'] = math.ceil(signals_per_day * trading_days_per_month)
+            
+            # Calculate monthly metrics
+            hours_per_month = trading_days_per_month * (24 if is_crypto else 6.5)
+            stats['Trades per Month'] = trades_per_hour * hours_per_month
+            stats['Signals per Month'] = math.ceil(signals_per_hour * hours_per_month)
             
             # Calculate expectancy per month for hourly data
             expectancy = stats['Expectancy']

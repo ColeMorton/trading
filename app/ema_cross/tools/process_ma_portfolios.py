@@ -29,16 +29,18 @@ def process_ma_portfolios(
         Optional tuple of (SMA portfolio DataFrame or None, EMA portfolio DataFrame or None, config)
         Returns None if processing fails entirely
     """
+    current_ticker = ticker  # Store ticker for error handling
+    
     try:
         # Update config with ticker and strategy settings while preserving USE_HOURLY
         strategy_config = config.copy()
-        strategy_config["TICKER"] = ticker
+        strategy_config["TICKER"] = current_ticker
         strategy_config["SHORT"] = False  # Long-only strategy
         
         # Get data - now passing the log parameter
-        data = get_data(ticker, strategy_config, log)
+        data = get_data(current_ticker, strategy_config, log)
         if data is None or len(data) == 0:
-            log(f"No data available for {ticker}", "error")
+            log(f"No data available for {current_ticker}", "error")
             return None
             
         sma_portfolio = None
@@ -57,9 +59,9 @@ def process_ma_portfolios(
             if sma_data is not None:
                 sma_portfolio = backtest_strategy(sma_data, strategy_config, log)
                 if sma_portfolio is None:
-                    log(f"Failed to backtest SMA strategy for {ticker}", "error")
+                    log(f"Failed to backtest SMA strategy for {current_ticker}", "error")
             else:
-                log(f"Failed to calculate SMA signals for {ticker}", "error")
+                log(f"Failed to calculate SMA signals for {current_ticker}", "error")
         
         # Process EMA if both windows provided
         if ema_fast is not None and ema_slow is not None:
@@ -74,17 +76,18 @@ def process_ma_portfolios(
             if ema_data is not None:
                 ema_portfolio = backtest_strategy(ema_data, strategy_config, log)
                 if ema_portfolio is None:
-                    log(f"Failed to backtest EMA strategy for {ticker}", "error")
+                    log(f"Failed to backtest EMA strategy for {current_ticker}", "error")
             else:
-                log(f"Failed to calculate EMA signals for {ticker}", "error")
+                log(f"Failed to calculate EMA signals for {current_ticker}", "error")
         
         # Return results if at least one strategy was processed
         if sma_portfolio is not None or ema_portfolio is not None:
             return sma_portfolio, ema_portfolio, strategy_config
         else:
-            log(f"No valid strategies processed for {ticker}", "error")
+            log(f"No valid strategies processed for {current_ticker}", "error")
             return None
         
     except Exception as e:
-        log(f"Failed to process {ticker}: {e}", "error")
-        return None
+        error_msg = f"Failed to process {current_ticker}: {str(e)}"
+        log(error_msg, "error")
+        raise Exception(error_msg) from e

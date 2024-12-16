@@ -40,16 +40,21 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
         ema_fast = int(row['EMA_FAST']) if has_ema else None
         ema_slow = int(row['EMA_SLOW']) if has_ema else None
             
-        result = process_ma_portfolios(
-            ticker=ticker,
-            sma_fast=sma_fast,
-            sma_slow=sma_slow,
-            ema_fast=ema_fast,
-            ema_slow=ema_slow,
-            config=config,  # Pass the config through
-            log=log
-        )
-        
+        try:
+            result = process_ma_portfolios(
+                ticker=ticker,
+                sma_fast=sma_fast,
+                sma_slow=sma_slow,
+                ema_fast=ema_fast,
+                ema_slow=ema_slow,
+                config=config,  # Pass the config through
+                log=log
+            )
+        except Exception as e:
+            # If process_ma_portfolios raises an exception, it will include the ticker
+            log(str(e), "error")
+            return None
+            
         if result is None:
             return None
             
@@ -57,28 +62,34 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
 
         # Process SMA stats if portfolio exists
         if has_sma and sma_portfolio is not None:
-            sma_stats = sma_portfolio.stats()
-            sma_stats['Ticker'] = ticker
-            sma_stats['Use SMA'] = True
-            sma_stats['Short Window'] = sma_fast
-            sma_stats['Long Window'] = sma_slow
-            sma_converted_stats = convert_stats(sma_stats, config)
-            portfolios.append(sma_converted_stats)
+            try:
+                sma_stats = sma_portfolio.stats()
+                sma_stats['Ticker'] = ticker
+                sma_stats['Use SMA'] = True
+                sma_stats['Short Window'] = sma_fast
+                sma_stats['Long Window'] = sma_slow
+                sma_converted_stats = convert_stats(sma_stats, log, config)
+                portfolios.append(sma_converted_stats)
+            except Exception as e:
+                log(f"Failed to process SMA stats for {ticker}: {str(e)}", "error")
 
         # Process EMA stats if portfolio exists
         if has_ema and ema_portfolio is not None:
-            ema_stats = ema_portfolio.stats()
-            ema_stats['Ticker'] = ticker
-            ema_stats['Use SMA'] = False
-            ema_stats['Short Window'] = ema_fast
-            ema_stats['Long Window'] = ema_slow
-            ema_converted_stats = convert_stats(ema_stats, config)
-            portfolios.append(ema_converted_stats)
+            try:
+                ema_stats = ema_portfolio.stats()
+                ema_stats['Ticker'] = ticker
+                ema_stats['Use SMA'] = False
+                ema_stats['Short Window'] = ema_fast
+                ema_stats['Long Window'] = ema_slow
+                ema_converted_stats = convert_stats(ema_stats, log, config)
+                portfolios.append(ema_converted_stats)
+            except Exception as e:
+                log(f"Failed to process EMA stats for {ticker}: {str(e)}", "error")
 
         return portfolios if portfolios else None
 
     except Exception as e:
-        log(f"Failed to process stats for {ticker}: {e}", "error")
+        log(f"Failed to process stats for {ticker}: {str(e)}", "error")
         return None
 
 def reorder_columns(portfolio: Dict) -> Dict:
