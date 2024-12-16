@@ -52,7 +52,8 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
             config = {}
             log("No config provided, using defaults", "info")
 
-        ticker = config.get('TICKER', 'Unknown')
+        # Get ticker from stats if not in config
+        ticker = config.get('TICKER') or stats.get('Ticker', 'Unknown')
         log(f"Converting stats for {ticker}", "info")
 
         # Calculate adjusted performance metrics
@@ -71,13 +72,20 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         total_signals = total_trades * 2  # Each trade has an entry and exit signal
         
         # Calculate total days between start and end
-        total_days = stats['End'] - stats['Start']
-        if total_days == 0:  # Handle case where backtest is less than a day
-            total_days = 1
-            log(f"Backtest period less than one day for {ticker}, adjusting calculations", "warning")
+        if isinstance(stats['End'], (int, float)) and isinstance(stats['Start'], (int, float)):
+            if config.get('USE_HOURLY', False):
+                # For hourly data, Start and End are hours
+                total_days = abs(stats['End'] - stats['Start']) / 24
+            else:
+                # For daily data, Start and End are days
+                total_days = abs(stats['End'] - stats['Start'])
+        else:
+            # If timestamps are datetime objects, use timedelta
+            time_delta = stats['End'] - stats['Start']
+            total_days = abs(time_delta.total_seconds()) / (24 * 3600)
 
-        # Determine if it's a crypto asset
-        is_crypto = "-USD" in config.get('TICKER', '')
+        # Determine if it's a crypto asset using ticker from either source
+        is_crypto = "-USD" in ticker
         
         # Set trading days per month based on asset type
         trading_days_per_month = 30 if is_crypto else 21
@@ -90,8 +98,8 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
             total_hours = total_days * 24 if is_crypto else total_days * 6.5
             
             # Calculate trades and signals per hour
-            trades_per_hour = float(total_trades) / total_hours
-            signals_per_hour = float(total_signals) / total_hours
+            trades_per_hour = float(total_trades) / total_hours if total_hours > 0 else 0
+            signals_per_hour = float(total_signals) / total_hours if total_hours > 0 else 0
             
             # Calculate monthly metrics
             hours_per_month = trading_days_per_month * (24 if is_crypto else 6.5)
@@ -104,8 +112,8 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         else:
             log(f"Processing daily data for {ticker}", "info")
             # Calculate monthly metrics directly
-            trades_per_day = float(total_trades) / total_days
-            signals_per_day = float(total_signals) / total_days
+            trades_per_day = float(total_trades) / total_days if total_days > 0 else 0
+            signals_per_day = float(total_signals) / total_days if total_days > 0 else 0
             stats['Trades per Month'] = trades_per_day * trading_days_per_month
             stats['Signals per Month'] = math.ceil(signals_per_day * trading_days_per_month)
             
