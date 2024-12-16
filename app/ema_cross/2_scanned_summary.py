@@ -17,7 +17,7 @@ from tools.summary_processing import (
 
 # Default Configuration
 config = {
-    "SCANNER_LIST": '20241213.csv',
+    "SCANNER_LIST": '20241216.csv',
     "USE_CURRENT": True,
     "USE_HOURLY": False,
     "BASE_DIR": 'C:/Projects/trading'  # Added BASE_DIR for export configuration

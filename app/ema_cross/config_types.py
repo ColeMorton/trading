@@ -43,11 +43,11 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": ['WBA','SMH','MU','KLAC','APA','INTU','FTNT','ARM','ROKU','ASR','ZTS','HOOD','PANW','GRAB'],
+    "TICKER": ['ASML','TSM'],
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "REFRESH": True,
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     "BASE_DIR": ".",
     "USE_YEARS": False,
     "YEARS": 15,

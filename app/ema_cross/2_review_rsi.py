@@ -21,14 +21,15 @@ from app.ema_cross.tools.rsi_visualization import create_rsi_heatmap
 
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
-    "TICKER": "FTM-USD",
-    "SHORT_WINDOW": 27,
-    "LONG_WINDOW": 46,
+    "TICKER": "TSM",
+    "SHORT_WINDOW": 18,
+    "LONG_WINDOW": 31,
     "BASE_DIR": ".",
     "USE_SMA": True,
     "REFRESH": True,
-    "USE_HOURLY": True,
-    "RELATIVE": True
+    "USE_HOURLY": False,
+    "RELATIVE": True,
+    "DIRECTION": "Long"
 }
 
 def run(config: CacheConfig) -> bool:

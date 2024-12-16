@@ -62,18 +62,18 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": "WST",
-    "SHORT_WINDOW": 62,
-    "LONG_WINDOW": 84,
+    "TICKER": "SMH",
+    "SHORT_WINDOW": 72,
+    "LONG_WINDOW": 82,
     "BASE_DIR": ".",
-    "USE_SMA": False,
+    "USE_SMA": True,
     "REFRESH": True,
     "USE_HOURLY": False,
     "RELATIVE": True,
     "USE_RSI": False,
-    "RSI_PERIOD": 22,
-    "RSI_THRESHOLD": 36,  # Changed from float to int
-    "STOP_LOSS": 0.1007,
+    "RSI_PERIOD": 26,
+    "RSI_THRESHOLD": 54,  # Changed from float to int
+    "STOP_LOSS": 0.0907,
     "DIRECTION": "Long"  # Default to Long position
 }
 
