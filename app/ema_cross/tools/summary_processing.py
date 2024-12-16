@@ -11,7 +11,7 @@ from app.tools.stats_converter import convert_stats
 from app.ema_cross.tools.export_portfolios import export_portfolios
 from app.tools.get_config import get_config
 
-def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], log: Callable) -> Optional[List[dict]]:
+def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], log: Callable[[str, str], None]) -> Optional[List[dict]]:
     """
     Process SMA and EMA portfolios for a single ticker.
 
@@ -103,8 +103,9 @@ def reorder_columns(portfolio: Dict) -> Dict:
         'Expectancy',
         'Expectancy Adjusted',
         'Trades per Month',
+        'Signals per Month',
         'Expectancy per Month',
-        'Sortino'
+        'Sortino Ratio'
     ]
     
     reordered = {}
@@ -119,7 +120,7 @@ def reorder_columns(portfolio: Dict) -> Dict:
             
     return reordered
 
-def export_summary_results(portfolios: List[Dict], scanner_list: str, log: Callable, config: Optional[Dict] = None) -> bool:
+def export_summary_results(portfolios: List[Dict], scanner_list: str, log: Callable[[str, str], None], config: Optional[Dict] = None) -> bool:
     """
     Export portfolio summary results to CSV.
 

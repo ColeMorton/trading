@@ -6,6 +6,7 @@ It aggregates and analyzes the performance of both SMA and EMA strategies across
 multiple tickers, calculating key metrics like expectancy and tradability.
 """
 
+from typing import Callable
 import polars as pl
 from datetime import datetime
 from pathlib import Path
@@ -24,7 +25,7 @@ config = {
     "DIRECTION": "Long"
 }
 
-def read_scanner_list(file_path: Path, log: callable) -> pl.DataFrame:
+def read_scanner_list(file_path: Path, log: Callable[[str, str], None]) -> pl.DataFrame:
     """
     Read scanner list with proper handling of empty values.
 
