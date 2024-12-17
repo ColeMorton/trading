@@ -1,27 +1,11 @@
 [
     {
-        "ticker": "VIRTUAL-USD",
+        "ticker": "PENDLE-USD",
         "timeframe": "Hourly",
         "type": "SMA",
         "direction": "Long",
-        "short_window": 3,
-        "long_window": 10
-    },
-    {
-        "ticker": "FET-USD",
-        "timeframe": "Hourly",
-        "type": "EMA",
-        "direction": "Long",
-        "short_window": 48,
-        "long_window": 58
-    },
-    {
-        "ticker": "SOL-USD",
-        "timeframe": "Hourly",
-        "type": "EMA",
-        "direction": "Long",
-        "short_window": 20,
-        "long_window": 60
+        "short_window": 50,
+        "long_window": 79
     },
     {
         "ticker": "RUNE-USD",
@@ -30,14 +14,6 @@
         "direction": "Long",
         "short_window": 38,
         "long_window": 89
-    },
-    {
-        "ticker": "STX4847-USD",
-        "timeframe": "Hourly",
-        "type": "SMA",
-        "direction": "Long",
-        "short_window": 16,
-        "long_window": 38
     },
     {
         "ticker": "APT21794-USD",
@@ -56,11 +32,11 @@
         "long_window": 76
     },
     {
-        "ticker": "AAVE-USD",
+        "ticker": "TRX-USD",
         "timeframe": "Hourly",
-        "type": "SMA",
+        "type": "EMA",
         "direction": "Long",
-        "short_window": 59,
-        "long_window": 75
+        "short_window": 19,
+        "long_window": 72
     }
 ]
