@@ -3,21 +3,40 @@ import yfinance as yf
 import riskfolio as rp
 import numpy as np
 import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
 
-def download_data(ticker, start_date, end_date):
-    data = yf.download(ticker, start=start_date, end=end_date)
-    return data['Adj Close']
+# def download_data(ticker, start_date, end_date):
+#     data = yf.download(ticker, start=start_date, end=end_date)
+#     return data['Adj Close']
+
+def download_data(ticker: str) -> pd.DataFrame:
+    """Download historical data from Yahoo Finance."""
+    interval = '1h'
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=730)
+
+    try:
+        data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
+        return data['Adj Close']
+    except Exception as e:
+        raise
 
 try:
     # Download data
     start_date = '2020-01-01'
     end_date = '2024-10-25'
-    btc_data = download_data('BTC-USD', start_date, end_date)
-    spy_data = download_data('SOL-USD', start_date, end_date)
+    virtual_data = download_data('VIRTUAL-USD')
+    fet_data = download_data('FET-USD')
+    sol_data = download_data('SOL-USD')
+    rune_data = download_data('RUNE-USD')
+    stx_data = download_data('STX4847-USD')
+    apt_data = download_data('APT21794-USD')
+    sui_data = download_data('SUI20947-USD')
+    aave_data = download_data('AAVE-USD')
 
     # Combine data
-    data = pd.concat([btc_data, spy_data], axis=1)
-    data.columns = ['BTC-USD', 'SOL-USD']
+    data = pd.concat([virtual_data, fet_data, sol_data, rune_data, stx_data, apt_data, sui_data, aave_data], axis=1)
+    data.columns = ['VIRTUAL-USD', 'FET-USD', 'SOL-USD', 'RUNE-USD', 'STX4847-USD', 'APT21794-USD', 'SUI20947-USD', 'AAVE-USD']
 
     # Calculate returns
     returns = data.pct_change(fill_method=None).dropna()
@@ -35,10 +54,10 @@ try:
     # Set up optimization parameters
     model = 'Classic'  # Could be Classic (Markowitz), BL (Black Litterman) or FM (Factor Model)
     rm = 'MV'  # Risk measure: 'MV' (Variance), 'MAD' (Mean Absolute Deviation), 'MSV' (Semi Variance), etc.
-    obj = 'Sharpe'  # Objective function: 'MinRisk', 'MaxRet', 'Utility', 'Sharpe' (Maximize Sharpe ratio)
+    obj = 'Utility'  # Objective function: 'MinRisk', 'MaxRet', 'Utility', 'Sharpe' (Maximize Sharpe ratio)
     hist = True  # Use historical scenarios for risk measures that depend on scenarios
     rf = 0  # Risk-free rate
-    l = 0  # Risk aversion factor, only useful when obj is 'Utility'
+    l = 3  # Risk aversion factor, only useful when obj is 'Utility'
 
     # Sortino Ratio
     # rm = 'MSV'  # Risk measure: 'MV' (Variance), 'MAD' (Mean Absolute Deviation), 'MSV' (Semi Variance), etc.

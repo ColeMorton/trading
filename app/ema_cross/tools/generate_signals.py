@@ -1,6 +1,7 @@
 from typing import Dict, Tuple, Callable
 import polars as pl
 import pandas as pd
+import numpy as np
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 
 def generate_signals(
@@ -44,8 +45,11 @@ def generate_signals(
             # Filter to common date range
             df = df.loc[common_index]
             
-            # Create polars Series from Close prices
-            close_series = pl.Series('Close', df['Close'].values)
+            # Create polars DataFrame with Date and Close columns
+            price_df = pl.DataFrame({
+                'Date': df.index.to_list(),
+                'Close': df['Close'].values
+            })
             
             # Create strategy-specific config
             strategy_config = {
@@ -59,7 +63,7 @@ def generate_signals(
             
             # Calculate moving averages and initial signals
             ma_signals = calculate_ma_and_signals(
-                close_series,
+                price_df,
                 strategy['short_window'],
                 strategy['long_window'],
                 strategy_config,
@@ -68,37 +72,38 @@ def generate_signals(
             
             # Convert to numpy for easier manipulation
             close_np = df['Close'].to_numpy()
-            entries_np = ma_signals['entries'].to_numpy()
-            exits_np = ma_signals['exits'].to_numpy()
+            signal_np = ma_signals.get_column('Signal').to_numpy()
             
-            # Initialize arrays for tracking position and entry price
+            # Create arrays for entries and exits based on Signal column
+            entries_np = np.zeros_like(signal_np, dtype=bool)
+            exits_np = np.zeros_like(signal_np, dtype=bool)
+            
+            # Initialize position tracking
             in_position = False
             entry_price = 0.0
             stop_loss_price = 0.0
             
-            # Process stop loss
+            # Process signals and stop loss
             for i in range(len(close_np)):
                 current_price = close_np[i]
                 
                 if not in_position:
-                    if entries_np[i]:
+                    if signal_np[i] != 0:  # Non-zero signal indicates entry
                         # Enter position
                         in_position = True
                         entry_price = current_price
+                        entries_np[i] = True
                         # Calculate stop loss price
                         stop_loss_price = entry_price * (1 - strategy['stop_loss'] / 100)
                 else:
-                    # Check for stop loss or regular exit
-                    if current_price <= stop_loss_price or exits_np[i]:
+                    # Check for stop loss or signal reversal
+                    if current_price <= stop_loss_price or signal_np[i] == 0:
                         # Exit position
                         in_position = False
                         entries_np[i] = False
                         exits_np[i] = True
                         entry_price = 0.0
                         stop_loss_price = 0.0
-                    else:
-                        # Still in position, prevent new entry signals
-                        entries_np[i] = False
             
             # Add signals to DataFrames
             entries_df[strategy_name] = entries_np

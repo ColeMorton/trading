@@ -7,7 +7,7 @@ for protective stop loss analysis.
 
 import numpy as np
 import vectorbt as vbt
-from typing import Dict, Any
+from typing import Dict, Any, Callable
 from app.ema_cross.tools.psl_types import MetricMatrices
 from app.tools.stats_converter import convert_stats
 
@@ -50,6 +50,7 @@ def create_portfolio_stats(
     portfolio: vbt.Portfolio,
     holding_period: int,
     config: Dict[str, Any],
+    log: Callable[[str, str], None]
 ) -> Dict:
     """
     Create portfolio statistics dictionary with holding period information.
@@ -57,12 +58,14 @@ def create_portfolio_stats(
     Args:
         portfolio (vbt.Portfolio): VectorBT portfolio object
         holding_period (int): Current holding period being analyzed
+        config (Dict[str, Any]): Configuration dictionary
+        log (Callable[[str, str], None]): Logging function
 
     Returns:
         Dict: Portfolio statistics with holding period
     """
     stats = portfolio.stats()
-    converted_stats = convert_stats(stats, config)
+    converted_stats = convert_stats(stats, log, config)
     converted_stats["Holding Period"] = holding_period
     return converted_stats
 

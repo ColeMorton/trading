@@ -63,7 +63,23 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
                 min(1, 0.01 * stats['Win Rate [%]'] / 0.5) * 
                 min(1, stats['Total Closed Trades'] / 50)
             )
-            stats['Tradability'] = stats['Total Closed Trades'] / stats['End'] * 1000
+            
+            # Calculate total days between start and end
+            if isinstance(stats['End'], (int, float)) and isinstance(stats['Start'], (int, float)):
+                if config.get('USE_HOURLY', False):
+                    # For hourly data, Start and End are hours
+                    total_days = abs(stats['End'] - stats['Start']) / 24
+                else:
+                    # For daily data, Start and End are days
+                    total_days = abs(stats['End'] - stats['Start'])
+            else:
+                # If timestamps are datetime objects, use timedelta
+                time_delta = pd.Timestamp(stats['End']) - pd.Timestamp(stats['Start'])
+                total_days = abs(time_delta.total_seconds()) / (24 * 3600)
+            
+            # Calculate Tradability using total days
+            stats['Tradability'] = (stats['Total Closed Trades'] / total_days) * 1000 if total_days > 0 else 0
+            
         except KeyError as e:
             log(f"Missing required statistic for {ticker}: {str(e)}", "error")
             raise
@@ -71,19 +87,6 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         total_trades = stats['Total Trades']
         total_signals = total_trades * 2  # Each trade has an entry and exit signal
         
-        # Calculate total days between start and end
-        if isinstance(stats['End'], (int, float)) and isinstance(stats['Start'], (int, float)):
-            if config.get('USE_HOURLY', False):
-                # For hourly data, Start and End are hours
-                total_days = abs(stats['End'] - stats['Start']) / 24
-            else:
-                # For daily data, Start and End are days
-                total_days = abs(stats['End'] - stats['Start'])
-        else:
-            # If timestamps are datetime objects, use timedelta
-            time_delta = stats['End'] - stats['Start']
-            total_days = abs(time_delta.total_seconds()) / (24 * 3600)
-
         # Determine if it's a crypto asset using ticker from either source
         is_crypto = "-USD" in ticker
         

@@ -60,7 +60,7 @@ def analyze_stop_loss_parameters(
     if config.get('RELATIVE', True):
         baseline_config = {**config, "STOP_LOSS": None}
         baseline_portfolio = backtest_strategy(data_with_signals, baseline_config, log)
-        baseline_stats = convert_stats(baseline_portfolio.stats(), baseline_config)
+        baseline_stats = convert_stats(baseline_portfolio.stats(), log, baseline_config)
         
         # Store baseline metrics
         baseline_metrics = {
@@ -84,7 +84,7 @@ def analyze_stop_loss_parameters(
         
         portfolio = backtest_strategy(data_with_signals, config, log)
         stats = portfolio.stats()
-        converted_stats = convert_stats(stats, config)
+        converted_stats = convert_stats(stats, log, config)
         
         # Add stop loss parameter to stats
         converted_stats["Stop Loss [%]"] = stop_loss

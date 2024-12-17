@@ -29,7 +29,7 @@ try:
         df = get_data(symbol, {
             'start_date': config['start_date'],
             'end_date': config['end_date']
-        }).with_columns(
+        }, log).with_columns(
             pl.col('Date').cast(pl.Datetime('ns')).alias('Date')
         )
         data_dict[symbol] = df
@@ -79,7 +79,7 @@ try:
         'SHORT': config.get('SHORT', False),
         'init_cash': config.get('init_cash', 10000),
         'fees': config.get('fees', 0.001)
-    })
+    }, log)
 
     # Ensure boolean type for signal arrays
     entries_pd = entries_pd.astype(bool)
@@ -164,7 +164,7 @@ try:
 
     # Convert and print portfolio statistics
     stats = portfolio.stats()
-    converted_stats = convert_stats(stats, config)
+    converted_stats = convert_stats(stats, log, config)
     
     print("\nStrategy Portfolio Statistics:")
     print("===================")

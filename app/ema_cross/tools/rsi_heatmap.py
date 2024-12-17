@@ -52,7 +52,7 @@ def analyze_rsi_parameters(
             log
         )
         baseline_portfolio = backtest_strategy(baseline_data, baseline_config, log)
-        baseline_stats = convert_stats(baseline_portfolio.stats(), baseline_config)
+        baseline_stats = convert_stats(baseline_portfolio.stats(), log, baseline_config)
     
         # Store baseline metrics
         baseline_metrics = {
@@ -84,7 +84,7 @@ def analyze_rsi_parameters(
             )
             
             portfolio = backtest_strategy(data_with_signals, config, log)
-            stats = convert_stats(portfolio.stats(), config)
+            stats = convert_stats(portfolio.stats(), log, config)
             
             # Add RSI parameters and append to portfolios
             stats.update({"RSI Window": window, "RSI Threshold": threshold})
