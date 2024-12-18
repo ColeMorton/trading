@@ -22,7 +22,6 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> N
         config: Configuration dictionary containing:
             - TICKER: str, ticker symbol
             - WINDOWS: int, maximum window size
-            - USE_SMA: bool, whether to use SMA instead of EMA
             - USE_CURRENT: bool, whether to show only current signals
         log: Logging function for recording events and errors
 
@@ -93,8 +92,7 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> N
             win_rate=win_rate,
             windows=windows,
             title="Portfolio Performance",
-            ticker=config["TICKER"],
-            use_sma=config.get("USE_SMA", False)
+            config=config
         )
         
         # Save and display plots

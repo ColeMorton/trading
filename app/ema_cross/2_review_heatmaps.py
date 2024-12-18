@@ -14,7 +14,7 @@ import polars as pl
 from app.tools.setup_logging import setup_logging
 from app.tools.get_config import get_config
 from tools.plot_heatmaps import plot_heatmap
-from tools.portfolio_transformation import transform_portfolio_data
+from app.tools.portfolio_transformation import transform_portfolio_data
 
 class Config(TypedDict, total=False):
     """Configuration type definition for heatmap generation.

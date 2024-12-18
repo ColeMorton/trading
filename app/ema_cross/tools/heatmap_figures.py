@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-from typing import Dict
+from typing import Dict, Any
 
 def create_heatmap_figures(
     returns: pd.Series,
@@ -10,8 +10,7 @@ def create_heatmap_figures(
     win_rate: pd.Series,
     windows: np.ndarray,
     title: str,
-    ticker: str,
-    use_sma: bool = True
+    config: Dict[str, Any]
 ) -> Dict[str, go.Figure]:
     """
     Create separate heatmap figures for returns, total trades, Sharpe ratio, and win rate with consistent styling.
@@ -95,7 +94,7 @@ def create_heatmap_figures(
     win_rate_zmax = np.max(valid_win_rate) if len(valid_win_rate) > 0 else 0
     
     # Determine MA type for title
-    ma_type = "SMA" if use_sma else "EMA"
+    ma_type = "SMA" if config.get("USE_SMA", False) else "EMA"
     
     # Create returns figure
     returns_fig = go.Figure()
@@ -111,7 +110,7 @@ def create_heatmap_figures(
     
     returns_fig.update_layout(
         title=dict(
-            text=f'{ticker} - {ma_type} Cross Strategy Returns<br><sup>{title}</sup>',
+            text=f'{config["TICKER"]} - {ma_type} Cross Strategy Returns<br><sup>{title}</sup>',
             x=0.5,
             xanchor='center'
         ),
@@ -135,7 +134,7 @@ def create_heatmap_figures(
     
     trades_fig.update_layout(
         title=dict(
-            text=f'{ticker} - {ma_type} Cross Strategy Total Trades<br><sup>{title}</sup>',
+            text=f'{config["TICKER"]} - {ma_type} Cross Strategy Total Trades<br><sup>{title}</sup>',
             x=0.5,
             xanchor='center'
         ),
@@ -159,7 +158,7 @@ def create_heatmap_figures(
     
     sharpe_fig.update_layout(
         title=dict(
-            text=f'{ticker} - {ma_type} Cross Strategy Sharpe Ratio<br><sup>{title}</sup>',
+            text=f'{config["TICKER"]} - {ma_type} Cross Strategy Sharpe Ratio<br><sup>{title}</sup>',
             x=0.5,
             xanchor='center'
         ),
@@ -183,7 +182,7 @@ def create_heatmap_figures(
     
     win_rate_fig.update_layout(
         title=dict(
-            text=f'{ticker} - {ma_type} Cross Strategy Win Rate<br><sup>{title}</sup>',
+            text=f'{config["TICKER"]} - {ma_type} Cross Strategy Win Rate<br><sup>{title}</sup>',
             x=0.5,
             xanchor='center'
         ),
