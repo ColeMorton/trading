@@ -51,7 +51,7 @@ class PortfolioConfig(TypedDict, total=False):
 DEFAULT_CONFIG: PortfolioConfig = {
     "TICKER": "BTC-USD",
     "BASE_DIR": ".",
-    "USE_HOURLY": False,
+    "USE_HOURLY": True,
     "REFRESH": True,
     "USE_CURRENT": False,
     "USE_YEARS": False,
@@ -78,8 +78,8 @@ def validate_config(config: dict) -> bool:
     if not 2.00 <= config.get('CHANGE_PCT_START', 2.00) <= 15.00:
         raise ValueError("CHANGE_PCT_START must be between 2.00 and 15.00")
     
-    if not 2.00 <= config.get('CHANGE_PCT_END', 15.00) <= 15.00:
-        raise ValueError("CHANGE_PCT_END must be between 2.00 and 15.00")
+    if not 2.00 <= config.get('CHANGE_PCT_END', 15.00) <= 21.01:
+        raise ValueError("CHANGE_PCT_END must be between 2.00 and 21.01")
     
     if config.get('CHANGE_PCT_END', 15.00) <= config.get('CHANGE_PCT_START', 2.00):
         raise ValueError("CHANGE_PCT_END must be greater than CHANGE_PCT_START")
