@@ -62,19 +62,19 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": "OKTA",
-    "SHORT_WINDOW": 71,
-    "LONG_WINDOW": 75,
+    "TICKER": "LI",
+    "SHORT_WINDOW": 2,
+    "LONG_WINDOW": 6,
     "BASE_DIR": ".",
-    "USE_SMA": True,
+    "USE_SMA": False,
     "REFRESH": True,
     "USE_HOURLY": False,
     "RELATIVE": True,
     "DIRECTION": "Long",
-    "USE_RSI": False,   
-    "RSI_PERIOD": 12,
-    "RSI_THRESHOLD": 34,
-    "STOP_LOSS": 0.0841
+    "USE_RSI": True,   
+    "RSI_PERIOD": 18,
+    "RSI_THRESHOLD": 36,
+    "STOP_LOSS": 0.0951
 }
 
 def run(config: Config = config) -> bool:
