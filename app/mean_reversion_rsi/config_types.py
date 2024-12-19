@@ -60,10 +60,10 @@ DEFAULT_CONFIG: PortfolioConfig = {
     "YEARS": 15,
     "DIRECTION": "Long",
     "CHANGE_PCT_START": 0.1,
-    "CHANGE_PCT_END": 15,
+    "CHANGE_PCT_END": 2,
     "CHANGE_PCT_STEP": 0.1,
     "RSI_PERIOD": 14,
-    "RSI_START": 30,
+    "RSI_START": 50,
     "RSI_END": 80,
     "RSI_STEP": 1
 }

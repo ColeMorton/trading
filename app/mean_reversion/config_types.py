@@ -52,7 +52,7 @@ DEFAULT_CONFIG: PortfolioConfig = {
     "YEARS": 15,
     "DIRECTION": "Long",
     "CHANGE_PCT_START": 0.1,
-    "CHANGE_PCT_END": 15,
+    "CHANGE_PCT_END": 2,
     "CHANGE_PCT_STEP": 0.01
 }
 

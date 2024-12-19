@@ -30,7 +30,7 @@ def _fix_precision(df: pl.DataFrame) -> pl.DataFrame:
     """
     if 'price_change' in df.columns:
         df = df.with_columns(
-            pl.col('price_change').round(1).alias('price_change')
+            pl.col('price_change').round(2).alias('price_change')  # Round to 2 decimal places (0.01 precision)
         )
     return df
 
@@ -44,8 +44,7 @@ def _rename_columns(df: pl.DataFrame) -> pl.DataFrame:
         pl.DataFrame: DataFrame with renamed columns
     """
     rename_map = {
-        'Change PCT': 'price_change',
-        'RSI Threshold': 'rsi_threshold'
+        'Change PCT': 'price_change'
     }
     return df.rename(rename_map)
 
@@ -66,22 +65,21 @@ def _reorder_columns(df: pl.DataFrame, export_type: str) -> pl.DataFrame:
     df = _fix_precision(df)
     
     if export_type == 'portfolios':
-        # Ensure price_change and rsi_threshold are columns 1 and 2
+        # Ensure price_change is column 1
         cols = df.columns
         ordered_cols = []
         
-        # First add price_change and rsi_threshold
-        for col in ['price_change', 'rsi_threshold']:
-            if col in cols:
-                ordered_cols.append(col)
-                cols.remove(col)
+        # First add price_change
+        if 'price_change' in cols:
+            ordered_cols.append('price_change')
+            cols.remove('price_change')
         
         # Add remaining columns
         ordered_cols.extend(cols)
         return df.select(ordered_cols)
         
     elif export_type == 'portfolios_filtered':
-        # Ensure price_change and rsi_threshold are columns 2 and 3
+        # Ensure price_change is column 2
         cols = df.columns
         ordered_cols = []
         
@@ -90,11 +88,10 @@ def _reorder_columns(df: pl.DataFrame, export_type: str) -> pl.DataFrame:
             ordered_cols.append(cols[0])
             cols.remove(cols[0])
             
-        # Add price_change and rsi_threshold
-        for col in ['price_change', 'rsi_threshold']:
-            if col in cols:
-                ordered_cols.append(col)
-                cols.remove(col)
+        # Add price_change
+        if 'price_change' in cols:
+            ordered_cols.append('price_change')
+            cols.remove('price_change')
         
         # Add remaining columns
         ordered_cols.extend(cols)

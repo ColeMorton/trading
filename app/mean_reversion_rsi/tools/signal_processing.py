@@ -7,9 +7,9 @@ This module provides utilities for processing trading signals and portfolios.
 import polars as pl
 from typing import Optional, Callable
 from app.tools.get_data import get_data
-from app.mean_reversion.tools.signal_generation import generate_current_signals
-from app.mean_reversion.tools.sensitivity_analysis import analyze_parameter_combination
-from app.mean_reversion.config_types import PortfolioConfig
+from app.mean_reversion_rsi.tools.signal_generation import generate_current_signals
+from app.mean_reversion_rsi.tools.sensitivity_analysis import analyze_parameter_combination
+from app.mean_reversion_rsi.config_types import PortfolioConfig
 
 def process_current_signals(ticker: str, config: PortfolioConfig, log: Callable) -> Optional[pl.DataFrame]:
     """Process current signals for a ticker.
@@ -46,14 +46,12 @@ def process_current_signals(ticker: str, config: PortfolioConfig, log: Callable)
             # Create strategy config for this combination
             strategy_config = config_copy.copy()
             strategy_config.update({
-                "change_pct": row['Change PCT'],
-                "rsi_threshold": row['RSI Threshold']
+                "change_pct": row['Change PCT']
             })
             
             result = analyze_parameter_combination(
                 data=data,
                 change_pct=row['Change PCT'],
-                rsi_threshold=row['RSI Threshold'],
                 config=strategy_config,
                 log=log
             )
@@ -81,7 +79,7 @@ def process_ticker_portfolios(ticker: str, config: PortfolioConfig, log: Callabl
         if config.get("USE_CURRENT", False):
             return process_current_signals(ticker, config, log)
         else:
-            from app.mean_reversion.tools.portfolio_processing import process_single_ticker
+            from app.mean_reversion_rsi.tools.portfolio_processing import process_single_ticker
             portfolios = process_single_ticker(ticker, config, log)
             if portfolios is None:
                 log(f"Failed to process {ticker}", "error")

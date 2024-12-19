@@ -8,10 +8,10 @@ sensitivity analysis and portfolio filtering.
 
 from app.tools.get_config import get_config
 from app.tools.setup_logging import setup_logging
-from app.mean_reversion.tools.filter_portfolios import filter_portfolios
-from app.mean_reversion.tools.export_portfolios import export_portfolios, PortfolioExportError
-from app.mean_reversion.tools.signal_processing import process_ticker_portfolios
-from app.mean_reversion.config_types import PortfolioConfig, DEFAULT_CONFIG
+from app.mean_reversion_rsi.tools.filter_portfolios import filter_portfolios
+from app.mean_reversion_rsi.tools.export_portfolios import export_portfolios, PortfolioExportError
+from app.mean_reversion_rsi.tools.signal_processing import process_ticker_portfolios
+from app.mean_reversion_rsi.config_types import PortfolioConfig, DEFAULT_CONFIG
 
 def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
     """Run portfolio analysis for single or multiple tickers.

@@ -11,7 +11,6 @@ from typing import List, Dict, Callable, Optional
 from app.tools.get_config import get_config
 from app.tools.get_data import get_data
 from app.tools.export_csv import export_csv
-from app.tools.calculate_rsi import calculate_rsi
 from app.mean_reversion.tools.signal_types import Config
 from app.mean_reversion.tools.signal_utils import is_signal_current, check_signal_match
 
@@ -30,37 +29,30 @@ def calculate_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataFrame
             return None
             
         change_pct = config.get("change_pct", 2.00)
-        rsi_threshold = config.get("rsi_threshold", 30)
         direction = config.get("DIRECTION", "Long").lower()
-        rsi_period = config.get("RSI_PERIOD", 14)
         
-        # Calculate price changes
+        # Calculate price changes with 2 decimal precision to match CHANGE_PCT_STEP
         data = data.with_columns([
-            ((pl.col("Close") - pl.col("Close").shift(1)) / pl.col("Close").shift(1) * 100).alias("price_change")
+            ((pl.col("Close") - pl.col("Close").shift(1)) / pl.col("Close").shift(1) * 100)
+            .round(2)  # Round to 2 decimal places to match CHANGE_PCT_STEP precision
+            .alias("price_change")
         ])
-        
-        # Calculate RSI
-        data = calculate_rsi(data, rsi_period)
         
         # Initialize Signal column with zeros
         data = data.with_columns([
             pl.lit(0).cast(pl.Int32).alias("Signal")
         ])
         
-        # Generate entry signals based on price change threshold, RSI, and direction
+        # Generate entry signals based on price change threshold and direction
         if direction == "long":
-            # Long: Enter when price drops by threshold and RSI is above threshold
-            # (Price weakness but RSI strength indicates potential reversal up)
+            # Long: Enter when price drops by threshold
             data = data.with_columns([
-                ((pl.col("price_change") <= -change_pct) & 
-                 (pl.col("RSI") >= rsi_threshold)).cast(pl.Int32).alias("Entry")
+                (pl.col("price_change") <= -change_pct).cast(pl.Int32).alias("Entry")
             ])
         else:
-            # Short: Enter when price rises by threshold and RSI is below threshold
-            # (Price strength but RSI weakness indicates potential reversal down)
+            # Short: Enter when price rises by threshold
             data = data.with_columns([
-                ((pl.col("price_change") >= change_pct) & 
-                 (pl.col("RSI") <= rsi_threshold)).cast(pl.Int32).alias("Entry")
+                (pl.col("price_change") >= change_pct).cast(pl.Int32).alias("Entry")
             ])
         
         # Generate exit signals at the next candle after entry
@@ -97,7 +89,6 @@ def calculate_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataFrame
 def get_current_signals(
     data: pl.DataFrame,
     change_pcts: List[float],
-    rsi_thresholds: List[int],
     config: Dict,
     log: Callable
 ) -> pl.DataFrame:
@@ -107,7 +98,6 @@ def get_current_signals(
     Args:
         data: Price data DataFrame
         change_pcts: List of price change percentages
-        rsi_thresholds: List of RSI thresholds
         config: Configuration dictionary
         log: Logging function for recording events and errors
     
@@ -118,49 +108,43 @@ def get_current_signals(
         signals = []
         
         for change_pct in change_pcts:
-            for rsi_threshold in rsi_thresholds:
-                try:
-                    temp_data = data.clone()
-                    temp_config = config.copy()
-                    temp_config.update({
-                        "change_pct": change_pct,
-                        "rsi_threshold": rsi_threshold
-                    })
-                    
-                    temp_data = calculate_signals(temp_data, temp_config)
-                    
-                    if temp_data is not None and len(temp_data) > 0:
-                        current = is_signal_current(temp_data)
-                        if current:
-                            signals.append({
-                                "Change PCT": float(change_pct),
-                                "RSI Threshold": int(rsi_threshold)
-                            })
-                except Exception as e:
-                    log(f"Failed to process parameters {change_pct:.2f}, {rsi_threshold}: {str(e)}", "warning")
-                    continue
+            try:
+                temp_data = data.clone()
+                temp_config = config.copy()
+                temp_config.update({
+                    "change_pct": change_pct
+                })
+                
+                temp_data = calculate_signals(temp_data, temp_config)
+                
+                if temp_data is not None and len(temp_data) > 0:
+                    current = is_signal_current(temp_data)
+                    if current:
+                        signals.append({
+                            "Change PCT": float(change_pct)
+                        })
+            except Exception as e:
+                log(f"Failed to process parameter {change_pct:.2f}: {str(e)}", "warning")
+                continue
 
         # Create DataFrame with explicit schema
         if signals:
             return pl.DataFrame(
                 signals,
                 schema={
-                    "Change PCT": pl.Float64,
-                    "RSI Threshold": pl.Int32
+                    "Change PCT": pl.Float64
                 }
             )
         return pl.DataFrame(
             schema={
-                "Change PCT": pl.Float64,
-                "RSI Threshold": pl.Int32
+                "Change PCT": pl.Float64
             }
         )
     except Exception as e:
         log(f"Failed to get current signals: {e}", "error")
         return pl.DataFrame(
             schema={
-                "Change PCT": pl.Float64,
-                "RSI Threshold": pl.Int32
+                "Change PCT": pl.Float64
             }
         )
 
@@ -187,24 +171,17 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
         
         # Create parameter arrays with controlled precision
         change_pcts = [round(start_pct + i * step_pct, 2) for i in range(num_steps)]
-        
-        # Generate RSI thresholds
-        rsi_start = config.get("RSI_START", 30)
-        rsi_end = config.get("RSI_END", 81)
-        rsi_step = config.get("RSI_STEP", 1)
-        rsi_thresholds = list(range(rsi_start, rsi_end, rsi_step))
 
         data = get_data(config["TICKER"], config, log)
         if data is None:
             log("Failed to get price data", "error")
             return pl.DataFrame(
                 schema={
-                    "Change PCT": pl.Float64,
-                    "RSI Threshold": pl.Int32
+                    "Change PCT": pl.Float64
                 }
             )
 
-        current_signals = get_current_signals(data, change_pcts, rsi_thresholds, config, log)
+        current_signals = get_current_signals(data, change_pcts, config, log)
 
         if not config.get("USE_SCANNER", False):
             export_csv(current_signals, "mean_reversion", config, 'current_signals')
@@ -218,8 +195,7 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
         log(f"Failed to generate current signals: {str(e)}", "error")
         return pl.DataFrame(
             schema={
-                "Change PCT": pl.Float64,
-                "RSI Threshold": pl.Int32
+                "Change PCT": pl.Float64
             }
         )
 
@@ -227,7 +203,6 @@ def process_mean_reversion_signals(
     ticker: str,
     config: Config,
     change_pct: float,
-    rsi_threshold: int,
     log: Callable
 ) -> bool:
     """
@@ -237,7 +212,6 @@ def process_mean_reversion_signals(
         ticker: The ticker symbol to process
         config: Configuration dictionary
         change_pct: Price change percentage from scanner
-        rsi_threshold: RSI threshold from scanner
         log: Logging function for recording events and errors
 
     Returns:
@@ -252,8 +226,7 @@ def process_mean_reversion_signals(
     
     is_current = check_signal_match(
         signals.to_dicts() if len(signals) > 0 else [],
-        change_pct,
-        rsi_threshold
+        change_pct
     )
     
     return is_current
