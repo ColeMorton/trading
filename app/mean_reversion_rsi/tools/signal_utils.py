@@ -22,19 +22,19 @@ def is_signal_current(data: pl.DataFrame) -> bool:
     last_row = data.tail(1)
     return bool(last_row['Signal'].item() != 0)
 
-def check_signal_match(signals: List[Dict], change_pct: float, candle_number: int) -> bool:
+def check_signal_match(signals: List[Dict], change_pct: float, rsi_threshold: int) -> bool:
     """Check if a specific parameter combination exists in current signals.
     
     Args:
         signals: List of dictionaries containing signal parameters
         change_pct: Price change percentage to match
-        candle_number: Number of candles to match
+        rsi_threshold: RSI threshold to match
         
     Returns:
         bool: True if parameter combination exists in signals
     """
     for signal in signals:
         if (signal["Change PCT"] == change_pct and 
-            signal["Candle Number"] == candle_number):
+            signal["RSI Threshold"] == rsi_threshold):
             return True
     return False

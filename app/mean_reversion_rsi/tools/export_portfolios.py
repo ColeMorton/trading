@@ -45,7 +45,7 @@ def _rename_columns(df: pl.DataFrame) -> pl.DataFrame:
     """
     rename_map = {
         'Change PCT': 'price_change',
-        'Candle Number': 'exit_candles'
+        'RSI Threshold': 'rsi_threshold'
     }
     return df.rename(rename_map)
 
@@ -66,12 +66,12 @@ def _reorder_columns(df: pl.DataFrame, export_type: str) -> pl.DataFrame:
     df = _fix_precision(df)
     
     if export_type == 'portfolios':
-        # Ensure price_change and exit_candles are columns 1 and 2
+        # Ensure price_change and rsi_threshold are columns 1 and 2
         cols = df.columns
         ordered_cols = []
         
-        # First add price_change and exit_candles
-        for col in ['price_change', 'exit_candles']:
+        # First add price_change and rsi_threshold
+        for col in ['price_change', 'rsi_threshold']:
             if col in cols:
                 ordered_cols.append(col)
                 cols.remove(col)
@@ -81,7 +81,7 @@ def _reorder_columns(df: pl.DataFrame, export_type: str) -> pl.DataFrame:
         return df.select(ordered_cols)
         
     elif export_type == 'portfolios_filtered':
-        # Ensure price_change and exit_candles are columns 2 and 3
+        # Ensure price_change and rsi_threshold are columns 2 and 3
         cols = df.columns
         ordered_cols = []
         
@@ -90,8 +90,8 @@ def _reorder_columns(df: pl.DataFrame, export_type: str) -> pl.DataFrame:
             ordered_cols.append(cols[0])
             cols.remove(cols[0])
             
-        # Add price_change and exit_candles
-        for col in ['price_change', 'exit_candles']:
+        # Add price_change and rsi_threshold
+        for col in ['price_change', 'rsi_threshold']:
             if col in cols:
                 ordered_cols.append(col)
                 cols.remove(col)

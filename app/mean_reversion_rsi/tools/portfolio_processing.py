@@ -58,11 +58,13 @@ def process_single_ticker(
         start_pct = config.get("CHANGE_PCT_START", 2.00)
         end_pct = config.get("CHANGE_PCT_END", 15.00)
         step_pct = config.get("CHANGE_PCT_STEP", 0.01)
-        max_candles = config.get("MAX_CANDLES", 5)
+        rsi_start = config.get("RSI_START", 30)
+        rsi_end = config.get("RSI_END", 81)
+        rsi_step = config.get("RSI_STEP", 1)
 
         # Create parameter arrays
         change_pcts = np.arange(start_pct, end_pct + step_pct, step_pct)
-        candle_numbers = np.arange(1, max_candles + 1)
+        rsi_thresholds = np.arange(rsi_start, rsi_end, rsi_step)
 
         log(f"Getting data...")
         data = get_data(ticker, config_copy, log)
@@ -74,7 +76,7 @@ def process_single_ticker(
         portfolios = analyze_parameter_combinations(
             data=data,
             change_pcts=change_pcts,
-            candle_numbers=candle_numbers,
+            rsi_thresholds=rsi_thresholds,
             config=config_copy,
             log=log
         )

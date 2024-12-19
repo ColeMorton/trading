@@ -47,13 +47,13 @@ def process_current_signals(ticker: str, config: PortfolioConfig, log: Callable)
             strategy_config = config_copy.copy()
             strategy_config.update({
                 "change_pct": row['Change PCT'],
-                "candle_number": row['Candle Number']
+                "rsi_threshold": row['RSI Threshold']
             })
             
             result = analyze_parameter_combination(
                 data=data,
                 change_pct=row['Change PCT'],
-                candle_number=row['Candle Number'],
+                rsi_threshold=row['RSI Threshold'],
                 config=strategy_config,
                 log=log
             )
