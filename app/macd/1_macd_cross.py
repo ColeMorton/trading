@@ -27,11 +27,11 @@ class Config(TypedDict):
 
 # Default Configuration
 CONFIG: Config = {
-    "TICKER": 'SOL-USD',
-    "YEARS": 30,
-    "USE_YEARS": False,
+    "TICKER": 'BTC-USD',
+    "YEARS": 2,
+    "USE_YEARS": True,
     "PERIOD": 'max',
-    "USE_HOURLY": False,
+    "USE_HOURLY": True,
     "USE_SYNTHETIC": False,
     "TICKER_1": 'MSTR',
     "TICKER_2": 'BTC-USD',

@@ -1,6 +1,6 @@
 import polars as pl
 import vectorbt as vbt
-from typing import Callable
+from typing import Callable, Dict, Any
 
 def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Portfolio:
     """
@@ -12,6 +12,9 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
             - USE_HOURLY (bool): Whether to use hourly data
             - DIRECTION (str): 'Long' or 'Short' for position direction
             - STOP_LOSS (float, optional): Stop loss percentage (0-100). If not provided, no stop loss is used.
+            - short_window (int, optional): Short-term window size
+            - long_window (int, optional): Long-term window size
+            - signal_window (int, optional): Signal line window size
         log: Logging function for recording events and errors
         
     Returns:
@@ -45,6 +48,22 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
             params['exits'] = data_pd['Signal'] == 0
         
         portfolio = vbt.Portfolio.from_signals(**params)
+        
+        # Create a custom stats method that includes window parameters
+        def stats(self) -> Dict[str, Any]:
+            original_stats = super(type(portfolio), self).stats()
+            stats_dict = {k: v for k, v in original_stats.items()}
+            
+            # Add window parameters
+            stats_dict['Short Window'] = config.get('short_window', 0)
+            stats_dict['Long Window'] = config.get('long_window', 0)
+            stats_dict['Signal Window'] = config.get('signal_window', 0)
+            
+            return stats_dict
+        
+        # Attach the custom stats method to the portfolio instance
+        portfolio.stats = stats.__get__(portfolio)
+        
         return portfolio
         
     except Exception as e:

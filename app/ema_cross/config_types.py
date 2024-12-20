@@ -43,7 +43,7 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": ['AISP', 'MVIS', 'CNC'],
+    "TICKER": ['LI', 'ACN', 'CNC', 'EXC', 'XPEV', 'PLTR', 'GL', 'TDG', 'KMB'],
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "REFRESH": True,

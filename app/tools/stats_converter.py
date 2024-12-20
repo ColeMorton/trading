@@ -127,14 +127,14 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         converted = {}
         
         # Handle window values first, ensuring they remain integers
-        if 'Short Window' in stats:
-            converted['Short Window'] = int(stats['Short Window'])
-        if 'Long Window' in stats:
-            converted['Long Window'] = int(stats['Long Window'])
+        window_params = ['Short Window', 'Long Window', 'Signal Window']
+        for param in window_params:
+            if param in stats:
+                converted[param] = int(stats[param])
         
         # Then handle the rest of the stats
         for k, v in stats.items():
-            if k not in ['Short Window', 'Long Window']:
+            if k not in window_params:
                 if k == 'Start' or k == 'End':
                     converted[k] = v.strftime('%Y-%m-%d %H:%M:%S') if isinstance(v, datetime) else str(v)
                 elif isinstance(v, pd.Timedelta):

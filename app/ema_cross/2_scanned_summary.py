@@ -18,9 +18,9 @@ from tools.summary_processing import (
 
 # Default Configuration
 config = {
-    "SCANNER_LIST": 'HOURLY Crypto.csv',
+    "SCANNER_LIST": '20241220.csv',
     "USE_CURRENT": False,
-    "USE_HOURLY": True,
+    "USE_HOURLY": False,
     "BASE_DIR": 'C:/Projects/trading',  # Added BASE_DIR for export configuration
     "DIRECTION": "Long"
 }
