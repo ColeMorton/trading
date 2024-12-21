@@ -33,9 +33,9 @@ CONFIG: Config = {
     "SHORT": False,
     "USE_GBM": False,
     "USE_SMA": False,
-    "SHORT_PERIOD": 14,
-    "LONG_PERIOD": 23,
-    "SIGNAL_PERIOD": 13,
+    "SHORT_PERIOD": 2,
+    "LONG_PERIOD": 21,
+    "SIGNAL_PERIOD": 4,
     "RSI_PERIOD": 14,
     "RSI_THRESHOLD": 45,  # Already an integer value
     "USE_RSI": True

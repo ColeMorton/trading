@@ -47,18 +47,18 @@ class PortfolioConfig(TypedDict, total=False):
 DEFAULT_CONFIG: PortfolioConfig = {
     "TICKER": "BTC-USD",
     "BASE_DIR": ".",
-    "USE_HOURLY": True,
+    "USE_HOURLY": False,
     "REFRESH": True,
     "USE_CURRENT": False,
-    "USE_YEARS": True,
+    "USE_YEARS": False,
     "YEARS": 2,
     "DIRECTION": "Long",
-    "SHORT_WINDOW_START": 8,
-    "SHORT_WINDOW_END": 20,
-    "LONG_WINDOW_START": 13,
-    "LONG_WINDOW_END": 34,
-    "SIGNAL_WINDOW_START": 5,
-    "SIGNAL_WINDOW_END": 13
+    "SHORT_WINDOW_START": 2,
+    "SHORT_WINDOW_END": 30,
+    "LONG_WINDOW_START": 5,
+    "LONG_WINDOW_END": 35,
+    "SIGNAL_WINDOW_START": 2,
+    "SIGNAL_WINDOW_END": 35
 }
 
 def validate_config(config: dict) -> bool:

@@ -55,18 +55,16 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
             if portfolios_df is None:
                 continue
                 
-            # Export unfiltered portfolios if using current signals
-            if config.get("USE_CURRENT", False):
-                try:
-                    export_portfolios(
-                        portfolios=portfolios_df.to_dicts(),
-                        config=ticker_config,
-                        export_type="portfolios",
-                        log=log
-                    )
-                except (ValueError, PortfolioExportError) as e:
-                    log(f"Failed to export portfolios for {ticker}: {str(e)}", "error")
-                    continue
+            try:
+                export_portfolios(
+                    portfolios=portfolios_df.to_dicts(),
+                    config=ticker_config,
+                    export_type="portfolios",
+                    log=log
+                )
+            except (ValueError, PortfolioExportError) as e:
+                log(f"Failed to export portfolios for {ticker}: {str(e)}", "error")
+                continue
 
             # Filter portfolios for individual ticker
             filtered_portfolios = filter_portfolios(portfolios_df, ticker_config, log)
