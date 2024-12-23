@@ -57,14 +57,62 @@ def export_portfolios(
     if log:
         log(f"Exporting {len(portfolios)} portfolios as {export_type}...", "info")
 
-    config["USE_MA"] = True
+    # Only include MA suffix in filename for non-portfolios_best exports
+    config["USE_MA"] = export_type != "portfolios_best"
 
     try:
         # Convert portfolios to DataFrame
         df = pl.DataFrame(portfolios)
         
-        # Add Ticker column for portfolios_best export type
+        # Special handling for portfolios_best export type
         if export_type == "portfolios_best":
+            # Define column order with EMA columns at indexes 4 and 5
+            ordered_columns = [
+                "Ticker",
+                "Use SMA",
+                "SMA_FAST",
+                "SMA_SLOW",
+                "EMA_FAST",  # Index 4
+                "EMA_SLOW",  # Index 5
+                "Total Trades"
+            ]
+            
+            # Add remaining columns in their original order
+            remaining_columns = [col for col in df.columns if col not in ordered_columns]
+            ordered_columns.extend(remaining_columns)
+            
+            # Ensure all required columns exist
+            required_columns = ["SMA_FAST", "SMA_SLOW", "EMA_FAST", "EMA_SLOW"]
+            for col in required_columns:
+                if col not in df.columns:
+                    df = df.with_columns(pl.lit(None).alias(col))
+            
+            # Fill appropriate columns based on strategy type
+            df = df.with_columns([
+                pl.when(pl.col("Use SMA").eq(True))
+                .then(pl.col("SMA_FAST"))
+                .otherwise(None)
+                .alias("SMA_FAST"),
+                
+                pl.when(pl.col("Use SMA").eq(True))
+                .then(pl.col("SMA_SLOW"))
+                .otherwise(None)
+                .alias("SMA_SLOW"),
+                
+                pl.when(pl.col("Use SMA").eq(False))
+                .then(pl.col("EMA_FAST"))
+                .otherwise(None)
+                .alias("EMA_FAST"),
+                
+                pl.when(pl.col("Use SMA").eq(False))
+                .then(pl.col("EMA_SLOW"))
+                .otherwise(None)
+                .alias("EMA_SLOW")
+            ])
+            
+            # Reorder columns
+            df = df.select(ordered_columns)
+            
             # Get ticker from config
             ticker = config["TICKER"]
             if isinstance(ticker, list):

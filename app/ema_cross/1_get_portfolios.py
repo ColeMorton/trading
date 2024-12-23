@@ -116,13 +116,85 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
         log_close()
         raise
 
-if __name__ == "__main__":
+def run_both_strategies() -> bool:
+    """Run analysis with both EMA and SMA strategies.
+    
+    Returns:
+        bool: True if execution successful
+    """
     try:
+        # Initialize logging
+        log, log_close, _, _ = setup_logging(
+            module_name='ma_cross',
+            log_file='1_get_portfolios_combined.log'
+        )
+        
+        # Store best portfolios from both strategies
+        all_best_portfolios = []
+        
         # Run analysis with both EMA and SMA
         config_copy = DEFAULT_CONFIG.copy()
         config_copy["USE_MA"] = True  # Ensure USE_MA is set for proper filename suffix
-        run({**config_copy, "USE_SMA": False})  # Run with EMA
-        run({**config_copy, "USE_SMA": True})   # Run with SMA
+        
+        # Run EMA strategy
+        log("Running EMA strategy analysis...")
+        ema_config = {**config_copy, "USE_SMA": False}
+        if run(ema_config):
+            # Get best portfolios from EMA run
+            ema_best_portfolios = []
+            tickers = [ema_config["TICKER"]] if isinstance(ema_config["TICKER"], str) else ema_config["TICKER"]
+            for ticker in tickers:
+                ticker_config = ema_config.copy()
+                ticker_config["TICKER"] = ticker
+                portfolios_df = process_ticker_portfolios(ticker, ticker_config, log)
+                if portfolios_df is not None:
+                    filtered_portfolios = filter_portfolios(portfolios_df, ticker_config, log)
+                    if filtered_portfolios is not None:
+                        best_portfolio = get_best_portfolio(filtered_portfolios, ticker_config, log)
+                        if best_portfolio is not None:
+                            ema_best_portfolios.append(best_portfolio)
+            all_best_portfolios.extend(ema_best_portfolios)
+        
+        # Run SMA strategy
+        log("Running SMA strategy analysis...")
+        sma_config = {**config_copy, "USE_SMA": True}
+        if run(sma_config):
+            # Get best portfolios from SMA run
+            sma_best_portfolios = []
+            tickers = [sma_config["TICKER"]] if isinstance(sma_config["TICKER"], str) else sma_config["TICKER"]
+            for ticker in tickers:
+                ticker_config = sma_config.copy()
+                ticker_config["TICKER"] = ticker
+                portfolios_df = process_ticker_portfolios(ticker, ticker_config, log)
+                if portfolios_df is not None:
+                    filtered_portfolios = filter_portfolios(portfolios_df, ticker_config, log)
+                    if filtered_portfolios is not None:
+                        best_portfolio = get_best_portfolio(filtered_portfolios, ticker_config, log)
+                        if best_portfolio is not None:
+                            sma_best_portfolios.append(best_portfolio)
+            all_best_portfolios.extend(sma_best_portfolios)
+        
+        # Export combined best portfolios
+        if all_best_portfolios:
+            try:
+                export_portfolios(
+                    portfolios=all_best_portfolios,
+                    config=config_copy,  # Use original config
+                    export_type="portfolios_best",
+                    log=log
+                )
+                log(f"Exported {len(all_best_portfolios)} combined best portfolios")
+            except (ValueError, PortfolioExportError) as e:
+                log(f"Failed to export combined best portfolios: {str(e)}", "error")
+                log_close()
+                return False
+        
+        log_close()
+        return True
+        
     except Exception as e:
         print(f"Execution failed: {str(e)}")
         raise
+
+if __name__ == "__main__":
+    run_both_strategies()

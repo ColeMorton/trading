@@ -43,8 +43,8 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": ['BTC-USD', 'SOL-USD', 'SUI-USD'],
-    "WINDOWS": 5,
+    "TICKER": ['BTC-USD', 'SOL-USD', 'SUI-USD', 'AAVE-USD'],
+    "WINDOWS": 10,
     "USE_HOURLY": False,
     "REFRESH": True,
     "USE_CURRENT": False,

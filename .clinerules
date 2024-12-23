@@ -1,1 +1,1 @@
-- Log every change you make with a summary and files you have changed in a log file named changes.md. If it doesn't exist then create it. Use markdown language. changes.md should be elagantly written with beautifully consistent styling.
+- Log every change you make with a summary and files you have changed in a log file named changes.md. If it doesn't exist then create it. Use markdown language. changes.md should be elagantly written with beautifully consistent styling. Include the current date and time.

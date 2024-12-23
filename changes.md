@@ -34,3 +34,24 @@
      - Added "Use SMA" to required columns check
      - Modified log messages to reflect dynamic column names
      - Ensures consistent naming convention across SMA and EMA strategies
+
+## 2024-03-21
+
+### Consolidated Portfolio Export Files
+- **Files Modified**:
+  1. `app/ema_cross/tools/export_portfolios.py`:
+     - Modified export behavior for portfolios_best type
+     - Disabled MA suffix in filename when exporting portfolios_best
+     - Added handling for combined SMA and EMA portfolios in single D.csv file
+     - Implemented automatic column creation for SMA_FAST, SMA_SLOW, EMA_FAST, EMA_SLOW
+     - Added conditional logic to populate appropriate columns based on strategy type
+     - Set null values for non-applicable columns (EMA columns for SMA portfolios and vice versa)
+     - Defined specific column ordering with EMA_FAST and EMA_SLOW at indexes 4 and 5
+     - Ensures consistent data structure and column ordering across different strategy types
+
+  2. `app/ema_cross/1_get_portfolios.py`:
+     - Added new run_both_strategies function to handle combined strategy execution
+     - Implemented accumulation of best portfolios from both EMA and SMA runs
+     - Added separate logging for combined strategy execution
+     - Modified main execution to use combined strategy function
+     - Ensures both EMA and SMA portfolios are included in final export
