@@ -58,60 +58,81 @@ def _get_ticker_prefix(config: ExportConfig) -> str:
         return f"{ticker[0]}_"
     return ""
 
-def _get_filename_components(config: ExportConfig) -> List[str]:
+def _get_filename_components(config: ExportConfig, feature1: str = "", feature2: str = "") -> List[str]:
     """Generate standardized filename components based on configuration.
     
     Args:
         config: Export configuration dictionary
+        feature1: Primary feature directory
+        feature2: Secondary feature directory
         
     Returns:
         List[str]: List of filename components
     """
-    components = [
-        _get_ticker_prefix(config),
-        "H" if config.get("USE_HOURLY", False) else "D"
-    ]
+    components = [_get_ticker_prefix(config)]
+    
+    # For current_signals directory, use simplified naming
+    if feature1 == "ma_cross" and feature2 == "current_signals":
+        components.append("H" if config.get("USE_HOURLY", False) else "D")
+        
+        # Add SHORT suffix if direction is Short
+        if config.get("DIRECTION") == "Short":
+            components.append("_SHORT")
+        
+        # Add MA suffix if USE_MA is True
+        if config.get("USE_MA", False):
+            components.append("_SMA" if config.get("USE_SMA", False) else "_EMA")
+            
+        return components
+    
+    # For all other directories, use full naming convention
+    components.append("H" if config.get("USE_HOURLY", False) else f"{datetime.now().strftime('%Y%m%d_%H%M')}_D")
     
     # Add SHORT suffix if direction is Short
     if config.get("DIRECTION") == "Short":
         components.append("_SHORT")
     
-    # Only add MA suffix if USE_MA is True
+    # Add MA suffix if USE_MA is True
     if config.get("USE_MA", False):
         components.append("_SMA" if config.get("USE_SMA", False) else "_EMA")
     
     components.extend([
         "_GBM" if config.get("USE_GBM", False) else "",
-        f"_{datetime.now().strftime('%Y%m%d')}" if config.get("SHOW_LAST", False) else ""
+        f"_{datetime.now().strftime('%Y%m%d')}" if config.get("SHOW_LAST", False) else "",
+        "_CURRENT" if config.get("USE_CURRENT", False) else ""
     ])
     
     return components
 
-def _get_filename(config: ExportConfig, extension: str = "csv") -> str:
+def _get_filename(config: ExportConfig, feature1: str = "", feature2: str = "", extension: str = "csv") -> str:
     """Generate standardized filename based on configuration.
     
     Args:
         config: Export configuration dictionary
+        feature1: Primary feature directory
+        feature2: Secondary feature directory
         extension: File extension without dot
         
     Returns:
         str: Generated filename with extension
     """
-    components = _get_filename_components(config)
+    components = _get_filename_components(config, feature1, feature2)
     return f"{''.join(components)}.{extension}"
 
-def _combine_with_custom_filename(config: ExportConfig, custom_filename: str) -> str:
+def _combine_with_custom_filename(config: ExportConfig, feature1: str = "", feature2: str = "", custom_filename: str = "") -> str:
     """Combine custom filename with standard components.
     
     Args:
         config: Export configuration dictionary
+        feature1: Primary feature directory
+        feature2: Secondary feature directory
         custom_filename: Custom filename to combine with standard components
         
     Returns:
         str: Combined filename
     """
     # Get standard components
-    components = _get_filename_components(config)
+    components = _get_filename_components(config, feature1, feature2)
     
     # Split custom filename into name and extension
     name, ext = os.path.splitext(custom_filename)
@@ -188,7 +209,7 @@ def export_csv(
         os.makedirs(export_path, exist_ok=True)
         
         # Generate full file path with proper filename
-        final_filename = _combine_with_custom_filename(config, filename) if filename else _get_filename(config)
+        final_filename = _combine_with_custom_filename(config, feature1, feature2, filename) if filename else _get_filename(config, feature1, feature2)
         full_path = os.path.join(export_path, final_filename)
         
         # Remove existing file if it exists

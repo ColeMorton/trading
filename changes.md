@@ -1,57 +1,47 @@
 # Changes Log
 
-## 2024-03-19
+## 2024-12-23 10:50:49
 
-### Enhanced Portfolio Analysis and Export
+### Enhanced CSV Export Filename Generation
 - **Files Modified**:
-  1. `app/ema_cross/tools/sensitivity_analysis.py`:
-     - Added required portfolio statistics during analysis
-     - Added 'Ticker' from config to identify portfolio source
-     - Added 'Use SMA' flag from config to indicate strategy type
-     - Ensures all required columns are available for reordering
-     - Fixes portfolio processing errors by providing complete statistics
+  1. `app/tools/export_csv.py`:
+     - Added "_CURRENT" suffix to filenames when USE_CURRENT is True
+     - Improved filename consistency for current data exports
+     - Enhanced file naming convention for better organization
 
-  2. `app/ema_cross/1_get_portfolios.py`:
-     - Fixed best portfolios collection and export
-     - Added missing best portfolio append operation
-     - Ensures best portfolios are properly collected for export
-     - Enables successful export to portfolios_best directory
+## 2024-12-23 10:41:12
 
-  3. `app/ema_cross/tools/portfolio_selection.py`:
-     - Modified get_best_portfolio function to remove "Metric Type" column
-     - Updated all three portfolio return points to clean data
-     - Ensures clean data structure in best portfolio exports
-     - Maintains data consistency across the export pipeline
-
-## 2024-03-20
-
-### Dynamic Moving Average Column Naming
+### Enhanced CSV Export Functionality
 - **Files Modified**:
-  1. `app/ema_cross/tools/portfolio_selection.py`:
-     - Renamed "Short Window" to "SMA_FAST" or "EMA_FAST" based on "Use SMA" flag
-     - Renamed "Long Window" to "SMA_SLOW" or "EMA_SLOW" based on "Use SMA" flag
-     - Updated column references throughout get_best_portfolio function
-     - Added "Use SMA" to required columns check
-     - Modified log messages to reflect dynamic column names
-     - Ensures consistent naming convention across SMA and EMA strategies
+  1. `app/tools/export_csv.py`:
+     - Modified filename generation to include datetime for daily exports
+     - Changed "D" suffix to include timestamp in format: YYYY-MM-DD_HH-MM-SS_D
+     - Improved file naming consistency and traceability
+     - Enhanced export file organization
 
-## 2024-03-21
+## 2024-12-23 10:27:27
 
-### Consolidated Portfolio Export Files
+### Code Refactoring for Portfolio Analysis
+- **Files Created**:
+  1. `app/ema_cross/tools/strategy_execution.py`:
+     - Created new module for strategy execution workflow
+     - Implemented process_single_ticker function for individual ticker analysis
+     - Added execute_strategy function for running EMA/SMA strategies
+     - Improved code organization and reusability
+     - Reduced complexity in main portfolio analysis file
+
+  2. `app/ema_cross/tools/portfolio_collection.py`:
+     - Created new module for portfolio collection and export
+     - Implemented export_best_portfolios function for consistent portfolio export
+     - Added combine_strategy_portfolios function for merging EMA/SMA results
+     - Enhanced portfolio management capabilities
+     - Simplified portfolio handling logic
+
 - **Files Modified**:
-  1. `app/ema_cross/tools/export_portfolios.py`:
-     - Modified export behavior for portfolios_best type
-     - Disabled MA suffix in filename when exporting portfolios_best
-     - Added handling for combined SMA and EMA portfolios in single D.csv file
-     - Implemented automatic column creation for SMA_FAST, SMA_SLOW, EMA_FAST, EMA_SLOW
-     - Added conditional logic to populate appropriate columns based on strategy type
-     - Set null values for non-applicable columns (EMA columns for SMA portfolios and vice versa)
-     - Defined specific column ordering with EMA_FAST and EMA_SLOW at indexes 4 and 5
-     - Ensures consistent data structure and column ordering across different strategy types
-
-  2. `app/ema_cross/1_get_portfolios.py`:
-     - Added new run_both_strategies function to handle combined strategy execution
-     - Implemented accumulation of best portfolios from both EMA and SMA runs
-     - Added separate logging for combined strategy execution
-     - Modified main execution to use combined strategy function
-     - Ensures both EMA and SMA portfolios are included in final export
+  1. `app/ema_cross/1_get_portfolios.py`:
+     - Refactored main file to use new utility modules
+     - Reduced file length from 201 to 95 lines
+     - Improved code organization and maintainability
+     - Enhanced separation of concerns
+     - Simplified main execution logic
+     - Maintained existing functionality while improving code structure

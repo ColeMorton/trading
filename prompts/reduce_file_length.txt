@@ -1,1 +1,1 @@
-Refactor {} into existing modules or new modules/files in order to reduce the file length and comply with Core Development Principles
+Refactor {} into existing or new files within the tools directory in order to reduce the file length and comply with Core Development Principles
