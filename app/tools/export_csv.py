@@ -98,8 +98,7 @@ def _get_filename_components(config: ExportConfig, feature1: str = "", feature2:
     
     components.extend([
         "_GBM" if config.get("USE_GBM", False) else "",
-        f"_{datetime.now().strftime('%Y%m%d')}" if config.get("SHOW_LAST", False) else "",
-        "_CURRENT" if config.get("USE_CURRENT", False) else ""
+        f"_{datetime.now().strftime('%Y%m%d')}" if config.get("SHOW_LAST", False) else ""
     ])
     
     return components

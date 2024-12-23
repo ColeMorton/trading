@@ -8,6 +8,7 @@ creating summaries of extreme values.
 import polars as pl
 from typing import Dict, Callable, List
 from app.tools.export_csv import export_csv, ExportConfig
+from app.ema_cross.tools.portfolio_collection import sort_portfolios
 from app.ema_cross.tools.portfolio_metrics import (
     NUMERIC_METRICS,
     DURATION_METRICS,
@@ -42,6 +43,7 @@ def _prepare_result_df(result_rows: List[Dict], config: ExportConfig) -> pl.Data
     
     Args:
         result_rows: List of result dictionaries
+        config: Configuration dictionary
         
     Returns:
         Formatted Polars DataFrame
@@ -51,9 +53,8 @@ def _prepare_result_df(result_rows: List[Dict], config: ExportConfig) -> pl.Data
         
     result_df = pl.DataFrame(result_rows)
     
-    # Sort portfolios in descending order
-    sort_by = config.get('SORT_BY', 'Total Return [%]')
-    result_df = result_df.sort(sort_by, descending=True)
+    # Use centralized sorting function
+    result_df = sort_portfolios(result_df, config)
     
     # Reorder columns to put Metric Type first
     cols = ['Metric Type'] + [col for col in result_df.columns if col != 'Metric Type']

@@ -8,6 +8,7 @@ Short Window/Long Window combinations in top performing portfolios.
 from typing import Optional
 import polars as pl
 from app.ema_cross.config_types import PortfolioConfig
+from app.ema_cross.tools.portfolio_collection import sort_portfolios
 
 def get_best_portfolio(portfolios: pl.DataFrame, config: PortfolioConfig, log: callable) -> Optional[dict]:
     """
@@ -31,24 +32,29 @@ def get_best_portfolio(portfolios: pl.DataFrame, config: PortfolioConfig, log: c
         ValueError: If portfolios DataFrame is empty or missing required columns
     """
     try:
+        # Initial validation
         if portfolios is None or portfolios.height == 0:
             log("No portfolios provided for analysis", "error")
             return None
             
+        # Get sort column and validate required columns
         sort_by = config.get('SORT_BY', 'Total Return [%]')
         required_cols = ["Short Window", "Long Window", "Use SMA", sort_by]
         if not all(col in portfolios.columns for col in required_cols):
             log("Missing required columns in portfolios DataFrame", "error")
             return None
             
-        # Rename columns based on Use SMA
+        # Determine column names based on strategy type
         use_sma = portfolios.select("Use SMA").row(0)[0]
         fast_col = "SMA_FAST" if use_sma else "EMA_FAST"
         slow_col = "SMA_SLOW" if use_sma else "EMA_SLOW"
         
-        sorted_portfolios = (portfolios
-            .rename({"Short Window": fast_col, "Long Window": slow_col})
-            .sort(sort_by, descending=True))
+        # Rename columns and sort using centralized function
+        renamed_portfolios = portfolios.rename({
+            "Short Window": fast_col,
+            "Long Window": slow_col
+        })
+        sorted_portfolios = sort_portfolios(renamed_portfolios, config)
         
         # Get top portfolios for analysis
         top_3 = sorted_portfolios.head(3)

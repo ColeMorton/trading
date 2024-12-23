@@ -2,6 +2,7 @@ import polars as pl
 from typing import Dict, Any, Optional, Callable
 from app.ema_cross.tools.sensitivity_analysis import analyze_parameter_combinations
 from app.tools.export_csv import export_csv
+from app.ema_cross.tools.portfolio_collection import sort_portfolios
 
 def analyze_parameter_sensitivity(
     data: pl.DataFrame,
@@ -33,10 +34,9 @@ def analyze_parameter_sensitivity(
             log("No valid portfolios generated", "warning")
             return None
 
-        # Create DataFrame and sort
+        # Create DataFrame and use centralized sorting
         df = pl.DataFrame(portfolios)
-        sort_by = config.get('SORT_BY', 'Total Return [%]')
-        df = df.sort(sort_by, descending=True)
+        df = sort_portfolios(df, config)
 
         # Export results
         export_results(df, config, log)
