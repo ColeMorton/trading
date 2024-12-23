@@ -5,6 +5,45 @@ from app.ema_cross.tools.signal_generation import is_signal_current
 from app.tools.stats_converter import convert_stats
 from app.tools.backtest_strategy import backtest_strategy
 
+def reorder_columns(portfolio: Dict) -> Dict:
+    """
+    Reorder columns to match required format.
+
+    Args:
+        portfolio (Dict): Portfolio statistics
+
+    Returns:
+        Dict: Portfolio with reordered columns
+    """
+    first_columns = [
+        'Ticker',
+        'Use SMA',
+        'Short Window',
+        'Long Window',
+        'Total Trades',
+        'Win Rate [%]',
+        'Profit Factor',
+        'Tradability',
+        'Expectancy',
+        'Expectancy Adjusted',
+        'Trades per Month',
+        'Signals per Month',
+        'Expectancy per Month',
+        'Sortino Ratio'
+    ]
+    
+    reordered = {}
+    # Add first columns in specified order
+    for col in first_columns:
+        reordered[col] = portfolio[col]
+    
+    # Add remaining columns
+    for key, value in portfolio.items():
+        if key not in first_columns:
+            reordered[key] = value
+            
+    return reordered
+
 def analyze_window_combination(
     data: pl.DataFrame,
     short: int,
@@ -41,8 +80,11 @@ def analyze_window_combination(
         stats = portfolio.stats()
         stats['Short Window'] = short
         stats['Long Window'] = long
+        stats['Ticker'] = config['TICKER']  # Add ticker from config
+        stats['Use SMA'] = config.get('USE_SMA', False)  # Add SMA usage info
         converted_stats = convert_stats(stats, log, config)
         converted_stats['Current'] = int(current)
+        converted_stats = reorder_columns(converted_stats)
         
         return converted_stats
         

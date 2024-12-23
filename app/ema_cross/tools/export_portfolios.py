@@ -16,7 +16,8 @@ class PortfolioExportError(Exception):
 VALID_EXPORT_TYPES = {
     'portfolios',
     'portfolios_summary',
-    'portfolios_filtered'
+    'portfolios_filtered',
+    'portfolios_best'
 }
 
 def export_portfolios(
@@ -31,7 +32,7 @@ def export_portfolios(
     Args:
         portfolios (List[Dict]): List of portfolio dictionaries to export
         config (ExportConfig): Export configuration dictionary
-        export_type (str): Type of export (must be one of: portfolios, portfolios_summary, portfolios_filtered)
+        export_type (str): Type of export (must be one of: portfolios, portfolios_summary, portfolios_filtered, portfolios_best)
         csv_filename (Optional[str]): Optional custom filename for the CSV
         log (Optional[Callable]): Optional logging function
 
@@ -59,8 +60,32 @@ def export_portfolios(
     config["USE_MA"] = True
 
     try:
+        # Convert portfolios to DataFrame
+        df = pl.DataFrame(portfolios)
+        
+        # Add Ticker column for portfolios_best export type
+        if export_type == "portfolios_best":
+            # Get ticker from config
+            ticker = config["TICKER"]
+            if isinstance(ticker, list):
+                if len(ticker) == 1:
+                    ticker = ticker[0]
+                else:
+                    # For multiple tickers, each portfolio should already have its ticker
+                    if "Ticker" not in df.columns:
+                        raise PortfolioExportError("Missing Ticker column for multiple ticker export")
+            
+            # Add or update Ticker column if it's a single ticker
+            if isinstance(ticker, str):
+                if "Ticker" in df.columns:
+                    df = df.drop("Ticker")
+                df = df.with_columns(pl.lit(ticker).alias("Ticker"))
+                # Move Ticker to first column
+                cols = df.columns
+                df = df.select(["Ticker"] + [col for col in cols if col != "Ticker"])
+        
         return export_csv(
-            data=portfolios,
+            data=df,
             feature1="ma_cross",
             config=config,
             feature2=export_type,

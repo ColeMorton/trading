@@ -37,7 +37,7 @@ def _process_metrics(
             result_rows.extend(create_metric_result(metric, rows, columns))
     return result_rows
 
-def _prepare_result_df(result_rows: List[Dict]) -> pl.DataFrame:
+def _prepare_result_df(result_rows: List[Dict], config: ExportConfig) -> pl.DataFrame:
     """Prepare and format the result DataFrame.
     
     Args:
@@ -51,9 +51,9 @@ def _prepare_result_df(result_rows: List[Dict]) -> pl.DataFrame:
         
     result_df = pl.DataFrame(result_rows)
     
-    # Sort portfolios by Total Return [%] in descending order
-    if 'Total Return [%]' in result_df.columns:
-        result_df = result_df.sort("Total Return [%]", descending=True)
+    # Sort portfolios in descending order
+    sort_by = config.get('SORT_BY', 'Total Return [%]')
+    result_df = result_df.sort(sort_by, descending=True)
     
     # Reorder columns to put Metric Type first
     cols = ['Metric Type'] + [col for col in result_df.columns if col != 'Metric Type']
@@ -82,7 +82,7 @@ def filter_portfolios(df: pl.DataFrame, config: ExportConfig, log: Callable) -> 
         result_rows.extend(_process_metrics(df, DURATION_METRICS, df.columns))
         
         # Prepare result DataFrame
-        result_df = _prepare_result_df(result_rows)
+        result_df = _prepare_result_df(result_rows, config)
         if len(result_df) == 0:
             log("No results generated - returning empty DataFrame", "warning")
             return result_df

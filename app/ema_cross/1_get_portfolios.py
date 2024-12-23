@@ -11,6 +11,8 @@ from app.tools.setup_logging import setup_logging
 from app.ema_cross.tools.filter_portfolios import filter_portfolios
 from app.ema_cross.tools.export_portfolios import export_portfolios, PortfolioExportError
 from app.ema_cross.tools.signal_processing import process_ticker_portfolios
+from app.ema_cross.tools.portfolio_selection import get_best_portfolio
+from app.ema_cross.tools.summary_processing import reorder_columns
 from app.ema_cross.config_types import PortfolioConfig, DEFAULT_CONFIG
 
 def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
@@ -40,6 +42,9 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
         # Initialize configuration and tickers
         config = get_config(config)
         tickers = [config["TICKER"]] if isinstance(config["TICKER"], str) else config["TICKER"]
+        
+        # List to store best portfolios
+        best_portfolios = []
         
         # Process each ticker
         for ticker in tickers:
@@ -82,6 +87,26 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
                     )
                 except (ValueError, PortfolioExportError) as e:
                     log(f"Failed to export filtered portfolios for {ticker}: {str(e)}", "error")
+
+                # Get best portfolio
+                best_portfolio = get_best_portfolio(filtered_portfolios, ticker_config, log)
+                if best_portfolio is not None:
+                    log(f"Best portfolio for {ticker}:")
+                    print(best_portfolio)
+                    best_portfolios.append(best_portfolio)
+
+        # Export best portfolios if any were found
+        if best_portfolios:
+            try:
+                export_portfolios(
+                    portfolios=best_portfolios,
+                    config=config,  # Use original config for all tickers
+                    export_type="portfolios_best",
+                    log=log
+                )
+                log(f"Exported {len(best_portfolios)} best portfolios")
+            except (ValueError, PortfolioExportError) as e:
+                log(f"Failed to export best portfolios: {str(e)}", "error")
 
         log_close()
         return True

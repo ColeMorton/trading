@@ -33,9 +33,10 @@ def analyze_parameter_sensitivity(
             log("No valid portfolios generated", "warning")
             return None
 
-        # Create DataFrame and sort by Total Return
+        # Create DataFrame and sort
         df = pl.DataFrame(portfolios)
-        df = df.sort("Total Return [%]", descending=True)
+        sort_by = config.get('SORT_BY', 'Total Return [%]')
+        df = df.sort(sort_by, descending=True)
 
         # Export results
         export_results(df, config, log)

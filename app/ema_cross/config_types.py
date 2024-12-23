@@ -43,13 +43,15 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": ['LI', 'ACN', 'CNC', 'EXC', 'XPEV', 'PLTR', 'GL', 'TDG', 'KMB'],
-    "WINDOWS": 89,
+    "TICKER": ['BTC-USD', 'SOL-USD', 'SUI-USD'],
+    "WINDOWS": 5,
     "USE_HOURLY": False,
     "REFRESH": True,
-    "USE_CURRENT": True,
+    "USE_CURRENT": False,
     "BASE_DIR": ".",
     "USE_YEARS": False,
     "YEARS": 15,
-    "DIRECTION": "Long"
+    "DIRECTION": "Long",
+    # "SORT_BY": "Total Return [%]"
+    "SORT_BY": "Expectancy Adjusted"
 }
