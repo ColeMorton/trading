@@ -36,13 +36,19 @@ def get_best_portfolio(portfolios: pl.DataFrame, config: PortfolioConfig, log: c
             return None
             
         sort_by = config.get('SORT_BY', 'Total Return [%]')
-        required_cols = ["Short Window", "Long Window", sort_by]
+        required_cols = ["Short Window", "Long Window", "Use SMA", sort_by]
         if not all(col in portfolios.columns for col in required_cols):
             log("Missing required columns in portfolios DataFrame", "error")
             return None
             
-        # Sort portfolios by Total Return in descending order
-        sorted_portfolios = portfolios.sort(sort_by, descending=True)
+        # Rename columns based on Use SMA
+        use_sma = portfolios.select("Use SMA").row(0)[0]
+        fast_col = "SMA_FAST" if use_sma else "EMA_FAST"
+        slow_col = "SMA_SLOW" if use_sma else "EMA_SLOW"
+        
+        sorted_portfolios = (portfolios
+            .rename({"Short Window": fast_col, "Long Window": slow_col})
+            .sort(sort_by, descending=True))
         
         # Get top portfolios for analysis
         top_3 = sorted_portfolios.head(3)
@@ -51,10 +57,10 @@ def get_best_portfolio(portfolios: pl.DataFrame, config: PortfolioConfig, log: c
         
         # Function to check if combination appears enough times
         def check_combination_frequency(df: pl.DataFrame, required_count: int) -> Optional[tuple]:
-            combinations = df.select(["Short Window", "Long Window"]).to_dicts()
+            combinations = df.select([fast_col, slow_col]).to_dicts()
             combo_count = {}
             for combo in combinations:
-                key = (combo["Short Window"], combo["Long Window"])
+                key = (combo[fast_col], combo[slow_col])
                 combo_count[key] = combo_count.get(key, 0) + 1
                 if combo_count[key] >= required_count:
                     return key
@@ -63,10 +69,10 @@ def get_best_portfolio(portfolios: pl.DataFrame, config: PortfolioConfig, log: c
         # Check each criterion
         # 1. All top 3 have same combination
         if (result := check_combination_frequency(top_3, 3)):
-            log(f"Found matching combination in top 3: SW={result[0]}, LW={result[1]}")
+            log(f"Found matching combination in top 3: {fast_col}={result[0]}, {slow_col}={result[1]}")
             portfolio = sorted_portfolios.filter(
-                (pl.col("Short Window") == result[0]) &
-                (pl.col("Long Window") == result[1])
+                (pl.col(fast_col) == result[0]) &
+                (pl.col(slow_col) == result[1])
             ).head(1).to_dicts()[0]
             
             # Remove "Metric Type" column if it exists
@@ -77,10 +83,10 @@ def get_best_portfolio(portfolios: pl.DataFrame, config: PortfolioConfig, log: c
             
         # 2. 3 out of top 5 have same combination
         if (result := check_combination_frequency(top_5, 3)):
-            log(f"Found matching combination in top 5: SW={result[0]}, LW={result[1]}")
+            log(f"Found matching combination in top 5: {fast_col}={result[0]}, {slow_col}={result[1]}")
             portfolio = sorted_portfolios.filter(
-                (pl.col("Short Window") == result[0]) &
-                (pl.col("Long Window") == result[1])
+                (pl.col(fast_col) == result[0]) &
+                (pl.col(slow_col) == result[1])
             ).head(1).to_dicts()[0]
             
             # Remove "Metric Type" column if it exists
@@ -91,10 +97,10 @@ def get_best_portfolio(portfolios: pl.DataFrame, config: PortfolioConfig, log: c
             
         # 3. 5 out of top 8 have same combination
         if (result := check_combination_frequency(top_8, 5)):
-            log(f"Found matching combination in top 8: SW={result[0]}, LW={result[1]}")
+            log(f"Found matching combination in top 8: {fast_col}={result[0]}, {slow_col}={result[1]}")
             portfolio = sorted_portfolios.filter(
-                (pl.col("Short Window") == result[0]) &
-                (pl.col("Long Window") == result[1])
+                (pl.col(fast_col) == result[0]) &
+                (pl.col(slow_col) == result[1])
             ).head(1).to_dicts()[0]
             
             # Remove "Metric Type" column if it exists
@@ -103,7 +109,7 @@ def get_best_portfolio(portfolios: pl.DataFrame, config: PortfolioConfig, log: c
                 
             return portfolio
             
-        log("No consistent Short Window/Long Window combination found")
+        log(f"No consistent {fast_col}/{slow_col} combination found")
         return None
         
     except Exception as e:

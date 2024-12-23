@@ -22,3 +22,15 @@
      - Updated all three portfolio return points to clean data
      - Ensures clean data structure in best portfolio exports
      - Maintains data consistency across the export pipeline
+
+## 2024-03-20
+
+### Dynamic Moving Average Column Naming
+- **Files Modified**:
+  1. `app/ema_cross/tools/portfolio_selection.py`:
+     - Renamed "Short Window" to "SMA_FAST" or "EMA_FAST" based on "Use SMA" flag
+     - Renamed "Long Window" to "SMA_SLOW" or "EMA_SLOW" based on "Use SMA" flag
+     - Updated column references throughout get_best_portfolio function
+     - Added "Use SMA" to required columns check
+     - Modified log messages to reflect dynamic column names
+     - Ensures consistent naming convention across SMA and EMA strategies
