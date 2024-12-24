@@ -1,5 +1,29 @@
 # Changes Log
 
+### Updated Range High Break Strategy Implementation
+
+Aligned app/range/1_get_portfolios.py with app/ema_cross/ structure while adapting it for the Range High Break strategy.
+
+#### Files Changed:
+1. `app/range/1_get_portfolios.py`
+   - Updated docstring to describe Range High Break strategy entry/exit conditions
+   - Added parameter sensitivity testing ranges for X and Y values
+   - Changed module name from 'ma_cross' to 'range' in logging setup
+   - Modified execute_strategy to use "RANGE" instead of "EMA"/"SMA"
+   - Removed run_both_strategies function since Range High Break is a single strategy
+   - Simplified main block to run only Range High Break strategy
+   - Removed unused import of combine_strategy_portfolios
+
+#### Key Changes:
+- Maintained consistent structure with app/ema_cross/ while adapting for Range High Break
+- Clarified strategy entry condition: Price close > range_length High 1 candle ago
+- Clarified strategy exit condition: Price close NOT > range_length High candle_lookback candles ago
+- Defined parameter sensitivity ranges:
+  - range_length: 2 to 34 (period length for calculating range high)
+  - candle_lookback: 1 to 21 (lookback period for exit condition)
+- Simplified code by removing multi-strategy functionality
+- Ensured proper module naming and imports
+
 ### Removed "_CURRENT" Suffix from CSV Filenames
 
 Modified CSV export functionality to remove the "_CURRENT" suffix from filenames for cleaner and more consistent file naming.
