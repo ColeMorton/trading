@@ -26,8 +26,6 @@ class PortfolioConfig(TypedDict, total=False):
         YEARS (NotRequired[float]): Number of years of data to use
         TICKER_1 (NotRequired[str]): First ticker for synthetic pairs
         TICKER_2 (NotRequired[str]): Second ticker for synthetic pairs
-        RANGE_LENGTH (NotRequired[int]): Period length for calculating range high
-        CANDLE_LOOKBACK (NotRequired[int]): Lookback period for exit condition
     """
     TICKER: Union[str, List[str]]
     WINDOWS: int
@@ -42,13 +40,11 @@ class PortfolioConfig(TypedDict, total=False):
     YEARS: NotRequired[float]
     TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
-    RANGE_LENGTH: NotRequired[int]
-    CANDLE_LOOKBACK: NotRequired[int]
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
     "TICKER": ['BTC-USD'],
-    "WINDOWS": 34,  # Maximum window size matches max range_length
+    "WINDOWS": 20,  # Maximum window size for parameter analysis
     "USE_HOURLY": False,
     "REFRESH": True,
     "USE_CURRENT": False,
@@ -56,7 +52,5 @@ DEFAULT_CONFIG: PortfolioConfig = {
     "USE_YEARS": False,
     "YEARS": 15,
     "DIRECTION": "Long",
-    "SORT_BY": "Expectancy Adjusted",
-    "RANGE_LENGTH": 13,  # Default range length
-    "CANDLE_LOOKBACK": 5  # Default candle lookback
+    "SORT_BY": "Expectancy Adjusted"
 }

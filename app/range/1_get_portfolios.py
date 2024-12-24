@@ -10,8 +10,10 @@ The Range High Break strategy:
 - Exit condition: Price close is NOT greater than range_length High candle_lookback candles ago
 
 Parameter Sensitivity Testing:
-- range_length: Integer values from 2 to 34 (period length for calculating range high)
-- candle_lookback: Integer values from 1 to 21 (lookback period for exit condition)
+- range_length: Integer values from 10 to 20 (period length for calculating range high)
+  Optimal value typically around 15
+- candle_lookback: Integer values from 5 to 10 (lookback period for exit condition)
+  Optimal value typically around 8
 """
 
 from app.tools.get_config import get_config

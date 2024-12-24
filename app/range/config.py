@@ -19,9 +19,6 @@ class Config(TypedDict):
         TICKER_1 (str): First ticker for synthetic pairs
         TICKER_2 (str): Second ticker for synthetic pairs
         DIRECTION (str): Trading direction ("Long" or "Short")
-        RANGE_LENGTH (int): Period length for calculating range high
-        CANDLE_LOOKBACK (int): Lookback period for exit condition
-        WINDOWS (int): Maximum window size for parameter analysis
 
     Optional Fields:
         USE_GBM (NotRequired[bool]): Whether to use Geometric Brownian Motion
@@ -37,9 +34,6 @@ class Config(TypedDict):
     TICKER_1: str
     TICKER_2: str
     DIRECTION: str
-    RANGE_LENGTH: int
-    CANDLE_LOOKBACK: int
-    WINDOWS: int
     
     # Optional fields
     USE_GBM: NotRequired[bool]
@@ -56,10 +50,6 @@ TICKER_1: str = 'SOFI'
 TICKER_2: str = 'SOFI'
 DIRECTION: str = "Long"  # Default to Long position
 
-# Range High Break settings
-RANGE_LENGTH: int = 13  # Default range length for calculating range high
-CANDLE_LOOKBACK: int = 5  # Default lookback period for exit condition
-
 # Configuration dictionary
 CONFIG: Config = {
     "YEARS": YEARS,
@@ -69,7 +59,4 @@ CONFIG: Config = {
     "TICKER_1": TICKER_1,
     "TICKER_2": TICKER_2,
     "DIRECTION": DIRECTION,
-    "RANGE_LENGTH": RANGE_LENGTH,
-    "CANDLE_LOOKBACK": CANDLE_LOOKBACK,
-    "WINDOWS": 34  # Maximum window size matches max range_length
 }
