@@ -1,5 +1,107 @@
 # Changes Log
 
+### Added Parameter Sensitivity Testing to Range High Break Strategy
+
+Enhanced Range High Break strategy to perform comprehensive parameter sensitivity testing.
+
+#### Files Changed:
+1. `app/range/tools/strategy_execution.py`
+   - Added testing of all range_length (2-34) and candle_lookback (1-21) combinations
+   - Modified process_single_ticker to return all portfolio results
+   - Updated execute_strategy to select best portfolio by Expectancy Adjusted
+   - Added proper logging of parameter testing progress
+   - Enhanced error handling for individual parameter combinations
+
+#### Key Changes:
+- Added comprehensive parameter sensitivity testing
+- Improved portfolio results export with all combinations
+- Enhanced logging and error handling
+- Maintained consistent testing approach with EMA Cross
+- Added progress logging for parameter combinations
+
+### Fixed Duration Type Export in Range High Break Strategy
+
+Fixed issue with exporting portfolio statistics containing duration types.
+
+#### Files Changed:
+1. `app/range/tools/strategy_execution.py`
+   - Added import of convert_stats from app.tools.stats_converter
+   - Added stats conversion before CSV export
+   - Updated process_single_ticker to handle duration types properly
+   - Ensured consistent data type handling across exports
+
+#### Key Changes:
+- Fixed "datatype duration[μs] cannot be written to csv" error
+- Added proper stats conversion before export
+- Maintained consistent data handling with EMA Cross
+- Improved error handling and logging
+
+### Added Range High Break Strategy Tools
+
+Created essential tool modules for Range High Break strategy implementation.
+
+#### Files Added:
+1. `app/range/tools/portfolio_collection.py`
+   - Added sort_portfolios function for consistent sorting logic
+   - Added export_best_portfolios function for exporting results
+   - Maintained consistent structure with app/ema_cross/tools/portfolio_collection.py
+   - Adapted for Range High Break strategy specifics
+
+2. `app/range/tools/strategy_execution.py`
+   - Added process_single_ticker function for individual ticker analysis
+   - Added calculate_range_signals function for Range High Break strategy
+   - Added execute_strategy function for overall strategy execution
+   - Implemented Range High Break specific signal generation:
+     - Entry: Price close > Range X High 1 candle ago
+     - Exit: Price close NOT > Range X High Y candles ago
+
+#### Key Changes:
+- Created tools directory structure matching EMA Cross
+- Implemented Range High Break specific signal calculation
+- Added proper error handling and logging
+- Maintained consistent interface with EMA Cross tools
+- Added type hints and documentation
+
+### Added Range High Break Strategy Configuration Types
+
+Created configuration type definitions module for Range High Break strategy to maintain consistent structure with EMA Cross implementation.
+
+#### Files Added:
+1. `app/range/config_types.py`
+   - Defined PortfolioConfig TypedDict with required and optional fields
+   - Added strategy-specific parameters:
+     - RANGE_LENGTH: Period length for calculating range high (2-34)
+     - CANDLE_LOOKBACK: Lookback period for exit condition (1-21)
+   - Set default configuration values
+   - Maintained consistent structure with app/ema_cross/config_types.py
+
+#### Key Changes:
+- Created TypedDict for type-safe configuration
+- Added Range High Break specific parameters
+- Set appropriate default values
+- Maintained consistent configuration structure
+- Added clear documentation for all parameters
+
+### Added Range High Break Strategy Configuration
+
+Created configuration module for Range High Break strategy to maintain consistent structure with EMA Cross implementation.
+
+#### Files Added:
+1. `app/range/config.py`
+   - Defined Config TypedDict with required and optional fields
+   - Added strategy-specific parameters:
+     - RANGE_LENGTH: Period length for calculating range high (2-34)
+     - CANDLE_LOOKBACK: Lookback period for exit condition (1-21)
+   - Set default configuration values
+   - Maintained consistent structure with app/ema_cross/config.py
+
+#### Key Changes:
+- Created TypedDict for type-safe configuration
+- Added Range High Break specific parameters
+- Set appropriate default values
+- Maintained consistent configuration structure
+- Added clear documentation for all parameters
+
 ### Updated Range High Break Strategy Implementation
 
 Aligned app/range/1_get_portfolios.py with app/ema_cross/ structure while adapting it for the Range High Break strategy.
