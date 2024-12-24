@@ -12,7 +12,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 # Constants for easy configuration
 USE_HOURLY: bool = False  # Set to False for daily data
 USE_SYNTHETIC: bool = False  # Toggle between synthetic and original ticker
-TICKER_1: str = 'UHS'  # Ticker for X to USD
+TICKER_1: str = 'BTC-USD'  # Ticker for X to USD
 TICKER_2: str = 'BTC-USD'  # Ticker for Y to USD
 
 USE_EMA: bool = False

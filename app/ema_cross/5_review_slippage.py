@@ -62,9 +62,9 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": "TDG",
-    "SHORT_WINDOW": 74,
-    "LONG_WINDOW": 84,
+    "TICKER": "DXCM",
+    "SHORT_WINDOW": 75,
+    "LONG_WINDOW": 87,
     "BASE_DIR": ".",
     "USE_SMA": True,
     "REFRESH": True,
@@ -74,7 +74,7 @@ config: Config = {
     "USE_RSI": False,   
     "RSI_PERIOD": 29,
     "RSI_THRESHOLD": 49,
-    "STOP_LOSS": 0.0801
+    "STOP_LOSS": 0.1268
 }
 
 def run(config: Config = config) -> bool:
