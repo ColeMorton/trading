@@ -26,6 +26,8 @@ class PortfolioConfig(TypedDict, total=False):
         YEARS (NotRequired[float]): Number of years of data to use
         TICKER_1 (NotRequired[str]): First ticker for synthetic pairs
         TICKER_2 (NotRequired[str]): Second ticker for synthetic pairs
+        MIN_WIN_RATE (NotRequired[float]): Minimum required win rate for portfolio filtering
+        MIN_TRADES (NotRequired[int]): Minimum number of trades required for portfolio filtering
     """
     TICKER: Union[str, List[str]]
     WINDOWS: int
@@ -40,10 +42,12 @@ class PortfolioConfig(TypedDict, total=False):
     YEARS: NotRequired[float]
     TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
+    MIN_WIN_RATE: NotRequired[float]
+    MIN_TRADES: NotRequired[int]
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": ['LI', 'ABNB', 'ENPH', 'APTV', 'GFS', 'TSM', 'SWKS', 'CNC'],
+    "TICKER": 'TSM',
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "REFRESH": True,
@@ -53,5 +57,9 @@ DEFAULT_CONFIG: PortfolioConfig = {
     "YEARS": 15,
     "DIRECTION": "Long",
     # "SORT_BY": "Total Return [%]"
-    "SORT_BY": "Expectancy Adjusted"
+    "SORT_BY": "Expectancy Adjusted",
+    # "MIN_WIN_RATE": 0.34,  # 50% minimum win rate
+    # "MIN_TRADES": 34      # Minimum 10 trades required
+    "MIN_WIN_RATE": 0.01,  # 50% minimum win rate
+    "MIN_TRADES": 1      # Minimum 10 trades required
 }

@@ -64,7 +64,7 @@ def run_both_strategies() -> bool:
         # Initialize logging
         log, log_close, _, _ = setup_logging(
             module_name='ma_cross',
-            log_file='1_get_portfolios_combined.log'
+            log_file='1_get_portfolios.log'
         )
         
         # Initialize base config

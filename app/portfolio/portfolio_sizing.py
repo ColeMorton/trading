@@ -7,18 +7,18 @@ import yfinance as yf
 # # TOTAL_PORTFOLIO_VALUE = 11000  # target 3
 # ASSET_1_TICKER = "BTC-USD"
 # ASSET_2_TICKER = "SPY"
-# ASSET_1_LEVERAGE = 7  # Example leverage factor for Asset 1
+# ASSET_1_LEVERAGE = 7  # Example leverage factor for Asset 1   
 # ASSET_2_LEVERAGE = 7  # Example leverage factor for Asset 2
 # USE_EMA = False
 # EMA_PERIOD = 21
 # ASSET_1_ALLOCATION = 50 # Target allocation for Asset 1 (as a percentage)
 # VAR_CONFIDENCE_LEVELS = [0.95, 0.99]
 
-TOTAL_PORTFOLIO_VALUE = 8130  # target
+TOTAL_PORTFOLIO_VALUE = 9100  # target
 ASSET_1_TICKER = "BTC-USD"
 ASSET_2_TICKER = "SOL-USD"
-ASSET_1_LEVERAGE = 7.7  # Example leverage factor for Asset 1
-ASSET_2_LEVERAGE = 2.8  # Example leverage factor for Asset 2
+ASSET_1_LEVERAGE = 4.7  # Example leverage factor for Asset 1
+ASSET_2_LEVERAGE = 3.2  # Example leverage factor for Asset 2
 USE_EMA = False
 EMA_PERIOD = 21
 ASSET_1_ALLOCATION = 50 # Target allocation for Asset 1 (as a percentage)

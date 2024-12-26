@@ -6,7 +6,7 @@ filtering, and best portfolio selection for both single and multiple tickers.
 """
 
 from typing import List, Optional, Dict, Any
-from app.tools.setup_logging import setup_logging
+import polars as pl
 from app.ema_cross.tools.filter_portfolios import filter_portfolios
 from app.ema_cross.tools.export_portfolios import export_portfolios, PortfolioExportError
 from app.ema_cross.tools.signal_processing import process_ticker_portfolios
@@ -36,6 +36,24 @@ def process_single_ticker(
     # Process portfolios for ticker
     portfolios_df = process_ticker_portfolios(ticker, ticker_config, log)
     if portfolios_df is None:
+        return None
+        
+    # Apply win rate and minimum trades filters
+    min_win_rate = ticker_config.get("MIN_WIN_RATE", 0.34)
+    min_trades = ticker_config.get("MIN_TRADES", 21)
+    
+    # Filter by win rate
+    if "Win Rate [%]" in portfolios_df.columns:
+        portfolios_df = portfolios_df.filter(pl.col("Win Rate [%]").cast(pl.Float64) >= min_win_rate * 100)
+        log(f"Filtered portfolios with win rate >= {min_win_rate * 100}%")
+        
+    # Filter by number of trades
+    if "Total Trades" in portfolios_df.columns:
+        portfolios_df = portfolios_df.filter(pl.col("Total Trades").cast(pl.Int64) >= min_trades)
+        log(f"Filtered portfolios with at least {min_trades} trades")
+        
+    if len(portfolios_df) == 0:
+        log("No portfolios remain after win rate and trade count filtering", "warning")
         return None
         
     try:

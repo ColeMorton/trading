@@ -7,7 +7,7 @@ import json
 import logging
 from scipy.stats import norm, percentileofscore
 
-TICKER = 'SOL-USD'
+TICKER = 'BTC-USD'
 
 # Set up logging    
 logging.basicConfig(

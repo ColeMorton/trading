@@ -75,9 +75,9 @@ def get_portfolio_path(config: Config) -> str:
     return os.path.join(*path_components)
 
 def run(config: Config = {
-    "USE_CURRENT": False,
-    "USE_SMA": True,
-    "TICKER": 'BTC-USD',
+    "USE_CURRENT": True,
+    "USE_SMA": False,
+    "TICKER": 'FUTU',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,

@@ -1,0 +1,27 @@
+[
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Hourly",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 20,
+        "long_window": 60,
+        "stop_loss": 0.0547
+    },
+    {
+        "ticker": "SUI20947-USD",
+        "timeframe": "Hourly",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 41,
+        "long_window": 76
+    },
+    {
+        "ticker": "NEAR-USD",
+        "timeframe": "Hourly",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 41,
+        "long_window": 54
+    }
+]

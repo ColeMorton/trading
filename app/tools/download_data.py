@@ -28,6 +28,24 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
 
         # Calculate date range
         end_date = datetime.now()
+        
+        # For current signals, check if yesterday was a trading holiday
+        if config.get("USE_CURRENT", False):
+            # Download data including yesterday and day before
+            temp_start = end_date - timedelta(days=3)  # Get 3 days to ensure we have enough data
+            temp_data = yf.download(ticker, start=temp_start, end=end_date, interval=interval)
+            
+            if len(temp_data) > 0:
+                # Get the last trading day's date
+                last_trading_day = temp_data.index[-1].date()
+                today = end_date.date()
+                
+                # If last trading day was before yesterday, adjust end_date
+                if (today - last_trading_day).days > 1:
+                    log(f"Detected trading holiday. Using data from {last_trading_day}")
+                    # Set end_date to the day after last trading day to ensure we get that day's data
+                    end_date = datetime.combine(last_trading_day + timedelta(days=1), datetime.min.time())
+        
         if use_hourly:
             start_date = end_date - timedelta(days=730)
             log(f"Setting date range: {start_date} to {end_date}")

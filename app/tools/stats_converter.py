@@ -60,8 +60,8 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         try:
             stats['Expectancy Adjusted'] = (
                 stats['Expectancy'] * 
-                min(1, 0.01 * stats['Win Rate [%]'] / 0.5) * 
-                min(1, stats['Total Closed Trades'] / 50)
+                min(1, 0.01 * stats['Win Rate [%]'] / 0.66) * 
+                min(1, stats['Total Closed Trades'] / 66)
             )
             
             # Calculate total days between start and end

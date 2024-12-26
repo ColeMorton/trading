@@ -5,15 +5,16 @@ from datetime import datetime
 from typing import Set
 import polars as pl
 
-def is_file_from_today(filepath: str) -> bool:
+def is_file_from_today(filepath: str, check_trading_day: bool = False) -> bool:
     """
-    Check if a file was created today.
+    Check if a file was created today or on the last trading day if today is a holiday.
 
     Args:
         filepath: Path to the file to check
+        check_trading_day: If True, also consider files from last trading day if today is a holiday
 
     Returns:
-        bool: True if file was created today, False otherwise
+        bool: True if file was created today (or on last trading day if holiday), False otherwise
     """
     if not os.path.exists(filepath):
         return False
@@ -21,9 +22,43 @@ def is_file_from_today(filepath: str) -> bool:
     file_time = datetime.fromtimestamp(os.path.getctime(filepath))
     current_time = datetime.now()
     
-    return (file_time.year == current_time.year and 
-            file_time.month == current_time.month and 
-            file_time.day == current_time.day)
+    # First check if file is from today
+    is_today = (file_time.year == current_time.year and
+                file_time.month == current_time.month and
+                file_time.day == current_time.day)
+    
+    if is_today or not check_trading_day:
+        return is_today
+        
+    # If not today and check_trading_day is True, check if file is from last trading day
+    # Get the directory containing the file
+    file_dir = os.path.dirname(filepath)
+    
+    # Look for any files in parent directories created today
+    # If none found, it might be a trading holiday
+    today_files_exist = False
+    current_dir = file_dir
+    for _ in range(3):  # Check up to 3 parent directories
+        if not current_dir:
+            break
+        for entry in os.scandir(current_dir):
+            if entry.is_file():
+                entry_time = datetime.fromtimestamp(os.path.getctime(entry.path))
+                if (entry_time.year == current_time.year and
+                    entry_time.month == current_time.month and
+                    entry_time.day == current_time.day):
+                    today_files_exist = True
+                    break
+        if today_files_exist:
+            break
+        current_dir = os.path.dirname(current_dir)
+    
+    # If no files found from today, check if file is from yesterday or day before
+    if not today_files_exist:
+        days_diff = (current_time.date() - file_time.date()).days
+        return days_diff <= 2  # Accept files from yesterday or day before
+        
+    return False
 
 def is_file_from_this_hour(filepath: str) -> bool:
     """

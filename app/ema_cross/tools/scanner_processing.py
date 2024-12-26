@@ -34,7 +34,7 @@ def load_existing_results(config: dict, log: Callable) -> Tuple[set, List[Dict]]
         results_filename = get_filename("csv", config)
         full_path = os.path.join(csv_path, results_filename)
         
-        if is_file_from_today(full_path):
+        if is_file_from_today(full_path, check_trading_day=True):
             try:
                 existing_results = pl.read_csv(full_path)
                 existing_tickers = set(existing_results['TICKER'].to_list())
