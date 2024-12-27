@@ -132,12 +132,13 @@ def backtest_strategy(data: pl.DataFrame, config: Dict[str, Any]) -> Optional[vb
         logging.error(f"Backtest failed: {e}")
         raise
 
-def get_filename(type: str, config: Dict[str, Any]) -> str:
+def get_filename(type: str, config: Dict[str, Any], path: str = "") -> str:
     """Generate filename based on configuration.
     
     Args:
         type: File type/extension
         config: Configuration dictionary
+        path: Optional path to determine if datetime should be included
         
     Returns:
         str: Generated filename
@@ -150,12 +151,15 @@ def get_filename(type: str, config: Dict[str, Any]) -> str:
         elif isinstance(config["TICKER"], list) and len(config["TICKER"]) == 1:
             ticker_prefix = f"{config['TICKER'][0]}_"
     
+    # Only include datetime if path contains portfolios_best
+    include_datetime = path and "portfolios_best" in path and config.get("SHOW_LAST", False)
+    
     components = [
         ticker_prefix,
         "H" if config.get("USE_HOURLY", False) else "D",
         "_SMA" if config.get("USE_SMA", False) else "_EMA",
         "_GBM" if config.get("USE_GBM", False) else "",
-        f"_{datetime.now().strftime('%Y%m%d')}" if config.get("SHOW_LAST", False) else ""
+        f"_{datetime.now().strftime('%Y%m%d')}" if include_datetime else ""
     ]
     
     return f"{''.join(components)}.{type}"
@@ -181,8 +185,9 @@ def get_path(type: str, feature1: str, config: Dict[str, Any], feature2: str = "
     if feature2:
         path_components.append(feature2)
         
-    # If USE_CURRENT is True, add date subdirectory
-    if config.get("USE_CURRENT", False):
+    # Only add date subdirectory for portfolios_best
+    path = os.path.join(*path_components)
+    if "portfolios_best" in path and config.get("USE_CURRENT", False):
         today = datetime.now().strftime("%Y%m%d")
         path_components.append(today)
         

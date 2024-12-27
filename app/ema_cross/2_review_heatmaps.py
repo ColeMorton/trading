@@ -26,6 +26,7 @@ class Config(TypedDict, total=False):
 
     Optional Fields:
         USE_CURRENT (NotRequired[bool]): Whether to use date subdirectory
+        USE_BEST_PORTFOLIO (NotRequired[bool]): Whether to use portfolios_best directory
         USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average
         USE_HOURLY (NotRequired[bool]): Whether to use hourly data
         USE_GBM (NotRequired[bool]): Whether to use Geometric Brownian Motion
@@ -61,9 +62,13 @@ def get_portfolio_path(config: Config) -> str:
     Returns:
         str: Full path to portfolio file
     """
-    path_components = ['csv/ma_cross/portfolios/']
+    # Determine if this is for portfolios_best directory
+    is_best_portfolio = config.get("USE_BEST_PORTFOLIO", False)
+    base_dir = 'portfolios_best' if is_best_portfolio else 'portfolios'
+    path_components = [f'csv/ma_cross/{base_dir}/']
 
-    if config.get("USE_CURRENT", False):
+    # Only include date in path for portfolios_best
+    if is_best_portfolio and config.get("USE_CURRENT", False):
         today = datetime.now().strftime("%Y%m%d")
         path_components.append(today)
 
@@ -76,6 +81,7 @@ def get_portfolio_path(config: Config) -> str:
 
 def run(config: Config = {
     "USE_CURRENT": True,
+    "USE_BEST_PORTFOLIO": False,  # Default to regular portfolios directory
     "USE_SMA": False,
     "TICKER": 'NVDA',
     "TICKER_1": 'BTC-USD',

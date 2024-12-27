@@ -135,20 +135,16 @@ def export_results(results_data: List[Dict], config: dict, log: Callable) -> Non
         # Create results DataFrame
         results_df = pl.DataFrame(transformed_data, schema=schema)
         
-        # Get base path
+        # Get output path using get_path utility
         csv_path = get_path("csv", "ma_cross", config, 'portfolios_scanned')
-        
-        # Create date subdirectory
-        today = datetime.now().strftime("%Y%m%d")
-        date_dir = os.path.join(csv_path, today)
-        os.makedirs(date_dir, exist_ok=True)
+        os.makedirs(csv_path, exist_ok=True)
         
         # Get scanner list filename without extension
         scanner_list_path = config["SCANNER_LIST"]
         scanner_filename = os.path.splitext(os.path.basename(scanner_list_path))[0]
         
-        # Export to dated subdirectory with scanner list name
-        output_path = os.path.join(date_dir, f"{scanner_filename}.csv")
+        # Export to directory with scanner list name
+        output_path = os.path.join(csv_path, f"{scanner_filename}.csv")
         # Remove file if it exists since Polars doesn't have an overwrite parameter
         if os.path.exists(output_path):
             os.remove(output_path)

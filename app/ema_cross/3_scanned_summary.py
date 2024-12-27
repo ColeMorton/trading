@@ -73,19 +73,18 @@ def run(scanner_list: str) -> bool:
     try:
         daily_df = None
         
-        # Try current date directory first if USE_CURRENT is True
-        if config["USE_CURRENT"]:
-            today = datetime.now().strftime("%Y%m%d")
-            current_path = Path(f'./csv/ma_cross/portfolios_scanned/{today}/{scanner_list}')
+        # Try portfolios_scanned directory first
+        scanned_path = Path(get_path("csv", "ma_cross", config, "portfolios_scanned"))
+        current_path = scanned_path / scanner_list
             
-            if current_path.exists():
-                log(f"Reading from current date directory: {current_path}")
-                daily_df = read_scanner_list(current_path, log)
+        if current_path.exists():
+            log(f"Reading from portfolios_scanned directory: {current_path}")
+            daily_df = read_scanner_list(current_path, log)
         
-        # If file wasn't found in current directory or USE_CURRENT is False,
+        # If file wasn't found in portfolios_scanned directory,
         # try scanner_lists directory
         if daily_df is None:
-            scanner_path = Path(f'./app/ema_cross/scanner_lists/{scanner_list}')
+            scanner_path = Path("app/ema_cross/scanner_lists") / scanner_list
             if scanner_path.exists():
                 log(f"Reading from scanner lists directory: {scanner_path}")
                 daily_df = read_scanner_list(scanner_path, log)

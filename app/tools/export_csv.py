@@ -85,8 +85,11 @@ def _get_filename_components(config: ExportConfig, feature1: str = "", feature2:
             
         return components
     
-    # For all other directories, use full naming convention
-    components.append("H" if config.get("USE_HOURLY", False) else f"{datetime.now().strftime('%Y%m%d_%H%M')}_D")
+    # Only include datetime in filename for portfolios_best directory
+    if feature2 == "portfolios_best":
+        components.append("H" if config.get("USE_HOURLY", False) else f"{datetime.now().strftime('%Y%m%d_%H%M')}_D")
+    else:
+        components.append("H" if config.get("USE_HOURLY", False) else "D")
     
     # Add SHORT suffix if direction is Short
     if config.get("DIRECTION") == "Short":

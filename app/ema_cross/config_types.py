@@ -47,9 +47,9 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": ['RDDT'],
+    "TICKER": ['QCOM', 'ROST', 'NVDA', 'MNST', 'MSFT', 'PAYX', 'TMO'],
     "WINDOWS": 89,
-    "USE_HOURLY": True,
+    "USE_HOURLY": False,
     "REFRESH": True,
     "USE_CURRENT": True,
     "BASE_DIR": ".",
