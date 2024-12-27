@@ -47,9 +47,9 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": 'TSM',
+    "TICKER": ['RDDT'],
     "WINDOWS": 89,
-    "USE_HOURLY": False,
+    "USE_HOURLY": True,
     "REFRESH": True,
     "USE_CURRENT": True,
     "BASE_DIR": ".",
@@ -58,8 +58,8 @@ DEFAULT_CONFIG: PortfolioConfig = {
     "DIRECTION": "Long",
     # "SORT_BY": "Total Return [%]"
     "SORT_BY": "Expectancy Adjusted",
-    # "MIN_WIN_RATE": 0.34,  # 50% minimum win rate
-    # "MIN_TRADES": 34      # Minimum 10 trades required
-    "MIN_WIN_RATE": 0.01,  # 50% minimum win rate
-    "MIN_TRADES": 1      # Minimum 10 trades required
+    "MIN_WIN_RATE": 0.34,  # 50% minimum win rate
+    "MIN_TRADES": 34      # Minimum 10 trades required
+    # "MIN_WIN_RATE": 0.01,  # 50% minimum win rate
+    # "MIN_TRADES": 1      # Minimum 10 trades required
 }
