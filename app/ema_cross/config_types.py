@@ -7,6 +7,44 @@ across the EMA cross strategy modules.
 
 from typing import TypedDict, NotRequired, Union, List
 
+class HeatmapConfig(TypedDict, total=False):
+    """Configuration type definition for heatmap generation.
+
+    Required Fields:
+        TICKER (str): Ticker symbol to analyze
+        WINDOWS (int): Maximum window size for parameter analysis
+        BASE_DIR (str): Base directory for file operations
+
+    Optional Fields:
+        USE_CURRENT (NotRequired[bool]): Whether to use date subdirectory
+        USE_BEST_PORTFOLIO (NotRequired[bool]): Whether to use portfolios_best directory
+        USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average
+        USE_HOURLY (NotRequired[bool]): Whether to use hourly data
+        USE_GBM (NotRequired[bool]): Whether to use Geometric Brownian Motion
+        USE_SYNTHETIC (NotRequired[bool]): Whether to create synthetic pairs
+        REFRESH (NotRequired[bool]): Whether to force regeneration of signals
+        DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
+        USE_YEARS (NotRequired[bool]): Whether to limit data by years
+        YEARS (NotRequired[float]): Number of years of data to use
+        TICKER_1 (NotRequired[str]): First ticker (same as TICKER for non-synthetic)
+        TICKER_2 (NotRequired[str]): Second ticker (same as TICKER for non-synthetic)
+    """
+    TICKER: str
+    WINDOWS: int
+    BASE_DIR: str
+    USE_CURRENT: NotRequired[bool]
+    USE_BEST_PORTFOLIO: NotRequired[bool]
+    USE_SMA: NotRequired[bool]
+    USE_HOURLY: NotRequired[bool]
+    USE_GBM: NotRequired[bool]
+    USE_SYNTHETIC: NotRequired[bool]
+    REFRESH: NotRequired[bool]
+    DIRECTION: NotRequired[str]
+    USE_YEARS: NotRequired[bool]
+    YEARS: NotRequired[float]
+    TICKER_1: NotRequired[str]
+    TICKER_2: NotRequired[str]
+
 class PortfolioConfig(TypedDict, total=False):
     """Configuration type definition for portfolio analysis.
 
@@ -45,13 +83,26 @@ class PortfolioConfig(TypedDict, total=False):
     MIN_WIN_RATE: NotRequired[float]
     MIN_TRADES: NotRequired[int]
 
+qqq_group1 = [
+    "AAPL",  # Apple
+    "MSFT",  # Microsoft
+    "AMZN",  # Amazon
+    "NVDA",  # NVIDIA
+    "META",  # Meta Platforms
+    "GOOGL", # Alphabet Class A
+    "GOOG",  # Alphabet Class C
+    "TSLA",  # Tesla
+    "AVGO",  # Broadcom
+    "PEP"    # PepsiCo
+]
+
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": ['QCOM', 'ROST', 'NVDA', 'MNST', 'MSFT', 'PAYX', 'TMO'],
+    "TICKER": qqq_group1,
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "REFRESH": True,
-    "USE_CURRENT": True,
+    "USE_CURRENT": False,
     "BASE_DIR": ".",
     "USE_YEARS": False,
     "YEARS": 15,

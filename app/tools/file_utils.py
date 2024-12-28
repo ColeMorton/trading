@@ -129,3 +129,29 @@ def get_current_window_combinations(filepath: str) -> Set[tuple]:
     except Exception as e:
         print(f"Error reading window combinations: {str(e)}")
         return set()
+
+def get_portfolio_path(config: dict) -> str:
+    """Generate the portfolio file path based on configuration.
+
+    Args:
+        config (dict): Configuration dictionary containing portfolio settings
+
+    Returns:
+        str: Full path to portfolio file
+    """
+    # Determine if this is for portfolios_best directory
+    is_best_portfolio = config.get("USE_BEST_PORTFOLIO", False)
+    base_dir = 'portfolios_best' if is_best_portfolio else 'portfolios'
+    path_components = [f'csv/ma_cross/{base_dir}/']
+
+    # Only include date in path for portfolios_best
+    if is_best_portfolio and config.get("USE_CURRENT", False):
+        today = datetime.now().strftime("%Y%m%d")
+        path_components.append(today)
+
+    ma_type = 'SMA' if config.get('USE_SMA', False) else 'EMA'
+    freq_type = 'H' if config.get('USE_HOURLY', False) else 'D'
+    
+    path_components.append(f'{config["TICKER"]}_{freq_type}_{ma_type}.csv')
+    
+    return os.path.join(*path_components)
