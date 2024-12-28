@@ -11,7 +11,7 @@ class HeatmapConfig(TypedDict, total=False):
     """Configuration type definition for heatmap generation.
 
     Required Fields:
-        TICKER (str): Ticker symbol to analyze
+        TICKER (str): Ticker symbol to analyze (base asset for synthetic pairs)
         WINDOWS (int): Maximum window size for parameter analysis
         BASE_DIR (str): Base directory for file operations
 
@@ -26,8 +26,7 @@ class HeatmapConfig(TypedDict, total=False):
         DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
         USE_YEARS (NotRequired[bool]): Whether to limit data by years
         YEARS (NotRequired[float]): Number of years of data to use
-        TICKER_1 (NotRequired[str]): First ticker (same as TICKER for non-synthetic)
-        TICKER_2 (NotRequired[str]): Second ticker (same as TICKER for non-synthetic)
+        TICKER_2 (NotRequired[str]): Quote asset for synthetic pairs
     """
     TICKER: str
     WINDOWS: int
@@ -42,7 +41,6 @@ class HeatmapConfig(TypedDict, total=False):
     DIRECTION: NotRequired[str]
     USE_YEARS: NotRequired[bool]
     YEARS: NotRequired[float]
-    TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
 
 class PortfolioConfig(TypedDict, total=False):
@@ -50,6 +48,7 @@ class PortfolioConfig(TypedDict, total=False):
 
     Required Fields:
         TICKER (Union[str, List[str]]): Single ticker or list of tickers to analyze
+                                       (base asset for synthetic pairs)
         WINDOWS (int): Maximum window size for parameter analysis
         BASE_DIR (str): Base directory for file operations
 
@@ -62,8 +61,7 @@ class PortfolioConfig(TypedDict, total=False):
         DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
         USE_YEARS (NotRequired[bool]): Whether to limit data by years
         YEARS (NotRequired[float]): Number of years of data to use
-        TICKER_1 (NotRequired[str]): First ticker for synthetic pairs
-        TICKER_2 (NotRequired[str]): Second ticker for synthetic pairs
+        TICKER_2 (NotRequired[str]): Quote asset for synthetic pairs
         MIN_WIN_RATE (NotRequired[float]): Minimum required win rate for portfolio filtering
         MIN_TRADES (NotRequired[int]): Minimum number of trades required for portfolio filtering
     """
@@ -78,7 +76,6 @@ class PortfolioConfig(TypedDict, total=False):
     DIRECTION: NotRequired[str]
     USE_YEARS: NotRequired[bool]
     YEARS: NotRequired[float]
-    TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
     MIN_WIN_RATE: NotRequired[float]
     MIN_TRADES: NotRequired[int]
@@ -98,8 +95,10 @@ qqq_group1 = [
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": qqq_group1,
-    "WINDOWS": 89,
+    "TICKER": ["AAPL", "MSFT"],
+    "TICKER_2": "SPY",
+    "USE_SYNTHETIC": True,
+    "WINDOWS": 10,
     "USE_HOURLY": False,
     "REFRESH": True,
     "USE_CURRENT": False,
