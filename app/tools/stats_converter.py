@@ -59,10 +59,13 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         # Calculate adjusted performance metrics
         try:
             stats['Expectancy Adjusted'] = (
-                stats['Expectancy'] * 
-                min(1, 0.01 * stats['Win Rate [%]'] / 0.66) * 
+                stats['Expectancy'] *
+                min(1, 0.01 * stats['Win Rate [%]'] / 0.66) *
                 min(1, stats['Total Closed Trades'] / 66)
             )
+            
+            # Calculate Beats BNH percentage
+            stats['Beats BNH [%]'] = stats['Total Return [%]'] / stats['Benchmark Return [%]']
             
             # Calculate total days between start and end
             if isinstance(stats['End'], (int, float)) and isinstance(stats['Start'], (int, float)):
@@ -79,7 +82,7 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
             
             # Calculate Tradability using total days
             stats['Tradability'] = (stats['Total Closed Trades'] / total_days) * 1000 if total_days > 0 else 0
-            
+
         except KeyError as e:
             log(f"Missing required statistic for {ticker}: {str(e)}", "error")
             raise
