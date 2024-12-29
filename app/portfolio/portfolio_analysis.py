@@ -2,6 +2,8 @@ from typing import TypedDict, List, Dict
 import polars as pl
 import yfinance as yf
 import numpy as np
+import matplotlib
+matplotlib.use('TkAgg')  # Set interactive backend
 import matplotlib.pyplot as plt
 from skfolio import PerfMeasure, RiskMeasure
 from skfolio.optimization import MeanRisk
@@ -105,9 +107,11 @@ def main() -> None:
     log, log_close, _, _ = setup_logging("portfolio", "portfolio_analysis.log")
     
     try:
+        TOTAL_PORTFOLIO_VALUE = 30000
+
         TICKERS = [
-            'NVDA', 'NFLX', 'AMD', 'AMAT',
-            'AMZN', 'MU', 'AAPL'
+            'AAPL', 'NTES', 'APTV', 'DXCM',
+            'ROST', 'NVDA', 'MNST', 'WST', 'TDG', 'QCOM', 'ENPH', 'OKTA'
         ]
         
         # Calculate weights dynamically based on number of tickers
@@ -134,7 +138,7 @@ def main() -> None:
         # Create optimization model
         log("Creating optimization model")
         model = MeanRisk(
-            risk_measure=RiskMeasure.SEMI_VARIANCE,
+            risk_measure=RiskMeasure.CVAR,
             min_weights=config["min_weight"],
             max_weights=config["max_weight"],
             portfolio_params=dict(
@@ -161,9 +165,10 @@ def main() -> None:
         sortino_ratio = annualized_return / downside_volatility if downside_volatility != 0 else 0
         
         # Print portfolio results
-        log("\nOptimal portfolio weights:")
+        log("\nOptimal portfolio weights and allocations:")
         for asset, weight in weights.items():
-            log(f"{asset}: {weight:.2%}")
+            usd_allocation = weight * TOTAL_PORTFOLIO_VALUE
+            log(f"{asset}: {weight:.2%} (${usd_allocation:,.2f})")
         
         log("\nPortfolio Metrics:")
         log(f"Annualized Return: {annualized_return:.2%}")
@@ -186,6 +191,7 @@ def main() -> None:
         log("\nGenerating portfolio composition plot")
         portfolio = model.predict(returns)
         fig = portfolio.plot_composition()
+        plt.savefig('portfolio_composition.png')  # Save plot to file
         plt.show()
         
         log_close()
