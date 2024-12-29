@@ -1,4 +1,5 @@
 from typing import TypedDict, List, Dict
+import os
 import polars as pl
 import yfinance as yf
 import numpy as np
@@ -8,7 +9,7 @@ import matplotlib.pyplot as plt
 from skfolio import PerfMeasure, RiskMeasure
 from skfolio.optimization import MeanRisk
 from skfolio.preprocessing import prices_to_returns as sk_prices_to_returns
-from app.tools.setup_logging import setup_logging
+from app.tools.setup_logging import setup_logging, get_project_root
 
 class PortfolioConfig(TypedDict):
     """Portfolio optimization configuration.
@@ -64,6 +65,48 @@ def combine_price_data(tickers: List[str], log: callable) -> pl.DataFrame:
     
     return pl.concat(dfs, how="horizontal")
 
+def calculate_var(returns: np.ndarray, confidence_level: float = 0.95) -> float:
+    """
+    Calculate Value at Risk (VaR) for a given return series.
+
+    Args:
+        returns (np.ndarray): Array of returns
+        confidence_level (float): Confidence level for VaR calculation (default: 0.95)
+
+    Returns:
+        float: VaR value as a positive number representing the potential loss percentage
+    """
+    # Convert returns to percentages for more intuitive values
+    returns_pct = returns * 100
+    
+    sorted_returns = np.sort(returns_pct)
+    cutoff_index = int((1 - confidence_level) * len(sorted_returns))
+    var = -sorted_returns[cutoff_index]  # Convert to positive value
+    return var
+
+def calculate_cvar(returns: np.ndarray, confidence_level: float = 0.95) -> float:
+    """
+    Calculate Conditional Value at Risk (CVaR) for a given return series.
+
+    Args:
+        returns (np.ndarray): Array of returns
+        confidence_level (float): Confidence level for CVaR calculation (default: 0.95)
+
+    Returns:
+        float: CVaR value as a positive number representing the expected loss percentage beyond VaR
+    """
+    # Convert returns to percentages for more intuitive values
+    returns_pct = returns * 100
+    
+    sorted_returns = np.sort(returns_pct)
+    cutoff_index = int((1 - confidence_level) * len(sorted_returns))
+    var = sorted_returns[cutoff_index]
+    
+    # Calculate CVaR as the mean of returns below VaR
+    cvar = -sorted_returns[sorted_returns <= var].mean()  # Convert to positive value
+    
+    return cvar
+
 def calculate_asset_metrics(returns: pl.DataFrame, weights: Dict[str, float]) -> Dict[str, Dict[str, float]]:
     """
     Calculate performance metrics for individual assets.
@@ -90,12 +133,19 @@ def calculate_asset_metrics(returns: pl.DataFrame, weights: Dict[str, float]) ->
         downside_volatility = downside_returns.std() * np.sqrt(252) if len(downside_returns) > 0 else 0
         sortino_ratio = annualized_return / downside_volatility if downside_volatility != 0 else 0
         
+        # Calculate VaR and CVaR on raw returns
+        weight = weights[asset]
+        var = calculate_var(asset_return)  # Returns percentage value
+        cvar = calculate_cvar(asset_return)  # Returns percentage value
+        
         metrics[asset] = {
-            "weight": weights[asset],
+            "weight": weight,
             "annualized_return": annualized_return,
             "annualized_volatility": annualized_volatility,
             "sharpe_ratio": sharpe_ratio,
-            "sortino_ratio": sortino_ratio
+            "sortino_ratio": sortino_ratio,
+            "var": var,
+            "cvar": cvar
         }
     
     return metrics
@@ -107,11 +157,13 @@ def main() -> None:
     log, log_close, _, _ = setup_logging("portfolio", "portfolio_analysis.log")
     
     try:
-        TOTAL_PORTFOLIO_VALUE = 30000
+        # The max VaR for any individual position should not exclude the current Kelly Criterion risk amount
+        # Current: 109.615310357099
+        TOTAL_PORTFOLIO_VALUE = 39000
+        # TOTAL_PORTFOLIO_VALUE = 100000
 
         TICKERS = [
-            'AAPL', 'NTES', 'APTV', 'DXCM',
-            'ROST', 'NVDA', 'MNST', 'WST', 'TDG', 'QCOM', 'ENPH', 'OKTA'
+            'AAPL', 'NTES', 'APTV', 'DXCM','ROST', 'NVDA', 'MNST', 'WST', 'TDG', 'QCOM', 'ENPH', 'OKTA'
         ]
         
         # Calculate weights dynamically based on number of tickers
@@ -138,7 +190,7 @@ def main() -> None:
         # Create optimization model
         log("Creating optimization model")
         model = MeanRisk(
-            risk_measure=RiskMeasure.CVAR,
+            risk_measure=RiskMeasure.VARIANCE,
             min_weights=config["min_weight"],
             max_weights=config["max_weight"],
             portfolio_params=dict(
@@ -164,35 +216,54 @@ def main() -> None:
         downside_volatility = downside_returns.std() * np.sqrt(252)
         sortino_ratio = annualized_return / downside_volatility if downside_volatility != 0 else 0
         
-        # Print portfolio results
-        log("\nOptimal portfolio weights and allocations:")
-        for asset, weight in weights.items():
-            usd_allocation = weight * TOTAL_PORTFOLIO_VALUE
-            log(f"{asset}: {weight:.2%} (${usd_allocation:,.2f})")
+        # Calculate all metrics once
+        log("\nCalculating portfolio and asset metrics")
+        asset_metrics = calculate_asset_metrics(pl.from_pandas(returns), weights)
         
-        log("\nPortfolio Metrics:")
+        # Calculate portfolio VaR and CVaR using raw returns
+        portfolio_var = calculate_var(portfolio_returns.to_numpy())  # Already returns positive value
+        portfolio_cvar = calculate_cvar(portfolio_returns.to_numpy())  # Already returns positive value
+        portfolio_var_usd = portfolio_var * TOTAL_PORTFOLIO_VALUE / 100  # Convert percentage to USD
+        portfolio_cvar_usd = portfolio_cvar * TOTAL_PORTFOLIO_VALUE / 100  # Convert percentage to USD
+
+        # Print portfolio summary
+        log("\nOptimal Portfolio Allocation:")
+        for asset, metrics in asset_metrics.items():
+            usd_allocation = metrics["weight"] * TOTAL_PORTFOLIO_VALUE
+            # Convert percentage risk to USD based on position size
+            var_usd = (metrics["var"] / 100) * usd_allocation  # e.g. 2.5% of $1000 = $25
+            cvar_usd = (metrics["cvar"] / 100) * usd_allocation  # e.g. 3.5% of $1000 = $35
+            log(f"{asset}: {metrics['weight']:.2%} (${usd_allocation:,.2f}, VaR: ${var_usd:,.2f}, CVaR: ${cvar_usd:,.2f})")
+
+        # Print portfolio metrics
+        log("\nPortfolio Risk Metrics:")
         log(f"Annualized Return: {annualized_return:.2%}")
         log(f"Annualized Volatility: {annualized_volatility:.2%}")
         log(f"Sharpe Ratio: {sharpe_ratio:.2f}")
         log(f"Sortino Ratio: {sortino_ratio:.2f}")
-        
-        # Calculate and print individual asset metrics
-        asset_metrics = calculate_asset_metrics(pl.from_pandas(returns), weights)
-        
+        log(f"Value at Risk (VaR): ${portfolio_var_usd:,.2f}")
+        log(f"Conditional Value at Risk (CVaR): ${portfolio_cvar_usd:,.2f}")
+
+        # Print detailed asset metrics
+        log("\nDetailed Asset Metrics:")
         for asset, metrics in asset_metrics.items():
-            log(f"\n{asset} Metrics:")
-            log(f"Weight: {metrics['weight']:.2%}")
-            log(f"Annualized Return: {metrics['annualized_return']:.2%}")
-            log(f"Annualized Volatility: {metrics['annualized_volatility']:.2%}")
-            log(f"Sharpe Ratio: {metrics['sharpe_ratio']:.2f}")
-            log(f"Sortino Ratio: {metrics['sortino_ratio']:.2f}")
-        
-        # Plot portfolio composition
+            log(f"\n{asset}:")
+            log(f"  Weight: {metrics['weight']:.2%}")
+            log(f"  Annualized Return: {metrics['annualized_return']:.2%}")
+            log(f"  Annualized Volatility: {metrics['annualized_volatility']:.2%}")
+            log(f"  Sharpe Ratio: {metrics['sharpe_ratio']:.2f}")
+            log(f"  Sortino Ratio: {metrics['sortino_ratio']:.2f}")
+
+        # Generate and save portfolio composition plot
         log("\nGenerating portfolio composition plot")
         portfolio = model.predict(returns)
         fig = portfolio.plot_composition()
-        plt.savefig('portfolio_composition.png')  # Save plot to file
-        plt.show()
+        
+        # Save plot to logs directory
+        plot_path = os.path.join(get_project_root(), 'logs', 'portfolio', 'portfolio_composition.png')
+        os.makedirs(os.path.dirname(plot_path), exist_ok=True)
+        plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+        log(f"Portfolio composition plot saved to: {plot_path}")
         
         log_close()
         
