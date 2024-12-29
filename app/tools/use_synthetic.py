@@ -1,3 +1,4 @@
+import os
 from typing import Callable, Tuple
 import polars as pl
 from app.tools.data_types import DataConfig
@@ -45,23 +46,40 @@ def use_synthetic(ticker1: str, ticker2: str, config: DataConfig, log: Callable)
 
         synthetic_ticker = f"{ticker1}/{ticker2}"
         
-        # Export synthetic pair data to CSV
-        export_config: ExportConfig = {
-            'BASE_DIR': config.get('BASE_DIR', '.'),
-            'TICKER': synthetic_ticker,
-            'USE_HOURLY': config.get('USE_HOURLY', False),
-            'USE_MA': False
-        }
+        # Export synthetic pair data directly with custom filename
+        export_path = os.path.join(config.get('BASE_DIR', '.'), 'csv', 'price_data')
+        os.makedirs(export_path, exist_ok=True)
+        
+        # Create custom filename in format: {ticker1}_{ticker2}_{timeframe}.csv
+        timeframe = "H" if config.get('USE_HOURLY', False) else "D"
+        filename = f"{ticker1}_{ticker2}_{timeframe}.csv"
+        full_path = os.path.join(export_path, filename)
         
         log("Exporting synthetic pair data to CSV")
-        data, export_path = export_csv(
-            data=data,
-            feature1='price_data',
-            config=export_config
-        )
-        log(f"Synthetic pair data exported successfully to {export_path}")
+        try:
+            # Remove existing file if it exists
+            if os.path.exists(full_path):
+                os.remove(full_path)
+            
+            # Export data
+            data.write_csv(full_path, separator=",")
+            log(f"Successfully exported results to {full_path}")
+            success = True
+        except Exception as e:
+            log(f"Failed to export synthetic pair data: {str(e)}", "error")
+            success = False
+        
+        if success:
+            log(f"Synthetic pair data exported successfully as {filename}")
+        else:
+            log("Failed to export synthetic pair data", "error")
 
-        return data, synthetic_ticker
+        # Return the data and synthetic ticker for further processing
+        if success:
+            return data, synthetic_ticker
+        else:
+            log("Failed to create synthetic pair", "error")
+            return pl.DataFrame(), ""
 
     except Exception as e:
         log(f"Error in use_synthetic: {str(e)}", "error")

@@ -25,7 +25,9 @@ def analyze_parameter_sensitivity(
         Optional[pl.DataFrame]: DataFrame containing portfolio results, None if analysis fails
     """
     try:
-        log("Starting parameter sensitivity analysis")
+        # Log data information before analysis
+        log(f"Starting analysis with data shape: {data.shape}")
+        log(f"Data date range: {data['Date'].min()} to {data['Date'].max()}")
         
         # Analyze all parameter combinations
         portfolios = analyze_parameter_combinations(data, short_windows, long_windows, config, log)

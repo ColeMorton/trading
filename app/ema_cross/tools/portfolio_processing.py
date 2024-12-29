@@ -49,9 +49,9 @@ def process_single_ticker(
             log(f"Loading existing data from {file_path}.")
             return pl.read_csv(file_path)
     
-    # Create distinct integer values for windows
-    short_windows = np.arange(2, config["WINDOWS"] + 1)  # [2, 3, ..., WINDOWS]
-    long_windows = np.arange(3, config["WINDOWS"] + 1)  # [3, 4, ..., WINDOWS]
+    # Create distinct integer values for windows and convert to lists
+    short_windows = list(np.arange(2, config["WINDOWS"] + 1))  # [2, 3, ..., WINDOWS]
+    long_windows = list(np.arange(3, config["WINDOWS"] + 1))  # [3, 4, ..., WINDOWS]
 
     log(f"Getting data...")
     data = get_data(ticker, config_copy, log)

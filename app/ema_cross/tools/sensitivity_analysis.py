@@ -65,8 +65,15 @@ def analyze_window_combination(
         Optional[Dict]: Portfolio statistics if successful, None if failed
     """
     try:
-        if len(data) < max(short, long):
-            log(f"Insufficient data for windows {short}, {long}", "warning")
+        data_length = len(data)
+        # Need extra data points for MA calculation and signal generation
+        required_length = max(short, long) * 2  # Double the window size to account for signal generation
+        
+        log(f"Analyzing MA combination - Short window: {short}, Long window: {long}")
+        log(f"Data length check - Available: {data_length}, Required: {required_length} (2x window size for valid signals)")
+        
+        if data_length < required_length:
+            log(f"Insufficient data length for MA calculation and signal generation - Available: {data_length}, Required: {required_length} (Short window: {short}, Long window: {long})", "warning")
             return None
             
         temp_data = calculate_ma_and_signals(data.clone(), short, long, config, log)  # Added log parameter
@@ -112,6 +119,8 @@ def analyze_parameter_combinations(
     Returns:
         List[Dict]: List of portfolio statistics for each valid combination
     """
+    log("Starting parameter sensitivity analysis")
+    
     portfolios = []
     
     for short in short_windows:
