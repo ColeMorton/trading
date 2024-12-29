@@ -75,13 +75,20 @@ def create_stop_loss_heatmap(
         # Reshape array for heatmap (add dummy y-axis)
         heatmap_data = array.reshape(1, -1)
         
-        # Calculate z-axis range
-        if center:
-            abs_max = max(abs(heatmap_data.min()), abs(heatmap_data.max()))
-            zmin, zmax = -abs_max, abs_max
-            zmid = 0
+        # Calculate z-axis range based on actual data
+        zmin, zmax = heatmap_data.min(), heatmap_data.max()
+        
+        # Handle color scale range based on mode
+        if config.get('RELATIVE', True):
+            # For relative mode, use symmetrical range if data has both positive and negative values
+            if center and zmin < 0 and zmax > 0:
+                abs_max = max(abs(zmin), abs(zmax))
+                zmin, zmax = -abs_max, abs_max
+                zmid = 0
+            else:
+                zmid = None
         else:
-            zmin, zmax = heatmap_data.min(), heatmap_data.max()
+            # For absolute mode, use actual data range
             zmid = None
         
         fig = go.Figure()
