@@ -80,22 +80,22 @@ class PortfolioConfig(TypedDict, total=False):
     MIN_WIN_RATE: NotRequired[float]
     MIN_TRADES: NotRequired[int]
 
-qqq_group6 = [
-    "ODFL",  # Old Dominion Freight Line
-    "CHTR",  # Charter Communications
-    "IDXX",  # IDEXX Laboratories
-    "WDAY",  # Workday
-    "ROST",  # Ross Stores
-    "CPRT",  # Copart
-    "DXCM",  # DexCom
-    "PCAR",  # PACCAR
-    "SIRI",  # Sirius XM
-    "EA"     # Electronic Arts
+qqq_group7 = [
+    "VRSK",  # Verisk Analytics
+    "CTSH",  # Cognizant
+    "FAST",  # Fastenal
+    "DLTR",  # Dollar Tree
+    "XEL",   # Xcel Energy
+    "CSGP",  # CoStar Group
+    "WBD",   # Warner Bros Discovery
+    "FANG",  # Diamondback Energy
+    "ANSS",  # ANSYS
+    "NXPI"   # NXP Semiconductors
 ]
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": qqq_group6,
+    "TICKER": qqq_group7,
     "TICKER_1": "AAPL",
     "TICKER_2": "SPY",
     "USE_SYNTHETIC": False,
