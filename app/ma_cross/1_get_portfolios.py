@@ -9,11 +9,11 @@ sensitivity analysis and portfolio filtering.
 import os
 from app.tools.get_config import get_config
 from app.tools.setup_logging import setup_logging
-from app.ma_cross.config_types import PortfolioConfig, DEFAULT_CONFIG
+from app.ma_cross.config_types import Config, DEFAULT_CONFIG
 from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.ma_cross.tools.portfolio_collection import export_best_portfolios, combine_strategy_portfolios
 
-def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
+def run(config: Config = DEFAULT_CONFIG) -> bool:
     """Run portfolio analysis for single or multiple tickers.
     
     This function handles the main workflow of portfolio analysis:
@@ -23,7 +23,7 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
     4. Displays and saves results
     
     Args:
-        config (PortfolioConfig): Configuration dictionary containing analysis parameters
+        config (Config): Configuration dictionary containing analysis parameters
         
     Returns:
         bool: True if execution successful

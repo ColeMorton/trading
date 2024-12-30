@@ -11,18 +11,18 @@ from app.ma_cross.tools.filter_portfolios import filter_portfolios
 from app.ma_cross.tools.export_portfolios import export_portfolios, PortfolioExportError
 from app.ma_cross.tools.signal_processing import process_ticker_portfolios
 from app.ma_cross.tools.portfolio_selection import get_best_portfolio
-from app.ma_cross.config_types import PortfolioConfig
+from app.ma_cross.config_types import Config
 
 def process_single_ticker(
     ticker: str,
-    config: PortfolioConfig,
+    config: Config,
     log: callable
 ) -> Optional[Dict[str, Any]]:
     """Process a single ticker through the portfolio analysis pipeline.
 
     Args:
         ticker (str): The ticker symbol to process
-        config (PortfolioConfig): Configuration for the analysis
+        config (Config): Configuration for the analysis
         log (callable): Logging function
 
     Returns:
@@ -95,14 +95,14 @@ def process_single_ticker(
     return None
 
 def execute_strategy(
-    config: PortfolioConfig,
+    config: Config,
     strategy_type: str,
     log: callable
 ) -> List[Dict[str, Any]]:
     """Execute a trading strategy (EMA or SMA) for all tickers.
 
     Args:
-        config (PortfolioConfig): Configuration for the analysis
+        config (Config): Configuration for the analysis
         strategy_type (str): Either 'EMA' or 'SMA'
         log (callable): Logging function
 

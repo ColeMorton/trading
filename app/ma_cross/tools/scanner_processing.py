@@ -130,10 +130,10 @@ def export_results(results_data: List[Dict], config: dict, log: Callable) -> Non
         # Create results DataFrame with explicit schema
         schema = {
             "TICKER": pl.Utf8,
-            "SMA_FAST": pl.Int64.null(),  # Allow null values for window sizes
-            "SMA_SLOW": pl.Int64.null(),
-            "EMA_FAST": pl.Int64.null(),
-            "EMA_SLOW": pl.Int64.null(),
+            "SMA_FAST": pl.Int64,  # Int64 columns automatically allow null values
+            "SMA_SLOW": pl.Int64,
+            "EMA_FAST": pl.Int64,
+            "EMA_SLOW": pl.Int64,
             "SMA_SIGNAL": pl.Boolean,
             "EMA_SIGNAL": pl.Boolean
         }

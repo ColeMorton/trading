@@ -55,11 +55,28 @@ config: Config = {
     "WINDOWS": 89,
     # "SCANNER_LIST": 'HOURLY Crypto.csv',
     # "SCANNER_LIST": 'DAILY Crypto.csv',
-    "SCANNER_LIST": 'qqq_1.csv',
+    "SCANNER_LIST": 'QQQ_SPY100.csv',
     "USE_HOURLY": False,
     "REFRESH": False,
     "DIRECTION": "Long"  # Default to Long position
 }
+
+def validate_config(config: Config) -> None:
+    """
+    Validate configuration settings.
+    
+    Args:
+        config: Configuration dictionary to validate
+        
+    Raises:
+        ValueError: If configuration is invalid
+    """
+    if not config.get("SCANNER_LIST"):
+        raise ValueError("SCANNER_LIST must be specified")
+    if config.get("WINDOWS", 0) < 2:
+        raise ValueError("WINDOWS must be greater than 1")
+    if config.get("DIRECTION") not in [None, "Long", "Short"]:
+        raise ValueError("DIRECTION must be either 'Long' or 'Short'")
 
 def process_scanner() -> bool:
     """
@@ -76,11 +93,19 @@ def process_scanner() -> bool:
         bool: True if execution successful, raises exception otherwise
 
     Raises:
+        FileNotFoundError: If scanner list file not found
+        ValueError: If scanner list has invalid schema
         Exception: If scanner processing fails
     """
-    log, log_close, _, _ = setup_logging('ma_cross', '2_scanner.log')
+    log = None
+    log_close = None
     
     try:
+        # Initialize logging
+        log, log_close, _, _ = setup_logging('ma_cross', '2_scanner.log')
+        if not log or not log_close:
+            raise RuntimeError("Failed to initialize logging")
+            
         # Determine which CSV file to use based on USE_HOURLY config
         csv_filename = 'HOURLY.csv' if config.get("USE_HOURLY", False) else config.get("SCANNER_LIST", 'DAILY.csv')
         
@@ -91,17 +116,34 @@ def process_scanner() -> bool:
         # Load existing results if available
         existing_tickers, results_data = load_existing_results(config, log)
         
+        # Check for either TICKER (original schema) or Ticker (new schema)
+        scanner_columns = set(scanner_df.columns)
+        has_ticker = "TICKER" in scanner_columns or "Ticker" in scanner_columns
+        if not has_ticker:
+            raise ValueError("Missing required Ticker column")
+            
+        # Define other required columns
+        required_columns = {"SMA_FAST", "SMA_SLOW", "EMA_FAST", "EMA_SLOW"}
+        
+        # Validate schema
+        missing_columns = required_columns - set(scanner_df.columns)
+        if missing_columns:
+            raise ValueError(f"Missing required columns in scanner list: {missing_columns}")
+        
         # Check if the CSV has the new schema (with Use SMA column)
         is_new_schema = 'Use SMA' in scanner_df.columns
         
-        # Standardize column names to uppercase
+        # Determine which ticker column name is present
+        ticker_col = "Ticker" if "Ticker" in scanner_df.columns else "TICKER"
+        
+        # Standardize column names and ensure proper types
         scanner_df = scanner_df.select([
-            pl.col("Ticker").alias("TICKER"),
-            pl.col("Use SMA").alias("USE_SMA") if "Use SMA" in scanner_df.columns else pl.lit(None).alias("USE_SMA"),
-            pl.col("SMA_FAST"),
-            pl.col("SMA_SLOW"),
-            pl.col("EMA_FAST"),
-            pl.col("EMA_SLOW")
+            pl.col(ticker_col).cast(pl.Utf8).alias("TICKER"),
+            pl.col("Use SMA").cast(pl.Boolean).alias("USE_SMA") if is_new_schema else pl.lit(None).alias("USE_SMA"),
+            pl.col("SMA_FAST").cast(pl.Int64),
+            pl.col("SMA_SLOW").cast(pl.Int64),
+            pl.col("EMA_FAST").cast(pl.Int64),
+            pl.col("EMA_SLOW").cast(pl.Int64)
         ])
         
         # Filter scanner list to only process new tickers
@@ -114,21 +156,46 @@ def process_scanner() -> bool:
             
             log(f"Processing {ticker}")
             
-            # Handle new schema (one MA config per row)
-            if is_new_schema:
-                use_sma = row.get('USE_SMA', False)
-                if use_sma:
-                    # Set EMA windows to None for SMA rows
-                    row_dict = {**row, 'EMA_FAST': None, 'EMA_SLOW': None}
+            try:
+                # Validate windows based on schema type
+                if is_new_schema:
+                    use_sma = row.get('USE_SMA', False)
+                    if use_sma and (row['SMA_FAST'] is None or row['SMA_SLOW'] is None):
+                        log(f"Warning: Missing SMA windows for {ticker}", "warning")
+                        continue
+                    if not use_sma and (row['EMA_FAST'] is None or row['EMA_SLOW'] is None):
+                        log(f"Warning: Missing EMA windows for {ticker}", "warning")
+                        continue
+                    
+                    # Set appropriate windows to None based on MA type
+                    row_dict = {
+                        **row,
+                        'EMA_FAST': None if use_sma else row['EMA_FAST'],
+                        'EMA_SLOW': None if use_sma else row['EMA_SLOW'],
+                        'SMA_FAST': row['SMA_FAST'] if use_sma else None,
+                        'SMA_SLOW': row['SMA_SLOW'] if use_sma else None
+                    }
                 else:
-                    # Set SMA windows to None for EMA rows
-                    row_dict = {**row, 'SMA_FAST': None, 'SMA_SLOW': None}
+                    # Validate both MA types for original schema
+                    if row['SMA_FAST'] is None or row['SMA_SLOW'] is None:
+                        log(f"Warning: Missing SMA windows for {ticker}", "warning")
+                    if row['EMA_FAST'] is None or row['EMA_SLOW'] is None:
+                        log(f"Warning: Missing EMA windows for {ticker}", "warning")
+                    if all(row[k] is None for k in ['SMA_FAST', 'SMA_SLOW', 'EMA_FAST', 'EMA_SLOW']):
+                        log(f"Error: No valid MA windows for {ticker}", "error")
+                        continue
+                    row_dict = row
+
+                # Process ticker with validated configuration
                 result = process_ticker(ticker, row_dict, config, log)
-            else:
-                # Original schema (one ticker per row with both MA types)
-                result = process_ticker(ticker, row, config, log)
-            
-            results_data.append(result)
+                if result is not None:
+                    results_data.append(result)
+                else:
+                    log(f"Warning: No results generated for {ticker}", "warning")
+                    
+            except Exception as e:
+                log(f"Error processing {ticker}: {str(e)}", "error")
+                continue
         
         # Export results
         export_results(results_data, config, log)
@@ -143,11 +210,21 @@ def process_scanner() -> bool:
 
 if __name__ == "__main__":
     try:
+        # Load and validate configuration
         config = get_config(config)
         config["USE_SCANNER"] = True
+        validate_config(config)
+        
+        # Process scanner with validated config
         result = process_scanner()
         if result:
             print("Execution completed successfully!")
+    except ValueError as ve:
+        print(f"Configuration error: {str(ve)}")
+        raise
+    except FileNotFoundError as fe:
+        print(f"File error: {str(fe)}")
+        raise
     except Exception as e:
         print(f"Execution failed: {str(e)}")
         raise

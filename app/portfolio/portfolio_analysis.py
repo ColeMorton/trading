@@ -3,11 +3,12 @@ import os
 import polars as pl
 import yfinance as yf
 import numpy as np
+import pandas as pd
 import matplotlib
 matplotlib.use('TkAgg')  # Set interactive backend
 import matplotlib.pyplot as plt
 from skfolio import PerfMeasure, RiskMeasure
-from skfolio.optimization import MeanRisk
+from skfolio.optimization import MeanRisk, ObjectiveFunction
 from skfolio.preprocessing import prices_to_returns as sk_prices_to_returns
 from app.tools.setup_logging import setup_logging, get_project_root
 
@@ -159,11 +160,11 @@ def main() -> None:
     try:
         # The max VaR for any individual position should not exclude the current Kelly Criterion risk amount (this accounts for 1.33x upper bound)
         # Current: 109.615310357099
-        TOTAL_PORTFOLIO_VALUE = 42000
+        TOTAL_PORTFOLIO_VALUE = 36000
         # TOTAL_PORTFOLIO_VALUE = 100000
 
         TICKERS = [
-            'AAPL', 'NTES', 'APTV', 'DXCM','ROST', 'NVDA', 'MNST', 'WST', 'TDG', 'QCOM', 'ENPH', 'OKTA', 'CRWD'
+            'AAPL', 'NTES', 'APTV', 'DXCM','ROST', 'MNST', 'WST', 'TDG', 'QCOM', 'ENPH', 'OKTA'
         ]
         
         # Calculate weights dynamically based on number of tickers
@@ -189,8 +190,10 @@ def main() -> None:
         
         # Create optimization model
         log("Creating optimization model")
+        # Create optimization model that maximizes Sharpe ratio
         model = MeanRisk(
-            risk_measure=RiskMeasure.VARIANCE,
+            risk_measure=RiskMeasure.STANDARD_DEVIATION,
+            objective_function=ObjectiveFunction.MAXIMIZE_RATIO,
             min_weights=config["min_weight"],
             max_weights=config["max_weight"],
             portfolio_params=dict(
@@ -204,27 +207,27 @@ def main() -> None:
         model.fit(returns)
         weights = dict(zip(TICKERS, model.weights_))
         
-        # Calculate portfolio metrics
+        # Get optimized portfolio
         log("Calculating portfolio metrics")
-        portfolio_returns = sum(returns[asset] * weight for asset, weight in weights.items())
+        portfolio = model.predict(returns)
+        weights = dict(zip(TICKERS, model.weights_))
         
-        annualized_return = portfolio_returns.mean() * 252
-        annualized_volatility = portfolio_returns.std() * np.sqrt(252)
-        sharpe_ratio = annualized_return / annualized_volatility if annualized_volatility != 0 else 0
+        # Calculate metrics using skfolio's Portfolio object
+        annualized_return = portfolio.mean * 252  # annualize the mean return
+        annualized_volatility = portfolio.standard_deviation * np.sqrt(252)  # annualize the volatility
+        sharpe_ratio = portfolio.sharpe_ratio
+        sortino_ratio = portfolio.sortino_ratio
         
-        downside_returns = portfolio_returns[portfolio_returns < 0]
-        downside_volatility = downside_returns.std() * np.sqrt(252)
-        sortino_ratio = annualized_return / downside_volatility if downside_volatility != 0 else 0
-        
-        # Calculate all metrics once
+        # Calculate asset-specific metrics
         log("\nCalculating portfolio and asset metrics")
         asset_metrics = calculate_asset_metrics(pl.from_pandas(returns), weights)
         
-        # Calculate portfolio VaR and CVaR using raw returns
-        portfolio_var = calculate_var(portfolio_returns.to_numpy())  # Already returns positive value
-        portfolio_cvar = calculate_cvar(portfolio_returns.to_numpy())  # Already returns positive value
-        portfolio_var_usd = portfolio_var * TOTAL_PORTFOLIO_VALUE / 100  # Convert percentage to USD
-        portfolio_cvar_usd = portfolio_cvar * TOTAL_PORTFOLIO_VALUE / 100  # Convert percentage to USD
+        # Calculate VaR and CVaR
+        portfolio_returns = portfolio.returns
+        portfolio_var = calculate_var(portfolio_returns)
+        portfolio_cvar = calculate_cvar(portfolio_returns)
+        portfolio_var_usd = portfolio_var * TOTAL_PORTFOLIO_VALUE / 100
+        portfolio_cvar_usd = portfolio_cvar * TOTAL_PORTFOLIO_VALUE / 100
 
         # Print portfolio summary
         log("\nOptimal Portfolio Allocation:")
@@ -253,17 +256,6 @@ def main() -> None:
             log(f"  Annualized Volatility: {metrics['annualized_volatility']:.2%}")
             log(f"  Sharpe Ratio: {metrics['sharpe_ratio']:.2f}")
             log(f"  Sortino Ratio: {metrics['sortino_ratio']:.2f}")
-
-        # Generate and save portfolio composition plot
-        log("\nGenerating portfolio composition plot")
-        portfolio = model.predict(returns)
-        fig = portfolio.plot_composition()
-        
-        # Save plot to logs directory
-        plot_path = os.path.join(get_project_root(), 'logs', 'portfolio', 'portfolio_composition.png')
-        os.makedirs(os.path.dirname(plot_path), exist_ok=True)
-        plt.savefig(plot_path, dpi=300, bbox_inches='tight')
-        log(f"Portfolio composition plot saved to: {plot_path}")
         
         log_close()
         

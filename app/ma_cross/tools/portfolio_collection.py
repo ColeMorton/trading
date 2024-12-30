@@ -9,11 +9,11 @@ across the application.
 from typing import List, Dict, Any, Union
 import polars as pl
 from app.ma_cross.tools.export_portfolios import export_portfolios, PortfolioExportError
-from app.ma_cross.config_types import PortfolioConfig
+from app.ma_cross.config_types import Config
 
 def sort_portfolios(
     portfolios: Union[List[Dict[str, Any]], pl.DataFrame],
-    config: PortfolioConfig
+    config: Config
 ) -> Union[List[Dict[str, Any]], pl.DataFrame]:
     """Sort portfolios using consistent logic across the application.
     
@@ -40,7 +40,7 @@ def sort_portfolios(
 
 def export_best_portfolios(
     portfolios: List[Dict[str, Any]],
-    config: PortfolioConfig,
+    config: Config,
     log: callable
 ) -> bool:
     """Export the best portfolios to a CSV file.
