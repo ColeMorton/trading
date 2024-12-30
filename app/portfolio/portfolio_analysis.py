@@ -157,11 +157,11 @@ def main() -> None:
     try:
         # The max VaR for any individual position should not exclude the current Kelly Criterion risk amount (this accounts for 1.33x upper bound)
         # Current: 109.615310357099
-        TOTAL_PORTFOLIO_VALUE = 30000
+        TOTAL_PORTFOLIO_VALUE = 14419
         # TOTAL_PORTFOLIO_VALUE = 100000
 
         TICKERS = [
-            'AAPL', 'NTES', 'APTV', 'DXCM','ROST', 'MNST', 'WST', 'TDG', 'QCOM', 'ENPH', 'OKTA'
+            'AAPL', 'NTES', 'APTV', 'DXCM','ROST', 'MNST', 'WST', 'TDG', 'QCOM', 'ENPH', 'OKTA', 'NVDA'
         ]
         
         # Calculate weights dynamically based on number of tickers
