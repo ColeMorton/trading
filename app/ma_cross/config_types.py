@@ -79,21 +79,21 @@ class Config(TypedDict, total=False):
     # Advanced Options
     USE_GBM: NotRequired[bool]
 
-sp100_group5 = [
-    "GS",    # Goldman Sachs
-    "AMT",   # American Tower
-    "DUK",   # Duke Energy
-    "IBM",   # IBM
-    "C",     # Citigroup
-    "ELV",   # Elevance Health
-    "SCHW",  # Charles Schwab
-    "AXP",   # American Express
-    "PNC"    # PNC Financial Services
+sp100_group6 = [
+    "SO",    # Southern Company
+    "GE",    # General Electric
+    "TJX",   # TJX Companies
+    "MMC",   # Marsh & McLennan
+    "LOW",   # Lowe's
+    "SLB",   # Schlumberger
+    "CI",    # Cigna
+    "NOC",   # Northrop Grumman
+    "MO"     # Altria Group
 ]
 
 # Default configuration
 DEFAULT_CONFIG: Config = {
-    "TICKER": sp100_group5,
+    "TICKER": sp100_group6,
     "WINDOWS": 89,
     "SCANNER_LIST": "DAILY.csv",
     "BASE_DIR": ".",

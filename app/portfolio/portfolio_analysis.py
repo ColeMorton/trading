@@ -126,10 +126,8 @@ def calculate_asset_metrics(returns: pl.DataFrame, weights: Dict[str, float]) ->
         
         # Calculate metrics
         annualized_return = asset_return.mean() * 252
-        annualized_volatility = asset_return.std() * np.sqrt(252)
-        sharpe_ratio = annualized_return / annualized_volatility if annualized_volatility != 0 else 0
         
-        # Calculate Sortino ratio
+        # Calculate downside volatility for Sortino ratio
         downside_returns = asset_return[asset_return < 0]
         downside_volatility = downside_returns.std() * np.sqrt(252) if len(downside_returns) > 0 else 0
         sortino_ratio = annualized_return / downside_volatility if downside_volatility != 0 else 0
@@ -142,8 +140,7 @@ def calculate_asset_metrics(returns: pl.DataFrame, weights: Dict[str, float]) ->
         metrics[asset] = {
             "weight": weight,
             "annualized_return": annualized_return,
-            "annualized_volatility": annualized_volatility,
-            "sharpe_ratio": sharpe_ratio,
+            "downside_volatility": downside_volatility,
             "sortino_ratio": sortino_ratio,
             "var": var,
             "cvar": cvar
@@ -160,7 +157,7 @@ def main() -> None:
     try:
         # The max VaR for any individual position should not exclude the current Kelly Criterion risk amount (this accounts for 1.33x upper bound)
         # Current: 109.615310357099
-        TOTAL_PORTFOLIO_VALUE = 36000
+        TOTAL_PORTFOLIO_VALUE = 30000
         # TOTAL_PORTFOLIO_VALUE = 100000
 
         TICKERS = [
@@ -190,9 +187,9 @@ def main() -> None:
         
         # Create optimization model
         log("Creating optimization model")
-        # Create optimization model that maximizes Sharpe ratio
+        # Create optimization model that maximizes Sortino ratio
         model = MeanRisk(
-            risk_measure=RiskMeasure.STANDARD_DEVIATION,
+            risk_measure=RiskMeasure.SEMI_DEVIATION,
             objective_function=ObjectiveFunction.MAXIMIZE_RATIO,
             min_weights=config["min_weight"],
             max_weights=config["max_weight"],
@@ -214,8 +211,7 @@ def main() -> None:
         
         # Calculate metrics using skfolio's Portfolio object
         annualized_return = portfolio.mean * 252  # annualize the mean return
-        annualized_volatility = portfolio.standard_deviation * np.sqrt(252)  # annualize the volatility
-        sharpe_ratio = portfolio.sharpe_ratio
+        downside_volatility = portfolio.semi_deviation * np.sqrt(252)  # annualize the downside volatility
         sortino_ratio = portfolio.sortino_ratio
         
         # Calculate asset-specific metrics
@@ -241,8 +237,7 @@ def main() -> None:
         # Print portfolio metrics
         log("\nPortfolio Risk Metrics:")
         log(f"Annualized Return: {annualized_return:.2%}")
-        log(f"Annualized Volatility: {annualized_volatility:.2%}")
-        log(f"Sharpe Ratio: {sharpe_ratio:.2f}")
+        log(f"Downside Volatility: {downside_volatility:.2%}")
         log(f"Sortino Ratio: {sortino_ratio:.2f}")
         log(f"Value at Risk (VaR): ${portfolio_var_usd:,.2f}")
         log(f"Conditional Value at Risk (CVaR): ${portfolio_cvar_usd:,.2f}")
@@ -253,8 +248,7 @@ def main() -> None:
             log(f"\n{asset}:")
             log(f"  Weight: {metrics['weight']:.2%}")
             log(f"  Annualized Return: {metrics['annualized_return']:.2%}")
-            log(f"  Annualized Volatility: {metrics['annualized_volatility']:.2%}")
-            log(f"  Sharpe Ratio: {metrics['sharpe_ratio']:.2f}")
+            log(f"  Downside Volatility: {metrics['downside_volatility']:.2%}")
             log(f"  Sortino Ratio: {metrics['sortino_ratio']:.2f}")
         
         log_close()
