@@ -86,7 +86,7 @@ def plot_results(ticker: str, results_df: pl.DataFrame, log: Callable) -> None:
     plt.tight_layout()
 
     # Save the plot
-    plot_filename = f'png/ema_cross/parameter_sensitivity/{ticker}_slippage.png'
+    plot_filename = f'png/ma_cross/parameter_sensitivity/{ticker}_slippage.png'
     plt.savefig(plot_filename, bbox_inches='tight')
     log(f"Plot saved as {plot_filename}")
 

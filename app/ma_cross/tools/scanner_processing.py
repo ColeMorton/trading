@@ -58,34 +58,40 @@ def process_ticker(ticker: str, row: dict, config: dict, log: Callable) -> Dict:
     Returns:
         Dict: Results dictionary containing SMA and EMA signals
     """
-    # Process SMA signals
-    sma_current = process_ma_signals(
-        ticker=ticker,
-        ma_type="SMA",
-        config=config,
-        fast_window=row['SMA_FAST'],
-        slow_window=row['SMA_SLOW'],
-        log=log
-    )
+    # Initialize signals
+    sma_current = False
+    ema_current = False
     
-    # Process EMA signals
-    ema_current = process_ma_signals(
-        ticker=ticker,
-        ma_type="EMA",
-        config=config,
-        fast_window=row['EMA_FAST'],
-        slow_window=row['EMA_SLOW'],
-        log=log
-    )
+    # Process SMA signals if windows are provided
+    if row.get('SMA_FAST') is not None and row.get('SMA_SLOW') is not None:
+        sma_current = process_ma_signals(
+            ticker=ticker,
+            ma_type="SMA",
+            config=config,
+            fast_window=row['SMA_FAST'],
+            slow_window=row['SMA_SLOW'],
+            log=log
+        )
+    
+    # Process EMA signals if windows are provided
+    if row.get('EMA_FAST') is not None and row.get('EMA_SLOW') is not None:
+        ema_current = process_ma_signals(
+            ticker=ticker,
+            ma_type="EMA",
+            config=config,
+            fast_window=row['EMA_FAST'],
+            slow_window=row['EMA_SLOW'],
+            log=log
+        )
     
     return {
         "TICKER": ticker,
         "SMA": sma_current,
         "EMA": ema_current,
-        "SMA_FAST": row['SMA_FAST'],
-        "SMA_SLOW": row['SMA_SLOW'],
-        "EMA_FAST": row['EMA_FAST'],
-        "EMA_SLOW": row['EMA_SLOW']
+        "SMA_FAST": row.get('SMA_FAST'),
+        "SMA_SLOW": row.get('SMA_SLOW'),
+        "EMA_FAST": row.get('EMA_FAST'),
+        "EMA_SLOW": row.get('EMA_SLOW')
     }
 
 def export_results(results_data: List[Dict], config: dict, log: Callable) -> None:
@@ -124,10 +130,10 @@ def export_results(results_data: List[Dict], config: dict, log: Callable) -> Non
         # Create results DataFrame with explicit schema
         schema = {
             "TICKER": pl.Utf8,
-            "SMA_FAST": pl.Int64,
-            "SMA_SLOW": pl.Int64,
-            "EMA_FAST": pl.Int64,
-            "EMA_SLOW": pl.Int64,
+            "SMA_FAST": pl.Int64.null(),  # Allow null values for window sizes
+            "SMA_SLOW": pl.Int64.null(),
+            "EMA_FAST": pl.Int64.null(),
+            "EMA_SLOW": pl.Int64.null(),
             "SMA_SIGNAL": pl.Boolean,
             "EMA_SIGNAL": pl.Boolean
         }

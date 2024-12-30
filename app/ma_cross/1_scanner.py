@@ -55,7 +55,7 @@ config: Config = {
     "WINDOWS": 89,
     # "SCANNER_LIST": 'HOURLY Crypto.csv',
     # "SCANNER_LIST": 'DAILY Crypto.csv',
-    "SCANNER_LIST": 'BEST.csv',
+    "SCANNER_LIST": 'qqq_1.csv',
     "USE_HOURLY": False,
     "REFRESH": False,
     "DIRECTION": "Long"  # Default to Long position
@@ -85,11 +85,24 @@ def process_scanner() -> bool:
         csv_filename = 'HOURLY.csv' if config.get("USE_HOURLY", False) else config.get("SCANNER_LIST", 'DAILY.csv')
         
         # Read scanner data using polars
-        scanner_df = pl.read_csv(f'app/ema_cross/scanner_lists/{csv_filename}')
+        scanner_df = pl.read_csv(f'app/ma_cross/scanner_lists/{csv_filename}')
         log(f"Loaded scanner list: {csv_filename}")
         
         # Load existing results if available
         existing_tickers, results_data = load_existing_results(config, log)
+        
+        # Check if the CSV has the new schema (with Use SMA column)
+        is_new_schema = 'Use SMA' in scanner_df.columns
+        
+        # Standardize column names to uppercase
+        scanner_df = scanner_df.select([
+            pl.col("Ticker").alias("TICKER"),
+            pl.col("Use SMA").alias("USE_SMA") if "Use SMA" in scanner_df.columns else pl.lit(None).alias("USE_SMA"),
+            pl.col("SMA_FAST"),
+            pl.col("SMA_SLOW"),
+            pl.col("EMA_FAST"),
+            pl.col("EMA_SLOW")
+        ])
         
         # Filter scanner list to only process new tickers
         for row in scanner_df.iter_rows(named=True):
@@ -98,9 +111,23 @@ def process_scanner() -> bool:
             # Skip if ticker already processed today
             if ticker in existing_tickers:
                 continue
-                
+            
             log(f"Processing {ticker}")
-            result = process_ticker(ticker, row, config, log)  # Pass log function here
+            
+            # Handle new schema (one MA config per row)
+            if is_new_schema:
+                use_sma = row.get('USE_SMA', False)
+                if use_sma:
+                    # Set EMA windows to None for SMA rows
+                    row_dict = {**row, 'EMA_FAST': None, 'EMA_SLOW': None}
+                else:
+                    # Set SMA windows to None for EMA rows
+                    row_dict = {**row, 'SMA_FAST': None, 'SMA_SLOW': None}
+                result = process_ticker(ticker, row_dict, config, log)
+            else:
+                # Original schema (one ticker per row with both MA types)
+                result = process_ticker(ticker, row, config, log)
+            
             results_data.append(result)
         
         # Export results

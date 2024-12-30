@@ -96,7 +96,7 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> N
         )
         
         # Save and display plots
-        png_path = get_path("png", "ema_cross", config, 'heatmap')
+        png_path = get_path("png", "ma_cross", config, 'heatmap')
         base_filename = get_filename("png", config).replace('.png', '')
         log(f"Saving plots to directory: {png_path}")
         

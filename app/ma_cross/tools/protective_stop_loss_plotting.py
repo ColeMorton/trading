@@ -47,7 +47,7 @@ def plot_results(
     plt.grid(True)
 
     # Save the plot
-    plot_filename = f'png/ema_cross/parameter_sensitivity/{ticker}_protective_stop_loss.png'
+    plot_filename = f'png/ma_cross/parameter_sensitivity/{ticker}_protective_stop_loss.png'
     plt.savefig(plot_filename)
     log(f"Plot saved as {plot_filename}")
 

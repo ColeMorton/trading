@@ -84,7 +84,7 @@ def run(scanner_list: str) -> bool:
         # If file wasn't found in portfolios_scanned directory,
         # try scanner_lists directory
         if daily_df is None:
-            scanner_path = Path("app/ema_cross/scanner_lists") / scanner_list
+            scanner_path = Path("app/ma_cross/scanner_lists") / scanner_list
             if scanner_path.exists():
                 log(f"Reading from scanner lists directory: {scanner_path}")
                 daily_df = read_scanner_list(scanner_path, log)

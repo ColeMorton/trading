@@ -80,12 +80,24 @@ class PortfolioConfig(TypedDict, total=False):
     MIN_WIN_RATE: NotRequired[float]
     MIN_TRADES: NotRequired[int]
 
+sp100_group2 = [
+    "CVX",   # Chevron
+    "LLY",   # Eli Lilly
+    "HD",    # Home Depot
+    "MRK",   # Merck
+    "ABBV",  # AbbVie
+    "KO",    # Coca-Cola
+    "MCD",   # McDonald's
+    "ACN",   # Accenture
+    "TMO"    # Thermo Fisher Scientific
+]
+
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": 'PHA-USD',
-    "TICKER_1": "MSFT",
+    "TICKER": sp100_group2,
+    "TICKER_1": "AAPL",
     "TICKER_2": "SPY",
-    "USE_SYNTHETIC": True,
+    "USE_SYNTHETIC": False,
     "WINDOWS": 89,
     "USE_HOURLY": False,
     "REFRESH": True,

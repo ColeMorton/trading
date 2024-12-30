@@ -80,22 +80,21 @@ class PortfolioConfig(TypedDict, total=False):
     MIN_WIN_RATE: NotRequired[float]
     MIN_TRADES: NotRequired[int]
 
-qqq_group7 = [
-    "VRSK",  # Verisk Analytics
-    "CTSH",  # Cognizant
-    "FAST",  # Fastenal
-    "DLTR",  # Dollar Tree
-    "XEL",   # Xcel Energy
-    "CSGP",  # CoStar Group
-    "WBD",   # Warner Bros Discovery
-    "FANG",  # Diamondback Energy
-    "ANSS",  # ANSYS
-    "NXPI"   # NXP Semiconductors
+sp100_group1 = [
+    "JNJ",   # Johnson & Johnson
+    "JPM",   # JPMorgan Chase
+    "V",     # Visa
+    "XOM",   # Exxon Mobil
+    "MA",    # Mastercard
+    "UNH",   # UnitedHealth Group
+    "WMT",   # Walmart
+    "BAC",   # Bank of America
+    "PG"     # Procter & Gamble
 ]
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": qqq_group7,
+    "TICKER": sp100_group1,
     "TICKER_1": "AAPL",
     "TICKER_2": "SPY",
     "USE_SYNTHETIC": False,

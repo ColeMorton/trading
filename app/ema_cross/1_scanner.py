@@ -55,7 +55,7 @@ config: Config = {
     "WINDOWS": 89,
     # "SCANNER_LIST": 'HOURLY Crypto.csv',
     # "SCANNER_LIST": 'DAILY Crypto.csv',
-    "SCANNER_LIST": 'BEST.csv',
+    "SCANNER_LIST": 'DAILY.csv',
     "USE_HOURLY": False,
     "REFRESH": False,
     "DIRECTION": "Long"  # Default to Long position
