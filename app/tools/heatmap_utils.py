@@ -52,9 +52,9 @@ def process_heatmap_data(config: dict, log) -> bool:
             ma_type = 'SMA' if config.get('USE_SMA', False) else 'EMA'
             freq_type = 'H' if config.get('USE_HOURLY', False) else 'D'
             
-            # Construct current signals file path
+            # Construct current signals file path from portfolios directory
             current_signals_file = os.path.join(
-                'csv', 'ma_cross', 'current_signals',
+                'csv', 'ma_cross', 'portfolios',
                 current_date,
                 f"{config['TICKER']}_{freq_type}_{ma_type}.csv"
             )

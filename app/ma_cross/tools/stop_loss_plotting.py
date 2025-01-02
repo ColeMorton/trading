@@ -6,52 +6,63 @@ This module contains functions for creating visualizations of stop loss paramete
 
 import numpy as np
 import plotly.graph_objects as go
-from typing import Dict, Any
+from numpy.typing import NDArray
+from typing_extensions import TypedDict
+
+class MetricFormat(TypedDict):
+    """Format configuration for metric visualization."""
+    colorscale: str
+    format: str
+    title_suffix: str
+
+class Config(TypedDict, total=False):
+    """Configuration for stop loss visualization.
+    
+    Optional Fields:
+        RELATIVE: Whether to show metrics relative to baseline (default: True)
+    """
+    RELATIVE: bool | None
 
 def create_stop_loss_heatmap(
-    metric_matrices: Dict[str, np.ndarray],
-    stop_loss_range: np.ndarray,
+    metric_matrices: dict[str, NDArray[np.float64]],
+    stop_loss_range: NDArray[np.float64],
     ticker: str,
-    config: Dict[str, Any]
-) -> Dict[str, go.Figure]:
+    config: Config
+) -> dict[str, go.Figure]:
     """
     Create heatmap visualizations for stop loss parameter analysis.
 
     Args:
-        metric_matrices (Dict[str, np.ndarray]: Dictionary containing metric arrays
-        stop_loss_range (np.ndarray): Array of stop loss percentages used
-        ticker (str): Ticker symbol for plot titles
-        config (Dict[str, Any]): Configuration dictionary
+        metric_matrices: Dictionary mapping metric names to their sensitivity arrays
+        stop_loss_range: Array of stop loss percentages tested
+        ticker: Ticker symbol for plot titles
+        config: Strategy configuration including visualization settings
 
     Returns:
-        Dict[str, go.Figure]: Dictionary containing Plotly figures for each metric
+        Dictionary mapping metric names to their interactive heatmap figures
     """
     figures = {}
     
-    metric_formats = {
+    metric_formats: dict[str, MetricFormat] = {
         'trades': {
             'colorscale': 'RdBu',
             'format': '+.0f',
-            'title_suffix': '% vs Baseline',
-            'center': True
+            'title_suffix': '% vs Baseline'
         },
         'returns': {
             'colorscale': 'RdBu',
             'format': '+.1f',
-            'title_suffix': 'pp vs Baseline',
-            'center': True
+            'title_suffix': 'pp vs Baseline'
         },
         'sharpe_ratio': {
             'colorscale': 'RdBu',
             'format': '+.0f',
-            'title_suffix': '% vs Baseline',
-            'center': True
+            'title_suffix': '% vs Baseline'
         },
         'win_rate': {
             'colorscale': 'RdBu',
             'format': '+.1f',
-            'title_suffix': 'pp vs Baseline',
-            'center': True
+            'title_suffix': 'pp vs Baseline'
         }
     }
     
@@ -59,37 +70,17 @@ def create_stop_loss_heatmap(
     for metric_name, array in metric_matrices.items():
         format_info = metric_formats[metric_name]
         
-        # Conditionally set title suffix and visualization parameters based on config['RELATIVE']
-        if config.get('RELATIVE', True):
-            title_suffix = format_info['title_suffix']
-            colorscale = format_info['colorscale']
-            center = format_info['center']
-        else:
-            title_suffix = ''
-            colorscale = 'ice'
-            center = False
+        # Set visualization parameters
+        title_suffix = format_info['title_suffix'] if config.get('RELATIVE', True) else ''
+        colorscale = format_info['colorscale'] if config.get('RELATIVE', True) else 'ice'
             
-        # Ensure no NaN values
+        # Ensure no NaN values and reshape for heatmap
         array = np.nan_to_num(array, 0)
-        
-        # Reshape array for heatmap (add dummy y-axis)
         heatmap_data = array.reshape(1, -1)
         
-        # Calculate z-axis range based on actual data
+        # Use actual data range
         zmin, zmax = heatmap_data.min(), heatmap_data.max()
-        
-        # Handle color scale range based on mode
-        if config.get('RELATIVE', True):
-            # For relative mode, use symmetrical range if data has both positive and negative values
-            if center and zmin < 0 and zmax > 0:
-                abs_max = max(abs(zmin), abs(zmax))
-                zmin, zmax = -abs_max, abs_max
-                zmid = 0
-            else:
-                zmid = None
-        else:
-            # For absolute mode, use actual data range
-            zmid = None
+        print(f"\nDebug - {metric_name} range: {zmin:.2f} to {zmax:.2f}")
         
         fig = go.Figure()
         
@@ -98,7 +89,6 @@ def create_stop_loss_heatmap(
             z=heatmap_data,
             x=stop_loss_range,
             colorscale=colorscale,
-            zmid=zmid,
             zmin=zmin,
             zmax=zmax,
             colorbar=dict(

@@ -5,7 +5,41 @@ This module provides centralized TypedDict definitions for configuration
 across the MA cross strategy modules.
 """
 
-from typing import TypedDict, NotRequired, Union, List
+from typing import TypedDict, NotRequired, Union, List, Literal
+
+class HeatmapConfig(TypedDict, total=False):
+    """
+    Configuration type definition for heatmap generation.
+
+    Required Fields:
+        TICKER (str): Ticker symbol to analyze
+        WINDOWS (int): Maximum window size for parameter analysis
+        BASE_DIR (str): Base directory for file operations
+
+    Optional Fields:
+        USE_CURRENT (NotRequired[bool]): Whether to emphasize current window combinations
+        USE_BEST_PORTFOLIO (NotRequired[bool]): Whether to use best portfolios directory
+        USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average instead of EMA
+        TICKER_1 (NotRequired[str]): First ticker for synthetic pairs
+        TICKER_2 (NotRequired[str]): Second ticker for synthetic pairs
+        USE_HOURLY (NotRequired[bool]): Whether to use hourly data
+        USE_SYNTHETIC (NotRequired[bool]): Whether to use synthetic pairs
+        REFRESH (NotRequired[bool]): Whether to refresh existing results
+        DIRECTION (NotRequired[Literal["Long", "Short"]]): Trading direction
+    """
+    TICKER: str
+    WINDOWS: int
+    BASE_DIR: str
+    USE_CURRENT: NotRequired[bool]
+    USE_BEST_PORTFOLIO: NotRequired[bool]
+    USE_SMA: NotRequired[bool]
+    TICKER_1: NotRequired[str]
+    TICKER_2: NotRequired[str]
+    USE_HOURLY: NotRequired[bool]
+    USE_SYNTHETIC: NotRequired[bool]
+    REFRESH: NotRequired[bool]
+    DIRECTION: NotRequired[Literal["Long", "Short"]]
+
 
 class Config(TypedDict, total=False):
     """

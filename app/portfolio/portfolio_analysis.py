@@ -161,7 +161,7 @@ def main() -> None:
         # TOTAL_PORTFOLIO_VALUE = 100000
 
         TICKERS = [
-            'AAPL', 'NTES', 'APTV', 'DXCM','ROST', 'MNST', 'WST', 'TDG', 'QCOM', 'ENPH', 'OKTA', 'NVDA'
+            'AAPL', 'NTES', 'APTV', 'DXCM','ROST', 'WST', 'QCOM', 'OKTA', 'CNC'
         ]
         
         # Calculate weights dynamically based on number of tickers

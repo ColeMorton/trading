@@ -6,54 +6,66 @@ This module contains functions for creating heatmap visualizations of RSI parame
 
 import numpy as np
 import plotly.graph_objects as go
-from typing import Dict, Any
+from numpy.typing import NDArray
+from typing_extensions import TypedDict
+
+class MetricFormat(TypedDict):
+    """Format configuration for metric visualization."""
+    colorscale: str
+    format: str
+    title_suffix: str
+    center: bool
+
+class Config(TypedDict, total=False):
+    """Configuration for RSI visualization.
+    
+    Optional Fields:
+        RELATIVE: Whether to show metrics relative to baseline (default: True)
+    """
+    RELATIVE: bool | None
 
 def create_rsi_heatmap(
-    metric_matrices: Dict[str, np.ndarray],
-    rsi_thresholds: np.ndarray,
-    rsi_windows: np.ndarray,
+    metric_matrices: dict[str, NDArray[np.float64]],
+    rsi_thresholds: NDArray[np.float64],
+    rsi_windows: NDArray[np.float64],
     ticker: str,
-    config: Dict[str, Any]
-) -> Dict[str, go.Figure]:
+    config: Config
+) -> dict[str, go.Figure]:
     """
     Create heatmap figures for RSI parameter analysis.
 
     Args:
-        metric_matrices (Dict[str, np.ndarray]): Dictionary containing metric matrices
-        rsi_thresholds (np.ndarray): Array of RSI thresholds used
-        rsi_windows (np.ndarray): Array of RSI window lengths used
-        ticker (str): Ticker symbol for plot titles
-        config (Dict[str, Any]): Strategy configuration
+        metric_matrices: Dictionary mapping metric names to their parameter sensitivity matrices
+        rsi_thresholds: Array of RSI threshold values tested
+        rsi_windows: Array of RSI window lengths tested
+        ticker: Ticker symbol for plot titles
+        config: Strategy configuration including visualization settings
 
     Returns:
-        Dict[str, go.Figure]: Dictionary containing Plotly figures for each metric
+        Dictionary mapping metric names to their interactive heatmap figures
     """
     figures = {}
     
-    metric_formats = {
+    metric_formats: dict[str, MetricFormat] = {
         'trades': {
             'colorscale': 'RdBu',
             'format': '+.0f',
-            'title_suffix': '% vs Baseline',
-            'center': True
+            'title_suffix': '% vs Baseline'
         },
         'returns': {
             'colorscale': 'RdBu',
             'format': '+.1f',
-            'title_suffix': 'pp vs Baseline',
-            'center': True
+            'title_suffix': 'pp vs Baseline'
         },
         'sharpe_ratio': {
             'colorscale': 'RdBu',
             'format': '+.0f',
-            'title_suffix': '% vs Baseline',
-            'center': True
+            'title_suffix': '% vs Baseline'
         },
         'win_rate': {
             'colorscale': 'RdBu',
             'format': '+.1f',
-            'title_suffix': 'pp vs Baseline',
-            'center': True
+            'title_suffix': 'pp vs Baseline'
         }
     }
     
@@ -67,19 +79,34 @@ def create_rsi_heatmap(
         else:
             title_suffix = ''
 
-        abs_max = max(abs(matrix.min()), abs(matrix.max())) if format_info['center'] else None
-        zmin, zmax = (-abs_max, abs_max) if format_info['center'] else (matrix.min(), matrix.max())
+        # Calculate z-axis range based on actual data
+        zmin, zmax = matrix.min(), matrix.max()
+        print(f"\nDebug - {metric_name} raw range: {zmin:.2f} to {zmax:.2f}")
         
+        # Always use asymmetrical range based on actual data
+        zmid = None
+        print(f"Debug - Using range: {zmin:.2f} to {zmax:.2f}")
+        
+        # Create hover text matrix
+        hover_text = [[
+            f"RSI Window: {window:.0f}<br>"
+            f"RSI Threshold: {threshold:.0f}<br>"
+            f"{metric_name.capitalize().replace('_', ' ')}: {value:{format_info['format']}}{title_suffix}"
+            for threshold, value in zip(rsi_thresholds, row)
+        ] for window, row in zip(rsi_windows, matrix)]
+
         fig.add_trace(go.Heatmap(
             z=matrix,
             x=rsi_thresholds,
             y=rsi_windows,
-            colorscale=format_info['colorscale'],
-            zmid=0 if format_info['center'] else None,
+            colorscale=format_info['colorscale'] if config.get('RELATIVE', True) else 'ice',
+            zmid=zmid,
             zmin=zmin,
             zmax=zmax,
+            hovertext=hover_text,
+            hoverinfo='text',
             colorbar=dict(
-                title=f"{metric_name.capitalize().replace('_', ' ')} {title_suffix}", # Use conditional title_suffix
+                title=f"{metric_name.capitalize().replace('_', ' ')} {title_suffix}",
                 tickformat=format_info['format']
             )
         ))

@@ -13,7 +13,7 @@ def run(config: HeatmapConfig = {
     "USE_CURRENT": False,
     "USE_BEST_PORTFOLIO": False,  # Default to regular portfolios directory
     "USE_SMA": False,
-    "TICKER": 'NVDA',
+    "TICKER": 'PFE',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,
