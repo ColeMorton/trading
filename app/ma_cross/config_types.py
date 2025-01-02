@@ -79,25 +79,15 @@ class Config(TypedDict, total=False):
     # Advanced Options
     USE_GBM: NotRequired[bool]
 
-sp100_group6 = [
-    "SO",    # Southern Company
-    "GE",    # General Electric
-    "TJX",   # TJX Companies
-    "MMC",   # Marsh & McLennan
-    "LOW",   # Lowe's
-    "SLB",   # Schlumberger
-    "CI",    # Cigna
-    "NOC",   # Northrop Grumman
-    "MO"     # Altria Group
-]
-
 # Default configuration
 DEFAULT_CONFIG: Config = {
-    "TICKER": sp100_group6,
+    "TICKER": ['APA','OXY','CAG','REGN','CNC','PFE','AMGN','MCD','NI','MNST'],
+    "TICKER_1": 'SUI20947-USD',
+    "TICKER_2": 'SOL-USD',
     "WINDOWS": 89,
     "SCANNER_LIST": "DAILY.csv",
     "BASE_DIR": ".",
-    "USE_SCANNER": False,
+    "USE_SCANNER": True,
     "REFRESH": False,
     "USE_SMA": False,
     "DIRECTION": "Long",
@@ -105,7 +95,7 @@ DEFAULT_CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     "MIN_WIN_RATE": 0.34,
     "MIN_TRADES": 34,
     "SORT_BY": "Expectancy Adjusted",

@@ -1,6 +1,7 @@
 import polars as pl
 import numpy as np
 from typing import List, Dict, Callable
+from datetime import datetime
 from app.tools.get_data import get_data
 from app.tools.get_config import get_config
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
@@ -81,16 +82,16 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
         DataFrame containing current signals
     """
     try:
+        from app.ma_cross.tools.signal_utils import set_last_trading_day
+        
         config = get_config(config)
-
-        # Create distinct integer values for windows starting at 2 for both ranges and convert to lists
-        short_windows = list(np.arange(2, config["WINDOWS"]))
-        long_windows = list(np.arange(2, config["WINDOWS"]))
-
-        # Handle potential tuple return from get_data for synthetic pairs
-        data_result = get_data(config["TICKER"], config, log)
+        config_copy = config.copy()
+        config_copy["USE_CURRENT"] = True  # Ensure holiday check is enabled
+        
+        # Get data for the actual ticker first to determine last trading day
+        data_result = get_data(config["TICKER"], config_copy, log)
         if isinstance(data_result, tuple):
-            data, _ = data_result  # Unpack tuple, ignore synthetic_ticker
+            data, _ = data_result
         else:
             data = data_result
 
@@ -102,6 +103,29 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
                     "Long Window": pl.Int32
                 }
             )
+            
+        # Set the last trading day from the data
+        last_date = data["Date"].max()
+        if isinstance(last_date, datetime):
+            last_date = last_date.date()
+        elif isinstance(last_date, str):
+            try:
+                # Try parsing with timestamp first
+                last_date = datetime.strptime(last_date, "%Y-%m-%d %H:%M:%S").date()
+            except ValueError:
+                try:
+                    # Try parsing with just date if timestamp fails
+                    last_date = datetime.strptime(last_date, "%Y-%m-%d").date()
+                except ValueError:
+                    # Try parsing ISO format if both above fail
+                    last_date = datetime.fromisoformat(last_date).date()
+        
+        log(f"Using last trading day: {last_date}")
+        set_last_trading_day(last_date)
+        
+        # Create distinct integer values for windows
+        short_windows = list(np.arange(2, config["WINDOWS"]))
+        long_windows = list(np.arange(2, config["WINDOWS"]))
 
         current_signals = get_current_signals(data, short_windows, long_windows, config, log)
 
