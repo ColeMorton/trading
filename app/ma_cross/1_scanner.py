@@ -6,12 +6,11 @@ based on EMA/SMA crossover signals. It supports both daily and hourly data analy
 and can handle both new scans and updates to existing results.
 """
 
-import os
 import polars as pl
 from typing import TypedDict, NotRequired
 from app.tools.setup_logging import setup_logging
 from app.tools.get_config import get_config
-from tools.scanner_processing import (
+from app.ma_cross.tools.scanner_processing import (
     load_existing_results,
     process_ticker,
     export_results
@@ -54,8 +53,8 @@ class Config(TypedDict):
 config: Config = {
     "WINDOWS": 89,
     # "SCANNER_LIST": 'HOURLY Crypto.csv',
-    # "SCANNER_LIST": 'DAILY Crypto.csv',
-    "SCANNER_LIST": 'QQQ_SPY100.csv',
+    "SCANNER_LIST": 'DAILY.csv',
+    # "SCANNER_LIST": 'QQQ_SPY100.csv',
     "USE_HOURLY": False,
     "REFRESH": False,
     "DIRECTION": "Long"  # Default to Long position
