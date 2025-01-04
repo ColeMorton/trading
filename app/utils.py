@@ -8,10 +8,8 @@ visualization, and analysis.
 import polars as pl
 import numpy as np
 from datetime import datetime
-from typing import Tuple, Dict, Any, List, Optional, Union
-import pandas as pd
+from typing import Tuple, Dict, Any, List, Optional, Callable
 import vectorbt as vbt
-import logging
 import os
 
 def calculate_metrics(trades: List[Tuple[float, float]], short: bool) -> Tuple[float, float, float]:
@@ -87,7 +85,11 @@ def add_peak_labels(
             arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=0')
         )
 
-def backtest_strategy(data: pl.DataFrame, config: Dict[str, Any]) -> Optional[vbt.Portfolio]:
+def backtest_strategy(
+        data: pl.DataFrame,
+        config: Dict[str, Any],
+        log: Callable[[str, str], None]
+    ) -> Optional[vbt.Portfolio]:
     """Backtest the MA cross strategy.
     
     Args:
@@ -125,11 +127,11 @@ def backtest_strategy(data: pl.DataFrame, config: Dict[str, Any]) -> Optional[vb
                 freq=freq
             )
         
-        logging.info("Backtest completed successfully")
+        log("Backtest completed successfully", "info")
         return portfolio
         
     except Exception as e:
-        logging.error(f"Backtest failed: {e}")
+        log(f"Backtest failed: {e}", "error")
         raise
 
 def get_filename(type: str, config: Dict[str, Any], path: str = "") -> str:

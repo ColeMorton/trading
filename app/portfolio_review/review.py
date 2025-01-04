@@ -98,6 +98,17 @@ CONFIG_OP = {
     "WINDOWS": 89
 }
 
+CONFIG = {
+    "YEARS": 30,
+    "USE_YEARS": False,
+    "PERIOD": 'max',
+    "USE_HOURLY": False,
+    "SHORT": False,
+    "USE_GBM": False,
+    "BASE_DIR": 'C:/Projects/trading',
+    "WINDOWS": 89
+}
+
 def run(config_dict):
     """
     Run portfolio review analysis.
