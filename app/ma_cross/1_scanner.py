@@ -22,7 +22,6 @@ class Config(TypedDict):
 
     Required Fields:
         TICKER (str): Ticker symbol to analyze
-        WINDOWS (int): Maximum window size for parameter analysis
         SCANNER_LIST (str): Name of the scanner list file
 
     Optional Fields:
@@ -37,7 +36,6 @@ class Config(TypedDict):
         TICKER_2 (NotRequired[str]): Second ticker for synthetic pairs
     """
     TICKER: str
-    WINDOWS: int
     SCANNER_LIST: str
     DIRECTION: NotRequired[str]
     USE_SMA: NotRequired[bool]
@@ -51,10 +49,9 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "WINDOWS": 89,
     # "SCANNER_LIST": 'HOURLY Crypto.csv',
-    "SCANNER_LIST": 'DAILY.csv',
-    # "SCANNER_LIST": 'QQQ_SPY100.csv',
+    # "SCANNER_LIST": 'DAILY.csv',
+    "SCANNER_LIST": 'QQQ_SPY100.csv',
     "USE_HOURLY": False,
     "REFRESH": False,
     "DIRECTION": "Long"  # Default to Long position
@@ -72,8 +69,6 @@ def validate_config(config: Config) -> None:
     """
     if not config.get("SCANNER_LIST"):
         raise ValueError("SCANNER_LIST must be specified")
-    if config.get("WINDOWS", 0) < 2:
-        raise ValueError("WINDOWS must be greater than 1")
     if config.get("DIRECTION") not in [None, "Long", "Short"]:
         raise ValueError("DIRECTION must be either 'Long' or 'Short'")
 

@@ -123,11 +123,29 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
         log(f"Using last trading day: {last_date}")
         set_last_trading_day(last_date)
         
-        # Create distinct integer values for windows
-        short_windows = list(np.arange(2, config["WINDOWS"]))
-        long_windows = list(np.arange(2, config["WINDOWS"]))
-
-        current_signals = get_current_signals(data, short_windows, long_windows, config, log)
+        # Check if specific windows are provided
+        short_window = config.get("SHORT_WINDOW")
+        long_window = config.get("LONG_WINDOW")
+        
+        if short_window is not None and long_window is not None:
+            # Use specific windows from config
+            current_signals = get_current_signals(data, [short_window], [long_window], config, log)
+        else:
+            # Use window permutations if WINDOWS is provided
+            windows = config.get("WINDOWS")
+            if windows is None or windows < 2:
+                log("Missing or invalid WINDOWS parameter", "error")
+                return pl.DataFrame(
+                    schema={
+                        "Short Window": pl.Int32,
+                        "Long Window": pl.Int32
+                    }
+                )
+            
+            # Create distinct integer values for windows
+            short_windows = list(np.arange(2, windows))
+            long_windows = list(np.arange(2, windows))
+            current_signals = get_current_signals(data, short_windows, long_windows, config, log)
 
         if not config.get("USE_SCANNER", False):
             export_csv(current_signals, "ma_cross", config, 'current_signals')
@@ -171,7 +189,9 @@ def process_ma_signals(
     ma_config = config.copy()
     ma_config.update({
         "TICKER": ticker,
-        "USE_SMA": ma_type == "SMA"
+        "USE_SMA": ma_type == "SMA",
+        "SHORT_WINDOW": fast_window,
+        "LONG_WINDOW": slow_window
     })
     
     signals = generate_current_signals(ma_config, log)

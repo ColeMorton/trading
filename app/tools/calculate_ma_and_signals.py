@@ -30,7 +30,7 @@ def calculate_ma_and_signals(
     
     try:
         # Calculate moving averages
-        data = calculate_mas(data, short_window, long_window, config.get('USE_SMA', False))
+        data = calculate_mas(data, short_window, long_window, config.get('USE_SMA', False), log)
         
         # Calculate RSI if needed
         if config.get('USE_RSI', False):

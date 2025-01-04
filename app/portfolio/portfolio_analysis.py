@@ -3,14 +3,12 @@ import os
 import polars as pl
 import yfinance as yf
 import numpy as np
-import pandas as pd
 import matplotlib
 matplotlib.use('TkAgg')  # Set interactive backend
-import matplotlib.pyplot as plt
-from skfolio import PerfMeasure, RiskMeasure
+from skfolio import RiskMeasure
 from skfolio.optimization import MeanRisk, ObjectiveFunction
 from skfolio.preprocessing import prices_to_returns as sk_prices_to_returns
-from app.tools.setup_logging import setup_logging, get_project_root
+from app.tools.setup_logging import setup_logging
 
 class PortfolioConfig(TypedDict):
     """Portfolio optimization configuration.
@@ -156,12 +154,18 @@ def main() -> None:
     
     try:
         # The max VaR for any individual position should not exclude the current Kelly Criterion risk amount (this accounts for 1.33x upper bound)
-        # Current: 109.615310357099
-        TOTAL_PORTFOLIO_VALUE = 14419
-        # TOTAL_PORTFOLIO_VALUE = 100000
+        # Current: 115
+
+        # Stock Portfolio
+        TOTAL_PORTFOLIO_VALUE = 13639.330244592951
+
+        # Investment Portfolio (Crypto + Stock)
+        # TOTAL_PORTFOLIO_VALUE = 83500
 
         TICKERS = [
-            'AAPL', 'NTES', 'APTV', 'DXCM','ROST', 'WST', 'QCOM', 'OKTA', 'CNC'
+            'AAPL', 'NTES', 'APTV', 'DXCM','ROST', 'WST', 'OKTA', 'CNC', 'MCD'
+            # 'BTC-USD', 'SOL-USD'
+            # 'SPY', 'QQQ', 'BTC-USD', 'SOL-USD'
         ]
         
         # Calculate weights dynamically based on number of tickers

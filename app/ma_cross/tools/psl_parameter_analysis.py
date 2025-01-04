@@ -93,7 +93,7 @@ def analyze_protective_stop_loss_parameters(
         
         # Calculate and store metrics
         calculate_portfolio_metrics(pf, metrics, i)
-        portfolios.append(create_portfolio_stats(pf, holding_period))
+        portfolios.append(create_portfolio_stats(pf, holding_period, config, log))
 
     # Export results
     filename = create_filename(config)

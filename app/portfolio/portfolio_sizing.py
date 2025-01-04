@@ -1,6 +1,9 @@
 import numpy as np
 import yfinance as yf
 
+# SPY CFD Margin Ratio: 7.5
+# QQQ CFD Margin Ratio: 7.6
+
 # Define parameters
 # TOTAL_PORTFOLIO_VALUE = 7100  # target 1
 # # TOTAL_PORTFOLIO_VALUE = 10000  # target 2
@@ -14,14 +17,14 @@ import yfinance as yf
 # ASSET_1_ALLOCATION = 50 # Target allocation for Asset 1 (as a percentage)
 # VAR_CONFIDENCE_LEVELS = [0.95, 0.99]
 
-TOTAL_PORTFOLIO_VALUE = 9100  # target
+TOTAL_PORTFOLIO_VALUE = 9343  # target
 ASSET_1_TICKER = "BTC-USD"
 ASSET_2_TICKER = "SOL-USD"
 ASSET_1_LEVERAGE = 4.7  # Example leverage factor for Asset 1
 ASSET_2_LEVERAGE = 3.2  # Example leverage factor for Asset 2
 USE_EMA = False
 EMA_PERIOD = 21
-ASSET_1_ALLOCATION = 50 # Target allocation for Asset 1 (as a percentage)
+ASSET_1_ALLOCATION = 53.965274519 # Target allocation for Asset 1 (as a percentage)
 VAR_CONFIDENCE_LEVELS = [0.95, 0.99]
 
 # TOTAL_PORTFOLIO_VALUE = 8500  # target

@@ -30,7 +30,8 @@ def prepare_data(data: pl.DataFrame, config: PSLConfig, log: Callable) -> Tuple[
         data, 
         config['SHORT_WINDOW'], 
         config['LONG_WINDOW'], 
-        config.get('USE_SMA', False)
+        config.get('USE_SMA', False),
+        log
     )
     
     # Calculate RSI if enabled

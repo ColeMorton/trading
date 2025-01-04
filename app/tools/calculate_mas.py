@@ -1,6 +1,13 @@
 import polars as pl
+from typing import Callable
 
-def calculate_mas(data: pl.DataFrame, fast_window: int, slow_window: int, use_sma: bool = False) -> pl.DataFrame:
+def calculate_mas(
+        data: pl.DataFrame,
+        fast_window: int,
+        slow_window: int,
+        use_sma: bool,
+        log: Callable
+    ) -> pl.DataFrame:
     """Calculate Moving Averages (SMA or EMA).
     
     Args:
@@ -12,8 +19,8 @@ def calculate_mas(data: pl.DataFrame, fast_window: int, slow_window: int, use_sm
     Returns:
         DataFrame with MA columns added
     """
-    print(f"Calculating {'SMA' if use_sma else 'EMA'} with windows {fast_window}, {slow_window}")
-    print(f"Input data shape: {data.shape}")
+    log(f"Calculating {'SMA' if use_sma else 'EMA'} with windows {fast_window}, {slow_window}")
+    log(f"Input data shape: {data.shape}")
     
     if use_sma:
         result = data.with_columns([
@@ -29,6 +36,6 @@ def calculate_mas(data: pl.DataFrame, fast_window: int, slow_window: int, use_sm
     # Count non-null values in MA columns
     valid_fast = result.select(pl.col("MA_FAST").is_not_null()).sum().item()
     valid_slow = result.select(pl.col("MA_SLOW").is_not_null()).sum().item()
-    print(f"Valid MA points - Fast: {valid_fast}, Slow: {valid_slow}")
+    log(f"Valid MA points - Fast: {valid_fast}, Slow: {valid_slow}")
     
     return result
