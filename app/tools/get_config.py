@@ -1,6 +1,6 @@
 def get_config(config: dict) -> dict:
     if config.get('USE_SYNTHETIC', False) == True:
-        config["TICKER"] = f"{config['TICKER_1']}{config['TICKER_2']}"
+        config["TICKER"] = f"{config['TICKER_1']}_{config['TICKER_2']}"
 
     if not config.get('BASE_DIR'):
         config["BASE_DIR"] = 'C:/Projects/trading'

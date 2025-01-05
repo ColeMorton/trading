@@ -49,7 +49,7 @@ def run(config: Config = DEFAULT_CONFIG) -> bool:
             if not config.get("TICKER_1") or not config.get("TICKER_2"):
                 raise ValueError("TICKER_1 and TICKER_2 must be provided when USE_SYNTHETIC is True")
             synthetic_ticker = f"{config['TICKER_1']}_{config['TICKER_2']}"
-            log(f"Processing strategy for synthetic pair: {config['TICKER_1']}/{config['TICKER_2']}")
+            log(f"Processing strategy for synthetic pair: {config['TICKER_1']}_{config['TICKER_2']}")
             # Create a modified config with the synthetic pair settings
             synthetic_config = {**config}
             synthetic_config["TICKER"] = synthetic_ticker  # Set synthetic ticker for file naming
@@ -94,7 +94,7 @@ def run_both_strategies() -> bool:
             if not config_copy.get("TICKER_1") or not config_copy.get("TICKER_2"):
                 raise ValueError("TICKER_1 and TICKER_2 must be provided when USE_SYNTHETIC is True")
             synthetic_ticker = f"{config_copy['TICKER_1']}_{config_copy['TICKER_2']}"
-            log(f"Processing strategies for synthetic pair: {config_copy['TICKER_1']}/{config_copy['TICKER_2']}")
+            log(f"Processing strategies for synthetic pair: {config_copy['TICKER_1']}_{config_copy['TICKER_2']}")
             base_config = {**config_copy}
             base_config["TICKER"] = synthetic_ticker  # Set synthetic ticker for file naming
         else:

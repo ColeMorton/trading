@@ -56,7 +56,7 @@ def get_data(ticker: str, config: DataConfig, log: Callable) -> Union[pl.DataFra
         Returns tuple of (DataFrame, synthetic_ticker) when using synthetic pairs.
     """
     try:
-        log(f"Initiating data retrieval for {ticker}")
+        log(f"Initiating data retrieval for {ticker}", "info")
         
         if config.get('USE_GBM', False):
             log("Using Geometric Brownian Motion simulation")

@@ -30,7 +30,9 @@ def process_single_ticker(
     """
     # Create a config copy with single ticker
     ticker_config = config.copy()
-    ticker_config["TICKER"] = ticker
+    # Ensure synthetic tickers use underscore format
+    formatted_ticker = ticker.replace('/', '_') if isinstance(ticker, str) else ticker
+    ticker_config["TICKER"] = formatted_ticker
     ticker_config["USE_MA"] = True  # Ensure USE_MA is set for proper filename suffix
     
     # Process portfolios for ticker
@@ -115,7 +117,9 @@ def execute_strategy(
     for ticker in tickers:
         log(f"Processing {strategy_type} strategy for ticker: {ticker}")
         ticker_config = config.copy()
-        ticker_config["TICKER"] = ticker
+        # Ensure synthetic tickers use underscore format
+        formatted_ticker = ticker.replace('/', '_') if isinstance(ticker, str) else ticker
+        ticker_config["TICKER"] = formatted_ticker
         best_portfolio = process_single_ticker(ticker, ticker_config, log)
         if best_portfolio is not None:
             best_portfolios.append(best_portfolio)

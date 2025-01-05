@@ -57,11 +57,14 @@ def process_single_ticker(
     log(f"Number of window combinations to analyze: {len(short_windows) * len(long_windows)}")
 
     log(f"Getting data...")
-    data_result = get_data(ticker, config_copy, log)
+    # Ensure synthetic tickers use underscore format
+    formatted_ticker = ticker.replace('/', '_') if isinstance(ticker, str) else ticker
+    data_result = get_data(formatted_ticker, config_copy, log)
     
     # Handle potential tuple return from get_data for synthetic pairs
     if isinstance(data_result, tuple):
-        data, _ = data_result  # Unpack tuple, ignore synthetic_ticker
+        data, synthetic_ticker = data_result  # Unpack tuple and use synthetic_ticker
+        config_copy["TICKER"] = synthetic_ticker  # Update config with synthetic ticker
     else:
         data = data_result
     

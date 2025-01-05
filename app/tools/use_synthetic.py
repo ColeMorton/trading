@@ -31,10 +31,29 @@ def use_synthetic(ticker1: str, ticker2: str, config: DataConfig, log: Callable)
         log(f"Merged data contains {len(data_merged)} rows")
 
         log("Calculating synthetic pair ratios")
+        
+        # Create a new DataFrame with the expressions evaluated
+        data_merged = data_merged.with_columns([
+            # Handle Open prices - fill nulls with Close prices
+            pl.col('Open').fill_null(pl.col('Close')).alias('Open_clean'),
+            pl.col('Open_2').fill_null(pl.col('Close_2')).alias('Open_2_clean'),
+        ]).with_columns([
+            # Replace zeros with Close prices
+            pl.when(pl.col('Open_clean') == 0)
+              .then(pl.col('Close'))
+              .otherwise(pl.col('Open_clean'))
+              .alias('Open_final'),
+            pl.when(pl.col('Open_2_clean') == 0)
+              .then(pl.col('Close_2'))
+              .otherwise(pl.col('Open_2_clean'))
+              .alias('Open_2_final')
+        ])
+        
+        # Calculate ratios with clean data
         data = pl.DataFrame({
             'Date': data_merged['Date'],
             'Close': (data_merged['Close'] / data_merged['Close_2']).cast(pl.Float64),
-            'Open': (data_merged['Open'] / data_merged['Open_2']).cast(pl.Float64),
+            'Open': (data_merged['Open_final'] / data_merged['Open_2_final']).cast(pl.Float64),
             'High': (data_merged['High'] / data_merged['High_2']).cast(pl.Float64),
             'Low': (data_merged['Low'] / data_merged['Low_2']).cast(pl.Float64),
             'Volume': data_merged['Volume'].cast(pl.Float64)  # Keep original volume
@@ -44,7 +63,7 @@ def use_synthetic(ticker1: str, ticker2: str, config: DataConfig, log: Callable)
         log(f"Date range: {data['Date'].min()} to {data['Date'].max()}")
         log(f"Ratio range: {data['Close'].min():.4f} to {data['Close'].max():.4f}")
 
-        synthetic_ticker = f"{ticker1}/{ticker2}"
+        synthetic_ticker = f"{ticker1}_{ticker2}"
         
         # Export synthetic pair data directly with custom filename
         export_path = os.path.join(config.get('BASE_DIR', '.'), 'csv', 'price_data')

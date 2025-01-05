@@ -53,9 +53,13 @@ def _get_ticker_prefix(config: ExportConfig) -> str:
         
     ticker = config["TICKER"]
     if isinstance(ticker, str):
-        return f"{ticker}_"
+        # Ensure synthetic tickers use underscore format
+        formatted_ticker = ticker.replace('/', '_')
+        return f"{formatted_ticker}_"
     elif isinstance(ticker, list) and len(ticker) == 1:
-        return f"{ticker[0]}_"
+        # Handle single ticker from list
+        formatted_ticker = ticker[0].replace('/', '_')
+        return f"{formatted_ticker}_"
     return ""
 
 def _get_filename_components(config: ExportConfig, feature1: str = "", feature2: str = "") -> List[str]:

@@ -35,9 +35,17 @@ def process_current_signals(ticker: str, config: Config, log: Callable) -> Optio
         log(f"Current signals for {ticker} {'SMA' if config.get('USE_SMA', False) else 'EMA'}")
         
         # Get and validate price data
-        data = get_data(ticker, config_copy, log)
+        # Ensure synthetic tickers use underscore format
+        formatted_ticker = ticker.replace('/', '_') if isinstance(ticker, str) else ticker
+        data_result = get_data(formatted_ticker, config_copy, log)
+        if isinstance(data_result, tuple):
+            data, synthetic_ticker = data_result
+            config_copy["TICKER"] = synthetic_ticker  # Update config with synthetic ticker
+        else:
+            data = data_result
+            
         if data is None:
-            log(f"Failed to get price data for {ticker}", "error")
+            log(f"Failed to get price data for {config_copy['TICKER']}", "error")
             return None
         
         # Analyze each window combination
