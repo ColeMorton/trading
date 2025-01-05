@@ -144,8 +144,8 @@ def get_portfolio_path(config: dict) -> str:
     base_dir = 'portfolios_best' if is_best_portfolio else 'portfolios'
     path_components = [f'csv/ma_cross/{base_dir}/']
 
-    # Only include date in path for portfolios_best
-    if is_best_portfolio and config.get("USE_CURRENT", False):
+    # Include date in path when USE_CURRENT is True
+    if config.get("USE_CURRENT", False):
         today = datetime.now().strftime("%Y%m%d")
         path_components.append(today)
 
