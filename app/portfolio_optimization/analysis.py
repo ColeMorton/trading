@@ -1,5 +1,4 @@
 from typing import TypedDict, List, Dict
-import os
 import polars as pl
 import yfinance as yf
 import numpy as np
@@ -9,8 +8,14 @@ from skfolio import RiskMeasure
 from skfolio.optimization import MeanRisk, ObjectiveFunction
 from skfolio.preprocessing import prices_to_returns as sk_prices_to_returns
 from app.tools.setup_logging import setup_logging
+from app.portfolio_optimization.tools.portfolio_config import (
+    load_portfolio_config,
+    get_portfolio_value,
+    get_portfolio_tickers,
+    PortfolioConfig as BasePortfolioConfig
+)
 
-class PortfolioConfig(TypedDict):
+class OptimizationConfig(TypedDict):
     """Portfolio optimization configuration.
 
     Required Fields:
@@ -153,28 +158,19 @@ def main() -> None:
     log, log_close, _, _ = setup_logging("portfolio", "analysis.log")
     
     try:
-        # The max VaR for any individual position should not exclude the current Kelly Criterion risk amount (this accounts for 1.33x upper bound)
-        # Current: 115
-
-        # Stock Portfolio
-        # TOTAL_PORTFOLIO_VALUE = 22958.68
-        TOTAL_PORTFOLIO_VALUE = 50000
-
-        # Investment Portfolio (Crypto + Stock)
-        # TOTAL_PORTFOLIO_VALUE = 83500
-
-        TICKERS = [
-            # 'AAPL', 'NTES', 'APTV', 'DXCM', 'ROST', 'WST', 'OKTA', 'CNC', 'MCD', 'LRCX', 'FTNT'
-            # 'BTC-USD', 'SOL-USD'
-            'SPY', 'QQQ', 'BTC-USD', 'SOL-USD'
-        ]
+        # Load portfolio configuration
+        portfolio_config = load_portfolio_config("spy_qqq_btc_sol.json")
+        
+        # Get portfolio value and tickers
+        TOTAL_PORTFOLIO_VALUE = get_portfolio_value(portfolio_config)
+        TICKERS = get_portfolio_tickers(portfolio_config)
         
         # Calculate weights dynamically based on number of tickers
         equal_weight = 1.0 / len(TICKERS)
         min_weight = equal_weight * (2/3)  # Makes max_weight twice min_weight while averaging to equal_weight
         max_weight = min_weight * 2
         
-        config: PortfolioConfig = {
+        config: OptimizationConfig = {
             "min_weight": min_weight,
             "max_weight": max_weight,
             "risk_free_rate": 0.0

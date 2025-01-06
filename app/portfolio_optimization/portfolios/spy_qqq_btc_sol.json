@@ -1,7 +1,7 @@
 {
     "initial_value": 22958.68,
     "target_value": 50000,
-    "use_target_value": true,
+    "use_target_value": false,
     "portfolios": [
         {
             "ticker": "SPY",
@@ -11,17 +11,17 @@
         {
             "ticker": "QQQ",
             "leverage": 7.5,
-            "weight": 24.13
+            "weight": 24.11
         },
         {
             "ticker": "BTC-USD",
             "leverage": 4.7,
-            "weight": 22.99
+            "weight": 23
         },
         {
             "ticker": "SOL-USD",
             "leverage": 3.2,
-            "weight": 19.55
+            "weight": 19.56
         }
     ]
     
