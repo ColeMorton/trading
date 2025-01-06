@@ -16,7 +16,7 @@ from app.portfolio_optimization.tools.portfolio_config import (
 )
 
 config = {
-    "portfolio": "btc_sol.json"
+    "portfolio": "current.json"
 }
 
 class OptimizationConfig(TypedDict):
