@@ -62,8 +62,8 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "TICKER": "MCD",
-    "SHORT_WINDOW": 27,
+    "TICKER": "TMO",
+    "SHORT_WINDOW": 13,
     "LONG_WINDOW": 35,
     "BASE_DIR": ".",
     "USE_SMA": True,
@@ -74,7 +74,7 @@ config: Config = {
     "USE_RSI": False,   
     "RSI_PERIOD": 37,
     "RSI_THRESHOLD": 36,
-    "STOP_LOSS": 0.0406
+    "STOP_LOSS": 0.0484
 }
 
 def run(config: Config = config) -> bool:

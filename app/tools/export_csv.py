@@ -137,7 +137,12 @@ def _combine_with_custom_filename(config: ExportConfig, feature1: str = "", feat
     Returns:
         str: Combined filename
     """
-    # Get standard components
+    # If custom filename is provided and already contains ticker prefix, use it directly
+    ticker_prefix = _get_ticker_prefix(config)
+    if custom_filename.startswith(ticker_prefix):
+        return custom_filename
+        
+    # Otherwise, combine with standard components
     components = _get_filename_components(config, feature1, feature2)
     
     # Split custom filename into name and extension

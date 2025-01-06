@@ -163,9 +163,9 @@ def main() -> None:
         # TOTAL_PORTFOLIO_VALUE = 83500
 
         TICKERS = [
-            'AAPL', 'NTES', 'APTV', 'DXCM','ROST', 'WST', 'OKTA', 'CNC', 'MCD'
+            # 'AAPL', 'NTES', 'APTV', 'DXCM', 'ROST', 'WST', 'OKTA', 'CNC', 'MCD', 'LRCX', 'FTNT'
             # 'BTC-USD', 'SOL-USD'
-            # 'SPY', 'QQQ', 'BTC-USD', 'SOL-USD'
+            'SPY', 'QQQ', 'BTC-USD', 'SOL-USD'
         ]
         
         # Calculate weights dynamically based on number of tickers
