@@ -11,7 +11,7 @@ from app.portfolio_optimization.tools.portfolio_config import (
 
 # Position sizing configuration - values not stored in portfolio JSON
 config: PositionSizingConfig = {
-    "portfolio": "spy_qqq_btc_sol.json",
+    "portfolio": "btc_sol.json",
     "use_ema": False,     # Whether to use EMA for price calculations
     "ema_period": 35,     # Period for EMA if used
     "var_confidence_levels": [0.95, 0.99]
@@ -37,7 +37,7 @@ def main() -> None:
         
         # Calculate position sizes and metrics
         log("Calculating position sizes and metrics", "info")
-        results = calculate_position_sizes(portfolio_config["portfolios"], merged_config, log)
+        results = calculate_position_sizes(portfolio_config["portfolio"], merged_config, log)
         
         # Calculate total leveraged value to check against target if needed
         total_leveraged_value = sum(
@@ -53,7 +53,7 @@ def main() -> None:
             scale_factor = portfolio_config["target_value"] / total_leveraged_value
             
             # Scale down initial values while keeping leverage and allocation same
-            for asset, metrics in zip(portfolio_config["portfolios"], results):
+            for asset, metrics in zip(portfolio_config["portfolio"], results):
                 metrics["initial_value"] *= scale_factor
                 metrics["leveraged_value"] = metrics["initial_value"] * asset["leverage"]
                 metrics["position_size"] *= scale_factor
@@ -62,7 +62,7 @@ def main() -> None:
         log("Displaying results", "info")
         total_leveraged_value = sum(metrics["leveraged_value"] for metrics in results)
         
-        for asset, metrics in zip(portfolio_config["portfolios"], results):
+        for asset, metrics in zip(portfolio_config["portfolio"], results):
             # Modified print_asset_details to skip risk metrics
             print(f"\nAsset: {asset['ticker']}")
             print(f"  Initial (pre-leverage) value: ${metrics['initial_value']:.2f}")

@@ -15,6 +15,10 @@ from app.portfolio_optimization.tools.portfolio_config import (
     PortfolioConfig as BasePortfolioConfig
 )
 
+config = {
+    "portfolio": "btc_sol.json"
+}
+
 class OptimizationConfig(TypedDict):
     """Portfolio optimization configuration.
 
@@ -159,7 +163,7 @@ def main() -> None:
     
     try:
         # Load portfolio configuration
-        portfolio_config = load_portfolio_config("spy_qqq_btc_sol.json")
+        portfolio_config = load_portfolio_config(config["portfolio"])
         
         # Get portfolio value and tickers
         TOTAL_PORTFOLIO_VALUE = get_portfolio_value(portfolio_config)
@@ -170,7 +174,7 @@ def main() -> None:
         min_weight = equal_weight * (2/3)  # Makes max_weight twice min_weight while averaging to equal_weight
         max_weight = min_weight * 2
         
-        config: OptimizationConfig = {
+        optimization_config: OptimizationConfig = {
             "min_weight": min_weight,
             "max_weight": max_weight,
             "risk_free_rate": 0.0
@@ -192,11 +196,11 @@ def main() -> None:
         model = MeanRisk(
             risk_measure=RiskMeasure.SEMI_DEVIATION,
             objective_function=ObjectiveFunction.MAXIMIZE_RATIO,
-            min_weights=config["min_weight"],
-            max_weights=config["max_weight"],
+            min_weights=optimization_config["min_weight"],
+            max_weights=optimization_config["max_weight"],
             portfolio_params=dict(
                 name="Optimized Portfolio",
-                risk_free_rate=config["risk_free_rate"]
+                risk_free_rate=optimization_config["risk_free_rate"]
             )
         )
         

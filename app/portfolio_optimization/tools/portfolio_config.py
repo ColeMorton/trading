@@ -23,12 +23,12 @@ class PortfolioConfig(TypedDict):
         initial_value (float): Initial portfolio value
         target_value (float): Target portfolio value
         use_target_value (bool): Whether to use target value
-        portfolios (List[PortfolioAsset]): List of portfolio assets
+        portfolio (List[PortfolioAsset]): List of portfolio assets
     """
     initial_value: float
     target_value: float
     use_target_value: bool
-    portfolios: List[PortfolioAsset]
+    portfolio: List[PortfolioAsset]
 
 def load_portfolio_config(portfolio_name: str) -> PortfolioConfig:
     """Load portfolio configuration from JSON file.
@@ -53,7 +53,7 @@ def load_portfolio_config(portfolio_name: str) -> PortfolioConfig:
         data = json.load(f)
         
     # Validate required fields
-    required_fields = ["initial_value", "target_value", "use_target_value", "portfolios"]
+    required_fields = ["initial_value", "target_value", "use_target_value", "portfolio"]
     missing_fields = [field for field in required_fields if field not in data]
     if missing_fields:
         raise KeyError(f"Missing required fields in portfolio config: {missing_fields}")
@@ -80,4 +80,4 @@ def get_portfolio_tickers(config: PortfolioConfig) -> List[str]:
     Returns:
         List[str]: List of ticker symbols
     """
-    return [asset["ticker"] for asset in config["portfolios"]]
+    return [asset["ticker"] for asset in config["portfolio"]]

@@ -2,7 +2,7 @@
     "initial_value": 22958.68,
     "target_value": 50000,
     "use_target_value": false,
-    "portfolios": [
+    "portfolio": [
         {
             "ticker": "SPY",
             "leverage": 7.5,
