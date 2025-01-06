@@ -107,9 +107,6 @@ def calculate_position_sizes(
             for asset in assets
         }
         
-        # Calculate total leveraged value
-        total_leveraged = sum(leveraged_values.values())
-        
         # Calculate allocations based on initial (pre-leverage) values
         total_initial = sum(initial_values.values())
         allocations = {
@@ -152,26 +149,3 @@ def calculate_position_sizes(
     except Exception as e:
         log(f"Error in position size calculations: {str(e)}", "error")
         raise
-
-def print_asset_details(
-    ticker: str,
-    metrics: AssetMetrics,
-    leverage: float
-) -> None:
-    """Print details for an asset.
-    
-    Args:
-        ticker (str): Asset ticker symbol
-        metrics (AssetMetrics): Calculated metrics for the asset
-        leverage (float): Asset's leverage ratio
-    """
-    print(f"\nAsset: {ticker}")
-    print(f"  Initial (pre-leverage) value: ${metrics['initial_value']:.2f}")
-    print(f"  Leverage: {leverage:.2f}")
-    print(f"  Leveraged value: ${metrics['leveraged_value']:.2f}")
-    print(f"  Position size: {metrics['position_size']:.6f}")
-    print(f"  Allocation: {metrics['allocation']:.2f}%")
-    
-    for cl, (var, cvar) in metrics['var_cvar'].items():
-        print(f"  VaR Monetary Loss ({cl*100:.0f}%): ${abs(var*metrics['leveraged_value']):.2f}")
-        print(f"  CVaR Monetary Loss ({cl*100:.0f}%): ${abs(cvar*metrics['leveraged_value']):.2f}")

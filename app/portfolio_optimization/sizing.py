@@ -5,23 +5,24 @@ from pathlib import Path
 from typing import List
 from app.tools.setup_logging import setup_logging
 from app.portfolio_optimization.tools.position_sizing_types import Asset, PositionSizingConfig
-from app.portfolio_optimization.tools.position_sizing import calculate_position_sizes, print_asset_details
+from app.portfolio_optimization.tools.position_sizing import calculate_position_sizes
 
 # Position sizing configuration
 config: PositionSizingConfig = {
+    "portfolio": "spy_qqq_btc_sol.json",
     "total_value": 22958.68,  # Initial portfolio value
     "use_ema": False,     # Whether to use EMA for price calculations
     "ema_period": 35,     # Period for EMA if used
-    "var_confidence_levels": [0.95, 0.99]  # Confidence levels for VaR/CVaR
+    "var_confidence_levels": [0.95, 0.99]  # Required by position_sizing.py
 }
 
-def load_portfolio() -> List[Asset]:
+def load_portfolio(portfolio: str) -> List[Asset]:
     """Load portfolio configuration from JSON file.
     
     Returns:
         List[Asset]: List of assets with their configurations
     """
-    portfolio_path = Path(__file__).parent / "portfolios" / "current.json"
+    portfolio_path = Path(__file__).parent / "portfolios" / portfolio
     with open(portfolio_path) as f:
         return json.load(f)
 
@@ -38,7 +39,7 @@ def main() -> None:
         
         # Load portfolio configuration
         log("Loading portfolio configuration", "info")
-        assets = load_portfolio()
+        assets = load_portfolio(config["portfolio"])
         
         # Calculate position sizes and metrics
         log("Calculating position sizes and metrics", "info")
@@ -47,27 +48,21 @@ def main() -> None:
         # Print results for each asset
         log("Displaying results", "info")
         total_leveraged_value = 0
-        total_var_losses = {cl: 0.0 for cl in config["var_confidence_levels"]}
-        total_cvar_losses = {cl: 0.0 for cl in config["var_confidence_levels"]}
         
         for asset, metrics in zip(assets, results):
-            print_asset_details(asset["ticker"], metrics, asset["leverage"])
-            total_leveraged_value += metrics["leveraged_value"]
+            # Modified print_asset_details to skip risk metrics
+            print(f"\nAsset: {asset['ticker']}")
+            print(f"  Initial (pre-leverage) value: ${metrics['initial_value']:.2f}")
+            print(f"  Leverage: {asset['leverage']:.2f}")
+            print(f"  Leveraged value: ${metrics['leveraged_value']:.2f}")
+            print(f"  Position size: {metrics['position_size']:.6f}")
+            print(f"  Allocation: {metrics['allocation']:.2f}%")
             
-            # Accumulate VaR and CVaR losses
-            for cl, (var, cvar) in metrics["var_cvar"].items():
-                var_loss = abs(var * metrics["leveraged_value"])
-                cvar_loss = abs(cvar * metrics["leveraged_value"])
-                total_var_losses[cl] += var_loss
-                total_cvar_losses[cl] += cvar_loss
+            total_leveraged_value += metrics["leveraged_value"]
         
         # Print portfolio totals
         print(f"\nInitial Portfolio Value: ${config['total_value']:.2f}")
         print(f"Total Leveraged Portfolio Value: ${total_leveraged_value:.2f}")
-        
-        for cl in config["var_confidence_levels"]:
-            print(f"Total VaR Monetary Loss ({cl*100:.0f}%): ${total_var_losses[cl]:.2f}")
-            print(f"Total CVaR Monetary Loss ({cl*100:.0f}%): ${total_cvar_losses[cl]:.2f}")
             
         log("Position sizing calculations completed successfully", "info")
         log_close()

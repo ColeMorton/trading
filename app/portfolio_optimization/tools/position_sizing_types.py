@@ -21,12 +21,10 @@ class PositionSizingConfig(TypedDict):
         total_value (float): Total portfolio value
         use_ema (bool): Whether to use EMA for price calculations
         ema_period (int): Period for EMA calculation if used
-        var_confidence_levels (List[float]): List of confidence levels for VaR/CVaR
     """
     total_value: float
     use_ema: bool
     ema_period: int
-    var_confidence_levels: List[float]
 
 class AssetMetrics(TypedDict):
     """Metrics calculated for each asset.
