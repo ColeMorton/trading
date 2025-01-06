@@ -150,7 +150,7 @@ def main() -> None:
     """Main function to run portfolio optimization and analysis."""
     
     # Setup logging
-    log, log_close, _, _ = setup_logging("portfolio", "portfolio_analysis.log")
+    log, log_close, _, _ = setup_logging("portfolio", "analysis.log")
     
     try:
         # The max VaR for any individual position should not exclude the current Kelly Criterion risk amount (this accounts for 1.33x upper bound)

@@ -12,7 +12,7 @@ config: PositionSizingConfig = {
     "portfolio": "spy_qqq_btc_sol.json",
     "use_ema": False,     # Whether to use EMA for price calculations
     "ema_period": 35,     # Period for EMA if used
-    "var_confidence_levels": [0.95, 0.99]  # Required by position_sizing.py
+    "var_confidence_levels": [0.95, 0.99]
 }
 
 def load_portfolio(portfolio: str) -> tuple[List[Asset], dict]:
@@ -50,7 +50,7 @@ def main() -> None:
     try:
         # Setup logging
         log, log_close, _, _ = setup_logging(
-            module_name='position',
+            module_name='portfolio',
             log_file='sizing.log'
         )
         
