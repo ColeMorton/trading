@@ -67,9 +67,29 @@ def main() -> None:
         log("Calculating position sizes and metrics", "info")
         results = calculate_position_sizes(assets, merged_config, log)
         
+        # Calculate total leveraged value to check against target if needed
+        total_leveraged_value = sum(
+            metrics["leveraged_value"] for metrics in results
+        )
+        
+        # If using target value and total leveraged value exceeds target,
+        # scale down initial values proportionally
+        if merged_config.get("use_target_value", False) and \
+           "target_value" in merged_config and \
+           total_leveraged_value > merged_config["target_value"]:
+            
+            log("Scaling down initial values to meet target value", "info")
+            scale_factor = merged_config["target_value"] / total_leveraged_value
+            
+            # Scale down initial values while keeping leverage and allocation same
+            for asset, metrics in zip(assets, results):
+                metrics["initial_value"] *= scale_factor
+                metrics["leveraged_value"] = metrics["initial_value"] * asset["leverage"]
+                metrics["position_size"] *= scale_factor
+        
         # Print results for each asset
         log("Displaying results", "info")
-        total_leveraged_value = 0
+        total_leveraged_value = sum(metrics["leveraged_value"] for metrics in results)
         
         for asset, metrics in zip(assets, results):
             # Modified print_asset_details to skip risk metrics
@@ -79,12 +99,12 @@ def main() -> None:
             print(f"  Leveraged value: ${metrics['leveraged_value']:.2f}")
             print(f"  Position size: {metrics['position_size']:.6f}")
             print(f"  Allocation: {metrics['allocation']:.2f}%")
-            
-            total_leveraged_value += metrics["leveraged_value"]
         
         # Print portfolio totals
         print(f"\nInitial Portfolio Value: ${merged_config['initial_value']:.2f}")
         print(f"Total Leveraged Portfolio Value: ${total_leveraged_value:.2f}")
+        if merged_config.get("use_target_value", False):
+            print(f"Target Value: ${merged_config['target_value']:.2f}")
             
         log("Position sizing calculations completed successfully", "info")
         log_close()
