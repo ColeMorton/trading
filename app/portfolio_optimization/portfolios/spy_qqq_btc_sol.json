@@ -1,22 +1,28 @@
-[
-    {
-        "ticker": "SPY",
-        "leverage": 7.5,
-        "weight": 33.33
-    },
-    {
-        "ticker": "QQQ",
-        "leverage": 7.5,
-        "weight": 24.13
-    },
-    {
-        "ticker": "BTC-USD",
-        "leverage": 4.7,
-        "weight": 22.99
-    },
-    {
-        "ticker": "SOL-USD",
-        "leverage": 3.2,
-        "weight": 19.55
-    }
-]
+{
+    "initial_value": 22958.68,
+    "target_value": 50000,
+    "use_target_value": false,
+    "portfolios": [
+        {
+            "ticker": "SPY",
+            "leverage": 7.5,
+            "weight": 33.33
+        },
+        {
+            "ticker": "QQQ",
+            "leverage": 7.5,
+            "weight": 24.13
+        },
+        {
+            "ticker": "BTC-USD",
+            "leverage": 4.7,
+            "weight": 22.99
+        },
+        {
+            "ticker": "SOL-USD",
+            "leverage": 3.2,
+            "weight": 19.55
+        }
+    ]
+    
+}
