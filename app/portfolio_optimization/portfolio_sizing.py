@@ -17,25 +17,17 @@ import yfinance as yf
 # ASSET_1_ALLOCATION = 50 # Target allocation for Asset 1 (as a percentage)
 # VAR_CONFIDENCE_LEVELS = [0.95, 0.99]
 
-TOTAL_PORTFOLIO_VALUE = 9343  # target
-ASSET_1_TICKER = "BTC-USD"
-ASSET_2_TICKER = "SOL-USD"
-ASSET_1_LEVERAGE = 4.7  # Example leverage factor for Asset 1
-ASSET_2_LEVERAGE = 3.2  # Example leverage factor for Asset 2
-USE_EMA = False
-EMA_PERIOD = 21
-ASSET_1_ALLOCATION = 53.965274519 # Target allocation for Asset 1 (as a percentage)
-VAR_CONFIDENCE_LEVELS = [0.95, 0.99]
-
-# TOTAL_PORTFOLIO_VALUE = 8500  # target
-# ASSET_1_TICKER = "BTC-USD"
-# ASSET_2_TICKER = "SOL-USD"
-# ASSET_1_LEVERAGE = 7.7  # Example leverage factor for Asset 1
-# ASSET_2_LEVERAGE = 2.8  # Example leverage factor for Asset 2
-# USE_EMA = False
-# EMA_PERIOD = 21
-# ASSET_1_ALLOCATION = 50 # Target allocation for Asset 1 (as a percentage)
-# VAR_CONFIDENCE_LEVELS = [0.95, 0.99]
+config = {
+    "TOTAL_PORTFOLIO_VALUE": 9343,
+    "ASSET_1_TICKER": "BTC-USD",
+    "ASSET_2_TICKER": "SOL-USD",
+    "ASSET_1_LEVERAGE": 4.7,  # Example leverage factor for Asset 1
+    "ASSET_2_LEVERAGE": 3.2,  # Example leverage factor for Asset 2
+    "USE_EMA": False,
+    "EMA_PERIOD": 35,
+    "ASSET_1_ALLOCATION": 53.965274519,  # Target allocation for Asset 1 (as a percentage)
+    "VAR_CONFIDENCE_LEVELS": [0.95, 0.99]
+}
 
 def get_price_or_ema(ticker, use_ema, ema_period):
     """Fetch the current price or EMA for a given ticker."""
@@ -61,11 +53,11 @@ def get_returns(ticker):
 
 def get_intersection_index(x):
     # Calculate Leveraged Values
-    leveraged_value_1 = ASSET_1_LEVERAGE * x
-    leveraged_value_2 = ASSET_2_LEVERAGE * x
+    leveraged_value_1 = config["ASSET_1_LEVERAGE"] * x
+    leveraged_value_2 = config["ASSET_2_LEVERAGE"] * x
 
     # Calculate RATIO based on ASSET_1_ALLOCATION
-    ratio = ASSET_1_ALLOCATION / (100 - ASSET_1_ALLOCATION)
+    ratio = config["ASSET_1_ALLOCATION"] / (100 - config["ASSET_1_ALLOCATION"])
 
     # Calculate the reversed second line
     reversed_leveraged_value_2 = ratio * leveraged_value_2[::-1]
@@ -89,19 +81,19 @@ def print_asset_details(ticker, initial_value, leverage, position_size, leverage
 
 def main():
     # Fetch asset prices
-    asset_1_price = get_price_or_ema(ASSET_1_TICKER, USE_EMA, EMA_PERIOD)
-    asset_2_price = get_price_or_ema(ASSET_2_TICKER, USE_EMA, EMA_PERIOD)
+    asset_1_price = get_price_or_ema(config["ASSET_1_TICKER"], config["USE_EMA"], config["EMA_PERIOD"])
+    asset_2_price = get_price_or_ema(config["ASSET_2_TICKER"], config["USE_EMA"], config["EMA_PERIOD"])
 
     # Generate x-axis values (from 0 to TOTAL_PORTFOLIO_VALUE, divided into 1000 points)
-    x = np.linspace(0, TOTAL_PORTFOLIO_VALUE, 1000)
+    x = np.linspace(0, config["TOTAL_PORTFOLIO_VALUE"], 1000)
 
     # Get intersection index
     intersection_index = get_intersection_index(x)
 
     initial_asset_1_value = x[intersection_index]
-    initial_asset_2_value = TOTAL_PORTFOLIO_VALUE - initial_asset_1_value
-    levered_asset_1_value = initial_asset_1_value * ASSET_1_LEVERAGE
-    levered_asset_2_value = initial_asset_2_value * ASSET_2_LEVERAGE
+    initial_asset_2_value = config["TOTAL_PORTFOLIO_VALUE"] - initial_asset_1_value
+    levered_asset_1_value = initial_asset_1_value * config["ASSET_1_LEVERAGE"]
+    levered_asset_2_value = initial_asset_2_value * config["ASSET_2_LEVERAGE"]
     levered_total_value = levered_asset_1_value + levered_asset_2_value
     position_size_asset_1_value = levered_asset_1_value / asset_1_price
     position_size_asset_2_value = levered_asset_2_value / asset_2_price
@@ -109,25 +101,25 @@ def main():
     allocation_asset_2_value = levered_asset_2_value / levered_total_value * 100
 
     # Get returns for VaR and CVaR calculations
-    returns_asset_1 = get_returns(ASSET_1_TICKER)
-    returns_asset_2 = get_returns(ASSET_2_TICKER)
+    returns_asset_1 = get_returns(config["ASSET_1_TICKER"])
+    returns_asset_2 = get_returns(config["ASSET_2_TICKER"])
     
     # Calculate VaR and CVaR for both assets at both confidence levels
-    var_cvar_asset_1 = calculate_var_cvar(returns_asset_1, VAR_CONFIDENCE_LEVELS)
-    var_cvar_asset_2 = calculate_var_cvar(returns_asset_2, VAR_CONFIDENCE_LEVELS)
+    var_cvar_asset_1 = calculate_var_cvar(returns_asset_1, config["VAR_CONFIDENCE_LEVELS"])
+    var_cvar_asset_2 = calculate_var_cvar(returns_asset_2, config["VAR_CONFIDENCE_LEVELS"])
 
     # Print results
-    print_asset_details(ASSET_1_TICKER, initial_asset_1_value, ASSET_1_LEVERAGE, position_size_asset_1_value,
+    print_asset_details(config["ASSET_1_TICKER"], initial_asset_1_value, config["ASSET_1_LEVERAGE"], position_size_asset_1_value,
                         levered_asset_1_value, allocation_asset_1_value, var_cvar_asset_1)
     
-    print_asset_details(ASSET_2_TICKER, initial_asset_2_value, ASSET_2_LEVERAGE, position_size_asset_2_value,
+    print_asset_details(config["ASSET_2_TICKER"], initial_asset_2_value, config["ASSET_2_LEVERAGE"], position_size_asset_2_value,
                         levered_asset_2_value, allocation_asset_2_value, var_cvar_asset_2)
     
-    print(f"\nInitial Portfolio Value: ${TOTAL_PORTFOLIO_VALUE:.2f}")
+    print(f"\nInitial Portfolio Value: ${config['TOTAL_PORTFOLIO_VALUE']:.2f}")
     print(f"Total Leveraged Portfolio Value: ${levered_total_value:.2f}")
 
     # Calculate and print total portfolio VaR and CVaR for each confidence level
-    for cl in VAR_CONFIDENCE_LEVELS:
+    for cl in config["VAR_CONFIDENCE_LEVELS"]:
         var_1, cvar_1 = var_cvar_asset_1[cl]
         var_2, cvar_2 = var_cvar_asset_2[cl]
         
