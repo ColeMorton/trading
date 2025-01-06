@@ -80,14 +80,28 @@ def calculate_position_sizes(
                 config["ema_period"]
             )
         
-        # Calculate initial values based on weights
+        # Calculate target leveraged values based on weights
         total_value = config["total_value"]
-        initial_values = {
-            asset["ticker"]: total_value * (asset["weight"] / 100)
+        target_leveraged_values = {
+            asset["ticker"]: total_value * asset["leverage"] * (asset["weight"] / 100)
             for asset in assets
         }
         
-        # Calculate leveraged values
+        # Calculate initial values by working backwards from target leveraged values
+        initial_values = {
+            asset["ticker"]: target_leveraged_values[asset["ticker"]] / asset["leverage"]
+            for asset in assets
+        }
+        
+        # Normalize initial values to match total portfolio value
+        total_initial = sum(initial_values.values())
+        scaling_factor = total_value / total_initial
+        initial_values = {
+            ticker: value * scaling_factor
+            for ticker, value in initial_values.items()
+        }
+        
+        # Calculate final leveraged values
         leveraged_values = {
             asset["ticker"]: initial_values[asset["ticker"]] * asset["leverage"]
             for asset in assets
@@ -96,10 +110,11 @@ def calculate_position_sizes(
         # Calculate total leveraged value
         total_leveraged = sum(leveraged_values.values())
         
-        # Calculate actual allocations
+        # Calculate allocations based on initial (pre-leverage) values
+        total_initial = sum(initial_values.values())
         allocations = {
-            ticker: (value / total_leveraged) * 100
-            for ticker, value in leveraged_values.items()
+            ticker: (value / total_initial) * 100
+            for ticker, value in initial_values.items()
         }
         
         # Calculate position sizes

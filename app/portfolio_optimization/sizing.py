@@ -7,6 +7,14 @@ from app.tools.setup_logging import setup_logging
 from app.portfolio_optimization.tools.position_sizing_types import Asset, PositionSizingConfig
 from app.portfolio_optimization.tools.position_sizing import calculate_position_sizes, print_asset_details
 
+# Position sizing configuration
+config: PositionSizingConfig = {
+    "total_value": 22958.68,  # Initial portfolio value
+    "use_ema": False,     # Whether to use EMA for price calculations
+    "ema_period": 35,     # Period for EMA if used
+    "var_confidence_levels": [0.95, 0.99]  # Confidence levels for VaR/CVaR
+}
+
 def load_portfolio() -> List[Asset]:
     """Load portfolio configuration from JSON file.
     
@@ -22,8 +30,8 @@ def main() -> None:
     try:
         # Setup logging
         log, log_close, _, _ = setup_logging(
-            module_name='sizing',
-            log_file='position_sizing.log'
+            module_name='position',
+            log_file='sizing.log'
         )
         
         log("Starting position sizing calculations", "info")
@@ -31,14 +39,6 @@ def main() -> None:
         # Load portfolio configuration
         log("Loading portfolio configuration", "info")
         assets = load_portfolio()
-        
-        # Position sizing configuration
-        config: PositionSizingConfig = {
-            "total_value": 22958.68,  # Initial portfolio value
-            "use_ema": False,     # Whether to use EMA for price calculations
-            "ema_period": 35,     # Period for EMA if used
-            "var_confidence_levels": [0.95, 0.99]  # Confidence levels for VaR/CVaR
-        }
         
         # Calculate position sizes and metrics
         log("Calculating position sizes and metrics", "info")

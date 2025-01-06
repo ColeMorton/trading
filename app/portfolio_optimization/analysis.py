@@ -157,7 +157,8 @@ def main() -> None:
         # Current: 115
 
         # Stock Portfolio
-        TOTAL_PORTFOLIO_VALUE = 13639.330244592951
+        # TOTAL_PORTFOLIO_VALUE = 22958.68
+        TOTAL_PORTFOLIO_VALUE = 50000
 
         # Investment Portfolio (Crypto + Stock)
         # TOTAL_PORTFOLIO_VALUE = 83500
