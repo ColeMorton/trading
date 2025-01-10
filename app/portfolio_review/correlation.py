@@ -9,9 +9,9 @@ import numpy as np
 
 # ASSETS = ['SOL-USD', 'BTC-USD', 'AAPL', 'NTES', 'WST', 'OKTA', 'DXCM', 'TDG', 'ENPH', 'APTV'],
 
-PORTFOLIO = ['BTC-USD', 'AAPL', 'NTES', 'APTV', 'DXCM', 'ROST', 'WST', 'CNC', 'MCD', 'FTNT']
+PORTFOLIO = ['BTC-USD', 'AAPL', 'NTES', 'APTV', 'DXCM', 'ROST', 'WST', 'CNC', 'MCD', 'FTNT', 'AMZN']
 
-NEXT = ['TRGP','LRCX','TPL','AMAT','TMO']
+NEXT = ["PODD","BRO","TDG","IDXX","BMRN","ANSS","MET"]
 
 ASSETS = PORTFOLIO + NEXT
 

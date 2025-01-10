@@ -115,7 +115,7 @@ class Config(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: Config = {
-    "TICKER": ['ENPH','CRWD','TRGP','AES','LRCX','TPL','DHR','AMAT','KLAC','TMO','QCOM','PODD','PLTR','FTNT'],
+    "TICKER": ["SPY","QQQ","BTC-USD","SOL-USD"],
     "TICKER_1": 'AMAT',
     "TICKER_2": 'LRCX',
     "WINDOWS": 89,
@@ -128,10 +128,12 @@ DEFAULT_CONFIG: Config = {
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
-    "USE_SYNTHETIC": True,
+    "USE_SYNTHETIC": False,
     "USE_CURRENT": False,
-    "MIN_WIN_RATE": 0.34,
-    "MIN_TRADES": 34,
+    # "MIN_WIN_RATE": 0.34,
+    # "MIN_TRADES": 34,
+    "MIN_WIN_RATE": 0.35,
+    "MIN_TRADES": 60,
     "SORT_BY": "Expectancy Adjusted",
     "USE_GBM": False
 }

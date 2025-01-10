@@ -1,0 +1,43 @@
+{
+    "initial_value": 16589.6,
+    "target_value": 31912.5652,
+    "use_target_value": false,
+    "portfolio": [
+        {
+            "ticker": "AAPL"
+        },
+        {
+            "ticker": "NTES"
+        },
+        {
+            "ticker": "APTV"
+        },
+        {
+            "ticker": "DXCM"
+        },
+        {
+            "ticker": "ROST"
+        },
+        {
+            "ticker": "WST"
+        },
+        {
+            "ticker": "CNC"
+        },
+        {
+            "ticker": "MCD"
+        },
+        {
+            "ticker": "FTNT"
+        },
+        {
+            "ticker": "AMZN"
+        },
+        {
+            "ticker": "TDG"
+        },
+        {
+            "ticker": "IDXX"
+        }
+    ]
+}

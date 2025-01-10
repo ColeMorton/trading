@@ -21,19 +21,19 @@ from app.ma_cross.tools.protective_stop_loss_plotting import create_protective_s
 
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
-    "TICKER": "TPL",
-    "SHORT_WINDOW": 9,
-    "LONG_WINDOW": 86,
+    "TICKER": "BMRN",
+    "SHORT_WINDOW": 35,
+    "LONG_WINDOW": 38,
     "BASE_DIR": ".",
     "USE_SMA": True,
     "REFRESH": False,
     "USE_HOURLY": False,
     "RELATIVE": True,
     "DIRECTION": "Long",
-    "USE_RSI": False,   
-    "RSI_PERIOD": 37,
-    "RSI_THRESHOLD": 36,
-    "STOP_LOSS": 0.1299
+    "USE_RSI": True,   
+    "RSI_PERIOD": 12,
+    "RSI_THRESHOLD": 44,
+    "STOP_LOSS": 0.0817
 }
 
 def run(config: CacheConfig) -> bool:

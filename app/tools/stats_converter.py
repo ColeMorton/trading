@@ -39,7 +39,7 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         Dict[str, Any]: Dictionary with properly formatted values and additional
                        calculated metrics including:
                        - Expectancy Adjusted
-                       - Tradability
+                       - Trades Per Day
                        - Trades per Month
                        - Expectancy per Month
                        - Signals per Month
@@ -65,7 +65,15 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
             )
             
             # Calculate Beats BNH percentage
-            stats['Beats BNH [%]'] = stats['Total Return [%]'] / stats['Benchmark Return [%]']
+            # Example test data:
+            # stats['Total Return [%]'] = [351.0781, 19.5554, -5.2920]
+            # stats['Benchmark Return [%]'] = [370.3095, -6.2193, -6.2193]
+            # Expected output: [-0.05194, 4.144, 0.1491]
+            benchmark_return = stats['Benchmark Return [%]']
+            if benchmark_return == 0:
+                stats['Beats BNH [%]'] = 0
+            else:
+                stats['Beats BNH [%]'] = (stats['Total Return [%]'] - benchmark_return) / abs(benchmark_return)
             
             # Calculate total days between start and end
             if isinstance(stats['End'], (int, float)) and isinstance(stats['Start'], (int, float)):
@@ -80,8 +88,8 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
                 time_delta = pd.Timestamp(stats['End']) - pd.Timestamp(stats['Start'])
                 total_days = abs(time_delta.total_seconds()) / (24 * 3600)
             
-            # Calculate Tradability using total days
-            stats['Tradability'] = (stats['Total Closed Trades'] / total_days) * 1000 if total_days > 0 else 0
+            # Calculate Trades Per Day using total days
+            stats['Trades Per Day'] = (stats['Total Closed Trades'] / total_days) * 1000 if total_days > 0 else 0
 
         except KeyError as e:
             log(f"Missing required statistic for {ticker}: {str(e)}", "error")
@@ -126,9 +134,21 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
             # Calculate expectancy per month
             expectancy = stats['Expectancy']
             stats['Expectancy per Month'] = stats['Trades per Month'] * expectancy
-
+            
+            # Calculate average trade duration as weighted average of winning and losing durations
+            if all(key in stats for key in ['Avg Winning Trade Duration', 'Avg Losing Trade Duration', 'Win Rate [%]']):
+                # Parse durations to timedelta objects
+                win_duration = pd.to_timedelta(stats['Avg Winning Trade Duration'])
+                lose_duration = pd.to_timedelta(stats['Avg Losing Trade Duration'])
+                win_rate = stats['Win Rate [%]'] / 100.0
+                
+                # Calculate weighted average
+                avg_duration = win_duration * win_rate + lose_duration * (1 - win_rate)
+                stats['Avg Trade Duration'] = str(avg_duration)
+            
+        # Initialize converted dictionary before any processing
         converted = {}
-        
+            
         # Handle window values first, ensuring they remain integers
         window_params = ['Short Window', 'Long Window', 'Signal Window']
         for param in window_params:

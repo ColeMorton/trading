@@ -3,7 +3,7 @@ Scanner Summary Module for EMA Cross Strategy
 
 This module processes the results of market scanning to generate portfolio summaries.
 It aggregates and analyzes the performance of both SMA and EMA strategies across
-multiple tickers, calculating key metrics like expectancy and tradability.
+multiple tickers, calculating key metrics like expectancy and Trades Per Day.
 """
 
 from typing import Callable

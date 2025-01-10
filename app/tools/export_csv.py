@@ -91,7 +91,8 @@ def _get_filename_components(config: ExportConfig, feature1: str = "", feature2:
     
     # Only include datetime in filename for portfolios_best directory
     if feature2 == "portfolios_best":
-        components.append("H" if config.get("USE_HOURLY", False) else f"{datetime.now().strftime('%Y%m%d_%H%M')}_D")
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M')
+        components.append(f"{timestamp}_H" if config.get("USE_HOURLY", False) else f"{timestamp}_D")
     else:
         components.append("H" if config.get("USE_HOURLY", False) else "D")
     

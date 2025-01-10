@@ -23,7 +23,7 @@ def reorder_columns(portfolio: Dict) -> Dict:
         'Total Trades',
         'Win Rate [%]',
         'Profit Factor',
-        'Tradability',
+        'Trades Per Day',
         'Expectancy',
         'Expectancy Adjusted',
         'Trades per Month',

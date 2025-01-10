@@ -92,7 +92,7 @@ def export_portfolios(
                 "Omega Ratio",
                 "Sortino Ratio",
                 "Expectancy Adjusted",
-                "Tradability",
+                "Trades Per Day",
                 "Trades per Month",
                 "Signals per Month",
                 "Expectancy per Month"
