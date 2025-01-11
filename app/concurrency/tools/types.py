@@ -25,7 +25,7 @@ class StrategyConfig(TypedDict):
     SHORT_WINDOW: int
     LONG_WINDOW: int
     USE_RSI: bool
-    STOP_LOSS: float
+    STOP_LOSS: NotRequired[float]  # Made optional to match actual implementation
     RSI_PERIOD: NotRequired[int]
     RSI_THRESHOLD: NotRequired[int]
     SIGNAL_PERIOD: NotRequired[int]

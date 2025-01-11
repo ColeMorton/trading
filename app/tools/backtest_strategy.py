@@ -34,9 +34,13 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
             'freq': freq
         }
         
-        # Add stop loss only if explicitly set
+        # Handle stop loss configuration
         if "STOP_LOSS" in config and config["STOP_LOSS"] is not None:
-            params['sl_stop'] = config["STOP_LOSS"] / 100  # Convert percentage to fraction
+            stop_loss = config["STOP_LOSS"]  # Already in decimal form from portfolio_loader
+            params['sl_stop'] = stop_loss
+            log(f"Applied stop loss of {stop_loss*100:.2f}% to strategy", "info")
+        else:
+            log("No stop loss configured for strategy - running without stop loss protection", "warning")
         
         if config.get('DIRECTION', 'Long').lower() == 'short':
             # For short positions, enter when Signal is -1 (fast MA crosses below slow MA)

@@ -66,10 +66,20 @@ def load_portfolio_from_json(json_path: Path, log: Callable[[str, str], None], c
             "DIRECTION": direction  # Store direction with default "Long"
         }
         
-        # Only add STOP_LOSS if explicitly provided and not None
+        # Handle stop loss validation and conversion
         stop_loss = row.get("stop_loss")
         if stop_loss is not None:
-            config_entry["STOP_LOSS"] = float(stop_loss)
+            try:
+                stop_loss_float = float(stop_loss)
+                if stop_loss_float <= 0 or stop_loss_float > 1:
+                    log(f"Warning: Stop loss for {ticker} ({stop_loss_float}) should be between 0 and 1", "warning")
+                config_entry["STOP_LOSS"] = stop_loss_float
+                log(f"Stop loss set to {stop_loss_float:.4f} ({stop_loss_float*100:.2f}%) for {ticker}", "info")
+            except ValueError:
+                log(f"Error: Invalid stop loss value for {ticker}: {stop_loss}", "error")
+                raise ValueError(f"Invalid stop loss value for {ticker}: {stop_loss}")
+        else:
+            log(f"Warning: No stop loss defined for {ticker}", "warning")
         
         # Add RSI fields only if both exist and have non-None values
         if has_rsi:
