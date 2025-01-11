@@ -8,7 +8,7 @@ MACD cross strategy, creating summaries of extreme values.
 import polars as pl
 from typing import Dict, Callable, List, Any
 from app.tools.export_csv import export_csv, ExportConfig
-from app.ema_cross.tools.portfolio_metrics import (
+from app.tools.portfolio.metrics import (
     NUMERIC_METRICS,
     DURATION_METRICS,
     get_metric_rows

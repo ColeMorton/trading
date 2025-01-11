@@ -53,7 +53,7 @@ config: Config = {
     # "SCANNER_LIST": 'DAILY.csv',
     "SCANNER_LIST": 'DAILY.csv',
     "USE_HOURLY": False,
-    "REFRESH": False,
+    "REFRESH": True,
     "DIRECTION": "Long"  # Default to Long position
 }
 

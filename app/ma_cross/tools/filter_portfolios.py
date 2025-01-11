@@ -8,8 +8,8 @@ creating summaries of extreme values.
 import polars as pl
 from typing import Dict, Callable, List
 from app.tools.export_csv import export_csv, ExportConfig
-from app.ma_cross.tools.portfolio_collection import sort_portfolios
-from app.ma_cross.tools.portfolio_metrics import (
+from app.tools.portfolio.collection import sort_portfolios
+from app.tools.portfolio.metrics import (
     NUMERIC_METRICS,
     DURATION_METRICS,
     get_metric_rows,

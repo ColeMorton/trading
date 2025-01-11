@@ -1,0 +1,38 @@
+[
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 14,
+        "long_window": 32,
+        "stop_loss": 0.125,
+        "rsi_period": 26,
+        "rsi_threshold": 43
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 14,
+        "long_window": 32
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 27,
+        "long_window": 30,
+        "stop_loss": 0.088
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 16,
+        "long_window": 18
+    }
+]

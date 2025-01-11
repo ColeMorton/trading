@@ -10,7 +10,9 @@ from app.concurrency.tools.types import ConcurrencyConfig
 
 # Default configuration
 DEFAULT_CONFIG: ConcurrencyConfig = {
-    "PORTFOLIO": "spy_qqq_btc_sol_D.json",
+    # "PORTFOLIO": "spy_qqq_btc_sol_D.json",
+    # "PORTFOLIO": "btc_d_next.json",
+    "PORTFOLIO": "crypto_d_next.json",
     "BASE_DIR": ".",
     "REFRESH": True
 }

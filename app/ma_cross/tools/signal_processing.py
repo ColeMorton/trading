@@ -10,6 +10,7 @@ from app.tools.get_data import get_data
 from app.ma_cross.tools.signal_generation import generate_current_signals
 from app.ma_cross.tools.sensitivity_analysis import analyze_window_combination
 from app.ma_cross.config_types import Config
+from app.tools.portfolio.processing import process_single_ticker
 
 def process_current_signals(ticker: str, config: Config, log: Callable) -> Optional[pl.DataFrame]:
     """Process current signals for a ticker.
@@ -82,7 +83,6 @@ def process_ticker_portfolios(ticker: str, config: Config, log: Callable) -> Opt
         if config.get("USE_CURRENT", False):
             return process_current_signals(ticker, config, log)
         else:
-            from app.ma_cross.tools.portfolio_processing import process_single_ticker
             portfolios = process_single_ticker(ticker, config, log)
             if portfolios is None:
                 log(f"Failed to process {ticker}", "error")

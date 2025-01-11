@@ -8,7 +8,7 @@ Short Window/Long Window combinations in top performing portfolios.
 from typing import Optional
 import polars as pl
 from app.ma_cross.config_types import Config
-from app.ma_cross.tools.portfolio_collection import sort_portfolios
+from app.tools.portfolio.collection import sort_portfolios
 
 def get_best_portfolio(portfolios: pl.DataFrame, config: Config, log: callable) -> Optional[dict]:
     """

@@ -2,7 +2,7 @@ import polars as pl
 from typing import Dict, Any, Optional, Callable
 from app.ma_cross.tools.sensitivity_analysis import analyze_parameter_combinations
 from app.tools.export_csv import export_csv
-from app.ma_cross.tools.portfolio_collection import sort_portfolios
+from app.tools.portfolio.collection import sort_portfolios
 
 def analyze_parameter_sensitivity(
     data: pl.DataFrame,
