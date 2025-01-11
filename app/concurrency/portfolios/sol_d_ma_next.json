@@ -15,7 +15,7 @@
         "timeframe": "Daily",
         "type": "SMA",
         "direction": "Long",
-        "short_window": 14,
+        "short_window": 26,
         "long_window": 32
     },
     {

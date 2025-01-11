@@ -77,8 +77,13 @@ def load_portfolio_from_json(json_path: Path, log: Callable[[str, str], None], c
             config_entry["RSI_THRESHOLD"] = int(rsi_threshold)  # Changed from float to int
         
         # Add MACD signal period if it's a MACD strategy
-        if strategy_type == "MACD" and "signal_period" in row:
-            config_entry["SIGNAL_PERIOD"] = int(row["signal_period"])
+        if strategy_type == "MACD":
+            # Check both signal_period and signal_window for backward compatibility
+            signal = row.get("signal_period") or row.get("signal_window")
+            if signal is not None:
+                config_entry["SIGNAL_PERIOD"] = int(signal)
+            else:
+                log(f"Warning: MACD strategy for {ticker} missing signal period/window", "warning")
         
         # Log complete strategy configuration
         strategy_details = [

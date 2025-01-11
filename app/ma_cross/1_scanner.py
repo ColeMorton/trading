@@ -51,7 +51,7 @@ class Config(TypedDict):
 config: Config = {
     # "SCANNER_LIST": 'HOURLY Crypto.csv',
     # "SCANNER_LIST": 'DAILY.csv',
-    "SCANNER_LIST": 'DAILY.csv',
+    "SCANNER_LIST": 'BTC_SOL_D.csv',
     "USE_HOURLY": False,
     "REFRESH": True,
     "DIRECTION": "Long"  # Default to Long position

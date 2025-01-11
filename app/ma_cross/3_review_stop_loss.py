@@ -25,9 +25,9 @@ from app.ma_cross.tools.stop_loss_plotting import create_stop_loss_heatmap
 
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
-    "TICKER": "BRO",
-    "SHORT_WINDOW": 86,
-    "LONG_WINDOW": 87,
+    "TICKER": "BTC-USD",
+    "SHORT_WINDOW": 3,
+    "LONG_WINDOW": 47,
     "BASE_DIR": ".",
     "USE_SMA": True,
     "REFRESH": False,
