@@ -16,33 +16,8 @@
         "type": "SMA",
         "direction": "Long",
         "short_window": 8,
-        "long_window": 44
-    },
-    {
-        "ticker": "BTC-USD",
-        "timeframe": "Daily",
-        "type": "SMA",
-        "direction": "Long",
-        "short_window": 8,
         "long_window": 44,
         "stop_loss": 0.0412
-    },
-    {
-        "ticker": "BTC-USD",
-        "timeframe": "Daily",
-        "type": "SMA",
-        "direction": "Long",
-        "short_window": 8,
-        "long_window": 44,
-        "stop_loss": 0.0831
-    },
-    {
-        "ticker": "BTC-USD",
-        "timeframe": "Daily",
-        "type": "SMA",
-        "direction": "Long",
-        "short_window": 2,
-        "long_window": 35
     },
     {
         "ticker": "BTC-USD",
@@ -52,14 +27,6 @@
         "short_window": 2,
         "long_window": 35,
         "stop_loss": 0.0117
-    },
-    {
-        "ticker": "BTC-USD",
-        "timeframe": "Daily",
-        "type": "SMA",
-        "direction": "Long",
-        "short_window": 3,
-        "long_window": 47
     },
     {
         "ticker": "BTC-USD",

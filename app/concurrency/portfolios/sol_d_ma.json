@@ -15,6 +15,14 @@
         "timeframe": "Daily",
         "type": "SMA",
         "direction": "Long",
+        "short_window": 26,
+        "long_window": 32
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
         "short_window": 14,
         "long_window": 32
     },
