@@ -12,8 +12,8 @@ from app.ma_cross.config_types import HeatmapConfig
 def run(config: HeatmapConfig = {
     "USE_CURRENT": True,
     "USE_BEST_PORTFOLIO": False,  # Default to regular portfolios directory
-    "USE_SMA": True,
-    "TICKER": 'CDNS',
+    "USE_SMA": False,
+    "TICKER": 'WAT',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,

@@ -2,6 +2,16 @@
     {
         "ticker": "SOL-USD",
         "timeframe": "Daily",
+        "type": "MACD",
+        "direction": "Long",
+        "short_window": 19,
+        "long_window": 33,
+        "signal_period": 13,
+        "stop_loss": 0.189
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
         "type": "SMA",
         "direction": "Long",
         "short_window": 14,
@@ -34,15 +44,5 @@
         "direction": "Long",
         "short_window": 16,
         "long_window": 18
-    },
-    {
-        "ticker": "SOL-USD",
-        "timeframe": "Daily",
-        "type": "MACD",
-        "direction": "Long",
-        "short_window": 19,
-        "long_window": 33,
-        "signal_period": 13,
-        "stop_loss": 0.189
     }
 ]

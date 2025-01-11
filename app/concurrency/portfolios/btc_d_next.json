@@ -34,15 +34,6 @@
     {
         "ticker": "BTC-USD",
         "timeframe": "Daily",
-        "type": "SMA",
-        "direction": "Long",
-        "short_window": 2,
-        "long_window": 35,
-        "stop_loss": 0.0117
-    },
-    {
-        "ticker": "BTC-USD",
-        "timeframe": "Daily",
         "type": "EMA",
         "direction": "Long",
         "short_window": 3,

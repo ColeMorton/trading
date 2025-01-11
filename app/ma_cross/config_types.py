@@ -115,7 +115,7 @@ class Config(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: Config = {
-    "TICKER": ["SPY","QQQ","BTC-USD","SOL-USD"],
+    "TICKER": ["PODD","SYK","IQV","WAT"],
     "TICKER_1": 'AMAT',
     "TICKER_2": 'LRCX',
     "WINDOWS": 89,
@@ -129,7 +129,7 @@ DEFAULT_CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     # "MIN_WIN_RATE": 0.34,
     # "MIN_TRADES": 34,
     "MIN_WIN_RATE": 0.35,
