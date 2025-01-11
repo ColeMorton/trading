@@ -30,7 +30,7 @@ default_config: CacheConfig = {
     "LONG_WINDOW": 32,
     "BASE_DIR": ".",
     "USE_SMA": True,
-    "REFRESH": False,
+    "REFRESH": True,
     "USE_HOURLY": False,
     "RELATIVE": True,
     "DIRECTION": "Long",

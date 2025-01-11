@@ -11,7 +11,7 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
         config: Configuration dictionary containing:
             - USE_HOURLY (bool): Whether to use hourly data
             - DIRECTION (str): 'Long' or 'Short' for position direction
-            - STOP_LOSS (float, optional): Stop loss percentage (0-100). If not provided, no stop loss is used.
+            - STOP_LOSS (float, optional): Stop loss as decimal (0-1). If not provided, no stop loss is used.
             - short_window (int, optional): Short-term window size
             - long_window (int, optional): Long-term window size
             - signal_window (int, optional): Signal line window size
@@ -36,9 +36,12 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
         
         # Handle stop loss configuration
         if "STOP_LOSS" in config and config["STOP_LOSS"] is not None:
-            stop_loss = config["STOP_LOSS"]  # Already in decimal form from portfolio_loader
-            params['sl_stop'] = stop_loss
-            log(f"Applied stop loss of {stop_loss*100:.2f}% to strategy", "info")
+            stop_loss = config["STOP_LOSS"]  # Already in decimal form (0-1) from portfolio_loader
+            if 0 < stop_loss <= 1:  # Validate range
+                params['sl_stop'] = stop_loss
+                log(f"Applied stop loss of {stop_loss*100:.2f}% to strategy", "info")
+            else:
+                log(f"Warning: Invalid stop loss value {stop_loss*100:.2f}% - must be between 0% and 100%", "warning")
         else:
             log("No stop loss configured for strategy - running without stop loss protection", "warning")
         

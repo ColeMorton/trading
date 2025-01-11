@@ -71,10 +71,12 @@ def load_portfolio_from_json(json_path: Path, log: Callable[[str, str], None], c
         if stop_loss is not None:
             try:
                 stop_loss_float = float(stop_loss)
-                if stop_loss_float <= 0 or stop_loss_float > 1:
-                    log(f"Warning: Stop loss for {ticker} ({stop_loss_float}) should be between 0 and 1", "warning")
-                config_entry["STOP_LOSS"] = stop_loss_float
-                log(f"Stop loss set to {stop_loss_float:.4f} ({stop_loss_float*100:.2f}%) for {ticker}", "info")
+                # Convert percentage (0-100) to decimal (0-1)
+                stop_loss_decimal = stop_loss_float / 100 if stop_loss_float > 1 else stop_loss_float
+                if stop_loss_decimal <= 0 or stop_loss_decimal > 1:
+                    log(f"Warning: Stop loss for {ticker} ({stop_loss_float}%) is outside valid range (0-100%)", "warning")
+                config_entry["STOP_LOSS"] = stop_loss_decimal
+                log(f"Stop loss set to {stop_loss_decimal:.4f} ({stop_loss_decimal*100:.2f}%) for {ticker}", "info")
             except ValueError:
                 log(f"Error: Invalid stop loss value for {ticker}: {stop_loss}", "error")
                 raise ValueError(f"Invalid stop loss value for {ticker}: {stop_loss}")

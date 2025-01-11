@@ -78,9 +78,13 @@ def analyze_stop_loss_parameters(
     
     # Analyze each stop loss percentage
     for i, stop_loss in enumerate(stop_loss_range):
-        # Round stop loss to 2 decimal places
-        stop_loss = round(float(stop_loss), 2)
-        config["STOP_LOSS"] = stop_loss
+        # Convert percentage to decimal (e.g., 3.74% -> 0.0374)
+        stop_loss_pct = round(float(stop_loss), 2)
+        stop_loss_decimal = stop_loss_pct / 100
+        config["STOP_LOSS"] = stop_loss_decimal
+        
+        if log:
+            log(f"Testing stop loss of {stop_loss_pct:.2f}% ({stop_loss_decimal:.4f})")
         
         portfolio = backtest_strategy(data_with_signals, config, log)
         stats = portfolio.stats()
@@ -120,7 +124,7 @@ def analyze_stop_loss_parameters(
             trades_array[i] = current_metrics['trades']
         
         if log:
-            log(f"Analyzed stop loss {stop_loss:.2f}%")
+            log(f"Analyzed stop loss {stop_loss_pct:.2f}%")
     
     # Create filename with MA windows and RSI if used
     ticker_prefix = config.get("TICKER", "")
