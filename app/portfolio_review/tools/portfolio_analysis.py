@@ -14,8 +14,6 @@ import pandas as pd
 import numpy as np
 import vectorbt as vbt
 from app.tools.get_data import get_data
-from app.tools.stats_converter import convert_stats
-from app.ma_cross.tools.generate_signals import generate_signals
 
 def prepare_data(symbols: List[str], config: Dict, log) -> Tuple[Dict[str, pl.DataFrame], Dict[str, pd.DataFrame]]:
     """

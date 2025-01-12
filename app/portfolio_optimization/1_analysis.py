@@ -12,7 +12,6 @@ from app.portfolio_optimization.tools.portfolio_config import (
     load_portfolio_config,
     get_portfolio_value,
     get_portfolio_tickers,
-    PortfolioConfig as BasePortfolioConfig
 )
 
 config = {

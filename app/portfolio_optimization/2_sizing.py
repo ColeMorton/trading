@@ -1,12 +1,10 @@
 """Portfolio position sizing calculator."""
 
-from typing import List
 from app.tools.setup_logging import setup_logging
-from app.portfolio_optimization.tools.position_sizing_types import Asset, PositionSizingConfig
+from app.portfolio_optimization.tools.position_sizing_types import PositionSizingConfig
 from app.portfolio_optimization.tools.position_sizing import calculate_position_sizes
 from app.portfolio_optimization.tools.portfolio_config import (
-    load_portfolio_config,
-    PortfolioConfig
+    load_portfolio_config
 )
 
 # Position sizing configuration - values not stored in portfolio JSON

@@ -26,11 +26,13 @@ end_date = '2024-11-02'
 
 # ASSETS = ['BTC-USD', 'QQQ']
 
-ASSETS = ['BTC-USD', 'MSTR']
+# ASSETS = ['BTC-USD', 'MSTR']
 
 # ASSETS = ['BTC-USD', 'MSTR', 'SOL-USD']
 
 # ASSETS = ['BTC-USD', 'SPY', 'QQQ', 'SOL-USD', 'MSTR']
+
+ASSETS = ['BTC-USD', 'SPY', 'QQQ', 'SOL-USD']
 
 # ASSETS = ['BTC-USD', 'SOL-USD', 'MSTR']
 
