@@ -115,7 +115,7 @@ class Config(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: Config = {
-    "TICKER": ["PODD","SYK","IQV","WAT"],
+    "TICKER": 'IDXX',
     "TICKER_1": 'AMAT',
     "TICKER_2": 'LRCX',
     "WINDOWS": 89,
