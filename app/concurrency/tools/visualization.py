@@ -54,7 +54,7 @@ def create_strategy_traces(
                     mode='lines',
                     line=dict(color=color, width=1),
                     showlegend=False,
-                    hovertemplate='%{x|%d/%m/%Y}<extra></extra>',
+                    hovertemplate='%{x|%d/%m/%Y}, %{y:.4f}k<extra></extra>',
                     hoverinfo='text'
                 )
             )
@@ -68,7 +68,8 @@ def create_strategy_traces(
                     mode='lines',
                     line=dict(color=color, width=1, dash='dash'),
                     showlegend=False,
-                    hoverinfo='skip'
+                    hovertemplate='%{x|%d/%m/%Y}, %{y:.4f}k<extra></extra>',
+                    hoverinfo='text'
                 )
             )
         
@@ -177,7 +178,8 @@ def plot_concurrency(
             go.Heatmap(
                 x=data_list[0]["Date"],
                 z=[active_strategies],
-                **heatmap_config
+                **heatmap_config,
+                hovertemplate='%{x|%d/%m/%Y}<extra></extra>'
             ),
             row=n_strategies + 1,
             col=1
