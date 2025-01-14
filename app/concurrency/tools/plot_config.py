@@ -3,13 +3,11 @@
 from typing import List, Dict
 
 STRATEGY_COLORS: List[str] = [
-    'rgba(9,30,135,0.2)',    # dark blue
-    'rgba(25,75,165,0.2)',   # medium-dark blue
-    'rgba(65,105,185,0.2)',  # medium blue
-    'rgba(95,145,205,0.2)',  # light-medium blue
-    'rgba(135,175,225,0.2)', # light blue
-    'rgba(175,205,235,0.2)', # very light blue
-    'rgba(205,225,245,0.2)'  # ultra light blue
+    'rgba(9,30,135,0.6)',    # dark blue
+    'rgba(25,75,165,0.6)',   # medium-dark blue
+    'rgba(65,105,185,0.6)',  # medium blue
+    'rgba(95,145,205,0.5)',  # light-medium blue
+    'rgba(135,175,225,0.4)', # light blue
 ]
 
 def get_heatmap_config(y_position: float = 0.08, colorbar_len: float = 0.18) -> Dict:
