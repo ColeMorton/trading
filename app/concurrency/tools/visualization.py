@@ -179,7 +179,7 @@ def plot_concurrency(
                 x=data_list[0]["Date"],
                 z=[active_strategies],
                 **heatmap_config,
-                hovertemplate='%{x|%d/%m/%Y}<extra></extra>'
+                hovertemplate='%{x|%d/%m/%Y}, %{z}<extra></extra>'
             ),
             row=n_strategies + 1,
             col=1
