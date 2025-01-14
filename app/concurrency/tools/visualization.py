@@ -34,7 +34,8 @@ def create_strategy_traces(
                 x=data["Date"],
                 y=data["Close"],
                 name=f"{ticker} Price",
-                line=dict(color="black", width=1)
+                line=dict(color="black", width=1),
+                hovertemplate='%{x|%d/%m/%Y}, %{y:.4f}k<extra></extra>'
             )
         ]
         
@@ -53,7 +54,8 @@ def create_strategy_traces(
                     mode='lines',
                     line=dict(color=color, width=1),
                     showlegend=False,
-                    hoverinfo='skip'
+                    hovertemplate='%{x|%d/%m/%Y}<extra></extra>',
+                    hoverinfo='text'
                 )
             )
         
