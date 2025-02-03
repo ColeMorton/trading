@@ -1,43 +1,43 @@
 {
-    "initial_value": 16589.6,
-    "target_value": 31912.5652,
-    "use_target_value": false,
+    "initial_value": 6044,
+    "target_value": 19685,
+    "use_target_value": true,
     "portfolio": [
-        {
-            "ticker": "AAPL"
-        },
-        {
-            "ticker": "NTES"
-        },
-        {
-            "ticker": "APTV"
-        },
-        {
-            "ticker": "DXCM"
-        },
         {
             "ticker": "ROST"
         },
         {
-            "ticker": "WST"
+            "ticker": "CRWD"
         },
         {
-            "ticker": "CNC"
+            "ticker": "AXON"
         },
         {
-            "ticker": "MCD"
+            "ticker": "PDD"
         },
         {
-            "ticker": "FTNT"
+            "ticker": "STLD"
         },
         {
-            "ticker": "AMZN"
+            "ticker": "VRSK"
         },
         {
-            "ticker": "TDG"
+            "ticker": "BRO"
         },
         {
-            "ticker": "IDXX"
+            "ticker": "ASML"
+        },
+        {
+            "ticker": "AAPL"
+        },
+        {
+            "ticker": "TSLA"
+        },
+        {
+            "ticker": "SPY"
+        },
+        {
+            "ticker": "QQQ"
         }
     ]
 }

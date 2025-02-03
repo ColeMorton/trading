@@ -38,7 +38,7 @@
         "direction": "Long",
         "short_window": 3,
         "long_window": 11,
-        "stop_loss": 0.0117
+        "stop_loss": 0.0275
     },
     {
         "ticker": "BTC-USD",
