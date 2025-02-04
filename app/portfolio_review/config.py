@@ -1,10 +1,10 @@
-from typing import Dict, TypedDict
+from typing import Dict, TypedDict, NotRequired
 
 class StrategyConfig(TypedDict):
     symbol: str
     short_window: int
     long_window: int
-    stop_loss: float
+    stop_loss: NotRequired[float]
     position_size: float
     use_sma: bool
 
@@ -139,4 +139,71 @@ config_mstr: Config = {
     'fees': 0.001
 }
 
-config = config_default
+# Configuration for the strategy
+config_btc_sol: Config = {
+    "strategies": {
+        "BTC_Strategy_1": {
+            "symbol": "BTC-USD",
+            "short_window": 27,
+            "long_window": 29,
+            "position_size": 1,
+            "use_sma": True
+        },
+        "BTC_Strategy_2": {
+            "symbol": "BTC-USD",
+            "short_window": 8,
+            "long_window": 44,
+            "position_size": 1,
+            "use_sma": True
+        },
+        "BTC_Strategy_3": {
+            "symbol": "BTC-USD",
+            "short_window": 3,
+            "long_window": 11,
+            "position_size": 1,
+            "use_sma": False
+        },
+        "BTC_Strategy_4": {
+            "symbol": "BTC-USD",
+            "short_window": 11,
+            "long_window": 17,
+            "position_size": 1,
+            "use_sma": False
+        },
+        "SOL_Strategy_1": {
+            "symbol": "SOL-USD",
+            "short_window": 14,
+            "long_window": 32,
+            "position_size": 1,
+            "use_sma": True
+        },
+        "SOL_Strategy_2": {
+            "symbol": "SOL-USD",
+            "short_window": 26,
+            "long_window": 32,
+            "position_size": 1,
+            "use_sma": True
+        },
+        "SOL_Strategy_3": {
+            "symbol": "SOL-USD",
+            "short_window": 27,
+            "long_window": 30,
+            "position_size": 1,
+            "use_sma": True
+        },
+        "SOL_Strategy_4": {
+            "symbol": "SOL-USD",
+            "short_window": 16,
+            "long_window": 18,
+            "position_size": 1,
+            "use_sma": False
+        }
+    },
+    # 'start_date': '2014-01-01',  # Updated start date to ensure SOL-USD data availability
+    'start_date': '2020-01-01',  # Updated start date to ensure SOL-USD data availability
+    'end_date': '2024-10-29',
+    'init_cash': 10000,
+    'fees': 0.001
+}
+
+config = config_btc_sol

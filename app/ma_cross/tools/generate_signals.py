@@ -93,11 +93,12 @@ def generate_signals(
                         in_position = True
                         entry_price = current_price
                         entries_np[i] = True
-                        # Calculate stop loss price
-                        stop_loss_price = entry_price * (1 - strategy['stop_loss'] / 100)
+                        # Calculate stop loss price if stop_loss is specified
+                        if 'stop_loss' in strategy:
+                            stop_loss_price = entry_price * (1 - strategy['stop_loss'] / 100)
                 else:
-                    # Check for stop loss or signal reversal
-                    if current_price <= stop_loss_price or signal_np[i] == 0:
+                    # Check for stop loss (if configured) or signal reversal
+                    if ('stop_loss' in strategy and current_price <= stop_loss_price) or signal_np[i] == 0:
                         # Exit position
                         in_position = False
                         entries_np[i] = False

@@ -55,7 +55,7 @@ def run_portfolio_analysis(config_input: Dict = None):
             
         # Validate strategy fields
         for strategy_name, strategy in portfolio_config['strategies'].items():
-            required_strategy_fields = ['symbol', 'short_window', 'long_window', 'stop_loss', 'position_size', 'use_sma']
+            required_strategy_fields = ['symbol', 'short_window', 'long_window', 'position_size', 'use_sma']
             missing_strategy_fields = [field for field in required_strategy_fields if field not in strategy]
             if missing_strategy_fields:
                 raise ValueError(f"Strategy '{strategy_name}' missing required fields: {missing_strategy_fields}")
@@ -65,8 +65,9 @@ def run_portfolio_analysis(config_input: Dict = None):
                 raise ValueError(f"Strategy '{strategy_name}' has invalid short_window")
             if not isinstance(strategy['long_window'], int) or strategy['long_window'] <= 0:
                 raise ValueError(f"Strategy '{strategy_name}' has invalid long_window")
-            if not isinstance(strategy['stop_loss'], (int, float)) or strategy['stop_loss'] <= 0:
-                raise ValueError(f"Strategy '{strategy_name}' has invalid stop_loss")
+            if 'stop_loss' in strategy:
+                if not isinstance(strategy['stop_loss'], (int, float)) or strategy['stop_loss'] <= 0:
+                    raise ValueError(f"Strategy '{strategy_name}' has invalid stop_loss")
             if not isinstance(strategy['position_size'], (int, float)) or strategy['position_size'] <= 0:
                 raise ValueError(f"Strategy '{strategy_name}' has invalid position_size")
 
