@@ -103,6 +103,21 @@ def create_stats_annotation(
                 stats_text += f"Strategy {strategy_num} Risk Contribution: {risk_metrics[risk_key]:.2%}<br>"
             if alpha_key in risk_metrics:
                 stats_text += f"Strategy {strategy_num} Alpha: {risk_metrics[alpha_key]:.4%}<br>"
+            
+            # Add VaR and CVaR metrics
+            var_95_key = f"strategy_{strategy_num}_var_95"
+            cvar_95_key = f"strategy_{strategy_num}_cvar_95"
+            var_99_key = f"strategy_{strategy_num}_var_99"
+            cvar_99_key = f"strategy_{strategy_num}_cvar_99"
+            
+            if var_95_key in risk_metrics:
+                stats_text += f"Strategy {strategy_num} VaR 95%: {risk_metrics[var_95_key]:.2%}<br>"
+            if cvar_95_key in risk_metrics:
+                stats_text += f"Strategy {strategy_num} CVaR 95%: {risk_metrics[cvar_95_key]:.2%}<br>"
+            if var_99_key in risk_metrics:
+                stats_text += f"Strategy {strategy_num} VaR 99%: {risk_metrics[var_99_key]:.2%}<br>"
+            if cvar_99_key in risk_metrics:
+                stats_text += f"Strategy {strategy_num} CVaR 99%: {risk_metrics[cvar_99_key]:.2%}<br>"
         
         # Add risk overlaps
         log("Adding risk overlap metrics", "info")

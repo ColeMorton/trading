@@ -23,6 +23,8 @@ def calculate_risk_contributions(
     Returns:
         Dict[str, float]: Dictionary containing:
             - Individual strategy risk contributions
+            - Value at Risk (VaR) at 95% and 99% confidence levels
+            - Conditional Value at Risk (CVaR) at 95% and 99% confidence levels
             - Pairwise risk overlaps
             - Total portfolio risk
             - Alpha metrics for each strategy
@@ -43,6 +45,9 @@ def calculate_risk_contributions(
         n_strategies = len(position_arrays)
         log(f"Calculating risk contributions for {n_strategies} strategies", "info")
         
+        # Initialize risk contributions dictionary
+        risk_contributions: Dict[str, float] = {}
+        
         # Calculate returns and volatilities for each strategy
         log("Calculating strategy returns and volatilities", "info")
         volatilities = []
@@ -58,7 +63,35 @@ def calculate_risk_contributions(
             avg_return = float(np.mean(active_returns)) if len(active_returns) > 0 else 0.0
             volatilities.append(vol)
             strategy_returns.append(avg_return)
-            log(f"Strategy {i+1} - Volatility: {vol:.4f}, Average Return: {avg_return:.4f}", "info")
+            
+            # Calculate VaR and CVaR for active returns
+            if len(active_returns) > 0:
+                # Sort returns for percentile calculations
+                sorted_returns = np.sort(active_returns)
+                
+                # Calculate VaR 95% and 99%
+                var_95 = float(np.percentile(sorted_returns, 5))  # 5th percentile for 95% confidence
+                var_99 = float(np.percentile(sorted_returns, 1))  # 1st percentile for 99% confidence
+                
+                # Calculate CVaR 95% and 99%
+                cvar_95 = float(np.mean(sorted_returns[sorted_returns <= var_95]))
+                cvar_99 = float(np.mean(sorted_returns[sorted_returns <= var_99]))
+                
+                risk_contributions[f"strategy_{i+1}_var_95"] = var_95
+                risk_contributions[f"strategy_{i+1}_cvar_95"] = cvar_95
+                risk_contributions[f"strategy_{i+1}_var_99"] = var_99
+                risk_contributions[f"strategy_{i+1}_cvar_99"] = cvar_99
+                
+                log(f"Strategy {i+1} - Volatility: {vol:.4f}, Average Return: {avg_return:.4f}", "info")
+                log(f"Strategy {i+1} - VaR 95%: {var_95:.4f}, CVaR 95%: {cvar_95:.4f}", "info")
+                log(f"Strategy {i+1} - VaR 99%: {var_99:.4f}, CVaR 99%: {cvar_99:.4f}", "info")
+            else:
+                risk_contributions[f"strategy_{i+1}_var_95"] = 0.0
+                risk_contributions[f"strategy_{i+1}_cvar_95"] = 0.0
+                risk_contributions[f"strategy_{i+1}_var_99"] = 0.0
+                risk_contributions[f"strategy_{i+1}_cvar_99"] = 0.0
+                log(f"Strategy {i+1} - Volatility: {vol:.4f}, Average Return: {avg_return:.4f}", "info")
+                log(f"Strategy {i+1} - No active returns for VaR/CVaR calculation", "info")
         
         # Calculate benchmark return (average of all strategies)
         benchmark_return = np.mean(strategy_returns)
@@ -79,8 +112,6 @@ def calculate_risk_contributions(
         log(f"Portfolio risk calculated: {portfolio_risk:.4f}", "info")
         
         # Calculate marginal risk contributions and Alpha metrics
-        risk_contributions: Dict[str, float] = {}
-        
         if portfolio_risk > 0:
             log("Calculating individual strategy risk contributions and alphas", "info")
             for i in range(n_strategies):
