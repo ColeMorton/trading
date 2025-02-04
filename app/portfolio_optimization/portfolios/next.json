@@ -1,16 +1,10 @@
 {
     "initial_value": 6044,
-    "target_value": 19685,
+    "target_value": 11446,
     "use_target_value": true,
     "portfolio": [
         {
-            "ticker": "ROST"
-        },
-        {
-            "ticker": "CRWD"
-        },
-        {
-            "ticker": "AXON"
+            "ticker": "KLAC"
         },
         {
             "ticker": "PDD"
@@ -28,16 +22,10 @@
             "ticker": "ASML"
         },
         {
-            "ticker": "AAPL"
+            "ticker": "XYZ"
         },
         {
-            "ticker": "TSLA"
-        },
-        {
-            "ticker": "SPY"
-        },
-        {
-            "ticker": "QQQ"
+            "ticker": "AON"
         }
     ]
 }

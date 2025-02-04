@@ -25,11 +25,11 @@ from app.ma_cross.tools.stop_loss_plotting import create_stop_loss_heatmap
 
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
-    "TICKER": "AAPL",
-    "SHORT_WINDOW": 7,
-    "LONG_WINDOW": 13,
+    "TICKER": "AON",
+    "SHORT_WINDOW": 10,
+    "LONG_WINDOW": 67,
     "BASE_DIR": ".",
-    "USE_SMA": False,
+    "USE_SMA": True,
     "REFRESH": False,
     "USE_HOURLY": False,
     "RELATIVE": True,

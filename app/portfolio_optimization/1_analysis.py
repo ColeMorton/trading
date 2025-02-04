@@ -15,9 +15,9 @@ from app.portfolio_optimization.tools.portfolio_config import (
 )
 
 config = {
-    # "portfolio": "next.json"
+    "portfolio": "next.json"
     # "portfolio": "btc_sol.json"
-    "portfolio": "spy_qqq_btc_sol.json"
+    # "portfolio": "spy_qqq_btc_sol.json"
 }
 
 class OptimizationConfig(TypedDict):
