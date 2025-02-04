@@ -38,8 +38,17 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
         if "STOP_LOSS" in config and config["STOP_LOSS"] is not None:
             stop_loss = config["STOP_LOSS"]  # Already in decimal form (0-1) from portfolio_loader
             if 0 < stop_loss <= 1:  # Validate range
-                params['sl_stop'] = stop_loss
-                log(f"Applied stop loss of {stop_loss*100:.2f}% to strategy", "info")
+                if config.get('SL_CANDLE_CLOSE', True):
+                    # When using candle close, we calculate the stop price based on entry
+                    # but execute at the candle's close price
+                    params['sl_stop'] = stop_loss
+                    log(f"Applied stop loss of {stop_loss*100:.2f}% with exit at candle close", "info")
+                else:
+                    # For immediate exit, use the actual stop loss price
+                    params['sl_stop'] = stop_loss
+                    # Use the actual stop loss price for exit
+                    params['sl_price'] = data_pd['Close'] * (1 - stop_loss if config.get('DIRECTION', 'Long') == 'Long' else 1 + stop_loss)
+                    log(f"Applied stop loss of {stop_loss*100:.2f}% with immediate exit", "info")
             else:
                 log(f"Warning: Invalid stop loss value {stop_loss*100:.2f}% - must be between 0% and 100%", "warning")
         else:

@@ -14,10 +14,11 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "spy_qqq_D_next.json",
     # "PORTFOLIO": "spy_qqq_btc_sol_D.json",
     # "PORTFOLIO": "btc_d_next.json",
-    # "PORTFOLIO": "crypto_d.json",
-    "PORTFOLIO": "crypto_d_next.json",
+    "PORTFOLIO": "crypto_d.json",
+    # "PORTFOLIO": "crypto_d_next.json",
     "BASE_DIR": ".",
-    "REFRESH": True
+    "REFRESH": True,
+    "SL_CANDLE_CLOSE": True
 }
 
 if __name__ == "__main__":
