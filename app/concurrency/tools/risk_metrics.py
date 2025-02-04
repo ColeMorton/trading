@@ -52,6 +52,7 @@ def calculate_risk_contributions(
         log("Calculating strategy returns and volatilities", "info")
         volatilities = []
         strategy_returns = []
+        all_active_returns = []  # Store all active returns for combined VaR/CVaR
         for i, df in enumerate(data_list):
             # Calculate returns from Close prices
             close_prices = df["Close"].to_numpy()
@@ -63,6 +64,10 @@ def calculate_risk_contributions(
             avg_return = float(np.mean(active_returns)) if len(active_returns) > 0 else 0.0
             volatilities.append(vol)
             strategy_returns.append(avg_return)
+            
+            # Collect active returns for combined calculations
+            if len(active_returns) > 0:
+                all_active_returns.extend(active_returns)
             
             # Calculate VaR and CVaR for active returns
             if len(active_returns) > 0:
@@ -93,6 +98,33 @@ def calculate_risk_contributions(
                 log(f"Strategy {i+1} - Volatility: {vol:.4f}, Average Return: {avg_return:.4f}", "info")
                 log(f"Strategy {i+1} - No active returns for VaR/CVaR calculation", "info")
         
+        # Calculate combined VaR and CVaR metrics
+        log("Calculating combined VaR and CVaR metrics", "info")
+        if all_active_returns:
+            sorted_returns = np.sort(all_active_returns)
+            
+            # Calculate combined VaR 95% and 99%
+            combined_var_95 = float(np.percentile(sorted_returns, 5))
+            combined_var_99 = float(np.percentile(sorted_returns, 1))
+            
+            # Calculate combined CVaR 95% and 99%
+            combined_cvar_95 = float(np.mean(sorted_returns[sorted_returns <= combined_var_95]))
+            combined_cvar_99 = float(np.mean(sorted_returns[sorted_returns <= combined_var_99]))
+            
+            risk_contributions["combined_var_95"] = combined_var_95
+            risk_contributions["combined_cvar_95"] = combined_cvar_95
+            risk_contributions["combined_var_99"] = combined_var_99
+            risk_contributions["combined_cvar_99"] = combined_cvar_99
+            
+            log(f"Combined VaR 95%: {combined_var_95:.4f}, CVaR 95%: {combined_cvar_95:.4f}", "info")
+            log(f"Combined VaR 99%: {combined_var_99:.4f}, CVaR 99%: {combined_cvar_99:.4f}", "info")
+        else:
+            log("No active returns for combined VaR/CVaR calculation", "info")
+            risk_contributions["combined_var_95"] = 0.0
+            risk_contributions["combined_cvar_95"] = 0.0
+            risk_contributions["combined_var_99"] = 0.0
+            risk_contributions["combined_cvar_99"] = 0.0
+
         # Calculate benchmark return (average of all strategies)
         benchmark_return = np.mean(strategy_returns)
         log(f"Benchmark return calculated: {benchmark_return:.4f}", "info")

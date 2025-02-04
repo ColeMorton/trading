@@ -126,6 +126,16 @@ def create_stats_annotation(
             strat1, strat2 = key.split('_')[2:4]
             stats_text += f"Risk Overlap {strat1}-{strat2}: {risk_metrics[key]:.2%}<br>"
         
+        # Add combined VaR and CVaR metrics
+        if 'combined_var_95' in risk_metrics:
+            stats_text += f"Combined VaR 95%: {risk_metrics['combined_var_95']:.2%}<br>"
+        if 'combined_cvar_95' in risk_metrics:
+            stats_text += f"Combined CVaR 95%: {risk_metrics['combined_cvar_95']:.2%}<br>"
+        if 'combined_var_99' in risk_metrics:
+            stats_text += f"Combined VaR 99%: {risk_metrics['combined_var_99']:.2%}<br>"
+        if 'combined_cvar_99' in risk_metrics:
+            stats_text += f"Combined CVaR 99%: {risk_metrics['combined_cvar_99']:.2%}<br>"
+
         # Add total portfolio risk and benchmark return
         if 'total_portfolio_risk' in risk_metrics:
             stats_text += f"Total Portfolio Risk: {risk_metrics['total_portfolio_risk']:.4f}<br>"
