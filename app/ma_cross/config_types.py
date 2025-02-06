@@ -116,19 +116,23 @@ class Config(TypedDict, total=False):
 # Default configuration
 DEFAULT_CONFIG: Config = {
     "TICKER": [
-        'AAPL',
-        'TSLA',
-        'AON',
-        'CRM',
-        'XYZ',
-        'SPY',
-        'QQQ',
-        'KLAC',
-        'IONQ',
-        'TMDX',
-        'MS',
-        'PLTR'
-    ],
+  "QQQ",
+  "ESS",
+  "ENPH",
+  "UBER",
+  "HOLX",
+  "AAPL",
+  "MS",
+  "LCID",
+  "DOCN",
+  "JD",
+  "NCLH",
+  "EWN",
+  "CIFR",
+  "HIG",
+  "XOM",
+  "MSTR"
+],
     "TICKER_1": 'AMAT',
     "TICKER_2": 'LRCX',
     "WINDOWS": 89,
@@ -148,7 +152,7 @@ DEFAULT_CONFIG: Config = {
     "MIN_TRADES": 34,
     "MIN_WIN_RATE": 0.35,
     # "MIN_WIN_RATE": 0.5,
-    # "MIN_TRADES": 60,
+    # "MIN_TRADES": 50,
     "SORT_BY": "Expectancy Adjusted",
     "USE_GBM": False
 }

@@ -1,6 +1,6 @@
 {
     "initial_value": 6044,
-    "target_value": 11446,
+    "target_value": 11651,
     "use_target_value": true,
     "portfolio": [
         {
@@ -26,6 +26,12 @@
         },
         {
             "ticker": "AON"
+        },
+        {
+            "ticker": "SPY"
+        },
+        {
+            "ticker": "QQQ"
         }
     ]
 }
