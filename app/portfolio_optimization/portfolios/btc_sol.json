@@ -1,5 +1,5 @@
 {
-    "initial_value": 21050.54,
+    "initial_value": 15915.5,
     "target_value": 27300,
     "use_target_value": true,
     "portfolio": [
@@ -14,5 +14,4 @@
             "weight": 46.96
         }
     ]
-    
 }

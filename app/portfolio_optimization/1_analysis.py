@@ -15,9 +15,9 @@ from app.portfolio_optimization.tools.portfolio_config import (
 )
 
 config = {
-    "portfolio": "next.json"
+    # "portfolio": "next.json"
     # "portfolio": "btc_sol.json"
-    # "portfolio": "spy_qqq_btc_sol.json"
+    "portfolio": "spy_qqq_btc_sol.json"
 }
 
 class OptimizationConfig(TypedDict):
@@ -224,12 +224,18 @@ def main() -> None:
         log("\nCalculating portfolio and asset metrics")
         asset_metrics = calculate_asset_metrics(pl.from_pandas(returns), weights)
         
-        # Calculate VaR and CVaR
+        # Calculate VaR and CVaR at 95% and 99% confidence levels
         portfolio_returns = portfolio.returns
-        portfolio_var = calculate_var(portfolio_returns)
-        portfolio_cvar = calculate_cvar(portfolio_returns)
-        portfolio_var_usd = portfolio_var * TOTAL_PORTFOLIO_VALUE / 100
-        portfolio_cvar_usd = portfolio_cvar * TOTAL_PORTFOLIO_VALUE / 100
+        # 95% confidence level
+        portfolio_var_95 = calculate_var(portfolio_returns, 0.95)
+        portfolio_cvar_95 = calculate_cvar(portfolio_returns, 0.95)
+        portfolio_var_95_usd = portfolio_var_95 * TOTAL_PORTFOLIO_VALUE / 100
+        portfolio_cvar_95_usd = portfolio_cvar_95 * TOTAL_PORTFOLIO_VALUE / 100
+        # 99% confidence level
+        portfolio_var_99 = calculate_var(portfolio_returns, 0.99)
+        portfolio_cvar_99 = calculate_cvar(portfolio_returns, 0.99)
+        portfolio_var_99_usd = portfolio_var_99 * TOTAL_PORTFOLIO_VALUE / 100
+        portfolio_cvar_99_usd = portfolio_cvar_99 * TOTAL_PORTFOLIO_VALUE / 100
 
         # Print portfolio summary
         log("\nOptimal Portfolio Allocation:")
@@ -245,8 +251,10 @@ def main() -> None:
         log(f"Annualized Return: {annualized_return:.2%}")
         log(f"Downside Volatility: {downside_volatility:.2%}")
         log(f"Sortino Ratio: {sortino_ratio:.2f}")
-        log(f"Value at Risk (VaR): ${portfolio_var_usd:,.2f}")
-        log(f"Conditional Value at Risk (CVaR): ${portfolio_cvar_usd:,.2f}")
+        log(f"Value at Risk (VaR 95%): ${portfolio_var_95_usd:,.2f}")
+        log(f"Conditional Value at Risk (CVaR 95%): ${portfolio_cvar_95_usd:,.2f}")
+        log(f"Value at Risk (VaR 99%): ${portfolio_var_99_usd:,.2f}")
+        log(f"Conditional Value at Risk (CVaR 99%): ${portfolio_cvar_99_usd:,.2f}")
 
         # Print detailed asset metrics
         log("\nDetailed Asset Metrics:")

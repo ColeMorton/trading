@@ -10,7 +10,8 @@ from app.portfolio_optimization.tools.portfolio_config import (
 # Position sizing configuration - values not stored in portfolio JSON
 config: PositionSizingConfig = {
     # "portfolio": "spy_qqq_btc_sol.json",
-    "portfolio": "spy_qqq.json",
+    # "portfolio": "spy_qqq.json",
+    "portfolio": "btc_sol.json",
     "use_ema": False,     # Whether to use EMA for price calculations
     "ema_period": 35,     # Period for EMA if used
     "var_confidence_levels": [0.95, 0.99]

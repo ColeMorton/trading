@@ -1,13 +1,13 @@
 {
     "initial_value": 6044,
-    "target_value": 11651,
+    "target_value": 13788,
     "use_target_value": true,
     "portfolio": [
         {
             "ticker": "KLAC"
         },
         {
-            "ticker": "PDD"
+            "ticker": "MS"
         },
         {
             "ticker": "STLD"
@@ -28,10 +28,10 @@
             "ticker": "AON"
         },
         {
-            "ticker": "SPY"
+            "ticker": "AAPL"
         },
         {
-            "ticker": "QQQ"
+            "ticker": "HIG"
         }
     ]
 }
