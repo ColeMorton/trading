@@ -166,8 +166,9 @@ def main() -> None:
         # Load portfolio configuration
         portfolio_config = load_portfolio_config(config["portfolio"])
         
-        # Get portfolio value and tickers
+        # Get portfolio values and tickers
         TOTAL_PORTFOLIO_VALUE = get_portfolio_value(portfolio_config)
+        INITIAL_VALUE = portfolio_config["initial_value"]
         TICKERS = get_portfolio_tickers(portfolio_config)
         
         # Calculate weights dynamically based on number of tickers
@@ -229,6 +230,7 @@ def main() -> None:
         # 95% confidence level
         portfolio_var_95 = calculate_var(portfolio_returns, 0.95)
         portfolio_cvar_95 = calculate_cvar(portfolio_returns, 0.95)
+        # Calculate dollar values using total portfolio value
         portfolio_var_95_usd = portfolio_var_95 * TOTAL_PORTFOLIO_VALUE / 100
         portfolio_cvar_95_usd = portfolio_cvar_95 * TOTAL_PORTFOLIO_VALUE / 100
         # 99% confidence level
@@ -236,6 +238,12 @@ def main() -> None:
         portfolio_cvar_99 = calculate_cvar(portfolio_returns, 0.99)
         portfolio_var_99_usd = portfolio_var_99 * TOTAL_PORTFOLIO_VALUE / 100
         portfolio_cvar_99_usd = portfolio_cvar_99 * TOTAL_PORTFOLIO_VALUE / 100
+
+        # Calculate what percentage these dollar values represent of the initial value
+        portfolio_var_95_pct = (portfolio_var_95_usd / INITIAL_VALUE) * 100
+        portfolio_cvar_95_pct = (portfolio_cvar_95_usd / INITIAL_VALUE) * 100
+        portfolio_var_99_pct = (portfolio_var_99_usd / INITIAL_VALUE) * 100
+        portfolio_cvar_99_pct = (portfolio_cvar_99_usd / INITIAL_VALUE) * 100
 
         # Print portfolio summary
         log("\nOptimal Portfolio Allocation:")
@@ -251,10 +259,10 @@ def main() -> None:
         log(f"Annualized Return: {annualized_return:.2%}")
         log(f"Downside Volatility: {downside_volatility:.2%}")
         log(f"Sortino Ratio: {sortino_ratio:.2f}")
-        log(f"Value at Risk (VaR 95%): ${portfolio_var_95_usd:,.2f}")
-        log(f"Conditional Value at Risk (CVaR 95%): ${portfolio_cvar_95_usd:,.2f}")
-        log(f"Value at Risk (VaR 99%): ${portfolio_var_99_usd:,.2f}")
-        log(f"Conditional Value at Risk (CVaR 99%): ${portfolio_cvar_99_usd:,.2f}")
+        log(f"Value at Risk (VaR 95%): ${portfolio_var_95_usd:,.2f} ({portfolio_var_95_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})")
+        log(f"Conditional Value at Risk (CVaR 95%): ${portfolio_cvar_95_usd:,.2f} ({portfolio_cvar_95_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})")
+        log(f"Value at Risk (VaR 99%): ${portfolio_var_99_usd:,.2f} ({portfolio_var_99_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})")
+        log(f"Conditional Value at Risk (CVaR 99%): ${portfolio_cvar_99_usd:,.2f} ({portfolio_cvar_99_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})")
 
         # Print detailed asset metrics
         log("\nDetailed Asset Metrics:")
