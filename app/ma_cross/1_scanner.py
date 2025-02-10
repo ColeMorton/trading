@@ -50,11 +50,11 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     # "SCANNER_LIST": 'HOURLY Crypto.csv',
-    "SCANNER_LIST": 'DAILY.csv',
+    # "SCANNER_LIST": 'DAILY.csv',
     # "SCANNER_LIST": 'BTC_SOL_D.csv',
-    # "SCANNER_LIST": 'QQQ_SPY100.csv',
+    "SCANNER_LIST": 'QQQ_SPY100.csv',
     "USE_HOURLY": False,
-    "REFRESH": True,
+    "REFRESH": False,
     "DIRECTION": "Long"  # Default to Long position
 }
 
@@ -191,6 +191,13 @@ def process_scanner() -> bool:
             except Exception as e:
                 log(f"Error processing {ticker}: {str(e)}", "error")
                 continue
+        
+        # Calculate and log signal detection ratio
+        total_tickers = len(scanner_df)
+        total_strategies = total_tickers * (2 if is_new_schema else 1)  # 2 for new schema (SMA or EMA), 1 for old schema
+        signals_detected = len(results_data)
+        detection_ratio = signals_detected / total_strategies if total_strategies > 0 else 0
+        log(f"Signal Detection Ratio: {signals_detected}/{total_strategies} ({detection_ratio:.2%})")
         
         # Export results
         export_results(results_data, config, log)
