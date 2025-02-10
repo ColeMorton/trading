@@ -34,12 +34,12 @@ def analyze_rsi_parameters(
     Returns:
         Dict[str, np.ndarray]: Dictionary containing metric matrices
     """
-    # Initialize result matrices
+    # Initialize result matrices with shape (windows, thresholds) to match RSI mask
     matrices = {
-        'returns': np.zeros((len(rsi_thresholds), len(rsi_windows))),
-        'win_rate': np.zeros((len(rsi_thresholds), len(rsi_windows))),
-        'sharpe_ratio': np.zeros((len(rsi_thresholds), len(rsi_windows))),
-        'trades': np.zeros((len(rsi_thresholds), len(rsi_windows)))
+        'returns': np.zeros((len(rsi_windows), len(rsi_thresholds))),
+        'win_rate': np.zeros((len(rsi_windows), len(rsi_thresholds))),
+        'sharpe_ratio': np.zeros((len(rsi_windows), len(rsi_thresholds))),
+        'trades': np.zeros((len(rsi_windows), len(rsi_thresholds)))
     }
     portfolios = []
     
@@ -121,11 +121,11 @@ def analyze_rsi_parameters(
                 if config.get('RELATIVE', True):
                     baseline = baseline_metrics[metric]
                     if metric in ['sharpe_ratio', 'trades'] and baseline != 0:
-                        matrices[metric][i, j] = ((current / baseline) * 100 - 100)
+                        matrices[metric][j, i] = ((current / baseline) * 100 - 100)
                     else:
-                        matrices[metric][i, j] = current - baseline
+                        matrices[metric][j, i] = current - baseline
                 else:
-                    matrices[metric][i, j] = current # Use absolute value when RELATIVE is False
+                    matrices[metric][j, i] = current # Use absolute value when RELATIVE is False
             
             if log:
                 log(f"Analyzed RSI window {window}, threshold {threshold}")
@@ -140,4 +140,13 @@ def analyze_rsi_parameters(
     )
     export_csv(portfolios, "ma_cross", export_config, "rsi", filename)
     
-    return {k: v.T for k, v in matrices.items()}
+    # Apply RSI mask if USE_CURRENT is True
+    if config.get("USE_CURRENT", False):
+        for metric_name in matrices:
+            matrices[metric_name] = apply_rsi_mask(matrices[metric_name], rsi_mask)
+            if log:
+                active_count = np.sum(~np.isnan(matrices[metric_name]))
+                total_count = matrices[metric_name].size
+                log(f"{metric_name}: {active_count}/{total_count} cells active")
+    
+    return matrices
