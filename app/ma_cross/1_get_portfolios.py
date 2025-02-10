@@ -9,11 +9,35 @@ sensitivity analysis and portfolio filtering.
 import os
 from app.tools.get_config import get_config
 from app.tools.setup_logging import setup_logging
-from app.ma_cross.config_types import Config, DEFAULT_CONFIG
+from app.ma_cross.config_types import Config
 from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
-def run(config: Config = DEFAULT_CONFIG) -> bool:
+CONFIG: Config = {
+    "TICKER": 'BTC-USD',
+    "TICKER_1": 'AMAT',
+    "TICKER_2": 'LRCX',
+    "WINDOWS": 89,
+    # "WINDOWS": 120,
+    # "WINDOWS": 55,
+    "BASE_DIR": ".",
+    "REFRESH": True,
+    # "USE_SMA": True,
+    "DIRECTION": "Long",
+    "USE_HOURLY": False,
+    "USE_YEARS": False,
+    "YEARS": 15,
+    "USE_SYNTHETIC": False,
+    # "USE_CURRENT": True,
+    # "MIN_TRADES": 34,
+    # "MIN_WIN_RATE": 0.35,
+    # "MIN_WIN_RATE": 0.5,
+    # "MIN_TRADES": 50,
+    "SORT_BY": "Expectancy Adjusted",
+    "USE_GBM": False
+}
+
+def run(config: Config = CONFIG) -> bool:
     """Run portfolio analysis for single or multiple tickers.
     
     This function handles the main workflow of portfolio analysis:
@@ -85,8 +109,8 @@ def run_both_strategies() -> bool:
             log_file='1_get_portfolios.log'
         )
         
-        # Initialize base config
-        config_copy = DEFAULT_CONFIG.copy()
+        # Initialize config
+        config_copy = CONFIG.copy()
         config_copy["USE_MA"] = True  # Ensure USE_MA is set for proper filename suffix
         
         # Handle synthetic pair if enabled

@@ -44,4 +44,18 @@ Key Differences:
      * Real-time market scanning
      * Testing specific MA combinations across multiple tickers
 
+Important Implementation Note:
+- Scanner mode must be executed through 1_scanner.py, not 1_get_portfolios.py
+- Setting USE_SCANNER=True in 1_get_portfolios.py will not activate scanner mode as they are separate execution paths
+- 1_scanner.py logs to 2_scanner.log while 1_get_portfolios.py logs to 1_get_portfolios.log
+
+Example Usage:
+```python
+# For scanner mode (using specific MA parameters from CSV):
+python 1_scanner.py  # Will automatically set USE_SCANNER=True
+
+# For normal mode (exhaustive parameter analysis):
+python 1_get_portfolios.py  # USE_SCANNER setting is ignored
+```
+
 The scanner mode essentially provides a more targeted and efficient approach when you already know which MA parameters you want to test, while the normal mode is better suited for comprehensive analysis and parameter optimization.
