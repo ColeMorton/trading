@@ -6,11 +6,13 @@ This module contains functions for analyzing RSI parameter sensitivity.
 
 import polars as pl
 import numpy as np
+import pandas as pd
 from typing import Dict, Callable, Any
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.stats_converter import convert_stats
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.export_csv import export_csv, ExportConfig
+from app.ma_cross.tools.rsi_utils import calculate_latest_rsi_matrix, apply_rsi_mask
 
 def analyze_rsi_parameters(
     data: pl.DataFrame,
@@ -40,6 +42,22 @@ def analyze_rsi_parameters(
         'trades': np.zeros((len(rsi_thresholds), len(rsi_windows)))
     }
     portfolios = []
+    
+    # Convert price data to pandas for talib
+    price_history = pd.Series(data['Close'].to_numpy())
+    last_bar = price_history.iloc[-1]
+    
+    # Calculate RSI values and mask matrix
+    if config.get("USE_CURRENT", False):
+        log("\nCalculating current RSI values and determining active combinations...")
+        _, rsi_mask = calculate_latest_rsi_matrix(
+            last_bar=last_bar,
+            price_history=price_history,
+            rsi_windows=rsi_windows,
+            rsi_thresholds=rsi_thresholds,
+            log=log
+        )
+        log("\nApplying mask to performance metrics...")
     
     # Get baseline performance ONLY IF RELATIVE is True
     if config.get('RELATIVE', True):

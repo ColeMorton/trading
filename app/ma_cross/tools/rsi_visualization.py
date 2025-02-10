@@ -21,16 +21,37 @@ class Config(TypedDict, total=False):
     
     Optional Fields:
         RELATIVE: Whether to show metrics relative to baseline (default: True)
+        USE_CURRENT: Whether to show only parameter combinations where the latest RSI value
+                    (calculated using that window length) is >= the threshold (default: False)
     """
     RELATIVE: bool | None
+    USE_CURRENT: bool | None
 
 def create_rsi_heatmap(
-    metric_matrices: dict[str, NDArray[np.float64]],
+    metric_matrices: dict[str, NDArray[np.float64] | dict[float, float]],
     rsi_thresholds: NDArray[np.float64],
     rsi_windows: NDArray[np.float64],
     ticker: str,
     config: Config
 ) -> dict[str, go.Figure]:
+    """
+    Create heatmap figures for RSI parameter analysis.
+
+    When USE_CURRENT is True in the config, only parameter combinations where the latest RSI value
+    (calculated using that specific window length) is greater than or equal to the corresponding
+    threshold will be shown. All other values will be hidden (set to NaN) in the heatmap. This
+    allows visualization of which parameter combinations are currently active in the market.
+
+    Args:
+        metric_matrices: Dictionary mapping metric names to their parameter sensitivity matrices
+        rsi_thresholds: Array of RSI threshold values tested
+        rsi_windows: Array of RSI window lengths tested
+        ticker: Ticker symbol for plot titles
+        config: Strategy configuration including visualization settings
+
+    Returns:
+        Dictionary mapping metric names to their interactive heatmap figures
+    """
     """
     Create heatmap figures for RSI parameter analysis.
 
@@ -70,6 +91,13 @@ def create_rsi_heatmap(
     }
     
     for metric_name, matrix in metric_matrices.items():
+        # Skip non-matrix entries
+        if not isinstance(matrix, np.ndarray):
+            continue
+            
+        # Create a copy of the matrix to avoid modifying the original
+        display_matrix = matrix.copy()
+        
         fig = go.Figure()
         format_info = metric_formats[metric_name]
         
@@ -87,13 +115,25 @@ def create_rsi_heatmap(
         zmid = None
         print(f"Debug - Using range: {zmin:.2f} to {zmax:.2f}")
         
-        # Create hover text matrix
-        hover_text = [[
-            f"RSI Window: {window:.0f}<br>"
-            f"RSI Threshold: {threshold:.0f}<br>"
-            f"{metric_name.capitalize().replace('_', ' ')}: {value:{format_info['format']}}{title_suffix}"
-            for threshold, value in zip(rsi_thresholds, row)
-        ] for window, row in zip(rsi_windows, matrix)]
+        # Create hover text matrix handling NaN values
+        hover_text = []
+        for window, row in zip(rsi_windows, display_matrix):
+            row_text = []
+            for threshold, value in zip(rsi_thresholds, row):
+                if np.isnan(value):
+                    text = (
+                        f"RSI Window: {window:.0f}<br>"
+                        f"RSI Threshold: {threshold:.0f}<br>"
+                        f"Status: Not Currently Active"
+                    )
+                else:
+                    text = (
+                        f"RSI Window: {window:.0f}<br>"
+                        f"RSI Threshold: {threshold:.0f}<br>"
+                        f"{metric_name.capitalize().replace('_', ' ')}: {value:{format_info['format']}}{title_suffix}"
+                    )
+                row_text.append(text)
+            hover_text.append(row_text)
 
         fig.add_trace(go.Heatmap(
             z=matrix,
@@ -103,6 +143,7 @@ def create_rsi_heatmap(
             zmid=zmid,
             zmin=zmin,
             zmax=zmax,
+            showscale=True,
             hovertext=hover_text,
             hoverinfo='text',
             colorbar=dict(

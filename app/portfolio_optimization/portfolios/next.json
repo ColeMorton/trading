@@ -1,7 +1,7 @@
 {
-    "initial_value": 6044,
+    "initial_value": 9181.65195,
     "target_value": 13788,
-    "use_target_value": true,
+    "use_target_value": false,
     "portfolio": [
         {
             "ticker": "KLAC"

@@ -1,0 +1,163 @@
+[
+  {
+    "ticker": "SPY",
+    "timeframe": "Daily",
+    "type": "SMA",
+    "direction": "Long",
+    "short_window": 108,
+    "long_window": 115
+},
+{
+    "ticker": "SPY",
+    "timeframe": "Daily",
+    "type": "SMA",
+    "direction": "Long",
+    "short_window": 12,
+    "long_window": 73
+},
+{
+    "ticker": "SPY",
+    "timeframe": "Daily",
+    "type": "EMA",
+    "direction": "Long",
+    "short_window": 51,
+    "long_window": 72
+},
+{
+    "ticker": "SPY",
+    "timeframe": "Daily",
+    "type": "EMA",
+    "direction": "Long",
+    "short_window": 46,
+    "long_window": 51
+},
+{
+    "ticker": "SPY",
+    "timeframe": "Daily",
+    "type": "EMA",
+    "direction": "Long",
+    "short_window": 18,
+    "long_window": 32
+},
+{
+    "ticker": "QQQ",
+    "timeframe": "Daily",
+    "type": "SMA",
+    "direction": "Long",
+    "short_window": 102,
+    "long_window": 109
+},
+{
+    "ticker": "QQQ",
+    "timeframe": "Daily",
+    "type": "SMA",
+    "direction": "Long",
+    "short_window": 69,
+    "long_window": 77
+},
+{
+    "ticker": "QQQ",
+    "timeframe": "Daily",
+    "type": "SMA",
+    "direction": "Long",
+    "short_window": 17,
+    "long_window": 28
+},
+{
+    "ticker": "QQQ",
+    "timeframe": "Daily",
+    "type": "SMA",
+    "direction": "Long",
+    "short_window": 15,
+    "long_window": 28
+},
+{
+    "ticker": "QQQ",
+    "timeframe": "Daily",
+    "type": "EMA",
+    "direction": "Long",
+    "short_window": 34,
+    "long_window": 52
+},
+{
+  "ticker": "BTC-USD",
+  "timeframe": "Daily",
+  "type": "MACD",
+  "direction": "Long",
+  "short_window": 14,
+  "long_window": 23
+},
+{
+  "ticker": "BTC-USD",
+  "timeframe": "Daily",
+  "type": "SMA",
+  "direction": "Long",
+  "short_window": 27,
+  "long_window": 29
+},
+{
+  "ticker": "BTC-USD",
+  "timeframe": "Daily",
+  "type": "SMA",
+  "direction": "Long",
+  "short_window": 8,
+  "long_window": 44
+},
+{
+  "ticker": "BTC-USD",
+  "timeframe": "Daily",
+  "type": "EMA",
+  "direction": "Long",
+  "short_window": 3,
+  "long_window": 11
+},
+{
+  "ticker": "BTC-USD",
+  "timeframe": "Daily",
+  "type": "EMA",
+  "direction": "Long",
+  "short_window": 11,
+  "long_window": 17
+},
+{
+  "ticker": "SOL-USD",
+  "timeframe": "Daily",
+  "type": "MACD",
+  "direction": "Long",
+  "short_window": 19,
+  "long_window": 33,
+  "signal_period": 13
+},
+{
+  "ticker": "SOL-USD",
+  "timeframe": "Daily",
+  "type": "SMA",
+  "direction": "Long",
+  "short_window": 14,
+  "long_window": 32
+},
+{
+  "ticker": "SOL-USD",
+  "timeframe": "Daily",
+  "type": "SMA",
+  "direction": "Long",
+  "short_window": 26,
+  "long_window": 32
+},
+{
+  "ticker": "SOL-USD",
+  "timeframe": "Daily",
+  "type": "SMA",
+  "direction": "Long",
+  "short_window": 27,
+  "long_window": 30
+},
+{
+  "ticker": "SOL-USD",
+  "timeframe": "Daily",
+  "type": "EMA",
+  "direction": "Long",
+  "short_window": 16,
+  "long_window": 18
+}
+]

@@ -21,15 +21,16 @@ from app.ma_cross.tools.rsi_visualization import create_rsi_heatmap
 
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
-    "TICKER": "ASML",
-    "SHORT_WINDOW": 71,
-    "LONG_WINDOW": 75,
+    "TICKER": "IDXX",
+    "SHORT_WINDOW": 33,
+    "LONG_WINDOW": 51,
     "BASE_DIR": ".",
-    "USE_SMA": True,
-    "REFRESH": False,
+    "USE_SMA": False,
+    "REFRESH": True,
     "USE_HOURLY": False,
     "RELATIVE": True,
-    "DIRECTION": "Long"
+    "DIRECTION": "Long",
+    "USE_CURRENT": True
 }
 
 def run(config: CacheConfig) -> bool:
@@ -63,6 +64,7 @@ def run(config: CacheConfig) -> bool:
         # Define parameter ranges
         rsi_thresholds = np.arange(30, 81, 1)  # 30 to 80
         # rsi_thresholds = np.arange(30, 33, 1)  # TESTING
+        # rsi_thresholds = np.arange(78, 81, 1)  # TESTING
         rsi_windows = np.arange(2, 31, 1)      # 2 to 30
         log(f"Using RSI thresholds: {rsi_thresholds[0]} to {rsi_thresholds[-1]}")
         log(f"Using RSI windows: {rsi_windows[0]} to {rsi_windows[-1]}")
