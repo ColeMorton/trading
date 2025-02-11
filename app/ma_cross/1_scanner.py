@@ -54,7 +54,7 @@ config: Config = {
     # "SCANNER_LIST": 'BTC_SOL_D.csv',
     "SCANNER_LIST": 'QQQ_SPY100.csv',
     "USE_HOURLY": False,
-    "REFRESH": False,
+    "REFRESH": True,
     "DIRECTION": "Long"  # Default to Long position
 }
 
@@ -193,9 +193,8 @@ def process_scanner() -> bool:
                 continue
         
         # Calculate and log signal detection ratio
-        total_tickers = len(scanner_df)
-        total_strategies = total_tickers * (2 if is_new_schema else 1)  # 2 for new schema (SMA or EMA), 1 for old schema
-        signals_detected = len(results_data)
+        total_strategies = len(scanner_df)  # Each row is already a complete strategy
+        signals_detected = sum(1 for result in results_data if result.get('SMA', False) or result.get('EMA', False))
         detection_ratio = signals_detected / total_strategies if total_strategies > 0 else 0
         log(f"Signal Detection Ratio: {signals_detected}/{total_strategies} ({detection_ratio:.2%})")
         

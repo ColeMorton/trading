@@ -7,10 +7,10 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-PORTFOLIO = ['SPY', 'QQQ', 'BTC-USD', 'SOL-USD', 'CRM', 'CRWD', 'AXON', 'HIG', 'STLD', 'LULU', 'AAPL', 'MS', 'CRM', 'VRSK', 'ASML', 'BRO', 'KLAC', 'AON', 'XYZ']
+PORTFOLIO = ['SPY', 'QQQ', 'BTC-USD', 'SOL-USD', 'CRWD', 'AXON', 'HIG', 'STLD', 'LULU', 'AAPL', 'MS', 'VRSK', 'ASML', 'BRO', 'KLAC', 'AON', 'MU', 'LRCX']
 
 NEXT = [
-  "BXP"
+  'GEN'
 ]
 
 ASSETS = list(dict.fromkeys(PORTFOLIO + NEXT))  # Remove duplicates

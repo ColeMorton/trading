@@ -1,7 +1,7 @@
 {
-    "initial_value": 9181.65195,
-    "target_value": 13788,
-    "use_target_value": false,
+    "initial_value": 15915,
+    "target_value": 9423,
+    "use_target_value": true,
     "portfolio": [
         {
             "ticker": "KLAC"
@@ -10,22 +10,13 @@
             "ticker": "MS"
         },
         {
-            "ticker": "STLD"
-        },
-        {
-            "ticker": "VRSK"
-        },
-        {
-            "ticker": "BRO"
-        },
-        {
             "ticker": "ASML"
         },
         {
-            "ticker": "XYZ"
+            "ticker": "MU"
         },
         {
-            "ticker": "AON"
+            "ticker": "LRCX"
         },
         {
             "ticker": "AAPL"

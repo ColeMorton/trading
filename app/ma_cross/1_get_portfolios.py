@@ -14,12 +14,23 @@ from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
 CONFIG: Config = {
-    "TICKER": 'BTC-USD',
+    "TICKER": [
+        'MU',
+        'LRCX',
+        'CTAS',
+        'XOM',
+        'DG',
+        'GEN',
+        'INTC',
+        'QQQ'
+    ],
     "TICKER_1": 'AMAT',
     "TICKER_2": 'LRCX',
     "WINDOWS": 89,
     # "WINDOWS": 120,
     # "WINDOWS": 55,
+    "SCANNER_LIST": 'DAILY.csv',
+    "USE_SCANNER": True,
     "BASE_DIR": ".",
     "REFRESH": True,
     # "USE_SMA": True,
@@ -28,9 +39,9 @@ CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    # "USE_CURRENT": True,
-    # "MIN_TRADES": 34,
-    # "MIN_WIN_RATE": 0.35,
+    "USE_CURRENT": True,
+    "MIN_TRADES": 34,
+    "MIN_WIN_RATE": 0.35,
     # "MIN_WIN_RATE": 0.5,
     # "MIN_TRADES": 50,
     "SORT_BY": "Expectancy Adjusted",
