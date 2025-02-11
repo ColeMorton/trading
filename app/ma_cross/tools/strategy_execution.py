@@ -12,6 +12,85 @@ from app.ma_cross.tools.export_portfolios import export_portfolios, PortfolioExp
 from app.ma_cross.tools.signal_processing import process_ticker_portfolios
 from app.tools.portfolio.selection import get_best_portfolio
 from app.ma_cross.config_types import Config
+from app.tools.get_data import get_data
+from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
+from app.tools.backtest_strategy import backtest_strategy
+from app.tools.stats_converter import convert_stats
+
+def execute_single_strategy(
+    ticker: str,
+    config: Config,
+    log: callable
+) -> Optional[Dict]:
+    """Execute a single strategy with specified parameters.
+    
+    This function tests a specific MA strategy (SMA or EMA) with exact window
+    parameters, using the same workflow as execute_strategy but without
+    parameter searching or filtering.
+    
+    Args:
+        ticker: The ticker symbol
+        config: Configuration containing:
+            - USE_SMA: bool (True for SMA, False for EMA)
+            - SHORT_WINDOW: int (Fast MA period)
+            - LONG_WINDOW: int (Slow MA period)
+            - Other standard config parameters
+        log: Logging function
+        
+    Returns:
+        Optional[Dict]: Strategy performance metrics if successful, None otherwise
+    """
+    try:
+        # Get price data
+        data_result = get_data(ticker, config, log)
+        if isinstance(data_result, tuple):
+            data, synthetic_ticker = data_result
+            config["TICKER"] = synthetic_ticker  # Update config with synthetic ticker
+        else:
+            data = data_result
+            
+        if data is None:
+            log(f"Failed to get price data for {ticker}", "error")
+            return None
+            
+        # Calculate MA and signals
+        data = calculate_ma_and_signals(
+            data,
+            config["SHORT_WINDOW"],
+            config["LONG_WINDOW"],
+            config,
+            log
+        )
+        if data is None:
+            log(f"Failed to calculate signals for {ticker}", "error")
+            return None
+            
+        # Run backtest using app/ma_cross/tools/backtest_strategy.py
+        portfolio = backtest_strategy(data, config, log)
+        if portfolio is None:
+            return None
+            
+        # Get raw stats from vectorbt
+        stats = portfolio.stats()
+        
+        # Convert stats using app/tools/stats_converter.py
+        converted_stats = convert_stats(stats, log, config)
+        
+        # Add strategy identification fields
+        converted_stats.update({
+            "TICKER": ticker,  # Use uppercase TICKER
+            "Use SMA": config.get("USE_SMA", False),
+            "SMA_FAST": config["SHORT_WINDOW"] if config.get("USE_SMA", False) else None,
+            "SMA_SLOW": config["LONG_WINDOW"] if config.get("USE_SMA", False) else None,
+            "EMA_FAST": config["SHORT_WINDOW"] if not config.get("USE_SMA", False) else None,
+            "EMA_SLOW": config["LONG_WINDOW"] if not config.get("USE_SMA", False) else None
+        })
+        
+        return converted_stats
+            
+    except Exception as e:
+        log(f"Failed to execute strategy: {str(e)}", "error")
+        return None
 
 def process_single_ticker(
     ticker: str,
