@@ -15,13 +15,13 @@ from app.tools.portfolio.collection import export_best_portfolios, combine_strat
 
 CONFIG: Config = {
     "TICKER": [
-        'MU',
-        'LRCX',
-        'CTAS',
-        'XOM',
-        'DG',
+        'TSM',
+        'FAST',
+        'CI',
+        'ACN',
         'GEN',
-        'INTC',
+        'LRCX',
+        'SPY',
         'QQQ'
     ],
     "TICKER_1": 'AMAT',
@@ -40,10 +40,10 @@ CONFIG: Config = {
     "YEARS": 15,
     "USE_SYNTHETIC": False,
     "USE_CURRENT": True,
-    "MIN_TRADES": 34,
-    "MIN_WIN_RATE": 0.35,
-    # "MIN_WIN_RATE": 0.5,
-    # "MIN_TRADES": 50,
+    # "MIN_TRADES": 34,
+    # "MIN_WIN_RATE": 0.35,
+    "MIN_WIN_RATE": 0.5,
+    "MIN_TRADES": 50,
     "SORT_BY": "Expectancy Adjusted",
     "USE_GBM": False
 }

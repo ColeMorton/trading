@@ -36,10 +36,7 @@ CONFIG: Config = {
     "YEARS": 15,
     "SORT_BY": "Expectancy Adjusted",
     "USE_GBM": False,
-    "USE_SCANNER": True,
-    "MIN_TRADES": 34,
-    "MIN_WIN_RATE": 0.35,
-    "USE_CURRENT": True  # Required for using current signals
+    "USE_SCANNER": True
 }
 
 def process_strategy(
