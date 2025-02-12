@@ -22,7 +22,8 @@ CONFIG: Config = {
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
-    "SORT_BY": "Expectancy Adjusted",
+    "SORT_BY": "Ticker",
+    "SORT_ASC": True,
     "USE_GBM": False,
     "USE_SCANNER": True
 }
@@ -190,7 +191,7 @@ def main() -> bool:
         # Create dataframe and sort
         results_df = pl.DataFrame(all_results)
         if CONFIG["SORT_BY"]:
-            results_df = results_df.sort(CONFIG["SORT_BY"], descending=True)
+            results_df = results_df.sort(CONFIG["SORT_BY"], descending=CONFIG["SORT_ASC"] == False)
         
         # Save results
         output_path = os.path.join(
