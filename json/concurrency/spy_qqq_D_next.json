@@ -1,0 +1,838 @@
+{
+    "strategies": [
+        {
+            "ticker": {
+                "value": "SPY",
+                "description": "Ticker symbol to analyze"
+            },
+            "timeframe": {
+                "value": "Daily",
+                "description": "Trading timeframe (Hourly or Daily)"
+            },
+            "type": {
+                "value": "SMA",
+                "description": "Strategy type (MACD, SMA, or EMA)"
+            },
+            "direction": {
+                "value": "Long",
+                "description": "Trading direction (Long or Short)"
+            },
+            "short_window": {
+                "value": 108,
+                "description": "Period for short moving average or MACD fast line"
+            },
+            "long_window": {
+                "value": 115,
+                "description": "Period for long moving average or MACD slow line"
+            },
+            "expectancy_per_month": {
+                "value": 22.573358020145996,
+                "description": "Expected monthly return"
+            }
+        },
+        {
+            "ticker": {
+                "value": "SPY",
+                "description": "Ticker symbol to analyze"
+            },
+            "timeframe": {
+                "value": "Daily",
+                "description": "Trading timeframe (Hourly or Daily)"
+            },
+            "type": {
+                "value": "SMA",
+                "description": "Strategy type (MACD, SMA, or EMA)"
+            },
+            "direction": {
+                "value": "Long",
+                "description": "Trading direction (Long or Short)"
+            },
+            "short_window": {
+                "value": 12,
+                "description": "Period for short moving average or MACD fast line"
+            },
+            "long_window": {
+                "value": 73,
+                "description": "Period for long moving average or MACD slow line"
+            },
+            "expectancy_per_month": {
+                "value": 18.6019708690038,
+                "description": "Expected monthly return"
+            }
+        },
+        {
+            "ticker": {
+                "value": "SPY",
+                "description": "Ticker symbol to analyze"
+            },
+            "timeframe": {
+                "value": "Daily",
+                "description": "Trading timeframe (Hourly or Daily)"
+            },
+            "type": {
+                "value": "EMA",
+                "description": "Strategy type (MACD, SMA, or EMA)"
+            },
+            "direction": {
+                "value": "Long",
+                "description": "Trading direction (Long or Short)"
+            },
+            "short_window": {
+                "value": 51,
+                "description": "Period for short moving average or MACD fast line"
+            },
+            "long_window": {
+                "value": 72,
+                "description": "Period for long moving average or MACD slow line"
+            },
+            "expectancy_per_month": {
+                "value": 14.172050561770929,
+                "description": "Expected monthly return"
+            }
+        },
+        {
+            "ticker": {
+                "value": "SPY",
+                "description": "Ticker symbol to analyze"
+            },
+            "timeframe": {
+                "value": "Daily",
+                "description": "Trading timeframe (Hourly or Daily)"
+            },
+            "type": {
+                "value": "EMA",
+                "description": "Strategy type (MACD, SMA, or EMA)"
+            },
+            "direction": {
+                "value": "Long",
+                "description": "Trading direction (Long or Short)"
+            },
+            "short_window": {
+                "value": 46,
+                "description": "Period for short moving average or MACD fast line"
+            },
+            "long_window": {
+                "value": 51,
+                "description": "Period for long moving average or MACD slow line"
+            },
+            "expectancy_per_month": {
+                "value": 10.3060966336535,
+                "description": "Expected monthly return"
+            }
+        },
+        {
+            "ticker": {
+                "value": "SPY",
+                "description": "Ticker symbol to analyze"
+            },
+            "timeframe": {
+                "value": "Daily",
+                "description": "Trading timeframe (Hourly or Daily)"
+            },
+            "type": {
+                "value": "EMA",
+                "description": "Strategy type (MACD, SMA, or EMA)"
+            },
+            "direction": {
+                "value": "Long",
+                "description": "Trading direction (Long or Short)"
+            },
+            "short_window": {
+                "value": 18,
+                "description": "Period for short moving average or MACD fast line"
+            },
+            "long_window": {
+                "value": 32,
+                "description": "Period for long moving average or MACD slow line"
+            },
+            "expectancy_per_month": {
+                "value": 6.822619775021533,
+                "description": "Expected monthly return"
+            }
+        },
+        {
+            "ticker": {
+                "value": "QQQ",
+                "description": "Ticker symbol to analyze"
+            },
+            "timeframe": {
+                "value": "Daily",
+                "description": "Trading timeframe (Hourly or Daily)"
+            },
+            "type": {
+                "value": "SMA",
+                "description": "Strategy type (MACD, SMA, or EMA)"
+            },
+            "direction": {
+                "value": "Long",
+                "description": "Trading direction (Long or Short)"
+            },
+            "short_window": {
+                "value": 102,
+                "description": "Period for short moving average or MACD fast line"
+            },
+            "long_window": {
+                "value": 109,
+                "description": "Period for long moving average or MACD slow line"
+            },
+            "expectancy_per_month": {
+                "value": 57.775678260046064,
+                "description": "Expected monthly return"
+            }
+        },
+        {
+            "ticker": {
+                "value": "QQQ",
+                "description": "Ticker symbol to analyze"
+            },
+            "timeframe": {
+                "value": "Daily",
+                "description": "Trading timeframe (Hourly or Daily)"
+            },
+            "type": {
+                "value": "SMA",
+                "description": "Strategy type (MACD, SMA, or EMA)"
+            },
+            "direction": {
+                "value": "Long",
+                "description": "Trading direction (Long or Short)"
+            },
+            "short_window": {
+                "value": 69,
+                "description": "Period for short moving average or MACD fast line"
+            },
+            "long_window": {
+                "value": 77,
+                "description": "Period for long moving average or MACD slow line"
+            },
+            "expectancy_per_month": {
+                "value": 41.93373780933739,
+                "description": "Expected monthly return"
+            }
+        },
+        {
+            "ticker": {
+                "value": "QQQ",
+                "description": "Ticker symbol to analyze"
+            },
+            "timeframe": {
+                "value": "Daily",
+                "description": "Trading timeframe (Hourly or Daily)"
+            },
+            "type": {
+                "value": "SMA",
+                "description": "Strategy type (MACD, SMA, or EMA)"
+            },
+            "direction": {
+                "value": "Long",
+                "description": "Trading direction (Long or Short)"
+            },
+            "short_window": {
+                "value": 17,
+                "description": "Period for short moving average or MACD fast line"
+            },
+            "long_window": {
+                "value": 28,
+                "description": "Period for long moving average or MACD slow line"
+            },
+            "expectancy_per_month": {
+                "value": 23.926768397199677,
+                "description": "Expected monthly return"
+            }
+        },
+        {
+            "ticker": {
+                "value": "QQQ",
+                "description": "Ticker symbol to analyze"
+            },
+            "timeframe": {
+                "value": "Daily",
+                "description": "Trading timeframe (Hourly or Daily)"
+            },
+            "type": {
+                "value": "SMA",
+                "description": "Strategy type (MACD, SMA, or EMA)"
+            },
+            "direction": {
+                "value": "Long",
+                "description": "Trading direction (Long or Short)"
+            },
+            "short_window": {
+                "value": 15,
+                "description": "Period for short moving average or MACD fast line"
+            },
+            "long_window": {
+                "value": 28,
+                "description": "Period for long moving average or MACD slow line"
+            },
+            "expectancy_per_month": {
+                "value": 21.993582395349108,
+                "description": "Expected monthly return"
+            }
+        },
+        {
+            "ticker": {
+                "value": "QQQ",
+                "description": "Ticker symbol to analyze"
+            },
+            "timeframe": {
+                "value": "Daily",
+                "description": "Trading timeframe (Hourly or Daily)"
+            },
+            "type": {
+                "value": "EMA",
+                "description": "Strategy type (MACD, SMA, or EMA)"
+            },
+            "direction": {
+                "value": "Long",
+                "description": "Trading direction (Long or Short)"
+            },
+            "short_window": {
+                "value": 34,
+                "description": "Period for short moving average or MACD fast line"
+            },
+            "long_window": {
+                "value": 52,
+                "description": "Period for long moving average or MACD slow line"
+            },
+            "expectancy_per_month": {
+                "value": 17.010727353563958,
+                "description": "Expected monthly return"
+            }
+        }
+    ],
+    "metrics": {
+        "concurrency": {
+            "total_concurrent_periods": {
+                "value": 5832,
+                "description": "Number of periods with concurrent positions"
+            },
+            "concurrency_ratio": {
+                "value": 0.8940671470182432,
+                "description": "Ratio of concurrent periods to total periods"
+            },
+            "exclusive_ratio": {
+                "value": 0.03679288670856968,
+                "description": "Ratio of periods with exactly one strategy in position"
+            },
+            "inactive_ratio": {
+                "value": 0.06913996627318718,
+                "description": "Ratio of periods with no active strategies"
+            },
+            "avg_concurrent_strategies": {
+                "value": 7.2727272727272725,
+                "description": "Average number of concurrent strategies"
+            },
+            "max_concurrent_strategies": {
+                "value": 10,
+                "description": "Maximum number of concurrent strategies"
+            }
+        },
+        "efficiency": {
+            "efficiency_score": {
+                "value": 0.2293099465863802,
+                "description": "Risk-Adjusted Performance"
+            },
+            "total_expectancy": {
+                "value": 11.196028098813903,
+                "description": "Combined expected return across all strategies"
+            },
+            "diversification_multiplier": {
+                "value": 0.5566664536377788,
+                "description": "Multiplier effect from strategy diversification"
+            },
+            "independence_multiplier": {
+                "value": 0.039525691699604744,
+                "description": "Multiplier effect from strategy independence"
+            },
+            "activity_multiplier": {
+                "value": 0.9308600337268128,
+                "description": "Multiplier effect from strategy activity levels"
+            }
+        },
+        "risk": {
+            "risk_concentration_index": {
+                "value": 0.7272727272727273,
+                "description": "Measure of risk concentration"
+            },
+            "strategy_1_var_95": {
+                "value": -0.015949397948235324,
+                "description": "Risk metric: strategy_1_var_95"
+            },
+            "strategy_1_cvar_95": {
+                "value": -0.023824074376609487,
+                "description": "Risk metric: strategy_1_cvar_95"
+            },
+            "strategy_1_var_99": {
+                "value": -0.02748343558837351,
+                "description": "Risk metric: strategy_1_var_99"
+            },
+            "strategy_1_cvar_99": {
+                "value": -0.039305407286129655,
+                "description": "Risk metric: strategy_1_cvar_99"
+            },
+            "strategy_2_var_95": {
+                "value": -0.014255325725829136,
+                "description": "Risk metric: strategy_2_var_95"
+            },
+            "strategy_2_cvar_95": {
+                "value": -0.02121262662982027,
+                "description": "Risk metric: strategy_2_cvar_95"
+            },
+            "strategy_2_var_99": {
+                "value": -0.024796268013505828,
+                "description": "Risk metric: strategy_2_var_99"
+            },
+            "strategy_2_cvar_99": {
+                "value": -0.03245137668050578,
+                "description": "Risk metric: strategy_2_cvar_99"
+            },
+            "strategy_3_var_95": {
+                "value": -0.014453735155803255,
+                "description": "Risk metric: strategy_3_var_95"
+            },
+            "strategy_3_cvar_95": {
+                "value": -0.021563066702720762,
+                "description": "Risk metric: strategy_3_cvar_95"
+            },
+            "strategy_3_var_99": {
+                "value": -0.02505970008579297,
+                "description": "Risk metric: strategy_3_var_99"
+            },
+            "strategy_3_cvar_99": {
+                "value": -0.03332329928007142,
+                "description": "Risk metric: strategy_3_cvar_99"
+            },
+            "strategy_4_var_95": {
+                "value": -0.014573537443976532,
+                "description": "Risk metric: strategy_4_var_95"
+            },
+            "strategy_4_cvar_95": {
+                "value": -0.021724570907089357,
+                "description": "Risk metric: strategy_4_cvar_95"
+            },
+            "strategy_4_var_99": {
+                "value": -0.02516027099927624,
+                "description": "Risk metric: strategy_4_var_99"
+            },
+            "strategy_4_cvar_99": {
+                "value": -0.03350502235355722,
+                "description": "Risk metric: strategy_4_cvar_99"
+            },
+            "strategy_5_var_95": {
+                "value": -0.014268735404132236,
+                "description": "Risk metric: strategy_5_var_95"
+            },
+            "strategy_5_cvar_95": {
+                "value": -0.02129470227047021,
+                "description": "Risk metric: strategy_5_cvar_95"
+            },
+            "strategy_5_var_99": {
+                "value": -0.02480042860757016,
+                "description": "Risk metric: strategy_5_var_99"
+            },
+            "strategy_5_cvar_99": {
+                "value": -0.03241368357764445,
+                "description": "Risk metric: strategy_5_cvar_99"
+            },
+            "strategy_6_var_95": {
+                "value": -0.02305355728076915,
+                "description": "Risk metric: strategy_6_var_95"
+            },
+            "strategy_6_cvar_95": {
+                "value": -0.03456411505054972,
+                "description": "Risk metric: strategy_6_cvar_95"
+            },
+            "strategy_6_var_99": {
+                "value": -0.04066228749915579,
+                "description": "Risk metric: strategy_6_var_99"
+            },
+            "strategy_6_cvar_99": {
+                "value": -0.05467867784161585,
+                "description": "Risk metric: strategy_6_cvar_99"
+            },
+            "strategy_7_var_95": {
+                "value": -0.022575496698117682,
+                "description": "Risk metric: strategy_7_var_95"
+            },
+            "strategy_7_cvar_95": {
+                "value": -0.033313214813827964,
+                "description": "Risk metric: strategy_7_cvar_95"
+            },
+            "strategy_7_var_99": {
+                "value": -0.039238632419951666,
+                "description": "Risk metric: strategy_7_var_99"
+            },
+            "strategy_7_cvar_99": {
+                "value": -0.05331328011160952,
+                "description": "Risk metric: strategy_7_cvar_99"
+            },
+            "strategy_8_var_95": {
+                "value": -0.022628678617091755,
+                "description": "Risk metric: strategy_8_var_95"
+            },
+            "strategy_8_cvar_95": {
+                "value": -0.032921506318253316,
+                "description": "Risk metric: strategy_8_cvar_95"
+            },
+            "strategy_8_var_99": {
+                "value": -0.0394084836318665,
+                "description": "Risk metric: strategy_8_var_99"
+            },
+            "strategy_8_cvar_99": {
+                "value": -0.04774139083465079,
+                "description": "Risk metric: strategy_8_cvar_99"
+            },
+            "strategy_9_var_95": {
+                "value": -0.02252308051895575,
+                "description": "Risk metric: strategy_9_var_95"
+            },
+            "strategy_9_cvar_95": {
+                "value": -0.03266556049456105,
+                "description": "Risk metric: strategy_9_cvar_95"
+            },
+            "strategy_9_var_99": {
+                "value": -0.03926509186351706,
+                "description": "Risk metric: strategy_9_var_99"
+            },
+            "strategy_9_cvar_99": {
+                "value": -0.04714139605743729,
+                "description": "Risk metric: strategy_9_cvar_99"
+            },
+            "strategy_10_var_95": {
+                "value": -0.021981998952039637,
+                "description": "Risk metric: strategy_10_var_95"
+            },
+            "strategy_10_cvar_95": {
+                "value": -0.032120535731032775,
+                "description": "Risk metric: strategy_10_cvar_95"
+            },
+            "strategy_10_var_99": {
+                "value": -0.03858206853326116,
+                "description": "Risk metric: strategy_10_var_99"
+            },
+            "strategy_10_cvar_99": {
+                "value": -0.049878738455946835,
+                "description": "Risk metric: strategy_10_cvar_99"
+            },
+            "combined_var_95": {
+                "value": -0.018449853658379853,
+                "description": "Risk metric: combined_var_95"
+            },
+            "combined_cvar_95": {
+                "value": -0.028263555599830507,
+                "description": "Risk metric: combined_cvar_95"
+            },
+            "combined_var_99": {
+                "value": -0.03426854832259121,
+                "description": "Risk metric: combined_var_99"
+            },
+            "combined_cvar_99": {
+                "value": -0.04497459244874294,
+                "description": "Risk metric: combined_cvar_99"
+            },
+            "strategy_1_risk_contrib": {
+                "value": 0.06751001616915393,
+                "description": "Risk metric: strategy_1_risk_contrib"
+            },
+            "strategy_1_alpha": {
+                "value": -3.215905775560236e-05,
+                "description": "Risk metric: strategy_1_alpha"
+            },
+            "risk_overlap_1_2": {
+                "value": 0.003351056477238003,
+                "description": "Risk metric: risk_overlap_1_2"
+            },
+            "risk_overlap_1_3": {
+                "value": 0.007209515534826826,
+                "description": "Risk metric: risk_overlap_1_3"
+            },
+            "risk_overlap_1_4": {
+                "value": 0.005685371568074558,
+                "description": "Risk metric: risk_overlap_1_4"
+            },
+            "risk_overlap_1_5": {
+                "value": 0.002630953495034342,
+                "description": "Risk metric: risk_overlap_1_5"
+            },
+            "risk_overlap_1_6": {
+                "value": 0.015152503604891046,
+                "description": "Risk metric: risk_overlap_1_6"
+            },
+            "risk_overlap_1_7": {
+                "value": 0.007897308340346942,
+                "description": "Risk metric: risk_overlap_1_7"
+            },
+            "risk_overlap_1_8": {
+                "value": 0.0012537461098641447,
+                "description": "Risk metric: risk_overlap_1_8"
+            },
+            "risk_overlap_1_9": {
+                "value": 0.0012514445623456022,
+                "description": "Risk metric: risk_overlap_1_9"
+            },
+            "risk_overlap_1_10": {
+                "value": 0.006682241285766594,
+                "description": "Risk metric: risk_overlap_1_10"
+            },
+            "strategy_2_risk_contrib": {
+                "value": 0.08720255365638463,
+                "description": "Risk metric: strategy_2_risk_contrib"
+            },
+            "strategy_2_alpha": {
+                "value": -0.0001265592382232153,
+                "description": "Risk metric: strategy_2_alpha"
+            },
+            "risk_overlap_2_3": {
+                "value": 0.0077102690539746265,
+                "description": "Risk metric: risk_overlap_2_3"
+            },
+            "risk_overlap_2_4": {
+                "value": 0.009352010033512602,
+                "description": "Risk metric: risk_overlap_2_4"
+            },
+            "risk_overlap_2_5": {
+                "value": 0.010045474074187844,
+                "description": "Risk metric: risk_overlap_2_5"
+            },
+            "risk_overlap_2_6": {
+                "value": 0.0037658529500335046,
+                "description": "Risk metric: risk_overlap_2_6"
+            },
+            "risk_overlap_2_7": {
+                "value": 0.007786687707907257,
+                "description": "Risk metric: risk_overlap_2_7"
+            },
+            "risk_overlap_2_8": {
+                "value": 0.010549846771336809,
+                "description": "Risk metric: risk_overlap_2_8"
+            },
+            "risk_overlap_2_9": {
+                "value": 0.010266116842908625,
+                "description": "Risk metric: risk_overlap_2_9"
+            },
+            "risk_overlap_2_10": {
+                "value": 0.012010809903625913,
+                "description": "Risk metric: risk_overlap_2_10"
+            },
+            "strategy_3_risk_contrib": {
+                "value": 0.08704872908953735,
+                "description": "Risk metric: strategy_3_risk_contrib"
+            },
+            "strategy_3_alpha": {
+                "value": -0.0001754334923428696,
+                "description": "Risk metric: strategy_3_alpha"
+            },
+            "risk_overlap_3_4": {
+                "value": 0.01013792390848407,
+                "description": "Risk metric: risk_overlap_3_4"
+            },
+            "risk_overlap_3_5": {
+                "value": 0.006493841636367689,
+                "description": "Risk metric: risk_overlap_3_5"
+            },
+            "risk_overlap_3_6": {
+                "value": 0.008366514007575244,
+                "description": "Risk metric: risk_overlap_3_6"
+            },
+            "risk_overlap_3_7": {
+                "value": 0.010752503926840084,
+                "description": "Risk metric: risk_overlap_3_7"
+            },
+            "risk_overlap_3_8": {
+                "value": 0.006361767162564994,
+                "description": "Risk metric: risk_overlap_3_8"
+            },
+            "risk_overlap_3_9": {
+                "value": 0.0061184154022520115,
+                "description": "Risk metric: risk_overlap_3_9"
+            },
+            "risk_overlap_3_10": {
+                "value": 0.012041569259548164,
+                "description": "Risk metric: risk_overlap_3_10"
+            },
+            "strategy_4_risk_contrib": {
+                "value": 0.0894668991933234,
+                "description": "Risk metric: strategy_4_risk_contrib"
+            },
+            "strategy_4_alpha": {
+                "value": -0.00022648155453614476,
+                "description": "Risk metric: strategy_4_alpha"
+            },
+            "risk_overlap_4_5": {
+                "value": 0.007774921052807118,
+                "description": "Risk metric: risk_overlap_4_5"
+            },
+            "risk_overlap_4_6": {
+                "value": 0.006727111998971437,
+                "description": "Risk metric: risk_overlap_4_6"
+            },
+            "risk_overlap_4_7": {
+                "value": 0.010095175383020112,
+                "description": "Risk metric: risk_overlap_4_7"
+            },
+            "risk_overlap_4_8": {
+                "value": 0.007691122084246079,
+                "description": "Risk metric: risk_overlap_4_8"
+            },
+            "risk_overlap_4_9": {
+                "value": 0.007359719619244486,
+                "description": "Risk metric: risk_overlap_4_9"
+            },
+            "risk_overlap_4_10": {
+                "value": 0.012734515202816201,
+                "description": "Risk metric: risk_overlap_4_10"
+            },
+            "strategy_5_risk_contrib": {
+                "value": 0.08234460414507191,
+                "description": "Risk metric: strategy_5_risk_contrib"
+            },
+            "strategy_5_alpha": {
+                "value": -0.00028024404746932586,
+                "description": "Risk metric: strategy_5_alpha"
+            },
+            "risk_overlap_5_6": {
+                "value": 0.0031617022564588704,
+                "description": "Risk metric: risk_overlap_5_6"
+            },
+            "risk_overlap_5_7": {
+                "value": 0.005585254941716074,
+                "description": "Risk metric: risk_overlap_5_7"
+            },
+            "risk_overlap_5_8": {
+                "value": 0.011935564966440531,
+                "description": "Risk metric: risk_overlap_5_8"
+            },
+            "risk_overlap_5_9": {
+                "value": 0.01192768484674132,
+                "description": "Risk metric: risk_overlap_5_9"
+            },
+            "risk_overlap_5_10": {
+                "value": 0.010550155585221875,
+                "description": "Risk metric: risk_overlap_5_10"
+            },
+            "strategy_6_risk_contrib": {
+                "value": 0.10121585245143905,
+                "description": "Risk metric: strategy_6_risk_contrib"
+            },
+            "strategy_6_alpha": {
+                "value": 0.0002573150623094157,
+                "description": "Risk metric: strategy_6_alpha"
+            },
+            "risk_overlap_6_7": {
+                "value": 0.01514180064979961,
+                "description": "Risk metric: risk_overlap_6_7"
+            },
+            "risk_overlap_6_8": {
+                "value": 0.00308060176306451,
+                "description": "Risk metric: risk_overlap_6_8"
+            },
+            "risk_overlap_6_9": {
+                "value": 0.0029228968194547843,
+                "description": "Risk metric: risk_overlap_6_9"
+            },
+            "risk_overlap_6_10": {
+                "value": 0.010172763162538285,
+                "description": "Risk metric: risk_overlap_6_10"
+            },
+            "strategy_7_risk_contrib": {
+                "value": 0.11612109164241291,
+                "description": "Risk metric: strategy_7_risk_contrib"
+            },
+            "strategy_7_alpha": {
+                "value": 0.00024359836190881187,
+                "description": "Risk metric: strategy_7_alpha"
+            },
+            "risk_overlap_7_8": {
+                "value": 0.005173369865986072,
+                "description": "Risk metric: risk_overlap_7_8"
+            },
+            "risk_overlap_7_9": {
+                "value": 0.005026115597582166,
+                "description": "Risk metric: risk_overlap_7_9"
+            },
+            "risk_overlap_7_10": {
+                "value": 0.01643111942092563,
+                "description": "Risk metric: risk_overlap_7_10"
+            },
+            "strategy_8_risk_contrib": {
+                "value": 0.11927722125318214,
+                "description": "Risk metric: strategy_8_risk_contrib"
+            },
+            "strategy_8_alpha": {
+                "value": 0.00016980237469368855,
+                "description": "Risk metric: strategy_8_alpha"
+            },
+            "risk_overlap_8_9": {
+                "value": 0.028683441983165008,
+                "description": "Risk metric: risk_overlap_8_9"
+            },
+            "risk_overlap_8_10": {
+                "value": 0.012960719407379548,
+                "description": "Risk metric: risk_overlap_8_10"
+            },
+            "strategy_9_risk_contrib": {
+                "value": 0.11724822416721126,
+                "description": "Risk metric: strategy_9_risk_contrib"
+            },
+            "strategy_9_alpha": {
+                "value": 0.00014833120193309755,
+                "description": "Risk metric: strategy_9_alpha"
+            },
+            "risk_overlap_9_10": {
+                "value": 0.012740091557937115,
+                "description": "Risk metric: risk_overlap_9_10"
+            },
+            "strategy_10_risk_contrib": {
+                "value": 0.1325648082322833,
+                "description": "Risk metric: strategy_10_risk_contrib"
+            },
+            "strategy_10_alpha": {
+                "value": 2.183038948214448e-05,
+                "description": "Risk metric: strategy_10_alpha"
+            },
+            "total_portfolio_risk": {
+                "value": 0.03692117288908321,
+                "description": "Risk metric: total_portfolio_risk"
+            },
+            "benchmark_return": {
+                "value": 0.0005028783231621845,
+                "description": "Risk metric: benchmark_return"
+            }
+        },
+        "signals": {
+            "mean_signals": {
+                "value": 4.647940074906367,
+                "description": "Average number of signals per month"
+            },
+            "median_signals": {
+                "value": 4.0,
+                "description": "Median number of signals per month"
+            },
+            "std_below_mean": {
+                "value": 1.814944038335637,
+                "description": "One standard deviation below mean signals"
+            },
+            "std_above_mean": {
+                "value": 7.480936111477096,
+                "description": "One standard deviation above mean signals"
+            },
+            "signal_volatility": {
+                "value": 2.8329960365707296,
+                "description": "Standard deviation of monthly signals"
+            },
+            "max_monthly_signals": {
+                "value": 14.0,
+                "description": "Maximum signals in any month"
+            },
+            "min_monthly_signals": {
+                "value": 1.0,
+                "description": "Minimum signals in any month"
+            },
+            "total_signals": {
+                "value": 1241.0,
+                "description": "Total number of signals across period"
+            }
+        }
+    }
+}
