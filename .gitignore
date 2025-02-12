@@ -170,3 +170,7 @@ csv/price_data
 csv/ma_cross/stop_loss
 csv/ma_cross/rsi
 csv/ma_cross/current_signals
+
+# Portfolio rules
+csv/ma_cross/portfolios/*/
+!csv/ma_cross/portfolios/*.*
