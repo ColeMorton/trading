@@ -15,7 +15,7 @@ from app.ma_cross.config_types import Config
 from app.tools.setup_logging import setup_logging
 
 CONFIG: Config = {
-    "SCANNER_LIST": 'DAILY_test.csv',
+    "SCANNER_LIST": 'DAILY.csv',
     "BASE_DIR": ".",
     "REFRESH": False,
     "DIRECTION": "Long",
@@ -140,33 +140,52 @@ def main() -> bool:
         
         # Process each strategy
         all_results = []
+        failed_tickers = set()  # Track tickers with no portfolio or results
         for row in scanner_df.iter_rows(named=True):
             ticker = row["TICKER"]
             
-            # Process SMA strategy
-            sma_result = process_strategy(
-                ticker=ticker,
-                use_sma=True,
-                short_window=int(row["SMA_FAST"]),
-                long_window=int(row["SMA_SLOW"]),
-                log=log
-            )
-            if sma_result:
-                all_results.append(sma_result)
+            has_sma = row["SMA_FAST"] is not None and row["SMA_SLOW"] is not None
+            has_ema = row["EMA_FAST"] is not None and row["EMA_SLOW"] is not None
+            ticker_has_results = False
+
+            # Process SMA strategy if parameters exist
+            if has_sma:
+                sma_result = process_strategy(
+                    ticker=ticker,
+                    use_sma=True,
+                    short_window=int(row["SMA_FAST"]),
+                    long_window=int(row["SMA_SLOW"]),
+                    log=log
+                )
+                if sma_result:
+                    all_results.append(sma_result)
+                    ticker_has_results = True
             
-            # Process EMA strategy
-            ema_result = process_strategy(
-                ticker=ticker,
-                use_sma=False,
-                short_window=int(row["EMA_FAST"]),
-                long_window=int(row["EMA_SLOW"]),
-                log=log
-            )
-            if ema_result:
-                all_results.append(ema_result)
+            # Process EMA strategy if parameters exist
+            if has_ema:
+                ema_result = process_strategy(
+                    ticker=ticker,
+                    use_sma=False,
+                    short_window=int(row["EMA_FAST"]),
+                    long_window=int(row["EMA_SLOW"]),
+                    log=log
+                )
+                if ema_result:
+                    all_results.append(ema_result)
+                    ticker_has_results = True
+            
+            # Track failed tickers
+            if (has_sma or has_ema) and not ticker_has_results:
+                failed_tickers.add(ticker)
         
         if not all_results:
             raise ValueError("No portfolio results found")
+            
+        # Log failed tickers as JSON array
+        if failed_tickers:
+            import json
+            failed_tickers_json = json.dumps(list(failed_tickers), indent=2)
+            log(f"Tickers with no portfolio file or no results found:\n{failed_tickers_json}", "info")
             
         # Create dataframe and sort
         results_df = pl.DataFrame(all_results)
