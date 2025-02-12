@@ -1,6 +1,6 @@
 {
     "initial_value": 15915,
-    "target_value": 9423,
+    "target_value": 9461,
     "use_target_value": true,
     "portfolio": [
         {
@@ -16,10 +16,10 @@
             "ticker": "MU"
         },
         {
-            "ticker": "LRCX"
+            "ticker": "CI"
         },
         {
-            "ticker": "AAPL"
+            "ticker": "FAST"
         },
         {
             "ticker": "HIG"
