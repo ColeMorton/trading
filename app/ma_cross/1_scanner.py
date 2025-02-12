@@ -117,29 +117,56 @@ def process_scanner() -> bool:
         if not has_ticker:
             raise ValueError("Missing required Ticker column")
             
-        # Define other required columns
-        required_columns = {"SMA_FAST", "SMA_SLOW", "EMA_FAST", "EMA_SLOW"}
+        # Check for schema type
+        is_new_schema = 'Short Window' in scanner_df.columns and 'Long Window' in scanner_df.columns
+        is_legacy_schema = all(col in scanner_df.columns for col in ["SMA_FAST", "SMA_SLOW", "EMA_FAST", "EMA_SLOW"])
         
-        # Validate schema
-        missing_columns = required_columns - set(scanner_df.columns)
-        if missing_columns:
-            raise ValueError(f"Missing required columns in scanner list: {missing_columns}")
+        if not is_new_schema and not is_legacy_schema:
+            raise ValueError("Invalid schema: Must contain either (Short Window, Long Window) or (SMA_FAST, SMA_SLOW, EMA_FAST, EMA_SLOW)")
         
-        # Check if the CSV has the new schema (with Use SMA column)
-        is_new_schema = 'Use SMA' in scanner_df.columns
+        # Check if the CSV has the Use SMA column
+        has_use_sma = 'Use SMA' in scanner_df.columns
         
         # Determine which ticker column name is present
         ticker_col = "Ticker" if "Ticker" in scanner_df.columns else "TICKER"
         
         # Standardize column names and ensure proper types
-        scanner_df = scanner_df.select([
-            pl.col(ticker_col).cast(pl.Utf8).alias("TICKER"),
-            pl.col("Use SMA").cast(pl.Boolean).alias("USE_SMA") if is_new_schema else pl.lit(None).alias("USE_SMA"),
-            pl.col("SMA_FAST").cast(pl.Int64),
-            pl.col("SMA_SLOW").cast(pl.Int64),
-            pl.col("EMA_FAST").cast(pl.Int64),
-            pl.col("EMA_SLOW").cast(pl.Int64)
-        ])
+        if is_new_schema:
+            # For new schema, map Short/Long windows based on Use SMA
+            scanner_df = scanner_df.select([
+                pl.col(ticker_col).cast(pl.Utf8).alias("TICKER"),
+                pl.col("Use SMA").cast(pl.Boolean).alias("USE_SMA") if has_use_sma else pl.lit(False).alias("USE_SMA"),
+                pl.when(pl.col("Use SMA").cast(pl.Boolean) if has_use_sma else pl.lit(False))
+                    .then(pl.col("Short Window"))
+                    .otherwise(pl.lit(None))
+                    .cast(pl.Int64)
+                    .alias("SMA_FAST"),
+                pl.when(pl.col("Use SMA").cast(pl.Boolean) if has_use_sma else pl.lit(False))
+                    .then(pl.col("Long Window"))
+                    .otherwise(pl.lit(None))
+                    .cast(pl.Int64)
+                    .alias("SMA_SLOW"),
+                pl.when(pl.col("Use SMA").cast(pl.Boolean) if has_use_sma else pl.lit(False))
+                    .then(pl.lit(None))
+                    .otherwise(pl.col("Short Window"))
+                    .cast(pl.Int64)
+                    .alias("EMA_FAST"),
+                pl.when(pl.col("Use SMA").cast(pl.Boolean) if has_use_sma else pl.lit(False))
+                    .then(pl.lit(None))
+                    .otherwise(pl.col("Long Window"))
+                    .cast(pl.Int64)
+                    .alias("EMA_SLOW")
+            ])
+        else:
+            # For legacy schema, maintain existing behavior
+            scanner_df = scanner_df.select([
+                pl.col(ticker_col).cast(pl.Utf8).alias("TICKER"),
+                pl.col("Use SMA").cast(pl.Boolean).alias("USE_SMA") if has_use_sma else pl.lit(None).alias("USE_SMA"),
+                pl.col("SMA_FAST").cast(pl.Int64),
+                pl.col("SMA_SLOW").cast(pl.Int64),
+                pl.col("EMA_FAST").cast(pl.Int64),
+                pl.col("EMA_SLOW").cast(pl.Int64)
+            ])
         
         # Filter scanner list to only process new tickers
         for row in scanner_df.iter_rows(named=True):
@@ -152,34 +179,21 @@ def process_scanner() -> bool:
             log(f"Processing {ticker}")
             
             try:
-                # Validate windows based on schema type
-                if is_new_schema:
-                    use_sma = row.get('USE_SMA', False)
-                    if use_sma and (row['SMA_FAST'] is None or row['SMA_SLOW'] is None):
-                        log(f"Warning: Missing SMA windows for {ticker}", "warning")
-                        continue
-                    if not use_sma and (row['EMA_FAST'] is None or row['EMA_SLOW'] is None):
-                        log(f"Warning: Missing EMA windows for {ticker}", "warning")
-                        continue
-                    
-                    # Set appropriate windows to None based on MA type
-                    row_dict = {
-                        **row,
-                        'EMA_FAST': None if use_sma else row['EMA_FAST'],
-                        'EMA_SLOW': None if use_sma else row['EMA_SLOW'],
-                        'SMA_FAST': row['SMA_FAST'] if use_sma else None,
-                        'SMA_SLOW': row['SMA_SLOW'] if use_sma else None
-                    }
-                else:
-                    # Validate both MA types for original schema
+                # Get MA type preference
+                use_sma = row.get('USE_SMA', False)
+                
+                # Validate windows based on MA type
+                if use_sma:
                     if row['SMA_FAST'] is None or row['SMA_SLOW'] is None:
                         log(f"Warning: Missing SMA windows for {ticker}", "warning")
+                        continue
+                else:
                     if row['EMA_FAST'] is None or row['EMA_SLOW'] is None:
                         log(f"Warning: Missing EMA windows for {ticker}", "warning")
-                    if all(row[k] is None for k in ['SMA_FAST', 'SMA_SLOW', 'EMA_FAST', 'EMA_SLOW']):
-                        log(f"Error: No valid MA windows for {ticker}", "error")
                         continue
-                    row_dict = row
+                
+                # Windows are already properly mapped during DataFrame transformation
+                row_dict = row
 
                 # Process ticker with validated configuration
                 result = process_ticker(ticker, row_dict, config, log)
