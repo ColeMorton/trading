@@ -188,8 +188,10 @@ def main() -> bool:
             failed_tickers_json = json.dumps(list(failed_tickers), indent=2)
             log(f"Tickers with no portfolio file or no results found:\n{failed_tickers_json}", "info")
             
-        # Create dataframe and sort
+        # Create dataframe, remove duplicates, and sort
         results_df = pl.DataFrame(all_results)
+        # Remove duplicates based on key strategy parameters
+        results_df = results_df.unique(subset=["Ticker", "Use SMA", "Short Window", "Long Window"])
         if CONFIG["SORT_BY"]:
             results_df = results_df.sort(CONFIG["SORT_BY"], descending=CONFIG["SORT_ASC"] == False)
         
