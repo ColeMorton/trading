@@ -1,30 +1,18 @@
 """
 Scanner List Update Module for MA Cross Strategy
 
-This module processes and updates scanner lists by:
-1. Reading strategies from scanner list CSV
-2. Backtesting both SMA and EMA strategies where defined
-3. Exporting updated results back to scanner list
+This module processes scanner list entries and compiles portfolio results
+into a comprehensive scanner list CSV file.
 """
 
 import os
+import logging
+from typing import List, Dict, Any, Optional, Tuple
+
 import polars as pl
-from typing import Dict, List, Optional, TypedDict, Union
 
-from app.tools.setup_logging import setup_logging
-from app.tools.get_config import get_config
 from app.ma_cross.config_types import Config
-from app.ma_cross.tools.signal_processing import process_current_signals
-from app.tools.portfolio.collection import combine_strategy_portfolios
-
-class StrategyResult(TypedDict):
-    """Type definition for strategy execution results."""
-    ticker: str
-    sma_windows: Optional[tuple[int, int]]
-    ema_windows: Optional[tuple[int, int]]
-    sma_portfolio: Optional[Dict]
-    ema_portfolio: Optional[Dict]
-    combined_portfolio: Optional[Dict]
+from app.tools.setup_logging import setup_logging
 
 CONFIG: Config = {
     "SCANNER_LIST": 'DAILY_test.csv',
@@ -39,189 +27,167 @@ CONFIG: Config = {
     "USE_SCANNER": True
 }
 
-def process_strategy(
-    ticker: str,
-    sma_windows: Optional[tuple[int, int]],
-    ema_windows: Optional[tuple[int, int]],
-    base_config: Config,
-    log: callable
-) -> StrategyResult:
-    """
-    Process both SMA and EMA strategies for a single ticker using specified windows.
+def get_portfolio_path(ticker: str, use_sma: bool) -> Optional[str]:
+    """Get path to portfolio CSV file.
 
     Args:
         ticker (str): Ticker symbol
-        sma_windows (tuple[int, int]): SMA fast and slow windows, or None
-        ema_windows (tuple[int, int]): EMA fast and slow windows, or None
-        base_config (Config): Base configuration
+        use_sma (bool): Whether to get SMA or EMA file
+
+    Returns:
+        Optional[str]: Path to portfolio CSV file if found, None otherwise
+    """
+    # Check dated subdirectories in reverse chronological order
+    portfolios_dir = os.path.join(CONFIG["BASE_DIR"], "csv", "ma_cross", "portfolios")
+    dated_dirs = [d for d in os.listdir(portfolios_dir) 
+                 if os.path.isdir(os.path.join(portfolios_dir, d)) 
+                 and d.isdigit()]
+    dated_dirs.sort(reverse=True)
+
+    # Get file name based on type
+    ma_type = "SMA" if use_sma else "EMA"
+    file_name = f"{ticker}_D_{ma_type}.csv"
+    
+    # Check root directory
+    root_path = os.path.join(portfolios_dir, file_name)
+    if os.path.exists(root_path):
+        return root_path
+
+    # Check dated directories
+    for date_dir in dated_dirs:
+        file_path = os.path.join(portfolios_dir, date_dir, file_name)
+        if os.path.exists(file_path):
+            return file_path
+
+    return None
+
+def load_portfolio_results(path: str, short_window: int, long_window: int) -> Optional[Dict[str, Any]]:
+    """Load specific portfolio results from CSV.
+
+    Args:
+        path (str): Path to portfolio CSV
+        short_window (int): Short window size
+        long_window (int): Long window size
+
+    Returns:
+        Optional[Dict[str, Any]]: Portfolio results if found, None otherwise
+    """
+    try:
+        df = pl.read_csv(path)
+        # Filter for exact window combination
+        result = df.filter(
+            (pl.col("Short Window") == short_window) &
+            (pl.col("Long Window") == long_window)
+        )
+        if len(result) == 0:
+            return None
+        return result.row(0, named=True)
+    except Exception as e:
+        raise FileNotFoundError(f"Failed to load portfolio results: {str(e)}")
+
+def process_strategy(ticker: str, use_sma: bool, short_window: int, long_window: int, log: callable) -> Optional[Dict[str, Any]]:
+    """Process a single strategy combination.
+
+    Args:
+        ticker (str): Ticker symbol
+        use_sma (bool): Whether to use SMA
+        short_window (int): Short window size
+        long_window (int): Long window size
         log (callable): Logging function
 
     Returns:
-        StrategyResult: Results from strategy execution
+        Optional[Dict[str, Any]]: Strategy results if found
     """
-    result: StrategyResult = {
-        "ticker": ticker,
-        "sma_windows": sma_windows,
-        "ema_windows": ema_windows,
-        "sma_portfolio": None,
-        "ema_portfolio": None,
-        "combined_portfolio": None
-    }
+    portfolio_path = get_portfolio_path(ticker, use_sma)
+    if not portfolio_path:
+        log(f"Portfolio file not found for {ticker} {'SMA' if use_sma else 'EMA'}", "error")
+        return None
     
     try:
-        # Create ticker-specific config
-        ticker_config = {**base_config, "TICKER": ticker}
-        
-        # Process SMA strategy if windows exist
-        if sma_windows:
-            log(f"Processing SMA strategy for {ticker} with windows {sma_windows}")
-            sma_config = {
-                **ticker_config,
-                "USE_SMA": True,
-                "SHORT_WINDOW": sma_windows[0],
-                "LONG_WINDOW": sma_windows[1]
-            }
-            sma_df = process_current_signals(ticker, sma_config, log)
-            if sma_df is not None and len(sma_df) > 0:
-                result["sma_portfolio"] = sma_df.to_dicts()[0]
-                log(f"SMA portfolio keys: {list(result['sma_portfolio'].keys())}")
-            
-        # Process EMA strategy if windows exist
-        if ema_windows:
-            log(f"Processing EMA strategy for {ticker} with windows {ema_windows}")
-            ema_config = {
-                **ticker_config,
-                "USE_SMA": False,
-                "SHORT_WINDOW": ema_windows[0],
-                "LONG_WINDOW": ema_windows[1]
-            }
-            ema_df = process_current_signals(ticker, ema_config, log)
-            if ema_df is not None and len(ema_df) > 0:
-                result["ema_portfolio"] = ema_df.to_dicts()[0]
-                log(f"EMA portfolio keys: {list(result['ema_portfolio'].keys())}")
-            
-        # Combine portfolios if both strategies exist
-        if result["sma_portfolio"] and result["ema_portfolio"]:
-            result["combined_portfolio"] = combine_strategy_portfolios(
-                [result["sma_portfolio"]],
-                [result["ema_portfolio"]]
-            )
-            
+        result = load_portfolio_results(portfolio_path, short_window, long_window)
+        if result:
+            # Add Use SMA column if not present
+            if "Use SMA" not in result:
+                result["Use SMA"] = use_sma
+            return result
+        log(f"No results found for {ticker} {'SMA' if use_sma else 'EMA'} {short_window}/{long_window}", "error")
+        return None
     except Exception as e:
-        log(f"Failed to process ticker portfolios: {str(e)}", "error")
-        
-    return result
+        log(f"Error loading results for {ticker}: {str(e)}", "error")
+        return None
 
-def export_results(results: List[StrategyResult], config: Config, log: callable) -> bool:
-    """
-    Export strategy results back to scanner list.
-
-    Args:
-        results (List[StrategyResult]): List of strategy results
-        config (Config): Configuration dictionary
-        log (callable): Logging function
+def main() -> bool:
+    """Main execution function.
 
     Returns:
-        bool: True if export successful
+        bool: True if successful, False otherwise
     """
-    try:
-        # Convert results to DataFrame
-        rows = []
-        for result in results:
-            # Use original windows from scanner list
-            row = {
-                "TICKER": result["ticker"],
-                "SMA_FAST": result["sma_windows"][0] if result["sma_windows"] else None,
-                "SMA_SLOW": result["sma_windows"][1] if result["sma_windows"] else None,
-                "EMA_FAST": result["ema_windows"][0] if result["ema_windows"] else None,
-                "EMA_SLOW": result["ema_windows"][1] if result["ema_windows"] else None
-            }
-            
-            # Log portfolio results for debugging
-            if result["sma_portfolio"]:
-                log(f"SMA portfolio for {result['ticker']}: {result['sma_portfolio']}")
-            if result["ema_portfolio"]:
-                log(f"EMA portfolio for {result['ticker']}: {result['ema_portfolio']}")
-                
-            rows.append(row)
-            
-        # Create DataFrame
-        df = pl.DataFrame(rows)
-        
-        # Ensure export directory exists
-        export_dir = os.path.join("csv", "ma_cross", "scanner_list")
-        os.makedirs(export_dir, exist_ok=True)
-        
-        # Export to CSV
-        export_path = os.path.join(export_dir, config["SCANNER_LIST"])
-        df.write_csv(export_path)
-        log(f"Results exported to {export_path}")
-        return True
-        
-    except Exception as e:
-        log(f"Error exporting results: {str(e)}", "error")
-        return False
-
-def run(config: Config = CONFIG) -> bool:
-    """
-    Run scanner list update process.
-
-    This function:
-    1. Reads strategies from scanner list
-    2. Processes each strategy (SMA and/or EMA) with specified windows
-    3. Exports updated results
-
-    Args:
-        config (Config): Configuration dictionary
-
-    Returns:
-        bool: True if execution successful
-    """
+    # Setup logging
     log, log_close, _, _ = setup_logging(
-        module_name='ma_cross',
-        log_file='2_update_scanner_list.log'
+        module_name="ma_cross",
+        log_file="scanner_list_update.log",
+        level=logging.INFO
     )
     
     try:
-        # Initialize configuration
-        config = get_config(config)
+        # Load scanner list to get strategies
+        scanner_path = os.path.join(
+            CONFIG["BASE_DIR"], "app", "ma_cross", "scanner_lists",
+            CONFIG["SCANNER_LIST"]
+        )
+        scanner_df = pl.read_csv(scanner_path)
+        log(f"Loaded scanner list with {len(scanner_df)} rows", "info")
         
-        # Read scanner list
-        scanner_path = os.path.join("app", "ma_cross", "scanner_lists", config["SCANNER_LIST"])
-        df = pl.read_csv(scanner_path)
-        log(f"Loaded scanner list: {config['SCANNER_LIST']}")
-        
-        # Process each row
-        results: List[StrategyResult] = []
-        for row in df.iter_rows(named=True):
+        # Process each strategy
+        all_results = []
+        for row in scanner_df.iter_rows(named=True):
             ticker = row["TICKER"]
-            log(f"Processing {ticker}")
             
-            # Extract windows if they exist
-            sma_windows = None
-            if not pl.Series([row["SMA_FAST"], row["SMA_SLOW"]]).is_null().any():
-                sma_windows = (int(row["SMA_FAST"]), int(row["SMA_SLOW"]))
-                
-            ema_windows = None
-            if not pl.Series([row["EMA_FAST"], row["EMA_SLOW"]]).is_null().any():
-                ema_windows = (int(row["EMA_FAST"]), int(row["EMA_SLOW"]))
+            # Process SMA strategy
+            sma_result = process_strategy(
+                ticker=ticker,
+                use_sma=True,
+                short_window=int(row["SMA_FAST"]),
+                long_window=int(row["SMA_SLOW"]),
+                log=log
+            )
+            if sma_result:
+                all_results.append(sma_result)
             
-            # Process strategies
-            result = process_strategy(ticker, sma_windows, ema_windows, config, log)
-            results.append(result)
+            # Process EMA strategy
+            ema_result = process_strategy(
+                ticker=ticker,
+                use_sma=False,
+                short_window=int(row["EMA_FAST"]),
+                long_window=int(row["EMA_SLOW"]),
+                log=log
+            )
+            if ema_result:
+                all_results.append(ema_result)
+        
+        if not all_results:
+            raise ValueError("No portfolio results found")
             
-        # Export results
-        if export_results(results, config, log):
-            log("Scanner list update completed successfully")
-            log_close()
-            return True
-        else:
-            raise Exception("Failed to export results")
-            
+        # Create dataframe and sort
+        results_df = pl.DataFrame(all_results)
+        if CONFIG["SORT_BY"]:
+            results_df = results_df.sort(CONFIG["SORT_BY"], descending=True)
+        
+        # Save results
+        output_path = os.path.join(
+            CONFIG["BASE_DIR"], "csv", "ma_cross", "scanner_list",
+            CONFIG["SCANNER_LIST"]
+        )
+        results_df.write_csv(output_path)
+        log(f"Saved {len(results_df)} results to {output_path}", "info")
+        
+        log_close()
+        return True
+        
     except Exception as e:
-        log(f"Scanner list update failed: {str(e)}", "error")
+        log(f"Error: {str(e)}", "error")
         log_close()
         raise
-        
+
 if __name__ == "__main__":
-    run()
+    main()
