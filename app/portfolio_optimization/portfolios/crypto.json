@@ -1,0 +1,16 @@
+{
+    "initial_value": 15915,
+    "target_value": 13058,
+    "use_target_value": false,
+    "portfolio": [
+        {
+            "ticker": "BTC-USD"
+        },
+        {
+            "ticker": "ETH-USD"
+        },
+        {
+            "ticker": "SOL-USD"
+        }
+    ]
+}

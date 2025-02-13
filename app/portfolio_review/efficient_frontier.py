@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 # end_date = '2024-11-02'
 
 start_date = '2021-01-01'
-end_date = '2024-11-02'
+end_date = '2025-02-12'
 
 # ASSETS = ['BTC-USD', 'SPY']
 
@@ -32,11 +32,13 @@ end_date = '2024-11-02'
 
 # ASSETS = ['BTC-USD', 'SPY', 'QQQ', 'SOL-USD', 'MSTR']
 
-ASSETS = ['BTC-USD', 'SPY', 'QQQ', 'SOL-USD']
+# ASSETS = ['BTC-USD', 'SPY', 'QQQ', 'SOL-USD']
 
 # ASSETS = ['BTC-USD', 'SOL-USD', 'MSTR']
 
 # ASSETS = ['SPY', 'QQQ']
+
+ASSETS = ['BTC-USD', 'ETH-USD', 'SOL-USD']
 
 # Download the data
 data = yf.download(ASSETS, start=start_date, end=end_date)['Adj Close']

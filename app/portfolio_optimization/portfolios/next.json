@@ -1,6 +1,6 @@
 {
     "initial_value": 15915,
-    "target_value": 9461,
+    "target_value": 13058,
     "use_target_value": true,
     "portfolio": [
         {
@@ -23,6 +23,12 @@
         },
         {
             "ticker": "HIG"
+        },
+        {
+            "ticker": "PAYC"
+        },
+        {
+            "ticker": "PG"
         }
     ]
 }
