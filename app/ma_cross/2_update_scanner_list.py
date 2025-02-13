@@ -2,12 +2,13 @@
 Scanner List Update Module for MA Cross Strategy
 
 This module processes scanner list entries and compiles portfolio results
-into a comprehensive scanner list CSV file.
+into a comprehensive scanner list CSV file. Supports both legacy and new
+schema formats for scanner list CSV files.
 """
 
 import os
 import logging
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple, Literal
 
 import polars as pl
 
@@ -15,7 +16,10 @@ from app.ma_cross.config_types import Config
 from app.tools.setup_logging import setup_logging
 
 CONFIG: Config = {
-    "SCANNER_LIST": 'DAILY.csv',
+    "SCANNER_LIST": 'BTC_SOL_D.csv',
+    # "SCANNER_LIST": 'SPY_QQQ_D.csv',
+    # "SCANNER_LIST": 'QQQ_SPY100.csv',
+    # "SCANNER_LIST": 'DAILY.csv',
     "BASE_DIR": ".",
     "REFRESH": False,
     "DIRECTION": "Long",
@@ -27,6 +31,70 @@ CONFIG: Config = {
     "USE_GBM": False,
     "USE_SCANNER": True
 }
+
+def detect_schema_version(df: pl.DataFrame) -> Literal["new", "legacy"]:
+    """Detect which schema version the dataframe uses.
+    
+    Args:
+        df (pl.DataFrame): Input dataframe to analyze
+        
+    Returns:
+        Literal["new", "legacy"]: Schema version detected
+        
+    Raises:
+        ValueError: If schema cannot be determined or is invalid
+    """
+    columns = df.columns
+    
+    # Check for new schema columns
+    has_new_schema = all(col in columns for col in ["Short Window", "Long Window", "Use SMA"])
+    
+    # Check for legacy schema columns
+    has_legacy_schema = any(col in columns for col in ["SMA_FAST", "SMA_SLOW", "EMA_FAST", "EMA_SLOW"])
+    
+    if has_new_schema and not has_legacy_schema:
+        return "new"
+    elif has_legacy_schema and not has_new_schema:
+        return "legacy"
+    elif has_new_schema and has_legacy_schema:
+        raise ValueError("Ambiguous schema: Contains both new and legacy columns")
+    else:
+        raise ValueError("Invalid schema: Missing required columns")
+
+def process_new_schema_row(row: Dict[str, Any]) -> List[Tuple[bool, int, int]]:
+    """Process a row using the new schema format.
+    
+    Args:
+        row (Dict[str, Any]): Row data containing Use SMA, Short Window, and Long Window
+        
+    Returns:
+        List[Tuple[bool, int, int]]: List of (use_sma, short_window, long_window) tuples
+    """
+    use_sma = bool(row["Use SMA"])
+    short_window = int(row["Short Window"])
+    long_window = int(row["Long Window"])
+    return [(use_sma, short_window, long_window)]
+
+def process_legacy_schema_row(row: Dict[str, Any]) -> List[Tuple[bool, int, int]]:
+    """Process a row using the legacy schema format.
+    
+    Args:
+        row (Dict[str, Any]): Row data containing SMA/EMA FAST/SLOW columns
+        
+    Returns:
+        List[Tuple[bool, int, int]]: List of (use_sma, short_window, long_window) tuples
+    """
+    strategies = []
+    
+    # Check for SMA strategy
+    if row["SMA_FAST"] is not None and row["SMA_SLOW"] is not None:
+        strategies.append((True, int(row["SMA_FAST"]), int(row["SMA_SLOW"])))
+    
+    # Check for EMA strategy
+    if row["EMA_FAST"] is not None and row["EMA_SLOW"] is not None:
+        strategies.append((False, int(row["EMA_FAST"]), int(row["EMA_SLOW"])))
+    
+    return strategies
 
 def get_portfolio_path(ticker: str, use_sma: bool) -> Optional[str]:
     """Get path to portfolio CSV file.
@@ -139,44 +207,46 @@ def main() -> bool:
         scanner_df = pl.read_csv(scanner_path)
         log(f"Loaded scanner list with {len(scanner_df)} rows", "info")
         
+        # Detect schema version
+        schema_version = detect_schema_version(scanner_df)
+        log(f"Detected {schema_version} schema format", "info")
+        
         # Process each strategy
         all_results = []
         failed_tickers = set()  # Track tickers with no portfolio or results
         for row in scanner_df.iter_rows(named=True):
-            ticker = row["TICKER"]
+            # Try both uppercase and pascal case column names
+            try:
+                ticker = row["TICKER"]
+            except KeyError:
+                try:
+                    ticker = row["Ticker"]
+                except KeyError:
+                    raise KeyError("CSV must contain either 'TICKER' or 'Ticker' column")
             
-            has_sma = row["SMA_FAST"] is not None and row["SMA_SLOW"] is not None
-            has_ema = row["EMA_FAST"] is not None and row["EMA_SLOW"] is not None
+            # Process strategies based on schema version
+            strategies = []
+            if schema_version == "new":
+                strategies = process_new_schema_row(row)
+            else:  # legacy schema
+                strategies = process_legacy_schema_row(row)
+            
+            # Process each strategy combination
             ticker_has_results = False
-
-            # Process SMA strategy if parameters exist
-            if has_sma:
-                sma_result = process_strategy(
+            for use_sma, short_window, long_window in strategies:
+                result = process_strategy(
                     ticker=ticker,
-                    use_sma=True,
-                    short_window=int(row["SMA_FAST"]),
-                    long_window=int(row["SMA_SLOW"]),
+                    use_sma=use_sma,
+                    short_window=short_window,
+                    long_window=long_window,
                     log=log
                 )
-                if sma_result:
-                    all_results.append(sma_result)
-                    ticker_has_results = True
-            
-            # Process EMA strategy if parameters exist
-            if has_ema:
-                ema_result = process_strategy(
-                    ticker=ticker,
-                    use_sma=False,
-                    short_window=int(row["EMA_FAST"]),
-                    long_window=int(row["EMA_SLOW"]),
-                    log=log
-                )
-                if ema_result:
-                    all_results.append(ema_result)
+                if result:
+                    all_results.append(result)
                     ticker_has_results = True
             
             # Track failed tickers
-            if (has_sma or has_ema) and not ticker_has_results:
+            if strategies and not ticker_has_results:
                 failed_tickers.add(ticker)
         
         if not all_results:
