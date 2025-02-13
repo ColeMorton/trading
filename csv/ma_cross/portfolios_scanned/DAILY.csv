@@ -1,11 +1,11 @@
 TICKER,SMA_FAST,SMA_SLOW,EMA_FAST,EMA_SLOW,SMA_SIGNAL,EMA_SIGNAL
 ZTS,,,8,46,false,false
 ZTS,32,37,,,false,false
-ZS,35,37,,,true,false
+ZS,35,37,,,false,false
 ZS,,,2,31,false,false
 ZS,,,2,6,false,false
 ZM,53,54,,,false,false
-ZM,,,3,18,false,false
+ZM,,,3,18,false,true
 ZEC-USD,,,2,22,false,false
 XYZ,7,25,,,false,false
 XYZ,,,2,19,false,false
@@ -70,7 +70,7 @@ SPGI,8,41,,,false,false
 SOL-USD,27,30,,,false,false
 SOFI,18,19,,,false,false
 SO,,,84,89,false,false
-SO,,,85,89,false,false
+SO,,,85,89,false,true
 SO,83,87,,,false,false
 SNPS,51,85,,,false,false
 SNPS,,,27,31,false,false
@@ -134,7 +134,7 @@ ORLY,18,34,,,false,false
 ORLY,,,15,89,false,false
 ON,13,22,,,false,false
 OKTA,80,87,,,false,false
-OKTA,,,2,3,false,true
+OKTA,,,2,3,false,false
 ODFL,80,89,,,false,false
 ODFL,73,85,,,false,false
 ODFL,,,50,85,false,false
@@ -173,7 +173,7 @@ MNST,,,15,73,false,false
 MNST,66,81,,,false,false
 MMM,68,80,,,false,false
 MKR-USD,,,14,17,false,false
-MKR-USD,5,12,,,false,false
+MKR-USD,5,12,,,true,false
 META,,,32,40,false,false
 META,43,49,,,false,false
 META,,,9,61,false,false
@@ -201,9 +201,9 @@ LLY,,,79,85,false,false
 LLY,71,89,,,false,false
 LINK-USD,,,5,6,false,false
 LI,12,17,,,false,false
-LCID,7,20,,,true,false
+LCID,7,20,,,false,false
 KLAC,,,47,56,false,false
-KLAC,68,71,,,true,false
+KLAC,68,71,,,false,false
 KDP,54,61,,,false,false
 JPM,22,77,,,false,false
 JPM,,,20,25,false,false
@@ -267,7 +267,7 @@ EXC,20,25,,,false,false
 EWN,28,86,,,false,false
 EWN,,,6,66,false,false
 EW,83,88,,,false,false
-EW,,,25,89,false,true
+EW,,,25,89,false,false
 ETH-USD,13,20,,,false,false
 ERIE,47,59,,,false,false
 ERIE,,,31,79,false,false
@@ -333,7 +333,7 @@ CEG,,,5,6,false,false
 CDNS,49,74,,,false,false
 CDNS,,,30,83,false,false
 CAT,68,74,,,false,false
-CAKE-USD,,,13,18,false,false
+CAKE-USD,,,13,18,false,true
 CAKE-USD,2,6,,,false,false
 BSX,53,69,,,false,false
 BSX,,,47,82,false,false
@@ -360,10 +360,10 @@ AXON,,,6,30,false,false
 AVGO,84,88,,,false,false
 AVGO,,,13,82,false,false
 AVGO,,,83,87,false,false
-AVAX-USD,2,10,,,true,false
+AVAX-USD,2,10,,,false,false
 AVAX-USD,,,5,9,false,false
 ASML,20,45,,,false,false
-ASML,71,74,,,false,false
+ASML,71,74,,,true,false
 ASML,,,34,42,false,false
 APD,43,47,,,false,false
 APD,,,28,34,false,false
@@ -372,7 +372,7 @@ AOS,8,82,,,false,false
 AMZN,,,56,81,false,false
 AMZN,53,65,,,false,false
 AMZN,,,33,78,false,false
-AMGN,39,48,,,false,false
+AMGN,39,48,,,true,false
 AMGN,,,13,32,false,false
 AMD,,,18,23,false,false
 AMAT,63,78,,,false,false
@@ -416,9 +416,9 @@ SPY,108,115,,,false,false
 SPY,,,18,32,false,false
 SPY,,,46,51,false,false
 SPY,,,51,72,false,false
-COPX,29,42,,,false,false
+COPX,29,42,,,true,false
 IAU,64,75,,,false,false
 SLV,77,84,,,false,false
 COPX,10,80,,,false,false
-LIT,7,31,,,false,false
+LIT,7,31,,,true,false
 URA,7,34,,,false,false

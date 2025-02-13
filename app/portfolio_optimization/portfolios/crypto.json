@@ -1,16 +1,22 @@
 {
     "initial_value": 15915,
-    "target_value": 13058,
-    "use_target_value": false,
+    "target_value": 25300,
+    "use_target_value": true,
     "portfolio": [
         {
-            "ticker": "BTC-USD"
+            "ticker": "BTC-USD",
+            "leverage": 4.7,
+            "weight": 41.49
         },
         {
-            "ticker": "ETH-USD"
+            "ticker": "SOL-USD",
+            "leverage": 3.2,
+            "weight": 36.03
         },
         {
-            "ticker": "SOL-USD"
+            "ticker": "ETH-USD",
+            "leverage": 4,
+            "weight": 22.48
         }
     ]
 }

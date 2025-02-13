@@ -2,47 +2,42 @@
     {
         "ticker": "BTC-USD",
         "timeframe": "Daily",
-        "type": "SMA",
-        "direction": "Long",
-        "short_window": 27,
-        "long_window": 29,
-        "stop_loss": 0.0911,
-        "rsi_period": 14,
-        "rsi_threshold": 50
-    },
-    {
-        "ticker": "BTC-USD",
-        "timeframe": "Daily",
         "type": "MACD",
         "direction": "Long",
         "short_window": 14,
-        "long_window": 23,
-        "signal_period": 13,
-        "stop_loss": 0.088,
-        "rsi_period": 14,
-        "rsi_threshold": 45
+        "long_window": 23
     },
     {
         "ticker": "BTC-USD",
-        "timeframe": "Hourly",
-        "type": "SMA",
-        "direction": "Long",
-        "short_window": 65,
-        "long_window": 74,
-        "stop_loss": 0.0565,
-        "rsi_period": 29,
-        "rsi_threshold": 30
-    },
-    {
-        "ticker": "SOL-USD",
         "timeframe": "Daily",
         "type": "SMA",
         "direction": "Long",
-        "short_window": 14,
-        "long_window": 32,
-        "stop_loss": 0.125,
-        "rsi_period": 26,
-        "rsi_threshold": 43
+        "short_window": 27,
+        "long_window": 29
+    },
+    {
+        "ticker": "BTC-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 8,
+        "long_window": 44
+    },
+    {
+        "ticker": "BTC-USD",
+        "timeframe": "Daily",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 3,
+        "long_window": 11
+    },
+    {
+        "ticker": "BTC-USD",
+        "timeframe": "Daily",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 11,
+        "long_window": 17
     },
     {
         "ticker": "SOL-USD",
@@ -51,16 +46,38 @@
         "direction": "Long",
         "short_window": 19,
         "long_window": 33,
-        "signal_period": 13,
-        "stop_loss": 0.189
+        "signal_period": 13
     },
     {
         "ticker": "SOL-USD",
-        "timeframe": "Hourly",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 14,
+        "long_window": 32
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 26,
+        "long_window": 32
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 27,
+        "long_window": 30
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
         "type": "EMA",
         "direction": "Long",
-        "short_window": 20,
-        "long_window": 60,
-        "stop_loss": 0.0547
+        "short_window": 16,
+        "long_window": 18
     }
 ]
