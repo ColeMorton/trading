@@ -119,22 +119,19 @@ def process_single_ticker(
     if portfolios_df is None:
         return None
         
-    # Apply win rate and minimum trades filters
-    min_win_rate = ticker_config.get("MIN_WIN_RATE", 0.34)
-    min_trades = ticker_config.get("MIN_TRADES", 21)
-    
-    # Filter by win rate
-    if "Win Rate [%]" in portfolios_df.columns:
+    # Apply win rate and minimum trades filters only if explicitly configured
+    if "MIN_WIN_RATE" in ticker_config and "Win Rate [%]" in portfolios_df.columns:
+        min_win_rate = ticker_config["MIN_WIN_RATE"]
         portfolios_df = portfolios_df.filter(pl.col("Win Rate [%]").cast(pl.Float64) >= min_win_rate * 100)
         log(f"Filtered portfolios with win rate >= {min_win_rate * 100}%")
         
-    # Filter by number of trades
-    if "Total Trades" in portfolios_df.columns:
+    if "MIN_TRADES" in ticker_config and "Total Trades" in portfolios_df.columns:
+        min_trades = ticker_config["MIN_TRADES"]
         portfolios_df = portfolios_df.filter(pl.col("Total Trades").cast(pl.Int64) >= min_trades)
         log(f"Filtered portfolios with at least {min_trades} trades")
         
     if len(portfolios_df) == 0:
-        log("No portfolios remain after win rate and trade count filtering", "warning")
+        log("No portfolios remain after filtering", "warning")
         return None
         
     try:

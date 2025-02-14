@@ -1,0 +1,9 @@
+TICKER,SMA_FAST,SMA_SLOW,EMA_FAST,EMA_SLOW,SMA_SIGNAL,EMA_SIGNAL
+BTC-USD,,,3,11,false,false
+BTC-USD,27,29,,,false,false
+BTC-USD,8,44,,,false,false
+BTC-USD,,,11,17,false,false
+SOL-USD,27,30,,,false,false
+SOL-USD,,,16,18,false,false
+SOL-USD,26,32,,,false,false
+SOL-USD,14,32,,,false,false
