@@ -14,26 +14,7 @@ from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
 CONFIG: Config = {
-    "TICKER": [
-  "AMAT",
-  "EQR",
-  "UNP",
-  "AMGN",
-  "COPX",
-  "LIT",
-  "MKR-USD",
-  "ITW",
-  "CHD",
-  "HSY",
-  "PPG",
-  "ALL",
-  "CMG",
-  "GEN",
-  "FAST",
-  "MU",
-  "LRCX"
-]
-,
+    "TICKER": 'COIN',
     "TICKER_1": 'AMAT',
     "TICKER_2": 'LRCX',
     "WINDOWS": 89,

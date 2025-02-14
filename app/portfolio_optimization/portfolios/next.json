@@ -1,13 +1,13 @@
 {
     "initial_value": 15915,
-    "target_value": 13058,
+    "target_value": 13326,
     "use_target_value": true,
     "portfolio": [
         {
             "ticker": "KLAC"
         },
         {
-            "ticker": "MS"
+            "ticker": "AMGN"
         },
         {
             "ticker": "ASML"
