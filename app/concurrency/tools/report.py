@@ -35,6 +35,7 @@ def create_strategy_object(
     """
     strategy_type = config.get("STRATEGY_TYPE", "EMA")
     
+    # Create base parameters
     parameters: StrategyParameters = {
         "ticker": {
             "value": config["TICKER"],
@@ -61,6 +62,31 @@ def create_strategy_object(
             "description": "Period for long moving average or MACD slow line"
         }
     }
+    
+    # Add signal_window for MACD strategies
+    if strategy_type == "MACD" and "SIGNAL_PERIOD" in config:
+        parameters["signal_window"] = {
+            "value": config["SIGNAL_PERIOD"],
+            "description": "Period for MACD signal line"
+        }
+    
+    # Add RSI parameters if present
+    if config.get("USE_RSI", False) and "RSI_PERIOD" in config:
+        parameters["rsi_period"] = {
+            "value": config["RSI_PERIOD"],
+            "description": "Period for RSI calculation"
+        }
+        parameters["rsi_threshold"] = {
+            "value": config["RSI_THRESHOLD"],
+            "description": "RSI threshold for signal filtering"
+        }
+    
+    # Add stop loss if present
+    if "STOP_LOSS" in config:
+        parameters["stop_loss"] = {
+            "value": config["STOP_LOSS"],
+            "description": "Stop loss percentage"
+        }
     
     performance: StrategyPerformance = {
         "expectancy_per_month": {

@@ -26,6 +26,22 @@
                 "long_window": {
                     "value": 23,
                     "description": "Period for long moving average or MACD slow line"
+                },
+                "signal_window": {
+                    "value": 13,
+                    "description": "Period for MACD signal line"
+                },
+                "rsi_period": {
+                    "value": 14,
+                    "description": "Period for RSI calculation"
+                },
+                "rsi_threshold": {
+                    "value": 45,
+                    "description": "RSI threshold for signal filtering"
+                },
+                "stop_loss": {
+                    "value": 0.086,
+                    "description": "Stop loss percentage"
                 }
             },
             "performance": {
@@ -52,11 +68,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.27963452400328775,
+                    "value": 0.2796345221033018,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": 0.0001453782032063834,
+                    "value": 0.00014538329268171763,
                     "description": "Strategy alpha relative to portfolio"
                 }
             }
@@ -87,6 +103,10 @@
                 "long_window": {
                     "value": 22,
                     "description": "Period for long moving average or MACD slow line"
+                },
+                "signal_window": {
+                    "value": 29,
+                    "description": "Period for MACD signal line"
                 }
             },
             "performance": {
@@ -113,11 +133,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.2865993560678397,
+                    "value": 0.28659935353221316,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.00024187717360257474,
+                    "value": -0.0002418720841272405,
                     "description": "Strategy alpha relative to portfolio"
                 }
             }
@@ -148,6 +168,18 @@
                 "long_window": {
                     "value": 21,
                     "description": "Period for long moving average or MACD slow line"
+                },
+                "signal_window": {
+                    "value": 4,
+                    "description": "Period for MACD signal line"
+                },
+                "rsi_period": {
+                    "value": 14,
+                    "description": "Period for RSI calculation"
+                },
+                "rsi_threshold": {
+                    "value": 44,
+                    "description": "RSI threshold for signal filtering"
                 }
             },
             "performance": {
@@ -174,11 +206,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.14181390736258948,
+                    "value": 0.14181391428103332,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": 0.00020275854650544456,
+                    "value": 0.00020274327807944187,
                     "description": "Strategy alpha relative to portfolio"
                 }
             }
@@ -209,6 +241,18 @@
                 "long_window": {
                     "value": 34,
                     "description": "Period for long moving average or MACD slow line"
+                },
+                "signal_window": {
+                    "value": 34,
+                    "description": "Period for MACD signal line"
+                },
+                "rsi_period": {
+                    "value": 14,
+                    "description": "Period for RSI calculation"
+                },
+                "rsi_threshold": {
+                    "value": 44,
+                    "description": "RSI threshold for signal filtering"
                 }
             },
             "performance": {
@@ -235,11 +279,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.29195221256628295,
+                    "value": 0.2919522100834518,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.00010625957610925323,
+                    "value": -0.000106254486633919,
                     "description": "Strategy alpha relative to portfolio"
                 }
             }
@@ -303,7 +347,7 @@
                     "description": "Measure of risk concentration"
                 },
                 "total_portfolio_risk": {
-                    "value": 0.05119439968760419,
+                    "value": 0.05119439992292463,
                     "description": "Overall portfolio risk measure"
                 }
             },
@@ -327,27 +371,27 @@
             },
             "strategy_relationships": {
                 "risk_overlap_1_2": {
-                    "value": 0.07264727585391739,
+                    "value": 0.07264727518605572,
                     "description": "Risk relationship metric: risk_overlap_1_2"
                 },
                 "risk_overlap_1_3": {
-                    "value": 0.020693989791629612,
+                    "value": 0.02069399027213837,
                     "description": "Risk relationship metric: risk_overlap_1_3"
                 },
                 "risk_overlap_1_4": {
-                    "value": 0.07485365306097831,
+                    "value": 0.07485365237283295,
                     "description": "Risk relationship metric: risk_overlap_1_4"
                 },
                 "risk_overlap_2_3": {
-                    "value": 0.0030587011008266695,
+                    "value": 0.0030587011718488724,
                     "description": "Risk relationship metric: risk_overlap_2_3"
                 },
                 "risk_overlap_2_4": {
-                    "value": 0.10205362926470982,
+                    "value": 0.10205362832650937,
                     "description": "Risk relationship metric: risk_overlap_2_4"
                 },
                 "risk_overlap_3_4": {
-                    "value": 0.006205757382203158,
+                    "value": 0.006205757526299129,
                     "description": "Risk relationship metric: risk_overlap_3_4"
                 }
             }

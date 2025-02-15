@@ -85,7 +85,8 @@
   "type": "MACD",
   "direction": "Long",
   "short_window": 14,
-  "long_window": 23
+  "long_window": 23,
+  "signal_period": 13
 },
 {
   "ticker": "BTC-USD",

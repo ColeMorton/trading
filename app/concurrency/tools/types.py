@@ -10,6 +10,10 @@ class StrategyParameters(TypedDict):
     direction: Dict[str, Union[str, Any]]
     short_window: Dict[str, Union[int, str]]
     long_window: Dict[str, Union[int, str]]
+    signal_window: NotRequired[Dict[str, Union[int, str]]]  # Required for MACD
+    rsi_period: NotRequired[Dict[str, Union[int, str]]]
+    rsi_threshold: NotRequired[Dict[str, Union[int, str]]]
+    stop_loss: NotRequired[Dict[str, Union[float, str]]]
 
 class StrategyPerformance(TypedDict):
     """Performance metrics for a strategy."""

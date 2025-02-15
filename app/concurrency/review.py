@@ -12,9 +12,9 @@ from app.concurrency.tools.types import ConcurrencyConfig
 DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "spy_d_next.json",
     # "PORTFOLIO": "spy_qqq_d_next.json",
-    # "PORTFOLIO": "spy_qqq_btc_sol_d_next.json",
+    "PORTFOLIO": "spy_qqq_btc_sol_d_next.json",
     # "PORTFOLIO": "btc_d_next.json",
-    "PORTFOLIO": "btc_d_macd.json",
+    # "PORTFOLIO": "btc_d_macd.json",
     # "PORTFOLIO": "sol_d_next.json",
     # "PORTFOLIO": "eth_d_next.json",
     # "PORTFOLIO": "btc_sol_eth.json",
