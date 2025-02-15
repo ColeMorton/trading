@@ -13,17 +13,17 @@ from app.concurrency.tools.types import StrategyConfig, ConcurrencyConfig
 from app.concurrency.tools.analysis import analyze_concurrency
 from app.concurrency.tools.visualization import plot_concurrency
 from app.concurrency.tools.report import generate_json_report
-from app.concurrency.tools.portfolio_loader import load_portfolio_from_json
+from app.concurrency.tools.portfolio_loader import load_portfolio
 from app.concurrency.tools.strategy_processor import process_strategies
 
 def get_portfolio_path(config: ConcurrencyConfig) -> Path:
     """Get the full path to the portfolio file.
 
     Args:
-        config (ConcurrencyConfig): Configuration dictionary
+        config (ConcurrencyConfig): Configuration dictionary containing PORTFOLIO path
 
     Returns:
-        Path: Full path to the portfolio file
+        Path: Full path to the portfolio file (.json or .csv)
     """
     return Path(__file__).parent.parent / 'portfolios' / config["PORTFOLIO"]
 
@@ -120,7 +120,8 @@ def main(config: ConcurrencyConfig) -> bool:
     """Main entry point for concurrency analysis.
 
     Args:
-        config (ConcurrencyConfig): Configuration dictionary
+        config (ConcurrencyConfig): Configuration dictionary containing PORTFOLIO path
+            (supports both .json and .csv files)
 
     Returns:
         bool: True if analysis successful
@@ -133,10 +134,10 @@ def main(config: ConcurrencyConfig) -> bool:
 
         log("Starting concurrency analysis", "info")
         
-        # Load portfolio from JSON
+        # Load portfolio from JSON or CSV
         log("Loading portfolio configuration", "info")
         portfolio_path = get_portfolio_path(config)
-        strategies = load_portfolio_from_json(portfolio_path, log, config)
+        strategies = load_portfolio(portfolio_path, log, config)
         
         # Run analysis
         log("Running analysis", "info")
