@@ -19,7 +19,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "btc_sol_eth.json",
     # "PORTFOLIO": "crypto_d.json",
     # "PORTFOLIO": "crypto_d_next.json",
-    "PORTFOLIO": "SOL_D.csv",
+    "PORTFOLIO": "BTC_D_test.csv",
     "BASE_DIR": ".",
     "REFRESH": True,
     "SL_CANDLE_CLOSE": True
