@@ -5,11 +5,15 @@ This module contains the main execution logic for running concurrency analysis
 across multiple trading strategies.
 """
 
-from typing import List, Callable
+from typing import List, Callable, Dict, Any
 import json
 from pathlib import Path
 from app.tools.setup_logging import setup_logging
-from app.concurrency.tools.types import StrategyConfig, ConcurrencyConfig
+from app.concurrency.tools.types import (
+    StrategyConfig,
+    ConcurrencyConfig,
+    OptimizedConcurrencyReport
+)
 from app.concurrency.tools.analysis import analyze_concurrency
 from app.concurrency.tools.visualization import plot_concurrency
 from app.concurrency.tools.report import generate_json_report
@@ -27,11 +31,54 @@ def get_portfolio_path(config: ConcurrencyConfig) -> Path:
     """
     return Path(__file__).parent.parent / 'portfolios' / config["PORTFOLIO"]
 
+def save_json_report(
+    report: Dict[str, Any],
+    config: ConcurrencyConfig,
+    log: Callable[[str, str], None],
+    use_new_format: bool = True
+) -> Path:
+    """Save JSON report to file.
+
+    Args:
+        report (Dict[str, Any]): Report data to save
+        config (ConcurrencyConfig): Configuration dictionary
+        log (Callable[[str, str], None]): Logging function
+        use_new_format (bool): Whether using new optimized format
+
+    Returns:
+        Path: Path where report was saved
+
+    Raises:
+        IOError: If saving fails
+    """
+    try:
+        # Ensure the json/concurrency directory exists
+        json_dir = Path("json/concurrency")
+        json_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Get the portfolio filename without extension
+        portfolio_filename = Path(config["PORTFOLIO"]).stem
+        suffix = "_optimized" if use_new_format else ""
+        report_filename = f"{portfolio_filename}{suffix}.json"
+        
+        # Save the report
+        report_path = json_dir / report_filename
+        log(f"Saving JSON report to {report_path}", "info")
+        with open(report_path, 'w') as f:
+            json.dump(report, f, indent=4)
+        
+        log(f"JSON report saved to {report_path}", "info")
+        return report_path
+        
+    except Exception as e:
+        log(f"Error saving JSON report: {str(e)}", "error")
+        raise IOError(f"Failed to save report: {str(e)}")
 
 def run_analysis(
     strategies: List[StrategyConfig], 
     log: Callable[[str, str], None],
-    config: ConcurrencyConfig
+    config: ConcurrencyConfig,
+    use_new_format: bool = True
 ) -> bool:
     """Run concurrency analysis across multiple strategies.
 
@@ -39,6 +86,7 @@ def run_analysis(
         strategies (List[StrategyConfig]): List of strategy configurations to analyze
         log: Callable for logging messages
         config: Configuration dictionary
+        use_new_format (bool): Whether to use new optimized format
 
     Returns:
         bool: True if analysis successful
@@ -91,24 +139,12 @@ def run_analysis(
         log("Visualization displayed", "info")
 
         # Generate and save JSON report
-        log("Generating JSON report", "info")
-        report = generate_json_report(updated_strategies, stats, log)
+        log(f"Generating JSON report (format: {'optimized' if use_new_format else 'legacy'})", "info")
+        report = generate_json_report(updated_strategies, stats, log, use_new_format)
         
-        # Ensure the json/concurrency directory exists
-        json_dir = Path("json/concurrency")
-        json_dir.mkdir(parents=True, exist_ok=True)
+        # Save report
+        save_json_report(report, config, log, use_new_format)
         
-        # Get the portfolio filename without extension
-        portfolio_filename = Path(config["PORTFOLIO"]).stem
-        report_filename = f"{portfolio_filename}.json"
-        
-        # Save the report
-        report_path = json_dir / report_filename
-        log(f"Saving JSON report to {report_path}", "info")
-        with open(report_path, 'w') as f:
-            json.dump(report, f, indent=4)
-        
-        log(f"JSON report saved to {report_path}", "info")
         log("Unified concurrency analysis completed successfully", "info")
         return True
         
@@ -116,12 +152,13 @@ def run_analysis(
         log(f"Execution failed: {str(e)}", "error")
         raise
 
-def main(config: ConcurrencyConfig) -> bool:
+def main(config: ConcurrencyConfig, use_new_format: bool = True) -> bool:
     """Main entry point for concurrency analysis.
 
     Args:
         config (ConcurrencyConfig): Configuration dictionary containing PORTFOLIO path
             (supports both .json and .csv files)
+        use_new_format (bool): Whether to use new optimized format
 
     Returns:
         bool: True if analysis successful
@@ -141,7 +178,7 @@ def main(config: ConcurrencyConfig) -> bool:
         
         # Run analysis
         log("Running analysis", "info")
-        result = run_analysis(strategies, log, config)
+        result = run_analysis(strategies, log, config, use_new_format)
         
         log("Analysis completed", "info")
         log_close()

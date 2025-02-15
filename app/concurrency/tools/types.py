@@ -1,7 +1,75 @@
 """Type definitions for concurrency analysis module."""
 
-from typing import TypedDict, NotRequired, Dict, Literal
+from typing import TypedDict, NotRequired, Dict, Literal, Union, Any, List
 
+class StrategyParameters(TypedDict):
+    """Parameters for a trading strategy."""
+    ticker: Dict[str, Union[str, Any]]
+    timeframe: Dict[str, Union[str, Any]]
+    type: Dict[str, Union[str, Any]]
+    direction: Dict[str, Union[str, Any]]
+    short_window: Dict[str, Union[int, str]]
+    long_window: Dict[str, Union[int, str]]
+
+class StrategyPerformance(TypedDict):
+    """Performance metrics for a strategy."""
+    expectancy_per_month: Dict[str, Union[float, str]]
+
+class StrategyRiskMetrics(TypedDict):
+    """Risk metrics for a strategy."""
+    var_95: Dict[str, Union[float, str]]
+    cvar_95: Dict[str, Union[float, str]]
+    var_99: Dict[str, Union[float, str]]
+    cvar_99: Dict[str, Union[float, str]]
+    risk_contribution: Dict[str, Union[float, str]]
+    alpha: Dict[str, Union[float, str]]
+
+class Strategy(TypedDict):
+    """Complete strategy definition."""
+    id: str
+    parameters: StrategyParameters
+    performance: StrategyPerformance
+    risk_metrics: StrategyRiskMetrics
+
+class ConcurrencyMetrics(TypedDict):
+    """Concurrency-related metrics."""
+    total_concurrent_periods: Dict[str, Union[int, str]]
+    concurrency_ratio: Dict[str, Union[float, str]]
+    exclusive_ratio: Dict[str, Union[float, str]]
+    inactive_ratio: Dict[str, Union[float, str]]
+    avg_concurrent_strategies: Dict[str, Union[float, str]]
+    max_concurrent_strategies: Dict[str, Union[int, str]]
+
+class EfficiencyMetrics(TypedDict):
+    """Efficiency-related metrics."""
+    efficiency_score: Dict[str, Union[float, str]]
+    total_expectancy: Dict[str, Union[float, str]]
+    multipliers: Dict[str, Dict[str, Union[float, str]]]
+
+class RiskMetrics(TypedDict):
+    """Portfolio risk metrics."""
+    portfolio_metrics: Dict[str, Dict[str, Union[float, str]]]
+    combined_risk: Dict[str, Dict[str, Union[float, str]]]
+    strategy_relationships: Dict[str, Dict[str, Union[float, str]]]
+
+class SignalMetrics(TypedDict):
+    """Signal-related metrics."""
+    monthly_statistics: Dict[str, Dict[str, Union[float, str]]]
+    summary: Dict[str, Dict[str, Union[float, str]]]
+
+class PortfolioMetrics(TypedDict):
+    """Complete portfolio metrics."""
+    concurrency: ConcurrencyMetrics
+    efficiency: EfficiencyMetrics
+    risk: RiskMetrics
+    signals: SignalMetrics
+
+class OptimizedConcurrencyReport(TypedDict):
+    """Complete optimized report structure."""
+    strategies: List[Strategy]
+    portfolio_metrics: PortfolioMetrics
+
+# Legacy type definitions kept for backward compatibility
 class StrategyConfig(TypedDict):
     """Configuration type definition for strategy parameters.
 
@@ -34,7 +102,7 @@ class StrategyConfig(TypedDict):
     EXPECTANCY_PER_MONTH: NotRequired[float]
     DIRECTION: NotRequired[Literal["Long", "Short"]]
 
-class RiskMetrics(TypedDict):
+class LegacyRiskMetrics(TypedDict):
     """Risk metrics for concurrent strategies.
 
     Required Fields:
@@ -46,7 +114,7 @@ class RiskMetrics(TypedDict):
     strategy_risk_contributions: Dict[str, float]
     risk_overlaps: Dict[str, float]
 
-class SignalMetrics(TypedDict):
+class LegacySignalMetrics(TypedDict):
     """Signal metrics for concurrent strategies.
 
     Required Fields:
@@ -85,7 +153,7 @@ class ConcurrencyStats(TypedDict):
         avg_position_length (float): Average length of positions
         risk_concentration_index (float): Measure of risk concentration
         risk_metrics (Dict[str, float]): Risk metrics and contributions
-        signal_metrics (SignalMetrics): Signal-based metrics
+        signal_metrics (LegacySignalMetrics): Signal-based metrics
         start_date (NotRequired[str]): Start date of analysis period
         end_date (NotRequired[str]): End date of analysis period
     """
@@ -102,7 +170,7 @@ class ConcurrencyStats(TypedDict):
     avg_position_length: float
     risk_concentration_index: float
     risk_metrics: Dict[str, float]
-    signal_metrics: SignalMetrics
+    signal_metrics: LegacySignalMetrics
     start_date: NotRequired[str]
     end_date: NotRequired[str]
 
