@@ -6,7 +6,7 @@
         "direction": "Long",
         "short_window": 19,
         "long_window": 33,
-        "signal_period": 13
+        "signal_window": 13
     },
     {
         "ticker": "SOL-USD",

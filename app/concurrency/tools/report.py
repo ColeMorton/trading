@@ -3,35 +3,131 @@
 This module provides functionality for generating JSON reports from concurrency analysis results.
 """
 
-from typing import List, Dict, Any, Callable
-from app.concurrency.tools.types import (
-    StrategyConfig,
-    Strategy,
-    StrategyParameters,
-    StrategyPerformance,
-    StrategyRiskMetrics,
-    PortfolioMetrics,
-    ConcurrencyMetrics,
-    EfficiencyMetrics,
-    RiskMetrics,
-    SignalMetrics,
-    OptimizedConcurrencyReport
-)
+from typing import List, Dict, Any, Callable, TypedDict, NotRequired
+from pathlib import Path
+
+class StrategyParameter(TypedDict):
+    """Parameter definition with value and description."""
+    value: Any
+    description: str
+
+class StrategyParameters(TypedDict):
+    """Strategy parameters with descriptions."""
+    ticker: StrategyParameter
+    timeframe: StrategyParameter
+    type: StrategyParameter
+    direction: StrategyParameter
+    short_window: StrategyParameter
+    long_window: StrategyParameter
+    signal_window: NotRequired[StrategyParameter]
+    stop_loss: NotRequired[StrategyParameter]
+    rsi_period: NotRequired[StrategyParameter]
+    rsi_threshold: NotRequired[StrategyParameter]
+
+class StrategyPerformance(TypedDict):
+    """Strategy performance metrics."""
+    expectancy_per_month: StrategyParameter
+
+class StrategyRiskMetrics(TypedDict):
+    """Strategy-specific risk metrics."""
+    var_95: StrategyParameter
+    cvar_95: StrategyParameter
+    var_99: StrategyParameter
+    cvar_99: StrategyParameter
+    risk_contribution: StrategyParameter
+    alpha: StrategyParameter
+
+class Strategy(TypedDict):
+    """Complete strategy definition."""
+    id: str
+    parameters: StrategyParameters
+    performance: StrategyPerformance
+    risk_metrics: StrategyRiskMetrics
+
+class ConcurrencyMetrics(TypedDict):
+    """Concurrency analysis metrics."""
+    total_concurrent_periods: StrategyParameter
+    concurrency_ratio: StrategyParameter
+    exclusive_ratio: StrategyParameter
+    inactive_ratio: StrategyParameter
+    avg_concurrent_strategies: StrategyParameter
+    max_concurrent_strategies: StrategyParameter
+
+class EfficiencyMultipliers(TypedDict):
+    """Efficiency multiplier metrics."""
+    diversification: StrategyParameter
+    independence: StrategyParameter
+    activity: StrategyParameter
+
+class EfficiencyMetrics(TypedDict):
+    """Strategy efficiency metrics."""
+    efficiency_score: StrategyParameter
+    total_expectancy: StrategyParameter
+    multipliers: EfficiencyMultipliers
+
+class PortfolioRiskMetrics(TypedDict):
+    """Portfolio-level risk metrics."""
+    risk_concentration_index: StrategyParameter
+    total_portfolio_risk: StrategyParameter
+
+class CombinedRiskMetrics(TypedDict):
+    """Combined risk metrics for the portfolio."""
+    var_95: StrategyParameter
+    cvar_95: StrategyParameter
+    var_99: StrategyParameter
+    cvar_99: StrategyParameter
+
+class RiskMetrics(TypedDict):
+    """Complete risk metrics."""
+    portfolio_metrics: PortfolioRiskMetrics
+    combined_risk: CombinedRiskMetrics
+    strategy_relationships: Dict[str, StrategyParameter]
+
+class SignalMonthlyStats(TypedDict):
+    """Monthly signal statistics."""
+    mean: StrategyParameter
+    median: StrategyParameter
+    std_below: StrategyParameter
+    std_above: StrategyParameter
+
+class SignalSummary(TypedDict):
+    """Signal summary statistics."""
+    volatility: StrategyParameter
+    max_monthly: StrategyParameter
+    min_monthly: StrategyParameter
+    total: StrategyParameter
+
+class SignalMetrics(TypedDict):
+    """Complete signal metrics."""
+    monthly_statistics: SignalMonthlyStats
+    summary: SignalSummary
+
+class PortfolioMetrics(TypedDict):
+    """Complete portfolio metrics."""
+    concurrency: ConcurrencyMetrics
+    efficiency: EfficiencyMetrics
+    risk: RiskMetrics
+    signals: SignalMetrics
+
+class ConcurrencyReport(TypedDict):
+    """Complete concurrency analysis report."""
+    strategies: List[Strategy]
+    portfolio_metrics: PortfolioMetrics
 
 def create_strategy_object(
-    config: StrategyConfig,
+    config: Dict[str, Any],
     index: int,
     stats: Dict[str, Any]
 ) -> Strategy:
-    """Create a strategy object with the new structure.
+    """Create a strategy object with the optimized structure.
 
     Args:
-        config (StrategyConfig): Strategy configuration
+        config (Dict[str, Any]): Strategy configuration
         index (int): Strategy index for ID generation
         stats (Dict[str, Any]): Statistics containing risk metrics
 
     Returns:
-        Strategy: Strategy object with the new structure
+        Strategy: Strategy object with the optimized structure
     """
     strategy_type = config.get("STRATEGY_TYPE", "EMA")
     
@@ -64,9 +160,9 @@ def create_strategy_object(
     }
     
     # Add signal_window for MACD strategies
-    if strategy_type == "MACD" and "SIGNAL_PERIOD" in config:
+    if strategy_type == "MACD" and "SIGNAL_WINDOW" in config:
         parameters["signal_window"] = {
-            "value": config["SIGNAL_PERIOD"],
+            "value": config["SIGNAL_WINDOW"],
             "description": "Period for MACD signal line"
         }
     
@@ -134,13 +230,13 @@ def create_strategy_object(
     }
 
 def create_portfolio_metrics(stats: Dict[str, Any]) -> PortfolioMetrics:
-    """Create portfolio metrics with the new structure.
+    """Create portfolio metrics with the optimized structure.
 
     Args:
         stats (Dict[str, Any]): Statistics from the concurrency analysis
 
     Returns:
-        PortfolioMetrics: Portfolio metrics with the new structure
+        PortfolioMetrics: Portfolio metrics with the optimized structure
     """
     concurrency: ConcurrencyMetrics = {
         "total_concurrent_periods": {
@@ -277,21 +373,19 @@ def create_portfolio_metrics(stats: Dict[str, Any]) -> PortfolioMetrics:
     }
 
 def generate_json_report(
-    strategies: List[StrategyConfig], 
+    strategies: List[Dict[str, Any]], 
     stats: Dict[str, Any], 
-    log: Callable[[str, str], None],
-    use_new_format: bool = True
-) -> Dict[str, Any]:
+    log: Callable[[str, str], None]
+) -> ConcurrencyReport:
     """Generate a comprehensive JSON report of the concurrency analysis.
 
     Args:
-        strategies (List[StrategyConfig]): List of strategy configurations
+        strategies (List[Dict[str, Any]]): List of strategy configurations
         stats (Dict[str, Any]): Statistics from the concurrency analysis
         log (Callable[[str, str], None]): Logging function
-        use_new_format (bool): Whether to use the new optimized format
 
     Returns:
-        Dict[str, Any]: Complete report in dictionary format containing:
+        ConcurrencyReport: Complete report containing:
             - strategies: List of strategy details and parameters
             - portfolio_metrics: Dictionary of concurrency, efficiency, risk and signal metrics
 
@@ -323,40 +417,23 @@ def generate_json_report(
         if missing_stats:
             log(f"Missing required statistics: {missing_stats}", "error")
             raise KeyError(f"Missing required statistics: {missing_stats}")
-
-        if use_new_format:
-            log("Using new optimized format", "info")
             
-            # Create strategy objects
-            strategy_objects = []
-            for idx, strategy in enumerate(strategies, 1):
-                log(f"Processing strategy {idx}/{len(strategies)}: {strategy['TICKER']}", "info")
-                strategy_objects.append(create_strategy_object(strategy, idx, stats))
-            
-            # Create portfolio metrics
-            log("Creating portfolio metrics", "info")
-            portfolio_metrics = create_portfolio_metrics(stats)
-            
-            # Create optimized report
-            report: OptimizedConcurrencyReport = {
-                "strategies": strategy_objects,
-                "portfolio_metrics": portfolio_metrics
-            }
-            
-        else:
-            log("Using legacy format", "info")
-            # Create legacy format report (existing implementation)
-            report = {
-                "strategies": [],
-                "metrics": {
-                    "concurrency": {},
-                    "efficiency": {},
-                    "risk": {},
-                    "signals": {}
-                }
-            }
-            # ... (rest of legacy implementation)
-
+        # Create strategy objects
+        strategy_objects = []
+        for idx, strategy in enumerate(strategies, 1):
+            log(f"Processing strategy {idx}/{len(strategies)}: {strategy['TICKER']}", "info")
+            strategy_objects.append(create_strategy_object(strategy, idx, stats))
+        
+        # Create portfolio metrics
+        log("Creating portfolio metrics", "info")
+        portfolio_metrics = create_portfolio_metrics(stats)
+        
+        # Create report
+        report: ConcurrencyReport = {
+            "strategies": strategy_objects,
+            "portfolio_metrics": portfolio_metrics
+        }
+        
         log("Successfully generated JSON report", "info")
         return report
         

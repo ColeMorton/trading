@@ -25,7 +25,7 @@
                 "value": 34,
                 "description": "Period for long moving average or MACD slow line"
             },
-            "signal_period": {
+            "signal_window": {
                 "value": 10,
                 "description": "Period for MACD signal line"
             },
@@ -59,7 +59,7 @@
                 "value": 34,
                 "description": "Period for long moving average or MACD slow line"
             },
-            "signal_period": {
+            "signal_window": {
                 "value": 10,
                 "description": "Period for MACD signal line"
             },
@@ -93,7 +93,7 @@
                 "value": 34,
                 "description": "Period for long moving average or MACD slow line"
             },
-            "signal_period": {
+            "signal_window": {
                 "value": 8,
                 "description": "Period for MACD signal line"
             },

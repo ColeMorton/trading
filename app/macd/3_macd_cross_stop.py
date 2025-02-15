@@ -149,7 +149,7 @@ def main():
     stop_loss_range = np.arange(0, 21, 0.01)
 
     data = get_data(config["TICKER"], config, log)
-    data = calculate_macd(data, config['SHORT_PERIOD'], config['LONG_PERIOD'], config['SIGNAL_PERIOD'])
+    data = calculate_macd(data, config['SHORT_PERIOD'], config['LONG_WINDOW'], config['SIGNAL_WINDOW'])
     data = calculate_rsi(data, config['RSI_PERIOD'])
     data = calculate_macd_signals(data, config)
 

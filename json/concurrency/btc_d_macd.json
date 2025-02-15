@@ -68,11 +68,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.2796345221033018,
+                    "value": 0.2796343632710029,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": 0.00014538329268171763,
+                    "value": 0.00014565329088425194,
                     "description": "Strategy alpha relative to portfolio"
                 }
             }
@@ -133,11 +133,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.28659935353221316,
+                    "value": 0.2865991415626135,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0002418720841272405,
+                    "value": -0.0002416020859247062,
                     "description": "Strategy alpha relative to portfolio"
                 }
             }
@@ -206,11 +206,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.14181391428103332,
+                    "value": 0.14181449263902862,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": 0.00020274327807944187,
+                    "value": 0.0002019332834718398,
                     "description": "Strategy alpha relative to portfolio"
                 }
             }
@@ -279,11 +279,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.2919522100834518,
+                    "value": 0.2919520025273549,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.000106254486633919,
+                    "value": -0.00010598448843138469,
                     "description": "Strategy alpha relative to portfolio"
                 }
             }
@@ -347,7 +347,7 @@
                     "description": "Measure of risk concentration"
                 },
                 "total_portfolio_risk": {
-                    "value": 0.05119439992292463,
+                    "value": 0.051194419594908544,
                     "description": "Overall portfolio risk measure"
                 }
             },
@@ -371,27 +371,27 @@
             },
             "strategy_relationships": {
                 "risk_overlap_1_2": {
-                    "value": 0.07264727518605572,
+                    "value": 0.07264721935513643,
                     "description": "Risk relationship metric: risk_overlap_1_2"
                 },
                 "risk_overlap_1_3": {
-                    "value": 0.02069399027213837,
+                    "value": 0.020694030440943055,
                     "description": "Risk relationship metric: risk_overlap_1_3"
                 },
                 "risk_overlap_1_4": {
-                    "value": 0.07485365237283295,
+                    "value": 0.07485359484626758,
                     "description": "Risk relationship metric: risk_overlap_1_4"
                 },
                 "risk_overlap_2_3": {
-                    "value": 0.0030587011718488724,
+                    "value": 0.003058707109049404,
                     "description": "Risk relationship metric: risk_overlap_2_3"
                 },
                 "risk_overlap_2_4": {
-                    "value": 0.10205362832650937,
+                    "value": 0.10205354989620524,
                     "description": "Risk relationship metric: risk_overlap_2_4"
                 },
                 "risk_overlap_3_4": {
-                    "value": 0.006205757526299129,
+                    "value": 0.006205769572205165,
                     "description": "Risk relationship metric: risk_overlap_3_4"
                 }
             }

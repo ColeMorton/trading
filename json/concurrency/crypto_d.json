@@ -37,7 +37,7 @@
                 "value": 45,
                 "description": "RSI threshold for signal filtering"
             },
-            "signal_period": {
+            "signal_window": {
                 "value": 13,
                 "description": "Period for MACD signal line"
             },
@@ -219,7 +219,7 @@
                 "value": 0.189,
                 "description": "Stop loss percentage"
             },
-            "signal_period": {
+            "signal_window": {
                 "value": 13,
                 "description": "Period for MACD signal line"
             },

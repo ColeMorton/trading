@@ -14,8 +14,8 @@ class Config(TypedDict):
     USE_GBM: bool
     USE_SMA: bool
     SHORT_PERIOD: bool
-    LONG_PERIOD: bool
-    SIGNAL_PERIOD: bool
+    LONG_WINDOW: bool
+    SIGNAL_WINDOW: bool
     RSI_PERIOD: bool
     RSI_THRESHOLD: int
     USE_RSI: bool
@@ -34,8 +34,8 @@ CONFIG: Config = {
     "USE_GBM": False,
     "USE_SMA": False,
     "SHORT_PERIOD": 2,
-    "LONG_PERIOD": 21,
-    "SIGNAL_PERIOD": 4,
+    "LONG_WINDOW": 21,
+    "SIGNAL_WINDOW": 4,
     "RSI_PERIOD": 14,
     "RSI_THRESHOLD": 45,  # Already an integer value
     "USE_RSI": True

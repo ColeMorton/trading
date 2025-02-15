@@ -182,10 +182,10 @@ def load_portfolio_from_json(json_path: Path, log: Callable[[str, str], None], c
         
         # Add MACD signal period if it's a MACD strategy
         if strategy_type == "MACD":
-            # Check both signal_period and signal_window for backward compatibility
-            signal = row.get("signal_period") or row.get("signal_window")
+            # Check both signal_window and signal_window for backward compatibility
+            signal = row.get("signal_window") or row.get("signal_window")
             if signal is not None:
-                config_entry["SIGNAL_PERIOD"] = int(signal)
+                config_entry["SIGNAL_WINDOW"] = int(signal)
             else:
                 log(f"Warning: MACD strategy for {ticker} missing signal period/window", "warning")
         
@@ -218,8 +218,8 @@ def load_portfolio_from_json(json_path: Path, log: Callable[[str, str], None], c
             f"REFRESH: {config_entry['REFRESH']}"
         ])
         
-        if "SIGNAL_PERIOD" in config_entry:
-            strategy_details.append(f"SIGNAL_PERIOD: {config_entry['SIGNAL_PERIOD']}")
+        if "SIGNAL_WINDOW" in config_entry:
+            strategy_details.append(f"SIGNAL_WINDOW: {config_entry['SIGNAL_WINDOW']}")
         
         log(f"Strategy Configuration:\n" + "\n".join(strategy_details), "info")
         portfolio.append(config_entry)

@@ -34,8 +34,7 @@ def get_portfolio_path(config: ConcurrencyConfig) -> Path:
 def save_json_report(
     report: Dict[str, Any],
     config: ConcurrencyConfig,
-    log: Callable[[str, str], None],
-    use_new_format: bool = True
+    log: Callable[[str, str], None]
 ) -> Path:
     """Save JSON report to file.
 
@@ -43,7 +42,6 @@ def save_json_report(
         report (Dict[str, Any]): Report data to save
         config (ConcurrencyConfig): Configuration dictionary
         log (Callable[[str, str], None]): Logging function
-        use_new_format (bool): Whether using new optimized format
 
     Returns:
         Path: Path where report was saved
@@ -58,8 +56,7 @@ def save_json_report(
         
         # Get the portfolio filename without extension
         portfolio_filename = Path(config["PORTFOLIO"]).stem
-        suffix = "_optimized" if use_new_format else ""
-        report_filename = f"{portfolio_filename}{suffix}.json"
+        report_filename = f"{portfolio_filename}.json"
         
         # Save the report
         report_path = json_dir / report_filename
@@ -77,8 +74,7 @@ def save_json_report(
 def run_analysis(
     strategies: List[StrategyConfig], 
     log: Callable[[str, str], None],
-    config: ConcurrencyConfig,
-    use_new_format: bool = True
+    config: ConcurrencyConfig
 ) -> bool:
     """Run concurrency analysis across multiple strategies.
 
@@ -86,7 +82,6 @@ def run_analysis(
         strategies (List[StrategyConfig]): List of strategy configurations to analyze
         log: Callable for logging messages
         config: Configuration dictionary
-        use_new_format (bool): Whether to use new optimized format
 
     Returns:
         bool: True if analysis successful
@@ -139,11 +134,11 @@ def run_analysis(
         log("Visualization displayed", "info")
 
         # Generate and save JSON report
-        log(f"Generating JSON report (format: {'optimized' if use_new_format else 'legacy'})", "info")
-        report = generate_json_report(updated_strategies, stats, log, use_new_format)
+        log("Generating JSON report", "info")
+        report = generate_json_report(updated_strategies, stats, log)
         
         # Save report
-        save_json_report(report, config, log, use_new_format)
+        save_json_report(report, config, log)
         
         log("Unified concurrency analysis completed successfully", "info")
         return True
@@ -152,13 +147,12 @@ def run_analysis(
         log(f"Execution failed: {str(e)}", "error")
         raise
 
-def main(config: ConcurrencyConfig, use_new_format: bool = True) -> bool:
+def main(config: ConcurrencyConfig) -> bool:
     """Main entry point for concurrency analysis.
 
     Args:
         config (ConcurrencyConfig): Configuration dictionary containing PORTFOLIO path
             (supports both .json and .csv files)
-        use_new_format (bool): Whether to use new optimized format
 
     Returns:
         bool: True if analysis successful
@@ -178,7 +172,7 @@ def main(config: ConcurrencyConfig, use_new_format: bool = True) -> bool:
         
         # Run analysis
         log("Running analysis", "info")
-        result = run_analysis(strategies, log, config, use_new_format)
+        result = run_analysis(strategies, log, config)
         
         log("Analysis completed", "info")
         log_close()

@@ -86,7 +86,7 @@
   "direction": "Long",
   "short_window": 14,
   "long_window": 23,
-  "signal_period": 13
+  "signal_window": 13
 },
 {
   "ticker": "BTC-USD",
@@ -127,7 +127,7 @@
   "direction": "Long",
   "short_window": 19,
   "long_window": 33,
-  "signal_period": 13
+  "signal_window": 13
 },
 {
   "ticker": "SOL-USD",

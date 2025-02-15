@@ -87,7 +87,7 @@ class StrategyConfig(TypedDict):
     Optional Fields:
         RSI_PERIOD (NotRequired[int]): Period for RSI calculation (required if USE_RSI is True)
         RSI_THRESHOLD (NotRequired[int]): RSI threshold for signal filtering (required if USE_RSI is True)
-        SIGNAL_PERIOD (NotRequired[int]): Period for MACD signal line (makes it a MACD strategy)
+        SIGNAL_WINDOW (NotRequired[int]): Period for MACD signal line (makes it a MACD strategy)
         USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average instead of EMA
         USE_HOURLY (NotRequired[bool]): Whether to use hourly timeframe instead of daily
         EXPECTANCY_PER_MONTH (NotRequired[float]): Expected monthly return
@@ -100,7 +100,7 @@ class StrategyConfig(TypedDict):
     STOP_LOSS: NotRequired[float]  # Made optional to match actual implementation
     RSI_PERIOD: NotRequired[int]
     RSI_THRESHOLD: NotRequired[int]
-    SIGNAL_PERIOD: NotRequired[int]
+    SIGNAL_WINDOW: NotRequired[int]
     USE_SMA: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]
     EXPECTANCY_PER_MONTH: NotRequired[float]

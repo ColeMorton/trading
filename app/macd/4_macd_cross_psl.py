@@ -29,8 +29,8 @@ TICKER_2 = 'BTC-USD'  # Ticker for Y to USD exchange rate
 SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 
 SHORT_PERIOD = 8
-LONG_PERIOD = 15
-SIGNAL_PERIOD = 7
+LONG_WINDOW = 15
+SIGNAL_WINDOW = 7
 RSI_PERIOD = 14
 
 RSI_THRESHOLD = 48
@@ -72,8 +72,8 @@ def main():
     macd_indicator = vbt.MACD.run(
         data['Close'],
         fast_window=SHORT_PERIOD,
-        slow_window=LONG_PERIOD,
-        signal_window=SIGNAL_PERIOD
+        slow_window=LONG_WINDOW,
+        signal_window=SIGNAL_WINDOW
     )
 
     # Store the MACD and Signal lines in the dataframe
