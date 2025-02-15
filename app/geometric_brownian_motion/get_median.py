@@ -9,7 +9,7 @@ CONFIG = {
     "USE_YEARS": False,
     "PERIOD": 'max',
     "USE_HOURLY": False,
-    "TICKER": 'BTC-USD',
+    "TICKER": 'SOL-USD',
     "USE_SYNTHETIC": True,
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'SPY',
@@ -18,7 +18,7 @@ CONFIG = {
     "SHORT": False,
     "USE_GBM": True,
     "USE_SMA": False,
-    "BASE_DIR": 'C:/Projects/trading',
+    "BASE_DIR": '.',
     "WINDOWS": 55
 }
 

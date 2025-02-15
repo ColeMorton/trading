@@ -15,10 +15,19 @@ from app.tools.portfolio.collection import export_best_portfolios, combine_strat
 
 CONFIG: Config = {
     "TICKER": [
-        'COPX',
-        'LIT',
-        'URA'
-    ],
+  "MSTR",
+  "UNP",
+  "QCOM",
+  "LRCX",
+  "EXPD",
+  "AMP",
+  "CSX",
+  "DELL",
+  "DIS",
+  "WDC",
+  "ISRG"
+]
+,
     "TICKER_1": 'AMAT',
     "TICKER_2": 'LRCX',
     "WINDOWS": 89,
@@ -35,8 +44,8 @@ CONFIG: Config = {
     "YEARS": 15,
     "USE_SYNTHETIC": False,
     "USE_CURRENT": False,
-    # "MIN_TRADES": 34,
-    # "MIN_WIN_RATE": 0.35,
+    "MIN_TRADES": 34,
+    "MIN_WIN_RATE": 0.35,
     # "MIN_WIN_RATE": 0.5,
     # "MIN_TRADES": 50,
     "SORT_BY": "Expectancy Adjusted",

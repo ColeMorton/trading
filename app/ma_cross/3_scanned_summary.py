@@ -21,7 +21,7 @@ config = {
     "SCANNER_LIST": '20241220.csv',
     "USE_CURRENT": False,
     "USE_HOURLY": False,
-    "BASE_DIR": 'C:/Projects/trading',  # Added BASE_DIR for export configuration
+    "BASE_DIR": '.',  # Added BASE_DIR for export configuration
     "DIRECTION": "Long"
 }
 

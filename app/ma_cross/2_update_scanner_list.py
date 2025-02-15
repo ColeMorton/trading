@@ -17,10 +17,9 @@ from app.tools.setup_logging import setup_logging
 
 CONFIG: Config = {
     # "SCANNER_LIST": '20250213_1306_D.csv',
-    # "SCANNER_LIST": 'BTC_SOL_D.csv',
+    "SCANNER_LIST": 'BTC_SOL_D.csv',
     # "SCANNER_LIST": 'SPY_QQQ_D.csv',
     # "SCANNER_LIST": 'QQQ_SPY100.csv',
-    "SCANNER_LIST": 'COMMODITIES.csv',
     # "SCANNER_LIST": 'DAILY.csv',
     "BASE_DIR": ".",
     "REFRESH": True,

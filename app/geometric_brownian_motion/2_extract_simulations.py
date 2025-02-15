@@ -4,7 +4,8 @@ import numpy as np
 import polars as pl
 from typing import List, Tuple
 from app.tools.get_config import get_config
-from app.utils import get_path, get_filename, save_csv
+# from app.utils import get_path, get_filename, save_csv
+from app.utils import get_path, get_filename
 
 # Default Configuration
 CONFIG = {
@@ -12,14 +13,14 @@ CONFIG = {
     "USE_YEARS": True,
     "PERIOD": 'max',
     "USE_HOURLY": False,
-    "TICKER": 'SUI20947-USD',
+    "TICKER": 'SOL-USD',
     "USE_SYNTHETIC": False,
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'SPY',
     "SHORT": False,
     "USE_GBM": True,
     "USE_SMA": False,
-    "BASE_DIR": 'C:/Projects/trading',
+    "BASE_DIR": '.',
     "WINDOWS": 89,
     "ANNUAL_TRADING_DAYS": 365,
     "TIME_HORIZON": 3.07397,
@@ -118,9 +119,9 @@ for key, value in results.items():
 
 print(simulations_df)
 
-save_csv(simulations_df, "geometric_brownian_motion", config, 'filtered_simulations')
+# save_csv(simulations_df, "geometric_brownian_motion", config, 'filtered_simulations')
 
-# # Save the simulations to a CSV file
-# simulations_df.to_csv(f'csv/geometric_brownian_motion/{config['TICKER']}_gbm_extracted_simulations.csv')
-# print(f"Simulations saved to csv/geometric_brownian_motion/{config['TICKER']}_gbm_extracted_simulations.csv")
-# print(f"Number of rows in extracted simulations: {len(simulations_df)}")
+# Save the simulations to a CSV file
+simulations_df.to_csv(f'csv/geometric_brownian_motion/{config['TICKER']}_gbm_extracted_simulations.csv')
+print(f"Simulations saved to csv/geometric_brownian_motion/{config['TICKER']}_gbm_extracted_simulations.csv")
+print(f"Number of rows in extracted simulations: {len(simulations_df)}")
