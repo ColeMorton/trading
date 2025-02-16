@@ -49,6 +49,25 @@ class EfficiencyMetrics(TypedDict):
     total_expectancy: StrategyParameter
     multipliers: EfficiencyMultipliers
 
+class SignalMonthlyStats(TypedDict):
+    """Monthly signal statistics."""
+    mean: StrategyParameter
+    median: StrategyParameter
+    std_below: StrategyParameter
+    std_above: StrategyParameter
+
+class SignalSummary(TypedDict):
+    """Signal summary statistics."""
+    volatility: StrategyParameter
+    max_monthly: StrategyParameter
+    min_monthly: StrategyParameter
+    total: StrategyParameter
+
+class SignalMetrics(TypedDict):
+    """Complete signal metrics."""
+    monthly_statistics: SignalMonthlyStats
+    summary: SignalSummary
+
 class Strategy(TypedDict):
     """Complete strategy definition."""
     id: str
@@ -56,6 +75,7 @@ class Strategy(TypedDict):
     performance: StrategyPerformance
     risk_metrics: StrategyRiskMetrics
     efficiency: EfficiencyMetrics
+    signals: SignalMetrics
 
 class ConcurrencyMetrics(TypedDict):
     """Concurrency analysis metrics."""
@@ -84,25 +104,6 @@ class RiskMetrics(TypedDict):
     combined_risk: CombinedRiskMetrics
     strategy_relationships: Dict[str, StrategyParameter]
 
-class SignalMonthlyStats(TypedDict):
-    """Monthly signal statistics."""
-    mean: StrategyParameter
-    median: StrategyParameter
-    std_below: StrategyParameter
-    std_above: StrategyParameter
-
-class SignalSummary(TypedDict):
-    """Signal summary statistics."""
-    volatility: StrategyParameter
-    max_monthly: StrategyParameter
-    min_monthly: StrategyParameter
-    total: StrategyParameter
-
-class SignalMetrics(TypedDict):
-    """Complete signal metrics."""
-    monthly_statistics: SignalMonthlyStats
-    summary: SignalSummary
-
 class PortfolioMetrics(TypedDict):
     """Complete portfolio metrics."""
     concurrency: ConcurrencyMetrics
@@ -114,6 +115,7 @@ class ConcurrencyReport(TypedDict):
     """Complete concurrency analysis report."""
     strategies: List[Strategy]
     portfolio_metrics: PortfolioMetrics
+
 def create_strategy_object(
     config: Dict[str, Any],
     index: int,
@@ -224,7 +226,6 @@ def create_strategy_object(
     
     # Get strategy-specific efficiency metrics
     strategy_metrics = stats.get("strategy_efficiency_metrics", {})
-    strategy_id = str(index)
     
     efficiency: EfficiencyMetrics = {
         "efficiency_score": {
@@ -251,12 +252,53 @@ def create_strategy_object(
         }
     }
 
+    # Extract strategy-specific signal metrics directly from stats
+    signals: SignalMetrics = {
+        "monthly_statistics": {
+            "mean": {
+                "value": stats.get(f"strategy_{strategy_id}_mean_signals", 0.0),
+                "description": "Average number of signals per month"
+            },
+            "median": {
+                "value": stats.get(f"strategy_{strategy_id}_median_signals", 0.0),
+                "description": "Median number of signals per month"
+            },
+            "std_below": {
+                "value": stats.get(f"strategy_{strategy_id}_std_below_mean", 0.0),
+                "description": "One standard deviation below mean signals"
+            },
+            "std_above": {
+                "value": stats.get(f"strategy_{strategy_id}_std_above_mean", 0.0),
+                "description": "One standard deviation above mean signals"
+            }
+        },
+        "summary": {
+            "volatility": {
+                "value": stats.get(f"strategy_{strategy_id}_signal_volatility", 0.0),
+                "description": "Standard deviation of monthly signals"
+            },
+            "max_monthly": {
+                "value": stats.get(f"strategy_{strategy_id}_max_monthly_signals", 0.0),
+                "description": "Maximum signals in any month"
+            },
+            "min_monthly": {
+                "value": stats.get(f"strategy_{strategy_id}_min_monthly_signals", 0.0),
+                "description": "Minimum signals in any month"
+            },
+            "total": {
+                "value": stats.get(f"strategy_{strategy_id}_total_signals", 0.0),
+                "description": "Total number of signals across period"
+            }
+        }
+    }
+
     return {
         "id": f"strategy_{strategy_id}",
         "parameters": parameters,
         "performance": performance,
         "risk_metrics": risk_metrics,
-        "efficiency": efficiency
+        "efficiency": efficiency,
+        "signals": signals
     }
 
 def create_portfolio_metrics(stats: Dict[str, Any]) -> PortfolioMetrics:
