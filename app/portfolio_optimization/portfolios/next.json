@@ -1,6 +1,6 @@
 {
     "initial_value": 16020,
-    "target_value": 14480,
+    "target_value": 15489,
     "use_target_value": true,
     "portfolio": [
         {
@@ -11,9 +11,6 @@
         },
         {
             "ticker": "ASML"
-        },
-        {
-            "ticker": "MU"
         },
         {
             "ticker": "CI"
@@ -28,7 +25,16 @@
             "ticker": "PAYC"
         },
         {
-            "ticker": "PG"
+            "ticker": "QCOM"
+        },
+        {
+            "ticker": "MSTR"
+        },
+        {
+            "ticker": "AMP"
+        },
+        {
+            "ticker": "WDC"
         }
     ]
 }

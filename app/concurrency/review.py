@@ -24,8 +24,8 @@ PORTFOLIOS_DIR = CONCURRENCY_DIR / "portfolios"
 # Default configuration
 DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "spy_qqq_btc_sol_d_next.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "SOL_D.csv"),
-    "PORTFOLIO": str(PORTFOLIOS_DIR / "crypto_d_next.json"),
+    "PORTFOLIO": str(PORTFOLIOS_DIR / "SOL_D.csv"),
+    # "PORTFOLIO": str(PORTFOLIOS_DIR / "crypto_d_next.json"),
     "BASE_DIR": str(CONCURRENCY_DIR),
     "REFRESH": True,
     "SL_CANDLE_CLOSE": True
