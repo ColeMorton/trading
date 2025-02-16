@@ -1,82 +1,192 @@
 {
     "strategies": [
         {
-            "ticker": {
-                "value": "BTC-USD",
-                "description": "Ticker symbol to analyze"
+            "id": "strategy_1",
+            "parameters": {
+                "ticker": {
+                    "value": "BTC-USD",
+                    "description": "Ticker symbol to analyze"
+                },
+                "timeframe": {
+                    "value": "Daily",
+                    "description": "Trading timeframe (Hourly or Daily)"
+                },
+                "type": {
+                    "value": "SMA",
+                    "description": "Strategy type (MACD, SMA, or EMA)"
+                },
+                "direction": {
+                    "value": "Long",
+                    "description": "Trading direction (Long or Short)"
+                },
+                "short_window": {
+                    "value": 12,
+                    "description": "Period for short moving average or MACD fast line"
+                },
+                "long_window": {
+                    "value": 21,
+                    "description": "Period for long moving average or MACD slow line"
+                }
             },
-            "timeframe": {
-                "value": "Daily",
-                "description": "Trading timeframe (Hourly or Daily)"
+            "performance": {
+                "expectancy_per_month": {
+                    "value": 3521.3909053585817,
+                    "description": "Expected monthly return"
+                }
             },
-            "type": {
-                "value": "SMA",
-                "description": "Strategy type (MACD, SMA, or EMA)"
+            "risk_metrics": {
+                "var_95": {
+                    "value": -0.051724956246038956,
+                    "description": "Value at Risk (95% confidence)"
+                },
+                "cvar_95": {
+                    "value": -0.07633538478943377,
+                    "description": "Conditional Value at Risk (95% confidence)"
+                },
+                "var_99": {
+                    "value": -0.09558099821654963,
+                    "description": "Value at Risk (99% confidence)"
+                },
+                "cvar_99": {
+                    "value": -0.11904066489306775,
+                    "description": "Conditional Value at Risk (99% confidence)"
+                },
+                "risk_contribution": {
+                    "value": 0.49402613325227634,
+                    "description": "Contribution to portfolio risk"
+                },
+                "alpha": {
+                    "value": -0.00010875759896102283,
+                    "description": "Strategy alpha relative to portfolio"
+                }
             },
-            "direction": {
-                "value": "Long",
-                "description": "Trading direction (Long or Short)"
-            },
-            "short_window": {
-                "value": 12,
-                "description": "Period for short moving average or MACD fast line"
-            },
-            "long_window": {
-                "value": 21,
-                "description": "Period for long moving average or MACD slow line"
-            },
-            "expectancy_per_month": {
-                "value": 3522.316612746951,
-                "description": "Expected monthly return"
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.0,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "total_expectancy": {
+                    "value": 3521.3909053585817,
+                    "description": "Total expected return for this strategy"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.0,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.0,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.0,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
             }
         },
         {
-            "ticker": {
-                "value": "BTC-USD",
-                "description": "Ticker symbol to analyze"
+            "id": "strategy_2",
+            "parameters": {
+                "ticker": {
+                    "value": "BTC-USD",
+                    "description": "Ticker symbol to analyze"
+                },
+                "timeframe": {
+                    "value": "Daily",
+                    "description": "Trading timeframe (Hourly or Daily)"
+                },
+                "type": {
+                    "value": "SMA",
+                    "description": "Strategy type (MACD, SMA, or EMA)"
+                },
+                "direction": {
+                    "value": "Long",
+                    "description": "Trading direction (Long or Short)"
+                },
+                "short_window": {
+                    "value": 27,
+                    "description": "Period for short moving average or MACD fast line"
+                },
+                "long_window": {
+                    "value": 29,
+                    "description": "Period for long moving average or MACD slow line"
+                }
             },
-            "timeframe": {
-                "value": "Daily",
-                "description": "Trading timeframe (Hourly or Daily)"
+            "performance": {
+                "expectancy_per_month": {
+                    "value": 4993.629383156899,
+                    "description": "Expected monthly return"
+                }
             },
-            "type": {
-                "value": "SMA",
-                "description": "Strategy type (MACD, SMA, or EMA)"
+            "risk_metrics": {
+                "var_95": {
+                    "value": -0.05103639959098446,
+                    "description": "Value at Risk (95% confidence)"
+                },
+                "cvar_95": {
+                    "value": -0.07640857777488314,
+                    "description": "Conditional Value at Risk (95% confidence)"
+                },
+                "var_99": {
+                    "value": -0.09557436358012153,
+                    "description": "Value at Risk (99% confidence)"
+                },
+                "cvar_99": {
+                    "value": -0.11459028689401439,
+                    "description": "Conditional Value at Risk (99% confidence)"
+                },
+                "risk_contribution": {
+                    "value": 0.5059738667477238,
+                    "description": "Contribution to portfolio risk"
+                },
+                "alpha": {
+                    "value": 0.0001087575989610224,
+                    "description": "Strategy alpha relative to portfolio"
+                }
             },
-            "direction": {
-                "value": "Long",
-                "description": "Trading direction (Long or Short)"
-            },
-            "short_window": {
-                "value": 27,
-                "description": "Period for short moving average or MACD fast line"
-            },
-            "long_window": {
-                "value": 29,
-                "description": "Period for long moving average or MACD slow line"
-            },
-            "expectancy_per_month": {
-                "value": 4994.942114330179,
-                "description": "Expected monthly return"
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.0,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "total_expectancy": {
+                    "value": 4993.629383156899,
+                    "description": "Total expected return for this strategy"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.0,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.0,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.0,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
             }
         }
     ],
-    "metrics": {
+    "portfolio_metrics": {
         "concurrency": {
             "total_concurrent_periods": {
                 "value": 1612,
                 "description": "Number of periods with concurrent positions"
             },
             "concurrency_ratio": {
-                "value": 0.42365308804204993,
+                "value": 0.4235417761429322,
                 "description": "Ratio of concurrent periods to total periods"
             },
             "exclusive_ratio": {
-                "value": 0.29303547963206306,
+                "value": 0.2929584866001051,
                 "description": "Ratio of periods with exactly one strategy in position"
             },
             "inactive_ratio": {
-                "value": 0.283311432325887,
+                "value": 0.2834997372569627,
                 "description": "Ratio of periods with no active strategies"
             },
             "avg_concurrent_strategies": {
@@ -90,140 +200,100 @@
         },
         "efficiency": {
             "efficiency_score": {
-                "value": 71.0541466540412,
+                "value": 70.99206583290292,
                 "description": "Risk-Adjusted Performance"
             },
             "total_expectancy": {
-                "value": 405.58374890843476,
+                "value": 405.47715659597526,
                 "description": "Combined expected return across all strategies"
             },
-            "diversification_multiplier": {
-                "value": 0.5978451034225525,
-                "description": "Multiplier effect from strategy diversification"
-            },
-            "independence_multiplier": {
-                "value": 0.40887422075540886,
-                "description": "Multiplier effect from strategy independence"
-            },
-            "activity_multiplier": {
-                "value": 0.716688567674113,
-                "description": "Multiplier effect from strategy activity levels"
+            "multipliers": {
+                "diversification": {
+                    "value": 0.5976368091343027,
+                    "description": "Multiplier effect from strategy diversification"
+                },
+                "independence": {
+                    "value": 0.40887422075540886,
+                    "description": "Multiplier effect from strategy independence"
+                },
+                "activity": {
+                    "value": 0.7165002627430372,
+                    "description": "Multiplier effect from strategy activity levels"
+                }
             }
         },
         "risk": {
-            "risk_concentration_index": {
-                "value": 0.7955628896222956,
-                "description": "Measure of risk concentration"
+            "portfolio_metrics": {
+                "risk_concentration_index": {
+                    "value": 0.7955628896222956,
+                    "description": "Measure of risk concentration"
+                },
+                "total_portfolio_risk": {
+                    "value": 0.0284909319373433,
+                    "description": "Overall portfolio risk measure"
+                }
             },
-            "strategy_1_var_95": {
-                "value": -0.051724956246038956,
-                "description": "Risk metric: strategy_1_var_95"
+            "combined_risk": {
+                "var_95": {
+                    "value": -0.05159256504911376,
+                    "description": "Combined Value at Risk (95% confidence)"
+                },
+                "cvar_95": {
+                    "value": -0.07648628306722646,
+                    "description": "Combined Conditional Value at Risk (95% confidence)"
+                },
+                "var_99": {
+                    "value": -0.09564513303535464,
+                    "description": "Combined Value at Risk (99% confidence)"
+                },
+                "cvar_99": {
+                    "value": -0.11681547589354108,
+                    "description": "Combined Conditional Value at Risk (99% confidence)"
+                }
             },
-            "strategy_1_cvar_95": {
-                "value": -0.07633538478943377,
-                "description": "Risk metric: strategy_1_cvar_95"
-            },
-            "strategy_1_var_99": {
-                "value": -0.09558099821654963,
-                "description": "Risk metric: strategy_1_var_99"
-            },
-            "strategy_1_cvar_99": {
-                "value": -0.11904066489306775,
-                "description": "Risk metric: strategy_1_cvar_99"
-            },
-            "strategy_2_var_95": {
-                "value": -0.05103639959098446,
-                "description": "Risk metric: strategy_2_var_95"
-            },
-            "strategy_2_cvar_95": {
-                "value": -0.07640857777488314,
-                "description": "Risk metric: strategy_2_cvar_95"
-            },
-            "strategy_2_var_99": {
-                "value": -0.09557436358012153,
-                "description": "Risk metric: strategy_2_var_99"
-            },
-            "strategy_2_cvar_99": {
-                "value": -0.11459028689401439,
-                "description": "Risk metric: strategy_2_cvar_99"
-            },
-            "combined_var_95": {
-                "value": -0.05159256504911376,
-                "description": "Risk metric: combined_var_95"
-            },
-            "combined_cvar_95": {
-                "value": -0.07648628306722646,
-                "description": "Risk metric: combined_cvar_95"
-            },
-            "combined_var_99": {
-                "value": -0.09564513303535464,
-                "description": "Risk metric: combined_var_99"
-            },
-            "combined_cvar_99": {
-                "value": -0.11681547589354108,
-                "description": "Risk metric: combined_cvar_99"
-            },
-            "strategy_1_risk_contrib": {
-                "value": 0.4940254457211092,
-                "description": "Risk metric: strategy_1_risk_contrib"
-            },
-            "strategy_1_alpha": {
-                "value": -0.00010875759896102283,
-                "description": "Risk metric: strategy_1_alpha"
-            },
-            "risk_overlap_1_2": {
-                "value": 0.1433916610701556,
-                "description": "Risk metric: risk_overlap_1_2"
-            },
-            "strategy_2_risk_contrib": {
-                "value": 0.5059745542788908,
-                "description": "Risk metric: strategy_2_risk_contrib"
-            },
-            "strategy_2_alpha": {
-                "value": 0.0001087575989610224,
-                "description": "Risk metric: strategy_2_alpha"
-            },
-            "total_portfolio_risk": {
-                "value": 0.028487596456171195,
-                "description": "Risk metric: total_portfolio_risk"
-            },
-            "benchmark_return": {
-                "value": 0.003589399557145506,
-                "description": "Risk metric: benchmark_return"
+            "strategy_relationships": {
+                "risk_overlap_1_2": {
+                    "value": 0.1434446221712034,
+                    "description": "Risk relationship metric: risk_overlap_1_2"
+                }
             }
         },
         "signals": {
-            "mean_signals": {
-                "value": 4.071428571428571,
-                "description": "Average number of signals per month"
+            "monthly_statistics": {
+                "mean": {
+                    "value": 4.071428571428571,
+                    "description": "Average number of signals per month"
+                },
+                "median": {
+                    "value": 4.0,
+                    "description": "Median number of signals per month"
+                },
+                "std_below": {
+                    "value": 1.5089441264782715,
+                    "description": "One standard deviation below mean signals"
+                },
+                "std_above": {
+                    "value": 6.633913016378871,
+                    "description": "One standard deviation above mean signals"
+                }
             },
-            "median_signals": {
-                "value": 4.0,
-                "description": "Median number of signals per month"
-            },
-            "std_below_mean": {
-                "value": 1.5089441264782715,
-                "description": "One standard deviation below mean signals"
-            },
-            "std_above_mean": {
-                "value": 6.633913016378871,
-                "description": "One standard deviation above mean signals"
-            },
-            "signal_volatility": {
-                "value": 2.5624844449502997,
-                "description": "Standard deviation of monthly signals"
-            },
-            "max_monthly_signals": {
-                "value": 11.0,
-                "description": "Maximum signals in any month"
-            },
-            "min_monthly_signals": {
-                "value": 1.0,
-                "description": "Minimum signals in any month"
-            },
-            "total_signals": {
-                "value": 456.0,
-                "description": "Total number of signals across period"
+            "summary": {
+                "volatility": {
+                    "value": 2.5624844449502997,
+                    "description": "Standard deviation of monthly signals"
+                },
+                "max_monthly": {
+                    "value": 11.0,
+                    "description": "Maximum signals in any month"
+                },
+                "min_monthly": {
+                    "value": 1.0,
+                    "description": "Minimum signals in any month"
+                },
+                "total": {
+                    "value": 456.0,
+                    "description": "Total number of signals across period"
+                }
             }
         }
     }

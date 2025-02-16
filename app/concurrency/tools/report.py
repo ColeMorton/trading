@@ -37,22 +37,6 @@ class StrategyRiskMetrics(TypedDict):
     risk_contribution: StrategyParameter
     alpha: StrategyParameter
 
-class Strategy(TypedDict):
-    """Complete strategy definition."""
-    id: str
-    parameters: StrategyParameters
-    performance: StrategyPerformance
-    risk_metrics: StrategyRiskMetrics
-
-class ConcurrencyMetrics(TypedDict):
-    """Concurrency analysis metrics."""
-    total_concurrent_periods: StrategyParameter
-    concurrency_ratio: StrategyParameter
-    exclusive_ratio: StrategyParameter
-    inactive_ratio: StrategyParameter
-    avg_concurrent_strategies: StrategyParameter
-    max_concurrent_strategies: StrategyParameter
-
 class EfficiencyMultipliers(TypedDict):
     """Efficiency multiplier metrics."""
     diversification: StrategyParameter
@@ -64,6 +48,23 @@ class EfficiencyMetrics(TypedDict):
     efficiency_score: StrategyParameter
     total_expectancy: StrategyParameter
     multipliers: EfficiencyMultipliers
+
+class Strategy(TypedDict):
+    """Complete strategy definition."""
+    id: str
+    parameters: StrategyParameters
+    performance: StrategyPerformance
+    risk_metrics: StrategyRiskMetrics
+    efficiency: EfficiencyMetrics
+
+class ConcurrencyMetrics(TypedDict):
+    """Concurrency analysis metrics."""
+    total_concurrent_periods: StrategyParameter
+    concurrency_ratio: StrategyParameter
+    exclusive_ratio: StrategyParameter
+    inactive_ratio: StrategyParameter
+    avg_concurrent_strategies: StrategyParameter
+    max_concurrent_strategies: StrategyParameter
 
 class PortfolioRiskMetrics(TypedDict):
     """Portfolio-level risk metrics."""
@@ -113,7 +114,6 @@ class ConcurrencyReport(TypedDict):
     """Complete concurrency analysis report."""
     strategies: List[Strategy]
     portfolio_metrics: PortfolioMetrics
-
 def create_strategy_object(
     config: Dict[str, Any],
     index: int,
@@ -124,12 +124,13 @@ def create_strategy_object(
     Args:
         config (Dict[str, Any]): Strategy configuration
         index (int): Strategy index for ID generation
-        stats (Dict[str, Any]): Statistics containing risk metrics
+        stats (Dict[str, Any]): Statistics containing risk and efficiency metrics
 
     Returns:
-        Strategy: Strategy object with the optimized structure
+        Strategy: Strategy object with parameters, performance, risk metrics, and efficiency metrics
     """
     strategy_type = config.get("STRATEGY_TYPE", "EMA")
+    strategy_id = str(index)
     
     # Create base parameters
     parameters: StrategyParameters = {
@@ -193,7 +194,6 @@ def create_strategy_object(
     
     # Extract strategy-specific risk metrics
     risk_metrics_data = stats.get('risk_metrics', {})
-    strategy_id = str(index)
     
     risk_metrics: StrategyRiskMetrics = {
         "var_95": {
@@ -222,11 +222,78 @@ def create_strategy_object(
         }
     }
     
+    # Extract strategy-specific efficiency metrics
+    strategy_expectancies = stats.get("strategy_expectancies", [])
+    strategy_count = len(strategy_expectancies)
+    
+    if strategy_count > 0:
+        # Calculate strategy's contribution to total expectancy
+        strategy_expectancy = config.get("EXPECTANCY_PER_MONTH", 0.0)
+        total_expectancy = sum(strategy_expectancies)
+        expectancy_weight = strategy_expectancy / total_expectancy if total_expectancy > 0 else 0.0
+        
+        # Calculate strategy-specific metrics
+        efficiency_score = stats.get("efficiency_score", 0.0)
+        diversification = stats.get("diversification_multiplier", 0.0)
+        independence = stats.get("independence_multiplier", 0.0)
+        activity = stats.get("activity_multiplier", 0.0)
+        
+        efficiency: EfficiencyMetrics = {
+            "efficiency_score": {
+                "value": efficiency_score * expectancy_weight,
+                "description": "Risk-adjusted performance score for this strategy"
+            },
+            "total_expectancy": {
+                "value": strategy_expectancy,
+                "description": "Total expected return for this strategy"
+            },
+            "multipliers": {
+                "diversification": {
+                    "value": diversification,
+                    "description": "Strategy-specific diversification effect"
+                },
+                "independence": {
+                    "value": independence,
+                    "description": "Strategy-specific independence from other strategies"
+                },
+                "activity": {
+                    "value": activity,
+                    "description": "Strategy-specific activity level impact"
+                }
+            }
+        }
+    else:
+        efficiency: EfficiencyMetrics = {
+            "efficiency_score": {
+                "value": 0.0,
+                "description": "Risk-adjusted performance score for this strategy"
+            },
+            "total_expectancy": {
+                "value": config.get("EXPECTANCY_PER_MONTH", 0.0),
+                "description": "Total expected return for this strategy"
+            },
+            "multipliers": {
+                "diversification": {
+                    "value": 0.0,
+                    "description": "Strategy-specific diversification effect"
+                },
+                "independence": {
+                    "value": 0.0,
+                    "description": "Strategy-specific independence from other strategies"
+                },
+                "activity": {
+                    "value": 0.0,
+                    "description": "Strategy-specific activity level impact"
+                }
+            }
+        }
+
     return {
         "id": f"strategy_{strategy_id}",
         "parameters": parameters,
         "performance": performance,
-        "risk_metrics": risk_metrics
+        "risk_metrics": risk_metrics,
+        "efficiency": efficiency
     }
 
 def create_portfolio_metrics(stats: Dict[str, Any]) -> PortfolioMetrics:
