@@ -13,7 +13,15 @@ def calculate_strategy_metrics(monthly_signals: List[int]) -> Dict[str, float]:
         monthly_signals (List[int]): List of monthly signal counts
 
     Returns:
-        Dict[str, float]: Dictionary containing calculated metrics
+        Dict[str, float]: Dictionary containing calculated metrics:
+            - mean_signals: Average number of signals per month
+            - median_signals: Median number of signals per month
+            - std_below_mean: One standard deviation below mean
+            - std_above_mean: One standard deviation above mean
+            - signal_volatility: Standard deviation of monthly signals
+            - max_monthly_signals: Maximum signals in any month
+            - min_monthly_signals: Minimum signals in any month
+            - total_signals: Total number of signals across period
     """
     if not monthly_signals:
         return {
@@ -49,7 +57,7 @@ def calculate_strategy_metrics(monthly_signals: List[int]) -> Dict[str, float]:
 def calculate_signal_metrics(
     data_list: List[pl.DataFrame],
     log: Callable[[str, str], None]
-) -> Dict[str, float]:
+) -> Dict[str, Dict]:
     """Calculate portfolio-level and strategy-specific signal metrics.
 
     Analyzes the frequency and distribution of trading signals (entries/exits)
@@ -64,8 +72,8 @@ def calculate_signal_metrics(
         log (Callable[[str, str], None]): Logging function
 
     Returns:
-        Dict[str, float]: Dictionary containing:
-            Portfolio-level metrics under 'signal_metrics':
+        Dict[str, Dict]: Dictionary containing:
+            Portfolio-level metrics at root level:
             - mean_signals: Average number of total portfolio signals per month
             - median_signals: Median number of total portfolio signals per month
             - std_below_mean: One standard deviation below portfolio mean
@@ -75,8 +83,9 @@ def calculate_signal_metrics(
             - min_monthly_signals: Minimum portfolio signals in any month
             - total_signals: Total number of portfolio signals across period
 
-            Strategy-specific metrics (prefixed with strategy_N_):
-            Same metrics as above but calculated per strategy
+            Strategy-specific metrics under 'strategy_signal_metrics' key:
+            Dictionary with strategy_N keys containing same metrics as above
+            but calculated per strategy
 
     Raises:
         ValueError: If input data is invalid or missing required columns
@@ -101,6 +110,7 @@ def calculate_signal_metrics(
         portfolio_monthly_signals = defaultdict(int)
         strategy_monthly_signals = [defaultdict(int) for _ in data_list]
         metrics = {}
+        strategy_signal_metrics = {}  # New dictionary for strategy-specific metrics
         
         for i, df in enumerate(data_list, 1):
             log(f"Processing signals for strategy {i}", "info")
@@ -139,17 +149,25 @@ def calculate_signal_metrics(
                 list(strategy_monthly_signals[i-1].values())
             )
             
-            # Add strategy-specific metrics with proper prefixes
+            # Add strategy metrics to the new structure
+            strategy_signal_metrics[f"strategy_{i}"] = strategy_metrics
+            
+            # Also add to root level for backward compatibility
             for key, value in strategy_metrics.items():
                 metrics[f"strategy_{i}_{key}"] = value
         
         log(f"Calculating portfolio-level metrics", "info")
         
-        # Calculate portfolio-level metrics and add them directly to the metrics dictionary
+        # Calculate portfolio-level metrics
         portfolio_metrics = calculate_strategy_metrics(
             list(portfolio_monthly_signals.values())
         )
-        metrics.update(portfolio_metrics)  # Add portfolio metrics directly to the root level
+        
+        # Add portfolio metrics to root level
+        metrics.update(portfolio_metrics)
+        
+        # Add strategy signal metrics under the new key
+        metrics["strategy_signal_metrics"] = strategy_signal_metrics
         
         log("Signal metrics calculation completed successfully", "info")
         return metrics
