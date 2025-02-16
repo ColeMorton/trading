@@ -42,6 +42,7 @@ def compile_statistics(
     risk_metrics: dict,
     efficiency_metrics: Tuple[float, float, float, float, float],
     signal_metrics: dict,
+    strategy_expectancies: List[float],
     log: Callable[[str, str], None]
 ) -> ConcurrencyStats:
     """Compile analysis statistics.
@@ -85,6 +86,25 @@ def compile_statistics(
             else 0.0
         )
 
+        # Calculate per-strategy efficiency metrics
+        strategy_metrics = []
+        total_expectancy_sum = sum(strategy_expectancies)
+        
+        for idx, expectancy in enumerate(strategy_expectancies, 1):
+            weight = expectancy / total_expectancy_sum if total_expectancy_sum > 0 else 0.0
+            strategy_metrics.append({
+                f"strategy_{idx}_efficiency_score": efficiency_score * weight,
+                f"strategy_{idx}_expectancy": expectancy,
+                f"strategy_{idx}_diversification": diversification_multiplier,
+                f"strategy_{idx}_independence": independence_multiplier,
+                f"strategy_{idx}_activity": activity_multiplier
+            })
+
+        # Combine all strategy metrics
+        strategy_efficiency_metrics = {}
+        for metrics in strategy_metrics:
+            strategy_efficiency_metrics.update(metrics)
+
         stats = {
             "total_periods": total_periods,
             "total_concurrent_periods": concurrent_periods,
@@ -104,6 +124,8 @@ def compile_statistics(
             "diversification_multiplier": diversification_multiplier,
             "independence_multiplier": independence_multiplier,
             "activity_multiplier": activity_multiplier,
+            "strategy_expectancies": strategy_expectancies,
+            "strategy_efficiency_metrics": strategy_efficiency_metrics,
             "risk_metrics": risk_metrics,
             "signal_metrics": signal_metrics,
             "start_date": str(aligned_data[0]["Date"].min()),
@@ -185,6 +207,7 @@ def analyze_concurrency(
             risk_metrics,
             efficiency_metrics,
             signal_metrics,
+            strategy_expectancies,
             log
         )
         

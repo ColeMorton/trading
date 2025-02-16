@@ -62,24 +62,24 @@
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 0.0,
+                    "value": 29.358804384033448,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 3521.3909053585817,
+                    "value": 167.6852812075515,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.0,
+                        "value": 0.5976368091343027,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.0,
+                        "value": 0.40887422075540886,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.0,
+                        "value": 0.7165002627430372,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -147,24 +147,24 @@
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 0.0,
+                    "value": 41.633261448869476,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 4993.629383156899,
+                    "value": 237.79187538842376,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.0,
+                        "value": 0.5976368091343027,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.0,
+                        "value": 0.40887422075540886,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.0,
+                        "value": 0.7165002627430372,
                         "description": "Strategy-specific activity level impact"
                     }
                 }

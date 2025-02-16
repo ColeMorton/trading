@@ -222,71 +222,34 @@ def create_strategy_object(
         }
     }
     
-    # Extract strategy-specific efficiency metrics
-    strategy_expectancies = stats.get("strategy_expectancies", [])
-    strategy_count = len(strategy_expectancies)
+    # Get strategy-specific efficiency metrics
+    strategy_metrics = stats.get("strategy_efficiency_metrics", {})
+    strategy_id = str(index)
     
-    if strategy_count > 0:
-        # Calculate strategy's contribution to total expectancy
-        strategy_expectancy = config.get("EXPECTANCY_PER_MONTH", 0.0)
-        total_expectancy = sum(strategy_expectancies)
-        expectancy_weight = strategy_expectancy / total_expectancy if total_expectancy > 0 else 0.0
-        
-        # Calculate strategy-specific metrics
-        efficiency_score = stats.get("efficiency_score", 0.0)
-        diversification = stats.get("diversification_multiplier", 0.0)
-        independence = stats.get("independence_multiplier", 0.0)
-        activity = stats.get("activity_multiplier", 0.0)
-        
-        efficiency: EfficiencyMetrics = {
-            "efficiency_score": {
-                "value": efficiency_score * expectancy_weight,
-                "description": "Risk-adjusted performance score for this strategy"
+    efficiency: EfficiencyMetrics = {
+        "efficiency_score": {
+            "value": strategy_metrics.get(f"strategy_{strategy_id}_efficiency_score", 0.0),
+            "description": "Risk-adjusted performance score for this strategy"
+        },
+        "total_expectancy": {
+            "value": strategy_metrics.get(f"strategy_{strategy_id}_expectancy", config.get("EXPECTANCY_PER_MONTH", 0.0)),
+            "description": "Total expected return for this strategy"
+        },
+        "multipliers": {
+            "diversification": {
+                "value": strategy_metrics.get(f"strategy_{strategy_id}_diversification", 0.0),
+                "description": "Strategy-specific diversification effect"
             },
-            "total_expectancy": {
-                "value": strategy_expectancy,
-                "description": "Total expected return for this strategy"
+            "independence": {
+                "value": strategy_metrics.get(f"strategy_{strategy_id}_independence", 0.0),
+                "description": "Strategy-specific independence from other strategies"
             },
-            "multipliers": {
-                "diversification": {
-                    "value": diversification,
-                    "description": "Strategy-specific diversification effect"
-                },
-                "independence": {
-                    "value": independence,
-                    "description": "Strategy-specific independence from other strategies"
-                },
-                "activity": {
-                    "value": activity,
-                    "description": "Strategy-specific activity level impact"
-                }
+            "activity": {
+                "value": strategy_metrics.get(f"strategy_{strategy_id}_activity", 0.0),
+                "description": "Strategy-specific activity level impact"
             }
         }
-    else:
-        efficiency: EfficiencyMetrics = {
-            "efficiency_score": {
-                "value": 0.0,
-                "description": "Risk-adjusted performance score for this strategy"
-            },
-            "total_expectancy": {
-                "value": config.get("EXPECTANCY_PER_MONTH", 0.0),
-                "description": "Total expected return for this strategy"
-            },
-            "multipliers": {
-                "diversification": {
-                    "value": 0.0,
-                    "description": "Strategy-specific diversification effect"
-                },
-                "independence": {
-                    "value": 0.0,
-                    "description": "Strategy-specific independence from other strategies"
-                },
-                "activity": {
-                    "value": 0.0,
-                    "description": "Strategy-specific activity level impact"
-                }
-            }
-        }
+    }
 
     return {
         "id": f"strategy_{strategy_id}",
