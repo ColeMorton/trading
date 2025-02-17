@@ -19,6 +19,14 @@
     {
         "ticker": "ETH-USD",
         "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 12,
+        "long_window": 32
+    },
+    {
+        "ticker": "ETH-USD",
+        "timeframe": "Daily",
         "type": "EMA",
         "direction": "Long",
         "short_window": 14,

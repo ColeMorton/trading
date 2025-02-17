@@ -122,16 +122,17 @@ def run_analysis(
             else:
                 log(f"{key}: {value}")
         
-        # Create visualization
-        log("Creating visualization", "info")
-        fig = plot_concurrency(
-            aligned_data,
-            stats,
-            updated_strategies,
-            log
-        )
-        fig.show()
-        log("Visualization displayed", "info")
+        # Create visualization if enabled
+        if config["VISUALIZATION"]:
+            log("Creating visualization", "info")
+            fig = plot_concurrency(
+                aligned_data,
+                stats,
+                updated_strategies,
+                log
+            )
+            fig.show()
+            log("Visualization displayed", "info")
 
         # Generate and save JSON report
         log("Generating JSON report", "info")

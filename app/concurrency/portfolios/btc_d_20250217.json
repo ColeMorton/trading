@@ -2,13 +2,26 @@
     {
         "ticker": "BTC-USD",
         "timeframe": "Daily",
-        "type": "MACD",
+        "type": "SMA",
         "direction": "Long",
-        "short_window": 14,
-        "long_window": 23,
-        "signal_window": 13,
-        "rsi_period": 14,
-        "rsi_threshold": 45
+        "short_window": 8,
+        "long_window": 44
+    },
+    {
+        "ticker": "BTC-USD",
+        "timeframe": "Daily",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 11,
+        "long_window": 17
+    },
+    {
+        "ticker": "BTC-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 11,
+        "long_window": 36
     },
     {
         "ticker": "BTC-USD",
@@ -21,25 +34,12 @@
     {
         "ticker": "BTC-USD",
         "timeframe": "Daily",
-        "type": "SMA",
+        "type": "MACD",
         "direction": "Long",
-        "short_window": 8,
-        "long_window": 44
-    },
-    {
-        "ticker": "BTC-USD",
-        "timeframe": "Daily",
-        "type": "EMA",
-        "direction": "Long",
-        "short_window": 3,
-        "long_window": 11
-    },
-    {
-        "ticker": "BTC-USD",
-        "timeframe": "Daily",
-        "type": "EMA",
-        "direction": "Long",
-        "short_window": 11,
-        "long_window": 17
+        "short_window": 14,
+        "long_window": 23,
+        "signal_window": 13,
+        "rsi_period": 14,
+        "rsi_threshold": 45
     }
 ]

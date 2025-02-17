@@ -22,7 +22,7 @@ class Config(TypedDict):
 
 # Default Configuration
 CONFIG: Config = {
-    "TICKER": 'BTC-USD',
+    "TICKER": 'ETH-USD',
     "YEARS": 30,
     "USE_YEARS": False,
     "PERIOD": 'max',
@@ -33,12 +33,12 @@ CONFIG: Config = {
     "SHORT": False,
     "USE_GBM": False,
     "USE_SMA": False,
-    "SHORT_PERIOD": 2,
-    "LONG_WINDOW": 21,
-    "SIGNAL_WINDOW": 4,
+    "SHORT_PERIOD": 20,
+    "LONG_WINDOW": 34,
+    "SIGNAL_WINDOW": 8,
     "RSI_PERIOD": 14,
     "RSI_THRESHOLD": 45,  # Already an integer value
-    "USE_RSI": True
+    "USE_RSI": False
 }
 
 config = get_base_config(CONFIG)
