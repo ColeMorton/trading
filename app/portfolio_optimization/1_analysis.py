@@ -1,9 +1,12 @@
-from typing import TypedDict, List, Dict, Any
+from typing import TypedDict, List, Dict, Any, Callable
 from app.portfolio_optimization.schemas import (
     PortfolioConfig,
     PortfolioMetrics,
     AnalysisOutput
 )
+from app.portfolio_optimization.tools.position_sizing_types import PositionSizingConfig
+from app.portfolio_optimization.schemas import SizingOutput
+from app.portfolio_optimization.tools.position_sizing import calculate_position_sizes
 import polars as pl
 import yfinance as yf
 import numpy as np
@@ -21,9 +24,12 @@ from app.portfolio_optimization.tools.portfolio_config import (
 import json
 from pathlib import Path
 
-config: Dict[str, str] = {
-    # "portfolio": "all_20250218 temp.json"
-    "portfolio": "btc_sol.json"
+# Position sizing configuration - values not stored in portfolio JSON
+config: PositionSizingConfig = {
+    "portfolio": "current.json",
+    "use_ema": False,     # Whether to use EMA for price calculations
+    "ema_period": 35,     # Period for EMA if used
+    "var_confidence_levels": [0.95, 0.99]
 }
 
 class OptimizationConfig(TypedDict):
@@ -122,7 +128,7 @@ def calculate_cvar(returns: np.ndarray, confidence_level: float = 0.95) -> float
     
     return cvar
 
-def calculate_asset_metrics(returns: pl.DataFrame, weights: Dict[str, float]) -> List[Dict[str, float]]:
+def calculate_asset_metrics(returns: pl.DataFrame, weights: Dict[str, float], log: Callable[[str, str], None]) -> List[Dict[str, float]]:
     """
     Calculate performance metrics for individual assets.
 
@@ -230,7 +236,7 @@ def main() -> None:
         
         # Calculate asset-specific metrics
         log("\nCalculating portfolio and asset metrics")
-        asset_metrics = calculate_asset_metrics(pl.from_pandas(returns), weights)
+        asset_metrics = calculate_asset_metrics(pl.from_pandas(returns), weights, log)
         
         # Calculate VaR and CVaR at 95% and 99% confidence levels
         portfolio_returns = portfolio.returns
@@ -282,8 +288,61 @@ def main() -> None:
             log(f"  Downside Volatility: {metrics['downside_volatility']:.2%}")
             log(f"  Sortino Ratio: {metrics['sortino_ratio']:.2f}")
 
+        # Load portfolio configuration
+        log("Loading portfolio configuration", "info")
+        portfolio_config: PortfolioConfig = load_portfolio_config(config["portfolio"])
+        initial_value = portfolio_config["initial_value"]
+        target_value = portfolio_config["target_value"]
+        use_target_value = portfolio_config["use_target_value"]
+        portfolio = portfolio_config["portfolio"]
+        # Merge portfolio config with base config
+        merged_config = {**config, **portfolio_config}
+        
+        # Calculate position sizes and metrics
+        log("Calculating position sizes and metrics", "info")
+        results = calculate_position_sizes(portfolio_config["portfolio"], merged_config, log)
+        
+        # Calculate total leveraged value to check against target if needed
+        total_leveraged_value = sum(
+            metrics["leveraged_value"] for metrics in results
+        )
+        
+        # If using target value and total leveraged value exceeds target,
+        # scale down initial values proportionally
+        if portfolio_config["use_target_value"] and \
+           total_leveraged_value > portfolio_config["target_value"]:
+            
+            log("Scaling down initial values to meet target value", "info")
+            scale_factor = portfolio_config["target_value"] / total_leveraged_value
+            
+            # Scale down initial values while keeping leverage and allocation same
+            for asset, metrics in zip(portfolio_config["portfolio"], results):
+                metrics["initial_value"] *= scale_factor
+                metrics["leveraged_value"] = metrics["initial_value"] * asset["leverage"]
+                metrics["position_size"] *= scale_factor
+        
+        # Print results for each asset
+        log("Displaying results", "info")
+        total_leveraged_value = sum(metrics["leveraged_value"] for metrics in results)
+        total_initial_value = sum(metrics["initial_value"] for metrics in results)
+        
+        for asset, metrics in zip(portfolio_config["portfolio"], results):
+            # Modified print_asset_details to skip risk metrics
+            print(f"\nAsset: {asset['ticker']}")
+            print(f"  Initial (pre-leverage) value: ${metrics['initial_value']:.2f}")
+            print(f"  Leverage: {asset['leverage']:.2f}")
+            print(f"  Leveraged value: ${metrics['leveraged_value']:.2f}")
+            print(f"  Position size: {metrics['position_size']:.6f}")
+            print(f"  Allocation: {metrics['allocation']:.2f}%")
+        
+        # Print portfolio totals
+        print(f"\nInitial Portfolio Value: ${portfolio_config['initial_value']:.2f}")
+        print(f"Total Leveraged Portfolio Value: ${total_leveraged_value:.2f}")
+        if portfolio_config["use_target_value"]:
+            print(f"Target Value: ${portfolio_config['target_value']:.2f}")
+
         # Create output data
-        output_data: AnalysisOutput = {
+        output_data: dict[str, Any] = {
             "portfolio_metrics": {
                 "annualized_return": annualized_return,
                 "downside_volatility": downside_volatility,
@@ -293,7 +352,32 @@ def main() -> None:
                 "var_99": portfolio_var_99_usd,
                 "cvar_99": portfolio_cvar_99_usd,
             },
-            "asset_metrics": asset_metrics,
+            "asset_metrics": [
+                {
+                    "ticker": asset["ticker"],
+                    "weight": weights[asset["ticker"]],
+                    "annualized_return": metrics["annualized_return"],
+                    "downside_volatility": metrics["downside_volatility"],
+                    "sortino_ratio": metrics["sortino_ratio"],
+                    "var": metrics["var"],
+                    "cvar": metrics["cvar"],
+                    "initial_value": metrics["initial_value"],
+                    "leveraged_value": metrics["leveraged_value"],
+                    "position_size": metrics["position_size"],
+                    "allocation": metrics["allocation"],
+                }
+                for asset, metrics in zip(portfolio_config["portfolio"], results)
+            ],
+            "position_sizing_config": {
+                "use_ema": config["use_ema"],
+                "ema_period": config["ema_period"],
+                "var_confidence_levels": config["var_confidence_levels"],
+            },
+            "total_leveraged_value": total_leveraged_value,
+            "initial_value": portfolio_config["initial_value"],
+            "target_value": portfolio_config["target_value"],
+            "use_target_value": portfolio_config["use_target_value"],
+            "portfolio": portfolio_config["portfolio"],
         }
 
         # Write output data to JSON file

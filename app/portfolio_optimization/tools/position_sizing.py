@@ -3,7 +3,28 @@
 import numpy as np
 import yfinance as yf
 from typing import List, Dict, Tuple, Callable
-from app.portfolio_optimization.tools.position_sizing_types import Asset, PositionSizingConfig, AssetMetrics
+from app.portfolio_optimization.tools.position_sizing_types import Asset, PositionSizingConfig
+from typing import TypedDict, List, Dict, Tuple, Callable, Any
+
+class AssetMetrics(TypedDict):
+    """Asset metrics type definition.
+
+    Required Fields:
+        initial_value (float): Initial value of the asset
+        leveraged_value (float): Leveraged value of the asset
+        position_size (float): Position size of the asset
+        allocation (float): Allocation of the asset in the portfolio
+    """
+    initial_value: float
+    leveraged_value: float
+    position_size: float
+    allocation: float
+    weight: float
+    annualized_return: float
+    downside_volatility: float
+    sortino_ratio: float
+    var: float
+    cvar: float
 
 def get_price_or_ema(ticker: str, use_ema: bool, ema_period: int) -> float:
     """Fetch the current price or EMA for a given ticker.
@@ -126,12 +147,30 @@ def calculate_position_sizes(
         results = []
         for asset in assets:
             ticker = asset["ticker"]
+            # Get returns for the asset
+            returns = get_returns(ticker)
+
+            # Calculate asset metrics
+            asset_return = returns.mean() * 252
+            downside_returns = returns[returns < 0]
+            downside_volatility = downside_returns.std() * np.sqrt(252) if len(downside_returns) > 0 else 0
+            sortino_ratio = asset_return / downside_volatility if downside_volatility != 0 else 0
+
+            # Calculate VaR and CVaR
+            var_threshold = np.percentile(returns, (1 - 0.95) * 100)
+            cvar_threshold = returns[returns <= var_threshold].mean()
+
             metrics: AssetMetrics = {
                 "initial_value": initial_values[ticker],
                 "leveraged_value": leveraged_values[ticker],
                 "position_size": position_sizes[ticker],
                 "allocation": allocations[ticker],
-                "var_cvar": var_cvar_results[ticker]
+                "weight": asset["weight"],
+                "annualized_return": asset_return,
+                "downside_volatility": downside_volatility,
+                "sortino_ratio": sortino_ratio,
+                "var": var_threshold,
+                "cvar": cvar_threshold,
             }
             results.append(metrics)
             
