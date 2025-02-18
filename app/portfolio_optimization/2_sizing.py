@@ -2,6 +2,10 @@
 
 from app.tools.setup_logging import setup_logging
 from app.portfolio_optimization.tools.position_sizing_types import PositionSizingConfig
+from app.portfolio_optimization.schemas import (
+    PortfolioConfig,
+    SizingOutput
+)
 from app.portfolio_optimization.tools.position_sizing import calculate_position_sizes
 from app.portfolio_optimization.tools.portfolio_config import (
     load_portfolio_config
@@ -11,7 +15,7 @@ from pathlib import Path
 
 # Position sizing configuration - values not stored in portfolio JSON
 config: PositionSizingConfig = {
-    "portfolio": "all_20250218 temp.json",
+    "portfolio": "btc_sol.json",
     "use_ema": False,     # Whether to use EMA for price calculations
     "ema_period": 35,     # Period for EMA if used
     "var_confidence_levels": [0.95, 0.99]
@@ -30,7 +34,7 @@ def main() -> None:
         
         # Load portfolio configuration
         log("Loading portfolio configuration", "info")
-        portfolio_config = load_portfolio_config(config["portfolio"])
+        portfolio_config: PortfolioConfig = load_portfolio_config(config["portfolio"])
         
         # Merge portfolio config with base config
         merged_config = {**config, **portfolio_config}
@@ -79,7 +83,7 @@ def main() -> None:
             print(f"Target Value: ${portfolio_config['target_value']:.2f}")
 
         # Create output data
-        output_data = {
+        output_data: SizingOutput = {
             "initial_value": portfolio_config["initial_value"],
             "target_value": portfolio_config["target_value"],
             "use_target_value": portfolio_config["use_target_value"],

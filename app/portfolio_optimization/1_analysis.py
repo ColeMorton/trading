@@ -1,4 +1,9 @@
-from typing import TypedDict, List, Dict
+from typing import TypedDict, List, Dict, Any
+from app.portfolio_optimization.schemas import (
+    PortfolioConfig,
+    PortfolioMetrics,
+    AnalysisOutput
+)
 import polars as pl
 import yfinance as yf
 import numpy as np
@@ -16,8 +21,9 @@ from app.portfolio_optimization.tools.portfolio_config import (
 import json
 from pathlib import Path
 
-config = {
-    "portfolio": "all_20250218.json"
+config: Dict[str, str] = {
+    # "portfolio": "all_20250218 temp.json"
+    "portfolio": "btc_sol.json"
 }
 
 class OptimizationConfig(TypedDict):
@@ -116,7 +122,7 @@ def calculate_cvar(returns: np.ndarray, confidence_level: float = 0.95) -> float
     
     return cvar
 
-def calculate_asset_metrics(returns: pl.DataFrame, weights: Dict[str, float]) -> Dict[str, Dict[str, float]]:
+def calculate_asset_metrics(returns: pl.DataFrame, weights: Dict[str, float]) -> List[Dict[str, float]]:
     """
     Calculate performance metrics for individual assets.
 
@@ -125,9 +131,9 @@ def calculate_asset_metrics(returns: pl.DataFrame, weights: Dict[str, float]) ->
         weights (Dict[str, float]): Portfolio weights
 
     Returns:
-        Dict[str, Dict[str, float]]: Performance metrics by asset
+        List[Dict[str, float]]: Performance metrics by asset
     """
-    metrics = {}
+    metrics = []
     
     for asset in returns.columns:
         asset_return = returns[asset].to_numpy()
@@ -145,14 +151,15 @@ def calculate_asset_metrics(returns: pl.DataFrame, weights: Dict[str, float]) ->
         var = calculate_var(asset_return)  # Returns percentage value
         cvar = calculate_cvar(asset_return)  # Returns percentage value
         
-        metrics[asset] = {
+        metrics.append({
+            "ticker": asset,
             "weight": weight,
             "annualized_return": annualized_return,
             "downside_volatility": downside_volatility,
             "sortino_ratio": sortino_ratio,
             "var": var,
             "cvar": cvar
-        }
+        })
     
     return metrics
 
@@ -164,7 +171,7 @@ def main() -> None:
     
     try:
         # Load portfolio configuration
-        portfolio_config = load_portfolio_config(config["portfolio"])
+        portfolio_config: PortfolioConfig = load_portfolio_config(config["portfolio"])
         
         # Get portfolio values and tickers
         TOTAL_PORTFOLIO_VALUE = get_portfolio_value(portfolio_config)
@@ -247,7 +254,8 @@ def main() -> None:
 
         # Print portfolio summary
         log("\nOptimal Portfolio Allocation:")
-        for asset, metrics in asset_metrics.items():
+        for metrics in asset_metrics:
+            asset = metrics["ticker"]
             usd_allocation = metrics["weight"] * TOTAL_PORTFOLIO_VALUE
             # Convert percentage risk to USD based on position size
             var_usd = (metrics["var"] / 100) * usd_allocation  # e.g. 2.5% of $1000 = $25
@@ -266,7 +274,8 @@ def main() -> None:
 
         # Print detailed asset metrics
         log("\nDetailed Asset Metrics:")
-        for asset, metrics in asset_metrics.items():
+        for metrics in asset_metrics:
+            asset = metrics["ticker"]
             log(f"\n{asset}:")
             log(f"  Weight: {metrics['weight']:.2%}")
             log(f"  Annualized Return: {metrics['annualized_return']:.2%}")
@@ -274,7 +283,7 @@ def main() -> None:
             log(f"  Sortino Ratio: {metrics['sortino_ratio']:.2f}")
 
         # Create output data
-        output_data = {
+        output_data: AnalysisOutput = {
             "initial_value": portfolio_config["initial_value"],
             "target_value": portfolio_config["target_value"],
             "use_target_value": portfolio_config["use_target_value"],
