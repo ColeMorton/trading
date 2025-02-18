@@ -67,23 +67,15 @@ class AssetMetrics(TypedDict):
     sortino_ratio: float
     var: float
     cvar: float
-
 class AnalysisOutput(TypedDict):
     """
     Represents the output of the portfolio analysis.
 
     Required Fields:
-        initial_value (float): The initial value of the portfolio.
-        target_value (float): The target value of the portfolio.
-        use_target_value (bool): Whether to use the target value.
-        portfolio (List[PortfolioAsset]): The portfolio configuration.
+        
         portfolio_metrics (PortfolioMetrics): The portfolio metrics.
         asset_metrics (Dict[str, AssetMetrics]): The asset metrics.
     """
-    initial_value: float
-    target_value: float
-    use_target_value: bool
-    portfolio: List[PortfolioAsset]
     portfolio_metrics: PortfolioMetrics
     asset_metrics: Dict[str, AssetMetrics]
 
@@ -122,20 +114,19 @@ class SizingOutput(TypedDict):
     Represents the output of the position sizing calculation.
 
     Required Fields:
-        initial_value (float): The initial value of the portfolio.
-        target_value (float): The target value of the portfolio.
-        use_target_value (bool): Whether to use the target value.
-        portfolio (List[PortfolioAsset]): The portfolio configuration.
         position_sizing_config (PositionSizingConfig): The position sizing configuration.
         total_leveraged_value (float): The total leveraged value of the portfolio.
         initial_portfolio_value (float): The initial portfolio value.
         asset_metrics (List[SizingAssetMetrics]): The asset metrics for each asset in the portfolio.
     """
-    initial_value: float
-    target_value: float
-    use_target_value: bool
-    portfolio: List[PortfolioAsset]
     position_sizing_config: PositionSizingConfig
     total_leveraged_value: float
-    initial_portfolio_value: float
+    initial_value: float
     asset_metrics: List[SizingAssetMetrics]
+
+class Results(TypedDict):
+    """
+    Represents the combined results of the portfolio analysis and position sizing.
+    """
+    analysis_output: AnalysisOutput
+    sizing_output: SizingOutput

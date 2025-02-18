@@ -1,4 +1,94 @@
 {
+    "portfolio_metrics": {
+        "annualized_return": 0.5583628858307891,
+        "downside_volatility": 0.30492315090232747,
+        "sortino_ratio": 0.11535219790430953,
+        "var_95": 1097.277081719076,
+        "cvar_95": 1675.9115933374828,
+        "var_99": 1983.0211802164317,
+        "cvar_99": 2703.269126407331
+    },
+    "asset_metrics": [
+        {
+            "ticker": "BTC-USD",
+            "weight": 0.5392976618502404,
+            "annualized_return": 0.5187741792835484,
+            "downside_volatility": 0.43200669155639204,
+            "sortino_ratio": 1.2008475549639261,
+            "var": 5.579095174048332,
+            "cvar": 8.409310504636272
+        },
+        {
+            "ticker": "SOL-USD",
+            "weight": 0.46070233814975975,
+            "annualized_return": 0.604705383162899,
+            "downside_volatility": 0.6579672907964174,
+            "sortino_ratio": 0.9190508276345333,
+            "var": 6.2499187569184045,
+            "cvar": 10.139357270464826
+        }
+    ],
+    "results": {
+        "analysis_output": {
+            "portfolio_metrics": {
+                "annualized_return": 0.5583628858307891,
+                "downside_volatility": 0.30492315090232747,
+                "sortino_ratio": 0.11535219790430953,
+                "var_95": 1097.277081719076,
+                "cvar_95": 1675.9115933374828,
+                "var_99": 1983.0211802164317,
+                "cvar_99": 2703.269126407331
+            },
+            "asset_metrics": [
+                {
+                    "ticker": "BTC-USD",
+                    "weight": 0.5392976618502404,
+                    "annualized_return": 0.5187741792835484,
+                    "downside_volatility": 0.43200669155639204,
+                    "sortino_ratio": 1.2008475549639261,
+                    "var": 5.579095174048332,
+                    "cvar": 8.409310504636272
+                },
+                {
+                    "ticker": "SOL-USD",
+                    "weight": 0.46070233814975975,
+                    "annualized_return": 0.604705383162899,
+                    "downside_volatility": 0.6579672907964174,
+                    "sortino_ratio": 0.9190508276345333,
+                    "var": 6.2499187569184045,
+                    "cvar": 10.139357270464826
+                }
+            ]
+        },
+        "sizing_output": {
+            "position_sizing_config": {
+                "use_ema": false,
+                "ema_period": 35,
+                "var_confidence_levels": [
+                    0.95,
+                    0.99
+                ]
+            },
+            "total_leveraged_value": 27300.0,
+            "initial_value": 15915.5,
+            "asset_metrics": [
+                {
+                    "ticker": "BTC-USD",
+                    "initial_value": 3080.8340425531915,
+                    "leveraged_value": 14479.92,
+                    "position_size": 0.15174305713385597,
+                    "allocation": 53.04
+                },
+                {
+                    "ticker": "SOL-USD",
+                    "initial_value": 4006.2749999999996,
+                    "leveraged_value": 12820.08,
+                    "position_size": 77.23208108986103,
+                    "allocation": 46.96
+                }
+            ]
+        }
+    },
     "initial_value": 15915.5,
     "target_value": 27300,
     "use_target_value": true,
@@ -12,35 +102,6 @@
             "ticker": "SOL-USD",
             "leverage": 3.2,
             "weight": 46.96
-        }
-    ],
-    "portfolio_metrics": {
-        "annualized_return": 0.5586886375664756,
-        "downside_volatility": 0.30492208126882414,
-        "sortino_ratio": 0.11541989983986005,
-        "var_95": 1097.2968306035432,
-        "cvar_95": 1676.0349752162335,
-        "var_99": 1984.5491449249305,
-        "cvar_99": 2703.596042868719
-    },
-    "asset_metrics": [
-        {
-            "ticker": "BTC-USD",
-            "weight": 0.5390472258140153,
-            "annualized_return": 0.5188742611641144,
-            "downside_volatility": 0.43201655894088725,
-            "sortino_ratio": 1.2010517893947483,
-            "var": 5.579095174048332,
-            "cvar": 8.409310504636272
-        },
-        {
-            "ticker": "SOL-USD",
-            "weight": 0.46095277418598485,
-            "annualized_return": 0.6052483511620993,
-            "downside_volatility": 0.6578962967874249,
-            "sortino_ratio": 0.9199753123973932,
-            "var": 6.224939350828141,
-            "cvar": 10.13748792555092
         }
     ]
 }

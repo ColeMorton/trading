@@ -35,7 +35,10 @@ def main() -> None:
         # Load portfolio configuration
         log("Loading portfolio configuration", "info")
         portfolio_config: PortfolioConfig = load_portfolio_config(config["portfolio"])
-        
+        initial_value = portfolio_config["initial_value"]
+        target_value = portfolio_config["target_value"]
+        use_target_value = portfolio_config["use_target_value"]
+        portfolio = portfolio_config["portfolio"]
         # Merge portfolio config with base config
         merged_config = {**config, **portfolio_config}
         
@@ -84,17 +87,13 @@ def main() -> None:
 
         # Create output data
         output_data: SizingOutput = {
-            "initial_value": portfolio_config["initial_value"],
-            "target_value": portfolio_config["target_value"],
-            "use_target_value": portfolio_config["use_target_value"],
-            "portfolio": portfolio_config["portfolio"],
             "position_sizing_config": {
                 "use_ema": config["use_ema"],
                 "ema_period": config["ema_period"],
                 "var_confidence_levels": config["var_confidence_levels"],
             },
             "total_leveraged_value": total_leveraged_value,
-            "initial_portfolio_value": total_initial_value,
+            "initial_value": portfolio_config["initial_value"],
             "asset_metrics": [
                 {
                     "ticker": asset["ticker"],
@@ -116,24 +115,32 @@ def main() -> None:
         # Load existing data
         try:
             with open(file_path, "r") as f:
-                existing_data = json.load(f)
+                data = json.load(f)
         except FileNotFoundError:
-            existing_data = {}
-
-        # Add new data
-        existing_data["sizing_output"] = output_data
+            data = {}
 
         # Load analysis output
         analysis_file_path = output_path / file_name
         try:
             with open(analysis_file_path, "r") as f:
                 analysis_output = json.load(f)
-            existing_data["analysis_output"] = analysis_output
         except FileNotFoundError:
-            existing_data["analysis_output"] = {}
+            analysis_output = {}
+
+        results_data = {
+            "analysis_output": analysis_output,
+            "sizing_output": output_data
+        }
+
+        data["results"] = results_data
+
+        data["initial_value"] = initial_value
+        data["target_value"] = target_value
+        data["use_target_value"] = use_target_value
+        data["portfolio"] = portfolio
 
         with open(file_path, "w") as f:
-            json.dump(existing_data, f, indent=4)
+            json.dump(data, f, indent=4)
 
         log("Position sizing calculations completed successfully", "info")
 

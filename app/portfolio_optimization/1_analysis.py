@@ -284,10 +284,6 @@ def main() -> None:
 
         # Create output data
         output_data: AnalysisOutput = {
-            "initial_value": portfolio_config["initial_value"],
-            "target_value": portfolio_config["target_value"],
-            "use_target_value": portfolio_config["use_target_value"],
-            "portfolio": portfolio_config["portfolio"],
             "portfolio_metrics": {
                 "annualized_return": annualized_return,
                 "downside_volatility": downside_volatility,
