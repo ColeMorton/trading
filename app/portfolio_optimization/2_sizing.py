@@ -112,8 +112,28 @@ def main() -> None:
         output_path.mkdir(parents=True, exist_ok=True)
         file_name = config["portfolio"]
         file_path = output_path / file_name
+
+        # Load existing data
+        try:
+            with open(file_path, "r") as f:
+                existing_data = json.load(f)
+        except FileNotFoundError:
+            existing_data = {}
+
+        # Add new data
+        existing_data["sizing_output"] = output_data
+
+        # Load analysis output
+        analysis_file_path = output_path / file_name
+        try:
+            with open(analysis_file_path, "r") as f:
+                analysis_output = json.load(f)
+            existing_data["analysis_output"] = analysis_output
+        except FileNotFoundError:
+            existing_data["analysis_output"] = {}
+
         with open(file_path, "w") as f:
-            json.dump(output_data, f, indent=4)
+            json.dump(existing_data, f, indent=4)
 
         log("Position sizing calculations completed successfully", "info")
 
