@@ -13,14 +13,11 @@ from app.portfolio_optimization.tools.portfolio_config import (
     get_portfolio_value,
     get_portfolio_tickers,
 )
+import json
+from pathlib import Path
 
 config = {
-    # "portfolio": "next.json"
-    # "portfolio": "crypto.json"
-    "portfolio": "crypto_all.json"
-    # "portfolio": "crypto_all_ex_sol.json"
-    # "portfolio": "btc_sol.json"
-    # "portfolio": "spy_qqq_btc_sol.json"
+    "portfolio": "all_20250218.json"
 }
 
 class OptimizationConfig(TypedDict):
@@ -275,9 +272,35 @@ def main() -> None:
             log(f"  Annualized Return: {metrics['annualized_return']:.2%}")
             log(f"  Downside Volatility: {metrics['downside_volatility']:.2%}")
             log(f"  Sortino Ratio: {metrics['sortino_ratio']:.2f}")
-        
+
+        # Create output data
+        output_data = {
+            "initial_value": portfolio_config["initial_value"],
+            "target_value": portfolio_config["target_value"],
+            "use_target_value": portfolio_config["use_target_value"],
+            "portfolio": portfolio_config["portfolio"],
+            "portfolio_metrics": {
+                "annualized_return": annualized_return,
+                "downside_volatility": downside_volatility,
+                "sortino_ratio": sortino_ratio,
+                "var_95": portfolio_var_95_usd,
+                "cvar_95": portfolio_cvar_95_usd,
+                "var_99": portfolio_var_99_usd,
+                "cvar_99": portfolio_cvar_99_usd,
+            },
+            "asset_metrics": asset_metrics,
+        }
+
+        # Write output data to JSON file
+        output_path = Path("json/portfolio_optimization")
+        output_path.mkdir(parents=True, exist_ok=True)
+        file_name = config["portfolio"]
+        file_path = output_path / file_name
+        with open(file_path, "w") as f:
+            json.dump(output_data, f, indent=4)
+
         log_close()
-        
+
     except Exception as e:
         log(f"An error occurred: {str(e)}", "error")
         log_close()

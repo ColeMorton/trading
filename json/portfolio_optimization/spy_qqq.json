@@ -1,0 +1,43 @@
+{
+    "initial_value": 702,
+    "target_value": 70000,
+    "use_target_value": false,
+    "portfolio": [
+        {
+            "ticker": "SPY",
+            "leverage": 7.5,
+            "weight": 58
+        },
+        {
+            "ticker": "QQQ",
+            "leverage": 7.5,
+            "weight": 42
+        }
+    ],
+    "position_sizing_config": {
+        "use_ema": false,
+        "ema_period": 35,
+        "var_confidence_levels": [
+            0.95,
+            0.99
+        ]
+    },
+    "total_leveraged_value": 5265.0,
+    "initial_portfolio_value": 702.0,
+    "asset_metrics": [
+        {
+            "ticker": "SPY",
+            "initial_value": 407.15999999999997,
+            "leveraged_value": 3053.7,
+            "position_size": 5.008528684370566,
+            "allocation": 58
+        },
+        {
+            "ticker": "QQQ",
+            "initial_value": 294.84,
+            "leveraged_value": 2211.2999999999997,
+            "position_size": 4.109077208363341,
+            "allocation": 42
+        }
+    ]
+}

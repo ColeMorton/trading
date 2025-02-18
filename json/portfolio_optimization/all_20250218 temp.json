@@ -1,0 +1,109 @@
+{
+    "initial_value": 15915.5,
+    "target_value": 55100,
+    "use_target_value": false,
+    "portfolio": [
+        {
+            "ticker": "SPY",
+            "leverage": 7.5,
+            "weight": 19.05
+        },
+        {
+            "ticker": "QQQ",
+            "leverage": 7.5,
+            "weight": 16.22
+        },
+        {
+            "ticker": "BTC-USD",
+            "leverage": 4.5,
+            "weight": 19.05
+        },
+        {
+            "ticker": "SOL-USD",
+            "leverage": 3.2,
+            "weight": 17.11
+        },
+        {
+            "ticker": "ETH-USD",
+            "leverage": 3.4,
+            "weight": 9.52
+        },
+        {
+            "ticker": "BNB-USD",
+            "leverage": 3.7,
+            "weight": 9.52
+        },
+        {
+            "ticker": "TRX-USD",
+            "leverage": 2.8,
+            "weight": 9.52
+        }
+    ],
+    "portfolio_metrics": {
+        "annualized_return": 0.2074206563990433,
+        "downside_volatility": 0.11340407507136765,
+        "sortino_ratio": 0.11521872713091814,
+        "var_95": 214.56625747859155,
+        "cvar_95": 391.26143767948633,
+        "var_99": 504.5845824786591,
+        "cvar_99": 713.7594424836286
+    },
+    "asset_metrics": {
+        "SPY": {
+            "weight": 0.19047619041196015,
+            "annualized_return": 0.11768618539213728,
+            "downside_volatility": 0.1457244044385269,
+            "sortino_ratio": 0.8075942107677825,
+            "var": 1.810381281990181,
+            "cvar": 2.791614417796984
+        },
+        "QQQ": {
+            "weight": 0.16324308991132927,
+            "annualized_return": 0.10842878701882472,
+            "downside_volatility": 0.2052029674562516,
+            "sortino_ratio": 0.5283977535166068,
+            "var": 2.48939524786157,
+            "cvar": 3.790302507498413
+        },
+        "BTC-USD": {
+            "weight": 0.19047618858693813,
+            "annualized_return": 0.24479326938834367,
+            "downside_volatility": 0.43200118924613173,
+            "sortino_ratio": 0.5666495266263567,
+            "var": 3.2879179981060824,
+            "cvar": 6.209451010010517
+        },
+        "SOL-USD": {
+            "weight": 0.17009024537523468,
+            "annualized_return": 0.2850983575513503,
+            "downside_volatility": 0.6580759770708741,
+            "sortino_ratio": 0.4332301550048005,
+            "var": 3.3658178924291127,
+            "cvar": 7.1833581207053845
+        },
+        "ETH-USD": {
+            "weight": 0.09523809521399779,
+            "annualized_return": 0.15330739486806796,
+            "downside_volatility": 0.5268901960503972,
+            "sortino_ratio": 0.29096649741686226,
+            "var": 3.3783690162231372,
+            "cvar": 6.6461845309307845
+        },
+        "BNB-USD": {
+            "weight": 0.09523809525420196,
+            "annualized_return": 0.2923946796165961,
+            "downside_volatility": 0.5494726077849048,
+            "sortino_ratio": 0.5321369536423847,
+            "var": 3.2354750548469924,
+            "cvar": 6.639304254121049
+        },
+        "TRX-USD": {
+            "weight": 0.09523809524633804,
+            "annualized_return": 0.31223256492911866,
+            "downside_volatility": 0.6284858928654854,
+            "sortino_ratio": 0.49680123050263225,
+            "var": 3.242901515683183,
+            "cvar": 7.456158311382571
+        }
+    }
+}

@@ -6,14 +6,12 @@ from app.portfolio_optimization.tools.position_sizing import calculate_position_
 from app.portfolio_optimization.tools.portfolio_config import (
     load_portfolio_config
 )
+import json
+from pathlib import Path
 
 # Position sizing configuration - values not stored in portfolio JSON
 config: PositionSizingConfig = {
-    # "portfolio": "spy_qqq_btc_sol.json",
-    # "portfolio": "crypto.json",
-    # "portfolio": "spy_qqq.json",
-    "portfolio": "crypto_20250218.json",
-    # "portfolio": "btc_sol.json",
+    "portfolio": "spy_qqq.json",
     "use_ema": False,     # Whether to use EMA for price calculations
     "ema_period": 35,     # Period for EMA if used
     "var_confidence_levels": [0.95, 0.99]
@@ -63,6 +61,7 @@ def main() -> None:
         # Print results for each asset
         log("Displaying results", "info")
         total_leveraged_value = sum(metrics["leveraged_value"] for metrics in results)
+        total_initial_value = sum(metrics["initial_value"] for metrics in results)
         
         for asset, metrics in zip(portfolio_config["portfolio"], results):
             # Modified print_asset_details to skip risk metrics
@@ -78,15 +77,48 @@ def main() -> None:
         print(f"Total Leveraged Portfolio Value: ${total_leveraged_value:.2f}")
         if portfolio_config["use_target_value"]:
             print(f"Target Value: ${portfolio_config['target_value']:.2f}")
-            
+
+        # Create output data
+        output_data = {
+            "initial_value": portfolio_config["initial_value"],
+            "target_value": portfolio_config["target_value"],
+            "use_target_value": portfolio_config["use_target_value"],
+            "portfolio": portfolio_config["portfolio"],
+            "position_sizing_config": {
+                "use_ema": config["use_ema"],
+                "ema_period": config["ema_period"],
+                "var_confidence_levels": config["var_confidence_levels"],
+            },
+            "total_leveraged_value": total_leveraged_value,
+            "initial_portfolio_value": total_initial_value,
+            "asset_metrics": [
+                {
+                    "ticker": asset["ticker"],
+                    "initial_value": metrics["initial_value"],
+                    "leveraged_value": metrics["leveraged_value"],
+                    "position_size": metrics["position_size"],
+                    "allocation": metrics["allocation"],
+                }
+                for asset, metrics in zip(portfolio_config["portfolio"], results)
+            ],
+        }
+
+        # Write output data to JSON file
+        output_path = Path("json/portfolio_optimization")
+        output_path.mkdir(parents=True, exist_ok=True)
+        file_name = config["portfolio"]
+        file_path = output_path / file_name
+        with open(file_path, "w") as f:
+            json.dump(output_data, f, indent=4)
+
         log("Position sizing calculations completed successfully", "info")
-        log_close()
-        
+
     except Exception as e:
         print(f"Error: {str(e)}")
         log(f"Error in position sizing: {str(e)}", "error")
-        log_close()
         raise
+    finally:
+        log_close()
 
 if __name__ == "__main__":
     main()
