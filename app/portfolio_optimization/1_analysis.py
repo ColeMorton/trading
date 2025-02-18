@@ -15,8 +15,10 @@ from app.portfolio_optimization.tools.portfolio_config import (
 )
 
 config = {
-    "portfolio": "next.json"
+    # "portfolio": "next.json"
     # "portfolio": "crypto.json"
+    "portfolio": "crypto_all.json"
+    # "portfolio": "crypto_all_ex_sol.json"
     # "portfolio": "btc_sol.json"
     # "portfolio": "spy_qqq_btc_sol.json"
 }

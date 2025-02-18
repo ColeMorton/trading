@@ -7,7 +7,7 @@ import json
 import logging
 from scipy.stats import norm, percentileofscore
 
-TICKER = 'ETH-USD'
+TICKER = 'TRX-USD'
 
 # Set up logging    
 logging.basicConfig(

@@ -14,7 +14,10 @@ from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
 CONFIG: Config = {
-    "TICKER": 'ETH-USD',
+    "TICKER": [
+        'BNB-USD',
+        'TRX-USD'
+    ],
     "TICKER_1": 'AMAT',
     "TICKER_2": 'LRCX',
     "WINDOWS": 89,
@@ -31,10 +34,10 @@ CONFIG: Config = {
     "YEARS": 15,
     "USE_SYNTHETIC": False,
     "USE_CURRENT": False,
-    # "MIN_TRADES": 34,
-    # "MIN_WIN_RATE": 0.35,
-    "MIN_WIN_RATE": 0.5,
-    "MIN_TRADES": 50,
+    "MIN_TRADES": 34,
+    "MIN_WIN_RATE": 0.35,
+    # "MIN_WIN_RATE": 0.5,
+    # "MIN_TRADES": 50,
     "SORT_BY": "Expectancy Adjusted",
     "USE_GBM": False
 }

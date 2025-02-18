@@ -45,10 +45,10 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": "ETH-USD",
+    "TICKER": "TRX-USD",
     "BASE_DIR": ".",
     "USE_HOURLY": False,
-    "REFRESH": True,
+    "REFRESH": False,
     "USE_CURRENT": False,
     "USE_YEARS": False,
     "YEARS": 2,
