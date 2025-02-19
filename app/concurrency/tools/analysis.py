@@ -5,7 +5,7 @@ import polars as pl
 from app.concurrency.tools.types import ConcurrencyStats, StrategyConfig
 from app.concurrency.tools.data_alignment import align_multiple_data
 from app.concurrency.tools.risk_metrics import calculate_risk_contributions
-from app.concurrency.tools.efficiency import calculate_efficiency_score
+from app.concurrency.tools.efficiency import calculate_efficiency_score, calculate_allocation_scores
 from app.concurrency.tools.position_metrics import calculate_position_metrics
 from app.concurrency.tools.signal_metrics import calculate_signal_metrics
 
@@ -26,7 +26,7 @@ def validate_inputs(
     """
     if len(data_list) != len(config_list):
         raise ValueError("Number of dataframes must match number of configurations")
-    
+
     if len(data_list) < 2:
         raise ValueError("At least two strategies are required for analysis")
 
@@ -53,6 +53,7 @@ def compile_statistics(
         risk_metrics (dict): Risk contribution metrics
         efficiency_metrics (Tuple): Efficiency score and components
         signal_metrics (dict): Signal-based metrics
+        strategy_expectancies (List[float]): List of strategy expectancies
         log (Callable[[str, str], None]): Logging function
 
     Returns:
@@ -60,7 +61,7 @@ def compile_statistics(
     """
     try:
         log("Compiling analysis statistics", "info")
-        
+
         (
             correlations,
             _,
@@ -89,7 +90,7 @@ def compile_statistics(
         # Calculate per-strategy efficiency metrics
         strategy_metrics = []
         total_expectancy_sum = sum(strategy_expectancies)
-        
+
         for idx, expectancy in enumerate(strategy_expectancies, 1):
             weight = expectancy / total_expectancy_sum if total_expectancy_sum > 0 else 0.0
             strategy_metrics.append({
@@ -131,10 +132,10 @@ def compile_statistics(
             "start_date": str(aligned_data[0]["Date"].min()),
             "end_date": str(aligned_data[0]["Date"].max())
         }
-        
+
         log("Statistics compilation completed", "info")
         return stats
-        
+
     except Exception as e:
         log(f"Error compiling statistics: {str(e)}", "error")
         raise
@@ -144,38 +145,26 @@ def analyze_concurrency(
     config_list: List[StrategyConfig],
     log: Callable[[str, str], None]
 ) -> Tuple[ConcurrencyStats, List[pl.DataFrame]]:
-    """Analyze concurrent positions across multiple strategies.
-
-    Args:
-        data_list (List[pl.DataFrame]): List of dataframes with signals
-        config_list (List[StrategyConfig]): List of configurations
-        log (Callable[[str, str], None]): Logging function
-
-    Returns:
-        Tuple[ConcurrencyStats, List[pl.DataFrame]]: Statistics and aligned data
-
-    Raises:
-        ValueError: If invalid input data
-    """
+    """Analyze concurrent positions across multiple strategies."""
     try:
         validate_inputs(data_list, config_list, log)
         log("Starting concurrency analysis", "info")
-        
+
         # Get hourly flags and align data
         log("Preparing data alignment", "info")
         hourly_flags = [config.get('USE_HOURLY', False) for config in config_list]
         aligned_data = align_multiple_data(data_list, hourly_flags, log)
-        
+
         # Extract position arrays and calculate metrics
         log("Extracting position arrays", "info")
         position_arrays = [
             df["Position"].fill_null(0).to_numpy()
             for df in aligned_data
         ]
-        
+
         log("Calculating position metrics", "info")
         position_metrics = calculate_position_metrics(position_arrays, log)
-        
+
         # Calculate risk metrics
         log("Calculating risk metrics", "info")
         risk_metrics = calculate_risk_contributions(position_arrays, aligned_data, log)
@@ -184,7 +173,7 @@ def analyze_concurrency(
         log("Calculating efficiency metrics", "info")
         strategy_expectancies = [
             config.get('EXPECTANCY_PER_MONTH', 0) / (30 if config.get('USE_HOURLY', False) else 21)
-            for config in config_list
+        for config in config_list
         ]
         efficiency_metrics = calculate_efficiency_score(
             strategy_expectancies,
@@ -199,7 +188,22 @@ def analyze_concurrency(
         # Calculate signal metrics
         log("Calculating signal metrics", "info")
         signal_metrics = calculate_signal_metrics(aligned_data, log)
-        
+
+        # Extract strategy risk contributions, alphas, and efficiencies
+        strategy_risk_contributions = [risk_metrics.get(f"strategy_{i+1}_risk_contrib", 0.0) for i in range(len(config_list))]
+        strategy_alphas = [risk_metrics.get(f"strategy_{i+1}_alpha", 0.0) for i in range(len(config_list))]
+        strategy_efficiencies = [efficiency_metrics[0] for i in range(len(config_list))]
+
+        # Calculate allocation scores
+        log("Calculating allocation scores", "info")
+        allocation_scores = calculate_allocation_scores(
+            strategy_expectancies,
+            strategy_risk_contributions,
+            strategy_alphas,
+            strategy_efficiencies,
+            log
+        )
+
         # Compile final statistics
         stats = compile_statistics(
             aligned_data,
@@ -210,10 +214,14 @@ def analyze_concurrency(
             strategy_expectancies,
             log
         )
-        
+
+        # Add allocation scores to stats
+        for i, score in enumerate(allocation_scores):
+            stats[f"strategy_{i+1}_allocation"] = score
+
         log("Analysis completed successfully", "info")
         return stats, aligned_data
-        
+
     except Exception as e:
         log(f"Error during analysis: {str(e)}", "error")
         raise

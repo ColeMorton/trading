@@ -1,3 +1,4 @@
+from typing import List, Dict, Any, Callable, TypedDict, NotRequired, Union
 """Report generation utilities for concurrency analysis.
 
 This module provides functionality for generating JSON reports from concurrency analysis results.
@@ -76,6 +77,7 @@ class Strategy(TypedDict):
     risk_metrics: StrategyRiskMetrics
     efficiency: EfficiencyMetrics
     signals: SignalMetrics
+    allocation_score: StrategyParameter
 
 class ConcurrencyMetrics(TypedDict):
     """Concurrency analysis metrics."""
@@ -293,14 +295,15 @@ def create_strategy_object(
             }
         }
     }
-
+    
     return {
-        "id": f"strategy_{strategy_id}",
-        "parameters": parameters,
-        "performance": performance,
-        "risk_metrics": risk_metrics,
-        "efficiency": efficiency,
-        "signals": signals
+      "id": f"strategy_{strategy_id}",
+      "parameters": parameters,
+      "performance": performance,
+      "risk_metrics": risk_metrics,
+      "efficiency": efficiency,
+      "signals": signals,
+      "allocation_score": stats.get(f"strategy_{strategy_id}_allocation", 0.0)
     }
 
 def create_portfolio_metrics(stats: Dict[str, Any]) -> PortfolioMetrics:
