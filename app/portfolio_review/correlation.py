@@ -1,5 +1,4 @@
 import os
-import yfinance as yf
 from datetime import datetime, timedelta
 from scipy.cluster.hierarchy import linkage, dendrogram, leaves_list
 from scipy.spatial.distance import squareform
@@ -7,15 +6,13 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-PORTFOLIO = ['SPY', 'QQQ', 'BTC-USD', 'SOL-USD', 'AXON', 'HIG', 'STLD', 'VRSK', 'ASML', 'BRO', 'KLAC', 'AON', 'CI', 'PAYC', 'FAST', 'AMGN']
+PORTFOLIO = ['SPY', 'QQQ', 'BTC-USD', 'SOL-USD', 'AXON', 'HIG', 'STLD', 'VRSK', 'ASML', 'BRO', 'KLAC', 'AON', 'CI', 'PAYC', 'FAST', 'AMGN', 'MSTR', 'AMP', 'QCOM']
+# PORTFOLIO = ['SPY', 'QQQ', 'BTC-USD', 'AXON', 'HIG', 'ASML', 'KLAC', 'CI', 'PAYC', 'FAST', 'AMGN', 'MSTR', 'AMP', 'QCOM']
 
 NEXT = [
-  "MSTR",
-  "QCOM",
-  "DIS",
-  "WDC",
-  "ISRG",
-  "AMP"
+  "RF",
+  "STT",
+  "ISRG"
 ]
 
 ASSETS = list(dict.fromkeys(PORTFOLIO + NEXT))  # Remove duplicates
@@ -57,9 +54,31 @@ def generate_correlation_plot(assets, days, title_suffix=""):
     """
     end_date = datetime.today().strftime('%Y-%m-%d')
     start_date = (datetime.today() - timedelta(days=days)).strftime('%Y-%m-%d')
-    
+
     # Download data
-    data = yf.download(assets, start=start_date, end=end_date)['Adj Close']
+    from app.tools.download_data import download_data
+    import polars as pl
+    import pandas as pd
+    
+    all_data = {}
+    date_ranges = []
+    for asset in assets:
+        config = {"PERIOD": f"{days}d"}
+        df: pl.DataFrame = download_data(asset, config, print)
+        pandas_df = df.to_pandas()
+        all_data[asset] = pandas_df['Close']
+        date_ranges.append(pandas_df.index)
+    
+    # Find the intersection of all date ranges
+    common_dates = date_ranges[0]
+    for dr in date_ranges[1:]:
+        common_dates = common_dates.intersection(dr)
+    
+    # Reindex each series to the common date range
+    for asset in assets:
+        all_data[asset] = all_data[asset].reindex(common_dates)
+    
+    data = pd.DataFrame(all_data)
     
     # Calculate daily returns
     returns = data.pct_change(fill_method=None).dropna()

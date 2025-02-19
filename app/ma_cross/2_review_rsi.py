@@ -21,16 +21,16 @@ from app.ma_cross.tools.rsi_visualization import create_rsi_heatmap
 
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
-    "TICKER": 'BTC-USD',
-    "SHORT_WINDOW": 27,
-    "LONG_WINDOW": 29,
+    "TICKER": 'STT',
+    "SHORT_WINDOW": 75,
+    "LONG_WINDOW": 83,
     "BASE_DIR": ".",
     "USE_SMA": True,
     "REFRESH": True,
     "USE_HOURLY": False,
     "RELATIVE": True,
     "DIRECTION": "Long",
-    "USE_CURRENT": False
+    "USE_CURRENT": True
 }
 
 def run(config: CacheConfig) -> bool:
