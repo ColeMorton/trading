@@ -82,7 +82,7 @@ def calculate_allocation_scores(
     strategy_alphas: List[float],
     strategy_efficiencies: List[float],
     log: Callable[[str, str], None]
-) -> List[float]:
+) -> tuple[List[float], List[float]]:
     """Calculate allocation scores for each strategy.
 
     Args:
@@ -115,8 +115,18 @@ def calculate_allocation_scores(
             )
             allocation_scores.append(allocation_score)
 
+        # Calculate the sum of all allocation scores
+        total_allocation_score = sum(allocation_scores)
+
+        # Calculate the allocation percentage for each strategy
+        allocation_percentages = [
+            (score / total_allocation_score) * 100 if total_allocation_score > 0 else 0
+            for score in allocation_scores
+        ]
+
         log(f"Allocation scores: {allocation_scores}", "info")
-        return allocation_scores
+        log(f"Allocation percentages: {allocation_percentages}", "info")
+        return allocation_scores, allocation_percentages
 
     except Exception as e:
         log(f"Error calculating allocation scores: {str(e)}", "error")

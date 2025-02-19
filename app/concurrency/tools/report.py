@@ -303,7 +303,8 @@ def create_strategy_object(
       "risk_metrics": risk_metrics,
       "efficiency": efficiency,
       "signals": signals,
-      "allocation_score": stats.get(f"strategy_{strategy_id}_allocation", 0.0)
+      "allocation_score": stats.get(f"strategy_{strategy_id}_allocation", 0.0),
+      "allocation": stats.get(f"strategy_{strategy_id}_allocation_percentage", 0.0)
     }
 
 def create_portfolio_metrics(stats: Dict[str, Any]) -> PortfolioMetrics:

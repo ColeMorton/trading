@@ -215,10 +215,17 @@ def analyze_concurrency(
             log
         )
 
-        # Add allocation scores to stats
-        for i, score in enumerate(allocation_scores):
-            stats[f"strategy_{i+1}_allocation"] = score
-
+        # Add allocation scores and percentages to stats
+        allocation_scores, allocation_percentages = calculate_allocation_scores(
+            strategy_expectancies,
+            strategy_risk_contributions,
+            strategy_alphas,
+            strategy_efficiencies,
+            log
+        )
+        for i, (score, percentage) in enumerate(zip(allocation_scores, allocation_percentages), 1):
+            stats[f"strategy_{i}_allocation"] = score
+            stats[f"strategy_{i}_allocation_percentage"] = percentage
         log("Analysis completed successfully", "info")
         return stats, aligned_data
 

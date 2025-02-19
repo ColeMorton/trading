@@ -122,7 +122,8 @@
                     }
                 }
             },
-            "allocation": 0.25
+            "allocation_score": 0.25,
+            "allocation": 38.46153846153846
         },
         {
             "id": "strategy_2",
@@ -246,7 +247,8 @@
                     }
                 }
             },
-            "allocation": 0.4
+            "allocation_score": 0.4,
+            "allocation": 61.53846153846154
         }
     ],
     "portfolio_metrics": {
