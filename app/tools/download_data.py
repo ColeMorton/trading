@@ -60,6 +60,9 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
             period = config.get("PERIOD", "max")
             log(f"Using maximum available period for data download")
             data = yf.download(ticker, period=period, interval=interval)
+    
+            # Flatten MultiIndex columns
+            data.columns = [f"{col[0]}_{col[1]}" if isinstance(col, tuple) else col for col in data.columns]
 
         log(f"Successfully downloaded {len(data)} records")
 
@@ -74,12 +77,11 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
         # Convert to Polars DataFrame with explicit schema
         df = pl.DataFrame({
             'Date': pl.Series(data['Datetime'] if use_hourly else data['Date']),
-            'Open': pl.Series(data['Open'], dtype=pl.Float64),
-            'High': pl.Series(data['High'], dtype=pl.Float64),
-            'Low': pl.Series(data['Low'], dtype=pl.Float64),
-            'Close': pl.Series(data['Close'], dtype=pl.Float64),
-            'Adj Close': pl.Series(data['Adj Close'], dtype=pl.Float64),
-            'Volume': pl.Series(data['Volume'], dtype=pl.Float64)
+            'Open': pl.Series(data[f'Open_{ticker}'], dtype=pl.Float64),
+            'High': pl.Series(data[f'High_{ticker}'], dtype=pl.Float64),
+            'Low': pl.Series(data[f'Low_{ticker}'], dtype=pl.Float64),
+            'Close': pl.Series(data[f'Close_{ticker}'], dtype=pl.Float64),
+            'Volume': pl.Series(data[f'Volume_{ticker}'], dtype=pl.Float64)
         })
 
         # Log data statistics

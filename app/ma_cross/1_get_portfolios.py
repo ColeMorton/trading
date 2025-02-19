@@ -16,7 +16,6 @@ from app.tools.portfolio.collection import export_best_portfolios, combine_strat
 CONFIG: Config = {
     # "TICKER": "STT",
     "TICKER": [
-  "INVH",
   "ISRG",
   "XOM",
   "LYB",
@@ -25,8 +24,7 @@ CONFIG: Config = {
   "MTB",
   "SWK",
   "ITW",
-  "CSX",
-  "STT"
+  "CSX"
 ]
 ,
     "TICKER_1": 'AMAT',
@@ -37,7 +35,7 @@ CONFIG: Config = {
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
     "BASE_DIR": ".",
-    "REFRESH": False,
+    # "REFRESH": True,
     # "USE_SMA": False,
     "DIRECTION": "Long",
     "USE_HOURLY": False,
@@ -45,10 +43,10 @@ CONFIG: Config = {
     "YEARS": 15,
     "USE_SYNTHETIC": False,
     "USE_CURRENT": False,
-    # "MIN_TRADES": 34,
-    # "MIN_WIN_RATE": 0.35,
-    "MIN_WIN_RATE": 0.5,
-    "MIN_TRADES": 50,
+    "MIN_TRADES": 34,
+    "MIN_WIN_RATE": 0.35,
+    # "MIN_WIN_RATE": 0.5,
+    # "MIN_TRADES": 50,
     "SORT_BY": "Expectancy Adjusted",
     "USE_GBM": False
 }
