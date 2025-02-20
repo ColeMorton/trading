@@ -23,7 +23,6 @@ PORTFOLIOS_DIR = CONCURRENCY_DIR / "portfolios"
 
 # Default configuration
 DEFAULT_CONFIG: ConcurrencyConfig = {
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "spy_qqq_btc_sol_d_next.json"),
     "PORTFOLIO": str(PORTFOLIOS_DIR / "spy_qqq_btc_sol_d_next.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "BTC_D_test.csv"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "stock_20250220.json"),

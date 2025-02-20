@@ -339,6 +339,8 @@ def calculate_ticker_metrics(strategies: List[Strategy]) -> Dict[str, Any]:
                     }
                 },
                 "risk_metrics": {k: v["value"] for k, v in strategy["risk_metrics"].items()},
+                "efficiency": strategy["efficiency"],
+                "signals": strategy["signals"],
                 "allocation_score": strategy["allocation_score"],
                 "allocation": strategy["allocation"]
             }
@@ -347,9 +349,27 @@ def calculate_ticker_metrics(strategies: List[Strategy]) -> Dict[str, Any]:
             ticker_metrics[ticker]["performance"]["expectancy_per_month"]["value"] += strategy["performance"]["expectancy_per_month"]["value"]
             
             # Average risk metrics
+            num_strategies = len(strategies) # Dynamic
             for k in ticker_metrics[ticker]["risk_metrics"]:
-                ticker_metrics[ticker]["risk_metrics"][k] = (ticker_metrics[ticker]["risk_metrics"][k] + strategy["risk_metrics"][k]["value"]) / 2
-            
+                ticker_metrics[ticker]["risk_metrics"][k] = (ticker_metrics[ticker]["risk_metrics"][k] + strategy["risk_metrics"][k]["value"]) / num_strategies
+
+            # Average efficiency metrics
+            for k in ticker_metrics[ticker]["efficiency"]:
+                if isinstance(ticker_metrics[ticker]["efficiency"][k], dict):
+                    if "value" in ticker_metrics[ticker]["efficiency"][k]:
+                        ticker_metrics[ticker]["efficiency"][k]["value"] = (ticker_metrics[ticker]["efficiency"][k]["value"] + strategy["efficiency"][k]["value"]) / num_strategies
+                    else:
+                        for k2 in ticker_metrics[ticker]["efficiency"][k]:
+                            ticker_metrics[ticker]["efficiency"][k][k2]["value"] = (ticker_metrics[ticker]["efficiency"][k][k2]["value"] + strategy["efficiency"][k][k2]["value"]) / num_strategies
+
+            # Average signal metrics
+            for k in ticker_metrics[ticker]["signals"]:
+                if isinstance(ticker_metrics[ticker]["signals"][k], dict) and "value" in ticker_metrics[ticker]["signals"][k]:
+                    ticker_metrics[ticker]["signals"][k]["value"] = (ticker_metrics[ticker]["signals"][k]["value"] + strategy["signals"][k]["value"]) / num_strategies
+                elif isinstance(ticker_metrics[ticker]["signals"][k], dict):
+                    for k2 in ticker_metrics[ticker]["signals"][k]:
+                        ticker_metrics[ticker]["signals"][k][k2]["value"] = (ticker_metrics[ticker]["signals"][k][k2]["value"] + strategy["signals"][k][k2]["value"]) / num_strategies
+
             ticker_metrics[ticker]["allocation_score"] += strategy["allocation_score"]
             ticker_metrics[ticker]["allocation"] += strategy["allocation"]
 

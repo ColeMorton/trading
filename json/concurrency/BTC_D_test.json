@@ -62,11 +62,11 @@
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 29.28199590909002,
+                    "value": 35.403168230301745,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 167.55317620660014,
+                    "value": 202.5788577793705,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
@@ -87,29 +87,29 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 1.4444444444444444,
+                        "value": 1.8095238095238093,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 1.0,
+                        "value": 1.5,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
-                        "value": 0.40892022664761307,
+                        "value": 0.24697235244990046,
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 2.4799686622412755,
+                        "value": 3.3720752665977183,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 1.0355242177968313,
+                        "value": 1.562551457073909,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 5.0,
+                        "value": 7.0,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
@@ -117,7 +117,7 @@
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 182.0,
+                        "value": 228.0,
                         "description": "Total number of signals across period"
                     }
                 }
@@ -267,6 +267,68 @@
                 "cvar_99": -0.11681547589354108,
                 "risk_contribution": 0.4999999999999999,
                 "alpha": -2.168404344971009e-19
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 35.403168230301745,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "total_expectancy": {
+                    "value": 202.5788577793705,
+                    "description": "Total expected return for this strategy"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.597013450839432,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.40887422075540886,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.715935941191914,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 1.8095238095238093,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 1.5,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.24697235244990046,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 3.3720752665977183,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 1.562551457073909,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 7.0,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 0.0,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 228.0,
+                        "description": "Total number of signals across period"
+                    }
+                }
             },
             "allocation_score": 0.65,
             "allocation": 100.0
