@@ -30,7 +30,7 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 5694.2015322476545,
+                    "value": 5691.210880182398,
                     "description": "Expected monthly return"
                 }
             },
@@ -52,34 +52,34 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.047858078170196536,
+                    "value": 0.04786504153765598,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0024898522755008065,
+                    "value": -0.0024867863096926907,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 5.395527523689087,
+                    "value": 0.26858927251243536,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 271.152453916555,
+                    "value": 13.51846815279816,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.6792276970316906,
+                        "value": 0.042442726258852884,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.029511918274687854,
+                        "value": 0.001842734515612338,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.9926760563380281,
+                        "value": 0.06205391131653227,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -87,29 +87,29 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 0.0,
+                        "value": 0.10211660966621812,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 0.0,
+                        "value": 0.06597143233438298,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
-                        "value": 0.0,
+                        "value": 0.029091668224603597,
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 0.0,
+                        "value": 0.17514209133535735,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 0.0,
+                        "value": 0.07302548166913923,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 0.0,
+                        "value": 0.26713042228900513,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
@@ -117,11 +117,13 @@
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 0.0,
+                        "value": 6.024879970306869,
                         "description": "Total number of signals across period"
                     }
                 }
-            }
+            },
+            "allocation_score": 0.19974797842300734,
+            "allocation": 4.314338090615765
         },
         {
             "id": "strategy_2",
@@ -153,7 +155,7 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 3982.8811417790753,
+                    "value": 3980.7892924399052,
                     "description": "Expected monthly return"
                 }
             },
@@ -175,34 +177,34 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.04609593574456381,
+                    "value": 0.04610652252236179,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.002533719797328379,
+                    "value": -0.002530653831520263,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 3.7739698362183955,
+                    "value": 3.766266752362047,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 189.66100675138455,
+                    "value": 189.56139487809074,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.6792276970316906,
+                        "value": 0.6789616816444459,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.029511918274687854,
+                        "value": 0.02947845804988662,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.9926760563380281,
+                        "value": 0.9926842993809791,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -210,29 +212,29 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 0.0,
+                        "value": 1.0169491525423728,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 0.0,
+                        "value": 1.0,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
-                        "value": 0.0,
+                        "value": 0.14377987305821982,
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 0.0,
+                        "value": 1.8901184320265259,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 0.0,
+                        "value": 0.873169279484153,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 0.0,
+                        "value": 3.0,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
@@ -240,11 +242,13 @@
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 0.0,
+                        "value": 60.0,
                         "description": "Total number of signals across period"
                     }
                 }
-            }
+            },
+            "allocation_score": 0.1889212650687783,
+            "allocation": 4.0804929113598805
         },
         {
             "id": "strategy_3",
@@ -276,7 +280,7 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 3784.7198459608794,
+                    "value": 3782.7320729325384,
                     "description": "Expected monthly return"
                 }
             },
@@ -298,34 +302,34 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.046395602623381285,
+                    "value": 0.04640445551609309,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0023729317154948153,
+                    "value": -0.0023698657496866995,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 3.5862025575820637,
+                    "value": 3.578882727210927,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 180.22475456956568,
+                    "value": 180.13009871107326,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.6792276970316906,
+                        "value": 0.6789616816444459,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.029511918274687854,
+                        "value": 0.02947845804988662,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.9926760563380281,
+                        "value": 0.9926842993809791,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -333,29 +337,29 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 0.0,
+                        "value": 0.8135593220338984,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 0.0,
+                        "value": 1.0,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
-                        "value": 0.0,
+                        "value": 0.1130854806857009,
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 0.0,
+                        "value": 1.5140331633820958,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 0.0,
+                        "value": 0.7004738413481975,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 0.0,
+                        "value": 3.0,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
@@ -363,11 +367,13 @@
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 0.0,
+                        "value": 48.0,
                         "description": "Total number of signals across period"
                     }
                 }
-            }
+            },
+            "allocation_score": 0.18859718336834724,
+            "allocation": 4.073493100720094
         },
         {
             "id": "strategy_4",
@@ -399,7 +405,7 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 4992.31734180557,
+                    "value": 4989.695326394958,
                     "description": "Expected monthly return"
                 }
             },
@@ -421,34 +427,34 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.03668585689062328,
+                    "value": 0.036724285735040836,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0024771146270879643,
+                    "value": -0.0024740486612798485,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 4.7304587784882735,
+                    "value": 4.72080339642878,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 237.7293972288367,
+                    "value": 237.60453935214088,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.6792276970316906,
+                        "value": 0.6789616816444459,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.029511918274687854,
+                        "value": 0.02947845804988662,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.9926760563380281,
+                        "value": 0.9926842993809791,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -456,29 +462,29 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 0.0,
+                        "value": 2.3728813559322033,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 0.0,
+                        "value": 2.0,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
-                        "value": 0.0,
+                        "value": 0.1262393790332883,
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 0.0,
+                        "value": 4.619523332831118,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 0.0,
+                        "value": 2.246641976898915,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 0.0,
+                        "value": 9.0,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
@@ -486,11 +492,13 @@
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 0.0,
+                        "value": 140.0,
                         "description": "Total number of signals across period"
                     }
                 }
-            }
+            },
+            "allocation_score": 0.21767579116017652,
+            "allocation": 4.701559257928898
         },
         {
             "id": "strategy_5",
@@ -534,7 +542,7 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 4519.897843747698,
+                    "value": 4517.52394782136,
                     "description": "Expected monthly return"
                 }
             },
@@ -556,34 +564,34 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.01249369695742454,
+                    "value": 0.012570610185526685,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0029707270909046994,
+                    "value": -0.0029676611250965836,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 4.282818773113807,
+                    "value": 4.274077073104912,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 215.2332306546523,
+                    "value": 215.1201879914933,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.6792276970316906,
+                        "value": 0.6789616816444459,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.029511918274687854,
+                        "value": 0.02947845804988662,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.9926760563380281,
+                        "value": 0.9926842993809791,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -591,29 +599,29 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 0.0,
+                        "value": 1.5932203389830508,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 0.0,
+                        "value": 1.0,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
-                        "value": 0.0,
+                        "value": 0.4867119495627481,
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 0.0,
+                        "value": 2.6997287284033535,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 0.0,
+                        "value": 1.1065083894203027,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 0.0,
+                        "value": 4.0,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
@@ -621,11 +629,13 @@
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 0.0,
+                        "value": 94.0,
                         "description": "Total number of signals across period"
                     }
                 }
-            }
+            },
+            "allocation_score": 0.2588876507773358,
+            "allocation": 5.591690397854069
         },
         {
             "id": "strategy_6",
@@ -657,7 +667,7 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 37639.82346971804,
+                    "value": 37597.43628112601,
                     "description": "Expected monthly return"
                 }
             },
@@ -679,34 +689,34 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.10114947328599869,
+                    "value": 0.10116499641321976,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": 0.005201570805690189,
+                    "value": 0.005204636771498305,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 35.665527882624545,
+                    "value": 1.5337896959248112,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 1792.3725461770493,
+                    "value": 77.19774867959237,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.6792276970316906,
+                        "value": 0.042442726258852884,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.029511918274687854,
+                        "value": 0.001842734515612338,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.9926760563380281,
+                        "value": 0.06205391131653227,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -714,29 +724,29 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 0.0,
+                        "value": 0.07703979451833792,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 0.0,
+                        "value": 0.06251122472192623,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
-                        "value": 0.0,
+                        "value": 0.01590830079802943,
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 0.0,
+                        "value": 0.13837536577232307,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 0.0,
+                        "value": 0.06133557125398516,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 0.0,
+                        "value": 0.2461776080267238,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
@@ -744,11 +754,13 @@
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 0.0,
+                        "value": 4.545347876581937,
                         "description": "Total number of signals across period"
                     }
                 }
-            }
+            },
+            "allocation_score": 0.44083492428923954,
+            "allocation": 9.521552711322547
         },
         {
             "id": "strategy_7",
@@ -780,7 +792,7 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 36043.09980688737,
+                    "value": 36002.51073052826,
                     "description": "Expected monthly return"
                 }
             },
@@ -802,34 +814,34 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.10183173348063992,
+                    "value": 0.10184460917273445,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": 0.005077357124015707,
+                    "value": 0.005080423089823823,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 34.15255606001891,
+                    "value": 34.062355278000034,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 1716.3380860422556,
+                    "value": 1714.405272882298,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.6792276970316906,
+                        "value": 0.6789616816444459,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.029511918274687854,
+                        "value": 0.02947845804988662,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.9926760563380281,
+                        "value": 0.9926842993809791,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -837,29 +849,29 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 0.0,
+                        "value": 1.1864406779661016,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 0.0,
+                        "value": 1.0,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
-                        "value": 0.0,
+                        "value": 0.15351532303779036,
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 0.0,
+                        "value": 2.219366032894413,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 0.0,
+                        "value": 1.0329253549283113,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 0.0,
+                        "value": 3.0,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
@@ -867,11 +879,13 @@
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 0.0,
+                        "value": 70.0,
                         "description": "Total number of signals across period"
                     }
                 }
-            }
+            },
+            "allocation_score": 0.4248433159579281,
+            "allocation": 9.176151443691802
         },
         {
             "id": "strategy_8",
@@ -903,7 +917,7 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 35261.34427539437,
+                    "value": 35221.63555436352,
                     "description": "Expected monthly return"
                 }
             },
@@ -925,34 +939,34 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.12148820424806127,
+                    "value": 0.12146285601562437,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": 0.005370243362398922,
+                    "value": 0.005373309328207038,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 33.411805409891905,
+                    "value": 33.3235610345269,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 1679.1116321616366,
+                    "value": 1677.2207406839773,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.6792276970316906,
+                        "value": 0.6789616816444459,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.029511918274687854,
+                        "value": 0.02947845804988662,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.9926760563380281,
+                        "value": 0.9926842993809791,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -960,29 +974,29 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 0.0,
+                        "value": 0.8813559322033898,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 0.0,
+                        "value": 1.0,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
-                        "value": 0.0,
+                        "value": 0.1903790809952708,
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 0.0,
+                        "value": 1.5723327834115088,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 0.0,
+                        "value": 0.690976851208119,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 0.0,
+                        "value": 2.0,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
@@ -990,11 +1004,13 @@
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 0.0,
+                        "value": 52.0,
                         "description": "Total number of signals across period"
                     }
                 }
-            }
+            },
+            "allocation_score": 0.38053470498016995,
+            "allocation": 8.219133857867767
         },
         {
             "id": "strategy_9",
@@ -1026,7 +1042,7 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 12141.116276885445,
+                    "value": 12127.44384864571,
                     "description": "Expected monthly return"
                 }
             },
@@ -1048,34 +1064,34 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.11971752751922343,
+                    "value": 0.11968927789702642,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": 0.003981276240357925,
+                    "value": 0.003984342206166041,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 11.504286715048408,
+                    "value": 11.473902586362899,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 578.1483941374021,
+                    "value": 577.4973261259862,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.6792276970316906,
+                        "value": 0.6789616816444459,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.029511918274687854,
+                        "value": 0.02947845804988662,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.9926760563380281,
+                        "value": 0.9926842993809791,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -1083,11 +1099,11 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 0.0,
+                        "value": 0.8813559322033898,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 0.0,
+                        "value": 1.0,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
@@ -1095,17 +1111,17 @@
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 0.0,
+                        "value": 1.8216902716393353,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 0.0,
+                        "value": 0.9403343394359455,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 0.0,
+                        "value": 3.0,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
@@ -1113,11 +1129,13 @@
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 0.0,
+                        "value": 52.0,
                         "description": "Total number of signals across period"
                     }
                 }
-            }
+            },
+            "allocation_score": 0.178412905715297,
+            "allocation": 3.8535238306886694
         },
         {
             "id": "strategy_10",
@@ -1153,7 +1171,7 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 26739.474425214506,
+                    "value": 26709.36240446539,
                     "description": "Expected monthly return"
                 }
             },
@@ -1175,34 +1193,34 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.07306278258522592,
+                    "value": 0.07313976045399855,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": 0.0039003465505128287,
+                    "value": 0.0039034125163209445,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 25.33692729580589,
+                    "value": 25.270009591256308,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 1273.3083059625956,
+                    "value": 1271.8744002126377,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.6792276970316906,
+                        "value": 0.6789616816444459,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.029511918274687854,
+                        "value": 0.02947845804988662,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.9926760563380281,
+                        "value": 0.9926842993809791,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -1210,29 +1228,29 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 0.0,
+                        "value": 1.2542372881355932,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 0.0,
+                        "value": 1.0,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
-                        "value": 0.0,
+                        "value": 0.26972639108761987,
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 0.0,
+                        "value": 2.2387481851835664,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 0.0,
+                        "value": 0.9845108970479733,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 0.0,
+                        "value": 4.0,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
@@ -1240,11 +1258,13 @@
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 0.0,
+                        "value": 74.0,
                         "description": "Total number of signals across period"
                     }
                 }
-            }
+            },
+            "allocation_score": 0.39519970855521225,
+            "allocation": 8.535881912202688
         },
         {
             "id": "strategy_11",
@@ -1276,7 +1296,7 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 1022.9925503293194,
+                    "value": 1022.2230937288462,
                     "description": "Expected monthly return"
                 }
             },
@@ -1298,34 +1318,34 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.056618713320121944,
+                    "value": 0.056641319706843635,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0019278548721667387,
+                    "value": -0.001924788906358623,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 0.969334230720845,
+                    "value": 0.11151370986488733,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 48.71393096806283,
+                    "value": 5.612638663143398,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.6792276970316906,
+                        "value": 0.07987784489934657,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.029511918274687854,
+                        "value": 0.0034680538882219556,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.9926760563380281,
+                        "value": 0.11678638816246813,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -1333,29 +1353,29 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 0.0,
+                        "value": 0.15553339980059822,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 0.0,
+                        "value": 0.11764705882352941,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
-                        "value": 0.0,
+                        "value": 0.030930590460356008,
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 0.0,
+                        "value": 0.2801362091408404,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 0.0,
+                        "value": 0.1246028093402422,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 0.0,
+                        "value": 0.5294117647058824,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
@@ -1363,11 +1383,13 @@
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 0.0,
+                        "value": 9.176470588235293,
                         "description": "Total number of signals across period"
                     }
                 }
-            }
+            },
+            "allocation_score": 0.14970171072274482,
+            "allocation": 3.233393388511454
         },
         {
             "id": "strategy_12",
@@ -1399,7 +1421,7 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 982.227703826304,
+                    "value": 981.488909013347,
                     "description": "Expected monthly return"
                 }
             },
@@ -1421,34 +1443,34 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.06303949997710613,
+                    "value": 0.06304507472245806,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.002098203365800666,
+                    "value": -0.0020951373999925503,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 0.9307075944733636,
+                    "value": 0.928597012871128,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 46.77274780125257,
+                    "value": 46.737567095873665,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.6792276970316906,
+                        "value": 0.6789616816444459,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.029511918274687854,
+                        "value": 0.02947845804988662,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.9926760563380281,
+                        "value": 0.9926842993809791,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -1456,29 +1478,29 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 0.0,
+                        "value": 1.0847457627118644,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 0.0,
+                        "value": 1.0,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
-                        "value": 0.0,
+                        "value": 0.10550123215903129,
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 0.0,
+                        "value": 2.0639902932646974,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 0.0,
+                        "value": 0.9792445305528331,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 0.0,
+                        "value": 4.0,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
@@ -1486,11 +1508,13 @@
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 0.0,
+                        "value": 64.0,
                         "description": "Total number of signals across period"
                     }
                 }
-            }
+            },
+            "allocation_score": 0.13380469478892001,
+            "allocation": 2.8900352133153917
         },
         {
             "id": "strategy_13",
@@ -1522,13 +1546,13 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 23056.478708027065,
+                    "value": 23039.136490119556,
                     "description": "Expected monthly return"
                 }
             },
             "risk_metrics": {
                 "var_95": {
-                    "value": -0.059494107574857596,
+                    "value": -0.05948304018988193,
                     "description": "Value at Risk (95% confidence)"
                 },
                 "cvar_95": {
@@ -1536,7 +1560,7 @@
                     "description": "Conditional Value at Risk (95% confidence)"
                 },
                 "var_99": {
-                    "value": -0.09737533503360857,
+                    "value": -0.0973099956168058,
                     "description": "Value at Risk (99% confidence)"
                 },
                 "cvar_99": {
@@ -1544,34 +1568,34 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.061361795060892545,
+                    "value": 0.061020864647068226,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0006666995763814172,
+                    "value": -0.0007014736811327823,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 21.84711320173571,
+                    "value": 0.516570067668382,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 1097.9275575250983,
+                    "value": 25.999683245504517,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.6792276970316906,
+                        "value": 0.04463761920845838,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.029511918274687854,
+                        "value": 0.0019380301140063867,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.9926760563380281,
+                        "value": 0.06526298162020278,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -1579,41 +1603,43 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 0.0,
+                        "value": 0.33599202392821537,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 0.0,
+                        "value": 0.31141868512110726,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
-                        "value": 0.0,
+                        "value": 0.20700500746662942,
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 0.0,
+                        "value": 0.4649790403898013,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 0.0,
+                        "value": 0.12898701646158592,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 0.0,
+                        "value": 0.6366782006920415,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
-                        "value": 0.0,
+                        "value": 0.17647058823529413,
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 0.0,
+                        "value": 19.823529411764707,
                         "description": "Total number of signals across period"
                     }
                 }
-            }
+            },
+            "allocation_score": 0.33550893375246416,
+            "allocation": 7.246626394209413
         },
         {
             "id": "strategy_14",
@@ -1645,7 +1671,7 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 19580.95235337654,
+                    "value": 19566.224295946395,
                     "description": "Expected monthly return"
                 }
             },
@@ -1667,34 +1693,34 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.05547070270646995,
+                    "value": 0.05552319701083689,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0008509972117332282,
+                    "value": -0.0008479312459251124,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 18.553886223444746,
+                    "value": 18.511811256886283,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 932.4263025417399,
+                    "value": 931.7249664736379,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.6792276970316906,
+                        "value": 0.6789616816444459,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.029511918274687854,
+                        "value": 0.02947845804988662,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.9926760563380281,
+                        "value": 0.9926842993809791,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -1702,29 +1728,29 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 0.0,
+                        "value": 3.864406779661017,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 0.0,
+                        "value": 4.0,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
-                        "value": 0.0,
+                        "value": 1.5104873858634278,
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 0.0,
+                        "value": 6.218326173458606,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 0.0,
+                        "value": 2.353919393797589,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 0.0,
+                        "value": 10.0,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
@@ -1732,11 +1758,13 @@
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 0.0,
+                        "value": 228.0,
                         "description": "Total number of signals across period"
                     }
                 }
-            }
+            },
+            "allocation_score": 0.31690679750391043,
+            "allocation": 6.844840575811786
         },
         {
             "id": "strategy_15",
@@ -1772,7 +1800,7 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 6808.8540262291335,
+                    "value": 6775.689225347115,
                     "description": "Expected monthly return"
                 }
             },
@@ -1794,34 +1822,34 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.002904500091594137,
+                    "value": 0.0030586718038775264,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0003304766599253658,
+                    "value": -0.00033192485560889183,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 6.451713922531176,
+                    "value": 6.4105510689116265,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 324.2311441061492,
+                    "value": 322.65186787367213,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.6792276970316906,
+                        "value": 0.6789616816444459,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.029511918274687854,
+                        "value": 0.02947845804988662,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.9926760563380281,
+                        "value": 0.9926842993809791,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -1829,41 +1857,43 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 0.0,
+                        "value": 5.389830508474576,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 0.0,
+                        "value": 5.0,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
-                        "value": 0.0,
+                        "value": 3.389686876746142,
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 0.0,
+                        "value": 7.389974140203011,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 0.0,
+                        "value": 2.000143631728434,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 0.0,
+                        "value": 10.0,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
-                        "value": 0.0,
+                        "value": 3.0,
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 0.0,
+                        "value": 318.0,
                         "description": "Total number of signals across period"
                     }
                 }
-            }
+            },
+            "allocation_score": 0.32907263574774476,
+            "allocation": 7.10760938956414
         },
         {
             "id": "strategy_16",
@@ -1895,7 +1925,7 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 7315.181282592907,
+                    "value": 7455.872659348005,
                     "description": "Expected monthly return"
                 }
             },
@@ -1917,34 +1947,34 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.04778092052672279,
+                    "value": 0.0478872693384858,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0025668366393007385,
+                    "value": -0.0025637706734926227,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 6.93148314605326,
+                    "value": 0.6413867061574919,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 348.34196583775747,
+                    "value": 32.28187663532514,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.6792276970316906,
+                        "value": 0.07987784489934657,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.029511918274687854,
+                        "value": 0.0034680538882219556,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.9926760563380281,
+                        "value": 0.11678638816246813,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -1952,41 +1982,43 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 0.0,
+                        "value": 0.3120638085742771,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 0.0,
+                        "value": 0.29411764705882354,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
-                        "value": 0.0,
+                        "value": 0.15287675295603137,
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 0.0,
+                        "value": 0.4712508641925228,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 0.0,
+                        "value": 0.15918705561824578,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 0.0,
+                        "value": 0.7058823529411765,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
-                        "value": 0.0,
+                        "value": 0.058823529411764705,
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 0.0,
+                        "value": 18.41176470588235,
                         "description": "Total number of signals across period"
                     }
                 }
-            }
+            },
+            "allocation_score": 0.2132362209752534,
+            "allocation": 4.605669392579604
         },
         {
             "id": "strategy_17",
@@ -2022,13 +2054,13 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 4071.8199696169772,
+                    "value": 4068.7572994630714,
                     "description": "Expected monthly return"
                 }
             },
             "risk_metrics": {
                 "var_95": {
-                    "value": -0.05553473229355184,
+                    "value": -0.05536593043222193,
                     "description": "Value at Risk (95% confidence)"
                 },
                 "cvar_95": {
@@ -2036,7 +2068,7 @@
                     "description": "Conditional Value at Risk (95% confidence)"
                 },
                 "var_99": {
-                    "value": -0.11137760858588532,
+                    "value": -0.11133085098348017,
                     "description": "Value at Risk (99% confidence)"
                 },
                 "cvar_99": {
@@ -2044,34 +2076,34 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.006044976811753816,
+                    "value": 0.005851187321147915,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.002245380251350755,
+                    "value": -0.002252081472229483,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 3.8582436173282506,
+                    "value": 3.849494211989742,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 193.89618902937985,
+                    "value": 193.7503475934796,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.6792276970316906,
+                        "value": 0.6789616816444459,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.029511918274687854,
+                        "value": 0.02947845804988662,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.9926760563380281,
+                        "value": 0.9926842993809791,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -2079,29 +2111,112 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 0.0,
+                        "value": 4.11864406779661,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 0.0,
+                        "value": 4.0,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
-                        "value": 0.0,
+                        "value": 2.3233135353402896,
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 0.0,
+                        "value": 5.91397460025293,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 0.0,
+                        "value": 1.7953305324563202,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 0.0,
+                        "value": 8.0,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 1.0,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 243.0,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 0.27797740037160457,
+            "allocation": 6.004008131756022
+        }
+    ],
+    "ticker_metrics": {
+        "BTC-USD": {
+            "id": "BTC-USD",
+            "performance": {
+                "expectancy_per_month": {
+                    "value": 22961.95151977116,
+                    "description": "Expected monthly return"
+                }
+            },
+            "risk_metrics": {
+                "var_95": -0.0028516010232049146,
+                "cvar_95": -0.004279848748330699,
+                "var_99": -0.005253011729239164,
+                "cvar_99": -0.006620017133823817,
+                "risk_contribution": 0.0008770916742705788,
+                "alpha": -0.00018367146380665074
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.26858927251243536,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "total_expectancy": {
+                    "value": 13.51846815279816,
+                    "description": "Total expected return for this strategy"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.042442726258852884,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.001842734515612338,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.06205391131653227,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 0.10211660966621812,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 0.06597143233438298,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.029091668224603597,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 0.17514209133535735,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 0.07302548166913923,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 0.26713042228900513,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
@@ -2109,33 +2224,359 @@
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 0.0,
+                        "value": 6.024879970306869,
                         "description": "Total number of signals across period"
                     }
                 }
-            }
+            },
+            "allocation_score": 1.0538298687976453,
+            "allocation": 22.761573758478708
+        },
+        "SOL-USD": {
+            "id": "SOL-USD",
+            "performance": {
+                "expectancy_per_month": {
+                    "value": 147658.3888191289,
+                    "description": "Expected monthly return"
+                }
+            },
+            "risk_metrics": {
+                "var_95": -0.0053359048951348124,
+                "cvar_95": -0.007317049170776012,
+                "var_99": -0.008103055352554026,
+                "cvar_99": -0.011106972138343614,
+                "risk_contribution": 0.0047436419892073495,
+                "alpha": 0.0002446159877001907
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 1.5337896959248112,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "total_expectancy": {
+                    "value": 77.19774867959237,
+                    "description": "Total expected return for this strategy"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.042442726258852884,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.001842734515612338,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.06205391131653227,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 0.07703979451833792,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 0.06251122472192623,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.01590830079802943,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 0.13837536577232307,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 0.06133557125398516,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 0.2461776080267238,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 0.0,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 4.545347876581937,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 1.819825559497847,
+            "allocation": 39.30624375577347
+        },
+        "ETH-USD": {
+            "id": "ETH-USD",
+            "performance": {
+                "expectancy_per_month": {
+                    "value": 2003.7120027421931,
+                    "description": "Expected monthly return"
+                }
+            },
+            "risk_metrics": {
+                "var_95": -0.006716267412067553,
+                "cvar_95": -0.010889028085705152,
+                "var_99": -0.013075209023302555,
+                "cvar_99": -0.018153199245379392,
+                "risk_contribution": 0.0070403761429001,
+                "alpha": -0.00023646625331477493
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.11151370986488733,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "total_expectancy": {
+                    "value": 5.612638663143398,
+                    "description": "Total expected return for this strategy"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.07987784489934657,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.0034680538882219556,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.11678638816246813,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 0.15553339980059822,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 0.11764705882352941,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.030930590460356008,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 0.2801362091408404,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 0.1246028093402422,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 0.5294117647058824,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 0.0,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 9.176470588235293,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 0.28350640551166484,
+            "allocation": 6.123428601826846
+        },
+        "BNB-USD": {
+            "id": "BNB-USD",
+            "performance": {
+                "expectancy_per_month": {
+                    "value": 49381.05001141307,
+                    "description": "Expected monthly return"
+                }
+            },
+            "risk_metrics": {
+                "var_95": -0.0035924248090887585,
+                "cvar_95": -0.005362592715263276,
+                "var_99": -0.0061150163679404585,
+                "cvar_99": -0.008393974378589117,
+                "risk_contribution": 0.0005831885201516369,
+                "alpha": -2.488625422978912e-05
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.516570067668382,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "total_expectancy": {
+                    "value": 25.999683245504517,
+                    "description": "Total expected return for this strategy"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.04463761920845838,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.0019380301140063867,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.06526298162020278,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 0.33599202392821537,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 0.31141868512110726,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.20700500746662942,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 0.4649790403898013,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 0.12898701646158592,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 0.6366782006920415,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 0.17647058823529413,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 19.823529411764707,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 0.9814883670041192,
+            "allocation": 21.199076359585337
+        },
+        "TRX-USD": {
+            "id": "TRX-USD",
+            "performance": {
+                "expectancy_per_month": {
+                    "value": 11524.629958811076,
+                    "description": "Expected monthly return"
+                }
+            },
+            "risk_metrics": {
+                "var_95": -0.006798816585406867,
+                "cvar_95": -0.011069044103597709,
+                "var_99": -0.01382747990294127,
+                "cvar_99": -0.018099322378860746,
+                "risk_contribution": 0.0031610856858608066,
+                "alpha": -0.0002832854203365944
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.6413867061574919,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "total_expectancy": {
+                    "value": 32.28187663532514,
+                    "description": "Total expected return for this strategy"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.07987784489934657,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.0034680538882219556,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.11678638816246813,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 0.3120638085742771,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 0.29411764705882354,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.15287675295603137,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 0.4712508641925228,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 0.15918705561824578,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 0.7058823529411765,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 0.058823529411764705,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 18.41176470588235,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 0.491213621346858,
+            "allocation": 10.609677524335627
         }
-    ],
+    },
     "portfolio_metrics": {
         "concurrency": {
             "total_concurrent_periods": {
-                "value": 1710,
+                "value": 1712,
                 "description": "Number of periods with concurrent positions"
             },
             "concurrency_ratio": {
-                "value": 0.9633802816901409,
+                "value": 0.9634214969048959,
                 "description": "Ratio of concurrent periods to total periods"
             },
             "exclusive_ratio": {
-                "value": 0.029295774647887324,
+                "value": 0.029262802476083285,
                 "description": "Ratio of periods with exactly one strategy in position"
             },
             "inactive_ratio": {
-                "value": 0.007323943661971831,
+                "value": 0.007315700619020821,
                 "description": "Ratio of periods with no active strategies"
             },
             "avg_concurrent_strategies": {
-                "value": 9.30022701475596,
+                "value": 9.291950113378684,
                 "description": "Average number of concurrent strategies"
             },
             "max_concurrent_strategies": {
@@ -2145,24 +2586,24 @@
         },
         "efficiency": {
             "efficiency_score": {
-                "value": 221.3825627687686,
+                "value": 220.9449437990993,
                 "description": "Risk-Adjusted Performance"
             },
             "total_expectancy": {
-                "value": 11125.589645411372,
+                "value": 11120.463443422208,
                 "description": "Combined expected return across all strategies"
             },
             "multipliers": {
                 "diversification": {
-                    "value": 0.6792276970316906,
+                    "value": 0.6789616816444459,
                     "description": "Multiplier effect from strategy diversification"
                 },
                 "independence": {
-                    "value": 0.029511918274687854,
+                    "value": 0.02947845804988662,
                     "description": "Multiplier effect from strategy independence"
                 },
                 "activity": {
-                    "value": 0.9926760563380281,
+                    "value": 0.9926842993809791,
                     "description": "Multiplier effect from strategy activity levels"
                 }
             }
@@ -2170,17 +2611,17 @@
         "risk": {
             "portfolio_metrics": {
                 "risk_concentration_index": {
-                    "value": 0.5470721773385858,
+                    "value": 0.5465853007869814,
                     "description": "Measure of risk concentration"
                 },
                 "total_portfolio_risk": {
-                    "value": 0.2438373341451964,
+                    "value": 0.24397816250904594,
                     "description": "Overall portfolio risk measure"
                 }
             },
             "combined_risk": {
                 "var_95": {
-                    "value": -0.06268470600161408,
+                    "value": -0.06268186398100137,
                     "description": "Combined Value at Risk (95% confidence)"
                 },
                 "cvar_95": {
@@ -2198,547 +2639,547 @@
             },
             "strategy_relationships": {
                 "risk_overlap_1_2": {
-                    "value": 0.0034018365713262724,
+                    "value": 0.0033999284014159027,
                     "description": "Risk relationship metric: risk_overlap_1_2"
                 },
                 "risk_overlap_1_3": {
-                    "value": 0.0036413715711022593,
+                    "value": 0.0036388346603477132,
                     "description": "Risk relationship metric: risk_overlap_1_3"
                 },
                 "risk_overlap_1_4": {
-                    "value": 0.002635556484176861,
+                    "value": 0.0026356289195625165,
                     "description": "Risk relationship metric: risk_overlap_1_4"
                 },
                 "risk_overlap_1_5": {
-                    "value": 0.0004894960498612966,
+                    "value": 0.000493696979082144,
                     "description": "Risk relationship metric: risk_overlap_1_5"
                 },
                 "risk_overlap_1_6": {
-                    "value": 0.0033503656434596307,
+                    "value": 0.003354990370926152,
                     "description": "Risk relationship metric: risk_overlap_1_6"
                 },
                 "risk_overlap_1_7": {
-                    "value": 0.003410489013552451,
+                    "value": 0.0034149211988489226,
                     "description": "Risk relationship metric: risk_overlap_1_7"
                 },
                 "risk_overlap_1_8": {
-                    "value": 0.004779006442135172,
+                    "value": 0.004780726807943892,
                     "description": "Risk relationship metric: risk_overlap_1_8"
                 },
                 "risk_overlap_1_9": {
-                    "value": 0.0050678033494879786,
+                    "value": 0.005068567522719136,
                     "description": "Risk relationship metric: risk_overlap_1_9"
                 },
                 "risk_overlap_1_10": {
-                    "value": 0.002818835444922079,
+                    "value": 0.002824682086563771,
                     "description": "Risk relationship metric: risk_overlap_1_10"
                 },
                 "risk_overlap_1_11": {
-                    "value": 0.0031824301219785666,
+                    "value": 0.0031828369555588956,
                     "description": "Risk relationship metric: risk_overlap_1_11"
                 },
                 "risk_overlap_1_12": {
-                    "value": 0.0037724429475923353,
+                    "value": 0.0037713785473423734,
                     "description": "Risk relationship metric: risk_overlap_1_12"
                 },
                 "risk_overlap_1_13": {
-                    "value": 0.0028673804592145736,
+                    "value": 0.0028513629040785534,
                     "description": "Risk relationship metric: risk_overlap_1_13"
                 },
                 "risk_overlap_1_14": {
-                    "value": 0.0026354873733785934,
+                    "value": 0.002638568243390364,
                     "description": "Risk relationship metric: risk_overlap_1_14"
                 },
                 "risk_overlap_1_15": {
-                    "value": -0.0004020700212377088,
+                    "value": -0.0003931204989001773,
                     "description": "Risk relationship metric: risk_overlap_1_15"
                 },
                 "risk_overlap_1_16": {
-                    "value": 0.002166070360584346,
+                    "value": 0.002171799046840486,
                     "description": "Risk relationship metric: risk_overlap_1_16"
                 },
                 "risk_overlap_1_17": {
-                    "value": -9.979881013001004e-05,
+                    "value": -0.00010754942133871837,
                     "description": "Risk relationship metric: risk_overlap_1_17"
                 },
                 "risk_overlap_2_3": {
-                    "value": 0.00324992511234884,
+                    "value": 0.003248273220770055,
                     "description": "Risk relationship metric: risk_overlap_2_3"
                 },
                 "risk_overlap_2_4": {
-                    "value": 0.002287431136995927,
+                    "value": 0.002288289477299771,
                     "description": "Risk relationship metric: risk_overlap_2_4"
                 },
                 "risk_overlap_2_5": {
-                    "value": 0.0011081637880613602,
+                    "value": 0.0011109483047575986,
                     "description": "Risk relationship metric: risk_overlap_2_5"
                 },
                 "risk_overlap_2_6": {
-                    "value": 0.0027067407370481183,
+                    "value": 0.0027128172182785005,
                     "description": "Risk relationship metric: risk_overlap_2_6"
                 },
                 "risk_overlap_2_7": {
-                    "value": 0.0026861202838698653,
+                    "value": 0.0026921883002745213,
                     "description": "Risk relationship metric: risk_overlap_2_7"
                 },
                 "risk_overlap_2_8": {
-                    "value": 0.004327351984695575,
+                    "value": 0.00433008618700362,
                     "description": "Risk relationship metric: risk_overlap_2_8"
                 },
                 "risk_overlap_2_9": {
-                    "value": 0.004798292634141615,
+                    "value": 0.004799655916657835,
                     "description": "Risk relationship metric: risk_overlap_2_9"
                 },
                 "risk_overlap_2_10": {
-                    "value": 0.0030718539474926315,
+                    "value": 0.0030771089446357176,
                     "description": "Risk relationship metric: risk_overlap_2_10"
                 },
                 "risk_overlap_2_11": {
-                    "value": 0.0031357234354327484,
+                    "value": 0.0031362273260436215,
                     "description": "Risk relationship metric: risk_overlap_2_11"
                 },
                 "risk_overlap_2_12": {
-                    "value": 0.0037992604969131053,
+                    "value": 0.0037981257524480525,
                     "description": "Risk relationship metric: risk_overlap_2_12"
                 },
                 "risk_overlap_2_13": {
-                    "value": 0.0028158849073254425,
+                    "value": 0.0028000327670933143,
                     "description": "Risk relationship metric: risk_overlap_2_13"
                 },
                 "risk_overlap_2_14": {
-                    "value": 0.002599855561979248,
+                    "value": 0.002603006501120995,
                     "description": "Risk relationship metric: risk_overlap_2_14"
                 },
                 "risk_overlap_2_15": {
-                    "value": -0.0003090829436811156,
+                    "value": -0.000300352635227392,
                     "description": "Risk relationship metric: risk_overlap_2_15"
                 },
                 "risk_overlap_2_16": {
-                    "value": 0.0021281868501976616,
+                    "value": 0.002133988803643517,
                     "description": "Risk relationship metric: risk_overlap_2_16"
                 },
                 "risk_overlap_2_17": {
-                    "value": 0.00018537177176695087,
+                    "value": 0.00017669184278394683,
                     "description": "Risk relationship metric: risk_overlap_2_17"
                 },
                 "risk_overlap_3_4": {
-                    "value": 0.0027755376915717944,
+                    "value": 0.0027751975981906768,
                     "description": "Risk relationship metric: risk_overlap_3_4"
                 },
                 "risk_overlap_3_5": {
-                    "value": 0.0005308554624199278,
+                    "value": 0.0005348803417412409,
                     "description": "Risk relationship metric: risk_overlap_3_5"
                 },
                 "risk_overlap_3_6": {
-                    "value": 0.0033193300414609355,
+                    "value": 0.0033238368745913604,
                     "description": "Risk relationship metric: risk_overlap_3_6"
                 },
                 "risk_overlap_3_7": {
-                    "value": 0.0033572164848671604,
+                    "value": 0.0033615823064399378,
                     "description": "Risk relationship metric: risk_overlap_3_7"
                 },
                 "risk_overlap_3_8": {
-                    "value": 0.004679575619155801,
+                    "value": 0.004681328551902268,
                     "description": "Risk relationship metric: risk_overlap_3_8"
                 },
                 "risk_overlap_3_9": {
-                    "value": 0.00464553438764119,
+                    "value": 0.004647071437999684,
                     "description": "Risk relationship metric: risk_overlap_3_9"
                 },
                 "risk_overlap_3_10": {
-                    "value": 0.002617028720548584,
+                    "value": 0.0026231464798406037,
                     "description": "Risk relationship metric: risk_overlap_3_10"
                 },
                 "risk_overlap_3_11": {
-                    "value": 0.0031905805756760387,
+                    "value": 0.003190850994059608,
                     "description": "Risk relationship metric: risk_overlap_3_11"
                 },
                 "risk_overlap_3_12": {
-                    "value": 0.0037329565913809485,
+                    "value": 0.0037318662851116664,
                     "description": "Risk relationship metric: risk_overlap_3_12"
                 },
                 "risk_overlap_3_13": {
-                    "value": 0.00280503811601013,
+                    "value": 0.0027893223757307693,
                     "description": "Risk relationship metric: risk_overlap_3_13"
                 },
                 "risk_overlap_3_14": {
-                    "value": 0.0026205411599515742,
+                    "value": 0.0026235162865631857,
                     "description": "Risk relationship metric: risk_overlap_3_14"
                 },
                 "risk_overlap_3_15": {
-                    "value": -0.0006108207930317861,
+                    "value": -0.0006015250361624627,
                     "description": "Risk relationship metric: risk_overlap_3_15"
                 },
                 "risk_overlap_3_16": {
-                    "value": 0.0022807177781700963,
+                    "value": 0.00228602110792275,
                     "description": "Risk relationship metric: risk_overlap_3_16"
                 },
                 "risk_overlap_3_17": {
-                    "value": -0.00042728976664137584,
+                    "value": -0.00043383747647474737,
                     "description": "Risk relationship metric: risk_overlap_3_17"
                 },
                 "risk_overlap_4_5": {
-                    "value": 8.7401262151718e-05,
+                    "value": 9.272490525581771e-05,
                     "description": "Risk relationship metric: risk_overlap_4_5"
                 },
                 "risk_overlap_4_6": {
-                    "value": 0.0037170401234085434,
+                    "value": 0.003721305121942407,
                     "description": "Risk relationship metric: risk_overlap_4_6"
                 },
                 "risk_overlap_4_7": {
-                    "value": 0.003731378084738394,
+                    "value": 0.0037355527273968763,
                     "description": "Risk relationship metric: risk_overlap_4_7"
                 },
                 "risk_overlap_4_8": {
-                    "value": 0.0038096432483018523,
+                    "value": 0.0038140622586934404,
                     "description": "Risk relationship metric: risk_overlap_4_8"
                 },
                 "risk_overlap_4_9": {
-                    "value": 0.0034322132542758286,
+                    "value": 0.003437182785627896,
                     "description": "Risk relationship metric: risk_overlap_4_9"
                 },
                 "risk_overlap_4_10": {
-                    "value": 0.0015542450229820727,
+                    "value": 0.0015634498813432217,
                     "description": "Risk relationship metric: risk_overlap_4_10"
                 },
                 "risk_overlap_4_11": {
-                    "value": 0.002032104082014521,
+                    "value": 0.00203542973887722,
                     "description": "Risk relationship metric: risk_overlap_4_11"
                 },
                 "risk_overlap_4_12": {
-                    "value": 0.0026252525325483776,
+                    "value": 0.0026270948940304286,
                     "description": "Risk relationship metric: risk_overlap_4_12"
                 },
                 "risk_overlap_4_13": {
-                    "value": 0.0015135693677576047,
+                    "value": 0.001501381676591777,
                     "description": "Risk relationship metric: risk_overlap_4_13"
                 },
                 "risk_overlap_4_14": {
-                    "value": 0.0016608485742797675,
+                    "value": 0.0016665033040488182,
                     "description": "Risk relationship metric: risk_overlap_4_14"
                 },
                 "risk_overlap_4_15": {
-                    "value": -0.0003161231130087213,
+                    "value": -0.00030705484330893583,
                     "description": "Risk relationship metric: risk_overlap_4_15"
                 },
                 "risk_overlap_4_16": {
-                    "value": 0.0015181171289130905,
+                    "value": 0.0015257364373998555,
                     "description": "Risk relationship metric: risk_overlap_4_16"
                 },
                 "risk_overlap_4_17": {
-                    "value": -0.0004835256979163453,
+                    "value": -0.0004903261096044562,
                     "description": "Risk relationship metric: risk_overlap_4_17"
                 },
                 "risk_overlap_5_6": {
-                    "value": -0.0014542971246767802,
+                    "value": -0.0014398440089102749,
                     "description": "Risk relationship metric: risk_overlap_5_6"
                 },
                 "risk_overlap_5_7": {
-                    "value": -0.0014660697943579004,
+                    "value": -0.001451640297489888,
                     "description": "Risk relationship metric: risk_overlap_5_7"
                 },
                 "risk_overlap_5_8": {
-                    "value": -0.00019736006375273505,
+                    "value": -0.00018545214303879615,
                     "description": "Risk relationship metric: risk_overlap_5_8"
                 },
                 "risk_overlap_5_9": {
-                    "value": 0.00022460483676235864,
+                    "value": 0.00023528033889962428,
                     "description": "Risk relationship metric: risk_overlap_5_9"
                 },
                 "risk_overlap_5_10": {
-                    "value": 0.0026565064740830305,
+                    "value": 0.002661600993206048,
                     "description": "Risk relationship metric: risk_overlap_5_10"
                 },
                 "risk_overlap_5_11": {
-                    "value": 0.0013158570762196546,
+                    "value": 0.0013198172985641138,
                     "description": "Risk relationship metric: risk_overlap_5_11"
                 },
                 "risk_overlap_5_12": {
-                    "value": 0.0010570309874181453,
+                    "value": 0.0010614659983565573,
                     "description": "Risk relationship metric: risk_overlap_5_12"
                 },
                 "risk_overlap_5_13": {
-                    "value": 0.0013472278842126446,
+                    "value": 0.0013364971932119513,
                     "description": "Risk relationship metric: risk_overlap_5_13"
                 },
                 "risk_overlap_5_14": {
-                    "value": 0.0008309848290359997,
+                    "value": 0.0008373470900432943,
                     "description": "Risk relationship metric: risk_overlap_5_14"
                 },
                 "risk_overlap_5_15": {
-                    "value": 0.0003942945309387619,
+                    "value": 0.00040071546436175256,
                     "description": "Risk relationship metric: risk_overlap_5_15"
                 },
                 "risk_overlap_5_16": {
-                    "value": 0.0005390980983083353,
+                    "value": 0.0005475592952230074,
                     "description": "Risk relationship metric: risk_overlap_5_16"
                 },
                 "risk_overlap_5_17": {
-                    "value": 0.0009040458567018559,
+                    "value": 0.0008937278545640785,
                     "description": "Risk relationship metric: risk_overlap_5_17"
                 },
                 "risk_overlap_6_7": {
-                    "value": 0.019912189593749963,
+                    "value": 0.019892381541204027,
                     "description": "Risk relationship metric: risk_overlap_6_7"
                 },
                 "risk_overlap_6_8": {
-                    "value": 0.015294428673018397,
+                    "value": 0.015285996755325852,
                     "description": "Risk relationship metric: risk_overlap_6_8"
                 },
                 "risk_overlap_6_9": {
-                    "value": 0.014076058061893213,
+                    "value": 0.014069778266666106,
                     "description": "Risk relationship metric: risk_overlap_6_9"
                 },
                 "risk_overlap_6_10": {
-                    "value": 0.004139324558509993,
+                    "value": 0.0041556002554127315,
                     "description": "Risk relationship metric: risk_overlap_6_10"
                 },
                 "risk_overlap_6_11": {
-                    "value": 0.0026450240421331357,
+                    "value": 0.002655043888479726,
                     "description": "Risk relationship metric: risk_overlap_6_11"
                 },
                 "risk_overlap_6_12": {
-                    "value": 0.003776921032263888,
+                    "value": 0.0037840960405794324,
                     "description": "Risk relationship metric: risk_overlap_6_12"
                 },
                 "risk_overlap_6_13": {
-                    "value": 0.003690779884026345,
+                    "value": 0.003664259982036819,
                     "description": "Risk relationship metric: risk_overlap_6_13"
                 },
                 "risk_overlap_6_14": {
-                    "value": 0.002970064121303838,
+                    "value": 0.0029823342763225726,
                     "description": "Risk relationship metric: risk_overlap_6_14"
                 },
                 "risk_overlap_6_15": {
-                    "value": -0.0004509402061389578,
+                    "value": -0.00043307080812935556,
                     "description": "Risk relationship metric: risk_overlap_6_15"
                 },
                 "risk_overlap_6_16": {
-                    "value": 0.0033631357384972084,
+                    "value": 0.003377816392783216,
                     "description": "Risk relationship metric: risk_overlap_6_16"
                 },
                 "risk_overlap_6_17": {
-                    "value": -0.0013580400462157663,
+                    "value": -0.0013704948178123626,
                     "description": "Risk relationship metric: risk_overlap_6_17"
                 },
                 "risk_overlap_7_8": {
-                    "value": 0.01539008434099685,
+                    "value": 0.015381314761367912,
                     "description": "Risk relationship metric: risk_overlap_7_8"
                 },
                 "risk_overlap_7_9": {
-                    "value": 0.014222880208717889,
+                    "value": 0.014216148975019967,
                     "description": "Risk relationship metric: risk_overlap_7_9"
                 },
                 "risk_overlap_7_10": {
-                    "value": 0.0041964351603072094,
+                    "value": 0.004212464270652278,
                     "description": "Risk relationship metric: risk_overlap_7_10"
                 },
                 "risk_overlap_7_11": {
-                    "value": 0.0027952291614262684,
+                    "value": 0.00280483402136074,
                     "description": "Risk relationship metric: risk_overlap_7_11"
                 },
                 "risk_overlap_7_12": {
-                    "value": 0.0038919991161152226,
+                    "value": 0.003898840391649159,
                     "description": "Risk relationship metric: risk_overlap_7_12"
                 },
                 "risk_overlap_7_13": {
-                    "value": 0.003828750876914177,
+                    "value": 0.003801881082414063,
                     "description": "Risk relationship metric: risk_overlap_7_13"
                 },
                 "risk_overlap_7_14": {
-                    "value": 0.003209773890176138,
+                    "value": 0.0032214115377131075,
                     "description": "Risk relationship metric: risk_overlap_7_14"
                 },
                 "risk_overlap_7_15": {
-                    "value": -0.0005123211795891333,
+                    "value": -0.0004943899160524013,
                     "description": "Risk relationship metric: risk_overlap_7_15"
                 },
                 "risk_overlap_7_16": {
-                    "value": 0.0035065598321834617,
+                    "value": 0.0035208124329158584,
                     "description": "Risk relationship metric: risk_overlap_7_16"
                 },
                 "risk_overlap_7_17": {
-                    "value": -0.0014907654521900085,
+                    "value": -0.0015027064247011284,
                     "description": "Risk relationship metric: risk_overlap_7_17"
                 },
                 "risk_overlap_8_9": {
-                    "value": 0.017758450773003708,
+                    "value": 0.01774451853412005,
                     "description": "Risk relationship metric: risk_overlap_8_9"
                 },
                 "risk_overlap_8_10": {
-                    "value": 0.007700131277689206,
+                    "value": 0.0077090290483122475,
                     "description": "Risk relationship metric: risk_overlap_8_10"
                 },
                 "risk_overlap_8_11": {
-                    "value": 0.005257020386571986,
+                    "value": 0.005261547656450003,
                     "description": "Risk relationship metric: risk_overlap_8_11"
                 },
                 "risk_overlap_8_12": {
-                    "value": 0.006047181011516016,
+                    "value": 0.006049634630690633,
                     "description": "Risk relationship metric: risk_overlap_8_12"
                 },
                 "risk_overlap_8_13": {
-                    "value": 0.005627728405398911,
+                    "value": 0.005594884549942817,
                     "description": "Risk relationship metric: risk_overlap_8_13"
                 },
                 "risk_overlap_8_14": {
-                    "value": 0.005274944326440412,
+                    "value": 0.0052825075328078305,
                     "description": "Risk relationship metric: risk_overlap_8_14"
                 },
                 "risk_overlap_8_15": {
-                    "value": -0.0011462726786381032,
+                    "value": -0.0011263546671782486,
                     "description": "Risk relationship metric: risk_overlap_8_15"
                 },
                 "risk_overlap_8_16": {
-                    "value": 0.005062217383115896,
+                    "value": 0.005073666427552115,
                     "description": "Risk relationship metric: risk_overlap_8_16"
                 },
                 "risk_overlap_8_17": {
-                    "value": -0.0012358113711957977,
+                    "value": -0.0012491538986796739,
                     "description": "Risk relationship metric: risk_overlap_8_17"
                 },
                 "risk_overlap_9_10": {
-                    "value": 0.006643826440617269,
+                    "value": 0.00665450645789142,
                     "description": "Risk relationship metric: risk_overlap_9_10"
                 },
                 "risk_overlap_9_11": {
-                    "value": 0.0052706923772335885,
+                    "value": 0.005274798363638788,
                     "description": "Risk relationship metric: risk_overlap_9_11"
                 },
                 "risk_overlap_9_12": {
-                    "value": 0.0065035528159751695,
+                    "value": 0.006504582721134881,
                     "description": "Risk relationship metric: risk_overlap_9_12"
                 },
                 "risk_overlap_9_13": {
-                    "value": 0.005994843889322106,
+                    "value": 0.005961256677425709,
                     "description": "Risk relationship metric: risk_overlap_9_13"
                 },
                 "risk_overlap_9_14": {
-                    "value": 0.0052779817816136785,
+                    "value": 0.00528507522602596,
                     "description": "Risk relationship metric: risk_overlap_9_14"
                 },
                 "risk_overlap_9_15": {
-                    "value": -0.00048581424158578593,
+                    "value": -0.00046779296770997825,
                     "description": "Risk relationship metric: risk_overlap_9_15"
                 },
                 "risk_overlap_9_16": {
-                    "value": 0.005037547772845659,
+                    "value": 0.005048509820528651,
                     "description": "Risk relationship metric: risk_overlap_9_16"
                 },
                 "risk_overlap_9_17": {
-                    "value": -0.0005855391766002781,
+                    "value": -0.0006006118762624398,
                     "description": "Risk relationship metric: risk_overlap_9_17"
                 },
                 "risk_overlap_10_11": {
-                    "value": 0.004053372317885676,
+                    "value": 0.004060196509530204,
                     "description": "Risk relationship metric: risk_overlap_10_11"
                 },
                 "risk_overlap_10_12": {
-                    "value": 0.004248203004563392,
+                    "value": 0.004254317634998926,
                     "description": "Risk relationship metric: risk_overlap_10_12"
                 },
                 "risk_overlap_10_13": {
-                    "value": 0.004403970573239963,
+                    "value": 0.004375270477802713,
                     "description": "Risk relationship metric: risk_overlap_10_13"
                 },
                 "risk_overlap_10_14": {
-                    "value": 0.0032521552549908852,
+                    "value": 0.003263798998580606,
                     "description": "Risk relationship metric: risk_overlap_10_14"
                 },
                 "risk_overlap_10_15": {
-                    "value": -9.866378488833948e-05,
+                    "value": -8.157296299785659e-05,
                     "description": "Risk relationship metric: risk_overlap_10_15"
                 },
                 "risk_overlap_10_16": {
-                    "value": 0.0024990657999148036,
+                    "value": 0.0025157349180881957,
                     "description": "Risk relationship metric: risk_overlap_10_16"
                 },
                 "risk_overlap_10_17": {
-                    "value": 0.0008444856207453285,
+                    "value": 0.0008247621468989224,
                     "description": "Risk relationship metric: risk_overlap_10_17"
                 },
                 "risk_overlap_11_12": {
-                    "value": 0.005727041345122064,
+                    "value": 0.0057238497792779395,
                     "description": "Risk relationship metric: risk_overlap_11_12"
                 },
                 "risk_overlap_11_13": {
-                    "value": 0.005155012558624422,
+                    "value": 0.005129787285873781,
                     "description": "Risk relationship metric: risk_overlap_11_13"
                 },
                 "risk_overlap_11_14": {
-                    "value": 0.004401120545793928,
+                    "value": 0.004402985065318323,
                     "description": "Risk relationship metric: risk_overlap_11_14"
                 },
                 "risk_overlap_11_15": {
-                    "value": -0.0011494235909176155,
+                    "value": -0.0011363061557327439,
                     "description": "Risk relationship metric: risk_overlap_11_15"
                 },
                 "risk_overlap_11_16": {
-                    "value": 0.0031249953684908175,
+                    "value": 0.00313183366922222,
                     "description": "Risk relationship metric: risk_overlap_11_16"
                 },
                 "risk_overlap_11_17": {
-                    "value": -0.0009612976007637426,
+                    "value": -0.0009687069308649102,
                     "description": "Risk relationship metric: risk_overlap_11_17"
                 },
                 "risk_overlap_12_13": {
-                    "value": 0.004133772457378916,
+                    "value": 0.004111808229632225,
                     "description": "Risk relationship metric: risk_overlap_12_13"
                 },
                 "risk_overlap_12_14": {
-                    "value": 0.003507881305206488,
+                    "value": 0.0035115847947468455,
                     "description": "Risk relationship metric: risk_overlap_12_14"
                 },
                 "risk_overlap_12_15": {
-                    "value": -0.00023625165724207938,
+                    "value": -0.00022536429874284717,
                     "description": "Risk relationship metric: risk_overlap_12_15"
                 },
                 "risk_overlap_12_16": {
-                    "value": 0.003280069871769367,
+                    "value": 0.003286323959837422,
                     "description": "Risk relationship metric: risk_overlap_12_16"
                 },
                 "risk_overlap_12_17": {
-                    "value": -0.00032697450036047165,
+                    "value": -0.00033629813930630825,
                     "description": "Risk relationship metric: risk_overlap_12_17"
                 },
                 "risk_overlap_13_14": {
-                    "value": 0.006897085199689362,
+                    "value": 0.0068647845350655375,
                     "description": "Risk relationship metric: risk_overlap_13_14"
                 },
                 "risk_overlap_13_15": {
-                    "value": -0.0017943966664211435,
+                    "value": -0.001799036542112609,
                     "description": "Risk relationship metric: risk_overlap_13_15"
                 },
                 "risk_overlap_13_16": {
-                    "value": 0.0026358038460382936,
+                    "value": 0.0026144806064655013,
                     "description": "Risk relationship metric: risk_overlap_13_16"
                 },
                 "risk_overlap_13_17": {
-                    "value": -0.0007257893379221767,
+                    "value": -0.0007127617691398497,
                     "description": "Risk relationship metric: risk_overlap_13_17"
                 },
                 "risk_overlap_14_15": {
-                    "value": -0.0017219996683374243,
+                    "value": -0.0017056305394111042,
                     "description": "Risk relationship metric: risk_overlap_14_15"
                 },
                 "risk_overlap_14_16": {
-                    "value": 0.002870466399836197,
+                    "value": 0.0028804866833046475,
                     "description": "Risk relationship metric: risk_overlap_14_16"
                 },
                 "risk_overlap_14_17": {
-                    "value": -0.0007581128431022498,
+                    "value": -0.0007681624658387339,
                     "description": "Risk relationship metric: risk_overlap_14_17"
                 },
                 "risk_overlap_15_16": {
-                    "value": -0.0009200513936770889,
+                    "value": -0.0009033184445524891,
                     "description": "Risk relationship metric: risk_overlap_15_16"
                 },
                 "risk_overlap_15_17": {
-                    "value": 0.0032403303914500083,
+                    "value": 0.0032186403051466064,
                     "description": "Risk relationship metric: risk_overlap_15_17"
                 },
                 "risk_overlap_16_17": {
-                    "value": -0.00195861979303428,
+                    "value": -0.001966894350697092,
                     "description": "Risk relationship metric: risk_overlap_16_17"
                 }
             }
@@ -2746,7 +3187,7 @@
         "signals": {
             "monthly_statistics": {
                 "mean": {
-                    "value": 30.864406779661017,
+                    "value": 31.084745762711865,
                     "description": "Average number of signals per month"
                 },
                 "median": {
@@ -2754,17 +3195,17 @@
                     "description": "Median number of signals per month"
                 },
                 "std_below": {
-                    "value": 22.314537859824018,
+                    "value": 22.792850320769222,
                     "description": "One standard deviation below mean signals"
                 },
                 "std_above": {
-                    "value": 39.41427569949802,
+                    "value": 39.376641204654504,
                     "description": "One standard deviation above mean signals"
                 }
             },
             "summary": {
                 "volatility": {
-                    "value": 8.549868919837,
+                    "value": 8.291895441942643,
                     "description": "Standard deviation of monthly signals"
                 },
                 "max_monthly": {
@@ -2776,7 +3217,7 @@
                     "description": "Minimum signals in any month"
                 },
                 "total": {
-                    "value": 1821.0,
+                    "value": 1834.0,
                     "description": "Total number of signals across period"
                 }
             }
