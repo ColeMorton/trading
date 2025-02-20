@@ -30,7 +30,7 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 3519.540949537537,
+                    "value": 3518.616700338603,
                     "description": "Expected monthly return"
                 }
             },
@@ -52,7 +52,7 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.49402750518631205,
+                    "value": 0.4940281895939223,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
@@ -62,16 +62,16 @@
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 29.30756343716459,
+                    "value": 29.28199590909002,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 167.59718807321605,
+                    "value": 167.55317620660014,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.5972209833079762,
+                        "value": 0.597013450839432,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
@@ -79,7 +79,7 @@
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.7161239495798319,
+                        "value": 0.715935941191914,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -155,7 +155,7 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 4991.005989732598,
+                    "value": 4989.695326394958,
                     "description": "Expected monthly return"
                 }
             },
@@ -177,7 +177,7 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.5059724948136879,
+                    "value": 0.5059718104060775,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
@@ -187,16 +187,16 @@
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 41.56059746330748,
+                    "value": 41.52434055151347,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 237.6669518920285,
+                    "value": 237.60453935214088,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.5972209833079762,
+                        "value": 0.597013450839432,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
@@ -204,7 +204,7 @@
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.7161239495798319,
+                        "value": 0.715935941191914,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -258,15 +258,15 @@
                 "description": "Number of periods with concurrent positions"
             },
             "concurrency_ratio": {
-                "value": 0.42331932773109243,
+                "value": 0.4232081911262799,
                 "description": "Ratio of concurrent periods to total periods"
             },
             "exclusive_ratio": {
-                "value": 0.2928046218487395,
+                "value": 0.292727750065634,
                 "description": "Ratio of periods with exactly one strategy in position"
             },
             "inactive_ratio": {
-                "value": 0.28387605042016806,
+                "value": 0.2840640588080861,
                 "description": "Ratio of periods with no active strategies"
             },
             "avg_concurrent_strategies": {
@@ -280,16 +280,16 @@
         },
         "efficiency": {
             "efficiency_score": {
-                "value": 70.86816090047208,
+                "value": 70.80633646060349,
                 "description": "Risk-Adjusted Performance"
             },
             "total_expectancy": {
-                "value": 405.26413996524457,
+                "value": 405.157715558741,
                 "description": "Combined expected return across all strategies"
             },
             "multipliers": {
                 "diversification": {
-                    "value": 0.5972209833079762,
+                    "value": 0.597013450839432,
                     "description": "Multiplier effect from strategy diversification"
                 },
                 "independence": {
@@ -297,7 +297,7 @@
                     "description": "Multiplier effect from strategy independence"
                 },
                 "activity": {
-                    "value": 0.7161239495798319,
+                    "value": 0.715935941191914,
                     "description": "Multiplier effect from strategy activity levels"
                 }
             }
@@ -309,7 +309,7 @@
                     "description": "Measure of risk concentration"
                 },
                 "total_portfolio_risk": {
-                    "value": 0.02849758532885843,
+                    "value": 0.028500903257764842,
                     "description": "Overall portfolio risk measure"
                 }
             },
@@ -333,7 +333,7 @@
             },
             "strategy_relationships": {
                 "risk_overlap_1_2": {
-                    "value": 0.14355030339792277,
+                    "value": 0.1436030238888003,
                     "description": "Risk relationship metric: risk_overlap_1_2"
                 }
             }

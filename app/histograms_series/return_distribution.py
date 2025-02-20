@@ -49,6 +49,7 @@ def fetch_data(ticker: str) -> pd.DataFrame:
     }
     df = download_data(ticker, data_config, log)
     data = df.to_pandas()
+    data.set_index('Date', inplace=True)
     if data.empty:
         log("No data fetched for the given asset and date range.", "error")
         raise ValueError("No data fetched for the given asset and date range.")
@@ -57,8 +58,8 @@ def fetch_data(ticker: str) -> pd.DataFrame:
 
 def calculate_returns(data, timeframe):
     """Calculate returns based on the specified timeframe."""
-    log("Calculating returns for timeframe: %s", timeframe)
-    data.loc[:, 'Return'] = data['Adj Close'].pct_change()
+    log(f"Calculating returns for timeframe: {timeframe}")
+    data.loc[:, 'Return'] = data.Close.pct_change()
     if timeframe == "D":
         returns = data['Return'].dropna()
     elif timeframe == "3D":
@@ -68,7 +69,7 @@ def calculate_returns(data, timeframe):
     elif timeframe == "2W":
         returns = data['Return'].resample('2W-MON').sum().dropna()
     else:
-        log("Invalid timeframe specified: %s", timeframe, "error")
+        log(f"Invalid timeframe specified: {timeframe}", "error")
         raise ValueError("Invalid timeframe specified. Use 'D', '3D', 'W', or '2W'.")
     if returns.empty:
         log("No valid returns calculated. Try increasing the date range.", "error")
@@ -86,7 +87,7 @@ def calculate_var(returns):
 
 def plot_return_distribution(returns, var_95, var_99, ticker, timeframe, ax, current_return):
     """Plot the return distribution with VaR lines and additional statistics."""
-    log("Plotting return distribution for ticker: %s, timeframe: %s", ticker, timeframe)
+    log(f"Plotting return distribution for ticker: {ticker}, timeframe: {timeframe}")
     # Calculate additional statistics
     mean = np.mean(returns)
     median = np.median(returns)
@@ -152,27 +153,27 @@ def main():
     timeframes = ['2W', 'W', '3D', 'D']
     for timeframe, ax in zip(timeframes, axs.flatten()):
         # Get the last adjusted close price and the one before the resampled period
-        current_adj_close = data['Adj Close'].iloc[-1]
+        current_close = data.Close.iloc[-1]
 
         # Standard trading days logic
         if timeframe == '3D':
-            previous_adj_close = data['Adj Close'].iloc[-4]  # 3 days before (plus 1 to account for pct_change offset)
+            previous_close = data.Close.iloc[-4]  # 3 days before (plus 1 to account for pct_change offset)
 
         # Check if the ticker contains "-USD"
         if "-USD" in TICKER:
             # Use 7 trading days for W and 14 trading days for 2W
             if timeframe == 'W':
-                previous_adj_close = data['Adj Close'].iloc[-8]  # 7 trading days ago
+                previous_close = data.Close.iloc[-8]  # 7 trading days ago
             elif timeframe == '2W':
-                previous_adj_close = data['Adj Close'].iloc[-15] # 14 trading days ago
+                previous_close = data.Close.iloc[-15] # 14 trading days ago
         else:
             if timeframe == 'W':
-                previous_adj_close = data['Adj Close'].iloc[-6]  # 5 trading days ago
+                previous_close = data.Close.iloc[-6]  # 5 trading days ago
             elif timeframe == '2W':
-                previous_adj_close = data['Adj Close'].iloc[-11] # 10 trading days ago
+                previous_close = data.Close.iloc[-11] # 10 trading days ago
 
         # Calculate the current return
-        current_return = (current_adj_close - previous_adj_close) / previous_adj_close
+        current_return = (current_close - previous_close) / previous_close
 
         returns = calculate_returns(data, timeframe)
         var_95, var_99 = calculate_var(returns)

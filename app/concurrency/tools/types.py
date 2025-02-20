@@ -35,6 +35,7 @@ class Strategy(TypedDict):
     performance: StrategyPerformance
     risk_metrics: StrategyRiskMetrics
     allocation: Dict[str, Union[float, str]]
+
 class ConcurrencyMetrics(TypedDict):
     """Concurrency-related metrics."""
     total_concurrent_periods: Dict[str, Union[int, str]]
@@ -68,10 +69,6 @@ class PortfolioMetrics(TypedDict):
     risk: RiskMetrics
     signals: SignalMetrics
 
-class OptimizedConcurrencyReport(TypedDict):
-    """Complete optimized report structure."""
-    strategies: List[Strategy]
-    portfolio_metrics: PortfolioMetrics
 # Legacy type definitions kept for backward compatibility
 class StrategyConfig(TypedDict):
     """Configuration type definition for strategy parameters.

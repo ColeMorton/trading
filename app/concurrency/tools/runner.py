@@ -11,8 +11,7 @@ from pathlib import Path
 from app.tools.setup_logging import setup_logging
 from app.concurrency.tools.types import (
     StrategyConfig,
-    ConcurrencyConfig,
-    OptimizedConcurrencyReport
+    ConcurrencyConfig
 )
 from app.concurrency.tools.analysis import analyze_concurrency
 from app.concurrency.tools.visualization import plot_concurrency

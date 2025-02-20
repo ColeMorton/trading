@@ -115,46 +115,100 @@ def calculate_signal_metrics(
         for i, df in enumerate(data_list, 1):
             log(f"Processing signals for strategy {i}", "info")
             
-            # Convert positions to numpy for efficient calculation
+            # Verify and process position data
             positions = df["Position"].fill_null(0).to_numpy()
             dates = df["Date"].to_numpy()
             
-            # Calculate position changes (signals)
-            signals = np.diff(positions) != 0
-            strategy_signals = np.sum(signals)
-            signal_dates = dates[1:][signals]
+            # Log position statistics
+            unique_positions = np.unique(positions)
+            non_zero_positions = positions != 0
+            position_count = np.sum(non_zero_positions)
             
-            log(f"Strategy {i} total signals: {strategy_signals}", "info")
+            log(f"Strategy {i} position analysis:", "info")
+            log(f"  Unique position values: {unique_positions}", "info")
+            log(f"  Total periods with positions: {position_count}", "info")
+            log(f"  Position ratio: {position_count/len(positions):.2%}", "info")
             
-            # Convert dates to datetime if they aren't already
-            if len(signal_dates) > 0:
-                if not isinstance(signal_dates[0], datetime):
-                    log(f"Converting dates for strategy {i}", "info")
-                    signal_dates = np.array([
-                        # Handle ISO format dates with time component
-                        datetime.fromisoformat(str(d).split('.')[0])
-                        for d in signal_dates
-                    ])
-                
-                # Aggregate signals by month for both portfolio and strategy
-                for date in signal_dates:
+            # Calculate signals from position changes
+            initial_signal = positions[0] != 0
+            position_changes = np.diff(positions) != 0
+            signals = np.concatenate(([initial_signal], position_changes))
+            signal_dates = dates[signals]
+            strategy_signals = len(signal_dates)
+            
+            # Verify signal detection
+            if strategy_signals > 0:
+                log(f"Strategy {i} signals detected:", "info")
+                log(f"  Initial position: {positions[0]}", "info")
+                log(f"  Position changes: {np.sum(position_changes)}", "info")
+                log(f"  Total signals: {strategy_signals}", "info")
+                log(f"  First signal: {signal_dates[0]}", "info")
+                log(f"  Last signal: {signal_dates[-1]}", "info")
+            else:
+                log(f"Warning: No signals detected for strategy {i}", "warning")
+            
+            # Convert all dates to datetime for consistent handling
+            dates_dt = np.array([
+                datetime.fromisoformat(str(d).split('.')[0])
+                if not isinstance(d, datetime) else d
+                for d in dates
+            ])
+            
+            # Group signals by month with enhanced validation
+            monthly_counts = defaultdict(int)
+            signal_months = set()
+            
+            for date, is_signal in zip(dates_dt, signals):
+                if is_signal:
                     month_key = date.strftime("%Y-%m")
+                    monthly_counts[month_key] += 1
                     portfolio_monthly_signals[month_key] += 1
-                    strategy_monthly_signals[i-1][month_key] += 1
-                
-                log(f"Strategy {i} signals aggregated", "info")
+                    signal_months.add(month_key)
+            
+            # Ensure all months in the date range are represented
+            all_months = {d.strftime("%Y-%m") for d in dates_dt}
+            for month in all_months:
+                if month not in monthly_counts:
+                    monthly_counts[month] = 0
+            
+            # Store monthly counts for this strategy
+            strategy_monthly_signals[i-1] = monthly_counts
+            
+            # Log monthly signal distribution
+            log(f"Strategy {i} monthly signal distribution:", "info")
+            log(f"  Total months: {len(all_months)}", "info")
+            log(f"  Months with signals: {len(signal_months)}", "info")
+            log(f"  Signal distribution:", "info")
+            for month, count in sorted(monthly_counts.items()):
+                if count > 0:
+                    log(f"    {month}: {count} signals", "info")
 
-            # Calculate strategy-specific metrics
-            strategy_metrics = calculate_strategy_metrics(
-                list(strategy_monthly_signals[i-1].values())
-            )
+            # Calculate and validate strategy metrics
+            monthly_values = list(monthly_counts.values())
+            total_signals = sum(monthly_values)
             
-            # Add strategy metrics to the new structure
+            log(f"Strategy {i} metrics calculation:", "info")
+            log(f"  Monthly values: {len(monthly_values)} months", "info")
+            log(f"  Signal months: {len([v for v in monthly_values if v > 0])}", "info")
+            log(f"  Total signals: {total_signals}", "info")
+            
+            if total_signals == 0:
+                log(f"Warning: Strategy {i} has no signals - verifying position data", "warning")
+                non_zero_pos = np.sum(positions != 0)
+                pos_changes = np.sum(np.diff(positions) != 0)
+                log(f"  Position verification:", "info")
+                log(f"    Non-zero positions: {non_zero_pos}", "info")
+                log(f"    Position changes: {pos_changes}", "info")
+            
+            strategy_metrics = calculate_strategy_metrics(monthly_values)
+            
+            # Store metrics in both formats
             strategy_signal_metrics[f"strategy_{i}"] = strategy_metrics
-            
-            # Also add to root level for backward compatibility
             for key, value in strategy_metrics.items():
                 metrics[f"strategy_{i}_{key}"] = value
+                
+            if total_signals == 0:
+                log(f"Warning: Strategy {i} has no signals - this may indicate an issue", "warning")
         
         log(f"Calculating portfolio-level metrics", "info")
         
