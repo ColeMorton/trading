@@ -116,6 +116,7 @@ class PortfolioMetrics(TypedDict):
 class ConcurrencyReport(TypedDict):
     """Complete concurrency analysis report."""
     strategies: List[Strategy]
+    ticker_metrics: Dict[str, Any]
     portfolio_metrics: PortfolioMetrics
 
 def create_strategy_object(
@@ -316,6 +317,44 @@ def create_strategy_object(
       "allocation": stats.get(f"strategy_{strategy_id}_allocation_percentage", 0.0)
     }
 
+def calculate_ticker_metrics(strategies: List[Strategy]) -> Dict[str, Any]:
+    """Calculates ticker metrics from a list of strategies.
+
+    Args:
+        strategies (List[Strategy]): List of strategy objects.
+
+    Returns:
+        Dict[str, Any]: Dictionary of ticker metrics, with ticker symbols as keys.
+    """
+    ticker_metrics: Dict[str, Any] = {}
+    for strategy in strategies:
+        ticker = strategy["parameters"]["ticker"]["value"]
+        if ticker not in ticker_metrics:
+            ticker_metrics[ticker] = {
+                "id": ticker,
+                "performance": {
+                    "expectancy_per_month": {
+                        "value": strategy["performance"]["expectancy_per_month"]["value"],
+                        "description": strategy["performance"]["expectancy_per_month"]["description"]
+                    }
+                },
+                "risk_metrics": {k: v["value"] for k, v in strategy["risk_metrics"].items()},
+                "allocation_score": strategy["allocation_score"],
+                "allocation": strategy["allocation"]
+            }
+        else:
+            # Aggregate values for existing ticker
+            ticker_metrics[ticker]["performance"]["expectancy_per_month"]["value"] += strategy["performance"]["expectancy_per_month"]["value"]
+            
+            # Average risk metrics
+            for k in ticker_metrics[ticker]["risk_metrics"]:
+                ticker_metrics[ticker]["risk_metrics"][k] = (ticker_metrics[ticker]["risk_metrics"][k] + strategy["risk_metrics"][k]["value"]) / 2
+            
+            ticker_metrics[ticker]["allocation_score"] += strategy["allocation_score"]
+            ticker_metrics[ticker]["allocation"] += strategy["allocation"]
+
+    return ticker_metrics
+
 def create_portfolio_metrics(stats: Dict[str, Any]) -> PortfolioMetrics:
     """Create portfolio metrics with the optimized structure.
 
@@ -515,10 +554,15 @@ def generate_json_report(
         # Create portfolio metrics
         log("Creating portfolio metrics", "info")
         portfolio_metrics = create_portfolio_metrics(stats)
+
+        # Calculate ticker metrics
+        log("Calculating ticker metrics", "info")
+        ticker_metrics = calculate_ticker_metrics(strategy_objects)
         
         # Create report
         report: ConcurrencyReport = {
             "strategies": strategy_objects,
+            "ticker_metrics": ticker_metrics,
             "portfolio_metrics": portfolio_metrics
         }
         

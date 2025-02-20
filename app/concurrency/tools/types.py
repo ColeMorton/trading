@@ -36,6 +36,12 @@ class Strategy(TypedDict):
     risk_metrics: StrategyRiskMetrics
     allocation: Dict[str, Union[float, str]]
 
+class Ticker(TypedDict):
+    id: str
+    performance: StrategyPerformance
+    risk_metrics: StrategyRiskMetrics
+    allocation: Dict[str, Union[float, str]]
+
 class ConcurrencyMetrics(TypedDict):
     """Concurrency-related metrics."""
     total_concurrent_periods: Dict[str, Union[int, str]]

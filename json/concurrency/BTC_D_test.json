@@ -251,6 +251,27 @@
             "allocation": 61.53846153846154
         }
     ],
+    "ticker_metrics": {
+        "BTC-USD": {
+            "id": "BTC-USD",
+            "performance": {
+                "expectancy_per_month": {
+                    "value": 8508.312026733562,
+                    "description": "Expected monthly return"
+                }
+            },
+            "risk_metrics": {
+                "var_95": -0.05138067791851171,
+                "cvar_95": -0.07637198128215845,
+                "var_99": -0.09557768089833557,
+                "cvar_99": -0.11681547589354108,
+                "risk_contribution": 0.4999999999999999,
+                "alpha": -2.168404344971009e-19
+            },
+            "allocation_score": 0.65,
+            "allocation": 100.0
+        }
+    },
     "portfolio_metrics": {
         "concurrency": {
             "total_concurrent_periods": {
