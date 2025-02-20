@@ -87,29 +87,29 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 0.0,
+                        "value": 1.4444444444444444,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 0.0,
+                        "value": 1.0,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
-                        "value": 0.0,
+                        "value": 0.40892022664761307,
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 0.0,
+                        "value": 2.4799686622412755,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 0.0,
+                        "value": 1.0355242177968313,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 0.0,
+                        "value": 5.0,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
@@ -117,7 +117,7 @@
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 0.0,
+                        "value": 182.0,
                         "description": "Total number of signals across period"
                     }
                 }
@@ -212,29 +212,29 @@
             "signals": {
                 "monthly_statistics": {
                     "mean": {
-                        "value": 0.0,
+                        "value": 2.1746031746031744,
                         "description": "Average number of signals per month"
                     },
                     "median": {
-                        "value": 0.0,
+                        "value": 2.0,
                         "description": "Median number of signals per month"
                     },
                     "std_below": {
-                        "value": 0.0,
+                        "value": 0.08502447825218784,
                         "description": "One standard deviation below mean signals"
                     },
                     "std_above": {
-                        "value": 0.0,
+                        "value": 4.264181870954161,
                         "description": "One standard deviation above mean signals"
                     }
                 },
                 "summary": {
                     "volatility": {
-                        "value": 0.0,
+                        "value": 2.0895786963509866,
                         "description": "Standard deviation of monthly signals"
                     },
                     "max_monthly": {
-                        "value": 0.0,
+                        "value": 9.0,
                         "description": "Maximum signals in any month"
                     },
                     "min_monthly": {
@@ -242,7 +242,7 @@
                         "description": "Minimum signals in any month"
                     },
                     "total": {
-                        "value": 0.0,
+                        "value": 274.0,
                         "description": "Total number of signals across period"
                     }
                 }

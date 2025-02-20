@@ -254,43 +254,52 @@ def create_strategy_object(
         }
     }
 
-    # Extract strategy-specific signal metrics from the new structure
-    strategy_signal_metrics = stats.get("strategy_signal_metrics", {}).get(f"strategy_{strategy_id}", {})
+    # Get strategy-specific signal metrics
+    signal_metrics = stats.get("signal_metrics", {})
+    strategy_key = f"strategy_{index}"
+    
+    # Calculate mean signals per month for this strategy
+    mean_signals = signal_metrics.get(f"{strategy_key}_mean_signals", 0.0)
+    median_signals = signal_metrics.get(f"{strategy_key}_median_signals", 0.0)
+    std_signals = signal_metrics.get(f"{strategy_key}_signal_volatility", 0.0)
+    total_signals = signal_metrics.get(f"{strategy_key}_total_signals", 0.0)
+    max_monthly = signal_metrics.get(f"{strategy_key}_max_monthly_signals", 0.0)
+    min_monthly = signal_metrics.get(f"{strategy_key}_min_monthly_signals", 0.0)
     
     signals: SignalMetrics = {
         "monthly_statistics": {
             "mean": {
-                "value": strategy_signal_metrics.get("mean_signals", 0.0),
+                "value": mean_signals,
                 "description": "Average number of signals per month"
             },
             "median": {
-                "value": strategy_signal_metrics.get("median_signals", 0.0),
+                "value": median_signals,
                 "description": "Median number of signals per month"
             },
             "std_below": {
-                "value": strategy_signal_metrics.get("std_below_mean", 0.0),
+                "value": max(0.0, mean_signals - std_signals),
                 "description": "One standard deviation below mean signals"
             },
             "std_above": {
-                "value": strategy_signal_metrics.get("std_above_mean", 0.0),
+                "value": mean_signals + std_signals,
                 "description": "One standard deviation above mean signals"
             }
         },
         "summary": {
             "volatility": {
-                "value": strategy_signal_metrics.get("signal_volatility", 0.0),
+                "value": std_signals,
                 "description": "Standard deviation of monthly signals"
             },
             "max_monthly": {
-                "value": strategy_signal_metrics.get("max_monthly_signals", 0.0),
+                "value": max_monthly,
                 "description": "Maximum signals in any month"
             },
             "min_monthly": {
-                "value": strategy_signal_metrics.get("min_monthly_signals", 0.0),
+                "value": min_monthly,
                 "description": "Minimum signals in any month"
             },
             "total": {
-                "value": strategy_signal_metrics.get("total_signals", 0.0),
+                "value": total_signals,
                 "description": "Total number of signals across period"
             }
         }

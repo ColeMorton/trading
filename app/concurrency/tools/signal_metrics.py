@@ -183,29 +183,34 @@ def calculate_signal_metrics(
                 if count > 0:
                     log(f"    {month}: {count} signals", "info")
 
-            # Calculate and validate strategy metrics
+            # Calculate metrics from monthly signal counts
             monthly_values = list(monthly_counts.values())
             total_signals = sum(monthly_values)
             
-            log(f"Strategy {i} metrics calculation:", "info")
-            log(f"  Monthly values: {len(monthly_values)} months", "info")
-            log(f"  Signal months: {len([v for v in monthly_values if v > 0])}", "info")
-            log(f"  Total signals: {total_signals}", "info")
-            
-            if total_signals == 0:
-                log(f"Warning: Strategy {i} has no signals - verifying position data", "warning")
-                non_zero_pos = np.sum(positions != 0)
-                pos_changes = np.sum(np.diff(positions) != 0)
-                log(f"  Position verification:", "info")
-                log(f"    Non-zero positions: {non_zero_pos}", "info")
-                log(f"    Position changes: {pos_changes}", "info")
-            
+            # Calculate strategy-specific metrics
             strategy_metrics = calculate_strategy_metrics(monthly_values)
             
-            # Store metrics in both formats
-            strategy_signal_metrics[f"strategy_{i}"] = strategy_metrics
+            # Store metrics in strategy-specific format
+            strategy_signal_metrics[f"strategy_{i}"] = {
+                "mean_signals": float(strategy_metrics["mean_signals"]),
+                "median_signals": float(strategy_metrics["median_signals"]),
+                "std_below_mean": float(strategy_metrics["std_below_mean"]),
+                "std_above_mean": float(strategy_metrics["std_above_mean"]),
+                "signal_volatility": float(strategy_metrics["signal_volatility"]),
+                "max_monthly_signals": float(strategy_metrics["max_monthly_signals"]),
+                "min_monthly_signals": float(strategy_metrics["min_monthly_signals"]),
+                "total_signals": float(strategy_metrics["total_signals"])
+            }
+            
+            # Log metrics summary
+            log(f"Strategy {i} signal metrics:", "info")
+            log(f"  Total signals: {total_signals}", "info")
+            log(f"  Mean signals per month: {strategy_metrics['mean_signals']:.2f}", "info")
+            log(f"  Signal volatility: {strategy_metrics['signal_volatility']:.2f}", "info")
+            
+            # Store metrics for backward compatibility
             for key, value in strategy_metrics.items():
-                metrics[f"strategy_{i}_{key}"] = value
+                metrics[f"strategy_{i}_{key}"] = float(value)
                 
             if total_signals == 0:
                 log(f"Warning: Strategy {i} has no signals - this may indicate an issue", "warning")
