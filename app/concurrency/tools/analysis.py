@@ -5,7 +5,11 @@ import polars as pl
 from app.concurrency.tools.types import ConcurrencyStats, StrategyConfig
 from app.concurrency.tools.data_alignment import align_multiple_data
 from app.concurrency.tools.risk_metrics import calculate_risk_contributions
-from app.concurrency.tools.efficiency import calculate_efficiency_score, calculate_allocation_scores
+from app.concurrency.tools.efficiency import (
+    calculate_strategy_efficiency,
+    calculate_portfolio_efficiency,
+    calculate_allocation_scores
+)
 from app.concurrency.tools.position_metrics import calculate_position_metrics
 from app.concurrency.tools.signal_metrics import calculate_signal_metrics
 
@@ -43,6 +47,7 @@ def compile_statistics(
     efficiency_metrics: Tuple[float, float, float, float, float],
     signal_metrics: dict,
     strategy_expectancies: List[float],
+    strategy_efficiencies: List[Tuple[float, float, float, float]],
     log: Callable[[str, str], None]
 ) -> ConcurrencyStats:
     """Compile analysis statistics.
@@ -87,24 +92,16 @@ def compile_statistics(
             else 0.0
         )
 
-        # Calculate per-strategy efficiency metrics
-        strategy_metrics = []
-        total_expectancy_sum = sum(strategy_expectancies)
-
-        for idx, expectancy in enumerate(strategy_expectancies, 1):
-            weight = expectancy / total_expectancy_sum if total_expectancy_sum > 0 else 0.0
-            strategy_metrics.append({
-                f"strategy_{idx}_efficiency_score": efficiency_score * weight,
-                f"strategy_{idx}_expectancy": expectancy,
-                f"strategy_{idx}_diversification": diversification_multiplier,
-                f"strategy_{idx}_independence": independence_multiplier,
-                f"strategy_{idx}_activity": activity_multiplier
-            })
-
-        # Combine all strategy metrics
+        # Store individual strategy efficiency metrics
         strategy_efficiency_metrics = {}
-        for metrics in strategy_metrics:
-            strategy_efficiency_metrics.update(metrics)
+        for idx, ((efficiency, div, ind, act), expectancy) in enumerate(zip(strategy_efficiencies, strategy_expectancies), 1):
+            strategy_efficiency_metrics.update({
+                f"strategy_{idx}_efficiency_score": efficiency,
+                f"strategy_{idx}_expectancy": expectancy,
+                f"strategy_{idx}_diversification": div,
+                f"strategy_{idx}_independence": ind,
+                f"strategy_{idx}_activity": act
+            })
 
         stats = {
             "total_periods": total_periods,
@@ -146,6 +143,8 @@ def analyze_concurrency(
     log: Callable[[str, str], None]
 ) -> Tuple[ConcurrencyStats, List[pl.DataFrame]]:
     """Analyze concurrent positions across multiple strategies."""
+    stats = {}
+    signal_metrics = {}
     try:
         validate_inputs(data_list, config_list, log)
         log("Starting concurrency analysis", "info")
@@ -167,44 +166,89 @@ def analyze_concurrency(
 
         # Calculate risk metrics
         log("Calculating risk metrics", "info")
-        risk_metrics = calculate_risk_contributions(position_arrays, aligned_data, log)
+        strategy_allocations = [
+            config.get('ALLOCATION', 0.0)
+            for config in config_list
+        ]
+        risk_metrics = calculate_risk_contributions(
+            position_arrays,
+            aligned_data,
+            strategy_allocations,
+            log
+        )
 
         # Calculate efficiency metrics
         log("Calculating efficiency metrics", "info")
+        
+        # Calculate strategy expectancies
         strategy_expectancies = [
             config.get('EXPECTANCY_PER_MONTH', 0) / (30 if config.get('USE_HOURLY', False) else 21)
-        for config in config_list
+            for config in config_list
         ]
-        efficiency_metrics = calculate_efficiency_score(
-            strategy_expectancies,
-            position_metrics[1],  # avg_correlation
-            position_metrics[2],  # concurrent_periods
-            position_metrics[3],  # exclusive_periods
-            position_metrics[4],  # inactive_periods
-            len(aligned_data[0]),  # total_periods
-            log
+        
+        # Calculate ratios
+        total_periods = len(aligned_data[0])
+        concurrent_ratio = position_metrics[2] / total_periods
+        exclusive_ratio = position_metrics[3] / total_periods
+        inactive_ratio = position_metrics[4] / total_periods
+        
+        # Calculate individual strategy efficiencies
+        log("Calculating individual strategy efficiencies", "info")
+        strategy_efficiencies = []
+        for i, expectancy in enumerate(strategy_expectancies):
+            efficiency, div, ind, act = calculate_strategy_efficiency(
+                expectancy=expectancy,
+                correlation=position_metrics[1],  # avg_correlation
+                concurrent_ratio=concurrent_ratio,
+                exclusive_ratio=exclusive_ratio,
+                inactive_ratio=inactive_ratio,
+                log=log
+            )
+            strategy_efficiencies.append((efficiency, div, ind, act))
+        
+        # Calculate portfolio efficiency
+        log("Calculating portfolio efficiency", "info")
+        portfolio_metrics = calculate_portfolio_efficiency(
+            strategy_efficiencies=[e[0] for e in strategy_efficiencies],
+            strategy_expectancies=strategy_expectancies,
+            strategy_allocations=strategy_allocations,
+            avg_correlation=position_metrics[1],
+            concurrent_periods=position_metrics[2],
+            exclusive_periods=position_metrics[3],
+            inactive_periods=position_metrics[4],
+            total_periods=total_periods,
+            log=log
+        )
+        
+        # Package metrics in legacy format for backward compatibility
+        efficiency_metrics = (
+            portfolio_metrics['portfolio_efficiency'],
+            portfolio_metrics['total_expectancy'],
+            portfolio_metrics['diversification_multiplier'],
+            portfolio_metrics['independence_multiplier'],
+            portfolio_metrics['activity_multiplier']
         )
 
         # Calculate signal metrics
         log("Calculating signal metrics", "info")
         signal_metrics = calculate_signal_metrics(aligned_data, log)
 
-        # Extract strategy risk contributions, alphas, and efficiencies
+        # Extract strategy risk contributions, alphas, and efficiencies for allocation
         strategy_risk_contributions = [risk_metrics.get(f"strategy_{i+1}_risk_contrib", 0.0) for i in range(len(config_list))]
         strategy_alphas = [risk_metrics.get(f"strategy_{i+1}_alpha", 0.0) for i in range(len(config_list))]
-        strategy_efficiencies = [efficiency_metrics[0] for i in range(len(config_list))]
+        allocation_efficiencies = [efficiency_metrics[0] for i in range(len(config_list))]
 
         # Calculate allocation scores
         log("Calculating allocation scores", "info")
-        allocation_scores = calculate_allocation_scores(
+        allocation_scores, allocation_percentages = calculate_allocation_scores(
             strategy_expectancies,
             strategy_risk_contributions,
             strategy_alphas,
-            strategy_efficiencies,
+            allocation_efficiencies,
             log
         )
 
-        # Compile final statistics
+        # Compile all statistics
         stats = compile_statistics(
             aligned_data,
             position_metrics,
@@ -212,23 +256,43 @@ def analyze_concurrency(
             efficiency_metrics,
             signal_metrics,
             strategy_expectancies,
+            strategy_efficiencies,  # Pass individual strategy efficiencies
             log
         )
 
-        # Add allocation scores and percentages to stats
-        allocation_scores, allocation_percentages = calculate_allocation_scores(
-            strategy_expectancies,
-            strategy_risk_contributions,
-            strategy_alphas,
-            strategy_efficiencies,
-            log
-        )
+        # Add allocation scores
         for i, (score, percentage) in enumerate(zip(allocation_scores, allocation_percentages), 1):
-            stats[f"strategy_{i}_allocation"] = score
-            stats[f"strategy_{i}_allocation_percentage"] = percentage
+            stats[f"strategy_{i+1}_allocation"] = score
+            stats[f"strategy_{i+1}_allocation_percentage"] = percentage
+
         log("Analysis completed successfully", "info")
         return stats, aligned_data
 
     except Exception as e:
         log(f"Error during analysis: {str(e)}", "error")
+        # Ensure stats is defined even if an error occurs
+        stats = {
+            "total_periods": 0,
+            "total_concurrent_periods": 0,
+            "exclusive_periods": 0,
+            "concurrency_ratio": 0.0,
+            "exclusive_ratio": 0.0,
+            "inactive_ratio": 0.0,
+            "avg_concurrent_strategies": 0.0,
+            "risk_concentration_index": 0.0,
+            "max_concurrent_strategies": 0,
+            "strategy_correlations": {},
+            "avg_position_length": 0.0,
+            "efficiency_score": 0.0,
+            "total_expectancy": 0.0,
+            "diversification_multiplier": 0.0,
+            "independence_multiplier": 0.0,
+            "activity_multiplier": 0.0,
+            "strategy_expectancies": [],
+            "strategy_efficiency_metrics": {},
+            "risk_metrics": {},
+            "signal_metrics": signal_metrics,
+            "start_date": "",
+            "end_date": ""
+        }
         raise
