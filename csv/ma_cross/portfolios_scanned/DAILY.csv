@@ -4,7 +4,7 @@ ZTS,32,37,,,false,false
 ZS,35,37,,,false,false
 ZS,,,2,31,false,false
 ZS,,,2,6,false,false
-ZM,53,54,,,false,false
+ZM,53,54,,,true,false
 ZM,,,3,18,false,false
 ZEC-USD,,,2,22,false,false
 XYZ,7,25,,,false,false
@@ -48,7 +48,7 @@ TSM,,,82,89,false,false
 TSLA,10,20,,,false,false
 TSLA,,,11,15,false,false
 TSEM,73,83,,,false,false
-TRX-USD,2,4,,,false,false
+TRX-USD,2,4,,,true,false
 TRGP,7,32,,,false,false
 TRGP,,,9,27,false,false
 TMUS,,,5,65,false,false
@@ -57,7 +57,7 @@ TMDX,,,7,25,false,false
 TLT,16,86,,,false,false
 TLT,,,31,51,false,false
 TGT,80,89,,,false,false
-TEAM,47,48,,,false,false
+TEAM,47,48,,,true,false
 TEAM,,,5,65,false,false
 T,68,73,,,false,false
 STZ,52,71,,,false,false
@@ -69,14 +69,14 @@ SPY,12,73,,,false,false
 SPGI,8,41,,,false,false
 SOL-USD,27,30,,,false,false
 SOFI,18,19,,,false,false
-SO,,,84,89,false,true
+SO,,,84,89,false,false
 SO,,,85,89,false,false
 SO,83,87,,,false,false
 SNPS,51,85,,,false,false
 SNPS,,,27,31,false,false
 SMH,73,79,,,false,false
 SIRI,27,56,,,false,false
-SE,46,48,,,true,false
+SE,46,48,,,false,false
 SBUX,17,33,,,false,false
 SBUX,,,13,47,false,false
 RUNE-USD,,,8,12,false,false
@@ -143,7 +143,7 @@ NXPI,53,55,,,false,false
 NXPI,,,49,53,false,false
 NVDA,45,73,,,false,false
 NVDA,54,74,,,false,false
-NVDA,,,52,58,false,false
+NVDA,,,52,58,false,true
 NTES,12,67,,,false,false
 NTES,,,2,16,false,false
 NOW,,,42,66,false,false
@@ -159,7 +159,7 @@ NCLH,68,79,,,false,false
 MU,,,31,49,false,false
 MU,26,47,,,false,false
 MSTR,,,6,23,false,false
-MSTR,2,13,,,true,false
+MSTR,2,13,,,false,false
 MSFT,67,86,,,false,false
 MSFT,,,75,84,false,false
 MRVL,68,77,,,false,false
@@ -180,10 +180,10 @@ META,,,9,61,false,false
 MELI,7,64,,,false,false
 MELI,,,14,33,false,false
 MELI,,,7,64,false,false
-MDB,83,85,,,false,false
+MDB,83,85,,,true,false
 MCHP,71,83,,,false,false
 MCHP,,,29,86,false,false
-MCD,26,34,,,true,false
+MCD,26,34,,,false,false
 MCD,,,72,86,false,false
 MATIC-USD,,,7,20,false,false
 MATIC-USD,2,4,,,false,false
@@ -232,7 +232,7 @@ HRL,,,84,86,false,false
 HON,60,76,,,false,false
 HON,,,76,79,false,false
 HIMS,3,46,,,false,false
-HD,78,84,,,false,false
+HD,78,84,,,true,false
 HD,,,21,53,false,false
 GRAB,11,15,,,false,false
 GOOGL,,,9,46,false,false
@@ -273,9 +273,9 @@ ERIE,47,59,,,false,false
 ERIE,,,31,79,false,false
 EQR,70,81,,,false,false
 EQR,,,37,89,false,false
-EQIX,21,33,,,false,false
+EQIX,21,33,,,true,false
 EQIX,,,11,79,false,false
-ENPH,5,15,,,false,false
+ENPH,5,15,,,true,false
 EBAY,13,23,,,false,false
 EA,70,74,,,false,false
 EA,,,21,34,false,false
@@ -285,7 +285,7 @@ DUK,,,69,80,false,false
 DOT-USD,28,33,,,false,false
 DOGE-USD,2,8,,,false,false
 DOCU,52,54,,,false,false
-DOCN,54,56,,,false,false
+DOCN,54,56,,,true,false
 DLTR,,,20,21,false,false
 DIS,25,70,,,false,false
 DIS,,,69,79,false,false
@@ -299,7 +299,7 @@ D,72,81,,,false,false
 CVX,,,67,82,false,false
 CVX,70,74,,,false,false
 CVS,51,69,,,false,false
-CVS,,,55,89,false,false
+CVS,,,55,89,false,true
 CTSH,73,82,,,false,false
 CTSH,,,87,89,false,false
 CTSH,,,19,34,false,false
@@ -312,7 +312,7 @@ CSCO,,,26,63,false,false
 CSCO,18,73,,,false,false
 CRWD,,,2,24,false,false
 CRM,,,16,42,false,false
-CRL,73,75,,,true,false
+CRL,73,75,,,false,false
 CRL,,,32,46,false,false
 CPRT,,,62,89,false,false
 CPRT,38,42,,,false,false
@@ -327,7 +327,7 @@ CL,12,46,,,false,false
 CIFR,8,14,,,false,false
 CI,18,49,,,false,false
 CHTR,,,18,88,false,false
-CHTR,,,9,87,false,true
+CHTR,,,9,87,false,false
 CEG,24,25,,,false,false
 CEG,,,5,6,false,false
 CDNS,49,74,,,false,false
@@ -395,7 +395,7 @@ ADA-USD,2,18,,,false,false
 ACN,69,74,,,false,false
 ABT,,,70,88,false,false
 ABT,82,85,,,false,false
-ABNB,34,35,,,false,false
+ABNB,34,35,,,true,false
 AAPL,,,12,17,false,false
 AAPL,13,35,,,false,false
 BTC-USD,,,3,11,false,false
@@ -417,8 +417,8 @@ SPY,,,51,72,false,false
 SPY,,,46,51,false,false
 SPY,12,73,,,false,false
 COPX,29,42,,,false,false
-IAU,64,75,,,false,false
+IAU,64,75,,,true,false
 SLV,77,84,,,false,false
-COPX,10,80,,,false,false
+COPX,10,80,,,true,false
 LIT,7,31,,,false,false
 URA,7,34,,,false,false

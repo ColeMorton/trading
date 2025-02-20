@@ -1,42 +1,63 @@
-import yfinance as yf
 from datetime import datetime, timedelta
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import json
-import logging
 from scipy.stats import norm, percentileofscore
+import pandas as pd
+from typing import TypedDict, NotRequired
 
-TICKER = 'TRX-USD'
+from app.tools.download_data import download_data
+from app.tools.setup_logging import setup_logging
 
-# Set up logging    
-logging.basicConfig(
-    filename='logs/return_distribution.log',
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+TICKER = 'SPY'
+
+log, log_close, _, _ = setup_logging(
+    module_name='return_distribution',
+    log_file='return_distribution.log'
 )
+
+class DataConfig(TypedDict):
+    """Configuration type definition.
+
+    Required Fields:
+        PERIOD (str): Data period
+
+    Optional Fields:
+        USE_YEARS (NotRequired[bool]): Use years
+        YEARS (NotRequired[int]): Number of years
+        USE_CURRENT (NotRequired[bool]): Use current
+    """
+    PERIOD: str
+    USE_YEARS: NotRequired[bool]
+    YEARS: NotRequired[int]
+    USE_CURRENT: NotRequired[bool]
 
 def load_config(file_path='config.json'):
     """Load configuration settings from a JSON file."""
-    logging.info("Loading configuration from file: %s", file_path)
+    log(f"Loading configuration from file: {file_path}")
     with open(file_path, 'r') as file:
         config = json.load(file)
-    logging.info("Configuration loaded successfully.")
+    log("Configuration loaded successfully.")
     return config
 
-def fetch_data(ticker):
+def fetch_data(ticker: str) -> pd.DataFrame:
     """Fetch historical price data for a given ticker."""
-    logging.info("Fetching data for ticker: %s", ticker)
-    data = yf.download(ticker, period='max', interval='1d')
+    log(f"Fetching data for ticker: {ticker}")
+    data_config: DataConfig = {
+        "PERIOD": "max",
+    }
+    df = download_data(ticker, data_config, log)
+    data = df.to_pandas()
     if data.empty:
-        logging.error("No data fetched for the given asset and date range.")
+        log("No data fetched for the given asset and date range.", "error")
         raise ValueError("No data fetched for the given asset and date range.")
-    logging.info("Data fetched successfully.")
+    log("Data fetched successfully.")
     return data
 
 def calculate_returns(data, timeframe):
     """Calculate returns based on the specified timeframe."""
-    logging.info("Calculating returns for timeframe: %s", timeframe)
+    log("Calculating returns for timeframe: %s", timeframe)
     data.loc[:, 'Return'] = data['Adj Close'].pct_change()
     if timeframe == "D":
         returns = data['Return'].dropna()
@@ -47,25 +68,25 @@ def calculate_returns(data, timeframe):
     elif timeframe == "2W":
         returns = data['Return'].resample('2W-MON').sum().dropna()
     else:
-        logging.error("Invalid timeframe specified: %s", timeframe)
+        log("Invalid timeframe specified: %s", timeframe, "error")
         raise ValueError("Invalid timeframe specified. Use 'D', '3D', 'W', or '2W'.")
     if returns.empty:
-        logging.error("No valid returns calculated. Try increasing the date range.")
+        log("No valid returns calculated. Try increasing the date range.", "error")
         raise ValueError("No valid returns calculated. Try increasing the date range.")
-    logging.info("Returns calculated successfully.")
+    log("Returns calculated successfully.")
     return returns
 
 def calculate_var(returns):
     """Calculate Value at Risk (VaR)"""
-    logging.info("Calculating VaR for returns.")
+    log("Calculating VaR for returns.")
     var_95 = np.percentile(returns, 5)
     var_99 = np.percentile(returns, 1)
-    logging.info("VaR calculated successfully.")
+    log("VaR calculated successfully.")
     return var_95, var_99
 
 def plot_return_distribution(returns, var_95, var_99, ticker, timeframe, ax, current_return):
     """Plot the return distribution with VaR lines and additional statistics."""
-    logging.info("Plotting return distribution for ticker: %s, timeframe: %s", ticker, timeframe)
+    log("Plotting return distribution for ticker: %s, timeframe: %s", ticker, timeframe)
     # Calculate additional statistics
     mean = np.mean(returns)
     median = np.median(returns)
@@ -112,11 +133,11 @@ def plot_return_distribution(returns, var_95, var_99, ticker, timeframe, ax, cur
     ax.set_ylabel('Frequency', fontsize=8)
     ax.legend(fontsize=6)
     ax.grid(True)
-    logging.info("Return distribution plotted successfully.")
+    log("Return distribution plotted successfully.")
 
 def main():
     """Main function to execute the return distribution analysis."""
-    logging.info("Starting return distribution analysis.")
+    log("Starting return distribution analysis.")
     config = load_config()
     # TICKER = config['TICKER']
     
@@ -163,7 +184,8 @@ def main():
     # Print some diagnostic information
     print(f"\nTotal days of data: {len(data)}")
     print(f"Date range: {data.index[0]} to {data.index[-1]}")
-    logging.info("Return distribution analysis completed.")
+    log("Return distribution analysis completed.")
+    log_close()
 
 if __name__ == "__main__":
     main()

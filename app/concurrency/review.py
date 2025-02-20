@@ -25,7 +25,7 @@ PORTFOLIOS_DIR = CONCURRENCY_DIR / "portfolios"
 DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "spy_qqq_btc_sol_d_next.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "BTC_D_test.csv"),
-    "PORTFOLIO": str(PORTFOLIOS_DIR / "stock_20250219.json"),
+    # "PORTFOLIO": str(PORTFOLIOS_DIR / "stock_20250220.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "BTC_SOL_D.csv"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_d_macd.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_d_20250217.json"),
@@ -38,10 +38,11 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "crypto_d_20250218.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "crypto_d_next.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_d_next.json"),
+    "PORTFOLIO": str(PORTFOLIOS_DIR / "portfolio_stock.json"),
     "BASE_DIR": str(CONCURRENCY_DIR),
     "REFRESH": True,
     "SL_CANDLE_CLOSE": True,
-    "VISUALIZATION": True
+    "VISUALIZATION": False
 }
 
 def run_analysis(config: Dict[str, Any]) -> bool:
