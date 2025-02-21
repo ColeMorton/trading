@@ -1,0 +1,127 @@
+[
+    {
+        "ticker": "BTC-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 8,
+        "long_window": 44
+    },
+    {
+        "ticker": "BTC-USD",
+        "timeframe": "Daily",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 11,
+        "long_window": 17
+    },
+    {
+        "ticker": "BTC-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 11,
+        "long_window": 36
+    },
+    {
+        "ticker": "BTC-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 27,
+        "long_window": 29
+    },
+    {
+        "ticker": "BTC-USD",
+        "timeframe": "Daily",
+        "type": "MACD",
+        "direction": "Long",
+        "short_window": 14,
+        "long_window": 23,
+        "signal_window": 13,
+        "rsi_period": 14,
+        "rsi_threshold": 45
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 27,
+        "long_window": 30
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 26,
+        "long_window": 32
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 14,
+        "long_window": 32
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 16,
+        "long_window": 18
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "MACD",
+        "direction": "Long",
+        "short_window": 19,
+        "long_window": 33,
+        "signal_window": 13
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 19,
+        "long_window": 22
+    },
+    {
+        "ticker": "ETH-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 12,
+        "long_window": 21
+    },
+    {
+        "ticker": "ETH-USD",
+        "timeframe": "Daily",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 14,
+        "long_window": 15
+    },
+    {
+        "ticker": "TRX-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 10,
+        "long_window": 27
+    },
+    {
+        "ticker": "TRX-USD",
+        "timeframe": "Daily",
+        "type": "MACD",
+        "direction": "Long",
+        "short_window": 6,
+        "long_window": 7,
+        "signal_window": 10
+    }
+]

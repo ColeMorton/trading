@@ -39,5 +39,13 @@
         "direction": "Long",
         "short_window": 16,
         "long_window": 18
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 19,
+        "long_window": 22
     }
 ]

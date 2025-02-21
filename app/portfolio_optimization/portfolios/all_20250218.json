@@ -1,7 +1,7 @@
 {
     "initial_value": 15915.5,
-    "target_value": 55100,
-    "use_target_value": false,
+    "target_value": 45000,
+    "use_target_value": true,
     "portfolio": [
         {
             "ticker": "SPY",
@@ -16,27 +16,27 @@
         {
             "ticker": "BTC-USD",
             "leverage": 4.5,
-            "weight": 19.05
+            "weight": 15.4314432699565
         },
         {
             "ticker": "SOL-USD",
             "leverage": 3.2,
-            "weight": 17.11
+            "weight": 23.208679671137048
         },
         {
             "ticker": "ETH-USD",
             "leverage": 3.4,
-            "weight": 9.52
+            "weight": 7.795373401917372
         },
         {
             "ticker": "BNB-USD",
             "leverage": 3.7,
-            "weight": 9.52
+            "weight": 11.600611789844287
         },
         {
             "ticker": "TRX-USD",
             "leverage": 2.8,
-            "weight": 9.52
+            "weight": 8.151850092104741
         }
     ]
 }

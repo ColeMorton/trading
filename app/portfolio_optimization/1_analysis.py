@@ -1,14 +1,10 @@
 from typing import TypedDict, List, Dict, Any, Callable
 from app.portfolio_optimization.schemas import (
-    PortfolioConfig,
-    PortfolioMetrics,
-    AnalysisOutput
+    PortfolioConfig
 )
 from app.portfolio_optimization.tools.position_sizing_types import PositionSizingConfig
-from app.portfolio_optimization.schemas import SizingOutput
 from app.portfolio_optimization.tools.position_sizing import calculate_position_sizes
 import polars as pl
-import yfinance as yf
 import numpy as np
 import matplotlib
 matplotlib.use('TkAgg')  # Set interactive backend
@@ -26,7 +22,8 @@ from pathlib import Path
 
 # Position sizing configuration - values not stored in portfolio JSON
 config: PositionSizingConfig = {
-    "portfolio": "current.json",
+    # "portfolio": "current.json",
+    "portfolio": "all_20250218.json",
     "use_ema": False,     # Whether to use EMA for price calculations
     "ema_period": 35,     # Period for EMA if used
     "var_confidence_levels": [0.95, 0.99]
@@ -44,6 +41,9 @@ class OptimizationConfig(TypedDict):
     max_weight: float
     risk_free_rate: float
 
+from app.tools.download_data import download_data as download_data_tool
+from app.tools.data_types import DataConfig
+
 def download_data(ticker: str, log: callable) -> pl.DataFrame:
     """
     Download historical data from Yahoo Finance.
@@ -60,8 +60,14 @@ def download_data(ticker: str, log: callable) -> pl.DataFrame:
     """
     try:
         log(f"Downloading data for {ticker}")
-        data = yf.download(ticker, period="max", interval="1d")
-        return pl.from_pandas(data[['Adj Close']])
+        
+        # Define a basic DataConfig.  The period is set to max to align with the original code.
+        data_config: DataConfig = {
+            "PERIOD": "max"
+        }
+        
+        data = download_data_tool(ticker, data_config, log)
+        return data.select(pl.col("Close").alias(ticker))
     except Exception as e:
         log(f"Error downloading {ticker}: {str(e)}", "error")
         raise
@@ -81,7 +87,6 @@ def combine_price_data(tickers: List[str], log: callable) -> pl.DataFrame:
     dfs = []
     for ticker in tickers:
         df = download_data(ticker, log)
-        df = df.rename({"Adj Close": ticker})
         dfs.append(df)
     
     return pl.concat(dfs, how="horizontal")
