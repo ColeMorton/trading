@@ -580,6 +580,7 @@ def generate_json_report(
         ticker_metrics = calculate_ticker_metrics(strategy_objects)
         
         # Create report
+        strategy_objects.sort(key=lambda x: x.get("allocation", 0.0), reverse=True)
         report: ConcurrencyReport = {
             "strategies": strategy_objects,
             "ticker_metrics": ticker_metrics,
