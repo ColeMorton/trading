@@ -122,8 +122,8 @@
                     }
                 }
             },
-            "allocation_score": 0.0,
-            "allocation": 0.0
+            "allocation_score": 0.25,
+            "allocation": 38.46153846153846
         },
         {
             "id": "strategy_2",
@@ -247,8 +247,8 @@
                     }
                 }
             },
-            "allocation_score": 0.25,
-            "allocation": 38.46153846153846
+            "allocation_score": 0.4,
+            "allocation": 61.53846153846154
         }
     ],
     "ticker_metrics": {
@@ -330,8 +330,8 @@
                     }
                 }
             },
-            "allocation_score": 0.25,
-            "allocation": 38.46153846153846
+            "allocation_score": 0.65,
+            "allocation": 100.0
         }
     },
     "portfolio_metrics": {

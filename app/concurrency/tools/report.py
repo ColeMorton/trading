@@ -313,8 +313,8 @@ def create_strategy_object(
       "risk_metrics": risk_metrics,
       "efficiency": efficiency,
       "signals": signals,
-      "allocation_score": stats.get(f"strategy_{strategy_id}_allocation", 0.0),
-      "allocation": stats.get(f"strategy_{strategy_id}_allocation_percentage", 0.0)
+      "allocation_score": stats.get(f"strategy_{int(strategy_id)+1}_allocation", 0.0),
+      "allocation": stats.get(f"strategy_{int(strategy_id)+1}_allocation_percentage", 0.0)
     }
 
 def calculate_ticker_metrics(strategies: List[Strategy]) -> Dict[str, Any]:
