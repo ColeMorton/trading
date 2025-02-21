@@ -13,8 +13,8 @@
         "timeframe": "Daily",
         "type": "SMA",
         "direction": "Long",
-        "short_window": 14,
-        "long_window": 32
+        "short_window": 27,
+        "long_window": 30
     },
     {
         "ticker": "SOL-USD",
@@ -30,15 +30,47 @@
         "type": "SMA",
         "direction": "Long",
         "short_window": 27,
-        "long_window": 30
+        "long_window": 29
     },
     {
         "ticker": "SOL-USD",
         "timeframe": "Daily",
         "type": "EMA",
         "direction": "Long",
-        "short_window": 16,
-        "long_window": 18
+        "short_window": 4,
+        "long_window": 5
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 3,
+        "long_window": 6
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 14,
+        "long_window": 32
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 2,
+        "long_window": 11
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 29,
+        "long_window": 30
     },
     {
         "ticker": "SOL-USD",
@@ -47,5 +79,21 @@
         "direction": "Long",
         "short_window": 19,
         "long_window": 22
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 30,
+        "long_window": 31
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 15,
+        "long_window": 21
     }
 ]

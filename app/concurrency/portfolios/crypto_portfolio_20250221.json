@@ -18,6 +18,14 @@
     {
         "ticker": "BTC-USD",
         "timeframe": "Daily",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 3,
+        "long_window": 11
+    },
+    {
+        "ticker": "BTC-USD",
+        "timeframe": "Daily",
         "type": "SMA",
         "direction": "Long",
         "short_window": 11,
@@ -45,6 +53,15 @@
     {
         "ticker": "SOL-USD",
         "timeframe": "Daily",
+        "type": "MACD",
+        "direction": "Long",
+        "short_window": 19,
+        "long_window": 33,
+        "signal_window": 13
+    },
+    {
+        "ticker": "SOL-USD",
+        "timeframe": "Daily",
         "type": "SMA",
         "direction": "Long",
         "short_window": 27,
@@ -63,33 +80,32 @@
         "timeframe": "Daily",
         "type": "SMA",
         "direction": "Long",
-        "short_window": 14,
-        "long_window": 32
+        "short_window": 27,
+        "long_window": 29
     },
     {
         "ticker": "SOL-USD",
         "timeframe": "Daily",
         "type": "EMA",
         "direction": "Long",
-        "short_window": 16,
-        "long_window": 18
+        "short_window": 4,
+        "long_window": 5
     },
     {
         "ticker": "SOL-USD",
         "timeframe": "Daily",
-        "type": "MACD",
+        "type": "EMA",
         "direction": "Long",
-        "short_window": 19,
-        "long_window": 33,
-        "signal_window": 13
+        "short_window": 3,
+        "long_window": 6
     },
     {
         "ticker": "SOL-USD",
         "timeframe": "Daily",
         "type": "SMA",
         "direction": "Long",
-        "short_window": 19,
-        "long_window": 22
+        "short_window": 14,
+        "long_window": 32
     },
     {
         "ticker": "ETH-USD",

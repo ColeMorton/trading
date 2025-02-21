@@ -1,0 +1,99 @@
+{
+    "portfolio_metrics": {
+        "annualized_return": 0.5430282025463948,
+        "downside_volatility": 0.2484653280005794,
+        "sortino_ratio": 0.13767539187876643,
+        "var_95": 741.3148580412324,
+        "cvar_95": 1154.8079953762933,
+        "var_99": 1363.4019789316364,
+        "cvar_99": 1848.7998366020431
+    },
+    "asset_metrics": [
+        {
+            "ticker": "BTC-USD",
+            "weight": 0.3333333288377647,
+            "annualized_return": 0.5203741301645693,
+            "downside_volatility": 0.4320145097883324,
+            "sortino_ratio": 1.2045292886563674,
+            "var": -0.05569577526786738,
+            "cvar": -0.0840931050463627,
+            "initial_value": 1814.88,
+            "leveraged_value": 8166.96,
+            "position_size": 0.08321305922620048,
+            "allocation": 35.82
+        },
+        {
+            "ticker": "SOL-USD",
+            "weight": 0.2992404759764672,
+            "annualized_return": 1.3019075782046468,
+            "downside_volatility": 0.6578452548652401,
+            "sortino_ratio": 1.979048368253934,
+            "var": -0.08813192125117393,
+            "cvar": -0.13214639164192638,
+            "initial_value": 1954.3874999999998,
+            "leveraged_value": 6254.04,
+            "position_size": 35.989294608017076,
+            "allocation": 27.43
+        },
+        {
+            "ticker": "ETH-USD",
+            "weight": 0.16666666663160373,
+            "annualized_return": 0.4678426499367531,
+            "downside_volatility": 0.5268919613206944,
+            "sortino_ratio": 0.8879289954700965,
+            "var": -0.06858920129319748,
+            "cvar": -0.10477043083666115,
+            "initial_value": 1201.0235294117647,
+            "leveraged_value": 4083.48,
+            "position_size": 1.4883057361839107,
+            "allocation": 17.91
+        },
+        {
+            "ticker": "TRX-USD",
+            "weight": 0.2007595285541644,
+            "annualized_return": 0.9512609934801716,
+            "downside_volatility": 0.6286097815302051,
+            "sortino_ratio": 1.5132774281121537,
+            "var": -0.07570825704520953,
+            "cvar": -0.124129963484381,
+            "initial_value": 1534.1142857142859,
+            "leveraged_value": 4295.52,
+            "position_size": 17275.53369860039,
+            "allocation": 18.84
+        }
+    ],
+    "position_sizing_config": {
+        "use_ema": false,
+        "ema_period": 35,
+        "var_confidence_levels": [
+            0.95,
+            0.99
+        ]
+    },
+    "total_leveraged_value": 22800.0,
+    "initial_value": 14221,
+    "target_value": 22800,
+    "use_target_value": true,
+    "portfolio": [
+        {
+            "ticker": "BTC-USD",
+            "leverage": 4.5,
+            "weight": 35.82
+        },
+        {
+            "ticker": "SOL-USD",
+            "leverage": 3.2,
+            "weight": 27.43
+        },
+        {
+            "ticker": "ETH-USD",
+            "leverage": 3.4,
+            "weight": 17.91
+        },
+        {
+            "ticker": "TRX-USD",
+            "leverage": 2.8,
+            "weight": 18.84
+        }
+    ]
+}

@@ -23,7 +23,8 @@ from pathlib import Path
 # Position sizing configuration - values not stored in portfolio JSON
 config: PositionSizingConfig = {
     # "portfolio": "current.json",
-    "portfolio": "all_20250218.json",
+    # "portfolio": "all_20250218.json",
+    "portfolio": "crypto_portfolio_20250221.json",
     "use_ema": False,     # Whether to use EMA for price calculations
     "ema_period": 35,     # Period for EMA if used
     "var_confidence_levels": [0.95, 0.99]
