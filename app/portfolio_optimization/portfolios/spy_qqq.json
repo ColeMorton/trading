@@ -1,17 +1,17 @@
 {
     "initial_value": 702,
-    "target_value": 70000,
-    "use_target_value": false,
+    "target_value": 38542,
+    "use_target_value": true,
     "portfolio": [
         {
             "ticker": "SPY",
             "leverage": 7.5,
-            "weight": 58
+            "weight": 50
         },
         {
             "ticker": "QQQ",
             "leverage": 7.5,
-            "weight": 42
+            "weight": 50
         }
     ]
 }

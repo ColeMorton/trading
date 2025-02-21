@@ -1,17 +1,39 @@
 {
-    "initial_value": 702,
-    "target_value": 70000,
-    "use_target_value": false,
-    "portfolio": [
+    "portfolio_metrics": {
+        "annualized_return": 0.11434580836815356,
+        "downside_volatility": 0.1060060754735746,
+        "sortino_ratio": 0.06794996262809622,
+        "var_95": 550.6355957042166,
+        "cvar_95": 816.4194196092933,
+        "var_99": 961.0396519730562,
+        "cvar_99": 1289.6393497014976
+    },
+    "asset_metrics": [
         {
             "ticker": "SPY",
-            "leverage": 7.5,
-            "weight": 58
+            "weight": 0.6433514070512961,
+            "annualized_return": 0.11767773089833303,
+            "downside_volatility": 0.14570801513798817,
+            "sortino_ratio": 0.8076270257809088,
+            "var": -0.01809712137489042,
+            "cvar": -0.027916124192804728,
+            "initial_value": 2569.4666666666667,
+            "leveraged_value": 19271.0,
+            "position_size": 31.572135138502546,
+            "allocation": 50
         },
         {
             "ticker": "QQQ",
-            "leverage": 7.5,
-            "weight": 42
+            "weight": 0.3566485929487037,
+            "annualized_return": 0.13392567936486763,
+            "downside_volatility": 0.2051811688450261,
+            "sortino_ratio": 0.6527191560450758,
+            "var": -0.027372380982612906,
+            "cvar": -0.040729005320239535,
+            "initial_value": 2569.4666666666667,
+            "leveraged_value": 19271.0,
+            "position_size": 35.87104350204999,
+            "allocation": 50
         }
     ],
     "position_sizing_config": {
@@ -22,22 +44,20 @@
             0.99
         ]
     },
-    "total_leveraged_value": 5265.0,
-    "initial_portfolio_value": 702.0,
-    "asset_metrics": [
+    "total_leveraged_value": 38542.0,
+    "initial_value": 702,
+    "target_value": 38542,
+    "use_target_value": true,
+    "portfolio": [
         {
             "ticker": "SPY",
-            "initial_value": 407.15999999999997,
-            "leveraged_value": 3053.7,
-            "position_size": 5.008528684370566,
-            "allocation": 58
+            "leverage": 7.5,
+            "weight": 50
         },
         {
             "ticker": "QQQ",
-            "initial_value": 294.84,
-            "leveraged_value": 2211.2999999999997,
-            "position_size": 4.109077208363341,
-            "allocation": 42
+            "leverage": 7.5,
+            "weight": 50
         }
     ]
 }
