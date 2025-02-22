@@ -328,40 +328,53 @@ def calculate_ticker_allocations(
             if min_alloc < half_max:
                 log(f"Min allocation {min_alloc:.2f}% is less than half of max {max_alloc:.2f}%", "info")
                 
-                # Scale up all allocations below half_max
-                scaled_allocations = []
-                for alloc in allocations:
+                # Calculate required adjustments
+                small_allocations = []
+                large_allocations = []
+                small_indices = []
+                large_indices = []
+                
+                for i, alloc in enumerate(allocations):
                     if alloc < half_max:
-                        # Calculate scale factor to bring this allocation up to half_max
-                        scale = half_max / alloc
-                        scaled_allocations.append(alloc * scale)
+                        small_allocations.append(alloc)
+                        small_indices.append(i)
                     else:
-                        # Keep larger allocations unchanged
-                        scaled_allocations.append(alloc)
+                        large_allocations.append(alloc)
+                        large_indices.append(i)
                 
-                # Normalize to 100%
-                total = sum(scaled_allocations)
-                allocations = [alloc / total * 100 for alloc in scaled_allocations]
-                
-                log(f"Adjusted allocations: {dict(zip(tickers, allocations))}", "info")
-                
-                # Verify ratio constraint
-                new_min = min(allocations)
-                new_max = max(allocations)
-                log(f"New min/max ratio: {new_min/new_max:.2f} (target >= 0.5)", "info")
-                
-                # Double check the constraint is satisfied
-                if new_min < 0.5 * new_max:
-                    log("Warning: Ratio constraint not satisfied after scaling", "warning")
-                    # Apply one more round of scaling if needed
-                    half_new_max = 0.5 * new_max
-                    scaled_allocations = [
-                        alloc * (half_new_max / new_min) if alloc < half_new_max else alloc
-                        for alloc in allocations
-                    ]
-                    total = sum(scaled_allocations)
-                    allocations = [alloc / total * 100 for alloc in scaled_allocations]
-                    log(f"Final allocations after second scaling: {dict(zip(tickers, allocations))}", "info")
+                if small_allocations:
+                    # Calculate total increase needed for small allocations
+                    total_increase = sum(half_max - alloc for alloc in small_allocations)
+                    
+                    # Calculate reduction factor for large allocations
+                    total_large = sum(large_allocations)
+                    reduction_factor = (total_large - total_increase) / total_large
+                    
+                    # Create new allocations list
+                    new_allocations = [0.0] * len(allocations)
+                    
+                    # Set small allocations to half_max
+                    for i in small_indices:
+                        new_allocations[i] = half_max
+                    
+                    # Reduce large allocations proportionally
+                    for i, large_idx in enumerate(large_indices):
+                        new_allocations[large_idx] = large_allocations[i] * reduction_factor
+                    
+                    # Normalize to 100%
+                    total = sum(new_allocations)
+                    allocations = [alloc / total * 100 for alloc in new_allocations]
+                    
+                    log(f"Adjusted allocations: {dict(zip(tickers, allocations))}", "info")
+                    
+                    # Verify ratio constraint
+                    new_min = min(allocations)
+                    new_max = max(allocations)
+                    ratio = new_min / new_max
+                    log(f"New min/max ratio: {ratio:.2f} (target >= 0.5)", "info")
+                    
+                    if ratio < 0.499:  # Allow small numerical error
+                        log("Warning: Ratio constraint not satisfied after adjustment", "warning")
             else:
                 log("Allocations already satisfy ratio constraint", "info")
         
