@@ -301,28 +301,47 @@ def calculate_ticker_allocations(
     try:
         log("Calculating ticker allocations", "info")
         
-        # Convert metrics to list of values
-        tickers = list(ticker_metrics.keys())
-        metrics = list(ticker_metrics.values())
-        
-        # Normalize metrics to get initial allocations
-        normalized_metrics = normalize_values(metrics)
-        total = sum(normalized_metrics)
+        # Extract allocation scores from ticker metrics
+        tickers = []
+        allocation_scores = []
+        for ticker, metrics in ticker_metrics.items():
+            tickers.append(ticker)
+            allocation_scores.append(metrics['allocation_score'])
         
         # Calculate initial allocation percentages
+        total_score = sum(allocation_scores)
         allocations = [
-            (metric / total) * 100 if total > 0 else 0
-            for metric in normalized_metrics
+            (score / total_score) * 100 if total_score > 0 else 0
+            for score in allocation_scores
         ]
         
         # Apply ratio-based allocation if enabled
         if ratio_based_allocation:
-            allocations = apply_ratio_based_allocation(allocations, log)
+            min_alloc = min(allocations)
+            max_alloc = max(allocations)
+            
+            if min_alloc < 0.5 * max_alloc:
+                log("Applying ratio-based allocation to ticker allocations", "info")
+                scale_factor = 0.5 * max_alloc / min_alloc
+                
+                # Scale up allocations below threshold
+                scaled_allocations = []
+                for alloc in allocations:
+                    if alloc < 0.5 * max_alloc:
+                        scaled_allocations.append(alloc * scale_factor)
+                    else:
+                        scaled_allocations.append(alloc)
+                
+                # Normalize to 100%
+                total = sum(scaled_allocations)
+                allocations = [alloc / total * 100 for alloc in scaled_allocations]
+                
+                log(f"Adjusted ticker allocations: {dict(zip(tickers, allocations))}", "info")
             
         # Create dictionary mapping tickers to their allocations
         ticker_allocations = dict(zip(tickers, allocations))
         
-        log(f"Ticker allocations calculated: {ticker_allocations}", "info")
+        log(f"Final ticker allocations: {ticker_allocations}", "info")
         return ticker_allocations
         
     except Exception as e:
