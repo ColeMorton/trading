@@ -15,12 +15,13 @@ from app.tools.portfolio.collection import export_best_portfolios, combine_strat
 
 CONFIG: Config = {
     "TICKER": [
-  "MSTR",
-  "FAST"
+  "BIDU",
+  "POOL",
+  "REGN"
 ]
 ,
-    "TICKER_1": 'AMAT',
-    "TICKER_2": 'LRCX',
+    "TICKER_1": 'BNB-USD',
+    "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,
     # "WINDOWS": 120,
     # "WINDOWS": 55,
@@ -33,8 +34,8 @@ CONFIG: Config = {
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
-    "USE_SYNTHETIC": False,
-    "USE_CURRENT": True,
+    "USE_SYNTHETIC": True,
+    "USE_CURRENT": False,
     "MIN_TRADES": 34,
     "MIN_WIN_RATE": 0.35,
     # "MIN_WIN_RATE": 0.5,

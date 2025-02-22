@@ -75,7 +75,7 @@ def validate_config(config: Config) -> None:
         raise ValueError("DIRECTION must be either 'Long' or 'Short'")
 
 def process_scanner() -> bool:
-    """
+    """3
     Process each ticker in the scanner list with both SMA and EMA configurations.
     Creates a DataFrame with results and exports to CSV.
 
