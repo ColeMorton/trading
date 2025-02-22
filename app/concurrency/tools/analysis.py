@@ -245,8 +245,7 @@ def analyze_concurrency(
             strategy_risk_contributions,
             strategy_alphas,
             allocation_efficiencies,
-            log,
-            ratio_based_allocation=config_list[0].get('RATIO_BASED_ALLOCATION', False)
+            log
         )
 
         # Compile all statistics

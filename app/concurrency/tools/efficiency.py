@@ -178,63 +178,6 @@ def calculate_efficiency_score(
         raise
 
 
-def calculate_allocation_scores(
-    strategy_expectancies: List[float],
-    strategy_risk_contributions: List[float],
-    strategy_alphas: List[float],
-    strategy_efficiencies: List[float],
-    log: Callable[[str, str], None]
-) -> tuple[List[float], List[float]]:
-    """Calculate allocation scores for each strategy.
-
-    Args:
-        strategy_expectancies (List[float]): List of strategy expectancies
-        strategy_risk_contributions (List[float]): List of risk contributions
-        strategy_alphas (List[float]): List of strategy alphas
-        strategy_efficiencies (List[float]): List of strategy efficiencies
-        log: Callable[[str, str], None]
-
-    Returns:
-        List[float]: Allocation scores for each strategy
-    """
-    try:
-        log("Calculating allocation scores", "info")
-
-        # Normalize the metrics
-        normalized_expectancies = normalize_values(strategy_expectancies)
-        normalized_risks = normalize_risk_values(strategy_risk_contributions)
-        normalized_alphas = normalize_values(strategy_alphas)
-        normalized_efficiencies = normalize_values(strategy_efficiencies)
-
-        # Calculate allocation scores
-        allocation_scores = []
-        for i in range(len(strategy_expectancies)):
-            allocation_score = (
-                (0.35 * normalized_efficiencies[i]) +
-                (0.30 * normalized_expectancies[i]) +
-                (0.25 * normalized_risks[i]) +
-                (0.10 * normalized_alphas[i])
-            )
-            allocation_scores.append(allocation_score)
-
-        # Calculate the sum of all allocation scores
-        total_allocation_score = sum(allocation_scores)
-
-        # Calculate the allocation percentage for each strategy
-        allocation_percentages = [
-            (score / total_allocation_score) * 100 if total_allocation_score > 0 else 0
-            for score in allocation_scores
-        ]
-
-        log(f"Allocation scores: {allocation_scores}", "info")
-        log(f"Allocation percentages: {allocation_percentages}", "info")
-        return allocation_scores, allocation_percentages
-
-    except Exception as e:
-        log(f"Error calculating allocation scores: {str(e)}", "error")
-        raise
-
-
 def apply_ratio_based_allocation(
     allocations: List[float],
     log: Callable[[str, str], None]
@@ -339,6 +282,52 @@ def calculate_allocation_scores(
         log(f"Error calculating allocation scores: {str(e)}", "error")
         raise
 
+
+def calculate_ticker_allocations(
+    ticker_metrics: Dict[str, float],
+    ratio_based_allocation: bool,
+    log: Callable[[str, str], None]
+) -> Dict[str, float]:
+    """Calculate allocations for individual tickers.
+
+    Args:
+        ticker_metrics (Dict[str, float]): Dictionary of ticker metrics
+        ratio_based_allocation (bool): Whether to apply ratio-based allocation
+        log (Callable[[str, str], None]): Logging function
+
+    Returns:
+        Dict[str, float]: Ticker allocation percentages
+    """
+    try:
+        log("Calculating ticker allocations", "info")
+        
+        # Convert metrics to list of values
+        tickers = list(ticker_metrics.keys())
+        metrics = list(ticker_metrics.values())
+        
+        # Normalize metrics to get initial allocations
+        normalized_metrics = normalize_values(metrics)
+        total = sum(normalized_metrics)
+        
+        # Calculate initial allocation percentages
+        allocations = [
+            (metric / total) * 100 if total > 0 else 0
+            for metric in normalized_metrics
+        ]
+        
+        # Apply ratio-based allocation if enabled
+        if ratio_based_allocation:
+            allocations = apply_ratio_based_allocation(allocations, log)
+            
+        # Create dictionary mapping tickers to their allocations
+        ticker_allocations = dict(zip(tickers, allocations))
+        
+        log(f"Ticker allocations calculated: {ticker_allocations}", "info")
+        return ticker_allocations
+        
+    except Exception as e:
+        log(f"Error calculating ticker allocations: {str(e)}", "error")
+        raise
 
 def normalize_values(values: List[float]) -> List[float]:
     """Normalize a list of values to a scale of 0 to 1.
