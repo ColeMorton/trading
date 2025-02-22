@@ -52,11 +52,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.09786274489475737,
+                    "value": 0.09786281179102514,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": 0.004743751748409828,
+                    "value": 0.0047433412896761284,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -122,8 +122,8 @@
                     }
                 }
             },
-            "allocation_score": 0.4289828213425934,
-            "allocation": 9.11949286166347
+            "allocation_score": 0.4289827438656749,
+            "allocation": 9.119104412539166
         },
         {
             "id": "strategy_9",
@@ -177,11 +177,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.09715837135512105,
+                    "value": 0.09715843781084145,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": 0.004619538066735346,
+                    "value": 0.004619127608001646,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -247,8 +247,8 @@
                     }
                 }
             },
-            "allocation_score": 0.4162375171793872,
-            "allocation": 8.84854795535622
+            "allocation_score": 0.4162374367447266,
+            "allocation": 8.848170935452265
         },
         {
             "id": "strategy_10",
@@ -302,11 +302,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.09624713488703815,
+                    "value": 0.09624720023204106,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": 0.004447837782869802,
+                    "value": 0.004447427324136102,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -372,8 +372,8 @@
                     }
                 }
             },
-            "allocation_score": 0.3885525564574701,
-            "allocation": 8.26000969900183
+            "allocation_score": 0.38855247354917244,
+            "allocation": 8.259657589291622
         },
         {
             "id": "strategy_7",
@@ -431,11 +431,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.07344247506815028,
+                    "value": 0.07344251035892904,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": 0.003442527493232468,
+                    "value": 0.003442117034498768,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -501,8 +501,8 @@
                     }
                 }
             },
-            "allocation_score": 0.38577892609578207,
-            "allocation": 8.201046726533274
+            "allocation_score": 0.385778786928669,
+            "allocation": 8.200695921807966
         },
         {
             "id": "strategy_13",
@@ -556,11 +556,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.1102307062480911,
+                    "value": 0.11023077066869555,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": 0.004912424305118561,
+                    "value": 0.004912013846384861,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -627,7 +627,7 @@
                 }
             },
             "allocation_score": 0.3805344126231138,
-            "allocation": 8.089556706892838
+            "allocation": 8.089213589348995
         },
         {
             "id": "strategy_17",
@@ -663,7 +663,7 @@
             },
             "performance": {
                 "expectancy_per_month": {
-                    "value": 4117.403391108299,
+                    "value": 4132.141399525781,
                     "description": "Expected monthly return"
                 }
             },
@@ -685,21 +685,21 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.01028813019488337,
+                    "value": 0.010287964334892711,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0027379986431010643,
+                    "value": -0.0027346578537299536,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 7.1612767825475165,
+                    "value": 7.186910160547114,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 196.06682814801422,
+                    "value": 196.76863807265622,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
@@ -755,8 +755,8 @@
                     }
                 }
             },
-            "allocation_score": 0.28708053574712483,
-            "allocation": 6.102875840749868
+            "allocation_score": 0.28724496773839836,
+            "allocation": 6.1061124025145
         },
         {
             "id": "strategy_6",
@@ -822,11 +822,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.01368108711507011,
+                    "value": 0.013681087205248693,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0034285461481850603,
+                    "value": -0.00342895660691876,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -892,8 +892,8 @@
                     }
                 }
             },
-            "allocation_score": 0.273844748791622,
-            "allocation": 5.821504049960114
+            "allocation_score": 0.273844353234492,
+            "allocation": 5.821248723029124
         },
         {
             "id": "strategy_11",
@@ -947,11 +947,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.08191987233589829,
+                    "value": 0.08191990049756771,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": 0.0037793789542756757,
+                    "value": 0.003778968495541976,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -1017,8 +1017,8 @@
                     }
                 }
             },
-            "allocation_score": 0.2622785596927064,
-            "allocation": 5.575625255573673
+            "allocation_score": 0.2622784872190549,
+            "allocation": 5.575387225511092
         },
         {
             "id": "strategy_12",
@@ -1072,11 +1072,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.08262053577002795,
+                    "value": 0.082620563744735,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": 0.003638512628132312,
+                    "value": 0.003638102169398612,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -1142,8 +1142,8 @@
                     }
                 }
             },
-            "allocation_score": 0.2504821903639963,
-            "allocation": 5.324853195401118
+            "allocation_score": 0.25048212239637535,
+            "allocation": 5.324625897591332
         },
         {
             "id": "strategy_16",
@@ -1197,21 +1197,21 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.03990950065918879,
+                    "value": 0.039909174099350776,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.003054834929163698,
+                    "value": -0.0030520188375293177,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 1.1832023035853247,
+                    "value": 1.184710149350007,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 32.394603611295224,
+                    "value": 32.435886548038866,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
@@ -1267,8 +1267,8 @@
                     }
                 }
             },
-            "allocation_score": 0.23664279307819755,
-            "allocation": 5.030649608500899
+            "allocation_score": 0.23668076021614626,
+            "allocation": 5.031243320887532
         },
         {
             "id": "strategy_5",
@@ -1322,11 +1322,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.03393222048278384,
+                    "value": 0.03393224148015613,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0029349336843683253,
+                    "value": -0.002935344143102025,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -1392,8 +1392,8 @@
                     }
                 }
             },
-            "allocation_score": 0.23278071181405566,
-            "allocation": 4.948547900070531
+            "allocation_score": 0.2327803806788495,
+            "allocation": 4.948330968915916
         },
         {
             "id": "strategy_1",
@@ -1447,11 +1447,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.041961559318457596,
+                    "value": 0.041961579258656415,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0029476713327811674,
+                    "value": -0.002948081791514867,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -1517,8 +1517,8 @@
                     }
                 }
             },
-            "allocation_score": 0.21830109314425314,
-            "allocation": 4.640734224255716
+            "allocation_score": 0.21830081093154383,
+            "allocation": 4.640531388950365
         },
         {
             "id": "strategy_3",
@@ -1572,11 +1572,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.03431139033524805,
+                    "value": 0.034311397672075535,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.00371600026126262,
+                    "value": -0.00371641071999632,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -1642,8 +1642,8 @@
                     }
                 }
             },
-            "allocation_score": 0.21051158325115368,
-            "allocation": 4.47514162629654
+            "allocation_score": 0.21051128847224376,
+            "allocation": 4.474945547454563
         },
         {
             "id": "strategy_4",
@@ -1697,11 +1697,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.04081611556879484,
+                    "value": 0.040816136492765304,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0028307507727751762,
+                    "value": -0.002831161231508876,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -1767,8 +1767,8 @@
                     }
                 }
             },
-            "allocation_score": 0.20687063647804046,
-            "allocation": 4.3977408856254225
+            "allocation_score": 0.20687034520259315,
+            "allocation": 4.397548164201142
         },
         {
             "id": "strategy_2",
@@ -1822,11 +1822,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.041906652275426934,
+                    "value": 0.04190667010460631,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.00299153885460874,
+                    "value": -0.0029919493133424395,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -1892,8 +1892,8 @@
                     }
                 }
             },
-            "allocation_score": 0.203903457183944,
-            "allocation": 4.3346633705233
+            "allocation_score": 0.2039031799353402,
+            "allocation": 4.334473622699744
         },
         {
             "id": "strategy_14",
@@ -1947,11 +1947,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.04700874891170273,
+                    "value": 0.04700877352835536,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0023856739294470996,
+                    "value": -0.0023860843881807993,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -2017,8 +2017,8 @@
                     }
                 }
             },
-            "allocation_score": 0.17389759190117213,
-            "allocation": 3.6967863725636514
+            "allocation_score": 0.17389732708071626,
+            "allocation": 3.696623944405268
         },
         {
             "id": "strategy_15",
@@ -2072,11 +2072,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.056702754579359464,
+                    "value": 0.056702780720057994,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.002556022423081027,
+                    "value": -0.0025564328818147267,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -2142,8 +2142,8 @@
                     }
                 }
             },
-            "allocation_score": 0.14734044856516307,
-            "allocation": 3.132223721031522
+            "allocation_score": 0.14734023580496833,
+            "allocation": 3.1320863453993977
         }
     ],
     "ticker_metrics": {
@@ -2160,8 +2160,8 @@
                 "cvar_95": -0.004279093136820698,
                 "var_99": -0.00525208453311682,
                 "cvar_99": -0.0066187436107592685,
-                "risk_contribution": 0.0009309600159849637,
-                "alpha": -0.0002124595154454476
+                "risk_contribution": 0.0009309600983181974,
+                "alpha": -0.0002124851693873206
             },
             "efficiency": {
                 "efficiency_score": {
@@ -2225,8 +2225,8 @@
                     }
                 }
             },
-            "allocation_score": 1.346212230663069,
-            "allocation": 28.61833205673162
+            "allocation_score": 1.3462103584550624,
+            "allocation": 28.617078415250855
         },
         "SOL-USD": {
             "id": "SOL-USD",
@@ -2241,8 +2241,8 @@
                 "cvar_95": -0.008691674422701022,
                 "var_99": -0.009957371077426875,
                 "cvar_99": -0.015844192498538537,
-                "risk_contribution": 0.00678794539755209,
-                "alpha": 0.0003023822524196594
+                "risk_contribution": 0.006787949290363193,
+                "alpha": 0.00030235659873286097
             },
             "efficiency": {
                 "efficiency_score": {
@@ -2306,8 +2306,8 @@
                     }
                 }
             },
-            "allocation_score": 2.512846983755049,
-            "allocation": 53.41913240042243
+            "allocation_score": 2.512846463326787,
+            "allocation": 53.416855571542435
         },
         "ETH-USD": {
             "id": "ETH-USD",
@@ -2322,8 +2322,8 @@
                 "cvar_95": -0.010889028085705152,
                 "var_99": -0.013075209023302555,
                 "cvar_99": -0.018153199245379392,
-                "risk_contribution": 0.006100676675944835,
-                "alpha": -0.00029068802073694866
+                "risk_contribution": 0.006100679661671374,
+                "alpha": -0.00029073630999973686
             },
             "efficiency": {
                 "efficiency_score": {
@@ -2387,14 +2387,14 @@
                     }
                 }
             },
-            "allocation_score": 0.3212380404663352,
-            "allocation": 6.829010093595173
+            "allocation_score": 0.3212375628856846,
+            "allocation": 6.828710289804666
         },
         "TRX-USD": {
             "id": "TRX-USD",
             "performance": {
                 "expectancy_per_month": {
-                    "value": 11564.873489232394,
+                    "value": 11579.611497649876,
                     "description": "Expected monthly return"
                 }
             },
@@ -2403,16 +2403,16 @@
                 "cvar_95": -0.011025999004028886,
                 "var_99": -0.013802432320453223,
                 "cvar_99": -0.01790623260927408,
-                "risk_contribution": 0.0029528018149454207,
-                "alpha": -0.00034075491601557424
+                "risk_contribution": 0.0029527728490731466,
+                "alpha": -0.000340392746544663
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 1.1832023035853247,
+                    "value": 1.184710149350007,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 32.394603611295224,
+                    "value": 32.435886548038866,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
@@ -2468,8 +2468,8 @@
                     }
                 }
             },
-            "allocation_score": 0.5237233288253224,
-            "allocation": 11.133525449250767
+            "allocation_score": 0.5239257279545446,
+            "allocation": 11.137355723402031
         }
     },
     "portfolio_metrics": {
@@ -2501,11 +2501,11 @@
         },
         "efficiency": {
             "efficiency_score": {
-                "value": 14.881720590343575,
+                "value": 14.88265684109267,
                 "description": "Risk-Adjusted Performance"
             },
             "total_expectancy": {
-                "value": 11155.279946230306,
+                "value": 11155.981756154948,
                 "description": "Combined expected return across all strategies"
             },
             "multipliers": {
@@ -2530,7 +2530,7 @@
                     "description": "Measure of risk concentration"
                 },
                 "total_portfolio_risk": {
-                    "value": 0.259535184655147,
+                    "value": 0.25953508126554764,
                     "description": "Overall portfolio risk measure"
                 }
             },
@@ -2554,547 +2554,547 @@
             },
             "strategy_relationships": {
                 "risk_overlap_1_2": {
-                    "value": 0.003007193962817539,
+                    "value": 0.0030071963587375004,
                     "description": "Risk relationship metric: risk_overlap_1_2"
                 },
                 "risk_overlap_1_3": {
-                    "value": 0.0017169013055768588,
+                    "value": 0.0017169026734826743,
                     "description": "Risk relationship metric: risk_overlap_1_3"
                 },
                 "risk_overlap_1_4": {
-                    "value": 0.0032178522797185784,
+                    "value": 0.003217854843476223,
                     "description": "Risk relationship metric: risk_overlap_1_4"
                 },
                 "risk_overlap_1_5": {
-                    "value": 0.0023332235821651635,
+                    "value": 0.002333225441113081,
                     "description": "Risk relationship metric: risk_overlap_1_5"
                 },
                 "risk_overlap_1_6": {
-                    "value": 0.0004425645438215138,
+                    "value": 0.00044256489642571496,
                     "description": "Risk relationship metric: risk_overlap_1_6"
                 },
                 "risk_overlap_1_7": {
-                    "value": 0.002508180773941837,
+                    "value": 0.0025081827722833,
                     "description": "Risk relationship metric: risk_overlap_1_7"
                 },
                 "risk_overlap_1_8": {
-                    "value": 0.0029760148727420712,
+                    "value": 0.0029760172438207336,
                     "description": "Risk relationship metric: risk_overlap_1_8"
                 },
                 "risk_overlap_1_9": {
-                    "value": 0.0030288137200119546,
+                    "value": 0.0030288161331570133,
                     "description": "Risk relationship metric: risk_overlap_1_9"
                 },
                 "risk_overlap_1_10": {
-                    "value": 0.0029847729023397,
+                    "value": 0.0029847752803961428,
                     "description": "Risk relationship metric: risk_overlap_1_10"
                 },
                 "risk_overlap_1_11": {
-                    "value": 0.001909374186209864,
+                    "value": 0.00190937570746449,
                     "description": "Risk relationship metric: risk_overlap_1_11"
                 },
                 "risk_overlap_1_12": {
-                    "value": 0.0019891492910496136,
+                    "value": 0.001989150875863414,
                     "description": "Risk relationship metric: risk_overlap_1_12"
                 },
                 "risk_overlap_1_13": {
-                    "value": 0.004234290464865218,
+                    "value": 0.004234293838449089,
                     "description": "Risk relationship metric: risk_overlap_1_13"
                 },
                 "risk_overlap_1_14": {
-                    "value": 0.0028180668339386574,
+                    "value": 0.0028180690791754677,
                     "description": "Risk relationship metric: risk_overlap_1_14"
                 },
                 "risk_overlap_1_15": {
-                    "value": 0.003337122336633057,
+                    "value": 0.0033371249954166674,
                     "description": "Risk relationship metric: risk_overlap_1_15"
                 },
                 "risk_overlap_1_16": {
-                    "value": 0.0019052963096144895,
+                    "value": 0.001905283359299385,
                     "description": "Risk relationship metric: risk_overlap_1_16"
                 },
                 "risk_overlap_1_17": {
-                    "value": -0.00010541599557612566,
+                    "value": -0.0001054151030542117,
                     "description": "Risk relationship metric: risk_overlap_1_17"
                 },
                 "risk_overlap_2_3": {
-                    "value": 0.0022048253768947876,
+                    "value": 0.0022048271335440755,
                     "description": "Risk relationship metric: risk_overlap_2_3"
                 },
                 "risk_overlap_2_4": {
-                    "value": 0.002873282215304545,
+                    "value": 0.0028732845045330753,
                     "description": "Risk relationship metric: risk_overlap_2_4"
                 },
                 "risk_overlap_2_5": {
-                    "value": 0.0020267842751754456,
+                    "value": 0.002026785889974146,
                     "description": "Risk relationship metric: risk_overlap_2_5"
                 },
                 "risk_overlap_2_6": {
-                    "value": 0.000987106837904196,
+                    "value": 0.0009871076243612741,
                     "description": "Risk relationship metric: risk_overlap_2_6"
                 },
                 "risk_overlap_2_7": {
-                    "value": 0.002730856722900718,
+                    "value": 0.002730858898654665,
                     "description": "Risk relationship metric: risk_overlap_2_7"
                 },
                 "risk_overlap_2_8": {
-                    "value": 0.0024094576507278443,
+                    "value": 0.0024094595704136886,
                     "description": "Risk relationship metric: risk_overlap_2_8"
                 },
                 "risk_overlap_2_9": {
-                    "value": 0.0023911852437621894,
+                    "value": 0.002391187148889869,
                     "description": "Risk relationship metric: risk_overlap_2_9"
                 },
                 "risk_overlap_2_10": {
-                    "value": 0.002445069122485347,
+                    "value": 0.0024450710705438998,
                     "description": "Risk relationship metric: risk_overlap_2_10"
                 },
                 "risk_overlap_2_11": {
-                    "value": 0.0025957666392057055,
+                    "value": 0.002595768707329406,
                     "description": "Risk relationship metric: risk_overlap_2_11"
                 },
                 "risk_overlap_2_12": {
-                    "value": 0.002619368780539005,
+                    "value": 0.0026193708674672263,
                     "description": "Risk relationship metric: risk_overlap_2_12"
                 },
                 "risk_overlap_2_13": {
-                    "value": 0.003836706326411224,
+                    "value": 0.0038367093832281066,
                     "description": "Risk relationship metric: risk_overlap_2_13"
                 },
                 "risk_overlap_2_14": {
-                    "value": 0.002776934546615098,
+                    "value": 0.0027769367590806037,
                     "description": "Risk relationship metric: risk_overlap_2_14"
                 },
                 "risk_overlap_2_15": {
-                    "value": 0.003360707052357134,
+                    "value": 0.0033607097299313813,
                     "description": "Risk relationship metric: risk_overlap_2_15"
                 },
                 "risk_overlap_2_16": {
-                    "value": 0.0018719854129762889,
+                    "value": 0.0018719726890756272,
                     "description": "Risk relationship metric: risk_overlap_2_16"
                 },
                 "risk_overlap_2_17": {
-                    "value": 0.0001450567275789841,
+                    "value": 0.00014505549943227348,
                     "description": "Risk relationship metric: risk_overlap_2_17"
                 },
                 "risk_overlap_3_4": {
-                    "value": 0.0015863896391454123,
+                    "value": 0.0015863909030687411,
                     "description": "Risk relationship metric: risk_overlap_3_4"
                 },
                 "risk_overlap_3_5": {
-                    "value": 0.0010861796834671664,
+                    "value": 0.0010861805488584972,
                     "description": "Risk relationship metric: risk_overlap_3_5"
                 },
                 "risk_overlap_3_6": {
-                    "value": 0.0017539337034451407,
+                    "value": 0.001753935100855758,
                     "description": "Risk relationship metric: risk_overlap_3_6"
                 },
                 "risk_overlap_3_7": {
-                    "value": 0.002533382443478752,
+                    "value": 0.002533384461899127,
                     "description": "Risk relationship metric: risk_overlap_3_7"
                 },
                 "risk_overlap_3_8": {
-                    "value": 0.0013217050004586297,
+                    "value": 0.0013217060534999145,
                     "description": "Risk relationship metric: risk_overlap_3_8"
                 },
                 "risk_overlap_3_9": {
-                    "value": 0.001346982648856062,
+                    "value": 0.0013469837220367934,
                     "description": "Risk relationship metric: risk_overlap_3_9"
                 },
                 "risk_overlap_3_10": {
-                    "value": 0.0012843961541074416,
+                    "value": 0.0012843971774236702,
                     "description": "Risk relationship metric: risk_overlap_3_10"
                 },
                 "risk_overlap_3_11": {
-                    "value": 0.003548414367502194,
+                    "value": 0.0035484171946283858,
                     "description": "Risk relationship metric: risk_overlap_3_11"
                 },
                 "risk_overlap_3_12": {
-                    "value": 0.0035522887302919504,
+                    "value": 0.003552291560504961,
                     "description": "Risk relationship metric: risk_overlap_3_12"
                 },
                 "risk_overlap_3_13": {
-                    "value": 0.0022459404519266173,
+                    "value": 0.0022459422413334956,
                     "description": "Risk relationship metric: risk_overlap_3_13"
                 },
                 "risk_overlap_3_14": {
-                    "value": 0.0019494752709958271,
+                    "value": 0.0019494768242001679,
                     "description": "Risk relationship metric: risk_overlap_3_14"
                 },
                 "risk_overlap_3_15": {
-                    "value": 0.0024437338751719284,
+                    "value": 0.00244373582216665,
                     "description": "Risk relationship metric: risk_overlap_3_15"
                 },
                 "risk_overlap_3_16": {
-                    "value": 0.0011548395761991083,
+                    "value": 0.0011548317267447553,
                     "description": "Risk relationship metric: risk_overlap_3_16"
                 },
                 "risk_overlap_3_17": {
-                    "value": 0.0012123545441564121,
+                    "value": 0.0012123442795566963,
                     "description": "Risk relationship metric: risk_overlap_3_17"
                 },
                 "risk_overlap_4_5": {
-                    "value": 0.002456230319444465,
+                    "value": 0.0024562322763954716,
                     "description": "Risk relationship metric: risk_overlap_4_5"
                 },
                 "risk_overlap_4_6": {
-                    "value": 0.00047878935431486746,
+                    "value": 0.00047878973578044154,
                     "description": "Risk relationship metric: risk_overlap_4_6"
                 },
                 "risk_overlap_4_7": {
-                    "value": 0.0023301330955716455,
+                    "value": 0.0023301349520572813,
                     "description": "Risk relationship metric: risk_overlap_4_7"
                 },
                 "risk_overlap_4_8": {
-                    "value": 0.002948281756194758,
+                    "value": 0.00294828410517763,
                     "description": "Risk relationship metric: risk_overlap_4_8"
                 },
                 "risk_overlap_4_9": {
-                    "value": 0.0029815093513106145,
+                    "value": 0.00298151172676689,
                     "description": "Risk relationship metric: risk_overlap_4_9"
                 },
                 "risk_overlap_4_10": {
-                    "value": 0.002974371981373637,
+                    "value": 0.0029743743511433597,
                     "description": "Risk relationship metric: risk_overlap_4_10"
                 },
                 "risk_overlap_4_11": {
-                    "value": 0.0017408670222752022,
+                    "value": 0.0017408684092752097,
                     "description": "Risk relationship metric: risk_overlap_4_11"
                 },
                 "risk_overlap_4_12": {
-                    "value": 0.0018193167914398387,
+                    "value": 0.001819318240943087,
                     "description": "Risk relationship metric: risk_overlap_4_12"
                 },
                 "risk_overlap_4_13": {
-                    "value": 0.004146343385538595,
+                    "value": 0.004146346689052439,
                     "description": "Risk relationship metric: risk_overlap_4_13"
                 },
                 "risk_overlap_4_14": {
-                    "value": 0.002824981467320455,
+                    "value": 0.0028249837180663578,
                     "description": "Risk relationship metric: risk_overlap_4_14"
                 },
                 "risk_overlap_4_15": {
-                    "value": 0.003302110932312394,
+                    "value": 0.0033021135632013876,
                     "description": "Risk relationship metric: risk_overlap_4_15"
                 },
                 "risk_overlap_4_16": {
-                    "value": 0.002006091703770188,
+                    "value": 0.002006078068347937,
                     "description": "Risk relationship metric: risk_overlap_4_16"
                 },
                 "risk_overlap_4_17": {
-                    "value": -0.00039276144252006767,
+                    "value": -0.0003927581171405303,
                     "description": "Risk relationship metric: risk_overlap_4_17"
                 },
                 "risk_overlap_5_6": {
-                    "value": 8.909166129630801e-05,
+                    "value": 8.909173227825742e-05,
                     "description": "Risk relationship metric: risk_overlap_5_6"
                 },
                 "risk_overlap_5_7": {
-                    "value": 0.001396126212732041,
+                    "value": 0.0013961273250668966,
                     "description": "Risk relationship metric: risk_overlap_5_7"
                 },
                 "risk_overlap_5_8": {
-                    "value": 0.0032998127284090276,
+                    "value": 0.003299815357466974,
                     "description": "Risk relationship metric: risk_overlap_5_8"
                 },
                 "risk_overlap_5_9": {
-                    "value": 0.003312306121510133,
+                    "value": 0.003312308760521934,
                     "description": "Risk relationship metric: risk_overlap_5_9"
                 },
                 "risk_overlap_5_10": {
-                    "value": 0.00333719490989106,
+                    "value": 0.0033371975687324913,
                     "description": "Risk relationship metric: risk_overlap_5_10"
                 },
                 "risk_overlap_5_11": {
-                    "value": 0.0012490244936068152,
+                    "value": 0.0012490254887414004,
                     "description": "Risk relationship metric: risk_overlap_5_11"
                 },
                 "risk_overlap_5_12": {
-                    "value": 0.001310136466670762,
+                    "value": 0.0013101375104950554,
                     "description": "Risk relationship metric: risk_overlap_5_12"
                 },
                 "risk_overlap_5_13": {
-                    "value": 0.003382126564237697,
+                    "value": 0.0033821292588775004,
                     "description": "Risk relationship metric: risk_overlap_5_13"
                 },
                 "risk_overlap_5_14": {
-                    "value": 0.0018061946466203717,
+                    "value": 0.001806196085668821,
                     "description": "Risk relationship metric: risk_overlap_5_14"
                 },
                 "risk_overlap_5_15": {
-                    "value": 0.002327999329682383,
+                    "value": 0.0023280011844679853,
                     "description": "Risk relationship metric: risk_overlap_5_15"
                 },
                 "risk_overlap_5_16": {
-                    "value": 0.0013355956770497242,
+                    "value": 0.0013355865989946275,
                     "description": "Risk relationship metric: risk_overlap_5_16"
                 },
                 "risk_overlap_5_17": {
-                    "value": -0.00044311367851062445,
+                    "value": -0.0004431099268155768,
                     "description": "Risk relationship metric: risk_overlap_5_17"
                 },
                 "risk_overlap_6_7": {
-                    "value": 0.0023628268425456133,
+                    "value": 0.00236282872507932,
                     "description": "Risk relationship metric: risk_overlap_6_7"
                 },
                 "risk_overlap_6_8": {
-                    "value": -0.0012555588498567407,
+                    "value": -0.0012555598501974399,
                     "description": "Risk relationship metric: risk_overlap_6_8"
                 },
                 "risk_overlap_6_9": {
-                    "value": -0.001266032332279456,
+                    "value": -0.001266033340964687,
                     "description": "Risk relationship metric: risk_overlap_6_9"
                 },
                 "risk_overlap_6_10": {
-                    "value": -0.0011545755041616039,
+                    "value": -0.0011545764240458987,
                     "description": "Risk relationship metric: risk_overlap_6_10"
                 },
                 "risk_overlap_6_11": {
-                    "value": 0.002245766004009884,
+                    "value": 0.0022457677932777747,
                     "description": "Risk relationship metric: risk_overlap_6_11"
                 },
                 "risk_overlap_6_12": {
-                    "value": 0.002131876502314416,
+                    "value": 0.002131878200843188,
                     "description": "Risk relationship metric: risk_overlap_6_12"
                 },
                 "risk_overlap_6_13": {
-                    "value": -0.00014848910974753316,
+                    "value": -0.0001484892280531784,
                     "description": "Risk relationship metric: risk_overlap_6_13"
                 },
                 "risk_overlap_6_14": {
-                    "value": 0.001173551117351373,
+                    "value": 0.0011735520523540974,
                     "description": "Risk relationship metric: risk_overlap_6_14"
                 },
                 "risk_overlap_6_15": {
-                    "value": 0.0009454768430419182,
+                    "value": 0.0009454775963311537,
                     "description": "Risk relationship metric: risk_overlap_6_15"
                 },
                 "risk_overlap_6_16": {
-                    "value": 0.00047467460318137926,
+                    "value": 0.00047467137681408885,
                     "description": "Risk relationship metric: risk_overlap_6_16"
                 },
                 "risk_overlap_6_17": {
-                    "value": 0.0007778349353548935,
+                    "value": 0.0007778283496871155,
                     "description": "Risk relationship metric: risk_overlap_6_17"
                 },
                 "risk_overlap_7_8": {
-                    "value": 0.0037000755662352923,
+                    "value": 0.003700078514194426,
                     "description": "Risk relationship metric: risk_overlap_7_8"
                 },
                 "risk_overlap_7_9": {
-                    "value": 0.0037500884349933963,
+                    "value": 0.0037500914227992545,
                     "description": "Risk relationship metric: risk_overlap_7_9"
                 },
                 "risk_overlap_7_10": {
-                    "value": 0.0037994167892917777,
+                    "value": 0.003799419816398988,
                     "description": "Risk relationship metric: risk_overlap_7_10"
                 },
                 "risk_overlap_7_11": {
-                    "value": 0.007506984424010511,
+                    "value": 0.007506990405046006,
                     "description": "Risk relationship metric: risk_overlap_7_11"
                 },
                 "risk_overlap_7_12": {
-                    "value": 0.007400821386355792,
+                    "value": 0.00740082728280807,
                     "description": "Risk relationship metric: risk_overlap_7_12"
                 },
                 "risk_overlap_7_13": {
-                    "value": 0.00683595061935041,
+                    "value": 0.006835956065753518,
                     "description": "Risk relationship metric: risk_overlap_7_13"
                 },
                 "risk_overlap_7_14": {
-                    "value": 0.0036031777643924924,
+                    "value": 0.0036031806351502944,
                     "description": "Risk relationship metric: risk_overlap_7_14"
                 },
                 "risk_overlap_7_15": {
-                    "value": 0.00377408469187593,
+                    "value": 0.003774087698800313,
                     "description": "Risk relationship metric: risk_overlap_7_15"
                 },
                 "risk_overlap_7_16": {
-                    "value": 0.002198886826596523,
+                    "value": 0.002198871880744193,
                     "description": "Risk relationship metric: risk_overlap_7_16"
                 },
                 "risk_overlap_7_17": {
-                    "value": 0.0007044105866556056,
+                    "value": 0.0007044046226471916,
                     "description": "Risk relationship metric: risk_overlap_7_17"
                 },
                 "risk_overlap_8_9": {
-                    "value": 0.017583181281351404,
+                    "value": 0.01758319529038958,
                     "description": "Risk relationship metric: risk_overlap_8_9"
                 },
                 "risk_overlap_8_10": {
-                    "value": 0.017607563248164062,
+                    "value": 0.017607577276628067,
                     "description": "Risk relationship metric: risk_overlap_8_10"
                 },
                 "risk_overlap_8_11": {
-                    "value": 0.003564431261598408,
+                    "value": 0.003564434101485731,
                     "description": "Risk relationship metric: risk_overlap_8_11"
                 },
                 "risk_overlap_8_12": {
-                    "value": 0.00379764537184864,
+                    "value": 0.00379764839754451,
                     "description": "Risk relationship metric: risk_overlap_8_12"
                 },
                 "risk_overlap_8_13": {
-                    "value": 0.013520465877631126,
+                    "value": 0.013520476649784332,
                     "description": "Risk relationship metric: risk_overlap_8_13"
                 },
                 "risk_overlap_8_14": {
-                    "value": 0.0023635070265118686,
+                    "value": 0.002363508909587498,
                     "description": "Risk relationship metric: risk_overlap_8_14"
                 },
                 "risk_overlap_8_15": {
-                    "value": 0.0033592282359771177,
+                    "value": 0.0033592309123731488,
                     "description": "Risk relationship metric: risk_overlap_8_15"
                 },
                 "risk_overlap_8_16": {
-                    "value": 0.00295864024083147,
+                    "value": 0.0029586201309287777,
                     "description": "Risk relationship metric: risk_overlap_8_16"
                 },
                 "risk_overlap_8_17": {
-                    "value": -0.0012299245654554226,
+                    "value": -0.0012299141520962257,
                     "description": "Risk relationship metric: risk_overlap_8_17"
                 },
                 "risk_overlap_9_10": {
-                    "value": 0.016655132124276852,
+                    "value": 0.01665514539391094,
                     "description": "Risk relationship metric: risk_overlap_9_10"
                 },
                 "risk_overlap_9_11": {
-                    "value": 0.003581175734376318,
+                    "value": 0.003581178587604455,
                     "description": "Risk relationship metric: risk_overlap_9_11"
                 },
                 "risk_overlap_9_12": {
-                    "value": 0.0038124569445390955,
+                    "value": 0.0038124599820357815,
                     "description": "Risk relationship metric: risk_overlap_9_12"
                 },
                 "risk_overlap_9_13": {
-                    "value": 0.01360439932275092,
+                    "value": 0.013604410161776373,
                     "description": "Risk relationship metric: risk_overlap_9_13"
                 },
                 "risk_overlap_9_14": {
-                    "value": 0.002495558828859808,
+                    "value": 0.002495560817144996,
                     "description": "Risk relationship metric: risk_overlap_9_14"
                 },
                 "risk_overlap_9_15": {
-                    "value": 0.0034603635670728827,
+                    "value": 0.0034603663240464094,
                     "description": "Risk relationship metric: risk_overlap_9_15"
                 },
                 "risk_overlap_9_16": {
-                    "value": 0.0030847425135887454,
+                    "value": 0.0030847215465678282,
                     "description": "Risk relationship metric: risk_overlap_9_16"
                 },
                 "risk_overlap_9_17": {
-                    "value": -0.0013463220041033217,
+                    "value": -0.0013463106052460088,
                     "description": "Risk relationship metric: risk_overlap_9_17"
                 },
                 "risk_overlap_10_11": {
-                    "value": 0.0034070858211408196,
+                    "value": 0.0034070885356663975,
                     "description": "Risk relationship metric: risk_overlap_10_11"
                 },
                 "risk_overlap_10_12": {
-                    "value": 0.0035954084120349665,
+                    "value": 0.003595411276602697,
                     "description": "Risk relationship metric: risk_overlap_10_12"
                 },
                 "risk_overlap_10_13": {
-                    "value": 0.013412179622146912,
+                    "value": 0.013412190308025271,
                     "description": "Risk relationship metric: risk_overlap_10_13"
                 },
                 "risk_overlap_10_14": {
-                    "value": 0.002452856893915719,
+                    "value": 0.002452858848179018,
                     "description": "Risk relationship metric: risk_overlap_10_14"
                 },
                 "risk_overlap_10_15": {
-                    "value": 0.0033609253529009427,
+                    "value": 0.0033609280306491165,
                     "description": "Risk relationship metric: risk_overlap_10_15"
                 },
                 "risk_overlap_10_16": {
-                    "value": 0.0029250824805891035,
+                    "value": 0.002925062598778782,
                     "description": "Risk relationship metric: risk_overlap_10_16"
                 },
                 "risk_overlap_10_17": {
-                    "value": -0.001173909498238077,
+                    "value": -0.0011738995591396818,
                     "description": "Risk relationship metric: risk_overlap_10_17"
                 },
                 "risk_overlap_11_12": {
-                    "value": 0.017112943534154088,
+                    "value": 0.017112957168540003,
                     "description": "Risk relationship metric: risk_overlap_11_12"
                 },
                 "risk_overlap_11_13": {
-                    "value": 0.0057131402952199616,
+                    "value": 0.00571314484704703,
                     "description": "Risk relationship metric: risk_overlap_11_13"
                 },
                 "risk_overlap_11_14": {
-                    "value": 0.0022996563563190014,
+                    "value": 0.002299658188522922,
                     "description": "Risk relationship metric: risk_overlap_11_14"
                 },
                 "risk_overlap_11_15": {
-                    "value": 0.0036889463788335967,
+                    "value": 0.003688949317925779,
                     "description": "Risk relationship metric: risk_overlap_11_15"
                 },
                 "risk_overlap_11_16": {
-                    "value": 0.0011209284555199835,
+                    "value": 0.0011209208365598028,
                     "description": "Risk relationship metric: risk_overlap_11_16"
                 },
                 "risk_overlap_11_17": {
-                    "value": 0.0030868023673749235,
+                    "value": 0.00308677623245354,
                     "description": "Risk relationship metric: risk_overlap_11_17"
                 },
                 "risk_overlap_12_13": {
-                    "value": 0.005739151638183188,
+                    "value": 0.005739156210734258,
                     "description": "Risk relationship metric: risk_overlap_12_13"
                 },
                 "risk_overlap_12_14": {
-                    "value": 0.0022636328784765777,
+                    "value": 0.0022636346819795332,
                     "description": "Risk relationship metric: risk_overlap_12_14"
                 },
                 "risk_overlap_12_15": {
-                    "value": 0.003723673902504349,
+                    "value": 0.0037236768692649716,
                     "description": "Risk relationship metric: risk_overlap_12_15"
                 },
                 "risk_overlap_12_16": {
-                    "value": 0.0011267004687642737,
+                    "value": 0.0011266928105716728,
                     "description": "Risk relationship metric: risk_overlap_12_16"
                 },
                 "risk_overlap_12_17": {
-                    "value": 0.0031625165578997513,
+                    "value": 0.0031624897819316766,
                     "description": "Risk relationship metric: risk_overlap_12_17"
                 },
                 "risk_overlap_13_14": {
-                    "value": 0.004663621339180272,
+                    "value": 0.00466362505482469,
                     "description": "Risk relationship metric: risk_overlap_13_14"
                 },
                 "risk_overlap_13_15": {
-                    "value": 0.005358526531336828,
+                    "value": 0.005358530800632669,
                     "description": "Risk relationship metric: risk_overlap_13_15"
                 },
                 "risk_overlap_13_16": {
-                    "value": 0.004452643114160302,
+                    "value": 0.004452612849507461,
                     "description": "Risk relationship metric: risk_overlap_13_16"
                 },
                 "risk_overlap_13_17": {
-                    "value": -0.0011236442979706092,
+                    "value": -0.001123634784450824,
                     "description": "Risk relationship metric: risk_overlap_13_17"
                 },
                 "risk_overlap_14_15": {
-                    "value": 0.005062700717192208,
+                    "value": 0.005062704750794915,
                     "description": "Risk relationship metric: risk_overlap_14_15"
                 },
                 "risk_overlap_14_16": {
-                    "value": 0.00274867889658334,
+                    "value": 0.002748660213789667,
                     "description": "Risk relationship metric: risk_overlap_14_16"
                 },
                 "risk_overlap_14_17": {
-                    "value": -0.0008675162889233846,
+                    "value": -0.0008675089439536351,
                     "description": "Risk relationship metric: risk_overlap_14_17"
                 },
                 "risk_overlap_15_16": {
-                    "value": 0.00288501625890643,
+                    "value": 0.002884996649426554,
                     "description": "Risk relationship metric: risk_overlap_15_16"
                 },
                 "risk_overlap_15_17": {
-                    "value": -0.0003100377443302511,
+                    "value": -0.00031003511934455064,
                     "description": "Risk relationship metric: risk_overlap_15_17"
                 },
                 "risk_overlap_16_17": {
-                    "value": -0.001719332633673089,
+                    "value": -0.00171930502061934,
                     "description": "Risk relationship metric: risk_overlap_16_17"
                 }
             }
