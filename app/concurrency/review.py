@@ -28,6 +28,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "BTC_D.csv"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "stock_20250221.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "BTC_SOL_D.csv"),
+    # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_sol_eth_test.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_sol.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_d_macd.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_d_20250217.json"),
