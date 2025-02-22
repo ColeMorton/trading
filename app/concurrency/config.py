@@ -20,11 +20,13 @@ class ConcurrencyConfig(TypedDict):
 
     Optional Fields:
         SL_CANDLE_CLOSE (NotRequired[bool]): Use candle close for stop loss
+        RATIO_BASED_ALLOCATION (NotRequired[bool]): Enable ratio-based allocation
     """
     PORTFOLIO: str
     BASE_DIR: str
     REFRESH: bool
     SL_CANDLE_CLOSE: NotRequired[bool]
+    RATIO_BASED_ALLOCATION: NotRequired[bool]
 
 class CsvStrategyRow(TypedDict):
     """CSV strategy row format.

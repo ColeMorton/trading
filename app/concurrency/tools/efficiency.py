@@ -235,6 +235,111 @@ def calculate_allocation_scores(
         raise
 
 
+def apply_ratio_based_allocation(
+    allocations: List[float],
+    log: Callable[[str, str], None]
+) -> List[float]:
+    """Apply ratio-based allocation to ensure smallest allocation is at least half of the largest.
+
+    Args:
+        allocations (List[float]): List of initial allocation percentages.
+        log (Callable[[str, str], None]): Logging function.
+
+    Returns:
+        List[float]: Adjusted allocation percentages.
+    """
+    try:
+        log("Applying ratio-based allocation", "info")
+
+        min_alloc = min(allocations)
+        max_alloc = max(allocations)
+
+        if min_alloc < 0.5 * max_alloc:
+            log("Smallest allocation is less than half of the largest, scaling allocations", "info")
+            scale_factor = 0.5 * max_alloc / min_alloc
+
+            # Apply scaling while preserving relative proportions
+            scaled_allocations = [
+                alloc * scale_factor if alloc < 0.5 * max_alloc else alloc
+                for alloc in allocations
+            ]
+
+            # Normalize to 100%
+            total = sum(scaled_allocations)
+            final_allocations = [alloc / total * 100 for alloc in scaled_allocations]
+
+            log(f"Scaled allocations: {final_allocations}", "info")
+            return final_allocations
+        else:
+            log("Smallest allocation is already at least half of the largest, no scaling needed", "info")
+            return allocations
+
+    except Exception as e:
+        log(f"Error applying ratio-based allocation: {str(e)}", "error")
+        raise
+
+def calculate_allocation_scores(
+    strategy_expectancies: List[float],
+    strategy_risk_contributions: List[float],
+    strategy_alphas: List[float],
+    strategy_efficiencies: List[float],
+    log: Callable[[str, str], None],
+    ratio_based_allocation: bool = False
+) -> tuple[List[float], List[float]]:
+    """Calculate allocation scores for each strategy.
+
+    Args:
+        strategy_expectancies (List[float]): List of strategy expectancies
+        strategy_risk_contributions (List[float]): List of risk contributions
+        strategy_alphas (List[float]): List of strategy alphas
+        strategy_efficiencies (List[float]): List of strategy efficiencies
+        log: Callable[[str, str], None]
+        ratio_based_allocation (bool): Flag to enable ratio-based allocation
+
+    Returns:
+        List[float]: Allocation scores for each strategy
+    """
+    try:
+        log("Calculating allocation scores", "info")
+
+        # Normalize the metrics
+        normalized_expectancies = normalize_values(strategy_expectancies)
+        normalized_risks = normalize_risk_values(strategy_risk_contributions)
+        normalized_alphas = normalize_values(strategy_alphas)
+        normalized_efficiencies = normalize_values(strategy_efficiencies)
+
+        # Calculate allocation scores
+        allocation_scores = []
+        for i in range(len(strategy_expectancies)):
+            allocation_score = (
+                (0.35 * normalized_efficiencies[i]) +
+                (0.30 * normalized_expectancies[i]) +
+                (0.25 * normalized_risks[i]) +
+                (0.10 * normalized_alphas[i])
+            )
+            allocation_scores.append(allocation_score)
+
+        # Calculate the sum of all allocation scores
+        total_allocation_score = sum(allocation_scores)
+
+        # Calculate the allocation percentage for each strategy
+        allocation_percentages = [
+            (score / total_allocation_score) * 100 if total_allocation_score > 0 else 0
+            for score in allocation_scores
+        ]
+
+        if ratio_based_allocation:
+            allocation_percentages = apply_ratio_based_allocation(allocation_percentages, log)
+
+        log(f"Allocation scores: {allocation_scores}", "info")
+        log(f"Allocation percentages: {allocation_percentages}", "info")
+        return allocation_scores, allocation_percentages
+
+    except Exception as e:
+        log(f"Error calculating allocation scores: {str(e)}", "error")
+        raise
+
+
 def normalize_values(values: List[float]) -> List[float]:
     """Normalize a list of values to a scale of 0 to 1.
 
