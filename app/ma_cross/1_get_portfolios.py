@@ -15,12 +15,13 @@ from app.tools.portfolio.collection import export_best_portfolios, combine_strat
 
 CONFIG: Config = {
     "TICKER": [
-  "BIDU",
-  "POOL",
-  "REGN"
+  "BNB-USD",
+  "ETH-USD",
+  "XMR-USD",
+  "TRX-USD",
+  "SOL-USD"
 ]
 ,
-    "TICKER_1": 'BNB-USD',
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,
     # "WINDOWS": 120,
@@ -77,13 +78,20 @@ def run(config: Config = CONFIG) -> bool:
         
         # Handle synthetic pair if enabled
         if config.get("USE_SYNTHETIC"):
-            if not config.get("TICKER_1") or not config.get("TICKER_2"):
-                raise ValueError("TICKER_1 and TICKER_2 must be provided when USE_SYNTHETIC is True")
-            synthetic_ticker = f"{config['TICKER_1']}_{config['TICKER_2']}"
-            log(f"Processing strategy for synthetic pair: {config['TICKER_1']}_{config['TICKER_2']}")
-            # Create a modified config with the synthetic pair settings
-            synthetic_config = {**config}
-            synthetic_config["TICKER"] = synthetic_ticker  # Set synthetic ticker for file naming
+            if isinstance(config["TICKER"], list):
+                # Process multiple synthetic tickers
+                synthetic_tickers = [f"{ticker}_{config['TICKER_2']}" for ticker in config["TICKER"]]
+                log(f"Processing strategies for synthetic pairs: {synthetic_tickers}")
+                synthetic_config = {**config}
+                synthetic_config["TICKER"] = synthetic_tickers  # Set synthetic tickers for file naming
+            elif isinstance(config["TICKER"], str):
+                # Process single synthetic ticker
+                synthetic_ticker = f"{config['TICKER']}_{config['TICKER_2']}"
+                log(f"Processing strategy for synthetic pair: {synthetic_ticker}")
+                synthetic_config = {**config}
+                synthetic_config["TICKER"] = synthetic_ticker  # Set synthetic ticker for file naming
+            else:
+                raise ValueError("TICKER must be a string or a list when USE_SYNTHETIC is True")
         else:
             log(f"Processing strategy for ticker: {config['TICKER']}")
             synthetic_config = config
@@ -122,12 +130,20 @@ def run_both_strategies() -> bool:
         
         # Handle synthetic pair if enabled
         if config_copy.get("USE_SYNTHETIC"):
-            if not config_copy.get("TICKER_1") or not config_copy.get("TICKER_2"):
-                raise ValueError("TICKER_1 and TICKER_2 must be provided when USE_SYNTHETIC is True")
-            synthetic_ticker = f"{config_copy['TICKER_1']}_{config_copy['TICKER_2']}"
-            log(f"Processing strategies for synthetic pair: {config_copy['TICKER_1']}_{config_copy['TICKER_2']}")
-            base_config = {**config_copy}
-            base_config["TICKER"] = synthetic_ticker  # Set synthetic ticker for file naming
+            if isinstance(config_copy["TICKER"], list):
+                # Process multiple synthetic tickers
+                synthetic_tickers = [f"{ticker}_{config_copy['TICKER_2']}" for ticker in config_copy["TICKER"]]
+                log(f"Processing strategies for synthetic pairs: {synthetic_tickers}")
+                base_config = {**config_copy}
+                base_config["TICKER"] = synthetic_tickers  # Set synthetic tickers for file naming
+            elif isinstance(config_copy["TICKER"], str):
+                # Process single synthetic ticker
+                synthetic_ticker = f"{config_copy['TICKER']}_{config_copy['TICKER_2']}"
+                log(f"Processing strategies for synthetic pair: {synthetic_ticker}")
+                base_config = {**config_copy}
+                base_config["TICKER"] = synthetic_ticker  # Set synthetic ticker for file naming
+            else:
+                raise ValueError("TICKER must be a string or a list when USE_SYNTHETIC is True")
         else:
             log(f"Processing strategies for ticker: {config_copy['TICKER']}")
             base_config = config_copy
@@ -147,9 +163,7 @@ def run_both_strategies() -> bool:
         if all_portfolios:
             # Ensure synthetic ticker is properly set for export
             if config_copy.get("USE_SYNTHETIC"):
-                if not config_copy.get("TICKER_1") or not config_copy.get("TICKER_2"):
-                    raise ValueError("TICKER_1 and TICKER_2 must be provided when USE_SYNTHETIC is True")
-                config_copy["TICKER"] = f"{config_copy['TICKER_1']}_{config_copy['TICKER_2']}"
+                config_copy["TICKER"] = f"{config_copy['TICKER']}_{config_copy['TICKER_2']}"
             export_best_portfolios(all_portfolios, config_copy, log)
         
         log_close()
