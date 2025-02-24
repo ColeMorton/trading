@@ -179,60 +179,6 @@ def calculate_efficiency_score(
         raise
 
 
-def apply_ratio_based_allocation(
-    allocations: List[float],
-    log: Callable[[str, str], None]
-) -> List[float]:
-    """Apply ratio-based allocation to ensure smallest allocation is at least half of the largest.
-
-    Args:
-        allocations (List[float]): List of initial allocation percentages.
-        log (Callable[[str, str], None]): Logging function.
-
-    Returns:
-        List[float]: Adjusted allocation percentages.
-    """
-    try:
-        log("Applying ratio-based allocation", "info")
-
-        min_alloc = min(allocations)
-        max_alloc = max(allocations)
-
-        if min_alloc < 0.5 * max_alloc:
-            log("Smallest allocation is less than half of the largest, scaling allocations", "info")
-            # Calculate the total increase needed for small allocations
-            total_increase = sum(half_max - alloc for alloc in allocations if alloc < half_max)
-
-            # Calculate the total of large allocations
-            total_large = sum(alloc for alloc in allocations if alloc >= half_max)
-
-            # Calculate the reduction factor for large allocations
-            reduction_factor = (total_large - total_increase) / total_large if total_large > 0 else 0
-
-            # Create new allocations list
-            new_allocations = [0.0] * len(allocations)
-
-            # Set small allocations to half_max
-            for i, alloc in enumerate(allocations):
-                if alloc < half_max:
-                    new_allocations[i] = half_max
-                else:
-                    new_allocations[i] = alloc * reduction_factor
-
-            # Normalize to 100%
-            total = sum(new_allocations)
-            final_allocations = [alloc / total * 100 for alloc in new_allocations]
-
-            log(f"Scaled allocations: {final_allocations}", "info")
-            return final_allocations
-        else:
-            log("Smallest allocation is already at least half of the largest, no scaling needed", "info")
-            return allocations
-
-    except Exception as e:
-        log(f"Error applying ratio-based allocation: {str(e)}", "error")
-        raise
-
 
 def adjust_allocations(allocations):
     """
