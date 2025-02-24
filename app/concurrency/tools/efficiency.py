@@ -199,17 +199,28 @@ def apply_ratio_based_allocation(
 
         if min_alloc < 0.5 * max_alloc:
             log("Smallest allocation is less than half of the largest, scaling allocations", "info")
-            scale_factor = 0.5 * max_alloc / min_alloc
+            # Calculate the total increase needed for small allocations
+            total_increase = sum(half_max - alloc for alloc in allocations if alloc < half_max)
 
-            # Apply scaling while preserving relative proportions
-            scaled_allocations = [
-                alloc * scale_factor if alloc < 0.5 * max_alloc else alloc
-                for alloc in allocations
-            ]
+            # Calculate the total of large allocations
+            total_large = sum(alloc for alloc in allocations if alloc >= half_max)
+
+            # Calculate the reduction factor for large allocations
+            reduction_factor = (total_large - total_increase) / total_large if total_large > 0 else 0
+
+            # Create new allocations list
+            new_allocations = [0.0] * len(allocations)
+
+            # Set small allocations to half_max
+            for i, alloc in enumerate(allocations):
+                if alloc < half_max:
+                    new_allocations[i] = half_max
+                else:
+                    new_allocations[i] = alloc * reduction_factor
 
             # Normalize to 100%
-            total = sum(scaled_allocations)
-            final_allocations = [alloc / total * 100 for alloc in scaled_allocations]
+            total = sum(new_allocations)
+            final_allocations = [alloc / total * 100 for alloc in new_allocations]
 
             log(f"Scaled allocations: {final_allocations}", "info")
             return final_allocations

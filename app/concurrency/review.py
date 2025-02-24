@@ -28,7 +28,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "BTC_D.csv"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "stock_20250221.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "BTC_SOL_D.csv"),
-    "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_sol_eth_test.json"),
+    # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_sol_eth_test.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_sol.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_d_macd.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_d_20250217.json"),
@@ -44,7 +44,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "crypto_d_20250218.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "crypto_portfolio_20250221.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "crypto_portfolio_20250222.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "crypto_portfolio_20250224.json"),
+    "PORTFOLIO": str(PORTFOLIOS_DIR / "crypto_portfolio_20250224.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_d_next.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "stock_trades_20250224.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "stock_portfolio_20250221.json"),
@@ -52,7 +52,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     "REFRESH": True,
     "SL_CANDLE_CLOSE": True,
     "VISUALIZATION": False,
-    "RATIO_BASED_ALLOCATION": True
+    "RATIO_BASED_ALLOCATION": False
 }
 
 def run_analysis(config: Dict[str, Any]) -> bool:
