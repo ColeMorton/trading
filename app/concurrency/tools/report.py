@@ -317,7 +317,7 @@ def create_strategy_object(
       "allocation": stats.get(f"strategy_{int(strategy_id)+1}_allocation_percentage", 0.0)
     }
 
-def calculate_ticker_metrics(strategies: List[Strategy]) -> Dict[str, Any]:
+def calculate_ticker_metrics(strategies: List[Strategy], ratio_based_allocation: bool) -> Dict[str, Any]:
     """Calculates ticker metrics from a list of strategies.
 
     Args:
@@ -577,7 +577,7 @@ def generate_json_report(
 
         # Calculate ticker metrics
         log("Calculating ticker metrics", "info")
-        ticker_metrics = calculate_ticker_metrics(strategy_objects)
+        ticker_metrics = calculate_ticker_metrics(strategy_objects, ratio_based_allocation=True)
         
         # Create report
         strategy_objects.sort(key=lambda x: x.get("allocation", 0.0), reverse=True)
