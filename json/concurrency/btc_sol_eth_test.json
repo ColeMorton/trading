@@ -52,11 +52,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.27891761171129703,
+                    "value": 0.2789171721708493,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": 0.00543326913562888,
+                    "value": 0.005433323721013465,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -123,7 +123,7 @@
                 }
             },
             "allocation_score": 0.4,
-            "allocation": 24.661281551520297
+            "allocation": 24.661366732591215
         },
         {
             "id": "strategy_3",
@@ -181,11 +181,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.2609572473593405,
+                    "value": 0.26095688705430564,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": 0.003963372323742787,
+                    "value": 0.003963426909127372,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -251,8 +251,8 @@
                     }
                 }
             },
-            "allocation_score": 0.3299794180831521,
-            "allocation": 20.344288338888607
+            "allocation_score": 0.32997936261123273,
+            "allocation": 20.344355188855772
         },
         {
             "id": "strategy_1",
@@ -310,11 +310,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.07239255623705372,
+                    "value": 0.07239250087754319,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0029077013176747415,
+                    "value": -0.002907646732290156,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -381,7 +381,7 @@
                 }
             },
             "allocation_score": 0.2826362620032425,
-            "allocation": 17.425431084828052
+            "allocation": 17.42549127297675
         },
         {
             "id": "strategy_2",
@@ -435,11 +435,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.0852180330769572,
+                    "value": 0.08521792070991382,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0024140888538580064,
+                    "value": -0.002414034268473421,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -505,8 +505,8 @@
                     }
                 }
             },
-            "allocation_score": 0.277147488419748,
-            "allocation": 17.08703060804029
+            "allocation_score": 0.27714752854739055,
+            "allocation": 17.08709210134623
         },
         {
             "id": "strategy_5",
@@ -564,11 +564,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.1450918840841373,
+                    "value": 0.14509240805086923,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0021704836852010616,
+                    "value": -0.002170599455492822,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -634,8 +634,8 @@
                     }
                 }
             },
-            "allocation_score": 0.17083547515817268,
-            "allocation": 10.532554379658619
+            "allocation_score": 0.170832567777271,
+            "allocation": 10.532411509563811
         },
         {
             "id": "strategy_6",
@@ -689,11 +689,11 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.15742266753121426,
+                    "value": 0.15742311113651916,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha": {
-                    "value": -0.0019043676026378568,
+                    "value": -0.0019044701738844456,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
@@ -759,8 +759,8 @@
                     }
                 }
             },
-            "allocation_score": 0.16137708036427306,
-            "allocation": 9.94941403706414
+            "allocation_score": 0.16137440073858902,
+            "allocation": 9.949283194666208
         }
     ],
     "ticker_metrics": {
@@ -777,8 +777,8 @@
                 "cvar_95": -0.022575894458338196,
                 "var_99": -0.027719819282860426,
                 "cvar_99": -0.034947311784240646,
-                "risk_contribution": 0.026268431552335155,
-                "alpha": -0.0008869650285887914
+                "risk_contribution": 0.026268403597909506,
+                "alpha": -0.0008869468334605961
             },
             "efficiency": {
                 "efficiency_score": {
@@ -842,8 +842,8 @@
                     }
                 }
             },
-            "allocation_score": 0.5597837504229906,
-            "allocation": 34.51246169286834
+            "allocation_score": 0.5597837905506331,
+            "allocation": 37.04941707331113
         },
         "SOL-USD": {
             "id": "SOL-USD",
@@ -858,8 +858,8 @@
                 "cvar_95": -0.04272588132017325,
                 "var_99": -0.048202408885429725,
                 "cvar_99": -0.07188610351608783,
-                "risk_contribution": 0.08997914317843958,
-                "alpha": 0.0015661069098952777
+                "risk_contribution": 0.08997900987085916,
+                "alpha": 0.001566125105023473
             },
             "efficiency": {
                 "efficiency_score": {
@@ -923,8 +923,8 @@
                     }
                 }
             },
-            "allocation_score": 0.7299794180831521,
-            "allocation": 45.00556989040891
+            "allocation_score": 0.7299793626112328,
+            "allocation": 40.96338940846004
         },
         "ETH-USD": {
             "id": "ETH-USD",
@@ -939,8 +939,8 @@
                 "cvar_95": -0.029156093972613716,
                 "var_99": -0.03415133435027485,
                 "cvar_99": -0.04812273971398313,
-                "risk_contribution": 0.050419091935891926,
-                "alpha": -0.0006791418813064864
+                "risk_contribution": 0.05041925319789806,
+                "alpha": -0.000679178271562878
             },
             "efficiency": {
                 "efficiency_score": {
@@ -1004,8 +1004,8 @@
                     }
                 }
             },
-            "allocation_score": 0.3322125555224458,
-            "allocation": 20.481968416722758
+            "allocation_score": 0.33220696851586,
+            "allocation": 21.98719351822882
         }
     },
     "portfolio_metrics": {
@@ -1066,7 +1066,7 @@
                     "description": "Measure of risk concentration"
                 },
                 "total_portfolio_risk": {
-                    "value": 0.09493543587993793,
+                    "value": 0.0949355419926699,
                     "description": "Overall portfolio risk measure"
                 }
             },
@@ -1090,63 +1090,63 @@
             },
             "strategy_relationships": {
                 "risk_overlap_1_2": {
-                    "value": 0.0007012664115818257,
+                    "value": 0.0007012648439233568,
                     "description": "Risk relationship metric: risk_overlap_1_2"
                 },
                 "risk_overlap_1_3": {
-                    "value": 0.017712246416554236,
+                    "value": 0.017712206821398048,
                     "description": "Risk relationship metric: risk_overlap_1_3"
                 },
                 "risk_overlap_1_4": {
-                    "value": -0.0010334764547389244,
+                    "value": -0.0010334741444356077,
                     "description": "Risk relationship metric: risk_overlap_1_4"
                 },
                 "risk_overlap_1_5": {
-                    "value": 0.019026581393646602,
+                    "value": 0.01902661574871881,
                     "description": "Risk relationship metric: risk_overlap_1_5"
                 },
                 "risk_overlap_1_6": {
-                    "value": 0.008763781118095042,
+                    "value": 0.00876379111027931,
                     "description": "Risk relationship metric: risk_overlap_1_6"
                 },
                 "risk_overlap_2_3": {
-                    "value": 0.010505994913695584,
+                    "value": 0.01050597142788245,
                     "description": "Risk relationship metric: risk_overlap_2_3"
                 },
                 "risk_overlap_2_4": {
-                    "value": 0.025334420815826045,
+                    "value": 0.025334364181544566,
                     "description": "Risk relationship metric: risk_overlap_2_4"
                 },
                 "risk_overlap_2_5": {
-                    "value": 0.008069273782597322,
+                    "value": 0.008069288352765113,
                     "description": "Risk relationship metric: risk_overlap_2_5"
                 },
                 "risk_overlap_2_6": {
-                    "value": 0.013486748935658311,
+                    "value": 0.01348676431282015,
                     "description": "Risk relationship metric: risk_overlap_2_6"
                 },
                 "risk_overlap_3_4": {
-                    "value": 0.05120568350238876,
+                    "value": 0.0512055690337331,
                     "description": "Risk relationship metric: risk_overlap_3_4"
                 },
                 "risk_overlap_3_5": {
-                    "value": 0.032722652606936346,
+                    "value": 0.032722711692121945,
                     "description": "Risk relationship metric: risk_overlap_3_5"
                 },
                 "risk_overlap_3_6": {
-                    "value": 0.026904815532591823,
+                    "value": 0.026904846208606052,
                     "description": "Risk relationship metric: risk_overlap_3_6"
                 },
                 "risk_overlap_4_5": {
-                    "value": 0.01643817268252308,
+                    "value": 0.016438202363872438,
                     "description": "Risk relationship metric: risk_overlap_4_5"
                 },
                 "risk_overlap_4_6": {
-                    "value": 0.03482085558472073,
+                    "value": 0.03482089528635186,
                     "description": "Risk relationship metric: risk_overlap_4_6"
                 },
                 "risk_overlap_5_6": {
-                    "value": 0.02432510797418046,
+                    "value": 0.024325234009501557,
                     "description": "Risk relationship metric: risk_overlap_5_6"
                 }
             }

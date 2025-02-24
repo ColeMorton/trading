@@ -385,32 +385,37 @@ def calculate_ticker_metrics(strategies: List[Strategy], ratio_based_allocation:
         def adjust_allocations(allocations):
             """Adjust allocations to ensure no value is more than twice the minimum."""
             alloc_array = np.array(allocations)
-            proportions = alloc_array / np.sum(alloc_array)
-            adjusted = alloc_array.copy()
-            iterations = 0
-            max_iterations = 100
+            total = np.sum(alloc_array)
             
-            while (np.max(adjusted) > 2 * np.min(adjusted)) and (iterations < max_iterations):
-                curr_min = np.min(adjusted)
-                curr_max = np.max(adjusted)
+            # Keep adjusting until no value is more than twice the minimum
+            while True:
+                min_val = np.min(alloc_array)
+                max_val = np.max(alloc_array)
                 
-                if curr_max > 2 * curr_min:
-                    geom_mean = np.sqrt(curr_max * curr_min)
-                    scale_high = (2 * curr_min) / curr_max
-                    scale_low = 2.0
+                # Check if constraint is satisfied
+                if max_val <= 2 * min_val:
+                    break
                     
-                    for i in range(len(adjusted)):
-                        if adjusted[i] > geom_mean:
-                            adjusted[i] = adjusted[i] * scale_high
-                        else:
-                            adjusted[i] = adjusted[i] * scale_low
-                            
-                    adjusted = adjusted * (np.sum(alloc_array) / np.sum(adjusted))
+                # Find indices of values above 2x minimum
+                high_idx = alloc_array > 2 * min_val
+                
+                # Calculate excess above 2x minimum
+                excess = np.sum(alloc_array[high_idx] - (2 * min_val))
+                
+                # Redistribute excess proportionally to values at or below 2x minimum
+                low_idx = ~high_idx
+                if np.any(low_idx):
+                    # Scale down high values to 2x minimum
+                    alloc_array[high_idx] = 2 * min_val
                     
-                iterations += 1
+                    # Distribute excess proportionally to low values
+                    low_sum = np.sum(alloc_array[low_idx])
+                    if low_sum > 0:
+                        alloc_array[low_idx] *= (low_sum + excess) / low_sum
             
-            adjusted = (adjusted / np.sum(adjusted)) * 100
-            return adjusted.tolist()
+            # Normalize to percentages
+            result = (alloc_array / np.sum(alloc_array)) * 100
+            return result.tolist()
         
         # Apply ratio-based adjustment
         adjusted_allocations = adjust_allocations(allocations)
