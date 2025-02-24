@@ -238,6 +238,9 @@ def analyze_concurrency(
         strategy_alphas = [risk_metrics.get(f"strategy_{i+1}_alpha", 0.0) for i in range(len(config_list))]
         allocation_efficiencies = [efficiency_metrics[0] for i in range(len(config_list))]
 
+        # Extract tickers from configs
+        strategy_tickers = [config.get('TICKER', '') for config in config_list]
+        
         # Calculate allocation scores
         log("Calculating allocation scores", "info")
         allocation_scores, allocation_percentages = calculate_allocation_scores(
@@ -245,7 +248,9 @@ def analyze_concurrency(
             strategy_risk_contributions,
             strategy_alphas,
             allocation_efficiencies,
-            log
+            strategy_tickers,  # Add strategy_tickers parameter
+            log,
+            ratio_based_allocation=True  # Enable ratio-based allocation
         )
 
         # Compile all statistics

@@ -52,7 +52,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     "REFRESH": True,
     "SL_CANDLE_CLOSE": True,
     "VISUALIZATION": False,
-    "RATIO_BASED_ALLOCATION": True
+    "RATIO_BASED_ALLOCATION": False
 }
 
 def run_analysis(config: Dict[str, Any]) -> bool:

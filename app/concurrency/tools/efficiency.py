@@ -282,6 +282,7 @@ def calculate_allocation_scores(
     strategy_risk_contributions: List[float],
     strategy_alphas: List[float],
     strategy_efficiencies: List[float],
+    strategy_tickers: List[str],  # Added parameter for ticker mapping
     log: Callable[[str, str], None],
     ratio_based_allocation: bool = False
 ) -> tuple[List[float], List[float]]:
@@ -292,6 +293,7 @@ def calculate_allocation_scores(
         strategy_risk_contributions (List[float]): List of risk contributions
         strategy_alphas (List[float]): List of strategy alphas
         strategy_efficiencies (List[float]): List of strategy efficiencies
+        strategy_tickers (List[str]): List of tickers corresponding to each strategy
         log: Callable[[str, str], None]
         ratio_based_allocation (bool): Flag to enable ratio-based allocation
 
@@ -307,7 +309,7 @@ def calculate_allocation_scores(
         normalized_alphas = normalize_values(strategy_alphas)
         normalized_efficiencies = normalize_values(strategy_efficiencies)
 
-        # Calculate allocation scores
+        # Calculate raw allocation scores
         allocation_scores = []
         for i in range(len(strategy_expectancies)):
             allocation_score = (
@@ -318,17 +320,36 @@ def calculate_allocation_scores(
             )
             allocation_scores.append(allocation_score)
 
-        # Calculate the sum of all allocation scores
-        total_allocation_score = sum(allocation_scores)
+        # Group strategies by ticker
+        ticker_strategies = {}
+        for i, ticker in enumerate(strategy_tickers):
+            if ticker not in ticker_strategies:
+                ticker_strategies[ticker] = []
+            ticker_strategies[ticker].append(i)
 
-        # Calculate the allocation percentage for each strategy
-        allocation_percentages = [
-            (score / total_allocation_score) * 100 if total_allocation_score > 0 else 0
-            for score in allocation_scores
-        ]
+        # Calculate ticker-level metrics
+        ticker_metrics = {}
+        for ticker, strategy_indices in ticker_strategies.items():
+            ticker_metrics[ticker] = {
+                'allocation_score': sum(allocation_scores[i] for i in strategy_indices)
+            }
 
-        if ratio_based_allocation:
-            allocation_percentages = apply_ratio_based_allocation(allocation_percentages, log)
+        # Get ticker allocations
+        ticker_allocations = calculate_ticker_allocations(
+            ticker_metrics,
+            ratio_based_allocation,
+            log
+        )
+
+        # Distribute ticker allocations to strategies proportionally
+        allocation_percentages = [0.0] * len(strategy_expectancies)
+        for ticker, strategies in ticker_strategies.items():
+            ticker_total_score = sum(allocation_scores[i] for i in strategies)
+            if ticker_total_score > 0:
+                ticker_allocation = ticker_allocations[ticker]
+                for strategy_index in strategies:
+                    strategy_proportion = allocation_scores[strategy_index] / ticker_total_score
+                    allocation_percentages[strategy_index] = ticker_allocation * strategy_proportion
 
         log(f"Allocation scores: {allocation_scores}", "info")
         log(f"Allocation percentages: {allocation_percentages}", "info")
@@ -357,33 +378,49 @@ def calculate_ticker_allocations(
     try:
         log("Calculating ticker allocations", "info")
         
-        # Extract allocation scores from ticker metrics
-        tickers = []
-        allocation_scores = []
+        # Group strategies by ticker and sum their allocation scores
+        ticker_total_scores = {}
         for ticker, metrics in ticker_metrics.items():
-            tickers.append(ticker)
-            allocation_scores.append(metrics['allocation_score'])
+            ticker_total_scores[ticker] = metrics['allocation_score']
         
-        log(f"Initial allocation scores: {dict(zip(tickers, allocation_scores))}", "info")
+        log(f"Ticker total scores: {ticker_total_scores}", "info")
         
-        # Calculate initial allocation percentages
-        total_score = sum(allocation_scores)
-        allocations = [
-            (score / total_score) * 100 if total_score > 0 else 0
-            for score in allocation_scores
-        ]
+        # Calculate initial ticker-level allocations
+        total_score = sum(ticker_total_scores.values())
+        ticker_allocations = {
+            ticker: (score / total_score) * 100 if total_score > 0 else 0
+            for ticker, score in ticker_total_scores.items()
+        }
         
-        log(f"Initial allocations: {dict(zip(tickers, allocations))}", "info")
+        log(f"Initial ticker allocations: {ticker_allocations}", "info")
         
-        # Apply ratio-based allocation if enabled
         if ratio_based_allocation:
-            allocations = adjust_allocations(allocations)
-            log(f"Adjusted allocations: {dict(zip(tickers, allocations))}", "info")
+            # Sort tickers by allocation to maintain relative ordering
+            sorted_tickers = sorted(
+                ticker_allocations.keys(),
+                key=lambda t: ticker_allocations[t],
+                reverse=True
+            )
+            sorted_allocations = [ticker_allocations[t] for t in sorted_tickers]
+            
+            # Adjust allocations while preserving ticker ordering
+            adjusted = adjust_allocations(sorted_allocations)
+            
+            # Map back to tickers while maintaining original order
+            ticker_allocations = dict(zip(sorted_tickers, adjusted))
+            
+            log(f"Adjusted ticker allocations: {ticker_allocations}", "info")
+            
+            # Verify relative ordering is maintained
+            sorted_final = sorted(
+                ticker_allocations.items(),
+                key=lambda x: x[1],
+                reverse=True
+            )
+            log("Final allocation order:", "info")
+            for ticker, alloc in sorted_final:
+                log(f"{ticker}: {alloc:.2f}%", "info")
         
-        # Create dictionary mapping tickers to their allocations
-        ticker_allocations = dict(zip(tickers, allocations))
-        
-        log(f"Final ticker allocations: {ticker_allocations}", "info")
         return ticker_allocations
         
     except Exception as e:
