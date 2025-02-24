@@ -135,7 +135,7 @@ def run_analysis(
 
         # Generate and save JSON report
         log("Generating JSON report", "info")
-        report = generate_json_report(updated_strategies, stats, log)
+        report = generate_json_report(updated_strategies, stats, log, config)
         
         # Save report
         save_json_report(report, config, log)

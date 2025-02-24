@@ -322,6 +322,7 @@ def calculate_ticker_metrics(strategies: List[Strategy], ratio_based_allocation:
 
     Args:
         strategies (List[Strategy]): List of strategy objects.
+        ratio_based_allocation (bool): Whether to apply ratio-based allocation rules.
 
     Returns:
         Dict[str, Any]: Dictionary of ticker metrics, with ticker symbols as keys.
@@ -372,6 +373,51 @@ def calculate_ticker_metrics(strategies: List[Strategy], ratio_based_allocation:
 
             ticker_metrics[ticker]["allocation_score"] += strategy["allocation_score"]
             ticker_metrics[ticker]["allocation"] += strategy["allocation"]
+
+    # Apply ratio-based allocation if enabled
+    if ratio_based_allocation:
+        # Extract allocations
+        allocations = [metrics["allocation"] for metrics in ticker_metrics.values()]
+        
+        # Use numpy to adjust allocations
+        import numpy as np
+        
+        def adjust_allocations(allocations):
+            """Adjust allocations to ensure no value is more than twice the minimum."""
+            alloc_array = np.array(allocations)
+            proportions = alloc_array / np.sum(alloc_array)
+            adjusted = alloc_array.copy()
+            iterations = 0
+            max_iterations = 100
+            
+            while (np.max(adjusted) > 2 * np.min(adjusted)) and (iterations < max_iterations):
+                curr_min = np.min(adjusted)
+                curr_max = np.max(adjusted)
+                
+                if curr_max > 2 * curr_min:
+                    geom_mean = np.sqrt(curr_max * curr_min)
+                    scale_high = (2 * curr_min) / curr_max
+                    scale_low = 2.0
+                    
+                    for i in range(len(adjusted)):
+                        if adjusted[i] > geom_mean:
+                            adjusted[i] = adjusted[i] * scale_high
+                        else:
+                            adjusted[i] = adjusted[i] * scale_low
+                            
+                    adjusted = adjusted * (np.sum(alloc_array) / np.sum(adjusted))
+                    
+                iterations += 1
+            
+            adjusted = (adjusted / np.sum(adjusted)) * 100
+            return adjusted.tolist()
+        
+        # Apply ratio-based adjustment
+        adjusted_allocations = adjust_allocations(allocations)
+        
+        # Update ticker metrics with adjusted allocations
+        for (ticker, metrics), new_allocation in zip(ticker_metrics.items(), adjusted_allocations):
+            metrics["allocation"] = new_allocation
 
     return ticker_metrics
 
@@ -520,9 +566,10 @@ def create_portfolio_metrics(stats: Dict[str, Any]) -> PortfolioMetrics:
     }
 
 def generate_json_report(
-    strategies: List[Dict[str, Any]], 
-    stats: Dict[str, Any], 
-    log: Callable[[str, str], None]
+    strategies: List[Dict[str, Any]],
+    stats: Dict[str, Any],
+    log: Callable[[str, str], None],
+    config: Dict[str, Any]
 ) -> ConcurrencyReport:
     """Generate a comprehensive JSON report of the concurrency analysis.
 
@@ -530,6 +577,7 @@ def generate_json_report(
         strategies (List[Dict[str, Any]]): List of strategy configurations
         stats (Dict[str, Any]): Statistics from the concurrency analysis
         log (Callable[[str, str], None]): Logging function
+        config (Dict[str, Any]): Configuration dictionary containing RATIO_BASED_ALLOCATION
 
     Returns:
         ConcurrencyReport: Complete report containing:
@@ -577,7 +625,8 @@ def generate_json_report(
 
         # Calculate ticker metrics
         log("Calculating ticker metrics", "info")
-        ticker_metrics = calculate_ticker_metrics(strategy_objects, ratio_based_allocation=True)
+        ratio_based = config.get("RATIO_BASED_ALLOCATION", False)
+        ticker_metrics = calculate_ticker_metrics(strategy_objects, ratio_based_allocation=ratio_based)
         
         # Create report
         strategy_objects.sort(key=lambda x: x.get("allocation", 0.0), reverse=True)
