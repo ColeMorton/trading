@@ -15,13 +15,9 @@ from app.tools.portfolio.collection import export_best_portfolios, combine_strat
 
 CONFIG: Config = {
     "TICKER": [
-  "BNB-USD",
-  "ETH-USD",
-  "XMR-USD",
-  "TRX-USD",
-  "SOL-USD"
-]
-,
+        'BIDU',
+        'POOL'
+    ],
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,
     # "WINDOWS": 120,
@@ -35,12 +31,12 @@ CONFIG: Config = {
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
-    "USE_SYNTHETIC": True,
-    "USE_CURRENT": False,
-    "MIN_TRADES": 34,
-    "MIN_WIN_RATE": 0.35,
-    # "MIN_WIN_RATE": 0.5,
-    # "MIN_TRADES": 50,
+    "USE_SYNTHETIC": False,
+    "USE_CURRENT": True,
+    # "MIN_TRADES": 34,
+    # "MIN_WIN_RATE": 0.35,
+    "MIN_WIN_RATE": 0.5,
+    "MIN_TRADES": 50,
     "SORT_BY": "Expectancy Adjusted",
     "USE_GBM": False
 }

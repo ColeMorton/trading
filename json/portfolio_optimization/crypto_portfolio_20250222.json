@@ -1,0 +1,117 @@
+{
+    "portfolio_metrics": {
+        "annualized_return": 0.5141849588002215,
+        "downside_volatility": 0.31666889509945684,
+        "sortino_ratio": 0.10228541019222356,
+        "var_95": 642.766409494761,
+        "cvar_95": 1084.8650950178044,
+        "var_99": 1359.4515446371138,
+        "cvar_99": 1848.844027842852
+    },
+    "asset_metrics": [
+        {
+            "ticker": "BTC-USD",
+            "weight": 0.26666666676667355,
+            "annualized_return": 0.5183534878680752,
+            "downside_volatility": 0.43180791882720937,
+            "sortino_ratio": 1.2004260812907825,
+            "var": -0.055660084090636414,
+            "cvar": -0.0840931050463627,
+            "initial_value": 976.6132444444445,
+            "leveraged_value": 4394.7596,
+            "position_size": 0.0458982763298202,
+            "allocation": 27.16
+        },
+        {
+            "ticker": "BNB-USD",
+            "weight": 0.2586072844847106,
+            "annualized_return": 0.8869008862420934,
+            "downside_volatility": 0.54908830311436,
+            "sortino_ratio": 1.6152245116344728,
+            "var": -0.06829535796494159,
+            "cvar": -0.1059994982498157,
+            "initial_value": 1660.5751249999998,
+            "leveraged_value": 5313.8404,
+            "position_size": 8.132164509403152,
+            "allocation": 32.84
+        },
+        {
+            "ticker": "ETH-USD",
+            "weight": 0.13333333324061047,
+            "annualized_return": 0.46931577808707103,
+            "downside_volatility": 0.5266890169796776,
+            "sortino_ratio": 0.8910680932334301,
+            "var": -0.06856799619784656,
+            "cvar": -0.10450028173460382,
+            "initial_value": 563.0036176470588,
+            "leveraged_value": 1914.2123000000001,
+            "position_size": 0.6839421451858908,
+            "allocation": 11.83
+        },
+        {
+            "ticker": "TRX-USD",
+            "weight": 0.20805938229881757,
+            "annualized_return": 0.9488071893113306,
+            "downside_volatility": 0.6283616464291765,
+            "sortino_ratio": 1.509969926877566,
+            "var": -0.07567923193061853,
+            "cvar": -0.12376851586308475,
+            "initial_value": 948.9000714285716,
+            "leveraged_value": 2656.9202,
+            "position_size": 10851.669122138135,
+            "allocation": 16.42
+        },
+        {
+            "ticker": "XMR-USD",
+            "weight": 0.1333333332091877,
+            "annualized_return": 0.3662124720839105,
+            "downside_volatility": 0.5933798412034655,
+            "sortino_ratio": 0.6171636558147565,
+            "var": -0.07212510302230225,
+            "cvar": -0.11413926732961356,
+            "initial_value": 1118.3926470588235,
+            "leveraged_value": 1901.2675,
+            "position_size": 8.106034720873671,
+            "allocation": 11.75
+        }
+    ],
+    "position_sizing_config": {
+        "use_ema": false,
+        "ema_period": 35,
+        "var_confidence_levels": [
+            0.95,
+            0.99
+        ]
+    },
+    "total_leveraged_value": 16181.0,
+    "initial_value": 14221,
+    "target_value": 16181,
+    "use_target_value": true,
+    "portfolio": [
+        {
+            "ticker": "BTC-USD",
+            "leverage": 4.5,
+            "weight": 27.16
+        },
+        {
+            "ticker": "BNB-USD",
+            "leverage": 3.2,
+            "weight": 32.84
+        },
+        {
+            "ticker": "ETH-USD",
+            "leverage": 3.4,
+            "weight": 11.83
+        },
+        {
+            "ticker": "TRX-USD",
+            "leverage": 2.8,
+            "weight": 16.42
+        },
+        {
+            "ticker": "XMR-USD",
+            "leverage": 1.7,
+            "weight": 11.75
+        }
+    ]
+}

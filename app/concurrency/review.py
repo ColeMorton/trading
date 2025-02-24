@@ -42,15 +42,16 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "sol_d_next.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "trx_d_20250217.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "crypto_d_20250218.json"),
-    "PORTFOLIO": str(PORTFOLIOS_DIR / "crypto_portfolio_20250221.json"),
+    # "PORTFOLIO": str(PORTFOLIOS_DIR / "crypto_portfolio_20250221.json"),
+    # "PORTFOLIO": str(PORTFOLIOS_DIR / "crypto_portfolio_20250222.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_d_next.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "stock_trades_20250221.json"),
+    "PORTFOLIO": str(PORTFOLIOS_DIR / "stock_trades_20250224.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "stock_portfolio_20250221.json"),
     "BASE_DIR": str(CONCURRENCY_DIR),
     "REFRESH": True,
     "SL_CANDLE_CLOSE": True,
     "VISUALIZATION": False,
-    "RATIO_BASED_ALLOCATION": True
+    "RATIO_BASED_ALLOCATION": False
 }
 
 def run_analysis(config: Dict[str, Any]) -> bool:

@@ -45,7 +45,7 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": "TRX-USD",
+    "TICKER": "XMR-USD",
     "BASE_DIR": ".",
     "USE_HOURLY": False,
     "REFRESH": False,
