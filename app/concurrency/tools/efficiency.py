@@ -178,54 +178,70 @@ def calculate_efficiency_score(
         log(f"Error in legacy efficiency calculation: {str(e)}", "error")
         raise
 
-
-
 def adjust_allocations(allocations):
     """
     Adjust allocations to ensure no value is more than twice the minimum
     or less than half the maximum while maintaining relative proportions.
     """
-    # Convert allocations to numpy array
+    # Convert allocations to numpy array and handle zero case
     alloc_array = np.array(allocations)
+    if np.sum(alloc_array) == 0:
+        return [100.0 / len(allocations)] * len(allocations)
     
-    # Get initial proportion between values
-    proportions = alloc_array / np.sum(alloc_array)
+    # Get initial proportions
+    initial_proportions = alloc_array / np.sum(alloc_array)
     
-    # Initialize variables for iteration
+    # Initialize variables
     adjusted = alloc_array.copy()
     iterations = 0
     max_iterations = 100  # Prevent infinite loops
     
     while (np.max(adjusted) > 2 * np.min(adjusted)) and (iterations < max_iterations):
-        # Calculate the current min and max
+        # Get current min and max values
         curr_min = np.min(adjusted)
         curr_max = np.max(adjusted)
         
-        # If max is more than 2x min, compress the range
-        if curr_max > 2 * curr_min:
-            # Adjust values toward the geometric mean
-            geom_mean = np.sqrt(curr_max * curr_min)
+        # Calculate target range
+        target_min = curr_max / 2  # Minimum should be at least half of maximum
+        
+        # Create adjustment mask for values below target
+        below_target = adjusted < target_min
+        
+        if np.any(below_target):
+            # Calculate required increase for small values
+            small_values = adjusted[below_target]
+            increase_needed = np.sum(target_min - small_values)
             
-            # Scale values above geom_mean down and below geom_mean up
-            scale_high = (2 * curr_min) / curr_max
-            scale_low = 2.0
+            # Calculate proportional reduction for larger values
+            large_values = adjusted[~below_target]
+            reduction_factor = 1 - (increase_needed / np.sum(large_values))
             
-            # Apply scaling while preserving order
-            for i in range(len(adjusted)):
-                if adjusted[i] > geom_mean:
-                    adjusted[i] = adjusted[i] * scale_high
-                else:
-                    adjusted[i] = adjusted[i] * scale_low
-                    
-            # Re-normalize to maintain sum
-            adjusted = adjusted * (np.sum(alloc_array) / np.sum(adjusted))
+            # Apply adjustments while maintaining proportions within groups
+            adjusted[below_target] = target_min
+            adjusted[~below_target] *= reduction_factor
             
+            # Normalize while preserving the new relationships
+            adjusted = adjusted / np.sum(adjusted) * np.sum(alloc_array)
+        
         iterations += 1
     
-    # Normalize to sum to 100
-    adjusted = (adjusted / np.sum(adjusted)) * 100
+    # Final normalization to 100%
+    result = adjusted / np.sum(adjusted) * 100
     
-    return adjusted.tolist()
+    # Verify the relative proportions are maintained within tolerance
+    final_proportions = result / np.sum(result)
+    prop_ratios = final_proportions / initial_proportions
+    prop_ratios = prop_ratios[initial_proportions > 0]  # Ignore zeros
+    
+    # Check if proportions are maintained within 1% tolerance
+    if np.max(prop_ratios) / np.min(prop_ratios) > 1.01:
+        # If proportions deviated too much, use a simpler scaling approach
+        min_alloc = np.min(alloc_array[alloc_array > 0])
+        scale = 50 / min_alloc  # Scale so minimum is 50
+        result = alloc_array * scale
+        result = result / np.sum(result) * 100
+    
+    return result.tolist()
 
 
 def apply_ratio_based_allocation(
