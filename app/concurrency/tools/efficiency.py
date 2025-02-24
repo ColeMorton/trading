@@ -1,6 +1,7 @@
 """Efficiency score calculation for concurrency analysis."""
 
 from typing import List, Callable, Tuple, Dict
+import numpy as np
 
 def calculate_strategy_efficiency(
     expectancy: float,
@@ -227,6 +228,78 @@ def apply_ratio_based_allocation(
         else:
             log("Smallest allocation is already at least half of the largest, no scaling needed", "info")
             return allocations
+
+    except Exception as e:
+        log(f"Error applying ratio-based allocation: {str(e)}", "error")
+        raise
+
+
+def adjust_allocations(allocations):
+    """
+    Adjust allocations to ensure no value is more than twice the minimum
+    or less than half the maximum while maintaining relative proportions.
+    """
+    # Convert allocations to numpy array
+    alloc_array = np.array(allocations)
+    
+    # Get initial proportion between values
+    proportions = alloc_array / np.sum(alloc_array)
+    
+    # Initialize variables for iteration
+    adjusted = alloc_array.copy()
+    iterations = 0
+    max_iterations = 100  # Prevent infinite loops
+    
+    while (np.max(adjusted) > 2 * np.min(adjusted)) and (iterations < max_iterations):
+        # Calculate the current min and max
+        curr_min = np.min(adjusted)
+        curr_max = np.max(adjusted)
+        
+        # If max is more than 2x min, compress the range
+        if curr_max > 2 * curr_min:
+            # Adjust values toward the geometric mean
+            geom_mean = np.sqrt(curr_max * curr_min)
+            
+            # Scale values above geom_mean down and below geom_mean up
+            scale_high = (2 * curr_min) / curr_max
+            scale_low = 2.0
+            
+            # Apply scaling while preserving order
+            for i in range(len(adjusted)):
+                if adjusted[i] > geom_mean:
+                    adjusted[i] = adjusted[i] * scale_high
+                else:
+                    adjusted[i] = adjusted[i] * scale_low
+                    
+            # Re-normalize to maintain sum
+            adjusted = adjusted * (np.sum(alloc_array) / np.sum(adjusted))
+            
+        iterations += 1
+    
+    # Normalize to sum to 100
+    adjusted = (adjusted / np.sum(adjusted)) * 100
+    
+    return adjusted.tolist()
+
+
+def apply_ratio_based_allocation(
+    allocations: List[float],
+    log: Callable[[str, str], None]
+) -> List[float]:
+    """Apply ratio-based allocation to ensure smallest allocation is at least half of the largest.
+
+    Args:
+        allocations (List[float]): List of initial allocation percentages.
+        log (Callable[[str, str], None]): Logging function.
+
+    Returns:
+        List[float]: Adjusted allocation percentages.
+    """
+    try:
+        log("Applying ratio-based allocation", "info")
+        adjusted_allocations = adjust_allocations(allocations)
+        log(f"Adjusted allocations: {adjusted_allocations}", "info")
+        return adjusted_allocations
 
     except Exception as e:
         log(f"Error applying ratio-based allocation: {str(e)}", "error")
