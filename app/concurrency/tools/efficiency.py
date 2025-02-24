@@ -188,58 +188,42 @@ def adjust_allocations(allocations):
     if np.sum(alloc_array) == 0:
         return [100.0 / len(allocations)] * len(allocations)
     
-    # Get initial proportions
-    initial_proportions = alloc_array / np.sum(alloc_array)
+    # Get initial proportions and handle zeros
+    total = np.sum(alloc_array)
+    initial_proportions = alloc_array / total
     
-    # Initialize variables
-    adjusted = alloc_array.copy()
-    iterations = 0
-    max_iterations = 100  # Prevent infinite loops
+    # Find minimum non-zero allocation and maximum
+    non_zero_mask = alloc_array > 0
+    if not np.any(non_zero_mask):
+        return [100.0 / len(allocations)] * len(allocations)
     
-    while (np.max(adjusted) > 2 * np.min(adjusted)) and (iterations < max_iterations):
-        # Get current min and max values
-        curr_min = np.min(adjusted)
-        curr_max = np.max(adjusted)
-        
-        # Calculate target range
-        target_min = curr_max / 2  # Minimum should be at least half of maximum
-        
-        # Create adjustment mask for values below target
-        below_target = adjusted < target_min
-        
-        if np.any(below_target):
-            # Calculate required increase for small values
-            small_values = adjusted[below_target]
-            increase_needed = np.sum(target_min - small_values)
-            
-            # Calculate proportional reduction for larger values
-            large_values = adjusted[~below_target]
-            reduction_factor = 1 - (increase_needed / np.sum(large_values))
-            
-            # Apply adjustments while maintaining proportions within groups
-            adjusted[below_target] = target_min
-            adjusted[~below_target] *= reduction_factor
-            
-            # Normalize while preserving the new relationships
-            adjusted = adjusted / np.sum(adjusted) * np.sum(alloc_array)
-        
-        iterations += 1
+    min_alloc = np.min(alloc_array[non_zero_mask])
+    max_alloc = np.max(alloc_array)
     
-    # Final normalization to 100%
-    result = adjusted / np.sum(adjusted) * 100
+    # If already satisfies constraint, return normalized allocations
+    if min_alloc >= max_alloc / 2:
+        return (initial_proportions * 100).tolist()
     
-    # Verify the relative proportions are maintained within tolerance
-    final_proportions = result / np.sum(result)
-    prop_ratios = final_proportions / initial_proportions
-    prop_ratios = prop_ratios[initial_proportions > 0]  # Ignore zeros
+    # Calculate target minimum (half of current maximum)
+    target_min = max_alloc / 2
     
-    # Check if proportions are maintained within 1% tolerance
-    if np.max(prop_ratios) / np.min(prop_ratios) > 1.01:
-        # If proportions deviated too much, use a simpler scaling approach
-        min_alloc = np.min(alloc_array[alloc_array > 0])
-        scale = 50 / min_alloc  # Scale so minimum is 50
-        result = alloc_array * scale
-        result = result / np.sum(result) * 100
+    # Calculate scaling factor to bring minimum up to target
+    scale_factor = target_min / min_alloc
+    
+    # Apply scaling to non-zero allocations while preserving zeros
+    result = np.zeros_like(alloc_array)
+    result[non_zero_mask] = alloc_array[non_zero_mask] * scale_factor
+    
+    # Normalize to 100% while preserving zeros
+    result = result / np.sum(result) * 100
+    
+    # Verify relative ordering is maintained
+    for i in range(len(allocations)):
+        for j in range(i + 1, len(allocations)):
+            if alloc_array[i] > alloc_array[j]:
+                assert result[i] > result[j], "Relative ordering violated"
+            elif alloc_array[i] < alloc_array[j]:
+                assert result[i] < result[j], "Relative ordering violated"
     
     return result.tolist()
 
@@ -367,62 +351,8 @@ def calculate_ticker_allocations(
         
         # Apply ratio-based allocation if enabled
         if ratio_based_allocation:
-            min_alloc = min(allocations)
-            max_alloc = max(allocations)
-            half_max = 0.5 * max_alloc
-            
-            if min_alloc < half_max:
-                log(f"Min allocation {min_alloc:.2f}% is less than half of max {max_alloc:.2f}%", "info")
-                
-                # Calculate required adjustments
-                small_allocations = []
-                large_allocations = []
-                small_indices = []
-                large_indices = []
-                
-                for i, alloc in enumerate(allocations):
-                    if alloc < half_max:
-                        small_allocations.append(alloc)
-                        small_indices.append(i)
-                    else:
-                        large_allocations.append(alloc)
-                        large_indices.append(i)
-                
-                if small_allocations:
-                    # Calculate total increase needed for small allocations
-                    total_increase = sum(half_max - alloc for alloc in small_allocations)
-                    
-                    # Calculate reduction factor for large allocations
-                    total_large = sum(large_allocations)
-                    reduction_factor = (total_large - total_increase) / total_large
-                    
-                    # Create new allocations list
-                    new_allocations = [0.0] * len(allocations)
-                    
-                    # Set small allocations to half_max
-                    for i in small_indices:
-                        new_allocations[i] = half_max
-                    
-                    # Reduce large allocations proportionally
-                    for i, large_idx in enumerate(large_indices):
-                        new_allocations[large_idx] = large_allocations[i] * reduction_factor
-                    
-                    # Normalize to 100%
-                    total = sum(new_allocations)
-                    allocations = [alloc / total * 100 for alloc in new_allocations]
-                    
-                    log(f"Adjusted allocations: {dict(zip(tickers, allocations))}", "info")
-                    
-                    # Verify ratio constraint
-                    new_min = min(allocations)
-                    new_max = max(allocations)
-                    ratio = new_min / new_max
-                    log(f"New min/max ratio: {ratio:.2f} (target >= 0.5)", "info")
-                    
-                    if ratio < 0.499:  # Allow small numerical error
-                        log("Warning: Ratio constraint not satisfied after adjustment", "warning")
-            else:
-                log("Allocations already satisfy ratio constraint", "info")
+            allocations = adjust_allocations(allocations)
+            log(f"Adjusted allocations: {dict(zip(tickers, allocations))}", "info")
         
         # Create dictionary mapping tickers to their allocations
         ticker_allocations = dict(zip(tickers, allocations))
