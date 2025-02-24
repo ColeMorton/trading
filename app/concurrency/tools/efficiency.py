@@ -185,46 +185,72 @@ def adjust_allocations(allocations):
     """
     # Convert allocations to numpy array and handle zero case
     alloc_array = np.array(allocations)
+    print("\nDEBUG: Initial allocations:", alloc_array)
+    
     if np.sum(alloc_array) == 0:
+        print("DEBUG: All allocations are zero")
         return [100.0 / len(allocations)] * len(allocations)
     
     # Get initial proportions and handle zeros
     total = np.sum(alloc_array)
     initial_proportions = alloc_array / total
+    print("DEBUG: Initial proportions:", initial_proportions)
     
-    # Find minimum non-zero allocation and maximum
+    # Find non-zero allocations
     non_zero_mask = alloc_array > 0
     if not np.any(non_zero_mask):
+        print("DEBUG: No non-zero allocations found")
         return [100.0 / len(allocations)] * len(allocations)
     
-    min_alloc = np.min(alloc_array[non_zero_mask])
-    max_alloc = np.max(alloc_array)
+    non_zero_allocs = alloc_array[non_zero_mask]
+    min_alloc = np.min(non_zero_allocs)
+    max_alloc = np.max(non_zero_allocs)
+    print(f"DEBUG: Min non-zero allocation: {min_alloc:.4f}")
+    print(f"DEBUG: Max allocation: {max_alloc:.4f}")
+    print(f"DEBUG: Current min/max ratio: {min_alloc/max_alloc:.4f}")
     
     # If already satisfies constraint, return normalized allocations
     if min_alloc >= max_alloc / 2:
+        print("DEBUG: Allocations already satisfy ratio constraint")
         return (initial_proportions * 100).tolist()
     
-    # Calculate target minimum (half of current maximum)
-    target_min = max_alloc / 2
+    # Calculate power transformation factor to compress the range
+    current_ratio = max_alloc / min_alloc
+    target_ratio = 2.0  # max should be no more than 2x min
+    power_factor = np.log(target_ratio) / np.log(current_ratio)
+    print(f"DEBUG: Power factor: {power_factor:.4f}")
     
-    # Calculate scaling factor to bring minimum up to target
-    scale_factor = target_min / min_alloc
-    
-    # Apply scaling to non-zero allocations while preserving zeros
+    # Apply power transformation to compress the range while preserving order
     result = np.zeros_like(alloc_array)
-    result[non_zero_mask] = alloc_array[non_zero_mask] * scale_factor
+    result[non_zero_mask] = np.power(non_zero_allocs, power_factor)
+    print("DEBUG: After power transformation:", result)
     
     # Normalize to 100% while preserving zeros
     result = result / np.sum(result) * 100
+    print("DEBUG: After normalization:", result)
     
     # Verify relative ordering is maintained
+    print("\nDEBUG: Verifying relative ordering")
     for i in range(len(allocations)):
         for j in range(i + 1, len(allocations)):
             if alloc_array[i] > alloc_array[j]:
+                print(f"DEBUG: Checking {i}({alloc_array[i]:.4f}) > {j}({alloc_array[j]:.4f})")
+                print(f"DEBUG: Result {i}({result[i]:.4f}) > {j}({result[j]:.4f})")
+                if not result[i] > result[j]:
+                    print(f"DEBUG: ERROR - Relative ordering violated between indices {i} and {j}")
+                    print(f"DEBUG: Original: {alloc_array[i]:.4f} > {alloc_array[j]:.4f}")
+                    print(f"DEBUG: Result: {result[i]:.4f} <= {result[j]:.4f}")
                 assert result[i] > result[j], "Relative ordering violated"
             elif alloc_array[i] < alloc_array[j]:
+                print(f"DEBUG: Checking {i}({alloc_array[i]:.4f}) < {j}({alloc_array[j]:.4f})")
+                print(f"DEBUG: Result {i}({result[i]:.4f}) < {j}({result[j]:.4f})")
+                if not result[i] < result[j]:
+                    print(f"DEBUG: ERROR - Relative ordering violated between indices {i} and {j}")
+                    print(f"DEBUG: Original: {alloc_array[i]:.4f} < {alloc_array[j]:.4f}")
+                    print(f"DEBUG: Result: {result[i]:.4f} >= {result[j]:.4f}")
                 assert result[i] < result[j], "Relative ordering violated"
     
+    print("\nDEBUG: Final allocations:", result.tolist())
     return result.tolist()
 
 
