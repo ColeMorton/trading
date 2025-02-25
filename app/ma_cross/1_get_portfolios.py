@@ -15,14 +15,11 @@ from app.tools.portfolio.collection import export_best_portfolios, combine_strat
 
 CONFIG: Config = {
     "TICKER": [
-        'CHD',
-        'TRV',
-        'AVB',
-        'IDXX',
-        'POOL',
         'DIS',
-        'DHR',
-        'BKNG'
+        'UDR',
+        'ADP',
+        'HCA',
+        'ELV'
     ],
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,

@@ -1,0 +1,22 @@
+{
+    "initial_value": 14000,
+    "target_value": 11754,
+    "use_target_value": true,
+    "portfolio": [
+        {
+            "ticker": "BTC-USD",
+            "leverage": 4.5,
+            "weight": 50
+        },
+        {
+            "ticker": "TRX-USD",
+            "leverage": 2.8,
+            "weight": 33.35
+        },
+        {
+            "ticker": "XMR-USD",
+            "leverage": 1.7,
+            "weight": 16.65
+        }
+    ]
+}

@@ -66,6 +66,7 @@ def validate_config(config: Config) -> None:
     Args:
         config: Configuration dictionary to validate
         
+        
     Raises:
         ValueError: If configuration is invalid
     """
