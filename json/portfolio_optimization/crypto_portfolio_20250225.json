@@ -1,0 +1,81 @@
+{
+    "portfolio_metrics": {
+        "annualized_return": 0.5059314491359682,
+        "downside_volatility": 0.30557957031950117,
+        "sortino_ratio": 0.10429586493164172,
+        "var_95": 711.5522036010962,
+        "cvar_95": 1109.6742947048638,
+        "var_99": 1319.2657745863262,
+        "cvar_99": 1847.4052063366225
+    },
+    "asset_metrics": [
+        {
+            "ticker": "BTC-USD",
+            "weight": 0.44444444424185137,
+            "annualized_return": 0.5155398712704824,
+            "downside_volatility": 0.4318035301977342,
+            "sortino_ratio": 1.1939223170185829,
+            "var": -0.05564818703155943,
+            "cvar": -0.0840931050463627,
+            "initial_value": 1710.5294222222224,
+            "leveraged_value": 7697.3824,
+            "position_size": 0.08380289578947978,
+            "allocation": 43.52
+        },
+        {
+            "ticker": "TRX-USD",
+            "weight": 0.33333333363366896,
+            "annualized_return": 0.9464513952951252,
+            "downside_volatility": 0.6281201514694993,
+            "sortino_ratio": 1.5067999220863777,
+            "var": -0.07567085678058703,
+            "cvar": -0.12376851586308475,
+            "initial_value": 2192.5563214285717,
+            "leveraged_value": 6139.157700000001,
+            "position_size": 25622.091052742424,
+            "allocation": 34.71
+        },
+        {
+            "ticker": "XMR-USD",
+            "weight": 0.22222222212447965,
+            "annualized_return": 0.3631749004885605,
+            "downside_volatility": 0.5932074263437177,
+            "sortino_ratio": 0.6122224442249797,
+            "var": -0.07211573214383918,
+            "cvar": -0.11413926732961356,
+            "initial_value": 2263.936,
+            "leveraged_value": 3848.6912,
+            "position_size": 16.93277640467798,
+            "allocation": 21.76
+        }
+    ],
+    "position_sizing_config": {
+        "use_ema": false,
+        "ema_period": 35,
+        "var_confidence_levels": [
+            0.95,
+            0.99
+        ]
+    },
+    "total_leveraged_value": 17685.2313,
+    "initial_value": 14221,
+    "target_value": 17687,
+    "use_target_value": true,
+    "portfolio": [
+        {
+            "ticker": "BTC-USD",
+            "leverage": 4.5,
+            "weight": 43.52
+        },
+        {
+            "ticker": "TRX-USD",
+            "leverage": 2.8,
+            "weight": 34.71
+        },
+        {
+            "ticker": "XMR-USD",
+            "leverage": 1.7,
+            "weight": 21.76
+        }
+    ]
+}

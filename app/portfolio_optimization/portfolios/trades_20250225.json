@@ -1,0 +1,40 @@
+{
+    "initial_value": 16020,
+    "target_value": 15489,
+    "use_target_value": false,
+    "portfolio": [
+        {
+            "ticker": "QCOM"
+        },
+        {
+            "ticker": "HUM"
+        },
+        {
+            "ticker": "BIDU"
+        },
+        {
+            "ticker": "ENPH"
+        },
+        {
+            "ticker": "IDXX"
+        },
+        {
+            "ticker": "CI"
+        },
+        {
+            "ticker": "MSFT"
+        },
+        {
+            "ticker": "TRMB"
+        },
+        {
+            "ticker": "EQIX"
+        },
+        {
+            "ticker": "HIG"
+        },
+        {
+            "ticker": "ISRG"
+        }
+    ]
+}
