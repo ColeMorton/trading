@@ -21,12 +21,15 @@ class ConcurrencyConfig(TypedDict):
     Optional Fields:
         SL_CANDLE_CLOSE (NotRequired[bool]): Use candle close for stop loss
         RATIO_BASED_ALLOCATION (NotRequired[bool]): Enable ratio-based allocation
+        CSV_USE_HOURLY (NotRequired[bool]): Use hourly timeframe for CSV strategies
+                                           (True for hourly, False for daily)
     """
     PORTFOLIO: str
     BASE_DIR: str
     REFRESH: bool
     SL_CANDLE_CLOSE: NotRequired[bool]
     RATIO_BASED_ALLOCATION: NotRequired[bool]
+    CSV_USE_HOURLY: NotRequired[bool]
 
 class CsvStrategyRow(TypedDict):
     """CSV strategy row format.
@@ -187,6 +190,12 @@ def validate_config(config: Dict[str, Any]) -> ConcurrencyConfig:
     
     if 'SL_CANDLE_CLOSE' in config and not isinstance(config['SL_CANDLE_CLOSE'], bool):
         raise ValidationError("SL_CANDLE_CLOSE must be a boolean if provided")
+    
+    if 'RATIO_BASED_ALLOCATION' in config and not isinstance(config['RATIO_BASED_ALLOCATION'], bool):
+        raise ValidationError("RATIO_BASED_ALLOCATION must be a boolean if provided")
+    
+    if 'CSV_USE_HOURLY' in config and not isinstance(config['CSV_USE_HOURLY'], bool):
+        raise ValidationError("CSV_USE_HOURLY must be a boolean if provided")
 
     # Validate portfolio file
     portfolio_path = Path(config['BASE_DIR']) / config['PORTFOLIO']

@@ -11,10 +11,9 @@ CSV files must contain the following columns:
 - Long Window: Period for long moving average
 
 Default values for CSV files:
-- timeframe: Daily
 - direction: Long
 - USE_RSI: False
-- USE_HOURLY: False
+- USE_HOURLY: Controlled by CSV_USE_HOURLY configuration option (default: False for Daily)
 """
 
 from pathlib import Path
@@ -28,7 +27,7 @@ def load_portfolio_from_csv(csv_path: Path, log: Callable[[str, str], None], con
     Args:
         csv_path (Path): Path to the CSV file containing strategy configurations
         log (Callable[[str, str], None]): Logging function for status updates
-        config (Dict): Configuration dictionary containing BASE_DIR and REFRESH settings
+        config (Dict): Configuration dictionary containing BASE_DIR, REFRESH, and CSV_USE_HOURLY settings
 
     Returns:
         List[StrategyConfig]: List of strategy configurations
@@ -55,6 +54,11 @@ def load_portfolio_from_csv(csv_path: Path, log: Callable[[str, str], None], con
         log(error_msg, "error")
         raise ValueError(error_msg)
     
+    # Get timeframe setting from config
+    use_hourly = config.get("CSV_USE_HOURLY", False)
+    timeframe = "Hourly" if use_hourly else "Daily"
+    log(f"Using {timeframe} timeframe for all strategies in CSV file as set by CSV_USE_HOURLY: {use_hourly}", "info")
+    
     # Convert DataFrame rows to StrategyConfig objects
     portfolio = []
     for row in df.iter_rows(named=True):
@@ -65,7 +69,6 @@ def load_portfolio_from_csv(csv_path: Path, log: Callable[[str, str], None], con
         strategy_type = "SMA" if row["Use SMA"] else "EMA"
         
         # Set default values
-        timeframe = "Daily"
         direction = "Long"
         
         config_entry: StrategyConfig = {
@@ -75,7 +78,7 @@ def load_portfolio_from_csv(csv_path: Path, log: Callable[[str, str], None], con
             "BASE_DIR": config["BASE_DIR"],
             "REFRESH": config["REFRESH"],
             "USE_RSI": False,
-            "USE_HOURLY": False,
+            "USE_HOURLY": use_hourly,  # Use CSV_USE_HOURLY setting
             "USE_SMA": strategy_type == "SMA",
             "STRATEGY_TYPE": strategy_type,
             "DIRECTION": direction
@@ -90,7 +93,7 @@ def load_portfolio_from_csv(csv_path: Path, log: Callable[[str, str], None], con
             f"SHORT_WINDOW: {config_entry['SHORT_WINDOW']}",
             f"LONG_WINDOW: {config_entry['LONG_WINDOW']}",
             f"USE_RSI: {config_entry['USE_RSI']}",
-            f"USE_HOURLY: {config_entry['USE_HOURLY']}",
+            f"USE_HOURLY: {config_entry['USE_HOURLY']} (from CSV_USE_HOURLY config)",
             f"USE_SMA: {config_entry['USE_SMA']}",
             f"BASE_DIR: {config_entry['BASE_DIR']}",
             f"REFRESH: {config_entry['REFRESH']}"

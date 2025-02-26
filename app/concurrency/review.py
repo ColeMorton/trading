@@ -2,6 +2,16 @@
 
 This module serves as the entry point for analyzing concurrent exposure between
 multiple trading strategies and defines configuration types and defaults.
+
+Configuration Options:
+    - PORTFOLIO: Path to portfolio file (.csv or .json)
+    - BASE_DIR: Base directory for file operations
+    - REFRESH: Whether to refresh cached data
+    - SL_CANDLE_CLOSE: Use candle close for stop loss
+    - RATIO_BASED_ALLOCATION: Enable ratio-based allocation
+    - VISUALIZATION: Enable visualization of results
+    - CSV_USE_HOURLY: Control timeframe for CSV file strategies (True for hourly, False for daily)
+      Note: JSON files specify timeframes individually per strategy
 """
 
 from typing import Dict, Any
@@ -53,7 +63,8 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     "REFRESH": True,
     "SL_CANDLE_CLOSE": True,
     "VISUALIZATION": False,
-    "RATIO_BASED_ALLOCATION": True
+    "RATIO_BASED_ALLOCATION": True,
+    "CSV_USE_HOURLY": True
 }
 
 def run_analysis(config: Dict[str, Any]) -> bool:
