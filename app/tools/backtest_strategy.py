@@ -21,7 +21,18 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
         Portfolio object with backtest results
     """
     try:
-        freq = 'h' if config.get('USE_HOURLY', False) else 'D'
+        # FIXED: Ensure USE_HOURLY is treated as a boolean
+        use_hourly = False
+        if isinstance(config.get('USE_HOURLY'), bool):
+            use_hourly = config.get('USE_HOURLY')
+        elif isinstance(config.get('USE_HOURLY'), (int, float)):
+            use_hourly = bool(config.get('USE_HOURLY'))
+        elif isinstance(config.get('USE_HOURLY'), str):
+            use_hourly = config.get('USE_HOURLY').lower() == 'true'
+            
+        # FIXED: Ensure freq is always a string ('h' or 'D')
+        freq = 'h' if use_hourly else 'D'
+        log(f"Using frequency: {freq} for {'hourly' if use_hourly else 'daily'} data", "info")
         
         # Convert polars DataFrame to pandas DataFrame for vectorbt
         data_pd = data.to_pandas()
@@ -31,7 +42,7 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
             'close': data_pd['Close'],
             'init_cash': 1000,
             'fees': 0.001,
-            'freq': freq
+            'freq': freq  # This must remain a string ('h' or 'D')
         }
         
         # Handle stop loss configuration
@@ -63,6 +74,7 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
             params['entries'] = data_pd['Signal'] == 1
             params['exits'] = data_pd['Signal'] == 0
         
+        # FIXED: Ensure freq parameter is a string when creating the portfolio
         portfolio = vbt.Portfolio.from_signals(**params)
         
         # Create a custom stats method that includes window parameters

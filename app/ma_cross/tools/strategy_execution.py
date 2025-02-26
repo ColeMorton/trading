@@ -72,6 +72,7 @@ def execute_single_strategy(
             
         # Get raw stats from vectorbt
         stats = portfolio.stats()
+        log(f"Raw stats from vectorbt: {stats}", "debug")
         
         # Convert stats using app/tools/stats_converter.py
         converted_stats = convert_stats(stats, log, config)
