@@ -15,11 +15,8 @@ from app.tools.portfolio.collection import export_best_portfolios, combine_strat
 
 CONFIG: Config = {
     "TICKER": [
-        'DIS',
-        'UDR',
-        'ADP',
-        'HCA',
-        'ELV'
+        'SPY',
+        'QQQ'
     ],
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,
@@ -31,11 +28,11 @@ CONFIG: Config = {
     "REFRESH": True,
     # "USE_SMA": False,
     "DIRECTION": "Long",
-    "USE_HOURLY": False,
+    "USE_HOURLY": True,
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": True,
+    "USE_CURRENT": False,
     "MIN_TRADES": 34,
     "MIN_WIN_RATE": 0.35,
     # "MIN_WIN_RATE": 0.5,
