@@ -1,9 +1,10 @@
 """File utility functions for data loading and caching."""
 
 import os
-from datetime import datetime
-from typing import Set
+from datetime import datetime, timedelta
+from typing import Set, Dict, Any
 import polars as pl
+import pandas_market_calendars as mcal
 
 def is_file_from_today(filepath: str, check_trading_day: bool = False) -> bool:
     """
@@ -56,7 +57,22 @@ def is_file_from_today(filepath: str, check_trading_day: bool = False) -> bool:
     # If no files found from today, check if file is from yesterday or day before
     if not today_files_exist:
         days_diff = (current_time.date() - file_time.date()).days
-        return days_diff <= 2  # Accept files from yesterday or day before
+        
+        # Check if yesterday and day before were trading days
+        nyse = mcal.get_calendar('NYSE')
+        start_date = current_time.date() - timedelta(days=3)  # Go back 3 days to be safe
+        end_date = current_time.date()
+        schedule = nyse.schedule(start_date=start_date, end_date=end_date)
+        
+        if len(schedule) > 0:
+            # Get the last trading day before today
+            last_trading_day = schedule.index[-1].date()
+            
+            # If file is from the last trading day, consider it valid
+            return file_time.date() >= last_trading_day
+        else:
+            # If no trading days in the last 3 days (unusual), fall back to 2-day check
+            return days_diff <= 2  # Accept files from yesterday or day before
         
     return False
 
@@ -76,10 +92,88 @@ def is_file_from_this_hour(filepath: str) -> bool:
     file_time = datetime.fromtimestamp(os.path.getctime(filepath))
     current_time = datetime.now()
     
-    return (file_time.year == current_time.year and 
-            file_time.month == current_time.month and 
-            file_time.day == current_time.day and
-            file_time.hour == current_time.hour)
+    # For hourly data, we need to be more strict
+    # Only consider files created within the last 15 minutes
+    time_diff = (current_time - file_time).total_seconds()
+    return time_diff <= 900  # 15 minutes in seconds
+
+def is_file_content_current(filepath: str, ticker: str) -> bool:
+    """
+    Check if the file content is current by examining the last timestamp in the data.
+    
+    Args:
+        filepath: Path to the file to check
+        ticker: Ticker symbol to determine appropriate market hours
+        
+    Returns:
+        bool: True if the file content is current, False otherwise
+    """
+    if not os.path.exists(filepath):
+        return False
+    
+    try:
+        # Read the file
+        data = pl.read_csv(filepath)
+        
+        if len(data) == 0:
+            return False
+        
+        # Get the last timestamp in the data
+        last_date = data["Date"].max()
+        
+        # Convert to datetime if it's not already
+        if isinstance(last_date, str):
+            try:
+                last_date = datetime.strptime(last_date, "%Y-%m-%d")
+            except ValueError:
+                # Try other formats
+                try:
+                    last_date = datetime.strptime(last_date, "%Y-%m-%d %H:%M:%S")
+                except ValueError:
+                    return False
+        
+        # Get current time
+        current_time = datetime.now()
+        
+        # For crypto, data should be from the last hour
+        if '-' in ticker:  # Crypto pairs typically use '-'
+            if isinstance(last_date, datetime):
+                time_diff = (current_time - last_date).total_seconds()
+                return time_diff <= 3600  # 1 hour
+            return False
+        
+        # For stocks, data should be from the current or previous trading day
+        current_date = current_time.date()
+        
+        # Get the NYSE calendar
+        nyse = mcal.get_calendar('NYSE')
+        
+        # Check if today is a trading day
+        today_schedule = nyse.schedule(start_date=current_date, end_date=current_date)
+        is_trading_day = len(today_schedule) > 0
+        
+        if is_trading_day:
+            # If today is a trading day, data should be from today
+            if isinstance(last_date, datetime):
+                return last_date.date() == current_date
+            return False
+        else:
+            # If today is not a trading day, get the last trading day
+            start_date = current_date - timedelta(days=5)  # Go back 5 days to be safe
+            schedule = nyse.schedule(start_date=start_date, end_date=current_date)
+            
+            if len(schedule) > 0:
+                last_trading_day = schedule.index[-1].date()
+                
+                # Data should be from the last trading day
+                if isinstance(last_date, datetime):
+                    return last_date.date() >= last_trading_day
+            
+            return False
+        
+    except Exception as e:
+        print(f"Error checking file content currency: {str(e)}")
+        return False
 
 def get_current_window_combinations(filepath: str) -> Set[tuple]:
     """
@@ -155,3 +249,34 @@ def get_portfolio_path(config: dict) -> str:
     path_components.append(f'{config["TICKER"]}_{freq_type}_{ma_type}.csv')
     
     return os.path.join(*path_components)
+
+def ensure_directory_exists(filepath: str) -> None:
+    """
+    Ensure that the directory for the given filepath exists.
+    
+    Args:
+        filepath: Path to the file
+    """
+    directory = os.path.dirname(filepath)
+    os.makedirs(directory, exist_ok=True)
+
+def get_data_file_path(ticker: str, config: Dict[str, Any]) -> str:
+    """
+    Generate the file path for price data based on configuration.
+    
+    Args:
+        ticker: Stock ticker symbol
+        config: Configuration dictionary
+        
+    Returns:
+        str: Full path to the price data file
+    """
+    # Construct file path using BASE_DIR
+    file_name = f'{ticker}{"_H" if config.get("USE_HOURLY", False) else "_D"}'
+    directory = os.path.join(config['BASE_DIR'], 'csv', 'price_data')
+    
+    # Ensure directory exists
+    ensure_directory_exists(os.path.join(directory, file_name))
+    
+    # Use absolute path
+    return os.path.abspath(os.path.join(directory, f'{file_name}.csv'))

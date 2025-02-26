@@ -1,6 +1,6 @@
 import polars as pl
 from typing import List, Dict
-from datetime import datetime, date, timedelta
+from datetime import date, timedelta
 
 # Cache for last trading day
 _LAST_TRADING_DAY = None
@@ -53,11 +53,22 @@ def is_signal_current(signals: pl.DataFrame) -> bool:
     if len(signals) == 0:
         return False
         
+    # Check if required columns exist
+    if "Signal" not in signals.columns or "Position" not in signals.columns:
+        return False
+        
     last_row = signals.tail(1)
     
-    # Get signal and position from last row
-    signal = last_row.get_column("Signal").item()
-    position = last_row.get_column("Position").item()
+    # Get signal and position from last row, handling null values
+    signal_col = last_row.get_column("Signal")
+    position_col = last_row.get_column("Position")
+    
+    # Check for null values
+    if signal_col.is_null().any() or position_col.is_null().any():
+        return False
+    
+    signal = signal_col.item()
+    position = position_col.item()
     
     # Check if we have a valid entry signal in the last row
     # We don't need to check the date since we're using the last row

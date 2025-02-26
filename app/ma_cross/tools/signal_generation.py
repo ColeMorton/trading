@@ -35,16 +35,22 @@ def get_current_signals(
         for short in short_windows:
             for long in long_windows:
                 if short < long:  # Ensure short window is always less than long window
-                    temp_data = data.clone()
-                    temp_data = calculate_ma_and_signals(temp_data, short, long, config, log)  # Added log parameter
-                    
-                    if temp_data is not None and len(temp_data) > 0:
-                        current = is_signal_current(temp_data)
-                        if current:
-                            signals.append({
-                                "Short Window": int(short),
-                                "Long Window": int(long)
-                            })
+                    try:
+                        temp_data = data.clone()
+                        temp_data = calculate_ma_and_signals(temp_data, short, long, config, log)
+                        
+                        if temp_data is not None and len(temp_data) > 0:
+                            # Check if required columns exist
+                            if "Signal" in temp_data.columns and "Position" in temp_data.columns:
+                                current = is_signal_current(temp_data)
+                                if current:
+                                    signals.append({
+                                        "Short Window": int(short),
+                                        "Long Window": int(long)
+                                    })
+                    except Exception as e:
+                        log(f"Error processing window combination {short}/{long}: {str(e)}", "warning")
+                        continue
 
         # Create DataFrame with explicit schema
         if signals:
@@ -89,14 +95,23 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
         config_copy["USE_CURRENT"] = True  # Ensure holiday check is enabled
         
         # Get data for the actual ticker first to determine last trading day
-        data_result = get_data(config["TICKER"], config_copy, log)
-        if isinstance(data_result, tuple):
-            data, _ = data_result
-        else:
-            data = data_result
-
-        if data is None:
-            log("Failed to get price data", "error")
+        try:
+            data_result = get_data(config["TICKER"], config_copy, log)
+            if isinstance(data_result, tuple):
+                data, _ = data_result
+            else:
+                data = data_result
+                
+            if data is None or data.is_empty():
+                log("Failed to get price data or data is empty", "error")
+                return pl.DataFrame(
+                    schema={
+                        "Short Window": pl.Int32,
+                        "Long Window": pl.Int32
+                    }
+                )
+        except Exception as e:
+            log(f"Error retrieving data: {str(e)}", "error")
             return pl.DataFrame(
                 schema={
                     "Short Window": pl.Int32,
