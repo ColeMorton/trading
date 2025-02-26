@@ -14,13 +14,7 @@ from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
 CONFIG: Config = {
-    "TICKER": [
-        'DIS',
-        'UDR',
-        'ADP',
-        'HCA',
-        'ELV'
-    ],
+    "TICKER": 'DIS',
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,
     # "WINDOWS": 120,
