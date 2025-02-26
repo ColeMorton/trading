@@ -66,14 +66,12 @@ def export_portfolios(
         
         # Special handling for portfolios_best export type
         if export_type == "portfolios_best":
-            # Define column order with EMA columns at indexes 4 and 5
+            # Define column order with Short Window and Long Window
             ordered_columns = [
                 "Ticker",
                 "Use SMA",
-                "SMA_FAST",
-                "SMA_SLOW",
-                "EMA_FAST",  # Index 4
-                "EMA_SLOW",  # Index 5
+                "Short Window",
+                "Long Window",
                 "Total Trades"
             ]
             
@@ -82,35 +80,25 @@ def export_portfolios(
             ordered_columns.extend(remaining_columns)
             
             # Ensure all required columns exist
-            required_columns = ["SMA_FAST", "SMA_SLOW", "EMA_FAST", "EMA_SLOW"]
+            required_columns = ["Short Window", "Long Window"]
             for col in required_columns:
                 if col not in df.columns:
                     df = df.with_columns(pl.lit(None).alias(col))
-            
-            # Fill appropriate columns based on strategy type
+                    
+            # Rename SMA/EMA columns to Short Window/Long Window
             df = df.with_columns([
                 pl.when(pl.col("Use SMA").eq(True))
                 .then(pl.col("SMA_FAST"))
-                .otherwise(None)
-                .alias("SMA_FAST"),
+                .otherwise(pl.col("EMA_FAST"))
+                .alias("Short Window"),
                 
                 pl.when(pl.col("Use SMA").eq(True))
                 .then(pl.col("SMA_SLOW"))
-                .otherwise(None)
-                .alias("SMA_SLOW"),
-                
-                pl.when(pl.col("Use SMA").eq(False))
-                .then(pl.col("EMA_FAST"))
-                .otherwise(None)
-                .alias("EMA_FAST"),
-                
-                pl.when(pl.col("Use SMA").eq(False))
-                .then(pl.col("EMA_SLOW"))
-                .otherwise(None)
-                .alias("EMA_SLOW")
+                .otherwise(pl.col("EMA_SLOW"))
+                .alias("Long Window")
             ])
             
-            # Reorder columns
+            # Select the final column order
             df = df.select(ordered_columns)
             
             # Get ticker from config

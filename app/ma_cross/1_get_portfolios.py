@@ -35,7 +35,7 @@ CONFIG: Config = {
     "USE_CURRENT": False,
     # "MIN_TRADES": 34,
     # "MIN_WIN_RATE": 0.35,
-    "MIN_WIN_RATE": 0.5,
+    # "MIN_WIN_RATE": 0.5,
     # "MIN_TRADES": 50,
     # "MIN_WIN_RATE": 0.61,
     # "MIN_TRADES": 61,
