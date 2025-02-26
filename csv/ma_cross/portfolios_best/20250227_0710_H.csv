@@ -1,0 +1,4 @@
+Ticker,Use SMA,Short Window,Long Window,Total Trades
+QQQ,true,26,63,27
+SPY,true,30,69,21
+SPY,false,18,83,20

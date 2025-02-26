@@ -66,20 +66,7 @@ def export_portfolios(
         
         # Special handling for portfolios_best export type
         if export_type == "portfolios_best":
-            # Define column order with Short Window and Long Window
-            ordered_columns = [
-                "Ticker",
-                "Use SMA",
-                "Short Window",
-                "Long Window",
-                "Total Trades"
-            ]
-            
-            # Add remaining columns in their original order
-            remaining_columns = [col for col in df.columns if col not in ordered_columns]
-            ordered_columns.extend(remaining_columns)
-            
-            # Ensure all required columns exist
+            # Ensure required columns exist
             required_columns = ["Short Window", "Long Window"]
             for col in required_columns:
                 if col not in df.columns:
@@ -97,6 +84,25 @@ def export_portfolios(
                 .otherwise(pl.col("EMA_SLOW"))
                 .alias("Long Window")
             ])
+            
+            # Remove redundant columns
+            redundant_columns = ["EMA_FAST", "EMA_SLOW", "SMA_FAST", "SMA_SLOW"]
+            for col in redundant_columns:
+                if col in df.columns:
+                    df = df.drop(col)
+            
+            # Define column order with Short Window and Long Window
+            ordered_columns = [
+                "Ticker",
+                "Use SMA",
+                "Short Window",
+                "Long Window",
+                "Total Trades"
+            ]
+            
+            # Add remaining columns in their original order
+            remaining_columns = [col for col in df.columns if col not in ordered_columns]
+            ordered_columns.extend(remaining_columns)
             
             # Select the final column order
             df = df.select(ordered_columns)
