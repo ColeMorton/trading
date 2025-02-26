@@ -25,7 +25,7 @@ CONFIG: Config = {
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
     "BASE_DIR": ".",
-    "REFRESH": True,
+    "REFRESH": False,
     # "USE_SMA": False,
     "DIRECTION": "Long",
     "USE_HOURLY": True,
@@ -35,8 +35,10 @@ CONFIG: Config = {
     "USE_CURRENT": False,
     # "MIN_TRADES": 34,
     # "MIN_WIN_RATE": 0.35,
-    # "MIN_WIN_RATE": 0.5,
+    "MIN_WIN_RATE": 0.5,
     # "MIN_TRADES": 50,
+    # "MIN_WIN_RATE": 0.61,
+    # "MIN_TRADES": 61,
     "SORT_BY": "Expectancy Adjusted",
     "USE_GBM": False
 }
