@@ -60,9 +60,9 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
             period = config.get("PERIOD", "max")
             log(f"Using maximum available period for data download")
             data = yf.download(ticker, period=period, interval=interval)
-    
-            # Flatten MultiIndex columns
-            data.columns = [f"{col[0]}_{col[1]}" if isinstance(col, tuple) else col for col in data.columns]
+        
+        # Flatten MultiIndex columns - do this for all data retrieval methods
+        data.columns = [f"{col[0]}_{col[1]}" if isinstance(col, tuple) else col for col in data.columns]
 
         log(f"Successfully downloaded {len(data)} records")
 
