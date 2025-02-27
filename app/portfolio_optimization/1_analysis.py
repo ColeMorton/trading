@@ -25,8 +25,8 @@ config: PositionSizingConfig = {
     # "portfolio": "current.json",
     # "portfolio": "all_20250218.json",
     # "portfolio": "crypto_portfolio_20250226.json",
-    # "portfolio": "trades_20250225.json",
-    "portfolio": "spy_qqq.json",
+    "portfolio": "trades_20250227.json",
+    # "portfolio": "spy_qqq.json",
     "use_ema": False,     # Whether to use EMA for price calculations
     "ema_period": 35,     # Period for EMA if used
     "var_confidence_levels": [0.95, 0.99]
