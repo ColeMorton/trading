@@ -15,8 +15,13 @@ from app.tools.portfolio.collection import export_best_portfolios, combine_strat
 
 CONFIG: Config = {
     "TICKER": [
-        'SPY',
-        'QQQ'
+        'SWK',
+        'POOL',
+        'DIS',
+        'CSCO',
+        'ASML',
+        'BKNG',
+        'NTES'
     ],
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,
@@ -28,15 +33,15 @@ CONFIG: Config = {
     "REFRESH": False,
     # "USE_SMA": False,
     "DIRECTION": "Long",
-    "USE_HOURLY": True,
+    "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     # "MIN_TRADES": 34,
     # "MIN_WIN_RATE": 0.35,
-    # "MIN_WIN_RATE": 0.5,
-    # "MIN_TRADES": 50,
+    "MIN_WIN_RATE": 0.5,
+    "MIN_TRADES": 50,
     # "MIN_WIN_RATE": 0.61,
     # "MIN_TRADES": 61,
     "SORT_BY": "Expectancy Adjusted",

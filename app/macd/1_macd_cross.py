@@ -27,11 +27,11 @@ class Config(TypedDict):
 
 # Default Configuration
 CONFIG: Config = {
-    "TICKER": 'ETH-USD',
+    "TICKER": 'SPY',
     "YEARS": 2,
     "USE_YEARS": False,
     "PERIOD": 'max',
-    "USE_HOURLY": False,
+    "USE_HOURLY": True,
     "USE_SYNTHETIC": False,
     "TICKER_1": 'MSTR',
     "TICKER_2": 'BTC-USD',

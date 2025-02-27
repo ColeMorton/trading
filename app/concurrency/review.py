@@ -33,7 +33,7 @@ PORTFOLIOS_DIR = CONCURRENCY_DIR / "portfolios"
 
 # Default configuration
 DEFAULT_CONFIG: ConcurrencyConfig = {
-    "PORTFOLIO": str(PORTFOLIOS_DIR / "spy_qqq_h.csv"),
+    # "PORTFOLIO": str(PORTFOLIOS_DIR / "spy_qqq_h_best.csv"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "spy_qqq_D_next.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "BTC_D_test.csv"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "BTC_D.csv"),
@@ -58,8 +58,9 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_portfolio_20250226.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_d_next.json"),
     # "PORTFOLIO": str(PORTFOLIOS_DIR / "stock_trades_20250225.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "stock_portfolio_20250221.json"),
-    "BASE_DIR": str(CONCURRENCY_DIR),
+    "PORTFOLIO": str(PORTFOLIOS_DIR / "stock_portfolio_h_20250221.json"),
+    # "BASE_DIR": str(CONCURRENCY_DIR),
+    "BASE_DIR": '.',
     "REFRESH": True,
     "SL_CANDLE_CLOSE": True,
     "VISUALIZATION": False,
