@@ -14,15 +14,16 @@ from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
 CONFIG: Config = {
-    "TICKER": [
-        'SWK',
-        'POOL',
-        'DIS',
-        'CSCO',
-        'ASML',
-        'BKNG',
-        'NTES'
-    ],
+    "TICKER": "NTES",
+    # [
+    #     'SWK',
+    #     'POOL',
+    #     'DIS',
+    #     'CSCO',
+    #     'ASML',
+    #     'BKNG',
+    #     'NTES'
+    # ],
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,
     # "WINDOWS": 120,
@@ -30,7 +31,7 @@ CONFIG: Config = {
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
     "BASE_DIR": ".",
-    "REFRESH": False,
+    "REFRESH": True,
     # "USE_SMA": False,
     "DIRECTION": "Long",
     "USE_HOURLY": False,
@@ -40,8 +41,8 @@ CONFIG: Config = {
     "USE_CURRENT": True,
     # "MIN_TRADES": 34,
     # "MIN_WIN_RATE": 0.35,
-    "MIN_WIN_RATE": 0.5,
-    "MIN_TRADES": 50,
+    # "MIN_WIN_RATE": 0.5,
+    # "MIN_TRADES": 50,
     # "MIN_WIN_RATE": 0.61,
     # "MIN_TRADES": 61,
     "SORT_BY": "Expectancy Adjusted",
