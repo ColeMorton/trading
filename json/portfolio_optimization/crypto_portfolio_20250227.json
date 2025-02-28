@@ -1,0 +1,81 @@
+{
+    "portfolio_metrics": {
+        "annualized_return": 0.5326827699580348,
+        "downside_volatility": 0.35119282571130483,
+        "sortino_ratio": 0.09554825141074585,
+        "var_95": 321.2508899546853,
+        "cvar_95": 501.80433380393805,
+        "var_99": 617.2796419222667,
+        "cvar_99": 818.124758734581
+    },
+    "asset_metrics": [
+        {
+            "ticker": "TRX-USD",
+            "weight": 0.41547383146901107,
+            "annualized_return": 0.940706666703081,
+            "downside_volatility": 0.627667954897696,
+            "sortino_ratio": 1.4987329835189809,
+            "var": -0.07564573133049254,
+            "cvar": -0.12376851586308475,
+            "initial_value": 939.1908250101818,
+            "leveraged_value": 2629.734310028509,
+            "position_size": 11542.683059046423,
+            "allocation": 37.9892471049979
+        },
+        {
+            "ticker": "XMR-USD",
+            "weight": 0.22222222211503118,
+            "annualized_return": 0.354739799032161,
+            "downside_volatility": 0.5926263939873596,
+            "sortino_ratio": 0.5985892674225499,
+            "var": -0.07208761950844997,
+            "cvar": -0.11413926732961356,
+            "initial_value": 841.6819510767632,
+            "leveraged_value": 1430.8593168304974,
+            "position_size": 6.86433911150441,
+            "allocation": 20.670250965000704
+        },
+        {
+            "ticker": "LTC-USD",
+            "weight": 0.3623039464159578,
+            "annualized_return": 0.5642517995864811,
+            "downside_volatility": 0.569890128366696,
+            "sortino_ratio": 0.990106288037706,
+            "var": -0.0756959183304118,
+            "cvar": -0.11276840844157339,
+            "initial_value": 1300.7811971186334,
+            "leveraged_value": 2861.7186336609934,
+            "position_size": 22.559908143422902,
+            "allocation": 41.340501930001395
+        }
+    ],
+    "position_sizing_config": {
+        "use_ema": false,
+        "ema_period": 35,
+        "var_confidence_levels": [
+            0.95,
+            0.99
+        ]
+    },
+    "total_leveraged_value": 6922.31226052,
+    "initial_value": 14000,
+    "target_value": 6922.31226052,
+    "use_target_value": true,
+    "portfolio": [
+        {
+            "ticker": "TRX-USD",
+            "leverage": 2.8,
+            "weight": 37.9892471049979
+        },
+        {
+            "ticker": "XMR-USD",
+            "leverage": 1.7,
+            "weight": 20.670250965000704
+        },
+        {
+            "ticker": "LTC-USD",
+            "leverage": 2.2,
+            "weight": 41.340501930001395
+        }
+    ]
+}

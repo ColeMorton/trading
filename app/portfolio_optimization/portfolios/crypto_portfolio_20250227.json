@@ -1,0 +1,12 @@
+{
+    "initial_value": 14000,
+    "target_value": 6922.31226052,
+    "use_target_value": true,
+    "portfolio": [
+        {
+            "ticker": "BTC-USD",
+            "leverage": 4.5,
+            "weight": 100
+        }
+    ]
+}

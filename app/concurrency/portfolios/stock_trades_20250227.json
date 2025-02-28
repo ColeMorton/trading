@@ -72,15 +72,6 @@
         "stop_loss": 0.1067
     },
     {
-        "ticker": "ASML",
-        "timeframe": "Daily",
-        "type": "SMA",
-        "direction": "Long",
-        "short_window": 20,
-        "long_window": 33,
-        "stop_loss": 0.1088
-    },
-    {
         "ticker": "POOL",
         "timeframe": "Daily",
         "type": "SMA",

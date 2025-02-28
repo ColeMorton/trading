@@ -1,0 +1,57 @@
+{
+    "initial_value": 16069,
+    "target_value": 15489,
+    "use_target_value": false,
+    "portfolio": [
+        {
+            "ticker": "QCOM",
+            "leverage": 1,
+            "weight": 11.99011414485
+        },
+        {
+            "ticker": "HUM",
+            "leverage": 1,
+            "weight": 8.271905518885
+        },
+        {
+            "ticker": "BIDU",
+            "leverage": 1,
+            "weight": 6.348236992289
+        },
+        {
+            "ticker": "ENPH",
+            "leverage": 1,
+            "weight": 9.395573803102
+        },
+        {
+            "ticker": "IDXX",
+            "leverage": 1,
+            "weight": 12.696473984578
+        },
+        {
+            "ticker": "MSFT",
+            "leverage": 1,
+            "weight": 12.546661874065
+        },
+        {
+            "ticker": "NTES",
+            "leverage": 1,
+            "weight": 8.685317991392
+        },
+        {
+            "ticker": "TRMB",
+            "leverage": 1,
+            "weight": 9.757972507146
+        },
+        {
+            "ticker": "POOL",
+            "leverage": 1,
+            "weight": 9.026575629143
+        },
+        {
+            "ticker": "EQIX",
+            "leverage": 1,
+            "weight": 11.281167554552
+        }
+    ]
+}

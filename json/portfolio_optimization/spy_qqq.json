@@ -1,39 +1,39 @@
 {
     "portfolio_metrics": {
-        "annualized_return": 0.11327935345110439,
-        "downside_volatility": 0.10603032030802684,
-        "sortino_ratio": 0.06730082962054296,
-        "var_95": 185.84296818857118,
-        "cvar_95": 275.37879496786786,
-        "var_99": 323.0359969598649,
-        "cvar_99": 434.7897656642139
+        "annualized_return": 0.09923459044907079,
+        "downside_volatility": 0.1060867974032115,
+        "sortino_ratio": 0.058925255233557315,
+        "var_95": 263.94083218052145,
+        "cvar_95": 390.5512841950677,
+        "var_99": 461.5368594620015,
+        "cvar_99": 611.2431259653249
     },
     "asset_metrics": [
         {
             "ticker": "SPY",
-            "weight": 0.644715327743455,
-            "annualized_return": 0.11680281128203608,
-            "downside_volatility": 0.14567271696953393,
-            "sortino_ratio": 0.8018166593711867,
-            "var": -0.018094003281564623,
-            "cvar": -0.027916146464075024,
-            "initial_value": 865.8666666666667,
-            "leveraged_value": 6494.0,
-            "position_size": 10.928244659937297,
-            "allocation": 50
+            "weight": 0.61739526979105,
+            "annualized_return": 0.11629151181726662,
+            "downside_volatility": 0.14566728179167193,
+            "sortino_ratio": 0.7983365268226981,
+            "var": -0.018092948123289657,
+            "cvar": -0.027916153426953687,
+            "initial_value": 1173.8362749952,
+            "leveraged_value": 8803.772062464,
+            "position_size": 15.047897181700968,
+            "allocation": 48
         },
         {
             "ticker": "QQQ",
-            "weight": 0.35528467225654503,
-            "annualized_return": 0.13212173337174452,
-            "downside_volatility": 0.20509208200022067,
-            "sortino_ratio": 0.6442068951818548,
-            "var": -0.02736054610599867,
-            "cvar": -0.04072900820383183,
-            "initial_value": 865.8666666666667,
-            "leveraged_value": 6494.0,
-            "position_size": 12.65097776697084,
-            "allocation": 50
+            "weight": 0.38260473020895003,
+            "annualized_return": 0.13110322241595512,
+            "downside_volatility": 0.2051076548833979,
+            "sortino_ratio": 0.6391922451187221,
+            "var": -0.02740653380914326,
+            "cvar": -0.040730085127328584,
+            "initial_value": 1271.6559645781335,
+            "leveraged_value": 9537.419734336001,
+            "position_size": 19.06454503325274,
+            "allocation": 52
         }
     ],
     "position_sizing_config": {
@@ -44,20 +44,20 @@
             0.99
         ]
     },
-    "total_leveraged_value": 12988.0,
+    "total_leveraged_value": 18341.1917968,
     "initial_value": 14221,
-    "target_value": 12988,
+    "target_value": 18341.1917968,
     "use_target_value": true,
     "portfolio": [
         {
             "ticker": "SPY",
             "leverage": 7.5,
-            "weight": 50
+            "weight": 48
         },
         {
             "ticker": "QQQ",
             "leverage": 7.5,
-            "weight": 50
+            "weight": 52
         }
     ]
 }

@@ -1,0 +1,207 @@
+{
+    "portfolio_metrics": {
+        "annualized_return": 0.18569787440073268,
+        "downside_volatility": 0.08234603080562368,
+        "sortino_ratio": 0.14205744253879546,
+        "var_95": 176.15225347747403,
+        "cvar_95": 261.3010058772213,
+        "var_99": 308.64267690553925,
+        "cvar_99": 399.9193335912632
+    },
+    "asset_metrics": [
+        {
+            "ticker": "QCOM",
+            "weight": 0.10807586490778831,
+            "annualized_return": 0.2992961745571651,
+            "downside_volatility": 0.31872214903638596,
+            "sortino_ratio": 0.9390504408370969,
+            "var": -0.04404374707735538,
+            "cvar": -0.06583073638046004,
+            "initial_value": 1926.6914419359466,
+            "leveraged_value": 1926.6914419359466,
+            "position_size": 12.475339364663139,
+            "allocation": 11.99011414485
+        },
+        {
+            "ticker": "HUM",
+            "weight": 0.07963070512283403,
+            "annualized_return": 0.18945297019849125,
+            "downside_volatility": 0.29362330000015174,
+            "sortino_ratio": 0.6452245792428372,
+            "var": -0.03437517034092243,
+            "cvar": -0.05564344543086991,
+            "initial_value": 1329.2124978296306,
+            "leveraged_value": 1329.2124978296306,
+            "position_size": 5.084197083143513,
+            "allocation": 8.271905518885
+        },
+        {
+            "ticker": "BIDU",
+            "weight": 0.07453680241155651,
+            "annualized_return": 0.22815482833048545,
+            "downside_volatility": 0.3366742236508709,
+            "sortino_ratio": 0.6776723975372722,
+            "var": -0.04475256792086712,
+            "cvar": -0.06770519479530807,
+            "initial_value": 1020.0982022909194,
+            "leveraged_value": 1020.0982022909194,
+            "position_size": 11.557876474061088,
+            "allocation": 6.348236992289
+        },
+        {
+            "ticker": "ENPH",
+            "weight": 0.07714876853261665,
+            "annualized_return": 0.4812140205457416,
+            "downside_volatility": 0.5230867008490875,
+            "sortino_ratio": 0.9199507839993311,
+            "var": -0.06874302278407499,
+            "cvar": -0.10429202894865196,
+            "initial_value": 1509.7747544204603,
+            "leveraged_value": 1509.7747544204603,
+            "position_size": 24.673554311234366,
+            "allocation": 9.395573803102
+        },
+        {
+            "ticker": "IDXX",
+            "weight": 0.1333333329301165,
+            "annualized_return": 0.26553727172583635,
+            "downside_volatility": 0.31168205411485594,
+            "sortino_ratio": 0.8519491841772351,
+            "var": -0.03499724700219889,
+            "cvar": -0.0548544581916863,
+            "initial_value": 2040.1964045818388,
+            "leveraged_value": 2040.1964045818388,
+            "position_size": 4.625981022217963,
+            "allocation": 12.696473984578
+        },
+        {
+            "ticker": "MSFT",
+            "weight": 0.13333333332382724,
+            "annualized_return": 0.28161967479999095,
+            "downside_volatility": 0.23820887917331132,
+            "sortino_ratio": 1.1822383606242304,
+            "var": -0.02993908562484317,
+            "cvar": -0.045924694180834315,
+            "initial_value": 2016.1230965435052,
+            "leveraged_value": 2016.1230965435052,
+            "position_size": 5.136226792380999,
+            "allocation": 12.546661874065
+        },
+        {
+            "ticker": "NTES",
+            "weight": 0.1054059497212248,
+            "annualized_return": 0.3748417912172967,
+            "downside_volatility": 0.4025803107899539,
+            "sortino_ratio": 0.9310981713978315,
+            "var": -0.04675514329257372,
+            "cvar": -0.0780860335409776,
+            "initial_value": 1395.6437480367804,
+            "leveraged_value": 1395.6437480367804,
+            "position_size": 13.893915285591289,
+            "allocation": 8.685317991392
+        },
+        {
+            "ticker": "TRMB",
+            "weight": 0.08648364824763734,
+            "annualized_return": 0.23193050605106594,
+            "downside_volatility": 0.33906170519140433,
+            "sortino_ratio": 0.6840362756983671,
+            "var": -0.0436112955693391,
+            "cvar": -0.06838117899204876,
+            "initial_value": 1568.008602173291,
+            "leveraged_value": 1568.008602173291,
+            "position_size": 22.184615101911202,
+            "allocation": 9.757972507146
+        },
+        {
+            "ticker": "POOL",
+            "weight": 0.13333333327003952,
+            "annualized_return": 0.27611940234392135,
+            "downside_volatility": 0.2553128116935458,
+            "sortino_ratio": 1.0814945028115153,
+            "var": -0.033093746458808575,
+            "cvar": -0.04997117784214234,
+            "initial_value": 1450.4804378469887,
+            "leveraged_value": 1450.4804378469887,
+            "position_size": 4.234484736566963,
+            "allocation": 9.026575629143
+        },
+        {
+            "ticker": "EQIX",
+            "weight": 0.06871826153235906,
+            "annualized_return": 0.2226084458116607,
+            "downside_volatility": 0.4435992577217241,
+            "sortino_ratio": 0.5018233054648302,
+            "var": -0.04592559339290956,
+            "cvar": -0.0835664010589653,
+            "initial_value": 1812.770814340961,
+            "leveraged_value": 1812.770814340961,
+            "position_size": 1.9912243289815086,
+            "allocation": 11.281167554552
+        }
+    ],
+    "position_sizing_config": {
+        "use_ema": false,
+        "ema_period": 35,
+        "var_confidence_levels": [
+            0.95,
+            0.99
+        ]
+    },
+    "total_leveraged_value": 16069.000000000322,
+    "initial_value": 16069,
+    "target_value": 15489,
+    "use_target_value": false,
+    "portfolio": [
+        {
+            "ticker": "QCOM",
+            "leverage": 1,
+            "weight": 11.99011414485
+        },
+        {
+            "ticker": "HUM",
+            "leverage": 1,
+            "weight": 8.271905518885
+        },
+        {
+            "ticker": "BIDU",
+            "leverage": 1,
+            "weight": 6.348236992289
+        },
+        {
+            "ticker": "ENPH",
+            "leverage": 1,
+            "weight": 9.395573803102
+        },
+        {
+            "ticker": "IDXX",
+            "leverage": 1,
+            "weight": 12.696473984578
+        },
+        {
+            "ticker": "MSFT",
+            "leverage": 1,
+            "weight": 12.546661874065
+        },
+        {
+            "ticker": "NTES",
+            "leverage": 1,
+            "weight": 8.685317991392
+        },
+        {
+            "ticker": "TRMB",
+            "leverage": 1,
+            "weight": 9.757972507146
+        },
+        {
+            "ticker": "POOL",
+            "leverage": 1,
+            "weight": 9.026575629143
+        },
+        {
+            "ticker": "EQIX",
+            "leverage": 1,
+            "weight": 11.281167554552
+        }
+    ]
+}

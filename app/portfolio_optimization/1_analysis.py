@@ -24,8 +24,8 @@ from pathlib import Path
 config: PositionSizingConfig = {
     # "portfolio": "current.json",
     # "portfolio": "all_20250218.json",
-    # "portfolio": "crypto_portfolio_20250226.json",
-    "portfolio": "trades_20250227.json",
+    "portfolio": "crypto_portfolio_20250227.json",
+    # "portfolio": "trades_20250228.json",
     # "portfolio": "spy_qqq.json",
     "use_ema": False,     # Whether to use EMA for price calculations
     "ema_period": 35,     # Period for EMA if used
