@@ -5,7 +5,7 @@ from datetime import datetime
 from scipy.stats import norm, percentileofscore
 
 # Constants
-TICKER = 'BTC-USD'
+TICKER = 'SPY'
 USE_PORTFOLIO = False
 PORTFOLIO = {'BTC-USD': 0.26, 'QQQ': 0.74}
 # PORTFOLIO = {'LLY': 0.25, 'BLDR': 0.25, 'MPO': 0.25, 'EOG': 0.25}
@@ -24,17 +24,17 @@ def download_stock_data(ticker, period="max"):
     if isinstance(ticker, dict):
         data = None
         for symbol, weight in ticker.items():
-            ticker_data = yf.download(symbol, period=period)['Adj Close']
+            ticker_data = yf.download(symbol, period=period)['Close']
             weighted_data = ticker_data * weight
             if data is None:
                 data = weighted_data
             else:
                 data += weighted_data
-        data = data.to_frame(name='Adj Close')
+        data = data.to_frame(name='Close')
     else:
         data = yf.download(ticker, period=period)
 
-    data['Daily Return'] = data['Adj Close'].pct_change()
+    data['Daily Return'] = data['Close'].pct_change()
     return data
 
 def filter_data_by_days(data, days):
