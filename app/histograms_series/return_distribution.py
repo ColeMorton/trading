@@ -10,7 +10,7 @@ from typing import TypedDict, NotRequired
 from app.tools.download_data import download_data
 from app.tools.setup_logging import setup_logging
 
-TICKER = 'SPY'
+TICKER = 'BNB-USD'
 
 log, log_close, _, _ = setup_logging(
     module_name='return_distribution',

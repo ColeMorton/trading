@@ -6,7 +6,7 @@ ZS,,,2,31,false,false
 ZS,,,2,6,false,false
 ZM,53,54,,,false,false
 ZM,,,3,18,false,false
-ZEC-USD,,,2,22,false,true
+ZEC-USD,,,2,22,false,false
 XYZ,7,25,,,false,false
 XYZ,,,2,19,false,false
 XPEV,11,14,,,false,false
@@ -48,7 +48,7 @@ TSM,,,82,89,false,false
 TSLA,10,20,,,false,false
 TSLA,,,11,15,false,false
 TSEM,73,83,,,false,false
-TRX-USD,2,4,,,false,false
+TRX-USD,2,4,,,true,false
 TRGP,7,32,,,false,false
 TRGP,,,9,27,false,false
 TMUS,,,5,65,false,false
@@ -57,7 +57,7 @@ TMDX,,,7,25,false,false
 TLT,16,86,,,false,false
 TLT,,,31,51,false,false
 TGT,80,89,,,false,false
-TEAM,47,48,,,true,false
+TEAM,47,48,,,false,false
 TEAM,,,5,65,false,false
 T,68,73,,,false,false
 STZ,52,71,,,false,false
@@ -134,7 +134,7 @@ ORLY,18,34,,,false,false
 ORLY,,,15,89,false,false
 ON,13,22,,,false,false
 OKTA,80,87,,,false,false
-OKTA,,,2,3,false,false
+OKTA,,,2,3,false,true
 ODFL,80,89,,,false,false
 ODFL,73,85,,,false,false
 ODFL,,,50,85,false,false
@@ -169,7 +169,7 @@ MRNA,29,30,,,false,false
 MRNA,,,5,21,false,false
 MRK,,,48,74,false,false
 MRK,41,71,,,false,false
-MNST,,,15,73,false,false
+MNST,,,15,73,false,true
 MNST,66,81,,,false,false
 MMM,68,80,,,false,false
 MKR-USD,,,14,17,false,false
@@ -186,7 +186,7 @@ MCHP,,,29,86,false,false
 MCD,26,34,,,false,false
 MCD,,,72,86,false,false
 MATIC-USD,,,7,20,false,false
-MATIC-USD,2,4,,,true,false
+MATIC-USD,2,4,,,false,false
 MARA,53,73,,,false,false
 MAR,,,39,81,false,false
 MAR,72,77,,,false,false
@@ -197,7 +197,7 @@ LULU,29,83,,,false,false
 LULU,,,5,26,false,false
 LRCX,80,84,,,false,false
 LRCX,,,56,61,false,false
-LLY,,,79,85,false,true
+LLY,,,79,85,false,false
 LLY,71,89,,,false,false
 LINK-USD,,,5,6,false,false
 LI,12,17,,,false,false
@@ -208,7 +208,7 @@ KDP,54,61,,,false,false
 JPM,22,77,,,false,false
 JPM,,,20,25,false,false
 JNJ,,,55,89,false,false
-JNJ,35,89,,,false,false
+JNJ,35,89,,,true,false
 JD,31,35,,,false,false
 IWM,,,22,24,false,false
 ISRG,80,88,,,false,false
@@ -306,7 +306,7 @@ CTSH,,,19,34,false,false
 CTAS,16,49,,,false,false
 CTAS,23,28,,,false,false
 CTAS,,,46,54,false,false
-CSX,84,87,,,true,false
+CSX,84,87,,,false,false
 CSX,,,19,83,false,false
 CSCO,,,26,63,false,false
 CSCO,18,73,,,false,false
@@ -323,7 +323,7 @@ COHR,,,12,25,false,false
 CMCSA,,,62,68,false,false
 CLX,,,20,80,false,false
 CLX,82,85,,,false,false
-CL,12,46,,,false,false
+CL,12,46,,,true,false
 CIFR,8,14,,,false,false
 CI,18,49,,,false,false
 CHTR,,,18,88,false,false
@@ -387,7 +387,7 @@ ADP,,,87,89,false,false
 ADP,45,57,,,false,false
 ADI,72,87,,,false,false
 ADI,76,87,,,false,false
-ADI,,,69,88,false,true
+ADI,,,69,88,false,false
 ADI,,,59,84,false,false
 ADBE,,,26,29,false,false
 ADBE,45,50,,,false,false

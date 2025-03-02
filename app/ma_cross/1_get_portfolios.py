@@ -14,7 +14,18 @@ from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
 CONFIG: Config = {
-    "TICKER": 'LTC-USD',
+    "TICKER": [
+        "RUNE-USD",
+        "ADA-USD",
+        "NEAR-USD",
+        "AVAX-USD",
+        "DOGE-USD",
+        "SOL-USD",
+        "ETH-USD",
+        "FET-USD",
+        "LINK-USD",
+        "AAVE-USD"
+    ],
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,
     # "WINDOWS": 120,
@@ -28,14 +39,14 @@ CONFIG: Config = {
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
-    "USE_SYNTHETIC": False,
+    "USE_SYNTHETIC": True,
     "USE_CURRENT": False,
     # "MIN_TRADES": 34,
     # "MIN_WIN_RATE": 0.35,
-    # "MIN_WIN_RATE": 0.5,
-    # "MIN_TRADES": 50,
-    "MIN_WIN_RATE": 0.61,
-    "MIN_TRADES": 61,
+    "MIN_WIN_RATE": 0.5,
+    "MIN_TRADES": 50,
+    # "MIN_WIN_RATE": 0.61,
+    # "MIN_TRADES": 61,
     "SORT_BY": "Expectancy Adjusted",
     "USE_GBM": False
 }
