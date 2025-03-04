@@ -52,9 +52,9 @@ config: Config = {
     # "PORTFOLIO": 'BEST.csv',
     # "PORTFOLIO": 'HOURLY Crypto.csv',
     # "PORTFOLIO": '20241202.csv',
-    # "PORTFOLIO": 'DAILY.csv',
+    "PORTFOLIO": 'DAILY_test.csv',
     # "PORTFOLIO": 'BTC_SOL_D.csv',
-    "PORTFOLIO": '20241206.csv',
+    # "PORTFOLIO": '20241206.csv',
     "USE_HOURLY": False,
     "REFRESH": False,
     "DIRECTION": "Long"  # Default to Long position
@@ -175,28 +175,59 @@ def process_scanner() -> bool:
                     pl.lit(None).cast(pl.Int64).alias("SMA_SLOW")
                 ]
             else:  # Full schema with all columns
-                window_columns = [
-                    pl.when(pl.col("Use SMA").cast(pl.Boolean) if has_use_sma else pl.lit(False))
-                        .then(pl.col("Short Window"))
-                        .otherwise(pl.lit(None))
-                        .cast(pl.Int64)
-                        .alias("SMA_FAST"),
-                    pl.when(pl.col("Use SMA").cast(pl.Boolean) if has_use_sma else pl.lit(False))
-                        .then(pl.col("Long Window"))
-                        .otherwise(pl.lit(None))
-                        .cast(pl.Int64)
-                        .alias("SMA_SLOW"),
-                    pl.when(pl.col("Use SMA").cast(pl.Boolean) if has_use_sma else pl.lit(False))
-                        .then(pl.lit(None))
-                        .otherwise(pl.col("Short Window"))
-                        .cast(pl.Int64)
-                        .alias("EMA_FAST"),
-                    pl.when(pl.col("Use SMA").cast(pl.Boolean) if has_use_sma else pl.lit(False))
-                        .then(pl.lit(None))
-                        .otherwise(pl.col("Long Window"))
-                        .cast(pl.Int64)
-                        .alias("EMA_SLOW")
-                ]
+                # Create window columns more safely
+                window_columns = []
+                
+                # Check if Short Window and Long Window columns exist
+                has_short_window = "Short Window" in scanner_df.columns
+                has_long_window = "Long Window" in scanner_df.columns
+                
+                # Only add expressions for columns that exist
+                if has_short_window:
+                    # SMA_FAST - when Use SMA is true, use Short Window
+                    window_columns.append(
+                        pl.when(pl.col("Use SMA").cast(pl.Boolean) if has_use_sma else pl.lit(False))
+                            .then(pl.col("Short Window"))
+                            .otherwise(pl.lit(None))
+                            .cast(pl.Int64)
+                            .alias("SMA_FAST")
+                    )
+                    
+                    # EMA_FAST - when Use SMA is false, use Short Window
+                    window_columns.append(
+                        pl.when(pl.col("Use SMA").cast(pl.Boolean) if has_use_sma else pl.lit(False))
+                            .then(pl.lit(None))
+                            .otherwise(pl.col("Short Window"))
+                            .cast(pl.Int64)
+                            .alias("EMA_FAST")
+                    )
+                else:
+                    # If Short Window doesn't exist, add null columns
+                    window_columns.append(pl.lit(None).cast(pl.Int64).alias("SMA_FAST"))
+                    window_columns.append(pl.lit(None).cast(pl.Int64).alias("EMA_FAST"))
+                
+                if has_long_window:
+                    # SMA_SLOW - when Use SMA is true, use Long Window
+                    window_columns.append(
+                        pl.when(pl.col("Use SMA").cast(pl.Boolean) if has_use_sma else pl.lit(False))
+                            .then(pl.col("Long Window"))
+                            .otherwise(pl.lit(None))
+                            .cast(pl.Int64)
+                            .alias("SMA_SLOW")
+                    )
+                    
+                    # EMA_SLOW - when Use SMA is false, use Long Window
+                    window_columns.append(
+                        pl.when(pl.col("Use SMA").cast(pl.Boolean) if has_use_sma else pl.lit(False))
+                            .then(pl.lit(None))
+                            .otherwise(pl.col("Long Window"))
+                            .cast(pl.Int64)
+                            .alias("EMA_SLOW")
+                    )
+                else:
+                    # If Long Window doesn't exist, add null columns
+                    window_columns.append(pl.lit(None).cast(pl.Int64).alias("SMA_SLOW"))
+                    window_columns.append(pl.lit(None).cast(pl.Int64).alias("EMA_SLOW"))
     
             scanner_df = scanner_df.select(base_columns + window_columns)
         else:
