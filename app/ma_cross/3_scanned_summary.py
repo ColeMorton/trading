@@ -108,15 +108,6 @@ def run(portfolio: str) -> bool:
     try:
         daily_df = None
         
-        # Try portfolios_scanned directory first
-        scanned_path = Path(get_path("csv", "ma_cross", config, "portfolios_scanned"))
-        current_path = scanned_path / portfolio
-            
-        if current_path.exists():
-            log(f"Reading from portfolios_scanned directory: {current_path}")
-            daily_df = read_portfolio(current_path, log)
-        
-        # If file wasn't found in portfolios_scanned directory,
         # try portfolios directory
         if daily_df is None:
             portfolio_path = Path("./csv/portfolios") / portfolio
