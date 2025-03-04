@@ -109,23 +109,32 @@ def export_results(results_data: List[Dict], original_df: pl.DataFrame, config: 
     if not config.get("USE_HOURLY", False):
         # Log signals
         log("\nSignals detected:")
-        tickers_with_signals = set()
+        signal_configs = []  # Store specific configurations with signals
         
         for result in results_data:
             ticker = result["TICKER"]
-            has_signal = False
             
+            # Track SMA signals
             if result["SMA"]:
                 log(f"SMA Signal - {ticker}: Fast={result['SMA_FAST']}, Slow={result['SMA_SLOW']}")
-                has_signal = True
+                signal_configs.append({
+                    "ticker": ticker,
+                    "use_sma": True,
+                    "short_window": result["SMA_FAST"],
+                    "long_window": result["SMA_SLOW"]
+                })
+                
+            # Track EMA signals
             if result["EMA"]:
                 log(f"EMA Signal - {ticker}: Fast={result['EMA_FAST']}, Slow={result['EMA_SLOW']}")
-                has_signal = True
-                
-            if has_signal:
-                tickers_with_signals.add(ticker)
+                signal_configs.append({
+                    "ticker": ticker,
+                    "use_sma": False,
+                    "short_window": result["EMA_FAST"],
+                    "long_window": result["EMA_SLOW"]
+                })
         
-        if not tickers_with_signals:
+        if not signal_configs:
             log("No signals detected.")
             return
             
@@ -138,11 +147,49 @@ def export_results(results_data: List[Dict], original_df: pl.DataFrame, config: 
             log(f"Error reading portfolio file: {e}", "error")
             return
             
-        # Determine which ticker column name is present in the portfolio DataFrame
+        # Determine column names in the portfolio DataFrame
         ticker_col = "Ticker" if "Ticker" in portfolio_df.columns else "TICKER"
+        use_sma_col = "Use SMA" if "Use SMA" in portfolio_df.columns else "USE_SMA"
+        short_window_col = "Short Window" if "Short Window" in portfolio_df.columns else "SHORT_WINDOW"
+        long_window_col = "Long Window" if "Long Window" in portfolio_df.columns else "LONG_WINDOW"
         
-        # Filter the portfolio DataFrame to only include rows with signals
-        filtered_df = portfolio_df.filter(pl.col(ticker_col).is_in(list(tickers_with_signals)))
+        # Create an empty DataFrame to store matching rows
+        filtered_rows = []
+        
+        # For each signal configuration, find the matching row in the portfolio
+        for signal_config in signal_configs:
+            # Create filter conditions
+            ticker_match = pl.col(ticker_col) == signal_config["ticker"]
+            
+            # Handle Use SMA column if it exists
+            if use_sma_col in portfolio_df.columns:
+                use_sma_match = pl.col(use_sma_col).cast(pl.Boolean) == signal_config["use_sma"]
+            else:
+                # If Use SMA column doesn't exist, assume all rows are for EMA (use_sma=False)
+                use_sma_match = pl.lit(True) if not signal_config["use_sma"] else pl.lit(False)
+            
+            # Match window settings
+            short_window_match = pl.col(short_window_col) == signal_config["short_window"]
+            long_window_match = pl.col(long_window_col) == signal_config["long_window"]
+            
+            # Apply all filters
+            matching_rows = portfolio_df.filter(
+                ticker_match & use_sma_match & short_window_match & long_window_match
+            )
+            
+            if len(matching_rows) > 0:
+                filtered_rows.append(matching_rows)
+            else:
+                log(f"Warning: No matching row found for {signal_config['ticker']} with "
+                    f"{'SMA' if signal_config['use_sma'] else 'EMA'} "
+                    f"{signal_config['short_window']}/{signal_config['long_window']}")
+        
+        # Combine all matching rows
+        if filtered_rows:
+            filtered_df = pl.concat(filtered_rows)
+        else:
+            log("No matching rows found in portfolio file.")
+            return
         
         # Create the output directory with date subdirectory
         current_date = datetime.now().strftime("%Y%m%d")
