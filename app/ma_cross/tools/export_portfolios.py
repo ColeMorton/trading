@@ -25,7 +25,8 @@ def export_portfolios(
     config: ExportConfig,
     export_type: str,
     csv_filename: Optional[str] = None,
-    log: Optional[Callable] = None
+    log: Optional[Callable] = None,
+    feature_dir: str = "ma_cross"  # Default to "ma_cross" for backward compatibility
 ) -> Tuple[pl.DataFrame, bool]:
     """Convert portfolio dictionaries to Polars DataFrame and export to CSV.
 
@@ -168,9 +169,9 @@ def export_portfolios(
                 cols = df.columns
                 df = df.select(["Ticker"] + [col for col in cols if col != "Ticker"])
         
-        # For exports from ma_cross module:
-        # Always use "ma_cross" as feature1 to ensure proper directory structure
-        feature1 = "ma_cross"
+        # Use the provided feature_dir parameter for the feature1 value
+        # This allows different scripts to export to different directories
+        feature1 = feature_dir
         
         return export_csv(
             data=df,
