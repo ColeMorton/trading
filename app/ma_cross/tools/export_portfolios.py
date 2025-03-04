@@ -168,15 +168,19 @@ def export_portfolios(
                 cols = df.columns
                 df = df.select(["Ticker"] + [col for col in cols if col != "Ticker"])
         
-        # Use empty feature1 for 'portfolios' and 'portfolios_scanner' export types
-        # to export directly to csv/portfolios/ instead of csv/ma_cross/portfolios/ or csv/ma_cross/portfolios_scanner/
-        feature1 = "" if export_type in ["portfolios", "portfolios_scanner"] else "ma_cross"
+        # For exports from ma_cross module, always use "ma_cross" as feature1
+        # to ensure portfolios are exported to csv/ma_cross/portfolios/ instead of csv/portfolios/
+        feature1 = "ma_cross"
+        
+        # For portfolios_best export type from ma_cross module, use "portfolios" as feature2
+        # to export to csv/ma_cross/portfolios/ instead of csv/ma_cross/portfolios_best/
+        export_feature2 = "portfolios" if export_type == "portfolios_best" and feature1 == "ma_cross" else export_type
         
         return export_csv(
             data=df,
             feature1=feature1,
             config=config,
-            feature2=export_type,
+            feature2=export_feature2,
             filename=csv_filename,
             log=log
         )
