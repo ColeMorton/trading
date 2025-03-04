@@ -145,12 +145,12 @@ def export_results(results_data: List[Dict], config: dict, log: Callable) -> Non
         csv_path = get_path("csv", "ma_cross", config, 'portfolios_scanned')
         os.makedirs(csv_path, exist_ok=True)
         
-        # Get scanner list filename without extension
-        scanner_list_path = config["SCANNER_LIST"]
-        scanner_filename = os.path.splitext(os.path.basename(scanner_list_path))[0]
+        # Get portfolio filename without extension
+        portfolio_path = config["PORTFOLIO"]
+        portfolio_filename = os.path.splitext(os.path.basename(portfolio_path))[0]
         
-        # Export to directory with scanner list name
-        output_path = os.path.join(csv_path, f"{scanner_filename}.csv")
+        # Export to directory with portfolio name
+        output_path = os.path.join(csv_path, f"{portfolio_filename}.csv")
         # Remove file if it exists since Polars doesn't have an overwrite parameter
         if os.path.exists(output_path):
             os.remove(output_path)

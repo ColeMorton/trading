@@ -1,5 +1,5 @@
 """
-Scanner Summary Module for EMA Cross Strategy
+Portfolio Summary Module for EMA Cross Strategy
 
 This module processes the results of market scanning to generate portfolio summaries.
 It aggregates and analyzes the performance of both SMA and EMA strategies across
@@ -11,30 +11,31 @@ import polars as pl
 from datetime import datetime
 from pathlib import Path
 from app.tools.setup_logging import setup_logging
-from tools.summary_processing import (
+from app.utils import get_path
+from app.ma_cross.tools.summary_processing import (
     process_ticker_portfolios,
     export_summary_results
 )
 
 # Default Configuration
 config = {
-    "SCANNER_LIST": '20241220.csv',
+    "PORTFOLIO": 'Best.csv',
     "USE_CURRENT": False,
     "USE_HOURLY": False,
     "BASE_DIR": '.',  # Added BASE_DIR for export configuration
     "DIRECTION": "Long"
 }
 
-def read_scanner_list(file_path: Path, log: Callable[[str, str], None]) -> pl.DataFrame:
+def read_portfolio(file_path: Path, log: Callable[[str, str], None]) -> pl.DataFrame:
     """
-    Read scanner list with proper handling of empty values.
+    Read portfolio with proper handling of empty values.
 
     Args:
-        file_path (Path): Path to the scanner list file
+        file_path (Path): Path to the portfolio file
         log (callable): Logging function
 
     Returns:
-        pl.DataFrame: DataFrame with scanner list data
+        pl.DataFrame: DataFrame with portfolio data
     """
     # Read CSV with null_values option to handle empty strings
     df = pl.read_csv(file_path, null_values=[''])
@@ -46,18 +47,18 @@ def read_scanner_list(file_path: Path, log: Callable[[str, str], None]) -> pl.Da
     
     return df
 
-def run(scanner_list: str) -> bool:
+def run(portfolio: str) -> bool:
     """
-    Process scanner list and generate portfolio summary.
+    Process portfolio and generate portfolio summary.
 
     This function:
-    1. Reads the scanner list
+    1. Reads the portfolio
     2. Processes each ticker with both SMA and EMA strategies
     3. Calculates performance metrics and adjustments
     4. Exports combined results to CSV
 
     Args:
-        scanner_list (str): Name of the scanner list file
+        portfolio (str): Name of the portfolio file
 
     Returns:
         bool: True if execution successful, False otherwise
@@ -75,25 +76,25 @@ def run(scanner_list: str) -> bool:
         
         # Try portfolios_scanned directory first
         scanned_path = Path(get_path("csv", "ma_cross", config, "portfolios_scanned"))
-        current_path = scanned_path / scanner_list
+        current_path = scanned_path / portfolio
             
         if current_path.exists():
             log(f"Reading from portfolios_scanned directory: {current_path}")
-            daily_df = read_scanner_list(current_path, log)
+            daily_df = read_portfolio(current_path, log)
         
         # If file wasn't found in portfolios_scanned directory,
-        # try scanner_lists directory
+        # try portfolios directory
         if daily_df is None:
-            scanner_path = Path("app/ma_cross/scanner_lists") / scanner_list
-            if scanner_path.exists():
-                log(f"Reading from scanner lists directory: {scanner_path}")
-                daily_df = read_scanner_list(scanner_path, log)
+            portfolio_path = Path("./csv/portfolios") / portfolio
+            if portfolio_path.exists():
+                log(f"Reading from portfolios directory: {portfolio_path}")
+                daily_df = read_portfolio(portfolio_path, log)
             else:
-                log(f"Scanner list not found in any location", "error")
+                log(f"Portfolio not found in any location", "error")
                 log_close()
                 return False
 
-        log(f"Successfully loaded scanner list with {len(daily_df)} entries")
+        log(f"Successfully loaded portfolio with {len(daily_df)} entries")
 
         portfolios = []
         
@@ -108,7 +109,7 @@ def run(scanner_list: str) -> bool:
                 portfolios.extend(result)
 
         # Export results with config
-        success = export_summary_results(portfolios, scanner_list, log, config)
+        success = export_summary_results(portfolios, portfolio, log, config)
         
         log_close()
         return success
@@ -120,7 +121,7 @@ def run(scanner_list: str) -> bool:
 
 if __name__ == "__main__":
     try:
-        result = run(config.get("SCANNER_LIST", 'DAILY.csv'))
+        result = run(config.get("PORTFOLIO", 'DAILY.csv'))
         if result:
             print("Execution completed successfully!")
     except Exception as e:

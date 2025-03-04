@@ -1,0 +1,16 @@
+TICKER,SMA_FAST,SMA_SLOW,EMA_FAST,EMA_SLOW,SMA_SIGNAL,EMA_SIGNAL
+ENPH,5,15,3,11,false,false
+MELI,7,64,7,64,false,false
+UBER,75,78,2,7,false,false
+LOW,12,23,2,3,false,false
+UPS,13,23,9,24,true,false
+AAPL,8,37,12,17,false,false
+NKE,2,26,2,33,false,false
+BA,6,16,2,25,false,false
+STZ,16,24,8,30,false,false
+CRL,74,75,5,14,false,false
+EXPD,73,86,9,16,false,false
+IDXX,77,78,5,6,false,false
+MRNA,4,5,2,8,false,false
+AOS,3,12,4,7,false,true
+ABNB,2,18,12,13,false,false

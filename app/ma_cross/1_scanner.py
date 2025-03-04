@@ -1,7 +1,7 @@
 """
 Market Scanner Module for EMA Cross Strategy
 
-This module processes a list of tickers to identify potential trading opportunities
+This module processes a portfolio of tickers to identify potential trading opportunities
 based on EMA/SMA crossover signals. It supports both daily and hourly data analysis,
 and can handle both new scans and updates to existing results.
 """
@@ -22,7 +22,7 @@ class Config(TypedDict):
 
     Required Fields:
         TICKER (str): Ticker symbol to analyze
-        SCANNER_LIST (str): Name of the scanner list file
+        PORTFOLIO (str): Name of the portfolio file
 
     Optional Fields:
         DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
@@ -36,7 +36,7 @@ class Config(TypedDict):
         TICKER_2 (NotRequired[str]): Second ticker for synthetic pairs
     """
     TICKER: str
-    SCANNER_LIST: str
+    PORTFOLIO: str
     DIRECTION: NotRequired[str]
     USE_SMA: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]
@@ -49,12 +49,12 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    # "SCANNER_LIST": 'BEST.csv',
-    # "SCANNER_LIST": 'HOURLY Crypto.csv',
-    # "SCANNER_LIST": 'DAILY.csv',
-    "SCANNER_LIST": 'DAILY Crypto.csv',
-    # "SCANNER_LIST": 'BTC_SOL_D.csv',
-    # "SCANNER_LIST": 'QQQ_SPY100.csv',
+    # "PORTFOLIO": 'BEST.csv',
+    # "PORTFOLIO": 'HOURLY Crypto.csv',
+    # "PORTFOLIO": 'DAILY.csv',
+    # "PORTFOLIO": 'DAILY Crypto.csv',
+    # "PORTFOLIO": 'BTC_SOL_D.csv',
+    "PORTFOLIO": '20241126.csv',
     "USE_HOURLY": False,
     "REFRESH": True,
     "DIRECTION": "Long"  # Default to Long position
@@ -71,8 +71,8 @@ def validate_config(config: Config) -> None:
     Raises:
         ValueError: If configuration is invalid
     """
-    if not config.get("SCANNER_LIST"):
-        raise ValueError("SCANNER_LIST must be specified")
+    if not config.get("PORTFOLIO"):
+        raise ValueError("PORTFOLIO must be specified")
     if config.get("DIRECTION") not in [None, "Long", "Short"]:
         raise ValueError("DIRECTION must be either 'Long' or 'Short'")
 
@@ -105,11 +105,11 @@ def process_scanner() -> bool:
             raise RuntimeError("Failed to initialize logging")
             
         # Determine which CSV file to use based on USE_HOURLY config
-        csv_filename = 'HOURLY.csv' if config.get("USE_HOURLY", False) else config.get("SCANNER_LIST", 'DAILY.csv')
+        csv_filename = 'HOURLY.csv' if config.get("USE_HOURLY", False) else config.get("PORTFOLIO", 'DAILY.csv')
         
         # Read scanner data using polars with explicit schema handling
         scanner_df = pl.read_csv(
-            f'app/ma_cross/scanner_lists/{csv_filename}',
+            f'./csv/portfolios/{csv_filename}',
             infer_schema_length=10000,
             try_parse_dates=True,
             ignore_errors=True,

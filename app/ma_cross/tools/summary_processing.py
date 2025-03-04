@@ -131,13 +131,13 @@ def reorder_columns(portfolio: Dict) -> Dict:
             
     return reordered
 
-def export_summary_results(portfolios: List[Dict], scanner_list: str, log: Callable[[str, str], None], config: Optional[Dict] = None) -> bool:
+def export_summary_results(portfolios: List[Dict], portfolio_name: str, log: Callable[[str, str], None], config: Optional[Dict] = None) -> bool:
     """
     Export portfolio summary results to CSV.
 
     Args:
         portfolios (List[Dict]): List of portfolio statistics
-        scanner_list (str): Name of the scanner list file
+        portfolio_name (str): Name of the portfolio file
         log (Callable): Logging function
         config (Optional[Dict]): Configuration dictionary including USE_HOURLY setting
 
@@ -152,7 +152,7 @@ def export_summary_results(portfolios: List[Dict], scanner_list: str, log: Calla
         export_config = config if config is not None else get_config({})
         export_config["TICKER"] = None
         
-        _, success = export_portfolios(reordered_portfolios, export_config, 'portfolios_summary', scanner_list, log)
+        _, success = export_portfolios(reordered_portfolios, export_config, 'portfolios_summary', portfolio_name, log)
         if not success:
             log("Failed to export portfolios", "error")
             return False

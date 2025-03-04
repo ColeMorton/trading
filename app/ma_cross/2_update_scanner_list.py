@@ -1,9 +1,9 @@
 """
-Scanner List Update Module for MA Cross Strategy
+Portfolio Update Module for MA Cross Strategy
 
-This module processes scanner list entries and compiles portfolio results
-into a comprehensive scanner list CSV file. Supports both legacy and new
-schema formats for scanner list CSV files.
+This module processes portfolio entries and compiles portfolio results
+into a comprehensive portfolio CSV file. Supports both legacy and new
+schema formats for portfolio CSV files.
 """
 
 import os
@@ -16,14 +16,15 @@ from app.ma_cross.config_types import Config
 from app.tools.setup_logging import setup_logging
 
 CONFIG: Config = {
-    # "SCANNER_LIST": '20250213_1306_D.csv',
-    # "SCANNER_LIST": 'BTC_SOL_D.csv',
-    # "SCANNER_LIST": 'BNB_TRX.csv',
-    # "SCANNER_LIST": 'LTC_D.csv',
-    # "SCANNER_LIST": 'spy_qqq_h.csv',
-    # "SCANNER_LIST": 'QQQ_SPY100.csv',
-    "SCANNER_LIST": 'DAILY Crypto.csv',
-    # "SCANNER_LIST": 'DAILY.csv',
+    # "PORTFOLIO": '20250213_1306_D.csv',
+    # "PORTFOLIO": 'BTC_SOL_D.csv',
+    # "PORTFOLIO": 'BNB_TRX.csv',
+    # "PORTFOLIO": 'LTC_D.csv',
+    # "PORTFOLIO": 'spy_qqq_h.csv',
+    # "PORTFOLIO": 'QQQ_SPY100.csv',
+    "PORTFOLIO": 'DAILY Crypto.csv',
+    # "PORTFOLIO": 'DAILY.csv',
+    # "PORTFOLIO": '20241126.csv',
     "BASE_DIR": ".",
     "REFRESH": False,
     "DIRECTION": "Long",
@@ -198,27 +199,27 @@ def main() -> bool:
     # Setup logging
     log, log_close, _, _ = setup_logging(
         module_name="ma_cross",
-        log_file="scanner_list_update.log",
+        log_file="portfolio_update.log",
         level=logging.INFO
     )
     
     try:
-        # Load scanner list to get strategies
-        scanner_path = os.path.join(
-            CONFIG["BASE_DIR"], "app", "ma_cross", "scanner_lists",
-            CONFIG["SCANNER_LIST"]
+        # Load portfolio to get strategies
+        portfolio_path = os.path.join(
+            CONFIG["BASE_DIR"], "csv", "portfolios",
+            CONFIG["PORTFOLIO"]
         )
-        scanner_df = pl.read_csv(scanner_path)
-        log(f"Loaded scanner list with {len(scanner_df)} rows", "info")
+        portfolio_df = pl.read_csv(portfolio_path)
+        log(f"Loaded portfolio with {len(portfolio_df)} rows", "info")
         
         # Detect schema version
-        schema_version = detect_schema_version(scanner_df)
+        schema_version = detect_schema_version(portfolio_df)
         log(f"Detected {schema_version} schema format", "info")
         
         # Process each strategy
         all_results = []
         failed_tickers = set()  # Track tickers with no portfolio or results
-        for row in scanner_df.iter_rows(named=True):
+        for row in portfolio_df.iter_rows(named=True):
             # Try both uppercase and pascal case column names
             try:
                 ticker = row["TICKER"]
@@ -271,8 +272,8 @@ def main() -> bool:
         
         # Save results
         output_path = os.path.join(
-            CONFIG["BASE_DIR"], "csv", "ma_cross", "scanner_list",
-            CONFIG["SCANNER_LIST"]
+            CONFIG["BASE_DIR"], "csv", "ma_cross", "scanner_portfolios",
+            CONFIG["PORTFOLIO"]
         )
         results_df.write_csv(output_path)
         log(f"Saved {len(results_df)} results to {output_path}", "info")
