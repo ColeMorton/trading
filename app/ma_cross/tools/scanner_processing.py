@@ -141,7 +141,28 @@ def export_results(results_data: List[Dict], original_df: pl.DataFrame, config: 
         # Read the original portfolio file to get all columns
         portfolio_path = os.path.join("./csv/portfolios", config["PORTFOLIO"])
         try:
-            portfolio_df = pl.read_csv(portfolio_path)
+            portfolio_df = pl.read_csv(
+                portfolio_path,
+                infer_schema_length=10000,
+                try_parse_dates=True,
+                ignore_errors=True,
+                truncate_ragged_lines=True,  # Handle rows with different numbers of fields
+                schema_overrides={  # Use same schema overrides as in scanner.py
+                    'Start Value': pl.Float64,
+                    'End Value': pl.Float64,
+                    'Return': pl.Float64,
+                    'Annual Return': pl.Float64,
+                    'Sharpe Ratio': pl.Float64,
+                    'Max Drawdown': pl.Float64,
+                    'Calmar Ratio': pl.Float64,
+                    'Recovery Factor': pl.Float64,
+                    'Profit Factor': pl.Float64,
+                    'Common Sense Ratio': pl.Float64,
+                    'Win Rate': pl.Float64,
+                    'Short Window': pl.Int64,
+                    'Long Window': pl.Int64
+                }
+            )
             log(f"Read original portfolio file: {portfolio_path}")
         except Exception as e:
             log(f"Error reading portfolio file: {e}", "error")

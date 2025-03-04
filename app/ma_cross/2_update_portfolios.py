@@ -21,7 +21,8 @@ from app.tools.portfolio import (
 
 # Default Configuration
 config = {
-    "PORTFOLIO": '20241202.csv',
+    # "PORTFOLIO": '20241202.csv',
+    "PORTFOLIO": 'DAILY.csv',
     # "PORTFOLIO": 'HOURLY Crypto.csv',
     "USE_CURRENT": False,
     "USE_HOURLY": False,
