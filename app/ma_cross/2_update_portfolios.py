@@ -1,7 +1,7 @@
 """
-Portfolio Summary Module for EMA Cross Strategy
+Update Portfolios Module for MA Cross Strategyies
 
-This module processes the results of market scanning to generate portfolio summaries.
+This module processes the results of market scanning to update portfolios.
 It aggregates and analyzes the performance of both SMA and EMA strategies across
 multiple tickers, calculating key metrics like expectancy and Trades Per Day.
 """
@@ -102,7 +102,7 @@ def run(portfolio: str) -> bool:
     """
     log, log_close, _, _ = setup_logging(
         module_name='ma_cross',
-        log_file='3_scanned_summary.log'
+        log_file='2_update_portfolios.log'
     )
     
     try:
