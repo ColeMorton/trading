@@ -1,0 +1,18 @@
+[
+    {
+        "ticker": "BTC-USD",
+        "timeframe": "Daily",
+        "direction": "Short",
+        "type": "EMA",
+        "short_window": 9,
+        "long_window": 85
+    },
+    {
+        "ticker": "BTC-USD",
+        "timeframe": "Daily", 
+        "direction": "Short",
+        "type": "EMA",
+        "short_window": 22,
+        "long_window": 64
+    }
+]

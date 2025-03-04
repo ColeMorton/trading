@@ -197,15 +197,6 @@ def validate_config(config: Dict[str, Any]) -> ConcurrencyConfig:
     if 'CSV_USE_HOURLY' in config and not isinstance(config['CSV_USE_HOURLY'], bool):
         raise ValidationError("CSV_USE_HOURLY must be a boolean if provided")
 
-    # Validate portfolio file
-    portfolio_path = Path(config['BASE_DIR']) / config['PORTFOLIO']
-    if not portfolio_path.exists():
-        raise ValidationError(f"Portfolio file not found: {portfolio_path}")
-
-    # Detect and validate portfolio format
-    format_info = detect_portfolio_format(str(portfolio_path))
-    format_info.validator(str(portfolio_path))
-
     return config
 
 def validate_csv_portfolio(file_path: str) -> None:

@@ -4,8 +4,8 @@ This module serves as the entry point for analyzing concurrent exposure between
 multiple trading strategies and defines configuration types and defaults.
 
 Configuration Options:
-    - PORTFOLIO: Path to portfolio file (.csv or .json)
-    - BASE_DIR: Base directory for file operations
+    - PORTFOLIO: Portfolio filename with extension (e.g., 'crypto_d_20250303.json')
+    - BASE_DIR: Directory for log files (defaults to './logs')
     - REFRESH: Whether to refresh cached data
     - SL_CANDLE_CLOSE: Use candle close for stop loss
     - RATIO_BASED_ALLOCATION: Enable ratio-based allocation
@@ -23,45 +23,15 @@ from app.concurrency.tools.runner import main
 from app.concurrency.config import (
     ConcurrencyConfig,
     validate_config,
-    ConfigurationError
+    ConfigurationError,
+    detect_portfolio_format
 )
 from app.tools.setup_logging import setup_logging
 
-# Get the absolute path to the portfolios directory
-CONCURRENCY_DIR = Path(__file__).parent
-PORTFOLIOS_DIR = CONCURRENCY_DIR / "portfolios"
-
 # Default configuration
 DEFAULT_CONFIG: ConcurrencyConfig = {
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "spy_qqq_h_best.csv"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "BTC_D_test.csv"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "BTC_D.csv"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "stock_20250221.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "BTC_SOL_D.csv"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_sol_eth_test.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_sol.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_d_macd.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_d_next.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_d_20250217.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "eth_d_20250217.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "sol_d_20250217.json"),
-    "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_20250301.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "BNB_D.csv"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "eth_d.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "TRX_D.csv"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "SOL_D.csv"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "sol_d_next.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "trx_d_20250217.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "crypto_d_20250228.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "crypto_portfolio_20250227.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "crypto_stock_20250226.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_portfolio_20250226.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "btc_d_next.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "stock_trades_20250228.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "stock_portfolio_20250221.json"),
-    # "PORTFOLIO": str(PORTFOLIOS_DIR / "stock_portfolio_h_20250221.json"),
-    # "BASE_DIR": str(CONCURRENCY_DIR),
-    "BASE_DIR": '.',
+    "PORTFOLIO": "LTC_d.csv",
+    "BASE_DIR": './logs',  # Default to logs directory
     "REFRESH": True,
     "SL_CANDLE_CLOSE": True,
     "VISUALIZATION": False,
@@ -78,24 +48,53 @@ def run_analysis(config: Dict[str, Any]) -> bool:
     Returns:
         bool: True if analysis completed successfully, False otherwise
     """
-    log_dir = Path(config["BASE_DIR"]) / "logs"
-    log_dir.mkdir(exist_ok=True)
+    # Get log subdirectory from BASE_DIR if specified
+    log_subdir = None
+    if config["BASE_DIR"] != './logs':
+        log_subdir = Path(config["BASE_DIR"]).name
     
     log, log_close, _, _ = setup_logging(
         module_name="concurrency_review",
         log_file="review.log",
-        level=logging.INFO
+        level=logging.INFO,
+        log_subdir=log_subdir
     )
     
     try:
         # Validate configuration
         log("Validating configuration...", "info")
         validated_config = validate_config(config)
-        
+
+        try:
+            # Determine portfolio path based on file extension
+            portfolio_filename = validated_config["PORTFOLIO"]
+            file_extension = portfolio_filename.split(".")[-1].lower()
+
+            # Get the project root directory (3 levels up from this file)
+            project_root = Path(__file__).parent.parent.parent
+
+            if file_extension == "json":
+                portfolio_path = project_root / "json" / "portfolios" / portfolio_filename
+            elif file_extension == "csv":
+                portfolio_path = project_root / "csv" / "portfolios" / portfolio_filename
+            else:
+                raise ValueError(f"Unsupported portfolio file type: {file_extension}")
+
+            if not portfolio_path.exists():
+                raise FileNotFoundError(f"Portfolio file not found at: {portfolio_path}")
+
+            # Detect and validate portfolio format
+            format_info = detect_portfolio_format(str(portfolio_path))
+            format_info.validator(str(portfolio_path))
+
+            validated_config["PORTFOLIO"] = str(portfolio_path)
+            log(f"Portfolio path: {portfolio_path}", "debug")
+        except (ValueError, FileNotFoundError) as e:
+            raise ConfigurationError(str(e))
+
         # Run analysis
         log("Starting concurrency analysis...", "info")
         result = main(validated_config)
-        
         if result:
             log("Concurrency analysis completed successfully!", "info")
             return True

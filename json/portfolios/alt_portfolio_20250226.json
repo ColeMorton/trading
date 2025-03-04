@@ -1,0 +1,52 @@
+[
+    {
+        "ticker": "TRX-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 10,
+        "long_window": 27
+    },
+    {
+        "ticker": "TRX-USD",
+        "timeframe": "Daily",
+        "type": "MACD",
+        "direction": "Long",
+        "short_window": 6,
+        "long_window": 7,
+        "signal_window": 10
+    },
+    {
+        "ticker": "TRX-USD",
+        "timeframe": "Daily",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 11,
+        "long_window": 32
+    },
+    {
+        "ticker": "TRX-USD",
+        "timeframe": "Daily",
+        "type": "EMA",
+        "direction": "Long",
+        "short_window": 10,
+        "long_window": 34
+    },
+    {
+        "ticker": "XMR-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 10,
+        "long_window": 13
+    },
+    {
+        "ticker": "XMR-USD",
+        "timeframe": "Daily",
+        "type": "MACD",
+        "direction": "Long",
+        "short_window": 25,
+        "long_window": 31,
+        "signal_window": 10
+    }
+]
