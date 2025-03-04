@@ -174,7 +174,7 @@ def export_summary_results(portfolios: List[Dict], portfolio_name: str, log: Cal
             except Exception as e:
                 log(f"Error during sorting: {str(e)}", "warning")
         
-        _, success = export_portfolios(reordered_portfolios, export_config, 'portfolios_scanner', portfolio_name, log)
+        _, success = export_portfolios(reordered_portfolios, export_config, 'portfolios', portfolio_name, log)
         if not success:
             log("Failed to export portfolios", "error")
             return False

@@ -10,7 +10,6 @@ from typing import Callable
 import polars as pl
 from pathlib import Path
 from app.tools.setup_logging import setup_logging
-from app.utils import get_path
 from app.ma_cross.tools.summary_processing import (
     process_ticker_portfolios,
     export_summary_results
@@ -18,7 +17,7 @@ from app.ma_cross.tools.summary_processing import (
 
 # Default Configuration
 config = {
-    "PORTFOLIO": 'XMR_D.csv',
+    "PORTFOLIO": '20241211.csv',
     "USE_CURRENT": False,
     "USE_HOURLY": False,
     "BASE_DIR": '.',  # Added BASE_DIR for export configuration

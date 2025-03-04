@@ -126,9 +126,13 @@ def export_portfolios(
                 cols = df.columns
                 df = df.select(["Ticker"] + [col for col in cols if col != "Ticker"])
         
+        # Use empty feature1 for 'portfolios' export type to export directly to csv/portfolios/
+        # instead of csv/ma_cross/portfolios/
+        feature1 = "" if export_type == "portfolios" else "ma_cross"
+        
         return export_csv(
             data=df,
-            feature1="ma_cross",
+            feature1=feature1,
             config=config,
             feature2=export_type,
             filename=csv_filename,
