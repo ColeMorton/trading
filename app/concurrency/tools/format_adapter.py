@@ -47,7 +47,7 @@ def convert_csv_strategy(row: CsvStrategyRow) -> UnifiedStrategy:
     # Add optional parameters if present
     optional_fields = {
         "Stop Loss": "stop_loss",
-        "RSI Period": "rsi_period",
+        "RSI Window": "rsi_window",
         "RSI Threshold": "rsi_threshold"
     }
     
@@ -164,7 +164,7 @@ def save_portfolio(strategies: List[UnifiedStrategy], file_path: str) -> None:
         # Convert to CSV format
         fieldnames = [
             'Ticker', 'Use SMA', 'Short Window', 'Long Window',
-            'Signal Window', 'Stop Loss', 'RSI Period', 'RSI Threshold'
+            'Signal Window', 'Stop Loss', 'RSI Window', 'RSI Threshold'
         ]
         
         with open(file_path, 'w', newline='') as f:
@@ -179,7 +179,7 @@ def save_portfolio(strategies: List[UnifiedStrategy], file_path: str) -> None:
                     'Long Window': strategy['long_window'],
                     'Signal Window': strategy.get('signal_window', 0),
                     'Stop Loss': strategy.get('stop_loss', ''),
-                    'RSI Period': strategy.get('rsi_period', ''),
+                    'RSI Window': strategy.get('rsi_window', ''),
                     'RSI Threshold': strategy.get('rsi_threshold', '')
                 }
                 writer.writerow(row)

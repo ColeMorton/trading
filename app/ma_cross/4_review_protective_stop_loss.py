@@ -31,7 +31,7 @@ default_config: CacheConfig = {
     "RELATIVE": True,
     "DIRECTION": "Long",
     "USE_RSI": False,
-    "RSI_PERIOD": 28,
+    "RSI_WINDOW": 28,
     "RSI_THRESHOLD": 43,
     "STOP_LOSS": 0.0539
 }

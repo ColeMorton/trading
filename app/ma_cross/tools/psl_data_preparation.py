@@ -36,8 +36,8 @@ def prepare_data(data: pl.DataFrame, config: PSLConfig, log: Callable) -> Tuple[
     
     # Calculate RSI if enabled
     if config.get("USE_RSI", False):
-        data = calculate_rsi(data, config['RSI_PERIOD'])
-        log(f"RSI calculated with period {config['RSI_PERIOD']}")
+        data = calculate_rsi(data, config['RSI_WINDOW'])
+        log(f"RSI calculated with period {config['RSI_WINDOW']}")
     
     # Generate entry signals
     entries, _ = calculate_ma_signals(data, config)

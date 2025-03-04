@@ -14,7 +14,7 @@ def calculate_rsi(data: pl.DataFrame, period: int) -> pl.DataFrame:
     
     Args:
         data: DataFrame with Close prices
-        period: RSI period (lookback window)
+        period: RSI window (lookback window)
         
     Returns:
         DataFrame with RSI column added

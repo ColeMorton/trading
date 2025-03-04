@@ -28,18 +28,32 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
     """
     try:
         portfolios = []
-        has_sma = row['SMA_FAST'] and row['SMA_SLOW']
-        has_ema = row['EMA_FAST'] and row['EMA_SLOW']
         
-        if not (has_sma or has_ema):
+        # Check if we have window values and USE_SMA flag
+        short_window = row.get('SHORT_WINDOW')
+        long_window = row.get('LONG_WINDOW')
+        use_sma = row.get('USE_SMA', True)
+        
+        # Convert USE_SMA to boolean if it's a string
+        if isinstance(use_sma, str):
+            use_sma = use_sma.lower() in ['true', 'yes', '1']
+        
+        # Determine if we have valid window combinations
+        has_windows = short_window is not None and long_window is not None
+        
+        if not has_windows:
             log(f"Skipping {ticker}: No valid window combinations provided")
             return None
             
-        # Convert window values to integers if present
-        sma_fast = int(row['SMA_FAST']) if has_sma else None
-        sma_slow = int(row['SMA_SLOW']) if has_sma else None
-        ema_fast = int(row['EMA_FAST']) if has_ema else None
-        ema_slow = int(row['EMA_SLOW']) if has_ema else None
+        # Convert window values to integers
+        short_window = int(short_window)
+        long_window = int(long_window)
+        
+        # Set SMA or EMA values based on USE_SMA flag
+        sma_fast = short_window if use_sma else None
+        sma_slow = long_window if use_sma else None
+        ema_fast = short_window if not use_sma else None
+        ema_slow = long_window if not use_sma else None
             
         try:
             result = process_ma_portfolios(

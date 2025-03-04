@@ -13,8 +13,10 @@ def calculate_ma_signals(data: pl.DataFrame, config: Dict) -> Tuple[pl.Series, p
     Returns:
         Tuple[pl.Series, pl.Series]: Entry and exit signals as polars Series
     """
-    use_rsi = config.get('USE_RSI', False)
-
+    # Check if RSI should be used and if the necessary parameters exist
+    use_rsi = config.get('USE_RSI', False) and 'RSI' in data.columns
+    has_rsi_threshold = 'RSI_THRESHOLD' in config and config['RSI_THRESHOLD'] is not None
+    
     # Get the last trading day's values
     ma_fast = pl.col('MA_FAST')
     ma_slow = pl.col('MA_SLOW')
@@ -22,14 +24,16 @@ def calculate_ma_signals(data: pl.DataFrame, config: Dict) -> Tuple[pl.Series, p
     if config.get('DIRECTION', 'Long') == 'Short':
         # For short positions, check if fast MA is below slow MA on the last trading day
         entries = ma_fast < ma_slow
-        if use_rsi:
-            entries = entries & (pl.col('RSI') <= (100 - config.get('RSI_THRESHOLD', 70)))
+        if use_rsi and has_rsi_threshold:
+            rsi_threshold = config.get('RSI_THRESHOLD', 70)
+            entries = entries & (pl.col('RSI') <= (100 - rsi_threshold))
         exits = ma_fast > ma_slow
     else:
         # For long positions, check if fast MA is above slow MA on the last trading day
         entries = ma_fast > ma_slow
-        if use_rsi:
-            entries = entries & (pl.col('RSI') >= config.get('RSI_THRESHOLD', 70))
+        if use_rsi and has_rsi_threshold:
+            rsi_threshold = config.get('RSI_THRESHOLD', 70)
+            entries = entries & (pl.col('RSI') >= rsi_threshold)
         exits = ma_fast < ma_slow
     
     # Apply conditions to DataFrame

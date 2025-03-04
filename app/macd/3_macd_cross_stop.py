@@ -150,7 +150,7 @@ def main():
 
     data = get_data(config["TICKER"], config, log)
     data = calculate_macd(data, config['SHORT_PERIOD'], config['LONG_WINDOW'], config['SIGNAL_WINDOW'])
-    data = calculate_rsi(data, config['RSI_PERIOD'])
+    data = calculate_rsi(data, config['RSI_WINDOW'])
     data = calculate_macd_signals(data, config)
 
     results_df = run_sensitivity_analysis(data, stop_loss_range)

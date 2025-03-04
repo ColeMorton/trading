@@ -15,12 +15,7 @@ from app.tools.portfolio.collection import export_best_portfolios, combine_strat
 
 CONFIG: Config = {
     "TICKER": [
-        "RUNE-USD",
-        "NEAR-USD",
-        "TRX-USD",
-        "LTC-USD",
-        "SOL-USD",
-        "ETH-USD"
+        "AOS"
     ],
     "TICKER_2": 'BTC-USD',
     "WINDOWS": 89,
@@ -37,8 +32,8 @@ CONFIG: Config = {
     "YEARS": 15,
     "USE_SYNTHETIC": False,
     "USE_CURRENT": True,
-    "MIN_TRADES": 34,
-    "MIN_WIN_RATE": 0.35,
+    # "MIN_TRADES": 34,
+    # "MIN_WIN_RATE": 0.35,
     # "MIN_WIN_RATE": 0.5,
     # "MIN_TRADES": 50,
     # "MIN_WIN_RATE": 0.61,

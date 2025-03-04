@@ -42,7 +42,7 @@ def plot_results(
     ax2.tick_params(axis='y', labelcolor=color)
 
     strategy_type = "Short-only" if config.get("SHORT", False) else "Long-only"
-    rsi_info = f" with RSI({config['RSI_PERIOD']}) >= {config['RSI_THRESHOLD']}" if config.get("USE_RSI", False) else ""
+    rsi_info = f" with RSI({config['RSI_WINDOW']}) >= {config['RSI_THRESHOLD']}" if config.get("USE_RSI", False) else ""
     plt.title(f'{ticker} Parameter Sensitivity: Holding Period vs Expectancy ({strategy_type} Strategy{rsi_info})')
     plt.grid(True)
 

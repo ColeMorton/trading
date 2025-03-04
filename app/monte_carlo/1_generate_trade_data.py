@@ -18,7 +18,7 @@ default_config: Dict[str, Any] = {
     "USE_SMA": False,  # Set to True to use SMAs, False to use EMAs
     "EMA_FAST": 19,
     "EMA_SLOW": 34,
-    "RSI_PERIOD": 14,
+    "RSI_WINDOW": 14,
     "RSI_THRESHOLD": 55,
     "USE_RSI": False
 }

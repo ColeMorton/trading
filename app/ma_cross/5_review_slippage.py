@@ -29,7 +29,7 @@ class Config(TypedDict):
         SHORT_WINDOW (int): Period for short moving average
         LONG_WINDOW (int): Period for long moving average
         USE_RSI (bool): Whether to enable RSI filtering
-        RSI_PERIOD (int): Period for RSI calculation
+        RSI_WINDOW (int): Period for RSI calculation
         RSI_THRESHOLD (int): RSI threshold for signal filtering
 
     Optional Fields:
@@ -47,7 +47,7 @@ class Config(TypedDict):
     SHORT_WINDOW: int
     LONG_WINDOW: int
     USE_RSI: bool
-    RSI_PERIOD: int
+    RSI_WINDOW: int
     RSI_THRESHOLD: int
     STOP_LOSS: NotRequired[float]
     DIRECTION: NotRequired[str]
@@ -72,7 +72,7 @@ config: Config = {
     "RELATIVE": True,
     "DIRECTION": "Long",
     "USE_RSI": False,
-    "RSI_PERIOD": 29,
+    "RSI_WINDOW": 29,
     "RSI_THRESHOLD": 48,
     "STOP_LOSS": 0.1237
 }
@@ -117,8 +117,8 @@ def run(config: Config = config) -> bool:
         data = calculate_mas(data, config['SHORT_WINDOW'], config['LONG_WINDOW'], config.get('USE_SMA', False), log)
         
         if config.get('USE_RSI', False):
-            data = calculate_rsi(data, config['RSI_PERIOD'])
-            log(f"RSI enabled with period: {config['RSI_PERIOD']}")
+            data = calculate_rsi(data, config['RSI_WINDOW'])
+            log(f"RSI enabled with period: {config['RSI_WINDOW']}")
 
         # Use new slippage analysis module
         results_df = run_sensitivity_analysis(data, slippage_range, config)

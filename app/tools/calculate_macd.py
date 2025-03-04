@@ -2,7 +2,25 @@ import polars as pl
 import logging
 
 def calculate_macd(data: pl.DataFrame, short_window: int, long_window: int, signal_window: int) -> pl.DataFrame:
-    """Calculate MACD and Signal Line using EMA."""
+    """Calculate MACD and Signal Line using EMA.
+    
+    Args:
+        data (pl.DataFrame): Price data with Close column
+        short_window (int): Short EMA period
+        long_window (int): Long EMA period
+        signal_window (int): Signal line EMA period (must be >= 1)
+        
+    Returns:
+        pl.DataFrame: DataFrame with MACD indicators added
+        
+    Raises:
+        ValueError: If signal_window is less than 1
+    """
+    # Ensure signal_window is at least 1
+    if signal_window < 1:
+        logging.warning(f"Invalid signal_window value: {signal_window}. Using default value of 9 instead.")
+        signal_window = 9  # Use a default value of 9 which is common for MACD
+    
     logging.info(f"\nCalculating MACD with short period: {short_window}, long period: {long_window}, signal period: {signal_window}")
     try:
         # Calculate EMAs with adjust=True for more accurate exponential weighting

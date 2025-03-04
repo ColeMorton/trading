@@ -134,7 +134,16 @@ def create_strategy_object(
     Returns:
         Strategy: Strategy object with parameters, performance, risk metrics, and efficiency metrics
     """
+    # Determine strategy type
     strategy_type = config.get("STRATEGY_TYPE", "EMA")
+    
+    # Check if this is a MACD strategy based on the presence of SIGNAL_WINDOW
+    if "SIGNAL_WINDOW" in config and config["SIGNAL_WINDOW"] > 0:
+        strategy_type = "MACD"
+    
+    # Also check for explicit type field which might come from JSON portfolios
+    if "type" in config:
+        strategy_type = config["type"]
     strategy_id = str(index)
     
     # Create base parameters
@@ -173,9 +182,9 @@ def create_strategy_object(
         }
     
     # Add RSI parameters if present
-    if config.get("USE_RSI", False) and "RSI_PERIOD" in config:
+    if config.get("USE_RSI", False) and "RSI_WINDOW" in config:
         parameters["rsi_period"] = {
-            "value": config["RSI_PERIOD"],
+            "value": config["RSI_WINDOW"],
             "description": "Period for RSI calculation"
         }
         parameters["rsi_threshold"] = {

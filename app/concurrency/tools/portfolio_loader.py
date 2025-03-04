@@ -180,7 +180,7 @@ def load_portfolio_from_json(json_path: Path, log: Callable[[str, str], None], c
         
         # Add RSI fields only if both exist and have non-None values
         if has_rsi:
-            config_entry["RSI_PERIOD"] = int(rsi_period)
+            config_entry["RSI_WINDOW"] = int(rsi_period)
             config_entry["RSI_THRESHOLD"] = int(rsi_threshold)  # Changed from float to int
         
         # Add MACD signal period if it's a MACD strategy
@@ -210,7 +210,7 @@ def load_portfolio_from_json(json_path: Path, log: Callable[[str, str], None], c
         # Only add RSI details if RSI is enabled
         if has_rsi:
             strategy_details.extend([
-                f"RSI_PERIOD: {config_entry['RSI_PERIOD']}",
+                f"RSI_WINDOW: {config_entry['RSI_WINDOW']}",
                 f"RSI_THRESHOLD: {config_entry['RSI_THRESHOLD']}"
             ])
         

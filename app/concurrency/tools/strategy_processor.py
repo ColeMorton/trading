@@ -69,7 +69,12 @@ def process_strategies(
                 direction = "Short" if is_short else "Long"
                 
                 # Process based on strategy type
-                if 'SIGNAL_WINDOW' in strategy_config:
+                # Check if it's a MACD strategy (has SIGNAL_WINDOW > 0 or type is MACD)
+                is_macd = ('SIGNAL_WINDOW' in strategy_config and strategy_config['SIGNAL_WINDOW'] > 0) or \
+                          (strategy_config.get('STRATEGY_TYPE') == 'MACD') or \
+                          (strategy_config.get('type') == 'MACD')
+                
+                if is_macd:
                     log(f"Processing {direction} MACD strategy {i}/{len(strategies)}", "info")
                     log(f"MACD periods: {strategy_config['SHORT_WINDOW']}/"
                         f"{strategy_config['LONG_WINDOW']}/"

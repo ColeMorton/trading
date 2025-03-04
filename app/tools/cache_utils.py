@@ -18,7 +18,7 @@ class CacheConfig(TypedDict):
     Optional Fields:
         USE_SMA (NotRequired[bool]): Whether to use SMA instead of EMA
         USE_RSI (NotRequired[bool]): Whether RSI filter is enabled
-        RSI_PERIOD (NotRequired[int]): RSI calculation period
+        RSI_WINDOW (NotRequired[int]): RSI calculation period
         RSI_THRESHOLD (NotRequired[int]): RSI threshold value
         STOP_LOSS (NotRequired[float]): Stop loss percentage
         REFRESH (NotRequired[bool]): Whether to force refresh analysis
@@ -30,7 +30,7 @@ class CacheConfig(TypedDict):
     LONG_WINDOW: int
     USE_SMA: bool
     USE_RSI: bool
-    RSI_PERIOD: int
+    RSI_WINDOW: int
     RSI_THRESHOLD: int
     STOP_LOSS: float
     REFRESH: bool
@@ -84,7 +84,7 @@ def get_cache_filepath(
     ticker_prefix = get_ticker_prefix(config)
     
     # Build suffixes based on config
-    rsi_suffix = f"_RSI_{config['RSI_PERIOD']}_{config['RSI_THRESHOLD']}" if config.get('USE_RSI', False) else ""
+    rsi_suffix = f"_RSI_{config['RSI_WINDOW']}_{config['RSI_THRESHOLD']}" if config.get('USE_RSI', False) else ""
     stop_loss_suffix = f"_SL_{config['STOP_LOSS']}" if config.get('STOP_LOSS') is not None else ""
     
     # Base filename components

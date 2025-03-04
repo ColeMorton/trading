@@ -84,7 +84,7 @@ def create_filename(config: Dict) -> str:
         ticker_prefix = ticker_prefix[0] if ticker_prefix else ""
     
     rsi_suffix = (
-        f"_RSI_{config['RSI_PERIOD']}_{config['RSI_THRESHOLD']}" 
+        f"_RSI_{config['RSI_WINDOW']}_{config['RSI_THRESHOLD']}" 
         if config.get('USE_RSI', False) else ""
     )
     stop_loss_suffix = (

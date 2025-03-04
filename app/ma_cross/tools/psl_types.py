@@ -16,7 +16,7 @@ class PSLConfig(TypedDict):
     Optional Fields:
         USE_SMA (NotRequired[bool]): Use SMA instead of EMA
         USE_RSI (NotRequired[bool]): Enable RSI filter
-        RSI_PERIOD (NotRequired[int]): RSI calculation period
+        RSI_WINDOW (NotRequired[int]): RSI calculation period
         RSI_THRESHOLD (NotRequired[int]): RSI threshold for signals
         STOP_LOSS (NotRequired[float]): Stop loss percentage
         DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
@@ -28,7 +28,7 @@ class PSLConfig(TypedDict):
     TICKER: str
     USE_SMA: NotRequired[bool]
     USE_RSI: NotRequired[bool]
-    RSI_PERIOD: NotRequired[int]
+    RSI_WINDOW: NotRequired[int]
     RSI_THRESHOLD: NotRequired[int]
     STOP_LOSS: NotRequired[float]
     DIRECTION: NotRequired[str]

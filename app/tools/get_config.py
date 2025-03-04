@@ -8,8 +8,8 @@ def get_config(config: dict) -> dict:
     if not config.get('PERIOD') and config.get('USE_YEARS', False) == False:
         config["PERIOD"] = 'max'
 
-    if not config.get('RSI_PERIOD'):
-        config["RSI_PERIOD"] = 14
+    if not config.get('RSI_WINDOW'):
+        config["RSI_WINDOW"] = 14
 
     if not config.get('SHORT'):
         config["SHORT"] = False

@@ -136,7 +136,7 @@ def main():
 
     data = get_data(config["TICKER"], config, log)
     data = calculate_macd(data, config['SHORT_PERIOD'], config['LONG_WINDOW'], config['SIGNAL_WINDOW'])
-    data = calculate_rsi(data, config['RSI_PERIOD'])
+    data = calculate_rsi(data, config['RSI_WINDOW'])
     
     # Log some statistics about the data
     log(f"Data statistics: Close price - Min: {data['Close'].min()}, Max: {data['Close'].max()}, Mean: {data['Close'].mean()}")

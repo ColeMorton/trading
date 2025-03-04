@@ -10,7 +10,7 @@
     "EMA_FAST": 11,
     "EMA_SLOW": 20,
     "USE_HOURLY_DATA": true,
-    "RSI_PERIOD": 14,
+    "RSI_WINDOW": 14,
     "RSI_THRESHOLD": 60,
     "USE_RSI": false,
     "STOP_LOSS_PERCENTAGE": 5

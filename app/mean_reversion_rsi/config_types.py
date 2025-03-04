@@ -24,7 +24,7 @@ class PortfolioConfig(TypedDict, total=False):
         CHANGE_PCT_START (NotRequired[float]): Starting percentage for price change range
         CHANGE_PCT_END (NotRequired[float]): Ending percentage for price change range
         CHANGE_PCT_STEP (NotRequired[float]): Step size for price change range
-        RSI_PERIOD (NotRequired[int]): Period for RSI calculation
+        RSI_WINDOW (NotRequired[int]): Period for RSI calculation
         RSI_START (NotRequired[int]): Starting value for RSI threshold range
         RSI_END (NotRequired[int]): Ending value for RSI threshold range
         RSI_STEP (NotRequired[int]): Step size for RSI threshold range
@@ -44,7 +44,7 @@ class PortfolioConfig(TypedDict, total=False):
     CHANGE_PCT_START: NotRequired[float]
     CHANGE_PCT_END: NotRequired[float]
     CHANGE_PCT_STEP: NotRequired[float]
-    RSI_PERIOD: NotRequired[int]
+    RSI_WINDOW: NotRequired[int]
     RSI_START: NotRequired[int]
     RSI_END: NotRequired[int]
     RSI_STEP: NotRequired[int]
@@ -62,7 +62,7 @@ DEFAULT_CONFIG: PortfolioConfig = {
     "CHANGE_PCT_START": 0.1,
     "CHANGE_PCT_END": 2,
     "CHANGE_PCT_STEP": 0.1,
-    "RSI_PERIOD": 14,
+    "RSI_WINDOW": 14,
     "RSI_START": 50,
     "RSI_END": 80,
     "RSI_STEP": 1
@@ -92,8 +92,8 @@ def validate_config(config: dict) -> bool:
     if not 0.01 <= config.get('CHANGE_PCT_STEP', 0.01) <= 5.00:
         raise ValueError("CHANGE_PCT_STEP must be between 0.01 and 5.00")
     
-    if not 2 <= config.get('RSI_PERIOD', 14) <= 50:
-        raise ValueError("RSI_PERIOD must be between 2 and 50")
+    if not 2 <= config.get('RSI_WINDOW', 14) <= 50:
+        raise ValueError("RSI_WINDOW must be between 2 and 50")
         
     if not 1 <= config.get('RSI_START', 30) <= 100:
         raise ValueError("RSI_START must be between 1 and 100")

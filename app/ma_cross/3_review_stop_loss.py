@@ -36,7 +36,7 @@ default_config: CacheConfig = {
     "DIRECTION": "Long",
     "USE_CURRENT": True,
     "USE_RSI": False,
-    "RSI_PERIOD": 4,
+    "RSI_WINDOW": 4,
     "RSI_THRESHOLD": 52
 }
 

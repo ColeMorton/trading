@@ -51,12 +51,12 @@ class Config(TypedDict):
 config: Config = {
     # "PORTFOLIO": 'BEST.csv',
     # "PORTFOLIO": 'HOURLY Crypto.csv',
-    "PORTFOLIO": '20241202.csv',
-    # "PORTFOLIO": 'DAILY Crypto.csv',
+    # "PORTFOLIO": '20241202.csv',
+    "PORTFOLIO": 'DAILY.csv',
     # "PORTFOLIO": 'BTC_SOL_D.csv',
     # "PORTFOLIO": '20241202.csv',
     "USE_HOURLY": False,
-    "REFRESH": True,
+    "REFRESH": False,
     "DIRECTION": "Long"  # Default to Long position
 }
 

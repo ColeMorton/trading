@@ -44,8 +44,8 @@ def analyze_stop_loss_parameters(
 
     # Add RSI if enabled
     if config.get('USE_RSI', False):
-        data = calculate_rsi(data, config['RSI_PERIOD'])
-        log(f"RSI enabled with period: {config['RSI_PERIOD']} and threshold: {config['RSI_THRESHOLD']}")
+        data = calculate_rsi(data, config['RSI_WINDOW'])
+        log(f"RSI enabled with period: {config['RSI_WINDOW']} and threshold: {config['RSI_THRESHOLD']}")
 
     # Calculate MA and base signals
     data_with_signals = calculate_ma_and_signals(
@@ -131,7 +131,7 @@ def analyze_stop_loss_parameters(
     if isinstance(ticker_prefix, list):
         ticker_prefix = ticker_prefix[0] if ticker_prefix else ""
     
-    rsi_suffix = f"_RSI_{config['RSI_PERIOD']}_{config['RSI_THRESHOLD']}" if config.get('USE_RSI', False) else ""
+    rsi_suffix = f"_RSI_{config['RSI_WINDOW']}_{config['RSI_THRESHOLD']}" if config.get('USE_RSI', False) else ""
     filename = f"{ticker_prefix}_D_{'SMA' if config.get('USE_SMA', False) else 'EMA'}_{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}{rsi_suffix}.csv"
     
     # Export portfolios

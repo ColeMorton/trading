@@ -26,7 +26,13 @@ def get_portfolio_path(config: ConcurrencyConfig) -> Path:
     Returns:
         Path: Full path to the portfolio file (.json or .csv)
     """
-    return Path(__file__).parent.parent / 'portfolios' / config["PORTFOLIO"]
+    # Check if the path is already resolved (contains directory separators)
+    if "/" in config["PORTFOLIO"] or "\\" in config["PORTFOLIO"]:
+        return Path(config["PORTFOLIO"])
+    
+    # Otherwise resolve it
+    from app.tools.portfolio import resolve_portfolio_path
+    return resolve_portfolio_path(config["PORTFOLIO"], config.get("BASE_DIR"))
 
 def save_json_report(
     report: Dict[str, Any],
@@ -165,8 +171,15 @@ def main(config: ConcurrencyConfig) -> bool:
         
         # Load portfolio from JSON or CSV
         log("Loading portfolio configuration", "info")
-        portfolio_path = get_portfolio_path(config)
-        strategies = load_portfolio(portfolio_path, log, config)
+        try:
+            portfolio_path = get_portfolio_path(config)
+            # Use the filename for load_portfolio, not the full path
+            portfolio_filename = Path(config["PORTFOLIO"]).name
+            strategies = load_portfolio(portfolio_filename, log, config)
+        except FileNotFoundError:
+            # If that fails, try using the full path directly
+            log(f"Trying to load using full path: {config['PORTFOLIO']}", "info")
+            strategies = load_portfolio(config["PORTFOLIO"], log, config)
         
         # Run analysis
         log("Running analysis", "info")

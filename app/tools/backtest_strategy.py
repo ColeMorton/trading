@@ -12,6 +12,8 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
             - USE_HOURLY (bool): Whether to use hourly data
             - DIRECTION (str): 'Long' or 'Short' for position direction
             - STOP_LOSS (float, optional): Stop loss as decimal (0-1). If not provided, no stop loss is used.
+            - RSI_WINDOW (int, optional): Period for RSI calculation
+            - RSI_THRESHOLD (int, optional): RSI threshold for signal filtering
             - short_window (int, optional): Short-term window size
             - long_window (int, optional): Long-term window size
             - signal_window (int, optional): Signal line window size
@@ -74,6 +76,16 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
             stats_dict['Short Window'] = config.get('short_window', 0)
             stats_dict['Long Window'] = config.get('long_window', 0)
             stats_dict['Signal Window'] = config.get('signal_window', 0)
+            
+            # Add optional parameters
+            if "STOP_LOSS" in config and config["STOP_LOSS"] is not None:
+                stats_dict['Stop Loss'] = config["STOP_LOSS"]
+            
+            if "RSI_WINDOW" in config and config["RSI_WINDOW"] is not None:
+                stats_dict['RSI Window'] = config["RSI_WINDOW"]
+                
+            if "RSI_THRESHOLD" in config and config["RSI_THRESHOLD"] is not None:
+                stats_dict['RSI Threshold'] = config["RSI_THRESHOLD"]
             
             return stats_dict
         

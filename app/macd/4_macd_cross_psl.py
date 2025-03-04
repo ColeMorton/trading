@@ -31,7 +31,7 @@ SHORT = False  # Set to True for short-only strategy, False for long-only strate
 SHORT_PERIOD = 8
 LONG_WINDOW = 15
 SIGNAL_WINDOW = 7
-RSI_PERIOD = 14
+RSI_WINDOW = 14
 
 RSI_THRESHOLD = 48
 USE_RSI = False
@@ -81,7 +81,7 @@ def main():
     data['Signal'] = macd_indicator.signal
 
     if USE_RSI:
-        data = calculate_rsi(data, RSI_PERIOD)
+        data = calculate_rsi(data, RSI_WINDOW)
 
     # Generate entry and exit signals based on SHORT flag
     if SHORT:

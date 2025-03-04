@@ -23,15 +23,19 @@ from app.concurrency.tools.runner import main
 from app.concurrency.config import (
     ConcurrencyConfig,
     validate_config,
-    ConfigurationError,
-    detect_portfolio_format
+    ConfigurationError
 )
 from app.tools.setup_logging import setup_logging
+from app.tools.portfolio import (
+    load_portfolio,
+    resolve_portfolio_path
+)
 
 # Default configuration
 DEFAULT_CONFIG: ConcurrencyConfig = {
-    "PORTFOLIO": "SPY_QQQ_D.csv",
-    "BASE_DIR": './logs',  # Default to logs directory
+    # "PORTFOLIO": "stock_portfolio_h_20250221.json",  # Updated to use an existing portfolio file
+    "PORTFOLIO": "btc_d.json",
+    "BASE_DIR": '.',  # Default to project root directory
     "REFRESH": True,
     "SL_CANDLE_CLOSE": True,
     "VISUALIZATION": False,
@@ -66,30 +70,34 @@ def run_analysis(config: Dict[str, Any]) -> bool:
         validated_config = validate_config(config)
 
         try:
-            # Determine portfolio path based on file extension
+            # Resolve portfolio path using shared functionality
             portfolio_filename = validated_config["PORTFOLIO"]
-            file_extension = portfolio_filename.split(".")[-1].lower()
-
-            # Get the project root directory (3 levels up from this file)
-            project_root = Path(__file__).parent.parent.parent
-
-            if file_extension == "json":
-                portfolio_path = project_root / "json" / "portfolios" / portfolio_filename
-            elif file_extension == "csv":
-                portfolio_path = project_root / "csv" / "portfolios" / portfolio_filename
-            else:
-                raise ValueError(f"Unsupported portfolio file type: {file_extension}")
-
-            if not portfolio_path.exists():
-                raise FileNotFoundError(f"Portfolio file not found at: {portfolio_path}")
-
-            # Detect and validate portfolio format
-            format_info = detect_portfolio_format(str(portfolio_path))
-            format_info.validator(str(portfolio_path))
-
+            
+            try:
+                portfolio_path = resolve_portfolio_path(
+                    portfolio_filename, 
+                    validated_config.get("BASE_DIR")
+                )
+                log(f"Portfolio path resolved: {portfolio_path}", "info")
+            except FileNotFoundError:
+                raise ConfigurationError(f"Portfolio file not found: {portfolio_filename}")
+            
+            # Load portfolio to validate format
+            try:
+                portfolio_data = load_portfolio(
+                    portfolio_filename, 
+                    log, 
+                    validated_config
+                )
+                log(f"Successfully loaded portfolio with {len(portfolio_data)} strategies", "info")
+            except (ValueError, FileNotFoundError) as e:
+                raise ConfigurationError(f"Error loading portfolio: {str(e)}")
+            
+            # Update config with resolved path
             validated_config["PORTFOLIO"] = str(portfolio_path)
             log(f"Portfolio path: {portfolio_path}", "debug")
-        except (ValueError, FileNotFoundError) as e:
+            
+        except ConfigurationError as e:
             raise ConfigurationError(str(e))
 
         # Run analysis

@@ -87,7 +87,7 @@ class StrategyConfig(TypedDict):
         STOP_LOSS (float): Stop loss percentage
 
     Optional Fields:
-        RSI_PERIOD (NotRequired[int]): Period for RSI calculation (required if USE_RSI is True)
+        RSI_WINDOW (NotRequired[int]): Period for RSI calculation (required if USE_RSI is True)
         RSI_THRESHOLD (NotRequired[int]): RSI threshold for signal filtering (required if USE_RSI is True)
         SIGNAL_WINDOW (NotRequired[int]): Period for MACD signal line (makes it a MACD strategy)
         USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average instead of EMA
@@ -100,7 +100,7 @@ class StrategyConfig(TypedDict):
     LONG_WINDOW: int
     USE_RSI: bool
     STOP_LOSS: NotRequired[float]  # Made optional to match actual implementation
-    RSI_PERIOD: NotRequired[int]
+    RSI_WINDOW: NotRequired[int]
     RSI_THRESHOLD: NotRequired[int]
     SIGNAL_WINDOW: NotRequired[int]
     USE_SMA: NotRequired[bool]

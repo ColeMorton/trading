@@ -71,19 +71,61 @@ def export_portfolios(
             for col in required_columns:
                 if col not in df.columns:
                     df = df.with_columns(pl.lit(None).alias(col))
-                    
-            # Rename SMA/EMA columns to Short Window/Long Window
-            df = df.with_columns([
-                pl.when(pl.col("Use SMA").eq(True))
-                .then(pl.col("SMA_FAST"))
-                .otherwise(pl.col("EMA_FAST"))
-                .alias("Short Window"),
+            
+            # Check if we need to rename SMA/EMA columns to Short/Long Window
+            if "Short Window" not in df.columns or df.get_column("Short Window").null_count() == len(df):
+                # Create Short Window and Long Window columns based on available data
+                expressions = []
                 
-                pl.when(pl.col("Use SMA").eq(True))
-                .then(pl.col("SMA_SLOW"))
-                .otherwise(pl.col("EMA_SLOW"))
-                .alias("Long Window")
-            ])
+                # Check if we have SMA columns
+                has_sma_fast = "SMA_FAST" in df.columns
+                has_sma_slow = "SMA_SLOW" in df.columns
+                
+                # Check if we have EMA columns
+                has_ema_fast = "EMA_FAST" in df.columns
+                has_ema_slow = "EMA_SLOW" in df.columns
+                
+                # Create Short Window expression based on available columns
+                if has_sma_fast and has_ema_fast:
+                    # If both SMA_FAST and EMA_FAST exist, use conditional
+                    expressions.append(
+                        pl.when(pl.col("Use SMA").eq(True))
+                        .then(pl.col("SMA_FAST"))
+                        .otherwise(pl.col("EMA_FAST"))
+                        .alias("Short Window")
+                    )
+                elif has_sma_fast:
+                    # If only SMA_FAST exists
+                    expressions.append(pl.col("SMA_FAST").alias("Short Window"))
+                elif has_ema_fast:
+                    # If only EMA_FAST exists
+                    expressions.append(pl.col("EMA_FAST").alias("Short Window"))
+                else:
+                    # If neither exists, create empty column
+                    expressions.append(pl.lit(None).alias("Short Window"))
+                
+                # Create Long Window expression based on available columns
+                if has_sma_slow and has_ema_slow:
+                    # If both SMA_SLOW and EMA_SLOW exist, use conditional
+                    expressions.append(
+                        pl.when(pl.col("Use SMA").eq(True))
+                        .then(pl.col("SMA_SLOW"))
+                        .otherwise(pl.col("EMA_SLOW"))
+                        .alias("Long Window")
+                    )
+                elif has_sma_slow:
+                    # If only SMA_SLOW exists
+                    expressions.append(pl.col("SMA_SLOW").alias("Long Window"))
+                elif has_ema_slow:
+                    # If only EMA_SLOW exists
+                    expressions.append(pl.col("EMA_SLOW").alias("Long Window"))
+                else:
+                    # If neither exists, create empty column
+                    expressions.append(pl.lit(None).alias("Long Window"))
+                
+                # Apply the expressions if we have any
+                if expressions:
+                    df = df.with_columns(expressions)
             
             # Remove redundant columns
             redundant_columns = ["EMA_FAST", "EMA_SLOW", "SMA_FAST", "SMA_SLOW"]
