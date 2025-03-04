@@ -18,7 +18,7 @@ from app.ma_cross.tools.summary_processing import (
 
 # Default Configuration
 config = {
-    "PORTFOLIO": 'Best.csv',
+    "PORTFOLIO": 'XMR_D.csv',
     "USE_CURRENT": False,
     "USE_HOURLY": False,
     "BASE_DIR": '.',  # Added BASE_DIR for export configuration
@@ -41,10 +41,43 @@ def read_portfolio(file_path: Path, log: Callable[[str, str], None]) -> pl.DataF
     # Read CSV with null_values option to handle empty strings
     df = pl.read_csv(file_path, null_values=[''])
     
+    # Check if we have the new format (with "Ticker", "Use SMA", "Short Window", "Long Window")
+    if "Ticker" in df.columns and "Short Window" in df.columns and "Long Window" in df.columns:
+        log("Detected new CSV format, mapping columns...")
+        
+        # Create SMA_FAST, SMA_SLOW, EMA_FAST, EMA_SLOW columns based on "Use SMA" flag
+        df = df.with_columns([
+            # When "Use SMA" is true, set SMA_FAST to "Short Window" and SMA_SLOW to "Long Window"
+            pl.when(pl.col("Use SMA") == True)
+              .then(pl.col("Short Window"))
+              .otherwise(None)
+              .alias("SMA_FAST"),
+              
+            pl.when(pl.col("Use SMA") == True)
+              .then(pl.col("Long Window"))
+              .otherwise(None)
+              .alias("SMA_SLOW"),
+              
+            # When "Use SMA" is false, set EMA_FAST to "Short Window" and EMA_SLOW to "Long Window"
+            pl.when(pl.col("Use SMA") == False)
+              .then(pl.col("Short Window"))
+              .otherwise(None)
+              .alias("EMA_FAST"),
+              
+            pl.when(pl.col("Use SMA") == False)
+              .then(pl.col("Long Window"))
+              .otherwise(None)
+              .alias("EMA_SLOW"),
+              
+            # Rename "Ticker" to "TICKER" for compatibility
+            pl.col("Ticker").alias("TICKER")
+        ])
+    
     # Convert numeric columns to appropriate types, handling null values
     numeric_cols = ['SMA_FAST', 'SMA_SLOW', 'EMA_FAST', 'EMA_SLOW']
     for col in numeric_cols:
-        df = df.with_columns(pl.col(col).cast(pl.Int64, strict=False))
+        if col in df.columns:
+            df = df.with_columns(pl.col(col).cast(pl.Int64, strict=False))
     
     return df
 

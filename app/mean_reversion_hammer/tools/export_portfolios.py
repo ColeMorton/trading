@@ -15,7 +15,7 @@ class PortfolioExportError(Exception):
 
 VALID_EXPORT_TYPES = {
     'portfolios',
-    'portfolios_summary',
+    'portfolios_scanner',
     'portfolios_filtered'
 }
 
@@ -111,7 +111,7 @@ def export_portfolios(
     Args:
         portfolios (List[Dict]): List of portfolio dictionaries to export
         config (ExportConfig): Export configuration dictionary
-        export_type (str): Type of export (must be one of: portfolios, portfolios_summary, portfolios_filtered)
+        export_type (str): Type of export (must be one of: portfolios, portfolios_scanner, portfolios_filtered)
         csv_filename (Optional[str]): Optional custom filename for the CSV
         log (Optional[Callable]): Optional logging function
 
