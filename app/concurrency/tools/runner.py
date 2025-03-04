@@ -9,14 +9,12 @@ from typing import List, Callable, Dict, Any
 import json
 from pathlib import Path
 from app.tools.setup_logging import setup_logging
-from app.concurrency.tools.types import (
-    StrategyConfig,
-    ConcurrencyConfig
-)
+from app.concurrency.tools.types import ConcurrencyConfig
+from app.tools.portfolio import StrategyConfig
 from app.concurrency.tools.analysis import analyze_concurrency
 from app.concurrency.tools.visualization import plot_concurrency
 from app.concurrency.tools.report import generate_json_report
-from app.concurrency.tools.portfolio_loader import load_portfolio
+from app.tools.portfolio import load_portfolio
 from app.concurrency.tools.strategy_processor import process_strategies
 
 def get_portfolio_path(config: ConcurrencyConfig) -> Path:

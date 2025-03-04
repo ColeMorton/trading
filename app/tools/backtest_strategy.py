@@ -36,7 +36,7 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
         
         # Handle stop loss configuration
         if "STOP_LOSS" in config and config["STOP_LOSS"] is not None:
-            stop_loss = config["STOP_LOSS"]  # Already in decimal form (0-1) from portfolio_loader
+            stop_loss = config["STOP_LOSS"]  # Already in decimal form (0-1) from app.tools.portfolio.loader
             if 0 < stop_loss <= 1:  # Validate range
                 if config.get('SL_CANDLE_CLOSE', True):
                     # When using candle close, we calculate the stop price based on entry
