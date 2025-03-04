@@ -51,10 +51,10 @@ class Config(TypedDict):
 config: Config = {
     # "PORTFOLIO": 'BEST.csv',
     # "PORTFOLIO": 'HOURLY Crypto.csv',
-    # "PORTFOLIO": 'DAILY.csv',
-    "PORTFOLIO": 'DAILY Crypto.csv',
+    "PORTFOLIO": 'DAILY.csv',
+    # "PORTFOLIO": 'DAILY Crypto.csv',
     # "PORTFOLIO": 'BTC_SOL_D.csv',
-    # "PORTFOLIO": '20241126.csv',
+    # "PORTFOLIO": '20241202.csv',
     "USE_HOURLY": False,
     "REFRESH": True,
     "DIRECTION": "Long"  # Default to Long position
@@ -261,8 +261,8 @@ def process_scanner() -> bool:
         log(f"Signal Detection Ratio: {signals_detected}/{total_processed} ({detection_ratio:.2%})")
         log(f"Total Rows in Scanner: {len(scanner_df)}, Rows with Complete Data: {total_processed}")
         
-        # Export results
-        export_results(results_data, config, log)
+        # Export results with the original scanner DataFrame
+        export_results(results_data, scanner_df, config, log)
         
         log_close()
         return True

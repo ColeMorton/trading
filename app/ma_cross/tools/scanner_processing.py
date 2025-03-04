@@ -94,65 +94,58 @@ def process_ticker(ticker: str, row: dict, config: dict, log: Callable) -> Dict:
         "EMA_SLOW": row.get('EMA_SLOW')
     }
 
-def export_results(results_data: List[Dict], config: dict, log: Callable) -> None:
+def export_results(results_data: List[Dict], original_df: pl.DataFrame, config: dict, log: Callable) -> None:
     """
     Export scanner results to CSV in a date-specific subdirectory.
+    The exported CSV reflects the exact structure of the original CSV file,
+    filtered to only include rows where signals were detected.
 
     Args:
         results_data (List[Dict]): List of results dictionaries
+        original_df (pl.DataFrame): Original scanner DataFrame
         config (dict): Configuration dictionary
         log (Callable): Logging function
     """
     if not config.get("USE_HOURLY", False):
         # Log signals
         log("\nSignals detected:")
+        tickers_with_signals = set()
+        
         for result in results_data:
             ticker = result["TICKER"]
+            has_signal = False
+            
             if result["SMA"]:
                 log(f"SMA Signal - {ticker}: Fast={result['SMA_FAST']}, Slow={result['SMA_SLOW']}")
+                has_signal = True
             if result["EMA"]:
                 log(f"EMA Signal - {ticker}: Fast={result['EMA_FAST']}, Slow={result['EMA_SLOW']}")
+                has_signal = True
+                
+            if has_signal:
+                tickers_with_signals.add(ticker)
         
-        # Transform results to match input CSV format
-        transformed_data = []
-        for result in results_data:
-            row = {
-                "TICKER": result["TICKER"],
-                "SMA_FAST": result["SMA_FAST"],
-                "SMA_SLOW": result["SMA_SLOW"],
-                "EMA_FAST": result["EMA_FAST"],
-                "EMA_SLOW": result["EMA_SLOW"],
-                "SMA_SIGNAL": result["SMA"],
-                "EMA_SIGNAL": result["EMA"]
-            }
-            transformed_data.append(row)
+        # Determine which ticker column name is present in the original DataFrame
+        ticker_col = "Ticker" if "Ticker" in original_df.columns else "TICKER"
         
-        # Create results DataFrame with explicit schema
-        schema = {
-            "TICKER": pl.Utf8,
-            "SMA_FAST": pl.Int64,  # Int64 columns automatically allow null values
-            "SMA_SLOW": pl.Int64,
-            "EMA_FAST": pl.Int64,
-            "EMA_SLOW": pl.Int64,
-            "SMA_SIGNAL": pl.Boolean,
-            "EMA_SIGNAL": pl.Boolean
-        }
+        # Filter the original DataFrame to only include rows with signals
+        filtered_df = original_df.filter(pl.col(ticker_col).is_in(list(tickers_with_signals)))
         
-        # Create results DataFrame
-        results_df = pl.DataFrame(transformed_data, schema=schema)
-        
-        # Get output path using get_path utility
-        csv_path = get_path("csv", "portfolios", config)
+        # Create the output directory with date subdirectory
+        current_date = datetime.now().strftime("%Y%m%d")
+        csv_path = os.path.join(".", "csv", "ma_cross", "current_signals", current_date)
         os.makedirs(csv_path, exist_ok=True)
         
-        # Get portfolio filename without extension
-        portfolio_path = config["PORTFOLIO"]
-        portfolio_filename = os.path.splitext(os.path.basename(portfolio_path))[0]
+        # Get portfolio filename without extension for use in the output filename
+        portfolio_name = os.path.splitext(os.path.basename(config["PORTFOLIO"]))[0]
         
-        # Export to directory with portfolio name
-        output_path = os.path.join(csv_path, f"{portfolio_filename}.csv")
+        # Create the output filename using the portfolio name
+        output_path = os.path.join(csv_path, f"{portfolio_name}.csv")
+        
         # Remove file if it exists since Polars doesn't have an overwrite parameter
         if os.path.exists(output_path):
             os.remove(output_path)
-        results_df.write_csv(output_path)
+            
+        # Export the filtered DataFrame
+        filtered_df.write_csv(output_path)
         log(f"\nResults exported to {output_path}")
