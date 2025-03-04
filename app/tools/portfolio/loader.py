@@ -50,8 +50,30 @@ def load_portfolio_from_csv(
         log(f"Portfolio file not found: {path}", "error")
         raise FileNotFoundError(f"Portfolio file not found: {path}")
         
-    # Read CSV file using Polars
-    df = pl.read_csv(path, null_values=[''])
+    # Read CSV file using Polars with schema overrides for numeric columns
+    df = pl.read_csv(
+        path,
+        null_values=[''],
+        infer_schema_length=10000,
+        try_parse_dates=True,
+        ignore_errors=True,
+        truncate_ragged_lines=True,
+        schema_overrides={
+            'Start Value': pl.Float64,
+            'End Value': pl.Float64,
+            'Return': pl.Float64,
+            'Annual Return': pl.Float64,
+            'Sharpe Ratio': pl.Float64,
+            'Max Drawdown': pl.Float64,
+            'Calmar Ratio': pl.Float64,
+            'Recovery Factor': pl.Float64,
+            'Profit Factor': pl.Float64,
+            'Common Sense Ratio': pl.Float64,
+            'Win Rate': pl.Float64,
+            'Short Window': pl.Int64,
+            'Long Window': pl.Int64
+        }
+    )
     log(f"Successfully read CSV file with {len(df)} strategies", "info")
     
     # Standardize column names

@@ -76,7 +76,7 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
         sma_portfolio, ema_portfolio, result_config = result
 
         # Process SMA stats if portfolio exists
-        if has_sma and sma_portfolio is not None:
+        if use_sma and sma_portfolio is not None:
             try:
                 sma_stats = sma_portfolio.stats()
                 sma_stats['Ticker'] = ticker
@@ -89,7 +89,7 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                 log(f"Failed to process SMA stats for {ticker}: {str(e)}", "error")
 
         # Process EMA stats if portfolio exists
-        if has_ema and ema_portfolio is not None:
+        if use_sma == False and ema_portfolio is not None:
             try:
                 ema_stats = ema_portfolio.stats()
                 ema_stats['Ticker'] = ticker
