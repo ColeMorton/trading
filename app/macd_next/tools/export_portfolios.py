@@ -128,10 +128,14 @@ def export_portfolios(
         df = pl.DataFrame(portfolios)
         df = _reorder_columns(df, export_type)
         
+        # Use empty feature1 for 'portfolios' and 'portfolios_scanner' export types
+        # to export directly to csv/portfolios/ instead of csv/macd_next/portfolios/ or csv/macd_next/portfolios_scanner/
+        feature1 = "" if export_type in ["portfolios", "portfolios_scanner"] else "macd_next"
+        
         # Export with correct directory structure
         return export_csv(
             data=df,
-            feature1="macd_next",
+            feature1=feature1,
             config=config,
             feature2=export_type,
             filename=csv_filename,

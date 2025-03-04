@@ -30,7 +30,7 @@ from app.tools.setup_logging import setup_logging
 
 # Default configuration
 DEFAULT_CONFIG: ConcurrencyConfig = {
-    "PORTFOLIO": "btc_d.json",
+    "PORTFOLIO": "SPY_QQQ_D.csv",
     "BASE_DIR": './logs',  # Default to logs directory
     "REFRESH": True,
     "SL_CANDLE_CLOSE": True,

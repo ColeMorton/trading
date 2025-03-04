@@ -30,7 +30,7 @@ def load_existing_results(config: dict, log: Callable) -> Tuple[set, List[Dict]]
     results_data = []
     
     if not config.get("USE_HOURLY", False):
-        csv_path = get_path("csv", "ma_cross", config, 'portfolios_scanner')
+        csv_path = get_path("csv", "portfolios", config)
         results_filename = get_filename("csv", config)
         full_path = os.path.join(csv_path, results_filename)
         
@@ -142,7 +142,7 @@ def export_results(results_data: List[Dict], config: dict, log: Callable) -> Non
         results_df = pl.DataFrame(transformed_data, schema=schema)
         
         # Get output path using get_path utility
-        csv_path = get_path("csv", "ma_cross", config, 'portfolios_scanner')
+        csv_path = get_path("csv", "portfolios", config)
         os.makedirs(csv_path, exist_ok=True)
         
         # Get portfolio filename without extension

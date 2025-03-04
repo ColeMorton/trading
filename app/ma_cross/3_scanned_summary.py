@@ -17,7 +17,8 @@ from app.ma_cross.tools.summary_processing import (
 
 # Default Configuration
 config = {
-    "PORTFOLIO": '20241211.csv',
+    "PORTFOLIO": 'SPY_QQQ_D.csv',
+    # "PORTFOLIO": 'HOURLY Crypto.csv',
     "USE_CURRENT": False,
     "USE_HOURLY": False,
     "BASE_DIR": '.',  # Added BASE_DIR for export configuration
