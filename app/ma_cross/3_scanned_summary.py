@@ -8,7 +8,6 @@ multiple tickers, calculating key metrics like expectancy and Trades Per Day.
 
 from typing import Callable
 import polars as pl
-from datetime import datetime
 from pathlib import Path
 from app.tools.setup_logging import setup_logging
 from app.utils import get_path
@@ -23,7 +22,9 @@ config = {
     "USE_CURRENT": False,
     "USE_HOURLY": False,
     "BASE_DIR": '.',  # Added BASE_DIR for export configuration
-    "DIRECTION": "Long"
+    "DIRECTION": "Long",
+    "SORT_BY": "Expectancy Adjusted",
+    "SORT_ASC": False
 }
 
 def read_portfolio(file_path: Path, log: Callable[[str, str], None]) -> pl.DataFrame:

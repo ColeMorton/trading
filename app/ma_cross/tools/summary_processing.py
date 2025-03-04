@@ -6,6 +6,7 @@ adjusted metrics and processing portfolio statistics.
 """
 
 from typing import Optional, Dict, Callable, List, Any
+import polars as pl
 from app.ma_cross.tools.process_ma_portfolios import process_ma_portfolios
 from app.tools.stats_converter import convert_stats
 from app.ma_cross.tools.export_portfolios import export_portfolios
@@ -151,6 +152,27 @@ def export_summary_results(portfolios: List[Dict], portfolio_name: str, log: Cal
         # Use provided config or get default if none provided
         export_config = config if config is not None else get_config({})
         export_config["TICKER"] = None
+        
+        # Sort portfolios if SORT_BY is specified in config
+        if export_config.get("SORT_BY"):
+            try:
+                # Convert to Polars DataFrame for sorting
+                df = pl.DataFrame(reordered_portfolios)
+                
+                # Apply sorting
+                sort_by = export_config["SORT_BY"]
+                sort_asc = export_config.get("SORT_ASC", False)
+                
+                if sort_by in df.columns:
+                    df = df.sort(sort_by, descending=not sort_asc)
+                    log(f"Sorted results by {sort_by} ({'ascending' if sort_asc else 'descending'})")
+                    
+                    # Convert back to list of dictionaries
+                    reordered_portfolios = df.to_dicts()
+                else:
+                    log(f"Warning: Sort column '{sort_by}' not found in results", "warning")
+            except Exception as e:
+                log(f"Error during sorting: {str(e)}", "warning")
         
         _, success = export_portfolios(reordered_portfolios, export_config, 'portfolios_summary', portfolio_name, log)
         if not success:
