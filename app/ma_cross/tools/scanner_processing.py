@@ -97,12 +97,12 @@ def process_ticker(ticker: str, row: dict, config: dict, log: Callable) -> Dict:
 def export_results(results_data: List[Dict], original_df: pl.DataFrame, config: dict, log: Callable) -> None:
     """
     Export scanner results to CSV in a date-specific subdirectory.
-    The exported CSV reflects the exact structure of the original CSV file,
+    The exported CSV reflects the exact structure of the original portfolio file,
     filtered to only include rows where signals were detected.
 
     Args:
         results_data (List[Dict]): List of results dictionaries
-        original_df (pl.DataFrame): Original scanner DataFrame
+        original_df (pl.DataFrame): Original scanner DataFrame (used only for column name detection)
         config (dict): Configuration dictionary
         log (Callable): Logging function
     """
@@ -125,11 +125,24 @@ def export_results(results_data: List[Dict], original_df: pl.DataFrame, config: 
             if has_signal:
                 tickers_with_signals.add(ticker)
         
-        # Determine which ticker column name is present in the original DataFrame
-        ticker_col = "Ticker" if "Ticker" in original_df.columns else "TICKER"
+        if not tickers_with_signals:
+            log("No signals detected.")
+            return
+            
+        # Read the original portfolio file to get all columns
+        portfolio_path = os.path.join("./csv/portfolios", config["PORTFOLIO"])
+        try:
+            portfolio_df = pl.read_csv(portfolio_path)
+            log(f"Read original portfolio file: {portfolio_path}")
+        except Exception as e:
+            log(f"Error reading portfolio file: {e}", "error")
+            return
+            
+        # Determine which ticker column name is present in the portfolio DataFrame
+        ticker_col = "Ticker" if "Ticker" in portfolio_df.columns else "TICKER"
         
-        # Filter the original DataFrame to only include rows with signals
-        filtered_df = original_df.filter(pl.col(ticker_col).is_in(list(tickers_with_signals)))
+        # Filter the portfolio DataFrame to only include rows with signals
+        filtered_df = portfolio_df.filter(pl.col(ticker_col).is_in(list(tickers_with_signals)))
         
         # Create the output directory with date subdirectory
         current_date = datetime.now().strftime("%Y%m%d")
@@ -147,5 +160,8 @@ def export_results(results_data: List[Dict], original_df: pl.DataFrame, config: 
             os.remove(output_path)
             
         # Export the filtered DataFrame
-        filtered_df.write_csv(output_path)
-        log(f"\nResults exported to {output_path}")
+        if len(filtered_df) > 0:
+            filtered_df.write_csv(output_path)
+            log(f"\nResults exported to {output_path}")
+        else:
+            log("\nNo rows to export after filtering.")

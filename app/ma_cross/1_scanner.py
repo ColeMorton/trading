@@ -51,7 +51,7 @@ class Config(TypedDict):
 config: Config = {
     # "PORTFOLIO": 'BEST.csv',
     # "PORTFOLIO": 'HOURLY Crypto.csv',
-    "PORTFOLIO": 'DAILY.csv',
+    "PORTFOLIO": '20241202.csv',
     # "PORTFOLIO": 'DAILY Crypto.csv',
     # "PORTFOLIO": 'BTC_SOL_D.csv',
     # "PORTFOLIO": '20241202.csv',
