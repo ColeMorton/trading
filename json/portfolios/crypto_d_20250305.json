@@ -1,0 +1,36 @@
+[
+    {
+        "ticker": "TRX-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 5,
+        "long_window": 30,
+        "stop_loss": 0.1348
+    },
+    {
+        "ticker": "LTC-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 7,
+        "long_window": 48
+    },
+    {
+        "ticker": "LTC-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 17,
+        "long_window": 30
+    },
+    {
+        "ticker": "RUNE-USD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 2,
+        "long_window": 26,
+        "stop_loss": 0.3212
+    }
+]

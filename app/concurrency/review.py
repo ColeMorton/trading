@@ -34,11 +34,12 @@ from app.tools.portfolio import (
 # Default configuration
 DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "stock_portfolio_h_20250221.json",  # Updated to use an existing portfolio file
-    "PORTFOLIO": "SOL_d.csv",
+    # "PORTFOLIO": "SOL_d.csv",
+    "PORTFOLIO": "crypto_d_20250305_wo_ltc.json",
     "BASE_DIR": '.',  # Default to project root directory
     "REFRESH": True,
     "SL_CANDLE_CLOSE": True,
-    "VISUALIZATION": False,
+    "VISUALIZATION": True,
     "RATIO_BASED_ALLOCATION": True,
     "CSV_USE_HOURLY": False
 }
