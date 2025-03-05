@@ -15,10 +15,11 @@ def get_best_portfolio(portfolios: pl.DataFrame, config: Config, log: callable) 
     Get the best portfolio based on Short Window/Long Window combination frequency in top performers.
     
     The function analyzes the top performing portfolios to find the most consistent
-    Short Window/Long Window combination using three criteria:
+    Short Window/Long Window combination using four criteria:
     1. If the top 3 portfolios have the same combination
     2. If 3 out of top 5 portfolios have the same combination
     3. If 5 out of top 8 portfolios have the same combination
+    4. If 2 out of the top 2 portfolios have the same combination
     
     Args:
         portfolios (pl.DataFrame): DataFrame containing portfolio results
@@ -104,6 +105,21 @@ def get_best_portfolio(portfolios: pl.DataFrame, config: Config, log: callable) 
         # 3. 5 out of top 8 have same combination
         if (result := check_combination_frequency(top_8, 5)):
             log(f"Found matching combination in top 8: {fast_col}={result[0]}, {slow_col}={result[1]}")
+            portfolio = sorted_portfolios.filter(
+                (pl.col(fast_col) == result[0]) &
+                (pl.col(slow_col) == result[1])
+            ).head(1).to_dicts()[0]
+            
+            # Remove "Metric Type" column if it exists
+            if "Metric Type" in portfolio:
+                del portfolio["Metric Type"]
+                
+            return portfolio
+            
+        # 4. 2 out of top 2 have same combination
+        top_2 = sorted_portfolios.head(2)
+        if (result := check_combination_frequency(top_2, 2)):
+            log(f"Found matching combination in top 2: {fast_col}={result[0]}, {slow_col}={result[1]}")
             portfolio = sorted_portfolios.filter(
                 (pl.col(fast_col) == result[0]) &
                 (pl.col(slow_col) == result[1])
