@@ -193,9 +193,22 @@ def execute_strategy(
     for ticker in tickers:
         log(f"Processing {strategy_type} strategy for ticker: {ticker}")
         ticker_config = config.copy()
+        
+        # Handle synthetic tickers
+        if config.get("USE_SYNTHETIC", False) and isinstance(ticker, str) and "_" in ticker:
+            # Extract original tickers from synthetic ticker name
+            ticker_parts = ticker.split("_")
+            if len(ticker_parts) >= 2:
+                # Store original ticker parts for later use
+                ticker_config["TICKER_1"] = ticker_parts[0]
+                if "TICKER_2" not in ticker_config:
+                    ticker_config["TICKER_2"] = ticker_parts[1]
+                log(f"Extracted ticker components: {ticker_config['TICKER_1']} and {ticker_config['TICKER_2']}")
+        
         # Ensure synthetic tickers use underscore format
         formatted_ticker = ticker.replace('/', '_') if isinstance(ticker, str) else ticker
         ticker_config["TICKER"] = formatted_ticker
+        
         best_portfolio = process_single_ticker(ticker, ticker_config, log)
         if best_portfolio is not None:
             best_portfolios.append(best_portfolio)

@@ -88,6 +88,18 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
         config_copy = config.copy()
         config_copy["USE_CURRENT"] = True  # Ensure holiday check is enabled
         
+        # Handle synthetic tickers properly
+        ticker = config["TICKER"]
+        if config.get("USE_SYNTHETIC", False) and isinstance(ticker, str) and "_" in ticker:
+            # Extract original tickers from synthetic ticker name
+            ticker_parts = ticker.split("_")
+            if len(ticker_parts) >= 2:
+                # Store original ticker parts for later use
+                config_copy["TICKER_1"] = ticker_parts[0]
+                if "TICKER_2" not in config_copy:
+                    config_copy["TICKER_2"] = ticker_parts[1]
+                log(f"Extracted ticker components: {config_copy['TICKER_1']} and {config_copy['TICKER_2']}")
+        
         # Get data for the actual ticker first to determine last trading day
         data_result = get_data(config["TICKER"], config_copy, log)
         if isinstance(data_result, tuple):

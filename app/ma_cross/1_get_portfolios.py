@@ -16,9 +16,11 @@ from app.tools.portfolio.collection import export_best_portfolios, combine_strat
 CONFIG: Config = {
     "TICKER": [
         "TRX-USD",
-        "XMR-USD"
+        "XMR-USD",
+        "LTC-USD",
+        "RUNE-USD"
     ],
-    "TICKER_2": 'RUNE-USD',
+    "TICKER_2": 'LTC-USD',
     "WINDOWS": 89,
     # "WINDOWS": 120,
     # "WINDOWS": 55,
@@ -31,7 +33,7 @@ CONFIG: Config = {
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
-    "USE_SYNTHETIC": True,
+    "USE_SYNTHETIC": False,
     "USE_CURRENT": True,
     # "MIN_TRADES": 34,
     # "MIN_WIN_RATE": 0.35,
@@ -130,16 +132,30 @@ def run_both_strategies() -> bool:
         if config_copy.get("USE_SYNTHETIC"):
             if isinstance(config_copy["TICKER"], list):
                 # Process multiple synthetic tickers
-                synthetic_tickers = [f"{ticker}_{config_copy['TICKER_2']}" for ticker in config_copy["TICKER"]]
+                original_tickers = config_copy["TICKER"].copy()  # Save original tickers
+                synthetic_tickers = []
+                
+                for ticker in original_tickers:
+                    # Create synthetic ticker name
+                    synthetic_ticker = f"{ticker}_{config_copy['TICKER_2']}"
+                    synthetic_tickers.append(synthetic_ticker)
+                
                 log(f"Processing strategies for synthetic pairs: {synthetic_tickers}")
                 base_config = {**config_copy}
                 base_config["TICKER"] = synthetic_tickers  # Set synthetic tickers for file naming
+                
+                # Store original tickers for reference
+                base_config["ORIGINAL_TICKERS"] = original_tickers
             elif isinstance(config_copy["TICKER"], str):
                 # Process single synthetic ticker
-                synthetic_ticker = f"{config_copy['TICKER']}_{config_copy['TICKER_2']}"
+                original_ticker = config_copy["TICKER"]  # Save original ticker
+                synthetic_ticker = f"{original_ticker}_{config_copy['TICKER_2']}"
                 log(f"Processing strategies for synthetic pair: {synthetic_ticker}")
                 base_config = {**config_copy}
                 base_config["TICKER"] = synthetic_ticker  # Set synthetic ticker for file naming
+                
+                # Store original ticker for reference
+                base_config["ORIGINAL_TICKERS"] = [original_ticker]
             else:
                 raise ValueError("TICKER must be a string or a list when USE_SYNTHETIC is True")
         else:
