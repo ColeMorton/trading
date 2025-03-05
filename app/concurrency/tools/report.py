@@ -69,6 +69,33 @@ class SignalMetrics(TypedDict):
     monthly_statistics: SignalMonthlyStats
     summary: SignalSummary
 
+class SignalQualityMetrics(TypedDict):
+    """Signal quality metrics."""
+    signal_count: int
+    avg_return: float
+    win_rate: float
+    profit_factor: float
+    avg_win: float
+    avg_loss: float
+    risk_reward_ratio: float
+    expectancy_per_signal: float
+    sharpe_ratio: float
+    sortino_ratio: float
+    calmar_ratio: float
+    max_drawdown: float
+    signal_efficiency: float
+    signal_consistency: float
+    # New advanced metrics
+    signal_value_ratio: float
+    signal_conviction: float
+    signal_timing_efficiency: float
+    signal_opportunity_cost: float
+    signal_reliability: float
+    signal_risk_adjusted_return: float
+    signal_quality_score: float
+    best_horizon: NotRequired[int]
+    horizon_metrics: NotRequired[Dict[str, Dict[str, Any]]]
+
 class Strategy(TypedDict):
     """Complete strategy definition."""
     id: str
@@ -77,6 +104,7 @@ class Strategy(TypedDict):
     risk_metrics: StrategyRiskMetrics
     efficiency: EfficiencyMetrics
     signals: SignalMetrics
+    signal_quality_metrics: NotRequired[SignalQualityMetrics]
     allocation_score: StrategyParameter
 
 class ConcurrencyMetrics(TypedDict):
@@ -112,6 +140,7 @@ class PortfolioMetrics(TypedDict):
     efficiency: EfficiencyMetrics
     risk: RiskMetrics
     signals: SignalMetrics
+    signal_quality: NotRequired[Dict[str, StrategyParameter]]
 
 class ConcurrencyReport(TypedDict):
     """Complete concurrency analysis report."""
@@ -315,7 +344,11 @@ def create_strategy_object(
         }
     }
     
-    return {
+    # Get strategy-specific signal quality metrics if available
+    signal_quality_metrics_data = stats.get("signal_quality_metrics", {}).get(f"strategy_{strategy_id}", {})
+    
+    # Only include signal quality metrics if they exist
+    strategy_obj = {
       "id": f"strategy_{strategy_id}",
       "parameters": parameters,
       "performance": performance,
@@ -325,6 +358,12 @@ def create_strategy_object(
       "allocation_score": stats.get(f"strategy_{int(strategy_id)+1}_allocation", 0.0),
       "allocation": stats.get(f"strategy_{int(strategy_id)+1}_allocation_percentage", 0.0)
     }
+    
+    # Add signal quality metrics if available
+    if signal_quality_metrics_data:
+        strategy_obj["signal_quality_metrics"] = signal_quality_metrics_data
+    
+    return strategy_obj
 
 def calculate_ticker_metrics(strategies: List[Strategy], ratio_based_allocation: bool) -> Dict[str, Any]:
     """Calculates ticker metrics from a list of strategies.
@@ -354,6 +393,10 @@ def calculate_ticker_metrics(strategies: List[Strategy], ratio_based_allocation:
                 "allocation_score": strategy["allocation_score"],
                 "allocation": strategy["allocation"]
             }
+            
+            # Add signal quality metrics if available
+            if "signal_quality_metrics" in strategy:
+                ticker_metrics[ticker]["signal_quality_metrics"] = strategy["signal_quality_metrics"]
         else:
             # Aggregate values for existing ticker
             ticker_metrics[ticker]["performance"]["expectancy_per_month"]["value"] += strategy["performance"]["expectancy_per_month"]["value"]
@@ -572,12 +615,31 @@ def create_portfolio_metrics(stats: Dict[str, Any]) -> PortfolioMetrics:
         }
     }
     
-    return {
+    # Add aggregate signal quality metrics if available
+    portfolio_metrics = {
         "concurrency": concurrency,
         "efficiency": efficiency,
         "risk": risk,
         "signals": signals
     }
+    
+    # Add aggregate signal quality metrics if available
+    if "signal_quality_metrics" in stats and "aggregate" in stats["signal_quality_metrics"]:
+        aggregate_metrics = stats["signal_quality_metrics"]["aggregate"]
+        
+        # Format the metrics in the standard format
+        formatted_metrics = {}
+        for key, value in aggregate_metrics.items():
+            if isinstance(value, (int, float)):
+                formatted_metrics[key] = {
+                    "value": value,
+                    "description": f"Aggregate {key.replace('_', ' ')}"
+                }
+        
+        if formatted_metrics:
+            portfolio_metrics["signal_quality"] = formatted_metrics
+    
+    return portfolio_metrics
 
 def generate_json_report(
     strategies: List[Dict[str, Any]],

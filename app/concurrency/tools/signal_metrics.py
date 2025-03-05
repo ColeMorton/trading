@@ -1,236 +1,139 @@
-"""Signal-based metrics calculation for concurrency analysis."""
+"""Signal Metrics Analysis Module for Trading Strategies.
 
-from typing import List, Dict, Callable
-import numpy as np
+This module provides functionality for calculating signal metrics
+to analyze the frequency and distribution of trading signals.
+"""
+
+from typing import Dict, Any, List, Optional
 import polars as pl
-from datetime import datetime
-from collections import defaultdict
+import numpy as np
+import pandas as pd
+from pathlib import Path
 
-def calculate_strategy_metrics(monthly_signals: List[int]) -> Dict[str, float]:
-    """Calculate signal metrics for a specific strategy or portfolio.
+from app.tools.setup_logging import setup_logging
 
-    Args:
-        monthly_signals (List[int]): List of monthly signal counts
-
-    Returns:
-        Dict[str, float]: Dictionary containing calculated metrics:
-            - mean_signals: Average number of signals per month
-            - median_signals: Median number of signals per month
-            - std_below_mean: One standard deviation below mean
-            - std_above_mean: One standard deviation above mean
-            - signal_volatility: Standard deviation of monthly signals
-            - max_monthly_signals: Maximum signals in any month
-            - min_monthly_signals: Minimum signals in any month
-            - total_signals: Total number of signals across period
-    """
-    if not monthly_signals:
-        return {
-            "mean_signals": 0.0,
-            "median_signals": 0.0,
-            "std_below_mean": 0.0,
-            "std_above_mean": 0.0,
-            "signal_volatility": 0.0,
-            "max_monthly_signals": 0.0,
-            "min_monthly_signals": 0.0,
-            "total_signals": 0.0
-        }
-
-    monthly_totals = np.array(monthly_signals)
-    mean_signals = float(np.mean(monthly_totals))
-    median_signals = float(np.median(monthly_totals))
-    std_signals = float(np.std(monthly_totals))
-    max_monthly = float(np.max(monthly_totals))
-    min_monthly = float(np.min(monthly_totals))
-    total_signals = float(np.sum(monthly_totals))
-
-    return {
-        "mean_signals": mean_signals,
-        "median_signals": median_signals,
-        "std_below_mean": mean_signals - std_signals,
-        "std_above_mean": mean_signals + std_signals,
-        "signal_volatility": std_signals,
-        "max_monthly_signals": max_monthly,
-        "min_monthly_signals": min_monthly,
-        "total_signals": total_signals
-    }
 
 def calculate_signal_metrics(
-    data_list: List[pl.DataFrame],
-    log: Callable[[str, str], None]
-) -> Dict[str, Dict]:
-    """Calculate portfolio-level and strategy-specific signal metrics.
-
-    Analyzes the frequency and distribution of trading signals (entries/exits)
-    at both the portfolio and individual strategy levels on a monthly basis.
-    Signals are defined as any change in position value (entry or exit).
+    aligned_data: List[pl.DataFrame],
+    log: Optional[callable] = None
+) -> Dict[str, Any]:
+    """Calculate signal metrics for all strategies.
 
     Args:
-        data_list (List[pl.DataFrame]): List of dataframes with position data.
-            Each dataframe must contain:
-            - Date column for temporal alignment
-            - Position column for signal detection
-        log (Callable[[str, str], None]): Logging function
+        aligned_data (List[pl.DataFrame]): List of aligned dataframes with signal data
+        log (Optional[callable]): Logging function
 
     Returns:
-        Dict[str, Dict]: Dictionary containing:
-            Portfolio-level metrics at root level:
-            - mean_signals: Average number of total portfolio signals per month
-            - median_signals: Median number of total portfolio signals per month
-            - std_below_mean: One standard deviation below portfolio mean
-            - std_above_mean: One standard deviation above portfolio mean
-            - signal_volatility: Standard deviation of monthly portfolio signals
-            - max_monthly_signals: Maximum portfolio signals in any month
-            - min_monthly_signals: Minimum portfolio signals in any month
-            - total_signals: Total number of portfolio signals across period
-
-            Strategy-specific metrics under 'strategy_signal_metrics' key:
-            Dictionary with strategy_N keys containing same metrics as above
-            but calculated per strategy
-
-    Raises:
-        ValueError: If input data is invalid or missing required columns
-        Exception: If calculation fails
+        Dict[str, Any]: Dictionary of signal metrics
     """
+    if log is None:
+        # Create a default logger if none provided
+        log, _, _, _ = setup_logging("signal_metrics", Path("./logs"), "signal_metrics.log")
+
     try:
-        if not data_list:
-            log("Empty data list provided", "error")
-            raise ValueError("Data list cannot be empty")
-
-        # Validate required columns
-        required_cols = ["Date", "Position"]
-        for i, df in enumerate(data_list, 1):
-            missing = [col for col in required_cols if col not in df.columns]
-            if missing:
-                log(f"Strategy {i} missing required columns: {missing}", "error")
-                raise ValueError(f"Strategy {i} missing required columns: {missing}")
-
-        log(f"Calculating signal metrics for {len(data_list)} strategies", "info")
+        log("Calculating signal metrics", "info")
         
-        # Initialize dictionaries to store signals by month
-        portfolio_monthly_signals = defaultdict(int)
-        strategy_monthly_signals = [defaultdict(int) for _ in data_list]
+        # Initialize metrics dictionary
         metrics = {}
-        strategy_signal_metrics = {}  # New dictionary for strategy-specific metrics
-        
-        for i, df in enumerate(data_list, 1):
-            log(f"Processing signals for strategy {i}", "info")
-            
-            # Verify and process position data
-            positions = df["Position"].fill_null(0).to_numpy()
-            dates = df["Date"].to_numpy()
-            
-            # Log position statistics
-            unique_positions = np.unique(positions)
-            non_zero_positions = positions != 0
-            position_count = np.sum(non_zero_positions)
-            
-            log(f"Strategy {i} position analysis:", "info")
-            log(f"  Unique position values: {unique_positions}", "info")
-            log(f"  Total periods with positions: {position_count}", "info")
-            log(f"  Position ratio: {position_count/len(positions):.2%}", "info")
-            
-            # Calculate signals from position changes
-            initial_signal = positions[0] != 0
-            position_changes = np.diff(positions) != 0
-            signals = np.concatenate(([initial_signal], position_changes))
-            signal_dates = dates[signals]
-            strategy_signals = len(signal_dates)
-            
-            # Verify signal detection
-            if strategy_signals > 0:
-                log(f"Strategy {i} signals detected:", "info")
-                log(f"  Initial position: {positions[0]}", "info")
-                log(f"  Position changes: {np.sum(position_changes)}", "info")
-                log(f"  Total signals: {strategy_signals}", "info")
-                log(f"  First signal: {signal_dates[0]}", "info")
-                log(f"  Last signal: {signal_dates[-1]}", "info")
-            else:
-                log(f"Warning: No signals detected for strategy {i}", "warning")
-            
-            # Convert all dates to datetime for consistent handling
-            dates_dt = np.array([
-                datetime.fromisoformat(str(d).split('.')[0])
-                if not isinstance(d, datetime) else d
-                for d in dates
-            ])
-            
-            # Group signals by month with enhanced validation
-            monthly_counts = defaultdict(int)
-            signal_months = set()
-            
-            for date, is_signal in zip(dates_dt, signals):
-                if is_signal:
-                    month_key = date.strftime("%Y-%m")
-                    monthly_counts[month_key] += 1
-                    portfolio_monthly_signals[month_key] += 1
-                    signal_months.add(month_key)
-            
-            # Ensure all months in the date range are represented
-            all_months = {d.strftime("%Y-%m") for d in dates_dt}
-            for month in all_months:
-                if month not in monthly_counts:
-                    monthly_counts[month] = 0
-            
-            # Store monthly counts for this strategy
-            strategy_monthly_signals[i-1] = monthly_counts
-            
-            # Log monthly signal distribution
-            log(f"Strategy {i} monthly signal distribution:", "info")
-            log(f"  Total months: {len(all_months)}", "info")
-            log(f"  Months with signals: {len(signal_months)}", "info")
-            log(f"  Signal distribution:", "info")
-            for month, count in sorted(monthly_counts.items()):
-                if count > 0:
-                    log(f"    {month}: {count} signals", "info")
-
-            # Calculate metrics from monthly signal counts
-            monthly_values = list(monthly_counts.values())
-            total_signals = sum(monthly_values)
-            
-            # Calculate strategy-specific metrics
-            strategy_metrics = calculate_strategy_metrics(monthly_values)
-            
-            # Store metrics in strategy-specific format
-            strategy_signal_metrics[f"strategy_{i}"] = {
-                "mean_signals": float(strategy_metrics["mean_signals"]),
-                "median_signals": float(strategy_metrics["median_signals"]),
-                "std_below_mean": float(strategy_metrics["std_below_mean"]),
-                "std_above_mean": float(strategy_metrics["std_above_mean"]),
-                "signal_volatility": float(strategy_metrics["signal_volatility"]),
-                "max_monthly_signals": float(strategy_metrics["max_monthly_signals"]),
-                "min_monthly_signals": float(strategy_metrics["min_monthly_signals"]),
-                "total_signals": float(strategy_metrics["total_signals"])
-            }
-            
-            # Log metrics summary
-            log(f"Strategy {i} signal metrics:", "info")
-            log(f"  Total signals: {total_signals}", "info")
-            log(f"  Mean signals per month: {strategy_metrics['mean_signals']:.2f}", "info")
-            log(f"  Signal volatility: {strategy_metrics['signal_volatility']:.2f}", "info")
-            
-            # Store metrics for backward compatibility
-            for key, value in strategy_metrics.items():
-                metrics[f"strategy_{i}_{key}"] = float(value)
-                
-            if total_signals == 0:
-                log(f"Warning: Strategy {i} has no signals - this may indicate an issue", "warning")
-        
-        log(f"Calculating portfolio-level metrics", "info")
         
         # Calculate portfolio-level metrics
-        portfolio_metrics = calculate_strategy_metrics(
-            list(portfolio_monthly_signals.values())
-        )
+        all_signals = []
         
-        # Add portfolio metrics to root level
-        metrics.update(portfolio_metrics)
+        # Process each strategy
+        for i, df in enumerate(aligned_data, 1):
+            # Convert to pandas for date handling
+            df_pd = df.to_pandas()
+            
+            # Extract signals (non-zero values in the Position column indicate signal changes)
+            df_pd['signal'] = df_pd['Position'].diff().fillna(0)
+            signals = df_pd[df_pd['signal'] != 0]
+            
+            # Add to all signals for portfolio metrics
+            all_signals.append(signals)
+            
+            # Calculate monthly signal counts
+            signals['month'] = signals.index.to_period('M')
+            monthly_counts = signals.groupby('month').size()
+            
+            # Calculate metrics
+            if len(monthly_counts) > 0:
+                mean_signals = monthly_counts.mean()
+                median_signals = monthly_counts.median()
+                signal_volatility = monthly_counts.std() if len(monthly_counts) > 1 else 0
+                max_monthly = monthly_counts.max()
+                min_monthly = monthly_counts.min()
+                total_signals = len(signals)
+                
+                # Store strategy-specific metrics
+                metrics[f"strategy_{i}_mean_signals"] = mean_signals
+                metrics[f"strategy_{i}_median_signals"] = median_signals
+                metrics[f"strategy_{i}_signal_volatility"] = signal_volatility
+                metrics[f"strategy_{i}_max_monthly_signals"] = max_monthly
+                metrics[f"strategy_{i}_min_monthly_signals"] = min_monthly
+                metrics[f"strategy_{i}_total_signals"] = total_signals
+            else:
+                # No signals for this strategy
+                metrics[f"strategy_{i}_mean_signals"] = 0
+                metrics[f"strategy_{i}_median_signals"] = 0
+                metrics[f"strategy_{i}_signal_volatility"] = 0
+                metrics[f"strategy_{i}_max_monthly_signals"] = 0
+                metrics[f"strategy_{i}_min_monthly_signals"] = 0
+                metrics[f"strategy_{i}_total_signals"] = 0
         
-        # Add strategy signal metrics under the new key
-        metrics["strategy_signal_metrics"] = strategy_signal_metrics
+        # Calculate portfolio-level metrics
+        if all_signals:
+            # Combine all signals
+            combined_signals = pd.concat(all_signals)
+            combined_signals['month'] = combined_signals.index.to_period('M')
+            
+            # Calculate monthly counts across all strategies
+            portfolio_monthly_counts = combined_signals.groupby('month').size()
+            
+            if len(portfolio_monthly_counts) > 0:
+                mean_signals = portfolio_monthly_counts.mean()
+                median_signals = portfolio_monthly_counts.median()
+                signal_volatility = portfolio_monthly_counts.std() if len(portfolio_monthly_counts) > 1 else 0
+                max_monthly = portfolio_monthly_counts.max()
+                min_monthly = portfolio_monthly_counts.min()
+                total_signals = len(combined_signals)
+                
+                # Calculate standard deviation bounds
+                std_below_mean = max(0, mean_signals - signal_volatility)
+                std_above_mean = mean_signals + signal_volatility
+                
+                # Store portfolio metrics
+                metrics["mean_signals"] = mean_signals
+                metrics["median_signals"] = median_signals
+                metrics["signal_volatility"] = signal_volatility
+                metrics["max_monthly_signals"] = max_monthly
+                metrics["min_monthly_signals"] = min_monthly
+                metrics["total_signals"] = total_signals
+                metrics["std_below_mean"] = std_below_mean
+                metrics["std_above_mean"] = std_above_mean
+            else:
+                # No signals for the portfolio
+                metrics["mean_signals"] = 0
+                metrics["median_signals"] = 0
+                metrics["signal_volatility"] = 0
+                metrics["max_monthly_signals"] = 0
+                metrics["min_monthly_signals"] = 0
+                metrics["total_signals"] = 0
+                metrics["std_below_mean"] = 0
+                metrics["std_above_mean"] = 0
         
-        log("Signal metrics calculation completed successfully", "info")
+        log("Signal metrics calculation completed", "info")
         return metrics
         
     except Exception as e:
         log(f"Error calculating signal metrics: {str(e)}", "error")
-        raise
+        # Return empty metrics on error
+        return {
+            "mean_signals": 0,
+            "median_signals": 0,
+            "signal_volatility": 0,
+            "max_monthly_signals": 0,
+            "min_monthly_signals": 0,
+            "total_signals": 0,
+            "std_below_mean": 0,
+            "std_above_mean": 0
+        }

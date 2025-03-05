@@ -57,9 +57,9 @@ def save_json_report(
         json_dir = Path("json/concurrency")
         json_dir.mkdir(parents=True, exist_ok=True)
         
-        # Get the portfolio filename without extension
+        # Get the portfolio filename without extension and add "_analysis" suffix
         portfolio_filename = Path(config["PORTFOLIO"]).stem
-        report_filename = f"{portfolio_filename}.json"
+        report_filename = f"{portfolio_filename}_analysis.json"
         
         # Save the report
         report_path = json_dir / report_filename

@@ -36,6 +36,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "stock_portfolio_h_20250221.json",  # Updated to use an existing portfolio file
     # "PORTFOLIO": "SOL_d.csv",
     # "PORTFOLIO": "crypto_d_20250305_wo_ltc.json",
+    # "PORTFOLIO": "macd_test.json",
     "PORTFOLIO": "stock_trades_20250305.json",
     "BASE_DIR": '.',  # Default to project root directory
     "REFRESH": True,

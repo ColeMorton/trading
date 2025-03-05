@@ -12,6 +12,7 @@ from app.concurrency.tools.efficiency import (
 )
 from app.concurrency.tools.position_metrics import calculate_position_metrics
 from app.concurrency.tools.signal_metrics import calculate_signal_metrics
+from app.concurrency.tools.signal_quality import calculate_signal_quality_metrics
 
 def validate_inputs(
     data_list: List[pl.DataFrame],
@@ -46,6 +47,7 @@ def compile_statistics(
     risk_metrics: dict,
     efficiency_metrics: Tuple[float, float, float, float, float],
     signal_metrics: dict,
+    signal_quality_metrics: dict,
     strategy_expectancies: List[float],
     strategy_efficiencies: List[Tuple[float, float, float, float]],
     log: Callable[[str, str], None]
@@ -126,6 +128,7 @@ def compile_statistics(
             "strategy_efficiency_metrics": strategy_efficiency_metrics,
             "risk_metrics": risk_metrics,
             "signal_metrics": signal_metrics,
+            "signal_quality_metrics": signal_quality_metrics,
             "start_date": str(aligned_data[0]["Date"].min()),
             "end_date": str(aligned_data[0]["Date"].max())
         }
@@ -232,6 +235,55 @@ def analyze_concurrency(
         # Calculate signal metrics
         log("Calculating signal metrics", "info")
         signal_metrics = calculate_signal_metrics(aligned_data, log)
+        
+        # Calculate signal quality metrics
+        log("Calculating signal quality metrics", "info")
+        signal_quality_metrics = {}
+        strategy_quality_metrics = {}
+        
+        # Create returns dataframes for signal quality calculation
+        for i, df in enumerate(aligned_data, 1):
+            try:
+                # Calculate returns from Close prices
+                returns_df = df.select(["Date", "Close"]).with_columns(
+                    pl.col("Close").pct_change().alias("return")
+                )
+                
+                # Create signals dataframe
+                signals_df = df.select(["Date", "Position"]).with_columns(
+                    pl.col("Position").diff().alias("signal")
+                )
+                
+                # Calculate signal quality metrics for this strategy
+                strategy_metrics = calculate_signal_quality_metrics(
+                    signals_df=signals_df,
+                    returns_df=returns_df,
+                    strategy_id=f"strategy_{i}",
+                    log=log
+                )
+                
+                if strategy_metrics:
+                    strategy_id = f"strategy_{i}"
+                    signal_quality_metrics[strategy_id] = strategy_metrics
+                    strategy_quality_metrics[strategy_id] = strategy_metrics
+            except Exception as e:
+                log(f"Error calculating signal quality metrics for strategy {i}: {str(e)}", "error")
+        
+        # Calculate aggregate signal quality metrics across all strategies
+        try:
+            from app.concurrency.tools.signal_quality import calculate_aggregate_signal_quality
+            
+            log("Calculating aggregate signal quality metrics", "info")
+            aggregate_metrics = calculate_aggregate_signal_quality(
+                strategy_metrics=strategy_quality_metrics,
+                log=log
+            )
+            
+            if aggregate_metrics:
+                signal_quality_metrics["aggregate"] = aggregate_metrics
+                log("Aggregate signal quality metrics added", "info")
+        except Exception as e:
+            log(f"Error calculating aggregate signal quality metrics: {str(e)}", "error")
 
         # Extract strategy risk contributions, alphas, and efficiencies for allocation
         strategy_risk_contributions = [risk_metrics.get(f"strategy_{i+1}_risk_contrib", 0.0) for i in range(len(config_list))]
@@ -260,6 +312,7 @@ def analyze_concurrency(
             risk_metrics,
             efficiency_metrics,
             signal_metrics,
+            signal_quality_metrics,
             strategy_expectancies,
             strategy_efficiencies,  # Pass individual strategy efficiencies
             log
@@ -297,6 +350,7 @@ def analyze_concurrency(
             "strategy_efficiency_metrics": {},
             "risk_metrics": {},
             "signal_metrics": signal_metrics,
+            "signal_quality_metrics": {},
             "start_date": "",
             "end_date": ""
         }
