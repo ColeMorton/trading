@@ -1,0 +1,90 @@
+[
+    {
+        "ticker": "AMGN",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 45,
+        "long_window": 78
+    },
+    {
+        "ticker": "CI",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 23,
+        "long_window": 69
+    },
+    {
+        "ticker": "QCOM",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 68,
+        "long_window": 76
+    },
+    {
+        "ticker": "TRMB",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 48,
+        "long_window": 53
+    },
+    {
+        "ticker": "EQIX",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 20,
+        "long_window": 44
+    },
+    {
+        "ticker": "HUM",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 41,
+        "long_window": 85
+    },
+    {
+        "ticker": "BIDU",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 40,
+        "long_window": 53
+    },
+    {
+        "ticker": "IDXX",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 71,
+        "long_window": 88
+    },
+    {
+        "ticker": "NTES",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 23,
+        "long_window": 26
+    },
+    {
+        "ticker": "OKE",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 45,
+        "long_window": 52
+    },
+    {
+        "ticker": "STLD",
+        "timeframe": "Daily",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 45,
+        "long_window": 60
+    }
+]
