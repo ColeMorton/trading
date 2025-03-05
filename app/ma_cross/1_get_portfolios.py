@@ -15,17 +15,10 @@ from app.tools.portfolio.collection import export_best_portfolios, combine_strat
 
 CONFIG: Config = {
     "TICKER": [
-        "RUNE-USD",
-        "STLD",
-        "OKE",
-        "EQIX",
-        "NTES",
-        "IDXX",
-        "TRMB",
-        "QCOM",
-        "BIDU"
+        "TRX-USD",
+        "XMR-USD"
     ],
-    "TICKER_2": 'BTC-USD',
+    "TICKER_2": 'RUNE-USD',
     "WINDOWS": 89,
     # "WINDOWS": 120,
     # "WINDOWS": 55,
@@ -38,7 +31,7 @@ CONFIG: Config = {
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
-    "USE_SYNTHETIC": False,
+    "USE_SYNTHETIC": True,
     "USE_CURRENT": True,
     # "MIN_TRADES": 34,
     # "MIN_WIN_RATE": 0.35,
