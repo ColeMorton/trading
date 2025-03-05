@@ -173,6 +173,12 @@ def export_portfolios(
         # This allows different scripts to export to different directories
         feature1 = feature_dir
         
+        # Remove 'RSI Window' column if it exists
+        if "RSI Window" in df.columns:
+            df = df.drop("RSI Window")
+            if log:
+                log("Removed 'RSI Window' column from export data", "info")
+        
         return export_csv(
             data=df,
             feature1=feature1,
