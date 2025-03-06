@@ -147,25 +147,46 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
             # Fallback: assume each trade has entry and exit (might slightly overestimate)
             total_signals = total_trades * 2
         
-        stats['Signals per Month'] = math.ceil(total_signals / months_in_period)
+        stats['Signals per Month'] = total_signals / months_in_period
         
         # Calculate expectancy per month
         expectancy = stats['Expectancy']
         stats['Expectancy per Month'] = stats['Trades per Month'] * expectancy
         
         log(f"Calculated metrics for {ticker}: Trades per Month={stats['Trades per Month']:.2f}, " +
-            f"Signals per Month={stats['Signals per Month']}, " +
+            f"Signals per Month={stats['Signals per Month']:.2f}, " +
             f"Expectancy per Month={stats['Expectancy per Month']:.4f}", "info")
-        
         # Calculate average trade duration as weighted average of winning and losing durations
         if all(key in stats for key in ['Avg Winning Trade Duration', 'Avg Losing Trade Duration', 'Win Rate [%]']):
-            # Parse durations to timedelta objects
-            win_duration = pd.to_timedelta(stats['Avg Winning Trade Duration'])
-            lose_duration = pd.to_timedelta(stats['Avg Losing Trade Duration'])
-            win_rate = stats['Win Rate [%]'] / 100.0
-            
-            # Calculate weighted average
-            avg_duration = win_duration * win_rate + lose_duration * (1 - win_rate)
+            try:
+                # Parse durations to timedelta objects, handling different input types
+                if isinstance(stats['Avg Winning Trade Duration'], pd.Timedelta):
+                    win_duration = stats['Avg Winning Trade Duration']
+                else:
+                    win_duration = pd.to_timedelta(stats['Avg Winning Trade Duration'])
+                    
+                if isinstance(stats['Avg Losing Trade Duration'], pd.Timedelta):
+                    lose_duration = stats['Avg Losing Trade Duration']
+                else:
+                    lose_duration = pd.to_timedelta(stats['Avg Losing Trade Duration'])
+                
+                win_rate = stats['Win Rate [%]'] / 100.0
+                
+                # Handle edge cases
+                if win_rate == 1.0:  # 100% win rate
+                    avg_duration = win_duration
+                    log(f"All trades are winning for {ticker}, using winning duration", "info")
+                elif win_rate == 0.0:  # 0% win rate
+                    avg_duration = lose_duration
+                    log(f"All trades are losing for {ticker}, using losing duration", "info")
+                else:
+                    # Calculate weighted average
+                    avg_duration = win_duration * win_rate + lose_duration * (1 - win_rate)
+                
+                stats['Avg Trade Duration'] = str(avg_duration)
+                log(f"Calculated Avg Trade Duration for {ticker}: {stats['Avg Trade Duration']}", "info")
+            except Exception as e:
+                log(f"Error calculating average trade duration for {ticker}: {str(e)}", "error")
             stats['Avg Trade Duration'] = str(avg_duration)
             
         # Initialize converted dictionary before any processing
