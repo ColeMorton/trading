@@ -32,10 +32,7 @@ CONFIG: Config = {
     #     "SPY",
     #     "QQQ"
     # ],
-    "TICKER": [
-        "VRTX",
-        "MRNA"
-    ],
+    "TICKER": "BTC-USD",
     "TICKER_2": 'LTC-USD',
     "WINDOWS": 89,
     # "WINDOWS": 120,

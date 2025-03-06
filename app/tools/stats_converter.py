@@ -89,14 +89,14 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
                 total_days = abs(time_delta.total_seconds()) / (24 * 3600)
             
             # Calculate Trades Per Day using total days
-            stats['Trades Per Day'] = (stats['Total Closed Trades'] / total_days) * 1000 if total_days > 0 else 0
+            stats['Trades Per Day'] = stats['Total Closed Trades'] / total_days if total_days > 0 else 0
 
         except KeyError as e:
             log(f"Missing required statistic for {ticker}: {str(e)}", "error")
             raise
 
+        # Get total trades from stats
         total_trades = stats['Total Trades']
-        total_signals = total_trades * 2  # Each trade has an entry and exit signal
         
         # Determine if it's a crypto asset using ticker from either source
         is_crypto = "-USD" in ticker
@@ -104,47 +104,69 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         # Set trading days per month based on asset type
         trading_days_per_month = 30 if is_crypto else 21
         log(f"Using {trading_days_per_month} trading days per month for {ticker} ({'crypto' if is_crypto else 'stock'})", "info")
-
-        if config.get('USE_HOURLY', False):
-            log(f"Processing hourly data for {ticker}", "info")
-            
-            # Calculate total hours in the period
-            total_hours = total_days * 24 if is_crypto else total_days * 6.5
-            
-            # Calculate trades and signals per hour
-            trades_per_hour = float(total_trades) / total_hours if total_hours > 0 else 0
-            signals_per_hour = float(total_signals) / total_hours if total_hours > 0 else 0
-            
-            # Calculate monthly metrics
-            hours_per_month = trading_days_per_month * (24 if is_crypto else 6.5)
-            stats['Trades per Month'] = trades_per_hour * hours_per_month
-            stats['Signals per Month'] = math.ceil(signals_per_hour * hours_per_month)
-            
-            # Calculate expectancy per month for hourly data
-            expectancy = stats['Expectancy']
-            stats['Expectancy per Month'] = stats['Trades per Month'] * expectancy
+        
+        # Calculate months in the backtest period
+        if isinstance(stats['End'], (int, float)) and isinstance(stats['Start'], (int, float)):
+            if config.get('USE_HOURLY', False):
+                # For hourly data, convert hours to days first
+                days_in_period = abs(stats['End'] - stats['Start']) / 24
+            else:
+                # For daily data, Start and End are already in days
+                days_in_period = abs(stats['End'] - stats['Start'])
         else:
-            log(f"Processing daily data for {ticker}", "info")
-            # Calculate monthly metrics directly
-            trades_per_day = float(total_trades) / total_days if total_days > 0 else 0
-            signals_per_day = float(total_signals) / total_days if total_days > 0 else 0
-            stats['Trades per Month'] = trades_per_day * trading_days_per_month
-            stats['Signals per Month'] = math.ceil(signals_per_day * trading_days_per_month)
+            # If timestamps are datetime objects, use timedelta
+            time_delta = pd.Timestamp(stats['End']) - pd.Timestamp(stats['Start'])
+            days_in_period = abs(time_delta.total_seconds()) / (24 * 3600)
+        
+        # Calculate months in the period (accounting for trading days)
+        if is_crypto:
+            # Crypto trades 24/7, so use calendar days
+            months_in_period = days_in_period / 30
+        else:
+            # Stocks trade only on trading days
+            months_in_period = days_in_period / 21
+        
+        # Ensure we don't divide by zero
+        if months_in_period <= 0:
+            months_in_period = 1
+            log(f"Warning: Backtest period too short for {ticker}, using 1 month as minimum", "warning")
+        
+        # Calculate trades per month directly from total trades and months
+        stats['Trades per Month'] = total_trades / months_in_period
+        
+        # Calculate signals per month
+        # Each trade typically has an entry and exit signal, but some trades might have only entry
+        # if they're still open at the end of the backtest
+        if 'Total Closed Trades' in stats and 'Total Open Trades' in stats:
+            # If we have separate counts for closed and open trades
+            closed_trades = stats['Total Closed Trades']
+            open_trades = stats['Total Open Trades']
+            # Closed trades have both entry and exit signals, open trades have only entry
+            total_signals = (closed_trades * 2) + open_trades
+        else:
+            # Fallback: assume each trade has entry and exit (might slightly overestimate)
+            total_signals = total_trades * 2
+        
+        stats['Signals per Month'] = math.ceil(total_signals / months_in_period)
+        
+        # Calculate expectancy per month
+        expectancy = stats['Expectancy']
+        stats['Expectancy per Month'] = stats['Trades per Month'] * expectancy
+        
+        log(f"Calculated metrics for {ticker}: Trades per Month={stats['Trades per Month']:.2f}, " +
+            f"Signals per Month={stats['Signals per Month']}, " +
+            f"Expectancy per Month={stats['Expectancy per Month']:.4f}", "info")
+        
+        # Calculate average trade duration as weighted average of winning and losing durations
+        if all(key in stats for key in ['Avg Winning Trade Duration', 'Avg Losing Trade Duration', 'Win Rate [%]']):
+            # Parse durations to timedelta objects
+            win_duration = pd.to_timedelta(stats['Avg Winning Trade Duration'])
+            lose_duration = pd.to_timedelta(stats['Avg Losing Trade Duration'])
+            win_rate = stats['Win Rate [%]'] / 100.0
             
-            # Calculate expectancy per month
-            expectancy = stats['Expectancy']
-            stats['Expectancy per Month'] = stats['Trades per Month'] * expectancy
-            
-            # Calculate average trade duration as weighted average of winning and losing durations
-            if all(key in stats for key in ['Avg Winning Trade Duration', 'Avg Losing Trade Duration', 'Win Rate [%]']):
-                # Parse durations to timedelta objects
-                win_duration = pd.to_timedelta(stats['Avg Winning Trade Duration'])
-                lose_duration = pd.to_timedelta(stats['Avg Losing Trade Duration'])
-                win_rate = stats['Win Rate [%]'] / 100.0
-                
-                # Calculate weighted average
-                avg_duration = win_duration * win_rate + lose_duration * (1 - win_rate)
-                stats['Avg Trade Duration'] = str(avg_duration)
+            # Calculate weighted average
+            avg_duration = win_duration * win_rate + lose_duration * (1 - win_rate)
+            stats['Avg Trade Duration'] = str(avg_duration)
             
         # Initialize converted dictionary before any processing
         converted = {}
