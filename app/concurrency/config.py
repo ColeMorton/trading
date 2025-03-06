@@ -10,6 +10,14 @@ import json
 import csv
 from dataclasses import dataclass
 
+class ReportIncludesConfig(TypedDict):
+    """Configuration for report content inclusion.
+
+    Required Fields:
+        STRATEGY_RELATIONSHIPS (bool): Whether to include strategy relationships in the report
+    """
+    STRATEGY_RELATIONSHIPS: bool
+
 class ConcurrencyConfig(TypedDict):
     """Configuration for concurrency analysis.
 
@@ -23,6 +31,7 @@ class ConcurrencyConfig(TypedDict):
         RATIO_BASED_ALLOCATION (NotRequired[bool]): Enable ratio-based allocation
         CSV_USE_HOURLY (NotRequired[bool]): Use hourly timeframe for CSV strategies
                                            (True for hourly, False for daily)
+        REPORT_INCLUDES (NotRequired[ReportIncludesConfig]): Configuration for report content inclusion
     """
     PORTFOLIO: str
     BASE_DIR: str
@@ -30,6 +39,7 @@ class ConcurrencyConfig(TypedDict):
     SL_CANDLE_CLOSE: NotRequired[bool]
     RATIO_BASED_ALLOCATION: NotRequired[bool]
     CSV_USE_HOURLY: NotRequired[bool]
+    REPORT_INCLUDES: NotRequired[ReportIncludesConfig]
 
 class CsvStrategyRow(TypedDict):
     """CSV strategy row format.

@@ -478,15 +478,19 @@ def calculate_ticker_metrics(strategies: List[Strategy], ratio_based_allocation:
 
     return ticker_metrics
 
-def create_portfolio_metrics(stats: Dict[str, Any]) -> PortfolioMetrics:
+def create_portfolio_metrics(stats: Dict[str, Any], config: Dict[str, Any] = None) -> PortfolioMetrics:
     """Create portfolio metrics with the optimized structure.
 
     Args:
         stats (Dict[str, Any]): Statistics from the concurrency analysis
+        config (Dict[str, Any], optional): Configuration dictionary. Defaults to None.
 
     Returns:
         PortfolioMetrics: Portfolio metrics with the optimized structure
     """
+    # Default config if none provided
+    if config is None:
+        config = {}
     concurrency: ConcurrencyMetrics = {
         "total_concurrent_periods": {
             "value": stats["total_concurrent_periods"],
@@ -567,13 +571,21 @@ def create_portfolio_metrics(stats: Dict[str, Any]) -> PortfolioMetrics:
                 "value": stats["risk_metrics"].get("combined_cvar_99", 0.0),
                 "description": "Combined Conditional Value at Risk (99% confidence)"
             }
-        },
-        "strategy_relationships": {
+        }
+    }
+    
+    # Check if strategy relationships should be included
+    include_relationships = True
+    if config and "REPORT_INCLUDES" in config and "STRATEGY_RELATIONSHIPS" in config["REPORT_INCLUDES"]:
+        include_relationships = config["REPORT_INCLUDES"]["STRATEGY_RELATIONSHIPS"]
+    
+    # Add strategy relationships if configured to include them
+    if include_relationships:
+        risk["strategy_relationships"] = {
             key: {"value": value, "description": f"Risk relationship metric: {key}"}
             for key, value in stats["risk_metrics"].items()
             if key.startswith("risk_overlap_")
         }
-    }
     
     # Use portfolio-level signal metrics from the root level
     signals: SignalMetrics = {
@@ -697,7 +709,7 @@ def generate_json_report(
         
         # Create portfolio metrics
         log("Creating portfolio metrics", "info")
-        portfolio_metrics = create_portfolio_metrics(stats)
+        portfolio_metrics = create_portfolio_metrics(stats, config)
 
         # Calculate ticker metrics
         log("Calculating ticker metrics", "info")

@@ -23,7 +23,7 @@ from app.tools.portfolio import (
 config = {
     # "PORTFOLIO": '20241202.csv',
     # "PORTFOLIO": 'DAILY.csv',
-    "PORTFOLIO": 'SOL_d.csv',
+    "PORTFOLIO": "20250306_0745_D.csv",
     # "PORTFOLIO": 'HOURLY Crypto.csv',
     "USE_CURRENT": False,
     "USE_HOURLY": False,

@@ -37,13 +37,19 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "SOL_d.csv",
     # "PORTFOLIO": "crypto_d_20250305_wo_ltc.json",
     # "PORTFOLIO": "macd_test.json",
-    "PORTFOLIO": "stock_trades_20250305.json",
+    # "PORTFOLIO": "stock_trades_20250306_next.csv",
+    # "PORTFOLIO": "stock_trades_20250305.json",
+    # "PORTFOLIO": "20250306_0745_D.csv",
+    "PORTFOLIO": "DAILY_crypto.csv",
     "BASE_DIR": '.',  # Default to project root directory
     "REFRESH": True,
     "SL_CANDLE_CLOSE": True,
-    "VISUALIZATION": True,
+    "VISUALIZATION": False,
     "RATIO_BASED_ALLOCATION": True,
-    "CSV_USE_HOURLY": False
+    "CSV_USE_HOURLY": False,
+    "REPORT_INCLUDES": {
+        "STRATEGY_RELATIONSHIPS": False
+    }
 }
 
 def run_analysis(config: Dict[str, Any]) -> bool:
