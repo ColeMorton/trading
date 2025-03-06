@@ -7,6 +7,7 @@ across multiple trading strategies.
 
 from typing import List, Callable, Dict, Any
 import json
+import numpy as np
 from pathlib import Path
 from app.tools.setup_logging import setup_logging
 from app.concurrency.tools.types import ConcurrencyConfig
@@ -16,6 +17,18 @@ from app.concurrency.tools.visualization import plot_concurrency
 from app.concurrency.tools.report import generate_json_report
 from app.tools.portfolio import load_portfolio
 from app.concurrency.tools.strategy_processor import process_strategies
+
+# Custom JSON encoder to handle NumPy types
+class NumpyEncoder(json.JSONEncoder):
+    """Custom JSON encoder for NumPy data types."""
+    def default(self, obj):
+        if isinstance(obj, (np.integer, np.int64, np.int32, np.int16, np.int8)):
+            return int(obj)
+        elif isinstance(obj, (np.floating, np.float64, np.float32, np.float16)):
+            return float(obj)
+        elif isinstance(obj, (np.ndarray,)):
+            return obj.tolist()
+        return super(NumpyEncoder, self).default(obj)
 
 def get_portfolio_path(config: ConcurrencyConfig) -> Path:
     """Get the full path to the portfolio file.
@@ -65,7 +78,7 @@ def save_json_report(
         report_path = json_dir / report_filename
         log(f"Saving JSON report to {report_path}", "info")
         with open(report_path, 'w') as f:
-            json.dump(report, f, indent=4)
+            json.dump(report, f, indent=4, cls=NumpyEncoder)
         
         log(f"JSON report saved to {report_path}", "info")
         return report_path

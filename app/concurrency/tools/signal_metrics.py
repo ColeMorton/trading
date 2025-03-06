@@ -44,6 +44,10 @@ def calculate_signal_metrics(
             # Convert to pandas for date handling
             df_pd = df.to_pandas()
             
+            # Set Date as index for proper time-based operations
+            if 'Date' in df_pd.columns:
+                df_pd = df_pd.set_index('Date')
+            
             # Extract signals (non-zero values in the Position column indicate signal changes)
             df_pd['signal'] = df_pd['Position'].diff().fillna(0)
             signals = df_pd[df_pd['signal'] != 0]
@@ -84,6 +88,16 @@ def calculate_signal_metrics(
         if all_signals:
             # Combine all signals
             combined_signals = pd.concat(all_signals)
+            
+            # Ensure index is properly set for period operations
+            if not isinstance(combined_signals.index, pd.DatetimeIndex):
+                log("Warning: Combined signals index is not a DatetimeIndex", "warning")
+                # Try to recover by using the first Date column found
+                for col in combined_signals.columns:
+                    if col.lower() == 'date':
+                        combined_signals = combined_signals.set_index(col)
+                        break
+            
             combined_signals['month'] = combined_signals.index.to_period('M')
             
             # Calculate monthly counts across all strategies

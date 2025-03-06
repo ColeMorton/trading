@@ -49,7 +49,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     "CSV_USE_HOURLY": False,
     "REPORT_INCLUDES": {
         "STRATEGIES": True,
-        "STRATEGY_RELATIONSHIPS": True
+        "STRATEGY_RELATIONSHIPS": False
     }
 }
 
