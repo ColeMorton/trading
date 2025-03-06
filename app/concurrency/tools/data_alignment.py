@@ -60,7 +60,15 @@ def prepare_dataframe(
         if "Date" not in df.columns:
             log("DataFrame missing Date column", "error")
             raise ValueError("DataFrame missing Date column")
+        
+        # First check if Date is a string and convert to datetime if needed
+        if df.schema["Date"] == pl.String:
+            log("Converting Date column from string to datetime", "info")
+            df = df.with_columns([
+                pl.col("Date").str.to_datetime().alias("Date")
+            ])
             
+        # Now perform the timezone and truncation operations
         df = df.with_columns([
             pl.col("Date").dt.replace_time_zone(None).dt.truncate("1d").cast(pl.Datetime("ns"))
         ])

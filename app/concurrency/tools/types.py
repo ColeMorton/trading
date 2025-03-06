@@ -268,6 +268,12 @@ class StrategyData(TypedDict):
     parameters: NotRequired[Dict[str, Any]]
     metrics: NotRequired[Dict[str, Any]]
 
+class ConcurrencyReport(TypedDict):
+    """Complete concurrency analysis report."""
+    strategies: NotRequired[List[Strategy]]
+    ticker_metrics: Dict[str, Any]
+    portfolio_metrics: PortfolioMetrics
+
 class ConcurrencyConfig(TypedDict):
     """Configuration type definition for concurrency analysis.
 

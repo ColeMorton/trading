@@ -79,7 +79,7 @@
                 }
             },
             "allocation_score": 0.7385229306619905,
-            "allocation": 5.128256509774165,
+            "allocation": 5.128241923988954,
             "signal_quality_metrics": {
                 "signal_count": 69,
                 "avg_return": 0.006126254127795629,
@@ -206,7 +206,7 @@
                 }
             },
             "allocation_score": 3.236637253845355,
-            "allocation": 6.818508625636858,
+            "allocation": 6.818489232437222,
             "signal_quality_metrics": {
                 "signal_count": 55,
                 "avg_return": 0.00030319443374195605,
@@ -333,7 +333,7 @@
                 }
             },
             "allocation_score": 0.45847622247154746,
-            "allocation": 4.67792171001471,
+            "allocation": 4.677908405071564,
             "signal_quality_metrics": {
                 "signal_count": 102,
                 "avg_return": 0.0010869425351919856,
@@ -460,7 +460,7 @@
                 }
             },
             "allocation_score": 1.1882420340830513,
-            "allocation": 5.620680930425462,
+            "allocation": 5.620664944086902,
             "signal_quality_metrics": {
                 "signal_count": 74,
                 "avg_return": 0.0007352284672330833,
@@ -587,7 +587,7 @@
                 }
             },
             "allocation_score": 0.4363218140684043,
-            "allocation": 4.633466633021306,
+            "allocation": 4.633453454517274,
             "signal_quality_metrics": {
                 "signal_count": 129,
                 "avg_return": -0.0031344992001136112,
@@ -714,7 +714,7 @@
                 }
             },
             "allocation_score": 0.31332039194029077,
-            "allocation": 4.346895504211624,
+            "allocation": 4.346883140773088,
             "signal_quality_metrics": {
                 "signal_count": 52,
                 "avg_return": 0.0041992457234583365,
@@ -841,7 +841,7 @@
                 }
             },
             "allocation_score": 0.3873824560147374,
-            "allocation": 4.5284035419489985,
+            "allocation": 4.528390662265371,
             "signal_quality_metrics": {
                 "signal_count": 197,
                 "avg_return": -0.00011926294160482948,
@@ -968,7 +968,7 @@
                 }
             },
             "allocation_score": 0.9242410497884325,
-            "allocation": 5.354903702174354,
+            "allocation": 5.354888471759285,
             "signal_quality_metrics": {
                 "signal_count": 50,
                 "avg_return": -0.014180404779683577,
@@ -1095,7 +1095,7 @@
                 }
             },
             "allocation_score": 2.749810099386747,
-            "allocation": 6.6075655049698545,
+            "allocation": 6.607546711734565,
             "signal_quality_metrics": {
                 "signal_count": 36,
                 "avg_return": 0.0011736684364375926,
@@ -1147,7 +1147,7 @@
             "id": "LTC-USD",
             "performance": {
                 "expectancy_per_month": {
-                    "value": 10085.036371236793,
+                    "value": 10112.173454660671,
                     "description": "Expected monthly return"
                 }
             },
@@ -1161,11 +1161,11 @@
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 0.003819683959175447,
+                    "value": 0.0038197026790785234,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "total_expectancy": {
-                    "value": 1.2838422834611098,
+                    "value": 1.2838485754484497,
                     "description": "Total expected return for this strategy"
                 },
                 "multipliers": {
@@ -1221,8 +1221,8 @@
                     }
                 }
             },
-            "allocation_score": 0.5430433271587187,
-            "allocation": 4.833107768397463,
+            "allocation_score": 0.5432091088212287,
+            "allocation": 4.833378442036071,
             "signal_quality_metrics": {
                 "signal_count": 43,
                 "avg_return": -0.005244751845702877,
@@ -1349,7 +1349,7 @@
                 }
             },
             "allocation_score": 0.20126959109302364,
-            "allocation": 3.991377300300535,
+            "allocation": 3.9913659480267385,
             "signal_quality_metrics": {
                 "signal_count": 141,
                 "avg_return": 0.0013843754246803009,
@@ -1476,7 +1476,7 @@
                 }
             },
             "allocation_score": 0.3976569846629495,
-            "allocation": 4.551315015441584,
+            "allocation": 4.551302070593151,
             "signal_quality_metrics": {
                 "signal_count": 55,
                 "avg_return": -0.008866047739983323,
@@ -1603,7 +1603,7 @@
                 }
             },
             "allocation_score": 0.25263800467332104,
-            "allocation": 4.170183750328251,
+            "allocation": 4.170171889493218,
             "signal_quality_metrics": {
                 "signal_count": 225,
                 "avg_return": -4.718039922959975e-05,
@@ -1730,7 +1730,7 @@
                 }
             },
             "allocation_score": 0.31458453324624847,
-            "allocation": 4.350271224225859,
+            "allocation": 4.3502588511861,
             "signal_quality_metrics": {
                 "signal_count": 163,
                 "avg_return": 0.0020324459200915168,
@@ -1857,7 +1857,7 @@
                 }
             },
             "allocation_score": 0.19927455591809262,
-            "allocation": 3.983719114608481,
+            "allocation": 3.9837077841160937,
             "signal_quality_metrics": {
                 "signal_count": 89,
                 "avg_return": -0.0036591119436823285,
@@ -1984,7 +1984,7 @@
                 }
             },
             "allocation_score": 0.1535614545081386,
-            "allocation": 3.7885292477146217,
+            "allocation": 3.7885184723811784,
             "signal_quality_metrics": {
                 "signal_count": 82,
                 "avg_return": -0.0010443196023188766,
@@ -2111,7 +2111,7 @@
                 }
             },
             "allocation_score": 0.1684643659333452,
-            "allocation": 3.856788429556505,
+            "allocation": 3.8567774600803233,
             "signal_quality_metrics": {
                 "signal_count": 115,
                 "avg_return": 0.0020376307200569675,
@@ -2238,7 +2238,7 @@
                 }
             },
             "allocation_score": 0.35779286808249305,
-            "allocation": 4.4595623921576895,
+            "allocation": 4.459549708272033,
             "signal_quality_metrics": {
                 "signal_count": 39,
                 "avg_return": 0.013635930638914866,
@@ -2365,7 +2365,7 @@
                 }
             },
             "allocation_score": 0.08885066711740995,
-            "allocation": 3.409254312818429,
+            "allocation": 3.409244616218611,
             "signal_quality_metrics": {
                 "signal_count": 106,
                 "avg_return": 0.0005798523839617238,
@@ -2492,7 +2492,7 @@
                 }
             },
             "allocation_score": 0.10183767220273754,
-            "allocation": 3.500111054288571,
+            "allocation": 3.5001010992740436,
             "signal_quality_metrics": {
                 "signal_count": 74,
                 "avg_return": 0.01491873995758981,
@@ -2619,7 +2619,7 @@
                 }
             },
             "allocation_score": 0.13786898787231372,
-            "allocation": 3.7106075275116344,
+            "allocation": 3.710596973803118,
             "signal_quality_metrics": {
                 "signal_count": 55,
                 "avg_return": 0.0015928239077378625,
@@ -2746,7 +2746,7 @@
                 }
             },
             "allocation_score": 0.13180521736380352,
-            "allocation": 3.6785702004730467,
+            "allocation": 3.678559737885085,
             "signal_quality_metrics": {
                 "signal_count": 91,
                 "avg_return": -0.004579868979177196,
@@ -2792,200 +2792,6 @@
                         "sharpe": 0.08755660534476832
                     }
                 }
-            }
-        }
-    },
-    "portfolio_metrics": {
-        "concurrency": {
-            "total_concurrent_periods": {
-                "value": 1343,
-                "description": "Number of periods with concurrent positions"
-            },
-            "concurrency_ratio": {
-                "value": 0.9904129793510325,
-                "description": "Ratio of concurrent periods to total periods"
-            },
-            "exclusive_ratio": {
-                "value": 0.004424778761061947,
-                "description": "Ratio of periods with exactly one strategy in position"
-            },
-            "inactive_ratio": {
-                "value": 0.005162241887905605,
-                "description": "Ratio of periods with no active strategies"
-            },
-            "avg_concurrent_strategies": {
-                "value": 29.046701260192734,
-                "description": "Average number of concurrent strategies"
-            },
-            "max_concurrent_strategies": {
-                "value": 59,
-                "description": "Maximum number of concurrent strategies"
-            }
-        },
-        "efficiency": {
-            "efficiency_score": {
-                "value": 0.2741967043457838,
-                "description": "Risk-Adjusted Performance"
-            },
-            "total_expectancy": {
-                "value": 30976.383976665427,
-                "description": "Combined expected return across all strategies"
-            },
-            "multipliers": {
-                "diversification": {
-                    "value": 0.6723945658234745,
-                    "description": "Multiplier effect from strategy diversification"
-                },
-                "independence": {
-                    "value": 0.004447739065974796,
-                    "description": "Multiplier effect from strategy independence"
-                },
-                "activity": {
-                    "value": 0.9948377581120944,
-                    "description": "Multiplier effect from strategy activity levels"
-                }
-            }
-        },
-        "risk": {
-            "portfolio_metrics": {
-                "risk_concentration_index": {
-                    "value": 0.4923169705117412,
-                    "description": "Measure of risk concentration"
-                },
-                "total_portfolio_risk": {
-                    "value": 0.8406971546625506,
-                    "description": "Overall portfolio risk measure"
-                }
-            },
-            "combined_risk": {
-                "var_95": {
-                    "value": -0.06754076865865946,
-                    "description": "Combined Value at Risk (95% confidence)"
-                },
-                "cvar_95": {
-                    "value": -0.10273200254727366,
-                    "description": "Combined Conditional Value at Risk (95% confidence)"
-                },
-                "var_99": {
-                    "value": -0.11816419878912524,
-                    "description": "Combined Value at Risk (99% confidence)"
-                },
-                "cvar_99": {
-                    "value": -0.1658795735864631,
-                    "description": "Combined Conditional Value at Risk (99% confidence)"
-                }
-            }
-        },
-        "signals": {
-            "monthly_statistics": {
-                "mean": {
-                    "value": 0,
-                    "description": "Average number of signals per month"
-                },
-                "median": {
-                    "value": 0,
-                    "description": "Median number of signals per month"
-                },
-                "std_below": {
-                    "value": 0,
-                    "description": "One standard deviation below mean signals"
-                },
-                "std_above": {
-                    "value": 0,
-                    "description": "One standard deviation above mean signals"
-                }
-            },
-            "summary": {
-                "volatility": {
-                    "value": 0,
-                    "description": "Standard deviation of monthly signals"
-                },
-                "max_monthly": {
-                    "value": 0,
-                    "description": "Maximum signals in any month"
-                },
-                "min_monthly": {
-                    "value": 0,
-                    "description": "Minimum signals in any month"
-                },
-                "total": {
-                    "value": 0,
-                    "description": "Total number of signals across period"
-                }
-            }
-        },
-        "signal_quality": {
-            "avg_return": {
-                "value": 0.0005590335284298553,
-                "description": "Aggregate avg return"
-            },
-            "win_rate": {
-                "value": 0.49340698503207403,
-                "description": "Aggregate win rate"
-            },
-            "profit_factor": {
-                "value": 1.0700233827052976,
-                "description": "Aggregate profit factor"
-            },
-            "risk_reward_ratio": {
-                "value": 1.088283843909277,
-                "description": "Aggregate risk reward ratio"
-            },
-            "sharpe_ratio": {
-                "value": 0.011495602222414978,
-                "description": "Aggregate sharpe ratio"
-            },
-            "sortino_ratio": {
-                "value": 0.03722147092605689,
-                "description": "Aggregate sortino ratio"
-            },
-            "signal_efficiency": {
-                "value": 0.49340698503207403,
-                "description": "Aggregate signal efficiency"
-            },
-            "signal_consistency": {
-                "value": 0.9547860277004316,
-                "description": "Aggregate signal consistency"
-            },
-            "signal_quality_score": {
-                "value": 2.5696691793554556,
-                "description": "Aggregate signal quality score"
-            },
-            "calmar_ratio": {
-                "value": 0.005410697116499019,
-                "description": "Aggregate calmar ratio"
-            },
-            "max_drawdown": {
-                "value": 0.5327912654010954,
-                "description": "Aggregate max drawdown"
-            },
-            "signal_value_ratio": {
-                "value": 0.010598944461714102,
-                "description": "Aggregate signal value ratio"
-            },
-            "signal_conviction": {
-                "value": 0.02184723853958291,
-                "description": "Aggregate signal conviction"
-            },
-            "signal_timing_efficiency": {
-                "value": 0.1266373727017106,
-                "description": "Aggregate signal timing efficiency"
-            },
-            "signal_opportunity_cost": {
-                "value": 0.5013968969940786,
-                "description": "Aggregate signal opportunity cost"
-            },
-            "signal_reliability": {
-                "value": 0.7083595495202268,
-                "description": "Aggregate signal reliability"
-            },
-            "signal_risk_adjusted_return": {
-                "value": 0.0249497621368863,
-                "description": "Aggregate signal risk adjusted return"
-            },
-            "signal_count": {
-                "value": 5612,
-                "description": "Aggregate signal count"
             }
         }
     }

@@ -1,0 +1,239 @@
+"""Strategy object creation utilities for concurrency analysis.
+
+This module provides functionality for creating strategy objects from configuration and statistics.
+"""
+
+from typing import Dict, Any, TypedDict
+
+# Import types from the parent module
+from app.concurrency.tools.types import (
+    StrategyParameters,
+    StrategyPerformance,
+    StrategyRiskMetrics,
+    EfficiencyMetrics,
+    SignalMetrics,
+    Strategy,
+    SignalQualityMetrics
+)
+
+class StrategyParameter(TypedDict):
+    """Parameter definition with value and description."""
+    value: Any
+    description: str
+
+def create_strategy_object(
+    config: Dict[str, Any],
+    index: int,
+    stats: Dict[str, Any]
+) -> Strategy:
+    """Create a strategy object with the optimized structure.
+
+    Args:
+        config (Dict[str, Any]): Strategy configuration
+        index (int): Strategy index for ID generation
+        stats (Dict[str, Any]): Statistics containing risk and efficiency metrics
+
+    Returns:
+        Strategy: Strategy object with parameters, performance, risk metrics, and efficiency metrics
+    """
+    # Determine strategy type
+    strategy_type = config.get("STRATEGY_TYPE", "EMA")
+    
+    # Check if this is a MACD strategy based on the presence of SIGNAL_WINDOW
+    if "SIGNAL_WINDOW" in config and config["SIGNAL_WINDOW"] > 0:
+        strategy_type = "MACD"
+    
+    # Also check for explicit type field which might come from JSON portfolios
+    if "type" in config:
+        strategy_type = config["type"]
+    strategy_id = str(index)
+    
+    # Create base parameters
+    parameters: StrategyParameters = {
+        "ticker": {
+            "value": config["TICKER"],
+            "description": "Ticker symbol to analyze"
+        },
+        "timeframe": {
+            "value": "Hourly" if config.get("USE_HOURLY", False) else "Daily",
+            "description": "Trading timeframe (Hourly or Daily)"
+        },
+        "type": {
+            "value": strategy_type,
+            "description": "Strategy type (MACD, SMA, or EMA)"
+        },
+        "direction": {
+            "value": config.get("DIRECTION", "Long"),
+            "description": "Trading direction (Long or Short)"
+        },
+        "short_window": {
+            "value": config["SHORT_WINDOW"],
+            "description": "Period for short moving average or MACD fast line"
+        },
+        "long_window": {
+            "value": config["LONG_WINDOW"],
+            "description": "Period for long moving average or MACD slow line"
+        }
+    }
+    
+    # Add signal_window for MACD strategies
+    if strategy_type == "MACD" and "SIGNAL_WINDOW" in config:
+        parameters["signal_window"] = {
+            "value": config["SIGNAL_WINDOW"],
+            "description": "Period for MACD signal line"
+        }
+    
+    # Add RSI parameters if present
+    if config.get("USE_RSI", False) and "RSI_WINDOW" in config:
+        parameters["rsi_period"] = {
+            "value": config["RSI_WINDOW"],
+            "description": "Period for RSI calculation"
+        }
+        parameters["rsi_threshold"] = {
+            "value": config["RSI_THRESHOLD"],
+            "description": "RSI threshold for signal filtering"
+        }
+    
+    # Add stop loss if present
+    if "STOP_LOSS" in config:
+        parameters["stop_loss"] = {
+            "value": config["STOP_LOSS"],
+            "description": "Stop loss percentage"
+        }
+    
+    performance: StrategyPerformance = {
+        "expectancy_per_month": {
+            "value": config.get("EXPECTANCY_PER_MONTH", 0.0),
+            "description": "Expected monthly return"
+        }
+    }
+    
+    # Extract strategy-specific risk metrics
+    risk_metrics_data = stats.get('risk_metrics', {})
+    
+    risk_metrics: StrategyRiskMetrics = {
+        "var_95": {
+            "value": risk_metrics_data.get(f"strategy_{strategy_id}_var_95", 0.0),
+            "description": "Value at Risk (95% confidence)"
+        },
+        "cvar_95": {
+            "value": risk_metrics_data.get(f"strategy_{strategy_id}_cvar_95", 0.0),
+            "description": "Conditional Value at Risk (95% confidence)"
+        },
+        "var_99": {
+            "value": risk_metrics_data.get(f"strategy_{strategy_id}_var_99", 0.0),
+            "description": "Value at Risk (99% confidence)"
+        },
+        "cvar_99": {
+            "value": risk_metrics_data.get(f"strategy_{strategy_id}_cvar_99", 0.0),
+            "description": "Conditional Value at Risk (99% confidence)"
+        },
+        "risk_contribution": {
+            "value": risk_metrics_data.get(f"strategy_{strategy_id}_risk_contrib", 0.0),
+            "description": "Contribution to portfolio risk"
+        },
+        "alpha": {
+            "value": risk_metrics_data.get(f"strategy_{strategy_id}_alpha", 0.0),
+            "description": "Strategy alpha relative to portfolio"
+        }
+    }
+    
+    # Get strategy-specific efficiency metrics
+    strategy_metrics = stats.get("strategy_efficiency_metrics", {})
+    
+    efficiency: EfficiencyMetrics = {
+        "efficiency_score": {
+            "value": strategy_metrics.get(f"strategy_{strategy_id}_efficiency_score", 0.0),
+            "description": "Risk-adjusted performance score for this strategy"
+        },
+        "total_expectancy": {
+            "value": strategy_metrics.get(f"strategy_{strategy_id}_expectancy", config.get("EXPECTANCY_PER_MONTH", 0.0)),
+            "description": "Total expected return for this strategy"
+        },
+        "multipliers": {
+            "diversification": {
+                "value": strategy_metrics.get(f"strategy_{strategy_id}_diversification", 0.0),
+                "description": "Strategy-specific diversification effect"
+            },
+            "independence": {
+                "value": strategy_metrics.get(f"strategy_{strategy_id}_independence", 0.0),
+                "description": "Strategy-specific independence from other strategies"
+            },
+            "activity": {
+                "value": strategy_metrics.get(f"strategy_{strategy_id}_activity", 0.0),
+                "description": "Strategy-specific activity level impact"
+            }
+        }
+    }
+
+    # Get strategy-specific signal metrics
+    signal_metrics = stats.get("signal_metrics", {})
+    strategy_key = f"strategy_{index}"
+    
+    # Calculate mean signals per month for this strategy
+    mean_signals = signal_metrics.get(f"{strategy_key}_mean_signals", 0.0)
+    median_signals = signal_metrics.get(f"{strategy_key}_median_signals", 0.0)
+    std_signals = signal_metrics.get(f"{strategy_key}_signal_volatility", 0.0)
+    total_signals = signal_metrics.get(f"{strategy_key}_total_signals", 0.0)
+    max_monthly = signal_metrics.get(f"{strategy_key}_max_monthly_signals", 0.0)
+    min_monthly = signal_metrics.get(f"{strategy_key}_min_monthly_signals", 0.0)
+    
+    signals: SignalMetrics = {
+        "monthly_statistics": {
+            "mean": {
+                "value": mean_signals,
+                "description": "Average number of signals per month"
+            },
+            "median": {
+                "value": median_signals,
+                "description": "Median number of signals per month"
+            },
+            "std_below": {
+                "value": max(0.0, mean_signals - std_signals),
+                "description": "One standard deviation below mean signals"
+            },
+            "std_above": {
+                "value": mean_signals + std_signals,
+                "description": "One standard deviation above mean signals"
+            }
+        },
+        "summary": {
+            "volatility": {
+                "value": std_signals,
+                "description": "Standard deviation of monthly signals"
+            },
+            "max_monthly": {
+                "value": max_monthly,
+                "description": "Maximum signals in any month"
+            },
+            "min_monthly": {
+                "value": min_monthly,
+                "description": "Minimum signals in any month"
+            },
+            "total": {
+                "value": total_signals,
+                "description": "Total number of signals across period"
+            }
+        }
+    }
+    
+    # Get strategy-specific signal quality metrics if available
+    signal_quality_metrics_data = stats.get("signal_quality_metrics", {}).get(f"strategy_{strategy_id}", {})
+    
+    # Only include signal quality metrics if they exist
+    strategy_obj: Strategy = {
+        "id": f"strategy_{strategy_id}",
+        "parameters": parameters,
+        "performance": performance,
+        "risk_metrics": risk_metrics,
+        "efficiency": efficiency,
+        "signals": signals,
+        "allocation_score": stats.get(f"strategy_{int(strategy_id)+1}_allocation", 0.0),
+        "allocation": stats.get(f"strategy_{int(strategy_id)+1}_allocation_percentage", 0.0)
+    }
+    
+    # Add signal quality metrics if available
+    if signal_quality_metrics_data:
+        strategy_obj["signal_quality_metrics"] = signal_quality_metrics_data
+    
+    return strategy_obj
