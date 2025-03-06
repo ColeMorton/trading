@@ -718,11 +718,21 @@ def generate_json_report(
         
         # Create report
         strategy_objects.sort(key=lambda x: x.get("allocation", 0.0), reverse=True)
+        
+        # Check if strategies should be included in the report
+        include_strategies = True
+        if "REPORT_INCLUDES" in config and "STRATEGIES" in config["REPORT_INCLUDES"]:
+            include_strategies = config["REPORT_INCLUDES"]["STRATEGIES"]
+        
+        # Create the report with or without strategies based on configuration
         report: ConcurrencyReport = {
-            "strategies": strategy_objects,
             "ticker_metrics": ticker_metrics,
             "portfolio_metrics": portfolio_metrics
         }
+        
+        # Only include strategies if configured to do so
+        if include_strategies:
+            report["strategies"] = strategy_objects
         
         log("Successfully generated JSON report", "info")
         return report

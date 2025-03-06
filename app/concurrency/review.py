@@ -48,6 +48,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     "RATIO_BASED_ALLOCATION": True,
     "CSV_USE_HOURLY": False,
     "REPORT_INCLUDES": {
+        "STRATEGIES": False,
         "STRATEGY_RELATIONSHIPS": False
     }
 }

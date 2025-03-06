@@ -15,8 +15,10 @@ class ReportIncludesConfig(TypedDict):
 
     Required Fields:
         STRATEGY_RELATIONSHIPS (bool): Whether to include strategy relationships in the report
+        STRATEGIES (bool): Whether to include the strategies object in the report
     """
     STRATEGY_RELATIONSHIPS: bool
+    STRATEGIES: bool
 
 class ConcurrencyConfig(TypedDict):
     """Configuration for concurrency analysis.
