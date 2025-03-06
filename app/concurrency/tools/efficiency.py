@@ -278,9 +278,8 @@ def apply_ratio_based_allocation(
         raise
 
 def calculate_allocation_scores(
-    strategy_expectancies: List[float],
     strategy_risk_contributions: List[float],
-    strategy_alphas: List[float],
+    strategy_signal_quality_scores: List[float],
     strategy_efficiencies: List[float],
     strategy_tickers: List[str],  # Added parameter for ticker mapping
     log: Callable[[str, str], None],
@@ -291,7 +290,7 @@ def calculate_allocation_scores(
     Args:
         strategy_expectancies (List[float]): List of strategy expectancies
         strategy_risk_contributions (List[float]): List of risk contributions
-        strategy_alphas (List[float]): List of strategy alphas
+        strategy_signal_quality_scores (List[float]): List of strategy signal quality scores
         strategy_efficiencies (List[float]): List of strategy efficiencies
         strategy_tickers (List[str]): List of tickers corresponding to each strategy
         log: Callable[[str, str], None]
@@ -302,22 +301,33 @@ def calculate_allocation_scores(
     """
     try:
         log("Calculating allocation scores", "info")
+        log(f"Number of strategies: {len(strategy_efficiencies)}", "info")
+        log(f"Raw strategy efficiencies: {strategy_efficiencies}", "info")
+        
+        # Log each strategy's efficiency individually
+        for i, efficiency in enumerate(strategy_efficiencies):
+            log(f"Strategy {i} raw efficiency: {efficiency}", "info")
 
         # Normalize the metrics
-        normalized_expectancies = normalize_values(strategy_expectancies)
         normalized_risks = normalize_risk_values(strategy_risk_contributions)
-        normalized_alphas = normalize_values(strategy_alphas)
+        normalized_signal_quality_scores = normalize_values(strategy_signal_quality_scores)
         normalized_efficiencies = normalize_values(strategy_efficiencies)
 
         # Calculate raw allocation scores
         allocation_scores = []
-        for i in range(len(strategy_expectancies)):
-            allocation_score = (
-                (0.35 * normalized_efficiencies[i]) +
-                (0.30 * normalized_expectancies[i]) +
-                (0.25 * normalized_risks[i]) +
-                (0.10 * normalized_alphas[i])
-            )
+        for i in range(len(strategy_efficiencies)):
+            efficiency_component = 1 * normalized_efficiencies[i]
+            risk_component = 0.65 * normalized_risks[i]
+            signal_quality_component = 0.618 * normalized_signal_quality_scores[i]
+            
+            allocation_score = efficiency_component + risk_component + signal_quality_component
+            
+            log(f"Strategy {i} allocation components:", "info")
+            log(f"  Efficiency component (0.35 * {normalized_efficiencies[i]:.4f}): {efficiency_component:.4f}", "info")
+            log(f"  Risk component (0.30 * {normalized_risks[i]:.4f}): {risk_component:.4f}", "info")
+            log(f"  Signal quality component (0.25 * {normalized_signal_quality_scores[i]:.4f}): {signal_quality_component:.4f}", "info")
+            log(f"  Total allocation score: {allocation_score:.4f}", "info")
+            
             allocation_scores.append(allocation_score)
 
         # Group strategies by ticker
@@ -342,7 +352,7 @@ def calculate_allocation_scores(
         )
 
         # Distribute ticker allocations to strategies proportionally
-        allocation_percentages = [0.0] * len(strategy_expectancies)
+        allocation_percentages = [0.0] * len(strategy_efficiencies)
         for ticker, strategies in ticker_strategies.items():
             ticker_total_score = sum(allocation_scores[i] for i in strategies)
             if ticker_total_score > 0:

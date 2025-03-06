@@ -285,10 +285,10 @@ def analyze_concurrency(
         except Exception as e:
             log(f"Error calculating aggregate signal quality metrics: {str(e)}", "error")
 
-        # Extract strategy risk contributions, alphas, and efficiencies for allocation
+        # Extract strategy risk contributions, signal quality scores, and efficiencies for allocation
         strategy_risk_contributions = [risk_metrics.get(f"strategy_{i+1}_risk_contrib", 0.0) for i in range(len(config_list))]
-        strategy_alphas = [risk_metrics.get(f"strategy_{i+1}_alpha", 0.0) for i in range(len(config_list))]
-        allocation_efficiencies = [efficiency_metrics[0] for i in range(len(config_list))]
+        strategy_signal_quality_scores = [risk_metrics.get(f"strategy_{i+1}_alpha", 0.0) for i in range(len(config_list))]
+        allocation_efficiencies = [efficiency[0] for efficiency in strategy_efficiencies]
 
         # Extract tickers from configs
         strategy_tickers = [config.get('TICKER', '') for config in config_list]
@@ -296,9 +296,8 @@ def analyze_concurrency(
         # Calculate allocation scores
         log("Calculating allocation scores", "info")
         allocation_scores, allocation_percentages = calculate_allocation_scores(
-            strategy_expectancies,
             strategy_risk_contributions,
-            strategy_alphas,
+            strategy_signal_quality_scores,
             allocation_efficiencies,
             strategy_tickers,  # Add strategy_tickers parameter
             log,

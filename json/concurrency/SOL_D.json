@@ -249,7 +249,7 @@
         },
         "signal_quality": {
             "avg_return": {
-                "value": 0.004343698560047832,
+                "value": 0.004351010072012121,
                 "description": "Aggregate avg return"
             },
             "win_rate": {
@@ -257,19 +257,19 @@
                 "description": "Aggregate win rate"
             },
             "profit_factor": {
-                "value": 1.285530569864771,
+                "value": 1.2859704431098884,
                 "description": "Aggregate profit factor"
             },
             "risk_reward_ratio": {
-                "value": 1.2902571577769621,
+                "value": 1.2907097995691463,
                 "description": "Aggregate risk reward ratio"
             },
             "sharpe_ratio": {
-                "value": 0.07128188123593902,
+                "value": 0.0714095153275789,
                 "description": "Aggregate sharpe ratio"
             },
             "sortino_ratio": {
-                "value": 0.14061890237017877,
+                "value": 0.14083221780622415,
                 "description": "Aggregate sortino ratio"
             },
             "signal_efficiency": {
@@ -277,15 +277,15 @@
                 "description": "Aggregate signal efficiency"
             },
             "signal_consistency": {
-                "value": 0.9388975269649359,
+                "value": 0.9388948313312508,
                 "description": "Aggregate signal consistency"
             },
             "signal_quality_score": {
-                "value": 2.7022264432163787,
+                "value": 2.70243166872474,
                 "description": "Aggregate signal quality score"
             },
             "calmar_ratio": {
-                "value": 0.013925927891605443,
+                "value": 0.013944038891720521,
                 "description": "Aggregate calmar ratio"
             },
             "max_drawdown": {
@@ -293,11 +293,11 @@
                 "description": "Aggregate max drawdown"
             },
             "signal_value_ratio": {
-                "value": 0.027057666891514596,
+                "value": 0.027092871795636866,
                 "description": "Aggregate signal value ratio"
             },
             "signal_conviction": {
-                "value": 0.02860535418429945,
+                "value": 0.02860213957269138,
                 "description": "Aggregate signal conviction"
             },
             "signal_timing_efficiency": {
@@ -305,7 +305,7 @@
                 "description": "Aggregate signal timing efficiency"
             },
             "signal_opportunity_cost": {
-                "value": 0.5108494547181314,
+                "value": 0.5108677050610113,
                 "description": "Aggregate signal opportunity cost"
             },
             "signal_reliability": {
@@ -313,7 +313,7 @@
                 "description": "Aggregate signal reliability"
             },
             "signal_risk_adjusted_return": {
-                "value": 0.0738330127530717,
+                "value": 0.07392245738395835,
                 "description": "Aggregate signal risk adjusted return"
             },
             "signal_count": {
@@ -1133,26 +1133,26 @@
             "allocation": 7.498062934620879,
             "signal_quality_metrics": {
                 "signal_count": 206,
-                "avg_return": 0.011091563194306122,
+                "avg_return": 0.011128972580764184,
                 "win_rate": 0.5194174757281553,
-                "profit_factor": 1.7817966772138474,
-                "avg_win": 0.04866766669324544,
+                "profit_factor": 1.7844335042793538,
+                "avg_win": 0.04873968850268806,
                 "avg_loss": -0.029520993112628287,
-                "risk_reward_ratio": 1.648578234057672,
-                "expectancy_per_signal": 0.011091563194306122,
-                "sharpe_ratio": 0.1892103134768939,
-                "sortino_ratio": 0.3493411242519741,
-                "calmar_ratio": 0.04026732943671583,
+                "risk_reward_ratio": 1.6510179151743554,
+                "expectancy_per_signal": 0.011128972580764184,
+                "sharpe_ratio": 0.18981401119865954,
+                "sortino_ratio": 0.3505193745034395,
+                "calmar_ratio": 0.0404031422218159,
                 "max_drawdown": 0.2754481945900493,
                 "signal_efficiency": 0.5194174757281553,
-                "signal_consistency": 0.944625764977164,
-                "signal_value_ratio": 0.07830488630946099,
-                "signal_conviction": 0.06307010449229797,
+                "signal_consistency": 0.9446162669059371,
+                "signal_value_ratio": 0.07856860759865729,
+                "signal_conviction": 0.06327133706621985,
                 "signal_timing_efficiency": 0.15052492979738402,
-                "signal_opportunity_cost": 0.5277005155212597,
+                "signal_opportunity_cost": 0.527793750970991,
                 "signal_reliability": 0.6886905036545133,
-                "signal_risk_adjusted_return": 0.20830100502220447,
-                "signal_quality_score": 3.042967213663087,
+                "signal_risk_adjusted_return": 0.20896561383692824,
+                "signal_quality_score": 3.0445873150529117,
                 "best_horizon": 1,
                 "horizon_metrics": {
                     "1": {
@@ -1646,26 +1646,26 @@
             "allocation": 6.844722333663215,
             "signal_quality_metrics": {
                 "signal_count": 198,
-                "avg_return": -0.0011483742000297338,
+                "avg_return": -0.0011094533232097296,
                 "win_rate": 0.4595959595959596,
-                "profit_factor": 0.942767599209601,
-                "avg_win": 0.04115948281652124,
+                "profit_factor": 0.9447073286298705,
+                "avg_win": 0.041244167801250474,
                 "avg_loss": -0.0371298226907413,
-                "risk_reward_ratio": 1.1085289353343661,
-                "expectancy_per_signal": -0.0011483742000297338,
-                "sharpe_ratio": -0.02132557134861352,
-                "sortino_ratio": -0.030838963013703785,
-                "calmar_ratio": -0.0015200553492512583,
+                "risk_reward_ratio": 1.1108097160812764,
+                "expectancy_per_signal": -0.0011094533232097296,
+                "sharpe_ratio": -0.02059480905319367,
+                "sortino_ratio": -0.029793764087533245,
+                "calmar_ratio": -0.0014685373971705994,
                 "max_drawdown": 0.755481832023679,
                 "signal_efficiency": 0.4595959595959596,
-                "signal_consistency": 0.948901976399998,
-                "signal_value_ratio": -0.0029624388743931663,
-                "signal_conviction": 0.0071085237828711735,
+                "signal_consistency": 0.9488831592629513,
+                "signal_value_ratio": -0.002862007802093629,
+                "signal_conviction": 0.006864936351064557,
                 "signal_timing_efficiency": 0.14334547166383216,
-                "signal_opportunity_cost": 0.49712909605021277,
+                "signal_opportunity_cost": 0.4972263951418612,
                 "signal_reliability": 0.7032882730925356,
-                "signal_risk_adjusted_return": -0.007611048005828613,
-                "signal_quality_score": 2.42358160528144,
+                "signal_risk_adjusted_return": -0.007350240601404646,
+                "signal_quality_score": 2.424080971368919,
                 "best_horizon": 5,
                 "horizon_metrics": {
                     "1": {

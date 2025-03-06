@@ -52,7 +52,7 @@ def analyze_parameter_combination(
         stats = portfolio.stats()
         stats['Change PCT'] = change_pct
         converted_stats = convert_stats(stats, log, config)
-        converted_stats['Current'] = int(current)
+        converted_stats['Signal Entry'] = current
         
         return converted_stats
         

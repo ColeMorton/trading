@@ -6,24 +6,21 @@ It aggregates and analyzes the performance of both SMA and EMA strategies across
 multiple tickers, calculating key metrics like expectancy and Trades Per Day.
 """
 
-from typing import Callable
-import polars as pl
-from pathlib import Path
 from app.tools.setup_logging import setup_logging
 from app.ma_cross.tools.summary_processing import (
     process_ticker_portfolios,
     export_summary_results
 )
 from app.tools.portfolio import (
-    load_portfolio,
-    resolve_portfolio_path
+    load_portfolio
 )
 
 # Default Configuration
 config = {
     # "PORTFOLIO": '20241202.csv',
+    "PORTFOLIO": 'BTC_d_next.csv',
     # "PORTFOLIO": 'DAILY.csv',
-    "PORTFOLIO": "20250306_0745_D.csv",
+    # "PORTFOLIO": "20250306_0745_D.csv",
     # "PORTFOLIO": 'HOURLY Crypto.csv',
     "USE_CURRENT": False,
     "USE_HOURLY": False,

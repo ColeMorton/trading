@@ -1,6 +1,6 @@
 import polars as pl
 from typing import List, Dict
-from datetime import datetime, date, timedelta
+from datetime import date, timedelta
 
 # Cache for last trading day
 _LAST_TRADING_DAY = None

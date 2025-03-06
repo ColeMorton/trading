@@ -50,13 +50,13 @@ def calculate_signal_metrics(
             
             # Extract signals (non-zero values in the Position column indicate signal changes)
             df_pd['signal'] = df_pd['Position'].diff().fillna(0)
-            signals = df_pd[df_pd['signal'] != 0]
+            signals = df_pd[df_pd['signal'] != 0].copy()  # Create an explicit copy
             
             # Add to all signals for portfolio metrics
             all_signals.append(signals)
             
             # Calculate monthly signal counts
-            signals['month'] = signals.index.to_period('M')
+            signals.loc[:, 'month'] = signals.index.to_period('M')
             monthly_counts = signals.groupby('month').size()
             
             # Calculate metrics
@@ -87,7 +87,7 @@ def calculate_signal_metrics(
         # Calculate portfolio-level metrics
         if all_signals:
             # Combine all signals
-            combined_signals = pd.concat(all_signals)
+            combined_signals = pd.concat(all_signals).copy()  # Create an explicit copy
             
             # Ensure index is properly set for period operations
             if not isinstance(combined_signals.index, pd.DatetimeIndex):
@@ -98,7 +98,7 @@ def calculate_signal_metrics(
                         combined_signals = combined_signals.set_index(col)
                         break
             
-            combined_signals['month'] = combined_signals.index.to_period('M')
+            combined_signals.loc[:, 'month'] = combined_signals.index.to_period('M')
             
             # Calculate monthly counts across all strategies
             portfolio_monthly_counts = combined_signals.groupby('month').size()
