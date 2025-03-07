@@ -65,7 +65,7 @@ def execute_single_strategy(
             log(f"Failed to calculate signals for {ticker}", "error")
             return None
             
-        # Run backtest using app/ma_cross/tools/backtest_strategy.py
+        # Run backtest using app/tools/backtest_strategy.py
         portfolio = backtest_strategy(data, config, log)
         if portfolio is None:
             return None
