@@ -135,6 +135,48 @@ def run_analysis(config: Dict[str, Any]) -> bool:
     finally:
         log_close()
 
+def run_concurrency_review(portfolio_name: str, config_overrides: Dict[str, Any] = None) -> bool:
+    """Run concurrency review with a specific portfolio file and configuration overrides.
+    
+    Args:
+        portfolio_name (str): Name of the portfolio file (with or without extension)
+        config_overrides (Dict[str, Any], optional): Configuration overrides to apply
+        
+    Returns:
+        bool: True if analysis completed successfully, False otherwise
+    """
+    # Create a copy of the default config
+    config = DEFAULT_CONFIG.copy()
+    
+    # Set the portfolio name
+    if not portfolio_name.endswith('.json') and not portfolio_name.endswith('.csv'):
+        # Try to determine the extension
+        csv_path = Path(f"csv/portfolios/{portfolio_name}.csv")
+        json_path = Path(f"json/portfolios/{portfolio_name}.json")
+        
+        if csv_path.exists():
+            portfolio_name = f"{portfolio_name}.csv"
+        elif json_path.exists():
+            portfolio_name = f"{portfolio_name}.json"
+        else:
+            # Default to CSV if we can't determine
+            portfolio_name = f"{portfolio_name}.csv"
+    
+    config["PORTFOLIO"] = portfolio_name
+    
+    # Apply any config overrides
+    if config_overrides:
+        for key, value in config_overrides.items():
+            if isinstance(value, dict) and key in config and isinstance(config[key], dict):
+                # Merge dictionaries for nested configs
+                config[key].update(value)
+            else:
+                # Replace value for simple configs
+                config[key] = value
+    
+    # Run the analysis
+    return run_analysis(config)
+
 if __name__ == "__main__":
     try:
         success = run_analysis(DEFAULT_CONFIG)

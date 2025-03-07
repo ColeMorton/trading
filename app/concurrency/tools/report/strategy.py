@@ -235,4 +235,52 @@ def create_strategy_object(
     if signal_quality_metrics_data:
         strategy_obj["signal_quality_metrics"] = signal_quality_metrics_data
     
+    # Add all portfolio metrics from the CSV file
+    if hasattr(config, 'items'):  # Check if config is a dict-like object
+        # Create a dictionary to store all portfolio metrics
+        portfolio_metrics = {}
+        
+        # List of metrics to exclude (already included in other sections)
+        exclude_metrics = [
+            "TICKER", "SHORT_WINDOW", "LONG_WINDOW", "SIGNAL_WINDOW",
+            "USE_HOURLY", "USE_RSI", "RSI_WINDOW", "RSI_THRESHOLD",
+            "STOP_LOSS", "DIRECTION", "STRATEGY_TYPE", "EXPECTANCY_PER_MONTH",
+            "BASE_DIR", "REFRESH", "USE_SMA", "SMA", "EMA", "PORTFOLIO_STATS",
+            "type", "Short Window", "Long Window", "Signal Window"
+        ]
+        
+        # Add all metrics from the config
+        for key, value in config.items():
+            if key not in exclude_metrics and not key.startswith("_"):
+                # Convert to proper format with value and description
+                portfolio_metrics[key] = {
+                    "value": value,
+                    "description": f"{key} metric from portfolio data"
+                }
+        
+        # Add all metrics from the portfolio stats if available
+        if "PORTFOLIO_STATS" in config and isinstance(config["PORTFOLIO_STATS"], dict):
+            portfolio_stats = config["PORTFOLIO_STATS"]
+            
+            # Additional metrics to exclude
+            additional_exclude = [
+                "EXPECTANCY_PER_MONTH",  # Already included in other sections
+                "Short Window", "Long Window", "Signal Window"  # Explicitly excluded as requested
+            ]
+            
+            for key, value in portfolio_stats.items():
+                # Skip keys that are excluded
+                if key in additional_exclude:
+                    continue
+                
+                # Convert to proper format with value and description
+                portfolio_metrics[key] = {
+                    "value": value,
+                    "description": f"{key} from portfolio analysis"
+                }
+        
+        # Only add the portfolio_metrics field if there are metrics to include
+        if portfolio_metrics:
+            strategy_obj["portfolio_metrics"] = portfolio_metrics
+    
     return strategy_obj

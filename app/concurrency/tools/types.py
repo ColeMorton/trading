@@ -102,6 +102,7 @@ class Strategy(TypedDict):
     signals: Dict[str, Dict[str, Dict[str, Union[float, str]]]]
     signal_value: NotRequired[SignalValueMetrics]  # Field for signal value metrics
     signal_quality_metrics: NotRequired[SignalQualityMetrics]  # Field for signal quality metrics
+    portfolio_metrics: NotRequired[Dict[str, Dict[str, Union[float, str]]]]  # Field for all portfolio metrics from CSV
     allocation_score: float
     allocation: float
 
