@@ -87,6 +87,118 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
             if "RSI_THRESHOLD" in config and config["RSI_THRESHOLD"] is not None:
                 stats_dict['RSI Threshold'] = config["RSI_THRESHOLD"]
             
+            # Add additional risk metrics from VectorBT
+            try:
+                # Get returns accessor
+                returns_acc = self.returns_acc
+                
+                # Get the returns series
+                returns_series = self.returns()
+                
+                # Calculate metrics using pandas methods on the returns series
+                try:
+                    stats_dict['Skew'] = returns_series.skew()
+                    log(f"Calculated Skew: {stats_dict['Skew']}", "debug")
+                except Exception as e:
+                    log(f"Could not calculate Skew: {e}", "warning")
+                
+                try:
+                    stats_dict['Kurtosis'] = returns_series.kurtosis()
+                    log(f"Calculated Kurtosis: {stats_dict['Kurtosis']}", "debug")
+                except Exception as e:
+                    log(f"Could not calculate Kurtosis: {e}", "warning")
+                
+                # Calculate Tail Ratio manually
+                try:
+                    positive_returns = returns_series[returns_series > 0]
+                    negative_returns = returns_series[returns_series < 0]
+                    if len(negative_returns) > 0 and len(positive_returns) > 0:
+                        stats_dict['Tail Ratio'] = positive_returns.mean() / abs(negative_returns.mean())
+                    else:
+                        stats_dict['Tail Ratio'] = None
+                    log(f"Calculated Tail Ratio: {stats_dict['Tail Ratio']}", "debug")
+                except Exception as e:
+                    log(f"Could not calculate Tail Ratio: {e}", "warning")
+                
+                # Calculate Common Sense Ratio manually
+                try:
+                    if len(returns_series) > 0:
+                        win_rate = len(returns_series[returns_series > 0]) / len(returns_series)
+                        stats_dict['Common Sense Ratio'] = win_rate / (1 - win_rate) if win_rate < 1 else float('inf')
+                    else:
+                        stats_dict['Common Sense Ratio'] = None
+                    log(f"Calculated Common Sense Ratio: {stats_dict['Common Sense Ratio']}", "debug")
+                except Exception as e:
+                    log(f"Could not calculate Common Sense Ratio: {e}", "warning")
+                
+                # Calculate Value at Risk (VaR)
+                try:
+                    stats_dict['Value at Risk'] = returns_series.quantile(0.05)
+                    log(f"Calculated Value at Risk: {stats_dict['Value at Risk']}", "debug")
+                except Exception as e:
+                    log(f"Could not calculate Value at Risk: {e}", "warning")
+                
+                # Try to calculate Alpha and Beta if benchmark returns are available
+                try:
+                    # Check if benchmark returns are available
+                    if hasattr(self, 'benchmark_returns') and self.benchmark_returns is not None:
+                        benchmark_returns = self.benchmark_returns
+                        # Calculate Beta (covariance of returns with benchmark / variance of benchmark)
+                        beta = returns_series.cov(benchmark_returns) / benchmark_returns.var()
+                        stats_dict['Beta'] = beta
+                        
+                        # Calculate Alpha (excess return over what would be predicted by beta)
+                        risk_free_rate = 0.0  # Assuming 0 risk-free rate for simplicity
+                        alpha = returns_series.mean() - risk_free_rate - beta * (benchmark_returns.mean() - risk_free_rate)
+                        stats_dict['Alpha'] = alpha
+                    else:
+                        stats_dict['Alpha'] = None
+                        stats_dict['Beta'] = None
+                    log(f"Calculated Alpha: {stats_dict['Alpha']}, Beta: {stats_dict['Beta']}", "debug")
+                except Exception as e:
+                    log(f"Could not calculate Alpha/Beta: {e}", "warning")
+                    stats_dict['Alpha'] = None
+                    stats_dict['Beta'] = None
+                
+                # Log the calculated risk metrics
+                log(f"Calculated risk metrics: Skew={stats_dict.get('Skew')}, Kurtosis={stats_dict.get('Kurtosis')}, " +
+                    f"Tail Ratio={stats_dict.get('Tail Ratio')}, Common Sense Ratio={stats_dict.get('Common Sense Ratio')}, " +
+                    f"Value at Risk={stats_dict.get('Value at Risk')}, Alpha={stats_dict.get('Alpha')}, Beta={stats_dict.get('Beta')}", "debug")
+                
+                # Add additional return metrics
+                # Convert Series/DataFrames to scalar values for CSV export
+                try:
+                    # Daily returns (mean of returns)
+                    stats_dict['Daily Returns'] = returns_series.mean()
+                    
+                    # Calculate annual returns
+                    freq = self.freq
+                    periods_per_year = {'D': 252, 'h': 252*24, 'min': 252*24*60}.get(freq, 252)
+                    stats_dict['Annual Returns'] = returns_series.mean() * periods_per_year
+                    
+                    # Cumulative returns
+                    stats_dict['Cumulative Returns'] = (1 + returns_series).prod() - 1
+                    
+                    # Annualized return
+                    stats_dict['Annualized Return'] = (1 + stats_dict['Cumulative Returns']) ** (periods_per_year / len(returns_series)) - 1
+                    
+                    # Annualized volatility
+                    stats_dict['Annualized Volatility'] = returns_series.std() * (periods_per_year ** 0.5)
+                    
+                    log(f"Calculated return metrics: Daily Returns={stats_dict['Daily Returns']}, " +
+                        f"Annual Returns={stats_dict['Annual Returns']}, Cumulative Returns={stats_dict['Cumulative Returns']}, " +
+                        f"Annualized Return={stats_dict['Annualized Return']}, Annualized Volatility={stats_dict['Annualized Volatility']}", "debug")
+                except Exception as e:
+                    log(f"Could not calculate some return metrics: {e}", "warning")
+                    # Set failed metrics to None to ensure they're included in the CSV
+                    stats_dict['Daily Returns'] = None
+                    stats_dict['Annual Returns'] = None
+                    stats_dict['Cumulative Returns'] = None
+                    stats_dict['Annualized Return'] = None
+                    stats_dict['Annualized Volatility'] = None
+            except Exception as e:
+                log(f"Could not calculate additional risk metrics: {e}", "warning")
+            
             return stats_dict
         
         # Attach the custom stats method to the portfolio instance

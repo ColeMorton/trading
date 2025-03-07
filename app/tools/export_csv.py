@@ -228,10 +228,46 @@ def export_csv(
         if os.path.exists(full_path):
             os.remove(full_path)
         
-        # Export based on DataFrame type
+        # Check for specific metrics before export
+        risk_metrics = ['Skew', 'Kurtosis', 'Tail Ratio', 'Common Sense Ratio', 'Value at Risk', 'Alpha', 'Beta',
+                        'Daily Returns', 'Annual Returns', 'Cumulative Returns', 'Annualized Return', 'Annualized Volatility']
+        
         if isinstance(data, pl.DataFrame):
+            # Check which metrics are present in the DataFrame
+            present_metrics = [metric for metric in risk_metrics if metric in data.columns]
+            missing_metrics = [metric for metric in risk_metrics if metric not in data.columns]
+            
+            if log:
+                if present_metrics:
+                    log(f"Risk metrics present in final export data: {', '.join(present_metrics)}")
+                if missing_metrics:
+                    log(f"Risk metrics missing from final export data: {', '.join(missing_metrics)}", "warning")
+                
+                # Check for null values in metrics
+                for metric in present_metrics:
+                    if data[metric].null_count() == len(data):
+                        log(f"Metric '{metric}' has all null values in export data", "warning")
+            
+            # Export the DataFrame
             data.write_csv(full_path, separator=",")
+            
         elif isinstance(data, pd.DataFrame):
+            # Check which metrics are present in the DataFrame
+            present_metrics = [metric for metric in risk_metrics if metric in data.columns]
+            missing_metrics = [metric for metric in risk_metrics if metric not in data.columns]
+            
+            if log:
+                if present_metrics:
+                    log(f"Risk metrics present in final export data: {', '.join(present_metrics)}")
+                if missing_metrics:
+                    log(f"Risk metrics missing from final export data: {', '.join(missing_metrics)}", "warning")
+                
+                # Check for null values in metrics
+                for metric in present_metrics:
+                    if data[metric].isnull().all():
+                        log(f"Metric '{metric}' has all null values in export data", "warning")
+            
+            # Export the DataFrame
             data.to_csv(full_path, index=False)
         else:
             raise TypeError("Data must be either a DataFrame or list of dictionaries")

@@ -189,6 +189,19 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
                 log(f"Error calculating average trade duration for {ticker}: {str(e)}", "error")
             stats['Avg Trade Duration'] = str(avg_duration)
             
+        # Check for risk metrics in the input stats
+        risk_metrics = ['Skew', 'Kurtosis', 'Tail Ratio', 'Common Sense Ratio', 'Value at Risk', 'Alpha', 'Beta',
+                        'Daily Returns', 'Annual Returns', 'Cumulative Returns', 'Annualized Return', 'Annualized Volatility']
+        
+        present_metrics = [metric for metric in risk_metrics if metric in stats]
+        missing_metrics = [metric for metric in risk_metrics if metric not in stats]
+        
+        if present_metrics:
+            log(f"Risk metrics present in stats for {ticker}: {', '.join(present_metrics)}", "info")
+        
+        if missing_metrics:
+            log(f"Risk metrics missing from stats for {ticker}: {', '.join(missing_metrics)}", "warning")
+        
         # Initialize converted dictionary before any processing
         converted = {}
             
@@ -198,10 +211,29 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
             if param in stats:
                 converted[param] = int(stats[param])
         
+        # Ensure risk metrics are preserved
+        risk_metrics = ['Skew', 'Kurtosis', 'Tail Ratio', 'Common Sense Ratio', 'Value at Risk', 'Alpha', 'Beta',
+                        'Daily Returns', 'Annual Returns', 'Cumulative Returns', 'Annualized Return', 'Annualized Volatility']
+        
         # Then handle the rest of the stats
         for k, v in stats.items():
             if k not in window_params:
-                if k == 'Start' or k == 'End':
+                # Special handling for risk metrics to ensure they're preserved
+                if k in risk_metrics and v is not None:
+                    # Convert pandas Series or DataFrame to scalar if needed
+                    if hasattr(v, 'iloc') and hasattr(v, 'size') and v.size == 1:
+                        try:
+                            converted[k] = v.iloc[0]
+                            log(f"Converted {k} from Series/DataFrame to scalar: {converted[k]}", "debug")
+                        except Exception as e:
+                            log(f"Error converting {k} to scalar: {str(e)}", "error")
+                            converted[k] = v
+                    else:
+                        converted[k] = v
+                    
+                    # Log the value being preserved
+                    log(f"Preserving risk metric {k} = {converted[k]}", "debug")
+                elif k == 'Start' or k == 'End':
                     converted[k] = v.strftime('%Y-%m-%d %H:%M:%S') if isinstance(v, datetime) else str(v)
                 elif isinstance(v, pd.Timedelta):
                     converted[k] = str(v)

@@ -173,11 +173,47 @@ def export_portfolios(
         # This allows different scripts to export to different directories
         feature1 = feature_dir
         
+        # Ensure all return metrics are included in the export
+        # List of metrics that should be included in the export
+        return_metrics = [
+            "Daily Returns",
+            "Annual Returns",
+            "Cumulative Returns",
+            "Annualized Return",
+            "Annualized Volatility",
+            "Skew",
+            "Kurtosis",
+            "Tail Ratio",
+            "Common Sense Ratio",
+            "Value at Risk",
+            "Alpha",
+            "Beta"
+        ]
+        
         # Remove 'RSI Window' column if it exists
         if "RSI Window" in df.columns:
             df = df.drop("RSI Window")
             if log:
                 log("Removed 'RSI Window' column from export data", "info")
+                
+        # Log which return metrics are included in the export
+        included_metrics = [metric for metric in return_metrics if metric in df.columns]
+        missing_metrics = [metric for metric in return_metrics if metric not in df.columns]
+        
+        if log and included_metrics:
+            log(f"Including return metrics in export: {', '.join(included_metrics)}", "info")
+            
+        if log and missing_metrics:
+            log(f"Missing return metrics in export: {', '.join(missing_metrics)}", "warning")
+            
+        # Check if any metrics are present in the DataFrame but have null values
+        null_metrics = []
+        for metric in included_metrics:
+            if df.get_column(metric).null_count() == len(df):
+                null_metrics.append(metric)
+                
+        if log and null_metrics:
+            log(f"Return metrics with all null values: {', '.join(null_metrics)}", "warning")
         
         return export_csv(
             data=df,
