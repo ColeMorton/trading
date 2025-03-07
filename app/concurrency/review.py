@@ -50,6 +50,12 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     "REPORT_INCLUDES": {
         "STRATEGIES": True,
         "STRATEGY_RELATIONSHIPS": False
+    },
+    "ENSURE_COUNTERPART": True,
+    "INITIAL_VALUE": 19726.55,
+    "TARGET_VAR": 0.05,
+    "MAX_RISK": {
+        "STRATEGY": 169.771951300664
     }
 }
 

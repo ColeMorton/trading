@@ -1,0 +1,4 @@
+Ticker,Use SMA,Short Window,Long Window
+TRX-USD,false,10,34
+TRX-USD,false,11,32
+TRX-USD,true,10,27
