@@ -163,8 +163,8 @@ def calculate_risk_contributions(
 
                 # Calculate Alpha (excess return over benchmark)
                 alpha = strategy_returns[i] - benchmark_return
-                risk_contributions[f"strategy_{i+1}_alpha"] = float(alpha)
-                log(f"Strategy {i+1} alpha: {alpha:.4f}", "info")
+                risk_contributions[f"strategy_{i+1}_alpha_to_portfolio"] = float(alpha)
+                log(f"Strategy {i+1} alpha to portfolio: {alpha:.4f}", "info")
 
                 # Calculate pairwise risk overlaps
                 for j in range(i+1, n_strategies):

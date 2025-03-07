@@ -93,16 +93,16 @@ def create_stats_annotation(
         log("Processing strategy risk contributions and alphas", "info")
         strategy_nums = sorted(list({k.split('_')[1] for k in risk_metrics.keys() 
                                    if k.startswith('strategy_') and 
-                                   (k.endswith('_risk_contrib') or k.endswith('_alpha'))}))
+                                   (k.endswith('_risk_contrib') or k.endswith('_alpha_to_portfolio'))}))
         
         for strategy_num in strategy_nums:
             risk_key = f"strategy_{strategy_num}_risk_contrib"
-            alpha_key = f"strategy_{strategy_num}_alpha"
+            alpha_key = f"strategy_{strategy_num}_alpha_to_portfolio"
             
             if risk_key in risk_metrics:
                 stats_text += f"Strategy {strategy_num} Risk Contribution: {risk_metrics[risk_key]:.2%}<br>"
             if alpha_key in risk_metrics:
-                stats_text += f"Strategy {strategy_num} Alpha: {risk_metrics[alpha_key]:.4%}<br>"
+                stats_text += f"Strategy {strategy_num} Alpha to Portfolio: {risk_metrics[alpha_key]:.4%}<br>"
             
             # Add VaR and CVaR metrics
             var_95_key = f"strategy_{strategy_num}_var_95"

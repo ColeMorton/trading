@@ -132,8 +132,8 @@ def create_strategy_object(
             "value": risk_metrics_data.get(f"strategy_{strategy_id}_risk_contrib", 0.0),
             "description": "Contribution to portfolio risk"
         },
-        "alpha": {
-            "value": risk_metrics_data.get(f"strategy_{strategy_id}_alpha", 0.0),
+        "alpha_to_portfolio": {
+            "value": risk_metrics_data.get(f"strategy_{strategy_id}_alpha_to_portfolio", 0.0),
             "description": "Strategy alpha relative to portfolio"
         }
     }

@@ -34,7 +34,7 @@ from app.tools.portfolio import (
 # Default configuration
 DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "stock_portfolio_h_20250221.json",  # Updated to use an existing portfolio file
-    "PORTFOLIO": "btc_d_20250307.json",
+    "PORTFOLIO": "total_d_20250307.csv",
     # "PORTFOLIO": "crypto_d_20250306.json",
     # "PORTFOLIO": "macd_test.json",
     # "PORTFOLIO": "stock_trades_20250306_next.csv",

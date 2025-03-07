@@ -66,7 +66,7 @@ def create_sample_data() -> tuple:
         "strategy_1_var_95": -0.05,
         "strategy_1_cvar_95": -0.07,
         "strategy_1_risk_contrib": 0.5,
-        "strategy_1_alpha": 0.0002
+        "strategy_1_alpha_to_portfolio": 0.0002
     }
     
     return signals_df, returns_df, risk_metrics

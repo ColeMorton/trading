@@ -287,7 +287,7 @@ def analyze_concurrency(
 
         # Extract strategy risk contributions, signal quality scores, and efficiencies for allocation
         strategy_risk_contributions = [risk_metrics.get(f"strategy_{i+1}_risk_contrib", 0.0) for i in range(len(config_list))]
-        strategy_signal_quality_scores = [risk_metrics.get(f"strategy_{i+1}_alpha", 0.0) for i in range(len(config_list))]
+        strategy_signal_quality_scores = [risk_metrics.get(f"strategy_{i+1}_alpha_to_portfolio", 0.0) for i in range(len(config_list))]
         allocation_efficiencies = [efficiency[0] for efficiency in strategy_efficiencies]
 
         # Extract tickers from configs

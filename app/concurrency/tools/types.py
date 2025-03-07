@@ -26,7 +26,7 @@ class StrategyRiskMetrics(TypedDict):
     var_99: Dict[str, Union[float, str]]
     cvar_99: Dict[str, Union[float, str]]
     risk_contribution: Dict[str, Union[float, str]]
-    alpha: Dict[str, Union[float, str]]
+    alpha_to_portfolio: Dict[str, Union[float, str]]
 
 class SignalQualityMetrics(TypedDict):
     """Signal quality metrics for a strategy."""

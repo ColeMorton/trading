@@ -178,13 +178,13 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                             log_func(f"Calculated Alpha: {stats_dict['Alpha']}, Beta: {stats_dict['Beta']}", "debug")
                         else:
                             log_func("Benchmark returns have zero variance, cannot calculate Beta", "warning")
-                            stats_dict['Alpha'] = 0.0
-                            stats_dict['Beta'] = 1.0
+                            stats_dict['Alpha'] = None
+                            stats_dict['Beta'] = None
                     else:
                         # Fallback to fixed values if benchmark data is not available
                         log_func("Setting Alpha and Beta to fixed values as benchmark data is not available", "debug")
-                        stats_dict['Alpha'] = 0.0
-                        stats_dict['Beta'] = 1.0
+                        stats_dict['Alpha'] = None
+                        stats_dict['Beta'] = None
                         log_func(f"Set Alpha: {stats_dict['Alpha']}, Beta: {stats_dict['Beta']}", "debug")
                 except Exception as e:
                     log_func(f"Could not calculate Alpha/Beta: {e}", "warning")
