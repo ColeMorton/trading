@@ -59,9 +59,9 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         # Calculate adjusted performance metrics
         try:
             stats['Expectancy Adjusted'] = (
-                stats['Expectancy'] *
-                min(1, 0.01 * stats['Win Rate [%]'] / 0.66) *
-                min(1, stats['Total Closed Trades'] / 66)
+                stats['Expectancy per Trade'] *
+                min(1, 0.01 * stats['Win Rate [%]'] / 0.65) *
+                min(1, stats['Total Closed Trades'] / 65)
             )
             
             # Calculate Beats BNH percentage
@@ -150,8 +150,7 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         stats['Signals per Month'] = total_signals / months_in_period
         
         # Calculate expectancy per month
-        expectancy = stats['Expectancy']
-        stats['Expectancy per Month'] = stats['Trades per Month'] * expectancy
+        stats['Expectancy per Month'] = stats['Trades per Month'] * stats['Expectancy per Trade']
         
         log(f"Calculated metrics for {ticker}: Trades per Month={stats['Trades per Month']:.2f}, " +
             f"Signals per Month={stats['Signals per Month']:.2f}, " +

@@ -185,7 +185,6 @@ def main(config: ConcurrencyConfig) -> bool:
         # Load portfolio from JSON or CSV
         log("Loading portfolio configuration", "info")
         try:
-            portfolio_path = get_portfolio_path(config)
             # Use the filename for load_portfolio, not the full path
             portfolio_filename = Path(config["PORTFOLIO"]).name
             strategies = load_portfolio(portfolio_filename, log, config)

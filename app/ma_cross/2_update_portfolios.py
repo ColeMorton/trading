@@ -17,10 +17,10 @@ from app.tools.portfolio import (
 
 # Default Configuration
 config = {
-    # "PORTFOLIO": '20241202.csv',
-    "PORTFOLIO": 'total_d_20250307.csv',
+    # "PORTFOLIO": 'stock_trades_20250307.csv',
+    # "PORTFOLIO": 'total_d_20250307.csv',
     # "PORTFOLIO": 'DAILY_crypto.csv',
-    # "PORTFOLIO": 'DAILY.csv',
+    "PORTFOLIO": 'DAILY_test.csv',
     # "PORTFOLIO": "20250306_0745_D.csv",
     # "PORTFOLIO": 'HOURLY Crypto.csv',
     "USE_CURRENT": False,

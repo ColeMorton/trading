@@ -45,3 +45,43 @@ def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
         transformed_data.append(metric_data)
     
     return pl.concat(transformed_data)
+
+
+def reorder_columns(portfolio: Dict) -> Dict:
+    """
+    Reorder columns to match required format.
+
+    Args:
+        portfolio (Dict): Portfolio statistics
+
+    Returns:
+        Dict: Portfolio with reordered columns
+    """
+    first_columns = [
+        'Ticker',
+        'Use SMA',
+        'Short Window',
+        'Long Window',
+        'Total Trades',
+        'Win Rate [%]',
+        'Profit Factor',
+        'Trades Per Day',
+        'Expectancy per Trade',
+        'Expectancy Adjusted',
+        'Trades per Month',
+        'Signals per Month',
+        'Expectancy per Month',
+        'Sortino Ratio'
+    ]
+    
+    reordered = {}
+    # Add first columns in specified order
+    for col in first_columns:
+        reordered[col] = portfolio[col]
+    
+    # Add remaining columns
+    for key, value in portfolio.items():
+        if key not in first_columns:
+            reordered[key] = value
+            
+    return reordered

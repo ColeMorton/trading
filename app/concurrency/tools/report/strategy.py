@@ -12,8 +12,7 @@ from app.concurrency.tools.types import (
     StrategyRiskMetrics,
     EfficiencyMetrics,
     SignalMetrics,
-    Strategy,
-    SignalQualityMetrics
+    Strategy
 )
 
 class StrategyParameter(TypedDict):

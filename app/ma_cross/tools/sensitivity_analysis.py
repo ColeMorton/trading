@@ -4,45 +4,7 @@ from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.ma_cross.tools.signal_generation import is_signal_current
 from app.tools.stats_converter import convert_stats
 from app.tools.backtest_strategy import backtest_strategy
-
-def reorder_columns(portfolio: Dict) -> Dict:
-    """
-    Reorder columns to match required format.
-
-    Args:
-        portfolio (Dict): Portfolio statistics
-
-    Returns:
-        Dict: Portfolio with reordered columns
-    """
-    first_columns = [
-        'Ticker',
-        'Use SMA',
-        'Short Window',
-        'Long Window',
-        'Total Trades',
-        'Win Rate [%]',
-        'Profit Factor',
-        'Trades Per Day',
-        'Expectancy',
-        'Expectancy Adjusted',
-        'Trades per Month',
-        'Signals per Month',
-        'Expectancy per Month',
-        'Sortino Ratio'
-    ]
-    
-    reordered = {}
-    # Add first columns in specified order
-    for col in first_columns:
-        reordered[col] = portfolio[col]
-    
-    # Add remaining columns
-    for key, value in portfolio.items():
-        if key not in first_columns:
-            reordered[key] = value
-            
-    return reordered
+from app.tools.portfolio_transformation import reorder_columns
 
 def analyze_window_combination(
     data: pl.DataFrame,

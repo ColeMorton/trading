@@ -148,6 +148,25 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                 except Exception as e:
                     log_func(f"Could not calculate Common Sense Ratio: {e}", "warning")
                 
+                # Calculate Expectancy per Trade using the traditional formula
+                try:
+                    if 'Win Rate [%]' in stats_dict and 'Avg Winning Trade [%]' in stats_dict and 'Avg Losing Trade [%]' in stats_dict:
+                        win_rate = stats_dict['Win Rate [%]'] / 100.0  # Convert percentage to decimal
+                        avg_win = stats_dict['Avg Winning Trade [%]']
+                        avg_loss = abs(stats_dict['Avg Losing Trade [%]'])  # Ensure positive value for calculation
+                        
+                        # Apply the formula: Expectancy = (Win Rate × Average Win) - ((1 - Win Rate) × Average Loss)
+                        expectancy_per_trade = (win_rate * avg_win) - ((1 - win_rate) * avg_loss)
+                        stats_dict['Expectancy per Trade'] = expectancy_per_trade
+                        
+                        log_func(f"Calculated Expectancy per Trade: {expectancy_per_trade}", "debug")
+                    else:
+                        log_func("Missing required metrics for Expectancy per Trade calculation", "warning")
+                        stats_dict['Expectancy per Trade'] = None
+                except Exception as e:
+                    log_func(f"Could not calculate Expectancy per Trade: {e}", "warning")
+                    stats_dict['Expectancy per Trade'] = None
+                
                 # Calculate Value at Risk (VaR)
                 try:
                     stats_dict['Value at Risk'] = returns_series.quantile(0.05)

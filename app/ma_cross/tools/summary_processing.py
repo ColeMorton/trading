@@ -11,6 +11,7 @@ from app.ma_cross.tools.process_ma_portfolios import process_ma_portfolios
 from app.tools.stats_converter import convert_stats
 from app.ma_cross.tools.export_portfolios import export_portfolios
 from app.tools.get_config import get_config
+from app.tools.portfolio_transformation import reorder_columns
 
 def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], log: Callable[[str, str], None]) -> Optional[List[dict]]:
     """
@@ -106,45 +107,6 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
     except Exception as e:
         log(f"Failed to process stats for {ticker}: {str(e)}", "error")
         return None
-
-def reorder_columns(portfolio: Dict) -> Dict:
-    """
-    Reorder columns to match required format.
-
-    Args:
-        portfolio (Dict): Portfolio statistics
-
-    Returns:
-        Dict: Portfolio with reordered columns
-    """
-    first_columns = [
-        'Ticker',
-        'Use SMA',
-        'Short Window',
-        'Long Window',
-        'Total Trades',
-        'Win Rate [%]',
-        'Profit Factor',
-        'Trades Per Day',
-        'Expectancy',
-        'Expectancy Adjusted',
-        'Trades per Month',
-        'Signals per Month',
-        'Expectancy per Month',
-        'Sortino Ratio'
-    ]
-    
-    reordered = {}
-    # Add first columns in specified order
-    for col in first_columns:
-        reordered[col] = portfolio[col]
-    
-    # Add remaining columns
-    for key, value in portfolio.items():
-        if key not in first_columns:
-            reordered[key] = value
-            
-    return reordered
 
 def export_summary_results(portfolios: List[Dict], portfolio_name: str, log: Callable[[str, str], None], config: Optional[Dict] = None) -> bool:
     """
