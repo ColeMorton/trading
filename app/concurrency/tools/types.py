@@ -18,6 +18,7 @@ class StrategyParameters(TypedDict):
 class StrategyPerformance(TypedDict):
     """Performance metrics for a strategy."""
     expectancy_per_month: Dict[str, Union[float, str]]
+    expectancy_per_trade: Dict[str, Union[float, str]]  # Expectancy per trade
 
 class StrategyRiskMetrics(TypedDict):
     """Risk metrics for a strategy."""

@@ -76,8 +76,8 @@ def calculate_signal_quality_metrics(
         # Risk-reward ratio
         risk_reward_ratio = abs(avg_win / avg_loss) if avg_loss != 0 else float('inf')
         
-        # Expectancy per signal
-        expectancy_per_signal = avg_return
+        # Expectancy per signal using traditional formula
+        expectancy_per_signal = (win_rate * avg_win) - ((1.0 - win_rate) * abs(avg_loss))
         
         # Risk-adjusted metrics
         sharpe_ratio = float(avg_return / np.std(signal_returns)) if np.std(signal_returns) > 0 else 0.0
@@ -226,8 +226,8 @@ def _calculate_metrics_for_strategy(
     # Risk-reward ratio
     risk_reward_ratio = abs(avg_win / avg_loss) if avg_loss != 0 else float('inf')
     
-    # Expectancy per signal
-    expectancy_per_signal = avg_return
+    # Expectancy per signal using traditional formula
+    expectancy_per_signal = (win_rate * avg_win) - ((1.0 - win_rate) * abs(avg_loss))
     
     # Risk-adjusted metrics
     sharpe_ratio = float(avg_return / np.std(signal_returns)) if np.std(signal_returns) > 0 else 0.0
