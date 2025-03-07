@@ -14,25 +14,23 @@ from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
 CONFIG: Config = {
-    # "TICKER": [
-    #     "HUM",
-    #     "CI",
-    #     "AMGN",
-    #     "TRMB",
-    #     "STLD",
-    #     "QCOM",
-    #     "PAYC",
-    #     "OKE",
-    #     "NTES",
-    #     "IDXX",
-    #     "BIDU",
-    #     "EQIX"
-    # ],
-    # "TICKER": [
-    #     "SPY",
-    #     "QQQ"
-    # ],
-    "TICKER": "LTC-USD",
+    "TICKER": [
+        "HUM",
+        "CI",
+        "AMGN",
+        "TRMB",
+        "STLD",
+        "QCOM",
+        "PAYC",
+        "OKE",
+        "NTES",
+        "IDXX",
+        "BIDU",
+        "EQIX",
+        "SPY",
+        "QQQ"
+    ],
+    # "TICKER": "LTC-USD",
     "TICKER_2": 'LTC-USD',
     "WINDOWS": 89,
     # "WINDOWS": 120,
@@ -47,7 +45,7 @@ CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     # "MIN_TRADES": 38,
     # "MIN_WIN_RATE": 0.38,
     "MIN_WIN_RATE": 0.5,

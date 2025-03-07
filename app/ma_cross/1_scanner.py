@@ -53,10 +53,10 @@ config: Config = {
     # "PORTFOLIO": 'HOURLY Crypto.csv',
     # "PORTFOLIO": '20241202.csv',
     # "PORTFOLIO": 'DAILY_test.csv',
-    "PORTFOLIO": 'DAILY_crypto.csv',
-    # "PORTFOLIO": 'DAILY.csv',
+    # "PORTFOLIO": 'DAILY_crypto.csv',
+    "PORTFOLIO": 'DAILY.csv',
     # "PORTFOLIO": 'BTC_SOL_D.csv',
-    # "PORTFOLIO": '20241206.csv',
+    # "PORTFOLIO": 'btc_20250307.csv',
     "USE_HOURLY": False,
     "REFRESH": True,
     "DIRECTION": "Long"  # Default to Long position
