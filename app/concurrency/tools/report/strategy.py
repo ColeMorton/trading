@@ -100,12 +100,7 @@ def create_strategy_object(
             "description": "Stop loss percentage"
         }
     
-    performance: StrategyPerformance = {
-        "expectancy_per_month": {
-            "value": config.get("EXPECTANCY_PER_MONTH", 0.0),
-            "description": "Expected monthly return"
-        }
-    }
+    # Performance object removed as requested
     
     # Extract strategy-specific risk metrics
     risk_metrics_data = stats.get('risk_metrics', {})
@@ -223,7 +218,7 @@ def create_strategy_object(
     strategy_obj: Strategy = {
         "id": f"strategy_{strategy_id}",
         "parameters": parameters,
-        "performance": performance,
+        # Remove performance object as requested
         "risk_metrics": risk_metrics,
         "efficiency": efficiency,
         "signals": signals,

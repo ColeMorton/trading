@@ -2,12 +2,6 @@
     "ticker_metrics": {
         "DLTR": {
             "id": "DLTR",
-            "performance": {
-                "expectancy_per_month": {
-                    "value": 1.3578783059084176,
-                    "description": "Expected monthly return"
-                }
-            },
             "risk_metrics": {
                 "var_95": -0.027456270448389684,
                 "cvar_95": -0.05355054092664,
@@ -129,12 +123,6 @@
         },
         "ON": {
             "id": "ON",
-            "performance": {
-                "expectancy_per_month": {
-                    "value": 1.9450579000675547,
-                    "description": "Expected monthly return"
-                }
-            },
             "risk_metrics": {
                 "var_95": -0.045860604242560464,
                 "cvar_95": -0.059252332862971484,
@@ -256,12 +244,6 @@
         },
         "DOCN": {
             "id": "DOCN",
-            "performance": {
-                "expectancy_per_month": {
-                    "value": 2.541592277749656,
-                    "description": "Expected monthly return"
-                }
-            },
             "risk_metrics": {
                 "var_95": -0.053076625487567405,
                 "cvar_95": -0.08949147222951737,
@@ -603,12 +585,6 @@
                 "long_window": {
                     "value": 56,
                     "description": "Period for long moving average or MACD slow line"
-                }
-            },
-            "performance": {
-                "expectancy_per_month": {
-                    "value": 2.541592277749656,
-                    "description": "Expected monthly return"
                 }
             },
             "risk_metrics": {
@@ -970,12 +946,6 @@
                     "description": "Period for long moving average or MACD slow line"
                 }
             },
-            "performance": {
-                "expectancy_per_month": {
-                    "value": 1.9450579000675547,
-                    "description": "Expected monthly return"
-                }
-            },
             "risk_metrics": {
                 "var_95": {
                     "value": -0.045860604242560464,
@@ -1333,12 +1303,6 @@
                 "long_window": {
                     "value": 21,
                     "description": "Period for long moving average or MACD slow line"
-                }
-            },
-            "performance": {
-                "expectancy_per_month": {
-                    "value": 1.3578783059084176,
-                    "description": "Expected monthly return"
                 }
             },
             "risk_metrics": {

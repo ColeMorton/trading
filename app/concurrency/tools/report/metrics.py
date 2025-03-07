@@ -33,12 +33,7 @@ def calculate_ticker_metrics(strategies: List[Strategy], ratio_based_allocation:
         if ticker not in ticker_metrics:
             ticker_metrics[ticker] = {
                 "id": ticker,
-                "performance": {
-                    "expectancy_per_month": {
-                        "value": strategy["performance"]["expectancy_per_month"]["value"],
-                        "description": strategy["performance"]["expectancy_per_month"]["description"]
-                    }
-                },
+                # Remove performance object as requested
                 "risk_metrics": {k: v["value"] for k, v in strategy["risk_metrics"].items()},
                 "efficiency": strategy["efficiency"],
                 "signals": strategy["signals"],
@@ -51,7 +46,7 @@ def calculate_ticker_metrics(strategies: List[Strategy], ratio_based_allocation:
                 ticker_metrics[ticker]["signal_quality_metrics"] = strategy["signal_quality_metrics"]
         else:
             # Aggregate values for existing ticker
-            ticker_metrics[ticker]["performance"]["expectancy_per_month"]["value"] += strategy["performance"]["expectancy_per_month"]["value"]
+            # Performance object removed as requested
             
             # Average risk metrics
             num_strategies = len(strategies) # Dynamic

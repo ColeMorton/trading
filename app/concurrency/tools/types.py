@@ -96,7 +96,7 @@ class Strategy(TypedDict):
     """Complete strategy definition."""
     id: str
     parameters: StrategyParameters
-    performance: StrategyPerformance
+    # performance field removed as requested
     risk_metrics: StrategyRiskMetrics
     efficiency: Dict[str, Union[Dict[str, Union[float, str]], Dict[str, Dict[str, Union[float, str]]]]]
     signals: Dict[str, Dict[str, Dict[str, Union[float, str]]]]
@@ -108,7 +108,7 @@ class Strategy(TypedDict):
 
 class Ticker(TypedDict):
     id: str
-    performance: StrategyPerformance
+    # performance field removed as requested
     risk_metrics: StrategyRiskMetrics
     allocation: Dict[str, Union[float, str]]
 
