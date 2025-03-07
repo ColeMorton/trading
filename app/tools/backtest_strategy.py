@@ -7,7 +7,8 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
     Backtest the MA cross strategy.
     
     Args:
-        data: Price data with signals
+        data: Price data with signals. If a 'Benchmark Return [%]' column is included,
+              it will be used to calculate Alpha and Beta metrics.
         config: Configuration dictionary containing:
             - USE_HOURLY (bool): Whether to use hourly data
             - DIRECTION (str): 'Long' or 'Short' for position direction
@@ -20,7 +21,8 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
         log: Logging function for recording events and errors
         
     Returns:
-        Portfolio object with backtest results
+        Portfolio object with backtest results including performance metrics.
+        If benchmark data is provided, Alpha and Beta will be calculated.
     """
     try:
         freq = 'h' if config.get('USE_HOURLY', False) else 'D'
@@ -67,46 +69,61 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
         
         portfolio = vbt.Portfolio.from_signals(**params)
         
-        # Create a custom stats method that includes window parameters
+        # Store the log function and config as attributes of the portfolio object
+        # This makes them available when stats() is called later
+        portfolio._log = log
+        portfolio._config = config
+        portfolio._data_pd = data_pd
+        
+        # Define the stats method that will use the stored attributes
         def stats(self) -> Dict[str, Any]:
-            original_stats = super(type(portfolio), self).stats()
+            """
+            Calculate portfolio statistics with additional metrics.
+            
+            Returns:
+                Dict[str, Any]: Dictionary of portfolio statistics
+            """
+            # Access the stored attributes
+            log_func = self._log
+            config_obj = self._config
+            data_pd = self._data_pd
+            
+            # Get original stats from parent class
+            original_stats = super(type(self), self).stats()
             stats_dict = {k: v for k, v in original_stats.items()}
             
             # Add window parameters
-            stats_dict['Short Window'] = config.get('short_window', 0)
-            stats_dict['Long Window'] = config.get('long_window', 0)
-            stats_dict['Signal Window'] = config.get('signal_window', 0)
+            stats_dict['Short Window'] = config_obj.get('short_window', 0)
+            stats_dict['Long Window'] = config_obj.get('long_window', 0)
+            stats_dict['Signal Window'] = config_obj.get('signal_window', 0)
             
             # Add optional parameters
-            if "STOP_LOSS" in config and config["STOP_LOSS"] is not None:
-                stats_dict['Stop Loss'] = config["STOP_LOSS"]
+            if "STOP_LOSS" in config_obj and config_obj["STOP_LOSS"] is not None:
+                stats_dict['Stop Loss'] = config_obj["STOP_LOSS"]
             
-            if "RSI_WINDOW" in config and config["RSI_WINDOW"] is not None:
-                stats_dict['RSI Window'] = config["RSI_WINDOW"]
+            if "RSI_WINDOW" in config_obj and config_obj["RSI_WINDOW"] is not None:
+                stats_dict['RSI Window'] = config_obj["RSI_WINDOW"]
                 
-            if "RSI_THRESHOLD" in config and config["RSI_THRESHOLD"] is not None:
-                stats_dict['RSI Threshold'] = config["RSI_THRESHOLD"]
+            if "RSI_THRESHOLD" in config_obj and config_obj["RSI_THRESHOLD"] is not None:
+                stats_dict['RSI Threshold'] = config_obj["RSI_THRESHOLD"]
             
             # Add additional risk metrics from VectorBT
             try:
-                # Get returns accessor
-                returns_acc = self.returns_acc
-                
                 # Get the returns series
                 returns_series = self.returns()
                 
                 # Calculate metrics using pandas methods on the returns series
                 try:
                     stats_dict['Skew'] = returns_series.skew()
-                    log(f"Calculated Skew: {stats_dict['Skew']}", "debug")
+                    log_func(f"Calculated Skew: {stats_dict['Skew']}", "debug")
                 except Exception as e:
-                    log(f"Could not calculate Skew: {e}", "warning")
+                    log_func(f"Could not calculate Skew: {e}", "warning")
                 
                 try:
                     stats_dict['Kurtosis'] = returns_series.kurtosis()
-                    log(f"Calculated Kurtosis: {stats_dict['Kurtosis']}", "debug")
+                    log_func(f"Calculated Kurtosis: {stats_dict['Kurtosis']}", "debug")
                 except Exception as e:
-                    log(f"Could not calculate Kurtosis: {e}", "warning")
+                    log_func(f"Could not calculate Kurtosis: {e}", "warning")
                 
                 # Calculate Tail Ratio manually
                 try:
@@ -116,9 +133,9 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                         stats_dict['Tail Ratio'] = positive_returns.mean() / abs(negative_returns.mean())
                     else:
                         stats_dict['Tail Ratio'] = None
-                    log(f"Calculated Tail Ratio: {stats_dict['Tail Ratio']}", "debug")
+                    log_func(f"Calculated Tail Ratio: {stats_dict['Tail Ratio']}", "debug")
                 except Exception as e:
-                    log(f"Could not calculate Tail Ratio: {e}", "warning")
+                    log_func(f"Could not calculate Tail Ratio: {e}", "warning")
                 
                 # Calculate Common Sense Ratio manually
                 try:
@@ -127,32 +144,55 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                         stats_dict['Common Sense Ratio'] = win_rate / (1 - win_rate) if win_rate < 1 else float('inf')
                     else:
                         stats_dict['Common Sense Ratio'] = None
-                    log(f"Calculated Common Sense Ratio: {stats_dict['Common Sense Ratio']}", "debug")
+                    log_func(f"Calculated Common Sense Ratio: {stats_dict['Common Sense Ratio']}", "debug")
                 except Exception as e:
-                    log(f"Could not calculate Common Sense Ratio: {e}", "warning")
+                    log_func(f"Could not calculate Common Sense Ratio: {e}", "warning")
                 
                 # Calculate Value at Risk (VaR)
                 try:
                     stats_dict['Value at Risk'] = returns_series.quantile(0.05)
-                    log(f"Calculated Value at Risk: {stats_dict['Value at Risk']}", "debug")
+                    log_func(f"Calculated Value at Risk: {stats_dict['Value at Risk']}", "debug")
                 except Exception as e:
-                    log(f"Could not calculate Value at Risk: {e}", "warning")
+                    log_func(f"Could not calculate Value at Risk: {e}", "warning")
                 
                 # Alpha and Beta calculation
                 try:
-                    # For now, set Alpha and Beta to fixed values since we don't have benchmark data
-                    # In a real implementation, you would need to provide benchmark data
-                    log("Setting Alpha and Beta to fixed values as benchmark data is not available", "debug")
-                    stats_dict['Alpha'] = 0.0
-                    stats_dict['Beta'] = 1.0
-                    log(f"Set Alpha: {stats_dict['Alpha']}, Beta: {stats_dict['Beta']}", "debug")
+                    # Check if benchmark data is available
+                    if 'Benchmark Return [%]' in data_pd.columns:
+                        # Get benchmark returns
+                        benchmark_returns = data_pd['Benchmark Return [%]'] / 100  # Convert percentage to decimal
+                        
+                        # Calculate Beta (covariance of returns with benchmark / variance of benchmark)
+                        if benchmark_returns.var() > 0:
+                            stats_dict['Beta'] = returns_series.cov(benchmark_returns) / benchmark_returns.var()
+                            
+                            # Calculate Alpha (portfolio return - risk free rate - beta * (benchmark return - risk free rate))
+                            # Risk-free rate is always 0 as specified
+                            risk_free_rate = 0.0
+                            stats_dict['Alpha'] = (returns_series.mean() - risk_free_rate) - \
+                                                stats_dict['Beta'] * (benchmark_returns.mean() - risk_free_rate)
+                            
+                            # Simplifies to: Alpha = returns_series.mean() - Beta * benchmark_returns.mean()
+                            # when risk_free_rate is 0
+                            
+                            log_func(f"Calculated Alpha: {stats_dict['Alpha']}, Beta: {stats_dict['Beta']}", "debug")
+                        else:
+                            log_func("Benchmark returns have zero variance, cannot calculate Beta", "warning")
+                            stats_dict['Alpha'] = 0.0
+                            stats_dict['Beta'] = 1.0
+                    else:
+                        # Fallback to fixed values if benchmark data is not available
+                        log_func("Setting Alpha and Beta to fixed values as benchmark data is not available", "debug")
+                        stats_dict['Alpha'] = 0.0
+                        stats_dict['Beta'] = 1.0
+                        log_func(f"Set Alpha: {stats_dict['Alpha']}, Beta: {stats_dict['Beta']}", "debug")
                 except Exception as e:
-                    log(f"Could not calculate Alpha/Beta: {e}", "warning")
+                    log_func(f"Could not calculate Alpha/Beta: {e}", "warning")
                     stats_dict['Alpha'] = None
                     stats_dict['Beta'] = None
                 
                 # Log the calculated risk metrics
-                log(f"Calculated risk metrics: Skew={stats_dict.get('Skew')}, Kurtosis={stats_dict.get('Kurtosis')}, " +
+                log_func(f"Calculated risk metrics: Skew={stats_dict.get('Skew')}, Kurtosis={stats_dict.get('Kurtosis')}, " +
                     f"Tail Ratio={stats_dict.get('Tail Ratio')}, Common Sense Ratio={stats_dict.get('Common Sense Ratio')}, " +
                     f"Value at Risk={stats_dict.get('Value at Risk')}, Alpha={stats_dict.get('Alpha')}, Beta={stats_dict.get('Beta')}", "debug")
                 
@@ -164,9 +204,9 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                     
                     # Calculate annual returns using the freq from the config
                     # Use the same freq that was used to create the portfolio
-                    freq_value = 'h' if config.get('USE_HOURLY', False) else 'D'
+                    freq_value = 'h' if config_obj.get('USE_HOURLY', False) else 'D'
                     periods_per_year = {'D': 252, 'h': 252*24, 'min': 252*24*60}.get(freq_value, 252)
-                    log(f"Using frequency: {freq_value} with {periods_per_year} periods per year", "debug")
+                    log_func(f"Using frequency: {freq_value} with {periods_per_year} periods per year", "debug")
                     
                     stats_dict['Annual Returns'] = returns_series.mean() * periods_per_year
                     
@@ -179,11 +219,11 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                     # Annualized volatility
                     stats_dict['Annualized Volatility'] = returns_series.std() * (periods_per_year ** 0.5)
                     
-                    log(f"Calculated return metrics: Daily Returns={stats_dict['Daily Returns']}, " +
+                    log_func(f"Calculated return metrics: Daily Returns={stats_dict['Daily Returns']}, " +
                         f"Annual Returns={stats_dict['Annual Returns']}, Cumulative Returns={stats_dict['Cumulative Returns']}, " +
                         f"Annualized Return={stats_dict['Annualized Return']}, Annualized Volatility={stats_dict['Annualized Volatility']}", "debug")
                 except Exception as e:
-                    log(f"Could not calculate some return metrics: {e}", "warning")
+                    log_func(f"Could not calculate some return metrics: {e}", "warning")
                     # Set failed metrics to None to ensure they're included in the CSV
                     stats_dict['Daily Returns'] = None
                     stats_dict['Annual Returns'] = None
@@ -191,11 +231,11 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                     stats_dict['Annualized Return'] = None
                     stats_dict['Annualized Volatility'] = None
             except Exception as e:
-                log(f"Could not calculate additional risk metrics: {e}", "warning")
+                log_func(f"Could not calculate additional risk metrics: {e}", "warning")
             
             return stats_dict
         
-        # Attach the custom stats method to the portfolio instance
+        # Attach the stats method to the portfolio instance
         portfolio.stats = stats.__get__(portfolio)
         
         return portfolio

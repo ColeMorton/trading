@@ -38,7 +38,7 @@ CONFIG: Config = {
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
     "BASE_DIR": ".",
-    "REFRESH": False,
+    "REFRESH": True,
     # "USE_SMA": False,
     "DIRECTION": "Long",
     "USE_HOURLY": False,
