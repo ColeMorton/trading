@@ -14,7 +14,7 @@ def calculate_strategy_efficiency(
     """Calculate individual strategy efficiency without allocation.
     
     Args:
-        expectancy (float): Strategy's raw expectancy
+        expectancy (float): Strategy's raw expectancy per trade (not per month or total)
         correlation (float): Strategy's correlation with other strategies
         concurrent_ratio (float): Ratio of concurrent trading periods
         exclusive_ratio (float): Ratio of exclusive trading periods
@@ -30,16 +30,29 @@ def calculate_strategy_efficiency(
         log(f"Ratios - concurrent: {concurrent_ratio}, exclusive: {exclusive_ratio}, inactive: {inactive_ratio}", "info")
 
         if expectancy <= 0:
-            log("Strategy expectancy is not positive, returning 0", "info")
-            return 0.0, 0.0, 0.0, 0.0
+            log(f"Strategy expectancy is not positive ({expectancy:.6f}), setting to small positive value", "warning")
+            # Use a small positive value instead of returning zero
+            expectancy = 0.0001
 
         # Calculate multipliers
         diversification = 1 - correlation
-        independence = exclusive_ratio / (1 - inactive_ratio) if inactive_ratio < 1 else 0
+        
+        # Modify independence calculation to handle zero exclusive_ratio
+        if exclusive_ratio <= 0:
+            log(f"Warning: exclusive_ratio is {exclusive_ratio}, using minimum value for independence", "warning")
+            independence = 0.01  # Use a small positive value instead of zero
+        else:
+            independence = exclusive_ratio / (1 - inactive_ratio) if inactive_ratio < 1 else 0.01
+            
         activity = 1 - inactive_ratio
 
         # Calculate efficiency
         efficiency = expectancy * diversification * independence * activity
+        
+        # Ensure efficiency is at least a small positive value
+        if efficiency <= 0:
+            log(f"Warning: Calculated efficiency is {efficiency}, setting to minimum value", "warning")
+            efficiency = 0.0001
 
         log(f"Strategy efficiency components:", "info")
         log(f"Diversification: {diversification}", "info")
@@ -84,23 +97,33 @@ def calculate_portfolio_efficiency(
         log("Calculating portfolio efficiency", "info")
         
         # Calculate raw portfolio metrics (without allocation weights)
-        total_expectancy = sum(strategy_expectancies)
         total_efficiency = sum(strategy_efficiencies)
         
         # Calculate portfolio multipliers
         diversification = 1 - avg_correlation
-        independence = (
-            exclusive_periods / (concurrent_periods + exclusive_periods)
-            if (concurrent_periods + exclusive_periods) > 0
-            else 0
-        )
+        
+        # Handle case where exclusive_periods is 0
+        if exclusive_periods <= 0:
+            log(f"Warning: exclusive_periods is {exclusive_periods}, using minimum value for independence", "warning")
+            independence = 0.01  # Use a small positive value instead of zero
+        else:
+            independence = (
+                exclusive_periods / (concurrent_periods + exclusive_periods)
+                if (concurrent_periods + exclusive_periods) > 0
+                else 0.01
+            )
+            
         activity = 1 - (inactive_periods / total_periods)
         
         # Calculate final portfolio efficiency
         portfolio_efficiency = total_efficiency * diversification * independence * activity
         
+        # Ensure portfolio efficiency is at least a small positive value
+        if portfolio_efficiency <= 0:
+            log(f"Warning: Calculated portfolio efficiency is {portfolio_efficiency}, setting to minimum value", "warning")
+            portfolio_efficiency = 0.0001
+        
         metrics = {
-            'total_expectancy': total_expectancy,
             'portfolio_efficiency': portfolio_efficiency,
             'diversification_multiplier': diversification,
             'independence_multiplier': independence,
@@ -112,70 +135,6 @@ def calculate_portfolio_efficiency(
         
     except Exception as e:
         log(f"Error calculating portfolio efficiency: {str(e)}", "error")
-        raise
-
-def calculate_efficiency_score(
-    strategy_expectancies: List[float],
-    strategy_allocations: List[float],
-    avg_correlation: float,
-    concurrent_periods: int,
-    exclusive_periods: int,
-    inactive_periods: int,
-    total_periods: int,
-    log: Callable[[str, str], None]
-) -> Tuple[float, float, float, float, float]:
-    """Calculate efficiency score for concurrent strategies.
-    
-    This is a legacy function that now uses the new calculation methods internally.
-    For new code, prefer using calculate_strategy_efficiency and calculate_portfolio_efficiency directly.
-    
-    Returns:
-        Tuple[float, float, float, float, float]: Legacy format (efficiency, expectancy, div, ind, act)
-    """
-    try:
-        # Calculate ratios
-        total_active = concurrent_periods + exclusive_periods
-        concurrent_ratio = concurrent_periods / total_periods if total_periods > 0 else 0
-        exclusive_ratio = exclusive_periods / total_periods if total_periods > 0 else 0
-        inactive_ratio = inactive_periods / total_periods if total_periods > 0 else 0
-        
-        # Calculate individual efficiencies
-        strategy_metrics = []
-        for expectancy in strategy_expectancies:
-            metrics = calculate_strategy_efficiency(
-                expectancy=expectancy,
-                correlation=avg_correlation,
-                concurrent_ratio=concurrent_ratio,
-                exclusive_ratio=exclusive_ratio,
-                inactive_ratio=inactive_ratio,
-                log=log
-            )
-            strategy_metrics.append(metrics)
-        
-        # Calculate portfolio metrics
-        portfolio_metrics = calculate_portfolio_efficiency(
-            strategy_efficiencies=[m[0] for m in strategy_metrics],
-            strategy_expectancies=strategy_expectancies,
-            strategy_allocations=strategy_allocations,
-            avg_correlation=avg_correlation,
-            concurrent_periods=concurrent_periods,
-            exclusive_periods=exclusive_periods,
-            inactive_periods=inactive_periods,
-            total_periods=total_periods,
-            log=log
-        )
-        
-        # Return in legacy format
-        return (
-            portfolio_metrics['portfolio_efficiency'],
-            portfolio_metrics['total_expectancy'],
-            portfolio_metrics['diversification_multiplier'],
-            portfolio_metrics['independence_multiplier'],
-            portfolio_metrics['activity_multiplier']
-        )
-        
-    except Exception as e:
-        log(f"Error in legacy efficiency calculation: {str(e)}", "error")
         raise
 
 def adjust_allocations(allocations):

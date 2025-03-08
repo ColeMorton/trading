@@ -74,7 +74,7 @@ def create_stats_annotation(
             raise KeyError(f"Missing efficiency metrics: {missing}")
             
         stats_text += "<br><b>Efficiency Metrics:</b><br>"
-        stats_text += f"Total Expectancy: {float(stats['total_expectancy']):.4f}<br>"
+        stats_text += f"Portfolio Expectancy: {float(stats['total_expectancy']):.4f}<br>"
         stats_text += f"Diversification Multiplier: {float(stats['diversification_multiplier']):.2f}<br>"
         stats_text += f"Independence Multiplier: {float(stats['independence_multiplier']):.2f}<br>"
         stats_text += f"Activity Multiplier: {float(stats['activity_multiplier']):.2f}<br>"

@@ -140,9 +140,9 @@ def create_strategy_object(
             "value": strategy_metrics.get(f"strategy_{strategy_id}_efficiency_score", 0.0),
             "description": "Risk-adjusted performance score for this strategy"
         },
-        "total_expectancy": {
-            "value": strategy_metrics.get(f"strategy_{strategy_id}_expectancy", config.get("EXPECTANCY_PER_MONTH", 0.0)),
-            "description": "Total expected return for this strategy"
+        "expectancy": {
+            "value": strategy_metrics.get(f"strategy_{strategy_id}_expectancy", 0.0),
+            "description": "Expectancy per Trade"
         },
         "multipliers": {
             "diversification": {
@@ -232,8 +232,8 @@ def create_strategy_object(
     
     # Add all portfolio metrics from the CSV file
     if hasattr(config, 'items'):  # Check if config is a dict-like object
-        # Create a dictionary to store all portfolio metrics
-        portfolio_metrics = {}
+        # Create a dictionary to store all strategy metrics
+        metrics = {}
         
         # List of metrics to exclude (already included in other sections)
         exclude_metrics = [
@@ -248,7 +248,7 @@ def create_strategy_object(
         for key, value in config.items():
             if key not in exclude_metrics and not key.startswith("_"):
                 # Convert to proper format with value and description
-                portfolio_metrics[key] = {
+                metrics[key] = {
                     "value": value,
                     "description": f"{key} metric from portfolio data"
                 }
@@ -269,13 +269,13 @@ def create_strategy_object(
                     continue
                 
                 # Convert to proper format with value and description
-                portfolio_metrics[key] = {
+                metrics[key] = {
                     "value": value,
-                    "description": f"{key} from portfolio analysis"
+                    "description": f"{key} from strategy analysis"
                 }
         
-        # Only add the portfolio_metrics field if there are metrics to include
-        if portfolio_metrics:
-            strategy_obj["portfolio_metrics"] = portfolio_metrics
+        # Only add the metrics field if there are metrics to include
+        if metrics:
+            strategy_obj["metrics"] = metrics
     
     return strategy_obj

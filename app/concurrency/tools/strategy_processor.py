@@ -120,8 +120,10 @@ def process_strategies(
                 portfolio = backtest_strategy(data, strategy_config, log)
                 stats = convert_stats(portfolio.stats(), log, strategy_config)
                 
-                # Add expectancy per month to strategy config
+                # Add expectancy to strategy config
                 strategy_config['EXPECTANCY_PER_MONTH'] = stats['Expectancy per Month']
+                strategy_config['EXPECTANCY'] = stats['Expectancy']
+                strategy_config['EXPECTANCY_PER_TRADE'] = stats['Expectancy per Trade']
                 log(f"Expectancy per month for {strategy_config['TICKER']}: "
                     f"{stats['Expectancy per Month']:.4f}", "info")
                 

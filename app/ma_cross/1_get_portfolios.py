@@ -30,8 +30,13 @@ CONFIG: Config = {
     #     "SPY",
     #     "QQQ"
     # ],
-    "TICKER": "BTC-USD",
-    "TICKER_2": 'LTC-USD',
+    "TICKER": [
+        "JD",
+        "REGN",
+        "PFE"
+    ],
+    # "TICKER": "BTC-USD",
+    # "TICKER_2": 'LTC-USD',
     "WINDOWS": 89,
     # "WINDOWS": 120,
     # "WINDOWS": 55,
@@ -45,7 +50,7 @@ CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     "MIN_TRADES": 38,
     "MIN_WIN_RATE": 0.38,
     # "MIN_WIN_RATE": 0.5,

@@ -175,7 +175,7 @@ def create_portfolio_metrics(stats: Dict[str, Any], config: Dict[str, Any] = Non
             "value": stats["efficiency_score"],
             "description": "Risk-Adjusted Performance"
         },
-        "total_expectancy": {
+        "expectancy": {
             "value": stats["total_expectancy"],
             "description": "Combined expected return across all strategies"
         },

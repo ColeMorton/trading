@@ -102,7 +102,7 @@ class Strategy(TypedDict):
     signals: Dict[str, Dict[str, Dict[str, Union[float, str]]]]
     signal_value: NotRequired[SignalValueMetrics]  # Field for signal value metrics
     signal_quality_metrics: NotRequired[SignalQualityMetrics]  # Field for signal quality metrics
-    portfolio_metrics: NotRequired[Dict[str, Dict[str, Union[float, str]]]]  # Field for all portfolio metrics from CSV
+    metrics: NotRequired[Dict[str, Dict[str, Union[float, str]]]]  # Field for all portfolio metrics from CSV
     allocation_score: float
     allocation: float
 
@@ -124,7 +124,7 @@ class ConcurrencyMetrics(TypedDict):
 class EfficiencyMetrics(TypedDict):
     """Efficiency-related metrics."""
     efficiency_score: Dict[str, Union[float, str]]
-    total_expectancy: Dict[str, Union[float, str]]
+    expectancy: Dict[str, Union[float, str]]
     multipliers: Dict[str, Dict[str, Union[float, str]]]
 
 class RiskMetrics(TypedDict):
@@ -176,6 +176,7 @@ class StrategyConfig(TypedDict):
     USE_SMA: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]
     EXPECTANCY_PER_MONTH: NotRequired[float]
+    EXPECTANCY_PER_TRADE: NotRequired[float]
     DIRECTION: NotRequired[Literal["Long", "Short"]]
 
 class LegacyRiskMetrics(TypedDict):

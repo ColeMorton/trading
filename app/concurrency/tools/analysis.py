@@ -184,10 +184,30 @@ def analyze_concurrency(
         log("Calculating efficiency metrics", "info")
         
         # Calculate strategy expectancies
-        strategy_expectancies = [
-            config.get('EXPECTANCY_PER_MONTH', 0) / (30 if config.get('USE_HOURLY', False) else 21)
-            for config in config_list
-        ]
+        strategy_expectancies = []
+        for config in config_list:
+            # Prefer EXPECTANCY_PER_TRADE if available, otherwise convert from EXPECTANCY_PER_MONTH
+            ticker = config.get('TICKER', 'unknown')
+            if 'EXPECTANCY_PER_TRADE' in config:
+                expectancy = config['EXPECTANCY_PER_TRADE']
+                log(f"Using EXPECTANCY_PER_TRADE for {ticker}: {expectancy:.6f}", "info")
+            elif 'EXPECTANCY_PER_MONTH' in config:
+                # Convert monthly expectancy to per-trade expectancy
+                monthly_expectancy = config['EXPECTANCY_PER_MONTH']
+                trading_days = 30 if config.get('USE_HOURLY', False) else 21
+                expectancy = monthly_expectancy / trading_days
+                log(f"Converting EXPECTANCY_PER_MONTH ({monthly_expectancy:.6f}) to EXPECTANCY_PER_TRADE for {ticker}: {expectancy:.6f}", "info")
+            else:
+                expectancy = 0.0
+                log(f"Warning: No expectancy data found for strategy with ticker {ticker}", "warning")
+            
+            # Ensure expectancy is positive for efficiency calculation
+            if expectancy <= 0:
+                log(f"Warning: Non-positive expectancy ({expectancy:.6f}) for {ticker}. Setting to small positive value.", "warning")
+                expectancy = 0.0001  # Small positive value to allow efficiency calculation
+            
+            strategy_expectancies.append(expectancy)
+            log(f"Final expectancy for {ticker}: {expectancy:.6f}", "info")
         
         # Calculate ratios
         total_periods = len(aligned_data[0])
@@ -226,7 +246,7 @@ def analyze_concurrency(
         # Package metrics in legacy format for backward compatibility
         efficiency_metrics = (
             portfolio_metrics['portfolio_efficiency'],
-            portfolio_metrics['total_expectancy'],
+            sum(strategy_expectancies),  # Calculate expectancy inline
             portfolio_metrics['diversification_multiplier'],
             portfolio_metrics['independence_multiplier'],
             portfolio_metrics['activity_multiplier']

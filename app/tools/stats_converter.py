@@ -150,11 +150,22 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         stats['Signals per Month'] = total_signals / months_in_period
         
         # Calculate expectancy per month
-        stats['Expectancy per Month'] = stats['Trades per Month'] * stats['Expectancy per Trade']
+        if 'Expectancy per Trade' in stats and stats['Expectancy per Trade'] is not None:
+            # Ensure expectancy per trade is positive for efficiency calculation
+            if stats['Expectancy per Trade'] <= 0:
+                log(f"Warning: Non-positive Expectancy per Trade ({stats['Expectancy per Trade']:.6f}) for {ticker}. Setting to small positive value.", "warning")
+                stats['Expectancy per Trade'] = 0.0001  # Small positive value
+            
+            stats['Expectancy per Month'] = stats['Trades per Month'] * stats['Expectancy per Trade']
+        else:
+            log(f"Warning: Missing Expectancy per Trade for {ticker}. Setting to small positive value.", "warning")
+            stats['Expectancy per Trade'] = 0.0001
+            stats['Expectancy per Month'] = stats['Trades per Month'] * stats['Expectancy per Trade']
         
         log(f"Calculated metrics for {ticker}: Trades per Month={stats['Trades per Month']:.2f}, " +
             f"Signals per Month={stats['Signals per Month']:.2f}, " +
-            f"Expectancy per Month={stats['Expectancy per Month']:.4f}", "info")
+            f"Expectancy per Trade={stats['Expectancy per Trade']:.6f}, " +
+            f"Expectancy per Month={stats['Expectancy per Month']:.6f}", "info")
         # Calculate average trade duration as weighted average of winning and losing durations
         if all(key in stats for key in ['Avg Winning Trade Duration', 'Avg Losing Trade Duration', 'Win Rate [%]']):
             try:
