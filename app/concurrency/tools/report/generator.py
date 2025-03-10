@@ -87,8 +87,8 @@ def generate_json_report(
         
         # Create the report with or without strategies based on configuration
         report: ConcurrencyReport = {
-            "ticker_metrics": ticker_metrics,
-            "portfolio_metrics": portfolio_metrics
+            "portfolio_metrics": portfolio_metrics,
+            "ticker_metrics": ticker_metrics
         }
         
         # Only include strategies if configured to do so

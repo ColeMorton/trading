@@ -241,7 +241,8 @@ def create_strategy_object(
             "USE_HOURLY", "USE_RSI", "RSI_WINDOW", "RSI_THRESHOLD",
             "STOP_LOSS", "DIRECTION", "STRATEGY_TYPE", "EXPECTANCY_PER_MONTH",
             "BASE_DIR", "REFRESH", "USE_SMA", "SMA", "EMA", "PORTFOLIO_STATS",
-            "type", "Short Window", "Long Window", "Signal Window"
+            "type", "Short Window", "Long Window", "Signal Window", "EXPECTANCY",
+            "EXPECTANCY_PER_TRADE",
         ]
         
         # Add all metrics from the config

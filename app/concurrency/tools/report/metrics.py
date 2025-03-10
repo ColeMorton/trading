@@ -177,7 +177,7 @@ def create_portfolio_metrics(stats: Dict[str, Any], config: Dict[str, Any] = Non
         },
         "expectancy": {
             "value": stats["total_expectancy"],
-            "description": "Combined expected return across all strategies"
+            "description": "Combined expectancy per trade across all strategies"
         },
         "multipliers": {
             "diversification": {

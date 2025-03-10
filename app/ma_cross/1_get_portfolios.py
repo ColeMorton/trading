@@ -31,9 +31,10 @@ CONFIG: Config = {
     #     "QQQ"
     # ],
     "TICKER": [
-        "JD",
-        "REGN",
-        "PFE"
+        "HCA",
+        "UNP",
+        "CARR",
+        "ALLE"
     ],
     # "TICKER": "BTC-USD",
     # "TICKER_2": 'LTC-USD',
@@ -51,10 +52,10 @@ CONFIG: Config = {
     "YEARS": 15,
     "USE_SYNTHETIC": False,
     "USE_CURRENT": True,
-    "MIN_TRADES": 38,
-    "MIN_WIN_RATE": 0.38,
-    # "MIN_WIN_RATE": 0.5,
-    # "MIN_TRADES": 50,
+    # "MIN_TRADES": 38,
+    # "MIN_WIN_RATE": 0.38,
+    "MIN_WIN_RATE": 0.5,
+    "MIN_TRADES": 50,
     # "MIN_WIN_RATE": 0.61,
     # "MIN_TRADES": 61,
     "SORT_BY": "Expectancy Adjusted",
