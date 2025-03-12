@@ -58,11 +58,15 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
     try:
         # Calculate adjusted performance metrics
         try:
-            stats['Expectancy Adjusted'] = (
-                stats['Expectancy per Trade'] *
-                min(1, 0.01 * stats['Win Rate [%]'] / 0.65) *
-                min(1, stats['Total Closed Trades'] / 65)
-            )
+            if 'Expectancy per Trade' in stats and stats['Expectancy per Trade'] is not None:
+                stats['Expectancy Adjusted'] = (
+                    stats['Expectancy per Trade'] *
+                    min(1, 0.01 * stats['Win Rate [%]'] / 0.65) *
+                    min(1, stats['Total Closed Trades'] / 65)
+                )
+            else:
+                log(f"Expectancy per Trade not found", "error")
+                raise
             
             # Calculate Beats BNH percentage
             # Example test data:
@@ -158,9 +162,8 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
             
             stats['Expectancy per Month'] = stats['Trades per Month'] * stats['Expectancy per Trade']
         else:
-            log(f"Warning: Missing Expectancy per Trade for {ticker}. Setting to small positive value.", "warning")
-            stats['Expectancy per Trade'] = 0.0001
-            stats['Expectancy per Month'] = stats['Trades per Month'] * stats['Expectancy per Trade']
+            log(f"Expectancy per Trade not found", "error")
+            raise
         
         log(f"Calculated metrics for {ticker}: Trades per Month={stats['Trades per Month']:.2f}, " +
             f"Signals per Month={stats['Signals per Month']:.2f}, " +

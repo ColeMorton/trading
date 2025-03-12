@@ -15,7 +15,10 @@ from app.tools.portfolio.collection import export_best_portfolios, combine_strat
 
 CONFIG: Config = {
     # "TICKER": [
-    #     "ZTS",
+    #     "ZS",
+    #     "GLD",
+    #     "SLV",
+    #     "PFE",
     #     "CI",
     #     "AMGN",
     #     "QCOM",
@@ -26,15 +29,13 @@ CONFIG: Config = {
     #     "SPY",
     #     "QQQ"
     # ],
-    # "TICKER": [
-    #     "HCA",
-    #     "UNP",
-    #     "CARR",
-    #     "ALLE"
-    # ],
-    "TICKER": "GOHM-USD",
-    # "TICKER_2": 'LTC-USD',
-    "WINDOWS": 89,
+    "TICKER": [
+        "SPY",
+        "QQQ"
+    ],
+    # "TICKER": "GLD",
+    # "TICKER_2": 'SPY',
+    "WINDOWS": 120,
     # "WINDOWS": 120,
     # "WINDOWS": 55,
     # "SCANNER_LIST": 'DAILY.csv',
@@ -43,7 +44,7 @@ CONFIG: Config = {
     "REFRESH": True,
     # "USE_SMA": False,
     "DIRECTION": "Long",
-    "USE_HOURLY": True,
+    "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
