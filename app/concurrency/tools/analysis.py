@@ -43,7 +43,7 @@ def validate_inputs(
 
 def compile_statistics(
     aligned_data: List[pl.DataFrame],
-    position_metrics: Tuple[dict, float, int, int, int, int, float],
+    position_metrics: Tuple,
     risk_metrics: dict,
     efficiency_metrics: Tuple[float, float, float, float, float],
     signal_metrics: dict,
@@ -76,7 +76,8 @@ def compile_statistics(
             exclusive_periods,
             inactive_periods,
             max_concurrent,
-            avg_concurrent
+            avg_concurrent,
+            _  # strategy_specific_metrics (not used here)
         ) = position_metrics
 
         (
@@ -166,6 +167,9 @@ def analyze_concurrency(
 
         log("Calculating position metrics", "info")
         position_metrics = calculate_position_metrics(position_arrays, log)
+        
+        # Extract strategy-specific metrics
+        strategy_specific_metrics = position_metrics[7]
 
         # Calculate risk metrics
         log("Calculating risk metrics", "info")
@@ -209,25 +213,35 @@ def analyze_concurrency(
             strategy_expectancies.append(expectancy)
             log(f"Final expectancy for {ticker}: {expectancy:.6f}", "info")
         
-        # Calculate ratios
+        # Calculate ratios for portfolio-level metrics
         total_periods = len(aligned_data[0])
         concurrent_ratio = position_metrics[2] / total_periods
         exclusive_ratio = position_metrics[3] / total_periods
         inactive_ratio = position_metrics[4] / total_periods
         
-        # Calculate individual strategy efficiencies
+        # Calculate individual strategy efficiencies using strategy-specific metrics
         log("Calculating individual strategy efficiencies", "info")
         strategy_efficiencies = []
         for i, expectancy in enumerate(strategy_expectancies):
+            # Use strategy-specific metrics instead of portfolio-level metrics
+            strategy_metrics = strategy_specific_metrics[i]
+            
             efficiency, div, ind, act = calculate_strategy_efficiency(
                 expectancy=expectancy,
-                correlation=position_metrics[1],  # avg_correlation
-                concurrent_ratio=concurrent_ratio,
-                exclusive_ratio=exclusive_ratio,
-                inactive_ratio=inactive_ratio,
+                correlation=strategy_metrics["correlation"],  # Strategy-specific correlation
+                concurrent_ratio=strategy_metrics["concurrent_ratio"],  # Strategy-specific concurrent ratio
+                exclusive_ratio=strategy_metrics["exclusive_ratio"],  # Strategy-specific exclusive ratio
+                inactive_ratio=strategy_metrics["inactive_ratio"],  # Strategy-specific inactive ratio
                 log=log
             )
             strategy_efficiencies.append((efficiency, div, ind, act))
+            
+            log(f"Strategy {i+1} efficiency components:", "info")
+            log(f"  Correlation: {strategy_metrics['correlation']:.4f}", "info")
+            log(f"  Diversification: {div:.4f}", "info")
+            log(f"  Independence: {ind:.4f}", "info")
+            log(f"  Activity: {act:.4f}", "info")
+            log(f"  Efficiency: {efficiency:.4f}", "info")
         
         # Calculate portfolio efficiency
         log("Calculating portfolio efficiency", "info")
@@ -339,8 +353,8 @@ def analyze_concurrency(
 
         # Add allocation scores
         for i, (score, percentage) in enumerate(zip(allocation_scores, allocation_percentages), 1):
-            stats[f"strategy_{i+1}_allocation"] = score
-            stats[f"strategy_{i+1}_allocation_percentage"] = percentage
+            stats[f"strategy_{i}_allocation_score"] = score
+            stats[f"strategy_{i}_allocation"] = percentage
 
         log("Analysis completed successfully", "info")
         return stats, aligned_data
