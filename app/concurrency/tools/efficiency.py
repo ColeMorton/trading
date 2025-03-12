@@ -276,7 +276,7 @@ def calculate_allocation_scores(
         allocation_scores = []
         for i in range(len(strategy_efficiencies)):
             efficiency_component = 1 * normalized_efficiencies[i]
-            risk_component = 0.65 * normalized_risks[i]
+            risk_component = 0.786 * normalized_risks[i]
             signal_quality_component = 0.618 * normalized_signal_quality_scores[i]
             
             allocation_score = efficiency_component + risk_component + signal_quality_component

@@ -14,29 +14,25 @@ from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
 CONFIG: Config = {
-    # "TICKER": [
-    #     "ZS",
-    #     "GLD",
-    #     "SLV",
-    #     "PFE",
-    #     "CI",
-    #     "AMGN",
-    #     "QCOM",
-    #     "PAYC",
-    #     "NTES",
-    #     "IDXX",
-    #     "BIDU",
-    #     "SPY",
-    #     "QQQ"
-    # ],
     "TICKER": [
-        "SPY",
-        "QQQ"
+        "GLD",
+        "PFE",
+        "CI",
+        "AMGN",
+        "QCOM",
+        "PAYC",
+        "NTES",
+        "IDXX",
+        "BIDU"
     ],
+    # "TICKER": [
+    #     "PFE",
+    #     "BIDU"
+    # ],
     # "TICKER": "GLD",
     # "TICKER_2": 'SPY',
-    "WINDOWS": 120,
     # "WINDOWS": 120,
+    "WINDOWS": 89,
     # "WINDOWS": 55,
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
@@ -48,7 +44,7 @@ CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     "MIN_TRADES": 38,
     "MIN_WIN_RATE": 0.38,
     # "MIN_WIN_RATE": 0.5,
