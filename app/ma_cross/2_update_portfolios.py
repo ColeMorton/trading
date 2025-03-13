@@ -17,7 +17,7 @@ from app.tools.portfolio import (
 
 # Default Configuration
 config = {
-    "PORTFOLIO": 'stock_trades_20250312.csv',
+    "PORTFOLIO": 'stock_trades_20250313.csv',
     # "PORTFOLIO": 'spy_qqq_h_20250311.csv',
     # "PORTFOLIO": 'total_d_20250307.csv',
     # "PORTFOLIO": 'DAILY_crypto.csv',

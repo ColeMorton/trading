@@ -14,23 +14,31 @@ from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
 CONFIG: Config = {
-    "TICKER": [
-        "GLD",
-        "PFE",
-        "CI",
-        "AMGN",
-        "QCOM",
-        "PAYC",
-        "NTES",
-        "IDXX",
-        "BIDU"
-    ],
     # "TICKER": [
+    #     "GLD",
     #     "PFE",
-    #     "BIDU"
+    #     "CI",
+    #     "AMGN",
+    #     "QCOM",
+    #     "PAYC",
+    #     "NTES",
+    #     "IDXX",
+    #     "BIDU",
+    #     "SPY",
+    #     "QQQ",
+    #     "BTC-USD",
+    #     "BNB-USD",
+    #     "PGR",
+    #     "EQT"
     # ],
-    # "TICKER": "GLD",
-    # "TICKER_2": 'SPY',
+    "TICKER": [
+        "AMGN",
+        "BIDU",
+        "OKTA",
+        "PDD"
+    ],
+    # "TICKER": "TRX-USD",
+    # "TICKER_2": 'BTC-USD',
     # "WINDOWS": 120,
     "WINDOWS": 89,
     # "WINDOWS": 55,
