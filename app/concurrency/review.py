@@ -36,17 +36,18 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "stock_portfolio_h_20250221.json",  # Updated to use an existing portfolio file
     # "PORTFOLIO": "spy_qqq_h_20250311.csv",
     # "PORTFOLIO": "stock_trades_20250314.csv",
-    "PORTFOLIO": "SPY_QQQ_202503012.csv",
-    # "PORTFOLIO": "crypto_d_20250313.json",
+    # "PORTFOLIO": "SPY_QQQ_202503012.csv",
+    "PORTFOLIO": "stock_trades_20250316.csv",
     # "PORTFOLIO": "DAILY_test.csv",
     # "PORTFOLIO": "stock_trades_20250312.csv",
     # "PORTFOLIO": "total_20250310.csv",
     # "PORTFOLIO": "DAILY_crypto.csv",
     # "PORTFOLIO": "btc_d_20250307.json",
+    # "PORTFOLIO": "stock_trades_20250315.csv",
     "BASE_DIR": '.',  # Default to project root directory
     "REFRESH": True,
     "SL_CANDLE_CLOSE": True,
-    "VISUALIZATION": True,
+    "VISUALIZATION": False,
     "RATIO_BASED_ALLOCATION": True,
     "CSV_USE_HOURLY": False,
     "REPORT_INCLUDES": {
