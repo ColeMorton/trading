@@ -21,8 +21,9 @@ config = {
     # "PORTFOLIO": 'spy_qqq_h_20250311.csv',
     # "PORTFOLIO": 'total_d_20250307.csv',
     # "PORTFOLIO": 'DAILY_crypto.csv',
+    "PORTFOLIO": 'DAILY_crypto_short.csv',
     # "PORTFOLIO": 'Indices_d.csv',
-    "PORTFOLIO": 'stock_trades_20250321.csv',
+    # "PORTFOLIO": 'stock_trades_20250321.csv',
     # "PORTFOLIO": "SPY_QQQ_D.csv",
     # "PORTFOLIO": 'HOURLY Crypto.csv',
     # "PORTFOLIO": 'total_20250316.csv',
@@ -31,7 +32,7 @@ config = {
     "USE_CURRENT": False,
     "USE_HOURLY": False,
     "BASE_DIR": '.',  # Added BASE_DIR for export configuration
-    "DIRECTION": "Long",
+    "DIRECTION": "Short",
     "SORT_BY": "Expectancy Adjusted",
     "SORT_ASC": False
 }

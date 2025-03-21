@@ -49,12 +49,12 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    "PORTFOLIO": 'Indices_d.csv',
+    # "PORTFOLIO": 'Indices_d.csv',
     # "PORTFOLIO": 'HOURLY Crypto.csv',
     # "PORTFOLIO": '20241202.csv',
     # "PORTFOLIO": 'DAILY_test.csv',
     # "PORTFOLIO": 'DAILY_crypto.csv',
-    # "PORTFOLIO": 'DAILY.csv',
+    "PORTFOLIO": 'DAILY.csv',
     # "PORTFOLIO": 'BTC_SOL_D.csv',
     # "PORTFOLIO": 'btc_20250307.csv',
     "USE_HOURLY": False,
