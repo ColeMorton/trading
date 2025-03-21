@@ -1,7 +1,7 @@
 import polars as pl
 from typing import List, Dict, Any, Optional, Callable
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
-from app.ma_cross.tools.signal_generation import is_signal_current
+from app.ma_cross.tools.signal_utils import is_signal_current
 from app.tools.stats_converter import convert_stats
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.portfolio_transformation import reorder_columns
@@ -42,7 +42,7 @@ def analyze_window_combination(
             log(f"No signals generated for windows {short}, {long}", "warning")
             return None
             
-        current = is_signal_current(temp_data)
+        current = is_signal_current(temp_data, config)
         portfolio = backtest_strategy(temp_data, config, log)
 
         stats = portfolio.stats()

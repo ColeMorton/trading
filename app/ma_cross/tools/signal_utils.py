@@ -38,7 +38,7 @@ def get_last_trading_day(today: date = date.today()) -> date:
     else:
         return today - timedelta(days=1)
 
-def is_signal_current(signals: pl.DataFrame) -> bool:
+def is_signal_current(signals: pl.DataFrame, config: dict = None) -> bool:
     """
     Check if there is a valid signal on the last trading day.
     A valid signal is when the fast MA is above the slow MA (for longs)
@@ -46,6 +46,7 @@ def is_signal_current(signals: pl.DataFrame) -> bool:
     
     Args:
         signals: DataFrame containing Signal, Position, MA_FAST, MA_SLOW and Date/Datetime columns
+        config: Configuration dictionary containing direction information
     
     Returns:
         bool: True if there is a valid signal from the last trading day, False otherwise
@@ -59,10 +60,11 @@ def is_signal_current(signals: pl.DataFrame) -> bool:
     signal = last_row.get_column("Signal").item()
     position = last_row.get_column("Position").item()
     
-    # Check if we have a valid entry signal in the last row
-    # We don't need to check the date since we're using the last row
-    # of the data which is already from the last trading day
-    return signal == 1 and position == 0
+    # Check if we have a valid entry signal in the last row based on direction
+    if config and config.get('DIRECTION', 'Long') == 'Short':
+        return signal == -1 and position == 0
+    else:
+        return signal == 1 and position == 0
 
 def check_signal_match(
     signals: List[Dict],

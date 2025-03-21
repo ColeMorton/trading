@@ -39,7 +39,7 @@ def get_current_signals(
                     temp_data = calculate_ma_and_signals(temp_data, short, long, config, log)  # Added log parameter
                     
                     if temp_data is not None and len(temp_data) > 0:
-                        current = is_signal_current(temp_data)
+                        current = is_signal_current(temp_data, config)
                         if current:
                             signals.append({
                                 "Short Window": int(short),
