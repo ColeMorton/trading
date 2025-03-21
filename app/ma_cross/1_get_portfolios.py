@@ -13,21 +13,19 @@ from app.ma_cross.config_types import Config
 from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
-qqq_group1 = [
-    "AAPL",  # Apple
-    "MSFT",  # Microsoft
-    "AMZN",  # Amazon
-    "NVDA",  # NVIDIA
-    "META",  # Meta Platforms
-    "GOOGL", # Alphabet Class A
-    "GOOG",  # Alphabet Class C
-    "TSLA",  # Tesla
-    "AVGO",  # Broadcom
-    "PEP"    # PepsiCo
-]
-
 CONFIG: Config = {
-    "TICKER": qqq_group1,
+    "TICKER": [
+        "GLD",
+        "SPY",
+        "QQQ",
+        "BTC-USD",
+        "ZS",
+        "MSTR",
+        "FUTU",
+        "TPL",
+        "NFLX",
+        "CHTR",
+    ],
     # "TICKER": [
     #     "SOL-USD",
     #     "BNB-USD"
@@ -55,7 +53,7 @@ CONFIG: Config = {
     "BASE_DIR": ".",
     "REFRESH": True,
     # "USE_SMA": False,
-    "DIRECTION": "Short",
+    "DIRECTION": "Long",
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
