@@ -13,26 +13,39 @@ from app.ma_cross.config_types import Config
 from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
+qqq_group1 = [
+    "AAPL",  # Apple
+    "MSFT",  # Microsoft
+    "AMZN",  # Amazon
+    "NVDA",  # NVIDIA
+    "META",  # Meta Platforms
+    "GOOGL", # Alphabet Class A
+    "GOOG",  # Alphabet Class C
+    "TSLA",  # Tesla
+    "AVGO",  # Broadcom
+    "PEP"    # PepsiCo
+]
+
 CONFIG: Config = {
-    "TICKER": [
-        "GLD",
-        "NTES",
-        "BIDU",
-        "SPY",
-        "QQQ",
-        "BTC-USD",
-        "BNB-USD",
-        "SOL-USD",
-        "PGR",
-        "EQT",
-        "MSTR",
-        "FUTU",
-    ],
+    "TICKER": qqq_group1,
     # "TICKER": [
     #     "SOL-USD",
     #     "BNB-USD"
     # ],
-    # "TICKER": "MSTR",
+    # "TICKER": [
+    #     "XLK",
+    #     "XLC",
+    #     "XLU",
+    #     "XLE",
+    #     "XLF",
+    #     "XLY",
+    #     "XLV",
+    #     "XLRE",
+    #     "XLI",
+    #     "XLP",
+    #     "XLB"
+    # ],
+    # "TICKER": "BNB-USD",
     # "TICKER_2": 'BTC-USD',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -40,14 +53,14 @@ CONFIG: Config = {
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
     "BASE_DIR": ".",
-    "REFRESH": False,
+    "REFRESH": True,
     # "USE_SMA": False,
-    "DIRECTION": "Long",
+    "DIRECTION": "Short",
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": True,
+    "USE_CURRENT": False,
     # "MIN_TRADES": 38,
     # "MIN_WIN_RATE": 0.38,
     "MIN_WIN_RATE": 0.5,

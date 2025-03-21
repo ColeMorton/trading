@@ -45,10 +45,10 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": "LTC-USD",
+    "TICKER": "GLD",
     "BASE_DIR": ".",
-    "USE_HOURLY": False,
-    "REFRESH": False,
+    "USE_HOURLY": True,
+    "REFRESH": True,
     "USE_CURRENT": False,
     "USE_YEARS": False,
     "YEARS": 2,
