@@ -53,14 +53,14 @@ config: Config = {
     # "PORTFOLIO": 'HOURLY Crypto.csv',
     # "PORTFOLIO": '20241202.csv',
     # "PORTFOLIO": 'DAILY_test.csv',
-    "PORTFOLIO": 'DAILY_crypto_short.csv',
+    # "PORTFOLIO": 'DAILY_crypto_short.csv',
     # "PORTFOLIO": 'DAILY_crypto.csv',
-    # "PORTFOLIO": 'DAILY.csv',
+    "PORTFOLIO": 'DAILY.csv',
     # "PORTFOLIO": 'BTC_SOL_D.csv',
     # "PORTFOLIO": 'btc_20250307.csv',
     "USE_HOURLY": False,
     "REFRESH": True,
-    "DIRECTION": "Short"  # Default to Long position
+    "DIRECTION": "Long"  # Default to Long position
 }
 
 def validate_config(config: Config) -> None:

@@ -27,7 +27,7 @@ class Config(TypedDict):
 
 # Default Configuration
 CONFIG: Config = {
-    "TICKER": 'SPY',
+    "TICKER": 'MSTY',
     "YEARS": 2,
     "USE_YEARS": False,
     "PERIOD": 'max',

@@ -124,10 +124,11 @@ def process_single_ticker(
         min_win_rate = ticker_config["MIN_WIN_RATE"]
         portfolios_df = portfolios_df.filter(pl.col("Win Rate [%]").cast(pl.Float64) >= min_win_rate * 100)
         log(f"Filtered portfolios with win rate >= {min_win_rate * 100}%")
-        
-    if "MIN_TRADES" in ticker_config and "Total Trades" in portfolios_df.columns:
-        min_trades = ticker_config["MIN_TRADES"]
-        portfolios_df = portfolios_df.filter(pl.col("Total Trades").cast(pl.Int64) >= min_trades)
+        # Only filter by minimum trades if MIN_TRADES is explicitly specified in config
+        if "Total Trades" in portfolios_df.columns and "MIN_TRADES" in ticker_config:
+            min_trades = ticker_config["MIN_TRADES"]
+            portfolios_df = portfolios_df.filter(pl.col("Total Trades").cast(pl.Int64) >= min_trades)
+            log(f"Filtered portfolios with at least {min_trades} trades")
         log(f"Filtered portfolios with at least {min_trades} trades")
         
     if len(portfolios_df) == 0:

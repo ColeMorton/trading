@@ -45,7 +45,7 @@ class Config(TypedDict):
 YEARS: int = 3
 USE_HOURLY: bool = False
 USE_SYNTHETIC: bool = False
-TICKER: str = 'SOFI'
+TICKER: str = 'MSTY'
 TICKER_1: str = 'SOFI'
 TICKER_2: str = 'SOFI'
 DIRECTION: str = "Long"  # Default to Long position

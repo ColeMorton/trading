@@ -23,7 +23,7 @@ config = {
     # "PORTFOLIO": 'DAILY_crypto.csv',
     "PORTFOLIO": 'DAILY_crypto_short.csv',
     # "PORTFOLIO": 'Indices_d.csv',
-    # "PORTFOLIO": 'stock_trades_20250321.csv',
+    # "PORTFOLIO": 'stock_trades_20250322.csv',
     # "PORTFOLIO": "SPY_QQQ_D.csv",
     # "PORTFOLIO": 'HOURLY Crypto.csv',
     # "PORTFOLIO": 'total_20250316.csv',

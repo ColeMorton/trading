@@ -14,6 +14,11 @@ from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
 CONFIG: Config = {
+    "TICKER": [
+        "XLM-USD",
+        "ADA-USD",
+        "XRP-USD"
+    ],
     # "TICKER": [
     #     "GLD",
     #     "SPY",
@@ -21,10 +26,12 @@ CONFIG: Config = {
     #     "BTC-USD",
     #     "ZS",
     #     "MSTR",
-    #     "FUTU",
-    #     "TPL",
     #     "NFLX",
     #     "CHTR",
+    #     "UBER",
+    #     "MCD",
+    #     "LCID",
+    #     "PLTR"
     # ],
     # "TICKER": [
     #     "SOL-USD",
@@ -75,7 +82,7 @@ CONFIG: Config = {
     #     "XLP",
     #     "XLB"
     # ],
-    "TICKER": "TRX-USD",
+    # "TICKER": "TRX-USD",
     # "TICKER_2": 'BTC-USD',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -90,9 +97,9 @@ CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": False,
-    # "MIN_TRADES": 38,
-    # "MIN_WIN_RATE": 0.38,
+    "USE_CURRENT": True,
+    "MIN_TRADES": 38,
+    "MIN_WIN_RATE": 0.38,
     # "MIN_WIN_RATE": 0.5,
     # "MIN_TRADES": 50,
     # "MIN_WIN_RATE": 0.61,
