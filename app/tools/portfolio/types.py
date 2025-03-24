@@ -12,25 +12,30 @@ class StrategyConfig(TypedDict):
 
     Required Fields:
         TICKER (str): Ticker symbol to analyze
-        SHORT_WINDOW (int): Period for short moving average or MACD fast line
-        LONG_WINDOW (int): Period for long moving average or MACD slow line
         BASE_DIR (str): Base directory for file operations
         REFRESH (bool): Whether to refresh cached data
         USE_RSI (bool): Whether to enable RSI filtering
         USE_HOURLY (bool): Whether to use hourly timeframe instead of daily
         USE_SMA (bool): Whether to use Simple Moving Average instead of EMA
-        STRATEGY_TYPE (str): Type of strategy (SMA, EMA, MACD)
+        STRATEGY_TYPE (str): Type of strategy (SMA, EMA, MACD, ATR)
         DIRECTION (str): Trading direction (Long or Short)
 
     Optional Fields:
+        # MA/MACD strategy fields
+        SHORT_WINDOW (NotRequired[int]): Period for short moving average or MACD fast line
+        LONG_WINDOW (NotRequired[int]): Period for long moving average or MACD slow line
+        SIGNAL_WINDOW (NotRequired[int]): Period for MACD signal line
+        
+        # ATR strategy fields
+        length (NotRequired[int]): ATR calculation period
+        multiplier (NotRequired[float]): ATR multiplier for stop distance
+        
+        # Common optional fields
         STOP_LOSS (NotRequired[float]): Stop loss percentage (0-1)
         RSI_WINDOW (NotRequired[int]): Period for RSI calculation
         RSI_THRESHOLD (NotRequired[int]): RSI threshold for signal filtering
-        SIGNAL_WINDOW (NotRequired[int]): Period for MACD signal line
     """
     TICKER: str
-    SHORT_WINDOW: int
-    LONG_WINDOW: int
     BASE_DIR: str
     REFRESH: bool
     USE_RSI: bool
@@ -38,10 +43,17 @@ class StrategyConfig(TypedDict):
     USE_SMA: bool
     STRATEGY_TYPE: str
     DIRECTION: str
+    # MA/MACD fields
+    SHORT_WINDOW: NotRequired[int]
+    LONG_WINDOW: NotRequired[int]
+    SIGNAL_WINDOW: NotRequired[int]
+    # ATR fields
+    length: NotRequired[int]
+    multiplier: NotRequired[float]
+    # Common fields
     STOP_LOSS: NotRequired[float]
     RSI_WINDOW: NotRequired[int]
     RSI_THRESHOLD: NotRequired[int]
-    SIGNAL_WINDOW: NotRequired[int]
 
 class PortfolioConfig(TypedDict):
     """Configuration type definition for portfolio operations.

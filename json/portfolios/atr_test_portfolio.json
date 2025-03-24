@@ -1,0 +1,21 @@
+[
+  {
+    "ticker": "BTC-USD",
+    "timeframe": "Daily",
+    "type": "ATR",
+    "direction": "Long",
+    "length": 12,
+    "multiplier": 4.5
+  },
+  {
+    "ticker": "BTC-USD",
+    "timeframe": "Daily",
+    "type": "MACD",
+    "direction": "Long",
+    "short_window": 2,
+    "long_window": 21,
+    "signal_window": 4,
+    "rsi_period": 14,
+    "rsi_threshold": 44
+  }
+]

@@ -11,6 +11,8 @@ class StrategyParameters(TypedDict):
     short_window: Dict[str, Union[int, str]]
     long_window: Dict[str, Union[int, str]]
     signal_window: NotRequired[Dict[str, Union[int, str]]]  # Required for MACD
+    length: NotRequired[Dict[str, Union[int, str]]]  # Required for ATR
+    multiplier: NotRequired[Dict[str, Union[float, str]]]  # Required for ATR
     rsi_period: NotRequired[Dict[str, Union[int, str]]]
     rsi_threshold: NotRequired[Dict[str, Union[int, str]]]
     stop_loss: NotRequired[Dict[str, Union[float, str]]]
@@ -164,6 +166,8 @@ class StrategyConfig(TypedDict):
         USE_HOURLY (NotRequired[bool]): Whether to use hourly timeframe instead of daily
         EXPECTANCY_PER_MONTH (NotRequired[float]): Expected monthly return
         DIRECTION (NotRequired[Literal["Long", "Short"]]): Trading direction (default: "Long")
+        LENGTH (NotRequired[int]): ATR calculation period (for ATR strategy)
+        MULTIPLIER (NotRequired[float]): ATR multiplier for stop distance (for ATR strategy)
     """
     TICKER: str
     SHORT_WINDOW: int
@@ -178,6 +182,9 @@ class StrategyConfig(TypedDict):
     EXPECTANCY_PER_MONTH: NotRequired[float]
     EXPECTANCY_PER_TRADE: NotRequired[float]
     DIRECTION: NotRequired[Literal["Long", "Short"]]
+    LENGTH: NotRequired[int]  # ATR calculation period
+    MULTIPLIER: NotRequired[float]  # ATR multiplier
+    STRATEGY_TYPE: NotRequired[Literal["SMA", "EMA", "MACD", "ATR"]]
 
 class LegacyRiskMetrics(TypedDict):
     """Risk metrics for concurrent strategies.

@@ -59,28 +59,46 @@ def create_strategy_object(
         },
         "type": {
             "value": strategy_type,
-            "description": "Strategy type (MACD, SMA, or EMA)"
+            "description": f"Strategy type ({strategy_type})"
         },
         "direction": {
             "value": config.get("DIRECTION", "Long"),
             "description": "Trading direction (Long or Short)"
-        },
-        "short_window": {
-            "value": config["SHORT_WINDOW"],
-            "description": "Period for short moving average or MACD fast line"
-        },
-        "long_window": {
-            "value": config["LONG_WINDOW"],
-            "description": "Period for long moving average or MACD slow line"
         }
     }
     
-    # Add signal_window for MACD strategies
-    if strategy_type == "MACD" and "SIGNAL_WINDOW" in config:
-        parameters["signal_window"] = {
-            "value": config["SIGNAL_WINDOW"],
-            "description": "Period for MACD signal line"
-        }
+    # Add strategy-specific parameters based on type
+    if strategy_type == "ATR":
+        # ATR strategy parameters
+        if "length" in config:
+            parameters["length"] = {
+                "value": config["length"],
+                "description": "ATR calculation period"
+            }
+        if "multiplier" in config:
+            parameters["multiplier"] = {
+                "value": config["multiplier"],
+                "description": "ATR multiplier for stop distance"
+            }
+    else:
+        # MA and MACD strategy parameters
+        if "SHORT_WINDOW" in config:
+            parameters["short_window"] = {
+                "value": config["SHORT_WINDOW"],
+                "description": "Period for short moving average or MACD fast line"
+            }
+        if "LONG_WINDOW" in config:
+            parameters["long_window"] = {
+                "value": config["LONG_WINDOW"],
+                "description": "Period for long moving average or MACD slow line"
+            }
+        
+        # Add signal_window for MACD strategies
+        if strategy_type == "MACD" and "SIGNAL_WINDOW" in config:
+            parameters["signal_window"] = {
+                "value": config["SIGNAL_WINDOW"],
+                "description": "Period for MACD signal line"
+            }
     
     # Add RSI parameters if present
     if config.get("USE_RSI", False) and "RSI_WINDOW" in config:
@@ -242,7 +260,7 @@ def create_strategy_object(
             "STOP_LOSS", "DIRECTION", "STRATEGY_TYPE", "EXPECTANCY_PER_MONTH",
             "BASE_DIR", "REFRESH", "USE_SMA", "SMA", "EMA", "PORTFOLIO_STATS",
             "type", "Short Window", "Long Window", "Signal Window", "EXPECTANCY",
-            "EXPECTANCY_PER_TRADE",
+            "EXPECTANCY_PER_TRADE", "length", "multiplier"
         ]
         
         # Add all metrics from the config

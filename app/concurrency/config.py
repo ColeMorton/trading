@@ -84,7 +84,6 @@ class JsonMaStrategy(TypedDict):
     stop_loss: NotRequired[float]
     rsi_period: NotRequired[int]
     rsi_threshold: NotRequired[int]
-
 class JsonMacdStrategy(TypedDict):
     """JSON MACD strategy format.
 
@@ -109,6 +108,32 @@ class JsonMacdStrategy(TypedDict):
     short_window: int
     long_window: int
     signal_window: int
+    stop_loss: NotRequired[float]
+    rsi_period: NotRequired[int]
+    rsi_threshold: NotRequired[int]
+
+class JsonAtrStrategy(TypedDict):
+    """JSON ATR Trailing Stop strategy format.
+
+    Required Fields:
+        ticker (str): Trading symbol
+        timeframe (str): Trading timeframe
+        type (str): Strategy type (ATR)
+        direction (str): Trading direction
+        length (int): ATR calculation period
+        multiplier (float): ATR multiplier for stop distance
+
+    Optional Fields:
+        stop_loss (NotRequired[float]): Stop loss percentage
+        rsi_period (NotRequired[int]): RSI calculation period
+        rsi_threshold (NotRequired[int]): RSI signal threshold
+    """
+    ticker: str
+    timeframe: str
+    type: str
+    direction: str
+    length: int
+    multiplier: float
     stop_loss: NotRequired[float]
     rsi_period: NotRequired[int]
     rsi_threshold: NotRequired[int]
@@ -253,6 +278,10 @@ def validate_ma_portfolio(file_path: str) -> None:
         'short_window', 'long_window'
     }
     macd_required_fields = ma_required_fields | {'signal_window'}
+    atr_required_fields = {
+        'ticker', 'timeframe', 'type', 'direction',
+        'length', 'multiplier'
+    }
     
     try:
         with open(file_path) as f:
@@ -275,6 +304,12 @@ def validate_ma_portfolio(file_path: str) -> None:
                     if missing_fields:
                         raise ValidationError(
                             f"MA strategy missing required fields: {missing_fields}"
+                        )
+                elif strategy['type'] == 'ATR':
+                    missing_fields = atr_required_fields - set(strategy.keys())
+                    if missing_fields:
+                        raise ValidationError(
+                            f"ATR strategy missing required fields: {missing_fields}"
                         )
                 else:
                     raise ValidationError(

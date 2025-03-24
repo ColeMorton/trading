@@ -7,10 +7,12 @@ It processes both MACD and MA cross strategies, calculating signals and position
 
 from typing import List, Tuple, Callable
 import polars as pl
+import pandas as pd
 from app.tools.get_data import get_data
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.calculate_macd import calculate_macd
 from app.tools.calculate_macd_signals import calculate_macd_signals
+from app.concurrency.tools.atr_strategy import process_atr_strategy
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.stats_converter import convert_stats
 from app.concurrency.tools.types import StrategyConfig
@@ -47,9 +49,42 @@ def process_strategies(
         # Validate strategy configurations
         for i, strategy_config in enumerate(strategies, 1):
             log(f"Validating strategy {i} configuration", "info")
+            # Normalize field names first (handle both uppercase and lowercase)
+            field_mapping = {
+                "TICKER": ["ticker", "TICKER"],
+                "LENGTH": ["length", "LENGTH"],
+                "MULTIPLIER": ["multiplier", "MULTIPLIER"],
+                "SHORT_WINDOW": ["short_window", "SHORT_WINDOW"],
+                "LONG_WINDOW": ["long_window", "LONG_WINDOW"],
+                "SIGNAL_WINDOW": ["signal_window", "SIGNAL_WINDOW"],
+                "DIRECTION": ["direction", "DIRECTION"],
+                "STRATEGY_TYPE": ["type", "STRATEGY_TYPE"]
+            }
             
-            required_fields = ["TICKER", "SHORT_WINDOW", "LONG_WINDOW"]
-            missing_fields = [field for field in required_fields if field not in strategy_config]
+            # Copy values from lowercase to uppercase keys
+            for upper_key, possible_keys in field_mapping.items():
+                for key in possible_keys:
+                    if key in strategy_config and upper_key not in strategy_config:
+                        strategy_config[upper_key] = strategy_config[key]
+            
+            # Determine strategy type after normalization
+            strategy_type = strategy_config.get('STRATEGY_TYPE', 'MA')
+            
+            # Define required fields based on strategy type
+            if strategy_type == 'ATR':
+                required_fields = ["TICKER", "LENGTH", "MULTIPLIER"]
+            elif strategy_type == 'MACD':
+                required_fields = ["TICKER", "SHORT_WINDOW", "LONG_WINDOW", "SIGNAL_WINDOW"]
+            else:  # Default to MA strategy
+                required_fields = ["TICKER", "SHORT_WINDOW", "LONG_WINDOW"]
+            
+            # Check for missing fields after normalization
+            missing_fields = []
+            for field in required_fields:
+                # For each required field, check if any of its possible variations exist
+                field_variants = [field.lower(), field]
+                if not any(variant in strategy_config for variant in field_variants):
+                    missing_fields.append(field)
             if missing_fields:
                 log(f"Strategy {i} missing required fields: {missing_fields}", "error")
                 raise ValueError(f"Strategy {i} missing required fields: {missing_fields}")
@@ -74,7 +109,22 @@ def process_strategies(
                           (strategy_config.get('STRATEGY_TYPE') == 'MACD') or \
                           (strategy_config.get('type') == 'MACD')
                 
-                if is_macd:
+                # Check if it's an ATR strategy
+                is_atr = (strategy_config.get('STRATEGY_TYPE') == 'ATR') or \
+                         (strategy_config.get('type') == 'ATR')
+                
+                if is_atr:
+                    log(f"Processing {direction} ATR Trailing Stop strategy {i}/{len(strategies)}", "info")
+                    
+                    # Process ATR strategy using the dedicated module
+                    data = process_atr_strategy(
+                        data,
+                        strategy_config,
+                        log
+                    )
+                    log(f"ATR signals calculated for {strategy_config['TICKER']}", "info")
+                    
+                elif is_macd:
                     log(f"Processing {direction} MACD strategy {i}/{len(strategies)}", "info")
                     log(f"MACD periods: {strategy_config['SHORT_WINDOW']}/"
                         f"{strategy_config['LONG_WINDOW']}/"
@@ -115,10 +165,58 @@ def process_strategies(
                     position_changes = (positions[1:] != positions[:-1]).sum()
                     log(f"Strategy {i} position changes detected: {position_changes}", "info")
                 
+                # Store ATR-specific columns before backtesting (they might be lost during backtesting)
+                atr_columns = {}
+                if strategy_config.get('STRATEGY_TYPE') == 'ATR' or strategy_config.get('type') == 'ATR':
+                    log(f"Preserving ATR columns for {strategy_config['TICKER']}", "info")
+                    # Check if ATR_Trailing_Stop column exists
+                    if 'ATR_Trailing_Stop' in data.columns:
+                        atr_columns['ATR_Trailing_Stop'] = data.select(['Date', 'ATR_Trailing_Stop']).to_pandas()
+                        log(f"Preserved ATR_Trailing_Stop column with {atr_columns['ATR_Trailing_Stop']['ATR_Trailing_Stop'].notna().sum()} non-null values", "info")
+                    else:
+                        log(f"WARNING: ATR_Trailing_Stop column not found for {strategy_config['TICKER']} ATR strategy", "warning")
+                
                 # Calculate expectancy
                 log(f"Running backtest for {strategy_config['TICKER']}", "info")
                 portfolio = backtest_strategy(data, strategy_config, log)
                 stats = convert_stats(portfolio.stats(), log, strategy_config)
+                
+                # Restore ATR-specific columns after backtesting
+                if atr_columns and 'ATR_Trailing_Stop' in atr_columns:
+                    try:
+                        log(f"Restoring ATR columns for {strategy_config['TICKER']}", "info")
+                        # Get the data from the portfolio
+                        data_pd = portfolio._data_pd
+                        
+                        # Log data shapes and column info for debugging
+                        log(f"Portfolio data shape: {data_pd.shape}, columns: {list(data_pd.columns)}", "info")
+                        log(f"ATR data shape: {atr_columns['ATR_Trailing_Stop'].shape}, columns: {list(atr_columns['ATR_Trailing_Stop'].columns)}", "info")
+                        
+                        # Check if Date columns are compatible
+                        log(f"Portfolio Date column type: {data_pd['Date'].dtype}", "info")
+                        log(f"ATR Date column type: {atr_columns['ATR_Trailing_Stop']['Date'].dtype}", "info")
+                        
+                        # Ensure Date columns are the same type
+                        if data_pd['Date'].dtype != atr_columns['ATR_Trailing_Stop']['Date'].dtype:
+                            log(f"Converting Date columns to compatible types", "info")
+                            # Convert both to datetime for safe merging
+                            data_pd['Date'] = pd.to_datetime(data_pd['Date'])
+                            atr_columns['ATR_Trailing_Stop']['Date'] = pd.to_datetime(atr_columns['ATR_Trailing_Stop']['Date'])
+                        
+                        # Merge the ATR columns back into the data
+                        data_pd = data_pd.merge(atr_columns['ATR_Trailing_Stop'], on='Date', how='left')
+                        log(f"Restored ATR_Trailing_Stop column with {data_pd['ATR_Trailing_Stop'].notna().sum()} non-null values", "info")
+                        
+                        # Update the portfolio's data
+                        portfolio._data_pd = data_pd
+                        
+                        # Convert back to polars and update the strategy data
+                        data = pl.from_pandas(data_pd)
+                        log(f"Successfully restored ATR data to polars DataFrame", "info")
+                    except Exception as e:
+                        log(f"Error restoring ATR columns: {str(e)}", "error")
+                        # Continue without the ATR columns rather than failing
+                        log(f"Continuing without ATR visualization data", "warning")
                 
                 # Add expectancy to strategy config
                 strategy_config['EXPECTANCY_PER_MONTH'] = stats['Expectancy per Month']

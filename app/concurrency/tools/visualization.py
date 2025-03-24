@@ -73,6 +73,59 @@ def create_strategy_traces(
                 )
             )
         
+        # Add ATR trailing stop visualization for ATR strategies
+        strategy_type = config.get('STRATEGY_TYPE', config.get('type', ''))
+        log(f"Strategy type for {ticker}: {strategy_type}", "info")
+        log(f"Available columns in data: {data.columns}", "info")
+        
+        # Check for ATR strategy by type or by presence of ATR columns
+        is_atr_strategy = strategy_type == 'ATR' or 'ATR_Trailing_Stop' in data.columns
+        
+        if is_atr_strategy:
+            log(f"Detected ATR strategy for {ticker}", "info")
+            
+            # Check if ATR_Trailing_Stop column exists
+            if 'ATR_Trailing_Stop' in data.columns:
+                log(f"Adding ATR trailing stop visualization for {ticker}", "info")
+                
+                try:
+                    # Count non-null values in polars DataFrame
+                    non_null_count = data.filter(~pl.col('ATR_Trailing_Stop').is_null()).height
+                    log(f"ATR_Trailing_Stop column has {non_null_count} non-null values in polars DataFrame", "info")
+                    
+                    if non_null_count > 0:
+                        # Convert to pandas for easier handling of NaN values
+                        pandas_data = data.to_pandas()
+                        log(f"Pandas columns after conversion: {list(pandas_data.columns)}", "info")
+                        
+                        # Filter out NaN values for the trailing stop
+                        valid_stops = pandas_data[pandas_data['ATR_Trailing_Stop'].notna()]
+                        
+                        if not valid_stops.empty:
+                            # Create a continuous line by connecting segments
+                            # Sort by date to ensure proper line connection
+                            valid_stops = valid_stops.sort_values('Date')
+                            
+                            traces.append(
+                                go.Scatter(
+                                    x=valid_stops['Date'],
+                                    y=valid_stops['ATR_Trailing_Stop'],
+                                    name=f"{ticker} ATR Trailing Stop",
+                                    line=dict(color='red', width=1.5, dash='dot'),
+                                    hovertemplate='%{x|%d/%m/%Y}, Stop: %{y:.4f}k<extra></extra>',
+                                    connectgaps=False  # Don't connect across gaps
+                                )
+                            )
+                            log(f"Added ATR trailing stop trace with {len(valid_stops)} points", "info")
+                        else:
+                            log(f"WARNING: No valid ATR_Trailing_Stop values found for {ticker} after filtering", "warning")
+                    else:
+                        log(f"WARNING: ATR_Trailing_Stop column exists but has no non-null values for {ticker}", "warning")
+                except Exception as e:
+                    log(f"Error processing ATR_Trailing_Stop for {ticker}: {str(e)}", "error")
+            else:
+                log(f"WARNING: ATR_Trailing_Stop column not found for {ticker} ATR strategy", "warning")
+        
         # Add legend entries for both long and short positions if they exist
         if len(long_positions) > 0:
             traces.append(

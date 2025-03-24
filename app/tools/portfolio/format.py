@@ -157,19 +157,33 @@ def convert_csv_to_strategy_config(
             "REFRESH": config.get("REFRESH", True),
         }
         
+        # Handle ATR strategy parameters
+        if strategy_type == "ATR":
+            # Add length parameter if available
+            if "length" in row and row["length"] is not None:
+                strategy_config["length"] = int(row["length"])
+            elif "LENGTH" in row and row["LENGTH"] is not None:
+                strategy_config["length"] = int(row["LENGTH"])
+            
+            # Add multiplier parameter if available
+            if "multiplier" in row and row["multiplier"] is not None:
+                strategy_config["multiplier"] = float(row["multiplier"])
+            elif "MULTIPLIER" in row and row["MULTIPLIER"] is not None:
+                strategy_config["multiplier"] = float(row["MULTIPLIER"])
+        
         # Add window parameters if available
-        if "SHORT_WINDOW" in row:
+        if "SHORT_WINDOW" in row and row["SHORT_WINDOW"] is not None:
             strategy_config["SHORT_WINDOW"] = int(row["SHORT_WINDOW"])
-        elif "SMA_FAST" in row and use_sma:
+        elif "SMA_FAST" in row and row["SMA_FAST"] is not None and use_sma:
             strategy_config["SHORT_WINDOW"] = int(row["SMA_FAST"])
-        elif "EMA_FAST" in row and not use_sma:
+        elif "EMA_FAST" in row and row["EMA_FAST"] is not None and not use_sma:
             strategy_config["SHORT_WINDOW"] = int(row["EMA_FAST"])
         
-        if "LONG_WINDOW" in row:
+        if "LONG_WINDOW" in row and row["LONG_WINDOW"] is not None:
             strategy_config["LONG_WINDOW"] = int(row["LONG_WINDOW"])
-        elif "SMA_SLOW" in row and use_sma:
+        elif "SMA_SLOW" in row and row["SMA_SLOW"] is not None and use_sma:
             strategy_config["LONG_WINDOW"] = int(row["SMA_SLOW"])
-        elif "EMA_SLOW" in row and not use_sma:
+        elif "EMA_SLOW" in row and row["EMA_SLOW"] is not None and not use_sma:
             strategy_config["LONG_WINDOW"] = int(row["EMA_SLOW"])
         
         # Add stop loss if available
@@ -198,8 +212,12 @@ def convert_csv_to_strategy_config(
             
             # Add RSI window if available
             if has_rsi_period:
-                strategy_config["RSI_WINDOW"] = int(row["RSI_WINDOW"])
-                log(f"Using RSI window: {strategy_config['RSI_WINDOW']} for {ticker}", "info")
+                try:
+                    strategy_config["RSI_WINDOW"] = int(row["RSI_WINDOW"])
+                    log(f"Using RSI window: {strategy_config['RSI_WINDOW']} for {ticker}", "info")
+                except (ValueError, TypeError):
+                    strategy_config["RSI_WINDOW"] = 14
+                    log(f"Invalid RSI window value, using default: 14 for {ticker}", "warning")
             else:
                 # Use default RSI window if not provided
                 strategy_config["RSI_WINDOW"] = 14
@@ -207,8 +225,13 @@ def convert_csv_to_strategy_config(
                 
             # Add RSI threshold if available
             if has_rsi_threshold:
-                strategy_config["RSI_THRESHOLD"] = int(row["RSI_THRESHOLD"])
-                log(f"Using RSI threshold: {strategy_config['RSI_THRESHOLD']} for {ticker}", "info")
+                try:
+                    strategy_config["RSI_THRESHOLD"] = int(row["RSI_THRESHOLD"])
+                    log(f"Using RSI threshold: {strategy_config['RSI_THRESHOLD']} for {ticker}", "info")
+                except (ValueError, TypeError):
+                    default_threshold = 70 if direction == "Long" else 30
+                    strategy_config["RSI_THRESHOLD"] = default_threshold
+                    log(f"Invalid RSI threshold value, using default: {default_threshold} for {ticker}", "warning")
             else:
                 # Use default RSI threshold if not provided
                 strategy_config["RSI_THRESHOLD"] = 70 if direction == "Long" else 30
@@ -216,7 +239,11 @@ def convert_csv_to_strategy_config(
         
         # Add MACD signal window if available
         if "SIGNAL_WINDOW" in row and row["SIGNAL_WINDOW"] is not None:
-            strategy_config["SIGNAL_WINDOW"] = int(row["SIGNAL_WINDOW"])
+            try:
+                strategy_config["SIGNAL_WINDOW"] = int(row["SIGNAL_WINDOW"])
+            except (ValueError, TypeError):
+                log(f"Invalid signal window value for {ticker}: {row['SIGNAL_WINDOW']}, using default of 9", "warning")
+                strategy_config["SIGNAL_WINDOW"] = 9
         
         strategies.append(strategy_config)
     

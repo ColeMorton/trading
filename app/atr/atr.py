@@ -1,13 +1,10 @@
-from typing import Tuple, List, Dict, Optional, Any, TypedDict, Callable
-import yfinance as yf
+from typing import Tuple, List, TypedDict
 import pandas as pd
 import numpy as np
-import polars as pl
 import vectorbt as vbt
 import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime, timedelta
-from functools import lru_cache
 import concurrent.futures
 from app.tools.setup_logging import setup_logging
 from app.tools.download_data import download_data
@@ -34,7 +31,7 @@ class ATRConfig(TypedDict):
 DEFAULT_CONFIG: ATRConfig = {
     'USE_HOURLY': False,  # Set to False for daily data
     'USE_SYNTHETIC': False,  # Toggle between synthetic and original ticker
-    'TICKER_1': 'BTC-USD',  # Ticker for X to USD
+    'TICKER_1': 'MSTY',  # Ticker for X to USD
     'TICKER_2': 'BTC-USD'   # Ticker for Y to USD
 }
 
@@ -95,6 +92,7 @@ def calculate_atr_trailing_stop(close: float, atr: float, multiplier: float, hig
         return potential_stop
     new_stop: float = highest_since_entry - (atr * multiplier)
     return max(new_stop, previous_stop)
+
 def generate_signals(data: pd.DataFrame, atr_length: int, atr_multiplier: float) -> pd.DataFrame:
     """
     Generate trading signals based on ATR Trailing Stop using optimized operations.
@@ -538,8 +536,8 @@ def main(config: ATRConfig = None) -> None:
         log(f"Analysis period: {start_date} to {end_date} ({years} years)")
 
         # Define parameter ranges for testing
-        atr_lengths: List[int] = list(range(2, 12))
-        atr_multipliers: List[float] = list(np.arange(2.5, 9, 0.5))
+        atr_lengths: List[int] = list(range(2, 15))
+        atr_multipliers: List[float] = list(np.arange(1.5, 8.5, 0.5))
         log(f"Testing {len(atr_lengths)} ATR lengths and {len(atr_multipliers)} ATR multipliers")
 
         # Get data based on configuration

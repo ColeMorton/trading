@@ -51,11 +51,26 @@ def validate_strategy_config(
     """
     errors = []
     
-    # Check required fields
-    required_fields = ['TICKER', 'SHORT_WINDOW', 'LONG_WINDOW']
-    for field in required_fields:
-        if field not in strategy:
-            errors.append(f"Missing required field: {field}")
+    # Check for TICKER which is required for all strategies
+    if 'TICKER' not in strategy:
+        errors.append("Missing required field: TICKER")
+        
+    # Get strategy type
+    strategy_type = strategy.get('STRATEGY_TYPE', strategy.get('type', ''))
+    
+    # Define required fields based on strategy type
+    if strategy_type == 'ATR':
+        # ATR strategy requires length and multiplier (check both lowercase and uppercase)
+        required_fields = [('length', 'LENGTH'), ('multiplier', 'MULTIPLIER')]
+        for field_pair in required_fields:
+            if field_pair[0] not in strategy and field_pair[1] not in strategy:
+                errors.append(f"Missing required field: {field_pair[0]} or {field_pair[1]}")
+    else:
+        # MA and MACD strategies require SHORT_WINDOW and LONG_WINDOW
+        required_fields = ['SHORT_WINDOW', 'LONG_WINDOW']
+        for field in required_fields:
+            if field not in strategy:
+                errors.append(f"Missing required field: {field}")
     
     if errors:
         for error in errors:
@@ -70,11 +85,19 @@ def validate_strategy_config(
         'POSITION_SIZE': float,
         'RSI_WINDOW': int,
         'RSI_THRESHOLD': int,
-        'SIGNAL_WINDOW': int
+        'SIGNAL_WINDOW': int,
+        'length': int,
+        'LENGTH': int,
+        'multiplier': float,
+        'MULTIPLIER': float
     }
     
     for field, field_type in numeric_fields.items():
         if field in strategy:
+            # Skip None values
+            if strategy[field] is None:
+                continue
+                
             try:
                 # Attempt to convert to the expected type
                 strategy[field] = field_type(strategy[field])
