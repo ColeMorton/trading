@@ -538,8 +538,8 @@ def main(config: ATRConfig = None) -> None:
         log(f"Analysis period: {start_date} to {end_date} ({years} years)")
 
         # Define parameter ranges for testing
-        atr_lengths: List[int] = list(range(2, 9))
-        atr_multipliers: List[float] = list(np.arange(2.5, 6, 0.5))
+        atr_lengths: List[int] = list(range(2, 12))
+        atr_multipliers: List[float] = list(np.arange(2.5, 9, 0.5))
         log(f"Testing {len(atr_lengths)} ATR lengths and {len(atr_multipliers)} ATR multipliers")
 
         # Get data based on configuration

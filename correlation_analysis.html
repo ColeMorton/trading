@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Legacy Web3 Payment</title>
-    <script src="https://cdn.jsdelivr.net/npm/web3@0.20.7/dist/web3.min.js"></script>
+    <title>Universal Wallet Payment</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
     <style>
         body { font-family: Arial; max-width: 600px; margin: 0 auto; padding: 20px; text-align: center; }
         button { background-color: #5762d5; color: white; border: none; padding: 10px 20px; 
@@ -13,17 +13,19 @@
         .success { background-color: #d4edda; color: #155724; }
         .error { background-color: #f8d7da; color: #721c24; }
         .pending { background-color: #fff3cd; color: #856404; }
-        .debug { text-align: left; margin-top: 20px; font-size: 12px; 
+        .debug { font-family: monospace; text-align: left; margin-top: 20px; font-size: 12px; 
                 background: #f5f5f5; padding: 10px; border-radius: 5px; max-height: 200px; overflow: auto; }
     </style>
 </head>
 <body>
-    <h1>Web3 Payment App</h1>
+    <h1>Web3 Wallet Payment</h1>
     <p>Send 1 USDT to address:</p>
     <code>0x455EFD272AFab5B9477e4EC298b811f29362ebC6</code>
     
-    <div>
-        <button id="connectBtn">Connect Wallet</button>
+    <div id="buttonContainer">
+        <button id="detectBtn">Detect Wallets</button>
+        <button id="connectEthBtn">Connect via window.ethereum</button>
+        <button id="connectCtrlBtn">Connect via Ctrl Wallet</button>
         <button id="payBtn" disabled>Send 1 USDT</button>
     </div>
     
@@ -36,19 +38,22 @@
         const RECIPIENT = '0x455EFD272AFab5B9477e4EC298b811f29362ebC6';
         const AMOUNT = '1000000'; // 1 USDT (6 decimals)
         const TOKEN_ABI = [{"constant":false,"inputs":[{"name":"_to","type":"address"},
-                           {"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],
-                           "payable":false,"stateMutability":"nonpayable","type":"function"}];
-        
-        // Elements
-        const statusDiv = document.getElementById('status');
-        const debugDiv = document.getElementById('debug');
-        const connectBtn = document.getElementById('connectBtn');
-        const payBtn = document.getElementById('payBtn');
+                          {"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],
+                          "payable":false,"stateMutability":"nonpayable","type":"function"}];
         
         // Variables
         let web3;
-        let accounts = [];
+        let accounts;
         let usdtContract;
+        let providerConnected = false;
+        
+        // DOM elements
+        const statusDiv = document.getElementById('status');
+        const debugDiv = document.getElementById('debug');
+        const detectBtn = document.getElementById('detectBtn');
+        const connectEthBtn = document.getElementById('connectEthBtn');
+        const connectCtrlBtn = document.getElementById('connectCtrlBtn');
+        const payBtn = document.getElementById('payBtn');
         
         // Helper functions
         function setStatus(message, type) {
@@ -56,105 +61,178 @@
             statusDiv.className = 'status ' + type;
         }
         
-        function log(message) {
+        function logDebug(message) {
+            const line = document.createElement('div');
+            line.textContent = message;
+            debugDiv.appendChild(line);
             console.log(message);
-            debugDiv.innerHTML += message + '<br>';
         }
         
-        // Initialize and connect
-        async function connect() {
-            setStatus('Connecting to wallet...', 'pending');
+        // Detect available providers
+        function detectProviders() {
+            logDebug("Detecting wallet providers...");
             
-            try {
-                // Check for injected web3
-                if (typeof window.web3 !== 'undefined') {
-                    log('Legacy web3 detected, using injected web3');
-                    web3 = new Web3(window.web3.currentProvider);
+            if (typeof window.ethereum !== 'undefined') {
+                logDebug("✓ window.ethereum detected");
+                connectEthBtn.disabled = false;
+            } else {
+                logDebug("✗ window.ethereum not found");
+                connectEthBtn.disabled = true;
+            }
+            
+            if (typeof window.ctrl !== 'undefined') {
+                logDebug("✓ window.ctrl detected");
+                connectCtrlBtn.disabled = false;
+            } else {
+                logDebug("✗ window.ctrl not found");
+                
+                // Check for Ctrl specific properties on window
+                if (window.ctrlProvider || window.ctrlWallet) {
+                    logDebug("✓ Alternative Ctrl Wallet property found");
+                    connectCtrlBtn.disabled = false;
                 } else {
-                    setStatus('No wallet found. Please install Ctrl Wallet.', 'error');
+                    connectCtrlBtn.disabled = true;
+                }
+            }
+            
+            // Check for any injected Web3
+            if (window.web3 || window.Web3) {
+                logDebug("✓ Legacy web3 detected");
+            }
+            
+            // Add properties of window.ethereum to debug
+            if (window.ethereum) {
+                logDebug("Ethereum provider properties:");
+                for (const prop in window.ethereum) {
+                    if (typeof window.ethereum[prop] !== 'function') {
+                        logDebug(`- ${prop}: ${window.ethereum[prop]}`);
+                    }
+                }
+            }
+        }
+        
+        // Connect via standard Ethereum provider
+        async function connectViaEthereum() {
+            try {
+                if (typeof window.ethereum === 'undefined') {
+                    setStatus('No Ethereum provider found', 'error');
                     return;
                 }
                 
-                // Get accounts - legacy method
-                web3.eth.getAccounts((error, accs) => {
-                    if (error) {
-                        log('Error getting accounts: ' + error);
-                        setStatus('Error connecting wallet', 'error');
-                        return;
-                    }
-                    
-                    if (accs.length === 0) {
-                        log('No accounts found. Make sure your wallet is unlocked.');
-                        setStatus('No accounts available. Unlock your wallet.', 'error');
-                        return;
-                    }
-                    
-                    accounts = accs;
-                    log('Connected account: ' + accounts[0]);
-                    
-                    // Get network
-                    web3.version.getNetwork((err, netId) => {
-                        if (err) {
-                            log('Error getting network: ' + err);
-                            return;
-                        }
-                        
-                        log('Connected to network ID: ' + netId);
-                        
-                        // Create token contract
-                        usdtContract = web3.eth.contract(TOKEN_ABI).at(USDT_ADDRESS);
-                        
-                        // Enable payment
-                        payBtn.disabled = false;
-                        setStatus('Connected! Account: ' + accounts[0], 'success');
-                    });
-                });
+                setStatus('Connecting via window.ethereum...', 'pending');
+                
+                // Request accounts
+                accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                logDebug(`Connected accounts: ${accounts.join(', ')}`);
+                
+                // Initialize Web3
+                web3 = new Web3(window.ethereum);
+                logDebug(`Web3 version: ${web3.version}`);
+                
+                // Get chainId
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                logDebug(`Connected to chain ID: ${chainId}`);
+                
+                // Create contract
+                usdtContract = new web3.eth.Contract(TOKEN_ABI, USDT_ADDRESS);
+                
+                // Enable pay button
+                providerConnected = true;
+                payBtn.disabled = false;
+                
+                setStatus(`Connected via Ethereum provider. Account: ${accounts[0]}`, 'success');
             } catch (error) {
-                log('Connection error: ' + error.message);
-                setStatus('Connection error', 'error');
+                console.error(error);
+                logDebug(`Error: ${error.message}`);
+                setStatus(`Connection error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Connect via Ctrl Wallet
+        async function connectViaCtrl() {
+            try {
+                // Try different possible Ctrl Wallet provider options
+                let ctrlProvider = null;
+                
+                if (window.ctrl) {
+                    logDebug("Using window.ctrl");
+                    ctrlProvider = window.ctrl;
+                } else if (window.ctrlProvider) {
+                    logDebug("Using window.ctrlProvider");
+                    ctrlProvider = window.ctrlProvider;
+                } else if (window.ctrlWallet) {
+                    logDebug("Using window.ctrlWallet");
+                    ctrlProvider = window.ctrlWallet;
+                } else if (window.ethereum) {
+                    logDebug("Falling back to window.ethereum");
+                    ctrlProvider = window.ethereum;
+                } else {
+                    setStatus('Ctrl Wallet provider not found', 'error');
+                    return;
+                }
+                
+                setStatus('Connecting via Ctrl Wallet...', 'pending');
+                
+                // Request accounts
+                accounts = await ctrlProvider.request({ method: 'eth_requestAccounts' });
+                logDebug(`Connected accounts: ${accounts.join(', ')}`);
+                
+                // Initialize Web3
+                web3 = new Web3(ctrlProvider);
+                logDebug(`Web3 version: ${web3.version}`);
+                
+                // Get chainId
+                const chainId = await ctrlProvider.request({ method: 'eth_chainId' });
+                logDebug(`Connected to chain ID: ${chainId}`);
+                
+                // Create contract
+                usdtContract = new web3.eth.Contract(TOKEN_ABI, USDT_ADDRESS);
+                
+                // Enable pay button
+                providerConnected = true;
+                payBtn.disabled = false;
+                
+                setStatus(`Connected via Ctrl Wallet. Account: ${accounts[0]}`, 'success');
+            } catch (error) {
+                console.error(error);
+                logDebug(`Error: ${error.message}`);
+                setStatus(`Connection error: ${error.message}`, 'error');
             }
         }
         
         // Send payment
-        function sendPayment() {
-            if (accounts.length === 0) {
-                setStatus('Please connect wallet first', 'error');
-                return;
-            }
-            
-            setStatus('Processing payment...', 'pending');
-            
+        async function sendPayment() {
             try {
-                // Legacy transfer method
-                usdtContract.transfer(
+                if (!providerConnected || !accounts || accounts.length === 0) {
+                    setStatus('Please connect to a wallet first', 'error');
+                    return;
+                }
+                
+                setStatus('Processing payment...', 'pending');
+                
+                // Send transaction
+                const transaction = await usdtContract.methods.transfer(
                     RECIPIENT,
-                    AMOUNT,
-                    { from: accounts[0] },
-                    (error, txHash) => {
-                        if (error) {
-                            log('Payment error: ' + error.message);
-                            setStatus('Payment failed: ' + error.message, 'error');
-                            return;
-                        }
-                        
-                        log('Transaction hash: ' + txHash);
-                        setStatus('Payment successful! Transaction: ' + txHash, 'success');
-                    }
-                );
+                    AMOUNT
+                ).send({ from: accounts[0] });
+                
+                logDebug(`Transaction hash: ${transaction.transactionHash}`);
+                setStatus(`Payment successful! TX: ${transaction.transactionHash}`, 'success');
             } catch (error) {
-                log('Payment error: ' + error.message);
-                setStatus('Payment error: ' + error.message, 'error');
+                console.error(error);
+                logDebug(`Payment error: ${error.message}`);
+                setStatus(`Payment error: ${error.message}`, 'error');
             }
         }
         
         // Event listeners
-        connectBtn.addEventListener('click', connect);
+        detectBtn.addEventListener('click', detectProviders);
+        connectEthBtn.addEventListener('click', connectViaEthereum);
+        connectCtrlBtn.addEventListener('click', connectViaCtrl);
         payBtn.addEventListener('click', sendPayment);
         
-        // Log wallet detection
-        log('Wallet detection:');
-        log('window.web3: ' + (typeof window.web3 !== 'undefined' ? 'Available' : 'Not found'));
-        log('window.ethereum: ' + (typeof window.ethereum !== 'undefined' ? 'Available' : 'Not found'));
+        // Run detection on page load
+        detectProviders();
     </script>
 </body>
 </html>
