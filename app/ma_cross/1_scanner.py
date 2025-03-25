@@ -7,6 +7,7 @@ and can handle both new scans and updates to existing results.
 """
 
 import polars as pl
+from pathlib import Path
 from typing import TypedDict, NotRequired
 from app.tools.setup_logging import setup_logging
 from app.tools.get_config import get_config
@@ -50,14 +51,15 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     # "PORTFOLIO": 'Indices_d.csv',
-    # "PORTFOLIO": 'HOURLY Crypto.csv',
+    # "PORTFOLIO": 'crypto_h.csv',
     # "PORTFOLIO": '20241202.csv',
     # "PORTFOLIO": 'DAILY_test.csv',
     # "PORTFOLIO": 'DAILY_crypto_short.csv',
-    # "PORTFOLIO": 'DAILY_crypto.csv',
+    "PORTFOLIO": 'DAILY_crypto.csv',
     # "PORTFOLIO": 'DAILY.csv',
     # "PORTFOLIO": 'BTC_SOL_D.csv',
     # "PORTFOLIO": 'btc_20250307.csv',
+    # "PORTFOLIO": 'BTC_d.csv',
     "USE_HOURLY": False,
     "REFRESH": True,
     "DIRECTION": "Long"  # Default to Long position
@@ -106,13 +108,10 @@ def process_scanner() -> bool:
         log, log_close, _, _ = setup_logging('ma_cross', '2_scanner.log')
         if not log or not log_close:
             raise RuntimeError("Failed to initialize logging")
-            
-        # Determine which CSV file to use based on USE_HOURLY config
-        csv_filename = 'HOURLY.csv' if config.get("USE_HOURLY", False) else config.get("PORTFOLIO", 'DAILY.csv')
         
         # Read scanner data using polars with explicit schema handling
         scanner_df = pl.read_csv(
-            f'./csv/portfolios/{csv_filename}',
+            f'./csv/portfolios/{config["PORTFOLIO"]}',
             infer_schema_length=10000,
             try_parse_dates=True,
             ignore_errors=True,
@@ -133,7 +132,7 @@ def process_scanner() -> bool:
                 'Long Window': pl.Int64
             }
         )
-        log(f"Loaded scanner list: {csv_filename}")
+        log(f"Loaded scanner list: {config["PORTFOLIO"]}")
         
         # Load existing results if available
         existing_tickers, results_data = load_existing_results(config, log)
