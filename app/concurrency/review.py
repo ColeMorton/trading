@@ -35,19 +35,19 @@ from app.tools.portfolio import (
 DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "stock_portfolio_h_20250221.json",  # Updated to use an existing portfolio file
     # "PORTFOLIO": "stock_portfolio_20250221.json",
-    # "PORTFOLIO": 'SPY_QQQ_202503012.csv',
+    # "PORTFOLIO": 'SPY_QQQ_202503026.csv',
     # "PORTFOLIO": "atr_test_portfolio.json",
     # "PORTFOLIO": "btc_d_20250324.json",
     # "PORTFOLIO": "DAILY_crypto.csv",
     # "PORTFOLIO": "atr_test_portfolio.json",
-    "PORTFOLIO": "stock_trades_20250325.csv",
-    # "PORTFOLIO": "total_20250320.csv",
+    # "PORTFOLIO": "stock_trades_20250326.csv",
+    "PORTFOLIO": "total_d_20250326.csv",
     # "PORTFOLIO": "GLD_d.csv",
     # "PORTFOLIO": "SPY_GLD_BTC_20250318.csv",
     "BASE_DIR": '.',  # Default to project root directory
     "REFRESH": True,
     "SL_CANDLE_CLOSE": True, 
-    "VISUALIZATION": True,
+    "VISUALIZATION": False,
     "RATIO_BASED_ALLOCATION": True,
     "CSV_USE_HOURLY": False,
     "SORT_BY": "allocation",

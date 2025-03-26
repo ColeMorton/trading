@@ -179,7 +179,7 @@ def run_portfolio_analysis(config_input: Dict = None):
             
             try:
                 # Convert portfolio statistics
-                converted_stats = convert_stats(stats_dict, log, stats_config)
+                converted_stats = convert_stats(stats_dict, log, stats_config, None)
                 log("Successfully converted portfolio stats")
                 
                 # Calculate risk metrics

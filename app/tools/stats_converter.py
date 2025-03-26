@@ -21,7 +21,7 @@ class StatsConfig(TypedDict):
     TICKER: NotRequired[str]
 
 
-def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config: StatsConfig | None = None) -> Dict[str, Any]:
+def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config: StatsConfig | None = None, current: Any = None) -> Dict[str, Any]:
     """Convert portfolio statistics to a standardized format with proper type handling.
     
     Processes raw statistics to calculate additional metrics and ensure consistent
@@ -34,6 +34,8 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         log: Logging function for recording events and errors
         config: Configuration dictionary specifying settings like USE_HOURLY
                and TICKER. Defaults to None.
+        current: Current signal value to be assigned to 'Signal Entry' field.
+                Defaults to None.
         
     Returns:
         Dict[str, Any]: Dictionary with properly formatted values and additional
@@ -43,6 +45,7 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
                        - Trades per Month
                        - Expectancy per Month
                        - Signals per Month
+                       - Signal Entry
     
     Raises:
         KeyError: If required statistics are missing from input
@@ -61,8 +64,8 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
             if 'Expectancy per Trade' in stats and stats['Expectancy per Trade'] is not None:
                 stats['Expectancy Adjusted'] = (
                     stats['Expectancy per Trade'] *
-                    min(1, 0.01 * stats['Win Rate [%]'] / 0.65) *
-                    min(1, stats['Total Closed Trades'] / 65)
+                    min(1, 0.01 * stats['Win Rate [%]'] / 0.61) *
+                    min(1, stats['Total Closed Trades'] / 89)
                 )
             else:
                 log(f"Expectancy per Trade not found", "error")
@@ -256,6 +259,11 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
                 else:
                     converted[k] = str(v)
         
+        # Add Signal Entry if provided
+        if current is not None:
+            converted['Signal Entry'] = current
+            log(f"Added Signal Entry: {current} for {ticker}", "info")
+            
         log(f"Successfully converted stats for {ticker}", "info")
         return converted
 

@@ -74,7 +74,7 @@ def execute_single_strategy(
         stats = portfolio.stats()
         
         # Convert stats using app/tools/stats_converter.py
-        converted_stats = convert_stats(stats, log, config)
+        converted_stats = convert_stats(stats, log, config, None)
         
         # Add strategy identification fields
         converted_stats.update({
@@ -124,12 +124,18 @@ def process_single_ticker(
         min_win_rate = ticker_config["MIN_WIN_RATE"]
         portfolios_df = portfolios_df.filter(pl.col("Win Rate [%]").cast(pl.Float64) >= min_win_rate * 100)
         log(f"Filtered portfolios with win rate >= {min_win_rate * 100}%")
-        # Only filter by minimum trades if MIN_TRADES is explicitly specified in config
-        if "Total Trades" in portfolios_df.columns and "MIN_TRADES" in ticker_config:
-            min_trades = ticker_config["MIN_TRADES"]
-            portfolios_df = portfolios_df.filter(pl.col("Total Trades").cast(pl.Int64) >= min_trades)
-            log(f"Filtered portfolios with at least {min_trades} trades")
+
+    # Only filter by minimum trades if MIN_TRADES is explicitly specified in config
+    if "Total Trades" in portfolios_df.columns and "MIN_TRADES" in ticker_config:
+        min_trades = ticker_config["MIN_TRADES"]
+        portfolios_df = portfolios_df.filter(pl.col("Total Trades").cast(pl.Int64) >= min_trades)
         log(f"Filtered portfolios with at least {min_trades} trades")
+
+    # Apply expectancy adjusted filter if explicitly configured
+    if "MIN_EXPECTANCY_ADJUSTED" in ticker_config and "Expectancy Adjusted" in portfolios_df.columns:
+        min_expectancy_adjusted = ticker_config["MIN_EXPECTANCY_ADJUSTED"]
+        portfolios_df = portfolios_df.filter(pl.col("Expectancy Adjusted").cast(pl.Float64) >= min_expectancy_adjusted)
+        log(f"Filtered portfolios with expectancy adjusted >= {min_expectancy_adjusted}")
         
     if len(portfolios_df) == 0:
         log("No portfolios remain after filtering", "warning")

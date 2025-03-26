@@ -74,7 +74,7 @@ def process_single_ticker(
                 stats['Candle Lookback'] = candle_lookback
                 
                 # Convert stats to proper format for CSV export
-                converted_stats = convert_stats(stats, log, ticker_config)
+                converted_stats = convert_stats(stats, log, ticker_config, None)
                 portfolios.append(converted_stats)
         
         if not portfolios:

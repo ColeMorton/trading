@@ -17,23 +17,22 @@ from app.tools.portfolio import (
 
 # Default Configuration
 config = {
-    # "PORTFOLIO": 'stock_trades_20250315.csv',
     # "PORTFOLIO": 'spy_qqq_h_20250311.csv',
-    # "PORTFOLIO": 'total_d_20250307.csv',
+    "PORTFOLIO": 'total_d_20250326.csv',
     # "PORTFOLIO": 'DAILY_crypto.csv',
-    "PORTFOLIO": 'crypto_h.csv',
+    # "PORTFOLIO": 'crypto_h.csv',
     # "PORTFOLIO": 'btc_20250307.csv',
     # "PORTFOLIO": 'DAILY_crypto_short.csv',
     # "PORTFOLIO": 'Indices_d.csv',
     # "PORTFOLIO": 'stock_trades_20250325.csv',
     # "PORTFOLIO": "SPY_QQQ_D.csv",
     # "PORTFOLIO": 'HOURLY Crypto.csv',
-    # "PORTFOLIO": 'total_20250316.csv',
     # "PORTFOLIO": 'SPY_GLD_BTC_20250316.csv',
     # "PORTFOLIO": 'GLD_h.csv',
-    # "PORTFOLIO": 'SPY_QQQ_202503012.csv',
+    # "PORTFOLIO": 'BTC_d.csv',
+    # "PORTFOLIO": 'SPY_QQQ_202503026.csv',
     "USE_CURRENT": False,
-    "USE_HOURLY": True,
+    "USE_HOURLY": False,
     "BASE_DIR": '.',  # Added BASE_DIR for export configuration
     "DIRECTION": "Long",
     "SORT_BY": "Expectancy Adjusted",

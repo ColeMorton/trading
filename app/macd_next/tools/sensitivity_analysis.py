@@ -70,8 +70,7 @@ def analyze_parameter_combination(
             'Long Window': long_window,
             'Signal Window': signal_window
         })
-        converted_stats = convert_stats(stats, log, config)
-        converted_stats['Signal Entry'] = current
+        converted_stats = convert_stats(stats, log, config, current)
         
         return converted_stats
         

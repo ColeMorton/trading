@@ -62,6 +62,7 @@ def reorder_columns(portfolio: Dict) -> Dict:
         'Use SMA',
         'Short Window',
         'Long Window',
+        'Signal Entry',
         'Total Trades',
         'Win Rate [%]',
         'Profit Factor',
@@ -75,9 +76,10 @@ def reorder_columns(portfolio: Dict) -> Dict:
     ]
     
     reordered = {}
-    # Add first columns in specified order
+    # Add first columns in specified order (if they exist in the portfolio)
     for col in first_columns:
-        reordered[col] = portfolio[col]
+        if col in portfolio:
+            reordered[col] = portfolio[col]
     
     # Add remaining columns
     for key, value in portfolio.items():

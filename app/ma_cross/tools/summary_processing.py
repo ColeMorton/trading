@@ -8,6 +8,7 @@ adjusted metrics and processing portfolio statistics.
 from typing import Optional, Dict, Callable, List, Any
 import polars as pl
 from app.ma_cross.tools.process_ma_portfolios import process_ma_portfolios
+from app.ma_cross.tools.signal_utils import is_signal_current
 from app.tools.stats_converter import convert_stats
 from app.ma_cross.tools.export_portfolios import export_portfolios
 from app.tools.get_config import get_config
@@ -84,7 +85,8 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                 sma_stats['Use SMA'] = True
                 sma_stats['Short Window'] = sma_fast
                 sma_stats['Long Window'] = sma_slow
-                sma_converted_stats = convert_stats(sma_stats, log, config)
+                # Pass False as the default value for current
+                sma_converted_stats = convert_stats(sma_stats, log, config, False)
                 portfolios.append(sma_converted_stats)
             except Exception as e:
                 log(f"Failed to process SMA stats for {ticker}: {str(e)}", "error")
@@ -97,7 +99,8 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                 ema_stats['Use SMA'] = False
                 ema_stats['Short Window'] = ema_fast
                 ema_stats['Long Window'] = ema_slow
-                ema_converted_stats = convert_stats(ema_stats, log, config)
+                # Pass False as the default value for current
+                ema_converted_stats = convert_stats(ema_stats, log, config, False)
                 portfolios.append(ema_converted_stats)
             except Exception as e:
                 log(f"Failed to process EMA stats for {ticker}: {str(e)}", "error")

@@ -50,11 +50,10 @@ def analyze_window_combination(
         stats['Long Window'] = long
         stats['Ticker'] = config['TICKER']  # Add ticker from config
         stats['Use SMA'] = config.get('USE_SMA', False)  # Add SMA usage info
-        converted_stats = convert_stats(stats, log, config)
-        converted_stats['Signal Entry'] = current
-        converted_stats = reorder_columns(converted_stats)
+        stats = convert_stats(stats, log, config, current)
+        stats = reorder_columns(stats)
         
-        return converted_stats
+        return stats
         
     except Exception as e:
         log(f"Failed to process windows {short}, {long}: {str(e)}", "warning")

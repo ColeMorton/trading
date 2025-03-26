@@ -140,15 +140,19 @@ def export_portfolios(
                 "Use SMA",
                 "Short Window",
                 "Long Window",
+                "Signal Entry",
                 "Total Trades"
             ]
             
             # Add remaining columns in their original order
             remaining_columns = [col for col in df.columns if col not in ordered_columns]
-            ordered_columns.extend(remaining_columns)
+            
+            # Create a new list with existing ordered columns and remaining columns
+            existing_ordered_columns = [col for col in ordered_columns if col in df.columns]
+            existing_ordered_columns.extend(remaining_columns)
             
             # Select the final column order
-            df = df.select(ordered_columns)
+            df = df.select(existing_ordered_columns)
             
             # Get ticker from config
             ticker = config["TICKER"]

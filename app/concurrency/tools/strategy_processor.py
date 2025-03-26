@@ -179,7 +179,7 @@ def process_strategies(
                 # Calculate expectancy
                 log(f"Running backtest for {strategy_config['TICKER']}", "info")
                 portfolio = backtest_strategy(data, strategy_config, log)
-                stats = convert_stats(portfolio.stats(), log, strategy_config)
+                stats = convert_stats(portfolio.stats(), log, strategy_config, None)
                 
                 # Restore ATR-specific columns after backtesting
                 if atr_columns and 'ATR_Trailing_Stop' in atr_columns:

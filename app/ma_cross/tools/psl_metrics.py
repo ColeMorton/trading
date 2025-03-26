@@ -65,7 +65,7 @@ def create_portfolio_stats(
         Dict: Portfolio statistics with holding period
     """
     stats = portfolio.stats()
-    converted_stats = convert_stats(stats, log, config)
+    converted_stats = convert_stats(stats, log, config, None)
     converted_stats["Holding Period"] = holding_period
     return converted_stats
 

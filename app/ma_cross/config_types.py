@@ -75,6 +75,7 @@ class Config(TypedDict, total=False):
         USE_CURRENT (NotRequired[bool]): Whether to emphasize current window combinations
         MIN_WIN_RATE (NotRequired[float]): Minimum required win rate for portfolio filtering
         MIN_TRADES (NotRequired[int]): Minimum number of trades required
+        MIN_EXPECTANCY_ADJUSTED (NotRequired[float]): Minimum required expectancy adjusted value for portfolio filtering
         SORT_BY (NotRequired[str]): Field to sort results by
 
         # Advanced Options
@@ -108,6 +109,7 @@ class Config(TypedDict, total=False):
     USE_CURRENT: NotRequired[bool]
     MIN_WIN_RATE: NotRequired[float]
     MIN_TRADES: NotRequired[int]
+    MIN_EXPECTANCY_ADJUSTED: NotRequired[float]
     SORT_BY: NotRequired[str]
 
     # Advanced Options

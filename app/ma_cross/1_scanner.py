@@ -51,7 +51,7 @@ class Config(TypedDict):
 # Default Configuration
 config: Config = {
     # "PORTFOLIO": 'Indices_d.csv',
-    "PORTFOLIO": 'crypto_h.csv',
+    # "PORTFOLIO": 'crypto_h.csv',
     # "PORTFOLIO": '20241202.csv',
     # "PORTFOLIO": 'DAILY_test.csv',
     # "PORTFOLIO": 'DAILY_crypto_short.csv',
@@ -60,7 +60,7 @@ config: Config = {
     # "PORTFOLIO": 'BTC_SOL_D.csv',
     # "PORTFOLIO": 'btc_20250307.csv',
     # "PORTFOLIO": 'BTC_d.csv',
-    "USE_HOURLY": True,
+    "USE_HOURLY": False,
     "REFRESH": True,
     "DIRECTION": "Long"  # Default to Long position
 }
