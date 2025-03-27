@@ -1,0 +1,59 @@
+[
+    {
+        "ticker": "MSTY",
+        "timeframe": "Hourly",
+        "type": "MACD",
+        "direction": "Long",
+        "short_window": 8,
+        "long_window": 14,
+        "signal_window": 5
+    },
+    {
+        "ticker": "MSTY",
+        "timeframe": "Hourly",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 35,
+        "long_window": 37
+    },
+    {
+        "ticker": "MSTY",
+        "timeframe": "Hourly",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 49,
+        "long_window": 50
+    },
+    {
+        "ticker": "MSTY",
+        "timeframe": "Hourly",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 49,
+        "long_window": 63
+    },
+    {
+        "ticker": "MSTY",
+        "timeframe": "Hourly",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 58,
+        "long_window": 61
+    },
+    {
+        "ticker": "MSTY",
+        "timeframe": "Hourly",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 62,
+        "long_window": 63
+    },
+    {
+        "ticker": "MSTY",
+        "timeframe": "Hourly",
+        "type": "SMA",
+        "direction": "Long",
+        "short_window": 67,
+        "long_window": 69
+    }
+]

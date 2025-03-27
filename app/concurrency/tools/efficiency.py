@@ -276,15 +276,15 @@ def calculate_allocation_scores(
         allocation_scores = []
         for i in range(len(strategy_efficiencies)):
             efficiency_component = 1 * normalized_efficiencies[i]
-            risk_component = 0.786 * normalized_risks[i]
-            signal_quality_component = 0.618 * normalized_signal_quality_scores[i]
+            risk_component = 0.5 * normalized_risks[i]
+            signal_quality_component = 0.382 * normalized_signal_quality_scores[i]
             
             allocation_score = efficiency_component + risk_component + signal_quality_component
             
             log(f"Strategy {i} allocation components:", "info")
-            log(f"  Efficiency component (0.35 * {normalized_efficiencies[i]:.4f}): {efficiency_component:.4f}", "info")
-            log(f"  Risk component (0.30 * {normalized_risks[i]:.4f}): {risk_component:.4f}", "info")
-            log(f"  Signal quality component (0.25 * {normalized_signal_quality_scores[i]:.4f}): {signal_quality_component:.4f}", "info")
+            log(f"  Efficiency component (1 * {normalized_efficiencies[i]:.4f}): {efficiency_component:.4f}", "info")
+            log(f"  Risk component (0.5 * {normalized_risks[i]:.4f}): {risk_component:.4f}", "info")
+            log(f"  Signal quality component (0.382 * {normalized_signal_quality_scores[i]:.4f}): {signal_quality_component:.4f}", "info")
             log(f"  Total allocation score: {allocation_score:.4f}", "info")
             
             allocation_scores.append(allocation_score)

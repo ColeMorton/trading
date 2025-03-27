@@ -15,27 +15,25 @@ from app.tools.portfolio.collection import export_best_portfolios, combine_strat
 
 CONFIG: Config = {
     # "TICKER": [
-    #     "XLM-USD",
-    #     "ADA-USD",
-    #     "XRP-USD"
+    #     "SPY",
+    #     "QQQ",
+    #     "BTC-USD",
+    #     "MKR-USD",
+    #     "ZS",
+    #     "MSTR",
+    #     "NFLX",
+    #     "CHTR",
+    #     "TRGP",
+    #     "SMCI",
+    #     "GRAB",
+    #     "VLO",
+    #     "TMUS",
+    #     "CHRW",
+    #     "CSCO",
+    #     "ALLE",
+    #     "STLD",
+    #     "AXON"
     # ],
-    # "TICKER": [
-    #     "LFVN",
-    #     "DSGN"
-    # ],
-    "TICKER": [
-        # "GLD",
-        "SPY",
-        "QQQ",
-        # "BTC-USD",
-        # "ZS",
-        # "MSTR",
-        # "NFLX",
-        # "CHTR",
-        # "TRGP",
-        # "SMCI",
-        # "AXON",
-    ],
     # "TICKER": [
     #     "SOL-USD",
     #     "BNB-USD",
@@ -85,7 +83,16 @@ CONFIG: Config = {
     #     "XLP",
     #     "XLB"
     # ],
-    # "TICKER": "MSTY",
+    # "TICKER": [
+    #     "XLM-USD",
+    #     "ADA-USD",
+    #     "XRP-USD"
+    # ],
+    # "TICKER": [
+    #     "MSTR",
+    #     "STRK"
+    # ],
+    "TICKER": "BTC-USD",
     # "TICKER_2": 'BTC-USD',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -96,15 +103,15 @@ CONFIG: Config = {
     "REFRESH": True,
     # "USE_SMA": False,
     "DIRECTION": "Long",
-    "USE_HOURLY": False,
+    "USE_HOURLY": True,
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
     "USE_CURRENT": False,
-    "MIN_TRADES": 38,
+    "MIN_TRADES": 34,
     "MIN_WIN_RATE": 0.38,
     # "MIN_WIN_RATE": 0.5,
-    # "MIN_TRADES": 50,
+    # "MIN_TRADES": 54,
     # "MIN_WIN_RATE": 0.61,
     # "MIN_TRADES": 61,
     "MIN_EXPECTANCY_ADJUSTED": 1,
