@@ -4,7 +4,6 @@ from typing import List, Callable, Tuple, Dict
 import numpy as np
 
 def calculate_strategy_efficiency(
-    expectancy: float,
     correlation: float,
     concurrent_ratio: float,
     exclusive_ratio: float,
@@ -14,7 +13,6 @@ def calculate_strategy_efficiency(
     """Calculate individual strategy efficiency without allocation.
     
     Args:
-        expectancy (float): Strategy's raw expectancy per trade (not per month or total)
         correlation (float): Strategy's correlation with other strategies
         concurrent_ratio (float): Ratio of concurrent trading periods
         exclusive_ratio (float): Ratio of exclusive trading periods
@@ -26,13 +24,8 @@ def calculate_strategy_efficiency(
     """
     try:
         log("Calculating strategy efficiency", "info")
-        log(f"Input - expectancy: {expectancy}, correlation: {correlation}", "info")
+        log(f"Input - correlation: {correlation}", "info")
         log(f"Ratios - concurrent: {concurrent_ratio}, exclusive: {exclusive_ratio}, inactive: {inactive_ratio}", "info")
-
-        if expectancy <= 0:
-            log(f"Strategy expectancy is not positive ({expectancy:.6f}), setting to small positive value", "warning")
-            # Use a small positive value instead of returning zero
-            expectancy = 0.0001
 
         # Calculate multipliers
         diversification = 1 - correlation
@@ -46,8 +39,8 @@ def calculate_strategy_efficiency(
             
         activity = 1 - inactive_ratio
 
-        # Calculate efficiency
-        efficiency = expectancy * diversification * independence * activity
+        # Calculate efficiency (without expectancy)
+        efficiency = diversification * independence * activity
         
         # Ensure efficiency is at least a small positive value
         if efficiency <= 0:
@@ -238,7 +231,7 @@ def apply_ratio_based_allocation(
 
 def calculate_allocation_scores(
     strategy_risk_contributions: List[float],
-    strategy_signal_quality_scores: List[float],
+    strategy_adjusted_expectancies: List[float],
     strategy_efficiencies: List[float],
     strategy_tickers: List[str],  # Added parameter for ticker mapping
     log: Callable[[str, str], None],
@@ -247,10 +240,9 @@ def calculate_allocation_scores(
     """Calculate allocation scores for each strategy.
 
     Args:
-        strategy_expectancies (List[float]): List of strategy expectancies
         strategy_risk_contributions (List[float]): List of risk contributions
-        strategy_signal_quality_scores (List[float]): List of strategy signal quality scores
-        strategy_efficiencies (List[float]): List of strategy efficiencies
+        strategy_adjusted_expectancies (List[float]): List of adjusted expectancies from backtest stats
+        strategy_efficiencies (List[float]): List of strategy efficiencies (without expectancy)
         strategy_tickers (List[str]): List of tickers corresponding to each strategy
         log: Callable[[str, str], None]
         ratio_based_allocation (bool): Flag to enable ratio-based allocation
@@ -269,22 +261,22 @@ def calculate_allocation_scores(
 
         # Normalize the metrics
         normalized_risks = normalize_risk_values(strategy_risk_contributions)
-        normalized_signal_quality_scores = normalize_values(strategy_signal_quality_scores)
+        normalized_adjusted_expectancies = normalize_values(strategy_adjusted_expectancies)
         normalized_efficiencies = normalize_values(strategy_efficiencies)
 
         # Calculate raw allocation scores
         allocation_scores = []
         for i in range(len(strategy_efficiencies)):
-            efficiency_component = 1 * normalized_efficiencies[i]
+            adjusted_expectancy_component = 1 * normalized_adjusted_expectancies[i]
             risk_component = 0.5 * normalized_risks[i]
-            signal_quality_component = 0.382 * normalized_signal_quality_scores[i]
+            efficiency_component = 0.382 * normalized_efficiencies[i]
             
-            allocation_score = efficiency_component + risk_component + signal_quality_component
+            allocation_score = adjusted_expectancy_component + risk_component + efficiency_component
             
             log(f"Strategy {i} allocation components:", "info")
-            log(f"  Efficiency component (1 * {normalized_efficiencies[i]:.4f}): {efficiency_component:.4f}", "info")
+            log(f"  Adjusted expectancy component (1 * {normalized_adjusted_expectancies[i]:.4f}): {adjusted_expectancy_component:.4f}", "info")
             log(f"  Risk component (0.5 * {normalized_risks[i]:.4f}): {risk_component:.4f}", "info")
-            log(f"  Signal quality component (0.382 * {normalized_signal_quality_scores[i]:.4f}): {signal_quality_component:.4f}", "info")
+            log(f"  Efficiency component (0.382 * {normalized_efficiencies[i]:.4f}): {efficiency_component:.4f}", "info")
             log(f"  Total allocation score: {allocation_score:.4f}", "info")
             
             allocation_scores.append(allocation_score)

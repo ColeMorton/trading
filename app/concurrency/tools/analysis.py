@@ -227,7 +227,6 @@ def analyze_concurrency(
             strategy_metrics = strategy_specific_metrics[i]
             
             efficiency, div, ind, act = calculate_strategy_efficiency(
-                expectancy=expectancy,
                 correlation=strategy_metrics["correlation"],  # Strategy-specific correlation
                 concurrent_ratio=strategy_metrics["concurrent_ratio"],  # Strategy-specific concurrent ratio
                 exclusive_ratio=strategy_metrics["exclusive_ratio"],  # Strategy-specific exclusive ratio
@@ -319,9 +318,35 @@ def analyze_concurrency(
         except Exception as e:
             log(f"Error calculating aggregate signal quality metrics: {str(e)}", "error")
 
-        # Extract strategy risk contributions, signal quality scores, and efficiencies for allocation
+        # Extract strategy risk contributions, adjusted expectancies, and efficiencies for allocation
         strategy_risk_contributions = [risk_metrics.get(f"strategy_{i+1}_risk_contrib", 0.0) for i in range(len(config_list))]
-        strategy_signal_quality_scores = [risk_metrics.get(f"strategy_{i+1}_alpha_to_portfolio", 0.0) for i in range(len(config_list))]
+        
+        # Extract adjusted expectancies from strategy configs
+        strategy_adjusted_expectancies = []
+        for config in config_list:
+            # Try to get Expectancy Adjusted from config
+            adjusted_expectancy = config.get('EXPECTANCY_ADJUSTED', 0.0)
+            if adjusted_expectancy <= 0:
+                # If not available, use EXPECTANCY_PER_TRADE as fallback
+                expectancy = config.get('EXPECTANCY_PER_TRADE', 0.0)
+                if expectancy <= 0:
+                    # If still not available, convert from EXPECTANCY_PER_MONTH
+                    monthly_expectancy = config.get('EXPECTANCY_PER_MONTH', 0.0)
+                    trading_days = 30 if config.get('USE_HOURLY', False) else 21
+                    expectancy = monthly_expectancy / trading_days
+                
+                # Apply the same adjustment formula as in stats_converter.py
+                win_rate = config.get('WIN_RATE', 50.0)
+                total_trades = config.get('TOTAL_CLOSED_TRADES', 0)
+                adjusted_expectancy = (
+                    expectancy *
+                    min(1, 0.01 * win_rate / 0.61) *
+                    min(1, total_trades / 89)
+                )
+            
+            strategy_adjusted_expectancies.append(adjusted_expectancy)
+            log(f"Strategy {config.get('TICKER', 'unknown')} adjusted expectancy: {adjusted_expectancy}", "info")
+        
         allocation_efficiencies = [efficiency[0] for efficiency in strategy_efficiencies]
 
         # Extract tickers from configs
@@ -331,9 +356,9 @@ def analyze_concurrency(
         log("Calculating allocation scores", "info")
         allocation_scores, allocation_percentages = calculate_allocation_scores(
             strategy_risk_contributions,
-            strategy_signal_quality_scores,
+            strategy_adjusted_expectancies,
             allocation_efficiencies,
-            strategy_tickers,  # Add strategy_tickers parameter
+            strategy_tickers,
             log,
             ratio_based_allocation=True  # Enable ratio-based allocation
         )
