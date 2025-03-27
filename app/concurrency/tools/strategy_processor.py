@@ -222,6 +222,7 @@ def process_strategies(
                 strategy_config['EXPECTANCY_PER_MONTH'] = stats['Expectancy per Month']
                 strategy_config['EXPECTANCY'] = stats['Expectancy']
                 strategy_config['EXPECTANCY_PER_TRADE'] = stats['Expectancy per Trade']
+                
                 log(f"Expectancy per month for {strategy_config['TICKER']}: "
                     f"{stats['Expectancy per Month']:.4f}", "info")
                 

@@ -18,11 +18,11 @@ from app.tools.portfolio import (
 # Default Configuration
 config = {
     # "PORTFOLIO": 'spy_qqq_h_20250311.csv',
-    # "PORTFOLIO": 'total_d_20250326.csv',
+    # "PORTFOLIO": 'total_d_20250328.csv',
     # "PORTFOLIO": 'DAILY_crypto.csv',
-    "PORTFOLIO": 'DAILY.csv',
+    # "PORTFOLIO": 'DAILY.csv',
     # "PORTFOLIO": 'crypto_h.csv',
-    # "PORTFOLIO": 'btc_20250307.csv',
+    "PORTFOLIO": 'btc_d_20250324.json',
     # "PORTFOLIO": 'DAILY_crypto_short.csv',
     # "PORTFOLIO": 'Indices_d.csv',
     # "PORTFOLIO": 'stock_trades_20250325.csv',

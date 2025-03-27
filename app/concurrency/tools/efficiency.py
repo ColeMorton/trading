@@ -268,15 +268,15 @@ def calculate_allocation_scores(
         allocation_scores = []
         for i in range(len(strategy_efficiencies)):
             adjusted_expectancy_component = 1 * normalized_adjusted_expectancies[i]
-            risk_component = 0.5 * normalized_risks[i]
-            efficiency_component = 0.382 * normalized_efficiencies[i]
+            risk_component = 0.382 * normalized_risks[i]
+            efficiency_component = 0.256 * normalized_efficiencies[i]
             
             allocation_score = adjusted_expectancy_component + risk_component + efficiency_component
             
             log(f"Strategy {i} allocation components:", "info")
             log(f"  Adjusted expectancy component (1 * {normalized_adjusted_expectancies[i]:.4f}): {adjusted_expectancy_component:.4f}", "info")
-            log(f"  Risk component (0.5 * {normalized_risks[i]:.4f}): {risk_component:.4f}", "info")
-            log(f"  Efficiency component (0.382 * {normalized_efficiencies[i]:.4f}): {efficiency_component:.4f}", "info")
+            log(f"  Risk component (0.382 * {normalized_risks[i]:.4f}): {risk_component:.4f}", "info")
+            log(f"  Efficiency component (0.256 * {normalized_efficiencies[i]:.4f}): {efficiency_component:.4f}", "info")
             log(f"  Total allocation score: {allocation_score:.4f}", "info")
             
             allocation_scores.append(allocation_score)

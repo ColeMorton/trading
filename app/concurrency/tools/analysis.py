@@ -324,28 +324,18 @@ def analyze_concurrency(
         # Extract adjusted expectancies from strategy configs
         strategy_adjusted_expectancies = []
         for config in config_list:
-            # Try to get Expectancy Adjusted from config
-            adjusted_expectancy = config.get('EXPECTANCY_ADJUSTED', 0.0)
-            if adjusted_expectancy <= 0:
-                # If not available, use EXPECTANCY_PER_TRADE as fallback
-                expectancy = config.get('EXPECTANCY_PER_TRADE', 0.0)
-                if expectancy <= 0:
-                    # If still not available, convert from EXPECTANCY_PER_MONTH
-                    monthly_expectancy = config.get('EXPECTANCY_PER_MONTH', 0.0)
-                    trading_days = 30 if config.get('USE_HOURLY', False) else 21
-                    expectancy = monthly_expectancy / trading_days
-                
-                # Apply the same adjustment formula as in stats_converter.py
-                win_rate = config.get('WIN_RATE', 50.0)
-                total_trades = config.get('TOTAL_CLOSED_TRADES', 0)
-                adjusted_expectancy = (
-                    expectancy *
-                    min(1, 0.01 * win_rate / 0.61) *
-                    min(1, total_trades / 89)
-                )
-            
-            strategy_adjusted_expectancies.append(adjusted_expectancy)
-            log(f"Strategy {config.get('TICKER', 'unknown')} adjusted expectancy: {adjusted_expectancy}", "info")
+            ticker = config.get('TICKER', 'unknown')
+            # Get the Expectancy Adjusted value from PORTFOLIO_STATS
+            if 'PORTFOLIO_STATS' in config and 'Expectancy Adjusted' in config['PORTFOLIO_STATS']:
+                # Use the pre-calculated Expectancy Adjusted value from stats_converter.py
+                adjusted_expectancy = config['PORTFOLIO_STATS']['Expectancy Adjusted']
+                log(f"Using pre-calculated Expectancy Adjusted for {ticker}: {adjusted_expectancy}", "info")
+                strategy_adjusted_expectancies.append(adjusted_expectancy)
+            else:
+                # Throw an error if PORTFOLIO_STATS is not available
+                error_msg = f"PORTFOLIO_STATS with 'Expectancy Adjusted' not found for {ticker}. Backtest must be run before analysis."
+                log(error_msg, "error")
+                raise ValueError(error_msg)
         
         allocation_efficiencies = [efficiency[0] for efficiency in strategy_efficiencies]
 
