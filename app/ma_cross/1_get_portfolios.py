@@ -13,30 +13,26 @@ from app.ma_cross.config_types import Config
 from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
+sp500_group = ["DHI", "DRI", "DVA", "DAL", "XRAY", "DVN", "FANG", "DLR", "DFS", "DISCA"]
+
 CONFIG: Config = {
-    "TICKER": [
-        "SPY",
-        "QQQ",
-        "BTC-USD",
-        "MKR-USD",
-        "ZS",
-        "MSTR",
-        "NFLX",
-        "CHTR",
-        "TRGP",
-        "LINK-USD",
-        "VLO",
-        "CHRW",
-        "CSCO",
-        "BNB-USD",
-        "STLD",
-        "AXON",
-        "TRX-USD",
-        "OP-USD",
-        "PHM",
-        "FMC",
-        "PAYC"
-    ],
+    "TICKER": sp500_group,
+    # "TICKER": [
+    #     "SPY",
+    #     "QQQ",
+    #     "BTC-USD",
+    #     "MKR-USD",
+    #     "ZS",
+    #     "NFLX",
+    #     "CHTR",
+    #     "TRGP",
+    #     "VLO",
+    #     "CHRW",
+    #     "CSCO",
+    #     "AXON",
+    #     "TRX-USD",
+    #     "PAYC"
+    # ],
     # "TICKER": [
     #     "SOL-USD",
     #     "BNB-USD",
@@ -93,11 +89,16 @@ CONFIG: Config = {
     #     "TRX-USD"
     # ],
     # "TICKER": [
-    #     "MSTR",
-    #     "STRK"
+    #     "XNO-USD",
+    #     "XRP-USD",
+    #     "BCH-USD",
+    #     "INJ-USD",
+    #     "LZ",
+    #     "OLP",
+    #     "APPS"
     # ],
-    "TICKER": "LINK-USD",
-    "TICKER_2": 'BTC-USD',
+    # "TICKER": "LINK-USD",
+    # "TICKER_2": 'BTC-USD',
     # "WINDOWS": 120,
     "WINDOWS": 89,
     # "WINDOWS": 55,
@@ -110,14 +111,25 @@ CONFIG: Config = {
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
-    "USE_SYNTHETIC": True,
-    "USE_CURRENT": True,
+    "USE_SYNTHETIC": False,
+    "USE_CURRENT": False,
     "MIN_TRADES": 34,
     "MIN_WIN_RATE": 0.38,
     # "MIN_WIN_RATE": 0.5,
     # "MIN_TRADES": 54,
     # "MIN_WIN_RATE": 0.61,
     # "MIN_TRADES": 89,
+    "MIN_GROUPS":
+    [
+        {
+            "MIN_WIN_RATE": 0.38,
+            "MIN_TRADES": 34,
+        },
+        {
+            "MIN_WIN_RATE": 0.5,
+            "MIN_TRADES": 54,
+        },
+    ],
     "MIN_EXPECTANCY_ADJUSTED": 1,
     "SORT_BY": "Expectancy Adjusted",
     "USE_GBM": False

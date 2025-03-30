@@ -132,6 +132,26 @@ def export_summary_results(portfolios: List[Dict], portfolio_name: str, log: Cal
         export_config = config if config is not None else get_config({})
         export_config["TICKER"] = None
         
+        # Remove duplicates based on Ticker, Use SMA, Short Window, Long Window
+        try:
+            # Convert to Polars DataFrame for deduplication
+            df = pl.DataFrame(reordered_portfolios)
+            
+            # Check for duplicate entries
+            duplicate_count = len(df) - df.unique(subset=["Ticker", "Use SMA", "Short Window", "Long Window"]).height
+            
+            if duplicate_count > 0:
+                log(f"Found {duplicate_count} duplicate entries. Removing duplicates...", "warning")
+                
+                # Keep only unique combinations of the specified columns
+                df = df.unique(subset=["Ticker", "Use SMA", "Short Window", "Long Window"], keep="first")
+                log(f"After deduplication: {len(df)} unique strategy combinations")
+                
+                # Convert back to list of dictionaries
+                reordered_portfolios = df.to_dicts()
+        except Exception as e:
+            log(f"Error during deduplication: {str(e)}", "warning")
+        
         # Sort portfolios if SORT_BY is specified in config
         if export_config.get("SORT_BY"):
             try:
