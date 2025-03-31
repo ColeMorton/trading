@@ -230,22 +230,20 @@ def apply_ratio_based_allocation(
         raise
 
 def calculate_allocation_scores(
-    strategy_risk_contributions: List[float],
-    strategy_adjusted_expectancies: List[float],
     strategy_efficiencies: List[float],
-    strategy_tickers: List[str],  # Added parameter for ticker mapping
+    strategy_tickers: List[str],
     log: Callable[[str, str], None],
-    ratio_based_allocation: bool = False
+    ratio_based_allocation: bool = False,
+    strategy_configs: List[Dict] = None
 ) -> tuple[List[float], List[float]]:
     """Calculate allocation scores for each strategy.
 
     Args:
-        strategy_risk_contributions (List[float]): List of risk contributions
-        strategy_adjusted_expectancies (List[float]): List of adjusted expectancies from backtest stats
-        strategy_efficiencies (List[float]): List of strategy efficiencies (without expectancy)
+        strategy_efficiencies (List[float]): List of strategy efficiencies (used for length and logging)
         strategy_tickers (List[str]): List of tickers corresponding to each strategy
-        log: Callable[[str, str], None]
+        log: Callable[[str, str], None]: Logging function
         ratio_based_allocation (bool): Flag to enable ratio-based allocation
+        strategy_configs (List[Dict]): List of strategy configurations containing portfolio stats
 
     Returns:
         List[float]: Allocation scores for each strategy
@@ -259,24 +257,34 @@ def calculate_allocation_scores(
         for i, efficiency in enumerate(strategy_efficiencies):
             log(f"Strategy {i} raw efficiency: {efficiency}", "info")
 
-        # Normalize the metrics
-        normalized_risks = normalize_risk_values(strategy_risk_contributions)
-        normalized_adjusted_expectancies = normalize_values(strategy_adjusted_expectancies)
-        normalized_efficiencies = normalize_values(strategy_efficiencies)
-
+        # Extract scores from portfolio stats if available
+        strategy_scores = []
+        if strategy_configs:
+            for i, config in enumerate(strategy_configs):
+                if 'PORTFOLIO_STATS' in config and 'Score' in config['PORTFOLIO_STATS']:
+                    score = config['PORTFOLIO_STATS']['Score']
+                    log(f"Strategy {i} score from portfolio stats: {score:.4f}", "info")
+                    strategy_scores.append(score)
+                else:
+                    log(f"Strategy {i} missing Score in portfolio stats, using fallback", "warning")
+                    # Fallback to old method if Score is not available
+                    strategy_scores.append(0.0001)  # Small positive value as fallback
+        else:
+            # If strategy_configs is not provided, use a fallback approach
+            log("Strategy configs not provided, using fallback scores", "warning")
+            strategy_scores = [0.0001] * len(strategy_efficiencies)  # Small positive values as fallback
+        
+        # Normalize the scores
+        normalized_scores = normalize_values(strategy_scores)
+        
         # Calculate raw allocation scores
         allocation_scores = []
         for i in range(len(strategy_efficiencies)):
-            adjusted_expectancy_component = 1 * normalized_adjusted_expectancies[i]
-            risk_component = 0.382 * normalized_risks[i]
-            efficiency_component = 0.256 * normalized_efficiencies[i]
+            score_component = normalized_scores[i]
+            allocation_score = score_component
             
-            allocation_score = adjusted_expectancy_component + risk_component + efficiency_component
-            
-            log(f"Strategy {i} allocation components:", "info")
-            log(f"  Adjusted expectancy component (1 * {normalized_adjusted_expectancies[i]:.4f}): {adjusted_expectancy_component:.4f}", "info")
-            log(f"  Risk component (0.382 * {normalized_risks[i]:.4f}): {risk_component:.4f}", "info")
-            log(f"  Efficiency component (0.256 * {normalized_efficiencies[i]:.4f}): {efficiency_component:.4f}", "info")
+            log(f"Strategy {i} allocation component:", "info")
+            log(f"  Score component: {score_component:.4f}", "info")
             log(f"  Total allocation score: {allocation_score:.4f}", "info")
             
             allocation_scores.append(allocation_score)
@@ -305,12 +313,41 @@ def calculate_allocation_scores(
         # Distribute ticker allocations to strategies proportionally
         allocation_percentages = [0.0] * len(strategy_efficiencies)
         for ticker, strategies in ticker_strategies.items():
-            ticker_total_score = sum(allocation_scores[i] for i in strategies)
-            if ticker_total_score > 0:
-                ticker_allocation = ticker_allocations[ticker]
-                for strategy_index in strategies:
-                    strategy_proportion = allocation_scores[strategy_index] / ticker_total_score
+            ticker_allocation = ticker_allocations[ticker]
+            
+            # Special case: if there's only one strategy for this ticker, it gets 100% of the ticker allocation
+            if len(strategies) == 1:
+                strategy_index = strategies[0]
+                allocation_percentages[strategy_index] = ticker_allocation
+                log(f"Strategy {strategy_index} is the only strategy for {ticker}, " +
+                    f"assigning 100% of ticker allocation: {ticker_allocation:.4f}%", "info")
+                continue
+            
+            # Find the highest allocation score for this ticker
+            max_score = max([allocation_scores[i] for i in strategies]) if strategies else 0
+            
+            # Calculate adjusted scores - strategies with score 0 get 50% of max score
+            adjusted_scores = []
+            for strategy_index in strategies:
+                score = allocation_scores[strategy_index]
+                if score <= 0 and max_score > 0:
+                    # Assign 50% of the max score to strategies with zero score
+                    adjusted_scores.append(max_score * 0.5)
+                    log(f"Strategy {strategy_index} has zero score, assigning 50% of max score", "info")
+                else:
+                    adjusted_scores.append(score)
+            
+            # Calculate total adjusted score for normalization
+            total_adjusted_score = sum(adjusted_scores)
+            
+            # Distribute allocations based on adjusted scores
+            if total_adjusted_score > 0:
+                for i, strategy_index in enumerate(strategies):
+                    strategy_proportion = adjusted_scores[i] / total_adjusted_score
                     allocation_percentages[strategy_index] = ticker_allocation * strategy_proportion
+                    log(f"Strategy {strategy_index} adjusted score: {adjusted_scores[i]:.4f}, " +
+                        f"proportion: {strategy_proportion:.4f}, " +
+                        f"allocation: {allocation_percentages[strategy_index]:.4f}%", "info")
 
         log(f"Allocation scores: {allocation_scores}", "info")
         log(f"Allocation percentages: {allocation_percentages}", "info")
@@ -346,13 +383,27 @@ def calculate_ticker_allocations(
         
         log(f"Ticker total scores: {ticker_total_scores}", "info")
         
+        # Find the highest ticker score
+        max_ticker_score = max(ticker_total_scores.values()) if ticker_total_scores else 0
+        
+        # Adjust ticker scores - tickers with score 0 get 50% of max score
+        adjusted_ticker_scores = {}
+        for ticker, score in ticker_total_scores.items():
+            if score <= 0 and max_ticker_score > 0:
+                # Assign 50% of the max score to tickers with zero score
+                adjusted_ticker_scores[ticker] = max_ticker_score * 0.5
+                log(f"Ticker {ticker} has zero score, assigning 50% of max score ({max_ticker_score * 0.5:.4f})", "info")
+            else:
+                adjusted_ticker_scores[ticker] = score
+        
         # Calculate initial ticker-level allocations
-        total_score = sum(ticker_total_scores.values())
+        total_adjusted_score = sum(adjusted_ticker_scores.values())
         ticker_allocations = {
-            ticker: (score / total_score) * 100 if total_score > 0 else 0
-            for ticker, score in ticker_total_scores.items()
+            ticker: (score / total_adjusted_score) * 100 if total_adjusted_score > 0 else 0
+            for ticker, score in adjusted_ticker_scores.items()
         }
         
+        log(f"Adjusted ticker scores: {adjusted_ticker_scores}", "info")
         log(f"Initial ticker allocations: {ticker_allocations}", "info")
         
         if ratio_based_allocation:
@@ -400,21 +451,7 @@ def normalize_values(values: List[float]) -> List[float]:
     min_value = min(values)
     max_value = max(values)
     if max_value == min_value:
-        return [0.0] * len(values)  # Avoid division by zero
+        # If all values are the same, return equal normalized values (0.5)
+        # instead of all zeros to ensure fair allocation
+        return [0.5] * len(values)
     return [(value - min_value) / (max_value - min_value) for value in values]
-
-
-def normalize_risk_values(risks: List[float]) -> List[float]:
-    """Normalize risk values using inverted normalization (lower risk is better).
-
-    Args:
-        risks (List[float]): List of risk values to normalize
-
-    Returns:
-        List[float]: Normalized risk values
-    """
-    min_risk = min(risks)
-    max_risk = max(risks)
-    if max_risk == min_risk:
-        return [1.0] * len(risks)  # Avoid division by zero, all risks are equal
-    return [1 - ((risk - min_risk) / (max_risk - min_risk)) for risk in risks]

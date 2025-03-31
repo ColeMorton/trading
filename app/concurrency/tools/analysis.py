@@ -345,12 +345,11 @@ def analyze_concurrency(
         # Calculate allocation scores
         log("Calculating allocation scores", "info")
         allocation_scores, allocation_percentages = calculate_allocation_scores(
-            strategy_risk_contributions,
-            strategy_adjusted_expectancies,
             allocation_efficiencies,
             strategy_tickers,
             log,
-            ratio_based_allocation=True  # Enable ratio-based allocation
+            ratio_based_allocation=True,  # Enable ratio-based allocation
+            strategy_configs=config_list  # Pass strategy configs to access portfolio stats
         )
 
         # Compile all statistics

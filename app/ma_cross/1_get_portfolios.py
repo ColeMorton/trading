@@ -131,7 +131,8 @@ CONFIG: Config = {
         },
     ],
     "MIN_EXPECTANCY_ADJUSTED": 1,
-    "SORT_BY": "Expectancy Adjusted",
+    "SORT_BY": "Score",
+    "SORT_ASC": False,
     "USE_GBM": False
 }
 
