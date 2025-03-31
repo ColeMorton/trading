@@ -125,6 +125,46 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
             time_delta = pd.Timestamp(stats['End']) - pd.Timestamp(stats['Start'])
             days_in_period = abs(time_delta.total_seconds()) / (24 * 3600)
         
+        # Store the total calendar days as Total Period
+        # For stocks, convert from trading days (252/year) to calendar days (365/year)
+        if is_crypto:
+            # Crypto markets are open 24/7, so days_in_period already represents calendar days
+            stats['Total Period'] = days_in_period
+            log(f"Set Total Period to {days_in_period:.2f} days for {ticker} (crypto)", "info")
+        else:
+            # For stocks, convert from trading days to calendar days
+            # There are approximately 252 trading days in a year (365 calendar days)
+            stats['Total Period'] = days_in_period * (365 / 252)
+            log(f"Set Total Period to {stats['Total Period']:.2f} days for {ticker} (stock, adjusted from {days_in_period:.2f} trading days)", "info")
+        
+        # Calculate Maturity metric
+        if 'Total Trades' in stats and stats['Total Trades'] > 0:
+            stats['Maturity'] = math.sqrt(stats['Total Period'] / 365 * stats['Total Trades']) / 45
+            log(f"Set Maturity to {stats['Maturity']:.4f} for {ticker}", "info")
+        else:
+            stats['Maturity'] = 0
+            log(f"Set Maturity to 0 due to missing or zero Total Trades for {ticker}", "warning")
+        
+        # Calculate Score metric
+        required_fields = ['Maturity', 'Sortino Ratio', 'Profit Factor', 'Win Rate [%]']
+        if all(field in stats for field in required_fields):
+            try:
+                # Handle potential zero or negative values
+                maturity = max(0, stats['Maturity'])
+                sortino = max(0, stats['Sortino Ratio'])
+                profit_factor = max(0, stats['Profit Factor'])
+                win_rate_normalized = stats['Win Rate [%]'] / 61
+                
+                stats['Score'] = maturity * sortino * profit_factor * win_rate_normalized
+                log(f"Set Score to {stats['Score']:.4f} for {ticker}", "info")
+            except Exception as e:
+                stats['Score'] = 0
+                log(f"Error calculating Score for {ticker}: {str(e)}. Setting to 0.", "error")
+        else:
+            stats['Score'] = 0
+            missing = [field for field in required_fields if field not in stats]
+            log(f"Set Score to 0 due to missing fields: {', '.join(missing)} for {ticker}", "warning")
+        
         # Calculate months in the period (accounting for trading days)
         if is_crypto:
             # Crypto trades 24/7, so use calendar days
@@ -172,6 +212,7 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
             f"Signals per Month={stats['Signals per Month']:.2f}, " +
             f"Expectancy per Trade={stats['Expectancy per Trade']:.6f}, " +
             f"Expectancy per Month={stats['Expectancy per Month']:.6f}", "info")
+
         # Calculate average trade duration as weighted average of winning and losing durations
         if all(key in stats for key in ['Avg Winning Trade Duration', 'Avg Losing Trade Duration', 'Win Rate [%]']):
             try:

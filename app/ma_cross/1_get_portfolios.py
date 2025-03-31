@@ -13,7 +13,7 @@ from app.ma_cross.config_types import Config
 from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
-sp500_group = ["DHI", "DRI", "DVA", "DAL", "XRAY", "DVN", "FANG", "DLR", "DFS", "DISCA"]
+sp500_group = ["HPQ", "HBAN", "HII", "IEX", "INFO", "ITW", "INCY", "IR", "IP", "IPG"]
 
 CONFIG: Config = {
     "TICKER": sp500_group,

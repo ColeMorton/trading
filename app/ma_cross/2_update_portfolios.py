@@ -36,7 +36,7 @@ config = {
     "USE_HOURLY": False,
     "BASE_DIR": '.',  # Added BASE_DIR for export configuration
     "DIRECTION": "Long",
-    "SORT_BY": "Expectancy Adjusted",
+    "SORT_BY": "Score",
     "SORT_ASC": False
 }
 
