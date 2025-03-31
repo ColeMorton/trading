@@ -13,7 +13,7 @@ from app.ma_cross.config_types import Config
 from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
-sp500_group = ["HPQ", "HBAN", "HII", "IEX", "INFO", "ITW", "INCY", "IR", "IP", "IPG"]
+sp500_group = ["IFF", "IVZ", "IPGP", "IRM", "JBHT", "JKHY", "J", "SJM", "JCI", "JNPR"]
 
 CONFIG: Config = {
     "TICKER": sp500_group,
@@ -105,7 +105,7 @@ CONFIG: Config = {
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
     "BASE_DIR": ".",
-    "REFRESH": True,
+    "REFRESH": False,
     # "USE_SMA": False,
     "DIRECTION": "Long",
     "USE_HOURLY": False,

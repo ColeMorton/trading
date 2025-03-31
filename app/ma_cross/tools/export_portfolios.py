@@ -62,6 +62,15 @@ def export_portfolios(
     config["USE_MA"] = export_type != "portfolios_best"
 
     try:
+        # Check if we have pre-sorted portfolios in the config
+        if config.get("_SORTED_PORTFOLIOS") is not None:
+            # Use the pre-sorted portfolios
+            portfolios = config["_SORTED_PORTFOLIOS"]
+            if log:
+                log("Using pre-sorted portfolios from config", "info")
+            # Remove from config to avoid confusion
+            del config["_SORTED_PORTFOLIOS"]
+        
         # Convert portfolios to DataFrame
         df = pl.DataFrame(portfolios)
         

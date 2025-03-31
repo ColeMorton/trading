@@ -163,11 +163,16 @@ def export_summary_results(portfolios: List[Dict], portfolio_name: str, log: Cal
                 sort_asc = export_config.get("SORT_ASC", False)
                 
                 if sort_by in df.columns:
+                    # Sort the DataFrame
                     df = df.sort(sort_by, descending=not sort_asc)
                     log(f"Sorted results by {sort_by} ({'ascending' if sort_asc else 'descending'})")
                     
                     # Convert back to list of dictionaries
                     reordered_portfolios = df.to_dicts()
+                    
+                    # Ensure the sort order is preserved by setting it in the export_config
+                    # This will be used by export_portfolios to maintain the order
+                    export_config["_SORTED_PORTFOLIOS"] = reordered_portfolios
                 else:
                     log(f"Warning: Sort column '{sort_by}' not found in results", "warning")
             except Exception as e:
@@ -175,6 +180,7 @@ def export_summary_results(portfolios: List[Dict], portfolio_name: str, log: Cal
         
         # Use empty string for feature_dir to export directly to /csv/portfolios/
         # instead of /csv/ma_cross/portfolios/
+        # Pass the export_config which may contain _SORTED_PORTFOLIOS if sorting was applied
         _, success = export_portfolios(reordered_portfolios, export_config, 'portfolios', portfolio_name, log, feature_dir="")
         if not success:
             log("Failed to export portfolios", "error")

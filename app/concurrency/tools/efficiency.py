@@ -323,17 +323,24 @@ def calculate_allocation_scores(
                     f"assigning 100% of ticker allocation: {ticker_allocation:.4f}%", "info")
                 continue
             
-            # Find the highest allocation score for this ticker
-            max_score = max([allocation_scores[i] for i in strategies]) if strategies else 0
-            
-            # Calculate adjusted scores - strategies with score 0 get 50% of max score
+            # Create adjusted scores - use a very small value for zero scores
             adjusted_scores = []
-            for strategy_index in strategies:
+            strategy_indices = []
+            
+            # Sort strategies by their original scores
+            sorted_strategies = sorted(
+                strategies,
+                key=lambda idx: allocation_scores[idx],
+                reverse=True
+            )
+            
+            for strategy_index in sorted_strategies:
+                strategy_indices.append(strategy_index)
                 score = allocation_scores[strategy_index]
-                if score <= 0 and max_score > 0:
-                    # Assign 50% of the max score to strategies with zero score
-                    adjusted_scores.append(max_score * 0.5)
-                    log(f"Strategy {strategy_index} has zero score, assigning 50% of max score", "info")
+                if score <= 0:
+                    # Use a very small positive value for zero scores
+                    adjusted_scores.append(0.0001)
+                    log(f"Strategy {strategy_index} has zero score, using minimal value 0.0001", "info")
                 else:
                     adjusted_scores.append(score)
             
@@ -342,10 +349,10 @@ def calculate_allocation_scores(
             
             # Distribute allocations based on adjusted scores
             if total_adjusted_score > 0:
-                for i, strategy_index in enumerate(strategies):
+                for i, strategy_index in enumerate(strategy_indices):
                     strategy_proportion = adjusted_scores[i] / total_adjusted_score
                     allocation_percentages[strategy_index] = ticker_allocation * strategy_proportion
-                    log(f"Strategy {strategy_index} adjusted score: {adjusted_scores[i]:.4f}, " +
+                    log(f"Strategy {strategy_index} adjusted score: {adjusted_scores[i]:.6f}, " +
                         f"proportion: {strategy_proportion:.4f}, " +
                         f"allocation: {allocation_percentages[strategy_index]:.4f}%", "info")
 
@@ -383,16 +390,13 @@ def calculate_ticker_allocations(
         
         log(f"Ticker total scores: {ticker_total_scores}", "info")
         
-        # Find the highest ticker score
-        max_ticker_score = max(ticker_total_scores.values()) if ticker_total_scores else 0
-        
-        # Adjust ticker scores - tickers with score 0 get 50% of max score
+        # Create adjusted scores - use a very small value for zero scores
         adjusted_ticker_scores = {}
         for ticker, score in ticker_total_scores.items():
-            if score <= 0 and max_ticker_score > 0:
-                # Assign 50% of the max score to tickers with zero score
-                adjusted_ticker_scores[ticker] = max_ticker_score * 0.5
-                log(f"Ticker {ticker} has zero score, assigning 50% of max score ({max_ticker_score * 0.5:.4f})", "info")
+            if score <= 0:
+                # Use a very small positive value for zero scores
+                adjusted_ticker_scores[ticker] = 0.0001
+                log(f"Ticker {ticker} has zero score, using minimal value 0.0001", "info")
             else:
                 adjusted_ticker_scores[ticker] = score
         
@@ -403,16 +407,25 @@ def calculate_ticker_allocations(
             for ticker, score in adjusted_ticker_scores.items()
         }
         
+        # Sort tickers by their original scores for logging
+        sorted_tickers = sorted(
+            ticker_allocations.keys(),
+            key=lambda t: ticker_total_scores[t],
+            reverse=True
+        )
+        
         log(f"Adjusted ticker scores: {adjusted_ticker_scores}", "info")
         log(f"Initial ticker allocations: {ticker_allocations}", "info")
         
+        # Log allocations in order of original scores
+        log("Allocations in order of original scores:", "info")
+        for ticker in sorted_tickers:
+            log(f"{ticker}: score={ticker_total_scores[ticker]:.6f}, allocation={ticker_allocations[ticker]:.4f}%", "info")
+        
+        log(f"Initial ticker allocations: {ticker_allocations}", "info")
+        
         if ratio_based_allocation:
-            # Sort tickers by allocation to maintain relative ordering
-            sorted_tickers = sorted(
-                ticker_allocations.keys(),
-                key=lambda t: ticker_allocations[t],
-                reverse=True
-            )
+            # Get allocations in the same order as sorted_tickers
             sorted_allocations = [ticker_allocations[t] for t in sorted_tickers]
             
             # Adjust allocations while preserving ticker ordering
