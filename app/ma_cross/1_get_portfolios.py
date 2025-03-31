@@ -13,26 +13,32 @@ from app.ma_cross.config_types import Config
 from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
-sp500_group = ["IFF", "IVZ", "IPGP", "IRM", "JBHT", "JKHY", "J", "SJM", "JCI", "JNPR"]
+sp500_group = ["NVR", "OMC", "OKE", "OGN", "OTIS", "PKG", "PH", "PBCT", "PKI", "PM"]
 
 CONFIG: Config = {
-    "TICKER": sp500_group,
-    # "TICKER": [
-    #     "SPY",
-    #     "QQQ",
-    #     "BTC-USD",
-    #     "MKR-USD",
-    #     "ZS",
-    #     "NFLX",
-    #     "CHTR",
-    #     "TRGP",
-    #     "VLO",
-    #     "CHRW",
-    #     "CSCO",
-    #     "AXON",
-    #     "TRX-USD",
-    #     "PAYC"
-    # ],
+    # "TICKER": sp500_group,
+    "TICKER": [
+        "SPY",
+        "QQQ",
+        "BTC-USD",
+        "MKR-USD",
+        "ZS",
+        "NFLX",
+        "CHTR",
+        "TRGP",
+        "VLO",
+        "CHRW",
+        "CSCO",
+        "AXON",
+        "TRX-USD",
+        "PAYC",
+        "DLTR",
+        "ELV",
+        "GIS",
+        "LIN",
+        "WMT",
+        "ALLE"
+    ],
     # "TICKER": [
     #     "SOL-USD",
     #     "BNB-USD",
@@ -105,7 +111,7 @@ CONFIG: Config = {
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
     "BASE_DIR": ".",
-    "REFRESH": False,
+    "REFRESH": True,
     # "USE_SMA": False,
     "DIRECTION": "Long",
     "USE_HOURLY": False,
@@ -119,18 +125,8 @@ CONFIG: Config = {
     # "MIN_TRADES": 54,
     # "MIN_WIN_RATE": 0.61,
     # "MIN_TRADES": 89,
-    "MIN_GROUPS":
-    [
-        {
-            "MIN_WIN_RATE": 0.38,
-            "MIN_TRADES": 34,
-        },
-        {
-            "MIN_WIN_RATE": 0.5,
-            "MIN_TRADES": 54,
-        },
-    ],
     "MIN_EXPECTANCY_ADJUSTED": 1,
+    "MIN_PROFIT_FACTOR_ADJUSTED": 1,
     "SORT_BY": "Score",
     "SORT_ASC": False,
     "USE_GBM": False

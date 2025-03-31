@@ -70,6 +70,14 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
             else:
                 log(f"Expectancy per Trade not found", "error")
                 raise
+
+            if 'Profit Factor' in stats:
+                stats['Profit Factor Adjusted'] = (
+                    stats['Profit Factor'] * min(1, stats['Total Closed Trades'] / 54)
+                )
+            else:
+                log(f"Profit Factor not found", "error")
+                raise
             
             # Calculate Beats BNH percentage
             # Example test data:
@@ -152,10 +160,10 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
                 # Handle potential zero or negative values
                 maturity = max(0, stats['Maturity'])
                 sortino = max(0, stats['Sortino Ratio'])
-                profit_factor = max(0, stats['Profit Factor'])
+                profit_factor_adjusted = max(0, stats['Profit Factor Adjusted'])
                 win_rate_normalized = stats['Win Rate [%]'] / 61
                 
-                stats['Score'] = maturity * sortino * profit_factor * win_rate_normalized
+                stats['Score'] = maturity * sortino * profit_factor_adjusted * win_rate_normalized
                 log(f"Set Score to {stats['Score']:.4f} for {ticker}", "info")
             except Exception as e:
                 stats['Score'] = 0

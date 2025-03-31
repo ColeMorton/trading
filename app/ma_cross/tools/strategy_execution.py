@@ -136,6 +136,12 @@ def process_single_ticker(
         min_expectancy_adjusted = ticker_config["MIN_EXPECTANCY_ADJUSTED"]
         portfolios_df = portfolios_df.filter(pl.col("Expectancy Adjusted").cast(pl.Float64) >= min_expectancy_adjusted)
         log(f"Filtered portfolios with expectancy adjusted >= {min_expectancy_adjusted}")
+    
+    # Apply profit factor adjusted filter if explicitly configured
+    if "MIN_PROFIT_FACTOR_ADJUSTED" in ticker_config and "Profit Factor Adjusted" in portfolios_df.columns:
+        min_profit_factor_adjusted = ticker_config["MIN_PROFIT_FACTOR_ADJUSTED"]
+        portfolios_df = portfolios_df.filter(pl.col("Profit Factor Adjusted").cast(pl.Float64) >= min_profit_factor_adjusted)
+        log(f"Filtered portfolios with profit factor adjusted >= {min_profit_factor_adjusted}")
         
     if len(portfolios_df) == 0:
         log("No portfolios remain after filtering", "warning")

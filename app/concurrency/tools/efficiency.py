@@ -33,9 +33,9 @@ def calculate_strategy_efficiency(
         # Modify independence calculation to handle zero exclusive_ratio
         if exclusive_ratio <= 0:
             log(f"Warning: exclusive_ratio is {exclusive_ratio}, using minimum value for independence", "warning")
-            independence = 0.01  # Use a small positive value instead of zero
+            independence = 0.0001  # Use a small positive value instead of zero
         else:
-            independence = exclusive_ratio / (1 - inactive_ratio) if inactive_ratio < 1 else 0.01
+            independence = exclusive_ratio / (1 - inactive_ratio) if inactive_ratio < 1 else 0.0001
             
         activity = 1 - inactive_ratio
 
