@@ -126,12 +126,11 @@ def calculate_portfolio_efficiency(
         )):
             # Normalize allocation
             norm_alloc = alloc / total_allocation if total_allocation > 0 else 1/len(strategy_efficiencies)
-            
             # Calculate risk-adjusted weight (lower risk is better)
-            # Invert risk so that lower risk results in higher score
-            risk_factor = 1 - risk  # Lower risk contribution is better
+            risk_factor = calculate_risk_factor(risk)  # Lower risk contribution is better
             
             # Combine factors (efficiency * expectancy * allocation * risk_factor)
+            weighted_eff = eff * exp * norm_alloc * risk_factor
             weighted_eff = eff * exp * norm_alloc * risk_factor
             weighted_efficiencies.append(weighted_eff)
             
@@ -139,7 +138,7 @@ def calculate_portfolio_efficiency(
             log(f"  Base efficiency: {eff:.6f}", "info")
             log(f"  Expectancy: {exp:.6f}", "info")
             log(f"  Normalized allocation: {norm_alloc:.6f}", "info")
-            log(f"  Risk factor (1 - risk): {risk_factor:.6f}", "info")
+            log(f"  Risk factor (1 - {risk:.6f}): {risk_factor:.6f}", "info")
             log(f"  Weighted efficiency: {weighted_eff:.6f}", "info")
         
         # Calculate total weighted efficiency
@@ -311,8 +310,8 @@ def calculate_allocation_scores(
                     raise
         else:
             # If strategy_configs is not provided, use a fallback approach
-            log("Strategy configs not provided, using fallback scores", "warning")
-            strategy_scores = [0.0001] * len(strategy_efficiencies)  # Small positive values as fallback
+            log("Strategy configs not provided, using fallback scores", "error")
+            raise
         
         # Normalize the scores
         normalized_scores = normalize_values(strategy_scores)
@@ -324,13 +323,16 @@ def calculate_allocation_scores(
         for i in range(len(strategy_efficiencies)):
             score_component = normalized_scores[i]
             efficiency_component = 0.618 * normalized_efficiencies[i]
-            risk_component = 0.386 * normalized_risks[i]
+            # Calculate risk factor (lower risk gives higher factor)
+            risk_factor = calculate_risk_factor(normalized_risks[i])
+            risk_component = 0.386 * risk_factor
             allocation_score = score_component + efficiency_component + risk_component
             
             log(f"Strategy {i} allocation component:", "info")
             log(f"  Score component: {score_component:.4f}", "info")
             log(f"  Efficiency component (0.618 * {normalized_efficiencies[i]:.4f}): {efficiency_component:.4f}", "info")
-            log(f"  Risk component (0.386 * {normalized_risks[i]:.4f}): {risk_component:.4f}", "info")
+            log(f"  Risk factor (1 - {normalized_risks[i]:.4f}): {risk_factor:.4f}", "info")
+            log(f"  Risk component (0.386 * {risk_factor:.4f}): {risk_component:.4f}", "info")
             log(f"  Total allocation score: {allocation_score:.4f}", "info")
             
             allocation_scores.append(allocation_score)
@@ -384,9 +386,8 @@ def calculate_allocation_scores(
                 strategy_indices.append(strategy_index)
                 score = allocation_scores[strategy_index]
                 if score <= 0:
-                    # Use a very small positive value for zero scores
-                    adjusted_scores.append(0.0001)
-                    log(f"Strategy {strategy_index} has zero score, using minimal value 0.0001", "info")
+                    log(f"Strategy {strategy_index} has zero score, using minimal value 0.0001", "error")
+                    raise
                 else:
                     adjusted_scores.append(score)
             
@@ -497,6 +498,19 @@ def calculate_ticker_allocations(
     except Exception as e:
         log(f"Error calculating ticker allocations: {str(e)}", "error")
         raise
+
+def calculate_risk_factor(risk: float) -> float:
+    """Calculate a risk factor where lower risk results in a higher factor.
+    
+    Args:
+        risk (float): Risk value (either raw or normalized)
+        
+    Returns:
+        float: Risk factor where lower risk gives higher value
+    """
+    # Invert the risk value to get the risk factor
+    # This ensures that lower risk results in a higher factor
+    return 1 - risk
 
 def normalize_values(values: List[float]) -> List[float]:
     """Normalize a list of values to a scale of 0 to 1.

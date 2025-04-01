@@ -184,6 +184,10 @@ def analyze_concurrency(
             log
         )
 
+        # Extract strategy risk contributions for portfolio efficiency calculation
+        strategy_risk_contributions = [risk_metrics.get(f"strategy_{i+1}_risk_contrib", 0.0) for i in range(len(config_list))]
+        log(f"Strategy risk contributions: {strategy_risk_contributions}", "info")
+
         # Calculate efficiency metrics
         log("Calculating efficiency metrics", "info")
         
@@ -319,8 +323,7 @@ def analyze_concurrency(
         except Exception as e:
             log(f"Error calculating aggregate signal quality metrics: {str(e)}", "error")
 
-        # Extract strategy risk contributions, adjusted expectancies, and efficiencies for allocation
-        strategy_risk_contributions = [risk_metrics.get(f"strategy_{i+1}_risk_contrib", 0.0) for i in range(len(config_list))]
+        # Extract adjusted expectancies and efficiencies for allocation
         
         # Extract adjusted expectancies from strategy configs
         strategy_adjusted_expectancies = []
