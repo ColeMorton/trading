@@ -10,6 +10,7 @@ import polars as pl
 from app.ma_cross.tools.filter_portfolios import filter_portfolios
 from app.ma_cross.tools.export_portfolios import export_portfolios, PortfolioExportError
 from app.ma_cross.tools.signal_processing import process_ticker_portfolios
+from app.ma_cross.tools.signal_utils import is_signal_current
 from app.tools.portfolio.selection import get_best_portfolio
 from app.ma_cross.config_types import Config
 from app.tools.get_data import get_data
@@ -65,6 +66,10 @@ def execute_single_strategy(
             log(f"Failed to calculate signals for {ticker}", "error")
             return None
             
+        # Check if there's a current signal
+        current_signal = is_signal_current(data, config)
+        log(f"Current signal for {ticker}: {current_signal}", "info")
+            
         # Run backtest using app/tools/backtest_strategy.py
         portfolio = backtest_strategy(data, config, log)
         if portfolio is None:
@@ -74,7 +79,8 @@ def execute_single_strategy(
         stats = portfolio.stats()
         
         # Convert stats using app/tools/stats_converter.py
-        converted_stats = convert_stats(stats, log, config, None)
+        # Pass the current signal to convert_stats
+        converted_stats = convert_stats(stats, log, config, current_signal)
         
         # Add strategy identification fields
         converted_stats.update({

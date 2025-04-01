@@ -266,9 +266,8 @@ def calculate_allocation_scores(
                     log(f"Strategy {i} score from portfolio stats: {score:.4f}", "info")
                     strategy_scores.append(score)
                 else:
-                    log(f"Strategy {i} missing Score in portfolio stats, using fallback", "warning")
-                    # Fallback to old method if Score is not available
-                    strategy_scores.append(0.0001)  # Small positive value as fallback
+                    log(f"Strategy {i} missing Score in portfolio stats, using fallback", "error")
+                    raise
         else:
             # If strategy_configs is not provided, use a fallback approach
             log("Strategy configs not provided, using fallback scores", "warning")
@@ -276,15 +275,18 @@ def calculate_allocation_scores(
         
         # Normalize the scores
         normalized_scores = normalize_values(strategy_scores)
+        normalized_efficiencies = normalize_values(strategy_efficiencies)
         
         # Calculate raw allocation scores
         allocation_scores = []
         for i in range(len(strategy_efficiencies)):
             score_component = normalized_scores[i]
-            allocation_score = score_component
+            efficiency_component = 0.786 * normalized_efficiencies[i]
+            allocation_score = score_component + efficiency_component
             
             log(f"Strategy {i} allocation component:", "info")
             log(f"  Score component: {score_component:.4f}", "info")
+            log(f"  Efficiency component (0.786 * {normalized_efficiencies[i]:.4f}): {efficiency_component:.4f}", "info")
             log(f"  Total allocation score: {allocation_score:.4f}", "info")
             
             allocation_scores.append(allocation_score)

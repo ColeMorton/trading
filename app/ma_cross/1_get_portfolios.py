@@ -13,32 +13,32 @@ from app.ma_cross.config_types import Config
 from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
-sp500_group = ["NVR", "OMC", "OKE", "OGN", "OTIS", "PKG", "PH", "PBCT", "PKI", "PM"]
+sp500_group = ["PSX", "PNW", "PXD", "PPG", "PPL", "PFG", "PEG", "PSA", "PHM", "PVH"]
 
 CONFIG: Config = {
-    # "TICKER": sp500_group,
-    "TICKER": [
-        "SPY",
-        "QQQ",
-        "BTC-USD",
-        "MKR-USD",
-        "ZS",
-        "NFLX",
-        "CHTR",
-        "TRGP",
-        "VLO",
-        "CHRW",
-        "CSCO",
-        "AXON",
-        "TRX-USD",
-        "PAYC",
-        "DLTR",
-        "ELV",
-        "GIS",
-        "LIN",
-        "WMT",
-        "ALLE"
-    ],
+    "TICKER": sp500_group,
+    # "TICKER": [
+    #     "SPY",
+    #     "QQQ",
+    #     "BTC-USD",
+    #     "MKR-USD",
+    #     "ZS",
+    #     "NFLX",
+    #     "CHTR",
+    #     "TRGP",
+    #     "VLO",
+    #     "CHRW",
+    #     "CSCO",
+    #     "AXON",
+    #     "TRX-USD",
+    #     "PAYC",
+    #     "DLTR",
+    #     "ELV",
+    #     "GIS",
+    #     "LIN",
+    #     "WMT",
+    #     "ALLE"
+    # ],
     # "TICKER": [
     #     "SOL-USD",
     #     "BNB-USD",
@@ -111,7 +111,7 @@ CONFIG: Config = {
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
     "BASE_DIR": ".",
-    "REFRESH": True,
+    "REFRESH": False,
     # "USE_SMA": False,
     "DIRECTION": "Long",
     "USE_HOURLY": False,
