@@ -75,32 +75,40 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
         if result is None:
             return None
             
-        sma_portfolio, ema_portfolio, result_config = result
+        sma_portfolio, ema_portfolio, result_config, sma_data, ema_data = result
 
         # Process SMA stats if portfolio exists
-        if use_sma and sma_portfolio is not None:
+        if use_sma and sma_portfolio is not None and sma_data is not None:
             try:
+                # Check if there's a current signal
+                current_signal = is_signal_current(sma_data, config)
+                log(f"Current SMA signal for {ticker}: {current_signal}", "info")
+                
                 sma_stats = sma_portfolio.stats()
                 sma_stats['Ticker'] = ticker
                 sma_stats['Use SMA'] = True
                 sma_stats['Short Window'] = sma_fast
                 sma_stats['Long Window'] = sma_slow
-                # Pass False as the default value for current
-                sma_converted_stats = convert_stats(sma_stats, log, config, False)
+                # Pass the actual signal status instead of False
+                sma_converted_stats = convert_stats(sma_stats, log, config, current_signal)
                 portfolios.append(sma_converted_stats)
             except Exception as e:
                 log(f"Failed to process SMA stats for {ticker}: {str(e)}", "error")
 
         # Process EMA stats if portfolio exists
-        if use_sma == False and ema_portfolio is not None:
+        if use_sma == False and ema_portfolio is not None and ema_data is not None:
             try:
+                # Check if there's a current signal
+                current_signal = is_signal_current(ema_data, config)
+                log(f"Current EMA signal for {ticker}: {current_signal}", "info")
+                
                 ema_stats = ema_portfolio.stats()
                 ema_stats['Ticker'] = ticker
                 ema_stats['Use SMA'] = False
                 ema_stats['Short Window'] = ema_fast
                 ema_stats['Long Window'] = ema_slow
-                # Pass False as the default value for current
-                ema_converted_stats = convert_stats(ema_stats, log, config, False)
+                # Pass the actual signal status instead of False
+                ema_converted_stats = convert_stats(ema_stats, log, config, current_signal)
                 portfolios.append(ema_converted_stats)
             except Exception as e:
                 log(f"Failed to process EMA stats for {ticker}: {str(e)}", "error")

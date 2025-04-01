@@ -125,29 +125,95 @@ def process_single_ticker(
     if portfolios_df is None:
         return None
         
-    # Apply win rate and minimum trades filters only if explicitly configured
-    if "MIN_WIN_RATE" in ticker_config and "Win Rate [%]" in portfolios_df.columns:
-        min_win_rate = ticker_config["MIN_WIN_RATE"]
-        portfolios_df = portfolios_df.filter(pl.col("Win Rate [%]").cast(pl.Float64) >= min_win_rate * 100)
-        log(f"Filtered portfolios with win rate >= {min_win_rate * 100}%")
-
-    # Only filter by minimum trades if MIN_TRADES is explicitly specified in config
-    if "Total Trades" in portfolios_df.columns and "MIN_TRADES" in ticker_config:
-        min_trades = ticker_config["MIN_TRADES"]
-        portfolios_df = portfolios_df.filter(pl.col("Total Trades").cast(pl.Int64) >= min_trades)
-        log(f"Filtered portfolios with at least {min_trades} trades")
-
-    # Apply expectancy adjusted filter if explicitly configured
-    if "MIN_EXPECTANCY_ADJUSTED" in ticker_config and "Expectancy Adjusted" in portfolios_df.columns:
-        min_expectancy_adjusted = ticker_config["MIN_EXPECTANCY_ADJUSTED"]
-        portfolios_df = portfolios_df.filter(pl.col("Expectancy Adjusted").cast(pl.Float64) >= min_expectancy_adjusted)
-        log(f"Filtered portfolios with expectancy adjusted >= {min_expectancy_adjusted}")
+    # Apply filters based on MINIMUMS dictionary if present
+    if "MINIMUMS" in ticker_config:
+        minimums = ticker_config["MINIMUMS"]
+        
+        # Apply win rate filter if configured
+        if "WIN_RATE" in minimums and "Win Rate [%]" in portfolios_df.columns:
+            min_win_rate = minimums["WIN_RATE"]
+            portfolios_df = portfolios_df.filter(pl.col("Win Rate [%]").cast(pl.Float64) >= min_win_rate * 100)
+            log(f"Filtered portfolios with win rate >= {min_win_rate * 100}%")
+        
+        # Apply minimum trades filter if configured
+        if "TRADES" in minimums and "Total Trades" in portfolios_df.columns:
+            min_trades = minimums["TRADES"]
+            portfolios_df = portfolios_df.filter(pl.col("Total Trades").cast(pl.Int64) >= min_trades)
+            log(f"Filtered portfolios with at least {min_trades} trades")
+        
+        # Apply expectancy adjusted filter if configured
+        if "EXPECTANCY_ADJUSTED" in minimums and "Expectancy Adjusted" in portfolios_df.columns:
+            min_expectancy_adjusted = minimums["EXPECTANCY_ADJUSTED"]
+            portfolios_df = portfolios_df.filter(pl.col("Expectancy Adjusted").cast(pl.Float64) >= min_expectancy_adjusted)
+            log(f"Filtered portfolios with expectancy adjusted >= {min_expectancy_adjusted}")
+        
+        # Apply profit factor adjusted filter if configured
+        if "PROFIT_FACTOR_ADJUSTED" in minimums and "Profit Factor Adjusted" in portfolios_df.columns:
+            min_profit_factor_adjusted = minimums["PROFIT_FACTOR_ADJUSTED"]
+            portfolios_df = portfolios_df.filter(pl.col("Profit Factor Adjusted").cast(pl.Float64) >= min_profit_factor_adjusted)
+            log(f"Filtered portfolios with profit factor adjusted >= {min_profit_factor_adjusted}")
+        
+        # Apply score filter if configured
+        if "SCORE" in minimums and "Score" in portfolios_df.columns:
+            min_score = minimums["SCORE"]
+            portfolios_df = portfolios_df.filter(pl.col("Score").cast(pl.Float64) >= min_score)
+            log(f"Filtered portfolios with score >= {min_score}")
+        
+        # Apply maturity filter if configured
+        if "MATURITY" in minimums and "Maturity" in portfolios_df.columns:
+            min_maturity = minimums["MATURITY"]
+            portfolios_df = portfolios_df.filter(pl.col("Maturity").cast(pl.Float64) >= min_maturity)
+            log(f"Filtered portfolios with maturity >= {min_maturity}")
+        
+        # Apply Sortino ratio filter if configured
+        if "SORTINO_RATIO" in minimums and "Sortino Ratio" in portfolios_df.columns:
+            min_sortino_ratio = minimums["SORTINO_RATIO"]
+            portfolios_df = portfolios_df.filter(pl.col("Sortino Ratio").cast(pl.Float64) >= min_sortino_ratio)
+            log(f"Filtered portfolios with Sortino ratio >= {min_sortino_ratio}")
     
-    # Apply profit factor adjusted filter if explicitly configured
-    if "MIN_PROFIT_FACTOR_ADJUSTED" in ticker_config and "Profit Factor Adjusted" in portfolios_df.columns:
-        min_profit_factor_adjusted = ticker_config["MIN_PROFIT_FACTOR_ADJUSTED"]
-        portfolios_df = portfolios_df.filter(pl.col("Profit Factor Adjusted").cast(pl.Float64) >= min_profit_factor_adjusted)
-        log(f"Filtered portfolios with profit factor adjusted >= {min_profit_factor_adjusted}")
+    # For backward compatibility, also check for individual MIN_* parameters
+    else:
+        # Apply win rate filter if explicitly configured
+        if "MIN_WIN_RATE" in ticker_config and "Win Rate [%]" in portfolios_df.columns:
+            min_win_rate = ticker_config["MIN_WIN_RATE"]
+            portfolios_df = portfolios_df.filter(pl.col("Win Rate [%]").cast(pl.Float64) >= min_win_rate * 100)
+            log(f"Filtered portfolios with win rate >= {min_win_rate * 100}%")
+        
+        # Apply minimum trades filter if explicitly configured
+        if "MIN_TRADES" in ticker_config and "Total Trades" in portfolios_df.columns:
+            min_trades = ticker_config["MIN_TRADES"]
+            portfolios_df = portfolios_df.filter(pl.col("Total Trades").cast(pl.Int64) >= min_trades)
+            log(f"Filtered portfolios with at least {min_trades} trades")
+        
+        # Apply expectancy adjusted filter if explicitly configured
+        if "MIN_EXPECTANCY_ADJUSTED" in ticker_config and "Expectancy Adjusted" in portfolios_df.columns:
+            min_expectancy_adjusted = ticker_config["MIN_EXPECTANCY_ADJUSTED"]
+            portfolios_df = portfolios_df.filter(pl.col("Expectancy Adjusted").cast(pl.Float64) >= min_expectancy_adjusted)
+            log(f"Filtered portfolios with expectancy adjusted >= {min_expectancy_adjusted}")
+        
+        # Apply profit factor adjusted filter if explicitly configured
+        if "MIN_PROFIT_FACTOR_ADJUSTED" in ticker_config and "Profit Factor Adjusted" in portfolios_df.columns:
+            min_profit_factor_adjusted = ticker_config["MIN_PROFIT_FACTOR_ADJUSTED"]
+            portfolios_df = portfolios_df.filter(pl.col("Profit Factor Adjusted").cast(pl.Float64) >= min_profit_factor_adjusted)
+            log(f"Filtered portfolios with profit factor adjusted >= {min_profit_factor_adjusted}")
+        
+        # Apply score filter if explicitly configured
+        if "MIN_SCORE" in ticker_config and "Score" in portfolios_df.columns:
+            min_score = ticker_config["MIN_SCORE"]
+            portfolios_df = portfolios_df.filter(pl.col("Score").cast(pl.Float64) >= min_score)
+            log(f"Filtered portfolios with score >= {min_score}")
+        
+        # Apply maturity filter if explicitly configured
+        if "MIN_MATURITY" in ticker_config and "Maturity" in portfolios_df.columns:
+            min_maturity = ticker_config["MIN_MATURITY"]
+            portfolios_df = portfolios_df.filter(pl.col("Maturity").cast(pl.Float64) >= min_maturity)
+            log(f"Filtered portfolios with maturity >= {min_maturity}")
+        
+        # Apply Sortino ratio filter if explicitly configured
+        if "MIN_SORTINO_RATIO" in ticker_config and "Sortino Ratio" in portfolios_df.columns:
+            min_sortino_ratio = ticker_config["MIN_SORTINO_RATIO"]
+            portfolios_df = portfolios_df.filter(pl.col("Sortino Ratio").cast(pl.Float64) >= min_sortino_ratio)
+            log(f"Filtered portfolios with Sortino ratio >= {min_sortino_ratio}")
         
     if len(portfolios_df) == 0:
         log("No portfolios remain after filtering", "warning")

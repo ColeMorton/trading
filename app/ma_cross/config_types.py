@@ -5,7 +5,29 @@ This module provides centralized TypedDict definitions for configuration
 across the MA cross strategy modules.
 """
 
-from typing import TypedDict, NotRequired, Union, List, Literal
+from typing import TypedDict, NotRequired, Union, List, Literal, Dict
+
+class MinimumConfig(TypedDict, total=False):
+    """
+    Configuration type definition for minimum filtering values.
+    
+    Optional Fields:
+        TRADES (int): Minimum number of trades required
+        WIN_RATE (float): Minimum required win rate for portfolio filtering
+        EXPECTANCY_ADJUSTED (float): Minimum required expectancy adjusted value for portfolio filtering
+        PROFIT_FACTOR_ADJUSTED (float): Minimum required profit factor adjusted value for portfolio filtering
+        SCORE (float): Minimum required score value for portfolio filtering
+        MATURITY (float): Minimum required maturity value for portfolio filtering
+        SORTINO_RATIO (float): Minimum required Sortino ratio for portfolio filtering
+    """
+    TRADES: int
+    WIN_RATE: float
+    EXPECTANCY_ADJUSTED: float
+    PROFIT_FACTOR_ADJUSTED: float
+    SCORE: float
+    MATURITY: float
+    SORTINO_RATIO: float
+
 
 class HeatmapConfig(TypedDict, total=False):
     """
@@ -73,10 +95,14 @@ class Config(TypedDict, total=False):
 
         # Portfolio Analysis Options
         USE_CURRENT (NotRequired[bool]): Whether to emphasize current window combinations
-        MIN_WIN_RATE (NotRequired[float]): Minimum required win rate for portfolio filtering
-        MIN_TRADES (NotRequired[int]): Minimum number of trades required
-        MIN_EXPECTANCY_ADJUSTED (NotRequired[float]): Minimum required expectancy adjusted value for portfolio filtering
-        MIN_PROFIT_FACTOR_ADJUSTED (NotRequired[float]): Minimum required profit factor adjusted value for portfolio filtering
+        MINIMUMS (NotRequired[Dict]): Dictionary of minimum filtering values including:
+            - TRADES: Minimum number of trades required
+            - WIN_RATE: Minimum required win rate for portfolio filtering
+            - EXPECTANCY_ADJUSTED: Minimum required expectancy adjusted value
+            - PROFIT_FACTOR_ADJUSTED: Minimum required profit factor adjusted value
+            - SCORE: Minimum required score value
+            - MATURITY: Minimum required maturity value
+            - SORTINO_RATIO: Minimum required Sortino ratio
         SORT_BY (NotRequired[str]): Field to sort results by
 
         # Advanced Options
@@ -108,10 +134,7 @@ class Config(TypedDict, total=False):
 
     # Portfolio Analysis Options
     USE_CURRENT: NotRequired[bool]
-    MIN_WIN_RATE: NotRequired[float]
-    MIN_TRADES: NotRequired[int]
-    MIN_EXPECTANCY_ADJUSTED: NotRequired[float]
-    MIN_PROFIT_FACTOR_ADJUSTED: NotRequired[float]
+    MINIMUMS: NotRequired[Dict[str, Union[int, float]]]
     SORT_BY: NotRequired[str]
 
     # Advanced Options
