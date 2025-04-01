@@ -30,17 +30,19 @@ def calculate_strategy_efficiency(
         # Calculate multipliers
         diversification = 1 - correlation
         
-        # Modify independence calculation to handle zero exclusive_ratio
+        # Calculate independence using the improved formula
+        independence = calculate_independence_factor(exclusive_ratio, concurrent_ratio, inactive_ratio)
+        
+        # Log a warning if exclusive_ratio is 0, but we're still using a better independence value
         if exclusive_ratio <= 0:
-            log(f"Warning: exclusive_ratio is {exclusive_ratio}, using minimum value for independence", "warning")
-            independence = 0.0001  # Use a small positive value instead of zero
-        else:
-            independence = exclusive_ratio / (1 - inactive_ratio) if inactive_ratio < 1 else 0.0001
+            log(f"Note: exclusive_ratio is {exclusive_ratio}, using improved independence calculation: {independence:.4f}", "info")
             
         activity = 1 - inactive_ratio
 
-        # Calculate efficiency (without expectancy)
-        efficiency = diversification * independence * activity
+        # Calculate efficiency with adjusted independence to be less sensitive to low values
+        # This ensures that even with low independence, efficiency doesn't drop too low
+        adjusted_independence = 0.2 + 0.8 * independence
+        efficiency = diversification * adjusted_independence * activity
         
         # Ensure efficiency is at least a small positive value
         if efficiency <= 0:
@@ -49,7 +51,8 @@ def calculate_strategy_efficiency(
 
         log(f"Strategy efficiency components:", "info")
         log(f"Diversification: {diversification}", "info")
-        log(f"Independence: {independence}", "info")
+        log(f"Independence (raw): {independence}", "info")
+        log(f"Independence (adjusted): {adjusted_independence}", "info")
         log(f"Activity: {activity}", "info")
         log(f"Final efficiency: {efficiency}", "info")
 
@@ -99,12 +102,12 @@ def calculate_portfolio_efficiency(
         # Calculate portfolio multipliers
         diversification = 1 - avg_correlation
         
-        # Handle case where exclusive_ratio is 0
+        # Calculate independence using the improved formula
+        independence = calculate_independence_factor(exclusive_ratio, concurrent_ratio, inactive_ratio)
+        
+        # Log a note if exclusive_ratio is 0, but we're still using a better independence value
         if exclusive_ratio <= 0:
-            log(f"Warning: exclusive_ratio is {exclusive_ratio}, using minimum value for independence", "warning")
-            independence = 0.01  # Use a small positive value instead of zero
-        else:
-            independence = exclusive_ratio / (1 - inactive_ratio) if inactive_ratio < 1 else 0.01
+            log(f"Note: exclusive_ratio is {exclusive_ratio}, using improved independence calculation: {independence:.4f}", "info")
             
         activity = 1 - inactive_ratio
         
@@ -131,7 +134,6 @@ def calculate_portfolio_efficiency(
             
             # Combine factors (efficiency * expectancy * allocation * risk_factor)
             weighted_eff = eff * exp * norm_alloc * risk_factor
-            weighted_eff = eff * exp * norm_alloc * risk_factor
             weighted_efficiencies.append(weighted_eff)
             
             log(f"Strategy {i} weighted efficiency components:", "info")
@@ -145,8 +147,11 @@ def calculate_portfolio_efficiency(
         total_efficiency = sum(weighted_efficiencies)
         log(f"Total weighted efficiency: {total_efficiency:.6f}", "info")
         
+        # Calculate adjusted independence to be less sensitive to low values
+        adjusted_independence = 0.2 + 0.8 * independence
+        
         # Calculate final portfolio efficiency
-        portfolio_efficiency = total_efficiency * diversification * independence * activity
+        portfolio_efficiency = total_efficiency * diversification * adjusted_independence * activity
         
         # Ensure portfolio efficiency is at least a small positive value
         if portfolio_efficiency <= 0:
@@ -158,6 +163,7 @@ def calculate_portfolio_efficiency(
             'weighted_efficiency': total_efficiency,
             'diversification_multiplier': diversification,
             'independence_multiplier': independence,
+            'independence_multiplier_adjusted': adjusted_independence,
             'activity_multiplier': activity
         }
         
@@ -498,6 +504,39 @@ def calculate_ticker_allocations(
     except Exception as e:
         log(f"Error calculating ticker allocations: {str(e)}", "error")
         raise
+
+def calculate_independence_factor(exclusive_ratio: float, concurrent_ratio: float, inactive_ratio: float) -> float:
+    """Calculate an independence factor that provides a more nuanced measure of strategy independence.
+    
+    Args:
+        exclusive_ratio (float): Ratio of exclusive trading periods
+        concurrent_ratio (float): Ratio of concurrent trading periods
+        inactive_ratio (float): Ratio of inactive periods
+        
+    Returns:
+        float: Independence factor between 0.1 and 1.0
+    """
+    # Base independence on the ratio of exclusive to active periods
+    active_ratio = 1 - inactive_ratio
+    if active_ratio <= 0:
+        return 0.1  # Minimum value for completely inactive strategies
+        
+    # Calculate the proportion of active periods that are exclusive
+    exclusive_proportion = exclusive_ratio / active_ratio
+    
+    # Calculate the proportion of active periods that are concurrent
+    concurrent_proportion = concurrent_ratio / active_ratio
+    
+    # Calculate independence as a function of these proportions
+    # This formula gives higher scores to strategies with more exclusive periods
+    # but doesn't severely penalize strategies with no exclusive periods
+    independence = 0.1 + 0.9 * (
+        exclusive_proportion / (exclusive_proportion + concurrent_proportion)
+        if (exclusive_proportion + concurrent_proportion) > 0
+        else 0.1
+    )
+    
+    return independence
 
 def calculate_risk_factor(risk: float) -> float:
     """Calculate a risk factor where lower risk results in a higher factor.

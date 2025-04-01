@@ -266,9 +266,13 @@ def analyze_concurrency(
             portfolio_metrics['portfolio_efficiency'],
             sum(strategy_expectancies),  # Calculate expectancy inline
             portfolio_metrics['diversification_multiplier'],
-            portfolio_metrics['independence_multiplier'],
+            portfolio_metrics['independence_multiplier_adjusted'],  # Use adjusted independence
             portfolio_metrics['activity_multiplier']
         )
+        
+        # Log the raw and adjusted independence values for comparison
+        log(f"Raw independence multiplier: {portfolio_metrics['independence_multiplier']:.6f}", "info")
+        log(f"Adjusted independence multiplier: {portfolio_metrics['independence_multiplier_adjusted']:.6f}", "info")
 
         # Calculate signal metrics
         log("Calculating signal metrics", "info")
