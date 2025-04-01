@@ -40,7 +40,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "btc_d_20250324.json",
     # "PORTFOLIO": "DAILY_crypto.csv",
     # "PORTFOLIO": "atr_test_portfolio.json",
-    "PORTFOLIO": "stock_trades_20250328.csv",
+    "PORTFOLIO": "stock_trades_20250401.csv",
     # "PORTFOLIO": "portfolio_d_20250328.csv",
     # "PORTFOLIO": "total_d_20250328.csv",
     # "PORTFOLIO": "GLD_d.csv",

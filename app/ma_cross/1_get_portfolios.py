@@ -13,32 +13,32 @@ from app.ma_cross.config_types import Config
 from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
-sp500_group = ["PWR", "DGX", "RL", "RJF", "O", "REG", "RF", "RSG", "RHI", "ROL"]
+sp500_group = ["ZBH", "ZION"]
 
 CONFIG: Config = {
-    # "TICKER": sp500_group,
-    "TICKER": [
-        "SPY",
-        "QQQ",
-        "BTC-USD",
-        "MKR-USD",
-        "ZS",
-        "NFLX",
-        "CHTR",
-        "TRGP",
-        "VLO",
-        "CHRW",
-        "CSCO",
-        "AXON",
-        "TRX-USD",
-        "PAYC",
-        "DLTR",
-        "ELV",
-        "GIS",
-        "LIN",
-        "WMT",
-        "ALLE"
-    ],
+    "TICKER": sp500_group,
+    # "TICKER": [
+    #     "SPY",
+    #     "QQQ",
+    #     "BTC-USD",
+    #     "MKR-USD",
+    #     "ZS",
+    #     "NFLX",
+    #     "CHTR",
+    #     "TRGP",
+    #     "VLO",
+    #     "CHRW",
+    #     "CSCO",
+    #     "AXON",
+    #     "TRX-USD",
+    #     "PAYC",
+    #     "DLTR",
+    #     "ELV",
+    #     "GIS",
+    #     "LIN",
+    #     "WMT",
+    #     "ALLE"
+    # ],
     # "TICKER": [
     #     "SOL-USD",
     #     "BNB-USD",
@@ -118,7 +118,7 @@ CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": True,
+    "USE_CURRENT": False,
     "MINIMUMS": {
         # "TRADES": 34,
         # "WIN_RATE": 0.38,

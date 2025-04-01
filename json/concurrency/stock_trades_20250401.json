@@ -1,0 +1,4168 @@
+{
+    "portfolio_metrics": {
+        "concurrency": {
+            "total_concurrent_periods": {
+                "value": 2620,
+                "description": "Number of periods with concurrent positions"
+            },
+            "concurrency_ratio": {
+                "value": 0.9503083061298513,
+                "description": "Ratio of concurrent periods to total periods"
+            },
+            "exclusive_ratio": {
+                "value": 0.03917301414581066,
+                "description": "Ratio of periods with exactly one strategy in position"
+            },
+            "inactive_ratio": {
+                "value": 0.01051867972433805,
+                "description": "Ratio of periods with no active strategies"
+            },
+            "avg_concurrent_strategies": {
+                "value": 4.803152492668621,
+                "description": "Average number of concurrent strategies"
+            },
+            "max_concurrent_strategies": {
+                "value": 8,
+                "description": "Maximum number of concurrent strategies"
+            }
+        },
+        "efficiency": {
+            "efficiency_score": {
+                "value": 0.18990685009323896,
+                "description": "Risk-Adjusted Performance"
+            },
+            "expectancy": {
+                "value": 42.37746873205233,
+                "description": "Combined expectancy per trade across all strategies"
+            },
+            "multipliers": {
+                "diversification": {
+                    "value": 0.8832937003309952,
+                    "description": "Multiplier effect from strategy diversification"
+                },
+                "independence": {
+                    "value": 0.3085043988269795,
+                    "description": "Multiplier effect from strategy independence"
+                },
+                "activity": {
+                    "value": 0.9894813202756619,
+                    "description": "Multiplier effect from strategy activity levels"
+                }
+            }
+        },
+        "risk": {
+            "portfolio_metrics": {
+                "risk_concentration_index": {
+                    "value": 0.6003940615835777,
+                    "description": "Measure of risk concentration"
+                },
+                "total_portfolio_risk": {
+                    "value": 0.035409543631597235,
+                    "description": "Overall portfolio risk measure"
+                }
+            },
+            "combined_risk": {
+                "var_95": {
+                    "value": -0.029582126947784428,
+                    "description": "Combined Value at Risk (95% confidence)"
+                },
+                "cvar_95": {
+                    "value": -0.04654180943122647,
+                    "description": "Combined Conditional Value at Risk (95% confidence)"
+                },
+                "var_99": {
+                    "value": -0.05414350660622415,
+                    "description": "Combined Value at Risk (99% confidence)"
+                },
+                "cvar_99": {
+                    "value": -0.07833496374134848,
+                    "description": "Combined Conditional Value at Risk (99% confidence)"
+                }
+            }
+        },
+        "signals": {
+            "monthly_statistics": {
+                "mean": {
+                    "value": 6.651515151515151,
+                    "description": "Average number of signals per month"
+                },
+                "median": {
+                    "value": 6.0,
+                    "description": "Median number of signals per month"
+                },
+                "std_below": {
+                    "value": 3.552673091281604,
+                    "description": "One standard deviation below mean signals"
+                },
+                "std_above": {
+                    "value": 9.7503572117487,
+                    "description": "One standard deviation above mean signals"
+                }
+            },
+            "summary": {
+                "volatility": {
+                    "value": 3.0988420602335474,
+                    "description": "Standard deviation of monthly signals"
+                },
+                "max_monthly": {
+                    "value": 16,
+                    "description": "Maximum signals in any month"
+                },
+                "min_monthly": {
+                    "value": 1,
+                    "description": "Minimum signals in any month"
+                },
+                "total": {
+                    "value": 878,
+                    "description": "Total number of signals across period"
+                }
+            }
+        },
+        "signal_quality": {
+            "avg_return": {
+                "value": 0.0015234587619538157,
+                "description": "Aggregate avg return"
+            },
+            "win_rate": {
+                "value": 0.530751708428246,
+                "description": "Aggregate win rate"
+            },
+            "profit_factor": {
+                "value": 1.2157813571477063,
+                "description": "Aggregate profit factor"
+            },
+            "risk_reward_ratio": {
+                "value": 1.0794731910561848,
+                "description": "Aggregate risk reward ratio"
+            },
+            "sharpe_ratio": {
+                "value": 0.06370661315994229,
+                "description": "Aggregate sharpe ratio"
+            },
+            "sortino_ratio": {
+                "value": 0.10515484845692555,
+                "description": "Aggregate sortino ratio"
+            },
+            "signal_efficiency": {
+                "value": 0.530751708428246,
+                "description": "Aggregate signal efficiency"
+            },
+            "signal_consistency": {
+                "value": 0.9781582016946998,
+                "description": "Aggregate signal consistency"
+            },
+            "signal_quality_score": {
+                "value": 2.6876507883434493,
+                "description": "Aggregate signal quality score"
+            },
+            "calmar_ratio": {
+                "value": 0.006203686507882469,
+                "description": "Aggregate calmar ratio"
+            },
+            "max_drawdown": {
+                "value": 0.2102174320718989,
+                "description": "Aggregate max drawdown"
+            },
+            "signal_value_ratio": {
+                "value": 0.01225941990289441,
+                "description": "Aggregate signal value ratio"
+            },
+            "signal_conviction": {
+                "value": 0.024868919476576285,
+                "description": "Aggregate signal conviction"
+            },
+            "signal_timing_efficiency": {
+                "value": 0.09770802243609442,
+                "description": "Aggregate signal timing efficiency"
+            },
+            "signal_opportunity_cost": {
+                "value": 0.5038084963773911,
+                "description": "Aggregate signal opportunity cost"
+            },
+            "signal_reliability": {
+                "value": 0.6925981880356582,
+                "description": "Aggregate signal reliability"
+            },
+            "signal_risk_adjusted_return": {
+                "value": 0.07435824185060746,
+                "description": "Aggregate signal risk adjusted return"
+            },
+            "signal_count": {
+                "value": 878,
+                "description": "Aggregate signal count"
+            }
+        }
+    },
+    "ticker_metrics": {
+        "NFLX": {
+            "id": "NFLX",
+            "risk_metrics": {
+                "var_95": -0.035189980762331756,
+                "cvar_95": -0.056215329939616934,
+                "var_99": -0.0687939465856353,
+                "cvar_99": -0.09777191993346018,
+                "risk_contribution": 0.13489569824044334,
+                "alpha_to_portfolio": 0.0002878869568221493
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.17690033044204054,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "expectancy": {
+                    "value": 4.633365180198614,
+                    "description": "Expectancy per Trade"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.9213280395736468,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.11802002224694105,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.652158142908959,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 2.6315789473684212,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 2.0,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.9123379887811118,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 4.35081990595573,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 1.7192409585873094,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 7,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 1,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 200,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 1.8239923166090721,
+            "allocation": 16.186317697855625,
+            "signal_quality_metrics": {
+                "signal_count": 200,
+                "avg_return": 0.0018430655664132165,
+                "win_rate": 0.505,
+                "profit_factor": 1.2709247530138075,
+                "avg_win": 0.017120662235874308,
+                "avg_loss": -0.013743169419602646,
+                "risk_reward_ratio": 1.2457579262214549,
+                "expectancy_per_signal": 0.0018430655664132172,
+                "sharpe_ratio": 0.07976092316989851,
+                "sortino_ratio": 0.15232006665707296,
+                "calmar_ratio": 0.006534967201055987,
+                "max_drawdown": 0.2820313415062581,
+                "signal_efficiency": 0.505,
+                "signal_consistency": 0.9774145161902716,
+                "signal_value_ratio": 0.012922339006195419,
+                "signal_conviction": 0.02658697438996617,
+                "signal_timing_efficiency": 0.0016631899532998768,
+                "signal_opportunity_cost": 0.5046075334893749,
+                "signal_reliability": 0.715749716389056,
+                "signal_risk_adjusted_return": 0.08618509372781424,
+                "signal_quality_score": 2.5838641499769626,
+                "best_horizon": 5,
+                "horizon_metrics": {
+                    "1": {
+                        "avg_return": 0.0018430655664132165,
+                        "win_rate": 0.505,
+                        "sharpe": 0.07976092316989851
+                    },
+                    "3": {
+                        "avg_return": 0.008751130433184444,
+                        "win_rate": 0.5979899497487438,
+                        "sharpe": 0.24225144483240743
+                    },
+                    "5": {
+                        "avg_return": 0.017431301126688423,
+                        "win_rate": 0.6381909547738693,
+                        "sharpe": 0.3347102623473257
+                    },
+                    "10": {
+                        "avg_return": 0.02632350182951,
+                        "win_rate": 0.6432160804020101,
+                        "sharpe": 0.3339210806945562
+                    }
+                }
+            }
+        },
+        "TRGP": {
+            "id": "TRGP",
+            "risk_metrics": {
+                "var_95": -0.038047976206891,
+                "cvar_95": -0.0527108281656571,
+                "var_99": -0.061367685970386714,
+                "cvar_99": -0.07986190490850799,
+                "risk_contribution": 0.20455476939751654,
+                "alpha_to_portfolio": 0.0011452675243975976
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.14749934887571128,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "expectancy": {
+                    "value": 7.469587799578893,
+                    "description": "Expectancy per Trade"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.8824993594842361,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.10955056179775281,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.5810663764961915,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 1.3116883116883118,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 1.0,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.7436876570431122,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 1.8796889663335112,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 0.5680006546451996,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 4,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 1,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 101,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 0.8379337030625241,
+            "allocation": 13.439661404683086,
+            "signal_quality_metrics": {
+                "signal_count": 101,
+                "avg_return": 0.002409728314977671,
+                "win_rate": 0.5247524752475248,
+                "profit_factor": 1.3236658311948875,
+                "avg_win": 0.018779978425882766,
+                "avg_loss": -0.015665756182480037,
+                "risk_reward_ratio": 1.198791696176502,
+                "expectancy_per_signal": 0.0024097283149776723,
+                "sharpe_ratio": 0.0974302553819515,
+                "sortino_ratio": 0.14249439406709669,
+                "calmar_ratio": 0.010168870736577738,
+                "max_drawdown": 0.2369710833583325,
+                "signal_efficiency": 0.5247524752475248,
+                "signal_consistency": 0.9758640954680786,
+                "signal_value_ratio": 0.020092306579859987,
+                "signal_conviction": 0.032476751793983835,
+                "signal_timing_efficiency": 0.31368062168669003,
+                "signal_opportunity_cost": 0.5060240292879623,
+                "signal_reliability": 0.6154508200065323,
+                "signal_risk_adjusted_return": 0.1133533043631739,
+                "signal_quality_score": 2.910464393122527,
+                "best_horizon": 10,
+                "horizon_metrics": {
+                    "1": {
+                        "avg_return": 0.002409728314977671,
+                        "win_rate": 0.5247524752475248,
+                        "sharpe": 0.0974302553819515
+                    },
+                    "3": {
+                        "avg_return": 0.0025829107509323184,
+                        "win_rate": 0.5445544554455446,
+                        "sharpe": 0.04902766853528034
+                    },
+                    "5": {
+                        "avg_return": 0.005185860845394882,
+                        "win_rate": 0.5643564356435643,
+                        "sharpe": 0.07101273940798276
+                    },
+                    "10": {
+                        "avg_return": 0.010921834619866197,
+                        "win_rate": 0.6039603960396039,
+                        "sharpe": 0.11804201295404408
+                    }
+                }
+            }
+        },
+        "LIN": {
+            "id": "LIN",
+            "risk_metrics": {
+                "var_95": -0.021245767327950523,
+                "cvar_95": -0.0324650487496496,
+                "var_99": -0.03743662163611572,
+                "cvar_99": -0.05150015435878308,
+                "risk_contribution": 0.05532942121116022,
+                "alpha_to_portfolio": -0.0005445113033835418
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.16623381666351128,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "expectancy": {
+                    "value": 5.978643761254894,
+                    "description": "Expectancy per Trade"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.913689458814395,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.1103448275862069,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.631120783460283,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 1.108695652173913,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 1.0,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.7939992644839353,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 1.4233920398638908,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 0.3146963876899777,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 2,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 1,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 51,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 1.204951736244928,
+            "allocation": 14.6589681106878,
+            "signal_quality_metrics": {
+                "signal_count": 51,
+                "avg_return": -0.0012850881484722943,
+                "win_rate": 0.47058823529411764,
+                "profit_factor": 0.7720954826927604,
+                "avg_win": 0.009251452660061542,
+                "avg_loss": -0.010650902200502368,
+                "risk_reward_ratio": 0.8686074180293554,
+                "expectancy_per_signal": -0.0012850881484722928,
+                "sharpe_ratio": -0.09382674065561371,
+                "sortino_ratio": -0.13582765257653387,
+                "calmar_ratio": -0.015473279968351716,
+                "max_drawdown": 0.0830520840507475,
+                "signal_efficiency": 0.47058823529411764,
+                "signal_consistency": 0.9864886611409884,
+                "signal_value_ratio": -0.030737495207790677,
+                "signal_conviction": 0.0312755802185379,
+                "signal_timing_efficiency": 0.5448939172737332,
+                "signal_opportunity_cost": 0.49678732384185614,
+                "signal_reliability": 0.6808102661929735,
+                "signal_risk_adjusted_return": -0.12652093280069998,
+                "signal_quality_score": 2.8153799483669744,
+                "best_horizon": 10,
+                "horizon_metrics": {
+                    "1": {
+                        "avg_return": -0.0012850881484722943,
+                        "win_rate": 0.47058823529411764,
+                        "sharpe": -0.09382674065561371
+                    },
+                    "3": {
+                        "avg_return": 0.000878346329653543,
+                        "win_rate": 0.5294117647058824,
+                        "sharpe": 0.04075366545327787
+                    },
+                    "5": {
+                        "avg_return": 0.0023827689285593396,
+                        "win_rate": 0.5686274509803921,
+                        "sharpe": 0.11019532252761907
+                    },
+                    "10": {
+                        "avg_return": 0.0074267193047723844,
+                        "win_rate": 0.5490196078431373,
+                        "sharpe": 0.21442317909168138
+                    }
+                }
+            }
+        },
+        "VTR": {
+            "id": "VTR",
+            "risk_metrics": {
+                "var_95": -0.024147738709051375,
+                "cvar_95": -0.03405481110577666,
+                "var_99": -0.039300021045142706,
+                "cvar_99": -0.05206370029457047,
+                "risk_contribution": 0.08048644512220099,
+                "alpha_to_portfolio": -0.0005864598167155668
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.13822418875102205,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "expectancy": {
+                    "value": 2.764233421791605,
+                    "description": "Expectancy per Trade"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.8728449115587902,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.10646636185499674,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.5553137468262604,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 1.8478260869565217,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 1.0,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.6011880961214771,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 3.0944640777915664,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 1.2466379908350447,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 8,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 1,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 85,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 0.5542780034219442,
+            "allocation": 12.17531636194683,
+            "signal_quality_metrics": {
+                "signal_count": 85,
+                "avg_return": 7.188275530168072e-05,
+                "win_rate": 0.6,
+                "profit_factor": 1.0129661821202531,
+                "avg_win": 0.009359578571769417,
+                "avg_loss": -0.013859660969399923,
+                "risk_reward_ratio": 0.6753107880801688,
+                "expectancy_per_signal": 7.188275530168112e-05,
+                "sharpe_ratio": 0.005068137820463002,
+                "sortino_ratio": 0.007963315142219776,
+                "calmar_ratio": 0.0008909350130073872,
+                "max_drawdown": 0.0806823777853758,
+                "signal_efficiency": 0.6,
+                "signal_consistency": 0.9860150841339801,
+                "signal_value_ratio": 0.0017694103748157747,
+                "signal_conviction": 0.0016893792734876672,
+                "signal_timing_efficiency": 0.05979017956264959,
+                "signal_opportunity_cost": 0.5001797068805162,
+                "signal_reliability": 0.7321083652335532,
+                "signal_risk_adjusted_return": 0.007454765456262487,
+                "signal_quality_score": 2.6786393809630553,
+                "best_horizon": 10,
+                "horizon_metrics": {
+                    "1": {
+                        "avg_return": 7.188275530168072e-05,
+                        "win_rate": 0.6,
+                        "sharpe": 0.005068137820463002
+                    },
+                    "3": {
+                        "avg_return": -0.0004813830537275409,
+                        "win_rate": 0.5176470588235295,
+                        "sharpe": -0.022274012491084166
+                    },
+                    "5": {
+                        "avg_return": 0.0009168371505440861,
+                        "win_rate": 0.5058823529411764,
+                        "sharpe": 0.0329080398808377
+                    },
+                    "10": {
+                        "avg_return": 0.006094975537461125,
+                        "win_rate": 0.5764705882352941,
+                        "sharpe": 0.15429322564706932
+                    }
+                }
+            }
+        },
+        "CSCO": {
+            "id": "CSCO",
+            "risk_metrics": {
+                "var_95": -0.01965181665035418,
+                "cvar_95": -0.03209079912951139,
+                "var_99": -0.038948815900034454,
+                "cvar_99": -0.054627101841342604,
+                "risk_contribution": 0.08628967405002494,
+                "alpha_to_portfolio": -0.0006898713207031487
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.14951257201127532,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "expectancy": {
+                    "value": 11.5875590984603,
+                    "description": "Expectancy per Trade"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.8645263444527811,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.10266272189349113,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.6129851287631484,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 1.3404255319148937,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 1.0,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.7053426634884712,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 1.9755084003413161,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 0.6350828684264225,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 3,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 1,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 63,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 0.6481014284101264,
+            "allocation": 12.639110526157346,
+            "signal_quality_metrics": {
+                "signal_count": 63,
+                "avg_return": 0.0004626975221586481,
+                "win_rate": 0.5238095238095238,
+                "profit_factor": 1.0781664775047244,
+                "avg_win": 0.01218397688946747,
+                "avg_loss": -0.012430709781881055,
+                "risk_reward_ratio": 0.980151343186113,
+                "expectancy_per_signal": 0.0004626975221586494,
+                "sharpe_ratio": 0.02734659834286006,
+                "sortino_ratio": 0.037561190283107844,
+                "calmar_ratio": 0.003964661472464241,
+                "max_drawdown": 0.11670543005303749,
+                "signal_efficiency": 0.5238095238095238,
+                "signal_consistency": 0.9833617677914429,
+                "signal_value_ratio": 0.007863357986721302,
+                "signal_conviction": 0.009115532780953353,
+                "signal_timing_efficiency": 0.09507312669253457,
+                "signal_opportunity_cost": 0.5011567417416833,
+                "signal_reliability": 0.7038889467954565,
+                "signal_risk_adjusted_return": 0.03680777420612403,
+                "signal_quality_score": 2.589219180977014,
+                "best_horizon": 1,
+                "horizon_metrics": {
+                    "1": {
+                        "avg_return": 0.0002448949784045878,
+                        "win_rate": 0.5161290322580645,
+                        "sharpe": 0.014432914807783113
+                    },
+                    "3": {
+                        "avg_return": -0.0027584165109350305,
+                        "win_rate": 0.5737704918032787,
+                        "sharpe": -0.08610244899655985
+                    },
+                    "5": {
+                        "avg_return": -0.0016935244405977168,
+                        "win_rate": 0.6,
+                        "sharpe": -0.04760432502272447
+                    },
+                    "10": {
+                        "avg_return": 0.0006496894075994928,
+                        "win_rate": 0.6,
+                        "sharpe": 0.012230194572150759
+                    }
+                }
+            }
+        },
+        "VLO": {
+            "id": "VLO",
+            "risk_metrics": {
+                "var_95": -0.032897940742290056,
+                "cvar_95": -0.04902150583657471,
+                "var_99": -0.05745424073649006,
+                "cvar_99": -0.0774923996178149,
+                "risk_contribution": 0.11791097961024705,
+                "alpha_to_portfolio": -0.00011941062631108039
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.13741093615493263,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "expectancy": {
+                    "value": 1.4799691088010478,
+                    "description": "Expectancy per Trade"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.8839056252429986,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.10598006644518274,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.5458832063837504,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 1.797752808988764,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 2.0,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.9695596046838793,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 2.6259460132936487,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 0.8281932043048847,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 4,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 1,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 160,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 0.3813618061641151,
+            "allocation": 11.134178946538055,
+            "signal_quality_metrics": {
+                "signal_count": 160,
+                "avg_return": 0.002623929304058959,
+                "win_rate": 0.575,
+                "profit_factor": 1.3962727544489308,
+                "avg_win": 0.016079048126959726,
+                "avg_loss": -0.01558005498574796,
+                "risk_reward_ratio": 1.0320276880709487,
+                "expectancy_per_signal": 0.0026239293040589574,
+                "sharpe_ratio": 0.12079676881162577,
+                "sortino_ratio": 0.1681542769545515,
+                "calmar_ratio": 0.013344358344148103,
+                "max_drawdown": 0.19663210747106696,
+                "signal_efficiency": 0.575,
+                "signal_consistency": 0.9787399573643677,
+                "signal_value_ratio": 0.026405015060954464,
+                "signal_conviction": 0.04026558960387525,
+                "signal_timing_efficiency": -0.16024542745676143,
+                "signal_opportunity_cost": 0.5065594469159262,
+                "signal_reliability": 0.7203697768340842,
+                "signal_risk_adjusted_return": 0.15284468679558832,
+                "signal_quality_score": 2.635518164457763,
+                "best_horizon": 1,
+                "horizon_metrics": {
+                    "1": {
+                        "avg_return": 0.002623929304058959,
+                        "win_rate": 0.575,
+                        "sharpe": 0.12079676881162577
+                    },
+                    "3": {
+                        "avg_return": -0.00020311384000302432,
+                        "win_rate": 0.50625,
+                        "sharpe": -0.005304961207756207
+                    },
+                    "5": {
+                        "avg_return": -0.0021258186554772907,
+                        "win_rate": 0.49375,
+                        "sharpe": -0.044774543454693345
+                    },
+                    "10": {
+                        "avg_return": 0.00529186131388505,
+                        "win_rate": 0.5375,
+                        "sharpe": 0.07670301446774572
+                    }
+                }
+            }
+        },
+        "CHTR": {
+            "id": "CHTR",
+            "risk_metrics": {
+                "var_95": -0.025889107637248027,
+                "cvar_95": -0.04006171562884952,
+                "var_99": -0.04310228290939771,
+                "cvar_99": -0.06868875711027986,
+                "risk_contribution": 0.09458541333978165,
+                "alpha_to_portfolio": -0.0002965332462049391
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.14214691062452087,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "expectancy": {
+                    "value": 3.1181018893455033,
+                    "description": "Expectancy per Trade"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.8533643249538454,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.10500927643784787,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.5865070729053319,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 1.5625,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 1.0,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.691904509581799,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 2.433095490418201,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 0.870595490418201,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 5,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 1,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 100,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 0.46476558034203835,
+            "allocation": 11.673288103203443,
+            "signal_quality_metrics": {
+                "signal_count": 100,
+                "avg_return": 0.001867304426468704,
+                "win_rate": 0.51,
+                "profit_factor": 1.3016537319930728,
+                "avg_win": 0.015799077003518215,
+                "avg_loss": -0.01263311192923589,
+                "risk_reward_ratio": 1.2506084876011874,
+                "expectancy_per_signal": 0.0018673044264687034,
+                "sharpe_ratio": 0.09044315837201751,
+                "sortino_ratio": 0.1663993405542647,
+                "calmar_ratio": 0.009252373860341792,
+                "max_drawdown": 0.20181895529237986,
+                "signal_efficiency": 0.51,
+                "signal_consistency": 0.9797714758451052,
+                "signal_value_ratio": 0.01831758585255954,
+                "signal_conviction": 0.03014771945733917,
+                "signal_timing_efficiency": 0.11823076447801284,
+                "signal_opportunity_cost": 0.5046681254257911,
+                "signal_reliability": 0.6326578915907486,
+                "signal_risk_adjusted_return": 0.10900692210041084,
+                "signal_quality_score": 2.6915758047853258,
+                "best_horizon": 10,
+                "horizon_metrics": {
+                    "1": {
+                        "avg_return": 0.001867304426468704,
+                        "win_rate": 0.51,
+                        "sharpe": 0.09044315837201751
+                    },
+                    "3": {
+                        "avg_return": 0.004731306262345056,
+                        "win_rate": 0.5858585858585859,
+                        "sharpe": 0.14458326897699705
+                    },
+                    "5": {
+                        "avg_return": 0.006131215504403657,
+                        "win_rate": 0.5757575757575758,
+                        "sharpe": 0.1545987370167271
+                    },
+                    "10": {
+                        "avg_return": 0.01298696686305589,
+                        "win_rate": 0.5959595959595959,
+                        "sharpe": 0.25535821230985895
+                    }
+                }
+            }
+        },
+        "PAYC": {
+            "id": "PAYC",
+            "risk_metrics": {
+                "var_95": -0.03956148440578477,
+                "cvar_95": -0.05992978807215804,
+                "var_99": -0.0722246525497914,
+                "cvar_99": -0.09508162987504518,
+                "risk_contribution": 0.22594759902862535,
+                "alpha_to_portfolio": 0.0008036318320985307
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.14382781352706303,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "expectancy": {
+                    "value": 5.346008472621471,
+                    "description": "Expectancy per Trade"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.8741915385672681,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.1,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.5875952121871599,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 1.4216867469879517,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 1.0,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.7946440960927132,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 2.04872939788319,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 0.6270426508952385,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 4,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 1,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 118,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 0.1004226650615212,
+            "allocation": 8.093158848927812,
+            "signal_quality_metrics": {
+                "signal_count": 118,
+                "avg_return": 0.0012654364921966734,
+                "win_rate": 0.5169491525423728,
+                "profit_factor": 1.1237994485657186,
+                "avg_win": 0.022220950455234586,
+                "avg_loss": -0.02116063985421232,
+                "risk_reward_ratio": 1.050107681446655,
+                "expectancy_per_signal": 0.0012654364921966706,
+                "sharpe_ratio": 0.03730087663480858,
+                "sortino_ratio": 0.06618105890943489,
+                "calmar_ratio": 0.004373616760444446,
+                "max_drawdown": 0.2893341052744823,
+                "signal_efficiency": 0.5169491525423728,
+                "signal_consistency": 0.9671880356302305,
+                "signal_value_ratio": 0.00860372656357816,
+                "signal_conviction": 0.012433625544936192,
+                "signal_timing_efficiency": 0.24345841387915665,
+                "signal_opportunity_cost": 0.5031635490149009,
+                "signal_reliability": 0.7031376379279752,
+                "signal_risk_adjusted_return": 0.040211987248494147,
+                "signal_quality_score": 2.744047784092195,
+                "best_horizon": 10,
+                "horizon_metrics": {
+                    "1": {
+                        "avg_return": 0.0012654364921966734,
+                        "win_rate": 0.5169491525423728,
+                        "sharpe": 0.03730087663480858
+                    },
+                    "3": {
+                        "avg_return": -0.001448006784654931,
+                        "win_rate": 0.4661016949152542,
+                        "sharpe": -0.026443095468363608
+                    },
+                    "5": {
+                        "avg_return": 0.007995434161416234,
+                        "win_rate": 0.5677966101694916,
+                        "sharpe": 0.1135212843493452
+                    },
+                    "10": {
+                        "avg_return": 0.0246289678900471,
+                        "win_rate": 0.6410256410256411,
+                        "sharpe": 0.24939381527005172
+                    }
+                }
+            }
+        }
+    },
+    "strategies": [
+        {
+            "id": "strategy_1",
+            "parameters": {
+                "ticker": {
+                    "value": "NFLX",
+                    "description": "Ticker symbol to analyze"
+                },
+                "timeframe": {
+                    "value": "Daily",
+                    "description": "Trading timeframe (Hourly or Daily)"
+                },
+                "type": {
+                    "value": "SMA",
+                    "description": "Strategy type (SMA)"
+                },
+                "direction": {
+                    "value": "Long",
+                    "description": "Trading direction (Long or Short)"
+                },
+                "short_window": {
+                    "value": 44,
+                    "description": "Period for short moving average or MACD fast line"
+                },
+                "long_window": {
+                    "value": 45,
+                    "description": "Period for long moving average or MACD slow line"
+                }
+            },
+            "risk_metrics": {
+                "var_95": {
+                    "value": -0.035189980762331756,
+                    "description": "Value at Risk (95% confidence)"
+                },
+                "cvar_95": {
+                    "value": -0.056215329939616934,
+                    "description": "Conditional Value at Risk (95% confidence)"
+                },
+                "var_99": {
+                    "value": -0.0687939465856353,
+                    "description": "Value at Risk (99% confidence)"
+                },
+                "cvar_99": {
+                    "value": -0.09777191993346018,
+                    "description": "Conditional Value at Risk (99% confidence)"
+                },
+                "risk_contribution": {
+                    "value": 0.13489569824044334,
+                    "description": "Contribution to portfolio risk"
+                },
+                "alpha_to_portfolio": {
+                    "value": 0.0002878869568221493,
+                    "description": "Strategy alpha relative to portfolio"
+                }
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.17690033044204054,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "expectancy": {
+                    "value": 4.633365180198614,
+                    "description": "Expectancy per Trade"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.9213280395736468,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.11802002224694105,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.652158142908959,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 2.6315789473684212,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 2.0,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.9123379887811118,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 4.35081990595573,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 1.7192409585873094,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 7,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 1,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 200,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 1.8239923166090721,
+            "allocation": 16.186317697855625,
+            "signal_quality_metrics": {
+                "signal_count": 200,
+                "avg_return": 0.0018430655664132165,
+                "win_rate": 0.505,
+                "profit_factor": 1.2709247530138075,
+                "avg_win": 0.017120662235874308,
+                "avg_loss": -0.013743169419602646,
+                "risk_reward_ratio": 1.2457579262214549,
+                "expectancy_per_signal": 0.0018430655664132172,
+                "sharpe_ratio": 0.07976092316989851,
+                "sortino_ratio": 0.15232006665707296,
+                "calmar_ratio": 0.006534967201055987,
+                "max_drawdown": 0.2820313415062581,
+                "signal_efficiency": 0.505,
+                "signal_consistency": 0.9774145161902716,
+                "signal_value_ratio": 0.012922339006195419,
+                "signal_conviction": 0.02658697438996617,
+                "signal_timing_efficiency": 0.0016631899532998768,
+                "signal_opportunity_cost": 0.5046075334893749,
+                "signal_reliability": 0.715749716389056,
+                "signal_risk_adjusted_return": 0.08618509372781424,
+                "signal_quality_score": 2.5838641499769626,
+                "best_horizon": 5,
+                "horizon_metrics": {
+                    "1": {
+                        "avg_return": 0.0018430655664132165,
+                        "win_rate": 0.505,
+                        "sharpe": 0.07976092316989851
+                    },
+                    "3": {
+                        "avg_return": 0.008751130433184444,
+                        "win_rate": 0.5979899497487438,
+                        "sharpe": 0.24225144483240743
+                    },
+                    "5": {
+                        "avg_return": 0.017431301126688423,
+                        "win_rate": 0.6381909547738693,
+                        "sharpe": 0.3347102623473257
+                    },
+                    "10": {
+                        "avg_return": 0.02632350182951,
+                        "win_rate": 0.6432160804020101,
+                        "sharpe": 0.3339210806945562
+                    }
+                }
+            },
+            "metrics": {
+                "Start": {
+                    "value": "0",
+                    "description": "Start from strategy analysis"
+                },
+                "End": {
+                    "value": "5750",
+                    "description": "End from strategy analysis"
+                },
+                "Period": {
+                    "value": "5751 days 00:00:00",
+                    "description": "Period from strategy analysis"
+                },
+                "Start Value": {
+                    "value": 1000.0,
+                    "description": "Start Value from strategy analysis"
+                },
+                "End Value": {
+                    "value": 519854.84383345954,
+                    "description": "End Value from strategy analysis"
+                },
+                "Total Return [%]": {
+                    "value": 51885.48438334595,
+                    "description": "Total Return [%] from strategy analysis"
+                },
+                "Benchmark Return [%]": {
+                    "value": 77842.77957357901,
+                    "description": "Benchmark Return [%] from strategy analysis"
+                },
+                "Max Gross Exposure [%]": {
+                    "value": 100.0,
+                    "description": "Max Gross Exposure [%] from strategy analysis"
+                },
+                "Total Fees Paid": {
+                    "value": 43064.447096855896,
+                    "description": "Total Fees Paid from strategy analysis"
+                },
+                "Max Drawdown [%]": {
+                    "value": 72.57633679419088,
+                    "description": "Max Drawdown [%] from strategy analysis"
+                },
+                "Max Drawdown Duration": {
+                    "value": "1229 days 00:00:00",
+                    "description": "Max Drawdown Duration from strategy analysis"
+                },
+                "Total Trades": {
+                    "value": "190",
+                    "description": "Total Trades from strategy analysis"
+                },
+                "Total Closed Trades": {
+                    "value": "189",
+                    "description": "Total Closed Trades from strategy analysis"
+                },
+                "Total Open Trades": {
+                    "value": "1",
+                    "description": "Total Open Trades from strategy analysis"
+                },
+                "Open Trade PnL": {
+                    "value": -519.8548438334255,
+                    "description": "Open Trade PnL from strategy analysis"
+                },
+                "Win Rate [%]": {
+                    "value": 60.84656084656085,
+                    "description": "Win Rate [%] from strategy analysis"
+                },
+                "Best Trade [%]": {
+                    "value": 120.8061615599342,
+                    "description": "Best Trade [%] from strategy analysis"
+                },
+                "Worst Trade [%]": {
+                    "value": -42.211880943528584,
+                    "description": "Worst Trade [%] from strategy analysis"
+                },
+                "Avg Winning Trade [%]": {
+                    "value": 11.544542912680383,
+                    "description": "Avg Winning Trade [%] from strategy analysis"
+                },
+                "Avg Losing Trade [%]": {
+                    "value": -6.106978593252786,
+                    "description": "Avg Losing Trade [%] from strategy analysis"
+                },
+                "Avg Winning Trade Duration": {
+                    "value": "22 days 22:32:20.869565217",
+                    "description": "Avg Winning Trade Duration from strategy analysis"
+                },
+                "Avg Losing Trade Duration": {
+                    "value": "14 days 06:29:11.351351351",
+                    "description": "Avg Losing Trade Duration from strategy analysis"
+                },
+                "Profit Factor": {
+                    "value": 2.197952433742338,
+                    "description": "Profit Factor from strategy analysis"
+                },
+                "Expectancy": {
+                    "value": 2748.014278715835,
+                    "description": "Expectancy from strategy analysis"
+                },
+                "Sharpe Ratio": {
+                    "value": 1.0465099663776463,
+                    "description": "Sharpe Ratio from strategy analysis"
+                },
+                "Calmar Ratio": {
+                    "value": 0.6712937380945327,
+                    "description": "Calmar Ratio from strategy analysis"
+                },
+                "Omega Ratio": {
+                    "value": 1.2372594649245998,
+                    "description": "Omega Ratio from strategy analysis"
+                },
+                "Sortino Ratio": {
+                    "value": 1.617738516671818,
+                    "description": "Sortino Ratio from strategy analysis"
+                },
+                "Skew": {
+                    "value": 0.6492672044303575,
+                    "description": "Skew from strategy analysis"
+                },
+                "Kurtosis": {
+                    "value": 39.07458349639941,
+                    "description": "Kurtosis from strategy analysis"
+                },
+                "Tail Ratio": {
+                    "value": 1.2841204230911283,
+                    "description": "Tail Ratio from strategy analysis"
+                },
+                "Common Sense Ratio": {
+                    "value": 0.4937662337662338,
+                    "description": "Common Sense Ratio from strategy analysis"
+                },
+                "Expectancy per Trade": {
+                    "value": 4.633365180198614,
+                    "description": "Expectancy per Trade from strategy analysis"
+                },
+                "Value at Risk": {
+                    "value": -0.032327683562149725,
+                    "description": "Value at Risk from strategy analysis"
+                },
+                "Alpha": {
+                    "value": "None",
+                    "description": "Alpha from strategy analysis"
+                },
+                "Beta": {
+                    "value": "None",
+                    "description": "Beta from strategy analysis"
+                },
+                "Daily Returns": {
+                    "value": 0.0014287844564674305,
+                    "description": "Daily Returns from strategy analysis"
+                },
+                "Annual Returns": {
+                    "value": 0.36005368302979246,
+                    "description": "Annual Returns from strategy analysis"
+                },
+                "Cumulative Returns": {
+                    "value": 518.8548438334635,
+                    "description": "Cumulative Returns from strategy analysis"
+                },
+                "Annualized Return": {
+                    "value": 0.3152423613855322,
+                    "description": "Annualized Return from strategy analysis"
+                },
+                "Annualized Volatility": {
+                    "value": 0.41406645758236565,
+                    "description": "Annualized Volatility from strategy analysis"
+                },
+                "Expectancy Adjusted": {
+                    "value": 4.621710432152317,
+                    "description": "Expectancy Adjusted from strategy analysis"
+                },
+                "Profit Factor Adjusted": {
+                    "value": 2.197952433742338,
+                    "description": "Profit Factor Adjusted from strategy analysis"
+                },
+                "Beats BNH [%]": {
+                    "value": -0.33345796915817416,
+                    "description": "Beats BNH [%] from strategy analysis"
+                },
+                "Trades Per Day": {
+                    "value": 0.0328695652173913,
+                    "description": "Trades Per Day from strategy analysis"
+                },
+                "Total Period": {
+                    "value": 8328.373015873016,
+                    "description": "Total Period from strategy analysis"
+                },
+                "Maturity": {
+                    "value": 1.4631806147116224,
+                    "description": "Maturity from strategy analysis"
+                },
+                "Score": {
+                    "value": 5.189562600225476,
+                    "description": "Score from strategy analysis"
+                },
+                "Trades per Month": {
+                    "value": 0.6939130434782609,
+                    "description": "Trades per Month from strategy analysis"
+                },
+                "Signals per Month": {
+                    "value": 1.3841739130434783,
+                    "description": "Signals per Month from strategy analysis"
+                },
+                "Expectancy per Month": {
+                    "value": 3.215152533737821,
+                    "description": "Expectancy per Month from strategy analysis"
+                },
+                "Avg Trade Duration": {
+                    "value": "19 days 13:04:45.714285714",
+                    "description": "Avg Trade Duration from strategy analysis"
+                }
+            }
+        },
+        {
+            "id": "strategy_3",
+            "parameters": {
+                "ticker": {
+                    "value": "LIN",
+                    "description": "Ticker symbol to analyze"
+                },
+                "timeframe": {
+                    "value": "Daily",
+                    "description": "Trading timeframe (Hourly or Daily)"
+                },
+                "type": {
+                    "value": "SMA",
+                    "description": "Strategy type (SMA)"
+                },
+                "direction": {
+                    "value": "Long",
+                    "description": "Trading direction (Long or Short)"
+                },
+                "short_window": {
+                    "value": 68,
+                    "description": "Period for short moving average or MACD fast line"
+                },
+                "long_window": {
+                    "value": 86,
+                    "description": "Period for long moving average or MACD slow line"
+                }
+            },
+            "risk_metrics": {
+                "var_95": {
+                    "value": -0.021245767327950523,
+                    "description": "Value at Risk (95% confidence)"
+                },
+                "cvar_95": {
+                    "value": -0.0324650487496496,
+                    "description": "Conditional Value at Risk (95% confidence)"
+                },
+                "var_99": {
+                    "value": -0.03743662163611572,
+                    "description": "Value at Risk (99% confidence)"
+                },
+                "cvar_99": {
+                    "value": -0.05150015435878308,
+                    "description": "Conditional Value at Risk (99% confidence)"
+                },
+                "risk_contribution": {
+                    "value": 0.05532942121116022,
+                    "description": "Contribution to portfolio risk"
+                },
+                "alpha_to_portfolio": {
+                    "value": -0.0005445113033835418,
+                    "description": "Strategy alpha relative to portfolio"
+                }
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.16623381666351128,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "expectancy": {
+                    "value": 5.978643761254894,
+                    "description": "Expectancy per Trade"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.913689458814395,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.1103448275862069,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.631120783460283,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 1.108695652173913,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 1.0,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.7939992644839353,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 1.4233920398638908,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 0.3146963876899777,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 2,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 1,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 51,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 1.204951736244928,
+            "allocation": 14.6589681106878,
+            "signal_quality_metrics": {
+                "signal_count": 51,
+                "avg_return": -0.0012850881484722943,
+                "win_rate": 0.47058823529411764,
+                "profit_factor": 0.7720954826927604,
+                "avg_win": 0.009251452660061542,
+                "avg_loss": -0.010650902200502368,
+                "risk_reward_ratio": 0.8686074180293554,
+                "expectancy_per_signal": -0.0012850881484722928,
+                "sharpe_ratio": -0.09382674065561371,
+                "sortino_ratio": -0.13582765257653387,
+                "calmar_ratio": -0.015473279968351716,
+                "max_drawdown": 0.0830520840507475,
+                "signal_efficiency": 0.47058823529411764,
+                "signal_consistency": 0.9864886611409884,
+                "signal_value_ratio": -0.030737495207790677,
+                "signal_conviction": 0.0312755802185379,
+                "signal_timing_efficiency": 0.5448939172737332,
+                "signal_opportunity_cost": 0.49678732384185614,
+                "signal_reliability": 0.6808102661929735,
+                "signal_risk_adjusted_return": -0.12652093280069998,
+                "signal_quality_score": 2.8153799483669744,
+                "best_horizon": 10,
+                "horizon_metrics": {
+                    "1": {
+                        "avg_return": -0.0012850881484722943,
+                        "win_rate": 0.47058823529411764,
+                        "sharpe": -0.09382674065561371
+                    },
+                    "3": {
+                        "avg_return": 0.000878346329653543,
+                        "win_rate": 0.5294117647058824,
+                        "sharpe": 0.04075366545327787
+                    },
+                    "5": {
+                        "avg_return": 0.0023827689285593396,
+                        "win_rate": 0.5686274509803921,
+                        "sharpe": 0.11019532252761907
+                    },
+                    "10": {
+                        "avg_return": 0.0074267193047723844,
+                        "win_rate": 0.5490196078431373,
+                        "sharpe": 0.21442317909168138
+                    }
+                }
+            },
+            "metrics": {
+                "Start": {
+                    "value": "0",
+                    "description": "Start from strategy analysis"
+                },
+                "End": {
+                    "value": "8254",
+                    "description": "End from strategy analysis"
+                },
+                "Period": {
+                    "value": "8255 days 00:00:00",
+                    "description": "Period from strategy analysis"
+                },
+                "Start Value": {
+                    "value": 1000.0,
+                    "description": "Start Value from strategy analysis"
+                },
+                "End Value": {
+                    "value": 23074.37378945182,
+                    "description": "End Value from strategy analysis"
+                },
+                "Total Return [%]": {
+                    "value": 2207.437378945182,
+                    "description": "Total Return [%] from strategy analysis"
+                },
+                "Benchmark Return [%]": {
+                    "value": 5766.330893208671,
+                    "description": "Benchmark Return [%] from strategy analysis"
+                },
+                "Max Gross Exposure [%]": {
+                    "value": 100.0,
+                    "description": "Max Gross Exposure [%] from strategy analysis"
+                },
+                "Total Fees Paid": {
+                    "value": 1192.7955109833422,
+                    "description": "Total Fees Paid from strategy analysis"
+                },
+                "Max Drawdown [%]": {
+                    "value": 44.90957913172346,
+                    "description": "Max Drawdown [%] from strategy analysis"
+                },
+                "Max Drawdown Duration": {
+                    "value": "1322 days 00:00:00",
+                    "description": "Max Drawdown Duration from strategy analysis"
+                },
+                "Total Trades": {
+                    "value": "63",
+                    "description": "Total Trades from strategy analysis"
+                },
+                "Total Closed Trades": {
+                    "value": "62",
+                    "description": "Total Closed Trades from strategy analysis"
+                },
+                "Total Open Trades": {
+                    "value": "1",
+                    "description": "Total Open Trades from strategy analysis"
+                },
+                "Open Trade PnL": {
+                    "value": -23.074373789448146,
+                    "description": "Open Trade PnL from strategy analysis"
+                },
+                "Win Rate [%]": {
+                    "value": 59.67741935483871,
+                    "description": "Win Rate [%] from strategy analysis"
+                },
+                "Best Trade [%]": {
+                    "value": 41.267924528301904,
+                    "description": "Best Trade [%] from strategy analysis"
+                },
+                "Worst Trade [%]": {
+                    "value": -20.72633121397481,
+                    "description": "Worst Trade [%] from strategy analysis"
+                },
+                "Avg Winning Trade [%]": {
+                    "value": 13.574831142201727,
+                    "description": "Avg Winning Trade [%] from strategy analysis"
+                },
+                "Avg Losing Trade [%]": {
+                    "value": -5.263713562546421,
+                    "description": "Avg Losing Trade [%] from strategy analysis"
+                },
+                "Avg Winning Trade Duration": {
+                    "value": "110 days 02:35:40.540540540",
+                    "description": "Avg Winning Trade Duration from strategy analysis"
+                },
+                "Avg Losing Trade Duration": {
+                    "value": "60 days 20:09:36",
+                    "description": "Avg Losing Trade Duration from strategy analysis"
+                },
+                "Profit Factor": {
+                    "value": 2.6602206289174815,
+                    "description": "Profit Factor from strategy analysis"
+                },
+                "Expectancy": {
+                    "value": 356.410454245827,
+                    "description": "Expectancy from strategy analysis"
+                },
+                "Sharpe Ratio": {
+                    "value": 0.6794850835086683,
+                    "description": "Sharpe Ratio from strategy analysis"
+                },
+                "Calmar Ratio": {
+                    "value": 0.3314927469096692,
+                    "description": "Calmar Ratio from strategy analysis"
+                },
+                "Omega Ratio": {
+                    "value": 1.1280224668433554,
+                    "description": "Omega Ratio from strategy analysis"
+                },
+                "Sortino Ratio": {
+                    "value": 0.9990468068359403,
+                    "description": "Sortino Ratio from strategy analysis"
+                },
+                "Skew": {
+                    "value": 0.09056902109692361,
+                    "description": "Skew from strategy analysis"
+                },
+                "Kurtosis": {
+                    "value": 8.456253472251639,
+                    "description": "Kurtosis from strategy analysis"
+                },
+                "Tail Ratio": {
+                    "value": 1.06206553500257,
+                    "description": "Tail Ratio from strategy analysis"
+                },
+                "Common Sense Ratio": {
+                    "value": 0.5241875923190545,
+                    "description": "Common Sense Ratio from strategy analysis"
+                },
+                "Expectancy per Trade": {
+                    "value": 5.978643761254894,
+                    "description": "Expectancy per Trade from strategy analysis"
+                },
+                "Value at Risk": {
+                    "value": -0.020847322266212623,
+                    "description": "Value at Risk from strategy analysis"
+                },
+                "Alpha": {
+                    "value": "None",
+                    "description": "Alpha from strategy analysis"
+                },
+                "Beta": {
+                    "value": "None",
+                    "description": "Beta from strategy analysis"
+                },
+                "Daily Returns": {
+                    "value": 0.00046614785270439503,
+                    "description": "Daily Returns from strategy analysis"
+                },
+                "Annual Returns": {
+                    "value": 0.11746925888150755,
+                    "description": "Annual Returns from strategy analysis"
+                },
+                "Cumulative Returns": {
+                    "value": 22.074373789451776,
+                    "description": "Cumulative Returns from strategy analysis"
+                },
+                "Annualized Return": {
+                    "value": 0.10055614643527555,
+                    "description": "Annualized Return from strategy analysis"
+                },
+                "Annualized Volatility": {
+                    "value": 0.20806089549140167,
+                    "description": "Annualized Volatility from strategy analysis"
+                },
+                "Expectancy Adjusted": {
+                    "value": 4.074596042851927,
+                    "description": "Expectancy Adjusted from strategy analysis"
+                },
+                "Profit Factor Adjusted": {
+                    "value": 2.6602206289174815,
+                    "description": "Profit Factor Adjusted from strategy analysis"
+                },
+                "Beats BNH [%]": {
+                    "value": -0.6171851009200662,
+                    "description": "Beats BNH [%] from strategy analysis"
+                },
+                "Trades Per Day": {
+                    "value": 0.007511509571117034,
+                    "description": "Trades Per Day from strategy analysis"
+                },
+                "Total Period": {
+                    "value": 11955.198412698412,
+                    "description": "Total Period from strategy analysis"
+                },
+                "Maturity": {
+                    "value": 1.0094614136652338,
+                    "description": "Maturity from strategy analysis"
+                },
+                "Score": {
+                    "value": 2.624662192141354,
+                    "description": "Score from strategy analysis"
+                },
+                "Trades per Month": {
+                    "value": 0.16028592197722316,
+                    "description": "Trades per Month from strategy analysis"
+                },
+                "Signals per Month": {
+                    "value": 0.3180276229706809,
+                    "description": "Signals per Month from strategy analysis"
+                },
+                "Expectancy per Month": {
+                    "value": 0.9582924274461139,
+                    "description": "Expectancy per Month from strategy analysis"
+                },
+                "Avg Trade Duration": {
+                    "value": "90 days 05:48:23.225806451",
+                    "description": "Avg Trade Duration from strategy analysis"
+                }
+            }
+        },
+        {
+            "id": "strategy_2",
+            "parameters": {
+                "ticker": {
+                    "value": "TRGP",
+                    "description": "Ticker symbol to analyze"
+                },
+                "timeframe": {
+                    "value": "Daily",
+                    "description": "Trading timeframe (Hourly or Daily)"
+                },
+                "type": {
+                    "value": "SMA",
+                    "description": "Strategy type (SMA)"
+                },
+                "direction": {
+                    "value": "Long",
+                    "description": "Trading direction (Long or Short)"
+                },
+                "short_window": {
+                    "value": 16,
+                    "description": "Period for short moving average or MACD fast line"
+                },
+                "long_window": {
+                    "value": 27,
+                    "description": "Period for long moving average or MACD slow line"
+                }
+            },
+            "risk_metrics": {
+                "var_95": {
+                    "value": -0.038047976206891,
+                    "description": "Value at Risk (95% confidence)"
+                },
+                "cvar_95": {
+                    "value": -0.0527108281656571,
+                    "description": "Conditional Value at Risk (95% confidence)"
+                },
+                "var_99": {
+                    "value": -0.061367685970386714,
+                    "description": "Value at Risk (99% confidence)"
+                },
+                "cvar_99": {
+                    "value": -0.07986190490850799,
+                    "description": "Conditional Value at Risk (99% confidence)"
+                },
+                "risk_contribution": {
+                    "value": 0.20455476939751654,
+                    "description": "Contribution to portfolio risk"
+                },
+                "alpha_to_portfolio": {
+                    "value": 0.0011452675243975976,
+                    "description": "Strategy alpha relative to portfolio"
+                }
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.14749934887571128,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "expectancy": {
+                    "value": 7.469587799578893,
+                    "description": "Expectancy per Trade"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.8824993594842361,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.10955056179775281,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.5810663764961915,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 1.3116883116883118,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 1.0,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.7436876570431122,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 1.8796889663335112,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 0.5680006546451996,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 4,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 1,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 101,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 0.8379337030625241,
+            "allocation": 13.439661404683086,
+            "signal_quality_metrics": {
+                "signal_count": 101,
+                "avg_return": 0.002409728314977671,
+                "win_rate": 0.5247524752475248,
+                "profit_factor": 1.3236658311948875,
+                "avg_win": 0.018779978425882766,
+                "avg_loss": -0.015665756182480037,
+                "risk_reward_ratio": 1.198791696176502,
+                "expectancy_per_signal": 0.0024097283149776723,
+                "sharpe_ratio": 0.0974302553819515,
+                "sortino_ratio": 0.14249439406709669,
+                "calmar_ratio": 0.010168870736577738,
+                "max_drawdown": 0.2369710833583325,
+                "signal_efficiency": 0.5247524752475248,
+                "signal_consistency": 0.9758640954680786,
+                "signal_value_ratio": 0.020092306579859987,
+                "signal_conviction": 0.032476751793983835,
+                "signal_timing_efficiency": 0.31368062168669003,
+                "signal_opportunity_cost": 0.5060240292879623,
+                "signal_reliability": 0.6154508200065323,
+                "signal_risk_adjusted_return": 0.1133533043631739,
+                "signal_quality_score": 2.910464393122527,
+                "best_horizon": 10,
+                "horizon_metrics": {
+                    "1": {
+                        "avg_return": 0.002409728314977671,
+                        "win_rate": 0.5247524752475248,
+                        "sharpe": 0.0974302553819515
+                    },
+                    "3": {
+                        "avg_return": 0.0025829107509323184,
+                        "win_rate": 0.5445544554455446,
+                        "sharpe": 0.04902766853528034
+                    },
+                    "5": {
+                        "avg_return": 0.005185860845394882,
+                        "win_rate": 0.5643564356435643,
+                        "sharpe": 0.07101273940798276
+                    },
+                    "10": {
+                        "avg_return": 0.010921834619866197,
+                        "win_rate": 0.6039603960396039,
+                        "sharpe": 0.11804201295404408
+                    }
+                }
+            },
+            "metrics": {
+                "Start": {
+                    "value": "0",
+                    "description": "Start from strategy analysis"
+                },
+                "End": {
+                    "value": "3599",
+                    "description": "End from strategy analysis"
+                },
+                "Period": {
+                    "value": "3600 days 00:00:00",
+                    "description": "Period from strategy analysis"
+                },
+                "Start Value": {
+                    "value": 1000.0,
+                    "description": "Start Value from strategy analysis"
+                },
+                "End Value": {
+                    "value": 32386.87241479094,
+                    "description": "End Value from strategy analysis"
+                },
+                "Total Return [%]": {
+                    "value": 3138.687241479094,
+                    "description": "Total Return [%] from strategy analysis"
+                },
+                "Benchmark Return [%]": {
+                    "value": 711.6194130710069,
+                    "description": "Benchmark Return [%] from strategy analysis"
+                },
+                "Max Gross Exposure [%]": {
+                    "value": 100.0,
+                    "description": "Max Gross Exposure [%] from strategy analysis"
+                },
+                "Total Fees Paid": {
+                    "value": 948.9477600474313,
+                    "description": "Total Fees Paid from strategy analysis"
+                },
+                "Max Drawdown [%]": {
+                    "value": 45.27145983005914,
+                    "description": "Max Drawdown [%] from strategy analysis"
+                },
+                "Max Drawdown Duration": {
+                    "value": "992 days 00:00:00",
+                    "description": "Max Drawdown Duration from strategy analysis"
+                },
+                "Total Trades": {
+                    "value": "68",
+                    "description": "Total Trades from strategy analysis"
+                },
+                "Total Closed Trades": {
+                    "value": "67",
+                    "description": "Total Closed Trades from strategy analysis"
+                },
+                "Total Open Trades": {
+                    "value": "1",
+                    "description": "Total Open Trades from strategy analysis"
+                },
+                "Open Trade PnL": {
+                    "value": -32.38687241478692,
+                    "description": "Open Trade PnL from strategy analysis"
+                },
+                "Win Rate [%]": {
+                    "value": 50.74626865671642,
+                    "description": "Win Rate [%] from strategy analysis"
+                },
+                "Best Trade [%]": {
+                    "value": 130.87361557802828,
+                    "description": "Best Trade [%] from strategy analysis"
+                },
+                "Worst Trade [%]": {
+                    "value": -25.504351199133374,
+                    "description": "Worst Trade [%] from strategy analysis"
+                },
+                "Avg Winning Trade [%]": {
+                    "value": 20.930472093637633,
+                    "description": "Avg Winning Trade [%] from strategy analysis"
+                },
+                "Avg Losing Trade [%]": {
+                    "value": -6.399202079148296,
+                    "description": "Avg Losing Trade [%] from strategy analysis"
+                },
+                "Avg Winning Trade Duration": {
+                    "value": "49 days 06:21:10.588235294",
+                    "description": "Avg Winning Trade Duration from strategy analysis"
+                },
+                "Avg Losing Trade Duration": {
+                    "value": "15 days 19:38:10.909090909",
+                    "description": "Avg Losing Trade Duration from strategy analysis"
+                },
+                "Profit Factor": {
+                    "value": 3.42060969790931,
+                    "description": "Profit Factor from strategy analysis"
+                },
+                "Expectancy": {
+                    "value": 468.9441684657571,
+                    "description": "Expectancy from strategy analysis"
+                },
+                "Sharpe Ratio": {
+                    "value": 1.1775682573587605,
+                    "description": "Sharpe Ratio from strategy analysis"
+                },
+                "Calmar Ratio": {
+                    "value": 0.9338550020048209,
+                    "description": "Calmar Ratio from strategy analysis"
+                },
+                "Omega Ratio": {
+                    "value": 1.2676512243464966,
+                    "description": "Omega Ratio from strategy analysis"
+                },
+                "Sortino Ratio": {
+                    "value": 1.874989361115261,
+                    "description": "Sortino Ratio from strategy analysis"
+                },
+                "Skew": {
+                    "value": 1.3764454312330434,
+                    "description": "Skew from strategy analysis"
+                },
+                "Kurtosis": {
+                    "value": 20.2531698199301,
+                    "description": "Kurtosis from strategy analysis"
+                },
+                "Tail Ratio": {
+                    "value": 1.1406726926148154,
+                    "description": "Tail Ratio from strategy analysis"
+                },
+                "Common Sense Ratio": {
+                    "value": 0.4925373134328359,
+                    "description": "Common Sense Ratio from strategy analysis"
+                },
+                "Expectancy per Trade": {
+                    "value": 7.469587799578893,
+                    "description": "Expectancy per Trade from strategy analysis"
+                },
+                "Value at Risk": {
+                    "value": -0.02476683812646281,
+                    "description": "Value at Risk from strategy analysis"
+                },
+                "Alpha": {
+                    "value": "None",
+                    "description": "Alpha from strategy analysis"
+                },
+                "Beta": {
+                    "value": "None",
+                    "description": "Beta from strategy analysis"
+                },
+                "Daily Returns": {
+                    "value": 0.0011329729257487057,
+                    "description": "Daily Returns from strategy analysis"
+                },
+                "Annual Returns": {
+                    "value": 0.2855091772886738,
+                    "description": "Annual Returns from strategy analysis"
+                },
+                "Cumulative Returns": {
+                    "value": 31.38687241479095,
+                    "description": "Cumulative Returns from strategy analysis"
+                },
+                "Annualized Return": {
+                    "value": 0.27563324974839887,
+                    "description": "Annualized Return from strategy analysis"
+                },
+                "Annualized Volatility": {
+                    "value": 0.2917965441991673,
+                    "description": "Annualized Volatility from strategy analysis"
+                },
+                "Expectancy Adjusted": {
+                    "value": 4.677951467778271,
+                    "description": "Expectancy Adjusted from strategy analysis"
+                },
+                "Profit Factor Adjusted": {
+                    "value": 3.42060969790931,
+                    "description": "Profit Factor Adjusted from strategy analysis"
+                },
+                "Beats BNH [%]": {
+                    "value": 3.41062621933546,
+                    "description": "Beats BNH [%] from strategy analysis"
+                },
+                "Trades Per Day": {
+                    "value": 0.018616282300639067,
+                    "description": "Trades Per Day from strategy analysis"
+                },
+                "Total Period": {
+                    "value": 5212.837301587301,
+                    "description": "Total Period from strategy analysis"
+                },
+                "Maturity": {
+                    "value": 0.6925204387619737,
+                    "description": "Maturity from strategy analysis"
+                },
+                "Score": {
+                    "value": 3.6949554404302285,
+                    "description": "Score from strategy analysis"
+                },
+                "Trades per Month": {
+                    "value": 0.39677688246735204,
+                    "description": "Trades per Month from strategy analysis"
+                },
+                "Signals per Month": {
+                    "value": 0.7877188107807724,
+                    "description": "Signals per Month from strategy analysis"
+                },
+                "Expectancy per Month": {
+                    "value": 2.963759760433081,
+                    "description": "Expectancy per Month from strategy analysis"
+                },
+                "Avg Trade Duration": {
+                    "value": "32 days 18:59:06.268656716",
+                    "description": "Avg Trade Duration from strategy analysis"
+                }
+            }
+        },
+        {
+            "id": "strategy_5",
+            "parameters": {
+                "ticker": {
+                    "value": "CSCO",
+                    "description": "Ticker symbol to analyze"
+                },
+                "timeframe": {
+                    "value": "Daily",
+                    "description": "Trading timeframe (Hourly or Daily)"
+                },
+                "type": {
+                    "value": "EMA",
+                    "description": "Strategy type (EMA)"
+                },
+                "direction": {
+                    "value": "Long",
+                    "description": "Trading direction (Long or Short)"
+                },
+                "short_window": {
+                    "value": 15,
+                    "description": "Period for short moving average or MACD fast line"
+                },
+                "long_window": {
+                    "value": 53,
+                    "description": "Period for long moving average or MACD slow line"
+                }
+            },
+            "risk_metrics": {
+                "var_95": {
+                    "value": -0.01965181665035418,
+                    "description": "Value at Risk (95% confidence)"
+                },
+                "cvar_95": {
+                    "value": -0.03209079912951139,
+                    "description": "Conditional Value at Risk (95% confidence)"
+                },
+                "var_99": {
+                    "value": -0.038948815900034454,
+                    "description": "Value at Risk (99% confidence)"
+                },
+                "cvar_99": {
+                    "value": -0.054627101841342604,
+                    "description": "Conditional Value at Risk (99% confidence)"
+                },
+                "risk_contribution": {
+                    "value": 0.08628967405002494,
+                    "description": "Contribution to portfolio risk"
+                },
+                "alpha_to_portfolio": {
+                    "value": -0.0006898713207031487,
+                    "description": "Strategy alpha relative to portfolio"
+                }
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.14951257201127532,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "expectancy": {
+                    "value": 11.5875590984603,
+                    "description": "Expectancy per Trade"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.8645263444527811,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.10266272189349113,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.6129851287631484,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 1.3404255319148937,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 1.0,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.7053426634884712,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 1.9755084003413161,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 0.6350828684264225,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 3,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 1,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 63,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 0.6481014284101264,
+            "allocation": 12.639110526157346,
+            "signal_quality_metrics": {
+                "signal_count": 63,
+                "avg_return": 0.0004626975221586481,
+                "win_rate": 0.5238095238095238,
+                "profit_factor": 1.0781664775047244,
+                "avg_win": 0.01218397688946747,
+                "avg_loss": -0.012430709781881055,
+                "risk_reward_ratio": 0.980151343186113,
+                "expectancy_per_signal": 0.0004626975221586494,
+                "sharpe_ratio": 0.02734659834286006,
+                "sortino_ratio": 0.037561190283107844,
+                "calmar_ratio": 0.003964661472464241,
+                "max_drawdown": 0.11670543005303749,
+                "signal_efficiency": 0.5238095238095238,
+                "signal_consistency": 0.9833617677914429,
+                "signal_value_ratio": 0.007863357986721302,
+                "signal_conviction": 0.009115532780953353,
+                "signal_timing_efficiency": 0.09507312669253457,
+                "signal_opportunity_cost": 0.5011567417416833,
+                "signal_reliability": 0.7038889467954565,
+                "signal_risk_adjusted_return": 0.03680777420612403,
+                "signal_quality_score": 2.589219180977014,
+                "best_horizon": 1,
+                "horizon_metrics": {
+                    "1": {
+                        "avg_return": 0.0002448949784045878,
+                        "win_rate": 0.5161290322580645,
+                        "sharpe": 0.014432914807783113
+                    },
+                    "3": {
+                        "avg_return": -0.0027584165109350305,
+                        "win_rate": 0.5737704918032787,
+                        "sharpe": -0.08610244899655985
+                    },
+                    "5": {
+                        "avg_return": -0.0016935244405977168,
+                        "win_rate": 0.6,
+                        "sharpe": -0.04760432502272447
+                    },
+                    "10": {
+                        "avg_return": 0.0006496894075994928,
+                        "win_rate": 0.6,
+                        "sharpe": 0.012230194572150759
+                    }
+                }
+            },
+            "metrics": {
+                "Start": {
+                    "value": "0",
+                    "description": "Start from strategy analysis"
+                },
+                "End": {
+                    "value": "8843",
+                    "description": "End from strategy analysis"
+                },
+                "Period": {
+                    "value": "8844 days 00:00:00",
+                    "description": "Period from strategy analysis"
+                },
+                "Start Value": {
+                    "value": 1000.0,
+                    "description": "Start Value from strategy analysis"
+                },
+                "End Value": {
+                    "value": 295434.0809768943,
+                    "description": "End Value from strategy analysis"
+                },
+                "Total Return [%]": {
+                    "value": 29443.40809768943,
+                    "description": "Total Return [%] from strategy analysis"
+                },
+                "Benchmark Return [%]": {
+                    "value": 79776.25607577087,
+                    "description": "Benchmark Return [%] from strategy analysis"
+                },
+                "Max Gross Exposure [%]": {
+                    "value": 100.0,
+                    "description": "Max Gross Exposure [%] from strategy analysis"
+                },
+                "Total Fees Paid": {
+                    "value": 29446.490695153698,
+                    "description": "Total Fees Paid from strategy analysis"
+                },
+                "Max Drawdown [%]": {
+                    "value": 52.40472067046945,
+                    "description": "Max Drawdown [%] from strategy analysis"
+                },
+                "Max Drawdown Duration": {
+                    "value": "2464 days 00:00:00",
+                    "description": "Max Drawdown Duration from strategy analysis"
+                },
+                "Total Trades": {
+                    "value": "85",
+                    "description": "Total Trades from strategy analysis"
+                },
+                "Total Closed Trades": {
+                    "value": "84",
+                    "description": "Total Closed Trades from strategy analysis"
+                },
+                "Total Open Trades": {
+                    "value": "1",
+                    "description": "Total Open Trades from strategy analysis"
+                },
+                "Open Trade PnL": {
+                    "value": -295.43408097687643,
+                    "description": "Open Trade PnL from strategy analysis"
+                },
+                "Win Rate [%]": {
+                    "value": 41.66666666666667,
+                    "description": "Win Rate [%] from strategy analysis"
+                },
+                "Best Trade [%]": {
+                    "value": 287.5313043478261,
+                    "description": "Best Trade [%] from strategy analysis"
+                },
+                "Worst Trade [%]": {
+                    "value": -13.630269104148676,
+                    "description": "Worst Trade [%] from strategy analysis"
+                },
+                "Avg Winning Trade [%]": {
+                    "value": 35.35165711787176,
+                    "description": "Avg Winning Trade [%] from strategy analysis"
+                },
+                "Avg Losing Trade [%]": {
+                    "value": -5.386796629690747,
+                    "description": "Avg Losing Trade [%] from strategy analysis"
+                },
+                "Avg Winning Trade Duration": {
+                    "value": "132 days 21:56:34.285714286",
+                    "description": "Avg Winning Trade Duration from strategy analysis"
+                },
+                "Avg Losing Trade Duration": {
+                    "value": "19 days 04:24:29.387755102",
+                    "description": "Avg Losing Trade Duration from strategy analysis"
+                },
+                "Profit Factor": {
+                    "value": 1.5750871747020703,
+                    "description": "Profit Factor from strategy analysis"
+                },
+                "Expectancy": {
+                    "value": 3508.6847030698946,
+                    "description": "Expectancy from strategy analysis"
+                },
+                "Sharpe Ratio": {
+                    "value": 0.8787457597385403,
+                    "description": "Sharpe Ratio from strategy analysis"
+                },
+                "Calmar Ratio": {
+                    "value": 0.5049441239654111,
+                    "description": "Calmar Ratio from strategy analysis"
+                },
+                "Omega Ratio": {
+                    "value": 1.1783574329145852,
+                    "description": "Omega Ratio from strategy analysis"
+                },
+                "Sortino Ratio": {
+                    "value": 1.3105094496439345,
+                    "description": "Sortino Ratio from strategy analysis"
+                },
+                "Skew": {
+                    "value": 0.16166809093588194,
+                    "description": "Skew from strategy analysis"
+                },
+                "Kurtosis": {
+                    "value": 8.434568786573674,
+                    "description": "Kurtosis from strategy analysis"
+                },
+                "Tail Ratio": {
+                    "value": 1.088375261709723,
+                    "description": "Tail Ratio from strategy analysis"
+                },
+                "Common Sense Ratio": {
+                    "value": 0.4831460674157303,
+                    "description": "Common Sense Ratio from strategy analysis"
+                },
+                "Expectancy per Trade": {
+                    "value": 11.5875590984603,
+                    "description": "Expectancy per Trade from strategy analysis"
+                },
+                "Value at Risk": {
+                    "value": -0.026064047608322587,
+                    "description": "Value at Risk from strategy analysis"
+                },
+                "Alpha": {
+                    "value": "None",
+                    "description": "Alpha from strategy analysis"
+                },
+                "Beta": {
+                    "value": "None",
+                    "description": "Beta from strategy analysis"
+                },
+                "Daily Returns": {
+                    "value": 0.0007911769666720136,
+                    "description": "Daily Returns from strategy analysis"
+                },
+                "Annual Returns": {
+                    "value": 0.19937659560134743,
+                    "description": "Annual Returns from strategy analysis"
+                },
+                "Cumulative Returns": {
+                    "value": 294.4340809768937,
+                    "description": "Cumulative Returns from strategy analysis"
+                },
+                "Annualized Return": {
+                    "value": 0.17596133526579028,
+                    "description": "Annualized Return from strategy analysis"
+                },
+                "Annualized Volatility": {
+                    "value": 0.2730593772885424,
+                    "description": "Annualized Volatility from strategy analysis"
+                },
+                "Expectancy Adjusted": {
+                    "value": 7.470336497441712,
+                    "description": "Expectancy Adjusted from strategy analysis"
+                },
+                "Profit Factor Adjusted": {
+                    "value": 1.5750871747020703,
+                    "description": "Profit Factor Adjusted from strategy analysis"
+                },
+                "Beats BNH [%]": {
+                    "value": -0.630925170645708,
+                    "description": "Beats BNH [%] from strategy analysis"
+                },
+                "Trades Per Day": {
+                    "value": 0.009499038787741717,
+                    "description": "Trades Per Day from strategy analysis"
+                },
+                "Total Period": {
+                    "value": 12808.313492063491,
+                    "description": "Total Period from strategy analysis"
+                },
+                "Maturity": {
+                    "value": 1.2136584701744315,
+                    "description": "Maturity from strategy analysis"
+                },
+                "Score": {
+                    "value": 1.7111976161575118,
+                    "description": "Score from strategy analysis"
+                },
+                "Trades per Month": {
+                    "value": 0.20185457423951148,
+                    "description": "Trades per Month from strategy analysis"
+                },
+                "Signals per Month": {
+                    "value": 0.40133438878208755,
+                    "description": "Signals per Month from strategy analysis"
+                },
+                "Expectancy per Month": {
+                    "value": 2.3390018082948814,
+                    "description": "Expectancy per Month from strategy analysis"
+                },
+                "Avg Trade Duration": {
+                    "value": "66 days 13:42:51.428571429",
+                    "description": "Avg Trade Duration from strategy analysis"
+                }
+            }
+        },
+        {
+            "id": "strategy_4",
+            "parameters": {
+                "ticker": {
+                    "value": "VTR",
+                    "description": "Ticker symbol to analyze"
+                },
+                "timeframe": {
+                    "value": "Daily",
+                    "description": "Trading timeframe (Hourly or Daily)"
+                },
+                "type": {
+                    "value": "SMA",
+                    "description": "Strategy type (SMA)"
+                },
+                "direction": {
+                    "value": "Long",
+                    "description": "Trading direction (Long or Short)"
+                },
+                "short_window": {
+                    "value": 79,
+                    "description": "Period for short moving average or MACD fast line"
+                },
+                "long_window": {
+                    "value": 81,
+                    "description": "Period for long moving average or MACD slow line"
+                }
+            },
+            "risk_metrics": {
+                "var_95": {
+                    "value": -0.024147738709051375,
+                    "description": "Value at Risk (95% confidence)"
+                },
+                "cvar_95": {
+                    "value": -0.03405481110577666,
+                    "description": "Conditional Value at Risk (95% confidence)"
+                },
+                "var_99": {
+                    "value": -0.039300021045142706,
+                    "description": "Value at Risk (99% confidence)"
+                },
+                "cvar_99": {
+                    "value": -0.05206370029457047,
+                    "description": "Conditional Value at Risk (99% confidence)"
+                },
+                "risk_contribution": {
+                    "value": 0.08048644512220099,
+                    "description": "Contribution to portfolio risk"
+                },
+                "alpha_to_portfolio": {
+                    "value": -0.0005864598167155668,
+                    "description": "Strategy alpha relative to portfolio"
+                }
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.13822418875102205,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "expectancy": {
+                    "value": 2.764233421791605,
+                    "description": "Expectancy per Trade"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.8728449115587902,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.10646636185499674,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.5553137468262604,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 1.8478260869565217,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 1.0,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.6011880961214771,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 3.0944640777915664,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 1.2466379908350447,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 8,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 1,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 85,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 0.5542780034219442,
+            "allocation": 12.17531636194683,
+            "signal_quality_metrics": {
+                "signal_count": 85,
+                "avg_return": 7.188275530168072e-05,
+                "win_rate": 0.6,
+                "profit_factor": 1.0129661821202531,
+                "avg_win": 0.009359578571769417,
+                "avg_loss": -0.013859660969399923,
+                "risk_reward_ratio": 0.6753107880801688,
+                "expectancy_per_signal": 7.188275530168112e-05,
+                "sharpe_ratio": 0.005068137820463002,
+                "sortino_ratio": 0.007963315142219776,
+                "calmar_ratio": 0.0008909350130073872,
+                "max_drawdown": 0.0806823777853758,
+                "signal_efficiency": 0.6,
+                "signal_consistency": 0.9860150841339801,
+                "signal_value_ratio": 0.0017694103748157747,
+                "signal_conviction": 0.0016893792734876672,
+                "signal_timing_efficiency": 0.05979017956264959,
+                "signal_opportunity_cost": 0.5001797068805162,
+                "signal_reliability": 0.7321083652335532,
+                "signal_risk_adjusted_return": 0.007454765456262487,
+                "signal_quality_score": 2.6786393809630553,
+                "best_horizon": 10,
+                "horizon_metrics": {
+                    "1": {
+                        "avg_return": 7.188275530168072e-05,
+                        "win_rate": 0.6,
+                        "sharpe": 0.005068137820463002
+                    },
+                    "3": {
+                        "avg_return": -0.0004813830537275409,
+                        "win_rate": 0.5176470588235295,
+                        "sharpe": -0.022274012491084166
+                    },
+                    "5": {
+                        "avg_return": 0.0009168371505440861,
+                        "win_rate": 0.5058823529411764,
+                        "sharpe": 0.0329080398808377
+                    },
+                    "10": {
+                        "avg_return": 0.006094975537461125,
+                        "win_rate": 0.5764705882352941,
+                        "sharpe": 0.15429322564706932
+                    }
+                }
+            },
+            "metrics": {
+                "Start": {
+                    "value": "0",
+                    "description": "Start from strategy analysis"
+                },
+                "End": {
+                    "value": "7020",
+                    "description": "End from strategy analysis"
+                },
+                "Period": {
+                    "value": "7021 days 00:00:00",
+                    "description": "Period from strategy analysis"
+                },
+                "Start Value": {
+                    "value": 1000.0,
+                    "description": "Start Value from strategy analysis"
+                },
+                "End Value": {
+                    "value": 10957.001168075001,
+                    "description": "End Value from strategy analysis"
+                },
+                "Total Return [%]": {
+                    "value": 995.7001168075001,
+                    "description": "Total Return [%] from strategy analysis"
+                },
+                "Benchmark Return [%]": {
+                    "value": 180.87759610832325,
+                    "description": "Benchmark Return [%] from strategy analysis"
+                },
+                "Max Gross Exposure [%]": {
+                    "value": 100.0,
+                    "description": "Max Gross Exposure [%] from strategy analysis"
+                },
+                "Total Fees Paid": {
+                    "value": 1341.7529976869414,
+                    "description": "Total Fees Paid from strategy analysis"
+                },
+                "Max Drawdown [%]": {
+                    "value": 75.08211056416025,
+                    "description": "Max Drawdown [%] from strategy analysis"
+                },
+                "Max Drawdown Duration": {
+                    "value": "1296 days 00:00:00",
+                    "description": "Max Drawdown Duration from strategy analysis"
+                },
+                "Total Trades": {
+                    "value": "126",
+                    "description": "Total Trades from strategy analysis"
+                },
+                "Total Closed Trades": {
+                    "value": "125",
+                    "description": "Total Closed Trades from strategy analysis"
+                },
+                "Total Open Trades": {
+                    "value": "1",
+                    "description": "Total Open Trades from strategy analysis"
+                },
+                "Open Trade PnL": {
+                    "value": -10.957001168073475,
+                    "description": "Open Trade PnL from strategy analysis"
+                },
+                "Win Rate [%]": {
+                    "value": 60.8,
+                    "description": "Win Rate [%] from strategy analysis"
+                },
+                "Best Trade [%]": {
+                    "value": 91.55431726945042,
+                    "description": "Best Trade [%] from strategy analysis"
+                },
+                "Worst Trade [%]": {
+                    "value": -35.164999666281,
+                    "description": "Worst Trade [%] from strategy analysis"
+                },
+                "Avg Winning Trade [%]": {
+                    "value": 8.063286981195946,
+                    "description": "Avg Winning Trade [%] from strategy analysis"
+                },
+                "Avg Losing Trade [%]": {
+                    "value": -5.4547067927947195,
+                    "description": "Avg Losing Trade [%] from strategy analysis"
+                },
+                "Avg Winning Trade Duration": {
+                    "value": "39 days 05:22:06.315789473",
+                    "description": "Avg Winning Trade Duration from strategy analysis"
+                },
+                "Avg Losing Trade Duration": {
+                    "value": "23 days 20:04:53.877551020",
+                    "description": "Avg Losing Trade Duration from strategy analysis"
+                },
+                "Profit Factor": {
+                    "value": 1.772447281239322,
+                    "description": "Profit Factor from strategy analysis"
+                },
+                "Expectancy": {
+                    "value": 79.74366535394462,
+                    "description": "Expectancy from strategy analysis"
+                },
+                "Sharpe Ratio": {
+                    "value": 0.5672849179123551,
+                    "description": "Sharpe Ratio from strategy analysis"
+                },
+                "Calmar Ratio": {
+                    "value": 0.1765156070566613,
+                    "description": "Calmar Ratio from strategy analysis"
+                },
+                "Omega Ratio": {
+                    "value": 1.1279069791448986,
+                    "description": "Omega Ratio from strategy analysis"
+                },
+                "Sortino Ratio": {
+                    "value": 0.85732845089878,
+                    "description": "Sortino Ratio from strategy analysis"
+                },
+                "Skew": {
+                    "value": 1.4274831839694688,
+                    "description": "Skew from strategy analysis"
+                },
+                "Kurtosis": {
+                    "value": 35.23764295199513,
+                    "description": "Kurtosis from strategy analysis"
+                },
+                "Tail Ratio": {
+                    "value": 1.0631089602589474,
+                    "description": "Tail Ratio from strategy analysis"
+                },
+                "Common Sense Ratio": {
+                    "value": 0.43872950819672135,
+                    "description": "Common Sense Ratio from strategy analysis"
+                },
+                "Expectancy per Trade": {
+                    "value": 2.764233421791605,
+                    "description": "Expectancy per Trade from strategy analysis"
+                },
+                "Value at Risk": {
+                    "value": -0.020744635042899078,
+                    "description": "Value at Risk from strategy analysis"
+                },
+                "Alpha": {
+                    "value": "None",
+                    "description": "Alpha from strategy analysis"
+                },
+                "Beta": {
+                    "value": "None",
+                    "description": "Beta from strategy analysis"
+                },
+                "Daily Returns": {
+                    "value": 0.0004593458426067834,
+                    "description": "Daily Returns from strategy analysis"
+                },
+                "Annual Returns": {
+                    "value": 0.11575515233690942,
+                    "description": "Annual Returns from strategy analysis"
+                },
+                "Cumulative Returns": {
+                    "value": 9.957001168074989,
+                    "description": "Cumulative Returns from strategy analysis"
+                },
+                "Annualized Return": {
+                    "value": 0.08972509089897818,
+                    "description": "Annualized Return from strategy analysis"
+                },
+                "Annualized Volatility": {
+                    "value": 0.24557562347115636,
+                    "description": "Annualized Volatility from strategy analysis"
+                },
+                "Expectancy Adjusted": {
+                    "value": 2.7551703613922887,
+                    "description": "Expectancy Adjusted from strategy analysis"
+                },
+                "Profit Factor Adjusted": {
+                    "value": 1.772447281239322,
+                    "description": "Profit Factor Adjusted from strategy analysis"
+                },
+                "Beats BNH [%]": {
+                    "value": 4.504828338227136,
+                    "description": "Beats BNH [%] from strategy analysis"
+                },
+                "Trades Per Day": {
+                    "value": 0.017806267806267807,
+                    "description": "Trades Per Day from strategy analysis"
+                },
+                "Total Period": {
+                    "value": 10167.857142857143,
+                    "description": "Total Period from strategy analysis"
+                },
+                "Maturity": {
+                    "value": 1.3165611772087666,
+                    "description": "Maturity from strategy analysis"
+                },
+                "Score": {
+                    "value": 1.9940468214290739,
+                    "description": "Score from strategy analysis"
+                },
+                "Trades per Month": {
+                    "value": 0.3769230769230769,
+                    "description": "Trades per Month from strategy analysis"
+                },
+                "Signals per Month": {
+                    "value": 0.7508547008547009,
+                    "description": "Signals per Month from strategy analysis"
+                },
+                "Expectancy per Month": {
+                    "value": 1.0419033666752973,
+                    "description": "Expectancy per Month from strategy analysis"
+                },
+                "Avg Trade Duration": {
+                    "value": "33 days 04:36:28.799999998",
+                    "description": "Avg Trade Duration from strategy analysis"
+                }
+            }
+        },
+        {
+            "id": "strategy_7",
+            "parameters": {
+                "ticker": {
+                    "value": "CHTR",
+                    "description": "Ticker symbol to analyze"
+                },
+                "timeframe": {
+                    "value": "Daily",
+                    "description": "Trading timeframe (Hourly or Daily)"
+                },
+                "type": {
+                    "value": "SMA",
+                    "description": "Strategy type (SMA)"
+                },
+                "direction": {
+                    "value": "Long",
+                    "description": "Trading direction (Long or Short)"
+                },
+                "short_window": {
+                    "value": 41,
+                    "description": "Period for short moving average or MACD fast line"
+                },
+                "long_window": {
+                    "value": 46,
+                    "description": "Period for long moving average or MACD slow line"
+                }
+            },
+            "risk_metrics": {
+                "var_95": {
+                    "value": -0.025889107637248027,
+                    "description": "Value at Risk (95% confidence)"
+                },
+                "cvar_95": {
+                    "value": -0.04006171562884952,
+                    "description": "Conditional Value at Risk (95% confidence)"
+                },
+                "var_99": {
+                    "value": -0.04310228290939771,
+                    "description": "Value at Risk (99% confidence)"
+                },
+                "cvar_99": {
+                    "value": -0.06868875711027986,
+                    "description": "Conditional Value at Risk (99% confidence)"
+                },
+                "risk_contribution": {
+                    "value": 0.09458541333978165,
+                    "description": "Contribution to portfolio risk"
+                },
+                "alpha_to_portfolio": {
+                    "value": -0.0002965332462049391,
+                    "description": "Strategy alpha relative to portfolio"
+                }
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.14214691062452087,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "expectancy": {
+                    "value": 3.1181018893455033,
+                    "description": "Expectancy per Trade"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.8533643249538454,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.10500927643784787,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.5865070729053319,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 1.5625,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 1.0,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.691904509581799,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 2.433095490418201,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 0.870595490418201,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 5,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 1,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 100,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 0.46476558034203835,
+            "allocation": 11.673288103203443,
+            "signal_quality_metrics": {
+                "signal_count": 100,
+                "avg_return": 0.001867304426468704,
+                "win_rate": 0.51,
+                "profit_factor": 1.3016537319930728,
+                "avg_win": 0.015799077003518215,
+                "avg_loss": -0.01263311192923589,
+                "risk_reward_ratio": 1.2506084876011874,
+                "expectancy_per_signal": 0.0018673044264687034,
+                "sharpe_ratio": 0.09044315837201751,
+                "sortino_ratio": 0.1663993405542647,
+                "calmar_ratio": 0.009252373860341792,
+                "max_drawdown": 0.20181895529237986,
+                "signal_efficiency": 0.51,
+                "signal_consistency": 0.9797714758451052,
+                "signal_value_ratio": 0.01831758585255954,
+                "signal_conviction": 0.03014771945733917,
+                "signal_timing_efficiency": 0.11823076447801284,
+                "signal_opportunity_cost": 0.5046681254257911,
+                "signal_reliability": 0.6326578915907486,
+                "signal_risk_adjusted_return": 0.10900692210041084,
+                "signal_quality_score": 2.6915758047853258,
+                "best_horizon": 10,
+                "horizon_metrics": {
+                    "1": {
+                        "avg_return": 0.001867304426468704,
+                        "win_rate": 0.51,
+                        "sharpe": 0.09044315837201751
+                    },
+                    "3": {
+                        "avg_return": 0.004731306262345056,
+                        "win_rate": 0.5858585858585859,
+                        "sharpe": 0.14458326897699705
+                    },
+                    "5": {
+                        "avg_return": 0.006131215504403657,
+                        "win_rate": 0.5757575757575758,
+                        "sharpe": 0.1545987370167271
+                    },
+                    "10": {
+                        "avg_return": 0.01298696686305589,
+                        "win_rate": 0.5959595959595959,
+                        "sharpe": 0.25535821230985895
+                    }
+                }
+            },
+            "metrics": {
+                "Start": {
+                    "value": "0",
+                    "description": "Start from strategy analysis"
+                },
+                "End": {
+                    "value": "3832",
+                    "description": "End from strategy analysis"
+                },
+                "Period": {
+                    "value": "3833 days 00:00:00",
+                    "description": "Period from strategy analysis"
+                },
+                "Start Value": {
+                    "value": 1000.0,
+                    "description": "Start Value from strategy analysis"
+                },
+                "End Value": {
+                    "value": 5548.968266161646,
+                    "description": "End Value from strategy analysis"
+                },
+                "Total Return [%]": {
+                    "value": 454.8968266161646,
+                    "description": "Total Return [%] from strategy analysis"
+                },
+                "Benchmark Return [%]": {
+                    "value": 952.942853655137,
+                    "description": "Benchmark Return [%] from strategy analysis"
+                },
+                "Max Gross Exposure [%]": {
+                    "value": 100.0,
+                    "description": "Max Gross Exposure [%] from strategy analysis"
+                },
+                "Total Fees Paid": {
+                    "value": 484.4878108740038,
+                    "description": "Total Fees Paid from strategy analysis"
+                },
+                "Max Drawdown [%]": {
+                    "value": 41.41312212041477,
+                    "description": "Max Drawdown [%] from strategy analysis"
+                },
+                "Max Drawdown Duration": {
+                    "value": "728 days 00:00:00",
+                    "description": "Max Drawdown Duration from strategy analysis"
+                },
+                "Total Trades": {
+                    "value": "71",
+                    "description": "Total Trades from strategy analysis"
+                },
+                "Total Closed Trades": {
+                    "value": "70",
+                    "description": "Total Closed Trades from strategy analysis"
+                },
+                "Total Open Trades": {
+                    "value": "1",
+                    "description": "Total Open Trades from strategy analysis"
+                },
+                "Open Trade PnL": {
+                    "value": -5.548968266160955,
+                    "description": "Open Trade PnL from strategy analysis"
+                },
+                "Win Rate [%]": {
+                    "value": 61.42857142857143,
+                    "description": "Win Rate [%] from strategy analysis"
+                },
+                "Best Trade [%]": {
+                    "value": 58.2148091306965,
+                    "description": "Best Trade [%] from strategy analysis"
+                },
+                "Worst Trade [%]": {
+                    "value": -14.34801794897308,
+                    "description": "Worst Trade [%] from strategy analysis"
+                },
+                "Avg Winning Trade [%]": {
+                    "value": 8.719883222927493,
+                    "description": "Avg Winning Trade [%] from strategy analysis"
+                },
+                "Avg Losing Trade [%]": {
+                    "value": -5.803253567840629,
+                    "description": "Avg Losing Trade [%] from strategy analysis"
+                },
+                "Avg Winning Trade Duration": {
+                    "value": "40 days 10:36:16.744186046",
+                    "description": "Avg Winning Trade Duration from strategy analysis"
+                },
+                "Avg Losing Trade Duration": {
+                    "value": "21 days 17:46:40",
+                    "description": "Avg Losing Trade Duration from strategy analysis"
+                },
+                "Profit Factor": {
+                    "value": 1.830363195669822,
+                    "description": "Profit Factor from strategy analysis"
+                },
+                "Expectancy": {
+                    "value": 65.0645319203973,
+                    "description": "Expectancy from strategy analysis"
+                },
+                "Sharpe Ratio": {
+                    "value": 0.75508933774005,
+                    "description": "Sharpe Ratio from strategy analysis"
+                },
+                "Calmar Ratio": {
+                    "value": 0.4280005845749996,
+                    "description": "Calmar Ratio from strategy analysis"
+                },
+                "Omega Ratio": {
+                    "value": 1.162901073247554,
+                    "description": "Omega Ratio from strategy analysis"
+                },
+                "Sortino Ratio": {
+                    "value": 1.1228096671521475,
+                    "description": "Sortino Ratio from strategy analysis"
+                },
+                "Skew": {
+                    "value": 0.15104691367510498,
+                    "description": "Skew from strategy analysis"
+                },
+                "Kurtosis": {
+                    "value": 21.637932342678226,
+                    "description": "Kurtosis from strategy analysis"
+                },
+                "Tail Ratio": {
+                    "value": 1.1233334848631944,
+                    "description": "Tail Ratio from strategy analysis"
+                },
+                "Common Sense Ratio": {
+                    "value": 0.4585235920852359,
+                    "description": "Common Sense Ratio from strategy analysis"
+                },
+                "Expectancy per Trade": {
+                    "value": 3.1181018893455033,
+                    "description": "Expectancy per Trade from strategy analysis"
+                },
+                "Value at Risk": {
+                    "value": -0.018849448769043747,
+                    "description": "Value at Risk from strategy analysis"
+                },
+                "Alpha": {
+                    "value": "None",
+                    "description": "Alpha from strategy analysis"
+                },
+                "Beta": {
+                    "value": "None",
+                    "description": "Beta from strategy analysis"
+                },
+                "Daily Returns": {
+                    "value": 0.0005407887832329122,
+                    "description": "Daily Returns from strategy analysis"
+                },
+                "Annual Returns": {
+                    "value": 0.13627877337469388,
+                    "description": "Annual Returns from strategy analysis"
+                },
+                "Cumulative Returns": {
+                    "value": 4.548968266161649,
+                    "description": "Cumulative Returns from strategy analysis"
+                },
+                "Annualized Return": {
+                    "value": 0.1192526213842442,
+                    "description": "Annualized Return from strategy analysis"
+                },
+                "Annualized Volatility": {
+                    "value": 0.21720811160625117,
+                    "description": "Annualized Volatility from strategy analysis"
+                },
+                "Expectancy Adjusted": {
+                    "value": 2.4524396882492723,
+                    "description": "Expectancy Adjusted from strategy analysis"
+                },
+                "Profit Factor Adjusted": {
+                    "value": 1.830363195669822,
+                    "description": "Profit Factor Adjusted from strategy analysis"
+                },
+                "Beats BNH [%]": {
+                    "value": -0.5226399727209787,
+                    "description": "Beats BNH [%] from strategy analysis"
+                },
+                "Trades Per Day": {
+                    "value": 0.01826722338204593,
+                    "description": "Trades Per Day from strategy analysis"
+                },
+                "Total Period": {
+                    "value": 5550.31746031746,
+                    "description": "Total Period from strategy analysis"
+                },
+                "Maturity": {
+                    "value": 0.7301786670079304,
+                    "description": "Maturity from strategy analysis"
+                },
+                "Score": {
+                    "value": 1.5111693575026341,
+                    "description": "Score from strategy analysis"
+                },
+                "Trades per Month": {
+                    "value": 0.3890918580375783,
+                    "description": "Trades per Month from strategy analysis"
+                },
+                "Signals per Month": {
+                    "value": 0.7727035490605427,
+                    "description": "Signals per Month from strategy analysis"
+                },
+                "Expectancy per Month": {
+                    "value": 1.2132280576759251,
+                    "description": "Expectancy per Month from strategy analysis"
+                },
+                "Avg Trade Duration": {
+                    "value": "33 days 05:29:08.571428571",
+                    "description": "Avg Trade Duration from strategy analysis"
+                }
+            }
+        },
+        {
+            "id": "strategy_6",
+            "parameters": {
+                "ticker": {
+                    "value": "VLO",
+                    "description": "Ticker symbol to analyze"
+                },
+                "timeframe": {
+                    "value": "Daily",
+                    "description": "Trading timeframe (Hourly or Daily)"
+                },
+                "type": {
+                    "value": "SMA",
+                    "description": "Strategy type (SMA)"
+                },
+                "direction": {
+                    "value": "Long",
+                    "description": "Trading direction (Long or Short)"
+                },
+                "short_window": {
+                    "value": 19,
+                    "description": "Period for short moving average or MACD fast line"
+                },
+                "long_window": {
+                    "value": 23,
+                    "description": "Period for long moving average or MACD slow line"
+                }
+            },
+            "risk_metrics": {
+                "var_95": {
+                    "value": -0.032897940742290056,
+                    "description": "Value at Risk (95% confidence)"
+                },
+                "cvar_95": {
+                    "value": -0.04902150583657471,
+                    "description": "Conditional Value at Risk (95% confidence)"
+                },
+                "var_99": {
+                    "value": -0.05745424073649006,
+                    "description": "Value at Risk (99% confidence)"
+                },
+                "cvar_99": {
+                    "value": -0.0774923996178149,
+                    "description": "Conditional Value at Risk (99% confidence)"
+                },
+                "risk_contribution": {
+                    "value": 0.11791097961024705,
+                    "description": "Contribution to portfolio risk"
+                },
+                "alpha_to_portfolio": {
+                    "value": -0.00011941062631108039,
+                    "description": "Strategy alpha relative to portfolio"
+                }
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.13741093615493263,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "expectancy": {
+                    "value": 1.4799691088010478,
+                    "description": "Expectancy per Trade"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.8839056252429986,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.10598006644518274,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.5458832063837504,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 1.797752808988764,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 2.0,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.9695596046838793,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 2.6259460132936487,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 0.8281932043048847,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 4,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 1,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 160,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 0.3813618061641151,
+            "allocation": 11.134178946538055,
+            "signal_quality_metrics": {
+                "signal_count": 160,
+                "avg_return": 0.002623929304058959,
+                "win_rate": 0.575,
+                "profit_factor": 1.3962727544489308,
+                "avg_win": 0.016079048126959726,
+                "avg_loss": -0.01558005498574796,
+                "risk_reward_ratio": 1.0320276880709487,
+                "expectancy_per_signal": 0.0026239293040589574,
+                "sharpe_ratio": 0.12079676881162577,
+                "sortino_ratio": 0.1681542769545515,
+                "calmar_ratio": 0.013344358344148103,
+                "max_drawdown": 0.19663210747106696,
+                "signal_efficiency": 0.575,
+                "signal_consistency": 0.9787399573643677,
+                "signal_value_ratio": 0.026405015060954464,
+                "signal_conviction": 0.04026558960387525,
+                "signal_timing_efficiency": -0.16024542745676143,
+                "signal_opportunity_cost": 0.5065594469159262,
+                "signal_reliability": 0.7203697768340842,
+                "signal_risk_adjusted_return": 0.15284468679558832,
+                "signal_quality_score": 2.635518164457763,
+                "best_horizon": 1,
+                "horizon_metrics": {
+                    "1": {
+                        "avg_return": 0.002623929304058959,
+                        "win_rate": 0.575,
+                        "sharpe": 0.12079676881162577
+                    },
+                    "3": {
+                        "avg_return": -0.00020311384000302432,
+                        "win_rate": 0.50625,
+                        "sharpe": -0.005304961207756207
+                    },
+                    "5": {
+                        "avg_return": -0.0021258186554772907,
+                        "win_rate": 0.49375,
+                        "sharpe": -0.044774543454693345
+                    },
+                    "10": {
+                        "avg_return": 0.00529186131388505,
+                        "win_rate": 0.5375,
+                        "sharpe": 0.07670301446774572
+                    }
+                }
+            },
+            "metrics": {
+                "Start": {
+                    "value": "0",
+                    "description": "Start from strategy analysis"
+                },
+                "End": {
+                    "value": "10898",
+                    "description": "End from strategy analysis"
+                },
+                "Period": {
+                    "value": "10899 days 00:00:00",
+                    "description": "Period from strategy analysis"
+                },
+                "Start Value": {
+                    "value": 1000.0,
+                    "description": "Start Value from strategy analysis"
+                },
+                "End Value": {
+                    "value": 12751.27418834037,
+                    "description": "End Value from strategy analysis"
+                },
+                "Total Return [%]": {
+                    "value": 1175.1274188340371,
+                    "description": "Total Return [%] from strategy analysis"
+                },
+                "Benchmark Return [%]": {
+                    "value": 2295.59910718658,
+                    "description": "Benchmark Return [%] from strategy analysis"
+                },
+                "Max Gross Exposure [%]": {
+                    "value": 100.0,
+                    "description": "Max Gross Exposure [%] from strategy analysis"
+                },
+                "Total Fees Paid": {
+                    "value": 2092.6958667995837,
+                    "description": "Total Fees Paid from strategy analysis"
+                },
+                "Max Drawdown [%]": {
+                    "value": 82.1075218615307,
+                    "description": "Max Drawdown [%] from strategy analysis"
+                },
+                "Max Drawdown Duration": {
+                    "value": "5426 days 00:00:00",
+                    "description": "Max Drawdown Duration from strategy analysis"
+                },
+                "Total Trades": {
+                    "value": "330",
+                    "description": "Total Trades from strategy analysis"
+                },
+                "Total Closed Trades": {
+                    "value": "329",
+                    "description": "Total Closed Trades from strategy analysis"
+                },
+                "Total Open Trades": {
+                    "value": "1",
+                    "description": "Total Open Trades from strategy analysis"
+                },
+                "Open Trade PnL": {
+                    "value": -12.751274188338357,
+                    "description": "Open Trade PnL from strategy analysis"
+                },
+                "Win Rate [%]": {
+                    "value": 45.8966565349544,
+                    "description": "Win Rate [%] from strategy analysis"
+                },
+                "Best Trade [%]": {
+                    "value": 107.38465140175018,
+                    "description": "Best Trade [%] from strategy analysis"
+                },
+                "Worst Trade [%]": {
+                    "value": -23.509996525745468,
+                    "description": "Worst Trade [%] from strategy analysis"
+                },
+                "Avg Winning Trade [%]": {
+                    "value": 10.0405846579144,
+                    "description": "Avg Winning Trade [%] from strategy analysis"
+                },
+                "Avg Losing Trade [%]": {
+                    "value": -5.782126104210839,
+                    "description": "Avg Losing Trade [%] from strategy analysis"
+                },
+                "Avg Winning Trade Duration": {
+                    "value": "26 days 07:47:17.086092715",
+                    "description": "Avg Winning Trade Duration from strategy analysis"
+                },
+                "Avg Losing Trade Duration": {
+                    "value": "10 days 20:45:50.561797752",
+                    "description": "Avg Losing Trade Duration from strategy analysis"
+                },
+                "Profit Factor": {
+                    "value": 1.3686354873233917,
+                    "description": "Profit Factor from strategy analysis"
+                },
+                "Expectancy": {
+                    "value": 35.7569162994793,
+                    "description": "Expectancy from strategy analysis"
+                },
+                "Sharpe Ratio": {
+                    "value": 0.419447203543574,
+                    "description": "Sharpe Ratio from strategy analysis"
+                },
+                "Calmar Ratio": {
+                    "value": 0.10838330103598397,
+                    "description": "Calmar Ratio from strategy analysis"
+                },
+                "Omega Ratio": {
+                    "value": 1.0873504088065111,
+                    "description": "Omega Ratio from strategy analysis"
+                },
+                "Sortino Ratio": {
+                    "value": 0.6173276206610385,
+                    "description": "Sortino Ratio from strategy analysis"
+                },
+                "Skew": {
+                    "value": -0.018219448511344334,
+                    "description": "Skew from strategy analysis"
+                },
+                "Kurtosis": {
+                    "value": 19.126861613430002,
+                    "description": "Kurtosis from strategy analysis"
+                },
+                "Tail Ratio": {
+                    "value": 1.1863755877800413,
+                    "description": "Tail Ratio from strategy analysis"
+                },
+                "Common Sense Ratio": {
+                    "value": 0.349387148693822,
+                    "description": "Common Sense Ratio from strategy analysis"
+                },
+                "Expectancy per Trade": {
+                    "value": 1.4799691088010478,
+                    "description": "Expectancy per Trade from strategy analysis"
+                },
+                "Value at Risk": {
+                    "value": -0.02777781802930683,
+                    "description": "Value at Risk from strategy analysis"
+                },
+                "Alpha": {
+                    "value": "None",
+                    "description": "Alpha from strategy analysis"
+                },
+                "Beta": {
+                    "value": "None",
+                    "description": "Beta from strategy analysis"
+                },
+                "Daily Returns": {
+                    "value": 0.0004012503140373886,
+                    "description": "Daily Returns from strategy analysis"
+                },
+                "Annual Returns": {
+                    "value": 0.10111507913742193,
+                    "description": "Annual Returns from strategy analysis"
+                },
+                "Cumulative Returns": {
+                    "value": 11.751274188340386,
+                    "description": "Cumulative Returns from strategy analysis"
+                },
+                "Annualized Return": {
+                    "value": 0.06062517809738788,
+                    "description": "Annualized Return from strategy analysis"
+                },
+                "Annualized Volatility": {
+                    "value": 0.2901247536068053,
+                    "description": "Annualized Volatility from strategy analysis"
+                },
+                "Expectancy Adjusted": {
+                    "value": 1.1135349814587583,
+                    "description": "Expectancy Adjusted from strategy analysis"
+                },
+                "Profit Factor Adjusted": {
+                    "value": 1.3686354873233917,
+                    "description": "Profit Factor Adjusted from strategy analysis"
+                },
+                "Beats BNH [%]": {
+                    "value": -0.4880955410919987,
+                    "description": "Beats BNH [%] from strategy analysis"
+                },
+                "Trades Per Day": {
+                    "value": 0.030189025509267754,
+                    "description": "Trades Per Day from strategy analysis"
+                },
+                "Total Period": {
+                    "value": 15784.801587301587,
+                    "description": "Total Period from strategy analysis"
+                },
+                "Maturity": {
+                    "value": 2.6547130673057104,
+                    "description": "Maturity from strategy analysis"
+                },
+                "Score": {
+                    "value": 1.6876108436235742,
+                    "description": "Score from strategy analysis"
+                },
+                "Trades per Month": {
+                    "value": 0.6358964947696825,
+                    "description": "Trades per Month from strategy analysis"
+                },
+                "Signals per Month": {
+                    "value": 1.2698660304643052,
+                    "description": "Signals per Month from strategy analysis"
+                },
+                "Expectancy per Month": {
+                    "value": 0.9411071686539971,
+                    "description": "Expectancy per Month from strategy analysis"
+                },
+                "Avg Trade Duration": {
+                    "value": "17 days 23:03:06.018237080",
+                    "description": "Avg Trade Duration from strategy analysis"
+                }
+            }
+        },
+        {
+            "id": "strategy_8",
+            "parameters": {
+                "ticker": {
+                    "value": "PAYC",
+                    "description": "Ticker symbol to analyze"
+                },
+                "timeframe": {
+                    "value": "Daily",
+                    "description": "Trading timeframe (Hourly or Daily)"
+                },
+                "type": {
+                    "value": "SMA",
+                    "description": "Strategy type (SMA)"
+                },
+                "direction": {
+                    "value": "Long",
+                    "description": "Trading direction (Long or Short)"
+                },
+                "short_window": {
+                    "value": 14,
+                    "description": "Period for short moving average or MACD fast line"
+                },
+                "long_window": {
+                    "value": 25,
+                    "description": "Period for long moving average or MACD slow line"
+                }
+            },
+            "risk_metrics": {
+                "var_95": {
+                    "value": -0.03956148440578477,
+                    "description": "Value at Risk (95% confidence)"
+                },
+                "cvar_95": {
+                    "value": -0.05992978807215804,
+                    "description": "Conditional Value at Risk (95% confidence)"
+                },
+                "var_99": {
+                    "value": -0.0722246525497914,
+                    "description": "Value at Risk (99% confidence)"
+                },
+                "cvar_99": {
+                    "value": -0.09508162987504518,
+                    "description": "Conditional Value at Risk (99% confidence)"
+                },
+                "risk_contribution": {
+                    "value": 0.22594759902862535,
+                    "description": "Contribution to portfolio risk"
+                },
+                "alpha_to_portfolio": {
+                    "value": 0.0008036318320985307,
+                    "description": "Strategy alpha relative to portfolio"
+                }
+            },
+            "efficiency": {
+                "efficiency_score": {
+                    "value": 0.14382781352706303,
+                    "description": "Risk-adjusted performance score for this strategy"
+                },
+                "expectancy": {
+                    "value": 5.346008472621471,
+                    "description": "Expectancy per Trade"
+                },
+                "multipliers": {
+                    "diversification": {
+                        "value": 0.8741915385672681,
+                        "description": "Strategy-specific diversification effect"
+                    },
+                    "independence": {
+                        "value": 0.1,
+                        "description": "Strategy-specific independence from other strategies"
+                    },
+                    "activity": {
+                        "value": 0.5875952121871599,
+                        "description": "Strategy-specific activity level impact"
+                    }
+                }
+            },
+            "signals": {
+                "monthly_statistics": {
+                    "mean": {
+                        "value": 1.4216867469879517,
+                        "description": "Average number of signals per month"
+                    },
+                    "median": {
+                        "value": 1.0,
+                        "description": "Median number of signals per month"
+                    },
+                    "std_below": {
+                        "value": 0.7946440960927132,
+                        "description": "One standard deviation below mean signals"
+                    },
+                    "std_above": {
+                        "value": 2.04872939788319,
+                        "description": "One standard deviation above mean signals"
+                    }
+                },
+                "summary": {
+                    "volatility": {
+                        "value": 0.6270426508952385,
+                        "description": "Standard deviation of monthly signals"
+                    },
+                    "max_monthly": {
+                        "value": 4,
+                        "description": "Maximum signals in any month"
+                    },
+                    "min_monthly": {
+                        "value": 1,
+                        "description": "Minimum signals in any month"
+                    },
+                    "total": {
+                        "value": 118,
+                        "description": "Total number of signals across period"
+                    }
+                }
+            },
+            "allocation_score": 0.1004226650615212,
+            "allocation": 8.093158848927812,
+            "signal_quality_metrics": {
+                "signal_count": 118,
+                "avg_return": 0.0012654364921966734,
+                "win_rate": 0.5169491525423728,
+                "profit_factor": 1.1237994485657186,
+                "avg_win": 0.022220950455234586,
+                "avg_loss": -0.02116063985421232,
+                "risk_reward_ratio": 1.050107681446655,
+                "expectancy_per_signal": 0.0012654364921966706,
+                "sharpe_ratio": 0.03730087663480858,
+                "sortino_ratio": 0.06618105890943489,
+                "calmar_ratio": 0.004373616760444446,
+                "max_drawdown": 0.2893341052744823,
+                "signal_efficiency": 0.5169491525423728,
+                "signal_consistency": 0.9671880356302305,
+                "signal_value_ratio": 0.00860372656357816,
+                "signal_conviction": 0.012433625544936192,
+                "signal_timing_efficiency": 0.24345841387915665,
+                "signal_opportunity_cost": 0.5031635490149009,
+                "signal_reliability": 0.7031376379279752,
+                "signal_risk_adjusted_return": 0.040211987248494147,
+                "signal_quality_score": 2.744047784092195,
+                "best_horizon": 10,
+                "horizon_metrics": {
+                    "1": {
+                        "avg_return": 0.0012654364921966734,
+                        "win_rate": 0.5169491525423728,
+                        "sharpe": 0.03730087663480858
+                    },
+                    "3": {
+                        "avg_return": -0.001448006784654931,
+                        "win_rate": 0.4661016949152542,
+                        "sharpe": -0.026443095468363608
+                    },
+                    "5": {
+                        "avg_return": 0.007995434161416234,
+                        "win_rate": 0.5677966101694916,
+                        "sharpe": 0.1135212843493452
+                    },
+                    "10": {
+                        "avg_return": 0.0246289678900471,
+                        "win_rate": 0.6410256410256411,
+                        "sharpe": 0.24939381527005172
+                    }
+                }
+            },
+            "metrics": {
+                "Start": {
+                    "value": "0",
+                    "description": "Start from strategy analysis"
+                },
+                "End": {
+                    "value": "2756",
+                    "description": "End from strategy analysis"
+                },
+                "Period": {
+                    "value": "2757 days 00:00:00",
+                    "description": "Period from strategy analysis"
+                },
+                "Start Value": {
+                    "value": 1000.0,
+                    "description": "Start Value from strategy analysis"
+                },
+                "End Value": {
+                    "value": 9772.290766707993,
+                    "description": "End Value from strategy analysis"
+                },
+                "Total Return [%]": {
+                    "value": 877.2290766707993,
+                    "description": "Total Return [%] from strategy analysis"
+                },
+                "Benchmark Return [%]": {
+                    "value": 1323.3224123647892,
+                    "description": "Benchmark Return [%] from strategy analysis"
+                },
+                "Max Gross Exposure [%]": {
+                    "value": 100.0,
+                    "description": "Max Gross Exposure [%] from strategy analysis"
+                },
+                "Total Fees Paid": {
+                    "value": 710.0891514930828,
+                    "description": "Total Fees Paid from strategy analysis"
+                },
+                "Max Drawdown [%]": {
+                    "value": 44.94689436104327,
+                    "description": "Max Drawdown [%] from strategy analysis"
+                },
+                "Max Drawdown Duration": {
+                    "value": "854 days 00:00:00",
+                    "description": "Max Drawdown Duration from strategy analysis"
+                },
+                "Total Trades": {
+                    "value": "60",
+                    "description": "Total Trades from strategy analysis"
+                },
+                "Total Closed Trades": {
+                    "value": "59",
+                    "description": "Total Closed Trades from strategy analysis"
+                },
+                "Total Open Trades": {
+                    "value": "1",
+                    "description": "Total Open Trades from strategy analysis"
+                },
+                "Open Trade PnL": {
+                    "value": -9.772290766706647,
+                    "description": "Open Trade PnL from strategy analysis"
+                },
+                "Win Rate [%]": {
+                    "value": 49.152542372881356,
+                    "description": "Win Rate [%] from strategy analysis"
+                },
+                "Best Trade [%]": {
+                    "value": 79.74737059413806,
+                    "description": "Best Trade [%] from strategy analysis"
+                },
+                "Worst Trade [%]": {
+                    "value": -18.020827285587902,
+                    "description": "Worst Trade [%] from strategy analysis"
+                },
+                "Avg Winning Trade [%]": {
+                    "value": 17.6394530898875,
+                    "description": "Avg Winning Trade [%] from strategy analysis"
+                },
+                "Avg Losing Trade [%]": {
+                    "value": -6.537654657402358,
+                    "description": "Avg Losing Trade [%] from strategy analysis"
+                },
+                "Avg Winning Trade Duration": {
+                    "value": "40 days 09:55:51.724137931",
+                    "description": "Avg Winning Trade Duration from strategy analysis"
+                },
+                "Avg Losing Trade Duration": {
+                    "value": "14 days 22:24:00",
+                    "description": "Avg Losing Trade Duration from strategy analysis"
+                },
+                "Profit Factor": {
+                    "value": 1.709834311966686,
+                    "description": "Profit Factor from strategy analysis"
+                },
+                "Expectancy": {
+                    "value": 148.8485263978763,
+                    "description": "Expectancy from strategy analysis"
+                },
+                "Sharpe Ratio": {
+                    "value": 0.9628803833140231,
+                    "description": "Sharpe Ratio from strategy analysis"
+                },
+                "Calmar Ratio": {
+                    "value": 0.7837643499032414,
+                    "description": "Calmar Ratio from strategy analysis"
+                },
+                "Omega Ratio": {
+                    "value": 1.2130822756618016,
+                    "description": "Omega Ratio from strategy analysis"
+                },
+                "Sortino Ratio": {
+                    "value": 1.4432867017222475,
+                    "description": "Sortino Ratio from strategy analysis"
+                },
+                "Skew": {
+                    "value": 0.6587378190163846,
+                    "description": "Skew from strategy analysis"
+                },
+                "Kurtosis": {
+                    "value": 18.62203446010288,
+                    "description": "Kurtosis from strategy analysis"
+                },
+                "Tail Ratio": {
+                    "value": 1.0226643114250955,
+                    "description": "Tail Ratio from strategy analysis"
+                },
+                "Common Sense Ratio": {
+                    "value": 0.49349945828819075,
+                    "description": "Common Sense Ratio from strategy analysis"
+                },
+                "Expectancy per Trade": {
+                    "value": 5.346008472621471,
+                    "description": "Expectancy per Trade from strategy analysis"
+                },
+                "Value at Risk": {
+                    "value": -0.03024059124253775,
+                    "description": "Value at Risk from strategy analysis"
+                },
+                "Alpha": {
+                    "value": "None",
+                    "description": "Alpha from strategy analysis"
+                },
+                "Beta": {
+                    "value": "None",
+                    "description": "Beta from strategy analysis"
+                },
+                "Daily Returns": {
+                    "value": 0.0010379225272258187,
+                    "description": "Daily Returns from strategy analysis"
+                },
+                "Annual Returns": {
+                    "value": 0.26155647686090633,
+                    "description": "Annual Returns from strategy analysis"
+                },
+                "Cumulative Returns": {
+                    "value": 8.772290766707963,
+                    "description": "Cumulative Returns from strategy analysis"
+                },
+                "Annualized Return": {
+                    "value": 0.23165573057073519,
+                    "description": "Annualized Return from strategy analysis"
+                },
+                "Annualized Volatility": {
+                    "value": 0.32691835256360136,
+                    "description": "Annualized Volatility from strategy analysis"
+                },
+                "Expectancy Adjusted": {
+                    "value": 2.855668552330497,
+                    "description": "Expectancy Adjusted from strategy analysis"
+                },
+                "Profit Factor Adjusted": {
+                    "value": 1.709834311966686,
+                    "description": "Profit Factor Adjusted from strategy analysis"
+                },
+                "Beats BNH [%]": {
+                    "value": -0.33710102052667357,
+                    "description": "Beats BNH [%] from strategy analysis"
+                },
+                "Trades Per Day": {
+                    "value": 0.021407837445573296,
+                    "description": "Trades Per Day from strategy analysis"
+                },
+                "Total Period": {
+                    "value": 3991.8253968253966,
+                    "description": "Total Period from strategy analysis"
+                },
+                "Maturity": {
+                    "value": 0.5692492245056071,
+                    "description": "Maturity from strategy analysis"
+                },
+                "Score": {
+                    "value": 1.1319447694242706,
+                    "description": "Score from strategy analysis"
+                },
+                "Trades per Month": {
+                    "value": 0.45718432510885343,
+                    "description": "Trades per Month from strategy analysis"
+                },
+                "Signals per Month": {
+                    "value": 0.9067489114658925,
+                    "description": "Signals per Month from strategy analysis"
+                },
+                "Expectancy per Month": {
+                    "value": 2.4441112755816596,
+                    "description": "Expectancy per Month from strategy analysis"
+                },
+                "Avg Trade Duration": {
+                    "value": "27 days 10:58:58.983050847",
+                    "description": "Avg Trade Duration from strategy analysis"
+                }
+            }
+        }
+    ]
+}
