@@ -63,6 +63,7 @@ def calculate_portfolio_efficiency(
     strategy_efficiencies: List[float],
     strategy_expectancies: List[float],
     strategy_allocations: List[float],
+    strategy_risk_contributions: List[float],
     avg_correlation: float,
     concurrent_periods: int,
     exclusive_periods: int,
@@ -70,12 +71,13 @@ def calculate_portfolio_efficiency(
     total_periods: int,
     log: Callable[[str, str], None]
 ) -> Dict[str, float]:
-    """Calculate portfolio-level efficiency metrics.
+    """Calculate portfolio-level efficiency metrics with risk adjustment.
     
     Args:
         strategy_efficiencies (List[float]): List of individual strategy efficiencies
         strategy_expectancies (List[float]): List of strategy expectancies
         strategy_allocations (List[float]): List of strategy allocations
+        strategy_risk_contributions (List[float]): List of risk contributions for each strategy
         avg_correlation (float): Average correlation between strategies
         concurrent_periods (int): Number of concurrent trading periods
         exclusive_periods (int): Number of exclusive trading periods
@@ -89,24 +91,60 @@ def calculate_portfolio_efficiency(
     try:
         log("Calculating portfolio efficiency", "info")
         
-        # Calculate raw portfolio metrics (without allocation weights)
-        total_efficiency = sum(strategy_efficiencies)
+        # Calculate ratios from raw counts
+        concurrent_ratio = concurrent_periods / total_periods
+        exclusive_ratio = exclusive_periods / total_periods
+        inactive_ratio = inactive_periods / total_periods
         
         # Calculate portfolio multipliers
         diversification = 1 - avg_correlation
         
-        # Handle case where exclusive_periods is 0
-        if exclusive_periods <= 0:
-            log(f"Warning: exclusive_periods is {exclusive_periods}, using minimum value for independence", "warning")
+        # Handle case where exclusive_ratio is 0
+        if exclusive_ratio <= 0:
+            log(f"Warning: exclusive_ratio is {exclusive_ratio}, using minimum value for independence", "warning")
             independence = 0.01  # Use a small positive value instead of zero
         else:
-            independence = (
-                exclusive_periods / (concurrent_periods + exclusive_periods)
-                if (concurrent_periods + exclusive_periods) > 0
-                else 0.01
-            )
+            independence = exclusive_ratio / (1 - inactive_ratio) if inactive_ratio < 1 else 0.01
             
-        activity = 1 - (inactive_periods / total_periods)
+        activity = 1 - inactive_ratio
+        
+        # Calculate weighted efficiencies based on expectancy, allocation, and risk
+        weighted_efficiencies = []
+        total_allocation = sum(strategy_allocations)
+        
+        # Log the inputs for debugging
+        log(f"Strategy efficiencies: {strategy_efficiencies}", "info")
+        log(f"Strategy expectancies: {strategy_expectancies}", "info")
+        log(f"Strategy allocations: {strategy_allocations}", "info")
+        log(f"Strategy risk contributions: {strategy_risk_contributions}", "info")
+        
+        for i, (eff, exp, alloc, risk) in enumerate(zip(
+            strategy_efficiencies,
+            strategy_expectancies,
+            strategy_allocations,
+            strategy_risk_contributions
+        )):
+            # Normalize allocation
+            norm_alloc = alloc / total_allocation if total_allocation > 0 else 1/len(strategy_efficiencies)
+            
+            # Calculate risk-adjusted weight (lower risk is better)
+            # Invert risk so that lower risk results in higher score
+            risk_factor = 1 - risk  # Lower risk contribution is better
+            
+            # Combine factors (efficiency * expectancy * allocation * risk_factor)
+            weighted_eff = eff * exp * norm_alloc * risk_factor
+            weighted_efficiencies.append(weighted_eff)
+            
+            log(f"Strategy {i} weighted efficiency components:", "info")
+            log(f"  Base efficiency: {eff:.6f}", "info")
+            log(f"  Expectancy: {exp:.6f}", "info")
+            log(f"  Normalized allocation: {norm_alloc:.6f}", "info")
+            log(f"  Risk factor (1 - risk): {risk_factor:.6f}", "info")
+            log(f"  Weighted efficiency: {weighted_eff:.6f}", "info")
+        
+        # Calculate total weighted efficiency
+        total_efficiency = sum(weighted_efficiencies)
+        log(f"Total weighted efficiency: {total_efficiency:.6f}", "info")
         
         # Calculate final portfolio efficiency
         portfolio_efficiency = total_efficiency * diversification * independence * activity
@@ -118,6 +156,7 @@ def calculate_portfolio_efficiency(
         
         metrics = {
             'portfolio_efficiency': portfolio_efficiency,
+            'weighted_efficiency': total_efficiency,
             'diversification_multiplier': diversification,
             'independence_multiplier': independence,
             'activity_multiplier': activity
@@ -230,6 +269,7 @@ def apply_ratio_based_allocation(
         raise
 
 def calculate_allocation_scores(
+    strategy_risk_contributions: List[float],
     strategy_efficiencies: List[float],
     strategy_tickers: List[str],
     log: Callable[[str, str], None],
@@ -239,6 +279,7 @@ def calculate_allocation_scores(
     """Calculate allocation scores for each strategy.
 
     Args:
+        strategy_risk_contributions (List[float]): List of risk contributions
         strategy_efficiencies (List[float]): List of strategy efficiencies (used for length and logging)
         strategy_tickers (List[str]): List of tickers corresponding to each strategy
         log: Callable[[str, str], None]: Logging function
@@ -276,17 +317,20 @@ def calculate_allocation_scores(
         # Normalize the scores
         normalized_scores = normalize_values(strategy_scores)
         normalized_efficiencies = normalize_values(strategy_efficiencies)
+        normalized_risks = normalize_values(strategy_risk_contributions)
         
         # Calculate raw allocation scores
         allocation_scores = []
         for i in range(len(strategy_efficiencies)):
             score_component = normalized_scores[i]
-            efficiency_component = 0.786 * normalized_efficiencies[i]
-            allocation_score = score_component + efficiency_component
+            efficiency_component = 0.618 * normalized_efficiencies[i]
+            risk_component = 0.386 * normalized_risks[i]
+            allocation_score = score_component + efficiency_component + risk_component
             
             log(f"Strategy {i} allocation component:", "info")
             log(f"  Score component: {score_component:.4f}", "info")
-            log(f"  Efficiency component (0.786 * {normalized_efficiencies[i]:.4f}): {efficiency_component:.4f}", "info")
+            log(f"  Efficiency component (0.618 * {normalized_efficiencies[i]:.4f}): {efficiency_component:.4f}", "info")
+            log(f"  Risk component (0.386 * {normalized_risks[i]:.4f}): {risk_component:.4f}", "info")
             log(f"  Total allocation score: {allocation_score:.4f}", "info")
             
             allocation_scores.append(allocation_score)

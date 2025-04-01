@@ -248,6 +248,7 @@ def analyze_concurrency(
             strategy_efficiencies=[e[0] for e in strategy_efficiencies],
             strategy_expectancies=strategy_expectancies,
             strategy_allocations=strategy_allocations,
+            strategy_risk_contributions=strategy_risk_contributions,
             avg_correlation=position_metrics[1],
             concurrent_periods=position_metrics[2],
             exclusive_periods=position_metrics[3],
@@ -345,6 +346,7 @@ def analyze_concurrency(
         # Calculate allocation scores
         log("Calculating allocation scores", "info")
         allocation_scores, allocation_percentages = calculate_allocation_scores(
+            strategy_risk_contributions,
             allocation_efficiencies,
             strategy_tickers,
             log,
