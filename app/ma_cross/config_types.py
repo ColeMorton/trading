@@ -159,10 +159,6 @@ DEFAULT_CONFIG: Config = {
     "YEARS": 15,
     "USE_SYNTHETIC": False,
     # "USE_CURRENT": True,
-    # "MIN_TRADES": 34,
-    # "MIN_WIN_RATE": 0.35,
-    # "MIN_WIN_RATE": 0.5,
-    # "MIN_TRADES": 50,
     "SORT_BY": "Expectancy Adjusted",
     "USE_GBM": False
 }
