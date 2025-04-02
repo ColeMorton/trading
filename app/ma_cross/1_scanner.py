@@ -55,12 +55,12 @@ config: Config = {
     # "PORTFOLIO": 'stock_trades_20250401.csv',
     # "PORTFOLIO": 'DAILY_next.csv',
     # "PORTFOLIO": 'DAILY_crypto_short.csv',
-    # "PORTFOLIO": 'DAILY_crypto.csv',
-    "PORTFOLIO": 'DAILY.csv',
+    "PORTFOLIO": 'DAILY_crypto.csv',
+    # "PORTFOLIO": 'DAILY.csv',
     # "PORTFOLIO": 'BTC_SOL_D.csv',
     # "PORTFOLIO": 'btc_20250307.csv',
     # "PORTFOLIO": 'BTC_d.csv',
-    # "USE_HOURLY": True,
+    "USE_HOURLY": False,
     "REFRESH": True,
     "DIRECTION": "Long"  # Default to Long position
 }

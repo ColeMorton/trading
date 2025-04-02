@@ -22,8 +22,8 @@ from app.ma_cross.tools.rsi_visualization import create_rsi_heatmap
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
     "TICKER": 'TSN',
-    "SHORT_WINDOW": 18,
-    "LONG_WINDOW": 26,
+    "SHORT_WINDOW": 20,
+    "LONG_WINDOW": 27,
     "BASE_DIR": ".",
     "USE_SMA": True,
     "REFRESH": False,

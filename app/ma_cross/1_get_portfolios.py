@@ -13,7 +13,7 @@ from app.ma_cross.config_types import Config
 from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
-sp500_group = ["ZBH", "ZION"]
+sp500_group = ["CPRT", "AIG", "DHI", "MNST", "TMO", "DTE", "LNT", "CVX", "EOG", "EIX"]
 
 CONFIG: Config = {
     "TICKER": sp500_group,
@@ -22,22 +22,20 @@ CONFIG: Config = {
     #     "QQQ",
     #     "BTC-USD",
     #     "MKR-USD",
-    #     "ZS",
     #     "NFLX",
     #     "CHTR",
     #     "TRGP",
     #     "VLO",
     #     "CHRW",
     #     "CSCO",
-    #     "AXON",
     #     "TRX-USD",
+    #     "PENDLE-USD",
     #     "PAYC",
-    #     "DLTR",
-    #     "ELV",
-    #     "GIS",
     #     "LIN",
-    #     "WMT",
-    #     "ALLE"
+    #     "VTR",
+    #     "MA",
+    #     "TSN",
+    #     "UHS"
     # ],
     # "TICKER": [
     #     "SOL-USD",
@@ -73,6 +71,14 @@ CONFIG: Config = {
     #     "ADA-USD",
     #     "INJ-USD",
     #     "VET-USD",
+    #     "PENDLE-USD",
+    #     "ZEC-USD"
+    # ],
+    # "TICKER": [
+    #     "TRX-USD",
+    #     "RUNE-USD",
+    #     "MKR-USD",
+    #     "ZEC-USD",
     #     "PENDLE-USD"
     # ],
     # "TICKER": [
@@ -105,13 +111,13 @@ CONFIG: Config = {
     # ],
     # "TICKER": "LINK-USD",
     # "TICKER_2": 'BTC-USD',
-    # "WINDOWS": 120,
-    "WINDOWS": 89,
+    "WINDOWS": 120,
+    # "WINDOWS": 89,
     # "WINDOWS": 55,
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
     "BASE_DIR": ".",
-    "REFRESH": False,
+    "REFRESH": True,
     # "USE_SMA": False,
     "DIRECTION": "Long",
     "USE_HOURLY": False,
@@ -120,10 +126,10 @@ CONFIG: Config = {
     "USE_SYNTHETIC": False,
     "USE_CURRENT": False,
     "MINIMUMS": {
-        # "TRADES": 34,
-        # "WIN_RATE": 0.38,
-        "WIN_RATE": 0.5,
-        "TRADES": 54,
+        "TRADES": 34,
+        "WIN_RATE": 0.38,
+        # "WIN_RATE": 0.5,
+        # "TRADES": 54,
         # "WIN_RATE": 0.61,
         # "TRADES": 89,
         "EXPECTANCY_ADJUSTED": 1,
