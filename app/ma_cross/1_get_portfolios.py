@@ -13,10 +13,11 @@ from app.ma_cross.config_types import Config
 from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
-sp500_group = ["CPRT", "AIG", "DHI", "MNST", "TMO", "DTE", "LNT", "CVX", "EOG", "EIX"]
+# Use this next! Hasn't been executed
+sp500_group = ["VLO", "WEC", "XEL"]
 
 CONFIG: Config = {
-    "TICKER": sp500_group,
+    # "TICKER": sp500_group,
     # "TICKER": [
     #     "SPY",
     #     "QQQ",
@@ -109,7 +110,7 @@ CONFIG: Config = {
     #     "OLP",
     #     "APPS"
     # ],
-    # "TICKER": "LINK-USD",
+    "TICKER": "MSTR",
     # "TICKER_2": 'BTC-USD',
     "WINDOWS": 120,
     # "WINDOWS": 89,
@@ -126,10 +127,10 @@ CONFIG: Config = {
     "USE_SYNTHETIC": False,
     "USE_CURRENT": False,
     "MINIMUMS": {
-        "TRADES": 34,
+        # "TRADES": 34,
         "WIN_RATE": 0.38,
         # "WIN_RATE": 0.5,
-        # "TRADES": 54,
+        "TRADES": 54,
         # "WIN_RATE": 0.61,
         # "TRADES": 89,
         "EXPECTANCY_ADJUSTED": 1,

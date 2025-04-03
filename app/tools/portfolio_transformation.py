@@ -6,7 +6,7 @@ suitable for visualization and analysis.
 """
 
 import polars as pl
-from typing import Dict, List
+from typing import Dict
 
 def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
     """Transform portfolio data into heatmap-compatible format.
@@ -17,8 +17,10 @@ def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
             - Long Window
             - Total Return [%]
             - Total Trades
-            - Sharpe Ratio
+            - Sortino Ratio
             - Win Rate [%]
+            - Expectancy
+            - Score
 
     Returns:
         pl.DataFrame: Transformed data with columns:
@@ -28,10 +30,12 @@ def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
             - slow_window
     """
     metrics = [
-        ('returns', 'Total Return [%]'),
         ('trades', 'Total Trades'),
-        ('sharpe', 'Sharpe Ratio'),
-        ('win_rate', 'Win Rate [%]')
+        ('profit_factor', 'Profit Factor'),
+        ('expectancy', 'Expectancy'),
+        ('win_rate', 'Win Rate [%]'),
+        ('sortino', 'Sortino Ratio'),
+        ('score', 'Score')
     ]
     
     transformed_data = []

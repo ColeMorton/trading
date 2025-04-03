@@ -9,11 +9,11 @@ import os
 from datetime import datetime
 import polars as pl
 
-from app.tools.setup_logging import setup_logging
 from app.tools.get_config import get_config
 from app.tools.file_utils import get_portfolio_path
 from app.tools.portfolio_transformation import transform_portfolio_data
-from tools.plot_heatmaps import plot_heatmap
+from app.ma_cross.tools.plot_heatmaps import plot_heatmap
+from app.tools.stats_converter import convert_stats
 
 def process_heatmap_data(config: dict, log) -> bool:
     """Process portfolio data and generate heatmaps.

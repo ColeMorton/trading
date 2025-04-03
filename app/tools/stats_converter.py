@@ -70,14 +70,6 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
             else:
                 log(f"Expectancy per Trade not found", "error")
                 raise
-
-            if 'Profit Factor' in stats:
-                stats['Profit Factor Adjusted'] = (
-                    stats['Profit Factor'] * min(1, stats['Total Closed Trades'] / 54)
-                )
-            else:
-                log(f"Profit Factor not found", "error")
-                raise
             
             # Calculate Beats BNH percentage
             # Example test data:
@@ -147,7 +139,7 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         
         # Calculate Maturity metric
         if 'Total Trades' in stats and stats['Total Trades'] > 0:
-            stats['Maturity'] = math.sqrt(stats['Total Period'] / 365 * stats['Total Trades']) / 45
+            stats['Maturity'] = math.sqrt(stats['Total Period'] / 365 * stats['Total Trades']) / 54
             log(f"Set Maturity to {stats['Maturity']:.4f} for {ticker}", "info")
         else:
             stats['Maturity'] = 0
@@ -158,12 +150,14 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         if all(field in stats for field in required_fields):
             try:
                 # Handle potential zero or negative values
-                maturity = max(0, stats['Maturity'])
-                sortino = max(0, stats['Sortino Ratio'])
-                profit_factor_adjusted = max(0, stats['Profit Factor Adjusted'])
+                total_trades = stats['Total Trades'] / 74
+                sortino = max(0, stats['Sortino Ratio']) / 0.88
+                profit_factor= max(0, stats['Profit Factor']) / 1.8
                 win_rate_normalized = stats['Win Rate [%]'] / 61
+                expectancy_per_trade = max(0, stats['Expectancy per Trade']) / 5
+                maturity = max(0, stats['Maturity'])
                 
-                stats['Score'] = maturity * sortino * profit_factor_adjusted * win_rate_normalized
+                stats['Score'] = total_trades * maturity * sortino * profit_factor * win_rate_normalized * expectancy_per_trade
                 log(f"Set Score to {stats['Score']:.4f} for {ticker}", "info")
             except Exception as e:
                 stats['Score'] = 0

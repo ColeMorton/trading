@@ -15,7 +15,7 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> N
 
     Args:
         portfolio_data: Polars DataFrame containing portfolio performance data with columns:
-            - metric: str, type of metric (returns, trades, sharpe, or win_rate)
+            - metric: str, type of metric (trades, profit_factor, expectancy, win_rate, sortino, score)
             - value: float, value of the metric
             - fast_window: int, short moving average window
             - slow_window: int, long moving average window
@@ -41,12 +41,12 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> N
         # Convert portfolio data to pandas and prepare Series
         df = portfolio_data.to_pandas()
         
-        # Create returns Series
-        returns_df = df[df['metric'] == 'returns']
-        returns = pd.Series(
-            returns_df['value'].values,
+        # Create profit_factor Series
+        profit_factor_df = df[df['metric'] == 'profit_factor']
+        profit_factor = pd.Series(
+            profit_factor_df['value'].values,
             index=pd.MultiIndex.from_arrays(
-                [returns_df['slow_window'].values, returns_df['fast_window'].values],
+                [profit_factor_df['slow_window'].values, profit_factor_df['fast_window'].values],
                 names=['slow', 'fast']
             )
         )
@@ -61,12 +61,12 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> N
             )
         )
 
-        # Create Sharpe Series
-        sharpe_df = df[df['metric'] == 'sharpe']
-        sharpe = pd.Series(
-            sharpe_df['value'].values,
+        # Create Sortino Series
+        sortino_df = df[df['metric'] == 'sortino']
+        sortino = pd.Series(
+            sortino_df['value'].values,
             index=pd.MultiIndex.from_arrays(
-                [sharpe_df['slow_window'].values, sharpe_df['fast_window'].values],
+                [sortino_df['slow_window'].values, sortino_df['fast_window'].values],
                 names=['slow', 'fast']
             )
         )
@@ -81,15 +81,41 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> N
             )
         )
         
-        if len(returns) == 0 or len(trades) == 0 or len(sharpe) == 0 or len(win_rate) == 0:
-            raise ValueError("Portfolio data missing required metrics (returns, trades, sharpe, and/or win_rate)")
+        # Create Expectancy Series
+        expectancy_df = df[df['metric'] == 'expectancy']
+        expectancy = pd.Series(
+            expectancy_df['value'].values,
+            index=pd.MultiIndex.from_arrays(
+                [expectancy_df['slow_window'].values, expectancy_df['fast_window'].values],
+                names=['slow', 'fast']
+            )
+        )
+        
+        # Create Score Series
+        score_df = df[df['metric'] == 'score']
+        score = pd.Series(
+            score_df['value'].values,
+            index=pd.MultiIndex.from_arrays(
+                [score_df['slow_window'].values, score_df['fast_window'].values],
+                names=['slow', 'fast']
+            )
+        )
+        
+        # Check if required metrics are present
+        if len(profit_factor) == 0 or len(trades) == 0 or len(sortino) == 0 or len(win_rate) == 0:
+            raise ValueError("Portfolio data missing required metrics (profit_factor, trades, sortino, and/or win_rate)")
+            
+        # Log the number of entries for each metric
+        log(f"Metric counts - Profit Factor: {len(profit_factor)}, Trades: {len(trades)}, Sortino: {len(sortino)}, Win Rate: {len(win_rate)}, Expectancy: {len(expectancy)}, Score: {len(score)}")
         
         # Create heatmap figures
         figures = create_heatmap_figures(
-            returns=returns,
+            profit_factor=profit_factor,
             trades=trades,
-            sortino=sharpe,  # Keep parameter name as sortino for backwards compatibility
+            sortino=sortino,
             win_rate=win_rate,
+            expectancy=expectancy,
+            score=score,
             windows=windows,
             title="Portfolio Performance",
             config=config
