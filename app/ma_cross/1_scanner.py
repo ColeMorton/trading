@@ -50,10 +50,10 @@ class Config(TypedDict):
 
 # Default Configuration
 config: Config = {
-    # "PORTFOLIO": 'Indices_d.csv',
+    "PORTFOLIO": 'Indices_d.csv',
     # "PORTFOLIO": 'crypto_h.csv',
     # "PORTFOLIO": 'stock_trades_20250401.csv',
-    "PORTFOLIO": 'DAILY_next.csv',
+    # "PORTFOLIO": 'DAILY_next.csv',
     # "PORTFOLIO": 'DAILY_crypto_short.csv',
     # "PORTFOLIO": 'DAILY_crypto.csv',
     # "PORTFOLIO": 'DAILY.csv',

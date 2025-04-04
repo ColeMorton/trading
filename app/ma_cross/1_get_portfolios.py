@@ -13,11 +13,11 @@ from app.ma_cross.config_types import Config
 from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
-# Use this next! Hasn't been executed
-sp500_group = ["VLO", "WEC", "XEL"]
-
 CONFIG: Config = {
-    # "TICKER": sp500_group,
+    # "TICKER": [
+    #     "SPY",
+    #     "QQQ"
+    # ],
     # "TICKER": [
     #     "SPY",
     #     "QQQ",
@@ -25,18 +25,20 @@ CONFIG: Config = {
     #     "MKR-USD",
     #     "NFLX",
     #     "CHTR",
-    #     "TRGP",
-    #     "VLO",
     #     "CHRW",
-    #     "CSCO",
     #     "TRX-USD",
     #     "PENDLE-USD",
     #     "PAYC",
     #     "LIN",
     #     "VTR",
     #     "MA",
-    #     "TSN",
-    #     "UHS"
+    #     "UHS",
+    #     "MSTR",
+    #     "TSLA",
+    #     "D",
+    #     "MNST",
+    #     "TJX",
+    #     "SYY"
     # ],
     # "TICKER": [
     #     "SOL-USD",
@@ -95,22 +97,12 @@ CONFIG: Config = {
     #     "XLP",
     #     "XLB"
     # ],
-    # "TICKER": [
-    #     "OP-USD",
-    #     "BNB-USD",
-    #     "LINK-USD",
-    #     "TRX-USD"
-    # ],
-    # "TICKER": [
-    #     "XNO-USD",
-    #     "XRP-USD",
-    #     "BCH-USD",
-    #     "INJ-USD",
-    #     "LZ",
-    #     "OLP",
-    #     "APPS"
-    # ],
-    "TICKER": "MSTR",
+    "TICKER": [
+        "IEF",
+        "TLT",
+        "EDV",
+        "XLU"
+    ],
     # "TICKER_2": 'BTC-USD',
     "WINDOWS": 120,
     # "WINDOWS": 89,
@@ -127,17 +119,15 @@ CONFIG: Config = {
     "USE_SYNTHETIC": False,
     "USE_CURRENT": False,
     "MINIMUMS": {
-        # "TRADES": 34,
         "WIN_RATE": 0.38,
-        # "WIN_RATE": 0.5,
-        "TRADES": 54,
+        "TRADES": 34,
+        # "WIN_RATE": 0.50,
+        # "TRADES": 54,
         # "WIN_RATE": 0.61,
-        # "TRADES": 89,
-        "EXPECTANCY_ADJUSTED": 1,
-        "PROFIT_FACTOR_ADJUSTED": 1,
-        "SCORE": 0.4,
-        "MATURITY": 0.4,
+        "EXPECTANCY_PER_TRADE": 1,
+        "PROFIT_FACTOR": 1,
         "SORTINO_RATIO": 0.4,
+        # "BEATS_BNH": 0.13
     },
     "SORT_BY": "Score",
     "SORT_ASC": False,

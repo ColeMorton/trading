@@ -14,19 +14,19 @@ class MinimumConfig(TypedDict, total=False):
     Optional Fields:
         TRADES (int): Minimum number of trades required
         WIN_RATE (float): Minimum required win rate for portfolio filtering
-        EXPECTANCY_ADJUSTED (float): Minimum required expectancy adjusted value for portfolio filtering
-        PROFIT_FACTOR_ADJUSTED (float): Minimum required profit factor adjusted value for portfolio filtering
+        EXPECTANCY_PER_TRADE (float): Minimum required expectancy adjusted value for portfolio filtering
+        PROFIT_FACTOR (float): Minimum required profit factor value for portfolio filtering
         SCORE (float): Minimum required score value for portfolio filtering
-        MATURITY (float): Minimum required maturity value for portfolio filtering
         SORTINO_RATIO (float): Minimum required Sortino ratio for portfolio filtering
+        BEATS_BNH (float): Minimum required percentage by which strategy beats Buy and Hold
     """
     TRADES: int
     WIN_RATE: float
-    EXPECTANCY_ADJUSTED: float
-    PROFIT_FACTOR_ADJUSTED: float
+    EXPECTANCY_PER_TRADE: float
+    PROFIT_FACTOR: float
     SCORE: float
-    MATURITY: float
     SORTINO_RATIO: float
+    BEATS_BNH: float
 
 
 class HeatmapConfig(TypedDict, total=False):
@@ -98,11 +98,11 @@ class Config(TypedDict, total=False):
         MINIMUMS (NotRequired[Dict]): Dictionary of minimum filtering values including:
             - TRADES: Minimum number of trades required
             - WIN_RATE: Minimum required win rate for portfolio filtering
-            - EXPECTANCY_ADJUSTED: Minimum required expectancy adjusted value
-            - PROFIT_FACTOR_ADJUSTED: Minimum required profit factor adjusted value
+            - EXPECTANCY_PER_TRADE: Minimum required expectancy adjusted value
+            - PROFIT_FACTOR: Minimum required profit factor value
             - SCORE: Minimum required score value
-            - MATURITY: Minimum required maturity value
             - SORTINO_RATIO: Minimum required Sortino ratio
+            - BEATS_BNH: Minimum required percentage by which strategy beats Buy and Hold
         SORT_BY (NotRequired[str]): Field to sort results by
 
         # Advanced Options

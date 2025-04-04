@@ -161,11 +161,11 @@ def process_single_ticker(
         # (config_key, column_name, data_type, multiplier, message_prefix)
         ("WIN_RATE", "Win Rate [%]", pl.Float64, 100, "Filtered portfolios with win rate"),
         ("TRADES", "Total Trades", pl.Int64, 1, "Filtered portfolios with at least"),
-        ("EXPECTANCY_ADJUSTED", "Expectancy Adjusted", pl.Float64, 1, "Filtered portfolios with expectancy adjusted"),
-        ("PROFIT_FACTOR_ADJUSTED", "Profit Factor Adjusted", pl.Float64, 1, "Filtered portfolios with profit factor adjusted"),
+        ("EXPECTANCY_PER_TRADE", "Expectancy Per Trade", pl.Float64, 1, "Filtered portfolios with expectancy per trade"),
+        ("PROFIT_FACTOR", "Profit Factor", pl.Float64, 1, "Filtered portfolios with profit factor"),
         ("SCORE", "Score", pl.Float64, 1, "Filtered portfolios with score"),
-        ("MATURITY", "Maturity", pl.Float64, 1, "Filtered portfolios with maturity"),
-        ("SORTINO_RATIO", "Sortino Ratio", pl.Float64, 1, "Filtered portfolios with Sortino ratio")
+        ("SORTINO_RATIO", "Sortino Ratio", pl.Float64, 1, "Filtered portfolios with Sortino ratio"),
+        ("BEATS_BNH", "Beats BNH [%]", pl.Float64, 1, "Filtered portfolios with Beats BNH percentage")
     ]
     
     # Apply filters from the MINIMUMS dictionary
