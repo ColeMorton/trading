@@ -14,7 +14,7 @@ class MinimumConfig(TypedDict, total=False):
     Optional Fields:
         TRADES (int): Minimum number of trades required
         WIN_RATE (float): Minimum required win rate for portfolio filtering
-        EXPECTANCY_PER_TRADE (float): Minimum required expectancy adjusted value for portfolio filtering
+        EXPECTANCY_PER_TRADE (float): Minimum required expectancy value for portfolio filtering
         PROFIT_FACTOR (float): Minimum required profit factor value for portfolio filtering
         SCORE (float): Minimum required score value for portfolio filtering
         SORTINO_RATIO (float): Minimum required Sortino ratio for portfolio filtering
@@ -98,7 +98,7 @@ class Config(TypedDict, total=False):
         MINIMUMS (NotRequired[Dict]): Dictionary of minimum filtering values including:
             - TRADES: Minimum number of trades required
             - WIN_RATE: Minimum required win rate for portfolio filtering
-            - EXPECTANCY_PER_TRADE: Minimum required expectancy adjusted value
+            - EXPECTANCY_PER_TRADE: Minimum required expectancy value
             - PROFIT_FACTOR: Minimum required profit factor value
             - SCORE: Minimum required score value
             - SORTINO_RATIO: Minimum required Sortino ratio
@@ -159,6 +159,6 @@ DEFAULT_CONFIG: Config = {
     "YEARS": 15,
     "USE_SYNTHETIC": False,
     # "USE_CURRENT": True,
-    "SORT_BY": "Expectancy Adjusted",
+    "SORT_BY": "Score",
     "USE_GBM": False
 }

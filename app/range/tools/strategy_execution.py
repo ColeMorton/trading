@@ -184,10 +184,10 @@ def execute_strategy(
         ticker_config["TICKER"] = ticker
         portfolios = process_single_ticker(ticker, ticker_config, log)
         if portfolios:
-            # Find best portfolio based on Expectancy Adjusted
+            # Find best portfolio based on Score
             sorted_portfolios = sorted(
                 portfolios,
-                key=lambda x: float(x.get('Expectancy Adjusted', 0)),
+                key=lambda x: float(x.get('Score', 0)),
                 reverse=True
             )
             best_portfolios.append(sorted_portfolios[0])

@@ -40,7 +40,6 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
     Returns:
         Dict[str, Any]: Dictionary with properly formatted values and additional
                        calculated metrics including:
-                       - Expectancy Adjusted
                        - Trades Per Day
                        - Trades per Month
                        - Expectancy per Month
@@ -59,51 +58,17 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
     log(f"Converting stats for {ticker}", "info")
 
     try:
-        # Calculate adjusted performance metrics
-        try:
-            if 'Expectancy per Trade' in stats and stats['Expectancy per Trade'] is not None:
-                stats['Expectancy Adjusted'] = (
-                    stats['Expectancy per Trade'] *
-                    min(1, 0.01 * stats['Win Rate [%]'] / 0.61) *
-                    min(1, stats['Total Closed Trades'] / 89)
-                )
-            else:
-                log(f"Expectancy per Trade not found", "error")
-                raise
-            
-            # Calculate Beats BNH percentage
-            # Example test data:
-            # stats['Total Return [%]'] = [351.0781, 19.5554, -5.2920]
-            # stats['Benchmark Return [%]'] = [370.3095, -6.2193, -6.2193]
-            # Expected output: [-0.05194, 4.144, 0.1491]
-            benchmark_return = stats['Benchmark Return [%]']
-            if benchmark_return == 0:
-                stats['Beats BNH [%]'] = 0
-            else:
-                stats['Beats BNH [%]'] = (stats['Total Return [%]'] - benchmark_return) / abs(benchmark_return)
-            
-            # Calculate total days between start and end
-            if isinstance(stats['End'], (int, float)) and isinstance(stats['Start'], (int, float)):
-                if config.get('USE_HOURLY', False):
-                    # For hourly data, Start and End are hours
-                    total_days = abs(stats['End'] - stats['Start']) / 24
-                else:
-                    # For daily data, Start and End are days
-                    total_days = abs(stats['End'] - stats['Start'])
-            else:
-                # If timestamps are datetime objects, use timedelta
-                time_delta = pd.Timestamp(stats['End']) - pd.Timestamp(stats['Start'])
-                total_days = abs(time_delta.total_seconds()) / (24 * 3600)
-            
-            # Calculate Trades Per Day using total days
-            stats['Trades Per Day'] = stats['Total Closed Trades'] / total_days if total_days > 0 else 0
+        # Calculate Beats BNH percentage
+        # Example test data:
+        # stats['Total Return [%]'] = [351.0781, 19.5554, -5.2920]
+        # stats['Benchmark Return [%]'] = [370.3095, -6.2193, -6.2193]
+        # Expected output: [-0.05194, 4.144, 0.1491]
+        benchmark_return = stats['Benchmark Return [%]']
+        if stats['Benchmark Return [%]'] == 0:
+            stats['Beats BNH [%]'] = 0
+        else:
+            stats['Beats BNH [%]'] = (stats['Total Return [%]'] - benchmark_return) / abs(benchmark_return)
 
-        except KeyError as e:
-            log(f"Missing required statistic for {ticker}: {str(e)}", "error")
-            raise
-
-        # Get total trades from stats
-        total_trades = stats['Total Trades']
         
         # Determine if it's a crypto asset using ticker from either source
         is_crypto = "-USD" in ticker
@@ -136,6 +101,8 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
             # There are approximately 252 trading days in a year (365 calendar days)
             stats['Total Period'] = days_in_period * (365 / 252)
             log(f"Set Total Period to {stats['Total Period']:.2f} days for {ticker} (stock, adjusted from {days_in_period:.2f} trading days)", "info")
+
+        stats['Trades Per Day'] = stats['Total Closed Trades'] / stats['Total Period'] 
 
         # Calculate Score metric
         required_fields = ['Total Trades', 'Sortino Ratio', 'Profit Factor', 'Win Rate [%]', 'Expectancy per Trade', 'Beats BNH [%]']
@@ -179,7 +146,7 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
             log(f"Warning: Backtest period too short for {ticker}, using 1 month as minimum", "warning")
         
         # Calculate trades per month directly from total trades and months
-        stats['Trades per Month'] = total_trades / months_in_period
+        stats['Trades per Month'] = stats['Total Trades'] / months_in_period
         
         # Calculate signals per month
         # Each trade typically has an entry and exit signal, but some trades might have only entry
@@ -192,7 +159,7 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
             total_signals = (closed_trades * 2) + open_trades
         else:
             # Fallback: assume each trade has entry and exit (might slightly overestimate)
-            total_signals = total_trades * 2
+            total_signals = stats['Total Trades'] * 2
         
         stats['Signals per Month'] = total_signals / months_in_period
         

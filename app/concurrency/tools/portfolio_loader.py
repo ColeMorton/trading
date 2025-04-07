@@ -17,10 +17,9 @@ Default values for CSV files:
 """
 
 from pathlib import Path
-from typing import List, Callable, Dict, Any
+from typing import List, Callable, Dict
 import polars as pl
 from app.concurrency.tools.types import StrategyConfig
-from app.tools.portfolio.strategy_types import VALID_STRATEGY_TYPES, DEFAULT_STRATEGY_TYPE
 from app.tools.portfolio.strategy_utils import determine_strategy_type, create_strategy_type_fields
 
 def load_portfolio_from_csv(csv_path: Path, log: Callable[[str, str], None], config: Dict) -> List[StrategyConfig]:

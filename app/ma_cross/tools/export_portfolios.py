@@ -8,7 +8,7 @@ centralized export functionality.
 from typing import List, Dict, Tuple, Callable, Optional
 import polars as pl
 from app.tools.export_csv import export_csv, ExportConfig
-from app.tools.portfolio.strategy_types import STRATEGY_TYPE_FIELDS, VALID_STRATEGY_TYPES
+from app.tools.portfolio.strategy_types import STRATEGY_TYPE_FIELDS
 from app.tools.portfolio.strategy_utils import get_strategy_type_for_export
 
 class PortfolioExportError(Exception):

@@ -6,8 +6,7 @@ and standardizing column names and data types.
 """
 
 import polars as pl
-from typing import Dict, List, Any, Callable, Optional
-from app.tools.portfolio.strategy_types import StrategyTypeLiteral, STRATEGY_TYPE_FIELDS
+from typing import Dict, List, Any, Callable
 from app.tools.portfolio.strategy_utils import determine_strategy_type, create_strategy_type_fields
 
 def standardize_portfolio_columns(
@@ -156,6 +155,9 @@ def convert_csv_to_strategy_config(
                 strategy_config["multiplier"] = float(row["multiplier"])
             elif "MULTIPLIER" in row and row["MULTIPLIER"] is not None:
                 strategy_config["multiplier"] = float(row["MULTIPLIER"])
+        
+        # Determine if we should use SMA or EMA
+        use_sma = row.get("USE_SMA", True) if "USE_SMA" in row else True
         
         # Add window parameters if available
         if "SHORT_WINDOW" in row and row["SHORT_WINDOW"] is not None:

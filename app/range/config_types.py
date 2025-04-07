@@ -52,5 +52,5 @@ DEFAULT_CONFIG: PortfolioConfig = {
     "USE_YEARS": False,
     "YEARS": 15,
     "DIRECTION": "Long",
-    "SORT_BY": "Expectancy Adjusted"
+    "SORT_BY": "Score"
 }

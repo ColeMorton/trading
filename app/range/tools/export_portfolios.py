@@ -91,7 +91,7 @@ def export_portfolios(
                 "Calmar Ratio",
                 "Omega Ratio",
                 "Sortino Ratio",
-                "Expectancy Adjusted",
+                "Score",
                 "Trades Per Day",
                 "Trades per Month",
                 "Signals per Month",

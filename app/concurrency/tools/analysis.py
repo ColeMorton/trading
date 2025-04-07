@@ -333,15 +333,15 @@ def analyze_concurrency(
         strategy_adjusted_expectancies = []
         for config in config_list:
             ticker = config.get('TICKER', 'unknown')
-            # Get the Expectancy Adjusted value from PORTFOLIO_STATS
-            if 'PORTFOLIO_STATS' in config and 'Expectancy Adjusted' in config['PORTFOLIO_STATS']:
-                # Use the pre-calculated Expectancy Adjusted value from stats_converter.py
-                adjusted_expectancy = config['PORTFOLIO_STATS']['Expectancy Adjusted']
-                log(f"Using pre-calculated Expectancy Adjusted for {ticker}: {adjusted_expectancy}", "info")
+            # Get the Score value from PORTFOLIO_STATS
+            if 'PORTFOLIO_STATS' in config and 'Score' in config['PORTFOLIO_STATS']:
+                # Use the pre-calculated Score value from stats_converter.py
+                adjusted_expectancy = config['PORTFOLIO_STATS']['Score']
+                log(f"Using pre-calculated Score for {ticker}: {adjusted_expectancy}", "info")
                 strategy_adjusted_expectancies.append(adjusted_expectancy)
             else:
                 # Throw an error if PORTFOLIO_STATS is not available
-                error_msg = f"PORTFOLIO_STATS with 'Expectancy Adjusted' not found for {ticker}. Backtest must be run before analysis."
+                error_msg = f"PORTFOLIO_STATS with 'Score' not found for {ticker}. Backtest must be run before analysis."
                 log(error_msg, "error")
                 raise ValueError(error_msg)
         

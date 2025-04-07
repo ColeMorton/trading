@@ -63,20 +63,20 @@ def reorder_columns(portfolio: Dict) -> Dict:
     """
     first_columns = [
         'Ticker',
-        'Strategy Type',  # Now directly after Ticker
+        'Strategy Type',
         'Short Window',
         'Long Window',
         'Signal Entry',
         'Total Trades',
+        'Score',
         'Win Rate [%]',
         'Profit Factor',
-        'Trades Per Day',
         'Expectancy per Trade',
-        'Expectancy Adjusted',
+        'Sortino Ratio',
+        'Trades Per Day',
         'Trades per Month',
         'Signals per Month',
-        'Expectancy per Month',
-        'Sortino Ratio'
+        'Expectancy per Month'
     ]
     
     reordered = {}
