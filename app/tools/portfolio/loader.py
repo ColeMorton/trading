@@ -79,6 +79,17 @@ def load_portfolio_from_csv(
     # Standardize column names
     df = standardize_portfolio_columns(df, log)
     
+    # Handle legacy CSV files without Strategy Type column
+    if "STRATEGY_TYPE" not in df.columns:
+        log("Legacy CSV file detected without Strategy Type column. Deriving from USE_SMA.", "info")
+        # Derive STRATEGY_TYPE from USE_SMA
+        df = df.with_columns(
+            pl.when(pl.col("USE_SMA").eq(True))
+            .then(pl.lit("SMA"))
+            .otherwise(pl.lit("EMA"))
+            .alias("STRATEGY_TYPE")
+        )
+    
     # Validate required columns
     is_valid, errors = validate_portfolio_schema(
         df, 

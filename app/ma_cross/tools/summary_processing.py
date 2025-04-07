@@ -87,6 +87,7 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                 sma_stats = sma_portfolio.stats()
                 sma_stats['Ticker'] = ticker
                 sma_stats['Use SMA'] = True
+                sma_stats['Strategy Type'] = "SMA"  # Add Strategy Type field
                 sma_stats['Short Window'] = sma_fast
                 sma_stats['Long Window'] = sma_slow
                 # Pass the actual signal status instead of False
@@ -105,6 +106,7 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                 ema_stats = ema_portfolio.stats()
                 ema_stats['Ticker'] = ticker
                 ema_stats['Use SMA'] = False
+                ema_stats['Strategy Type'] = "EMA"  # Add Strategy Type field
                 ema_stats['Short Window'] = ema_fast
                 ema_stats['Long Window'] = ema_slow
                 # Pass the actual signal status instead of False
@@ -146,13 +148,13 @@ def export_summary_results(portfolios: List[Dict], portfolio_name: str, log: Cal
             df = pl.DataFrame(reordered_portfolios)
             
             # Check for duplicate entries
-            duplicate_count = len(df) - df.unique(subset=["Ticker", "Use SMA", "Short Window", "Long Window"]).height
+            duplicate_count = len(df) - df.unique(subset=["Ticker", "Use SMA", "Strategy Type", "Short Window", "Long Window"]).height
             
             if duplicate_count > 0:
                 log(f"Found {duplicate_count} duplicate entries. Removing duplicates...", "warning")
                 
                 # Keep only unique combinations of the specified columns
-                df = df.unique(subset=["Ticker", "Use SMA", "Short Window", "Long Window"], keep="first")
+                df = df.unique(subset=["Ticker", "Use SMA", "Strategy Type", "Short Window", "Long Window"], keep="first")
                 log(f"After deduplication: {len(df)} unique strategy combinations")
                 
                 # Convert back to list of dictionaries

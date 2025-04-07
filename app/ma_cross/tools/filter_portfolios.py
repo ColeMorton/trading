@@ -7,7 +7,8 @@ creating summaries of extreme values.
 
 import polars as pl
 from typing import Dict, Callable, List
-from app.tools.export_csv import export_csv, ExportConfig
+from app.tools.export_csv import ExportConfig
+from app.ma_cross.tools.export_portfolios import export_portfolios
 from app.tools.portfolio.collection import sort_portfolios
 from app.tools.portfolio.metrics import (
     NUMERIC_METRICS,
@@ -94,12 +95,11 @@ def filter_portfolios(df: pl.DataFrame, config: ExportConfig, log: Callable) -> 
         log(f"USE_SMA: {config.get('USE_SMA', False)}")
         log(f"USE_CURRENT: {config.get('USE_CURRENT', False)}")
         
-        # Export filtered results
-        export_csv(
-            data=result_df,
-            feature1="ma_cross",
+        # Export filtered results using export_portfolios
+        export_portfolios(
+            portfolios=result_df.to_dicts(),
             config=config,
-            feature2="portfolios_filtered",
+            export_type="portfolios_filtered",
             log=log
         )
         

@@ -143,10 +143,11 @@ def export_portfolios(
                 if col in df.columns:
                     df = df.drop(col)
             
-            # Define column order with Short Window and Long Window
+            # Define column order with Strategy Type between Use SMA and Short Window
             ordered_columns = [
                 "Ticker",
                 "Use SMA",
+                "Strategy Type",  # Place between Use SMA and Short Window
                 "Short Window",
                 "Long Window",
                 "Signal Entry",
@@ -162,6 +163,26 @@ def export_portfolios(
             
             # Select the final column order
             df = df.select(existing_ordered_columns)
+            
+            # Add Strategy Type column based on strategy type information
+            if "Strategy Type" not in df.columns:
+                # Check if we have strategy type information
+                if "STRATEGY_TYPE" in df.columns:
+                    df = df.with_columns(pl.col("STRATEGY_TYPE").alias("Strategy Type"))
+                elif "strategy_type" in df.columns:
+                    df = df.with_columns(pl.col("strategy_type").alias("Strategy Type"))
+                elif "type" in df.columns:
+                    df = df.with_columns(pl.col("type").alias("Strategy Type"))
+                else:
+                    # For legacy CSV files: Derive from Use SMA
+                    # This is critical for backward compatibility with existing CSV files
+                    log("Deriving Strategy Type from Use SMA for legacy CSV file", "info")
+                    df = df.with_columns(
+                        pl.when(pl.col("Use SMA").eq(True))
+                        .then(pl.lit("SMA"))
+                        .otherwise(pl.lit("EMA"))
+                        .alias("Strategy Type")
+                    )
             
             # Get ticker from config
             ticker = config["TICKER"]

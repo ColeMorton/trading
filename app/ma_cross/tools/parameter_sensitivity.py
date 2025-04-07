@@ -1,7 +1,7 @@
 import polars as pl
 from typing import Dict, Any, Optional, Callable
 from app.ma_cross.tools.sensitivity_analysis import analyze_parameter_combinations
-from app.tools.export_csv import export_csv
+from app.ma_cross.tools.export_portfolios import export_portfolios
 from app.tools.portfolio.collection import sort_portfolios
 
 def analyze_parameter_sensitivity(
@@ -61,8 +61,13 @@ def export_results(df: pl.DataFrame, config: Dict[str, Any], log: Callable) -> N
         log(f"USE_HOURLY: {config.get('USE_HOURLY', False)}")
         log(f"USE_SMA: {config.get('USE_SMA', False)}")
         
-        # Export using centralized CSV export functionality
-        export_csv(df, "ma_cross", config, "portfolios")
+        # Export using centralized portfolio export functionality
+        export_portfolios(
+            portfolios=df.to_dicts(),
+            config=config,
+            export_type="portfolios",
+            log=log
+        )
         
         log(f"Analysis results exported successfully")
         print(f"Analysis complete. Total rows in output: {len(df)}")

@@ -41,7 +41,7 @@ def standardize_portfolio_columns(
         'use_sma': 'USE_SMA',
         'Strategy Type': 'STRATEGY_TYPE',
         'strategy_type': 'STRATEGY_TYPE',
-        'type': 'STRATEGY_TYPE',
+        'type': 'STRATEGY_TYPE',  # For backward compatibility with JSON
         
         # Stop loss columns
         'Stop Loss': 'STOP_LOSS',
@@ -120,23 +120,8 @@ def convert_csv_to_strategy_config(
         ticker = row["TICKER"]
         log(f"Processing strategy configuration for {ticker}", "info")
         
-        # Determine strategy type
-        strategy_type = None
-        
-        # Check if STRATEGY_TYPE is directly provided
-        if "STRATEGY_TYPE" in row:
-            strategy_type = row["STRATEGY_TYPE"]
-        
-        # Check if type is directly provided (from JSON portfolios)
-        elif "type" in row:
-            strategy_type = row["type"]
-        
-        # Otherwise determine from USE_SMA
-        else:
-            use_sma = row.get("USE_SMA", True)
-            if isinstance(use_sma, str):
-                use_sma = use_sma.lower() in ['true', 'yes', '1']
-            strategy_type = "SMA" if use_sma else "EMA"
+        # Determine strategy type using the consolidated function
+        strategy_type = determine_strategy_type(row, log, ticker)
         
         # Set default values
         direction = row.get("DIRECTION", "Long")
@@ -144,12 +129,13 @@ def convert_csv_to_strategy_config(
         # Determine if this is a MACD strategy
         is_macd = strategy_type == "MACD" or "SIGNAL_WINDOW" in row
         
-        # Create strategy configuration
+        # Create strategy configuration with consistent type fields
         strategy_config = {
             "TICKER": ticker,
             "USE_SMA": strategy_type == "SMA",
             "STRATEGY_TYPE": strategy_type,
-            "type": strategy_type,  # Add explicit type field for compatibility
+            "strategy_type": strategy_type,  # New JSON field name
+            "type": strategy_type,  # Old JSON field name for backward compatibility
             "DIRECTION": direction,
             "USE_HOURLY": use_hourly,
             "USE_RSI": False,
@@ -248,3 +234,39 @@ def convert_csv_to_strategy_config(
         strategies.append(strategy_config)
     
     return strategies
+
+def determine_strategy_type(row, log, ticker):
+    """
+    Determine strategy type from row data with consistent priority.
+    
+    Priority order:
+    1. STRATEGY_TYPE column
+    2. strategy_type column (new JSON field name)
+    3. type column (old JSON field name)
+    4. Derived from USE_SMA
+    
+    Args:
+        row: Row data dictionary
+        log: Logging function
+        ticker: Ticker symbol for logging
+        
+    Returns:
+        str: Strategy type (SMA, EMA, or MACD)
+    """
+    # Check for explicit type fields in priority order
+    for type_field in ["STRATEGY_TYPE", "strategy_type", "type"]:
+        if type_field in row and row[type_field]:
+            strategy_type = row[type_field]
+            # Validate strategy type
+            if strategy_type in ["SMA", "EMA", "MACD"]:
+                return strategy_type
+            else:
+                log(f"Invalid strategy type '{strategy_type}' for {ticker}, defaulting to EMA", "warning")
+                return "EMA"
+    
+    # For legacy data: Derive from USE_SMA if no explicit type
+    log(f"No explicit strategy type found for {ticker}. Deriving from USE_SMA.", "info")
+    use_sma = row.get("USE_SMA", True)
+    if isinstance(use_sma, str):
+        use_sma = use_sma.lower() in ['true', 'yes', '1']
+    return "SMA" if use_sma else "EMA"
