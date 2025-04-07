@@ -49,8 +49,7 @@ def analyze_window_combination(
         stats['Short Window'] = short
         stats['Long Window'] = long
         stats['Ticker'] = config['TICKER']  # Add ticker from config
-        stats['Use SMA'] = config.get('USE_SMA', False)  # Add SMA usage info
-        # Add Strategy Type field based on USE_SMA
+        # Add Strategy Type field based on USE_SMA (no longer adding Use SMA field)
         stats['Strategy Type'] = "SMA" if config.get('USE_SMA', False) else "EMA"
         stats = convert_stats(stats, log, config, current)
         stats = reorder_columns(stats)

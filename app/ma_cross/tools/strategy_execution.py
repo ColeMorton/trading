@@ -85,7 +85,7 @@ def execute_single_strategy(
         # Add strategy identification fields
         converted_stats.update({
             "TICKER": ticker,  # Use uppercase TICKER
-            "Use SMA": config.get("USE_SMA", False),
+            "Strategy Type": "SMA" if config.get("USE_SMA", False) else "EMA",  # Add Strategy Type instead of Use SMA
             "SMA_FAST": config["SHORT_WINDOW"] if config.get("USE_SMA", False) else None,
             "SMA_SLOW": config["LONG_WINDOW"] if config.get("USE_SMA", False) else None,
             "EMA_FAST": config["SHORT_WINDOW"] if not config.get("USE_SMA", False) else None,

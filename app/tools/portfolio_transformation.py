@@ -63,8 +63,7 @@ def reorder_columns(portfolio: Dict) -> Dict:
     """
     first_columns = [
         'Ticker',
-        'Use SMA',
-        'Strategy Type',  # Add Strategy Type between Use SMA and Short Window
+        'Strategy Type',  # Now directly after Ticker
         'Short Window',
         'Long Window',
         'Signal Entry',
