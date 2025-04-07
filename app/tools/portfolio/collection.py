@@ -5,10 +5,14 @@ This module handles the collection, sorting, and export of portfolios.
 It provides centralized functionality for consistent portfolio operations
 across the application.
 """
-
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Union, Callable, Optional
 import polars as pl
-from app.ma_cross.tools.export_portfolios import export_portfolios, PortfolioExportError
+from app.ma_cross.config_types import Config
+
+# Define our own error class to avoid circular imports
+class PortfolioExportError(Exception):
+    """Custom exception for portfolio export errors."""
+    pass
 from app.ma_cross.config_types import Config
 
 def sort_portfolios(
@@ -64,6 +68,9 @@ def export_best_portfolios(
         # Sort portfolios using centralized function
         sorted_portfolios = sort_portfolios(portfolios, config)
         sort_by = config.get('SORT_BY', 'Total Return [%]')
+        
+        # Import export_portfolios here to avoid circular imports
+        from app.ma_cross.tools.export_portfolios import export_portfolios
         
         export_portfolios(
             portfolios=sorted_portfolios,

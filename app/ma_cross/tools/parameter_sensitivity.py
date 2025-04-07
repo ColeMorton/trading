@@ -1,7 +1,7 @@
 import polars as pl
 from typing import Dict, Any, Optional, Callable
 from app.ma_cross.tools.sensitivity_analysis import analyze_parameter_combinations
-from app.ma_cross.tools.export_portfolios import export_portfolios
+# Import export_portfolios inside functions to avoid circular imports
 from app.tools.portfolio.collection import sort_portfolios
 
 def analyze_parameter_sensitivity(
@@ -60,6 +60,8 @@ def export_results(df: pl.DataFrame, config: Dict[str, Any], log: Callable) -> N
         log(f"Exporting results for {config.get('TICKER', '')}")
         log(f"USE_HOURLY: {config.get('USE_HOURLY', False)}")
         log(f"USE_SMA: {config.get('USE_SMA', False)}")
+        # Import export_portfolios here to avoid circular imports
+        from app.ma_cross.tools.export_portfolios import export_portfolios
         
         # Export using centralized portfolio export functionality
         export_portfolios(

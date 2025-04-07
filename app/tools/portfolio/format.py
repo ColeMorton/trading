@@ -7,6 +7,8 @@ and standardizing column names and data types.
 
 import polars as pl
 from typing import Dict, List, Any, Callable, Optional
+from app.tools.portfolio.strategy_types import StrategyTypeLiteral, STRATEGY_TYPE_FIELDS
+from app.tools.portfolio.strategy_utils import determine_strategy_type, create_strategy_type_fields
 
 def standardize_portfolio_columns(
     df: pl.DataFrame,
@@ -120,8 +122,8 @@ def convert_csv_to_strategy_config(
         ticker = row["TICKER"]
         log(f"Processing strategy configuration for {ticker}", "info")
         
-        # Determine strategy type using the consolidated function
-        strategy_type = determine_strategy_type(row, log, ticker)
+        # Determine strategy type using the centralized utility function
+        strategy_type = determine_strategy_type(row, log)
         
         # Set default values
         direction = row.get("DIRECTION", "Long")
@@ -132,11 +134,9 @@ def convert_csv_to_strategy_config(
         # Create strategy configuration with consistent type fields
         strategy_config = {
             "TICKER": ticker,
-            "USE_SMA": strategy_type == "SMA",
-            "STRATEGY_TYPE": strategy_type,
-            "strategy_type": strategy_type,  # New JSON field name
-            "type": strategy_type,  # Old JSON field name for backward compatibility
             "DIRECTION": direction,
+            # Add all strategy type fields using the utility function
+            **create_strategy_type_fields(strategy_type),
             "USE_HOURLY": use_hourly,
             "USE_RSI": False,
             "BASE_DIR": config.get("BASE_DIR", "."),
@@ -235,38 +235,4 @@ def convert_csv_to_strategy_config(
     
     return strategies
 
-def determine_strategy_type(row, log, ticker):
-    """
-    Determine strategy type from row data with consistent priority.
-    
-    Priority order:
-    1. STRATEGY_TYPE column
-    2. strategy_type column (new JSON field name)
-    3. type column (old JSON field name)
-    4. Derived from USE_SMA
-    
-    Args:
-        row: Row data dictionary
-        log: Logging function
-        ticker: Ticker symbol for logging
-        
-    Returns:
-        str: Strategy type (SMA, EMA, or MACD)
-    """
-    # Check for explicit type fields in priority order
-    for type_field in ["STRATEGY_TYPE", "strategy_type", "type"]:
-        if type_field in row and row[type_field]:
-            strategy_type = row[type_field]
-            # Validate strategy type
-            if strategy_type in ["SMA", "EMA", "MACD"]:
-                return strategy_type
-            else:
-                log(f"Invalid strategy type '{strategy_type}' for {ticker}, defaulting to EMA", "warning")
-                return "EMA"
-    
-    # For legacy data: Derive from USE_SMA if no explicit type
-    log(f"No explicit strategy type found for {ticker}. Deriving from USE_SMA.", "info")
-    use_sma = row.get("USE_SMA", True)
-    if isinstance(use_sma, str):
-        use_sma = use_sma.lower() in ['true', 'yes', '1']
-    return "SMA" if use_sma else "EMA"
+# The determine_strategy_type function has been moved to strategy_utils.py

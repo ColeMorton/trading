@@ -6,7 +6,7 @@ with appropriate type conversion.
 
 CSV files must contain the following columns:
 - Ticker: Asset symbol
-- Use SMA: Boolean indicating whether to use SMA (True) or EMA (False)
+- Strategy Type: Strategy type (SMA, EMA, MACD)
 - Short Window: Period for short moving average
 - Long Window: Period for long moving average
 
@@ -23,6 +23,7 @@ from app.tools.portfolio.types import StrategyConfig
 from app.tools.portfolio.paths import resolve_portfolio_path
 from app.tools.portfolio.format import standardize_portfolio_columns, convert_csv_to_strategy_config
 from app.tools.portfolio.validation import validate_portfolio_schema, validate_strategy_config, validate_portfolio_configs
+from app.tools.portfolio.strategy_types import STRATEGY_TYPE_FIELDS, VALID_STRATEGY_TYPES
 
 def load_portfolio_from_csv(
     csv_path: Union[str, Path], 
@@ -80,14 +81,14 @@ def load_portfolio_from_csv(
     df = standardize_portfolio_columns(df, log)
     
     # Handle legacy CSV files without Strategy Type column
-    if "STRATEGY_TYPE" not in df.columns:
-        log("Legacy CSV file detected without Strategy Type column. Deriving from USE_SMA.", "info")
+    if STRATEGY_TYPE_FIELDS["INTERNAL"] not in df.columns:
+        log(f"Legacy CSV file detected without {STRATEGY_TYPE_FIELDS['INTERNAL']} column. Deriving from USE_SMA.", "info")
         # Derive STRATEGY_TYPE from USE_SMA
         df = df.with_columns(
             pl.when(pl.col("USE_SMA").eq(True))
             .then(pl.lit("SMA"))
             .otherwise(pl.lit("EMA"))
-            .alias("STRATEGY_TYPE")
+            .alias(STRATEGY_TYPE_FIELDS["INTERNAL"])
         )
     
     # Validate required columns

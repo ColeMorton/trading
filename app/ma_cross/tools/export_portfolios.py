@@ -8,6 +8,8 @@ centralized export functionality.
 from typing import List, Dict, Tuple, Callable, Optional
 import polars as pl
 from app.tools.export_csv import export_csv, ExportConfig
+from app.tools.portfolio.strategy_types import STRATEGY_TYPE_FIELDS, VALID_STRATEGY_TYPES
+from app.tools.portfolio.strategy_utils import get_strategy_type_for_export
 
 class PortfolioExportError(Exception):
     """Custom exception for portfolio export errors."""
@@ -146,7 +148,7 @@ def export_portfolios(
             # Define column order with Strategy Type (removed Use SMA)
             ordered_columns = [
                 "Ticker",
-                "Strategy Type",  # Now directly after Ticker
+                STRATEGY_TYPE_FIELDS["CSV"],  # Now directly after Ticker
                 "Short Window",
                 "Long Window",
                 "Signal Entry",
@@ -164,29 +166,27 @@ def export_portfolios(
             df = df.select(existing_ordered_columns)
             
             # Add Strategy Type column based on strategy type information
-            if "Strategy Type" not in df.columns:
-                # Check if we have strategy type information
-                if "STRATEGY_TYPE" in df.columns:
-                    df = df.with_columns(pl.col("STRATEGY_TYPE").alias("Strategy Type"))
-                elif "strategy_type" in df.columns:
-                    df = df.with_columns(pl.col("strategy_type").alias("Strategy Type"))
-                elif "type" in df.columns:
-                    df = df.with_columns(pl.col("type").alias("Strategy Type"))
-                elif "Use SMA" in df.columns:
-                    # For legacy CSV files: Derive from Use SMA
-                    # This is critical for backward compatibility with existing CSV files
-                    log("Deriving Strategy Type from Use SMA for legacy CSV file", "info")
-                    df = df.with_columns(
-                        pl.when(pl.col("Use SMA").eq(True))
-                        .then(pl.lit("SMA"))
-                        .otherwise(pl.lit("EMA"))
-                        .alias("Strategy Type")
-                    )
+            if STRATEGY_TYPE_FIELDS["CSV"] not in df.columns:
+                # Create a list of rows to process
+                rows = df.to_dicts()
+                strategy_types = []
+                
+                # Process each row to determine strategy type
+                for row in rows:
+                    strategy_type = get_strategy_type_for_export(row, log)
+                    strategy_types.append(strategy_type)
+                
+                # Add the strategy type column
+                df = df.with_columns(pl.Series(STRATEGY_TYPE_FIELDS["CSV"], strategy_types))
+                
+                if log:
+                    log(f"Added {STRATEGY_TYPE_FIELDS['CSV']} column with determined strategy types", "info")
             
             # Remove Use SMA field from export as it's now redundant
             if "Use SMA" in df.columns:
                 df = df.drop("Use SMA")
-                log("Removed redundant 'Use SMA' field from export", "info")
+                if log:
+                    log("Removed redundant 'Use SMA' field from export", "info")
             
             # Get ticker from config
             ticker = config["TICKER"]

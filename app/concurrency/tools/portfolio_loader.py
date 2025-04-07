@@ -17,9 +17,11 @@ Default values for CSV files:
 """
 
 from pathlib import Path
-from typing import List, Callable, Dict
+from typing import List, Callable, Dict, Any
 import polars as pl
 from app.concurrency.tools.types import StrategyConfig
+from app.tools.portfolio.strategy_types import VALID_STRATEGY_TYPES, DEFAULT_STRATEGY_TYPE
+from app.tools.portfolio.strategy_utils import determine_strategy_type, create_strategy_type_fields
 
 def load_portfolio_from_csv(csv_path: Path, log: Callable[[str, str], None], config: Dict) -> List[StrategyConfig]:
     """Load portfolio configuration from CSV file.
@@ -64,9 +66,8 @@ def load_portfolio_from_csv(csv_path: Path, log: Callable[[str, str], None], con
     for row in df.iter_rows(named=True):
         ticker = row["Ticker"]
         log(f"Processing strategy configuration for {ticker}", "info")
-        
-        # Determine strategy type based on Use SMA column
-        strategy_type = "SMA" if row["Use SMA"] else "EMA"
+        # Determine strategy type using the centralized utility function
+        strategy_type = determine_strategy_type(row, log)
         
         # Set default values
         direction = "Long"
@@ -79,9 +80,9 @@ def load_portfolio_from_csv(csv_path: Path, log: Callable[[str, str], None], con
             "REFRESH": config["REFRESH"],
             "USE_RSI": False,
             "USE_HOURLY": use_hourly,  # Use CSV_USE_HOURLY setting
-            "USE_SMA": strategy_type == "SMA",
-            "STRATEGY_TYPE": strategy_type,
-            "DIRECTION": direction
+            "DIRECTION": direction,
+            # Add all strategy type fields using the utility function
+            **create_strategy_type_fields(strategy_type)
         }
         
         # Log complete strategy configuration
@@ -156,9 +157,9 @@ def load_portfolio_from_json(json_path: Path, log: Callable[[str, str], None], c
             "REFRESH": config["REFRESH"],
             "USE_RSI": has_rsi,
             "USE_HOURLY": timeframe.lower() == "hourly",
-            "USE_SMA": strategy_type == "SMA",  # Set based on strategy type
-            "STRATEGY_TYPE": strategy_type,  # Store the actual strategy type
-            "DIRECTION": direction  # Store direction with default "Long"
+            "DIRECTION": direction,  # Store direction with default "Long"
+            # Add all strategy type fields using the utility function
+            **create_strategy_type_fields(strategy_type)
         }
         
         # Handle stop loss validation and conversion

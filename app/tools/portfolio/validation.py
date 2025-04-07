@@ -7,6 +7,8 @@ and reporting errors.
 
 import polars as pl
 from typing import Dict, List, Any, Callable, Optional, Tuple
+from app.tools.portfolio.strategy_types import STRATEGY_TYPE_FIELDS
+from app.tools.portfolio.strategy_utils import get_strategy_type_for_export
 
 def validate_portfolio_schema(
     df: pl.DataFrame,
@@ -55,8 +57,8 @@ def validate_strategy_config(
     if 'TICKER' not in strategy:
         errors.append("Missing required field: TICKER")
         
-    # Get strategy type
-    strategy_type = strategy.get('STRATEGY_TYPE', strategy.get('type', ''))
+    # Get strategy type using the centralized utility function
+    strategy_type = get_strategy_type_for_export(strategy)
     
     # Define required fields based on strategy type
     if strategy_type == 'ATR':

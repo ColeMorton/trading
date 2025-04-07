@@ -10,7 +10,7 @@ import polars as pl
 from app.ma_cross.tools.process_ma_portfolios import process_ma_portfolios
 from app.ma_cross.tools.signal_utils import is_signal_current
 from app.tools.stats_converter import convert_stats
-from app.ma_cross.tools.export_portfolios import export_portfolios
+# Import export_portfolios inside functions to avoid circular imports
 from app.tools.get_config import get_config
 from app.tools.portfolio_transformation import reorder_columns
 
@@ -188,6 +188,9 @@ def export_summary_results(portfolios: List[Dict], portfolio_name: str, log: Cal
         
         # Use empty string for feature_dir to export directly to /csv/portfolios/
         # instead of /csv/ma_cross/portfolios/
+        # Import export_portfolios here to avoid circular imports
+        from app.ma_cross.tools.export_portfolios import export_portfolios
+        
         # Pass the export_config which may contain _SORTED_PORTFOLIOS if sorting was applied
         _, success = export_portfolios(reordered_portfolios, export_config, 'portfolios', portfolio_name, log, feature_dir="")
         if not success:

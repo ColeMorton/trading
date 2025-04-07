@@ -223,7 +223,7 @@ def run(config_dict=None, portfolio_file=None):
             data = get_data(config["TICKER"], config, log)
             
             # Determine strategy type
-            strategy_type = config.get("STRATEGY_TYPE", "MA")
+            strategy_type = config.get("STRATEGY_TYPE", DEFAULT_STRATEGY_TYPE)
             
             if strategy_type == "MACD":
                 # For MACD strategies, we need the signal window
@@ -260,7 +260,8 @@ def run(config_dict=None, portfolio_file=None):
         })
 
         # Export to CSV - use appropriate directory based on strategy type
-        strategy_type_dir = "macd" if config.get("STRATEGY_TYPE") == "MACD" else "ma_cross"
+        strategy_type = config.get("STRATEGY_TYPE", DEFAULT_STRATEGY_TYPE)
+        strategy_type_dir = "macd" if strategy_type == "MACD" else "ma_cross"
         csv_path = f'csv/{strategy_type_dir}/equity_curve/{config["TICKER"]}.csv'
         
         # Ensure directory exists

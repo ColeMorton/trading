@@ -90,7 +90,7 @@ CONFIG: Config = {
     #     "EDV",
     #     "XLU"
     # ],
-    "TICKER": 'MSTR',
+    "TICKER": 'BTC-USD',
     # "TICKER_2": 'BTC-USD',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -105,7 +105,7 @@ CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": True,
+    "USE_CURRENT": False,
     "MINIMUMS": {
         "WIN_RATE": 0.38,
         "TRADES": 34,
