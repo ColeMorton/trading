@@ -1,309 +1,221 @@
-# Implementation Plan for Adding MACD Strategy Type to CSV Schema
+# Implementation Plan: Extending MA Cross Portfolio Processing for MACD Strategies
 
-## Current State Analysis
+## 1. Overview
 
-Based on my investigation, I've found:
+This implementation plan outlines the steps required to extend the existing MA Cross portfolio processing functionality to handle MACD strategy types. The goal is to create a more generalized and modular approach that can process SMA, EMA, and MACD strategies within the same workflow, allowing for mixed strategy types in a single portfolio file.
 
-1. **CSV Schema Structure**:
-   - The column mapping for "Signal Window" already exists in `app/tools/portfolio/format.py` (lines 67-69)
-   - The example CSV file `BTC_MSTR_d_20250409.csv` contains MACD strategies with the required parameters (Short Window, Long Window, and Signal Window)
-   - The "Signal Window" column is defined in the column mappings but needs proper handling in the CSV import process
+## 2. Current Architecture Analysis
 
-2. **MACD Implementation**:
-   - MACD is already a valid strategy type in `app/tools/portfolio/strategy_types.py`
-   - The MACD calculation functions are implemented in `app/tools/calculate_macd.py`, `app/tools/calculate_macd_signals.py`, and `app/tools/calculate_macd_and_signals.py`
-   - The `convert_csv_to_strategy_config` function in `app/tools/portfolio/format.py` already has code to handle MACD strategies (lines 247-263)
-   - The validation logic in `app/tools/portfolio/validation.py` already checks for required MACD parameters (lines 72-77)
+### 2.1 Current Implementation
 
-3. **Current Limitations**:
-   - The error handling for missing Signal Window parameter could be improved
-   - The documentation in `app/tools/portfolio/loader.py` mentions MACD but doesn't specify that Signal Window is required for MACD strategies
-   - When exporting CSV files, the "Signal Window" column needs to be at index 5 (after Long Window)
+The current implementation in `app/ma_cross/2_update_portfolios.py` processes portfolios containing SMA and EMA strategies. The main workflow is:
 
-4. **Backward Compatibility Requirements**:
-   - Must support CSV files that use "Use SMA" column instead of "Strategy Type" (e.g., `csv/portfolios/LTC_d.csv`)
-   - Must handle CSV files that have a "Signal Window" column but don't use it (filled with 0s or empty)
-   - Must only require "Signal Window" for MACD strategies, not for SMA or EMA strategies
-   - Performance metrics are optional for all strategy types, including MACD
+1. Load portfolio using `load_portfolio` from `app/tools/portfolio`
+2. Process each ticker using `process_ticker_portfolios`
+3. For each ticker, determine if it's SMA or EMA based on `USE_SMA` flag
+4. Process the ticker using `process_ma_portfolios`
+5. Export results using `export_summary_results`
 
-## Implementation Plan
+The `process_ma_portfolios` function is specifically designed for MA strategies and doesn't support MACD.
 
-### 1. Enhance Error Handling in CSV Import
+### 2.2 MACD Implementation
 
-The current implementation already has basic error handling for MACD strategies, but we can improve it to provide more specific error messages and handle edge cases better.
+MACD strategies require three parameters:
+- Short window (fast EMA period)
+- Long window (slow EMA period)
+- Signal window (signal line EMA period)
 
-```python
-# In app/tools/portfolio/format.py
-# Enhance the MACD signal window handling (around line 247)
-if strategy_type == "MACD":
-    # Check both signal_window and signal_period for backward compatibility
-    signal = row.get("SIGNAL_WINDOW")
-    if signal is None:
-        signal = row.get("signal_window") or row.get("signal_period")
-    
-    if signal is not None:
-        try:
-            strategy_config["SIGNAL_WINDOW"] = int(signal)
-            log(f"Using signal window: {strategy_config['SIGNAL_WINDOW']} for {ticker}", "info")
-        except (ValueError, TypeError):
-            error_msg = f"Invalid signal window value for {ticker}: {signal}. Must be an integer."
-            log(error_msg, "error")
-            raise ValueError(error_msg)
-    else:
-        error_msg = f"Missing required Signal Window parameter for MACD strategy: {ticker}"
-        log(error_msg, "error")
-        raise ValueError(error_msg)
-```
+The MACD calculation and signal generation are already implemented in:
+- `app/tools/calculate_macd.py`
+- `app/tools/calculate_macd_signals.py`
+- `app/tools/calculate_macd_and_signals.py`
 
-### 2. Update Validation Logic
+### 2.3 Portfolio Loading
 
-The validation logic in `app/tools/portfolio/validation.py` already checks for required MACD parameters, but we can enhance it to provide more specific error messages and ensure consistent validation between CSV and JSON sources.
+The portfolio loader in `app/tools/portfolio/loader.py` already has support for MACD strategies, including validation of the required signal window parameter.
+
+## 3. Implementation Strategy
+
+We will create a more generalized approach by:
+
+1. Creating a new generic `process_strategy_portfolios` function that can handle all strategy types
+2. Modifying `process_ticker_portfolios` to use the strategy type from the portfolio data
+3. Ensuring proper handling of MACD-specific parameters (signal window)
+4. Maintaining backward compatibility with existing portfolio files
+
+## 4. Detailed Implementation Steps
+
+### 4.1 Create Generic Strategy Processing Function
+
+Create a new file `app/ma_cross/tools/process_strategy_portfolios.py` with a generic function that can handle all strategy types:
 
 ```python
-# In app/tools/portfolio/validation.py
-# Enhance the MACD validation (around line 72)
-elif strategy_type == 'MACD':
-    # MACD strategies require SHORT_WINDOW, LONG_WINDOW, and SIGNAL_WINDOW
-    required_fields = ['SHORT_WINDOW', 'LONG_WINDOW', 'SIGNAL_WINDOW']
-    for field in required_fields:
-        if field not in strategy:
-            errors.append(f"Missing required field for MACD strategy {ticker}: {field}")
-        elif strategy[field] is None:
-            errors.append(f"Field {field} cannot be null for MACD strategy {ticker}")
-    
-    # Validate window relationships for MACD
-    if all(field in strategy and strategy[field] is not None for field in ['SHORT_WINDOW', 'LONG_WINDOW', 'SIGNAL_WINDOW']):
-        if strategy['SHORT_WINDOW'] >= strategy['LONG_WINDOW']:
-            errors.append(f"SHORT_WINDOW ({strategy['SHORT_WINDOW']}) must be less than LONG_WINDOW ({strategy['LONG_WINDOW']}) for MACD strategy {ticker}")
-        if strategy['SIGNAL_WINDOW'] <= 0:
-            errors.append(f"SIGNAL_WINDOW ({strategy['SIGNAL_WINDOW']}) must be greater than 0 for MACD strategy {ticker}")
-```
-
-### 3. Update Documentation
-
-Update the docstring in `app/tools/portfolio/loader.py` to explicitly mention that Signal Window is required for MACD strategies.
-
-```python
-# In app/tools/portfolio/loader.py
-"""Portfolio configuration loading utilities.
-
-This module provides functionality for loading and validating portfolio configurations
-from JSON and CSV files. It handles parsing of required and optional strategy parameters
-with appropriate type conversion.
-
-CSV files must contain the following columns:
-- Ticker: Asset symbol
-- Strategy Type: Strategy type (SMA, EMA, MACD, ATR) or Use SMA (boolean) for backward compatibility
-- Short Window: Period for short moving average
-- Long Window: Period for long moving average
-
-Strategy-specific required columns:
-- MACD: Signal Window (period for signal line EMA)
-- ATR: Length and Multiplier
-
-Optional columns:
-- Performance metrics (Win Rate, Profit Factor, etc.)
-- Position size
-- Stop loss
-- RSI parameters
-
-Default values for CSV files:
-- direction: Long
-- USE_RSI: False
-- USE_HOURLY: Controlled by CSV_USE_HOURLY configuration option (default: False for Daily)
-
-This module is part of the unified portfolio loader implementation that combines
-features from both the app/tools/portfolio/loader.py and app/concurrency/tools/portfolio_loader.py
-modules. It includes support for:
-- Stop loss validation and conversion logic
-- MACD signal period handling
-- Direction field handling
-- Advanced CSV reading with schema overrides
-- Standardized column mapping
-- Path resolution logic
-- Comprehensive validation
-"""
-```
-
-### 4. Update Schema Override in CSV Loader
-
-Update the schema override in `load_portfolio_from_csv` to include Signal Window as an Int64 column.
-
-```python
-# In app/tools/portfolio/loader.py
-# Update schema overrides (around line 73)
-schema_overrides={
-    'Start Value': pl.Float64,
-    'End Value': pl.Float64,
-    'Return': pl.Float64,
-    'Annual Return': pl.Float64,
-    'Sharpe Ratio': pl.Float64,
-    'Max Drawdown': pl.Float64,
-    'Calmar Ratio': pl.Float64,
-    'Recovery Factor': pl.Float64,
-    'Profit Factor': pl.Float64,
-    'Common Sense Ratio': pl.Float64,
-    'Win Rate': pl.Float64,
-    'Short Window': pl.Int64,
-    'Long Window': pl.Int64,
-    'Signal Window': pl.Int64  # Add Signal Window as Int64
-}
-```
-
-### 5. Ensure Backward Compatibility
-
-Update the code to ensure backward compatibility with different CSV schemas:
-
-```python
-# In app/tools/portfolio/format.py
-# Enhance the strategy type determination (around line 127)
-# Determine strategy type using the centralized utility function
-strategy_type = determine_strategy_type(row, log)
-
-# For backward compatibility with CSV files that use "Use SMA" instead of "Strategy Type"
-if strategy_type not in VALID_STRATEGY_TYPES and "USE_SMA" in row:
-    use_sma = row.get("USE_SMA", True)
-    if isinstance(use_sma, str):
-        use_sma = use_sma.lower() in ['true', 'yes', '1']
-    strategy_type = "SMA" if use_sma else "EMA"
-    log(f"Using legacy 'USE_SMA' field to determine strategy type: {strategy_type}", "info")
-
-# Create strategy configuration with consistent type fields
-strategy_config = {
-    "TICKER": ticker,
-    "DIRECTION": direction,
-    # Add all strategy type fields using the utility function
-    **create_strategy_type_fields(strategy_type),
-    "USE_HOURLY": use_hourly,
-    "USE_RSI": False,
-    "BASE_DIR": config.get("BASE_DIR", "."),
-    "REFRESH": config.get("REFRESH", True),
-}
-```
-
-### 6. Update Required Columns in CSV Validation
-
-Update the required columns check in `load_portfolio_from_csv` to conditionally check for Signal Window when MACD strategies are present.
-
-```python
-# In app/tools/portfolio/loader.py
-# Update required columns validation (around line 116)
-# First, check if there are any MACD strategies
-has_macd = False
-if STRATEGY_TYPE_FIELDS["INTERNAL"] in df.columns:
-    has_macd = df.filter(pl.col(STRATEGY_TYPE_FIELDS["INTERNAL"]) == "MACD").height > 0
-
-# Define required columns based on strategy types
-required_columns = ["TICKER", "SHORT_WINDOW", "LONG_WINDOW"]
-if has_macd:
-    # Add Signal Window as a required column if MACD strategies are present
-    required_columns.append("SIGNAL_WINDOW")
-
-# Validate required columns
-is_valid, errors = validate_portfolio_schema(
-    df, 
-    log, 
-    required_columns=required_columns
-)
-```
-
-### 7. Handle Empty or Zero Signal Window Values
-
-Update the MACD signal window handling to handle empty or zero values for non-MACD strategies:
-
-```python
-# In app/tools/portfolio/format.py
-# Enhance the MACD signal window handling (around line 247)
-if strategy_type == "MACD":
-    # Check both signal_window and signal_period for backward compatibility
-    signal = row.get("SIGNAL_WINDOW")
-    if signal is None:
-        signal = row.get("signal_window") or row.get("signal_period")
-    
-    if signal is not None and signal != 0:  # Allow zero for backward compatibility with non-MACD strategies
-        try:
-            strategy_config["SIGNAL_WINDOW"] = int(signal)
-            log(f"Using signal window: {strategy_config['SIGNAL_WINDOW']} for {ticker}", "info")
-        except (ValueError, TypeError):
-            error_msg = f"Invalid signal window value for {ticker}: {signal}. Must be an integer."
-            log(error_msg, "error")
-            raise ValueError(error_msg)
-    else:
-        error_msg = f"Missing required Signal Window parameter for MACD strategy: {ticker}"
-        log(error_msg, "error")
-        raise ValueError(error_msg)
-```
-
-### 8. Update CSV Export Functionality
-
-Update the CSV export functionality to ensure the "Signal Window" column is included at index 5 (after Long Window) in the exported CSV files:
-
-```python
-# In app/tools/export_csv.py or the relevant export module
-def export_portfolios_to_csv(portfolios, output_path, log):
-    """Export portfolios to CSV file with standardized column order.
+def process_strategy_portfolios(
+    ticker: str,
+    strategy_type: str,
+    short_window: int,
+    long_window: int,
+    signal_window: Optional[int] = None,
+    config: dict = None,
+    log: Callable = None
+) -> Optional[Tuple[Optional[pl.DataFrame], dict, Optional[pl.DataFrame]]]:
+    """
+    Process portfolios for a given ticker based on strategy type.
     
     Args:
-        portfolios: List of portfolio dictionaries
-        output_path: Path to save the CSV file
+        ticker: Ticker symbol
+        strategy_type: Strategy type (SMA, EMA, MACD)
+        short_window: Short/fast window period
+        long_window: Long/slow window period
+        signal_window: Signal window period (required for MACD)
+        config: Configuration dictionary
         log: Logging function
+        
+    Returns:
+        Optional tuple of (portfolio DataFrame or None, config, data with signals or None)
+        Returns None if processing fails entirely
     """
-    # Define the column order to ensure Signal Window is at index 5
-    column_order = [
-        "Ticker",
-        "Strategy Type",
-        "Short Window",
-        "Long Window",
-        "Signal Window",  # Ensure Signal Window is at index 5
-        "Signal Entry",
-        # ... other columns
-    ]
-    
-    # Convert to DataFrame
-    df = pl.DataFrame(portfolios)
-    
-    # Ensure all required columns exist
-    for col in column_order:
-        if col not in df.columns:
-            # Add empty column if it doesn't exist
-            if col == "Signal Window":
-                # Use 0 as default for Signal Window
-                df = df.with_columns(pl.lit(0).alias(col))
-            else:
-                df = df.with_columns(pl.lit(None).alias(col))
-    
-    # Reorder columns
-    df = df.select([*column_order, *[c for c in df.columns if c not in column_order]])
-    
-    # Export to CSV
-    df.write_csv(output_path)
-    log(f"Exported {len(portfolios)} portfolios to {output_path}", "info")
+    # Implementation details
 ```
 
-Alternatively, if you're using a different export mechanism:
+### 4.2 Modify Summary Processing Module
 
-```python
-# In the relevant export function
-# Ensure Signal Window column exists and is in the correct position
-if "Signal Window" not in df.columns:
-    # Insert Signal Window column at index 5
-    columns = list(df.columns)
-    columns.insert(4, "Signal Window")  # Insert at index 4 to be at position 5 (0-indexed)
-    df_with_signal = pl.DataFrame({col: df[col] if col in df.columns else pl.Series([0] * len(df)) for col in columns})
-    df = df_with_signal
+Update `app/ma_cross/tools/summary_processing.py` to handle MACD strategies:
+
+1. Modify `process_ticker_portfolios` to detect strategy type and use the appropriate processing function
+2. Add support for MACD-specific parameters (signal window)
+3. Update the stats collection to include MACD-specific information
+
+### 4.3 Create Strategy Type Handling Functions
+
+Create specific handler functions for each strategy type:
+
+1. `process_sma_strategy`
+2. `process_ema_strategy`
+3. `process_macd_strategy`
+
+These functions will encapsulate the specific logic for each strategy type while sharing common code.
+
+### 4.4 Update Main Portfolio Processing Module
+
+Update `app/ma_cross/2_update_portfolios.py` to handle MACD strategies:
+
+1. Ensure the config has appropriate defaults for MACD strategies
+2. Update comments and docstrings to reflect MACD support
+
+## 5. Detailed Function Specifications
+
+### 5.1 process_strategy_portfolios
+
+```mermaid
+flowchart TD
+    A[Start] --> B{Strategy Type?}
+    B -->|SMA| C[Process SMA Strategy]
+    B -->|EMA| D[Process EMA Strategy]
+    B -->|MACD| E[Process MACD Strategy]
+    C --> F[Return Results]
+    D --> F
+    E --> F
+    F --> G[End]
 ```
 
-## Conclusion
+This function will:
+1. Accept strategy parameters including strategy type
+2. Validate parameters based on strategy type
+3. Call the appropriate strategy-specific processing function
+4. Return standardized results
 
-This implementation plan provides a comprehensive approach to adding the MACD strategy type to the CSV schema while ensuring backward compatibility with existing CSV files. The plan focuses on:
+### 5.2 process_macd_strategy
 
-1. Enhancing error handling for MACD strategies in the CSV import process
-2. Improving validation logic for MACD parameters
-3. Updating documentation to explicitly mention Signal Window requirement for MACD strategies
-4. Adding Signal Window to the schema overrides in the CSV loader
-5. Ensuring backward compatibility with different CSV schemas
-6. Conditionally checking for Signal Window when MACD strategies are present
-7. Handling empty or zero Signal Window values for non-MACD strategies
-8. Ensuring the Signal Window column is at index 5 in exported CSV files
+```mermaid
+flowchart TD
+    A[Start] --> B[Get Data]
+    B --> C[Calculate MACD and Signals]
+    C --> D[Backtest Strategy]
+    D --> E[Return Results]
+    E --> F[End]
+```
 
-By implementing this plan, we'll ensure that MACD strategies can be properly defined in CSV files and will be processed consistently with their JSON counterparts, while maintaining backward compatibility with existing CSV files.
+This function will:
+1. Get price data for the ticker
+2. Calculate MACD indicators using the provided parameters
+3. Generate trading signals
+4. Backtest the strategy
+5. Return the portfolio results
+
+### 5.3 Modified process_ticker_portfolios
+
+```mermaid
+flowchart TD
+    A[Start] --> B[Extract Strategy Parameters]
+    B --> C{Strategy Type?}
+    C -->|SMA/EMA| D[Process MA Strategy]
+    C -->|MACD| E[Process MACD Strategy]
+    C -->|Unknown| F[Log Error]
+    D --> G[Convert Stats]
+    E --> G
+    F --> H[Return None]
+    G --> I[Return Results]
+    I --> J[End]
+    H --> J
+```
+
+This function will:
+1. Extract strategy parameters from the portfolio row
+2. Determine the strategy type (SMA, EMA, MACD)
+3. Call the appropriate processing function
+4. Convert and standardize the results
+5. Return the processed portfolio stats
+
+## 6. File Changes
+
+### 6.1 New Files
+
+1. `app/ma_cross/tools/process_strategy_portfolios.py` - Generic strategy processing function
+
+### 6.2 Modified Files
+
+1. `app/ma_cross/tools/summary_processing.py` - Update to handle MACD strategies
+2. `app/ma_cross/2_update_portfolios.py` - Update to support MACD strategies
+
+### 6.3 Deprecated Functions
+
+1. `process_ma_portfolios` in `app/ma_cross/tools/process_ma_portfolios.py` - Will be deprecated in favor of the new generic function
+
+## 8. Implementation Phases
+
+### Phase 1: Core Implementation
+
+1. Create the generic `process_strategy_portfolios` function
+2. Implement MACD strategy processing
+3. Update `process_ticker_portfolios` to handle all strategy types
+4. Basic testing with MACD strategies
+
+### Phase 2: Integration and Refinement
+
+1. Update `2_update_portfolios.py` to fully support MACD
+2. Comprehensive support of mixed portfolios
+3. Performance optimization
+4. Documentation updates
+
+### Phase 3: Finalization
+
+1. validation
+2. Code cleanup and refactoring
+3. Update any dependent modules
+
+## 9. Backward Compatibility Considerations
+
+1. Maintain support for the `USE_SMA` flag for backward compatibility
+2. Ensure existing portfolio files continue to work without modification
+3. Provide clear error messages for missing required parameters
+
+## 10. Future Extensibility
+
+The new implementation will be designed to make it easier to add support for additional strategy types in the future by:
+
+1. Using a strategy type-based dispatch mechanism
+2. Standardizing the interface for strategy processing functions
+3. Centralizing parameter validation and processing
+
+This approach will make the codebase more maintainable and easier to extend with new strategy types.
