@@ -304,3 +304,65 @@ def export_csv(
             log(error_msg, "error")
         logging.error(error_msg)
         return pl.DataFrame(), False
+
+def export_portfolios_to_csv(
+    portfolios: List[Dict[str, any]],
+    output_path: str,
+    log: Callable[[str, str], None]
+) -> None:
+    """Export portfolios to CSV file with standardized column order.
+    
+    Args:
+        portfolios: List of portfolio dictionaries
+        output_path: Path to save the CSV file
+        log: Logging function for status updates
+    
+    Returns:
+        None
+    """
+    # Define the column order to ensure Signal Window is at index 5
+    column_order = [
+        "Ticker",
+        "Strategy Type",
+        "Short Window",
+        "Long Window",
+        "Signal Window",  # Ensure Signal Window is at index 5
+        "Position Size",
+        "Stop Loss",
+        "Direction",
+        "RSI Window",
+        "RSI Threshold",
+        # Performance metrics
+        "Win Rate",
+        "Profit Factor",
+        "Common Sense Ratio",
+        "Sharpe Ratio",
+        "Calmar Ratio",
+        "Recovery Factor",
+        "Max Drawdown",
+        "Annual Return",
+        "Return"
+    ]
+    
+    # Convert to DataFrame
+    df = pl.DataFrame(portfolios)
+    
+    # Ensure all required columns exist
+    for col in column_order:
+        if col not in df.columns:
+            # Add empty column if it doesn't exist
+            if col == "Signal Window":
+                # Use 0 as default for Signal Window
+                df = df.with_columns(pl.lit(0).alias(col))
+            else:
+                df = df.with_columns(pl.lit(None).alias(col))
+    
+    # Reorder columns
+    df = df.select([*column_order, *[c for c in df.columns if c not in column_order]])
+    
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    # Export to CSV
+    df.write_csv(output_path)
+    log(f"Exported {len(portfolios)} portfolios to {output_path}", "info")

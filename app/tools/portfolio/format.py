@@ -250,11 +250,12 @@ def convert_csv_to_strategy_config(
             if signal is None:
                 signal = row.get("signal_window") or row.get("signal_period")
             
-            if signal is not None:
+            if signal is not None and signal != 0:  # Allow zero for backward compatibility with non-MACD strategies
                 try:
                     strategy_config["SIGNAL_WINDOW"] = int(signal)
+                    log(f"Using signal window: {strategy_config['SIGNAL_WINDOW']} for {ticker}", "info")
                 except (ValueError, TypeError):
-                    error_msg = f"Invalid signal window value for {ticker}: {signal}"
+                    error_msg = f"Invalid signal window value for {ticker}: {signal}. Must be an integer."
                     log(error_msg, "error")
                     raise ValueError(error_msg)
             else:

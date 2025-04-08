@@ -75,6 +75,15 @@ def validate_strategy_config(
         for field in required_fields:
             if field not in strategy:
                 errors.append(f"Missing required field for MACD strategy {ticker}: {field}")
+            elif strategy[field] is None:
+                errors.append(f"Field {field} cannot be null for MACD strategy {ticker}")
+        
+        # Validate window relationships for MACD
+        if all(field in strategy and strategy[field] is not None for field in ['SHORT_WINDOW', 'LONG_WINDOW', 'SIGNAL_WINDOW']):
+            if strategy['SHORT_WINDOW'] >= strategy['LONG_WINDOW']:
+                errors.append(f"SHORT_WINDOW ({strategy['SHORT_WINDOW']}) must be less than LONG_WINDOW ({strategy['LONG_WINDOW']}) for MACD strategy {ticker}")
+            if strategy['SIGNAL_WINDOW'] <= 0:
+                errors.append(f"SIGNAL_WINDOW ({strategy['SIGNAL_WINDOW']}) must be greater than 0 for MACD strategy {ticker}")
     else:
         # MA strategies require SHORT_WINDOW and LONG_WINDOW
         required_fields = ['SHORT_WINDOW', 'LONG_WINDOW']

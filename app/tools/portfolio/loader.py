@@ -6,9 +6,19 @@ with appropriate type conversion.
 
 CSV files must contain the following columns:
 - Ticker: Asset symbol
-- Strategy Type: Strategy type (SMA, EMA, MACD, ATR)
+- Strategy Type: Strategy type (SMA, EMA, MACD, ATR) or Use SMA (boolean) for backward compatibility
 - Short Window: Period for short moving average
 - Long Window: Period for long moving average
+
+Strategy-specific required columns:
+- MACD: Signal Window (period for signal line EMA)
+- ATR: Length and Multiplier
+
+Optional columns:
+- Performance metrics (Win Rate, Profit Factor, etc.)
+- Position size
+- Stop loss
+- RSI parameters
 
 Default values for CSV files:
 - direction: Long
@@ -83,7 +93,8 @@ def load_portfolio_from_csv(
             'Common Sense Ratio': pl.Float64,
             'Win Rate': pl.Float64,
             'Short Window': pl.Int64,
-            'Long Window': pl.Int64
+            'Long Window': pl.Int64,
+            'Signal Window': pl.Int64  # Add Signal Window as Int64
         }
     )
     log(f"Successfully read CSV file with {len(df)} strategies", "info")
@@ -112,11 +123,22 @@ def load_portfolio_from_csv(
             .alias(STRATEGY_TYPE_FIELDS["INTERNAL"])
         )
     
+    # First, check if there are any MACD strategies
+    has_macd = False
+    if STRATEGY_TYPE_FIELDS["INTERNAL"] in df.columns:
+        has_macd = df.filter(pl.col(STRATEGY_TYPE_FIELDS["INTERNAL"]) == "MACD").height > 0
+    
+    # Define required columns based on strategy types
+    required_columns = ["TICKER", "SHORT_WINDOW", "LONG_WINDOW"]
+    if has_macd:
+        # Add Signal Window as a required column if MACD strategies are present
+        required_columns.append("SIGNAL_WINDOW")
+    
     # Validate required columns
     is_valid, errors = validate_portfolio_schema(
-        df, 
-        log, 
-        required_columns=["TICKER", "SHORT_WINDOW", "LONG_WINDOW"]
+        df,
+        log,
+        required_columns=required_columns
     )
     
     if not is_valid:
