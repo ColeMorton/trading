@@ -76,16 +76,7 @@ def export_portfolios(
         # Convert portfolios to DataFrame
         df = pl.DataFrame(portfolios)
         
-        # Log DataFrame data types
-        if log:
-            log(f"DataFrame data types:", "info")
-            for col in df.columns:
-                log(f"Column '{col}' type: {df[col].dtype}", "info")
-        
         # Special handling for portfolios_best export type
-        if export_type == "portfolios_best":
-            if log:
-                log(f"Columns in portfolios DataFrame: {', '.join(df.columns)}", "info")
         if export_type == "portfolios_best":
             # Ensure required columns exist
             required_columns = ["Short Window", "Long Window"]
@@ -278,8 +269,6 @@ def export_portfolios(
             if col in df.columns:
                 try:
                     df = df.with_columns(pl.col(col).cast(pl.Int64))
-                    if log:
-                        log(f"Converted column '{col}' to Int64", "info")
                 except Exception as e:
                     if log:
                         log(f"Failed to convert column '{col}' to Int64: {str(e)}", "warning")
@@ -290,8 +279,6 @@ def export_portfolios(
             if col in df.columns:
                 try:
                     df = df.with_columns(pl.col(col).cast(pl.Float64))
-                    if log:
-                        log(f"Converted column '{col}' to Float64", "info")
                 except Exception as e:
                     if log:
                         log(f"Failed to convert column '{col}' to Float64: {str(e)}", "warning")
@@ -299,9 +286,6 @@ def export_portfolios(
         # Log which return metrics are included in the export
         included_metrics = [metric for metric in return_metrics if metric in df.columns]
         missing_metrics = [metric for metric in return_metrics if metric not in df.columns]
-        
-        if log and included_metrics:
-            log(f"Including return metrics in export: {', '.join(included_metrics)}", "info")
             
         if log and missing_metrics:
             log(f"Missing return metrics in export: {', '.join(missing_metrics)}", "warning")

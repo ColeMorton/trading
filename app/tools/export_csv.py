@@ -255,8 +255,6 @@ def export_csv(
             missing_metrics = [metric for metric in risk_metrics if metric not in data.columns]
             
             if log:
-                if present_metrics:
-                    log(f"Risk metrics present in final export data: {', '.join(present_metrics)}")
                 if missing_metrics:
                     log(f"Risk metrics missing from final export data: {', '.join(missing_metrics)}", "warning")
                 
@@ -274,8 +272,6 @@ def export_csv(
             missing_metrics = [metric for metric in risk_metrics if metric not in data.columns]
             
             if log:
-                if present_metrics:
-                    log(f"Risk metrics present in final export data: {', '.join(present_metrics)}")
                 if missing_metrics:
                     log(f"Risk metrics missing from final export data: {', '.join(missing_metrics)}", "warning")
                 

@@ -255,20 +255,9 @@ def run_both_strategies() -> bool:
         log(f"EMA portfolios: {len(ema_portfolios) if ema_portfolios else 0}", "info")
         log(f"SMA portfolios: {len(sma_portfolios) if sma_portfolios else 0}", "info")
         
-        # Add debug logging to check portfolio columns
-        if log:
-            if ema_portfolios:
-                log(f"EMA portfolio columns: {', '.join(ema_portfolios[0].keys())}", "info")
-            if sma_portfolios:
-                log(f"SMA portfolio columns: {', '.join(sma_portfolios[0].keys())}", "info")
-        
         # Combine and export best portfolios
         all_portfolios = combine_strategy_portfolios(ema_portfolios, sma_portfolios)
         log(f"Combined portfolios: {len(all_portfolios) if all_portfolios else 0}", "info")
-        
-        # Log combined portfolio columns
-        if log and all_portfolios:
-            log(f"Combined portfolio columns: {', '.join(all_portfolios[0].keys())}", "info")
             
         # Ensure all portfolios have strategy type information
         if all_portfolios:
