@@ -254,11 +254,13 @@ def convert_csv_to_strategy_config(
                 try:
                     strategy_config["SIGNAL_WINDOW"] = int(signal)
                 except (ValueError, TypeError):
-                    log(f"Invalid signal window value for {ticker}: {signal}, using default of 9", "warning")
-                    strategy_config["SIGNAL_WINDOW"] = 9
+                    error_msg = f"Invalid signal window value for {ticker}: {signal}"
+                    log(error_msg, "error")
+                    raise ValueError(error_msg)
             else:
-                log(f"Warning: MACD strategy for {ticker} missing signal period/window, using default of 9", "warning")
-                strategy_config["SIGNAL_WINDOW"] = 9
+                error_msg = f"Missing required Signal Window parameter for MACD strategy: {ticker}"
+                log(error_msg, "error")
+                raise ValueError(error_msg)
         
         strategies.append(strategy_config)
     

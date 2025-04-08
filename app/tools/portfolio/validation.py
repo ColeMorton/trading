@@ -61,14 +61,22 @@ def validate_strategy_config(
     strategy_type = get_strategy_type_for_export(strategy)
     
     # Define required fields based on strategy type
+    ticker = strategy.get('TICKER', 'Unknown')
+    
     if strategy_type == 'ATR':
         # ATR strategy requires length and multiplier (check both lowercase and uppercase)
         required_fields = [('length', 'LENGTH'), ('multiplier', 'MULTIPLIER')]
         for field_pair in required_fields:
             if field_pair[0] not in strategy and field_pair[1] not in strategy:
                 errors.append(f"Missing required field: {field_pair[0]} or {field_pair[1]}")
+    elif strategy_type == 'MACD':
+        # MACD strategies require SHORT_WINDOW, LONG_WINDOW, and SIGNAL_WINDOW
+        required_fields = ['SHORT_WINDOW', 'LONG_WINDOW', 'SIGNAL_WINDOW']
+        for field in required_fields:
+            if field not in strategy:
+                errors.append(f"Missing required field for MACD strategy {ticker}: {field}")
     else:
-        # MA and MACD strategies require SHORT_WINDOW and LONG_WINDOW
+        # MA strategies require SHORT_WINDOW and LONG_WINDOW
         required_fields = ['SHORT_WINDOW', 'LONG_WINDOW']
         for field in required_fields:
             if field not in strategy:

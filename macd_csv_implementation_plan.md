@@ -19,13 +19,17 @@ Based on my investigation, I've found:
    - The CSV format doesn't have a dedicated column for the Signal Window parameter
    - There's no MACD strategy type in the example CSV file
 
+4. **CSV Import/Export Analysis**:
+   - The concurrency analysis module (`app/concurrency/review.py`) only imports CSV files, it doesn't export them
+   - The only export functionality in the concurrency module is for JSON reports
+
 ## Implementation Plan
 
 ### 1. Update CSV Schema Definition
 
 1. **Add Signal Window Column to CSV Schema**:
    - The column mapping for "Signal Window" already exists in `app/tools/portfolio/format.py`
-   - We need to ensure it's properly handled in the CSV import/export process
+   - We need to ensure it's properly handled in the CSV import process
    - The column should be added at index 5 (after "Long Window")
 
 2. **Update Documentation**:
@@ -50,17 +54,13 @@ Based on my investigation, I've found:
    - Throw an error with a meaningful message if the Signal Window parameter is missing for MACD strategies
    - The error message should clearly identify the ticker/strategy that is missing the parameter
 
-### 3. Enhance CSV Import/Export Functionality
+### 3. Enhance CSV Import Functionality
 
 1. **Update CSV Import Logic**:
    - Ensure the `convert_csv_to_strategy_config` function properly handles MACD strategy types
    - Validate that the Signal Window parameter is properly extracted from CSV files
    - Ensure the resulting strategy configuration is identical to what would be created from a JSON file
    - Throw an error if Signal Window is missing for MACD strategies
-
-2. **Update CSV Export Logic**:
-   - Ensure MACD strategies are properly exported to CSV with the Signal Window parameter
-   - Maintain backward compatibility with existing CSV files
 
 ### 4. Validation and Error Handling
 
@@ -90,9 +90,9 @@ Based on my investigation, I've found:
 VALID_STRATEGY_TYPES = ["SMA", "EMA", "MACD", "ATR"]
 ```
 
-### Step 2: Enhance CSV Import/Export Functionality
+### Step 2: Enhance CSV Import Functionality
 
-The column mapping for "Signal Window" already exists in `app/tools/portfolio/format.py`, but we need to ensure it's properly handled during import/export.
+The column mapping for "Signal Window" already exists in `app/tools/portfolio/format.py`, but we need to ensure it's properly handled during import.
 
 ```python
 # In app/tools/portfolio/format.py
@@ -136,56 +136,7 @@ def convert_csv_to_strategy_config(
     # ...existing code...
 ```
 
-### Step 3: Create a CSV Export Function
-
-We need to ensure that when exporting to CSV, the MACD strategy type and Signal Window parameter are properly included.
-
-```python
-# In app/tools/export_csv.py or similar file
-def export_strategies_to_csv(
-    strategies: List[Dict[str, Any]],
-    output_path: str,
-    log: Callable[[str, str], None]
-) -> None:
-    """
-    Export strategies to CSV file.
-    
-    Args:
-        strategies: List of strategy configurations
-        output_path: Path to save the CSV file
-        log: Logging function
-    """
-    # Create DataFrame from strategies
-    rows = []
-    for strategy in strategies:
-        row = {
-            "Ticker": strategy["TICKER"],
-            "Strategy Type": strategy["strategy_type"],
-            "Short Window": strategy.get("SHORT_WINDOW"),
-            "Long Window": strategy.get("LONG_WINDOW"),
-            "Signal Entry": strategy.get("SIGNAL_ENTRY", False),
-        }
-        
-        # Add Signal Window for MACD strategies
-        if strategy["strategy_type"] == "MACD":
-            if "SIGNAL_WINDOW" not in strategy:
-                error_msg = f"Missing required Signal Window parameter for MACD strategy: {strategy['TICKER']}"
-                log(error_msg, "error")
-                raise ValueError(error_msg)
-            row["Signal Window"] = strategy["SIGNAL_WINDOW"]
-        
-        # Add other parameters
-        # ...
-        
-        rows.append(row)
-    
-    # Create DataFrame and save to CSV
-    df = pl.DataFrame(rows)
-    df.write_csv(output_path)
-    log(f"Exported {len(strategies)} strategies to {output_path}", "info")
-```
-
-### Step 4: Update Validation Logic
+### Step 3: Update Validation Logic
 
 ```python
 # In app/tools/portfolio/validation.py
@@ -220,65 +171,6 @@ def validate_strategy_config(
                 errors.append(f"Missing required field: {field}")
     
     # ...existing code...
-```
-
-### Step 5: Ensure Identical Backtesting for CSV and JSON MACD Strategies
-
-To ensure that CSV MACD strategies are handled identically to JSON MACD strategies during backtesting, we need to verify that the same functions are called with the same parameters regardless of the source format.
-
-```python
-# In app/tools/backtest_strategy.py or similar file
-def backtest_strategy(strategy_config: Dict[str, Any], data: pl.DataFrame, log: Callable) -> Dict[str, Any]:
-    """
-    Backtest a strategy with the given configuration.
-    
-    Args:
-        strategy_config: Strategy configuration
-        data: Price data
-        log: Logging function
-        
-    Returns:
-        Dict[str, Any]: Backtest results
-    """
-    strategy_type = strategy_config.get("strategy_type")
-    ticker = strategy_config.get("TICKER", "Unknown")
-    
-    if strategy_type == "MACD":
-        # Extract parameters
-        short_window = strategy_config.get("SHORT_WINDOW")
-        long_window = strategy_config.get("LONG_WINDOW")
-        signal_window = strategy_config.get("SIGNAL_WINDOW")
-        
-        # Validate required parameters
-        if short_window is None:
-            raise ValueError(f"Missing required SHORT_WINDOW parameter for MACD strategy: {ticker}")
-        if long_window is None:
-            raise ValueError(f"Missing required LONG_WINDOW parameter for MACD strategy: {ticker}")
-        if signal_window is None:
-            raise ValueError(f"Missing required SIGNAL_WINDOW parameter for MACD strategy: {ticker}")
-        
-        # Calculate MACD and signals
-        data = calculate_macd_and_signals(
-            data=data,
-            short_window=short_window,
-            long_window=long_window,
-            signal_window=signal_window,
-            config=strategy_config,
-            log=log
-        )
-        
-        # Rest of backtesting logic...
-    elif strategy_type in ["SMA", "EMA"]:
-        # Handle MA strategies...
-    elif strategy_type == "ATR":
-        # Handle ATR strategies...
-    else:
-        log(f"Unknown strategy type: {strategy_type}", "error")
-        raise ValueError(f"Unknown strategy type: {strategy_type}")
-    
-    # Common backtesting logic...
-    
-    return results
 ```
 
 ## Refactoring Opportunities
@@ -449,11 +341,11 @@ class CSVSchema:
 
 ## Conclusion
 
-This implementation plan provides a comprehensive approach to adding the MACD strategy type to the CSV schema and the "Signal Window" column. The plan ensures that all backtesting/handling of CSV MACD strategies is identical to JSON MACD strategies by:
+This implementation plan provides a comprehensive approach to adding the MACD strategy type to the CSV schema and the "Signal Window" column. The plan focuses on the CSV import functionality, ensuring that:
 
-1. Using the same parameter names and types
-2. Using the same calculation functions
-3. Using the same validation rules
-4. Ensuring the same processing path regardless of source format
+1. The CSV schema properly includes the Signal Window parameter
+2. MACD strategies from CSV files are handled identically to those from JSON files
+3. Proper validation and error handling is implemented for missing or invalid parameters
+4. The implementation maintains backward compatibility with existing CSV files
 
-The implementation throws specific errors with meaningful messages when the Signal Window parameter is missing for MACD strategies, rather than using default values. This ensures that users are explicitly informed when required parameters are missing, making it easier to identify and fix issues in their strategy configurations.
+By implementing this plan, we'll ensure that MACD strategies can be properly defined in CSV files and will be processed consistently with their JSON counterparts.

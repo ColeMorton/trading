@@ -57,6 +57,12 @@ def determine_strategy_type(
                     log(f"Invalid strategy type '{strategy_type}' from field '{field}' for {ticker}, defaulting to {DEFAULT_STRATEGY_TYPE}", "warning")
                 return DEFAULT_STRATEGY_TYPE
     
+    # Check if this might be a MACD strategy based on presence of SIGNAL_WINDOW
+    if "SIGNAL_WINDOW" in row and row["SIGNAL_WINDOW"] is not None:
+        if log:
+            log(f"Detected MACD strategy for {ticker} based on presence of SIGNAL_WINDOW", "info")
+        return "MACD"
+    
     # For legacy data: Derive from USE_SMA if no explicit type
     if log:
         log(f"No explicit strategy type found for {ticker}. Deriving from USE_SMA.", "info")
@@ -118,6 +124,12 @@ def get_strategy_type_for_export(
             log(f"Field '{field}' present: {field in df}, value: {df.get(field)}", "info")
         if field in df and df[field] is not None:
             return df[field]
+    
+    # Check if this might be a MACD strategy based on presence of SIGNAL_WINDOW
+    if "SIGNAL_WINDOW" in df and df["SIGNAL_WINDOW"] is not None:
+        if log:
+            log(f"Detected MACD strategy based on presence of SIGNAL_WINDOW", "info")
+        return "MACD"
     
     # If no strategy type field is found, derive from USE_SMA
     if log:
