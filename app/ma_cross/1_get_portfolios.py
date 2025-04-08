@@ -9,7 +9,7 @@ sensitivity analysis and portfolio filtering.
 import os
 from app.tools.get_config import get_config
 from app.tools.setup_logging import setup_logging
-from app.ma_cross.config_types import Config
+from app.tools.strategy.types import StrategyConfig as Config
 from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
 
@@ -18,12 +18,14 @@ CONFIG: Config = {
     #     "SPY",
     #     "QQQ"
     # ],
-    # "TICKER": [
-    #     "SPY",
-    #     "QQQ",
-    #     "BTC-USD",
-    #     "MSTR"
-    # ],
+    "TICKER": [
+        "SPY",
+        "QQQ",
+        "BTC-USD",
+        "MSTR",
+        "MSTY",
+        "STRK"
+    ],
     # "TICKER": [
     #     "SOL-USD",
     #     "BNB-USD",
@@ -78,14 +80,14 @@ CONFIG: Config = {
     #     "XLP",
     #     "XLB"
     # ],
-    "TICKER": [
-        "MSTY",
-        "STRK",
-        "STRF",
-        "WNTR"
-    ],
+    # "TICKER": [
+    #     "MSTY",
+    #     "STRK",
+    #     "STRF",
+    #     "WNTR"
+    # ],
     # "TICKER": 'SUI-USD',
-    "TICKER_2": 'MSTR',
+    # "TICKER_2": 'MSTR',
     # "WINDOWS": 120,
     "WINDOWS": 89,
     # "WINDOWS": 55,
@@ -95,11 +97,11 @@ CONFIG: Config = {
     "REFRESH": False,
     # "USE_SMA": False,
     "DIRECTION": "Long",
-    "USE_HOURLY": True,
+    "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
-    "USE_SYNTHETIC": True,
-    "USE_CURRENT": False,
+    "USE_SYNTHETIC": False,
+    "USE_CURRENT": True,
     "MINIMUMS": {
         # "WIN_RATE": 0.38,
         # "TRADES": 34,

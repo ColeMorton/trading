@@ -6,8 +6,8 @@ from app.tools.get_data import get_data
 from app.tools.get_config import get_config
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.export_csv import export_csv
-from app.ma_cross.tools.signal_types import Config
-from app.ma_cross.tools.signal_utils import is_signal_current, check_signal_match
+from app.tools.strategy.types import StrategyConfig as Config
+from app.tools.strategy.signal_utils import is_signal_current, check_signal_match
 
 def get_current_signals(
     data: pl.DataFrame,

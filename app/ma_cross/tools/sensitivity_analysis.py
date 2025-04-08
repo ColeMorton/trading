@@ -1,7 +1,7 @@
 import polars as pl
 from typing import List, Dict, Any, Optional, Callable
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
-from app.ma_cross.tools.signal_utils import is_signal_current
+from app.tools.strategy.signal_utils import is_signal_current
 from app.tools.stats_converter import convert_stats
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.portfolio_transformation import reorder_columns

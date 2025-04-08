@@ -9,7 +9,7 @@ from typing import Optional, Callable
 from app.tools.get_data import get_data
 from app.ma_cross.tools.signal_generation import generate_current_signals
 from app.ma_cross.tools.sensitivity_analysis import analyze_window_combination
-from app.ma_cross.config_types import Config
+from app.tools.strategy.types import StrategyConfig as Config
 from app.tools.portfolio.processing import process_single_ticker
 
 def process_current_signals(ticker: str, config: Config, log: Callable) -> Optional[pl.DataFrame]:
