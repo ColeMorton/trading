@@ -6,7 +6,7 @@ Based on my investigation, I've found:
 
 1. **CSV Schema Structure**:
    - The column mapping for "Signal Window" already exists in `app/tools/portfolio/format.py` (lines 67-69)
-   - The example CSV file `BTC_MSTR_d_20250409.csv` contains MACD strategies but they are incomplete - they have Short Window, Long Window, and Signal Window columns, but no other data
+   - The example CSV file `BTC_MSTR_d_20250409.csv` contains MACD strategies with the required parameters (Short Window, Long Window, and Signal Window)
    - The "Signal Window" column is defined in the column mappings but needs proper handling in the CSV import process
 
 2. **MACD Implementation**:
@@ -16,14 +16,15 @@ Based on my investigation, I've found:
    - The validation logic in `app/tools/portfolio/validation.py` already checks for required MACD parameters (lines 72-77)
 
 3. **Current Limitations**:
-   - The MACD strategies in the example CSV file are incomplete and don't have performance metrics
    - The error handling for missing Signal Window parameter could be improved
    - The documentation in `app/tools/portfolio/loader.py` mentions MACD but doesn't specify that Signal Window is required for MACD strategies
+   - When exporting CSV files, the "Signal Window" column needs to be at index 5 (after Long Window)
 
 4. **Backward Compatibility Requirements**:
    - Must support CSV files that use "Use SMA" column instead of "Strategy Type" (e.g., `csv/portfolios/LTC_d.csv`)
    - Must handle CSV files that have a "Signal Window" column but don't use it (filled with 0s or empty)
    - Must only require "Signal Window" for MACD strategies, not for SMA or EMA strategies
+   - Performance metrics are optional for all strategy types, including MACD
 
 ## Implementation Plan
 
@@ -99,6 +100,12 @@ CSV files must contain the following columns:
 Strategy-specific required columns:
 - MACD: Signal Window (period for signal line EMA)
 - ATR: Length and Multiplier
+
+Optional columns:
+- Performance metrics (Win Rate, Profit Factor, etc.)
+- Position size
+- Stop loss
+- RSI parameters
 
 Default values for CSV files:
 - direction: Long
@@ -227,6 +234,65 @@ if strategy_type == "MACD":
         raise ValueError(error_msg)
 ```
 
+### 8. Update CSV Export Functionality
+
+Update the CSV export functionality to ensure the "Signal Window" column is included at index 5 (after Long Window) in the exported CSV files:
+
+```python
+# In app/tools/export_csv.py or the relevant export module
+def export_portfolios_to_csv(portfolios, output_path, log):
+    """Export portfolios to CSV file with standardized column order.
+    
+    Args:
+        portfolios: List of portfolio dictionaries
+        output_path: Path to save the CSV file
+        log: Logging function
+    """
+    # Define the column order to ensure Signal Window is at index 5
+    column_order = [
+        "Ticker",
+        "Strategy Type",
+        "Short Window",
+        "Long Window",
+        "Signal Window",  # Ensure Signal Window is at index 5
+        "Signal Entry",
+        # ... other columns
+    ]
+    
+    # Convert to DataFrame
+    df = pl.DataFrame(portfolios)
+    
+    # Ensure all required columns exist
+    for col in column_order:
+        if col not in df.columns:
+            # Add empty column if it doesn't exist
+            if col == "Signal Window":
+                # Use 0 as default for Signal Window
+                df = df.with_columns(pl.lit(0).alias(col))
+            else:
+                df = df.with_columns(pl.lit(None).alias(col))
+    
+    # Reorder columns
+    df = df.select([*column_order, *[c for c in df.columns if c not in column_order]])
+    
+    # Export to CSV
+    df.write_csv(output_path)
+    log(f"Exported {len(portfolios)} portfolios to {output_path}", "info")
+```
+
+Alternatively, if you're using a different export mechanism:
+
+```python
+# In the relevant export function
+# Ensure Signal Window column exists and is in the correct position
+if "Signal Window" not in df.columns:
+    # Insert Signal Window column at index 5
+    columns = list(df.columns)
+    columns.insert(4, "Signal Window")  # Insert at index 4 to be at position 5 (0-indexed)
+    df_with_signal = pl.DataFrame({col: df[col] if col in df.columns else pl.Series([0] * len(df)) for col in columns})
+    df = df_with_signal
+```
+
 ## Conclusion
 
 This implementation plan provides a comprehensive approach to adding the MACD strategy type to the CSV schema while ensuring backward compatibility with existing CSV files. The plan focuses on:
@@ -238,5 +304,6 @@ This implementation plan provides a comprehensive approach to adding the MACD st
 5. Ensuring backward compatibility with different CSV schemas
 6. Conditionally checking for Signal Window when MACD strategies are present
 7. Handling empty or zero Signal Window values for non-MACD strategies
+8. Ensuring the Signal Window column is at index 5 in exported CSV files
 
 By implementing this plan, we'll ensure that MACD strategies can be properly defined in CSV files and will be processed consistently with their JSON counterparts, while maintaining backward compatibility with existing CSV files.
