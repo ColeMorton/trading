@@ -59,12 +59,14 @@ def standardize_portfolio_columns(
         # RSI columns
         'RSI Window': 'RSI_WINDOW',
         'rsi_window': 'RSI_WINDOW',
+        'rsi_period': 'RSI_WINDOW',
         'RSI Threshold': 'RSI_THRESHOLD',
         'rsi_threshold': 'RSI_THRESHOLD',
         
         # MACD columns
         'Signal Window': 'SIGNAL_WINDOW',
         'signal_window': 'SIGNAL_WINDOW',
+        'signal_period': 'SIGNAL_WINDOW',  # For backward compatibility
         
         # Position size columns
         'Position Size': 'POSITION_SIZE',
@@ -177,10 +179,15 @@ def convert_csv_to_strategy_config(
         # Add stop loss if available
         if "STOP_LOSS" in row and row["STOP_LOSS"] is not None:
             try:
-                stop_loss = float(row["STOP_LOSS"])
-                strategy_config["STOP_LOSS"] = stop_loss
+                stop_loss_float = float(row["STOP_LOSS"])
+                # Convert percentage (0-100) to decimal (0-1)
+                stop_loss_decimal = stop_loss_float / 100 if stop_loss_float > 1 else stop_loss_float
+                if stop_loss_decimal <= 0 or stop_loss_decimal > 1:
+                    log(f"Warning: Stop loss for {ticker} ({stop_loss_float}%) is outside valid range (0-100%)", "warning")
+                strategy_config["STOP_LOSS"] = stop_loss_decimal
+                log(f"Stop loss set to {stop_loss_decimal:.4f} ({stop_loss_decimal*100:.2f}%) for {ticker}", "info")
             except (ValueError, TypeError):
-                log(f"Invalid stop loss value for {ticker}: {row['STOP_LOSS']}", "warning")
+                log(f"Error: Invalid stop loss value for {ticker}: {row['STOP_LOSS']}", "error")
         
         # Add position size if available
         if "POSITION_SIZE" in row and row["POSITION_SIZE"] is not None:
@@ -193,6 +200,17 @@ def convert_csv_to_strategy_config(
         # Add RSI parameters if available
         has_rsi_period = "RSI_WINDOW" in row and row["RSI_WINDOW"] is not None
         has_rsi_threshold = "RSI_THRESHOLD" in row and row["RSI_THRESHOLD"] is not None
+        
+        # Also check legacy field names
+        if not has_rsi_period:
+            has_rsi_period = "rsi_period" in row and row["rsi_period"] is not None
+            if has_rsi_period:
+                row["RSI_WINDOW"] = row["rsi_period"]
+        
+        if not has_rsi_threshold:
+            has_rsi_threshold = "rsi_threshold" in row and row["rsi_threshold"] is not None
+            if has_rsi_threshold:
+                row["RSI_THRESHOLD"] = row["rsi_threshold"]
         
         # Enable RSI if either parameter is provided
         if has_rsi_period or has_rsi_threshold:
@@ -226,11 +244,20 @@ def convert_csv_to_strategy_config(
                 log(f"Using default RSI threshold: {strategy_config['RSI_THRESHOLD']} for {ticker}", "info")
         
         # Add MACD signal window if available
-        if "SIGNAL_WINDOW" in row and row["SIGNAL_WINDOW"] is not None:
-            try:
-                strategy_config["SIGNAL_WINDOW"] = int(row["SIGNAL_WINDOW"])
-            except (ValueError, TypeError):
-                log(f"Invalid signal window value for {ticker}: {row['SIGNAL_WINDOW']}, using default of 9", "warning")
+        if strategy_type == "MACD":
+            # Check both signal_window and signal_period for backward compatibility
+            signal = row.get("SIGNAL_WINDOW")
+            if signal is None:
+                signal = row.get("signal_window") or row.get("signal_period")
+            
+            if signal is not None:
+                try:
+                    strategy_config["SIGNAL_WINDOW"] = int(signal)
+                except (ValueError, TypeError):
+                    log(f"Invalid signal window value for {ticker}: {signal}, using default of 9", "warning")
+                    strategy_config["SIGNAL_WINDOW"] = 9
+            else:
+                log(f"Warning: MACD strategy for {ticker} missing signal period/window, using default of 9", "warning")
                 strategy_config["SIGNAL_WINDOW"] = 9
         
         strategies.append(strategy_config)

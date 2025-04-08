@@ -6,7 +6,7 @@ with appropriate type conversion.
 
 CSV files must contain the following columns:
 - Ticker: Asset symbol
-- Strategy Type: Strategy type (SMA, EMA, MACD)
+- Strategy Type: Strategy type (SMA, EMA, MACD, ATR)
 - Short Window: Period for short moving average
 - Long Window: Period for long moving average
 
@@ -14,6 +14,17 @@ Default values for CSV files:
 - direction: Long
 - USE_RSI: False
 - USE_HOURLY: Controlled by CSV_USE_HOURLY configuration option (default: False for Daily)
+
+This module is part of the unified portfolio loader implementation that combines
+features from both the app/tools/portfolio/loader.py and app/concurrency/tools/portfolio_loader.py
+modules. It includes support for:
+- Stop loss validation and conversion logic
+- MACD signal period handling
+- Direction field handling
+- Advanced CSV reading with schema overrides
+- Standardized column mapping
+- Path resolution logic
+- Comprehensive validation
 """
 
 from pathlib import Path
@@ -84,6 +95,16 @@ def load_portfolio_from_csv(
     if STRATEGY_TYPE_FIELDS["INTERNAL"] not in df.columns:
         log(f"Legacy CSV file detected without {STRATEGY_TYPE_FIELDS['INTERNAL']} column. Deriving from USE_SMA.", "info")
         # Derive STRATEGY_TYPE from USE_SMA
+        df = df.with_columns(
+            pl.when(pl.col("USE_SMA").eq(True))
+            .then(pl.lit("SMA"))
+            .otherwise(pl.lit("EMA"))
+            .alias(STRATEGY_TYPE_FIELDS["INTERNAL"])
+        )
+    
+    # Handle legacy CSV files without Strategy Type column but with Use SMA
+    if "USE_SMA" in df.columns and STRATEGY_TYPE_FIELDS["INTERNAL"] not in df.columns:
+        log(f"Legacy CSV file detected with USE_SMA column. Deriving strategy type.", "info")
         df = df.with_columns(
             pl.when(pl.col("USE_SMA").eq(True))
             .then(pl.lit("SMA"))

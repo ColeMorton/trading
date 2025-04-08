@@ -8,14 +8,14 @@ to ensure consistency across the application.
 from typing import TypedDict, Literal, NotRequired, Union
 
 # Define valid strategy types as literals for type checking
-StrategyTypeLiteral = Literal["SMA", "EMA", "MACD"]
+StrategyTypeLiteral = Literal["SMA", "EMA", "MACD", "ATR"]
 
 class StrategyTypeConfig(TypedDict):
     """
     Strategy type configuration with standardized field names.
     
     Fields:
-        strategy_type: The strategy type (SMA, EMA, MACD)
+        strategy_type: The strategy type (SMA, EMA, MACD, ATR)
         use_sma: Boolean derived from strategy_type (True for SMA, False otherwise)
     """
     strategy_type: StrategyTypeLiteral
@@ -27,7 +27,7 @@ class StrategyConfig(TypedDict):
     
     Required Fields:
         TICKER: Ticker symbol
-        strategy_type: Strategy type (SMA, EMA, MACD)
+        strategy_type: Strategy type (SMA, EMA, MACD, ATR)
     
     Optional Fields:
         SHORT_WINDOW: Short moving average window
@@ -66,7 +66,16 @@ STRATEGY_TYPE_FIELDS = {
 }
 
 # Valid strategy types
-VALID_STRATEGY_TYPES = ["SMA", "EMA", "MACD"]
+VALID_STRATEGY_TYPES = ["SMA", "EMA", "MACD", "ATR"]
 
 # Default strategy type
 DEFAULT_STRATEGY_TYPE = "EMA"
+
+# Default values for strategy parameters
+DEFAULT_VALUES = {
+    "RSI_WINDOW": 14,
+    "RSI_THRESHOLD_LONG": 70,
+    "RSI_THRESHOLD_SHORT": 30,
+    "SIGNAL_WINDOW": 9,
+    "DIRECTION": "Long"
+}

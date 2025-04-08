@@ -74,10 +74,15 @@ def resolve_portfolio_path(
         if portfolio_path.exists():
             return portfolio_path
             
-        # Then try JSON
+        # Then try JSON in portfolios directory
         portfolio_path = base / "json" / "portfolios" / f"{portfolio_name}.json"
         if portfolio_path.exists():
             return portfolio_path
+            
+        # Check concurrency-specific paths
+        concurrency_path = base / "json" / "concurrency" / f"{portfolio_name}.json"
+        if concurrency_path.exists():
+            return concurrency_path
     
     # If we get here, the file wasn't found
     raise FileNotFoundError(f"Portfolio file not found: {portfolio_name}")

@@ -113,9 +113,12 @@ def validate_strategy_config(
     
     # Validate stop loss range
     if 'STOP_LOSS' in strategy and strategy['STOP_LOSS'] is not None:
-        stop_loss = strategy['STOP_LOSS']
-        if stop_loss <= 0 or stop_loss > 100:
-            errors.append(f"STOP_LOSS ({stop_loss}) must be between 0 and 100")
+        stop_loss_float = float(strategy['STOP_LOSS'])
+        # Convert percentage (0-100) to decimal (0-1)
+        stop_loss_decimal = stop_loss_float / 100 if stop_loss_float > 1 else stop_loss_float
+        if stop_loss_decimal <= 0 or stop_loss_decimal > 1:
+            errors.append(f"Stop loss for {strategy.get('TICKER', 'Unknown')} ({stop_loss_float}%) is outside valid range (0-100%)")
+        strategy['STOP_LOSS'] = stop_loss_decimal
     
     if errors:
         for error in errors:
