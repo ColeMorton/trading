@@ -66,6 +66,7 @@ def reorder_columns(portfolio: Dict) -> Dict:
         'Strategy Type',
         'Short Window',
         'Long Window',
+        'Signal Window',  # Added Signal Window for MACD strategies
         'Signal Entry',
         'Total Trades',
         'Score',

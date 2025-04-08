@@ -2,12 +2,19 @@
 Summary Processing Module
 
 This module handles the processing of scanner summary data, including calculating
-adjusted metrics and processing portfolio statistics.
+adjusted metrics and processing portfolio statistics for various strategy types
+including SMA, EMA, and MACD.
 """
 
-from typing import Optional, Dict, Callable, List, Any
+from typing import Optional, Dict, Callable, List, Any, Tuple
 import polars as pl
 from app.ma_cross.tools.process_ma_portfolios import process_ma_portfolios
+from app.ma_cross.tools.process_strategy_portfolios import (
+    process_strategy_portfolios,
+    process_sma_strategy,
+    process_ema_strategy,
+    process_macd_strategy
+)
 from app.ma_cross.tools.signal_utils import is_signal_current
 from app.tools.stats_converter import convert_stats
 # Import export_portfolios inside functions to avoid circular imports
@@ -16,102 +23,166 @@ from app.tools.portfolio_transformation import reorder_columns
 
 def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], log: Callable[[str, str], None]) -> Optional[List[dict]]:
     """
-    Process SMA and EMA portfolios for a single ticker.
+    Process portfolios for a single ticker based on strategy type.
 
     Args:
         ticker (str): Ticker symbol
-        row (dict): Row data containing window parameters
+        row (dict): Row data containing strategy parameters
         config (dict): Configuration dictionary including USE_HOURLY setting
         log (Callable): Logging function
 
     Returns:
-        Optional[List[dict]]: List containing valid portfolio statistics (SMA and/or EMA)
+        Optional[List[dict]]: List containing valid portfolio statistics
         or None if processing fails
     """
     try:
         portfolios = []
         
-        # Check if we have window values and USE_SMA flag
+        # Extract strategy parameters
         short_window = row.get('SHORT_WINDOW')
         long_window = row.get('LONG_WINDOW')
+        signal_window = row.get('SIGNAL_WINDOW')
+        
+        # Determine strategy type
+        strategy_type = row.get('STRATEGY_TYPE')
         use_sma = row.get('USE_SMA', True)
         
-        # Convert USE_SMA to boolean if it's a string
-        if isinstance(use_sma, str):
-            use_sma = use_sma.lower() in ['true', 'yes', '1']
+        # Handle legacy portfolios without explicit strategy type
+        if not strategy_type:
+            # Convert USE_SMA to boolean if it's a string
+            if isinstance(use_sma, str):
+                use_sma = use_sma.lower() in ['true', 'yes', '1']
+            
+            # Set strategy type based on USE_SMA flag
+            strategy_type = "SMA" if use_sma else "EMA"
+            log(f"Using derived strategy type {strategy_type} for {ticker} based on USE_SMA={use_sma}", "info")
         
-        # Determine if we have valid window combinations
+        # Validate required parameters
         has_windows = short_window is not None and long_window is not None
-        
         if not has_windows:
-            log(f"Skipping {ticker}: No valid window combinations provided")
+            log(f"Skipping {ticker}: No valid window combinations provided", "error")
             return None
             
         # Convert window values to integers
         short_window = int(short_window)
         long_window = int(long_window)
+        if signal_window is not None:
+            signal_window = int(signal_window)
         
-        # Set SMA or EMA values based on USE_SMA flag
-        sma_fast = short_window if use_sma else None
-        sma_slow = long_window if use_sma else None
-        ema_fast = short_window if not use_sma else None
-        ema_slow = long_window if not use_sma else None
-            
-        try:
-            result = process_ma_portfolios(
-                ticker=ticker,
-                sma_fast=sma_fast,
-                sma_slow=sma_slow,
-                ema_fast=ema_fast,
-                ema_slow=ema_slow,
-                config=config,  # Pass the config through
-                log=log
-            )
-        except Exception as e:
-            # If process_ma_portfolios raises an exception, it will include the ticker
-            log(str(e), "error")
-            return None
-            
-        if result is None:
-            return None
-            
-        sma_portfolio, ema_portfolio, result_config, sma_data, ema_data = result
-
-        # Process SMA stats if portfolio exists
-        if use_sma and sma_portfolio is not None and sma_data is not None:
-            try:
-                # Check if there's a current signal
-                current_signal = is_signal_current(sma_data, config)
-                log(f"Current SMA signal for {ticker}: {current_signal}", "info")
+        # Process based on strategy type
+        result = None
+        
+        if strategy_type == "MACD":
+            # Validate MACD-specific parameters
+            if signal_window is None:
+                log(f"Skipping MACD strategy for {ticker}: Missing signal window parameter", "error")
+                return None
                 
-                sma_stats = sma_portfolio.stats()
-                sma_stats['Ticker'] = ticker
-                sma_stats['Strategy Type'] = "SMA"  # Add Strategy Type field
-                sma_stats['Short Window'] = sma_fast
-                sma_stats['Long Window'] = sma_slow
-                # Pass the actual signal status instead of False
-                sma_converted_stats = convert_stats(sma_stats, log, config, current_signal)
-                portfolios.append(sma_converted_stats)
-            except Exception as e:
-                log(f"Failed to process SMA stats for {ticker}: {str(e)}", "error")
-
-        # Process EMA stats if portfolio exists
-        if use_sma == False and ema_portfolio is not None and ema_data is not None:
+            log(f"Processing MACD strategy for {ticker} with parameters {short_window}/{long_window}/{signal_window}")
             try:
-                # Check if there's a current signal
-                current_signal = is_signal_current(ema_data, config)
-                log(f"Current EMA signal for {ticker}: {current_signal}", "info")
-                
-                ema_stats = ema_portfolio.stats()
-                ema_stats['Ticker'] = ticker
-                ema_stats['Strategy Type'] = "EMA"  # Add Strategy Type field
-                ema_stats['Short Window'] = ema_fast
-                ema_stats['Long Window'] = ema_slow
-                # Pass the actual signal status instead of False
-                ema_converted_stats = convert_stats(ema_stats, log, config, current_signal)
-                portfolios.append(ema_converted_stats)
+                result = process_macd_strategy(
+                    ticker=ticker,
+                    short_window=short_window,
+                    long_window=long_window,
+                    signal_window=signal_window,
+                    config=config,
+                    log=log
+                )
             except Exception as e:
-                log(f"Failed to process EMA stats for {ticker}: {str(e)}", "error")
+                log(f"Failed to process MACD strategy for {ticker}: {str(e)}", "error")
+                return None
+                
+            if result:
+                portfolio, result_config, signal_data = result
+                
+                if portfolio is not None and signal_data is not None:
+                    try:
+                        # Check if there's a current signal
+                        current_signal = is_signal_current(signal_data, config)
+                        log(f"Current MACD signal for {ticker}: {current_signal}", "info")
+                        
+                        stats = portfolio.stats()
+                        stats['Ticker'] = ticker
+                        stats['Strategy Type'] = "MACD"
+                        stats['Short Window'] = short_window
+                        stats['Long Window'] = long_window
+                        stats['Signal Window'] = signal_window
+                        
+                        # Convert stats with current signal status
+                        converted_stats = convert_stats(stats, log, config, current_signal)
+                        portfolios.append(converted_stats)
+                    except Exception as e:
+                        log(f"Failed to process MACD stats for {ticker}: {str(e)}", "error")
+        
+        elif strategy_type in ["SMA", "EMA"]:
+            # For backward compatibility, use the existing process_ma_portfolios function
+            try:
+                # Set SMA or EMA values based on strategy type
+                sma_fast = short_window if strategy_type == "SMA" else None
+                sma_slow = long_window if strategy_type == "SMA" else None
+                ema_fast = short_window if strategy_type == "EMA" else None
+                ema_slow = long_window if strategy_type == "EMA" else None
+                
+                legacy_result = process_ma_portfolios(
+                    ticker=ticker,
+                    sma_fast=sma_fast,
+                    sma_slow=sma_slow,
+                    ema_fast=ema_fast,
+                    ema_slow=ema_slow,
+                    config=config,
+                    log=log
+                )
+                
+                if legacy_result is None:
+                    return None
+                    
+                sma_portfolio, ema_portfolio, result_config, sma_data, ema_data = legacy_result
+                
+                # Process SMA stats if portfolio exists
+                if strategy_type == "SMA" and sma_portfolio is not None and sma_data is not None:
+                    try:
+                        # Check if there's a current signal
+                        current_signal = is_signal_current(sma_data, config)
+                        log(f"Current SMA signal for {ticker}: {current_signal}", "info")
+                        
+                        sma_stats = sma_portfolio.stats()
+                        sma_stats['Ticker'] = ticker
+                        sma_stats['Strategy Type'] = "SMA"
+                        sma_stats['Short Window'] = short_window
+                        sma_stats['Long Window'] = long_window
+                        
+                        # Convert stats with current signal status
+                        sma_converted_stats = convert_stats(sma_stats, log, config, current_signal)
+                        portfolios.append(sma_converted_stats)
+                    except Exception as e:
+                        log(f"Failed to process SMA stats for {ticker}: {str(e)}", "error")
+                
+                # Process EMA stats if portfolio exists
+                if strategy_type == "EMA" and ema_portfolio is not None and ema_data is not None:
+                    try:
+                        # Check if there's a current signal
+                        current_signal = is_signal_current(ema_data, config)
+                        log(f"Current EMA signal for {ticker}: {current_signal}", "info")
+                        
+                        ema_stats = ema_portfolio.stats()
+                        ema_stats['Ticker'] = ticker
+                        ema_stats['Strategy Type'] = "EMA"
+                        ema_stats['Short Window'] = short_window
+                        ema_stats['Long Window'] = long_window
+                        
+                        # Convert stats with current signal status
+                        ema_converted_stats = convert_stats(ema_stats, log, config, current_signal)
+                        portfolios.append(ema_converted_stats)
+                    except Exception as e:
+                        log(f"Failed to process EMA stats for {ticker}: {str(e)}", "error")
+                
+            except Exception as e:
+                log(f"Failed to process {strategy_type} strategy for {ticker}: {str(e)}", "error")
+                return None
+        
+        else:
+            log(f"Unsupported strategy type: {strategy_type} for {ticker}", "error")
+            return None
 
         return portfolios if portfolios else None
 

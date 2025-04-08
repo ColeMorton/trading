@@ -1,8 +1,8 @@
 """
-Update Portfolios Module for MA Cross Strategyies
+Update Portfolios Module for Multiple Strategy Types
 
 This module processes the results of market scanning to update portfolios.
-It aggregates and analyzes the performance of both SMA and EMA strategies across
+It aggregates and analyzes the performance of SMA, EMA, and MACD strategies across
 multiple tickers, calculating key metrics like expectancy and Trades Per Day.
 """
 
@@ -41,7 +41,7 @@ config = {
     # "PORTFOLIO": 'BTC_MSTR_d_20250403.csv',
     # "PORTFOLIO": 'SPY_QQQ_202503026.csv',
     "USE_CURRENT": False,
-    "USE_HOURLY": True,
+    "USE_HOURLY": False,
     "BASE_DIR": '.',  # Added BASE_DIR for export configuration
     "DIRECTION": "Long",
     "SORT_BY": "Score",
@@ -54,7 +54,7 @@ def run(portfolio: str) -> bool:
 
     This function:
     1. Reads the portfolio
-    2. Processes each ticker with both SMA and EMA strategies
+    2. Processes each ticker with appropriate strategy (SMA, EMA, or MACD)
     3. Calculates performance metrics and adjustments
     4. Exports combined results to CSV
 
