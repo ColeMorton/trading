@@ -41,11 +41,11 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "DAILY_crypto.csv",
     # "PORTFOLIO": "atr_test_portfolio.json",
     # "PORTFOLIO": "stock_trades_20250407.csv",
-    # "PORTFOLIO": "portfolio_d_20250407.csv",
+    "PORTFOLIO": "portfolio_d_20250407.csv",
     # "PORTFOLIO": "total_d_20250403.csv",
     # "PORTFOLIO": "GLD_d.csv",
     # "PORTFOLIO": "macd_test.json",
-    "PORTFOLIO": "MSTR_h_20250327.json",
+    # "PORTFOLIO": "MSTR_h_20250327.json",
     "BASE_DIR": '.',  # Default to project root directory
     "REFRESH": True,
     "SL_CANDLE_CLOSE": True, 

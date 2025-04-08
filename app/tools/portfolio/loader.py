@@ -22,7 +22,7 @@ import polars as pl
 from app.tools.portfolio.types import StrategyConfig
 from app.tools.portfolio.paths import resolve_portfolio_path
 from app.tools.portfolio.format import standardize_portfolio_columns, convert_csv_to_strategy_config
-from app.tools.portfolio.validation import validate_portfolio_schema, validate_strategy_config, validate_portfolio_configs
+from app.tools.portfolio.validation import validate_portfolio_schema, validate_portfolio_configs
 from app.tools.portfolio.strategy_types import STRATEGY_TYPE_FIELDS, VALID_STRATEGY_TYPES
 
 def load_portfolio_from_csv(

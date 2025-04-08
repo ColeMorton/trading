@@ -73,6 +73,8 @@ def reorder_columns(portfolio: Dict) -> Dict:
         'Profit Factor',
         'Expectancy per Trade',
         'Sortino Ratio',
+        'Beats BNH [%]',
+        'Avg Trade Duration',
         'Trades Per Day',
         'Trades per Month',
         'Signals per Month',

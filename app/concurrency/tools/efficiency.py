@@ -331,14 +331,14 @@ def calculate_allocation_scores(
             efficiency_component = 0.618 * normalized_efficiencies[i]
             # Calculate risk factor (lower risk gives higher factor)
             risk_factor = calculate_risk_factor(normalized_risks[i])
-            risk_component = 0.386 * risk_factor
+            risk_component = 0.618 * risk_factor
             allocation_score = score_component + efficiency_component + risk_component
             
             log(f"Strategy {i} allocation component:", "info")
             log(f"  Score component: {score_component:.4f}", "info")
             log(f"  Efficiency component (0.618 * {normalized_efficiencies[i]:.4f}): {efficiency_component:.4f}", "info")
             log(f"  Risk factor (1 - {normalized_risks[i]:.4f}): {risk_factor:.4f}", "info")
-            log(f"  Risk component (0.386 * {risk_factor:.4f}): {risk_component:.4f}", "info")
+            log(f"  Risk component (0.618 * {risk_factor:.4f}): {risk_component:.4f}", "info")
             log(f"  Total allocation score: {allocation_score:.4f}", "info")
             
             allocation_scores.append(allocation_score)
