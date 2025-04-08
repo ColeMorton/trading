@@ -65,12 +65,24 @@ def export_best_portfolios(
         return False
         
     try:
+        # Log configuration for debugging
+        log(f"Configuration for export_best_portfolios:", "info")
+        required_fields = ["BASE_DIR", "TICKER"]
+        for field in required_fields:
+            log(f"Field '{field}' present: {field in config}, value: {config.get(field)}", "info")
+            
         # Sort portfolios using centralized function
         sorted_portfolios = sort_portfolios(portfolios, config)
         sort_by = config.get('SORT_BY', 'Total Return [%]')
         
         # Import export_portfolios here to avoid circular imports
-        from app.ma_cross.tools.export_portfolios import export_portfolios
+        if log:
+            log("Importing export_portfolios to avoid circular imports", "info")
+        try:
+            from app.ma_cross.tools.export_portfolios import export_portfolios
+        except ImportError as e:
+            log(f"Failed to import export_portfolios due to circular import: {str(e)}", "error")
+            return False
         
         export_portfolios(
             portfolios=sorted_portfolios,
@@ -95,6 +107,25 @@ def combine_strategy_portfolios(
         sma_portfolios (List[Dict[str, Any]]): List of SMA strategy portfolios
 
     Returns:
-        List[Dict[str, Any]]: Combined list of portfolios
+        List[Dict[str, Any]]: Combined list of portfolios with all required columns
     """
+    # Ensure all required columns are present in both sets of portfolios
+    required_columns = ["Short Window", "Long Window", "Strategy Type"]
+    
+    for portfolio in ema_portfolios:
+        for col in required_columns:
+            if col not in portfolio:
+                if col == "Strategy Type":
+                    portfolio[col] = "EMA"
+                else:
+                    portfolio[col] = None
+    
+    for portfolio in sma_portfolios:
+        for col in required_columns:
+            if col not in portfolio:
+                if col == "Strategy Type":
+                    portfolio[col] = "SMA"
+                else:
+                    portfolio[col] = None
+    
     return ema_portfolios + sma_portfolios

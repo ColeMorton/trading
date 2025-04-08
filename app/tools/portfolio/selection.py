@@ -40,15 +40,36 @@ def get_best_portfolio(portfolios: pl.DataFrame, config: Config, log: callable) 
             
         # Get sort column and validate required columns
         sort_by = config.get('SORT_BY', 'Total Return [%]')
-        required_cols = ["Short Window", "Long Window", "Use SMA", sort_by]
-        if not all(col in portfolios.columns for col in required_cols):
+        
+        # Check for either "Strategy Type" (new) or "Use SMA" (legacy)
+        strategy_type_present = "Strategy Type" in portfolios.columns
+        use_sma_present = "Use SMA" in portfolios.columns
+        
+        if not (strategy_type_present or use_sma_present):
+            log("Missing strategy type information in portfolios DataFrame", "error")
+            log(f"Available columns: {', '.join(portfolios.columns)}", "info")
+            return None
+            
+        # Check other required columns
+        other_required_cols = ["Short Window", "Long Window", sort_by]
+        if not all(col in portfolios.columns for col in other_required_cols):
             log("Missing required columns in portfolios DataFrame", "error")
+            log(f"Required columns: {', '.join(other_required_cols)}", "info")
+            log(f"Available columns: {', '.join(portfolios.columns)}", "info")
             return None
             
         # Determine column names based on strategy type
-        use_sma = portfolios.select("Use SMA").row(0)[0]
+        if strategy_type_present:
+            strategy_type = portfolios.select("Strategy Type").row(0)[0]
+            use_sma = strategy_type == "SMA"
+        else:
+            use_sma = portfolios.select("Use SMA").row(0)[0]
+            
         fast_col = "SMA_FAST" if use_sma else "EMA_FAST"
         slow_col = "SMA_SLOW" if use_sma else "EMA_SLOW"
+        
+        log(f"Using strategy type: {'SMA' if use_sma else 'EMA'}", "info")
+        log(f"Fast column: {fast_col}, Slow column: {slow_col}", "info")
         
         # Rename columns and sort using centralized function
         renamed_portfolios = portfolios.rename({

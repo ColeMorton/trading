@@ -102,6 +102,9 @@ def get_strategy_type_for_export(
     Returns:
         str: Strategy type (SMA, EMA, or MACD)
     """
+    if log:
+        log(f"Checking for strategy type fields in: {df.keys()}", "info")
+        
     # Use the same priority order as determine_strategy_type
     field_priority = [
         STRATEGY_TYPE_FIELDS["INTERNAL"],  # STRATEGY_TYPE
@@ -111,10 +114,15 @@ def get_strategy_type_for_export(
     ]
     
     for field in field_priority:
+        if log:
+            log(f"Field '{field}' present: {field in df}, value: {df.get(field)}", "info")
         if field in df and df[field] is not None:
             return df[field]
     
     # If no strategy type field is found, derive from USE_SMA
+    if log:
+        # Note: USE_SMA is deprecated and only exists for legacy support
+        log(f"USE_SMA present (legacy field): {'USE_SMA' in df}, value: {df.get('USE_SMA')}", "info")
     if "USE_SMA" in df:
         use_sma = df["USE_SMA"]
         if isinstance(use_sma, str):

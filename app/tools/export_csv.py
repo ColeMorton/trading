@@ -215,14 +215,31 @@ def export_csv(
         # Convert list of dictionaries to Polars DataFrame if needed
         if isinstance(data, list):
             data = pl.DataFrame(data)
-        
         # Create export directory
         export_path = _get_export_path(feature1, config, feature2)
-        os.makedirs(export_path, exist_ok=True)
+        try:
+            os.makedirs(export_path, exist_ok=True)
+            if not os.access(export_path, os.W_OK):
+                error_msg = f"Directory {export_path} is not writable"
+                if log:
+                    log(error_msg, "error")
+                return pl.DataFrame(), False
+        except Exception as e:
+            error_msg = f"Failed to create directory {export_path}: {str(e)}"
+            if log:
+                log(error_msg, "error")
+            return pl.DataFrame(), False
+        
         
         # Generate full file path with proper filename
         final_filename = _combine_with_custom_filename(config, feature1, feature2, filename) if filename else _get_filename(config, feature1, feature2)
         full_path = os.path.join(export_path, final_filename)
+        
+        # Log path and permission information
+        if log:
+            log(f"Attempting to write to: {full_path}", "info")
+            log(f"Directory exists: {os.path.exists(os.path.dirname(full_path))}", "info")
+            log(f"Directory is writable: {os.access(os.path.dirname(full_path), os.W_OK)}", "info")
         
         # Remove existing file if it exists
         if os.path.exists(full_path):

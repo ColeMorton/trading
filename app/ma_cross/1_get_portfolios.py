@@ -24,47 +24,47 @@ CONFIG: Config = {
     #     "BTC-USD",
     #     "MSTR"
     # ],
-    # "TICKER": [
-    #     "SOL-USD",
-    #     "BNB-USD",
-    #     "TRX-USD",
-    #     "RUNE-USD",
-    #     "XMR-USD",
-    #     "LTC-USD",
-    #     "HBAR-USD",
-    #     "DOGE-USD",
-    #     "ETH-USD",
-    #     "NEAR-USD",
-    #     "FET-USD",
-    #     "AVAX-USD",
-    #     "LINK-USD",
-    #     "AAVE-USD",
-    #     "MKR-USD",
-    #     "COMP-USD",
-    #     "EOS-USD",
-    #     "XRP-USD",
-    #     "DASH-USD",
-    #     "XLM-USD",
-    #     "ETC-USD",
-    #     "XNO-USD",
-    #     "BCH-USD",
-    #     "ALGO-USD",
-    #     "SHIB-USD",
-    #     "DOT-USD",
-    #     "UNI-USD",
-    #     "1INCH-USD",
-    #     "ATOM-USD",
-    #     "SUSHI-USD",
-    #     "ADA-USD",
-    #     "INJ-USD",
-    #     "VET-USD",
-    #     "PENDLE-USD",
-    #     "ZEC-USD"
-    # ],
     "TICKER": [
+        "SOL-USD",
+        "BNB-USD",
         "TRX-USD",
-        "RUNE-USD"
+        "RUNE-USD",
+        "XMR-USD",
+        "LTC-USD",
+        "HBAR-USD",
+        "DOGE-USD",
+        "ETH-USD",
+        "NEAR-USD",
+        "FET-USD",
+        "AVAX-USD",
+        "LINK-USD",
+        "AAVE-USD",
+        "MKR-USD",
+        "COMP-USD",
+        "EOS-USD",
+        "XRP-USD",
+        "DASH-USD",
+        "XLM-USD",
+        "ETC-USD",
+        "XNO-USD",
+        "BCH-USD",
+        "ALGO-USD",
+        "SHIB-USD",
+        "DOT-USD",
+        "UNI-USD",
+        "1INCH-USD",
+        "ATOM-USD",
+        "SUSHI-USD",
+        "ADA-USD",
+        "INJ-USD",
+        "VET-USD",
+        "PENDLE-USD",
+        "ZEC-USD"
     ],
+    # "TICKER": [
+    #     "TRX-USD",
+    #     "MKR-USD"
+    # ],
     # "TICKER": [
     #     "XLK",
     #     "XLC",
@@ -84,7 +84,7 @@ CONFIG: Config = {
     #     "EDV",
     #     "XLU"
     # ],
-    # "TICKER": 'BTC-USD',
+    # "TICKER": 'RUNE-USD',
     # "TICKER_2": 'BTC-USD',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -101,10 +101,10 @@ CONFIG: Config = {
     "USE_SYNTHETIC": False,
     "USE_CURRENT": False,
     "MINIMUMS": {
-        "WIN_RATE": 0.38,
-        "TRADES": 34,
-        # "WIN_RATE": 0.50,
-        # "TRADES": 54,
+        # "WIN_RATE": 0.38,
+        # "TRADES": 34,
+        "WIN_RATE": 0.50,
+        "TRADES": 54,
         # "WIN_RATE": 0.61,
         "EXPECTANCY_PER_TRADE": 1,
         "PROFIT_FACTOR": 1,
@@ -243,12 +243,68 @@ def run_both_strategies() -> bool:
         sma_config = {**base_config, "USE_SMA": True}
         sma_portfolios = execute_strategy(sma_config, "SMA", log)
         
+        # Check if filtering criteria might be too strict
+        if not ema_portfolios and not sma_portfolios:
+            log("No portfolios returned from either strategy. Filtering criteria might be too strict.", "warning")
+            log(f"Current MINIMUMS: {config_copy.get('MINIMUMS', {})}", "info")
+            log("Consider relaxing the filtering criteria, especially TRADES and WIN_RATE.", "info")
+        
+        # Log portfolio counts
+        log(f"EMA portfolios: {len(ema_portfolios) if ema_portfolios else 0}", "info")
+        log(f"SMA portfolios: {len(sma_portfolios) if sma_portfolios else 0}", "info")
+        
+        # Add debug logging to check portfolio columns
+        if log:
+            if ema_portfolios:
+                log(f"EMA portfolio columns: {', '.join(ema_portfolios[0].keys())}", "info")
+            if sma_portfolios:
+                log(f"SMA portfolio columns: {', '.join(sma_portfolios[0].keys())}", "info")
+        
         # Combine and export best portfolios
         all_portfolios = combine_strategy_portfolios(ema_portfolios, sma_portfolios)
+        log(f"Combined portfolios: {len(all_portfolios) if all_portfolios else 0}", "info")
+        
+        # Log combined portfolio columns
+        if log and all_portfolios:
+            log(f"Combined portfolio columns: {', '.join(all_portfolios[0].keys())}", "info")
+            
+        # Ensure all portfolios have strategy type information
+        if all_portfolios:
+            for portfolio in all_portfolios:
+                if "Strategy Type" not in portfolio:
+                    # Note: USE_SMA is deprecated but check it for legacy support
+                    if "USE_SMA" in portfolio:
+                        portfolio["Strategy Type"] = "SMA" if portfolio["USE_SMA"] else "EMA"
+                    else:
+                        portfolio["Strategy Type"] = "EMA"  # Default to EMA
+            
+            if log:
+                log("Ensured all portfolios have Strategy Type information", "info")
+                
+            # Ensure required configuration fields are present
+            if "BASE_DIR" not in config_copy:
+                config_copy["BASE_DIR"] = "."
+                log("Added missing BASE_DIR to configuration", "warning")
+                
+            if "TICKER" not in config_copy:
+                config_copy["TICKER"] = "Unknown"
+                log("Added missing TICKER to configuration", "warning")
+        else:
+            log("No portfolios to export", "warning")
+            return True  # Return success to avoid error
+            
         if all_portfolios:
             # Ensure synthetic ticker is properly set for export
             if config_copy.get("USE_SYNTHETIC"):
-                config_copy["TICKER"] = f"{config_copy['TICKER']}_{config_copy['TICKER_2']}"
+                if isinstance(config_copy["TICKER"], list):
+                    # For list of tickers, no need to modify as each portfolio should have its own ticker
+                    if log:
+                        log(f"Using list of tickers for export: {config_copy['TICKER']}", "info")
+                elif isinstance(config_copy["TICKER"], str):
+                    # For single ticker, create synthetic name
+                    config_copy["TICKER"] = f"{config_copy['TICKER']}_{config_copy['TICKER_2']}"
+                    if log:
+                        log(f"Using synthetic ticker for export: {config_copy['TICKER']}", "info")
             export_best_portfolios(all_portfolios, config_copy, log)
         
         log_close()

@@ -76,7 +76,16 @@ def export_portfolios(
         # Convert portfolios to DataFrame
         df = pl.DataFrame(portfolios)
         
+        # Log DataFrame data types
+        if log:
+            log(f"DataFrame data types:", "info")
+            for col in df.columns:
+                log(f"Column '{col}' type: {df[col].dtype}", "info")
+        
         # Special handling for portfolios_best export type
+        if export_type == "portfolios_best":
+            if log:
+                log(f"Columns in portfolios DataFrame: {', '.join(df.columns)}", "info")
         if export_type == "portfolios_best":
             # Ensure required columns exist
             required_columns = ["Short Window", "Long Window"]
@@ -99,13 +108,27 @@ def export_portfolios(
                 
                 # Create Short Window expression based on available columns
                 if has_sma_fast and has_ema_fast:
-                    # If both SMA_FAST and EMA_FAST exist, use conditional
-                    expressions.append(
-                        pl.when(pl.col("Use SMA").eq(True))
-                        .then(pl.col("SMA_FAST"))
-                        .otherwise(pl.col("EMA_FAST"))
-                        .alias("Short Window")
-                    )
+                    # If both SMA_FAST and EMA_FAST exist, use conditional based on Strategy Type
+                    if "Strategy Type" in df.columns:
+                        expressions.append(
+                            pl.when(pl.col("Strategy Type").eq("SMA"))
+                            .then(pl.col("SMA_FAST"))
+                            .otherwise(pl.col("EMA_FAST"))
+                            .alias("Short Window")
+                        )
+                    elif "Use SMA" in df.columns:
+                        # Legacy support for Use SMA
+                        expressions.append(
+                            pl.when(pl.col("Use SMA").eq(True))
+                            .then(pl.col("SMA_FAST"))
+                            .otherwise(pl.col("EMA_FAST"))
+                            .alias("Short Window")
+                        )
+                    else:
+                        # Default to EMA if no strategy type information
+                        expressions.append(pl.col("EMA_FAST").alias("Short Window"))
+                        if log:
+                            log("No strategy type information found, defaulting to EMA for Short Window", "warning")
                 elif has_sma_fast:
                     # If only SMA_FAST exists
                     expressions.append(pl.col("SMA_FAST").alias("Short Window"))
@@ -118,13 +141,27 @@ def export_portfolios(
                 
                 # Create Long Window expression based on available columns
                 if has_sma_slow and has_ema_slow:
-                    # If both SMA_SLOW and EMA_SLOW exist, use conditional
-                    expressions.append(
-                        pl.when(pl.col("Use SMA").eq(True))
-                        .then(pl.col("SMA_SLOW"))
-                        .otherwise(pl.col("EMA_SLOW"))
-                        .alias("Long Window")
-                    )
+                    # If both SMA_SLOW and EMA_SLOW exist, use conditional based on Strategy Type
+                    if "Strategy Type" in df.columns:
+                        expressions.append(
+                            pl.when(pl.col("Strategy Type").eq("SMA"))
+                            .then(pl.col("SMA_SLOW"))
+                            .otherwise(pl.col("EMA_SLOW"))
+                            .alias("Long Window")
+                        )
+                    elif "Use SMA" in df.columns:
+                        # Legacy support for Use SMA
+                        expressions.append(
+                            pl.when(pl.col("Use SMA").eq(True))
+                            .then(pl.col("SMA_SLOW"))
+                            .otherwise(pl.col("EMA_SLOW"))
+                            .alias("Long Window")
+                        )
+                    else:
+                        # Default to EMA if no strategy type information
+                        expressions.append(pl.col("EMA_SLOW").alias("Long Window"))
+                        if log:
+                            log("No strategy type information found, defaulting to EMA for Long Window", "warning")
                 elif has_sma_slow:
                     # If only SMA_SLOW exists
                     expressions.append(pl.col("SMA_SLOW").alias("Long Window"))
@@ -233,6 +270,31 @@ def export_portfolios(
             df = df.drop("RSI Window")
             if log:
                 log("Removed 'RSI Window' column from export data", "info")
+                
+        # Ensure columns have the expected data types
+        # Convert integer columns
+        integer_columns = ["Short Window", "Long Window", "Total Trades"]
+        for col in integer_columns:
+            if col in df.columns:
+                try:
+                    df = df.with_columns(pl.col(col).cast(pl.Int64))
+                    if log:
+                        log(f"Converted column '{col}' to Int64", "info")
+                except Exception as e:
+                    if log:
+                        log(f"Failed to convert column '{col}' to Int64: {str(e)}", "warning")
+        
+        # Convert float columns
+        float_columns = ["Win Rate [%]"]
+        for col in float_columns:
+            if col in df.columns:
+                try:
+                    df = df.with_columns(pl.col(col).cast(pl.Float64))
+                    if log:
+                        log(f"Converted column '{col}' to Float64", "info")
+                except Exception as e:
+                    if log:
+                        log(f"Failed to convert column '{col}' to Float64: {str(e)}", "warning")
                 
         # Log which return metrics are included in the export
         included_metrics = [metric for metric in return_metrics if metric in df.columns]
