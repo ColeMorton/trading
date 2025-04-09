@@ -33,11 +33,9 @@ from app.tools.portfolio import (
 
 # Default configuration
 DEFAULT_CONFIG: ConcurrencyConfig = {
-    # "PORTFOLIO": "stock_portfolio_h_20250221.json",  # Updated to use an existing portfolio file
-    # "PORTFOLIO": "stock_portfolio_20250221.json",
     # "PORTFOLIO": 'SPY_QQQ_202503027.csv',
-    # "PORTFOLIO": "crypto_d_20250402.csv",
-    "PORTFOLIO": "BTC_MSTR_d_20250409.csv",
+    "PORTFOLIO": "crypto_d_20250402.csv",
+    # "PORTFOLIO": "BTC_MSTR_d_20250409.csv",
     # "PORTFOLIO": "DAILY_crypto.csv",
     # "PORTFOLIO": "atr_test_portfolio.json",
     # "PORTFOLIO": "stock_trades_20250407.csv",
@@ -157,7 +155,7 @@ def run_concurrency_review(portfolio_name: str, config_overrides: Dict[str, Any]
     # Set the portfolio name
     if not portfolio_name.endswith('.json') and not portfolio_name.endswith('.csv'):
         # Try to determine the extension
-        csv_path = Path(f"csv/portfolios/{portfolio_name}.csv")
+        csv_path = Path(f"csv/strategies/{portfolio_name}.csv")
         json_path = Path(f"json/portfolios/{portfolio_name}.json")
         
         if csv_path.exists():

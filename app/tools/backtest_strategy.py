@@ -56,7 +56,7 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
             else:
                 log(f"Warning: Invalid stop loss value {stop_loss*100:.2f}% - must be between 0% and 100%", "warning")
         else:
-            log("No stop loss configured for strategy - running without stop loss protection", "warning")
+            log("No stop loss configured for strategy - running without stop loss protection", "info")
         
         if config.get('DIRECTION', 'Long').lower() == 'short':
             # For short positions, enter when Signal is -1 (fast MA crosses below slow MA)

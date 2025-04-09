@@ -138,7 +138,7 @@ def export_results(results_data: List[Dict], original_df: pl.DataFrame, config: 
         return
         
     # Read the original portfolio file to get all columns
-    portfolio_path = os.path.join("./csv/portfolios", config["PORTFOLIO"])
+    portfolio_path = os.path.join("./csv/strategies", config["PORTFOLIO"])
     try:
         portfolio_df = pl.read_csv(
             portfolio_path,

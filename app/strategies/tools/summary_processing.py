@@ -258,7 +258,8 @@ def export_summary_results(portfolios: List[Dict], portfolio_name: str, log: Cal
         from app.tools.strategy.export_portfolios import export_portfolios
         
         # Pass the export_config which may contain _SORTED_PORTFOLIOS if sorting was applied
-        _, success = export_portfolios(reordered_portfolios, export_config, 'portfolios', portfolio_name, log, feature_dir="")
+        # Change feature_dir to "strategies" to export to /csv/strategies instead of /csv/portfolios
+        _, success = export_portfolios(reordered_portfolios, export_config, 'portfolios', portfolio_name, log, feature_dir="strategies")
         if not success:
             log("Failed to export portfolios", "error")
             return False

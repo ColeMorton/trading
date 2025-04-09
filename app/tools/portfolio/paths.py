@@ -40,7 +40,12 @@ def resolve_portfolio_path(
         if '.' in name:
             name = name.split('.')[0]
         
-        portfolio_path = base / "csv" / "portfolios" / f"{name}.{file_type.lower()}"
+        # For CSV files, check strategies directory
+        if file_type.lower() == 'csv':
+            portfolio_path = base / "csv" / "strategies" / f"{name}.{file_type.lower()}"
+        else:
+            # For JSON files, use the original path
+            portfolio_path = base / "csv" / "portfolios" / f"{name}.{file_type.lower()}"
         if portfolio_path.exists():
             return portfolio_path
         
@@ -59,7 +64,7 @@ def resolve_portfolio_path(
         if ext.lower() in ['csv', 'json']:
             # Check CSV directory first
             if ext.lower() == 'csv':
-                portfolio_path = base / "csv" / "portfolios" / portfolio_name
+                portfolio_path = base / "csv" / "strategies" / portfolio_name
                 if portfolio_path.exists():
                     return portfolio_path
             
@@ -70,7 +75,7 @@ def resolve_portfolio_path(
                     return portfolio_path
     else:
         # Try CSV first
-        portfolio_path = base / "csv" / "portfolios" / f"{portfolio_name}.csv"
+        portfolio_path = base / "csv" / "strategies" / f"{portfolio_name}.csv"
         if portfolio_path.exists():
             return portfolio_path
             

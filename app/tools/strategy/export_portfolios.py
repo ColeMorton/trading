@@ -271,8 +271,6 @@ def export_portfolios(
             if col in df.columns:
                 try:
                     df = df.with_columns(pl.col(col).cast(pl.Int64))
-                    if log:
-                        log(f"Converted column '{col}' to Int64", "info")
                 except Exception as e:
                     if log:
                         log(f"Failed to convert column '{col}' to Int64: {str(e)}", "warning")
@@ -283,8 +281,6 @@ def export_portfolios(
             if col in df.columns:
                 try:
                     df = df.with_columns(pl.col(col).cast(pl.Float64))
-                    if log:
-                        log(f"Converted column '{col}' to Float64", "info")
                 except Exception as e:
                     if log:
                         log(f"Failed to convert column '{col}' to Float64: {str(e)}", "warning")
@@ -305,14 +301,27 @@ def export_portfolios(
         if log and null_metrics:
             log(f"Return metrics with all null values: {', '.join(null_metrics)}", "warning")
         
-        return export_csv(
-            data=df,
-            feature1=feature1,
-            config=config,
-            feature2=export_type,  # Use original export_type to maintain correct subdirectories
-            filename=csv_filename,
-            log=log
-        )
+        # Special case for strategies module: export directly to /csv/strategies/
+        if feature_dir == "strategies":
+            # Skip the export_type (feature2) to avoid creating a subdirectory
+            return export_csv(
+                data=df,
+                feature1=feature1,
+                config=config,
+                feature2="",  # Empty string to avoid creating a subdirectory
+                filename=csv_filename,
+                log=log
+            )
+        else:
+            # Normal case: use export_type as feature2
+            return export_csv(
+                data=df,
+                feature1=feature1,
+                config=config,
+                feature2=export_type,  # Use original export_type to maintain correct subdirectories
+                filename=csv_filename,
+                log=log
+            )
     except Exception as e:
         error_msg = f"Failed to export portfolios: {str(e)}"
         if log:

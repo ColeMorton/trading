@@ -19,7 +19,7 @@ from app.tools.portfolio import (
 config = {
     # "PORTFOLIO": 'spy_qqq_h_20250311.csv',
     # "PORTFOLIO": 'total_d_20250328.csv',
-    # "PORTFOLIO": 'DAILY_crypto.csv',
+    "PORTFOLIO": 'DAILY_crypto.csv',
     # "PORTFOLIO": 'DAILY_next.csv',
     # "PORTFOLIO": 'DAILY.csv',
     # "PORTFOLIO": 'crypto_h.csv',
@@ -38,7 +38,7 @@ config = {
     # "PORTFOLIO": 'MSTY_h.csv',
     # "PORTFOLIO": 'MSTR_d_20250403.csv',
     # "PORTFOLIO": 'TLT_EDV_d_20250404.csv',
-    "PORTFOLIO": 'BTC_MSTR_d_20250403.csv',
+    # "PORTFOLIO": 'BTC_MSTR_d_20250403.csv',
     # "PORTFOLIO": 'SPY_QQQ_202503026.csv',
     "USE_CURRENT": False,
     "USE_HOURLY": False,

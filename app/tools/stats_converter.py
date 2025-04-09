@@ -216,12 +216,8 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         # Check for risk metrics in the input stats
         risk_metrics = ['Skew', 'Kurtosis', 'Tail Ratio', 'Common Sense Ratio', 'Value at Risk', 'Alpha', 'Beta',
                         'Daily Returns', 'Annual Returns', 'Cumulative Returns', 'Annualized Return', 'Annualized Volatility']
-        
-        present_metrics = [metric for metric in risk_metrics if metric in stats]
+
         missing_metrics = [metric for metric in risk_metrics if metric not in stats]
-        
-        if present_metrics:
-            log(f"Risk metrics present in stats for {ticker}: {', '.join(present_metrics)}", "info")
         
         if missing_metrics:
             log(f"Risk metrics missing from stats for {ticker}: {', '.join(missing_metrics)}", "warning")

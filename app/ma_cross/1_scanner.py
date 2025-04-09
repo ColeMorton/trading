@@ -54,10 +54,10 @@ config: Config = {
     # "PORTFOLIO": 'stock_trades_20250401.csv',
     # "PORTFOLIO": 'DAILY_crypto_short.csv',
     # "PORTFOLIO": 'DAILY_crypto.csv',
-    "PORTFOLIO": 'DAILY.csv',
+    # "PORTFOLIO": 'DAILY.csv',
     # "PORTFOLIO": 'BTC_SOL_D.csv',
     # "PORTFOLIO": 'btc_20250307.csv',
-    # "PORTFOLIO": 'BTC_d.csv',
+    "PORTFOLIO": 'BTC_d.csv',
     "USE_HOURLY": False,
     "REFRESH": True,
     "DIRECTION": "Long"  # Default to Long position
@@ -109,7 +109,7 @@ def process_scanner() -> bool:
         
         # Read scanner data using polars with explicit schema handling
         scanner_df = pl.read_csv(
-            f'./csv/portfolios/{config["PORTFOLIO"]}',
+            f'./csv/strategies/{config["PORTFOLIO"]}',
             infer_schema_length=10000,
             try_parse_dates=True,
             ignore_errors=True,

@@ -80,11 +80,11 @@ CONFIG: Config = {
     #     "XLP",
     #     "XLB"
     # ],
-    "TICKER": [
-        "TLT",
-        "EDV"
-    ],
-    # "TICKER": 'SUI-USD',
+    # "TICKER": [
+    #     "TLT",
+    #     "EDV"
+    # ],
+    "TICKER": 'MSTR',
     # "TICKER_2": 'MSTR',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -93,7 +93,7 @@ CONFIG: Config = {
     # "USE_SCANNER": True,
     "BASE_DIR": ".",
     "REFRESH": False,
-    # "USE_SMA": False,
+    "USE_SMA": False,
     "DIRECTION": "Long",
     "USE_HOURLY": False,
     "USE_YEARS": False,
