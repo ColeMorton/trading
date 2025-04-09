@@ -3,7 +3,8 @@ Generic Strategy Processing Module
 
 This module provides a unified approach to processing different strategy types
 (SMA, EMA, MACD) within the strategies framework. It handles strategy-specific
-parameter validation and processing logic.
+parameter validation and processing logic. It supports both regular tickers and
+synthetic tickers (identified by an underscore).
 """
 
 import polars as pl
@@ -26,12 +27,12 @@ def process_strategy_portfolios(
     Process portfolios for a given ticker based on strategy type.
     
     Args:
-        ticker: Ticker symbol
+        ticker: Ticker symbol (can be a regular ticker or a synthetic ticker with underscore)
         strategy_type: Strategy type (SMA, EMA, MACD)
         short_window: Short/fast window period
         long_window: Long/slow window period
         signal_window: Signal window period (required for MACD)
-        config: Configuration dictionary
+        config: Configuration dictionary including USE_HOURLY and USE_SYNTHETIC settings
         log: Logging function
         
     Returns:
@@ -61,7 +62,16 @@ def process_strategy_portfolios(
             strategy_config["SHORT"] = config["DIRECTION"] == "Short"
         
         # Get data
-        data = get_data(current_ticker, strategy_config, log)
+        data_result = get_data(current_ticker, strategy_config, log)
+        
+        # Handle potential tuple return from get_data for synthetic pairs
+        if isinstance(data_result, tuple):
+            data, synthetic_ticker = data_result  # Unpack tuple
+            log(f"Received synthetic ticker data for {synthetic_ticker}")
+            strategy_config["TICKER"] = synthetic_ticker  # Update config with synthetic ticker
+        else:
+            data = data_result
+            
         if data is None or len(data) == 0:
             log(f"No data available for {current_ticker}", "error")
             return None
@@ -134,10 +144,10 @@ def process_sma_strategy(
     Process SMA strategy for a given ticker.
     
     Args:
-        ticker: Ticker symbol
+        ticker: Ticker symbol (can be a regular ticker or a synthetic ticker with underscore)
         short_window: Short window period
         long_window: Long window period
-        config: Configuration dictionary
+        config: Configuration dictionary including USE_HOURLY and USE_SYNTHETIC settings
         log: Logging function
         
     Returns:
@@ -163,10 +173,10 @@ def process_ema_strategy(
     Process EMA strategy for a given ticker.
     
     Args:
-        ticker: Ticker symbol
+        ticker: Ticker symbol (can be a regular ticker or a synthetic ticker with underscore)
         short_window: Short window period
         long_window: Long window period
-        config: Configuration dictionary
+        config: Configuration dictionary including USE_HOURLY and USE_SYNTHETIC settings
         log: Logging function
         
     Returns:
@@ -193,11 +203,11 @@ def process_macd_strategy(
     Process MACD strategy for a given ticker.
     
     Args:
-        ticker: Ticker symbol
+        ticker: Ticker symbol (can be a regular ticker or a synthetic ticker with underscore)
         short_window: Fast EMA period
         long_window: Slow EMA period
         signal_window: Signal line EMA period
-        config: Configuration dictionary
+        config: Configuration dictionary including USE_HOURLY and USE_SYNTHETIC settings
         log: Logging function
         
     Returns:

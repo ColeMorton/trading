@@ -4,6 +4,10 @@ Update Portfolios Module for Multiple Strategy Types
 This module processes the results of market scanning to update portfolios.
 It aggregates and analyzes the performance of SMA, EMA, and MACD strategies across
 multiple tickers, calculating key metrics like expectancy and Trades Per Day.
+
+The module supports both regular tickers and synthetic tickers (identified by an underscore
+in the ticker name, e.g., 'STRK_MSTR'). Synthetic tickers are automatically detected and
+processed by splitting them into their component tickers.
 """
 
 from app.tools.setup_logging import setup_logging
@@ -32,7 +36,7 @@ config = {
     # "PORTFOLIO": "TLT_d_20250404.csv",
     # "PORTFOLIO": 'HOURLY Crypto.csv',
     # "PORTFOLIO": 'BTC_MSTR_TLT_d_20250404.csv',
-    "PORTFOLIO": 'MSTY_STRK_STRF_WNTR_vs_MSTR_h_20250409.csv',
+    "PORTFOLIO": 'MSTR_vs_MSTY_h_20250409.csv',
     # "PORTFOLIO": 'BTC_d_20250403.csv',
     # "PORTFOLIO": 'BTC_d.csv',
     # "PORTFOLIO": 'MSTY_h.csv',
@@ -41,7 +45,7 @@ config = {
     # "PORTFOLIO": 'BTC_MSTR_d_20250403.csv',
     # "PORTFOLIO": 'SPY_QQQ_202503026.csv',
     "USE_CURRENT": False,
-    "USE_HOURLY": False,
+    "USE_HOURLY": True,
     "BASE_DIR": '.',  # Added BASE_DIR for export configuration
     "DIRECTION": "Long",
     "SORT_BY": "Score",
@@ -55,8 +59,9 @@ def run(portfolio: str) -> bool:
     This function:
     1. Reads the portfolio
     2. Processes each ticker with appropriate strategy (SMA, EMA, or MACD)
-    3. Calculates performance metrics and adjustments
-    4. Exports combined results to CSV
+    3. Detects and processes synthetic tickers (those containing an underscore)
+    4. Calculates performance metrics and adjustments
+    5. Exports combined results to CSV
 
     Args:
         portfolio (str): Name of the portfolio file
@@ -89,8 +94,24 @@ def run(portfolio: str) -> bool:
             ticker = strategy['TICKER']
             log(f"Processing {ticker}")
             
-            # Pass the config to process_ticker_portfolios
-            result = process_ticker_portfolios(ticker, strategy, config, log)
+            # Create a copy of the config for this strategy
+            strategy_config = config.copy()
+            
+            # Check if this is a synthetic ticker (contains underscore)
+            if '_' in ticker:
+                ticker_parts = ticker.split('_')
+                if len(ticker_parts) == 2:
+                    ticker1, ticker2 = ticker_parts
+                    # Update config for synthetic ticker processing
+                    strategy_config["USE_SYNTHETIC"] = True
+                    strategy_config["TICKER_1"] = ticker1
+                    strategy_config["TICKER_2"] = ticker2
+                    log(f"Detected synthetic ticker: {ticker} (components: {ticker1}, {ticker2})")
+                else:
+                    log(f"Invalid synthetic ticker format: {ticker}", "warning")
+            
+            # Pass the updated config to process_ticker_portfolios
+            result = process_ticker_portfolios(ticker, strategy, strategy_config, log)
             if result:
                 portfolios.extend(result)
 

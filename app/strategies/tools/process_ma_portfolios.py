@@ -3,6 +3,7 @@ Process MA Portfolios Module
 
 This module provides functionality for processing SMA and EMA portfolios
 for a given ticker, including data retrieval, signal calculation, and backtesting.
+It supports both regular tickers and synthetic tickers (identified by an underscore).
 """
 
 import polars as pl
@@ -24,12 +25,12 @@ def process_ma_portfolios(
     Process SMA and/or EMA portfolios for a given ticker.
 
     Args:
-        ticker: Ticker symbol
+        ticker: Ticker symbol (can be a regular ticker or a synthetic ticker with underscore)
         sma_fast: Fast SMA window (optional)
         sma_slow: Slow SMA window (optional)
         ema_fast: Fast EMA window (optional)
         ema_slow: Slow EMA window (optional)
-        config: Configuration dictionary including USE_HOURLY setting
+        config: Configuration dictionary including USE_HOURLY and USE_SYNTHETIC settings
         log: Logging function for recording events and errors
 
     Returns:
@@ -46,7 +47,16 @@ def process_ma_portfolios(
         strategy_config["SHORT"] = False  # Long-only strategy
         
         # Get data - now passing the log parameter
-        data = get_data(current_ticker, strategy_config, log)
+        data_result = get_data(current_ticker, strategy_config, log)
+        
+        # Handle potential tuple return from get_data for synthetic pairs
+        if isinstance(data_result, tuple):
+            data, synthetic_ticker = data_result  # Unpack tuple
+            log(f"Received synthetic ticker data for {synthetic_ticker}")
+            strategy_config["TICKER"] = synthetic_ticker  # Update config with synthetic ticker
+        else:
+            data = data_result
+            
         if data is None or len(data) == 0:
             log(f"No data available for {current_ticker}", "error")
             return None

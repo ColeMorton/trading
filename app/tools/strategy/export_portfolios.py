@@ -183,6 +183,7 @@ def export_portfolios(
                 "Long Window",
                 "Signal Window",
                 "Signal Entry",
+                'Total Open Trades',
                 "Total Trades"
             ]
             

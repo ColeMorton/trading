@@ -80,14 +80,14 @@ CONFIG: Config = {
     #     "XLP",
     #     "XLB"
     # ],
-    "TICKER": [
-        "STRK",
-        "MSTY",
-        "STRF",
-        "WNTR"
-    ],
-    # "TICKER": 'MSTR',
-    "TICKER_2": 'MSTR',
+    # "TICKER": [
+    #     "STRK",
+    #     "MSTY",
+    #     "STRF",
+    #     "WNTR"
+    # ],
+    "TICKER": 'MSTR',
+    "TICKER_2": 'MSTY',
     # "WINDOWS": 120,
     "WINDOWS": 89,
     # "WINDOWS": 55,
