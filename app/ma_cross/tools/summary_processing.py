@@ -260,7 +260,7 @@ def export_summary_results(portfolios: List[Dict], portfolio_name: str, log: Cal
         # Use empty string for feature_dir to export directly to /csv/portfolios/
         # instead of /csv/ma_cross/portfolios/
         # Import export_portfolios here to avoid circular imports
-        from app.ma_cross.tools.export_portfolios import export_portfolios
+        from app.tools.strategy.export_portfolios import export_portfolios
         
         # Pass the export_config which may contain _SORTED_PORTFOLIOS if sorting was applied
         _, success = export_portfolios(reordered_portfolios, export_config, 'portfolios', portfolio_name, log, feature_dir="")

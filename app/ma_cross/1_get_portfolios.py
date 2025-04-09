@@ -18,14 +18,14 @@ CONFIG: Config = {
     #     "SPY",
     #     "QQQ"
     # ],
-    "TICKER": [
-        "SPY",
-        "QQQ",
-        "BTC-USD",
-        "MSTR",
-        "MSTY",
-        "STRK"
-    ],
+    # "TICKER": [
+    #     "SPY",
+    #     "QQQ",
+    #     "BTC-USD",
+    #     "MSTR",
+    #     "MSTY",
+    #     "STRK"
+    # ],
     # "TICKER": [
     #     "SOL-USD",
     #     "BNB-USD",
@@ -80,12 +80,10 @@ CONFIG: Config = {
     #     "XLP",
     #     "XLB"
     # ],
-    # "TICKER": [
-    #     "MSTY",
-    #     "STRK",
-    #     "STRF",
-    #     "WNTR"
-    # ],
+    "TICKER": [
+        "TLT",
+        "EDV"
+    ],
     # "TICKER": 'SUI-USD',
     # "TICKER_2": 'MSTR',
     # "WINDOWS": 120,

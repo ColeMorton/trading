@@ -79,7 +79,7 @@ def export_best_portfolios(
         if log:
             log("Importing export_portfolios to avoid circular imports", "info")
         try:
-            from app.ma_cross.tools.export_portfolios import export_portfolios
+            from app.tools.strategy.export_portfolios import export_portfolios
         except ImportError as e:
             log(f"Failed to import export_portfolios due to circular import: {str(e)}", "error")
             return False

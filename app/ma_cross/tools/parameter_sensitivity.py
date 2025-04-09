@@ -61,7 +61,7 @@ def export_results(df: pl.DataFrame, config: Dict[str, Any], log: Callable) -> N
         log(f"USE_HOURLY: {config.get('USE_HOURLY', False)}")
         log(f"USE_SMA: {config.get('USE_SMA', False)}")
         # Import export_portfolios here to avoid circular imports
-        from app.ma_cross.tools.export_portfolios import export_portfolios
+        from app.tools.strategy.export_portfolios import export_portfolios
         
         # Export using centralized portfolio export functionality
         export_portfolios(

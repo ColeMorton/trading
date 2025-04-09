@@ -7,7 +7,6 @@ and can handle both new scans and updates to existing results.
 """
 
 import polars as pl
-from pathlib import Path
 from typing import TypedDict, NotRequired
 from app.tools.setup_logging import setup_logging
 from app.tools.get_config import get_config

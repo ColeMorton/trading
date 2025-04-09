@@ -1,255 +1,178 @@
-# Implementation Plan: Refactoring `app/ma_cross/2_update_portfolios.py` to `app/strategies`
+# Refactoring Plan: CSV Directory Path Change
 
 ## Overview
 
-The goal is to refactor `app/ma_cross/2_update_portfolios.py` and its dependencies from the `app/ma_cross` directory to the `app/strategies` directory while maintaining identical functionality, behavior, capability, and results. Additionally, any shared files or functionality between this file and other files in `app/ma_cross` should be refactored into the `app/tools` directory.
+This refactoring plan outlines the steps needed to change the directory from which CSV files are imported from `/csv/portfolios` to `/csv/strategies`. The plan focuses on three main files:
 
-## Current Architecture Analysis
+1. `app/ma_cross/1_scanner.py`
+2. `app/strategies/update_portfolios.py`
+3. `app/concurrency/review.py`
 
-Based on my analysis, the current architecture involves these key components:
+All export paths will remain unchanged, continuing to use `/csv/portfolios` and its subdirectories.
 
-1. **Main Module**: `app/ma_cross/2_update_portfolios.py`
-   - Processes portfolio data for multiple strategy types (SMA, EMA, MACD)
-   - Loads portfolios, processes tickers, and exports results
+## Affected Components
 
-2. **Key Dependencies**:
-   - `app/ma_cross/tools/summary_processing.py`: Processes ticker portfolios and exports results
-   - `app/ma_cross/tools/process_ma_portfolios.py`: Processes SMA and EMA portfolios
-   - `app/ma_cross/tools/process_strategy_portfolios.py`: Generic strategy processing
-   - `app/ma_cross/tools/signal_utils.py`: Signal validation utilities
-   - `app/ma_cross/tools/export_portfolios.py`: Portfolio export functionality
+### 1. Files with Direct Import Path References
 
-3. **Shared Utilities** (already in `app/tools`):
-   - `app/tools/setup_logging.py`
-   - `app/tools/portfolio/loader.py`
-   - `app/tools/stats_converter.py`
-   - `app/tools/get_config.py`
-   - `app/tools/portfolio_transformation.py`
-   - `app/tools/export_csv.py`
-   - `app/tools/portfolio/strategy_types.py`
-   - `app/tools/portfolio/strategy_utils.py`
+- `app/ma_cross/1_scanner.py` - Line 112: `f'./csv/portfolios/{config["PORTFOLIO"]}'`
+- `app/concurrency/review.py` - Line 160: `csv_path = Path(f"csv/portfolios/{portfolio_name}.csv")`
+- `app/ma_cross/tools/scanner_processing.py` - Line 141: `portfolio_path = os.path.join("./csv/portfolios", config["PORTFOLIO"])`
 
-4. **Dependencies to Preserve**:
-   - `app/ma_cross/1_get_portfolios.py` depends on `app/ma_cross/tools/strategy_execution.py`
-   - `app/ma_cross/tools/strategy_execution.py` has a complex dependency tree:
-     - `app/ma_cross/tools/filter_portfolios.py`
-     - `app/ma_cross/tools/export_portfolios.py`
-     - `app/ma_cross/tools/signal_processing.py`
-     - `app/ma_cross/tools/signal_utils.py`
-     - `app/ma_cross/config_types.py`
+### 2. Indirect Import References via Portfolio Loading Functions
 
-## Dependency Analysis
+- `app/strategies/update_portfolios.py` - Uses `load_portfolio` function which internally resolves paths
 
-After examining the dependencies in detail, I've identified the following dependency chain:
+## Detailed Refactoring Steps
 
-```
-app/ma_cross/1_get_portfolios.py
-└── app/ma_cross/tools/strategy_execution.py
-    ├── app/ma_cross/tools/filter_portfolios.py
-    │   └── app/ma_cross/tools/export_portfolios.py
-    ├── app/ma_cross/tools/export_portfolios.py
-    ├── app/ma_cross/tools/signal_processing.py
-    │   ├── app/ma_cross/tools/signal_generation.py
-    │   │   ├── app/ma_cross/tools/signal_types.py
-    │   │   └── app/ma_cross/tools/signal_utils.py
-    │   └── app/ma_cross/tools/sensitivity_analysis.py
-    │       └── app/ma_cross/tools/signal_utils.py
-    ├── app/ma_cross/tools/signal_utils.py
-    └── app/ma_cross/config_types.py
+### 1. Update Direct Import Path References
+
+#### 1.1. `app/ma_cross/1_scanner.py`
+
+```diff
+- scanner_df = pl.read_csv(
+-     f'./csv/portfolios/{config["PORTFOLIO"]}',
+-     infer_schema_length=10000,
++ scanner_df = pl.read_csv(
++     f'./csv/strategies/{config["PORTFOLIO"]}',
++     infer_schema_length=10000,
 ```
 
-## Refactoring Strategy
+#### 1.2. `app/concurrency/review.py`
 
-The refactoring will follow these principles:
-
-1. **Maintain Identical Functionality**: Ensure all functionality works exactly as before
-2. **Minimize Code Duplication**: Move shared functionality to `app/tools`
-3. **Clean Architecture**: Organize code logically in the new structure
-4. **Proper Dependency Management**: Ensure files in `app/ma_cross` and `app/strategies` only reference shared utilities in `app/tools` and not each other
-5. **Preserve Existing Dependencies**: Ensure `app/ma_cross/1_get_portfolios.py` and other files in `app/ma_cross` continue to function properly
-
-## Implementation Steps
-
-### 1. Move Common Types and Utilities to `app/tools`
-
-First, move common types and utilities that are used by both `app/ma_cross` and will be used by `app/strategies` to `app/tools`:
-
-1. **Move `app/ma_cross/tools/signal_types.py` to `app/tools/strategy/types.py`**
-   - Update imports in all files that reference it
-
-2. **Move `app/ma_cross/tools/signal_utils.py` to `app/tools/strategy/signal_utils.py`**
-   - Update imports in all files that reference it
-
-3. **Create a new module `app/tools/strategy/config_types.py`** that combines functionality from:
-   - `app/ma_cross/config_types.py`
-   - `app/ma_cross/tools/signal_types.py`
-
-### 2. Create Directory Structure
-
-Create the necessary directory structure in `app/strategies`:
-
-```
-app/strategies/
-├── __init__.py
-├── update_portfolios.py  # Refactored from app/ma_cross/2_update_portfolios.py
-└── tools/
-    ├── __init__.py
-    ├── summary_processing.py
-    ├── process_ma_portfolios.py
-    ├── process_strategy_portfolios.py
-    ├── export_portfolios.py
+```diff
+- csv_path = Path(f"csv/portfolios/{portfolio_name}.csv")
++ csv_path = Path(f"csv/strategies/{portfolio_name}.csv")
 ```
 
-### 3. Refactor Tool Modules
+#### 1.3. `app/ma_cross/tools/scanner_processing.py`
 
-Move each tool module from `app/ma_cross/tools` to `app/strategies/tools`:
+```diff
+- portfolio_path = os.path.join("./csv/portfolios", config["PORTFOLIO"])
++ portfolio_path = os.path.join("./csv/strategies", config["PORTFOLIO"])
+```
 
-1. **summary_processing.py**:
-   - Move to `app/strategies/tools/summary_processing.py`
-   - Update imports to reference shared utilities in `app/tools`
-   - Update imports to reference other modules in `app/strategies/tools`
+### 2. Update Portfolio Loading Functions for Imports
 
-2. **process_ma_portfolios.py**:
-   - Move to `app/strategies/tools/process_ma_portfolios.py`
-   - Update imports to reference shared utilities in `app/tools`
+#### 2.1. Modify `app/tools/portfolio/paths.py`
 
-3. **process_strategy_portfolios.py**:
-   - Move to `app/strategies/tools/process_strategy_portfolios.py`
-   - Update imports to reference shared utilities in `app/tools`
+We need to update the path resolution function to look in `/csv/strategies` for CSV files:
 
-4. **export_portfolios.py**:
-   - Move to `app/strategies/tools/export_portfolios.py`
-   - Update imports to reference shared utilities in `app/tools`
-
-### 4. Refactor Main Module
-
-Move the main module `app/ma_cross/2_update_portfolios.py` to `app/strategies/update_portfolios.py`:
-
-- Update imports to reference shared utilities in `app/tools`
-- Update imports to reference tool modules in `app/strategies/tools`
-- Maintain identical functionality
-- Ensure the configuration and behavior remain the same
-- Remove the original file from `app/ma_cross`
-
-### 5. Ensure Backward Compatibility for `app/ma_cross/1_get_portfolios.py`
-
-To ensure that `app/ma_cross/1_get_portfolios.py` continues to function properly:
-
-1. **Do not modify `app/ma_cross/tools/strategy_execution.py`** and its dependencies:
-   - `app/ma_cross/tools/filter_portfolios.py`
-   - `app/ma_cross/tools/signal_processing.py`
-   - `app/ma_cross/tools/signal_generation.py`
-   - `app/ma_cross/tools/sensitivity_analysis.py`
-
-2. **Update imports in these files to reference the new shared utilities in `app/tools`**:
-   - Update imports for `signal_types.py` to reference `app/tools/strategy/types.py`
-   - Update imports for `signal_utils.py` to reference `app/tools/strategy/signal_utils.py`
-
-## Detailed File Changes
-
-### 1. `app/tools/strategy/types.py`
-
-Create this file by combining functionality from:
-- `app/ma_cross/tools/signal_types.py`
-
-```python
-"""
-Strategy Types Module
-
-This module provides centralized type definitions for strategy configurations
-to ensure consistency across the application.
-"""
-
-from typing import TypedDict, NotRequired, Union, List
-
-class StrategyConfig(TypedDict):
-    """Configuration type definition for strategy execution.
-
-    Required Fields:
-        TICKER (Union[str, List[str]]): Trading symbol or list of symbols
-        WINDOWS (int): Maximum window size to test
-
-    Optional Fields:
-        DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
-        USE_SMA (NotRequired[bool]): Whether to use SMA instead of EMA
-        USE_HOURLY (NotRequired[bool]): Whether to use hourly data
-        USE_YEARS (NotRequired[bool]): Whether to limit data by years
-        YEARS (NotRequired[float]): Number of years of data to use
-        USE_GBM (NotRequired[bool]): Whether to use GBM simulation
-        USE_SYNTHETIC (NotRequired[bool]): Whether to use synthetic data
-        TICKER_1 (NotRequired[str]): First ticker for synthetic pair
-        TICKER_2 (NotRequired[str]): Second ticker for synthetic pair
-        USE_SCANNER (NotRequired[bool]): Whether to use scanner mode
-        SHORT_WINDOW (NotRequired[int]): Short window period
-        LONG_WINDOW (NotRequired[int]): Long window period
-        SIGNAL_WINDOW (NotRequired[int]): Signal window period for MACD
+```diff
+def resolve_portfolio_path(
+    portfolio_name: str,
+    base_dir: Optional[str] = None,
+    file_type: Optional[str] = None
+) -> Path:
     """
-    TICKER: Union[str, List[str]]
-    WINDOWS: int
-    DIRECTION: NotRequired[str]
-    USE_SMA: NotRequired[bool]
-    USE_HOURLY: NotRequired[bool]
-    USE_YEARS: NotRequired[bool]
-    YEARS: NotRequired[float]
-    USE_GBM: NotRequired[bool]
-    USE_SYNTHETIC: NotRequired[bool]
-    TICKER_1: NotRequired[str]
-    TICKER_2: NotRequired[str]
-    USE_SCANNER: NotRequired[bool]
-    SHORT_WINDOW: NotRequired[int]
-    LONG_WINDOW: NotRequired[int]
-    SIGNAL_WINDOW: NotRequired[int]
+    Resolve the path to a portfolio file.
+
+    Args:
+        portfolio_name: Name of the portfolio file (with or without extension)
+        base_dir: Base directory (defaults to current working directory)
+        file_type: Force specific file type ('csv' or 'json')
+
+    Returns:
+        Path: Resolved path to the portfolio file
+
+    Raises:
+        FileNotFoundError: If portfolio file cannot be found
+    """
+    # Use provided base_dir or default to current directory
+    base = Path(base_dir) if base_dir else Path('.')
+    
+    # If file_type is specified, force that extension
+    if file_type:
+        if file_type.lower() not in ['csv', 'json']:
+            raise ValueError(f"Unsupported file type: {file_type}. Must be 'csv' or 'json'")
+        
+        # Ensure portfolio_name has the correct extension
+        name = portfolio_name
+        if '.' in name:
+            name = name.split('.')[0]
+        
+-       portfolio_path = base / "csv" / "portfolios" / f"{name}.{file_type.lower()}"
++       # For CSV files, check strategies directory
++       if file_type.lower() == 'csv':
++           portfolio_path = base / "csv" / "strategies" / f"{name}.{file_type.lower()}"
++       else:
++           # For JSON files, use the original path
++           portfolio_path = base / "json" / "portfolios" / f"{name}.json"
+        if portfolio_path.exists():
+            return portfolio_path
 ```
 
-### 2. `app/tools/strategy/signal_utils.py`
+Similar changes are needed for the other path resolution sections in this file:
 
-Create this file by moving functionality from:
-- `app/ma_cross/tools/signal_utils.py`
+```diff
+    # Try to find the file with any supported extension
+    # First check if the name already has an extension
+    if '.' in portfolio_name:
+        name, ext = portfolio_name.split('.', 1)
+        if ext.lower() in ['csv', 'json']:
+            # Check CSV directory first
+            if ext.lower() == 'csv':
+-               portfolio_path = base / "csv" / "portfolios" / portfolio_name
++               portfolio_path = base / "csv" / "strategies" / portfolio_name
+                if portfolio_path.exists():
+                    return portfolio_path
+```
 
-### 3. `app/strategies/__init__.py`
+And:
 
-Create a new file with basic module initialization.
+```diff
+    else:
+        # Try CSV first
+-       portfolio_path = base / "csv" / "portfolios" / f"{portfolio_name}.csv"
++       portfolio_path = base / "csv" / "strategies" / f"{portfolio_name}.csv"
+        if portfolio_path.exists():
+            return portfolio_path
+```
 
-### 4. `app/strategies/tools/__init__.py`
+### 3. Ensure Export Paths Remain Unchanged
 
-Create a new file with basic module initialization.
+All export functions should continue to use `/csv/portfolios` and its subdirectories. No changes are needed for export paths.
 
-### 5. `app/strategies/tools/summary_processing.py`
+## Implementation Approach
 
-Move from `app/ma_cross/tools/summary_processing.py` with these changes:
-- Update imports to reference shared utilities in `app/tools`
-- Update imports to reference other modules in `app/strategies/tools`
+1. **Sequential Updates**: Modify files in a specific order to minimize potential issues:
+   - First, update the path resolution functions in `app/tools/portfolio/paths.py` to look in `/csv/strategies` for CSV files
+   - Then update direct path references in the three main files
 
-### 6. `app/strategies/tools/process_ma_portfolios.py`
+2. **Verification**: After each file is modified, verify that:
+   - Files are correctly read from `/csv/strategies`
+   - Files are still written to `/csv/portfolios` and its subdirectories
 
-Move from `app/ma_cross/tools/process_ma_portfolios.py` with these changes:
-- Update imports to reference shared utilities in `app/tools`
+3. **No Backward Compatibility**: As specified in the requirements, we will not implement backward compatibility measures.
 
-### 7. `app/strategies/tools/process_strategy_portfolios.py`
+## Step-by-Step Implementation Plan
 
-Move from `app/ma_cross/tools/process_strategy_portfolios.py` with these changes:
-- Update imports to reference shared utilities in `app/tools`
+1. **Step 1: Update `app/tools/portfolio/paths.py`**
+   - Modify the `resolve_portfolio_path` function to look in `/csv/strategies` for CSV files
 
-### 8. `app/strategies/tools/export_portfolios.py`
+2. **Step 2: Update `app/ma_cross/1_scanner.py`**
+   - Change the direct path reference from `/csv/portfolios` to `/csv/strategies`
 
-Move from `app/ma_cross/tools/export_portfolios.py` with these changes:
-- Update imports to reference shared utilities in `app/tools`
+3. **Step 3: Update `app/concurrency/review.py`**
+   - Change the direct path reference from `/csv/portfolios` to `/csv/strategies`
 
-### 9. `app/strategies/update_portfolios.py`
+4. **Step 4: Update `app/ma_cross/tools/scanner_processing.py`**
+   - Change the direct path reference from `/csv/portfolios` to `/csv/strategies`
 
-Move from `app/ma_cross/2_update_portfolios.py` with these changes:
-- Update imports to reference shared utilities in `app/tools`
-- Update imports to reference tool modules in `app/strategies/tools`
+5. **Step 5: Verify `app/strategies/update_portfolios.py`**
+   - This file uses the `load_portfolio` function which should now look in `/csv/strategies`
 
-### 10. Update imports in `app/ma_cross` files
+6. **Step 6: Final Verification**
+   - Verify that all three files correctly read from `/csv/strategies`
+   - Verify that all export operations still write to `/csv/portfolios` and its subdirectories
 
-Update imports in these files to reference the new shared utilities in `app/tools`:
-- `app/ma_cross/tools/strategy_execution.py`
-- `app/ma_cross/tools/filter_portfolios.py`
-- `app/ma_cross/tools/signal_processing.py`
-- `app/ma_cross/tools/signal_generation.py`
-- `app/ma_cross/tools/sensitivity_analysis.py`
+## Potential Risks and Considerations
+
+1. **Missing Files**: If CSV files are not moved from `/csv/portfolios` to `/csv/strategies`, applications will fail with "file not found" errors.
+
+2. **Inconsistent File Locations**: Having files read from one location but written to another could lead to confusion and potential issues if files need to be read immediately after being written.
+
+3. **Export Path Preservation**: Special care must be taken to ensure that all export paths remain unchanged, as modifying them could break downstream processes.
 
 ## Conclusion
 
-This refactoring plan maintains all functionality, behavior, capability, and results while moving the code to the appropriate directories. It ensures proper dependency management by having files in both `app/ma_cross` and `app/strategies` reference shared utilities in `app/tools` rather than referencing each other. Additionally, it takes special care to preserve the functionality of `app/ma_cross/1_get_portfolios.py` by not modifying its dependencies and updating imports to reference the new shared utilities.
+This refactoring plan provides a comprehensive approach to changing the CSV file import directory from `/csv/portfolios` to `/csv/strategies` while maintaining the existing export paths. By following these steps, we can ensure that files are read from the new location while preserving the existing export behavior.

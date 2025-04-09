@@ -95,7 +95,7 @@ def filter_portfolios(df: pl.DataFrame, config: ExportConfig, log: Callable) -> 
         log(f"USE_SMA: {config.get('USE_SMA', False)}")
         log(f"USE_CURRENT: {config.get('USE_CURRENT', False)}")
         # Import export_portfolios here to avoid circular imports
-        from app.ma_cross.tools.export_portfolios import export_portfolios
+        from app.tools.strategy.export_portfolios import export_portfolios
         
         # Export filtered results using export_portfolios
         export_portfolios(

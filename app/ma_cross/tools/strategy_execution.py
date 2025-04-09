@@ -8,7 +8,7 @@ filtering, and best portfolio selection for both single and multiple tickers.
 from typing import List, Optional, Dict, Any
 import polars as pl
 from app.ma_cross.tools.filter_portfolios import filter_portfolios
-from app.ma_cross.tools.export_portfolios import export_portfolios, PortfolioExportError
+from app.tools.strategy.export_portfolios import export_portfolios, PortfolioExportError
 from app.ma_cross.tools.signal_processing import process_ticker_portfolios
 from app.tools.strategy.signal_utils import is_signal_current
 from app.tools.portfolio.selection import get_best_portfolio
