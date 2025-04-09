@@ -181,6 +181,7 @@ def export_portfolios(
                 STRATEGY_TYPE_FIELDS["CSV"],  # Now directly after Ticker
                 "Short Window",
                 "Long Window",
+                "Signal Window",
                 "Signal Entry",
                 "Total Trades"
             ]

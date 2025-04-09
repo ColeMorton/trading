@@ -27,8 +27,45 @@ def use_synthetic(ticker1: str, ticker2: str, config: DataConfig, log: Callable)
         data_ticker_2 = download_data(ticker2, config, log)
 
         log("Merging data from both tickers")
-        data_merged = data_ticker_1.join(data_ticker_2, on='Date', how='inner', suffix="_2")
+        
+        # Check if we have data to merge
+        if len(data_ticker_1) == 0 or len(data_ticker_2) == 0:
+            log("One or both datasets are empty", "error")
+            return pl.DataFrame(), ""
+            
+        # Convert Date column to datetime if it's not already
+        if data_ticker_1['Date'].dtype == pl.Utf8:
+            data_ticker_1 = data_ticker_1.with_columns(pl.col('Date').str.to_datetime())
+        if data_ticker_2['Date'].dtype == pl.Utf8:
+            data_ticker_2 = data_ticker_2.with_columns(pl.col('Date').str.to_datetime())
+            
+        # Extract date part only (without time) for joining
+        data_ticker_1 = data_ticker_1.with_columns(
+            pl.col('Date').dt.truncate("1h").alias('DateHour')
+        )
+        data_ticker_2 = data_ticker_2.with_columns(
+            pl.col('Date').dt.truncate("1h").alias('DateHour')
+        )
+        
+        # Join on DateHour instead of exact timestamp
+        data_merged = data_ticker_1.join(data_ticker_2, on='DateHour', how='inner', suffix="_2")
         log(f"Merged data contains {len(data_merged)} rows")
+        
+        # If merged data is empty, try a more flexible approach
+        if len(data_merged) == 0:
+            log("No matching timestamps found, trying date-only matching", "warning")
+            
+            # Extract date part only (without time) for joining
+            data_ticker_1 = data_ticker_1.with_columns(
+                pl.col('Date').dt.date().alias('DateOnly')
+            )
+            data_ticker_2 = data_ticker_2.with_columns(
+                pl.col('Date').dt.date().alias('DateOnly')
+            )
+            
+            # Join on DateOnly
+            data_merged = data_ticker_1.join(data_ticker_2, on='DateOnly', how='inner', suffix="_2")
+            log(f"Date-only merge contains {len(data_merged)} rows")
 
         log("Calculating synthetic pair ratios")
         
@@ -60,8 +97,25 @@ def use_synthetic(ticker1: str, ticker2: str, config: DataConfig, log: Callable)
         })
 
         log(f"Synthetic pair statistics:")
-        log(f"Date range: {data['Date'].min()} to {data['Date'].max()}")
-        log(f"Ratio range: {data['Close'].min():.4f} to {data['Close'].max():.4f}")
+        
+        # Check if data is empty
+        if len(data) == 0:
+            log("Synthetic pair data is empty", "error")
+            return pl.DataFrame(), ""
+            
+        # Safely log statistics with null checks
+        date_min = data['Date'].min()
+        date_max = data['Date'].max()
+        close_min = data['Close'].min()
+        close_max = data['Close'].max()
+        
+        log(f"Date range: {date_min} to {date_max}")
+        
+        # Format only if values are not None
+        if close_min is not None and close_max is not None:
+            log(f"Ratio range: {close_min:.4f} to {close_max:.4f}")
+        else:
+            log("Ratio range: Unable to calculate (null values)")
 
         synthetic_ticker = f"{ticker1}_{ticker2}"
         

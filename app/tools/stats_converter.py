@@ -165,10 +165,8 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         
         # Calculate expectancy per month
         if 'Expectancy per Trade' in stats and stats['Expectancy per Trade'] is not None:
-            # Ensure expectancy per trade is positive for efficiency calculation
             if stats['Expectancy per Trade'] <= 0:
-                log(f"Warning: Non-positive Expectancy per Trade ({stats['Expectancy per Trade']:.6f}) for {ticker}. Setting to small positive value.", "warning")
-                stats['Expectancy per Trade'] = 0.0001  # Small positive value
+                log(f"Warning: Non-positive Expectancy per Trade ({stats['Expectancy per Trade']:.6f}) for {ticker}.", "info")
             
             stats['Expectancy per Month'] = stats['Trades per Month'] * stats['Expectancy per Trade']
         else:
