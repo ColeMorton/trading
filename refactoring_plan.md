@@ -8,7 +8,7 @@ This refactoring plan outlines the steps needed to change the directory from whi
 2. `app/strategies/update_portfolios.py`
 3. `app/concurrency/review.py`
 
-All export paths will remain unchanged, continuing to use `/csv/portfolios` and its subdirectories.
+Additionally, `app/strategies/update_portfolios.py` should export to the same location it imports from (`/csv/strategies`), while the other files should continue to export to `/csv/portfolios` and its subdirectories.
 
 ## Affected Components
 
@@ -21,6 +21,10 @@ All export paths will remain unchanged, continuing to use `/csv/portfolios` and 
 ### 2. Indirect Import References via Portfolio Loading Functions
 
 - `app/strategies/update_portfolios.py` - Uses `load_portfolio` function which internally resolves paths
+
+### 3. Export Path in `app/strategies/update_portfolios.py`
+
+- The `export_summary_results` function in `app/strategies/tools/summary_processing.py` (line 190) needs to be modified to export to `/csv/strategies` instead of `/csv/portfolios`
 
 ## Detailed Refactoring Steps
 
@@ -128,19 +132,111 @@ And:
             return portfolio_path
 ```
 
-### 3. Ensure Export Paths Remain Unchanged
+### 3. Update Export Path in `app/strategies/tools/summary_processing.py`
 
-All export functions should continue to use `/csv/portfolios` and its subdirectories. No changes are needed for export paths.
+After examining the `export_summary_results` function, we need to modify it to export to `/csv/strategies` instead of `/csv/portfolios`. The function currently uses the `export_portfolios` function with `feature_dir=""` which defaults to exporting to `/csv/portfolios`.
+
+```diff
+def export_summary_results(portfolios: List[Dict], portfolio_name: str, log: Callable[[str, str], None], config: Optional[Dict] = None) -> bool:
+    """
+    Export portfolio summary results to CSV.
+
+    Args:
+        portfolios (List[Dict]): List of portfolio statistics
+        portfolio_name (str): Name of the portfolio file
+        log (Callable): Logging function
+        config (Optional[Dict]): Configuration dictionary including USE_HOURLY setting
+
+    Returns:
+        bool: True if export successful, False otherwise
+    """
+    if portfolios:
+        # Reorder columns for each portfolio
+        reordered_portfolios = [reorder_columns(p) for p in portfolios]
+        
+        # Use provided config or get default if none provided
+        export_config = config if config is not None else get_config({})
+        export_config["TICKER"] = None
+        
+        # Remove duplicates based on Ticker, Use SMA, Short Window, Long Window
+        try:
+            # Convert to Polars DataFrame for deduplication
+            df = pl.DataFrame(reordered_portfolios)
+            
+            # Check for duplicate entries
+            duplicate_count = len(df) - df.unique(subset=["Ticker", "Strategy Type", "Short Window", "Long Window"]).height
+            
+            if duplicate_count > 0:
+                log(f"Found {duplicate_count} duplicate entries. Removing duplicates...", "warning")
+                
+                # Keep only unique combinations of the specified columns
+                df = df.unique(subset=["Ticker", "Strategy Type", "Short Window", "Long Window"], keep="first")
+                log(f"After deduplication: {len(df)} unique strategy combinations")
+                
+                # Convert back to list of dictionaries
+                reordered_portfolios = df.to_dicts()
+        except Exception as e:
+            log(f"Error during deduplication: {str(e)}", "warning")
+        
+        # Sort portfolios if SORT_BY is specified in config
+        if export_config.get("SORT_BY"):
+            try:
+                # Convert to Polars DataFrame for sorting
+                df = pl.DataFrame(reordered_portfolios)
+                
+                # Apply sorting
+                sort_by = export_config["SORT_BY"]
+                sort_asc = export_config.get("SORT_ASC", False)
+                
+                if sort_by in df.columns:
+                    # Sort the DataFrame
+                    df = df.sort(sort_by, descending=not sort_asc)
+                    log(f"Sorted results by {sort_by} ({'ascending' if sort_asc else 'descending'})")
+                    
+                    # Convert back to list of dictionaries
+                    reordered_portfolios = df.to_dicts()
+                    
+                    # Ensure the sort order is preserved by setting it in the export_config
+                    # This will be used by export_portfolios to maintain the order
+                    export_config["_SORTED_PORTFOLIOS"] = reordered_portfolios
+                else:
+                    log(f"Warning: Sort column '{sort_by}' not found in results", "warning")
+            except Exception as e:
+                log(f"Error during sorting: {str(e)}", "warning")
+        
+        # Import export_portfolios here to avoid circular imports
+        from app.tools.strategy.export_portfolios import export_portfolios
+        
+        # Pass the export_config which may contain _SORTED_PORTFOLIOS if sorting was applied
+-       _, success = export_portfolios(reordered_portfolios, export_config, 'portfolios', portfolio_name, log, feature_dir="")
++       # Change feature_dir to "strategies" to export to /csv/strategies instead of /csv/portfolios
++       _, success = export_portfolios(reordered_portfolios, export_config, 'portfolios', portfolio_name, log, feature_dir="strategies")
+        if not success:
+            log("Failed to export portfolios", "error")
+            return False
+        
+        log("Portfolio summary exported successfully")
+        return True
+    else:
+        log("No portfolios were processed", "warning")
+        return False
+```
+
+### 4. Ensure Other Export Paths Remain Unchanged
+
+All other export functions should continue to use `/csv/portfolios` and its subdirectories. No changes are needed for these export paths.
 
 ## Implementation Approach
 
 1. **Sequential Updates**: Modify files in a specific order to minimize potential issues:
    - First, update the path resolution functions in `app/tools/portfolio/paths.py` to look in `/csv/strategies` for CSV files
    - Then update direct path references in the three main files
+   - Finally, update the export path in `app/strategies/tools/summary_processing.py` to use `/csv/strategies`
 
 2. **Verification**: After each file is modified, verify that:
-   - Files are correctly read from `/csv/strategies`
-   - Files are still written to `/csv/portfolios` and its subdirectories
+   - All three files correctly read from `/csv/strategies`
+   - `app/strategies/update_portfolios.py` exports to `/csv/strategies`
+   - Other files still export to `/csv/portfolios` and its subdirectories
 
 3. **No Backward Compatibility**: As specified in the requirements, we will not implement backward compatibility measures.
 
@@ -158,21 +254,28 @@ All export functions should continue to use `/csv/portfolios` and its subdirecto
 4. **Step 4: Update `app/ma_cross/tools/scanner_processing.py`**
    - Change the direct path reference from `/csv/portfolios` to `/csv/strategies`
 
-5. **Step 5: Verify `app/strategies/update_portfolios.py`**
-   - This file uses the `load_portfolio` function which should now look in `/csv/strategies`
+5. **Step 5: Update `app/strategies/tools/summary_processing.py`**
+   - Change the `feature_dir` parameter in the `export_portfolios` function call from `""` to `"strategies"`
 
-6. **Step 6: Final Verification**
+6. **Step 6: Verify `app/strategies/update_portfolios.py`**
+   - Ensure that it correctly reads files from `/csv/strategies`
+   - Ensure that it correctly exports to `/csv/strategies`
+
+7. **Step 7: Final Verification**
    - Verify that all three files correctly read from `/csv/strategies`
-   - Verify that all export operations still write to `/csv/portfolios` and its subdirectories
+   - Verify that `app/strategies/update_portfolios.py` exports to `/csv/strategies`
+   - Verify that other files still export to `/csv/portfolios` and its subdirectories
 
 ## Potential Risks and Considerations
 
 1. **Missing Files**: If CSV files are not moved from `/csv/portfolios` to `/csv/strategies`, applications will fail with "file not found" errors.
 
-2. **Inconsistent File Locations**: Having files read from one location but written to another could lead to confusion and potential issues if files need to be read immediately after being written.
+2. **Inconsistent File Locations**: Having files read from one location but written to another (except for `app/strategies/update_portfolios.py`) could lead to confusion.
 
-3. **Export Path Preservation**: Special care must be taken to ensure that all export paths remain unchanged, as modifying them could break downstream processes.
+3. **Export Path Modification**: Special care must be taken to ensure that only `app/strategies/update_portfolios.py` exports to `/csv/strategies`, while all other export paths remain unchanged.
+
+4. **File Overwriting**: If the same filename is used in both `/csv/portfolios` and `/csv/strategies`, there's a risk of confusion about which file is being used.
 
 ## Conclusion
 
-This refactoring plan provides a comprehensive approach to changing the CSV file import directory from `/csv/portfolios` to `/csv/strategies` while maintaining the existing export paths. By following these steps, we can ensure that files are read from the new location while preserving the existing export behavior.
+This refactoring plan provides a comprehensive approach to changing the CSV file import directory from `/csv/portfolios` to `/csv/strategies` for all three files, while ensuring that only `app/strategies/update_portfolios.py` exports to the same location it imports from. By following these steps, we can ensure that the changes are implemented correctly and consistently.
