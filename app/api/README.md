@@ -97,6 +97,41 @@ curl -X GET "http://127.0.0.1:8000/api/data/csv/strategies/DAILY.csv"
 ```bash
 curl -X GET "http://127.0.0.1:8000/api/data/list/strategies"
 ```
+## Testing
+
+The API server includes testing utilities to verify its functionality. These tests help ensure that all endpoints are working correctly and that the server is properly handling requests.
+
+### Simple Testing
+
+The `simple_test.py` script provides a basic test of the API server's core functionality. It tests the root and health endpoints, as well as the script listing and data retrieval endpoints.
+
+To run the simple test:
+
+```bash
+python -m app.api.simple_test
+```
+
+This test is useful for quickly verifying that the API server is running and responding to requests.
+
+### Comprehensive Testing
+
+The `test_api.py` script provides more comprehensive testing of the API server. It tests all endpoints, including script execution and status checking.
+
+To run the comprehensive test:
+
+```bash
+python -m app.api.test_api
+```
+
+This test is useful for verifying that all aspects of the API server are working correctly, including script execution and data retrieval.
+
+### Manual Testing with cURL
+
+You can also test the API server manually using cURL commands. The examples provided in the "Examples" section can be used for manual testing.
+
+### Testing with the API Documentation
+
+The API documentation at `http://127.0.0.1:8000/docs` provides an interactive interface for testing the API. You can use this interface to send requests to the API and view the responses.
 
 ## Future Enhancements
 
