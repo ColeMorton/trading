@@ -65,7 +65,8 @@ CONFIG: Config = {
     # ],
     # "TICKER": [
     #     "TRX-USD",
-    #     "MKR-USD"
+    #     "MKR-USD",
+    #     "PENDLE-USD"
     # ],
     # "TICKER": [
     #     "XLK",
@@ -80,15 +81,12 @@ CONFIG: Config = {
     #     "XLP",
     #     "XLB"
     # ],
-    # "TICKER": [
-    #     "TLT",
-    #     "EDV",
-    #     "STRK",
-    #     "MSTY",
-    #     "STRF",
-    #     "WNTR"
-    # ],
-    "TICKER": 'MSTR',
+    "TICKER": [
+        "NVDA",
+        "NFLX",
+        "ORLY"
+    ],
+    # "TICKER": 'TSLA',
     # "TICKER_2": 'MSTY',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -96,10 +94,10 @@ CONFIG: Config = {
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
     "BASE_DIR": ".",
-    "REFRESH": True,
+    "REFRESH": False,
     # "USE_SMA": False,
     "DIRECTION": "Long",
-    "USE_HOURLY": True,
+    "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
@@ -107,10 +105,10 @@ CONFIG: Config = {
     "MINIMUMS": {
         # "TRADES": 13,
         # "TRADES": 21,
-        "WIN_RATE": 0.38,
-        "TRADES": 34,
-        # "WIN_RATE": 0.50,
-        # "TRADES": 54,
+        # "WIN_RATE": 0.38,
+        # "TRADES": 34,
+        "WIN_RATE": 0.50,
+        "TRADES": 54,
         # "WIN_RATE": 0.61,
         "EXPECTANCY_PER_TRADE": 1,
         "PROFIT_FACTOR": 1,
