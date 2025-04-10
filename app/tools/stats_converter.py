@@ -109,7 +109,7 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         if all(field in stats for field in required_fields):
             try:
                 # Handle potential zero or negative values
-                total_trades_normalized = stats['Total Trades'] / 74
+                total_trades_normalized = min(stats['Total Trades'] / 72, 2)
                 sortino = max(0, stats['Sortino Ratio']) / 0.88
                 profit_factor= max(0, stats['Profit Factor']) / 1.8
                 win_rate_normalized = (stats['Win Rate [%]'] - 13) / 100
