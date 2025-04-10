@@ -1,4 +1,4 @@
-# Making ma_cross Scanner Compatible with MACD Strategies
+# Refactoring of ma_cross Scanner, strategies Update Portfolios, and concurrency Review
 
 Based on my analysis of both `app/strategies/update_portfolios.py` and `app/ma_cross/1_scanner.py`, I'll outline the specific changes needed to make the ma_cross scanner fully compatible with MACD strategies, while adhering to key software engineering principles.
 
@@ -622,11 +622,6 @@ To implement these changes while maintaining backward compatibility, I recommend
 1. Refactor scanner to use the strategy pattern
 2. Update schema handling
 3. Update export functionality
-
-### Phase 4: Testing and Validation
-1. Test with existing portfolios
-2. Test with MACD-specific portfolios
-3. Validate results against existing implementation
 
 ## Summary of Benefits
 
