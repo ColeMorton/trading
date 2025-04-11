@@ -10,9 +10,14 @@ import logging
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
-from app.api.routers import scripts, data
+from app.api.routers import scripts, data, viewer
 from app.api.utils.logging import setup_api_logging
+
+# Define paths
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+CSV_VIEWER_DIR = os.path.join(BASE_DIR, 'app', 'csv_viewer')
 
 # Create FastAPI application
 app = FastAPI(
@@ -36,6 +41,10 @@ log, log_close, logger, _ = setup_api_logging()
 # Include routers
 app.include_router(scripts.router, prefix="/api/scripts", tags=["scripts"])
 app.include_router(data.router, prefix="/api/data", tags=["data"])
+app.include_router(viewer.router, prefix="/viewer", tags=["viewer"])
+
+# Mount static files directory
+app.mount("/static", StaticFiles(directory=CSV_VIEWER_DIR), name="static")
 
 # Global exception handler
 @app.exception_handler(Exception)
