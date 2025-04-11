@@ -139,18 +139,31 @@ async def execute_script_async(script_path: str, parameters: Dict[str, Any], exe
     # Update task status to running
     task_status[execution_id]["status"] = "running"
     task_status[execution_id]["message"] = f"Executing script {script_path}"
+    task_status[execution_id]["progress"] = 10
     
     try:
         log(f"Executing script {script_path} with parameters: {parameters}")
         
+        # Update progress before execution
+        task_status[execution_id]["progress"] = 25
+        task_status[execution_id]["message"] = f"Preparing to execute {script_path}"
+        
         # Execute the script in a separate thread to avoid blocking the event loop
         with ThreadPoolExecutor() as executor:
+            # Update progress before execution
+            task_status[execution_id]["progress"] = 50
+            task_status[execution_id]["message"] = f"Executing {script_path}"
+            
             result = await asyncio.get_event_loop().run_in_executor(
-                executor, 
-                execute_script_sync, 
-                script_path, 
+                executor,
+                execute_script_sync,
+                script_path,
                 parameters
             )
+        
+        # Update progress after execution
+        task_status[execution_id]["progress"] = 90
+        task_status[execution_id]["message"] = f"Finalizing results"
         
         # Update task status with result
         task_status[execution_id]["status"] = "completed" if result["success"] else "failed"
@@ -173,6 +186,7 @@ async def execute_script_async(script_path: str, parameters: Dict[str, Any], exe
         task_status[execution_id]["status"] = "failed"
         task_status[execution_id]["message"] = error_message
         task_status[execution_id]["error"] = str(e)
+        task_status[execution_id]["progress"] = 100
     
     # Update end time
     task_status[execution_id]["end_time"] = datetime.now()

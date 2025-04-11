@@ -268,56 +268,90 @@
                         if (data.status === "accepted") {
                             updateStatus.className = 'mb-4 p-3 bg-blue-100 text-blue-800 rounded shadow-sm';
                             updateStatus.textContent = `Portfolio update started. Execution ID: ${data.execution_id}`;
+                            // Store button reference for use in event handlers
+                            const updateButton = this;
                             
-                            // Start polling for execution status
+                            // Create SSE connection
                             const executionId = data.execution_id;
-                            const pollInterval = setInterval(() => {
-                                fetch(`/api/scripts/status/${executionId}`)
-                                    .then(response => response.json())
-                                    .then(statusData => {
-                                        if (statusData.status === "completed") {
-                                            // Clear the interval
-                                            clearInterval(pollInterval);
-                                            
-                                            // Update status message
-                                            updateStatus.className = 'mb-4 p-3 bg-green-100 text-green-800 rounded shadow-sm';
-                                            updateStatus.textContent = 'Portfolio updated successfully!';
-                                            
-                                            // Reset button
-                                            this.disabled = false;
-                                            this.textContent = 'Update';
-                                            
-                                            // Reload the CSV data to refresh the table
-                                            loadCSVData(filePath);
-                                        } else if (statusData.status === "failed") {
-                                            // Clear the interval
-                                            clearInterval(pollInterval);
-                                            
-                                            // Update status message
-                                            updateStatus.className = 'mb-4 p-3 bg-red-100 text-red-800 rounded shadow-sm';
-                                            updateStatus.textContent = `Update failed: ${statusData.error || 'Unknown error'}`;
-                                            
-                                            // Reset button
-                                            this.disabled = false;
-                                            this.textContent = 'Update';
-                                        } else {
-                                            // Update progress message
-                                            updateStatus.textContent = `Portfolio update in progress... Status: ${statusData.status}`;
-                                        }
-                                    })
-                                    .catch(error => {
-                                        // Clear the interval
-                                        clearInterval(pollInterval);
-                                        
+                            const eventSource = new EventSource(`/api/scripts/status-stream/${executionId}`);
+                            
+                            // Handle incoming messages
+                            eventSource.onmessage = function(event) {
+                                try {
+                                    const statusData = JSON.parse(event.data);
+                                    
+                                    // Update status message based on progress
+                                    if (statusData.status === "completed") {
                                         // Update status message
-                                        updateStatus.className = 'mb-4 p-3 bg-red-100 text-red-800 rounded shadow-sm';
-                                        updateStatus.textContent = `Error checking status: ${error.message}`;
+                                        updateStatus.className = 'mb-4 p-3 bg-green-100 text-green-800 rounded shadow-sm';
+                                        updateStatus.textContent = 'Portfolio updated successfully!';
                                         
                                         // Reset button
-                                        this.disabled = false;
-                                        this.textContent = 'Update';
-                                    });
-                            }, 2000); // Poll every 2 seconds
+                                        updateButton.disabled = false;
+                                        updateButton.textContent = 'Update';
+                                        
+                                        // Reload the CSV data to refresh the table
+                                        loadCSVData(filePath);
+                                        
+                                        // Close the connection
+                                        eventSource.close();
+                                    } else if (statusData.status === "failed") {
+                                        // Update status message
+                                        updateStatus.className = 'mb-4 p-3 bg-red-100 text-red-800 rounded shadow-sm';
+                                        updateStatus.textContent = `Update failed: ${statusData.error || 'Unknown error'}`;
+                                        
+                                        // Reset button
+                                        updateButton.disabled = false;
+                                        updateButton.textContent = 'Update';
+                                        
+                                        // Close the connection
+                                        eventSource.close();
+                                    } else {
+                                        // Update progress message
+                                        const progressText = statusData.progress ? `(${statusData.progress}%)` : '';
+                                        updateStatus.textContent = `Portfolio update in progress... Status: ${statusData.status} ${progressText}`;
+                                        
+                                        // Add progress bar if not already present
+                                        if (!document.getElementById('progress-bar-container')) {
+                                            const progressContainer = document.createElement('div');
+                                            progressContainer.id = 'progress-bar-container';
+                                            progressContainer.className = 'w-full bg-gray-200 rounded-full h-2.5 mt-2';
+                                            
+                                            const progressBar = document.createElement('div');
+                                            progressBar.id = 'progress-bar';
+                                            progressBar.className = 'bg-indigo-600 h-2.5 rounded-full';
+                                            progressBar.style.width = `${statusData.progress || 0}%`;
+                                            
+                                            progressContainer.appendChild(progressBar);
+                                            updateStatus.appendChild(progressContainer);
+                                        } else {
+                                            // Update existing progress bar
+                                            const progressBar = document.getElementById('progress-bar');
+                                            if (progressBar) {
+                                                progressBar.style.width = `${statusData.progress || 0}%`;
+                                            }
+                                        }
+                                    }
+                                } catch (error) {
+                                    console.error('Error parsing SSE message:', error);
+                                }
+                            };
+                            
+                            // Handle connection errors
+                            eventSource.onerror = function(error) {
+                                console.error('SSE connection error:', error);
+                                
+                                // Update status message
+                                updateStatus.className = 'mb-4 p-3 bg-red-100 text-red-800 rounded shadow-sm';
+                                updateStatus.textContent = `Error checking status: Connection lost`;
+                                
+                                // Reset button
+                                updateButton.disabled = false;
+                                updateButton.textContent = 'Update';
+                                
+                                // Close the connection
+                                eventSource.close();
+                            };
                         } else {
                             updateStatus.className = 'mb-4 p-3 bg-red-100 text-red-800 rounded shadow-sm';
                             updateStatus.textContent = `Error: ${data.message || 'Unknown error'}`;

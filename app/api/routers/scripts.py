@@ -4,9 +4,13 @@ Scripts Router
 This module provides API endpoints for script execution and management.
 """
 
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Query, Path, Body
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Query, Path, Body, Request
+from fastapi.responses import StreamingResponse
 from typing import Dict, Any, List, Optional
 import logging
+import json
+import asyncio
+from datetime import datetime
 
 from app.api.models.request import ScriptExecutionRequest
 from app.api.models.response import (
@@ -215,3 +219,86 @@ async def update_portfolio(request: Dict[str, str] = Body(...)):
     except Exception as e:
         log(f"Unexpected error: {str(e)}", "error")
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+
+@router.get(
+    "/status-stream/{execution_id}",
+    response_class=StreamingResponse,
+    responses={
+        404: {"model": ErrorResponse, "description": "Execution ID not found"},
+        500: {"model": ErrorResponse, "description": "Internal server error"}
+    },
+    summary="Stream script execution status",
+    description="Stream the status of a script execution using Server-Sent Events."
+)
+async def stream_execution_status(execution_id: str = Path(..., description="Execution ID")):
+    """
+    Stream the status of a script execution using Server-Sent Events.
+    
+    Args:
+        execution_id (str): Execution ID
+        
+    Returns:
+        EventSourceResponse: Server-Sent Events response
+        
+    Raises:
+        HTTPException: If the execution ID is not found
+    """
+    try:
+        log(f"Starting SSE stream for execution ID: {execution_id}")
+        
+        # Check if execution ID exists
+        try:
+            initial_status = get_script_status(execution_id)
+        except ValueError:
+            log(f"Execution ID not found: {execution_id}", "error")
+            raise HTTPException(status_code=404, detail=f"Execution ID not found: {execution_id}")
+        
+        def datetime_converter(obj):
+            """Convert datetime objects to ISO format strings for JSON serialization."""
+            if isinstance(obj, datetime):
+                return obj.isoformat()
+            raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
+            
+        async def event_generator():
+            # Send initial status
+            status_data = get_script_status(execution_id)
+            yield {"data": json.dumps(status_data, default=datetime_converter)}
+            
+            # Continue sending updates until completion
+            while status_data["status"] not in ["completed", "failed"]:
+                await asyncio.sleep(0.5)  # Check for updates every 0.5 seconds
+                
+                try:
+                    new_status = get_script_status(execution_id)
+                    
+                    # Only send if status has changed
+                    if new_status != status_data:
+                        status_data = new_status
+                        yield {"data": json.dumps(status_data, default=datetime_converter)}
+                        
+                        # Exit loop if script has completed or failed
+                        if status_data["status"] in ["completed", "failed"]:
+                            log(f"Script execution {execution_id} {status_data['status']}, closing SSE connection")
+                            break
+                except Exception as e:
+                    log(f"Error getting status for {execution_id}: {str(e)}", "error")
+                    yield {"data": json.dumps({"error": str(e)}, default=datetime_converter)}
+                    break
+        
+        async def sse_generator():
+            async for event in event_generator():
+                data = event.get("data", "")
+                yield f"data: {data}\n\n"
+                
+        return StreamingResponse(
+            sse_generator(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "Content-Type": "text/event-stream"
+            }
+        )
+    except Exception as e:
+        log(f"Failed to create SSE stream: {str(e)}", "error")
+        raise HTTPException(status_code=500, detail=f"Failed to create SSE stream: {str(e)}")
