@@ -34,6 +34,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Custom middleware to handle specific 404 errors gracefully
+@app.middleware("http")
+async def handle_specific_404(request: Request, call_next):
+    """
+    Middleware to handle specific 404 errors gracefully.
+    
+    This middleware specifically catches requests to /viewer/last-modified
+    and returns a 204 No Content response instead of a 404 error.
+    """
+    response = await call_next(request)
+    
+    # Check if this is a 404 for the /viewer/last-modified endpoint
+    if response.status_code == 404 and request.url.path == "/viewer/last-modified":
+        logger.info(f"Suppressing 404 for {request.url.path} - returning 204 No Content")
+        return JSONResponse(
+            status_code=204,  # No Content
+            content=None
+        )
+    
+    return response
+
 # Set up logging
 log, log_close, logger, _ = setup_api_logging()
 
