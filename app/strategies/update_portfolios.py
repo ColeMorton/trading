@@ -24,7 +24,7 @@ config = {
     # "PORTFOLIO": 'spy_qqq_h_20250311.csv',
     # "PORTFOLIO": 'total_d_20250328.csv',
     # "PORTFOLIO": 'DAILY_crypto.csv',
-    # "PORTFOLIO": 'DAILY.csv',
+    "PORTFOLIO": 'DAILY.csv',
     # "PORTFOLIO": 'crypto_h.csv',
     # "PORTFOLIO": 'DAILY_crypto_short.csv',
     # "PORTFOLIO": 'Indices_d.csv',
@@ -37,7 +37,7 @@ config = {
     # "PORTFOLIO": 'BTC_MSTR_TLT_d_20250404.csv',
     # "PORTFOLIO": 'MSTR_vs_MSTY_h_20250409.csv',
     # "PORTFOLIO": 'NVDA_d_20250410.csv',
-    "PORTFOLIO": 'NFLX_d_20250410.csv',
+    # "PORTFOLIO": 'NFLX_d_20250410.csv',
     # "PORTFOLIO": 'MSTY_h.csv',
     # "PORTFOLIO": 'ORLY_d_20250410.csv',
     # "PORTFOLIO": 'TLT_EDV_d_20250404.csv',
@@ -125,9 +125,11 @@ def run(portfolio: str) -> bool:
             # Sort portfolios by Score (descending)
             sorted_portfolios = sorted(portfolios, key=lambda x: x.get('Score', 0), reverse=True)
             
-            # List strategies where Total Open Trades = 1
-            open_trades_strategies = [p for p in sorted_portfolios if p.get('Total Open Trades') == 1 or
-                                     (isinstance(p.get('Total Open Trades'), str) and p.get('Total Open Trades') == '1')]
+            # List strategies where Total Open Trades = 1 AND Signal Entry = false (to avoid duplicates)
+            open_trades_strategies = [p for p in sorted_portfolios if
+                                     (p.get('Total Open Trades') == 1 or
+                                      (isinstance(p.get('Total Open Trades'), str) and p.get('Total Open Trades') == '1')) and
+                                     str(p.get('Signal Entry', '')).lower() != 'true']
             if open_trades_strategies:
                 log("\n=== Open Trades ===")
                 log("Ticker, Strategy Type, Short Window, Long Window, Signal Window, Score")
