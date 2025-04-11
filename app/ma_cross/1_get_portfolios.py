@@ -86,7 +86,7 @@ CONFIG: Config = {
         "NFLX",
         "ORLY"
     ],
-    # "TICKER": 'TSLA',
+    "TICKER": 'TSLA',
     # "TICKER_2": 'MSTY',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -101,7 +101,7 @@ CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     "MINIMUMS": {
         # "TRADES": 13,
         # "TRADES": 21,

@@ -109,20 +109,21 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         if all(field in stats for field in required_fields):
             try:
                 # Handle potential zero or negative values
-                total_trades_normalized = min(stats['Total Trades'] / 72, 2)
-                sortino = max(0, stats['Sortino Ratio']) / 0.88
-                profit_factor= max(0, stats['Profit Factor']) / 1.8
-                win_rate_normalized = (stats['Win Rate [%]'] - 13) / 100
-                expectancy_per_trade = max(0, stats['Expectancy per Trade']) / 5
+                total_trades_normalized = min(stats['Total Trades'] / 89, 1.618)
+                sortino = stats['Sortino Ratio'] / 0.89
+                profit_factor= min(stats['Profit Factor'] / 1.84, 1.618) 
+                win_rate_normalized = stats['Win Rate [%]'] / 61
+                expectancy_per_trade = min(stats['Expectancy per Trade'] / 5.26, 1.618)
 
                 if stats['Beats BNH [%]'] >= 1.23:
                     beats_bnh = 1.38
                 elif stats['Beats BNH [%]'] <= -0.38:
-                    beats_bnh = 0.61
+                    beats_bnh = 0.62
                 else:
                     beats_bnh = 1
                 
-                stats['Score'] = total_trades_normalized * sortino * profit_factor * expectancy_per_trade * beats_bnh * win_rate_normalized
+                stats['Score'] = total_trades_normalized * sortino * profit_factor * expectancy_per_trade * beats_bnh * win_rate_normalized 
+                log(f"win_rate_normalized {win_rate_normalized}", "info")
                 log(f"Set Score to {stats['Score']:.4f} for {ticker}", "info")
             except Exception as e:
                 stats['Score'] = 0

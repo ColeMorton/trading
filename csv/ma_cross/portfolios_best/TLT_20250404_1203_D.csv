@@ -1,8 +1,0 @@
-Ticker,Use SMA,Short Window,Long Window,Signal Entry,Total Trades,Win Rate [%],Profit Factor,Trades Per Day,Expectancy per Trade,Expectancy Adjusted,Trades per Month,Signals per Month,Expectancy per Month,Sortino Ratio,Signal Window,Start,End,Period,Start Value,End Value,Total Return [%],Benchmark Return [%],Max Gross Exposure [%],Total Fees Paid,Max Drawdown [%],Max Drawdown Duration,Total Closed Trades,Total Open Trades,Open Trade PnL,Best Trade [%],Worst Trade [%],Avg Winning Trade [%],Avg Losing Trade [%],Avg Winning Trade Duration,Avg Losing Trade Duration,Expectancy,Sharpe Ratio,Calmar Ratio,Omega Ratio,Skew,Kurtosis,Tail Ratio,Common Sense Ratio,Value at Risk,Alpha,Beta,Daily Returns,Annual Returns,Cumulative Returns,Annualized Return,Annualized Volatility,Beats BNH [%],Total Period,Score,Avg Trade Duration
-TLT,true,16,86,false,43,42.857142857142854,1.7184196917709167,0.007359383213597337,1.577148443713864,0.5229079386047072,0.15822673909234275,0.3127737865778868,0.24954705531340798,0.4995022591363862,0,0,5707,5708 days 00:00:00,1000.0,1752.9104533994268,75.29104533994268,12.671739765010148,100.0,121.74912120699776,28.1843567745591,1245 days 00:00:00,42,1,6.27055620067199,24.517969694421826,-5.799585237333497,7.418699289291197,-2.8040146904691357,121 days 16:00:00,31 days 04:00:00,17.77714040949416,0.34389753820801594,0.1296568248923733,1.0704886846517416,0.3036174884876394,12.9015991323432,0.9891508451225041,0.3737665463297232,-0.010805273025343417,None,None,0.00012084067022983026,0.030451848897917223,0.7529104533994315,0.025089162188109526,0.10656896822422558,4.941650218215509,8266.09126984127,0.04092400753978597,69 days 22:51:25.714285714
-TLT,false,72,88
-TLT,false,71,85
-TLT,false,71,88
-TLT,false,31,51
-TLT,true,43,77
-TLT,true,42,77
