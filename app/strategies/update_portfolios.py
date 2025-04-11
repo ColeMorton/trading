@@ -195,7 +195,7 @@ def run(portfolio: str) -> bool:
 
 if __name__ == "__main__":
     try:
-        result = run(config.get("PORTFOLIO", 'DAILY.csv'))
+        result = run(config.get("PORTFOLIO", 'MSTR_d_20250403.csv'))
         if result:
             print("Execution completed successfully!")
     except Exception as e:

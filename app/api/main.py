@@ -6,7 +6,6 @@ It sets up routing, middleware, and error handling.
 """
 
 import os
-import logging
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware

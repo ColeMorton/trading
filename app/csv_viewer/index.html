@@ -70,12 +70,21 @@
         <div class="max-w-full mx-auto">
             <h1 class="text-2xl font-bold mb-4">CSV Viewer</h1>
             
-            <!-- File selector section -->
+            <!-- File selector section with Update button -->
             <div class="mb-4 p-3 bg-white rounded shadow-sm">
-                <label for="file-selector" class="block text-sm font-medium text-gray-700 mb-2">Select CSV File:</label>
-                <select id="file-selector" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="">Select a file...</option>
-                </select>
+                <div class="flex items-center space-x-2">
+                    <div class="flex-grow">
+                        <label for="file-selector" class="block text-sm font-medium text-gray-700 mb-2">Select CSV File:</label>
+                        <select id="file-selector" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="">Select a file...</option>
+                        </select>
+                    </div>
+                    <div class="pt-6">
+                        <button id="update-button" disabled class="px-4 py-2 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                            Update
+                        </button>
+                    </div>
+                </div>
             </div>
             
             <!-- File info section -->
@@ -89,6 +98,9 @@
             
             <!-- Error message -->
             <div id="error-message" class="hidden p-4 mb-4 text-red-700 bg-red-100 rounded-lg"></div>
+            
+            <!-- Update status message -->
+            <div id="update-status" class="hidden mb-4 p-3 rounded shadow-sm"></div>
             
             <!-- Table container -->
             <div id="table-container" class="hidden overflow-x-auto bg-white rounded-lg shadow-lg p-4">
@@ -211,7 +223,120 @@
                 fileSelector.addEventListener('change', function() {
                     if (this.value) {
                         loadCSVData(this.value);
+                        
+                        // Enable Update button when a file is selected
+                        const updateButton = document.getElementById('update-button');
+                        updateButton.disabled = false;
+                    } else {
+                        // Disable Update button when no file is selected
+                        const updateButton = document.getElementById('update-button');
+                        updateButton.disabled = true;
                     }
+                });
+                
+                // Add event listener for Update button
+                document.getElementById('update-button').addEventListener('click', function() {
+                    const filePath = fileSelector.value;
+                    if (!filePath) return;
+                    
+                    // Show loading state
+                    this.disabled = true;
+                    this.innerHTML = '<span class="animate-spin inline-block mr-2">↻</span> Updating...';
+                    
+                    // Hide previous status
+                    const updateStatus = document.getElementById('update-status');
+                    updateStatus.classList.add('hidden');
+                    
+                    // Get just the filename without the path
+                    const fileName = filePath.split('/').pop();
+                    
+                    // Make API request to update portfolio
+                    fetch('/api/scripts/update-portfolio', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            portfolio: fileName
+                        }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Show status message
+                        updateStatus.classList.remove('hidden');
+                        
+                        if (data.status === "accepted") {
+                            updateStatus.className = 'mb-4 p-3 bg-blue-100 text-blue-800 rounded shadow-sm';
+                            updateStatus.textContent = `Portfolio update started. Execution ID: ${data.execution_id}`;
+                            
+                            // Start polling for execution status
+                            const executionId = data.execution_id;
+                            const pollInterval = setInterval(() => {
+                                fetch(`/api/scripts/status/${executionId}`)
+                                    .then(response => response.json())
+                                    .then(statusData => {
+                                        if (statusData.status === "completed") {
+                                            // Clear the interval
+                                            clearInterval(pollInterval);
+                                            
+                                            // Update status message
+                                            updateStatus.className = 'mb-4 p-3 bg-green-100 text-green-800 rounded shadow-sm';
+                                            updateStatus.textContent = 'Portfolio updated successfully!';
+                                            
+                                            // Reset button
+                                            this.disabled = false;
+                                            this.textContent = 'Update';
+                                            
+                                            // Reload the CSV data to refresh the table
+                                            loadCSVData(filePath);
+                                        } else if (statusData.status === "failed") {
+                                            // Clear the interval
+                                            clearInterval(pollInterval);
+                                            
+                                            // Update status message
+                                            updateStatus.className = 'mb-4 p-3 bg-red-100 text-red-800 rounded shadow-sm';
+                                            updateStatus.textContent = `Update failed: ${statusData.error || 'Unknown error'}`;
+                                            
+                                            // Reset button
+                                            this.disabled = false;
+                                            this.textContent = 'Update';
+                                        } else {
+                                            // Update progress message
+                                            updateStatus.textContent = `Portfolio update in progress... Status: ${statusData.status}`;
+                                        }
+                                    })
+                                    .catch(error => {
+                                        // Clear the interval
+                                        clearInterval(pollInterval);
+                                        
+                                        // Update status message
+                                        updateStatus.className = 'mb-4 p-3 bg-red-100 text-red-800 rounded shadow-sm';
+                                        updateStatus.textContent = `Error checking status: ${error.message}`;
+                                        
+                                        // Reset button
+                                        this.disabled = false;
+                                        this.textContent = 'Update';
+                                    });
+                            }, 2000); // Poll every 2 seconds
+                        } else {
+                            updateStatus.className = 'mb-4 p-3 bg-red-100 text-red-800 rounded shadow-sm';
+                            updateStatus.textContent = `Error: ${data.message || 'Unknown error'}`;
+                            
+                            // Reset button
+                            this.disabled = false;
+                            this.textContent = 'Update';
+                        }
+                    })
+                    .catch(error => {
+                        // Reset button
+                        this.disabled = false;
+                        this.textContent = 'Update';
+                        
+                        // Show error message
+                        updateStatus.classList.remove('hidden');
+                        updateStatus.className = 'mb-4 p-3 bg-red-100 text-red-800 rounded shadow-sm';
+                        updateStatus.textContent = `Error starting update: ${error.message}`;
+                    });
                 });
                 
                 // Load file list on page load

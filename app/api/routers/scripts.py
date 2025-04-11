@@ -4,7 +4,7 @@ Scripts Router
 This module provides API endpoints for script execution and management.
 """
 
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Query, Path
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Query, Path, Body
 from typing import Dict, Any, List, Optional
 import logging
 
@@ -158,3 +158,60 @@ async def list_scripts():
     except Exception as e:
         log(f"Failed to list scripts: {str(e)}", "error")
         raise HTTPException(status_code=500, detail=f"Failed to list scripts: {str(e)}")
+
+@router.post(
+    "/update-portfolio",
+    response_model=AsyncScriptExecutionResponse,
+    responses={
+        400: {"model": ErrorResponse, "description": "Bad request"},
+        404: {"model": ErrorResponse, "description": "Script not found"},
+        500: {"model": ErrorResponse, "description": "Internal server error"}
+    },
+    summary="Update portfolio",
+    description="Execute the update_portfolios.py script with the specified portfolio file."
+)
+async def update_portfolio(request: Dict[str, str] = Body(...)):
+    """
+    Update a portfolio by executing the update_portfolios.py script.
+    
+    Args:
+        request (Dict[str, str]): Request containing the portfolio file name
+        
+    Returns:
+        AsyncScriptExecutionResponse: Script execution response
+        
+    Raises:
+        HTTPException: If the script execution fails
+    """
+    try:
+        portfolio = request.get("portfolio")
+        if not portfolio:
+            raise ValueError("Portfolio file name is required")
+        
+        log(f"Updating portfolio: {portfolio}")
+        
+        # Execute the update_portfolios.py script
+        script_path = "app/strategies/update_portfolios.py"
+        parameters = {"portfolio": portfolio}
+        
+        # Start script execution
+        execution_id, result = start_script_execution(
+            script_path,
+            parameters,
+            async_execution=True  # Use async execution
+        )
+        
+        return AsyncScriptExecutionResponse(
+            status="accepted",
+            execution_id=execution_id,
+            message="Portfolio update started"
+        )
+    except ScriptExecutionError as e:
+        log(f"Script execution error: {str(e)}", "error")
+        raise HTTPException(status_code=500, detail=str(e))
+    except ValueError as e:
+        log(f"Invalid request: {str(e)}", "error")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        log(f"Unexpected error: {str(e)}", "error")
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
