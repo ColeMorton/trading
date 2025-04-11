@@ -122,7 +122,7 @@ def run(portfolio: str) -> bool:
         if success and portfolios:
             log("=== Strategy Summary ===")
             
-            # Sort portfolios by Score (descending)
+            # Sort portfolios by Score (descending) for main display
             sorted_portfolios = sorted(portfolios, key=lambda x: x.get('Score', 0), reverse=True)
             
             # List strategies where Total Open Trades = 1 AND Signal Entry = false (to avoid duplicates)
@@ -130,6 +130,27 @@ def run(portfolio: str) -> bool:
                                      (p.get('Total Open Trades') == 1 or
                                       (isinstance(p.get('Total Open Trades'), str) and p.get('Total Open Trades') == '1')) and
                                      str(p.get('Signal Entry', '')).lower() != 'true']
+            # Count strategies per ticker
+            ticker_counts = {}
+            for p in open_trades_strategies:
+                ticker = p.get('Ticker', 'Unknown')
+                ticker_counts[ticker] = ticker_counts.get(ticker, 0) + 1
+            
+            # Add the count to each strategy
+            for p in open_trades_strategies:
+                ticker = p.get('Ticker', 'Unknown')
+                p['ticker_strategy_count'] = ticker_counts.get(ticker, 0)
+            
+            # Sort open trades strategies first by ticker strategy count, then by Score
+            open_trades_strategies = sorted(open_trades_strategies,
+                                           key=lambda x: (
+                                               # First sort by ticker strategy count
+                                               x.get('ticker_strategy_count', 0),
+                                               # Then sort by Score
+                                               x.get('Score', 0)
+                                           ),
+                                           reverse=True)
+            
             if open_trades_strategies:
                 log("\n=== Open Trades ===")
                 log("Ticker, Strategy Type, Short Window, Long Window, Signal Window, Score")
@@ -140,16 +161,31 @@ def run(portfolio: str) -> bool:
                     long_window = p.get('Long Window', 'N/A')
                     signal_window = p.get('Signal Window', 'N/A')
                     score = p.get('Score', 0)
-                    
+
                     log(f"{ticker}, {strategy_type}, {short_window}, {long_window}, {signal_window}, {score:.4f}")
             else:
                 log("\n=== No Open Trades found ===")
             
             # List strategies where Signal Entry = true
             signal_entry_strategies = [p for p in sorted_portfolios if str(p.get('Signal Entry', '')).lower() == 'true']
+            
+            # Count strategies per ticker for signal entries
+            signal_ticker_counts = {}
+            for p in signal_entry_strategies:
+                ticker = p.get('Ticker', 'Unknown')
+                signal_ticker_counts[ticker] = signal_ticker_counts.get(ticker, 0) + 1
+            
+            # Add the count to each strategy
+            for p in signal_entry_strategies:
+                ticker = p.get('Ticker', 'Unknown')
+                p['ticker_strategy_count'] = signal_ticker_counts.get(ticker, 0)
+            
+            # Sort signal entry strategies by Score (descending)
+            signal_entry_strategies = sorted(signal_entry_strategies, key=lambda x: x.get('Score', 0), reverse=True)
+            
             if signal_entry_strategies:
                 log("\n=== Signal Entries ===")
-                log("Ticker, Strategy Type, Short Window, Long Window, Signal Window, Score")
+                log("Ticker, Strategy Type, Short Window, Long Window, Signal Window, Score, Total Open Trades")
                 for p in signal_entry_strategies:
                     ticker = p.get('Ticker', 'Unknown')
                     strategy_type = p.get('Strategy Type', 'Unknown')
@@ -157,8 +193,9 @@ def run(portfolio: str) -> bool:
                     long_window = p.get('Long Window', 'N/A')
                     signal_window = p.get('Signal Window', 'N/A')
                     score = p.get('Score', 0)
+                    ticker_strategy_count = p.get('ticker_strategy_count', 0)
                     
-                    log(f"{ticker}, {strategy_type}, {short_window}, {long_window}, {signal_window}, {score:.4f}")
+                    log(f"{ticker}, {strategy_type}, {short_window}, {long_window}, {signal_window}, {score:.4f}, {ticker_strategy_count}")
             else:
                 log("\n=== No Signal Entries found ===")
         
