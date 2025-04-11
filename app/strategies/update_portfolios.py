@@ -24,7 +24,7 @@ config = {
     # "PORTFOLIO": 'spy_qqq_h_20250311.csv',
     # "PORTFOLIO": 'total_d_20250328.csv',
     # "PORTFOLIO": 'DAILY_crypto.csv',
-    "PORTFOLIO": 'DAILY.csv',
+    # "PORTFOLIO": 'DAILY.csv',
     # "PORTFOLIO": 'crypto_h.csv',
     # "PORTFOLIO": 'DAILY_crypto_short.csv',
     # "PORTFOLIO": 'Indices_d.csv',
@@ -37,12 +37,13 @@ config = {
     # "PORTFOLIO": 'BTC_MSTR_TLT_d_20250404.csv',
     # "PORTFOLIO": 'MSTR_vs_MSTY_h_20250409.csv',
     # "PORTFOLIO": 'NVDA_d_20250410.csv',
-    # "PORTFOLIO": 'BTC_d.csv',
+    "PORTFOLIO": 'NFLX_d_20250410.csv',
     # "PORTFOLIO": 'MSTY_h.csv',
     # "PORTFOLIO": 'ORLY_d_20250410.csv',
     # "PORTFOLIO": 'TLT_EDV_d_20250404.csv',
     # "PORTFOLIO": 'BTC_MSTR_d_20250409.csv',
     # "PORTFOLIO": 'SPY_QQQ_20250327.csv',
+    "REFRESH": False,
     "USE_CURRENT": False,
     "USE_HOURLY": False,
     "BASE_DIR": '.',  # Added BASE_DIR for export configuration
@@ -116,6 +117,48 @@ def run(portfolio: str) -> bool:
 
         # Export results with config
         success = export_summary_results(portfolios, portfolio, log, config)
+        
+        # Display strategy data as requested
+        if success and portfolios:
+            log("=== Strategy Summary ===")
+            
+            # Sort portfolios by Score (descending)
+            sorted_portfolios = sorted(portfolios, key=lambda x: x.get('Score', 0), reverse=True)
+            
+            # List strategies where Total Open Trades = 1
+            open_trades_strategies = [p for p in sorted_portfolios if p.get('Total Open Trades') == 1 or
+                                     (isinstance(p.get('Total Open Trades'), str) and p.get('Total Open Trades') == '1')]
+            if open_trades_strategies:
+                log("\n=== Open Trades ===")
+                log("Ticker, Strategy Type, Short Window, Long Window, Signal Window, Score")
+                for p in open_trades_strategies:
+                    ticker = p.get('Ticker', 'Unknown')
+                    strategy_type = p.get('Strategy Type', 'Unknown')
+                    short_window = p.get('Short Window', 'N/A')
+                    long_window = p.get('Long Window', 'N/A')
+                    signal_window = p.get('Signal Window', 'N/A')
+                    score = p.get('Score', 0)
+                    
+                    log(f"{ticker}, {strategy_type}, {short_window}, {long_window}, {signal_window}, {score:.4f}")
+            else:
+                log("\n=== No Open Trades found ===")
+            
+            # List strategies where Signal Entry = true
+            signal_entry_strategies = [p for p in sorted_portfolios if str(p.get('Signal Entry', '')).lower() == 'true']
+            if signal_entry_strategies:
+                log("\n=== Signal Entries ===")
+                log("Ticker, Strategy Type, Short Window, Long Window, Signal Window, Score")
+                for p in signal_entry_strategies:
+                    ticker = p.get('Ticker', 'Unknown')
+                    strategy_type = p.get('Strategy Type', 'Unknown')
+                    short_window = p.get('Short Window', 'N/A')
+                    long_window = p.get('Long Window', 'N/A')
+                    signal_window = p.get('Signal Window', 'N/A')
+                    score = p.get('Score', 0)
+                    
+                    log(f"{ticker}, {strategy_type}, {short_window}, {long_window}, {signal_window}, {score:.4f}")
+            else:
+                log("\n=== No Signal Entries found ===")
         
         log_close()
         return success
