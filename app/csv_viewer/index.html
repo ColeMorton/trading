@@ -416,8 +416,12 @@
                                             
                                             // Format numbers with appropriate precision
                                             if (typeof data === 'number') {
+                                                // Special case for zero
+                                                if (data === 0) {
+                                                    return '0';
+                                                }
                                                 // For score and other decimal values
-                                                if (Math.abs(data) < 0.01) {
+                                                else if (Math.abs(data) < 0.01) {
                                                     return data.toExponential(4);
                                                 } else if (Math.abs(data) >= 1000) {
                                                     return data.toLocaleString(undefined, {maximumFractionDigits: 2});
