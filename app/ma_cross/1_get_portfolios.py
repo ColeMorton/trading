@@ -81,12 +81,12 @@ CONFIG: Config = {
     #     "XLP",
     #     "XLB"
     # ],
-    "TICKER": [
-        "NVDA",
-        "NFLX",
-        "ORLY"
-    ],
-    "TICKER": 'TSLA',
+    # "TICKER": [
+    #     "NVDA",
+    #     "NFLX",
+    #     "ORLY"
+    # ],
+    "TICKER": 'COIN',
     # "TICKER_2": 'MSTY',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -101,7 +101,7 @@ CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": True,
+    "USE_CURRENT": False,
     "MINIMUMS": {
         # "TRADES": 13,
         # "TRADES": 21,
