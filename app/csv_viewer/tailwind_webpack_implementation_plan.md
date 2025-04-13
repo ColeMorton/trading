@@ -1,10 +1,16 @@
-# Tailwind CSS Implementation Plan with Webpack for CSV Viewer
+# Tailwind CSS Implementation Plan with Webpack for Sensylate
 
-Based on your requirements, here's a detailed plan to implement Tailwind CSS with Webpack for the CSV Viewer application. This approach will provide a complete development environment with optimized builds for production.
+Based on your requirements, here's a detailed plan to implement Tailwind CSS with Webpack for the Sensylate application. This approach will provide a complete development environment with optimized builds for production.
 
 ## Current State Analysis
 
-The CSV Viewer currently:
+## Application Description
+
+Sensylate: Sensitivity analysis meets portfolio simulation and strategy creation.
+
+## Current State Analysis
+
+The application currently:
 - Is served by a FastAPI backend at `http://127.0.0.1:8000/viewer`
 - Uses Tailwind CSS via CDN (`<script src="https://cdn.tailwindcss.com"></script>`)
 - Has custom CSS in `styles.css` that mimics Tailwind classes
@@ -18,7 +24,7 @@ The CSV Viewer currently:
 We'll create a Node.js project within the CSV Viewer directory to manage frontend dependencies:
 
 ```
-app/csv_viewer/
+app/sensylate/
 ├── dist/               # Compiled assets (to be created)
 ├── src/                # Source files (to be created)
 │   ├── index.html      # Moved from root
@@ -168,7 +174,7 @@ import Papa from 'papaparse';
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CSV Viewer</title>
+    <title>Sensylate</title>
     <!-- No more CDN links, everything will be bundled -->
 </head>
 <body class="bg-gray-50 p-6">
@@ -182,15 +188,15 @@ import Papa from 'papaparse';
 Update the FastAPI server to serve the bundled assets from the `dist` directory:
 
 ```python
-# In the FastAPI router file
+# In the FastAPI router file (update paths from csv_viewer to sensylate)
 from fastapi.staticfiles import StaticFiles
 
 # Mount the dist directory
-app.mount("/static", StaticFiles(directory="app/csv_viewer/dist"), name="static")
+app.mount("/static", StaticFiles(directory="app/sensylate/dist"), name="static")
 
 @app.get("/viewer")
 async def get_viewer():
-    return FileResponse("app/csv_viewer/dist/index.html")
+    return FileResponse("app/sensylate/dist/index.html")
 ```
 
 ### 10. Update npm Scripts
@@ -211,7 +217,7 @@ For development, we'll set up two processes:
 
 1. Webpack dev server for frontend development:
    ```bash
-   cd app/csv_viewer
+   cd app/sensylate
    npm run start
    ```
 
@@ -241,12 +247,16 @@ The Webpack dev server will proxy API requests to the FastAPI server, allowing f
 
 ## Migration Strategy
 
-1. Set up the new project structure without modifying existing files
-2. Create the Webpack and Tailwind configurations
-3. Move and adapt the existing files to the new structure
-4. Convert custom CSS to Tailwind utility classes where possible
-5. Test the development workflow
-6. Build for production and update the FastAPI server to serve the bundled assets
+1. Rename the directory from `app/csv_viewer` to `app/sensylate` to match the new application name
+2. Update any references to the old directory path in the codebase (API routes, imports, etc.)
+3. Set up the new project structure within the renamed directory
+4. Create the Webpack and Tailwind configurations
+5. Move and adapt the existing files to the new structure
+6. Replace all instances of "CSV Viewer" with "Sensylate" in code and UI
+7. Update the application description to "Sensitivity analysis meets portfolio simulation and strategy creation"
+8. Convert custom CSS to Tailwind utility classes where possible
+9. Test the development workflow
+10. Build for production and update the FastAPI server to serve the bundled assets
 
 ## Benefits of This Approach
 
