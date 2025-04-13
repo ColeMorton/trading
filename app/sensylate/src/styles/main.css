@@ -1,0 +1,342 @@
+/* Regular CSS styles instead of Tailwind */
+
+/* DataTable base styles */
+.datatable-custom {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #e5e7eb;
+  table-layout: auto;
+}
+
+/* DataTable header styles */
+.datatable-custom thead th {
+  background-color: #f9fafb;
+  color: #374151;
+  text-align: left;
+  padding: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* DataTable cell styles */
+.datatable-custom tbody td {
+  padding: 0.5rem;
+  font-size: 1rem;
+  color: #374151;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+/* DataTable row hover */
+.datatable-custom tbody tr:hover {
+  background-color: #f3f4f6;
+}
+
+/* DataTables pagination buttons */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  padding: 0.25rem 0.5rem;
+  margin: 0 0.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  color: #374151;
+  background-color: white;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+/* DataTables pagination button hover */
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+}
+
+/* DataTables pagination current button */
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  background-color: #6366f1;
+  color: white;
+  border-color: #6366f1;
+}
+
+/* DataTables filter margin */
+.dataTables_filter {
+  margin-bottom: 1rem;
+}
+
+/* CSV text view */
+.csv-text-view {
+  width: 100%;
+  height: 70vh;
+  font-family: monospace;
+  font-size: 0.875rem;
+  white-space: pre;
+  overflow: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  background-color: #f9fafb;
+}
+
+/* View toggle container */
+.view-toggle-container {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+}
+
+/* View toggle buttons */
+.view-toggle-container button {
+  transition: all 0.2s;
+}
+
+/* General utility classes */
+.hidden {
+  display: none;
+}
+
+.bg-gray-50 {
+  background-color: #f9fafb;
+}
+
+.p-6 {
+  padding: 1.5rem;
+}
+
+.max-w-full {
+  max-width: 100%;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.text-gray-600 {
+  color: #4b5563;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.bg-white {
+  background-color: white;
+}
+
+.rounded {
+  border-radius: 0.25rem;
+}
+
+.shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.space-x-2 > * + * {
+  margin-left: 0.5rem;
+}
+
+.flex-grow {
+  flex-grow: 1;
+}
+
+.block {
+  display: block;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.text-gray-700 {
+  color: #374151;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.py-2 {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.border {
+  border-width: 1px;
+}
+
+.border-gray-300 {
+  border-color: #d1d5db;
+}
+
+.rounded-md {
+  border-radius: 0.375rem;
+}
+
+.shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.focus\:outline-none:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.focus\:ring-indigo-500:focus {
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgba(99, 102, 241, var(--tw-ring-opacity));
+}
+
+.focus\:border-indigo-500:focus {
+  --tw-border-opacity: 1;
+  border-color: rgba(99, 102, 241, var(--tw-border-opacity));
+}
+
+.pt-6 {
+  padding-top: 1.5rem;
+}
+
+.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.bg-indigo-600 {
+  background-color: #6366f1;
+}
+
+.text-white {
+  color: white;
+}
+
+.hover\:bg-indigo-700:hover {
+  background-color: #4f46e5;
+}
+
+.focus\:ring-2:focus {
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
+
+.focus\:ring-offset-2:focus {
+  --tw-ring-offset-width: 2px;
+}
+
+.disabled\:opacity-50:disabled {
+  opacity: 0.5;
+}
+
+.disabled\:cursor-not-allowed:disabled {
+  cursor: not-allowed;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rounded-full {
+  border-radius: 9999px;
+}
+
+.h-12 {
+  height: 3rem;
+}
+
+.w-12 {
+  width: 3rem;
+}
+
+.border-b-2 {
+  border-bottom-width: 2px;
+}
+
+.ml-3 {
+  margin-left: 0.75rem;
+}
+
+.p-4 {
+  padding: 1rem;
+}
+
+.text-red-700 {
+  color: #b91c1c;
+}
+
+.bg-red-100 {
+  background-color: #fee2e2;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.space-x-2 {
+  margin-left: -0.5rem;
+  margin-right: -0.5rem;
+}
+
+.space-x-2 > * {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.bg-gray-200 {
+  background-color: #e5e7eb;
+}
+
+.hover\:bg-gray-300:hover {
+  background-color: #d1d5db;
+}
+
+.overflow-x-auto {
+  overflow-x: auto;
+}
+
+.shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}

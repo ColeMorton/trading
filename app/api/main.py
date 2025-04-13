@@ -11,12 +11,14 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from app.api.routers import scripts, data, viewer
+from app.api.routers import scripts, data, viewer, sensylate
 from app.api.utils.logging import setup_api_logging
 
 # Define paths
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 CSV_VIEWER_DIR = os.path.join(BASE_DIR, 'app', 'csv_viewer')
+SENSYLATE_DIR = os.path.join(BASE_DIR, 'app', 'sensylate')
+SENSYLATE_DIST_DIR = os.path.join(SENSYLATE_DIR, 'dist')
 
 # Create FastAPI application
 app = FastAPI(
@@ -62,9 +64,18 @@ log, log_close, logger, _ = setup_api_logging()
 app.include_router(scripts.router, prefix="/api/scripts", tags=["scripts"])
 app.include_router(data.router, prefix="/api/data", tags=["data"])
 app.include_router(viewer.router, prefix="/viewer", tags=["viewer"])
+app.include_router(sensylate.router, prefix="/sensylate", tags=["sensylate"])
 
-# Mount static files directory
+# Mount static files directories
 app.mount("/static", StaticFiles(directory=CSV_VIEWER_DIR), name="static")
+
+# Check if the dist directory exists before mounting
+if os.path.exists(SENSYLATE_DIST_DIR):
+    # For production, serve from the dist directory
+    app.mount("/sensylate-static", StaticFiles(directory=SENSYLATE_DIST_DIR), name="sensylate-static")
+else:
+    # For development, serve from the src directory
+    app.mount("/sensylate-static", StaticFiles(directory=os.path.join(SENSYLATE_DIR, 'src')), name="sensylate-static")
 
 # Global exception handler
 @app.exception_handler(Exception)
