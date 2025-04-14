@@ -1,5 +1,8 @@
+/* tailwind directives */
 @tailwind base;
+/* tailwind components directive */
 @tailwind components;
+/* tailwind utilities directive */
 @tailwind utilities;
 
 /* Custom styles for the table */
