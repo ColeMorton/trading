@@ -127,52 +127,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
     
-    // Function to parse CSV data using PapaParse
-    function parseCSVWithPapa(csvText) {
-        return new Promise((resolve, reject) => {
-            if (!csvText || typeof csvText !== 'string' || csvText.trim() === '') {
-                console.error("Invalid CSV text provided to parseCSVWithPapa:", csvText);
-                reject(new Error("Invalid or empty CSV text"));
-                return;
-            }
-
-            console.log("CSV text sample (first 100 chars):", csvText.substring(0, 100));
-            
-            Papa.parse(csvText, {
-                header: true,  // This tells PapaParse to use the first row as headers
-                dynamicTyping: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    console.log("PapaParse successfully parsed CSV data:", results.meta);
-                    
-                    if (results.errors && results.errors.length > 0) {
-                        console.warn("PapaParse encountered non-fatal errors:", results.errors);
-                    }
-                    
-                    if (!results.data || results.data.length === 0) {
-                        console.warn("PapaParse returned empty data set");
-                    } else {
-                        console.log(`PapaParse parsed ${results.data.length} rows of data`);
-                        console.log("First row sample:", results.data[0]);
-                    }
-                    
-                    // Store the original headers from the CSV
-                    const headers = results.meta.fields;
-                    console.log("CSV Headers:", headers);
-                    
-                    // Return both the data and headers
-                    resolve({
-                        data: results.data,
-                        headers: headers
-                    });
-                },
-                error: function(error) {
-                    console.error("PapaParse error:", error);
-                    reject(error);
-                }
-            });
-        });
-    }
     
     // Function to load CSV data
     function loadCSVData(filePath) {
@@ -327,8 +281,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Clear any existing DataTable
                 if ($.fn.DataTable.isDataTable('#csv-table')) {
                     $('#csv-table').DataTable().destroy();
-                    $('#csv-table').empty();
                 }
+                // Always empty the table container to prevent duplicate headers
+                $('#csv-table').empty();
                 
                 // Initialize DataTable with simple configuration (similar to the working version)
                 $('#csv-table').DataTable({
@@ -386,103 +341,6 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error("Error in loadCSVData:", error);
-                
-                // Try one more approach - direct file fetch and parse with PapaParse
-                if (filePath.startsWith('http') || filePath.includes('/')) {
-                    console.log("Attempting direct CSV parsing with PapaParse");
-                    // This is a URL or path, try to fetch it directly
-                    Papa.parse(filePath, {
-                        download: true,
-                        header: true,
-                        dynamicTyping: true,
-                        skipEmptyLines: true,
-                        complete: function(results) {
-                            console.log("PapaParse direct parsing results:", results);
-                            if (results.data && results.data.length > 0) {
-                                console.log("Successfully parsed CSV directly with PapaParse");
-                                
-                                // Process the data similar to the main flow
-                                const data = results.data;
-                                
-                                // Hide loading indicator
-                                loadingIndicator.classList.add('hidden');
-                                
-                                // Display file info
-                                fileInfo.innerHTML = `
-                                    <p><strong>File:</strong> ${filePath.split('/').pop()}</p>
-                                    <p><strong>Rows:</strong> ${data.length}</p>
-                                    <p><strong>Columns:</strong> ${Object.keys(data[0]).length}</p>
-                                    <p><em>Parsed directly with PapaParse</em></p>
-                                `;
-                                
-                                // Show view toggle buttons
-                                document.getElementById('view-toggle').classList.remove('hidden');
-                                
-                                // Get columns
-                                const columns = Object.keys(data[0]);
-                                
-                                // Set raw text
-                                csvText.value = Papa.unparse(data);
-                                
-                                // Show table view by default
-                                showTableView();
-                                
-                                // Clear any existing DataTable
-                                if ($.fn.DataTable.isDataTable('#csv-table')) {
-                                    $('#csv-table').DataTable().destroy();
-                                    $('#csv-table').empty();
-                                }
-                                
-                                // Initialize DataTable with simple configuration
-                                $('#csv-table').DataTable({
-                                    data: data,
-                                    columns: columns.map(col => ({
-                                        title: col,
-                                        data: col,
-                                        render: function(data, type, row) {
-                                            // For sorting and type detection
-                                            if (type === 'sort' || type === 'type') {
-                                                return data === null || data === undefined ? '' : data;
-                                            }
-                                            
-                                            // For display
-                                            if (data === null || data === undefined) {
-                                                return '';
-                                            }
-                                            
-                                            // Format numbers with appropriate precision
-                                            if (typeof data === 'number') {
-                                                if (data === 0) return '0';
-                                                else if (Math.abs(data) < 0.01) return data.toExponential(4);
-                                                else if (Math.abs(data) >= 1000) return data.toLocaleString(undefined, {maximumFractionDigits: 2});
-                                                else return data.toLocaleString(undefined, {maximumFractionDigits: 4});
-                                            }
-                                            
-                                            return data;
-                                        }
-                                    })),
-                                    scrollX: true,
-                                    scrollY: '70vh',
-                                    scrollCollapse: true,
-                                    paging: false,
-                                    searching: true,
-                                    ordering: true,
-                                    info: true
-                                });
-                            } else {
-                                console.error("PapaParse direct parsing: No data found");
-                                showError('Error parsing CSV file directly: No data found. The file may be empty or have an invalid format.');
-                            }
-                        },
-                        error: function(error) {
-                            console.error("PapaParse direct parsing error:", error);
-                            showError('Error loading CSV file: ' + error.message);
-                        }
-                    });
-                } else {
-                    console.error("Error loading CSV file:", error);
-                    showError('Error loading CSV file: ' + error.message);
-                }
             });
     }
     // Event listener for file selector
