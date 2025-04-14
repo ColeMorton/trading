@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:pwa": "tsc && vite build --mode production",
     "preview": "vite preview",
+    "serve:pwa": "vite preview --port 5000",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "keywords": [],
@@ -17,7 +19,9 @@
     "axios": "^1.6.2",
     "papaparse": "^5.5.2",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "vite-plugin-pwa": "^1.0.0",
+    "workbox-window": "^7.3.0"
   },
   "devDependencies": {
     "@types/papaparse": "^5.3.14",
