@@ -1,11 +1,5 @@
-// Import styles
+// Import CSS for webpack to process
 import '../styles/main.css';
-
-// Import dependencies
-import $ from 'jquery';
-import 'datatables.net';
-// Import DataTables CSS directly in the HTML file for now
-import Papa from 'papaparse';
 
 document.addEventListener('DOMContentLoaded', function() {
     const fileSelector = document.getElementById('file-selector');
@@ -42,41 +36,33 @@ document.addEventListener('DOMContentLoaded', function() {
     tableViewBtn.addEventListener('click', showTableView);
     textViewBtn.addEventListener('click', showTextView);
     
-    // Function to convert CSV data to raw text using PapaParse
+    // Function to convert CSV data to raw text
     function convertToRawText(data, columns) {
-        // Use PapaParse to convert JSON data back to CSV
-        try {
-            return Papa.unparse(data);
-        } catch (error) {
-            console.error("Error using Papa.unparse:", error);
-            
-            // Fallback to manual conversion if PapaParse fails
-            // Create header row
-            let rawText = columns.join(',') + '\n';
-            
-            // Add data rows
-            data.forEach(row => {
-                const rowValues = columns.map(col => {
-                    // Get the value and handle null/undefined
-                    let value = row[col];
-                    
-                    // Format numbers appropriately for CSV
-                    if (typeof value === 'number') {
-                        // Don't round numbers in the raw CSV data
-                        value = String(value);
-                    } else {
-                        // Handle null/undefined
-                        value = value !== null && value !== undefined ? String(value) : '';
-                    }
-                    
-                    // Handle values with commas by quoting them
-                    return value.includes(',') ? `"${value}"` : value;
-                });
-                rawText += rowValues.join(',') + '\n';
+        // Create header row
+        let rawText = columns.join(',') + '\n';
+        
+        // Add data rows
+        data.forEach(row => {
+            const rowValues = columns.map(col => {
+                // Get the value and handle null/undefined
+                let value = row[col];
+                
+                // Format numbers appropriately for CSV
+                if (typeof value === 'number') {
+                    // Don't round numbers in the raw CSV data
+                    value = String(value);
+                } else {
+                    // Handle null/undefined
+                    value = value !== null && value !== undefined ? String(value) : '';
+                }
+                
+                // Handle values with commas by quoting them
+                return value.includes(',') ? `"${value}"` : value;
             });
-            
-            return rawText;
-        }
+            rawText += rowValues.join(',') + '\n';
+        });
+        
+        return rawText;
     }
     
     // Function to show error
@@ -121,70 +107,54 @@ document.addEventListener('DOMContentLoaded', function() {
                     option.textContent = file.path.split('/').pop();
                     fileSelector.appendChild(option);
                 });
+                
+                // Check if DAILY.csv exists in the list and select it by default
+                const dailyOption = Array.from(fileSelector.options).find(option =>
+                    option.textContent === 'DAILY.csv'
+                );
+                
+                if (dailyOption) {
+                    fileSelector.value = dailyOption.value;
+                    // Trigger change event to load the file
+                    const changeEvent = new Event('change');
+                    fileSelector.dispatchEvent(changeEvent);
+                }
             })
             .catch(error => {
                 showError('Error loading file list: ' + error.message);
             });
     }
     
-    
     // Function to load CSV data
     function loadCSVData(filePath) {
-        console.log(`Loading CSV data for file: ${filePath}`);
         loadingIndicator.classList.remove('hidden');
         tableContainer.classList.add('hidden');
         textContainer.classList.add('hidden');
         errorMessage.classList.add('hidden');
         document.getElementById('view-toggle').classList.add('hidden');
         
-        // Directly use the JSON API since we know the server returns JSON
-        console.log(`Fetching CSV data as JSON: /api/data/csv/${filePath}`);
         fetch(`/api/data/csv/${filePath}`)
             .then(response => {
                 if (!response.ok) {
-                    console.error(`JSON API fetch failed with status: ${response.status}`);
-                    throw new Error(`Failed to load CSV file: ${response.statusText}`);
+                    throw new Error('Failed to load CSV file');
                 }
                 return response.json();
             })
-            .then(jsonData => {
-                console.log("Received JSON data from API:", jsonData ? Object.keys(jsonData) : 'null');
-                return { type: 'json', data: jsonData };
-            })
-            .then(result => {
+            .then(response => {
                 // Hide loading indicator
                 loadingIndicator.classList.add('hidden');
                 
-                // Properly handle different response formats
-                const response = result.data;
-                
-                if (!response || !response.data) {
-                    console.error("Invalid response format:", response);
+                if (!response || !response.data || !response.data.data) {
                     showError('Invalid response format');
                     return;
                 }
                 
-                // Ensure we're accessing the correct data structure
-                let data;
-                if (response.data && response.data.data && Array.isArray(response.data.data)) {
-                    // Standard API response format
-                    data = response.data.data;
-                } else if (Array.isArray(response.data)) {
-                    // Direct data array
-                    data = response.data;
-                } else {
-                    console.error("Unexpected data format:", response);
-                    showError('Invalid data format received from server');
+                const data = response.data.data;
+                
+                if (data.length === 0) {
+                    showError('No data found in the CSV file.');
                     return;
                 }
-                
-                if (!data || data.length === 0) {
-                    console.error("Empty data array in CSV file");
-                    showError('No data found in the CSV file. The file may be empty or have an invalid format.');
-                    return;
-                }
-                
-                console.log("Parsed data sample:", data.slice(0, 3));
                 
                 // Debug: Check for Win Rate [%] column and its values
                 console.log("All columns:", Object.keys(data[0]));
@@ -216,23 +186,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Get columns
                 const columns = Object.keys(data[0]);
                 // Populate raw text view with original data (not the cleaned version)
-                // If we parsed the CSV ourselves, we should also set the raw text
-                if (result.type === 'csv') {
-                    try {
-                        // Get the original CSV text
-                        const originalText = Papa.unparse(data);
-                        csvText.value = originalText;
-                    } catch (error) {
-                        console.error("Error using Papa.unparse for raw data:", error);
-                        // Fallback to convertToRawText
-                        const rawText = convertToRawText(data, columns);
-                        csvText.value = rawText;
-                    }
-                } else {
-                    // Use the convertToRawText function for JSON data
-                    const rawText = convertToRawText(data, columns);
-                    csvText.value = rawText;
-                }
+                const rawText = convertToRawText(data, columns);
+                csvText.value = rawText;
                 
                 
                 // Show table view by default
@@ -278,21 +233,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Get clean column names
                 const cleanColumns = Object.keys(cleanData[0]);
                 
-                // Clear any existing DataTable
-                if ($.fn.DataTable.isDataTable('#csv-table')) {
-                    $('#csv-table').DataTable().destroy();
-                }
-                // Always empty the table container to prevent duplicate headers
-                $('#csv-table').empty();
-                
-                // Initialize DataTable with simple configuration (similar to the working version)
+                // Initialize DataTable
                 $('#csv-table').DataTable({
+                    destroy: true, // Destroy existing table
                     data: cleanData,
                     columns: cleanColumns.map(cleanKey => {
+                        // Get the original key for display
                         const originalKey = columnMapping[cleanKey];
+                        
+                        // Log column data types for debugging
+                        const sampleValues = cleanData.slice(0, 3).map(row => row[cleanKey]);
+                        console.log(`Column "${originalKey}" (${cleanKey}) sample values:`, sampleValues);
+                        
                         return {
+                            // Use original key with special characters for display
                             title: originalKey,
+                            // Use clean key for data access
                             data: cleanKey,
+                            // Ensure proper rendering of all data types
                             render: function(data, type, row) {
                                 // For sorting and type detection
                                 if (type === 'sort' || type === 'type') {
@@ -308,6 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 if (originalKey.includes('[%]') ||
                                     originalKey.toLowerCase().includes('rate') ||
                                     originalKey.toLowerCase().includes('percent')) {
+                                    console.log(`Rendering percentage value: ${data}, type: ${typeof data}`);
                                     if (typeof data === 'number') {
                                         return data.toFixed(2) + '%';
                                     } else if (typeof data === 'string' && !isNaN(parseFloat(data))) {
@@ -317,10 +276,18 @@ document.addEventListener('DOMContentLoaded', function() {
                                 
                                 // Format numbers with appropriate precision
                                 if (typeof data === 'number') {
-                                    if (data === 0) return '0';
-                                    else if (Math.abs(data) < 0.01) return data.toExponential(4);
-                                    else if (Math.abs(data) >= 1000) return data.toLocaleString(undefined, {maximumFractionDigits: 2});
-                                    else return data.toLocaleString(undefined, {maximumFractionDigits: 4});
+                                    // Special case for zero
+                                    if (data === 0) {
+                                        return '0';
+                                    }
+                                    // For score and other decimal values
+                                    else if (Math.abs(data) < 0.01) {
+                                        return data.toExponential(4);
+                                    } else if (Math.abs(data) >= 1000) {
+                                        return data.toLocaleString(undefined, {maximumFractionDigits: 2});
+                                    } else {
+                                        return data.toLocaleString(undefined, {maximumFractionDigits: 4});
+                                    }
                                 }
                                 
                                 return data;
@@ -336,11 +303,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     info: true,
                     lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
                     pageLength: "All",
+                    responsive: true,
+                    // Set default sort to "Score" column in descending order if it exists
                     order: scoreColumnIndex !== -1 ? [[scoreColumnIndex, 'desc']] : []
                 });
             })
             .catch(error => {
-                console.error("Error in loadCSVData:", error);
+                showError('Error loading CSV file: ' + error.message);
             });
     }
     // Event listener for file selector

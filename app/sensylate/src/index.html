@@ -4,15 +4,14 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Sensylate</title>
-        <!-- Include CSS and CDN links -->
         <script src="https://cdn.tailwindcss.com"></script>
-        <link rel="stylesheet" href="styles/main.css" />
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
         <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
     </head>
     <body class="bg-gray-50 p-6">
         <div class="max-w-full mx-auto">
             <h1 class="text-2xl font-bold mb-4">Sensylate</h1>
-            <p class="text-gray-600 mb-6">Sensitivity analysis meets portfolio simulation and strategy creation.</p>
             
             <!-- File selector section with Update button -->
             <div class="mb-4 p-3 bg-white rounded shadow-sm">
@@ -47,7 +46,7 @@
             <div id="update-status" class="hidden mb-4 p-3 rounded shadow-sm"></div>
             
             <!-- View toggle buttons -->
-            <div id="view-toggle" class="hidden view-toggle-container p-3 bg-white rounded shadow-sm">
+            <div id="view-toggle" class="hidden mb-4 p-3 bg-white rounded shadow-sm">
                 <div class="flex space-x-2">
                     <button id="table-view-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         Table View
@@ -68,6 +67,6 @@
                 <textarea id="csv-text" class="w-full h-[70vh] font-mono text-sm border border-gray-300 rounded-md p-2" readonly></textarea>
             </div>
         </div>
-        <!-- No script tags - everything is bundled by Webpack -->
+        <!-- Scripts will be injected by webpack -->
     </body>
 </html>
