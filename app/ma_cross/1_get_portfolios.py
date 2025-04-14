@@ -86,7 +86,7 @@ CONFIG: Config = {
     #     "NFLX",
     #     "ORLY"
     # ],
-    "TICKER": 'COIN',
+    "TICKER": 'BKNG',
     # "TICKER_2": 'MSTY',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -105,10 +105,10 @@ CONFIG: Config = {
     "MINIMUMS": {
         # "TRADES": 13,
         # "TRADES": 21,
-        # "WIN_RATE": 0.38,
-        # "TRADES": 34,
-        "WIN_RATE": 0.50,
-        "TRADES": 54,
+        "WIN_RATE": 0.38,
+        "TRADES": 34,
+        # "WIN_RATE": 0.50,
+        # "TRADES": 54,
         # "WIN_RATE": 0.61,
         "EXPECTANCY_PER_TRADE": 1,
         "PROFIT_FACTOR": 1,
