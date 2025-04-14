@@ -9,7 +9,7 @@ The module supports both regular tickers and synthetic tickers (identified by an
 in the ticker name, e.g., 'STRK_MSTR'). Synthetic tickers are automatically detected and
 processed by splitting them into their component tickers.
 """
-
+import os
 from app.tools.setup_logging import setup_logging
 from app.strategies.tools.summary_processing import (
     process_ticker_portfolios,
@@ -79,12 +79,30 @@ def run(portfolio: str) -> bool:
     )
     
     try:
+        # Add more detailed logging about the portfolio loading process
+        log(f"Attempting to load portfolio: {portfolio}", "info")
+        log(f"Current working directory: {os.getcwd()}", "info")
+        
+        # Get the project root directory (2 levels up from this file)
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+        log(f"Project root directory: {project_root}", "info")
+        
+        # Update the config with the correct BASE_DIR
+        config["BASE_DIR"] = project_root
+        log(f"Updated config BASE_DIR: {config['BASE_DIR']}", "info")
+        
+        # Check if the file exists in common locations
+        csv_path = os.path.join(project_root, "csv", "strategies", portfolio)
+        log(f"Checking if file exists at: {csv_path}", "info")
+        log(f"File exists: {os.path.exists(csv_path)}", "info")
+        
         # Load portfolio using the shared portfolio loader
         try:
             daily_df = load_portfolio(portfolio, log, config)
             log(f"Successfully loaded portfolio with {len(daily_df)} entries")
-        except FileNotFoundError:
+        except FileNotFoundError as e:
             log(f"Portfolio not found: {portfolio}", "error")
+            log(f"Error details: {str(e)}", "error")
             log_close()
             return False
 

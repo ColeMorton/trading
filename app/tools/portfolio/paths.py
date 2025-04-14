@@ -30,6 +30,13 @@ def resolve_portfolio_path(
     # Use provided base_dir or default to current directory
     base = Path(base_dir) if base_dir else Path('.')
     
+    # Print debugging information
+    import logging
+    logger = logging.getLogger()
+    logger.info(f"Resolving portfolio path for: {portfolio_name}")
+    logger.info(f"Base directory: {base.absolute()}")
+    logger.info(f"Current working directory: {Path.cwd().absolute()}")
+    
     # If file_type is specified, force that extension
     if file_type:
         if file_type.lower() not in ['csv', 'json']:

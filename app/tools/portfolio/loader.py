@@ -217,9 +217,15 @@ def load_portfolio(
         ValueError: If file is empty, malformed, or has an unsupported extension
     """
     try:
+        # Log more details about the portfolio loading process
+        log(f"Loading portfolio: {portfolio_name}", "info")
+        log(f"Config BASE_DIR: {config.get('BASE_DIR')}", "info")
+        log(f"Current working directory: {Path.cwd()}", "info")
+        
         # Resolve the portfolio path
         path = resolve_portfolio_path(portfolio_name, config.get("BASE_DIR"))
         log(f"Resolved portfolio path: {path}", "info")
+        log(f"Path exists: {path.exists()}", "info")
         
         # Load based on file extension
         extension = path.suffix.lower()

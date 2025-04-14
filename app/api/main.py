@@ -27,6 +27,9 @@ app = FastAPI(
     version="0.1.0"
 )
 
+# Set up logging
+log, log_close, logger, _ = setup_api_logging()
+
 # Set up CORS
 app.add_middleware(
     CORSMiddleware,
@@ -56,9 +59,6 @@ async def handle_specific_404(request: Request, call_next):
         )
     
     return response
-
-# Set up logging
-log, log_close, logger, _ = setup_api_logging()
 
 # Include routers
 app.include_router(scripts.router, prefix="/api/scripts", tags=["scripts"])
