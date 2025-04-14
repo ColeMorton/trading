@@ -130,16 +130,41 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to parse CSV data using PapaParse
     function parseCSVWithPapa(csvText) {
         return new Promise((resolve, reject) => {
+            if (!csvText || typeof csvText !== 'string' || csvText.trim() === '') {
+                console.error("Invalid CSV text provided to parseCSVWithPapa:", csvText);
+                reject(new Error("Invalid or empty CSV text"));
+                return;
+            }
+
+            console.log("CSV text sample (first 100 chars):", csvText.substring(0, 100));
+            
             Papa.parse(csvText, {
-                header: true,
+                header: true,  // This tells PapaParse to use the first row as headers
                 dynamicTyping: true,
                 skipEmptyLines: true,
                 complete: function(results) {
                     console.log("PapaParse successfully parsed CSV data:", results.meta);
+                    
                     if (results.errors && results.errors.length > 0) {
                         console.warn("PapaParse encountered non-fatal errors:", results.errors);
                     }
-                    resolve(results.data);
+                    
+                    if (!results.data || results.data.length === 0) {
+                        console.warn("PapaParse returned empty data set");
+                    } else {
+                        console.log(`PapaParse parsed ${results.data.length} rows of data`);
+                        console.log("First row sample:", results.data[0]);
+                    }
+                    
+                    // Store the original headers from the CSV
+                    const headers = results.meta.fields;
+                    console.log("CSV Headers:", headers);
+                    
+                    // Return both the data and headers
+                    resolve({
+                        data: results.data,
+                        headers: headers
+                    });
                 },
                 error: function(error) {
                     console.error("PapaParse error:", error);
@@ -151,55 +176,61 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function to load CSV data
     function loadCSVData(filePath) {
+        console.log(`Loading CSV data for file: ${filePath}`);
         loadingIndicator.classList.remove('hidden');
         tableContainer.classList.add('hidden');
         textContainer.classList.add('hidden');
         errorMessage.classList.add('hidden');
         document.getElementById('view-toggle').classList.add('hidden');
         
-        // First try to get the raw CSV data
-        fetch(`/api/data/csv/${filePath}?raw=true`)
+        // Directly use the JSON API since we know the server returns JSON
+        console.log(`Fetching CSV data as JSON: /api/data/csv/${filePath}`);
+        fetch(`/api/data/csv/${filePath}`)
             .then(response => {
                 if (!response.ok) {
-                    // If raw CSV is not available, fall back to the JSON API
-                    return fetch(`/api/data/csv/${filePath}`)
-                        .then(jsonResponse => {
-                            if (!jsonResponse.ok) {
-                                throw new Error('Failed to load CSV file');
-                            }
-                            return jsonResponse.json();
-                        })
-                        .then(jsonData => {
-                            console.log("Using pre-parsed JSON data from API");
-                            return { type: 'json', data: jsonData };
-                        });
+                    console.error(`JSON API fetch failed with status: ${response.status}`);
+                    throw new Error(`Failed to load CSV file: ${response.statusText}`);
                 }
-                return response.text()
-                    .then(csvText => {
-                        console.log("Got raw CSV text, parsing with PapaParse");
-                        return parseCSVWithPapa(csvText)
-                            .then(parsedData => {
-                                return { type: 'csv', data: { data: { data: parsedData } } };
-                            });
-                    });
+                return response.json();
+            })
+            .then(jsonData => {
+                console.log("Received JSON data from API:", jsonData ? Object.keys(jsonData) : 'null');
+                return { type: 'json', data: jsonData };
             })
             .then(result => {
                 // Hide loading indicator
                 loadingIndicator.classList.add('hidden');
                 
-                const response = result.type === 'csv' ? result.data : result.data;
+                // Properly handle different response formats
+                const response = result.data;
                 
-                if (!response || !response.data || !response.data.data) {
+                if (!response || !response.data) {
+                    console.error("Invalid response format:", response);
                     showError('Invalid response format');
                     return;
                 }
                 
-                const data = response.data.data;
-                
-                if (data.length === 0) {
-                    showError('No data found in the CSV file.');
+                // Ensure we're accessing the correct data structure
+                let data;
+                if (response.data && response.data.data && Array.isArray(response.data.data)) {
+                    // Standard API response format
+                    data = response.data.data;
+                } else if (Array.isArray(response.data)) {
+                    // Direct data array
+                    data = response.data;
+                } else {
+                    console.error("Unexpected data format:", response);
+                    showError('Invalid data format received from server');
                     return;
                 }
+                
+                if (!data || data.length === 0) {
+                    console.error("Empty data array in CSV file");
+                    showError('No data found in the CSV file. The file may be empty or have an invalid format.');
+                    return;
+                }
+                
+                console.log("Parsed data sample:", data.slice(0, 3));
                 
                 // Debug: Check for Win Rate [%] column and its values
                 console.log("All columns:", Object.keys(data[0]));
@@ -293,24 +324,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Get clean column names
                 const cleanColumns = Object.keys(cleanData[0]);
                 
-                // Initialize DataTable
+                // Clear any existing DataTable
+                if ($.fn.DataTable.isDataTable('#csv-table')) {
+                    $('#csv-table').DataTable().destroy();
+                    $('#csv-table').empty();
+                }
+                
+                // Initialize DataTable with simple configuration (similar to the working version)
                 $('#csv-table').DataTable({
-                    destroy: true, // Destroy existing table
                     data: cleanData,
                     columns: cleanColumns.map(cleanKey => {
-                        // Get the original key for display
                         const originalKey = columnMapping[cleanKey];
-                        
-                        // Log column data types for debugging
-                        const sampleValues = cleanData.slice(0, 3).map(row => row[cleanKey]);
-                        console.log(`Column "${originalKey}" (${cleanKey}) sample values:`, sampleValues);
-                        
                         return {
-                            // Use original key with special characters for display
                             title: originalKey,
-                            // Use clean key for data access
                             data: cleanKey,
-                            // Ensure proper rendering of all data types
                             render: function(data, type, row) {
                                 // For sorting and type detection
                                 if (type === 'sort' || type === 'type') {
@@ -326,7 +353,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                 if (originalKey.includes('[%]') ||
                                     originalKey.toLowerCase().includes('rate') ||
                                     originalKey.toLowerCase().includes('percent')) {
-                                    console.log(`Rendering percentage value: ${data}, type: ${typeof data}`);
                                     if (typeof data === 'number') {
                                         return data.toFixed(2) + '%';
                                     } else if (typeof data === 'string' && !isNaN(parseFloat(data))) {
@@ -336,18 +362,10 @@ document.addEventListener('DOMContentLoaded', function() {
                                 
                                 // Format numbers with appropriate precision
                                 if (typeof data === 'number') {
-                                    // Special case for zero
-                                    if (data === 0) {
-                                        return '0';
-                                    }
-                                    // For score and other decimal values
-                                    else if (Math.abs(data) < 0.01) {
-                                        return data.toExponential(4);
-                                    } else if (Math.abs(data) >= 1000) {
-                                        return data.toLocaleString(undefined, {maximumFractionDigits: 2});
-                                    } else {
-                                        return data.toLocaleString(undefined, {maximumFractionDigits: 4});
-                                    }
+                                    if (data === 0) return '0';
+                                    else if (Math.abs(data) < 0.01) return data.toExponential(4);
+                                    else if (Math.abs(data) >= 1000) return data.toLocaleString(undefined, {maximumFractionDigits: 2});
+                                    else return data.toLocaleString(undefined, {maximumFractionDigits: 4});
                                 }
                                 
                                 return data;
@@ -363,8 +381,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     info: true,
                     lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
                     pageLength: "All",
-                    responsive: true,
-                    // Set default sort to "Score" column in descending order if it exists
                     order: scoreColumnIndex !== -1 ? [[scoreColumnIndex, 'desc']] : []
                 });
             })
@@ -373,6 +389,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Try one more approach - direct file fetch and parse with PapaParse
                 if (filePath.startsWith('http') || filePath.includes('/')) {
+                    console.log("Attempting direct CSV parsing with PapaParse");
                     // This is a URL or path, try to fetch it directly
                     Papa.parse(filePath, {
                         download: true,
@@ -380,6 +397,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         dynamicTyping: true,
                         skipEmptyLines: true,
                         complete: function(results) {
+                            console.log("PapaParse direct parsing results:", results);
                             if (results.data && results.data.length > 0) {
                                 console.log("Successfully parsed CSV directly with PapaParse");
                                 
@@ -409,13 +427,39 @@ document.addEventListener('DOMContentLoaded', function() {
                                 // Show table view by default
                                 showTableView();
                                 
-                                // Initialize DataTable with the parsed data
+                                // Clear any existing DataTable
+                                if ($.fn.DataTable.isDataTable('#csv-table')) {
+                                    $('#csv-table').DataTable().destroy();
+                                    $('#csv-table').empty();
+                                }
+                                
+                                // Initialize DataTable with simple configuration
                                 $('#csv-table').DataTable({
-                                    destroy: true,
                                     data: data,
                                     columns: columns.map(col => ({
                                         title: col,
-                                        data: col
+                                        data: col,
+                                        render: function(data, type, row) {
+                                            // For sorting and type detection
+                                            if (type === 'sort' || type === 'type') {
+                                                return data === null || data === undefined ? '' : data;
+                                            }
+                                            
+                                            // For display
+                                            if (data === null || data === undefined) {
+                                                return '';
+                                            }
+                                            
+                                            // Format numbers with appropriate precision
+                                            if (typeof data === 'number') {
+                                                if (data === 0) return '0';
+                                                else if (Math.abs(data) < 0.01) return data.toExponential(4);
+                                                else if (Math.abs(data) >= 1000) return data.toLocaleString(undefined, {maximumFractionDigits: 2});
+                                                else return data.toLocaleString(undefined, {maximumFractionDigits: 4});
+                                            }
+                                            
+                                            return data;
+                                        }
                                     })),
                                     scrollX: true,
                                     scrollY: '70vh',
@@ -423,11 +467,11 @@ document.addEventListener('DOMContentLoaded', function() {
                                     paging: false,
                                     searching: true,
                                     ordering: true,
-                                    info: true,
-                                    responsive: true
+                                    info: true
                                 });
                             } else {
-                                showError('Error parsing CSV file directly: No data found');
+                                console.error("PapaParse direct parsing: No data found");
+                                showError('Error parsing CSV file directly: No data found. The file may be empty or have an invalid format.');
                             }
                         },
                         error: function(error) {
@@ -436,6 +480,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                 } else {
+                    console.error("Error loading CSV file:", error);
                     showError('Error loading CSV file: ' + error.message);
                 }
             });
