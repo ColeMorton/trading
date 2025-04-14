@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for the table */
+.react-table {
+  @apply w-full border-collapse border border-gray-200;
+}
+
+.react-table thead th {
+  @apply bg-gray-50 text-left p-2 text-sm font-medium text-gray-700 border-b;
+}
+
+.react-table tbody td {
+  @apply p-2 text-sm border-b border-gray-200;
+}
+
+.react-table tbody tr:hover {
+  @apply bg-gray-100;
+}
+
+/* Styles for the CSV text view */
+#csv-text {
+  @apply w-full h-[70vh] font-mono text-sm border border-gray-300 rounded-md p-2 bg-gray-50;
+}
