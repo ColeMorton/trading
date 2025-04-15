@@ -267,7 +267,7 @@
                 }
             },
             "allocation_score": 2.9334298060102624,
-            "allocation": 59.81863865329402,
+            "allocation": 59.81780618920618,
             "signal_quality_metrics": {
                 "signal_count": 192,
                 "avg_return": 0.004832337243236651,
@@ -391,8 +391,8 @@
                     }
                 }
             },
-            "allocation_score": 1.9704427528627024,
-            "allocation": 40.18136134670597,
+            "allocation_score": 1.9705109983911944,
+            "allocation": 40.18219381079381,
             "signal_quality_metrics": {
                 "signal_count": 119,
                 "avg_return": -0.0034149409843564206,
@@ -567,7 +567,7 @@
                 }
             },
             "allocation_score": 1.6974298060102622,
-            "allocation": 34.614068486322466,
+            "allocation": 34.61358678079393,
             "signal_quality_metrics": {
                 "signal_count": 192,
                 "avg_return": 0.004832337243236651,
@@ -640,15 +640,15 @@
                     "description": "Start Value from strategy analysis"
                 },
                 "End Value": {
-                    "value": 532938.1154327493,
+                    "value": 532751.2457049272,
                     "description": "End Value from strategy analysis"
                 },
                 "Total Return [%]": {
-                    "value": 53193.81154327492,
+                    "value": 53175.12457049272,
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 18554.332850146606,
+                    "value": 18547.791884129238,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -680,7 +680,7 @@
                     "description": "Total Open Trades from strategy analysis"
                 },
                 "Open Trade PnL": {
-                    "value": -373.4832357245032,
+                    "value": -560.3529635465238,
                     "description": "Open Trade PnL from strategy analysis"
                 },
                 "Win Rate [%]": {
@@ -720,31 +720,31 @@
                     "description": "Expectancy from strategy analysis"
                 },
                 "Sharpe Ratio": {
-                    "value": 1.490249834373959,
+                    "value": 1.4901822137961187,
                     "description": "Sharpe Ratio from strategy analysis"
                 },
                 "Calmar Ratio": {
-                    "value": 1.3161758753834545,
+                    "value": 1.3160784072163352,
                     "description": "Calmar Ratio from strategy analysis"
                 },
                 "Omega Ratio": {
-                    "value": 1.3844053551818012,
+                    "value": 1.3843869022834379,
                     "description": "Omega Ratio from strategy analysis"
                 },
                 "Sortino Ratio": {
-                    "value": 2.4286922650843183,
+                    "value": 2.428575678749295,
                     "description": "Sortino Ratio from strategy analysis"
                 },
                 "Skew": {
-                    "value": 0.9782858471771194,
+                    "value": 0.978299263599361,
                     "description": "Skew from strategy analysis"
                 },
                 "Kurtosis": {
-                    "value": 12.076741774580741,
+                    "value": 12.076909800166662,
                     "description": "Kurtosis from strategy analysis"
                 },
                 "Tail Ratio": {
-                    "value": 1.330316959909581,
+                    "value": 1.3302992279616652,
                     "description": "Tail Ratio from strategy analysis"
                 },
                 "Common Sense Ratio": {
@@ -768,27 +768,27 @@
                     "description": "Beta from strategy analysis"
                 },
                 "Daily Returns": {
-                    "value": 0.0019276493191342672,
+                    "value": 0.0019275567847392935,
                     "description": "Daily Returns from strategy analysis"
                 },
                 "Annual Returns": {
-                    "value": 0.48576762842183535,
+                    "value": 0.48574430975430194,
                     "description": "Annual Returns from strategy analysis"
                 },
                 "Cumulative Returns": {
-                    "value": 531.9381154327496,
+                    "value": 531.7512457049274,
                     "description": "Cumulative Returns from strategy analysis"
                 },
                 "Annualized Return": {
-                    "value": 0.5061657929659067,
+                    "value": 0.5061313356084911,
                     "description": "Annualized Return from strategy analysis"
                 },
                 "Annualized Volatility": {
-                    "value": 0.39229759857512053,
+                    "value": 0.3922965674056482,
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 1.8669212723999729,
+                    "value": 1.8669248017599878,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -800,7 +800,7 @@
                     "description": "Trades Per Day from strategy analysis"
                 },
                 "Score": {
-                    "value": 9.533176690541115,
+                    "value": 9.532719062315644,
                     "description": "Score from strategy analysis"
                 },
                 "Trades per Month": {
@@ -941,8 +941,8 @@
                     }
                 }
             },
-            "allocation_score": 1.565345692239834,
-            "allocation": 31.920603022350786,
+            "allocation_score": 1.5653849879108006,
+            "allocation": 31.92096010836455,
             "signal_quality_metrics": {
                 "signal_count": 119,
                 "avg_return": -0.0034149409843564206,
@@ -1317,7 +1317,7 @@
                 }
             },
             "allocation_score": 1.236,
-            "allocation": 25.204570166971557,
+            "allocation": 25.204219408412254,
             "signal_quality_metrics": {
                 "signal_count": 717,
                 "avg_return": 0.0037487328690124617,
@@ -1390,15 +1390,15 @@
                     "description": "Start Value from strategy analysis"
                 },
                 "End Value": {
-                    "value": 291784.444151424,
+                    "value": 291682.1326858291,
                     "description": "End Value from strategy analysis"
                 },
                 "Total Return [%]": {
-                    "value": 29078.4444151424,
+                    "value": 29068.213268582913,
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 18554.332850146606,
+                    "value": 18547.791884129238,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -1430,7 +1430,7 @@
                     "description": "Total Open Trades from strategy analysis"
                 },
                 "Open Trade PnL": {
-                    "value": 9084.278423691227,
+                    "value": 8981.966958096367,
                     "description": "Open Trade PnL from strategy analysis"
                 },
                 "Win Rate [%]": {
@@ -1470,31 +1470,31 @@
                     "description": "Expectancy from strategy analysis"
                 },
                 "Sharpe Ratio": {
-                    "value": 1.36426903567403,
+                    "value": 1.3642013519159315,
                     "description": "Sharpe Ratio from strategy analysis"
                 },
                 "Calmar Ratio": {
-                    "value": 1.0797737097120597,
+                    "value": 1.079687514103136,
                     "description": "Calmar Ratio from strategy analysis"
                 },
                 "Omega Ratio": {
-                    "value": 1.342972335058359,
+                    "value": 1.342954416652758,
                     "description": "Omega Ratio from strategy analysis"
                 },
                 "Sortino Ratio": {
-                    "value": 2.316920186106365,
+                    "value": 2.3167991398545364,
                     "description": "Sortino Ratio from strategy analysis"
                 },
                 "Skew": {
-                    "value": 1.4952347260567935,
+                    "value": 1.4952521585249057,
                     "description": "Skew from strategy analysis"
                 },
                 "Kurtosis": {
-                    "value": 13.403768847659116,
+                    "value": 13.40395871394831,
                     "description": "Kurtosis from strategy analysis"
                 },
                 "Tail Ratio": {
-                    "value": 1.7858674668329217,
+                    "value": 1.7858436391658994,
                     "description": "Tail Ratio from strategy analysis"
                 },
                 "Common Sense Ratio": {
@@ -1518,27 +1518,27 @@
                     "description": "Beta from strategy analysis"
                 },
                 "Daily Returns": {
-                    "value": 0.001771180886524344,
+                    "value": 0.0017710883521293705,
                     "description": "Daily Returns from strategy analysis"
                 },
                 "Annual Returns": {
-                    "value": 0.4463375834041347,
+                    "value": 0.44631426473660135,
                     "description": "Annual Returns from strategy analysis"
                 },
                 "Cumulative Returns": {
-                    "value": 290.7844441514221,
+                    "value": 290.68213268582724,
                     "description": "Cumulative Returns from strategy analysis"
                 },
                 "Annualized Return": {
-                    "value": 0.4481266248497895,
+                    "value": 0.4480934952853495,
                     "description": "Annualized Return from strategy analysis"
                 },
                 "Annualized Volatility": {
-                    "value": 0.3937400547334527,
+                    "value": 0.3937390180726187,
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 0.5672050647141774,
+                    "value": 0.567206136998748,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -1550,7 +1550,7 @@
                     "description": "Trades Per Day from strategy analysis"
                 },
                 "Score": {
-                    "value": 0.8361285457915374,
+                    "value": 0.836084862704342,
                     "description": "Score from strategy analysis"
                 },
                 "Trades per Month": {
@@ -1691,8 +1691,8 @@
                     }
                 }
             },
-            "allocation_score": 0.22544027529775862,
-            "allocation": 4.597188703239274,
+            "allocation_score": 0.2254556508071711,
+            "allocation": 4.597438260364335,
             "signal_quality_metrics": {
                 "signal_count": 316,
                 "avg_return": 0.0017446045502660164,
@@ -2066,8 +2066,8 @@
                     }
                 }
             },
-            "allocation_score": 0.17965678532510956,
-            "allocation": 3.6635696211159146,
+            "allocation_score": 0.17967035967322276,
+            "allocation": 3.6637954420649286,
             "signal_quality_metrics": {
                 "signal_count": 294,
                 "avg_return": 0.0017091729215896738,
