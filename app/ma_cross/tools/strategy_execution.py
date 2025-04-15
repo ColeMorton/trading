@@ -5,13 +5,12 @@ This module handles the execution of trading strategies, including portfolio pro
 filtering, and best portfolio selection for both single and multiple tickers.
 """
 
-from typing import List, Optional, Dict, Any, Tuple
-from app.tools.signal_conversion import SignalAudit
+from typing import List, Optional, Dict, Any
 import polars as pl
 from app.ma_cross.tools.filter_portfolios import filter_portfolios
 from app.tools.strategy.export_portfolios import export_portfolios, PortfolioExportError
 from app.ma_cross.tools.signal_processing import process_ticker_portfolios
-from app.tools.strategy.signal_utils import is_signal_current
+from app.tools.strategy.signal_utils import is_signal_current, is_exit_signal_current
 from app.tools.portfolio.selection import get_best_portfolio
 from app.ma_cross.config_types import Config
 from app.tools.get_data import get_data
@@ -67,9 +66,13 @@ def execute_single_strategy(
             log(f"Failed to calculate signals for {ticker}", "error")
             return None
             
-        # Check if there's a current signal
+        # Check if there's a current entry signal
         current_signal = is_signal_current(data, config)
-        log(f"Current signal for {ticker}: {current_signal}", "info")
+        log(f"Current entry signal for {ticker}: {current_signal}", "info")
+        
+        # Check if there's a current exit signal
+        exit_signal = is_exit_signal_current(data, config)
+        log(f"Current exit signal for {ticker}: {exit_signal}", "info")
             
         # Run backtest using app/tools/backtest_strategy.py
         portfolio = backtest_strategy(data, config, log)
@@ -80,8 +83,8 @@ def execute_single_strategy(
         stats = portfolio.stats()
         
         # Convert stats using app/tools/stats_converter.py
-        # Pass the current signal to convert_stats
-        converted_stats = convert_stats(stats, log, config, current_signal)
+        # Pass both the current entry and exit signals to convert_stats
+        converted_stats = convert_stats(stats, log, config, current_signal, exit_signal)
         
         # Add strategy identification fields
         converted_stats.update({
