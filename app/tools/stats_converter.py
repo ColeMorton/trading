@@ -21,7 +21,7 @@ class StatsConfig(TypedDict):
     TICKER: NotRequired[str]
 
 
-def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config: StatsConfig | None = None, current: Any = None) -> Dict[str, Any]:
+def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config: StatsConfig | None = None, current: Any = None, exit_signal: Any = None) -> Dict[str, Any]:
     """Convert portfolio statistics to a standardized format with proper type handling.
     
     Processes raw statistics to calculate additional metrics and ensure consistent
@@ -36,6 +36,8 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
                and TICKER. Defaults to None.
         current: Current signal value to be assigned to 'Signal Entry' field.
                 Defaults to None.
+        exit_signal: Current exit signal value to be assigned to 'Signal Exit' field.
+                Defaults to None.
         
     Returns:
         Dict[str, Any]: Dictionary with properly formatted values and additional
@@ -45,7 +47,8 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
                        - Expectancy per Month
                        - Signals per Month
                        - Signal Entry
-    
+                       - Signal Exit
+   
     Raises:
         KeyError: If required statistics are missing from input
     """
@@ -269,6 +272,11 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         if current is not None:
             converted['Signal Entry'] = current
             log(f"Added Signal Entry: {current} for {ticker}", "info")
+        
+        # Add Signal Exit if provided
+        if exit_signal is not None:
+            converted['Signal Exit'] = exit_signal
+            log(f"Added Signal Exit: {exit_signal} for {ticker}", "info")
             
         log(f"Successfully converted stats for {ticker}", "info")
         return converted

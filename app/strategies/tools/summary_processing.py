@@ -12,7 +12,7 @@ from app.strategies.tools.process_ma_portfolios import process_ma_portfolios
 from app.strategies.tools.process_strategy_portfolios import (
     process_macd_strategy
 )
-from app.tools.strategy.signal_utils import is_signal_current
+from app.tools.strategy.signal_utils import is_signal_current, is_exit_signal_current
 from app.tools.stats_converter import convert_stats
 # Import export_portfolios inside functions to avoid circular imports
 from app.tools.get_config import get_config
@@ -94,9 +94,13 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                 
                 if portfolio is not None and signal_data is not None:
                     try:
-                        # Check if there's a current signal
+                        # Check if there's a current entry signal
                         current_signal = is_signal_current(signal_data, config)
                         log(f"Current MACD signal for {ticker}: {current_signal}", "info")
+                        
+                        # Check if there's a current exit signal
+                        exit_signal = is_exit_signal_current(signal_data, config)
+                        log(f"Current MACD exit signal for {ticker}: {exit_signal}", "info")
                         
                         stats = portfolio.stats()
                         stats['Ticker'] = ticker
@@ -106,7 +110,7 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                         stats['Signal Window'] = signal_window
                         
                         # Convert stats with current signal status
-                        converted_stats = convert_stats(stats, log, config, current_signal)
+                        converted_stats = convert_stats(stats, log, config, current_signal, exit_signal)
                         portfolios.append(converted_stats)
                     except Exception as e:
                         log(f"Failed to process MACD stats for {ticker}: {str(e)}", "error")
@@ -138,9 +142,13 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                 # Process SMA stats if portfolio exists
                 if strategy_type == "SMA" and sma_portfolio is not None and sma_data is not None:
                     try:
-                        # Check if there's a current signal
+                        # Check if there's a current entry signal
                         current_signal = is_signal_current(sma_data, config)
                         log(f"Current SMA signal for {ticker}: {current_signal}", "info")
+                        
+                        # Check if there's a current exit signal
+                        exit_signal = is_exit_signal_current(sma_data, config)
+                        log(f"Current SMA exit signal for {ticker}: {exit_signal}", "info")
                         
                         sma_stats = sma_portfolio.stats()
                         sma_stats['Ticker'] = ticker
@@ -149,7 +157,7 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                         sma_stats['Long Window'] = long_window
                         
                         # Convert stats with current signal status
-                        sma_converted_stats = convert_stats(sma_stats, log, config, current_signal)
+                        sma_converted_stats = convert_stats(sma_stats, log, config, current_signal, exit_signal)
                         portfolios.append(sma_converted_stats)
                     except Exception as e:
                         log(f"Failed to process SMA stats for {ticker}: {str(e)}", "error")
@@ -157,9 +165,13 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                 # Process EMA stats if portfolio exists
                 if strategy_type == "EMA" and ema_portfolio is not None and ema_data is not None:
                     try:
-                        # Check if there's a current signal
+                        # Check if there's a current entry signal
                         current_signal = is_signal_current(ema_data, config)
                         log(f"Current EMA signal for {ticker}: {current_signal}", "info")
+                        
+                        # Check if there's a current exit signal
+                        exit_signal = is_exit_signal_current(ema_data, config)
+                        log(f"Current EMA exit signal for {ticker}: {exit_signal}", "info")
                         
                         ema_stats = ema_portfolio.stats()
                         ema_stats['Ticker'] = ticker
@@ -168,7 +180,7 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                         ema_stats['Long Window'] = long_window
                         
                         # Convert stats with current signal status
-                        ema_converted_stats = convert_stats(ema_stats, log, config, current_signal)
+                        ema_converted_stats = convert_stats(ema_stats, log, config, current_signal, exit_signal)
                         portfolios.append(ema_converted_stats)
                     except Exception as e:
                         log(f"Failed to process EMA stats for {ticker}: {str(e)}", "error")

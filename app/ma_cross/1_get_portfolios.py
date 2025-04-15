@@ -18,15 +18,15 @@ CONFIG: Config = {
     #     "SPY",
     #     "QQQ"
     # ],
-    "TICKER": [
-        "SPY",
-        "QQQ",
-        "BTC-USD",
-        "MSTY",
-        "STRK",
-        "CRWD",
-        "LYV"
-    ],
+    # "TICKER": [
+    #     "SPY",
+    #     "QQQ",
+    #     "BTC-USD",
+    #     "MSTY",
+    #     "STRK",
+    #     "CRWD",
+    #     "LYV"
+    # ],
     # "TICKER": [
     #     "SOL-USD",
     #     "BNB-USD",
@@ -82,11 +82,10 @@ CONFIG: Config = {
     #     "XLP",
     #     "XLB"
     # ],
-    # "TICKER": [
-    #     "NVDA",
-    #     "NFLX",
-    #     "ORLY"
-    # ],
+    "TICKER": [
+        "BTC-USD",
+        "MSTR"
+    ],
     # "TICKER": 'QQQ',
     # "TICKER_2": 'SPY',
     # "WINDOWS": 120,
@@ -97,23 +96,23 @@ CONFIG: Config = {
     "BASE_DIR": ".",
     "REFRESH": True,
     # "USE_SMA": False,
-    "DIRECTION": "Long",
+    "DIRECTION": "Short",
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": True,
+    "USE_CURRENT": False,
     "MINIMUMS": {
         # "TRADES": 13,
         # "TRADES": 21,
-        # "WIN_RATE": 0.38,
-        # "TRADES": 34,
+        "WIN_RATE": 0.38,
+        "TRADES": 34,
         # "WIN_RATE": 0.50,
         # "TRADES": 54,
         # "WIN_RATE": 0.61,
-        # "EXPECTANCY_PER_TRADE": 1,
-        # "PROFIT_FACTOR": 1,
-        # "SORTINO_RATIO": 0.4,
+        "EXPECTANCY_PER_TRADE": 1,
+        "PROFIT_FACTOR": 1,
+        "SORTINO_RATIO": 0.4,
         # "BEATS_BNH": 0.13
     },
     "SORT_BY": "Score",

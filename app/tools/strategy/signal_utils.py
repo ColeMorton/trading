@@ -73,6 +73,35 @@ def is_signal_current(signals: pl.DataFrame, config: dict = None) -> bool:
     else:
         return signal == 1 and position == 0
 
+def is_exit_signal_current(signals: pl.DataFrame, config: dict = None) -> bool:
+    """
+    Check if there is a valid exit signal on the last trading day.
+    A valid exit signal is when the fast MA is below the slow MA (for longs)
+    or above the slow MA (for shorts) on the last trading day, and there is
+    an existing position.
+    
+    Args:
+        signals: DataFrame containing Signal, Position, MA_FAST, MA_SLOW and Date/Datetime columns
+        config: Configuration dictionary containing direction information
+    
+    Returns:
+        bool: True if there is a valid exit signal from the last trading day, False otherwise
+    """
+    if len(signals) == 0:
+        return False
+        
+    last_row = signals.tail(1)
+    
+    # Get signal and position from last row
+    signal = last_row.get_column("Signal").item()
+    position = last_row.get_column("Position").item()
+    
+    # Check if we have a valid exit signal in the last row based on direction
+    if config and config.get('DIRECTION', 'Long') == 'Short':
+        return signal == 0 and position == -1
+    else:
+        return signal == 0 and position == 1
+
 def check_signal_match(
     signals: List[Dict],
     fast_window: int,
