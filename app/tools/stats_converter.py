@@ -104,22 +104,8 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
 
         stats['Trades Per Day'] = stats['Total Closed Trades'] / stats['Total Period']
 
-        # Calculate Expectancy per Trade
-        if all(field in stats for field in ['Win Rate [%]', 'Avg Win', 'Avg Loss']):
-            try:
-                win_rate = stats['Win Rate [%]'] / 100.0  # Convert percentage to decimal
-                loss_rate = 1 - win_rate
-                stats['Expectancy per Trade'] = (win_rate * stats['Avg Win']) - (loss_rate * stats['Avg Loss'])
-                log(f"Calculated Expectancy per Trade: {stats['Expectancy per Trade']:.6f} for {ticker}", "info")
-            except Exception as e:
-                log(f"Error calculating Expectancy per Trade for {ticker}: {str(e)}", "error")
-                # Keep existing value if calculation fails
-                if 'Expectancy per Trade' not in stats:
-                    stats['Expectancy per Trade'] = 0
-                    log(f"Set default Expectancy per Trade to 0 for {ticker}", "warning")
-        else:
-            missing = [field for field in ['Win Rate [%]', 'Avg Win', 'Avg Loss'] if field not in stats]
-            log(f"Cannot calculate Expectancy per Trade due to missing fields: {', '.join(missing)} for {ticker}", "warning")
+        # Expectancy per Trade is calculated in backtest_strategy.py and passed through
+        # No need to recalculate it here
 
         # Calculate Score metric
         required_fields = ['Total Trades', 'Sortino Ratio', 'Profit Factor', 'Win Rate [%]', 'Expectancy per Trade', 'Beats BNH [%]']

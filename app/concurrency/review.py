@@ -38,7 +38,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "BTC_MSTR_d_20250409.csv",
     # "PORTFOLIO": "DAILY_crypto.csv",
     # "PORTFOLIO": "atr_test_portfolio.json",
-    "PORTFOLIO": "stock_trades_20250328.csv",
+    "PORTFOLIO": "stock_trades_20250415.csv",
     # "PORTFOLIO": "portfolio_d_20250410.csv",
     # "PORTFOLIO": "total_d_20250403.csv",
     # "PORTFOLIO": "GLD_d.csv",
@@ -47,7 +47,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     "BASE_DIR": '.',  # Default to project root directory
     "REFRESH": True,
     "SL_CANDLE_CLOSE": True, 
-    "VISUALIZATION": True,
+    "VISUALIZATION": False,
     "RATIO_BASED_ALLOCATION": True,
     "CSV_USE_HOURLY": False,
     "SORT_BY": "allocation",
