@@ -446,7 +446,6 @@ def apply_stop_loss_to_signal_quality_metrics(
         }
     }
     # Recalculate expectancy with adjusted values
-    # Use the adjusted metrics directly instead of relying on expectancy_components
     from app.tools.expectancy import calculate_expectancy
     
     # Recalculate expectancy using the adjusted metrics

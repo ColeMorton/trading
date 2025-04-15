@@ -160,13 +160,6 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                         expectancy_per_trade = calculate_expectancy(win_rate, avg_win, avg_loss)
                         stats_dict['Expectancy per Trade'] = expectancy_per_trade
                         
-                        # Store components for debugging and verification
-                        stats_dict['Expectancy Components'] = {
-                            "win_rate": win_rate,
-                            "avg_win": avg_win,
-                            "avg_loss": avg_loss
-                        }
-                        
                         # Add debug logging to diagnose expectancy calculation
                         log_func(f"Expectancy calculation components: Win Rate={win_rate:.4f}, Avg Win={avg_win:.4f}, Avg Loss={avg_loss:.4f}", "info")
                         log_func(f"Calculated Expectancy per Trade: {expectancy_per_trade:.4f}", "info")

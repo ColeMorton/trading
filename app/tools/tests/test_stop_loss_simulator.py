@@ -125,12 +125,7 @@ class TestStopLossSimulator(unittest.TestCase):
             "avg_win": 0.03,
             "avg_loss": -0.02,
             "risk_reward_ratio": 1.5,
-            "max_drawdown": 0.05,
-            "expectancy_components": {
-                "win_rate": 0.6,
-                "avg_win": 0.03,
-                "avg_loss": 0.02
-            }
+            "max_drawdown": 0.05
         }
         
         # Apply stop loss to metrics
