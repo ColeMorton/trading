@@ -35,7 +35,7 @@ def process_single_ticker(
     if config.get("REFRESH", True) == False:
         # Construct file path using BASE_DIR
         file_name = f'{ticker}{"_H" if config.get("USE_HOURLY", False) else "_D"}{"_SMA" if config.get("USE_SMA", False) else "_EMA"}'
-        directory = os.path.join(config['BASE_DIR'], 'csv', 'ma_cross', 'portfolios')
+        directory = os.path.join(config['BASE_DIR'], 'csv', 'portfolios')
         
         # Ensure directory exists
         os.makedirs(directory, exist_ok=True)
