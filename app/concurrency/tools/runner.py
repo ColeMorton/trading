@@ -30,7 +30,6 @@ class NumpyEncoder(json.JSONEncoder):
         elif isinstance(obj, (np.ndarray,)):
             return obj.tolist()
         return super(NumpyEncoder, self).default(obj)
-        return super(NumpyEncoder, self).default(obj)
 
 def get_portfolio_path(config: ConcurrencyConfig) -> Path:
     """Get the full path to the portfolio file.

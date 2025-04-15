@@ -445,31 +445,18 @@ def apply_stop_loss_to_signal_quality_metrics(
             "impact_pct": stop_loss_metrics["drawdown_impact_pct"]
         }
     }
-    
     # Recalculate expectancy with adjusted values
-    if "expectancy_components" in metrics:
-        # Get original components
-        components = metrics["expectancy_components"]
-        
-        # Update with adjusted values
-        components["win_rate"] = stop_loss_metrics["adjusted_win_rate"]
-        components["avg_win"] = stop_loss_metrics["adjusted_avg_win"]
-        components["avg_loss"] = stop_loss_metrics["adjusted_avg_loss"]
-        
-        # Store updated components
-        updated_metrics["expectancy_components"] = components
-        
-        # Recalculate expectancy
-        if "avg_win" in components and "avg_loss" in components and "win_rate" in components:
-            from app.tools.expectancy import calculate_expectancy
-            
-            expectancy = calculate_expectancy(
-                components["win_rate"],
-                components["avg_win"],
-                abs(components["avg_loss"])
-            )
-            
-            updated_metrics["expectancy_per_signal"] = expectancy
+    # Use the adjusted metrics directly instead of relying on expectancy_components
+    from app.tools.expectancy import calculate_expectancy
+    
+    # Recalculate expectancy using the adjusted metrics
+    expectancy = calculate_expectancy(
+        stop_loss_metrics["adjusted_win_rate"],
+        stop_loss_metrics["adjusted_avg_win"],
+        abs(stop_loss_metrics["adjusted_avg_loss"])
+    )
+    updated_metrics["expectancy_per_signal"] = expectancy
+    
     
     log(f"Applied stop loss of {stop_loss*100:.2f}% to signal quality metrics", "info")
     

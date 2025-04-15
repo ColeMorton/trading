@@ -162,11 +162,6 @@ def calculate_signal_quality_metrics(
                 "avg_loss": avg_loss,
                 "risk_reward_ratio": risk_reward_ratio,
                 "expectancy_per_signal": expectancy_per_signal,
-                "expectancy_components": {
-                    "win_rate": win_rate,
-                    "avg_win": avg_win,
-                    "avg_loss": avg_loss
-                },
                 "sharpe_ratio": sharpe_ratio,
                 "sortino_ratio": sortino_ratio,
                 "calmar_ratio": calmar_ratio,
@@ -203,12 +198,6 @@ def calculate_signal_quality_metrics(
             "avg_loss": avg_loss,
             "risk_reward_ratio": risk_reward_ratio,
             "expectancy_per_signal": expectancy_per_signal,
-            # Store components for debugging and verification
-            "expectancy_components": {
-                "win_rate": win_rate,
-                "avg_win": avg_win,
-                "avg_loss": avg_loss
-            },
             "sharpe_ratio": sharpe_ratio,
             "sortino_ratio": sortino_ratio,
             "calmar_ratio": calmar_ratio,

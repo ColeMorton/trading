@@ -277,11 +277,6 @@
                 "avg_loss": -0.01395741449523271,
                 "risk_reward_ratio": 0.0,
                 "expectancy_per_signal": -0.01395741449523271,
-                "expectancy_components": {
-                    "win_rate": 0.0,
-                    "avg_win": 0.0,
-                    "avg_loss": -0.01395741449523271
-                },
                 "sharpe_ratio": -1.87810606036769,
                 "sortino_ratio": -1.87810606036769,
                 "calmar_ratio": -0.6525492879604841,
@@ -407,11 +402,6 @@
                 "avg_loss": -0.04846210413956447,
                 "risk_reward_ratio": 0.2810012468192248,
                 "expectancy_per_signal": -0.007075426922054338,
-                "expectancy_components": {
-                    "win_rate": 0.6666666666666666,
-                    "avg_win": 0.013617911686700731,
-                    "avg_loss": -0.04846210413956447
-                },
                 "sharpe_ratio": -0.23017294821779025,
                 "sortino_ratio": 0.0,
                 "calmar_ratio": 0.0,
@@ -537,11 +527,6 @@
                 "avg_loss": -0.038559172498116495,
                 "risk_reward_ratio": 0.4415567421005762,
                 "expectancy_per_signal": -0.02003076080329018,
-                "expectancy_components": {
-                    "win_rate": 0.3333333333333333,
-                    "avg_win": 0.017026062586362457,
-                    "avg_loss": -0.038559172498116495
-                },
                 "sharpe_ratio": -0.6009072425989577,
                 "sortino_ratio": -0.7937429805231604,
                 "calmar_ratio": -0.2597405429832373,
@@ -667,11 +652,6 @@
                 "avg_loss": -0.0013213286528716217,
                 "risk_reward_ratio": 17.998165985494925,
                 "expectancy_per_signal": 0.017505787148612482,
-                "expectancy_components": {
-                    "win_rate": 0.75,
-                    "avg_win": 0.02378149241577385,
-                    "avg_loss": -0.0013213286528716217
-                },
                 "sharpe_ratio": 1.5641785824955527,
                 "sortino_ratio": 0.0,
                 "calmar_ratio": 0.0,
@@ -797,11 +777,6 @@
                 "avg_loss": -0.0038217229436253546,
                 "risk_reward_ratio": 0.8977856424812317,
                 "expectancy_per_signal": 0.0005299636155466298,
-                "expectancy_components": {
-                    "win_rate": 0.6,
-                    "avg_win": 0.003431087988327953,
-                    "avg_loss": -0.0038217229436253546
-                },
                 "sharpe_ratio": 0.12928603325448135,
                 "sortino_ratio": 0.46025558356149887,
                 "calmar_ratio": 0.06933569274436951,
@@ -973,11 +948,6 @@
                 "avg_loss": -0.01395741449523271,
                 "risk_reward_ratio": 0.0,
                 "expectancy_per_signal": -0.01395741449523271,
-                "expectancy_components": {
-                    "win_rate": 0.0,
-                    "avg_win": 0.0,
-                    "avg_loss": -0.01395741449523271
-                },
                 "sharpe_ratio": -1.87810606036769,
                 "sortino_ratio": -1.87810606036769,
                 "calmar_ratio": -0.6525492879604841,
@@ -1049,7 +1019,7 @@
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 18508.378677560213,
+                    "value": 18514.70440155142,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -1193,7 +1163,7 @@
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 0.2913148211672628,
+                    "value": 0.2908736312369622,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -1353,11 +1323,6 @@
                 "avg_loss": -0.04846210413956447,
                 "risk_reward_ratio": 0.2810012468192248,
                 "expectancy_per_signal": -0.007075426922054338,
-                "expectancy_components": {
-                    "win_rate": 0.6666666666666666,
-                    "avg_win": 0.013617911686700731,
-                    "avg_loss": -0.04846210413956447
-                },
                 "sharpe_ratio": -0.23017294821779025,
                 "sortino_ratio": 0.0,
                 "calmar_ratio": 0.0,
@@ -1733,11 +1698,6 @@
                 "avg_loss": -0.0038217229436253546,
                 "risk_reward_ratio": 0.8977856424812317,
                 "expectancy_per_signal": 0.0005299636155466298,
-                "expectancy_components": {
-                    "win_rate": 0.6,
-                    "avg_win": 0.003431087988327953,
-                    "avg_loss": -0.0038217229436253546
-                },
                 "sharpe_ratio": 0.12928603325448135,
                 "sortino_ratio": 0.46025558356149887,
                 "calmar_ratio": 0.06933569274436951,
@@ -2113,11 +2073,6 @@
                 "avg_loss": -0.0013213286528716217,
                 "risk_reward_ratio": 17.998165985494925,
                 "expectancy_per_signal": 0.017505787148612482,
-                "expectancy_components": {
-                    "win_rate": 0.75,
-                    "avg_win": 0.02378149241577385,
-                    "avg_loss": -0.0013213286528716217
-                },
                 "sharpe_ratio": 1.5641785824955527,
                 "sortino_ratio": 0.0,
                 "calmar_ratio": 0.0,
@@ -2493,11 +2448,6 @@
                 "avg_loss": -0.038559172498116495,
                 "risk_reward_ratio": 0.4415567421005762,
                 "expectancy_per_signal": -0.02003076080329018,
-                "expectancy_components": {
-                    "win_rate": 0.3333333333333333,
-                    "avg_win": 0.017026062586362457,
-                    "avg_loss": -0.038559172498116495
-                },
                 "sharpe_ratio": -0.6009072425989577,
                 "sortino_ratio": -0.7937429805231604,
                 "calmar_ratio": -0.2597405429832373,
