@@ -37,17 +37,16 @@ def analyze_window_combination(
             log(f"Insufficient data for windows {short}, {long} - Need at least {max_window} periods, have {data_length}", "warning")
             return None
             
-        # Calculate MAs and signals with audit trail
-        temp_data, signal_audit = calculate_ma_and_signals(data.clone(), short, long, config, log)
+        # Calculate MAs and signals
+        temp_data = calculate_ma_and_signals(data.clone(), short, long, config, log)
         if temp_data is None or len(temp_data) == 0:
             log(f"No signals generated for windows {short}, {long}", "warning")
             return None
             
-        # Log signal conversion statistics
-        summary = signal_audit.get_summary()
-        if summary['non_zero_signals'] > 0:
-            log(f"Windows {short}, {long}: {summary['conversions']} positions from {summary['non_zero_signals']} signals "
-                f"({summary['conversion_rate']*100:.1f}% conversion rate)", "info")
+        # Log signal statistics
+        non_zero_signals = (temp_data['Signal'] != 0).sum()
+        positions = (temp_data['Position'] != 0).sum()
+        log(f"Windows {short}, {long}: {positions} positions from {non_zero_signals} signals", "info")
             
         # Check for current entry signal
         current = is_signal_current(temp_data, config)
@@ -65,13 +64,11 @@ def analyze_window_combination(
         # Add Strategy Type field based on USE_SMA (no longer adding Use SMA field)
         stats['Strategy Type'] = "SMA" if config.get('USE_SMA', False) else "EMA"
         
-        # Add signal conversion metrics
-        stats['Signal Count'] = summary['non_zero_signals']
-        stats['Position Count'] = summary['conversions']
-        stats['Signal Conversion Rate'] = summary['conversion_rate']
-        if summary['rejections'] > 0:
-            stats['Signal Rejection Count'] = summary['rejections']
-            stats['Signal Rejection Reasons'] = str(summary['rejection_reasons'])
+        # Add signal metrics
+        non_zero_signals = (temp_data['Signal'] != 0).sum()
+        positions = (temp_data['Position'] != 0).sum()
+        stats['Signal Count'] = non_zero_signals
+        stats['Position Count'] = positions
         
         # Pass both entry and exit signals to convert_stats
         stats = convert_stats(stats, log, config, current, exit_signal)

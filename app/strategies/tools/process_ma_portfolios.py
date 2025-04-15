@@ -69,15 +69,14 @@ def process_ma_portfolios(
         # Process SMA if both windows provided
         if sma_fast is not None and sma_slow is not None:
             strategy_config["USE_SMA"] = True
-            sma_result = calculate_ma_and_signals(
+            sma_data = calculate_ma_and_signals(
                 data.clone(),
                 sma_fast,
                 sma_slow,
                 strategy_config,
                 log  # Pass the log parameter here
             )
-            if sma_result is not None:
-                sma_data, sma_signal_audit = sma_result  # Unpack the tuple
+            if sma_data is not None:
                 sma_portfolio = backtest_strategy(sma_data, strategy_config, log)
                 if sma_portfolio is None:
                     log(f"Failed to backtest SMA strategy for {current_ticker}", "error")
@@ -87,15 +86,14 @@ def process_ma_portfolios(
         # Process EMA if both windows provided
         if ema_fast is not None and ema_slow is not None:
             strategy_config["USE_SMA"] = False
-            ema_result = calculate_ma_and_signals(
+            ema_data = calculate_ma_and_signals(
                 data.clone(),
                 ema_fast,
                 ema_slow,
                 strategy_config,
                 log  # Pass the log parameter here
             )
-            if ema_result is not None:
-                ema_data, ema_signal_audit = ema_result  # Unpack the tuple
+            if ema_data is not None:
                 ema_portfolio = backtest_strategy(ema_data, strategy_config, log)
                 if ema_portfolio is None:
                     log(f"Failed to backtest EMA strategy for {current_ticker}", "error")

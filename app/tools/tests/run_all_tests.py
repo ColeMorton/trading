@@ -12,11 +12,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../.
 # Import test modules
 from app.tools.tests.test_expectancy import TestExpectancy
 from app.tools.tests.test_expectancy_integration import TestExpectancyIntegration
-from app.tools.tests.test_signal_conversion import TestSignalAudit, TestSignalConversion
+from app.tools.tests.test_signal_conversion import TestSignalConversion
 from app.tools.tests.test_horizon_analysis import TestHorizonAnalysis
 from app.tools.tests.test_signal_quality import TestSignalQualityMetrics
 from app.tools.tests.test_signal_metrics import TestSignalMetrics
-from app.tools.tests.test_signal_audit_export import TestSignalAuditExport
 from app.tools.tests.test_stop_loss_simulator import TestStopLossSimulator
 
 
@@ -33,7 +32,6 @@ def run_tests():
     test_suite.addTest(test_loader.loadTestsFromTestCase(TestExpectancyIntegration))
     
     # Step 2: Signal conversion tests
-    test_suite.addTest(test_loader.loadTestsFromTestCase(TestSignalAudit))
     test_suite.addTest(test_loader.loadTestsFromTestCase(TestSignalConversion))
     
     # Step 3: Horizon analysis tests
@@ -42,9 +40,6 @@ def run_tests():
     
     # Step 4: Signal metrics tests
     test_suite.addTest(test_loader.loadTestsFromTestCase(TestSignalMetrics))
-    
-    # Step 5: Signal audit export tests
-    test_suite.addTest(test_loader.loadTestsFromTestCase(TestSignalAuditExport))
     
     # Step 4: Stop loss simulator tests
     test_suite.addTest(test_loader.loadTestsFromTestCase(TestStopLossSimulator))

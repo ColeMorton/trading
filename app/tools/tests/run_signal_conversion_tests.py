@@ -10,7 +10,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 
 # Import test modules
-from app.tools.tests.test_signal_conversion import TestSignalAudit, TestSignalConversion
+from app.tools.tests.test_signal_conversion import TestSignalConversion
 
 
 def run_tests():
@@ -19,7 +19,6 @@ def run_tests():
     test_suite = unittest.TestSuite()
     
     # Add test cases
-    test_suite.addTest(unittest.makeSuite(TestSignalAudit))
     test_suite.addTest(unittest.makeSuite(TestSignalConversion))
     
     # Run tests
