@@ -16,8 +16,7 @@ from app.concurrency.tools.signal_quality import calculate_signal_quality_metric
 
 def validate_inputs(
     data_list: List[pl.DataFrame],
-    config_list: List[StrategyConfig],
-    log: Callable[[str, str], None]
+    config_list: List[StrategyConfig]
 ) -> None:
     """Validate input data and configurations.
 
