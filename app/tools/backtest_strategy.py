@@ -1,6 +1,7 @@
 import polars as pl
 import vectorbt as vbt
 from typing import Callable, Dict, Any
+from app.tools.expectancy import calculate_expectancy
 
 def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Portfolio:
     """
@@ -148,16 +149,23 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                 except Exception as e:
                     log_func(f"Could not calculate Common Sense Ratio: {e}", "warning")
                 
-                # Calculate Expectancy per Trade using the traditional formula
+                # Calculate Expectancy per Trade using the standardized module
                 try:
                     if 'Win Rate [%]' in stats_dict and 'Avg Winning Trade [%]' in stats_dict and 'Avg Losing Trade [%]' in stats_dict:
                         win_rate = stats_dict['Win Rate [%]'] / 100.0  # Convert percentage to decimal
                         avg_win = stats_dict['Avg Winning Trade [%]']
                         avg_loss = abs(stats_dict['Avg Losing Trade [%]'])  # Ensure positive value for calculation
                         
-                        # Apply the formula: Expectancy = (Win Rate × Average Win) - ((1 - Win Rate) × Average Loss)
-                        expectancy_per_trade = (win_rate * avg_win) - ((1 - win_rate) * avg_loss)
+                        # Use the standardized expectancy calculation
+                        expectancy_per_trade = calculate_expectancy(win_rate, avg_win, avg_loss)
                         stats_dict['Expectancy per Trade'] = expectancy_per_trade
+                        
+                        # Store components for debugging and verification
+                        stats_dict['Expectancy Components'] = {
+                            "win_rate": win_rate,
+                            "avg_win": avg_win,
+                            "avg_loss": avg_loss
+                        }
                         
                         # Add debug logging to diagnose expectancy calculation
                         log_func(f"Expectancy calculation components: Win Rate={win_rate:.4f}, Avg Win={avg_win:.4f}, Avg Loss={avg_loss:.4f}", "info")

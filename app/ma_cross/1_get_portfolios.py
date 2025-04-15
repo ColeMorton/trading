@@ -82,11 +82,11 @@ CONFIG: Config = {
     #     "XLP",
     #     "XLB"
     # ],
-    "TICKER": [
-        "BTC-USD",
-        "MSTR"
-    ],
-    # "TICKER": 'QQQ',
+    # "TICKER": [
+    #     "BTC-USD",
+    #     "MSTR"
+    # ],
+    "TICKER": 'SPY',
     # "TICKER_2": 'SPY',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -96,7 +96,7 @@ CONFIG: Config = {
     "BASE_DIR": ".",
     "REFRESH": True,
     # "USE_SMA": False,
-    "DIRECTION": "Short",
+    "DIRECTION": "Long",
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,

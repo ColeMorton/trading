@@ -17,17 +17,19 @@ from app.concurrency.tools.visualization import plot_concurrency
 from app.concurrency.tools.report import generate_json_report
 from app.tools.portfolio import load_portfolio
 from app.concurrency.tools.strategy_processor import process_strategies
-
-# Custom JSON encoder to handle NumPy types
+# Custom JSON encoder to handle NumPy types and None values
 class NumpyEncoder(json.JSONEncoder):
-    """Custom JSON encoder for NumPy data types."""
+    """Custom JSON encoder for NumPy data types and None values."""
     def default(self, obj):
-        if isinstance(obj, (np.integer, np.int64, np.int32, np.int16, np.int8)):
+        if obj is None:
+            return 1  # Convert None to 1 for best_horizon (default horizon)
+        elif isinstance(obj, (np.integer, np.int64, np.int32, np.int16, np.int8)):
             return int(obj)
         elif isinstance(obj, (np.floating, np.float64, np.float32, np.float16)):
             return float(obj)
         elif isinstance(obj, (np.ndarray,)):
             return obj.tolist()
+        return super(NumpyEncoder, self).default(obj)
         return super(NumpyEncoder, self).default(obj)
 
 def get_portfolio_path(config: ConcurrencyConfig) -> Path:

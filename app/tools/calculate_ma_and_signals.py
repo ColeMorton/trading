@@ -1,16 +1,18 @@
-from typing import Callable
+from typing import Callable, Tuple, Optional, Dict, Any
 import polars as pl
 from app.tools.calculate_mas import calculate_mas
 from app.tools.calculate_ma_signals import calculate_ma_signals
 from app.tools.calculate_rsi import calculate_rsi
+from app.tools.signal_conversion import convert_signals_to_positions, SignalAudit
 
 def calculate_ma_and_signals(
     data: pl.DataFrame,
     short_window: int,
     long_window: int,
     config: dict,
-    log: Callable
-) -> pl.DataFrame:
+    log: Callable,
+    audit: Optional[SignalAudit] = None
+) -> Tuple[pl.DataFrame, SignalAudit]:
     """
     Calculate MAs and generate trading signals.
     
@@ -21,8 +23,12 @@ def calculate_ma_and_signals(
         config (dict): Configuration dictionary
         log (Callable): Logging function
         
+        audit (Optional[SignalAudit]): Optional audit trail object
+        
     Returns:
-        pl.DataFrame: Data with moving averages and signals
+        Tuple[pl.DataFrame, SignalAudit]:
+            - Data with moving averages, signals, and positions
+            - Audit trail object with signal conversion tracking
     """
     ma_type = "SMA" if config.get('USE_SMA', False) else "EMA"
     direction = "Short" if config.get('DIRECTION', 'Long') == 'Short' else "Long"
@@ -52,12 +58,25 @@ def calculate_ma_and_signals(
                 pl.when(entries).then(1).otherwise(0).alias("Signal")
             ])
         
-        # Add Position column (shifted Signal)
-        data = data.with_columns([
-            pl.col("Signal").shift(1).alias("Position")
-        ])
+        # Convert signals to positions with audit trail
+        strategy_config = config.copy()
+        strategy_config["STRATEGY_TYPE"] = "MA Cross"
+        strategy_config["SHORT_WINDOW"] = short_window
+        strategy_config["LONG_WINDOW"] = long_window
         
-        return data
+        data, signal_audit = convert_signals_to_positions(
+            data=data,
+            config=strategy_config,
+            log=log,
+            audit=audit
+        )
+        
+        # Log conversion statistics
+        summary = signal_audit.get_summary()
+        log(f"Signal conversion: {summary['conversions']} positions from {summary['non_zero_signals']} signals "
+            f"({summary['conversion_rate']*100:.1f}% conversion rate)", "info")
+        
+        return data, signal_audit
         
     except Exception as e:
         log(f"Failed to calculate {direction} {ma_type}s and signals: {e}", "error")

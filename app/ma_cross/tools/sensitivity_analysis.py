@@ -1,9 +1,10 @@
 import polars as pl
-from typing import List, Dict, Any, Optional, Callable
+from typing import List, Dict, Any, Optional, Callable, Tuple
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.strategy.signal_utils import is_signal_current
 from app.tools.stats_converter import convert_stats
 from app.tools.backtest_strategy import backtest_strategy
+from app.tools.signal_conversion import SignalAudit
 from app.tools.portfolio_transformation import reorder_columns
 
 def analyze_window_combination(
@@ -37,10 +38,17 @@ def analyze_window_combination(
             log(f"Insufficient data for windows {short}, {long} - Need at least {max_window} periods, have {data_length}", "warning")
             return None
             
-        temp_data = calculate_ma_and_signals(data.clone(), short, long, config, log)
+        # Calculate MAs and signals with audit trail
+        temp_data, signal_audit = calculate_ma_and_signals(data.clone(), short, long, config, log)
         if temp_data is None or len(temp_data) == 0:
             log(f"No signals generated for windows {short}, {long}", "warning")
             return None
+            
+        # Log signal conversion statistics
+        summary = signal_audit.get_summary()
+        if summary['non_zero_signals'] > 0:
+            log(f"Windows {short}, {long}: {summary['conversions']} positions from {summary['non_zero_signals']} signals "
+                f"({summary['conversion_rate']*100:.1f}% conversion rate)", "info")
             
         current = is_signal_current(temp_data, config)
         portfolio = backtest_strategy(temp_data, config, log)
@@ -51,6 +59,14 @@ def analyze_window_combination(
         stats['Ticker'] = config['TICKER']  # Add ticker from config
         # Add Strategy Type field based on USE_SMA (no longer adding Use SMA field)
         stats['Strategy Type'] = "SMA" if config.get('USE_SMA', False) else "EMA"
+        
+        # Add signal conversion metrics
+        stats['Signal Count'] = summary['non_zero_signals']
+        stats['Position Count'] = summary['conversions']
+        stats['Signal Conversion Rate'] = summary['conversion_rate']
+        if summary['rejections'] > 0:
+            stats['Signal Rejection Count'] = summary['rejections']
+            stats['Signal Rejection Reasons'] = str(summary['rejection_reasons'])
         stats = convert_stats(stats, log, config, current)
         stats = reorder_columns(stats)
         

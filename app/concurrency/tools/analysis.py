@@ -16,14 +16,15 @@ from app.concurrency.tools.signal_quality import calculate_signal_quality_metric
 
 def validate_inputs(
     data_list: List[pl.DataFrame],
-    config_list: List[StrategyConfig]
+    config_list: List[StrategyConfig],
+    log: Callable[[str, str], None] = None
 ) -> None:
     """Validate input data and configurations.
 
     Args:
         data_list (List[pl.DataFrame]): List of dataframes with signals
         config_list (List[StrategyConfig]): List of configurations
-        log (Callable[[str, str], None]): Logging function
+        log (Callable[[str, str], None], optional): Logging function
 
     Raises:
         ValueError: If invalid input data

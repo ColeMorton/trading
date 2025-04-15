@@ -5,7 +5,8 @@ This module handles the execution of trading strategies, including portfolio pro
 filtering, and best portfolio selection for both single and multiple tickers.
 """
 
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Tuple
+from app.tools.signal_conversion import SignalAudit
 import polars as pl
 from app.ma_cross.tools.filter_portfolios import filter_portfolios
 from app.tools.strategy.export_portfolios import export_portfolios, PortfolioExportError

@@ -277,6 +277,11 @@
                 "avg_loss": -0.01395741449523271,
                 "risk_reward_ratio": 0.0,
                 "expectancy_per_signal": -0.01395741449523271,
+                "expectancy_components": {
+                    "win_rate": 0.0,
+                    "avg_win": 0.0,
+                    "avg_loss": -0.01395741449523271
+                },
                 "sharpe_ratio": -1.87810606036769,
                 "sortino_ratio": -1.87810606036769,
                 "calmar_ratio": -0.6525492879604841,
@@ -290,27 +295,31 @@
                 "signal_reliability": 0.0,
                 "signal_risk_adjusted_return": -1.837935141121897,
                 "signal_quality_score": 0.16246722155399312,
-                "best_horizon": 10,
+                "best_horizon": 1,
                 "horizon_metrics": {
                     "1": {
-                        "avg_return": -0.01395741449523271,
-                        "win_rate": 0.0,
-                        "sharpe": -1.87810606036769
+                        "avg_return": -0.0019816167710913764,
+                        "win_rate": 0.45454545454545453,
+                        "sharpe": -0.05174745784117789,
+                        "sample_size": 11
                     },
                     "3": {
-                        "avg_return": -0.0284475546133795,
-                        "win_rate": 0.0,
-                        "sharpe": -3.900688656370676
+                        "avg_return": 0.003980310239329249,
+                        "win_rate": 0.4444444444444444,
+                        "sharpe": 0.10777321153931955,
+                        "sample_size": 9
                     },
                     "5": {
-                        "avg_return": -0.015072199945643794,
-                        "win_rate": 0.0,
-                        "sharpe": -1.4611232394898737
+                        "avg_return": 0.010639681233293913,
+                        "win_rate": 0.42857142857142855,
+                        "sharpe": 0.20816052382678443,
+                        "sample_size": 7
                     },
                     "10": {
-                        "avg_return": -0.13286191515546322,
+                        "avg_return": -0.0631495570520437,
                         "win_rate": 0.0,
-                        "sharpe": 0.0
+                        "sharpe": -3.2486337583570064,
+                        "sample_size": 2
                     }
                 }
             }
@@ -398,6 +407,11 @@
                 "avg_loss": -0.04846210413956447,
                 "risk_reward_ratio": 0.2810012468192248,
                 "expectancy_per_signal": -0.007075426922054338,
+                "expectancy_components": {
+                    "win_rate": 0.6666666666666666,
+                    "avg_win": 0.013617911686700731,
+                    "avg_loss": -0.04846210413956447
+                },
                 "sharpe_ratio": -0.23017294821779025,
                 "sortino_ratio": 0.0,
                 "calmar_ratio": 0.0,
@@ -411,27 +425,31 @@
                 "signal_reliability": 0.0,
                 "signal_risk_adjusted_return": -0.3836215803629837,
                 "signal_quality_score": 1.153414951993781,
-                "best_horizon": 10,
+                "best_horizon": 5,
                 "horizon_metrics": {
                     "1": {
-                        "avg_return": -0.007075426922054336,
-                        "win_rate": 0.6666666666666666,
-                        "sharpe": -0.23017294821779025
+                        "avg_return": -0.013869868909530894,
+                        "win_rate": 0.52,
+                        "sharpe": -0.28194995184743193,
+                        "sample_size": 25
                     },
                     "3": {
-                        "avg_return": -0.04565378602929715,
-                        "win_rate": 0.3333333333333333,
-                        "sharpe": -0.3433868814834163
+                        "avg_return": -0.0031657782122768755,
+                        "win_rate": 0.4782608695652174,
+                        "sharpe": -0.042572449582658274,
+                        "sample_size": 23
                     },
                     "5": {
-                        "avg_return": -0.07367519772441544,
-                        "win_rate": 0.0,
-                        "sharpe": -2.4866879448446917
+                        "avg_return": -0.0013135756443061872,
+                        "win_rate": 0.5714285714285714,
+                        "sharpe": -0.018024961437661205,
+                        "sample_size": 21
                     },
                     "10": {
-                        "avg_return": 0.038213467526262215,
-                        "win_rate": 1.0,
-                        "sharpe": 0.0
+                        "avg_return": -0.017119192096913677,
+                        "win_rate": 0.375,
+                        "sharpe": -0.17607314322486609,
+                        "sample_size": 16
                     }
                 }
             }
@@ -519,6 +537,11 @@
                 "avg_loss": -0.038559172498116495,
                 "risk_reward_ratio": 0.4415567421005762,
                 "expectancy_per_signal": -0.02003076080329018,
+                "expectancy_components": {
+                    "win_rate": 0.3333333333333333,
+                    "avg_win": 0.017026062586362457,
+                    "avg_loss": -0.038559172498116495
+                },
                 "sharpe_ratio": -0.6009072425989577,
                 "sortino_ratio": -0.7937429805231604,
                 "calmar_ratio": -0.2597405429832373,
@@ -532,27 +555,31 @@
                 "signal_reliability": 0.0,
                 "signal_risk_adjusted_return": -0.7394216940713016,
                 "signal_quality_score": 0.2784665934189633,
-                "best_horizon": 10,
+                "best_horizon": 5,
                 "horizon_metrics": {
                     "1": {
-                        "avg_return": -0.02003076080329018,
-                        "win_rate": 0.3333333333333333,
-                        "sharpe": -0.6009072425989577
+                        "avg_return": -0.0007690572135725676,
+                        "win_rate": 0.5172413793103449,
+                        "sharpe": -0.022591749444721115,
+                        "sample_size": 29
                     },
                     "3": {
-                        "avg_return": -0.015332510462166132,
-                        "win_rate": 0.3333333333333333,
-                        "sharpe": -0.1782304953876656
+                        "avg_return": 0.013167875192587667,
+                        "win_rate": 0.5185185185185185,
+                        "sharpe": 0.2308061681620881,
+                        "sample_size": 27
                     },
                     "5": {
-                        "avg_return": -0.04201515330834656,
-                        "win_rate": 0.0,
-                        "sharpe": -1.4548834696027966
+                        "avg_return": 0.022021259837088823,
+                        "win_rate": 0.56,
+                        "sharpe": 0.33464977284495007,
+                        "sample_size": 25
                     },
                     "10": {
-                        "avg_return": -0.1922163584810585,
-                        "win_rate": 0.0,
-                        "sharpe": 0.0
+                        "avg_return": 0.008101471867443063,
+                        "win_rate": 0.45,
+                        "sharpe": 0.09542795812050414,
+                        "sample_size": 20
                     }
                 }
             }
@@ -640,6 +667,11 @@
                 "avg_loss": -0.0013213286528716217,
                 "risk_reward_ratio": 17.998165985494925,
                 "expectancy_per_signal": 0.017505787148612482,
+                "expectancy_components": {
+                    "win_rate": 0.75,
+                    "avg_win": 0.02378149241577385,
+                    "avg_loss": -0.0013213286528716217
+                },
                 "sharpe_ratio": 1.5641785824955527,
                 "sortino_ratio": 0.0,
                 "calmar_ratio": 0.0,
@@ -653,27 +685,31 @@
                 "signal_reliability": 0.0,
                 "signal_risk_adjusted_return": 2.7373125193672174,
                 "signal_quality_score": 3.358696785507551,
-                "best_horizon": 1,
+                "best_horizon": 5,
                 "horizon_metrics": {
                     "1": {
-                        "avg_return": 0.017505787148612482,
-                        "win_rate": 0.75,
-                        "sharpe": 1.5641785824955527
+                        "avg_return": 0.0017118313918964314,
+                        "win_rate": 0.6444444444444445,
+                        "sharpe": 0.0679871481270421,
+                        "sample_size": 45
                     },
                     "3": {
-                        "avg_return": 0.026302330476529745,
-                        "win_rate": 0.75,
-                        "sharpe": 1.4802420514962573
+                        "avg_return": 0.006352600354993438,
+                        "win_rate": 0.6046511627906976,
+                        "sharpe": 0.15121047978489338,
+                        "sample_size": 43
                     },
                     "5": {
-                        "avg_return": -0.0002528421692542422,
-                        "win_rate": 0.5,
-                        "sharpe": -0.004319729266724364
+                        "avg_return": 0.01214305408967475,
+                        "win_rate": 0.6829268292682927,
+                        "sharpe": 0.2646860968178692,
+                        "sample_size": 41
                     },
                     "10": {
-                        "avg_return": 0.01710194607966299,
+                        "avg_return": 0.0021829616464601334,
                         "win_rate": 0.5,
-                        "sharpe": 0.20910067015853923
+                        "sharpe": 0.03666163138089342,
+                        "sample_size": 36
                     }
                 }
             }
@@ -761,6 +797,11 @@
                 "avg_loss": -0.0038217229436253546,
                 "risk_reward_ratio": 0.8977856424812317,
                 "expectancy_per_signal": 0.0005299636155466298,
+                "expectancy_components": {
+                    "win_rate": 0.6,
+                    "avg_win": 0.003431087988327953,
+                    "avg_loss": -0.0038217229436253546
+                },
                 "sharpe_ratio": 0.12928603325448135,
                 "sortino_ratio": 0.46025558356149887,
                 "calmar_ratio": 0.06933569274436951,
@@ -777,24 +818,28 @@
                 "best_horizon": 1,
                 "horizon_metrics": {
                     "1": {
-                        "avg_return": 0.00052996361554663,
-                        "win_rate": 0.6,
-                        "sharpe": 0.12928603325448135
+                        "avg_return": 0.0017262878655179106,
+                        "win_rate": 0.5,
+                        "sharpe": 0.0761004957382511,
+                        "sample_size": 46
                     },
                     "3": {
-                        "avg_return": -0.004116225066037596,
-                        "win_rate": 0.6,
-                        "sharpe": -0.18326164599163552
+                        "avg_return": 0.0018038747324035079,
+                        "win_rate": 0.4772727272727273,
+                        "sharpe": 0.05356044471842264,
+                        "sample_size": 44
                     },
                     "5": {
-                        "avg_return": -0.01937786077193746,
-                        "win_rate": 0.6,
-                        "sharpe": -0.4571631171956145
+                        "avg_return": -0.0041944475804474735,
+                        "win_rate": 0.35714285714285715,
+                        "sharpe": -0.11746079545982417,
+                        "sample_size": 42
                     },
                     "10": {
-                        "avg_return": -0.02682785717882289,
-                        "win_rate": 0.25,
-                        "sharpe": -0.8116918548066689
+                        "avg_return": -0.014374762336454324,
+                        "win_rate": 0.43243243243243246,
+                        "sharpe": -0.29419147935816053,
+                        "sample_size": 37
                     }
                 }
             }
@@ -928,6 +973,11 @@
                 "avg_loss": -0.01395741449523271,
                 "risk_reward_ratio": 0.0,
                 "expectancy_per_signal": -0.01395741449523271,
+                "expectancy_components": {
+                    "win_rate": 0.0,
+                    "avg_win": 0.0,
+                    "avg_loss": -0.01395741449523271
+                },
                 "sharpe_ratio": -1.87810606036769,
                 "sortino_ratio": -1.87810606036769,
                 "calmar_ratio": -0.6525492879604841,
@@ -941,27 +991,31 @@
                 "signal_reliability": 0.0,
                 "signal_risk_adjusted_return": -1.837935141121897,
                 "signal_quality_score": 0.16246722155399312,
-                "best_horizon": 10,
+                "best_horizon": 1,
                 "horizon_metrics": {
                     "1": {
-                        "avg_return": -0.01395741449523271,
-                        "win_rate": 0.0,
-                        "sharpe": -1.87810606036769
+                        "avg_return": -0.0019816167710913764,
+                        "win_rate": 0.45454545454545453,
+                        "sharpe": -0.05174745784117789,
+                        "sample_size": 11
                     },
                     "3": {
-                        "avg_return": -0.0284475546133795,
-                        "win_rate": 0.0,
-                        "sharpe": -3.900688656370676
+                        "avg_return": 0.003980310239329249,
+                        "win_rate": 0.4444444444444444,
+                        "sharpe": 0.10777321153931955,
+                        "sample_size": 9
                     },
                     "5": {
-                        "avg_return": -0.015072199945643794,
-                        "win_rate": 0.0,
-                        "sharpe": -1.4611232394898737
+                        "avg_return": 0.010639681233293913,
+                        "win_rate": 0.42857142857142855,
+                        "sharpe": 0.20816052382678443,
+                        "sample_size": 7
                     },
                     "10": {
-                        "avg_return": -0.13286191515546322,
+                        "avg_return": -0.0631495570520437,
                         "win_rate": 0.0,
-                        "sharpe": 0.0
+                        "sharpe": -3.2486337583570064,
+                        "sample_size": 2
                     }
                 }
             },
@@ -995,7 +1049,7 @@
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 18375.523099314472,
+                    "value": 18508.378677560213,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -1102,6 +1156,10 @@
                     "value": 10.98898781196557,
                     "description": "Expectancy per Trade from strategy analysis"
                 },
+                "Expectancy Components": {
+                    "value": "{'win_rate': 0.36046511627906974, 'avg_win': 40.41410866228989, 'avg_loss': 5.596080303671775}",
+                    "description": "Expectancy Components from strategy analysis"
+                },
                 "Value at Risk": {
                     "value": -0.0356574283425638,
                     "description": "Value at Risk from strategy analysis"
@@ -1123,7 +1181,7 @@
                     "description": "Annual Returns from strategy analysis"
                 },
                 "Cumulative Returns": {
-                    "value": 239.00143702109597,
+                    "value": 239.001437021096,
                     "description": "Cumulative Returns from strategy analysis"
                 },
                 "Annualized Return": {
@@ -1135,7 +1193,7 @@
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 0.30065106571041117,
+                    "value": 0.2913148211672628,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -1295,6 +1353,11 @@
                 "avg_loss": -0.04846210413956447,
                 "risk_reward_ratio": 0.2810012468192248,
                 "expectancy_per_signal": -0.007075426922054338,
+                "expectancy_components": {
+                    "win_rate": 0.6666666666666666,
+                    "avg_win": 0.013617911686700731,
+                    "avg_loss": -0.04846210413956447
+                },
                 "sharpe_ratio": -0.23017294821779025,
                 "sortino_ratio": 0.0,
                 "calmar_ratio": 0.0,
@@ -1308,27 +1371,31 @@
                 "signal_reliability": 0.0,
                 "signal_risk_adjusted_return": -0.3836215803629837,
                 "signal_quality_score": 1.153414951993781,
-                "best_horizon": 10,
+                "best_horizon": 5,
                 "horizon_metrics": {
                     "1": {
-                        "avg_return": -0.007075426922054336,
-                        "win_rate": 0.6666666666666666,
-                        "sharpe": -0.23017294821779025
+                        "avg_return": -0.013869868909530894,
+                        "win_rate": 0.52,
+                        "sharpe": -0.28194995184743193,
+                        "sample_size": 25
                     },
                     "3": {
-                        "avg_return": -0.04565378602929715,
-                        "win_rate": 0.3333333333333333,
-                        "sharpe": -0.3433868814834163
+                        "avg_return": -0.0031657782122768755,
+                        "win_rate": 0.4782608695652174,
+                        "sharpe": -0.042572449582658274,
+                        "sample_size": 23
                     },
                     "5": {
-                        "avg_return": -0.07367519772441544,
-                        "win_rate": 0.0,
-                        "sharpe": -2.4866879448446917
+                        "avg_return": -0.0013135756443061872,
+                        "win_rate": 0.5714285714285714,
+                        "sharpe": -0.018024961437661205,
+                        "sample_size": 21
                     },
                     "10": {
-                        "avg_return": 0.038213467526262215,
-                        "win_rate": 1.0,
-                        "sharpe": 0.0
+                        "avg_return": -0.017119192096913677,
+                        "win_rate": 0.375,
+                        "sharpe": -0.17607314322486609,
+                        "sample_size": 16
                     }
                 }
             },
@@ -1468,6 +1535,10 @@
                 "Expectancy per Trade": {
                     "value": 10.362526905677836,
                     "description": "Expectancy per Trade from strategy analysis"
+                },
+                "Expectancy Components": {
+                    "value": "{'win_rate': 0.5, 'avg_win': 28.105330512222302, 'avg_loss': 7.38027670086663}",
+                    "description": "Expectancy Components from strategy analysis"
                 },
                 "Value at Risk": {
                     "value": -0.03871661601533874,
@@ -1662,6 +1733,11 @@
                 "avg_loss": -0.0038217229436253546,
                 "risk_reward_ratio": 0.8977856424812317,
                 "expectancy_per_signal": 0.0005299636155466298,
+                "expectancy_components": {
+                    "win_rate": 0.6,
+                    "avg_win": 0.003431087988327953,
+                    "avg_loss": -0.0038217229436253546
+                },
                 "sharpe_ratio": 0.12928603325448135,
                 "sortino_ratio": 0.46025558356149887,
                 "calmar_ratio": 0.06933569274436951,
@@ -1678,24 +1754,28 @@
                 "best_horizon": 1,
                 "horizon_metrics": {
                     "1": {
-                        "avg_return": 0.00052996361554663,
-                        "win_rate": 0.6,
-                        "sharpe": 0.12928603325448135
+                        "avg_return": 0.0017262878655179106,
+                        "win_rate": 0.5,
+                        "sharpe": 0.0761004957382511,
+                        "sample_size": 46
                     },
                     "3": {
-                        "avg_return": -0.004116225066037596,
-                        "win_rate": 0.6,
-                        "sharpe": -0.18326164599163552
+                        "avg_return": 0.0018038747324035079,
+                        "win_rate": 0.4772727272727273,
+                        "sharpe": 0.05356044471842264,
+                        "sample_size": 44
                     },
                     "5": {
-                        "avg_return": -0.01937786077193746,
-                        "win_rate": 0.6,
-                        "sharpe": -0.4571631171956145
+                        "avg_return": -0.0041944475804474735,
+                        "win_rate": 0.35714285714285715,
+                        "sharpe": -0.11746079545982417,
+                        "sample_size": 42
                     },
                     "10": {
-                        "avg_return": -0.02682785717882289,
-                        "win_rate": 0.25,
-                        "sharpe": -0.8116918548066689
+                        "avg_return": -0.014374762336454324,
+                        "win_rate": 0.43243243243243246,
+                        "sharpe": -0.29419147935816053,
+                        "sample_size": 37
                     }
                 }
             },
@@ -1835,6 +1915,10 @@
                 "Expectancy per Trade": {
                     "value": 0.0001,
                     "description": "Expectancy per Trade from strategy analysis"
+                },
+                "Expectancy Components": {
+                    "value": "{'win_rate': 0.3953488372093023, 'avg_win': 2.8230892255845306, 'avg_loss': 1.9885842436130932}",
+                    "description": "Expectancy Components from strategy analysis"
                 },
                 "Value at Risk": {
                     "value": -0.011681111764487606,
@@ -2029,6 +2113,11 @@
                 "avg_loss": -0.0013213286528716217,
                 "risk_reward_ratio": 17.998165985494925,
                 "expectancy_per_signal": 0.017505787148612482,
+                "expectancy_components": {
+                    "win_rate": 0.75,
+                    "avg_win": 0.02378149241577385,
+                    "avg_loss": -0.0013213286528716217
+                },
                 "sharpe_ratio": 1.5641785824955527,
                 "sortino_ratio": 0.0,
                 "calmar_ratio": 0.0,
@@ -2042,27 +2131,31 @@
                 "signal_reliability": 0.0,
                 "signal_risk_adjusted_return": 2.7373125193672174,
                 "signal_quality_score": 3.358696785507551,
-                "best_horizon": 1,
+                "best_horizon": 5,
                 "horizon_metrics": {
                     "1": {
-                        "avg_return": 0.017505787148612482,
-                        "win_rate": 0.75,
-                        "sharpe": 1.5641785824955527
+                        "avg_return": 0.0017118313918964314,
+                        "win_rate": 0.6444444444444445,
+                        "sharpe": 0.0679871481270421,
+                        "sample_size": 45
                     },
                     "3": {
-                        "avg_return": 0.026302330476529745,
-                        "win_rate": 0.75,
-                        "sharpe": 1.4802420514962573
+                        "avg_return": 0.006352600354993438,
+                        "win_rate": 0.6046511627906976,
+                        "sharpe": 0.15121047978489338,
+                        "sample_size": 43
                     },
                     "5": {
-                        "avg_return": -0.0002528421692542422,
-                        "win_rate": 0.5,
-                        "sharpe": -0.004319729266724364
+                        "avg_return": 0.01214305408967475,
+                        "win_rate": 0.6829268292682927,
+                        "sharpe": 0.2646860968178692,
+                        "sample_size": 41
                     },
                     "10": {
-                        "avg_return": 0.01710194607966299,
+                        "avg_return": 0.0021829616464601334,
                         "win_rate": 0.5,
-                        "sharpe": 0.20910067015853923
+                        "sharpe": 0.03666163138089342,
+                        "sample_size": 36
                     }
                 }
             },
@@ -2202,6 +2295,10 @@
                 "Expectancy per Trade": {
                     "value": 0.0001,
                     "description": "Expectancy per Trade from strategy analysis"
+                },
+                "Expectancy Components": {
+                    "value": "{'win_rate': 0.5, 'avg_win': 8.187997436523442, 'avg_loss': 8.565477844090635}",
+                    "description": "Expectancy Components from strategy analysis"
                 },
                 "Value at Risk": {
                     "value": -0.027088968503604174,
@@ -2396,6 +2493,11 @@
                 "avg_loss": -0.038559172498116495,
                 "risk_reward_ratio": 0.4415567421005762,
                 "expectancy_per_signal": -0.02003076080329018,
+                "expectancy_components": {
+                    "win_rate": 0.3333333333333333,
+                    "avg_win": 0.017026062586362457,
+                    "avg_loss": -0.038559172498116495
+                },
                 "sharpe_ratio": -0.6009072425989577,
                 "sortino_ratio": -0.7937429805231604,
                 "calmar_ratio": -0.2597405429832373,
@@ -2409,27 +2511,31 @@
                 "signal_reliability": 0.0,
                 "signal_risk_adjusted_return": -0.7394216940713016,
                 "signal_quality_score": 0.2784665934189633,
-                "best_horizon": 10,
+                "best_horizon": 5,
                 "horizon_metrics": {
                     "1": {
-                        "avg_return": -0.02003076080329018,
-                        "win_rate": 0.3333333333333333,
-                        "sharpe": -0.6009072425989577
+                        "avg_return": -0.0007690572135725676,
+                        "win_rate": 0.5172413793103449,
+                        "sharpe": -0.022591749444721115,
+                        "sample_size": 29
                     },
                     "3": {
-                        "avg_return": -0.015332510462166132,
-                        "win_rate": 0.3333333333333333,
-                        "sharpe": -0.1782304953876656
+                        "avg_return": 0.013167875192587667,
+                        "win_rate": 0.5185185185185185,
+                        "sharpe": 0.2308061681620881,
+                        "sample_size": 27
                     },
                     "5": {
-                        "avg_return": -0.04201515330834656,
-                        "win_rate": 0.0,
-                        "sharpe": -1.4548834696027966
+                        "avg_return": 0.022021259837088823,
+                        "win_rate": 0.56,
+                        "sharpe": 0.33464977284495007,
+                        "sample_size": 25
                     },
                     "10": {
-                        "avg_return": -0.1922163584810585,
-                        "win_rate": 0.0,
-                        "sharpe": 0.0
+                        "avg_return": 0.008101471867443063,
+                        "win_rate": 0.45,
+                        "sharpe": 0.09542795812050414,
+                        "sample_size": 20
                     }
                 }
             },
@@ -2569,6 +2675,10 @@
                 "Expectancy per Trade": {
                     "value": 2.588972721583019,
                     "description": "Expectancy per Trade from strategy analysis"
+                },
+                "Expectancy Components": {
+                    "value": "{'win_rate': 0.3445378151260504, 'avg_win': 17.0122708835393, 'avg_loss': 4.992504517394001}",
+                    "description": "Expectancy Components from strategy analysis"
                 },
                 "Value at Risk": {
                     "value": -0.026305639182641997,

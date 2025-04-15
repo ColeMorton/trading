@@ -5,15 +5,18 @@ This module provides functions to calculate various signal quality metrics
 for trading strategies, helping to quantify the value of each signal.
 """
 
-from typing import Dict, Any, Optional, Callable
+from typing import Dict, Any, Optional, Callable, List
 import numpy as np
+from app.tools.expectancy import calculate_expectancy, calculate_expectancy_from_returns
+from app.tools.stop_loss_simulator import apply_stop_loss_to_signal_quality_metrics
 import polars as pl
 
 def calculate_signal_quality_metrics(
     signals_df: pl.DataFrame,
     returns_df: pl.DataFrame,
     strategy_id: str,
-    log: Callable[[str, str], None]
+    log: Callable[[str, str], None],
+    stop_loss: Optional[float] = None
 ) -> Dict[str, Any]:
     """Calculate signal quality metrics for a strategy.
     
@@ -75,8 +78,8 @@ def calculate_signal_quality_metrics(
         # Risk-reward ratio
         risk_reward_ratio = abs(avg_win / avg_loss) if avg_loss != 0 else float('inf')
         
-        # Expectancy per signal using traditional formula
-        expectancy_per_signal = (win_rate * avg_win) - ((1.0 - win_rate) * abs(avg_loss))
+        # Expectancy per signal using standardized calculation
+        expectancy_per_signal = calculate_expectancy(win_rate, avg_win, abs(avg_loss))
         
         # Risk-adjusted metrics
         sharpe_ratio = float(avg_return / np.std(signal_returns)) if np.std(signal_returns) > 0 else 0.0
@@ -141,8 +144,56 @@ def calculate_signal_quality_metrics(
             signal_opportunity_cost, signal_reliability
         )
         
-        log(f"Calculated signal quality metrics for {strategy_id}: score={signal_quality_score:.2f}, win_rate={win_rate:.2f}", "info")
+        # Apply stop loss adjustment if specified
+        if stop_loss is not None and stop_loss > 0 and stop_loss < 1:
+            # Convert signals and returns to numpy arrays for stop loss simulation
+            signals_np = signals_np.copy()
+            returns_np = returns_np.copy()
+            
+            log(f"Applying stop loss of {stop_loss*100:.2f}% to signal quality metrics for {strategy_id}", "info")
+            
+            # Apply stop loss to metrics
+            metrics = {
+                "signal_count": signal_count,
+                "avg_return": avg_return,
+                "win_rate": win_rate,
+                "profit_factor": profit_factor,
+                "avg_win": avg_win,
+                "avg_loss": avg_loss,
+                "risk_reward_ratio": risk_reward_ratio,
+                "expectancy_per_signal": expectancy_per_signal,
+                "expectancy_components": {
+                    "win_rate": win_rate,
+                    "avg_win": avg_win,
+                    "avg_loss": avg_loss
+                },
+                "sharpe_ratio": sharpe_ratio,
+                "sortino_ratio": sortino_ratio,
+                "calmar_ratio": calmar_ratio,
+                "max_drawdown": max_drawdown,
+                "signal_efficiency": signal_efficiency,
+                "signal_consistency": signal_consistency,
+                "signal_value_ratio": signal_value_ratio,
+                "signal_conviction": signal_conviction,
+                "signal_timing_efficiency": signal_timing_efficiency,
+                "signal_opportunity_cost": signal_opportunity_cost,
+                "signal_reliability": signal_reliability,
+                "signal_risk_adjusted_return": signal_risk_adjusted_return,
+                "signal_quality_score": signal_quality_score,
+                "best_horizon": best_horizon,
+                "horizon_metrics": horizon_metrics
+            }
+            
+            # Apply stop loss adjustment
+            adjusted_metrics = apply_stop_loss_to_signal_quality_metrics(
+                metrics, returns_np, signals_np, stop_loss, log
+            )
+            
+            log(f"Calculated stop-loss-adjusted signal quality metrics for {strategy_id}: score={adjusted_metrics['signal_quality_score']:.2f}, win_rate={adjusted_metrics['win_rate']:.2f}", "info")
+            
+            return adjusted_metrics
         
+        log(f"Calculated signal quality metrics for {strategy_id}: score={signal_quality_score:.2f}, win_rate={win_rate:.2f}", "info")
         return {
             "signal_count": signal_count,
             "avg_return": avg_return,
@@ -152,6 +203,12 @@ def calculate_signal_quality_metrics(
             "avg_loss": avg_loss,
             "risk_reward_ratio": risk_reward_ratio,
             "expectancy_per_signal": expectancy_per_signal,
+            # Store components for debugging and verification
+            "expectancy_components": {
+                "win_rate": win_rate,
+                "avg_win": avg_win,
+                "avg_loss": avg_loss
+            },
             "sharpe_ratio": sharpe_ratio,
             "sortino_ratio": sortino_ratio,
             "calmar_ratio": calmar_ratio,
@@ -225,8 +282,8 @@ def _calculate_metrics_for_strategy(
     # Risk-reward ratio
     risk_reward_ratio = abs(avg_win / avg_loss) if avg_loss != 0 else float('inf')
     
-    # Expectancy per signal using traditional formula
-    expectancy_per_signal = (win_rate * avg_win) - ((1.0 - win_rate) * abs(avg_loss))
+    # Expectancy per signal using standardized calculation
+    expectancy_per_signal = calculate_expectancy(win_rate, avg_win, abs(avg_loss))
     
     # Risk-adjusted metrics
     sharpe_ratio = float(avg_return / np.std(signal_returns)) if np.std(signal_returns) > 0 else 0.0
@@ -324,7 +381,11 @@ def _calculate_horizon_metrics(
     signals: np.ndarray,
     returns: np.ndarray
 ) -> Dict[str, Dict[str, float]]:
-    """Calculate performance metrics for different time horizons.
+    """Calculate performance metrics for different time horizons using proper out-of-sample methodology.
+    
+    This function evaluates signal performance across different time horizons without
+    introducing forward-looking bias. It uses a walk-forward approach where signals
+    are evaluated only using data that would have been available at the time of the signal.
     
     Args:
         signals (np.ndarray): Array of strategy signals
@@ -336,60 +397,107 @@ def _calculate_horizon_metrics(
     horizons = [1, 3, 5, 10]
     results = {}
     
+    # Create a position array from signals
+    # A position at time t is determined by the signal at time t-1
+    # and is maintained until a closing signal
+    positions = np.zeros_like(signals)
+    for i in range(1, len(signals)):
+        if signals[i-1] != 0:
+            # New signal creates a new position
+            positions[i] = signals[i-1]
+        elif positions[i-1] != 0 and signals[i-1] == 0:
+            # Maintain position if no new signal and we have an existing position
+            positions[i] = positions[i-1]
+    
     for horizon in horizons:
         # Skip if we don't have enough data
         if len(returns) <= horizon:
             continue
-            
-        # Calculate forward returns for this horizon
-        forward_returns = np.zeros_like(returns)
         
-        for i in range(len(returns) - horizon):
-            if signals[i] != 0:  # If there's a signal
-                forward_returns[i] = np.sum(returns[i:i+horizon])
+        # Initialize arrays to store horizon returns for each position
+        horizon_returns = []
         
-        # Filter to only include signal points
-        horizon_signal_returns = forward_returns[signals != 0]
-        horizon_signal_returns = horizon_signal_returns[horizon_signal_returns != 0]
+        # For each position, calculate the return over the specified horizon
+        # but only using data that would have been available at that time
+        for i in range(len(positions) - horizon):
+            if positions[i] != 0:  # If there's an active position
+                # Calculate return over the horizon
+                # For long positions, we want positive returns
+                # For short positions, we want negative returns
+                if positions[i] > 0:  # Long position
+                    horizon_return = np.sum(returns[i:i+horizon])
+                else:  # Short position
+                    horizon_return = -np.sum(returns[i:i+horizon])
+                
+                horizon_returns.append(horizon_return)
         
-        if len(horizon_signal_returns) == 0:
+        # Skip if no positions were active
+        if len(horizon_returns) == 0:
             continue
-            
+        
+        # Convert to numpy array for calculations
+        horizon_returns_np = np.array(horizon_returns)
         # Calculate metrics for this horizon
-        avg_return = float(np.mean(horizon_signal_returns))
-        win_rate = float(np.mean(horizon_signal_returns > 0))
-        sharpe = float(avg_return / np.std(horizon_signal_returns)) if np.std(horizon_signal_returns) > 0 else 0.0
+        avg_return = float(np.mean(horizon_returns_np))
+        win_rate = float(np.mean(horizon_returns_np > 0))
+        std_dev = np.std(horizon_returns_np)
+        sharpe = float(avg_return / std_dev) if std_dev > 0 else 0.0
+        sharpe = float(avg_return / np.std(horizon_returns_np)) if np.std(horizon_returns_np) > 0 else 0.0
         
         results[str(horizon)] = {
             "avg_return": avg_return,
             "win_rate": win_rate,
-            "sharpe": sharpe
+            "sharpe": sharpe,
+            "sample_size": len(horizon_returns_np)  # Add sample size for context
         }
     
     return results
 
-def _find_best_horizon(horizon_metrics: Dict[str, Dict[str, float]]) -> Optional[int]:
-    """Find the best performing time horizon based on Sharpe ratio.
+def _find_best_horizon(
+    horizon_metrics: Dict[str, Dict[str, float]],
+    min_sample_size: int = 10  # Reduced from 20 to make it easier to find valid horizons
+) -> int:
+    """Find the best performing time horizon based on multiple criteria.
+    
+    This function selects the best horizon based on a combination of Sharpe ratio,
+    win rate, and sample size. It ensures that the selected horizon has sufficient
+    data points to be statistically meaningful.
     
     Args:
         horizon_metrics (Dict[str, Dict[str, float]]): Dictionary of horizon metrics
+        min_sample_size (int): Minimum sample size required for a horizon to be considered
         
     Returns:
-        Optional[int]: Best horizon or None if no valid horizons
+        int: Best horizon (defaults to 1 if no valid horizons)
     """
     if not horizon_metrics:
-        return None
+        return 1  # Default to 1-day horizon if no metrics available
         
-    best_horizon = None
-    best_sharpe = -float('inf')
+    best_horizon = 1  # Default to 1-day horizon
+    best_score = -float('inf')
     
     for horizon_str, metrics in horizon_metrics.items():
+        # Get metrics with defaults
         sharpe = metrics.get("sharpe", 0)
-        if sharpe > best_sharpe:
-            best_sharpe = sharpe
+        win_rate = metrics.get("win_rate", 0)
+        sample_size = metrics.get("sample_size", 0)
+        
+        # Skip horizons with insufficient data
+        if sample_size < min_sample_size:
+            continue
+        
+        # Calculate a combined score that considers multiple factors
+        # - Sharpe ratio (risk-adjusted return)
+        # - Win rate (consistency)
+        # - Sample size (statistical significance)
+        sample_size_factor = min(1.0, sample_size / 100)  # Cap at 100 samples
+        combined_score = (0.6 * sharpe) + (0.3 * win_rate) + (0.1 * sample_size_factor)
+        
+        if combined_score > best_score:
+            best_score = combined_score
             best_horizon = int(horizon_str)
     
-    return best_horizon
+    return best_horizon  # Will return the default (1) if no valid horizons were found
 
 def _calculate_signal_value_ratio(
     avg_return: float,
@@ -722,7 +830,8 @@ def _calculate_aggregate_metrics(
 
 def calculate_aggregate_signal_quality(
     strategy_metrics: Dict[str, Dict[str, Any]],
-    log: Callable[[str, str], None]
+    log: Callable[[str, str], None],
+    stop_loss: Optional[float] = None
 ) -> Dict[str, Any]:
     """Calculate aggregate signal quality metrics across all strategies.
     

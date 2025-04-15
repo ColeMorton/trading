@@ -147,17 +147,24 @@ def process_strategies(
                     log(f"MA windows: {strategy_config['SHORT_WINDOW']}/"
                         f"{strategy_config['LONG_WINDOW']}", "info")
                         
-                    data = calculate_ma_and_signals(
+                    # The calculate_ma_and_signals function returns a tuple (DataFrame, SignalAudit)
+                    # We need to extract the DataFrame from this tuple
+                    result = calculate_ma_and_signals(
                         data,
                         strategy_config['SHORT_WINDOW'],
                         strategy_config['LONG_WINDOW'],
                         strategy_config,
                         log
                     )
-                    # Convert signals to positions and ensure proper position tracking
-                    data = data.with_columns([
-                        pl.col("Signal").shift(1).fill_null(0).alias("Position")
-                    ])
+                    
+                    # Extract the DataFrame from the tuple
+                    if isinstance(result, tuple) and len(result) == 2:
+                        data, signal_audit = result
+                        log(f"Successfully extracted DataFrame and SignalAudit from result tuple", "info")
+                    else:
+                        # If result is not a tuple, assume it's just the DataFrame
+                        data = result
+                        log(f"Result is not a tuple, assuming it's just the DataFrame", "warning")
                     log(f"MA signals calculated and positions set for {strategy_config['TICKER']}", "info")
                     
                     # Log position statistics for verification
