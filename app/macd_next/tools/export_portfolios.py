@@ -132,11 +132,17 @@ def export_portfolios(
         # to export directly to csv/portfolios/ instead of csv/macd_next/portfolios/ or csv/macd_next/portfolios_scanner/
         feature1 = "" if export_type in ["portfolios", "portfolios_scanner"] else "macd_next"
         
+        # Ensure config has STRATEGY_TYPE set to MACD and USE_MA set to True
+        # This will add the _MACD suffix to the exported CSV filenames
+        export_config = config.copy()
+        export_config["STRATEGY_TYPE"] = "MACD"
+        export_config["USE_MA"] = True
+        
         # Export with correct directory structure
         return export_csv(
             data=df,
             feature1=feature1,
-            config=config,
+            config=export_config,
             feature2=export_type,
             filename=csv_filename,
             log=log

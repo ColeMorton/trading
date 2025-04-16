@@ -116,21 +116,33 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
             try:
                 # Handle potential zero or negative values
                 total_trades_normalized = min(stats['Total Trades'] / 72, 2)
-                sortino = stats['Sortino Ratio'] / 0.89
-                profit_factor= min(stats['Profit Factor'] / 1.84, 1.618) 
+                sortino_normalized = stats['Sortino Ratio'] / 0.89
+                profit_factor_normalized = min(stats['Profit Factor'] / 1.84, 1.618) 
                 win_rate_normalized = stats['Win Rate [%]'] / 50
-                expectancy_per_trade = min(stats['Expectancy per Trade'] / 5.26, 1.618)
+                expectancy_per_trade_normalized = min(stats['Expectancy per Trade'] / 5.26, 1.618)
 
                 if stats['Beats BNH [%]'] >= 1.23:
-                    beats_bnh = 1.38
+                    beats_bnh_normalized = 1.38
                 elif stats['Beats BNH [%]'] <= -0.38:
-                    beats_bnh = 0.62
+                    beats_bnh_normalized = 0.62
                 else:
-                    beats_bnh = 1
+                    beats_bnh_normalized = 1
                 
-                stats['Score'] = total_trades_normalized * sortino * profit_factor * expectancy_per_trade * beats_bnh * win_rate_normalized * win_rate_normalized
-                log(f"win_rate_normalized {win_rate_normalized}", "info")
-                log(f"Set Score to {stats['Score']:.4f} for {ticker}", "info")
+                stats['Score'] = (
+                    total_trades_normalized *
+                    sortino_normalized *
+                    profit_factor_normalized *
+                    expectancy_per_trade_normalized *
+                    beats_bnh_normalized *
+                    win_rate_normalized *
+                    win_rate_normalized
+                )
+                log(f"Normalized: Win Rate {win_rate_normalized}", "info")
+                log(f"Normalized: Expectancy {expectancy_per_trade_normalized}", "info")
+                log(f"Normalized: Profit Factor {profit_factor_normalized}", "info")
+                log(f"Normalized: Sortino {sortino_normalized}", "info")
+                log(f"Normalized: Beats Buy-and-hold {beats_bnh_normalized}", "info")
+                log(f"Score: {stats['Score']:.4f}", "info")
             except Exception as e:
                 stats['Score'] = 0
                 log(f"Error calculating Score for {ticker}: {str(e)}. Setting to 0.", "error")
@@ -189,11 +201,6 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
                 log(f"Expectancy per Trade not found and cannot be calculated", "warning")
                 stats['Expectancy per Trade'] = 0.0
                 stats['Expectancy per Month'] = 0.0
-        
-        log(f"Calculated metrics for {ticker}: Trades per Month={stats['Trades per Month']:.2f}, " +
-            f"Signals per Month={stats['Signals per Month']:.2f}, " +
-            f"Expectancy per Trade={stats['Expectancy per Trade']:.6f}, " +
-            f"Expectancy per Month={stats['Expectancy per Month']:.6f}", "info")
 
         # Calculate average trade duration as weighted average of winning and losing durations
         if all(key in stats for key in ['Avg Winning Trade Duration', 'Avg Losing Trade Duration', 'Win Rate [%]']):
@@ -223,7 +230,6 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
                     avg_duration = win_duration * win_rate + lose_duration * (1 - win_rate)
                 
                 stats['Avg Trade Duration'] = str(avg_duration)
-                log(f"Calculated Avg Trade Duration for {ticker}: {stats['Avg Trade Duration']}", "info")
             except Exception as e:
                 log(f"Error calculating average trade duration for {ticker}: {str(e)}", "error")
             stats['Avg Trade Duration'] = str(avg_duration)
