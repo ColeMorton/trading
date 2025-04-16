@@ -89,15 +89,17 @@ CONFIG: Config = {
     "TICKER": 'BTC-USD',
     # "TICKER_2": 'QQQ',
     # "WINDOWS": 120,
-    "WINDOWS": 89,
+    # "WINDOWS": 89,
     # "WINDOWS": 55,
+    "WINDOWS": 34,
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
     "BASE_DIR": ".",
-    "REFRESH": False,
+    "REFRESH": True,
     # "USE_SMA": False,
+    "STRATEGY_TYPES": [ "SMA", "EMA" ],
     "DIRECTION": "Long",
-    "USE_HOURLY": True,
+    "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
@@ -105,10 +107,10 @@ CONFIG: Config = {
     "MINIMUMS": {
         # "TRADES": 13,
         # "TRADES": 21,
-        # "WIN_RATE": 0.38,
-        # "TRADES": 34,
-        "WIN_RATE": 0.50,
-        "TRADES": 54,
+        "WIN_RATE": 0.38,
+        "TRADES": 34,
+        # "WIN_RATE": 0.50,
+        # "TRADES": 54,
         # "WIN_RATE": 0.61,
         "EXPECTANCY_PER_TRADE": 1,
         "PROFIT_FACTOR": 1,
@@ -171,8 +173,26 @@ def run(config: Config = CONFIG) -> bool:
             log(f"Processing strategy for ticker: {config['TICKER']}")
             synthetic_config = config
 
-        # Execute strategy and collect best portfolios
-        best_portfolios = execute_strategy(synthetic_config, "EMA" if not config.get("USE_SMA") else "SMA", log)
+        # Get strategy types from config
+        strategy_types = config.get("STRATEGY_TYPES", [])
+        if not strategy_types:
+            log("No strategy types specified in config, defaulting to SMA")
+            strategy_types = ["SMA"]
+        log(f"Using strategy types: {strategy_types}")
+        
+        all_portfolios = []
+        
+        # Execute each strategy in sequence
+        for strategy_type in strategy_types:
+            log(f"Executing {strategy_type} strategy...")
+            
+            # Execute strategy and collect best portfolios
+            portfolios = execute_strategy(synthetic_config, strategy_type, log)
+            if portfolios:
+                all_portfolios.extend(portfolios)
+        
+        # Use all_portfolios instead of best_portfolios
+        best_portfolios = all_portfolios
         
         # Export best portfolios
         if best_portfolios:
@@ -186,8 +206,8 @@ def run(config: Config = CONFIG) -> bool:
         log_close()
         raise
 
-def run_both_strategies() -> bool:
-    """Run analysis with both EMA and SMA strategies.
+def run_strategies() -> bool:
+    """Run analysis with strategies specified in STRATEGY_TYPES in sequence.
     
     Returns:
         bool: True if execution successful
@@ -237,39 +257,47 @@ def run_both_strategies() -> bool:
             log(f"Processing strategies for ticker: {config_copy['TICKER']}")
             base_config = config_copy
 
-        # Run EMA strategy
-        log("Running EMA strategy analysis...")
-        ema_config = {**base_config, "USE_SMA": False}
-        ema_portfolios = execute_strategy(ema_config, "EMA", log)
+        # Get strategy types from config
+        strategy_types = base_config.get("STRATEGY_TYPES", [])
+        if not strategy_types:
+            log("No strategy types specified in config, defaulting to SMA")
+            strategy_types = ["SMA"]
+        log(f"Running strategies in sequence: {' -> '.join(strategy_types)}")
         
-        # Run SMA strategy
-        log("Running SMA strategy analysis...")
-        sma_config = {**base_config, "USE_SMA": True}
-        sma_portfolios = execute_strategy(sma_config, "SMA", log)
+        all_portfolios = []
+        strategy_portfolios = {}
+        
+        # Run each strategy type in the specified sequence
+        for strategy_type in strategy_types:
+            log(f"Running {strategy_type} strategy analysis...")
+            strategy_config = {**base_config}
+            
+            # Set the strategy type in the config
+            strategy_config["STRATEGY_TYPE"] = strategy_type
+            
+            # Execute strategy
+            portfolios = execute_strategy(strategy_config, strategy_type, log)
+            strategy_portfolios[strategy_type] = portfolios
+            
+            # Log portfolio count
+            log(f"{strategy_type} portfolios: {len(portfolios) if portfolios else 0}", "info")
+            
+            # Add to all portfolios
+            if portfolios:
+                all_portfolios.extend(portfolios)
         
         # Check if filtering criteria might be too strict
-        if not ema_portfolios and not sma_portfolios:
-            log("No portfolios returned from either strategy. Filtering criteria might be too strict.", "warning")
-            log(f"Current MINIMUMS: {config_copy.get('MINIMUMS', {})}", "info")
+        if not all_portfolios:
+            log("No portfolios returned from any strategy. Filtering criteria might be too strict.", "warning")
+            log(f"Current MINIMUMS: {base_config.get('MINIMUMS', {})}", "info")
             log("Consider relaxing the filtering criteria, especially TRADES and WIN_RATE.", "info")
         
-        # Log portfolio counts
-        log(f"EMA portfolios: {len(ema_portfolios) if ema_portfolios else 0}", "info")
-        log(f"SMA portfolios: {len(sma_portfolios) if sma_portfolios else 0}", "info")
-        
-        # Combine and export best portfolios
-        all_portfolios = combine_strategy_portfolios(ema_portfolios, sma_portfolios)
-        log(f"Combined portfolios: {len(all_portfolios) if all_portfolios else 0}", "info")
-            
         # Ensure all portfolios have strategy type information
         if all_portfolios:
             for portfolio in all_portfolios:
                 if "Strategy Type" not in portfolio:
-                    # Note: USE_SMA is deprecated but check it for legacy support
-                    if "USE_SMA" in portfolio:
-                        portfolio["Strategy Type"] = "SMA" if portfolio["USE_SMA"] else "EMA"
-                    else:
-                        portfolio["Strategy Type"] = "EMA"  # Default to EMA
+                    # Use the first strategy type as default if available
+                    portfolio["Strategy Type"] = strategy_types[0] if strategy_types else "SMA"
             
             if log:
                 log("Ensured all portfolios have Strategy Type information", "info")
@@ -308,4 +336,4 @@ def run_both_strategies() -> bool:
         raise
 
 if __name__ == "__main__":
-    run_both_strategies()
+    run_strategies()

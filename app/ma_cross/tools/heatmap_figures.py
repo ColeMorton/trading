@@ -126,7 +126,7 @@ def create_heatmap_figures(
     score_zmax = np.max(valid_score) if len(valid_score) > 0 else 0
     
     # Determine MA type for title
-    ma_type = "SMA" if config.get("USE_SMA", False) else "EMA"
+    ma_type = config.get("STRATEGY_TYPE", "EMA")
     
     # Create profit factor figure
     profit_factor_fig = go.Figure()

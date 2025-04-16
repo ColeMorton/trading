@@ -37,8 +37,11 @@ def analyze_window_combination(
             log(f"Insufficient data for windows {short}, {long} - Need at least {max_window} periods, have {data_length}", "warning")
             return None
             
+        # Get strategy type from config or default to EMA
+        strategy_type = config.get("STRATEGY_TYPE", "EMA")
+        
         # Calculate MAs and signals
-        temp_data = calculate_ma_and_signals(data.clone(), short, long, config, log)
+        temp_data = calculate_ma_and_signals(data.clone(), short, long, config, log, strategy_type)
         if temp_data is None or len(temp_data) == 0:
             log(f"No signals generated for windows {short}, {long}", "warning")
             return None
@@ -61,8 +64,8 @@ def analyze_window_combination(
         stats['Short Window'] = short
         stats['Long Window'] = long
         stats['Ticker'] = config['TICKER']  # Add ticker from config
-        # Add Strategy Type field based on USE_SMA (no longer adding Use SMA field)
-        stats['Strategy Type'] = "SMA" if config.get('USE_SMA', False) else "EMA"
+        # Add Strategy Type field
+        stats['Strategy Type'] = config.get('STRATEGY_TYPE', 'EMA')
         
         # Add signal metrics
         non_zero_signals = (temp_data['Signal'] != 0).sum()

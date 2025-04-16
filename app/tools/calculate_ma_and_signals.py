@@ -10,7 +10,8 @@ def calculate_ma_and_signals(
     short_window: int,
     long_window: int,
     config: dict,
-    log: Callable
+    log: Callable,
+    strategy_type: str = "EMA"
 ) -> pl.DataFrame:
     """
     Calculate MAs and generate trading signals.
@@ -21,17 +22,18 @@ def calculate_ma_and_signals(
         long_window (int): Long moving average window
         config (dict): Configuration dictionary
         log (Callable): Logging function
+        strategy_type (str, optional): Strategy type to use (SMA or EMA). Defaults to "EMA".
         
     Returns:
         pl.DataFrame: Data with moving averages, signals, and positions
     """
-    ma_type = "SMA" if config.get('USE_SMA', False) else "EMA"
     direction = "Short" if config.get('DIRECTION', 'Long') == 'Short' else "Long"
-    log(f"Calculating {direction} {ma_type}s and signals with short window {short_window} and long window {long_window}")
+    log(f"Calculating {direction} {strategy_type}s and signals with short window {short_window} and long window {long_window}")
     
     try:
         # Calculate moving averages
-        data = calculate_mas(data, short_window, long_window, config.get('USE_SMA', False), log)
+        use_sma = strategy_type == "SMA"
+        data = calculate_mas(data, short_window, long_window, use_sma, log)
         
         # Calculate RSI if needed
         if config.get('USE_RSI', False):
@@ -55,7 +57,7 @@ def calculate_ma_and_signals(
         
         # Convert signals to positions with audit trail
         strategy_config = config.copy()
-        strategy_config["STRATEGY_TYPE"] = "MA Cross"
+        strategy_config["STRATEGY_TYPE"] = strategy_type
         strategy_config["SHORT_WINDOW"] = short_window
         strategy_config["LONG_WINDOW"] = long_window
         data = convert_signals_to_positions(
@@ -63,13 +65,9 @@ def calculate_ma_and_signals(
             config=strategy_config,
             log=log
         )
-        
-        # Log completion
-        log(f"Signal conversion complete", "info")
-        
+
         return data
-        return data, signal_audit
         
     except Exception as e:
-        log(f"Failed to calculate {direction} {ma_type}s and signals: {e}", "error")
+        log(f"Failed to calculate {direction} {strategy_type}s and signals: {e}", "error")
         raise

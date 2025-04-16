@@ -41,7 +41,7 @@ class HeatmapConfig(TypedDict, total=False):
     Optional Fields:
         USE_CURRENT (NotRequired[bool]): Whether to emphasize current window combinations
         USE_BEST_PORTFOLIO (NotRequired[bool]): Whether to use best portfolios directory
-        USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average instead of EMA
+        STRATEGY_TYPES (NotRequired[List[str]]): List of strategy types to execute in sequence (e.g., ["SMA", "EMA"])
         TICKER_1 (NotRequired[str]): First ticker for synthetic pairs
         TICKER_2 (NotRequired[str]): Second ticker for synthetic pairs
         USE_HOURLY (NotRequired[bool]): Whether to use hourly data
@@ -54,7 +54,7 @@ class HeatmapConfig(TypedDict, total=False):
     BASE_DIR: str
     USE_CURRENT: NotRequired[bool]
     USE_BEST_PORTFOLIO: NotRequired[bool]
-    USE_SMA: NotRequired[bool]
+    STRATEGY_TYPES: NotRequired[List[str]]
     TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
     USE_HOURLY: NotRequired[bool]
@@ -80,7 +80,7 @@ class Config(TypedDict, total=False):
         REFRESH (NotRequired[bool]): Whether to refresh existing results
 
         # Moving Average Options
-        USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average instead of EMA
+        STRATEGY_TYPES (NotRequired[List[str]]): List of strategy types to execute in sequence (e.g., ["SMA", "EMA"])
         DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
 
         # Data Options
@@ -119,7 +119,7 @@ class Config(TypedDict, total=False):
     REFRESH: NotRequired[bool]
 
     # Moving Average Options
-    USE_SMA: NotRequired[bool]
+    STRATEGY_TYPES: NotRequired[List[str]]
     DIRECTION: NotRequired[str]
 
     # Data Options
@@ -152,7 +152,7 @@ DEFAULT_CONFIG: Config = {
     "SCANNER_LIST": "QQQ_SPY100.csv",
     "BASE_DIR": ".",
     "REFRESH": True,
-    # "USE_SMA": True,
+    "STRATEGY_TYPES": ["SMA", "EMA"],
     "DIRECTION": "Long",
     "USE_HOURLY": False,
     "USE_YEARS": False,

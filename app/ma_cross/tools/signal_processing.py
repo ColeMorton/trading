@@ -27,13 +27,16 @@ def process_current_signals(ticker: str, config: Config, log: Callable) -> Optio
     config_copy["TICKER"] = ticker
     
     try:
+        # Get strategy type from config or default to EMA
+        strategy_type = config_copy.get("STRATEGY_TYPE", "EMA")
+        
         # Generate and validate current signals
         current_signals = generate_current_signals(config_copy, log)
         if len(current_signals) == 0:
-            log(f"No current signals found for {ticker} {'SMA' if config.get('USE_SMA', False) else 'EMA'}", "warning")
+            log(f"No current signals found for {ticker} {strategy_type}", "warning")
             return None
             
-        log(f"Current signals for {ticker} {'SMA' if config.get('USE_SMA', False) else 'EMA'}")
+        log(f"Current signals for {ticker} {strategy_type}")
         
         # Get and validate price data
         # Ensure synthetic tickers use underscore format
@@ -89,7 +92,8 @@ def process_ticker_portfolios(ticker: str, config: Config, log: Callable) -> Opt
                 return None
                 
             portfolios_df = pl.DataFrame(portfolios)
-            log(f"Results for {ticker} {'SMA' if config.get('USE_SMA', False) else 'EMA'}")
+            strategy_type = config.get("STRATEGY_TYPE", "EMA")
+            log(f"Results for {ticker} {strategy_type}")
             return portfolios_df
             
     except Exception as e:

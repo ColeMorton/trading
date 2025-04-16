@@ -92,7 +92,7 @@ def filter_portfolios(df: pl.DataFrame, config: ExportConfig, log: Callable) -> 
         # Log configuration details
         log(f"Filtering results for {config.get('TICKER', '')}")
         log(f"USE_HOURLY: {config.get('USE_HOURLY', False)}")
-        log(f"USE_SMA: {config.get('USE_SMA', False)}")
+        log(f"STRATEGY_TYPE: {config.get('STRATEGY_TYPE', 'EMA')}")
         log(f"USE_CURRENT: {config.get('USE_CURRENT', False)}")
         # Import export_portfolios here to avoid circular imports
         from app.tools.strategy.export_portfolios import export_portfolios
