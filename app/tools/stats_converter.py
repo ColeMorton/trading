@@ -177,8 +177,18 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
             
             stats['Expectancy per Month'] = stats['Trades per Month'] * stats['Expectancy per Trade']
         else:
-            log(f"Expectancy per Trade not found", "error")
-            raise
+            # Calculate Expectancy per Trade if missing
+            if 'Total Return [%]' in stats and 'Total Trades' in stats and stats['Total Trades'] > 0:
+                # Estimate Expectancy per Trade from Total Return and Total Trades
+                expectancy = stats['Total Return [%]'] / (100 * stats['Total Trades'])
+                stats['Expectancy per Trade'] = expectancy
+                log(f"Calculated missing Expectancy per Trade: {expectancy:.6f} for {ticker}", "info")
+                stats['Expectancy per Month'] = stats['Trades per Month'] * expectancy
+            else:
+                # Set default values if we can't calculate
+                log(f"Expectancy per Trade not found and cannot be calculated", "warning")
+                stats['Expectancy per Trade'] = 0.0
+                stats['Expectancy per Month'] = 0.0
         
         log(f"Calculated metrics for {ticker}: Trades per Month={stats['Trades per Month']:.2f}, " +
             f"Signals per Month={stats['Signals per Month']:.2f}, " +

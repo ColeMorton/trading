@@ -7,7 +7,7 @@ comparing their performance against a benchmark portfolio.
 
 from typing import List, Dict, cast
 import vectorbt as vbt
-from app.portfolio_review.config import Config, config
+from app.portfolio_review.config import Config
 from app.tools.setup_logging import setup_logging
 from app.portfolio_review.tools.portfolio_analysis import (
     prepare_data,
@@ -24,10 +24,6 @@ from app.portfolio_review.tools.visualization import (
 )
 from app.ma_cross.tools.generate_signals import generate_signals
 from app.tools.stats_converter import convert_stats
-from app.tools.portfolio import (
-    load_portfolio,
-    validate_portfolio_configs
-)
 
 def run_portfolio_analysis(config_input: Dict = None):
     """
