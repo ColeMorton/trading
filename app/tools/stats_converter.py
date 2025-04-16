@@ -115,28 +115,29 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         if all(field in stats for field in required_fields):
             try:
                 # Handle potential zero or negative values
-                total_trades_normalized = min(stats['Total Trades'] / 54, 2.618)
-                sortino_normalized = stats['Sortino Ratio'] / 1
-                profit_factor_normalized = min(stats['Profit Factor'] / 1, 2.618) 
-                win_rate_normalized = stats['Win Rate [%]'] / 50
-                expectancy_per_trade_normalized = min(stats['Expectancy per Trade'] / 1, 2.618)
+                win_rate_normalized = pow(stats['Win Rate [%]'] / 50, 3)
+                total_trades_normalized = pow(min(stats['Total Trades'] / 72, 2), 1.5)
+                sortino_normalized = min(stats['Sortino Ratio'] / 0.618, 2.618)
+                profit_factor_normalized = min(stats['Profit Factor'] / 1.618, 2.618) 
+                expectancy_per_trade_normalized = min(stats['Expectancy per Trade'] / 3, 2.618)
 
-                if stats['Beats BNH [%]'] >= 1.23:
-                    beats_bnh_normalized = 1.38
+                if stats['Beats BNH [%]'] >= 5:
+                    beats_bnh_normalized = 2
                 elif stats['Beats BNH [%]'] <= -0.38:
-                    beats_bnh_normalized = -0.38
+                    beats_bnh_normalized = 0.25
                 else:
                     beats_bnh_normalized = 1
                 
                 stats['Score'] = (
-                    total_trades_normalized *
-                    sortino_normalized *
-                    profit_factor_normalized *
-                    expectancy_per_trade_normalized *
-                    beats_bnh_normalized *
-                    win_rate_normalized *
-                    win_rate_normalized
-                )
+                    win_rate_normalized +
+                    win_rate_normalized +
+                    total_trades_normalized +
+                    sortino_normalized +
+                    profit_factor_normalized +
+                    expectancy_per_trade_normalized +
+                    beats_bnh_normalized
+                ) / 7
+                log(f"Normalized: Total Trades {total_trades_normalized}", "info")
                 log(f"Normalized: Win Rate {win_rate_normalized}", "info")
                 log(f"Normalized: Expectancy {expectancy_per_trade_normalized}", "info")
                 log(f"Normalized: Profit Factor {profit_factor_normalized}", "info")

@@ -11,7 +11,7 @@ from app.tools.get_config import get_config
 from app.tools.setup_logging import setup_logging
 from app.tools.strategy.types import StrategyConfig as Config
 from app.ma_cross.tools.strategy_execution import execute_strategy
-from app.tools.portfolio.collection import export_best_portfolios, combine_strategy_portfolios
+from app.tools.portfolio.collection import export_best_portfolios
 
 CONFIG: Config = {
     # "TICKER": [
@@ -25,7 +25,9 @@ CONFIG: Config = {
     #     "MSTY",
     #     "STRK",
     #     "CRWD",
-    #     "LYV"
+    #     "LYV",
+    #     "ALL",
+    #     "ATO"
     # ],
     # "TICKER": [
     #     "SOL-USD",
@@ -82,12 +84,12 @@ CONFIG: Config = {
     #     "XLP",
     #     "XLB"
     # ],
-    # "TICKER": [
-    #     "BTC-USD",
-    #     "MSTR"
-    # ],
-    "TICKER": 'BTC-USD',
-    # "TICKER_2": 'QQQ',
+    "TICKER": [
+        "CRWD",
+        "ALL"
+    ],
+    # "TICKER": 'QQQ',
+    # "TICKER_2": 'SPY',
     # "WINDOWS": 120,
     "WINDOWS": 89,
     # "WINDOWS": 55,
@@ -95,26 +97,25 @@ CONFIG: Config = {
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
     "BASE_DIR": ".",
-    "REFRESH": True,
-    # "USE_SMA": False,
-    "STRATEGY_TYPES": [ "SMA" ],
+    "REFRESH": False,
+    "STRATEGY_TYPES": [ "SMA", "EMA" ],
     "DIRECTION": "Long",
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     "MINIMUMS": {
         # "TRADES": 13,
         # "TRADES": 21,
-        "WIN_RATE": 0.38,
-        "TRADES": 34,
+        # "WIN_RATE": 0.38,
+        # "TRADES": 34,
         # "WIN_RATE": 0.50,
         # "TRADES": 54,
         # "WIN_RATE": 0.61,
-        "EXPECTANCY_PER_TRADE": 1,
-        "PROFIT_FACTOR": 1,
-        "SORTINO_RATIO": 0.4,
+        # "EXPECTANCY_PER_TRADE": 1,
+        # "PROFIT_FACTOR": 1,
+        # "SORTINO_RATIO": 0.4,
         # "BEATS_BNH": 0.13
     },
     "SORT_BY": "Score",

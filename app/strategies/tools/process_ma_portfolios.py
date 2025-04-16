@@ -74,7 +74,8 @@ def process_ma_portfolios(
                 sma_fast,
                 sma_slow,
                 strategy_config,
-                log  # Pass the log parameter here
+                log,  # Pass the log parameter here
+                "SMA"  # Explicitly pass "SMA" as the strategy_type
             )
             if sma_data is not None:
                 sma_portfolio = backtest_strategy(sma_data, strategy_config, log)
@@ -91,7 +92,8 @@ def process_ma_portfolios(
                 ema_fast,
                 ema_slow,
                 strategy_config,
-                log  # Pass the log parameter here
+                log,  # Pass the log parameter here
+                "EMA"  # Explicitly pass "EMA" as the strategy_type
             )
             if ema_data is not None:
                 ema_portfolio = backtest_strategy(ema_data, strategy_config, log)
