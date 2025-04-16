@@ -127,13 +127,23 @@ def get_current_signals(data: pl.DataFrame, config: Dict, log: Callable) -> pl.D
     try:
         signals = []
         
-        # Generate parameter combinations
-        for short_window in range(config["SHORT_WINDOW_START"], config["SHORT_WINDOW_END"] + 1):
-            for long_window in range(config["LONG_WINDOW_START"], config["LONG_WINDOW_END"] + 1):
+        # Generate parameter combinations with STEP
+        step = config.get("STEP", 2)  # Default to 2 if not specified
+        
+        # Use the specific config parameters with appropriate defaults
+        short_window_start = config.get("SHORT_WINDOW_START", 2)
+        short_window_end = config.get("SHORT_WINDOW_END", 18)
+        long_window_start = config.get("LONG_WINDOW_START", 4)
+        long_window_end = config.get("LONG_WINDOW_END", 36)
+        signal_window_start = config.get("SIGNAL_WINDOW_START", 2)
+        signal_window_end = config.get("SIGNAL_WINDOW_END", 18)
+        
+        for short_window in range(short_window_start, short_window_end + 1, step):
+            for long_window in range(long_window_start, long_window_end + 1, step):
                 if long_window <= short_window:
                     continue
                     
-                for signal_window in range(config["SIGNAL_WINDOW_START"], config["SIGNAL_WINDOW_END"] + 1):
+                for signal_window in range(signal_window_start, signal_window_end + 1, step):
                     try:
                         temp_config = config.copy()
                         temp_config.update({

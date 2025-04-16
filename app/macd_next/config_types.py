@@ -27,6 +27,7 @@ class PortfolioConfig(TypedDict, total=False):
         LONG_WINDOW_END (NotRequired[int]): End of long-term EMA window range
         SIGNAL_WINDOW_START (NotRequired[int]): Start of signal line window range
         SIGNAL_WINDOW_END (NotRequired[int]): End of signal line window range
+        STEP (NotRequired[int]): Step size for window range increments
     """
     TICKER: Union[str, List[str]]
     BASE_DIR: str
@@ -42,6 +43,7 @@ class PortfolioConfig(TypedDict, total=False):
     LONG_WINDOW_END: NotRequired[int]
     SIGNAL_WINDOW_START: NotRequired[int]
     SIGNAL_WINDOW_END: NotRequired[int]
+    STEP: NotRequired[int]
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
@@ -75,17 +77,21 @@ def validate_config(config: dict) -> bool:
         ValueError: If configuration parameters are invalid
     """
     # Validate window ranges
-    if config.get('SHORT_WINDOW_END', 20) <= config.get('SHORT_WINDOW_START', 8):
+    if config.get('SHORT_WINDOW_END', 18) <= config.get('SHORT_WINDOW_START', 2):
         raise ValueError("SHORT_WINDOW_END must be greater than SHORT_WINDOW_START")
     
-    if config.get('LONG_WINDOW_END', 34) <= config.get('LONG_WINDOW_START', 13):
+    if config.get('LONG_WINDOW_END', 36) <= config.get('LONG_WINDOW_START', 4):
         raise ValueError("LONG_WINDOW_END must be greater than LONG_WINDOW_START")
     
-    if config.get('SIGNAL_WINDOW_END', 13) <= config.get('SIGNAL_WINDOW_START', 5):
+    if config.get('SIGNAL_WINDOW_END', 18) <= config.get('SIGNAL_WINDOW_START', 2):
         raise ValueError("SIGNAL_WINDOW_END must be greater than SIGNAL_WINDOW_START")
     
     # Validate window relationships
-    if config.get('LONG_WINDOW_START', 13) <= config.get('SHORT_WINDOW_END', 20):
+    if config.get('LONG_WINDOW_START', 4) <= config.get('SHORT_WINDOW_END', 18):
         raise ValueError("LONG_WINDOW_START must be greater than SHORT_WINDOW_END")
+    
+    # Validate STEP parameter
+    if config.get('STEP', 2) <= 0:
+        raise ValueError("STEP must be greater than 0")
     
     return True

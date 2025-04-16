@@ -50,18 +50,22 @@ def process_single_ticker(
                 log(f"Loading existing data from {file_path}.")
                 return pl.read_csv(file_path)
         
-        # Generate parameter ranges
+        # Generate parameter ranges with STEP
+        step = config.get("STEP", 2)  # Default to 2 if not specified
         short_windows = range(
-            config.get("SHORT_WINDOW_START", 8),
-            config.get("SHORT_WINDOW_END", 20) + 1
+            config.get("SHORT_WINDOW_START", 2),
+            config.get("SHORT_WINDOW_END", 18) + 1,
+            step
         )
         long_windows = range(
-            config.get("LONG_WINDOW_START", 13),
-            config.get("LONG_WINDOW_END", 34) + 1
+            config.get("LONG_WINDOW_START", 4),
+            config.get("LONG_WINDOW_END", 36) + 1,
+            step
         )
         signal_windows = range(
-            config.get("SIGNAL_WINDOW_START", 5),
-            config.get("SIGNAL_WINDOW_END", 13) + 1
+            config.get("SIGNAL_WINDOW_START", 2),
+            config.get("SIGNAL_WINDOW_END", 18) + 1,
+            step
         )
 
         log(f"Getting data...")
