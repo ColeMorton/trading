@@ -23,11 +23,18 @@ def calculate_macd(data: pl.DataFrame, short_window: int, long_window: int, sign
     Returns:
         DataFrame with MACD indicators added
     """
+    print(f"Calculating MACD with short EMA {short_window}, long EMA {long_window}, signal EMA {signal_window}")
+    
     # Calculate EMAs
     data = data.with_columns([
         pl.col("Close").ewm_mean(span=short_window).alias("EMA_short"),
         pl.col("Close").ewm_mean(span=long_window).alias("EMA_long")
     ])
+    
+    # Count valid EMA points
+    valid_short_ema = data.select(pl.col("EMA_short").is_not_null()).sum().item()
+    valid_long_ema = data.select(pl.col("EMA_long").is_not_null()).sum().item()
+    print(f"Valid EMA points - Short: {valid_short_ema}, Long: {valid_long_ema}")
     
     # Calculate MACD line
     data = data.with_columns([
@@ -38,6 +45,11 @@ def calculate_macd(data: pl.DataFrame, short_window: int, long_window: int, sign
     data = data.with_columns([
         pl.col("MACD").ewm_mean(span=signal_window).alias("Signal_Line")
     ])
+    
+    # Count valid MACD and Signal Line points
+    valid_macd = data.select(pl.col("MACD").is_not_null()).sum().item()
+    valid_signal = data.select(pl.col("Signal_Line").is_not_null()).sum().item()
+    print(f"Valid MACD points: {valid_macd}, Valid Signal Line points: {valid_signal}")
     
     return data
 
@@ -59,6 +71,12 @@ def generate_macd_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataF
         long_window = config.get("long_window", 26)
         signal_window = config.get("signal_window", 9)
         direction = config.get("DIRECTION", "Long").lower()
+        
+        # Log analysis parameters
+        print(f"Analyzing windows - Short: {short_window}, Long: {long_window}, Signal: {signal_window}")
+        print(f"Data length: {len(data)}, Required length: {max(short_window, long_window, signal_window)}")
+        print(f"Calculating {direction.capitalize()} MACD signals with short window {short_window}, long window {long_window}, and signal window {signal_window}")
+        print(f"Input data shape: {data.shape}")
         
         # Calculate MACD indicators
         data = calculate_macd(data, short_window, long_window, signal_window)
@@ -106,6 +124,24 @@ def generate_macd_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataF
         data = data.with_columns([
             pl.col("Signal").forward_fill().fill_null(0).alias("Signal")
         ])
+        
+        # Log signal conversion statistics
+        non_zero_signals = data.filter(pl.col("Signal") != 0).height
+        print(f"Windows {short_window}, {long_window}, {signal_window}: {non_zero_signals} signals generated")
+        
+        # Check if there's a current entry or exit signal
+        last_row = data.tail(1)
+        current_signal = last_row.select("Signal").item() != 0
+        
+        # Determine if there's an exit signal (MACD crossing Signal Line in opposite direction)
+        if direction == "long":
+            exit_signal = (last_row.select("MACD").item() < last_row.select("Signal_Line").item() and
+                          data.tail(2).head(1).select("MACD").item() >= data.tail(2).head(1).select("Signal_Line").item())
+        else:
+            exit_signal = (last_row.select("MACD").item() > last_row.select("Signal_Line").item() and
+                          data.tail(2).head(1).select("MACD").item() <= data.tail(2).head(1).select("Signal_Line").item())
+        
+        print(f"Windows {short_window}, {long_window}, {signal_window}: Entry signal: {current_signal}, Exit signal: {exit_signal}")
         
         return data
         

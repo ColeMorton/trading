@@ -34,12 +34,16 @@ def analyze_parameter_combination(
         Optional[Dict]: Portfolio statistics if successful, None if failed
     """
     try:
+        log(f"Analyzing windows - Short: {short_window}, Long: {long_window}, Signal: {signal_window}", "info")
+        log(f"Data length: {len(data)}, Required length: {max(short_window, long_window, signal_window)}", "info")
+        
         if len(data) == 0:
             log(f"Insufficient data for parameters {short_window}/{long_window}/{signal_window}", "warning")
             return None
             
         # Skip invalid window combinations
         if long_window <= short_window:
+            log(f"Invalid window combination: Long window {long_window} <= Short window {short_window}", "debug")
             return None
             
         # Create strategy config for this parameter combination
@@ -56,8 +60,24 @@ def analyze_parameter_combination(
             log(f"No signals generated for parameters {short_window}/{long_window}/{signal_window}", "warning")
             return None
             
+        # Count signals and positions
+        signal_count = temp_data.filter(pl.col("Signal") != 0).height
+        position_count = temp_data.filter(pl.col("Signal").shift(1).fill_null(0) != 0).height
+        log(f"Windows {short_window}, {long_window}, {signal_window}: {position_count} positions from {signal_count} signals", "info")
+            
         # Get current signal state
         current = temp_data.tail(1).select("Signal").item() != 0
+        
+        # Check if there's an exit signal
+        direction = config.get("DIRECTION", "Long").lower()
+        if direction == "long":
+            exit_signal = (temp_data.tail(1).select("MACD").item() < temp_data.tail(1).select("Signal_Line").item() and
+                          temp_data.tail(2).head(1).select("MACD").item() >= temp_data.tail(2).head(1).select("Signal_Line").item())
+        else:
+            exit_signal = (temp_data.tail(1).select("MACD").item() > temp_data.tail(1).select("Signal_Line").item() and
+                          temp_data.tail(2).head(1).select("MACD").item() <= temp_data.tail(2).head(1).select("Signal_Line").item())
+        
+        log(f"Windows {short_window}, {long_window}, {signal_window}: Entry signal: {current}, Exit signal: {exit_signal}", "info")
         
         # Backtest the strategy
         portfolio = backtest_strategy(temp_data, config, log)

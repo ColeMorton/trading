@@ -81,17 +81,42 @@ def process_ticker_portfolios(ticker: str, config: PortfolioConfig, log: Callabl
         Optional[pl.DataFrame]: DataFrame of portfolios or None if processing fails
     """
     try:
+        log(f"Processing ticker: {ticker} with {config.get('DIRECTION', 'Long')} direction", "info")
+        
         if config.get("USE_CURRENT", False):
+            log(f"Using current market data for {ticker}", "info")
             return process_current_signals(ticker, config, log)
         else:
             from app.macd_next.tools.portfolio_processing import process_single_ticker
+            
+            # Log parameter ranges
+            log(f"Parameter ranges for {ticker}:", "info")
+            log(f"Short window: {config.get('SHORT_WINDOW_START', 2)} to {config.get('SHORT_WINDOW_END', 18)} with step {config.get('STEP', 2)}", "info")
+            log(f"Long window: {config.get('LONG_WINDOW_START', 4)} to {config.get('LONG_WINDOW_END', 36)} with step {config.get('STEP', 2)}", "info")
+            log(f"Signal window: {config.get('SIGNAL_WINDOW_START', 2)} to {config.get('SIGNAL_WINDOW_END', 18)} with step {config.get('STEP', 2)}", "info")
+            
             portfolios = process_single_ticker(ticker, config, log)
             if portfolios is None:
                 log(f"Failed to process {ticker}", "error")
                 return None
                 
             portfolios_df = pl.DataFrame(portfolios)
-            log(f"Results for {ticker} {config.get('DIRECTION', 'Long')}")
+            log(f"Generated {len(portfolios_df)} portfolios for {ticker} {config.get('DIRECTION', 'Long')}", "info")
+            
+            # Log some statistics about the portfolios
+            if len(portfolios_df) > 0:
+                if "Win Rate [%]" in portfolios_df.columns:
+                    avg_win_rate = portfolios_df.select(pl.col("Win Rate [%]")).mean().item()
+                    log(f"Average Win Rate: {avg_win_rate:.2f}%", "info")
+                
+                if "Expectancy Per Trade" in portfolios_df.columns:
+                    avg_expectancy = portfolios_df.select(pl.col("Expectancy Per Trade")).mean().item()
+                    log(f"Average Expectancy Per Trade: {avg_expectancy:.4f}", "info")
+                
+                if "Profit Factor" in portfolios_df.columns:
+                    avg_profit_factor = portfolios_df.select(pl.col("Profit Factor")).mean().item()
+                    log(f"Average Profit Factor: {avg_profit_factor:.4f}", "info")
+            
             return portfolios_df
             
     except Exception as e:

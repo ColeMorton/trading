@@ -30,6 +30,7 @@ def process_single_ticker(
         Optional[pl.DataFrame]: Portfolio analysis results or None if processing fails
     """
     try:
+        log(f"Processing single ticker: {ticker} with {config.get('DIRECTION', 'Long')} direction", "info")
         config_copy = config.copy()
         config_copy["TICKER"] = ticker
         
@@ -68,13 +69,32 @@ def process_single_ticker(
             step
         )
 
-        log(f"Getting data...")
+        log(f"Getting data for {ticker}...")
         data = get_data(ticker, config_copy, log)
         if data is None:
             log(f"Failed to get data for {ticker}", "error")
             return None
+            
+        log(f"Data retrieved for {ticker}: {len(data)} rows", "info")
+        log(f"Data date range: {data.select('Date').min().item()} to {data.select('Date').max().item()}", "info")
 
-        log(f"Beginning analysis...")
+        log(f"Beginning MACD cross analysis for {ticker}...")
+        log(f"Parameter combinations to analyze:", "info")
+        
+        # Calculate number of parameter combinations
+        step = config.get("STEP", 2)
+        short_windows_count = (config.get("SHORT_WINDOW_END", 18) - config.get("SHORT_WINDOW_START", 2)) // step + 1
+        long_windows_count = (config.get("LONG_WINDOW_END", 36) - config.get("LONG_WINDOW_START", 4)) // step + 1
+        signal_windows_count = (config.get("SIGNAL_WINDOW_END", 18) - config.get("SIGNAL_WINDOW_START", 2)) // step + 1
+        
+        # Calculate valid combinations (where long_window > short_window)
+        valid_combinations = 0
+        for sw in range(config.get("SHORT_WINDOW_START", 2), config.get("SHORT_WINDOW_END", 18) + 1, step):
+            for lw in range(config.get("LONG_WINDOW_START", 4), config.get("LONG_WINDOW_END", 36) + 1, step):
+                if lw > sw:
+                    valid_combinations += signal_windows_count
+        
+        log(f"Total parameter combinations: {valid_combinations}", "info")
         portfolios = analyze_parameter_combinations(
             data=data,
             short_windows=short_windows,
@@ -83,11 +103,12 @@ def process_single_ticker(
             config=config_copy,
             log=log
         )
-        
         if not portfolios:
             log(f"No valid portfolios generated for {ticker}", "warning")
             return None
             
+        log(f"Generated {len(portfolios)} valid portfolios for {ticker}", "info")
+        return pl.DataFrame(portfolios)
         return pl.DataFrame(portfolios)
         
     except Exception as e:
