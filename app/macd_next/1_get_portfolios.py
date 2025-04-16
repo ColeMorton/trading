@@ -102,12 +102,13 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
 
 if __name__ == "__main__":
     try:
-        # Run analysis with both Long and Short directions
+        # Run analysis with the direction specified in the configuration
         config_copy = DEFAULT_CONFIG.copy()
         
-        # Run for both trading directions
-        run({**config_copy, "DIRECTION": "Long"})  # Run Long strategy
-        run({**config_copy, "DIRECTION": "Short"}) # Run Short strategy
+        # Use the direction from the configuration
+        direction = config_copy.get("DIRECTION", "Long")
+        print(f"Running {direction} strategy as specified in configuration")
+        run(config_copy)  # Run with the configured direction
     except Exception as e:
         print(f"Execution failed: {str(e)}")
         raise

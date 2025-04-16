@@ -115,16 +115,16 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         if all(field in stats for field in required_fields):
             try:
                 # Handle potential zero or negative values
-                total_trades_normalized = min(stats['Total Trades'] / 72, 2)
-                sortino_normalized = stats['Sortino Ratio'] / 0.89
-                profit_factor_normalized = min(stats['Profit Factor'] / 1.84, 1.618) 
+                total_trades_normalized = min(stats['Total Trades'] / 54, 2.618)
+                sortino_normalized = stats['Sortino Ratio'] / 1
+                profit_factor_normalized = min(stats['Profit Factor'] / 1, 2.618) 
                 win_rate_normalized = stats['Win Rate [%]'] / 50
-                expectancy_per_trade_normalized = min(stats['Expectancy per Trade'] / 5.26, 1.618)
+                expectancy_per_trade_normalized = min(stats['Expectancy per Trade'] / 1, 2.618)
 
                 if stats['Beats BNH [%]'] >= 1.23:
                     beats_bnh_normalized = 1.38
                 elif stats['Beats BNH [%]'] <= -0.38:
-                    beats_bnh_normalized = 0.62
+                    beats_bnh_normalized = -0.38
                 else:
                     beats_bnh_normalized = 1
                 
