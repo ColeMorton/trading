@@ -7,6 +7,7 @@ MACD cross strategy using the centralized export functionality.
 from typing import List, Dict, Tuple, Callable, Optional, Any
 import polars as pl
 from app.tools.export_csv import export_csv, ExportConfig
+from typing import Union
 
 class PortfolioExportError(Exception):
     """Custom exception for portfolio export errors."""
@@ -35,6 +36,37 @@ def _fix_precision(df: pl.DataFrame) -> pl.DataFrame:
                 pl.col(col).cast(pl.Int32).alias(col)
             )
     return df
+
+def sort_portfolios(
+    portfolios: Union[List[Dict[str, Any]], pl.DataFrame],
+    config: Dict
+) -> Union[List[Dict[str, Any]], pl.DataFrame]:
+    """Sort portfolios using consistent logic across the application.
+    
+    Args:
+        portfolios: Either a list of portfolio dictionaries or a Polars DataFrame
+        config: Configuration dictionary containing sorting preferences
+        
+    Returns:
+        Sorted portfolios in the same format as input (list or DataFrame)
+        
+    Note:
+        Uses config['SORT_BY'] to determine sort column, defaults to 'Total Return [%]'
+        Uses config['SORT_ASC'] to determine sort order, defaults to False (descending)
+    """
+    # Convert to DataFrame if necessary
+    input_is_list = isinstance(portfolios, list)
+    df = pl.DataFrame(portfolios) if input_is_list else portfolios
+    
+    # Sort using consistent logic
+    sort_by = config.get('SORT_BY', 'Total Return [%]')
+    sort_asc = config.get('SORT_ASC', False)
+    descending = not sort_asc  # If sort_asc is True, descending should be False
+    
+    sorted_df = df.sort(sort_by, descending=descending)
+    
+    # Return in original format
+    return sorted_df.to_dicts() if input_is_list else sorted_df
 
 def _reorder_columns(df: pl.DataFrame, export_type: str, config: ExportConfig = None) -> pl.DataFrame:
     """Reorder columns based on export type.
@@ -268,8 +300,15 @@ def export_portfolios(
         log(f"Exporting {len(portfolios)} portfolios as {export_type}...", "info")
 
     try:
-        # Convert to DataFrame and reorder columns
+        # Convert to DataFrame
         df = pl.DataFrame(portfolios)
+        
+        # Sort portfolios if SORT_BY is specified in config
+        if 'SORT_BY' in config:
+            log(f"Sorting portfolios by {config.get('SORT_BY')} in {'ascending' if config.get('SORT_ASC', False) else 'descending'} order", "info")
+            df = sort_portfolios(df, config)
+        
+        # Reorder columns
         df = _reorder_columns(df, export_type, config)
         
         # Determine feature1 (directory) based on export_type and feature_dir
@@ -332,11 +371,9 @@ def export_best_portfolios(
         return False
         
     try:
-        # Sort portfolios by Score or Total Return [%]
-        sort_by = config.get('SORT_BY', 'Total Return [%]')
-        df = pl.DataFrame(portfolios)
-        sorted_df = df.sort(sort_by, descending=True)
-        sorted_portfolios = sorted_df.to_dicts()
+        # Sort portfolios using centralized function
+        log(f"Sorting portfolios by {config.get('SORT_BY', 'Total Return [%]')} in {'ascending' if config.get('SORT_ASC', False) else 'descending'} order", "info")
+        sorted_portfolios = sort_portfolios(portfolios, config)
         
         # Export to portfolios_best directory
         export_portfolios(
@@ -355,7 +392,7 @@ def export_best_portfolios(
             log=log
         )
         
-        log(f"Exported {len(sorted_portfolios)} portfolios sorted by {sort_by}")
+        log(f"Exported {len(sorted_portfolios)} portfolios sorted by {sort_by} in {'ascending' if sort_asc else 'descending'} order")
         return True
     except Exception as e:
         log(f"Failed to export portfolios: {str(e)}", "error")
