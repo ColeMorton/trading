@@ -61,7 +61,7 @@ DEFAULT_CONFIG: PortfolioConfig = {
     "LONG_WINDOW_END": 36,
     "SIGNAL_WINDOW_START": 2,
     "SIGNAL_WINDOW_END": 18,
-    "STEP": 1
+    "STEP": 5
 }
 
 def validate_config(config: dict) -> bool:

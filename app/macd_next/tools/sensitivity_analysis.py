@@ -84,13 +84,39 @@ def analyze_parameter_combination(
         
         # Get and convert statistics
         stats = portfolio.stats()
+        
         # Use correct column names from the start
         stats.update({
             'Short Window': short_window,
             'Long Window': long_window,
-            'Signal Window': signal_window
+            'Signal Window': signal_window,
+            'Strategy Type': 'MACD',  # Ensure Strategy Type is set to MACD
+            'Signal Count': signal_count,  # Add Signal Count
+            'Position Count': position_count,  # Add Position Count
+            'Signal Entry': current,  # Add Signal Entry flag
+            'Signal Exit': exit_signal  # Add Signal Exit flag
         })
+        
+        # Get ticker from config
+        if 'TICKER' in config:
+            ticker = config['TICKER']
+            stats['Ticker'] = ticker
+        
         converted_stats = convert_stats(stats, log, config, current)
+        
+        # Ensure these fields are present in the converted stats
+        if 'Signal Count' not in converted_stats:
+            converted_stats['Signal Count'] = signal_count
+        if 'Position Count' not in converted_stats:
+            converted_stats['Position Count'] = position_count
+        if 'Strategy Type' not in converted_stats:
+            converted_stats['Strategy Type'] = 'MACD'
+        if 'Signal Entry' not in converted_stats:
+            converted_stats['Signal Entry'] = current
+        if 'Signal Exit' not in converted_stats:
+            converted_stats['Signal Exit'] = exit_signal
+        if 'Ticker' in stats and 'Ticker' not in converted_stats:
+            converted_stats['Ticker'] = stats['Ticker']
         
         return converted_stats
         

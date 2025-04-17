@@ -19,7 +19,7 @@ from app.tools.get_config import get_config
 from app.tools.setup_logging import setup_logging
 from app.macd_next.tools.signal_processing import process_ticker_portfolios
 from app.macd_next.tools.filter_portfolios import filter_portfolios
-from app.macd_next.tools.export_portfolios import export_portfolios, PortfolioExportError
+from app.macd_next.tools.export_portfolios import export_portfolios, export_best_portfolios, PortfolioExportError
 from app.macd_next.config_types import PortfolioConfig, DEFAULT_CONFIG
 
 def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
@@ -49,19 +49,32 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
         # Initialize configuration and tickers
         config = get_config(config)
         tickers = [config["TICKER"]] if isinstance(config["TICKER"], str) else config["TICKER"]
-        
         # Process each ticker
+        all_portfolios = []  # Collect all portfolios for best portfolios export
+        best_portfolios = []  # Collect best portfolios from each ticker
+        
         for ticker in tickers:
             log(f"Processing ticker: {ticker}")
             
             # Create a config copy with single ticker
             ticker_config = config.copy()
             ticker_config["TICKER"] = ticker
+            ticker_config["GET_BEST_PORTFOLIO"] = True  # Enable best portfolio selection
             
             # Process portfolios for ticker
-            portfolios_df = process_ticker_portfolios(ticker, ticker_config, log)
-            if portfolios_df is None:
+            result = process_ticker_portfolios(ticker, ticker_config, log)
+            if result is None:
                 continue
+                
+            # Handle the result based on its type
+            if isinstance(result, tuple) and len(result) == 2:
+                portfolios_df, best_portfolio = result
+                # Add best portfolio to the list
+                if best_portfolio is not None:
+                    log(f"Adding best portfolio for {ticker} to collection")
+                    best_portfolios.append(best_portfolio)
+            else:
+                portfolios_df = result
                 
             # Export unfiltered portfolios
             try:
@@ -91,6 +104,40 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
                     )
                 except (ValueError, PortfolioExportError) as e:
                     log(f"Failed to export filtered portfolios for {ticker}: {str(e)}", "error")
+            
+            # Add portfolios to all_portfolios for best portfolios export
+            all_portfolios.extend(portfolios_df.to_dicts())
+        
+        # Export best portfolios across all tickers
+        if all_portfolios:
+            log(f"Exporting {len(all_portfolios)} portfolios across all tickers")
+            try:
+                export_best_portfolios(all_portfolios, config, log)
+            except (ValueError, PortfolioExportError) as e:
+                log(f"Failed to export best portfolios: {str(e)}", "error")
+                
+        # Export best portfolio from each ticker
+        if best_portfolios:
+            log(f"Exporting {len(best_portfolios)} best portfolios (one from each ticker)")
+            try:
+                # Export to strategies directory
+                export_portfolios(
+                    portfolios=best_portfolios,
+                    config=config,
+                    export_type="",  # Empty string for direct export
+                    feature_dir="strategies",  # Use strategies directory
+                    log=log
+                )
+                
+                # Also export to portfolios_best directory
+                export_portfolios(
+                    portfolios=best_portfolios,
+                    config=config,
+                    export_type="portfolios_best",
+                    log=log
+                )
+            except (ValueError, PortfolioExportError) as e:
+                log(f"Failed to export best portfolios collection: {str(e)}", "error")
 
         log_close()
         return True
@@ -100,15 +147,43 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
         log_close()
         raise
 
-if __name__ == "__main__":
+def run_strategies() -> bool:
+    """Run analysis with strategies specified in configuration.
+    
+    This function is similar to the run function in ma_cross/1_get_portfolios.py,
+    providing a consistent interface across strategy modules.
+    
+    Returns:
+        bool: True if execution successful
+    """
     try:
-        # Run analysis with the direction specified in the configuration
+        # Initialize logging
+        log, log_close, _, _ = setup_logging(
+            module_name='macd_next',
+            log_file='1_get_portfolios.log'
+        )
+        
+        # Initialize config
         config_copy = DEFAULT_CONFIG.copy()
         
         # Use the direction from the configuration
         direction = config_copy.get("DIRECTION", "Long")
-        print(f"Running {direction} strategy as specified in configuration")
-        run(config_copy)  # Run with the configured direction
+        log(f"Running {direction} MACD strategy as specified in configuration", "info")
+        
+        # Run the main analysis function
+        result = run(config_copy)
+        
+        log_close()
+        return result
+        
+    except Exception as e:
+        print(f"Execution failed: {str(e)}")
+        raise
+
+if __name__ == "__main__":
+    try:
+        # Run analysis with the direction specified in the configuration
+        run_strategies()
     except Exception as e:
         print(f"Execution failed: {str(e)}")
         raise
