@@ -72,7 +72,7 @@ def _reorder_columns(df: pl.DataFrame, export_type: str, config: ExportConfig = 
     if "Total Open Trades" not in df.columns:
         df = df.with_columns(pl.lit(0).alias("Total Open Trades"))
     
-    if export_type in ['portfolios_best', 'portfolios']:
+    if export_type in ['portfolios_best', 'portfolios', '']:  # Include empty string for strategies export
         # Define standard column order to match ma_cross/strategies exports
         ordered_cols = [
             "Ticker",
@@ -83,35 +83,147 @@ def _reorder_columns(df: pl.DataFrame, export_type: str, config: ExportConfig = 
             "Signal Entry",
             "Signal Exit",
             "Total Open Trades",
-            "Total Trades"
+            "Total Trades",
+            "Score",
+            "Win Rate [%]",
+            "Profit Factor",
+            "Expectancy per Trade",
+            "Sortino Ratio",
+            "Beats BNH [%]",
+            "Avg Trade Duration",
+            "Trades Per Day",
+            "Trades per Month",
+            "Signals per Month",
+            "Expectancy per Month",
+            "Start",
+            "End",
+            "Period",
+            "Start Value",
+            "End Value",
+            "Total Return [%]",
+            "Benchmark Return [%]",
+            "Max Gross Exposure [%]",
+            "Total Fees Paid",
+            "Max Drawdown [%]",
+            "Max Drawdown Duration",
+            "Total Closed Trades",
+            "Open Trade PnL",
+            "Best Trade [%]",
+            "Worst Trade [%]",
+            "Avg Winning Trade [%]",
+            "Avg Losing Trade [%]",
+            "Avg Winning Trade Duration",
+            "Avg Losing Trade Duration",
+            "Expectancy",
+            "Sharpe Ratio",
+            "Calmar Ratio",
+            "Omega Ratio",
+            "Skew",
+            "Kurtosis",
+            "Tail Ratio",
+            "Common Sense Ratio",
+            "Value at Risk",
+            "Alpha",
+            "Beta",
+            "Daily Returns",
+            "Annual Returns",
+            "Cumulative Returns",
+            "Annualized Return",
+            "Annualized Volatility",
+            "Signal Count",
+            "Position Count",
+            "Total Period"
         ]
-        
-        # Add remaining columns
-        remaining_cols = [col for col in df.columns if col not in ordered_cols]
-        ordered_cols.extend(remaining_cols)
         
         # Select only columns that exist in the DataFrame
         existing_cols = [col for col in ordered_cols if col in df.columns]
+        
+        # Add any remaining columns that weren't in our ordered list
+        remaining_cols = [col for col in df.columns if col not in ordered_cols]
+        existing_cols.extend(remaining_cols)
+        
         return df.select(existing_cols)
     
     elif export_type == 'portfolios_filtered':
-        # Ensure window parameters follow metric type in correct order
-        cols = df.columns
+        # For filtered portfolios, we need to keep Metric Type as the first column
+        # but otherwise use the same column order as other export types
+        
+        # Start with Metric Type if it exists
         ordered_cols = []
-        
-        # Keep first column (Metric Type)
-        if 'Metric Type' in cols:
+        if 'Metric Type' in df.columns:
             ordered_cols.append('Metric Type')
-            cols.remove('Metric Type')
-            
-        # Add window parameters in correct order
-        for param in ['Short Window', 'Long Window', 'Signal Window']:
-            if param in cols:
-                ordered_cols.append(param)
-                cols.remove(param)
         
-        # Add remaining columns
-        ordered_cols.extend(cols)
+        # Add the standard columns in the correct order (except Metric Type)
+        standard_cols = [
+            "Short Window",
+            "Long Window",
+            "Signal Window",
+            "Ticker",
+            "Strategy Type",
+            "Signal Entry",
+            "Signal Exit",
+            "Total Open Trades",
+            "Total Trades",
+            "Score",
+            "Win Rate [%]",
+            "Profit Factor",
+            "Expectancy per Trade",
+            "Sortino Ratio",
+            "Beats BNH [%]",
+            "Avg Trade Duration",
+            "Trades Per Day",
+            "Trades per Month",
+            "Signals per Month",
+            "Expectancy per Month",
+            "Start",
+            "End",
+            "Period",
+            "Start Value",
+            "End Value",
+            "Total Return [%]",
+            "Benchmark Return [%]",
+            "Max Gross Exposure [%]",
+            "Total Fees Paid",
+            "Max Drawdown [%]",
+            "Max Drawdown Duration",
+            "Total Closed Trades",
+            "Open Trade PnL",
+            "Best Trade [%]",
+            "Worst Trade [%]",
+            "Avg Winning Trade [%]",
+            "Avg Losing Trade [%]",
+            "Avg Winning Trade Duration",
+            "Avg Losing Trade Duration",
+            "Expectancy",
+            "Sharpe Ratio",
+            "Calmar Ratio",
+            "Omega Ratio",
+            "Skew",
+            "Kurtosis",
+            "Tail Ratio",
+            "Common Sense Ratio",
+            "Value at Risk",
+            "Alpha",
+            "Beta",
+            "Daily Returns",
+            "Annual Returns",
+            "Cumulative Returns",
+            "Annualized Return",
+            "Annualized Volatility",
+            "Signal Count",
+            "Position Count",
+            "Total Period"
+        ]
+        
+        # Add standard columns that exist in the DataFrame
+        for col in standard_cols:
+            if col in df.columns and col != 'Metric Type':  # Skip Metric Type as it's already added
+                ordered_cols.append(col)
+        
+        # Add any remaining columns that weren't in our ordered list
+        remaining_cols = [col for col in df.columns if col not in ordered_cols and col != 'Metric Type']
+        ordered_cols.extend(remaining_cols)
+        
         return df.select(ordered_cols)
         
     return df
