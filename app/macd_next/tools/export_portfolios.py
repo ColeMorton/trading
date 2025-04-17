@@ -187,11 +187,11 @@ def _reorder_columns(df: pl.DataFrame, export_type: str, config: ExportConfig = 
         
         # Add the standard columns in the correct order (except Metric Type)
         standard_cols = [
+            "Ticker",
+            "Strategy Type",
             "Short Window",
             "Long Window",
             "Signal Window",
-            "Ticker",
-            "Strategy Type",
             "Signal Entry",
             "Signal Exit",
             "Total Open Trades",
