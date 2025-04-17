@@ -383,14 +383,9 @@ def export_best_portfolios(
             log=log
         )
         
-        # Also export to strategies directory
-        export_portfolios(
-            portfolios=sorted_portfolios,
-            config=config,
-            export_type="",  # Empty string for direct export
-            feature_dir="strategies",  # Use strategies directory
-            log=log
-        )
+        # Get sort parameters from config
+        sort_by = config.get('SORT_BY', 'Total Return [%]')
+        sort_asc = config.get('SORT_ASC', False)
         
         log(f"Exported {len(sorted_portfolios)} portfolios sorted by {sort_by} in {'ascending' if sort_asc else 'descending'} order")
         return True
