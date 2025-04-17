@@ -27,8 +27,8 @@ def process_current_signals(ticker: str, config: Config, log: Callable) -> Optio
     config_copy["TICKER"] = ticker
     
     try:
-        # Get strategy type from config or default to EMA
-        strategy_type = config_copy.get("STRATEGY_TYPE", "EMA")
+        # Get strategy type from config or default to SMA
+        strategy_type = config_copy.get("STRATEGY_TYPE", "SMA")
         
         # Generate and validate current signals
         current_signals = generate_current_signals(config_copy, log)
@@ -92,7 +92,7 @@ def process_ticker_portfolios(ticker: str, config: Config, log: Callable) -> Opt
                 return None
                 
             portfolios_df = pl.DataFrame(portfolios)
-            strategy_type = config.get("STRATEGY_TYPE", "EMA")
+            strategy_type = config.get("STRATEGY_TYPE", "SMA")
             log(f"Results for {ticker} {strategy_type}")
             return portfolios_df
             

@@ -27,6 +27,9 @@ def calculate_ma_and_signals(
     Returns:
         pl.DataFrame: Data with moving averages, signals, and positions
     """
+    # Use strategy type from config if available, otherwise use the provided parameter
+    strategy_type = config.get("STRATEGY_TYPE", strategy_type)
+    
     direction = "Short" if config.get('DIRECTION', 'Long') == 'Short' else "Long"
     log(f"Calculating {direction} {strategy_type}s and signals with short window {short_window} and long window {long_window}")
     

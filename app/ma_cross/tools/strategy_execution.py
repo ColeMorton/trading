@@ -54,8 +54,8 @@ def execute_single_strategy(
             log(f"Failed to get price data for {ticker}", "error")
             return None
             
-        # Get strategy type from config or default to EMA
-        strategy_type = config.get("STRATEGY_TYPE", "EMA")
+        # Get strategy type from config or default to SMA
+        strategy_type = config.get("STRATEGY_TYPE", "SMA")
             
         # Calculate MA and signals
         data = calculate_ma_and_signals(

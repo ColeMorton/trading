@@ -32,11 +32,14 @@ def get_current_signals(
     try:
         signals = []
         
+        # Get strategy type from config or default to SMA
+        strategy_type = config.get("STRATEGY_TYPE", "SMA")
+        
         for short in short_windows:
             for long in long_windows:
                 if short < long:  # Ensure short window is always less than long window
                     temp_data = data.clone()
-                    temp_data = calculate_ma_and_signals(temp_data, short, long, config, log)  # Added log parameter
+                    temp_data = calculate_ma_and_signals(temp_data, short, long, config, log, strategy_type)
                     
                     if temp_data is not None and len(temp_data) > 0:
                         current = is_signal_current(temp_data, config)
