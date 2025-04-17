@@ -85,11 +85,13 @@ CONFIG: Config = {
     #     "XLP",
     #     "XLB"
     # ],
-    # "TICKER": [
-    #     "CRWD",
-    #     "ALL"
-    # ],
-    "TICKER": 'BTC-USD',
+    "TICKER": [
+        "V",
+        "MA",
+        "AVGO",
+        "HWM"
+    ],
+    # "TICKER": 'BTC-USD',
     # "TICKER_2": 'SPY',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -99,7 +101,7 @@ CONFIG: Config = {
     # "USE_SCANNER": True,
     "BASE_DIR": ".",
     "REFRESH": True,
-    "STRATEGY_TYPES": [ "EMA" ],
+    "STRATEGY_TYPES": [ "SMA", "EMA" ],
     "DIRECTION": "Long",
     "USE_HOURLY": False,
     "USE_YEARS": False,
