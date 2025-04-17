@@ -22,6 +22,7 @@ CONFIG: Config = {
     #     "SPY",
     #     "QQQ",
     #     "BTC-USD",
+    #     "SOL-USD",
     #     "MSTY",
     #     "STRK",
     #     "CRWD",
@@ -84,11 +85,11 @@ CONFIG: Config = {
     #     "XLP",
     #     "XLB"
     # ],
-    "TICKER": [
-        "CRWD",
-        "ALL"
-    ],
-    # "TICKER": 'QQQ',
+    # "TICKER": [
+    #     "CRWD",
+    #     "ALL"
+    # ],
+    "TICKER": 'ALL',
     # "TICKER_2": 'SPY',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -97,8 +98,8 @@ CONFIG: Config = {
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
     "BASE_DIR": ".",
-    "REFRESH": False,
-    "STRATEGY_TYPES": [ "SMA", "EMA" ],
+    "REFRESH": True,
+    "STRATEGY_TYPES": [ "SMA" ],
     "DIRECTION": "Long",
     "USE_HOURLY": False,
     "USE_YEARS": False,
@@ -113,7 +114,7 @@ CONFIG: Config = {
         # "WIN_RATE": 0.50,
         # "TRADES": 54,
         # "WIN_RATE": 0.61,
-        # "EXPECTANCY_PER_TRADE": 1,
+        # "EXPECTANCY_PER_TRADE": 0.5,
         # "PROFIT_FACTOR": 1,
         # "SORTINO_RATIO": 0.4,
         # "BEATS_BNH": 0.13
@@ -197,6 +198,15 @@ def run(config: Config = CONFIG) -> bool:
         
         # Export best portfolios
         if best_portfolios:
+            # Filter portfolios to only include those with Signal Entry = True when USE_CURRENT = True
+            if config.get("USE_CURRENT", False):
+                original_count = len(best_portfolios)
+                best_portfolios = [p for p in best_portfolios if p.get("Signal Entry", False) is True]
+                filtered_count = original_count - len(best_portfolios)
+                if filtered_count > 0:
+                    log(f"Filtered out {filtered_count} portfolios with Signal Entry = False when USE_CURRENT = True", "info")
+                    log(f"Remaining portfolios: {len(best_portfolios)}", "info")
+            
             export_best_portfolios(best_portfolios, config, log)
         
         log_close()
@@ -327,6 +337,16 @@ def run_strategies() -> bool:
                     config_copy["TICKER"] = f"{config_copy['TICKER']}_{config_copy['TICKER_2']}"
                     if log:
                         log(f"Using synthetic ticker for export: {config_copy['TICKER']}", "info")
+            
+            # Filter portfolios to only include those with Signal Entry = True when USE_CURRENT = True
+            if config_copy.get("USE_CURRENT", False):
+                original_count = len(all_portfolios)
+                all_portfolios = [p for p in all_portfolios if p.get("Signal Entry", False) is True]
+                filtered_count = original_count - len(all_portfolios)
+                if filtered_count > 0:
+                    log(f"Filtered out {filtered_count} portfolios with Signal Entry = False when USE_CURRENT = True", "info")
+                    log(f"Remaining portfolios: {len(all_portfolios)}", "info")
+            
             export_best_portfolios(all_portfolios, config_copy, log)
         
         log_close()

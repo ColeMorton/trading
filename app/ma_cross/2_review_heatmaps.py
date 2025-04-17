@@ -10,16 +10,16 @@ from app.tools.heatmap_utils import process_heatmap_data
 from app.ma_cross.config_types import HeatmapConfig
 
 def run(config: HeatmapConfig = {
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     "USE_BEST_PORTFOLIO": False,  # Default to regular portfolios directory
     "USE_SMA": True,
-    "TICKER": 'BTC-USD',
+    "TICKER": 'ALL',
     "TICKER_1": 'BTC-USD',
     "TICKER_2": 'BTC-USD',
-    "WINDOWS": 120,
+    "WINDOWS": 89,
     "USE_HOURLY": False,
     "USE_SYNTHETIC": False,
-    "REFRESH": False,
+    "REFRESH": True,
     "BASE_DIR": ".",
     "DIRECTION": "Long"  # Default to Long position
 }) -> bool:
