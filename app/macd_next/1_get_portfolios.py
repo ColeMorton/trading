@@ -112,13 +112,10 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
             # Add portfolios to all_portfolios for best portfolios export
             all_portfolios.extend(portfolios_df.to_dicts())
         
-        # Export best portfolios across all tickers
+        # We no longer export all portfolios to portfolios_best
+        # This avoids duplicate exports to the same directory
         if all_portfolios:
-            log(f"Exporting {len(all_portfolios)} portfolios across all tickers")
-            try:
-                export_best_portfolios(all_portfolios, config, log)
-            except (ValueError, PortfolioExportError) as e:
-                log(f"Failed to export best portfolios: {str(e)}", "error")
+            log(f"Collected {len(all_portfolios)} portfolios across all tickers")
                 
         # Export best portfolio from each ticker
         if best_portfolios:

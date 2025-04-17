@@ -48,7 +48,7 @@ class PortfolioConfig(TypedDict, total=False):
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
     # "TICKER": "BTC-USD",
-    "TICKER": "MSTR",
+    "TICKER": "V",
     "BASE_DIR": ".",
     "USE_HOURLY": False,
     "REFRESH": True,
