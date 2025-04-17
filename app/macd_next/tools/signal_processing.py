@@ -70,7 +70,7 @@ def process_current_signals(ticker: str, config: PortfolioConfig, log: Callable)
         log(f"Failed to process current signals: {str(e)}", "error")
         return None
 
-def process_ticker_portfolios(ticker: str, config: PortfolioConfig, log: Callable) -> Union[Tuple[pl.DataFrame, Dict[str, Any]], Optional[pl.DataFrame]]:
+def process_ticker_portfolios(ticker: str, config: PortfolioConfig, log: Callable) -> Optional[pl.DataFrame]:
     """Process portfolios for a single ticker using the MACD cross strategy.
     
     Args:
@@ -79,9 +79,7 @@ def process_ticker_portfolios(ticker: str, config: PortfolioConfig, log: Callabl
         log (Callable): Logging function
         
     Returns:
-        Union[Tuple[pl.DataFrame, Dict[str, Any]], Optional[pl.DataFrame]]:
-            - If get_best_portfolio is True: Tuple of (DataFrame of portfolios, best portfolio)
-            - If get_best_portfolio is False: DataFrame of portfolios or None if processing fails
+        Optional[pl.DataFrame]: DataFrame of portfolios or None if processing fails
     """
     try:
         log(f"Processing ticker: {ticker} with {config.get('DIRECTION', 'Long')} direction", "info")
@@ -131,14 +129,7 @@ def process_ticker_portfolios(ticker: str, config: PortfolioConfig, log: Callabl
                 if "Position Count" in portfolios_df.columns:
                     avg_position_count = portfolios_df.select(pl.col("Position Count")).mean().item()
                     log(f"Average Position Count: {avg_position_count:.0f}", "info")
-            # Get the best portfolio if requested
-            if config.get("GET_BEST_PORTFOLIO", True):
-                best_portfolio = get_best_portfolio(portfolios_df, config, log)
-                if best_portfolio is not None:
-                    log(f"Found best portfolio for {ticker}")
-                    return portfolios_df, best_portfolio
-            
-            # If not requested or no best portfolio found, return just the DataFrame
+            # Always return just the DataFrame - best portfolio selection happens after filtering
             return portfolios_df
             
             

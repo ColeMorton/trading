@@ -29,7 +29,12 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
     1. Processes each ticker (single or multiple)
     2. Performs parameter sensitivity analysis on MACD parameters
     3. Filters portfolios based on criteria
-    4. Displays and saves results
+    4. Selects best portfolio from filtered portfolios
+    5. Displays and saves results
+    
+    The workflow ensures that portfolios that excel in multiple metrics
+    (as identified in the filtering step) are properly considered for
+    best portfolio selection.
     
     Args:
         config (PortfolioConfig): Configuration dictionary containing analysis parameters
@@ -55,26 +60,18 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
         
         for ticker in tickers:
             log(f"Processing ticker: {ticker}")
-            
             # Create a config copy with single ticker
             ticker_config = config.copy()
             ticker_config["TICKER"] = ticker
-            ticker_config["GET_BEST_PORTFOLIO"] = True  # Enable best portfolio selection
+            
             
             # Process portfolios for ticker
             result = process_ticker_portfolios(ticker, ticker_config, log)
             if result is None:
                 continue
                 
-            # Handle the result based on its type
-            if isinstance(result, tuple) and len(result) == 2:
-                portfolios_df, best_portfolio = result
-                # Add best portfolio to the list
-                if best_portfolio is not None:
-                    log(f"Adding best portfolio for {ticker} to collection")
-                    best_portfolios.append(best_portfolio)
-            else:
-                portfolios_df = result
+            # Set portfolios_df from result
+            portfolios_df = result
                 
             # Export unfiltered portfolios
             try:
@@ -102,6 +99,13 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
                         export_type="portfolios_filtered",
                         log=log
                     )
+                    
+                    # Always select best portfolio from filtered portfolios
+                    from app.macd_next.tools.portfolio_selection import get_best_portfolio
+                    best_portfolio = get_best_portfolio(filtered_portfolios, ticker_config, log)
+                    if best_portfolio is not None:
+                        log(f"Found best portfolio for {ticker} from filtered portfolios")
+                        best_portfolios.append(best_portfolio)
                 except (ValueError, PortfolioExportError) as e:
                     log(f"Failed to export filtered portfolios for {ticker}: {str(e)}", "error")
             

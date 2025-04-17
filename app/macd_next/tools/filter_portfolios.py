@@ -131,6 +131,11 @@ def filter_portfolios(df: pl.DataFrame, config: ExportConfig, log: Callable) -> 
 
     This function analyzes portfolios across different MACD parameter combinations (short/long/signal windows)
     and identifies the best performing combinations based on various metrics.
+    
+    The filtered portfolios highlight parameter combinations that excel in multiple metrics,
+    making them ideal candidates for best portfolio selection. The resulting DataFrame
+    is used by the portfolio selection algorithm to identify the most consistent
+    and high-performing parameter combinations.
 
     Args:
         df: DataFrame containing portfolio data

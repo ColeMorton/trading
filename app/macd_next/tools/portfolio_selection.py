@@ -21,8 +21,11 @@ def get_best_portfolio(portfolios: pl.DataFrame, config: PortfolioConfig, log: c
     3. If 5 out of top 8 portfolios have the same combination
     4. If 2 out of the top 2 portfolios have the same combination
     
+    This function should be called on filtered portfolios to ensure that portfolios
+    that excel in multiple metrics are properly considered for selection.
+    
     Args:
-        portfolios (pl.DataFrame): DataFrame containing portfolio results
+        portfolios (pl.DataFrame): DataFrame containing portfolio results (preferably filtered)
         config (PortfolioConfig): Configuration dictionary
         log (callable): Logging function
         
@@ -31,6 +34,11 @@ def get_best_portfolio(portfolios: pl.DataFrame, config: PortfolioConfig, log: c
         
     Raises:
         ValueError: If portfolios DataFrame is empty or missing required columns
+        
+    Note:
+        For best results, this function should be called on filtered portfolios
+        rather than raw portfolios, as filtered portfolios highlight combinations
+        that excel across multiple metrics.
     """
     try:
         # Initial validation
