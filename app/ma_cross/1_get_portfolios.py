@@ -85,13 +85,11 @@ CONFIG: Config = {
     #     "XLP",
     #     "XLB"
     # ],
-    "TICKER": [
-        "V",
-        "MA",
-        "AVGO",
-        "HWM"
-    ],
-    # "TICKER": 'BTC-USD',
+    # "TICKER": [
+    #     "LYV",
+    #     "CRWD"
+    # ],
+    "TICKER": 'VRSK',
     # "TICKER_2": 'SPY',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -107,14 +105,14 @@ CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     "MINIMUMS": {
         # "TRADES": 13,
         # "TRADES": 21,
-        # "WIN_RATE": 0.38,
-        # "TRADES": 34,
-        "WIN_RATE": 0.50,
-        "TRADES": 54,
+        "WIN_RATE": 0.38,
+        "TRADES": 34,
+        # "WIN_RATE": 0.50,
+        # "TRADES": 54,
         # "WIN_RATE": 0.61,
         "EXPECTANCY_PER_TRADE": 1,
         "PROFIT_FACTOR": 1,
