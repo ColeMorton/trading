@@ -22,13 +22,10 @@ CONFIG: Config = {
     #     "SPY",
     #     "QQQ",
     #     "BTC-USD",
-    #     "SOL-USD",
     #     "MSTY",
     #     "STRK",
     #     "CRWD",
-    #     "LYV",
-    #     "ALL",
-    #     "ATO"
+    #     "LYV"
     # ],
     # "TICKER": [
     #     "SOL-USD",
@@ -86,11 +83,11 @@ CONFIG: Config = {
     #     "XLB"
     # ],
     # "TICKER": [
-    #     "LYV",
-    #     "CRWD"
+    #     "ULTA",
+    #     "K"
     # ],
-    "TICKER": 'VRSK',
-    # "TICKER_2": 'SPY',
+    "TICKER": 'ULTA',
+    "TICKER_2": 'NFLX',
     # "WINDOWS": 120,
     "WINDOWS": 89,
     # "WINDOWS": 55,
@@ -105,18 +102,18 @@ CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": True,
+    "USE_CURRENT": False,
     "MINIMUMS": {
         # "TRADES": 13,
         # "TRADES": 21,
-        "WIN_RATE": 0.38,
-        "TRADES": 34,
+        # "WIN_RATE": 0.38,
+        # "TRADES": 34,
         # "WIN_RATE": 0.50,
         # "TRADES": 54,
         # "WIN_RATE": 0.61,
-        "EXPECTANCY_PER_TRADE": 1,
-        "PROFIT_FACTOR": 1,
-        "SORTINO_RATIO": 0.4,
+        # "EXPECTANCY_PER_TRADE": 1,
+        # "PROFIT_FACTOR": 1,
+        # "SORTINO_RATIO": 0.4,
         # "BEATS_BNH": 0.13
     },
     "SORT_BY": "Score",

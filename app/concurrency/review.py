@@ -34,11 +34,11 @@ from app.tools.portfolio import (
 # Default configuration
 DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": 'SPY_QQQ_202503027.csv',
-    # "PORTFOLIO": "crypto_d_20250421.csv",
+    "PORTFOLIO": "crypto_d_20250422.csv",
     # "PORTFOLIO": "BTC_MSTR_d_20250409.csv",
     # "PORTFOLIO": "DAILY_crypto.csv",
     # "PORTFOLIO": "atr_test_portfolio.json",
-    "PORTFOLIO": "stock_trades_20250421.csv",
+    # "PORTFOLIO": "stock_trades_20250421.csv",
     # "PORTFOLIO": "portfolio_d_20250417.csv",
     # "PORTFOLIO": "total_20250417.csv",
     # "PORTFOLIO": "GLD_d.csv",

@@ -1,4 +1,3 @@
-from datetime import datetime, timedelta
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -10,7 +9,11 @@ from typing import TypedDict, NotRequired
 from app.tools.download_data import download_data
 from app.tools.setup_logging import setup_logging
 
-TICKER = 'BNB-USD'
+TICKER = 'BTC-USD'
+INCLUDE_OPTION_STRATEGY = True
+DELTA = 0.14
+DAYS_TO_EXPIRY = 11
+STRIKE_DISTANCE = 9.73 # As a percentage
 
 log, log_close, _, _ = setup_logging(
     module_name='return_distribution',
@@ -81,6 +84,7 @@ def calculate_var(returns):
     """Calculate Value at Risk (VaR)"""
     log("Calculating VaR for returns.")
     var_95 = np.percentile(returns, 5)
+    # var_95 = np.percentile(returns, 9.09)
     var_99 = np.percentile(returns, 1)
     log("VaR calculated successfully.")
     return var_95, var_99
@@ -139,8 +143,6 @@ def plot_return_distribution(returns, var_95, var_99, ticker, timeframe, ax, cur
 def main():
     """Main function to execute the return distribution analysis."""
     log("Starting return distribution analysis.")
-    config = load_config()
-    # TICKER = config['TICKER']
     
     # Fetch asset price data
     data = fetch_data(TICKER)
