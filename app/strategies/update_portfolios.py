@@ -204,6 +204,45 @@ def run(portfolio: str) -> bool:
                     log(f"{ticker}, {strategy_type}, {short_window}, {long_window}, {signal_window}, {score:.4f}, {open_trade_count}")
             else:
                 log("\n=== No Signal Entries found ===")
+            
+            # Calculate and log breadth metrics
+            if sorted_portfolios:
+                log("\n=== Breadth Metrics ===")
+                
+                # Get total number of strategies
+                total_strategies = len(sorted_portfolios)
+                
+                # Count open trades (already calculated in open_trades_strategies)
+                total_open_trades = len(open_trades_strategies)
+                
+                # Count signal entries (already calculated in signal_entry_strategies)
+                total_signal_entries = len(signal_entry_strategies)
+                
+                # Count signal exits
+                signal_exit_strategies = [p for p in sorted_portfolios if str(p.get('Signal Exit', '')).lower() == 'true']
+                total_signal_exits = len(signal_exit_strategies)
+                
+                # Calculate breadth ratio (open trades to total strategies)
+                breadth_ratio = total_open_trades / total_strategies if total_strategies > 0 else 0
+                
+                # Calculate signal entry ratio
+                signal_entry_ratio = total_signal_entries / total_strategies if total_strategies > 0 else 0
+                
+                # Calculate signal exit ratio
+                signal_exit_ratio = total_signal_exits / total_strategies if total_strategies > 0 else 0
+                
+                # Calculate breadth momentum (signal entry ratio / signal exit ratio)
+                breadth_momentum = signal_entry_ratio / signal_exit_ratio if signal_exit_ratio > 0 else float('inf')
+                
+                # Log the metrics
+                log(f"Total Strategies: {total_strategies}")
+                log(f"Total Open Trades: {total_open_trades}")
+                log(f"Total Signal Entries: {total_signal_entries}")
+                log(f"Total Signal Exits: {total_signal_exits}")
+                log(f"Breadth Ratio: {breadth_ratio:.4f} (Open Trades / Total Strategies)")
+                log(f"Signal Entry Ratio: {signal_entry_ratio:.4f} (Signal Entries / Total Strategies)")
+                log(f"Signal Exit Ratio: {signal_exit_ratio:.4f} (Signal Exits / Total Strategies)")
+                log(f"Breadth Momentum: {breadth_momentum:.4f} (Signal Entry Ratio / Signal Exit Ratio)")
         
         log_close()
         return success

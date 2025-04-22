@@ -37,11 +37,12 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "crypto_d_20250422.csv",
     # "PORTFOLIO": "BTC_MSTR_d_20250409.csv",
     # "PORTFOLIO": "DAILY_crypto.csv",
+    "PORTFOLIO": "DAILY_test.csv",
     # "PORTFOLIO": "atr_test_portfolio.json",
     # "PORTFOLIO": "stock_trades_20250422.csv",
     # "PORTFOLIO": "portfolio_d_20250417.csv",
     # "PORTFOLIO": "total_20250417.csv",
-    "PORTFOLIO": "BTC-USD_SPY_d.csv",
+    # "PORTFOLIO": "BTC-USD_SPY_d.csv",
     # "PORTFOLIO": "macd_test.json",
     # "PORTFOLIO": "MSTR_d_20250415.csv",
     "BASE_DIR": '.',  # Default to project root directory
@@ -52,7 +53,8 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     "CSV_USE_HOURLY": False,
     "SORT_BY": "allocation",
     "REPORT_INCLUDES": {
-        "STRATEGIES": False,
+        "TICKER_METRICS": True,
+        "STRATEGIES": True,
         "STRATEGY_RELATIONSHIPS": False
     },
     "ENSURE_COUNTERPART": True,
@@ -95,23 +97,12 @@ def run_analysis(config: Dict[str, Any]) -> bool:
             
             try:
                 portfolio_path = resolve_portfolio_path(
-                    portfolio_filename, 
+                    portfolio_filename,
                     validated_config.get("BASE_DIR")
                 )
                 log(f"Portfolio path resolved: {portfolio_path}", "info")
             except FileNotFoundError:
                 raise ConfigurationError(f"Portfolio file not found: {portfolio_filename}")
-            
-            # Load portfolio to validate format
-            try:
-                portfolio_data = load_portfolio(
-                    portfolio_filename, 
-                    log, 
-                    validated_config
-                )
-                log(f"Successfully loaded portfolio with {len(portfolio_data)} strategies", "info")
-            except (ValueError, FileNotFoundError) as e:
-                raise ConfigurationError(f"Error loading portfolio: {str(e)}")
             
             # Update config with resolved path
             validated_config["PORTFOLIO"] = str(portfolio_path)

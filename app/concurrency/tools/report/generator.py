@@ -72,24 +72,30 @@ def generate_json_report(
         log("Creating portfolio metrics", "info")
         portfolio_metrics = create_portfolio_metrics(stats, config)
 
-        # Calculate ticker metrics
-        log("Calculating ticker metrics", "info")
-        ratio_based = config.get("RATIO_BASED_ALLOCATION", False)
-        ticker_metrics = calculate_ticker_metrics(strategy_objects, ratio_based_allocation=ratio_based)
-        
         # Create report
         strategy_objects.sort(key=lambda x: x.get("allocation", 0.0), reverse=True)
+        
+        # Initialize report with portfolio metrics
+        report: ConcurrencyReport = {
+            "portfolio_metrics": portfolio_metrics
+        }
+        
+        # Check if ticker metrics should be included in the report
+        include_ticker_metrics = True
+        if "REPORT_INCLUDES" in config and "TICKER_METRICS" in config["REPORT_INCLUDES"]:
+            include_ticker_metrics = config["REPORT_INCLUDES"]["TICKER_METRICS"]
+        
+        # Only calculate and include ticker metrics if configured to do so
+        if include_ticker_metrics:
+            log("Calculating ticker metrics", "info")
+            ratio_based = config.get("RATIO_BASED_ALLOCATION", False)
+            ticker_metrics = calculate_ticker_metrics(strategy_objects, ratio_based_allocation=ratio_based)
+            report["ticker_metrics"] = ticker_metrics
         
         # Check if strategies should be included in the report
         include_strategies = True
         if "REPORT_INCLUDES" in config and "STRATEGIES" in config["REPORT_INCLUDES"]:
             include_strategies = config["REPORT_INCLUDES"]["STRATEGIES"]
-        
-        # Create the report with or without strategies based on configuration
-        report: ConcurrencyReport = {
-            "portfolio_metrics": portfolio_metrics,
-            "ticker_metrics": ticker_metrics
-        }
         
         # Only include strategies if configured to do so
         if include_strategies:

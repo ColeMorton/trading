@@ -281,7 +281,7 @@ class StrategyData(TypedDict):
 class ConcurrencyReport(TypedDict):
     """Complete concurrency analysis report."""
     strategies: NotRequired[List[Strategy]]
-    ticker_metrics: Dict[str, Any]
+    ticker_metrics: NotRequired[Dict[str, Any]]
     portfolio_metrics: PortfolioMetrics
 
 class ConcurrencyConfig(TypedDict):

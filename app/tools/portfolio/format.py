@@ -262,7 +262,53 @@ def convert_csv_to_strategy_config(
                 error_msg = f"Missing required Signal Window parameter for MACD strategy: {ticker}"
                 log(error_msg, "error")
                 raise ValueError(error_msg)
+        # Create a dictionary to store all CSV columns that aren't already in strategy_config
+        portfolio_stats = {}
         
+        # Add specific columns we want to include
+        columns_to_include = [
+            "Signal Entry", "Signal Exit", "Total Open Trades", "Total Trades",
+            "Score", "Win Rate [%]", "Profit Factor", "Expectancy per Trade",
+            "Sortino Ratio", "Beats BNH [%]", "Avg Trade Duration", "Trades Per Day",
+            "Trades per Month", "Signals per Month", "Expectancy per Month",
+            "Start", "End", "Period", "Start Value", "End Value", "Total Return [%]",
+            "Benchmark Return [%]", "Max Gross Exposure [%]", "Total Fees Paid",
+            "Max Drawdown [%]", "Max Drawdown Duration", "Total Closed Trades",
+            "Open Trade PnL", "Best Trade [%]", "Worst Trade [%]", "Avg Winning Trade [%]",
+            "Avg Losing Trade [%]", "Avg Winning Trade Duration", "Avg Losing Trade Duration",
+            "Expectancy", "Sharpe Ratio", "Calmar Ratio", "Omega Ratio", "Skew",
+            "Kurtosis", "Tail Ratio", "Common Sense Ratio", "Value at Risk",
+            "Alpha", "Beta", "Daily Returns", "Annual Returns", "Cumulative Returns",
+            "Annualized Return", "Annualized Volatility", "Total Period"
+        ]
+        
+        # Add only the columns we want to include
+        for key in columns_to_include:
+            if key in row and key not in strategy_config and row[key] is not None:
+                value = row[key]
+                # Try to convert numeric values to appropriate types
+                try:
+                    # Try to convert to int first
+                    if isinstance(value, str) and value.isdigit():
+                        portfolio_stats[key] = int(value)
+                    # Try to convert to float if it has a decimal point
+                    elif isinstance(value, str) and '.' in value and all(c.isdigit() or c == '.' for c in value):
+                        portfolio_stats[key] = float(value)
+                    # Handle boolean values
+                    elif isinstance(value, str) and value.lower() in ['true', 'false']:
+                        portfolio_stats[key] = value.lower() == 'true'
+                    else:
+                        portfolio_stats[key] = value
+                except (ValueError, TypeError):
+                    # If conversion fails, keep the original value
+                    portfolio_stats[key] = value
+                
+                log(f"Added additional column {key} with value {value} for {ticker}", "info")
+        
+        # Add portfolio_stats to strategy_config if there are any
+        if portfolio_stats:
+            strategy_config["PORTFOLIO_STATS"] = portfolio_stats
+            
         strategies.append(strategy_config)
     
     return strategies

@@ -185,14 +185,14 @@ def main(config: ConcurrencyConfig) -> bool:
         
         # Load portfolio from JSON or CSV
         log("Loading portfolio configuration", "info")
-        try:
-            # Use the filename for load_portfolio, not the full path
-            portfolio_filename = Path(config["PORTFOLIO"]).name
-            strategies = load_portfolio(portfolio_filename, log, config)
-        except FileNotFoundError:
-            # If that fails, try using the full path directly
-            log(f"Trying to load using full path: {config['PORTFOLIO']}", "info")
-            strategies = load_portfolio(config["PORTFOLIO"], log, config)
+        
+        # Resolve the portfolio path
+        portfolio_path = get_portfolio_path(config)
+        portfolio_filename = portfolio_path.name
+        
+        # Load the portfolio using the filename
+        log(f"Loading portfolio from: {portfolio_filename}", "info")
+        strategies = load_portfolio(portfolio_filename, log, config)
         
         # Run analysis
         log("Running analysis", "info")
