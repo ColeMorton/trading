@@ -4,9 +4,9 @@ import numpy as np
 from scipy.stats import norm, percentileofscore
 
 # Constants
-TICKER = 'BTC-USD'
+TICKER = 'SPY'
 USE_PORTFOLIO = False
-PORTFOLIO = {'BTC-USD': 0.5, 'MSTR': 0.5 }
+# PORTFOLIO = {'BTC-USD': 0.5, 'MSTR': 0.5 }
 # PORTFOLIO = {'LLY': 0.25, 'BLDR': 0.25, 'MPO': 0.25, 'EOG': 0.25}
 
 def download_stock_data(ticker, period="max"):

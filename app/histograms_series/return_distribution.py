@@ -9,11 +9,41 @@ from typing import TypedDict, NotRequired
 from app.tools.download_data import download_data
 from app.tools.setup_logging import setup_logging
 
-TICKER = 'BTC-USD'
-INCLUDE_OPTION_STRATEGY = True
-DELTA = 0.12
-DAYS_TO_EXPIRY = 10
-STRIKE_DISTANCE = 9.95 # Percentage
+TICKER = 'SPY'
+INCLUDE_OPTION_STRATEGY = False
+
+# 02-05-25 @ 96000
+# DELTA = 0.12
+# DAYS_TO_EXPIRY = 10
+# STRIKE_DISTANCE = 9.95 # Percentage
+# Option Strategy Analysis:
+# Strike Distance: +9.95%
+# Days to Expiry: 10
+# Historical Probability of Exceeding Strike: 19.82%
+# Market-Implied Probability (Delta): 12.00%
+# Difference: -7.82%
+
+# 09-05-25 @ 100000
+# DELTA = 0.11
+# DAYS_TO_EXPIRY = 17
+# STRIKE_DISTANCE = 14.25 # Percentage
+# Option Strategy Analysis:
+# Strike Distance: +14.25%
+# Days to Expiry: 17
+# Historical Probability of Exceeding Strike: 20.61%
+# Market-Implied Probability (Delta): 11.00%
+# Difference: -9.61%
+
+# 30-05-25 @ 106000
+DELTA = 0.14
+DAYS_TO_EXPIRY = 38
+STRIKE_DISTANCE = 21.11 # Percentage
+# Option Strategy Analysis:
+# Strike Distance: +21.11%
+# Days to Expiry: 38
+# Historical Probability of Exceeding Strike: 26.46%
+# Market-Implied Probability (Delta): 14.00%
+# Difference: -12.46%
 
 log, log_close, _, _ = setup_logging(
     module_name='return_distribution',

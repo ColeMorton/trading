@@ -116,7 +116,7 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
             try:
                 # Handle potential zero or negative values
                 win_rate_normalized = pow(stats['Win Rate [%]'] / 50, 3)
-                total_trades_normalized = pow(min(stats['Total Trades'] / 72, 2), 1.5)
+                total_trades_normalized = pow(min(stats['Total Trades'] / 72, 1.5), 2)
                 sortino_normalized = min(stats['Sortino Ratio'] / 0.618, 2.618)
                 profit_factor_normalized = min(stats['Profit Factor'] / 1.618, 2.618) 
                 expectancy_per_trade_normalized = min(stats['Expectancy per Trade'] / 3, 2.618)

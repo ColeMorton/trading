@@ -34,14 +34,14 @@ from app.tools.portfolio import (
 # Default configuration
 DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": 'SPY_QQQ_202503027.csv',
-    "PORTFOLIO": "crypto_d_20250422.csv",
+    # "PORTFOLIO": "crypto_d_20250422.csv",
     # "PORTFOLIO": "BTC_MSTR_d_20250409.csv",
     # "PORTFOLIO": "DAILY_crypto.csv",
     # "PORTFOLIO": "atr_test_portfolio.json",
-    # "PORTFOLIO": "stock_trades_20250421.csv",
+    # "PORTFOLIO": "stock_trades_20250422.csv",
     # "PORTFOLIO": "portfolio_d_20250417.csv",
     # "PORTFOLIO": "total_20250417.csv",
-    # "PORTFOLIO": "GLD_d.csv",
+    "PORTFOLIO": "BTC-USD_SPY_d.csv",
     # "PORTFOLIO": "macd_test.json",
     # "PORTFOLIO": "MSTR_d_20250415.csv",
     "BASE_DIR": '.',  # Default to project root directory
