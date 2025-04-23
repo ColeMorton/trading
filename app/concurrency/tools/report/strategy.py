@@ -280,33 +280,6 @@ def create_strategy_object(
                     "value": value,
                     "description": f"{key} from strategy analysis"
                 }
-            
-            # Explicitly check for and include Signal Entry and Signal Exit
-            # Check both original and standardized column names
-            for original, standardized in [
-                ("Signal Entry", "SIGNAL_ENTRY"),
-                ("Signal Exit", "SIGNAL_EXIT")
-            ]:
-                # Check original column name
-                if original in portfolio_stats:
-                    metrics[original] = {
-                        "value": portfolio_stats[original],
-                        "description": f"{original} from strategy analysis"
-                    }
-                
-                # Check standardized column name
-                if standardized in portfolio_stats:
-                    metrics[standardized] = {
-                        "value": portfolio_stats[standardized],
-                        "description": f"{standardized} from strategy analysis"
-                    }
-                
-                # Also check in the config itself
-                if standardized in config:
-                    metrics[standardized] = {
-                        "value": config[standardized],
-                        "description": f"{standardized} metric from portfolio data"
-                    }
         
         # FORCE ADD Signal Entry and Signal Exit to metrics
         # This is a last resort to ensure these columns are included

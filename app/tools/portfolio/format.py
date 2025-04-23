@@ -306,23 +306,6 @@ def convert_csv_to_strategy_config(
             
             log(f"Added column {key} with value {value} for {ticker}", "info")
         
-        # Explicitly check for and add Signal Entry and Signal Exit columns
-        for original, standardized in [
-            ("Signal Entry", "SIGNAL_ENTRY"),
-            ("Signal Exit", "SIGNAL_EXIT")
-        ]:
-            # Check if the original column exists in the row
-            if original in row and row[original] is not None:
-                value = row[original]
-                # Convert to boolean if it's a string representation of a boolean
-                if isinstance(value, str) and value.lower() in ['true', 'false']:
-                    value = value.lower() == 'true'
-                
-                # Add to portfolio_stats with both original and standardized names
-                portfolio_stats[original] = value
-                portfolio_stats[standardized] = value
-                log(f"Explicitly added {original}/{standardized} with value {value} for {ticker}", "info")
-        
         # Add portfolio_stats to strategy_config if there are any
         if portfolio_stats:
             strategy_config["PORTFOLIO_STATS"] = portfolio_stats
