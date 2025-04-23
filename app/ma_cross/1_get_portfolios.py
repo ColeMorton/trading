@@ -7,10 +7,10 @@ sensitivity analysis and portfolio filtering.
 """
 
 import os
-import sys
 from typing import List, Dict, Any
 
 from app.tools.get_config import get_config
+from app.tools.entry_point import run_from_command_line
 from app.tools.strategy.types import StrategyConfig as Config
 from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios
@@ -117,8 +117,8 @@ CONFIG: Config = {
     #     "ULTA",
     #     "NFLX"
     # ],
-    "TICKER": 'ULTA',
-    "TICKER_2": 'SPY',
+    "TICKER": 'TSLA',
+    # "TICKER_2": 'SPY',
     # "WINDOWS": 120,
     "WINDOWS": 89,
     # "WINDOWS": 55,
@@ -132,7 +132,7 @@ CONFIG: Config = {
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
-    "USE_SYNTHETIC": True,
+    "USE_SYNTHETIC": False,
     "USE_CURRENT": True,
     "MINIMUMS": {
         # "TRADES": 13,
@@ -281,7 +281,7 @@ def run(config: Config = CONFIG) -> bool:
         Exception: TradingSystemError
     }
 )
-def run_strategies() -> bool:
+def run_strategies(config: Dict[str, Any] = None) -> bool:
     """Run analysis with strategies specified in STRATEGY_TYPES in sequence.
     
     Returns:
@@ -322,11 +322,8 @@ def run_strategies() -> bool:
         return True
 
 if __name__ == "__main__":
-    with error_context(
-        "Running MA Cross portfolio analysis",
-        lambda msg, level='info': print(f"[{level.upper()}] {msg}"),
-        reraise=False
-    ):
-        success = run_strategies()
-        if not success:
-            sys.exit(1)
+    run_from_command_line(
+        run_strategies,
+        {},  # Empty config as run_strategies uses the default CONFIG
+        "MA Cross portfolio analysis"
+    )

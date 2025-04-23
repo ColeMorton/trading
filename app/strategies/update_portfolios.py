@@ -10,8 +10,9 @@ in the ticker name, e.g., 'STRK_MSTR'). Synthetic tickers are automatically dete
 processed by splitting them into their component tickers.
 """
 import os
-import sys
 from typing import Dict, Any, Optional
+
+from app.tools.entry_point import run_from_command_line
 from app.tools.logging_context import logging_context
 from app.tools.error_context import error_context
 from app.tools.error_decorators import handle_errors
@@ -48,7 +49,7 @@ from app.tools.strategy_utils import (
 
 # Default Configuration
 config = {
-    "PORTFOLIO": 'BTC-USD_SPY_d.csv',
+    # "PORTFOLIO": 'BTC-USD_SPY_d.csv',
     # "PORTFOLIO": 'total_d_20250328.csv',
     # "PORTFOLIO": 'crypto_d_20250421.csv',
     # "PORTFOLIO": 'DAILY_crypto.csv',
@@ -56,7 +57,7 @@ config = {
     # "PORTFOLIO": 'DAILY_test.csv',
     # "PORTFOLIO": 'crypto_h.csv',
     # "PORTFOLIO": 'DAILY_crypto_short.csv',
-    # "PORTFOLIO": 'Indices_d.csv',
+    "PORTFOLIO": 'Indices_d.csv',
     # "PORTFOLIO": 'stock_trades_20250422.csv',
     # "PORTFOLIO": 'portfolio_d_20250417.csv',
     # "PORTFOLIO": 'BTC_MSTR_d_20250409.csv',
@@ -293,20 +294,16 @@ def run(portfolio: str) -> bool:
         return success
 
 if __name__ == "__main__":
-    with error_context(
-        "Running portfolio update from command line",
-        lambda msg, level='info': print(f"[{level.upper()}] {msg}"),
-        reraise=False
-    ):
-        # Create a normalized copy of the default config
-        normalized_config = normalize_config(config.copy())
-        portfolio_name = normalized_config.get("PORTFOLIO", 'MSTR_d_20250403.csv')
-        
-        # Resolve portfolio filename with extension if needed
-        resolved_portfolio = resolve_portfolio_filename(portfolio_name)
-        
-        result = run(resolved_portfolio)
-        if result:
-            print("Execution completed successfully!")
-        else:
-            sys.exit(1)
+    # Create a normalized copy of the default config
+    normalized_config = normalize_config(config.copy())
+    portfolio_name = normalized_config.get("PORTFOLIO", 'MSTR_d_20250403.csv')
+    
+    # Resolve portfolio filename with extension if needed
+    resolved_portfolio = resolve_portfolio_filename(portfolio_name)
+    
+    # Use the standardized entry point utility
+    run_from_command_line(
+        lambda _: run(resolved_portfolio),  # Wrapper function to match expected signature
+        {},  # Empty config as we're passing the portfolio directly to run()
+        "portfolio update"
+    )

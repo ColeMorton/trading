@@ -13,11 +13,11 @@ Configuration Options:
     - CSV_USE_HOURLY: Control timeframe for CSV file strategies (True for hourly, False for daily)
       Note: JSON files specify timeframes individually per strategy
 """
-
 from typing import Dict, Any, Optional
 from pathlib import Path
-import sys
 import logging
+
+from app.tools.entry_point import run_from_command_line
 
 from app.concurrency.tools.runner import main
 from app.concurrency.config import (
@@ -54,10 +54,10 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "crypto_d_20250422.csv",
     # "PORTFOLIO": "BTC_MSTR_d_20250409.csv",
     # "PORTFOLIO": "DAILY_crypto.csv",
-    "PORTFOLIO": "DAILY_test.csv",
+    # "PORTFOLIO": "DAILY_test.csv",
     # "PORTFOLIO": "atr_test_portfolio.json",
     # "PORTFOLIO": "stock_trades_20250422.csv",
-    # "PORTFOLIO": "portfolio_d_20250417.csv",
+    "PORTFOLIO": "portfolio_d_20250417.csv",
     # "PORTFOLIO": "total_20250417.csv",
     # "PORTFOLIO": "BTC-USD_SPY_d.csv",
     # "PORTFOLIO": "macd_test.json",
@@ -232,15 +232,12 @@ def run_concurrency_review(portfolio_name: str, config_overrides: Optional[Dict[
     return run_analysis(config)
 
 if __name__ == "__main__":
-    with error_context(
-        "Running concurrency analysis from command line",
-        lambda msg, level='info': print(f"[{level.upper()}] {msg}"),
-        reraise=False
-    ):
-        # Create a normalized copy of the default config
-        config = normalize_config(DEFAULT_CONFIG.copy())
-        
-        # Run the analysis
-        success = run_analysis(config)
-        if not success:
-            sys.exit(1)
+    # Create a normalized copy of the default config
+    config = normalize_config(DEFAULT_CONFIG.copy())
+    
+    # Use the standardized entry point utility
+    run_from_command_line(
+        run_analysis,
+        config,
+        "concurrency analysis"
+    )

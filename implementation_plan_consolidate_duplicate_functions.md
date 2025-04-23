@@ -111,7 +111,7 @@ The plan is divided into isolated phases, each addressing a specific area of dup
   - `app/ma_cross/1_get_portfolios.py`: Using normalized configuration in both run functions
 - Fixed type-related issues in the existing `app/tools/config_management.py` module
 
-## Phase 2: Consolidate Synthetic Ticker Processing
+## Phase 2: Consolidate Synthetic Ticker Processing ✓ RESOLVED
 
 **Current State:**
 - `app/strategies/update_portfolios.py` has inline code for processing synthetic tickers
@@ -231,7 +231,7 @@ The plan is divided into isolated phases, each addressing a specific area of dup
 
 2. Update all three modules to use these standardized synthetic ticker utilities.
 
-## Phase 3: Standardize Strategy Type Handling
+## Phase 3: Standardize Strategy Type Handling ✓ RESOLVED
 
 **Current State:**
 - `app/ma_cross/1_get_portfolios.py` has a dedicated function for getting strategy types
@@ -310,7 +310,20 @@ The plan is divided into isolated phases, each addressing a specific area of dup
 
 2. Update all three modules to use these standardized strategy utilities.
 
-## Phase 4: Create Common Main Entry Point Pattern
+**Resolution Summary:**
+- Created a new module `app/tools/strategy_utils.py` with standardized functions:
+  - `get_strategy_types`: Gets strategy types from config with defaults
+  - `filter_portfolios_by_signal`: Filters portfolios based on signal field
+  - `determine_strategy_type`: Determines the strategy type from configuration
+  - `get_required_fields_for_strategy`: Gets required fields for a specific strategy type
+  - `validate_strategy_config`: Validates a strategy configuration
+- Updated all three modules to use these standardized utilities:
+  - `app/ma_cross/1_get_portfolios.py`: Using standardized strategy type handling and portfolio filtering
+  - `app/concurrency/tools/strategy_processor.py`: Using standardized strategy type determination and validation
+  - `app/strategies/update_portfolios.py`: Using standardized portfolio filtering by signal
+- Added additional utility functions beyond the original plan to provide more comprehensive strategy handling
+
+## Phase 4: Create Common Main Entry Point Pattern ✓ RESOLVED
 
 **Current State:**
 - All three modules have similar patterns for their main entry points
@@ -357,7 +370,16 @@ The plan is divided into isolated phases, each addressing a specific area of dup
                sys.exit(1)
            return success
    ```
+2. Update all three modules to use this standardized entry point utility.
 
+**Resolution Summary:**
+- Created a new module `app/tools/entry_point.py` with standardized entry point utilities:
+  - `run_from_command_line`: Provides consistent error handling and exit code management for command-line scripts
+- Updated all three modules to use this standardized utility:
+  - `app/ma_cross/1_get_portfolios.py`: Modified `run_strategies()` to accept an optional config parameter and simplified the main entry point
+  - `app/concurrency/review.py`: Replaced custom error context with the standardized entry point utility
+  - `app/strategies/update_portfolios.py`: Used a lambda function to adapt the `run()` function to work with the standardized utility
+- Eliminated duplicate error handling code across modules, ensuring consistent behavior for error handling and exit codes
 2. Update all three modules to use this standardized entry point utility.
 
 ## Phase 5: Consolidate Portfolio Result Processing
