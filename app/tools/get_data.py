@@ -58,11 +58,17 @@ def get_data(ticker: str, config: DataConfig, log: Callable) -> Union[pl.DataFra
     try:
         log(f"Initiating data retrieval for {ticker}", "info")
         
+        # Check if this is a synthetic ticker (either by config flag or by ticker name)
+        is_synthetic = config.get('USE_SYNTHETIC', False) or '_' in ticker
+        
         if config.get('USE_GBM', False):
             log("Using Geometric Brownian Motion simulation")
             data = get_median(config)
             log("GBM simulation completed successfully")
-        elif config.get('USE_SYNTHETIC', False):
+        elif is_synthetic:
+            log(f"Processing as synthetic ticker: {ticker}")
+            config['USE_SYNTHETIC'] = True  # Ensure the flag is set
+            
             # First check if TICKER_1 and TICKER_2 are provided in the config
             ticker1 = config.get('TICKER_1')
             ticker2 = config.get('TICKER_2')
@@ -73,6 +79,10 @@ def get_data(ticker: str, config: DataConfig, log: Callable) -> Union[pl.DataFra
                 if len(ticker_parts) != 2:
                     raise ValueError(f"Invalid ticker format for synthetic pair: {ticker}. Expected format: TICKER1_TICKER2")
                 ticker1, ticker2 = ticker_parts
+                
+                # Update config with the extracted tickers
+                config['TICKER_1'] = ticker1
+                config['TICKER_2'] = ticker2
             
             log(f"Creating synthetic pair using {ticker1} and {ticker2}")
             data, synthetic_ticker = use_synthetic(ticker1, ticker2, config, log)

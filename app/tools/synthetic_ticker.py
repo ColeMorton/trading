@@ -57,12 +57,26 @@ def process_synthetic_config(
         SyntheticTickerError: If there's an issue with synthetic ticker processing
     """
     if not config.get("USE_SYNTHETIC"):
-        if log_func:
+        if log_func and "TICKER" in config:
             log_func(f"Processing strategy for ticker: {config['TICKER']}")
         return config.copy()
     
     result = config.copy()
     
+    # Check if this is a global config without a specific ticker
+    # (e.g., in app/concurrency/review.py main config)
+    if "TICKER" not in config:
+        if log_func:
+            log_func("Processing global synthetic ticker configuration")
+        
+        # For global configs, we just need to ensure TICKER_1 and TICKER_2 are present
+        if "TICKER_1" not in config or "TICKER_2" not in config:
+            raise SyntheticTickerError("TICKER_1 and TICKER_2 must be specified when USE_SYNTHETIC is True")
+            
+        # No need to modify the config further for global configs
+        return result
+    
+    # Process configs with specific tickers
     if isinstance(config["TICKER"], list):
         # Process multiple synthetic tickers
         if "TICKER_2" not in config:

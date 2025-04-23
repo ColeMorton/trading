@@ -54,10 +54,10 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "crypto_d_20250422.csv",
     # "PORTFOLIO": "BTC_MSTR_d_20250409.csv",
     # "PORTFOLIO": "DAILY_crypto.csv",
-    # "PORTFOLIO": "DAILY_test.csv",
+    "PORTFOLIO": "DAILY_test.csv",
     # "PORTFOLIO": "atr_test_portfolio.json",
     # "PORTFOLIO": "stock_trades_20250422.csv",
-    "PORTFOLIO": "portfolio_d_20250417.csv",
+    # "PORTFOLIO": "portfolio_d_20250417.csv",
     # "PORTFOLIO": "total_20250417.csv",
     # "PORTFOLIO": "BTC-USD_SPY_d.csv",
     # "PORTFOLIO": "macd_test.json",
@@ -72,7 +72,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     "REPORT_INCLUDES": {
         "TICKER_METRICS": True,
         "STRATEGIES": True,
-        "STRATEGY_RELATIONSHIPS": False
+        "STRATEGY_RELATIONSHIPS": True
     },
     "ENSURE_COUNTERPART": True,
     "INITIAL_VALUE": 19726.55,
@@ -87,6 +87,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     {
         ConfigurationError: SystemConfigurationError,
         PortfolioLoadError: PortfolioLoadError,
+        SyntheticTickerError: SyntheticTickerError,
         Exception: TradingSystemError
     }
 )
@@ -138,9 +139,45 @@ def run_analysis(config: Dict[str, Any]) -> bool:
             {PortfolioLoadError: PortfolioLoadError},
             reraise=True
         ):
-            with portfolio_context(portfolio_filename, log, validated_config) as _:
-                # The portfolio is loaded in the main function, so we don't need to do anything with it here
-                pass
+            with portfolio_context(portfolio_filename, log, validated_config) as portfolio_data:
+                # Process each strategy in the portfolio to check for synthetic tickers
+                if portfolio_data:
+                    log("Checking for synthetic tickers in portfolio strategies...", "info")
+                    
+                    # Also set synthetic ticker flag in the main config if any synthetic tickers are found
+                    has_synthetic_tickers = False
+                    
+                    for strategy in portfolio_data:
+                        if 'TICKER' in strategy:
+                            ticker = strategy['TICKER']
+                            # Check if this is a synthetic ticker
+                            if detect_synthetic_ticker(ticker):
+                                has_synthetic_tickers = True
+                                try:
+                                    # Process the synthetic ticker
+                                    ticker1, ticker2 = process_synthetic_ticker(ticker)
+                                    log(f"Detected synthetic ticker: {ticker} (components: {ticker1}, {ticker2})", "info")
+                                    
+                                    # Update strategy config for synthetic ticker processing
+                                    strategy["USE_SYNTHETIC"] = True
+                                    strategy["TICKER_1"] = ticker1
+                                    strategy["TICKER_2"] = ticker2
+                                    
+                                    # Also update the main config to indicate synthetic ticker usage
+                                    validated_config["USE_SYNTHETIC"] = True
+                                    
+                                    # If this is the first synthetic ticker, set the main config ticker components
+                                    if "TICKER_1" not in validated_config:
+                                        validated_config["TICKER_1"] = ticker1
+                                        validated_config["TICKER_2"] = ticker2
+                                        
+                                except SyntheticTickerError as e:
+                                    log(f"Invalid synthetic ticker format: {ticker} - {str(e)}", "warning")
+                    
+                    # If we found synthetic tickers, process the main config
+                    if has_synthetic_tickers:
+                        log("Processing synthetic ticker configuration for main analysis...", "info")
+                        validated_config = process_synthetic_config(validated_config, log)
         
         # Run analysis
         log("Starting concurrency analysis...", "info")
@@ -150,6 +187,10 @@ def run_analysis(config: Dict[str, Any]) -> bool:
             {Exception: TradingSystemError},
             reraise=False
         ):
+            # Ensure the main function knows about synthetic tickers
+            if validated_config.get("USE_SYNTHETIC", False):
+                log(f"Running analysis with synthetic ticker support enabled", "info")
+            
             result = main(validated_config)
             if result:
                 log("Concurrency analysis completed successfully!", "info")
@@ -167,6 +208,9 @@ def run_concurrency_review(portfolio_name: str, config_overrides: Optional[Dict[
         
     Returns:
         bool: True if analysis completed successfully, False otherwise
+        
+    Raises:
+        SyntheticTickerError: If there's an issue with synthetic ticker processing
     """
     # Create a copy of the default config
     config = DEFAULT_CONFIG.copy()
@@ -195,6 +239,8 @@ if __name__ == "__main__":
     ):
         # Create a normalized copy of the default config
         config = normalize_config(DEFAULT_CONFIG.copy())
+        
+        # Run the analysis
         success = run_analysis(config)
         if not success:
             sys.exit(1)

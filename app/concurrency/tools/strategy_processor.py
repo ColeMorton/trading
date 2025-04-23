@@ -97,7 +97,26 @@ def process_strategies(
         for i, strategy_config in enumerate(strategies, 1):
             try:
                 log(f"Fetching data for strategy {i}: {strategy_config['TICKER']}", "info")
-                data = get_data(strategy_config["TICKER"], strategy_config, log)
+                
+                # Check if this is a synthetic ticker
+                is_synthetic = strategy_config.get("USE_SYNTHETIC", False) or '_' in strategy_config["TICKER"]
+                
+                if is_synthetic:
+                    log(f"Detected synthetic ticker: {strategy_config['TICKER']}", "info")
+                    
+                    # get_data returns a tuple (data, synthetic_ticker) for synthetic tickers
+                    data_result = get_data(strategy_config["TICKER"], strategy_config, log)
+                    
+                    # Check if the result is a tuple (indicating synthetic ticker processing)
+                    if isinstance(data_result, tuple) and len(data_result) == 2:
+                        data, synthetic_ticker = data_result
+                        log(f"Successfully processed synthetic ticker: {synthetic_ticker}", "info")
+                    else:
+                        # If not a tuple, just use the result directly
+                        data = data_result
+                else:
+                    # For regular tickers, just get the data
+                    data = get_data(strategy_config["TICKER"], strategy_config, log)
                 
                 # Determine if this is a short strategy
                 is_short = strategy_config.get("DIRECTION", "Long") == "Short"
