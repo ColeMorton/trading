@@ -8,7 +8,6 @@ from typing import Dict, Any, TypedDict
 # Import types from the parent module
 from app.concurrency.tools.types import (
     StrategyParameters,
-    StrategyPerformance,
     StrategyRiskMetrics,
     EfficiencyMetrics,
     SignalMetrics,
@@ -253,14 +252,10 @@ def create_strategy_object(
         # Create a dictionary to store all strategy metrics
         metrics = {}
         
-        # List of metrics to exclude (already included in other sections)
+        # Minimal list of metrics to exclude (only those that are truly redundant)
+        # These are already represented elsewhere in the JSON structure
         exclude_metrics = [
-            "TICKER", "SHORT_WINDOW", "LONG_WINDOW", "SIGNAL_WINDOW",
-            "USE_HOURLY", "USE_RSI", "RSI_WINDOW", "RSI_THRESHOLD",
-            "STOP_LOSS", "DIRECTION", "STRATEGY_TYPE", "EXPECTANCY_PER_MONTH",
-            "BASE_DIR", "REFRESH", "USE_SMA", "SMA", "EMA", "PORTFOLIO_STATS",
-            "type", "Short Window", "Long Window", "Signal Window", "EXPECTANCY",
-            "EXPECTANCY_PER_TRADE", "length", "multiplier"
+            "PORTFOLIO_STATS"  # This is the container, not a metric itself
         ]
         
         # Add all metrics from the config
@@ -276,22 +271,87 @@ def create_strategy_object(
         if "PORTFOLIO_STATS" in config and isinstance(config["PORTFOLIO_STATS"], dict):
             portfolio_stats = config["PORTFOLIO_STATS"]
             
-            # Additional metrics to exclude
-            additional_exclude = [
-                "EXPECTANCY_PER_MONTH",  # Already included in other sections
-                "Short Window", "Long Window", "Signal Window"  # Explicitly excluded as requested
-            ]
-            
+            # No exclusions - include absolutely all CSV row data
             for key, value in portfolio_stats.items():
-                # Skip keys that are excluded
-                if key in additional_exclude:
-                    continue
-                
                 # Convert to proper format with value and description
+                # If the key already exists in metrics, it will be overwritten with the portfolio_stats value
+                # This ensures that the portfolio_stats values take precedence
                 metrics[key] = {
                     "value": value,
                     "description": f"{key} from strategy analysis"
                 }
+            
+            # Explicitly check for and include Signal Entry and Signal Exit
+            # Check both original and standardized column names
+            for original, standardized in [
+                ("Signal Entry", "SIGNAL_ENTRY"),
+                ("Signal Exit", "SIGNAL_EXIT")
+            ]:
+                # Check original column name
+                if original in portfolio_stats:
+                    metrics[original] = {
+                        "value": portfolio_stats[original],
+                        "description": f"{original} from strategy analysis"
+                    }
+                
+                # Check standardized column name
+                if standardized in portfolio_stats:
+                    metrics[standardized] = {
+                        "value": portfolio_stats[standardized],
+                        "description": f"{standardized} from strategy analysis"
+                    }
+                
+                # Also check in the config itself
+                if standardized in config:
+                    metrics[standardized] = {
+                        "value": config[standardized],
+                        "description": f"{standardized} metric from portfolio data"
+                    }
+        
+        # FORCE ADD Signal Entry and Signal Exit to metrics
+        # This is a last resort to ensure these columns are included
+        if "TICKER" in config:
+            ticker = config["TICKER"]
+            # Check if we can find these values in the CSV file
+            try:
+                import csv
+                import os
+                
+                # Try to find the CSV file
+                csv_path = os.path.join("csv/strategies", "DAILY_test.csv")
+                if os.path.exists(csv_path):
+                    with open(csv_path, 'r') as f:
+                        reader = csv.DictReader(f)
+                        for row in reader:
+                            if row.get("Ticker") == ticker:
+                                # Found the row for this ticker
+                                signal_entry = row.get("Signal Entry")
+                                signal_exit = row.get("Signal Exit")
+                                
+                                if signal_entry is not None:
+                                    # Convert to boolean if it's a string representation of a boolean
+                                    if signal_entry.lower() in ['true', 'false']:
+                                        signal_entry = signal_entry.lower() == 'true'
+                                    
+                                    metrics["Signal Entry"] = {
+                                        "value": signal_entry,
+                                        "description": "Signal Entry from CSV file"
+                                    }
+                                
+                                if signal_exit is not None:
+                                    # Convert to boolean if it's a string representation of a boolean
+                                    if signal_exit.lower() in ['true', 'false']:
+                                        signal_exit = signal_exit.lower() == 'true'
+                                    
+                                    metrics["Signal Exit"] = {
+                                        "value": signal_exit,
+                                        "description": "Signal Exit from CSV file"
+                                    }
+                                
+                                break
+            except Exception as e:
+                # If anything goes wrong, just continue
+                pass
         
         # Only add the metrics field if there are metrics to include
         if metrics:

@@ -6,19 +6,19 @@
                 "description": "Number of periods with concurrent positions"
             },
             "concurrency_ratio": {
-                "value": 0.34328358208955223,
+                "value": 0.3435277382645804,
                 "description": "Ratio of concurrent periods to total periods"
             },
             "exclusive_ratio": {
-                "value": 0.42643923240938164,
+                "value": 0.4260312944523471,
                 "description": "Ratio of periods with exactly one strategy in position"
             },
             "inactive_ratio": {
-                "value": 0.2302771855010661,
+                "value": 0.23044096728307253,
                 "description": "Ratio of periods with no active strategies"
             },
             "avg_concurrent_strategies": {
-                "value": 1.445983379501385,
+                "value": 1.4463955637707948,
                 "description": "Average number of concurrent strategies"
             },
             "max_concurrent_strategies": {
@@ -28,7 +28,7 @@
         },
         "efficiency": {
             "efficiency_score": {
-                "value": 0.5566258364330093,
+                "value": 0.5550576254626761,
                 "description": "Risk-Adjusted Performance"
             },
             "expectancy": {
@@ -37,15 +37,15 @@
             },
             "multipliers": {
                 "diversification": {
-                    "value": 0.79031523785807,
+                    "value": 0.7897937834917409,
                     "description": "Multiplier effect from strategy diversification"
                 },
                 "independence": {
-                    "value": 0.6788919667590029,
+                    "value": 0.6785951940850278,
                     "description": "Multiplier effect from strategy independence"
                 },
                 "activity": {
-                    "value": 0.7697228144989339,
+                    "value": 0.7695590327169275,
                     "description": "Multiplier effect from strategy activity levels"
                 }
             }
@@ -53,17 +53,17 @@
         "risk": {
             "portfolio_metrics": {
                 "risk_concentration_index": {
-                    "value": 0.7229916897506925,
+                    "value": 0.7231977818853974,
                     "description": "Measure of risk concentration"
                 },
                 "total_portfolio_risk": {
-                    "value": 0.049629454948061605,
+                    "value": 0.04963311502616873,
                     "description": "Overall portfolio risk measure"
                 }
             },
             "combined_risk": {
                 "var_95": {
-                    "value": -0.06554118830425948,
+                    "value": -0.06559729956845682,
                     "description": "Combined Value at Risk (95% confidence)"
                 },
                 "cvar_95": {
@@ -71,7 +71,7 @@
                     "description": "Combined Conditional Value at Risk (95% confidence)"
                 },
                 "var_99": {
-                    "value": -0.1252693121913135,
+                    "value": -0.12535613159812772,
                     "description": "Combined Value at Risk (99% confidence)"
                 },
                 "cvar_99": {
@@ -197,16 +197,16 @@
         "V": {
             "id": "V",
             "risk_metrics": {
-                "var_95": -0.024272682721174013,
+                "var_95": -0.024289087941403775,
                 "cvar_95": -0.04036822553384823,
-                "var_99": -0.049650268014487124,
+                "var_99": -0.04965147929578785,
                 "cvar_99": -0.07113371083064304,
-                "risk_contribution": 0.05815482646337952,
-                "alpha_to_portfolio": -0.004883897463347476
+                "risk_contribution": 0.058107251111455524,
+                "alpha_to_portfolio": -0.004902095746781241
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 0.34108814856924974,
+                    "value": 0.3405438003584872,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "expectancy": {
@@ -215,15 +215,15 @@
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.79031523785807,
+                        "value": 0.7897937834917409,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.5448167539267016,
+                        "value": 0.5443396226415095,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.6787491115849325,
+                        "value": 0.6785206258890469,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -293,28 +293,28 @@
                 "best_horizon": 10,
                 "horizon_metrics": {
                     "1": {
-                        "avg_return": 6.55558320245288e-05,
-                        "win_rate": 0.5105608157319738,
-                        "sharpe": 0.003773960073597442,
-                        "sample_size": 1373
+                        "avg_return": 8.663292686591965e-05,
+                        "win_rate": 0.510932944606414,
+                        "sharpe": 0.004990566177037559,
+                        "sample_size": 1372
                     },
                     "3": {
-                        "avg_return": 0.0005797451778687048,
-                        "win_rate": 0.5193289569657185,
-                        "sharpe": 0.02055697408261027,
-                        "sample_size": 1371
+                        "avg_return": 0.0006147554527330772,
+                        "win_rate": 0.5197080291970803,
+                        "sharpe": 0.021813479333833694,
+                        "sample_size": 1370
                     },
                     "5": {
-                        "avg_return": 0.0015065380048731123,
-                        "win_rate": 0.5325054784514244,
-                        "sharpe": 0.04249421219949529,
-                        "sample_size": 1369
+                        "avg_return": 0.0015370002410170713,
+                        "win_rate": 0.5328947368421053,
+                        "sharpe": 0.0433595108197064,
+                        "sample_size": 1368
                     },
                     "10": {
-                        "avg_return": 0.0031508434224099954,
-                        "win_rate": 0.5388563049853372,
-                        "sharpe": 0.0679412955490956,
-                        "sample_size": 1364
+                        "avg_return": 0.003133927190389997,
+                        "win_rate": 0.5385179750550256,
+                        "sharpe": 0.06755788275422413,
+                        "sample_size": 1363
                     }
                 }
             }
@@ -326,12 +326,12 @@
                 "cvar_95": -0.15027832196108665,
                 "var_99": -0.17664247719776685,
                 "cvar_99": -0.252679570101185,
-                "risk_contribution": 0.9418451735366202,
-                "alpha_to_portfolio": 0.004883897463347477
+                "risk_contribution": 0.9418927488885445,
+                "alpha_to_portfolio": 0.004902095746781242
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 0.14786253249023337,
+                    "value": 0.14787006797038824,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "expectancy": {
@@ -340,7 +340,7 @@
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.79031523785807,
+                        "value": 0.7897937834917409,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
@@ -348,7 +348,7 @@
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.43425728500355365,
+                        "value": 0.43456614509246083,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -418,28 +418,28 @@
                 "best_horizon": 10,
                 "horizon_metrics": {
                     "1": {
-                        "avg_return": 0.0037951184925546022,
-                        "win_rate": 0.5066371681415929,
-                        "sharpe": 0.043229924862705923,
-                        "sample_size": 1356
+                        "avg_return": 0.003827398521616185,
+                        "win_rate": 0.5070110701107011,
+                        "sharpe": 0.04358553821069068,
+                        "sample_size": 1355
                     },
                     "3": {
-                        "avg_return": 0.011525479875241334,
-                        "win_rate": 0.5110782865583456,
-                        "sharpe": 0.07565541298007417,
-                        "sample_size": 1354
+                        "avg_return": 0.011591316487640823,
+                        "win_rate": 0.5114560236511456,
+                        "sharpe": 0.07606908604111863,
+                        "sample_size": 1353
                     },
                     "5": {
-                        "avg_return": 0.01680629936612518,
-                        "win_rate": 0.5162721893491125,
-                        "sharpe": 0.08442931563668604,
-                        "sample_size": 1352
+                        "avg_return": 0.016828983881812913,
+                        "win_rate": 0.5166543301258327,
+                        "sharpe": 0.08451274478541441,
+                        "sample_size": 1351
                     },
                     "10": {
-                        "avg_return": 0.032132805795317,
-                        "win_rate": 0.5248700816629547,
-                        "sharpe": 0.10763418809716922,
-                        "sample_size": 1347
+                        "avg_return": 0.03219257127000608,
+                        "win_rate": 0.525260029717682,
+                        "sharpe": 0.10779725505848972,
+                        "sample_size": 1346
                     }
                 }
             }
@@ -476,7 +476,7 @@
             },
             "risk_metrics": {
                 "var_95": {
-                    "value": -0.024272682721174013,
+                    "value": -0.024289087941403775,
                     "description": "Value at Risk (95% confidence)"
                 },
                 "cvar_95": {
@@ -484,7 +484,7 @@
                     "description": "Conditional Value at Risk (95% confidence)"
                 },
                 "var_99": {
-                    "value": -0.049650268014487124,
+                    "value": -0.04965147929578785,
                     "description": "Value at Risk (99% confidence)"
                 },
                 "cvar_99": {
@@ -492,17 +492,17 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.05815482646337952,
+                    "value": 0.058107251111455524,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha_to_portfolio": {
-                    "value": -0.004883897463347476,
+                    "value": -0.004902095746781241,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 0.34108814856924974,
+                    "value": 0.3405438003584872,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "expectancy": {
@@ -511,15 +511,15 @@
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.79031523785807,
+                        "value": 0.7897937834917409,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.5448167539267016,
+                        "value": 0.5443396226415095,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.6787491115849325,
+                        "value": 0.6785206258890469,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -589,35 +589,103 @@
                 "best_horizon": 10,
                 "horizon_metrics": {
                     "1": {
-                        "avg_return": 6.55558320245288e-05,
-                        "win_rate": 0.5105608157319738,
-                        "sharpe": 0.003773960073597442,
-                        "sample_size": 1373
+                        "avg_return": 8.663292686591965e-05,
+                        "win_rate": 0.510932944606414,
+                        "sharpe": 0.004990566177037559,
+                        "sample_size": 1372
                     },
                     "3": {
-                        "avg_return": 0.0005797451778687048,
-                        "win_rate": 0.5193289569657185,
-                        "sharpe": 0.02055697408261027,
-                        "sample_size": 1371
+                        "avg_return": 0.0006147554527330772,
+                        "win_rate": 0.5197080291970803,
+                        "sharpe": 0.021813479333833694,
+                        "sample_size": 1370
                     },
                     "5": {
-                        "avg_return": 0.0015065380048731123,
-                        "win_rate": 0.5325054784514244,
-                        "sharpe": 0.04249421219949529,
-                        "sample_size": 1369
+                        "avg_return": 0.0015370002410170713,
+                        "win_rate": 0.5328947368421053,
+                        "sharpe": 0.0433595108197064,
+                        "sample_size": 1368
                     },
                     "10": {
-                        "avg_return": 0.0031508434224099954,
-                        "win_rate": 0.5388563049853372,
-                        "sharpe": 0.0679412955490956,
-                        "sample_size": 1364
+                        "avg_return": 0.003133927190389997,
+                        "win_rate": 0.5385179750550256,
+                        "sharpe": 0.06755788275422413,
+                        "sample_size": 1363
                     }
                 }
             },
             "metrics": {
+                "TICKER": {
+                    "value": "V",
+                    "description": "TICKER metric from portfolio data"
+                },
+                "DIRECTION": {
+                    "value": "Long",
+                    "description": "DIRECTION metric from portfolio data"
+                },
+                "STRATEGY_TYPE": {
+                    "value": "SMA",
+                    "description": "STRATEGY_TYPE metric from portfolio data"
+                },
                 "strategy_type": {
                     "value": "SMA",
                     "description": "strategy_type metric from portfolio data"
+                },
+                "type": {
+                    "value": "SMA",
+                    "description": "type metric from portfolio data"
+                },
+                "USE_SMA": {
+                    "value": true,
+                    "description": "USE_SMA metric from portfolio data"
+                },
+                "USE_HOURLY": {
+                    "value": false,
+                    "description": "USE_HOURLY metric from portfolio data"
+                },
+                "USE_RSI": {
+                    "value": false,
+                    "description": "USE_RSI metric from portfolio data"
+                },
+                "BASE_DIR": {
+                    "value": ".",
+                    "description": "BASE_DIR metric from portfolio data"
+                },
+                "REFRESH": {
+                    "value": true,
+                    "description": "REFRESH metric from portfolio data"
+                },
+                "SHORT_WINDOW": {
+                    "value": 74,
+                    "description": "SHORT_WINDOW metric from portfolio data"
+                },
+                "LONG_WINDOW": {
+                    "value": 87,
+                    "description": "LONG_WINDOW metric from portfolio data"
+                },
+                "EXPECTANCY_PER_MONTH": {
+                    "value": 1.4082232724327746,
+                    "description": "EXPECTANCY_PER_MONTH metric from portfolio data"
+                },
+                "EXPECTANCY": {
+                    "value": 240.33732277743252,
+                    "description": "EXPECTANCY metric from portfolio data"
+                },
+                "EXPECTANCY_PER_TRADE": {
+                    "value": 8.00973554426049,
+                    "description": "EXPECTANCY_PER_TRADE metric from portfolio data"
+                },
+                "Short Window": {
+                    "value": 0,
+                    "description": "Short Window from strategy analysis"
+                },
+                "Long Window": {
+                    "value": 0,
+                    "description": "Long Window from strategy analysis"
+                },
+                "Signal Window": {
+                    "value": 0,
+                    "description": "Signal Window from strategy analysis"
                 },
                 "Start": {
                     "value": "0",
@@ -814,6 +882,14 @@
                 "Avg Trade Duration": {
                     "value": "85 days 23:18:51.428571428",
                     "description": "Avg Trade Duration from strategy analysis"
+                },
+                "Signal Entry": {
+                    "value": false,
+                    "description": "Signal Entry from CSV file"
+                },
+                "Signal Exit": {
+                    "value": false,
+                    "description": "Signal Exit from CSV file"
                 }
             }
         },
@@ -863,17 +939,17 @@
                     "description": "Conditional Value at Risk (99% confidence)"
                 },
                 "risk_contribution": {
-                    "value": 0.9418451735366202,
+                    "value": 0.9418927488885445,
                     "description": "Contribution to portfolio risk"
                 },
                 "alpha_to_portfolio": {
-                    "value": 0.004883897463347477,
+                    "value": 0.004902095746781242,
                     "description": "Strategy alpha relative to portfolio"
                 }
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 0.14786253249023337,
+                    "value": 0.14787006797038824,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "expectancy": {
@@ -882,7 +958,7 @@
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.79031523785807,
+                        "value": 0.7897937834917409,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
@@ -890,7 +966,7 @@
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.43425728500355365,
+                        "value": 0.43456614509246083,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -960,35 +1036,103 @@
                 "best_horizon": 10,
                 "horizon_metrics": {
                     "1": {
-                        "avg_return": 0.0037951184925546022,
-                        "win_rate": 0.5066371681415929,
-                        "sharpe": 0.043229924862705923,
-                        "sample_size": 1356
+                        "avg_return": 0.003827398521616185,
+                        "win_rate": 0.5070110701107011,
+                        "sharpe": 0.04358553821069068,
+                        "sample_size": 1355
                     },
                     "3": {
-                        "avg_return": 0.011525479875241334,
-                        "win_rate": 0.5110782865583456,
-                        "sharpe": 0.07565541298007417,
-                        "sample_size": 1354
+                        "avg_return": 0.011591316487640823,
+                        "win_rate": 0.5114560236511456,
+                        "sharpe": 0.07606908604111863,
+                        "sample_size": 1353
                     },
                     "5": {
-                        "avg_return": 0.01680629936612518,
-                        "win_rate": 0.5162721893491125,
-                        "sharpe": 0.08442931563668604,
-                        "sample_size": 1352
+                        "avg_return": 0.016828983881812913,
+                        "win_rate": 0.5166543301258327,
+                        "sharpe": 0.08451274478541441,
+                        "sample_size": 1351
                     },
                     "10": {
-                        "avg_return": 0.032132805795317,
-                        "win_rate": 0.5248700816629547,
-                        "sharpe": 0.10763418809716922,
-                        "sample_size": 1347
+                        "avg_return": 0.03219257127000608,
+                        "win_rate": 0.525260029717682,
+                        "sharpe": 0.10779725505848972,
+                        "sample_size": 1346
                     }
                 }
             },
             "metrics": {
+                "TICKER": {
+                    "value": "HBAR-USD",
+                    "description": "TICKER metric from portfolio data"
+                },
+                "DIRECTION": {
+                    "value": "Long",
+                    "description": "DIRECTION metric from portfolio data"
+                },
+                "STRATEGY_TYPE": {
+                    "value": "SMA",
+                    "description": "STRATEGY_TYPE metric from portfolio data"
+                },
                 "strategy_type": {
                     "value": "SMA",
                     "description": "strategy_type metric from portfolio data"
+                },
+                "type": {
+                    "value": "SMA",
+                    "description": "type metric from portfolio data"
+                },
+                "USE_SMA": {
+                    "value": true,
+                    "description": "USE_SMA metric from portfolio data"
+                },
+                "USE_HOURLY": {
+                    "value": false,
+                    "description": "USE_HOURLY metric from portfolio data"
+                },
+                "USE_RSI": {
+                    "value": false,
+                    "description": "USE_RSI metric from portfolio data"
+                },
+                "BASE_DIR": {
+                    "value": ".",
+                    "description": "BASE_DIR metric from portfolio data"
+                },
+                "REFRESH": {
+                    "value": true,
+                    "description": "REFRESH metric from portfolio data"
+                },
+                "SHORT_WINDOW": {
+                    "value": 59,
+                    "description": "SHORT_WINDOW metric from portfolio data"
+                },
+                "LONG_WINDOW": {
+                    "value": 60,
+                    "description": "LONG_WINDOW metric from portfolio data"
+                },
+                "EXPECTANCY_PER_MONTH": {
+                    "value": 15.886959887335642,
+                    "description": "EXPECTANCY_PER_MONTH metric from portfolio data"
+                },
+                "EXPECTANCY": {
+                    "value": 678.5271123962551,
+                    "description": "EXPECTANCY metric from portfolio data"
+                },
+                "EXPECTANCY_PER_TRADE": {
+                    "value": 14.242520179699149,
+                    "description": "EXPECTANCY_PER_TRADE metric from portfolio data"
+                },
+                "Short Window": {
+                    "value": 0,
+                    "description": "Short Window from strategy analysis"
+                },
+                "Long Window": {
+                    "value": 0,
+                    "description": "Long Window from strategy analysis"
+                },
+                "Signal Window": {
+                    "value": 0,
+                    "description": "Signal Window from strategy analysis"
                 },
                 "Start": {
                     "value": "0",
@@ -1015,7 +1159,7 @@
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 101.3353160347639,
+                    "value": 99.28314073654899,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -1155,7 +1299,7 @@
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 49.88853773784507,
+                    "value": 50.94040011179028,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -1185,6 +1329,14 @@
                 "Avg Trade Duration": {
                     "value": "11 days 23:22:06.315789472",
                     "description": "Avg Trade Duration from strategy analysis"
+                },
+                "Signal Entry": {
+                    "value": false,
+                    "description": "Signal Entry from CSV file"
+                },
+                "Signal Exit": {
+                    "value": false,
+                    "description": "Signal Exit from CSV file"
                 }
             }
         }

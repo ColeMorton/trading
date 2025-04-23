@@ -3,9 +3,7 @@
 This module provides functionality for generating JSON reports from concurrency analysis results.
 """
 
-from typing import Dict, Any, List, Callable, TypedDict, NotRequired, Union
-import logging
-from app.tools.setup_logging import setup_logging
+from typing import Dict, Any, List, Callable
 
 # Import from local modules
 from app.concurrency.tools.report.strategy import create_strategy_object
