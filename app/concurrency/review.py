@@ -26,9 +26,15 @@ from app.concurrency.config import (
     ConfigurationError
 )
 from app.tools.logging_context import logging_context
+from app.tools.error_context import error_context
+from app.tools.error_decorators import handle_errors
+from app.tools.exceptions import (
+    ConfigurationError as SystemConfigurationError,
+    PortfolioLoadError,
+    TradingSystemError
+)
 from app.tools.portfolio import (
-    portfolio_context,         # Using context manager
-    PortfolioLoadError         # Using specific error type
+    portfolio_context         # Using context manager
 )
 
 # Default configuration
@@ -65,6 +71,14 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     }
 }
 
+@handle_errors(
+    "Concurrency analysis",
+    {
+        ConfigurationError: SystemConfigurationError,
+        PortfolioLoadError: PortfolioLoadError,
+        Exception: TradingSystemError
+    }
+)
 def run_analysis(config: Dict[str, Any]) -> bool:
     """Run concurrency analysis with the given configuration.
 
@@ -73,6 +87,11 @@ def run_analysis(config: Dict[str, Any]) -> bool:
 
     Returns:
         bool: True if analysis completed successfully, False otherwise
+        
+    Raises:
+        ConfigurationError: If the configuration is invalid
+        PortfolioLoadError: If the portfolio cannot be loaded
+        TradingSystemError: For other unexpected errors
     """
     # Get log subdirectory from BASE_DIR if specified
     log_subdir = None
@@ -85,41 +104,45 @@ def run_analysis(config: Dict[str, Any]) -> bool:
         level=logging.INFO,
         log_subdir=log_subdir
     ) as log:
-        try:
-            # Validate configuration
-            log("Validating configuration...", "info")
+        # Validate configuration
+        log("Validating configuration...", "info")
+        with error_context(
+            "Validating configuration",
+            log,
+            {Exception: SystemConfigurationError},
+            reraise=True
+        ):
             validated_config = validate_config(config)
 
-            try:
-                # Get portfolio filename from validated config
-                portfolio_filename = validated_config["PORTFOLIO"]
-                
-                try:
-                    # Use the enhanced portfolio loader via context manager
-                    # We don't need to load the portfolio here, just resolve the path
-                    with portfolio_context(portfolio_filename, log, validated_config) as _:
-                        # The portfolio is loaded in the main function, so we don't need to do anything with it here
-                        pass
-                except PortfolioLoadError as e:
-                    raise ConfigurationError(f"Portfolio error: {str(e)}")
-                
-                # Run analysis
-                log("Starting concurrency analysis...", "info")
-                result = main(validated_config)
-                if result:
-                    log("Concurrency analysis completed successfully!", "info")
-                    return True
-                else:
-                    log("Concurrency analysis failed", "error")
-                    return False
-                    
-            except ConfigurationError as e:
-                log(f"Configuration error: {str(e)}", "error")
+        # Get portfolio filename from validated config
+        portfolio_filename = validated_config["PORTFOLIO"]
+        
+        # Use the enhanced portfolio loader via context manager
+        with error_context(
+            "Loading portfolio",
+            log,
+            {PortfolioLoadError: PortfolioLoadError},
+            reraise=True
+        ):
+            with portfolio_context(portfolio_filename, log, validated_config) as _:
+                # The portfolio is loaded in the main function, so we don't need to do anything with it here
+                pass
+        
+        # Run analysis
+        log("Starting concurrency analysis...", "info")
+        with error_context(
+            "Running main analysis",
+            log,
+            {Exception: TradingSystemError},
+            reraise=False
+        ):
+            result = main(validated_config)
+            if result:
+                log("Concurrency analysis completed successfully!", "info")
+                return True
+            else:
+                log("Concurrency analysis failed", "error")
                 return False
-            
-        except Exception as e:
-            log(f"Unexpected error: {str(e)}", "error")
-            return False
 
 def run_concurrency_review(portfolio_name: str, config_overrides: Dict[str, Any] = None) -> bool:
     """Run concurrency review with a specific portfolio file and configuration overrides.
@@ -164,10 +187,11 @@ def run_concurrency_review(portfolio_name: str, config_overrides: Dict[str, Any]
     return run_analysis(config)
 
 if __name__ == "__main__":
-    try:
+    with error_context(
+        "Running concurrency analysis from command line",
+        lambda msg, level='info': print(f"[{level.upper()}] {msg}"),
+        reraise=False
+    ):
         success = run_analysis(DEFAULT_CONFIG)
         if not success:
             sys.exit(1)
-    except Exception as e:
-        print(f"Execution failed: {str(e)}", file=sys.stderr)
-        sys.exit(1)

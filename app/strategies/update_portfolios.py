@@ -11,6 +11,15 @@ processed by splitting them into their component tickers.
 """
 import os
 from app.tools.logging_context import logging_context
+from app.tools.error_context import error_context
+from app.tools.error_decorators import handle_errors
+from app.tools.exceptions import (
+    PortfolioLoadError,
+    StrategyProcessingError,
+    SyntheticTickerError,
+    ExportError,
+    TradingSystemError
+)
 from app.strategies.tools.summary_processing import (
     process_ticker_portfolios,
     export_summary_results
@@ -57,6 +66,15 @@ config = {
     "SORT_ASC": False
 }
 
+@handle_errors(
+    "Portfolio update process",
+    {
+        PortfolioLoadError: PortfolioLoadError,
+        ValueError: StrategyProcessingError,
+        KeyError: StrategyProcessingError,
+        Exception: TradingSystemError
+    }
+)
 def run(portfolio: str) -> bool:
     """
     Process portfolio and generate portfolio summary.
@@ -75,35 +93,47 @@ def run(portfolio: str) -> bool:
         bool: True if execution successful, False otherwise
 
     Raises:
-        Exception: If processing fails
+        PortfolioLoadError: If the portfolio cannot be loaded
+        StrategyProcessingError: If there's an error processing a strategy
+        SyntheticTickerError: If there's an issue with synthetic ticker processing
+        ExportError: If results cannot be exported
+        TradingSystemError: For other unexpected errors
     """
     with logging_context(
         module_name='strategies',
         log_file='update_portfolios.log'
     ) as log:
-        try:
-            # Update the config with the correct BASE_DIR
-            project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-            config["BASE_DIR"] = project_root
-            
-            try:
-                # Use the enhanced portfolio loader with standardized error handling
-                daily_df = load_portfolio_with_logging(portfolio, log, config)
-            except PortfolioLoadError as e:
-                log(f"Failed to load portfolio: {str(e)}", "error")
+        # Update the config with the correct BASE_DIR
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+        config["BASE_DIR"] = project_root
+        
+        # Use the enhanced portfolio loader with standardized error handling
+        with error_context(
+            "Loading portfolio",
+            log,
+            {FileNotFoundError: PortfolioLoadError}
+        ):
+            daily_df = load_portfolio_with_logging(portfolio, log, config)
+            if not daily_df:
                 return False
 
             portfolios = []
             
-            # Process each ticker
-            for strategy in daily_df:
-                ticker = strategy['TICKER']
-                log(f"Processing {ticker}")
-                
-                # Create a copy of the config for this strategy
-                strategy_config = config.copy()
-                
-                # Check if this is a synthetic ticker (contains underscore)
+        # Process each ticker
+        for strategy in daily_df:
+            ticker = strategy['TICKER']
+            log(f"Processing {ticker}")
+            
+            # Create a copy of the config for this strategy
+            strategy_config = config.copy()
+            
+            # Check if this is a synthetic ticker (contains underscore)
+            with error_context(
+                f"Processing synthetic ticker {ticker}",
+                log,
+                {ValueError: SyntheticTickerError},
+                reraise=False
+            ):
                 if '_' in ticker:
                     ticker_parts = ticker.split('_')
                     if len(ticker_parts) == 2:
@@ -115,13 +145,25 @@ def run(portfolio: str) -> bool:
                         log(f"Detected synthetic ticker: {ticker} (components: {ticker1}, {ticker2})")
                     else:
                         log(f"Invalid synthetic ticker format: {ticker}", "warning")
-                
-                # Pass the updated config to process_ticker_portfolios
+            
+            # Process the ticker portfolio
+            with error_context(
+                f"Processing ticker portfolio for {ticker}",
+                log,
+                {Exception: StrategyProcessingError},
+                reraise=False
+            ):
                 result = process_ticker_portfolios(ticker, strategy, strategy_config, log)
                 if result:
                     portfolios.extend(result)
 
-            # Export results with config
+        # Export results with config
+        with error_context(
+            "Exporting summary results",
+            log,
+            {Exception: ExportError},
+            reraise=False
+        ):
             success = export_summary_results(portfolios, portfolio, log, config)
             
             # Display strategy data as requested
@@ -229,11 +271,7 @@ def run(portfolio: str) -> bool:
                     log(f"Signal Exit Ratio: {signal_exit_ratio:.4f} (Signal Exits / Total Strategies)")
                     log(f"Breadth Momentum: {breadth_momentum:.4f} (Signal Entry Ratio / Signal Exit Ratio)")
             
-            return success
-            
-        except Exception as e:
-            log(f"Run failed: {e}", "error")
-            return False
+        return success
 
 if __name__ == "__main__":
     try:

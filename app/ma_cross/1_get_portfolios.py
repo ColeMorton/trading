@@ -7,26 +7,47 @@ sensitivity analysis and portfolio filtering.
 """
 
 import os
+import sys
+from typing import List, Dict, Any
+
 from app.tools.get_config import get_config
-from app.tools.setup_logging import setup_logging
 from app.tools.strategy.types import StrategyConfig as Config
 from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios
+
+# New imports for standardized logging and error handling
+from app.tools.logging_context import logging_context
+from app.tools.error_context import error_context
+from app.tools.error_decorators import handle_errors
+from app.tools.exceptions import (
+    PortfolioLoadError,
+    StrategyProcessingError,
+    ConfigurationError,
+    SyntheticTickerError,
+    ExportError,
+    TradingSystemError
+)
+from app.tools.portfolio import portfolio_context
 
 CONFIG: Config = {
     # "TICKER": [
     #     "SPY",
     #     "QQQ"
     # ],
-    # "TICKER": [
-    #     "SPY",
-    #     "QQQ",
-    #     "BTC-USD",
-    #     "MSTY",
-    #     "STRK",
-    #     "CRWD",
-    #     "LYV"
-    # ],
+    "TICKER": [
+        "SPY",
+        "QQQ",
+        "BTC-USD",
+        "SOL-USD",
+        "RUNE-USD",
+        "PENDLE-USD",
+        "MSTY",
+        "STRK",
+        "CRWD",
+        "LYV",
+        "TLT",
+        "EDV"
+    ],
     # "TICKER": [
     #     "SOL-USD",
     #     "BNB-USD",
@@ -86,8 +107,8 @@ CONFIG: Config = {
     #     "ULTA",
     #     "K"
     # ],
-    "TICKER": 'HG=F',
-    "TICKER_2": 'GOLD',
+    # "TICKER": 'HG=F',
+    # "TICKER_2": 'GOLD',
     # "WINDOWS": 120,
     "WINDOWS": 89,
     # "WINDOWS": 55,
@@ -101,8 +122,8 @@ CONFIG: Config = {
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
-    "USE_SYNTHETIC": True,
-    "USE_CURRENT": False,
+    "USE_SYNTHETIC": False,
+    "USE_CURRENT": True,
     "MINIMUMS": {
         # "TRADES": 13,
         # "TRADES": 21,
@@ -121,6 +142,157 @@ CONFIG: Config = {
     "USE_GBM": False
 }
 
+def process_synthetic_config(config: Config, log) -> Config:
+    """Process synthetic ticker configuration.
+    
+    Args:
+        config: Configuration dictionary
+        log: Logging function
+        
+    Returns:
+        Updated configuration dictionary
+        
+    Raises:
+        SyntheticTickerError: If there's an issue with synthetic ticker processing
+    """
+    if config.get("USE_SYNTHETIC"):
+        if isinstance(config["TICKER"], list):
+            # Process multiple synthetic tickers
+            synthetic_tickers = [f"{ticker}_{config['TICKER_2']}" for ticker in config["TICKER"]]
+            log(f"Processing strategies for synthetic pairs: {synthetic_tickers}")
+            synthetic_config = {**config}
+            synthetic_config["TICKER"] = synthetic_tickers
+        elif isinstance(config["TICKER"], str):
+            # Process single synthetic ticker
+            synthetic_ticker = f"{config['TICKER']}_{config['TICKER_2']}"
+            log(f"Processing strategy for synthetic pair: {synthetic_ticker}")
+            synthetic_config = {**config}
+            synthetic_config["TICKER"] = synthetic_ticker
+        else:
+            raise ValueError("TICKER must be a string or a list when USE_SYNTHETIC is True")
+    else:
+        log(f"Processing strategy for ticker: {config['TICKER']}")
+        synthetic_config = config
+    
+    return synthetic_config
+
+def get_strategy_types(config: Config, log) -> List[str]:
+    """Get strategy types from config with defaults.
+    
+    Args:
+        config: Configuration dictionary
+        log: Logging function
+        
+    Returns:
+        List of strategy types
+    """
+    strategy_types = config.get("STRATEGY_TYPES", [])
+    if not strategy_types:
+        log("No strategy types specified in config, defaulting to SMA")
+        strategy_types = ["SMA"]
+    log(f"Using strategy types: {strategy_types}")
+    return strategy_types
+
+def filter_portfolios(portfolios: List[Dict[str, Any]], config: Config, log) -> List[Dict[str, Any]]:
+    """Filter portfolios based on configuration.
+    
+    Args:
+        portfolios: List of portfolio dictionaries
+        config: Configuration dictionary
+        log: Logging function
+        
+    Returns:
+        Filtered list of portfolio dictionaries
+    """
+    if config.get("USE_CURRENT", False):
+        original_count = len(portfolios)
+        filtered = [p for p in portfolios if p.get("Signal Entry", False) is True]
+        filtered_count = original_count - len(filtered)
+        if filtered_count > 0:
+            log(f"Filtered out {filtered_count} portfolios with Signal Entry = False", "info")
+            log(f"Remaining portfolios: {len(filtered)}", "info")
+        return filtered
+    return portfolios
+
+def process_synthetic_config_for_strategies(config: Config, log) -> Config:
+    """Process synthetic ticker configuration for strategies.
+    
+    Args:
+        config: Configuration dictionary
+        log: Logging function
+        
+    Returns:
+        Updated configuration dictionary
+        
+    Raises:
+        SyntheticTickerError: If there's an issue with synthetic ticker processing
+    """
+    if config.get("USE_SYNTHETIC"):
+        if isinstance(config["TICKER"], list):
+            original_tickers = config["TICKER"].copy()
+            synthetic_tickers = [f"{ticker}_{config['TICKER_2']}" for ticker in original_tickers]
+            log(f"Processing strategies for synthetic pairs: {synthetic_tickers}")
+            base_config = {**config}
+            base_config["TICKER"] = synthetic_tickers
+            base_config["ORIGINAL_TICKERS"] = original_tickers
+        elif isinstance(config["TICKER"], str):
+            original_ticker = config["TICKER"]
+            synthetic_ticker = f"{original_ticker}_{config['TICKER_2']}"
+            log(f"Processing strategies for synthetic pair: {synthetic_ticker}")
+            base_config = {**config}
+            base_config["TICKER"] = synthetic_ticker
+            base_config["ORIGINAL_TICKERS"] = [original_ticker]
+        else:
+            raise ValueError("TICKER must be a string or a list when USE_SYNTHETIC is True")
+    else:
+        log(f"Processing strategies for ticker: {config['TICKER']}")
+        base_config = config
+    
+    return base_config
+
+def execute_all_strategies(config: Config, log) -> List[Dict[str, Any]]:
+    """Execute all strategies and collect results.
+    
+    Args:
+        config: Configuration dictionary
+        log: Logging function
+        
+    Returns:
+        List of portfolio dictionaries
+        
+    Raises:
+        StrategyProcessingError: If there's an error processing a strategy
+    """
+    strategy_types = get_strategy_types(config, log)
+    log(f"Running strategies in sequence: {' -> '.join(strategy_types)}")
+    
+    all_portfolios = []
+    
+    for strategy_type in strategy_types:
+        log(f"Running {strategy_type} strategy analysis...")
+        strategy_config = {**config}
+        strategy_config["STRATEGY_TYPE"] = strategy_type
+        
+        portfolios = execute_strategy(strategy_config, strategy_type, log)
+        log(f"{strategy_type} portfolios: {len(portfolios) if portfolios else 0}", "info")
+        
+        if portfolios:
+            all_portfolios.extend(portfolios)
+    
+    if not all_portfolios:
+        log("No portfolios returned from any strategy. Filtering criteria might be too strict.", "warning")
+    
+    return all_portfolios
+
+@handle_errors(
+    "MA Cross portfolio analysis",
+    {
+        ValueError: StrategyProcessingError,
+        KeyError: ConfigurationError,
+        PortfolioLoadError: PortfolioLoadError,
+        Exception: TradingSystemError
+    }
+)
 def run(config: Config = CONFIG) -> bool:
     """Run portfolio analysis for single or multiple tickers.
     
@@ -134,224 +306,103 @@ def run(config: Config = CONFIG) -> bool:
         config (Config): Configuration dictionary containing analysis parameters
         
     Returns:
-        bool: True if execution successful
+        bool: True if execution successful, False otherwise
         
     Raises:
-        Exception: If portfolio analysis fails
+        ConfigurationError: If the configuration is invalid
+        StrategyProcessingError: If there's an error processing a strategy
+        PortfolioLoadError: If the portfolio cannot be loaded
+        ExportError: If results cannot be exported
+        TradingSystemError: For other unexpected errors
     """
-    log, log_close, _, _ = setup_logging(
+    with logging_context(
         module_name='ma_cross',
         log_file='1_get_portfolios.log'
-    )
-    
-    try:
+    ) as log:
         # Initialize configuration
-        config = get_config(config)
-        
-        # Ensure BASE_DIR is absolute
-        if not os.path.isabs(config["BASE_DIR"]):
-            config["BASE_DIR"] = os.path.abspath(config["BASE_DIR"])
+        with error_context("Initializing configuration", log, {Exception: ConfigurationError}):
+            config = get_config(config)
+            
+            # Ensure BASE_DIR is absolute
+            if not os.path.isabs(config["BASE_DIR"]):
+                config["BASE_DIR"] = os.path.abspath(config["BASE_DIR"])
         
         # Handle synthetic pair if enabled
-        if config.get("USE_SYNTHETIC"):
-            if isinstance(config["TICKER"], list):
-                # Process multiple synthetic tickers
-                synthetic_tickers = [f"{ticker}_{config['TICKER_2']}" for ticker in config["TICKER"]]
-                log(f"Processing strategies for synthetic pairs: {synthetic_tickers}")
-                synthetic_config = {**config}
-                synthetic_config["TICKER"] = synthetic_tickers  # Set synthetic tickers for file naming
-            elif isinstance(config["TICKER"], str):
-                # Process single synthetic ticker
-                synthetic_ticker = f"{config['TICKER']}_{config['TICKER_2']}"
-                log(f"Processing strategy for synthetic pair: {synthetic_ticker}")
-                synthetic_config = {**config}
-                synthetic_config["TICKER"] = synthetic_ticker  # Set synthetic ticker for file naming
-            else:
-                raise ValueError("TICKER must be a string or a list when USE_SYNTHETIC is True")
-        else:
-            log(f"Processing strategy for ticker: {config['TICKER']}")
-            synthetic_config = config
+        with error_context("Processing synthetic ticker configuration", log, {ValueError: SyntheticTickerError}):
+            synthetic_config = process_synthetic_config(config, log)
 
-        # Get strategy types from config
-        strategy_types = config.get("STRATEGY_TYPES", [])
-        if not strategy_types:
-            log("No strategy types specified in config, defaulting to SMA")
-            strategy_types = ["SMA"]
-        log(f"Using strategy types: {strategy_types}")
-        
+        # Get strategy types and execute strategies
         all_portfolios = []
+        strategy_types = get_strategy_types(synthetic_config, log)
         
         # Execute each strategy in sequence
         for strategy_type in strategy_types:
-            log(f"Executing {strategy_type} strategy...")
-            
-            # Execute strategy and collect best portfolios
-            portfolios = execute_strategy(synthetic_config, strategy_type, log)
-            if portfolios:
-                all_portfolios.extend(portfolios)
-        
-        # Use all_portfolios instead of best_portfolios
-        best_portfolios = all_portfolios
+            with error_context(f"Executing {strategy_type} strategy", log, {Exception: StrategyProcessingError}):
+                portfolios = execute_strategy(synthetic_config, strategy_type, log)
+                if portfolios:
+                    all_portfolios.extend(portfolios)
         
         # Export best portfolios
-        if best_portfolios:
-            # Filter portfolios to only include those with Signal Entry = True when USE_CURRENT = True
-            if config.get("USE_CURRENT", False):
-                original_count = len(best_portfolios)
-                best_portfolios = [p for p in best_portfolios if p.get("Signal Entry", False) is True]
-                filtered_count = original_count - len(best_portfolios)
-                if filtered_count > 0:
-                    log(f"Filtered out {filtered_count} portfolios with Signal Entry = False when USE_CURRENT = True", "info")
-                    log(f"Remaining portfolios: {len(best_portfolios)}", "info")
-            
-            export_best_portfolios(best_portfolios, config, log)
+        if all_portfolios:
+            with error_context("Filtering and exporting portfolios", log, {Exception: ExportError}):
+                filtered_portfolios = filter_portfolios(all_portfolios, synthetic_config, log)
+                export_best_portfolios(filtered_portfolios, synthetic_config, log)
         
-        log_close()
         return True
-            
-    except Exception as e:
-        log(f"Execution failed: {str(e)}", "error")
-        log_close()
-        raise
 
+@handle_errors(
+    "MA Cross strategies analysis",
+    {
+        ValueError: StrategyProcessingError,
+        KeyError: ConfigurationError,
+        PortfolioLoadError: PortfolioLoadError,
+        Exception: TradingSystemError
+    }
+)
 def run_strategies() -> bool:
     """Run analysis with strategies specified in STRATEGY_TYPES in sequence.
     
     Returns:
-        bool: True if execution successful
+        bool: True if execution successful, False otherwise
+        
+    Raises:
+        ConfigurationError: If the configuration is invalid
+        StrategyProcessingError: If there's an error processing a strategy
+        PortfolioLoadError: If the portfolio cannot be loaded
+        ExportError: If results cannot be exported
+        TradingSystemError: For other unexpected errors
     """
-    try:
-        # Initialize logging
-        log, log_close, _, _ = setup_logging(
-            module_name='ma_cross',
-            log_file='1_get_portfolios.log'
-        )
-        
+    with logging_context(
+        module_name='ma_cross',
+        log_file='1_get_portfolios.log'
+    ) as log:
         # Initialize config
-        config_copy = CONFIG.copy()
-        config_copy["USE_MA"] = True  # Ensure USE_MA is set for proper filename suffix
+        with error_context("Initializing configuration", log, {Exception: ConfigurationError}):
+            config_copy = CONFIG.copy()
+            config_copy["USE_MA"] = True  # Ensure USE_MA is set for proper filename suffix
         
-        # Handle synthetic pair if enabled
-        if config_copy.get("USE_SYNTHETIC"):
-            if isinstance(config_copy["TICKER"], list):
-                # Process multiple synthetic tickers
-                original_tickers = config_copy["TICKER"].copy()  # Save original tickers
-                synthetic_tickers = []
-                
-                for ticker in original_tickers:
-                    # Create synthetic ticker name
-                    synthetic_ticker = f"{ticker}_{config_copy['TICKER_2']}"
-                    synthetic_tickers.append(synthetic_ticker)
-                
-                log(f"Processing strategies for synthetic pairs: {synthetic_tickers}")
-                base_config = {**config_copy}
-                base_config["TICKER"] = synthetic_tickers  # Set synthetic tickers for file naming
-                
-                # Store original tickers for reference
-                base_config["ORIGINAL_TICKERS"] = original_tickers
-            elif isinstance(config_copy["TICKER"], str):
-                # Process single synthetic ticker
-                original_ticker = config_copy["TICKER"]  # Save original ticker
-                synthetic_ticker = f"{original_ticker}_{config_copy['TICKER_2']}"
-                log(f"Processing strategies for synthetic pair: {synthetic_ticker}")
-                base_config = {**config_copy}
-                base_config["TICKER"] = synthetic_ticker  # Set synthetic ticker for file naming
-                
-                # Store original ticker for reference
-                base_config["ORIGINAL_TICKERS"] = [original_ticker]
-            else:
-                raise ValueError("TICKER must be a string or a list when USE_SYNTHETIC is True")
-        else:
-            log(f"Processing strategies for ticker: {config_copy['TICKER']}")
-            base_config = config_copy
-
-        # Get strategy types from config
-        strategy_types = base_config.get("STRATEGY_TYPES", [])
-        if not strategy_types:
-            log("No strategy types specified in config, defaulting to SMA")
-            strategy_types = ["SMA"]
-        log(f"Running strategies in sequence: {' -> '.join(strategy_types)}")
+        # Process synthetic configuration
+        with error_context("Processing synthetic configuration", log, {ValueError: SyntheticTickerError}):
+            base_config = process_synthetic_config_for_strategies(config_copy, log)
         
-        all_portfolios = []
-        strategy_portfolios = {}
+        # Execute strategies
+        with error_context("Executing strategies", log, {Exception: StrategyProcessingError}):
+            all_portfolios = execute_all_strategies(base_config, log)
         
-        # Run each strategy type in the specified sequence
-        for strategy_type in strategy_types:
-            log(f"Running {strategy_type} strategy analysis...")
-            strategy_config = {**base_config}
-            
-            # Set the strategy type in the config
-            strategy_config["STRATEGY_TYPE"] = strategy_type
-            
-            # Execute strategy
-            portfolios = execute_strategy(strategy_config, strategy_type, log)
-            strategy_portfolios[strategy_type] = portfolios
-            
-            # Log portfolio count
-            log(f"{strategy_type} portfolios: {len(portfolios) if portfolios else 0}", "info")
-            
-            # Add to all portfolios
-            if portfolios:
-                all_portfolios.extend(portfolios)
-        
-        # Check if filtering criteria might be too strict
-        if not all_portfolios:
-            log("No portfolios returned from any strategy. Filtering criteria might be too strict.", "warning")
-            log(f"Current MINIMUMS: {base_config.get('MINIMUMS', {})}", "info")
-            log("Consider relaxing the filtering criteria, especially TRADES and WIN_RATE.", "info")
-        
-        # Ensure all portfolios have strategy type information
+        # Export results
         if all_portfolios:
-            for portfolio in all_portfolios:
-                if "Strategy Type" not in portfolio:
-                    # Use the first strategy type as default if available
-                    portfolio["Strategy Type"] = strategy_types[0] if strategy_types else "SMA"
-            
-            if log:
-                log("Ensured all portfolios have Strategy Type information", "info")
-                
-            # Ensure required configuration fields are present
-            if "BASE_DIR" not in config_copy:
-                config_copy["BASE_DIR"] = "."
-                log("Added missing BASE_DIR to configuration", "warning")
-                
-            if "TICKER" not in config_copy:
-                config_copy["TICKER"] = "Unknown"
-                log("Added missing TICKER to configuration", "warning")
-        else:
-            log("No portfolios to export", "warning")
-            return True  # Return success to avoid error
-            
-        if all_portfolios:
-            # Ensure synthetic ticker is properly set for export
-            if config_copy.get("USE_SYNTHETIC"):
-                if isinstance(config_copy["TICKER"], list):
-                    # For list of tickers, no need to modify as each portfolio should have its own ticker
-                    if log:
-                        log(f"Using list of tickers for export: {config_copy['TICKER']}", "info")
-                elif isinstance(config_copy["TICKER"], str):
-                    # For single ticker, create synthetic name
-                    config_copy["TICKER"] = f"{config_copy['TICKER']}_{config_copy['TICKER_2']}"
-                    if log:
-                        log(f"Using synthetic ticker for export: {config_copy['TICKER']}", "info")
-            
-            # Filter portfolios to only include those with Signal Entry = True when USE_CURRENT = True
-            if config_copy.get("USE_CURRENT", False):
-                original_count = len(all_portfolios)
-                all_portfolios = [p for p in all_portfolios if p.get("Signal Entry", False) is True]
-                filtered_count = original_count - len(all_portfolios)
-                if filtered_count > 0:
-                    log(f"Filtered out {filtered_count} portfolios with Signal Entry = False when USE_CURRENT = True", "info")
-                    log(f"Remaining portfolios: {len(all_portfolios)}", "info")
-            
-            export_best_portfolios(all_portfolios, config_copy, log)
+            with error_context("Filtering and exporting portfolios", log, {Exception: ExportError}):
+                filtered_portfolios = filter_portfolios(all_portfolios, base_config, log)
+                export_best_portfolios(filtered_portfolios, base_config, log)
         
-        log_close()
         return True
-        
-    except Exception as e:
-        print(f"Execution failed: {str(e)}")
-        raise
 
 if __name__ == "__main__":
-    run_strategies()
+    with error_context(
+        "Running MA Cross portfolio analysis",
+        lambda msg, level='info': print(f"[{level.upper()}] {msg}"),
+        reraise=False
+    ):
+        success = run_strategies()
+        if not success:
+            sys.exit(1)
