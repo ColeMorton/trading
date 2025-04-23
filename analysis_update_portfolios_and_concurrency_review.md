@@ -32,7 +32,7 @@ The `update_portfolios.py` module processes market scanning results to update tr
 
 2. **Main Processing Function (`run`)**:
    - Takes a portfolio filename as input
-   - Sets up logging with the shared `setup_logging` utility
+   - Sets up logging with the shared `logging_context` manager
    - Loads the portfolio using the shared `load_portfolio` function
    - Processes each ticker with appropriate strategy
    - Handles synthetic tickers by splitting them into components
@@ -48,9 +48,11 @@ The `update_portfolios.py` module processes market scanning results to update tr
      - Breadth momentum
 
 4. **Error Handling**:
-   - Uses try/except blocks for robust error handling
-   - Provides detailed logging of errors
-   - Ensures proper resource cleanup with `log_close()`
+   - Uses a decorator-based approach with `handle_errors` for function-level error handling
+   - Employs context managers with `error_context` for operation-specific error handling
+   - Uses specific exception types from the centralized `exceptions` module
+   - Provides detailed error information including original exception details
+   - Ensures proper resource cleanup through context managers
 
 #### Design Patterns
 
@@ -103,9 +105,11 @@ The `review.py` module serves as an entry point for analyzing concurrent exposur
    - Handles configuration errors gracefully
 
 4. **Error Handling**:
-   - Uses try/except blocks with specific exception types
-   - Provides detailed logging of errors
-   - Ensures proper resource cleanup with `log_close()`
+   - Uses a decorator-based approach with `handle_errors` for function-level error handling
+   - Employs context managers with `error_context` for operation-specific error handling
+   - Maps exceptions to specific error types from the centralized `exceptions` module
+   - Provides detailed error information including original exception details
+   - Ensures proper resource cleanup through context managers
 
 #### Design Patterns
 
@@ -132,7 +136,7 @@ The `review.py` module serves as an entry point for analyzing concurrent exposur
 ### Similarities
 
 1. **Shared Dependencies**:
-   - Both modules use the `setup_logging` utility for consistent logging
+   - Both modules use the `logging_context` manager for consistent logging setup and cleanup
    - Both modules use the `load_portfolio` function for portfolio loading
    - Both modules use the `resolve_portfolio_path` function for file path resolution
 
@@ -142,9 +146,11 @@ The `review.py` module serves as an entry point for analyzing concurrent exposur
    - Both modules include processing flags like `REFRESH`
 
 3. **Error Handling Patterns**:
-   - Both modules use try/except blocks for robust error handling
-   - Both modules provide detailed logging of errors
-   - Both modules ensure proper resource cleanup with `log_close()`
+   - Both modules use the same decorator-based approach with `handle_errors`
+   - Both modules use context managers with `error_context` for operation-specific error handling
+   - Both modules use specific exception types from the centralized `exceptions` module
+   - Both modules provide detailed error information including original exception details
+   - Both modules ensure proper resource cleanup through context managers
 
 4. **Processing Flow**:
    - Both modules follow a similar flow: load configuration → validate → process → export results
@@ -179,8 +185,8 @@ The `review.py` module serves as an entry point for analyzing concurrent exposur
    - This ensures consistent handling of portfolio files across the system
 
 2. **Shared Logging System**:
-   - Both modules use the same logging setup
-   - This ensures consistent log formatting and organization
+   - Both modules use the same `logging_context` manager
+   - This ensures consistent log formatting, organization, and resource cleanup
 
 3. **Complementary Functionality**:
    - `update_portfolios.py` processes market scanning results
@@ -198,8 +204,9 @@ The modules share several key dependencies:
    - Ensures consistent handling of portfolio files across the system
 
 2. **Logging System**:
-   - Provides a standardized logging interface
+   - Provides a standardized logging interface through `logging_context`
    - Ensures consistent log formatting and organization
+   - Guarantees proper resource cleanup through context manager
 
 3. **Configuration System**:
    - Provides a flexible way to configure the system
@@ -216,7 +223,8 @@ The codebase follows a modular organization pattern:
 2. **Shared Tools**:
    - `tools`: Contains shared utilities used across the system
    - `tools/portfolio`: Contains portfolio-specific utilities
-   - `tools/setup_logging`: Contains logging utilities
+   - `tools/setup_logging`: Contains core logging utilities
+   - `tools/logging_context`: Contains the logging context manager
 
 3. **Data Organization**:
    - `csv`: Contains CSV data files
@@ -225,19 +233,28 @@ The codebase follows a modular organization pattern:
 
 ### Error Handling Patterns
 
-The system uses a consistent error handling approach:
+The system uses a comprehensive and standardized error handling approach:
 
-1. **Try/Except Blocks**:
-   - All major functions are wrapped in try/except blocks
-   - Specific exception types are caught and handled appropriately
+1. **Centralized Exception Types**:
+   - A hierarchy of specific exception types in `app/tools/exceptions.py`
+   - Base `TradingSystemError` with support for detailed error information
+   - Domain-specific exceptions (Portfolio, Strategy, Data, etc.)
 
-2. **Logging**:
-   - Errors are logged with detailed information
-   - Log levels are used appropriately (info, error, warning)
+2. **Context Managers**:
+   - `error_context` for operation-specific error handling
+   - Automatic mapping of exceptions to specific error types
+   - Consistent error logging with optional traceback information
 
-3. **Resource Cleanup**:
-   - The `log_close()` function is used to ensure proper resource cleanup
-   - This is done in finally blocks to ensure it happens regardless of exceptions
+3. **Decorators**:
+   - `handle_errors` for function-level error handling
+   - Automatic detection of logging functions
+   - Configurable error mapping and return values
+
+4. **Resource Management**:
+   - Context managers ensure proper resource cleanup
+   - Automatic cleanup regardless of exceptions
+   - Standardized logging through the `logging_context` manager
+   - Consistent pattern for resource acquisition and release
 
 ## Recommendations
 
@@ -247,13 +264,15 @@ The system uses a consistent error handling approach:
    - Standardize the configuration approach across modules
    - Consider using TypedDict for all configurations to ensure type safety
 
-2. **Error Handling Enhancement**:
-   - Implement more specific exception types for different error scenarios
-   - Consider using a centralized error handling mechanism
+2. **Error Handling Enhancement**: ✓ IMPLEMENTED
+   - ✓ Implemented specific exception types in `app/tools/exceptions.py`
+   - ✓ Created centralized error handling with context managers and decorators
+   - ✓ Standardized error reporting with detailed error information
 
 3. **Code Duplication Reduction**:
    - Extract common functionality into shared utilities
    - Reduce duplication in configuration handling
+   - ✓ Created logging context manager in `app/tools/logging_context.py` to standardize logging setup
 
 4. **Documentation Enhancement**:
    - Add more detailed docstrings to all functions
@@ -330,101 +349,117 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
 - Medium difficulty
 - Could be resolved by creating a shared base configuration class with module-specific extensions
 
-#### 2. Portfolio Loading Logic
+#### 2. Portfolio Loading Logic ✓ RESOLVED
 
-**Duplication Level: Medium**
+**Previous Duplication Level: Medium** → **Current Level: Low**
 
-Both modules contain similar code for loading portfolios:
+Both modules now use standardized portfolio loading utilities:
 
 ```python
 # In update_portfolios.py
-daily_df = load_portfolio(portfolio, log, config)
+with error_context(
+    "Loading portfolio",
+    log,
+    {FileNotFoundError: PortfolioLoadError}
+):
+    daily_df = load_portfolio_with_logging(portfolio, log, config)
+    if not daily_df:
+        return False
 
 # In review.py
-portfolio_path = resolve_portfolio_path(
-    portfolio_filename,
-    validated_config.get("BASE_DIR")
-)
+with error_context(
+    "Loading portfolio",
+    log,
+    {PortfolioLoadError: PortfolioLoadError},
+    reraise=True
+):
+    with portfolio_context(portfolio_filename, log, validated_config) as _:
+        # The portfolio is loaded in the main function
+        pass
 ```
 
-While both modules use the shared `load_portfolio` function, they duplicate the surrounding error handling and logging logic.
+**Improvements:**
+- Standardized portfolio loading utilities in `app/tools/portfolio.py`
+- Consistent error handling with `error_context`
+- Specific exception types from the centralized `exceptions` module
+- Function-based approach (`load_portfolio_with_logging`) and context manager approach (`portfolio_context`)
+- Consistent logging of portfolio loading events
+- Changes to portfolio loading logic only need to be made in one place
 
-**Brittleness:**
-- Changes to portfolio loading logic might require updates in multiple places
-- Error handling approaches may diverge over time
-- Inconsistent logging of portfolio loading events
+#### 3. Logging Setup ✓ RESOLVED
 
-**Ease of Abstraction:**
-- Low difficulty
-- Could be resolved by creating a higher-level portfolio loading utility that includes standardized error handling and logging
+**Previous Duplication Level: High** → **Current Level: Low**
 
-#### 3. Logging Setup
-
-**Duplication Level: High**
-
-Both modules set up logging in a nearly identical way:
+Both modules now use the same standardized logging context manager:
 
 ```python
 # In update_portfolios.py
-log, log_close, _, _ = setup_logging(
+with logging_context(
     module_name='strategies',
     log_file='update_portfolios.log'
-)
+) as log:
+    # Function body
 
 # In review.py
-log, log_close, _, _ = setup_logging(
+with logging_context(
     module_name="concurrency_review",
     log_file="review.log",
     level=logging.INFO,
     log_subdir=log_subdir
-)
+) as log:
+    # Function body
 ```
 
-**Brittleness:**
-- Changes to logging setup must be synchronized across modules
-- Inconsistent logging parameters can lead to inconsistent log output
-- Duplicated cleanup logic
+**Improvements:**
+- Consistent logging setup across modules
+- Automatic resource cleanup through context manager
+- No manual log_close() calls needed
+- Standardized logging interface
+- Follows SOLID principles with single responsibility and dependency inversion
 
-**Ease of Abstraction:**
-- Low difficulty
-- Could be resolved by creating a context manager for logging setup
+#### 4. Error Handling ✓ RESOLVED
 
-#### 4. Error Handling
+**Previous Duplication Level: High** → **Current Level: Low**
 
-**Duplication Level: High**
-
-Both modules use similar try/except patterns:
+Both modules now use the same standardized error handling approach:
 
 ```python
 # In update_portfolios.py
-try:
-    # Processing logic
-except Exception as e:
-    log(f"Run failed: {e}", "error")
-    log_close()
-    return False
-
+@handle_errors(
+    "Portfolio update process",
+    {
+        PortfolioLoadError: PortfolioLoadError,
+        ValueError: StrategyProcessingError,
+        KeyError: StrategyProcessingError,
+        Exception: TradingSystemError
+    }
+)
+def run(portfolio: str) -> bool:
+    # Function body
+    with error_context("Loading portfolio", log, {FileNotFoundError: PortfolioLoadError}):
+        # Operation-specific error handling
+|
 # In review.py
-try:
-    # Processing logic
-except ConfigurationError as e:
-    log(f"Configuration error: {str(e)}", "error")
-    return False
-except Exception as e:
-    log(f"Unexpected error: {str(e)}", "error")
-    return False
-finally:
-    log_close()
+@handle_errors(
+    "Concurrency analysis",
+    {
+        ConfigurationError: SystemConfigurationError,
+        PortfolioLoadError: PortfolioLoadError,
+        Exception: TradingSystemError
+    }
+)
+def run_analysis(config: Dict[str, Any]) -> bool:
+    # Function body
+    with error_context("Validating configuration", log, {Exception: SystemConfigurationError}):
+        # Operation-specific error handling
 ```
 
-**Brittleness:**
-- Inconsistent error handling approaches
-- Duplicated cleanup logic
-- Different exception types handled differently
-
-**Ease of Abstraction:**
-- Medium difficulty
-- Could be resolved by creating a decorator or context manager for standardized error handling
+**Improvements:**
+- Consistent error handling approach across modules
+- Centralized exception types and error handling logic
+- Detailed error information with context
+- Automatic resource cleanup through context managers
+- Configurable error mapping and behavior
 
 #### 5. Main Processing Flow
 
@@ -549,24 +584,33 @@ Identify and consolidate duplicate utility functions:
 - Result formatting
 - Metric calculation
 
-#### 5. Create Shared Exception Types
+#### 5. Create Shared Exception Types ✓ IMPLEMENTED
 
-Create shared exception types that:
-- Provide consistent error classification
-- Enable consistent error handling
-- Improve error reporting
+Created shared exception types in `app/tools/exceptions.py` that:
+- Provide consistent error classification with a hierarchy of types
+- Enable consistent error handling across the system
+- Improve error reporting with detailed error information
 
 ```python
-class PortfolioError(Exception):
+class TradingSystemError(Exception):
+    """Base exception for all trading system errors."""
+    
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        """Initialize with message and optional details dictionary."""
+        self.message = message
+        self.details = details or {}
+        super().__init__(message)
+
+class PortfolioError(TradingSystemError):
     """Base class for portfolio-related errors."""
     pass
     
 class PortfolioLoadError(PortfolioError):
-    """Raised when portfolio loading fails."""
+    """Raised when a portfolio cannot be loaded."""
     pass
     
-class PortfolioProcessingError(PortfolioError):
-    """Raised when portfolio processing fails."""
+class StrategyError(TradingSystemError):
+    """Base class for strategy-related errors."""
     pass
 ```
 
@@ -597,8 +641,16 @@ The `update_portfolios.py` and `review.py` modules represent two complementary a
 
 Together, these modules provide a comprehensive solution for portfolio management in the trading system. They share common dependencies and follow similar design patterns, but each has its own unique focus and functionality.
 
-The system demonstrates good adherence to SOLID principles, with clear separation of concerns, extensibility mechanisms, and dependency management. However, there are significant opportunities for improvement in reducing code duplication, standardizing configuration approaches, and enhancing error handling.
+The system demonstrates good adherence to SOLID principles, with clear separation of concerns, extensibility mechanisms, and dependency management. Recent improvements in error handling and logging have significantly enhanced the system's robustness and maintainability:
 
-The code duplication analysis reveals several areas where abstraction and consolidation could significantly improve maintainability, consistency, and robustness. By implementing the recommended refactorings, the system can evolve toward a more modular, maintainable, and extensible architecture.
+1. **Centralized Exception Types**: A hierarchy of specific exception types provides consistent error classification and reporting.
 
-Overall, the architecture reflects a well-designed system that balances flexibility, maintainability, and functionality, but would benefit from targeted refactoring to address the identified duplication.
+2. **Context-Based Error Handling**: Context managers and decorators provide standardized error handling with detailed error information.
+
+3. **Resource Management**: Automatic resource cleanup through context managers ensures proper cleanup regardless of exceptions.
+
+4. **Standardized Logging**: The `logging_context` manager provides a consistent approach to logging setup and cleanup across the system.
+While significant progress has been made in error handling and logging, there are still opportunities for improvement in other areas, particularly in reducing configuration duplication and standardizing the configuration approach.
+
+
+Overall, the architecture reflects a well-designed system that balances flexibility, maintainability, and functionality, with recent improvements addressing key areas of concern in error handling.
