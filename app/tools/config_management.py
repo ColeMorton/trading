@@ -5,7 +5,8 @@ This module provides a centralized configuration management system for all
 application components, with validation, documentation, and preset support.
 """
 
-from typing import Dict, Any, List, Optional, Union, TypedDict, Type, TypeVar, cast, get_type_hints
+from typing import Dict, Any, List, Optional, Union, TypedDict, Type, TypeVar, get_type_hints
+from typing_extensions import Protocol
 from pathlib import Path
 import json
 import os
@@ -16,7 +17,11 @@ from datetime import datetime
 from app.tools.structured_logging import get_logger
 
 # Type definitions
-T = TypeVar('T', bound=TypedDict)
+class ConfigProtocol(Protocol):
+    """Protocol for configuration dictionaries."""
+    pass
+
+T = TypeVar('T', bound=ConfigProtocol)
 ConfigDict = Dict[str, Any]
 
 
@@ -48,7 +53,7 @@ class ConfigManager:
         
         # Initialize configuration storage
         self.configs: Dict[str, ConfigDict] = {}
-        self.config_schemas: Dict[str, Type[TypedDict]] = {}
+        self.config_schemas: Dict[str, Type[Any]] = {}  # Changed from Type[TypedDict] to Type[Any]
         self.config_docs: Dict[str, Dict[str, str]] = {}
         self.config_presets: Dict[str, Dict[str, ConfigDict]] = {}
         
@@ -65,7 +70,7 @@ class ConfigManager:
     def register_config_schema(
         self,
         config_name: str,
-        schema_class: Type[T],
+        schema_class: Type[Any],  # Changed from Type[T] to Type[Any]
         documentation: Optional[Dict[str, str]] = None,
         default_config: Optional[Dict[str, Any]] = None
     ) -> None:
@@ -248,21 +253,22 @@ class ConfigManager:
         
         return copy.deepcopy(self.configs[config_name])
     
-    def get_typed_config(self, config_name: str, config_type: Type[T]) -> T:
+    def get_typed_config(self, config_name: str, config_type: Type[Any]) -> Any:
         """Get configuration values as a typed dictionary.
         
         Args:
             config_name: Name of the configuration section
-            config_type: TypedDict class for the configuration
+            config_type: Type class for the configuration
             
         Returns:
-            T: Configuration values as a typed dictionary
+            Configuration values as a typed dictionary
             
         Raises:
             ValueError: If the config section doesn't exist
         """
         config = self.get_config(config_name)
-        return cast(config_type, config)
+        # Use the type directly without trying to evaluate it as an expression
+        return config_type(config)  # type: ignore
     
     def get_combined_config(self) -> Dict[str, Any]:
         """Get a combined configuration with all sections.
@@ -475,7 +481,7 @@ def get_config_manager(name: str = "global", config_dir: Optional[Union[str, Pat
 
 def register_config_schema(
     config_name: str,
-    schema_class: Type[T],
+    schema_class: Type[Any],  # Changed from Type[T] to Type[Any]
     documentation: Optional[Dict[str, str]] = None,
     default_config: Optional[Dict[str, Any]] = None
 ) -> None:
@@ -483,7 +489,7 @@ def register_config_schema(
     
     Args:
         config_name: Name of the configuration section
-        schema_class: TypedDict class defining the schema
+        schema_class: Class defining the schema
         documentation: Optional documentation for each field
         default_config: Optional default configuration
     """
