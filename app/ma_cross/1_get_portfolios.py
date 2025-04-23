@@ -38,6 +38,12 @@ from app.tools.strategy_utils import (
     get_strategy_types,
     filter_portfolios_by_signal
 )
+from app.tools.portfolio_results import (
+    sort_portfolios,
+    filter_open_trades,
+    filter_signal_entries,
+    calculate_breadth_metrics
+)
 
 CONFIG: Config = {
     # "TICKER": [
@@ -155,7 +161,6 @@ CONFIG: Config = {
 # Using the standardized synthetic_ticker module instead of local implementation
 
 # Using standardized strategy utilities from app.tools.strategy_utils
-
 def filter_portfolios(portfolios: List[Dict[str, Any]], config: Config, log) -> List[Dict[str, Any]]:
     """Filter portfolios based on configuration.
     
@@ -167,7 +172,26 @@ def filter_portfolios(portfolios: List[Dict[str, Any]], config: Config, log) -> 
     Returns:
         Filtered list of portfolio dictionaries
     """
-    # Use the standardized filter_portfolios_by_signal function
+    # First filter by signal using the standardized filter_portfolios_by_signal function
+    filtered = filter_portfolios_by_signal(portfolios, config, log)
+    
+    # If we have results and want to display them, use the portfolio_results utilities
+    if filtered and config.get("DISPLAY_RESULTS", True):
+        # Sort portfolios
+        sorted_portfolios = sort_portfolios(filtered, config.get("SORT_BY", "Score"), config.get("SORT_ASC", False))
+        
+        # Get open trades
+        open_trades = filter_open_trades(sorted_portfolios, log)
+        
+        # Get signal entries
+        signal_entries = filter_signal_entries(sorted_portfolios, open_trades, log)
+        
+        # Calculate breadth metrics
+        calculate_breadth_metrics(sorted_portfolios, open_trades, signal_entries, log)
+        
+        return sorted_portfolios
+    
+    return filtered
     return filter_portfolios_by_signal(portfolios, config, log)
 
 # Using the standardized synthetic_ticker module instead of local implementation

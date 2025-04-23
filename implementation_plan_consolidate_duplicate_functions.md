@@ -382,7 +382,7 @@ The plan is divided into isolated phases, each addressing a specific area of dup
 - Eliminated duplicate error handling code across modules, ensuring consistent behavior for error handling and exit codes
 2. Update all three modules to use this standardized entry point utility.
 
-## Phase 5: Consolidate Portfolio Result Processing
+## Phase 5: Consolidate Portfolio Result Processing ✓ RESOLVED
 
 **Current State:**
 - `app/strategies/update_portfolios.py` has complex result processing and display logic
@@ -592,6 +592,19 @@ The plan is divided into isolated phases, each addressing a specific area of dup
    ```
 
 2. Update all three modules to use these standardized portfolio result processing utilities.
+
+**Resolution Summary:**
+- Created a new module `app/tools/portfolio_results.py` with standardized functions:
+  - `sort_portfolios`: Sorts portfolios by a specified field
+  - `filter_open_trades`: Filters portfolios to only include open trades
+  - `filter_signal_entries`: Filters portfolios to only include signal entries
+  - `calculate_breadth_metrics`: Calculates breadth metrics for a set of portfolios
+- Updated the relevant modules to use these standardized utilities:
+  - `app/strategies/update_portfolios.py`: Replaced complex result processing and display logic with calls to the standardized utilities
+  - `app/ma_cross/1_get_portfolios.py`: Enhanced the `filter_portfolios` function to use the standardized utilities for sorting, filtering, and metrics calculation
+- After analysis, determined that `app/concurrency/review.py` doesn't currently have portfolio result processing logic that would benefit from these utilities
+- Eliminated duplicate code for portfolio sorting, filtering, and metrics calculation
+- Improved consistency in how portfolio results are processed and displayed across the codebase
 
 ## Phase 6: Create a Common Project Root Resolver
 

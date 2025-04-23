@@ -4020,7 +4020,7 @@
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20331.470097833957,
+                    "value": 20328.08772313707,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -4160,7 +4160,7 @@
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 0.0759237795072102,
+                    "value": 0.07610280162759606,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -4459,7 +4459,7 @@
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20331.470097833957,
+                    "value": 20328.08772313707,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -4599,7 +4599,7 @@
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 0.14146977657601553,
+                    "value": 0.1416597048438456,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -4898,15 +4898,15 @@
                     "description": "Start Value from strategy analysis"
                 },
                 "End Value": {
-                    "value": 583709.3857459838,
+                    "value": 583612.7542335556,
                     "description": "End Value from strategy analysis"
                 },
                 "Total Return [%]": {
-                    "value": 58270.93857459838,
+                    "value": 58261.27542335556,
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20331.470097833957,
+                    "value": 20328.08772313707,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -4938,7 +4938,7 @@
                     "description": "Total Open Trades from strategy analysis"
                 },
                 "Open Trade PnL": {
-                    "value": 50397.78707751003,
+                    "value": 50301.15556508186,
                     "description": "Open Trade PnL from strategy analysis"
                 },
                 "Win Rate [%]": {
@@ -4978,31 +4978,31 @@
                     "description": "Expectancy from strategy analysis"
                 },
                 "Sharpe Ratio": {
-                    "value": 1.505809873081291,
+                    "value": 1.5057819642353274,
                     "description": "Sharpe Ratio from strategy analysis"
                 },
                 "Calmar Ratio": {
-                    "value": 1.3378879986050263,
+                    "value": 1.3378417411433243,
                     "description": "Calmar Ratio from strategy analysis"
                 },
                 "Omega Ratio": {
-                    "value": 1.38892362837702,
+                    "value": 1.3889145116057426,
                     "description": "Omega Ratio from strategy analysis"
                 },
                 "Sortino Ratio": {
-                    "value": 2.4564861776492655,
+                    "value": 2.4564285950777953,
                     "description": "Sortino Ratio from strategy analysis"
                 },
                 "Skew": {
-                    "value": 0.9787571388359355,
+                    "value": 0.978737984347785,
                     "description": "Skew from strategy analysis"
                 },
                 "Kurtosis": {
-                    "value": 12.053538997994496,
+                    "value": 12.05370315890996,
                     "description": "Kurtosis from strategy analysis"
                 },
                 "Tail Ratio": {
-                    "value": 1.3298204952545931,
+                    "value": 1.3298117664310296,
                     "description": "Tail Ratio from strategy analysis"
                 },
                 "Common Sense Ratio": {
@@ -5026,27 +5026,27 @@
                     "description": "Beta from strategy analysis"
                 },
                 "Daily Returns": {
-                    "value": 0.0019478407048641897,
+                    "value": 0.0019477950454676008,
                     "description": "Daily Returns from strategy analysis"
                 },
                 "Annual Returns": {
-                    "value": 0.4908558576257758,
+                    "value": 0.4908443514578354,
                     "description": "Annual Returns from strategy analysis"
                 },
                 "Cumulative Returns": {
-                    "value": 582.7093857459845,
+                    "value": 582.6127542335563,
                     "description": "Cumulative Returns from strategy analysis"
                 },
                 "Annualized Return": {
-                    "value": 0.5138327728021712,
+                    "value": 0.5138164569041184,
                     "description": "Annualized Return from strategy analysis"
                 },
                 "Annualized Volatility": {
-                    "value": 0.3923105610191839,
+                    "value": 0.3923086359461565,
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 1.8660464931557683,
+                    "value": 1.866048012821374,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -5784,15 +5784,15 @@
                     "description": "Start Value from strategy analysis"
                 },
                 "End Value": {
-                    "value": 273001.28406792786,
+                    "value": 272956.0894426254,
                     "description": "End Value from strategy analysis"
                 },
                 "Total Return [%]": {
-                    "value": 27200.128406792788,
+                    "value": 27195.608944262538,
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20331.470097833957,
+                    "value": 20328.08772313707,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -5824,7 +5824,7 @@
                     "description": "Total Open Trades from strategy analysis"
                 },
                 "Open Trade PnL": {
-                    "value": 24225.297990964405,
+                    "value": 24180.103365661955,
                     "description": "Open Trade PnL from strategy analysis"
                 },
                 "Win Rate [%]": {
@@ -5864,31 +5864,31 @@
                     "description": "Expectancy from strategy analysis"
                 },
                 "Sharpe Ratio": {
-                    "value": 1.33527018352956,
+                    "value": 1.3352418789774219,
                     "description": "Sharpe Ratio from strategy analysis"
                 },
                 "Calmar Ratio": {
-                    "value": 1.1893250811084182,
+                    "value": 1.189279881330037,
                     "description": "Calmar Ratio from strategy analysis"
                 },
                 "Omega Ratio": {
-                    "value": 1.3352939888179256,
+                    "value": 1.3352852934045503,
                     "description": "Omega Ratio from strategy analysis"
                 },
                 "Sortino Ratio": {
-                    "value": 2.2529818701488478,
+                    "value": 2.252923441995222,
                     "description": "Sortino Ratio from strategy analysis"
                 },
                 "Skew": {
-                    "value": 1.4357492738677584,
+                    "value": 1.4357379774422752,
                     "description": "Skew from strategy analysis"
                 },
                 "Kurtosis": {
-                    "value": 13.126196285023038,
+                    "value": 13.126382772617681,
                     "description": "Kurtosis from strategy analysis"
                 },
                 "Tail Ratio": {
-                    "value": 1.7692645351837524,
+                    "value": 1.7692530137610298,
                     "description": "Tail Ratio from strategy analysis"
                 },
                 "Common Sense Ratio": {
@@ -5912,27 +5912,27 @@
                     "description": "Beta from strategy analysis"
                 },
                 "Daily Returns": {
-                    "value": 0.0017606202889245276,
+                    "value": 0.0017605746295279389,
                     "description": "Daily Returns from strategy analysis"
                 },
                 "Annual Returns": {
-                    "value": 0.44367631280898095,
+                    "value": 0.4436648066410406,
                     "description": "Annual Returns from strategy analysis"
                 },
                 "Cumulative Returns": {
-                    "value": 272.00128406792726,
+                    "value": 271.95608944262483,
                     "description": "Cumulative Returns from strategy analysis"
                 },
                 "Annualized Return": {
-                    "value": 0.4407645021097486,
+                    "value": 0.44074897373227073,
                     "description": "Annualized Return from strategy analysis"
                 },
                 "Annualized Volatility": {
-                    "value": 0.39989249494731827,
+                    "value": 0.3998906009853767,
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 0.3378338248984068,
+                    "value": 0.3378341000225505,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -8434,15 +8434,15 @@
                     "description": "Start Value from strategy analysis"
                 },
                 "End Value": {
-                    "value": 247348.76050740908,
+                    "value": 247307.81258810413,
                     "description": "End Value from strategy analysis"
                 },
                 "Total Return [%]": {
-                    "value": 24634.87605074091,
+                    "value": 24630.781258810413,
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20331.470097833957,
+                    "value": 20328.08772313707,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -8474,7 +8474,7 @@
                     "description": "Total Open Trades from strategy analysis"
                 },
                 "Open Trade PnL": {
-                    "value": 26343.847628055053,
+                    "value": 26302.899708750105,
                     "description": "Open Trade PnL from strategy analysis"
                 },
                 "Win Rate [%]": {
@@ -8514,31 +8514,31 @@
                     "description": "Expectancy from strategy analysis"
                 },
                 "Sharpe Ratio": {
-                    "value": 1.3374063314101157,
+                    "value": 1.337377561237051,
                     "description": "Sharpe Ratio from strategy analysis"
                 },
                 "Calmar Ratio": {
-                    "value": 0.9616887035623,
+                    "value": 0.9616516582465978,
                     "description": "Calmar Ratio from strategy analysis"
                 },
                 "Omega Ratio": {
-                    "value": 1.3305561833601398,
+                    "value": 1.3305474365287313,
                     "description": "Omega Ratio from strategy analysis"
                 },
                 "Sortino Ratio": {
-                    "value": 2.1075313602875534,
+                    "value": 2.1074755930007063,
                     "description": "Sortino Ratio from strategy analysis"
                 },
                 "Skew": {
-                    "value": 0.7033368029884653,
+                    "value": 0.7033131254481605,
                     "description": "Skew from strategy analysis"
                 },
                 "Kurtosis": {
-                    "value": 11.360125150899757,
+                    "value": 11.360273229751499,
                     "description": "Kurtosis from strategy analysis"
                 },
                 "Tail Ratio": {
-                    "value": 1.23722580359207,
+                    "value": 1.2372176702973972,
                     "description": "Tail Ratio from strategy analysis"
                 },
                 "Common Sense Ratio": {
@@ -8562,27 +8562,27 @@
                     "description": "Beta from strategy analysis"
                 },
                 "Daily Returns": {
-                    "value": 0.001725538674084925,
+                    "value": 0.001725493014688336,
                     "description": "Daily Returns from strategy analysis"
                 },
                 "Annual Returns": {
-                    "value": 0.4348357458694011,
+                    "value": 0.43482423970146067,
                     "description": "Annual Returns from strategy analysis"
                 },
                 "Cumulative Returns": {
-                    "value": 246.34876050740957,
+                    "value": 246.30781258810464,
                     "description": "Cumulative Returns from strategy analysis"
                 },
                 "Annualized Return": {
-                    "value": 0.4315389387899522,
+                    "value": 0.4315235098444281,
                     "description": "Annualized Return from strategy analysis"
                 },
                 "Annualized Volatility": {
-                    "value": 0.39129835777724026,
+                    "value": 0.3912964211859104,
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 0.2116623112937329,
+                    "value": 0.21166248366668033,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -9328,7 +9328,7 @@
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20331.470097833957,
+                    "value": 20328.08772313707,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -9468,7 +9468,7 @@
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 1.88352876504073,
+                    "value": 1.8840085531479767,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -10214,7 +10214,7 @@
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20331.470097833957,
+                    "value": 20328.08772313707,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -10354,7 +10354,7 @@
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 0.43805219649754096,
+                    "value": 0.43829147288342063,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -11978,7 +11978,7 @@
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20331.470097833957,
+                    "value": 20328.08772313707,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -12118,7 +12118,7 @@
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 1.1822491462441416,
+                    "value": 1.1826122489813538,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -12409,15 +12409,15 @@
                     "description": "Start Value from strategy analysis"
                 },
                 "End Value": {
-                    "value": 530896.1069970162,
+                    "value": 530808.218580256,
                     "description": "End Value from strategy analysis"
                 },
                 "Total Return [%]": {
-                    "value": 52989.61069970162,
+                    "value": 52980.82185802561,
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20331.470097833957,
+                    "value": 20328.08772313707,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -12449,7 +12449,7 @@
                     "description": "Total Open Trades from strategy analysis"
                 },
                 "Open Trade PnL": {
-                    "value": 47110.094877962314,
+                    "value": 47022.20646120206,
                     "description": "Open Trade PnL from strategy analysis"
                 },
                 "Win Rate [%]": {
@@ -12489,31 +12489,31 @@
                     "description": "Expectancy from strategy analysis"
                 },
                 "Sharpe Ratio": {
-                    "value": 1.4493133473580733,
+                    "value": 1.4492859930955728,
                     "description": "Sharpe Ratio from strategy analysis"
                 },
                 "Calmar Ratio": {
-                    "value": 1.4191634780956393,
+                    "value": 1.4191138692074792,
                     "description": "Calmar Ratio from strategy analysis"
                 },
                 "Omega Ratio": {
-                    "value": 1.3549802652526102,
+                    "value": 1.354971956707489,
                     "description": "Omega Ratio from strategy analysis"
                 },
                 "Sortino Ratio": {
-                    "value": 2.254349117668774,
+                    "value": 2.2542963531542455,
                     "description": "Sortino Ratio from strategy analysis"
                 },
                 "Skew": {
-                    "value": 0.49184052977624754,
+                    "value": 0.4918178371710457,
                     "description": "Skew from strategy analysis"
                 },
                 "Kurtosis": {
-                    "value": 10.950510734967265,
+                    "value": 10.950648950810256,
                     "description": "Kurtosis from strategy analysis"
                 },
                 "Tail Ratio": {
-                    "value": 1.1704186555185423,
+                    "value": 1.1704114786788058,
                     "description": "Tail Ratio from strategy analysis"
                 },
                 "Common Sense Ratio": {
@@ -12537,27 +12537,27 @@
                     "description": "Beta from strategy analysis"
                 },
                 "Daily Returns": {
-                    "value": 0.0019507849419907381,
+                    "value": 0.0019507392825941494,
                     "description": "Daily Returns from strategy analysis"
                 },
                 "Annual Returns": {
-                    "value": 0.49159780538166603,
+                    "value": 0.49158629921372565,
                     "description": "Annual Returns from strategy analysis"
                 },
                 "Cumulative Returns": {
-                    "value": 529.8961069970125,
+                    "value": 529.8082185802522,
                     "description": "Cumulative Returns from strategy analysis"
                 },
                 "Annualized Return": {
-                    "value": 0.5045154184357663,
+                    "value": 0.5044992029589797,
                     "description": "Annualized Return from strategy analysis"
                 },
                 "Annualized Volatility": {
-                    "value": 0.40821955544509825,
+                    "value": 0.4082177054787214,
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 1.6062852535856196,
+                    "value": 1.606286561707611,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -12848,15 +12848,15 @@
                     "description": "Start Value from strategy analysis"
                 },
                 "End Value": {
-                    "value": 799606.6131153512,
+                    "value": 799474.2403999901,
                     "description": "End Value from strategy analysis"
                 },
                 "Total Return [%]": {
-                    "value": 79860.6613115351,
+                    "value": 79847.42403999901,
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20331.470097833957,
+                    "value": 20328.08772313707,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -12888,7 +12888,7 @@
                     "description": "Total Open Trades from strategy analysis"
                 },
                 "Open Trade PnL": {
-                    "value": 76202.24539086537,
+                    "value": 76069.8726755043,
                     "description": "Open Trade PnL from strategy analysis"
                 },
                 "Win Rate [%]": {
@@ -12928,31 +12928,31 @@
                     "description": "Expectancy from strategy analysis"
                 },
                 "Sharpe Ratio": {
-                    "value": 1.5105643912799265,
+                    "value": 1.510537641383145,
                     "description": "Sharpe Ratio from strategy analysis"
                 },
                 "Calmar Ratio": {
-                    "value": 1.6380387670760832,
+                    "value": 1.6379840745786811,
                     "description": "Calmar Ratio from strategy analysis"
                 },
                 "Omega Ratio": {
-                    "value": 1.3736715778880675,
+                    "value": 1.373663326144092,
                     "description": "Omega Ratio from strategy analysis"
                 },
                 "Sortino Ratio": {
-                    "value": 2.3663331752769365,
+                    "value": 2.3662809198294315,
                     "description": "Sortino Ratio from strategy analysis"
                 },
                 "Skew": {
-                    "value": 0.5369711318955641,
+                    "value": 0.5369505322551011,
                     "description": "Skew from strategy analysis"
                 },
                 "Kurtosis": {
-                    "value": 10.675478847498658,
+                    "value": 10.67561198839227,
                     "description": "Kurtosis from strategy analysis"
                 },
                 "Tail Ratio": {
-                    "value": 1.1739285168176075,
+                    "value": 1.1739214649445673,
                     "description": "Tail Ratio from strategy analysis"
                 },
                 "Common Sense Ratio": {
@@ -12976,27 +12976,27 @@
                     "description": "Beta from strategy analysis"
                 },
                 "Daily Returns": {
-                    "value": 0.0020676379223251414,
+                    "value": 0.0020675922629285527,
                     "description": "Daily Returns from strategy analysis"
                 },
                 "Annual Returns": {
-                    "value": 0.5210447564259356,
+                    "value": 0.5210332502579953,
                     "description": "Annual Returns from strategy analysis"
                 },
                 "Cumulative Returns": {
-                    "value": 798.6066131153469,
+                    "value": 798.474240399986,
                     "description": "Cumulative Returns from strategy analysis"
                 },
                 "Annualized Return": {
-                    "value": 0.5451679000788439,
+                    "value": 0.5451512464547545,
                     "description": "Annualized Return from strategy analysis"
                 },
                 "Annualized Volatility": {
-                    "value": 0.41512792506346435,
+                    "value": 0.41512610912320436,
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 2.9279334414702842,
+                    "value": 2.9279358259123454,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -13287,15 +13287,15 @@
                     "description": "Start Value from strategy analysis"
                 },
                 "End Value": {
-                    "value": 666654.2324725426,
+                    "value": 666543.869664742,
                     "description": "End Value from strategy analysis"
                 },
                 "Total Return [%]": {
-                    "value": 66565.42324725425,
+                    "value": 66554.38696647421,
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20331.470097833957,
+                    "value": 20328.08772313707,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -13327,7 +13327,7 @@
                     "description": "Total Open Trades from strategy analysis"
                 },
                 "Open Trade PnL": {
-                    "value": 60354.261649135966,
+                    "value": 60243.89884133544,
                     "description": "Open Trade PnL from strategy analysis"
                 },
                 "Win Rate [%]": {
@@ -13367,31 +13367,31 @@
                     "description": "Expectancy from strategy analysis"
                 },
                 "Sharpe Ratio": {
-                    "value": 1.4795099860401588,
+                    "value": 1.4794830392824838,
                     "description": "Sharpe Ratio from strategy analysis"
                 },
                 "Calmar Ratio": {
-                    "value": 1.4243891309867345,
+                    "value": 1.4243406165115364,
                     "description": "Calmar Ratio from strategy analysis"
                 },
                 "Omega Ratio": {
-                    "value": 1.363367345595763,
+                    "value": 1.3633591265027807,
                     "description": "Omega Ratio from strategy analysis"
                 },
                 "Sortino Ratio": {
-                    "value": 2.307426442509188,
+                    "value": 2.307374250278075,
                     "description": "Sortino Ratio from strategy analysis"
                 },
                 "Skew": {
-                    "value": 0.5065573067660609,
+                    "value": 0.5065360034143752,
                     "description": "Skew from strategy analysis"
                 },
                 "Kurtosis": {
-                    "value": 10.797382351132068,
+                    "value": 10.797517490554016,
                     "description": "Kurtosis from strategy analysis"
                 },
                 "Tail Ratio": {
-                    "value": 1.182348824079687,
+                    "value": 1.1823416962612356,
                     "description": "Tail Ratio from strategy analysis"
                 },
                 "Common Sense Ratio": {
@@ -13415,27 +13415,27 @@
                     "description": "Beta from strategy analysis"
                 },
                 "Daily Returns": {
-                    "value": 0.002018608838725455,
+                    "value": 0.002018563179328866,
                     "description": "Daily Returns from strategy analysis"
                 },
                 "Annual Returns": {
-                    "value": 0.5086894273588146,
+                    "value": 0.5086779211908743,
                     "description": "Annual Returns from strategy analysis"
                 },
                 "Cumulative Returns": {
-                    "value": 665.6542324725395,
+                    "value": 665.543869664739,
                     "description": "Cumulative Returns from strategy analysis"
                 },
                 "Annualized Return": {
-                    "value": 0.526983695123276,
+                    "value": 0.5269672374862466,
                     "description": "Annualized Return from strategy analysis"
                 },
                 "Annualized Volatility": {
-                    "value": 0.4137909350860858,
+                    "value": 0.4137891119146628,
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 2.2740093523461393,
+                    "value": 2.2740112042473717,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {

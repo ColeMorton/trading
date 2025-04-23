@@ -9,9 +9,12 @@ The module supports both regular tickers and synthetic tickers (identified by an
 in the ticker name, e.g., 'STRK_MSTR'). Synthetic tickers are automatically detected and
 processed by splitting them into their component tickers.
 """
-import os
-from typing import Dict, Any, Optional
-
+from app.tools.portfolio_results import (
+    sort_portfolios,
+    filter_open_trades,
+    filter_signal_entries,
+    calculate_breadth_metrics
+)
 from app.tools.entry_point import run_from_command_line
 from app.tools.logging_context import logging_context
 from app.tools.error_context import error_context
@@ -29,22 +32,18 @@ from app.strategies.tools.summary_processing import (
 )
 from app.tools.portfolio import (
     load_portfolio_with_logging,  # Using enhanced loader
-    PortfolioLoadError,           # Using specific error type
-    portfolio_context             # Using context manager (optional)
+    PortfolioLoadError            # Using specific error type
 )
 from app.tools.config_management import (
     normalize_config,
-    merge_configs,
     resolve_portfolio_filename
 )
 from app.tools.synthetic_ticker import (
     detect_synthetic_ticker,
-    process_synthetic_ticker,
-    process_synthetic_config
+    process_synthetic_ticker
 )
 from app.tools.strategy_utils import (
-    filter_portfolios_by_signal,
-    determine_strategy_type
+    filter_portfolios_by_signal
 )
 
 # Default Configuration
@@ -180,116 +179,32 @@ def run(portfolio: str) -> bool:
             reraise=False
         ):
             success = export_summary_results(portfolios, portfolio, log, local_config)
-            
             # Display strategy data as requested
             if success and portfolios:
                 log("=== Strategy Summary ===")
                 
                 # Sort portfolios by Score (descending) for main display
-                sorted_portfolios = sorted(portfolios, key=lambda x: x.get('Score', 0), reverse=True)
+                sorted_portfolios = sort_portfolios(portfolios, "Score", False)
                 
-                # List strategies where Total Open Trades = 1 AND Signal Entry = false (to avoid duplicates)
-                # Using the same logic but with clearer variable names
-                open_trades_strategies = [p for p in sorted_portfolios if
-                                         (p.get('Total Open Trades') == 1 or
-                                          (isinstance(p.get('Total Open Trades'), str) and p.get('Total Open Trades') == '1')) and
-                                         str(p.get('Signal Entry', '')).lower() != 'true']
+                # Use standardized utility to filter and display open trades
+                open_trades_strategies = filter_open_trades(sorted_portfolios, log)
                 
-                # Sort open trades strategies by Score
-                open_trades_strategies = sorted(open_trades_strategies,
-                                               key=lambda x: x.get('Score', 0),
-                                               reverse=True)
-                
-                if open_trades_strategies:
-                    log("\n=== Open Trades ===")
-                    log("Ticker, Strategy Type, Short Window, Long Window, Signal Window, Score")
-                    for p in open_trades_strategies:
-                        ticker = p.get('Ticker', 'Unknown')
-                        strategy_type = p.get('Strategy Type', 'Unknown')
-                        short_window = p.get('Short Window', 'N/A')
-                        long_window = p.get('Long Window', 'N/A')
-                        signal_window = p.get('Signal Window', 'N/A')
-                        score = p.get('Score', 0)
-
-                        log(f"{ticker}, {strategy_type}, {short_window}, {long_window}, {signal_window}, {score:.4f}")
-                else:
-                    log("\n=== No Open Trades found ===")
-                
-                # List strategies where Signal Entry = true
-                # Use filter_portfolios_by_signal with a custom config to get signal entries
+                # Use standardized utility to filter and display signal entries
+                # First get signal entries using the strategy_utils filter
                 temp_config = {"USE_CURRENT": True}
                 signal_entry_strategies = filter_portfolios_by_signal(sorted_portfolios, temp_config, log)
                 
-                # Count strategies per ticker
-                ticker_counts = {}
-                for p in open_trades_strategies:
-                    ticker = p.get('Ticker', 'Unknown')
-                    ticker_counts[ticker] = ticker_counts.get(ticker, 0) + 1
+                # Then use the portfolio_results utility to process and display them
+                signal_entry_strategies = filter_signal_entries(signal_entry_strategies, open_trades_strategies, log)
                 
-                # Add the count to each strategy
-                for p in signal_entry_strategies:
-                    ticker = p.get('Ticker', 'Unknown')
-                    p['open_trade_count'] = ticker_counts.get(ticker, 0)
-                
-                # Sort signal entry strategies by Score (descending)
-                signal_entry_strategies = sorted(signal_entry_strategies, key=lambda x: x.get('Score', 0), reverse=True)
-                
-                if signal_entry_strategies:
-                    log("\n=== Signal Entries ===")
-                    log("Ticker, Strategy Type, Short Window, Long Window, Signal Window, Score, Total Open Trades")
-                    for p in signal_entry_strategies:
-                        ticker = p.get('Ticker', 'Unknown')
-                        strategy_type = p.get('Strategy Type', 'Unknown')
-                        short_window = p.get('Short Window', 'N/A')
-                        long_window = p.get('Long Window', 'N/A')
-                        signal_window = p.get('Signal Window', 'N/A')
-                        score = p.get('Score', 0)
-                        open_trade_count = p.get('open_trade_count', 0)
-                        
-                        log(f"{ticker}, {strategy_type}, {short_window}, {long_window}, {signal_window}, {score:.4f}, {open_trade_count}")
-                else:
-                    log("\n=== No Signal Entries found ===")
-                
-                # Calculate and log breadth metrics
+                # Calculate and display breadth metrics
                 if sorted_portfolios:
-                    log("\n=== Breadth Metrics ===")
-                    
-                    # Get total number of strategies
-                    total_strategies = len(sorted_portfolios)
-                    
-                    # Count open trades (already calculated in open_trades_strategies)
-                    total_open_trades = len(open_trades_strategies)
-                    
-                    # Count signal entries (already calculated in signal_entry_strategies)
-                    total_signal_entries = len(signal_entry_strategies)
-                    
-                    # Count signal exits
-                    # Use filter_portfolios_by_signal with a custom config and signal_field to get signal exits
-                    temp_config = {"USE_CURRENT": True}
-                    signal_exit_strategies = filter_portfolios_by_signal(sorted_portfolios, temp_config, log, "Signal Exit")
-                    total_signal_exits = len(signal_exit_strategies)
-                    
-                    # Calculate breadth ratio (open trades to total strategies)
-                    breadth_ratio = total_open_trades / total_strategies if total_strategies > 0 else 0
-                    
-                    # Calculate signal entry ratio
-                    signal_entry_ratio = total_signal_entries / total_strategies if total_strategies > 0 else 0
-                    
-                    # Calculate signal exit ratio
-                    signal_exit_ratio = total_signal_exits / total_strategies if total_strategies > 0 else 0
-                    
-                    # Calculate breadth momentum (signal entry ratio / signal exit ratio)
-                    breadth_momentum = signal_entry_ratio / signal_exit_ratio if signal_exit_ratio > 0 else float('inf')
-                    
-                    # Log the metrics
-                    log(f"Total Strategies: {total_strategies}")
-                    log(f"Total Open Trades: {total_open_trades}")
-                    log(f"Total Signal Entries: {total_signal_entries}")
-                    log(f"Total Signal Exits: {total_signal_exits}")
-                    log(f"Breadth Ratio: {breadth_ratio:.4f} (Open Trades / Total Strategies)")
-                    log(f"Signal Entry Ratio: {signal_entry_ratio:.4f} (Signal Entries / Total Strategies)")
-                    log(f"Signal Exit Ratio: {signal_exit_ratio:.4f} (Signal Exits / Total Strategies)")
-                    log(f"Breadth Momentum: {breadth_momentum:.4f} (Signal Entry Ratio / Signal Exit Ratio)")
+                    calculate_breadth_metrics(
+                        sorted_portfolios,
+                        open_trades_strategies,
+                        signal_entry_strategies,
+                        log
+                    )
             
         return success
 
