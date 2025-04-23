@@ -9,6 +9,10 @@ The module supports both regular tickers and synthetic tickers (identified by an
 in the ticker name, e.g., 'STRK_MSTR'). Synthetic tickers are automatically detected and
 processed by splitting them into their component tickers.
 """
+from app.tools.project_utils import (
+    get_project_root,
+    resolve_path
+)
 from app.tools.portfolio_results import (
     sort_portfolios,
     filter_open_trades,
@@ -76,7 +80,7 @@ config = {
     "REFRESH": True,
     "USE_CURRENT": False,
     "USE_HOURLY": False,
-    "BASE_DIR": '.',  # Added BASE_DIR for export configuration
+    "BASE_DIR": get_project_root(),  # Use standardized project root resolver
     "DIRECTION": "Long",
     "SORT_BY": "Score",
     "SORT_ASC": False

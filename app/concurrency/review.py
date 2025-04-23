@@ -17,6 +17,9 @@ from typing import Dict, Any, Optional
 from pathlib import Path
 import logging
 
+from app.tools.project_utils import (
+    get_project_root
+)
 from app.tools.entry_point import run_from_command_line
 
 from app.concurrency.tools.runner import main
@@ -62,7 +65,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "BTC-USD_SPY_d.csv",
     # "PORTFOLIO": "macd_test.json",
     # "PORTFOLIO": "MSTR_d_20250415.csv",
-    "BASE_DIR": '.',  # Default to project root directory
+    "BASE_DIR": get_project_root(),  # Use standardized project root resolver
     "REFRESH": True,
     "SL_CANDLE_CLOSE": True, 
     "VISUALIZATION": False,
@@ -110,7 +113,7 @@ def run_analysis(config: Dict[str, Any]) -> bool:
     
     # Get log subdirectory from BASE_DIR if specified
     log_subdir = None
-    if config["BASE_DIR"] != './logs':
+    if config["BASE_DIR"] != get_project_root():
         log_subdir = Path(config["BASE_DIR"]).name
     
     with logging_context(

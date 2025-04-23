@@ -8,7 +8,10 @@ sensitivity analysis and portfolio filtering.
 
 import os
 from typing import List, Dict, Any
-
+from app.tools.get_config import get_config
+from app.tools.project_utils import (
+    get_project_root
+)
 from app.tools.get_config import get_config
 from app.tools.entry_point import run_from_command_line
 from app.tools.strategy.types import StrategyConfig as Config
@@ -27,7 +30,6 @@ from app.tools.exceptions import (
     ExportError,
     TradingSystemError
 )
-from app.tools.portfolio import portfolio_context
 from app.tools.config_management import (
     normalize_config
 )
@@ -131,7 +133,7 @@ CONFIG: Config = {
     # "WINDOWS": 34,
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
-    "BASE_DIR": ".",
+    "BASE_DIR": get_project_root(),  # Use standardized project root resolver
     "REFRESH": True,
     "STRATEGY_TYPES": [ "SMA", "EMA" ],
     "DIRECTION": "Long",
