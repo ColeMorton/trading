@@ -4,11 +4,12 @@ This module provides high-level portfolio loading functions that encapsulate
 error handling, logging, and path resolution in a consistent way across the system.
 It follows SOLID principles and KISS (Keep It Simple, Stupid) design philosophy.
 """
-
-from typing import List, Dict, Any, Callable, Optional, Union
+from typing import List, Dict, Any, Callable, Optional, Union, Generator
+from contextlib import AbstractContextManager
 from pathlib import Path
 import os
 import contextlib
+
 
 from app.tools.portfolio.loader import load_portfolio as base_load_portfolio
 from app.tools.portfolio.paths import resolve_portfolio_path
@@ -89,7 +90,7 @@ def portfolio_context(
     portfolio_name: str,
     log: Callable[[str, str], None],
     config: Dict[str, Any]
-) -> List[StrategyConfig]:
+) -> Generator[List[StrategyConfig], None, None]:
     """Context manager for portfolio loading with automatic error handling.
     
     This context manager follows:
@@ -106,7 +107,7 @@ def portfolio_context(
         config: Configuration dictionary
         
     Yields:
-        List of strategy configurations
+        List[StrategyConfig]: List of strategy configurations
         
     Raises:
         PortfolioLoadError: If portfolio loading fails

@@ -27,8 +27,8 @@ from app.concurrency.config import (
 )
 from app.tools.setup_logging import setup_logging
 from app.tools.portfolio import (
-    load_portfolio,
-    resolve_portfolio_path
+    portfolio_context,         # Using context manager
+    PortfolioLoadError         # Using specific error type
 )
 
 # Default configuration
@@ -37,10 +37,10 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "crypto_d_20250422.csv",
     # "PORTFOLIO": "BTC_MSTR_d_20250409.csv",
     # "PORTFOLIO": "DAILY_crypto.csv",
-    "PORTFOLIO": "DAILY_test.csv",
+    # "PORTFOLIO": "DAILY_test.csv",
     # "PORTFOLIO": "atr_test_portfolio.json",
     # "PORTFOLIO": "stock_trades_20250422.csv",
-    # "PORTFOLIO": "portfolio_d_20250417.csv",
+    "PORTFOLIO": "portfolio_d_20250417.csv",
     # "PORTFOLIO": "total_20250417.csv",
     # "PORTFOLIO": "BTC-USD_SPY_d.csv",
     # "PORTFOLIO": "macd_test.json",
@@ -92,38 +92,32 @@ def run_analysis(config: Dict[str, Any]) -> bool:
         validated_config = validate_config(config)
 
         try:
-            # Resolve portfolio path using shared functionality
+            # Get portfolio filename from validated config
             portfolio_filename = validated_config["PORTFOLIO"]
             
             try:
-                portfolio_path = resolve_portfolio_path(
-                    portfolio_filename,
-                    validated_config.get("BASE_DIR")
-                )
-                log(f"Portfolio path resolved: {portfolio_path}", "info")
-            except FileNotFoundError:
-                raise ConfigurationError(f"Portfolio file not found: {portfolio_filename}")
+                # Use the enhanced portfolio loader via context manager
+                # We don't need to load the portfolio here, just resolve the path
+                with portfolio_context(portfolio_filename, log, validated_config) as _:
+                    # The portfolio is loaded in the main function, so we don't need to do anything with it here
+                    pass
+            except PortfolioLoadError as e:
+                raise ConfigurationError(f"Portfolio error: {str(e)}")
             
-            # Update config with resolved path
-            validated_config["PORTFOLIO"] = str(portfolio_path)
-            log(f"Portfolio path: {portfolio_path}", "debug")
-            
+            # Run analysis
+            log("Starting concurrency analysis...", "info")
+            result = main(validated_config)
+            if result:
+                log("Concurrency analysis completed successfully!", "info")
+                return True
+            else:
+                log("Concurrency analysis failed", "error")
+                return False
+                
         except ConfigurationError as e:
-            raise ConfigurationError(str(e))
-
-        # Run analysis
-        log("Starting concurrency analysis...", "info")
-        result = main(validated_config)
-        if result:
-            log("Concurrency analysis completed successfully!", "info")
-            return True
-        else:
-            log("Concurrency analysis failed", "error")
+            log(f"Configuration error: {str(e)}", "error")
             return False
-            
-    except ConfigurationError as e:
-        log(f"Configuration error: {str(e)}", "error")
-        return False
+        
     except Exception as e:
         log(f"Unexpected error: {str(e)}", "error")
         return False

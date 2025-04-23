@@ -16,12 +16,14 @@ from app.strategies.tools.summary_processing import (
     export_summary_results
 )
 from app.tools.portfolio import (
-    load_portfolio
+    load_portfolio_with_logging,  # Using enhanced loader
+    PortfolioLoadError,           # Using specific error type
+    portfolio_context             # Using context manager (optional)
 )
 
 # Default Configuration
 config = {
-    "PORTFOLIO": 'BTC-USD_SPY_d.csv',
+    # "PORTFOLIO": 'BTC-USD_SPY_d.csv',
     # "PORTFOLIO": 'total_d_20250328.csv',
     # "PORTFOLIO": 'crypto_d_20250421.csv',
     # "PORTFOLIO": 'DAILY_crypto.csv',
@@ -29,7 +31,7 @@ config = {
     # "PORTFOLIO": 'DAILY_test.csv',
     # "PORTFOLIO": 'crypto_h.csv',
     # "PORTFOLIO": 'DAILY_crypto_short.csv',
-    # "PORTFOLIO": 'Indices_d.csv',
+    "PORTFOLIO": 'Indices_d.csv',
     # "PORTFOLIO": 'stock_trades_20250422.csv',
     # "PORTFOLIO": 'portfolio_d_20250417.csv',
     # "PORTFOLIO": 'BTC_MSTR_d_20250409.csv',
@@ -81,30 +83,15 @@ def run(portfolio: str) -> bool:
     )
     
     try:
-        # Add more detailed logging about the portfolio loading process
-        log(f"Attempting to load portfolio: {portfolio}", "info")
-        log(f"Current working directory: {os.getcwd()}", "info")
-        
-        # Get the project root directory (2 levels up from this file)
-        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-        log(f"Project root directory: {project_root}", "info")
-        
         # Update the config with the correct BASE_DIR
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
         config["BASE_DIR"] = project_root
-        log(f"Updated config BASE_DIR: {config['BASE_DIR']}", "info")
         
-        # Check if the file exists in common locations
-        csv_path = os.path.join(project_root, "csv", "strategies", portfolio)
-        log(f"Checking if file exists at: {csv_path}", "info")
-        log(f"File exists: {os.path.exists(csv_path)}", "info")
-        
-        # Load portfolio using the shared portfolio loader
         try:
-            daily_df = load_portfolio(portfolio, log, config)
-            log(f"Successfully loaded portfolio with {len(daily_df)} entries")
-        except FileNotFoundError as e:
-            log(f"Portfolio not found: {portfolio}", "error")
-            log(f"Error details: {str(e)}", "error")
+            # Use the enhanced portfolio loader with standardized error handling
+            daily_df = load_portfolio_with_logging(portfolio, log, config)
+        except PortfolioLoadError as e:
+            log(f"Failed to load portfolio: {str(e)}", "error")
             log_close()
             return False
 
