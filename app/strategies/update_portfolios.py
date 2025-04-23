@@ -41,6 +41,10 @@ from app.tools.synthetic_ticker import (
     process_synthetic_ticker,
     process_synthetic_config
 )
+from app.tools.strategy_utils import (
+    filter_portfolios_by_signal,
+    determine_strategy_type
+)
 
 # Default Configuration
 config = {
@@ -184,6 +188,7 @@ def run(portfolio: str) -> bool:
                 sorted_portfolios = sorted(portfolios, key=lambda x: x.get('Score', 0), reverse=True)
                 
                 # List strategies where Total Open Trades = 1 AND Signal Entry = false (to avoid duplicates)
+                # Using the same logic but with clearer variable names
                 open_trades_strategies = [p for p in sorted_portfolios if
                                          (p.get('Total Open Trades') == 1 or
                                           (isinstance(p.get('Total Open Trades'), str) and p.get('Total Open Trades') == '1')) and
@@ -210,7 +215,9 @@ def run(portfolio: str) -> bool:
                     log("\n=== No Open Trades found ===")
                 
                 # List strategies where Signal Entry = true
-                signal_entry_strategies = [p for p in sorted_portfolios if str(p.get('Signal Entry', '')).lower() == 'true']
+                # Use filter_portfolios_by_signal with a custom config to get signal entries
+                temp_config = {"USE_CURRENT": True}
+                signal_entry_strategies = filter_portfolios_by_signal(sorted_portfolios, temp_config, log)
                 
                 # Count strategies per ticker
                 ticker_counts = {}
@@ -256,7 +263,9 @@ def run(portfolio: str) -> bool:
                     total_signal_entries = len(signal_entry_strategies)
                     
                     # Count signal exits
-                    signal_exit_strategies = [p for p in sorted_portfolios if str(p.get('Signal Exit', '')).lower() == 'true']
+                    # Use filter_portfolios_by_signal with a custom config and signal_field to get signal exits
+                    temp_config = {"USE_CURRENT": True}
+                    signal_exit_strategies = filter_portfolios_by_signal(sorted_portfolios, temp_config, log, "Signal Exit")
                     total_signal_exits = len(signal_exit_strategies)
                     
                     # Calculate breadth ratio (open trades to total strategies)

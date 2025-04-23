@@ -29,14 +29,14 @@ from app.tools.exceptions import (
 )
 from app.tools.portfolio import portfolio_context
 from app.tools.config_management import (
-    normalize_config,
-    merge_configs,
-    resolve_portfolio_filename
+    normalize_config
 )
 from app.tools.synthetic_ticker import (
-    process_synthetic_config,
-    detect_synthetic_ticker,
-    process_synthetic_ticker
+    process_synthetic_config
+)
+from app.tools.strategy_utils import (
+    get_strategy_types,
+    filter_portfolios_by_signal
 )
 
 CONFIG: Config = {
@@ -154,22 +154,7 @@ CONFIG: Config = {
 
 # Using the standardized synthetic_ticker module instead of local implementation
 
-def get_strategy_types(config: Config, log) -> List[str]:
-    """Get strategy types from config with defaults.
-    
-    Args:
-        config: Configuration dictionary
-        log: Logging function
-        
-    Returns:
-        List of strategy types
-    """
-    strategy_types = config.get("STRATEGY_TYPES", [])
-    if not strategy_types:
-        log("No strategy types specified in config, defaulting to SMA")
-        strategy_types = ["SMA"]
-    log(f"Using strategy types: {strategy_types}")
-    return strategy_types
+# Using standardized strategy utilities from app.tools.strategy_utils
 
 def filter_portfolios(portfolios: List[Dict[str, Any]], config: Config, log) -> List[Dict[str, Any]]:
     """Filter portfolios based on configuration.
@@ -182,15 +167,8 @@ def filter_portfolios(portfolios: List[Dict[str, Any]], config: Config, log) -> 
     Returns:
         Filtered list of portfolio dictionaries
     """
-    if config.get("USE_CURRENT", False):
-        original_count = len(portfolios)
-        filtered = [p for p in portfolios if p.get("Signal Entry", False) is True]
-        filtered_count = original_count - len(filtered)
-        if filtered_count > 0:
-            log(f"Filtered out {filtered_count} portfolios with Signal Entry = False", "info")
-            log(f"Remaining portfolios: {len(filtered)}", "info")
-        return filtered
-    return portfolios
+    # Use the standardized filter_portfolios_by_signal function
+    return filter_portfolios_by_signal(portfolios, config, log)
 
 # Using the standardized synthetic_ticker module instead of local implementation
 
@@ -276,7 +254,8 @@ def run(config: Config = CONFIG) -> bool:
 
         # Get strategy types and execute strategies
         all_portfolios = []
-        strategy_types = get_strategy_types(synthetic_config, log)
+        # Use the standardized get_strategy_types function with default_type="SMA"
+        strategy_types = get_strategy_types(synthetic_config, log, "SMA")
         
         # Execute each strategy in sequence
         for strategy_type in strategy_types:

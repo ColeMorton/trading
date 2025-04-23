@@ -1,0 +1,179 @@
+"""Strategy utilities.
+
+This module provides utilities for working with trading strategies.
+"""
+from typing import Dict, Any, List, Callable, Optional
+
+def get_strategy_types(
+    config: Dict[str, Any],
+    log_func = None,
+    default_type: str = "SMA"
+) -> List[str]:
+    """Get strategy types from config with defaults.
+    
+    Args:
+        config: Configuration dictionary
+        log_func: Optional logging function
+        default_type: Default strategy type if none specified
+        
+    Returns:
+        List of strategy types
+    """
+    strategy_types = config.get("STRATEGY_TYPES", [])
+    
+    if not strategy_types:
+        if log_func:
+            log_func(f"No strategy types specified in config, defaulting to {default_type}")
+        strategy_types = [default_type]
+    
+    if log_func:
+        log_func(f"Using strategy types: {strategy_types}")
+        
+    return strategy_types
+
+def filter_portfolios_by_signal(
+    portfolios: List[Dict[str, Any]],
+    config: Dict[str, Any],
+    log_func = None,
+    signal_field: str = "Signal Entry"
+) -> List[Dict[str, Any]]:
+    """Filter portfolios based on signal field.
+    
+    Args:
+        portfolios: List of portfolio dictionaries
+        config: Configuration dictionary
+        log_func: Optional logging function
+        signal_field: Field to filter by (default: "Signal Entry")
+        
+    Returns:
+        Filtered list of portfolio dictionaries
+    """
+    if not portfolios:
+        return []
+        
+    if not config.get("USE_CURRENT", False):
+        return portfolios
+        
+    original_count = len(portfolios)
+    filtered = [p for p in portfolios if str(p.get(signal_field, '')).lower() == 'true']
+    filtered_count = original_count - len(filtered)
+    
+    if filtered_count > 0 and log_func:
+        log_func(f"Filtered out {filtered_count} portfolios with {signal_field} = False", "info")
+        log_func(f"Remaining portfolios: {len(filtered)}", "info")
+        
+    return filtered
+
+def determine_strategy_type(
+    strategy_config: Dict[str, Any],
+    log_func = None
+) -> str:
+    """Determine the strategy type from configuration.
+    
+    Args:
+        strategy_config: Strategy configuration dictionary
+        log_func: Optional logging function
+        
+    Returns:
+        Strategy type string
+    """
+    # Check for explicit strategy type
+    strategy_type = strategy_config.get('STRATEGY_TYPE', '')
+    if not strategy_type:
+        strategy_type = strategy_config.get('type', '')
+    
+    # If still not found, infer from configuration
+    if not strategy_type:
+        if 'SIGNAL_WINDOW' in strategy_config and strategy_config.get('SIGNAL_WINDOW', 0) > 0:
+            strategy_type = 'MACD'
+        elif 'LENGTH' in strategy_config and 'MULTIPLIER' in strategy_config:
+            strategy_type = 'ATR'
+        else:
+            # Default to MA strategy
+            strategy_type = 'MA'
+    
+    if log_func:
+        log_func(f"Using strategy type: {strategy_type}")
+    
+    return strategy_type
+
+def get_required_fields_for_strategy(
+    strategy_type: str
+) -> List[str]:
+    """Get required fields for a specific strategy type.
+    
+    Args:
+        strategy_type: Strategy type string
+        
+    Returns:
+        List of required field names
+    """
+    if strategy_type == 'ATR':
+        return ["TICKER", "LENGTH", "MULTIPLIER"]
+    elif strategy_type == 'MACD':
+        return ["TICKER", "SHORT_WINDOW", "LONG_WINDOW", "SIGNAL_WINDOW"]
+    else:  # Default to MA strategy
+        return ["TICKER", "SHORT_WINDOW", "LONG_WINDOW"]
+
+def validate_strategy_config(
+    strategy_config: Dict[str, Any],
+    strategy_index: int = 0,
+    log_func = None
+) -> bool:
+    """Validate a strategy configuration.
+    
+    Args:
+        strategy_config: Strategy configuration dictionary
+        strategy_index: Index of the strategy (for logging)
+        log_func: Optional logging function
+        
+    Returns:
+        True if valid, False otherwise
+        
+    Raises:
+        ValueError: If required fields are missing
+    """
+    # Normalize field names first (handle both uppercase and lowercase)
+    field_mapping = {
+        "TICKER": ["ticker", "TICKER"],
+        "LENGTH": ["length", "LENGTH"],
+        "MULTIPLIER": ["multiplier", "MULTIPLIER"],
+        "SHORT_WINDOW": ["short_window", "SHORT_WINDOW"],
+        "LONG_WINDOW": ["long_window", "LONG_WINDOW"],
+        "SIGNAL_WINDOW": ["signal_window", "SIGNAL_WINDOW"],
+        "DIRECTION": ["direction", "DIRECTION"],
+        "STRATEGY_TYPE": ["type", "STRATEGY_TYPE"]
+    }
+    
+    # Copy values from lowercase to uppercase keys
+    for upper_key, possible_keys in field_mapping.items():
+        for key in possible_keys:
+            if key in strategy_config and upper_key not in strategy_config:
+                strategy_config[upper_key] = strategy_config[key]
+    
+    # Determine strategy type after normalization
+    strategy_type = determine_strategy_type(strategy_config, log_func)
+    
+    # Define required fields based on strategy type
+    required_fields = get_required_fields_for_strategy(strategy_type)
+    
+    # Check for missing fields after normalization
+    missing_fields = []
+    for field in required_fields:
+        # For each required field, check if any of its possible variations exist
+        field_variants = [field.lower(), field]
+        if not any(variant in strategy_config for variant in field_variants):
+            missing_fields.append(field)
+    
+    if missing_fields:
+        if log_func:
+            log_func(f"Strategy {strategy_index} missing required fields: {missing_fields}", "error")
+        raise ValueError(f"Strategy {strategy_index} missing required fields: {missing_fields}")
+    
+    # Log strategy details
+    if log_func:
+        direction = "Short" if strategy_config.get("DIRECTION", "Long") == "Short" else "Long"
+        timeframe = "Hourly" if strategy_config.get("USE_HOURLY", False) else "Daily"
+        log_func(f"Strategy {strategy_index} - {strategy_config['TICKER']}: {timeframe} ({direction})", "info")
+    
+    return True

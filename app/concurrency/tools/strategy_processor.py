@@ -16,6 +16,11 @@ from app.concurrency.tools.atr_strategy import process_atr_strategy
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.stats_converter import convert_stats
 from app.concurrency.tools.types import StrategyConfig
+from app.tools.strategy_utils import (
+    determine_strategy_type,
+    get_required_fields_for_strategy,
+    validate_strategy_config
+)
 
 def process_strategies(
     strategies: List[StrategyConfig], 
@@ -67,31 +72,8 @@ def process_strategies(
                     if key in strategy_config and upper_key not in strategy_config:
                         strategy_config[upper_key] = strategy_config[key]
             
-            # Determine strategy type after normalization
-            strategy_type = strategy_config.get('STRATEGY_TYPE', 'MA')
-            
-            # Define required fields based on strategy type
-            if strategy_type == 'ATR':
-                required_fields = ["TICKER", "LENGTH", "MULTIPLIER"]
-            elif strategy_type == 'MACD':
-                required_fields = ["TICKER", "SHORT_WINDOW", "LONG_WINDOW", "SIGNAL_WINDOW"]
-            else:  # Default to MA strategy
-                required_fields = ["TICKER", "SHORT_WINDOW", "LONG_WINDOW"]
-            
-            # Check for missing fields after normalization
-            missing_fields = []
-            for field in required_fields:
-                # For each required field, check if any of its possible variations exist
-                field_variants = [field.lower(), field]
-                if not any(variant in strategy_config for variant in field_variants):
-                    missing_fields.append(field)
-            if missing_fields:
-                log(f"Strategy {i} missing required fields: {missing_fields}", "error")
-                raise ValueError(f"Strategy {i} missing required fields: {missing_fields}")
-            
-            direction = "Short" if strategy_config.get("DIRECTION", "Long") == "Short" else "Long"
-            timeframe = "Hourly" if strategy_config.get("USE_HOURLY", False) else "Daily"
-            log(f"Strategy {i} - {strategy_config['TICKER']}: {timeframe} ({direction})", "info")
+            # Use the standardized validate_strategy_config function
+            validate_strategy_config(strategy_config, i, log)
         
         strategy_data = []
         for i, strategy_config in enumerate(strategies, 1):
@@ -122,15 +104,12 @@ def process_strategies(
                 is_short = strategy_config.get("DIRECTION", "Long") == "Short"
                 direction = "Short" if is_short else "Long"
                 
-                # Process based on strategy type
-                # Check if it's a MACD strategy (has SIGNAL_WINDOW > 0 or type is MACD)
-                is_macd = ('SIGNAL_WINDOW' in strategy_config and strategy_config['SIGNAL_WINDOW'] > 0) or \
-                          (strategy_config.get('STRATEGY_TYPE') == 'MACD') or \
-                          (strategy_config.get('type') == 'MACD')
+                # Process based on strategy type using the standardized determine_strategy_type function
+                strategy_type = determine_strategy_type(strategy_config)
+                is_macd = strategy_type == 'MACD'
                 
-                # Check if it's an ATR strategy
-                is_atr = (strategy_config.get('STRATEGY_TYPE') == 'ATR') or \
-                         (strategy_config.get('type') == 'ATR')
+                # Check if it's an ATR strategy using the standardized determine_strategy_type function
+                is_atr = strategy_type == 'ATR'
                 
                 if is_atr:
                     log(f"Processing {direction} ATR Trailing Stop strategy {i}/{len(strategies)}", "info")
