@@ -25,7 +25,7 @@ from app.concurrency.config import (
     validate_config,
     ConfigurationError
 )
-from app.tools.setup_logging import setup_logging
+from app.tools.logging_context import logging_context
 from app.tools.portfolio import (
     portfolio_context,         # Using context manager
     PortfolioLoadError         # Using specific error type
@@ -79,50 +79,47 @@ def run_analysis(config: Dict[str, Any]) -> bool:
     if config["BASE_DIR"] != './logs':
         log_subdir = Path(config["BASE_DIR"]).name
     
-    log, log_close, _, _ = setup_logging(
+    with logging_context(
         module_name="concurrency_review",
         log_file="review.log",
         level=logging.INFO,
         log_subdir=log_subdir
-    )
-    
-    try:
-        # Validate configuration
-        log("Validating configuration...", "info")
-        validated_config = validate_config(config)
-
+    ) as log:
         try:
-            # Get portfolio filename from validated config
-            portfolio_filename = validated_config["PORTFOLIO"]
-            
+            # Validate configuration
+            log("Validating configuration...", "info")
+            validated_config = validate_config(config)
+
             try:
-                # Use the enhanced portfolio loader via context manager
-                # We don't need to load the portfolio here, just resolve the path
-                with portfolio_context(portfolio_filename, log, validated_config) as _:
-                    # The portfolio is loaded in the main function, so we don't need to do anything with it here
-                    pass
-            except PortfolioLoadError as e:
-                raise ConfigurationError(f"Portfolio error: {str(e)}")
-            
-            # Run analysis
-            log("Starting concurrency analysis...", "info")
-            result = main(validated_config)
-            if result:
-                log("Concurrency analysis completed successfully!", "info")
-                return True
-            else:
-                log("Concurrency analysis failed", "error")
-                return False
+                # Get portfolio filename from validated config
+                portfolio_filename = validated_config["PORTFOLIO"]
                 
-        except ConfigurationError as e:
-            log(f"Configuration error: {str(e)}", "error")
+                try:
+                    # Use the enhanced portfolio loader via context manager
+                    # We don't need to load the portfolio here, just resolve the path
+                    with portfolio_context(portfolio_filename, log, validated_config) as _:
+                        # The portfolio is loaded in the main function, so we don't need to do anything with it here
+                        pass
+                except PortfolioLoadError as e:
+                    raise ConfigurationError(f"Portfolio error: {str(e)}")
+                
+                # Run analysis
+                log("Starting concurrency analysis...", "info")
+                result = main(validated_config)
+                if result:
+                    log("Concurrency analysis completed successfully!", "info")
+                    return True
+                else:
+                    log("Concurrency analysis failed", "error")
+                    return False
+                    
+            except ConfigurationError as e:
+                log(f"Configuration error: {str(e)}", "error")
+                return False
+            
+        except Exception as e:
+            log(f"Unexpected error: {str(e)}", "error")
             return False
-        
-    except Exception as e:
-        log(f"Unexpected error: {str(e)}", "error")
-        return False
-    finally:
-        log_close()
 
 def run_concurrency_review(portfolio_name: str, config_overrides: Dict[str, Any] = None) -> bool:
     """Run concurrency review with a specific portfolio file and configuration overrides.
