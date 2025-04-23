@@ -10,6 +10,8 @@ in the ticker name, e.g., 'STRK_MSTR'). Synthetic tickers are automatically dete
 processed by splitting them into their component tickers.
 """
 import os
+import sys
+from typing import Dict, Any, Optional
 from app.tools.logging_context import logging_context
 from app.tools.error_context import error_context
 from app.tools.error_decorators import handle_errors
@@ -28,6 +30,11 @@ from app.tools.portfolio import (
     load_portfolio_with_logging,  # Using enhanced loader
     PortfolioLoadError,           # Using specific error type
     portfolio_context             # Using context manager (optional)
+)
+from app.tools.config_management import (
+    normalize_config,
+    merge_configs,
+    resolve_portfolio_filename
 )
 
 # Default Configuration
@@ -103,9 +110,8 @@ def run(portfolio: str) -> bool:
         module_name='strategies',
         log_file='update_portfolios.log'
     ) as log:
-        # Update the config with the correct BASE_DIR
-        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-        config["BASE_DIR"] = project_root
+        # Get a normalized copy of the global config
+        local_config = normalize_config(config.copy())
         
         # Use the enhanced portfolio loader with standardized error handling
         with error_context(
@@ -113,7 +119,7 @@ def run(portfolio: str) -> bool:
             log,
             {FileNotFoundError: PortfolioLoadError}
         ):
-            daily_df = load_portfolio_with_logging(portfolio, log, config)
+            daily_df = load_portfolio_with_logging(portfolio, log, local_config)
             if not daily_df:
                 return False
 
@@ -123,9 +129,9 @@ def run(portfolio: str) -> bool:
         for strategy in daily_df:
             ticker = strategy['TICKER']
             log(f"Processing {ticker}")
-            
             # Create a copy of the config for this strategy
-            strategy_config = config.copy()
+            strategy_config = local_config.copy()
+            
             
             # Check if this is a synthetic ticker (contains underscore)
             with error_context(
@@ -164,7 +170,7 @@ def run(portfolio: str) -> bool:
             {Exception: ExportError},
             reraise=False
         ):
-            success = export_summary_results(portfolios, portfolio, log, config)
+            success = export_summary_results(portfolios, portfolio, log, local_config)
             
             # Display strategy data as requested
             if success and portfolios:
@@ -274,10 +280,20 @@ def run(portfolio: str) -> bool:
         return success
 
 if __name__ == "__main__":
-    try:
-        result = run(config.get("PORTFOLIO", 'MSTR_d_20250403.csv'))
+    with error_context(
+        "Running portfolio update from command line",
+        lambda msg, level='info': print(f"[{level.upper()}] {msg}"),
+        reraise=False
+    ):
+        # Create a normalized copy of the default config
+        normalized_config = normalize_config(config.copy())
+        portfolio_name = normalized_config.get("PORTFOLIO", 'MSTR_d_20250403.csv')
+        
+        # Resolve portfolio filename with extension if needed
+        resolved_portfolio = resolve_portfolio_filename(portfolio_name)
+        
+        result = run(resolved_portfolio)
         if result:
             print("Execution completed successfully!")
-    except Exception as e:
-        print(f"Execution failed: {str(e)}")
-        raise
+        else:
+            sys.exit(1)

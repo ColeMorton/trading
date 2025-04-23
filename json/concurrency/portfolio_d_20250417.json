@@ -898,7 +898,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -1337,7 +1337,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -1776,7 +1776,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -2215,7 +2215,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -2654,7 +2654,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -2718,7 +2718,7 @@
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20192.664615007776,
+                    "value": 20271.77972578409,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -2858,7 +2858,7 @@
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 0.08331973851242594,
+                    "value": 0.07909184326701904,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -3093,7 +3093,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -3157,7 +3157,7 @@
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20193.706659737625,
+                    "value": 20271.77972578409,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -3297,7 +3297,7 @@
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 0.1492569948194941,
+                    "value": 0.14483084090135637,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -3536,7 +3536,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -3596,15 +3596,15 @@
                     "description": "Start Value from strategy analysis"
                 },
                 "End Value": {
-                    "value": 579773.6037663019,
+                    "value": 582004.0835705972,
                     "description": "End Value from strategy analysis"
                 },
                 "Total Return [%]": {
-                    "value": 57877.36037663019,
+                    "value": 58100.40835705972,
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20193.706659737625,
+                    "value": 20271.77972578409,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -3636,7 +3636,7 @@
                     "description": "Total Open Trades from strategy analysis"
                 },
                 "Open Trade PnL": {
-                    "value": 46462.00509782811,
+                    "value": 48692.484902123455,
                     "description": "Open Trade PnL from strategy analysis"
                 },
                 "Win Rate [%]": {
@@ -3676,31 +3676,31 @@
                     "description": "Expectancy from strategy analysis"
                 },
                 "Sharpe Ratio": {
-                    "value": 1.5046568663020117,
+                    "value": 1.505314395200162,
                     "description": "Sharpe Ratio from strategy analysis"
                 },
                 "Calmar Ratio": {
-                    "value": 1.3359983055512425,
+                    "value": 1.3370706504812548,
                     "description": "Calmar Ratio from strategy analysis"
                 },
                 "Omega Ratio": {
-                    "value": 1.3885523041246677,
+                    "value": 1.3887627403861256,
                     "description": "Omega Ratio from strategy analysis"
                 },
                 "Sortino Ratio": {
-                    "value": 2.454140851146126,
+                    "value": 2.45546999067335,
                     "description": "Sortino Ratio from strategy analysis"
                 },
                 "Skew": {
-                    "value": 0.9781093977464279,
+                    "value": 0.9784437814715772,
                     "description": "Skew from strategy analysis"
                 },
                 "Kurtosis": {
-                    "value": 12.060426437034863,
+                    "value": 12.056479092955245,
                     "description": "Kurtosis from strategy analysis"
                 },
                 "Tail Ratio": {
-                    "value": 1.3294649720342555,
+                    "value": 1.329666453561183,
                     "description": "Tail Ratio from strategy analysis"
                 },
                 "Common Sense Ratio": {
@@ -3724,27 +3724,27 @@
                     "description": "Beta from strategy analysis"
                 },
                 "Daily Returns": {
-                    "value": 0.0019459810068652439,
+                    "value": 0.0019470349318159018,
                     "description": "Daily Returns from strategy analysis"
                 },
                 "Annual Returns": {
-                    "value": 0.49038721373004146,
+                    "value": 0.49065280281760726,
                     "description": "Annual Returns from strategy analysis"
                 },
                 "Cumulative Returns": {
-                    "value": 578.7736037663026,
+                    "value": 581.0040835705978,
                     "description": "Cumulative Returns from strategy analysis"
                 },
                 "Annualized Return": {
-                    "value": 0.5131661774455216,
+                    "value": 0.5135444667555402,
                     "description": "Annualized Return from strategy analysis"
                 },
                 "Annualized Volatility": {
-                    "value": 0.39223634058933654,
+                    "value": 0.3922773484928703,
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 1.8661088007199063,
+                    "value": 1.8660733859080278,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -3979,7 +3979,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -4422,7 +4422,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -4482,15 +4482,15 @@
                     "description": "Start Value from strategy analysis"
                 },
                 "End Value": {
-                    "value": 271160.5161095861,
+                    "value": 272192.27744944557,
                     "description": "End Value from strategy analysis"
                 },
                 "Total Return [%]": {
-                    "value": 27016.051610958613,
+                    "value": 27119.227744944554,
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20193.706659737625,
+                    "value": 20270.92388248957,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -4522,7 +4522,7 @@
                     "description": "Total Open Trades from strategy analysis"
                 },
                 "Open Trade PnL": {
-                    "value": 22384.530032622657,
+                    "value": 23416.291372482112,
                     "description": "Open Trade PnL from strategy analysis"
                 },
                 "Win Rate [%]": {
@@ -4562,31 +4562,31 @@
                     "description": "Expectancy from strategy analysis"
                 },
                 "Sharpe Ratio": {
-                    "value": 1.3341034195501782,
+                    "value": 1.3347609136385457,
                     "description": "Sharpe Ratio from strategy analysis"
                 },
                 "Calmar Ratio": {
-                    "value": 1.187478596150166,
+                    "value": 1.1885149551447574,
                     "description": "Calmar Ratio from strategy analysis"
                 },
                 "Omega Ratio": {
-                    "value": 1.3349398263877947,
+                    "value": 1.3351383365268832,
                     "description": "Omega Ratio from strategy analysis"
                 },
                 "Sortino Ratio": {
-                    "value": 2.250602103255365,
+                    "value": 2.25193597668979,
                     "description": "Sortino Ratio from strategy analysis"
                 },
                 "Skew": {
-                    "value": 1.4354001093812712,
+                    "value": 1.435568410126827,
                     "description": "Skew from strategy analysis"
                 },
                 "Kurtosis": {
-                    "value": 13.133916091545721,
+                    "value": 13.129563924398354,
                     "description": "Kurtosis from strategy analysis"
                 },
                 "Tail Ratio": {
-                    "value": 1.768795269963829,
+                    "value": 1.7690582958981211,
                     "description": "Tail Ratio from strategy analysis"
                 },
                 "Common Sense Ratio": {
@@ -4610,27 +4610,27 @@
                     "description": "Beta from strategy analysis"
                 },
                 "Daily Returns": {
-                    "value": 0.0017587605909255817,
+                    "value": 0.001759802962665285,
                     "description": "Daily Returns from strategy analysis"
                 },
                 "Annual Returns": {
-                    "value": 0.4432076689132466,
+                    "value": 0.4434703465916518,
                     "description": "Annual Returns from strategy analysis"
                 },
                 "Cumulative Returns": {
-                    "value": 270.1605161095855,
+                    "value": 271.192277449445,
                     "description": "Cumulative Returns from strategy analysis"
                 },
                 "Annualized Return": {
-                    "value": 0.4401300813570823,
+                    "value": 0.4404861720662727,
                     "description": "Annualized Return from strategy analysis"
                 },
                 "Annualized Volatility": {
-                    "value": 0.39981946248546296,
+                    "value": 0.39985936004416484,
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 0.3378451052190153,
+                    "value": 0.33783876364760496,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -4865,7 +4865,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -5304,7 +5304,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -5743,7 +5743,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -6182,7 +6182,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -6625,7 +6625,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -7072,7 +7072,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -7132,15 +7132,15 @@
                     "description": "Start Value from strategy analysis"
                 },
                 "End Value": {
-                    "value": 245680.9600264256,
+                    "value": 246626.13313551343,
                     "description": "End Value from strategy analysis"
                 },
                 "Total Return [%]": {
-                    "value": 24468.09600264256,
+                    "value": 24562.613313551345,
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20193.706659737625,
+                    "value": 20271.77972578409,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -7172,7 +7172,7 @@
                     "description": "Total Open Trades from strategy analysis"
                 },
                 "Open Trade PnL": {
-                    "value": 24676.04714707157,
+                    "value": 25621.220256159402,
                     "description": "Open Trade PnL from strategy analysis"
                 },
                 "Win Rate [%]": {
@@ -7212,31 +7212,31 @@
                     "description": "Expectancy from strategy analysis"
                 },
                 "Sharpe Ratio": {
-                    "value": 1.336219958721569,
+                    "value": 1.336895964676212,
                     "description": "Sharpe Ratio from strategy analysis"
                 },
                 "Calmar Ratio": {
-                    "value": 0.9601753417568198,
+                    "value": 0.9610341298314927,
                     "description": "Calmar Ratio from strategy analysis"
                 },
                 "Omega Ratio": {
-                    "value": 1.3301999266839108,
+                    "value": 1.330401823873739,
                     "description": "Omega Ratio from strategy analysis"
                 },
                 "Sortino Ratio": {
-                    "value": 2.105259969960402,
+                    "value": 2.1065472085011896,
                     "description": "Sortino Ratio from strategy analysis"
                 },
                 "Skew": {
-                    "value": 0.7025153289047296,
+                    "value": 0.7029455335248466,
                     "description": "Skew from strategy analysis"
                 },
                 "Kurtosis": {
-                    "value": 11.366398426000002,
+                    "value": 11.362788941654244,
                     "description": "Kurtosis from strategy analysis"
                 },
                 "Tail Ratio": {
-                    "value": 1.2368945361431307,
+                    "value": 1.2370822714797154,
                     "description": "Tail Ratio from strategy analysis"
                 },
                 "Common Sense Ratio": {
@@ -7260,27 +7260,27 @@
                     "description": "Beta from strategy analysis"
                 },
                 "Daily Returns": {
-                    "value": 0.0017236789760859796,
+                    "value": 0.0017247329010366375,
                     "description": "Daily Returns from strategy analysis"
                 },
                 "Annual Returns": {
-                    "value": 0.43436710197366685,
+                    "value": 0.43463269106123265,
                     "description": "Annual Returns from strategy analysis"
                 },
                 "Cumulative Returns": {
-                    "value": 244.68096002642608,
+                    "value": 245.62613313551392,
                     "description": "Cumulative Returns from strategy analysis"
                 },
                 "Annualized Return": {
-                    "value": 0.4309085803866959,
+                    "value": 0.4312663054189114,
                     "description": "Annualized Return from strategy analysis"
                 },
                 "Annualized Volatility": {
-                    "value": 0.39122367895626253,
+                    "value": 0.3912649439321837,
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 0.21166937872912886,
+                    "value": 0.21166536169045166,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -7519,7 +7519,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -7962,7 +7962,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -8026,7 +8026,7 @@
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20193.706659737625,
+                    "value": 20271.77972578409,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -8166,7 +8166,7 @@
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 1.9032004797593416,
+                    "value": 1.8920193320817114,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -8405,7 +8405,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -8848,7 +8848,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -8912,7 +8912,7 @@
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20193.706659737625,
+                    "value": 20271.77972578409,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -9052,7 +9052,7 @@
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 0.44786272896142376,
+                    "value": 0.4422865494649268,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -9287,7 +9287,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -9730,7 +9730,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -10173,7 +10173,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -10612,7 +10612,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -10676,7 +10676,7 @@
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20193.706659737625,
+                    "value": 20270.92388248957,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -10816,7 +10816,7 @@
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 1.1971366629460052,
+                    "value": 1.1887671977897711,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -11051,7 +11051,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -11107,15 +11107,15 @@
                     "description": "Start Value from strategy analysis"
                 },
                 "End Value": {
-                    "value": 527316.4295376043,
+                    "value": 529345.0983816431,
                     "description": "End Value from strategy analysis"
                 },
                 "Total Return [%]": {
-                    "value": 52631.642953760434,
+                    "value": 52834.50983816431,
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20193.706659737625,
+                    "value": 20271.77972578409,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -11147,7 +11147,7 @@
                     "description": "Total Open Trades from strategy analysis"
                 },
                 "Open Trade PnL": {
-                    "value": 43530.41741855041,
+                    "value": 45559.086262589146,
                     "description": "Open Trade PnL from strategy analysis"
                 },
                 "Win Rate [%]": {
@@ -11187,31 +11187,31 @@
                     "description": "Expectancy from strategy analysis"
                 },
                 "Sharpe Ratio": {
-                    "value": 1.448184732559574,
+                    "value": 1.4488279839841827,
                     "description": "Sharpe Ratio from strategy analysis"
                 },
                 "Calmar Ratio": {
-                    "value": 1.4171368737833134,
+                    "value": 1.4182869118040986,
                     "description": "Calmar Ratio from strategy analysis"
                 },
                 "Omega Ratio": {
-                    "value": 1.3546418598883152,
+                    "value": 1.3548336404123946,
                     "description": "Omega Ratio from strategy analysis"
                 },
                 "Sortino Ratio": {
-                    "value": 2.25220002965153,
+                    "value": 2.253417957231071,
                     "description": "Sortino Ratio from strategy analysis"
                 },
                 "Skew": {
-                    "value": 0.4910470188669674,
+                    "value": 0.49146436035719626,
                     "description": "Skew from strategy analysis"
                 },
                 "Kurtosis": {
-                    "value": 10.956309661910884,
+                    "value": 10.952986234646186,
                     "description": "Kurtosis from strategy analysis"
                 },
                 "Tail Ratio": {
-                    "value": 1.1701263442859324,
+                    "value": 1.170292002420522,
                     "description": "Tail Ratio from strategy analysis"
                 },
                 "Common Sense Ratio": {
@@ -11235,27 +11235,27 @@
                     "description": "Beta from strategy analysis"
                 },
                 "Daily Returns": {
-                    "value": 0.0019489252439917925,
+                    "value": 0.0019499791689424506,
                     "description": "Daily Returns from strategy analysis"
                 },
                 "Annual Returns": {
-                    "value": 0.4911291614859317,
+                    "value": 0.4913947505734976,
                     "description": "Annual Returns from strategy analysis"
                 },
                 "Cumulative Returns": {
-                    "value": 526.3164295376006,
+                    "value": 528.3450983816392,
                     "description": "Cumulative Returns from strategy analysis"
                 },
                 "Annualized Return": {
-                    "value": 0.5038529258474465,
+                    "value": 0.5042288868583176,
                     "description": "Annualized Return from strategy analysis"
                 },
                 "Annualized Volatility": {
-                    "value": 0.4081482314059825,
+                    "value": 0.4081876388343915,
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 1.6063388876841431,
+                    "value": 1.6063084027577026,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -11490,7 +11490,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -11546,15 +11546,15 @@
                     "description": "Start Value from strategy analysis"
                 },
                 "End Value": {
-                    "value": 794215.0991606597,
+                    "value": 797237.0746554822,
                     "description": "End Value from strategy analysis"
                 },
                 "Total Return [%]": {
-                    "value": 79321.50991606597,
+                    "value": 79623.70746554821,
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20193.706659737625,
+                    "value": 20270.92388248957,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -11586,7 +11586,7 @@
                     "description": "Total Open Trades from strategy analysis"
                 },
                 "Open Trade PnL": {
-                    "value": 70810.7314361739,
+                    "value": 73832.70693099638,
                     "description": "Open Trade PnL from strategy analysis"
                 },
                 "Win Rate [%]": {
@@ -11626,31 +11626,31 @@
                     "description": "Expectancy from strategy analysis"
                 },
                 "Sharpe Ratio": {
-                    "value": 1.5094602897745046,
+                    "value": 1.510082827563656,
                     "description": "Sharpe Ratio from strategy analysis"
                 },
                 "Calmar Ratio": {
-                    "value": 1.6358044890021752,
+                    "value": 1.6370585009387277,
                     "description": "Calmar Ratio from strategy analysis"
                 },
                 "Omega Ratio": {
-                    "value": 1.3733354860229694,
+                    "value": 1.3735238675033608,
                     "description": "Omega Ratio from strategy analysis"
                 },
                 "Sortino Ratio": {
-                    "value": 2.364204821456674,
+                    "value": 2.3653977763749396,
                     "description": "Sortino Ratio from strategy analysis"
                 },
                 "Skew": {
-                    "value": 0.536254694596075,
+                    "value": 0.5366258470525,
                     "description": "Skew from strategy analysis"
                 },
                 "Kurtosis": {
-                    "value": 10.681050517710897,
+                    "value": 10.677895272846715,
                     "description": "Kurtosis from strategy analysis"
                 },
                 "Tail Ratio": {
-                    "value": 1.173641295453302,
+                    "value": 1.1738022847286362,
                     "description": "Tail Ratio from strategy analysis"
                 },
                 "Common Sense Ratio": {
@@ -11674,27 +11674,27 @@
                     "description": "Beta from strategy analysis"
                 },
                 "Daily Returns": {
-                    "value": 0.002065778224326196,
+                    "value": 0.002066820596065899,
                     "description": "Daily Returns from strategy analysis"
                 },
                 "Annual Returns": {
-                    "value": 0.5205761125302014,
+                    "value": 0.5208387902086066,
                     "description": "Annual Returns from strategy analysis"
                 },
                 "Cumulative Returns": {
-                    "value": 793.2150991606557,
+                    "value": 796.2370746554781,
                     "description": "Cumulative Returns from strategy analysis"
                 },
                 "Annualized Return": {
-                    "value": 0.5444875067316115,
+                    "value": 0.5448694011581827,
                     "description": "Annualized Return from strategy analysis"
                 },
                 "Annualized Volatility": {
-                    "value": 0.4150579201421266,
+                    "value": 0.41509615870354205,
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 2.928031205594258,
+                    "value": 2.9279762445523643,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {
@@ -11929,7 +11929,7 @@
                     "description": "USE_RSI metric from portfolio data"
                 },
                 "BASE_DIR": {
-                    "value": ".",
+                    "value": "/Users/colemorton/Projects/trading",
                     "description": "BASE_DIR metric from portfolio data"
                 },
                 "REFRESH": {
@@ -11985,15 +11985,15 @@
                     "description": "Start Value from strategy analysis"
                 },
                 "End Value": {
-                    "value": 662159.1776063426,
+                    "value": 664678.6824741208,
                     "description": "End Value from strategy analysis"
                 },
                 "Total Return [%]": {
-                    "value": 66115.91776063426,
+                    "value": 66367.86824741207,
                     "description": "Total Return [%] from strategy analysis"
                 },
                 "Benchmark Return [%]": {
-                    "value": 20193.706659737625,
+                    "value": 20270.92388248957,
                     "description": "Benchmark Return [%] from strategy analysis"
                 },
                 "Max Gross Exposure [%]": {
@@ -12025,7 +12025,7 @@
                     "description": "Total Open Trades from strategy analysis"
                 },
                 "Open Trade PnL": {
-                    "value": 55859.206782936,
+                    "value": 58378.71165071416,
                     "description": "Open Trade PnL from strategy analysis"
                 },
                 "Win Rate [%]": {
@@ -12065,31 +12065,31 @@
                     "description": "Expectancy from strategy analysis"
                 },
                 "Sharpe Ratio": {
-                    "value": 1.4783980687635934,
+                    "value": 1.4790249362227375,
                     "description": "Sharpe Ratio from strategy analysis"
                 },
                 "Calmar Ratio": {
-                    "value": 1.4224072352359403,
+                    "value": 1.4235195949540624,
                     "description": "Calmar Ratio from strategy analysis"
                 },
                 "Omega Ratio": {
-                    "value": 1.363032583599024,
+                    "value": 1.3632202196803258,
                     "description": "Omega Ratio from strategy analysis"
                 },
                 "Sortino Ratio": {
-                    "value": 2.305300663479825,
+                    "value": 2.306492175212546,
                     "description": "Sortino Ratio from strategy analysis"
                 },
                 "Skew": {
-                    "value": 0.5058144237741762,
+                    "value": 0.5061998445953646,
                     "description": "Skew from strategy analysis"
                 },
                 "Kurtosis": {
-                    "value": 10.803037141734183,
+                    "value": 10.799834945880109,
                     "description": "Kurtosis from strategy analysis"
                 },
                 "Tail Ratio": {
-                    "value": 1.1820585094741118,
+                    "value": 1.1822212325294932,
                     "description": "Tail Ratio from strategy analysis"
                 },
                 "Common Sense Ratio": {
@@ -12113,27 +12113,27 @@
                     "description": "Beta from strategy analysis"
                 },
                 "Daily Returns": {
-                    "value": 0.002016749140726509,
+                    "value": 0.002017791512466212,
                     "description": "Daily Returns from strategy analysis"
                 },
                 "Annual Returns": {
-                    "value": 0.5082207834630803,
+                    "value": 0.5084834611414855,
                     "description": "Annual Returns from strategy analysis"
                 },
                 "Cumulative Returns": {
-                    "value": 661.1591776063395,
+                    "value": 663.6786824741176,
                     "description": "Cumulative Returns from strategy analysis"
                 },
                 "Annualized Return": {
-                    "value": 0.5263113089395863,
+                    "value": 0.526688709067173,
                     "description": "Annualized Return from strategy analysis"
                 },
                 "Annualized Volatility": {
-                    "value": 0.4137206483829299,
+                    "value": 0.41375904166612193,
                     "description": "Annualized Volatility from strategy analysis"
                 },
                 "Beats BNH [%]": {
-                    "value": 2.274085281849553,
+                    "value": 2.2740425957961374,
                     "description": "Beats BNH [%] from strategy analysis"
                 },
                 "Total Period": {

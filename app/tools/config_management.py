@@ -583,3 +583,74 @@ def list_presets(config_name: str) -> List[Dict[str, Any]]:
     """
     manager = get_config_manager()
     return manager.list_presets(config_name)
+
+
+# Simple utility functions for direct use without ConfigManager
+
+def normalize_config(config: Dict[str, Any]) -> Dict[str, Any]:
+    """Normalize configuration by ensuring standard fields are present.
+    
+    Args:
+        config: Configuration dictionary
+        
+    Returns:
+        Normalized configuration dictionary
+    """
+    normalized = config.copy()
+    
+    # Ensure BASE_DIR is absolute
+    if "BASE_DIR" in normalized and not os.path.isabs(normalized["BASE_DIR"]):
+        normalized["BASE_DIR"] = os.path.abspath(normalized["BASE_DIR"])
+    
+    return normalized
+
+
+def merge_configs(base_config: Dict[str, Any], overrides: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Merge a base configuration with overrides.
+    
+    Args:
+        base_config: Base configuration dictionary
+        overrides: Optional overrides to apply
+        
+    Returns:
+        Merged configuration dictionary
+    """
+    if not overrides:
+        return base_config.copy()
+        
+    result = base_config.copy()
+    
+    for key, value in overrides.items():
+        if isinstance(value, dict) and key in result and isinstance(result[key], dict):
+            # Merge dictionaries for nested configs
+            result[key].update(value)
+        else:
+            # Replace value for simple configs
+            result[key] = value
+            
+    return result
+
+
+def resolve_portfolio_filename(portfolio_name: str) -> str:
+    """Resolve portfolio filename by adding extension if needed.
+    
+    Args:
+        portfolio_name: Portfolio name (with or without extension)
+        
+    Returns:
+        Portfolio name with extension
+    """
+    if portfolio_name.endswith('.json') or portfolio_name.endswith('.csv'):
+        return portfolio_name
+        
+    # Try to determine the extension
+    csv_path = Path(f"csv/strategies/{portfolio_name}.csv")
+    json_path = Path(f"json/portfolios/{portfolio_name}.json")
+    
+    if csv_path.exists():
+        return f"{portfolio_name}.csv"
+    elif json_path.exists():
+        return f"{portfolio_name}.json"
+    else:
+        # Default to CSV if we can't determine
+        return f"{portfolio_name}.csv"

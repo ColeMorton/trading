@@ -14,7 +14,7 @@ Configuration Options:
       Note: JSON files specify timeframes individually per strategy
 """
 
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from pathlib import Path
 import sys
 import logging
@@ -35,6 +35,11 @@ from app.tools.exceptions import (
 )
 from app.tools.portfolio import (
     portfolio_context         # Using context manager
+)
+from app.tools.config_management import (
+    normalize_config,
+    merge_configs,
+    resolve_portfolio_filename
 )
 
 # Default configuration
@@ -93,6 +98,9 @@ def run_analysis(config: Dict[str, Any]) -> bool:
         PortfolioLoadError: If the portfolio cannot be loaded
         TradingSystemError: For other unexpected errors
     """
+    # Ensure configuration is normalized
+    config = normalize_config(config)
+    
     # Get log subdirectory from BASE_DIR if specified
     log_subdir = None
     if config["BASE_DIR"] != './logs':
@@ -144,7 +152,7 @@ def run_analysis(config: Dict[str, Any]) -> bool:
                 log("Concurrency analysis failed", "error")
                 return False
 
-def run_concurrency_review(portfolio_name: str, config_overrides: Dict[str, Any] = None) -> bool:
+def run_concurrency_review(portfolio_name: str, config_overrides: Optional[Dict[str, Any]] = None) -> bool:
     """Run concurrency review with a specific portfolio file and configuration overrides.
     
     Args:
@@ -157,31 +165,18 @@ def run_concurrency_review(portfolio_name: str, config_overrides: Dict[str, Any]
     # Create a copy of the default config
     config = DEFAULT_CONFIG.copy()
     
-    # Set the portfolio name
-    if not portfolio_name.endswith('.json') and not portfolio_name.endswith('.csv'):
-        # Try to determine the extension
-        csv_path = Path(f"csv/strategies/{portfolio_name}.csv")
-        json_path = Path(f"json/portfolios/{portfolio_name}.json")
-        
-        if csv_path.exists():
-            portfolio_name = f"{portfolio_name}.csv"
-        elif json_path.exists():
-            portfolio_name = f"{portfolio_name}.json"
-        else:
-            # Default to CSV if we can't determine
-            portfolio_name = f"{portfolio_name}.csv"
+    # Resolve portfolio filename with extension
+    resolved_portfolio_name = resolve_portfolio_filename(portfolio_name)
     
-    config["PORTFOLIO"] = portfolio_name
+    # Set the portfolio name in the config
+    config["PORTFOLIO"] = resolved_portfolio_name
     
-    # Apply any config overrides
+    # Merge with any config overrides
     if config_overrides:
-        for key, value in config_overrides.items():
-            if isinstance(value, dict) and key in config and isinstance(config[key], dict):
-                # Merge dictionaries for nested configs
-                config[key].update(value)
-            else:
-                # Replace value for simple configs
-                config[key] = value
+        config = merge_configs(config, config_overrides)
+    
+    # Normalize the configuration (ensure BASE_DIR is absolute, etc.)
+    config = normalize_config(config)
     
     # Run the analysis
     return run_analysis(config)
@@ -192,6 +187,8 @@ if __name__ == "__main__":
         lambda msg, level='info': print(f"[{level.upper()}] {msg}"),
         reraise=False
     ):
-        success = run_analysis(DEFAULT_CONFIG)
+        # Create a normalized copy of the default config
+        config = normalize_config(DEFAULT_CONFIG.copy())
+        success = run_analysis(config)
         if not success:
             sys.exit(1)

@@ -28,26 +28,31 @@ from app.tools.exceptions import (
     TradingSystemError
 )
 from app.tools.portfolio import portfolio_context
+from app.tools.config_management import (
+    normalize_config,
+    merge_configs,
+    resolve_portfolio_filename
+)
 
 CONFIG: Config = {
     # "TICKER": [
     #     "SPY",
     #     "QQQ"
     # ],
-    "TICKER": [
-        "SPY",
-        "QQQ",
-        "BTC-USD",
-        "SOL-USD",
-        "RUNE-USD",
-        "PENDLE-USD",
-        "MSTY",
-        "STRK",
-        "CRWD",
-        "LYV",
-        "TLT",
-        "EDV"
-    ],
+    # "TICKER": [
+    #     "SPY",
+    #     "QQQ",
+    #     "BTC-USD",
+    #     "SOL-USD",
+    #     "RUNE-USD",
+    #     "PENDLE-USD",
+    #     "MSTY",
+    #     "STRK",
+    #     "CRWD",
+    #     "LYV",
+    #     "TLT",
+    #     "EDV"
+    # ],
     # "TICKER": [
     #     "SOL-USD",
     #     "BNB-USD",
@@ -105,9 +110,9 @@ CONFIG: Config = {
     # ],
     # "TICKER": [
     #     "ULTA",
-    #     "K"
+    #     "NFLX"
     # ],
-    # "TICKER": 'HG=F',
+    "TICKER": 'ULTA',
     # "TICKER_2": 'GOLD',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -323,9 +328,8 @@ def run(config: Config = CONFIG) -> bool:
         with error_context("Initializing configuration", log, {Exception: ConfigurationError}):
             config = get_config(config)
             
-            # Ensure BASE_DIR is absolute
-            if not os.path.isabs(config["BASE_DIR"]):
-                config["BASE_DIR"] = os.path.abspath(config["BASE_DIR"])
+            # Normalize the configuration (ensures BASE_DIR is absolute)
+            config = normalize_config(config)
         
         # Handle synthetic pair if enabled
         with error_context("Processing synthetic ticker configuration", log, {ValueError: SyntheticTickerError}):
@@ -378,8 +382,10 @@ def run_strategies() -> bool:
     ) as log:
         # Initialize config
         with error_context("Initializing configuration", log, {Exception: ConfigurationError}):
+            # Create a normalized copy of the default config
             config_copy = CONFIG.copy()
             config_copy["USE_MA"] = True  # Ensure USE_MA is set for proper filename suffix
+            config_copy = normalize_config(config_copy)
         
         # Process synthetic configuration
         with error_context("Processing synthetic configuration", log, {ValueError: SyntheticTickerError}):
