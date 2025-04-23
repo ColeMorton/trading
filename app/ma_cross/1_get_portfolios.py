@@ -33,6 +33,11 @@ from app.tools.config_management import (
     merge_configs,
     resolve_portfolio_filename
 )
+from app.tools.synthetic_ticker import (
+    process_synthetic_config,
+    detect_synthetic_ticker,
+    process_synthetic_ticker
+)
 
 CONFIG: Config = {
     # "TICKER": [
@@ -113,7 +118,7 @@ CONFIG: Config = {
     #     "NFLX"
     # ],
     "TICKER": 'ULTA',
-    # "TICKER_2": 'GOLD',
+    "TICKER_2": 'SPY',
     # "WINDOWS": 120,
     "WINDOWS": 89,
     # "WINDOWS": 55,
@@ -127,7 +132,7 @@ CONFIG: Config = {
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
-    "USE_SYNTHETIC": False,
+    "USE_SYNTHETIC": True,
     "USE_CURRENT": True,
     "MINIMUMS": {
         # "TRADES": 13,
@@ -147,39 +152,7 @@ CONFIG: Config = {
     "USE_GBM": False
 }
 
-def process_synthetic_config(config: Config, log) -> Config:
-    """Process synthetic ticker configuration.
-    
-    Args:
-        config: Configuration dictionary
-        log: Logging function
-        
-    Returns:
-        Updated configuration dictionary
-        
-    Raises:
-        SyntheticTickerError: If there's an issue with synthetic ticker processing
-    """
-    if config.get("USE_SYNTHETIC"):
-        if isinstance(config["TICKER"], list):
-            # Process multiple synthetic tickers
-            synthetic_tickers = [f"{ticker}_{config['TICKER_2']}" for ticker in config["TICKER"]]
-            log(f"Processing strategies for synthetic pairs: {synthetic_tickers}")
-            synthetic_config = {**config}
-            synthetic_config["TICKER"] = synthetic_tickers
-        elif isinstance(config["TICKER"], str):
-            # Process single synthetic ticker
-            synthetic_ticker = f"{config['TICKER']}_{config['TICKER_2']}"
-            log(f"Processing strategy for synthetic pair: {synthetic_ticker}")
-            synthetic_config = {**config}
-            synthetic_config["TICKER"] = synthetic_ticker
-        else:
-            raise ValueError("TICKER must be a string or a list when USE_SYNTHETIC is True")
-    else:
-        log(f"Processing strategy for ticker: {config['TICKER']}")
-        synthetic_config = config
-    
-    return synthetic_config
+# Using the standardized synthetic_ticker module instead of local implementation
 
 def get_strategy_types(config: Config, log) -> List[str]:
     """Get strategy types from config with defaults.
@@ -219,41 +192,7 @@ def filter_portfolios(portfolios: List[Dict[str, Any]], config: Config, log) -> 
         return filtered
     return portfolios
 
-def process_synthetic_config_for_strategies(config: Config, log) -> Config:
-    """Process synthetic ticker configuration for strategies.
-    
-    Args:
-        config: Configuration dictionary
-        log: Logging function
-        
-    Returns:
-        Updated configuration dictionary
-        
-    Raises:
-        SyntheticTickerError: If there's an issue with synthetic ticker processing
-    """
-    if config.get("USE_SYNTHETIC"):
-        if isinstance(config["TICKER"], list):
-            original_tickers = config["TICKER"].copy()
-            synthetic_tickers = [f"{ticker}_{config['TICKER_2']}" for ticker in original_tickers]
-            log(f"Processing strategies for synthetic pairs: {synthetic_tickers}")
-            base_config = {**config}
-            base_config["TICKER"] = synthetic_tickers
-            base_config["ORIGINAL_TICKERS"] = original_tickers
-        elif isinstance(config["TICKER"], str):
-            original_ticker = config["TICKER"]
-            synthetic_ticker = f"{original_ticker}_{config['TICKER_2']}"
-            log(f"Processing strategies for synthetic pair: {synthetic_ticker}")
-            base_config = {**config}
-            base_config["TICKER"] = synthetic_ticker
-            base_config["ORIGINAL_TICKERS"] = [original_ticker]
-        else:
-            raise ValueError("TICKER must be a string or a list when USE_SYNTHETIC is True")
-    else:
-        log(f"Processing strategies for ticker: {config['TICKER']}")
-        base_config = config
-    
-    return base_config
+# Using the standardized synthetic_ticker module instead of local implementation
 
 def execute_all_strategies(config: Config, log) -> List[Dict[str, Any]]:
     """Execute all strategies and collect results.
@@ -389,7 +328,7 @@ def run_strategies() -> bool:
         
         # Process synthetic configuration
         with error_context("Processing synthetic configuration", log, {ValueError: SyntheticTickerError}):
-            base_config = process_synthetic_config_for_strategies(config_copy, log)
+            base_config = process_synthetic_config(config_copy, log)
         
         # Execute strategies
         with error_context("Executing strategies", log, {Exception: StrategyProcessingError}):

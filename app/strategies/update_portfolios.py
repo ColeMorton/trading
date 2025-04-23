@@ -36,10 +36,15 @@ from app.tools.config_management import (
     merge_configs,
     resolve_portfolio_filename
 )
+from app.tools.synthetic_ticker import (
+    detect_synthetic_ticker,
+    process_synthetic_ticker,
+    process_synthetic_config
+)
 
 # Default Configuration
 config = {
-    # "PORTFOLIO": 'BTC-USD_SPY_d.csv',
+    "PORTFOLIO": 'BTC-USD_SPY_d.csv',
     # "PORTFOLIO": 'total_d_20250328.csv',
     # "PORTFOLIO": 'crypto_d_20250421.csv',
     # "PORTFOLIO": 'DAILY_crypto.csv',
@@ -47,7 +52,7 @@ config = {
     # "PORTFOLIO": 'DAILY_test.csv',
     # "PORTFOLIO": 'crypto_h.csv',
     # "PORTFOLIO": 'DAILY_crypto_short.csv',
-    "PORTFOLIO": 'Indices_d.csv',
+    # "PORTFOLIO": 'Indices_d.csv',
     # "PORTFOLIO": 'stock_trades_20250422.csv',
     # "PORTFOLIO": 'portfolio_d_20250417.csv',
     # "PORTFOLIO": 'BTC_MSTR_d_20250409.csv',
@@ -140,17 +145,16 @@ def run(portfolio: str) -> bool:
                 {ValueError: SyntheticTickerError},
                 reraise=False
             ):
-                if '_' in ticker:
-                    ticker_parts = ticker.split('_')
-                    if len(ticker_parts) == 2:
-                        ticker1, ticker2 = ticker_parts
+                if detect_synthetic_ticker(ticker):
+                    try:
+                        ticker1, ticker2 = process_synthetic_ticker(ticker)
                         # Update config for synthetic ticker processing
                         strategy_config["USE_SYNTHETIC"] = True
                         strategy_config["TICKER_1"] = ticker1
                         strategy_config["TICKER_2"] = ticker2
                         log(f"Detected synthetic ticker: {ticker} (components: {ticker1}, {ticker2})")
-                    else:
-                        log(f"Invalid synthetic ticker format: {ticker}", "warning")
+                    except SyntheticTickerError as e:
+                        log(f"Invalid synthetic ticker format: {ticker} - {str(e)}", "warning")
             
             # Process the ticker portfolio
             with error_context(

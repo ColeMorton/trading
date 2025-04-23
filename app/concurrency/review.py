@@ -31,6 +31,7 @@ from app.tools.error_decorators import handle_errors
 from app.tools.exceptions import (
     ConfigurationError as SystemConfigurationError,
     PortfolioLoadError,
+    SyntheticTickerError,
     TradingSystemError
 )
 from app.tools.portfolio import (
@@ -40,6 +41,11 @@ from app.tools.config_management import (
     normalize_config,
     merge_configs,
     resolve_portfolio_filename
+)
+from app.tools.synthetic_ticker import (
+    detect_synthetic_ticker,
+    process_synthetic_ticker,
+    process_synthetic_config
 )
 
 # Default configuration
