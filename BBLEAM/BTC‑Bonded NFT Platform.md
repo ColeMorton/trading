@@ -1,10 +1,11 @@
 # BTC‑Bonded NFT Platform: Minting Reality
+### Cultural assets backed by Bitcoin
 
-### Concept Overview
+## Concept Overview
 
 We’re building a decentralized platform that fuses Bitcoin’s economic foundation with the cultural and social fabric of real-life events. This is more than an NFT marketplace — it’s a living, breathing network of Bitcoin-bonded experiences, where people gather, create, and collect through shared moments.
 
-### The Real-World Experience
+## The Real-World Experience
 
 On privately owned land, immersive events come alive — from artisan markets to speaker panels and street food festivals — powered by a seamless mobile app for scheduling, commerce, and engagement. This physical dimension grounds the digital ecosystem in real, memorable moments.
 
@@ -43,13 +44,15 @@ Before diving into redemption or borrowing, an owner must pledge their NFT to th
    - **All yield accrues** to the owner; no platform fees are taken.  
    - Passive defense of rarity: as yield accrues, the NFT’s intrinsic BTC-backed value grows, discouraging lower-rarity burns.  
    - Pledged NFTs loose their status of "Prestine" (native to un-pledged NFTs) which pertains to the digital appearence.
-   When a NFT is pledged it looses it's cosmetic lustre and sheen, and becomes noticably dull and worn.
+   When a NFT is pledged it looses it's cosmetic lustre and sheen, and becomes noticably dull and worn. This denotes a state
+   where the BTC has temporarily departed the confines of the NFT in search of utility and appreciation.
 
 > **Result:** Owner maintains NFT benefits plus liquidity, at the cost of temporarily restricted transferability.  
 
 ---
 
 ## 4. Redemption & Burn Mechanism  
+Post-event.
 
 ### 4.1 Owner-Initiated Burn (Standard Redemption)  
 - **Action:** Owner burns their pledged NFT on-chain.  
@@ -119,10 +122,12 @@ This extension cements BBLEAM’s dual promise:
 
 ---
 
-## 6. NFT Rarity & Ranking
-Percentile Rarity: Rarity tiers (Common, Rare, Epic, Legendary) are determined by the current bonded amount percentile within each collection.
-Leaderboard: Live ranking displays top bonders by region, event, and global.
-Dynamic Traits: NFTs display animated badges representing rarity tier.
+## 6. NFT Rarity
+Percentile Rarity: Rarity tiers (Common, Uncommon, Rare, Legendary) are determined by the current bonded amount percentile divided by the number of supply within each collection.
+For example (percentiles): bottom 50% = common, 51% to 80% = uncommon, 81% to 94% = rare, 95% to 100% legendary.  
+Dynamic Traits: NFTs display animated badges and enhanced details representing rarity tier.
+Prestine Quality: Un-pledged NFTs display lustre and sheen regardless of rarity, in honor of the prestine Bitcoin bond backing the NFT.
+Alchemists may grant special privileges to higher rarity NFT holders including enhanced access (front-row seats or premium areas) and exclusive interactions with talent/speakers such as on-stage demonstrations, healings etc.
 
 ---
 
@@ -199,8 +204,11 @@ This triad ensures that participants can express themselves individually, unite 
 ---
 
 ## 9. Mudras: Evolving Roles
-Mudras pertain to different roles on the platform.
-All forms of participation and actions on the platform, will stimulate Mudras to evolve in complexity over time, reflecting greater degress of access, agency, and reputation.
+Mudras represent reputation/trust and pertain to different roles on the platform.
+All forms of participation and actions on the platform, will stimulate that Mudra to evolve in complexity over time, reflecting greater degress of access, agency, and reputation.
+Mudras of higher trust gain higher trust and therefor, influence in their respective role. 
+Mudras experience theta decay meaning newer, more recent actions and participations outweigh the older.
+This creates a dynamic system that naturally adjusts to the level of participation in the platform over time. 
 
 ---
 
