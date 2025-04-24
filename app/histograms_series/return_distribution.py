@@ -9,35 +9,35 @@ from typing import TypedDict, NotRequired
 from app.tools.download_data import download_data
 from app.tools.setup_logging import setup_logging
 
-TICKER = 'SPY'
-INCLUDE_OPTION_STRATEGY = False
+TICKER = 'BTC-USD'
+INCLUDE_OPTION_STRATEGY = True
 
-# 02-05-25 @ 96000
-# DELTA = 0.12
-# DAYS_TO_EXPIRY = 10
-# STRIKE_DISTANCE = 9.95 # Percentage
+# 09-05-25 @ 100000 SOL-USD
+# DELTA = 0.39
+# DAYS_TO_EXPIRY = 9
+# STRIKE_DISTANCE = 4.86 # Percentage
 # Option Strategy Analysis:
-# Strike Distance: +9.95%
-# Days to Expiry: 10
-# Historical Probability of Exceeding Strike: 19.82%
-# Market-Implied Probability (Delta): 12.00%
-# Difference: -7.82%
+# Strike Distance: +8.00%
+# Days to Expiry: 16
+# Historical Probability of Exceeding Strike: 31.30%
+# Market-Implied Probability (Delta): 32.00%
+# Difference: 0.70%
 
-# 09-05-25 @ 100000
-# DELTA = 0.11
-# DAYS_TO_EXPIRY = 17
-# STRIKE_DISTANCE = 14.25 # Percentage
+# 09-05-25 @ 100000 BTC-USD
+DELTA = 0.26
+DAYS_TO_EXPIRY = 16
+STRIKE_DISTANCE = 7 # Percentage
 # Option Strategy Analysis:
-# Strike Distance: +14.25%
-# Days to Expiry: 17
-# Historical Probability of Exceeding Strike: 20.61%
-# Market-Implied Probability (Delta): 11.00%
-# Difference: -9.61%
+# Strike Distance: +8.00%
+# Days to Expiry: 16
+# Historical Probability of Exceeding Strike: 31.30%
+# Market-Implied Probability (Delta): 32.00%
+# Difference: 0.70%
 
-# 30-05-25 @ 106000
-DELTA = 0.14
-DAYS_TO_EXPIRY = 38
-STRIKE_DISTANCE = 21.11 # Percentage
+# 30-05-25 @ 106000 BTC-USD
+# DELTA = 0.14
+# DAYS_TO_EXPIRY = 38
+# STRIKE_DISTANCE = 21.11 # Percentage
 # Option Strategy Analysis:
 # Strike Distance: +21.11%
 # Days to Expiry: 38
