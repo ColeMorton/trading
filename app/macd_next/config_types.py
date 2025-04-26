@@ -47,7 +47,7 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": "STX4847-USD",
+    "TICKER": "AVGO",
     # "TICKER": "LYV",
     "BASE_DIR": ".",
     "USE_HOURLY": False,

@@ -125,7 +125,7 @@ CONFIG: Config = {
     #     "ULTA",
     #     "NFLX"
     # ],
-    "TICKER": 'ARM',
+    "TICKER": 'AVGO',
     # "TICKER_2": 'SPY',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -141,7 +141,7 @@ CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": True,
+    "USE_CURRENT": False,
     "MINIMUMS": {
         # "TRADES": 13,
         # "TRADES": 21,
