@@ -125,7 +125,7 @@ CONFIG: Config = {
     #     "ULTA",
     #     "NFLX"
     # ],
-    "TICKER": 'TSLA',
+    "TICKER": 'ARM',
     # "TICKER_2": 'SPY',
     # "WINDOWS": 120,
     "WINDOWS": 89,
