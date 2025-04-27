@@ -104,9 +104,9 @@ CONFIG: Config = {
     #     "ZEC-USD"
     # ],
     # "TICKER": [
-    #     "TRX-USD",
-    #     "MKR-USD",
-    #     "PENDLE-USD"
+    #     "AVAX-USD",
+    #     "SOL-USD",
+    #     "RUNE-USD"
     # ],
     # "TICKER": [
     #     "XLK",
@@ -125,7 +125,7 @@ CONFIG: Config = {
     #     "ULTA",
     #     "NFLX"
     # ],
-    "TICKER": 'AVGO',
+    "TICKER": 'INTC',
     # "TICKER_2": 'SPY',
     # "WINDOWS": 120,
     "WINDOWS": 89,

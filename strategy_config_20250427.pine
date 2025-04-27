@@ -1,0 +1,70 @@
+// Strategy configuration array - Auto-generated from CSV
+// Source: csv/strategies/BTC_d_20250427.csv
+// Generated: 2025-04-27 10:47:31
+// Total strategies: 11
+// Strategies for BTC-USD: 11
+
+var strategy_configs = array.new_string(0)
+
+array.push(strategy_configs, "BTC-USD,SMA,104,105,0")
+array.push(strategy_configs, "BTC-USD,MACD,14,23,13")
+array.push(strategy_configs, "BTC-USD,SMA,26,38,0")
+array.push(strategy_configs, "BTC-USD,SMA,27,29,0")
+array.push(strategy_configs, "BTC-USD,SMA,76,78,0")
+array.push(strategy_configs, "BTC-USD,SMA,11,36,0")
+array.push(strategy_configs, "BTC-USD,MACD,18,29,18")
+array.push(strategy_configs, "BTC-USD,SMA,8,44,0")
+array.push(strategy_configs, "BTC-USD,EMA,5,68,0")
+array.push(strategy_configs, "BTC-USD,SMA,3,47,0")
+array.push(strategy_configs, "BTC-USD,MACD,3,15,3")
+
+// ================ Ticker Selection ================
+
+// Ticker selection for filtering strategies
+tickerInput = input.string("BTC-USD", "Ticker for Strategies", options=['BTC-USD'])
+
+// ================ Dynamic Calculation Function ================
+
+// Dynamic strategy calculation function
+calculateBreadth() =>
+    int strategiesInPosition = 0
+    int totalApplicableStrategies = 0
+    
+    // Process each strategy from the configuration
+    int size = array.size(strategy_configs)
+    for i = 0 to size - 1
+        string config = array.get(strategy_configs, i)
+        string[] params = str.split(config, ",")
+        
+        // Extract ticker and parameters
+        string ticker = array.get(params, 0)
+        
+        // Skip if not matching the current ticker and not set to "ALL"
+        if ticker != tickerInput and ticker != "ALL" and tickerInput != "ALL"
+            continue
+            
+        totalApplicableStrategies += 1
+        string type = array.get(params, 1)
+        int shortWindow = int(str.tonumber(array.get(params, 2)))
+        int longWindow = int(str.tonumber(array.get(params, 3)))
+        int signalWindow = int(str.tonumber(array.get(params, 4)))
+        
+        // Check parameters
+        shortWindow := checkParameter(shortWindow, "Short Window")
+        longWindow := checkParameter(longWindow, "Long Window")
+        signalWindow := checkParameter(signalWindow, "Signal Window")
+        
+        // Process based on strategy type
+        bool isActive = false
+        if type == "SMA"
+            isActive := smaCrossSignal(shortWindow, longWindow)
+        else if type == "EMA"
+            isActive := emaCrossSignal(shortWindow, longWindow)
+        else if type == "MACD"
+            isActive := macdSignal(shortWindow, longWindow, signalWindow)
+            
+        if isActive
+            strategiesInPosition += 1
+    
+    // Return both the active strategies and the total applicable strategies
+    [strategiesInPosition, totalApplicableStrategies]
