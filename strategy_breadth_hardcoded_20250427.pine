@@ -1,3 +1,4 @@
+
 //@version=5
 indicator("BTC Strategy Breadth Oscillator", shorttitle="StgyBreadth", overlay=false)
 
@@ -7,9 +8,9 @@ indicator("BTC Strategy Breadth Oscillator", shorttitle="StgyBreadth", overlay=f
 // market sentiment based on multiple strategies simultaneously.
 
 // ================ Main Configuration ================
-var int totalStrategies = {{STRATEGY_COUNT}}  // Total number of strategies
+var int totalStrategies = 11  // Total number of strategies
 var float lowerBand = 0.0     // Minimum oscillator value
-var float upperBand = {{STRATEGY_COUNT}}.0    // Maximum oscillator value (total strategies)
+var float upperBand = 11.0    // Maximum oscillator value (total strategies)
 
 // Default Colors
 color bullColor = color.new(#26c6da, 0)
@@ -20,7 +21,7 @@ color neutralColor = color.new(#3179f5, 0)
 timeframeInput = input.timeframe("D", "Strategy Timeframe", options=["H", "D", "W", "M"])
 
 // Ticker selection for filtering strategies
-tickerInput = input.string("{{DEFAULT_TICKER}}", "Ticker for Strategies", options={{TICKER_OPTIONS}})
+tickerInput = input.string("BTC-USD", "Ticker for Strategies", options=['BTC-USD'])
 
 // ================ Strategy Functions ================
 
@@ -66,10 +67,10 @@ checkParameter(param, paramName) =>
 
 // ================ Strategy Configuration ================
 // Strategy configuration - Hardcoded directly in calculateBreadth() function
-// Source: {{CSV_PATH}}
-// Generated: {{GENERATION_DATE}}
-// Total strategies: {{STRATEGY_COUNT}}
-{{TICKER_COUNTS}}
+// Source: csv/strategies/BTC_d_20250427.csv
+// Generated: 2025-04-27 18:36:11
+// Total strategies: 11
+// Strategies for BTC-USD: 11
 
 // ================ Dynamic Strategy Processing ================
 calculateBreadth() =>
@@ -77,7 +78,62 @@ calculateBreadth() =>
     int totalApplicableStrategies = 0
     
     // Process each strategy directly with hardcoded parameters
-{{STRATEGY_BLOCKS}}
+
+    // Strategy 0: SMA(104, 105)
+    totalApplicableStrategies += 1
+    if smaCrossSignal(104, 105)
+        strategiesInPosition += 1
+
+    // Strategy 1: MACD(14, 23, 13)
+    totalApplicableStrategies += 1
+    if macdSignal(14, 23, 13)
+        strategiesInPosition += 1
+
+    // Strategy 2: SMA(26, 38)
+    totalApplicableStrategies += 1
+    if smaCrossSignal(26, 38)
+        strategiesInPosition += 1
+
+    // Strategy 3: SMA(27, 29)
+    totalApplicableStrategies += 1
+    if smaCrossSignal(27, 29)
+        strategiesInPosition += 1
+
+    // Strategy 4: SMA(76, 78)
+    totalApplicableStrategies += 1
+    if smaCrossSignal(76, 78)
+        strategiesInPosition += 1
+
+    // Strategy 5: SMA(11, 36)
+    totalApplicableStrategies += 1
+    if smaCrossSignal(11, 36)
+        strategiesInPosition += 1
+
+    // Strategy 6: MACD(18, 29, 18)
+    totalApplicableStrategies += 1
+    if macdSignal(18, 29, 18)
+        strategiesInPosition += 1
+
+    // Strategy 7: SMA(8, 44)
+    totalApplicableStrategies += 1
+    if smaCrossSignal(8, 44)
+        strategiesInPosition += 1
+
+    // Strategy 8: EMA(5, 68)
+    totalApplicableStrategies += 1
+    if emaCrossSignal(5, 68)
+        strategiesInPosition += 1
+
+    // Strategy 9: SMA(3, 47)
+    totalApplicableStrategies += 1
+    if smaCrossSignal(3, 47)
+        strategiesInPosition += 1
+
+    // Strategy 10: MACD(3, 15, 3)
+    totalApplicableStrategies += 1
+    if macdSignal(3, 15, 3)
+        strategiesInPosition += 1
+
     
     // Return both the active strategies and the total applicable strategies
     [strategiesInPosition, totalApplicableStrategies]
@@ -98,8 +154,8 @@ slowMA = ta.sma(strategiesActive, 20)
 fastMA = ta.sma(strategiesActive, 5)
 
 // Overbought/Oversold Thresholds
-overboughtThreshold = input.int(8, "Overbought Threshold", minval=1, maxval={{STRATEGY_COUNT}})
-oversoldThreshold = input.int(3, "Oversold Threshold", minval=0, maxval={{STRATEGY_COUNT_MINUS_1}})
+overboughtThreshold = input.int(8, "Overbought Threshold", minval=1, maxval=11)
+oversoldThreshold = input.int(3, "Oversold Threshold", minval=0, maxval=10)
 
 // ================ Visualization ================
 
@@ -118,7 +174,7 @@ plot(oversoldThreshold, "Oversold", color=color.new(#7e57c2, 40), linewidth=1)
 
 // Plot range bands
 hline(0, "Min", color=color.new(#787b86, 70), linestyle=hline.style_dotted)
-hline({{STRATEGY_COUNT}}, "Max", color=color.new(#787b86, 70), linestyle=hline.style_dotted)
+hline(11, "Max", color=color.new(#787b86, 70), linestyle=hline.style_dotted)
 
 // ================ Alerts ================
 // Create alerts for trading signals

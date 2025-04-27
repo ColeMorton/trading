@@ -280,7 +280,7 @@ if barstate.islast
     pine_script = pine_script.replace('{{STRATEGY_COUNT_MINUS_1}}', str(strategy_count - 1))
     pine_script = pine_script.replace('{{CSV_PATH}}', csv_path)
     pine_script = pine_script.replace('{{GENERATION_DATE}}', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    pine_script = pine_script.replace('{{DEFAULT_TICKER}}', ticker_options[0])
+    pine_script = pine_script.replace('{{DEFAULT_TICKER}}', ticker_options[0] if ticker_options else "BTC-USD")
     pine_script = pine_script.replace('{{TICKER_OPTIONS}}', str(ticker_options))
     pine_script = pine_script.replace('{{TICKER_COUNTS}}', '\n'.join(ticker_counts))
     

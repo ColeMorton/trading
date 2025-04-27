@@ -65,17 +65,11 @@ checkParameter(param, paramName) =>
         param
 
 // ================ Strategy Configuration ================
-// Strategy configuration array - Auto-generated from CSV
 // Strategy configuration - Hardcoded directly in calculateBreadth() function
 // Source: csv/strategies/BTC_d_20250427.csv
-// Generated: 2025-04-27 18:11:35
+// Generated: 2025-04-27 18:36:00
 // Total strategies: 11
 // Strategies for BTC-USD: 11
-
-
-// Strategy configuration - Hardcoded directly in calculateBreadth() function
-// Total strategies: 11
-// All strategies are for BTC-USD
 
 // ================ Dynamic Strategy Processing ================
 calculateBreadth() =>
@@ -138,7 +132,8 @@ calculateBreadth() =>
     totalApplicableStrategies += 1
     if macdSignal(3, 15, 3)
         strategiesInPosition += 1
-// Return both the active strategies and the total applicable strategies
+    
+    // Return both the active strategies and the total applicable strategies
     [strategiesInPosition, totalApplicableStrategies]
 
 // Request data using the specified timeframe

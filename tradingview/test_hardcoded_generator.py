@@ -71,9 +71,9 @@ def main():
     
     # Test 5: Try with a multi-asset CSV file if available
     multi_asset_files = [
-        "csv/strategies/MULTI_ASSET.csv",
-        "csv/strategies/ALL_ASSETS.csv",
-        "csv/strategies/crypto_d_20250427.csv"
+        "csv/strategies/crypto_d_20250427.csv",
+        "csv/strategies/portfolio_d_20250425.csv",
+        "csv/strategies/total_20250417.csv"
     ]
     
     for file_path in multi_asset_files:

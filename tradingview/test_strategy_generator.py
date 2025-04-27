@@ -56,21 +56,21 @@ def main():
     run_generator("csv/strategies/BTC_d_20250427.csv", "BTC-USD")
     
     # Test 3: Try with a different CSV file if available
-    if os.path.exists("csv/strategies/DAILY.csv"):
-        run_generator("csv/strategies/DAILY.csv")
+    if os.path.exists("csv/strategies/MSTR_d_20250415.csv"):
+        run_generator("csv/strategies/MSTR_d_20250415.csv")
     
     # Test 4: Try with a multi-asset CSV file if available
     multi_asset_files = [
-        "csv/strategies/MULTI_ASSET.csv",
-        "csv/strategies/ALL_ASSETS.csv",
-        "csv/strategies/CRYPTO_ASSETS.csv"
+        "csv/strategies/AVGO_d_20250427.csv",
+        "csv/strategies/BKNG_d_20250414.csv",
+        "csv/strategies/COIN_d_20250414.csv"
     ]
     
     for file_path in multi_asset_files:
         if os.path.exists(file_path):
             run_generator(file_path)
             # Also test with a specific ticker filter
-            run_generator(file_path, "ETH-USD")
+            run_generator(file_path, "MSTR")
             break
     
     print("\nTests completed!")
