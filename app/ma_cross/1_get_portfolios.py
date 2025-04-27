@@ -125,7 +125,7 @@ CONFIG: Config = {
     #     "ULTA",
     #     "NFLX"
     # ],
-    "TICKER": 'INTC',
+    "TICKER": 'HIMS',
     # "TICKER_2": 'SPY',
     # "WINDOWS": 120,
     "WINDOWS": 89,
