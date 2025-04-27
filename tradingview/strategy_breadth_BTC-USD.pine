@@ -1,3 +1,4 @@
+
 //@version=5
 indicator("BTC Strategy Breadth Oscillator", shorttitle="StgyBreadth", overlay=false)
 
@@ -7,7 +8,7 @@ indicator("BTC Strategy Breadth Oscillator", shorttitle="StgyBreadth", overlay=f
 // market sentiment based on multiple strategies simultaneously.
 
 // ================ Main Configuration ================
-var int totalStrategies = 11  // This will be dynamically updated based on applicable strategies
+var int totalStrategies = 11  // Total number of strategies
 var float lowerBand = 0.0     // Minimum oscillator value
 var float upperBand = 11.0    // Maximum oscillator value (total strategies)
 
@@ -20,7 +21,7 @@ color neutralColor = color.new(#3179f5, 0)
 timeframeInput = input.timeframe("D", "Strategy Timeframe", options=["H", "D", "W", "M"])
 
 // Ticker selection for filtering strategies
-tickerInput = input.string("BTC-USD", "Ticker for Strategies", options=["BTC-USD"])
+tickerInput = input.string("BTC-USD", "Ticker for Strategies", options=['BTC-USD'])
 
 // ================ Strategy Functions ================
 
@@ -65,17 +66,11 @@ checkParameter(param, paramName) =>
         param
 
 // ================ Strategy Configuration ================
-// Strategy configuration array - Auto-generated from CSV
 // Strategy configuration - Hardcoded directly in calculateBreadth() function
 // Source: csv/strategies/BTC_d_20250427.csv
-// Generated: 2025-04-27 18:11:35
+// Generated: 2025-04-27 18:05:29
 // Total strategies: 11
-// Strategies for BTC-USD: 11
-
-
-// Strategy configuration - Hardcoded directly in calculateBreadth() function
-// Total strategies: 11
-// All strategies are for BTC-USD
+// Filtered for ticker: BTC-USD
 
 // ================ Dynamic Strategy Processing ================
 calculateBreadth() =>
@@ -138,7 +133,9 @@ calculateBreadth() =>
     totalApplicableStrategies += 1
     if macdSignal(3, 15, 3)
         strategiesInPosition += 1
-// Return both the active strategies and the total applicable strategies
+
+    
+    // Return both the active strategies and the total applicable strategies
     [strategiesInPosition, totalApplicableStrategies]
 
 // Request data using the specified timeframe

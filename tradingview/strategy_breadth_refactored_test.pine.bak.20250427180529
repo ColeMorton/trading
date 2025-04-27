@@ -66,12 +66,10 @@ checkParameter(param, paramName) =>
 
 // ================ Strategy Configuration ================
 // Strategy configuration array - Auto-generated from CSV
-// Strategy configuration - Hardcoded directly in calculateBreadth() function
 // Source: csv/strategies/BTC_d_20250427.csv
-// Generated: 2025-04-27 18:11:35
+// Generated: 2025-04-27 09:48:26
 // Total strategies: 11
 // Strategies for BTC-USD: 11
-
 
 // Strategy configuration - Hardcoded directly in calculateBreadth() function
 // Total strategies: 11
@@ -83,62 +81,63 @@ calculateBreadth() =>
     int totalApplicableStrategies = 0
     
     // Process each strategy directly with hardcoded parameters
-
+    
     // Strategy 0: SMA(104, 105)
     totalApplicableStrategies += 1
     if smaCrossSignal(104, 105)
         strategiesInPosition += 1
-
+        
     // Strategy 1: MACD(14, 23, 13)
     totalApplicableStrategies += 1
     if macdSignal(14, 23, 13)
         strategiesInPosition += 1
-
+        
     // Strategy 2: SMA(26, 38)
     totalApplicableStrategies += 1
     if smaCrossSignal(26, 38)
         strategiesInPosition += 1
-
+        
     // Strategy 3: SMA(27, 29)
     totalApplicableStrategies += 1
     if smaCrossSignal(27, 29)
         strategiesInPosition += 1
-
+        
     // Strategy 4: SMA(76, 78)
     totalApplicableStrategies += 1
     if smaCrossSignal(76, 78)
         strategiesInPosition += 1
-
+        
     // Strategy 5: SMA(11, 36)
     totalApplicableStrategies += 1
     if smaCrossSignal(11, 36)
         strategiesInPosition += 1
-
+        
     // Strategy 6: MACD(18, 29, 18)
     totalApplicableStrategies += 1
     if macdSignal(18, 29, 18)
         strategiesInPosition += 1
-
+        
     // Strategy 7: SMA(8, 44)
     totalApplicableStrategies += 1
     if smaCrossSignal(8, 44)
         strategiesInPosition += 1
-
+        
     // Strategy 8: EMA(5, 68)
     totalApplicableStrategies += 1
     if emaCrossSignal(5, 68)
         strategiesInPosition += 1
-
+        
     // Strategy 9: SMA(3, 47)
     totalApplicableStrategies += 1
     if smaCrossSignal(3, 47)
         strategiesInPosition += 1
-
+        
     // Strategy 10: MACD(3, 15, 3)
     totalApplicableStrategies += 1
     if macdSignal(3, 15, 3)
         strategiesInPosition += 1
-// Return both the active strategies and the total applicable strategies
+    
+    // Return both the active strategies and the total applicable strategies
     [strategiesInPosition, totalApplicableStrategies]
 
 // Request data using the specified timeframe
