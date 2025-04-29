@@ -121,11 +121,12 @@ CONFIG: Config = {
     #     "XLP",
     #     "XLB"
     # ],
-    # "TICKER": [
-    #     "ULTA",
-    #     "NFLX"
-    # ],
-    "TICKER": 'HIMS',
+    "TICKER": [
+        "SOL-USD",
+        "RUNE-USD",
+        "AVAX-USD"
+    ],
+    # "TICKER": 'HIMS',
     # "TICKER_2": 'SPY',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -141,7 +142,7 @@ CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     "MINIMUMS": {
         # "TRADES": 13,
         # "TRADES": 21,
