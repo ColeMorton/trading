@@ -9,8 +9,8 @@ from typing import TypedDict, NotRequired
 from app.tools.download_data import download_data
 from app.tools.setup_logging import setup_logging
 
-TICKER = 'BTC-USD'
-INCLUDE_OPTION_STRATEGY = True
+TICKER = 'PENDLE-USD'
+INCLUDE_OPTION_STRATEGY = False
 
 # 09-05-25 @ 100000 SOL-USD
 # DELTA = 0.39

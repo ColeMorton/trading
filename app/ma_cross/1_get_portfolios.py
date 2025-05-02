@@ -6,7 +6,6 @@ single ticker and multiple ticker analysis. It includes functionality for parame
 sensitivity analysis and portfolio filtering.
 """
 
-import os
 from typing import List, Dict, Any
 from app.tools.get_config import get_config
 from app.tools.project_utils import (
@@ -58,13 +57,24 @@ CONFIG: Config = {
     #     "BTC-USD",
     #     "SOL-USD",
     #     "RUNE-USD",
-    #     "PENDLE-USD",
+    #     "AVAX-USD",
     #     "MSTY",
     #     "STRK",
     #     "CRWD",
-    #     "LYV",
+    #     "TSLA",
     #     "TLT",
-    #     "EDV"
+    #     "EDV",
+    #     "INTU",
+    #     "COST",
+    #     "AAPL",
+    #     "WAB",
+    #     "FAST",
+    #     "YUM",
+    #     "ISRG",
+    #     "DHR",
+    #     "ODFL",
+    #     "GME",
+    #     "NVDA"
     # ],
     # "TICKER": [
     #     "SOL-USD",
@@ -104,11 +114,6 @@ CONFIG: Config = {
     #     "ZEC-USD"
     # ],
     # "TICKER": [
-    #     "AVAX-USD",
-    #     "SOL-USD",
-    #     "RUNE-USD"
-    # ],
-    # "TICKER": [
     #     "XLK",
     #     "XLC",
     #     "XLU",
@@ -121,13 +126,8 @@ CONFIG: Config = {
     #     "XLP",
     #     "XLB"
     # ],
-    "TICKER": [
-        "SOL-USD",
-        "RUNE-USD",
-        "AVAX-USD"
-    ],
-    # "TICKER": 'HIMS',
-    # "TICKER_2": 'SPY',
+    "TICKER": 'MCO',
+    # "TICKER_2": 'AVGO',
     # "WINDOWS": 120,
     "WINDOWS": 89,
     # "WINDOWS": 55,
