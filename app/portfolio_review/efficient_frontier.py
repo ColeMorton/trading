@@ -17,8 +17,8 @@ import matplotlib.pyplot as plt
 # start_date = '2023-10-24'
 # end_date = '2024-11-02'
 
-start_date = '2021-01-01'
-end_date = '2025-02-12'
+start_date = '2020-09-01'
+end_date = '2025-05-05'
 
 # ASSETS = ['BTC-USD', 'SPY']
 
@@ -38,10 +38,11 @@ end_date = '2025-02-12'
 
 # ASSETS = ['SPY', 'QQQ']
 
-ASSETS = ['BTC-USD', 'ETH-USD', 'SOL-USD']
+ASSETS = ['BTC-USD', 'MSTR']
 
 # Download the data
-data = yf.download(ASSETS, start=start_date, end=end_date)['Adj Close']
+data = yf.download(ASSETS, start=start_date, end=end_date)['Close']
+# data = yf.download(ASSETS, period="max")['Close']
 print(f'Start Date: {start_date} End Date: {end_date}')
 
 # Calculate daily returns
