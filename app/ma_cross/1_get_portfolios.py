@@ -66,15 +66,7 @@ CONFIG: Config = {
     #     "EDV",
     #     "INTU",
     #     "COST",
-    #     "AAPL",
-    #     "WAB",
-    #     "FAST",
-    #     "YUM",
-    #     "ISRG",
-    #     "DHR",
-    #     "ODFL",
-    #     "GME",
-    #     "NVDA"
+    #     "MCO"
     # ],
     # "TICKER": [
     #     "SOL-USD",
@@ -126,7 +118,7 @@ CONFIG: Config = {
     #     "XLP",
     #     "XLB"
     # ],
-    "TICKER": 'MCO',
+    "TICKER": 'PENDLE-USD',
     # "TICKER_2": 'AVGO',
     # "WINDOWS": 120,
     "WINDOWS": 89,
