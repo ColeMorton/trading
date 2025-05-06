@@ -77,7 +77,7 @@ config = {
     # "PORTFOLIO": 'STRK_h_20250415.csv',
     # "PORTFOLIO": 'BTC_MSTR_d_20250409.csv',
     "PORTFOLIO": 'SPY_QQQ_RSP_20250506.csv',
-    "REFRESH": True,
+    "REFRESH": False,
     "USE_CURRENT": False,
     "USE_HOURLY": False,
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
