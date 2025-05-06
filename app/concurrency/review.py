@@ -54,19 +54,19 @@ from app.tools.synthetic_ticker import (
 # Default configuration
 DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": 'SPY_QQQ_202503027.csv',
-    # "PORTFOLIO": "crypto_d_20250506.csv",
+    "PORTFOLIO": "crypto_d_20250506.csv",
     # "PORTFOLIO": "BTC_MSTR_d_20250409.csv",
     # "PORTFOLIO": "DAILY_crypto.csv",
     # "PORTFOLIO": "DAILY_test.csv",
     # "PORTFOLIO": "atr_test_portfolio.json",
     # "PORTFOLIO": "stock_trades_20250506.csv",
     # "PORTFOLIO": "portfolio_d_20250505.csv",
-    "PORTFOLIO": "total_d_20250505.csv", 
+    # "PORTFOLIO": "total_d_20250505.csv", 
     # "PORTFOLIO": "BTC-USD_SPY_d.csv",
     # "PORTFOLIO": "macd_test.json",
     # "PORTFOLIO": "MSTR_d_20250415.csv",
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
-    "REFRESH": True,
+    "REFRESH": False,
     "SL_CANDLE_CLOSE": True, 
     "VISUALIZATION": False,
     "RATIO_BASED_ALLOCATION": True,
