@@ -26,7 +26,9 @@ end_date = '2025-05-05'
 
 # ASSETS = ['BTC-USD', 'QQQ']
 
-# ASSETS = ['BTC-USD', 'MSTR']
+# ASSETS = ['CRWD', 'MCO', 'INTU', 'COST', 'TSLA', 'GOOGL', 'EQT']
+
+ASSETS = ['TRX-USD', 'PENDLE-USD', 'AVAX-USD', 'RUNE-USD', 'SOL-USD']
 
 # ASSETS = ['BTC-USD', 'MSTR', 'SOL-USD']
 
@@ -38,11 +40,11 @@ end_date = '2025-05-05'
 
 # ASSETS = ['SPY', 'QQQ']
 
-ASSETS = ['BTC-USD', 'MSTR']
+# ASSETS = ['BTC-USD', 'MSTR']
 
 # Download the data
-data = yf.download(ASSETS, start=start_date, end=end_date)['Close']
-# data = yf.download(ASSETS, period="max")['Close']
+# data = yf.download(ASSETS, start=start_date, end=end_date)['Close']
+data = yf.download(ASSETS, period="max")['Close']
 print(f'Start Date: {start_date} End Date: {end_date}')
 
 # Calculate daily returns

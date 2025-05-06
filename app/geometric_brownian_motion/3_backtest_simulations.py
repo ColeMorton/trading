@@ -17,7 +17,7 @@ logging.basicConfig(filename=os.path.join(log_dir, 'ema_cross.log'), level=loggi
 # Default Configuration
 CONFIG = {
     "YEARS": 1.5369,
-    "USE_YEARS": True,
+    "USE_YEARS": False,
     "PERIOD": 'max',
     "USE_HOURLY": False,
     "TICKER": 'SOL-USD',
@@ -32,7 +32,7 @@ CONFIG = {
     "BASE_DIR": '.',
     "WINDOWS": 89,
     "ANNUAL_TRADING_DAYS": 365,
-    "TIME_HORIZON": 3.07397,
+    "TIME_HORIZON": 3,
     "SIMULATIONS": 1000
 }
 

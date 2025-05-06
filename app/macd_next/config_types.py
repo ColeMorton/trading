@@ -47,7 +47,7 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": "CCL",
+    "TICKER": "RSP",
     "BASE_DIR": ".",
     "USE_HOURLY": False,
     "REFRESH": True,

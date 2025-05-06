@@ -58,6 +58,8 @@ CONFIG: Config = {
     #     "SOL-USD",
     #     "RUNE-USD",
     #     "AVAX-USD",
+    #     "PENDLE-USD",
+    #     "TRX-USD",
     #     "MSTY",
     #     "STRK",
     #     "CRWD",
@@ -66,14 +68,9 @@ CONFIG: Config = {
     #     "EDV",
     #     "INTU",
     #     "COST",
-    #     "DAL",
-    #     "MA",
-    #     "UHS",
     #     "GOOGL",
-    #     "ZM",
-    #     "V",
-    #     "GME",
-    #     "TJX"
+    #     "EQT",
+    #     "MCO"
     # ],
     # "TICKER": [
     #     "SOL-USD",
@@ -125,13 +122,13 @@ CONFIG: Config = {
     #     "XLP",
     #     "XLB"
     # ],
-    "TICKER": [
-        "ETR",
-        "EQT",
-        "CCL",
-        "AMP"
-    ],
-    # "TICKER": 'SMLR',
+    # "TICKER": [
+    #     "ETR",
+    #     "EQT",
+    #     "CCL",
+    #     "AMP"
+    # ],
+    "TICKER": 'QQQ',
     # "TICKER_2": 'AVGO',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -140,14 +137,14 @@ CONFIG: Config = {
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
-    "REFRESH": True,
+    "REFRESH": False,
     "STRATEGY_TYPES": [ "SMA", "EMA" ],
     "DIRECTION": "Long",
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": True,
+    "USE_CURRENT": False,
     "MINIMUMS": {
         # "TRADES": 13,
         # "TRADES": 21,
