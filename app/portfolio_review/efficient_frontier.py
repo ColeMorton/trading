@@ -26,9 +26,9 @@ end_date = '2025-05-05'
 
 # ASSETS = ['BTC-USD', 'QQQ']
 
-# ASSETS = ['CRWD', 'MCO', 'INTU', 'COST', 'TSLA', 'GOOGL', 'EQT']
+ASSETS = ['CRWD', 'MCO', 'INTU', 'COST', 'TSLA', 'GOOGL', 'EQT', 'HSY']
 
-ASSETS = ['TRX-USD', 'PENDLE-USD', 'AVAX-USD', 'RUNE-USD', 'SOL-USD']
+# ASSETS = ['TRX-USD', 'FET-USD', 'AVAX-USD', 'SOL-USD']
 
 # ASSETS = ['BTC-USD', 'MSTR', 'SOL-USD']
 

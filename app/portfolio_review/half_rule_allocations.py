@@ -61,11 +61,14 @@ def enforce_half_rule_and_normalize(allocations):
 
 # Input data
 allocations = {
-    "AVAX-USD": 0,
-    "PENDLE-USD": 48.8,
-    "RUNE-USD": 1.51,
-    "SOL-USD": 26.37,
-    "TRX-USD": 23.32
+    "COST": 33.75,
+    "CRWD": 7.05,
+    "EQT": 21.54,
+    "GOOGL": 1.3,
+    "HSY": 0.77,
+    "INTU": 1.06,
+    "MCO": 0.22,
+    "TSLA": 34.32,
 }
 
 # Apply the rule and get final allocations
