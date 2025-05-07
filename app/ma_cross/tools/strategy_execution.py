@@ -86,9 +86,16 @@ def execute_single_strategy(
         # Get raw stats from vectorbt
         stats = portfolio.stats()
         
+        # Check for invalid metrics before converting stats
+        from app.tools.portfolio.filters import check_invalid_metrics
+        valid_stats = check_invalid_metrics(stats, log)
+        if valid_stats is None:
+            log(f"Portfolio for {ticker} with {strategy_type} strategy (short window: {config['SHORT_WINDOW']}, long window: {config['LONG_WINDOW']}) has invalid metrics - skipping", "info")
+            return None
+        
         # Convert stats using app/tools/stats_converter.py
         # Pass both the current entry and exit signals to convert_stats
-        converted_stats = convert_stats(stats, log, config, current_signal, exit_signal)
+        converted_stats = convert_stats(valid_stats, log, config, current_signal, exit_signal)
         
         # Add strategy identification fields
         converted_stats.update({
@@ -176,7 +183,16 @@ def process_single_ticker(
         ("BEATS_BNH", "Beats BNH [%]", pl.Float64, 1, "Filtered portfolios with Beats BNH percentage")
     ]
     
-    # Apply filters from the MINIMUMS dictionary
+    # First, filter out portfolios with invalid metrics
+    from app.tools.portfolio.filters import filter_invalid_metrics
+    portfolios_df = filter_invalid_metrics(portfolios_df, log)
+    
+    # Check if any portfolios remain after filtering invalid metrics
+    if portfolios_df is None or len(portfolios_df) == 0:
+        log("No portfolios remain after filtering invalid metrics", "warning")
+        return None
+    
+    # Then apply filters from the MINIMUMS dictionary
     if "MINIMUMS" in ticker_config:
         minimums = ticker_config["MINIMUMS"]
         
@@ -192,7 +208,8 @@ def process_single_ticker(
                     message_prefix
                 )
         
-    if len(portfolios_df) == 0:
+    # Check if portfolios_df is None or empty
+    if portfolios_df is None or len(portfolios_df) == 0:
         log("No portfolios remain after filtering", "warning")
         return None
         

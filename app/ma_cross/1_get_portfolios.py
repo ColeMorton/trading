@@ -7,6 +7,7 @@ sensitivity analysis and portfolio filtering.
 """
 
 from typing import List, Dict, Any
+import polars as pl
 from app.tools.get_config import get_config
 from app.tools.project_utils import (
     get_project_root
@@ -128,7 +129,7 @@ CONFIG: Config = {
     #     "CCL",
     #     "AMP"
     # ],
-    "TICKER": 'QQQ',
+    "TICKER": 'SUI20947-USD',
     # "TICKER_2": 'AVGO',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -180,8 +181,12 @@ def filter_portfolios(portfolios: List[Dict[str, Any]], config: Config, log) -> 
     # First filter by signal using the standardized filter_portfolios_by_signal function
     filtered = filter_portfolios_by_signal(portfolios, config, log)
     
+    # Filter out portfolios with invalid metrics
+    from app.tools.portfolio.filters import filter_invalid_metrics
+    filtered = filter_invalid_metrics(filtered, log)
+    
     # If we have results and want to display them, use the portfolio_results utilities
-    if filtered and config.get("DISPLAY_RESULTS", True):
+    if filtered is not None and len(filtered) > 0 and config.get("DISPLAY_RESULTS", True):
         # Sort portfolios
         sorted_portfolios = sort_portfolios(filtered, config.get("SORT_BY", "Score"), config.get("SORT_ASC", False))
         
@@ -197,7 +202,6 @@ def filter_portfolios(portfolios: List[Dict[str, Any]], config: Config, log) -> 
         return sorted_portfolios
     
     return filtered
-    return filter_portfolios_by_signal(portfolios, config, log)
 
 # Using the standardized synthetic_ticker module instead of local implementation
 
@@ -225,10 +229,21 @@ def execute_all_strategies(config: Config, log) -> List[Dict[str, Any]]:
         strategy_config["STRATEGY_TYPE"] = strategy_type
         
         portfolios = execute_strategy(strategy_config, strategy_type, log)
-        log(f"{strategy_type} portfolios: {len(portfolios) if portfolios else 0}", "info")
         
-        if portfolios:
-            all_portfolios.extend(portfolios)
+        # Check if portfolios is not None and not empty
+        if portfolios is not None:
+            if isinstance(portfolios, pl.DataFrame):
+                portfolio_count = len(portfolios)
+                if portfolio_count > 0:
+                    all_portfolios.extend(portfolios.to_dicts())
+            else:
+                portfolio_count = len(portfolios)
+                if portfolio_count > 0:
+                    all_portfolios.extend(portfolios)
+            
+            log(f"{strategy_type} portfolios: {portfolio_count}", "info")
+        else:
+            log(f"{strategy_type} portfolios: 0", "info")
     
     if not all_portfolios:
         log("No portfolios returned from any strategy. Filtering criteria might be too strict.", "warning")
@@ -327,6 +342,9 @@ def run_strategies(config: Dict[str, Any] = None) -> bool:
         module_name='ma_cross',
         log_file='1_get_portfolios.log'
     ) as log:
+        # Initialize all_portfolios to an empty list
+        all_portfolios = []
+        
         # Initialize config
         with error_context("Initializing configuration", log, {Exception: ConfigurationError}):
             # Create a normalized copy of the default config
@@ -343,10 +361,15 @@ def run_strategies(config: Dict[str, Any] = None) -> bool:
             all_portfolios = execute_all_strategies(base_config, log)
         
         # Export results
-        if all_portfolios:
+        if all_portfolios is not None and len(all_portfolios) > 0:
             with error_context("Filtering and exporting portfolios", log, {Exception: ExportError}):
                 filtered_portfolios = filter_portfolios(all_portfolios, base_config, log)
-                export_best_portfolios(filtered_portfolios, base_config, log)
+                if filtered_portfolios is not None and len(filtered_portfolios) > 0:
+                    export_best_portfolios(filtered_portfolios, base_config, log)
+                else:
+                    log("No portfolios remain after filtering", "warning")
+        else:
+            log("No portfolios returned from strategies", "warning")
         
         return True
 

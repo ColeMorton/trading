@@ -239,7 +239,26 @@ def export_summary_results(portfolios: List[Dict], portfolio_name: str, log: Cal
                 reordered_portfolios = df.to_dicts()
         except Exception as e:
             log(f"Error during deduplication: {str(e)}", "warning")
+            
+        # Filter out portfolios with invalid metrics
+        try:
+            from app.tools.portfolio.filters import filter_invalid_metrics
+            
+            # Apply the filter
+            filtered_portfolios = filter_invalid_metrics(reordered_portfolios, log)
+            
+            # Update the portfolios list
+            reordered_portfolios = filtered_portfolios
+            
+            log(f"After filtering invalid metrics: {len(reordered_portfolios)} portfolios remain")
+        except Exception as e:
+            log(f"Error during invalid metrics filtering: {str(e)}", "warning")
         
+        # Check if we have any portfolios left after filtering
+        if not reordered_portfolios:
+            log("No portfolios remain after filtering invalid metrics", "warning")
+            return False
+            
         # Sort portfolios if SORT_BY is specified in config
         if export_config.get("SORT_BY"):
             try:

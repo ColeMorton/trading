@@ -694,8 +694,8 @@
                 }
             }
         },
-        "SUI-USD": {
-            "id": "SUI-USD",
+        "SUI20947-USD": {
+            "id": "SUI20947-USD",
             "risk_metrics": {
                 "var_95": -0.3662355780419072,
                 "cvar_95": -0.44782002807928417,
@@ -6581,7 +6581,7 @@
             "id": "strategy_12",
             "parameters": {
                 "ticker": {
-                    "value": "SUI-USD",
+                    "value": "SUI20947-USD",
                     "description": "Ticker symbol to analyze"
                 },
                 "timeframe": {
@@ -6747,7 +6747,7 @@
             },
             "metrics": {
                 "TICKER": {
-                    "value": "SUI-USD",
+                    "value": "SUI20947-USD",
                     "description": "TICKER metric from portfolio data"
                 },
                 "DIRECTION": {

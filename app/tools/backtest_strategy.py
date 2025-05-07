@@ -1,5 +1,6 @@
 import polars as pl
 import vectorbt as vbt
+import math
 from typing import Callable, Dict, Any
 from app.tools.expectancy import calculate_expectancy
 
@@ -154,15 +155,33 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                     if 'Win Rate [%]' in stats_dict and 'Avg Winning Trade [%]' in stats_dict and 'Avg Losing Trade [%]' in stats_dict:
                         win_rate = stats_dict['Win Rate [%]'] / 100.0  # Convert percentage to decimal
                         avg_win = stats_dict['Avg Winning Trade [%]']
-                        avg_loss = abs(stats_dict['Avg Losing Trade [%]'])  # Ensure positive value for calculation
                         
-                        # Use the standardized expectancy calculation
-                        expectancy_per_trade = calculate_expectancy(win_rate, avg_win, avg_loss)
-                        stats_dict['Expectancy per Trade'] = expectancy_per_trade
-                        
-                        # Add debug logging to diagnose expectancy calculation
-                        log_func(f"Expectancy calculation components: Win Rate={win_rate:.4f}, Avg Win={avg_win:.4f}, Avg Loss={avg_loss:.4f}", "info")
-                        log_func(f"Calculated Expectancy per Trade: {expectancy_per_trade:.4f}", "info")
+                        # Check if Avg Losing Trade is NaN (happens when all trades are winning)
+                        if isinstance(stats_dict['Avg Losing Trade [%]'], float) and math.isnan(stats_dict['Avg Losing Trade [%]']):
+                            # If all trades are winning (win_rate = 1.0), set expectancy to avg_win
+                            if win_rate >= 0.9999:  # Use 0.9999 to account for floating point precision
+                                expectancy_per_trade = avg_win
+                                log_func(f"All trades are winning. Setting Expectancy per Trade to Avg Win: {avg_win:.4f}", "info")
+                                stats_dict['Expectancy per Trade'] = expectancy_per_trade
+                                
+                                # Add debug logging
+                                log_func(f"Expectancy calculation components: Win Rate={win_rate:.4f}, Avg Win={avg_win:.4f}, Avg Loss=N/A (all trades winning)", "info")
+                                log_func(f"Calculated Expectancy per Trade: {expectancy_per_trade:.4f}", "info")
+                            else:
+                                # This shouldn't happen (NaN avg_loss but win_rate < 1.0)
+                                log_func(f"Invalid state: NaN Avg Loss with Win Rate < 1.0", "warning")
+                                stats_dict['Expectancy per Trade'] = None
+                        else:
+                            # Normal case - calculate expectancy using both avg_win and avg_loss
+                            avg_loss = abs(stats_dict['Avg Losing Trade [%]'])  # Ensure positive value for calculation
+                            
+                            # Use the standardized expectancy calculation
+                            expectancy_per_trade = calculate_expectancy(win_rate, avg_win, avg_loss)
+                            stats_dict['Expectancy per Trade'] = expectancy_per_trade
+                            
+                            # Add debug logging to diagnose expectancy calculation
+                            log_func(f"Expectancy calculation components: Win Rate={win_rate:.4f}, Avg Win={avg_win:.4f}, Avg Loss={avg_loss:.4f}", "info")
+                            log_func(f"Calculated Expectancy per Trade: {expectancy_per_trade:.4f}", "info")
                     else:
                         log_func("Missing required metrics for Expectancy per Trade calculation", "warning")
                         stats_dict['Expectancy per Trade'] = None
