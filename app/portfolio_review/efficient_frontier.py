@@ -20,13 +20,15 @@ import matplotlib.pyplot as plt
 start_date = '2020-09-01'
 end_date = '2025-05-05'
 
+HALF_RULE = False
+
 # ASSETS = ['BTC-USD', 'SPY']
 
-# ASSETS = ['BTC-USD', 'SOL-USD', 'MSTR']
+ASSETS = ['BTC-USD', 'MSTR']
 
 # ASSETS = ['BTC-USD', 'QQQ']
 
-ASSETS = ['CRWD', 'MCO', 'INTU', 'COST', 'TSLA', 'AMD', 'EQT', 'HSY']
+# ASSETS = ['CRWD', 'MCO', 'INTU', 'COST', 'TSLA', 'AMD', 'EQT', 'HSY']
 
 # ASSETS = ['TRX-USD', 'FET-USD', 'AVAX-USD', 'SOL-USD']
 

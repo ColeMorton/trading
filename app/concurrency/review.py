@@ -59,12 +59,12 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "DAILY_crypto.csv",
     # "PORTFOLIO": "DAILY_test.csv",
     # "PORTFOLIO": "atr_test_portfolio.json",
-    "PORTFOLIO": "stock_trades_20250508.csv",
+    # "PORTFOLIO": "stock_trades_20250508.csv",
     # "PORTFOLIO": "portfolio_d_20250505.csv",
     # "PORTFOLIO": "total_d_20250505.csv", 
     # "PORTFOLIO": "BTC-USD_SPY_d.csv",
     # "PORTFOLIO": "macd_test.json",
-    # "PORTFOLIO": "MSTR_d_20250415.csv",
+    "PORTFOLIO": "MSTR_d_20250415.csv",
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
     "REFRESH": False,
     "SL_CANDLE_CLOSE": True, 
@@ -74,8 +74,8 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     "SORT_BY": "allocation",
     "REPORT_INCLUDES": {
         "TICKER_METRICS": True,
-        "STRATEGIES": False,
-        "STRATEGY_RELATIONSHIPS": False
+        "STRATEGIES": True,
+        "STRATEGY_RELATIONSHIPS": True
     },
     "ENSURE_COUNTERPART": True,
     "INITIAL_VALUE": 19726.55,
