@@ -20,15 +20,15 @@ import matplotlib.pyplot as plt
 start_date = '2020-09-01'
 end_date = '2025-05-05'
 
-HALF_RULE = False
+HALF_RULE = True
 
 # ASSETS = ['BTC-USD', 'SPY']
 
-ASSETS = ['BTC-USD', 'MSTR']
+# ASSETS = ['BTC-USD', 'MSTR']
 
 # ASSETS = ['BTC-USD', 'QQQ']
 
-# ASSETS = ['CRWD', 'MCO', 'INTU', 'COST', 'TSLA', 'AMD', 'EQT', 'HSY']
+ASSETS = ['MCO', 'INTU', 'COST', 'TSLA', 'AMD', 'EQT', 'HSY', 'AMZN', 'FFIV']
 
 # ASSETS = ['TRX-USD', 'FET-USD', 'AVAX-USD', 'SOL-USD']
 
@@ -324,24 +324,26 @@ print(max_sharpe_allocation)
 print("\nRaw Maximum Sortino Ratio Portfolio Allocation\n")
 print(max_sortino_allocation)
 
-# Apply the half rule and normalize to both allocation types
-print("\nApplying half rule and normalizing allocations...")
-# Convert DataFrame to dictionary for the enforce_half_rule_and_normalize function
-sharpe_dict = max_sharpe_allocation['allocation'].to_dict()
-sortino_dict = max_sortino_allocation['allocation'].to_dict()
+# Check if we should apply the half rule based on the HALF_RULE flag
+if HALF_RULE:
+    # Apply the half rule and normalize to both allocation types
+    print("\nApplying half rule and normalizing allocations...")
+    # Convert DataFrame to dictionary for the enforce_half_rule_and_normalize function
+    sharpe_dict = max_sharpe_allocation['allocation'].to_dict()
+    sortino_dict = max_sortino_allocation['allocation'].to_dict()
 
-# Apply the half rule and normalize
-sharpe_half_rule = enforce_half_rule_and_normalize(sharpe_dict)
-sortino_half_rule = enforce_half_rule_and_normalize(sortino_dict)
+    # Apply the half rule and normalize
+    sharpe_half_rule = enforce_half_rule_and_normalize(sharpe_dict)
+    sortino_half_rule = enforce_half_rule_and_normalize(sortino_dict)
 
-# Convert back to DataFrame for display
-max_sharpe_half_rule = pd.DataFrame.from_dict(sharpe_half_rule, orient='index', columns=['allocation'])
-max_sortino_half_rule = pd.DataFrame.from_dict(sortino_half_rule, orient='index', columns=['allocation'])
+    # Convert back to DataFrame for display
+    max_sharpe_half_rule = pd.DataFrame.from_dict(sharpe_half_rule, orient='index', columns=['allocation'])
+    max_sortino_half_rule = pd.DataFrame.from_dict(sortino_half_rule, orient='index', columns=['allocation'])
 
-print("\nFinal Maximum Sharpe Ratio Portfolio Allocation (Half Rule Applied)\n")
-print(max_sharpe_half_rule)
+    print("\nFinal Maximum Sharpe Ratio Portfolio Allocation (Half Rule Applied)\n")
+    print(max_sharpe_half_rule)
 
-print("\nFinal Maximum Sortino Ratio Portfolio Allocation (Half Rule Applied)\n")
-print(max_sortino_half_rule)
+    print("\nFinal Maximum Sortino Ratio Portfolio Allocation (Half Rule Applied)\n")
+    print(max_sortino_half_rule)
 
 plt.show()

@@ -47,11 +47,11 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": "STX4847-USD",
+    "TICKER": "GM",
     "BASE_DIR": ".",
     "USE_HOURLY": False,
-    "REFRESH": True,
-    "USE_CURRENT": False,
+    "REFRESH": False,
+    "USE_CURRENT": True,
     "USE_YEARS": False,
     "YEARS": 15,
     "DIRECTION": "Long",

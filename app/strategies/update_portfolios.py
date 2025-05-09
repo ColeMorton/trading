@@ -69,7 +69,7 @@ config = {
     # "PORTFOLIO": 'HOURLY Crypto.csv',
     # "PORTFOLIO": 'BTC_MSTR_TLT_d_20250404.csv',
     # "PORTFOLIO": 'MSTR_d_20250415.csv',
-    "PORTFOLIO": 'MSTR_d_20250508.csv',
+    "PORTFOLIO": 'QQQ_d_20250508.csv',
     # "PORTFOLIO": 'NFLX_d_20250410.csv',
     # "PORTFOLIO": 'COIN_d_20250414.csv',
     # "PORTFOLIO": 'MSTY_h.csv',

@@ -48,11 +48,11 @@ from app.tools.portfolio_results import (
 )
 
 CONFIG: Config = {
-    "TICKER": [
-        "SPY",
-        "QQQ",
-        "RSP"
-    ],
+    # "TICKER": [
+    #     "SPY",
+    #     "QQQ",
+    #     "RSP"
+    # ],
     # "TICKER": [
     #     "SPY",
     #     "QQQ",
@@ -71,15 +71,17 @@ CONFIG: Config = {
     #     "COST",
     #     "EQT",
     #     "MSTR",
-    #     "MCO",
-    #     "PH",
-    #     "L",
-    #     "AMD",
-    #     "CTVA",
-    #     "LHX",
-    #     "MOH",
+    #     "NKE",
+    #     "SYY",
+    #     "LYV",
+    #     "LIN",
+    #     "PCAR",
+    #     "GM",
+    #     "FFIV",
+    #     "AMZN",
+    #     "AVY",
     #     "WBA",
-    #     "DELL"
+    #     "STE"
     # ],
     # "TICKER": [
     #     "SOL-USD",
@@ -135,35 +137,35 @@ CONFIG: Config = {
     #     "SMR",
     #     "OKLO"
     # ],
-    # "TICKER": 'MSTR',
+    "TICKER": 'AMD',
     # "TICKER_2": 'AVGO',
-    "WINDOWS": 120,
-    # "WINDOWS": 89,
+    # "WINDOWS": 120,
+    "WINDOWS": 89,
     # "WINDOWS": 55,
     # "WINDOWS": 34,
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
-    "REFRESH": False,
+    "REFRESH": True,
     "STRATEGY_TYPES": [ "SMA", "EMA" ],
     "DIRECTION": "Long",
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     "MINIMUMS": {
         # "TRADES": 13,
         # "TRADES": 21,
-        # "WIN_RATE": 0.38,
-        # "TRADES": 34,
+        "WIN_RATE": 0.38,
+        "TRADES": 34,
         # "WIN_RATE": 0.50,
         # "TRADES": 54,
         # "WIN_RATE": 0.61,
-        # "EXPECTANCY_PER_TRADE": 1,
-        # "PROFIT_FACTOR": 1,
-        # "SORTINO_RATIO": 0.4,
-        "BEATS_BNH": 0
+        "EXPECTANCY_PER_TRADE": 1,
+        "PROFIT_FACTOR": 1,
+        "SORTINO_RATIO": 0.4,
+        # "BEATS_BNH": 0
         # "BEATS_BNH": 0.13
     },
     "SORT_BY": "Score",
