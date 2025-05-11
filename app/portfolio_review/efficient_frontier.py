@@ -17,8 +17,8 @@ import matplotlib.pyplot as plt
 # start_date = '2023-10-24'
 # end_date = '2024-11-02'
 
-start_date = '2020-09-01'
-end_date = '2025-05-05'
+start_date = '2020-05-10'
+end_date = '2025-05-10'
 
 HALF_RULE = True
 
@@ -28,7 +28,9 @@ HALF_RULE = True
 
 # ASSETS = ['BTC-USD', 'QQQ']
 
-ASSETS = ['MCO', 'INTU', 'COST', 'TSLA', 'AMD', 'EQT', 'HSY', 'AMZN', 'FFIV']
+# ASSETS = ['MCO', 'INTU', 'COST', 'TSLA', 'AMD', 'EQT', 'HSY', 'AMZN', 'FFIV']
+
+ASSETS = ['HSY', 'FFIV', 'AMD']
 
 # ASSETS = ['TRX-USD', 'FET-USD', 'AVAX-USD', 'SOL-USD']
 
