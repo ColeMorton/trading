@@ -30,7 +30,7 @@ HALF_RULE = True
 
 # ASSETS = ['MCO', 'INTU', 'COST', 'TSLA', 'AMD', 'EQT', 'HSY', 'AMZN', 'FFIV']
 
-ASSETS = ['HSY', 'FFIV', 'AMD']
+ASSETS = ['HSY', 'FFIV', 'RTX', 'GME']
 
 # ASSETS = ['TRX-USD', 'FET-USD', 'AVAX-USD', 'SOL-USD']
 

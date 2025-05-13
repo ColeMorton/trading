@@ -21,7 +21,12 @@ PORTFOLIO = [
 # PORTFOLIO = ['SPY', 'QQQ']
 
 NEXT = [
-    "QQQ"
+    "CELH",
+    "FCX",
+    "GME",
+    "ARM",
+    "RTX",
+    "LIN"
 ]
 
 # NEXT = [
