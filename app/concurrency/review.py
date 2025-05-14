@@ -59,8 +59,8 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "DAILY_crypto.csv",
     # "PORTFOLIO": "DAILY_test.csv",
     # "PORTFOLIO": "atr_test_portfolio.json",
-    # "PORTFOLIO": "stock_trades_20250513.csv",
-    "PORTFOLIO": "portfolio_d_20250510.csv",
+    "PORTFOLIO": "stock_trades_20250515.csv",
+    # "PORTFOLIO": "portfolio_d_20250510.csv",
     # "PORTFOLIO": "total_d_20250513.csv", 
     # "PORTFOLIO": "BTC-USD_SPY_d.csv",
     # "PORTFOLIO": "macd_test.json",
@@ -74,8 +74,8 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     "SORT_BY": "allocation",
     "REPORT_INCLUDES": {
         "TICKER_METRICS": True,
-        "STRATEGIES": True,
-        "STRATEGY_RELATIONSHIPS": True
+        "STRATEGIES": False,
+        "STRATEGY_RELATIONSHIPS": False
     },
     "ENSURE_COUNTERPART": True,
     "INITIAL_VALUE": 19726.55,
