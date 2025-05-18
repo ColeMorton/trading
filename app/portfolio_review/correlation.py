@@ -8,26 +8,23 @@ from plotly.subplots import make_subplots
 
 PORTFOLIO = [
     "TSLA",
-    "INTU",
     "EQT",
     "MSTR",
+    "STRK",
     "BTC-USD",
-    "SOL-USD",
-    "FET-USD",
-    "MCO",
+    "AAPL",
     "FFIV",
     "AMD",
-    "RTX"
+    "RTX",
+    "GME",
+    "GD"
 ]
 
 # PORTFOLIO = ['SPY', 'QQQ']
 
 NEXT = [
-    "DASH",
-    "AAPL",
-    "GME",
-    "CMCSA",
-    "SMLR"
+"SHW",
+"FIS"
 ]
 
 # NEXT = [
