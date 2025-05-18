@@ -48,10 +48,19 @@ from app.tools.portfolio_results import (
 )
 
 CONFIG: Config = {
-    # "TICKER": [
-    #     "TSLA",
-    #     "AMD"
-    # ],
+    "TICKER": [
+        "BTC-USD",
+        "STRK",
+        "TSLA",
+        "EQT",
+        "MSTR",
+        "FFIV",
+        "AMD",
+        "RTX",
+        "GME",
+        "AAPL",
+        "GD"
+    ],
     # "TICKER": [
     #     "SPY",
     #     "QQQ",
@@ -144,7 +153,7 @@ CONFIG: Config = {
     #     "GRT6719-USD",
     #     "SUI20947-USD",
     # ],
-    "TICKER": 'USLM',
+    # "TICKER": 'USLM',
     # "TICKER_2": 'AVGO',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -160,15 +169,15 @@ CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     "MINIMUMS": {
         # "TRADES": 13,
         # "TRADES": 21,
-        # "WIN_RATE": 0.38,
-        # "TRADES": 34,
+        "WIN_RATE": 0.38,
+        "TRADES": 34,
         # "WIN_RATE": 0.50,
-        "TRADES": 54,
-        "WIN_RATE": 0.61,
+        # "TRADES": 54,
+        # "WIN_RATE": 0.61,
         "EXPECTANCY_PER_TRADE": 1,
         "PROFIT_FACTOR": 1,
         "SORTINO_RATIO": 0.4,
