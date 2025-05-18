@@ -16,9 +16,13 @@ class ReportIncludesConfig(TypedDict):
     Required Fields:
         STRATEGY_RELATIONSHIPS (bool): Whether to include strategy relationships in the report
         STRATEGIES (bool): Whether to include the strategies object in the report
+        TICKER_METRICS (bool): Whether to include ticker-level metrics in the report
+        ALLOCATION (bool): Whether to include allocation calculations and fields
     """
     STRATEGY_RELATIONSHIPS: bool
     STRATEGIES: bool
+    TICKER_METRICS: NotRequired[bool]
+    ALLOCATION: NotRequired[bool]
 
 class ConcurrencyConfig(TypedDict):
     """Configuration for concurrency analysis.

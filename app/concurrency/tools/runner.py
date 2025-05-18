@@ -107,12 +107,29 @@ def run_analysis(
         Exception: If analysis fails at any stage
     """
     try:
+        # Log allocation status
+        include_allocation = config.get("REPORT_INCLUDES", {}).get("ALLOCATION", True)
+        if include_allocation:
+            log("Allocation calculations enabled", "info")
+        else:
+            log("Allocation calculations disabled", "info")
         # Process strategies and get data
         log("Processing strategy data", "info")
         strategy_data, updated_strategies = process_strategies(strategies, log)
         
         # Analyze concurrency
         log("Running concurrency analysis", "info")
+        
+        # Pass the ALLOCATION flag to each strategy's config
+        include_allocation = config.get("REPORT_INCLUDES", {}).get("ALLOCATION", True)
+        log(f"ALLOCATION flag from main config: {include_allocation}", "info")
+        for strategy in updated_strategies:
+            if "GLOBAL_CONFIG" not in strategy:
+                strategy["GLOBAL_CONFIG"] = {}
+            if "REPORT_INCLUDES" not in strategy["GLOBAL_CONFIG"]:
+                strategy["GLOBAL_CONFIG"]["REPORT_INCLUDES"] = {}
+            strategy["GLOBAL_CONFIG"]["REPORT_INCLUDES"]["ALLOCATION"] = include_allocation
+        
         stats, aligned_data = analyze_concurrency(
             strategy_data,
             updated_strategies,

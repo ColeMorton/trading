@@ -246,6 +246,26 @@ def analyze_concurrency(
             log(f"  Activity: {act:.4f}", "info")
             log(f"  Efficiency: {efficiency:.4f}", "info")
         
+        # Check if any strategy config has a global config with REPORT_INCLUDES.ALLOCATION
+        include_allocation = True  # Default to True for backward compatibility
+        
+        # First check if any strategy has the global config
+        for config in config_list:
+            if "GLOBAL_CONFIG" in config and isinstance(config["GLOBAL_CONFIG"], dict):
+                global_config = config["GLOBAL_CONFIG"]
+                if "REPORT_INCLUDES" in global_config and isinstance(global_config["REPORT_INCLUDES"], dict):
+                    if "ALLOCATION" in global_config["REPORT_INCLUDES"]:
+                        include_allocation = global_config["REPORT_INCLUDES"]["ALLOCATION"]
+                        break
+        
+        # If not found in GLOBAL_CONFIG, check directly in each strategy config
+        if not include_allocation:
+            for config in config_list:
+                if "REPORT_INCLUDES" in config and isinstance(config["REPORT_INCLUDES"], dict):
+                    if "ALLOCATION" in config["REPORT_INCLUDES"]:
+                        include_allocation = config["REPORT_INCLUDES"]["ALLOCATION"]
+                        break
+        
         # Calculate portfolio efficiency
         log("Calculating portfolio efficiency", "info")
         portfolio_metrics = calculate_portfolio_efficiency(
@@ -258,7 +278,8 @@ def analyze_concurrency(
             exclusive_periods=position_metrics[3],
             inactive_periods=position_metrics[4],
             total_periods=total_periods,
-            log=log
+            log=log,
+            include_allocation=include_allocation
         )
         
         # Package metrics in legacy format for backward compatibility
@@ -350,16 +371,22 @@ def analyze_concurrency(
         # Extract tickers from configs
         strategy_tickers = [config.get('TICKER', '') for config in config_list]
         
-        # Calculate allocation scores
-        log("Calculating allocation scores", "info")
-        allocation_scores, allocation_percentages = calculate_allocation_scores(
-            strategy_risk_contributions,
-            allocation_efficiencies,
-            strategy_tickers,
-            log,
-            ratio_based_allocation=True,  # Enable ratio-based allocation
-            strategy_configs=config_list  # Pass strategy configs to access portfolio stats
-        )
+        # Only calculate allocations if the feature is enabled
+        if include_allocation:
+            log("ALLOCATION flag is TRUE - Calculating allocation scores", "info")
+            allocation_scores, allocation_percentages = calculate_allocation_scores(
+                strategy_risk_contributions,
+                allocation_efficiencies,
+                strategy_tickers,
+                log,
+                ratio_based_allocation=True,  # Enable ratio-based allocation
+                strategy_configs=config_list  # Pass strategy configs to access portfolio stats
+            )
+        else:
+            log("ALLOCATION flag is FALSE - Allocation calculations skipped (disabled in configuration)", "info")
+            # Initialize empty allocation scores and percentages
+            allocation_scores = [0.0] * len(strategy_risk_contributions)
+            allocation_percentages = [0.0] * len(strategy_risk_contributions)
 
         # Compile all statistics
         stats = compile_statistics(
@@ -374,7 +401,8 @@ def analyze_concurrency(
             log
         )
 
-        # Add allocation scores
+        # Add allocation scores and flag to stats
+        stats["include_allocation"] = include_allocation
         for i, (score, percentage) in enumerate(zip(allocation_scores, allocation_percentages), 1):
             stats[f"strategy_{i}_allocation_score"] = score
             stats[f"strategy_{i}_allocation"] = percentage

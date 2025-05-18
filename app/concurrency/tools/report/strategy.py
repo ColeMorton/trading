@@ -34,6 +34,8 @@ def create_strategy_object(
     Returns:
         Strategy: Strategy object with parameters, performance, risk metrics, and efficiency metrics
     """
+    # Check if allocation is enabled in the report
+    include_allocation = stats.get("include_allocation", True)
     # Determine strategy type
     strategy_type = config.get("STRATEGY_TYPE", "EMA")
     
@@ -238,10 +240,13 @@ def create_strategy_object(
         # Remove performance object as requested
         "risk_metrics": risk_metrics,
         "efficiency": efficiency,
-        "signals": signals,
-        "allocation_score": stats.get(f"strategy_{strategy_id}_allocation_score", 0.0),
-        "allocation": stats.get(f"strategy_{strategy_id}_allocation", 0.0)
+        "signals": signals
     }
+    
+    # Add allocation fields only if enabled
+    if include_allocation:
+        strategy_obj["allocation_score"] = stats.get(f"strategy_{strategy_id}_allocation_score", 0.0)
+        strategy_obj["allocation"] = stats.get(f"strategy_{strategy_id}_allocation", 0.0)
     
     # Add signal quality metrics if available
     if signal_quality_metrics_data:

@@ -47,6 +47,13 @@ def generate_json_report(
             
         log(f"Starting JSON report generation for {len(strategies)} strategies", "info")
 
+        # Check if allocation is enabled
+        include_allocation = config.get("REPORT_INCLUDES", {}).get("ALLOCATION", True)
+        log(f"ALLOCATION flag in report generator: {include_allocation}", "info")
+        
+        # Add allocation flag to stats for other functions to use
+        stats["include_allocation"] = include_allocation
+
         # Validate required statistics
         required_stats = [
             'total_concurrent_periods', 'concurrency_ratio', 'exclusive_ratio',
@@ -70,8 +77,13 @@ def generate_json_report(
         log("Creating portfolio metrics", "info")
         portfolio_metrics = create_portfolio_metrics(stats, config)
 
-        # Create report
-        strategy_objects.sort(key=lambda x: x.get("allocation", 0.0), reverse=True)
+        # Sort strategies by allocation if enabled, otherwise by ID
+        if include_allocation:
+            log("Sorting strategies by allocation", "info")
+            strategy_objects.sort(key=lambda x: x.get("allocation", 0.0), reverse=True)
+        else:
+            log("Sorting strategies by ID (allocation disabled)", "info")
+            strategy_objects.sort(key=lambda x: x["id"])
         
         # Initialize report with portfolio metrics
         report: ConcurrencyReport = {
@@ -87,7 +99,11 @@ def generate_json_report(
         if include_ticker_metrics:
             log("Calculating ticker metrics", "info")
             ratio_based = config.get("RATIO_BASED_ALLOCATION", False)
-            ticker_metrics = calculate_ticker_metrics(strategy_objects, ratio_based_allocation=ratio_based)
+            ticker_metrics = calculate_ticker_metrics(
+                strategy_objects,
+                ratio_based_allocation=ratio_based,
+                include_allocation=include_allocation
+            )
             report["ticker_metrics"] = ticker_metrics
         
         # Check if strategies should be included in the report

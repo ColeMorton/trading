@@ -12,6 +12,11 @@ Configuration Options:
     - VISUALIZATION: Enable visualization of results
     - CSV_USE_HOURLY: Control timeframe for CSV file strategies (True for hourly, False for daily)
       Note: JSON files specify timeframes individually per strategy
+    - REPORT_INCLUDES: Control what to include in the report:
+        - TICKER_METRICS: Include ticker-level metrics
+        - STRATEGIES: Include detailed strategy information
+        - STRATEGY_RELATIONSHIPS: Include strategy relationship analysis
+        - ALLOCATION: Include allocation calculations and fields
 """
 from typing import Dict, Any, Optional
 from pathlib import Path
@@ -76,7 +81,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
         "TICKER_METRICS": True,
         "STRATEGIES": False,
         "STRATEGY_RELATIONSHIPS": False,
-        "ALLOCATION": False
+        "ALLOCATION": True
     },
     "ENSURE_COUNTERPART": True,
     "INITIAL_VALUE": 19726.55,

@@ -17,12 +17,17 @@ from app.concurrency.tools.types import (
     PortfolioMetrics
 )
 
-def calculate_ticker_metrics(strategies: List[Strategy], ratio_based_allocation: bool) -> Dict[str, Any]:
+def calculate_ticker_metrics(
+    strategies: List[Strategy],
+    ratio_based_allocation: bool,
+    include_allocation: bool = True
+) -> Dict[str, Any]:
     """Calculates ticker metrics from a list of strategies.
 
     Args:
         strategies (List[Strategy]): List of strategy objects.
         ratio_based_allocation (bool): Whether to apply ratio-based allocation rules.
+        include_allocation (bool): Whether to include allocation fields.
 
     Returns:
         Dict[str, Any]: Dictionary of ticker metrics, with ticker symbols as keys.
@@ -36,10 +41,13 @@ def calculate_ticker_metrics(strategies: List[Strategy], ratio_based_allocation:
                 # Remove performance object as requested
                 "risk_metrics": {k: v["value"] for k, v in strategy["risk_metrics"].items()},
                 "efficiency": strategy["efficiency"],
-                "signals": strategy["signals"],
-                "allocation_score": strategy["allocation_score"],
-                "allocation": strategy["allocation"]
+                "signals": strategy["signals"]
             }
+            
+            # Add allocation fields only if enabled
+            if include_allocation and "allocation_score" in strategy and "allocation" in strategy:
+                ticker_metrics[ticker]["allocation_score"] = strategy["allocation_score"]
+                ticker_metrics[ticker]["allocation"] = strategy["allocation"]
             
             # Add signal quality metrics if available
             if "signal_quality_metrics" in strategy:
@@ -70,13 +78,19 @@ def calculate_ticker_metrics(strategies: List[Strategy], ratio_based_allocation:
                     for k2 in ticker_metrics[ticker]["signals"][k]:
                         ticker_metrics[ticker]["signals"][k][k2]["value"] = (ticker_metrics[ticker]["signals"][k][k2]["value"] + strategy["signals"][k][k2]["value"]) / num_strategies
 
-            ticker_metrics[ticker]["allocation_score"] += strategy["allocation_score"]
-            ticker_metrics[ticker]["allocation"] += strategy["allocation"]
+            # Aggregate allocation fields only if enabled
+            if include_allocation and "allocation_score" in strategy and "allocation" in strategy:
+                if "allocation_score" in ticker_metrics[ticker]:
+                    ticker_metrics[ticker]["allocation_score"] += strategy["allocation_score"]
+                    ticker_metrics[ticker]["allocation"] += strategy["allocation"]
+                else:
+                    ticker_metrics[ticker]["allocation_score"] = strategy["allocation_score"]
+                    ticker_metrics[ticker]["allocation"] = strategy["allocation"]
 
-    # Apply ratio-based allocation if enabled
-    if ratio_based_allocation:
+    # Apply ratio-based allocation if enabled and allocation is included
+    if include_allocation and ratio_based_allocation:
         # Extract allocations
-        allocations = [metrics["allocation"] for metrics in ticker_metrics.values()]
+        allocations = [metrics.get("allocation", 0.0) for metrics in ticker_metrics.values()]
         
         # Use numpy to adjust allocations
         def adjust_allocations(allocations: List[float]) -> List[float]:

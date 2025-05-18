@@ -72,7 +72,8 @@ def calculate_portfolio_efficiency(
     exclusive_periods: int,
     inactive_periods: int,
     total_periods: int,
-    log: Callable[[str, str], None]
+    log: Callable[[str, str], None],
+    include_allocation: bool = True
 ) -> Dict[str, float]:
     """Calculate portfolio-level efficiency metrics with risk adjustment.
     
@@ -111,41 +112,47 @@ def calculate_portfolio_efficiency(
             
         activity = 1 - inactive_ratio
         
-        # Calculate weighted efficiencies based on expectancy, allocation, and risk
+        # Only calculate weighted efficiencies if allocation is enabled
         weighted_efficiencies = []
-        total_allocation = sum(strategy_allocations)
+        total_efficiency = 0.0
         
-        # Log the inputs for debugging
-        log(f"Strategy efficiencies: {strategy_efficiencies}", "info")
-        log(f"Strategy expectancies: {strategy_expectancies}", "info")
-        log(f"Strategy allocations: {strategy_allocations}", "info")
-        log(f"Strategy risk contributions: {strategy_risk_contributions}", "info")
-        
-        for i, (eff, exp, alloc, risk) in enumerate(zip(
-            strategy_efficiencies,
-            strategy_expectancies,
-            strategy_allocations,
-            strategy_risk_contributions
-        )):
-            # Normalize allocation
-            norm_alloc = alloc / total_allocation if total_allocation > 0 else 1/len(strategy_efficiencies)
-            # Calculate risk-adjusted weight (lower risk is better)
-            risk_factor = calculate_risk_factor(risk)  # Lower risk contribution is better
+        if include_allocation:
+            # Calculate weighted efficiencies based on expectancy, allocation, and risk
+            total_allocation = sum(strategy_allocations)
             
-            # Combine factors (efficiency * expectancy * allocation * risk_factor)
-            weighted_eff = eff * exp * norm_alloc * risk_factor
-            weighted_efficiencies.append(weighted_eff)
+            # Log the inputs for debugging
+            log(f"Strategy efficiencies: {strategy_efficiencies}", "info")
+            log(f"Strategy expectancies: {strategy_expectancies}", "info")
+            log(f"Strategy allocations: {strategy_allocations}", "info")
+            log(f"Strategy risk contributions: {strategy_risk_contributions}", "info")
             
-            log(f"Strategy {i} weighted efficiency components:", "info")
-            log(f"  Base efficiency: {eff:.6f}", "info")
-            log(f"  Expectancy: {exp:.6f}", "info")
-            log(f"  Normalized allocation: {norm_alloc:.6f}", "info")
-            log(f"  Risk factor (1 - {risk:.6f}): {risk_factor:.6f}", "info")
-            log(f"  Weighted efficiency: {weighted_eff:.6f}", "info")
-        
-        # Calculate total weighted efficiency
-        total_efficiency = sum(weighted_efficiencies)
-        log(f"Total weighted efficiency: {total_efficiency:.6f}", "info")
+            for i, (eff, exp, alloc, risk) in enumerate(zip(
+                strategy_efficiencies,
+                strategy_expectancies,
+                strategy_allocations,
+                strategy_risk_contributions
+            )):
+                # Normalize allocation
+                norm_alloc = alloc / total_allocation if total_allocation > 0 else 1/len(strategy_efficiencies)
+                # Calculate risk-adjusted weight (lower risk is better)
+                risk_factor = calculate_risk_factor(risk)  # Lower risk contribution is better
+                
+                # Combine factors (efficiency * expectancy * allocation * risk_factor)
+                weighted_eff = eff * exp * norm_alloc * risk_factor
+                weighted_efficiencies.append(weighted_eff)
+                
+                log(f"Strategy {i} weighted efficiency components:", "info")
+                log(f"  Base efficiency: {eff:.6f}", "info")
+                log(f"  Expectancy: {exp:.6f}", "info")
+                log(f"  Normalized allocation: {norm_alloc:.6f}", "info")
+                log(f"  Risk factor (1 - {risk:.6f}): {risk_factor:.6f}", "info")
+                log(f"  Weighted efficiency: {weighted_eff:.6f}", "info")
+            
+            # Calculate total weighted efficiency
+            total_efficiency = sum(weighted_efficiencies)
+            log(f"Total weighted efficiency: {total_efficiency:.6f}", "info")
+        else:
+            log("Skipping weighted efficiency calculation (allocation disabled)", "info")
         
         # Calculate adjusted independence to be less sensitive to low values
         adjusted_independence = 0.2 + 0.8 * independence
