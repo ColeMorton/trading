@@ -75,7 +75,8 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     "REPORT_INCLUDES": {
         "TICKER_METRICS": True,
         "STRATEGIES": False,
-        "STRATEGY_RELATIONSHIPS": False
+        "STRATEGY_RELATIONSHIPS": False,
+        "ALLOCATION": False
     },
     "ENSURE_COUNTERPART": True,
     "INITIAL_VALUE": 19726.55,
