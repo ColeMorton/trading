@@ -50,7 +50,7 @@ class ConcurrencyConfig(TypedDict):
     CSV_USE_HOURLY: NotRequired[bool]
     REPORT_INCLUDES: NotRequired[ReportIncludesConfig]
     OPTIMIZE: NotRequired[bool]
-    OPTIMIZE_MIN_STRATEGIES: NotRequired[int]
+    OPTIMIZE_MIN_STRATEGIES_PER_PERMUTATION: NotRequired[int]
     OPTIMIZE_MAX_PERMUTATIONS: NotRequired[int]
 
 class CsvStrategyRow(TypedDict):
@@ -250,12 +250,12 @@ def validate_config(config: Dict[str, Any]) -> ConcurrencyConfig:
     elif "OPTIMIZE" not in config:
         config["OPTIMIZE"] = False
     
-    # Validate OPTIMIZE_MIN_STRATEGIES (default to 3 if not present)
-    if "OPTIMIZE_MIN_STRATEGIES" in config:
-        if not isinstance(config["OPTIMIZE_MIN_STRATEGIES"], int) or config["OPTIMIZE_MIN_STRATEGIES"] < 2:
-            raise ValidationError("OPTIMIZE_MIN_STRATEGIES must be an integer >= 2")
+    # Validate OPTIMIZE_MIN_STRATEGIES_PER_PERMUTATION (default to 3 if not present)
+    if "OPTIMIZE_MIN_STRATEGIES_PER_PERMUTATION" in config:
+        if not isinstance(config["OPTIMIZE_MIN_STRATEGIES_PER_PERMUTATION"], int) or config["OPTIMIZE_MIN_STRATEGIES_PER_PERMUTATION"] < 2:
+            raise ValidationError("OPTIMIZE_MIN_STRATEGIES_PER_PERMUTATION must be an integer >= 2")
     else:
-        config["OPTIMIZE_MIN_STRATEGIES"] = 3
+        config["OPTIMIZE_MIN_STRATEGIES_PER_PERMUTATION"] = 3
     
     # Validate OPTIMIZE_MAX_PERMUTATIONS (default to None if not present)
     if "OPTIMIZE_MAX_PERMUTATIONS" in config:

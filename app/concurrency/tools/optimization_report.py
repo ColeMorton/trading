@@ -80,6 +80,7 @@ def generate_optimization_report(
             
             # Performance metrics
             "total_expectancy": all_stats['total_expectancy'],
+            "average_expectancy": all_stats['total_expectancy'] / len(all_strategies),
             "weighted_efficiency": all_stats.get('weighted_efficiency', 0.0),
             
             # Risk metrics
@@ -96,6 +97,7 @@ def generate_optimization_report(
             
             # Performance metrics
             "total_expectancy": optimal_stats['total_expectancy'],
+            "average_expectancy": optimal_stats['total_expectancy'] / len(optimal_strategies),
             "weighted_efficiency": optimal_stats.get('weighted_efficiency', 0.0),
             
             # Risk metrics
@@ -103,7 +105,7 @@ def generate_optimization_report(
         },
         "config": {
             "portfolio": config["PORTFOLIO"],
-            "min_strategies_per_permutation": config.get("OPTIMIZE_MIN_STRATEGIES", 3),
+            "min_strategies_per_permutation": config.get("OPTIMIZE_MIN_STRATEGIES_PER_PERMUTATION", 3),
             "max_permutations": config.get("OPTIMIZE_MAX_PERMUTATIONS", None),
         },
         "efficiency_calculation_note": (
