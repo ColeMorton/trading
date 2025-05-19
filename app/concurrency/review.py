@@ -73,6 +73,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
     "REFRESH": False,
     "OPTIMIZE": True,
+    "OPTIMIZE_MIN_STRATEGIES_PER_PERMUTATION": 3,
     "SL_CANDLE_CLOSE": True, 
     "VISUALIZATION": False,
     "RATIO_BASED_ALLOCATION": True,

@@ -152,21 +152,58 @@ def calculate_portfolio_efficiency(
             total_efficiency = sum(weighted_efficiencies)
             log(f"Total weighted efficiency: {total_efficiency:.6f}", "info")
         else:
-            log("Skipping weighted efficiency calculation (allocation disabled)", "info")
+            log("Allocation disabled - using equal weighting for weighted efficiency calculation", "info")
+            
+            # Calculate weighted efficiencies with equal allocations
+            equal_allocation = 1.0 / len(strategy_efficiencies)
+            
+            # Log the inputs for debugging
+            log(f"Strategy efficiencies: {strategy_efficiencies}", "info")
+            log(f"Strategy expectancies: {strategy_expectancies}", "info")
+            log(f"Using equal allocation: {equal_allocation:.6f} for all strategies", "info")
+            log(f"Strategy risk contributions: {strategy_risk_contributions}", "info")
+            
+            for i, (eff, exp, risk) in enumerate(zip(
+                strategy_efficiencies,
+                strategy_expectancies,
+                strategy_risk_contributions
+            )):
+                # Use equal allocation for all strategies
+                norm_alloc = equal_allocation
+                # Calculate risk-adjusted weight (lower risk is better)
+                risk_factor = calculate_risk_factor(risk)  # Lower risk contribution is better
+                
+                # Combine factors (efficiency * expectancy * allocation * risk_factor)
+                weighted_eff = eff * exp * norm_alloc * risk_factor
+                weighted_efficiencies.append(weighted_eff)
+                
+                log(f"Strategy {i} weighted efficiency components:", "info")
+                log(f"  Base efficiency: {eff:.6f}", "info")
+                log(f"  Expectancy: {exp:.6f}", "info")
+                log(f"  Equal allocation: {norm_alloc:.6f}", "info")
+                log(f"  Risk factor (1 - {risk:.6f}): {risk_factor:.6f}", "info")
+                log(f"  Weighted efficiency: {weighted_eff:.6f}", "info")
+            
+            # Calculate total weighted efficiency
+            total_efficiency = sum(weighted_efficiencies)
+            log(f"Total weighted efficiency (with equal allocations): {total_efficiency:.6f}", "info")
         
         # Calculate adjusted independence to be less sensitive to low values
         adjusted_independence = 0.2 + 0.8 * independence
         
         # Calculate final portfolio efficiency
-        portfolio_efficiency = total_efficiency * diversification * adjusted_independence * activity
+        # Note: We don't multiply by diversification, adjusted_independence, and activity again
+        # because these structural components are already incorporated in the base efficiency
+        # calculation that feeds into total_efficiency
+        portfolio_efficiency = total_efficiency
         
         # Log the components for debugging
         log(f"Portfolio efficiency calculation components:", "info")
         log(f"  Total weighted efficiency: {total_efficiency:.6f}", "info")
-        log(f"  Diversification multiplier: {diversification:.6f}", "info")
-        log(f"  Adjusted independence multiplier: {adjusted_independence:.6f}", "info")
-        log(f"  Activity multiplier: {activity:.6f}", "info")
-        log(f"  Raw portfolio efficiency: {portfolio_efficiency:.6f}", "info")
+        log(f"  Note: Diversification ({diversification:.6f}), Independence ({adjusted_independence:.6f}), and Activity ({activity:.6f})", "info")
+        log(f"  multipliers are already incorporated in the base efficiency calculation", "info")
+        log(f"  and are not applied again at the portfolio level", "info")
+        log(f"  Portfolio efficiency: {portfolio_efficiency:.6f}", "info")
         
         # Ensure portfolio efficiency is at least a small positive value
         if portfolio_efficiency <= 0:

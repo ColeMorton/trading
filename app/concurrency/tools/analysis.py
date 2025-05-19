@@ -45,7 +45,7 @@ def compile_statistics(
     aligned_data: List[pl.DataFrame],
     position_metrics: Tuple,
     risk_metrics: dict,
-    efficiency_metrics: Tuple[float, float, float, float, float],
+    efficiency_metrics: Tuple[float, float, float, float, float, float],
     signal_metrics: dict,
     signal_quality_metrics: dict,
     strategy_expectancies: List[float],
@@ -85,7 +85,8 @@ def compile_statistics(
             total_expectancy,
             diversification_multiplier,
             independence_multiplier,
-            activity_multiplier
+            activity_multiplier,
+            weighted_efficiency
         ) = efficiency_metrics
 
         total_periods = len(aligned_data[0])
@@ -125,6 +126,7 @@ def compile_statistics(
             "diversification_multiplier": diversification_multiplier,
             "independence_multiplier": independence_multiplier,
             "activity_multiplier": activity_multiplier,
+            "weighted_efficiency": weighted_efficiency,
             "strategy_expectancies": strategy_expectancies,
             "strategy_efficiency_metrics": strategy_efficiency_metrics,
             "risk_metrics": risk_metrics,
@@ -288,7 +290,8 @@ def analyze_concurrency(
             sum(strategy_expectancies),  # Calculate expectancy inline
             portfolio_metrics['diversification_multiplier'],
             portfolio_metrics['independence_multiplier_adjusted'],  # Use adjusted independence
-            portfolio_metrics['activity_multiplier']
+            portfolio_metrics['activity_multiplier'],
+            portfolio_metrics['weighted_efficiency']  # Include weighted_efficiency
         )
         
         # Log the raw and adjusted independence values for comparison
@@ -430,6 +433,7 @@ def analyze_concurrency(
             "diversification_multiplier": 0.0,
             "independence_multiplier": 0.0,
             "activity_multiplier": 0.0,
+            "weighted_efficiency": 0.0,
             "strategy_expectancies": [],
             "strategy_efficiency_metrics": {},
             "risk_metrics": {},

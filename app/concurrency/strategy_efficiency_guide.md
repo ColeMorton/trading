@@ -284,7 +284,11 @@ While the base efficiency formula only uses structural components, the system ul
 ```python
 # At portfolio level
 weighted_efficiency = base_efficiency * expectancy * normalized_allocation * risk_factor
-portfolio_efficiency = total_weighted_efficiency * diversification * adjusted_independence * activity
+portfolio_efficiency = total_weighted_efficiency
+
+# Note: We don't multiply by diversification, adjusted_independence, and activity again
+# because these structural components are already incorporated in the base efficiency
+# calculation that feeds into weighted_efficiency and total_weighted_efficiency
 ```
 
 ### Strategy-Level vs. Portfolio-Level Efficiency
@@ -358,7 +362,7 @@ The implementation includes several advanced concepts that transform the base ef
 It's important to understand the relationship between efficiency and performance:
 
 1. **Base efficiency** (diversification × independence × activity) measures structural compatibility without performance data
-2. **Risk-adjusted efficiency** incorporates performance metrics like expectancy
+2. **Risk-adjusted efficiency** incorporates performance metrics like expectancy but does not re-apply the structural components
 3. **In reports**, the efficiency score is presented as "Risk-Adjusted Performance" because it includes both structural and performance components
 4. **For allocation decisions**, both structural efficiency and performance metrics are considered together
 
