@@ -1,0 +1,54 @@
+{
+    "optimization_summary": {
+        "all_strategies_count": 12,
+        "all_strategies_tickers": [
+            "BTC-USD",
+            "EQT",
+            "AMD",
+            "TSLA",
+            "GD",
+            "AAPL",
+            "MSTR",
+            "GME",
+            "AMD",
+            "FFIV",
+            "GD",
+            "RTX"
+        ],
+        "optimal_strategies_count": 5,
+        "optimal_strategies_tickers": [
+            "BTC-USD",
+            "MSTR",
+            "GME",
+            "AMD",
+            "GD"
+        ],
+        "efficiency_improvement_percent": 58.38346574188886
+    },
+    "all_strategies": {
+        "efficiency_score": 1.7142545066297379,
+        "diversification_multiplier": 0.8636149177862704,
+        "independence_multiplier": 0.30171127026008293,
+        "activity_multiplier": 0.9888184867685427,
+        "total_expectancy": 170.2941309319362,
+        "average_expectancy": 14.19117757766135,
+        "weighted_efficiency": 1.7142545066297379,
+        "risk_concentration_index": 0.5724965447920592
+    },
+    "optimal_strategies": {
+        "efficiency_score": 2.715095699236697,
+        "diversification_multiplier": 0.8726348658146348,
+        "independence_multiplier": 0.36908379013312453,
+        "activity_multiplier": 0.9519194931047334,
+        "total_expectancy": 118.19983276573647,
+        "average_expectancy": 23.639966553147296,
+        "weighted_efficiency": 2.715095699236697,
+        "risk_concentration_index": 0.5935787000783085
+    },
+    "config": {
+        "portfolio": "total_d_20250519.csv",
+        "min_strategies_per_permutation": 5,
+        "max_permutations": 1000
+    },
+    "efficiency_calculation_note": "The efficiency_score is a comprehensive risk-adjusted performance metric that combines structural components (diversification, independence, activity) with performance metrics (expectancy, risk factors, allocation). Equal allocations were used for all strategies during optimization analysis."
+}

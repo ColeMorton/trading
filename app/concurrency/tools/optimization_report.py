@@ -105,7 +105,7 @@ def generate_optimization_report(
         },
         "config": {
             "portfolio": config["PORTFOLIO"],
-            "min_strategies_per_permutation": config.get("OPTIMIZE_MIN_STRATEGIES_PER_PERMUTATION", 3),
+            "min_strategies_per_permutation": config.get("OPTIMIZE_MIN_STRATEGIES", 3),
             "max_permutations": config.get("OPTIMIZE_MAX_PERMUTATIONS", None),
         },
         "efficiency_calculation_note": (

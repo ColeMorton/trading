@@ -114,7 +114,7 @@ def run_analysis(
     try:
         # Check if optimization is enabled
         optimize = config.get("OPTIMIZE", False)
-        optimize_min_strategies = config.get("OPTIMIZE_MIN_STRATEGIES_PER_PERMUTATION", 3)
+        optimize_min_strategies = config.get("OPTIMIZE_MIN_STRATEGIES", 3)
         optimize_max_permutations = config.get("OPTIMIZE_MAX_PERMUTATIONS", None)
         
         # Log allocation status
