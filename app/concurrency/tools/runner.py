@@ -17,6 +17,11 @@ from app.concurrency.tools.visualization import plot_concurrency
 from app.concurrency.tools.report import generate_json_report
 from app.tools.portfolio import load_portfolio
 from app.concurrency.tools.strategy_processor import process_strategies
+from app.concurrency.tools.permutation import find_optimal_permutation
+from app.concurrency.tools.optimization_report import (
+    generate_optimization_report,
+    save_optimization_report
+)
 # Custom JSON encoder to handle NumPy types and None values
 class NumpyEncoder(json.JSONEncoder):
     """Custom JSON encoder for NumPy data types and None values."""
@@ -89,7 +94,7 @@ def save_json_report(
         raise IOError(f"Failed to save report: {str(e)}")
 
 def run_analysis(
-    strategies: List[StrategyConfig], 
+    strategies: List[StrategyConfig],
     log: Callable[[str, str], None],
     config: ConcurrencyConfig
 ) -> bool:
@@ -107,22 +112,26 @@ def run_analysis(
         Exception: If analysis fails at any stage
     """
     try:
+        # Check if optimization is enabled
+        optimize = config.get("OPTIMIZE", False)
+        optimize_min_strategies = config.get("OPTIMIZE_MIN_STRATEGIES", 3)
+        optimize_max_permutations = config.get("OPTIMIZE_MAX_PERMUTATIONS", None)
+        
         # Log allocation status
         include_allocation = config.get("REPORT_INCLUDES", {}).get("ALLOCATION", True)
         if include_allocation:
             log("Allocation calculations enabled", "info")
         else:
             log("Allocation calculations disabled", "info")
-        # Process strategies and get data
-        log("Processing strategy data", "info")
+            
+        # Process strategies and get data for all strategies
+        log("Processing strategy data for all strategies", "info")
         strategy_data, updated_strategies = process_strategies(strategies, log)
         
-        # Analyze concurrency
-        log("Running concurrency analysis", "info")
+        # Analyze concurrency for all strategies
+        log("Running concurrency analysis for all strategies", "info")
         
         # Pass the ALLOCATION flag to each strategy's config
-        include_allocation = config.get("REPORT_INCLUDES", {}).get("ALLOCATION", True)
-        log(f"ALLOCATION flag from main config: {include_allocation}", "info")
         for strategy in updated_strategies:
             if "GLOBAL_CONFIG" not in strategy:
                 strategy["GLOBAL_CONFIG"] = {}
@@ -130,50 +139,118 @@ def run_analysis(
                 strategy["GLOBAL_CONFIG"]["REPORT_INCLUDES"] = {}
             strategy["GLOBAL_CONFIG"]["REPORT_INCLUDES"]["ALLOCATION"] = include_allocation
         
-        stats, aligned_data = analyze_concurrency(
+        all_stats, all_aligned_data = analyze_concurrency(
             strategy_data,
             updated_strategies,
             log
         )
         
-        # Log statistics
-        log("Logging analysis statistics", "info")
+        # Log statistics for all strategies
+        log("Logging analysis statistics for all strategies", "info")
         log(f"Overall concurrency statistics:")
-        log(f"Total concurrent periods: {stats['total_concurrent_periods']}")
-        log(f"Concurrency Ratio: {stats['concurrency_ratio']:.2f}")
-        log(f"Exclusive Ratio: {stats['exclusive_ratio']:.2f}")
-        log(f"Inactive Ratio: {stats['inactive_ratio']:.2f}")
-        log(f"Average concurrent strategies: {stats['avg_concurrent_strategies']:.2f}")
-        log(f"Max concurrent strategies: {stats['max_concurrent_strategies']}")
-        log(f"Risk Concentration Index: {stats['risk_concentration_index']}")
-        log(f"Efficiency Score: {stats['efficiency_score']:.2f}")
+        log(f"Total concurrent periods: {all_stats['total_concurrent_periods']}")
+        log(f"Concurrency Ratio: {all_stats['concurrency_ratio']:.2f}")
+        log(f"Exclusive Ratio: {all_stats['exclusive_ratio']:.2f}")
+        log(f"Inactive Ratio: {all_stats['inactive_ratio']:.2f}")
+        log(f"Average concurrent strategies: {all_stats['avg_concurrent_strategies']:.2f}")
+        log(f"Max concurrent strategies: {all_stats['max_concurrent_strategies']}")
+        log(f"Risk Concentration Index: {all_stats['risk_concentration_index']}")
+        log(f"Risk-Adjusted Efficiency Score: {all_stats['efficiency_score']:.2f}")
         
         # Log risk metrics
         log(f"\nRisk Metrics:")
-        for key, value in stats['risk_metrics'].items():
+        for key, value in all_stats['risk_metrics'].items():
             if isinstance(value, float):
                 log(f"{key}: {value:.4f}")
             else:
                 log(f"{key}: {value}")
         
-        # Create visualization if enabled
+        # Generate and save JSON report for all strategies
+        log("Generating JSON report for all strategies", "info")
+        all_report = generate_json_report(updated_strategies, all_stats, log, config)
+        save_json_report(all_report, config, log)
+        
+        # If optimization is enabled, run permutation analysis
+        if optimize:
+            log("OPTIMIZE flag is TRUE - Running permutation analysis", "info")
+            log("Note: Optimization uses risk-adjusted efficiency score that includes both structural components and performance metrics", "info")
+            log("Using equal allocations for all strategies in each permutation to ensure fair comparison", "info")
+            
+            if optimize_min_strategies:
+                log(f"Minimum strategies per permutation: {optimize_min_strategies}", "info")
+            if optimize_max_permutations:
+                log(f"Maximum permutations to analyze: {optimize_max_permutations}", "info")
+            
+            try:
+                # Find optimal permutation
+                optimal_strategies, optimal_stats, optimal_aligned_data = find_optimal_permutation(
+                    strategies,
+                    process_strategies,
+                    analyze_concurrency,
+                    log,
+                    min_strategies=optimize_min_strategies,
+                    max_permutations=optimize_max_permutations
+                )
+                
+                # Log optimal strategies
+                log("Optimal strategy combination found:", "info")
+                for i, strategy in enumerate(optimal_strategies):
+                    ticker = strategy.get('TICKER', 'unknown')
+                    log(f"  {i+1}. {ticker}", "info")
+                
+                # Log comparison
+                log("Comparison of optimal vs. all strategies:", "info")
+                log(f"  All strategies risk-adjusted efficiency: {all_stats['efficiency_score']:.4f}", "info")
+                log(f"  Optimal combination risk-adjusted efficiency: {optimal_stats['efficiency_score']:.4f}", "info")
+                improvement = (
+                    (optimal_stats['efficiency_score'] - all_stats['efficiency_score']) /
+                    all_stats['efficiency_score'] * 100
+                )
+                log(f"  Improvement: {improvement:.2f}%", "info")
+                
+                # Generate optimization report
+                optimization_report = generate_optimization_report(
+                    updated_strategies,
+                    all_stats,
+                    optimal_strategies,
+                    optimal_stats,
+                    config,
+                    log
+                )
+                
+                # Save optimization report
+                save_optimization_report(optimization_report, config, log)
+                
+                # Generate and save JSON report for optimal strategies
+                log("Generating JSON report for optimal strategy combination", "info")
+                optimal_report = generate_json_report(optimal_strategies, optimal_stats, log, config)
+                
+                # Save report with "optimal" suffix
+                portfolio_filename = Path(config["PORTFOLIO"]).stem
+                optimal_report_filename = f"{portfolio_filename}_optimal.json"
+                json_dir = Path("json/concurrency")
+                json_dir.mkdir(parents=True, exist_ok=True)
+                optimal_report_path = json_dir / optimal_report_filename
+                with open(optimal_report_path, 'w') as f:
+                    json.dump(optimal_report, f, indent=4, cls=NumpyEncoder)
+                
+                log(f"Optimization complete. Reports saved.", "info")
+                
+            except Exception as e:
+                log(f"Error during optimization: {str(e)}", "error")
+                log("Continuing with standard analysis results", "info")
+        
+        # Create visualization if enabled (using all strategies results)
         if config["VISUALIZATION"]:
             log("Creating visualization", "info")
             fig = plot_concurrency(
-                aligned_data,
-                stats,
+                all_aligned_data,
+                all_stats,
                 updated_strategies,
                 log
             )
             fig.show()
             log("Visualization displayed", "info")
-
-        # Generate and save JSON report
-        log("Generating JSON report", "info")
-        report = generate_json_report(updated_strategies, stats, log, config)
-        
-        # Save report
-        save_json_report(report, config, log)
         
         log("Unified concurrency analysis completed successfully", "info")
         return True

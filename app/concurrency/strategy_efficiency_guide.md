@@ -440,6 +440,65 @@ The implementation provided in the concurrency analysis module offers sophistica
 
 Remember that efficiency metrics should be part of a broader evaluation framework that includes traditional performance metrics, risk measures, and qualitative factors. The goal is not just efficiency for its own sake, but improved risk-adjusted returns and more consistent performance.
 
+## Strategy Permutation Optimization
+
+### Understanding Strategy Permutation Analysis
+
+Strategy permutation analysis is an advanced feature that analyzes all possible combinations of strategies (with a minimum number per combination) to find the most efficient subset. This feature is enabled by setting the `OPTIMIZE` flag to `True` in the configuration.
+
+### How Permutation Analysis Works
+
+When the `OPTIMIZE` flag is enabled, the system:
+
+1. Runs the standard analysis on all strategies
+2. Generates all valid permutations of strategies (with at least 3 strategies per permutation by default)
+3. Analyzes each permutation to calculate its efficiency score
+4. Identifies the permutation with the highest efficiency score
+5. Generates reports comparing the full strategy set with the optimal subset
+
+### Configuration Options
+
+The following configuration options control the permutation analysis:
+
+- `OPTIMIZE`: Boolean flag to enable/disable permutation analysis
+- `OPTIMIZE_MIN_STRATEGIES`: Minimum number of strategies per permutation (default: 3)
+- `OPTIMIZE_MAX_PERMUTATIONS`: Maximum number of permutations to analyze (optional)
+
+### Interpreting Optimization Results
+
+The optimization report provides a comparison between the full strategy set and the optimal subset, including:
+
+- Risk-adjusted efficiency improvement percentage
+- List of strategies in the optimal subset
+- Detailed metrics for both the full set and optimal subset, including:
+  - Structural components (diversification, independence, activity)
+  - Performance metrics (expectancy, weighted efficiency)
+  - Risk metrics (risk concentration index)
+- Note that equal allocations were used for all strategies during the analysis
+
+### Performance Considerations
+
+Permutation analysis can be computationally intensive, especially with many strategies:
+
+- For n strategies, there are 2^n - n - 1 permutations with at least 3 strategies
+- The system provides progress tracking and time estimates during analysis
+- For large strategy sets, consider using the `OPTIMIZE_MAX_PERMUTATIONS` option to limit the analysis
+
+### Example Usage
+
+```python
+# Enable optimization in configuration
+config = {
+    "PORTFOLIO": "crypto_d_20250508.csv",
+    "OPTIMIZE": True,
+    "OPTIMIZE_MIN_STRATEGIES": 3,
+    "OPTIMIZE_MAX_PERMUTATIONS": 1000  # Optional: limit to 1000 permutations
+}
+
+# Run analysis
+run_concurrency_review("crypto_d_20250508", config)
+```
+
 ## References
 
 1. Modern Portfolio Theory (MPT)
@@ -447,3 +506,4 @@ Remember that efficiency metrics should be part of a broader evaluation framewor
 3. Correlation and Diversification in Multi-Strategy Portfolios
 4. Capital Allocation and Portfolio Optimization
 5. Signal Quality and Trading System Evaluation
+6. Combinatorial Optimization in Portfolio Selection

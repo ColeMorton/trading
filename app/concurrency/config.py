@@ -38,6 +38,9 @@ class ConcurrencyConfig(TypedDict):
         CSV_USE_HOURLY (NotRequired[bool]): Use hourly timeframe for CSV strategies
                                            (True for hourly, False for daily)
         REPORT_INCLUDES (NotRequired[ReportIncludesConfig]): Configuration for report content inclusion
+        OPTIMIZE (NotRequired[bool]): Whether to run permutation analysis
+        OPTIMIZE_MIN_STRATEGIES (NotRequired[int]): Minimum strategies per permutation
+        OPTIMIZE_MAX_PERMUTATIONS (NotRequired[int]): Maximum permutations to analyze
     """
     PORTFOLIO: str
     BASE_DIR: str
@@ -46,6 +49,9 @@ class ConcurrencyConfig(TypedDict):
     RATIO_BASED_ALLOCATION: NotRequired[bool]
     CSV_USE_HOURLY: NotRequired[bool]
     REPORT_INCLUDES: NotRequired[ReportIncludesConfig]
+    OPTIMIZE: NotRequired[bool]
+    OPTIMIZE_MIN_STRATEGIES: NotRequired[int]
+    OPTIMIZE_MAX_PERMUTATIONS: NotRequired[int]
 
 class CsvStrategyRow(TypedDict):
     """CSV strategy row format.
@@ -237,6 +243,26 @@ def validate_config(config: Dict[str, Any]) -> ConcurrencyConfig:
     
     if 'CSV_USE_HOURLY' in config and not isinstance(config['CSV_USE_HOURLY'], bool):
         raise ValidationError("CSV_USE_HOURLY must be a boolean if provided")
+    
+    # Validate OPTIMIZE flag (default to False if not present)
+    if "OPTIMIZE" in config and not isinstance(config["OPTIMIZE"], bool):
+        raise ValidationError("OPTIMIZE must be a boolean")
+    elif "OPTIMIZE" not in config:
+        config["OPTIMIZE"] = False
+    
+    # Validate OPTIMIZE_MIN_STRATEGIES (default to 3 if not present)
+    if "OPTIMIZE_MIN_STRATEGIES" in config:
+        if not isinstance(config["OPTIMIZE_MIN_STRATEGIES"], int) or config["OPTIMIZE_MIN_STRATEGIES"] < 2:
+            raise ValidationError("OPTIMIZE_MIN_STRATEGIES must be an integer >= 2")
+    else:
+        config["OPTIMIZE_MIN_STRATEGIES"] = 3
+    
+    # Validate OPTIMIZE_MAX_PERMUTATIONS (default to None if not present)
+    if "OPTIMIZE_MAX_PERMUTATIONS" in config:
+        if not isinstance(config["OPTIMIZE_MAX_PERMUTATIONS"], int) or config["OPTIMIZE_MAX_PERMUTATIONS"] < 1:
+            raise ValidationError("OPTIMIZE_MAX_PERMUTATIONS must be a positive integer")
+    else:
+        config["OPTIMIZE_MAX_PERMUTATIONS"] = None
 
     return config
 

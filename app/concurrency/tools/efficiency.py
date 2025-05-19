@@ -160,10 +160,28 @@ def calculate_portfolio_efficiency(
         # Calculate final portfolio efficiency
         portfolio_efficiency = total_efficiency * diversification * adjusted_independence * activity
         
+        # Log the components for debugging
+        log(f"Portfolio efficiency calculation components:", "info")
+        log(f"  Total weighted efficiency: {total_efficiency:.6f}", "info")
+        log(f"  Diversification multiplier: {diversification:.6f}", "info")
+        log(f"  Adjusted independence multiplier: {adjusted_independence:.6f}", "info")
+        log(f"  Activity multiplier: {activity:.6f}", "info")
+        log(f"  Raw portfolio efficiency: {portfolio_efficiency:.6f}", "info")
+        
         # Ensure portfolio efficiency is at least a small positive value
         if portfolio_efficiency <= 0:
             log(f"Warning: Calculated portfolio efficiency is {portfolio_efficiency}, setting to minimum value", "warning")
             portfolio_efficiency = 0.0001
+        
+        # If portfolio efficiency is still very low but individual strategy efficiencies are higher,
+        # use a weighted average of strategy efficiencies as a floor
+        if portfolio_efficiency < 0.01 and strategy_efficiencies:
+            avg_strategy_efficiency = sum(strategy_efficiencies) / len(strategy_efficiencies)
+            if avg_strategy_efficiency > portfolio_efficiency:
+                log(f"Portfolio efficiency ({portfolio_efficiency:.6f}) is much lower than average strategy efficiency ({avg_strategy_efficiency:.6f})", "warning")
+                log(f"Setting portfolio efficiency to 50% of average strategy efficiency", "info")
+                portfolio_efficiency = max(portfolio_efficiency, avg_strategy_efficiency * 0.5)
+                log(f"Adjusted portfolio efficiency: {portfolio_efficiency:.6f}", "info")
         
         metrics = {
             'portfolio_efficiency': portfolio_efficiency,

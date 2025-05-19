@@ -1,0 +1,44 @@
+{
+    "optimization_summary": {
+        "all_strategies_count": 6,
+        "all_strategies_tickers": [
+            "AAPL",
+            "GD",
+            "SMLR",
+            "FFIV",
+            "RTX",
+            "HSY"
+        ],
+        "optimal_strategies_count": 3,
+        "optimal_strategies_tickers": [
+            "GD",
+            "SMLR",
+            "FFIV"
+        ],
+        "efficiency_improvement_percent": 42.9389684505901
+    },
+    "all_strategies": {
+        "efficiency_score": 0.08005640961151135,
+        "diversification_multiplier": 0.9203455171783407,
+        "independence_multiplier": 0.33442764578833695,
+        "activity_multiplier": 0.9826671383091616,
+        "total_expectancy": 31.578008534529197,
+        "weighted_efficiency": 0.0,
+        "risk_concentration_index": 0.6003119750419966
+    },
+    "optimal_strategies": {
+        "efficiency_score": 0.11443180607727339,
+        "diversification_multiplier": 0.9753074327193146,
+        "independence_multiplier": 0.5161245674740484,
+        "activity_multiplier": 0.9200565970993987,
+        "total_expectancy": 18.777552121095503,
+        "weighted_efficiency": 0.0,
+        "risk_concentration_index": 0.6300140971421248
+    },
+    "config": {
+        "portfolio": "stock_trades_20250517.csv",
+        "min_strategies_per_permutation": 3,
+        "max_permutations": null
+    },
+    "efficiency_calculation_note": "The efficiency_score is a comprehensive risk-adjusted performance metric that combines structural components (diversification, independence, activity) with performance metrics (expectancy, risk factors, allocation). Equal allocations were used for all strategies during optimization analysis."
+}
