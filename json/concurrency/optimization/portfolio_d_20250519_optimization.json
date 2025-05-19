@@ -1,0 +1,66 @@
+{
+    "optimization_summary": {
+        "all_strategies_count": 16,
+        "all_strategies": [
+            "BTC-USD_SMA_104_105_0",
+            "MSTR_MACD_13_21_32",
+            "BTC-USD_MACD_14_23_13",
+            "BTC-USD_SMA_26_38_0",
+            "BTC-USD_SMA_27_29_0",
+            "MSTR_SMA_16_82_0",
+            "MSTR_SMA_18_21_0",
+            "BTC-USD_SMA_76_78_0",
+            "MSTR_SMA_52_90_0",
+            "BTC-USD_SMA_11_36_0",
+            "MSTR_MACD_13_31_11",
+            "MSTR_MACD_9_13_5",
+            "MSTR_MACD_7_8_12",
+            "MSTR_SMA_6_84_0",
+            "BTC-USD_SMA_8_44_0",
+            "BTC-USD_EMA_5_68_0"
+        ],
+        "optimal_strategies_count": 13,
+        "optimal_strategies": [
+            "BTC-USD_SMA_104_105_0",
+            "MSTR_MACD_13_21_32",
+            "BTC-USD_MACD_14_23_13",
+            "BTC-USD_SMA_26_38_0",
+            "MSTR_SMA_16_82_0",
+            "MSTR_SMA_18_21_0",
+            "BTC-USD_SMA_76_78_0",
+            "MSTR_SMA_52_90_0",
+            "BTC-USD_SMA_11_36_0",
+            "MSTR_MACD_13_31_11",
+            "MSTR_SMA_6_84_0",
+            "BTC-USD_SMA_8_44_0",
+            "BTC-USD_EMA_5_68_0"
+        ],
+        "efficiency_improvement_percent": 13.389775893705448
+    },
+    "all_strategies": {
+        "efficiency_score": 1.9417352895807845,
+        "diversification_multiplier": 0.7772349116227422,
+        "independence_multiplier": 0.2889323308270677,
+        "activity_multiplier": 0.9914275065225494,
+        "total_expectancy": 271.9315172764689,
+        "average_expectancy": 16.995719829779308,
+        "weighted_efficiency": 1.9417352895807845,
+        "risk_concentration_index": 0.5591165413533835
+    },
+    "optimal_strategies": {
+        "efficiency_score": 2.201729293304644,
+        "diversification_multiplier": 0.7650348640845829,
+        "independence_multiplier": 0.30035431586882777,
+        "activity_multiplier": 0.9888184867685427,
+        "total_expectancy": 258.67473154827474,
+        "average_expectancy": 19.89805627294421,
+        "weighted_efficiency": 2.201729293304644,
+        "risk_concentration_index": 0.5657166052944417
+    },
+    "config": {
+        "portfolio": "portfolio_d_20250519.csv",
+        "min_strategies_per_permutation": 13,
+        "max_permutations": null
+    },
+    "efficiency_calculation_note": "The efficiency_score is a comprehensive risk-adjusted performance metric that combines structural components (diversification, independence, activity) with performance metrics (expectancy, risk factors, allocation). Equal allocations were used for all strategies during optimization analysis."
+}
