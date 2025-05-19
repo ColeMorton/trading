@@ -119,7 +119,7 @@ def run_analysis(
         optimize_max_permutations = config.get("OPTIMIZE_MAX_PERMUTATIONS", None)
         
         # Log allocation status
-        include_allocation = config.get("REPORT_INCLUDES", {}).get("ALLOCATION", True)
+        include_allocation = config.get("REPORT_INCLUDES", {}).get("ALLOCATION", False)
         if include_allocation:
             log("Allocation calculations enabled", "info")
         else:

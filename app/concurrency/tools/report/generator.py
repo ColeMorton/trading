@@ -49,7 +49,7 @@ def generate_json_report(
         log(f"Starting JSON report generation for {len(strategies)} strategies", "info")
 
         # Check if allocation is enabled
-        include_allocation = config.get("REPORT_INCLUDES", {}).get("ALLOCATION", True)
+        include_allocation = config.get("REPORT_INCLUDES", {}).get("ALLOCATION", False)
         log(f"ALLOCATION flag in report generator: {include_allocation}", "info")
         
         # Add allocation flag to stats for other functions to use

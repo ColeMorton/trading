@@ -250,7 +250,7 @@ def analyze_concurrency(
             log(f"  Efficiency: {efficiency:.4f}", "info")
         
         # Check if any strategy config has a global config with REPORT_INCLUDES.ALLOCATION
-        include_allocation = True  # Default to True for backward compatibility
+        include_allocation = False  # Default to False to match configuration
         
         # First check if any strategy has the global config
         for config in config_list:

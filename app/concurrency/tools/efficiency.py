@@ -73,7 +73,7 @@ def calculate_portfolio_efficiency(
     inactive_periods: int,
     total_periods: int,
     log: Callable[[str, str], None],
-    include_allocation: bool = True
+    include_allocation: bool = False
 ) -> Dict[str, float]:
     """Calculate portfolio-level efficiency metrics with risk adjustment.
     
