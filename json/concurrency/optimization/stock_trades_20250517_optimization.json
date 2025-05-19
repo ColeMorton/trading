@@ -9,13 +9,15 @@
             "RTX_SMA_63_75_0",
             "HSY_SMA_26_33_0"
         ],
-        "optimal_strategies_count": 3,
+        "optimal_strategies_count": 5,
         "optimal_strategies": [
+            "AAPL_SMA_17_42_0",
             "GD_SMA_70_85_0",
             "SMLR_SMA_24_25_0",
-            "FFIV_SMA_18_59_0"
+            "FFIV_SMA_18_59_0",
+            "RTX_SMA_63_75_0"
         ],
-        "efficiency_improvement_percent": 59.666165253719186
+        "efficiency_improvement_percent": 15.766351226701197
     },
     "all_strategies": {
         "efficiency_score": 0.7378583298914801,
@@ -28,19 +30,19 @@
         "risk_concentration_index": 0.6003119750419966
     },
     "optimal_strategies": {
-        "efficiency_score": 1.1781101003428631,
-        "diversification_multiplier": 0.9753074327193146,
-        "independence_multiplier": 0.5161245674740484,
-        "activity_multiplier": 0.9200565970993987,
-        "total_expectancy": 18.777552121095503,
-        "average_expectancy": 6.2591840403651675,
-        "weighted_efficiency": 1.1781101003428631,
-        "risk_concentration_index": 0.6300140971421248
+        "efficiency_score": 0.8541916657376425,
+        "diversification_multiplier": 0.912628598851858,
+        "independence_multiplier": 0.35176255038475635,
+        "activity_multiplier": 0.9653342766183233,
+        "total_expectancy": 30.373246856598417,
+        "average_expectancy": 6.074649371319683,
+        "weighted_efficiency": 0.8541916657376425,
+        "risk_concentration_index": 0.6145840967387322
     },
     "config": {
         "portfolio": "stock_trades_20250517.csv",
-        "min_strategies_per_permutation": 3,
-        "max_permutations": 1000
+        "min_strategies_per_permutation": 5,
+        "max_permutations": null
     },
     "efficiency_calculation_note": "The efficiency_score is a comprehensive risk-adjusted performance metric that combines structural components (diversification, independence, activity) with performance metrics (expectancy, risk factors, allocation). Equal allocations were used for all strategies during optimization analysis."
 }
