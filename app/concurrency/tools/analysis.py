@@ -222,9 +222,6 @@ def analyze_concurrency(
         
         # Calculate ratios for portfolio-level metrics
         total_periods = len(aligned_data[0])
-        concurrent_ratio = position_metrics[2] / total_periods
-        exclusive_ratio = position_metrics[3] / total_periods
-        inactive_ratio = position_metrics[4] / total_periods
         
         # Calculate individual strategy efficiencies using strategy-specific metrics
         log("Calculating individual strategy efficiencies", "info")

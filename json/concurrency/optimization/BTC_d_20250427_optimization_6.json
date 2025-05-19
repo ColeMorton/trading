@@ -1,0 +1,54 @@
+{
+    "optimization_summary": {
+        "all_strategies_count": 11,
+        "all_strategies": [
+            "BTC-USD_SMA_104_105_0",
+            "BTC-USD_MACD_14_23_13",
+            "BTC-USD_SMA_26_38_0",
+            "BTC-USD_SMA_27_29_0",
+            "BTC-USD_SMA_76_78_0",
+            "BTC-USD_SMA_11_36_0",
+            "BTC-USD_MACD_18_29_18",
+            "BTC-USD_SMA_8_44_0",
+            "BTC-USD_EMA_5_68_0",
+            "BTC-USD_SMA_3_47_0",
+            "BTC-USD_MACD_3_15_3"
+        ],
+        "optimal_strategies_count": 6,
+        "optimal_strategies": [
+            "BTC-USD_SMA_104_105_0",
+            "BTC-USD_MACD_14_23_13",
+            "BTC-USD_SMA_26_38_0",
+            "BTC-USD_SMA_76_78_0",
+            "BTC-USD_SMA_8_44_0",
+            "BTC-USD_EMA_5_68_0"
+        ],
+        "efficiency_improvement_percent": 28.96574140540332
+    },
+    "all_strategies": {
+        "efficiency_score": 1.471772165450559,
+        "diversification_multiplier": 0.6770459073755652,
+        "independence_multiplier": 0.31302055877701634,
+        "activity_multiplier": 0.9735694123684886,
+        "total_expectancy": 174.8002412571862,
+        "average_expectancy": 15.890931023380563,
+        "weighted_efficiency": 1.471772165450559,
+        "risk_concentration_index": 0.5738965831216754
+    },
+    "optimal_strategies": {
+        "efficiency_score": 1.8980818849716725,
+        "diversification_multiplier": 0.7008000806393382,
+        "independence_multiplier": 0.3876653909240022,
+        "activity_multiplier": 0.9386707723890172,
+        "total_expectancy": 118.76319347503376,
+        "average_expectancy": 19.793865579172294,
+        "weighted_efficiency": 1.8980818849716725,
+        "risk_concentration_index": 0.6051120831055221
+    },
+    "config": {
+        "portfolio": "BTC_d_20250427.csv",
+        "min_strategies_per_permutation": 6,
+        "max_permutations": null
+    },
+    "efficiency_calculation_note": "The efficiency_score is a comprehensive risk-adjusted performance metric that combines structural components (diversification, independence, activity) with performance metrics (expectancy, risk factors, allocation). Equal allocations were used for all strategies during optimization analysis."
+}

@@ -1026,9 +1026,9 @@
                     "value": 42,
                     "description": "LONG_WINDOW metric from portfolio data"
                 },
-                "ALLOCATION": {
-                    "value": 0.16666666666666666,
-                    "description": "ALLOCATION metric from portfolio data"
+                "strategy_id": {
+                    "value": "AAPL_SMA_17_42_0",
+                    "description": "strategy_id metric from portfolio data"
                 },
                 "EXPECTANCY_PER_MONTH": {
                     "value": 2.098847701323776,
@@ -1042,9 +1042,17 @@
                     "value": 8.351385114329181,
                     "description": "EXPECTANCY_PER_TRADE metric from portfolio data"
                 },
-                "strategy_id": {
-                    "value": "AAPL_SMA_17_42_0",
-                    "description": "strategy_id metric from portfolio data"
+                "GLOBAL_CONFIG": {
+                    "value": {
+                        "REPORT_INCLUDES": {
+                            "ALLOCATION": false
+                        }
+                    },
+                    "description": "GLOBAL_CONFIG metric from portfolio data"
+                },
+                "ALLOCATION": {
+                    "value": 0.16666666666666666,
+                    "description": "ALLOCATION metric from portfolio data"
                 },
                 "Short Window": {
                     "value": 0,
@@ -1471,9 +1479,9 @@
                     "value": 59,
                     "description": "LONG_WINDOW metric from portfolio data"
                 },
-                "ALLOCATION": {
-                    "value": 0.16666666666666666,
-                    "description": "ALLOCATION metric from portfolio data"
+                "strategy_id": {
+                    "value": "FFIV_SMA_18_59_0",
+                    "description": "strategy_id metric from portfolio data"
                 },
                 "EXPECTANCY_PER_MONTH": {
                     "value": 1.9023745605183153,
@@ -1487,9 +1495,17 @@
                     "value": 9.856112008780604,
                     "description": "EXPECTANCY_PER_TRADE metric from portfolio data"
                 },
-                "strategy_id": {
-                    "value": "FFIV_SMA_18_59_0",
-                    "description": "strategy_id metric from portfolio data"
+                "GLOBAL_CONFIG": {
+                    "value": {
+                        "REPORT_INCLUDES": {
+                            "ALLOCATION": false
+                        }
+                    },
+                    "description": "GLOBAL_CONFIG metric from portfolio data"
+                },
+                "ALLOCATION": {
+                    "value": 0.16666666666666666,
+                    "description": "ALLOCATION metric from portfolio data"
                 },
                 "Short Window": {
                     "value": 0,
@@ -1916,9 +1932,9 @@
                     "value": 85,
                     "description": "LONG_WINDOW metric from portfolio data"
                 },
-                "ALLOCATION": {
-                    "value": 0.16666666666666666,
-                    "description": "ALLOCATION metric from portfolio data"
+                "strategy_id": {
+                    "value": "GD_SMA_70_85_0",
+                    "description": "strategy_id metric from portfolio data"
                 },
                 "EXPECTANCY_PER_MONTH": {
                     "value": 1.0008660497501265,
@@ -1932,9 +1948,17 @@
                     "value": 6.1304967333005065,
                     "description": "EXPECTANCY_PER_TRADE metric from portfolio data"
                 },
-                "strategy_id": {
-                    "value": "GD_SMA_70_85_0",
-                    "description": "strategy_id metric from portfolio data"
+                "GLOBAL_CONFIG": {
+                    "value": {
+                        "REPORT_INCLUDES": {
+                            "ALLOCATION": false
+                        }
+                    },
+                    "description": "GLOBAL_CONFIG metric from portfolio data"
+                },
+                "ALLOCATION": {
+                    "value": 0.16666666666666666,
+                    "description": "ALLOCATION metric from portfolio data"
                 },
                 "Short Window": {
                     "value": 0,
@@ -2361,9 +2385,9 @@
                     "value": 75,
                     "description": "LONG_WINDOW metric from portfolio data"
                 },
-                "ALLOCATION": {
-                    "value": 0.16666666666666666,
-                    "description": "ALLOCATION metric from portfolio data"
+                "strategy_id": {
+                    "value": "RTX_SMA_63_75_0",
+                    "description": "strategy_id metric from portfolio data"
                 },
                 "EXPECTANCY_PER_MONTH": {
                     "value": 0.6304011959818295,
@@ -2377,9 +2401,17 @@
                     "value": 3.2443096211737372,
                     "description": "EXPECTANCY_PER_TRADE metric from portfolio data"
                 },
-                "strategy_id": {
-                    "value": "RTX_SMA_63_75_0",
-                    "description": "strategy_id metric from portfolio data"
+                "GLOBAL_CONFIG": {
+                    "value": {
+                        "REPORT_INCLUDES": {
+                            "ALLOCATION": false
+                        }
+                    },
+                    "description": "GLOBAL_CONFIG metric from portfolio data"
+                },
+                "ALLOCATION": {
+                    "value": 0.16666666666666666,
+                    "description": "ALLOCATION metric from portfolio data"
                 },
                 "Short Window": {
                     "value": 0,
@@ -2806,9 +2838,9 @@
                     "value": 25,
                     "description": "LONG_WINDOW metric from portfolio data"
                 },
-                "ALLOCATION": {
-                    "value": 0.16666666666666666,
-                    "description": "ALLOCATION metric from portfolio data"
+                "strategy_id": {
+                    "value": "SMLR_SMA_24_25_0",
+                    "description": "strategy_id metric from portfolio data"
                 },
                 "EXPECTANCY_PER_MONTH": {
                     "value": 3.8160669555950473,
@@ -2822,9 +2854,17 @@
                     "value": 2.7909433790143905,
                     "description": "EXPECTANCY_PER_TRADE metric from portfolio data"
                 },
-                "strategy_id": {
-                    "value": "SMLR_SMA_24_25_0",
-                    "description": "strategy_id metric from portfolio data"
+                "GLOBAL_CONFIG": {
+                    "value": {
+                        "REPORT_INCLUDES": {
+                            "ALLOCATION": false
+                        }
+                    },
+                    "description": "GLOBAL_CONFIG metric from portfolio data"
+                },
+                "ALLOCATION": {
+                    "value": 0.16666666666666666,
+                    "description": "ALLOCATION metric from portfolio data"
                 },
                 "Short Window": {
                     "value": 0,

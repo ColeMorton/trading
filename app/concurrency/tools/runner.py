@@ -204,7 +204,7 @@ def run_analysis(
             try:
                 # Find optimal permutation
                 optimal_strategies, optimal_stats, optimal_aligned_data = find_optimal_permutation(
-                    strategies,
+                    updated_strategies,
                     process_strategies,
                     analyze_concurrency,
                     log,
