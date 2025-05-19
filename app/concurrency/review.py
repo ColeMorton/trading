@@ -72,6 +72,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "MSTR_d_20250415.csv",
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
     "REFRESH": False,
+    "OPTIMIZE": True,
     "SL_CANDLE_CLOSE": True, 
     "VISUALIZATION": False,
     "RATIO_BASED_ALLOCATION": True,
