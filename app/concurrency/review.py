@@ -64,16 +64,16 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "DAILY_crypto.csv",
     # "PORTFOLIO": "DAILY_test.csv",
     # "PORTFOLIO": "atr_test_portfolio.json",
-    # "PORTFOLIO": "stock_trades_20250517.csv",
+    "PORTFOLIO": "stock_trades_20250517.csv",
     # "PORTFOLIO": "portfolio_d_20250510.csv",
-    "PORTFOLIO": "total_d_20250519.csv", 
+    # "PORTFOLIO": "total_d_20250519.csv", 
     # "PORTFOLIO": "BTC-USD_SPY_d.csv",
     # "PORTFOLIO": "macd_test.json",
     # "PORTFOLIO": "MSTR_d_20250415.csv",
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
     "REFRESH": False,
     "OPTIMIZE": True,
-    "OPTIMIZE_MIN_STRATEGIES": 5,
+    "OPTIMIZE_MIN_STRATEGIES": 3,
     "OPTIMIZE_MAX_PERMUTATIONS": 1000,
     "SL_CANDLE_CLOSE": True, 
     "VISUALIZATION": False,
@@ -82,7 +82,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     "SORT_BY": "allocation",
     "REPORT_INCLUDES": {
         "TICKER_METRICS": True,
-        "STRATEGIES": False,
+        "STRATEGIES": True,
         "STRATEGY_RELATIONSHIPS": False,
         "ALLOCATION": False
     },

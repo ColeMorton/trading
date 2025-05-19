@@ -17,6 +17,7 @@ from app.concurrency.tools.visualization import plot_concurrency
 from app.concurrency.tools.report import generate_json_report
 from app.tools.portfolio import load_portfolio
 from app.concurrency.tools.strategy_processor import process_strategies
+from app.concurrency.tools.strategy_id import generate_strategy_id
 from app.concurrency.tools.permutation import find_optimal_permutation
 from app.concurrency.tools.optimization_report import (
     generate_optimization_report,
@@ -124,9 +125,28 @@ def run_analysis(
         else:
             log("Allocation calculations disabled", "info")
             
+        # Ensure all strategies have strategy_id
+        updated_strategies = []
+        for i, strategy in enumerate(strategies):
+            # Create a copy to avoid modifying the original
+            updated_strategy = strategy.copy()
+            
+            # Generate and assign strategy ID if not already present
+            if 'strategy_id' not in updated_strategy:
+                try:
+                    strategy_id = generate_strategy_id(updated_strategy)
+                    updated_strategy['strategy_id'] = strategy_id
+                    log(f"Generated strategy ID for strategy {i+1}: {strategy_id}", "debug")
+                except ValueError as e:
+                    log(f"Could not generate strategy ID for strategy {i+1}: {str(e)}", "warning")
+                    # Use a fallback ID based on index
+                    updated_strategy['strategy_id'] = f"strategy_{i+1}"
+            
+            updated_strategies.append(updated_strategy)
+        
         # Process strategies and get data for all strategies
         log("Processing strategy data for all strategies", "info")
-        strategy_data, updated_strategies = process_strategies(strategies, log)
+        strategy_data, updated_strategies = process_strategies(updated_strategies, log)
         
         # Analyze concurrency for all strategies
         log("Running concurrency analysis for all strategies", "info")
@@ -195,8 +215,12 @@ def run_analysis(
                 # Log optimal strategies
                 log("Optimal strategy combination found:", "info")
                 for i, strategy in enumerate(optimal_strategies):
+                    strategy_id = strategy.get('strategy_id', None)
                     ticker = strategy.get('TICKER', 'unknown')
-                    log(f"  {i+1}. {ticker}", "info")
+                    if strategy_id:
+                        log(f"  {i+1}. {ticker} (ID: {strategy_id})", "info")
+                    else:
+                        log(f"  {i+1}. {ticker}", "info")
                 
                 # Log comparison
                 log("Comparison of optimal vs. all strategies:", "info")

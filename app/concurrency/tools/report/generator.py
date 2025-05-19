@@ -8,6 +8,7 @@ from typing import Dict, Any, List, Callable
 # Import from local modules
 from app.concurrency.tools.report.strategy import create_strategy_object
 from app.concurrency.tools.report.metrics import calculate_ticker_metrics, create_portfolio_metrics
+from app.concurrency.tools.strategy_id import generate_strategy_id
 
 # Import types from the parent module
 from app.concurrency.tools.types import ConcurrencyReport
@@ -70,7 +71,18 @@ def generate_json_report(
         # Create strategy objects
         strategy_objects = []
         for idx, strategy in enumerate(strategies, 1):
-            log(f"Processing strategy {idx}/{len(strategies)}: {strategy['TICKER']}", "info")
+            # Ensure strategy has a strategy_id
+            if 'strategy_id' not in strategy:
+                try:
+                    strategy_id = generate_strategy_id(strategy)
+                    strategy['strategy_id'] = strategy_id
+                    log(f"Generated strategy ID for strategy {idx}: {strategy_id}", "debug")
+                except ValueError as e:
+                    log(f"Could not generate strategy ID for strategy {idx}: {str(e)}", "warning")
+            
+            ticker = strategy.get('TICKER', 'unknown')
+            strategy_id = strategy.get('strategy_id', f"strategy_{idx}")
+            log(f"Processing strategy {idx}/{len(strategies)}: {ticker} (ID: {strategy_id})", "info")
             strategy_objects.append(create_strategy_object(strategy, idx, stats))
         
         # Create portfolio metrics

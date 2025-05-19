@@ -444,6 +444,46 @@ The implementation provided in the concurrency analysis module offers sophistica
 
 Remember that efficiency metrics should be part of a broader evaluation framework that includes traditional performance metrics, risk measures, and qualitative factors. The goal is not just efficiency for its own sake, but improved risk-adjusted returns and more consistent performance.
 
+## Strategy Identification
+
+### Understanding Strategy IDs
+
+Strategy IDs provide a standardized way to uniquely identify trading strategies across the system. The format is:
+
+```
+{ticker}_{strategy_type}_{short_window}_{long_window}_{signal_window}
+```
+
+For example:
+- `BTC-USD_SMA_80_85_0`: Bitcoin SMA strategy with 80/85 windows and no signal window
+- `AAPL_EMA_19_21_0`: Apple EMA strategy with 19/21 windows
+- `MSTR_MACD_12_26_9`: MicroStrategy MACD strategy with 12/26/9 parameters
+- `ETH-USD_ATR_14_2.5_0`: Ethereum ATR strategy with length 14 and multiplier 2.5
+
+### Benefits of Standardized Strategy IDs
+
+1. **Unique identification**: Distinguishes between multiple strategies for the same ticker
+2. **Self-documentation**: Encodes key strategy parameters in the ID
+3. **Consistent reference**: Provides a standard way to refer to strategies across reports
+4. **Improved tracking**: Enables better tracking of strategy performance over time
+
+### How Strategy IDs Are Used
+
+Strategy IDs are used throughout the system:
+
+1. **Optimization reports**: Identifying strategies in the optimal subset
+2. **Strategy relationships**: Mapping correlations and relationships between strategies
+3. **Performance tracking**: Associating performance metrics with specific strategies
+4. **Configuration management**: Maintaining consistent strategy configurations
+
+### Working with Strategy IDs
+
+The system automatically generates strategy IDs based on strategy configurations. You can also:
+
+1. **Parse strategy IDs**: Extract parameters from an existing strategy ID
+2. **Validate strategy IDs**: Check if a string is a valid strategy ID
+3. **Generate strategy IDs**: Create IDs manually for new strategies
+
 ## Strategy Permutation Optimization
 
 ### Understanding Strategy Permutation Analysis

@@ -1,6 +1,6 @@
 """Core analysis functionality for concurrency analysis."""
 
-from typing import List, Tuple, Callable
+from typing import List, Tuple, Callable, Dict, Any
 import polars as pl
 from app.concurrency.tools.types import ConcurrencyStats, StrategyConfig
 from app.concurrency.tools.data_alignment import align_multiple_data
@@ -13,6 +13,7 @@ from app.concurrency.tools.efficiency import (
 from app.concurrency.tools.position_metrics import calculate_position_metrics
 from app.concurrency.tools.signal_metrics import calculate_signal_metrics
 from app.concurrency.tools.signal_quality import calculate_signal_quality_metrics
+from app.concurrency.tools.strategy_id import generate_strategy_id
 
 def validate_inputs(
     data_list: List[pl.DataFrame],
@@ -371,8 +372,18 @@ def analyze_concurrency(
         
         allocation_efficiencies = [efficiency[0] for efficiency in strategy_efficiencies]
 
-        # Extract tickers from configs
-        strategy_tickers = [config.get('TICKER', '') for config in config_list]
+        # Extract strategy IDs from configs
+        strategy_ids = []
+        for i, config in enumerate(config_list):
+            if 'strategy_id' in config:
+                strategy_ids.append(config['strategy_id'])
+            else:
+                try:
+                    strategy_id = generate_strategy_id(config)
+                    strategy_ids.append(strategy_id)
+                except ValueError:
+                    # Fallback to ticker if strategy_id cannot be generated
+                    strategy_ids.append(config.get('TICKER', f"strategy_{i+1}"))
         
         # Only calculate allocations if the feature is enabled
         if include_allocation:
@@ -380,7 +391,7 @@ def analyze_concurrency(
             allocation_scores, allocation_percentages = calculate_allocation_scores(
                 strategy_risk_contributions,
                 allocation_efficiencies,
-                strategy_tickers,
+                strategy_ids,
                 log,
                 ratio_based_allocation=True,  # Enable ratio-based allocation
                 strategy_configs=config_list  # Pass strategy configs to access portfolio stats

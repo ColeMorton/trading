@@ -62,12 +62,16 @@ class CsvStrategyRow(TypedDict):
         Short Window (int): Short moving average period
         Long Window (int): Long moving average period
         Signal Window (int): Signal line period (for MACD)
+        
+    Optional Fields:
+        strategy_id (NotRequired[str]): Unique strategy identifier
     """
     Ticker: str
     Use_SMA: bool
     Short_Window: int
     Long_Window: int
     Signal_Window: int
+    strategy_id: NotRequired[str]
 
 class JsonMaStrategy(TypedDict):
     """JSON MA strategy format.
@@ -84,6 +88,7 @@ class JsonMaStrategy(TypedDict):
         stop_loss (NotRequired[float]): Stop loss percentage
         rsi_period (NotRequired[int]): RSI calculation period
         rsi_threshold (NotRequired[int]): RSI signal threshold
+        strategy_id (NotRequired[str]): Unique strategy identifier
     """
     ticker: str
     timeframe: str
@@ -94,6 +99,7 @@ class JsonMaStrategy(TypedDict):
     stop_loss: NotRequired[float]
     rsi_period: NotRequired[int]
     rsi_threshold: NotRequired[int]
+    strategy_id: NotRequired[str]
 class JsonMacdStrategy(TypedDict):
     """JSON MACD strategy format.
 
@@ -110,6 +116,7 @@ class JsonMacdStrategy(TypedDict):
         stop_loss (NotRequired[float]): Stop loss percentage
         rsi_period (NotRequired[int]): RSI calculation period
         rsi_threshold (NotRequired[int]): RSI signal threshold
+        strategy_id (NotRequired[str]): Unique strategy identifier
     """
     ticker: str
     timeframe: str
@@ -121,6 +128,7 @@ class JsonMacdStrategy(TypedDict):
     stop_loss: NotRequired[float]
     rsi_period: NotRequired[int]
     rsi_threshold: NotRequired[int]
+    strategy_id: NotRequired[str]
 
 class JsonAtrStrategy(TypedDict):
     """JSON ATR Trailing Stop strategy format.
@@ -137,6 +145,7 @@ class JsonAtrStrategy(TypedDict):
         stop_loss (NotRequired[float]): Stop loss percentage
         rsi_period (NotRequired[int]): RSI calculation period
         rsi_threshold (NotRequired[int]): RSI signal threshold
+        strategy_id (NotRequired[str]): Unique strategy identifier
     """
     ticker: str
     timeframe: str
@@ -147,6 +156,7 @@ class JsonAtrStrategy(TypedDict):
     stop_loss: NotRequired[float]
     rsi_period: NotRequired[int]
     rsi_threshold: NotRequired[int]
+    strategy_id: NotRequired[str]
 
 @dataclass
 class PortfolioFormat:

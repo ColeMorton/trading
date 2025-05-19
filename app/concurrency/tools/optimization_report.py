@@ -10,6 +10,7 @@ import json
 
 from app.tools.portfolio import StrategyConfig
 from app.concurrency.tools.types import ConcurrencyConfig
+from app.concurrency.tools.strategy_id import generate_strategy_id
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -56,17 +57,38 @@ def generate_optimization_report(
         all_stats['efficiency_score'] * 100
     )
     
-    # Extract strategy tickers for easier reference
-    all_tickers = [s.get('TICKER', 'unknown') for s in all_strategies]
-    optimal_tickers = [s.get('TICKER', 'unknown') for s in optimal_strategies]
+    # Extract strategy IDs for easier reference
+    all_strategy_ids = []
+    for strategy in all_strategies:
+        if 'strategy_id' in strategy:
+            all_strategy_ids.append(strategy['strategy_id'])
+        else:
+            try:
+                strategy_id = generate_strategy_id(strategy)
+                all_strategy_ids.append(strategy_id)
+            except ValueError:
+                # Fallback to ticker if strategy_id cannot be generated
+                all_strategy_ids.append(strategy.get('TICKER', 'unknown'))
+    
+    optimal_strategy_ids = []
+    for strategy in optimal_strategies:
+        if 'strategy_id' in strategy:
+            optimal_strategy_ids.append(strategy['strategy_id'])
+        else:
+            try:
+                strategy_id = generate_strategy_id(strategy)
+                optimal_strategy_ids.append(strategy_id)
+            except ValueError:
+                # Fallback to ticker if strategy_id cannot be generated
+                optimal_strategy_ids.append(strategy.get('TICKER', 'unknown'))
     
     # Create report
     report = {
         "optimization_summary": {
             "all_strategies_count": len(all_strategies),
-            "all_strategies_tickers": all_tickers,
+            "all_strategies": all_strategy_ids,
             "optimal_strategies_count": len(optimal_strategies),
-            "optimal_strategies_tickers": optimal_tickers,
+            "optimal_strategies": optimal_strategy_ids,
             "efficiency_improvement_percent": efficiency_improvement,
         },
         "all_strategies": {

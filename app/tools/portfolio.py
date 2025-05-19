@@ -11,6 +11,36 @@ import csv
 import json
 
 from app.tools.exceptions import PortfolioLoadError
+from app.concurrency.tools.strategy_id import generate_strategy_id
+
+def process_portfolio_strategies(strategies: List[Dict[str, Any]], log: Callable) -> List[Dict[str, Any]]:
+    """Process portfolio strategies and assign strategy IDs.
+    
+    Args:
+        strategies (List[Dict[str, Any]]): List of strategy configurations
+        log (Callable): Logging function
+        
+    Returns:
+        List[Dict[str, Any]]: Processed strategies with strategy IDs
+    """
+    processed_strategies = []
+    
+    for i, strategy in enumerate(strategies):
+        # Create a copy to avoid modifying the original
+        processed_strategy = strategy.copy()
+        
+        # Generate and assign strategy ID if not already present
+        if 'strategy_id' not in processed_strategy:
+            try:
+                strategy_id = generate_strategy_id(processed_strategy)
+                processed_strategy['strategy_id'] = strategy_id
+                log(f"Generated strategy ID for strategy {i+1}: {strategy_id}", "debug")
+            except ValueError as e:
+                log(f"Could not generate strategy ID for strategy {i+1}: {str(e)}", "warning")
+        
+        processed_strategies.append(processed_strategy)
+    
+    return processed_strategies
 
 
 def resolve_portfolio_path(portfolio_name: str, base_dir: str = '.') -> str:
@@ -148,7 +178,11 @@ def load_portfolio_with_logging(
             raise PortfolioLoadError(f"Unsupported portfolio format: {portfolio_path}")
         
         log(f"Successfully loaded portfolio with {len(portfolio_data)} entries", "info")
-        return portfolio_data
+        
+        # Process strategies to assign strategy IDs
+        processed_data = process_portfolio_strategies(portfolio_data, log)
+        
+        return processed_data
     except PortfolioLoadError as e:
         log(f"Portfolio load error: {str(e)}", "error")
         raise
@@ -196,8 +230,11 @@ def portfolio_context(
         
         log(f"Successfully loaded portfolio with {len(portfolio_data)} entries", "info")
         
-        # Yield the loaded portfolio data
-        yield portfolio_data
+        # Process strategies to assign strategy IDs
+        processed_data = process_portfolio_strategies(portfolio_data, log)
+        
+        # Yield the processed portfolio data
+        yield processed_data
     except FileNotFoundError as e:
         raise PortfolioLoadError(f"Portfolio file not found: {str(e)}")
     except PermissionError as e:

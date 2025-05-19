@@ -46,7 +46,14 @@ def create_strategy_object(
     # Also check for explicit type field which might come from JSON portfolios
     if "type" in config:
         strategy_type = config["type"]
-    strategy_id = str(index)
+    
+    # Use the strategy_id from config if available, otherwise use index
+    if 'strategy_id' in config:
+        strategy_id = config['strategy_id']
+    else:
+        # If no strategy_id in config, use ticker and other info to create one
+        ticker = config.get('TICKER', f"unknown_{index}")
+        strategy_id = f"{ticker}_{strategy_type}_{index}"
     
     # Create base parameters
     parameters: StrategyParameters = {
@@ -231,11 +238,12 @@ def create_strategy_object(
     }
     
     # Get strategy-specific signal quality metrics if available
-    signal_quality_metrics_data = stats.get("signal_quality_metrics", {}).get(f"strategy_{strategy_id}", {})
+    # We still need to use "strategy_" prefix for internal lookups in stats
+    signal_quality_metrics_data = stats.get("signal_quality_metrics", {}).get(f"strategy_{index}", {})
     
     # Only include signal quality metrics if they exist
     strategy_obj: Strategy = {
-        "id": f"strategy_{strategy_id}",
+        "id": strategy_id,
         "parameters": parameters,
         # Remove performance object as requested
         "risk_metrics": risk_metrics,
@@ -245,8 +253,9 @@ def create_strategy_object(
     
     # Add allocation fields only if enabled
     if include_allocation:
-        strategy_obj["allocation_score"] = stats.get(f"strategy_{strategy_id}_allocation_score", 0.0)
-        strategy_obj["allocation"] = stats.get(f"strategy_{strategy_id}_allocation", 0.0)
+        # We still need to use "strategy_" prefix for internal lookups in stats
+        strategy_obj["allocation_score"] = stats.get(f"strategy_{index}_allocation_score", 0.0)
+        strategy_obj["allocation"] = stats.get(f"strategy_{index}_allocation", 0.0)
     
     # Add signal quality metrics if available
     if signal_quality_metrics_data:

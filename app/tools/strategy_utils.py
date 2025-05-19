@@ -4,6 +4,8 @@ This module provides utilities for working with trading strategies.
 """
 from typing import Dict, Any, List, Callable, Optional
 
+from app.concurrency.tools.strategy_id import generate_strategy_id, is_valid_strategy_id
+
 def get_strategy_types(
     config: Dict[str, Any],
     log_func = None,
@@ -177,3 +179,44 @@ def validate_strategy_config(
         log_func(f"Strategy {strategy_index} - {strategy_config['TICKER']}: {timeframe} ({direction})", "info")
     
     return True
+
+def get_strategy_id(
+    strategy_config: Dict[str, Any],
+    strategy_index: int = 0,
+    log_func = None
+) -> str:
+    """Get or generate a strategy ID for a strategy configuration.
+    
+    Args:
+        strategy_config (Dict[str, Any]): Strategy configuration
+        strategy_index (int): Index of the strategy (for logging)
+        log_func: Optional logging function
+        
+    Returns:
+        str: Strategy ID
+    """
+    # Check if strategy ID already exists
+    if 'strategy_id' in strategy_config:
+        strategy_id = strategy_config['strategy_id']
+        
+        # Validate existing strategy ID
+        if is_valid_strategy_id(strategy_id):
+            if log_func:
+                log_func(f"Using existing strategy ID for strategy {strategy_index}: {strategy_id}", "debug")
+            return strategy_id
+        elif log_func:
+            log_func(f"Invalid existing strategy ID for strategy {strategy_index}: {strategy_id}", "warning")
+    
+    # Generate new strategy ID
+    try:
+        strategy_id = generate_strategy_id(strategy_config)
+        if log_func:
+            log_func(f"Generated strategy ID for strategy {strategy_index}: {strategy_id}", "debug")
+        return strategy_id
+    except ValueError as e:
+        if log_func:
+            log_func(f"Could not generate strategy ID for strategy {strategy_index}: {str(e)}", "warning")
+        
+        # Fallback to a simple identifier
+        ticker = strategy_config.get('TICKER', strategy_config.get('ticker', f"strategy_{strategy_index}"))
+        return f"{ticker}_strategy_{strategy_index}"
