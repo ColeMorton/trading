@@ -1,27 +1,27 @@
 {
     "optimization_summary": {
         "all_strategies_count": 12,
-        "all_strategies_tickers": [
-            "BTC-USD",
-            "EQT",
-            "AMD",
-            "TSLA",
-            "GD",
-            "AAPL",
-            "MSTR",
-            "GME",
-            "AMD",
-            "FFIV",
-            "GD",
-            "RTX"
+        "all_strategies": [
+            "BTC-USD_SMA_80_85_0",
+            "EQT_SMA_50_83_0",
+            "AMD_SMA_24_38_0",
+            "TSLA_SMA_34_36_0",
+            "GD_SMA_71_85_0",
+            "AAPL_EMA_19_21_0",
+            "MSTR_SMA_53_88_0",
+            "GME_SMA_53_61_0",
+            "AMD_SMA_18_60_0",
+            "FFIV_SMA_18_60_0",
+            "GD_SMA_16_74_0",
+            "RTX_SMA_16_74_0"
         ],
         "optimal_strategies_count": 5,
-        "optimal_strategies_tickers": [
-            "BTC-USD",
-            "MSTR",
-            "GME",
-            "AMD",
-            "GD"
+        "optimal_strategies": [
+            "BTC-USD_SMA_80_85_0",
+            "MSTR_SMA_53_88_0",
+            "GME_SMA_53_61_0",
+            "AMD_SMA_24_38_0",
+            "GD_SMA_71_85_0"
         ],
         "efficiency_improvement_percent": 58.38346574188886
     },
