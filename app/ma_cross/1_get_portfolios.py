@@ -8,6 +8,8 @@ sensitivity analysis and portfolio filtering.
 
 from typing import List, Dict, Any
 import polars as pl
+import json
+import os
 from app.tools.get_config import get_config
 from app.tools.project_utils import (
     get_project_root
@@ -48,99 +50,8 @@ from app.tools.portfolio_results import (
 )
 
 CONFIG: Config = {
-    # "TICKER": [
-    #     "BTC-USD",
-    #     "STRK",
-    #     "TSLA",
-    #     "EQT",
-    #     "MSTR",
-    #     "FFIV",
-    #     "AMD",
-    #     "RTX",
-    #     "GME",
-    #     "AAPL",
-    #     "GD"
-    # ],
-    # "TICKER": [
-        # "SPY",
-        # "QQQ",
-        # "BTC-USD",
-        # "SOL-USD",
-        # "STRK",
-        # "TSLA",
-        # "SHW",
-        # "EQT",
-        # "MSTR",
-        # "FFIV",
-        # "AMD",
-        # "RTX",
-        # "GME",
-        # "AAPL",
-        # "PWR",
-        # "PENDLE-USD",
-        # "CRWD",
-        # "LIN",
-        # "LNT",
-        # "KMI",
-        # "GD",
-        # "GDDY",
-        # "ABT",
-        # "VZ",
-        # "MMC",
-        # "FIS",
-        # "SYY"
-    # ],
-    # "TICKER": [
-    #     "SOL-USD",
-    #     "BNB-USD",
-    #     "TRX-USD",
-    #     "RUNE-USD",
-    #     "XMR-USD",
-    #     "LTC-USD",
-    #     "HBAR-USD",
-    #     "DOGE-USD",
-    #     "ETH-USD",
-    #     "NEAR-USD",
-    #     "FET-USD",
-    #     "AVAX-USD",
-    #     "LINK-USD",
-    #     "AAVE-USD",
-    #     "MKR-USD",
-    #     "COMP-USD",
-    #     "EOS-USD",
-    #     "XRP-USD",
-    #     "DASH-USD",
-    #     "XLM-USD",
-    #     "ETC-USD",
-    #     "XNO-USD",
-    #     "BCH-USD",
-    #     "ALGO-USD",
-    #     "SHIB-USD",
-    #     "DOT-USD",
-    #     "UNI-USD",
-    #     "1INCH-USD",
-    #     "ATOM-USD",
-    #     "SUSHI-USD",
-    #     "ADA-USD",
-    #     "INJ-USD",
-    #     "VET-USD",
-    #     "PENDLE-USD",
-    #     "ZEC-USD"
-    # ],
-    # "TICKER": [
-    #     "XLK",
-    #     "XLC",
-    #     "XLU",
-    #     "XLE",
-    #     "XLF",
-    #     "XLY",
-    #     "XLV",
-    #     "XLRE",
-    #     "XLI",
-    #     "XLP",
-    #     "XLB"
-    # ],
-    "TICKER": 'USLM',
+    # Load tickers from JSON file
+    "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/portfolio.json"))),
     # "TICKER_2": 'AVGO',
     # "WINDOWS": 120,
     "WINDOWS": 89,
