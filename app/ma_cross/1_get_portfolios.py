@@ -50,8 +50,12 @@ from app.tools.portfolio_results import (
 )
 
 CONFIG: Config = {
+    # "TICKER": [
+    #     "SHW",
+    #     "PWR"
+    # ],
     # Load tickers from JSON file
-    "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/portfolio.json"))),
+    "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/crypto.json"))),
     # "TICKER_2": 'AVGO',
     # "WINDOWS": 120,
     "WINDOWS": 89,
