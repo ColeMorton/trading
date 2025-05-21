@@ -365,6 +365,31 @@ def calculate_allocation_scores(
         for i, efficiency in enumerate(strategy_efficiencies):
             log(f"Strategy {i} raw efficiency: {efficiency}", "info")
 
+        # Check if we have original allocation values from the CSV file
+        has_original_allocations = False
+        original_allocations = []
+        
+        if strategy_configs:
+            for i, config in enumerate(strategy_configs):
+                if 'ALLOCATION' in config and config['ALLOCATION'] is not None:
+                    try:
+                        allocation = float(config['ALLOCATION'])
+                        original_allocations.append(allocation)
+                        has_original_allocations = True
+                        log(f"Strategy {i} has original allocation: {allocation:.2f}%", "info")
+                    except (ValueError, TypeError):
+                        log(f"Strategy {i} has invalid allocation value: {config['ALLOCATION']}", "warning")
+                        original_allocations.append(0.0)
+                else:
+                    log(f"Strategy {i} has no original allocation", "info")
+                    original_allocations.append(0.0)
+        
+        # If we have original allocations and they sum to approximately 100%, use them directly
+        if has_original_allocations and abs(sum(original_allocations) - 100.0) < 5.0:
+            log(f"Using original allocations from CSV file: {original_allocations}", "info")
+            # Return original allocations as both scores and percentages
+            return original_allocations, original_allocations
+            
         # Extract scores from portfolio stats if available
         strategy_scores = []
         if strategy_configs:

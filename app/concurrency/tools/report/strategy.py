@@ -119,6 +119,13 @@ def create_strategy_object(
             "description": "RSI threshold for signal filtering"
         }
     
+    # Add allocation if present
+    if "ALLOCATION" in config and config["ALLOCATION"] is not None:
+        parameters["allocation"] = {
+            "value": config["ALLOCATION"],
+            "description": "Allocation percentage"
+        }
+    
     # Add stop loss if present
     if "STOP_LOSS" in config:
         parameters["stop_loss"] = {
@@ -256,6 +263,11 @@ def create_strategy_object(
         # We still need to use "strategy_" prefix for internal lookups in stats
         strategy_obj["allocation_score"] = stats.get(f"strategy_{index}_allocation_score", 0.0)
         strategy_obj["allocation"] = stats.get(f"strategy_{index}_allocation", 0.0)
+        
+        # Add original allocation from CSV file if available
+        original_allocation = stats.get(f"strategy_{index}_original_allocation", None)
+        if original_allocation is not None:
+            strategy_obj["original_allocation"] = original_allocation
     
     # Add signal quality metrics if available
     if signal_quality_metrics_data:

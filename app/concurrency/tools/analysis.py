@@ -176,10 +176,22 @@ def analyze_concurrency(
 
         # Calculate risk metrics
         log("Calculating risk metrics", "info")
-        strategy_allocations = [
-            config.get('ALLOCATION', 0.0)
-            for config in config_list
-        ]
+        strategy_allocations = []
+        for config in config_list:
+            # Get allocation from config, with better logging
+            allocation = config.get('ALLOCATION', 0.0)
+            ticker = config.get('TICKER', 'unknown')
+            
+            # Ensure allocation is a float
+            try:
+                allocation = float(allocation) if allocation is not None else 0.0
+            except (ValueError, TypeError):
+                log(f"Warning: Invalid allocation value for {ticker}: {allocation}. Using 0.0", "warning")
+                allocation = 0.0
+                
+            # Log the allocation value
+            log(f"Using allocation {allocation:.2f}% for {ticker}", "info")
+            strategy_allocations.append(allocation)
         risk_metrics = calculate_risk_contributions(
             position_arrays,
             aligned_data,
@@ -366,6 +378,14 @@ def analyze_concurrency(
                 error_msg = f"PORTFOLIO_STATS with 'Score' not found for {ticker}. Backtest must be run before analysis."
                 log(error_msg, "error")
                 raise ValueError(error_msg)
+            
+            # Log stop loss value if available
+            if 'STOP_LOSS' in config and config['STOP_LOSS'] is not None:
+                try:
+                    stop_loss = float(config['STOP_LOSS'])
+                    log(f"Using stop loss {stop_loss:.4f} ({stop_loss*100:.2f}%) for {ticker}", "info")
+                except (ValueError, TypeError):
+                    log(f"Warning: Invalid stop loss value for {ticker}: {config['STOP_LOSS']}", "warning")
         
         allocation_efficiencies = [efficiency[0] for efficiency in strategy_efficiencies]
 
@@ -417,6 +437,27 @@ def analyze_concurrency(
         for i, (score, percentage) in enumerate(zip(allocation_scores, allocation_percentages), 1):
             stats[f"strategy_{i}_allocation_score"] = score
             stats[f"strategy_{i}_allocation"] = percentage
+            
+        # Add original allocation values from strategy configs to stats
+        for i, config in enumerate(config_list, 1):
+            if 'ALLOCATION' in config and config['ALLOCATION'] is not None:
+                try:
+                    original_allocation = float(config['ALLOCATION'])
+                    stats[f"strategy_{i}_original_allocation"] = original_allocation
+                except (ValueError, TypeError):
+                    stats[f"strategy_{i}_original_allocation"] = 0.0
+            else:
+                stats[f"strategy_{i}_original_allocation"] = 0.0
+                
+            # Add stop loss values to stats
+            if 'STOP_LOSS' in config and config['STOP_LOSS'] is not None:
+                try:
+                    stop_loss = float(config['STOP_LOSS'])
+                    stats[f"strategy_{i}_stop_loss"] = stop_loss
+                except (ValueError, TypeError):
+                    stats[f"strategy_{i}_stop_loss"] = 0.0
+            else:
+                stats[f"strategy_{i}_stop_loss"] = 0.0
 
         log("Analysis completed successfully", "info")
         return stats, aligned_data

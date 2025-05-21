@@ -15,6 +15,7 @@ class StrategyParameters(TypedDict):
     multiplier: NotRequired[Dict[str, Union[float, str]]]  # Required for ATR
     rsi_period: NotRequired[Dict[str, Union[int, str]]]
     rsi_threshold: NotRequired[Dict[str, Union[int, str]]]
+    allocation: NotRequired[Dict[str, Union[float, str]]]
     stop_loss: NotRequired[Dict[str, Union[float, str]]]
 
 class StrategyPerformance(TypedDict):
@@ -107,6 +108,7 @@ class Strategy(TypedDict):
     metrics: NotRequired[Dict[str, Dict[str, Union[float, str]]]]  # Field for all portfolio metrics from CSV
     allocation_score: float
     allocation: float
+    original_allocation: NotRequired[float]  # Original allocation from CSV file
 
 class Ticker(TypedDict):
     id: str
@@ -174,6 +176,7 @@ class StrategyConfig(TypedDict):
     LONG_WINDOW: int
     USE_RSI: bool
     STOP_LOSS: NotRequired[float]  # Made optional to match actual implementation
+    ALLOCATION: NotRequired[float]  # Allocation percentage
     RSI_WINDOW: NotRequired[int]
     RSI_THRESHOLD: NotRequired[int]
     SIGNAL_WINDOW: NotRequired[int]

@@ -104,6 +104,15 @@ def process_strategies(
                 is_short = strategy_config.get("DIRECTION", "Long") == "Short"
                 direction = "Short" if is_short else "Long"
                 
+                # Process allocation and stop loss values if available
+                if "ALLOCATION" in strategy_config and strategy_config["ALLOCATION"] is not None:
+                    allocation = float(strategy_config["ALLOCATION"])
+                    log(f"Using allocation {allocation:.2f}% for {strategy_config['TICKER']}", "info")
+                
+                if "STOP_LOSS" in strategy_config and strategy_config["STOP_LOSS"] is not None:
+                    stop_loss = float(strategy_config["STOP_LOSS"])
+                    log(f"Using stop loss {stop_loss:.4f} ({stop_loss*100:.2f}%) for {strategy_config['TICKER']}", "info")
+                
                 # Process based on strategy type using the standardized determine_strategy_type function
                 strategy_type = determine_strategy_type(strategy_config)
                 is_macd = strategy_type == 'MACD'
