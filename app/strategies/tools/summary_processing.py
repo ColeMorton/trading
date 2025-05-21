@@ -109,6 +109,12 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                         stats['Long Window'] = long_window
                         stats['Signal Window'] = signal_window
                         
+                        # Add Allocation [%] and Stop Loss [%] columns
+                        allocation = row.get('ALLOCATION')
+                        stop_loss = row.get('STOP_LOSS')
+                        stats['Allocation [%]'] = float(allocation) if allocation is not None else None
+                        stats['Stop Loss [%]'] = float(stop_loss) if stop_loss is not None else None
+                        
                         # Convert stats with current signal status
                         converted_stats = convert_stats(stats, log, config, current_signal, exit_signal)
                         portfolios.append(converted_stats)
@@ -156,6 +162,16 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                         sma_stats['Short Window'] = short_window
                         sma_stats['Long Window'] = long_window
                         
+                        # Add Allocation [%] and Stop Loss [%] columns
+                        allocation = row.get('ALLOCATION')
+                        stop_loss = row.get('STOP_LOSS')
+                        sma_stats['Allocation [%]'] = float(allocation) if allocation is not None else None
+                        sma_stats['Stop Loss [%]'] = float(stop_loss) if stop_loss is not None else None
+                        
+                        # Add Allocation [%] and Stop Loss [%] columns
+                        sma_stats['Allocation [%]'] = row.get('ALLOCATION', None)
+                        sma_stats['Stop Loss [%]'] = row.get('STOP_LOSS', None)
+                        
                         # Convert stats with current signal status
                         sma_converted_stats = convert_stats(sma_stats, log, config, current_signal, exit_signal)
                         portfolios.append(sma_converted_stats)
@@ -178,6 +194,13 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                         ema_stats['Strategy Type'] = "EMA"
                         ema_stats['Short Window'] = short_window
                         ema_stats['Long Window'] = long_window
+                        
+                        # Add Allocation [%] and Stop Loss [%] columns
+                        # Add Allocation [%] and Stop Loss [%] columns
+                        allocation = row.get('ALLOCATION')
+                        stop_loss = row.get('STOP_LOSS')
+                        ema_stats['Allocation [%]'] = float(allocation) if allocation is not None else None
+                        ema_stats['Stop Loss [%]'] = float(stop_loss) if stop_loss is not None else None
                         
                         # Convert stats with current signal status
                         ema_converted_stats = convert_stats(ema_stats, log, config, current_signal, exit_signal)
@@ -289,6 +312,20 @@ def export_summary_results(portfolios: List[Dict], portfolio_name: str, log: Cal
         from app.tools.strategy.export_portfolios import export_portfolios
         
         # Pass the export_config which may contain _SORTED_PORTFOLIOS if sorting was applied
+        # Ensure Allocation [%] and Stop Loss [%] columns exist in the DataFrame
+        if "Allocation [%]" not in df.columns:
+            log("Adding empty Allocation [%] column to ensure Extended Schema format", "info")
+            # Use pl.Float64 type with None values instead of string "None"
+            df = df.with_columns(pl.lit(None).cast(pl.Float64).alias("Allocation [%]"))
+        
+        if "Stop Loss [%]" not in df.columns:
+            log("Adding empty Stop Loss [%] column to ensure Extended Schema format", "info")
+            # Use pl.Float64 type with None values instead of string "None"
+            df = df.with_columns(pl.lit(None).cast(pl.Float64).alias("Stop Loss [%]"))
+        
+        # Convert back to list of dictionaries
+        reordered_portfolios = df.to_dicts()
+        
         # Change feature_dir to "strategies" to export to /csv/strategies instead of /csv/portfolios
         _, success = export_portfolios(reordered_portfolios, export_config, 'portfolios', portfolio_name, log, feature_dir="strategies")
         if not success:

@@ -7,9 +7,11 @@ centralized export functionality.
 
 from typing import List, Dict, Tuple, Callable, Optional
 import polars as pl
+import numpy as np
 from app.tools.export_csv import export_csv, ExportConfig
 from app.tools.portfolio.strategy_types import STRATEGY_TYPE_FIELDS
 from app.tools.portfolio.strategy_utils import get_strategy_type_for_export
+from app.tools.portfolio.schema_detection import SchemaVersion, ensure_allocation_sum_100_percent
 
 class PortfolioExportError(Exception):
     """Custom exception for portfolio export errors."""
@@ -175,15 +177,17 @@ def export_portfolios(
                 if col in df.columns:
                     df = df.drop(col)
             
-            # Define column order with Strategy Type (removed Use SMA)
+            # Define column order with Strategy Type, Allocation [%], and Stop Loss [%]
             ordered_columns = [
                 "Ticker",
-                STRATEGY_TYPE_FIELDS["CSV"],  # Now directly after Ticker
+                "Allocation [%]",  # Add Allocation [%] column in 2nd position
+                STRATEGY_TYPE_FIELDS["CSV"],
                 "Short Window",
                 "Long Window",
                 "Signal Window",
+                "Stop Loss [%]",  # Add Stop Loss [%] column in 7th position
                 "Signal Entry",
-                "Signal Exit",    # Add Signal Exit column
+                "Signal Exit",
                 'Total Open Trades',
                 "Total Trades"
             ]
@@ -240,6 +244,90 @@ def export_portfolios(
                 cols = df.columns
                 df = df.select(["Ticker"] + [col for col in cols if col != "Ticker"])
         
+            # Handle Allocation [%] and Stop Loss [%] columns
+            # Case 1: When Allocation [%] column exists but no values: maintain the column with empty values
+            # Case 2: When Allocation [%] column doesn't exist: add it with empty fields
+            # Case 3: When some rows have Allocation [%] values and others don't: assign equal values to empty ones
+            # Case 4: Always export using the Extended Schema format
+            
+            # Check if Allocation [%] column exists
+            has_allocation_column = "Allocation [%]" in df.columns
+            
+            # Check if Stop Loss [%] column exists
+            has_stop_loss_column = "Stop Loss [%]" in df.columns
+            
+            # Add Allocation [%] column if it doesn't exist
+            if not has_allocation_column:
+                if log:
+                    log("Adding empty Allocation [%] column to ensure Extended Schema format", "info")
+                df = df.with_columns(pl.lit(None).alias("Allocation [%]"))
+            
+            # Add Stop Loss [%] column if it doesn't exist
+            if not has_stop_loss_column:
+                if log:
+                    log("Adding empty Stop Loss [%] column to ensure Extended Schema format", "info")
+                df = df.with_columns(pl.lit(None).alias("Stop Loss [%]"))
+            
+            # Check if some rows have Allocation [%] values and others don't
+            if has_allocation_column:
+                # Convert to dictionary for easier processing
+                rows = df.to_dicts()
+                
+                # Count rows with and without allocation values
+                rows_with_allocation = sum(1 for row in rows if row.get("Allocation [%]") is not None and row.get("Allocation [%]") != "")
+                rows_without_allocation = len(rows) - rows_with_allocation
+                
+                if rows_with_allocation > 0 and rows_without_allocation > 0:
+                    if log:
+                        log(f"Found {rows_with_allocation} rows with allocations and "
+                            f"{rows_without_allocation} rows without allocations", "info")
+                    
+                    # Calculate the sum of existing allocations
+                    existing_allocation_sum = sum(float(row.get("Allocation [%]") or 0) for row in rows)
+                    
+                    # Calculate the remaining allocation to distribute
+                    remaining_allocation = 100.0 - existing_allocation_sum
+                    
+                    if remaining_allocation > 0:
+                        # Calculate equal allocation for rows without allocation
+                        equal_allocation = remaining_allocation / rows_without_allocation
+                        
+                        # Distribute equal allocations
+                        for row in rows:
+                            if not row.get("Allocation [%]"):
+                                row["Allocation [%]"] = equal_allocation
+                        
+                        if log:
+                            log(f"Distributed equal allocations of {equal_allocation:.2f}% "
+                                f"to {rows_without_allocation} rows", "info")
+                        
+                        # Convert back to DataFrame
+                        df = pl.DataFrame(rows)
+                
+                # Ensure the sum of all allocations equals 100%
+                if rows_with_allocation > 0:
+                    # Convert to dictionary for processing
+                    rows = df.to_dicts()
+                    
+                    # Calculate the sum of allocations
+                    allocation_sum = sum(float(row.get("Allocation [%]") or 0) for row in rows)
+                    
+                    # If the sum is not close to 100%, adjust the allocations
+                    if abs(allocation_sum - 100.0) > 0.01:
+                        if log:
+                            log(f"Allocation sum is {allocation_sum:.2f}%, adjusting to 100%", "info")
+                        
+                        # Scale factor to adjust allocations
+                        scale_factor = 100.0 / allocation_sum if allocation_sum > 0 else 0
+                        
+                        # Adjust allocations
+                        for row in rows:
+                            if row.get("Allocation [%]") is not None and row.get("Allocation [%]") != "":
+                                row["Allocation [%]"] = float(row["Allocation [%]"]) * scale_factor
+                        
+                        # Convert back to DataFrame
+                        df = pl.DataFrame(rows)
+        
         # Use the provided feature_dir parameter for the feature1 value
         # This allows different scripts to export to different directories
         feature1 = feature_dir
@@ -284,6 +372,25 @@ def export_portfolios(
             if col in df.columns:
                 try:
                     df = df.with_columns(pl.col(col).cast(pl.Float64))
+                except Exception as e:
+                    if log:
+                        log(f"Failed to convert column '{col}' to Float64: {str(e)}", "warning")
+        
+        # Special handling for Allocation [%] and Stop Loss [%] columns
+        special_columns = ["Allocation [%]", "Stop Loss [%]"]
+        for col in special_columns:
+            if col in df.columns:
+                try:
+                    # Replace string "None" with actual None, then cast to Float64
+                    df = df.with_columns(
+                        pl.when(pl.col(col).eq("None").or_(pl.col(col).is_null()))
+                        .then(pl.lit(None))
+                        .otherwise(pl.col(col))
+                        .cast(pl.Float64)
+                        .alias(col)
+                    )
+                    if log:
+                        log(f"Successfully converted column '{col}' to Float64 with None values", "info")
                 except Exception as e:
                     if log:
                         log(f"Failed to convert column '{col}' to Float64: {str(e)}", "warning")
