@@ -268,6 +268,9 @@ def create_strategy_object(
         original_allocation = stats.get(f"strategy_{index}_original_allocation", None)
         if original_allocation is not None:
             strategy_obj["original_allocation"] = original_allocation
+        else:
+            # If no original allocation is available, use the calculated allocation
+            strategy_obj["original_allocation"] = strategy_obj["allocation"]
     
     # Add signal quality metrics if available
     if signal_quality_metrics_data:

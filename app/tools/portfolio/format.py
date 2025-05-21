@@ -200,6 +200,10 @@ def convert_csv_to_strategy_config(
                 log(f"Allocation set to {allocation_percent:.2f}% for {ticker}", "info")
             except (ValueError, TypeError):
                 log(f"Error: Invalid allocation value for {ticker}: {row['ALLOCATION']}", "error")
+        else:
+            # No allocation provided in CSV
+            strategy_config["ALLOCATION"] = None
+            log(f"No allocation provided for {ticker} in CSV file", "info")
         
         # Add stop loss if available
         if "STOP_LOSS" in row and row["STOP_LOSS"] is not None:

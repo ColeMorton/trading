@@ -84,7 +84,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
         "TICKER_METRICS": True,
         "STRATEGIES": True,
         "STRATEGY_RELATIONSHIPS": False,
-        "ALLOCATION": False
+        "ALLOCATION": True
     },
     "ENSURE_COUNTERPART": True,
     "INITIAL_VALUE": 19726.55,

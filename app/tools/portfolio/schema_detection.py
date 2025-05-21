@@ -157,8 +157,11 @@ def normalize_portfolio_data(
     # Check if we need to handle allocation distribution (case 3)
     has_some_allocations = False
     if schema_version == SchemaVersion.EXTENDED:
-        has_some_allocations = any(row.get(allocation_field) for row in csv_data 
+        has_some_allocations = any(row.get(allocation_field) for row in csv_data
                                   if row.get(allocation_field))
+        
+        if not has_some_allocations and log:
+            log("Extended schema detected but no allocation values found in the CSV file", "info")
     
     # Process each row
     for row in csv_data:
@@ -193,7 +196,7 @@ def normalize_portfolio_data(
     # Handle case 3: When some rows have Allocation values and others don't
     if has_some_allocations:
         # Count rows with missing allocations
-        rows_with_allocations = sum(1 for row in normalized_data 
+        rows_with_allocations = sum(1 for row in normalized_data
                                    if row.get(standard_allocation_field))
         rows_without_allocations = len(normalized_data) - rows_with_allocations
         
@@ -203,7 +206,7 @@ def normalize_portfolio_data(
                     f"{rows_without_allocations} rows without allocations", "info")
             
             # Calculate the sum of existing allocations
-            existing_allocation_sum = sum(float(row.get(standard_allocation_field) or 0) 
+            existing_allocation_sum = sum(float(row.get(standard_allocation_field) or 0)
                                          for row in normalized_data)
             
             # Calculate the remaining allocation to distribute
@@ -221,6 +224,9 @@ def normalize_portfolio_data(
                 if log:
                     log(f"Distributed equal allocations of {equal_allocation:.2f}% "
                         f"to {rows_without_allocations} rows", "info")
+    elif schema_version == SchemaVersion.EXTENDED and log:
+        # No allocations found in extended schema
+        log("No allocation values found in the CSV file. Allocations will be calculated based on strategy performance.", "info")
     
     return normalized_data
 

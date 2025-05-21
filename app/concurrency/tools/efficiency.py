@@ -389,6 +389,10 @@ def calculate_allocation_scores(
             log(f"Using original allocations from CSV file: {original_allocations}", "info")
             # Return original allocations as both scores and percentages
             return original_allocations, original_allocations
+        elif has_original_allocations:
+            log(f"Original allocations found but sum ({sum(original_allocations):.2f}%) is not close to 100%. Will calculate new allocations.", "info")
+        else:
+            log("No original allocations found in CSV file. Will calculate new allocations.", "info")
             
         # Extract scores from portfolio stats if available
         strategy_scores = []

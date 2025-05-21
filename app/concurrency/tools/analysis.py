@@ -196,7 +196,8 @@ def analyze_concurrency(
             position_arrays,
             aligned_data,
             strategy_allocations,
-            log
+            log,
+            config_list  # Pass strategy configs to use stop loss values
         )
 
         # Extract strategy risk contributions for portfolio efficiency calculation
@@ -445,9 +446,11 @@ def analyze_concurrency(
                     original_allocation = float(config['ALLOCATION'])
                     stats[f"strategy_{i}_original_allocation"] = original_allocation
                 except (ValueError, TypeError):
-                    stats[f"strategy_{i}_original_allocation"] = 0.0
+                    # If original allocation is invalid, use the calculated allocation
+                    stats[f"strategy_{i}_original_allocation"] = stats.get(f"strategy_{i}_allocation", 0.0)
             else:
-                stats[f"strategy_{i}_original_allocation"] = 0.0
+                # If no original allocation exists, use the calculated allocation
+                stats[f"strategy_{i}_original_allocation"] = stats.get(f"strategy_{i}_allocation", 0.0)
                 
             # Add stop loss values to stats
             if 'STOP_LOSS' in config and config['STOP_LOSS'] is not None:

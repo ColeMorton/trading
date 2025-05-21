@@ -1,14 +1,16 @@
 """Risk metrics calculation for concurrency analysis."""
 
-from typing import Dict, List, Callable
+from typing import Dict, List, Callable, Any
 import numpy as np
 import polars as pl
+from app.tools.stop_loss_simulator import apply_stop_loss_to_returns
 
 def calculate_risk_contributions(
     position_arrays: List[np.ndarray],
     data_list: List[pl.DataFrame],
     strategy_allocations: List[float],
-    log: Callable[[str, str], None]
+    log: Callable[[str, str], None],
+    strategy_configs: List[Dict[str, Any]] = None
 ) -> Dict[str, float]:
     """Calculate risk contribution metrics for concurrent strategies.
 
@@ -21,6 +23,7 @@ def calculate_risk_contributions(
         data_list (List[pl.DataFrame]): List of dataframes with price data
         strategy_allocations (List[float]): List of strategy allocations
         log (Callable[[str, str], None]): Logging function
+        strategy_configs (List[Dict[str, Any]], optional): List of strategy configurations
 
     Returns:
         Dict[str, float]: Dictionary containing:
@@ -57,6 +60,12 @@ def calculate_risk_contributions(
         all_active_returns = []  # Store all active returns for combined VaR/CVaR
         weighted_active_returns = [] # Store returns weighted by allocation
         for i, df in enumerate(data_list):
+            # Get stop loss value if available
+            stop_loss = None
+            if strategy_configs and i < len(strategy_configs):
+                stop_loss = strategy_configs[i].get('STOP_LOSS')
+                if stop_loss is not None:
+                    log(f"Using stop loss of {stop_loss*100:.2f}% for strategy {i+1}", "info")
             # Calculate returns from Close prices
             close_prices = df["Close"].to_numpy()
             returns = np.diff(close_prices) / close_prices[:-1]
@@ -70,8 +79,30 @@ def calculate_risk_contributions(
 
             # Collect active returns for combined calculations
             if len(active_returns) > 0:
-                all_active_returns.extend(active_returns)
-                weighted_active_returns.extend(active_returns * strategy_allocations[i])
+                # Apply stop loss if available
+                if stop_loss is not None and stop_loss > 0 and stop_loss < 1:
+                    # Create signal array (1 for long, -1 for short)
+                    signal_array = np.ones_like(active_returns)
+                    if "DIRECTION" in strategy_configs[i] and strategy_configs[i]["DIRECTION"] == "Short":
+                        signal_array = -1 * signal_array
+                        
+                    # Apply stop loss to active returns
+                    adjusted_returns, stop_loss_triggers = apply_stop_loss_to_returns(
+                        active_returns, signal_array, stop_loss, log
+                    )
+                    
+                    # Log stop loss impact
+                    trigger_count = int(np.sum(stop_loss_triggers))
+                    if trigger_count > 0:
+                        log(f"Stop loss triggered {trigger_count} times for strategy {i+1}", "info")
+                        
+                    # Use adjusted returns for risk calculations
+                    all_active_returns.extend(adjusted_returns)
+                    weighted_active_returns.extend(adjusted_returns * strategy_allocations[i])
+                else:
+                    # Use original returns if no stop loss
+                    all_active_returns.extend(active_returns)
+                    weighted_active_returns.extend(active_returns * strategy_allocations[i])
 
             # Calculate VaR and CVaR for active returns
             if len(active_returns) > 0:
