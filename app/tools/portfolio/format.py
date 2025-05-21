@@ -44,7 +44,13 @@ def standardize_portfolio_columns(
         'strategy_type': 'STRATEGY_TYPE',
         'type': 'STRATEGY_TYPE',  # For backward compatibility with JSON
         
+        # Allocation columns
+        'Allocation [%]': 'ALLOCATION',
+        'Allocation': 'ALLOCATION',
+        'allocation': 'ALLOCATION',
+        
         # Stop loss columns
+        'Stop Loss [%]': 'STOP_LOSS',
         'Stop Loss': 'STOP_LOSS',
         'stop_loss': 'STOP_LOSS',
         
@@ -182,6 +188,19 @@ def convert_csv_to_strategy_config(
         elif "EMA_SLOW" in row and row["EMA_SLOW"] is not None and not use_sma:
             strategy_config["LONG_WINDOW"] = int(row["EMA_SLOW"])
         
+        # Add allocation if available
+        if "ALLOCATION" in row and row["ALLOCATION"] is not None:
+            try:
+                allocation_float = float(row["ALLOCATION"])
+                # Ensure allocation is stored as a percentage (0-100)
+                allocation_percent = allocation_float
+                if allocation_percent < 0 or allocation_percent > 100:
+                    log(f"Warning: Allocation for {ticker} ({allocation_float}%) is outside valid range (0-100%)", "warning")
+                strategy_config["ALLOCATION"] = allocation_percent
+                log(f"Allocation set to {allocation_percent:.2f}% for {ticker}", "info")
+            except (ValueError, TypeError):
+                log(f"Error: Invalid allocation value for {ticker}: {row['ALLOCATION']}", "error")
+        
         # Add stop loss if available
         if "STOP_LOSS" in row and row["STOP_LOSS"] is not None:
             try:
@@ -275,7 +294,7 @@ def convert_csv_to_strategy_config(
         strategy_config_keys = [
             "TICKER", "DIRECTION", "SHORT_WINDOW", "LONG_WINDOW", "SIGNAL_WINDOW",
             "USE_HOURLY", "USE_RSI", "RSI_WINDOW", "RSI_THRESHOLD", "STOP_LOSS",
-            "POSITION_SIZE", "BASE_DIR", "REFRESH"
+            "POSITION_SIZE", "BASE_DIR", "REFRESH", "ALLOCATION"
         ]
         
         # Add ALL columns from the CSV row to portfolio_stats

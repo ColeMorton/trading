@@ -51,14 +51,14 @@ from app.tools.portfolio_results import (
 
 CONFIG: Config = {
     # "TICKER": "CRWD",
-    "TICKER": [
-        "DEEP33391-USD",
-        "TRUMP35336-USD",
-        "ENA-USD",
-        "ETH-USD"
-    ],
+    # "TICKER": [
+    #     "DEEP33391-USD",
+    #     "TRUMP35336-USD",
+    #     "ENA-USD",
+    #     "ETH-USD"
+    # ],
     # Load tickers from JSON file
-    # "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/crypto.json"))),
+    "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/scanner.json"))),
     # "TICKER_2": 'AVGO',
     # "WINDOWS": 120,
     "WINDOWS": 89,

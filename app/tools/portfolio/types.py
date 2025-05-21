@@ -31,6 +31,7 @@ class StrategyConfig(TypedDict):
         multiplier (NotRequired[float]): ATR multiplier for stop distance
         
         # Common optional fields
+        ALLOCATION (NotRequired[float]): Allocation percentage (0-100)
         STOP_LOSS (NotRequired[float]): Stop loss percentage (0-1)
         RSI_WINDOW (NotRequired[int]): Period for RSI calculation
         RSI_THRESHOLD (NotRequired[int]): RSI threshold for signal filtering
@@ -51,6 +52,7 @@ class StrategyConfig(TypedDict):
     length: NotRequired[int]
     multiplier: NotRequired[float]
     # Common fields
+    ALLOCATION: NotRequired[float]
     STOP_LOSS: NotRequired[float]
     RSI_WINDOW: NotRequired[int]
     RSI_THRESHOLD: NotRequired[int]
@@ -111,6 +113,7 @@ class PortfolioResult(TypedDict):
         expectancy (float): Expectancy value
 
     Optional Fields:
+        allocation (NotRequired[float]): Allocation percentage
         stop_loss (NotRequired[float]): Stop loss percentage
         trades_per_day (NotRequired[float]): Average trades per day
         sharpe_ratio (NotRequired[float]): Sharpe ratio
@@ -125,6 +128,7 @@ class PortfolioResult(TypedDict):
     max_drawdown: float
     win_rate: float
     expectancy: float
+    allocation: NotRequired[float]
     stop_loss: NotRequired[float]
     trades_per_day: NotRequired[float]
     sharpe_ratio: NotRequired[float]

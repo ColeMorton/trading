@@ -94,7 +94,9 @@ def load_portfolio_from_csv(
             'Win Rate': pl.Float64,
             'Short Window': pl.Int64,
             'Long Window': pl.Int64,
-            'Signal Window': pl.Int64  # Add Signal Window as Int64
+            'Signal Window': pl.Int64,  # Add Signal Window as Int64
+            'Allocation [%]': pl.Float64,  # Add Allocation [%] as Float64
+            'Stop Loss [%]': pl.Float64  # Add Stop Loss [%] as Float64
         }
     )
     log(f"Successfully read CSV file with {len(df)} strategies", "info")

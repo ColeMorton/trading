@@ -82,20 +82,60 @@ def resolve_portfolio_path(portfolio_name: str, base_dir: str = '.') -> str:
 def load_csv_portfolio(file_path: str, config: Dict[str, Any]) -> List[Dict[str, Any]]:
     """Load portfolio data from a CSV file.
     
+    Detects and handles both Base Schema and Extended Schema formats:
+    - Base Schema: Original schema without Allocation [%] and Stop Loss [%] columns
+    - Extended Schema: New schema with Allocation [%] (2nd column) and Stop Loss [%] (7th column)
+    
     Args:
         file_path: Path to the CSV file
         config: Configuration dictionary
         
     Returns:
-        List of portfolio entries
+        List of portfolio entries with normalized schema
         
     Raises:
         PortfolioLoadError: If the CSV file cannot be loaded
     """
     try:
+        # Import here to avoid circular imports
+        from app.tools.portfolio.schema_detection import (
+            detect_schema_version_from_file,
+            normalize_portfolio_data,
+            SchemaVersion
+        )
+        
+        # First load the raw CSV data
         with open(file_path, 'r', newline='', encoding='utf-8') as f:
             reader = csv.DictReader(f)
-            return list(reader)
+            raw_data = list(reader)
+        
+        # Get a logging function if available in config
+        log_func = config.get('log_func', None)
+        
+        # Detect schema version
+        try:
+            schema_version = detect_schema_version_from_file(file_path)
+            if log_func:
+                log_func(f"Detected CSV schema version: {schema_version.name}", "info")
+        except Exception as e:
+            if log_func:
+                log_func(f"Error detecting schema version, using raw data: {str(e)}", "warning")
+            return raw_data
+        
+        # Normalize the data to handle both schema versions
+        try:
+            normalized_data = normalize_portfolio_data(raw_data, schema_version, log_func)
+            
+            # Add schema version information to each row
+            for row in normalized_data:
+                row['_schema_version'] = schema_version.name
+                
+            return normalized_data
+        except Exception as e:
+            if log_func:
+                log_func(f"Error normalizing data, using raw data: {str(e)}", "warning")
+            return raw_data
+            
     except FileNotFoundError:
         raise PortfolioLoadError(f"CSV file not found: {file_path}")
     except PermissionError:
@@ -169,9 +209,13 @@ def load_portfolio_with_logging(
         
         log(f"Resolved portfolio path: {portfolio_path}", "info")
         
+        # Add logging function to config for use in load_csv_portfolio
+        config_with_log = config.copy()
+        config_with_log['log_func'] = log
+        
         # Load portfolio based on file extension
         if portfolio_path.endswith('.csv'):
-            portfolio_data = load_csv_portfolio(portfolio_path, config)
+            portfolio_data = load_csv_portfolio(portfolio_path, config_with_log)
         elif portfolio_path.endswith('.json'):
             portfolio_data = load_json_portfolio(portfolio_path, config)
         else:
@@ -220,9 +264,13 @@ def portfolio_context(
         
         log(f"Loading portfolio from {portfolio_path}", "info")
         
+        # Add logging function to config for use in load_csv_portfolio
+        config_with_log = config.copy()
+        config_with_log['log_func'] = log
+        
         # Load portfolio based on file extension
         if portfolio_path.endswith('.csv'):
-            portfolio_data = load_csv_portfolio(portfolio_path, config)
+            portfolio_data = load_csv_portfolio(portfolio_path, config_with_log)
         elif portfolio_path.endswith('.json'):
             portfolio_data = load_json_portfolio(portfolio_path, config)
         else:

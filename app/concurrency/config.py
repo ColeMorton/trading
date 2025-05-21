@@ -65,6 +65,8 @@ class CsvStrategyRow(TypedDict):
         
     Optional Fields:
         strategy_id (NotRequired[str]): Unique strategy identifier
+        Allocation [%] (NotRequired[float]): Allocation percentage for the strategy
+        Stop Loss [%] (NotRequired[float]): Stop loss percentage for the strategy
     """
     Ticker: str
     Use_SMA: bool
@@ -72,6 +74,8 @@ class CsvStrategyRow(TypedDict):
     Long_Window: int
     Signal_Window: int
     strategy_id: NotRequired[str]
+    Allocation: NotRequired[float]  # Allocation [%] in CSV header
+    Stop_Loss: NotRequired[float]   # Stop Loss [%] in CSV header
 
 class JsonMaStrategy(TypedDict):
     """JSON MA strategy format.
@@ -85,6 +89,7 @@ class JsonMaStrategy(TypedDict):
         long_window (int): Long moving average period
 
     Optional Fields:
+        allocation (NotRequired[float]): Allocation percentage for the strategy
         stop_loss (NotRequired[float]): Stop loss percentage
         rsi_period (NotRequired[int]): RSI calculation period
         rsi_threshold (NotRequired[int]): RSI signal threshold
@@ -96,6 +101,7 @@ class JsonMaStrategy(TypedDict):
     direction: str
     short_window: int
     long_window: int
+    allocation: NotRequired[float]
     stop_loss: NotRequired[float]
     rsi_period: NotRequired[int]
     rsi_threshold: NotRequired[int]
@@ -113,6 +119,7 @@ class JsonMacdStrategy(TypedDict):
         signal_window (int): Signal line period
 
     Optional Fields:
+        allocation (NotRequired[float]): Allocation percentage for the strategy
         stop_loss (NotRequired[float]): Stop loss percentage
         rsi_period (NotRequired[int]): RSI calculation period
         rsi_threshold (NotRequired[int]): RSI signal threshold
@@ -125,6 +132,7 @@ class JsonMacdStrategy(TypedDict):
     short_window: int
     long_window: int
     signal_window: int
+    allocation: NotRequired[float]
     stop_loss: NotRequired[float]
     rsi_period: NotRequired[int]
     rsi_threshold: NotRequired[int]
@@ -142,6 +150,7 @@ class JsonAtrStrategy(TypedDict):
         multiplier (float): ATR multiplier for stop distance
 
     Optional Fields:
+        allocation (NotRequired[float]): Allocation percentage for the strategy
         stop_loss (NotRequired[float]): Stop loss percentage
         rsi_period (NotRequired[int]): RSI calculation period
         rsi_threshold (NotRequired[int]): RSI signal threshold
@@ -153,6 +162,7 @@ class JsonAtrStrategy(TypedDict):
     direction: str
     length: int
     multiplier: float
+    allocation: NotRequired[float]
     stop_loss: NotRequired[float]
     rsi_period: NotRequired[int]
     rsi_threshold: NotRequired[int]
