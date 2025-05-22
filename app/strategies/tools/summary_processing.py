@@ -113,8 +113,24 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                         # Get allocation and stop loss values, checking both naming conventions
                         allocation = row.get('ALLOCATION', row.get('Allocation [%]'))
                         stop_loss = row.get('STOP_LOSS', row.get('Stop Loss [%]'))
-                        stats['Allocation [%]'] = float(allocation) if allocation is not None and allocation != "" else None
-                        stats['Stop Loss [%]'] = float(stop_loss) if stop_loss is not None and stop_loss != "" else None
+                        # Convert allocation and stop loss values to float, handling string 'None' values
+                        if allocation is not None and allocation != "" and allocation != "None":
+                            try:
+                                stats['Allocation [%]'] = float(allocation)
+                            except (ValueError, TypeError):
+                                log(f"Invalid allocation value for {ticker}: {allocation}", "warning")
+                                stats['Allocation [%]'] = None
+                        else:
+                            stats['Allocation [%]'] = None
+                            
+                        if stop_loss is not None and stop_loss != "" and stop_loss != "None":
+                            try:
+                                stats['Stop Loss [%]'] = float(stop_loss)
+                            except (ValueError, TypeError):
+                                log(f"Invalid stop loss value for {ticker}: {stop_loss}", "warning")
+                                stats['Stop Loss [%]'] = None
+                        else:
+                            stats['Stop Loss [%]'] = None
                         
                         # Convert stats with current signal status
                         converted_stats = convert_stats(stats, log, config, current_signal, exit_signal)
@@ -167,8 +183,24 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                         # Get allocation and stop loss values, checking both naming conventions
                         allocation = row.get('ALLOCATION', row.get('Allocation [%]'))
                         stop_loss = row.get('STOP_LOSS', row.get('Stop Loss [%]'))
-                        sma_stats['Allocation [%]'] = float(allocation) if allocation is not None and allocation != "" else None
-                        sma_stats['Stop Loss [%]'] = float(stop_loss) if stop_loss is not None and stop_loss != "" else None
+                        # Convert allocation and stop loss values to float, handling string 'None' values
+                        if allocation is not None and allocation != "" and allocation != "None":
+                            try:
+                                sma_stats['Allocation [%]'] = float(allocation)
+                            except (ValueError, TypeError):
+                                log(f"Invalid allocation value for {ticker}: {allocation}", "warning")
+                                sma_stats['Allocation [%]'] = None
+                        else:
+                            sma_stats['Allocation [%]'] = None
+                            
+                        if stop_loss is not None and stop_loss != "" and stop_loss != "None":
+                            try:
+                                sma_stats['Stop Loss [%]'] = float(stop_loss)
+                            except (ValueError, TypeError):
+                                log(f"Invalid stop loss value for {ticker}: {stop_loss}", "warning")
+                                sma_stats['Stop Loss [%]'] = None
+                        else:
+                            sma_stats['Stop Loss [%]'] = None
                         
                         # Convert stats with current signal status
                         sma_converted_stats = convert_stats(sma_stats, log, config, current_signal, exit_signal)
@@ -197,8 +229,24 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                         # Get allocation and stop loss values, checking both naming conventions
                         allocation = row.get('ALLOCATION', row.get('Allocation [%]'))
                         stop_loss = row.get('STOP_LOSS', row.get('Stop Loss [%]'))
-                        ema_stats['Allocation [%]'] = float(allocation) if allocation is not None and allocation != "" else None
-                        ema_stats['Stop Loss [%]'] = float(stop_loss) if stop_loss is not None and stop_loss != "" else None
+                        # Convert allocation and stop loss values to float, handling string 'None' values
+                        if allocation is not None and allocation != "" and allocation != "None":
+                            try:
+                                ema_stats['Allocation [%]'] = float(allocation)
+                            except (ValueError, TypeError):
+                                log(f"Invalid allocation value for {ticker}: {allocation}", "warning")
+                                ema_stats['Allocation [%]'] = None
+                        else:
+                            ema_stats['Allocation [%]'] = None
+                            
+                        if stop_loss is not None and stop_loss != "" and stop_loss != "None":
+                            try:
+                                ema_stats['Stop Loss [%]'] = float(stop_loss)
+                            except (ValueError, TypeError):
+                                log(f"Invalid stop loss value for {ticker}: {stop_loss}", "warning")
+                                ema_stats['Stop Loss [%]'] = None
+                        else:
+                            ema_stats['Stop Loss [%]'] = None
                         
                         # Convert stats with current signal status
                         ema_converted_stats = convert_stats(ema_stats, log, config, current_signal, exit_signal)

@@ -211,8 +211,16 @@ def normalize_portfolio_data(
                     f"{rows_without_allocations} rows without allocations", "info")
             
             # Calculate the sum of existing allocations
-            existing_allocation_sum = sum(float(row.get(standard_allocation_field) or 0)
-                                         for row in normalized_data)
+            existing_allocation_sum = 0.0
+            for row in normalized_data:
+                value = row.get(standard_allocation_field)
+                if value is not None and value != "" and value != "None":
+                    try:
+                        existing_allocation_sum += float(value)
+                    except (ValueError, TypeError):
+                        # Skip invalid values
+                        if log:
+                            log(f"Skipping invalid allocation value: {value}", "warning")
             
             # Calculate the remaining allocation to distribute
             remaining_allocation = 100.0 - existing_allocation_sum
@@ -299,7 +307,16 @@ def ensure_allocation_sum_100_percent(
         return normalized_data
     
     # Calculate the sum of existing allocations
-    allocation_sum = sum(float(row.get(allocation_field) or 0) for row in normalized_data)
+    allocation_sum = 0.0
+    for row in normalized_data:
+        value = row.get(allocation_field)
+        if value is not None and value != "" and value != "None":
+            try:
+                allocation_sum += float(value)
+            except (ValueError, TypeError):
+                # Skip invalid values
+                if log:
+                    log(f"Skipping invalid allocation value: {value}", "warning")
     
     # Case 3: When some rows have allocation values and others don't
     if rows_with_allocations > 0 and rows_without_allocations > 0:
@@ -336,8 +353,15 @@ def ensure_allocation_sum_100_percent(
         
         # Adjust allocations
         for row in normalized_data:
-            if row.get(allocation_field) is not None:
-                row[allocation_field] = float(row[allocation_field]) * scale_factor
+            value = row.get(allocation_field)
+            if value is not None and value != "" and value != "None":
+                try:
+                    row[allocation_field] = float(value) * scale_factor
+                except (ValueError, TypeError):
+                    # Skip invalid values
+                    if log:
+                        log(f"Skipping invalid allocation value during scaling: {value}", "warning")
+                    row[allocation_field] = None
     
     return normalized_data
 
