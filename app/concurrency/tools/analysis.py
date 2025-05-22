@@ -351,14 +351,26 @@ def analyze_concurrency(
             from app.concurrency.tools.signal_quality import calculate_aggregate_signal_quality
             
             log("Calculating aggregate signal quality metrics", "info")
+            
+            # Extract strategy IDs for allocation mapping
+            strategy_ids = []
+            for i, config in enumerate(config_list):
+                if 'strategy_id' in config:
+                    strategy_ids.append(config['strategy_id'])
+                else:
+                    strategy_ids.append(f"strategy_{i+1}")
+            
+            # Pass strategy allocations to the aggregate calculation
             aggregate_metrics = calculate_aggregate_signal_quality(
                 strategy_metrics=strategy_quality_metrics,
-                log=log
+                log=log,
+                strategy_allocations=strategy_allocations,
+                strategy_ids=strategy_ids
             )
             
             if aggregate_metrics:
                 signal_quality_metrics["aggregate"] = aggregate_metrics
-                log("Aggregate signal quality metrics added", "info")
+                log("Allocation-weighted aggregate signal quality metrics added", "info")
         except Exception as e:
             log(f"Error calculating aggregate signal quality metrics: {str(e)}", "error")
 

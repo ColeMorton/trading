@@ -191,10 +191,22 @@ def calculate_risk_contributions(
         position_matrix = np.column_stack(weighted_positions)
         covariance_matrix = np.cov(position_matrix.T)
 
-        # Calculate portfolio risk
-        portfolio_variance = np.sum(covariance_matrix)
+        # Calculate portfolio risk with allocation weighting
+        portfolio_variance = 0.0
+        total_allocation = sum(strategy_allocations)
+        
+        # Create weighted covariance matrix
+        weighted_covariance = np.zeros_like(covariance_matrix)
+        for i in range(len(strategy_allocations)):
+            for j in range(len(strategy_allocations)):
+                weight_i = strategy_allocations[i] / total_allocation if total_allocation > 0 else 1.0 / len(strategy_allocations)
+                weight_j = strategy_allocations[j] / total_allocation if total_allocation > 0 else 1.0 / len(strategy_allocations)
+                weighted_covariance[i, j] = covariance_matrix[i, j] * weight_i * weight_j
+        
+        # Sum the weighted covariance matrix
+        portfolio_variance = np.sum(weighted_covariance)
         portfolio_risk = np.sqrt(portfolio_variance) if portfolio_variance > 0 else 0.0
-        log(f"Portfolio risk calculated: {portfolio_risk:.4f}", "info")
+        log(f"Portfolio risk calculated (allocation-weighted): {portfolio_risk:.4f}", "info")
 
         # Calculate marginal risk contributions and Alpha metrics
         if portfolio_risk > 0:

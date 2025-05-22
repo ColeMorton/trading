@@ -820,13 +820,18 @@ def _calculate_aggregate_metrics(
 def calculate_aggregate_signal_quality(
     strategy_metrics: Dict[str, Dict[str, Any]],
     log: Callable[[str, str], None],
-    stop_loss: Optional[float] = None
+    stop_loss: Optional[float] = None,
+    strategy_allocations: Optional[List[float]] = None,
+    strategy_ids: Optional[List[str]] = None
 ) -> Dict[str, Any]:
     """Calculate aggregate signal quality metrics across all strategies.
     
     Args:
         strategy_metrics (Dict[str, Dict[str, Any]]): Dictionary of strategy metrics
         log (Callable[[str, str], None]): Logging function
+        stop_loss (Optional[float]): Stop loss value
+        strategy_allocations (Optional[List[float]]): List of strategy allocations
+        strategy_ids (Optional[List[str]]): List of strategy IDs corresponding to allocations
         
     Returns:
         Dict[str, Any]: Aggregate metrics
@@ -869,13 +874,36 @@ def calculate_aggregate_signal_quality(
                 "signal_quality_score": 0.0
             }
         
-        # Calculate weighted averages based on signal count
+        # Check if we have allocation information
+        use_allocation_weights = False
+        allocation_weights = {}
+        
+        if strategy_allocations and strategy_ids and len(strategy_allocations) == len(strategy_ids):
+            use_allocation_weights = True
+            total_allocation = sum(strategy_allocations)
+            
+            # Create a mapping of strategy_id to allocation weight
+            for i, strategy_id in enumerate(strategy_ids):
+                if total_allocation > 0:
+                    allocation_weights[strategy_id] = strategy_allocations[i] / total_allocation
+                else:
+                    allocation_weights[strategy_id] = 1.0 / len(strategy_ids)
+            
+            log(f"Using allocation-weighted metrics with weights: {allocation_weights}", "info")
+        
+        # Calculate weighted averages based on signal count or allocations
         for strategy_id, metrics in strategy_metrics.items():
             signal_count = metrics.get("signal_count", 0)
             if signal_count == 0:
                 continue
-                
-            weight = signal_count / total_signals
+            
+            # Determine weight based on allocation or signal count
+            if use_allocation_weights and strategy_id in allocation_weights:
+                weight = allocation_weights[strategy_id]
+                log(f"Using allocation weight {weight:.4f} for strategy {strategy_id}", "info")
+            else:
+                weight = signal_count / total_signals
+                log(f"Using signal count weight {weight:.4f} for strategy {strategy_id}", "info")
             
             for metric_name in weighted_metrics.keys():
                 if metric_name in metrics:

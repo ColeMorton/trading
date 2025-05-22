@@ -190,8 +190,8 @@ def create_portfolio_metrics(stats: Dict[str, Any], config: Dict[str, Any] = Non
             "description": "Risk-Adjusted Performance"
         },
         "expectancy": {
-            "value": stats["total_expectancy"],
-            "description": "Combined expectancy per trade across all strategies"
+            "value": stats.get("total_weighted_expectancy", stats["total_expectancy"]),
+            "description": "Combined expectancy per trade across all strategies (allocation-weighted)"
         },
         "multipliers": {
             "diversification": {

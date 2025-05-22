@@ -28,12 +28,12 @@
         },
         "efficiency": {
             "efficiency_score": {
-                "value": 0.8726137624755476,
+                "value": 0.06866527074194763,
                 "description": "Risk-Adjusted Performance"
             },
             "expectancy": {
                 "value": 100.21905011816223,
-                "description": "Combined expectancy per trade across all strategies"
+                "description": "Combined expectancy per trade across all strategies (allocation-weighted)"
             },
             "multipliers": {
                 "diversification": {
@@ -57,7 +57,7 @@
                     "description": "Measure of risk concentration"
                 },
                 "total_portfolio_risk": {
-                    "value": 0.0874253840496638,
+                    "value": 0.0063161019619211315,
                     "description": "Overall portfolio risk measure"
                 }
             },

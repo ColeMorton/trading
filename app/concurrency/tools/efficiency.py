@@ -95,6 +95,11 @@ def calculate_portfolio_efficiency(
     try:
         log("Calculating portfolio efficiency", "info")
         
+        # Initialize metrics dictionary
+        metrics = {
+            'total_weighted_expectancy': 0.0
+        }
+        
         # Calculate ratios from raw counts
         concurrent_ratio = concurrent_periods / total_periods
         exclusive_ratio = exclusive_periods / total_periods
@@ -141,6 +146,11 @@ def calculate_portfolio_efficiency(
                 weighted_eff = eff * exp * norm_alloc * risk_factor
                 weighted_efficiencies.append(weighted_eff)
                 
+                # Also track the weighted expectancy for reporting
+                if i == 0:  # Only initialize once
+                    metrics['total_weighted_expectancy'] = 0.0
+                metrics['total_weighted_expectancy'] += exp * norm_alloc
+                
                 log(f"Strategy {i} weighted efficiency components:", "info")
                 log(f"  Base efficiency: {eff:.6f}", "info")
                 log(f"  Expectancy: {exp:.6f}", "info")
@@ -177,6 +187,11 @@ def calculate_portfolio_efficiency(
                 weighted_eff = eff * exp * norm_alloc * risk_factor
                 weighted_efficiencies.append(weighted_eff)
                 
+                # Also track the weighted expectancy for reporting
+                if i == 0:  # Only initialize once
+                    metrics['total_weighted_expectancy'] = 0.0
+                metrics['total_weighted_expectancy'] += exp * norm_alloc
+                
                 log(f"Strategy {i} weighted efficiency components:", "info")
                 log(f"  Base efficiency: {eff:.6f}", "info")
                 log(f"  Expectancy: {exp:.6f}", "info")
@@ -195,7 +210,15 @@ def calculate_portfolio_efficiency(
         # Note: We don't multiply by diversification, adjusted_independence, and activity again
         # because these structural components are already incorporated in the base efficiency
         # calculation that feeds into total_efficiency
-        portfolio_efficiency = total_efficiency
+        
+        # If allocation is enabled, use the weighted efficiency that accounts for allocations
+        if include_allocation:
+            log("Using allocation-weighted efficiency for portfolio efficiency", "info")
+            portfolio_efficiency = total_efficiency
+        else:
+            # If allocation is disabled, use a simple average of strategy efficiencies
+            log("Using simple average of strategy efficiencies for portfolio efficiency", "info")
+            portfolio_efficiency = sum(strategy_efficiencies) / len(strategy_efficiencies) if strategy_efficiencies else 0.0
         
         # Log the components for debugging
         log(f"Portfolio efficiency calculation components:", "info")
