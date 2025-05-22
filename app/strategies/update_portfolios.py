@@ -9,6 +9,7 @@ The module supports both regular tickers and synthetic tickers (identified by an
 in the ticker name, e.g., 'STRK_MSTR'). Synthetic tickers are automatically detected and
 processed by splitting them into their component tickers.
 """
+import os
 from app.tools.project_utils import (
     get_project_root,
     resolve_path
@@ -139,31 +140,66 @@ def run(portfolio: str) -> bool:
             daily_df = load_portfolio_with_logging(portfolio, log, local_config)
             if not daily_df:
                 return False
+                
+            # Normalize portfolio data to ensure consistent schema handling
+            from app.tools.portfolio.schema_detection import normalize_portfolio_data, SchemaVersion
+            daily_df = normalize_portfolio_data(daily_df, log=log)
+            log(f"Normalized portfolio data with {len(daily_df)} rows", "info")
 
-            # Log schema version information
+            # Detect schema version using the schema_detection module
+            from app.tools.portfolio.schema_detection import detect_schema_version, SchemaVersion
+            
+            # Check if schema version is already set in the data
             schema_version = None
             if daily_df and '_schema_version' in daily_df[0]:
                 schema_version = daily_df[0]['_schema_version']
-                log(f"Portfolio uses schema version: {schema_version}", "info")
+                log(f"Portfolio has explicit schema version: {schema_version}", "info")
+            else:
+                # Detect schema version from the data structure
+                detected_schema = detect_schema_version(daily_df)
+                schema_version = detected_schema.name
+                log(f"Detected schema version: {schema_version}", "info")
                 
-                # Check for allocation and stop loss columns
-                has_allocation = any(
-                    strategy.get('Allocation [%]') is not None and
-                    strategy.get('Allocation [%]') != ""
-                    for strategy in daily_df
-                )
-                has_stop_loss = any(
-                    strategy.get('Stop Loss [%]') is not None and
-                    strategy.get('Stop Loss [%]') != ""
-                    for strategy in daily_df
-                )
-                
+                # Add schema version to each row for future reference
+                for row in daily_df:
+                    row['_schema_version'] = schema_version
+            
+            # Check for allocation and stop loss columns
+            has_allocation = any(
+                strategy.get('Allocation [%]') is not None and
+                strategy.get('Allocation [%]') != "" and
+                strategy.get('Allocation [%]') != "None"
+                for strategy in daily_df
+            )
+            has_stop_loss = any(
+                strategy.get('Stop Loss [%]') is not None and
+                strategy.get('Stop Loss [%]') != "" and
+                strategy.get('Stop Loss [%]') != "None"
+                for strategy in daily_df
+            )
+            
+            # Check for column existence even if values are empty
+            has_allocation_column = any('Allocation [%]' in strategy for strategy in daily_df)
+            has_stop_loss_column = any('Stop Loss [%]' in strategy for strategy in daily_df)
+            
+            if has_allocation_column:
+                log("Portfolio has Allocation [%] column", "info")
                 if has_allocation:
                     log("Portfolio contains allocation values", "info")
+                else:
+                    log("Portfolio has Allocation [%] column but no values", "info")
+                    
+            if has_stop_loss_column:
+                log("Portfolio has Stop Loss [%] column", "info")
                 if has_stop_loss:
                     log("Portfolio contains stop loss values", "info")
-            else:
-                log("No schema version information found, assuming base schema", "warning")
+                else:
+                    log("Portfolio has Stop Loss [%] column but no values", "info")
+                    
+            # Set extended schema flag if either column exists
+            if has_allocation_column or has_stop_loss_column:
+                local_config["USE_EXTENDED_SCHEMA"] = True
+                log("Using extended schema for processing", "info")
 
             portfolios = []
             
@@ -247,8 +283,11 @@ def run(portfolio: str) -> bool:
             {Exception: ExportError},
             reraise=False
         ):
-            # Ensure we're using the extended schema for export
-            local_config["USE_EXTENDED_SCHEMA"] = True
+            # Ensure we're using the correct schema for export
+            # This might have been set during schema detection, but let's make sure
+            if "USE_EXTENDED_SCHEMA" not in local_config or local_config["USE_EXTENDED_SCHEMA"] is None:
+                local_config["USE_EXTENDED_SCHEMA"] = True
+                log("Explicitly setting USE_EXTENDED_SCHEMA=True for export", "info")
             
             success = export_summary_results(portfolios, portfolio, log, local_config)
             # Display strategy data as requested
@@ -318,16 +357,33 @@ if __name__ == "__main__":
     # Resolve portfolio filename with extension if needed
     resolved_portfolio = resolve_portfolio_filename(portfolio_name)
     
+    # Check if the portfolio file exists and detect its schema
+    portfolio_path = os.path.join(get_project_root(), 'csv', 'strategies', resolved_portfolio)
+    if os.path.exists(portfolio_path):
+        try:
+            from app.tools.portfolio.schema_detection import detect_schema_version_from_file, SchemaVersion
+            schema_version = detect_schema_version_from_file(portfolio_path)
+            print(f"Detected schema version for {resolved_portfolio}: {schema_version.name}")
+            use_extended = schema_version == SchemaVersion.EXTENDED
+        except Exception as e:
+            print(f"Error detecting schema version: {str(e)}")
+            use_extended = True  # Default to extended schema on error for safety
+    else:
+        print(f"Portfolio file not found: {portfolio_path}")
+        use_extended = True  # Default to extended schema if file not found
+    
     # Set extended schema flag to ensure proper handling
     extended_config = {
-        "USE_EXTENDED_SCHEMA": True,  # Enable extended schema support
-        "HANDLE_ALLOCATIONS": True,   # Enable allocation handling
-        "HANDLE_STOP_LOSS": True      # Enable stop loss handling
+        "USE_EXTENDED_SCHEMA": use_extended,  # Set based on detection
+        "HANDLE_ALLOCATIONS": True,           # Enable allocation handling
+        "HANDLE_STOP_LOSS": True              # Enable stop loss handling
     }
+    
+    print(f"Using {'extended' if use_extended else 'base'} schema for processing")
     
     # Use the standardized entry point utility
     run_from_command_line(
         lambda _: run(resolved_portfolio),  # Wrapper function to match expected signature
-        extended_config,  # Pass extended schema config
+        extended_config,                    # Pass extended schema config
         "portfolio update"
     )
