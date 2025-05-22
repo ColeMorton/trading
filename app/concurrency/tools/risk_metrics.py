@@ -98,11 +98,13 @@ def calculate_risk_contributions(
                         
                     # Use adjusted returns for risk calculations
                     all_active_returns.extend(adjusted_returns)
-                    weighted_active_returns.extend(adjusted_returns * strategy_allocations[i])
+                    # Store returns for this strategy (without weighting)
+                    weighted_active_returns.extend(adjusted_returns)
                 else:
                     # Use original returns if no stop loss
                     all_active_returns.extend(active_returns)
-                    weighted_active_returns.extend(active_returns * strategy_allocations[i])
+                    # Store returns for this strategy (without weighting)
+                    weighted_active_returns.extend(active_returns)
 
             # Calculate VaR and CVaR for active returns
             if len(active_returns) > 0:
@@ -133,28 +135,42 @@ def calculate_risk_contributions(
                 log(f"Strategy {i+1} - Volatility: {vol:.4f}, Average Return: {avg_return:.4f}", "info")
                 log(f"Strategy {i+1} - No active returns for VaR/CVaR calculation", "info")
 
-        # Calculate combined VaR and CVaR metrics using raw returns
+        # Calculate combined VaR and CVaR metrics using allocation-weighted approach
         log("Calculating combined VaR and CVaR metrics", "info")
-        if all_active_returns:
-            # Convert to numpy array and sort
-            all_returns = np.array(all_active_returns)
-            sorted_returns = np.sort(all_returns)
-
-            # Calculate combined VaR 95% and 99%
-            combined_var_95 = float(np.percentile(sorted_returns, 5))
-            combined_var_99 = float(np.percentile(sorted_returns, 1))
-
-            # Calculate combined CVaR 95% and 99%
-            combined_cvar_95 = float(np.mean(sorted_returns[sorted_returns <= combined_var_95]))
-            combined_cvar_99 = float(np.mean(sorted_returns[sorted_returns <= combined_var_99]))
-
+        if all_active_returns and strategy_allocations:
+            # Calculate weighted average of individual VaR/CVaR values based on allocations
+            total_allocation = sum(strategy_allocations)
+            
+            # Initialize combined risk metrics
+            combined_var_95 = 0.0
+            combined_var_99 = 0.0
+            combined_cvar_95 = 0.0
+            combined_cvar_99 = 0.0
+            
+            # Calculate weighted average of individual strategy risk metrics
+            for i in range(n_strategies):
+                # Get allocation weight (as a proportion of total allocation)
+                allocation_weight = strategy_allocations[i] / total_allocation
+                
+                # Get individual strategy risk metrics
+                var_95 = risk_contributions.get(f"strategy_{i+1}_var_95", 0.0)
+                var_99 = risk_contributions.get(f"strategy_{i+1}_var_99", 0.0)
+                cvar_95 = risk_contributions.get(f"strategy_{i+1}_cvar_95", 0.0)
+                cvar_99 = risk_contributions.get(f"strategy_{i+1}_cvar_99", 0.0)
+                
+                # Add weighted contribution to combined metrics
+                combined_var_95 += var_95 * allocation_weight
+                combined_var_99 += var_99 * allocation_weight
+                combined_cvar_95 += cvar_95 * allocation_weight
+                combined_cvar_99 += cvar_99 * allocation_weight
+            
             risk_contributions["combined_var_95"] = combined_var_95
             risk_contributions["combined_cvar_95"] = combined_cvar_95
             risk_contributions["combined_var_99"] = combined_var_99
             risk_contributions["combined_cvar_99"] = combined_cvar_99
-
-            log(f"Combined VaR 95%: {combined_var_95:.4f}, CVaR 95%: {combined_cvar_95:.4f}", "info")
-            log(f"Combined VaR 99%: {combined_var_99:.4f}, CVaR 99%: {combined_cvar_99:.4f}", "info")
+            
+            log(f"Combined VaR 95% (allocation-weighted): {combined_var_95:.4f}, CVaR 95%: {combined_cvar_95:.4f}", "info")
+            log(f"Combined VaR 99% (allocation-weighted): {combined_var_99:.4f}, CVaR 99%: {combined_cvar_99:.4f}", "info")
         else:
             log("No active returns for combined VaR/CVaR calculation", "info")
             risk_contributions["combined_var_95"] = 0.0

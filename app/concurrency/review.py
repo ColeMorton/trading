@@ -86,8 +86,9 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "portfolio_d_20250519.csv",
     # "PORTFOLIO": "total_d_20250519.csv", 
     # "PORTFOLIO": "BTC-USD_SPY_d.csv",
-    "PORTFOLIO": "trades_20250520.csv",
+    # "PORTFOLIO": "trades_20250520.csv",
     # "PORTFOLIO": "BTC_d_20250427.csv",
+    "PORTFOLIO": "portfolio_risk.csv",
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
     "REFRESH": False,
     "OPTIMIZE": False,
@@ -99,8 +100,8 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     "CSV_USE_HOURLY": False,
     "SORT_BY": "allocation",
     "REPORT_INCLUDES": {
-        "TICKER_METRICS": True,
-        "STRATEGIES": True,
+        "TICKER_METRICS": False,
+        "STRATEGIES": False,
         "STRATEGY_RELATIONSHIPS": False,
         "ALLOCATION": True
     },
