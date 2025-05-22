@@ -5,6 +5,7 @@ This package provides tools for portfolio management, including:
 - Processing portfolio data
 - Calculating portfolio metrics
 - Selecting optimal portfolios
+- Managing allocation percentages
 """
 
 from app.tools.portfolio.loader import (
@@ -48,6 +49,24 @@ from app.tools.portfolio.enhanced_loader import (
     PortfolioLoadError
 )
 
+# Import schema detection functions
+from app.tools.portfolio.schema_detection import (
+    SchemaVersion,
+    detect_schema_version,
+    detect_schema_version_from_file,
+    normalize_portfolio_data
+)
+
+# Import allocation utility functions
+from app.tools.portfolio.allocation import (
+    validate_allocations,
+    normalize_allocations,
+    distribute_missing_allocations,
+    ensure_allocation_sum_100_percent,
+    calculate_position_sizes,
+    get_allocation_summary
+)
+
 __all__ = [
     # Loader functions
     'load_portfolio',
@@ -84,5 +103,19 @@ __all__ = [
     # Enhanced loader functions
     'load_portfolio_with_logging',
     'portfolio_context',
-    'PortfolioLoadError'
+    'PortfolioLoadError',
+    
+    # Schema detection functions
+    'SchemaVersion',
+    'detect_schema_version',
+    'detect_schema_version_from_file',
+    'normalize_portfolio_data',
+    
+    # Allocation utility functions
+    'validate_allocations',
+    'normalize_allocations',
+    'distribute_missing_allocations',
+    'ensure_allocation_sum_100_percent',
+    'calculate_position_sizes',
+    'get_allocation_summary'
 ]

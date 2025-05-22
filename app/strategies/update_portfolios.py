@@ -11,8 +11,7 @@ processed by splitting them into their component tickers.
 """
 import os
 from app.tools.project_utils import (
-    get_project_root,
-    resolve_path
+    get_project_root
 )
 from app.tools.portfolio_results import (
     sort_portfolios,
@@ -52,7 +51,21 @@ from app.tools.strategy_utils import (
 )
 from app.tools.portfolio.schema_detection import (
     SchemaVersion,
+    detect_schema_version,
     normalize_portfolio_data
+)
+from app.tools.portfolio.allocation import (
+    validate_allocations,
+    normalize_allocations,
+    distribute_missing_allocations,
+    ensure_allocation_sum_100_percent,
+    calculate_position_sizes,
+    get_allocation_summary
+)
+from app.tools.portfolio.stop_loss import (
+    validate_stop_loss,
+    normalize_stop_loss,
+    get_stop_loss_summary
 )
 
 # Default Configuration
@@ -65,9 +78,9 @@ config = {
     # "PORTFOLIO": 'DAILY_test.csv',
     # "PORTFOLIO": 'crypto_h.csv',
     # "PORTFOLIO": 'DAILY_crypto_short.csv',
-    # "PORTFOLIO": 'Indices_d.csv',
+    "PORTFOLIO": 'Indices_d.csv',
     # "PORTFOLIO": 'trades_20250520.csv',
-    "PORTFOLIO": 'portfolio_d_20250510.csv',
+    # "PORTFOLIO": 'portfolio_d_20250510.csv',
     # "PORTFOLIO": 'BTC_MSTR_d_20250409.csv',
     # "PORTFOLIO": "QQQ_d_20250404.csv",
     # "PORTFOLIO": "TLT_d_20250404.csv",
@@ -141,28 +154,55 @@ def run(portfolio: str) -> bool:
             if not daily_df:
                 return False
                 
-            # Normalize portfolio data to ensure consistent schema handling
-            from app.tools.portfolio.schema_detection import normalize_portfolio_data, SchemaVersion
-            daily_df = normalize_portfolio_data(daily_df, log=log)
-            log(f"Normalized portfolio data with {len(daily_df)} rows", "info")
-
             # Detect schema version using the schema_detection module
-            from app.tools.portfolio.schema_detection import detect_schema_version, SchemaVersion
+            schema_version = detect_schema_version(daily_df)
+            log(f"Detected schema version: {schema_version.name}", "info")
             
-            # Check if schema version is already set in the data
-            schema_version = None
-            if daily_df and '_schema_version' in daily_df[0]:
-                schema_version = daily_df[0]['_schema_version']
-                log(f"Portfolio has explicit schema version: {schema_version}", "info")
-            else:
-                # Detect schema version from the data structure
-                detected_schema = detect_schema_version(daily_df)
-                schema_version = detected_schema.name
-                log(f"Detected schema version: {schema_version}", "info")
+            # Normalize portfolio data to ensure consistent schema handling
+            daily_df = normalize_portfolio_data(daily_df, schema_version, log)
+            log(f"Normalized portfolio data with {len(daily_df)} rows", "info")
+            
+            # Process allocation and stop loss data if using extended schema
+            if schema_version == SchemaVersion.EXTENDED:
+                log("Processing allocation and stop loss data...", "info")
+                
+                # Process allocation values
+                # Validate allocation values
+                daily_df = validate_allocations(daily_df, log)
+                
+                # Normalize allocation field names
+                daily_df = normalize_allocations(daily_df, log)
+                
+                # Get allocation summary before processing
+                allocation_summary = get_allocation_summary(daily_df, log)
+                log(f"Initial allocation summary: {allocation_summary}", "info")
+                
+                # If we have partial allocations, distribute them
+                if allocation_summary["allocated_rows"] > 0 and allocation_summary["unallocated_rows"] > 0:
+                    daily_df = distribute_missing_allocations(daily_df, log)
+                    
+                # Ensure allocations sum to 100% if we have any allocations
+                if allocation_summary["allocated_rows"] > 0:
+                    daily_df = ensure_allocation_sum_100_percent(daily_df, log)
+                    
+                    # Get updated allocation summary
+                    updated_summary = get_allocation_summary(daily_df, log)
+                    log(f"Updated allocation summary: {updated_summary}", "info")
+                
+                # Process stop loss values
+                # Validate stop loss values
+                daily_df = validate_stop_loss(daily_df, log)
+                
+                # Normalize stop loss field names
+                daily_df = normalize_stop_loss(daily_df, log)
+                
+                # Get stop loss summary
+                stop_loss_summary = get_stop_loss_summary(daily_df, log)
+                log(f"Stop loss summary: {stop_loss_summary}", "info")
                 
                 # Add schema version to each row for future reference
                 for row in daily_df:
-                    row['_schema_version'] = schema_version
+                    row['_schema_version'] = schema_version.name
             
             # Check for allocation and stop loss columns
             has_allocation = any(
@@ -210,22 +250,33 @@ def run(portfolio: str) -> bool:
             # Create a copy of the config for this strategy
             strategy_config = local_config.copy()
             
-            # Add allocation and stop loss values to strategy config if present
-            allocation = strategy.get('Allocation [%]')
-            stop_loss = strategy.get('Stop Loss [%]')
+            # Process allocation and stop loss values
+            allocation_field = 'Allocation [%]'
+            stop_loss_field = 'Stop Loss [%]'
             
+            # Validate and normalize allocation value
+            allocation = strategy.get(allocation_field)
             if allocation is not None and allocation != "" and allocation != "None":
                 try:
-                    strategy_config["ALLOCATION"] = float(allocation)
-                    log(f"Using allocation {allocation}% for {ticker}", "info")
+                    allocation_value = float(allocation)
+                    if 0 <= allocation_value <= 100:
+                        strategy_config["ALLOCATION"] = allocation_value
+                        log(f"Using allocation {allocation_value}% for {ticker}", "info")
+                    else:
+                        log(f"Invalid allocation value for {ticker}: {allocation_value} (must be between 0 and 100)", "warning")
                 except (ValueError, TypeError):
                     log(f"Invalid allocation value for {ticker}: {allocation}", "warning")
             
+            # Validate and normalize stop loss value using the stop_loss utility
+            stop_loss = strategy.get(stop_loss_field)
             if stop_loss is not None and stop_loss != "" and stop_loss != "None":
-                try:
-                    strategy_config["STOP_LOSS"] = float(stop_loss)
-                    log(f"Using stop loss {stop_loss}% for {ticker}", "info")
-                except (ValueError, TypeError):
+                # Use the validate_stop_loss function on a single-item list
+                validated_data = validate_stop_loss([strategy], log)
+                if validated_data and validated_data[0].get(stop_loss_field) is not None:
+                    stop_loss_value = validated_data[0][stop_loss_field]
+                    strategy_config["STOP_LOSS"] = stop_loss_value
+                    log(f"Using stop loss {stop_loss_value}% for {ticker}", "info")
+                else:
                     log(f"Invalid stop loss value for {ticker}: {stop_loss}", "warning")
             
             # Check if this is a synthetic ticker (contains underscore)
@@ -317,35 +368,26 @@ def run(portfolio: str) -> bool:
                         log
                     )
                     
-                # Log allocation and stop loss summary if present
-                # Ensure values are converted to float before summing
-                allocation_values = []
-                for p in sorted_portfolios:
-                    alloc = p.get('Allocation [%]')
-                    if alloc is not None and alloc != "" and alloc != "None":
-                        try:
-                            # Convert to float if it's a string or other type
-                            allocation_values.append(float(alloc))
-                        except (ValueError, TypeError):
-                            log(f"Invalid allocation value: {alloc}", "warning")
-
-                stop_loss_values = []
-                for p in sorted_portfolios:
-                    sl = p.get('Stop Loss [%]')
-                    if sl is not None and sl != "" and sl != "None":
-                        try:
-                            # Convert to float if it's a string or other type
-                            stop_loss_values.append(float(sl))
-                        except (ValueError, TypeError):
-                            log(f"Invalid stop loss value: {sl}", "warning")
+                # Use allocation utility to get allocation summary
+                allocation_summary = get_allocation_summary(sorted_portfolios, log)
+                log(f"Allocation summary: {allocation_summary}", "info")
                 
-                if allocation_values:
-                    total_allocation = sum(allocation_values)
-                    log(f"Total allocation: {total_allocation:.2f}% across {len(allocation_values)} strategies", "info")
+                # Calculate position sizes if account value is provided
+                if "ACCOUNT_VALUE" in local_config and local_config["ACCOUNT_VALUE"] > 0:
+                    account_value = float(local_config["ACCOUNT_VALUE"])
+                    position_sized_portfolios = calculate_position_sizes(sorted_portfolios, account_value, log)
+                    log(f"Calculated position sizes based on account value: {account_value}", "info")
+                    
+                    # Log position size summary
+                    total_position_size = sum(p.get('Position Size', 0) for p in position_sized_portfolios)
+                    log(f"Total position size: {total_position_size:.2f} across {len(position_sized_portfolios)} strategies", "info")
                 
-                if stop_loss_values:
-                    avg_stop_loss = sum(stop_loss_values) / len(stop_loss_values)
-                    log(f"Average stop loss: {avg_stop_loss:.2f}% across {len(stop_loss_values)} strategies", "info")
+                # Use the stop_loss utility to get a summary of stop loss values
+                stop_loss_summary = get_stop_loss_summary(sorted_portfolios, log)
+                if stop_loss_summary["strategies_with_stop_loss"] > 0:
+                    log(f"Stop loss summary: {stop_loss_summary}", "info")
+                    log(f"Average stop loss: {stop_loss_summary['average_stop_loss']:.2f}% across "
+                        f"{stop_loss_summary['strategies_with_stop_loss']} strategies", "info")
             
         return success
 

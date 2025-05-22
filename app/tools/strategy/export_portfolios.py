@@ -11,7 +11,7 @@ import numpy as np
 from app.tools.export_csv import export_csv, ExportConfig
 from app.tools.portfolio.strategy_types import STRATEGY_TYPE_FIELDS
 from app.tools.portfolio.strategy_utils import get_strategy_type_for_export
-from app.tools.portfolio.schema_detection import SchemaVersion, ensure_allocation_sum_100_percent
+from app.tools.portfolio.schema_detection import ensure_allocation_sum_100_percent
 
 class PortfolioExportError(Exception):
     """Custom exception for portfolio export errors."""
@@ -78,8 +78,7 @@ def export_portfolios(
             del config["_SORTED_PORTFOLIOS"]
         
         # Process allocation values before converting to DataFrame
-        # Import ensure_allocation_sum_100_percent from schema_detection
-        from app.tools.portfolio.schema_detection import ensure_allocation_sum_100_percent
+        # Use ensure_allocation_sum_100_percent imported at the top of the file
         
         # Apply allocation normalization to ensure Case 3 is handled properly
         portfolios = ensure_allocation_sum_100_percent(portfolios, log)

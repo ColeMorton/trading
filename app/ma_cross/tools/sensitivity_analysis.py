@@ -5,7 +5,6 @@ from app.tools.strategy.signal_utils import is_signal_current, is_exit_signal_cu
 from app.tools.stats_converter import convert_stats
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.portfolio_transformation import reorder_columns
-from app.tools.portfolio.schema_detection import SchemaVersion
 
 def analyze_window_combination(
     data: pl.DataFrame,

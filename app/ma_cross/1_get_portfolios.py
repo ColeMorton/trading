@@ -52,12 +52,28 @@ from app.tools.portfolio_results import (
 from app.tools.portfolio.schema_detection import (
     SchemaVersion,
     detect_schema_version,
-    normalize_portfolio_data,
-    ensure_allocation_sum_100_percent
+    normalize_portfolio_data
+)
+
+# Import allocation utilities
+from app.tools.portfolio.allocation import (
+    validate_allocations,
+    normalize_allocations,
+    distribute_missing_allocations,
+    ensure_allocation_sum_100_percent,
+    calculate_position_sizes
+)
+
+# Import stop loss utilities
+from app.tools.portfolio.stop_loss import (
+    validate_stop_loss,
+    normalize_stop_loss,
+    calculate_stop_loss_levels,
+    get_stop_loss_summary
 )
 
 CONFIG: Config = {
-    "TICKER": "CRWD",
+    "TICKER": "AIG",
     # "TICKER": [
     #     "RUNE-USD",
     #     "TRUMP35336-USD",
@@ -121,9 +137,38 @@ def filter_portfolios(portfolios: List[Dict[str, Any]], config: Config, log) -> 
     # Normalize portfolio data to handle Allocation [%] and Stop Loss [%] columns
     normalized_portfolios = normalize_portfolio_data(portfolios, schema_version, log)
     
-    # Ensure allocation values sum to 100% if they exist
+    # Process allocation and stop loss values if they exist
     if schema_version == SchemaVersion.EXTENDED:
-        normalized_portfolios = ensure_allocation_sum_100_percent(normalized_portfolios, log)
+        # Process allocation values
+        # Validate allocation values
+        validated_portfolios = validate_allocations(normalized_portfolios, log)
+        
+        # Normalize allocation field names
+        normalized_portfolios = normalize_allocations(validated_portfolios, log)
+        
+        # Distribute missing allocations if some rows have values and others don't
+        distributed_portfolios = distribute_missing_allocations(normalized_portfolios, log)
+        
+        # Ensure allocation values sum to 100%
+        normalized_portfolios = ensure_allocation_sum_100_percent(distributed_portfolios, log)
+        
+        # Calculate position sizes if account value is provided in config
+        if "ACCOUNT_VALUE" in config and config["ACCOUNT_VALUE"] > 0:
+            account_value = float(config["ACCOUNT_VALUE"])
+            normalized_portfolios = calculate_position_sizes(normalized_portfolios, account_value, log)
+            log(f"Calculated position sizes based on account value: {account_value}", "info")
+        
+        # Process stop loss values
+        # Validate stop loss values
+        validated_stop_loss = validate_stop_loss(normalized_portfolios, log)
+        
+        # Normalize stop loss field names
+        normalized_portfolios = normalize_stop_loss(validated_stop_loss, log)
+        
+        # If we have entry prices, calculate stop loss levels
+        if "ENTRY_PRICES" in config and config["ENTRY_PRICES"]:
+            normalized_portfolios = calculate_stop_loss_levels(normalized_portfolios, config["ENTRY_PRICES"], log)
+            log("Calculated stop loss levels based on entry prices", "info")
     
     # Filter by signal using the standardized filter_portfolios_by_signal function
     filtered = filter_portfolios_by_signal(normalized_portfolios, config, log)
@@ -267,6 +312,16 @@ def run(config: Config = CONFIG) -> bool:
                 # Process portfolios with schema detection and normalization
                 filtered_portfolios = filter_portfolios(all_portfolios, synthetic_config, log)
                 
+                # If we have allocation and stop loss data, log summaries
+                if schema_version == SchemaVersion.EXTENDED:
+                    from app.tools.portfolio.allocation import get_allocation_summary
+                    allocation_summary = get_allocation_summary(filtered_portfolios, log)
+                    log(f"Allocation summary: {allocation_summary}", "info")
+                    
+                    # Log stop loss summary
+                    stop_loss_summary = get_stop_loss_summary(filtered_portfolios, log)
+                    log(f"Stop loss summary: {stop_loss_summary}", "info")
+                
                 # Export portfolios using the extended schema format
                 export_best_portfolios(filtered_portfolios, synthetic_config, log)
         
@@ -325,6 +380,16 @@ def run_strategies(config: Dict[str, Any] = None) -> bool:
                 
                 # Process portfolios with schema detection and normalization
                 filtered_portfolios = filter_portfolios(all_portfolios, base_config, log)
+                
+                # If we have allocation and stop loss data, log summaries
+                if schema_version == SchemaVersion.EXTENDED:
+                    from app.tools.portfolio.allocation import get_allocation_summary
+                    allocation_summary = get_allocation_summary(filtered_portfolios, log)
+                    log(f"Allocation summary: {allocation_summary}", "info")
+                    
+                    # Log stop loss summary
+                    stop_loss_summary = get_stop_loss_summary(filtered_portfolios, log)
+                    log(f"Stop loss summary: {stop_loss_summary}", "info")
                 
                 if filtered_portfolios is not None and len(filtered_portfolios) > 0:
                     # Export portfolios using the extended schema format

@@ -45,6 +45,24 @@ from app.tools.exceptions import (
 from app.tools.portfolio import (
     portfolio_context         # Using context manager
 )
+from app.tools.portfolio.schema_detection import (
+    SchemaVersion,
+    detect_schema_version
+)
+from app.tools.portfolio.allocation import (
+    validate_allocations,
+    normalize_allocations,
+    distribute_missing_allocations,
+    ensure_allocation_sum_100_percent,
+    calculate_position_sizes,
+    get_allocation_summary
+)
+from app.tools.portfolio.stop_loss import (
+    validate_stop_loss,
+    normalize_stop_loss,
+    get_stop_loss_summary,
+    apply_stop_loss_rules
+)
 from app.tools.config_management import (
     normalize_config,
     merge_configs,
@@ -152,8 +170,71 @@ def run_analysis(config: Dict[str, Any]) -> bool:
             reraise=True
         ):
             with portfolio_context(portfolio_filename, log, validated_config) as portfolio_data:
-                # Process each strategy in the portfolio to check for synthetic tickers
+                # Process portfolio data with schema detection and allocation handling
                 if portfolio_data:
+                    # Detect schema version
+                    schema_version = detect_schema_version(portfolio_data)
+                    log(f"Detected schema version: {schema_version.name}", "info")
+                    
+                    # Process allocation and stop loss data if using extended schema
+                    if schema_version == SchemaVersion.EXTENDED:
+                        # Process allocation data if allocation reporting is enabled
+                        if validated_config.get("REPORT_INCLUDES", {}).get("ALLOCATION", True):
+                            log("Processing allocation data...", "info")
+                            
+                            # Validate and normalize allocation values
+                            validated_data = validate_allocations(portfolio_data, log)
+                            normalized_data = normalize_allocations(validated_data, log)
+                            
+                            # Distribute missing allocations if needed
+                            distributed_data = distribute_missing_allocations(normalized_data, log)
+                            
+                            # Ensure allocations sum to 100%
+                            portfolio_data = ensure_allocation_sum_100_percent(distributed_data, log)
+                            
+                            # Calculate position sizes if account value is provided
+                            if "INITIAL_VALUE" in validated_config and validated_config["INITIAL_VALUE"] > 0:
+                                account_value = float(validated_config["INITIAL_VALUE"])
+                                portfolio_data = calculate_position_sizes(portfolio_data, account_value, log)
+                                log(f"Calculated position sizes based on account value: {account_value}", "info")
+                            
+                            # Get allocation summary
+                            allocation_summary = get_allocation_summary(portfolio_data, log)
+                            log(f"Allocation summary: {allocation_summary}", "info")
+                        
+                        # Process stop loss data
+                        log("Processing stop loss data...", "info")
+                        
+                        # Validate stop loss values
+                        validated_stop_loss = validate_stop_loss(portfolio_data, log)
+                        
+                        # Normalize stop loss field names
+                        portfolio_data = normalize_stop_loss(validated_stop_loss, log)
+                        
+                        # Get stop loss summary
+                        stop_loss_summary = get_stop_loss_summary(portfolio_data, log)
+                        log(f"Stop loss summary: {stop_loss_summary}", "info")
+                        
+                        # Apply stop loss rules if price data is available and SL_CANDLE_CLOSE is configured
+                        if "PRICE_DATA" in validated_config and validated_config.get("SL_CANDLE_CLOSE") is not None:
+                            log("Applying stop loss rules to strategies...", "info")
+                            use_candle_close = validated_config.get("SL_CANDLE_CLOSE", True)
+                            
+                            # Apply stop loss rules to each strategy
+                            for i, strategy in enumerate(portfolio_data):
+                                portfolio_data[i] = apply_stop_loss_rules(
+                                    strategy,
+                                    validated_config["PRICE_DATA"],
+                                    use_candle_close,
+                                    log
+                                )
+                            
+                            # Count strategies with triggered stop losses
+                            triggered_count = sum(1 for s in portfolio_data if s.get('stop_triggered', False))
+                            if triggered_count > 0:
+                                log(f"Stop loss triggered for {triggered_count} strategies", "info")
+                    
+                    # Check for synthetic tickers in portfolio strategies
                     log("Checking for synthetic tickers in portfolio strategies...", "info")
                     
                     # Also set synthetic ticker flag in the main config if any synthetic tickers are found
@@ -202,6 +283,14 @@ def run_analysis(config: Dict[str, Any]) -> bool:
             # Ensure the main function knows about synthetic tickers
             if validated_config.get("USE_SYNTHETIC", False):
                 log(f"Running analysis with synthetic ticker support enabled", "info")
+            
+            # Log allocation and stop loss information if available and enabled
+            if validated_config.get("REPORT_INCLUDES", {}).get("ALLOCATION", True):
+                log("Allocation handling is enabled for this analysis", "info")
+            
+            # Log stop loss configuration
+            if validated_config.get("SL_CANDLE_CLOSE") is not None:
+                log(f"Stop loss handling is enabled using {'candle close' if validated_config['SL_CANDLE_CLOSE'] else 'intracandle'} prices", "info")
             
             result = main(validated_config)
             if result:

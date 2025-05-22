@@ -19,24 +19,28 @@ Ticker,Strategy Type,Short Window,Long Window,Signal Window,Signal Entry,Signal 
 - `app/ma_cross/1_get_portfolios.py`: Processes and exports strategy portfolios
 - `app/strategies/update_portfolios.py`: Updates portfolios with new strategy results
 
-## 2. Strategy Portfolio CSV with Allocation Schema
+## 2. Extended Strategy Portfolio CSV Schema
 
 An extended version of the Strategy Portfolio schema that includes allocation percentages and stop loss values.
 
 **Header Fields:**
 ```
-Ticker,Allocation,Strategy Type,Short Window,Long Window,Signal Window,Stop Loss,Signal Entry,Signal Exit,Total Open Trades,Total Trades,Score,Win Rate [%],Profit Factor,Expectancy per Trade,Sortino Ratio,Beats BNH [%],...
+Ticker,Allocation [%],Strategy Type,Short Window,Long Window,Signal Window,Stop Loss [%],Signal Entry,Signal Exit,Total Open Trades,Total Trades,Score,Win Rate [%],Profit Factor,Expectancy per Trade,Sortino Ratio,Beats BNH [%],...
 ```
 
 **Key Differences from Base Schema:**
-- Addition of `Allocation` column (2nd column) - specifies allocation percentage for the strategy
-- Addition of `Stop Loss` column (7th column) - specifies stop loss parameters
+- Addition of `Allocation [%]` column (2nd column) - specifies allocation percentage for the strategy
+- Addition of `Stop Loss [%]` column (7th column) - specifies stop loss percentage for the strategy
 
 **Used By:**
-- `trades_20250520.csv` uses this schema format
+- `trades_20250520.csv` and other portfolio files using the extended schema
+- All three main modules now fully support this extended schema
 
-**Note:**
-- While `trades_20250520.csv` uses this extended schema, no code or configuration changes in the system are yet aware of this new schema format. The current implementation in `app/concurrency/review.py` and other files do not fully utilize the Allocation and Stop Loss columns.
+**Implementation Details:**
+- The system now fully supports the extended schema through dedicated utility modules:
+  - `app/tools/portfolio/schema_detection.py`: Detects schema version and normalizes data
+  - `app/tools/portfolio/allocation.py`: Handles allocation percentages
+  - `app/tools/portfolio/stop_loss.py`: Handles stop loss values
 
 ## 3. Synthetic Ticker CSV Schema
 
@@ -141,10 +145,12 @@ Some of the most important fields in the CSV schemas:
 | Field | Description |
 |-------|-------------|
 | Ticker | Asset symbol (e.g., "BTC-USD", "AAPL") |
+| Allocation [%] | Percentage of portfolio allocated to this strategy (0-100%) |
 | Strategy Type | Trading strategy type (e.g., "SMA", "EMA") |
 | Short Window | Short-term moving average period |
 | Long Window | Long-term moving average period |
 | Signal Window | Additional parameter for signal generation |
+| Stop Loss [%] | Percentage-based stop loss level (0-100%) |
 | Score | Composite performance score |
 | Win Rate [%] | Percentage of winning trades |
 | Profit Factor | Ratio of gross profits to gross losses |
@@ -152,19 +158,36 @@ Some of the most important fields in the CSV schemas:
 | Sortino Ratio | Risk-adjusted return metric focusing on downside risk |
 | Beats BNH [%] | Performance compared to buy-and-hold strategy |
 | Max Drawdown [%] | Maximum observed loss from peak to trough |
+| Stop Level | Calculated price level for stop loss (derived from Stop Loss [%]) |
 
-## Future Schema Evolution
+## Schema Evolution and Implementation
 
-The trading system's CSV schemas are evolving:
+The trading system's CSV schemas have evolved to support more sophisticated portfolio management:
 
-1. **Current Development**: The addition of Allocation and Stop Loss columns in the Strategy Portfolio CSV with Allocation Schema represents an ongoing evolution toward more sophisticated portfolio management.
+1. **Completed Implementation**: The system now fully supports the Extended Schema with Allocation [%] and Stop Loss [%] columns through dedicated utility modules:
+   - `app/tools/portfolio/schema_detection.py`: Automatically detects schema version (Base or Extended)
+   - `app/tools/portfolio/allocation.py`: Validates, normalizes, and processes allocation percentages
+   - `app/tools/portfolio/stop_loss.py`: Validates, normalizes, and processes stop loss values
 
-2. **Planned Integration**: Future code updates will fully utilize these new columns for:
-   - Risk-based position sizing
-   - Automated stop loss management
-   - Portfolio-level risk controls
+2. **Key Functionality**:
+   - **Allocation Management**:
+     - Validation of allocation values (0-100%)
+     - Distribution of allocations to ensure sum equals 100%
+     - Position size calculation based on account value
+   
+   - **Stop Loss Management**:
+     - Validation of stop loss values (0-100%)
+     - Calculation of stop loss price levels based on entry prices
+     - Application of stop loss rules to trading strategies
+     - Support for both candle-close and intracandle stop loss triggers
 
-3. **Backward Compatibility**: The system maintains backward compatibility with older CSV formats while gradually transitioning to newer schemas.
+3. **Backward Compatibility**: The system maintains full backward compatibility with the Base Schema while providing enhanced functionality for the Extended Schema.
+
+4. **Special Cases Handling**:
+   - **Case 1**: When Allocation [%] column exists but no values: maintains the column with empty values
+   - **Case 2**: When Allocation [%] column doesn't exist: adds it with empty fields
+   - **Case 3**: When some rows have Allocation [%] values and others don't: assigns equal values to empty ones
+   - **Case 4**: Always exports using the Extended Schema format for consistency
 
 ## Common Usage Patterns
 
@@ -175,12 +198,42 @@ Typical workflows involving these CSV files:
    Generate strategies → Filter by performance metrics → Export best performers
    ```
 
-2. **Portfolio Construction**:
+2. **Portfolio Construction with Allocation and Stop Loss**:
    ```
-   Load filtered strategies → Analyze concurrency → Optimize allocations → Export portfolio
+   Load filtered strategies → Set allocation percentages → Configure stop loss levels → Analyze concurrency → Export portfolio
    ```
 
-3. **Performance Monitoring**:
+3. **Risk Management**:
    ```
-   Compare current signals with historical performance → Track metrics over time
+   Calculate position sizes based on allocations → Apply stop loss rules → Monitor risk metrics
    ```
+
+4. **Performance Monitoring**:
+   ```
+   Compare current signals with historical performance → Track metrics over time → Adjust allocations and stop losses
+   ```
+
+## Integration with Trading System Modules
+
+The Extended Schema is integrated with the main modules of the trading system:
+
+1. **In app/concurrency/review.py:**
+   - Detects schema version automatically
+   - Processes allocation data for portfolio-level risk analysis
+   - Applies stop loss rules to strategies based on price data
+   - Supports both candle-close and intracandle stop loss triggers
+
+2. **In app/ma_cross/1_get_portfolios.py:**
+   - Validates and normalizes allocation and stop loss values
+   - Calculates stop loss levels based on entry prices
+   - Provides summary statistics for allocations and stop losses
+
+3. **In app/strategies/update_portfolios.py:**
+   - Preserves allocation and stop loss values during portfolio updates
+   - Validates and normalizes stop loss values for each strategy
+   - Provides detailed stop loss summary statistics
+
+4. **In app/tools/strategy/export_portfolios.py:**
+   - Always exports using the Extended Schema format for consistency
+   - Handles special cases for allocation and stop loss values
+   - Ensures proper column ordering in exported CSV files
