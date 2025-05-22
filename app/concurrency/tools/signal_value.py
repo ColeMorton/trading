@@ -5,10 +5,9 @@ This module provides functions to calculate various signal value metrics
 for trading strategies, helping to quantify the value of each signal.
 """
 
-from typing import Dict, Any, List, Tuple, Optional, Callable
+from typing import Dict, Any, List, Callable
 import numpy as np
 import polars as pl
-from app.concurrency.tools.types import StrategyData
 
 def calculate_signal_value_metrics(
     signals_df: pl.DataFrame,

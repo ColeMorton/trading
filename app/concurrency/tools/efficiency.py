@@ -1,7 +1,6 @@
 """Efficiency score calculation for concurrency analysis."""
 
 from typing import List, Callable, Tuple, Dict
-import numpy as np
 
 def calculate_strategy_efficiency(
     correlation: float,
@@ -72,8 +71,7 @@ def calculate_portfolio_efficiency(
     exclusive_periods: int,
     inactive_periods: int,
     total_periods: int,
-    log: Callable[[str, str], None],
-    include_allocation: bool = False
+    log: Callable[[str, str], None]
 ) -> Dict[str, float]:
     """Calculate portfolio-level efficiency metrics with risk adjustment.
     
@@ -117,91 +115,50 @@ def calculate_portfolio_efficiency(
             
         activity = 1 - inactive_ratio
         
-        # Only calculate weighted efficiencies if allocation is enabled
+        # Calculate weighted efficiencies with equal allocations
         weighted_efficiencies = []
         total_efficiency = 0.0
         
-        if include_allocation:
-            # Calculate weighted efficiencies based on expectancy, allocation, and risk
-            total_allocation = sum(strategy_allocations)
+        log("Using equal weighting for weighted efficiency calculation", "info")
+        
+        # Calculate weighted efficiencies with equal allocations
+        equal_allocation = 1.0 / len(strategy_efficiencies)
+        
+        # Log the inputs for debugging
+        log(f"Strategy efficiencies: {strategy_efficiencies}", "info")
+        log(f"Strategy expectancies: {strategy_expectancies}", "info")
+        log(f"Using equal allocation: {equal_allocation:.6f} for all strategies", "info")
+        log(f"Strategy risk contributions: {strategy_risk_contributions}", "info")
+        
+        for i, (eff, exp, risk) in enumerate(zip(
+            strategy_efficiencies,
+            strategy_expectancies,
+            strategy_risk_contributions
+        )):
+            # Use equal allocation for all strategies
+            norm_alloc = equal_allocation
+            # Calculate risk-adjusted weight (lower risk is better)
+            risk_factor = calculate_risk_factor(risk)  # Lower risk contribution is better
             
-            # Log the inputs for debugging
-            log(f"Strategy efficiencies: {strategy_efficiencies}", "info")
-            log(f"Strategy expectancies: {strategy_expectancies}", "info")
-            log(f"Strategy allocations: {strategy_allocations}", "info")
-            log(f"Strategy risk contributions: {strategy_risk_contributions}", "info")
+            # Combine factors (efficiency * expectancy * allocation * risk_factor)
+            weighted_eff = eff * exp * norm_alloc * risk_factor
+            weighted_efficiencies.append(weighted_eff)
             
-            for i, (eff, exp, alloc, risk) in enumerate(zip(
-                strategy_efficiencies,
-                strategy_expectancies,
-                strategy_allocations,
-                strategy_risk_contributions
-            )):
-                # Normalize allocation
-                norm_alloc = alloc / total_allocation if total_allocation > 0 else 1/len(strategy_efficiencies)
-                # Calculate risk-adjusted weight (lower risk is better)
-                risk_factor = calculate_risk_factor(risk)  # Lower risk contribution is better
-                
-                # Combine factors (efficiency * expectancy * allocation * risk_factor)
-                weighted_eff = eff * exp * norm_alloc * risk_factor
-                weighted_efficiencies.append(weighted_eff)
-                
-                # Also track the weighted expectancy for reporting
-                if i == 0:  # Only initialize once
-                    metrics['total_weighted_expectancy'] = 0.0
-                metrics['total_weighted_expectancy'] += exp * norm_alloc
-                
-                log(f"Strategy {i} weighted efficiency components:", "info")
-                log(f"  Base efficiency: {eff:.6f}", "info")
-                log(f"  Expectancy: {exp:.6f}", "info")
-                log(f"  Normalized allocation: {norm_alloc:.6f}", "info")
-                log(f"  Risk factor (1 - {risk:.6f}): {risk_factor:.6f}", "info")
-                log(f"  Weighted efficiency: {weighted_eff:.6f}", "info")
+            # Also track the weighted expectancy for reporting
+            if i == 0:  # Only initialize once
+                metrics['total_weighted_expectancy'] = 0.0
+            metrics['total_weighted_expectancy'] += exp * norm_alloc
             
-            # Calculate total weighted efficiency
-            total_efficiency = sum(weighted_efficiencies)
-            log(f"Total weighted efficiency: {total_efficiency:.6f}", "info")
-        else:
-            log("Allocation disabled - using equal weighting for weighted efficiency calculation", "info")
-            
-            # Calculate weighted efficiencies with equal allocations
-            equal_allocation = 1.0 / len(strategy_efficiencies)
-            
-            # Log the inputs for debugging
-            log(f"Strategy efficiencies: {strategy_efficiencies}", "info")
-            log(f"Strategy expectancies: {strategy_expectancies}", "info")
-            log(f"Using equal allocation: {equal_allocation:.6f} for all strategies", "info")
-            log(f"Strategy risk contributions: {strategy_risk_contributions}", "info")
-            
-            for i, (eff, exp, risk) in enumerate(zip(
-                strategy_efficiencies,
-                strategy_expectancies,
-                strategy_risk_contributions
-            )):
-                # Use equal allocation for all strategies
-                norm_alloc = equal_allocation
-                # Calculate risk-adjusted weight (lower risk is better)
-                risk_factor = calculate_risk_factor(risk)  # Lower risk contribution is better
-                
-                # Combine factors (efficiency * expectancy * allocation * risk_factor)
-                weighted_eff = eff * exp * norm_alloc * risk_factor
-                weighted_efficiencies.append(weighted_eff)
-                
-                # Also track the weighted expectancy for reporting
-                if i == 0:  # Only initialize once
-                    metrics['total_weighted_expectancy'] = 0.0
-                metrics['total_weighted_expectancy'] += exp * norm_alloc
-                
-                log(f"Strategy {i} weighted efficiency components:", "info")
-                log(f"  Base efficiency: {eff:.6f}", "info")
-                log(f"  Expectancy: {exp:.6f}", "info")
-                log(f"  Equal allocation: {norm_alloc:.6f}", "info")
-                log(f"  Risk factor (1 - {risk:.6f}): {risk_factor:.6f}", "info")
-                log(f"  Weighted efficiency: {weighted_eff:.6f}", "info")
-            
-            # Calculate total weighted efficiency
-            total_efficiency = sum(weighted_efficiencies)
-            log(f"Total weighted efficiency (with equal allocations): {total_efficiency:.6f}", "info")
+            log(f"Strategy {i} weighted efficiency components:", "info")
+            log(f"  Base efficiency: {eff:.6f}", "info")
+            log(f"  Expectancy: {exp:.6f}", "info")
+            log(f"  Equal allocation: {norm_alloc:.6f}", "info")
+            log(f"  Risk factor (1 - {risk:.6f}): {risk_factor:.6f}", "info")
+            log(f"  Weighted efficiency: {weighted_eff:.6f}", "info")
+        
+        # Calculate total weighted efficiency
+        total_efficiency = sum(weighted_efficiencies)
+        log(f"Total weighted efficiency (with equal allocations): {total_efficiency:.6f}", "info")
         
         # Calculate adjusted independence to be less sensitive to low values
         adjusted_independence = 0.2 + 0.8 * independence
@@ -211,14 +168,9 @@ def calculate_portfolio_efficiency(
         # because these structural components are already incorporated in the base efficiency
         # calculation that feeds into total_efficiency
         
-        # If allocation is enabled, use the weighted efficiency that accounts for allocations
-        if include_allocation:
-            log("Using allocation-weighted efficiency for portfolio efficiency", "info")
-            portfolio_efficiency = total_efficiency
-        else:
-            # If allocation is disabled, use a simple average of strategy efficiencies
-            log("Using simple average of strategy efficiencies for portfolio efficiency", "info")
-            portfolio_efficiency = sum(strategy_efficiencies) / len(strategy_efficiencies) if strategy_efficiencies else 0.0
+        # Use a simple average of strategy efficiencies
+        log("Using simple average of strategy efficiencies for portfolio efficiency", "info")
+        portfolio_efficiency = sum(strategy_efficiencies) / len(strategy_efficiencies) if strategy_efficiencies else 0.0
         
         # Log the components for debugging
         log(f"Portfolio efficiency calculation components:", "info")
@@ -257,366 +209,6 @@ def calculate_portfolio_efficiency(
         
     except Exception as e:
         log(f"Error calculating portfolio efficiency: {str(e)}", "error")
-        raise
-
-def adjust_allocations(allocations):
-    """
-    Adjust allocations to ensure no value is more than twice the minimum
-    or less than half the maximum while maintaining relative proportions.
-    """
-    # Convert allocations to numpy array and handle zero case
-    alloc_array = np.array(allocations)
-    print("\nDEBUG: Initial allocations:", alloc_array)
-    
-    if np.sum(alloc_array) == 0:
-        print("DEBUG: All allocations are zero")
-        return [100.0 / len(allocations)] * len(allocations)
-    
-    # Get initial proportions and handle zeros
-    total = np.sum(alloc_array)
-    initial_proportions = alloc_array / total
-    print("DEBUG: Initial proportions:", initial_proportions)
-    
-    # Find non-zero allocations
-    non_zero_mask = alloc_array > 0
-    if not np.any(non_zero_mask):
-        print("DEBUG: No non-zero allocations found")
-        return [100.0 / len(allocations)] * len(allocations)
-    
-    non_zero_allocs = alloc_array[non_zero_mask]
-    min_alloc = np.min(non_zero_allocs)
-    max_alloc = np.max(non_zero_allocs)
-    print(f"DEBUG: Min non-zero allocation: {min_alloc:.4f}")
-    print(f"DEBUG: Max allocation: {max_alloc:.4f}")
-    print(f"DEBUG: Current min/max ratio: {min_alloc/max_alloc:.4f}")
-    
-    # If already satisfies constraint, return normalized allocations
-    if min_alloc >= max_alloc / 2:
-        print("DEBUG: Allocations already satisfy ratio constraint")
-        return (initial_proportions * 100).tolist()
-    
-    # Calculate power transformation factor to compress the range
-    current_ratio = max_alloc / min_alloc
-    target_ratio = 2.0  # max should be no more than 2x min
-    power_factor = np.log(target_ratio) / np.log(current_ratio)
-    print(f"DEBUG: Power factor: {power_factor:.4f}")
-    
-    # Apply power transformation to compress the range while preserving order
-    result = np.zeros_like(alloc_array)
-    result[non_zero_mask] = np.power(non_zero_allocs, power_factor)
-    print("DEBUG: After power transformation:", result)
-    
-    # Normalize to 100% while preserving zeros
-    result = result / np.sum(result) * 100
-    print("DEBUG: After normalization:", result)
-    
-    # Verify relative ordering is maintained
-    print("\nDEBUG: Verifying relative ordering")
-    for i in range(len(allocations)):
-        for j in range(i + 1, len(allocations)):
-            if alloc_array[i] > alloc_array[j]:
-                print(f"DEBUG: Checking {i}({alloc_array[i]:.4f}) > {j}({alloc_array[j]:.4f})")
-                print(f"DEBUG: Result {i}({result[i]:.4f}) > {j}({result[j]:.4f})")
-                if not result[i] > result[j]:
-                    print(f"DEBUG: ERROR - Relative ordering violated between indices {i} and {j}")
-                    print(f"DEBUG: Original: {alloc_array[i]:.4f} > {alloc_array[j]:.4f}")
-                    print(f"DEBUG: Result: {result[i]:.4f} <= {result[j]:.4f}")
-                assert result[i] > result[j], "Relative ordering violated"
-            elif alloc_array[i] < alloc_array[j]:
-                print(f"DEBUG: Checking {i}({alloc_array[i]:.4f}) < {j}({alloc_array[j]:.4f})")
-                print(f"DEBUG: Result {i}({result[i]:.4f}) < {j}({result[j]:.4f})")
-                if not result[i] < result[j]:
-                    print(f"DEBUG: ERROR - Relative ordering violated between indices {i} and {j}")
-                    print(f"DEBUG: Original: {alloc_array[i]:.4f} < {alloc_array[j]:.4f}")
-                    print(f"DEBUG: Result: {result[i]:.4f} >= {result[j]:.4f}")
-                assert result[i] < result[j], "Relative ordering violated"
-    
-    print("\nDEBUG: Final allocations:", result.tolist())
-    return result.tolist()
-
-
-def apply_ratio_based_allocation(
-    allocations: List[float],
-    log: Callable[[str, str], None]
-) -> List[float]:
-    """Apply ratio-based allocation to ensure smallest allocation is at least half of the largest.
-
-    Args:
-        allocations (List[float]): List of initial allocation percentages.
-        log (Callable[[str, str], None]): Logging function.
-
-    Returns:
-        List[float]: Adjusted allocation percentages.
-    """
-    try:
-        log("Applying ratio-based allocation", "info")
-        adjusted_allocations = adjust_allocations(allocations)
-        log(f"Adjusted allocations: {adjusted_allocations}", "info")
-        return adjusted_allocations
-
-    except Exception as e:
-        log(f"Error applying ratio-based allocation: {str(e)}", "error")
-        raise
-
-def calculate_allocation_scores(
-    strategy_risk_contributions: List[float],
-    strategy_efficiencies: List[float],
-    strategy_tickers: List[str],
-    log: Callable[[str, str], None],
-    ratio_based_allocation: bool = False,
-    strategy_configs: List[Dict] = None
-) -> tuple[List[float], List[float]]:
-    """Calculate allocation scores for each strategy.
-
-    Args:
-        strategy_risk_contributions (List[float]): List of risk contributions
-        strategy_efficiencies (List[float]): List of strategy efficiencies (used for length and logging)
-        strategy_tickers (List[str]): List of tickers corresponding to each strategy
-        log: Callable[[str, str], None]: Logging function
-        ratio_based_allocation (bool): Flag to enable ratio-based allocation
-        strategy_configs (List[Dict]): List of strategy configurations containing portfolio stats
-
-    Returns:
-        List[float]: Allocation scores for each strategy
-    """
-    try:
-        log("Calculating allocation scores", "info")
-        log(f"Number of strategies: {len(strategy_efficiencies)}", "info")
-        log(f"Raw strategy efficiencies: {strategy_efficiencies}", "info")
-        
-        # Log each strategy's efficiency individually
-        for i, efficiency in enumerate(strategy_efficiencies):
-            log(f"Strategy {i} raw efficiency: {efficiency}", "info")
-
-        # Check if we have original allocation values from the CSV file
-        has_original_allocations = False
-        original_allocations = []
-        
-        if strategy_configs:
-            for i, config in enumerate(strategy_configs):
-                if 'ALLOCATION' in config and config['ALLOCATION'] is not None:
-                    try:
-                        allocation = float(config['ALLOCATION'])
-                        original_allocations.append(allocation)
-                        has_original_allocations = True
-                        log(f"Strategy {i} has original allocation: {allocation:.2f}%", "info")
-                    except (ValueError, TypeError):
-                        log(f"Strategy {i} has invalid allocation value: {config['ALLOCATION']}", "warning")
-                        original_allocations.append(0.0)
-                else:
-                    log(f"Strategy {i} has no original allocation", "info")
-                    original_allocations.append(0.0)
-        
-        # If we have original allocations and they sum to approximately 100%, use them directly
-        if has_original_allocations and abs(sum(original_allocations) - 100.0) < 5.0:
-            log(f"Using original allocations from CSV file: {original_allocations}", "info")
-            # Return original allocations as both scores and percentages
-            return original_allocations, original_allocations
-        elif has_original_allocations:
-            log(f"Original allocations found but sum ({sum(original_allocations):.2f}%) is not close to 100%. Will calculate new allocations.", "info")
-        else:
-            log("No original allocations found in CSV file. Will calculate new allocations.", "info")
-            
-        # Extract scores from portfolio stats if available
-        strategy_scores = []
-        if strategy_configs:
-            for i, config in enumerate(strategy_configs):
-                if 'PORTFOLIO_STATS' in config and 'Score' in config['PORTFOLIO_STATS']:
-                    score = config['PORTFOLIO_STATS']['Score']
-                    log(f"Strategy {i} score from portfolio stats: {score:.4f}", "info")
-                    strategy_scores.append(score)
-                else:
-                    log(f"Strategy {i} missing Score in portfolio stats, using fallback", "error")
-                    raise
-        else:
-            # If strategy_configs is not provided, use a fallback approach
-            log("Strategy configs not provided, using fallback scores", "error")
-            raise
-        
-        # Normalize the scores
-        normalized_scores = normalize_values(strategy_scores)
-        normalized_efficiencies = normalize_values(strategy_efficiencies)
-        normalized_risks = normalize_values(strategy_risk_contributions)
-        
-        # Calculate raw allocation scores
-        allocation_scores = []
-        for i in range(len(strategy_efficiencies)):
-            score_component = normalized_scores[i]
-            efficiency_component = 0.618 * normalized_efficiencies[i]
-            # Calculate risk factor (lower risk gives higher factor)
-            risk_factor = calculate_risk_factor(normalized_risks[i])
-            risk_component = 0.618 * risk_factor
-            allocation_score = score_component + efficiency_component + risk_component
-            
-            log(f"Strategy {i} allocation component:", "info")
-            log(f"  Score component: {score_component:.4f}", "info")
-            log(f"  Efficiency component (0.618 * {normalized_efficiencies[i]:.4f}): {efficiency_component:.4f}", "info")
-            log(f"  Risk factor (1 - {normalized_risks[i]:.4f}): {risk_factor:.4f}", "info")
-            log(f"  Risk component (0.618 * {risk_factor:.4f}): {risk_component:.4f}", "info")
-            log(f"  Total allocation score: {allocation_score:.4f}", "info")
-            
-            allocation_scores.append(allocation_score)
-
-        # Group strategies by ticker
-        ticker_strategies = {}
-        for i, ticker in enumerate(strategy_tickers):
-            if ticker not in ticker_strategies:
-                ticker_strategies[ticker] = []
-            ticker_strategies[ticker].append(i)
-
-        # Calculate ticker-level metrics
-        ticker_metrics = {}
-        for ticker, strategy_indices in ticker_strategies.items():
-            ticker_metrics[ticker] = {
-                'allocation_score': sum(allocation_scores[i] for i in strategy_indices)
-            }
-
-        # Get ticker allocations
-        ticker_allocations = calculate_ticker_allocations(
-            ticker_metrics,
-            ratio_based_allocation,
-            log
-        )
-
-        # Distribute ticker allocations to strategies proportionally
-        allocation_percentages = [0.0] * len(strategy_efficiencies)
-        for ticker, strategies in ticker_strategies.items():
-            ticker_allocation = ticker_allocations[ticker]
-            
-            # Special case: if there's only one strategy for this ticker, it gets 100% of the ticker allocation
-            if len(strategies) == 1:
-                strategy_index = strategies[0]
-                allocation_percentages[strategy_index] = ticker_allocation
-                log(f"Strategy {strategy_index} is the only strategy for {ticker}, " +
-                    f"assigning 100% of ticker allocation: {ticker_allocation:.4f}%", "info")
-                continue
-            
-            # Create adjusted scores - use a very small value for zero scores
-            adjusted_scores = []
-            strategy_indices = []
-            
-            # Sort strategies by their original scores
-            sorted_strategies = sorted(
-                strategies,
-                key=lambda idx: allocation_scores[idx],
-                reverse=True
-            )
-            
-            for strategy_index in sorted_strategies:
-                strategy_indices.append(strategy_index)
-                score = allocation_scores[strategy_index]
-                if score <= 0:
-                    log(f"Strategy {strategy_index} has zero score, using minimal value 0.0001", "error")
-                    raise
-                else:
-                    adjusted_scores.append(score)
-            
-            # Calculate total adjusted score for normalization
-            total_adjusted_score = sum(adjusted_scores)
-            
-            # Distribute allocations based on adjusted scores
-            if total_adjusted_score > 0:
-                for i, strategy_index in enumerate(strategy_indices):
-                    strategy_proportion = adjusted_scores[i] / total_adjusted_score
-                    allocation_percentages[strategy_index] = ticker_allocation * strategy_proportion
-                    log(f"Strategy {strategy_index} adjusted score: {adjusted_scores[i]:.6f}, " +
-                        f"proportion: {strategy_proportion:.4f}, " +
-                        f"allocation: {allocation_percentages[strategy_index]:.4f}%", "info")
-
-        log(f"Allocation scores: {allocation_scores}", "info")
-        log(f"Allocation percentages: {allocation_percentages}", "info")
-        return allocation_scores, allocation_percentages
-
-    except Exception as e:
-        log(f"Error calculating allocation scores: {str(e)}", "error")
-        raise
-
-
-def calculate_ticker_allocations(
-    ticker_metrics: Dict[str, Dict],
-    ratio_based_allocation: bool,
-    log: Callable[[str, str], None]
-) -> Dict[str, float]:
-    """Calculate allocations for individual tickers.
-
-    Args:
-        ticker_metrics (Dict[str, Dict]): Dictionary of ticker metrics
-        ratio_based_allocation (bool): Whether to apply ratio-based allocation
-        log (Callable[[str, str], None]): Logging function
-
-    Returns:
-        Dict[str, float]: Ticker allocation percentages
-    """
-    try:
-        log("Calculating ticker allocations", "info")
-        
-        # Group strategies by ticker and sum their allocation scores
-        ticker_total_scores = {}
-        for ticker, metrics in ticker_metrics.items():
-            ticker_total_scores[ticker] = metrics['allocation_score']
-        
-        log(f"Ticker total scores: {ticker_total_scores}", "info")
-        
-        # Create adjusted scores - use a very small value for zero scores
-        adjusted_ticker_scores = {}
-        for ticker, score in ticker_total_scores.items():
-            if score <= 0:
-                # Use a very small positive value for zero scores
-                adjusted_ticker_scores[ticker] = 0.0001
-                log(f"Ticker {ticker} has zero score, using minimal value 0.0001", "info")
-            else:
-                adjusted_ticker_scores[ticker] = score
-        
-        # Calculate initial ticker-level allocations
-        total_adjusted_score = sum(adjusted_ticker_scores.values())
-        ticker_allocations = {
-            ticker: (score / total_adjusted_score) * 100 if total_adjusted_score > 0 else 0
-            for ticker, score in adjusted_ticker_scores.items()
-        }
-        
-        # Sort tickers by their original scores for logging
-        sorted_tickers = sorted(
-            ticker_allocations.keys(),
-            key=lambda t: ticker_total_scores[t],
-            reverse=True
-        )
-        
-        log(f"Adjusted ticker scores: {adjusted_ticker_scores}", "info")
-        log(f"Initial ticker allocations: {ticker_allocations}", "info")
-        
-        # Log allocations in order of original scores
-        log("Allocations in order of original scores:", "info")
-        for ticker in sorted_tickers:
-            log(f"{ticker}: score={ticker_total_scores[ticker]:.6f}, allocation={ticker_allocations[ticker]:.4f}%", "info")
-        
-        log(f"Initial ticker allocations: {ticker_allocations}", "info")
-        
-        if ratio_based_allocation:
-            # Get allocations in the same order as sorted_tickers
-            sorted_allocations = [ticker_allocations[t] for t in sorted_tickers]
-            
-            # Adjust allocations while preserving ticker ordering
-            adjusted = adjust_allocations(sorted_allocations)
-            
-            # Map back to tickers while maintaining original order
-            ticker_allocations = dict(zip(sorted_tickers, adjusted))
-            
-            log(f"Adjusted ticker allocations: {ticker_allocations}", "info")
-            
-            # Verify relative ordering is maintained
-            sorted_final = sorted(
-                ticker_allocations.items(),
-                key=lambda x: x[1],
-                reverse=True
-            )
-            log("Final allocation order:", "info")
-            for ticker, alloc in sorted_final:
-                log(f"{ticker}: {alloc:.2f}%", "info")
-        
-        return ticker_allocations
-        
-    except Exception as e:
-        log(f"Error calculating ticker allocations: {str(e)}", "error")
         raise
 
 def calculate_independence_factor(exclusive_ratio: float, concurrent_ratio: float, inactive_ratio: float) -> float:

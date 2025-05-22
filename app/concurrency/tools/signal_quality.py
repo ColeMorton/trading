@@ -7,7 +7,7 @@ for trading strategies, helping to quantify the value of each signal.
 
 from typing import Dict, Any, Optional, Callable, List
 import numpy as np
-from app.tools.expectancy import calculate_expectancy, calculate_expectancy_from_returns
+from app.tools.expectancy import calculate_expectancy
 from app.tools.stop_loss_simulator import apply_stop_loss_to_signal_quality_metrics
 import polars as pl
 
@@ -76,18 +76,37 @@ def calculate_signal_quality_metrics(
         avg_loss = float(np.mean(negative_returns)) if len(negative_returns) > 0 else 0.0
         
         # Risk-reward ratio
-        risk_reward_ratio = abs(avg_win / avg_loss) if avg_loss != 0 else float('inf')
+        risk_reward_ratio = abs(avg_win / avg_loss) if avg_loss != 0 and avg_win != 0 else None
         
         # Expectancy per signal using standardized calculation
-        expectancy_per_signal = calculate_expectancy(win_rate, avg_win, abs(avg_loss))
+        # Handle the case where win_rate is 0 (all trades are losing)
+        if win_rate == 0.0:
+            expectancy_per_signal = -abs(avg_loss)
+        else:
+            expectancy_per_signal = calculate_expectancy(win_rate, avg_win, abs(avg_loss))
+        
+        # Handle NaN values in expectancy
+        if np.isnan(expectancy_per_signal):
+            expectancy_per_signal = 0.0
         
         # Risk-adjusted metrics
-        sharpe_ratio = float(avg_return / np.std(signal_returns)) if np.std(signal_returns) > 0 else 0.0
+        std_returns = np.std(signal_returns)
+        if std_returns > 0 and not np.isnan(std_returns) and not np.isnan(avg_return):
+            sharpe_ratio = float(avg_return / std_returns)
+        else:
+            sharpe_ratio = 0.0
         
         # Sortino ratio (using downside deviation)
         downside_returns = signal_returns[signal_returns < 0]
-        downside_deviation = float(np.std(downside_returns)) if len(downside_returns) > 0 else 0.001
-        sortino_ratio = float(avg_return / downside_deviation) if downside_deviation > 0 else 0.0
+        if len(downside_returns) > 0:
+            downside_deviation = float(np.std(downside_returns))
+            if downside_deviation > 0 and not np.isnan(downside_deviation) and not np.isnan(avg_return):
+                sortino_ratio = float(avg_return / downside_deviation)
+            else:
+                sortino_ratio = 0.0
+        else:
+            downside_deviation = 0.001
+            sortino_ratio = 0.0
         
         # Maximum drawdown
         cumulative_returns = np.cumsum(signal_returns)
@@ -96,7 +115,10 @@ def calculate_signal_quality_metrics(
         max_drawdown = float(np.max(drawdowns)) if len(drawdowns) > 0 else 0.0
         
         # Calmar ratio (return / max drawdown)
-        calmar_ratio = float(avg_return / max_drawdown) if max_drawdown > 0 else 0.0
+        if max_drawdown > 0 and not np.isnan(max_drawdown) and not np.isnan(avg_return):
+            calmar_ratio = float(avg_return / max_drawdown)
+        else:
+            calmar_ratio = 0.0
         
         # Signal efficiency (% of time signal is correct)
         signal_efficiency = win_rate
@@ -134,7 +156,10 @@ def calculate_signal_quality_metrics(
         
         # Calculate Risk-Adjusted Return (SRAR)
         # SRAR is a modified Sharpe that accounts for signal-specific characteristics
-        signal_risk_adjusted_return = sharpe_ratio * (1.0 + signal_efficiency) * (1.0 - max_drawdown)
+        if not np.isnan(sharpe_ratio) and not np.isnan(signal_efficiency) and not np.isnan(max_drawdown):
+            signal_risk_adjusted_return = sharpe_ratio * (1.0 + signal_efficiency) * (1.0 - max_drawdown)
+        else:
+            signal_risk_adjusted_return = 0.0
         
         # Calculate overall signal quality score (weighted combination of metrics)
         signal_quality_score = _calculate_quality_score(
@@ -272,7 +297,11 @@ def _calculate_metrics_for_strategy(
     risk_reward_ratio = abs(avg_win / avg_loss) if avg_loss != 0 else float('inf')
     
     # Expectancy per signal using standardized calculation
-    expectancy_per_signal = calculate_expectancy(win_rate, avg_win, abs(avg_loss))
+    # Handle the case where win_rate is 0 (all trades are losing)
+    if win_rate == 0.0:
+        expectancy_per_signal = -abs(avg_loss)
+    else:
+        expectancy_per_signal = calculate_expectancy(win_rate, avg_win, abs(avg_loss))
     
     # Risk-adjusted metrics
     sharpe_ratio = float(avg_return / np.std(signal_returns)) if np.std(signal_returns) > 0 else 0.0

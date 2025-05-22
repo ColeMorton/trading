@@ -10,22 +10,25 @@ PORTFOLIO = [
     "TSLA",
     "EQT",
     "MSTR",
-    "STRK",
     "BTC-USD",
-    "AAPL",
     "FFIV",
     "AMD",
     "RTX",
     "GME",
-    "GD"
+    "GD",
+    "GOOGL",
+    "LMT"
 ]
 
 # PORTFOLIO = ['SPY', 'QQQ']
 
 NEXT = [
-"LW",
+"AAPL",
 "WELL",
-"GOOGL",
+"FTNT",
+'SUI20947-USD',
+'PENDLE-USD',
+'ETH-USD'
 ]
 
 # NEXT = [

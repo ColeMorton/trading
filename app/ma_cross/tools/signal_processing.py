@@ -5,7 +5,7 @@ This module provides utilities for processing trading signals and portfolios.
 """
 
 import polars as pl
-from typing import Optional, Callable, List, Dict, Any
+from typing import Optional, Callable
 from app.tools.get_data import get_data
 from app.ma_cross.tools.signal_generation import generate_current_signals
 from app.ma_cross.tools.sensitivity_analysis import analyze_window_combination

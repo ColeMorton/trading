@@ -48,12 +48,11 @@ def generate_json_report(
             
         log(f"Starting JSON report generation for {len(strategies)} strategies", "info")
 
-        # Check if allocation is enabled
-        include_allocation = config.get("REPORT_INCLUDES", {}).get("ALLOCATION", False)
-        log(f"ALLOCATION flag in report generator: {include_allocation}", "info")
+        # Allocation scores feature has been removed
+        log("Allocation scores feature has been removed", "info")
         
-        # Add allocation flag to stats for other functions to use
-        stats["include_allocation"] = include_allocation
+        # Ensure include_allocation is set to false
+        stats["include_allocation"] = False
 
         # Validate required statistics
         required_stats = [
@@ -89,13 +88,9 @@ def generate_json_report(
         log("Creating portfolio metrics", "info")
         portfolio_metrics = create_portfolio_metrics(stats, config)
 
-        # Sort strategies by allocation if enabled, otherwise by ID
-        if include_allocation:
-            log("Sorting strategies by allocation", "info")
-            strategy_objects.sort(key=lambda x: x.get("allocation", 0.0), reverse=True)
-        else:
-            log("Sorting strategies by ID (allocation disabled)", "info")
-            strategy_objects.sort(key=lambda x: x["id"])
+        # Sort strategies by ID
+        log("Sorting strategies by ID", "info")
+        strategy_objects.sort(key=lambda x: x["id"])
         
         # Initialize report with portfolio metrics
         report: ConcurrencyReport = {
@@ -110,11 +105,8 @@ def generate_json_report(
         # Only calculate and include ticker metrics if configured to do so
         if include_ticker_metrics:
             log("Calculating ticker metrics", "info")
-            ratio_based = config.get("RATIO_BASED_ALLOCATION", False)
             ticker_metrics = calculate_ticker_metrics(
-                strategy_objects,
-                ratio_based_allocation=ratio_based,
-                include_allocation=include_allocation
+                strategy_objects
             )
             report["ticker_metrics"] = ticker_metrics
         

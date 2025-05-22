@@ -25,6 +25,21 @@ def calculate_expectancy(
     Returns:
         float: Expectancy value
     """
+    # Handle edge cases
+    if win_rate is None or avg_win is None or avg_loss is None:
+        return 0.0
+    
+    # Handle NaN values
+    if np.isnan(win_rate) or np.isnan(avg_win) or np.isnan(avg_loss):
+        return 0.0
+    
+    # Handle win_rate edge cases
+    if win_rate == 1.0:
+        return avg_win  # All wins
+    
+    if win_rate == 0.0:
+        return -abs(avg_loss)  # All losses
+    
     # Ensure avg_loss is positive for the calculation
     avg_loss_abs = abs(avg_loss)
     
@@ -81,6 +96,12 @@ def calculate_expectancy_from_returns(
     # Calculate average win and loss
     avg_win = np.mean(winning_returns) if win_count > 0 else 0.0
     avg_loss = np.mean(losing_returns) if loss_count > 0 else 0.0
+    
+    # Handle NaN values
+    if np.isnan(avg_win):
+        avg_win = 0.0
+    if np.isnan(avg_loss):
+        avg_loss = 0.0
     
     # Calculate expectancy
     expectancy_value = calculate_expectancy(win_rate, avg_win, avg_loss)

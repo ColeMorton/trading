@@ -118,12 +118,8 @@ def run_analysis(
         optimize_min_strategies = config.get("OPTIMIZE_MIN_STRATEGIES", 3)
         optimize_max_permutations = config.get("OPTIMIZE_MAX_PERMUTATIONS", None)
         
-        # Log allocation status
-        include_allocation = config.get("REPORT_INCLUDES", {}).get("ALLOCATION", False)
-        if include_allocation:
-            log("Allocation calculations enabled", "info")
-        else:
-            log("Allocation calculations disabled", "info")
+        # Allocation feature is deprecated
+        log("Allocation scores feature is deprecated", "info")
             
         # Ensure all strategies have strategy_id
         updated_strategies = []
@@ -157,7 +153,7 @@ def run_analysis(
                 strategy["GLOBAL_CONFIG"] = {}
             if "REPORT_INCLUDES" not in strategy["GLOBAL_CONFIG"]:
                 strategy["GLOBAL_CONFIG"]["REPORT_INCLUDES"] = {}
-            strategy["GLOBAL_CONFIG"]["REPORT_INCLUDES"]["ALLOCATION"] = include_allocation
+            # Allocation flag is no longer needed
         
         all_stats, all_aligned_data = analyze_concurrency(
             strategy_data,

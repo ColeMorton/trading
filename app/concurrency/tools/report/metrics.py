@@ -3,9 +3,7 @@
 This module provides functionality for calculating various metrics for concurrency analysis reports.
 """
 
-from typing import Dict, Any, List, TypedDict, NotRequired, Union
-import numpy as np
-from app.tools.setup_logging import setup_logging
+from typing import Dict, Any, List
 
 # Import types from the parent module
 from app.concurrency.tools.types import (
@@ -18,16 +16,12 @@ from app.concurrency.tools.types import (
 )
 
 def calculate_ticker_metrics(
-    strategies: List[Strategy],
-    ratio_based_allocation: bool,
-    include_allocation: bool = True
+    strategies: List[Strategy]
 ) -> Dict[str, Any]:
     """Calculates ticker metrics from a list of strategies.
 
     Args:
         strategies (List[Strategy]): List of strategy objects.
-        ratio_based_allocation (bool): Whether to apply ratio-based allocation rules.
-        include_allocation (bool): Whether to include allocation fields.
 
     Returns:
         Dict[str, Any]: Dictionary of ticker metrics, with ticker symbols as keys.
@@ -44,9 +38,8 @@ def calculate_ticker_metrics(
                 "signals": strategy["signals"]
             }
             
-            # Add allocation fields only if enabled
-            if include_allocation and "allocation_score" in strategy and "allocation" in strategy:
-                ticker_metrics[ticker]["allocation_score"] = strategy["allocation_score"]
+            # Original allocation values from CSV are preserved if present
+            if "allocation" in strategy:
                 ticker_metrics[ticker]["allocation"] = strategy["allocation"]
             
             # Add signal quality metrics if available
@@ -78,69 +71,9 @@ def calculate_ticker_metrics(
                     for k2 in ticker_metrics[ticker]["signals"][k]:
                         ticker_metrics[ticker]["signals"][k][k2]["value"] = (ticker_metrics[ticker]["signals"][k][k2]["value"] + strategy["signals"][k][k2]["value"]) / num_strategies
 
-            # Aggregate allocation fields only if enabled
-            if include_allocation and "allocation_score" in strategy and "allocation" in strategy:
-                if "allocation_score" in ticker_metrics[ticker]:
-                    ticker_metrics[ticker]["allocation_score"] += strategy["allocation_score"]
-                    ticker_metrics[ticker]["allocation"] += strategy["allocation"]
-                else:
-                    ticker_metrics[ticker]["allocation_score"] = strategy["allocation_score"]
-                    ticker_metrics[ticker]["allocation"] = strategy["allocation"]
-
-    # Apply ratio-based allocation if enabled and allocation is included
-    if include_allocation and ratio_based_allocation:
-        # Extract allocations
-        allocations = [metrics.get("allocation", 0.0) for metrics in ticker_metrics.values()]
-        
-        # Use numpy to adjust allocations
-        def adjust_allocations(allocations: List[float]) -> List[float]:
-            """Adjust allocations to ensure no value is more than twice the minimum.
-
-            Args:
-                allocations (List[float]): List of allocation values
-
-            Returns:
-                List[float]: Adjusted allocation values
-            """
-            alloc_array = np.array(allocations)
-            total = np.sum(alloc_array)
-            
-            # Keep adjusting until no value is more than twice the minimum
-            while True:
-                min_val = np.min(alloc_array)
-                max_val = np.max(alloc_array)
-                
-                # Check if constraint is satisfied
-                if max_val <= 2 * min_val:
-                    break
-                    
-                # Find indices of values above 2x minimum
-                high_idx = alloc_array > 2 * min_val
-                
-                # Calculate excess above 2x minimum
-                excess = np.sum(alloc_array[high_idx] - (2 * min_val))
-                
-                # Redistribute excess proportionally to values at or below 2x minimum
-                low_idx = ~high_idx
-                if np.any(low_idx):
-                    # Scale down high values to 2x minimum
-                    alloc_array[high_idx] = 2 * min_val
-                    
-                    # Distribute excess proportionally to low values
-                    low_sum = np.sum(alloc_array[low_idx])
-                    if low_sum > 0:
-                        alloc_array[low_idx] *= (low_sum + excess) / low_sum
-            
-            # Normalize to percentages
-            result = (alloc_array / np.sum(alloc_array)) * 100
-            return result.tolist()
-        
-        # Apply ratio-based adjustment
-        adjusted_allocations = adjust_allocations(allocations)
-        
-        # Update ticker metrics with adjusted allocations
-        for (ticker, metrics), new_allocation in zip(ticker_metrics.items(), adjusted_allocations):
-            metrics["allocation"] = new_allocation
+            # Original allocation values from CSV are preserved if present
+            if "allocation" in strategy:
+                ticker_metrics[ticker]["allocation"] = strategy["allocation"]
 
     return ticker_metrics
 

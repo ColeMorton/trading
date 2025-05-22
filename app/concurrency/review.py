@@ -90,8 +90,8 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "BTC_d_20250427.csv",
     "PORTFOLIO": "portfolio_risk.csv",
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
-    "REFRESH": False,
-    "OPTIMIZE": False,
+    "REFRESH": True,
+    "OPTIMIZE": False, # Optimize for risk-adjusted signal efficiency
     "OPTIMIZE_MIN_STRATEGIES": 13,
     # "OPTIMIZE_MAX_PERMUTATIONS": 1000,
     "SL_CANDLE_CLOSE": True, 
@@ -100,10 +100,9 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     "CSV_USE_HOURLY": False,
     "SORT_BY": "allocation",
     "REPORT_INCLUDES": {
-        "TICKER_METRICS": False,
+        "TICKER_METRICS": True,
         "STRATEGIES": False,
-        "STRATEGY_RELATIONSHIPS": False,
-        "ALLOCATION": True
+        "STRATEGY_RELATIONSHIPS": False
     },
     "ENSURE_COUNTERPART": True,
     "INITIAL_VALUE": 19726.55,
@@ -179,25 +178,23 @@ def run_analysis(config: Dict[str, Any]) -> bool:
                     
                     # Process allocation and stop loss data if using extended schema
                     if schema_version == SchemaVersion.EXTENDED:
-                        # Process allocation data if allocation reporting is enabled
-                        if validated_config.get("REPORT_INCLUDES", {}).get("ALLOCATION", True):
-                            log("Processing allocation data...", "info")
-                            
-                            # Validate and normalize allocation values
-                            validated_data = validate_allocations(portfolio_data, log)
-                            normalized_data = normalize_allocations(validated_data, log)
-                            
-                            # Distribute missing allocations if needed
-                            distributed_data = distribute_missing_allocations(normalized_data, log)
-                            
-                            # Ensure allocations sum to 100%
-                            portfolio_data = ensure_allocation_sum_100_percent(distributed_data, log)
-                            
-                            # Calculate position sizes if account value is provided
-                            if "INITIAL_VALUE" in validated_config and validated_config["INITIAL_VALUE"] > 0:
-                                account_value = float(validated_config["INITIAL_VALUE"])
-                                portfolio_data = calculate_position_sizes(portfolio_data, account_value, log)
-                                log(f"Calculated position sizes based on account value: {account_value}", "info")
+                        log("Processing allocation data...", "info")
+                        
+                        # Validate and normalize allocation values
+                        validated_data = validate_allocations(portfolio_data, log)
+                        normalized_data = normalize_allocations(validated_data, log)
+                        
+                        # Distribute missing allocations if needed
+                        distributed_data = distribute_missing_allocations(normalized_data, log)
+                        
+                        # Ensure allocations sum to 100%
+                        portfolio_data = ensure_allocation_sum_100_percent(distributed_data, log)
+                        
+                        # Calculate position sizes if account value is provided
+                        if "INITIAL_VALUE" in validated_config and validated_config["INITIAL_VALUE"] > 0:
+                            account_value = float(validated_config["INITIAL_VALUE"])
+                            portfolio_data = calculate_position_sizes(portfolio_data, account_value, log)
+                            log(f"Calculated position sizes based on account value: {account_value}", "info")
                             
                             # Get allocation summary
                             allocation_summary = get_allocation_summary(portfolio_data, log)
@@ -279,15 +276,14 @@ def run_analysis(config: Dict[str, Any]) -> bool:
             "Running main analysis",
             log,
             {Exception: TradingSystemError},
-            reraise=False
+            reraise=True  # Change to True to ensure errors are properly propagated
         ):
             # Ensure the main function knows about synthetic tickers
             if validated_config.get("USE_SYNTHETIC", False):
                 log(f"Running analysis with synthetic ticker support enabled", "info")
             
-            # Log allocation and stop loss information if available and enabled
-            if validated_config.get("REPORT_INCLUDES", {}).get("ALLOCATION", True):
-                log("Allocation handling is enabled for this analysis", "info")
+            # Log allocation information
+            log("CSV allocation data processing is enabled for this analysis", "info")
             
             # Log stop loss configuration
             if validated_config.get("SL_CANDLE_CLOSE") is not None:
