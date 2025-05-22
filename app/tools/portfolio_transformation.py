@@ -63,10 +63,12 @@ def reorder_columns(portfolio: Dict) -> Dict:
     """
     first_columns = [
         'Ticker',
+        'Allocation [%]',  # Add Allocation [%] column in 2nd position
         'Strategy Type',
         'Short Window',
         'Long Window',
         'Signal Window',  # Added Signal Window for MACD strategies
+        'Stop Loss [%]',  # Add Stop Loss [%] column in 7th position
         'Signal Entry',
         'Signal Exit',    # Add Signal Exit column
         'Total Open Trades',

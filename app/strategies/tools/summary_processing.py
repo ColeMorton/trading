@@ -110,10 +110,11 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                         stats['Signal Window'] = signal_window
                         
                         # Add Allocation [%] and Stop Loss [%] columns
-                        allocation = row.get('ALLOCATION')
-                        stop_loss = row.get('STOP_LOSS')
-                        stats['Allocation [%]'] = float(allocation) if allocation is not None else None
-                        stats['Stop Loss [%]'] = float(stop_loss) if stop_loss is not None else None
+                        # Get allocation and stop loss values, checking both naming conventions
+                        allocation = row.get('ALLOCATION', row.get('Allocation [%]'))
+                        stop_loss = row.get('STOP_LOSS', row.get('Stop Loss [%]'))
+                        stats['Allocation [%]'] = float(allocation) if allocation is not None and allocation != "" else None
+                        stats['Stop Loss [%]'] = float(stop_loss) if stop_loss is not None and stop_loss != "" else None
                         
                         # Convert stats with current signal status
                         converted_stats = convert_stats(stats, log, config, current_signal, exit_signal)
@@ -163,14 +164,11 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                         sma_stats['Long Window'] = long_window
                         
                         # Add Allocation [%] and Stop Loss [%] columns
-                        allocation = row.get('ALLOCATION')
-                        stop_loss = row.get('STOP_LOSS')
-                        sma_stats['Allocation [%]'] = float(allocation) if allocation is not None else None
-                        sma_stats['Stop Loss [%]'] = float(stop_loss) if stop_loss is not None else None
-                        
-                        # Add Allocation [%] and Stop Loss [%] columns
-                        sma_stats['Allocation [%]'] = row.get('ALLOCATION', None)
-                        sma_stats['Stop Loss [%]'] = row.get('STOP_LOSS', None)
+                        # Get allocation and stop loss values, checking both naming conventions
+                        allocation = row.get('ALLOCATION', row.get('Allocation [%]'))
+                        stop_loss = row.get('STOP_LOSS', row.get('Stop Loss [%]'))
+                        sma_stats['Allocation [%]'] = float(allocation) if allocation is not None and allocation != "" else None
+                        sma_stats['Stop Loss [%]'] = float(stop_loss) if stop_loss is not None and stop_loss != "" else None
                         
                         # Convert stats with current signal status
                         sma_converted_stats = convert_stats(sma_stats, log, config, current_signal, exit_signal)
@@ -196,11 +194,11 @@ def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], lo
                         ema_stats['Long Window'] = long_window
                         
                         # Add Allocation [%] and Stop Loss [%] columns
-                        # Add Allocation [%] and Stop Loss [%] columns
-                        allocation = row.get('ALLOCATION')
-                        stop_loss = row.get('STOP_LOSS')
-                        ema_stats['Allocation [%]'] = float(allocation) if allocation is not None else None
-                        ema_stats['Stop Loss [%]'] = float(stop_loss) if stop_loss is not None else None
+                        # Get allocation and stop loss values, checking both naming conventions
+                        allocation = row.get('ALLOCATION', row.get('Allocation [%]'))
+                        stop_loss = row.get('STOP_LOSS', row.get('Stop Loss [%]'))
+                        ema_stats['Allocation [%]'] = float(allocation) if allocation is not None and allocation != "" else None
+                        ema_stats['Stop Loss [%]'] = float(stop_loss) if stop_loss is not None and stop_loss != "" else None
                         
                         # Convert stats with current signal status
                         ema_converted_stats = convert_stats(ema_stats, log, config, current_signal, exit_signal)
@@ -325,6 +323,9 @@ def export_summary_results(portfolios: List[Dict], portfolio_name: str, log: Cal
         
         # Convert back to list of dictionaries
         reordered_portfolios = df.to_dicts()
+        
+        # Note: Allocation distribution will be handled by export_portfolios
+        # which uses ensure_allocation_sum_100_percent for all export types
         
         # Change feature_dir to "strategies" to export to /csv/strategies instead of /csv/portfolios
         _, success = export_portfolios(reordered_portfolios, export_config, 'portfolios', portfolio_name, log, feature_dir="strategies")

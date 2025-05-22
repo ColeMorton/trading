@@ -77,6 +77,13 @@ def export_portfolios(
             # Remove from config to avoid confusion
             del config["_SORTED_PORTFOLIOS"]
         
+        # Process allocation values before converting to DataFrame
+        # Import ensure_allocation_sum_100_percent from schema_detection
+        from app.tools.portfolio.schema_detection import ensure_allocation_sum_100_percent
+        
+        # Apply allocation normalization to ensure Case 3 is handled properly
+        portfolios = ensure_allocation_sum_100_percent(portfolios, log)
+        
         # Convert portfolios to DataFrame
         df = pl.DataFrame(portfolios)
         
@@ -177,30 +184,29 @@ def export_portfolios(
                 if col in df.columns:
                     df = df.drop(col)
             
-            # Define column order with Strategy Type, Allocation [%], and Stop Loss [%]
-            ordered_columns = [
-                "Ticker",
-                "Allocation [%]",  # Add Allocation [%] column in 2nd position
-                STRATEGY_TYPE_FIELDS["CSV"],
-                "Short Window",
-                "Long Window",
-                "Signal Window",
-                "Stop Loss [%]",  # Add Stop Loss [%] column in 7th position
-                "Signal Entry",
-                "Signal Exit",
-                'Total Open Trades',
-                "Total Trades"
-            ]
+            # Handle Allocation [%] and Stop Loss [%] columns first
+            # Case 1: When Allocation [%] column exists but no values: maintain the column with empty values
+            # Case 2: When Allocation [%] column doesn't exist: add it with empty fields
+            # Case 3: When some rows have Allocation [%] values and others don't: assign equal values to empty ones
+            # Case 4: Always export using the Extended Schema format
             
-            # Add remaining columns in their original order
-            remaining_columns = [col for col in df.columns if col not in ordered_columns]
+            # Check if Allocation [%] column exists
+            has_allocation_column = "Allocation [%]" in df.columns
             
-            # Create a new list with existing ordered columns and remaining columns
-            existing_ordered_columns = [col for col in ordered_columns if col in df.columns]
-            existing_ordered_columns.extend(remaining_columns)
+            # Check if Stop Loss [%] column exists
+            has_stop_loss_column = "Stop Loss [%]" in df.columns
             
-            # Select the final column order
-            df = df.select(existing_ordered_columns)
+            # Add Allocation [%] column if it doesn't exist
+            if not has_allocation_column:
+                if log:
+                    log("Adding empty Allocation [%] column to ensure Extended Schema format", "info")
+                df = df.with_columns(pl.lit(None).alias("Allocation [%]"))
+            
+            # Add Stop Loss [%] column if it doesn't exist
+            if not has_stop_loss_column:
+                if log:
+                    log("Adding empty Stop Loss [%] column to ensure Extended Schema format", "info")
+                df = df.with_columns(pl.lit(None).alias("Stop Loss [%]"))
             
             # Add Strategy Type column based on strategy type information
             if STRATEGY_TYPE_FIELDS["CSV"] not in df.columns:
@@ -240,93 +246,35 @@ def export_portfolios(
                 if "Ticker" in df.columns:
                     df = df.drop("Ticker")
                 df = df.with_columns(pl.lit(ticker).alias("Ticker"))
-                # Move Ticker to first column
-                cols = df.columns
-                df = df.select(["Ticker"] + [col for col in cols if col != "Ticker"])
-        
-            # Handle Allocation [%] and Stop Loss [%] columns
-            # Case 1: When Allocation [%] column exists but no values: maintain the column with empty values
-            # Case 2: When Allocation [%] column doesn't exist: add it with empty fields
-            # Case 3: When some rows have Allocation [%] values and others don't: assign equal values to empty ones
-            # Case 4: Always export using the Extended Schema format
             
-            # Check if Allocation [%] column exists
-            has_allocation_column = "Allocation [%]" in df.columns
+            # Define column order with Strategy Type, Allocation [%], and Stop Loss [%]
+            ordered_columns = [
+                "Ticker",
+                "Allocation [%]",  # Add Allocation [%] column in 2nd position
+                STRATEGY_TYPE_FIELDS["CSV"],
+                "Short Window",
+                "Long Window",
+                "Signal Window",
+                "Stop Loss [%]",  # Add Stop Loss [%] column in 7th position
+                "Signal Entry",
+                "Signal Exit",
+                'Total Open Trades',
+                "Total Trades"
+            ]
             
-            # Check if Stop Loss [%] column exists
-            has_stop_loss_column = "Stop Loss [%]" in df.columns
+            # Add remaining columns in their original order
+            remaining_columns = [col for col in df.columns if col not in ordered_columns]
             
-            # Add Allocation [%] column if it doesn't exist
-            if not has_allocation_column:
-                if log:
-                    log("Adding empty Allocation [%] column to ensure Extended Schema format", "info")
-                df = df.with_columns(pl.lit(None).alias("Allocation [%]"))
+            # Create a new list with existing ordered columns and remaining columns
+            existing_ordered_columns = [col for col in ordered_columns if col in df.columns]
+            existing_ordered_columns.extend(remaining_columns)
             
-            # Add Stop Loss [%] column if it doesn't exist
-            if not has_stop_loss_column:
-                if log:
-                    log("Adding empty Stop Loss [%] column to ensure Extended Schema format", "info")
-                df = df.with_columns(pl.lit(None).alias("Stop Loss [%]"))
+            # Select the final column order
+            df = df.select(existing_ordered_columns)
             
-            # Check if some rows have Allocation [%] values and others don't
-            if has_allocation_column:
-                # Convert to dictionary for easier processing
-                rows = df.to_dicts()
-                
-                # Count rows with and without allocation values
-                rows_with_allocation = sum(1 for row in rows if row.get("Allocation [%]") is not None and row.get("Allocation [%]") != "")
-                rows_without_allocation = len(rows) - rows_with_allocation
-                
-                if rows_with_allocation > 0 and rows_without_allocation > 0:
-                    if log:
-                        log(f"Found {rows_with_allocation} rows with allocations and "
-                            f"{rows_without_allocation} rows without allocations", "info")
-                    
-                    # Calculate the sum of existing allocations
-                    existing_allocation_sum = sum(float(row.get("Allocation [%]") or 0) for row in rows)
-                    
-                    # Calculate the remaining allocation to distribute
-                    remaining_allocation = 100.0 - existing_allocation_sum
-                    
-                    if remaining_allocation > 0:
-                        # Calculate equal allocation for rows without allocation
-                        equal_allocation = remaining_allocation / rows_without_allocation
-                        
-                        # Distribute equal allocations
-                        for row in rows:
-                            if not row.get("Allocation [%]"):
-                                row["Allocation [%]"] = equal_allocation
-                        
-                        if log:
-                            log(f"Distributed equal allocations of {equal_allocation:.2f}% "
-                                f"to {rows_without_allocation} rows", "info")
-                        
-                        # Convert back to DataFrame
-                        df = pl.DataFrame(rows)
-                
-                # Ensure the sum of all allocations equals 100%
-                if rows_with_allocation > 0:
-                    # Convert to dictionary for processing
-                    rows = df.to_dicts()
-                    
-                    # Calculate the sum of allocations
-                    allocation_sum = sum(float(row.get("Allocation [%]") or 0) for row in rows)
-                    
-                    # If the sum is not close to 100%, adjust the allocations
-                    if abs(allocation_sum - 100.0) > 0.01:
-                        if log:
-                            log(f"Allocation sum is {allocation_sum:.2f}%, adjusting to 100%", "info")
-                        
-                        # Scale factor to adjust allocations
-                        scale_factor = 100.0 / allocation_sum if allocation_sum > 0 else 0
-                        
-                        # Adjust allocations
-                        for row in rows:
-                            if row.get("Allocation [%]") is not None and row.get("Allocation [%]") != "":
-                                row["Allocation [%]"] = float(row["Allocation [%]"]) * scale_factor
-                        
-                        # Convert back to DataFrame
-                        df = pl.DataFrame(rows)
+            # Allocation values have already been processed by ensure_allocation_sum_100_percent
+            # Just reapply column ordering to ensure correct positions
+            df = df.select(existing_ordered_columns)
         
         # Use the provided feature_dir parameter for the feature1 value
         # This allows different scripts to export to different directories

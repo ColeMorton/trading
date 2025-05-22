@@ -157,11 +157,16 @@ def normalize_portfolio_data(
     # Check if we need to handle allocation distribution (case 3)
     has_some_allocations = False
     if schema_version == SchemaVersion.EXTENDED:
-        has_some_allocations = any(row.get(allocation_field) for row in csv_data
-                                  if row.get(allocation_field))
+        has_some_allocations = any(
+            row.get(allocation_field) is not None and
+            row.get(allocation_field) != "" and
+            row.get(allocation_field) != "None"
+            for row in csv_data
+        )
         
         if not has_some_allocations and log:
-            log("Extended schema detected but no allocation values found in the CSV file", "info")
+            log("Extended schema detected but no allocation values found in the CSV file. "
+                "Maintaining empty allocation column as per Case 1.", "info")
     
     # Process each row
     for row in csv_data:
@@ -237,6 +242,12 @@ def ensure_allocation_sum_100_percent(
 ) -> List[Dict[str, Any]]:
     """Ensure the sum of all allocations equals 100%.
     
+    This function handles the following cases:
+    1. When no rows have allocation values: distribute equally
+    2. When all rows have allocation values but sum != 100%: scale to 100%
+    3. When some rows have allocation values and others don't:
+       distribute remaining allocation equally among rows without values
+    
     Args:
         csv_data: List of dictionaries representing CSV rows
         log: Optional logging function
@@ -251,29 +262,71 @@ def ensure_allocation_sum_100_percent(
     normalized_data = [row.copy() for row in csv_data]
     
     # Determine the allocation field name
-    allocation_field = next((k for k in normalized_data[0].keys() 
-                            if k.startswith('Allocation')), 'Allocation [%]')
+    allocation_field = next((k for k in normalized_data[0].keys()
+                             if k.startswith('Allocation')), 'Allocation [%]')
     
-    # Count rows with allocations
-    rows_with_allocations = sum(1 for row in normalized_data 
-                               if row.get(allocation_field) is not None)
+    # Count rows with and without allocations
+    rows_with_allocations = 0
+    rows_without_allocations = 0
     
-    # If no rows have allocations, distribute equally
+    for row in normalized_data:
+        allocation_value = row.get(allocation_field)
+        if allocation_value is not None and allocation_value != "":
+            # Try to convert to float to ensure it's a valid number
+            try:
+                float_value = float(allocation_value)
+                if not isinstance(row[allocation_field], float):
+                    row[allocation_field] = float_value
+                rows_with_allocations += 1
+            except (ValueError, TypeError):
+                row[allocation_field] = None
+                rows_without_allocations += 1
+        else:
+            row[allocation_field] = None
+            rows_without_allocations += 1
+    
+    total_rows = len(normalized_data)
+    
+    # Case 1: If no rows have allocations, maintain the column with empty values
     if rows_with_allocations == 0:
-        equal_allocation = 100.0 / len(normalized_data)
-        for row in normalized_data:
-            row[allocation_field] = equal_allocation
-        
         if log:
-            log(f"No allocations found. Distributed equal allocations of {equal_allocation:.2f}% "
-                f"to all {len(normalized_data)} rows", "info")
+            log(f"No allocation values found. Maintaining empty allocation column as per Case 1.", "info")
+        
+        # Keep all allocation values as None
+        for row in normalized_data:
+            row[allocation_field] = None
         
         return normalized_data
     
     # Calculate the sum of existing allocations
     allocation_sum = sum(float(row.get(allocation_field) or 0) for row in normalized_data)
     
-    # If the sum is not 100%, adjust the allocations
+    # Case 3: When some rows have allocation values and others don't
+    if rows_with_allocations > 0 and rows_without_allocations > 0:
+        if log:
+            log(f"Found {rows_with_allocations} rows with allocations and "
+                f"{rows_without_allocations} rows without allocations", "info")
+        
+        # Calculate the remaining allocation to distribute
+        remaining_allocation = 100.0 - allocation_sum
+        
+        if remaining_allocation > 0:
+            # Calculate equal allocation for rows without allocation
+            equal_allocation = remaining_allocation / rows_without_allocations
+            
+            # Distribute equal allocations
+            for row in normalized_data:
+                if row.get(allocation_field) is None:
+                    row[allocation_field] = equal_allocation
+            
+            if log:
+                log(f"Distributed equal allocations of {equal_allocation:.2f}% "
+                    f"to {rows_without_allocations} rows without allocations", "info")
+            
+            # Update allocation sum after distribution
+            allocation_sum = 100.0
+    
+    # Case 2: When all rows have allocation values but sum != 100%
     if abs(allocation_sum - 100.0) > 0.01:  # Allow for small floating-point errors
         if log:
             log(f"Allocation sum is {allocation_sum:.2f}%, adjusting to 100%", "info")
