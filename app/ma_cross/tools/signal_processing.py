@@ -5,12 +5,18 @@ This module provides utilities for processing trading signals and portfolios.
 """
 
 import polars as pl
-from typing import Optional, Callable
+from typing import Optional, Callable, List, Dict, Any
 from app.tools.get_data import get_data
 from app.ma_cross.tools.signal_generation import generate_current_signals
 from app.ma_cross.tools.sensitivity_analysis import analyze_window_combination
 from app.tools.strategy.types import StrategyConfig as Config
 from app.tools.portfolio.processing import process_single_ticker
+from app.tools.portfolio.schema_detection import (
+    SchemaVersion,
+    detect_schema_version,
+    normalize_portfolio_data,
+    ensure_allocation_sum_100_percent
+)
 
 def process_current_signals(ticker: str, config: Config, log: Callable) -> Optional[pl.DataFrame]:
     """Process current signals for a ticker.
@@ -63,9 +69,32 @@ def process_current_signals(ticker: str, config: Config, log: Callable) -> Optio
                 log
             )
             if result is not None:
+                # Add Allocation [%] and Stop Loss [%] fields if they exist in config
+                if "ALLOCATION" in config_copy:
+                    result["Allocation [%]"] = config_copy["ALLOCATION"]
+                if "STOP_LOSS" in config_copy:
+                    result["Stop Loss [%]"] = config_copy["STOP_LOSS"]
                 portfolios.append(result)
         
-        return pl.DataFrame(portfolios) if portfolios else None
+        if not portfolios:
+            return None
+            
+        # Convert to DataFrame
+        portfolios_df = pl.DataFrame(portfolios)
+        
+        # Normalize portfolio data to handle Allocation [%] and Stop Loss [%] columns
+        portfolio_dicts = portfolios_df.to_dicts()
+        schema_version = detect_schema_version(portfolio_dicts)
+        log(f"Detected schema version for current signals: {schema_version.name}", "info")
+        
+        # Normalize portfolio data
+        normalized_portfolios = normalize_portfolio_data(portfolio_dicts, schema_version, log)
+        
+        # Ensure allocation values sum to 100% if they exist
+        if schema_version == SchemaVersion.EXTENDED:
+            normalized_portfolios = ensure_allocation_sum_100_percent(normalized_portfolios, log)
+        
+        return pl.DataFrame(normalized_portfolios)
         
     except Exception as e:
         log(f"Failed to process current signals: {str(e)}", "error")
@@ -91,10 +120,25 @@ def process_ticker_portfolios(ticker: str, config: Config, log: Callable) -> Opt
                 log(f"Failed to process {ticker}", "error")
                 return None
                 
+            # Convert to DataFrame
             portfolios_df = pl.DataFrame(portfolios)
+            
+            # Normalize portfolio data to handle Allocation [%] and Stop Loss [%] columns
+            portfolio_dicts = portfolios_df.to_dicts()
+            schema_version = detect_schema_version(portfolio_dicts)
+            log(f"Detected schema version for ticker portfolios: {schema_version.name}", "info")
+            
+            # Normalize portfolio data
+            normalized_portfolios = normalize_portfolio_data(portfolio_dicts, schema_version, log)
+            
+            # Ensure allocation values sum to 100% if they exist
+            if schema_version == SchemaVersion.EXTENDED:
+                normalized_portfolios = ensure_allocation_sum_100_percent(normalized_portfolios, log)
+            
             strategy_type = config.get("STRATEGY_TYPE", "SMA")
             log(f"Results for {ticker} {strategy_type}")
-            return portfolios_df
+            
+            return pl.DataFrame(normalized_portfolios)
             
     except Exception as e:
         log(f"Failed to process ticker portfolios: {str(e)}", "error")

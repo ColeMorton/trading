@@ -5,6 +5,7 @@ from app.tools.strategy.signal_utils import is_signal_current, is_exit_signal_cu
 from app.tools.stats_converter import convert_stats
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.portfolio_transformation import reorder_columns
+from app.tools.portfolio.schema_detection import SchemaVersion
 
 def analyze_window_combination(
     data: pl.DataFrame,
@@ -66,6 +67,12 @@ def analyze_window_combination(
         stats['Ticker'] = config['TICKER']  # Add ticker from config
         # Add Strategy Type field
         stats['Strategy Type'] = config.get('STRATEGY_TYPE', 'SMA')
+        
+        # Add Allocation [%] and Stop Loss [%] fields if they exist in config
+        if 'ALLOCATION' in config:
+            stats['Allocation [%]'] = config['ALLOCATION']
+        if 'STOP_LOSS' in config:
+            stats['Stop Loss [%]'] = config['STOP_LOSS']
         
         # Add signal metrics
         non_zero_signals = (temp_data['Signal'] != 0).sum()

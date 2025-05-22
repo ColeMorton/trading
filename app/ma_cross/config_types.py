@@ -104,6 +104,8 @@ class Config(TypedDict, total=False):
             - SORTINO_RATIO: Minimum required Sortino ratio
             - BEATS_BNH: Minimum required percentage by which strategy beats Buy and Hold
         SORT_BY (NotRequired[str]): Field to sort results by
+        ALLOCATION (NotRequired[float]): Allocation percentage for the strategy (0-100)
+        STOP_LOSS (NotRequired[float]): Stop loss percentage for the strategy (0-100)
 
         # Advanced Options
         USE_GBM (NotRequired[bool]): Whether to use Geometric Brownian Motion
@@ -136,6 +138,8 @@ class Config(TypedDict, total=False):
     USE_CURRENT: NotRequired[bool]
     MINIMUMS: NotRequired[Dict[str, Union[int, float]]]
     SORT_BY: NotRequired[str]
+    ALLOCATION: NotRequired[float]  # Allocation percentage (0-100)
+    STOP_LOSS: NotRequired[float]   # Stop loss percentage (0-100)
 
     # Advanced Options
     USE_GBM: NotRequired[bool]
@@ -160,5 +164,7 @@ DEFAULT_CONFIG: Config = {
     "USE_SYNTHETIC": False,
     # "USE_CURRENT": True,
     "SORT_BY": "Score",
-    "USE_GBM": False
+    "USE_GBM": False,
+    # Default values for allocation and stop loss are not set
+    # They will be determined based on the CSV schema
 }

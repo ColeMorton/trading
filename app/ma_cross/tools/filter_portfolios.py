@@ -16,6 +16,12 @@ from app.tools.portfolio.metrics import (
     get_metric_rows,
     create_metric_result
 )
+from app.tools.portfolio.schema_detection import (
+    SchemaVersion,
+    detect_schema_version,
+    normalize_portfolio_data,
+    ensure_allocation_sum_100_percent
+)
 
 def _process_metrics(
     df: pl.DataFrame,
@@ -94,12 +100,33 @@ def filter_portfolios(df: pl.DataFrame, config: ExportConfig, log: Callable) -> 
         log(f"USE_HOURLY: {config.get('USE_HOURLY', False)}")
         log(f"STRATEGY_TYPE: {config.get('STRATEGY_TYPE', 'EMA')}")
         log(f"USE_CURRENT: {config.get('USE_CURRENT', False)}")
+        
+        # Check for allocation and stop loss values in config
+        if "ALLOCATION" in config:
+            log(f"ALLOCATION: {config.get('ALLOCATION')}%", "info")
+        if "STOP_LOSS" in config:
+            log(f"STOP_LOSS: {config.get('STOP_LOSS')}%", "info")
+        
+        # Convert to dictionaries and normalize schema
+        portfolio_dicts = result_df.to_dicts()
+        
+        # Detect schema version
+        schema_version = detect_schema_version(portfolio_dicts)
+        log(f"Detected schema version for filtered portfolios: {schema_version.name}", "info")
+        
+        # Normalize portfolio data to handle Allocation [%] and Stop Loss [%] columns
+        normalized_portfolios = normalize_portfolio_data(portfolio_dicts, schema_version, log)
+        
+        # Ensure allocation values sum to 100% if they exist
+        if schema_version == SchemaVersion.EXTENDED:
+            normalized_portfolios = ensure_allocation_sum_100_percent(normalized_portfolios, log)
+        
         # Import export_portfolios here to avoid circular imports
         from app.tools.strategy.export_portfolios import export_portfolios
         
         # Export filtered results using export_portfolios
         export_portfolios(
-            portfolios=result_df.to_dicts(),
+            portfolios=normalized_portfolios,
             config=config,
             export_type="portfolios_filtered",
             log=log

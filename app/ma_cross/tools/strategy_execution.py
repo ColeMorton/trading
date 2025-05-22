@@ -17,6 +17,12 @@ from app.tools.get_data import get_data
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.stats_converter import convert_stats
+from app.tools.portfolio.schema_detection import (
+    SchemaVersion,
+    detect_schema_version,
+    normalize_portfolio_data,
+    ensure_allocation_sum_100_percent
+)
 
 def execute_single_strategy(
     ticker: str,
@@ -104,7 +110,10 @@ def execute_single_strategy(
             "SMA_FAST": config["SHORT_WINDOW"] if strategy_type == "SMA" else None,
             "SMA_SLOW": config["LONG_WINDOW"] if strategy_type == "SMA" else None,
             "EMA_FAST": config["SHORT_WINDOW"] if strategy_type == "EMA" else None,
-            "EMA_SLOW": config["LONG_WINDOW"] if strategy_type == "EMA" else None
+            "EMA_SLOW": config["LONG_WINDOW"] if strategy_type == "EMA" else None,
+            # Add Allocation [%] and Stop Loss [%] fields if they exist in config
+            "Allocation [%]": config.get("ALLOCATION", None),
+            "Stop Loss [%]": config.get("STOP_LOSS", None)
         })
         
         return converted_stats
@@ -214,8 +223,22 @@ def process_single_ticker(
         return None
         
     try:
+        # Convert to dictionaries and normalize schema
+        portfolio_dicts = portfolios_df.to_dicts()
+        
+        # Detect schema version
+        schema_version = detect_schema_version(portfolio_dicts)
+        log(f"Detected schema version for export: {schema_version.name}", "info")
+        
+        # Normalize portfolio data to handle Allocation [%] and Stop Loss [%] columns
+        normalized_portfolios = normalize_portfolio_data(portfolio_dicts, schema_version, log)
+        
+        # Ensure allocation values sum to 100% if they exist
+        if schema_version == SchemaVersion.EXTENDED:
+            normalized_portfolios = ensure_allocation_sum_100_percent(normalized_portfolios, log)
+        
         export_portfolios(
-            portfolios=portfolios_df.to_dicts(),
+            portfolios=normalized_portfolios,
             config=ticker_config,
             export_type="portfolios",
             log=log
@@ -234,8 +257,22 @@ def process_single_ticker(
 
     # Export filtered portfolios
     try:
+        # Convert to dictionaries and normalize schema
+        filtered_dicts = filtered_portfolios.to_dicts()
+        
+        # Detect schema version
+        schema_version = detect_schema_version(filtered_dicts)
+        log(f"Detected schema version for filtered export: {schema_version.name}", "info")
+        
+        # Normalize portfolio data to handle Allocation [%] and Stop Loss [%] columns
+        normalized_filtered = normalize_portfolio_data(filtered_dicts, schema_version, log)
+        
+        # Ensure allocation values sum to 100% if they exist
+        if schema_version == SchemaVersion.EXTENDED:
+            normalized_filtered = ensure_allocation_sum_100_percent(normalized_filtered, log)
+        
         export_portfolios(
-            portfolios=filtered_portfolios.to_dicts(),
+            portfolios=normalized_filtered,
             config=ticker_config,
             export_type="portfolios_filtered",
             log=log

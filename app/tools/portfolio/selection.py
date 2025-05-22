@@ -9,6 +9,12 @@ from typing import Optional
 import polars as pl
 from app.ma_cross.config_types import Config
 from app.tools.portfolio.collection import sort_portfolios
+from app.tools.portfolio.schema_detection import (
+    SchemaVersion,
+    detect_schema_version,
+    normalize_portfolio_data,
+    ensure_allocation_sum_100_percent
+)
 
 def get_best_portfolio(portfolios: pl.DataFrame, config: Config, log: callable) -> Optional[dict]:
     """
@@ -58,6 +64,13 @@ def get_best_portfolio(portfolios: pl.DataFrame, config: Config, log: callable) 
             log(f"Available columns: {', '.join(portfolios.columns)}", "info")
             return None
             
+        # Check for extended schema columns
+        has_allocation = "Allocation [%]" in portfolios.columns
+        has_stop_loss = "Stop Loss [%]" in portfolios.columns
+        
+        if has_allocation or has_stop_loss:
+            log(f"Extended schema detected - Allocation: {has_allocation}, Stop Loss: {has_stop_loss}", "info")
+            
         # Determine column names based on strategy type
         if strategy_type_present:
             strategy_type = portfolios.select("Strategy Type").row(0)[0]
@@ -106,8 +119,35 @@ def get_best_portfolio(portfolios: pl.DataFrame, config: Config, log: callable) 
             # Remove "Metric Type" column if it exists
             if "Metric Type" in portfolio:
                 del portfolio["Metric Type"]
+            
+            # Apply schema detection and normalization
+            portfolio_list = [portfolio]
+            schema_version = detect_schema_version(portfolio_list)
+            log(f"Detected schema version for best portfolio: {schema_version.name}", "info")
+            
+            # Normalize portfolio data to handle Allocation [%] and Stop Loss [%] columns
+            normalized_portfolio_list = normalize_portfolio_data(portfolio_list, schema_version, log)
+            
+            # Ensure allocation values sum to 100% if they exist
+            if schema_version == SchemaVersion.EXTENDED:
+                normalized_portfolio_list = ensure_allocation_sum_100_percent(normalized_portfolio_list, log)
                 
-            return portfolio
+            normalized_portfolio = normalized_portfolio_list[0]
+            
+            # Log allocation information
+            if "Allocation [%]" in normalized_portfolio:
+                log(f"Best portfolio has allocation: {normalized_portfolio.get('Allocation [%]')}", "info")
+                
+            # Add allocation and stop loss from config if not present in portfolio
+            if "Allocation [%]" not in normalized_portfolio and "ALLOCATION" in config:
+                normalized_portfolio["Allocation [%]"] = config["ALLOCATION"]
+                log(f"Added allocation from config: {config['ALLOCATION']}", "info")
+                
+            if "Stop Loss [%]" not in normalized_portfolio and "STOP_LOSS" in config:
+                normalized_portfolio["Stop Loss [%]"] = config["STOP_LOSS"]
+                log(f"Added stop loss from config: {config['STOP_LOSS']}", "info")
+                
+            return normalized_portfolio
             
         # 2. 3 out of top 5 have same combination
         if (result := check_combination_frequency(top_5, 3)):
@@ -120,8 +160,35 @@ def get_best_portfolio(portfolios: pl.DataFrame, config: Config, log: callable) 
             # Remove "Metric Type" column if it exists
             if "Metric Type" in portfolio:
                 del portfolio["Metric Type"]
+            
+            # Apply schema detection and normalization
+            portfolio_list = [portfolio]
+            schema_version = detect_schema_version(portfolio_list)
+            log(f"Detected schema version for best portfolio: {schema_version.name}", "info")
+            
+            # Normalize portfolio data to handle Allocation [%] and Stop Loss [%] columns
+            normalized_portfolio_list = normalize_portfolio_data(portfolio_list, schema_version, log)
+            
+            # Ensure allocation values sum to 100% if they exist
+            if schema_version == SchemaVersion.EXTENDED:
+                normalized_portfolio_list = ensure_allocation_sum_100_percent(normalized_portfolio_list, log)
                 
-            return portfolio
+            normalized_portfolio = normalized_portfolio_list[0]
+            
+            # Log allocation information
+            if "Allocation [%]" in normalized_portfolio:
+                log(f"Best portfolio has allocation: {normalized_portfolio.get('Allocation [%]')}", "info")
+                
+            # Add allocation and stop loss from config if not present in portfolio
+            if "Allocation [%]" not in normalized_portfolio and "ALLOCATION" in config:
+                normalized_portfolio["Allocation [%]"] = config["ALLOCATION"]
+                log(f"Added allocation from config: {config['ALLOCATION']}", "info")
+                
+            if "Stop Loss [%]" not in normalized_portfolio and "STOP_LOSS" in config:
+                normalized_portfolio["Stop Loss [%]"] = config["STOP_LOSS"]
+                log(f"Added stop loss from config: {config['STOP_LOSS']}", "info")
+                
+            return normalized_portfolio
             
         # 3. 5 out of top 8 have same combination
         if (result := check_combination_frequency(top_8, 5)):
@@ -134,8 +201,35 @@ def get_best_portfolio(portfolios: pl.DataFrame, config: Config, log: callable) 
             # Remove "Metric Type" column if it exists
             if "Metric Type" in portfolio:
                 del portfolio["Metric Type"]
+            
+            # Apply schema detection and normalization
+            portfolio_list = [portfolio]
+            schema_version = detect_schema_version(portfolio_list)
+            log(f"Detected schema version for best portfolio: {schema_version.name}", "info")
+            
+            # Normalize portfolio data to handle Allocation [%] and Stop Loss [%] columns
+            normalized_portfolio_list = normalize_portfolio_data(portfolio_list, schema_version, log)
+            
+            # Ensure allocation values sum to 100% if they exist
+            if schema_version == SchemaVersion.EXTENDED:
+                normalized_portfolio_list = ensure_allocation_sum_100_percent(normalized_portfolio_list, log)
                 
-            return portfolio
+            normalized_portfolio = normalized_portfolio_list[0]
+            
+            # Log allocation information
+            if "Allocation [%]" in normalized_portfolio:
+                log(f"Best portfolio has allocation: {normalized_portfolio.get('Allocation [%]')}", "info")
+                
+            # Add allocation and stop loss from config if not present in portfolio
+            if "Allocation [%]" not in normalized_portfolio and "ALLOCATION" in config:
+                normalized_portfolio["Allocation [%]"] = config["ALLOCATION"]
+                log(f"Added allocation from config: {config['ALLOCATION']}", "info")
+                
+            if "Stop Loss [%]" not in normalized_portfolio and "STOP_LOSS" in config:
+                normalized_portfolio["Stop Loss [%]"] = config["STOP_LOSS"]
+                log(f"Added stop loss from config: {config['STOP_LOSS']}", "info")
+                
+            return normalized_portfolio
             
         # 4. 2 out of top 2 have same combination
         top_2 = sorted_portfolios.head(2)
@@ -149,8 +243,35 @@ def get_best_portfolio(portfolios: pl.DataFrame, config: Config, log: callable) 
             # Remove "Metric Type" column if it exists
             if "Metric Type" in portfolio:
                 del portfolio["Metric Type"]
+            
+            # Apply schema detection and normalization
+            portfolio_list = [portfolio]
+            schema_version = detect_schema_version(portfolio_list)
+            log(f"Detected schema version for best portfolio: {schema_version.name}", "info")
+            
+            # Normalize portfolio data to handle Allocation [%] and Stop Loss [%] columns
+            normalized_portfolio_list = normalize_portfolio_data(portfolio_list, schema_version, log)
+            
+            # Ensure allocation values sum to 100% if they exist
+            if schema_version == SchemaVersion.EXTENDED:
+                normalized_portfolio_list = ensure_allocation_sum_100_percent(normalized_portfolio_list, log)
                 
-            return portfolio
+            normalized_portfolio = normalized_portfolio_list[0]
+            
+            # Log allocation information
+            if "Allocation [%]" in normalized_portfolio:
+                log(f"Best portfolio has allocation: {normalized_portfolio.get('Allocation [%]')}", "info")
+                
+            # Add allocation and stop loss from config if not present in portfolio
+            if "Allocation [%]" not in normalized_portfolio and "ALLOCATION" in config:
+                normalized_portfolio["Allocation [%]"] = config["ALLOCATION"]
+                log(f"Added allocation from config: {config['ALLOCATION']}", "info")
+                
+            if "Stop Loss [%]" not in normalized_portfolio and "STOP_LOSS" in config:
+                normalized_portfolio["Stop Loss [%]"] = config["STOP_LOSS"]
+                log(f"Added stop loss from config: {config['STOP_LOSS']}", "info")
+                
+            return normalized_portfolio
             
         log(f"No consistent {fast_col}/{slow_col} combination found")
         return None

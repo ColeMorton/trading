@@ -6,7 +6,7 @@ single ticker and multiple ticker analysis. It includes functionality for parame
 sensitivity analysis and portfolio filtering.
 """
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import polars as pl
 import json
 import os
@@ -48,16 +48,23 @@ from app.tools.portfolio_results import (
     filter_signal_entries,
     calculate_breadth_metrics
 )
+# Import schema detection utilities
+from app.tools.portfolio.schema_detection import (
+    SchemaVersion,
+    detect_schema_version,
+    normalize_portfolio_data,
+    ensure_allocation_sum_100_percent
+)
 
 CONFIG: Config = {
-    # "TICKER": "CRWD",
-    "TICKER": [
-        "RUNE-USD",
-        "TRUMP35336-USD",
-        "ENA-USD",
-        "CRV-USD",
-        "DOGE-USD"
-    ],
+    "TICKER": "CRWD",
+    # "TICKER": [
+    #     "RUNE-USD",
+    #     "TRUMP35336-USD",
+    #     "ENA-USD",
+    #     "CRV-USD",
+    #     "DOGE-USD"
+    # ],
     # Load tickers from JSON file
     # "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/scanner.json"))),
     # "TICKER_2": 'AVGO',
@@ -107,8 +114,19 @@ def filter_portfolios(portfolios: List[Dict[str, Any]], config: Config, log) -> 
     Returns:
         Filtered list of portfolio dictionaries
     """
-    # First filter by signal using the standardized filter_portfolios_by_signal function
-    filtered = filter_portfolios_by_signal(portfolios, config, log)
+    # First detect schema version and normalize portfolio data
+    schema_version = detect_schema_version(portfolios)
+    log(f"Detected schema version: {schema_version.name}", "info")
+    
+    # Normalize portfolio data to handle Allocation [%] and Stop Loss [%] columns
+    normalized_portfolios = normalize_portfolio_data(portfolios, schema_version, log)
+    
+    # Ensure allocation values sum to 100% if they exist
+    if schema_version == SchemaVersion.EXTENDED:
+        normalized_portfolios = ensure_allocation_sum_100_percent(normalized_portfolios, log)
+    
+    # Filter by signal using the standardized filter_portfolios_by_signal function
+    filtered = filter_portfolios_by_signal(normalized_portfolios, config, log)
     
     # Filter out portfolios with invalid metrics
     from app.tools.portfolio.filters import filter_invalid_metrics
@@ -164,7 +182,9 @@ def execute_all_strategies(config: Config, log) -> List[Dict[str, Any]]:
             if isinstance(portfolios, pl.DataFrame):
                 portfolio_count = len(portfolios)
                 if portfolio_count > 0:
-                    all_portfolios.extend(portfolios.to_dicts())
+                    # Convert to dictionaries and process allocation and stop loss values
+                    portfolio_dicts = portfolios.to_dicts()
+                    all_portfolios.extend(portfolio_dicts)
             else:
                 portfolio_count = len(portfolios)
                 if portfolio_count > 0:
@@ -240,7 +260,14 @@ def run(config: Config = CONFIG) -> bool:
         # Export best portfolios
         if all_portfolios:
             with error_context("Filtering and exporting portfolios", log, {Exception: ExportError}):
+                # Detect schema version and normalize portfolio data
+                schema_version = detect_schema_version(all_portfolios)
+                log(f"Detected schema version for export: {schema_version.name}", "info")
+                
+                # Process portfolios with schema detection and normalization
                 filtered_portfolios = filter_portfolios(all_portfolios, synthetic_config, log)
+                
+                # Export portfolios using the extended schema format
                 export_best_portfolios(filtered_portfolios, synthetic_config, log)
         
         return True
@@ -292,8 +319,15 @@ def run_strategies(config: Dict[str, Any] = None) -> bool:
         # Export results
         if all_portfolios is not None and len(all_portfolios) > 0:
             with error_context("Filtering and exporting portfolios", log, {Exception: ExportError}):
+                # Detect schema version and normalize portfolio data
+                schema_version = detect_schema_version(all_portfolios)
+                log(f"Detected schema version for export: {schema_version.name}", "info")
+                
+                # Process portfolios with schema detection and normalization
                 filtered_portfolios = filter_portfolios(all_portfolios, base_config, log)
+                
                 if filtered_portfolios is not None and len(filtered_portfolios) > 0:
+                    # Export portfolios using the extended schema format
                     export_best_portfolios(filtered_portfolios, base_config, log)
                 else:
                     log("No portfolios remain after filtering", "warning")
