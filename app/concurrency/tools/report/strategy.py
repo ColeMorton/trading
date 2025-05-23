@@ -163,7 +163,7 @@ def create_strategy_object(
         },
         "alpha_to_portfolio": {
             "value": risk_metrics_data.get(f"strategy_{index}_alpha_to_portfolio", 0.0),
-            "description": "Strategy alpha relative to portfolio"
+            "description": "Risk-adjusted alpha relative to portfolio (excess return per unit of volatility)"
         }
     }
     

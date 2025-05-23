@@ -202,7 +202,7 @@
                 "var_99": -0.0069214828838976925,
                 "cvar_99": -0.008525554733172394,
                 "risk_contribution": 1.5432355644293858,
-                "alpha_to_portfolio": 7.33035485325453e-05
+                "alpha_to_portfolio": 0.0017403645986891374
             },
             "efficiency": {
                 "efficiency_score": {
@@ -325,7 +325,7 @@
                 "var_99": -0.0065960222923504295,
                 "cvar_99": -0.010331039115614424,
                 "risk_contribution": 1.2205814373340136,
-                "alpha_to_portfolio": -0.00012628122243569392
+                "alpha_to_portfolio": -0.002840703839905822
             },
             "efficiency": {
                 "efficiency_score": {

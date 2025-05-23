@@ -16,7 +16,7 @@ def calculate_risk_contributions(
 
     Uses position-weighted volatility and correlation to determine how much
     each strategy contributes to overall portfolio risk during concurrent periods.
-    Also calculates Alpha for each strategy relative to the average return.
+    Also calculates risk-adjusted Alpha for each strategy relative to the portfolio average.
 
     Args:
         position_arrays (List[np.ndarray]): List of position arrays for each strategy
@@ -32,7 +32,7 @@ def calculate_risk_contributions(
             - Conditional Value at Risk (CVaR) at 95% and 99% confidence levels
             - Pairwise risk overlaps
             - Total portfolio risk
-            - Alpha metrics for each strategy
+            - Risk-adjusted alpha metrics for each strategy (excess return per unit of volatility)
 
     Raises:
         ValueError: If input arrays are empty or mismatched
@@ -221,10 +221,20 @@ def calculate_risk_contributions(
                 risk_contributions[f"strategy_{i+1}_risk_contrib"] = float(relative_contrib)
                 log(f"Strategy {i+1} risk contribution: {relative_contrib:.4f}", "info")
 
-                # Calculate Alpha (excess return over benchmark)
-                alpha = strategy_returns[i] - benchmark_return
-                risk_contributions[f"strategy_{i+1}_alpha_to_portfolio"] = float(alpha)
-                log(f"Strategy {i+1} alpha to portfolio: {alpha:.4f}", "info")
+                # Calculate Risk-Adjusted Alpha (excess return over benchmark, adjusted for volatility)
+                excess_return = strategy_returns[i] - benchmark_return
+                strategy_volatility = volatilities[i]
+                
+                if strategy_volatility > 0:
+                    # Risk-adjusted alpha: excess return per unit of risk
+                    risk_adjusted_alpha = excess_return / strategy_volatility
+                else:
+                    # If no volatility, use raw excess return (fallback for edge cases)
+                    risk_adjusted_alpha = excess_return
+                
+                risk_contributions[f"strategy_{i+1}_alpha_to_portfolio"] = float(risk_adjusted_alpha)
+                log(f"Strategy {i+1} excess return: {excess_return:.6f}, volatility: {strategy_volatility:.6f}", "info")
+                log(f"Strategy {i+1} risk-adjusted alpha to portfolio: {risk_adjusted_alpha:.6f}", "info")
 
                 # Calculate pairwise risk overlaps
                 for j in range(i+1, n_strategies):
