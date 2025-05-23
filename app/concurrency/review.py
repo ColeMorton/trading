@@ -52,7 +52,6 @@ from app.tools.portfolio.schema_detection import (
 from app.tools.portfolio.allocation import (
     validate_allocations,
     normalize_allocations,
-    distribute_missing_allocations,
     ensure_allocation_sum_100_percent,
     calculate_position_sizes,
     get_allocation_summary
@@ -74,43 +73,16 @@ from app.tools.synthetic_ticker import (
     process_synthetic_config
 )
 
+# Import new modules
+from app.concurrency.config_defaults import (
+    get_default_config
+)
+from app.tools.stop_loss_config import StopLossMode
+from app.concurrency.tools.signal_definition import SignalDefinitionMode
+from app.concurrency.tools.execution_timing import ExecutionMode
+
 # Default configuration
-DEFAULT_CONFIG: ConcurrencyConfig = {
-    # "PORTFOLIO": 'SPY_QQQ_202503027.csv',
-    # "PORTFOLIO": "crypto_d_20250508.csv",
-    # "PORTFOLIO": "BTC_MSTR_d_20250409.csv",
-    # "PORTFOLIO": "DAILY_crypto.csv",
-    # "PORTFOLIO": "DAILY_test.csv",
-    # "PORTFOLIO": "atr_test_portfolio.json",
-    # "PORTFOLIO": "stock_trades_20250517.csv",
-    "PORTFOLIO": "portfolio_d_20250510.csv",
-    # "PORTFOLIO": "total_d_20250519.csv", 
-    # "PORTFOLIO": "BTC-USD_SPY_d.csv",
-    # "PORTFOLIO": "trades_20250520.csv",
-    # "PORTFOLIO": "BTC_d_20250427.csv",
-    # "PORTFOLIO": "portfolio_risk.csv",
-    "BASE_DIR": get_project_root(),  # Use standardized project root resolver
-    "REFRESH": True,
-    "OPTIMIZE": False, # Optimize for risk-adjusted signal efficiency
-    "OPTIMIZE_MIN_STRATEGIES": 13,
-    # "OPTIMIZE_MAX_PERMUTATIONS": 1000,
-    "SL_CANDLE_CLOSE": True, 
-    "VISUALIZATION": False,
-    "RATIO_BASED_ALLOCATION": True,
-    "CSV_USE_HOURLY": False,
-    "SORT_BY": "allocation",
-    "REPORT_INCLUDES": {
-        "TICKER_METRICS": True,
-        "STRATEGIES": False,
-        "STRATEGY_RELATIONSHIPS": False
-    },
-    "ENSURE_COUNTERPART": True,
-    "INITIAL_VALUE": 19726.55,
-    "TARGET_VAR": 0.05,
-    "MAX_RISK": {
-        "STRATEGY": 169.771951300664
-    }
-}
+DEFAULT_CONFIG: ConcurrencyConfig = get_default_config()
 
 @handle_errors(
     "Concurrency analysis",
@@ -184,11 +156,18 @@ def run_analysis(config: Dict[str, Any]) -> bool:
                         validated_data = validate_allocations(portfolio_data, log)
                         normalized_data = normalize_allocations(validated_data, log)
                         
-                        # Distribute missing allocations if needed
-                        distributed_data = distribute_missing_allocations(normalized_data, log)
+                        # Do NOT distribute missing allocations - only use allocations from CSV
+                        log("Using only allocations explicitly defined in CSV file", "info")
                         
-                        # Ensure allocations sum to 100%
-                        portfolio_data = ensure_allocation_sum_100_percent(distributed_data, log)
+                        # Log strategies with missing allocations
+                        missing_allocations = [i+1 for i, strategy in enumerate(normalized_data)
+                                            if "ALLOCATION" not in strategy or strategy["ALLOCATION"] is None]
+                        if missing_allocations:
+                            log(f"Strategies without allocations in CSV: {missing_allocations}", "info")
+                            log("These strategies will maintain their original allocations from CSV", "info")
+                        
+                        # Ensure allocations sum to 100% only for strategies that have allocations
+                        portfolio_data = ensure_allocation_sum_100_percent(normalized_data, log)
                         
                         # Calculate position sizes if account value is provided
                         if "INITIAL_VALUE" in validated_config and validated_config["INITIAL_VALUE"] > 0:
@@ -198,10 +177,13 @@ def run_analysis(config: Dict[str, Any]) -> bool:
                             
                             # Get allocation summary
                             allocation_summary = get_allocation_summary(portfolio_data, log)
-                            log(f"Allocation summary: {allocation_summary}", "info")
+                            log(f"Allocation summary (using only CSV-defined allocations): {allocation_summary}", "info")
                         
                         # Process stop loss data
                         log("Processing stop loss data...", "info")
+                        
+                        # Only use stop losses from CSV file (OPTIONAL mode)
+                        stop_loss_mode = StopLossMode.OPTIONAL
                         
                         # Validate stop loss values
                         validated_stop_loss = validate_stop_loss(portfolio_data, log)
@@ -215,17 +197,21 @@ def run_analysis(config: Dict[str, Any]) -> bool:
                         
                         # Apply stop loss rules if price data is available and SL_CANDLE_CLOSE is configured
                         if "PRICE_DATA" in validated_config and validated_config.get("SL_CANDLE_CLOSE") is not None:
-                            log("Applying stop loss rules to strategies...", "info")
+                            log("Applying stop loss only to strategies with defined stop loss in CSV", "info")
                             use_candle_close = validated_config.get("SL_CANDLE_CLOSE", True)
                             
-                            # Apply stop loss rules to each strategy
+                            # Only apply to strategies with explicitly defined stop loss in CSV
                             for i, strategy in enumerate(portfolio_data):
-                                portfolio_data[i] = apply_stop_loss_rules(
-                                    strategy,
-                                    validated_config["PRICE_DATA"],
-                                    use_candle_close,
-                                    log
-                                )
+                                if "STOP_LOSS" in strategy and strategy["STOP_LOSS"] is not None:
+                                    log(f"Applying stop loss of {strategy['STOP_LOSS']} to strategy {i+1}", "info")
+                                    portfolio_data[i] = apply_stop_loss_rules(
+                                        strategy,
+                                        validated_config["PRICE_DATA"],
+                                        use_candle_close,
+                                        log
+                                    )
+                                else:
+                                    log(f"No stop loss defined in CSV for strategy {i+1}, skipping", "info")
                             
                             # Count strategies with triggered stop losses
                             triggered_count = sum(1 for s in portfolio_data if s.get('stop_triggered', False))
@@ -285,9 +271,13 @@ def run_analysis(config: Dict[str, Any]) -> bool:
             # Log allocation information
             log("CSV allocation data processing is enabled for this analysis", "info")
             
-            # Log stop loss configuration
-            if validated_config.get("SL_CANDLE_CLOSE") is not None:
-                log(f"Stop loss handling is enabled using {'candle close' if validated_config['SL_CANDLE_CLOSE'] else 'intracandle'} prices", "info")
+            # Log configuration settings
+            log(f"Signal definition mode: {validated_config.get('SIGNAL_DEFINITION_MODE', SignalDefinitionMode.COMPLETE_TRADE.value)}", "info")
+            log(f"Execution mode: {validated_config.get('EXECUTION_MODE', ExecutionMode.SAME_PERIOD.value)}", "info")
+            log(f"Using allocations only from CSV file", "info")
+            log(f"Using stop losses only from CSV file", "info")
+            log(f"Correlation filtering disabled", "info")
+            log(f"Concurrency limits disabled", "info")
             
             result = main(validated_config)
             if result:
@@ -297,7 +287,10 @@ def run_analysis(config: Dict[str, Any]) -> bool:
                 log("Concurrency analysis failed", "error")
                 return False
 
-def run_concurrency_review(portfolio_name: str, config_overrides: Optional[Dict[str, Any]] = None) -> bool:
+def run_concurrency_review(
+    portfolio_name: str,
+    config_overrides: Optional[Dict[str, Any]] = None
+) -> bool:
     """Run concurrency review with a specific portfolio file and configuration overrides.
     
     Args:
@@ -310,7 +303,7 @@ def run_concurrency_review(portfolio_name: str, config_overrides: Optional[Dict[
     Raises:
         SyntheticTickerError: If there's an issue with synthetic ticker processing
     """
-    # Create a copy of the default config
+    # Determine which base configuration to use
     config = DEFAULT_CONFIG.copy()
     
     # Resolve portfolio filename with extension

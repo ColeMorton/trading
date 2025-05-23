@@ -2,23 +2,23 @@
     "portfolio_metrics": {
         "concurrency": {
             "total_concurrent_periods": {
-                "value": 1655,
+                "value": 1654,
                 "description": "Number of periods with concurrent positions"
             },
             "concurrency_ratio": {
-                "value": 0.8742736397253037,
+                "value": 0.8742071881606766,
                 "description": "Ratio of concurrent periods to total periods"
             },
             "exclusive_ratio": {
-                "value": 0.09984152139461172,
+                "value": 0.09989429175475686,
                 "description": "Ratio of periods with exactly one strategy in position"
             },
             "inactive_ratio": {
-                "value": 0.025884838880084523,
+                "value": 0.025898520084566595,
                 "description": "Ratio of periods with no active strategies"
             },
             "avg_concurrent_strategies": {
-                "value": 2.9994577006507592,
+                "value": 2.9983722192078135,
                 "description": "Average number of concurrent strategies"
             },
             "max_concurrent_strategies": {
@@ -28,7 +28,7 @@
         },
         "efficiency": {
             "efficiency_score": {
-                "value": 0.1617469418573756,
+                "value": 0.16171781696044052,
                 "description": "Risk-Adjusted Performance"
             },
             "expectancy": {
@@ -37,15 +37,15 @@
             },
             "multipliers": {
                 "diversification": {
-                    "value": 0.9061813241181619,
+                    "value": 0.906285879579608,
                     "description": "Multiplier effect from strategy diversification"
                 },
                 "independence": {
-                    "value": 0.3537960954446855,
+                    "value": 0.35383613673358655,
                     "description": "Multiplier effect from strategy independence"
                 },
                 "activity": {
-                    "value": 0.9741151611199155,
+                    "value": 0.9741014799154334,
                     "description": "Multiplier effect from strategy activity levels"
                 }
             }
@@ -53,17 +53,17 @@
         "risk": {
             "portfolio_metrics": {
                 "risk_concentration_index": {
-                    "value": 0.5998915401301519,
+                    "value": 0.5996744438415627,
                     "description": "Measure of risk concentration"
                 },
                 "total_portfolio_risk": {
-                    "value": 0.005317844055537524,
+                    "value": 0.005317403196754558,
                     "description": "Overall portfolio risk measure"
                 }
             },
             "combined_risk": {
                 "var_95": {
-                    "value": -0.030124269971366413,
+                    "value": -0.030140860936709812,
                     "description": "Combined Value at Risk (95% confidence)"
                 },
                 "cvar_95": {
@@ -71,7 +71,7 @@
                     "description": "Combined Conditional Value at Risk (95% confidence)"
                 },
                 "var_99": {
-                    "value": -0.057701605294327746,
+                    "value": -0.057731697636620054,
                     "description": "Combined Value at Risk (99% confidence)"
                 },
                 "cvar_99": {
@@ -197,33 +197,33 @@
         "AAPL": {
             "id": "AAPL",
             "risk_metrics": {
-                "var_95": 0.0,
-                "cvar_95": 0.0,
-                "var_99": 0.0,
-                "cvar_99": 0.0,
-                "risk_contribution": 0.0,
-                "alpha_to_portfolio": 0.0
+                "var_95": -0.02564107093256838,
+                "cvar_95": -0.037096380314802814,
+                "var_99": -0.04631496698720291,
+                "cvar_99": -0.05547607194198718,
+                "risk_contribution": 3.591078716974273,
+                "alpha_to_portfolio": -0.01936259255237707
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 0.0,
+                    "value": 0.1801572596014076,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "expectancy": {
-                    "value": 0.0,
+                    "value": 7.439022184977168,
                     "description": "Expectancy per Trade"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.0,
+                        "value": 0.923432854263825,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.0,
+                        "value": 0.14035532994923858,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.0,
+                        "value": 0.6247357293868923,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -291,28 +291,28 @@
                 "best_horizon": 10,
                 "horizon_metrics": {
                     "1": {
-                        "avg_return": 0.00023291933560252529,
-                        "win_rate": 0.5048335123523093,
-                        "sharpe": 0.011750461836666748,
-                        "sample_size": 1862
+                        "avg_return": 0.00024543519465203707,
+                        "win_rate": 0.5051047823750672,
+                        "sharpe": 0.012383139073602768,
+                        "sample_size": 1861
                     },
                     "3": {
-                        "avg_return": 0.0011822310722611942,
-                        "win_rate": 0.5209677419354839,
-                        "sharpe": 0.036105611809812754,
-                        "sample_size": 1860
+                        "avg_return": 0.0012065326694831442,
+                        "win_rate": 0.5212479827864444,
+                        "sharpe": 0.036856756808892374,
+                        "sample_size": 1859
                     },
                     "5": {
-                        "avg_return": 0.0022568885916580232,
-                        "win_rate": 0.5376749192680301,
-                        "sharpe": 0.054590026816642226,
-                        "sample_size": 1858
+                        "avg_return": 0.002284510783859129,
+                        "win_rate": 0.5379644588045234,
+                        "sharpe": 0.055266196565332264,
+                        "sample_size": 1857
                     },
                     "10": {
-                        "avg_return": 0.003823966107591604,
-                        "win_rate": 0.5536967080410146,
-                        "sharpe": 0.06598609289936955,
-                        "sample_size": 1853
+                        "avg_return": 0.003843112629911455,
+                        "win_rate": 0.5539956803455723,
+                        "sharpe": 0.0663052896975485,
+                        "sample_size": 1852
                     }
                 }
             }
@@ -320,33 +320,33 @@
         "ETH-USD": {
             "id": "ETH-USD",
             "risk_metrics": {
-                "var_95": 0.0,
-                "cvar_95": 0.0,
-                "var_99": 0.0,
-                "cvar_99": 0.0,
-                "risk_contribution": 0.0,
-                "alpha_to_portfolio": 0.0
+                "var_95": -0.07734431171951808,
+                "cvar_95": -0.12686348753189863,
+                "var_99": -0.15563876052766104,
+                "cvar_99": -0.21649914335826384,
+                "risk_contribution": 30.57142362550518,
+                "alpha_to_portfolio": 0.05243746174040254
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 0.0,
+                    "value": 0.13155703252035855,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "expectancy": {
-                    "value": 0.0,
+                    "value": 12.108544483647766,
                     "description": "Expectancy per Trade"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.0,
+                        "value": 0.8983178343024337,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.0,
+                        "value": 0.10091185410334347,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.0,
+                        "value": 0.5216701902748415,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -414,28 +414,28 @@
                 "best_horizon": 5,
                 "horizon_metrics": {
                     "1": {
-                        "avg_return": 0.001733917151484273,
-                        "win_rate": 0.5183189655172413,
-                        "sharpe": 0.03172834988530052,
-                        "sample_size": 1856
+                        "avg_return": 0.0017408689686727974,
+                        "win_rate": 0.5185983827493261,
+                        "sharpe": 0.0318474538470817,
+                        "sample_size": 1855
                     },
                     "3": {
-                        "avg_return": 0.004890701840829155,
-                        "win_rate": 0.5226537216828478,
-                        "sharpe": 0.05235016610411931,
-                        "sample_size": 1854
+                        "avg_return": 0.004896781957690878,
+                        "win_rate": 0.5229357798165137,
+                        "sharpe": 0.05240131580455644,
+                        "sample_size": 1853
                     },
                     "5": {
-                        "avg_return": 0.00839112211023709,
-                        "win_rate": 0.535097192224622,
-                        "sharpe": 0.06795358722555098,
-                        "sample_size": 1852
+                        "avg_return": 0.008383777144415816,
+                        "win_rate": 0.5348460291734197,
+                        "sharpe": 0.06787599553720294,
+                        "sample_size": 1851
                     },
                     "10": {
-                        "avg_return": 0.010778009592019177,
-                        "win_rate": 0.5186789388197076,
-                        "sharpe": 0.06053448817970022,
-                        "sample_size": 1847
+                        "avg_return": 0.010984704375624748,
+                        "win_rate": 0.5189599133261105,
+                        "sharpe": 0.061755548021730305,
+                        "sample_size": 1846
                     }
                 }
             }
@@ -443,33 +443,33 @@
         "GD": {
             "id": "GD",
             "risk_metrics": {
-                "var_95": 0.0,
-                "cvar_95": 0.0,
-                "var_99": 0.0,
-                "cvar_99": 0.0,
-                "risk_contribution": 0.0,
-                "alpha_to_portfolio": 0.0
+                "var_95": -0.02097695933562567,
+                "cvar_95": -0.03145113503266672,
+                "var_99": -0.03638939535071444,
+                "cvar_99": -0.047623437998274794,
+                "risk_contribution": 2.740821737922103,
+                "alpha_to_portfolio": -0.07280956717074621
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 0.0,
+                    "value": 0.15129790991896339,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "expectancy": {
-                    "value": 0.0,
+                    "value": 6.1304967333005065,
                     "description": "Expectancy per Trade"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.0,
+                        "value": 0.8706071945458598,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.0,
+                        "value": 0.12027027027027028,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.0,
+                        "value": 0.5866807610993657,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -537,28 +537,28 @@
                 "best_horizon": 10,
                 "horizon_metrics": {
                     "1": {
-                        "avg_return": -4.793323127077357e-06,
-                        "win_rate": 0.5016251354279523,
-                        "sharpe": -0.0003135761030035672,
-                        "sample_size": 1846
+                        "avg_return": 2.653587956041313e-06,
+                        "win_rate": 0.5018970189701897,
+                        "sharpe": 0.00017358699411061584,
+                        "sample_size": 1845
                     },
                     "3": {
-                        "avg_return": -0.00021272683474174594,
-                        "win_rate": 0.5151843817787418,
-                        "sharpe": -0.00794797356901991,
-                        "sample_size": 1844
+                        "avg_return": -0.00020704611192268944,
+                        "win_rate": 0.5154639175257731,
+                        "sharpe": -0.007733951670095218,
+                        "sample_size": 1843
                     },
                     "5": {
-                        "avg_return": -0.0001034138089377898,
-                        "win_rate": 0.505971769815418,
-                        "sharpe": -0.003042591770571503,
-                        "sample_size": 1842
+                        "avg_return": -8.928965852134582e-05,
+                        "win_rate": 0.5062466051059207,
+                        "sharpe": -0.002626742133266165,
+                        "sample_size": 1841
                     },
                     "10": {
-                        "avg_return": -0.000222698848585021,
-                        "win_rate": 0.5171475231355471,
-                        "sharpe": -0.004797707606657693,
-                        "sample_size": 1837
+                        "avg_return": -0.0002059387389136714,
+                        "win_rate": 0.5174291938997821,
+                        "sharpe": -0.004435959757362464,
+                        "sample_size": 1836
                     }
                 }
             }
@@ -566,33 +566,33 @@
         "LMT": {
             "id": "LMT",
             "risk_metrics": {
-                "var_95": 0.0,
-                "cvar_95": 0.0,
-                "var_99": 0.0,
-                "cvar_99": 0.0,
-                "risk_contribution": 0.0,
-                "alpha_to_portfolio": 0.0
+                "var_95": -0.023209042379723575,
+                "cvar_95": -0.04166088350494851,
+                "var_99": -0.04972852926929951,
+                "cvar_99": -0.07605495015510702,
+                "risk_contribution": 2.813264088184436,
+                "alpha_to_portfolio": -0.05751127980717258
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 0.0,
+                    "value": 0.13963235722826114,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "expectancy": {
-                    "value": 0.0,
+                    "value": 5.074703583560787,
                     "description": "Expectancy per Trade"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.0,
+                        "value": 0.899075755090764,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.0,
+                        "value": 0.11803607214428859,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.0,
+                        "value": 0.5274841437632135,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -660,28 +660,28 @@
                 "best_horizon": 1,
                 "horizon_metrics": {
                     "1": {
-                        "avg_return": -0.00015323669288730142,
-                        "win_rate": 0.4898074745186863,
-                        "sharpe": -0.009755934657918103,
-                        "sample_size": 1766
+                        "avg_return": -0.000159920156213835,
+                        "win_rate": 0.48951841359773374,
+                        "sharpe": -0.010180186323336771,
+                        "sample_size": 1765
                     },
                     "3": {
-                        "avg_return": -0.00047617186653356426,
-                        "win_rate": 0.47392290249433106,
-                        "sharpe": -0.017576383375852385,
-                        "sample_size": 1764
+                        "avg_return": -0.0004739958079063748,
+                        "win_rate": 0.47419171866137266,
+                        "sharpe": -0.017491200602851368,
+                        "sample_size": 1763
                     },
                     "5": {
-                        "avg_return": -0.0006984872220938438,
-                        "win_rate": 0.4841089670828604,
-                        "sharpe": -0.020747953989979296,
-                        "sample_size": 1762
+                        "avg_return": -0.0006723758230781318,
+                        "win_rate": 0.4843838727995457,
+                        "sharpe": -0.01997725391458813,
+                        "sample_size": 1761
                     },
                     "10": {
-                        "avg_return": -0.0012798874272365974,
-                        "win_rate": 0.49971542401821284,
-                        "sharpe": -0.026415060774318055,
-                        "sample_size": 1757
+                        "avg_return": -0.0012810322481041244,
+                        "win_rate": 0.4994305239179954,
+                        "sharpe": -0.026431176321645426,
+                        "sample_size": 1756
                     }
                 }
             }
@@ -689,33 +689,33 @@
         "WELL": {
             "id": "WELL",
             "risk_metrics": {
-                "var_95": 0.0,
-                "cvar_95": 0.0,
-                "var_99": 0.0,
-                "cvar_99": 0.0,
-                "risk_contribution": 0.0,
-                "alpha_to_portfolio": 0.0
+                "var_95": -0.025074979061600444,
+                "cvar_95": -0.03756732889000502,
+                "var_99": -0.04578580772807015,
+                "cvar_99": -0.0594708862061778,
+                "risk_contribution": 2.9857428642350317,
+                "alpha_to_portfolio": -0.0455477604720003
             },
             "efficiency": {
                 "efficiency_score": {
-                    "value": 0.0,
+                    "value": 0.20594452553321185,
                     "description": "Risk-adjusted performance score for this strategy"
                 },
                 "expectancy": {
-                    "value": 0.0,
+                    "value": 1.9519658010506795,
                     "description": "Expectancy per Trade"
                 },
                 "multipliers": {
                     "diversification": {
-                        "value": 0.0,
+                        "value": 0.9399957596951577,
                         "description": "Strategy-specific diversification effect"
                     },
                     "independence": {
-                        "value": 0.0,
+                        "value": 0.16485188150520416,
                         "description": "Strategy-specific independence from other strategies"
                     },
                     "activity": {
-                        "value": 0.0,
+                        "value": 0.6601479915433404,
                         "description": "Strategy-specific activity level impact"
                     }
                 }
@@ -783,28 +783,28 @@
                 "best_horizon": 1,
                 "horizon_metrics": {
                     "1": {
-                        "avg_return": -0.0003970956368954088,
-                        "win_rate": 0.5113378684807256,
-                        "sharpe": -0.017684331355574463,
-                        "sample_size": 1764
+                        "avg_return": -0.00038636817959027223,
+                        "win_rate": 0.5116279069767442,
+                        "sharpe": -0.017205176752693615,
+                        "sample_size": 1763
                     },
                     "3": {
-                        "avg_return": -0.0015172124353477173,
-                        "win_rate": 0.5,
-                        "sharpe": -0.03799211512496087,
-                        "sample_size": 1762
+                        "avg_return": -0.0015195212396044815,
+                        "win_rate": 0.4997160704145372,
+                        "sharpe": -0.038039242331333906,
+                        "sample_size": 1761
                     },
                     "5": {
-                        "avg_return": -0.002776613254211855,
-                        "win_rate": 0.4971590909090909,
-                        "sharpe": -0.05378291240110657,
-                        "sample_size": 1760
+                        "avg_return": -0.0027587220283396088,
+                        "win_rate": 0.4974417282546902,
+                        "sharpe": -0.053426820570325544,
+                        "sample_size": 1759
                     },
                     "10": {
-                        "avg_return": -0.005355486670883297,
-                        "win_rate": 0.5150997150997151,
-                        "sharpe": -0.07892705271242093,
-                        "sample_size": 1755
+                        "avg_return": -0.005369393899191337,
+                        "win_rate": 0.5148232611174458,
+                        "sharpe": -0.07911237867373905,
+                        "sample_size": 1754
                     }
                 }
             }
