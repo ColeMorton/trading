@@ -73,7 +73,7 @@ from app.tools.portfolio.stop_loss import (
 )
 
 CONFIG: Config = {
-    "TICKER": "AIG",
+    "TICKER": "MSTR",
     # "TICKER": [
     #     "RUNE-USD",
     #     "TRUMP35336-USD",
@@ -98,7 +98,7 @@ CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": True,
+    "USE_CURRENT": False,
     "MINIMUMS": {
         "WIN_RATE": 0.44,
         # "TRADES": 34,

@@ -2,7 +2,7 @@
     "SPY",
     "QQQ",
     "BTC-USD",
-    "STRK",
+    "ETH-USD",
     "TSLA",
     "EQT",
     "MSTR",
@@ -11,5 +11,11 @@
     "RTX",
     "GME",
     "AAPL",
-    "GD"
+    "GD",
+    "PENDLE-USD",
+    "SUI20947-USD",
+    "FTNT",
+    "LMT",
+    "WELL",
+    "GOOGL"
 ]

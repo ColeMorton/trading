@@ -83,12 +83,12 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
     # "PORTFOLIO": "DAILY_test.csv",
     # "PORTFOLIO": "atr_test_portfolio.json",
     # "PORTFOLIO": "stock_trades_20250517.csv",
-    # "PORTFOLIO": "portfolio_d_20250519.csv",
+    "PORTFOLIO": "portfolio_d_20250510.csv",
     # "PORTFOLIO": "total_d_20250519.csv", 
     # "PORTFOLIO": "BTC-USD_SPY_d.csv",
     # "PORTFOLIO": "trades_20250520.csv",
     # "PORTFOLIO": "BTC_d_20250427.csv",
-    "PORTFOLIO": "portfolio_risk.csv",
+    # "PORTFOLIO": "portfolio_risk.csv",
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
     "REFRESH": True,
     "OPTIMIZE": False, # Optimize for risk-adjusted signal efficiency
