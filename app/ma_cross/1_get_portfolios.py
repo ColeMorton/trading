@@ -73,7 +73,7 @@ from app.tools.portfolio.stop_loss import (
 )
 
 CONFIG: Config = {
-    "TICKER": "MSTR",
+    # "TICKER": "MSTR",
     # "TICKER": [
     #     "RUNE-USD",
     #     "TRUMP35336-USD",
@@ -82,7 +82,7 @@ CONFIG: Config = {
     #     "DOGE-USD"
     # ],
     # Load tickers from JSON file
-    # "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/scanner.json"))),
+    "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/portfolio.json"))),
     # "TICKER_2": 'AVGO',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -98,7 +98,7 @@ CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     "MINIMUMS": {
         "WIN_RATE": 0.44,
         # "TRADES": 34,

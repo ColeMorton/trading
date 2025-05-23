@@ -138,29 +138,31 @@ def create_strategy_object(
     # Extract strategy-specific risk metrics
     risk_metrics_data = stats.get('risk_metrics', {})
     
+    # Use index for risk metrics lookup to match how they're stored in risk_metrics.py
+    # The index parameter is 1-based, which matches the 1-based indexing used in risk_metrics.py
     risk_metrics: StrategyRiskMetrics = {
         "var_95": {
-            "value": risk_metrics_data.get(f"strategy_{strategy_id}_var_95", 0.0),
+            "value": risk_metrics_data.get(f"strategy_{index}_var_95", 0.0),
             "description": "Value at Risk (95% confidence)"
         },
         "cvar_95": {
-            "value": risk_metrics_data.get(f"strategy_{strategy_id}_cvar_95", 0.0),
+            "value": risk_metrics_data.get(f"strategy_{index}_cvar_95", 0.0),
             "description": "Conditional Value at Risk (95% confidence)"
         },
         "var_99": {
-            "value": risk_metrics_data.get(f"strategy_{strategy_id}_var_99", 0.0),
+            "value": risk_metrics_data.get(f"strategy_{index}_var_99", 0.0),
             "description": "Value at Risk (99% confidence)"
         },
         "cvar_99": {
-            "value": risk_metrics_data.get(f"strategy_{strategy_id}_cvar_99", 0.0),
+            "value": risk_metrics_data.get(f"strategy_{index}_cvar_99", 0.0),
             "description": "Conditional Value at Risk (99% confidence)"
         },
         "risk_contribution": {
-            "value": risk_metrics_data.get(f"strategy_{strategy_id}_risk_contrib", 0.0),
+            "value": risk_metrics_data.get(f"strategy_{index}_risk_contrib", 0.0),
             "description": "Contribution to portfolio risk"
         },
         "alpha_to_portfolio": {
-            "value": risk_metrics_data.get(f"strategy_{strategy_id}_alpha_to_portfolio", 0.0),
+            "value": risk_metrics_data.get(f"strategy_{index}_alpha_to_portfolio", 0.0),
             "description": "Strategy alpha relative to portfolio"
         }
     }
@@ -168,26 +170,27 @@ def create_strategy_object(
     # Get strategy-specific efficiency metrics
     strategy_metrics = stats.get("strategy_efficiency_metrics", {})
     
+    # Use index for efficiency metrics lookup to match how they're stored in analysis.py
     efficiency: EfficiencyMetrics = {
         "efficiency_score": {
-            "value": strategy_metrics.get(f"strategy_{strategy_id}_efficiency_score", 0.0),
+            "value": strategy_metrics.get(f"strategy_{index}_efficiency_score", 0.0),
             "description": "Risk-adjusted performance score for this strategy"
         },
         "expectancy": {
-            "value": strategy_metrics.get(f"strategy_{strategy_id}_expectancy", 0.0),
+            "value": strategy_metrics.get(f"strategy_{index}_expectancy", 0.0),
             "description": "Expectancy per Trade"
         },
         "multipliers": {
             "diversification": {
-                "value": strategy_metrics.get(f"strategy_{strategy_id}_diversification", 0.0),
+                "value": strategy_metrics.get(f"strategy_{index}_diversification", 0.0),
                 "description": "Strategy-specific diversification effect"
             },
             "independence": {
-                "value": strategy_metrics.get(f"strategy_{strategy_id}_independence", 0.0),
+                "value": strategy_metrics.get(f"strategy_{index}_independence", 0.0),
                 "description": "Strategy-specific independence from other strategies"
             },
             "activity": {
-                "value": strategy_metrics.get(f"strategy_{strategy_id}_activity", 0.0),
+                "value": strategy_metrics.get(f"strategy_{index}_activity", 0.0),
                 "description": "Strategy-specific activity level impact"
             }
         }

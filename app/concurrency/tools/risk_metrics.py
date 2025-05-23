@@ -150,7 +150,8 @@ def calculate_risk_contributions(
             # Calculate weighted average of individual strategy risk metrics
             for i in range(n_strategies):
                 # Get allocation weight (as a proportion of total allocation)
-                allocation_weight = strategy_allocations[i] / total_allocation
+                # Handle case when total_allocation is zero by using equal weights
+                allocation_weight = strategy_allocations[i] / total_allocation if total_allocation > 0 else 1.0 / n_strategies
                 
                 # Get individual strategy risk metrics
                 var_95 = risk_contributions.get(f"strategy_{i+1}_var_95", 0.0)
