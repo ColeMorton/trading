@@ -117,19 +117,19 @@ class StrategyConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: StrategyConfig = {
-    "TICKER": 'BTC-USD',
-    "TICKER_1": 'AMAT',
-    "TICKER_2": 'LRCX',
+    "TICKER": "BTC-USD",
     "WINDOWS": 89,
-    "USE_SCANNER": True,
-    "SCANNER_LIST": "QQQ_SPY100.csv",
+    "USE_SCANNER": False,
     "BASE_DIR": ".",
     "REFRESH": True,
+    "STRATEGY_TYPES": [ "SMA", "EMA" ],
     "DIRECTION": "Long",
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
+    "USE_CURRENT": False,
     "SORT_BY": "Score",
+    "SORT_ASC": False,
     "USE_GBM": False
 }
