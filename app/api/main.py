@@ -6,6 +6,7 @@ It sets up routing, middleware, and error handling.
 """
 
 import os
+import yaml
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -19,13 +20,47 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 CSV_VIEWER_DIR = os.path.join(BASE_DIR, 'app', 'csv_viewer')
 SENSYLATE_DIR = os.path.join(BASE_DIR, 'app', 'sensylate')
 SENSYLATE_DIST_DIR = os.path.join(SENSYLATE_DIR, 'dist')
+OPENAPI_YAML_PATH = os.path.join(os.path.dirname(__file__), 'openapi.yaml')
 
-# Create FastAPI application
-app = FastAPI(
-    title="Trading API",
-    description="API for executing trading scripts and retrieving data",
-    version="0.1.0"
-)
+def load_openapi_spec():
+    """Load the custom OpenAPI specification from yaml file."""
+    try:
+        with open(OPENAPI_YAML_PATH, 'r', encoding='utf-8') as f:
+            openapi_spec = yaml.safe_load(f)
+        return openapi_spec
+    except Exception as e:
+        print(f"Warning: Could not load custom OpenAPI spec: {e}")
+        return None
+
+# Load custom OpenAPI specification
+custom_openapi = load_openapi_spec()
+
+# Create FastAPI application with custom OpenAPI spec
+if custom_openapi:
+    app = FastAPI(
+        title=custom_openapi.get('info', {}).get('title', 'Trading API'),
+        description=custom_openapi.get('info', {}).get('description', 'API for executing trading scripts and retrieving data'),
+        version=custom_openapi.get('info', {}).get('version', '0.1.0'),
+        openapi_url="/openapi.json",
+        docs_url="/docs",
+        redoc_url="/redoc"
+    )
+    
+    # Override the OpenAPI schema
+    def custom_openapi_schema():
+        if app.openapi_schema:
+            return app.openapi_schema
+        app.openapi_schema = custom_openapi
+        return app.openapi_schema
+    
+    app.openapi = custom_openapi_schema
+else:
+    # Fallback to default FastAPI configuration
+    app = FastAPI(
+        title="Trading API",
+        description="API for executing trading scripts and retrieving data",
+        version="0.1.0"
+    )
 
 # Set up logging
 log, log_close, logger, _ = setup_api_logging()

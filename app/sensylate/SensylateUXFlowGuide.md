@@ -46,7 +46,16 @@ User sees a loading indicator while the application fetches available CSV files
    # Alternative: GET /api/data/list?directory=strategies
    ```
 
-2. **API Request Flow**
+2. **Observed API Behavior**
+   - **Duplicate Requests**: React often makes two simultaneous requests (likely due to StrictMode or concurrent renders)
+   ```
+   2025-05-26 13:47:38,779 - INFO - Listing files in directory: strategies
+   2025-05-26 13:47:38,792 - INFO - Listing files in directory: strategies
+   INFO: 127.0.0.1:64433 - "GET /api/data/list/strategies HTTP/1.1" 200 OK
+   INFO: 127.0.0.1:64434 - "GET /api/data/list/strategies HTTP/1.1" 200 OK
+   ```
+
+3. **API Request Flow**
    - Request proxied through Vite to `http://localhost:8000`
    - **Actual Response Format**:
    ```json
@@ -54,19 +63,24 @@ User sees a loading indicator while the application fetches available CSV files
      "status": "success",
      "files": [
        {"name": "DAILY.csv", "path": "csv/strategies/DAILY.csv", "size": 12345},
-       {"name": "WEEKLY.csv", "path": "csv/strategies/WEEKLY.csv", "size": 23456}
+       {"name": "WEEKLY.csv", "path": "csv/strategies/WEEKLY.csv", "size": 23456},
+       {"name": "DAILY_test.csv", "path": "csv/strategies/DAILY_test.csv", "size": 34567}
      ],
      "directory": "csv/strategies"
    }
    ```
 
-3. **Caching**
+4. **Caching**
    - Response stored in in-memory cache with 1-hour TTL
    - Service worker caches response for offline access
 
-4. **Auto-selection**
+5. **Auto-selection**
    - If `DAILY.csv` exists in the list, it's automatically selected
-   - Triggers CSV data fetch for the selected file
+   - Triggers immediate CSV data fetch for the selected file
+   ```
+   2025-05-26 13:47:38,867 - INFO - Reading CSV file: csv/strategies/DAILY.csv
+   INFO: 127.0.0.1:64437 - "GET /api/data/csv/csv/strategies/DAILY.csv HTTP/1.1" 200 OK
+   ```
 
 ## 3. CSV Data Display
 
@@ -82,7 +96,14 @@ User can select different CSV files from the dropdown or view the auto-selected 
 
 2. **Data Fetch via `useCSVData` Hook**
    ```bash
-   GET /api/data/csv/csv/strategies/DAILY.csv
+   # Example: User selects DAILY_test.csv
+   GET /api/data/csv/csv/strategies/DAILY_test.csv
+   ```
+   
+   **Observed API Call:**
+   ```
+   2025-05-26 13:47:59,483 - INFO - Reading CSV file: csv/strategies/DAILY_test.csv
+   INFO: 127.0.0.1:64488 - "GET /api/data/csv/csv/strategies/DAILY_test.csv HTTP/1.1" 200 OK
    ```
    
 3. **Actual API Response**
@@ -92,16 +113,23 @@ User can select different CSV files from the dropdown or view the auto-selected 
      "data": {
        "data": [
          {
-           "Date": "2024-01-01",
-           "Symbol": "AAPL",
-           "Price": "185.50",
-           "Volume": "45000000"
+           "Ticker": "BTC-USD_RSP",
+           "Short Window": 61,
+           "Long Window": 66,
+           "Strategy Type": "SMA",
+           "Signal Window": 0,
+           "Signal Entry": false,
+           "Signal Exit": false,
+           "Total Open Trades": 0,
+           "Total Trades": 39,
+           "Score": 2.0971743838296493,
+           "Win Rate [%]": 74.35897435897436
          }
        ],
-       "columns": ["Date", "Symbol", "Price", "Volume"]
+       "columns": ["Ticker", "Short Window", "Long Window", "Strategy Type", ...]
      },
      "format": "csv",
-     "file_path": "csv/strategies/DAILY.csv"
+     "file_path": "csv/strategies/DAILY_test.csv"
    }
    ```
 
@@ -113,7 +141,8 @@ User can select different CSV files from the dropdown or view the auto-selected 
 5. **Rendering**
    - DataTable component uses @tanstack/react-table
    - Features: sorting, filtering, pagination (25 rows/page)
-   - Column headers are dynamically generated
+   - Column headers are dynamically generated from strategy data
+   - Displays trading metrics, signals, and performance statistics
 
 ## 4. View Mode Toggle
 
@@ -142,15 +171,22 @@ User clicks the "Update" button to refresh portfolio data
    Content-Type: application/json
    
    {
-     "portfolio": "DAILY.csv"
+     "portfolio": "DAILY_test.csv"
    }
+   ```
+
+   **Observed API Call:**
+   ```
+   2025-05-26 13:48:04,721 - INFO - Updating portfolio: DAILY_test.csv
+   2025-05-26 13:48:04,723 - INFO - Executing script app/strategies/update_portfolios.py with parameters: {'portfolio': 'DAILY_test.csv'}
+   INFO: 127.0.0.1:64505 - "POST /api/scripts/update-portfolio HTTP/1.1" 200 OK
    ```
 
 2. **Initial Response**
    ```json
    {
      "status": "accepted",
-     "execution_id": "550e8400-e29b-41d4-a716-446655440000",
+     "execution_id": "9322338b-68ee-4ed6-ae5c-2db7f965584e",
      "message": "Portfolio update started",
      "script_path": "app/strategies/update_portfolios.py"
    }
@@ -158,23 +194,77 @@ User clicks the "Update" button to refresh portfolio data
 
 3. **Server-Sent Events (SSE) Connection**
    ```bash
-   GET /api/scripts/status-stream/550e8400-e29b-41d4-a716-446655440000
+   GET /api/scripts/status-stream/9322338b-68ee-4ed6-ae5c-2db7f965584e
    Accept: text/event-stream
    ```
 
-4. **Progress Updates**
+   **Observed SSE Setup:**
    ```
-   data: {"status": "running", "progress": 25, "message": "Fetching market data...", "timestamp": "2024-01-01T12:00:00Z"}
-   
-   data: {"status": "running", "progress": 50, "message": "Processing calculations...", "timestamp": "2024-01-01T12:00:05Z"}
-   
-   data: {"status": "completed", "progress": 100, "message": "Portfolio update completed", "timestamp": "2024-01-01T12:00:10Z", "result": {"updated_rows": 150}}
+   2025-05-26 13:48:04,733 - INFO - Starting SSE stream for execution ID: 9322338b-68ee-4ed6-ae5c-2db7f965584e
+   INFO: 127.0.0.1:64508 - "GET /api/scripts/status-stream/9322338b-68ee-4ed6-ae5c-2db7f965584e HTTP/1.1" 200 OK
    ```
 
-5. **Completion Actions**
-   - SSE connection closes
-   - CSV data automatically refreshes
-   - Success message displayed to user
+4. **Detailed Portfolio Processing**
+
+   **Phase 1: Portfolio Loading**
+   ```
+   2025-05-26 13:48:07,787 - INFO - Loading portfolio: DAILY_test.csv
+   2025-05-26 13:48:07,787 - INFO - Config BASE_DIR: /Users/colemorton/Projects/trading
+   2025-05-26 13:48:07,787 - INFO - Successfully read CSV file with 3 strategies
+   ```
+
+   **Phase 2: Synthetic Pair Creation** (for each strategy)
+   - **BTC-USD_RSP**: Downloads BTC-USD (3904 records) + RSP (5553 records) → 2688 merged rows
+   - **BTC-USD_QQQ**: Downloads BTC-USD (3904 records) + QQQ (6594 records) → 2688 merged rows  
+   - **BTC-USD_SPY**: Downloads BTC-USD (3904 records) + SPY (8136 records) → 2688 merged rows
+
+   **Phase 3: Strategy Analysis**
+   ```
+   # For each strategy: SMA calculation, signal detection, performance metrics
+   2025-05-26 13:48:07,831 - INFO - Processing strategy configuration for BTC-USD_RSP
+   2025-05-26 13:48:07,831 - INFO - Using strategy type 'SMA' from field 'STRATEGY_TYPE' for BTC-USD_RSP
+   2025-05-26 13:48:13,567 - INFO - Current SMA signal for BTC-USD_RSP: False
+   2025-05-26 13:48:14,831 - INFO - Score: 1.9922
+   ```
+
+   **Phase 4: Results Generation**
+   ```
+   2025-05-26 13:48:18,404 - INFO - === Strategy Summary ===
+   2025-05-26 13:48:18,404 - INFO - Total Strategies: 3
+   2025-05-26 13:48:18,404 - INFO - Total Open Trades: 2
+   2025-05-26 13:48:18,404 - INFO - Total Signal Entries: 1
+   2025-05-26 13:48:18,404 - INFO - Signal Entry Ratio: 0.3333 (Signal Entries / Total Strategies)
+   ```
+
+5. **Strategy Results Summary**
+   - **BTC-USD_RSP**: SMA(61,66), Score: 1.9922, Signal Entry: False, Open Trades: 0
+   - **BTC-USD_QQQ**: SMA(71,77), Score: 2.0922, Signal Entry: False, Open Trades: 0
+   - **BTC-USD_SPY**: SMA(73,76), Score: 2.0743, Signal Entry: **True**, Open Trades: 0
+
+6. **Completion Actions**
+   ```
+   2025-05-26 13:48:18,404 - INFO - Total execution time: 10.62 seconds
+   2025-05-26 13:48:18,404 - INFO - Script execution completed in 10.62 seconds
+   2025-05-26 13:48:18,412 - INFO - Script execution 9322338b-68ee-4ed6-ae5c-2db7f965584e completed, closing SSE connection
+   ```
+
+7. **Auto-refresh Data**
+   ```bash
+   GET /api/data/csv/csv/strategies/DAILY_test.csv
+   ```
+   
+   **Observed Auto-refresh:**
+   ```
+   2025-05-26 13:48:19,432 - INFO - Reading CSV file: csv/strategies/DAILY_test.csv
+   INFO: 127.0.0.1:64558 - "GET /api/data/csv/csv/strategies/DAILY_test.csv HTTP/1.1" 200 OK
+   ```
+
+8. **Performance Metrics**
+   - **Total Execution Time**: 10.62 seconds (script) + 13.68 seconds (total with overhead)
+   - **Data Downloads**: Fresh market data for all components (BTC-USD, RSP, QQQ, SPY)
+   - **Strategy Processing**: 3 synthetic pairs analyzed with SMA signals
+   - **Signal Detection**: 1 buy signal generated (BTC-USD_SPY)
+   - **Portfolio Breadth**: 66.67% strategies with open positions
 
 ## 6. Offline Functionality
 
@@ -381,4 +471,41 @@ User Action → React Component → Custom Hook → API Service → FastAPI Back
 2. **Updates**: Seamless update process with user notifications
 3. **Manifest**: Full PWA manifest with theme color #6366f1 (indigo)
 
-This guide provides a complete technical reference for understanding how Sensylate functions from both user experience and implementation perspectives, verified against the actual API and MCP server implementations.
+## Real-World Portfolio Update Example
+
+Based on actual API logs, here's what happens during a complete portfolio update cycle:
+
+### Input Portfolio (DAILY_test.csv)
+```csv
+Ticker,Short Window,Long Window,Strategy Type,Signal Window,Signal Entry,Signal Exit
+BTC-USD_RSP,61,66,SMA,0,False,False
+BTC-USD_QQQ,71,77,SMA,0,False,False  
+BTC-USD_SPY,73,76,SMA,0,False,False
+```
+
+### Processing Pipeline
+1. **Market Data Download**: Real-time data for BTC-USD, RSP, QQQ, SPY
+2. **Synthetic Pair Creation**: Creates ratio-based pairs (BTC-USD/RSP, BTC-USD/QQQ, BTC-USD/SPY)
+3. **Technical Analysis**: Calculates SMA crossovers for each pair
+4. **Signal Detection**: Identifies entry/exit signals based on moving average crossovers
+5. **Performance Metrics**: Computes 40+ trading statistics per strategy
+
+### Output Results
+```csv
+Ticker,Strategy Type,Short Window,Long Window,Score,Signal Entry,Signal Exit,Total Trades,Win Rate [%],Total Return [%]
+BTC-USD_QQQ,SMA,71,77,2.0922,False,False,37,70.27,7327.54
+BTC-USD_SPY,SMA,73,76,2.0743,True,False,41,70.73,12779.20
+BTC-USD_RSP,SMA,61,66,1.9922,False,False,39,74.36,6283.20
+```
+
+### Key Trading Insights
+- **BTC-USD_SPY** generated a buy signal (Signal Entry: True)
+- **Portfolio Breadth**: 66.67% of strategies showing bullish conditions
+- **Best Performer**: BTC-USD_SPY with 12,779% total return over test period
+- **Highest Win Rate**: BTC-USD_RSP with 74.36% winning trades
+
+This comprehensive example demonstrates how the Sensylate application processes real trading strategies and provides actionable market signals through an intuitive web interface.
+
+---
+
+This guide provides a complete technical reference for understanding how Sensylate functions from both user experience and implementation perspectives, verified against actual API logs and MCP server implementations.
