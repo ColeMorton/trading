@@ -18,13 +18,23 @@ const RawTextView: React.FC = () => {
   }
   
   return (
-    <div className="overflow-x-auto bg-white rounded-lg shadow-lg p-4">
-      <textarea
-        id="csv-text"
-        className="w-full h-[70vh] font-mono text-sm border border-gray-300 rounded-md p-2"
-        value={rawText}
-        readOnly
-      ></textarea>
+    <div className="mb-6 rounded-lg border overflow-hidden" style={{ 
+      backgroundColor: 'var(--bs-card-bg)', 
+      borderColor: 'var(--bs-card-border-color)' 
+    }}>
+      <div className="border-b px-4 py-3" style={{ 
+        backgroundColor: 'var(--bs-card-cap-bg)', 
+        borderColor: 'var(--bs-card-border-color)' 
+      }}>
+        <h5 className="mb-0 font-bold" style={{ color: 'var(--bs-body-color)' }}>Raw Data View</h5>
+      </div>
+      <div className="p-4">
+        <textarea
+          id="csv-text"
+          value={rawText}
+          readOnly
+        ></textarea>
+      </div>
     </div>
   );
 };

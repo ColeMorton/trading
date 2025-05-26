@@ -58,7 +58,7 @@ const InstallPrompt: React.FC = () => {
   if (!showPrompt) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 p-4 bg-indigo-600 text-white z-50">
+    <div className="fixed bottom-0 left-0 right-0 p-4 z-50" style={{ backgroundColor: 'var(--bs-primary)', color: 'white' }}>
       <div className="container mx-auto flex justify-between items-center">
         <div>
           <p className="font-medium">Install Sensylate</p>
@@ -67,13 +67,23 @@ const InstallPrompt: React.FC = () => {
         <div className="flex space-x-2">
           <button
             onClick={handleDismiss}
-            className="px-3 py-1 text-white bg-transparent border border-white rounded hover:bg-indigo-700"
+            className="px-3 py-1 rounded"
+            style={{
+              color: 'white',
+              backgroundColor: 'transparent',
+              border: '1px solid white'
+            }}
           >
             Not now
           </button>
           <button
             onClick={handleInstallClick}
-            className="px-3 py-1 text-indigo-600 bg-white rounded hover:bg-gray-100"
+            className="px-3 py-1 rounded"
+            style={{
+              color: 'var(--bs-primary)',
+              backgroundColor: 'white',
+              border: '1px solid white'
+            }}
           >
             Install
           </button>

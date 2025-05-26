@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "trading-api": {
+      "command": "python",
+      "args": [
+        "-m",
+        "app.api.mcp_server.server"
+      ],
+      "env": {
+        "MCP_API_BASE_URL": "http://localhost:8000",
+        "MCP_LOG_LEVEL": "INFO"
+      },
+      "alwaysAllow": [
+        "hello_world",
+        "list_trading_scripts",
+        "execute_trading_script",
+        "check_script_status"
+      ]
+    }
+  }
+}

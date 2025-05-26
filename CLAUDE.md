@@ -1,0 +1,1 @@
+Strictly adhere to DRY, SOLID, KISS and YAGNI principles!

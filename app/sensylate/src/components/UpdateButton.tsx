@@ -44,7 +44,12 @@ const UpdateButton: React.FC = () => {
     <div className="pt-6">
       <button
         disabled={!selectedFile || isUpdating}
-        className="px-4 py-2 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+        style={{
+          backgroundColor: 'var(--bs-primary)',
+          color: 'white',
+          border: '1px solid var(--bs-primary)'
+        }}
         onClick={handleClick}
       >
         {isUpdating ? (
@@ -57,20 +62,24 @@ const UpdateButton: React.FC = () => {
       </button>
       
       {updateStatus && (
-        <div className={`mt-2 p-2 rounded ${
-          updateStatus.status === 'completed' ? 'bg-green-100 text-green-800' :
-          updateStatus.status === 'failed' ? 'bg-red-100 text-red-800' :
-          'bg-blue-100 text-blue-800'
-        }`}>
+        <div className="mt-2 p-2 rounded" style={{
+          backgroundColor: updateStatus.status === 'completed' ? 'var(--bs-success)' :
+                         updateStatus.status === 'failed' ? 'var(--bs-danger)' :
+                         'var(--bs-info)',
+          color: 'white'
+        }}>
           {updateStatus.status === 'completed' ? 'Update completed' :
            updateStatus.status === 'failed' ? `Update failed: ${updateStatus.error || 'Unknown error'}` :
            `Status: ${updateStatus.status} ${progress > 0 ? `(${progress}%)` : ''}`}
           
           {progress > 0 && updateStatus.status !== 'completed' && updateStatus.status !== 'failed' && (
-            <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+            <div className="w-full rounded-full h-2.5 mt-2" style={{ backgroundColor: 'rgba(255, 255, 255, 0.3)' }}>
               <div
-                className="bg-indigo-600 h-2.5 rounded-full"
-                style={{ width: `${progress}%` }}
+                className="h-2.5 rounded-full"
+                style={{ 
+                  backgroundColor: 'var(--bs-primary)',
+                  width: `${progress}%` 
+                }}
               ></div>
             </div>
           )}
@@ -78,7 +87,7 @@ const UpdateButton: React.FC = () => {
       )}
       
       {error && (
-        <div className="mt-2 p-2 rounded bg-red-100 text-red-800">
+        <div className="mt-2 p-2 rounded" style={{ backgroundColor: 'var(--bs-danger)', color: 'white' }}>
           {error}
         </div>
       )}
