@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "trading-api": {
+      "command": "python",
+      "args": ["-m", "app.api.mcp_server.server"],
+      "env": {
+        "MCP_API_BASE_URL": "http://localhost:8000",
+        "MCP_LOG_LEVEL": "INFO"
+      }
+    },
+    "puppeteer": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
+      "env": {
+        "PUPPETEER_LAUNCH_OPTIONS": "{ \"headless\": false }"
+      }
+    }
+  }
+}
