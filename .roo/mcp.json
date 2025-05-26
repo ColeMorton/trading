@@ -14,7 +14,10 @@
         "hello_world",
         "list_trading_scripts",
         "execute_trading_script",
-        "check_script_status"
+        "check_script_status",
+        "list_data_files",
+        "get_trading_data",
+        "update_portfolio"
       ]
     }
   }

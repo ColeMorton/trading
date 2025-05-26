@@ -141,6 +141,15 @@ class ScriptTools:
                         "start_date": "Start date for backtest",
                         "end_date": "End date for backtest"
                     }
+                },
+                {
+                    "name": "app/strategies/update_portfolios.py",
+                    "description": "Update portfolio positions from CSV file",
+                    "directory": "app/strategies",
+                    "parameters": {
+                        "csv_filename": "Name of the CSV file containing portfolio data",
+                        "script_dir": "Script directory (default: 'strategies')"
+                    }
                 }
             ]
             

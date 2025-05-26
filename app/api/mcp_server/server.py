@@ -19,7 +19,7 @@ from pydantic import BaseModel, Field
 from .config import config
 from .logging_setup import setup_logging, get_logger
 from .handlers import get_api_client, cleanup_api_client
-from .tools import get_script_tools, get_data_tools
+from .tools import get_script_tools, get_data_tools, get_portfolio_tools
 
 # Setup logging
 setup_logging()
@@ -39,6 +39,7 @@ class TradingAPIMCPServer:
         self.api_client = get_api_client()
         self.script_tools = get_script_tools()
         self.data_tools = get_data_tools()
+        self.portfolio_tools = get_portfolio_tools()
         self._setup_tools()
         
     def _setup_tools(self):
@@ -68,6 +69,9 @@ class TradingAPIMCPServer:
         
         # Add data tools
         self.tools.extend(self.data_tools.get_tools())
+        
+        # Add portfolio tools
+        self.tools.extend(self.portfolio_tools.tools)
         
         # Register list tools handler
         @self.server.list_tools()
@@ -123,6 +127,14 @@ class TradingAPIMCPServer:
                 file_path = arguments.get("file_path")
                 file_type = arguments.get("file_type")
                 result = await self.data_tools.get_trading_data(file_path, file_type)
+                return [
+                    TextContent(
+                        type="text",
+                        text=json.dumps(result, indent=2)
+                    )
+                ]
+            elif name == "update_portfolio":
+                result = await self.portfolio_tools.handle_tool_call(name, arguments)
                 return [
                     TextContent(
                         type="text",
