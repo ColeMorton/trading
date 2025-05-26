@@ -5,7 +5,7 @@ This module defines Pydantic models for MA Cross strategy API requests and respo
 """
 
 from typing import Dict, Any, Optional, Union, List, Literal
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 from enum import Enum
 
@@ -33,8 +33,9 @@ class MinimumCriteria(BaseModel):
     sortino_ratio: Optional[float] = Field(None, description="Minimum Sortino ratio", alias="SORTINO_RATIO")
     beats_bnh: Optional[float] = Field(None, description="Minimum percentage to beat Buy and Hold", alias="BEATS_BNH")
     
-    class Config:
-        populate_by_name = True
+    model_config = {
+        "populate_by_name": True
+    }
         
     def to_dict(self) -> Dict[str, Union[int, float]]:
         """Convert to dictionary format expected by StrategyConfig."""
@@ -158,11 +159,13 @@ class MACrossRequest(BaseModel):
         alias="USE_GBM"
     )
     
-    class Config:
-        populate_by_name = True
-        use_enum_values = True
+    model_config = {
+        "populate_by_name": True,
+        "use_enum_values": True
+    }
         
-    @validator('ticker')
+    @field_validator('ticker')
+    @classmethod
     def validate_ticker(cls, v):
         """Validate ticker format."""
         if isinstance(v, str):
@@ -176,21 +179,23 @@ class MACrossRequest(BaseModel):
                     raise ValueError(f"Each ticker must be between 1 and 10 characters: {ticker}")
         return v
     
-    @validator('use_synthetic')
-    def validate_synthetic_config(cls, v, values):
+    @field_validator('use_synthetic')
+    @classmethod
+    def validate_synthetic_config(cls, v, info):
         """Validate synthetic pair configuration."""
         if v:
-            ticker = values.get('ticker')
+            ticker = info.data.get('ticker')
             if isinstance(ticker, list):
                 raise ValueError("Cannot use synthetic pairs with multiple tickers")
         return v
     
-    @validator('ticker_1', 'ticker_2')
-    def validate_synthetic_tickers(cls, v, values, field):
+    @field_validator('ticker_1', 'ticker_2')
+    @classmethod
+    def validate_synthetic_tickers(cls, v, info):
         """Validate synthetic ticker requirements."""
-        use_synthetic = values.get('use_synthetic', False)
+        use_synthetic = info.data.get('use_synthetic', False)
         if use_synthetic and not v:
-            raise ValueError(f"{field.name} is required when use_synthetic is True")
+            raise ValueError(f"{info.field_name} is required when use_synthetic is True")
         return v
     
     def to_strategy_config(self) -> Dict[str, Any]:
@@ -262,8 +267,9 @@ class PortfolioMetrics(BaseModel):
     has_open_trade: bool = Field(False, description="Whether there's an open trade")
     has_signal_entry: bool = Field(False, description="Whether there's a signal for entry")
     
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
 
 class MACrossResponse(BaseModel):
     """
@@ -304,8 +310,9 @@ class MACrossResponse(BaseModel):
     error: Optional[str] = Field(None, description="Error message if status is 'error'")
     error_details: Optional[Dict[str, Any]] = Field(None, description="Detailed error information")
     
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
 
 class MACrossAsyncResponse(BaseModel):
     """
@@ -326,4 +333,53 @@ class MACrossAsyncResponse(BaseModel):
     estimated_time: Optional[float] = Field(
         None,
         description="Estimated execution time in seconds"
+    )
+
+class MACrossStatusResponse(BaseModel):
+    """
+    Response model for checking MA Cross execution status.
+    
+    Provides current status and progress information for async executions.
+    """
+    status: Literal["pending", "running", "completed", "failed"] = Field(
+        ...,
+        description="Current execution status"
+    )
+    
+    # Timestamps
+    started_at: str = Field(..., description="Execution start time (ISO format)")
+    completed_at: Optional[str] = Field(None, description="Execution completion time (ISO format)")
+    
+    # Progress information
+    progress: str = Field(..., description="Current progress message")
+    
+    # Results (when completed)
+    results: Optional[List[PortfolioMetrics]] = Field(
+        None,
+        description="Analysis results when completed"
+    )
+    
+    # Error information (when failed)
+    error: Optional[str] = Field(None, description="Error message if failed")
+    
+    # Execution metadata
+    execution_time: Optional[float] = Field(
+        None,
+        description="Total execution time in seconds (when completed)"
+    )
+
+class MACrossMetricsResponse(BaseModel):
+    """
+    Response model for available MA Cross metrics information.
+    
+    Provides details about what metrics are calculated.
+    """
+    available_metrics: List[Dict[str, str]] = Field(
+        ...,
+        description="List of available metrics with descriptions"
+    )
+    
+    metric_categories: Dict[str, List[str]] = Field(
+        ...,
+        description="Metrics grouped by category"
     )

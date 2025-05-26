@@ -71,11 +71,11 @@ from app.tools.portfolio.stop_loss import (
 # Default Configuration
 config = {
     # "PORTFOLIO": 'BTC-USD_SPY_d.csv',
-    "PORTFOLIO": 'portfolio_risk.csv',
+    # "PORTFOLIO": 'portfolio_risk.csv',
     # "PORTFOLIO": 'crypto_d_20250421.csv',
     # "PORTFOLIO": 'DAILY_crypto.csv',
     # "PORTFOLIO": 'DAILY.csv',
-    # "PORTFOLIO": 'DAILY_test.csv',
+    "PORTFOLIO": 'DAILY_test.csv',
     # "PORTFOLIO": 'crypto_h.csv',
     # "PORTFOLIO": 'DAILY_crypto_short.csv',
     # "PORTFOLIO": 'Indices_d.csv',

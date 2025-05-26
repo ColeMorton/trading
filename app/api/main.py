@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from app.api.routers import scripts, data, viewer, sensylate
+from app.api.routers import scripts, data, viewer, sensylate, ma_cross
 from app.api.utils.logging import setup_api_logging
 
 # Define paths
@@ -100,6 +100,7 @@ app.include_router(scripts.router, prefix="/api/scripts", tags=["scripts"])
 app.include_router(data.router, prefix="/api/data", tags=["data"])
 app.include_router(viewer.router, prefix="/viewer", tags=["viewer"])
 app.include_router(sensylate.router, prefix="/sensylate", tags=["sensylate"])
+app.include_router(ma_cross.router, prefix="/api/ma-cross", tags=["ma-cross"])
 
 # Mount static files directories
 app.mount("/static", StaticFiles(directory=CSV_VIEWER_DIR), name="static")
