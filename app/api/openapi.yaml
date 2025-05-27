@@ -366,17 +366,24 @@ paths:
     post:
       tags:
         - ma-cross
-      summary: Parameter sensitivity for SMA and/or EMA strategies
+      summary: Full portfolio analysis with parameter sensitivity testing
       description: |
-        Perform parameter sensitivty testing for Moving Average Crossover strategies on a portfolio of tickers. Supports both Simple Moving Average (SMA) and Exponential Moving Average (EMA).
+        Perform comprehensive portfolio analysis with parameter sensitivity testing for Moving Average Crossover strategies. Supports both Simple Moving Average (SMA) and Exponential Moving Average (EMA).
 
-        The analysis includes comprehensive backtesting with performance metrics such as:
+        **Key Features:**
+        - Full backtesting across multiple parameter combinations
+        - Real-time progress tracking via SSE streams
+        - Automatic portfolio filtering based on performance criteria
+        - CSV export of results to standard locations
+        - Support for both synchronous and asynchronous execution
 
-        Total return and annualized return
-        Sharpe and Sortino ratios
-        Maximum drawdown
-        Win rate and profit factor
-        Trade statistics
+        **Performance Metrics:**
+        - Total return and risk-adjusted returns
+        - Sharpe, Sortino, and Calmar ratios
+        - Maximum drawdown and recovery factor
+        - Win rate, profit factor, and expectancy
+        - Kelly criterion and position sizing
+        - VaR and CVaR risk metrics
       requestBody:
         required: true
         content:
@@ -387,18 +394,25 @@ paths:
               basic_analysis:
                 summary: Basic MA Cross analysis
                 value:
-                  TICKER: "AAPL"
-                  WINDOWS: 12
+                  ticker: "BTC-USD"
+                  windows: 8
               advanced_analysis:
-                summary: Advanced analysis with custom parameters
+                summary: Advanced analysis with multiple tickers
                 value:
-                  TICKER: ["BTC-USD", "ETH-USD"]
-                  WINDOWS: 12
-                  STRATEGY_TYPES: ["SMA", "EMA"]
-                  MIN_CRITERIA:
-                    TRADES: 10
-                    WIN_RATE: 0.5
-                    PROFIT_FACTOR: 1.2
+                  ticker: ["BTC-USD", "ETH-USD", "SOL-USD"]
+                  windows: 12
+                  strategy_types: ["SMA", "EMA"]
+                  async_execution: true
+              custom_criteria:
+                summary: Analysis with filtering criteria
+                value:
+                  ticker: "AAPL"
+                  windows: 252
+                  strategy_types: ["SMA"]
+                  min_criteria:
+                    trades: 10
+                    win_rate: 0.6
+                    profit_factor: 1.5
       responses:
         '200':
           description: Successful analysis response
@@ -487,11 +501,15 @@ paths:
                   
                   Example events:
                   ```
-                  data: {"progress": 25, "message": "Fetching price data for AAPL"}
+                  data: {"status": "running", "progress": 10, "message": "Initializing SMA analysis", "progress_details": {"phase": "initializing", "current": 1, "total": 10, "percentage": 10.0}}
                   
-                  data: {"progress": 50, "message": "Calculating indicators"}
+                  data: {"status": "running", "progress": 30, "message": "Processing BTC-USD", "progress_details": {"phase": "backtesting", "current": 3, "total": 10, "percentage": 30.0}}
                   
-                  data: {"progress": 100, "message": "Analysis complete", "result": {...}}
+                  data: {"status": "running", "progress": 60, "message": "Filtering portfolios", "progress_details": {"phase": "filtering", "current": 6, "total": 10, "percentage": 60.0}}
+                  
+                  data: {"status": "completed", "progress": 100, "message": "Analysis complete", "result": {"success": true, "portfolios": [...]}}
+                  
+                  data: [DONE]
                   ```
         '404':
           description: Task not found
@@ -817,49 +835,47 @@ components:
     MACrossRequest:
       type: object
       required:
-        - TICKER
+        - ticker
       properties:
-        TICKER:
+        ticker:
           oneOf:
             - type: string
             - type: array
               items:
                 type: string
           description: Trading symbol(s) to analyze
-          example: ["AAPL", "MSFT", "GOOGL"]
-        WINDOWS:
+          example: "BTC-USD"
+        windows:
           type: integer
           minimum: 2
-          maximum: 200
-          default: 89
-          description: Maximum window size for parameter analysis
-        DIRECTION:
-          type: string
-          enum: ["Long", "Short"]
-          default: "Long"
-          description: Trading direction
-        STRATEGY_TYPES:
+          maximum: 500
+          default: 252
+          description: Number of parameter combinations to test
+        strategy_types:
           type: array
           items:
             type: string
             enum: ["SMA", "EMA"]
           default: ["SMA", "EMA"]
           description: Moving average types to analyze
-        USE_HOURLY:
+        direction:
+          type: string
+          enum: ["Long", "Short"]
+          default: "Long"
+          description: Trading direction
+        use_hourly:
           type: boolean
           default: false
           description: Use hourly data instead of daily
-        START_DATE:
+        start_date:
           type: string
           format: date
           description: Start date for analysis (YYYY-MM-DD)
-          example: "2023-01-01"
-        END_DATE:
+        end_date:
           type: string
           format: date
           description: End date for analysis (YYYY-MM-DD)
-          example: "2023-12-31"
-        MIN_CRITERIA:
+        min_criteria:
           $ref: '#/components/schemas/MinimumCriteria'
         async_execution:
           type: boolean
@@ -870,54 +886,55 @@ components:
       type: object
       description: Minimum criteria for filtering portfolio results
       properties:
-        TRADES:
+        trades:
           type: integer
           minimum: 0
+          default: 10
           description: Minimum number of trades
-        WIN_RATE:
+        win_rate:
           type: number
           minimum: 0
           maximum: 1
+          default: 0.5
           description: Minimum win rate (0-1)
-        EXPECTANCY_PER_TRADE:
+        expectancy_per_trade:
           type: number
+          default: 0.001
           description: Minimum expectancy per trade
-        PROFIT_FACTOR:
+        profit_factor:
           type: number
           minimum: 0
+          default: 1.0
           description: Minimum profit factor
-        SCORE:
+        score:
           type: number
+          default: 1.0
           description: Minimum portfolio score
-        SORTINO_RATIO:
+        sortino_ratio:
           type: number
+          default: 0.0
           description: Minimum Sortino ratio
-        BEATS_BNH:
+        beats_bnh:
           type: number
+          default: 0.0
           description: Minimum percentage to beat Buy and Hold
 
     MACrossResponse:
       type: object
       required:
-        - status
-        - request_id
-        - timestamp
+        - success
+        - execution_id
         - ticker
         - strategy_types
-        - execution_time
+        - portfolios
       properties:
-        status:
-          type: string
-          enum: ["success", "error"]
-          description: Response status
-        request_id:
+        success:
+          type: boolean
+          description: Whether the analysis succeeded
+        execution_id:
           type: string
           format: uuid
-          description: Unique request identifier
-        timestamp:
-          type: string
-          format: date-time
-          description: Response timestamp
+          description: Unique execution identifier
         ticker:
           oneOf:
             - type: string
@@ -929,135 +946,252 @@ components:
           type: array
           items:
             type: string
-            enum: ["SMA", "EMA"]
           description: Strategy types analyzed
+        windows:
+          type: integer
+          description: Number of window combinations tested
+        portfolios:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortfolioMetrics'
+          description: Analyzed portfolio results
+        total_portfolios_analyzed:
+          type: integer
+          description: Total number of portfolios analyzed
+        total_portfolios_filtered:
+          type: integer
+          description: Number of portfolios after filtering
+        portfolio_exports:
+          type: object
+          properties:
+            portfolios:
+              type: array
+              items:
+                type: string
+              description: Paths to exported portfolio CSV files
+            portfolios_filtered:
+              type: array
+              items:
+                type: string
+              description: Paths to filtered portfolio CSV files
+            portfolios_best:
+              type: array
+              items:
+                type: string
+              description: Paths to best portfolio CSV files
+          description: Export file paths
         execution_time:
           type: number
           description: Analysis execution time in seconds
-        request_summary:
-          type: object
-          additionalProperties: true
-          description: Summary of request parameters
+        message:
+          type: string
+          description: Status message
 
     PortfolioMetrics:
       type: object
       required:
         - ticker
-        - strategy_type
-        - short_window
-        - long_window
+        - strategy
+        - fast_window
+        - slow_window
         - total_return
-        - annual_return
-        - sharpe_ratio
-        - sortino_ratio
-        - max_drawdown
-        - total_trades
-        - winning_trades
-        - losing_trades
-        - win_rate
-        - profit_factor
-        - expectancy
-        - score
-        - beats_bnh
       properties:
         ticker:
           type: string
           description: Ticker symbol
-        strategy_type:
+        timeframe:
+          type: string
+          default: "D"
+          description: Data timeframe (D=Daily, H=Hourly)
+        strategy:
           type: string
           enum: ["SMA", "EMA"]
           description: Moving average type
-        short_window:
+        fast_window:
           type: integer
-          description: Short MA period
-        long_window:
+          description: Fast MA period
+        slow_window:
           type: integer
-          description: Long MA period
+          description: Slow MA period
         total_return:
           type: number
           description: Total return percentage
-        annual_return:
-          type: number
-          description: Annualized return percentage
         sharpe_ratio:
           type: number
+          default: 0.0
           description: Sharpe ratio
-        sortino_ratio:
-          type: number
-          description: Sortino ratio
         max_drawdown:
           type: number
+          default: 0.0
           description: Maximum drawdown percentage
-        total_trades:
-          type: integer
-          description: Total number of trades
-        winning_trades:
-          type: integer
-          description: Number of winning trades
-        losing_trades:
-          type: integer
-          description: Number of losing trades
         win_rate:
           type: number
+          default: 0.0
           description: Win rate (0-1)
+        num_trades:
+          type: integer
+          default: 0
+          description: Total number of trades
+        avg_trade_return:
+          type: number
+          default: 0.0
+          description: Average return per trade
         profit_factor:
           type: number
+          default: 0.0
           description: Profit factor
+        recovery_factor:
+          type: number
+          default: 0.0
+          description: Recovery factor
+        calmar_ratio:
+          type: number
+          default: 0.0
+          description: Calmar ratio
+        sortino_ratio:
+          type: number
+          default: 0.0
+          description: Sortino ratio
+        total_fees:
+          type: number
+          default: 0.0
+          description: Total trading fees
+        net_pnl:
+          type: number
+          default: 0.0
+          description: Net profit/loss
+        start_date:
+          type: string
+          nullable: true
+          description: Backtest start date
+        end_date:
+          type: string
+          nullable: true
+          description: Backtest end date
+        total_days:
+          type: integer
+          default: 0
+          description: Total trading days
+        market_exposure:
+          type: number
+          default: 0.0
+          description: Market exposure percentage
+        risk_adjusted_return:
+          type: number
+          default: 0.0
+          description: Risk-adjusted return
+        volatility:
+          type: number
+          default: 0.0
+          description: Return volatility
+        var_95:
+          type: number
+          default: 0.0
+          description: 95% Value at Risk
+        cvar_95:
+          type: number
+          default: 0.0
+          description: 95% Conditional Value at Risk
+        best_trade:
+          type: number
+          default: 0.0
+          description: Best trade return
+        worst_trade:
+          type: number
+          default: 0.0
+          description: Worst trade return
+        avg_win:
+          type: number
+          default: 0.0
+          description: Average winning trade
+        avg_loss:
+          type: number
+          default: 0.0
+          description: Average losing trade
+        win_loss_ratio:
+          type: number
+          default: 0.0
+          description: Win/loss ratio
         expectancy:
           type: number
+          default: 0.0
           description: Expectancy per trade
-        score:
+        kelly_criterion:
           type: number
-          description: Overall portfolio score
-        beats_bnh:
+          default: 0.0
+          description: Kelly criterion
+        tail_ratio:
           type: number
-          description: Percentage by which strategy beats Buy and Hold
-        allocation_percent:
+          default: 0.0
+          description: Tail ratio
+        common_sense_ratio:
           type: number
-          nullable: true
-          description: Portfolio allocation percentage
-        stop_loss_percent:
+          default: 0.0
+          description: Common sense ratio
+        cpc_ratio:
           type: number
-          nullable: true
-          description: Stop loss percentage
-        position_size:
+          default: 0.0
+          description: CPC ratio
+        outlier_win_ratio:
           type: number
-          nullable: true
-          description: Calculated position size
+          default: 0.0
+          description: Outlier win ratio
+        outlier_loss_ratio:
+          type: number
+          default: 0.0
+          description: Outlier loss ratio
+        total_closed_trades:
+          type: integer
+          default: 0
+          description: Total closed trades
+        total_open_trades:
+          type: integer
+          default: 0
+          description: Total open trades
+        won_trades:
+          type: integer
+          default: 0
+          description: Number of winning trades
+        lost_trades:
+          type: integer
+          default: 0
+          description: Number of losing trades
 
     MACrossAsyncResponse:
       type: object
       required:
-        - status
+        - success
         - execution_id
+        - ticker
+        - strategy_types
         - message
-        - status_url
-        - stream_url
-        - timestamp
       properties:
-        status:
-          type: string
-          enum: ["accepted"]
-          description: Acceptance status
+        success:
+          type: boolean
+          description: Whether the request was accepted
         execution_id:
           type: string
           format: uuid
           description: Task ID for tracking
+        ticker:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+          description: Ticker(s) being analyzed
+        strategy_types:
+          type: array
+          items:
+            type: string
+          description: Strategy types being analyzed
+        windows:
+          type: integer
+          description: Number of window combinations
         message:
           type: string
+          default: "Analysis started"
           description: Status message
-        status_url:
-          type: string
-          format: uri
-          description: URL to check task status
-        stream_url:
-          type: string
-          format: uri
-          description: URL for SSE stream
-        timestamp:
-          type: string
-          format: date-time
-          description: Request timestamp
 
     MACrossStatusResponse:
       type: object
@@ -1083,8 +1217,28 @@ components:
           type: string
           nullable: true
           description: Current status message
-        result:
+        progress_details:
           type: object
+          nullable: true
+          properties:
+            phase:
+              type: string
+              description: Current execution phase
+            current:
+              type: integer
+              description: Current step number
+            total:
+              type: integer
+              description: Total steps
+            percentage:
+              type: number
+              description: Progress percentage
+            elapsed_time:
+              type: number
+              description: Elapsed time in seconds
+          description: Detailed progress information
+        result:
+          $ref: '#/components/schemas/MACrossResponse'
           nullable: true
           description: Final result (when completed)
         error:
@@ -1094,12 +1248,12 @@ components:
         start_time:
           type: string
           format: date-time
-          description: Task start time
-        end_time:
-          type: string
-          format: date-time
           nullable: true
-          description: Task end time
+          description: Task start time
+        elapsed_time:
+          type: number
+          nullable: true
+          description: Elapsed time in seconds
 
     MACrossMetricsResponse:
       type: object
