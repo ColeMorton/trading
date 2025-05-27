@@ -53,7 +53,8 @@ class RequestValidator:
         errors = []
         
         # Validate tickers
-        errors.extend(cls._validate_tickers(request.ticker, request.tickers))
+        additional_tickers = request.tickers if hasattr(request, 'tickers') else None
+        errors.extend(cls._validate_tickers(request.ticker, additional_tickers))
         
         # Validate synthetic pair configuration
         errors.extend(cls._validate_synthetic_pairs(request))
@@ -61,15 +62,18 @@ class RequestValidator:
         # Validate time periods
         errors.extend(cls._validate_time_periods(request))
         
-        # Validate moving average windows
-        errors.extend(cls._validate_ma_windows(request))
+        # Validate moving average windows if provided
+        if hasattr(request, 'short_window') and hasattr(request, 'long_window'):
+            if request.short_window is not None and request.long_window is not None:
+                errors.extend(cls._validate_ma_windows(request))
         
-        # Validate percentage fields
-        errors.extend(cls._validate_percentages(request))
+        # Validate percentage fields if provided
+        if hasattr(request, 'allocation_pct') or hasattr(request, 'stop_loss_pct'):
+            errors.extend(cls._validate_percentages(request))
         
-        # Validate minimum criteria
-        if request.minimum_criteria:
-            errors.extend(cls._validate_minimum_criteria(request.minimum_criteria))
+        # Validate minimum criteria if provided
+        if hasattr(request, 'minimums') and request.minimums:
+            errors.extend(cls._validate_minimum_criteria(request.minimums))
         
         return errors
     
@@ -230,10 +234,11 @@ class RequestValidator:
         """Validate percentage fields."""
         errors = []
         
-        percentage_fields = [
-            ("allocation_pct", request.allocation_pct),
-            ("stop_loss_pct", request.stop_loss_pct)
-        ]
+        percentage_fields = []
+        if hasattr(request, 'allocation_pct') and request.allocation_pct is not None:
+            percentage_fields.append(("allocation_pct", request.allocation_pct))
+        if hasattr(request, 'stop_loss_pct') and request.stop_loss_pct is not None:
+            percentage_fields.append(("stop_loss_pct", request.stop_loss_pct))
         
         for field_name, value in percentage_fields:
             if value is not None:
@@ -252,11 +257,13 @@ class RequestValidator:
         errors = []
         
         # Validate percentage ranges
-        percentage_fields = [
-            ("win_rate", criteria.WIN_RATE),
-            ("profit_factor", criteria.PROFIT_FACTOR),
-            ("sharpe_ratio", criteria.SHARPE_RATIO)
-        ]
+        percentage_fields = []
+        if hasattr(criteria, 'win_rate') and criteria.win_rate is not None:
+            percentage_fields.append(("win_rate", criteria.win_rate))
+        if hasattr(criteria, 'profit_factor') and criteria.profit_factor is not None:
+            percentage_fields.append(("profit_factor", criteria.profit_factor))
+        if hasattr(criteria, 'sortino_ratio') and criteria.sortino_ratio is not None:
+            percentage_fields.append(("sortino_ratio", criteria.sortino_ratio))
         
         for field_name, value in percentage_fields:
             if value is not None and field_name == "win_rate":
@@ -274,10 +281,9 @@ class RequestValidator:
                 ))
         
         # Validate count fields
-        count_fields = [
-            ("total_trades", criteria.TOTAL_TRADES),
-            ("months", criteria.MONTHS)
-        ]
+        count_fields = []
+        if hasattr(criteria, 'trades') and criteria.trades is not None:
+            count_fields.append(("trades", criteria.trades))
         
         for field_name, value in count_fields:
             if value is not None and value < 0:

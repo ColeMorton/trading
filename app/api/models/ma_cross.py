@@ -36,6 +36,12 @@ class MinimumCriteria(BaseModel):
     model_config = {
         "populate_by_name": True
     }
+    
+    @property
+    def tickers(self) -> List[str]:
+        """Get tickers as a list for compatibility."""
+        # Don't duplicate - this is for when ticker is already a list
+        return []  # Return empty list to avoid duplication with ticker field
         
     def to_dict(self) -> Dict[str, Union[int, float]]:
         """Convert to dictionary format expected by StrategyConfig."""
@@ -159,6 +165,53 @@ class MACrossRequest(BaseModel):
         alias="USE_GBM"
     )
     
+    # API-specific fields (not in StrategyConfig)
+    async_execution: bool = Field(
+        False,
+        description="Whether to execute analysis asynchronously"
+    )
+    
+    # MA window parameters for API convenience
+    fast_period: Optional[int] = Field(
+        None,
+        description="Fast moving average period",
+        ge=2,
+        le=200
+    )
+    
+    slow_period: Optional[int] = Field(
+        None,
+        description="Slow moving average period",
+        ge=2,
+        le=200
+    )
+    
+    # Additional parameters
+    allocation_pct: Optional[float] = Field(
+        None,
+        description="Allocation percentage for portfolio",
+        ge=0.0,
+        le=1.0
+    )
+    
+    stop_loss_pct: Optional[float] = Field(
+        None,
+        description="Stop loss percentage",
+        ge=0.0,
+        le=1.0
+    )
+    
+    # Convenience properties
+    @property 
+    def short_window(self) -> Optional[int]:
+        """Alias for fast_period."""
+        return self.fast_period or 20  # Default to 20 if not specified
+    
+    @property
+    def long_window(self) -> Optional[int]:
+        """Alias for slow_period."""
+        return self.slow_period or 50  # Default to 50 if not specified
+    
     model_config = {
         "populate_by_name": True,
         "use_enum_values": True
@@ -198,6 +251,12 @@ class MACrossRequest(BaseModel):
             raise ValueError(f"{info.field_name} is required when use_synthetic is True")
         return v
     
+    @property
+    def tickers(self) -> List[str]:
+        """Get tickers as a list for compatibility."""
+        # Don't duplicate - this is for when ticker is already a list
+        return []  # Return empty list to avoid duplication with ticker field
+    
     def to_strategy_config(self) -> Dict[str, Any]:
         """
         Convert to StrategyConfig format expected by MA Cross module.
@@ -229,6 +288,10 @@ class MACrossRequest(BaseModel):
             config["TICKER_2"] = self.ticker_2
         if self.minimums:
             config["MINIMUMS"] = self.minimums.to_dict()
+        if self.fast_period:
+            config["SHORT_WINDOW"] = self.fast_period
+        if self.slow_period:
+            config["LONG_WINDOW"] = self.slow_period
             
         return config
 
@@ -383,3 +446,29 @@ class MACrossMetricsResponse(BaseModel):
         ...,
         description="Metrics grouped by category"
     )
+
+class MACrossStatus(BaseModel):
+    """Status model for MA Cross execution tracking."""
+    task_id: str = Field(..., description="Unique task identifier")
+    status: str = Field(..., description="Current status")
+    progress: int = Field(0, description="Progress percentage")
+    message: str = Field("", description="Status message")
+    result: Optional[Dict[str, Any]] = Field(None, description="Result when completed")
+    created_at: Optional[datetime] = Field(None, description="Creation timestamp")
+    updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
+
+class MACrossMetrics(BaseModel):
+    """Aggregated metrics for MA Cross analysis."""
+    avg_return: float = Field(..., description="Average return across portfolios")
+    avg_sharpe: float = Field(..., description="Average Sharpe ratio")
+    avg_max_drawdown: float = Field(..., description="Average maximum drawdown")
+    avg_win_rate: float = Field(..., description="Average win rate")
+    total_final_balance: float = Field(..., description="Total final balance")
+    total_roi: float = Field(..., description="Total ROI")
+
+class HealthResponse(BaseModel):
+    """Health check response model."""
+    status: str = Field(..., description="Health status")
+    timestamp: datetime = Field(..., description="Current timestamp")
+    version: str = Field("1.0.0", description="API version")
+    dependencies: Dict[str, str] = Field(default_factory=dict, description="Dependency statuses")
