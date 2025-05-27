@@ -12,6 +12,7 @@ from app.api.main import app
 from app.api.models.ma_cross import (
     MACrossRequest,
     MACrossResponse,
+    MACrossAsyncResponse,
     MACrossStatus,
     MACrossMetrics,
     PortfolioMetrics,

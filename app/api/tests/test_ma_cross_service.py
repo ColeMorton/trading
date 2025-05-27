@@ -15,9 +15,8 @@ from app.api.models.ma_cross import (
     MACrossStatus,
     PortfolioMetrics
 )
-from app.api.utils.cache import TTLCache
+from app.api.utils.cache import AnalysisCache
 from app.api.utils.rate_limiter import RateLimiter
-from app.api.utils.monitoring import monitor
 
 
 @pytest.fixture
@@ -30,15 +29,9 @@ def service():
 def sample_request():
     """Create sample request."""
     return MACrossRequest(
-        tickers=["AAPL", "MSFT"],
-        start_date="2023-01-01",
-        end_date="2023-12-31",
-        interval="1d",
-        ma_type="SMA",
-        fast_period=20,
-        slow_period=50,
-        initial_capital=100000,
-        max_allocation=0.3
+        TICKER=["AAPL", "MSFT"],
+        START_DATE="2023-01-01",
+        END_DATE="2023-12-31"
     )
 
 
