@@ -48,8 +48,9 @@ ma_cross_service = MACrossService()
         429: {"description": "Rate limit exceeded"},
         500: {"model": ErrorResponse, "description": "Internal server error"}
     },
-    summary="Analyze portfolio with MA Cross strategy",
-    description="Execute MA Cross analysis on the specified portfolio. "
+    summary="Parameter sensitivity analysis for MA Cross strategies",
+    description="Perform parameter sensitivity testing for Moving Average Crossover strategies. "
+                "Tests all window combinations from 2 to WINDOWS value to find optimal parameters. "
                 "The analysis can be executed synchronously or asynchronously.",
     dependencies=[Depends(rate_limit_analysis)]
 )

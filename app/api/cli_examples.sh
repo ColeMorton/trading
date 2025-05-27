@@ -51,15 +51,15 @@ RESPONSE=$(curl -X POST "$BASE_URL/api/ma-cross/analyze" \
 
 echo $RESPONSE
 
-# Extract task_id if async was successful
-TASK_ID=$(echo $RESPONSE | grep -o '"execution_id":"[^"]*' | sed 's/"execution_id":"//')
+# Extract execution_id if async was successful
+EXECUTION_ID=$(echo $RESPONSE | grep -o '"execution_id":"[^"]*' | sed 's/"execution_id":"//')
 
-if [ ! -z "$TASK_ID" ]; then
+if [ ! -z "$EXECUTION_ID" ]; then
   echo -e "\n\n4. Check Task Status:"
-  curl "$BASE_URL/api/ma-cross/status/$TASK_ID"
+  curl "$BASE_URL/api/ma-cross/status/$EXECUTION_ID"
   
   echo -e "\n\n5. Stream Progress (first 5 events):"
-  curl -N "$BASE_URL/api/ma-cross/stream/$TASK_ID" | head -5
+  curl -N "$BASE_URL/api/ma-cross/stream/$EXECUTION_ID" | head -5
 fi
 
 # 6. Get Service Metrics

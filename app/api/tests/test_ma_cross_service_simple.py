@@ -133,9 +133,9 @@ class TestMACrossService:
         
         assert isinstance(response, MACrossAsyncResponse)
         assert response.status == "accepted"
-        assert response.task_id is not None
+        assert response.execution_id is not None
         # Validate it's a proper UUID
-        uuid.UUID(response.task_id)
+        uuid.UUID(response.execution_id)
     
     def test_get_task_status(self, service):
         """Test task status retrieval."""
@@ -144,8 +144,8 @@ class TestMACrossService:
         assert status["status"] == "not_found"
         
         # Test existing task
-        task_id = "test-task-123"
-        task_status[task_id] = {
+        execution_id = "test-execution-123"
+        task_status[execution_id] = {
             "status": "running",
             "progress": 50,
             "message": "Processing...",
@@ -155,7 +155,7 @@ class TestMACrossService:
             "end_time": None
         }
         
-        status = service.get_task_status(task_id)
+        status = service.get_task_status(execution_id)
         assert status["status"] == "running"
         assert status["progress"] == 50
         assert status["message"] == "Processing..."

@@ -2,7 +2,11 @@
 
 ## Overview
 
-The MA Cross (Moving Average Crossover) API provides endpoints for analyzing trading strategies based on moving average crossovers. This API supports both Simple Moving Average (SMA) and Exponential Moving Average (EMA) calculations, with comprehensive backtesting and performance metrics.
+The MA Cross (Moving Average Crossover) API provides endpoints for parameter sensitivity analysis of trading strategies based on moving average crossovers. 
+
+The API performs comprehensive parameter sweeps, testing all combinations of fast and slow moving average windows from 2 to the specified WINDOWS value (default: 89). This allows you to find optimal parameter combinations for your trading strategy.
+
+Supports both Simple Moving Average (SMA) and Exponential Moving Average (EMA) calculations, with comprehensive backtesting and performance metrics for each parameter combination.
 
 ## Base URL
 
@@ -16,9 +20,11 @@ Currently, the API does not require authentication. Future versions may implemen
 
 ## Endpoints
 
-### 1. Analyze Portfolio
+### 1. Analyze Portfolio (Parameter Sensitivity Analysis)
 
-Perform MA Cross analysis on a portfolio of tickers.
+Perform parameter sensitivity testing for Moving Average Crossover strategies on a portfolio of tickers. Supports both Simple Moving Average (SMA) and Exponential Moving Average (EMA).
+
+The endpoint tests all window combinations from 2 to the specified WINDOWS value to find optimal parameters.
 
 **Endpoint:** `POST /analyze`
 
@@ -43,8 +49,10 @@ Perform MA Cross analysis on a portfolio of tickers.
 - `USE_HOURLY` (boolean, optional): Whether to use hourly data (default: false)
 - `USE_YEARS` (boolean, optional): Whether to limit data by years (default: false)
 - `YEARS` (float, optional): Number of years of data to use if USE_YEARS is true (default: 15)
+- `async_execution` (boolean, optional): Whether to execute asynchronously (default: false)
 
-**Response:**
+**Response (Synchronous):**
+When `async_execution` is false, returns complete results immediately:
 ```json
 {
   "success": true,
@@ -87,6 +95,22 @@ Perform MA Cross analysis on a portfolio of tickers.
 }
 ```
 
+**Response (Asynchronous):**
+When `async_execution` is true, returns immediately with a task ID:
+```json
+{
+  "status": "accepted",
+  "execution_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "Analysis started successfully",
+  "status_url": "/api/ma-cross/status/550e8400-e29b-41d4-a716-446655440000",
+  "stream_url": "/api/ma-cross/stream/550e8400-e29b-41d4-a716-446655440000",
+  "timestamp": "2023-12-31T23:59:59",
+  "estimated_time": 30.0
+}
+```
+
+Use the `execution_id` to check status or stream progress updates.
+
 **Example Request (Python):**
 ```python
 import requests
@@ -101,19 +125,32 @@ data = {
 
 response = requests.post(url, json=data)
 result = response.json()
-print(f"Total return: {result['metrics']['avg_return']:.2%}")
+
+# For synchronous execution
+if result.get("status") == "success":
+    print(f"Found {result['filtered_portfolios']} optimal parameter combinations")
+    for portfolio in result['portfolios'][:5]:  # Show top 5
+        print(f"{portfolio['ticker']} {portfolio['strategy_type']}: "
+              f"Windows {portfolio['short_window']}/{portfolio['long_window']} - "
+              f"Return: {portfolio['total_return']:.2%}")
+
+# For asynchronous execution
+if result.get("status") == "accepted":
+    print(f"Analysis started with ID: {result['execution_id']}")
+    print(f"Check status at: {result['status_url']}")
+    print(f"Stream updates from: {result['stream_url']}")
 ```
 
 ### 2. Get Analysis Status
 
 Check the status of an asynchronous analysis task.
 
-**Endpoint:** `GET /status/{task_id}`
+**Endpoint:** `GET /status/{execution_id}`
 
 **Response:**
 ```json
 {
-  "task_id": "550e8400-e29b-41d4-a716-446655440000",
+  "execution_id": "550e8400-e29b-41d4-a716-446655440000",
   "status": "running",
   "progress": 75,
   "message": "Analyzing MSFT...",
@@ -134,38 +171,44 @@ Check the status of an asynchronous analysis task.
 curl http://localhost:8000/api/ma-cross/status/550e8400-e29b-41d4-a716-446655440000
 ```
 
-### 3. Stream Analysis (Server-Sent Events)
+### 3. Stream Analysis Updates
 
-Stream real-time updates during analysis using Server-Sent Events.
+Stream real-time updates for async analysis tasks using Server-Sent Events.
 
-**Endpoint:** `POST /stream`
-
-**Request:** Same as `/analyze` endpoint
+**Endpoint:** `GET /stream/{execution_id}`
 
 **Response:** Server-Sent Event stream
 ```
-data: {"progress": 0, "message": "Starting analysis..."}
+data: {"progress": 0, "message": "Starting parameter sensitivity analysis..."}
 
-data: {"progress": 25, "message": "Fetching data for AAPL..."}
+data: {"progress": 10, "message": "Testing SMA windows 2-10 for AAPL..."}
 
-data: {"progress": 50, "message": "Calculating indicators..."}
+data: {"progress": 25, "message": "Testing SMA windows 11-30 for AAPL..."}
 
-data: {"progress": 75, "message": "Running backtest..."}
+data: {"progress": 50, "message": "Testing EMA windows 2-30 for AAPL..."}
+
+data: {"progress": 75, "message": "Starting analysis for MSFT..."}
 
 data: {"progress": 100, "message": "Complete", "result": {...}}
 ```
 
 **Example (JavaScript):**
 ```javascript
-const eventSource = new EventSource('/api/ma-cross/stream', {
+// First start async analysis
+const response = await fetch('/api/ma-cross/analyze', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({
-        tickers: ['AAPL', 'MSFT'],
-        start_date: '2023-01-01',
-        end_date: '2023-12-31'
+        TICKER: ['AAPL', 'MSFT'],
+        WINDOWS: 89,
+        async_execution: true
     })
 });
+
+const { execution_id } = await response.json();
+
+// Then stream updates
+const eventSource = new EventSource(`/api/ma-cross/stream/${execution_id}`);
 
 eventSource.onmessage = (event) => {
     const data = JSON.parse(event.data);
@@ -311,13 +354,13 @@ class MACrossClient:
         response.raise_for_status()
         return response.json()
     
-    def get_status(self, task_id):
+    def get_status(self, execution_id):
         """Get task status."""
-        response = requests.get(f"{self.base_url}/status/{task_id}")
+        response = requests.get(f"{self.base_url}/status/{execution_id}")
         response.raise_for_status()
         return response.json()
 
-# Usage
+# Usage - Synchronous
 client = MACrossClient()
 result = client.analyze(
     ticker=["AAPL", "MSFT", "GOOGL"],
@@ -326,8 +369,20 @@ result = client.analyze(
     strategy_types=["SMA", "EMA"]
 )
 
-print(f"Average return: {result['metrics']['avg_return']:.2%}")
-print(f"Average Sharpe: {result['metrics']['avg_sharpe']:.2f}")
+print(f"Found {result['filtered_portfolios']} optimal parameter combinations")
+
+# Usage - Asynchronous
+async_result = client.analyze(
+    ticker=["AAPL", "MSFT", "GOOGL"],
+    windows=89,
+    async_execution=True
+)
+
+print(f"Analysis started with ID: {async_result['execution_id']}")
+
+# Check status
+status = client.get_status(async_result['execution_id'])
+print(f"Status: {status['status']}, Progress: {status['progress']}%")
 ```
 
 ### JavaScript/TypeScript Client

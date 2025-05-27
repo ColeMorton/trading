@@ -130,9 +130,9 @@ class TestMACrossRouter:
     
     def test_status_endpoint(self, client, mock_service):
         """Test status endpoint."""
-        task_id = "test-task-123"
+        execution_id = "test-execution-123"
         mock_status = MACrossStatus(
-            task_id=task_id,
+            execution_id=execution_id,
             status="completed",
             progress=100,
             message="Analysis completed",
@@ -145,7 +145,7 @@ class TestMACrossRouter:
             "result": {"success": True}
         }
         
-        response = client.get(f"/api/ma-cross/status/{task_id}")
+        response = client.get(f"/api/ma-cross/status/{execution_id}")
         
         assert response.status_code == 200
         data = response.json()
@@ -153,7 +153,7 @@ class TestMACrossRouter:
         assert data["progress"] == "Analysis completed"
         assert data["started_at"] == "2025-05-27T10:00:00"
         
-        mock_service.get_task_status.assert_called_once_with(task_id)
+        mock_service.get_task_status.assert_called_once_with(execution_id)
     
     def test_status_endpoint_not_found(self, client, mock_service):
         """Test status endpoint with non-existent task."""

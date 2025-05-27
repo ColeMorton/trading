@@ -73,7 +73,7 @@ from app.tools.portfolio.stop_loss import (
 )
 
 CONFIG: Config = {
-    "TICKER": "AAPL",
+    "TICKER": "BTC-USD",
     # "TICKER": ['NBIS', 'MSFT', 'ASML', 'TSMC', 'META', 'AMZN', 'PLTR', 'NOW', 'TEM', 'DDOG', 'NET', 'SHOP'],
     # Load tickers from JSON file
     # "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/portfolio.json"))),

@@ -172,18 +172,18 @@ class TestMACrossService:
     def test_get_status(self, service):
         """Test task status retrieval."""
         # Create a mock task
-        task_id = "test-task-123"
-        service._tasks[task_id] = MACrossStatus(
-            task_id=task_id,
+        execution_id = "test-execution-123"
+        service._tasks[execution_id] = MACrossStatus(
+            execution_id=execution_id,
             status="running",
             progress=50,
             message="Processing..."
         )
         
-        status = service.get_status(task_id)
+        status = service.get_status(execution_id)
         
         assert status is not None
-        assert status.task_id == task_id
+        assert status.execution_id == execution_id
         assert status.status == "running"
         assert status.progress == 50
     

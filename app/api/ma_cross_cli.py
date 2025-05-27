@@ -5,8 +5,8 @@ MA Cross API CLI Client
 Usage:
     python ma_cross_cli.py analyze --ticker AAPL MSFT --start 2023-01-01 --end 2023-12-31
     python ma_cross_cli.py analyze --ticker BTC-USD --async
-    python ma_cross_cli.py status <task_id>
-    python ma_cross_cli.py stream <task_id>
+    python ma_cross_cli.py status <execution_id>
+    python ma_cross_cli.py stream <execution_id>
     python ma_cross_cli.py metrics
     python ma_cross_cli.py health
 """
@@ -65,9 +65,9 @@ def analyze(args):
         print(f"Error: {response.status_code}")
         print(response.text)
 
-def get_status(task_id: str):
+def get_status(execution_id: str):
     """Check task status."""
-    response = requests.get(f"{BASE_URL}/api/ma-cross/status/{task_id}")
+    response = requests.get(f"{BASE_URL}/api/ma-cross/status/{execution_id}")
     
     if response.status_code == 200:
         result = response.json()
@@ -76,11 +76,11 @@ def get_status(task_id: str):
         print(f"Error: {response.status_code}")
         print(response.text)
 
-def stream_progress(task_id: str):
+def stream_progress(execution_id: str):
     """Stream task progress."""
     try:
         response = requests.get(
-            f"{BASE_URL}/api/ma-cross/stream/{task_id}",
+            f"{BASE_URL}/api/ma-cross/stream/{execution_id}",
             stream=True
         )
         
@@ -137,11 +137,11 @@ def main():
     
     # Status command
     status_parser = subparsers.add_parser('status', help='Check task status')
-    status_parser.add_argument('task_id', help='Task ID to check')
+    status_parser.add_argument('execution_id', help='Execution ID to check')
     
     # Stream command
     stream_parser = subparsers.add_parser('stream', help='Stream task progress')
-    stream_parser.add_argument('task_id', help='Task ID to stream')
+    stream_parser.add_argument('execution_id', help='Execution ID to stream')
     
     # Metrics command
     metrics_parser = subparsers.add_parser('metrics', help='Get service metrics')
@@ -154,9 +154,9 @@ def main():
     if args.command == 'analyze':
         analyze(args)
     elif args.command == 'status':
-        get_status(args.task_id)
+        get_status(args.execution_id)
     elif args.command == 'stream':
-        stream_progress(args.task_id)
+        stream_progress(args.execution_id)
     elif args.command == 'metrics':
         get_metrics()
     elif args.command == 'health':

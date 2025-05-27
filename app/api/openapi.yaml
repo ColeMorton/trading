@@ -366,17 +366,17 @@ paths:
     post:
       tags:
         - ma-cross
-      summary: Analyze portfolio with MA Cross strategy
+      summary: Parameter sensitivity for SMA and/or EMA strategies
       description: |
-        Perform Moving Average Crossover analysis on a portfolio of tickers.
-        Supports both Simple Moving Average (SMA) and Exponential Moving Average (EMA).
-        
+        Perform parameter sensitivty testing for Moving Average Crossover strategies on a portfolio of tickers. Supports both Simple Moving Average (SMA) and Exponential Moving Average (EMA).
+
         The analysis includes comprehensive backtesting with performance metrics such as:
-        - Total return and annualized return
-        - Sharpe and Sortino ratios
-        - Maximum drawdown
-        - Win rate and profit factor
-        - Trade statistics
+
+        Total return and annualized return
+        Sharpe and Sortino ratios
+        Maximum drawdown
+        Win rate and profit factor
+        Trade statistics
       requestBody:
         required: true
         content:
@@ -400,9 +400,6 @@ paths:
                   DIRECTION: "Long"
                   STRATEGY_TYPES: ["SMA", "EMA"]
                   USE_HOURLY: false
-                  INITIAL_CAPITAL: 100000
-                  ALLOCATION_PCT: 0.3
-                  STOP_LOSS_PCT: 0.02
                   MIN_CRITERIA:
                     TRADES: 10
                     WIN_RATE: 0.5
@@ -439,17 +436,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/ma-cross/status/{task_id}:
+  /api/ma-cross/status/{execution_id}:
     get:
       tags:
         - ma-cross
       summary: Get analysis task status
       description: Check the status of an asynchronous MA Cross analysis task
       parameters:
-        - name: task_id
+        - name: execution_id
           in: path
           required: true
-          description: Task ID returned from async analysis request
+          description: Execution ID returned from async analysis request
           schema:
             type: string
             format: uuid
@@ -467,7 +464,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/ma-cross/stream/{task_id}:
+  /api/ma-cross/stream/{execution_id}:
     get:
       tags:
         - ma-cross
@@ -476,10 +473,10 @@ paths:
         Get real-time updates for MA Cross analysis via Server-Sent Events.
         The stream provides progress updates and partial results as the analysis runs.
       parameters:
-        - name: task_id
+        - name: execution_id
           in: path
           required: true
-          description: Task ID for the analysis to stream
+          description: Execution ID for the analysis to stream
           schema:
             type: string
             format: uuid
@@ -867,26 +864,6 @@ components:
           format: date
           description: End date for analysis (YYYY-MM-DD)
           example: "2023-12-31"
-        INITIAL_CAPITAL:
-          type: number
-          default: 10000
-          description: Starting capital for backtesting
-        COMMISSION:
-          type: number
-          default: 0.001
-          minimum: 0
-          maximum: 0.1
-          description: Commission rate (0.001 = 0.1%)
-        ALLOCATION_PCT:
-          type: number
-          minimum: 0
-          maximum: 1
-          description: Portfolio allocation percentage
-        STOP_LOSS_PCT:
-          type: number
-          minimum: 0
-          maximum: 1
-          description: Stop loss percentage
         MIN_CRITERIA:
           $ref: '#/components/schemas/MinimumCriteria'
         async_execution:
@@ -1104,14 +1081,14 @@ components:
     MACrossStatusResponse:
       type: object
       required:
-        - task_id
+        - execution_id
         - status
         - progress
       properties:
-        task_id:
+        execution_id:
           type: string
           format: uuid
-          description: Task identifier
+          description: Execution identifier
         status:
           type: string
           enum: ["pending", "running", "completed", "failed"]

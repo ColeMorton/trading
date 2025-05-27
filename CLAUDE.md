@@ -2,8 +2,6 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Strictly adhere to DRY, SOLID, KISS and YAGNI principles!
-
 ## Development Commands
 
 ### Environment Setup
@@ -60,7 +58,8 @@ python app/strategies/update_portfolios.py
 - Schema evolution support (base and extended portfolio schemas)
 
 ## important-instruction-reminders
+ALWAYS prefer editing an existing file to creating a new one.
+Strictly adhere to DRY, SOLID, KISS and YAGNI principles!
 Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
-ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.

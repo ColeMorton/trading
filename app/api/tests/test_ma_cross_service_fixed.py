@@ -133,9 +133,9 @@ class TestMACrossService:
     
     def test_get_task_status_existing(self, service):
         """Test task status retrieval for existing task."""
-        task_id = "test-task-123"
+        execution_id = "test-execution-123"
         # Add task to task_status dict
-        task_status[task_id] = {
+        task_status[execution_id] = {
             "status": "running",
             "progress": 50,
             "message": "Processing...",
@@ -145,13 +145,13 @@ class TestMACrossService:
             "end_time": None
         }
         
-        status = service.get_task_status(task_id)
+        status = service.get_task_status(execution_id)
         assert status["status"] == "running"
         assert status["progress"] == 50
         assert status["message"] == "Processing..."
         
         # Cleanup
-        del task_status[task_id]
+        del task_status[execution_id]
     
     @patch('app.api.services.ma_cross_service.setup_logging')
     def test_caching(self, mock_logging, service, sample_request, mock_portfolio):

@@ -7,8 +7,8 @@ A comprehensive CLI for interacting with all Trading API endpoints.
 Usage:
     # MA Cross Analysis
     python api_cli.py ma-cross analyze --ticker AAPL MSFT --start 2023-01-01 --end 2023-12-31
-    python api_cli.py ma-cross status <task_id>
-    python api_cli.py ma-cross stream <task_id>
+    python api_cli.py ma-cross status <execution_id>
+    python api_cli.py ma-cross stream <execution_id>
     python api_cli.py ma-cross metrics
     python api_cli.py ma-cross health
     
@@ -131,9 +131,9 @@ class TradingAPIClient:
                 print(f"   Max Drawdown: {portfolio['max_drawdown']:.2%}")
                 print(f"   Score: {portfolio['score']:.2f}")
     
-    def ma_cross_status(self, task_id: str):
+    def ma_cross_status(self, execution_id: str):
         """Check MA Cross task status."""
-        response = self.session.get(f"{self.base_url}/api/ma-cross/status/{task_id}")
+        response = self.session.get(f"{self.base_url}/api/ma-cross/status/{execution_id}")
         result = self._handle_response(response)
         
         print(f"\n📊 Task Status: {result['status']}")
@@ -146,14 +146,14 @@ class TradingAPIClient:
         elif result['status'] == 'failed' and result.get('error'):
             print(f"❌ Error: {result['error']}")
     
-    def ma_cross_stream(self, task_id: str):
+    def ma_cross_stream(self, execution_id: str):
         """Stream MA Cross analysis progress."""
-        print(f"📡 Streaming progress for task {task_id}...")
+        print(f"📡 Streaming progress for execution {execution_id}...")
         print("Press Ctrl+C to stop\n")
         
         try:
             response = self.session.get(
-                f"{self.base_url}/api/ma-cross/stream/{task_id}",
+                f"{self.base_url}/api/ma-cross/stream/{execution_id}",
                 stream=True
             )
             
@@ -322,10 +322,10 @@ def main():
     ma_cross_sub.add_parser('health', help='Health check')
     
     status = ma_cross_sub.add_parser('status', help='Check task status')
-    status.add_argument('task_id', help='Task ID')
+    status.add_argument('execution_id', help='Execution ID')
     
     stream = ma_cross_sub.add_parser('stream', help='Stream progress')
-    stream.add_argument('task_id', help='Task ID')
+    stream.add_argument('execution_id', help='Execution ID')
     
     # Script subcommands
     scripts = subparsers.add_parser('scripts', help='Script execution')
@@ -361,9 +361,9 @@ def main():
         if args.command == 'analyze':
             client.ma_cross_analyze(args)
         elif args.command == 'status':
-            client.ma_cross_status(args.task_id)
+            client.ma_cross_status(args.execution_id)
         elif args.command == 'stream':
-            client.ma_cross_stream(args.task_id)
+            client.ma_cross_stream(args.execution_id)
         elif args.command == 'metrics':
             client.ma_cross_metrics()
         elif args.command == 'health':

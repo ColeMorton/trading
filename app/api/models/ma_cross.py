@@ -402,7 +402,7 @@ class MACrossMetricsResponse(BaseModel):
 
 class MACrossStatus(BaseModel):
     """Status model for MA Cross execution tracking."""
-    task_id: str = Field(..., description="Unique task identifier")
+    execution_id: str = Field(..., description="Unique execution identifier")
     status: str = Field(..., description="Current status")
     progress: int = Field(0, description="Progress percentage")
     message: str = Field("", description="Status message")
