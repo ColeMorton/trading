@@ -303,21 +303,7 @@ class MACrossResponse(BaseModel):
     ticker: Union[str, List[str]] = Field(..., description="Analyzed ticker(s)")
     strategy_types: List[str] = Field(..., description="Strategy types analyzed")
     
-    # Results
-    portfolios: List[PortfolioMetrics] = Field(
-        default_factory=list,
-        description="List of portfolio analysis results"
-    )
-    
-    # Summary statistics
-    total_portfolios: int = Field(..., description="Total number of portfolios analyzed")
-    filtered_portfolios: int = Field(..., description="Number of portfolios after filtering")
-    
-    # Breadth metrics
-    breadth_metrics: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Market breadth analysis metrics"
-    )
+    # Results section removed - these fields are not needed for the API response
     
     # Execution metadata
     execution_time: float = Field(..., description="Analysis execution time in seconds")

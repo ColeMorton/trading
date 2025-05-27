@@ -105,9 +105,6 @@ class MACrossService:
                 timestamp=datetime.now(),
                 ticker=request.ticker,
                 strategy_types=request.strategy_types,
-                portfolios=results,
-                total_portfolios=len(results),
-                filtered_portfolios=len(results),  # No filtering applied in signal detection mode
                 execution_time=execution_time
             )
             

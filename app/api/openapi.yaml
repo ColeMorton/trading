@@ -387,19 +387,14 @@ paths:
               basic_analysis:
                 summary: Basic MA Cross analysis
                 value:
-                  TICKER: ["AAPL", "MSFT"]
-                  START_DATE: "2023-01-01"
-                  END_DATE: "2023-12-31"
+                  TICKER: "AAPL"
+                  WINDOWS: 12
               advanced_analysis:
                 summary: Advanced analysis with custom parameters
                 value:
-                  TICKER: ["BTC-USD", "ETH-USD", "SOL-USD"]
-                  START_DATE: "2022-01-01"
-                  END_DATE: "2023-12-31"
-                  WINDOWS: 89
-                  DIRECTION: "Long"
+                  TICKER: ["BTC-USD", "ETH-USD"]
+                  WINDOWS: 12
                   STRATEGY_TYPES: ["SMA", "EMA"]
-                  USE_HOURLY: false
                   MIN_CRITERIA:
                     TRADES: 10
                     WIN_RATE: 0.5
@@ -909,9 +904,6 @@ components:
         - timestamp
         - ticker
         - strategy_types
-        - portfolios
-        - total_portfolios
-        - filtered_portfolios
         - execution_time
       properties:
         status:
@@ -939,17 +931,6 @@ components:
             type: string
             enum: ["SMA", "EMA"]
           description: Strategy types analyzed
-        portfolios:
-          type: array
-          items:
-            $ref: '#/components/schemas/PortfolioMetrics'
-          description: List of portfolio results
-        total_portfolios:
-          type: integer
-          description: Total number of portfolios analyzed
-        filtered_portfolios:
-          type: integer
-          description: Number of portfolios after filtering
         execution_time:
           type: number
           description: Analysis execution time in seconds
