@@ -73,7 +73,7 @@ from app.tools.portfolio.stop_loss import (
 )
 
 CONFIG: Config = {
-    "TICKER": "TSM",
+    "TICKER": "AAPL",
     # "TICKER": ['NBIS', 'MSFT', 'ASML', 'TSMC', 'META', 'AMZN', 'PLTR', 'NOW', 'TEM', 'DDOG', 'NET', 'SHOP'],
     # Load tickers from JSON file
     # "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/portfolio.json"))),
@@ -92,12 +92,12 @@ CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": True,
+    "USE_CURRENT": False,
     "MINIMUMS": {
-        "WIN_RATE": 0.44,
-        # "TRADES": 34,
+        # "WIN_RATE": 0.44,
+        "TRADES": 34,
         # "WIN_RATE": 0.50,
-        "TRADES": 54,
+        # "TRADES": 54,
         # "WIN_RATE": 0.61,
         "EXPECTANCY_PER_TRADE": 1,
         "PROFIT_FACTOR": 1,

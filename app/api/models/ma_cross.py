@@ -171,46 +171,7 @@ class MACrossRequest(BaseModel):
         description="Whether to execute analysis asynchronously"
     )
     
-    # MA window parameters for API convenience
-    fast_period: Optional[int] = Field(
-        None,
-        description="Fast moving average period",
-        ge=2,
-        le=200
-    )
     
-    slow_period: Optional[int] = Field(
-        None,
-        description="Slow moving average period",
-        ge=2,
-        le=200
-    )
-    
-    # Additional parameters
-    allocation_pct: Optional[float] = Field(
-        None,
-        description="Allocation percentage for portfolio",
-        ge=0.0,
-        le=1.0
-    )
-    
-    stop_loss_pct: Optional[float] = Field(
-        None,
-        description="Stop loss percentage",
-        ge=0.0,
-        le=1.0
-    )
-    
-    # Convenience properties
-    @property 
-    def short_window(self) -> Optional[int]:
-        """Alias for fast_period."""
-        return self.fast_period or 20  # Default to 20 if not specified
-    
-    @property
-    def long_window(self) -> Optional[int]:
-        """Alias for slow_period."""
-        return self.slow_period or 50  # Default to 50 if not specified
     
     model_config = {
         "populate_by_name": True,
@@ -288,10 +249,6 @@ class MACrossRequest(BaseModel):
             config["TICKER_2"] = self.ticker_2
         if self.minimums:
             config["MINIMUMS"] = self.minimums.to_dict()
-        if self.fast_period:
-            config["SHORT_WINDOW"] = self.fast_period
-        if self.slow_period:
-            config["LONG_WINDOW"] = self.slow_period
             
         return config
 
@@ -321,10 +278,6 @@ class PortfolioMetrics(BaseModel):
     score: float = Field(..., description="Overall portfolio score")
     beats_bnh: float = Field(..., description="Percentage by which strategy beats Buy and Hold")
     
-    # Optional extended schema fields
-    allocation_percent: Optional[float] = Field(None, description="Portfolio allocation percentage")
-    stop_loss_percent: Optional[float] = Field(None, description="Stop loss percentage")
-    position_size: Optional[float] = Field(None, description="Calculated position size")
     
     # Trade status
     has_open_trade: bool = Field(False, description="Whether there's an open trade")

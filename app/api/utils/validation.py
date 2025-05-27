@@ -36,8 +36,6 @@ class RequestValidator:
     MAX_YEARS = 20
     MIN_WINDOW = 2
     MAX_WINDOW = 200
-    MIN_PERCENTAGE = 0.0
-    MAX_PERCENTAGE = 1.0
     
     @classmethod
     def validate_request(cls, request: MACrossRequest) -> List[ValidationError]:
@@ -62,14 +60,7 @@ class RequestValidator:
         # Validate time periods
         errors.extend(cls._validate_time_periods(request))
         
-        # Validate moving average windows if provided
-        if hasattr(request, 'short_window') and hasattr(request, 'long_window'):
-            if request.short_window is not None and request.long_window is not None:
-                errors.extend(cls._validate_ma_windows(request))
         
-        # Validate percentage fields if provided
-        if hasattr(request, 'allocation_pct') or hasattr(request, 'stop_loss_pct'):
-            errors.extend(cls._validate_percentages(request))
         
         # Validate minimum criteria if provided
         if hasattr(request, 'minimums') and request.minimums:
@@ -201,55 +192,7 @@ class RequestValidator:
         
         return errors
     
-    @classmethod
-    def _validate_ma_windows(cls, request: MACrossRequest) -> List[ValidationError]:
-        """Validate moving average window sizes."""
-        errors = []
-        
-        if request.short_window < cls.MIN_WINDOW or request.short_window > cls.MAX_WINDOW:
-            errors.append(ValidationError(
-                field="short_window",
-                message=f"Short window must be between {cls.MIN_WINDOW} and {cls.MAX_WINDOW}",
-                value=request.short_window
-            ))
-        
-        if request.long_window < cls.MIN_WINDOW or request.long_window > cls.MAX_WINDOW:
-            errors.append(ValidationError(
-                field="long_window",
-                message=f"Long window must be between {cls.MIN_WINDOW} and {cls.MAX_WINDOW}",
-                value=request.long_window
-            ))
-        
-        if request.short_window >= request.long_window:
-            errors.append(ValidationError(
-                field="ma_windows",
-                message=f"Short window ({request.short_window}) must be less than long window ({request.long_window})",
-                value={"short": request.short_window, "long": request.long_window}
-            ))
-        
-        return errors
     
-    @classmethod
-    def _validate_percentages(cls, request: MACrossRequest) -> List[ValidationError]:
-        """Validate percentage fields."""
-        errors = []
-        
-        percentage_fields = []
-        if hasattr(request, 'allocation_pct') and request.allocation_pct is not None:
-            percentage_fields.append(("allocation_pct", request.allocation_pct))
-        if hasattr(request, 'stop_loss_pct') and request.stop_loss_pct is not None:
-            percentage_fields.append(("stop_loss_pct", request.stop_loss_pct))
-        
-        for field_name, value in percentage_fields:
-            if value is not None:
-                if value < cls.MIN_PERCENTAGE or value > cls.MAX_PERCENTAGE:
-                    errors.append(ValidationError(
-                        field=field_name,
-                        message=f"{field_name} must be between {cls.MIN_PERCENTAGE} and {cls.MAX_PERCENTAGE}",
-                        value=value
-                    ))
-        
-        return errors
     
     @classmethod
     def _validate_minimum_criteria(cls, criteria) -> List[ValidationError]:

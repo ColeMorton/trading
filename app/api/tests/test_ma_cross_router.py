@@ -242,12 +242,8 @@ class TestMACrossRouter:
             "WINDOWS": 50,
             "DIRECTION": "Long",
             "STRATEGY_TYPES": ["EMA"],
-            "fast_period": 12,
-            "slow_period": 26,
             "USE_YEARS": True,
-            "YEARS": 2,
-            "allocation_pct": 0.5,
-            "stop_loss_pct": 0.02
+            "YEARS": 2
         }
         
         mock_service.analyze_portfolio.return_value = sample_response
@@ -262,8 +258,6 @@ class TestMACrossRouter:
         call_args = mock_service.analyze_portfolio.call_args[0][0]
         assert isinstance(call_args, MACrossRequest)
         assert call_args.strategy_types == ["EMA"]
-        assert call_args.stop_loss_pct == 0.02
-        assert call_args.allocation_pct == 0.5
     
     def test_concurrent_requests(self, client, mock_service, sample_request, sample_response):
         """Test handling of concurrent requests."""

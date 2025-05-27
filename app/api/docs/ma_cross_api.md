@@ -25,72 +25,65 @@ Perform MA Cross analysis on a portfolio of tickers.
 **Request Body:**
 ```json
 {
-  "tickers": ["AAPL", "MSFT", "GOOGL"],
-  "start_date": "2023-01-01",
-  "end_date": "2023-12-31",
-  "interval": "1d",
-  "ma_type": "SMA",
-  "fast_period": 20,
-  "slow_period": 50,
-  "initial_capital": 100000,
-  "max_allocation": 0.3,
-  "stop_loss": 0.02,
-  "take_profit": 0.05,
-  "commission": 0.001
+  "TICKER": ["AAPL", "MSFT", "GOOGL"],
+  "WINDOWS": 89,
+  "DIRECTION": "Long",
+  "STRATEGY_TYPES": ["SMA", "EMA"],
+  "USE_HOURLY": false,
+  "USE_YEARS": false,
+  "YEARS": 15
 }
 ```
 
 **Parameters:**
-- `tickers` (array, required): List of stock symbols to analyze
-- `start_date` (string, required): Start date in YYYY-MM-DD format
-- `end_date` (string, required): End date in YYYY-MM-DD format
-- `interval` (string, optional): Data interval - "1d", "1h", "1wk", "1mo" (default: "1d")
-- `ma_type` (string, optional): Moving average type - "SMA" or "EMA" (default: "SMA")
-- `fast_period` (integer, optional): Fast MA period (default: 20)
-- `slow_period` (integer, optional): Slow MA period (default: 50)
-- `initial_capital` (float, optional): Starting capital (default: 100000)
-- `max_allocation` (float, optional): Maximum allocation per ticker (default: 1.0)
-- `stop_loss` (float, optional): Stop loss percentage (e.g., 0.02 for 2%)
-- `take_profit` (float, optional): Take profit percentage (e.g., 0.05 for 5%)
-- `commission` (float, optional): Commission rate (e.g., 0.001 for 0.1%)
+- `TICKER` (string or array, required): Trading symbol or list of symbols to analyze
+- `WINDOWS` (integer, optional): Maximum window size for parameter analysis (default: 89)
+- `DIRECTION` (string, optional): Trading direction - "Long" or "Short" (default: "Long")
+- `STRATEGY_TYPES` (array, optional): List of strategy types - ["SMA", "EMA"] (default: ["SMA", "EMA"])
+- `USE_HOURLY` (boolean, optional): Whether to use hourly data (default: false)
+- `USE_YEARS` (boolean, optional): Whether to limit data by years (default: false)
+- `YEARS` (float, optional): Number of years of data to use if USE_YEARS is true (default: 15)
 
 **Response:**
 ```json
 {
   "success": true,
+  "status": "success",
+  "request_id": "unique-request-id",
+  "timestamp": "2023-12-31T23:59:59",
+  "ticker": ["AAPL", "MSFT", "GOOGL"],
+  "strategy_types": ["SMA", "EMA"],
   "portfolios": [
     {
-      "symbol": "AAPL",
-      "timeframe": "D",
-      "ma_type": "SMA",
-      "fast_period": 20,
-      "slow_period": 50,
-      "initial_capital": 100000,
-      "allocation": 0.3,
-      "num_trades": 15,
+      "ticker": "AAPL",
+      "strategy_type": "SMA",
+      "short_window": 20,
+      "long_window": 50,
       "total_return": 0.25,
+      "annual_return": 0.25,
       "sharpe_ratio": 1.5,
+      "sortino_ratio": 1.8,
       "max_drawdown": -0.15,
+      "total_trades": 15,
+      "winning_trades": 9,
+      "losing_trades": 6,
       "win_rate": 0.6,
-      "avg_gain": 0.05,
-      "avg_loss": -0.02,
-      "expectancy": 0.03,
       "profit_factor": 2.5,
-      "recovery_factor": 1.67,
-      "payoff_ratio": 2.5,
-      "final_balance": 125000,
-      "roi": 0.25
+      "expectancy": 0.03,
+      "score": 85.5,
+      "beats_bnh": 0.05,
+      "has_open_trade": false,
+      "has_signal_entry": false
     }
   ],
   "total_portfolios": 3,
-  "metrics": {
-    "avg_return": 0.22,
-    "avg_sharpe": 1.4,
-    "avg_max_drawdown": -0.17,
-    "avg_win_rate": 0.58,
-    "total_final_balance": 366000,
-    "total_roi": 0.22
-  }
+  "filtered_portfolios": 1,
+  "breadth_metrics": {
+    "total_positions": 3,
+    "open_positions": 0,
+    "signal_entries": 0
+  },
+  "execution_time": 2.5
 }
 ```
 
@@ -100,12 +93,10 @@ import requests
 
 url = "http://localhost:8000/api/ma-cross/analyze"
 data = {
-    "tickers": ["AAPL", "MSFT"],
-    "start_date": "2023-01-01",
-    "end_date": "2023-12-31",
-    "ma_type": "EMA",
-    "fast_period": 12,
-    "slow_period": 26
+    "TICKER": ["AAPL", "MSFT"],
+    "WINDOWS": 89,
+    "DIRECTION": "Long",
+    "STRATEGY_TYPES": ["SMA", "EMA"]
 }
 
 response = requests.post(url, json=data)
@@ -284,13 +275,13 @@ X-RateLimit-Reset: 1705316400
 - Monthly (1mo): For investment analysis
 
 ### 2. Optimize MA Periods
-- **Fast MA**: 10-20 for short-term, 20-50 for medium-term
-- **Slow MA**: 50-100 for medium-term, 100-200 for long-term
-- Ensure slow_period > fast_period
+- The API analyzes all window combinations from 2 to WINDOWS value
+- Smaller windows (10-20) are more responsive but may generate more false signals
+- Larger windows (50-100) are more stable but may lag behind price movements
 
-### 3. Portfolio Allocation
-- Use `max_allocation` to limit exposure per ticker
-- Recommended: 0.1-0.3 (10-30%) for diversified portfolios
+### 3. Portfolio Management
+- Use multiple tickers in TICKER array for diversification
+- Apply MINIMUMS criteria to filter quality strategies
 
 ### 4. Performance Optimization
 - Cache frequently analyzed portfolios
@@ -329,12 +320,10 @@ class MACrossClient:
 # Usage
 client = MACrossClient()
 result = client.analyze(
-    tickers=["AAPL", "MSFT", "GOOGL"],
-    start_date="2023-01-01",
-    end_date="2023-12-31",
-    ma_type="EMA",
-    fast_period=12,
-    slow_period=26
+    ticker=["AAPL", "MSFT", "GOOGL"],
+    windows=89,
+    direction="Long",
+    strategy_types=["SMA", "EMA"]
 )
 
 print(f"Average return: {result['metrics']['avg_return']:.2%}")
@@ -344,12 +333,13 @@ print(f"Average Sharpe: {result['metrics']['avg_sharpe']:.2f}")
 ### JavaScript/TypeScript Client
 ```typescript
 interface MACrossRequest {
-  tickers: string[];
-  start_date: string;
-  end_date: string;
-  ma_type?: 'SMA' | 'EMA';
-  fast_period?: number;
-  slow_period?: number;
+  TICKER: string | string[];
+  WINDOWS?: number;
+  DIRECTION?: 'Long' | 'Short';
+  STRATEGY_TYPES?: ('SMA' | 'EMA')[];
+  USE_HOURLY?: boolean;
+  USE_YEARS?: boolean;
+  YEARS?: number;
 }
 
 class MACrossClient {
