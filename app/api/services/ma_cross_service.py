@@ -98,6 +98,14 @@ class MACrossService:
             
             log(f"Analysis completed in {execution_time:.2f} seconds")
             
+            # Collect exported file paths
+            portfolio_exports = self._collect_export_paths(strategy_config, request.strategy_types, log)
+            
+            # Count filtered portfolios
+            filtered_count = 0
+            if portfolio_exports and "portfolios_filtered" in portfolio_exports:
+                filtered_count = len(portfolio_exports["portfolios_filtered"])
+            
             # Build response
             response = MACrossResponse(
                 status="success",
@@ -105,6 +113,10 @@ class MACrossService:
                 timestamp=datetime.now(),
                 ticker=request.ticker,
                 strategy_types=request.strategy_types,
+                portfolios=results,
+                portfolio_exports=portfolio_exports,
+                total_portfolios_analyzed=len(results),
+                total_portfolios_filtered=filtered_count,
                 execution_time=execution_time
             )
             
@@ -162,14 +174,21 @@ class MACrossService:
         
         # Return immediate response with execution ID
         return MACrossAsyncResponse(
+            status="accepted",
             execution_id=execution_id,
-            status="pending",
-            message="Analysis task submitted"
+            message="Analysis task submitted",
+            status_url=f"/api/ma-cross/status/{execution_id}",
+            stream_url=f"/api/ma-cross/stream/{execution_id}",
+            timestamp=datetime.now(),
+            estimated_time=60.0  # Estimate based on typical analysis time
         )
     
     def _execute_analysis(self, config: Dict[str, Any], log) -> List[PortfolioMetrics]:
         """
-        Execute the actual MA Cross analysis using the core analyzer.
+        Execute the actual MA Cross analysis using full portfolio analysis.
+        
+        This method now uses the execute_strategy function from the MA Cross module
+        to perform complete backtesting and portfolio analysis.
         
         Args:
             config: Strategy configuration dictionary
@@ -178,93 +197,93 @@ class MACrossService:
         Returns:
             List of PortfolioMetrics results
         """
-        # Create analyzer instance
-        analyzer = MACrossAnalyzer(log)
-        results = []
+        # Import the execute_strategy function from ma_cross module
+        from app.ma_cross.tools.strategy_execution import execute_strategy
+        from app.tools.project_utils import get_project_root
+        
+        # Ensure BASE_DIR is set in config
+        if "BASE_DIR" not in config:
+            config["BASE_DIR"] = get_project_root()
+        
+        # Get strategy types to analyze
+        strategy_types = config.get("STRATEGY_TYPES", ["SMA", "EMA"])
+        all_portfolios = []
         
         try:
-            # Handle single ticker or portfolio
-            if isinstance(config.get("TICKER"), str):
-                # Single ticker analysis
-                ticker = config["TICKER"]
-                tickers = [ticker]
-            elif config.get("PORTFOLIO"):
-                # Load portfolio tickers from CSV
-                import polars as pl
-                portfolio_file = os.path.join("./csv/strategies", config["PORTFOLIO"])
+            # Execute strategy for each strategy type
+            for strategy_type in strategy_types:
+                log(f"Executing {strategy_type} strategy analysis")
                 
-                try:
-                    portfolio_df = pl.read_csv(portfolio_file)
-                    # Handle different column name variations
-                    ticker_col = "Ticker" if "Ticker" in portfolio_df.columns else "TICKER"
-                    tickers = portfolio_df[ticker_col].to_list()
-                except Exception as e:
-                    log(f"Error loading portfolio file: {str(e)}", "error")
-                    return results
-            else:
-                log("No ticker or portfolio specified", "error")
-                return results
+                # Execute the strategy and get portfolio results
+                portfolios = execute_strategy(config, strategy_type, log)
+                
+                if portfolios:
+                    # Convert portfolio dictionaries to PortfolioMetrics objects
+                    for portfolio in portfolios:
+                        try:
+                            # Extract metrics from portfolio dictionary
+                            # The best portfolio from get_best_portfolio uses SMA_FAST/SLOW or EMA_FAST/SLOW
+                            
+                            # Clean up strategy type if it has enum prefix
+                            strategy_type_value = portfolio.get("Strategy Type", portfolio.get("MA Type", strategy_type))
+                            if isinstance(strategy_type_value, str) and "StrategyTypeEnum." in strategy_type_value:
+                                strategy_type_value = strategy_type_value.replace("StrategyTypeEnum.", "")
+                            
+                            # Determine window column names based on strategy type
+                            if strategy_type_value == "SMA" or strategy_type == "SMA":
+                                short_window = portfolio.get("SMA_FAST", portfolio.get("Short Window", 0))
+                                long_window = portfolio.get("SMA_SLOW", portfolio.get("Long Window", 0))
+                            else:  # EMA
+                                short_window = portfolio.get("EMA_FAST", portfolio.get("Short Window", 0))
+                                long_window = portfolio.get("EMA_SLOW", portfolio.get("Long Window", 0))
+                            
+                            # Convert to int, handling None values
+                            short_window = int(short_window) if short_window is not None else 0
+                            long_window = int(long_window) if long_window is not None else 0
+                            
+                            # Calculate winning/losing trades from total trades and win rate
+                            total_trades = int(portfolio.get("Total Trades", 0))
+                            win_rate_pct = float(portfolio.get("Win Rate [%]", 0.0))
+                            winning_trades = int(total_trades * win_rate_pct / 100)
+                            losing_trades = total_trades - winning_trades
+                            
+                            metrics = PortfolioMetrics(
+                                ticker=portfolio.get("Ticker", ""),
+                                strategy_type=strategy_type_value,
+                                short_window=short_window,
+                                long_window=long_window,
+                                total_return=float(portfolio.get("Total Return [%]", 0.0)),
+                                annual_return=float(portfolio.get("Ann. Return [%]", portfolio.get("Annual Returns", 0.0) * 100)),
+                                sharpe_ratio=float(portfolio.get("Sharpe Ratio", 0.0)),
+                                sortino_ratio=float(portfolio.get("Sortino Ratio", 0.0)),
+                                max_drawdown=float(portfolio.get("Max Drawdown [%]", 0.0)),
+                                total_trades=total_trades,
+                                winning_trades=winning_trades,
+                                losing_trades=losing_trades,
+                                win_rate=win_rate_pct / 100.0,  # Convert percentage to decimal
+                                profit_factor=float(portfolio.get("Profit Factor", 0.0)),
+                                expectancy=float(portfolio.get("Expectancy", portfolio.get("Expectancy per Trade", 0.0))),
+                                score=float(portfolio.get("Score", 0.0)),
+                                beats_bnh=float(portfolio.get("Beats BNH [%]", 0.0)),
+                                has_open_trade=bool(portfolio.get("Total Open Trades", 0) > 0),
+                                has_signal_entry=bool(portfolio.get("Signal Entry", False) == "true" or portfolio.get("Signal Entry", False) is True)
+                            )
+                            all_portfolios.append(metrics)
+                        except (ValueError, TypeError, KeyError) as e:
+                            log(f"Error converting portfolio to metrics: {str(e)}", "error")
+                            continue
+                else:
+                    log(f"No portfolios returned for {strategy_type} strategy", "warning")
             
-            # Get strategy types to analyze
-            strategy_types = config.get("STRATEGY_TYPES", ["SMA", "EMA"])
+            log(f"Total portfolios analyzed: {len(all_portfolios)}")
+            return all_portfolios
             
-            # Process each ticker with each strategy type
-            for ticker in tickers:
-                for strategy_type in strategy_types:
-                    try:
-                        # Create analysis config
-                        analysis_config = AnalysisConfig(
-                            ticker=ticker,
-                            use_sma=(strategy_type == "SMA"),
-                            use_hourly=config.get("USE_HOURLY", False),
-                            direction=config.get("DIRECTION", "Long"),
-                            short_window=config.get("SHORT_WINDOW"),
-                            long_window=config.get("LONG_WINDOW"),
-                            windows=config.get("WINDOWS"),
-                            use_years=config.get("USE_YEARS", False),
-                            years=config.get("YEARS", 1.0)
-                        )
-                        
-                        # Analyze ticker
-                        ticker_result = analyzer.analyze_single(analysis_config)
-                        
-                        # Convert to PortfolioMetrics for each signal
-                        if ticker_result.has_current_signal:
-                            for signal in ticker_result.current_signals:
-                                # Create metrics with minimal required fields
-                                # Real backtest metrics would be populated by running full backtest
-                                metrics = PortfolioMetrics(
-                                    ticker=ticker,
-                                    strategy_type=signal.ma_type,
-                                    short_window=signal.short_window,
-                                    long_window=signal.long_window,
-                                    total_return=0.0,
-                                    annual_return=0.0,
-                                    sharpe_ratio=0.0,
-                                    sortino_ratio=0.0,
-                                    max_drawdown=0.0,
-                                    total_trades=0,
-                                    winning_trades=0,
-                                    losing_trades=0,
-                                    win_rate=0.0,
-                                    profit_factor=0.0,
-                                    expectancy=0.0,
-                                    score=0.0,
-                                    beats_bnh=0.0,
-                                    has_open_trade=False,
-                                    has_signal_entry=True  # Current signal detected
-                                )
-                                results.append(metrics)
-                        
-                    except Exception as e:
-                        log(f"Error processing {ticker} with {strategy_type}: {str(e)}", "error")
-                        continue
-            
-            return results
-            
-        finally:
-            # Clean up analyzer resources
-            analyzer.close()
+        except Exception as e:
+            log(f"Error in portfolio analysis: {str(e)}", "error")
+            log(f"Error type: {type(e).__name__}", "error")
+            import traceback
+            log(traceback.format_exc(), "error")
+            return []
     
     def _execute_async_analysis(self, execution_id: str, request: MACrossRequest) -> None:
         """
@@ -300,13 +319,24 @@ class MACrossService:
             results = self._execute_analysis(strategy_config, log)
             execution_time = time.time() - start_time
             
+            # Collect exported file paths
+            portfolio_exports = self._collect_export_paths(strategy_config, request.strategy_types, log)
+            
+            # Count filtered portfolios
+            filtered_count = 0
+            if portfolio_exports and "portfolios_filtered" in portfolio_exports:
+                filtered_count = len(portfolio_exports["portfolios_filtered"])
+            
             # Update task status with results
             task_status[execution_id].update({
                 "status": "completed",
                 "completed_at": datetime.now().isoformat(),
                 "execution_time": execution_time,
                 "results": [r.dict() for r in results],
-                "progress": f"Analysis completed. Processed {len(results)} configurations."
+                "portfolio_exports": portfolio_exports,
+                "total_portfolios_analyzed": len(results),
+                "total_portfolios_filtered": filtered_count,
+                "progress": f"Analysis completed. Processed {len(results)} portfolios, filtered to {filtered_count}."
             })
             
             log(f"Async analysis completed in {execution_time:.2f} seconds")
@@ -366,3 +396,58 @@ class MACrossService:
                 cleaned += 1
         
         return cleaned
+    
+    def _collect_export_paths(self, config: Dict[str, Any], strategy_types: List[str], log) -> Dict[str, List[str]]:
+        """
+        Collect paths of exported portfolio CSV files.
+        
+        Args:
+            config: Strategy configuration
+            strategy_types: List of strategy types analyzed
+            log: Logging function
+            
+        Returns:
+            Dictionary with export paths organized by type
+        """
+        import os
+        import glob
+        
+        export_paths = {
+            "portfolios": [],
+            "portfolios_filtered": []
+        }
+        
+        try:
+            # Get ticker list
+            tickers = []
+            if isinstance(config.get("TICKER"), str):
+                tickers = [config["TICKER"]]
+            elif isinstance(config.get("TICKER"), list):
+                tickers = config["TICKER"]
+            
+            # Construct expected file paths for each ticker and strategy type
+            for ticker in tickers:
+                # Format ticker for filename (replace special characters)
+                ticker_formatted = ticker.replace("-", "-").replace("/", "_")
+                
+                for strategy_type in strategy_types:
+                    # Check for portfolio files
+                    portfolio_pattern = f"csv/portfolios/{ticker_formatted}_*_{strategy_type}.csv"
+                    portfolio_files = glob.glob(portfolio_pattern)
+                    export_paths["portfolios"].extend(portfolio_files)
+                    
+                    # Check for filtered portfolio files
+                    filtered_pattern = f"csv/portfolios_filtered/{ticker_formatted}_*_{strategy_type}.csv"
+                    filtered_files = glob.glob(filtered_pattern)
+                    export_paths["portfolios_filtered"].extend(filtered_files)
+            
+            # Remove duplicates and sort
+            export_paths["portfolios"] = sorted(list(set(export_paths["portfolios"])))
+            export_paths["portfolios_filtered"] = sorted(list(set(export_paths["portfolios_filtered"])))
+            
+            log(f"Found {len(export_paths['portfolios'])} portfolio files and {len(export_paths['portfolios_filtered'])} filtered files")
+            
+        except Exception as e:
+            log(f"Error collecting export paths: {str(e)}", "error")
+        
+        return export_paths

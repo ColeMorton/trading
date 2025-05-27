@@ -69,12 +69,26 @@ class RequestValidator:
         return errors
     
     @classmethod
-    def _validate_tickers(cls, primary_ticker: str, additional_tickers: Optional[List[str]]) -> List[ValidationError]:
+    def _validate_tickers(cls, primary_ticker, additional_tickers: Optional[List[str]]) -> List[ValidationError]:
         """Validate ticker symbols."""
         errors = []
         
         # Collect all tickers
-        all_tickers = [primary_ticker]
+        all_tickers = []
+        
+        # Handle primary_ticker which can be string or list
+        if isinstance(primary_ticker, str):
+            all_tickers.append(primary_ticker)
+        elif isinstance(primary_ticker, list):
+            all_tickers.extend(primary_ticker)
+        else:
+            errors.append(ValidationError(
+                field="ticker",
+                message=f"Invalid ticker type: {type(primary_ticker).__name__}. Expected string or list",
+                value=primary_ticker
+            ))
+            return errors
+            
         if additional_tickers:
             all_tickers.extend(additional_tickers)
         
@@ -88,7 +102,12 @@ class RequestValidator:
         
         # Validate each ticker
         for i, ticker in enumerate(all_tickers):
-            field = "ticker" if i == 0 else f"tickers[{i-1}]"
+            if isinstance(primary_ticker, list) and i < len(primary_ticker):
+                field = f"ticker[{i}]"
+            elif i == 0:
+                field = "ticker"
+            else:
+                field = f"tickers[{i-1}]"
             errors.extend(cls._validate_single_ticker(ticker, field))
         
         # Check for duplicates
@@ -145,7 +164,17 @@ class RequestValidator:
         """Validate synthetic pair configuration."""
         errors = []
         
-        has_synthetic = any('_' in t for t in [request.ticker] + (request.tickers or []))
+        # Collect all tickers to check for synthetic pairs
+        all_tickers = []
+        if isinstance(request.ticker, str):
+            all_tickers.append(request.ticker)
+        elif isinstance(request.ticker, list):
+            all_tickers.extend(request.ticker)
+            
+        if request.tickers:
+            all_tickers.extend(request.tickers)
+        
+        has_synthetic = any('_' in t for t in all_tickers)
         has_ticker_1 = bool(request.ticker_1)
         has_ticker_2 = bool(request.ticker_2)
         

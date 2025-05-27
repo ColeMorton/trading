@@ -303,7 +303,32 @@ class MACrossResponse(BaseModel):
     ticker: Union[str, List[str]] = Field(..., description="Analyzed ticker(s)")
     strategy_types: List[str] = Field(..., description="Strategy types analyzed")
     
-    # Results section removed - these fields are not needed for the API response
+    # Portfolio results
+    portfolios: Optional[List[PortfolioMetrics]] = Field(
+        None,
+        description="List of portfolio analysis results"
+    )
+    
+    # Export paths
+    portfolio_exports: Optional[Dict[str, List[str]]] = Field(
+        None,
+        description="Paths to exported portfolio CSV files",
+        example={
+            "portfolios": ["csv/portfolios/BTC-USD_D_SMA.csv"],
+            "portfolios_filtered": ["csv/portfolios_filtered/BTC-USD_D_SMA.csv"]
+        }
+    )
+    
+    # Summary statistics
+    total_portfolios_analyzed: int = Field(
+        0,
+        description="Total number of portfolios analyzed"
+    )
+    
+    total_portfolios_filtered: int = Field(
+        0,
+        description="Number of portfolios after filtering"
+    )
     
     # Execution metadata
     execution_time: float = Field(..., description="Analysis execution time in seconds")

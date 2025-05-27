@@ -79,7 +79,13 @@ async def analyze_portfolio(request: MACrossRequest):
         # Execute analysis based on async flag
         if request.async_execution:
             response = ma_cross_service.analyze_portfolio_async(request)
-            return response
+            # Return 202 Accepted status for async execution
+            from fastapi import Response
+            from fastapi.responses import JSONResponse
+            return JSONResponse(
+                status_code=202,
+                content=response.model_dump(mode='json')
+            )
         else:
             response = ma_cross_service.analyze_portfolio(request)
             return response
