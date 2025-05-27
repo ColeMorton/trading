@@ -4,7 +4,7 @@ MA Cross Router
 This module provides API endpoints for MA Cross strategy analysis.
 """
 
-from fastapi import APIRouter, HTTPException, Query, Path
+from fastapi import APIRouter, HTTPException, Query, Path, Depends
 from fastapi.responses import StreamingResponse
 from typing import Dict, Any, List, Optional
 import json
@@ -24,6 +24,11 @@ from app.api.services.ma_cross_service import (
     MACrossServiceError
 )
 from app.api.utils.logging import setup_api_logging
+from app.api.utils.cache import get_cache
+from app.api.utils.validation import validate_ma_cross_request
+from app.api.utils.middleware import rate_limit_analysis, rate_limit_cache
+from app.api.utils.monitoring import get_metrics_collector
+from app.api.utils.performance import get_concurrent_executor, get_request_optimizer
 
 # Create router
 router = APIRouter()
@@ -40,11 +45,13 @@ ma_cross_service = MACrossService()
     responses={
         202: {"model": MACrossAsyncResponse, "description": "Asynchronous execution accepted"},
         400: {"model": ErrorResponse, "description": "Bad request"},
+        429: {"description": "Rate limit exceeded"},
         500: {"model": ErrorResponse, "description": "Internal server error"}
     },
     summary="Analyze portfolio with MA Cross strategy",
     description="Execute MA Cross analysis on the specified portfolio. "
-                "The analysis can be executed synchronously or asynchronously."
+                "The analysis can be executed synchronously or asynchronously.",
+    dependencies=[Depends(rate_limit_analysis)]
 )
 async def analyze_portfolio(request: MACrossRequest):
     """
@@ -60,6 +67,12 @@ async def analyze_portfolio(request: MACrossRequest):
         HTTPException: If the analysis fails
     """
     try:
+        # Enhanced validation
+        validation_error = validate_ma_cross_request(request)
+        if validation_error:
+            log(f"Request validation failed: {validation_error}")
+            raise HTTPException(status_code=400, detail=validation_error)
+        
         log(f"Analyzing portfolio with MA Cross strategy: {request.dict()}")
         
         # Execute analysis based on async flag
@@ -295,3 +308,191 @@ async def health_check():
     except Exception as e:
         log(f"Health check failed: {str(e)}", "error")
         raise HTTPException(status_code=503, detail=f"Service unhealthy: {str(e)}")
+
+
+@router.get(
+    "/cache/stats",
+    summary="Get cache statistics",
+    description="Returns cache performance metrics including hit rate and size",
+    dependencies=[Depends(rate_limit_cache)]
+)
+async def get_cache_stats():
+    """Get cache statistics."""
+    try:
+        cache = get_cache()
+        stats = cache.get_stats()
+        return {
+            "status": "success",
+            "cache_stats": stats,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get cache stats: {str(e)}")
+
+
+@router.post(
+    "/cache/invalidate",
+    summary="Invalidate cache entries",
+    description="Clear cache entries, optionally filtered by ticker symbol",
+    dependencies=[Depends(rate_limit_cache)]
+)
+async def invalidate_cache(
+    ticker: Optional[str] = Query(None, description="Ticker symbol to invalidate (clears all if not provided)")
+):
+    """Invalidate cache entries."""
+    try:
+        cache = get_cache()
+        
+        if ticker:
+            invalidated = cache.invalidate_pattern(ticker)
+            message = f"Invalidated {invalidated} cache entries for ticker: {ticker}"
+        else:
+            cache.invalidate_all()
+            message = "Invalidated all cache entries"
+        
+        return {
+            "status": "success",
+            "message": message,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to invalidate cache: {str(e)}")
+
+
+@router.post(
+    "/cache/cleanup",
+    summary="Clean up expired cache entries",
+    description="Remove expired entries from cache and return cleanup statistics",
+    dependencies=[Depends(rate_limit_cache)]
+)
+async def cleanup_cache():
+    """Clean up expired cache entries."""
+    try:
+        cache = get_cache()
+        cleanup_stats = cache.cleanup()
+        
+        return {
+            "status": "success",
+            "cleanup_stats": cleanup_stats,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to cleanup cache: {str(e)}")
+
+
+@router.get(
+    "/metrics",
+    summary="Get API metrics",
+    description="Returns API performance and usage metrics"
+)
+async def get_api_metrics(
+    hours: int = Query(1, ge=1, le=24, description="Number of hours to include in metrics")
+):
+    """Get API performance metrics."""
+    try:
+        metrics = get_metrics_collector()
+        request_stats = metrics.get_request_stats(hours=hours)
+        system_stats = metrics.get_system_stats()
+        
+        return {
+            "status": "success",
+            "metrics": {
+                "requests": request_stats,
+                "system": system_stats,
+                "period_hours": hours
+            },
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get metrics: {str(e)}")
+
+
+@router.get(
+    "/health/detailed",
+    summary="Get detailed health status",
+    description="Returns comprehensive health information including system metrics"
+)
+async def get_detailed_health():
+    """Get detailed service health status."""
+    try:
+        metrics = get_metrics_collector()
+        health_status = metrics.get_health_status()
+        
+        return {
+            "status": "success",
+            "health": health_status,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get health status: {str(e)}")
+
+
+@router.post(
+    "/metrics/cleanup",
+    summary="Clean up old metrics",
+    description="Remove old metrics data to free memory"
+)
+async def cleanup_metrics():
+    """Clean up old metrics data."""
+    try:
+        metrics = get_metrics_collector()
+        cleanup_stats = metrics.cleanup_old_metrics()
+        
+        return {
+            "status": "success",
+            "cleanup_stats": cleanup_stats,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to cleanup metrics: {str(e)}")
+
+
+@router.get(
+    "/performance/stats",
+    summary="Get performance statistics",
+    description="Returns performance optimization and timing statistics"
+)
+async def get_performance_stats():
+    """Get performance statistics."""
+    try:
+        executor = get_concurrent_executor()
+        optimizer = get_request_optimizer()
+        
+        executor_stats = executor.get_stats()
+        timing_stats = optimizer.get_timing_stats()
+        
+        return {
+            "status": "success",
+            "performance": {
+                "executor": executor_stats,
+                "timing": timing_stats
+            },
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get performance stats: {str(e)}")
+
+
+@router.get(
+    "/rate-limit/stats",
+    summary="Get rate limiting statistics",
+    description="Returns current rate limiting status for all clients"
+)
+async def get_rate_limit_stats():
+    """Get rate limiting statistics."""
+    try:
+        from app.api.utils.rate_limiter import get_analysis_limiter, get_cache_limiter
+        
+        analysis_limiter = get_analysis_limiter()
+        cache_limiter = get_cache_limiter()
+        
+        return {
+            "status": "success",
+            "rate_limits": {
+                "analysis": analysis_limiter.get_stats(),
+                "cache": cache_limiter.get_stats()
+            },
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get rate limit stats: {str(e)}")

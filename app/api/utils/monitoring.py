@@ -1,156 +1,359 @@
 """
-API Monitoring Utility
+Monitoring and metrics utilities for the API.
 
-This module provides monitoring functionality for the API server.
+This module provides functionality for collecting performance metrics,
+tracking API usage, and monitoring system health.
 """
 
 import time
-import logging
 import psutil
-import os
-from typing import Dict, Any, List, Optional, Callable
-from datetime import datetime
+from typing import Dict, Any, Optional, List
+from datetime import datetime, timedelta
+from dataclasses import dataclass, field
+from threading import Lock
+from collections import defaultdict, deque
 
-class APIMonitor:
-    """
-    API server monitoring class.
+
+@dataclass
+class RequestMetrics:
+    """Metrics for a single request."""
+    endpoint: str
+    method: str
+    status_code: int
+    response_time: float
+    timestamp: datetime
+    client_ip: str
+    user_agent: str = ""
+    error_message: Optional[str] = None
+
+
+@dataclass
+class SystemMetrics:
+    """System resource metrics."""
+    cpu_percent: float
+    memory_percent: float
+    memory_available_mb: float
+    disk_usage_percent: float
+    timestamp: datetime
+
+
+class MetricsCollector:
+    """Thread-safe metrics collector for API monitoring."""
     
-    This class provides functionality for monitoring API server performance,
-    resource usage, and request statistics.
-    """
-    
-    def __init__(self, logger: logging.Logger):
+    def __init__(self, max_requests: int = 10000, max_age_hours: int = 24):
         """
-        Initialize the API monitor.
+        Initialize metrics collector.
         
         Args:
-            logger (logging.Logger): Logger instance
+            max_requests: Maximum number of request metrics to keep
+            max_age_hours: Maximum age of metrics in hours
         """
-        self.logger = logger
-        self.start_time = datetime.now()
-        self.request_count = 0
-        self.error_count = 0
-        self.endpoint_stats = {}
+        self.max_requests = max_requests
+        self.max_age_hours = max_age_hours
         
-    def log_request(self, endpoint: str, method: str, status_code: int, 
-                   processing_time: float) -> None:
+        self._lock = Lock()
+        self._requests: deque = deque(maxlen=max_requests)
+        self._endpoint_stats: Dict[str, Dict] = defaultdict(lambda: {
+            'count': 0,
+            'total_time': 0.0,
+            'errors': 0,
+            'last_request': None
+        })
+        
+        # System metrics history
+        self._system_metrics: deque = deque(maxlen=1000)  # Keep 1000 measurements
+        
+        # API health status
+        self._service_start_time = datetime.now()
+        self._last_health_check = None
+    
+    def record_request(
+        self,
+        endpoint: str,
+        method: str,
+        status_code: int,
+        response_time: float,
+        client_ip: str,
+        user_agent: str = "",
+        error_message: Optional[str] = None
+    ) -> None:
         """
-        Log a request to the API.
+        Record a request for metrics collection.
         
         Args:
-            endpoint (str): API endpoint
-            method (str): HTTP method
-            status_code (int): HTTP status code
-            processing_time (float): Request processing time in seconds
+            endpoint: API endpoint path
+            method: HTTP method
+            status_code: HTTP status code
+            response_time: Response time in seconds
+            client_ip: Client IP address
+            user_agent: Client user agent
+            error_message: Error message if request failed
         """
-        self.request_count += 1
+        request_metric = RequestMetrics(
+            endpoint=endpoint,
+            method=method,
+            status_code=status_code,
+            response_time=response_time,
+            timestamp=datetime.now(),
+            client_ip=client_ip,
+            user_agent=user_agent,
+            error_message=error_message
+        )
         
-        if status_code >= 400:
-            self.error_count += 1
+        with self._lock:
+            self._requests.append(request_metric)
+            
+            # Update endpoint statistics
+            endpoint_key = f"{method} {endpoint}"
+            stats = self._endpoint_stats[endpoint_key]
+            stats['count'] += 1
+            stats['total_time'] += response_time
+            stats['last_request'] = request_metric.timestamp
+            
+            if status_code >= 400:
+                stats['errors'] += 1
+    
+    def record_system_metrics(self) -> None:
+        """Record current system metrics."""
+        try:
+            # Get system metrics
+            cpu_percent = psutil.cpu_percent(interval=0.1)
+            memory = psutil.virtual_memory()
+            disk = psutil.disk_usage('/')
+            
+            system_metric = SystemMetrics(
+                cpu_percent=cpu_percent,
+                memory_percent=memory.percent,
+                memory_available_mb=memory.available / (1024 * 1024),
+                disk_usage_percent=disk.percent,
+                timestamp=datetime.now()
+            )
+            
+            with self._lock:
+                self._system_metrics.append(system_metric)
+                
+        except Exception:
+            # Silently fail if system metrics can't be collected
+            pass
+    
+    def get_request_stats(self, hours: int = 1) -> Dict[str, Any]:
+        """
+        Get request statistics for the specified time period.
         
-        # Update endpoint stats
-        endpoint_key = f"{method} {endpoint}"
-        if endpoint_key not in self.endpoint_stats:
-            self.endpoint_stats[endpoint_key] = {
-                "count": 0,
-                "error_count": 0,
-                "total_time": 0,
-                "min_time": float('inf'),
-                "max_time": 0
+        Args:
+            hours: Number of hours to include in statistics
+            
+        Returns:
+            Dictionary with request statistics
+        """
+        cutoff_time = datetime.now() - timedelta(hours=hours)
+        
+        with self._lock:
+            # Filter recent requests
+            recent_requests = [
+                req for req in self._requests
+                if req.timestamp >= cutoff_time
+            ]
+            
+            if not recent_requests:
+                return {
+                    "total_requests": 0,
+                    "avg_response_time": 0.0,
+                    "error_rate": 0.0,
+                    "requests_per_hour": 0.0,
+                    "unique_clients": 0,
+                    "status_codes": {},
+                    "endpoints": {}
+                }
+            
+            # Calculate statistics
+            total_requests = len(recent_requests)
+            total_time = sum(req.response_time for req in recent_requests)
+            errors = sum(1 for req in recent_requests if req.status_code >= 400)
+            unique_clients = len(set(req.client_ip for req in recent_requests))
+            
+            # Status code distribution
+            status_codes = defaultdict(int)
+            for req in recent_requests:
+                status_codes[req.status_code] += 1
+            
+            # Endpoint statistics
+            endpoint_stats = defaultdict(lambda: {'count': 0, 'avg_time': 0.0, 'errors': 0})
+            for req in recent_requests:
+                key = f"{req.method} {req.endpoint}"
+                endpoint_stats[key]['count'] += 1
+                endpoint_stats[key]['avg_time'] += req.response_time
+                if req.status_code >= 400:
+                    endpoint_stats[key]['errors'] += 1
+            
+            # Calculate averages
+            for stats in endpoint_stats.values():
+                if stats['count'] > 0:
+                    stats['avg_time'] /= stats['count']
+            
+            return {
+                "total_requests": total_requests,
+                "avg_response_time": total_time / total_requests,
+                "error_rate": errors / total_requests,
+                "requests_per_hour": total_requests / hours,
+                "unique_clients": unique_clients,
+                "status_codes": dict(status_codes),
+                "endpoints": dict(endpoint_stats)
             }
-        
-        stats = self.endpoint_stats[endpoint_key]
-        stats["count"] += 1
-        stats["total_time"] += processing_time
-        stats["min_time"] = min(stats["min_time"], processing_time)
-        stats["max_time"] = max(stats["max_time"], processing_time)
-        
-        if status_code >= 400:
-            stats["error_count"] += 1
     
     def get_system_stats(self) -> Dict[str, Any]:
         """
-        Get system resource usage statistics.
+        Get current and recent system statistics.
         
         Returns:
-            Dict[str, Any]: System statistics
+            Dictionary with system statistics
         """
-        process = psutil.Process(os.getpid())
-        
-        return {
-            "cpu_percent": process.cpu_percent(),
-            "memory_percent": process.memory_percent(),
-            "memory_info": {
-                "rss": process.memory_info().rss,
-                "vms": process.memory_info().vms
-            },
-            "threads": len(process.threads()),
-            "open_files": len(process.open_files()),
-            "connections": len(process.connections())
-        }
-    
-    def get_api_stats(self) -> Dict[str, Any]:
-        """
-        Get API usage statistics.
-        
-        Returns:
-            Dict[str, Any]: API statistics
-        """
-        uptime = (datetime.now() - self.start_time).total_seconds()
-        
-        # Calculate average request time for each endpoint
-        endpoint_stats = {}
-        for endpoint, stats in self.endpoint_stats.items():
-            avg_time = stats["total_time"] / stats["count"] if stats["count"] > 0 else 0
-            error_rate = stats["error_count"] / stats["count"] if stats["count"] > 0 else 0
+        with self._lock:
+            if not self._system_metrics:
+                self.record_system_metrics()
             
-            endpoint_stats[endpoint] = {
-                "count": stats["count"],
-                "error_count": stats["error_count"],
-                "error_rate": error_rate,
-                "avg_time": avg_time,
-                "min_time": stats["min_time"] if stats["min_time"] != float('inf') else 0,
-                "max_time": stats["max_time"]
+            if not self._system_metrics:
+                return {"error": "Unable to collect system metrics"}
+            
+            # Get latest metrics
+            latest = self._system_metrics[-1]
+            
+            # Calculate averages over last hour
+            cutoff_time = datetime.now() - timedelta(hours=1)
+            recent_metrics = [
+                m for m in self._system_metrics
+                if m.timestamp >= cutoff_time
+            ]
+            
+            if recent_metrics:
+                avg_cpu = sum(m.cpu_percent for m in recent_metrics) / len(recent_metrics)
+                avg_memory = sum(m.memory_percent for m in recent_metrics) / len(recent_metrics)
+            else:
+                avg_cpu = latest.cpu_percent
+                avg_memory = latest.memory_percent
+            
+            return {
+                "current": {
+                    "cpu_percent": latest.cpu_percent,
+                    "memory_percent": latest.memory_percent,
+                    "memory_available_mb": latest.memory_available_mb,
+                    "disk_usage_percent": latest.disk_usage_percent,
+                    "timestamp": latest.timestamp.isoformat()
+                },
+                "averages_1h": {
+                    "cpu_percent": avg_cpu,
+                    "memory_percent": avg_memory
+                },
+                "service_uptime_hours": (
+                    datetime.now() - self._service_start_time
+                ).total_seconds() / 3600
             }
-        
-        return {
-            "uptime": uptime,
-            "start_time": self.start_time.isoformat(),
-            "request_count": self.request_count,
-            "error_count": self.error_count,
-            "error_rate": self.error_count / self.request_count if self.request_count > 0 else 0,
-            "endpoints": endpoint_stats
-        }
     
-    def get_all_stats(self) -> Dict[str, Any]:
+    def get_health_status(self) -> Dict[str, Any]:
         """
-        Get all monitoring statistics.
+        Get overall service health status.
         
         Returns:
-            Dict[str, Any]: All statistics
+            Dictionary with health status
         """
+        # Update system metrics
+        self.record_system_metrics()
+        
+        system_stats = self.get_system_stats()
+        request_stats = self.get_request_stats(hours=1)
+        
+        # Determine health status
+        is_healthy = True
+        issues = []
+        
+        if "current" in system_stats:
+            current = system_stats["current"]
+            
+            # Check system resources
+            if current["cpu_percent"] > 90:
+                is_healthy = False
+                issues.append("High CPU usage")
+            
+            if current["memory_percent"] > 90:
+                is_healthy = False
+                issues.append("High memory usage")
+            
+            if current["disk_usage_percent"] > 95:
+                is_healthy = False
+                issues.append("Low disk space")
+        
+        # Check error rate
+        if request_stats["error_rate"] > 0.1:  # > 10% error rate
+            is_healthy = False
+            issues.append("High error rate")
+        
+        self._last_health_check = datetime.now()
+        
         return {
-            "system": self.get_system_stats(),
-            "api": self.get_api_stats(),
-            "timestamp": datetime.now().isoformat()
+            "healthy": is_healthy,
+            "status": "healthy" if is_healthy else "degraded",
+            "issues": issues,
+            "last_check": self._last_health_check.isoformat(),
+            "system": system_stats,
+            "requests": request_stats
         }
     
-    def log_stats(self, interval: int = 3600) -> None:
+    def cleanup_old_metrics(self) -> Dict[str, int]:
         """
-        Log statistics at regular intervals.
+        Remove old metrics to prevent memory leaks.
         
-        Args:
-            interval (int): Logging interval in seconds
+        Returns:
+            Cleanup statistics
         """
-        stats = self.get_all_stats()
+        cutoff_time = datetime.now() - timedelta(hours=self.max_age_hours)
         
-        self.logger.info(f"API Stats: "
-                         f"Uptime: {stats['api']['uptime']:.2f}s, "
-                         f"Requests: {stats['api']['request_count']}, "
-                         f"Errors: {stats['api']['error_count']}, "
-                         f"Error Rate: {stats['api']['error_rate']:.2%}")
-        
-        self.logger.info(f"System Stats: "
-                         f"CPU: {stats['system']['cpu_percent']:.2f}%, "
-                         f"Memory: {stats['system']['memory_percent']:.2f}%, "
-                         f"Threads: {stats['system']['threads']}")
+        with self._lock:
+            # Count items before cleanup
+            initial_requests = len(self._requests)
+            initial_system = len(self._system_metrics)
+            
+            # Remove old requests
+            self._requests = deque(
+                (req for req in self._requests if req.timestamp >= cutoff_time),
+                maxlen=self.max_requests
+            )
+            
+            # Remove old system metrics
+            self._system_metrics = deque(
+                (metric for metric in self._system_metrics if metric.timestamp >= cutoff_time),
+                maxlen=self._system_metrics.maxlen
+            )
+            
+            return {
+                "requests_removed": initial_requests - len(self._requests),
+                "system_metrics_removed": initial_system - len(self._system_metrics),
+                "final_requests": len(self._requests),
+                "final_system_metrics": len(self._system_metrics)
+            }
+
+
+# Global metrics collector instance
+_metrics_collector: Optional[MetricsCollector] = None
+
+
+def get_metrics_collector() -> MetricsCollector:
+    """Get or create the global metrics collector."""
+    global _metrics_collector
+    if _metrics_collector is None:
+        _metrics_collector = MetricsCollector()
+    return _metrics_collector
+
+
+def configure_metrics(max_requests: int = 10000, max_age_hours: int = 24) -> None:
+    """
+    Configure the global metrics collector.
+    
+    Args:
+        max_requests: Maximum number of request metrics to keep
+        max_age_hours: Maximum age of metrics in hours
+    """
+    global _metrics_collector
+    _metrics_collector = MetricsCollector(
+        max_requests=max_requests,
+        max_age_hours=max_age_hours
+    )

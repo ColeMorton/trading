@@ -27,6 +27,9 @@ from app.api.models.ma_cross import (
 from app.api.services.script_executor import task_status
 from app.tools.setup_logging import setup_logging
 from app.ma_cross.core import MACrossAnalyzer, AnalysisConfig
+from app.api.utils.cache import get_cache
+from app.api.utils.performance import get_concurrent_executor, get_request_optimizer
+from app.api.utils.monitoring import get_metrics_collector
 
 
 class MACrossServiceError(Exception):
@@ -41,6 +44,10 @@ class MACrossService:
         """Initialize the MA Cross service."""
         self.config = get_config()
         self.executor = ThreadPoolExecutor(max_workers=4)
+        self.cache = get_cache()
+        self.concurrent_executor = get_concurrent_executor()
+        self.optimizer = get_request_optimizer()
+        self.metrics = get_metrics_collector()
         
     def analyze_portfolio(self, request: MACrossRequest) -> MACrossResponse:
         """
@@ -55,6 +62,11 @@ class MACrossService:
         Raises:
             MACrossServiceError: If analysis fails
         """
+        # Check cache first
+        cached_result = self.cache.get(request)
+        if cached_result:
+            return cached_result
+        
         log, log_close, _, _ = setup_logging(
             module_name='api',
             log_file=f'ma_cross_sync_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log',
@@ -62,6 +74,9 @@ class MACrossService:
         )
         
         try:
+            # Record request metrics
+            start_time = time.time()
+            
             log(f"Starting synchronous MA Cross analysis for ticker(s): {request.ticker}")
             
             # Convert request to strategy config format
@@ -73,14 +88,12 @@ class MACrossService:
             if project_root not in sys.path:
                 sys.path.insert(0, project_root)
             
-            # Import and run the scanner
-            from app.ma_cross.tools.scanner_processing import process_ticker
-            from app.tools.file_utils import is_file_from_today
-            from app.utils import get_path, get_filename
+            # Use performance-optimized analysis
+            optimized_analysis = self.optimizer.time_operation("ma_cross_analysis")(
+                self._execute_analysis
+            )
             
-            # Process analysis
-            start_time = time.time()
-            results = self._execute_analysis(strategy_config, log)
+            results = optimized_analysis(strategy_config, log)
             execution_time = time.time() - start_time
             
             log(f"Analysis completed in {execution_time:.2f} seconds")
@@ -96,6 +109,19 @@ class MACrossService:
                 total_portfolios=len(results),
                 filtered_portfolios=len(results),  # No filtering applied in signal detection mode
                 execution_time=execution_time
+            )
+            
+            # Cache the result for future requests
+            self.cache.set(request, response)
+            
+            # Record metrics
+            self.metrics.record_request(
+                endpoint="/api/ma-cross/analyze",
+                method="POST",
+                status_code=200,
+                response_time=execution_time,
+                client_ip="internal",  # Will be overridden by middleware
+                user_agent="ma_cross_service"
             )
             
             log_close()
