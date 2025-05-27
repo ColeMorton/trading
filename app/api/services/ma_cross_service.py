@@ -30,6 +30,7 @@ from app.ma_cross.core import MACrossAnalyzer, AnalysisConfig
 from app.api.utils.cache import get_cache
 from app.api.utils.performance import get_concurrent_executor, get_request_optimizer
 from app.api.utils.monitoring import get_metrics_collector
+from app.tools.progress_tracking import ProgressTracker, create_progress_callback
 
 
 class MACrossServiceError(Exception):
@@ -183,7 +184,7 @@ class MACrossService:
             estimated_time=60.0  # Estimate based on typical analysis time
         )
     
-    def _execute_analysis(self, config: Dict[str, Any], log) -> List[PortfolioMetrics]:
+    def _execute_analysis(self, config: Dict[str, Any], log, progress_tracker: Optional[ProgressTracker] = None) -> List[PortfolioMetrics]:
         """
         Execute the actual MA Cross analysis using full portfolio analysis.
         
@@ -193,6 +194,7 @@ class MACrossService:
         Args:
             config: Strategy configuration dictionary
             log: Logging function
+            progress_tracker: Optional progress tracker for reporting status
             
         Returns:
             List of PortfolioMetrics results
@@ -209,13 +211,26 @@ class MACrossService:
         strategy_types = config.get("STRATEGY_TYPES", ["SMA", "EMA"])
         all_portfolios = []
         
+        # Update progress for strategy types
+        if progress_tracker:
+            progress_tracker.update(
+                phase="initialization",
+                message=f"Analyzing {len(strategy_types)} strategy types"
+            )
+        
         try:
             # Execute strategy for each strategy type
-            for strategy_type in strategy_types:
+            for i, strategy_type in enumerate(strategy_types):
                 log(f"Executing {strategy_type} strategy analysis")
                 
+                if progress_tracker:
+                    progress_tracker.update(
+                        phase=f"{strategy_type}_analysis",
+                        message=f"Starting {strategy_type} analysis ({i+1}/{len(strategy_types)})"
+                    )
+                
                 # Execute the strategy and get portfolio results
-                portfolios = execute_strategy(config, strategy_type, log)
+                portfolios = execute_strategy(config, strategy_type, log, progress_tracker)
                 
                 if portfolios:
                     # Convert portfolio dictionaries to PortfolioMetrics objects
@@ -306,6 +321,10 @@ class MACrossService:
             
             log(f"Starting async MA Cross analysis for execution {execution_id}")
             
+            # Create progress tracker with callback
+            progress_callback = create_progress_callback(execution_id, task_status)
+            progress_tracker = ProgressTracker(callback=progress_callback)
+            
             # Convert request to strategy config
             strategy_config = request.to_strategy_config()
             
@@ -314,9 +333,9 @@ class MACrossService:
             if project_root not in sys.path:
                 sys.path.insert(0, project_root)
             
-            # Execute analysis
+            # Execute analysis with progress tracking
             start_time = time.time()
-            results = self._execute_analysis(strategy_config, log)
+            results = self._execute_analysis(strategy_config, log, progress_tracker)
             execution_time = time.time() - start_time
             
             # Collect exported file paths

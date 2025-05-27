@@ -5,7 +5,7 @@ This module handles the execution of trading strategies, including portfolio pro
 filtering, and best portfolio selection for both single and multiple tickers.
 """
 
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, TYPE_CHECKING
 import polars as pl
 from app.ma_cross.tools.filter_portfolios import filter_portfolios
 from app.tools.strategy.export_portfolios import export_portfolios, PortfolioExportError
@@ -23,6 +23,9 @@ from app.tools.portfolio.schema_detection import (
     normalize_portfolio_data,
     ensure_allocation_sum_100_percent
 )
+
+if TYPE_CHECKING:
+    from app.tools.progress_tracking import ProgressTracker
 
 def execute_single_strategy(
     ticker: str,
@@ -125,7 +128,8 @@ def execute_single_strategy(
 def process_single_ticker(
     ticker: str,
     config: Config,
-    log: callable
+    log: callable,
+    progress_tracker: Optional['ProgressTracker'] = None
 ) -> Optional[Dict[str, Any]]:
     """Process a single ticker through the portfolio analysis pipeline.
 
@@ -133,6 +137,7 @@ def process_single_ticker(
         ticker (str): The ticker symbol to process
         config (Config): Configuration for the analysis
         log (callable): Logging function
+        progress_tracker: Optional progress tracking object
 
     Returns:
         Optional[Dict[str, Any]]: Best portfolio if found, None otherwise
@@ -145,6 +150,9 @@ def process_single_ticker(
     ticker_config["USE_MA"] = True  # Ensure USE_MA is set for proper filename suffix
     
     # Process portfolios for ticker
+    if progress_tracker:
+        progress_tracker.update(message=f"Analyzing portfolios for {ticker}")
+    
     portfolios_df = process_ticker_portfolios(ticker, ticker_config, log)
     if portfolios_df is None:
         return None
@@ -193,6 +201,9 @@ def process_single_ticker(
     ]
     
     # First, filter out portfolios with invalid metrics
+    if progress_tracker:
+        progress_tracker.update(message=f"Filtering portfolios for {ticker}")
+    
     from app.tools.portfolio.filters import filter_invalid_metrics
     portfolios_df = filter_invalid_metrics(portfolios_df, log)
     
@@ -224,6 +235,9 @@ def process_single_ticker(
         
     try:
         # Convert to dictionaries and normalize schema
+        if progress_tracker:
+            progress_tracker.update(message=f"Exporting portfolios for {ticker}")
+            
         portfolio_dicts = portfolios_df.to_dicts()
         
         # Detect schema version
@@ -291,7 +305,8 @@ def process_single_ticker(
 def execute_strategy(
     config: Config,
     strategy_type: str,
-    log: callable
+    log: callable,
+    progress_tracker: Optional['ProgressTracker'] = None
 ) -> List[Dict[str, Any]]:
     """Execute a trading strategy for all tickers.
 
@@ -299,6 +314,7 @@ def execute_strategy(
         config (Config): Configuration for the analysis
         strategy_type (str): Strategy type (e.g., 'EMA', 'SMA')
         log (callable): Logging function
+        progress_tracker (Optional[ProgressTracker]): Progress tracking object
 
     Returns:
         List[Dict[str, Any]]: List of best portfolios found
@@ -306,7 +322,12 @@ def execute_strategy(
     best_portfolios = []
     tickers = [config["TICKER"]] if isinstance(config["TICKER"], str) else config["TICKER"]
     
-    for ticker in tickers:
+    # Update progress if tracker provided
+    if progress_tracker:
+        progress_tracker.set_total_steps(len(tickers))
+        progress_tracker.update(phase="analysis", message=f"Starting {strategy_type} strategy analysis")
+    
+    for i, ticker in enumerate(tickers):
         log(f"Processing {strategy_type} strategy for ticker: {ticker}")
         ticker_config = config.copy()
         
@@ -328,8 +349,25 @@ def execute_strategy(
         # Set the strategy type in the config
         ticker_config["STRATEGY_TYPE"] = strategy_type
         
-        best_portfolio = process_single_ticker(ticker, ticker_config, log)
+        # Update progress before processing ticker
+        if progress_tracker:
+            progress_tracker.update(
+                step=i,
+                message=f"Processing {ticker} ({i+1}/{len(tickers)})"
+            )
+        
+        best_portfolio = process_single_ticker(ticker, ticker_config, log, progress_tracker)
         if best_portfolio is not None:
             best_portfolios.append(best_portfolio)
+            
+        # Update progress after processing ticker
+        if progress_tracker:
+            progress_tracker.increment(
+                message=f"Completed {ticker} ({i+1}/{len(tickers)})"
+            )
+            
+    # Mark analysis complete
+    if progress_tracker:
+        progress_tracker.complete(f"Completed {strategy_type} analysis for {len(tickers)} tickers")
             
     return best_portfolios
