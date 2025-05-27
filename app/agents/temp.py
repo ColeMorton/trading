@@ -1,8 +1,8 @@
 import pandas as pd
 from langchain_experimental.agents import create_pandas_dataframe_agent
-from langchain_ollama import OllamaLLM
+from langchain_anthropic import ChatAnthropic
 import sys
-import httpx
+import os
 
 def load_mock_csv(file_path):
     """
@@ -20,14 +20,25 @@ def load_mock_csv(file_path):
 
 def create_langchain_agent(df):
     """
-    Creates a LangChain agent that can handle data from the dataframe using Ollama LLM.
+    Creates a LangChain agent that can handle data from the dataframe using Anthropic Claude Sonnet 4.
     """
     try:
-        # Use Ollama's local LLaMA instance
-        llm = OllamaLLM(
-            model="llama3.2:latest",  # Changed to llama2 as it's more commonly available
-            base_url="http://localhost:11434",
-            temperature=1
+        # Check for API key
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        if not api_key:
+            print("""
+Error: ANTHROPIC_API_KEY environment variable not set.
+
+Please set your Anthropic API key:
+export ANTHROPIC_API_KEY=your_api_key_here
+            """)
+            sys.exit(1)
+        
+        # Use Anthropic Claude Sonnet 4
+        llm = ChatAnthropic(
+            model="claude-3-5-sonnet-20241022",
+            temperature=0.1,
+            api_key=api_key
         )
         
         # Create an agent that interacts with the dataframe
@@ -39,17 +50,6 @@ def create_langchain_agent(df):
         )
         
         return agent
-    except httpx.ConnectError:
-        print("""
-Error: Could not connect to Ollama server.
-
-Please ensure:
-1. Ollama is installed (https://ollama.ai)
-2. Ollama server is running (run 'ollama serve' in terminal)
-3. The llama2 model is pulled (run 'ollama pull llama2')
-4. Port 11434 is available and not blocked by firewall
-        """)
-        sys.exit(1)
     except Exception as e:
         print(f"Error creating LangChain agent: {str(e)}")
         sys.exit(1)
