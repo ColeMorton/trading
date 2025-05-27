@@ -26,6 +26,7 @@ from app.api.models.ma_cross import (
 )
 from app.api.services.script_executor import task_status
 from app.tools.setup_logging import setup_logging
+from app.ma_cross.core import MACrossAnalyzer, AnalysisConfig
 
 
 class MACrossServiceError(Exception):
@@ -86,9 +87,15 @@ class MACrossService:
             
             # Build response
             response = MACrossResponse(
-                status="completed",
-                execution_time=execution_time,
-                results=results
+                status="success",
+                request_id=str(uuid.uuid4()),
+                timestamp=datetime.now(),
+                ticker=request.ticker,
+                strategy_types=request.strategy_types,
+                portfolios=results,
+                total_portfolios=len(results),
+                filtered_portfolios=len(results),  # No filtering applied in signal detection mode
+                execution_time=execution_time
             )
             
             log_close()
@@ -139,7 +146,7 @@ class MACrossService:
     
     def _execute_analysis(self, config: Dict[str, Any], log) -> List[PortfolioMetrics]:
         """
-        Execute the actual MA Cross analysis.
+        Execute the actual MA Cross analysis using the core analyzer.
         
         Args:
             config: Strategy configuration dictionary
@@ -148,74 +155,93 @@ class MACrossService:
         Returns:
             List of PortfolioMetrics results
         """
-        # Import required modules
-        from app.ma_cross.tools.scanner_processing import (
-            load_existing_results,
-            process_ticker,
-            export_results
-        )
-        from app.tools.get_data import load_json_portfolio
-        
+        # Create analyzer instance
+        analyzer = MACrossAnalyzer(log)
         results = []
         
-        # Handle single ticker or portfolio
-        if isinstance(config.get("TICKER"), str):
-            # Single ticker analysis
-            ticker = config["TICKER"]
+        try:
+            # Handle single ticker or portfolio
+            if isinstance(config.get("TICKER"), str):
+                # Single ticker analysis
+                ticker = config["TICKER"]
+                tickers = [ticker]
+            elif config.get("PORTFOLIO"):
+                # Load portfolio tickers from CSV
+                import polars as pl
+                portfolio_file = os.path.join("./csv/strategies", config["PORTFOLIO"])
+                
+                try:
+                    portfolio_df = pl.read_csv(portfolio_file)
+                    # Handle different column name variations
+                    ticker_col = "Ticker" if "Ticker" in portfolio_df.columns else "TICKER"
+                    tickers = portfolio_df[ticker_col].to_list()
+                except Exception as e:
+                    log(f"Error loading portfolio file: {str(e)}", "error")
+                    return results
+            else:
+                log("No ticker or portfolio specified", "error")
+                return results
             
-            # Create synthetic portfolio entry
-            portfolio_data = [{
-                "ticker": ticker,
-                "use_sma": config.get("STRATEGY_TYPES", ["SMA", "EMA"]) == ["SMA"],
-                "short_window": config.get("SHORT_WINDOW", 10),
-                "long_window": config.get("LONG_WINDOW", 30)
-            }]
-        else:
-            # Portfolio analysis
-            portfolio_file = os.path.join("./csv/strategies", config["PORTFOLIO"])
-            portfolio_data = load_json_portfolio(portfolio_file)
-        
-        # Process each ticker configuration
-        for item in portfolio_data:
-            ticker = item.get("ticker", item.get("TICKER"))
-            
-            # Process with both SMA and EMA if not specified
+            # Get strategy types to analyze
             strategy_types = config.get("STRATEGY_TYPES", ["SMA", "EMA"])
             
-            for strategy_type in strategy_types:
-                try:
-                    # Prepare row data for process_ticker
-                    row = {
-                        f"{strategy_type}_FAST": item.get("short_window", 10),
-                        f"{strategy_type}_SLOW": item.get("long_window", 30)
-                    }
-                    
-                    # Process ticker
-                    result = process_ticker(ticker, row, config, log)
-                    
-                    # Convert to PortfolioMetrics
-                    if result.get(strategy_type):
-                        metrics = PortfolioMetrics(
+            # Process each ticker with each strategy type
+            for ticker in tickers:
+                for strategy_type in strategy_types:
+                    try:
+                        # Create analysis config
+                        analysis_config = AnalysisConfig(
                             ticker=ticker,
-                            strategy_type=strategy_type,
-                            short_window=row[f"{strategy_type}_FAST"],
-                            long_window=row[f"{strategy_type}_SLOW"],
-                            signal_active=result[strategy_type],
-                            trades=0,  # These would be populated from actual backtest
-                            win_rate=0.0,
-                            expectancy_per_trade=0.0,
-                            profit_factor=0.0,
-                            sortino_ratio=0.0,
-                            beats_bnh=0.0,
-                            score=0.0
+                            use_sma=(strategy_type == "SMA"),
+                            use_hourly=config.get("USE_HOURLY", False),
+                            direction=config.get("DIRECTION", "Long"),
+                            short_window=config.get("SHORT_WINDOW"),
+                            long_window=config.get("LONG_WINDOW"),
+                            windows=config.get("WINDOWS"),
+                            use_years=config.get("USE_YEARS", False),
+                            years=config.get("YEARS", 1.0)
                         )
-                        results.append(metrics)
                         
-                except Exception as e:
-                    log(f"Error processing {ticker} with {strategy_type}: {str(e)}", "error")
-                    continue
-        
-        return results
+                        # Analyze ticker
+                        ticker_result = analyzer.analyze_single(analysis_config)
+                        
+                        # Convert to PortfolioMetrics for each signal
+                        if ticker_result.has_current_signal:
+                            for signal in ticker_result.current_signals:
+                                # Create metrics with minimal required fields
+                                # Real backtest metrics would be populated by running full backtest
+                                metrics = PortfolioMetrics(
+                                    ticker=ticker,
+                                    strategy_type=signal.ma_type,
+                                    short_window=signal.short_window,
+                                    long_window=signal.long_window,
+                                    total_return=0.0,
+                                    annual_return=0.0,
+                                    sharpe_ratio=0.0,
+                                    sortino_ratio=0.0,
+                                    max_drawdown=0.0,
+                                    total_trades=0,
+                                    winning_trades=0,
+                                    losing_trades=0,
+                                    win_rate=0.0,
+                                    profit_factor=0.0,
+                                    expectancy=0.0,
+                                    score=0.0,
+                                    beats_bnh=0.0,
+                                    has_open_trade=False,
+                                    has_signal_entry=True  # Current signal detected
+                                )
+                                results.append(metrics)
+                        
+                    except Exception as e:
+                        log(f"Error processing {ticker} with {strategy_type}: {str(e)}", "error")
+                        continue
+            
+            return results
+            
+        finally:
+            # Clean up analyzer resources
+            analyzer.close()
     
     def _execute_async_analysis(self, execution_id: str, request: MACrossRequest) -> None:
         """

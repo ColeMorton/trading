@@ -305,22 +305,6 @@ def process_scanner() -> bool:
         raise
 
 if __name__ == "__main__":
-    try:
-        # Load and validate configuration
-        config = get_config(config)
-        config["USE_SCANNER"] = True
-        validate_config(config)
-        
-        # Process scanner with validated config
-        result = process_scanner()
-        if result:
-            print("Execution completed successfully!")
-    except ValueError as ve:
-        print(f"Configuration error: {str(ve)}")
-        raise
-    except FileNotFoundError as fe:
-        print(f"File error: {str(fe)}")
-        raise
-    except Exception as e:
-        print(f"Execution failed: {str(e)}")
-        raise
+    # Import and delegate to the new CLI module for backwards compatibility
+    from app.ma_cross.scanner_cli import main
+    main()
