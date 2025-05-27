@@ -15,16 +15,15 @@ Transform trading strategy development from guesswork into systematic, statistic
 
 ## Key Features
 
-### Advanced Strategy Testing Engine
-- **Multi-Strategy Support**: Test popular technical indicators (SMA, EMA, MACD, ATR) individually or in sophisticated combinations
-- **Flexible Configuration**: Customize parameters, timeframes, market direction, and risk management rules
+### Advanced Parameter Sensitivty Testing Engine
+- **Multi-Strategy Support**: Test popular technical indicators (SMA, EMA, MACD, ATR) individually or in combination
+- **Flexible Configuration**: Customize parameters, timeframes, market direction, RSI filtering, stop loss, and backtest metrics
 - **Statistical Validation**: In-sample/out-of-sample testing, Monte Carlo simulations, and Geometric Brownian Motion modeling
-- **Risk Management Integration**: Built-in stop-loss, position sizing, and exposure controls
 
 ### Comprehensive Performance Analytics
 - **40+ Performance Metrics**: Including Sharpe ratio, Sortino ratio, Calmar ratio, maximum drawdown, profit factors, and advanced risk measures
-- **Signal Quality Analysis**: Deep signal evaluation including timing efficiency, reliability scoring, conviction measures, and opportunity cost analysis
-- **Risk Assessment Suite**: Value-at-Risk (VaR) and Conditional VaR at multiple confidence levels, risk concentration indices, and correlation analysis
+- **Signal Quality Analysis**: Deep signal evaluation including diversification, independence, activity, efficiency, consistency, quality, conviction, and opportunity cost analysis
+- **Risk Assessment Suite**: Value-at-Risk (VaR) and Conditional VaR at multiple confidence levels, risk concentration, and strategy correlation analysis
 - **Interactive Visualizations**: Dynamic equity curves, drawdown analysis, return distributions, performance heat maps, and signal timing charts
 
 ### Portfolio Intelligence & Optimization
@@ -36,10 +35,8 @@ Transform trading strategy development from guesswork into systematic, statistic
 - **Cross-Strategy Comparison**: Side-by-side analysis of individual strategies and complete portfolio combinations
 
 ### Portfolio Signal Intelligence
-- **Dynamic Entry/Exit Detection**: Portfolio-level momentum signals and regime change detection for optimal timing
-- **Systematic Rebalancing Alerts**: Drift-based rebalancing triggers and volatility regime adjustments
-- **Portfolio Health Monitoring**: Diversification decay alerts, risk budget violations, and liquidity stress indicators
-- **Performance Attribution Signals**: Real-time monitoring when portfolio behavior deviates from expected patterns
+- **Live Signal Scanner**: Dynamic strategy entry/exit detection across multiple portfolios
+- **Performance Attribution Signals**: Real-time monitoring when portfolio behavior deviates from expected patterns and regime change detection for optimal timing
 
 ### Signal Analysis & Quality Assessment
 - **Signal Timing Analysis**: Evaluate entry and exit timing effectiveness across multiple time horizons

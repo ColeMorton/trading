@@ -23,12 +23,9 @@ PORTFOLIO = [
 # PORTFOLIO = ['SPY', 'QQQ']
 
 NEXT = [
-"AAPL",
-"WELL",
-"FTNT",
-'SUI20947-USD',
-'PENDLE-USD',
-'ETH-USD'
+"ADSK",
+"CVNA",
+"GS"
 ]
 
 # NEXT = [
