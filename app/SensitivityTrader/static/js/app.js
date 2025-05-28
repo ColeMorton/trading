@@ -324,8 +324,10 @@ function buildMACrossRequest(tickers) {
         async_execution: false  // Start with sync execution
     };
     
-    // Add TICKER_2 if present in config
-    if (config.TICKER_2) {
+    // Add synthetic ticker fields if using synthetic pairs
+    if (config.USE_SYNTHETIC && config.TICKER_2) {
+        // For synthetic pairs, use the first ticker as TICKER_1 and the input as TICKER_2
+        request.TICKER_1 = Array.isArray(request.TICKER) ? request.TICKER[0] : request.TICKER;
         request.TICKER_2 = config.TICKER_2;
     }
     

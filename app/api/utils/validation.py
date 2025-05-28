@@ -171,28 +171,36 @@ class RequestValidator:
         elif isinstance(request.ticker, list):
             all_tickers.extend(request.ticker)
             
-        if request.tickers:
+        if hasattr(request, 'tickers') and request.tickers:
             all_tickers.extend(request.tickers)
         
         has_synthetic = any('_' in t for t in all_tickers)
         has_ticker_1 = bool(request.ticker_1)
         has_ticker_2 = bool(request.ticker_2)
+        use_synthetic = getattr(request, 'use_synthetic', False)
         
+        # If use_synthetic is True, both ticker_1 and ticker_2 are required
+        if use_synthetic and (not has_ticker_1 or not has_ticker_2):
+            errors.append(ValidationError(
+                field="synthetic_pairs",
+                message="When USE_SYNTHETIC is true, both TICKER_1 and TICKER_2 must be specified",
+                value={"ticker_1": request.ticker_1, "ticker_2": request.ticker_2, "use_synthetic": use_synthetic}
+            ))
+        
+        # If synthetic tickers in main ticker field, both ticker_1 and ticker_2 should be provided
         if has_synthetic and (not has_ticker_1 or not has_ticker_2):
             errors.append(ValidationError(
                 field="synthetic_pairs",
-                message="Synthetic pairs require both TICKER_1 and TICKER_2 to be specified",
+                message="Synthetic pair tickers (containing '_') require both TICKER_1 and TICKER_2 to be specified",
                 value={"ticker_1": request.ticker_1, "ticker_2": request.ticker_2}
             ))
         
-        if (has_ticker_1 or has_ticker_2) and not has_synthetic:
-            errors.append(ValidationError(
-                field="synthetic_pairs",
-                message="TICKER_1 and TICKER_2 can only be used with synthetic pair tickers (containing '_')",
-                value={"ticker_1": request.ticker_1, "ticker_2": request.ticker_2}
-            ))
+        # If ticker_1 or ticker_2 are provided, either use_synthetic should be true OR there should be synthetic tickers
+        if (has_ticker_1 or has_ticker_2) and not use_synthetic and not has_synthetic:
+            # This is now just a warning - we'll allow it but ignore the ticker_1/ticker_2 fields
+            pass  # Don't add an error, just ignore these fields
         
-        # Validate individual synthetic ticker symbols
+        # Validate individual synthetic ticker symbols if they're provided
         if has_ticker_1:
             errors.extend(cls._validate_single_ticker(request.ticker_1, "ticker_1"))
         if has_ticker_2:
