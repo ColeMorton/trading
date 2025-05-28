@@ -10,6 +10,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set up UI event listeners
     setupUIEvents();
     
+    // Load ticker lists and populate dropdown
+    loadTickerLists();
+    
     // Update portfolio table initially
     refreshPortfolioTable();
     
@@ -17,6 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Store for portfolio exports from MA Cross API
     window.portfolioExports = null;
+    
+    // Store for ticker lists from API
+    window.tickerLists = null;
 });
 
 /**
@@ -141,6 +147,14 @@ function setupUIEvents() {
     if (saveWeightBtn) {
         saveWeightBtn.addEventListener('click', function() {
             savePortfolioWeight();
+        });
+    }
+    
+    // Ticker list dropdown change handler
+    const tickerListSelect = document.getElementById('ticker-list-select');
+    if (tickerListSelect) {
+        tickerListSelect.addEventListener('change', function() {
+            handleTickerListChange(tickerListSelect.value);
         });
     }
 }
@@ -396,8 +410,20 @@ function processMACrossResults(data) {
  * Reset form to default values
  */
 function resetForm() {
-    // Reset form values to defaults
-    document.getElementById('tickers-input').value = '';
+    // Reset ticker list dropdown
+    const tickerListSelect = document.getElementById('ticker-list-select');
+    if (tickerListSelect) {
+        tickerListSelect.value = '';
+    }
+    
+    // Reset form values to defaults and re-enable ticker input
+    const tickerInput = document.getElementById('tickers-input');
+    if (tickerInput) {
+        tickerInput.value = '';
+        tickerInput.disabled = false;
+        tickerInput.placeholder = 'e.g., AAPL,MSFT,GOOG';
+        tickerInput.classList.remove('bg-light');
+    }
     
     // Reset strategy types
     document.getElementById('sma-checkbox').checked = true;
@@ -560,4 +586,129 @@ async function loadPortfoliosBest() {
     } finally {
         document.getElementById('loadingResults').classList.add('d-none');
     }
+}
+
+/**
+ * Load ticker lists from API and populate dropdown
+ */
+async function loadTickerLists() {
+    const tickerListSelect = document.getElementById('ticker-list-select');
+    
+    // Show loading state
+    if (tickerListSelect) {
+        tickerListSelect.innerHTML = '<option value="">Loading ticker lists...</option>';
+        tickerListSelect.disabled = true;
+    }
+    
+    try {
+        const response = await fetch('http://127.0.0.1:8000/api/data/ticker-lists');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.status === 'success' && data.ticker_lists) {
+            // Store ticker lists globally
+            window.tickerLists = data.ticker_lists;
+            
+            // Populate dropdown
+            populateTickerListDropdown(data.ticker_lists);
+            
+            // Re-enable dropdown
+            if (tickerListSelect) {
+                tickerListSelect.disabled = false;
+            }
+            
+            console.log('Ticker lists loaded successfully:', Object.keys(data.ticker_lists));
+        } else {
+            throw new Error('Invalid response format from ticker lists API');
+        }
+    } catch (error) {
+        console.error('Error loading ticker lists:', error);
+        
+        // Show user-friendly error message
+        showToast('Ticker Lists Error', 
+            'Failed to load pre-defined ticker lists. You can still use manual input.', 
+            'warning');
+        
+        // Disable the dropdown on error
+        const tickerListSelect = document.getElementById('ticker-list-select');
+        if (tickerListSelect) {
+            tickerListSelect.disabled = true;
+            tickerListSelect.innerHTML = '<option value="">Error loading lists</option>';
+        }
+    }
+}
+
+/**
+ * Populate the ticker list dropdown with options
+ */
+function populateTickerListDropdown(tickerLists) {
+    const tickerListSelect = document.getElementById('ticker-list-select');
+    if (!tickerListSelect) {
+        console.error('Ticker list dropdown not found');
+        return;
+    }
+    
+    // Clear existing options except the first (None Selected)
+    tickerListSelect.innerHTML = '<option value="">None Selected (Use Manual Input)</option>';
+    
+    // Add options for each ticker list
+    Object.keys(tickerLists).forEach(listName => {
+        const option = document.createElement('option');
+        option.value = listName;
+        option.textContent = `${capitalize(listName)} (${tickerLists[listName].length} tickers)`;
+        tickerListSelect.appendChild(option);
+    });
+    
+    console.log(`Populated dropdown with ${Object.keys(tickerLists).length} ticker lists`);
+}
+
+/**
+ * Handle ticker list dropdown selection change
+ */
+function handleTickerListChange(selectedList) {
+    const tickerInput = document.getElementById('tickers-input');
+    const tickerListSelect = document.getElementById('ticker-list-select');
+    
+    if (!tickerInput) {
+        console.error('Ticker input field not found');
+        return;
+    }
+    
+    if (selectedList && selectedList !== '' && window.tickerLists && window.tickerLists[selectedList]) {
+        // Disable manual input and populate from selected list
+        tickerInput.disabled = true;
+        tickerInput.value = window.tickerLists[selectedList].join(',');
+        tickerInput.placeholder = `Using ${capitalize(selectedList)} list (${window.tickerLists[selectedList].length} tickers)`;
+        
+        // Add visual styling to indicate disabled state
+        tickerInput.classList.add('bg-light');
+        
+        console.log(`Selected ticker list: ${selectedList} with ${window.tickerLists[selectedList].length} tickers`);
+        
+        // Show notification
+        showToast('Ticker List Selected', 
+            `Using ${capitalize(selectedList)} list with ${window.tickerLists[selectedList].length} tickers.`, 
+            'info');
+    } else {
+        // Enable manual input and clear value
+        tickerInput.disabled = false;
+        tickerInput.value = '';
+        tickerInput.placeholder = 'e.g., AAPL,MSFT,GOOG';
+        
+        // Remove visual styling
+        tickerInput.classList.remove('bg-light');
+        
+        console.log('Manual ticker input mode enabled');
+    }
+}
+
+/**
+ * Capitalize first letter of a string
+ */
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }

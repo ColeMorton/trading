@@ -201,6 +201,66 @@ def read_json_file(file_path: str) -> Dict[str, Any]:
     except Exception as e:
         raise DataServiceError(f"Failed to read JSON file {file_path}: {str(e)}")
 
+def read_ticker_lists() -> Dict[str, List[str]]:
+    """
+    Read all ticker lists from the json/ticker_lists directory.
+    
+    Returns:
+        Dict[str, List[str]]: Dictionary mapping list names to ticker arrays
+        
+    Raises:
+        DataServiceError: If ticker lists cannot be read
+    """
+    config = get_config()
+    base_dir = config["BASE_DIR"]
+    ticker_lists_dir = "json/ticker_lists"
+    
+    # Check if the directory is allowed
+    if not is_path_allowed(ticker_lists_dir, config["ALLOWED_DATA_DIRS"], base_dir):
+        allowed_dirs = ", ".join(config["ALLOWED_DATA_DIRS"])
+        raise DataServiceError(f"Directory must be within allowed directories: {allowed_dirs}")
+    
+    full_path = os.path.join(base_dir, ticker_lists_dir)
+    
+    if not os.path.isdir(full_path):
+        raise DataServiceError(f"Ticker lists directory does not exist: {ticker_lists_dir}")
+    
+    try:
+        ticker_lists = {}
+        
+        # Read all JSON files in the ticker_lists directory
+        for item in os.listdir(full_path):
+            if item.endswith('.json'):
+                list_name = item[:-5]  # Remove .json extension
+                file_path = os.path.join(full_path, item)
+                
+                try:
+                    with open(file_path, 'r') as f:
+                        data = json.load(f)
+                    
+                    # Validate that the JSON contains a list of strings
+                    if not isinstance(data, list):
+                        raise DataServiceError(f"Ticker list {list_name} must be an array")
+                    
+                    # Validate that all items are strings
+                    for ticker in data:
+                        if not isinstance(ticker, str):
+                            raise DataServiceError(f"All tickers in {list_name} must be strings")
+                    
+                    ticker_lists[list_name] = data
+                    
+                except json.JSONDecodeError as e:
+                    raise DataServiceError(f"Invalid JSON in ticker list {list_name}: {str(e)}")
+                except Exception as e:
+                    raise DataServiceError(f"Failed to read ticker list {list_name}: {str(e)}")
+        
+        return ticker_lists
+        
+    except Exception as e:
+        if isinstance(e, DataServiceError):
+            raise e
+        raise DataServiceError(f"Failed to read ticker lists: {str(e)}")
+
 def read_data_file(file_path: str, file_format: Optional[str] = None) -> Dict[str, Any]:
     """
     Read a data file.

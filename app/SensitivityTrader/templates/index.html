@@ -13,6 +13,14 @@
         <div id="alert-container"></div>
         
         <div class="mb-3">
+            <label for="ticker-list-select" class="form-label">Pre-defined Ticker Lists</label>
+            <select class="form-select" id="ticker-list-select">
+                <option value="">None Selected (Use Manual Input)</option>
+                <!-- Options will be populated dynamically -->
+            </select>
+        </div>
+        
+        <div class="mb-3">
             <label for="tickers-input" class="form-label">Tickers (comma-separated)</label>
             <input type="text" class="form-control" id="tickers-input" placeholder="e.g., AAPL,MSFT,GOOG">
         </div>
