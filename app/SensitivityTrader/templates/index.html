@@ -354,9 +354,10 @@
 {% endblock %}
 
 {% block scripts %}
+<script id="config-data" type="application/json">{{ default_config|safe }}</script>
 <script>
     // Pass the default configuration to the client-side JavaScript
-    const defaultConfig = {{ default_config|safe }};
+    const defaultConfig = JSON.parse(document.getElementById('config-data').textContent);
 </script>
 <script src="{{ url_for('static', filename='js/analysis.js') }}"></script>
 {% endblock %}
