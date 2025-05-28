@@ -30,7 +30,9 @@ DEFAULT_CONFIG = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
+    "TICKER_2": "",
     "USE_CURRENT": True,
+    "USE_SCANNER": False,
     "MINIMUMS": {
         "WIN_RATE": 0.44,
         "TRADES": 54,

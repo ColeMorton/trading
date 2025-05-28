@@ -171,6 +171,12 @@ class MACrossRequest(BaseModel):
         alias="USE_CURRENT"
     )
     
+    use_scanner: bool = Field(
+        False,
+        description="Whether to use scanner mode",
+        alias="USE_SCANNER"
+    )
+    
     # API-specific fields (not in StrategyConfig)
     async_execution: bool = Field(
         False,
@@ -245,7 +251,7 @@ class MACrossRequest(BaseModel):
             "SORT_ASC": self.sort_asc,
             "USE_GBM": self.use_gbm,
             "USE_CURRENT": self.use_current,
-            "USE_SCANNER": False,  # API doesn't support scanner mode
+            "USE_SCANNER": self.use_scanner,
         }
         
         # Add optional fields

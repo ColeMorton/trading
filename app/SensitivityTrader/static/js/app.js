@@ -228,6 +228,7 @@ function buildConfigFromForm() {
         YEARS: parseInt(document.getElementById('years-input').value),
         USE_SYNTHETIC: document.getElementById('use-synthetic-checkbox').checked,
         USE_CURRENT: document.getElementById('use-current-checkbox').checked,
+        USE_SCANNER: document.getElementById('use-scanner-checkbox').checked,
         MINIMUMS: {
             WIN_RATE: parseFloat(document.getElementById('min-win-rate-input').value),
             TRADES: parseInt(document.getElementById('min-trades-input').value),
@@ -239,6 +240,14 @@ function buildConfigFromForm() {
         SORT_ASC: document.getElementById('sort-asc-checkbox').checked,
         USE_GBM: document.getElementById('use-gbm-checkbox').checked
     };
+    
+    // Add TICKER_2 if using synthetic
+    if (config.USE_SYNTHETIC) {
+        const ticker2Value = document.getElementById('ticker2-input').value.trim();
+        if (ticker2Value) {
+            config.TICKER_2 = ticker2Value;
+        }
+    }
     
     return config;
 }
@@ -263,6 +272,7 @@ function buildMACrossRequest(tickers) {
         YEARS: config.YEARS,
         USE_SYNTHETIC: config.USE_SYNTHETIC,
         USE_CURRENT: config.USE_CURRENT,
+        USE_SCANNER: config.USE_SCANNER,
         REFRESH: config.REFRESH,
         MINIMUMS: config.MINIMUMS,
         SORT_BY: config.SORT_BY,
@@ -270,6 +280,11 @@ function buildMACrossRequest(tickers) {
         USE_GBM: config.USE_GBM,
         async_execution: false  // Start with sync execution
     };
+    
+    // Add TICKER_2 if present in config
+    if (config.TICKER_2) {
+        request.TICKER_2 = config.TICKER_2;
+    }
     
     return request;
 }
@@ -401,7 +416,12 @@ function resetForm() {
     document.getElementById('use-hourly-checkbox').checked = defaultConfig.USE_HOURLY;
     document.getElementById('use-years-checkbox').checked = defaultConfig.USE_YEARS;
     document.getElementById('use-synthetic-checkbox').checked = defaultConfig.USE_SYNTHETIC;
+    document.getElementById('use-current-checkbox').checked = defaultConfig.USE_CURRENT;
+    document.getElementById('use-scanner-checkbox').checked = defaultConfig.USE_SCANNER;
     document.getElementById('use-gbm-checkbox').checked = defaultConfig.USE_GBM;
+    
+    // Reset ticker2 input
+    document.getElementById('ticker2-input').value = defaultConfig.TICKER_2;
     
     // Show notification
     showToast('Form Reset', 'Form has been reset to default values.', 'info');
