@@ -136,7 +136,9 @@ def process_ticker_portfolios(ticker: str, config: Config, log: Callable) -> Opt
                 normalized_portfolios = ensure_allocation_sum_100_percent(normalized_portfolios, log)
             
             strategy_type = config.get("STRATEGY_TYPE", "SMA")
-            log(f"Results for {ticker} {strategy_type}")
+            # Use the ticker from config which may contain the synthetic ticker
+            actual_ticker = config.get("TICKER", ticker)
+            log(f"Results for {actual_ticker} {strategy_type}")
             
             return pl.DataFrame(normalized_portfolios)
             

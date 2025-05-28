@@ -144,16 +144,20 @@ def process_single_ticker(
     """
     # Create a config copy with single ticker
     ticker_config = config.copy()
-    # Ensure synthetic tickers use underscore format
-    formatted_ticker = ticker.replace('/', '_') if isinstance(ticker, str) else ticker
-    ticker_config["TICKER"] = formatted_ticker
+    # Use the ticker from config if it exists (for synthetic tickers), otherwise use the parameter
+    if "TICKER" not in ticker_config:
+        # Ensure synthetic tickers use underscore format
+        formatted_ticker = ticker.replace('/', '_') if isinstance(ticker, str) else ticker
+        ticker_config["TICKER"] = formatted_ticker
     ticker_config["USE_MA"] = True  # Ensure USE_MA is set for proper filename suffix
     
     # Process portfolios for ticker
+    # Get the actual ticker from config (which may be synthetic)
+    actual_ticker = ticker_config.get("TICKER", ticker)
     if progress_tracker:
-        progress_tracker.update(message=f"Analyzing portfolios for {ticker}")
+        progress_tracker.update(message=f"Analyzing portfolios for {actual_ticker}")
     
-    portfolios_df = process_ticker_portfolios(ticker, ticker_config, log)
+    portfolios_df = process_ticker_portfolios(actual_ticker, ticker_config, log)
     if portfolios_df is None:
         return None
         
@@ -258,7 +262,7 @@ def process_single_ticker(
             log=log
         )
     except (ValueError, PortfolioExportError) as e:
-        log(f"Failed to export portfolios for {ticker}: {str(e)}", "error")
+        log(f"Failed to export portfolios for {actual_ticker}: {str(e)}", "error")
         return None
 
     # Filter portfolios for individual ticker
@@ -266,7 +270,7 @@ def process_single_ticker(
     if filtered_portfolios is None:
         return None
         
-    log(f"Filtered results for {ticker}")
+    log(f"Filtered results for {actual_ticker}")
     print(filtered_portfolios)
 
     # Export filtered portfolios
@@ -292,12 +296,12 @@ def process_single_ticker(
             log=log
         )
     except (ValueError, PortfolioExportError) as e:
-        log(f"Failed to export filtered portfolios for {ticker}: {str(e)}", "error")
+        log(f"Failed to export filtered portfolios for {actual_ticker}: {str(e)}", "error")
 
     # Get best portfolio
     best_portfolio = get_best_portfolio(filtered_portfolios, ticker_config, log)
     if best_portfolio is not None:
-        log(f"Best portfolio for {ticker}:")
+        log(f"Best portfolio for {actual_ticker}:")
         return best_portfolio
     
     return None
@@ -356,7 +360,9 @@ def execute_strategy(
                 message=f"Processing {ticker} ({i+1}/{len(tickers)})"
             )
         
-        best_portfolio = process_single_ticker(ticker, ticker_config, log, progress_tracker)
+        # Pass the formatted ticker from config to ensure synthetic tickers are preserved
+        formatted_ticker_to_process = ticker_config.get("TICKER", ticker)
+        best_portfolio = process_single_ticker(formatted_ticker_to_process, ticker_config, log, progress_tracker)
         if best_portfolio is not None:
             best_portfolios.append(best_portfolio)
             
