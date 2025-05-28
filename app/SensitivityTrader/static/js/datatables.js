@@ -169,9 +169,39 @@ function populateResultsTable(results) {
     // Hide empty state
     document.getElementById('noResults').classList.add('d-none');
     
-    // Only show table if we have results
+    // Show/hide table container, header, and action buttons based on whether we have results
+    const resultsActionsContainer = document.getElementById('results-actions-container');
+    const tableResponsiveDiv = document.querySelector('#resultsTable').closest('.table-responsive');
+    const resultsHeader = document.getElementById('results-header');
+    
     if (results && results.length > 0) {
         document.querySelector('#resultsTable').classList.remove('d-none');
+        // Show header when there are results
+        if (resultsHeader) {
+            resultsHeader.style.display = 'flex';
+        }
+        // Show table container when there are results
+        if (tableResponsiveDiv) {
+            tableResponsiveDiv.style.display = 'block';
+        }
+        // Show action buttons when there are results
+        if (resultsActionsContainer) {
+            resultsActionsContainer.style.display = 'flex';
+        }
+    } else {
+        document.querySelector('#resultsTable').classList.add('d-none');
+        // Hide header when there are no results
+        if (resultsHeader) {
+            resultsHeader.style.display = 'none';
+        }
+        // Hide table container when there are no results
+        if (tableResponsiveDiv) {
+            tableResponsiveDiv.style.display = 'none';
+        }
+        // Hide action buttons when there are no results
+        if (resultsActionsContainer) {
+            resultsActionsContainer.style.display = 'none';
+        }
     }
     
     // Add data to the table

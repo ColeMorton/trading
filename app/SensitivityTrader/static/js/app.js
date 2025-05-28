@@ -169,10 +169,32 @@ function runAnalysis() {
         alertContainer.innerHTML = '';
     }
     
-    // Hide results table when starting new analysis
+    // Hide results table, header, table container, and action buttons when starting new analysis
     const resultsTableElement = document.querySelector('#resultsTable');
     if (resultsTableElement) {
         resultsTableElement.classList.add('d-none');
+        
+        // Also hide the table-responsive container
+        const tableResponsiveDiv = resultsTableElement.closest('.table-responsive');
+        if (tableResponsiveDiv) {
+            tableResponsiveDiv.style.display = 'none';
+        }
+    }
+    
+    const resultsHeader = document.getElementById('results-header');
+    if (resultsHeader) {
+        resultsHeader.style.display = 'none';
+    }
+    
+    const resultsActionsContainer = document.getElementById('results-actions-container');
+    if (resultsActionsContainer) {
+        resultsActionsContainer.style.display = 'none';
+    }
+    
+    // Show the Results section now that analysis has started
+    const resultsSection = document.getElementById('results-section');
+    if (resultsSection) {
+        resultsSection.style.display = 'block';
     }
     
     // Show main loading indicator only
