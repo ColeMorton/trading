@@ -262,6 +262,17 @@ class MACrossService:
                             winning_trades = int(total_trades * win_rate_pct / 100)
                             losing_trades = total_trades - winning_trades
                             
+                            # Convert string values to appropriate types before comparisons
+                            total_open_trades = portfolio.get("Total Open Trades", 0)
+                            if isinstance(total_open_trades, str):
+                                total_open_trades = int(total_open_trades) if total_open_trades.isdigit() else 0
+                            
+                            signal_entry = portfolio.get("Signal Entry", False)
+                            if isinstance(signal_entry, str):
+                                signal_entry_bool = signal_entry.lower() == "true"
+                            else:
+                                signal_entry_bool = bool(signal_entry)
+                            
                             metrics = PortfolioMetrics(
                                 ticker=portfolio.get("Ticker", ""),
                                 strategy_type=strategy_type_value,
@@ -280,8 +291,8 @@ class MACrossService:
                                 expectancy=float(portfolio.get("Expectancy", portfolio.get("Expectancy per Trade", 0.0))),
                                 score=float(portfolio.get("Score", 0.0)),
                                 beats_bnh=float(portfolio.get("Beats BNH [%]", 0.0)),
-                                has_open_trade=bool(portfolio.get("Total Open Trades", 0) > 0),
-                                has_signal_entry=bool(portfolio.get("Signal Entry", False) == "true" or portfolio.get("Signal Entry", False) is True)
+                                has_open_trade=bool(total_open_trades > 0),
+                                has_signal_entry=signal_entry_bool
                             )
                             all_portfolios.append(metrics)
                         except (ValueError, TypeError, KeyError) as e:

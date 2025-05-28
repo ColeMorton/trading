@@ -131,14 +131,14 @@ Analysis forms should follow these patterns:
 <form id="analysisForm">
   <!-- Basic parameters (always visible) -->
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4">
       <div class="mb-3">
         <label for="tickers" class="form-label">Ticker(s)</label>
         <input type="text" class="form-control" id="tickers" placeholder="Enter tickers separated by commas">
         <div class="form-text">For demo, try "AAPL" or "CRYPTO"</div>
       </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
       <div class="mb-3">
         <label for="strategyTypes" class="form-label">Strategy Types</label>
         <select class="form-select" id="strategyTypes" multiple>
@@ -655,7 +655,7 @@ Here's a complete example of how to implement the analysis section following the
   <div class="card-body">
     <form id="analysisForm">
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-4">
           <div class="mb-3">
             <label for="tickers" class="form-label">Ticker(s)</label>
             <input type="text" class="form-control" id="tickers" 
