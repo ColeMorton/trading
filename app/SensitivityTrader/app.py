@@ -186,5 +186,31 @@ def get_csv_file(filename):
         logger.error(f"Error serving CSV file: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
+@app.route('/api/config-presets', methods=['GET'])
+def get_config_presets():
+    """Return available configuration presets from JSON file."""
+    try:
+        # Load presets from the JSON configuration file
+        config_path = os.path.join(get_project_root(), 'json', 'configuration', 'ma_cross.json')
+        
+        if not os.path.exists(config_path):
+            logger.warning(f"Configuration file not found at {config_path}")
+            return jsonify({'status': 'error', 'message': 'Configuration file not found'}), 404
+        
+        with open(config_path, 'r') as f:
+            presets = json.load(f)
+        
+        # Convert to list format for frontend
+        preset_list = [{'name': name, 'config': config} for name, config in presets.items()]
+        
+        return jsonify({'status': 'success', 'presets': preset_list})
+    
+    except json.JSONDecodeError as e:
+        logger.error(f"Error parsing configuration JSON: {str(e)}")
+        return jsonify({'status': 'error', 'message': 'Invalid configuration file format'}), 500
+    except Exception as e:
+        logger.error(f"Error loading configuration presets: {str(e)}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load ticker lists and populate dropdown
     loadTickerLists();
     
+    // Load configuration presets and populate dropdown
+    loadConfigPresets();
+    
     // Update portfolio table initially
     refreshPortfolioTable();
     
@@ -440,13 +443,11 @@ function resetForm() {
         tickerListSelect.value = '';
     }
     
-    // Reset form values to defaults and re-enable ticker input
+    // Reset form values to defaults
     const tickerInput = document.getElementById('tickers-input');
     if (tickerInput) {
         tickerInput.value = '';
-        tickerInput.disabled = false;
         tickerInput.placeholder = 'e.g., AAPL,MSFT,GOOG';
-        tickerInput.classList.remove('bg-light');
     }
     
     // Reset strategy types
@@ -703,28 +704,20 @@ function handleTickerListChange(selectedList) {
     }
     
     if (selectedList && selectedList !== '' && window.tickerLists && window.tickerLists[selectedList]) {
-        // Disable manual input and populate from selected list
-        tickerInput.disabled = true;
+        // Populate from selected list but keep input enabled for editing
         tickerInput.value = window.tickerLists[selectedList].join(',');
-        tickerInput.placeholder = `Using ${capitalize(selectedList)} list (${window.tickerLists[selectedList].length} tickers)`;
-        
-        // Add visual styling to indicate disabled state
-        tickerInput.classList.add('bg-light');
+        tickerInput.placeholder = `${capitalize(selectedList)} list loaded (${window.tickerLists[selectedList].length} tickers) - Edit as needed`;
         
         console.log(`Selected ticker list: ${selectedList} with ${window.tickerLists[selectedList].length} tickers`);
         
         // Show notification
         showToast('Ticker List Selected', 
-            `Using ${capitalize(selectedList)} list with ${window.tickerLists[selectedList].length} tickers.`, 
+            `Loaded ${capitalize(selectedList)} list with ${window.tickerLists[selectedList].length} tickers. You can edit the list as needed.`, 
             'info');
     } else {
-        // Enable manual input and clear value
-        tickerInput.disabled = false;
+        // Clear value for manual input
         tickerInput.value = '';
         tickerInput.placeholder = 'e.g., AAPL,MSFT,GOOG';
-        
-        // Remove visual styling
-        tickerInput.classList.remove('bg-light');
         
         console.log('Manual ticker input mode enabled');
     }
@@ -735,4 +728,190 @@ function handleTickerListChange(selectedList) {
  */
 function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
+ * Load configuration presets from server
+ */
+async function loadConfigPresets() {
+    const configPresetSelect = document.getElementById('config-preset-select');
+    
+    // Show loading state
+    if (configPresetSelect) {
+        configPresetSelect.innerHTML = '<option value="">Loading configuration presets...</option>';
+        configPresetSelect.disabled = true;
+    }
+    
+    try {
+        const response = await fetch('/api/config-presets');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.status === 'success' && data.presets) {
+            // Store presets globally
+            window.configPresets = {};
+            data.presets.forEach(preset => {
+                window.configPresets[preset.name] = preset.config;
+            });
+            
+            // Populate dropdown
+            populateConfigPresetDropdown(data.presets);
+            
+            // Re-enable dropdown
+            if (configPresetSelect) {
+                configPresetSelect.disabled = false;
+            }
+            
+            // Set up change handler
+            configPresetSelect.addEventListener('change', function() {
+                const selectedPreset = configPresetSelect.value;
+                handleConfigPresetSelection(selectedPreset);
+            });
+            
+            console.log('Configuration presets loaded successfully:', data.presets.map(p => p.name));
+        } else {
+            throw new Error('Invalid response format from config presets API');
+        }
+    } catch (error) {
+        console.error('Error loading configuration presets:', error);
+        
+        // Show user-friendly error message
+        showToast('Configuration Presets Error', 
+            'Failed to load configuration presets. You can still configure manually.', 
+            'warning');
+        
+        // Reset dropdown to custom configuration mode
+        if (configPresetSelect) {
+            configPresetSelect.disabled = false;
+            configPresetSelect.innerHTML = '<option value="">Custom Configuration</option>';
+        }
+    }
+}
+
+/**
+ * Populate the configuration preset dropdown with options
+ */
+function populateConfigPresetDropdown(presets) {
+    const configPresetSelect = document.getElementById('config-preset-select');
+    if (!configPresetSelect) {
+        console.error('Configuration preset dropdown not found');
+        return;
+    }
+    
+    // Clear existing options
+    configPresetSelect.innerHTML = '<option value="">Custom Configuration</option>';
+    
+    // Add preset options
+    presets.forEach(preset => {
+        const option = document.createElement('option');
+        option.value = preset.name;
+        option.textContent = preset.name;
+        configPresetSelect.appendChild(option);
+    });
+}
+
+/**
+ * Handle configuration preset selection
+ */
+function handleConfigPresetSelection(selectedPreset) {
+    if (!selectedPreset || selectedPreset === '' || !window.configPresets || !window.configPresets[selectedPreset]) {
+        // Custom configuration mode - don't change any values
+        console.log('Custom configuration mode selected');
+        return;
+    }
+    
+    const preset = window.configPresets[selectedPreset];
+    console.log('Applying configuration preset:', selectedPreset, preset);
+    
+    // Apply preset values to form fields
+    // Basic configuration
+    if (preset.WINDOWS !== undefined) {
+        document.getElementById('windows-input').value = preset.WINDOWS;
+    }
+    
+    // Strategy types
+    if (preset.STRATEGY_TYPES !== undefined) {
+        document.getElementById('sma-checkbox').checked = preset.STRATEGY_TYPES.includes('SMA');
+        document.getElementById('ema-checkbox').checked = preset.STRATEGY_TYPES.includes('EMA');
+    }
+    
+    // Direction
+    if (preset.DIRECTION !== undefined) {
+        document.getElementById('direction-select').value = preset.DIRECTION;
+    }
+    
+    // Checkboxes
+    if (preset.REFRESH !== undefined) {
+        document.getElementById('refresh-checkbox').checked = preset.REFRESH;
+    }
+    
+    if (preset.USE_CURRENT !== undefined) {
+        document.getElementById('use-current-checkbox').checked = preset.USE_CURRENT;
+    }
+    
+    // Advanced configuration
+    if (preset.USE_HOURLY !== undefined) {
+        document.getElementById('use-hourly-checkbox').checked = preset.USE_HOURLY;
+    }
+    
+    if (preset.USE_YEARS !== undefined) {
+        document.getElementById('use-years-checkbox').checked = preset.USE_YEARS;
+    }
+    
+    if (preset.YEARS !== undefined) {
+        document.getElementById('years-input').value = preset.YEARS;
+    }
+    
+    if (preset.USE_SYNTHETIC !== undefined) {
+        document.getElementById('use-synthetic-checkbox').checked = preset.USE_SYNTHETIC;
+    }
+    
+    if (preset.TICKER_2 !== undefined) {
+        document.getElementById('ticker2-input').value = preset.TICKER_2;
+    }
+    
+    if (preset.USE_SCANNER !== undefined) {
+        document.getElementById('use-scanner-checkbox').checked = preset.USE_SCANNER;
+    }
+    
+    if (preset.USE_GBM !== undefined) {
+        document.getElementById('use-gbm-checkbox').checked = preset.USE_GBM;
+    }
+    
+    // Minimum requirements (if present in preset)
+    if (preset.MINIMUMS) {
+        if (preset.MINIMUMS.WIN_RATE !== undefined) {
+            document.getElementById('min-win-rate-input').value = preset.MINIMUMS.WIN_RATE;
+        }
+        if (preset.MINIMUMS.TRADES !== undefined) {
+            document.getElementById('min-trades-input').value = preset.MINIMUMS.TRADES;
+        }
+        if (preset.MINIMUMS.EXPECTANCY_PER_TRADE !== undefined) {
+            document.getElementById('min-expectancy-input').value = preset.MINIMUMS.EXPECTANCY_PER_TRADE;
+        }
+        if (preset.MINIMUMS.PROFIT_FACTOR !== undefined) {
+            document.getElementById('min-profit-factor-input').value = preset.MINIMUMS.PROFIT_FACTOR;
+        }
+        if (preset.MINIMUMS.SORTINO_RATIO !== undefined) {
+            document.getElementById('min-sortino-input').value = preset.MINIMUMS.SORTINO_RATIO;
+        }
+    }
+    
+    // Sorting configuration
+    if (preset.SORT_BY !== undefined) {
+        document.getElementById('sort-by-select').value = preset.SORT_BY;
+    }
+    
+    if (preset.SORT_ASC !== undefined) {
+        document.getElementById('sort-asc-checkbox').checked = preset.SORT_ASC;
+    }
+    
+    // Show notification
+    showToast('Configuration Preset Applied', 
+        `Applied "${selectedPreset}" configuration preset.`, 
+        'success');
 }

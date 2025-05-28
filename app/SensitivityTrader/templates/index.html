@@ -13,7 +13,15 @@
         <div id="alert-container"></div>
         
         <div class="mb-3">
-            <label for="ticker-list-select" class="form-label">Pre-defined Ticker Lists</label>
+            <label for="config-preset-select" class="form-label">Configuration Presets</label>
+            <select class="form-select" id="config-preset-select">
+                <option value="">Custom Configuration</option>
+                <!-- Options will be populated dynamically -->
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="ticker-list-select" class="form-label">Ticker Presets</label>
             <select class="form-select" id="ticker-list-select">
                 <option value="">None Selected (Use Manual Input)</option>
                 <!-- Options will be populated dynamically -->

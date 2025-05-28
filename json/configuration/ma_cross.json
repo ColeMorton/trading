@@ -1,0 +1,34 @@
+{
+    "Default": {
+        "WINDOWS": 89,
+        "USE_SCANNER": false,
+        "BASE_DIR": ".",
+        "REFRESH": true,
+        "STRATEGY_TYPES": [ "SMA", "EMA" ],
+        "DIRECTION": "Long",
+        "USE_HOURLY": false,
+        "USE_YEARS": false,
+        "YEARS": 15,
+        "USE_SYNTHETIC": false,
+        "USE_CURRENT": false,
+        "SORT_BY": "Score",
+        "SORT_ASC": false,
+        "USE_GBM": false
+    },
+    "Test": {
+        "WINDOWS": 8,
+        "USE_SCANNER": false,
+        "BASE_DIR": ".",
+        "REFRESH": true,
+        "STRATEGY_TYPES": [ "SMA", "EMA" ],
+        "DIRECTION": "Long",
+        "USE_HOURLY": false,
+        "USE_YEARS": true,
+        "YEARS": 20,
+        "USE_SYNTHETIC": false,
+        "USE_CURRENT": false,
+        "SORT_BY": "Score",
+        "SORT_ASC": false,
+        "USE_GBM": false
+    }
+}
