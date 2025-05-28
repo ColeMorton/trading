@@ -16,7 +16,7 @@ function initResultsTable() {
     
     // Initialize DataTable with options
     resultsTable = new DataTable('#resultsTable', {
-        order: [[5, 'desc']], // Sort by score by default
+        order: [[4, 'desc']], // Sort by score by default
         pageLength: 10,
         lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
         columnDefs: [
@@ -36,13 +36,13 @@ function initResultsTable() {
                 }
             },
             {
-                targets: [6, 10, 11], // Percentage columns
+                targets: [5, 9, 10], // Percentage columns (Win Rate, Total Return, Max Drawdown)
                 render: function(data) {
                     return typeof data === 'number' ? data.toFixed(2) + '%' : data;
                 }
             },
             {
-                targets: [7, 8, 9], // Float columns
+                targets: [4, 6, 7, 8], // Float columns (Score, Profit Factor, Expectancy, Sortino)
                 render: function(data) {
                     return typeof data === 'number' ? data.toFixed(2) : data;
                 }
@@ -207,12 +207,17 @@ function populateResultsTable(results) {
     // Add data to the table
     if (Array.isArray(results) && results.length > 0) {
         results.forEach(result => {
+            // Format windows column (Short / Long / Signal)
+            const shortWindow = result['Short Window'] || '';
+            const longWindow = result['Long Window'] || '';
+            const signalWindow = result['Signal Window'] || '0';
+            const windowsDisplay = `${shortWindow} / ${longWindow} / ${signalWindow}`;
+            
             resultsTable.row.add([
                 '', // Checkbox column
                 result['Ticker'] || '',
                 result['Strategy Type'] || '',
-                result['Short Window'] || '',
-                result['Long Window'] || '',
+                windowsDisplay, // Windows column
                 result['Score'] || '',
                 result['Win Rate [%]'] || '',
                 result['Profit Factor'] || '',
@@ -280,10 +285,16 @@ function updatePortfolioTable(portfolioItems) {
         
         // Add data to the table
         portfolioItems.forEach(item => {
+            // Format windows column (Short / Long / Signal)
+            const shortWindow = item['Short Window'] || '';
+            const longWindow = item['Long Window'] || '';
+            const signalWindow = item['Signal Window'] || '0';
+            const windowsDisplay = `${shortWindow} / ${longWindow} / ${signalWindow}`;
+            
             portfolioTable.row.add([
                 item['Ticker'] || '',
                 item['Strategy Type'] || '',
-                `${item['Short Window'] || ''} / ${item['Long Window'] || ''}`,
+                windowsDisplay,
                 item['Score'] || '',
                 item['Win Rate [%]'] || '',
                 item['Expectancy per Trade'] || '',
@@ -355,19 +366,27 @@ function addRowToPortfolio(rowIndex) {
     const rowData = resultsTable.row(rowIndex).data();
     if (!rowData) return;
     
+    // Parse windows from the concatenated format (Short / Long / Signal)
+    const windowsString = rowData[3];
+    const windowParts = windowsString.split(' / ').map(w => w.trim());
+    const shortWindow = parseInt(windowParts[0]) || 0;
+    const longWindow = parseInt(windowParts[1]) || 0;
+    const signalWindow = parseInt(windowParts[2]) || 0;
+    
     // Create portfolio item object
     const portfolioItem = {
         'Ticker': rowData[1],
         'Strategy Type': rowData[2],
-        'Short Window': parseInt(rowData[3]),
-        'Long Window': parseInt(rowData[4]),
-        'Score': parseFloat(rowData[5]),
-        'Win Rate [%]': parseFloat(rowData[6]),
-        'Profit Factor': parseFloat(rowData[7]),
-        'Expectancy per Trade': parseFloat(rowData[8]),
-        'Sortino Ratio': parseFloat(rowData[9]),
-        'Total Return [%]': parseFloat(rowData[10]),
-        'Max Drawdown [%]': parseFloat(rowData[11]),
+        'Short Window': shortWindow,
+        'Long Window': longWindow,
+        'Signal Window': signalWindow,
+        'Score': parseFloat(rowData[4]),
+        'Win Rate [%]': parseFloat(rowData[5]),
+        'Profit Factor': parseFloat(rowData[6]),
+        'Expectancy per Trade': parseFloat(rowData[7]),
+        'Sortino Ratio': parseFloat(rowData[8]),
+        'Total Return [%]': parseFloat(rowData[9]),
+        'Max Drawdown [%]': parseFloat(rowData[10]),
         'weight': 1 // Default weight
     };
     
@@ -429,12 +448,16 @@ function savePortfolioWeight() {
     const rowData = portfolioTable.row(index).data();
     if (!rowData) return;
     
+    // Parse windows from the concatenated format (Short / Long / Signal)
+    const windowParts = rowData[2].split(' / ').map(w => w.trim());
+    
     // Create portfolio item object with updated weight
     const portfolioItem = {
         'Ticker': rowData[0],
         'Strategy Type': rowData[1],
-        'Short Window': parseInt(rowData[2].split(' / ')[0]),
-        'Long Window': parseInt(rowData[2].split(' / ')[1]),
+        'Short Window': parseInt(windowParts[0]) || 0,
+        'Long Window': parseInt(windowParts[1]) || 0,
+        'Signal Window': parseInt(windowParts[2]) || 0,
         'weight': weight
     };
     
@@ -474,12 +497,16 @@ function removeFromPortfolio(index) {
     const rowData = portfolioTable.row(index).data();
     if (!rowData) return;
     
+    // Parse windows from the concatenated format (Short / Long / Signal)
+    const windowParts = rowData[2].split(' / ').map(w => w.trim());
+    
     // Create portfolio item object for identification
     const portfolioItem = {
         'Ticker': rowData[0],
         'Strategy Type': rowData[1],
-        'Short Window': parseInt(rowData[2].split(' / ')[0]),
-        'Long Window': parseInt(rowData[2].split(' / ')[1])
+        'Short Window': parseInt(windowParts[0]) || 0,
+        'Long Window': parseInt(windowParts[1]) || 0,
+        'Signal Window': parseInt(windowParts[2]) || 0
     };
     
     // Remove from portfolio via API
