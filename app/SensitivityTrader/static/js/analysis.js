@@ -11,13 +11,8 @@ const Analysis = (function() {
      * Initialize the analysis module.
      */
     function init() {
-        // Set up event listeners
-        const runAnalysisBtn = document.getElementById('run-analysis-btn');
-        if (runAnalysisBtn) {
-            runAnalysisBtn.addEventListener('click', runAnalysis);
-        } else {
-            console.error('Run analysis button not found in the DOM');
-        }
+        // Note: run-analysis-btn event listener is handled by app.js
+        // This module provides analysis functionality but doesn't handle the main button
         
         // Set up CSV file selector dropdown
         const csvSelector = document.getElementById('csv-file-selector');
@@ -57,8 +52,17 @@ const Analysis = (function() {
         // Get the configuration
         const config = getConfiguration();
         
-        // Show loading indicator
-        showLoading(true);
+        // Clear any existing alerts
+        const alertContainer = document.getElementById('alert-container');
+        if (alertContainer) {
+            alertContainer.innerHTML = '';
+        }
+        
+        // Hide results table
+        const resultsContainer = document.getElementById('results-container');
+        if (resultsContainer) {
+            resultsContainer.style.display = 'none';
+        }
         
         // Send the request to the server
         fetch('/api/analyze', {
@@ -73,8 +77,6 @@ const Analysis = (function() {
         })
         .then(response => response.json())
         .then(data => {
-            // Hide loading indicator
-            showLoading(false);
             
             if (data.status === 'success') {
                 // Store the results
@@ -97,8 +99,6 @@ const Analysis = (function() {
             }
         })
         .catch(error => {
-            // Hide loading indicator
-            showLoading(false);
             
             // Show error message
             showError('An error occurred: ' + error.message);
@@ -253,7 +253,7 @@ const Analysis = (function() {
             return;
         }
         
-        // Show loading indicator
+        // Disable button during loading
         showLoading(true);
         
         // Determine the file path
@@ -283,11 +283,11 @@ const Analysis = (function() {
                 // Display the results
                 displayResults(parsedData);
                 
-                // Hide loading indicator
+                // Re-enable button
                 showLoading(false);
             })
             .catch(error => {
-                // Hide loading indicator
+                // Re-enable button
                 showLoading(false);
                 
                 // Show error message
@@ -497,10 +497,8 @@ const Analysis = (function() {
      * Show a loading indicator.
      */
     function showLoading(isLoading) {
-        const loadingIndicator = document.getElementById('loading-indicator');
-        if (loadingIndicator) {
-            loadingIndicator.style.display = isLoading ? 'block' : 'none';
-        }
+        // This function is used for CSV loading operations, not main analysis
+        // For main analysis loading, see app.js which uses loadingResults
         
         // Disable/enable the run analysis button
         const runAnalysisBtn = document.getElementById('run-analysis-btn');
@@ -513,6 +511,11 @@ const Analysis = (function() {
      * Show a success message.
      */
     function showSuccess(message) {
+        // Don't show success messages for analysis completion with result counts
+        if (message && message.includes('Analysis completed successfully with')) {
+            return;
+        }
+        
         const alertContainer = document.getElementById('alert-container');
         if (alertContainer) {
             alertContainer.innerHTML = `

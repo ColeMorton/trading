@@ -13,8 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update portfolio table initially
     refreshPortfolioTable();
     
-    // Load sample data for demonstration
-    loadSampleData();
+    // Don't load sample data automatically
     
     // Store for portfolio exports from MA Cross API
     window.portfolioExports = null;
@@ -150,9 +149,19 @@ function setupUIEvents() {
  * Run the parameter sensitivity analysis
  */
 function runAnalysis() {
-    // Show loading indicator
-    const loadingIndicator = document.getElementById('loading-indicator');
-    if (loadingIndicator) loadingIndicator.style.display = 'block';
+    // Clear any existing alerts/success messages
+    const alertContainer = document.getElementById('alert-container');
+    if (alertContainer) {
+        alertContainer.innerHTML = '';
+    }
+    
+    // Hide results table when starting new analysis
+    const resultsTableElement = document.querySelector('#resultsTable');
+    if (resultsTableElement) {
+        resultsTableElement.classList.add('d-none');
+    }
+    
+    // Show main loading indicator only
     document.getElementById('loadingResults').classList.remove('d-none');
     document.getElementById('noResults').classList.add('d-none');
     
@@ -199,8 +208,6 @@ function runAnalysis() {
     .finally(() => {
         // Hide loading indicator
         document.getElementById('loadingResults').classList.add('d-none');
-        const loadingIndicator = document.getElementById('loading-indicator');
-        if (loadingIndicator) loadingIndicator.style.display = 'none';
     });
 }
 
@@ -428,21 +435,9 @@ function resetForm() {
 }
 
 /**
- * Load sample data for demonstration
+ * Load sample data for demonstration - REMOVED
+ * No longer automatically loading AAPL mock data
  */
-function loadSampleData() {
-    // For demonstration, load sample AAPL data
-    fetch('/api/sample_data?ticker=AAPL')
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                populateResultsTable(data.results);
-            }
-        })
-        .catch(error => {
-            console.error('Error loading sample data:', error);
-        });
-}
 
 /**
  * Show a toast notification

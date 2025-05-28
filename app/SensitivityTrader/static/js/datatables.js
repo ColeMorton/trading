@@ -166,9 +166,13 @@ function populateResultsTable(results) {
         initResultsTable();
     }
     
-    // Hide empty state and show table
+    // Hide empty state
     document.getElementById('noResults').classList.add('d-none');
-    document.querySelector('#resultsTable').classList.remove('d-none');
+    
+    // Only show table if we have results
+    if (results && results.length > 0) {
+        document.querySelector('#resultsTable').classList.remove('d-none');
+    }
     
     // Add data to the table
     if (Array.isArray(results) && results.length > 0) {

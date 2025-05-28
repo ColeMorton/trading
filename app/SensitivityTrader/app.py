@@ -72,21 +72,9 @@ def analyze():
 
 @app.route('/api/sample_data', methods=['GET'])
 def sample_data():
-    """Provide sample data for demonstration."""
-    try:
-        ticker = request.args.get('ticker', 'AAPL')
-        if ticker.upper() == 'AAPL':
-            results = data_processor.load_sample_data('AAPL_D_SMA.csv')
-        elif 'CRYPTO' in ticker.upper():
-            results = data_processor.load_sample_data('DAILY_crypto.csv')
-        else:
-            # Default to AAPL if no matching data
-            results = data_processor.load_sample_data('AAPL_D_SMA.csv')
-        
-        return jsonify({'status': 'success', 'results': results})
-    except Exception as e:
-        logger.error(f"Error loading sample data: {str(e)}")
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+    """Provide sample data for demonstration - disabled to prevent automatic loading."""
+    # Return empty results to prevent loading mock data
+    return jsonify({'status': 'success', 'results': []})
 
 @app.route('/api/portfolio', methods=['GET', 'POST', 'DELETE'])
 def portfolio():
