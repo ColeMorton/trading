@@ -115,6 +115,22 @@ class StrategyConfig(TypedDict, total=False):
     SORT_BY: NotRequired[str]
     SORT_ASC: NotRequired[bool]
 
+    TICKER: Union[str, List[str]]
+    WINDOWS: NotRequired[int]
+    DIRECTION: NotRequired[str]
+    USE_SMA: NotRequired[bool]
+    USE_HOURLY: NotRequired[bool]
+    USE_YEARS: NotRequired[bool]
+    YEARS: NotRequired[float]
+    USE_SYNTHETIC: NotRequired[bool]
+    TICKER_2: NotRequired[str]
+    USE_SCANNER: NotRequired[bool]
+    REFRESH: NotRequired[bool]
+    USE_CURRENT: NotRequired[bool]
+    MINIMUMS: NotRequired[Dict[str, Union[int, float]]]
+    SORT_BY: NotRequired[str]
+    SORT_ASC: NotRequired[bool]
+
 # Default configuration
 DEFAULT_CONFIG: StrategyConfig = {
     "TICKER": "BTC-USD",

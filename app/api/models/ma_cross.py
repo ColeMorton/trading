@@ -165,6 +165,12 @@ class MACrossRequest(BaseModel):
         alias="USE_GBM"
     )
     
+    use_current: bool = Field(
+        True,
+        description="Whether to use current market data",
+        alias="USE_CURRENT"
+    )
+    
     # API-specific fields (not in StrategyConfig)
     async_execution: bool = Field(
         False,
@@ -238,7 +244,7 @@ class MACrossRequest(BaseModel):
             "SORT_BY": self.sort_by,
             "SORT_ASC": self.sort_asc,
             "USE_GBM": self.use_gbm,
-            "USE_CURRENT": False,  # Default from original config
+            "USE_CURRENT": self.use_current,
             "USE_SCANNER": False,  # API doesn't support scanner mode
         }
         

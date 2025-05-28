@@ -15,16 +15,19 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load sample data for demonstration
     loadSampleData();
+    
+    // Store for portfolio exports from MA Cross API
+    window.portfolioExports = null;
 });
 
 /**
  * Sets up form handlers for the analysis form
  */
 function setupFormHandlers() {
-    // Analysis form submission
-    const analysisForm = document.getElementById('analysisForm');
-    if (analysisForm) {
-        analysisForm.addEventListener('submit', function(e) {
+    // Analysis button click
+    const runAnalysisBtn = document.getElementById('run-analysis-btn');
+    if (runAnalysisBtn) {
+        runAnalysisBtn.addEventListener('click', function(e) {
             e.preventDefault();
             runAnalysis();
         });
@@ -35,6 +38,22 @@ function setupFormHandlers() {
     if (resetFormBtn) {
         resetFormBtn.addEventListener('click', function() {
             resetForm();
+        });
+    }
+    
+    // Export best portfolios button
+    const exportBestBtn = document.getElementById('exportBestBtn');
+    if (exportBestBtn) {
+        exportBestBtn.addEventListener('click', function() {
+            exportPortfolioCSV('best');
+        });
+    }
+    
+    // Load best portfolios button
+    const loadBestBtn = document.getElementById('loadBestBtn');
+    if (loadBestBtn) {
+        loadBestBtn.addEventListener('click', function() {
+            loadPortfoliosBest();
         });
     }
 }
@@ -132,47 +151,56 @@ function setupUIEvents() {
  */
 function runAnalysis() {
     // Show loading indicator
+    const loadingIndicator = document.getElementById('loading-indicator');
+    if (loadingIndicator) loadingIndicator.style.display = 'block';
     document.getElementById('loadingResults').classList.remove('d-none');
     document.getElementById('noResults').classList.add('d-none');
     
     // Get form values
-    const tickers = document.getElementById('tickers').value;
+    const tickers = document.getElementById('tickers-input').value;
     
-    // Build configuration object
-    const config = buildConfigFromForm();
+    // Build configuration object for MA Cross API
+    const config = buildMACrossRequest(tickers);
     
-    // For demonstration purposes, we'll load sample data
-    // In a production environment, this would call the actual API
-    fetch('/api/analyze', {
+    // Call MA Cross API
+    fetch('http://127.0.0.1:8000/api/ma-cross/analyze', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-            tickers: tickers,
-            config: config
-        })
+        body: JSON.stringify(config)
     })
-    .then(response => response.json())
+    .then(response => {
+        if (response.status === 202) {
+            // Async execution - poll for results
+            return response.json().then(data => {
+                showToast('Analysis Started', 'Analysis running in background. Please wait...', 'info');
+                return pollForResults(data.execution_id);
+            });
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.status === 'success') {
             // Process results
-            populateResultsTable(data.results);
+            processMACrossResults(data);
             
             // Show success notification
-            showToast('Analysis Complete', 'Parameter sensitivity analysis completed successfully.', 'success');
-        } else {
+            showToast('Analysis Complete', `Analyzed ${data.total_portfolios_analyzed} portfolios, found ${data.total_portfolios_filtered} matching criteria.`, 'success');
+        } else if (data.status === 'error') {
             // Show error
-            showToast('Analysis Error', data.message || 'An error occurred during analysis.', 'error');
+            showToast('Analysis Error', data.error || 'An error occurred during analysis.', 'error');
         }
     })
     .catch(error => {
         console.error('Error during analysis:', error);
-        showToast('Analysis Error', 'An unexpected error occurred. Please try again.', 'error');
+        showToast('Analysis Error', 'Failed to connect to MA Cross API. Please ensure the API server is running.', 'error');
     })
     .finally(() => {
         // Hide loading indicator
         document.getElementById('loadingResults').classList.add('d-none');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        if (loadingIndicator) loadingIndicator.style.display = 'none';
     });
 }
 
@@ -181,33 +209,165 @@ function runAnalysis() {
  */
 function buildConfigFromForm() {
     // Get strategy types
-    const strategyTypesSelect = document.getElementById('strategyTypes');
-    const strategyTypes = Array.from(strategyTypesSelect.selectedOptions).map(option => option.value);
+    const strategyTypes = [];
+    if (document.getElementById('sma-checkbox').checked) {
+        strategyTypes.push('SMA');
+    }
+    if (document.getElementById('ema-checkbox').checked) {
+        strategyTypes.push('EMA');
+    }
     
     // Build configuration object
     const config = {
-        WINDOWS: parseInt(document.getElementById('windows').value),
+        WINDOWS: parseInt(document.getElementById('windows-input').value),
         REFRESH: true,
         STRATEGY_TYPES: strategyTypes,
-        DIRECTION: document.getElementById('direction').value,
-        USE_HOURLY: document.getElementById('useHourly').checked,
-        USE_YEARS: document.getElementById('useYears').checked,
-        YEARS: parseInt(document.getElementById('years').value),
-        USE_SYNTHETIC: document.getElementById('useSynthetic').checked,
-        USE_CURRENT: true,
+        DIRECTION: document.getElementById('direction-select').value,
+        USE_HOURLY: document.getElementById('use-hourly-checkbox').checked,
+        USE_YEARS: document.getElementById('use-years-checkbox').checked,
+        YEARS: parseInt(document.getElementById('years-input').value),
+        USE_SYNTHETIC: document.getElementById('use-synthetic-checkbox').checked,
+        USE_CURRENT: document.getElementById('use-current-checkbox').checked,
         MINIMUMS: {
-            WIN_RATE: parseFloat(document.getElementById('minWinRate').value),
-            TRADES: parseInt(document.getElementById('minTrades').value),
-            EXPECTANCY_PER_TRADE: parseFloat(document.getElementById('minExpectancy').value),
-            PROFIT_FACTOR: parseFloat(document.getElementById('minProfitFactor').value),
-            SORTINO_RATIO: parseFloat(document.getElementById('minSortino').value),
+            WIN_RATE: parseFloat(document.getElementById('min-win-rate-input').value),
+            TRADES: parseInt(document.getElementById('min-trades-input').value),
+            EXPECTANCY_PER_TRADE: parseFloat(document.getElementById('min-expectancy-input').value),
+            PROFIT_FACTOR: parseFloat(document.getElementById('min-profit-factor-input').value),
+            SORTINO_RATIO: parseFloat(document.getElementById('min-sortino-input').value),
         },
-        SORT_BY: document.getElementById('sortBy').value,
-        SORT_ASC: document.getElementById('sortDirection').value === 'asc',
-        USE_GBM: document.getElementById('useGBM').checked
+        SORT_BY: document.getElementById('sort-by-select').value,
+        SORT_ASC: document.getElementById('sort-asc-checkbox').checked,
+        USE_GBM: document.getElementById('use-gbm-checkbox').checked
     };
     
     return config;
+}
+
+/**
+ * Build MA Cross API request from form values
+ */
+function buildMACrossRequest(tickers) {
+    const config = buildConfigFromForm();
+    
+    // Convert tickers to array
+    const tickerArray = tickers.split(',').map(t => t.trim()).filter(t => t);
+    
+    // Build request matching MACrossRequest model
+    const request = {
+        TICKER: tickerArray.length === 1 ? tickerArray[0] : tickerArray,
+        WINDOWS: config.WINDOWS,
+        DIRECTION: config.DIRECTION,
+        STRATEGY_TYPES: config.STRATEGY_TYPES,
+        USE_HOURLY: config.USE_HOURLY,
+        USE_YEARS: config.USE_YEARS,
+        YEARS: config.YEARS,
+        USE_SYNTHETIC: config.USE_SYNTHETIC,
+        USE_CURRENT: config.USE_CURRENT,
+        REFRESH: config.REFRESH,
+        MINIMUMS: config.MINIMUMS,
+        SORT_BY: config.SORT_BY,
+        SORT_ASC: config.SORT_ASC,
+        USE_GBM: config.USE_GBM,
+        async_execution: false  // Start with sync execution
+    };
+    
+    return request;
+}
+
+/**
+ * Poll for async results
+ */
+async function pollForResults(executionId) {
+    const maxAttempts = 60; // 5 minutes with 5 second intervals
+    let attempts = 0;
+    
+    while (attempts < maxAttempts) {
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/api/ma-cross/status/${executionId}`);
+            const data = await response.json();
+            
+            if (data.status === 'completed') {
+                // Return the results in the expected format
+                return {
+                    status: 'success',
+                    portfolios: data.results,
+                    total_portfolios_analyzed: data.results ? data.results.length : 0,
+                    total_portfolios_filtered: data.results ? data.results.length : 0
+                };
+            } else if (data.status === 'failed') {
+                throw new Error(data.error || 'Analysis failed');
+            }
+            
+            // Update progress message
+            if (data.progress) {
+                showToast('Analysis Progress', data.progress, 'info');
+            }
+            
+            // Wait 5 seconds before next poll
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            attempts++;
+        } catch (error) {
+            console.error('Error polling for results:', error);
+            throw error;
+        }
+    }
+    
+    throw new Error('Analysis timeout - took too long to complete');
+}
+
+/**
+ * Process MA Cross API results
+ */
+function processMACrossResults(data) {
+    if (!data.portfolios || data.portfolios.length === 0) {
+        showToast('No Results', 'No portfolios matched the criteria.', 'warning');
+        return;
+    }
+    
+    // Transform MA Cross results to match existing table format
+    const transformedResults = data.portfolios.map(portfolio => ({
+        'Ticker': portfolio.ticker,
+        'Strategy Type': portfolio.strategy_type,
+        'Short Window': portfolio.short_window,
+        'Long Window': portfolio.long_window,
+        'Score': portfolio.score,
+        'Win Rate [%]': portfolio.win_rate * 100, // Convert to percentage
+        'Profit Factor': portfolio.profit_factor,
+        'Expectancy per Trade': portfolio.expectancy,
+        'Sortino Ratio': portfolio.sortino_ratio,
+        'Total Return [%]': portfolio.total_return,
+        'Max Drawdown [%]': Math.abs(portfolio.max_drawdown), // Ensure positive
+        'Total Trades': portfolio.total_trades,
+        'Has Open Trade': portfolio.has_open_trade,
+        'Has Signal Entry': portfolio.has_signal_entry
+    }));
+    
+    // Populate results table
+    populateResultsTable(transformedResults);
+    
+    // Store portfolio exports info if available
+    if (data.portfolio_exports) {
+        window.portfolioExports = data.portfolio_exports;
+        
+        // Show export/load buttons
+        const loadBestBtn = document.getElementById('loadBestBtn');
+        const exportBestBtn = document.getElementById('exportBestBtn');
+        
+        // Check for portfolios_best
+        if (data.portfolio_exports.portfolios_best && data.portfolio_exports.portfolios_best.length > 0) {
+            // Show buttons
+            if (loadBestBtn) loadBestBtn.style.display = 'inline-block';
+            if (exportBestBtn) exportBestBtn.style.display = 'inline-block';
+            
+            showToast('Best Portfolios Available', 
+                `Found ${data.portfolio_exports.portfolios_best.length} best portfolio(s). Use Export to download.`, 
+                'success');
+        } else {
+            // Hide buttons if no best portfolios
+            if (loadBestBtn) loadBestBtn.style.display = 'none';
+            if (exportBestBtn) exportBestBtn.style.display = 'none';
+        }
+    }
 }
 
 /**
@@ -215,35 +375,33 @@ function buildConfigFromForm() {
  */
 function resetForm() {
     // Reset form values to defaults
-    document.getElementById('tickers').value = '';
+    document.getElementById('tickers-input').value = '';
     
     // Reset strategy types
-    const strategyTypesSelect = document.getElementById('strategyTypes');
-    Array.from(strategyTypesSelect.options).forEach(option => {
-        option.selected = option.value === 'SMA';
-    });
+    document.getElementById('sma-checkbox').checked = true;
+    document.getElementById('ema-checkbox').checked = true;
     
     // Reset direction
     document.getElementById('direction').value = 'Long';
     
     // Reset advanced config
-    document.getElementById('windows').value = defaultConfig.WINDOWS;
-    document.getElementById('years').value = defaultConfig.YEARS;
-    document.getElementById('sortBy').value = defaultConfig.SORT_BY;
-    document.getElementById('sortDirection').value = defaultConfig.SORT_ASC ? 'asc' : 'desc';
+    document.getElementById('windows-input').value = defaultConfig.WINDOWS;
+    document.getElementById('years-input').value = defaultConfig.YEARS;
+    document.getElementById('sort-by-select').value = defaultConfig.SORT_BY;
+    document.getElementById('sort-asc-checkbox').checked = defaultConfig.SORT_ASC;
     
     // Reset minimums
-    document.getElementById('minWinRate').value = defaultConfig.MINIMUMS.WIN_RATE;
-    document.getElementById('minTrades').value = defaultConfig.MINIMUMS.TRADES;
-    document.getElementById('minExpectancy').value = defaultConfig.MINIMUMS.EXPECTANCY_PER_TRADE;
-    document.getElementById('minProfitFactor').value = defaultConfig.MINIMUMS.PROFIT_FACTOR;
-    document.getElementById('minSortino').value = defaultConfig.MINIMUMS.SORTINO_RATIO;
+    document.getElementById('min-win-rate-input').value = defaultConfig.MINIMUMS.WIN_RATE;
+    document.getElementById('min-trades-input').value = defaultConfig.MINIMUMS.TRADES;
+    document.getElementById('min-expectancy-input').value = defaultConfig.MINIMUMS.EXPECTANCY_PER_TRADE;
+    document.getElementById('min-profit-factor-input').value = defaultConfig.MINIMUMS.PROFIT_FACTOR;
+    document.getElementById('min-sortino-input').value = defaultConfig.MINIMUMS.SORTINO_RATIO;
     
     // Reset checkboxes
-    document.getElementById('useHourly').checked = defaultConfig.USE_HOURLY;
-    document.getElementById('useYears').checked = defaultConfig.USE_YEARS;
-    document.getElementById('useSynthetic').checked = defaultConfig.USE_SYNTHETIC;
-    document.getElementById('useGBM').checked = defaultConfig.USE_GBM;
+    document.getElementById('use-hourly-checkbox').checked = defaultConfig.USE_HOURLY;
+    document.getElementById('use-years-checkbox').checked = defaultConfig.USE_YEARS;
+    document.getElementById('use-synthetic-checkbox').checked = defaultConfig.USE_SYNTHETIC;
+    document.getElementById('use-gbm-checkbox').checked = defaultConfig.USE_GBM;
     
     // Show notification
     showToast('Form Reset', 'Form has been reset to default values.', 'info');
@@ -297,4 +455,94 @@ function showToast(title, message, type = 'info') {
     // Create Bootstrap toast instance and show
     const bsToast = new bootstrap.Toast(toast);
     bsToast.show();
+}
+
+/**
+ * Export portfolio CSV files
+ */
+function exportPortfolioCSV(type = 'best') {
+    if (!window.portfolioExports) {
+        showToast('No Exports Available', 'Please run an analysis first to generate portfolio exports.', 'warning');
+        return;
+    }
+    
+    let exportPaths = [];
+    if (type === 'best' && window.portfolioExports.portfolios_best) {
+        exportPaths = window.portfolioExports.portfolios_best;
+    } else if (type === 'filtered' && window.portfolioExports.portfolios_filtered) {
+        exportPaths = window.portfolioExports.portfolios_filtered;
+    } else if (type === 'all' && window.portfolioExports.portfolios) {
+        exportPaths = window.portfolioExports.portfolios;
+    }
+    
+    if (exportPaths.length === 0) {
+        showToast('No Files Found', `No ${type} portfolio files available.`, 'warning');
+        return;
+    }
+    
+    // Download each file
+    exportPaths.forEach(path => {
+        const fileName = path.split('/').pop();
+        const downloadUrl = `http://127.0.0.1:8000/api/data/${path}`;
+        
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    });
+    
+    showToast('Export Started', `Downloading ${exportPaths.length} ${type} portfolio file(s).`, 'success');
+}
+
+/**
+ * Load portfolios_best CSV and display in results table
+ */
+async function loadPortfoliosBest() {
+    if (!window.portfolioExports || !window.portfolioExports.portfolios_best) {
+        showToast('No Best Portfolios', 'No best portfolio files available from the last analysis.', 'warning');
+        return;
+    }
+    
+    try {
+        // Show loading
+        document.getElementById('loadingResults').classList.remove('d-none');
+        
+        // Get the first best portfolio file
+        const bestPath = window.portfolioExports.portfolios_best[0];
+        const response = await fetch(`http://127.0.0.1:8000/api/data/${bestPath}`);
+        
+        if (!response.ok) {
+            throw new Error('Failed to load portfolio file');
+        }
+        
+        const data = await response.json();
+        
+        if (data.status === 'success' && data.data) {
+            // Transform CSV data to match table format
+            const transformedData = data.data.map(row => ({
+                'Ticker': row.Ticker || row.ticker,
+                'Strategy Type': row['Strategy Type'] || row.strategy_type,
+                'Short Window': row['Short Window'] || row.short_window,
+                'Long Window': row['Long Window'] || row.long_window,
+                'Score': parseFloat(row.Score || row.score),
+                'Win Rate [%]': parseFloat(row['Win Rate [%]'] || row.win_rate),
+                'Profit Factor': parseFloat(row['Profit Factor'] || row.profit_factor),
+                'Expectancy per Trade': parseFloat(row['Expectancy per Trade'] || row.expectancy_per_trade),
+                'Sortino Ratio': parseFloat(row['Sortino Ratio'] || row.sortino_ratio),
+                'Total Return [%]': parseFloat(row['Total Return [%]'] || row.total_return),
+                'Max Drawdown [%]': parseFloat(row['Max Drawdown [%]'] || row.max_drawdown),
+                'Total Trades': parseInt(row['Total Trades'] || row.total_trades)
+            }));
+            
+            populateResultsTable(transformedData);
+            showToast('Best Portfolios Loaded', `Loaded ${transformedData.length} best portfolio(s).`, 'success');
+        }
+    } catch (error) {
+        console.error('Error loading best portfolios:', error);
+        showToast('Load Error', 'Failed to load best portfolio data.', 'error');
+    } finally {
+        document.getElementById('loadingResults').classList.add('d-none');
+    }
 }
