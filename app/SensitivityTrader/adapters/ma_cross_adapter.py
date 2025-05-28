@@ -115,61 +115,69 @@ class MACrossAdapter(IAnalysisAdapter):
         # Determine base directory
         base_dir = os.path.join(config.get("BASE_DIR", ""), "csv")
         
-        # Collect files from portfolios_filtered directory
+        # Collect files from portfolios_filtered directory (including subdirectories)
         filtered_dir = os.path.join(base_dir, "portfolios_filtered")
         if os.path.exists(filtered_dir):
-            for file in os.listdir(filtered_dir):
-                if file.endswith(".csv"):
-                    file_path = os.path.join(filtered_dir, file)
-                    # Parse filename to extract ticker, timeframe, and strategy
-                    parts = file.replace(".csv", "").split("_")
-                    if len(parts) >= 3:
-                        ticker = parts[0]
-                        timeframe = parts[1]  # D for daily, H for hourly
-                        strategy = parts[2]   # EMA or SMA
-                        
-                        csv_files.append({
-                            "file_path": file_path,
-                            "file_name": file,
-                            "type": "filtered",
-                            "ticker": ticker,
-                            "timeframe": timeframe,
-                            "strategy": strategy,
-                            "display_name": f"{ticker} ({timeframe}, {strategy}) - Filtered"
-                        })
+            # Check root directory and date-based subdirectories
+            for root, dirs, files in os.walk(filtered_dir):
+                # Only check root and one level down (date directories)
+                if root == filtered_dir or os.path.dirname(root) == filtered_dir:
+                    for file in files:
+                        if file.endswith(".csv"):
+                            file_path = os.path.join(root, file)
+                            # Parse filename to extract ticker, timeframe, and strategy
+                            parts = file.replace(".csv", "").split("_")
+                            if len(parts) >= 3:
+                                ticker = parts[0]
+                                timeframe = parts[1]  # D for daily, H for hourly
+                                strategy = parts[2]   # EMA or SMA
+                                
+                                csv_files.append({
+                                    "file_path": file_path,
+                                    "file_name": file,
+                                    "type": "filtered",
+                                    "ticker": ticker,
+                                    "timeframe": timeframe,
+                                    "strategy": strategy,
+                                    "display_name": f"{ticker} ({timeframe}, {strategy}) - Filtered"
+                                })
         
-        # Collect files from portfolios_best directory
+        # Collect files from portfolios_best directory (including subdirectories)
         best_dir = os.path.join(base_dir, "portfolios_best")
         if os.path.exists(best_dir):
-            for file in os.listdir(best_dir):
-                if file.endswith(".csv"):
-                    file_path = os.path.join(best_dir, file)
-                    # Parse filename to extract ticker, timestamp, timeframe, and strategy
-                    parts = file.replace(".csv", "").split("_")
-                    if len(parts) >= 3:
-                        if len(parts) >= 4 and parts[1].isdigit() and parts[2].isdigit():
-                            # Format: TICKER_YYYYMMDD_HHMM_TIMEFRAME.csv or TICKER_YYYYMMDD_HHMM_TIMEFRAME_STRATEGY.csv
-                            ticker = parts[0]
-                            timestamp = f"{parts[1]}_{parts[2]}"
-                            timeframe = parts[3]
-                            strategy = parts[4] if len(parts) >= 5 else "MIXED"
-                        else:
-                            # Format: TICKER_TIMEFRAME_STRATEGY.csv
-                            ticker = parts[0]
-                            timestamp = "latest"
-                            timeframe = parts[1]
-                            strategy = parts[2]
-                        
-                        csv_files.append({
-                            "file_path": file_path,
-                            "file_name": file,
-                            "type": "best",
-                            "ticker": ticker,
-                            "timestamp": timestamp,
-                            "timeframe": timeframe,
-                            "strategy": strategy,
-                            "display_name": f"{ticker} ({timeframe}, {strategy}) - Best" + (f" ({timestamp})" if timestamp != "latest" else "")
-                        })
+            # Check root directory and date-based subdirectories
+            for root, dirs, files in os.walk(best_dir):
+                # Only check root and one level down (date directories)
+                if root == best_dir or os.path.dirname(root) == best_dir:
+                    for file in files:
+                        if file.endswith(".csv"):
+                            file_path = os.path.join(root, file)
+                            # Parse filename to extract ticker, timestamp, timeframe, and strategy
+                            parts = file.replace(".csv", "").split("_")
+                            if len(parts) >= 3:
+                                if len(parts) >= 4 and parts[1].isdigit() and parts[2].isdigit():
+                                    # Format: TICKER_YYYYMMDD_HHMM_TIMEFRAME.csv or TICKER_YYYYMMDD_HHMM_TIMEFRAME_STRATEGY.csv
+                                    ticker = parts[0]
+                                    timestamp = f"{parts[1]}_{parts[2]}"
+                                    timeframe = parts[3]
+                                    strategy = parts[4] if len(parts) >= 5 else "MIXED"
+                                else:
+                                    # Format: TICKER_TIMEFRAME_STRATEGY.csv
+                                    ticker = parts[0]
+                                    timestamp = "latest"
+                                    timeframe = parts[1]
+                                    strategy = parts[2]
+                                
+                                csv_files.append({
+                                    "file_path": file_path,
+                                    "file_name": file,
+                                    "type": "best",
+                                    "ticker": ticker,
+                                    "timestamp": timestamp,
+                                    "timeframe": timeframe,
+                                    "strategy": strategy,
+                                    "display_name": f"{ticker} ({timeframe}, {strategy}) - Best" + (f" ({timestamp})" if timestamp != "latest" else "")
+                                })
         
         # Sort files by ticker, type (best first), and timestamp (newest first)
         csv_files.sort(key=lambda x: (
@@ -212,11 +220,24 @@ class MACrossAdapter(IAnalysisAdapter):
             
             # Execute the analysis
             try:
-                # First we need to get the portfolios from execute_strategy
-                portfolios = ma_cross_module.execute_strategy(ma_config, logger)
+                # Import necessary modules from app.tools
+                from app.tools.get_config import get_config
+                from app.tools.portfolio.collection import export_best_portfolios
+                
+                # Execute all strategies and collect portfolios
+                all_portfolios = ma_cross_module.execute_all_strategies(ma_config, logger)
                 
                 # Filter the portfolios
-                filtered_portfolios = ma_cross_module.filter_portfolios(portfolios, ma_config, logger)
+                filtered_portfolios = ma_cross_module.filter_portfolios(all_portfolios, ma_config, logger)
+                
+                # Export best portfolios if we have any filtered results
+                if filtered_portfolios and len(filtered_portfolios) > 0:
+                    # Ensure the config has BASE_DIR set
+                    ma_config = get_config(ma_config)
+                    
+                    # Export the best portfolios to CSV
+                    export_best_portfolios(filtered_portfolios, ma_config, logger)
+                    logger("Exported best portfolios to CSV", "info")
                 
                 # Collect CSV files generated by the analysis
                 csv_files = self._collect_csv_files(ma_config)
