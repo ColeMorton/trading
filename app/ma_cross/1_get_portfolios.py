@@ -74,18 +74,18 @@ from app.tools.portfolio.stop_loss import (
 
 CONFIG: Config = {
     # "TICKER": "BTC-USD",
-    "TICKER": ["APP", "NOW"],
+    "TICKER": ["PWR"],
     # Load tickers from JSON file
     # "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/portfolio.json"))),
     # "TICKER_2": 'AVGO',
     # "WINDOWS": 120,
-    "WINDOWS": 89,
+    "WINDOWS": 80,
     # "WINDOWS": 55,
     # "WINDOWS": 34,
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
-    "REFRESH": True,
+    "REFRESH": False,
     "STRATEGY_TYPES": [ "SMA", "EMA" ],
     "DIRECTION": "Long",
     "USE_HOURLY": False,
@@ -170,6 +170,51 @@ def filter_portfolios(portfolios: List[Dict[str, Any]], config: Config, log) -> 
     # Filter out portfolios with invalid metrics
     from app.tools.portfolio.filters import filter_invalid_metrics
     filtered = filter_invalid_metrics(filtered, log)
+    
+    # Apply MINIMUMS filtering if configured
+    if filtered is not None and len(filtered) > 0 and "MINIMUMS" in config:
+        import polars as pl
+        
+        # Convert to DataFrame for easier filtering
+        df = pl.DataFrame(filtered)
+        original_count = len(df)
+        
+        minimums = config["MINIMUMS"]
+        
+        # Define filter configurations
+        filter_configs = [
+            # (config_key, column_name, data_type, multiplier, message_prefix)
+            ("WIN_RATE", "Win Rate [%]", pl.Float64, 100, "Filtered portfolios with win rate"),
+            ("TRADES", "Total Trades", pl.Int64, 1, "Filtered portfolios with at least"),
+            ("EXPECTANCY_PER_TRADE", "Expectancy per Trade", pl.Float64, 1, "Filtered portfolios with expectancy per trade"),
+            ("PROFIT_FACTOR", "Profit Factor", pl.Float64, 1, "Filtered portfolios with profit factor"),
+            ("SCORE", "Score", pl.Float64, 1, "Filtered portfolios with score"),
+            ("SORTINO_RATIO", "Sortino Ratio", pl.Float64, 1, "Filtered portfolios with Sortino ratio"),
+            ("BEATS_BNH", "Beats BNH [%]", pl.Float64, 1, "Filtered portfolios with Beats BNH percentage")
+        ]
+        
+        # Apply each filter from the configuration
+        for config_key, column_name, data_type, multiplier, message_prefix in filter_configs:
+            if config_key in minimums and column_name in df.columns:
+                adjusted_value = minimums[config_key] * multiplier
+                df = df.filter(pl.col(column_name).cast(data_type) >= adjusted_value)
+                
+                # Format the message based on the filter type
+                if "win rate" in message_prefix.lower():
+                    log(f"{message_prefix} >= {adjusted_value}%", "info")
+                elif "trades" in message_prefix.lower():
+                    log(f"{message_prefix} >= {int(adjusted_value)}", "info")
+                else:
+                    log(f"{message_prefix} >= {adjusted_value}", "info")
+        
+        # Log filtering results
+        filtered_count = original_count - len(df)
+        if filtered_count > 0:
+            log(f"Filtered out {filtered_count} portfolios based on MINIMUMS criteria", "info")
+            log(f"Remaining portfolios after MINIMUMS filtering: {len(df)}", "info")
+        
+        # Convert back to list of dicts
+        filtered = df.to_dicts() if len(df) > 0 else []
     
     # If we have results and want to display them, use the portfolio_results utilities
     if filtered is not None and len(filtered) > 0 and config.get("DISPLAY_RESULTS", True):
