@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import Icon from './Icon';
+import { icons } from '../utils/icons';
 
 // Define types for the virtual module
 interface RegisterSWOptions {
@@ -58,7 +60,10 @@ const PWAUpdateNotification: React.FC = () => {
     <div className="position-fixed bottom-0 end-0 m-4 p-4 border rounded shadow-lg bg-body" style={{ zIndex: 1050 }}>
       <div className="d-flex flex-column">
         <div className="mb-2">
-          <h5 className="mb-1">New Version Available</h5>
+          <div className="d-flex align-items-center mb-1">
+            <Icon icon={icons.notification} className="me-2 text-primary" />
+            <h5 className="mb-0">New Version Available</h5>
+          </div>
           <p className="small text-muted mb-0">
             A new version of Sensylate is available. Click update to get the latest features.
           </p>
@@ -68,12 +73,14 @@ const PWAUpdateNotification: React.FC = () => {
             className="btn btn-sm btn-outline-secondary"
             onClick={close}
           >
+            <Icon icon={icons.times} className="me-2" />
             Close
           </button>
           <button
             className="btn btn-sm btn-primary"
             onClick={updateSW}
           >
+            <Icon icon={icons.refresh} className="me-2" />
             Update
           </button>
         </div>
