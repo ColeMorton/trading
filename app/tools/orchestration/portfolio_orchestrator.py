@@ -1,0 +1,228 @@
+"""
+Portfolio Orchestrator Module
+
+This module provides the main orchestration logic for portfolio analysis,
+managing the workflow from configuration initialization through result export.
+"""
+
+from typing import List, Dict, Any, Callable
+from app.tools.config_service import ConfigService
+from app.tools.synthetic_ticker import process_synthetic_config
+from app.tools.strategy_utils import get_strategy_types
+from app.tools.portfolio.collection import export_best_portfolios
+from app.tools.portfolio.schema_detection import (
+    SchemaVersion,
+    detect_schema_version,
+    normalize_portfolio_data
+)
+from app.tools.portfolio.allocation import get_allocation_summary
+from app.tools.portfolio.stop_loss import get_stop_loss_summary
+from app.tools.exceptions import (
+    ConfigurationError,
+    StrategyProcessingError,
+    SyntheticTickerError,
+    ExportError
+)
+from app.tools.error_context import error_context
+
+# Import filter_portfolios from the correct location
+from app.ma_cross.tools.filter_portfolios import filter_portfolios
+
+from .ticker_processor import TickerProcessor
+
+
+class PortfolioOrchestrator:
+    """
+    Orchestrates the portfolio analysis workflow.
+    
+    This class manages the complete workflow of portfolio analysis including:
+    - Configuration initialization and validation
+    - Synthetic ticker processing
+    - Strategy execution coordination
+    - Portfolio filtering and processing
+    - Result export
+    """
+    
+    def __init__(self, log: Callable[[str, str], None]):
+        """
+        Initialize the orchestrator.
+        
+        Args:
+            log: Logging function
+        """
+        self.log = log
+        self.ticker_processor = TickerProcessor(log)
+    
+    def run(self, config: Dict[str, Any]) -> bool:
+        """
+        Run the complete portfolio analysis workflow.
+        
+        Args:
+            config: Configuration dictionary
+            
+        Returns:
+            bool: True if successful, False otherwise
+            
+        Raises:
+            ConfigurationError: If configuration is invalid
+            StrategyProcessingError: If strategy execution fails
+            ExportError: If result export fails
+        """
+        try:
+            # Step 1: Initialize configuration
+            config = self._initialize_configuration(config)
+            
+            # Step 2: Process synthetic configuration if needed
+            config = self._process_synthetic_configuration(config)
+            
+            # Step 3: Get strategy types
+            strategies = self._get_strategies(config)
+            
+            # Step 4: Execute strategies
+            all_portfolios = self._execute_strategies(config, strategies)
+            
+            # Step 5: Process results if any
+            if all_portfolios:
+                # Filter and process portfolios
+                filtered_portfolios = self._filter_and_process_portfolios(
+                    all_portfolios, config
+                )
+                
+                # Export results
+                if filtered_portfolios:
+                    self._export_results(filtered_portfolios, config)
+            else:
+                self.log("No portfolios returned from strategies", "warning")
+            
+            return True
+            
+        except Exception as e:
+            self.log(f"Orchestration failed: {str(e)}", "error")
+            raise
+    
+    def _initialize_configuration(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Initialize and validate configuration.
+        
+        Args:
+            config: Raw configuration dictionary
+            
+        Returns:
+            Processed configuration
+            
+        Raises:
+            ConfigurationError: If configuration is invalid
+        """
+        with error_context("Initializing configuration", self.log, {Exception: ConfigurationError}):
+            return ConfigService.process_config(config)
+    
+    def _process_synthetic_configuration(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Process synthetic ticker configuration if enabled.
+        
+        Args:
+            config: Configuration dictionary
+            
+        Returns:
+            Updated configuration
+            
+        Raises:
+            SyntheticTickerError: If synthetic configuration is invalid
+        """
+        with error_context("Processing synthetic ticker configuration", self.log, {ValueError: SyntheticTickerError}):
+            return process_synthetic_config(config, self.log)
+    
+    def _get_strategies(self, config: Dict[str, Any]) -> List[str]:
+        """
+        Get list of strategies to execute.
+        
+        Args:
+            config: Configuration dictionary
+            
+        Returns:
+            List of strategy types
+        """
+        return get_strategy_types(config, self.log, "SMA")
+    
+    def _execute_strategies(self, config: Dict[str, Any], strategies: List[str]) -> List[Dict[str, Any]]:
+        """
+        Execute all strategies and collect results.
+        
+        Args:
+            config: Configuration dictionary
+            strategies: List of strategy types to execute
+            
+        Returns:
+            Combined list of portfolios from all strategies
+            
+        Raises:
+            StrategyProcessingError: If strategy execution fails
+        """
+        all_portfolios = []
+        
+        for strategy_type in strategies:
+            with error_context(f"Executing {strategy_type} strategy", self.log, {Exception: StrategyProcessingError}):
+                # Create strategy-specific config
+                strategy_config = config.copy()
+                strategy_config["STRATEGY_TYPE"] = strategy_type
+                
+                # Execute strategy
+                portfolios = self.ticker_processor.execute_strategy(
+                    strategy_config, strategy_type
+                )
+                
+                if portfolios:
+                    all_portfolios.extend(portfolios)
+                    self.log(f"{strategy_type} portfolios: {len(portfolios)}", "info")
+                else:
+                    self.log(f"{strategy_type} portfolios: 0", "info")
+        
+        return all_portfolios
+    
+    def _filter_and_process_portfolios(
+        self, 
+        portfolios: List[Dict[str, Any]], 
+        config: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """
+        Filter and process portfolios including schema detection and normalization.
+        
+        Args:
+            portfolios: List of portfolio dictionaries
+            config: Configuration dictionary
+            
+        Returns:
+            Filtered and processed portfolios
+        """
+        # Detect schema version
+        schema_version = detect_schema_version(portfolios)
+        self.log(f"Detected schema version for export: {schema_version.name}", "info")
+        
+        # Filter portfolios
+        filtered_portfolios = filter_portfolios(portfolios, config, self.log)
+        
+        # Log extended schema information if available
+        if schema_version == SchemaVersion.EXTENDED and filtered_portfolios:
+            # Log allocation summary
+            allocation_summary = get_allocation_summary(filtered_portfolios, self.log)
+            self.log(f"Allocation summary: {allocation_summary}", "info")
+            
+            # Log stop loss summary
+            stop_loss_summary = get_stop_loss_summary(filtered_portfolios, self.log)
+            self.log(f"Stop loss summary: {stop_loss_summary}", "info")
+        
+        return filtered_portfolios
+    
+    def _export_results(self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]) -> None:
+        """
+        Export portfolio results.
+        
+        Args:
+            portfolios: List of portfolios to export
+            config: Configuration dictionary
+            
+        Raises:
+            ExportError: If export fails
+        """
+        with error_context("Exporting portfolios", self.log, {Exception: ExportError}):
+            export_best_portfolios(portfolios, config, self.log)

@@ -18,6 +18,7 @@ from app.tools.entry_point import run_from_command_line
 from app.tools.strategy.types import StrategyConfig as Config
 from app.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.portfolio.collection import export_best_portfolios
+from app.tools.orchestration import PortfolioOrchestrator
 
 # New imports for standardized logging and error handling
 from app.tools.logging_context import logging_context
@@ -273,50 +274,9 @@ def run(config: Config = CONFIG) -> bool:
         module_name='ma_cross',
         log_file='1_get_portfolios.log'
     ) as log:
-        # Initialize configuration using unified ConfigService
-        with error_context("Initializing configuration", log, {Exception: ConfigurationError}):
-            config = ConfigService.process_config(config)
-        
-        # Handle synthetic pair if enabled
-        with error_context("Processing synthetic ticker configuration", log, {ValueError: SyntheticTickerError}):
-            synthetic_config = process_synthetic_config(config, log)
-
-        # Get strategy types and execute strategies
-        all_portfolios = []
-        # Use the standardized get_strategy_types function with default_type="SMA"
-        strategy_types = get_strategy_types(synthetic_config, log, "SMA")
-        
-        # Execute each strategy in sequence
-        for strategy_type in strategy_types:
-            with error_context(f"Executing {strategy_type} strategy", log, {Exception: StrategyProcessingError}):
-                portfolios = execute_strategy(synthetic_config, strategy_type, log)
-                if portfolios:
-                    all_portfolios.extend(portfolios)
-        
-        # Export best portfolios
-        if all_portfolios:
-            with error_context("Filtering and exporting portfolios", log, {Exception: ExportError}):
-                # Detect schema version and normalize portfolio data
-                schema_version = detect_schema_version(all_portfolios)
-                log(f"Detected schema version for export: {schema_version.name}", "info")
-                
-                # Process portfolios with schema detection and normalization
-                filtered_portfolios = filter_portfolios(all_portfolios, synthetic_config, log)
-                
-                # If we have allocation and stop loss data, log summaries
-                if schema_version == SchemaVersion.EXTENDED:
-                    from app.tools.portfolio.allocation import get_allocation_summary
-                    allocation_summary = get_allocation_summary(filtered_portfolios, log)
-                    log(f"Allocation summary: {allocation_summary}", "info")
-                    
-                    # Log stop loss summary
-                    stop_loss_summary = get_stop_loss_summary(filtered_portfolios, log)
-                    log(f"Stop loss summary: {stop_loss_summary}", "info")
-                
-                # Export portfolios using the extended schema format
-                export_best_portfolios(filtered_portfolios, synthetic_config, log)
-        
-        return True
+        # Use the new PortfolioOrchestrator for cleaner workflow management
+        orchestrator = PortfolioOrchestrator(log)
+        return orchestrator.run(config)
 
 @handle_errors(
     "MA Cross strategies analysis",
@@ -344,56 +304,16 @@ def run_strategies(config: Dict[str, Any] = None) -> bool:
         module_name='ma_cross',
         log_file='1_get_portfolios.log'
     ) as log:
-        # Initialize all_portfolios to an empty list
-        all_portfolios = []
-        
-        # Initialize config
-        with error_context("Initializing configuration", log, {Exception: ConfigurationError}):
-            # Use passed config if provided and not empty, otherwise use default CONFIG
-            if config is not None and config:
-                config_copy = config.copy()
-            else:
-                config_copy = CONFIG.copy()
-            config_copy["USE_MA"] = True  # Ensure USE_MA is set for proper filename suffix
-            config_copy = ConfigService.process_config(config_copy)
-        
-        # Process synthetic configuration
-        with error_context("Processing synthetic configuration", log, {ValueError: SyntheticTickerError}):
-            base_config = process_synthetic_config(config_copy, log)
-        
-        # Execute strategies
-        with error_context("Executing strategies", log, {Exception: StrategyProcessingError}):
-            all_portfolios = execute_all_strategies(base_config, log)
-        
-        # Export results
-        if all_portfolios is not None and len(all_portfolios) > 0:
-            with error_context("Filtering and exporting portfolios", log, {Exception: ExportError}):
-                # Detect schema version and normalize portfolio data
-                schema_version = detect_schema_version(all_portfolios)
-                log(f"Detected schema version for export: {schema_version.name}", "info")
-                
-                # Process portfolios with schema detection and normalization
-                filtered_portfolios = filter_portfolios(all_portfolios, base_config, log)
-                
-                # If we have allocation and stop loss data, log summaries
-                if schema_version == SchemaVersion.EXTENDED:
-                    from app.tools.portfolio.allocation import get_allocation_summary
-                    allocation_summary = get_allocation_summary(filtered_portfolios, log)
-                    log(f"Allocation summary: {allocation_summary}", "info")
-                    
-                    # Log stop loss summary
-                    stop_loss_summary = get_stop_loss_summary(filtered_portfolios, log)
-                    log(f"Stop loss summary: {stop_loss_summary}", "info")
-                
-                if filtered_portfolios is not None and len(filtered_portfolios) > 0:
-                    # Export portfolios using the extended schema format
-                    export_best_portfolios(filtered_portfolios, base_config, log)
-                else:
-                    log("No portfolios remain after filtering", "warning")
+        # Prepare config
+        if config is not None and config:
+            config_copy = config.copy()
         else:
-            log("No portfolios returned from strategies", "warning")
+            config_copy = CONFIG.copy()
+        config_copy["USE_MA"] = True  # Ensure USE_MA is set for proper filename suffix
         
-        return True
+        # Use the new PortfolioOrchestrator for cleaner workflow management
+        orchestrator = PortfolioOrchestrator(log)
+        return orchestrator.run(config_copy)
 
 if __name__ == "__main__":
     run_from_command_line(

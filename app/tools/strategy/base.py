@@ -105,8 +105,8 @@ class BaseStrategy(ABC):
             log("Data is empty", "error")
             return False
             
-        if "close" not in data.columns:
-            log("Data must contain 'close' column", "error")
+        if "Close" not in data.columns:
+            log("Data must contain 'Close' column", "error")
             return False
             
         return True
