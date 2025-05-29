@@ -44,18 +44,19 @@ class ConcurrencyDefaults:
     
     # General Configuration
     # PORTFOLIO: str = "portfolio_d_20250510.csv"
-    # PORTFOLIO: str = "MSTR_d_20250419.csv"
+    PORTFOLIO: str = "MSTR_d_20250529.csv"
     # PORTFOLIO: str = "portfolio_risk.csv"
-    PORTFOLIO: str = "trades_20250529.csv"
+    # PORTFOLIO: str = "trades_20250529.csv"
+    # PORTFOLIO: str = "QQQ_d_20250529.csv"
     BASE_DIR: str = ""  # Will be set to project root
     REFRESH: bool = True
-    VISUALIZATION: bool = True
+    VISUALIZATION: bool = False
     CSV_USE_HOURLY: bool = False
     SORT_BY: str = "score"
     REPORT_INCLUDES: Dict[str, bool] = field(default_factory=lambda: {
         "TICKER_METRICS": True,
-        "STRATEGIES": False,
-        "STRATEGY_RELATIONSHIPS": False
+        "STRATEGIES": True,
+        "STRATEGY_RELATIONSHIPS": True
     })
     ENSURE_COUNTERPART: bool = True
     INITIAL_VALUE: float = 10000.0

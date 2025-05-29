@@ -1,5 +1,7 @@
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
+import Icon from './Icon';
+import { icons } from '../utils/icons';
 
 /**
  * Component to toggle between table and text views
@@ -22,12 +24,14 @@ const ViewToggle: React.FC = () => {
             onClick={() => setViewMode('table')}
             className={`btn ${viewMode === 'table' ? 'btn-primary' : 'btn-outline-secondary'}`}
           >
+            <Icon icon={icons.table} className="me-2" />
             Table View
           </button>
           <button 
             onClick={() => setViewMode('text')}
             className={`btn ${viewMode === 'text' ? 'btn-primary' : 'btn-outline-secondary'}`}
           >
+            <Icon icon={icons.textView} className="me-2" />
             Raw Text View
           </button>
         </div>

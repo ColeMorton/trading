@@ -1,6 +1,8 @@
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
 import { usePortfolioUpdate } from '../hooks/usePortfolioUpdate';
+import Icon from './Icon';
+import { icons } from '../utils/icons';
 
 /**
  * Component for the update portfolio button with progress tracking
@@ -49,11 +51,14 @@ const UpdateButton: React.FC = () => {
       >
         {isUpdating ? (
           <>
-            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <Icon icon={icons.loading} spin className="me-2" />
             Updating...
           </>
         ) : (
-          'Update'
+          <>
+            <Icon icon={icons.refresh} className="me-2" />
+            Update
+          </>
         )}
       </button>
       
