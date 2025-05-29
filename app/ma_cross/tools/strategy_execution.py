@@ -161,78 +161,16 @@ def process_single_ticker(
     if portfolios_df is None:
         return None
         
-    # Helper function to apply a filter
-    def apply_filter(df, column_name, min_value, data_type, multiplier=1, message_prefix=""):
-        """Apply a filter to the dataframe based on a minimum value.
-        
-        Args:
-            df: DataFrame to filter
-            column_name: Column to filter on
-            min_value: Minimum value to filter by
-            data_type: Data type to cast the column to
-            multiplier: Value to multiply the min_value by (default: 1)
-            message_prefix: Prefix for the log message (default: "")
-            
-        Returns:
-            Filtered DataFrame
-        """
-        if column_name in df.columns:
-            adjusted_value = min_value * multiplier
-            df = df.filter(pl.col(column_name).cast(data_type) >= adjusted_value)
-            
-            # Format the message based on the filter type
-            if message_prefix:
-                if "win rate" in message_prefix.lower():
-                    log(f"{message_prefix} >= {adjusted_value}%")
-                elif "trades" in message_prefix.lower():
-                    log(f"{message_prefix} >= {int(adjusted_value)}")
-                else:
-                    log(f"{message_prefix} >= {adjusted_value}")
-            
-            return df
-        return df
-    
-    # Define filter configurations
-    filter_configs = [
-        # (config_key, column_name, data_type, multiplier, message_prefix)
-        ("WIN_RATE", "Win Rate [%]", pl.Float64, 100, "Filtered portfolios with win rate"),
-        ("TRADES", "Total Trades", pl.Int64, 1, "Filtered portfolios with at least"),
-        ("EXPECTANCY_PER_TRADE", "Expectancy Per Trade", pl.Float64, 1, "Filtered portfolios with expectancy per trade"),
-        ("PROFIT_FACTOR", "Profit Factor", pl.Float64, 1, "Filtered portfolios with profit factor"),
-        ("SCORE", "Score", pl.Float64, 1, "Filtered portfolios with score"),
-        ("SORTINO_RATIO", "Sortino Ratio", pl.Float64, 1, "Filtered portfolios with Sortino ratio"),
-        ("BEATS_BNH", "Beats BNH [%]", pl.Float64, 1, "Filtered portfolios with Beats BNH percentage")
-    ]
-    
-    # First, filter out portfolios with invalid metrics
+    # Apply consolidated filtering using PortfolioFilterService
     if progress_tracker:
         progress_tracker.update(message=f"Filtering portfolios for {ticker}")
     
-    from app.tools.portfolio.filters import filter_invalid_metrics
-    portfolios_df = filter_invalid_metrics(portfolios_df, log)
+    from app.tools.portfolio.filtering_service import PortfolioFilterService
     
-    # Check if any portfolios remain after filtering invalid metrics
-    if portfolios_df is None or len(portfolios_df) == 0:
-        log("No portfolios remain after filtering invalid metrics", "warning")
-        return None
+    filter_service = PortfolioFilterService()
+    portfolios_df = filter_service.filter_portfolios_dataframe(portfolios_df, ticker_config, log)
     
-    # Then apply filters from the MINIMUMS dictionary
-    if "MINIMUMS" in ticker_config:
-        minimums = ticker_config["MINIMUMS"]
-        
-        # Apply each filter from the configuration
-        for config_key, column_name, data_type, multiplier, message_prefix in filter_configs:
-            if config_key in minimums:
-                portfolios_df = apply_filter(
-                    portfolios_df,
-                    column_name,
-                    minimums[config_key],
-                    data_type,
-                    multiplier,
-                    message_prefix
-                )
-        
-    # Check if portfolios_df is None or empty
+    # Check if any portfolios remain after filtering
     if portfolios_df is None or len(portfolios_df) == 0:
         log("No portfolios remain after filtering", "warning")
         return None
