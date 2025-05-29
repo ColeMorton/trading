@@ -17,33 +17,31 @@ const App: React.FC = () => {
   return (
     <OfflineProvider>
       <AppProvider>
-        <div className="min-h-screen" style={{ backgroundColor: 'var(--bs-body-bg)' }}>
+        <div className="min-vh-100">
           <a href="#main-content" className="skip-link">Skip to main content</a>
           
-          <header className="mb-8 p-6">
-            <h1 className="text-4xl font-bold" style={{ color: 'var(--bs-body-color)' }}>Sensylate</h1>
-            <p style={{ color: 'var(--bs-secondary-color)' }}>Sensitivity analysis meets portfolio simulation and strategy creation</p>
+          <header className="mb-4 p-4">
+            <h1 className="display-4 fw-bold">Sensylate</h1>
+            <p className="text-muted">Sensitivity analysis meets portfolio simulation and strategy creation</p>
           </header>
           
-          <main id="main-content" className="container-fluid px-6 pb-6">
+          <main id="main-content" className="container-fluid px-4 pb-4">
             <OfflineBanner />
             <ErrorMessage />
             
             {/* Control Panel Card */}
-            <div className="mb-6 rounded-lg border" style={{ 
-              backgroundColor: 'var(--bs-card-bg)', 
-              borderColor: 'var(--bs-card-border-color)' 
-            }}>
-              <div className="border-b px-4 py-3" style={{ 
-                backgroundColor: 'var(--bs-card-cap-bg)', 
-                borderColor: 'var(--bs-card-border-color)' 
-              }}>
-                <h5 className="mb-0 font-bold" style={{ color: 'var(--bs-body-color)' }}>Control Panel</h5>
+            <div className="card mb-4">
+              <div className="card-header">
+                <h5 className="card-title mb-0">Control Panel</h5>
               </div>
-              <div className="p-4">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <FileSelector />
-                  <UpdateButton />
+              <div className="card-body">
+                <div className="row g-3">
+                  <div className="col-md-6">
+                    <FileSelector />
+                  </div>
+                  <div className="col-md-6">
+                    <UpdateButton />
+                  </div>
                 </div>
               </div>
             </div>

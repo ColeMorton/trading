@@ -18,20 +18,13 @@ const FileSelector: React.FC = () => {
   };
   
   return (
-    <div className="flex-grow">
-      <label htmlFor="file-selector" className="block text-sm font-medium mb-2" style={{ color: 'var(--bs-body-color)' }}>
+    <div className="flex-grow-1">
+      <label htmlFor="file-selector" className="form-label">
         Select CSV File:
       </label>
       <select
         id="file-selector"
-        className="form-control block w-full"
-        style={{
-          backgroundColor: 'var(--bs-input-bg)',
-          color: 'var(--bs-input-color)',
-          border: '1px solid var(--bs-input-border-color)',
-          borderRadius: '0.375rem',
-          padding: '0.375rem 0.75rem'
-        }}
+        className="form-select"
         value={selectedFile || ''}
         onChange={handleChange}
       >

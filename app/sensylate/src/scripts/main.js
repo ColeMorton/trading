@@ -1,5 +1,4 @@
-// Import CSS for webpack to process
-import '../styles/main.css';
+// CSS is now imported via React in index.css
 
 document.addEventListener('DOMContentLoaded', function() {
     const fileSelector = document.getElementById('file-selector');

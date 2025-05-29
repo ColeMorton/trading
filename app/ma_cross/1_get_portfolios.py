@@ -435,7 +435,7 @@ def run_strategies(config: Dict[str, Any] = None) -> bool:
                 
                 if filtered_portfolios is not None and len(filtered_portfolios) > 0:
                     # Export portfolios using the extended schema format
-                    export_best_portfolios(filtered_portfolios, base_config, log)
+                    export_best_portfolios(all_portfolios, base_config, log)
                 else:
                     log("No portfolios remain after filtering", "warning")
         else:

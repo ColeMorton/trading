@@ -12,9 +12,11 @@ const LoadingIndicator: React.FC = () => {
   }
   
   return (
-    <div className="flex items-center justify-center p-6">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--bs-primary)' }}></div>
-      <span className="ml-3" style={{ color: 'var(--bs-body-color)' }}>Loading CSV data...</span>
+    <div className="d-flex align-items-center justify-content-center p-4">
+      <div className="spinner-border text-primary me-3" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </div>
+      <span>Loading CSV data...</span>
     </div>
   );
 };

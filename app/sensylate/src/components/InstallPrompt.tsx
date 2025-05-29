@@ -58,32 +58,22 @@ const InstallPrompt: React.FC = () => {
   if (!showPrompt) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 p-4 z-50" style={{ backgroundColor: 'var(--bs-primary)', color: 'white' }}>
-      <div className="container mx-auto flex justify-between items-center">
+    <div className="position-fixed bottom-0 start-0 end-0 p-4 bg-primary text-white" style={{ zIndex: 1050 }}>
+      <div className="container-fluid d-flex justify-content-between align-items-center">
         <div>
-          <p className="font-medium">Install Sensylate</p>
-          <p className="text-sm opacity-90">Add to your home screen for quick access</p>
+          <p className="fw-medium mb-1">Install Sensylate</p>
+          <p className="small mb-0 opacity-75">Add to your home screen for quick access</p>
         </div>
-        <div className="flex space-x-2">
+        <div className="d-flex gap-2">
           <button
             onClick={handleDismiss}
-            className="px-3 py-1 rounded"
-            style={{
-              color: 'white',
-              backgroundColor: 'transparent',
-              border: '1px solid white'
-            }}
+            className="btn btn-outline-light btn-sm"
           >
             Not now
           </button>
           <button
             onClick={handleInstallClick}
-            className="px-3 py-1 rounded"
-            style={{
-              color: 'var(--bs-primary)',
-              backgroundColor: 'white',
-              border: '1px solid white'
-            }}
+            className="btn btn-light btn-sm"
           >
             Install
           </button>

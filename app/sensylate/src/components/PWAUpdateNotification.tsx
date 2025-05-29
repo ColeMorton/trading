@@ -55,31 +55,23 @@ const PWAUpdateNotification: React.FC = () => {
   if (!needRefresh) return null;
 
   return (
-    <div className="fixed bottom-0 right-0 m-4 p-4 rounded-lg shadow-lg z-50 border" style={{
-      backgroundColor: 'var(--bs-dark)',
-      borderColor: 'var(--bs-primary)'
-    }}>
-      <div className="flex flex-col">
+    <div className="position-fixed bottom-0 end-0 m-4 p-4 border rounded shadow-lg bg-body" style={{ zIndex: 1050 }}>
+      <div className="d-flex flex-column">
         <div className="mb-2">
-          <h3 className="text-lg font-semibold" style={{ color: 'var(--bs-body-color)' }}>New Version Available</h3>
-          <p className="text-sm" style={{ color: 'var(--bs-secondary-color)' }}>
+          <h5 className="mb-1">New Version Available</h5>
+          <p className="small text-muted mb-0">
             A new version of Sensylate is available. Click update to get the latest features.
           </p>
         </div>
-        <div className="flex justify-end space-x-2">
+        <div className="d-flex justify-content-end gap-2">
           <button
-            className="px-3 py-1 text-sm hover:opacity-75"
-            style={{ color: 'var(--bs-secondary-color)' }}
+            className="btn btn-sm btn-outline-secondary"
             onClick={close}
           >
             Close
           </button>
           <button
-            className="px-3 py-1 text-sm rounded"
-            style={{
-              backgroundColor: 'var(--bs-primary)',
-              color: 'white'
-            }}
+            className="btn btn-sm btn-primary"
             onClick={updateSW}
           >
             Update

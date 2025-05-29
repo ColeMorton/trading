@@ -12,37 +12,21 @@ const ViewToggle: React.FC = () => {
   }
   
   return (
-    <div className="mb-6 rounded-lg border" style={{ 
-      backgroundColor: 'var(--bs-card-bg)', 
-      borderColor: 'var(--bs-card-border-color)' 
-    }}>
-      <div className="border-b px-4 py-3" style={{ 
-        backgroundColor: 'var(--bs-card-cap-bg)', 
-        borderColor: 'var(--bs-card-border-color)' 
-      }}>
-        <h5 className="mb-0 font-bold" style={{ color: 'var(--bs-body-color)' }}>View Options</h5>
+    <div className="card mb-4">
+      <div className="card-header">
+        <h5 className="card-title mb-0">View Options</h5>
       </div>
-      <div className="p-4">
-        <div className="flex space-x-2">
+      <div className="card-body">
+        <div className="btn-group" role="group" aria-label="View toggle">
           <button 
             onClick={() => setViewMode('table')}
-            className="px-4 py-2 rounded-md"
-            style={{
-              backgroundColor: viewMode === 'table' ? 'var(--bs-primary)' : 'rgba(255, 255, 255, 0.1)',
-              color: viewMode === 'table' ? 'white' : 'var(--bs-body-color)',
-              border: '1px solid var(--bs-border-color)'
-            }}
+            className={`btn ${viewMode === 'table' ? 'btn-primary' : 'btn-outline-secondary'}`}
           >
             Table View
           </button>
           <button 
             onClick={() => setViewMode('text')}
-            className="px-4 py-2 rounded-md"
-            style={{
-              backgroundColor: viewMode === 'text' ? 'var(--bs-primary)' : 'rgba(255, 255, 255, 0.1)',
-              color: viewMode === 'text' ? 'white' : 'var(--bs-body-color)',
-              border: '1px solid var(--bs-border-color)'
-            }}
+            className={`btn ${viewMode === 'text' ? 'btn-primary' : 'btn-outline-secondary'}`}
           >
             Raw Text View
           </button>

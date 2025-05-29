@@ -74,9 +74,13 @@ class MACrossAdapter(IAnalysisAdapter):
         tickers = app_config.get("tickers", "")
         tickers_list = [t.strip() for t in tickers.split(",") if t.strip()]
         
+        # Import project utils to get the base directory
+        from app.tools.project_utils import get_project_root
+        
         # Create a new configuration dictionary for MA Cross
         ma_config = {
             "TICKER": tickers_list,
+            "BASE_DIR": get_project_root(),  # Add BASE_DIR for export functionality
             "WINDOWS": app_config.get("WINDOWS", 89),
             "REFRESH": app_config.get("REFRESH", True),
             "STRATEGY_TYPES": app_config.get("STRATEGY_TYPES", ["SMA", "EMA"]),

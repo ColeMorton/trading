@@ -58,48 +58,27 @@ const DataTable: React.FC = () => {
   }
   
   return (
-    <div className="mb-6 rounded-lg border overflow-hidden" style={{ 
-      backgroundColor: 'var(--bs-card-bg)', 
-      borderColor: 'var(--bs-card-border-color)' 
-    }}>
-      <div className="border-b px-4 py-3" style={{ 
-        backgroundColor: 'var(--bs-card-cap-bg)', 
-        borderColor: 'var(--bs-card-border-color)' 
-      }}>
-        <h5 className="mb-0 font-bold" style={{ color: 'var(--bs-body-color)' }}>Results</h5>
+    <div className="card mb-4">
+      <div className="card-header">
+        <h5 className="card-title mb-0">Results</h5>
       </div>
-      <div className="p-4">
-        <div className="mb-4 flex justify-between items-center">
-          <div>
+      <div className="card-body">
+        <div className="row mb-3 align-items-center">
+          <div className="col-md-6">
             <input
               value={table.getState().globalFilter || ''}
               onChange={e => table.setGlobalFilter(e.target.value)}
               placeholder="Filter results..."
               className="form-control"
-              style={{
-                backgroundColor: 'var(--bs-input-bg)',
-                color: 'var(--bs-input-color)',
-                border: '1px solid var(--bs-input-border-color)',
-                borderRadius: '0.375rem',
-                padding: '0.375rem 0.75rem'
-              }}
             />
           </div>
-          <div className="flex items-center gap-4">
-            <span style={{ color: 'var(--bs-secondary-color)', fontSize: '0.875rem' }}>
-              Show
-            </span>
+          <div className="col-md-6 d-flex align-items-center justify-content-end gap-2">
+            <span className="text-muted small">Show</span>
             <select
               value={table.getState().pagination.pageSize}
               onChange={e => table.setPageSize(Number(e.target.value))}
-              className="form-control"
-              style={{
-                backgroundColor: 'var(--bs-input-bg)',
-                color: 'var(--bs-input-color)',
-                border: '1px solid var(--bs-input-border-color)',
-                borderRadius: '0.375rem',
-                padding: '0.375rem 0.75rem'
-              }}
+              className="form-select form-select-sm"
+              style={{ width: 'auto' }}
             >
               {[10, 25, 50, 100].map(size => (
                 <option key={size} value={size}>
@@ -110,98 +89,80 @@ const DataTable: React.FC = () => {
           </div>
         </div>
       
-      <div className="overflow-x-auto">
-        <table className="react-table">
-          <thead>
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
-                  <th
-                    key={header.id}
-                    onClick={header.column.getToggleSortingHandler()}
-                    className="p-2 text-left cursor-pointer"
-                  >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                    <span>
-                      {{
-                        asc: ' 🔼',
-                        desc: ' 🔽'
-                      }[header.column.getIsSorted() as string] ?? ''}
-                    </span>
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map(row => (
-              <tr key={row.id}>
-                {row.getVisibleCells().map(cell => (
-                  <td key={cell.id} className="p-2 border-b border-gray-200">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+        <div className="table-responsive">
+          <table className="react-table">
+            <thead>
+              {table.getHeaderGroups().map(headerGroup => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map(header => (
+                    <th
+                      key={header.id}
+                      onClick={header.column.getToggleSortingHandler()}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      <span>
+                        {{
+                          asc: ' 🔼',
+                          desc: ' 🔽'
+                        }[header.column.getIsSorted() as string] ?? ''}
+                      </span>
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map(row => (
+                <tr key={row.id}>
+                  {row.getVisibleCells().map(cell => (
+                    <td key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       
-        <div className="mt-4 flex items-center justify-between">
-          <div className="flex gap-1">
-            <button
-              onClick={() => table.setPageIndex(0)}
-              disabled={!table.getCanPreviousPage()}
-              className="px-3 py-1.5 rounded border disabled:opacity-50"
-              style={{
-                backgroundColor: 'var(--bs-input-bg)',
-                color: 'var(--bs-body-color)',
-                borderColor: 'var(--bs-border-color)'
-              }}
-            >
-              {'<<'}
-            </button>
-            <button
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-              className="px-3 py-1.5 rounded border disabled:opacity-50"
-              style={{
-                backgroundColor: 'var(--bs-input-bg)',
-                color: 'var(--bs-body-color)',
-                borderColor: 'var(--bs-border-color)'
-              }}
-            >
-              {'<'}
-            </button>
-            <button
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-              className="px-3 py-1.5 rounded border disabled:opacity-50"
-              style={{
-                backgroundColor: 'var(--bs-input-bg)',
-                color: 'var(--bs-body-color)',
-                borderColor: 'var(--bs-border-color)'
-              }}
-            >
-              {'>'}
-            </button>
-            <button
-              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-              disabled={!table.getCanNextPage()}
-              className="px-3 py-1.5 rounded border disabled:opacity-50"
-              style={{
-                backgroundColor: 'var(--bs-input-bg)',
-                color: 'var(--bs-body-color)',
-                borderColor: 'var(--bs-border-color)'
-              }}
-            >
-              {'>>'}
-            </button>
+        <div className="row mt-3 align-items-center">
+          <div className="col-auto">
+            <div className="btn-group" role="group">
+              <button
+                onClick={() => table.setPageIndex(0)}
+                disabled={!table.getCanPreviousPage()}
+                className="btn btn-outline-secondary btn-sm"
+              >
+                {'<<'}
+              </button>
+              <button
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+                className="btn btn-outline-secondary btn-sm"
+              >
+                {'<'}
+              </button>
+              <button
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+                className="btn btn-outline-secondary btn-sm"
+              >
+                {'>'}
+              </button>
+              <button
+                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                disabled={!table.getCanNextPage()}
+                className="btn btn-outline-secondary btn-sm"
+              >
+                {'>>'}
+              </button>
+            </div>
           </div>
-          <div>
-            <span style={{ color: 'var(--bs-secondary-color)', fontSize: '0.875rem' }}>
+          <div className="col-auto ms-auto">
+            <span className="text-muted small">
               Page{' '}
-              <strong style={{ color: 'var(--bs-body-color)' }}>
+              <strong>
                 {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
               </strong>
             </span>
