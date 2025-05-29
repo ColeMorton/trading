@@ -324,6 +324,11 @@ def execute_strategy(
         List[Dict[str, Any]]: List of best portfolios found
     """
     best_portfolios = []
+    
+    if "TICKER" not in config:
+        log(f"ERROR: TICKER key not found in config. Available keys: {list(config.keys())}", "error")
+        return []
+    
     tickers = [config["TICKER"]] if isinstance(config["TICKER"], str) else config["TICKER"]
     
     # Update progress if tracker provided

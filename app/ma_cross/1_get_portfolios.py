@@ -73,13 +73,13 @@ from app.tools.portfolio.stop_loss import (
 )
 
 CONFIG: Config = {
-    # "TICKER": "BTC-USD",
     "TICKER": ["ROKU"],
+    # "TICKER": ["ROKU","LUV"],
     # Load tickers from JSON file
     # "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/portfolio.json"))),
     # "TICKER_2": 'AVGO',
     # "WINDOWS": 120,
-    "WINDOWS": 5,
+    "WINDOWS": 10,
     # "WINDOWS": 55,
     # "WINDOWS": 34,
     # "SCANNER_LIST": 'DAILY.csv',
@@ -87,6 +87,7 @@ CONFIG: Config = {
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
     "REFRESH": False,
     "STRATEGY_TYPES": [ "SMA", "EMA" ],
+    # "STRATEGY_TYPES": [ "SMA" ],
     "DIRECTION": "Long",
     "USE_HOURLY": False,
     "USE_YEARS": False,
@@ -397,8 +398,8 @@ def run_strategies(config: Dict[str, Any] = None) -> bool:
         
         # Initialize config
         with error_context("Initializing configuration", log, {Exception: ConfigurationError}):
-            # Use passed config if provided, otherwise use default CONFIG
-            if config is not None:
+            # Use passed config if provided and not empty, otherwise use default CONFIG
+            if config is not None and config:
                 config_copy = config.copy()
             else:
                 config_copy = CONFIG.copy()

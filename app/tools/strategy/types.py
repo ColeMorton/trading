@@ -68,9 +68,9 @@ class StrategyConfig(TypedDict, total=False):
 
     Required Fields:
         TICKER (Union[str, List[str]]): Trading symbol or list of symbols
-        WINDOWS (int): Maximum window size to test
 
     Optional Fields:
+        WINDOWS (NotRequired[int]): Maximum window size to test
         DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
         USE_SMA (NotRequired[bool]): Whether to use SMA instead of EMA
         USE_HOURLY (NotRequired[bool]): Whether to use hourly data
@@ -91,6 +91,9 @@ class StrategyConfig(TypedDict, total=False):
         MINIMUMS (NotRequired[Dict[str, Union[int, float]]]): Dictionary of minimum filtering values
         SORT_BY (NotRequired[str]): Field to sort results by
         SORT_ASC (NotRequired[bool]): Whether to sort in ascending order
+        STRATEGY_TYPES (NotRequired[List[str]]): List of strategy types to run
+        STRATEGY_TYPE (NotRequired[str]): Single strategy type
+        USE_MA (NotRequired[bool]): Whether to use moving averages
     """
     TICKER: Union[str, List[str]]
     WINDOWS: NotRequired[int]
@@ -114,22 +117,9 @@ class StrategyConfig(TypedDict, total=False):
     MINIMUMS: NotRequired[Dict[str, Union[int, float]]]
     SORT_BY: NotRequired[str]
     SORT_ASC: NotRequired[bool]
-
-    TICKER: Union[str, List[str]]
-    WINDOWS: NotRequired[int]
-    DIRECTION: NotRequired[str]
-    USE_SMA: NotRequired[bool]
-    USE_HOURLY: NotRequired[bool]
-    USE_YEARS: NotRequired[bool]
-    YEARS: NotRequired[float]
-    USE_SYNTHETIC: NotRequired[bool]
-    TICKER_2: NotRequired[str]
-    USE_SCANNER: NotRequired[bool]
-    REFRESH: NotRequired[bool]
-    USE_CURRENT: NotRequired[bool]
-    MINIMUMS: NotRequired[Dict[str, Union[int, float]]]
-    SORT_BY: NotRequired[str]
-    SORT_ASC: NotRequired[bool]
+    STRATEGY_TYPES: NotRequired[List[str]]
+    STRATEGY_TYPE: NotRequired[str]
+    USE_MA: NotRequired[bool]
 
 # Default configuration
 DEFAULT_CONFIG: StrategyConfig = {
