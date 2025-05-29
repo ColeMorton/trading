@@ -30,6 +30,13 @@ from app.ma_cross.tools.filter_portfolios import filter_portfolios
 
 from .ticker_processor import TickerProcessor
 
+# Optional: Import new export system for gradual migration
+try:
+    from app.tools.export import ExportManager, ExportContext, ExportFormat
+    EXPORT_MANAGER_AVAILABLE = True
+except ImportError:
+    EXPORT_MANAGER_AVAILABLE = False
+
 
 class PortfolioOrchestrator:
     """
@@ -43,15 +50,21 @@ class PortfolioOrchestrator:
     - Result export
     """
     
-    def __init__(self, log: Callable[[str, str], None]):
+    def __init__(self, log: Callable[[str, str], None], use_new_export: bool = False):
         """
         Initialize the orchestrator.
         
         Args:
             log: Logging function
+            use_new_export: Whether to use the new export system (default: False)
         """
         self.log = log
         self.ticker_processor = TickerProcessor(log)
+        self.use_new_export = use_new_export and EXPORT_MANAGER_AVAILABLE
+        
+        if self.use_new_export:
+            self.export_manager = ExportManager()
+            self.log("Using new unified export system", "info")
     
     def run(self, config: Dict[str, Any]) -> bool:
         """
@@ -225,4 +238,46 @@ class PortfolioOrchestrator:
             ExportError: If export fails
         """
         with error_context("Exporting portfolios", self.log, {Exception: ExportError}):
-            export_best_portfolios(portfolios, config, self.log)
+            if self.use_new_export:
+                # Use new export system
+                self._export_with_manager(portfolios, config)
+            else:
+                # Use legacy export system
+                export_best_portfolios(portfolios, config, self.log)
+    
+    def _export_with_manager(self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]) -> None:
+        """
+        Export portfolios using the new unified export manager.
+        
+        Args:
+            portfolios: List of portfolios to export
+            config: Configuration dictionary
+            
+        Raises:
+            ExportError: If export fails
+        """
+        # Sort portfolios
+        from app.tools.portfolio.collection import sort_portfolios
+        sorted_portfolios = sort_portfolios(portfolios, config)
+        sort_by = config.get('SORT_BY', 'Total Return [%]')
+        
+        # Prepare data for export by converting to DataFrame
+        import polars as pl
+        df = pl.DataFrame(sorted_portfolios)
+        
+        # Create export context
+        context = ExportContext(
+            data=df,
+            format=ExportFormat.CSV,
+            feature_path="portfolios/portfolios_best",
+            config=config,
+            log=self.log
+        )
+        
+        # Export using the new system
+        result = self.export_manager.export(context)
+        
+        if result.success:
+            self.log(f"Exported {result.rows_exported} portfolios sorted by {sort_by}", "info")
+        else:
+            raise ExportError(f"Export failed: {result.error_message}")
