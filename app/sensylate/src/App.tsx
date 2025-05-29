@@ -20,11 +20,6 @@ const App: React.FC = () => {
         <div className="min-vh-100">
           <a href="#main-content" className="skip-link">Skip to main content</a>
           
-          <header className="mb-4 p-4">
-            <h1 className="display-4 fw-bold">Sensylate</h1>
-            <p className="text-muted">Sensitivity analysis meets portfolio simulation and strategy creation</p>
-          </header>
-          
           <main id="main-content" className="container-fluid px-4 pb-4">
             <OfflineBanner />
             <ErrorMessage />
@@ -36,10 +31,10 @@ const App: React.FC = () => {
               </div>
               <div className="card-body">
                 <div className="row g-3">
-                  <div className="col-md-6">
+                  <div className="col-md-12">
                     <FileSelector />
                   </div>
-                  <div className="col-md-6">
+                  <div className="col-md-12">
                     <UpdateButton />
                   </div>
                 </div>
