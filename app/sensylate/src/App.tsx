@@ -1,6 +1,8 @@
 import React from 'react';
 import { AppProvider } from './context/AppContext';
 import { OfflineProvider } from './context/OfflineContext';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import FileSelector from './components/FileSelector';
 import FileInfo from './components/FileInfo';
 import LoadingIndicator from './components/LoadingIndicator';
@@ -12,21 +14,29 @@ import UpdateButton from './components/UpdateButton';
 import OfflineBanner from './components/OfflineBanner';
 import PWAUpdateNotification from './components/PWAUpdateNotification';
 import InstallPrompt from './components/InstallPrompt';
+import Icon from './components/Icon';
+import { icons } from './utils/icons';
 
 const App: React.FC = () => {
   return (
     <OfflineProvider>
       <AppProvider>
-        <div className="min-vh-100">
-          <a href="#main-content" className="skip-link">Skip to main content</a>
+        <div className="min-vh-100 d-flex flex-column">
+          <a href="#main-content" className="skip-link">
+            <Icon icon={icons.skipLink} className="me-2" />
+            Skip to main content
+          </a>
           
-          <main id="main-content" className="container-fluid px-4 pb-4">
+          <Navbar />
+          
+          <main id="main-content" className="container-fluid px-4 py-4 flex-fill">
             <OfflineBanner />
             <ErrorMessage />
             
             {/* Control Panel Card */}
             <div className="card mb-4">
-              <div className="card-header">
+              <div className="card-header d-flex align-items-center">
+                <Icon icon={icons.settings} className="me-2" />
                 <h5 className="card-title mb-0">Control Panel</h5>
               </div>
               <div className="card-body">
@@ -51,6 +61,8 @@ const App: React.FC = () => {
             <PWAUpdateNotification />
             <InstallPrompt />
           </main>
+          
+          <Footer />
         </div>
       </AppProvider>
     </OfflineProvider>

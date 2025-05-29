@@ -1,5 +1,7 @@
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
+import Icon from './Icon';
+import { icons } from '../utils/icons';
 
 /**
  * Component to display error messages
@@ -12,13 +14,9 @@ const ErrorMessage: React.FC = () => {
   }
   
   return (
-    <div className="alert alert-danger alert-dismissible" role="alert">
-      <div className="d-flex align-items-center">
-        <svg className="me-2" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-        </svg>
-        {error}
-      </div>
+    <div className="alert alert-danger alert-dismissible d-flex align-items-center" role="alert">
+      <Icon icon={icons.error} className="me-2 flex-shrink-0" />
+      <div className="flex-grow-1">{error}</div>
       <button 
         type="button"
         className="btn-close"

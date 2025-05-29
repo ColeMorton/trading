@@ -1,5 +1,7 @@
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
+import Icon from './Icon';
+import { icons } from '../utils/icons';
 
 /**
  * Component to display a loading spinner
@@ -13,9 +15,7 @@ const LoadingIndicator: React.FC = () => {
   
   return (
     <div className="d-flex align-items-center justify-content-center p-4">
-      <div className="spinner-border text-primary me-3" role="status">
-        <span className="visually-hidden">Loading...</span>
-      </div>
+      <Icon icon={icons.loading} spin size="2x" className="text-primary me-3" />
       <span>Loading CSV data...</span>
     </div>
   );

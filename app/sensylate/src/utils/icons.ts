@@ -44,7 +44,12 @@ import {
   faEdit,
   faSave,
   faUndo,
-  faRedo
+  faRedo,
+  faTimes,
+  faColumns,
+  faCopyright,
+  faUniversalAccess,
+  faClock
 } from '@fortawesome/free-solid-svg-icons';
 
 // Navigation icons
@@ -52,6 +57,7 @@ export const navigationIcons = {
   brand: faChartLine,
   menu: faBars,
   search: faSearch,
+  times: faTimes,
 } as const;
 
 // Data and file icons
@@ -62,6 +68,7 @@ export const dataIcons = {
   folder: faFolder,
   folderOpen: faFolderOpen,
   textView: faFileLines,
+  columns: faColumns,
 } as const;
 
 // Action icons
@@ -88,6 +95,7 @@ export const statusIcons = {
   warning: faExclamationTriangle,
   info: faInfoCircle,
   star: faStar,
+  lastUpdated: faClock,
 } as const;
 
 // View and display icons
@@ -126,6 +134,12 @@ export const portfolioIcons = {
   settings: faCog,
 } as const;
 
+// Accessibility and UI icons
+export const uiIcons = {
+  copyright: faCopyright,
+  skipLink: faUniversalAccess,
+} as const;
+
 // Export all icons in a single object for easy access
 export const icons = {
   ...navigationIcons,
@@ -136,4 +150,5 @@ export const icons = {
   ...tableIcons,
   ...connectivityIcons,
   ...portfolioIcons,
+  ...uiIcons,
 } as const;
