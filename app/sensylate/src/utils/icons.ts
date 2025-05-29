@@ -49,7 +49,8 @@ import {
   faColumns,
   faCopyright,
   faUniversalAccess,
-  faClock
+  faClock,
+  faCode
 } from '@fortawesome/free-solid-svg-icons';
 
 // Navigation icons
@@ -69,6 +70,7 @@ export const dataIcons = {
   folderOpen: faFolderOpen,
   textView: faFileLines,
   columns: faColumns,
+  code: faCode,
 } as const;
 
 // Action icons
