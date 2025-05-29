@@ -397,8 +397,11 @@ def run_strategies(config: Dict[str, Any] = None) -> bool:
         
         # Initialize config
         with error_context("Initializing configuration", log, {Exception: ConfigurationError}):
-            # Create a normalized copy of the default config
-            config_copy = CONFIG.copy()
+            # Use passed config if provided, otherwise use default CONFIG
+            if config is not None:
+                config_copy = config.copy()
+            else:
+                config_copy = CONFIG.copy()
             config_copy["USE_MA"] = True  # Ensure USE_MA is set for proper filename suffix
             config_copy = normalize_config(config_copy)
         
