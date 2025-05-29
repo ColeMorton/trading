@@ -62,8 +62,8 @@ from app.tools.portfolio.stop_loss import (
     get_stop_loss_summary,
     apply_stop_loss_rules
 )
+from app.tools.config_service import ConfigService
 from app.tools.config_management import (
-    normalize_config,
     merge_configs,
     resolve_portfolio_filename
 )
@@ -107,8 +107,8 @@ def run_analysis(config: Dict[str, Any]) -> bool:
         PortfolioLoadError: If the portfolio cannot be loaded
         TradingSystemError: For other unexpected errors
     """
-    # Ensure configuration is normalized
-    config = normalize_config(config)
+    # Process configuration with defaults and normalization
+    config = ConfigService.process_config(config)
     
     # Get log subdirectory from BASE_DIR if specified
     log_subdir = None

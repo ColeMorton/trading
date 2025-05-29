@@ -3,7 +3,7 @@ import numpy as np
 from typing import List, Dict, Callable
 from datetime import datetime
 from app.tools.get_data import get_data
-from app.tools.get_config import get_config
+from app.tools.config_service import ConfigService
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.export_csv import export_csv
 from app.tools.strategy.types import StrategyConfig as Config
@@ -87,7 +87,7 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
     try:
         from app.ma_cross.tools.signal_utils import set_last_trading_day
         
-        config = get_config(config)
+        config = ConfigService.process_config(config)
         config_copy = config.copy()
         config_copy["USE_CURRENT"] = True  # Ensure holiday check is enabled
         

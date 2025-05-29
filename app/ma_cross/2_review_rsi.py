@@ -10,7 +10,7 @@ import os
 import numpy as np
 from app.tools.setup_logging import setup_logging
 from app.tools.get_data import get_data
-from app.tools.get_config import get_config
+from app.tools.config_service import ConfigService
 from app.tools.cache_utils import (
     CacheConfig,
     get_cache_filepath,
@@ -58,7 +58,7 @@ def run(config: CacheConfig) -> bool:
     )
     
     try:
-        config = get_config(config)
+        config = ConfigService.process_config(config)
         log(f"Starting RSI analysis for {config['TICKER']}")
         
         # Define parameter ranges

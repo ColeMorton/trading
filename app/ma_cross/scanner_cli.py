@@ -9,7 +9,7 @@ import sys
 from typing import Dict, Any
 
 from app.tools.setup_logging import setup_logging
-from app.tools.get_config import get_config
+from app.tools.config_service import ConfigService
 from app.ma_cross.scanner_adapter import ScannerAdapter
 
 
@@ -109,7 +109,7 @@ def main():
     """Main entry point for CLI execution."""
     try:
         # Load configuration
-        config = get_config(DEFAULT_CONFIG)
+        config = ConfigService.process_config(DEFAULT_CONFIG)
         config["USE_SCANNER"] = True
         
         # Process scanner

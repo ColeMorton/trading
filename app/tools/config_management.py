@@ -593,18 +593,58 @@ def list_presets(config_name: str) -> List[Dict[str, Any]]:
 
 # Simple utility functions for direct use without ConfigManager
 
-def normalize_config(config: Dict[str, Any]) -> Dict[str, Any]:
-    """Normalize configuration by ensuring standard fields are present.
+def apply_config_defaults(config: Dict[str, Any]) -> Dict[str, Any]:
+    """Apply default values to configuration (migrated from get_config.py).
+    
+    This function applies the same defaults that were previously in get_config.py,
+    maintaining backward compatibility.
     
     Args:
         config: Configuration dictionary
         
     Returns:
-        Normalized configuration dictionary
+        Configuration with defaults applied
     """
-    normalized = config.copy()
+    result = config.copy()
     
-    # Ensure BASE_DIR is absolute
+    # Handle synthetic ticker logic
+    if result.get('USE_SYNTHETIC', False) == True:
+        result["TICKER"] = f"{result['TICKER_1']}_{result['TICKER_2']}"
+    
+    # Set default BASE_DIR
+    if not result.get('BASE_DIR'):
+        result["BASE_DIR"] = '.'
+    
+    # Set default PERIOD
+    if not result.get('PERIOD') and result.get('USE_YEARS', False) == False:
+        result["PERIOD"] = 'max'
+    
+    # Set default RSI_WINDOW
+    if not result.get('RSI_WINDOW'):
+        result["RSI_WINDOW"] = 14
+    
+    # Set default SHORT
+    if not result.get('SHORT'):
+        result["SHORT"] = False
+    
+    return result
+
+
+def normalize_config(config: Dict[str, Any]) -> Dict[str, Any]:
+    """Normalize configuration by ensuring standard fields are present and paths are absolute.
+    
+    This now includes the functionality from get_config.py for a complete normalization.
+    
+    Args:
+        config: Configuration dictionary
+        
+    Returns:
+        Normalized configuration dictionary with defaults applied
+    """
+    # First apply defaults (migrated from get_config.py)
+    normalized = apply_config_defaults(config)
+    
+    # Then ensure BASE_DIR is absolute
     if "BASE_DIR" in normalized and not os.path.isabs(normalized["BASE_DIR"]):
         normalized["BASE_DIR"] = os.path.abspath(normalized["BASE_DIR"])
     

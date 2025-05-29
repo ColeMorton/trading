@@ -18,7 +18,7 @@ from app.ma_cross.tools.process_strategy_portfolios import (
 from app.ma_cross.tools.signal_utils import is_signal_current
 from app.tools.stats_converter import convert_stats
 # Import export_portfolios inside functions to avoid circular imports
-from app.tools.get_config import get_config
+from app.tools.config_service import ConfigService
 from app.tools.portfolio_transformation import reorder_columns
 
 def process_ticker_portfolios(ticker: str, row: dict, config: Dict[str, Any], log: Callable[[str, str], None]) -> Optional[List[dict]]:
@@ -208,7 +208,7 @@ def export_summary_results(portfolios: List[Dict], portfolio_name: str, log: Cal
         reordered_portfolios = [reorder_columns(p) for p in portfolios]
         
         # Use provided config or get default if none provided
-        export_config = config if config is not None else get_config({})
+        export_config = config if config is not None else ConfigService.process_config({})
         export_config["TICKER"] = None
         
         # Remove duplicates based on Ticker, Use SMA, Short Window, Long Window

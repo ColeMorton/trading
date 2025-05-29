@@ -10,11 +10,10 @@ from typing import List, Dict, Any, Optional
 import polars as pl
 import json
 import os
-from app.tools.get_config import get_config
 from app.tools.project_utils import (
     get_project_root
 )
-from app.tools.get_config import get_config
+from app.tools.config_service import ConfigService
 from app.tools.entry_point import run_from_command_line
 from app.tools.strategy.types import StrategyConfig as Config
 from app.ma_cross.tools.strategy_execution import execute_strategy
@@ -32,9 +31,7 @@ from app.tools.exceptions import (
     ExportError,
     TradingSystemError
 )
-from app.tools.config_management import (
-    normalize_config
-)
+# Config management is now handled by ConfigService
 from app.tools.synthetic_ticker import (
     process_synthetic_config
 )
@@ -276,12 +273,9 @@ def run(config: Config = CONFIG) -> bool:
         module_name='ma_cross',
         log_file='1_get_portfolios.log'
     ) as log:
-        # Initialize configuration
+        # Initialize configuration using unified ConfigService
         with error_context("Initializing configuration", log, {Exception: ConfigurationError}):
-            config = get_config(config)
-            
-            # Normalize the configuration (ensures BASE_DIR is absolute)
-            config = normalize_config(config)
+            config = ConfigService.process_config(config)
         
         # Handle synthetic pair if enabled
         with error_context("Processing synthetic ticker configuration", log, {ValueError: SyntheticTickerError}):
@@ -361,7 +355,7 @@ def run_strategies(config: Dict[str, Any] = None) -> bool:
             else:
                 config_copy = CONFIG.copy()
             config_copy["USE_MA"] = True  # Ensure USE_MA is set for proper filename suffix
-            config_copy = normalize_config(config_copy)
+            config_copy = ConfigService.process_config(config_copy)
         
         # Process synthetic configuration
         with error_context("Processing synthetic configuration", log, {ValueError: SyntheticTickerError}):

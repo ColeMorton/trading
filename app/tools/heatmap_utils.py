@@ -9,7 +9,7 @@ import os
 from datetime import datetime
 import polars as pl
 
-from app.tools.get_config import get_config
+from app.tools.config_service import ConfigService
 from app.tools.file_utils import get_portfolio_path
 from app.tools.portfolio_transformation import transform_portfolio_data
 from app.ma_cross.tools.plot_heatmaps import plot_heatmap
@@ -29,7 +29,7 @@ def process_heatmap_data(config: dict, log) -> bool:
         Exception: If portfolio data is missing or heatmap generation fails
     """
     try:
-        config = get_config(config)
+        config = ConfigService.process_config(config)
         log(f"Processing ticker: {config['TICKER']}")
 
         portfolio_file = get_portfolio_path(config)
