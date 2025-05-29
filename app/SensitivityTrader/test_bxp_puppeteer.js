@@ -63,8 +63,10 @@ function checkFileExists(filePath) {
 function findBXPBestFile(directory) {
     try {
         const files = fs.readdirSync(directory);
+        console.log(`   📂 Files in ${directory}:`, files);
         return files.find(file => file.startsWith('BXP_') && file.endsWith('_D.csv'));
     } catch (error) {
+        console.log(`   ❌ Error reading directory ${directory}:`, error.message);
         return null;
     }
 }
@@ -204,8 +206,8 @@ async function runBXPAnalysisTest() {
         await page.waitForSelector('#resultsTable', { timeout: 10000 });
         console.log('   ✅ Results table appeared');
         
-        // Wait a bit more for data to populate
-        await sleep(5000);
+        // Wait longer for data to populate
+        await sleep(15000); // Wait 15 seconds for analysis to complete
         
         // Screenshot: Results table appeared
         await takeScreenshot(page, '05_results_table', 'Results table displayed after analysis completion');
@@ -292,7 +294,7 @@ async function runBXPAnalysisTest() {
         
         // Step 4: Wait for CSV files to be exported
         console.log('📁 Waiting for CSV files to be exported...');
-        await sleep(3000); // Give time for file exports
+        await sleep(10000); // Give more time for file exports - analysis takes longer
         
         // Step 5: Verify CSV exports
         console.log('🔍 Verifying CSV file exports...');

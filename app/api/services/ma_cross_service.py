@@ -302,6 +302,18 @@ class MACrossService:
                     log(f"No portfolios returned for {strategy_type} strategy", "warning")
             
             log(f"Total portfolios analyzed: {len(all_portfolios)}")
+            
+            # Export best portfolios if any were found
+            if all_portfolios:
+                try:
+                    from app.tools.portfolio.collection import export_best_portfolios
+                    log("Exporting best portfolios...")
+                    export_best_portfolios(all_portfolios, config, log)
+                    log(f"Successfully exported {len(all_portfolios)} best portfolios")
+                except Exception as e:
+                    log(f"Failed to export best portfolios: {str(e)}", "error")
+                    # Continue anyway - the analysis succeeded even if export failed
+            
             return all_portfolios
             
         except Exception as e:

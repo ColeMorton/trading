@@ -163,7 +163,7 @@ DEFAULT_CONFIG: Config = {
     "YEARS": 15,
     "USE_SYNTHETIC": False,
     # "USE_CURRENT": True,
-    "SORT_BY": "Score",
+    "SORT_BY": "Total Return [%]",
     "USE_GBM": False,
     # Default values for allocation and stop loss are not set
     # They will be determined based on the CSV schema

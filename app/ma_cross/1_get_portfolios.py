@@ -74,12 +74,12 @@ from app.tools.portfolio.stop_loss import (
 
 CONFIG: Config = {
     # "TICKER": "BTC-USD",
-    "TICKER": ["PWR"],
+    "TICKER": ["ROKU"],
     # Load tickers from JSON file
     # "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/portfolio.json"))),
     # "TICKER_2": 'AVGO',
     # "WINDOWS": 120,
-    "WINDOWS": 80,
+    "WINDOWS": 5,
     # "WINDOWS": 55,
     # "WINDOWS": 34,
     # "SCANNER_LIST": 'DAILY.csv',
@@ -105,7 +105,7 @@ CONFIG: Config = {
         # "BEATS_BNH": 0
         # "BEATS_BNH": 0.13
     },
-    "SORT_BY": "Score",
+    "SORT_BY": "Total Return [%]",
     "SORT_ASC": False,
     "USE_GBM": False
 }
@@ -219,7 +219,7 @@ def filter_portfolios(portfolios: List[Dict[str, Any]], config: Config, log) -> 
     # If we have results and want to display them, use the portfolio_results utilities
     if filtered is not None and len(filtered) > 0 and config.get("DISPLAY_RESULTS", True):
         # Sort portfolios
-        sorted_portfolios = sort_portfolios(filtered, config.get("SORT_BY", "Score"), config.get("SORT_ASC", False))
+        sorted_portfolios = sort_portfolios(filtered, config.get("SORT_BY", "Total Return [%]"), config.get("SORT_ASC", False))
         
         # Get open trades
         open_trades = filter_open_trades(sorted_portfolios, log)
@@ -435,7 +435,7 @@ def run_strategies(config: Dict[str, Any] = None) -> bool:
                 
                 if filtered_portfolios is not None and len(filtered_portfolios) > 0:
                     # Export portfolios using the extended schema format
-                    export_best_portfolios(all_portfolios, base_config, log)
+                    export_best_portfolios(filtered_portfolios, base_config, log)
                 else:
                     log("No portfolios remain after filtering", "warning")
         else:
