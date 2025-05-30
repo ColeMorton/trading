@@ -14,25 +14,29 @@ import UpdateButton from './components/UpdateButton';
 import OfflineBanner from './components/OfflineBanner';
 import PWAUpdateNotification from './components/PWAUpdateNotification';
 import InstallPrompt from './components/InstallPrompt';
+import ParameterTestingContainer from './components/ParameterTestingContainer';
 import Icon from './components/Icon';
 import { icons } from './utils/icons';
+import { useAppContext } from './context/AppContext';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const { currentView } = useAppContext();
+
   return (
-    <OfflineProvider>
-      <AppProvider>
-        <div className="min-vh-100 d-flex flex-column">
-          <a href="#main-content" className="skip-link">
-            <Icon icon={icons.skipLink} className="me-2" />
-            Skip to main content
-          </a>
-          
-          <Navbar />
-          
-          <main id="main-content" className="container-fluid px-4 py-4 flex-fill">
-            <OfflineBanner />
-            <ErrorMessage />
-            
+    <div className="min-vh-100 d-flex flex-column">
+      <a href="#main-content" className="skip-link">
+        <Icon icon={icons.skipLink} className="me-2" />
+        Skip to main content
+      </a>
+      
+      <Navbar />
+      
+      <main id="main-content" className="container-fluid px-4 py-4 flex-fill">
+        <OfflineBanner />
+        <ErrorMessage />
+        
+        {currentView === 'csv-viewer' && (
+          <>
             {/* Control Panel Card */}
             <div className="card mb-4">
               <div className="card-header d-flex align-items-center">
@@ -57,13 +61,27 @@ const App: React.FC = () => {
             
             <DataTable />
             <RawTextView />
-            
-            <PWAUpdateNotification />
-            <InstallPrompt />
-          </main>
-          
-          <Footer />
-        </div>
+          </>
+        )}
+
+        {currentView === 'parameter-testing' && (
+          <ParameterTestingContainer />
+        )}
+        
+        <PWAUpdateNotification />
+        <InstallPrompt />
+      </main>
+      
+      <Footer />
+    </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <OfflineProvider>
+      <AppProvider>
+        <AppContent />
       </AppProvider>
     </OfflineProvider>
   );

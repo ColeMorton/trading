@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
-import { CSVData } from '../types';
+import { CSVData, ParameterTestingState, AnalysisConfiguration } from '../types';
 
 interface AppContextType {
   selectedFile: string | null;
@@ -14,6 +14,10 @@ interface AppContextType {
   setError: (error: string | null) => void;
   updateStatus: string | null;
   setUpdateStatus: (status: string | null) => void;
+  currentView: 'csv-viewer' | 'parameter-testing';
+  setCurrentView: (view: 'csv-viewer' | 'parameter-testing') => void;
+  parameterTesting: ParameterTestingState;
+  setParameterTesting: (state: ParameterTestingState) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -22,6 +26,31 @@ interface AppProviderProps {
   children: ReactNode;
 }
 
+const defaultConfiguration: AnalysisConfiguration = {
+  TICKER: '',
+  WINDOWS: 20,
+  DIRECTION: 'Long',
+  STRATEGY_TYPES: ['SMA'],
+  USE_HOURLY: false,
+  USE_YEARS: false,
+  YEARS: 2,
+  USE_SYNTHETIC: false,
+  USE_CURRENT: true,
+  USE_SCANNER: false,
+  REFRESH: false,
+  MINIMUMS: {
+    WIN_RATE: 50,
+    TRADES: 10,
+    EXPECTANCY_PER_TRADE: 0,
+    PROFIT_FACTOR: 1,
+    SORTINO_RATIO: 0,
+  },
+  SORT_BY: 'expectancy_per_trade',
+  SORT_ASC: false,
+  USE_GBM: false,
+  async_execution: true,
+};
+
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'table' | 'text'>('table');
@@ -29,6 +58,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [updateStatus, setUpdateStatus] = useState<string | null>(null);
+  const [currentView, setCurrentView] = useState<'csv-viewer' | 'parameter-testing'>('csv-viewer');
+  const [parameterTesting, setParameterTesting] = useState<ParameterTestingState>({
+    configuration: defaultConfiguration,
+    results: [],
+    isAnalyzing: false,
+    error: null,
+    progress: 0,
+    executionId: null,
+  });
 
   return (
     <AppContext.Provider
@@ -44,7 +82,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         error,
         setError,
         updateStatus,
-        setUpdateStatus
+        setUpdateStatus,
+        currentView,
+        setCurrentView,
+        parameterTesting,
+        setParameterTesting
       }}
     >
       {children}

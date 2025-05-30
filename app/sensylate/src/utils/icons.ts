@@ -50,7 +50,8 @@ import {
   faCopyright,
   faUniversalAccess,
   faClock,
-  faCode
+  faCode,
+  faFlask
 } from '@fortawesome/free-solid-svg-icons';
 
 // Navigation icons
@@ -134,6 +135,7 @@ export const portfolioIcons = {
   portfolio: faBriefcase,
   calculator: faCalculator,
   settings: faCog,
+  parameterTesting: faFlask,
 } as const;
 
 // Accessibility and UI icons

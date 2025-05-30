@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
 import Icon from './Icon';
 import { icons } from '../utils/icons';
+import { useAppContext } from '../context/AppContext';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { currentView, setCurrentView } = useAppContext();
 
   const toggleNavbar = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleNavClick = (view: 'csv-viewer' | 'parameter-testing') => {
+    setCurrentView(view);
+    setIsOpen(false); // Close mobile menu
   };
 
   return (
@@ -29,16 +36,24 @@ const Navbar: React.FC = () => {
         <div className={`collapse navbar-collapse ${isOpen ? 'show' : ''}`} id="navbarNav">
           <ul className="navbar-nav">
             <li className="nav-item">
-              <a className="nav-link active" aria-current="page" href="/">
+              <button 
+                className={`nav-link btn btn-link ${currentView === 'csv-viewer' ? 'active' : ''}`}
+                aria-current={currentView === 'csv-viewer' ? 'page' : undefined}
+                onClick={() => handleNavClick('csv-viewer')}
+              >
                 <Icon icon={icons.file} className="me-2" />
                 CSV Viewer
-              </a>
+              </button>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#portfolio-section">
-                <Icon icon={icons.portfolio} className="me-2" />
-                Portfolio Analysis
-              </a>
+              <button 
+                className={`nav-link btn btn-link ${currentView === 'parameter-testing' ? 'active' : ''}`}
+                aria-current={currentView === 'parameter-testing' ? 'page' : undefined}
+                onClick={() => handleNavClick('parameter-testing')}
+              >
+                <Icon icon={icons.parameterTesting} className="me-2" />
+                Parameter Testing
+              </button>
             </li>
           </ul>
           <ul className="navbar-nav ms-auto">
