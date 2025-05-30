@@ -24,6 +24,12 @@ from app.tools.exceptions import (
     ExportError
 )
 from app.tools.error_context import error_context
+from app.ma_cross.exceptions import (
+    MACrossError,
+    MACrossConfigurationError,
+    MACrossExecutionError,
+    MACrossPortfolioError
+)
 
 # Import filter_portfolios from the correct location
 from app.ma_cross.tools.filter_portfolios import filter_portfolios
@@ -77,8 +83,9 @@ class PortfolioOrchestrator:
             bool: True if successful, False otherwise
             
         Raises:
-            ConfigurationError: If configuration is invalid
-            StrategyProcessingError: If strategy execution fails
+            MACrossConfigurationError: If configuration is invalid
+            MACrossExecutionError: If strategy execution fails
+            MACrossPortfolioError: If portfolio processing fails
             ExportError: If result export fails
         """
         try:
@@ -124,9 +131,12 @@ class PortfolioOrchestrator:
             Processed configuration
             
         Raises:
-            ConfigurationError: If configuration is invalid
+            MACrossConfigurationError: If configuration is invalid
         """
-        with error_context("Initializing configuration", self.log, {Exception: ConfigurationError}):
+        with error_context("Initializing configuration", self.log, {
+            ConfigurationError: MACrossConfigurationError,
+            Exception: MACrossConfigurationError
+        }, reraise=True):
             return ConfigService.process_config(config)
     
     def _process_synthetic_configuration(self, config: Dict[str, Any]) -> Dict[str, Any]:
@@ -169,12 +179,15 @@ class PortfolioOrchestrator:
             Combined list of portfolios from all strategies
             
         Raises:
-            StrategyProcessingError: If strategy execution fails
+            MACrossExecutionError: If strategy execution fails
         """
         all_portfolios = []
         
         for strategy_type in strategies:
-            with error_context(f"Executing {strategy_type} strategy", self.log, {Exception: StrategyProcessingError}):
+            with error_context(f"Executing {strategy_type} strategy", self.log, {
+                StrategyProcessingError: MACrossExecutionError,
+                Exception: MACrossExecutionError
+            }, reraise=True):
                 # Create strategy-specific config
                 strategy_config = config.copy()
                 strategy_config["STRATEGY_TYPE"] = strategy_type
@@ -206,25 +219,29 @@ class PortfolioOrchestrator:
             
         Returns:
             Filtered and processed portfolios
-        """
-        # Detect schema version
-        schema_version = detect_schema_version(portfolios)
-        self.log(f"Detected schema version for export: {schema_version.name}", "info")
-        
-        # Filter portfolios
-        filtered_portfolios = filter_portfolios(portfolios, config, self.log)
-        
-        # Log extended schema information if available
-        if schema_version == SchemaVersion.EXTENDED and filtered_portfolios:
-            # Log allocation summary
-            allocation_summary = get_allocation_summary(filtered_portfolios, self.log)
-            self.log(f"Allocation summary: {allocation_summary}", "info")
             
-            # Log stop loss summary
-            stop_loss_summary = get_stop_loss_summary(filtered_portfolios, self.log)
-            self.log(f"Stop loss summary: {stop_loss_summary}", "info")
-        
-        return filtered_portfolios
+        Raises:
+            MACrossPortfolioError: If portfolio processing fails
+        """
+        with error_context("Processing portfolios", self.log, {Exception: MACrossPortfolioError}, reraise=True):
+            # Detect schema version
+            schema_version = detect_schema_version(portfolios)
+            self.log(f"Detected schema version for export: {schema_version.name}", "info")
+            
+            # Filter portfolios
+            filtered_portfolios = filter_portfolios(portfolios, config, self.log)
+            
+            # Log extended schema information if available
+            if schema_version == SchemaVersion.EXTENDED and filtered_portfolios:
+                # Log allocation summary
+                allocation_summary = get_allocation_summary(filtered_portfolios, self.log)
+                self.log(f"Allocation summary: {allocation_summary}", "info")
+                
+                # Log stop loss summary
+                stop_loss_summary = get_stop_loss_summary(filtered_portfolios, self.log)
+                self.log(f"Stop loss summary: {stop_loss_summary}", "info")
+            
+            return filtered_portfolios
     
     def _export_results(self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]) -> None:
         """

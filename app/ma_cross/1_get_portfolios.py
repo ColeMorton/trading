@@ -32,6 +32,12 @@ from app.tools.exceptions import (
     ExportError,
     TradingSystemError
 )
+from app.ma_cross.exceptions import (
+    MACrossError,
+    MACrossConfigurationError,
+    MACrossExecutionError,
+    MACrossPortfolioError
+)
 # Config management is now handled by ConfigService
 from app.tools.synthetic_ticker import (
     process_synthetic_config
@@ -242,10 +248,12 @@ def execute_all_strategies(config: Config, log) -> List[Dict[str, Any]]:
 @handle_errors(
     "MA Cross portfolio analysis",
     {
-        ValueError: StrategyProcessingError,
-        KeyError: ConfigurationError,
-        PortfolioLoadError: PortfolioLoadError,
-        Exception: TradingSystemError
+        ValueError: MACrossExecutionError,
+        KeyError: MACrossConfigurationError,
+        ConfigurationError: MACrossConfigurationError,
+        PortfolioLoadError: MACrossPortfolioError,
+        StrategyProcessingError: MACrossExecutionError,
+        Exception: MACrossError
     }
 )
 def run(config: Config = CONFIG) -> bool:
@@ -264,11 +272,11 @@ def run(config: Config = CONFIG) -> bool:
         bool: True if execution successful, False otherwise
         
     Raises:
-        ConfigurationError: If the configuration is invalid
-        StrategyProcessingError: If there's an error processing a strategy
-        PortfolioLoadError: If the portfolio cannot be loaded
+        MACrossConfigurationError: If the configuration is invalid
+        MACrossExecutionError: If there's an error processing a strategy
+        MACrossPortfolioError: If the portfolio cannot be loaded
         ExportError: If results cannot be exported
-        TradingSystemError: For other unexpected errors
+        MACrossError: For other unexpected errors
     """
     with logging_context(
         module_name='ma_cross',
@@ -281,10 +289,12 @@ def run(config: Config = CONFIG) -> bool:
 @handle_errors(
     "MA Cross strategies analysis",
     {
-        ValueError: StrategyProcessingError,
-        KeyError: ConfigurationError,
-        PortfolioLoadError: PortfolioLoadError,
-        Exception: TradingSystemError
+        ValueError: MACrossExecutionError,
+        KeyError: MACrossConfigurationError,
+        ConfigurationError: MACrossConfigurationError,
+        PortfolioLoadError: MACrossPortfolioError,
+        StrategyProcessingError: MACrossExecutionError,
+        Exception: MACrossError
     }
 )
 def run_strategies(config: Dict[str, Any] = None) -> bool:
@@ -294,11 +304,11 @@ def run_strategies(config: Dict[str, Any] = None) -> bool:
         bool: True if execution successful, False otherwise
         
     Raises:
-        ConfigurationError: If the configuration is invalid
-        StrategyProcessingError: If there's an error processing a strategy
-        PortfolioLoadError: If the portfolio cannot be loaded
+        MACrossConfigurationError: If the configuration is invalid
+        MACrossExecutionError: If there's an error processing a strategy
+        MACrossPortfolioError: If the portfolio cannot be loaded
         ExportError: If results cannot be exported
-        TradingSystemError: For other unexpected errors
+        MACrossError: For other unexpected errors
     """
     with logging_context(
         module_name='ma_cross',

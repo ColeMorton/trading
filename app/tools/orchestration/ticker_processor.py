@@ -10,6 +10,12 @@ from app.ma_cross.tools.strategy_execution import (
     execute_strategy,
     process_single_ticker
 )
+from app.tools.error_context import error_context
+from app.ma_cross.exceptions import (
+    MACrossExecutionError,
+    MACrossDataError,
+    MACrossSyntheticTickerError
+)
 
 
 class TickerProcessor:
@@ -45,8 +51,12 @@ class TickerProcessor:
             
         Returns:
             List of best portfolios from strategy execution
+            
+        Raises:
+            MACrossExecutionError: If strategy execution fails
         """
-        return execute_strategy(config, strategy_type, self.log, progress_tracker)
+        with error_context(f"Executing strategy {strategy_type}", self.log, {Exception: MACrossExecutionError}, reraise=True):
+            return execute_strategy(config, strategy_type, self.log, progress_tracker)
     
     def process_ticker(
         self,
@@ -64,8 +74,12 @@ class TickerProcessor:
             
         Returns:
             Best portfolio for the ticker if found, None otherwise
+            
+        Raises:
+            MACrossDataError: If ticker data processing fails
         """
-        return process_single_ticker(ticker, config, self.log, progress_tracker)
+        with error_context(f"Processing ticker {ticker}", self.log, {Exception: MACrossDataError}, reraise=True):
+            return process_single_ticker(ticker, config, self.log, progress_tracker)
     
     def _format_ticker(self, ticker: str, use_synthetic: bool) -> str:
         """
@@ -89,13 +103,25 @@ class TickerProcessor:
         Args:
             ticker: Synthetic ticker symbol (e.g., 'BTC_USD')
             config: Configuration dictionary to update
+            
+        Raises:
+            MACrossSyntheticTickerError: If synthetic ticker parsing fails
         """
-        if '_' in ticker:
-            parts = ticker.split('_')
-            if len(parts) >= 2:
-                config["TICKER_1"] = parts[0]
-                if "TICKER_2" not in config:
-                    config["TICKER_2"] = parts[1]
-                self.log(
-                    f"Extracted ticker components: {config['TICKER_1']} and {config['TICKER_2']}"
-                )
+        with error_context(f"Extracting synthetic ticker components from {ticker}", self.log, {
+            ValueError: MACrossSyntheticTickerError,
+            Exception: MACrossSyntheticTickerError
+        }, reraise=True):
+            if '_' in ticker:
+                parts = ticker.split('_')
+                if len(parts) >= 2 and parts[0] and parts[1]:
+                    config["TICKER_1"] = parts[0]
+                    if "TICKER_2" not in config:
+                        config["TICKER_2"] = parts[1]
+                    self.log(
+                        f"Extracted ticker components: {config['TICKER_1']} and {config['TICKER_2']}",
+                        "info"
+                    )
+                else:
+                    raise ValueError(f"Invalid synthetic ticker format: {ticker}")
+            else:
+                raise ValueError(f"Not a synthetic ticker: {ticker}")
