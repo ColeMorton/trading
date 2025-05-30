@@ -1,0 +1,2 @@
+Ticker,Allocation [%],Strategy Type,Short Window,Long Window,Stop Loss [%],Signal Entry,Total Trades,Total Return [%],Annual Returns,Sharpe Ratio,Sortino Ratio,Max Drawdown [%],Winning Trades,Losing Trades,Win Rate [%],Profit Factor,Expectancy per Trade,Score,Beats BNH [%],Has Open Trade
+AAPL,,SMA,2,5,,false,6,0.9265349128217963,0.08199209185144612,0.33653205189905044,0.42842878067170403,11.734593103068917,4,2,80.0,1.0878137243435664,1.6223353056074608,0.0,1.0632370909943998,true

@@ -39,13 +39,13 @@ const defaultConfiguration: AnalysisConfiguration = {
   USE_SCANNER: false,
   REFRESH: false,
   MINIMUMS: {
-    WIN_RATE: 50,
-    TRADES: 10,
+    WIN_RATE: 0,  // Start with 0 to show all results
+    TRADES: 1,
     EXPECTANCY_PER_TRADE: 0,
-    PROFIT_FACTOR: 1,
+    PROFIT_FACTOR: 0,
     SORTINO_RATIO: 0,
   },
-  SORT_BY: 'expectancy_per_trade',
+  SORT_BY: 'Expectancy per Trade',
   SORT_ASC: false,
   USE_GBM: false,
   async_execution: true,

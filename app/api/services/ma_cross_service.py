@@ -232,6 +232,10 @@ class MACrossService:
                 # Execute the strategy and get portfolio results
                 portfolios = execute_strategy(config, strategy_type, log, progress_tracker)
                 
+                log(f"execute_strategy returned {len(portfolios) if portfolios else 0} portfolios for {strategy_type}")
+                if portfolios:
+                    log(f"First portfolio keys: {list(portfolios[0].keys())}")
+                
                 if portfolios:
                     # Convert portfolio dictionaries to PortfolioMetrics objects
                     for portfolio in portfolios:
@@ -308,8 +312,34 @@ class MACrossService:
                 try:
                     from app.tools.portfolio.collection import export_best_portfolios
                     log("Exporting best portfolios...")
-                    export_best_portfolios(all_portfolios, config, log)
-                    log(f"Successfully exported {len(all_portfolios)} best portfolios")
+                    # Convert PortfolioMetrics objects to dictionaries for export
+                    portfolio_dicts = []
+                    for p in all_portfolios:
+                        portfolio_dict = {
+                            "Ticker": p.ticker,
+                            "Strategy Type": p.strategy_type,
+                            "Short Window": p.short_window,
+                            "Long Window": p.long_window,
+                            "Total Return [%]": p.total_return,
+                            "Annual Returns": p.annual_return / 100.0,  # Convert back to decimal
+                            "Sharpe Ratio": p.sharpe_ratio,
+                            "Sortino Ratio": p.sortino_ratio,
+                            "Max Drawdown [%]": p.max_drawdown,
+                            "Total Trades": p.total_trades,
+                            "Winning Trades": p.winning_trades,
+                            "Losing Trades": p.losing_trades,
+                            "Win Rate [%]": p.win_rate * 100.0,  # Convert back to percentage
+                            "Profit Factor": p.profit_factor,
+                            "Expectancy per Trade": p.expectancy,  # Map expectancy to the expected column name
+                            "Score": p.score,
+                            "Beats BNH [%]": p.beats_bnh,
+                            "Has Open Trade": p.has_open_trade,
+                            "Signal Entry": p.has_signal_entry
+                        }
+                        portfolio_dicts.append(portfolio_dict)
+                    
+                    export_best_portfolios(portfolio_dicts, config, log)
+                    log(f"Successfully exported {len(portfolio_dicts)} best portfolios")
                 except Exception as e:
                     log(f"Failed to export best portfolios: {str(e)}", "error")
                     # Continue anyway - the analysis succeeded even if export failed
@@ -369,15 +399,22 @@ class MACrossService:
             if portfolio_exports and "portfolios_filtered" in portfolio_exports:
                 filtered_count = len(portfolio_exports["portfolios_filtered"])
             
+            # Create result structure that matches what frontend expects
+            result_data = {
+                "status": "success",
+                "portfolios": [r.dict() for r in results],
+                "portfolio_exports": portfolio_exports,
+                "total_portfolios_analyzed": len(results),
+                "total_portfolios_filtered": filtered_count,
+                "execution_time": execution_time
+            }
+            
             # Update task status with results
             task_status[execution_id].update({
                 "status": "completed",
                 "completed_at": datetime.now().isoformat(),
                 "execution_time": execution_time,
-                "results": [r.dict() for r in results],
-                "portfolio_exports": portfolio_exports,
-                "total_portfolios_analyzed": len(results),
-                "total_portfolios_filtered": filtered_count,
+                "result": result_data,  # Frontend expects results in 'result' field
                 "progress": f"Analysis completed. Processed {len(results)} portfolios, filtered to {filtered_count}."
             })
             

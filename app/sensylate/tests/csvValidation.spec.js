@@ -162,8 +162,9 @@ async function testCSVExportFunctionality() {
         csvValidation: false
     };
     
+    let page;
     try {
-        const page = await browser.newPage();
+        page = await browser.newPage();
         const downloadPath = await setupDownloadCapture(page);
         
         console.log('🌐 Loading Sensylate...');
@@ -433,9 +434,18 @@ async function testCSVExportFunctionality() {
         
     } catch (error) {
         console.error('❌ CSV export test failed:', error.message);
-        await takeScreenshot(page, '99_csv_error', `CSV test error: ${error.message}`);
+        if (page) {
+            try {
+                await takeScreenshot(page, '99_csv_error', `CSV test error: ${error.message}`);
+            } catch (screenshotError) {
+                console.log('   ⚠️  Could not capture error screenshot');
+            }
+        }
         throw error;
     } finally {
+        if (page) {
+            await page.close();
+        }
         await browser.close();
     }
     
@@ -459,8 +469,9 @@ async function testCSVViewerIntegration() {
         navigationBetweenViews: false
     };
     
+    let page;
     try {
-        const page = await browser.newPage();
+        page = await browser.newPage();
         
         console.log('🌐 Testing CSV Viewer functionality...');
         await page.goto(BASE_URL, { waitUntil: 'networkidle2', timeout: TIMEOUT });
@@ -549,8 +560,17 @@ async function testCSVViewerIntegration() {
         
     } catch (error) {
         console.error('❌ CSV Viewer integration test failed:', error.message);
-        await takeScreenshot(page, '99_csv_viewer_error', `CSV Viewer test error: ${error.message}`);
+        if (page) {
+            try {
+                await takeScreenshot(page, '99_csv_viewer_error', `CSV Viewer test error: ${error.message}`);
+            } catch (screenshotError) {
+                console.log('   ⚠️  Could not capture error screenshot');
+            }
+        }
     } finally {
+        if (page) {
+            await page.close();
+        }
         await browser.close();
     }
     

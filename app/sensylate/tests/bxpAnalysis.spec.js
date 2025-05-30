@@ -121,8 +121,9 @@ async function runBXPAnalysisTest() {
         csvExport: false
     };
     
+    let page;
     try {
-        const page = await browser.newPage();
+        page = await browser.newPage();
         
         // Enable request/response logging for debugging
         page.on('response', response => {
@@ -145,16 +146,26 @@ async function runBXPAnalysisTest() {
         
         // Navigate to Parameter Testing
         console.log('📍 Navigating to Parameter Testing view...');
-        const parameterTestingButton = await page.$('[data-view="parameterTesting"]');
-        if (!parameterTestingButton) {
+        const parameterTestingButtonClicked = await page.evaluate(() => {
+            const button = Array.from(document.querySelectorAll('button')).find(b => b.textContent?.includes('Parameter Testing'));
+            if (button) {
+                button.click();
+                return true;
+            }
+            return false;
+        });
+        
+        if (!parameterTestingButtonClicked) {
             throw new Error('Parameter Testing navigation button not found');
         }
         
-        await parameterTestingButton.click();
         await sleep(500);
         
         // Verify we're in Parameter Testing view
-        const parameterTestingVisible = await page.$('#parameter-testing:not(.d-none)');
+        const parameterTestingVisible = await page.evaluate(() => {
+            const title = Array.from(document.querySelectorAll('h5')).find(h => h.textContent?.includes('Parameter Testing'));
+            return title !== null;
+        });
         if (!parameterTestingVisible) {
             throw new Error('Parameter Testing view did not become visible');
         }
@@ -374,9 +385,18 @@ async function runBXPAnalysisTest() {
         
     } catch (error) {
         console.error('❌ BXP Analysis test failed:', error.message);
-        await takeScreenshot(page, '99_error', `BXP test error: ${error.message}`);
+        if (page) {
+            try {
+                await takeScreenshot(page, '99_error', `BXP test error: ${error.message}`);
+            } catch (screenshotError) {
+                console.log('   ⚠️  Could not capture error screenshot');
+            }
+        }
         throw error;
     } finally {
+        if (page) {
+            await page.close();
+        }
         await browser.close();
     }
     

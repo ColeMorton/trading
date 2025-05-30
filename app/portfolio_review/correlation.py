@@ -14,7 +14,6 @@ PORTFOLIO = [
     "AMD",
     "RTX",
     "GME",
-    "GD",
     "GOOGL",
     "LMT",
     "MU",
@@ -27,7 +26,6 @@ PORTFOLIO = [
 
 NEXT = [
 "ILMN",
-"LW",
 "MRNA",
 "NVDA"
 ]

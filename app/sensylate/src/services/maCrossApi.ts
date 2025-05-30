@@ -90,14 +90,18 @@ export interface MACrossAsyncResponse {
 
 // Status polling response
 export interface ExecutionStatusResponse {
-  execution_id: string;
+  execution_id?: string;
   status: "pending" | "running" | "completed" | "failed";
-  progress: number;
+  progress: number | string;
   message?: string;
   result?: MACrossSyncResponse;
+  results?: PortfolioMetrics[];  // Direct results array for completed executions
   error?: string;
   error_details?: any;
-  timestamp: string;
+  timestamp?: string;
+  started_at?: string;
+  completed_at?: string;
+  execution_time?: number;
   estimated_time_remaining?: number;
 }
 
@@ -244,13 +248,33 @@ const configToRequest = (config: AnalysisConfiguration): MACrossRequest => {
 
   // Only include minimums if they have values
   if (config.MINIMUMS) {
-    request.minimums = {
-      trades: config.MINIMUMS.TRADES || undefined,
-      win_rate: config.MINIMUMS.WIN_RATE || undefined,
-      expectancy_per_trade: config.MINIMUMS.EXPECTANCY_PER_TRADE || undefined,
-      profit_factor: config.MINIMUMS.PROFIT_FACTOR || undefined,
-      sortino_ratio: config.MINIMUMS.SORTINO_RATIO || undefined
-    };
+    const minimums: any = {};
+    
+    // Convert win_rate from percentage to decimal (44 -> 0.44)
+    if (config.MINIMUMS.WIN_RATE !== undefined && config.MINIMUMS.WIN_RATE !== null) {
+      minimums.win_rate = config.MINIMUMS.WIN_RATE / 100;
+    }
+    
+    if (config.MINIMUMS.TRADES !== undefined && config.MINIMUMS.TRADES !== null) {
+      minimums.trades = config.MINIMUMS.TRADES;
+    }
+    
+    if (config.MINIMUMS.EXPECTANCY_PER_TRADE !== undefined && config.MINIMUMS.EXPECTANCY_PER_TRADE !== null) {
+      minimums.expectancy_per_trade = config.MINIMUMS.EXPECTANCY_PER_TRADE;
+    }
+    
+    if (config.MINIMUMS.PROFIT_FACTOR !== undefined && config.MINIMUMS.PROFIT_FACTOR !== null) {
+      minimums.profit_factor = config.MINIMUMS.PROFIT_FACTOR;
+    }
+    
+    if (config.MINIMUMS.SORTINO_RATIO !== undefined && config.MINIMUMS.SORTINO_RATIO !== null) {
+      minimums.sortino_ratio = config.MINIMUMS.SORTINO_RATIO;
+    }
+    
+    // Only add minimums if there's at least one value
+    if (Object.keys(minimums).length > 0) {
+      request.minimums = minimums;
+    }
   }
 
   return request;

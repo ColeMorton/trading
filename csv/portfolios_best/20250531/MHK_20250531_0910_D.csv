@@ -1,0 +1,2 @@
+Ticker,Allocation [%],Strategy Type,Short Window,Long Window,Stop Loss [%],Signal Entry,Total Trades,Total Return [%],Annual Returns,Sharpe Ratio,Sortino Ratio,Max Drawdown [%],Winning Trades,Losing Trades,Win Rate [%],Profit Factor,Expectancy per Trade,Score,Beats BNH [%],Has Open Trade
+MHK,,SMA,2,3,,true,1518,416.480436579255,0.0909387510597768,0.3774759051050206,0.5977784135303186,71.98524274921981,604,914,39.81542518127884,1.040199152690017,2.7488260844813226,0.7702130776416208,-0.6965183781261648,true

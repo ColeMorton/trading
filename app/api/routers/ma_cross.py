@@ -133,7 +133,16 @@ async def get_analysis_status(
         if not status_info:
             raise HTTPException(status_code=404, detail=f"Execution ID {execution_id} not found")
         
-        return MACrossStatusResponse(**status_info)
+        # Map result field to results field for the response model
+        response_data = status_info.copy()
+        if 'result' in response_data and response_data['result']:
+            # Extract portfolios from the result structure
+            result = response_data['result']
+            if isinstance(result, dict) and 'portfolios' in result:
+                response_data['results'] = result['portfolios']
+            response_data.pop('result', None)  # Remove the original result field
+        
+        return MACrossStatusResponse(**response_data)
         
     except HTTPException:
         raise

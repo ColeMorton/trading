@@ -35,8 +35,15 @@ const DEFAULT_PRESETS: ConfigurationPreset[] = [
       USE_SCANNER: false,
       REFRESH: false,
       USE_GBM: false,
-      SORT_BY: 'expectancy_per_trade',
+      SORT_BY: 'Expectancy per Trade',
       SORT_ASC: false,
+      MINIMUMS: {
+        WIN_RATE: 0,
+        TRADES: 1,
+        EXPECTANCY_PER_TRADE: 0,
+        PROFIT_FACTOR: 0,
+        SORTINO_RATIO: 0,
+      },
     }
   },
   {
@@ -53,7 +60,7 @@ const DEFAULT_PRESETS: ConfigurationPreset[] = [
       USE_SCANNER: false,
       REFRESH: true,
       USE_GBM: false,
-      SORT_BY: 'expectancy_per_trade',
+      SORT_BY: 'Expectancy per Trade',
       SORT_ASC: false,
     }
   },
@@ -71,7 +78,7 @@ const DEFAULT_PRESETS: ConfigurationPreset[] = [
       USE_SCANNER: false,
       REFRESH: true,
       USE_GBM: false,
-      SORT_BY: 'expectancy_per_trade',
+      SORT_BY: 'Expectancy per Trade',
       SORT_ASC: false,
     }
   },
@@ -91,6 +98,31 @@ const DEFAULT_PRESETS: ConfigurationPreset[] = [
       USE_GBM: false,
       SORT_BY: 'profit_factor',
       SORT_ASC: false,
+    }
+  },
+  {
+    name: 'Strict Filter',
+    config: {
+      WINDOWS: 89,
+      STRATEGY_TYPES: ['SMA', 'EMA'],
+      DIRECTION: 'Long',
+      USE_HOURLY: false,
+      USE_YEARS: false,
+      YEARS: 15,
+      USE_SYNTHETIC: false,
+      USE_CURRENT: false,
+      USE_SCANNER: false,
+      REFRESH: true,
+      USE_GBM: false,
+      SORT_BY: 'Score',
+      SORT_ASC: false,
+      MINIMUMS: {
+        WIN_RATE: 44,
+        TRADES: 54,
+        EXPECTANCY_PER_TRADE: 1,
+        PROFIT_FACTOR: 1,
+        SORTINO_RATIO: 0.4,
+      },
     }
   }
 ];
@@ -587,13 +619,13 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo((
                         value={parameterTesting.configuration.SORT_BY}
                         onChange={handleSortByChange}
                       >
-                        <option value="expectancy_per_trade">Expectancy per Trade</option>
-                        <option value="win_rate">Win Rate</option>
-                        <option value="profit_factor">Profit Factor</option>
-                        <option value="sortino_ratio">Sortino Ratio</option>
-                        <option value="total_trades">Total Trades</option>
-                        <option value="avg_win">Average Win</option>
-                        <option value="avg_loss">Average Loss</option>
+                        <option value="Expectancy per Trade">Expectancy per Trade</option>
+                        <option value="Win Rate [%]">Win Rate</option>
+                        <option value="Profit Factor">Profit Factor</option>
+                        <option value="Sortino Ratio">Sortino Ratio</option>
+                        <option value="Total Trades">Total Trades</option>
+                        <option value="Score">Score</option>
+                        <option value="Total Return [%]">Total Return</option>
                       </select>
                     </div>
 

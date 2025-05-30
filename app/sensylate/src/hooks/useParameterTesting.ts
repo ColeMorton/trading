@@ -50,17 +50,48 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
       }
 
       // Update progress
-      setProgress(status.progress || 0);
+      const progressValue = typeof status.progress === 'number' ? status.progress : 0;
+      setProgress(progressValue);
 
       // Handle different status states
       switch (status.status) {
         case 'completed':
           // Analysis completed successfully
-          if (status.result) {
-            const analysisResults = maCrossApi.responseToResults(status.result);
-            setResults(analysisResults);
-            setError(null);
+          let analysisResults: AnalysisResult[] = [];
+          
+          if (status.results) {
+            // New API format: direct results array
+            analysisResults = status.results.map(portfolio => ({
+              ticker: portfolio.ticker,
+              strategy_type: portfolio.strategy_type,
+              short_window: portfolio.short_window,
+              long_window: portfolio.long_window,
+              signal_window: portfolio.signal_window || 0,
+              direction: portfolio.direction,
+              timeframe: portfolio.timeframe,
+              total_trades: portfolio.total_trades,
+              win_rate: portfolio.win_rate,
+              profit_factor: portfolio.profit_factor,
+              expectancy_per_trade: portfolio.expectancy_per_trade || portfolio.expectancy || 0,
+              sortino_ratio: portfolio.sortino_ratio,
+              max_drawdown: portfolio.max_drawdown,
+              total_return: portfolio.total_return,
+              annual_return: portfolio.annual_return,
+              sharpe_ratio: portfolio.sharpe_ratio,
+              winning_trades: portfolio.winning_trades,
+              losing_trades: portfolio.losing_trades,
+              score: portfolio.score,
+              beats_bnh: portfolio.beats_bnh,
+              has_open_trade: portfolio.has_open_trade,
+              has_signal_entry: portfolio.has_signal_entry
+            }));
+          } else if (status.result) {
+            // Legacy API format: full response object
+            analysisResults = maCrossApi.responseToResults(status.result);
           }
+          
+          setResults(analysisResults);
+          setError(null);
           setIsAnalyzing(false);
           setProgress(100);
           
