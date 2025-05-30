@@ -9,7 +9,14 @@
     "build:pwa": "tsc && vite build --mode production",
     "preview": "vite preview",
     "serve:pwa": "vite preview --port 5000",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "test:e2e": "npx puppeteer browsers install && node tests/testRunner.js",
+    "test:screenshots": "node tests/testRunner.js --screenshots",
+    "test:bxp": "node tests/bxpAnalysis.spec.js",
+    "test:csv": "node tests/csvValidation.spec.js",
+    "test:workflow": "node tests/parameterTesting.spec.js",
+    "test:ci": "node tests/testRunner.js --ci --save-report",
+    "test:verbose": "node tests/testRunner.js --verbose --screenshots"
   },
   "keywords": [],
   "author": "",
@@ -38,6 +45,7 @@
     "eslint": "^8.56.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "puppeteer": "^21.11.0",
     "typescript": "^5.0.2",
     "vite": "^6.2.6"
   }
