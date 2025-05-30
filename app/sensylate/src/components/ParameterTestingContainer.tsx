@@ -1,11 +1,20 @@
 import React from 'react';
 import Icon from './Icon';
 import { icons } from '../utils/icons';
-import { useAppContext } from '../context/AppContext';
 import AnalysisConfiguration from './AnalysisConfiguration';
+import { useParameterTesting } from '../hooks/useParameterTesting';
 
 const ParameterTestingContainer: React.FC = () => {
-  const { parameterTesting } = useAppContext();
+  const { 
+    analyze, 
+    results, 
+    isAnalyzing, 
+    progress, 
+    error, 
+    executionId,
+    clearResults,
+    cancelAnalysis 
+  } = useParameterTesting();
 
   return (
     <div className="parameter-testing-container">
@@ -23,16 +32,62 @@ const ParameterTestingContainer: React.FC = () => {
       </div>
 
       {/* Analysis Configuration */}
-      <AnalysisConfiguration />
+      <AnalysisConfiguration onAnalyze={analyze} isAnalyzing={isAnalyzing} />
+      
+      {/* Progress Section */}
+      {isAnalyzing && (
+        <div className="card mb-4">
+          <div className="card-body">
+            <div className="d-flex align-items-center justify-content-between mb-2">
+              <h6 className="mb-0">Analyzing...</h6>
+              <button 
+                className="btn btn-sm btn-outline-danger"
+                onClick={cancelAnalysis}
+              >
+                Cancel
+              </button>
+            </div>
+            <div className="progress">
+              <div 
+                className="progress-bar progress-bar-striped progress-bar-animated" 
+                role="progressbar" 
+                style={{ width: `${progress}%` }}
+                aria-valuenow={progress} 
+                aria-valuemin={0} 
+                aria-valuemax={100}
+              >
+                {progress}%
+              </div>
+            </div>
+            {executionId && (
+              <small className="text-muted">Execution ID: {executionId}</small>
+            )}
+          </div>
+        </div>
+      )}
+      
+      {/* Error Section */}
+      {error && (
+        <div className="alert alert-danger alert-dismissible fade show" role="alert">
+          <Icon icon={icons.warning} className="me-2" />
+          <strong>Error:</strong> {error}
+          <button 
+            type="button" 
+            className="btn-close" 
+            onClick={() => clearResults()}
+            aria-label="Close"
+          ></button>
+        </div>
+      )}
 
       {/* Results Section */}
-      {parameterTesting.results.length > 0 && (
+      {results.length > 0 && (
         <div className="card mb-4">
           <div className="card-header d-flex align-items-center">
             <Icon icon={icons.table} className="me-2" />
             <h6 className="card-title mb-0">Analysis Results</h6>
             <span className="badge bg-primary ms-2">
-              {parameterTesting.results.length} results
+              {results.length} results
             </span>
           </div>
           <div className="card-body">
@@ -50,7 +105,7 @@ const ParameterTestingContainer: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {parameterTesting.results.slice(0, 10).map((result, index) => (
+                  {results.slice(0, 10).map((result, index) => (
                     <tr key={index}>
                       <td className="fw-bold">{result.ticker}</td>
                       <td>
@@ -67,56 +122,14 @@ const ParameterTestingContainer: React.FC = () => {
                   ))}
                 </tbody>
               </table>
-              {parameterTesting.results.length > 10 && (
+              {results.length > 10 && (
                 <div className="text-center mt-3">
                   <small className="text-muted">
-                    Showing top 10 of {parameterTesting.results.length} results
+                    Showing top 10 of {results.length} results
                   </small>
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Error Display */}
-      {parameterTesting.error && (
-        <div className="card border-danger mb-4">
-          <div className="card-header bg-danger text-white d-flex align-items-center">
-            <Icon icon={icons.error} className="me-2" />
-            <h6 className="card-title mb-0">Analysis Error</h6>
-          </div>
-          <div className="card-body">
-            <p className="text-danger mb-0">{parameterTesting.error}</p>
-          </div>
-        </div>
-      )}
-
-      {/* Progress Display */}
-      {parameterTesting.isAnalyzing && parameterTesting.progress > 0 && (
-        <div className="card mb-4">
-          <div className="card-header d-flex align-items-center">
-            <Icon icon={icons.loading} className="me-2 fa-spin" />
-            <h6 className="card-title mb-0">Analysis Progress</h6>
-          </div>
-          <div className="card-body">
-            <div className="progress">
-              <div 
-                className="progress-bar progress-bar-striped progress-bar-animated" 
-                role="progressbar" 
-                style={{ width: `${parameterTesting.progress}%` }}
-                aria-valuenow={parameterTesting.progress}
-                aria-valuemin={0}
-                aria-valuemax={100}
-              >
-                {parameterTesting.progress.toFixed(0)}%
-              </div>
-            </div>
-            {parameterTesting.executionId && (
-              <small className="text-muted mt-2 d-block">
-                Execution ID: {parameterTesting.executionId}
-              </small>
-            )}
           </div>
         </div>
       )}

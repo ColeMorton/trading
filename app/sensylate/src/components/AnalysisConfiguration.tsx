@@ -15,6 +15,11 @@ interface ConfigurationPreset {
   config: Partial<AnalysisConfigType>;
 }
 
+interface AnalysisConfigurationProps {
+  onAnalyze?: (config: AnalysisConfigType) => Promise<void>;
+  isAnalyzing?: boolean;
+}
+
 const DEFAULT_PRESETS: ConfigurationPreset[] = [
   {
     name: 'Default',
@@ -90,7 +95,10 @@ const DEFAULT_PRESETS: ConfigurationPreset[] = [
   }
 ];
 
-const AnalysisConfiguration: React.FC = () => {
+const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = ({ 
+  onAnalyze,
+  isAnalyzing = false 
+}) => {
   const { parameterTesting, setParameterTesting } = useAppContext();
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -625,13 +633,14 @@ const AnalysisConfiguration: React.FC = () => {
             <button 
               type="button" 
               className="btn btn-primary"
-              disabled={parameterTesting.isAnalyzing || !isFormValid()}
-              onClick={() => {
-                // TODO: Phase 3 - Implement actual analysis
-                console.log('Analysis configuration:', parameterTesting.configuration);
+              disabled={isAnalyzing || !isFormValid()}
+              onClick={async () => {
+                if (onAnalyze && isFormValid()) {
+                  await onAnalyze(parameterTesting.configuration);
+                }
               }}
             >
-              {parameterTesting.isAnalyzing ? (
+              {isAnalyzing ? (
                 <>
                   <Icon icon={icons.loading} className="me-2 fa-spin" />
                   Analyzing...
