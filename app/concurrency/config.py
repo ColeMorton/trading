@@ -10,6 +10,13 @@ import json
 import csv
 from dataclasses import dataclass
 
+from app.concurrency.error_handling import (
+    ValidationError as BaseValidationError,
+    handle_concurrency_errors,
+    validate_inputs,
+    track_error
+)
+
 class ReportIncludesConfig(TypedDict):
     """Configuration for report content inclusion.
 
@@ -173,7 +180,7 @@ class PortfolioFormat:
     content_type: str
     validator: callable
 
-class ConfigurationError(Exception):
+class ConfigurationError(BaseValidationError):
     """Base class for configuration-related errors."""
     pass
 
@@ -185,6 +192,8 @@ class ValidationError(ConfigurationError):
     """Raised when configuration validation fails."""
     pass
 
+@handle_concurrency_errors("portfolio format detection")
+@validate_inputs(file_path=lambda x: isinstance(x, str) and len(x) > 0)
 def detect_portfolio_format(file_path: str) -> PortfolioFormat:
     """Detect the format of a portfolio file.
 
@@ -199,7 +208,9 @@ def detect_portfolio_format(file_path: str) -> PortfolioFormat:
     """
     path = Path(file_path)
     if not path.exists():
-        raise FileFormatError(f"File not found: {file_path}")
+        error = FileFormatError(f"File not found: {file_path}")
+        track_error(error, "portfolio format detection", {"file_path": file_path})
+        raise error
 
     extension = path.suffix.lower()
     
@@ -215,7 +226,9 @@ def detect_portfolio_format(file_path: str) -> PortfolioFormat:
             with open(path) as f:
                 data = json.load(f)
                 if not isinstance(data, list) or not data:
-                    raise FileFormatError("JSON file must contain a non-empty array")
+                    error = FileFormatError("JSON file must contain a non-empty array")
+                    track_error(error, "portfolio format detection", {"file_path": file_path})
+                    raise error
                 
                 # Use MA validator for all JSON files since it handles both MA and MACD
                 return PortfolioFormat(
@@ -224,10 +237,16 @@ def detect_portfolio_format(file_path: str) -> PortfolioFormat:
                     validator=validate_ma_portfolio
                 )
         except json.JSONDecodeError as e:
-            raise FileFormatError(f"Invalid JSON file: {str(e)}")
+            error = FileFormatError(f"Invalid JSON file: {str(e)}")
+            track_error(error, "portfolio format detection", {"file_path": file_path, "json_error": str(e)})
+            raise error
     else:
-        raise FileFormatError(f"Unsupported file extension: {extension}")
+        error = FileFormatError(f"Unsupported file extension: {extension}")
+        track_error(error, "portfolio format detection", {"file_path": file_path, "extension": extension})
+        raise error
 
+@handle_concurrency_errors("configuration validation")
+@validate_inputs(config=lambda x: isinstance(x, dict))
 def validate_config(config: Dict[str, Any]) -> ConcurrencyConfig:
     """Validate concurrency configuration.
 
@@ -243,42 +262,65 @@ def validate_config(config: Dict[str, Any]) -> ConcurrencyConfig:
     required_fields = {'PORTFOLIO', 'BASE_DIR', 'REFRESH'}
     missing_fields = required_fields - set(config.keys())
     if missing_fields:
-        raise ValidationError(f"Missing required fields: {missing_fields}")
+        error = ValidationError(f"Missing required fields: {missing_fields}")
+        track_error(error, "configuration validation", {
+            "missing_fields": list(missing_fields),
+            "provided_fields": list(config.keys())
+        })
+        raise error
 
     # Validate types
     if not isinstance(config['PORTFOLIO'], str):
-        raise ValidationError("PORTFOLIO must be a string")
+        error = ValidationError("PORTFOLIO must be a string")
+        track_error(error, "configuration validation", {"field": "PORTFOLIO", "type": type(config['PORTFOLIO']).__name__})
+        raise error
     if not isinstance(config['BASE_DIR'], str):
-        raise ValidationError("BASE_DIR must be a string")
+        error = ValidationError("BASE_DIR must be a string")
+        track_error(error, "configuration validation", {"field": "BASE_DIR", "type": type(config['BASE_DIR']).__name__})
+        raise error
     if not isinstance(config['REFRESH'], bool):
-        raise ValidationError("REFRESH must be a boolean")
+        error = ValidationError("REFRESH must be a boolean")
+        track_error(error, "configuration validation", {"field": "REFRESH", "type": type(config['REFRESH']).__name__})
+        raise error
     
     if 'SL_CANDLE_CLOSE' in config and not isinstance(config['SL_CANDLE_CLOSE'], bool):
-        raise ValidationError("SL_CANDLE_CLOSE must be a boolean if provided")
+        error = ValidationError("SL_CANDLE_CLOSE must be a boolean if provided")
+        track_error(error, "configuration validation", {"field": "SL_CANDLE_CLOSE", "type": type(config['SL_CANDLE_CLOSE']).__name__})
+        raise error
     
     if 'RATIO_BASED_ALLOCATION' in config and not isinstance(config['RATIO_BASED_ALLOCATION'], bool):
-        raise ValidationError("RATIO_BASED_ALLOCATION must be a boolean if provided")
+        error = ValidationError("RATIO_BASED_ALLOCATION must be a boolean if provided")
+        track_error(error, "configuration validation", {"field": "RATIO_BASED_ALLOCATION", "type": type(config['RATIO_BASED_ALLOCATION']).__name__})
+        raise error
     
     if 'CSV_USE_HOURLY' in config and not isinstance(config['CSV_USE_HOURLY'], bool):
-        raise ValidationError("CSV_USE_HOURLY must be a boolean if provided")
+        error = ValidationError("CSV_USE_HOURLY must be a boolean if provided")
+        track_error(error, "configuration validation", {"field": "CSV_USE_HOURLY", "type": type(config['CSV_USE_HOURLY']).__name__})
+        raise error
     
     # Validate OPTIMIZE flag (default to False if not present)
     if "OPTIMIZE" in config and not isinstance(config["OPTIMIZE"], bool):
-        raise ValidationError("OPTIMIZE must be a boolean")
+        error = ValidationError("OPTIMIZE must be a boolean")
+        track_error(error, "configuration validation", {"field": "OPTIMIZE", "type": type(config["OPTIMIZE"]).__name__})
+        raise error
     elif "OPTIMIZE" not in config:
         config["OPTIMIZE"] = False
     
     # Validate OPTIMIZE_MIN_STRATEGIES (default to 3 if not present)
     if "OPTIMIZE_MIN_STRATEGIES" in config:
         if not isinstance(config["OPTIMIZE_MIN_STRATEGIES"], int) or config["OPTIMIZE_MIN_STRATEGIES"] < 2:
-            raise ValidationError("OPTIMIZE_MIN_STRATEGIES must be an integer >= 2")
+            error = ValidationError("OPTIMIZE_MIN_STRATEGIES must be an integer >= 2")
+            track_error(error, "configuration validation", {"field": "OPTIMIZE_MIN_STRATEGIES", "value": config["OPTIMIZE_MIN_STRATEGIES"]})
+            raise error
     else:
         config["OPTIMIZE_MIN_STRATEGIES"] = 3
     
     # Validate OPTIMIZE_MAX_PERMUTATIONS (default to None if not present)
     if "OPTIMIZE_MAX_PERMUTATIONS" in config:
         if not isinstance(config["OPTIMIZE_MAX_PERMUTATIONS"], int) or config["OPTIMIZE_MAX_PERMUTATIONS"] < 1:
-            raise ValidationError("OPTIMIZE_MAX_PERMUTATIONS must be a positive integer")
+            error = ValidationError("OPTIMIZE_MAX_PERMUTATIONS must be a positive integer")
+            track_error(error, "configuration validation", {"field": "OPTIMIZE_MAX_PERMUTATIONS", "value": config["OPTIMIZE_MAX_PERMUTATIONS"]})
+            raise error
     else:
         config["OPTIMIZE_MAX_PERMUTATIONS"] = None
 

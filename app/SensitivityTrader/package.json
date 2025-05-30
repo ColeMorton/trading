@@ -5,7 +5,8 @@
   "main": "test_bxp_puppeteer.js",
   "scripts": {
     "test": "node test_bxp_puppeteer.js",
-    "test:bxp": "node test_bxp_puppeteer.js"
+    "test:bxp": "node test_bxp_puppeteer.js",
+    "test:collapse": "node test_advanced_config_collapse.js"
   },
   "keywords": ["testing", "puppeteer", "trading", "analysis"],
   "author": "",
