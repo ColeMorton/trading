@@ -1,0 +1,258 @@
+name: MA Cross Module Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'app/ma_cross/**'
+      - 'app/tools/**'
+      - 'tests/**'
+      - '.github/workflows/ma_cross_tests.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'app/ma_cross/**'
+      - 'app/tools/**'
+      - 'tests/**'
+  schedule:
+    # Run regression tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: 'Test suite to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - unit
+          - integration
+          - e2e
+          - performance
+          - regression
+          - smoke
+
+env:
+  PYTHON_VERSION: '3.11'
+  POETRY_VERSION: '1.6.1'
+
+jobs:
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test-suite: 
+          - ${{ github.event.inputs.test_suite == 'all' && 'smoke' || github.event.inputs.test_suite || 'smoke' }}
+          - ${{ github.event.inputs.test_suite == 'all' && 'unit' || '' }}
+          - ${{ github.event.inputs.test_suite == 'all' && 'integration' || '' }}
+          - ${{ github.event.inputs.test_suite == 'all' && 'regression' || '' }}
+        exclude:
+          - test-suite: ''
+      fail-fast: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Cache Poetry installation
+      uses: actions/cache@v3
+      with:
+        path: ~/.local
+        key: poetry-${{ env.POETRY_VERSION }}-${{ runner.os }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: ${{ env.POETRY_VERSION }}
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-
+
+    - name: Install dependencies
+      run: |
+        poetry install --no-interaction --no-ansi
+        poetry run pip install pytest-cov pytest-xdist
+
+    - name: Lint code
+      run: |
+        poetry run ruff check app/ma_cross/ app/tools/ --output-format=github
+      continue-on-error: true
+
+    - name: Type check
+      run: |
+        poetry run mypy app/ma_cross/ app/tools/ --ignore-missing-imports
+      continue-on-error: true
+
+    - name: Run ${{ matrix.test-suite }} tests
+      run: |
+        poetry run python tests/run_ma_cross_tests.py \
+          --suite ${{ matrix.test-suite }} \
+          --verbose \
+          --coverage \
+          --report test-results-${{ matrix.test-suite }}.json
+      timeout-minutes: 30
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-${{ matrix.test-suite }}
+        path: |
+          test-results-${{ matrix.test-suite }}.json
+          .coverage
+        retention-days: 30
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      if: matrix.test-suite == 'unit' || matrix.test-suite == 'all'
+      with:
+        file: ./coverage.xml
+        flags: ma-cross
+        name: codecov-ma-cross
+        fail_ci_if_error: false
+
+  performance:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event.inputs.test_suite == 'performance' || github.event.inputs.test_suite == 'all'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: ${{ env.POETRY_VERSION }}
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Install dependencies
+      run: poetry install --no-interaction --no-ansi
+
+    - name: Run performance benchmarks
+      run: |
+        poetry run python tests/run_ma_cross_tests.py \
+          --suite performance \
+          --verbose \
+          --report performance-results.json
+      timeout-minutes: 45
+
+    - name: Upload performance results
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-results
+        path: performance-results.json
+        retention-days: 90
+
+  e2e:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.inputs.test_suite == 'e2e' || github.event.inputs.test_suite == 'all'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: ${{ env.POETRY_VERSION }}
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Install dependencies
+      run: poetry install --no-interaction --no-ansi
+
+    - name: Create test directories
+      run: |
+        mkdir -p csv/portfolios csv/portfolios_filtered csv/strategies
+        mkdir -p logs
+
+    - name: Run end-to-end tests
+      run: |
+        poetry run python tests/run_ma_cross_tests.py \
+          --suite e2e \
+          --verbose \
+          --report e2e-results.json
+      timeout-minutes: 20
+
+    - name: Upload e2e results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: e2e-results
+        path: |
+          e2e-results.json
+          logs/
+        retention-days: 30
+
+  summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [test, performance, e2e]
+    if: always()
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+
+    - name: Generate summary
+      run: |
+        echo "# MA Cross Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Check test results
+        if [ "${{ needs.test.result }}" == "success" ]; then
+          echo "✅ **Unit/Integration Tests**: PASSED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ **Unit/Integration Tests**: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.performance.result }}" == "success" ]; then
+          echo "✅ **Performance Tests**: PASSED" >> $GITHUB_STEP_SUMMARY
+        elif [ "${{ needs.performance.result }}" == "skipped" ]; then
+          echo "⏭️ **Performance Tests**: SKIPPED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ **Performance Tests**: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.e2e.result }}" == "success" ]; then
+          echo "✅ **End-to-End Tests**: PASSED" >> $GITHUB_STEP_SUMMARY
+        elif [ "${{ needs.e2e.result }}" == "skipped" ]; then
+          echo "⏭️ **End-to-End Tests**: SKIPPED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ **End-to-End Tests**: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Test Artifacts" >> $GITHUB_STEP_SUMMARY
+        echo "- Test results and coverage reports are available in the artifacts section" >> $GITHUB_STEP_SUMMARY
+        echo "- Performance benchmarks are retained for 90 days" >> $GITHUB_STEP_SUMMARY
+        echo "- All other test results are retained for 30 days" >> $GITHUB_STEP_SUMMARY

@@ -3,9 +3,9 @@
 ## Executive Summary
 
 <summary>
-  <objective>Migrate the complete Parameter Testing feature from the Flask-based SensitivityTrader application to the React-based Sensylate PWA application, maintaining visual consistency and functional integrity</objective>
-  <approach>Phase-based migration using React component architecture with TypeScript, maintaining existing design patterns and API integration strategies</approach>
-  <expected-outcome>Fully functional Parameter Testing feature integrated into Sensylate with enhanced performance, offline capabilities, and consistent UI/UX with existing Sensylate features</expected-outcome>
+  <objective>Migrate the Parameter Testing feature from SensitivityTrader to Sensylate, using existing API endpoints and maintaining visual consistency</objective>
+  <approach>Phase-based React/TypeScript implementation using existing `/api/ma-cross/` endpoints with comprehensive Puppeteer testing</approach>
+  <expected-outcome>Fully functional Parameter Testing feature integrated into Sensylate with performance optimization, offline capabilities, and automated testing validation</expected-outcome>
 </summary>
 
 ## Architecture Overview
@@ -39,7 +39,8 @@
 - New "Parameter Testing" navigation item in main navbar
 - Consistent card-based layout matching existing Sensylate patterns
 - Reuse of existing components (LoadingIndicator, ErrorMessage, DataTable)
-- Integration with existing API service patterns and offline capabilities
+- **Direct integration with existing `/api/ma-cross/` endpoints** (no new backend required)
+- Enhanced offline capabilities and PWA functionality
 
 ### Gap Analysis
 
@@ -47,18 +48,17 @@
 1. `ParameterTestingContainer` - Main feature container
 2. `AnalysisConfiguration` - Configuration form component  
 3. `ResultsTable` - Analysis results display
-4. `PortfolioBuilder` - Portfolio management interface
-5. `AdvancedConfiguration` - Collapsible advanced options
+4. `AdvancedConfiguration` - Collapsible advanced options
 
 **Services to Extend:**
-1. API service methods for parameter testing endpoints
-2. Custom hooks for analysis workflow and portfolio management
-3. Type definitions for analysis configuration and results
+1. **MA Cross API service using existing `/api/ma-cross/analyze` endpoint**
+2. Custom hooks for analysis workflow and progress tracking
+3. Type definitions matching existing API request/response models
 
 **State Management:**
 1. Extend AppContext with parameter testing state
 2. Local component state for form management
-3. Session persistence for portfolio data
+3. **No session persistence required** (removed portfolio builder)
 
 ## Phase Breakdown
 
@@ -138,40 +138,40 @@
   </risks>
 </phase>
 
-### Phase 3: API Integration and Services
+### Phase 3: MA Cross API Integration
 
 <phase number="3">
-  <objective>Implement API integration for parameter testing analysis and data fetching</objective>
+  <objective>Integrate with existing `/api/ma-cross/` endpoints for parameter testing analysis</objective>
   <scope>
-    - Extend api.ts with parameter testing endpoints
-    - Create custom hooks for analysis workflow
-    - Implement progress tracking and error handling
-    - Add configuration preset loading
-    - Create analysis result processing
+    - Create maCrossApi service using existing `/api/ma-cross/analyze` endpoint
+    - Implement TypeScript types matching existing API models
+    - Create custom hooks for analysis workflow and progress tracking
+    - Add async execution support with status polling
+    - Implement error handling and offline fallback strategies
   </scope>
   <dependencies>
     - Phase 2 completion
-    - Existing API service patterns
-    - Backend API endpoints (assumed to exist or be created)
+    - Existing `/api/ma-cross/` endpoints
+    - API request/response models from `/app/api/models/`
   </dependencies>
   <implementation>
-    <step>Add parameter testing API methods to services/api.ts</step>
-    <step>Create useParameterTesting hook for analysis workflow</step>
-    <step>Implement useConfigurationPresets hook for preset data</step>
-    <step>Add progress tracking capabilities with loading states</step>
-    <step>Create error handling and offline fallback strategies</step>
-    <step>Implement result data processing and formatting</step>
-    <step>Add caching strategies for configuration data</step>
+    <step>Create `services/maCrossApi.ts` with TypeScript interfaces matching existing API</step>
+    <step>Implement `analyze()` method calling POST `/api/ma-cross/analyze`</step>
+    <step>Add async execution support with status polling via GET `/api/ma-cross/status/{id}`</step>
+    <step>Create `useParameterTesting` hook for analysis workflow</step>
+    <step>Implement progress tracking for async operations</step>
+    <step>Add comprehensive error handling and retry logic</step>
+    <step>Create offline caching strategy for analysis results</step>
   </implementation>
   <deliverables>
-    - Extended API service with parameter testing methods
-    - useParameterTesting custom hook
-    - useConfigurationPresets custom hook
+    - maCrossApi service with full endpoint integration
+    - useParameterTesting custom hook with async support
+    - TypeScript types matching existing API models
     - Progress tracking and error handling system
   </deliverables>
   <risks>
-    - API endpoint availability and compatibility
-    - Error handling complexity
+    - API endpoint changes or compatibility issues
+    - Async execution complexity
     - Progress tracking implementation
   </risks>
 </phase>
@@ -179,85 +179,39 @@
 ### Phase 4: Results Display and Data Table
 
 <phase number="4">
-  <objective>Implement results display with sorting, filtering, and portfolio selection capabilities</objective>
+  <objective>Implement results display with sorting, filtering capabilities</objective>
   <scope>
     - ResultsTable component with analysis results
     - Column sorting and filtering functionality
-    - Portfolio selection checkboxes
-    - Bulk selection actions (Select All, Deselect All)
-    - Results export functionality
+    - CSV download functionality for individual results
     - Integration with existing DataTable component patterns
   </scope>
   <dependencies>
     - Phase 3 completion
     - Existing DataTable component
-    - Analysis results data structure
+    - Analysis results data structure from API
   </dependencies>
   <implementation>
     <step>Create ResultsTable component extending existing DataTable patterns</step>
-    <step>Implement column definitions for analysis metrics</step>
-    <step>Add sorting and filtering capabilities</step>
-    <step>Create portfolio selection checkboxes with state management</step>
-    <step>Implement bulk selection actions (Select All, Deselect All)</step>
-    <step>Add "Add Selected to Portfolio" functionality</step>
-    <step>Create CSV download and export capabilities</step>
-    <step>Implement refresh functionality for result updates</step>
+    <step>Implement column definitions for all analysis metrics (similarly to the Results table on the CSV Viewer page)</step>
+    <step>Add sorting and filtering capabilities matching the Results table on the CSV Viewer page</step>
+    <step>Add responsive design for mobile and tablet viewing</step>
+    <step>Integrate with loading states and error handling</step>
   </implementation>
   <deliverables>
-    - Complete ResultsTable component
+    - Complete ResultsTable component with all metrics
     - Sorting and filtering functionality
-    - Portfolio selection system
-    - Export and download capabilities
+    - Responsive design implementation
   </deliverables>
   <risks>
     - DataTable integration complexity
     - Large dataset performance
-    - Export functionality implementation
   </risks>
 </phase>
 
-### Phase 5: Portfolio Builder Integration
+### Phase 5: Advanced Features and Polish
 
 <phase number="5">
-  <objective>Implement portfolio management functionality with weighted allocations and analysis</objective>
-  <scope>
-    - PortfolioBuilder component with strategy management
-    - Weight adjustment interface (1-10 scale)
-    - Portfolio analysis and metrics calculation
-    - Portfolio clearing and management actions
-    - Integration with session storage for persistence
-  </scope>
-  <dependencies>
-    - Phase 4 completion
-    - Portfolio data persistence strategy
-    - Portfolio analysis algorithms
-  </dependencies>
-  <implementation>
-    <step>Create PortfolioBuilder component with existing card patterns</step>
-    <step>Implement portfolio strategy list with weight controls</step>
-    <step>Add weight adjustment interface (slider or input)</step>
-    <step>Create portfolio analysis metrics calculation</step>
-    <step>Implement "Analyze Portfolio" functionality</step>
-    <step>Add "Clear Portfolio" action with confirmation</step>
-    <step>Create session storage integration for portfolio persistence</step>
-    <step>Add portfolio export and import capabilities</step>
-  </implementation>
-  <deliverables>
-    - Complete PortfolioBuilder component
-    - Weight management interface
-    - Portfolio analysis functionality
-    - Session persistence system
-  </deliverables>
-  <risks>
-    - Portfolio analysis algorithm complexity
-    - Session storage size limitations
-    - Weight calculation accuracy
-  </risks>
-</phase>
-
-### Phase 6: Advanced Features and Polish
-
-<phase number="6">
   <objective>Implement advanced features, offline support, and final UI polish</objective>
   <scope>
     - Advanced configuration options implementation
@@ -268,7 +222,7 @@
     - Performance optimization
   </scope>
   <dependencies>
-    - Phase 5 completion
+    - Phase 4 completion
     - PWA infrastructure
     - Performance testing results
   </dependencies>
@@ -296,10 +250,49 @@
   </risks>
 </phase>
 
-### Phase 7: Testing and Documentation
+### Phase 6: Puppeteer Testing Implementation
+
+<phase number="6">
+  <objective>Implement comprehensive Puppeteer testing similar to SensitivityTrader test suite</objective>
+  <scope>
+    - Set up Puppeteer testing infrastructure in Sensylate
+    - Create parameter testing workflow tests
+    - Implement screenshot comparison testing
+    - Add CSV export validation tests
+    - Create test scenarios matching SensitivityTrader test cases
+  </scope>
+  <dependencies>
+    - Phase 5 completion
+    - Puppeteer package installation
+    - SensitivityTrader test cases as reference
+  </dependencies>
+  <implementation>
+    <step>Install Puppeteer and set up testing infrastructure in package.json</step>
+    <step>Create `tests/parameterTesting.spec.js` based on SensitivityTrader patterns</step>
+    <step>Implement BXP ticker analysis test case (matching SensitivityTrader)</step>
+    <step>Add screenshot capture at key workflow points</step>
+    <step>Create CSV file validation tests</step>
+    <step>Implement advanced configuration collapse/expand tests</step>
+    <step>Add async analysis progress tracking tests</step>
+    <step>Create responsive design validation tests</step>
+  </implementation>
+  <deliverables>
+    - Complete Puppeteer test suite
+    - Screenshot validation system
+    - CSV export verification tests
+    - Test scenarios covering all major workflows
+  </deliverables>
+  <risks>
+    - Puppeteer setup complexity in Vite environment
+    - Screenshot comparison accuracy
+    - Async testing timing issues
+  </risks>
+</phase>
+
+### Phase 7: Final Testing and Documentation
 
 <phase number="7">
-  <objective>Comprehensive testing, bug fixes, and documentation updates</objective>
+  <objective>Comprehensive validation, bug fixes, and documentation updates</objective>
   <scope>
     - Component unit testing
     - Integration testing with existing Sensylate features
@@ -309,27 +302,27 @@
   </scope>
   <dependencies>
     - Phase 6 completion
-    - Testing framework setup
-    - Screenshot comparison tools
+    - Puppeteer test results
+    - Performance testing results
   </dependencies>
   <implementation>
-    <step>Create unit tests for all new components</step>
-    <step>Implement integration tests with existing features</step>
-    <step>Conduct screenshot comparison testing against SensitivityTrader mocks</step>
-    <step>Perform user acceptance testing for complete workflow</step>
+    <step>Run complete Puppeteer test suite and fix identified issues</step>
+    <step>Create unit tests for all new React components</step>
+    <step>Perform integration testing with existing Sensylate features</step>
+    <step>Conduct visual regression testing against SensitivityTrader screenshots</step>
     <step>Fix identified bugs and performance issues</step>
     <step>Update documentation and README files</step>
     <step>Create user guide for Parameter Testing feature</step>
   </implementation>
   <deliverables>
-    - Complete test suite
+    - Complete test suite with Puppeteer and unit tests
     - Bug fixes and improvements
     - Updated documentation
     - User acceptance validation
   </deliverables>
   <risks>
     - Test coverage complexity
-    - Screenshot comparison accuracy
+    - Visual regression testing accuracy
     - User acceptance criteria validation
   </risks>
 </phase>
@@ -407,13 +400,36 @@ interface ParameterTestingState {
 }
 ```
 
-### API Integration
+### API Integration (Using Existing Endpoints)
 ```typescript
-interface ParameterTestingAPI {
-  analyze(config: AnalysisConfiguration): Promise<AnalysisResult[]>;
-  getPresets(): Promise<ConfigurationPreset[]>;
-  analyzePortfolio(portfolio: PortfolioItem[]): Promise<PortfolioAnalysis>;
-  exportResults(results: AnalysisResult[]): Promise<Blob>;
+interface MACrossRequest {
+  TICKER: string | string[];
+  WINDOWS: number;
+  DIRECTION: "Long" | "Short";
+  STRATEGY_TYPES: ["SMA", "EMA"];
+  USE_HOURLY: boolean;
+  USE_YEARS: boolean;
+  YEARS: number;
+  USE_SYNTHETIC: boolean;
+  USE_CURRENT: boolean;
+  USE_SCANNER: boolean;
+  REFRESH: boolean;
+  MINIMUMS: {
+    WIN_RATE: number;
+    TRADES: number;
+    EXPECTANCY_PER_TRADE: number;
+    PROFIT_FACTOR: number;
+    SORTINO_RATIO: number;
+  };
+  SORT_BY: string;
+  SORT_ASC: boolean;
+  USE_GBM: boolean;
+  async_execution: boolean;
+}
+
+interface MACrossAPI {
+  analyze(request: MACrossRequest): Promise<MACrossResponse>;
+  getStatus(executionId: string): Promise<ExecutionStatus>;
 }
 ```
 
