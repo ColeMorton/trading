@@ -85,6 +85,28 @@ export default defineConfig({
                 maxAgeSeconds: 60 * 60 * 24 // 1 day
               }
             }
+          },
+          {
+            urlPattern: /\/api\/ma-cross\/analyze/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'ma-cross-analysis-cache',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 2 // 2 hours
+              }
+            }
+          },
+          {
+            urlPattern: /\/api\/ma-cross\/status\/.*/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'ma-cross-status-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 5 // 5 minutes
+              }
+            }
           }
         ]
       }

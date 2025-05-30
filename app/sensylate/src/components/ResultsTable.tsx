@@ -23,7 +23,7 @@ interface ResultsTableProps {
 /**
  * Component to display parameter testing analysis results in an interactive table
  */
-const ResultsTable: React.FC<ResultsTableProps> = ({ results, isLoading, error }) => {
+const ResultsTable: React.FC<ResultsTableProps> = React.memo(({ results, isLoading, error }) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
   
@@ -332,6 +332,6 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results, isLoading, error }
       </div>
     </div>
   );
-};
+});
 
 export default ResultsTable;

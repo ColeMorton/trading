@@ -15,6 +15,7 @@ import OfflineBanner from './components/OfflineBanner';
 import PWAUpdateNotification from './components/PWAUpdateNotification';
 import InstallPrompt from './components/InstallPrompt';
 import ParameterTestingContainer from './components/ParameterTestingContainer';
+import ErrorBoundary from './components/ErrorBoundary';
 import Icon from './components/Icon';
 import { icons } from './utils/icons';
 import { useAppContext } from './context/AppContext';
@@ -65,7 +66,9 @@ const AppContent: React.FC = () => {
         )}
 
         {currentView === 'parameter-testing' && (
-          <ParameterTestingContainer />
+          <ErrorBoundary>
+            <ParameterTestingContainer />
+          </ErrorBoundary>
         )}
         
         <PWAUpdateNotification />

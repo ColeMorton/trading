@@ -95,7 +95,7 @@ const DEFAULT_PRESETS: ConfigurationPreset[] = [
   }
 ];
 
-const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = ({ 
+const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(({ 
   onAnalyze,
   isAnalyzing = false 
 }) => {
@@ -258,6 +258,7 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = ({
               id="preset-select"
               value={selectedPreset}
               onChange={handlePresetChange}
+              aria-describedby="preset-help"
             >
               <option value="">Choose a preset...</option>
               {DEFAULT_PRESETS.map((preset) => (
@@ -266,7 +267,7 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = ({
                 </option>
               ))}
             </select>
-            <div className="form-text">Quick configuration templates</div>
+            <div id="preset-help" className="form-text">Quick configuration templates</div>
           </div>
 
           {/* Ticker Input - Full Width */}
@@ -284,11 +285,14 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = ({
                 ? parameterTesting.configuration.TICKER.join(', ') 
                 : parameterTesting.configuration.TICKER}
               onChange={handleTickerChange}
+              aria-describedby="ticker-help"
+              aria-required="true"
+              aria-invalid={!!formErrors.TICKER}
             />
             {formErrors.TICKER && (
-              <div className="invalid-feedback">{formErrors.TICKER}</div>
+              <div className="invalid-feedback" role="alert">{formErrors.TICKER}</div>
             )}
-            <div className="form-text">Comma-separated list of ticker symbols</div>
+            <div id="ticker-help" className="form-text">Comma-separated list of ticker symbols</div>
           </div>
 
           <div className="col-md-3">
@@ -304,11 +308,13 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = ({
               min="1"
               max="50"
               onChange={handleWindowsChange}
+              aria-describedby="windows-help"
+              aria-invalid={!!formErrors.WINDOWS}
             />
             {formErrors.WINDOWS && (
-              <div className="invalid-feedback">{formErrors.WINDOWS}</div>
+              <div className="invalid-feedback" role="alert">{formErrors.WINDOWS}</div>
             )}
-            <div className="form-text">Number of window combinations</div>
+            <div id="windows-help" className="form-text">Number of window combinations (1-50)</div>
           </div>
 
           <div className="col-md-3">
@@ -639,21 +645,22 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = ({
                   await onAnalyze(parameterTesting.configuration);
                 }
               }}
+              aria-describedby={!isFormValid() ? "validation-error" : undefined}
             >
               {isAnalyzing ? (
                 <>
-                  <Icon icon={icons.loading} className="me-2 fa-spin" />
+                  <Icon icon={icons.loading} className="me-2 fa-spin" aria-hidden="true" />
                   Analyzing...
                 </>
               ) : (
                 <>
-                  <Icon icon={icons.parameterTesting} className="me-2" />
+                  <Icon icon={icons.parameterTesting} className="me-2" aria-hidden="true" />
                   Run Analysis
                 </>
               )}
             </button>
             {!isFormValid() && (
-              <div className="form-text text-danger">
+              <div id="validation-error" className="form-text text-danger" role="alert">
                 Please fix validation errors and ensure all required fields are filled.
               </div>
             )}
@@ -662,6 +669,6 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default AnalysisConfiguration;

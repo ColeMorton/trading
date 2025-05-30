@@ -3,6 +3,8 @@ import Icon from './Icon';
 import { icons } from '../utils/icons';
 import AnalysisConfiguration from './AnalysisConfiguration';
 import ResultsTable from './ResultsTable';
+import ErrorBoundary from './ErrorBoundary';
+import ProgressIndicator from './ProgressIndicator';
 import { useParameterTesting } from '../hooks/useParameterTesting';
 
 const ParameterTestingContainer: React.FC = () => {
@@ -16,6 +18,40 @@ const ParameterTestingContainer: React.FC = () => {
     clearResults,
     cancelAnalysis 
   } = useParameterTesting();
+
+  // Progress steps for analysis workflow
+  const getProgressSteps = () => {
+    if (!isAnalyzing) return [];
+    
+    const steps = [
+      {
+        id: 'validation',
+        label: 'Validation',
+        description: 'Validating configuration',
+        status: progress > 0 ? 'completed' as const : 'active' as const
+      },
+      {
+        id: 'setup',
+        label: 'Setup',
+        description: 'Preparing analysis',
+        status: progress > 20 ? 'completed' as const : progress > 0 ? 'active' as const : 'pending' as const
+      },
+      {
+        id: 'processing',
+        label: 'Processing',
+        description: 'Running strategy analysis',
+        status: progress > 70 ? 'completed' as const : progress > 20 ? 'active' as const : 'pending' as const
+      },
+      {
+        id: 'results',
+        label: 'Results',
+        description: 'Generating results',
+        status: progress >= 100 ? 'completed' as const : progress > 70 ? 'active' as const : 'pending' as const
+      }
+    ];
+
+    return steps;
+  };
 
   return (
     <div className="parameter-testing-container">
@@ -39,29 +75,34 @@ const ParameterTestingContainer: React.FC = () => {
       {isAnalyzing && (
         <div className="card mb-4">
           <div className="card-body">
-            <div className="d-flex align-items-center justify-content-between mb-2">
-              <h6 className="mb-0">Analyzing...</h6>
+            <div className="d-flex align-items-center justify-content-between mb-3">
+              <h6 className="mb-0">Analysis Progress</h6>
               <button 
                 className="btn btn-sm btn-outline-danger"
                 onClick={cancelAnalysis}
+                title="Cancel Analysis"
               >
+                <Icon icon={icons.times} className="me-1" />
                 Cancel
               </button>
             </div>
-            <div className="progress">
-              <div 
-                className="progress-bar progress-bar-striped progress-bar-animated" 
-                role="progressbar" 
-                style={{ width: `${progress}%` }}
-                aria-valuenow={progress} 
-                aria-valuemin={0} 
-                aria-valuemax={100}
-              >
-                {progress}%
-              </div>
-            </div>
+            
+            <ProgressIndicator
+              steps={getProgressSteps()}
+              title="Parameter Testing Analysis"
+              showPercentage={true}
+              percentage={progress}
+              variant="horizontal"
+              size="md"
+            />
+            
             {executionId && (
-              <small className="text-muted">Execution ID: {executionId}</small>
+              <div className="mt-3">
+                <small className="text-muted">
+                  <Icon icon={icons.lastUpdated} className="me-1" />
+                  Execution ID: {executionId}
+                </small>
+              </div>
             )}
           </div>
         </div>
@@ -82,11 +123,17 @@ const ParameterTestingContainer: React.FC = () => {
       )}
 
       {/* Results Table */}
-      <ResultsTable 
-        results={results} 
-        isLoading={isAnalyzing}
-        error={error}
-      />
+      <ErrorBoundary
+        onError={(error, errorInfo) => {
+          console.error('Results table error:', error, errorInfo);
+        }}
+      >
+        <ResultsTable 
+          results={results} 
+          isLoading={isAnalyzing}
+          error={error}
+        />
+      </ErrorBoundary>
     </div>
   );
 };
