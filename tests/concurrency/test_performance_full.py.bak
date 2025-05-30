@@ -1,0 +1,468 @@
+"""Performance and stress tests for the concurrency module."""
+
+import unittest
+import time
+import gc
+import psutil
+import os
+from unittest.mock import patch, Mock
+import numpy as np
+import pandas as pd
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+from app.concurrency.tools.analysis import analyze_concurrency, calculate_concurrency_metrics
+from app.concurrency.tools.permutation import find_optimal_permutation
+from app.concurrency.tools.efficiency import calculate_efficiency_metrics
+from app.concurrency.tools.runner import run_analysis as runner_analysis
+from base import ConcurrencyTestCase, MockDataMixin, PerformanceTestMixin
+
+
+class TestAnalysisPerformance(ConcurrencyTestCase, MockDataMixin, PerformanceTestMixin):
+    """Test performance of core analysis functions."""
+    
+    def setUp(self):
+        """Set up performance test environment."""
+        super().setUp()
+        self.process = psutil.Process(os.getpid())
+        self.initial_memory = self.process.memory_info().rss / 1024 / 1024  # MB
+    
+    def tearDown(self):
+        """Clean up and report memory usage."""
+        super().tearDown()
+        gc.collect()
+        final_memory = self.process.memory_info().rss / 1024 / 1024  # MB
+        memory_increase = final_memory - self.initial_memory
+        print(f"\nMemory increase: {memory_increase:.2f} MB")
+    
+    def test_large_portfolio_analysis(self):
+        """Test analysis performance with large portfolio."""
+        # Create large portfolio with 50 strategies
+        num_strategies = 50
+        strategies = []
+        strategy_data = []
+        
+        for i in range(num_strategies):
+            # Create strategy config
+            strategy = self.create_ma_strategy(
+                f"TEST{i}",
+                "SMA" if i % 2 == 0 else "EMA",
+                10 + i,
+                30 + i * 2,
+                100 / num_strategies
+            )
+            strategies.append(strategy)
+            
+            # Create mock data
+            periods = 1000  # 1000 trading days
+            signals = self.create_mock_signals(periods, 0.3)
+            dates = pd.date_range('2020-01-01', periods=periods)
+            
+            strategy_data.append({
+                'ticker': f'TEST{i}',
+                'signals': pd.Series(signals, index=dates),
+                'returns': pd.Series(np.random.normal(0.001, 0.02, periods), index=dates),
+                'dates': dates,
+            })
+        
+        # Time the analysis
+        result, duration = self.time_operation(
+            analyze_concurrency,
+            strategy_data,
+            strategies,
+            self.log_mock
+        )
+        
+        print(f"\nLarge portfolio analysis took: {duration:.2f}s for {num_strategies} strategies")
+        
+        # Assert reasonable performance (should complete in < 5 seconds)
+        self.assertLess(duration, 5.0, f"Analysis too slow: {duration:.2f}s")
+        
+        # Verify results
+        stats, aligned_data = result
+        self.assertIsNotNone(stats)
+        self.assertEqual(len(aligned_data), num_strategies)
+    
+    def test_concurrency_metrics_scaling(self):
+        """Test how metrics calculation scales with portfolio size."""
+        # Test different portfolio sizes
+        sizes = [10, 20, 30, 40, 50]
+        durations = []
+        
+        for size in sizes:
+            # Create aligned data
+            periods = 500
+            dates = pd.date_range('2020-01-01', periods=periods)
+            
+            aligned_data = []
+            strategies = []
+            
+            for i in range(size):
+                aligned_data.append({
+                    'ticker': f'TEST{i}',
+                    'signals': pd.Series(self.create_mock_signals(periods), index=dates),
+                    'returns': pd.Series(np.random.normal(0.001, 0.02, periods), index=dates),
+                    'dates': dates,
+                })
+                
+                strategies.append({
+                    'ticker': f'TEST{i}',
+                    'allocation': 100 / size
+                })
+            
+            # Time metrics calculation
+            _, duration = self.time_operation(
+                calculate_concurrency_metrics,
+                aligned_data,
+                strategies,
+                self.log_mock
+            )
+            
+            durations.append(duration)
+            print(f"Size {size}: {duration:.3f}s")
+        
+        # Check that scaling is reasonable (not exponential)
+        # Duration should not more than double when size doubles
+        for i in range(1, len(durations)):
+            if sizes[i] == 2 * sizes[i-1]:
+                self.assertLess(
+                    durations[i], 
+                    durations[i-1] * 3,  # Allow up to 3x for doubling
+                    f"Poor scaling: {sizes[i-1]} strategies -> {sizes[i]} strategies"
+                )
+    
+    def test_correlation_matrix_performance(self):
+        """Test performance of correlation matrix calculation."""
+        # Create large dataset
+        num_strategies = 100
+        periods = 500
+        
+        returns_data = []
+        for i in range(num_strategies):
+            returns = np.random.normal(0.001, 0.02, periods)
+            returns_data.append(returns)
+        
+        returns_matrix = np.array(returns_data).T
+        
+        # Time correlation calculation
+        start = time.time()
+        corr_matrix = np.corrcoef(returns_matrix, rowvar=False)
+        duration = time.time() - start
+        
+        print(f"\nCorrelation matrix ({num_strategies}x{num_strategies}) took: {duration:.3f}s")
+        
+        # Should be fast even for 100x100
+        self.assertLess(duration, 1.0)
+        self.assertEqual(corr_matrix.shape, (num_strategies, num_strategies))
+
+
+class TestPermutationPerformance(ConcurrencyTestCase, PerformanceTestMixin):
+    """Test performance of permutation analysis."""
+    
+    def test_permutation_generation_scaling(self):
+        """Test how permutation generation scales with strategy count."""
+        from app.concurrency.tools.permutation import generate_strategy_permutations
+        
+        # Test different sizes
+        test_sizes = [5, 10, 12, 14, 16]
+        
+        for n in test_sizes:
+            strategies = [{"id": i, "ticker": f"TEST{i}"} for i in range(n)]
+            
+            start = time.time()
+            perms = generate_strategy_permutations(strategies, min_strategies=3)
+            duration = time.time() - start
+            
+            num_perms = len(perms)
+            print(f"\nn={n}: Generated {num_perms} permutations in {duration:.3f}s")
+            
+            # For n strategies with min 3, we have sum of C(n,k) for k=3 to n
+            # This grows exponentially, but generation should still be fast
+            if n <= 12:
+                self.assertLess(duration, 0.5, f"Generation too slow for n={n}")
+    
+    @patch('app.concurrency.tools.analysis.analyze_concurrency')
+    def test_optimal_permutation_with_limits(self, mock_analyze):
+        """Test finding optimal permutation with max limit."""
+        # Create strategies
+        num_strategies = 15  # Would generate 32,647 permutations without limit
+        strategies = [{"id": i, "ticker": f"TEST{i}"} for i in range(num_strategies)]
+        
+        # Mock analysis to return random efficiency
+        def mock_analyze_func(data, strats, log):
+            return {"efficiency_score": np.random.random()}, []
+        
+        mock_analyze.side_effect = mock_analyze_func
+        
+        # Mock process function
+        def mock_process(strats, log):
+            return {"data": "mock"}, strats
+        
+        # Test with limit
+        max_perms = 100
+        start = time.time()
+        
+        best_perm, best_stats, _ = find_optimal_permutation(
+            strategies,
+            mock_process,
+            mock_analyze_func,
+            self.log_mock,
+            min_strategies=3,
+            max_permutations=max_perms
+        )
+        
+        duration = time.time() - start
+        
+        print(f"\nOptimization with {max_perms} permutation limit took: {duration:.2f}s")
+        
+        # Should complete reasonably fast
+        self.assertLess(duration, 10.0)
+        self.assertIsNotNone(best_perm)
+        
+        # Verify we analyzed the limited number
+        self.assertEqual(mock_analyze.call_count, max_perms)
+
+
+class TestMemoryUsage(ConcurrencyTestCase, MockDataMixin):
+    """Test memory usage and potential leaks."""
+    
+    def test_memory_leak_in_analysis_loop(self):
+        """Test for memory leaks in repeated analysis."""
+        import gc
+        
+        # Create test data
+        strategies = self.create_mock_portfolio_data(10)
+        strategy_data = []
+        
+        for i in range(10):
+            strategy_data.append({
+                'ticker': f'TEST{i}',
+                'signals': pd.Series(self.create_mock_signals(1000)),
+                'returns': pd.Series(np.random.normal(0.001, 0.02, 1000)),
+                'dates': pd.date_range('2020-01-01', periods=1000),
+            })
+        
+        # Measure initial memory
+        gc.collect()
+        initial_memory = self.process.memory_info().rss / 1024 / 1024
+        
+        # Run analysis multiple times
+        for i in range(10):
+            analyze_concurrency(strategy_data, strategies, self.log_mock)
+            gc.collect()
+        
+        # Measure final memory
+        final_memory = self.process.memory_info().rss / 1024 / 1024
+        memory_increase = final_memory - initial_memory
+        
+        print(f"\nMemory after 10 analyses: +{memory_increase:.2f} MB")
+        
+        # Memory increase should be minimal (< 50 MB)
+        self.assertLess(memory_increase, 50)
+    
+    def test_large_report_generation(self):
+        """Test memory usage when generating large reports."""
+        from app.concurrency.tools.report.generator import generate_json_report
+        
+        # Create large portfolio
+        num_strategies = 100
+        strategies = []
+        stats = {
+            'total_concurrent_periods': 1000,
+            'concurrency_ratio': 0.5,
+            'efficiency_score': 0.85,
+            'correlation_matrix': np.random.random((num_strategies, num_strategies)).tolist(),
+            'overlap_matrix': np.random.random((num_strategies, num_strategies)).tolist(),
+        }
+        
+        for i in range(num_strategies):
+            strategies.append({
+                'ticker': f'TEST{i}',
+                'allocation': 1.0,
+                'metrics': {
+                    'total_return': 0.15,
+                    'sharpe_ratio': 1.2,
+                    'max_drawdown': -0.1,
+                }
+            })
+        
+        # Generate report
+        initial_memory = self.process.memory_info().rss / 1024 / 1024
+        
+        report = generate_json_report(
+            strategies,
+            stats,
+            self.log_mock,
+            {'REPORT_INCLUDES': {'STRATEGIES': True, 'TICKER_METRICS': True}}
+        )
+        
+        final_memory = self.process.memory_info().rss / 1024 / 1024
+        memory_used = final_memory - initial_memory
+        
+        print(f"\nLarge report generation used: {memory_used:.2f} MB")
+        
+        # Should not use excessive memory
+        self.assertLess(memory_used, 100)
+        self.assertIsNotNone(report)
+
+
+class TestConcurrentExecution(ConcurrencyTestCase, MockDataMixin):
+    """Test concurrent execution scenarios."""
+    
+    def test_parallel_strategy_processing(self):
+        """Test processing strategies in parallel."""
+        from app.concurrency.tools.strategy_processor import process_strategy
+        
+        # Create strategies
+        num_strategies = 20
+        strategies = []
+        
+        for i in range(num_strategies):
+            strategies.append({
+                'TICKER': f'TEST{i}',
+                'TYPE': 'SMA',
+                'SHORT_WINDOW': 10,
+                'LONG_WINDOW': 30,
+            })
+        
+        # Mock download and backtest
+        with patch('app.tools.download_data.download_ticker_data') as mock_download:
+            with patch('app.tools.backtest_strategy.backtest_ma_cross_strategy') as mock_backtest:
+                mock_download.return_value = self.create_mock_price_data(['TEST0'], 100)
+                mock_backtest.return_value = {
+                    'signals': self.create_mock_signals(100),
+                    'returns': [0.001] * 100,
+                    'metrics': {'total_return': 0.1}
+                }
+                
+                # Process strategies in parallel
+                start = time.time()
+                results = []
+                
+                with ThreadPoolExecutor(max_workers=5) as executor:
+                    futures = []
+                    for strategy in strategies:
+                        future = executor.submit(
+                            process_strategy,
+                            strategy,
+                            self.log_mock,
+                            {'REFRESH': True}
+                        )
+                        futures.append(future)
+                    
+                    for future in as_completed(futures):
+                        try:
+                            result = future.result()
+                            results.append(result)
+                        except Exception as e:
+                            print(f"Strategy processing failed: {e}")
+                
+                duration = time.time() - start
+                
+                print(f"\nParallel processing of {num_strategies} strategies took: {duration:.2f}s")
+                
+                # Should be faster than sequential
+                # With 5 workers, should be roughly 4x faster than sequential
+                expected_sequential_time = num_strategies * 0.1  # Assume 0.1s per strategy
+                self.assertLess(duration, expected_sequential_time / 3)
+                self.assertEqual(len(results), num_strategies)
+    
+    def test_thread_safety_of_error_registry(self):
+        """Test thread safety of error registry."""
+        from app.concurrency.error_handling import track_error
+        
+        # Function to generate errors from multiple threads
+        def generate_errors(thread_id, count):
+            for i in range(count):
+                try:
+                    if i % 3 == 0:
+                        raise ValueError(f"Error from thread {thread_id}, iteration {i}")
+                except Exception as e:
+                    track_error(e, f"thread_{thread_id}_operation")
+        
+        # Run from multiple threads
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            futures = []
+            for thread_id in range(10):
+                future = executor.submit(generate_errors, thread_id, 100)
+                futures.append(future)
+            
+            # Wait for completion
+            for future in as_completed(futures):
+                future.result()
+        
+        # Check registry
+        from app.concurrency.error_handling import get_error_stats
+        stats = get_error_stats()
+        
+        # Should have recorded errors from all threads
+        # 10 threads * 100 iterations * 1/3 error rate = ~333 errors
+        self.assertGreater(stats.total_errors, 300)
+        print(f"\nRecorded {stats.total_errors} errors from concurrent threads")
+
+
+class TestStressScenarios(ConcurrencyTestCase):
+    """Stress test extreme scenarios."""
+    
+    def test_maximum_permutations(self):
+        """Test handling of maximum permutation scenarios."""
+        # 20 strategies would generate over 1 million permutations
+        # But we limit it
+        strategies = [{"id": i} for i in range(20)]
+        
+        with patch('app.concurrency.tools.permutation.analyze_permutation') as mock_analyze:
+            mock_analyze.return_value = ({"efficiency_score": 0.5}, [])
+            
+            # This should handle the large number gracefully with limit
+            start = time.time()
+            
+            # Mock process function
+            def mock_process(strats, log):
+                return {"data": "mock"}, strats
+            
+            from app.concurrency.tools.permutation import find_optimal_permutation
+            
+            best_perm, _, _ = find_optimal_permutation(
+                strategies,
+                mock_process,
+                lambda d, s, l: ({"efficiency_score": 0.5}, []),
+                self.log_mock,
+                min_strategies=3,
+                max_permutations=1000
+            )
+            
+            duration = time.time() - start
+            
+            print(f"\nLimited permutation analysis took: {duration:.2f}s")
+            self.assertLess(duration, 30.0)  # Should complete in reasonable time
+    
+    def test_extreme_time_series_length(self):
+        """Test with very long time series."""
+        # Create strategies with 10 years of daily data
+        periods = 252 * 10  # ~2520 trading days
+        strategies = self.create_mock_portfolio_data(5)
+        strategy_data = []
+        
+        for i in range(5):
+            dates = pd.date_range('2014-01-01', periods=periods)
+            strategy_data.append({
+                'ticker': f'TEST{i}',
+                'signals': pd.Series(self.create_mock_signals(periods), index=dates),
+                'returns': pd.Series(np.random.normal(0.001, 0.02, periods), index=dates),
+                'dates': dates,
+            })
+        
+        # Time analysis
+        start = time.time()
+        stats, aligned = analyze_concurrency(strategy_data, strategies, self.log_mock)
+        duration = time.time() - start
+        
+        print(f"\nAnalysis with {periods} periods took: {duration:.2f}s")
+        
+        # Should still complete in reasonable time
+        self.assertLess(duration, 10.0)
+        self.assertIsNotNone(stats)
+
+
+if __name__ == "__main__":
+    # Run with verbose output to see performance metrics
+    unittest.main(verbosity=2)

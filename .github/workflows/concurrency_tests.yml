@@ -1,0 +1,138 @@
+name: Concurrency Module Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'app/concurrency/**'
+      - 'tests/concurrency/**'
+      - '.github/workflows/concurrency_tests.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'app/concurrency/**'
+      - 'tests/concurrency/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache Poetry dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/pypoetry
+          ~/.cache/pip
+        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-poetry-
+    
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+    
+    - name: Install dependencies
+      run: |
+        poetry install --no-interaction --no-ansi
+    
+    - name: Run unit tests
+      run: |
+        cd tests/concurrency
+        poetry run python run_tests.py --type unit --failfast --output unit_results.json
+    
+    - name: Run integration tests
+      run: |
+        cd tests/concurrency
+        poetry run python run_tests.py --type integration --output integration_results.json
+    
+    - name: Run error handling tests
+      run: |
+        cd tests/concurrency
+        poetry run python run_tests.py --type error --output error_results.json
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-${{ matrix.python-version }}
+        path: tests/concurrency/*_results.json
+    
+    - name: Run coverage analysis
+      if: matrix.python-version == '3.10'
+      run: |
+        cd tests/concurrency
+        poetry run python run_tests.py --coverage --output coverage_results.json
+    
+    - name: Upload coverage report
+      if: matrix.python-version == '3.10'
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: tests/coverage_html/
+
+  performance:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+    
+    - name: Install dependencies
+      run: |
+        poetry install --no-interaction --no-ansi
+    
+    - name: Run performance tests
+      run: |
+        cd tests/concurrency
+        poetry run python run_tests.py --type performance --output performance_results.json
+    
+    - name: Upload performance results
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-results
+        path: tests/concurrency/performance_results.json
+    
+    - name: Comment PR with performance results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const results = JSON.parse(fs.readFileSync('tests/concurrency/performance_results.json', 'utf8'));
+          
+          const comment = `## Performance Test Results
+          
+          - Tests run: ${results.tests_run}
+          - Duration: ${results.duration.toFixed(2)}s
+          - Success rate: ${(results.success_rate * 100).toFixed(1)}%
+          
+          See artifacts for detailed results.`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });

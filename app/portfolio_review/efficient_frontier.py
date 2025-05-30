@@ -26,13 +26,11 @@ HALF_RULE = True
 
 # ASSETS = ['BTC-USD', 'MSTR']
 
-ASSETS = ['QQQ', 'MSTR']
+# ASSETS = ['QQQ', 'MSTR']
 
 # ASSETS = ['PENDLE-USD', 'SUI20947-USD']
 
-# ASSETS = ['MCO', 'INTU', 'COST', 'TSLA', 'AMD', 'EQT', 'HSY', 'AMZN', 'FFIV']
-
-# ASSETS = ['AAPL', 'GD', 'MU', 'ETH-USD', 'LMT', 'MCO', 'LUV']
+ASSETS = ['MCO', 'ETH-USD', 'GME', 'TSLA', 'AMD', 'GOOGL', 'AMD', 'RTX', 'FFIV', "MU", "MCO", "LMT", "GD", "AAPL", "NVDA", "ILMN", "MRNA"]
 
 # ASSETS = ['TRX-USD', 'FET-USD', 'AVAX-USD', 'SOL-USD']
 

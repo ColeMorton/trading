@@ -65,7 +65,8 @@ from app.tools.portfolio.stop_loss import (
 from app.tools.config_service import ConfigService
 from app.tools.config_management import (
     merge_configs,
-    resolve_portfolio_filename
+    resolve_portfolio_filename,
+    normalize_config
 )
 from app.tools.synthetic_ticker import (
     detect_synthetic_ticker,
