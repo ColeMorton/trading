@@ -1,2 +1,0 @@
-Ticker,Allocation [%],Strategy Type,Short Window,Long Window,Stop Loss [%],Signal Entry,Total Trades,Total Return [%],Annual Returns,Sharpe Ratio,Sortino Ratio,Max Drawdown [%],Winning Trades,Losing Trades,Win Rate [%],Profit Factor,Expectancy per Trade,Score,Beats BNH [%],Has Open Trade
-PENDLE-USD,,SMA,6,8,,true,109,529.9574589074039,0.7413299767360487,0.9095175573151716,1.7367127765939254,88.1422337576453,47,62,43.51851851851852,1.414553678481278,49.128464478362176,1.201284934272308,1.0137491316888323,true

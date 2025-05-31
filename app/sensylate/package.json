@@ -19,7 +19,9 @@
     "test:csv": "node tests/csvValidation.spec.js",
     "test:workflow": "node tests/parameterTesting.spec.js",
     "test:ci": "node tests/testRunner.js --ci --save-report",
-    "test:verbose": "node tests/testRunner.js --verbose --screenshots"
+    "test:verbose": "node tests/testRunner.js --verbose --screenshots",
+    "test:cleanup-screenshots": "node tests/screenshotCleanup.js",
+    "test:cleanup-screenshots-verbose": "node tests/screenshotCleanup.js --verbose"
   },
   "keywords": [],
   "author": "",

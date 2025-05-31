@@ -74,6 +74,10 @@ npm run test:csv          # CSV functionality tests
 # Run with verbose output
 npm run test:verbose
 npm run test:e2e-verbose  # End-to-end workflow with verbose output
+
+# Screenshot management
+npm run test:cleanup-screenshots         # Clean up old test screenshots
+npm run test:cleanup-screenshots-verbose # Clean up with detailed logging
 ```
 
 ### Advanced Options
@@ -140,6 +144,12 @@ Screenshots are captured at key workflow points when `--screenshots` flag is use
 06_results_validation.png   # Result validation complete
 07_final_state.png         # Final test state
 ```
+
+#### Automatic Screenshot Cleanup
+- **Old screenshots are automatically cleaned up** when new tests run with `--screenshots` flag
+- Each test suite cleans up its own screenshot type (e.g., e2e tests clean up `e2e_*` files)
+- Manual cleanup available with `npm run test:cleanup-screenshots`
+- Prevents screenshot directories from accumulating too many files
 
 ### Environment Variables
 - `CI=true` - Enables headless mode for automated testing

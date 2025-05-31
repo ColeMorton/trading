@@ -38,6 +38,36 @@ async function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+async function cleanupOldScreenshots() {
+    if (!TAKE_SCREENSHOTS) return;
+    
+    try {
+        if (!fs.existsSync(SCREENSHOT_DIR)) {
+            return; // No screenshots directory exists
+        }
+        
+        const files = fs.readdirSync(SCREENSHOT_DIR);
+        const screenshotFiles = files.filter(file => 
+            !file.startsWith('e2e_') && // Don't delete e2e test screenshots
+            file.endsWith('.png') && 
+            /\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}/.test(file) // Match timestamp pattern
+        );
+        
+        if (screenshotFiles.length > 0) {
+            console.log(`🧹 Cleaning up ${screenshotFiles.length} old parameter testing screenshots...`);
+            
+            for (const file of screenshotFiles) {
+                const filePath = path.join(SCREENSHOT_DIR, file);
+                fs.unlinkSync(filePath);
+            }
+            
+            console.log('✅ Old parameter testing screenshots cleaned up');
+        }
+    } catch (error) {
+        console.log(`⚠️ Failed to cleanup old screenshots: ${error.message}`);
+    }
+}
+
 async function takeScreenshot(page, filename, description) {
     if (!TAKE_SCREENSHOTS) return null;
     
@@ -691,6 +721,9 @@ async function runFullTestSuite() {
     console.log(`📅 Test run: ${new Date().toISOString()}`);
     console.log(`🔧 Node version: ${process.version}`);
     console.log(`💻 Platform: ${process.platform}`);
+    
+    // Clean up old screenshots before starting new test run
+    await cleanupOldScreenshots();
     
     const results = {
         navigation: {},

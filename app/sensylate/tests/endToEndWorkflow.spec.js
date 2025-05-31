@@ -42,6 +42,32 @@ async function log(message) {
     }
 }
 
+async function cleanupOldScreenshots() {
+    if (!TAKE_SCREENSHOTS) return;
+    
+    try {
+        if (!fs.existsSync(SCREENSHOT_DIR)) {
+            return; // No screenshots directory exists
+        }
+        
+        const files = fs.readdirSync(SCREENSHOT_DIR);
+        const screenshotFiles = files.filter(file => file.startsWith('e2e_') && file.endsWith('.png'));
+        
+        if (screenshotFiles.length > 0) {
+            console.log(`🧹 Cleaning up ${screenshotFiles.length} old screenshots...`);
+            
+            for (const file of screenshotFiles) {
+                const filePath = path.join(SCREENSHOT_DIR, file);
+                fs.unlinkSync(filePath);
+            }
+            
+            console.log('✅ Old screenshots cleaned up');
+        }
+    } catch (error) {
+        console.log(`⚠️ Failed to cleanup old screenshots: ${error.message}`);
+    }
+}
+
 async function takeScreenshot(page, filename, description) {
     if (!TAKE_SCREENSHOTS) return null;
     
@@ -96,6 +122,9 @@ async function waitForText(page, text, options = {}) {
 async function runEndToEndWorkflow() {
     console.log('\n🚀 Starting End-to-End Workflow Test');
     console.log('=====================================');
+    
+    // Clean up old screenshots before starting new test run
+    await cleanupOldScreenshots();
     
     const browser = await puppeteer.launch({
         headless: process.env.CI === 'true',
