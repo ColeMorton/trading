@@ -11,11 +11,6 @@ interface FormErrors {
   YEARS?: string;
 }
 
-interface ConfigurationPreset {
-  name: string;
-  config: Partial<AnalysisConfigType>;
-}
-
 interface AnalysisConfigurationProps {
   onAnalyze?: (config: AnalysisConfigType) => Promise<void>;
   isAnalyzing?: boolean;
@@ -62,6 +57,36 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo((
       },
     });
   }, [parameterTesting, setParameterTesting]);
+
+  // Auto-select Default preset when presets are loaded
+  useEffect(() => {
+    if (presets.length > 0 && !selectedPreset && !loadingPresets) {
+      const defaultPreset = presets.find(p => p.name === 'Default');
+      if (defaultPreset) {
+        // Apply the default preset configuration
+        const currentTicker = parameterTesting.configuration.TICKER;
+        
+        // Convert API config format to frontend format
+        const convertedConfig = {
+          ...defaultPreset.config,
+          TICKER: currentTicker, // Keep current ticker
+          SORT_BY: defaultPreset.config.SORT_BY === 'Score' ? 'Score' : 'Expectancy per Trade',
+          MINIMUMS: {
+            ...parameterTesting.configuration.MINIMUMS,
+            // WIN_RATE is already in percentage format from the preset
+            WIN_RATE: defaultPreset.config.MINIMUMS?.WIN_RATE !== undefined ? defaultPreset.config.MINIMUMS.WIN_RATE : parameterTesting.configuration.MINIMUMS.WIN_RATE,
+            TRADES: defaultPreset.config.MINIMUMS?.TRADES || parameterTesting.configuration.MINIMUMS.TRADES,
+            EXPECTANCY_PER_TRADE: defaultPreset.config.MINIMUMS?.EXPECTANCY_PER_TRADE || parameterTesting.configuration.MINIMUMS.EXPECTANCY_PER_TRADE,
+            PROFIT_FACTOR: defaultPreset.config.MINIMUMS?.PROFIT_FACTOR || parameterTesting.configuration.MINIMUMS.PROFIT_FACTOR,
+            SORTINO_RATIO: defaultPreset.config.MINIMUMS?.SORTINO_RATIO || parameterTesting.configuration.MINIMUMS.SORTINO_RATIO,
+          },
+        };
+        
+        updateConfiguration(convertedConfig);
+        setSelectedPreset('Default');
+      }
+    }
+  }, [presets, selectedPreset, loadingPresets, parameterTesting.configuration, updateConfiguration]);
 
   const validateTicker = (value: string): string | undefined => {
     if (!value.trim()) {
@@ -165,8 +190,8 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo((
         SORT_BY: preset.config.SORT_BY === 'Score' ? 'Score' : 'Expectancy per Trade',
         MINIMUMS: {
           ...parameterTesting.configuration.MINIMUMS,
-          // Convert minimums from API format (decimal) to frontend format (percentage for WIN_RATE)
-          WIN_RATE: preset.config.MINIMUMS?.WIN_RATE ? preset.config.MINIMUMS.WIN_RATE * 100 : parameterTesting.configuration.MINIMUMS.WIN_RATE,
+          // WIN_RATE is already in percentage format from the preset
+          WIN_RATE: preset.config.MINIMUMS?.WIN_RATE !== undefined ? preset.config.MINIMUMS.WIN_RATE : parameterTesting.configuration.MINIMUMS.WIN_RATE,
           TRADES: preset.config.MINIMUMS?.TRADES || parameterTesting.configuration.MINIMUMS.TRADES,
           EXPECTANCY_PER_TRADE: preset.config.MINIMUMS?.EXPECTANCY_PER_TRADE || parameterTesting.configuration.MINIMUMS.EXPECTANCY_PER_TRADE,
           PROFIT_FACTOR: preset.config.MINIMUMS?.PROFIT_FACTOR || parameterTesting.configuration.MINIMUMS.PROFIT_FACTOR,
