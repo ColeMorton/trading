@@ -4,6 +4,7 @@ This module provides functionality for calculating signal metrics
 to analyze the frequency and distribution of trading signals.
 """
 
+import os
 from typing import Dict, Any, List, Optional
 import polars as pl
 import numpy as np
@@ -11,6 +12,10 @@ import pandas as pd
 from pathlib import Path
 
 from app.tools.setup_logging import setup_logging
+from .signal_processor import SignalProcessor, SignalDefinition
+
+# Get configuration
+USE_FIXED_SIGNAL_PROC = os.getenv('USE_FIXED_SIGNAL_PROC', 'true').lower() == 'true'
 
 
 def calculate_signal_metrics(
@@ -39,6 +44,9 @@ def calculate_signal_metrics(
         # Calculate portfolio-level metrics
         all_signals = []
         
+        # Initialize signal processor
+        signal_processor = SignalProcessor(use_fixed=USE_FIXED_SIGNAL_PROC)
+        
         # Process each strategy
         for i, df in enumerate(aligned_data, 1):
             # Convert to pandas for date handling
@@ -48,9 +56,31 @@ def calculate_signal_metrics(
             if 'Date' in df_pd.columns:
                 df_pd = df_pd.set_index('Date')
             
-            # Extract signals (non-zero values in the Position column indicate signal changes)
-            df_pd['signal'] = df_pd['Position'].diff().fillna(0)
-            signals = df_pd[df_pd['signal'] != 0].copy()  # Create an explicit copy
+            if USE_FIXED_SIGNAL_PROC:
+                # Use standardized signal processing
+                signal_def = SignalDefinition(
+                    signal_column='Signal' if 'Signal' in df_pd.columns else 'Position',
+                    position_column='Position'
+                )
+                
+                # Get comprehensive signal counts
+                signal_counts = signal_processor.get_comprehensive_counts(df_pd, signal_def)
+                
+                # Use position signals for time-based analysis (consistent with legacy)
+                position_count = signal_processor.count_position_signals(df_pd, signal_def)
+                _, filtered_signals_df = signal_processor.count_filtered_signals(df_pd, signal_def)
+                
+                # Create signals dataframe for monthly analysis
+                if len(filtered_signals_df) > 0:
+                    signals = filtered_signals_df.copy()
+                else:
+                    # Fallback to position-based signals
+                    df_pd['signal'] = df_pd['Position'].diff().fillna(0)
+                    signals = df_pd[df_pd['signal'] != 0].copy()
+            else:
+                # Legacy signal extraction
+                df_pd['signal'] = df_pd['Position'].diff().fillna(0)
+                signals = df_pd[df_pd['signal'] != 0].copy()  # Create an explicit copy
             
             # Add to all signals for portfolio metrics
             all_signals.append(signals)

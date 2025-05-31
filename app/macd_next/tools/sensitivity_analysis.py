@@ -5,11 +5,16 @@ This module performs sensitivity analysis on MACD cross strategy parameters,
 calculating performance metrics for different combinations of short/long/signal windows.
 """
 
+import os
 import polars as pl
 from typing import List, Dict, Any, Optional, Callable, Iterator
 from app.macd_next.tools.signal_generation import generate_macd_signals
 from app.tools.stats_converter import convert_stats
 from app.tools.backtest_strategy import backtest_strategy
+from app.concurrency.tools.signal_processor import SignalProcessor, SignalDefinition
+
+# Get configuration
+USE_FIXED_SIGNAL_PROC = os.getenv('USE_FIXED_SIGNAL_PROC', 'true').lower() == 'true'
 
 def analyze_parameter_combination(
     data: pl.DataFrame,
@@ -60,9 +65,20 @@ def analyze_parameter_combination(
             log(f"No signals generated for parameters {short_window}/{long_window}/{signal_window}", "warning")
             return None
             
-        # Count signals and positions
-        signal_count = temp_data.filter(pl.col("Signal") != 0).height
-        position_count = temp_data.filter(pl.col("Signal").shift(1).fill_null(0) != 0).height
+        # Count signals and positions using standardized processor
+        if USE_FIXED_SIGNAL_PROC:
+            signal_processor = SignalProcessor(use_fixed=True)
+            signal_def = SignalDefinition(
+                signal_column='Signal',
+                position_column='Position'
+            )
+            signal_counts = signal_processor.get_comprehensive_counts(temp_data, signal_def)
+            signal_count = signal_counts.raw_signals
+            position_count = signal_counts.position_signals
+        else:
+            # Legacy counting method
+            signal_count = temp_data.filter(pl.col("Signal") != 0).height
+            position_count = temp_data.filter(pl.col("Signal").shift(1).fill_null(0) != 0).height
         log(f"Windows {short_window}, {long_window}, {signal_window}: {position_count} positions from {signal_count} signals", "info")
             
         # Get current signal state

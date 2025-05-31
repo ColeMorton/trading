@@ -5,10 +5,15 @@ This module provides functionality to handle signal execution timing,
 reducing implementation lag and improving performance.
 """
 
+import os
 from typing import Dict, Any, Optional, Callable, Tuple, List
 import numpy as np
 import polars as pl
 from enum import Enum
+from .signal_processor import SignalProcessor, SignalDefinition
+
+# Get configuration
+USE_FIXED_SIGNAL_PROC = os.getenv('USE_FIXED_SIGNAL_PROC', 'true').lower() == 'true'
 
 
 class ExecutionMode(Enum):
@@ -71,8 +76,25 @@ def apply_execution_timing(
         timed_signals[1:] = signals[:-1]
     
     if log:
-        non_zero_original = np.count_nonzero(signals)
-        non_zero_timed = np.count_nonzero(timed_signals)
+        if USE_FIXED_SIGNAL_PROC:
+            # Create temporary dataframe for signal counting
+            temp_df = pl.DataFrame({
+                'signal_original': signals,
+                'signal_timed': timed_signals
+            })
+            signal_processor = SignalProcessor(use_fixed=True)
+            signal_def_orig = SignalDefinition(signal_column='signal_original')
+            signal_def_timed = SignalDefinition(signal_column='signal_timed')
+            
+            orig_counts = signal_processor.count_raw_signals(temp_df, signal_def_orig)
+            timed_counts = signal_processor.count_raw_signals(temp_df, signal_def_timed)
+            
+            non_zero_original = orig_counts
+            non_zero_timed = timed_counts
+        else:
+            # Legacy counting method
+            non_zero_original = np.count_nonzero(signals)
+            non_zero_timed = np.count_nonzero(timed_signals)
         log(f"Applied {mode.value} execution timing. Original signals: {non_zero_original}, Timed signals: {non_zero_timed}", "info")
     
     return timed_signals

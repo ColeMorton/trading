@@ -1,3 +1,4 @@
+import os
 import polars as pl
 from typing import List, Dict, Any, Optional, Callable
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
@@ -5,6 +6,10 @@ from app.tools.strategy.signal_utils import is_signal_current, is_exit_signal_cu
 from app.tools.stats_converter import convert_stats
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.portfolio_transformation import reorder_columns
+from app.concurrency.tools.signal_processor import SignalProcessor, SignalDefinition
+
+# Get configuration
+USE_FIXED_SIGNAL_PROC = os.getenv('USE_FIXED_SIGNAL_PROC', 'true').lower() == 'true'
 
 def analyze_window_combination(
     data: pl.DataFrame,
@@ -46,9 +51,20 @@ def analyze_window_combination(
             log(f"No signals generated for windows {short}, {long}", "warning")
             return None
             
-        # Log signal statistics
-        non_zero_signals = (temp_data['Signal'] != 0).sum()
-        positions = (temp_data['Position'] != 0).sum()
+        # Log signal statistics using standardized processor
+        if USE_FIXED_SIGNAL_PROC:
+            signal_processor = SignalProcessor(use_fixed=True)
+            signal_def = SignalDefinition(
+                signal_column='Signal',
+                position_column='Position'
+            )
+            signal_counts = signal_processor.get_comprehensive_counts(temp_data, signal_def)
+            non_zero_signals = signal_counts.raw_signals
+            positions = signal_counts.position_signals
+        else:
+            # Legacy counting method
+            non_zero_signals = (temp_data['Signal'] != 0).sum()
+            positions = (temp_data['Position'] != 0).sum()
         log(f"Windows {short}, {long}: {positions} positions from {non_zero_signals} signals", "info")
             
         # Check for current entry signal
@@ -73,9 +89,7 @@ def analyze_window_combination(
         if 'STOP_LOSS' in config:
             stats['Stop Loss [%]'] = config['STOP_LOSS']
         
-        # Add signal metrics
-        non_zero_signals = (temp_data['Signal'] != 0).sum()
-        positions = (temp_data['Position'] != 0).sum()
+        # Add signal metrics using standardized processor (reuse counts from above)
         stats['Signal Count'] = non_zero_signals
         stats['Position Count'] = positions
         

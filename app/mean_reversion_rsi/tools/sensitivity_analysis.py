@@ -5,11 +5,16 @@ This module performs sensitivity analysis on mean reversion strategy parameters,
 calculating performance metrics for different price change percentages.
 """
 
+import os
 import polars as pl
 from typing import List, Dict, Any, Optional, Callable
 from app.mean_reversion_rsi.tools.signal_generation import is_signal_current, calculate_signals
 from app.tools.stats_converter import convert_stats
 from app.tools.backtest_strategy import backtest_strategy
+from app.concurrency.tools.signal_processor import SignalProcessor, SignalDefinition
+
+# Get configuration
+USE_FIXED_SIGNAL_PROC = os.getenv('USE_FIXED_SIGNAL_PROC', 'true').lower() == 'true'
 
 def analyze_parameter_combination(
     data: pl.DataFrame,

@@ -5,11 +5,16 @@ This module provides functions to calculate various signal quality metrics
 for trading strategies, helping to quantify the value of each signal.
 """
 
+import os
 from typing import Dict, Any, Optional, Callable, List
 import numpy as np
 from app.tools.expectancy import calculate_expectancy
 from app.tools.stop_loss_simulator import apply_stop_loss_to_signal_quality_metrics
 import polars as pl
+from .signal_processor import SignalProcessor, SignalDefinition
+
+# Get configuration
+USE_FIXED_SIGNAL_PROC = os.getenv('USE_FIXED_SIGNAL_PROC', 'true').lower() == 'true'
 
 def calculate_signal_quality_metrics(
     signals_df: pl.DataFrame,
@@ -46,8 +51,18 @@ def calculate_signal_quality_metrics(
         signals_np = joined_df["signal"].fill_null(0).to_numpy()
         returns_np = joined_df["return"].fill_null(0).to_numpy()
         
-        # Count signals
-        signal_count = int(np.sum(signals_np != 0))
+        # Count signals using standardized processor
+        if USE_FIXED_SIGNAL_PROC:
+            signal_processor = SignalProcessor(use_fixed=True)
+            signal_def = SignalDefinition(
+                signal_column='signal',
+                position_column='signal'  # Using signal column as position for this case
+            )
+            signal_counts = signal_processor.get_comprehensive_counts(joined_df, signal_def)
+            signal_count = signal_counts.raw_signals
+        else:
+            # Legacy counting method
+            signal_count = int(np.sum(signals_np != 0))
         
         if signal_count == 0:
             log(f"No signals found for {strategy_id}", "warning")
