@@ -195,8 +195,20 @@ class MACrossRequest(BaseModel):
     def validate_ticker(cls, v):
         """Validate ticker format."""
         if isinstance(v, str):
-            if not v or len(v) > 10:
-                raise ValueError("Ticker must be between 1 and 10 characters")
+            # Check if it's a comma-separated string
+            if ',' in v:
+                # Split and clean the tickers
+                tickers = [t.strip() for t in v.split(',') if t.strip()]
+                if not tickers:
+                    raise ValueError("Ticker list cannot be empty")
+                for ticker in tickers:
+                    if not ticker or len(ticker) > 10:
+                        raise ValueError(f"Each ticker must be between 1 and 10 characters: {ticker}")
+                return tickers
+            else:
+                # Single ticker
+                if not v or len(v) > 10:
+                    raise ValueError("Ticker must be between 1 and 10 characters")
         elif isinstance(v, list):
             if not v:
                 raise ValueError("Ticker list cannot be empty")

@@ -1,0 +1,2 @@
+Ticker,Allocation [%],Strategy Type,Short Window,Long Window,Stop Loss [%],Signal Entry,Total Trades,Total Return [%],Annual Returns,Sharpe Ratio,Sortino Ratio,Max Drawdown [%],Winning Trades,Losing Trades,Win Rate [%],Profit Factor,Expectancy per Trade,Score,Beats BNH [%],Has Open Trade
+BTC-USD,,EMA,11,17,,false,67,59182.97180166594,0.4945540759095429,1.4586004413198685,2.280996941600683,66.13956646733496,30,37,45.45454545454545,2.2210815017672574,7261.543194148179,1.5175241443579608,1.6182253846801726,true
