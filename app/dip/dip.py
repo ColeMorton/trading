@@ -83,20 +83,43 @@ def backtest_strategy(data: pd.DataFrame) -> vbt.Portfolio:
         raise
 
 def calculate_expectancy(trades: vbt.portfolio.trades.Trades) -> float:
-    """Calculate the expectancy of the strategy."""
+    """Calculate the expectancy of the strategy.
+    
+    This function now uses the standardized expectancy calculation
+    to fix the 596,446% variance issue caused by the R-ratio formula.
+    """
     if len(trades.records) == 0:
         return 0
     
-    pnl = trades.pnl.values
-    win_rate = (pnl > 0).mean()
-    avg_win = pnl[pnl > 0].mean() if len(pnl[pnl > 0]) > 0 else 0
-    avg_loss = abs(pnl[pnl < 0].mean()) if len(pnl[pnl < 0]) > 0 else 0
+    # Import standardized expectancy calculation
+    import os
+    import sys
+    from pathlib import Path
+    sys.path.append(str(Path(__file__).parent.parent))
+    from tools.expectancy import calculate_expectancy_from_returns
     
-    if avg_loss == 0:
-        return 0
+    # Get returns from trades
+    returns = trades.returns.values
     
-    r_ratio = avg_win / avg_loss if avg_loss != 0 else 0
-    expectancy = (win_rate * r_ratio) - (1 - win_rate)
+    # Check if we should use legacy calculation (for backward compatibility)
+    use_legacy = os.getenv('USE_FIXED_EXPECTANCY_CALC', 'true').lower() != 'true'
+    
+    if use_legacy:
+        # Legacy R-ratio calculation (kept for comparison/rollback)
+        pnl = trades.pnl.values
+        win_rate = (pnl > 0).mean()
+        avg_win = pnl[pnl > 0].mean() if len(pnl[pnl > 0]) > 0 else 0
+        avg_loss = abs(pnl[pnl < 0].mean()) if len(pnl[pnl < 0]) > 0 else 0
+        
+        if avg_loss == 0:
+            return 0
+        
+        r_ratio = avg_win / avg_loss if avg_loss != 0 else 0
+        expectancy = (win_rate * r_ratio) - (1 - win_rate)
+        return expectancy
+    
+    # Use standardized expectancy calculation
+    expectancy, _ = calculate_expectancy_from_returns(returns)
     return expectancy
 
 def parameter_sensitivity_analysis(data: pd.DataFrame, distances: List[float]) -> pd.DataFrame:

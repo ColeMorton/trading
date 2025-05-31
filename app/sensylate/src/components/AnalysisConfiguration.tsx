@@ -4,6 +4,7 @@ import { icons } from '../utils/icons';
 import { useAppContext } from '../context/AppContext';
 import { AnalysisConfiguration as AnalysisConfigType } from '../types';
 import { maCrossApi, ConfigPreset } from '../services/maCrossApi';
+import { TickerPresets } from './TickerPresets';
 
 interface FormErrors {
   TICKER?: string;
@@ -261,6 +262,20 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo((
                 'Quick configuration templates'
               )}
             </div>
+          </div>
+
+          {/* Ticker Presets */}
+          <div className="col-md-4">
+            <TickerPresets 
+              onTickersChange={(tickers) => {
+                updateConfiguration({ TICKER: tickers });
+                // Clear any validation errors when tickers are loaded from preset
+                setFormErrors(prev => ({ ...prev, TICKER: undefined }));
+              }}
+              currentTickers={Array.isArray(parameterTesting.configuration.TICKER) 
+                ? parameterTesting.configuration.TICKER.join(',') 
+                : parameterTesting.configuration.TICKER}
+            />
           </div>
 
           {/* Ticker Input - Full Width */}

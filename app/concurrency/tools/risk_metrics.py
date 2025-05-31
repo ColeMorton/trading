@@ -3,7 +3,15 @@
 from typing import Dict, List, Callable, Any
 import numpy as np
 import polars as pl
+import os
 from app.tools.stop_loss_simulator import apply_stop_loss_to_returns
+
+# Import fixed implementation if available
+try:
+    from app.concurrency.tools.risk_contribution_calculator import calculate_risk_contributions_fixed
+    FIXED_IMPLEMENTATION_AVAILABLE = True
+except ImportError:
+    FIXED_IMPLEMENTATION_AVAILABLE = False
 
 def calculate_risk_contributions(
     position_arrays: List[np.ndarray],
@@ -38,6 +46,14 @@ def calculate_risk_contributions(
         ValueError: If input arrays are empty or mismatched
         Exception: If calculation fails
     """
+    # Check if we should use the fixed implementation
+    use_fixed = os.getenv("USE_FIXED_RISK_CALC", "false").lower() == "true"
+    if use_fixed and FIXED_IMPLEMENTATION_AVAILABLE:
+        log("Using fixed risk contribution calculation", "info")
+        return calculate_risk_contributions_fixed(
+            position_arrays, data_list, strategy_allocations, log, strategy_configs
+        )
+    
     try:
         if not position_arrays or not data_list or not strategy_allocations:
             log("Empty input arrays provided", "error")

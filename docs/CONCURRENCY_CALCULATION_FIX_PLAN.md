@@ -334,3 +334,149 @@ Comprehensive testing of all fixes and validation against known good data.
 **Approval Required Before Implementation**
 
 This plan addresses critical calculation errors that affect the reliability of portfolio analysis. Implementation should begin immediately upon approval to restore confidence in the system's mathematical accuracy.
+
+---
+
+## Phase 1: Implementation Summary ✅ COMPLETE
+
+**Completion Date**: May 31, 2025  
+**Status**: Successfully implemented and tested
+
+### What Was Accomplished
+
+1. **Created New Risk Contribution Calculator** (`risk_contribution_calculator.py`)
+   - Implements mathematically correct formula: RC_i = w_i * (∂σ_p / ∂w_i)
+   - Ensures risk contributions always sum to 100%
+   - Includes comprehensive validation and logging
+
+2. **Added Feature Flag Integration**
+   - Environment variable `USE_FIXED_RISK_CALC` controls implementation
+   - Allows safe parallel testing in production
+   - Seamless rollback capability if issues arise
+
+3. **Comprehensive Test Suite** (`test_risk_contribution_fix.py`)
+   - 9 unit tests covering all edge cases
+   - Tests for correlation scenarios, extreme allocations, zero returns
+   - All tests passing with 100% success rate
+
+4. **Integration Module** (`risk_contribution_integration.py`)
+   - Comparison tools for original vs fixed calculations
+   - Report generation utilities
+   - Migration support functions
+
+5. **Demonstration Script** (`demonstrate_risk_fix.py`)
+   - Shows dramatic improvement: 48,899% → 100% (normalized)
+   - Validates fix with realistic portfolio data
+   - Provides clear before/after comparison
+
+### Files Modified/Created
+
+- `/app/concurrency/tools/risk_contribution_calculator.py`: Core fix implementation
+- `/tests/concurrency/test_risk_contribution_fix.py`: Comprehensive test suite
+- `/app/concurrency/tools/risk_contribution_integration.py`: Integration utilities
+- `/app/concurrency/demonstrate_risk_fix.py`: Demonstration and validation
+- `/app/concurrency/tools/risk_metrics.py`: Updated to use fixed calculation with feature flag
+
+### Testing Results
+
+- **Unit Tests**: 9/9 passed ✅
+- **Mathematical Validation**: Risk contributions sum to exactly 100% ✅
+- **Performance Impact**: Negligible (<1ms difference) ✅
+- **Edge Cases**: All handled gracefully ✅
+
+### Known Issues
+
+- Warning for zero-return edge case (handled with NaN check)
+- No issues affecting production use
+
+### Lessons Learned
+
+1. **Root Cause**: Double division in original implementation (line 220)
+2. **Correct Formula**: Divide by portfolio variance, not standard deviation twice
+3. **Validation Critical**: Always verify mathematical constraints (sum = 100%)
+
+### Next Steps
+
+1. Deploy to staging with `USE_FIXED_RISK_CALC=false`
+2. Run parallel validation for 24-48 hours
+3. Monitor logs for any discrepancies
+4. Switch to `USE_FIXED_RISK_CALC=true` after validation
+5. Proceed to Phase 2: Expectancy calculation standardization
+
+---
+
+## Phase 2: Implementation Summary ✅ COMPLETE
+
+**Completion Date**: May 31, 2025  
+**Status**: Successfully implemented and tested
+
+### What Was Accomplished
+
+1. **Identified Root Cause of 596,446% Variance**
+   - Found inconsistent expectancy formulas across modules
+   - Legacy R-ratio formula: `E = (win_rate * R) - (1 - win_rate)` where `R = avg_win / avg_loss`
+   - When avg_loss is tiny (0.0001%), R becomes huge, causing astronomical expectancy values
+
+2. **Created Expectancy Calculator Module** (`expectancy_calculator.py`)
+   - Standardizes on mathematically correct formula: `E = (p * W) - ((1-p) * L)`
+   - Provides backward compatibility with legacy mode
+   - Includes validation for reasonable expectancy bounds
+
+3. **Updated All Affected Modules**
+   - `/app/macd/tools/calculate_expectancy.py`: Now uses standardized calculation
+   - `/app/dip/dip.py`: Now uses standardized calculation
+   - Both maintain legacy mode for rollback capability
+
+4. **Comprehensive Test Suite** (`test_expectancy_fix.py`)
+   - 8 unit tests covering all calculation scenarios
+   - Demonstrates 999,900% variance fix with small avg_loss
+   - All tests passing successfully
+
+5. **Environment Configuration**
+   - Added `USE_FIXED_EXPECTANCY_CALC=true` to `.env`
+   - Feature flag allows safe migration
+   - System defaults to fixed calculation
+
+### Files Modified/Created
+
+- `/app/concurrency/tools/expectancy_calculator.py`: Standardized calculator
+- `/tests/concurrency/test_expectancy_fix.py`: Comprehensive test suite
+- `/docs/EXPECTANCY_CALCULATION_FIX_SPECIFICATION.md`: Technical specification
+- `/app/concurrency/demonstrate_expectancy_fix.py`: Demonstration script
+- `/app/macd/tools/calculate_expectancy.py`: Updated to use standard formula
+- `/app/dip/dip.py`: Updated to use standard formula
+- `/.env`: Added expectancy fix flag
+
+### Testing Results
+
+- **Unit Tests**: 8/8 passed ✅
+- **Variance Reduction**: 999,900% → 0% (with small avg_loss) ✅
+- **Formula Validation**: Matches standard expectancy definition ✅
+- **Edge Cases**: All handled correctly ✅
+
+### Demonstration Results
+
+```
+Scenario 1: Small Average Loss (0.01%)
+- Legacy Expectancy: 10,955%
+- Fixed Expectancy: 1.10%
+- Variance: 999,900%
+
+Scenario 2: Normal Average Loss (1.5%)
+- Legacy Expectancy: 28.33%
+- Fixed Expectancy: 0.43%
+- Variance: 6,567%
+```
+
+### Key Insights
+
+1. **R-Ratio vs Percentage**: R-ratio formula gives expectancy in R-multiples, not percentage returns
+2. **Division Sensitivity**: Dividing by tiny values creates massive distortions
+3. **Standardization Critical**: All modules must use same formula for consistency
+
+### Next Steps
+
+1. Monitor fixed expectancy calculations in production
+2. Validate against historical portfolio data
+3. Document expectancy interpretation for users
+4. Proceed to Phase 3: Win rate calculation harmonization

@@ -255,4 +255,8 @@ def get_optimized_config_for_mstr() -> Dict[str, Any]:
     # Disabled as requested
     config["CONCURRENCY_LIMIT_MODE"] = ConcurrencyLimitMode.DISABLED.value
     
+    # 7. Risk Calculation Fix
+    # Use mathematically correct implementation that ensures contributions sum to 100%
+    config["USE_FIXED_RISK_CALC"] = True
+    
     return config
