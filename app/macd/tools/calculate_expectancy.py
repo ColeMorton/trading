@@ -31,7 +31,11 @@ def calculate_expectancy(portfolio: vbt.Portfolio) -> float:
         winning_trades = returns[returns > 0]
         losing_trades = returns[returns <= 0]
         
-        win_rate = len(winning_trades) / len(returns)
+        # Use standardized win rate calculation for consistency
+        from app.concurrency.tools.win_rate_calculator import WinRateCalculator
+        win_calc = WinRateCalculator()
+        win_components = win_calc.calculate_trade_win_rate(returns, include_zeros=False)
+        win_rate = win_components.win_rate
         avg_win = np.mean(winning_trades) if len(winning_trades) > 0 else 0
         avg_loss = abs(np.mean(losing_trades)) if len(losing_trades) > 0 else 0
         

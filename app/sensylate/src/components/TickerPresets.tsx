@@ -11,7 +11,7 @@ interface TickerLists {
   [key: string]: string[];
 }
 
-export const TickerPresets: React.FC<TickerPresetsProps> = ({ onTickersChange, currentTickers }) => {
+export const TickerPresets: React.FC<TickerPresetsProps> = ({ onTickersChange }) => {
   const [tickerLists, setTickerLists] = useState<TickerLists>({});
   const [selectedPreset, setSelectedPreset] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);

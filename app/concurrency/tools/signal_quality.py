@@ -61,7 +61,12 @@ def calculate_signal_quality_metrics(
         
         # Basic return metrics
         avg_return = float(np.mean(signal_returns))
-        win_rate = float(np.mean(signal_returns > 0))
+        
+        # Win rate using standardized signal-based calculation
+        from app.concurrency.tools.win_rate_calculator import WinRateCalculator
+        win_calc = WinRateCalculator()
+        win_components = win_calc.calculate_signal_win_rate(returns_np, signals_np, include_zeros=False)
+        win_rate = win_components.win_rate
         
         # Profit factor (sum of positive returns / abs sum of negative returns)
         positive_returns = signal_returns[signal_returns > 0]

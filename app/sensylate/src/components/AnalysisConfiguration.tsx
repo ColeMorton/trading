@@ -24,11 +24,11 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo((
 }) => {
   const { parameterTesting, setParameterTesting } = useAppContext();
   const [formErrors, setFormErrors] = useState<FormErrors>({});
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<string>('');
   const [presets, setPresets] = useState<ConfigPreset[]>([]);
   const [loadingPresets, setLoadingPresets] = useState(true);
   const [presetsError, setPresetsError] = useState<string | null>(null);
+  const [isAdvancedExpanded, setIsAdvancedExpanded] = useState(false);
 
   // Load presets from API on component mount
   useEffect(() => {
@@ -47,6 +47,23 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo((
     };
 
     loadPresets();
+  }, []);
+
+  // Handle Bootstrap collapse events for advanced configuration
+  useEffect(() => {
+    const advancedElement = document.getElementById('advanced-configuration');
+    if (!advancedElement) return;
+
+    const handleShow = () => setIsAdvancedExpanded(true);
+    const handleHide = () => setIsAdvancedExpanded(false);
+
+    advancedElement.addEventListener('show.bs.collapse', handleShow);
+    advancedElement.addEventListener('hide.bs.collapse', handleHide);
+
+    return () => {
+      advancedElement.removeEventListener('show.bs.collapse', handleShow);
+      advancedElement.removeEventListener('hide.bs.collapse', handleHide);
+    };
   }, []);
 
   const updateConfiguration = useCallback((updates: Partial<AnalysisConfigType>) => {
@@ -446,18 +463,19 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo((
             <button
               type="button"
               className="btn btn-outline-secondary btn-sm"
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              aria-expanded={showAdvanced}
+              data-bs-toggle="collapse"
+              data-bs-target="#advanced-configuration"
+              aria-expanded={isAdvancedExpanded}
               aria-controls="advanced-configuration"
             >
-              <Icon icon={showAdvanced ? icons.chevronUp : icons.chevronDown} className="me-1" />
+              <Icon icon={isAdvancedExpanded ? icons.chevronUp : icons.chevronDown} className="me-1" />
               Advanced Configuration
             </button>
           </div>
 
-          {/* Advanced Configuration (Collapsible) */}
-          {showAdvanced && (
-            <div className="col-12" id="advanced-configuration">
+          {/* Advanced Configuration (Bootstrap Collapsible) */}
+          <div className="col-12">
+            <div className="collapse" id="advanced-configuration">
               <div className="card border-secondary">
                 <div className="card-header">
                   <h6 className="card-title mb-0">Advanced Settings</h6>
@@ -640,7 +658,7 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo((
                 </div>
               </div>
             </div>
-          )}
+          </div>
 
           {/* Run Analysis Button */}
           <div className="col-12">

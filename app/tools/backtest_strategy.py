@@ -139,10 +139,14 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                 except Exception as e:
                     log_func(f"Could not calculate Tail Ratio: {e}", "warning")
                 
-                # Calculate Common Sense Ratio manually
+                # Calculate Common Sense Ratio using standardized win rate
                 try:
                     if len(returns_series) > 0:
-                        win_rate = len(returns_series[returns_series > 0]) / len(returns_series)
+                        # Use standardized win rate calculation
+                        from app.concurrency.tools.win_rate_calculator import WinRateCalculator
+                        win_calc = WinRateCalculator()
+                        win_components = win_calc.calculate_trade_win_rate(returns_series.values, include_zeros=False)
+                        win_rate = win_components.win_rate
                         stats_dict['Common Sense Ratio'] = win_rate / (1 - win_rate) if win_rate < 1 else float('inf')
                     else:
                         stats_dict['Common Sense Ratio'] = None

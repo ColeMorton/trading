@@ -64,11 +64,15 @@ class MetricsCalculator:
             median_return = float(np.median(active_returns))
             std_return = float(np.std(active_returns))
             
-            # Win rate and related metrics
+            # Win rate using standardized calculation
+            from app.concurrency.tools.win_rate_calculator import WinRateCalculator
+            win_calc = WinRateCalculator()
+            win_components = win_calc.calculate_trade_win_rate(active_returns, include_zeros=False)
+            win_rate = win_components.win_rate
+            
+            # Traditional components for compatibility
             positive_returns = active_returns[active_returns > 0]
             negative_returns = active_returns[active_returns < 0]
-            
-            win_rate = float(len(positive_returns) / len(active_returns))
             
             # Average win and loss
             avg_win = float(np.mean(positive_returns)) if len(positive_returns) > 0 else 0.0

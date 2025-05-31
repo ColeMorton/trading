@@ -51,7 +51,8 @@ import {
   faUniversalAccess,
   faClock,
   faCode,
-  faFlask
+  faFlask,
+  faList
 } from '@fortawesome/free-solid-svg-icons';
 
 // Navigation icons
@@ -72,6 +73,7 @@ export const dataIcons = {
   textView: faFileLines,
   columns: faColumns,
   code: faCode,
+  list: faList,
 } as const;
 
 // Action icons

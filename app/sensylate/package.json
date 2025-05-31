@@ -21,7 +21,8 @@
     "test:ci": "node tests/testRunner.js --ci --save-report",
     "test:verbose": "node tests/testRunner.js --verbose --screenshots",
     "test:cleanup-screenshots": "node tests/screenshotCleanup.js",
-    "test:cleanup-screenshots-verbose": "node tests/screenshotCleanup.js --verbose"
+    "test:cleanup-screenshots-verbose": "node tests/screenshotCleanup.js --verbose",
+    "test:advanced-config": "node tests/test-advanced-config.js"
   },
   "keywords": [],
   "author": "",

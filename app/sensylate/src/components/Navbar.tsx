@@ -50,6 +50,7 @@ const Navbar: React.FC = () => {
                 className={`nav-link btn btn-link ${currentView === 'parameter-testing' ? 'active' : ''}`}
                 aria-current={currentView === 'parameter-testing' ? 'page' : undefined}
                 onClick={() => handleNavClick('parameter-testing')}
+                data-testid="nav-parameter-testing"
               >
                 <Icon icon={icons.parameterTesting} className="me-2" />
                 Parameter Testing
