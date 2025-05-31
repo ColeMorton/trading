@@ -50,8 +50,14 @@ npx puppeteer browsers install
 # Run all test suites
 npm run test:e2e
 
+# Run complete end-to-end workflow test
+npm run test:e2e-workflow
+
 # Run with screenshots enabled
 npm run test:screenshots
+
+# Run end-to-end workflow with screenshots and verbose output
+npm run test:e2e-verbose
 
 # Run in CI mode (headless, with report)
 npm run test:ci
@@ -60,12 +66,14 @@ npm run test:ci
 ### Individual Test Suites
 ```bash
 # Run specific test suites
-npm run test:workflow    # Main Parameter Testing workflow
-npm run test:bxp        # BXP analysis validation  
-npm run test:csv        # CSV functionality tests
+npm run test:e2e-workflow  # Complete end-to-end workflow test
+npm run test:workflow      # Main Parameter Testing workflow
+npm run test:bxp          # BXP analysis validation  
+npm run test:csv          # CSV functionality tests
 
 # Run with verbose output
 npm run test:verbose
+npm run test:e2e-verbose  # End-to-end workflow with verbose output
 ```
 
 ### Advanced Options
@@ -78,7 +86,19 @@ node tests/testRunner.js --ci --save-report
 
 ## Test Suites
 
-### 1. Parameter Testing Workflow (`parameterTesting.spec.js`)
+### 1. End-to-End Workflow (`endToEndWorkflow.spec.js`)
+**Critical Test Suite** - Tests complete user workflow
+
+- ✅ **CSV Viewer Setup**: Load Daily.csv and update data
+- ✅ **Table Interaction**: Sort by Signal Entry = True
+- ✅ **Strategy Selection**: Identify strategy with lowest Long Window and Signal Entry = True
+- ✅ **Navigation**: Switch to Parameter Testing view
+- ✅ **Configuration**: Set up analysis with strategy details (ticker, windows, strategy type)
+- ✅ **Options**: Enable Use Current Price and Refresh Data
+- ✅ **Analysis Execution**: Run analysis and wait for completion
+- ✅ **Results Validation**: Ensure returned results match strategy in focus
+
+### 2. Parameter Testing Workflow (`parameterTesting.spec.js`)
 **Critical Test Suite** - Tests core functionality
 
 - ✅ **Navigation**: CSV Viewer ↔ Parameter Testing view switching
@@ -89,7 +109,7 @@ node tests/testRunner.js --ci --save-report
 - ✅ **Responsive Design**: Mobile, tablet, desktop viewports
 - ✅ **Accessibility**: ARIA labels, keyboard navigation
 
-### 2. BXP Analysis (`bxpAnalysis.spec.js`)
+### 3. BXP Analysis (`bxpAnalysis.spec.js`)
 **Critical Test Suite** - Validates specific analysis case
 
 - ✅ **Configuration**: BXP ticker setup with optimal settings
@@ -98,7 +118,7 @@ node tests/testRunner.js --ci --save-report
 - ✅ **API Integration**: MA Cross endpoint communication
 - ✅ **Progress Tracking**: Loading states and completion detection
 
-### 3. CSV Validation (`csvValidation.spec.js`)
+### 4. CSV Validation (`csvValidation.spec.js`)
 **Non-Critical Test Suite** - Tests data export functionality
 
 - ✅ **Export Functionality**: CSV download trigger and completion

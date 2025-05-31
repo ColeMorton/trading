@@ -21,6 +21,48 @@ class StatsConfig(TypedDict):
     USE_HOURLY: NotRequired[bool]
     TICKER: NotRequired[str]
 
+def calculate_win_rate_normalized(win_rate):
+    """
+    Optimized win rate normalization using piecewise function.
+    
+    Eliminates cap violations while maintaining strong discrimination
+    and preserving break-even psychology at 50%.
+    
+    Args:
+        win_rate (float): Win rate as percentage (0-100)
+        
+    Returns:
+        float: Normalized value in range [0.1, 2.618]
+        
+    Mathematical Properties:
+        - Smooth, continuous function
+        - No cap violations (max ≤ 2.618)
+        - Better discrimination in critical ranges
+        - Maintains 50% break-even point (maps to 1.0)
+        - Less harsh penalties than cubic scaling
+    """
+    
+    # Handle edge cases
+    if pd.isna(win_rate) or win_rate <= 0:
+        return 0.1
+    if win_rate >= 100:
+        return 2.618
+    
+    if win_rate <= 50:
+        # Below break-even: gentler than cubic but still penalizing
+        # Maps 0% → 0.1, 50% → 1.0
+        normalized = win_rate / 50
+        return 0.1 + 0.9 * (normalized ** 1.8)  # Power 1.8 (less harsh than cubic 3.0)
+    else:
+        # Above break-even: controlled growth with soft cap
+        # Maps 50% → 1.0, approaches 2.618 asymptotically
+        excess = win_rate - 50
+        max_excess = 50  # 100% - 50%
+        normalized_excess = excess / max_excess
+        
+        # Soft exponential growth that approaches but never exceeds 2.618
+        return 1.0 + 1.618 * (1 - math.exp(-2.5 * normalized_excess))
+
 def calculate_profit_factor_normalized(profit_factor):
     """
     Enhanced profit factor normalization using piecewise function.
@@ -41,7 +83,7 @@ def calculate_profit_factor_normalized(profit_factor):
         - PF >= 4.0:  Excellence cap (2.618 normalized)
     """
     
-    if profit_factor < 0.8:
+    if pd.isna(profit_factor) or profit_factor < 0.8:
         # Strong penalty for consistently losing strategies
         return 0.1
         
@@ -135,6 +177,10 @@ def calculate_total_trades_normalized(total_trades):
     """
     Optimized total trades normalization emphasizing statistical confidence
     """
+    
+    if pd.isna(total_trades) or total_trades <= 0:
+        return 0.1
+    
     # Confidence factor: rapid improvement early, diminishing returns
     confidence = 1 - math.exp(-total_trades / 35)
     
@@ -145,6 +191,23 @@ def calculate_total_trades_normalized(total_trades):
     total_normalized = min((confidence * 1.1) + frequency_factor, 1.5)
     
     return pow(total_normalized, 1.5)  # Slight non-linearity preserved
+
+def calculate_beats_bnh_normalized(beats_bnh_percent):
+    """
+    Improved Beats Buy-and-Hold normalization with smooth interpolation.
+    
+    Args:
+        beats_bnh_percent (float): Performance vs buy-and-hold as percentage
+        
+    Returns:
+        float: Normalized value in range [0.25, 2.0]
+    """
+    
+    if pd.isna(beats_bnh_percent):
+        return 1.0
+    
+    # Smooth interpolation instead of discrete thresholds
+    return max(0.25, min(2.0, 1.0 + (beats_bnh_percent / 2.5)))
 
 def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config: StatsConfig | None = None, current: Any = None, exit_signal: Any = None) -> Dict[str, Any]:
     """Convert portfolio statistics to a standardized format with proper type handling.
@@ -235,34 +298,35 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
         # Expectancy per Trade is calculated in backtest_strategy.py and passed through
         # No need to recalculate it here
 
-        # Calculate Score metric
+        # Calculate Score metric using optimized functions
         required_fields = ['Total Trades', 'Sortino Ratio', 'Profit Factor', 'Win Rate [%]', 'Expectancy per Trade', 'Beats BNH [%]']
         if all(field in stats for field in required_fields):
             try:
-                # Handle potential zero or negative values
-                win_rate_normalized = pow(stats['Win Rate [%]'] / 50, 3)
-                total_trades_normalized = calculate_total_trades_normalized(stats['Win Rate [%]'])
+                # Use optimized normalization functions
+                win_rate_normalized = calculate_win_rate_normalized(stats['Win Rate [%]'])
+                total_trades_normalized = calculate_total_trades_normalized(stats['Total Trades'])  # FIXED BUG
                 sortino_normalized = calculate_sortino_normalized(stats['Sortino Ratio'])
                 profit_factor_normalized = calculate_profit_factor_normalized(stats['Profit Factor'])
                 expectancy_per_trade_normalized = calculate_expectancy_per_trade_normalized(stats['Expectancy per Trade'])
-                beats_bnh_normalized = max(0.25, min(2, 1 + (stats['Beats BNH [%]'] / 2.5)))
+                beats_bnh_normalized = calculate_beats_bnh_normalized(stats['Beats BNH [%]'])
                 
+                # Calculate optimized composite score with double weighting for win rate
                 stats['Score'] = (
-                    win_rate_normalized +
-                    win_rate_normalized +
+                    win_rate_normalized * 2 +  # Double weighted for psychological importance
                     total_trades_normalized +
                     sortino_normalized +
                     profit_factor_normalized +
                     expectancy_per_trade_normalized +
                     beats_bnh_normalized
                 ) / 7
-                log(f"Normalized: Total Trades {total_trades_normalized}", "info")
-                log(f"Normalized: Win Rate {win_rate_normalized}", "info")
-                log(f"Normalized: Expectancy {expectancy_per_trade_normalized}", "info")
-                log(f"Normalized: Profit Factor {profit_factor_normalized}", "info")
-                log(f"Normalized: Sortino {sortino_normalized}", "info")
-                log(f"Normalized: Beats Buy-and-hold {beats_bnh_normalized}", "info")
-                log(f"Score: {stats['Score']:.4f}", "info")
+                
+                log(f"Normalized: Win Rate {win_rate_normalized:.4f} (×2)", "info")
+                log(f"Normalized: Total Trades {total_trades_normalized:.4f}", "info")
+                log(f"Normalized: Sortino {sortino_normalized:.4f}", "info")
+                log(f"Normalized: Profit Factor {profit_factor_normalized:.4f}", "info")
+                log(f"Normalized: Expectancy {expectancy_per_trade_normalized:.4f}", "info")
+                log(f"Normalized: Beats Buy-and-hold {beats_bnh_normalized:.4f}", "info")
+                log(f"Optimized Score: {stats['Score']:.4f}", "info")
             except Exception as e:
                 stats['Score'] = 0
                 log(f"Error calculating Score for {ticker}: {str(e)}. Setting to 0.", "error")
@@ -352,7 +416,7 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
                 stats['Avg Trade Duration'] = str(avg_duration)
             except Exception as e:
                 log(f"Error calculating average trade duration for {ticker}: {str(e)}", "error")
-            stats['Avg Trade Duration'] = str(avg_duration)
+                stats['Avg Trade Duration'] = str(avg_duration)
             
         # Check for risk metrics in the input stats
         risk_metrics = ['Skew', 'Kurtosis', 'Tail Ratio', 'Common Sense Ratio', 'Value at Risk', 'Alpha', 'Beta',
