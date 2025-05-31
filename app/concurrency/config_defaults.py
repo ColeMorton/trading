@@ -259,4 +259,16 @@ def get_optimized_config_for_mstr() -> Dict[str, Any]:
     # Use mathematically correct implementation that ensures contributions sum to 100%
     config["USE_FIXED_RISK_CALC"] = True
     
+    # 8. Expectancy Calculation Fix
+    # Use correct expectancy formula with proper win/loss rate calculation
+    config["USE_FIXED_EXPECTANCY_CALC"] = True
+    
+    # 9. Win Rate Calculation Fix
+    # Ensure win rate is calculated correctly based on actual trades
+    config["USE_FIXED_WIN_RATE_CALC"] = True
+    
+    # 10. Signal Processing Fix
+    # Use consistent signal processing that matches backtest behavior
+    config["USE_FIXED_SIGNAL_PROC"] = True
+    
     return config

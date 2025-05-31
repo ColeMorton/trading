@@ -169,7 +169,7 @@ After each phase completion, update the plan with:
 - Use structured formats (XML) for complex requirements
 - Break down thinking into explicit steps
 - Provide rich context in each phase
-- Update plans with detailed implementation summaries
+- Update plan in focus with detailed implementation summaries
 
 ### DON'T:
 - Jump straight to implementation
@@ -177,6 +177,7 @@ After each phase completion, update the plan with:
 - Skip the research phase
 - Provide minimal context
 - Leave plans static after implementation
+- Add/create a implementation summary in a (new) file other than the current implementation plan file in focus
 
 ## Notes
 
