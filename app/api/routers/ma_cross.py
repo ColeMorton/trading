@@ -238,12 +238,20 @@ async def get_config_presets():
     """
     try:
         import os
+        from pathlib import Path
         
-        # Load configuration from the shared file
-        config_path = os.path.join(os.getcwd(), 'json', 'configuration', 'ma_cross.json')
+        # Get project root directory (this file is in app/api/routers/, so go up 3 levels)
+        current_file = Path(__file__)
+        project_root = current_file.parent.parent.parent.parent
+        config_path = project_root / 'json' / 'configuration' / 'ma_cross.json'
         
-        if not os.path.exists(config_path):
-            raise HTTPException(status_code=500, detail="Configuration file not found")
+        if not config_path.exists():
+            # Fallback to current working directory approach
+            fallback_path = os.path.join(os.getcwd(), 'json', 'configuration', 'ma_cross.json')
+            if os.path.exists(fallback_path):
+                config_path = Path(fallback_path)
+            else:
+                raise HTTPException(status_code=500, detail=f"Configuration file not found at {config_path} or {fallback_path}")
         
         with open(config_path, 'r') as f:
             config_data = json.load(f)
