@@ -3,46 +3,46 @@
         "WINDOWS": 89,
         "USE_SCANNER": false,
         "BASE_DIR": ".",
-        "REFRESH": false,
+        "REFRESH": true,
         "STRATEGY_TYPES": [ "SMA", "EMA" ],
         "DIRECTION": "Long",
         "USE_HOURLY": false,
         "USE_YEARS": false,
-        "YEARS": 2,
+        "YEARS": 3,
         "USE_SYNTHETIC": false,
         "USE_CURRENT": false,
         "SORT_BY": "Score",
         "SORT_ASC": false,
         "USE_GBM": false,
         "MINIMUMS": {
-            "WIN_RATE": 38,
-            "TRADES": 34,
-            "EXPECTANCY_PER_TRADE": 0.38,
-            "PROFIT_FACTOR": 1,
-            "SORTINO_RATIO": 0
+            "WIN_RATE": 44,
+            "TRADES": 55,
+            "EXPECTANCY_PER_TRADE": 0.236,
+            "PROFIT_FACTOR": 1.236,
+            "SORTINO_RATIO": 0.618
         }
     },
     "Current": {
         "WINDOWS": 89,
         "USE_SCANNER": false,
         "BASE_DIR": ".",
-        "REFRESH": false,
+        "REFRESH": true,
         "STRATEGY_TYPES": [ "SMA", "EMA" ],
         "DIRECTION": "Long",
         "USE_HOURLY": false,
         "USE_YEARS": false,
         "YEARS": 2,
         "USE_SYNTHETIC": false,
-        "USE_CURRENT": false,
+        "USE_CURRENT": true,
         "SORT_BY": "Score",
         "SORT_ASC": false,
         "USE_GBM": false,
         "MINIMUMS": {
-            "WIN_RATE": 38,
-            "TRADES": 34,
-            "EXPECTANCY_PER_TRADE": 0.38,
-            "PROFIT_FACTOR": 1,
-            "SORTINO_RATIO": 0
+            "WIN_RATE": 44,
+            "TRADES": 55,
+            "EXPECTANCY_PER_TRADE": 0.236,
+            "PROFIT_FACTOR": 1.236,
+            "SORTINO_RATIO": 0.618
         }
     },
     "Quick Test": {
@@ -114,6 +114,121 @@
             "EXPECTANCY_PER_TRADE": 1,
             "PROFIT_FACTOR": 1,
             "SORTINO_RATIO": 0.4
+        }
+    },
+    "Aggressive Filter": {
+        "WINDOWS": 89,
+        "USE_SCANNER": false,
+        "BASE_DIR": ".",
+        "REFRESH": false,
+        "STRATEGY_TYPES": [ "SMA", "EMA" ],
+        "DIRECTION": "Long",
+        "USE_HOURLY": false,
+        "USE_YEARS": false,
+        "YEARS": 2,
+        "USE_SYNTHETIC": false,
+        "USE_CURRENT": false,
+        "SORT_BY": "Score",
+        "SORT_ASC": false,
+        "USE_GBM": false,
+        "MINIMUMS": {
+            "WIN_RATE": 30,
+            "TRADES": 30,
+            "EXPECTANCY_PER_TRADE": 0.5,
+            "PROFIT_FACTOR": 1.1,
+            "SORTINO_RATIO": 0.5
+        }
+    },
+    "Balanced Filter": {
+        "WINDOWS": 89,
+        "USE_SCANNER": false,
+        "BASE_DIR": ".",
+        "REFRESH": false,
+        "STRATEGY_TYPES": [ "SMA", "EMA" ],
+        "DIRECTION": "Long",
+        "USE_HOURLY": false,
+        "USE_YEARS": false,
+        "YEARS": 3,
+        "USE_SYNTHETIC": false,
+        "USE_CURRENT": false,
+        "SORT_BY": "Score",
+        "SORT_ASC": false,
+        "USE_GBM": false,
+        "MINIMUMS": {
+            "WIN_RATE": 35,
+            "TRADES": 50,
+            "EXPECTANCY_PER_TRADE": 1.0,
+            "PROFIT_FACTOR": 1.25,
+            "SORTINO_RATIO": 0.8
+        }
+    },
+    "Conservative Filter": {
+        "WINDOWS": 89,
+        "USE_SCANNER": false,
+        "BASE_DIR": ".",
+        "REFRESH": false,
+        "STRATEGY_TYPES": [ "SMA", "EMA" ],
+        "DIRECTION": "Long",
+        "USE_HOURLY": false,
+        "USE_YEARS": false,
+        "YEARS": 5,
+        "USE_SYNTHETIC": false,
+        "USE_CURRENT": false,
+        "SORT_BY": "Score",
+        "SORT_ASC": false,
+        "USE_GBM": false,
+        "MINIMUMS": {
+            "WIN_RATE": 40,
+            "TRADES": 100,
+            "EXPECTANCY_PER_TRADE": 1.5,
+            "PROFIT_FACTOR": 1.5,
+            "SORTINO_RATIO": 1.0
+        }
+    },
+    "Crypto Aggressive": {
+        "WINDOWS": 89,
+        "USE_SCANNER": false,
+        "BASE_DIR": ".",
+        "REFRESH": false,
+        "STRATEGY_TYPES": [ "SMA", "EMA" ],
+        "DIRECTION": "Long",
+        "USE_HOURLY": false,
+        "USE_YEARS": false,
+        "YEARS": 2,
+        "USE_SYNTHETIC": false,
+        "USE_CURRENT": false,
+        "SORT_BY": "Score",
+        "SORT_ASC": false,
+        "USE_GBM": false,
+        "MINIMUMS": {
+            "WIN_RATE": 30,
+            "TRADES": 75,
+            "EXPECTANCY_PER_TRADE": 1.5,
+            "PROFIT_FACTOR": 1.1,
+            "SORTINO_RATIO": 0.5
+        }
+    },
+    "Stock Conservative": {
+        "WINDOWS": 89,
+        "USE_SCANNER": false,
+        "BASE_DIR": ".",
+        "REFRESH": false,
+        "STRATEGY_TYPES": [ "SMA", "EMA" ],
+        "DIRECTION": "Long",
+        "USE_HOURLY": false,
+        "USE_YEARS": false,
+        "YEARS": 5,
+        "USE_SYNTHETIC": false,
+        "USE_CURRENT": false,
+        "SORT_BY": "Score",
+        "SORT_ASC": false,
+        "USE_GBM": false,
+        "MINIMUMS": {
+            "WIN_RATE": 40,
+            "TRADES": 40,
+            "EXPECTANCY_PER_TRADE": 0.8,
+            "PROFIT_FACTOR": 1.5,
+            "SORTINO_RATIO": 1.0
         }
     }
 }

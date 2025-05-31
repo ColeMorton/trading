@@ -308,7 +308,51 @@ const portfolioToResult = (portfolio: PortfolioMetrics): AnalysisResult => {
   };
 };
 
+// Configuration presets interfaces
+export interface ConfigPreset {
+  name: string;
+  config: Partial<AnalysisConfiguration>;
+}
+
+export interface ConfigPresetsResponse {
+  status: string;
+  presets: ConfigPreset[];
+  timestamp: string;
+}
+
 export const maCrossApi = {
+  // Get configuration presets
+  getConfigPresets: async (): Promise<ConfigPreset[]> => {
+    try {
+      const response = await withRetry(() =>
+        axios.get<ConfigPresetsResponse>(
+          '/api/ma-cross/config-presets',
+          {
+            timeout: 10000 // 10 second timeout
+          }
+        )
+      );
+      
+      return response.data.presets;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const errorResponse = error.response?.data;
+        let errorMessage = 'Failed to load configuration presets';
+        
+        if (errorResponse?.detail) {
+          errorMessage = errorResponse.detail;
+        } else if (errorResponse?.error) {
+          errorMessage = errorResponse.error;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        throw new Error(errorMessage);
+      }
+      throw error;
+    }
+  },
+
   // Main analysis function
   analyze: async (config: AnalysisConfiguration): Promise<MACrossSyncResponse | MACrossAsyncResponse> => {
     try {

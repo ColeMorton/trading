@@ -221,6 +221,52 @@ async def stream_analysis_updates(
         raise HTTPException(status_code=500, detail=f"Error streaming updates: {str(e)}")
 
 @router.get(
+    "/config-presets",
+    responses={
+        200: {"description": "Configuration presets"},
+        500: {"model": ErrorResponse, "description": "Internal server error"}
+    },
+    summary="Get MA Cross configuration presets",
+    description="Get predefined configuration presets for MA Cross analysis."
+)
+async def get_config_presets():
+    """
+    Get configuration presets for MA Cross analysis.
+    
+    Returns:
+        dict: Available configuration presets
+    """
+    try:
+        import os
+        
+        # Load configuration from the shared file
+        config_path = os.path.join(os.getcwd(), 'json', 'configuration', 'ma_cross.json')
+        
+        if not os.path.exists(config_path):
+            raise HTTPException(status_code=500, detail="Configuration file not found")
+        
+        with open(config_path, 'r') as f:
+            config_data = json.load(f)
+        
+        # Convert to list format for frontend consumption
+        presets = []
+        for name, config in config_data.items():
+            presets.append({
+                "name": name,
+                "config": config
+            })
+        
+        return {
+            "status": "success",
+            "presets": presets,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        log(f"Error loading config presets: {str(e)}", "error")
+        raise HTTPException(status_code=500, detail=f"Error loading config presets: {str(e)}")
+
+@router.get(
     "/metrics",
     response_model=MACrossMetricsResponse,
     responses={

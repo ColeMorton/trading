@@ -1,8 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Icon from './Icon';
 import { icons } from '../utils/icons';
 import { useAppContext } from '../context/AppContext';
 import { AnalysisConfiguration as AnalysisConfigType } from '../types';
+import { maCrossApi, ConfigPreset } from '../services/maCrossApi';
 
 interface FormErrors {
   TICKER?: string;
@@ -20,112 +21,6 @@ interface AnalysisConfigurationProps {
   isAnalyzing?: boolean;
 }
 
-const DEFAULT_PRESETS: ConfigurationPreset[] = [
-  {
-    name: 'Default',
-    config: {
-      WINDOWS: 20,
-      STRATEGY_TYPES: ['SMA'],
-      DIRECTION: 'Long',
-      USE_HOURLY: false,
-      USE_YEARS: false,
-      YEARS: 2,
-      USE_SYNTHETIC: false,
-      USE_CURRENT: true,
-      USE_SCANNER: false,
-      REFRESH: false,
-      USE_GBM: false,
-      SORT_BY: 'Expectancy per Trade',
-      SORT_ASC: false,
-      MINIMUMS: {
-        WIN_RATE: 0,
-        TRADES: 1,
-        EXPECTANCY_PER_TRADE: 0,
-        PROFIT_FACTOR: 0,
-        SORTINO_RATIO: 0,
-      },
-    }
-  },
-  {
-    name: 'Quick Test',
-    config: {
-      WINDOWS: 8,
-      STRATEGY_TYPES: ['SMA', 'EMA'],
-      DIRECTION: 'Long',
-      USE_HOURLY: false,
-      USE_YEARS: true,
-      YEARS: 2,
-      USE_SYNTHETIC: false,
-      USE_CURRENT: false,
-      USE_SCANNER: false,
-      REFRESH: true,
-      USE_GBM: false,
-      SORT_BY: 'Expectancy per Trade',
-      SORT_ASC: false,
-    }
-  },
-  {
-    name: 'Comprehensive Analysis',
-    config: {
-      WINDOWS: 89,
-      STRATEGY_TYPES: ['SMA', 'EMA'],
-      DIRECTION: 'Long',
-      USE_HOURLY: false,
-      USE_YEARS: false,
-      YEARS: 15,
-      USE_SYNTHETIC: false,
-      USE_CURRENT: false,
-      USE_SCANNER: false,
-      REFRESH: true,
-      USE_GBM: false,
-      SORT_BY: 'Expectancy per Trade',
-      SORT_ASC: false,
-    }
-  },
-  {
-    name: 'Hourly Strategy',
-    config: {
-      WINDOWS: 20,
-      STRATEGY_TYPES: ['EMA'],
-      DIRECTION: 'Long',
-      USE_HOURLY: true,
-      USE_YEARS: true,
-      YEARS: 1,
-      USE_SYNTHETIC: false,
-      USE_CURRENT: true,
-      USE_SCANNER: false,
-      REFRESH: false,
-      USE_GBM: false,
-      SORT_BY: 'profit_factor',
-      SORT_ASC: false,
-    }
-  },
-  {
-    name: 'Strict Filter',
-    config: {
-      WINDOWS: 89,
-      STRATEGY_TYPES: ['SMA', 'EMA'],
-      DIRECTION: 'Long',
-      USE_HOURLY: false,
-      USE_YEARS: false,
-      YEARS: 15,
-      USE_SYNTHETIC: false,
-      USE_CURRENT: false,
-      USE_SCANNER: false,
-      REFRESH: true,
-      USE_GBM: false,
-      SORT_BY: 'Score',
-      SORT_ASC: false,
-      MINIMUMS: {
-        WIN_RATE: 44,
-        TRADES: 54,
-        EXPECTANCY_PER_TRADE: 1,
-        PROFIT_FACTOR: 1,
-        SORTINO_RATIO: 0.4,
-      },
-    }
-  }
-];
 
 const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(({ 
   onAnalyze,
@@ -135,6 +30,28 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo((
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<string>('');
+  const [presets, setPresets] = useState<ConfigPreset[]>([]);
+  const [loadingPresets, setLoadingPresets] = useState(true);
+  const [presetsError, setPresetsError] = useState<string | null>(null);
+
+  // Load presets from API on component mount
+  useEffect(() => {
+    const loadPresets = async () => {
+      try {
+        setLoadingPresets(true);
+        setPresetsError(null);
+        const loadedPresets = await maCrossApi.getConfigPresets();
+        setPresets(loadedPresets);
+      } catch (error) {
+        console.error('Failed to load configuration presets:', error);
+        setPresetsError(error instanceof Error ? error.message : 'Failed to load presets');
+      } finally {
+        setLoadingPresets(false);
+      }
+    };
+
+    loadPresets();
+  }, []);
 
   const updateConfiguration = useCallback((updates: Partial<AnalysisConfigType>) => {
     setParameterTesting({
@@ -236,18 +153,28 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo((
   };
 
   const loadPreset = (presetName: string) => {
-    const preset = DEFAULT_PRESETS.find(p => p.name === presetName);
+    const preset = presets.find(p => p.name === presetName);
     if (preset) {
       // Preserve the current TICKER value when loading a preset
       const currentTicker = parameterTesting.configuration.TICKER;
-      updateConfiguration({
+      
+      // Convert API config format to frontend format
+      const convertedConfig = {
         ...preset.config,
         TICKER: currentTicker, // Keep current ticker
+        SORT_BY: preset.config.SORT_BY === 'Score' ? 'Score' : 'Expectancy per Trade',
         MINIMUMS: {
           ...parameterTesting.configuration.MINIMUMS,
-          ...preset.config.MINIMUMS,
+          // Convert minimums from API format (decimal) to frontend format (percentage for WIN_RATE)
+          WIN_RATE: preset.config.MINIMUMS?.WIN_RATE ? preset.config.MINIMUMS.WIN_RATE * 100 : parameterTesting.configuration.MINIMUMS.WIN_RATE,
+          TRADES: preset.config.MINIMUMS?.TRADES || parameterTesting.configuration.MINIMUMS.TRADES,
+          EXPECTANCY_PER_TRADE: preset.config.MINIMUMS?.EXPECTANCY_PER_TRADE || parameterTesting.configuration.MINIMUMS.EXPECTANCY_PER_TRADE,
+          PROFIT_FACTOR: preset.config.MINIMUMS?.PROFIT_FACTOR || parameterTesting.configuration.MINIMUMS.PROFIT_FACTOR,
+          SORTINO_RATIO: preset.config.MINIMUMS?.SORTINO_RATIO || parameterTesting.configuration.MINIMUMS.SORTINO_RATIO,
         },
-      });
+      };
+      
+      updateConfiguration(convertedConfig);
       setSelectedPreset(presetName);
       // Clear any validation errors when loading a preset
       setFormErrors({});
@@ -291,15 +218,24 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo((
               value={selectedPreset}
               onChange={handlePresetChange}
               aria-describedby="preset-help"
+              disabled={loadingPresets}
             >
-              <option value="">Choose a preset...</option>
-              {DEFAULT_PRESETS.map((preset) => (
+              <option value="">
+                {loadingPresets ? 'Loading presets...' : 'Choose a preset...'}
+              </option>
+              {presets.map((preset) => (
                 <option key={preset.name} value={preset.name}>
                   {preset.name}
                 </option>
               ))}
             </select>
-            <div id="preset-help" className="form-text">Quick configuration templates</div>
+            <div id="preset-help" className="form-text">
+              {presetsError ? (
+                <span className="text-danger">Error: {presetsError}</span>
+              ) : (
+                'Quick configuration templates'
+              )}
+            </div>
           </div>
 
           {/* Ticker Input - Full Width */}
