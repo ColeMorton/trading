@@ -3,7 +3,6 @@
 from typing import Dict, List, Callable, Any
 import numpy as np
 import polars as pl
-import os
 from app.tools.stop_loss_simulator import apply_stop_loss_to_returns
 
 # Import fixed implementation if available
@@ -46,14 +45,28 @@ def calculate_risk_contributions(
         ValueError: If input arrays are empty or mismatched
         Exception: If calculation fails
     """
-    # Check if we should use the fixed implementation
-    use_fixed = os.getenv("USE_FIXED_RISK_CALC", "false").lower() == "true"
-    if use_fixed and FIXED_IMPLEMENTATION_AVAILABLE:
+    # Always use the fixed implementation
+    if FIXED_IMPLEMENTATION_AVAILABLE:
         log("Using fixed risk contribution calculation", "info")
         return calculate_risk_contributions_fixed(
             position_arrays, data_list, strategy_allocations, log, strategy_configs
         )
+    else:
+        raise ImportError("Fixed risk contribution implementation not available")
+
+
+def calculate_risk_contributions_legacy(
+    position_arrays: List[np.ndarray],
+    data_list: List[pl.DataFrame],
+    strategy_allocations: List[float],
+    log: Callable[[str, str], None],
+    strategy_configs: List[Dict[str, Any]] = None
+) -> Dict[str, float]:
+    """Legacy risk contribution calculation (deprecated).
     
+    This function is kept for reference but should not be used.
+    Use calculate_risk_contributions() instead.
+    """
     try:
         if not position_arrays or not data_list or not strategy_allocations:
             log("Empty input arrays provided", "error")
@@ -199,43 +212,86 @@ def calculate_risk_contributions(
         benchmark_return = np.mean(strategy_returns)
         log(f"Benchmark return calculated: {benchmark_return:.4f}", "info")
 
-        # Calculate position-weighted covariance matrix
-        log("Calculating position-weighted covariance matrix", "info")
-        weighted_positions = []
-        for pos, vol in zip(position_arrays, volatilities):
-            weighted_positions.append(pos * vol)
+        # Calculate return-based covariance matrix for portfolio risk
+        log("Calculating return-based covariance matrix", "info")
+        
+        # Extract returns from each strategy for covariance calculation
+        all_returns = []
+        min_length = float('inf')
+        
+        for i, df in enumerate(data_list):
+            close_prices = df["Close"].to_numpy()
+            returns = np.diff(close_prices) / close_prices[:-1]
+            all_returns.append(returns)
+            min_length = min(min_length, len(returns))
+        
+        # Create aligned return matrix
+        return_matrix = np.zeros((min_length, len(data_list)))
+        for i, returns in enumerate(all_returns):
+            return_matrix[:, i] = returns[:min_length]
+        
+        # Calculate covariance matrix from returns
+        covariance_matrix = np.cov(return_matrix.T)
+        
+        # Check for NaN values in covariance matrix
+        if np.any(np.isnan(covariance_matrix)):
+            log("Warning: NaN values detected in covariance matrix, using identity matrix", "warning")
+            # Use a small identity matrix as fallback
+            covariance_matrix = np.eye(len(strategy_allocations)) * 0.0001
+        
+        # Handle NaN values in covariance matrix (can occur with zero variance)
+        if np.isnan(covariance_matrix).any():
+            log("Warning: NaN values detected in covariance matrix, replacing with zeros", "warning")
+            covariance_matrix = np.nan_to_num(covariance_matrix, nan=0.0)
 
-        position_matrix = np.column_stack(weighted_positions)
-        covariance_matrix = np.cov(position_matrix.T)
-
-        # Calculate portfolio risk with allocation weighting
-        portfolio_variance = 0.0
+        # Calculate portfolio risk using proper portfolio theory: σ_p² = w^T Σ w
         total_allocation = sum(strategy_allocations)
         
-        # Create weighted covariance matrix
-        weighted_covariance = np.zeros_like(covariance_matrix)
-        for i in range(len(strategy_allocations)):
-            for j in range(len(strategy_allocations)):
-                weight_i = strategy_allocations[i] / total_allocation if total_allocation > 0 else 1.0 / len(strategy_allocations)
-                weight_j = strategy_allocations[j] / total_allocation if total_allocation > 0 else 1.0 / len(strategy_allocations)
-                weighted_covariance[i, j] = covariance_matrix[i, j] * weight_i * weight_j
+        # Create weight vector - use equal weights if no allocations provided
+        if total_allocation > 0:
+            weights = np.array([alloc / total_allocation for alloc in strategy_allocations])
+            log(f"Using provided allocations (total: {total_allocation:.2f}%)", "info")
+        else:
+            weights = np.ones(len(strategy_allocations)) / len(strategy_allocations)
+            log(f"No allocations provided, using equal weights ({100/len(strategy_allocations):.2f}% each)", "info")
         
-        # Sum the weighted covariance matrix
-        portfolio_variance = np.sum(weighted_covariance)
-        portfolio_risk = np.sqrt(portfolio_variance) if portfolio_variance > 0 else 0.0
+        # Calculate portfolio variance: w^T * Σ * w
+        portfolio_variance = np.dot(weights, np.dot(covariance_matrix, weights))
+        log(f"Portfolio variance calculated: {portfolio_variance:.8f}", "info")
+        
+        # Handle NaN and negative values in portfolio variance
+        if np.isnan(portfolio_variance) or portfolio_variance < 0:
+            log(f"Warning: Invalid portfolio variance ({portfolio_variance}), setting to 0", "warning")
+            portfolio_variance = 0.0
+            portfolio_risk = 0.0
+        elif portfolio_variance > 0:
+            portfolio_risk = np.sqrt(portfolio_variance)
+            # Additional safety check for NaN in portfolio_risk
+            if np.isnan(portfolio_risk):
+                log("Warning: NaN detected in portfolio risk calculation, setting to 0", "warning")
+                portfolio_risk = 0.0
+        else:
+            portfolio_risk = 0.0
+            
         log(f"Portfolio risk calculated (allocation-weighted): {portfolio_risk:.4f}", "info")
 
         # Calculate marginal risk contributions and Alpha metrics
         if portfolio_risk > 0:
             log("Calculating individual strategy risk contributions and alphas", "info")
             for i in range(n_strategies):
-                # Calculate marginal contribution
-                marginal_contrib = np.sum(covariance_matrix[i, :]) / portfolio_risk
+                # Calculate marginal contribution to portfolio risk: (Σ * w)_i
+                marginal_contrib = np.dot(covariance_matrix[i, :], weights)
 
-                # Normalize by total risk
-                relative_contrib = marginal_contrib / portfolio_risk
-                risk_contributions[f"strategy_{i+1}_risk_contrib"] = float(relative_contrib)
-                log(f"Strategy {i+1} risk contribution: {relative_contrib:.4f}", "info")
+                # Risk contribution: w_i * marginal_contrib / portfolio_risk
+                risk_contrib = (weights[i] * marginal_contrib) / portfolio_risk
+                
+                # Handle potential NaN values
+                if np.isnan(risk_contrib):
+                    log(f"Warning: NaN detected in risk contribution for strategy {i+1}, setting to 0", "warning")
+                    risk_contrib = 0.0
+                    
+                risk_contributions[f"strategy_{i+1}_risk_contrib"] = float(risk_contrib)
+                log(f"Strategy {i+1} risk contribution: {risk_contrib:.4f}", "info")
 
                 # Calculate Risk-Adjusted Alpha (excess return over benchmark, adjusted for volatility)
                 excess_return = strategy_returns[i] - benchmark_return
@@ -248,15 +304,40 @@ def calculate_risk_contributions(
                     # If no volatility, use raw excess return (fallback for edge cases)
                     risk_adjusted_alpha = excess_return
                 
+                # Handle potential NaN values in alpha
+                if np.isnan(risk_adjusted_alpha):
+                    log(f"Warning: NaN detected in alpha for strategy {i+1}, setting to 0", "warning")
+                    risk_adjusted_alpha = 0.0
+                    
                 risk_contributions[f"strategy_{i+1}_alpha_to_portfolio"] = float(risk_adjusted_alpha)
                 log(f"Strategy {i+1} excess return: {excess_return:.6f}, volatility: {strategy_volatility:.6f}", "info")
                 log(f"Strategy {i+1} risk-adjusted alpha to portfolio: {risk_adjusted_alpha:.6f}", "info")
 
                 # Calculate pairwise risk overlaps
                 for j in range(i+1, n_strategies):
-                    overlap = float(covariance_matrix[i, j] / portfolio_variance)
+                    if portfolio_variance > 0:
+                        # Risk overlap: w_i * w_j * σ_ij / portfolio_variance
+                        overlap = float((weights[i] * weights[j] * covariance_matrix[i, j]) / portfolio_variance)
+                    else:
+                        overlap = 0.0
+                    
+                    # Handle potential NaN values
+                    if np.isnan(overlap):
+                        log(f"Warning: NaN detected in risk overlap between strategy {i+1} and {j+1}, setting to 0", "warning")
+                        overlap = 0.0
+                        
                     risk_contributions[f"risk_overlap_{i+1}_{j+1}"] = overlap
                     log(f"Risk overlap between strategy {i+1} and {j+1}: {overlap:.4f}", "info")
+        else:
+            # Set default values when portfolio risk is 0
+            log("Portfolio risk is 0, setting default risk contributions", "info")
+            for i in range(n_strategies):
+                risk_contributions[f"strategy_{i+1}_risk_contrib"] = 0.0
+                risk_contributions[f"strategy_{i+1}_alpha_to_portfolio"] = 0.0
+                
+                # Also set default pairwise risk overlaps
+                for j in range(i+1, n_strategies):
+                    risk_contributions[f"risk_overlap_{i+1}_{j+1}"] = 0.0
 
         risk_contributions["total_portfolio_risk"] = portfolio_risk
         risk_contributions["benchmark_return"] = float(benchmark_return)

@@ -5,7 +5,6 @@ This module provides the integration point between the existing concurrency
 analysis system and the new mathematically correct risk contribution calculator.
 """
 
-import os
 from typing import Dict, List, Any, Optional
 import numpy as np
 import logging
@@ -109,22 +108,7 @@ def compare_risk_calculations(
     def log_fixed(msg, level):
         logs_fixed.append((msg, level))
     
-    # Calculate with original implementation
-    os.environ["USE_FIXED_RISK_CALC"] = "false"
-    try:
-        result_original = calculate_risk_contributions_fixed(
-            position_arrays,
-            data_list,
-            strategy_allocations,
-            log_original,
-            strategy_configs
-        )
-    except Exception as e:
-        logger.error(f"Original calculation failed: {e}")
-        result_original = None
-    
-    # Calculate with fixed implementation
-    os.environ["USE_FIXED_RISK_CALC"] = "true"
+    # Calculate with fixed implementation (only option now)
     try:
         result_fixed = calculate_risk_contributions_fixed(
             position_arrays,
@@ -137,8 +121,8 @@ def compare_risk_calculations(
         logger.error(f"Fixed calculation failed: {e}")
         result_fixed = None
     
-    # Clean up environment
-    os.environ.pop("USE_FIXED_RISK_CALC", None)
+    # No legacy implementation comparison since it's been removed
+    result_original = None
     
     # Compare results
     comparison = {

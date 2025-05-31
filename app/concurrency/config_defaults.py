@@ -43,10 +43,10 @@ class ConcurrencyDefaults:
     CONCURRENCY_LIMIT_MODE: str = ConcurrencyLimitMode.DISABLED.value
     
     # General Configuration
-    PORTFOLIO: str = "trades_20250530.csv"
+    # PORTFOLIO: str = "trades_20250530.csv"
     # PORTFOLIO: str = "BTC_d_20250530.csv"
     # PORTFOLIO: str = "portfolio_risk.csv"
-    # PORTFOLIO: str = "trades_20250529.csv"
+    PORTFOLIO: str = "portfolio_d_20250530.csv"
     # PORTFOLIO: str = "QQQ_d_20250529.csv"
     BASE_DIR: str = ""  # Will be set to project root
     REFRESH: bool = True
@@ -255,9 +255,8 @@ def get_optimized_config_for_mstr() -> Dict[str, Any]:
     # Disabled as requested
     config["CONCURRENCY_LIMIT_MODE"] = ConcurrencyLimitMode.DISABLED.value
     
-    # 7. Risk Calculation Fix
-    # Use mathematically correct implementation that ensures contributions sum to 100%
-    config["USE_FIXED_RISK_CALC"] = True
+    # 7. Risk Calculation (always uses fixed implementation)
+    # The mathematically correct implementation is now hardcoded
     
     # 8. Expectancy Calculation Fix
     # Use correct expectancy formula with proper win/loss rate calculation

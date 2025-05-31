@@ -9,7 +9,6 @@ import pytest
 import numpy as np
 import polars as pl
 from typing import List, Dict
-import os
 
 from app.concurrency.tools.risk_contribution_calculator import (
     RiskContributionCalculator,
@@ -203,8 +202,8 @@ class TestRiskContributionCalculator:
             assert f"strategy_{i+1}_var_99" in risk_metrics
             assert f"strategy_{i+1}_cvar_99" in risk_metrics
     
-    def test_feature_flag_switching(self):
-        """Test that feature flag correctly switches implementations."""
+    def test_fixed_implementation_always_used(self):
+        """Test that the fixed implementation is always used (no feature flag)."""
         n_periods = 50
         n_strategies = 2
         
@@ -225,20 +224,7 @@ class TestRiskContributionCalculator:
         def mock_log(msg, level):
             logs.append((msg, level))
         
-        # Test with feature flag OFF (should use legacy)
-        os.environ["USE_FIXED_RISK_CALC"] = "false"
-        result = calculate_risk_contributions_fixed(
-            position_arrays, data_list, strategy_allocations, mock_log
-        )
-        
-        # Check logs indicate legacy usage
-        assert any("legacy" in log[0].lower() for log in logs)
-        
-        # Clear logs
-        logs.clear()
-        
-        # Test with feature flag ON (should use fixed)
-        os.environ["USE_FIXED_RISK_CALC"] = "true"
+        # Test that fixed implementation is always used
         result = calculate_risk_contributions_fixed(
             position_arrays, data_list, strategy_allocations, mock_log
         )
@@ -255,9 +241,6 @@ class TestRiskContributionCalculator:
             total = sum(risk_contribs)
             # With fixed implementation, should be close to 1.0
             assert np.isclose(total, 1.0, rtol=0.01), f"Risk contributions sum to {total*100:.2f}%"
-        
-        # Clean up
-        os.environ.pop("USE_FIXED_RISK_CALC", None)
     
     def test_extreme_allocations(self):
         """Test with extreme allocation weights."""
