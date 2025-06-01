@@ -4,13 +4,15 @@ Risk contribution calculator with mathematically correct implementation.
 This module implements the correct risk contribution calculations that ensure
 contributions sum to 100%. It fixes the critical error in the original
 implementation where risk contributions summed to 441%.
+
+Includes Phase 4 enhancements: advanced variance estimation and strict validation.
 """
 
 import numpy as np
 import polars as pl
 from typing import Dict, List, Tuple, Optional, Any
 import logging
-from app.tools.exceptions import PortfolioVarianceError
+from app.tools.exceptions import PortfolioVarianceError, RiskCalculationError
 
 logger = logging.getLogger(__name__)
 
@@ -409,6 +411,185 @@ class RiskContributionCalculator:
             logger.info(f"  {name}: {contrib*100:.2f}%")
         
         return risk_metrics
+
+    @staticmethod
+    def calculate_portfolio_metrics_enhanced(
+        returns: np.ndarray,
+        weights: np.ndarray,
+        strategy_names: List[str],
+        variance_method: str = 'auto',
+        validation_level: str = 'strict',
+        log: Optional[Any] = None
+    ) -> Dict[str, Any]:
+        """
+        Calculate portfolio risk metrics using enhanced variance estimation and validation.
+        
+        This method implements Phase 4 enhancements including advanced variance estimation
+        and strict validation with meaningful exceptions.
+        
+        Args:
+            returns: Array of shape (n_periods, n_strategies) with returns
+            weights: Array of shape (n_strategies,) with allocations
+            strategy_names: List of strategy identifiers
+            variance_method: Variance estimation method ('auto', 'sample', 'rolling', 'ewma', 'bootstrap', 'bayesian')
+            validation_level: Validation strictness ('strict', 'moderate', 'permissive')
+            log: Optional logging function
+            
+        Returns:
+            Dictionary with enhanced risk metrics and diagnostics
+            
+        Raises:
+            RiskCalculationError: If calculation fails with enhanced diagnostics
+        """
+        if log is None:
+            log = lambda msg, level: logger.info(f"[{level.upper()}] {msg}")
+        
+        try:
+            # Import Phase 4 modules
+            from .variance_estimators import estimate_portfolio_variance
+            from .risk_accuracy_validator import create_validator
+            
+            log("Starting enhanced portfolio risk calculation", "info")
+            
+            # Step 1: Comprehensive input validation
+            validator = create_validator(log, validation_level)
+            validation_result = validator.validate_risk_calculation_inputs(
+                returns, weights, strategy_names
+            )
+            
+            if not validation_result.is_valid:
+                error_msg = f"Risk calculation validation failed: {'; '.join(validation_result.messages)}"
+                if validation_result.corrective_actions:
+                    error_msg += f". Suggested actions: {'; '.join(validation_result.corrective_actions)}"
+                raise RiskCalculationError(error_msg)
+            
+            if validation_result.warnings:
+                for warning in validation_result.warnings:
+                    log(f"Validation warning: {warning}", "warning")
+            
+            log(f"Input validation passed (quality score: {validation_result.quality_score:.3f})", "info")
+            
+            # Step 2: Enhanced variance estimation for individual strategies
+            strategy_returns_list = [returns[:, i] for i in range(returns.shape[1])]
+            variance_estimates = estimate_portfolio_variance(
+                strategy_returns_list, strategy_names, variance_method, log
+            )
+            
+            # Step 3: Calculate enhanced covariance matrix
+            # Start with correlation calculator from Phase 2
+            from .correlation_calculator import CorrelationCalculator
+            
+            corr_calc = CorrelationCalculator(log)
+            
+            # Convert to DataFrame format for correlation calculator
+            returns_df = pl.DataFrame({
+                'Date': pl.arange(0, returns.shape[0], eager=True),
+                **{name: returns[:, i] for i, name in enumerate(strategy_names)}
+            })
+            
+            cov_matrix, diagnostics = corr_calc.calculate_covariance_matrix(
+                returns_df, min_observations=10
+            )
+            
+            # Step 4: Apply enhanced variance estimates to diagonal
+            enhanced_cov_matrix = cov_matrix.copy()
+            for i, name in enumerate(strategy_names):
+                if name in variance_estimates:
+                    enhanced_cov_matrix[i, i] = variance_estimates[name].value
+                    log(f"Applied {variance_estimates[name].method} variance estimate for {name}: {variance_estimates[name].value:.8f}", "info")
+            
+            # Step 5: Validate enhanced covariance matrix
+            cov_validation = validator.validate_covariance_matrix(enhanced_cov_matrix, strategy_names)
+            if not cov_validation.is_valid:
+                log("Enhanced covariance matrix validation failed, falling back to correlation calculator result", "warning")
+                enhanced_cov_matrix = cov_matrix  # Fallback to original
+            
+            # Step 6: Calculate risk metrics using enhanced covariance matrix
+            risk_metrics = RiskContributionCalculator.calculate_portfolio_metrics_with_cov(
+                enhanced_cov_matrix, weights, strategy_names
+            )
+            
+            # Step 7: Add enhanced diagnostics
+            risk_metrics['enhanced_diagnostics'] = {
+                'variance_estimates': {
+                    name: {
+                        'value': est.value,
+                        'method': est.method,
+                        'confidence_interval': est.confidence_interval,
+                        'quality_score': est.data_quality_score,
+                        'observations_used': est.observations_used,
+                        'warnings': est.warnings or []
+                    }
+                    for name, est in variance_estimates.items()
+                },
+                'validation_results': {
+                    'input_validation': {
+                        'quality_score': validation_result.quality_score,
+                        'warnings': validation_result.warnings,
+                        'level': validation_result.level.value
+                    },
+                    'covariance_validation': {
+                        'quality_score': cov_validation.quality_score,
+                        'warnings': cov_validation.warnings,
+                        'is_valid': cov_validation.is_valid
+                    }
+                },
+                'covariance_diagnostics': diagnostics,
+                'enhancement_applied': True,
+                'method_used': variance_method
+            }
+            
+            # Step 8: Calculate confidence intervals for risk metrics
+            # Use bootstrap approach for portfolio-level confidence intervals
+            try:
+                n_bootstrap = 500
+                bootstrap_risks = []
+                
+                np.random.seed(42)  # For reproducibility
+                n_obs = returns.shape[0]
+                
+                for _ in range(n_bootstrap):
+                    # Bootstrap sample
+                    boot_indices = np.random.choice(n_obs, size=n_obs, replace=True)
+                    boot_returns = returns[boot_indices, :]
+                    
+                    # Calculate covariance for bootstrap sample
+                    boot_cov = np.cov(boot_returns.T)
+                    
+                    # Calculate portfolio variance
+                    boot_portfolio_var = np.dot(weights, np.dot(boot_cov, weights))
+                    bootstrap_risks.append(np.sqrt(boot_portfolio_var))
+                
+                # Calculate confidence interval
+                bootstrap_risks = np.array(bootstrap_risks)
+                ci_lower = np.percentile(bootstrap_risks, 2.5)
+                ci_upper = np.percentile(bootstrap_risks, 97.5)
+                
+                risk_metrics['portfolio_volatility_ci'] = {
+                    'lower': float(ci_lower),
+                    'upper': float(ci_upper),
+                    'method': 'bootstrap',
+                    'confidence_level': 0.95
+                }
+                
+                log(f"Portfolio volatility CI (95%): [{ci_lower:.6f}, {ci_upper:.6f}]", "info")
+                
+            except Exception as e:
+                log(f"Could not calculate confidence intervals: {str(e)}", "warning")
+                risk_metrics['portfolio_volatility_ci'] = None
+            
+            log(f"Enhanced portfolio risk calculation completed successfully", "info")
+            return risk_metrics
+            
+        except (RiskCalculationError, PortfolioVarianceError) as e:
+            # Re-raise specific risk calculation errors
+            log(f"Enhanced risk calculation failed: {str(e)}", "error")
+            raise e
+        except Exception as e:
+            # Convert unexpected errors to RiskCalculationError with context
+            error_msg = f"Unexpected error in enhanced risk calculation: {str(e)}"
+            log(error_msg, "error")
+            raise RiskCalculationError(error_msg)
 
     @staticmethod
     def calculate_risk_metrics_from_dataframes(

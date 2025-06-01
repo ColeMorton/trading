@@ -44,6 +44,55 @@ class ConcurrencyDefaults:
     # Risk Calculation Configuration
     USE_PORTFOLIO_RETURNS: bool = False  # Use portfolio-level returns for risk calculation
     
+    # Phase 4: Enhanced Variance Estimation Configuration
+    USE_ENHANCED_VARIANCE: bool = False  # Enable advanced variance estimation methods
+    VARIANCE_METHOD: str = "auto"  # Method for variance estimation ('auto', 'sample', 'rolling', 'ewma', 'bootstrap', 'bayesian')
+    VALIDATION_LEVEL: str = "moderate"  # Validation strictness ('strict', 'moderate', 'permissive')
+    
+    # Variance Estimation Parameters
+    VARIANCE_ESTIMATION_PARAMS: Dict[str, Any] = field(default_factory=lambda: {
+        'rolling_window': None,  # Auto-calculate rolling window size
+        'ewma_lambda': None,  # Auto-optimize EWMA decay parameter
+        'bootstrap_samples': 1000,  # Number of bootstrap samples
+        'bayesian_prior_confidence': None,  # Auto-calculate prior confidence
+        'confidence_level': 0.95,  # Confidence level for intervals
+        'min_observations': {  # Minimum observations per method
+            'sample': 10,
+            'rolling': 20,
+            'ewma': 15,
+            'bootstrap': 30,
+            'bayesian': 25
+        }
+    })
+    
+    # Data Quality Thresholds
+    DATA_QUALITY_THRESHOLDS: Dict[str, Dict[str, float]] = field(default_factory=lambda: {
+        'strict': {
+            'min_observations': 50,
+            'min_variance': 1e-8,
+            'max_correlation': 0.95,
+            'max_condition_number': 1000,
+            'min_quality_score': 0.8,
+            'max_missing_ratio': 0.02
+        },
+        'moderate': {
+            'min_observations': 30,
+            'min_variance': 1e-10,
+            'max_correlation': 0.98,
+            'max_condition_number': 5000,
+            'min_quality_score': 0.6,
+            'max_missing_ratio': 0.05
+        },
+        'permissive': {
+            'min_observations': 15,
+            'min_variance': 1e-12,
+            'max_correlation': 0.99,
+            'max_condition_number': 10000,
+            'min_quality_score': 0.4,
+            'max_missing_ratio': 0.1
+        }
+    })
+    
     # General Configuration
     # PORTFOLIO: str = "trades_20250530.csv"
     # PORTFOLIO: str = "BTC_d_20250530.csv"
