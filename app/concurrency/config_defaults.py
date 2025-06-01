@@ -41,6 +41,9 @@ class ConcurrencyDefaults:
     # Concurrency Limit Configuration - Disabled as requested
     CONCURRENCY_LIMIT_MODE: str = ConcurrencyLimitMode.DISABLED.value
     
+    # Risk Calculation Configuration
+    USE_PORTFOLIO_RETURNS: bool = False  # Use portfolio-level returns for risk calculation
+    
     # General Configuration
     # PORTFOLIO: str = "trades_20250530.csv"
     # PORTFOLIO: str = "BTC_d_20250530.csv"

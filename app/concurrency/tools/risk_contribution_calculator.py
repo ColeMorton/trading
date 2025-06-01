@@ -181,6 +181,97 @@ class RiskContributionCalculator:
             return False, f"Risk contributions invalid: {total*100:.2f}% (expected 100%)"
     
     @staticmethod
+    def calculate_portfolio_metrics_from_returns(
+        portfolio_returns: np.ndarray,
+        strategy_returns: np.ndarray,
+        weights: np.ndarray,
+        strategy_names: List[str]
+    ) -> Dict[str, Any]:
+        """
+        Calculate portfolio metrics directly from portfolio return series.
+        
+        This method calculates risk metrics using actual portfolio returns
+        rather than deriving them from individual strategy returns.
+        
+        Args:
+            portfolio_returns: Array of portfolio-level returns
+            strategy_returns: Matrix of individual strategy returns (for contributions)
+            weights: Array of strategy allocations
+            strategy_names: List of strategy identifiers
+            
+        Returns:
+            Dictionary with risk metrics based on portfolio returns
+        """
+        # Calculate portfolio statistics directly
+        portfolio_mean = np.mean(portfolio_returns)
+        portfolio_variance = np.var(portfolio_returns)
+        portfolio_std = np.sqrt(portfolio_variance)
+        
+        logger.info(f"Portfolio metrics from returns - Mean: {portfolio_mean:.6f}, Std: {portfolio_std:.6f}")
+        
+        # Calculate VaR and CVaR from portfolio returns
+        sorted_returns = np.sort(portfolio_returns)
+        var_95 = float(np.percentile(sorted_returns, 5))
+        var_99 = float(np.percentile(sorted_returns, 1))
+        cvar_95 = float(np.mean(sorted_returns[sorted_returns <= var_95]))
+        cvar_99 = float(np.mean(sorted_returns[sorted_returns <= var_99]))
+        
+        # Calculate individual strategy risk contributions
+        # Use covariance between each strategy and the portfolio
+        n_strategies = len(strategy_names)
+        risk_contributions = {}
+        risk_contributions_pct = np.zeros(n_strategies)
+        
+        for i in range(n_strategies):
+            # Covariance between strategy i and portfolio
+            strategy_portfolio_cov = np.cov(strategy_returns[:, i], portfolio_returns)[0, 1]
+            
+            # Risk contribution: w_i * Cov(r_i, r_p) / σ_p
+            if portfolio_std > 0:
+                risk_contribution = weights[i] * strategy_portfolio_cov / portfolio_std
+                risk_contributions_pct[i] = risk_contribution / portfolio_std
+            else:
+                risk_contribution = 0.0
+                risk_contributions_pct[i] = 0.0
+            
+            risk_contributions[strategy_names[i]] = {
+                "weight": float(weights[i]),
+                "risk_contribution": float(risk_contribution),
+                "risk_contribution_pct": float(risk_contributions_pct[i]),
+                "risk_contribution_pct_display": f"{risk_contributions_pct[i]*100:.2f}%"
+            }
+        
+        # Normalize risk contributions to sum to 100%
+        total_contribution = np.sum(risk_contributions_pct)
+        if total_contribution > 0 and not np.isclose(total_contribution, 1.0, rtol=1e-5):
+            logger.warning(f"Normalizing risk contributions from {total_contribution:.4f} to 1.0")
+            for i in range(n_strategies):
+                risk_contributions_pct[i] = risk_contributions_pct[i] / total_contribution
+                risk_contributions[strategy_names[i]]["risk_contribution_pct"] = float(risk_contributions_pct[i])
+                risk_contributions[strategy_names[i]]["risk_contribution_pct_display"] = f"{risk_contributions_pct[i]*100:.2f}%"
+        
+        # Create output dictionary
+        risk_metrics = {
+            "portfolio_volatility": float(portfolio_std),
+            "portfolio_variance": float(portfolio_variance),
+            "portfolio_mean_return": float(portfolio_mean),
+            "portfolio_sharpe": float(portfolio_mean / portfolio_std * np.sqrt(252)) if portfolio_std > 0 else 0.0,
+            "portfolio_var_95": var_95,
+            "portfolio_cvar_95": cvar_95,
+            "portfolio_var_99": var_99,
+            "portfolio_cvar_99": cvar_99,
+            "total_risk_contribution": float(np.sum(risk_contributions_pct)),
+            "risk_contributions": risk_contributions,
+            "calculation_method": "portfolio_returns"
+        }
+        
+        # Log summary
+        logger.info(f"Portfolio risk from returns - Volatility: {portfolio_std:.6f}, VaR 95%: {var_95:.4f}")
+        logger.info(f"Risk contributions calculated from portfolio returns - Total: {np.sum(risk_contributions_pct)*100:.2f}%")
+        
+        return risk_metrics
+    
+    @staticmethod
     def calculate_portfolio_metrics_with_cov(
         cov_matrix: np.ndarray,
         weights: np.ndarray,
@@ -325,7 +416,8 @@ class RiskContributionCalculator:
         data_list: List[Any],  # List[pl.DataFrame]
         strategy_allocations: List[float],
         strategy_names: List[str],
-        strategy_configs: Optional[List[Dict[str, Any]]] = None
+        strategy_configs: Optional[List[Dict[str, Any]]] = None,
+        use_portfolio_returns: bool = False
     ) -> Dict[str, Any]:
         """
         Calculate risk metrics from position arrays and price data using aligned return series.
@@ -418,10 +510,37 @@ class RiskContributionCalculator:
                 # Convert allocations to numpy array
                 weights = np.array(strategy_allocations)
                 
-                # Calculate risk metrics using aligned data
-                risk_metrics = RiskContributionCalculator.calculate_portfolio_metrics_with_cov(
-                    cov_matrix, weights, strategy_names
-                )
+                # Calculate risk metrics
+                if use_portfolio_returns:
+                    # Use portfolio-level return calculation
+                    log("Using portfolio-level return calculation", "info")
+                    
+                    from .portfolio_returns import PortfolioReturnsCalculator
+                    portfolio_calc = PortfolioReturnsCalculator(log)
+                    
+                    # Calculate portfolio returns
+                    portfolio_returns, portfolio_diagnostics = portfolio_calc.calculate_portfolio_returns(
+                        aligned_returns_matrix,
+                        strategy_allocations,
+                        position_arrays,
+                        aligned_strategy_names
+                    )
+                    
+                    # Calculate risk metrics from portfolio returns
+                    risk_metrics = RiskContributionCalculator.calculate_portfolio_metrics_from_returns(
+                        portfolio_returns,
+                        returns_array,
+                        weights,
+                        strategy_names
+                    )
+                    
+                    # Add portfolio diagnostics
+                    risk_metrics["portfolio_diagnostics"] = portfolio_diagnostics
+                else:
+                    # Use traditional covariance-based calculation
+                    risk_metrics = RiskContributionCalculator.calculate_portfolio_metrics_with_cov(
+                        cov_matrix, weights, strategy_names
+                    )
                 
                 # Add VaR and CVaR calculations using aligned returns
                 for i, strategy_name in enumerate(aligned_strategy_names):
@@ -458,7 +577,8 @@ def calculate_risk_contributions_fixed(
     data_list: List[Any],  # List[pl.DataFrame]
     strategy_allocations: List[float],
     log: Any,  # Callable[[str, str], None]
-    strategy_configs: Optional[List[Dict[str, Any]]] = None
+    strategy_configs: Optional[List[Dict[str, Any]]] = None,
+    use_portfolio_returns: Optional[bool] = None
 ) -> Dict[str, float]:
     """
     Fixed version of calculate_risk_contributions that ensures contributions sum to 100%.
@@ -485,13 +605,23 @@ def calculate_risk_contributions_fixed(
         # Always use the fixed calculation method
         log("Using fixed risk contribution calculation", "info")
         
+        # Check if we should use portfolio returns
+        if use_portfolio_returns is None:
+            # Check configuration
+            try:
+                from app.concurrency.config_defaults import ConcurrencyDefaults
+                use_portfolio_returns = ConcurrencyDefaults.USE_PORTFOLIO_RETURNS
+            except:
+                use_portfolio_returns = False
+        
         # Calculate using correct method
         risk_metrics = RiskContributionCalculator.calculate_risk_metrics_from_dataframes(
             position_arrays,
             data_list,
             strategy_allocations,
             strategy_names,
-            strategy_configs
+            strategy_configs,
+            use_portfolio_returns=use_portfolio_returns
         )
         
         # Transform to expected output format
