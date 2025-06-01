@@ -1,0 +1,327 @@
+// Prisma schema for Trading Application
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums for type safety
+enum TimeframeType {
+  ONE_MINUTE   @map("1m")
+  FIVE_MINUTES @map("5m")
+  FIFTEEN_MINUTES @map("15m")
+  THIRTY_MINUTES @map("30m")
+  ONE_HOUR     @map("1h")
+  TWO_HOURS    @map("2h")
+  FOUR_HOURS   @map("4h")
+  SIX_HOURS    @map("6h")
+  EIGHT_HOURS  @map("8h")
+  TWELVE_HOURS @map("12h")
+  ONE_DAY      @map("1d")
+  THREE_DAYS   @map("3d")
+  ONE_WEEK     @map("1w")
+  ONE_MONTH    @map("1M")
+
+  @@map("timeframe_type")
+}
+
+enum StrategyType {
+  MA_CROSS
+  MACD
+  MEAN_REVERSION
+  RSI
+  ATR
+  RANGE
+  BOLLINGER_BANDS
+  CUSTOM
+
+  @@map("strategy_type")
+}
+
+enum SignalType {
+  BUY
+  SELL
+  HOLD
+
+  @@map("signal_type")
+}
+
+enum DirectionType {
+  LONG
+  SHORT
+  BOTH
+
+  @@map("direction_type")
+}
+
+enum PortfolioType {
+  STANDARD
+  BEST
+  FILTERED
+
+  @@map("portfolio_type")
+}
+
+enum AssetClass {
+  STOCK
+  CRYPTO
+  ETF
+  INDEX
+  COMMODITY
+  FOREX
+  BOND
+
+  @@map("asset_class")
+}
+
+// Core entity tables
+model Ticker {
+  id          String     @id @default(cuid())
+  symbol      String     @unique
+  name        String?
+  assetClass  AssetClass @map("asset_class")
+  exchange    String?
+  sector      String?
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  // Relations
+  priceData           PriceData[]
+  strategyConfigs     StrategyConfiguration[]
+
+  @@map("tickers")
+}
+
+model PriceData {
+  id        String   @id @default(cuid())
+  tickerId  String   @map("ticker_id")
+  date      DateTime
+  open      Decimal  @db.Decimal(18, 8)
+  high      Decimal  @db.Decimal(18, 8)
+  low       Decimal  @db.Decimal(18, 8)
+  close     Decimal  @db.Decimal(18, 8)
+  volume    Decimal? @db.Decimal(18, 8)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  ticker Ticker @relation(fields: [tickerId], references: [id], onDelete: Cascade)
+
+  @@unique([tickerId, date])
+  @@index([tickerId, date])
+  @@map("price_data")
+}
+
+model Strategy {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  type        StrategyType
+  description String?
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  // Relations
+  configurations StrategyConfiguration[]
+
+  @@map("strategies")
+}
+
+model StrategyConfiguration {
+  id            String        @id @default(cuid())
+  strategyId    String        @map("strategy_id")
+  tickerId      String        @map("ticker_id")
+  timeframe     TimeframeType
+  shortWindow   Int?          @map("short_window")
+  longWindow    Int?          @map("long_window")
+  signalWindow  Int?          @map("signal_window")
+  stopLossPct   Decimal?      @map("stop_loss_pct") @db.Decimal(5, 4)
+  rsiPeriod     Int?          @map("rsi_period")
+  rsiThreshold  Decimal?      @map("rsi_threshold") @db.Decimal(5, 2)
+  signalEntry   String?       @map("signal_entry")
+  signalExit    String?       @map("signal_exit")
+  direction     DirectionType @default(LONG)
+  allocationPct Decimal?      @map("allocation_pct") @db.Decimal(5, 2)
+  parameters    Json?         // Additional strategy-specific parameters
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  strategy        Strategy           @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+  ticker          Ticker             @relation(fields: [tickerId], references: [id], onDelete: Cascade)
+  backtestResults BacktestResult[]
+  portfolioItems  PortfolioStrategy[]
+  signals         Signal[]
+
+  @@unique([strategyId, tickerId, timeframe, shortWindow, longWindow])
+  @@index([strategyId, tickerId])
+  @@index([timeframe])
+  @@map("strategy_configurations")
+}
+
+model BacktestResult {
+  id                      String   @id @default(cuid())
+  strategyConfigId        String   @map("strategy_config_id")
+  runDate                 DateTime @map("run_date")
+  startDate               DateTime @map("start_date")
+  endDate                 DateTime @map("end_date")
+  
+  // Performance Metrics
+  totalReturnPct          Decimal  @map("total_return_pct") @db.Decimal(10, 4)
+  annualReturnPct         Decimal? @map("annual_return_pct") @db.Decimal(10, 4)
+  sharpeRatio             Decimal? @map("sharpe_ratio") @db.Decimal(10, 4)
+  sortinoRatio            Decimal? @map("sortino_ratio") @db.Decimal(10, 4)
+  maxDrawdownPct          Decimal? @map("max_drawdown_pct") @db.Decimal(8, 4)
+  calmarRatio             Decimal? @map("calmar_ratio") @db.Decimal(10, 4)
+  
+  // Trading Metrics
+  totalTrades             Int      @map("total_trades")
+  winningTrades           Int?     @map("winning_trades")
+  losingTrades            Int?     @map("losing_trades")
+  winRatePct              Decimal? @map("win_rate_pct") @db.Decimal(5, 2)
+  profitFactor            Decimal? @map("profit_factor") @db.Decimal(10, 4)
+  expectancyPerTrade      Decimal? @map("expectancy_per_trade") @db.Decimal(12, 6)
+  avgTradeDuration        Decimal? @map("avg_trade_duration") @db.Decimal(8, 2)
+  avgWinningTrade         Decimal? @map("avg_winning_trade") @db.Decimal(12, 6)
+  avgLosingTrade          Decimal? @map("avg_losing_trade") @db.Decimal(12, 6)
+  
+  // Risk Metrics
+  valueAtRisk95           Decimal? @map("value_at_risk_95") @db.Decimal(8, 4)
+  conditionalValueAtRisk  Decimal? @map("conditional_value_at_risk") @db.Decimal(8, 4)
+  beta                    Decimal? @map("beta") @db.Decimal(8, 4)
+  alpha                   Decimal? @map("alpha") @db.Decimal(8, 4)
+  
+  // Benchmark Comparison
+  benchmarkReturnPct      Decimal? @map("benchmark_return_pct") @db.Decimal(10, 4)
+  outperformancePct       Decimal? @map("outperformance_pct") @db.Decimal(10, 4)
+  trackingError           Decimal? @map("tracking_error") @db.Decimal(8, 4)
+  informationRatio        Decimal? @map("information_ratio") @db.Decimal(10, 4)
+  
+  // Additional Metrics
+  score                   Decimal? @map("score") @db.Decimal(10, 4)
+  openTrades              Int?     @map("open_trades")
+  tradesPerDay            Decimal? @map("trades_per_day") @db.Decimal(8, 4)
+  tradesPerMonth          Decimal? @map("trades_per_month") @db.Decimal(8, 4)
+  
+  // Raw Data Storage
+  rawMetrics              Json?    @map("raw_metrics") // Store additional metrics as JSON
+  
+  createdAt               DateTime @default(now()) @map("created_at")
+
+  // Relations
+  strategyConfig StrategyConfiguration @relation(fields: [strategyConfigId], references: [id], onDelete: Cascade)
+
+  @@index([strategyConfigId, runDate])
+  @@index([runDate])
+  @@index([totalReturnPct])
+  @@index([sharpeRatio])
+  @@map("backtest_results")
+}
+
+model Portfolio {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  type        PortfolioType @default(STANDARD)
+  parameters  Json?         // Portfolio-specific parameters
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  strategies PortfolioStrategy[]
+  metrics    PortfolioMetric[]
+
+  @@map("portfolios")
+}
+
+model PortfolioStrategy {
+  id                 String @id @default(cuid())
+  portfolioId        String @map("portfolio_id")
+  strategyConfigId   String @map("strategy_config_id")
+  allocationPct      Decimal @map("allocation_pct") @db.Decimal(5, 2)
+  position           Int     @default(1) // Position order in portfolio
+  isActive           Boolean @default(true) @map("is_active")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  // Relations
+  portfolio      Portfolio             @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  strategyConfig StrategyConfiguration @relation(fields: [strategyConfigId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioId, strategyConfigId])
+  @@index([portfolioId])
+  @@map("portfolio_strategies")
+}
+
+model PortfolioMetric {
+  id                      String   @id @default(cuid())
+  portfolioId             String   @map("portfolio_id")
+  metricDate              DateTime @map("metric_date")
+  
+  // Portfolio Performance
+  totalReturnPct          Decimal  @map("total_return_pct") @db.Decimal(10, 4)
+  sharpeRatio             Decimal? @map("sharpe_ratio") @db.Decimal(10, 4)
+  sortinoRatio            Decimal? @map("sortino_ratio") @db.Decimal(10, 4)
+  maxDrawdownPct          Decimal? @map("max_drawdown_pct") @db.Decimal(8, 4)
+  
+  // Concurrency Metrics
+  maxConcurrentStrategies Int?     @map("max_concurrent_strategies")
+  avgConcurrentStrategies Decimal? @map("avg_concurrent_strategies") @db.Decimal(8, 2)
+  concurrencyRatio        Decimal? @map("concurrency_ratio") @db.Decimal(5, 4)
+  efficiencyScore         Decimal? @map("efficiency_score") @db.Decimal(8, 4)
+  
+  // Risk Analysis
+  portfolioVaR            Decimal? @map("portfolio_var") @db.Decimal(8, 4)
+  diversificationRatio    Decimal? @map("diversification_ratio") @db.Decimal(8, 4)
+  
+  // Complex Data (JSON)
+  riskContribution        Json?    @map("risk_contribution") // Risk contribution by strategy
+  correlationMatrix       Json?    @map("correlation_matrix") // Strategy correlation matrix
+  strategyWeights         Json?    @map("strategy_weights") // Allocation weights over time
+  performanceAttribution  Json?    @map("performance_attribution") // Performance breakdown
+  
+  createdAt               DateTime @default(now()) @map("created_at")
+
+  // Relations
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioId, metricDate])
+  @@index([portfolioId, metricDate])
+  @@index([metricDate])
+  @@map("portfolio_metrics")
+}
+
+// Trading signals and execution
+model Signal {
+  id               String     @id @default(cuid())
+  strategyConfigId String     @map("strategy_config_id")
+  signalType       SignalType @map("signal_type")
+  signalDate       DateTime   @map("signal_date")
+  price            Decimal    @db.Decimal(18, 8)
+  quantity         Decimal?   @db.Decimal(18, 8)
+  confidence       Decimal?   @db.Decimal(3, 2) // 0.00 to 1.00
+  metadata         Json?      // Additional signal metadata
+  createdAt        DateTime   @default(now()) @map("created_at")
+
+  // Relations
+  strategyConfig StrategyConfiguration @relation(fields: [strategyConfigId], references: [id], onDelete: Cascade)
+
+  @@index([strategyConfigId, signalDate])
+  @@index([signalDate])
+  @@map("signals")
+}
+
+// Configuration and system tables
+model Configuration {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  category  String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@map("configurations")
+}
+

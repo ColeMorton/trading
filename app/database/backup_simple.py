@@ -1,0 +1,297 @@
+"""
+Simple Database Backup and Restore Utilities
+
+This module provides utilities for backing up and restoring the PostgreSQL database
+and Redis cache without Prisma dependency.
+"""
+
+import os
+import asyncio
+import subprocess
+import json
+import gzip
+import shutil
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Optional, List, Dict, Any
+import logging
+
+import redis.asyncio as redis
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+class SimpleBackupManager:
+    """Manages database backups and restores without Prisma dependency."""
+    
+    def __init__(self):
+        # Simple settings without Prisma
+        self.database_url = os.getenv("DATABASE_URL", "postgresql://colemorton@localhost:5432/trading_db")
+        self.database_host = os.getenv("DATABASE_HOST", "localhost")
+        self.database_port = os.getenv("DATABASE_PORT", "5432")
+        self.database_name = os.getenv("DATABASE_NAME", "trading_db")
+        self.database_user = os.getenv("DATABASE_USER", "colemorton")
+        self.database_password = os.getenv("DATABASE_PASSWORD", "")
+        
+        self.redis_host = os.getenv("REDIS_HOST", "localhost")
+        self.redis_port = int(os.getenv("REDIS_PORT", "6379"))
+        self.redis_password = os.getenv("REDIS_PASSWORD")
+        
+        self.backup_dir = Path("backups")
+        self.backup_dir.mkdir(exist_ok=True)
+    
+    async def create_full_backup(self, backup_name: Optional[str] = None) -> str:
+        """Create a full backup of PostgreSQL and Redis."""
+        if not backup_name:
+            backup_name = f"backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        
+        backup_path = self.backup_dir / backup_name
+        backup_path.mkdir(exist_ok=True)
+        
+        logger.info(f"Creating full backup: {backup_name}")
+        
+        try:
+            # Backup PostgreSQL
+            postgres_backup = await self._backup_postgresql(backup_path)
+            
+            # Backup Redis
+            redis_backup = await self._backup_redis(backup_path)
+            
+            # Create backup metadata
+            metadata = {
+                "backup_name": backup_name,
+                "timestamp": datetime.now().isoformat(),
+                "type": "full",
+                "postgresql_backup": postgres_backup,
+                "redis_backup": redis_backup,
+                "database_url": self.database_url,
+                "redis_host": self.redis_host
+            }
+            
+            metadata_file = backup_path / "metadata.json"
+            with open(metadata_file, 'w') as f:
+                json.dump(metadata, f, indent=2)
+            
+            # Compress the backup
+            compressed_backup = await self._compress_backup(backup_path)
+            
+            logger.info(f"Full backup completed: {compressed_backup}")
+            return str(compressed_backup)
+            
+        except Exception as e:
+            logger.error(f"Backup failed: {e}")
+            # Cleanup failed backup
+            if backup_path.exists():
+                shutil.rmtree(backup_path)
+            raise
+    
+    async def _backup_postgresql(self, backup_path: Path) -> str:
+        """Backup PostgreSQL database using pg_dump."""
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        dump_file = backup_path / f"postgresql_{timestamp}.sql"
+        
+        # Prepare pg_dump command
+        cmd = [
+            "pg_dump",
+            "--host", self.database_host,
+            "--port", str(self.database_port),
+            "--username", self.database_user,
+            "--dbname", self.database_name,
+            "--no-password",
+            "--verbose",
+            "--clean",
+            "--if-exists",
+            "--create",
+            "--file", str(dump_file)
+        ]
+        
+        # Set environment variables for authentication
+        env = os.environ.copy()
+        if self.database_password:
+            env["PGPASSWORD"] = self.database_password
+        
+        logger.info(f"Running pg_dump to {dump_file}")
+        
+        try:
+            result = subprocess.run(
+                cmd,
+                env=env,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            
+            logger.info("PostgreSQL backup completed successfully")
+            return str(dump_file)
+            
+        except subprocess.CalledProcessError as e:
+            logger.error(f"pg_dump failed: {e.stderr}")
+            raise RuntimeError(f"PostgreSQL backup failed: {e.stderr}")
+    
+    async def _backup_redis(self, backup_path: Path) -> str:
+        """Backup Redis data."""
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        redis_file = backup_path / f"redis_{timestamp}.json"
+        
+        try:
+            # Connect to Redis
+            redis_client = redis.Redis(
+                host=self.redis_host,
+                port=self.redis_port,
+                password=self.redis_password,
+                decode_responses=True
+            )
+            
+            # Get all keys
+            keys = await redis_client.keys("*")
+            
+            # Export all data
+            redis_data = {}
+            for key in keys:
+                key_type = await redis_client.type(key)
+                
+                if key_type == "string":
+                    redis_data[key] = {
+                        "type": "string",
+                        "value": await redis_client.get(key),
+                        "ttl": await redis_client.ttl(key)
+                    }
+                elif key_type == "hash":
+                    redis_data[key] = {
+                        "type": "hash",
+                        "value": await redis_client.hgetall(key),
+                        "ttl": await redis_client.ttl(key)
+                    }
+                elif key_type == "list":
+                    redis_data[key] = {
+                        "type": "list",
+                        "value": await redis_client.lrange(key, 0, -1),
+                        "ttl": await redis_client.ttl(key)
+                    }
+                elif key_type == "set":
+                    redis_data[key] = {
+                        "type": "set",
+                        "value": list(await redis_client.smembers(key)),
+                        "ttl": await redis_client.ttl(key)
+                    }
+                elif key_type == "zset":
+                    redis_data[key] = {
+                        "type": "zset",
+                        "value": await redis_client.zrange(key, 0, -1, withscores=True),
+                        "ttl": await redis_client.ttl(key)
+                    }
+            
+            # Save to file
+            with open(redis_file, 'w') as f:
+                json.dump(redis_data, f, indent=2)
+            
+            await redis_client.aclose()
+            
+            logger.info(f"Redis backup completed: {len(keys)} keys exported")
+            return str(redis_file)
+            
+        except Exception as e:
+            logger.error(f"Redis backup failed: {e}")
+            raise RuntimeError(f"Redis backup failed: {e}")
+    
+    async def _compress_backup(self, backup_path: Path) -> Path:
+        """Compress backup directory."""
+        compressed_file = backup_path.with_suffix('.tar.gz')
+        
+        try:
+            # Create compressed archive
+            cmd = ["tar", "-czf", str(compressed_file), "-C", str(backup_path.parent), backup_path.name]
+            
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            
+            # Remove uncompressed directory
+            shutil.rmtree(backup_path)
+            
+            logger.info(f"Backup compressed: {compressed_file}")
+            return compressed_file
+            
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Backup compression failed: {e.stderr}")
+            raise RuntimeError(f"Backup compression failed: {e.stderr}")
+    
+    async def test_backup_system(self) -> bool:
+        """Test backup system functionality."""
+        try:
+            logger.info("Testing backup system...")
+            
+            # Test if we can create a small test backup
+            test_backup = await self.create_full_backup("test_backup")
+            
+            # Verify backup file exists
+            if Path(test_backup).exists():
+                logger.info(f"✅ Test backup created: {test_backup}")
+                
+                # Clean up test backup
+                Path(test_backup).unlink()
+                logger.info("Test backup cleaned up")
+                
+                return True
+            else:
+                logger.error("Test backup file not found")
+                return False
+                
+        except Exception as e:
+            logger.error(f"Backup system test failed: {e}")
+            return False
+
+
+# Convenience functions
+async def create_backup(backup_name: Optional[str] = None) -> str:
+    """Convenience function to create a backup."""
+    manager = SimpleBackupManager()
+    return await manager.create_full_backup(backup_name)
+
+
+async def test_backup_system() -> bool:
+    """Convenience function to test backup system."""
+    manager = SimpleBackupManager()
+    return await manager.test_backup_system()
+
+
+if __name__ == "__main__":
+    import sys
+    
+    async def main():
+        logging.basicConfig(level=logging.INFO)
+        
+        if len(sys.argv) < 2:
+            print("Usage: python backup_simple.py <command>")
+            print("Commands:")
+            print("  create [name]  - Create a new backup")
+            print("  test           - Test backup system")
+            return
+        
+        command = sys.argv[1]
+        manager = SimpleBackupManager()
+        
+        try:
+            if command == "create":
+                backup_name = sys.argv[2] if len(sys.argv) > 2 else None
+                result = await manager.create_full_backup(backup_name)
+                print(f"Backup created: {result}")
+            
+            elif command == "test":
+                success = await manager.test_backup_system()
+                print("Backup system test:", "PASSED" if success else "FAILED")
+                return 0 if success else 1
+            
+            else:
+                print(f"Unknown command: {command}")
+                return 1
+        
+        except Exception as e:
+            print(f"Error: {e}")
+            return 1
+    
+    asyncio.run(main())

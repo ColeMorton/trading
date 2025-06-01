@@ -14,6 +14,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.routers import scripts, data, viewer, sensylate, ma_cross
 from app.api.utils.logging import setup_api_logging
+from app.database.config import startup_database, shutdown_database, database_health_check
 
 # Define paths
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -140,5 +141,79 @@ async def root():
 
 @app.get("/health", tags=["health"])
 async def health_check():
-    """Health check endpoint."""
-    return {"status": "healthy"}
+    """Basic health check endpoint."""
+    return {"status": "healthy", "service": "trading-api"}
+
+@app.get("/health/database", tags=["health"])
+async def database_health():
+    """Database health check endpoint."""
+    try:
+        health_status = await database_health_check()
+        status_code = 200 if health_status["overall"] else 503
+        return JSONResponse(
+            status_code=status_code,
+            content={
+                "status": "healthy" if health_status["overall"] else "unhealthy",
+                "checks": health_status
+            }
+        )
+    except Exception as e:
+        logger.error(f"Database health check failed: {e}")
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "unhealthy",
+                "error": str(e)
+            }
+        )
+
+@app.get("/health/detailed", tags=["health"])
+async def detailed_health_check():
+    """Detailed health check including all services."""
+    try:
+        db_health = await database_health_check()
+        
+        overall_healthy = db_health["overall"]
+        
+        return JSONResponse(
+            status_code=200 if overall_healthy else 503,
+            content={
+                "status": "healthy" if overall_healthy else "unhealthy",
+                "service": "trading-api",
+                "version": "0.1.0",
+                "database": db_health,
+                "uptime": "available"  # You can implement uptime tracking
+            }
+        )
+    except Exception as e:
+        logger.error(f"Detailed health check failed: {e}")
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "unhealthy",
+                "error": str(e)
+            }
+        )
+
+# Application lifecycle events
+@app.on_event("startup")
+async def startup_event():
+    """Application startup event."""
+    logger.info("Starting Trading API application...")
+    try:
+        await startup_database()
+        logger.info("Application startup completed successfully")
+    except Exception as e:
+        logger.error(f"Application startup failed: {e}")
+        raise
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Application shutdown event."""
+    logger.info("Shutting down Trading API application...")
+    try:
+        await shutdown_database()
+        logger.info("Application shutdown completed successfully")
+    except Exception as e:
+        logger.error(f"Application shutdown failed: {e}")
+        raise
