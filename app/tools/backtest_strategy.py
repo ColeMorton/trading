@@ -200,46 +200,12 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                 except Exception as e:
                     log_func(f"Could not calculate Value at Risk: {e}", "warning")
                 
-                # Alpha and Beta calculation
-                try:
-                    # Check if benchmark data is available
-                    if 'Benchmark Return [%]' in data_pd.columns:
-                        # Get benchmark returns
-                        benchmark_returns = data_pd['Benchmark Return [%]'] / 100  # Convert percentage to decimal
-                        
-                        # Calculate Beta (covariance of returns with benchmark / variance of benchmark)
-                        if benchmark_returns.var() > 0:
-                            stats_dict['Beta'] = returns_series.cov(benchmark_returns) / benchmark_returns.var()
-                            
-                            # Calculate Alpha (portfolio return - risk free rate - beta * (benchmark return - risk free rate))
-                            # Risk-free rate is always 0 as specified
-                            risk_free_rate = 0.0
-                            stats_dict['Alpha'] = (returns_series.mean() - risk_free_rate) - \
-                                                stats_dict['Beta'] * (benchmark_returns.mean() - risk_free_rate)
-                            
-                            # Simplifies to: Alpha = returns_series.mean() - Beta * benchmark_returns.mean()
-                            # when risk_free_rate is 0
-                            
-                            log_func(f"Calculated Alpha: {stats_dict['Alpha']}, Beta: {stats_dict['Beta']}", "debug")
-                        else:
-                            log_func("Benchmark returns have zero variance, cannot calculate Beta", "warning")
-                            stats_dict['Alpha'] = None
-                            stats_dict['Beta'] = None
-                    else:
-                        # Fallback to fixed values if benchmark data is not available
-                        log_func("Setting Alpha and Beta to fixed values as benchmark data is not available", "debug")
-                        stats_dict['Alpha'] = None
-                        stats_dict['Beta'] = None
-                        log_func(f"Set Alpha: {stats_dict['Alpha']}, Beta: {stats_dict['Beta']}", "debug")
-                except Exception as e:
-                    log_func(f"Could not calculate Alpha/Beta: {e}", "warning")
-                    stats_dict['Alpha'] = None
-                    stats_dict['Beta'] = None
+                # Alpha and Beta calculation removed - no longer needed
                 
                 # Log the calculated risk metrics
                 log_func(f"Calculated risk metrics: Skew={stats_dict.get('Skew')}, Kurtosis={stats_dict.get('Kurtosis')}, " +
                     f"Tail Ratio={stats_dict.get('Tail Ratio')}, Common Sense Ratio={stats_dict.get('Common Sense Ratio')}, " +
-                    f"Value at Risk={stats_dict.get('Value at Risk')}, Alpha={stats_dict.get('Alpha')}, Beta={stats_dict.get('Beta')}", "debug")
+                    f"Value at Risk={stats_dict.get('Value at Risk')}", "debug")
                 
                 # Add additional return metrics
                 # Convert Series/DataFrames to scalar values for CSV export

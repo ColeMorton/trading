@@ -419,7 +419,7 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
                 stats['Avg Trade Duration'] = str(avg_duration)
             
         # Check for risk metrics in the input stats
-        risk_metrics = ['Skew', 'Kurtosis', 'Tail Ratio', 'Common Sense Ratio', 'Value at Risk', 'Alpha', 'Beta',
+        risk_metrics = ['Skew', 'Kurtosis', 'Tail Ratio', 'Common Sense Ratio', 'Value at Risk',
                         'Daily Returns', 'Annual Returns', 'Cumulative Returns', 'Annualized Return', 'Annualized Volatility']
 
         missing_metrics = [metric for metric in risk_metrics if metric not in stats]
@@ -437,7 +437,7 @@ def convert_stats(stats: Dict[str, Any], log: Callable[[str, str], None], config
                 converted[param] = int(stats[param])
         
         # Ensure risk metrics are preserved
-        risk_metrics = ['Skew', 'Kurtosis', 'Tail Ratio', 'Common Sense Ratio', 'Value at Risk', 'Alpha', 'Beta',
+        risk_metrics = ['Skew', 'Kurtosis', 'Tail Ratio', 'Common Sense Ratio', 'Value at Risk',
                         'Daily Returns', 'Annual Returns', 'Cumulative Returns', 'Annualized Return', 'Annualized Volatility']
         
         # Then handle the rest of the stats

@@ -291,9 +291,7 @@ def export_portfolios(
             "Kurtosis",
             "Tail Ratio",
             "Common Sense Ratio",
-            "Value at Risk",
-            "Alpha",
-            "Beta"
+            "Value at Risk"
         ]
         
         # Remove 'RSI Window' column if it exists

@@ -25,7 +25,7 @@ class CSVExporter(ExportStrategy):
     # Risk metrics that should be included in portfolio exports
     RISK_METRICS = [
         'Skew', 'Kurtosis', 'Tail Ratio', 'Common Sense Ratio', 
-        'Value at Risk', 'Alpha', 'Beta', 'Daily Returns', 
+        'Value at Risk', 'Daily Returns', 
         'Annual Returns', 'Cumulative Returns', 'Annualized Return', 
         'Annualized Volatility'
     ]
