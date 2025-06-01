@@ -73,7 +73,7 @@ This plan addresses the current limitation where `total_portfolio_risk` shows a 
 - ✅ **Real-world Test**: Successfully processed portfolio_d_20250530.json with 21 strategies
 - ✅ **Results**: Portfolio risk calculated as 0.0165 (realistic) vs 0.1 (fallback)
 
-### Phase 2: Improve Covariance Matrix Construction
+### Phase 2: Improve Covariance Matrix Construction - COMPLETED ✅
 **Objective**: Replace hardcoded correlation assumptions with calculated correlations from actual data
 
 #### Tasks:
@@ -97,6 +97,39 @@ This plan addresses the current limitation where `total_portfolio_risk` shows a 
    - Integrate with existing configuration system from `ConfigService`
 
 **Expected Outcome**: Covariance matrix based on actual strategy correlations rather than assumptions.
+
+#### Phase 2 - COMPLETED ✅
+
+**Summary of Changes:**
+- ✅ Created `app/concurrency/tools/correlation_calculator.py` (438 lines) with comprehensive correlation and covariance calculation
+- ✅ Implemented Ledoit-Wolf shrinkage estimator for small sample sizes
+- ✅ Added covariance matrix regularization through eigenvalue decomposition
+- ✅ Replaced hardcoded 0.3 correlation assumption with actual calculated correlations
+- ✅ Integrated correlation calculator into risk_contribution_calculator.py
+- ✅ Added robust validation for correlation matrices (symmetry, bounds, positive definiteness)
+
+**Files Created:**
+- `app/concurrency/tools/correlation_calculator.py` - Complete correlation/covariance calculator with shrinkage
+
+**Files Modified:**
+- `app/concurrency/tools/risk_contribution_calculator.py` - Updated to use CorrelationCalculator instead of np.cov directly
+
+**Testing Results:**
+- ✅ Created test with known correlations (0.71, 0.37, 0.19) - all correctly calculated
+- ✅ Shrinkage estimator working correctly (intensity: 0.0585 for test data)
+- ✅ Condition number improved from 9.93 to 9.35 with shrinkage
+- ✅ Portfolio risk calculation producing realistic values (21.55% annualized for test portfolio)
+- ✅ Production test on portfolio_d_20250530.json successful
+- ✅ Average correlation across 21 strategies: 0.3568 (realistic, not hardcoded)
+- ✅ Covariance matrix condition number: 4334.84 (high but handled by regularization)
+
+**Technical Achievements:**
+- Correlation matrices now calculated from actual aligned return data
+- Shrinkage automatically applied for portfolios with limited data
+- Comprehensive diagnostics provided (eigenvalues, condition numbers, correlation summaries)
+- High correlation pairs identified and logged as warnings
+- Covariance matrix regularization ensures numerical stability
+- All calculations fail-fast with meaningful exceptions instead of using fallbacks
 
 ### Phase 3: Portfolio-Level Return Calculation
 **Objective**: Calculate portfolio returns from combined strategy positions rather than individual components

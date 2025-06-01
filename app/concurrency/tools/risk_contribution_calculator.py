@@ -382,17 +382,38 @@ class RiskContributionCalculator:
                         f"Strategy count mismatch: expected {len(strategy_names)}, got {returns_array.shape[1]}"
                     )
                 
-                # Calculate covariance matrix from aligned returns
-                cov_matrix = np.cov(returns_array, rowvar=False)
+                # Use correlation calculator for robust covariance estimation
+                from .correlation_calculator import CorrelationCalculator
                 
-                # Validate covariance matrix
-                if np.any(np.isnan(cov_matrix)) or np.any(np.isinf(cov_matrix)):
-                    raise RiskCalculationError("Covariance matrix contains invalid values (NaN or inf)")
+                corr_calc = CorrelationCalculator(log)
                 
-                # Check for positive definiteness
-                eigenvalues = np.linalg.eigvals(cov_matrix)
-                if np.any(eigenvalues <= 0):
-                    raise RiskCalculationError(f"Covariance matrix is not positive definite (min eigenvalue: {np.min(eigenvalues)})")
+                # Calculate covariance matrix with optional shrinkage for small samples
+                num_observations = aligned_returns_matrix.height
+                num_strategies = len(strategy_names)
+                
+                # Use shrinkage if we have fewer than 30 observations per strategy
+                if num_observations < 30 * num_strategies:
+                    log(f"Using shrinkage estimator ({num_observations} observations for {num_strategies} strategies)", "info")
+                    
+                    # First calculate sample covariance
+                    sample_cov = np.cov(returns_array, rowvar=False)
+                    
+                    # Apply shrinkage
+                    cov_matrix, shrinkage_intensity = corr_calc.apply_shrinkage_estimator(
+                        sample_cov,
+                        shrinkage_target="constant_correlation"
+                    )
+                    log(f"Applied shrinkage with intensity {shrinkage_intensity:.4f}", "info")
+                else:
+                    # Use standard covariance calculation with validation
+                    cov_matrix, diagnostics = corr_calc.calculate_covariance_matrix(
+                        aligned_returns_matrix,
+                        min_observations=10
+                    )
+                    
+                    # Log diagnostics
+                    log(f"Covariance matrix condition number: {diagnostics['covariance']['condition_number']:.2f}", "info")
+                    log(f"Average correlation: {diagnostics['correlation']['avg_correlation']:.4f}", "info")
                 
                 # Convert allocations to numpy array
                 weights = np.array(strategy_allocations)
