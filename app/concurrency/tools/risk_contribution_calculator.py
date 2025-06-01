@@ -495,6 +495,39 @@ def calculate_risk_contributions_fixed(
             portfolio_volatility = 0.0
         risk_contributions["total_portfolio_risk"] = portfolio_volatility
         
+        # Calculate combined VaR/CVaR metrics (weighted by allocation)
+        total_allocation = sum(strategy_allocations)
+        if total_allocation > 0:
+            combined_var_95 = 0.0
+            combined_var_99 = 0.0
+            combined_cvar_95 = 0.0
+            combined_cvar_99 = 0.0
+            
+            for i in range(n_strategies):
+                # Get allocation weight as proportion
+                allocation_weight = strategy_allocations[i] / total_allocation
+                
+                # Add weighted contribution
+                combined_var_95 += risk_contributions[f"strategy_{i+1}_var_95"] * allocation_weight
+                combined_var_99 += risk_contributions[f"strategy_{i+1}_var_99"] * allocation_weight
+                combined_cvar_95 += risk_contributions[f"strategy_{i+1}_cvar_95"] * allocation_weight
+                combined_cvar_99 += risk_contributions[f"strategy_{i+1}_cvar_99"] * allocation_weight
+            
+            risk_contributions["combined_var_95"] = combined_var_95
+            risk_contributions["combined_var_99"] = combined_var_99
+            risk_contributions["combined_cvar_95"] = combined_cvar_95
+            risk_contributions["combined_cvar_99"] = combined_cvar_99
+            
+            log(f"Combined VaR 95%: {combined_var_95:.4f}, CVaR 95%: {combined_cvar_95:.4f}", "info")
+            log(f"Combined VaR 99%: {combined_var_99:.4f}, CVaR 99%: {combined_cvar_99:.4f}", "info")
+        else:
+            # If no allocations, set to zero
+            risk_contributions["combined_var_95"] = 0.0
+            risk_contributions["combined_var_99"] = 0.0
+            risk_contributions["combined_cvar_95"] = 0.0
+            risk_contributions["combined_cvar_99"] = 0.0
+            log("No allocations provided, setting combined VaR/CVaR to zero", "info")
+        
         # Validate the sum
         contrib_sum = sum(
             v for k, v in risk_contributions.items() 
