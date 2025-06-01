@@ -177,7 +177,7 @@ def analyze_concurrency(
         log("Calculating risk metrics", "info")
         strategy_allocations = []
         for config in config_list:
-            # Get allocation from config, with better logging
+            # Get allocation from config
             allocation = config.get('ALLOCATION', 0.0)
             ticker = config.get('TICKER', 'unknown')
             
@@ -188,9 +188,20 @@ def analyze_concurrency(
                 log(f"Warning: Invalid allocation value for {ticker}: {allocation}. Using 0.0", "warning")
                 allocation = 0.0
                 
-            # Log the allocation value
-            log(f"Using allocation {allocation:.2f}% for {ticker}", "info")
             strategy_allocations.append(allocation)
+        
+        # Check if all allocations are zero or missing - use equal weights if so
+        total_allocation = sum(strategy_allocations)
+        if total_allocation == 0:
+            log("No allocations provided for any strategy. Using equal weights.", "info")
+            equal_weight = 100.0 / len(strategy_allocations)
+            strategy_allocations = [equal_weight] * len(strategy_allocations)
+            log(f"Applied equal weight of {equal_weight:.2f}% to each of {len(strategy_allocations)} strategies", "info")
+        else:
+            # Log individual allocations when they are provided
+            for config, allocation in zip(config_list, strategy_allocations):
+                ticker = config.get('TICKER', 'unknown')
+                log(f"Using allocation {allocation:.2f}% for {ticker}", "info")
         risk_metrics = calculate_risk_contributions(
             position_arrays,
             aligned_data,

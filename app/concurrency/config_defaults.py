@@ -7,7 +7,6 @@ performance discrepancy investigation.
 """
 
 from typing import Dict, Any, Optional, List, Callable
-from enum import Enum
 from dataclasses import dataclass, field
 import json
 from pathlib import Path

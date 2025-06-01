@@ -7,8 +7,10 @@ implementation where risk contributions summed to 441%.
 """
 
 import numpy as np
+import polars as pl
 from typing import Dict, List, Tuple, Optional, Any
 import logging
+from app.tools.exceptions import PortfolioVarianceError
 
 logger = logging.getLogger(__name__)
 
@@ -47,16 +49,41 @@ class RiskContributionCalculator:
         if len(strategy_names) != len(weights):
             raise ValueError(f"Strategy names length {len(strategy_names)} doesn't match weights length {len(weights)}")
         
-        # Ensure weights sum to 1
-        weights = weights / np.sum(weights)
+        # Validate and normalize weights - fail fast on invalid inputs
+        logger.info(f"Input weights before validation: {weights}")
+        logger.info(f"Weights shape: {weights.shape}, dtype: {weights.dtype}")
+        
+        if np.any(np.isnan(weights)):
+            nan_indices = np.where(np.isnan(weights))[0]
+            raise PortfolioVarianceError(f"Portfolio weights contain NaN values at indices {nan_indices} - check strategy allocations")
+        
+        if np.any(np.isinf(weights)):
+            raise PortfolioVarianceError("Portfolio weights contain infinite values - check strategy allocations")
+        
+        if np.any(weights < 0):
+            raise PortfolioVarianceError("Portfolio weights contain negative values - check strategy allocations")
+        
+        weights_sum = np.sum(weights)
+        if weights_sum <= 0:
+            raise PortfolioVarianceError(f"Portfolio weights sum to {weights_sum} (must be positive) - check strategy allocations")
+        
+        if np.isnan(weights_sum):
+            raise PortfolioVarianceError("Portfolio weights sum is NaN - check strategy allocations")
+        
+        # Normalize weights to sum to 1
+        weights = weights / weights_sum
         
         # Calculate covariance matrix
         cov_matrix = np.cov(returns.T)
         
-        # Check for NaN in covariance matrix
+        # Validate covariance matrix - fail fast on invalid values
+        from app.tools.exceptions import CovarianceMatrixError
+        
         if np.any(np.isnan(cov_matrix)):
-            logger.warning("NaN values detected in covariance matrix, using identity matrix")
-            cov_matrix = np.eye(returns.shape[1]) * 0.01  # Small variance assumption
+            raise CovarianceMatrixError("Covariance matrix contains NaN values - check input return data quality")
+        
+        if np.any(np.isinf(cov_matrix)):
+            raise CovarianceMatrixError("Covariance matrix contains infinite values - check input return data quality")
         
         # Calculate portfolio variance and standard deviation
         portfolio_variance = np.dot(weights, np.dot(cov_matrix, weights))
@@ -177,29 +204,58 @@ class RiskContributionCalculator:
         if len(strategy_names) != len(weights):
             raise ValueError(f"Strategy names length {len(strategy_names)} doesn't match weights length {len(weights)}")
         
-        # Ensure weights sum to 1
-        weights = weights / np.sum(weights)
+        # Validate and normalize weights - fail fast on invalid inputs
+        logger.info(f"Input weights before validation: {weights}")
+        logger.info(f"Weights shape: {weights.shape}, dtype: {weights.dtype}")
         
-        # Check for NaN in covariance matrix
+        if np.any(np.isnan(weights)):
+            nan_indices = np.where(np.isnan(weights))[0]
+            raise PortfolioVarianceError(f"Portfolio weights contain NaN values at indices {nan_indices} - check strategy allocations")
+        
+        if np.any(np.isinf(weights)):
+            raise PortfolioVarianceError("Portfolio weights contain infinite values - check strategy allocations")
+        
+        if np.any(weights < 0):
+            raise PortfolioVarianceError("Portfolio weights contain negative values - check strategy allocations")
+        
+        weights_sum = np.sum(weights)
+        if weights_sum <= 0:
+            raise PortfolioVarianceError(f"Portfolio weights sum to {weights_sum} (must be positive) - check strategy allocations")
+        
+        if np.isnan(weights_sum):
+            raise PortfolioVarianceError("Portfolio weights sum is NaN - check strategy allocations")
+        
+        # Normalize weights to sum to 1
+        weights = weights / weights_sum
+        
+        # Validate covariance matrix - fail fast on invalid values
+        from app.tools.exceptions import CovarianceMatrixError
+        
         if np.any(np.isnan(cov_matrix)):
-            logger.warning("NaN values detected in covariance matrix, using identity matrix")
-            cov_matrix = np.eye(cov_matrix.shape[0]) * 0.01  # Small variance assumption
+            raise CovarianceMatrixError("Covariance matrix contains NaN values - check input return data quality")
+        
+        if np.any(np.isinf(cov_matrix)):
+            raise CovarianceMatrixError("Covariance matrix contains infinite values - check input return data quality")
         
         # Calculate portfolio variance and standard deviation
         portfolio_variance = np.dot(weights, np.dot(cov_matrix, weights))
         
-        # Handle NaN and negative values in portfolio variance
-        if np.isnan(portfolio_variance) or portfolio_variance < 0:
-            logger.warning(f"Invalid portfolio variance ({portfolio_variance}), setting to small positive value")
-            portfolio_variance = 0.01  # Use a reasonable default
-            portfolio_std = np.sqrt(portfolio_variance)
-        else:
-            portfolio_std = np.sqrt(portfolio_variance)
-            # Additional safety check for NaN in portfolio standard deviation
-            if np.isnan(portfolio_std):
-                logger.warning("NaN detected in portfolio standard deviation, setting to default")
-                portfolio_std = 0.1  # 10% default portfolio volatility
-                portfolio_variance = portfolio_std**2
+        # Validate portfolio variance - fail fast on invalid values
+        from app.tools.exceptions import PortfolioVarianceError
+        
+        if np.isnan(portfolio_variance):
+            raise PortfolioVarianceError("Portfolio variance calculation resulted in NaN - check input data quality")
+        
+        if portfolio_variance < 0:
+            raise PortfolioVarianceError(f"Portfolio variance is negative ({portfolio_variance}) - invalid covariance matrix")
+        
+        if portfolio_variance == 0:
+            raise PortfolioVarianceError("Portfolio variance is zero - strategies have no variability or perfect negative correlation")
+        
+        portfolio_std = np.sqrt(portfolio_variance)
+        
+        if np.isnan(portfolio_std):
+            raise PortfolioVarianceError("Portfolio standard deviation calculation resulted in NaN")
         
         logger.info(f"Portfolio standard deviation: {portfolio_std:.6f}")
         logger.info(f"Portfolio variance: {portfolio_variance:.8f}")
@@ -272,10 +328,10 @@ class RiskContributionCalculator:
         strategy_configs: Optional[List[Dict[str, Any]]] = None
     ) -> Dict[str, Any]:
         """
-        Calculate risk metrics from position arrays and price data.
+        Calculate risk metrics from position arrays and price data using aligned return series.
         
-        This method bridges the gap between the existing data format and
-        the new correct calculation method.
+        This method uses proper return series alignment instead of fallback mechanisms
+        to calculate accurate portfolio risk metrics.
         
         Args:
             position_arrays: List of position arrays for each strategy
@@ -286,90 +342,94 @@ class RiskContributionCalculator:
             
         Returns:
             Dictionary with correct risk metrics and contributions
+            
+        Raises:
+            DataAlignmentError: If return series alignment fails
+            RiskCalculationError: If risk calculation fails
         """
-        # Extract returns from dataframes
-        n_strategies = len(position_arrays)
-        all_returns = []
+        from app.tools.logging_context import logging_context
+        from .return_alignment import align_portfolio_returns
+        from app.tools.exceptions import DataAlignmentError, RiskCalculationError
         
-        for i, df in enumerate(data_list):
-            # Calculate returns from Close prices
-            close_prices = df["Close"].to_numpy()
-            returns = np.diff(close_prices) / close_prices[:-1]
-            
-            # Filter returns to only periods where strategy was active
-            active_positions = position_arrays[i][1:]  # Align with returns
-            active_returns = returns[active_positions != 0]
-            
-            # For portfolio risk calculation, we need some returns data
-            # If no active periods, use a small default return series
-            if len(active_returns) == 0:
-                # Create a small positive variance for inactive strategies
-                active_returns = np.array([0.001, -0.001, 0.0005, -0.0005])
-            
-            all_returns.append(active_returns)
-        
-        # Since we have different length return series, we need to compute individual variances
-        # and correlations to construct a proper covariance matrix
-        
-        # Calculate individual variances
-        variances = []
-        for returns in all_returns:
-            if len(returns) > 1:
-                var = np.var(returns, ddof=1)  # Sample variance
-            else:
-                var = 0.001  # Small default variance
-            variances.append(var)
-        
-        # For correlations, we'll use a simplified approach since we can't align all returns
-        # We'll assume moderate positive correlation (0.3) between strategies
-        correlation_matrix = np.eye(n_strategies) + 0.3 * (np.ones((n_strategies, n_strategies)) - np.eye(n_strategies))
-        
-        # Construct covariance matrix from variances and correlations
-        std_devs = np.sqrt(variances)
-        cov_matrix = np.outer(std_devs, std_devs) * correlation_matrix
-        
-        # Create a dummy return matrix for compatibility (not actually used for covariance)
-        min_length = max(10, min(len(r) for r in all_returns))  # Ensure at least 10 periods
-        return_matrix = np.zeros((min_length, n_strategies))
-        for i, returns in enumerate(all_returns):
-            if len(returns) >= min_length:
-                return_matrix[:, i] = returns[:min_length]
-            else:
-                # Repeat the available returns to fill the matrix
-                repeated = np.tile(returns, (min_length // len(returns) + 1))[:min_length]
-                return_matrix[:, i] = repeated
-        
-        # Convert allocations to numpy array
-        weights = np.array(strategy_allocations)
-        
-        # Use pre-computed covariance matrix instead of calculating from return matrix
-        # Calculate risk metrics using correct method with custom covariance matrix
-        risk_metrics = RiskContributionCalculator.calculate_portfolio_metrics_with_cov(
-            cov_matrix, weights, strategy_names
-        )
-        
-        # Add VaR and CVaR calculations for compatibility
-        for i in range(n_strategies):
-            strategy_returns = return_matrix[:, i]
-            active_positions = position_arrays[i][1:min_length+1]
-            active_returns = strategy_returns[active_positions != 0]
-            
-            if len(active_returns) > 0:
-                sorted_returns = np.sort(active_returns)
-                var_95 = float(np.percentile(sorted_returns, 5))
-                var_99 = float(np.percentile(sorted_returns, 1))
-                cvar_95 = float(np.mean(sorted_returns[sorted_returns <= var_95]))
-                cvar_99 = float(np.mean(sorted_returns[sorted_returns <= var_99]))
-            else:
-                var_95 = var_99 = cvar_95 = cvar_99 = 0.0
-            
-            # Add to risk metrics in expected format
-            risk_metrics[f"strategy_{i+1}_var_95"] = var_95
-            risk_metrics[f"strategy_{i+1}_cvar_95"] = cvar_95
-            risk_metrics[f"strategy_{i+1}_var_99"] = var_99
-            risk_metrics[f"strategy_{i+1}_cvar_99"] = cvar_99
-        
-        return risk_metrics
+        with logging_context(module_name='risk_calculation', log_file='risk_calculation.log') as log:
+            try:
+                # Prepare portfolio data for return alignment
+                portfolios = []
+                for i, (df, position_array, strategy_name) in enumerate(zip(data_list, position_arrays, strategy_names)):
+                    # Add position data to dataframe for return calculation
+                    df_with_position = df.with_columns([
+                        pl.Series("Position", position_array[:len(df)]).alias("Position")
+                    ])
+                    
+                    portfolios.append({
+                        "ticker": strategy_name.split("_")[0] if "_" in strategy_name else strategy_name,
+                        "strategy_type": strategy_name.split("_")[1] if "_" in strategy_name and len(strategy_name.split("_")) > 1 else "unknown",
+                        "period": strategy_name.split("_")[2] if "_" in strategy_name and len(strategy_name.split("_")) > 2 else "D",
+                        "data": df_with_position
+                    })
+                
+                # Align return series across all strategies
+                aligned_returns_matrix, aligned_strategy_names = align_portfolio_returns(
+                    portfolios, log, min_observations=10
+                )
+                
+                # Calculate covariance matrix from aligned returns
+                return_columns = [col for col in aligned_returns_matrix.columns if col != "Date"]
+                returns_array = aligned_returns_matrix.select(return_columns).to_numpy()
+                
+                if returns_array.shape[1] != len(strategy_names):
+                    raise DataAlignmentError(
+                        f"Strategy count mismatch: expected {len(strategy_names)}, got {returns_array.shape[1]}"
+                    )
+                
+                # Calculate covariance matrix from aligned returns
+                cov_matrix = np.cov(returns_array, rowvar=False)
+                
+                # Validate covariance matrix
+                if np.any(np.isnan(cov_matrix)) or np.any(np.isinf(cov_matrix)):
+                    raise RiskCalculationError("Covariance matrix contains invalid values (NaN or inf)")
+                
+                # Check for positive definiteness
+                eigenvalues = np.linalg.eigvals(cov_matrix)
+                if np.any(eigenvalues <= 0):
+                    raise RiskCalculationError(f"Covariance matrix is not positive definite (min eigenvalue: {np.min(eigenvalues)})")
+                
+                # Convert allocations to numpy array
+                weights = np.array(strategy_allocations)
+                
+                # Calculate risk metrics using aligned data
+                risk_metrics = RiskContributionCalculator.calculate_portfolio_metrics_with_cov(
+                    cov_matrix, weights, strategy_names
+                )
+                
+                # Add VaR and CVaR calculations using aligned returns
+                for i, strategy_name in enumerate(aligned_strategy_names):
+                    strategy_returns = returns_array[:, i]
+                    
+                    if len(strategy_returns) > 0:
+                        sorted_returns = np.sort(strategy_returns)
+                        var_95 = float(np.percentile(sorted_returns, 5))
+                        var_99 = float(np.percentile(sorted_returns, 1))
+                        cvar_95 = float(np.mean(sorted_returns[sorted_returns <= var_95])) if len(sorted_returns[sorted_returns <= var_95]) > 0 else var_95
+                        cvar_99 = float(np.mean(sorted_returns[sorted_returns <= var_99])) if len(sorted_returns[sorted_returns <= var_99]) > 0 else var_99
+                    else:
+                        raise DataAlignmentError(f"No returns available for strategy {strategy_name}")
+                    
+                    # Add to risk metrics in expected format
+                    risk_metrics[f"strategy_{i+1}_var_95"] = var_95
+                    risk_metrics[f"strategy_{i+1}_cvar_95"] = cvar_95
+                    risk_metrics[f"strategy_{i+1}_var_99"] = var_99
+                    risk_metrics[f"strategy_{i+1}_cvar_99"] = cvar_99
+                
+                log(f"Portfolio risk calculation completed successfully for {len(strategy_names)} strategies", "info")
+                return risk_metrics
+                
+            except (DataAlignmentError, RiskCalculationError) as e:
+                # Re-raise specific risk calculation errors
+                raise e
+            except Exception as e:
+                # Convert unexpected errors to RiskCalculationError
+                raise RiskCalculationError(f"Unexpected error in risk calculation: {str(e)}")
 
 
 def calculate_risk_contributions_fixed(

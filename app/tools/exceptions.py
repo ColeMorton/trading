@@ -70,3 +70,23 @@ class DataLoadError(DataError):
 class ExportError(TradingSystemError):
     """Raised when results cannot be exported."""
     pass
+
+
+class RiskCalculationError(TradingSystemError):
+    """Base class for portfolio risk calculation errors."""
+    pass
+
+
+class DataAlignmentError(RiskCalculationError):
+    """Raised when return series alignment fails."""
+    pass
+
+
+class CovarianceMatrixError(RiskCalculationError):
+    """Raised when covariance matrix calculation fails."""
+    pass
+
+
+class PortfolioVarianceError(RiskCalculationError):
+    """Raised when portfolio variance calculation fails."""
+    pass
