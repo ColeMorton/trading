@@ -476,6 +476,32 @@ def calculate_risk_contributions_fixed(
         # Transform to expected output format
         risk_contributions = {}
         
+        # Calculate individual strategy returns and volatilities for alpha calculation
+        strategy_returns = []
+        strategy_volatilities = []
+        
+        for i, df in enumerate(data_list):
+            # Calculate returns from Close prices
+            close_prices = df["Close"].to_numpy()
+            returns = np.diff(close_prices) / close_prices[:-1]
+            
+            # Only consider periods where strategy was active
+            active_positions = position_arrays[i][1:]  # Align with returns
+            active_returns = returns[active_positions != 0]
+            
+            # Calculate volatility and average return
+            vol = float(np.std(active_returns)) if len(active_returns) > 0 else 0.0
+            avg_return = float(np.mean(active_returns)) if len(active_returns) > 0 else 0.0
+            
+            strategy_volatilities.append(vol)
+            strategy_returns.append(avg_return)
+            
+            log(f"Strategy {i+1} - Average Return: {avg_return:.6f}, Volatility: {vol:.6f}", "info")
+        
+        # Calculate benchmark return (average of all strategies)
+        benchmark_return = np.mean(strategy_returns) if strategy_returns else 0.0
+        log(f"Benchmark return calculated: {benchmark_return:.6f}", "info")
+        
         # Add individual strategy risk contributions
         for i in range(n_strategies):
             strategy_name = strategy_names[i]
@@ -487,6 +513,25 @@ def calculate_risk_contributions_fixed(
             risk_contributions[f"strategy_{i+1}_cvar_95"] = risk_metrics.get(f"strategy_{i+1}_cvar_95", 0.0)
             risk_contributions[f"strategy_{i+1}_var_99"] = risk_metrics.get(f"strategy_{i+1}_var_99", 0.0)
             risk_contributions[f"strategy_{i+1}_cvar_99"] = risk_metrics.get(f"strategy_{i+1}_cvar_99", 0.0)
+            
+            # Calculate Risk-Adjusted Alpha (excess return over benchmark, adjusted for volatility)
+            excess_return = strategy_returns[i] - benchmark_return
+            strategy_volatility = strategy_volatilities[i]
+            
+            if strategy_volatility > 0:
+                # Risk-adjusted alpha: excess return per unit of risk
+                risk_adjusted_alpha = excess_return / strategy_volatility
+            else:
+                # If no volatility, use raw excess return
+                risk_adjusted_alpha = excess_return
+            
+            # Handle potential NaN values in alpha
+            if np.isnan(risk_adjusted_alpha):
+                log(f"Warning: NaN detected in alpha for strategy {i+1}, setting to 0", "warning")
+                risk_adjusted_alpha = 0.0
+                
+            risk_contributions[f"strategy_{i+1}_alpha_to_portfolio"] = float(risk_adjusted_alpha)
+            log(f"Strategy {i+1} excess return: {excess_return:.6f}, alpha to portfolio: {risk_adjusted_alpha:.6f}", "info")
         
         # Add portfolio-level metrics with NaN handling
         portfolio_volatility = risk_metrics["portfolio_volatility"]
@@ -527,6 +572,9 @@ def calculate_risk_contributions_fixed(
             risk_contributions["combined_cvar_95"] = 0.0
             risk_contributions["combined_cvar_99"] = 0.0
             log("No allocations provided, setting combined VaR/CVaR to zero", "info")
+        
+        # Add benchmark return
+        risk_contributions["benchmark_return"] = float(benchmark_return)
         
         # Validate the sum
         contrib_sum = sum(
