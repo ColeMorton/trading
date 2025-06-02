@@ -42,14 +42,15 @@ export type AnalysisStatus = {
   status: Scalars['String']['output'];
 };
 
-export type AssetClass =
-  | 'BOND'
-  | 'COMMODITY'
-  | 'CRYPTO'
-  | 'ETF'
-  | 'FOREX'
-  | 'INDEX'
-  | 'STOCK';
+export enum AssetClass {
+  Bond = 'BOND',
+  Commodity = 'COMMODITY',
+  Crypto = 'CRYPTO',
+  Etf = 'ETF',
+  Forex = 'FOREX',
+  Index = 'INDEX',
+  Stock = 'STOCK'
+}
 
 export type AsyncAnalysisResponse = {
   __typename?: 'AsyncAnalysisResponse';
@@ -100,10 +101,11 @@ export type BacktestResult = {
   winningTrades?: Maybe<Scalars['Int']['output']>;
 };
 
-export type DirectionType =
-  | 'BOTH'
-  | 'LONG'
-  | 'SHORT';
+export enum DirectionType {
+  Both = 'BOTH',
+  Long = 'LONG',
+  Short = 'SHORT'
+}
 
 export type MaCrossAnalysisInput = {
   asyncExecution?: Scalars['Boolean']['input'];
@@ -319,10 +321,11 @@ export type PortfolioMetrics = {
   totalReturnPct: Scalars['Float']['output'];
 };
 
-export type PortfolioType =
-  | 'BEST'
-  | 'FILTERED'
-  | 'STANDARD';
+export enum PortfolioType {
+  Best = 'BEST',
+  Filtered = 'FILTERED',
+  Standard = 'STANDARD'
+}
 
 export type PriceBar = {
   __typename?: 'PriceBar';
@@ -433,10 +436,11 @@ export type Signal = {
   strategyConfigId: Scalars['String']['output'];
 };
 
-export type SignalType =
-  | 'BUY'
-  | 'HOLD'
-  | 'SELL';
+export enum SignalType {
+  Buy = 'BUY',
+  Hold = 'HOLD',
+  Sell = 'SELL'
+}
 
 export type Strategy = {
   __typename?: 'Strategy';
@@ -499,15 +503,16 @@ export type StrategyInput = {
   type: StrategyType;
 };
 
-export type StrategyType =
-  | 'ATR'
-  | 'BOLLINGER_BANDS'
-  | 'CUSTOM'
-  | 'MACD'
-  | 'MA_CROSS'
-  | 'MEAN_REVERSION'
-  | 'RANGE'
-  | 'RSI';
+export enum StrategyType {
+  Atr = 'ATR',
+  BollingerBands = 'BOLLINGER_BANDS',
+  Custom = 'CUSTOM',
+  Macd = 'MACD',
+  MaCross = 'MA_CROSS',
+  MeanReversion = 'MEAN_REVERSION',
+  Range = 'RANGE',
+  Rsi = 'RSI'
+}
 
 export type Ticker = {
   __typename?: 'Ticker';
@@ -521,21 +526,22 @@ export type Ticker = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export type TimeframeType =
-  | 'EIGHT_HOURS'
-  | 'FIFTEEN_MINUTES'
-  | 'FIVE_MINUTES'
-  | 'FOUR_HOURS'
-  | 'ONE_DAY'
-  | 'ONE_HOUR'
-  | 'ONE_MINUTE'
-  | 'ONE_MONTH'
-  | 'ONE_WEEK'
-  | 'SIX_HOURS'
-  | 'THIRTY_MINUTES'
-  | 'THREE_DAYS'
-  | 'TWELVE_HOURS'
-  | 'TWO_HOURS';
+export enum TimeframeType {
+  EightHours = 'EIGHT_HOURS',
+  FifteenMinutes = 'FIFTEEN_MINUTES',
+  FiveMinutes = 'FIVE_MINUTES',
+  FourHours = 'FOUR_HOURS',
+  OneDay = 'ONE_DAY',
+  OneHour = 'ONE_HOUR',
+  OneMinute = 'ONE_MINUTE',
+  OneMonth = 'ONE_MONTH',
+  OneWeek = 'ONE_WEEK',
+  SixHours = 'SIX_HOURS',
+  ThirtyMinutes = 'THIRTY_MINUTES',
+  ThreeDays = 'THREE_DAYS',
+  TwelveHours = 'TWELVE_HOURS',
+  TwoHours = 'TWO_HOURS'
+}
 
 export type ExecuteMaCrossAnalysisMutationVariables = Exact<{
   input: MaCrossAnalysisInput;

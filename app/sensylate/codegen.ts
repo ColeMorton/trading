@@ -17,7 +17,7 @@ const config: CodegenConfig = {
         withRefetchFn: true,
         avoidOptionals: false,
         skipTypename: false,
-        enumsAsTypes: true,
+        enumsAsTypes: false,
         dedupeFragments: true,
         pureMagicComment: true,
         strictScalars: true,

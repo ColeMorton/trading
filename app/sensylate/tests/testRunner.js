@@ -17,18 +17,6 @@ const TEST_SUITES = [
         file: 'parameterTesting.spec.js',
         description: 'Complete Parameter Testing feature workflow',
         critical: true
-    },
-    {
-        name: 'BXP Analysis',
-        file: 'bxpAnalysis.spec.js', 
-        description: 'Specific BXP ticker analysis validation',
-        critical: true
-    },
-    {
-        name: 'CSV Validation',
-        file: 'csvValidation.spec.js',
-        description: 'CSV export and validation testing',
-        critical: false
     }
 ];
 

@@ -15,8 +15,6 @@
     "test:e2e-screenshots": "node tests/endToEndWorkflow.spec.js --screenshots",
     "test:e2e-verbose": "node tests/endToEndWorkflow.spec.js --verbose --screenshots",
     "test:screenshots": "node tests/testRunner.js --screenshots",
-    "test:bxp": "node tests/bxpAnalysis.spec.js",
-    "test:csv": "node tests/csvValidation.spec.js",
     "test:workflow": "node tests/parameterTesting.spec.js",
     "test:ci": "node tests/testRunner.js --ci --save-report",
     "test:verbose": "node tests/testRunner.js --verbose --screenshots",
