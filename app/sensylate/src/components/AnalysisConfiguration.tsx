@@ -3,7 +3,8 @@ import Icon from './Icon';
 import { icons } from '../utils/icons';
 import { useAppContext } from '../context/AppContext';
 import { AnalysisConfiguration as AnalysisConfigType } from '../types';
-import { maCrossApi, ConfigPreset } from '../services/maCrossApi';
+import { maCrossApi } from '../services/serviceFactory';
+import { ConfigPreset } from '../services/maCrossApi';
 import { TickerPresets } from './TickerPresets';
 
 interface FormErrors {

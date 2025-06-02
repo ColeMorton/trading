@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { AnalysisConfiguration, AnalysisResult } from '../types';
-import { maCrossApi, MACrossSyncResponse, MACrossAsyncResponse } from '../services/maCrossApi';
+import { maCrossApi } from '../services/serviceFactory';
+import { MACrossSyncResponse, MACrossAsyncResponse } from '../services/maCrossApi';
 
 export interface UseParameterTestingReturn {
   analyze: (config: AnalysisConfiguration) => Promise<void>;

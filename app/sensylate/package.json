@@ -22,19 +22,24 @@
     "test:verbose": "node tests/testRunner.js --verbose --screenshots",
     "test:cleanup-screenshots": "node tests/screenshotCleanup.js",
     "test:cleanup-screenshots-verbose": "node tests/screenshotCleanup.js --verbose",
-    "test:advanced-config": "node tests/test-advanced-config.js"
+    "test:advanced-config": "node tests/test-advanced-config.js",
+    "codegen": "graphql-codegen --config codegen.ts",
+    "codegen:watch": "graphql-codegen --config codegen.ts --watch"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@apollo/client": "^3.8.10",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-regular-svg-icons": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@tanstack/react-table": "^8.10.7",
+    "apollo3-cache-persist": "^0.14.1",
     "axios": "^1.6.2",
     "bootstrap": "^5.3.2",
+    "graphql": "^16.8.1",
     "papaparse": "^5.5.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -42,6 +47,11 @@
     "workbox-window": "^7.3.0"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/client-preset": "^4.1.0",
+    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/typescript-operations": "^4.0.1",
+    "@graphql-codegen/typescript-react-apollo": "^4.1.0",
     "@types/papaparse": "^5.3.14",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",

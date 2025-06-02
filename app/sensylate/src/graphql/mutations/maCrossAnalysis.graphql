@@ -1,0 +1,93 @@
+mutation ExecuteMACrossAnalysis($input: MACrossAnalysisInput!) {
+  executeMaCrossAnalysis(input: $input) {
+    ... on MACrossAnalysisResponse {
+      status
+      requestId
+      timestamp
+      ticker
+      strategyTypes
+      totalPortfoliosAnalyzed
+      totalPortfoliosFiltered
+      executionTime
+      portfolios {
+        ticker
+        strategyType
+        shortWindow
+        longWindow
+        signalWindow
+        direction
+        timeframe
+        performance {
+          totalReturn
+          annualReturn
+          sharpeRatio
+          sortinoRatio
+          maxDrawdown
+          totalTrades
+          winningTrades
+          losingTrades
+          winRate
+          profitFactor
+          expectancy
+          expectancyPerTrade
+          score
+          beatsBnh
+        }
+        hasOpenTrade
+        hasSignalEntry
+      }
+      portfolioExports
+    }
+    ... on AsyncAnalysisResponse {
+      status
+      executionId
+      message
+      statusUrl
+      streamUrl
+      timestamp
+      estimatedTime
+    }
+  }
+}
+
+query GetAnalysisStatus($executionId: ID!) {
+  analysisStatus(executionId: $executionId) {
+    executionId
+    status
+    progress
+    message
+    timestamp
+    startedAt
+    completedAt
+    executionTime
+    estimatedTimeRemaining
+    result {
+      status
+      requestId
+      timestamp
+      ticker
+      strategyTypes
+      totalPortfoliosAnalyzed
+      totalPortfoliosFiltered
+      executionTime
+      portfolios {
+        ticker
+        strategyType
+        shortWindow
+        longWindow
+        direction
+        timeframe
+        performance {
+          totalReturn
+          winRate
+          profitFactor
+          expectancyPerTrade
+          sortinoRatio
+          maxDrawdown
+          totalTrades
+        }
+      }
+    }
+    error
+  }
+}

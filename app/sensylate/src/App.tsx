@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppProvider } from './context/AppContext';
 import { OfflineProvider } from './context/OfflineContext';
+import { ApolloProvider } from './providers/ApolloProvider';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import FileSelector from './components/FileSelector';
@@ -19,6 +20,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import Icon from './components/Icon';
 import { icons } from './utils/icons';
 import { useAppContext } from './context/AppContext';
+import { isUsingGraphQL } from './services/serviceFactory';
 
 const AppContent: React.FC = () => {
   const { currentView } = useAppContext();
@@ -81,13 +83,21 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => {
-  return (
+  // Conditionally wrap with Apollo Provider when using GraphQL
+  const content = (
     <OfflineProvider>
       <AppProvider>
         <AppContent />
       </AppProvider>
     </OfflineProvider>
   );
+
+  // Only wrap with Apollo Provider if using GraphQL
+  if (isUsingGraphQL()) {
+    return <ApolloProvider>{content}</ApolloProvider>;
+  }
+
+  return content;
 };
 
 export default App;

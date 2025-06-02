@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { api } from '../services/api';
+import { api } from '../services/serviceFactory';
 import { CSVFile } from '../types';
 import { useAppContext } from '../context/AppContext';
 

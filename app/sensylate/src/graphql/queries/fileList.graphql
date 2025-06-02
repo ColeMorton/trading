@@ -1,0 +1,17 @@
+query GetFileList($limit: Int) {
+  tickers(limit: $limit) {
+    id
+    symbol
+    name
+    assetClass
+    exchange
+  }
+  
+  strategies {
+    id
+    name
+    strategyType
+    createdAt
+    updatedAt
+  }
+}

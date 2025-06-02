@@ -1,0 +1,40 @@
+mutation CreatePortfolio($input: PortfolioInput!) {
+  createPortfolio(input: $input) {
+    id
+    name
+    type
+    ticker {
+      id
+      symbol
+    }
+    strategy {
+      id
+      name
+    }
+    createdAt
+  }
+}
+
+mutation UpdatePortfolio($id: ID!, $input: PortfolioInput!) {
+  updatePortfolio(id: $id, input: $input) {
+    id
+    name
+    type
+    ticker {
+      id
+      symbol
+    }
+    strategy {
+      id
+      name
+    }
+    updatedAt
+  }
+}
+
+mutation DeletePortfolio($id: ID!) {
+  deletePortfolio(id: $id) {
+    success
+    message
+  }
+}

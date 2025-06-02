@@ -508,6 +508,92 @@ mutation AnalyzeStrategy {
 
 Phase 2 provides a complete GraphQL API layer that runs alongside the existing REST API, offering modern GraphQL benefits while maintaining backward compatibility.
 
+### Phase 3: Frontend Apollo Client Integration
+**Status**: ✅ Complete
+
+#### What Was Accomplished
+- **Apollo Client Setup**: Complete Apollo Client configuration with TypeScript support and cache persistence
+- **GraphQL Code Generation**: Configured graphql-codegen for automatic TypeScript type generation from schema
+- **Service Adapters**: Created GraphQL adapters maintaining the same interface as REST services for gradual migration
+- **Query/Mutation Definitions**: Comprehensive GraphQL operations for all existing REST endpoints
+- **Offline Support**: Apollo Cache persistence to LocalStorage with automatic rehydration
+- **Service Factory Pattern**: Seamless switching between REST and GraphQL via environment variable
+- **Error Handling**: Comprehensive error handling with network fallbacks and offline support
+- **Component Updates**: Updated all service imports to use the service factory for API flexibility
+
+#### Files Created/Modified
+- `app/sensylate/package.json`: Added Apollo Client and GraphQL dependencies
+- `app/sensylate/codegen.ts`: GraphQL code generation configuration
+- `app/sensylate/src/apollo/client.ts`: Apollo Client setup with cache persistence
+- `app/sensylate/src/providers/ApolloProvider.tsx`: React provider for Apollo Client
+- `app/sensylate/src/graphql/queries/`: GraphQL query definitions
+  - `fileList.graphql`: Ticker and strategy queries
+  - `portfolios.graphql`: Portfolio queries with relationships
+  - `priceData.graphql`: Price data queries
+- `app/sensylate/src/graphql/mutations/`: GraphQL mutation definitions
+  - `maCrossAnalysis.graphql`: MA Cross analysis execution
+  - `portfolio.graphql`: Portfolio CRUD operations
+- `app/sensylate/src/services/graphql/`: GraphQL service adapters
+  - `apiAdapter.ts`: GraphQL adapter for general API operations
+  - `maCrossAdapter.ts`: GraphQL adapter for MA Cross operations
+- `app/sensylate/src/services/serviceFactory.ts`: API switching mechanism
+- `app/sensylate/.env.example`: Environment configuration template
+- `app/sensylate/GRAPHQL_MIGRATION_GUIDE.md`: Comprehensive migration documentation
+- Updated components and hooks to use service factory instead of direct imports
+
+#### Features Implemented
+1. **Type-Safe GraphQL Operations**: Full TypeScript support with generated types from schema
+2. **Gradual Migration Strategy**: Service factory pattern allows REST/GraphQL coexistence
+3. **Offline-First Architecture**: Apollo Cache persistence maintains offline functionality
+4. **Smart Caching**: Configured cache policies for optimal performance
+5. **Error Recovery**: Comprehensive error handling with graceful degradation
+6. **Development Tools**: GraphQL code generation with watch mode for rapid development
+7. **Environment-Based Switching**: Easy toggle between REST and GraphQL APIs
+8. **Backwards Compatibility**: No breaking changes to existing components
+
+#### Integration Architecture
+```
+Components
+    ↓
+Service Factory (REST/GraphQL switch)
+    ↓                    ↓
+REST Services      GraphQL Adapters
+    ↓                    ↓
+ REST API          Apollo Client
+                         ↓
+                   GraphQL API
+```
+
+#### Usage Instructions
+1. **Enable GraphQL**: Set `VITE_USE_GRAPHQL=true` in `.env`
+2. **Install Dependencies**: `npm install`
+3. **Generate Types**: `npm run codegen`
+4. **Start Development**: `npm run dev`
+
+#### Testing and Validation
+- Service adapters maintain identical interfaces to REST services
+- All existing components work without modification
+- GraphQL operations tested with test scripts
+- Cache persistence verified for offline scenarios
+- Type safety validated through TypeScript compilation
+
+#### Performance Optimizations
+- **Cache-First Strategy**: Reduces unnecessary network requests
+- **Query Deduplication**: Apollo Client prevents duplicate queries
+- **Optimistic Updates**: Immediate UI updates for better UX
+- **Smart Refetching**: Automatic cache updates after mutations
+- **Persisted Cache**: Fast startup with rehydrated cache
+
+#### Migration Benefits
+1. **Type Safety**: End-to-end type safety from backend to frontend
+2. **Reduced Overfetching**: Request only needed fields
+3. **Single Request**: Multiple resources in one query
+4. **Real-time Ready**: Foundation for subscriptions
+5. **Better DX**: Auto-generated hooks and types
+6. **Offline Support**: Maintained existing offline capabilities
+
+Phase 3 successfully integrates Apollo Client with the React frontend, providing a modern GraphQL experience while maintaining backward compatibility with the REST API.
+
 ## Success Criteria
 
 ### Phase 1 Success Criteria
