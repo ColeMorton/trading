@@ -10,7 +10,8 @@ query GetFileList($limit: Int) {
   strategies {
     id
     name
-    strategyType
+    type
+    description
     createdAt
     updatedAt
   }

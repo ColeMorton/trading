@@ -3,14 +3,8 @@ mutation CreatePortfolio($input: PortfolioInput!) {
     id
     name
     type
-    ticker {
-      id
-      symbol
-    }
-    strategy {
-      id
-      name
-    }
+    description
+    parameters
     createdAt
   }
 }
@@ -20,21 +14,12 @@ mutation UpdatePortfolio($id: ID!, $input: PortfolioInput!) {
     id
     name
     type
-    ticker {
-      id
-      symbol
-    }
-    strategy {
-      id
-      name
-    }
+    description
+    parameters
     updatedAt
   }
 }
 
 mutation DeletePortfolio($id: ID!) {
-  deletePortfolio(id: $id) {
-    success
-    message
-  }
+  deletePortfolio(id: $id)
 }

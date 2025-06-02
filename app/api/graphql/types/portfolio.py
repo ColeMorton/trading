@@ -5,7 +5,7 @@ This module defines GraphQL types for portfolios and related operations.
 """
 
 import strawberry
-from typing import List, Optional, Union
+from typing import List, Optional
 from .scalars import DateTime, JSON
 from .enums import PortfolioType, StrategyType, TimeframeType, DirectionType, SortOrder
 from .metrics import PerformanceMetrics, PortfolioMetrics, PerformanceCriteria
@@ -53,7 +53,7 @@ class MACrossAnalysisResponse:
     request_id: str
     status: str
     timestamp: DateTime
-    ticker: Union[str, List[str]]
+    tickers: List[str]
     strategy_types: List[str]
     portfolios: Optional[List[AnalysisResult]] = None
     total_portfolios_analyzed: int = 0
@@ -108,7 +108,7 @@ class PortfolioFilter:
 @strawberry.input
 class MACrossAnalysisInput:
     """Input for MA Cross strategy analysis."""
-    ticker: Union[str, List[str]]
+    tickers: List[str]
     windows: int = 89
     direction: DirectionType = DirectionType.LONG
     strategy_types: List[StrategyType] = strawberry.field(default_factory=lambda: [StrategyType.MA_CROSS])

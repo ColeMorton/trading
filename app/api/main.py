@@ -14,10 +14,11 @@ from fastapi.staticfiles import StaticFiles
 import strawberry
 from strawberry.fastapi import GraphQLRouter
 
-from app.api.routers import scripts, data, viewer, sensylate, ma_cross
+from app.api.routers import scripts, data, viewer, sensylate, ma_cross, health
 from app.api.utils.logging import setup_api_logging
 from app.database.config import startup_database, shutdown_database, database_health_check
 from app.api.graphql.schema import schema
+from app.api.graphql.context import get_graphql_context
 
 # Define paths
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -69,13 +70,20 @@ else:
 # Set up logging
 log, log_close, logger, _ = setup_api_logging()
 
+# Import security
+from app.api.security import setup_security_middleware, get_cors_origins
+
+# Set up security middleware
+setup_security_middleware(app)
+
 # Set up CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For development; restrict in production
+    allow_origins=get_cors_origins(),
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["X-Total-Count", "X-Page", "X-Per-Page"],
 )
 
 # Custom middleware to handle specific 404 errors gracefully
@@ -105,11 +113,12 @@ from app.api.graphql.context import get_graphql_context
 # Create GraphQL router
 graphql_app = GraphQLRouter(
     schema,
-    graphiql=True,  # Enable GraphiQL interface for development
-    context_getter=get_graphql_context
+    graphiql=True  # Enable GraphiQL interface for development
+    # context_getter=get_graphql_context  # Temporarily disable custom context
 )
 
 # Include routers
+app.include_router(health.router, tags=["health"])  # Health endpoints at root level
 app.include_router(scripts.router, prefix="/api/scripts", tags=["scripts"])
 app.include_router(data.router, prefix="/api/data", tags=["data"])
 app.include_router(viewer.router, prefix="/viewer", tags=["viewer"])
@@ -153,61 +162,7 @@ async def root():
         "description": "API for executing trading scripts and retrieving data"
     }
 
-@app.get("/health", tags=["health"])
-async def health_check():
-    """Basic health check endpoint."""
-    return {"status": "healthy", "service": "trading-api"}
-
-@app.get("/health/database", tags=["health"])
-async def database_health():
-    """Database health check endpoint."""
-    try:
-        health_status = await database_health_check()
-        status_code = 200 if health_status["overall"] else 503
-        return JSONResponse(
-            status_code=status_code,
-            content={
-                "status": "healthy" if health_status["overall"] else "unhealthy",
-                "checks": health_status
-            }
-        )
-    except Exception as e:
-        logger.error(f"Database health check failed: {e}")
-        return JSONResponse(
-            status_code=503,
-            content={
-                "status": "unhealthy",
-                "error": str(e)
-            }
-        )
-
-@app.get("/health/detailed", tags=["health"])
-async def detailed_health_check():
-    """Detailed health check including all services."""
-    try:
-        db_health = await database_health_check()
-        
-        overall_healthy = db_health["overall"]
-        
-        return JSONResponse(
-            status_code=200 if overall_healthy else 503,
-            content={
-                "status": "healthy" if overall_healthy else "unhealthy",
-                "service": "trading-api",
-                "version": "0.1.0",
-                "database": db_health,
-                "uptime": "available"  # You can implement uptime tracking
-            }
-        )
-    except Exception as e:
-        logger.error(f"Detailed health check failed: {e}")
-        return JSONResponse(
-            status_code=503,
-            content={
-                "status": "unhealthy",
-                "error": str(e)
-            }
-        )
+# Health endpoints are now handled by the health router
 
 # Application lifecycle events
 @app.on_event("startup")

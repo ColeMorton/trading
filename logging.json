@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "disable_existing_loggers": false,
+  "formatters": {
+    "default": {
+      "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    },
+    "detailed": {
+      "format": "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s"
+    },
+    "json": {
+      "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+      "format": "%(asctime)s %(name)s %(levelname)s %(funcName)s %(lineno)d %(message)s"
+    }
+  },
+  "handlers": {
+    "console": {
+      "class": "logging.StreamHandler",
+      "level": "INFO",
+      "formatter": "default",
+      "stream": "ext://sys.stdout"
+    },
+    "file": {
+      "class": "logging.handlers.RotatingFileHandler",
+      "level": "INFO",
+      "formatter": "detailed",
+      "filename": "/app/logs/app.log",
+      "maxBytes": 52428800,
+      "backupCount": 5,
+      "encoding": "utf8"
+    },
+    "error_file": {
+      "class": "logging.handlers.RotatingFileHandler",
+      "level": "ERROR",
+      "formatter": "detailed",
+      "filename": "/app/logs/error.log",
+      "maxBytes": 52428800,
+      "backupCount": 5,
+      "encoding": "utf8"
+    },
+    "json_file": {
+      "class": "logging.handlers.RotatingFileHandler",
+      "level": "INFO",
+      "formatter": "json",
+      "filename": "/app/logs/app.json",
+      "maxBytes": 104857600,
+      "backupCount": 3,
+      "encoding": "utf8"
+    }
+  },
+  "loggers": {
+    "uvicorn": {
+      "handlers": ["console", "file"],
+      "level": "INFO",
+      "propagate": false
+    },
+    "uvicorn.error": {
+      "handlers": ["console", "error_file"],
+      "level": "ERROR",
+      "propagate": false
+    },
+    "uvicorn.access": {
+      "handlers": ["console", "json_file"],
+      "level": "INFO",
+      "propagate": false
+    },
+    "app": {
+      "handlers": ["console", "file", "json_file"],
+      "level": "INFO",
+      "propagate": false
+    },
+    "app.api": {
+      "handlers": ["console", "file", "json_file"],
+      "level": "INFO",
+      "propagate": false
+    },
+    "app.graphql": {
+      "handlers": ["console", "file", "json_file"],
+      "level": "INFO",
+      "propagate": false
+    },
+    "strawberry": {
+      "handlers": ["console", "file"],
+      "level": "INFO",
+      "propagate": false
+    }
+  },
+  "root": {
+    "level": "INFO",
+    "handlers": ["console", "file", "error_file"]
+  }
+}

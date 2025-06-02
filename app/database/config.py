@@ -11,7 +11,8 @@ from functools import lru_cache
 import asyncpg
 import redis.asyncio as redis
 from prisma import Prisma
-from pydantic import BaseSettings, PostgresDsn, RedisDsn
+from pydantic import PostgresDsn, RedisDsn, ConfigDict
+from pydantic_settings import BaseSettings
 import logging
 
 logger = logging.getLogger(__name__)
@@ -45,9 +46,11 @@ class DatabaseSettings(BaseSettings):
     environment: str = "development"
     debug: bool = True
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+    model_config = ConfigDict(
+        env_file=".env",
+        case_sensitive=False,
+        extra="ignore"  # Ignore extra environment variables
+    )
 
 
 @lru_cache()

@@ -8,7 +8,7 @@ authentication, and request information.
 import strawberry
 from typing import Optional, Dict, Any
 from fastapi import Request, Depends
-from app.database.config import get_database
+from app.database.config import get_prisma
 from app.api.utils.logging import setup_api_logging
 
 
@@ -16,13 +16,8 @@ from app.api.utils.logging import setup_api_logging
 log, _, logger, _ = setup_api_logging()
 
 
-@strawberry.type
 class GraphQLContext:
     """GraphQL context containing request information and services."""
-    
-    request: Request
-    database: Any
-    user: Optional[Dict[str, Any]] = None
     
     def __init__(self, request: Request, database: Any, user: Optional[Dict[str, Any]] = None):
         self.request = request
@@ -32,7 +27,7 @@ class GraphQLContext:
 
 async def get_graphql_context(
     request: Request,
-    database = Depends(get_database)
+    database = Depends(get_prisma)
 ) -> GraphQLContext:
     """
     Create GraphQL context with database connection and request information.

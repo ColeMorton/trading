@@ -13,13 +13,13 @@ from app.api.graphql.types.strategy import (
     StrategyInput,
     StrategyConfigurationInput
 )
-from app.database.config import get_database
+from app.database.config import get_prisma
 
 
-@strawberry.mutation
+
 async def create_strategy(input: StrategyInput) -> Strategy:
     """Create a new strategy."""
-    db = await get_database()
+    db = await get_prisma()
     
     strategy = await db.strategy.create(
         data={
@@ -39,13 +39,13 @@ async def create_strategy(input: StrategyInput) -> Strategy:
     )
 
 
-@strawberry.mutation
+
 async def update_strategy(
     id: strawberry.ID,
     input: StrategyInput
 ) -> Optional[Strategy]:
     """Update an existing strategy."""
-    db = await get_database()
+    db = await get_prisma()
     
     # Check if strategy exists
     existing = await db.strategy.find_unique(
@@ -76,10 +76,10 @@ async def update_strategy(
     )
 
 
-@strawberry.mutation
+
 async def delete_strategy(id: strawberry.ID) -> bool:
     """Delete a strategy."""
-    db = await get_database()
+    db = await get_prisma()
     
     try:
         await db.strategy.delete(
@@ -90,12 +90,12 @@ async def delete_strategy(id: strawberry.ID) -> bool:
         return False
 
 
-@strawberry.mutation
+
 async def create_strategy_configuration(
     input: StrategyConfigurationInput
 ) -> StrategyConfiguration:
     """Create a new strategy configuration."""
-    db = await get_database()
+    db = await get_prisma()
     
     config = await db.strategyconfiguration.create(
         data={
@@ -137,13 +137,13 @@ async def create_strategy_configuration(
     )
 
 
-@strawberry.mutation
+
 async def update_strategy_configuration(
     id: strawberry.ID,
     input: StrategyConfigurationInput
 ) -> Optional[StrategyConfiguration]:
     """Update an existing strategy configuration."""
-    db = await get_database()
+    db = await get_prisma()
     
     # Check if configuration exists
     existing = await db.strategyconfiguration.find_unique(
@@ -196,10 +196,10 @@ async def update_strategy_configuration(
     )
 
 
-@strawberry.mutation
+
 async def delete_strategy_configuration(id: strawberry.ID) -> bool:
     """Delete a strategy configuration."""
-    db = await get_database()
+    db = await get_prisma()
     
     try:
         await db.strategyconfiguration.delete(

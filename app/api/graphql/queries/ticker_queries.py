@@ -13,17 +13,17 @@ from app.api.graphql.types.ticker import (
     PriceDataFilter
 )
 from app.api.graphql.types.enums import TimeframeType
-from app.database.config import get_database
+from app.database.config import get_prisma
 
 
-@strawberry.field
+
 async def get_tickers(
     asset_class: Optional[str] = None,
     symbol_contains: Optional[str] = None,
     limit: Optional[int] = None
 ) -> List[Ticker]:
     """Get tickers with optional filtering."""
-    db = await get_database()
+    db = await get_prisma()
     
     # Build filter conditions
     where_conditions = {}
@@ -53,10 +53,10 @@ async def get_tickers(
     ]
 
 
-@strawberry.field
+
 async def get_ticker(symbol: str) -> Optional[Ticker]:
     """Get a specific ticker by symbol."""
-    db = await get_database()
+    db = await get_prisma()
     
     ticker = await db.ticker.find_unique(
         where={"symbol": symbol}
@@ -77,13 +77,13 @@ async def get_ticker(symbol: str) -> Optional[Ticker]:
     )
 
 
-@strawberry.field
+
 async def get_price_data(
     symbol: str,
     filter: Optional[PriceDataFilter] = None
 ) -> List[PriceBar]:
     """Get price data for a ticker with optional filtering."""
-    db = await get_database()
+    db = await get_prisma()
     
     # First get the ticker
     ticker = await db.ticker.find_unique(
@@ -123,16 +123,16 @@ async def get_price_data(
     ]
 
 
-@strawberry.field
+
 async def get_available_timeframes() -> List[TimeframeType]:
     """Get list of available timeframes."""
     return list(TimeframeType)
 
 
-@strawberry.field
+
 async def get_ticker_stats(symbol: str) -> Optional[dict]:
     """Get basic statistics for a ticker."""
-    db = await get_database()
+    db = await get_prisma()
     
     # Get ticker
     ticker = await db.ticker.find_unique(

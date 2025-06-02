@@ -24,8 +24,8 @@ from .queries.ticker_queries import (
     get_tickers,
     get_ticker,
     get_price_data,
-    get_available_timeframes,
-    get_ticker_stats
+    get_available_timeframes
+    # get_ticker_stats  # TODO: Create proper GraphQL type
 )
 
 # Import mutation resolvers
@@ -102,7 +102,7 @@ class Query:
     ticker: Optional[Ticker] = strawberry.field(resolver=get_ticker)
     price_data: List[PriceBar] = strawberry.field(resolver=get_price_data)
     available_timeframes: List[TimeframeType] = strawberry.field(resolver=get_available_timeframes)
-    ticker_stats: Optional[dict] = strawberry.field(resolver=get_ticker_stats)
+    # ticker_stats: Optional[dict] = strawberry.field(resolver=get_ticker_stats)  # TODO: Create proper GraphQL type
 
 
 @strawberry.type
@@ -130,11 +130,11 @@ class Mutation:
     cancel_analysis: bool = strawberry.field(resolver=cancel_analysis)
 
 
+# Import monitoring extension
+# from .monitoring import GraphQLMonitoringExtension
+
 # Create the main schema
 schema = strawberry.Schema(
     query=Query,
-    mutation=Mutation,
-    config=strawberry.config.StrawberryConfig(
-        auto_camel_case=True,  # Convert snake_case to camelCase
-    )
+    mutation=Mutation
 )

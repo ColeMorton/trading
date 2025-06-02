@@ -30,7 +30,7 @@ log, _, logger, _ = setup_api_logging()
 ma_cross_service = MACrossService()
 
 
-@strawberry.mutation
+
 async def execute_ma_cross_analysis(
     input: MACrossAnalysisInput
 ) -> Union[MACrossAnalysisResponse, AsyncAnalysisResponse]:
@@ -139,7 +139,7 @@ async def execute_ma_cross_analysis(
         raise Exception(f"Unexpected error: {str(e)}")
 
 
-@strawberry.mutation
+
 async def get_analysis_status(execution_id: strawberry.ID) -> Optional[AnalysisStatus]:
     """Get the status of an asynchronous analysis."""
     try:
@@ -197,7 +197,7 @@ async def get_analysis_status(execution_id: strawberry.ID) -> Optional[AnalysisS
         raise Exception(f"Error getting analysis status: {str(e)}")
 
 
-@strawberry.mutation
+
 async def cancel_analysis(execution_id: strawberry.ID) -> bool:
     """Cancel an asynchronous analysis."""
     try:

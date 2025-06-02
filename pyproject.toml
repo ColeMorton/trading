@@ -35,6 +35,7 @@ sqlalchemy = "^2.0.25"
 alembic = "^1.13.0"
 redis = "^5.0.1"
 prisma = "^0.11.0"
+pydantic-settings = "^2.9.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"

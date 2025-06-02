@@ -7,7 +7,9 @@
 3. [Operator Manual](#operator-manual)
 4. [Reference Manual](#reference-manual)
 5. [Advanced Features](#advanced-features)
-6. [Troubleshooting](#troubleshooting)
+6. [GraphQL API Guide](#graphql-api-guide)
+7. [Production Deployment](#production-deployment)
+8. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -32,7 +34,8 @@ make dev-local
 - API: http://localhost:8000
 - API Documentation: http://localhost:8000/docs
 - GraphQL Playground: http://localhost:8000/graphql
-- Health Check: http://localhost:8000/health
+- Health Dashboard: http://localhost:8000/health/detailed
+- Metrics: http://localhost:8000/health/metrics
 
 ### Quick Test
 
@@ -50,8 +53,10 @@ This platform provides:
 - **Strategy Backtesting**: Test moving average, MACD, RSI strategies
 - **Portfolio Optimization**: Modern portfolio theory tools
 - **Risk Analysis**: 40+ performance metrics
-- **Data Management**: Historical price data and results storage
+- **Data Management**: PostgreSQL database with automated backups
 - **API Access**: RESTful and GraphQL interfaces
+- **Production Ready**: Docker containerization with CI/CD pipeline
+- **Real-time Monitoring**: Health checks, metrics, and performance tracking
 
 ---
 
@@ -102,7 +107,7 @@ make test-db
 make dev-local
 ```
 
-### Method 2: Docker Installation
+### Method 2: Docker Installation (Recommended for Production)
 
 #### Prerequisites
 ```bash
@@ -110,7 +115,7 @@ make dev-local
 make check-deps
 ```
 
-#### Setup
+#### Development Setup
 ```bash
 # Build and start all services
 make docker-up
@@ -120,6 +125,22 @@ make docker-logs
 
 # Stop services
 make docker-down
+```
+
+#### Production Setup
+```bash
+# Copy production environment template
+cp .env.production.example .env.production
+# Edit .env.production with your values
+
+# Build production images
+docker compose -f docker-compose.prod.yml build
+
+# Start production services
+docker compose -f docker-compose.prod.yml up -d
+
+# Check health
+curl http://localhost/health/detailed
 ```
 
 ### Environment Configuration
@@ -142,6 +163,10 @@ REDIS_PORT=6379
 # API Configuration
 API_HOST=127.0.0.1
 API_PORT=8000
+
+# GraphQL Configuration (new)
+ENABLE_GRAPHQL=true
+VITE_USE_GRAPHQL=true
 ```
 
 ### Verification
@@ -258,11 +283,12 @@ filtered = apply_filters(results, {
 # Check all systems
 curl http://localhost:8000/health/detailed
 
-# Database health
-curl http://localhost:8000/health/database
+# Kubernetes-style checks
+curl http://localhost:8000/health/live    # Liveness probe
+curl http://localhost:8000/health/ready   # Readiness probe
 
-# Redis health
-curl http://localhost:8000/health/redis
+# Prometheus metrics
+curl http://localhost:8000/health/metrics
 ```
 
 **Log Monitoring:**
@@ -340,9 +366,10 @@ redis-cli CONFIG SET maxmemory-policy allkeys-lru
 
 **Health and Status:**
 - `GET /health` - Basic health check
-- `GET /health/detailed` - Comprehensive system status
-- `GET /health/database` - Database connectivity
-- `GET /health/redis` - Redis connectivity
+- `GET /health/detailed` - Comprehensive system status with all subsystems
+- `GET /health/live` - Kubernetes liveness probe
+- `GET /health/ready` - Kubernetes readiness probe
+- `GET /health/metrics` - Prometheus-compatible metrics endpoint
 
 #### GraphQL Schema
 
@@ -522,6 +549,13 @@ DEBUG=true
 ENABLE_GRAPHQL=true
 ENABLE_ASYNC_EXECUTION=true
 ENABLE_PROGRESS_TRACKING=true
+
+# Production Settings (new)
+ENVIRONMENT=production
+SECRET_KEY=your_secret_key_here
+ALLOWED_HOSTS=your-domain.com
+CORS_ORIGINS=https://your-domain.com
+RATE_LIMIT_PER_MINUTE=60
 ```
 
 **Strategy Configuration:**
@@ -783,6 +817,384 @@ print(f"Max drawdown with SL: {portfolio_with_sl.max_drawdown:.2%}")
 
 ---
 
+## GraphQL API Guide
+
+### Overview
+
+The platform now includes a complete GraphQL API alongside the REST API, providing:
+- Type-safe queries and mutations
+- Efficient data fetching (request only what you need)
+- Real-time subscriptions support (future)
+- Auto-generated TypeScript types
+- GraphiQL interactive playground
+
+### Accessing GraphQL
+
+**Endpoints:**
+- GraphQL API: `http://localhost:8000/graphql`
+- GraphiQL Playground: `http://localhost:8000/graphql` (browser)
+
+### Example Queries
+
+**Get Portfolios with Performance:**
+```graphql
+query GetPortfolios($limit: Int) {
+  portfolios(filter: { limit: $limit }) {
+    id
+    name
+    type
+    ticker {
+      symbol
+      name
+    }
+    performance {
+      totalReturn
+      sharpeRatio
+      maxDrawdown
+      winRate
+      profitFactor
+    }
+    createdAt
+  }
+}
+```
+
+**Get Price Data:**
+```graphql
+query GetPriceData($symbol: String!, $startDate: DateTime) {
+  priceData(symbol: $symbol, filter: { startDate: $startDate }) {
+    date
+    open
+    high
+    low
+    close
+    volume
+  }
+}
+```
+
+### Example Mutations
+
+**Execute MA Cross Analysis:**
+```graphql
+mutation RunMACrossAnalysis($input: MACrossAnalysisInput!) {
+  executeMaCrossAnalysis(input: $input) {
+    ... on MACrossAnalysisResponse {
+      status
+      totalPortfoliosAnalyzed
+      executionTime
+      portfolios {
+        ticker
+        strategyType
+        shortWindow
+        longWindow
+        performance {
+          totalReturn
+          sharpeRatio
+          maxDrawdown
+          winRate
+        }
+      }
+    }
+    ... on AsyncAnalysisResponse {
+      executionId
+      statusUrl
+      estimatedTime
+    }
+  }
+}
+
+# Variables
+{
+  "input": {
+    "ticker": ["BTC-USD", "ETH-USD"],
+    "windows": 50,
+    "strategyTypes": ["MA_CROSS"],
+    "asyncExecution": false
+  }
+}
+```
+
+**Create Portfolio:**
+```graphql
+mutation CreatePortfolio($input: PortfolioInput!) {
+  createPortfolio(input: $input) {
+    id
+    name
+    type
+    performance {
+      totalReturn
+      sharpeRatio
+    }
+  }
+}
+```
+
+### Frontend Integration
+
+**Enable GraphQL in Sensylate App:**
+```bash
+cd app/sensylate
+
+# Set environment variable
+echo "VITE_USE_GRAPHQL=true" > .env
+
+# Install dependencies
+npm install
+
+# Generate TypeScript types
+npm run codegen
+
+# Start development
+npm run dev
+```
+
+**Using Generated Hooks:**
+```typescript
+import { useGetPortfoliosQuery } from './graphql/generated';
+
+function PortfolioList() {
+  const { data, loading, error } = useGetPortfoliosQuery({
+    variables: { limit: 10 }
+  });
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  return (
+    <ul>
+      {data?.portfolios.map(portfolio => (
+        <li key={portfolio.id}>
+          {portfolio.name} - Return: {portfolio.performance.totalReturn}%
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+### GraphQL vs REST
+
+**When to use GraphQL:**
+- Need specific fields only (avoid over-fetching)
+- Multiple related resources in one request
+- Type safety is critical
+- Building modern React applications
+
+**When to use REST:**
+- Simple CRUD operations
+- File uploads/downloads
+- Legacy system integration
+- Streaming responses (SSE)
+
+---
+
+## Production Deployment
+
+### Prerequisites
+
+- Docker 20.10+ and Docker Compose 2.0+
+- Domain name with DNS configured
+- SSL certificates (Let's Encrypt recommended)
+- PostgreSQL backup storage
+- Monitoring infrastructure (optional)
+
+### Quick Deployment
+
+**1. Environment Setup:**
+```bash
+# Copy production configuration
+cp .env.production.example .env.production
+
+# Edit configuration
+vim .env.production
+
+# Required variables:
+# - POSTGRES_PASSWORD
+# - REDIS_PASSWORD
+# - SECRET_KEY
+# - ALLOWED_HOSTS
+# - CORS_ORIGINS
+```
+
+**2. Build and Deploy:**
+```bash
+# Build production images
+docker compose -f docker-compose.prod.yml build
+
+# Run database migrations
+docker compose -f docker-compose.prod.yml up -d postgres
+docker compose -f docker-compose.prod.yml run --rm api ./scripts/migrate.sh
+
+# Start all services
+docker compose -f docker-compose.prod.yml up -d
+
+# Verify deployment
+curl https://your-domain.com/health/detailed
+```
+
+### Production Architecture
+
+```
+Internet
+    |
+    ↓
+Nginx (SSL, Rate Limiting)
+    |
+    ├─→ Frontend (React PWA)
+    |
+    └─→ API (FastAPI + GraphQL)
+         |
+         ├─→ PostgreSQL (Primary DB)
+         └─→ Redis (Cache & Sessions)
+```
+
+### Security Features
+
+**Network Security:**
+- Rate limiting (60 req/min default, configurable)
+- CORS configuration
+- Security headers (HSTS, CSP, XSS Protection)
+- API key authentication (optional)
+
+**Application Security:**
+- SQL injection prevention (Prisma ORM)
+- Input validation
+- Request size limits (10MB default)
+- Non-root container users
+
+### Monitoring
+
+**Built-in Monitoring:**
+```bash
+# Prometheus metrics
+curl https://your-domain.com/health/metrics
+
+# Grafana dashboards (optional)
+docker compose -f docker-compose.prod.yml --profile monitoring up -d
+# Access at http://your-domain.com:3000
+```
+
+**Health Endpoints:**
+- `/health` - Basic check
+- `/health/ready` - All services ready
+- `/health/live` - Application alive
+- `/health/detailed` - Full system status
+
+### Backup and Recovery
+
+**Automated Backups:**
+```bash
+# Enable backup service
+docker compose -f docker-compose.prod.yml --profile backup up -d
+
+# Manual backup
+docker compose -f docker-compose.prod.yml exec postgres \
+  pg_dump -U $POSTGRES_USER $POSTGRES_DB | gzip > backup_$(date +%Y%m%d).sql.gz
+```
+
+**Restore Process:**
+```bash
+# Stop API service
+docker compose -f docker-compose.prod.yml stop api
+
+# Restore database
+gunzip < backup_20240101.sql.gz | docker compose -f docker-compose.prod.yml exec -T postgres \
+  psql -U $POSTGRES_USER $POSTGRES_DB
+
+# Restart services
+docker compose -f docker-compose.prod.yml up -d
+```
+
+### CI/CD Pipeline
+
+The platform includes a complete GitHub Actions CI/CD pipeline:
+
+**Pipeline Stages:**
+1. **Linting** - Code quality checks
+2. **Testing** - Unit and integration tests
+3. **Security** - Vulnerability scanning
+4. **Build** - Docker image creation
+5. **Deploy** - Automated deployment
+
+**Triggering Deployment:**
+```bash
+# Deploy to staging (develop branch)
+git push origin develop
+
+# Deploy to production (main branch)
+git push origin main
+```
+
+### SSL/TLS Configuration
+
+**Using Let's Encrypt:**
+```bash
+# Install certbot
+sudo apt-get install certbot
+
+# Generate certificates
+sudo certbot certonly --standalone -d your-domain.com
+
+# Copy to nginx
+sudo cp /etc/letsencrypt/live/your-domain.com/*.pem nginx/ssl/
+
+# Restart nginx
+docker compose -f docker-compose.prod.yml restart nginx
+```
+
+### Performance Optimization
+
+**Database Indexes:**
+```sql
+-- Already included in migration
+-- Run manually if needed:
+docker compose -f docker-compose.prod.yml exec postgres \
+  psql -U $POSTGRES_USER -d $POSTGRES_DB -f /database/indexes.sql
+```
+
+**Redis Optimization:**
+```bash
+# Set memory limit
+docker compose -f docker-compose.prod.yml exec redis \
+  redis-cli CONFIG SET maxmemory 512mb
+
+# Enable persistence
+docker compose -f docker-compose.prod.yml exec redis \
+  redis-cli CONFIG SET save "900 1 300 10 60 10000"
+```
+
+### Troubleshooting Production
+
+**Check Service Status:**
+```bash
+# View all services
+docker compose -f docker-compose.prod.yml ps
+
+# Check logs
+docker compose -f docker-compose.prod.yml logs -f api
+docker compose -f docker-compose.prod.yml logs -f nginx
+
+# Restart service
+docker compose -f docker-compose.prod.yml restart api
+```
+
+**Common Issues:**
+
+1. **502 Bad Gateway**
+   - Check if API is running: `docker compose -f docker-compose.prod.yml ps api`
+   - Check API logs: `docker compose -f docker-compose.prod.yml logs api`
+
+2. **Database Connection Failed**
+   - Verify credentials in `.env.production`
+   - Check database logs: `docker compose -f docker-compose.prod.yml logs postgres`
+
+3. **High Memory Usage**
+   - Check resource limits in `docker-compose.prod.yml`
+   - Monitor with: `docker stats`
+
+---
+
 ## Troubleshooting
 
 ### Common Issues
@@ -978,4 +1390,12 @@ poetry run python scripts/diagnose_system.py
 
 ---
 
-*This manual covers the core functionality of the Trading Strategy Platform. For the latest updates and advanced features, refer to the API documentation and source code.*
+*This manual covers the core functionality of the Trading Strategy Platform, including the completed GraphQL + PostgreSQL migration (Phases 1-4). The platform now offers enterprise-grade features with Docker containerization, GraphQL API, automated backups, CI/CD pipeline, and production-ready deployment capabilities.*
+
+**Key Enhancements from Migration:**
+- ✅ **Phase 1**: PostgreSQL database with automated migrations and backups
+- ✅ **Phase 2**: Complete GraphQL API alongside REST
+- ✅ **Phase 3**: Apollo Client integration with type-safe frontend
+- ✅ **Phase 4**: Production deployment with security, monitoring, and CI/CD
+
+For technical details about the migration, see `GRAPHQL_POSTGRESQL_MIGRATION_PLAN.md`.

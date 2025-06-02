@@ -1,7 +1,9 @@
 // Prisma schema for Trading Application
 
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client-py"
+  enable_experimental_decimal = true
+  recursive_type_depth = -1
 }
 
 datasource db {

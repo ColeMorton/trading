@@ -1,7 +1,6 @@
 import { getApolloClient } from '../../apollo/client';
 import { 
   ExecuteMaCrossAnalysisDocument,
-  GetAnalysisStatusDocument,
   MaCrossAnalysisInput,
   TimeframeType,
   StrategyType,
@@ -194,52 +193,55 @@ export const graphqlMaCrossApi = {
    * Get analysis status for async execution
    */
   getStatus: async (executionId: string): Promise<ExecutionStatusResponse> => {
-    try {
-      const client = getApolloClient();
+    // TODO: Re-implement when GetAnalysisStatusDocument is available in schema
+    throw new Error('Analysis status query not yet implemented in GraphQL schema');
+    
+    // try {
+    //   const client = getApolloClient();
 
-      const { data } = await client.query({
-        query: GetAnalysisStatusDocument,
-        variables: { executionId },
-        fetchPolicy: 'network-only' // Always fetch fresh status
-      });
+    //   const { data } = await client.query({
+    //     query: GetAnalysisStatusDocument,
+    //     variables: { executionId },
+    //     fetchPolicy: 'network-only' // Always fetch fresh status
+    //   });
 
-      const status = data.analysisStatus;
-
-      // Map GraphQL response to expected format
-      const response: ExecutionStatusResponse = {
-        execution_id: status.executionId,
-        status: status.status as any,
-        progress: status.progress,
-        message: status.message,
-        timestamp: status.timestamp,
-        started_at: status.startedAt,
-        completed_at: status.completedAt,
-        execution_time: status.executionTime,
-        estimated_time_remaining: status.estimatedTimeRemaining,
-        error: status.error
-      };
-
-      // If completed, include results
-      if (status.result) {
-        response.result = {
-          status: status.result.status as 'success' | 'error',
-          request_id: status.result.requestId,
-          timestamp: status.result.timestamp,
-          ticker: status.result.ticker,
-          strategy_types: status.result.strategyTypes,
-          portfolios: status.result.portfolios.map(graphQLPortfolioToMetrics),
-          portfolio_exports: {},
-          total_portfolios_analyzed: status.result.totalPortfoliosAnalyzed,
-          total_portfolios_filtered: status.result.totalPortfoliosFiltered,
-          execution_time: status.result.executionTime
-        };
-      }
-
-      return response;
-    } catch (error) {
-      console.error('GraphQL error getting analysis status:', error);
-      throw error;
-    }
+//       const status = data.analysisStatus;
+// 
+//       // Map GraphQL response to expected format
+//       const response: ExecutionStatusResponse = {
+//         execution_id: status.executionId,
+//         status: status.status as any,
+//         progress: status.progress,
+//         message: status.message,
+//         timestamp: status.timestamp,
+//         started_at: status.startedAt,
+//         completed_at: status.completedAt,
+//         execution_time: status.executionTime,
+//         estimated_time_remaining: status.estimatedTimeRemaining,
+//         error: status.error
+//       };
+// 
+//       // If completed, include results
+//       if (status.result) {
+//         response.result = {
+//           status: status.result.status as 'success' | 'error',
+//           request_id: status.result.requestId,
+//           timestamp: status.result.timestamp,
+//           ticker: status.result.ticker,
+//           strategy_types: status.result.strategyTypes,
+//           portfolios: status.result.portfolios.map(graphQLPortfolioToMetrics),
+//           portfolio_exports: {},
+//           total_portfolios_analyzed: status.result.totalPortfoliosAnalyzed,
+//           total_portfolios_filtered: status.result.totalPortfoliosFiltered,
+//           execution_time: status.result.executionTime
+//         };
+//       }
+// 
+//       return response;
+//     } catch (error) {
+//       console.error('GraphQL error getting analysis status:', error);
+//       throw error;
+//     }
   },
 
   /**

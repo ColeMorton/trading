@@ -123,6 +123,8 @@ celerybeat.pid
 
 # Environments
 .env
+.env.production
+.env.local
 .venv
 env/
 venv/
@@ -178,3 +180,21 @@ csv/ma_cross/portfolios_best/*/
 !csv/ma_cross/portfolios_best/*.*
 csv/ma_cross/portfolios_filtered/*/
 !csv/ma_cross/portfolios_filtered/*.*
+
+# Docker and Database
+docker-data/
+postgres-data/
+redis-data/
+
+# Generated files
+app/sensylate/dist/
+app/sensylate/node_modules/
+
+# Database backups
+*.sql.gz
+*.dump
+backups/database/
+database/backups/
+
+# Docker runtime files
+.dockerignore.local

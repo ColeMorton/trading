@@ -3,16 +3,8 @@ query GetPortfolios($filter: PortfolioFilter) {
     id
     name
     type
-    ticker {
-      id
-      symbol
-      name
-    }
-    strategy {
-      id
-      name
-      strategyType
-    }
+    description
+    parameters
     createdAt
     updatedAt
   }
@@ -23,42 +15,8 @@ query GetPortfolioById($id: ID!) {
     id
     name
     type
-    ticker {
-      id
-      symbol
-      name
-      assetClass
-    }
-    strategy {
-      id
-      name
-      strategyType
-      configuration {
-        shortWindow
-        longWindow
-        signalWindow
-        direction
-        timeframe
-      }
-    }
-    signals {
-      id
-      signalType
-      date
-      price
-      quantity
-    }
-    performance {
-      totalReturn
-      annualReturn
-      sharpeRatio
-      sortinoRatio
-      maxDrawdown
-      totalTrades
-      winRate
-      profitFactor
-      expectancy
-    }
+    description
+    parameters
     createdAt
     updatedAt
   }

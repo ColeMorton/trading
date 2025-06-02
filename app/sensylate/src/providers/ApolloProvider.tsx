@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ApolloProvider as BaseApolloProvider } from '@apollo/client';
 import { initializeApollo } from '../apollo/client';
-import { LoadingIndicator } from '../components/LoadingIndicator';
+import LoadingIndicator from '../components/LoadingIndicator';
 
 interface ApolloProviderProps {
   children: React.ReactNode;

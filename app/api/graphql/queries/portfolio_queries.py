@@ -13,15 +13,14 @@ from app.api.graphql.types.portfolio import (
     AnalysisFilter
 )
 from app.api.graphql.types.metrics import PortfolioMetrics, MetricsFilter
-from app.database.config import get_database
+from app.database.config import get_prisma
 
 
-@strawberry.field
 async def get_portfolios(
     filter: Optional[PortfolioFilter] = None
 ) -> List[Portfolio]:
     """Get portfolios with optional filtering."""
-    db = await get_database()
+    db = await get_prisma()
     
     # Build filter conditions
     where_conditions = {}
@@ -54,10 +53,10 @@ async def get_portfolios(
     ]
 
 
-@strawberry.field
+
 async def get_portfolio(id: strawberry.ID) -> Optional[Portfolio]:
     """Get a specific portfolio by ID."""
-    db = await get_database()
+    db = await get_prisma()
     
     portfolio = await db.portfolio.find_unique(
         where={"id": str(id)}
@@ -77,13 +76,13 @@ async def get_portfolio(id: strawberry.ID) -> Optional[Portfolio]:
     )
 
 
-@strawberry.field
+
 async def get_portfolio_metrics(
     portfolio_id: strawberry.ID,
     filter: Optional[MetricsFilter] = None
 ) -> List[PortfolioMetrics]:
     """Get performance metrics for a portfolio."""
-    db = await get_database()
+    db = await get_prisma()
     
     # Build filter conditions
     where_conditions = {"portfolioId": str(portfolio_id)}

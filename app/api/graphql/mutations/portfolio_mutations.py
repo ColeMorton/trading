@@ -11,13 +11,13 @@ from app.api.graphql.types.portfolio import (
     Portfolio,
     PortfolioInput
 )
-from app.database.config import get_database
+from app.database.config import get_prisma
 
 
-@strawberry.mutation
+
 async def create_portfolio(input: PortfolioInput) -> Portfolio:
     """Create a new portfolio."""
-    db = await get_database()
+    db = await get_prisma()
     
     portfolio = await db.portfolio.create(
         data={
@@ -39,13 +39,13 @@ async def create_portfolio(input: PortfolioInput) -> Portfolio:
     )
 
 
-@strawberry.mutation
+
 async def update_portfolio(
     id: strawberry.ID,
     input: PortfolioInput
 ) -> Optional[Portfolio]:
     """Update an existing portfolio."""
-    db = await get_database()
+    db = await get_prisma()
     
     # Check if portfolio exists
     existing = await db.portfolio.find_unique(
@@ -78,10 +78,10 @@ async def update_portfolio(
     )
 
 
-@strawberry.mutation
+
 async def delete_portfolio(id: strawberry.ID) -> bool:
     """Delete a portfolio."""
-    db = await get_database()
+    db = await get_prisma()
     
     try:
         await db.portfolio.delete(
@@ -92,7 +92,7 @@ async def delete_portfolio(id: strawberry.ID) -> bool:
         return False
 
 
-@strawberry.mutation
+
 async def add_strategy_to_portfolio(
     portfolio_id: strawberry.ID,
     strategy_config_id: strawberry.ID,
@@ -100,7 +100,7 @@ async def add_strategy_to_portfolio(
     position: Optional[int] = None
 ) -> bool:
     """Add a strategy to a portfolio."""
-    db = await get_database()
+    db = await get_prisma()
     
     try:
         # Get next position if not provided
@@ -125,13 +125,13 @@ async def add_strategy_to_portfolio(
         return False
 
 
-@strawberry.mutation
+
 async def remove_strategy_from_portfolio(
     portfolio_id: strawberry.ID,
     strategy_config_id: strawberry.ID
 ) -> bool:
     """Remove a strategy from a portfolio."""
-    db = await get_database()
+    db = await get_prisma()
     
     try:
         await db.portfoliostrategy.delete(

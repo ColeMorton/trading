@@ -13,15 +13,15 @@ from app.api.graphql.types.strategy import (
     Signal
 )
 from app.api.graphql.types.metrics import BacktestResult, MetricsFilter
-from app.database.config import get_database
+from app.database.config import get_prisma
 
 
-@strawberry.field
+
 async def get_strategies(
     filter: Optional[StrategyFilter] = None
 ) -> List[Strategy]:
     """Get strategies with optional filtering."""
-    db = await get_database()
+    db = await get_prisma()
     
     # Build filter conditions
     where_conditions = {}
@@ -48,10 +48,10 @@ async def get_strategies(
     ]
 
 
-@strawberry.field
+
 async def get_strategy(id: strawberry.ID) -> Optional[Strategy]:
     """Get a specific strategy by ID."""
-    db = await get_database()
+    db = await get_prisma()
     
     strategy = await db.strategy.find_unique(
         where={"id": str(id)}
@@ -70,14 +70,14 @@ async def get_strategy(id: strawberry.ID) -> Optional[Strategy]:
     )
 
 
-@strawberry.field
+
 async def get_strategy_configurations(
     strategy_id: Optional[strawberry.ID] = None,
     ticker_symbol: Optional[str] = None,
     filter: Optional[StrategyFilter] = None
 ) -> List[StrategyConfiguration]:
     """Get strategy configurations with optional filtering."""
-    db = await get_database()
+    db = await get_prisma()
     
     # Build filter conditions
     where_conditions = {}
@@ -120,13 +120,13 @@ async def get_strategy_configurations(
     ]
 
 
-@strawberry.field
+
 async def get_backtest_results(
     strategy_config_id: Optional[strawberry.ID] = None,
     filter: Optional[MetricsFilter] = None
 ) -> List[BacktestResult]:
     """Get backtest results with optional filtering."""
-    db = await get_database()
+    db = await get_prisma()
     
     # Build filter conditions
     where_conditions = {}
@@ -196,13 +196,13 @@ async def get_backtest_results(
     ]
 
 
-@strawberry.field
+
 async def get_signals(
     strategy_config_id: Optional[strawberry.ID] = None,
     limit: Optional[int] = None
 ) -> List[Signal]:
     """Get trading signals for a strategy configuration."""
-    db = await get_database()
+    db = await get_prisma()
     
     where_conditions = {}
     if strategy_config_id:
