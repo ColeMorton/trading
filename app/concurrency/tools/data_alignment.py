@@ -1,7 +1,11 @@
 """Data alignment utilities for concurrency analysis."""
 
-from typing import List, Tuple, Callable
+from typing import List, Tuple, Callable, Optional, Dict, Any
 import polars as pl
+import pandas as pd
+from pathlib import Path
+
+from .validation import PortfolioMetricsValidator, ValidationSummary
 
 def resample_hourly_to_daily(
     data: pl.DataFrame,
@@ -235,4 +239,178 @@ def align_multiple_data(
         
     except Exception as e:
         log(f"Error during multiple data alignment: {str(e)}", "error")
+        raise
+
+
+def validate_aligned_data_quality(
+    aligned_data: List[pl.DataFrame],
+    csv_path: Optional[str] = None,
+    json_metrics: Optional[Dict[str, Any]] = None,
+    log: Optional[Callable[[str, str], None]] = None
+) -> ValidationSummary:
+    """
+    Validate the quality of aligned data against source data.
+    
+    This function performs validation checks to ensure that data alignment
+    hasn't introduced calculation errors or data quality issues.
+    
+    Args:
+        aligned_data: List of aligned DataFrames
+        csv_path: Optional path to CSV backtest data for validation
+        json_metrics: Optional JSON metrics for cross-validation
+        log: Optional logging function
+        
+    Returns:
+        ValidationSummary with validation results
+    """
+    if log is None:
+        from app.tools.setup_logging import setup_logging
+        log, _, _, _ = setup_logging("data_alignment_validator", Path("./logs"), "alignment_validation.log")
+    
+    log("Validating aligned data quality", "info")
+    
+    # Create validator
+    validator = PortfolioMetricsValidator(log)
+    results = []
+    
+    try:
+        # Basic alignment checks
+        if len(aligned_data) < 2:
+            log("Warning: Less than 2 aligned dataframes for validation", "warning")
+            return ValidationSummary(0, 0, 0, 0, 0, [])
+        
+        # Check 1: All dataframes have same length
+        lengths = [len(df) for df in aligned_data]
+        all_same_length = len(set(lengths)) == 1
+        
+        if not all_same_length:
+            log(f"Alignment error: DataFrames have different lengths: {lengths}", "error")
+        
+        # Check 2: All dataframes have same date range
+        date_ranges = []
+        for i, df in enumerate(aligned_data):
+            if "Date" in df.columns:
+                min_date = df["Date"].min()
+                max_date = df["Date"].max()
+                date_ranges.append((min_date, max_date))
+            else:
+                log(f"DataFrame {i} missing Date column", "error")
+        
+        all_same_dates = len(set(date_ranges)) == 1 if date_ranges else False
+        
+        # Check 3: No missing position data
+        position_completeness = []
+        for i, df in enumerate(aligned_data):
+            if "Position" in df.columns:
+                non_null_positions = df["Position"].null_count() == 0
+                position_completeness.append(non_null_positions)
+            else:
+                log(f"DataFrame {i} missing Position column", "error")
+                position_completeness.append(False)
+        
+        all_positions_complete = all(position_completeness) if position_completeness else False
+        
+        # Check 4: Reasonable signal counts
+        signal_counts = []
+        for i, df in enumerate(aligned_data):
+            if "Position" in df.columns:
+                # Count position changes as signals
+                df_pd = df.to_pandas()
+                if len(df_pd) > 1:
+                    df_pd['signal'] = df_pd['Position'].diff().fillna(0)
+                    signal_count = (df_pd['signal'] != 0).sum()
+                    signal_counts.append(signal_count)
+                    
+                    # Check for reasonable signal frequency (not more than 50% of days)
+                    signal_frequency = signal_count / len(df_pd)
+                    if signal_frequency > 0.5:
+                        log(f"DataFrame {i} has very high signal frequency: {signal_frequency:.2%}", "warning")
+        
+        # Cross-validation with CSV/JSON if available
+        cross_validation_passed = True
+        if csv_path and json_metrics:
+            try:
+                csv_data = pd.read_csv(csv_path)
+                validation_summary = validator.validate_all(csv_data, json_metrics)
+                cross_validation_passed = validation_summary.critical_failures == 0
+                log(f"Cross-validation completed: {validation_summary.success_rate:.1%} success rate", "info")
+            except Exception as e:
+                log(f"Cross-validation failed: {str(e)}", "warning")
+                cross_validation_passed = False
+        
+        # Generate summary
+        total_checks = 4 + (1 if csv_path and json_metrics else 0)
+        passed_checks = sum([
+            all_same_length,
+            all_same_dates,
+            all_positions_complete,
+            len(signal_counts) > 0,  # At least some signals found
+            cross_validation_passed
+        ])
+        
+        log(f"Data alignment validation: {passed_checks}/{total_checks} checks passed", "info")
+        
+        return ValidationSummary(
+            total_checks=total_checks,
+            passed_checks=passed_checks,
+            failed_checks=total_checks - passed_checks,
+            critical_failures=0 if all_same_length and all_same_dates else 1,
+            warning_failures=0,
+            results=[]  # Detailed results would be added here in full implementation
+        )
+        
+    except Exception as e:
+        log(f"Error during data alignment validation: {str(e)}", "error")
+        return ValidationSummary(0, 0, 1, 1, 0, [])
+
+
+def align_with_validation(
+    data_list: List[pl.DataFrame],
+    hourly_flags: List[bool],
+    csv_path: Optional[str] = None,
+    json_metrics: Optional[Dict[str, Any]] = None,
+    log: Optional[Callable[[str, str], None]] = None
+) -> Tuple[List[pl.DataFrame], ValidationSummary]:
+    """
+    Align multiple dataframes with built-in validation.
+    
+    This function combines data alignment with validation to ensure
+    the aligned data maintains quality and consistency.
+    
+    Args:
+        data_list: List of dataframes to align
+        hourly_flags: List indicating which dataframes are hourly
+        csv_path: Optional path to CSV backtest data for validation
+        json_metrics: Optional JSON metrics for cross-validation
+        log: Optional logging function
+        
+    Returns:
+        Tuple of (aligned_dataframes, validation_summary)
+    """
+    if log is None:
+        from app.tools.setup_logging import setup_logging
+        log, _, _, _ = setup_logging("align_with_validation", Path("./logs"), "alignment.log")
+    
+    log("Starting data alignment with validation", "info")
+    
+    try:
+        # Perform standard alignment
+        aligned_data = align_multiple_data(data_list, hourly_flags, log)
+        
+        # Validate the aligned data
+        validation_summary = validate_aligned_data_quality(
+            aligned_data, csv_path, json_metrics, log
+        )
+        
+        if validation_summary.critical_failures > 0:
+            log("Critical failures detected in aligned data", "error")
+        elif validation_summary.failed_checks > 0:
+            log(f"Data alignment completed with {validation_summary.failed_checks} validation warnings", "warning")
+        else:
+            log("Data alignment completed successfully with all validations passed", "info")
+        
+        return aligned_data, validation_summary
+        
+    except Exception as e:
+        log(f"Error during alignment with validation: {str(e)}", "error")
         raise

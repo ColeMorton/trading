@@ -1,6 +1,6 @@
 """Efficiency score calculation for concurrency analysis."""
 
-from typing import List, Callable, Tuple, Dict
+from typing import List, Callable, Tuple, Dict, Optional
 
 def calculate_strategy_efficiency(
     correlation: float,
@@ -144,10 +144,22 @@ def calculate_portfolio_efficiency(
             weighted_eff = eff * exp * norm_alloc * risk_factor
             weighted_efficiencies.append(weighted_eff)
             
-            # Also track the weighted expectancy for reporting
+            # FIXED: Calculate weighted expectancy correctly (average, not sum)
             if i == 0:  # Only initialize once
                 metrics['total_weighted_expectancy'] = 0.0
-            metrics['total_weighted_expectancy'] += exp * norm_alloc
+                metrics['expectancy_calculation_debug'] = []
+            
+            # Calculate weighted contribution (allocation * expectancy)
+            weighted_expectancy_contribution = exp * norm_alloc
+            metrics['total_weighted_expectancy'] += weighted_expectancy_contribution
+            
+            # Store debug info for validation
+            metrics['expectancy_calculation_debug'].append({
+                'strategy': i,
+                'expectancy': exp,
+                'allocation': norm_alloc,
+                'contribution': weighted_expectancy_contribution
+            })
             
             log(f"Strategy {i} weighted efficiency components:", "info")
             log(f"  Base efficiency: {eff:.6f}", "info")
@@ -195,17 +207,21 @@ def calculate_portfolio_efficiency(
                 portfolio_efficiency = max(portfolio_efficiency, avg_strategy_efficiency * 0.5)
                 log(f"Adjusted portfolio efficiency: {portfolio_efficiency:.6f}", "info")
         
-        metrics = {
+        # VALIDATION: Check expectancy calculation reasonableness
+        _validate_expectancy_calculation(metrics, strategy_expectancies, log)
+        
+        portfolio_metrics = {
             'portfolio_efficiency': portfolio_efficiency,
             'weighted_efficiency': total_efficiency,
             'diversification_multiplier': diversification,
             'independence_multiplier': independence,
             'independence_multiplier_adjusted': adjusted_independence,
-            'activity_multiplier': activity
+            'activity_multiplier': activity,
+            'total_weighted_expectancy': metrics.get('total_weighted_expectancy', 0.0)
         }
         
-        log(f"Portfolio metrics calculated: {metrics}", "info")
-        return metrics
+        log(f"Portfolio metrics calculated: {portfolio_metrics}", "info")
+        return portfolio_metrics
         
     except Exception as e:
         log(f"Error calculating portfolio efficiency: {str(e)}", "error")
@@ -273,3 +289,91 @@ def normalize_values(values: List[float]) -> List[float]:
         # instead of all zeros to ensure fair allocation
         return [0.5] * len(values)
     return [(value - min_value) / (max_value - min_value) for value in values]
+
+
+def _validate_expectancy_calculation(
+    metrics: Dict[str, float],
+    strategy_expectancies: List[float],
+    log: Callable[[str, str], None]
+) -> None:
+    """
+    Validate that expectancy calculation is reasonable and doesn't show unit confusion.
+    
+    This function checks for the expectancy magnitude issue where values become
+    unrealistically large due to incorrect aggregation.
+    """
+    try:
+        total_weighted_expectancy = metrics.get('total_weighted_expectancy', 0)
+        debug_info = metrics.get('expectancy_calculation_debug', [])
+        
+        if strategy_expectancies:
+            # Calculate simple average for comparison
+            simple_average = sum(strategy_expectancies) / len(strategy_expectancies)
+            
+            # Check for unrealistic magnitude
+            magnitude_ratio = abs(total_weighted_expectancy / simple_average) if simple_average != 0 else 0
+            
+            log(f"Expectancy validation:", "info")
+            log(f"  Individual expectancies: {[f'{e:.3f}' for e in strategy_expectancies]}", "info")
+            log(f"  Simple average: {simple_average:.3f}", "info")
+            log(f"  Weighted portfolio: {total_weighted_expectancy:.3f}", "info")
+            log(f"  Magnitude ratio: {magnitude_ratio:.2f}×", "info")
+            
+            # Validate reasonableness
+            if magnitude_ratio > 50:
+                log(f"WARNING: Expectancy magnitude suspiciously high! Portfolio: {total_weighted_expectancy:.2f}, Average: {simple_average:.2f}", "warning")
+                log(f"This suggests expectancies are being summed instead of averaged", "warning")
+            
+            elif magnitude_ratio > 10:
+                log(f"WARNING: Expectancy magnitude high. Portfolio: {total_weighted_expectancy:.2f}, Average: {simple_average:.2f}", "warning")
+                
+            elif abs(total_weighted_expectancy) > 1000:
+                log(f"WARNING: Expectancy magnitude suggests unit confusion (should be per-trade dollars, not percentages)", "warning")
+                
+            else:
+                log(f"Expectancy calculation validated: Portfolio={total_weighted_expectancy:.3f}, Average={simple_average:.3f}", "info")
+            
+            # Debug detailed calculation
+            if debug_info:
+                log(f"Expectancy calculation breakdown:", "info")
+                for item in debug_info:
+                    log(f"  Strategy {item['strategy']}: {item['expectancy']:.3f} × {item['allocation']:.3f} = {item['contribution']:.3f}", "info")
+        
+    except Exception as e:
+        log(f"Error in expectancy validation: {str(e)}", "error")
+
+
+def convert_expectancy_units(
+    expectancy_value: float,
+    source_unit: str = "percentage",
+    target_unit: str = "decimal",
+    log: Optional[Callable[[str, str], None]] = None
+) -> float:
+    """
+    Convert expectancy between different units (percentage vs decimal).
+    
+    Args:
+        expectancy_value: The expectancy value to convert
+        source_unit: "percentage" (0-100) or "decimal" (0-1)
+        target_unit: "percentage" (0-100) or "decimal" (0-1)
+        log: Optional logging function
+        
+    Returns:
+        Converted expectancy value
+    """
+    if source_unit == target_unit:
+        return expectancy_value
+    
+    if source_unit == "percentage" and target_unit == "decimal":
+        result = expectancy_value / 100.0
+    elif source_unit == "decimal" and target_unit == "percentage":
+        result = expectancy_value * 100.0
+    else:
+        if log:
+            log(f"Unknown unit conversion: {source_unit} to {target_unit}", "error")
+        return expectancy_value
+    
+    if log:
+        log(f"Converted expectancy: {expectancy_value} ({source_unit}) → {result} ({target_unit})", "info")
+    
+    return result

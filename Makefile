@@ -1,7 +1,7 @@
 # Trading Application Makefile
 # Provides convenient commands for development and deployment
 
-.PHONY: help install dev build test clean docker-build docker-up docker-down docker-logs setup-db migrate backup restore
+.PHONY: help install dev build test clean docker-build docker-up docker-down docker-logs setup-db migrate backup restore frontend-install frontend-dev frontend-build frontend-codegen frontend-test dev-fullstack
 
 # Default target
 help:
@@ -12,6 +12,14 @@ help:
 	@echo "  dev         - Start development server"
 	@echo "  test        - Run test suite"
 	@echo "  clean       - Clean temporary files"
+	@echo ""
+	@echo "Frontend:"
+	@echo "  frontend-install - Install frontend dependencies"
+	@echo "  frontend-dev     - Start frontend development server"
+	@echo "  frontend-build   - Build frontend for production"
+	@echo "  frontend-codegen - Generate GraphQL types"
+	@echo "  frontend-test    - Run frontend E2E tests"
+	@echo "  dev-fullstack    - Start both backend and frontend"
 	@echo ""
 	@echo "Docker:"
 	@echo "  docker-build - Build Docker images"
@@ -33,10 +41,11 @@ help:
 	@echo "  dev-local   - Start API server with local database"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make check-deps     # Check what's needed"
-	@echo "  make install-db     # Install databases locally"
-	@echo "  make dev-local      # Start without Docker"
-	@echo "  make docker-up      # Or use Docker (requires installation)"
+	@echo "  make check-deps         # Check what's needed"
+	@echo "  make install-db         # Install databases locally"
+	@echo "  make frontend-install   # Install frontend dependencies"
+	@echo "  make dev-fullstack      # Start both backend and frontend"
+	@echo "  make docker-up          # Or use Docker (requires installation)"
 
 # Development commands
 install:
@@ -203,3 +212,73 @@ logs-redis:
 
 logs-frontend:
 	docker-compose logs -f frontend
+
+# Frontend commands
+frontend-check-deps:
+	@echo "Checking frontend dependencies..."
+	@command -v node >/dev/null 2>&1 && echo "✅ Node.js is installed" || echo "❌ Node.js is required - install from https://nodejs.org"
+	@command -v npm >/dev/null 2>&1 && echo "✅ npm is installed" || echo "❌ npm is required (comes with Node.js)"
+	@test -f app/frontend/sensylate/package.json && echo "✅ Frontend package.json found" || echo "❌ Frontend package.json not found"
+
+frontend-install: frontend-check-deps
+	@echo "Installing frontend dependencies..."
+	cd app/frontend/sensylate && npm install
+	@echo "✅ Frontend dependencies installed"
+
+frontend-codegen:
+	@echo "Generating GraphQL types..."
+	cd app/frontend/sensylate && npm run codegen
+	@echo "✅ GraphQL types generated"
+
+frontend-dev:
+	@echo "Starting frontend development server..."
+	@echo "Frontend will be available at: http://localhost:5173"
+	cd app/frontend/sensylate && npm run dev
+
+frontend-build:
+	@echo "Building frontend for production..."
+	cd app/frontend/sensylate && npm run build
+	@echo "✅ Frontend build complete"
+
+frontend-build-pwa:
+	@echo "Building frontend PWA for production..."
+	cd app/frontend/sensylate && npm run build:pwa
+	@echo "✅ Frontend PWA build complete"
+
+frontend-test:
+	@echo "Running frontend E2E tests..."
+	cd app/frontend/sensylate && npm run test:e2e
+	@echo "✅ Frontend tests complete"
+
+frontend-lint:
+	@echo "Running frontend linting..."
+	cd app/frontend/sensylate && npm run lint
+	@echo "✅ Frontend linting complete"
+
+frontend-clean:
+	@echo "Cleaning frontend build artifacts..."
+	cd app/frontend/sensylate && rm -rf dist node_modules/.vite
+	@echo "✅ Frontend cleaned"
+
+# Full-stack development
+dev-fullstack: start-local frontend-install
+	@echo "Starting full-stack development environment..."
+	@echo "Backend API: http://localhost:8000"
+	@echo "Frontend: http://localhost:5173"
+	@echo "GraphQL Playground: http://localhost:8000/graphql"
+	@echo ""
+	@echo "Starting backend in background..."
+	poetry run python -m app.api.run --reload &
+	@echo "Waiting for backend to start..."
+	@sleep 3
+	@echo "Starting frontend..."
+	cd app/frontend/sensylate && npm run dev
+
+# Setup commands for new developers
+setup-frontend: frontend-install frontend-codegen
+	@echo "✅ Frontend setup complete!"
+	@echo "Run 'make frontend-dev' to start development server"
+
+setup-fullstack: install setup-db frontend-install frontend-codegen
+	@echo "✅ Full-stack setup complete!"
+	@echo "Run 'make dev-fullstack' to start both backend and frontend"

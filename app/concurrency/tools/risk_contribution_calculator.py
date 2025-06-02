@@ -681,12 +681,13 @@ class RiskContributionCalculator:
                     # Use standard covariance calculation with validation
                     cov_matrix, diagnostics = corr_calc.calculate_covariance_matrix(
                         aligned_returns_matrix,
-                        min_observations=10
+                        aligned_strategy_names,
+                        log
                     )
                     
                     # Log diagnostics
-                    log(f"Covariance matrix condition number: {diagnostics['covariance']['condition_number']:.2f}", "info")
-                    log(f"Average correlation: {diagnostics['correlation']['avg_correlation']:.4f}", "info")
+                    log(f"Covariance matrix condition number: {diagnostics.get('condition_number', 1.0):.2f}", "info")
+                    log(f"Min eigenvalue: {diagnostics.get('min_eigenvalue', 0.0):.2e}", "info")
                 
                 # Convert allocations to numpy array
                 weights = np.array(strategy_allocations)

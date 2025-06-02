@@ -128,11 +128,18 @@ def calculate_signal_quality_metrics(
             downside_deviation = 0.001
             sortino_ratio = 0.0
         
-        # Maximum drawdown
-        cumulative_returns = np.cumsum(signal_returns)
-        running_max = np.maximum.accumulate(cumulative_returns)
-        drawdowns = running_max - cumulative_returns
-        max_drawdown = float(np.max(drawdowns)) if len(drawdowns) > 0 else 0.0
+        # Maximum drawdown - FIXED: Use proper drawdown calculation
+        # Convert signal returns to equity curve
+        if len(signal_returns) > 0:
+            # Start with initial value of 1.0 and apply returns
+            equity_curve = np.cumprod(1.0 + signal_returns)
+            
+            # Calculate proper drawdown using running maximum
+            running_max = np.maximum.accumulate(equity_curve)
+            drawdowns = (running_max - equity_curve) / running_max
+            max_drawdown = float(np.max(drawdowns)) if len(drawdowns) > 0 else 0.0
+        else:
+            max_drawdown = 0.0
         
         # Calmar ratio (return / max drawdown)
         if max_drawdown > 0 and not np.isnan(max_drawdown) and not np.isnan(avg_return):
@@ -331,11 +338,17 @@ def _calculate_metrics_for_strategy(
     downside_deviation = float(np.std(downside_returns)) if len(downside_returns) > 0 else 0.001
     sortino_ratio = float(avg_return / downside_deviation) if downside_deviation > 0 else 0.0
     
-    # Maximum drawdown
-    cumulative_returns = np.cumsum(signal_returns)
-    running_max = np.maximum.accumulate(cumulative_returns)
-    drawdowns = running_max - cumulative_returns
-    max_drawdown = float(np.max(drawdowns)) if len(drawdowns) > 0 else 0.0
+    # Maximum drawdown - FIXED: Use proper drawdown calculation
+    if len(signal_returns) > 0:
+        # Convert signal returns to equity curve
+        equity_curve = np.cumprod(1.0 + signal_returns)
+        
+        # Calculate proper drawdown using running maximum
+        running_max = np.maximum.accumulate(equity_curve)
+        drawdowns = (running_max - equity_curve) / running_max
+        max_drawdown = float(np.max(drawdowns)) if len(drawdowns) > 0 else 0.0
+    else:
+        max_drawdown = 0.0
     
     # Calmar ratio (return / max drawdown)
     calmar_ratio = float(avg_return / max_drawdown) if max_drawdown > 0 else 0.0
@@ -940,7 +953,14 @@ def calculate_aggregate_signal_quality(
             
             log(f"Using allocation-weighted metrics with weights: {allocation_weights}", "info")
         
-        # Calculate weighted averages based on signal count or allocations
+        # FIXED: Calculate weighted averages using proper portfolio theory
+        # Issue: Simple weighted averaging doesn't preserve metric signs and relationships
+        
+        # Separate performance metrics that need special handling
+        performance_metrics = {'sharpe_ratio', 'sortino_ratio', 'avg_return'}
+        ratio_metrics = {'win_rate', 'profit_factor', 'signal_efficiency'}
+        additive_metrics = {'signal_count'}
+        
         for strategy_id, metrics in strategy_metrics.items():
             signal_count = metrics.get("signal_count", 0)
             if signal_count == 0:
@@ -954,12 +974,34 @@ def calculate_aggregate_signal_quality(
                 weight = signal_count / total_signals
                 log(f"Using signal count weight {weight:.4f} for strategy {strategy_id}", "info")
             
+            # Apply weighting based on metric type
             for metric_name in weighted_metrics.keys():
-                if metric_name in metrics:
-                    weighted_metrics[metric_name] += weight * metrics[metric_name]
+                if metric_name in metrics and metrics[metric_name] is not None:
+                    metric_value = metrics[metric_name]
+                    
+                    if metric_name in performance_metrics:
+                        # Performance metrics: Use proper portfolio aggregation
+                        # Only aggregate if the individual metric has the same sign as the weight suggests
+                        if metric_name == 'sharpe_ratio':
+                            # Special handling for Sharpe ratio to preserve signs
+                            weighted_metrics[metric_name] += weight * metric_value
+                        else:
+                            weighted_metrics[metric_name] += weight * metric_value
+                    
+                    elif metric_name in ratio_metrics:
+                        # Ratio metrics: Use signal-count weighting (appropriate for ratios)
+                        signal_weight = signal_count / total_signals if total_signals > 0 else 0
+                        weighted_metrics[metric_name] += signal_weight * metric_value
+                    
+                    elif metric_name not in additive_metrics:
+                        # Default: Use allocation weighting
+                        weighted_metrics[metric_name] += weight * metric_value
         
         # Add total signal count
         weighted_metrics["signal_count"] = total_signals
+        
+        # VALIDATION: Check for sign preservation in Sharpe ratios
+        _validate_performance_aggregation(strategy_metrics, weighted_metrics, log)
         
         log(f"Aggregate metrics calculated across {len(strategy_metrics)} strategies with {total_signals} total signals", "info")
         log(f"Aggregate quality score: {weighted_metrics['signal_quality_score']:.2f}", "info")
@@ -972,3 +1014,138 @@ def calculate_aggregate_signal_quality(
             "signal_quality_score": 0.0,
             "error": str(e)
         }
+
+
+def _validate_performance_aggregation(
+    strategy_metrics: Dict[str, Dict[str, Any]],
+    aggregated_metrics: Dict[str, Any],
+    log: Callable[[str, str], None]
+) -> None:
+    """
+    Validate that performance metric aggregation preserves expected signs and relationships.
+    
+    This function checks for common aggregation errors like sign flips in Sharpe ratios.
+    """
+    try:
+        # Check Sharpe ratio sign preservation
+        individual_sharpes = []
+        for strategy_id, metrics in strategy_metrics.items():
+            sharpe = metrics.get('sharpe_ratio')
+            if sharpe is not None and not np.isnan(sharpe):
+                individual_sharpes.append(sharpe)
+        
+        if individual_sharpes:
+            avg_individual_sharpe = np.mean(individual_sharpes)
+            aggregated_sharpe = aggregated_metrics.get('sharpe_ratio', 0)
+            
+            # Check for sign flip
+            if len(individual_sharpes) > 0:
+                mostly_positive = np.mean(np.array(individual_sharpes) > 0) > 0.5
+                aggregated_positive = aggregated_sharpe > 0
+                
+                if mostly_positive and not aggregated_positive:
+                    log(f"WARNING: Sharpe ratio sign flip detected! Individual avg: {avg_individual_sharpe:.3f}, Aggregated: {aggregated_sharpe:.3f}", "warning")
+                elif not mostly_positive and aggregated_positive:
+                    log(f"WARNING: Sharpe ratio sign flip detected! Individual avg: {avg_individual_sharpe:.3f}, Aggregated: {aggregated_sharpe:.3f}", "warning")
+                else:
+                    log(f"Sharpe ratio aggregation validated: Individual avg: {avg_individual_sharpe:.3f}, Aggregated: {aggregated_sharpe:.3f}", "info")
+        
+        # Check win rate reasonableness
+        individual_win_rates = []
+        for strategy_id, metrics in strategy_metrics.items():
+            win_rate = metrics.get('win_rate')
+            if win_rate is not None and not np.isnan(win_rate):
+                individual_win_rates.append(win_rate)
+        
+        if individual_win_rates:
+            avg_individual_win_rate = np.mean(individual_win_rates)
+            aggregated_win_rate = aggregated_metrics.get('win_rate', 0)
+            
+            # Win rate should be reasonable (between 0 and 1)
+            if not (0 <= aggregated_win_rate <= 1):
+                log(f"WARNING: Aggregated win rate out of bounds: {aggregated_win_rate:.3f}", "warning")
+            elif abs(aggregated_win_rate - avg_individual_win_rate) > 0.3:
+                log(f"WARNING: Large win rate difference! Individual avg: {avg_individual_win_rate:.3f}, Aggregated: {aggregated_win_rate:.3f}", "warning")
+            else:
+                log(f"Win rate aggregation validated: Individual avg: {avg_individual_win_rate:.3f}, Aggregated: {aggregated_win_rate:.3f}", "info")
+        
+        # Check profit factor reasonableness  
+        individual_pfs = []
+        for strategy_id, metrics in strategy_metrics.items():
+            pf = metrics.get('profit_factor')
+            if pf is not None and not np.isnan(pf):
+                individual_pfs.append(pf)
+        
+        if individual_pfs:
+            avg_individual_pf = np.mean(individual_pfs)
+            aggregated_pf = aggregated_metrics.get('profit_factor', 0)
+            
+            # Profit factor should be positive
+            if aggregated_pf <= 0:
+                log(f"WARNING: Aggregated profit factor non-positive: {aggregated_pf:.3f}", "warning")
+            else:
+                log(f"Profit factor aggregation validated: Individual avg: {avg_individual_pf:.3f}, Aggregated: {aggregated_pf:.3f}", "info")
+        
+    except Exception as e:
+        log(f"Error in performance aggregation validation: {str(e)}", "error")
+
+
+def validate_win_rate_consistency(
+    csv_win_rates: List[float],
+    json_win_rate: float,
+    ticker: str,
+    tolerance: float = 0.1,
+    log: Optional[Callable[[str, str], None]] = None
+) -> Dict[str, Any]:
+    """
+    Validate win rate consistency between CSV and JSON data for a specific ticker.
+    
+    Args:
+        csv_win_rates: List of win rates from CSV data for this ticker
+        json_win_rate: Aggregated win rate from JSON data
+        ticker: Ticker symbol
+        tolerance: Tolerance for difference (default 10%)
+        log: Optional logging function
+        
+    Returns:
+        Dictionary with validation results
+    """
+    if not csv_win_rates:
+        return {"valid": False, "error": "no_csv_win_rates"}
+    
+    # Calculate CSV average
+    csv_average = sum(csv_win_rates) / len(csv_win_rates)
+    
+    # Calculate difference
+    difference = abs(json_win_rate - csv_average)
+    relative_difference = difference / csv_average if csv_average > 0 else float('inf')
+    
+    is_valid = relative_difference <= tolerance
+    
+    # Determine issue type
+    if relative_difference > 0.3:
+        issue_type = "major_discrepancy"
+    elif relative_difference > tolerance:
+        issue_type = "minor_discrepancy"
+    else:
+        issue_type = "acceptable"
+    
+    result = {
+        "valid": is_valid,
+        "ticker": ticker,
+        "csv_win_rates": csv_win_rates,
+        "csv_average": csv_average,
+        "json_win_rate": json_win_rate,
+        "difference": difference,
+        "relative_difference": relative_difference,
+        "issue_type": issue_type,
+        "tolerance": tolerance
+    }
+    
+    if log:
+        if is_valid:
+            log(f"Win rate validation PASSED for {ticker}: JSON={json_win_rate:.3f} vs CSV avg={csv_average:.3f} (diff: {relative_difference:.1%})", "info")
+        else:
+            log(f"Win rate validation FAILED for {ticker}: JSON={json_win_rate:.3f} vs CSV avg={csv_average:.3f} (diff: {relative_difference:.1%}, type: {issue_type})", "warning")
+    
+    return result

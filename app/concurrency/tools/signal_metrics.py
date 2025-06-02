@@ -116,8 +116,13 @@ def calculate_signal_metrics(
         
         # Calculate portfolio-level metrics
         if all_signals:
-            # Combine all signals
-            combined_signals = pd.concat(all_signals).copy()  # Create an explicit copy
+            # FIXED: Calculate both strategy-level and unique portfolio-level metrics
+            
+            # Strategy-level aggregation (original behavior for strategy analysis)
+            combined_signals = pd.concat(all_signals).copy()
+            
+            # Portfolio-level unique signals (new behavior for portfolio analysis)
+            unique_signals = _calculate_unique_portfolio_signals(all_signals, log)
             
             # Ensure index is properly set for period operations
             if not isinstance(combined_signals.index, pd.DatetimeIndex):
@@ -130,30 +135,71 @@ def calculate_signal_metrics(
             
             combined_signals.loc[:, 'month'] = combined_signals.index.to_period('M')
             
-            # Calculate monthly counts across all strategies
-            portfolio_monthly_counts = combined_signals.groupby('month').size()
+            # Calculate monthly counts for strategy aggregation
+            strategy_monthly_counts = combined_signals.groupby('month').size()
             
-            if len(portfolio_monthly_counts) > 0:
-                mean_signals = portfolio_monthly_counts.mean()
-                median_signals = portfolio_monthly_counts.median()
-                signal_volatility = portfolio_monthly_counts.std() if len(portfolio_monthly_counts) > 1 else 0
-                max_monthly = portfolio_monthly_counts.max()
-                min_monthly = portfolio_monthly_counts.min()
-                total_signals = len(combined_signals)
+            # Calculate monthly counts for unique portfolio signals
+            if len(unique_signals) > 0:
+                unique_signals.loc[:, 'month'] = unique_signals.index.to_period('M')
+                portfolio_monthly_counts = unique_signals.groupby('month').size()
+            else:
+                portfolio_monthly_counts = pd.Series(dtype='int64')
+            
+            # Store both strategy and portfolio metrics
+            if len(strategy_monthly_counts) > 0:
+                # Strategy-level metrics (for strategy analysis)
+                strategy_mean = strategy_monthly_counts.mean()
+                strategy_median = strategy_monthly_counts.median()
+                strategy_volatility = strategy_monthly_counts.std() if len(strategy_monthly_counts) > 1 else 0
+                strategy_max = strategy_monthly_counts.max()
+                strategy_min = strategy_monthly_counts.min()
+                strategy_total = len(combined_signals)
                 
-                # Calculate standard deviation bounds
-                std_below_mean = max(0, mean_signals - signal_volatility)
-                std_above_mean = mean_signals + signal_volatility
+                # Portfolio-level metrics (for portfolio analysis)
+                if len(portfolio_monthly_counts) > 0:
+                    portfolio_mean = portfolio_monthly_counts.mean()
+                    portfolio_median = portfolio_monthly_counts.median()
+                    portfolio_volatility = portfolio_monthly_counts.std() if len(portfolio_monthly_counts) > 1 else 0
+                    portfolio_max = portfolio_monthly_counts.max()
+                    portfolio_min = portfolio_monthly_counts.min()
+                    portfolio_total = len(unique_signals)
+                else:
+                    portfolio_mean = portfolio_median = portfolio_volatility = 0
+                    portfolio_max = portfolio_min = portfolio_total = 0
                 
-                # Store portfolio metrics
-                metrics["mean_signals"] = mean_signals
-                metrics["median_signals"] = median_signals
-                metrics["signal_volatility"] = signal_volatility
-                metrics["max_monthly_signals"] = max_monthly
-                metrics["min_monthly_signals"] = min_monthly
-                metrics["total_signals"] = total_signals
-                metrics["std_below_mean"] = std_below_mean
-                metrics["std_above_mean"] = std_above_mean
+                # Calculate standard deviation bounds for both
+                strategy_std_below = max(0, strategy_mean - strategy_volatility)
+                strategy_std_above = strategy_mean + strategy_volatility
+                portfolio_std_below = max(0, portfolio_mean - portfolio_volatility)
+                portfolio_std_above = portfolio_mean + portfolio_volatility
+                
+                # Store strategy-level metrics (preserving original API)
+                metrics["mean_signals"] = strategy_mean
+                metrics["median_signals"] = strategy_median
+                metrics["signal_volatility"] = strategy_volatility
+                metrics["max_monthly_signals"] = strategy_max
+                metrics["min_monthly_signals"] = strategy_min
+                metrics["total_signals"] = strategy_total
+                metrics["std_below_mean"] = strategy_std_below
+                metrics["std_above_mean"] = strategy_std_above
+                
+                # Store new portfolio-level metrics
+                metrics["portfolio_mean_signals"] = portfolio_mean
+                metrics["portfolio_median_signals"] = portfolio_median
+                metrics["portfolio_signal_volatility"] = portfolio_volatility
+                metrics["portfolio_max_monthly_signals"] = portfolio_max
+                metrics["portfolio_min_monthly_signals"] = portfolio_min
+                metrics["portfolio_total_signals"] = portfolio_total
+                metrics["portfolio_std_below_mean"] = portfolio_std_below
+                metrics["portfolio_std_above_mean"] = portfolio_std_above
+                
+                # Signal overlap analysis
+                if portfolio_total > 0:
+                    signal_overlap_ratio = strategy_total / portfolio_total
+                    metrics["signal_overlap_ratio"] = signal_overlap_ratio
+                    log(f"Signal overlap analysis: {strategy_total} strategy signals / {portfolio_total} unique signals = {signal_overlap_ratio:.2f}× overlap", "info")
+                else:
+                    metrics["signal_overlap_ratio"] = 0
             else:
                 # No signals for the portfolio
                 metrics["mean_signals"] = 0
@@ -179,5 +225,63 @@ def calculate_signal_metrics(
             "min_monthly_signals": 0,
             "total_signals": 0,
             "std_below_mean": 0,
-            "std_above_mean": 0
+            "std_above_mean": 0,
+            "portfolio_total_signals": 0,
+            "signal_overlap_ratio": 0
         }
+
+
+def _calculate_unique_portfolio_signals(
+    all_signals: List[pd.DataFrame],
+    log: callable
+) -> pd.DataFrame:
+    """
+    Calculate unique portfolio signals by removing duplicates across strategies.
+    
+    This function identifies unique trading signals at the portfolio level,
+    removing the inflation caused by multiple strategies signaling on the same dates.
+    
+    Args:
+        all_signals: List of DataFrames containing signal data
+        log: Logging function
+        
+    Returns:
+        DataFrame with unique portfolio signals
+    """
+    try:
+        if not all_signals:
+            log("No signals provided for unique calculation", "warning")
+            return pd.DataFrame()
+        
+        log("Calculating unique portfolio signals", "info")
+        
+        # Collect all unique signal dates across all strategies
+        unique_signal_dates = set()
+        
+        for i, signals_df in enumerate(all_signals):
+            if len(signals_df) == 0:
+                continue
+                
+            # Add signal dates to the set (automatically removes duplicates)
+            signal_dates = signals_df.index.tolist()
+            unique_signal_dates.update(signal_dates)
+            
+            log(f"Strategy {i+1}: {len(signal_dates)} signals", "info")
+        
+        # Create DataFrame with unique signal dates
+        if unique_signal_dates:
+            unique_dates_sorted = sorted(list(unique_signal_dates))
+            unique_signals = pd.DataFrame(
+                index=pd.DatetimeIndex(unique_dates_sorted),
+                data={'unique_signal': 1}
+            )
+            log(f"Portfolio unique signals: {len(unique_signals)} (from {sum(len(s) for s in all_signals)} total strategy signals)", "info")
+        else:
+            unique_signals = pd.DataFrame()
+            log("No unique signals found", "warning")
+        
+        return unique_signals
+        
+    except Exception as e:
+        log(f"Error calculating unique portfolio signals: {str(e)}", "error")
+        return pd.DataFrame()

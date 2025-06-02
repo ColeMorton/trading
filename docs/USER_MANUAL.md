@@ -26,11 +26,15 @@ make check-deps
 # 2. Install databases (macOS)
 make install-db
 
-# 3. Start development environment
-make dev-local
+# 3. Setup full-stack development environment
+make setup-fullstack
+
+# 4. Start both backend and frontend
+make dev-fullstack
 ```
 
 **Access the platform:**
+- Frontend App: http://localhost:5173
 - API: http://localhost:8000
 - API Documentation: http://localhost:8000/docs
 - GraphQL Playground: http://localhost:8000/graphql
@@ -50,6 +54,7 @@ curl -X POST http://localhost:8000/api/ma-cross/analyze \
 ### What You Get
 
 This platform provides:
+- **Frontend Web App**: React PWA with real-time analysis interface
 - **Strategy Backtesting**: Test moving average, MACD, RSI strategies
 - **Portfolio Optimization**: Modern portfolio theory tools
 - **Risk Analysis**: 40+ performance metrics
@@ -67,6 +72,7 @@ This platform provides:
 **Required Software:**
 - Python 3.10 or higher
 - Poetry (dependency management)
+- Node.js 18+ and npm (for frontend)
 - Git
 
 **Database Options:**
@@ -102,9 +108,20 @@ make setup-db
 make test-db
 ```
 
-#### Step 4: Start Development Server
+#### Step 4: Frontend Setup
 ```bash
-make dev-local
+# Install frontend dependencies and generate GraphQL types
+make setup-frontend
+```
+
+#### Step 5: Start Development Environment
+```bash
+# Start both backend and frontend
+make dev-fullstack
+
+# Or start individually:
+make dev-local      # Backend only
+make frontend-dev   # Frontend only
 ```
 
 ### Method 2: Docker Installation (Recommended for Production)
@@ -190,14 +207,13 @@ poetry run python scripts/validate_phase1.py
 
 **Local Development:**
 ```bash
-# Start databases
-make start-local
+# Start full-stack (recommended)
+make dev-fullstack
 
-# Start API server
-make dev
-
-# Start with auto-reload
-poetry run python -m app.api.run --reload
+# Or start components individually:
+make start-local    # Databases only
+make dev           # Backend API only
+make frontend-dev  # Frontend only
 ```
 
 **Production:**
@@ -588,21 +604,49 @@ RATE_LIMIT_PER_MINUTE=60
 ### CLI Tools and Scripts
 
 **Available Make Commands:**
+
+**Setup & Dependencies:**
 ```bash
-make help           # Show all commands
-make install        # Install dependencies
-make dev            # Start development server
-make test           # Run test suite
-make docker-up      # Start with Docker
-make docker-down    # Stop Docker services
-make setup-db       # Setup database
-make test-db        # Test database
-make backup         # Create backup
-make restore        # Restore backup
-make check-deps     # Check dependencies
-make install-db     # Install databases locally
-make start-local    # Start local services
-make dev-local      # Start with local databases
+make help               # Show all commands
+make check-deps         # Check system dependencies
+make install            # Install backend dependencies
+make install-db         # Install databases locally
+make setup-db           # Setup database schema
+make setup-frontend     # Setup frontend (install + codegen)
+make setup-fullstack    # Setup both backend and frontend
+```
+
+**Development:**
+```bash
+make dev                # Start backend development server
+make dev-local          # Start backend with local databases
+make frontend-dev       # Start frontend development server
+make dev-fullstack      # Start both backend and frontend
+make frontend-codegen   # Generate GraphQL TypeScript types
+```
+
+**Frontend Commands:**
+```bash
+make frontend-install   # Install frontend dependencies
+make frontend-build     # Build frontend for production
+make frontend-test      # Run frontend E2E tests
+make frontend-lint      # Run frontend linting
+make frontend-clean     # Clean frontend build artifacts
+```
+
+**Database & Services:**
+```bash
+make start-local        # Start local database services
+make test-db           # Test database connectivity
+make backup            # Create database backup
+make restore           # Restore from backup
+```
+
+**Docker & Production:**
+```bash
+make docker-up         # Start with Docker Compose
+make docker-down       # Stop Docker services
+make docker-logs       # View service logs
 ```
 
 **Python Scripts:**
@@ -934,18 +978,16 @@ mutation CreatePortfolio($input: PortfolioInput!) {
 
 **Enable GraphQL in Sensylate App:**
 ```bash
-cd app/sensylate
+# Using make commands (recommended)
+make frontend-install
+make frontend-codegen
+make frontend-dev
 
-# Set environment variable
+# Or manual setup
+cd app/frontend/sensylate
 echo "VITE_USE_GRAPHQL=true" > .env
-
-# Install dependencies
 npm install
-
-# Generate TypeScript types
 npm run codegen
-
-# Start development
 npm run dev
 ```
 
@@ -1256,6 +1298,28 @@ poetry run python -m app.api.run
 
 # Check for port conflicts
 lsof -i :8000
+```
+
+#### Frontend Won't Start
+
+**Symptom:** `Module not found` or `npm command not found`
+
+**Solutions:**
+```bash
+# Check Node.js and npm
+make frontend-check-deps
+
+# Install frontend dependencies
+make frontend-install
+
+# Regenerate GraphQL types
+make frontend-codegen
+
+# Try manual start
+cd app/frontend/sensylate && npm run dev
+
+# Check for port conflicts
+lsof -i :5173
 ```
 
 #### Empty Analysis Results

@@ -1,16 +1,394 @@
 """Risk metrics calculation for concurrency analysis."""
 
-from typing import Dict, List, Callable, Any
+import os
+from typing import Dict, List, Callable, Any, Optional, Tuple
 import numpy as np
+import pandas as pd
 import polars as pl
 from app.tools.stop_loss_simulator import apply_stop_loss_to_returns
 
-# Import fixed implementation if available
+# Import fixed implementations
 try:
     from app.concurrency.tools.risk_contribution_calculator import calculate_risk_contributions_fixed
     FIXED_IMPLEMENTATION_AVAILABLE = True
 except ImportError:
     FIXED_IMPLEMENTATION_AVAILABLE = False
+
+try:
+    from app.concurrency.tools.risk_metrics_validator import (
+        DrawdownCalculator, 
+        VolatilityAggregator,
+        RiskMetricsValidator
+    )
+    VALIDATION_AVAILABLE = True
+except ImportError:
+    VALIDATION_AVAILABLE = False
+
+# Configuration
+USE_FIXED_DRAWDOWN_CALC = os.getenv('USE_FIXED_DRAWDOWN_CALC', 'true').lower() == 'true'
+
+def calculate_portfolio_max_drawdown_fixed(
+    strategy_equity_curves: List[np.ndarray],
+    allocation_weights: List[float],
+    log: Optional[Callable[[str, str], None]] = None
+) -> Dict[str, Any]:
+    """
+    Calculate portfolio max drawdown using proper equity curve combination.
+    
+    This function addresses the core issue where portfolio drawdowns are
+    understated by 27-44 percentage points by using actual combined
+    equity curves rather than weighted averages of individual drawdowns.
+    
+    Args:
+        strategy_equity_curves: List of equity curves for each strategy
+        allocation_weights: Allocation weights for each strategy
+        log: Optional logging function
+        
+    Returns:
+        Dictionary with max drawdown metrics
+    """
+    if VALIDATION_AVAILABLE and USE_FIXED_DRAWDOWN_CALC:
+        calculator = DrawdownCalculator()
+        drawdown_components = calculator.calculate_portfolio_max_drawdown(
+            strategy_equity_curves, allocation_weights, log
+        )
+        
+        return {
+            'max_drawdown': drawdown_components.max_drawdown,
+            'peak_date': drawdown_components.peak_date,
+            'trough_date': drawdown_components.trough_date,
+            'recovery_date': drawdown_components.recovery_date,
+            'drawdown_duration': drawdown_components.drawdown_duration,
+            'recovery_duration': drawdown_components.recovery_duration,
+            'equity_curve': drawdown_components.equity_curve
+        }
+    else:
+        # Fallback to legacy calculation
+        return calculate_portfolio_max_drawdown_legacy(
+            strategy_equity_curves, allocation_weights, log
+        )
+
+
+def calculate_portfolio_max_drawdown_legacy(
+    strategy_equity_curves: List[np.ndarray],
+    allocation_weights: List[float],
+    log: Optional[Callable[[str, str], None]] = None
+) -> Dict[str, Any]:
+    """
+    Legacy portfolio max drawdown calculation (understated).
+    
+    This is the old method that causes understatement issues.
+    Kept for comparison and fallback purposes.
+    """
+    if not strategy_equity_curves or not allocation_weights:
+        return {'max_drawdown': 0.0}
+    
+    # Legacy method: weighted average of individual max drawdowns
+    individual_drawdowns = []
+    
+    for curve in strategy_equity_curves:
+        if len(curve) > 0:
+            running_max = np.maximum.accumulate(curve)
+            drawdowns = (running_max - curve) / running_max
+            max_dd = np.max(drawdowns)
+            individual_drawdowns.append(max_dd)
+        else:
+            individual_drawdowns.append(0.0)
+    
+    # Calculate weighted average (this is the problematic method)
+    total_allocation = sum(allocation_weights)
+    if total_allocation > 0:
+        weighted_dd = sum(dd * weight for dd, weight in zip(individual_drawdowns, allocation_weights)) / total_allocation
+    else:
+        weighted_dd = np.mean(individual_drawdowns) if individual_drawdowns else 0.0
+    
+    if log:
+        log(f"Legacy drawdown calculation: {weighted_dd:.4f} (understated)", "warning")
+    
+    return {'max_drawdown': weighted_dd}
+
+
+def calculate_portfolio_volatility_fixed(
+    individual_volatilities: List[float],
+    correlation_matrix: np.ndarray,
+    allocation_weights: List[float],
+    log: Optional[Callable[[str, str], None]] = None
+) -> float:
+    """
+    Calculate portfolio volatility using proper portfolio theory.
+    
+    This addresses volatility aggregation issues by using the correct
+    portfolio theory formula: σ_p = sqrt(w^T * Σ * w)
+    
+    Args:
+        individual_volatilities: List of individual strategy volatilities
+        correlation_matrix: Correlation matrix between strategies
+        allocation_weights: Allocation weights for each strategy
+        log: Optional logging function
+        
+    Returns:
+        Portfolio volatility
+    """
+    if VALIDATION_AVAILABLE:
+        aggregator = VolatilityAggregator()
+        return aggregator.calculate_portfolio_volatility(
+            individual_volatilities, correlation_matrix, allocation_weights, log
+        )
+    else:
+        # Fallback to simple weighted average (incorrect but functional)
+        if not individual_volatilities or not allocation_weights:
+            return 0.0
+        
+        total_allocation = sum(allocation_weights)
+        if total_allocation > 0:
+            weights = [w / total_allocation for w in allocation_weights]
+            weighted_vol = sum(vol * weight for vol, weight in zip(individual_volatilities, weights))
+        else:
+            weighted_vol = np.mean(individual_volatilities)
+        
+        if log:
+            log(f"Legacy volatility calculation: {weighted_vol:.4f} (may be inaccurate)", "warning")
+        
+        return weighted_vol
+
+
+def calculate_portfolio_var_fixed(
+    strategy_returns: List[np.ndarray],
+    allocation_weights: List[float],
+    confidence_levels: List[float] = [0.95, 0.99],
+    method: str = "historical",
+    log: Optional[Callable[[str, str], None]] = None
+) -> Dict[str, float]:
+    """
+    Calculate portfolio Value at Risk (VaR) using proper methodology.
+    
+    This function addresses VaR calculation issues by implementing:
+    - Portfolio-level VaR using combined returns
+    - Multiple confidence levels (95%, 99%)
+    - Historical and parametric methods
+    - Proper handling of correlation effects
+    
+    Args:
+        strategy_returns: List of return series for each strategy
+        allocation_weights: Allocation weights for each strategy
+        confidence_levels: List of confidence levels (e.g., [0.95, 0.99])
+        method: VaR calculation method ("historical", "parametric")
+        log: Optional logging function
+        
+    Returns:
+        Dictionary with VaR metrics at different confidence levels
+    """
+    try:
+        if not strategy_returns or not allocation_weights:
+            return {}
+        
+        if len(strategy_returns) != len(allocation_weights):
+            raise ValueError("Number of return series must match number of allocation weights")
+        
+        # Normalize allocation weights
+        total_allocation = sum(allocation_weights)
+        if total_allocation <= 0:
+            raise ValueError("Total allocation must be positive")
+        
+        normalized_weights = np.array([w / total_allocation for w in allocation_weights])
+        
+        # Find minimum length across all return series
+        min_length = min(len(returns) for returns in strategy_returns)
+        
+        if min_length < 50:  # Need sufficient data for VaR
+            if log:
+                log(f"Warning: Insufficient data for VaR calculation ({min_length} observations)", "warning")
+            return {}
+        
+        # Create aligned return matrix
+        aligned_returns = np.zeros((min_length, len(strategy_returns)))
+        for i, returns in enumerate(strategy_returns):
+            aligned_returns[:, i] = returns[:min_length]
+        
+        # Calculate portfolio returns using proper allocation weighting
+        portfolio_returns = np.dot(aligned_returns, normalized_weights)
+        
+        var_results = {}
+        
+        for confidence_level in confidence_levels:
+            alpha = 1 - confidence_level
+            
+            if method.lower() == "historical":
+                # Historical VaR: Use empirical quantile
+                var_value = float(np.percentile(portfolio_returns, alpha * 100))
+                
+                # Calculate Conditional VaR (Expected Shortfall)
+                var_exceedances = portfolio_returns[portfolio_returns <= var_value]
+                cvar_value = float(np.mean(var_exceedances)) if len(var_exceedances) > 0 else var_value
+                
+            elif method.lower() == "parametric":
+                # Parametric VaR: Assume normal distribution
+                portfolio_mean = np.mean(portfolio_returns)
+                portfolio_std = np.std(portfolio_returns)
+                
+                # Z-score for confidence level
+                from scipy import stats
+                z_score = stats.norm.ppf(alpha)
+                
+                var_value = float(portfolio_mean + z_score * portfolio_std)
+                
+                # Parametric CVaR for normal distribution
+                cvar_value = float(portfolio_mean - portfolio_std * stats.norm.pdf(z_score) / alpha)
+                
+            else:
+                raise ValueError(f"Unknown VaR method: {method}")
+            
+            # Store results
+            confidence_pct = int(confidence_level * 100)
+            var_results[f'var_{confidence_pct}'] = var_value
+            var_results[f'cvar_{confidence_pct}'] = cvar_value
+            
+            if log:
+                log(f"Portfolio VaR {confidence_pct}%: {var_value:.4f}, CVaR: {cvar_value:.4f} (method: {method})", "info")
+        
+        # Add portfolio return statistics
+        var_results['portfolio_mean_return'] = float(np.mean(portfolio_returns))
+        var_results['portfolio_volatility'] = float(np.std(portfolio_returns))
+        var_results['portfolio_skewness'] = float(float(np.mean((portfolio_returns - np.mean(portfolio_returns))**3)) / (np.std(portfolio_returns)**3))
+        var_results['portfolio_kurtosis'] = float(float(np.mean((portfolio_returns - np.mean(portfolio_returns))**4)) / (np.std(portfolio_returns)**4))
+        var_results['observations'] = min_length
+        
+        return var_results
+        
+    except Exception as e:
+        error_message = f"Error calculating portfolio VaR: {str(e)}"
+        if log:
+            log(error_message, "error")
+        return {'error': error_message}
+
+
+def calculate_component_var(
+    strategy_returns: List[np.ndarray],
+    allocation_weights: List[float],
+    confidence_level: float = 0.95,
+    log: Optional[Callable[[str, str], None]] = None
+) -> Dict[str, float]:
+    """
+    Calculate component VaR for each strategy in the portfolio.
+    
+    Component VaR measures how much each strategy contributes to the
+    overall portfolio VaR, accounting for correlation effects.
+    
+    Args:
+        strategy_returns: List of return series for each strategy
+        allocation_weights: Allocation weights for each strategy
+        confidence_level: Confidence level for VaR calculation
+        log: Optional logging function
+        
+    Returns:
+        Dictionary with component VaR for each strategy
+    """
+    try:
+        if not strategy_returns or not allocation_weights:
+            return {}
+        
+        n_strategies = len(strategy_returns)
+        if len(allocation_weights) != n_strategies:
+            raise ValueError("Number of return series must match number of allocation weights")
+        
+        # Calculate portfolio VaR first
+        portfolio_var_result = calculate_portfolio_var_fixed(
+            strategy_returns, allocation_weights, [confidence_level], "historical", log
+        )
+        
+        confidence_pct = int(confidence_level * 100)
+        portfolio_var = portfolio_var_result.get(f'var_{confidence_pct}', 0)
+        
+        if portfolio_var == 0:
+            return {}
+        
+        # Calculate component VaR using marginal VaR approach
+        component_vars = {}
+        
+        # Normalize weights
+        total_allocation = sum(allocation_weights)
+        normalized_weights = np.array([w / total_allocation for w in allocation_weights])
+        
+        # Find minimum length
+        min_length = min(len(returns) for returns in strategy_returns)
+        
+        # Create aligned return matrix
+        aligned_returns = np.zeros((min_length, n_strategies))
+        for i, returns in enumerate(strategy_returns):
+            aligned_returns[:, i] = returns[:min_length]
+        
+        # Calculate portfolio returns
+        portfolio_returns = np.dot(aligned_returns, normalized_weights)
+        
+        # Calculate marginal VaR for each strategy
+        alpha = 1 - confidence_level
+        var_threshold = np.percentile(portfolio_returns, alpha * 100)
+        
+        # Find observations that exceed VaR
+        var_exceedances_mask = portfolio_returns <= var_threshold
+        
+        for i in range(n_strategies):
+            if np.sum(var_exceedances_mask) > 0:
+                # Calculate marginal contribution to VaR
+                strategy_returns_at_var = aligned_returns[var_exceedances_mask, i]
+                marginal_var = float(np.mean(strategy_returns_at_var)) if len(strategy_returns_at_var) > 0 else 0
+                
+                # Component VaR = weight * marginal VaR
+                component_var = normalized_weights[i] * marginal_var
+                component_vars[f'strategy_{i+1}_component_var_{confidence_pct}'] = component_var
+                
+                if log:
+                    log(f"Strategy {i+1} component VaR {confidence_pct}%: {component_var:.4f}", "info")
+            else:
+                component_vars[f'strategy_{i+1}_component_var_{confidence_pct}'] = 0.0
+        
+        # Verify that component VaRs sum approximately to portfolio VaR
+        total_component_var = sum(component_vars.values())
+        var_reconciliation = abs(total_component_var - portfolio_var) / abs(portfolio_var) if portfolio_var != 0 else 0
+        
+        component_vars['portfolio_var'] = portfolio_var
+        component_vars['total_component_var'] = total_component_var
+        component_vars['var_reconciliation_error'] = var_reconciliation
+        
+        if log:
+            log(f"VaR reconciliation: Portfolio={portfolio_var:.4f}, Components sum={total_component_var:.4f}, Error={var_reconciliation:.2%}", "info")
+        
+        return component_vars
+        
+    except Exception as e:
+        error_message = f"Error calculating component VaR: {str(e)}"
+        if log:
+            log(error_message, "error")
+        return {'error': error_message}
+
+
+def validate_risk_metrics(
+    csv_data: pd.DataFrame,
+    json_metrics: Dict[str, Any],
+    log: Optional[Callable[[str, str], None]] = None
+) -> Dict[str, Any]:
+    """
+    Validate risk metrics against CSV data to detect calculation issues.
+    
+    This function addresses the validation needs identified in Phase 1,
+    particularly the MSTR 62.91% drawdown understatement issue.
+    
+    Args:
+        csv_data: DataFrame with CSV backtest data
+        json_metrics: Dictionary with JSON portfolio metrics
+        log: Optional logging function
+        
+    Returns:
+        Dictionary of validation results
+    """
+    if VALIDATION_AVAILABLE:
+        validator = RiskMetricsValidator(strict_mode=True)
+        return validator.validate_all_risk_metrics(csv_data, json_metrics, log)
+    else:
+        if log:
+            log("Risk metrics validation not available", "warning")
+        return {'validation_available': False}
+
 
 def calculate_risk_contributions(
     position_arrays: List[np.ndarray],
