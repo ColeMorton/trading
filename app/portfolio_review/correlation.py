@@ -6,28 +6,53 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+# PORTFOLIO = [
+#     "TSLA",
+#     "MSTR",
+#     "BTC-USD",
+#     "FFIV",
+#     "AMD",
+#     "RTX",
+#     "GME",
+#     "GOOGL",
+#     "LMT",
+#     "MU",
+#     "MCO",
+#     "LMT",
+#     "AAPL",
+#     "ILMN",
+#     "MRNA",
+#     "NVDA"
+# ]
+
 PORTFOLIO = [
-    "TSLA",
+    # "TSLA",
     "MSTR",
     "BTC-USD",
-    "FFIV",
-    "AMD",
-    "RTX",
-    "GME",
-    "GOOGL",
+    # "FFIV",
+    # "AMD",
+    # "RTX",
+    # "GME",
+    # "GOOGL",
     "LMT",
     "MU",
     "MCO",
     "LMT",
-    "AAPL"
+    "AAPL",
+    "ILMN",
+    "MRNA",
+    "NVDA"
 ]
 
 # PORTFOLIO = ['SPY', 'QQQ']
 
 NEXT = [
-"ILMN",
-"MRNA",
-"NVDA"
+  "AIZ", 
+  "NSC",
+  "EXR",
+  "MA",
+  "L",
+  "SHOP"
 ]
 
 # NEXT = [

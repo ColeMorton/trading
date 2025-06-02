@@ -1391,11 +1391,3 @@ poetry run python scripts/diagnose_system.py
 ---
 
 *This manual covers the core functionality of the Trading Strategy Platform, including the completed GraphQL + PostgreSQL migration (Phases 1-4). The platform now offers enterprise-grade features with Docker containerization, GraphQL API, automated backups, CI/CD pipeline, and production-ready deployment capabilities.*
-
-**Key Enhancements from Migration:**
-- ✅ **Phase 1**: PostgreSQL database with automated migrations and backups
-- ✅ **Phase 2**: Complete GraphQL API alongside REST
-- ✅ **Phase 3**: Apollo Client integration with type-safe frontend
-- ✅ **Phase 4**: Production deployment with security, monitoring, and CI/CD
-
-For technical details about the migration, see `GRAPHQL_POSTGRESQL_MIGRATION_PLAN.md`.
