@@ -11,10 +11,13 @@ from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+import strawberry
+from strawberry.fastapi import GraphQLRouter
 
 from app.api.routers import scripts, data, viewer, sensylate, ma_cross
 from app.api.utils.logging import setup_api_logging
 from app.database.config import startup_database, shutdown_database, database_health_check
+from app.api.graphql.schema import schema
 
 # Define paths
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -96,12 +99,23 @@ async def handle_specific_404(request: Request, call_next):
     
     return response
 
+# Import GraphQL context
+from app.api.graphql.context import get_graphql_context
+
+# Create GraphQL router
+graphql_app = GraphQLRouter(
+    schema,
+    graphiql=True,  # Enable GraphiQL interface for development
+    context_getter=get_graphql_context
+)
+
 # Include routers
 app.include_router(scripts.router, prefix="/api/scripts", tags=["scripts"])
 app.include_router(data.router, prefix="/api/data", tags=["data"])
 app.include_router(viewer.router, prefix="/viewer", tags=["viewer"])
 app.include_router(sensylate.router, prefix="/sensylate", tags=["sensylate"])
 app.include_router(ma_cross.router, prefix="/api/ma-cross", tags=["ma-cross"])
+app.include_router(graphql_app, prefix="/graphql", tags=["graphql"])
 
 # Mount static files directories
 app.mount("/static", StaticFiles(directory=CSV_VIEWER_DIR), name="static")

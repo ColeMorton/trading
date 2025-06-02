@@ -27,6 +27,7 @@ skfolio = "^0.6.0"
 fastapi = "^0.110.0"
 uvicorn = "^0.27.0"
 pydantic = "^2.6.0"
+strawberry-graphql = {version = "^0.236.0", extras = ["fastapi"]}
 psutil = "^7.0.0"
 langchain-anthropic = "^0.3.13"
 asyncpg = "^0.29.0"
