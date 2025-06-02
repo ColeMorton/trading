@@ -24,16 +24,22 @@ class LoggingService(LoggingInterface):
     
     def configure(self, config: Optional[Dict[str, Any]] = None) -> None:
         """Configure logging settings."""
-        if config:
+        if config and 'version' in config:
             logging.config.dictConfig(config)
         elif self._config:
             # Load from configuration service
             log_config = self._config.get_section("logging")
-            if log_config:
+            if log_config and 'version' in log_config:
                 logging.config.dictConfig(log_config)
             else:
-                # Default configuration
-                self._configure_default()
+                # Use simple configuration from config service or default
+                level = self._config.get("logging.level", "INFO") if self._config else "INFO"
+                format_str = self._config.get("logging.format", '%(asctime)s - %(name)s - %(levelname)s - %(message)s') if self._config else '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+                logging.basicConfig(
+                    level=getattr(logging, level.upper(), logging.INFO),
+                    format=format_str,
+                    datefmt='%Y-%m-%d %H:%M:%S'
+                )
         else:
             self._configure_default()
     

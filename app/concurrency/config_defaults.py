@@ -94,7 +94,7 @@ class ConcurrencyDefaults:
     })
     
     # General Configuration
-    PORTFOLIO: str = "trades_20250530.csv"
+    PORTFOLIO: str = "trades_20250603.csv"
     # PORTFOLIO: str = "BTC_d_20250530.csv"
     # PORTFOLIO: str = "portfolio_risk.csv"
     # PORTFOLIO: str = "portfolio_d_20250530.csv"

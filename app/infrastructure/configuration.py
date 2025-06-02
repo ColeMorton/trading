@@ -112,6 +112,7 @@ class ConfigurationService(ConfigurationInterface):
     def _load_defaults(self) -> None:
         """Load default configuration."""
         self._config = {
+            "version": "1.0.0",
             "api": {
                 "host": "127.0.0.1",
                 "port": 8000,

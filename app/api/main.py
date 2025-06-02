@@ -117,8 +117,8 @@ from app.api.graphql.context import get_graphql_context
 # Create GraphQL router
 graphql_app = GraphQLRouter(
     schema,
-    graphiql=True  # Enable GraphiQL interface for development
-    # context_getter=get_graphql_context  # Temporarily disable custom context
+    graphiql=True,  # Enable GraphiQL interface for development
+    context_getter=get_graphql_context
 )
 
 # Include routers

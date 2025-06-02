@@ -90,8 +90,9 @@ class DatabaseManager:
             await self.prisma.connect()
             logger.info("Prisma client connected successfully")
         except Exception as e:
-            logger.error(f"Failed to connect Prisma client: {e}")
-            raise
+            logger.warning(f"Failed to connect Prisma client: {e}")
+            logger.info("Continuing without database - GraphQL features will be limited")
+            self.prisma = None
     
     async def _initialize_redis(self):
         """Initialize Redis client."""
@@ -112,8 +113,9 @@ class DatabaseManager:
             await self.redis_client.ping()
             logger.info("Redis client connected successfully")
         except Exception as e:
-            logger.error(f"Failed to connect Redis client: {e}")
-            raise
+            logger.warning(f"Failed to connect Redis client: {e}")
+            logger.info("Continuing without Redis - caching features will be limited")
+            self.redis_client = None
     
     async def _initialize_connection_pool(self):
         """Initialize asyncpg connection pool."""
@@ -130,8 +132,9 @@ class DatabaseManager:
             )
             logger.info("AsyncPG connection pool created successfully")
         except Exception as e:
-            logger.error(f"Failed to create connection pool: {e}")
-            raise
+            logger.warning(f"Failed to create connection pool: {e}")
+            logger.info("Continuing without connection pool - direct queries will be limited")
+            self._connection_pool = None
     
     async def close(self):
         """Close all database connections."""
@@ -215,17 +218,19 @@ async def get_database_manager() -> DatabaseManager:
     return db_manager
 
 
-async def get_prisma() -> Prisma:
+async def get_prisma() -> Optional[Prisma]:
     """Dependency to get Prisma client."""
     if not db_manager.prisma:
-        raise RuntimeError("Prisma client not initialized")
+        logger.warning("Prisma client not available - database features disabled")
+        return None
     return db_manager.prisma
 
 
-async def get_redis() -> redis.Redis:
+async def get_redis() -> Optional[redis.Redis]:
     """Dependency to get Redis client."""
     if not db_manager.redis_client:
-        raise RuntimeError("Redis client not initialized")
+        logger.warning("Redis client not available - caching features disabled")
+        return None
     return db_manager.redis_client
 
 
