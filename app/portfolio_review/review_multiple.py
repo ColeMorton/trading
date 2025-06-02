@@ -22,7 +22,7 @@ from app.portfolio_review.tools.visualization import (
     print_portfolio_stats,
     print_open_positions
 )
-from app.ma_cross.tools.generate_signals import generate_signals
+from app.strategies.ma_cross.tools.generate_signals import generate_signals
 from app.tools.stats_converter import convert_stats
 
 def run_portfolio_analysis(config_input: Dict = None):

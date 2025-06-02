@@ -9,7 +9,7 @@ import pytest
 from unittest.mock import Mock, patch, MagicMock
 from typing import Dict, Any
 
-from app.ma_cross.exceptions import (
+from app.strategies.ma_cross.exceptions import (
     MACrossError,
     MACrossConfigurationError,
     MACrossDataError,
@@ -170,7 +170,7 @@ class TestTickerProcessorErrorHandling:
     def test_strategy_execution_error_handling(self, ticker_processor, mock_log):
         """Test error handling in strategy execution."""
         with patch.object(ticker_processor, 'log', mock_log):
-            with patch('app.ma_cross.tools.strategy_execution.execute_strategy') as mock_execute:
+            with patch('app.strategies.ma_cross.tools.strategy_execution.execute_strategy') as mock_execute:
                 mock_execute.side_effect = Exception("Execution failed")
                 
                 with pytest.raises(MACrossExecutionError) as exc_info:
@@ -181,7 +181,7 @@ class TestTickerProcessorErrorHandling:
     def test_ticker_processing_error_handling(self, ticker_processor, mock_log):
         """Test error handling in ticker processing."""
         with patch.object(ticker_processor, 'log', mock_log):
-            with patch('app.ma_cross.tools.strategy_execution.process_single_ticker') as mock_process:
+            with patch('app.strategies.ma_cross.tools.strategy_execution.process_single_ticker') as mock_process:
                 mock_process.side_effect = Exception("Processing failed")
                 
                 with pytest.raises(MACrossDataError) as exc_info:
@@ -233,7 +233,7 @@ class TestMainScriptErrorHandling:
         # Load the module with a numeric name
         spec = importlib.util.spec_from_file_location(
             "get_portfolios", 
-            "/Users/colemorton/Projects/trading/app/ma_cross/1_get_portfolios.py"
+            "/Users/colemorton/Projects/trading/app/strategies/ma_cross/1_get_portfolios.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -249,7 +249,7 @@ class TestMainScriptErrorHandling:
         # Load the module with a numeric name
         spec = importlib.util.spec_from_file_location(
             "get_portfolios", 
-            "/Users/colemorton/Projects/trading/app/ma_cross/1_get_portfolios.py"
+            "/Users/colemorton/Projects/trading/app/strategies/ma_cross/1_get_portfolios.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -265,7 +265,7 @@ class TestMainScriptErrorHandling:
         # Load the module with a numeric name
         spec = importlib.util.spec_from_file_location(
             "get_portfolios", 
-            "/Users/colemorton/Projects/trading/app/ma_cross/1_get_portfolios.py"
+            "/Users/colemorton/Projects/trading/app/strategies/ma_cross/1_get_portfolios.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -287,7 +287,7 @@ class TestMainScriptErrorHandling:
         # Load the module with a numeric name
         spec = importlib.util.spec_from_file_location(
             "get_portfolios", 
-            "/Users/colemorton/Projects/trading/app/ma_cross/1_get_portfolios.py"
+            "/Users/colemorton/Projects/trading/app/strategies/ma_cross/1_get_portfolios.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

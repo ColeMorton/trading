@@ -14,7 +14,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app.tools.orchestration import PortfolioOrchestrator
-from app.ma_cross.config_types import Config
+from app.strategies.ma_cross.config_types import Config
 
 
 class TestOrchestratorIntegration(unittest.TestCase):
@@ -86,7 +86,7 @@ class TestOrchestratorIntegration(unittest.TestCase):
         except ImportError as e:
             self.fail(f"Failed to import PortfolioOrchestrator: {e}")
     
-    @patch('app.ma_cross.tools.filter_portfolios.filter_portfolios')
+    @patch('app.strategies.ma_cross.tools.filter_portfolios.filter_portfolios')
     def test_filter_portfolios_import(self, mock_filter):
         """Test that filter_portfolios can be imported correctly."""
         mock_log = Mock()

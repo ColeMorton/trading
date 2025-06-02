@@ -11,7 +11,7 @@ import numpy as np
 from typing import Optional, Callable
 from app.tools.get_data import get_data
 from app.tools.file_utils import is_file_from_today
-from app.ma_cross.tools.parameter_sensitivity import analyze_parameter_sensitivity
+from app.strategies.ma_cross.tools.parameter_sensitivity import analyze_parameter_sensitivity
 
 def process_single_ticker(
     ticker: str,

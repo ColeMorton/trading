@@ -6,12 +6,12 @@ strategy execution for multiple tickers.
 """
 
 from typing import List, Dict, Any, Optional, Callable
-from app.ma_cross.tools.strategy_execution import (
+from app.strategies.ma_cross.tools.strategy_execution import (
     execute_strategy,
     process_single_ticker
 )
 from app.tools.error_context import error_context
-from app.ma_cross.exceptions import (
+from app.strategies.ma_cross.exceptions import (
     MACrossExecutionError,
     MACrossDataError,
     MACrossSyntheticTickerError

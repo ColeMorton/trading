@@ -24,7 +24,7 @@ from app.tools.exceptions import (
     ExportError
 )
 from app.tools.error_context import error_context
-from app.ma_cross.exceptions import (
+from app.strategies.ma_cross.exceptions import (
     MACrossError,
     MACrossConfigurationError,
     MACrossExecutionError,

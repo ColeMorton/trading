@@ -170,7 +170,7 @@ class TestWorkflowBenchmarks(TestMACrossPerformanceBenchmarks):
         """Benchmark single ticker complete workflow."""
         
         with patch('app.tools.get_data.get_data') as mock_get_data, \
-             patch('app.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
+             patch('app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
              patch('app.tools.portfolio.filtering_service.PortfolioFilterService') as mock_filter_service, \
              patch('app.tools.strategy.export_portfolios.export_portfolios') as mock_export:
             
@@ -201,7 +201,7 @@ class TestWorkflowBenchmarks(TestMACrossPerformanceBenchmarks):
         multi_config["TICKER"] = ["BTC-USD", "ETH-USD", "SOL-USD", "ADA-USD", "DOT-USD"]
         
         with patch('app.tools.get_data.get_data') as mock_get_data, \
-             patch('app.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
+             patch('app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
              patch('app.tools.portfolio.filtering_service.PortfolioFilterService') as mock_filter_service, \
              patch('app.tools.strategy.export_portfolios.export_portfolios') as mock_export:
             
@@ -232,7 +232,7 @@ class TestWorkflowBenchmarks(TestMACrossPerformanceBenchmarks):
         multi_strategy_config["STRATEGY_TYPE"] = ["SMA", "EMA"]
         
         with patch('app.tools.get_data.get_data') as mock_get_data, \
-             patch('app.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
+             patch('app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
              patch('app.tools.portfolio.filtering_service.PortfolioFilterService') as mock_filter_service, \
              patch('app.tools.strategy.export_portfolios.export_portfolios') as mock_export:
             
@@ -266,7 +266,7 @@ class TestMemoryBenchmarks(TestMACrossPerformanceBenchmarks):
         initial_memory = process.memory_info().rss
         
         with patch('app.tools.get_data.get_data') as mock_get_data, \
-             patch('app.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
+             patch('app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
              patch('app.tools.portfolio.filtering_service.PortfolioFilterService') as mock_filter_service:
             
             # Setup mocks with large datasets
@@ -295,7 +295,7 @@ class TestMemoryBenchmarks(TestMACrossPerformanceBenchmarks):
         initial_memory = process.memory_info().rss
         
         with patch('app.tools.get_data.get_data') as mock_get_data, \
-             patch('app.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
+             patch('app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
              patch('app.tools.portfolio.filtering_service.PortfolioFilterService') as mock_filter_service:
             
             # Setup mocks
@@ -336,7 +336,7 @@ class TestConcurrencyBenchmarks(TestMACrossPerformanceBenchmarks):
         tickers = ["BTC-USD", "ETH-USD", "SOL-USD", "ADA-USD", "DOT-USD"]
         
         with patch('app.tools.get_data.get_data') as mock_get_data, \
-             patch('app.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
+             patch('app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
              patch('app.tools.portfolio.filtering_service.PortfolioFilterService') as mock_filter_service:
             
             # Setup mocks
@@ -428,7 +428,7 @@ class TestScalabilityBenchmarks(TestMACrossPerformanceBenchmarks):
         price_data = pl.from_pandas(df)
         
         with patch('app.tools.get_data.get_data') as mock_get_data, \
-             patch('app.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
+             patch('app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
              patch('app.tools.portfolio.filtering_service.PortfolioFilterService') as mock_filter_service:
             
             # Setup mocks

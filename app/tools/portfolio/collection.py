@@ -7,13 +7,13 @@ across the application.
 """
 from typing import List, Dict, Any, Union, Callable, Optional
 import polars as pl
-from app.ma_cross.config_types import Config
+from app.strategies.ma_cross.config_types import Config
 
 # Define our own error class to avoid circular imports
 class PortfolioExportError(Exception):
     """Custom exception for portfolio export errors."""
     pass
-from app.ma_cross.config_types import Config
+from app.strategies.ma_cross.config_types import Config
 
 def sort_portfolios(
     portfolios: Union[List[Dict[str, Any]], pl.DataFrame],

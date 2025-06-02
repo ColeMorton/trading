@@ -13,7 +13,7 @@ import os
 # Add the project root to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from app.ma_cross.config_types import Config
+from app.strategies.ma_cross.config_types import Config
 
 
 class TestOrchestratorSmoke(unittest.TestCase):
@@ -21,13 +21,13 @@ class TestOrchestratorSmoke(unittest.TestCase):
     
     def test_run_function_exists(self):
         """Test that the run function still exists and is callable."""
-        from app.ma_cross import get_portfolios
+        from app.strategies.ma_cross import get_portfolios
         self.assertTrue(hasattr(get_portfolios, 'run'))
         self.assertTrue(callable(get_portfolios.run))
     
     def test_run_strategies_function_exists(self):
         """Test that the run_strategies function still exists and is callable."""
-        from app.ma_cross import get_portfolios
+        from app.strategies.ma_cross import get_portfolios
         self.assertTrue(hasattr(get_portfolios, 'run_strategies'))
         self.assertTrue(callable(get_portfolios.run_strategies))
     
@@ -59,7 +59,7 @@ class TestOrchestratorSmoke(unittest.TestCase):
         mock_execute.return_value = []
         
         # Import and run
-        from app.ma_cross import get_portfolios
+        from app.strategies.ma_cross import get_portfolios
         result = get_portfolios.run(config)
         
         # Verify it ran successfully
@@ -93,7 +93,7 @@ class TestOrchestratorSmoke(unittest.TestCase):
         mock_execute.return_value = []
         
         # Import and run
-        from app.ma_cross import get_portfolios
+        from app.strategies.ma_cross import get_portfolios
         result = get_portfolios.run_strategies(config)
         
         # Verify it ran successfully

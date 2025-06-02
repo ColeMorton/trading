@@ -12,7 +12,7 @@ import polars as pl
 from app.tools.config_service import ConfigService
 from app.tools.file_utils import get_portfolio_path
 from app.tools.portfolio_transformation import transform_portfolio_data
-from app.ma_cross.tools.plot_heatmaps import plot_heatmap
+from app.strategies.ma_cross.tools.plot_heatmaps import plot_heatmap
 from app.tools.stats_converter import convert_stats
 
 def process_heatmap_data(config: dict, log) -> bool:

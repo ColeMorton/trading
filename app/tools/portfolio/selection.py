@@ -7,7 +7,7 @@ Short Window/Long Window combinations in top performing portfolios.
 
 from typing import Optional
 import polars as pl
-from app.ma_cross.config_types import Config
+from app.strategies.ma_cross.config_types import Config
 from app.tools.portfolio.collection import sort_portfolios
 from app.tools.portfolio.schema_detection import (
     SchemaVersion,

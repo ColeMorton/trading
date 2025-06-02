@@ -241,7 +241,7 @@ class TestWorkflowRegression(TestMACrossRegression):
         
         # Mock the data and processing components
         with patch('app.tools.get_data.get_data') as mock_get_data, \
-             patch('app.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
+             patch('app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
              patch('app.tools.portfolio.filtering_service.PortfolioFilterService') as mock_filter_service, \
              patch('app.tools.strategy.export_portfolios.export_portfolios') as mock_export:
             
@@ -295,7 +295,7 @@ class TestWorkflowRegression(TestMACrossRegression):
         multi_config["TICKER"] = ["BTC-USD", "ETH-USD"]
         
         with patch('app.tools.get_data.get_data') as mock_get_data, \
-             patch('app.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
+             patch('app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
              patch('app.tools.portfolio.filtering_service.PortfolioFilterService') as mock_filter_service, \
              patch('app.tools.strategy.export_portfolios.export_portfolios') as mock_export:
             
@@ -449,7 +449,7 @@ class TestErrorHandlingRegression(TestMACrossRegression):
     def test_error_type_consistency(self, mock_log):
         """Test that error types are consistently raised."""
         
-        from app.ma_cross.exceptions import (
+        from app.strategies.ma_cross.exceptions import (
             MACrossConfigurationError,
             MACrossDataError,
             MACrossExecutionError
@@ -493,7 +493,7 @@ class TestPerformanceRegression(TestMACrossRegression):
         import time
         
         with patch('app.tools.get_data.get_data') as mock_get_data, \
-             patch('app.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
+             patch('app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
              patch('app.tools.portfolio.filtering_service.PortfolioFilterService') as mock_filter_service:
             
             # Setup mocks
@@ -534,7 +534,7 @@ class TestPerformanceRegression(TestMACrossRegression):
         initial_memory = process.memory_info().rss
         
         with patch('app.tools.get_data.get_data') as mock_get_data, \
-             patch('app.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
+             patch('app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
              patch('app.tools.portfolio.filtering_service.PortfolioFilterService') as mock_filter_service:
             
             # Setup mocks

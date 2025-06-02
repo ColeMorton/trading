@@ -11,7 +11,7 @@ from unittest.mock import Mock, patch
 from datetime import datetime, timedelta
 
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
-from app.ma_cross.tools.strategy_execution import execute_single_strategy
+from app.strategies.ma_cross.tools.strategy_execution import execute_single_strategy
 from app.tools.strategy.factory import factory
 
 
@@ -93,13 +93,13 @@ class TestFactoryIntegrationWithExistingCode:
         }
         log = Mock()
         
-        with patch('app.ma_cross.tools.strategy_execution.get_data') as mock_get_data, \
-             patch('app.ma_cross.tools.strategy_execution.calculate_ma_and_signals') as mock_calc, \
-             patch('app.ma_cross.tools.strategy_execution.is_signal_current') as mock_signal, \
-             patch('app.ma_cross.tools.strategy_execution.is_exit_signal_current') as mock_exit, \
-             patch('app.ma_cross.tools.strategy_execution.backtest_strategy') as mock_backtest, \
+        with patch('app.strategies.ma_cross.tools.strategy_execution.get_data') as mock_get_data, \
+             patch('app.strategies.ma_cross.tools.strategy_execution.calculate_ma_and_signals') as mock_calc, \
+             patch('app.strategies.ma_cross.tools.strategy_execution.is_signal_current') as mock_signal, \
+             patch('app.strategies.ma_cross.tools.strategy_execution.is_exit_signal_current') as mock_exit, \
+             patch('app.strategies.ma_cross.tools.strategy_execution.backtest_strategy') as mock_backtest, \
              patch('app.tools.portfolio.filters.check_invalid_metrics') as mock_check, \
-             patch('app.ma_cross.tools.strategy_execution.convert_stats') as mock_convert:
+             patch('app.strategies.ma_cross.tools.strategy_execution.convert_stats') as mock_convert:
             
             # Setup mocks
             test_data = create_test_data()

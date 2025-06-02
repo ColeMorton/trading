@@ -26,7 +26,7 @@ from app.api.models.ma_cross import (
 )
 from app.api.services.script_executor import task_status
 from app.tools.setup_logging import setup_logging
-from app.ma_cross.core import MACrossAnalyzer, AnalysisConfig
+from app.strategies.ma_cross.core import MACrossAnalyzer, AnalysisConfig
 from app.api.utils.cache import get_cache
 from app.api.utils.performance import get_concurrent_executor, get_request_optimizer
 from app.api.utils.monitoring import get_metrics_collector
@@ -200,7 +200,7 @@ class MACrossService:
             List of PortfolioMetrics results
         """
         # Import the execute_strategy function from ma_cross module
-        from app.ma_cross.tools.strategy_execution import execute_strategy
+        from app.strategies.ma_cross.tools.strategy_execution import execute_strategy
         from app.tools.project_utils import get_project_root
         
         # Ensure BASE_DIR is set in config

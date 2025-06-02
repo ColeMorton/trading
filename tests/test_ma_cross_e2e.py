@@ -16,7 +16,7 @@ import polars as pl
 
 from app.tools.orchestration.portfolio_orchestrator import PortfolioOrchestrator
 from app.tools.orchestration.ticker_processor import TickerProcessor
-from app.ma_cross.exceptions import MACrossError
+from app.strategies.ma_cross.exceptions import MACrossError
 
 
 class TestMACrossWorkflowE2E:
@@ -240,7 +240,7 @@ class TestWorkflowErrorScenarios(TestMACrossWorkflowE2E):
         """Test workflow when portfolio processing fails."""
         
         with patch('app.tools.get_data.get_data') as mock_get_data, \
-             patch('app.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process:
+             patch('app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process:
             
             mock_get_data.return_value = sample_price_data
             mock_process.return_value = None
@@ -255,7 +255,7 @@ class TestWorkflowErrorScenarios(TestMACrossWorkflowE2E):
         """Test workflow when filtering fails."""
         
         with patch('app.tools.get_data.get_data') as mock_get_data, \
-             patch('app.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
+             patch('app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
              patch('app.tools.portfolio.filtering_service.PortfolioFilterService') as mock_filter_service:
             
             mock_get_data.return_value = sample_price_data
@@ -320,7 +320,7 @@ class TestWorkflowPerformance(TestMACrossWorkflowE2E):
         import time
         
         with patch('app.tools.get_data.get_data') as mock_get_data, \
-             patch('app.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
+             patch('app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
              patch('app.tools.portfolio.filtering_service.PortfolioFilterService') as mock_filter_service:
             
             # Setup mocks
@@ -352,7 +352,7 @@ class TestWorkflowPerformance(TestMACrossWorkflowE2E):
         initial_memory = process.memory_info().rss
         
         with patch('app.tools.get_data.get_data') as mock_get_data, \
-             patch('app.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
+             patch('app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios') as mock_process, \
              patch('app.tools.portfolio.filtering_service.PortfolioFilterService') as mock_filter_service:
             
             # Setup mocks

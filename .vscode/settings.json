@@ -2,5 +2,6 @@
     "python.analysis.extraPaths": [
         "./trading/ema_cross",
         "./app/ema_cross"
-    ]
+    ],
+    "git.ignoreLimitWarning": true
 }

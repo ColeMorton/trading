@@ -4,7 +4,7 @@ import polars as pl
 from app.tools.data_types import DataConfig
 from app.tools.download_data import download_data
 from app.tools.use_synthetic import use_synthetic
-from app.geometric_brownian_motion.get_median import get_median
+from app.strategies.geometric_brownian_motion.get_median import get_median
 from app.tools.file_utils import is_file_from_today, is_file_from_this_hour
 
 def valid_data(ticker: str, config: DataConfig, log: Callable):
