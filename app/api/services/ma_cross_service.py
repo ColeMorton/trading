@@ -25,12 +25,18 @@ from app.api.models.ma_cross import (
     PortfolioMetrics
 )
 from app.api.services.script_executor import task_status
-from app.tools.setup_logging import setup_logging
-from app.strategies.ma_cross.core import MACrossAnalyzer, AnalysisConfig
-from app.api.utils.cache import get_cache
-from app.api.utils.performance import get_concurrent_executor, get_request_optimizer
-from app.api.utils.monitoring import get_metrics_collector
-from app.tools.progress_tracking import ProgressTracker, create_progress_callback
+
+# Import interfaces
+from app.core.interfaces import (
+    LoggingInterface,
+    ProgressTrackerInterface,
+    StrategyExecutorInterface,
+    StrategyAnalyzerInterface,
+    CacheInterface,
+    MonitoringInterface,
+    ConfigurationInterface,
+)
+from app.core.types import StrategyParameters, TaskStatus
 
 
 class MACrossServiceError(Exception):
@@ -41,13 +47,30 @@ class MACrossServiceError(Exception):
 class MACrossService:
     """Service for executing MA Cross strategy analysis."""
     
-    def __init__(self):
-        """Initialize the MA Cross service."""
+    def __init__(
+        self,
+        logger: LoggingInterface,
+        progress_tracker: ProgressTrackerInterface,
+        strategy_executor: StrategyExecutorInterface,
+        strategy_analyzer: StrategyAnalyzerInterface,
+        cache: CacheInterface,
+        monitoring: MonitoringInterface,
+        configuration: ConfigurationInterface,
+    ):
+        """Initialize the MA Cross service with injected dependencies."""
+        self.logger = logger
+        self.progress_tracker = progress_tracker
+        self.strategy_executor = strategy_executor
+        self.strategy_analyzer = strategy_analyzer
+        self.cache = cache
+        self.monitoring = monitoring
+        self.configuration = configuration
+        
+        # Legacy support - will be removed
         self.config = get_config()
         self.executor = ThreadPoolExecutor(max_workers=4)
-        self.cache = get_cache()
-        self.concurrent_executor = get_concurrent_executor()
-        self.optimizer = get_request_optimizer()
+        self.concurrent_executor = None
+        self.optimizer = None
         self.metrics = get_metrics_collector()
         
     def analyze_portfolio(self, request: MACrossRequest) -> MACrossResponse:
@@ -184,7 +207,7 @@ class MACrossService:
             estimated_time=60.0  # Estimate based on typical analysis time
         )
     
-    def _execute_analysis(self, config: Dict[str, Any], log, progress_tracker: Optional[ProgressTracker] = None) -> List[PortfolioMetrics]:
+    def _execute_analysis(self, config: Dict[str, Any], log, progress_tracker: Optional[ProgressTrackerInterface] = None) -> List[PortfolioMetrics]:
         """
         Execute the actual MA Cross analysis using full portfolio analysis.
         

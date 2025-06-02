@@ -1,9 +1,10 @@
 [tool.poetry]
 name = "trading"
 version = "0.1.0"
-description = ""
+description = "Trading Strategy Platform with MA Cross, Portfolio Optimization, and GraphQL API"
 authors = ["Cole Morton"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"

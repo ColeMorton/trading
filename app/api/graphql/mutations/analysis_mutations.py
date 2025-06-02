@@ -21,13 +21,33 @@ from app.api.services.ma_cross_service import (
 )
 from app.api.models.ma_cross import MACrossRequest
 from app.api.utils.logging import setup_api_logging
+from app.api.dependencies import get_service
+from app.core.interfaces import (
+    LoggingInterface,
+    ProgressTrackerInterface,
+    StrategyExecutorInterface,
+    StrategyAnalyzerInterface,
+    CacheInterface,
+    MonitoringInterface,
+    ConfigurationInterface,
+)
 
 
 # Set up logging
 log, _, logger, _ = setup_api_logging()
 
-# Initialize service
-ma_cross_service = MACrossService()
+# Get service instance using dependency injection
+def get_ma_cross_service() -> MACrossService:
+    """Get MA Cross service instance."""
+    return MACrossService(
+        logger=get_service(LoggingInterface),
+        progress_tracker=get_service(ProgressTrackerInterface),
+        strategy_executor=get_service(StrategyExecutorInterface),
+        strategy_analyzer=get_service(StrategyAnalyzerInterface),
+        cache=get_service(CacheInterface),
+        monitoring=get_service(MonitoringInterface),
+        configuration=get_service(ConfigurationInterface),
+    )
 
 
 
@@ -74,6 +94,7 @@ async def execute_ma_cross_analysis(
         
         # Execute analysis
         if input.async_execution:
+            ma_cross_service = get_ma_cross_service()
             response = ma_cross_service.analyze_portfolio_async(pydantic_request)
             return AsyncAnalysisResponse(
                 execution_id=response.execution_id,
@@ -85,6 +106,7 @@ async def execute_ma_cross_analysis(
                 estimated_time=response.estimated_time
             )
         else:
+            ma_cross_service = get_ma_cross_service()
             response = ma_cross_service.analyze_portfolio(pydantic_request)
             
             # Convert portfolios to AnalysisResult
@@ -145,6 +167,7 @@ async def get_analysis_status(execution_id: strawberry.ID) -> Optional[AnalysisS
     try:
         log(f"Getting GraphQL analysis status for execution ID: {execution_id}")
         
+        ma_cross_service = get_ma_cross_service()
         status_info = ma_cross_service.get_task_status(str(execution_id))
         
         if not status_info:

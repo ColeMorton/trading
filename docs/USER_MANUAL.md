@@ -181,9 +181,14 @@ REDIS_PORT=6379
 API_HOST=127.0.0.1
 API_PORT=8000
 
-# GraphQL Configuration (new)
+# GraphQL Configuration
 ENABLE_GRAPHQL=true
 VITE_USE_GRAPHQL=true
+
+# Architecture Configuration (new)
+ENVIRONMENT=development
+ENABLE_DEPENDENCY_INJECTION=true
+LOG_LEVEL=INFO
 ```
 
 ### Verification
@@ -195,6 +200,9 @@ Validate your installation:
 poetry run python scripts/validate_phase1.py
 
 # Should show: 7/7 validations passed
+
+# Test dependency injection
+poetry run python app/api/test_dependency_injection.py
 ```
 
 ---
@@ -357,6 +365,155 @@ echo "shared_preload_libraries = 'pg_stat_statements'" >> postgresql.conf
 redis-cli CONFIG SET maxmemory 1gb
 redis-cli CONFIG SET maxmemory-policy allkeys-lru
 ```
+
+---
+
+## Architecture and Design Patterns
+
+### Dependency Injection Framework
+
+The platform implements a comprehensive dependency injection (DI) system to reduce coupling and improve testability. This enterprise-grade pattern ensures clean separation of concerns and makes the codebase more maintainable.
+
+#### Core Interfaces
+
+All major services are defined by abstract interfaces in `/app/core/interfaces/`:
+
+- **LoggingInterface** - Logging operations
+- **ProgressTrackerInterface** - Async progress tracking  
+- **StrategyExecutorInterface** - Strategy execution
+- **StrategyAnalyzerInterface** - Strategy analysis
+- **PortfolioManagerInterface** - Portfolio management
+- **DataAccessInterface** - Data access and storage
+- **CacheInterface** - Caching operations
+- **MonitoringInterface** - Metrics and monitoring
+- **ConfigurationInterface** - Configuration management
+
+#### Using Dependency Injection
+
+**In API Routes:**
+```python
+from fastapi import Depends
+from app.api.dependencies import get_logger, get_strategy_executor
+from app.core.interfaces import LoggingInterface, StrategyExecutorInterface
+
+@router.post("/analyze")
+async def analyze(
+    request: AnalysisRequest,
+    logger: LoggingInterface = Depends(get_logger),
+    executor: StrategyExecutorInterface = Depends(get_strategy_executor)
+):
+    log = logger.get_logger(__name__)
+    log.info(f"Processing analysis for {request.ticker}")
+    
+    result = await executor.execute(
+        strategy_type="ma_cross",
+        tickers=[request.ticker],
+        config=request.dict()
+    )
+    return result
+```
+
+**Creating Custom Services:**
+```python
+from app.core.interfaces import DataAccessInterface
+from app.api.dependencies import get_service
+
+class MyCustomService:
+    def __init__(self, data_access: DataAccessInterface):
+        self.data_access = data_access
+    
+    async def process_data(self, ticker: str):
+        # Service uses injected data access
+        data = await self.data_access.get_price_data(ticker)
+        return self.analyze(data)
+
+# Register in dependencies.py
+_container.register(
+    MyCustomServiceInterface,
+    lambda: MyCustomService(
+        data_access=_container.get(DataAccessInterface)
+    )
+)
+```
+
+#### Testing with Mock Services
+
+```python
+import pytest
+from unittest.mock import Mock
+from app.api.dependencies import get_service, _container
+from app.core.interfaces import LoggingInterface
+
+@pytest.fixture
+def mock_logger():
+    mock = Mock(spec=LoggingInterface)
+    _container.register_singleton(LoggingInterface, mock)
+    yield mock
+    # Cleanup after test
+    _container._instances.pop(LoggingInterface, None)
+
+def test_my_function(mock_logger):
+    # Your test uses the mock automatically
+    service = get_service(LoggingInterface)
+    assert service == mock_logger
+```
+
+### Shared Type System
+
+The platform uses a centralized type system in `/app/core/types/` to ensure consistency:
+
+**Common Types:**
+```python
+from app.core.types import (
+    TimeFrame,      # Trading timeframes (1m, 5m, 1h, 1d, etc.)
+    SignalType,     # BUY, SELL, HOLD, CLOSE
+    OrderType,      # MARKET, LIMIT, STOP, STOP_LIMIT
+    StrategyType,   # MA_CROSS, MACD, RSI, etc.
+    TaskStatus,     # PENDING, RUNNING, COMPLETED, FAILED
+)
+
+# Using types in your code
+async def create_order(
+    ticker: str,
+    signal: SignalType,
+    order_type: OrderType = OrderType.MARKET
+):
+    if signal == SignalType.BUY:
+        # Process buy order
+        pass
+```
+
+**Data Types:**
+```python
+from app.core.types import PriceData, Signal, Trade
+
+# Create a signal
+signal = Signal(
+    timestamp=datetime.now(),
+    ticker="BTC-USD",
+    signal_type=SignalType.BUY,
+    price=45000.0,
+    confidence=0.85
+)
+
+# Create a trade record
+trade = Trade(
+    id="trade_123",
+    ticker="BTC-USD",
+    entry_time=datetime.now(),
+    entry_price=45000.0,
+    quantity=0.1,
+    side=PositionSide.LONG
+)
+```
+
+### Benefits of the Architecture
+
+1. **Reduced Coupling** - Services depend on interfaces, not concrete implementations
+2. **Better Testability** - Easy to inject mock services for unit testing
+3. **Clear Contracts** - Interfaces define exact expectations between layers
+4. **Flexibility** - Swap implementations without changing dependent code
+5. **No Circular Dependencies** - DI pattern prevents circular imports
 
 ---
 
@@ -702,6 +859,65 @@ poetry run python app/strategies/update_portfolios.py
 ---
 
 ## Advanced Features
+
+### Service Extension with Dependency Injection
+
+The platform's dependency injection framework makes it easy to extend functionality:
+
+**Creating a Custom Strategy Analyzer:**
+```python
+from app.core.interfaces import StrategyAnalyzerInterface
+from app.infrastructure.strategy import StrategyAnalyzer
+
+class CustomStrategyAnalyzer(StrategyAnalyzer):
+    """Extended analyzer with custom indicators."""
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._register_custom_strategies()
+    
+    def _register_custom_strategies(self):
+        # Add custom strategy implementations
+        self._strategy_implementations['bollinger'] = self._analyze_bollinger
+        self._strategy_implementations['mean_reversion'] = self._analyze_mean_reversion
+    
+    def _analyze_bollinger(self, ticker, data, config):
+        # Custom Bollinger Bands implementation
+        pass
+
+# Register in dependencies
+from app.api.dependencies import _container
+_container.register(
+    StrategyAnalyzerInterface,
+    lambda: CustomStrategyAnalyzer(
+        data_access=_container.get(DataAccessInterface),
+        logger=_container.get(LoggingInterface)
+    )
+)
+```
+
+**Creating a Custom Data Source:**
+```python
+from app.core.interfaces import DataAccessInterface
+from app.infrastructure.data import DataAccessService
+
+class AlphaVantageDataService(DataAccessService):
+    """Data service using Alpha Vantage API."""
+    
+    def __init__(self, api_key: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.api_key = api_key
+    
+    async def download_data(self, ticker, start_date, end_date, interval="1d"):
+        # Custom implementation using Alpha Vantage
+        url = f"https://api.alphavantage.co/query?symbol={ticker}&apikey={self.api_key}"
+        # ... download and process data
+        return data
+
+# Use the custom service
+data_service = get_service(DataAccessInterface)
+data = await data_service.download_data("AAPL", start, end)
+```
 
 ### Async Analysis with Progress Tracking
 
@@ -1441,9 +1657,14 @@ poetry run python scripts/diagnose_system.py
 
 **Support Information:**
 - **Documentation**: Check `docs/` directory for detailed guides
+  - `dependency_injection_guide.md` - DI framework guide
+  - `code_owner_architecture_review_2025.md` - Architecture overview
+  - `csv_schemas.md` - Data format specifications
 - **API Reference**: http://localhost:8000/docs
+- **GraphQL Playground**: http://localhost:8000/graphql
 - **Health Check**: http://localhost:8000/health/detailed
 - **Validation**: `poetry run python scripts/validate_phase1.py`
+- **DI Testing**: `poetry run python app/api/test_dependency_injection.py`
 
 **Before Reporting Issues:**
 1. Run system validation: `poetry run python scripts/validate_phase1.py`
@@ -1454,4 +1675,14 @@ poetry run python scripts/diagnose_system.py
 
 ---
 
-*This manual covers the core functionality of the Trading Strategy Platform, including the completed GraphQL + PostgreSQL migration (Phases 1-4). The platform now offers enterprise-grade features with Docker containerization, GraphQL API, automated backups, CI/CD pipeline, and production-ready deployment capabilities.*
+*This manual covers the core functionality of the Trading Strategy Platform, including the completed GraphQL + PostgreSQL migration (Phases 1-4) and the newly implemented dependency injection framework. The platform now offers enterprise-grade features with:
+
+- **Clean Architecture** - Dependency injection with interface-based design
+- **Docker Containerization** - Production-ready deployment
+- **Dual API Support** - Both REST and GraphQL interfaces
+- **Type Safety** - Centralized type system with strict contracts
+- **Automated Operations** - Backups, CI/CD pipeline, health monitoring
+- **High Performance** - Polars-based data processing, Redis caching
+- **Enterprise Security** - Rate limiting, CORS, input validation
+
+For architectural details, see the [Architecture and Design Patterns](#architecture-and-design-patterns) section.*

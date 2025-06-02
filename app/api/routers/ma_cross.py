@@ -24,20 +24,57 @@ from app.api.services.ma_cross_service import (
     MACrossServiceError
 )
 from app.api.utils.logging import setup_api_logging
-from app.api.utils.cache import get_cache
 from app.api.utils.validation import validate_ma_cross_request
 from app.api.utils.middleware import rate_limit_analysis, rate_limit_cache
-from app.api.utils.monitoring import get_metrics_collector
-from app.api.utils.performance import get_concurrent_executor, get_request_optimizer
+
+# Import dependency injection
+from app.api.dependencies import (
+    get_logger,
+    get_progress_tracker,
+    get_strategy_executor,
+    get_strategy_analyzer,
+    get_cache,
+    get_monitoring,
+    get_configuration,
+)
+
+# Import interfaces
+from app.core.interfaces import (
+    LoggingInterface,
+    ProgressTrackerInterface,
+    StrategyExecutorInterface,
+    StrategyAnalyzerInterface,
+    CacheInterface,
+    MonitoringInterface,
+    ConfigurationInterface,
+)
 
 # Create router
 router = APIRouter()
 
-# Set up logging
+# Set up logging (legacy - will be removed)
 log, _, logger, _ = setup_api_logging()
 
-# Initialize service
-ma_cross_service = MACrossService()
+
+def get_ma_cross_service(
+    logger: LoggingInterface = Depends(get_logger),
+    progress_tracker: ProgressTrackerInterface = Depends(get_progress_tracker),
+    strategy_executor: StrategyExecutorInterface = Depends(get_strategy_executor),
+    strategy_analyzer: StrategyAnalyzerInterface = Depends(get_strategy_analyzer),
+    cache: CacheInterface = Depends(get_cache),
+    monitoring: MonitoringInterface = Depends(get_monitoring),
+    configuration: ConfigurationInterface = Depends(get_configuration),
+) -> MACrossService:
+    """Dependency injection factory for MA Cross service."""
+    return MACrossService(
+        logger=logger,
+        progress_tracker=progress_tracker,
+        strategy_executor=strategy_executor,
+        strategy_analyzer=strategy_analyzer,
+        cache=cache,
+        monitoring=monitoring,
+        configuration=configuration,
+    )
 
 @router.post(
     "/analyze",
@@ -54,7 +91,10 @@ ma_cross_service = MACrossService()
                 "The analysis can be executed synchronously or asynchronously.",
     dependencies=[Depends(rate_limit_analysis)]
 )
-async def analyze_portfolio(request: MACrossRequest):
+async def analyze_portfolio(
+    request: MACrossRequest,
+    ma_cross_service: MACrossService = Depends(get_ma_cross_service)
+):
     """
     Execute MA Cross analysis on a portfolio.
     

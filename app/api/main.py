@@ -19,6 +19,7 @@ from app.api.utils.logging import setup_api_logging
 from app.database.config import startup_database, shutdown_database, database_health_check
 from app.api.graphql.schema import schema
 from app.api.graphql.context import get_graphql_context
+from app.api.dependencies import configure_dependencies
 
 # Define paths
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -69,6 +70,9 @@ else:
 
 # Set up logging
 log, log_close, logger, _ = setup_api_logging()
+
+# Configure dependency injection
+configure_dependencies()
 
 # Import security
 from app.api.security import setup_security_middleware, get_cors_origins
