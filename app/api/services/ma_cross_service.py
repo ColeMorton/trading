@@ -405,9 +405,14 @@ class MACrossService:
             log(f"Total portfolios analyzed: {len(all_portfolios)}")
 
             # Export best portfolios using filtered portfolios data (multiple metric types)
+            # and also apply the same deduplication logic to return results
+            deduplicated_portfolios = []
             if all_portfolios:
                 try:
-                    from app.tools.portfolio.collection import export_best_portfolios
+                    from app.tools.portfolio.collection import (
+                        deduplicate_and_aggregate_portfolios,
+                        export_best_portfolios,
+                    )
 
                     log("Exporting best portfolios...")
 
@@ -428,11 +433,147 @@ class MACrossService:
                     log(
                         f"Successfully exported {len(portfolio_dicts)} best portfolios with full column data"
                     )
+
+                    # Apply the same deduplication logic to the portfolios we return to the frontend
+                    # This ensures frontend displays exactly what gets exported to portfolios_best
+                    if portfolio_dicts:
+                        log(
+                            "Applying deduplication logic to frontend results to match portfolios_best export..."
+                        )
+
+                        # Use the same desired metric types as export
+                        desired_metric_types = config.get(
+                            "DESIRED_METRIC_TYPES",
+                            [
+                                "Most Total Return [%]",
+                                "Median Total Trades",
+                                "Mean Avg Winning Trade [%]",
+                                "Most Sharpe Ratio",
+                                "Most Omega Ratio",
+                                "Most Sortino Ratio",
+                            ],
+                        )
+
+                        # Apply deduplication (same logic as export_best_portfolios)
+                        deduplicated_dicts = deduplicate_and_aggregate_portfolios(
+                            portfolio_dicts, log, desired_metric_types
+                        )
+
+                        # Convert back to PortfolioMetrics for API response
+                        for portfolio_dict in deduplicated_dicts:
+                            try:
+                                # Extract strategy type
+                                strategy_type_value = portfolio_dict.get(
+                                    "Strategy Type", ""
+                                )
+                                if (
+                                    isinstance(strategy_type_value, str)
+                                    and "StrategyTypeEnum." in strategy_type_value
+                                ):
+                                    strategy_type_value = strategy_type_value.replace(
+                                        "StrategyTypeEnum.", ""
+                                    )
+
+                                # Get window values
+                                short_window = int(
+                                    portfolio_dict.get("Short Window", 0)
+                                )
+                                long_window = int(portfolio_dict.get("Long Window", 0))
+
+                                # Calculate winning/losing trades from total trades and win rate
+                                total_trades = int(
+                                    portfolio_dict.get("Total Trades", 0)
+                                )
+                                win_rate_pct = float(
+                                    portfolio_dict.get("Win Rate [%]", 0.0)
+                                )
+                                winning_trades = int(total_trades * win_rate_pct / 100)
+                                losing_trades = total_trades - winning_trades
+
+                                # Convert string values to appropriate types
+                                total_open_trades = portfolio_dict.get(
+                                    "Total Open Trades", 0
+                                )
+                                if isinstance(total_open_trades, str):
+                                    total_open_trades = (
+                                        int(total_open_trades)
+                                        if total_open_trades.isdigit()
+                                        else 0
+                                    )
+
+                                signal_entry = portfolio_dict.get("Signal Entry", False)
+                                if isinstance(signal_entry, str):
+                                    signal_entry_bool = signal_entry.lower() == "true"
+                                else:
+                                    signal_entry_bool = bool(signal_entry)
+
+                                metrics = PortfolioMetrics(
+                                    ticker=portfolio_dict.get("Ticker", ""),
+                                    strategy_type=strategy_type_value,
+                                    short_window=short_window,
+                                    long_window=long_window,
+                                    total_return=float(
+                                        portfolio_dict.get("Total Return [%]", 0.0)
+                                    ),
+                                    annual_return=float(
+                                        portfolio_dict.get(
+                                            "Ann. Return [%]",
+                                            portfolio_dict.get("Annual Returns", 0.0)
+                                            * 100,
+                                        )
+                                    ),
+                                    sharpe_ratio=float(
+                                        portfolio_dict.get("Sharpe Ratio", 0.0)
+                                    ),
+                                    sortino_ratio=float(
+                                        portfolio_dict.get("Sortino Ratio", 0.0)
+                                    ),
+                                    max_drawdown=float(
+                                        portfolio_dict.get("Max Drawdown [%]", 0.0)
+                                    ),
+                                    total_trades=total_trades,
+                                    winning_trades=winning_trades,
+                                    losing_trades=losing_trades,
+                                    win_rate=win_rate_pct
+                                    / 100.0,  # Convert percentage to decimal
+                                    profit_factor=float(
+                                        portfolio_dict.get("Profit Factor", 0.0)
+                                    ),
+                                    expectancy=float(
+                                        portfolio_dict.get(
+                                            "Expectancy",
+                                            portfolio_dict.get(
+                                                "Expectancy per Trade", 0.0
+                                            ),
+                                        )
+                                    ),
+                                    score=float(portfolio_dict.get("Score", 0.0)),
+                                    beats_bnh=float(
+                                        portfolio_dict.get("Beats BNH [%]", 0.0)
+                                    ),
+                                    has_open_trade=bool(total_open_trades > 0),
+                                    has_signal_entry=signal_entry_bool,
+                                )
+                                deduplicated_portfolios.append(metrics)
+                            except (ValueError, TypeError, KeyError) as e:
+                                log(
+                                    f"Error converting deduplicated portfolio to metrics: {str(e)}",
+                                    "error",
+                                )
+                                continue
+
+                        log(
+                            f"Frontend will display {len(deduplicated_portfolios)} deduplicated portfolios (matching portfolios_best export)"
+                        )
+
                 except Exception as e:
                     log(f"Failed to export best portfolios: {str(e)}", "error")
                     # Continue anyway - the analysis succeeded even if export failed
 
-            return all_portfolios
+            # Return deduplicated portfolios if available, otherwise return all analyzed portfolios
+            return (
+                deduplicated_portfolios if deduplicated_portfolios else all_portfolios
+            )
 
         except Exception as e:
             log(f"Error in portfolio analysis: {str(e)}", "error")
@@ -622,9 +763,14 @@ class MACrossService:
             log(f"Total portfolios analyzed: {len(all_portfolios)}")
 
             # Export best portfolios using filtered portfolios data (multiple metric types)
+            # and also apply the same deduplication logic to return results
+            deduplicated_portfolios = []
             if all_portfolios:
                 try:
-                    from app.tools.portfolio.collection import export_best_portfolios
+                    from app.tools.portfolio.collection import (
+                        deduplicate_and_aggregate_portfolios,
+                        export_best_portfolios,
+                    )
 
                     log("Exporting best portfolios...")
 
@@ -662,11 +808,151 @@ class MACrossService:
                         f"Successfully exported {len(portfolio_dicts)} best portfolios",
                     )
                     log(f"Successfully exported {len(portfolio_dicts)} best portfolios")
+
+                    # Apply the same deduplication logic to the portfolios we return to the frontend
+                    # This ensures frontend displays exactly what gets exported to portfolios_best
+                    if portfolio_dicts:
+                        log(
+                            "Applying deduplication logic to frontend results to match portfolios_best export..."
+                        )
+
+                        # Use the same desired metric types as export
+                        desired_metric_types = config.get(
+                            "DESIRED_METRIC_TYPES",
+                            [
+                                "Most Total Return [%]",
+                                "Median Total Trades",
+                                "Mean Avg Winning Trade [%]",
+                                "Most Sharpe Ratio",
+                                "Most Omega Ratio",
+                                "Most Sortino Ratio",
+                            ],
+                        )
+
+                        # Apply deduplication (same logic as export_best_portfolios) in thread pool
+                        deduplicated_dicts = await loop.run_in_executor(
+                            self.executor,
+                            deduplicate_and_aggregate_portfolios,
+                            portfolio_dicts,
+                            log,
+                            desired_metric_types,
+                        )
+
+                        # Convert back to PortfolioMetrics for API response
+                        for portfolio_dict in deduplicated_dicts:
+                            try:
+                                # Extract strategy type
+                                strategy_type_value = portfolio_dict.get(
+                                    "Strategy Type", ""
+                                )
+                                if (
+                                    isinstance(strategy_type_value, str)
+                                    and "StrategyTypeEnum." in strategy_type_value
+                                ):
+                                    strategy_type_value = strategy_type_value.replace(
+                                        "StrategyTypeEnum.", ""
+                                    )
+
+                                # Get window values
+                                short_window = int(
+                                    portfolio_dict.get("Short Window", 0)
+                                )
+                                long_window = int(portfolio_dict.get("Long Window", 0))
+
+                                # Calculate winning/losing trades from total trades and win rate
+                                total_trades = int(
+                                    portfolio_dict.get("Total Trades", 0)
+                                )
+                                win_rate_pct = float(
+                                    portfolio_dict.get("Win Rate [%]", 0.0)
+                                )
+                                winning_trades = int(total_trades * win_rate_pct / 100)
+                                losing_trades = total_trades - winning_trades
+
+                                # Convert string values to appropriate types
+                                total_open_trades = portfolio_dict.get(
+                                    "Total Open Trades", 0
+                                )
+                                if isinstance(total_open_trades, str):
+                                    total_open_trades = (
+                                        int(total_open_trades)
+                                        if total_open_trades.isdigit()
+                                        else 0
+                                    )
+
+                                signal_entry = portfolio_dict.get("Signal Entry", False)
+                                if isinstance(signal_entry, str):
+                                    signal_entry_bool = signal_entry.lower() == "true"
+                                else:
+                                    signal_entry_bool = bool(signal_entry)
+
+                                metrics = PortfolioMetrics(
+                                    ticker=portfolio_dict.get("Ticker", ""),
+                                    strategy_type=strategy_type_value,
+                                    short_window=short_window,
+                                    long_window=long_window,
+                                    total_return=float(
+                                        portfolio_dict.get("Total Return [%]", 0.0)
+                                    ),
+                                    annual_return=float(
+                                        portfolio_dict.get(
+                                            "Ann. Return [%]",
+                                            portfolio_dict.get("Annual Returns", 0.0)
+                                            * 100,
+                                        )
+                                    ),
+                                    sharpe_ratio=float(
+                                        portfolio_dict.get("Sharpe Ratio", 0.0)
+                                    ),
+                                    sortino_ratio=float(
+                                        portfolio_dict.get("Sortino Ratio", 0.0)
+                                    ),
+                                    max_drawdown=float(
+                                        portfolio_dict.get("Max Drawdown [%]", 0.0)
+                                    ),
+                                    total_trades=total_trades,
+                                    winning_trades=winning_trades,
+                                    losing_trades=losing_trades,
+                                    win_rate=win_rate_pct
+                                    / 100.0,  # Convert percentage to decimal
+                                    profit_factor=float(
+                                        portfolio_dict.get("Profit Factor", 0.0)
+                                    ),
+                                    expectancy=float(
+                                        portfolio_dict.get(
+                                            "Expectancy",
+                                            portfolio_dict.get(
+                                                "Expectancy per Trade", 0.0
+                                            ),
+                                        )
+                                    ),
+                                    score=float(portfolio_dict.get("Score", 0.0)),
+                                    beats_bnh=float(
+                                        portfolio_dict.get("Beats BNH [%]", 0.0)
+                                    ),
+                                    has_open_trade=bool(total_open_trades > 0),
+                                    has_signal_entry=signal_entry_bool,
+                                )
+                                deduplicated_portfolios.append(metrics)
+                            except (ValueError, TypeError, KeyError) as e:
+                                log(
+                                    f"Error converting deduplicated portfolio to metrics: {str(e)}",
+                                    "error",
+                                )
+                                continue
+
+                        log(
+                            f"Frontend will display {len(deduplicated_portfolios)} deduplicated portfolios (matching portfolios_best export)"
+                        )
+
                 except Exception as e:
                     log(f"Failed to export best portfolios: {str(e)}", "error")
                     # Continue anyway - the analysis succeeded even if export failed
 
-            return all_portfolios
+            # Return deduplicated portfolios if available, otherwise return all analyzed portfolios
+            return (
+                deduplicated_portfolios if deduplicated_portfolios else all_portfolios
+            )
 
         except Exception as e:
             log(f"Error in async portfolio analysis: {str(e)}", "error")
