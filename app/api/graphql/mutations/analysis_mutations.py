@@ -168,7 +168,7 @@ async def get_analysis_status(execution_id: strawberry.ID) -> Optional[AnalysisS
         log(f"Getting GraphQL analysis status for execution ID: {execution_id}")
         
         ma_cross_service = get_ma_cross_service()
-        status_info = ma_cross_service.get_task_status(str(execution_id))
+        status_info = await ma_cross_service.get_task_status(str(execution_id))
         
         if not status_info:
             return None

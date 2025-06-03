@@ -77,7 +77,7 @@ from app.tools.portfolio.stop_loss import (
 )
 
 CONFIG: Config = {
-    "TICKER": ["NI"],
+    "TICKER": ["WELL"],
     # "TICKER": ["MA", "L", "HOOD", "NI", "MSFT", "ROKU", "MU", "TEM", "BRO", "FCX", "GL", "CSCO", "EG", "EQT", "MMC", "PGR", "PANW", "HRL", "PLTR", "PWR", "TSM"],
     # Load tickers from JSON file
     # "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/portfolio.json"))),

@@ -151,7 +151,8 @@ async def analyze_portfolio(
     description="Get the status of an asynchronous MA Cross analysis execution."
 )
 async def get_analysis_status(
-    execution_id: str = Path(..., description="The execution ID returned from async analysis")
+    execution_id: str = Path(..., description="The execution ID returned from async analysis"),
+    ma_cross_service: MACrossService = Depends(get_ma_cross_service)
 ):
     """
     Get the status of an asynchronous MA Cross analysis.
@@ -168,7 +169,7 @@ async def get_analysis_status(
     try:
         log(f"Getting status for execution ID: {execution_id}")
         
-        status_info = ma_cross_service.get_task_status(execution_id)
+        status_info = await ma_cross_service.get_task_status(execution_id)
         
         if not status_info:
             raise HTTPException(status_code=404, detail=f"Execution ID {execution_id} not found")
@@ -201,7 +202,8 @@ async def get_analysis_status(
     description="Stream real-time updates for an asynchronous MA Cross analysis using Server-Sent Events."
 )
 async def stream_analysis_updates(
-    execution_id: str = Path(..., description="The execution ID returned from async analysis")
+    execution_id: str = Path(..., description="The execution ID returned from async analysis"),
+    ma_cross_service: MACrossService = Depends(get_ma_cross_service)
 ):
     """
     Stream real-time updates for an asynchronous MA Cross analysis.
@@ -218,30 +220,69 @@ async def stream_analysis_updates(
     async def generate_events():
         """Generate server-sent events for the analysis."""
         try:
-            while True:
-                # Get current status
-                status_info = ma_cross_service.get_task_status(execution_id)
-                
-                if not status_info:
-                    yield f"data: {json.dumps({'error': 'Execution ID not found'})}\n\n"
+            # Try to stream from progress tracker first
+            progress_tracker = get_progress_tracker()
+            async for update in progress_tracker.stream_updates(execution_id):
+                if update is None:
                     break
                 
-                # Send status update
-                yield f"data: {json.dumps(status_info)}\n\n"
+                # Convert progress update to JSON
+                event_data = {
+                    "type": "progress",
+                    "data": {
+                        "status": update.status,
+                        "progress": {
+                            "percentage": update.progress,
+                            "message": update.message
+                        },
+                        "timestamp": update.timestamp.isoformat()
+                    }
+                }
                 
-                # If analysis is complete or failed, stop streaming
-                if status_info['status'] in ['completed', 'failed']:
+                yield f"data: {json.dumps(event_data)}\n\n"
+                
+                # If complete or failed, also send the final results
+                if update.status in ["completed", "failed"]:
+                    try:
+                        final_status = await ma_cross_service.get_task_status(execution_id)
+                        final_event = {
+                            "type": update.status,
+                            "data": final_status
+                        }
+                        yield f"data: {json.dumps(final_event)}\n\n"
+                    except Exception:
+                        pass
                     break
-                
-                # Wait before next update
-                await asyncio.sleep(1)
-                
+                    
         except Exception as e:
-            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+            # Fallback to basic status polling
+            log(f"Progress tracker streaming failed, falling back to status polling: {str(e)}", "warning")
+            while True:
+                try:
+                    # Get current status
+                    status_info = await ma_cross_service.get_task_status(execution_id)
+                    
+                    if not status_info:
+                        yield f"data: {json.dumps({'error': 'Execution ID not found'})}\n\n"
+                        break
+                    
+                    # Send status update
+                    yield f"data: {json.dumps(status_info)}\n\n"
+                    
+                    # If analysis is complete or failed, stop streaming
+                    if status_info['status'] in ['completed', 'failed']:
+                        break
+                    
+                    # Wait before next update
+                    await asyncio.sleep(1)
+                    
+                except Exception as e:
+                    yield f"data: {json.dumps({'error': str(e)})}\n\n"
+                    break
     
     try:
         # Check if execution ID exists
-        status_info = ma_cross_service.get_task_status(execution_id)
+        status_info = await ma_cross_service.get_task_status(execution_id)
         if not status_info:
             raise HTTPException(status_code=404, detail=f"Execution ID {execution_id} not found")
         
