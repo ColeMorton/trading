@@ -4,7 +4,8 @@ Signal Type Definitions
 This module provides type definitions for MACD cross signal generation.
 """
 
-from typing import TypedDict, NotRequired
+from typing import NotRequired, TypedDict
+
 
 class Config(TypedDict):
     """
@@ -26,6 +27,7 @@ class Config(TypedDict):
         YEARS (NotRequired[float]): Number of years of data to use
         USE_SCANNER (NotRequired[bool]): Whether running as part of scanner
     """
+
     TICKER: str
     SHORT_WINDOW_START: int
     SHORT_WINDOW_END: int

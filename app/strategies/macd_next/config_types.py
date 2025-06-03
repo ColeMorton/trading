@@ -5,7 +5,8 @@ This module provides centralized TypedDict definitions for configuration
 across the MACD cross strategy modules.
 """
 
-from typing import TypedDict, NotRequired, Union, List
+from typing import List, NotRequired, TypedDict, Union
+
 
 class PortfolioConfig(TypedDict, total=False):
     """Configuration type definition for MACD cross strategy portfolio analysis.
@@ -29,6 +30,7 @@ class PortfolioConfig(TypedDict, total=False):
         SIGNAL_WINDOW_END (NotRequired[int]): End of signal line window range
         STEP (NotRequired[int]): Step size for window range increments
     """
+
     TICKER: Union[str, List[str]]
     BASE_DIR: str
     USE_CURRENT: NotRequired[bool]
@@ -44,6 +46,7 @@ class PortfolioConfig(TypedDict, total=False):
     SIGNAL_WINDOW_START: NotRequired[int]
     SIGNAL_WINDOW_END: NotRequired[int]
     STEP: NotRequired[int]
+
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
@@ -63,8 +66,9 @@ DEFAULT_CONFIG: PortfolioConfig = {
     "SIGNAL_WINDOW_END": 18,
     "STEP": 1,
     "SORT_BY": "Score",
-    "SORT_ASC": False
+    "SORT_ASC": False,
 }
+
 
 def validate_config(config: dict) -> bool:
     """Validate configuration parameters for the MACD cross strategy.
@@ -79,21 +83,21 @@ def validate_config(config: dict) -> bool:
         ValueError: If configuration parameters are invalid
     """
     # Validate window ranges
-    if config.get('SHORT_WINDOW_END', 18) <= config.get('SHORT_WINDOW_START', 2):
+    if config.get("SHORT_WINDOW_END", 18) <= config.get("SHORT_WINDOW_START", 2):
         raise ValueError("SHORT_WINDOW_END must be greater than SHORT_WINDOW_START")
-    
-    if config.get('LONG_WINDOW_END', 36) <= config.get('LONG_WINDOW_START', 4):
+
+    if config.get("LONG_WINDOW_END", 36) <= config.get("LONG_WINDOW_START", 4):
         raise ValueError("LONG_WINDOW_END must be greater than LONG_WINDOW_START")
-    
-    if config.get('SIGNAL_WINDOW_END', 18) <= config.get('SIGNAL_WINDOW_START', 2):
+
+    if config.get("SIGNAL_WINDOW_END", 18) <= config.get("SIGNAL_WINDOW_START", 2):
         raise ValueError("SIGNAL_WINDOW_END must be greater than SIGNAL_WINDOW_START")
-    
+
     # Validate window relationships
-    if config.get('LONG_WINDOW_START', 4) <= config.get('SHORT_WINDOW_END', 18):
+    if config.get("LONG_WINDOW_START", 4) <= config.get("SHORT_WINDOW_END", 18):
         raise ValueError("LONG_WINDOW_START must be greater than SHORT_WINDOW_END")
-    
+
     # Validate STEP parameter
-    if config.get('STEP', 2) <= 0:
+    if config.get("STEP", 2) <= 0:
         raise ValueError("STEP must be greater than 0")
-    
+
     return True

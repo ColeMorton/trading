@@ -1,12 +1,12 @@
-from typing import TypedDict, Callable, TypeVar, Generic
-from typing_extensions import Unpack, NotRequired
+from typing import Callable, Generic, TypedDict, TypeVar
 
 from Crypto.PublicKey.ECC import EccKey
+from typing_extensions import NotRequired, Unpack
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 class RequestParams(TypedDict, Generic[T]):
-    kdf: Callable[[bytes|bytearray|memoryview], T]
+    kdf: Callable[[bytes | bytearray | memoryview], T]
     static_priv: NotRequired[EccKey]
     static_pub: NotRequired[EccKey]
     eph_priv: NotRequired[EccKey]

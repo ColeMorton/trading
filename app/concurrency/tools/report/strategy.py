@@ -3,26 +3,27 @@
 This module provides functionality for creating strategy objects from configuration and statistics.
 """
 
-from typing import Dict, Any, TypedDict
+from typing import Any, Dict, TypedDict
 
 # Import types from the parent module
 from app.concurrency.tools.types import (
-    StrategyParameters,
-    StrategyRiskMetrics,
     EfficiencyMetrics,
     SignalMetrics,
-    Strategy
+    Strategy,
+    StrategyParameters,
+    StrategyRiskMetrics,
 )
+
 
 class StrategyParameter(TypedDict):
     """Parameter definition with value and description."""
+
     value: Any
     description: str
 
+
 def create_strategy_object(
-    config: Dict[str, Any],
-    index: int,
-    stats: Dict[str, Any]
+    config: Dict[str, Any], index: int, stats: Dict[str, Any]
 ) -> Strategy:
     """Create a strategy object with the optimized structure.
 
@@ -38,168 +39,168 @@ def create_strategy_object(
     include_allocation = stats.get("include_allocation", True)
     # Determine strategy type
     strategy_type = config.get("STRATEGY_TYPE", "EMA")
-    
+
     # Check if this is a MACD strategy based on the presence of SIGNAL_WINDOW
     if "SIGNAL_WINDOW" in config and config["SIGNAL_WINDOW"] > 0:
         strategy_type = "MACD"
-    
+
     # Also check for explicit type field which might come from JSON portfolios
     if "type" in config:
         strategy_type = config["type"]
-    
+
     # Use the strategy_id from config if available, otherwise use index
-    if 'strategy_id' in config:
-        strategy_id = config['strategy_id']
+    if "strategy_id" in config:
+        strategy_id = config["strategy_id"]
     else:
         # If no strategy_id in config, use ticker and other info to create one
-        ticker = config.get('TICKER', f"unknown_{index}")
+        ticker = config.get("TICKER", f"unknown_{index}")
         strategy_id = f"{ticker}_{strategy_type}_{index}"
-    
+
     # Create base parameters
     parameters: StrategyParameters = {
         "ticker": {
             "value": config["TICKER"],
-            "description": "Ticker symbol to analyze"
+            "description": "Ticker symbol to analyze",
         },
         "timeframe": {
             "value": "Hourly" if config.get("USE_HOURLY", False) else "Daily",
-            "description": "Trading timeframe (Hourly or Daily)"
+            "description": "Trading timeframe (Hourly or Daily)",
         },
         "type": {
             "value": strategy_type,
-            "description": f"Strategy type ({strategy_type})"
+            "description": f"Strategy type ({strategy_type})",
         },
         "direction": {
             "value": config.get("DIRECTION", "Long"),
-            "description": "Trading direction (Long or Short)"
-        }
+            "description": "Trading direction (Long or Short)",
+        },
     }
-    
+
     # Add strategy-specific parameters based on type
     if strategy_type == "ATR":
         # ATR strategy parameters
         if "length" in config:
             parameters["length"] = {
                 "value": config["length"],
-                "description": "ATR calculation period"
+                "description": "ATR calculation period",
             }
         if "multiplier" in config:
             parameters["multiplier"] = {
                 "value": config["multiplier"],
-                "description": "ATR multiplier for stop distance"
+                "description": "ATR multiplier for stop distance",
             }
     else:
         # MA and MACD strategy parameters
         if "SHORT_WINDOW" in config:
             parameters["short_window"] = {
                 "value": config["SHORT_WINDOW"],
-                "description": "Period for short moving average or MACD fast line"
+                "description": "Period for short moving average or MACD fast line",
             }
         if "LONG_WINDOW" in config:
             parameters["long_window"] = {
                 "value": config["LONG_WINDOW"],
-                "description": "Period for long moving average or MACD slow line"
+                "description": "Period for long moving average or MACD slow line",
             }
-        
+
         # Add signal_window for MACD strategies
         if strategy_type == "MACD" and "SIGNAL_WINDOW" in config:
             parameters["signal_window"] = {
                 "value": config["SIGNAL_WINDOW"],
-                "description": "Period for MACD signal line"
+                "description": "Period for MACD signal line",
             }
-    
+
     # Add RSI parameters if present
     if config.get("USE_RSI", False) and "RSI_WINDOW" in config:
         parameters["rsi_period"] = {
             "value": config["RSI_WINDOW"],
-            "description": "Period for RSI calculation"
+            "description": "Period for RSI calculation",
         }
         parameters["rsi_threshold"] = {
             "value": config["RSI_THRESHOLD"],
-            "description": "RSI threshold for signal filtering"
+            "description": "RSI threshold for signal filtering",
         }
-    
+
     # Add allocation if present
     if "ALLOCATION" in config and config["ALLOCATION"] is not None:
         parameters["allocation"] = {
             "value": config["ALLOCATION"],
-            "description": "Allocation percentage"
+            "description": "Allocation percentage",
         }
-    
+
     # Add stop loss if present
     if "STOP_LOSS" in config:
         parameters["stop_loss"] = {
             "value": config["STOP_LOSS"],
-            "description": "Stop loss percentage"
+            "description": "Stop loss percentage",
         }
-    
+
     # Performance object removed as requested
-    
+
     # Extract strategy-specific risk metrics
-    risk_metrics_data = stats.get('risk_metrics', {})
-    
+    risk_metrics_data = stats.get("risk_metrics", {})
+
     # Use index for risk metrics lookup to match how they're stored in risk_metrics.py
     # The index parameter is 1-based, which matches the 1-based indexing used in risk_metrics.py
     risk_metrics: StrategyRiskMetrics = {
         "var_95": {
             "value": risk_metrics_data.get(f"strategy_{index}_var_95", 0.0),
-            "description": "Value at Risk (95% confidence)"
+            "description": "Value at Risk (95% confidence)",
         },
         "cvar_95": {
             "value": risk_metrics_data.get(f"strategy_{index}_cvar_95", 0.0),
-            "description": "Conditional Value at Risk (95% confidence)"
+            "description": "Conditional Value at Risk (95% confidence)",
         },
         "var_99": {
             "value": risk_metrics_data.get(f"strategy_{index}_var_99", 0.0),
-            "description": "Value at Risk (99% confidence)"
+            "description": "Value at Risk (99% confidence)",
         },
         "cvar_99": {
             "value": risk_metrics_data.get(f"strategy_{index}_cvar_99", 0.0),
-            "description": "Conditional Value at Risk (99% confidence)"
+            "description": "Conditional Value at Risk (99% confidence)",
         },
         "risk_contribution": {
             "value": risk_metrics_data.get(f"strategy_{index}_risk_contrib", 0.0),
-            "description": "Contribution to portfolio risk"
+            "description": "Contribution to portfolio risk",
         },
         "alpha_to_portfolio": {
             "value": risk_metrics_data.get(f"strategy_{index}_alpha_to_portfolio", 0.0),
-            "description": "Risk-adjusted alpha relative to portfolio (excess return per unit of volatility)"
-        }
+            "description": "Risk-adjusted alpha relative to portfolio (excess return per unit of volatility)",
+        },
     }
-    
+
     # Get strategy-specific efficiency metrics
     strategy_metrics = stats.get("strategy_efficiency_metrics", {})
-    
+
     # Use index for efficiency metrics lookup to match how they're stored in analysis.py
     efficiency: EfficiencyMetrics = {
         "efficiency_score": {
             "value": strategy_metrics.get(f"strategy_{index}_efficiency_score", 0.0),
-            "description": "Risk-adjusted performance score for this strategy"
+            "description": "Risk-adjusted performance score for this strategy",
         },
         "expectancy": {
             "value": strategy_metrics.get(f"strategy_{index}_expectancy", 0.0),
-            "description": "Expectancy per Trade"
+            "description": "Expectancy per Trade",
         },
         "multipliers": {
             "diversification": {
                 "value": strategy_metrics.get(f"strategy_{index}_diversification", 0.0),
-                "description": "Strategy-specific diversification effect"
+                "description": "Strategy-specific diversification effect",
             },
             "independence": {
                 "value": strategy_metrics.get(f"strategy_{index}_independence", 0.0),
-                "description": "Strategy-specific independence from other strategies"
+                "description": "Strategy-specific independence from other strategies",
             },
             "activity": {
                 "value": strategy_metrics.get(f"strategy_{index}_activity", 0.0),
-                "description": "Strategy-specific activity level impact"
-            }
-        }
+                "description": "Strategy-specific activity level impact",
+            },
+        },
     }
 
     # Get strategy-specific signal metrics
     signal_metrics = stats.get("signal_metrics", {})
     strategy_key = f"strategy_{index}"
-    
+
     # Calculate mean signals per month for this strategy
     mean_signals = signal_metrics.get(f"{strategy_key}_mean_signals", 0.0)
     median_signals = signal_metrics.get(f"{strategy_key}_median_signals", 0.0)
@@ -207,50 +208,52 @@ def create_strategy_object(
     total_signals = signal_metrics.get(f"{strategy_key}_total_signals", 0.0)
     max_monthly = signal_metrics.get(f"{strategy_key}_max_monthly_signals", 0.0)
     min_monthly = signal_metrics.get(f"{strategy_key}_min_monthly_signals", 0.0)
-    
+
     signals: SignalMetrics = {
         "monthly_statistics": {
             "mean": {
                 "value": mean_signals,
-                "description": "Average number of signals per month"
+                "description": "Average number of signals per month",
             },
             "median": {
                 "value": median_signals,
-                "description": "Median number of signals per month"
+                "description": "Median number of signals per month",
             },
             "std_below": {
                 "value": max(0.0, mean_signals - std_signals),
-                "description": "One standard deviation below mean signals"
+                "description": "One standard deviation below mean signals",
             },
             "std_above": {
                 "value": mean_signals + std_signals,
-                "description": "One standard deviation above mean signals"
-            }
+                "description": "One standard deviation above mean signals",
+            },
         },
         "summary": {
             "volatility": {
                 "value": std_signals,
-                "description": "Standard deviation of monthly signals"
+                "description": "Standard deviation of monthly signals",
             },
             "max_monthly": {
                 "value": max_monthly,
-                "description": "Maximum signals in any month"
+                "description": "Maximum signals in any month",
             },
             "min_monthly": {
                 "value": min_monthly,
-                "description": "Minimum signals in any month"
+                "description": "Minimum signals in any month",
             },
             "total": {
                 "value": total_signals,
-                "description": "Total number of signals across period"
-            }
-        }
+                "description": "Total number of signals across period",
+            },
+        },
     }
-    
+
     # Get strategy-specific signal quality metrics if available
     # We still need to use "strategy_" prefix for internal lookups in stats
-    signal_quality_metrics_data = stats.get("signal_quality_metrics", {}).get(f"strategy_{index}", {})
-    
+    signal_quality_metrics_data = stats.get("signal_quality_metrics", {}).get(
+        f"strategy_{index}", {}
+    )
+
     # Only include signal quality metrics if they exist
     strategy_obj: Strategy = {
         "id": strategy_id,
@@ -258,15 +261,17 @@ def create_strategy_object(
         # Remove performance object as requested
         "risk_metrics": risk_metrics,
         "efficiency": efficiency,
-        "signals": signals
+        "signals": signals,
     }
-    
+
     # Add allocation fields only if enabled
     if include_allocation:
         # We still need to use "strategy_" prefix for internal lookups in stats
-        strategy_obj["allocation_score"] = stats.get(f"strategy_{index}_allocation_score", 0.0)
+        strategy_obj["allocation_score"] = stats.get(
+            f"strategy_{index}_allocation_score", 0.0
+        )
         strategy_obj["allocation"] = stats.get(f"strategy_{index}_allocation", 0.0)
-        
+
         # Add original allocation from CSV file if available
         original_allocation = stats.get(f"strategy_{index}_original_allocation", None)
         if original_allocation is not None:
@@ -274,35 +279,35 @@ def create_strategy_object(
         else:
             # If no original allocation is available, use the calculated allocation
             strategy_obj["original_allocation"] = strategy_obj["allocation"]
-    
+
     # Add signal quality metrics if available
     if signal_quality_metrics_data:
         strategy_obj["signal_quality_metrics"] = signal_quality_metrics_data
-    
+
     # Add all portfolio metrics from the CSV file
-    if hasattr(config, 'items'):  # Check if config is a dict-like object
+    if hasattr(config, "items"):  # Check if config is a dict-like object
         # Create a dictionary to store all strategy metrics
         metrics = {}
-        
+
         # Minimal list of metrics to exclude (only those that are truly redundant)
         # These are already represented elsewhere in the JSON structure
         exclude_metrics = [
             "PORTFOLIO_STATS"  # This is the container, not a metric itself
         ]
-        
+
         # Add all metrics from the config
         for key, value in config.items():
             if key not in exclude_metrics and not key.startswith("_"):
                 # Convert to proper format with value and description
                 metrics[key] = {
                     "value": value,
-                    "description": f"{key} metric from portfolio data"
+                    "description": f"{key} metric from portfolio data",
                 }
-        
+
         # Add all metrics from the portfolio stats if available
         if "PORTFOLIO_STATS" in config and isinstance(config["PORTFOLIO_STATS"], dict):
             portfolio_stats = config["PORTFOLIO_STATS"]
-            
+
             # No exclusions - include absolutely all CSV row data
             for key, value in portfolio_stats.items():
                 # Convert to proper format with value and description
@@ -310,9 +315,9 @@ def create_strategy_object(
                 # This ensures that the portfolio_stats values take precedence
                 metrics[key] = {
                     "value": value,
-                    "description": f"{key} from strategy analysis"
+                    "description": f"{key} from strategy analysis",
                 }
-        
+
         # FORCE ADD Signal Entry and Signal Exit to metrics
         # This is a last resort to ensure these columns are included
         if "TICKER" in config:
@@ -321,45 +326,45 @@ def create_strategy_object(
             try:
                 import csv
                 import os
-                
+
                 # Try to find the CSV file
                 csv_path = os.path.join("csv/strategies", "DAILY_test.csv")
                 if os.path.exists(csv_path):
-                    with open(csv_path, 'r') as f:
+                    with open(csv_path, "r") as f:
                         reader = csv.DictReader(f)
                         for row in reader:
                             if row.get("Ticker") == ticker:
                                 # Found the row for this ticker
                                 signal_entry = row.get("Signal Entry")
                                 signal_exit = row.get("Signal Exit")
-                                
+
                                 if signal_entry is not None:
                                     # Convert to boolean if it's a string representation of a boolean
-                                    if signal_entry.lower() in ['true', 'false']:
-                                        signal_entry = signal_entry.lower() == 'true'
-                                    
+                                    if signal_entry.lower() in ["true", "false"]:
+                                        signal_entry = signal_entry.lower() == "true"
+
                                     metrics["Signal Entry"] = {
                                         "value": signal_entry,
-                                        "description": "Signal Entry from CSV file"
+                                        "description": "Signal Entry from CSV file",
                                     }
-                                
+
                                 if signal_exit is not None:
                                     # Convert to boolean if it's a string representation of a boolean
-                                    if signal_exit.lower() in ['true', 'false']:
-                                        signal_exit = signal_exit.lower() == 'true'
-                                    
+                                    if signal_exit.lower() in ["true", "false"]:
+                                        signal_exit = signal_exit.lower() == "true"
+
                                     metrics["Signal Exit"] = {
                                         "value": signal_exit,
-                                        "description": "Signal Exit from CSV file"
+                                        "description": "Signal Exit from CSV file",
                                     }
-                                
+
                                 break
             except Exception as e:
                 # If anything goes wrong, just continue
                 pass
-        
+
         # Only add the metrics field if there are metrics to include
         if metrics:
             strategy_obj["metrics"] = metrics
-    
+
     return strategy_obj

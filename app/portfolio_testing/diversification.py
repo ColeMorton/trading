@@ -1,15 +1,19 @@
-from typing import List, Tuple
-import polars as pl
-import numpy as np
 from datetime import datetime, timedelta
-import yfinance as yf
-import pandas as pd
+from typing import List, Tuple
+
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import polars as pl
+import yfinance as yf
 from skfolio.optimization import MaximumDiversification
 
 from app.tools.setup_logging import setup_logging
 
-def get_historical_data(tickers: List[str], start_date: datetime, end_date: datetime) -> pd.DataFrame:
+
+def get_historical_data(
+    tickers: List[str], start_date: datetime, end_date: datetime
+) -> pd.DataFrame:
     """
     Download historical data for given tickers.
 
@@ -21,8 +25,9 @@ def get_historical_data(tickers: List[str], start_date: datetime, end_date: date
     Returns:
         pd.DataFrame: DataFrame containing historical prices
     """
-    data = yf.download(tickers, start=start_date, end=end_date)['Adj Close']
+    data = yf.download(tickers, start=start_date, end=end_date)["Adj Close"]
     return data
+
 
 def calculate_returns(prices: pd.DataFrame) -> np.ndarray:
     """
@@ -35,6 +40,7 @@ def calculate_returns(prices: pd.DataFrame) -> np.ndarray:
         np.ndarray: Array of returns
     """
     return prices.pct_change().dropna().values
+
 
 def optimize_portfolio(returns: np.ndarray) -> Tuple[np.ndarray, dict]:
     """
@@ -49,17 +55,15 @@ def optimize_portfolio(returns: np.ndarray) -> Tuple[np.ndarray, dict]:
     # Create and fit optimizer
     model = MaximumDiversification()
     model.fit(returns)
-    
+
     # Get the optimized weights from the fitted model
     weights = model.weights_
-    
+
     # Create weights dictionary
-    weights_dict = {
-        ticker: weight
-        for ticker, weight in zip(TICKERS, weights)
-    }
-    
+    weights_dict = {ticker: weight for ticker, weight in zip(TICKERS, weights)}
+
     return weights, weights_dict
+
 
 def plot_weights(weights: dict, filename: str = "portfolio_composition.png") -> None:
     """
@@ -79,6 +83,7 @@ def plot_weights(weights: dict, filename: str = "portfolio_composition.png") -> 
     plt.savefig(filename)
     plt.close()
 
+
 def main() -> bool:
     """
     Main function to run the portfolio optimization.
@@ -90,40 +95,41 @@ def main() -> bool:
     log, log_close, _, _ = setup_logging(
         module_name="portfolio",
         log_file="diversification.log",
-        log_subdir="optimization"
+        log_subdir="optimization",
     )
-    
+
     try:
         # Define parameters
         end_date = datetime.now()
         start_date = end_date - timedelta(days=365)
-        
+
         log("Downloading historical data...", "info")
         prices_df = get_historical_data(TICKERS, start_date, end_date)
-        
+
         log("Calculating returns...", "info")
         returns = calculate_returns(prices_df)
-        
+
         log("Optimizing portfolio...", "info")
         weights, weights_dict = optimize_portfolio(returns)
-        
+
         # Log portfolio weights
         log("Portfolio Weights:", "info")
         for ticker, weight in weights_dict.items():
             log(f"{ticker}: {weight:.4f}", "info")
-        
+
         # Plot results
         log("Plotting portfolio weights...", "info")
         plot_weights(weights_dict)
-        
+
         log_close()
         return True
-        
+
     except Exception as e:
         log(f"Error: {str(e)}", "error")
         log_close()
         raise
 
+
 if __name__ == "__main__":
-    TICKERS = ['NVDA', 'NFLX', 'AMD', 'AMAT', 'AMZN', 'MU', 'AAPL']
+    TICKERS = ["NVDA", "NFLX", "AMD", "AMAT", "AMZN", "MU", "AAPL"]
     main()

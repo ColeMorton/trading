@@ -6,15 +6,18 @@ based on EMA/SMA crossover signals. It supports both daily and hourly data analy
 and can handle both new scans and updates to existing results.
 """
 
+from typing import NotRequired, TypedDict
+
 import polars as pl
-from typing import TypedDict, NotRequired
-from app.tools.setup_logging import setup_logging
-from app.tools.config_service import ConfigService
+
 from app.strategies.ma_cross.tools.scanner_processing import (
+    export_results,
     load_existing_results,
     process_ticker,
-    export_results
 )
+from app.tools.config_service import ConfigService
+from app.tools.setup_logging import setup_logging
+
 
 class Config(TypedDict):
     """
@@ -67,11 +70,11 @@ config: Config = {
 def validate_config(config: Config) -> None:
     """
     Validate configuration settings.
-    
+
     Args:
         config: Configuration dictionary to validate
-        
-        
+
+
     Raises:
         ValueError: If configuration is invalid
     """
@@ -101,13 +104,13 @@ def process_scanner() -> bool:
     """
     log = None
     log_close = None
-    
+
     try:
         # Initialize logging
         log, log_close, _, _ = setup_logging('ma_cross', '2_scanner.log')
         if not log or not log_close:
             raise RuntimeError("Failed to initialize logging")
-        
+
         # Read scanner data using polars with explicit schema handling
         scanner_df = pl.read_csv(
             f'./csv/strategies/{config["PORTFOLIO"]}',
@@ -132,32 +135,32 @@ def process_scanner() -> bool:
             }
         )
         log(f"Loaded scanner list: {config["PORTFOLIO"]}")
-        
+
         # Load existing results if available
         existing_tickers, results_data = load_existing_results(config, log)
-        
+
         # Check for either TICKER (original schema) or Ticker (new schema)
         scanner_columns = set(scanner_df.columns)
         has_ticker = "TICKER" in scanner_columns or "Ticker" in scanner_columns
         if not has_ticker:
             raise ValueError("Missing required Ticker column")
-            
+
         # Check for schema type
         is_new_schema = 'Short Window' in scanner_df.columns and 'Long Window' in scanner_df.columns
         is_legacy_schema = all(col in scanner_df.columns for col in ["SMA_FAST", "SMA_SLOW", "EMA_FAST", "EMA_SLOW"])
         is_minimal_schema = scanner_df.width <= 4 and is_new_schema  # Just ticker and windows
-        
+
         if not any([is_new_schema, is_legacy_schema, is_minimal_schema]):
             raise ValueError("Invalid schema: Must contain either (Short Window, Long Window) or (SMA_FAST, SMA_SLOW, EMA_FAST, EMA_SLOW)")
-            
+
         log(f"Schema type: {'Minimal' if is_minimal_schema else 'New' if is_new_schema else 'Legacy'}")
-        
+
         # Check if the CSV has the Use SMA column
         has_use_sma = 'Use SMA' in scanner_df.columns
-        
+
         # Determine which ticker column name is present
         ticker_col = "Ticker" if "Ticker" in scanner_df.columns else "TICKER"
-        
+
         # Standardize column names and ensure proper types
         if is_new_schema:
             # For new schema, map Short/Long windows based on Use SMA
@@ -166,7 +169,7 @@ def process_scanner() -> bool:
                 pl.col(ticker_col).cast(pl.Utf8).alias("TICKER"),
                 pl.col("Use SMA").cast(pl.Boolean).alias("USE_SMA") if has_use_sma else pl.lit(False).alias("USE_SMA")
             ]
-    
+
             # Add window columns based on schema
             if scanner_df.width <= 4:  # Minimal schema with just ticker and windows
                 window_columns = [
@@ -178,11 +181,11 @@ def process_scanner() -> bool:
             else:  # Full schema with all columns
                 # Create window columns more safely
                 window_columns = []
-                
+
                 # Check if Short Window and Long Window columns exist
                 has_short_window = "Short Window" in scanner_df.columns
                 has_long_window = "Long Window" in scanner_df.columns
-                
+
                 # Only add expressions for columns that exist
                 if has_short_window:
                     # SMA_FAST - when Use SMA is true, use Short Window
@@ -193,7 +196,7 @@ def process_scanner() -> bool:
                             .cast(pl.Int64)
                             .alias("SMA_FAST")
                     )
-                    
+
                     # EMA_FAST - when Use SMA is false, use Short Window
                     window_columns.append(
                         pl.when(pl.col("Use SMA").cast(pl.Boolean) if has_use_sma else pl.lit(False))
@@ -206,7 +209,7 @@ def process_scanner() -> bool:
                     # If Short Window doesn't exist, add null columns
                     window_columns.append(pl.lit(None).cast(pl.Int64).alias("SMA_FAST"))
                     window_columns.append(pl.lit(None).cast(pl.Int64).alias("EMA_FAST"))
-                
+
                 if has_long_window:
                     # SMA_SLOW - when Use SMA is true, use Long Window
                     window_columns.append(
@@ -216,7 +219,7 @@ def process_scanner() -> bool:
                             .cast(pl.Int64)
                             .alias("SMA_SLOW")
                     )
-                    
+
                     # EMA_SLOW - when Use SMA is false, use Long Window
                     window_columns.append(
                         pl.when(pl.col("Use SMA").cast(pl.Boolean) if has_use_sma else pl.lit(False))
@@ -229,7 +232,7 @@ def process_scanner() -> bool:
                     # If Long Window doesn't exist, add null columns
                     window_columns.append(pl.lit(None).cast(pl.Int64).alias("SMA_SLOW"))
                     window_columns.append(pl.lit(None).cast(pl.Int64).alias("EMA_SLOW"))
-    
+
             scanner_df = scanner_df.select(base_columns + window_columns)
         else:
             # For legacy schema, maintain existing behavior
@@ -241,23 +244,23 @@ def process_scanner() -> bool:
                 pl.col("EMA_FAST").cast(pl.Int64),
                 pl.col("EMA_SLOW").cast(pl.Int64)
             ])
-        
+
         # Filter scanner list to only process new tickers
         for row in scanner_df.iter_rows(named=True):
             ticker = row['TICKER']
-            
+
             # Skip if ticker already processed today
             if ticker in existing_tickers:
                 continue
-            
+
             log(f"Processing {ticker}")
-            
+
             try:
                 # Get MA type preference and determine if this is a minimal row
                 use_sma = row.get('USE_SMA', False)
                 has_ema = row['EMA_FAST'] is not None and row['EMA_SLOW'] is not None
                 has_sma = row['SMA_FAST'] is not None and row['SMA_SLOW'] is not None
-                
+
                 # For minimal rows, we only have EMA windows
                 if has_ema and not has_sma and not use_sma:
                     # Minimal row case - proceed with EMA
@@ -280,11 +283,11 @@ def process_scanner() -> bool:
                     results_data.append(result)
                 else:
                     log(f"Warning: No results generated for {ticker}", "warning")
-                    
+
             except Exception as e:
                 log(f"Error processing {ticker}: {str(e)}", "error")
                 continue
-        
+
         # Calculate and log signal detection ratio
         # Only count rows that have complete backtest data
         total_processed = len(results_data)  # Only count rows that were successfully processed
@@ -292,13 +295,13 @@ def process_scanner() -> bool:
         detection_ratio = signals_detected / total_processed if total_processed > 0 else 0
         log(f"Signal Detection Ratio: {signals_detected}/{total_processed} ({detection_ratio:.2%})")
         log(f"Total Rows in Scanner: {len(scanner_df)}, Rows with Complete Data: {total_processed}")
-        
+
         # Export results with the original scanner DataFrame
         export_results(results_data, scanner_df, config, log)
-        
+
         log_close()
         return True
-                
+
     except Exception as e:
         log(f"Error processing scanner: {e}", "error")
         log_close()

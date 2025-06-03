@@ -1,4 +1,5 @@
-from typing import TypedDict, NotRequired
+from typing import NotRequired, TypedDict
+
 
 class DataConfig(TypedDict):
     """Configuration type definition for data retrieval.
@@ -16,6 +17,7 @@ class DataConfig(TypedDict):
         TICKER_2 (NotRequired[str]): Second ticker for synthetic pair
         BASE_DIR (NotRequired[str]): Base directory for data storage
     """
+
     TICKER: str
     USE_HOURLY: NotRequired[bool]
     USE_YEARS: NotRequired[bool]

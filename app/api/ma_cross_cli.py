@@ -12,13 +12,15 @@ Usage:
 """
 
 import argparse
-import requests
 import json
 import sys
 from datetime import datetime
 from typing import List, Optional
 
+import requests
+
 BASE_URL = "http://127.0.0.1:8000"
+
 
 def analyze(args):
     """Execute MA Cross analysis."""
@@ -26,9 +28,9 @@ def analyze(args):
         "TICKER": args.ticker,
         "START_DATE": args.start,
         "END_DATE": args.end,
-        "async_execution": args.async_exec
+        "async_execution": args.async_exec,
     }
-    
+
     # Add optional parameters
     if args.windows:
         data["WINDOWS"] = args.windows
@@ -38,7 +40,7 @@ def analyze(args):
         data["STRATEGY_TYPES"] = args.ma_types
     if args.hourly:
         data["USE_HOURLY"] = args.hourly
-    
+
     # Add minimum criteria if provided
     min_criteria = {}
     if args.min_trades:
@@ -49,9 +51,9 @@ def analyze(args):
         min_criteria["PROFIT_FACTOR"] = args.min_profit_factor
     if min_criteria:
         data["MIN_CRITERIA"] = min_criteria
-    
+
     response = requests.post(f"{BASE_URL}/api/ma-cross/analyze", json=data)
-    
+
     if response.status_code == 200:
         result = response.json()
         print(json.dumps(result, indent=2))
@@ -65,10 +67,11 @@ def analyze(args):
         print(f"Error: {response.status_code}")
         print(response.text)
 
+
 def get_status(execution_id: str):
     """Check task status."""
     response = requests.get(f"{BASE_URL}/api/ma-cross/status/{execution_id}")
-    
+
     if response.status_code == 200:
         result = response.json()
         print(json.dumps(result, indent=2))
@@ -76,18 +79,18 @@ def get_status(execution_id: str):
         print(f"Error: {response.status_code}")
         print(response.text)
 
+
 def stream_progress(execution_id: str):
     """Stream task progress."""
     try:
         response = requests.get(
-            f"{BASE_URL}/api/ma-cross/stream/{execution_id}",
-            stream=True
+            f"{BASE_URL}/api/ma-cross/stream/{execution_id}", stream=True
         )
-        
+
         for line in response.iter_lines():
             if line:
-                decoded_line = line.decode('utf-8')
-                if decoded_line.startswith('data: '):
+                decoded_line = line.decode("utf-8")
+                if decoded_line.startswith("data: "):
                     data = json.loads(decoded_line[6:])
                     print(json.dumps(data, indent=2))
     except KeyboardInterrupt:
@@ -95,21 +98,23 @@ def stream_progress(execution_id: str):
     except Exception as e:
         print(f"Error: {e}")
 
+
 def get_metrics():
     """Get service metrics."""
     response = requests.get(f"{BASE_URL}/api/ma-cross/metrics")
-    
+
     if response.status_code == 200:
         result = response.json()
         print(json.dumps(result, indent=2))
     else:
         print(f"Error: {response.status_code}")
         print(response.text)
+
 
 def health_check():
     """Check service health."""
     response = requests.get(f"{BASE_URL}/api/ma-cross/health")
-    
+
     if response.status_code == 200:
         result = response.json()
         print(json.dumps(result, indent=2))
@@ -117,52 +122,70 @@ def health_check():
         print(f"Error: {response.status_code}")
         print(response.text)
 
+
 def main():
     parser = argparse.ArgumentParser(description="MA Cross API CLI Client")
-    subparsers = parser.add_subparsers(dest='command', help='Commands')
-    
+    subparsers = parser.add_subparsers(dest="command", help="Commands")
+
     # Analyze command
-    analyze_parser = subparsers.add_parser('analyze', help='Run MA Cross analysis')
-    analyze_parser.add_argument('--ticker', nargs='+', required=True, help='Ticker symbol(s)')
-    analyze_parser.add_argument('--start', default='2023-01-01', help='Start date (YYYY-MM-DD)')
-    analyze_parser.add_argument('--end', default='2023-12-31', help='End date (YYYY-MM-DD)')
-    analyze_parser.add_argument('--async', dest='async_exec', action='store_true', help='Run asynchronously')
-    analyze_parser.add_argument('--windows', type=int, help='Maximum window size')
-    analyze_parser.add_argument('--direction', choices=['Long', 'Short'], help='Trading direction')
-    analyze_parser.add_argument('--ma-types', nargs='+', choices=['SMA', 'EMA'], help='MA types')
-    analyze_parser.add_argument('--hourly', action='store_true', help='Use hourly data')
-    analyze_parser.add_argument('--min-trades', type=int, help='Minimum trades filter')
-    analyze_parser.add_argument('--min-win-rate', type=float, help='Minimum win rate filter')
-    analyze_parser.add_argument('--min-profit-factor', type=float, help='Minimum profit factor filter')
-    
+    analyze_parser = subparsers.add_parser("analyze", help="Run MA Cross analysis")
+    analyze_parser.add_argument(
+        "--ticker", nargs="+", required=True, help="Ticker symbol(s)"
+    )
+    analyze_parser.add_argument(
+        "--start", default="2023-01-01", help="Start date (YYYY-MM-DD)"
+    )
+    analyze_parser.add_argument(
+        "--end", default="2023-12-31", help="End date (YYYY-MM-DD)"
+    )
+    analyze_parser.add_argument(
+        "--async", dest="async_exec", action="store_true", help="Run asynchronously"
+    )
+    analyze_parser.add_argument("--windows", type=int, help="Maximum window size")
+    analyze_parser.add_argument(
+        "--direction", choices=["Long", "Short"], help="Trading direction"
+    )
+    analyze_parser.add_argument(
+        "--ma-types", nargs="+", choices=["SMA", "EMA"], help="MA types"
+    )
+    analyze_parser.add_argument("--hourly", action="store_true", help="Use hourly data")
+    analyze_parser.add_argument("--min-trades", type=int, help="Minimum trades filter")
+    analyze_parser.add_argument(
+        "--min-win-rate", type=float, help="Minimum win rate filter"
+    )
+    analyze_parser.add_argument(
+        "--min-profit-factor", type=float, help="Minimum profit factor filter"
+    )
+
     # Status command
-    status_parser = subparsers.add_parser('status', help='Check task status')
-    status_parser.add_argument('execution_id', help='Execution ID to check')
-    
+    status_parser = subparsers.add_parser("status", help="Check task status")
+    status_parser.add_argument("execution_id", help="Execution ID to check")
+
     # Stream command
-    stream_parser = subparsers.add_parser('stream', help='Stream task progress')
-    stream_parser.add_argument('execution_id', help='Execution ID to stream')
-    
+    stream_parser = subparsers.add_parser("stream", help="Stream task progress")
+    stream_parser.add_argument("execution_id", help="Execution ID to stream")
+
     # Metrics command
-    metrics_parser = subparsers.add_parser('metrics', help='Get service metrics')
-    
+    metrics_parser = subparsers.add_parser("metrics", help="Get service metrics")
+
     # Health command
-    health_parser = subparsers.add_parser('health', help='Check service health')
-    
+    health_parser = subparsers.add_parser("health", help="Check service health")
+
     args = parser.parse_args()
-    
-    if args.command == 'analyze':
+
+    if args.command == "analyze":
         analyze(args)
-    elif args.command == 'status':
+    elif args.command == "status":
         get_status(args.execution_id)
-    elif args.command == 'stream':
+    elif args.command == "stream":
         stream_progress(args.execution_id)
-    elif args.command == 'metrics':
+    elif args.command == "metrics":
         get_metrics()
-    elif args.command == 'health':
+    elif args.command == "health":
         health_check()
     else:
         parser.print_help()
+
 
 if __name__ == "__main__":
     main()

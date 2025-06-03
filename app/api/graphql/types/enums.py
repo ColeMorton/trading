@@ -4,13 +4,15 @@ GraphQL Enum Types
 This module defines GraphQL enums matching the Prisma schema.
 """
 
-import strawberry
 from enum import Enum
+
+import strawberry
 
 
 @strawberry.enum
 class TimeframeType(Enum):
     """Timeframe types for price data and analysis."""
+
     ONE_MINUTE = "1m"
     FIVE_MINUTES = "5m"
     FIFTEEN_MINUTES = "15m"
@@ -30,6 +32,7 @@ class TimeframeType(Enum):
 @strawberry.enum
 class StrategyType(Enum):
     """Strategy types available for analysis."""
+
     MA_CROSS = "MA_CROSS"
     MACD = "MACD"
     MEAN_REVERSION = "MEAN_REVERSION"
@@ -43,6 +46,7 @@ class StrategyType(Enum):
 @strawberry.enum
 class SignalType(Enum):
     """Signal types for trading decisions."""
+
     BUY = "BUY"
     SELL = "SELL"
     HOLD = "HOLD"
@@ -51,6 +55,7 @@ class SignalType(Enum):
 @strawberry.enum
 class DirectionType(Enum):
     """Trading direction types."""
+
     LONG = "LONG"
     SHORT = "SHORT"
     BOTH = "BOTH"
@@ -59,6 +64,7 @@ class DirectionType(Enum):
 @strawberry.enum
 class PortfolioType(Enum):
     """Portfolio classification types."""
+
     STANDARD = "STANDARD"
     BEST = "BEST"
     FILTERED = "FILTERED"
@@ -67,6 +73,7 @@ class PortfolioType(Enum):
 @strawberry.enum
 class AssetClass(Enum):
     """Asset class categories."""
+
     STOCK = "STOCK"
     CRYPTO = "CRYPTO"
     ETF = "ETF"
@@ -79,5 +86,6 @@ class AssetClass(Enum):
 @strawberry.enum
 class SortOrder(Enum):
     """Sort order for queries."""
+
     ASC = "ASC"
     DESC = "DESC"

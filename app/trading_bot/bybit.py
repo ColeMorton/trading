@@ -1,6 +1,7 @@
-from pybit.unified_trading import HTTP
-from dotenv import load_dotenv
 import os
+
+from dotenv import load_dotenv
+from pybit.unified_trading import HTTP
 
 # Load environment variables from .env file
 load_dotenv()
@@ -12,10 +13,11 @@ api_secret = os.getenv("BYBIT_API_SECRET")
 print("API_KEY:", api_key)
 print("API_SECRET:", api_secret)
 
-SYMBOL = 'BIGTIMEUSDT'
+SYMBOL = "BIGTIMEUSDT"
 
 # Create a session with the Bybit API
 session = HTTP(api_key=api_key, api_secret=api_secret, testnet=True)
+
 
 def market_order(quantity):
     try:
@@ -26,11 +28,12 @@ def market_order(quantity):
             side="Buy",
             orderType="Market",  # Market order type
             qty=str(quantity),  # Quantity to buy
-            timeInForce="GoodTillCancel"  # Order validity
+            timeInForce="GoodTillCancel",  # Order validity
         )
         print("Order response:", response)
     except Exception as e:
         print("An error occurred:", e)
+
 
 if __name__ == "__main__":
     quantity_to_buy = 31  # Amount to buy

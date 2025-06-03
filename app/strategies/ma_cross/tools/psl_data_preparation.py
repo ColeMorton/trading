@@ -5,15 +5,20 @@ This module handles the preparation of data by calculating technical indicators
 and generating entry signals.
 """
 
-import polars as pl
+from typing import Callable, Tuple
+
 import numpy as np
-from typing import Tuple, Callable
+import polars as pl
+
+from app.strategies.ma_cross.tools.psl_types import PSLConfig
+from app.tools.calculate_ma_signals import calculate_ma_signals
 from app.tools.calculate_mas import calculate_mas
 from app.tools.calculate_rsi import calculate_rsi
-from app.tools.calculate_ma_signals import calculate_ma_signals
-from app.strategies.ma_cross.tools.psl_types import PSLConfig
 
-def prepare_data(data: pl.DataFrame, config: PSLConfig, log: Callable) -> Tuple[pl.DataFrame, np.ndarray]:
+
+def prepare_data(
+    data: pl.DataFrame, config: PSLConfig, log: Callable
+) -> Tuple[pl.DataFrame, np.ndarray]:
     """
     Prepare data by calculating technical indicators and generating entry signals.
 
@@ -27,20 +32,20 @@ def prepare_data(data: pl.DataFrame, config: PSLConfig, log: Callable) -> Tuple[
     """
     # Calculate moving averages
     data = calculate_mas(
-        data, 
-        config['SHORT_WINDOW'], 
-        config['LONG_WINDOW'], 
-        config.get('USE_SMA', False),
-        log
+        data,
+        config["SHORT_WINDOW"],
+        config["LONG_WINDOW"],
+        config.get("USE_SMA", False),
+        log,
     )
-    
+
     # Calculate RSI if enabled
     if config.get("USE_RSI", False):
-        data = calculate_rsi(data, config['RSI_WINDOW'])
+        data = calculate_rsi(data, config["RSI_WINDOW"])
         log(f"RSI calculated with period {config['RSI_WINDOW']}")
-    
+
     # Generate entry signals
     entries, _ = calculate_ma_signals(data, config)
     entries = entries.to_numpy().astype(bool)
-    
+
     return data, entries

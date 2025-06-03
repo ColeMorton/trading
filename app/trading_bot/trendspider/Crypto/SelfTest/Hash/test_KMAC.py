@@ -1,25 +1,21 @@
 import unittest
-from binascii import unhexlify, hexlify
-
-from Crypto.Util.py3compat import tobytes
-from Crypto.Util.strxor import strxor_c
-from Crypto.SelfTest.st_common import list_test_cases
+from binascii import hexlify, unhexlify
 
 from Crypto.Hash import KMAC128, KMAC256
+from Crypto.SelfTest.st_common import list_test_cases
+from Crypto.Util.py3compat import tobytes
+from Crypto.Util.strxor import strxor_c
 
 
 class KMACTest(unittest.TestCase):
-
     def new(self, *args, **kwargs):
-        return self.KMAC.new(key=b'X' * (self.minimum_key_bits // 8), *args, **kwargs)
+        return self.KMAC.new(key=b"X" * (self.minimum_key_bits // 8), *args, **kwargs)
 
     def test_new_positive(self):
-
-        key = b'X' * 32
+        key = b"X" * 32
 
         h = self.new()
         for new_func in self.KMAC.new, h.new:
-
             for dbytes in range(self.minimum_bytes, 128 + 1):
                 hobj = new_func(key=key, mac_len=dbytes)
                 self.assertEqual(hobj.digest_size, dbytes)
@@ -34,20 +30,17 @@ class KMACTest(unittest.TestCase):
         self.assertEqual(hobj.digest_size, self.default_bytes)
 
     def test_new_negative(self):
-
         h = self.new()
         for new_func in self.KMAC.new, h.new:
-            self.assertRaises(ValueError, new_func, key=b'X'*32,
-                              mac_len=0)
-            self.assertRaises(ValueError, new_func, key=b'X'*32,
-                              mac_len=self.minimum_bytes - 1)
-            self.assertRaises(TypeError, new_func,
-                              key=u"string")
-            self.assertRaises(TypeError, new_func,
-                              data=u"string")
+            self.assertRaises(ValueError, new_func, key=b"X" * 32, mac_len=0)
+            self.assertRaises(
+                ValueError, new_func, key=b"X" * 32, mac_len=self.minimum_bytes - 1
+            )
+            self.assertRaises(TypeError, new_func, key="string")
+            self.assertRaises(TypeError, new_func, data="string")
 
     def test_default_digest_size(self):
-        digest = self.new(data=b'abc').digest()
+        digest = self.new(data=b"abc").digest()
         self.assertEqual(len(digest), self.default_bytes)
 
     def test_update(self):
@@ -61,7 +54,7 @@ class KMACTest(unittest.TestCase):
 
     def test_update_negative(self):
         h = self.new()
-        self.assertRaises(TypeError, h.update, u"string")
+        self.assertRaises(TypeError, h.update, "string")
 
     def test_digest(self):
         h = self.new()
@@ -106,14 +99,12 @@ class KMACTest(unittest.TestCase):
         self.assertRaises(ValueError, h.hexverify, "4556")
 
     def test_oid(self):
-
         oid = "2.16.840.1.101.3.4.2." + self.oid_variant
         h = self.new()
         self.assertEqual(h.oid, oid)
 
     def test_bytearray(self):
-
-        key = b'0' * 32
+        key = b"0" * 32
         data = b"\x00\x01\x02"
 
         # Data and key can be a bytearray (during initialization)
@@ -122,8 +113,8 @@ class KMACTest(unittest.TestCase):
 
         h1 = self.KMAC.new(data=data, key=key)
         h2 = self.KMAC.new(data=data_ba, key=key_ba)
-        key_ba[:1] = b'\xFF'
-        data_ba[:1] = b'\xFF'
+        key_ba[:1] = b"\xFF"
+        data_ba[:1] = b"\xFF"
 
         self.assertEqual(h1.digest(), h2.digest())
 
@@ -134,13 +125,12 @@ class KMACTest(unittest.TestCase):
         h2 = self.new()
         h1.update(data)
         h2.update(data_ba)
-        data_ba[:1] = b'\xFF'
+        data_ba[:1] = b"\xFF"
 
         self.assertEqual(h1.digest(), h2.digest())
 
     def test_memoryview(self):
-
-        key = b'0' * 32
+        key = b"0" * 32
         data = b"\x00\x01\x02"
 
         def get_mv_ro(data):
@@ -150,7 +140,6 @@ class KMACTest(unittest.TestCase):
             return memoryview(bytearray(data))
 
         for get_mv in (get_mv_ro, get_mv_rw):
-
             # Data and key can be a memoryview (during initialization)
             key_mv = get_mv(key)
             data_mv = get_mv(data)
@@ -158,8 +147,8 @@ class KMACTest(unittest.TestCase):
             h1 = self.KMAC.new(data=data, key=key)
             h2 = self.KMAC.new(data=data_mv, key=key_mv)
             if not data_mv.readonly:
-                data_mv[:1] = b'\xFF'
-                key_mv[:1] = b'\xFF'
+                data_mv[:1] = b"\xFF"
+                key_mv[:1] = b"\xFF"
 
             self.assertEqual(h1.digest(), h2.digest())
 
@@ -171,13 +160,12 @@ class KMACTest(unittest.TestCase):
             h1.update(data)
             h2.update(data_mv)
             if not data_mv.readonly:
-                data_mv[:1] = b'\xFF'
+                data_mv[:1] = b"\xFF"
 
             self.assertEqual(h1.digest(), h2.digest())
 
 
 class KMAC128Test(KMACTest):
-
     KMAC = KMAC128
 
     minimum_key_bits = 128
@@ -189,7 +177,6 @@ class KMAC128Test(KMACTest):
 
 
 class KMAC256Test(KMACTest):
-
     KMAC = KMAC256
 
     minimum_key_bits = 256
@@ -201,7 +188,6 @@ class KMAC256Test(KMACTest):
 
 
 class NISTExampleTestVectors(unittest.TestCase):
-
     # https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/KMAC_samples.pdf
     test_data = [
         (
@@ -212,7 +198,7 @@ class NISTExampleTestVectors(unittest.TestCase):
             "E5 78 0B 0D 3E A6 F7 D3 A4 29 C5 70 6A A4 3A 00"
             "FA DB D7 D4 96 28 83 9E 31 87 24 3F 45 6E E1 4E",
             "Sample #1 NIST",
-            KMAC128
+            KMAC128,
         ),
         (
             "40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F"
@@ -222,7 +208,7 @@ class NISTExampleTestVectors(unittest.TestCase):
             "3B 1F BA 96 3C D8 B0 B5 9E 8C 1A 6D 71 88 8B 71"
             "43 65 1A F8 BA 0A 70 70 C0 97 9E 28 11 32 4A A5",
             "Sample #2 NIST",
-            KMAC128
+            KMAC128,
         ),
         (
             "40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F"
@@ -244,7 +230,7 @@ class NISTExampleTestVectors(unittest.TestCase):
             "1F 5B 4E 6C CA 02 20 9E 0D CB 5C A6 35 B8 9A 15"
             "E2 71 EC C7 60 07 1D FD 80 5F AA 38 F9 72 92 30",
             "Sample #3 NIST",
-            KMAC128
+            KMAC128,
         ),
         (
             "40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F"
@@ -256,7 +242,7 @@ class NISTExampleTestVectors(unittest.TestCase):
             "F6 9D 4C C3 DE 9D 10 4A 35 16 89 F2 7C F6 F5 95"
             "1F 01 03 F3 3F 4F 24 87 10 24 D9 C2 77 73 A8 DD",
             "Sample #4 NIST",
-            KMAC256
+            KMAC256,
         ),
         (
             "40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F"
@@ -280,7 +266,7 @@ class NISTExampleTestVectors(unittest.TestCase):
             "58 9D 27 CF 5E 15 36 9C BB FF 8B 9A 4C 2E B1 78"
             "00 85 5D 02 35 FF 63 5D A8 25 33 EC 6B 75 9B 69",
             "Sample #5 NIST",
-            KMAC256
+            KMAC256,
         ),
         (
             "40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F"
@@ -304,7 +290,7 @@ class NISTExampleTestVectors(unittest.TestCase):
             "70 FB AC FD E5 00 33 AE A5 85 F1 A2 70 85 10 C3"
             "2D 07 88 08 01 BD 18 28 98 FE 47 68 76 FC 89 65",
             "Sample #6 NIST",
-            KMAC256
+            KMAC256,
         ),
     ]
 
@@ -317,13 +303,12 @@ class NISTExampleTestVectors(unittest.TestCase):
                 custom.encode(),
                 unhexlify(mac.replace(" ", "")),
                 text,
-                module
+                module,
             )
             td.append(ni)
         self.test_data = td
 
     def runTest(self):
-
         for key, data, custom, mac, text, module in self.test_data:
             h = module.new(data=data, key=key, custom=custom, mac_len=len(mac))
             mac_tag = h.digest()
@@ -340,7 +325,9 @@ def get_tests(config={}):
     return tests
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+
     def suite():
         return unittest.TestSuite(get_tests())
-    unittest.main(defaultTest='suite')
+
+    unittest.main(defaultTest="suite")

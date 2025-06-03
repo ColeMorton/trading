@@ -4,15 +4,18 @@ GraphQL Types for Strategy and Configuration
 This module defines GraphQL types for strategies and their configurations.
 """
 
-import strawberry
 from typing import List, Optional
-from .scalars import DateTime, JSON
-from .enums import StrategyType, TimeframeType, DirectionType, SignalType
+
+import strawberry
+
+from .enums import DirectionType, SignalType, StrategyType, TimeframeType
+from .scalars import JSON, DateTime
 
 
 @strawberry.type
 class Strategy:
     """Strategy definition."""
+
     id: strawberry.ID
     name: str
     type: StrategyType
@@ -24,6 +27,7 @@ class Strategy:
 @strawberry.type
 class StrategyConfiguration:
     """Configuration for a specific strategy instance."""
+
     id: strawberry.ID
     strategy_id: str
     ticker_id: str
@@ -46,6 +50,7 @@ class StrategyConfiguration:
 @strawberry.type
 class Signal:
     """Trading signal for a strategy."""
+
     id: strawberry.ID
     strategy_config_id: str
     signal_type: SignalType
@@ -60,6 +65,7 @@ class Signal:
 @strawberry.input
 class StrategyInput:
     """Input for creating or updating a strategy."""
+
     name: str
     type: StrategyType
     description: Optional[str] = None
@@ -68,6 +74,7 @@ class StrategyInput:
 @strawberry.input
 class StrategyConfigurationInput:
     """Input for creating strategy configuration."""
+
     strategy_id: str
     ticker_id: str
     timeframe: TimeframeType
@@ -87,6 +94,7 @@ class StrategyConfigurationInput:
 @strawberry.input
 class StrategyFilter:
     """Filter options for strategy queries."""
+
     type: Optional[StrategyType] = None
     ticker_symbol: Optional[str] = None
     timeframe: Optional[TimeframeType] = None

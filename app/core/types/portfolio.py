@@ -1,13 +1,14 @@
 """Portfolio type definitions."""
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Any
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
 class PortfolioMetrics:
     """Portfolio performance metrics."""
+
     total_return: float
     sharpe_ratio: float
     sortino_ratio: float
@@ -28,6 +29,7 @@ class PortfolioMetrics:
 @dataclass
 class PortfolioConfig:
     """Portfolio configuration."""
+
     name: str
     tickers: List[str]
     weights: Optional[Dict[str, float]] = None
@@ -43,6 +45,7 @@ class PortfolioConfig:
 @dataclass
 class AllocationConfig:
     """Position allocation configuration."""
+
     method: str  # equal, risk_parity, kelly, fixed
     max_position_size: float = 0.25
     min_position_size: float = 0.01

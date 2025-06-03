@@ -1,23 +1,27 @@
 """Core analysis functionality for concurrency analysis."""
 
-from typing import List, Tuple, Callable, Dict, Any
+from typing import Any, Callable, Dict, List, Tuple
+
 import polars as pl
-from app.concurrency.tools.types import ConcurrencyStats, StrategyConfig
+
 from app.concurrency.tools.data_alignment import align_multiple_data
-from app.concurrency.tools.risk_metrics import calculate_risk_contributions
 from app.concurrency.tools.efficiency import (
+    calculate_portfolio_efficiency,
     calculate_strategy_efficiency,
-    calculate_portfolio_efficiency
 )
 from app.concurrency.tools.position_metrics import calculate_position_metrics
+from app.concurrency.tools.risk_metrics import calculate_risk_contributions
 from app.concurrency.tools.signal_metrics import calculate_signal_metrics
 from app.concurrency.tools.signal_quality import calculate_signal_quality_metrics
 from app.concurrency.tools.strategy_id import generate_strategy_id
+from app.concurrency.tools.types import ConcurrencyStats
+from app.tools.portfolio import StrategyConfig
+
 
 def validate_inputs(
     data_list: List[pl.DataFrame],
     config_list: List[StrategyConfig],
-    log: Callable[[str, str], None] = None
+    log: Callable[[str, str], None] = None,
 ) -> None:
     """Validate input data and configurations.
 
@@ -41,6 +45,7 @@ def validate_inputs(
         if missing:
             raise ValueError(f"Missing required columns: {missing}")
 
+
 def compile_statistics(
     aligned_data: List[pl.DataFrame],
     position_metrics: Tuple,
@@ -50,7 +55,7 @@ def compile_statistics(
     signal_quality_metrics: dict,
     strategy_expectancies: List[float],
     strategy_efficiencies: List[Tuple[float, float, float, float]],
-    log: Callable[[str, str], None]
+    log: Callable[[str, str], None],
 ) -> ConcurrencyStats:
     """Compile analysis statistics.
 
@@ -77,7 +82,7 @@ def compile_statistics(
             inactive_periods,
             max_concurrent,
             avg_concurrent,
-            _  # strategy_specific_metrics (not used here)
+            _,  # strategy_specific_metrics (not used here)
         ) = position_metrics
 
         (
@@ -86,26 +91,28 @@ def compile_statistics(
             diversification_multiplier,
             independence_multiplier,
             activity_multiplier,
-            weighted_efficiency
+            weighted_efficiency,
         ) = efficiency_metrics
 
         total_periods = len(aligned_data[0])
         risk_concentration_index = (
-            avg_concurrent / max_concurrent
-            if max_concurrent > 0
-            else 0.0
+            avg_concurrent / max_concurrent if max_concurrent > 0 else 0.0
         )
 
         # Store individual strategy efficiency metrics
         strategy_efficiency_metrics = {}
-        for idx, ((efficiency, div, ind, act), expectancy) in enumerate(zip(strategy_efficiencies, strategy_expectancies), 1):
-            strategy_efficiency_metrics.update({
-                f"strategy_{idx}_efficiency_score": efficiency,
-                f"strategy_{idx}_expectancy": expectancy,
-                f"strategy_{idx}_diversification": div,
-                f"strategy_{idx}_independence": ind,
-                f"strategy_{idx}_activity": act
-            })
+        for idx, ((efficiency, div, ind, act), expectancy) in enumerate(
+            zip(strategy_efficiencies, strategy_expectancies), 1
+        ):
+            strategy_efficiency_metrics.update(
+                {
+                    f"strategy_{idx}_efficiency_score": efficiency,
+                    f"strategy_{idx}_expectancy": expectancy,
+                    f"strategy_{idx}_diversification": div,
+                    f"strategy_{idx}_independence": ind,
+                    f"strategy_{idx}_activity": act,
+                }
+            )
 
         stats = {
             "total_periods": total_periods,
@@ -133,7 +140,7 @@ def compile_statistics(
             "signal_metrics": signal_metrics,
             "signal_quality_metrics": signal_quality_metrics,
             "start_date": str(aligned_data[0]["Date"].min()),
-            "end_date": str(aligned_data[0]["Date"].max())
+            "end_date": str(aligned_data[0]["Date"].max()),
         }
 
         log("Statistics compilation completed", "info")
@@ -143,10 +150,11 @@ def compile_statistics(
         log(f"Error compiling statistics: {str(e)}", "error")
         raise
 
+
 def analyze_concurrency(
     data_list: List[pl.DataFrame],
     config_list: List[StrategyConfig],
-    log: Callable[[str, str], None]
+    log: Callable[[str, str], None],
 ) -> Tuple[ConcurrencyStats, List[pl.DataFrame]]:
     """Analyze concurrent positions across multiple strategies."""
     stats = {}
@@ -157,19 +165,18 @@ def analyze_concurrency(
 
         # Get hourly flags and align data
         log("Preparing data alignment", "info")
-        hourly_flags = [config.get('USE_HOURLY', False) for config in config_list]
+        hourly_flags = [config.get("USE_HOURLY", False) for config in config_list]
         aligned_data = align_multiple_data(data_list, hourly_flags, log)
 
         # Extract position arrays and calculate metrics
         log("Extracting position arrays", "info")
         position_arrays = [
-            df["Position"].fill_null(0).to_numpy()
-            for df in aligned_data
+            df["Position"].fill_null(0).to_numpy() for df in aligned_data
         ]
 
         log("Calculating position metrics", "info")
         position_metrics = calculate_position_metrics(position_arrays, log)
-        
+
         # Extract strategy-specific metrics
         strategy_specific_metrics = position_metrics[7]
 
@@ -178,100 +185,132 @@ def analyze_concurrency(
         strategy_allocations = []
         for config in config_list:
             # Get allocation from config
-            allocation = config.get('ALLOCATION', 0.0)
-            ticker = config.get('TICKER', 'unknown')
-            
+            allocation = config.get("ALLOCATION", 0.0)
+            ticker = config.get("TICKER", "unknown")
+
             # Ensure allocation is a float
             try:
                 allocation = float(allocation) if allocation is not None else 0.0
             except (ValueError, TypeError):
-                log(f"Warning: Invalid allocation value for {ticker}: {allocation}. Using 0.0", "warning")
+                log(
+                    f"Warning: Invalid allocation value for {ticker}: {allocation}. Using 0.0",
+                    "warning",
+                )
                 allocation = 0.0
-                
+
             strategy_allocations.append(allocation)
-        
+
         # Check if all allocations are zero or missing - use equal weights if so
         total_allocation = sum(strategy_allocations)
         if total_allocation == 0:
-            log("No allocations provided for any strategy. Using equal weights.", "info")
+            log(
+                "No allocations provided for any strategy. Using equal weights.", "info"
+            )
             equal_weight = 100.0 / len(strategy_allocations)
             strategy_allocations = [equal_weight] * len(strategy_allocations)
-            log(f"Applied equal weight of {equal_weight:.2f}% to each of {len(strategy_allocations)} strategies", "info")
+            log(
+                f"Applied equal weight of {equal_weight:.2f}% to each of {len(strategy_allocations)} strategies",
+                "info",
+            )
         else:
             # Log individual allocations when they are provided
             for config, allocation in zip(config_list, strategy_allocations):
-                ticker = config.get('TICKER', 'unknown')
+                ticker = config.get("TICKER", "unknown")
                 log(f"Using allocation {allocation:.2f}% for {ticker}", "info")
         risk_metrics = calculate_risk_contributions(
             position_arrays,
             aligned_data,
             strategy_allocations,
             log,
-            config_list  # Pass strategy configs to use stop loss values
+            config_list,  # Pass strategy configs to use stop loss values
         )
 
         # Extract strategy risk contributions for portfolio efficiency calculation
-        strategy_risk_contributions = [risk_metrics.get(f"strategy_{i+1}_risk_contrib", 0.0) for i in range(len(config_list))]
+        strategy_risk_contributions = [
+            risk_metrics.get(f"strategy_{i+1}_risk_contrib", 0.0)
+            for i in range(len(config_list))
+        ]
         log(f"Strategy risk contributions: {strategy_risk_contributions}", "info")
 
         # Calculate efficiency metrics
         log("Calculating efficiency metrics", "info")
-        
+
         # Calculate strategy expectancies
         strategy_expectancies = []
         for config in config_list:
             # Prefer EXPECTANCY_PER_TRADE if available, otherwise convert from EXPECTANCY_PER_MONTH
-            ticker = config.get('TICKER', 'unknown')
-            if 'EXPECTANCY_PER_TRADE' in config:
-                expectancy = config['EXPECTANCY_PER_TRADE']
-                log(f"Using EXPECTANCY_PER_TRADE for {ticker}: {expectancy:.6f}", "info")
-            elif 'EXPECTANCY_PER_MONTH' in config:
+            ticker = config.get("TICKER", "unknown")
+            if "EXPECTANCY_PER_TRADE" in config:
+                expectancy = config["EXPECTANCY_PER_TRADE"]
+                log(
+                    f"Using EXPECTANCY_PER_TRADE for {ticker}: {expectancy:.6f}", "info"
+                )
+            elif "EXPECTANCY_PER_MONTH" in config:
                 # Convert monthly expectancy to per-trade expectancy
-                monthly_expectancy = config['EXPECTANCY_PER_MONTH']
-                trading_days = 30 if config.get('USE_HOURLY', False) else 21
+                monthly_expectancy = config["EXPECTANCY_PER_MONTH"]
+                trading_days = 30 if config.get("USE_HOURLY", False) else 21
                 expectancy = monthly_expectancy / trading_days
-                log(f"Converting EXPECTANCY_PER_MONTH ({monthly_expectancy:.6f}) to EXPECTANCY_PER_TRADE for {ticker}: {expectancy:.6f}", "info")
+                log(
+                    f"Converting EXPECTANCY_PER_MONTH ({monthly_expectancy:.6f}) to EXPECTANCY_PER_TRADE for {ticker}: {expectancy:.6f}",
+                    "info",
+                )
             else:
                 expectancy = 0.0
-                log(f"Warning: No expectancy data found for strategy with ticker {ticker}", "warning")
-            
+                log(
+                    f"Warning: No expectancy data found for strategy with ticker {ticker}",
+                    "warning",
+                )
+
             # Ensure expectancy is positive for efficiency calculation
             if expectancy <= 0:
-                log(f"Warning: Non-positive expectancy ({expectancy:.6f}) for {ticker}. Setting to small positive value.", "warning")
-                expectancy = 0.0001  # Small positive value to allow efficiency calculation
-            
+                log(
+                    f"Warning: Non-positive expectancy ({expectancy:.6f}) for {ticker}. Setting to small positive value.",
+                    "warning",
+                )
+                expectancy = (
+                    0.0001  # Small positive value to allow efficiency calculation
+                )
+
             strategy_expectancies.append(expectancy)
             log(f"Final expectancy for {ticker}: {expectancy:.6f}", "info")
-        
+
         # Calculate ratios for portfolio-level metrics
         total_periods = len(aligned_data[0])
-        
+
         # Calculate individual strategy efficiencies using strategy-specific metrics
         log("Calculating individual strategy efficiencies", "info")
         strategy_efficiencies = []
         for i, expectancy in enumerate(strategy_expectancies):
             # Use strategy-specific metrics instead of portfolio-level metrics
             strategy_metrics = strategy_specific_metrics[i]
-            
+
             efficiency, div, ind, act = calculate_strategy_efficiency(
-                correlation=strategy_metrics["correlation"],  # Strategy-specific correlation
-                concurrent_ratio=strategy_metrics["concurrent_ratio"],  # Strategy-specific concurrent ratio
-                exclusive_ratio=strategy_metrics["exclusive_ratio"],  # Strategy-specific exclusive ratio
-                inactive_ratio=strategy_metrics["inactive_ratio"],  # Strategy-specific inactive ratio
-                log=log
+                correlation=strategy_metrics[
+                    "correlation"
+                ],  # Strategy-specific correlation
+                concurrent_ratio=strategy_metrics[
+                    "concurrent_ratio"
+                ],  # Strategy-specific concurrent ratio
+                exclusive_ratio=strategy_metrics[
+                    "exclusive_ratio"
+                ],  # Strategy-specific exclusive ratio
+                inactive_ratio=strategy_metrics[
+                    "inactive_ratio"
+                ],  # Strategy-specific inactive ratio
+                log=log,
             )
             strategy_efficiencies.append((efficiency, div, ind, act))
-            
+
             log(f"Strategy {i+1} efficiency components:", "info")
             log(f"  Correlation: {strategy_metrics['correlation']:.4f}", "info")
             log(f"  Diversification: {div:.4f}", "info")
             log(f"  Independence: {ind:.4f}", "info")
             log(f"  Activity: {act:.4f}", "info")
             log(f"  Efficiency: {efficiency:.4f}", "info")
-        
+
         # Allocation scores feature has been removed
         # No need for include_allocation flag anymore as it's always false
-        
+
         # Calculate portfolio efficiency
         log("Calculating portfolio efficiency", "info")
         portfolio_metrics = calculate_portfolio_efficiency(
@@ -284,32 +323,40 @@ def analyze_concurrency(
             exclusive_periods=position_metrics[3],
             inactive_periods=position_metrics[4],
             total_periods=total_periods,
-            log=log
+            log=log,
         )
-        
+
         # Package metrics in legacy format for backward compatibility
         efficiency_metrics = (
-            portfolio_metrics['portfolio_efficiency'],
+            portfolio_metrics["portfolio_efficiency"],
             sum(strategy_expectancies),  # Calculate expectancy inline
-            portfolio_metrics['diversification_multiplier'],
-            portfolio_metrics['independence_multiplier_adjusted'],  # Use adjusted independence
-            portfolio_metrics['activity_multiplier'],
-            portfolio_metrics['weighted_efficiency']  # Include weighted_efficiency
+            portfolio_metrics["diversification_multiplier"],
+            portfolio_metrics[
+                "independence_multiplier_adjusted"
+            ],  # Use adjusted independence
+            portfolio_metrics["activity_multiplier"],
+            portfolio_metrics["weighted_efficiency"],  # Include weighted_efficiency
         )
-        
+
         # Log the raw and adjusted independence values for comparison
-        log(f"Raw independence multiplier: {portfolio_metrics['independence_multiplier']:.6f}", "info")
-        log(f"Adjusted independence multiplier: {portfolio_metrics['independence_multiplier_adjusted']:.6f}", "info")
+        log(
+            f"Raw independence multiplier: {portfolio_metrics['independence_multiplier']:.6f}",
+            "info",
+        )
+        log(
+            f"Adjusted independence multiplier: {portfolio_metrics['independence_multiplier_adjusted']:.6f}",
+            "info",
+        )
 
         # Calculate signal metrics
         log("Calculating signal metrics", "info")
         signal_metrics = calculate_signal_metrics(aligned_data, log)
-        
+
         # Calculate signal quality metrics
         log("Calculating signal quality metrics", "info")
         signal_quality_metrics = {}
         strategy_quality_metrics = {}
-        
+
         # Create returns dataframes for signal quality calculation
         for i, df in enumerate(aligned_data, 1):
             try:
@@ -317,96 +364,117 @@ def analyze_concurrency(
                 returns_df = df.select(["Date", "Close"]).with_columns(
                     pl.col("Close").pct_change().alias("return")
                 )
-                
+
                 # Create signals dataframe
                 signals_df = df.select(["Date", "Position"]).with_columns(
                     pl.col("Position").diff().alias("signal")
                 )
-                
+
                 # Calculate signal quality metrics for this strategy
                 strategy_metrics = calculate_signal_quality_metrics(
                     signals_df=signals_df,
                     returns_df=returns_df,
                     strategy_id=f"strategy_{i}",
-                    log=log
+                    log=log,
                 )
-                
+
                 if strategy_metrics:
                     strategy_id = f"strategy_{i}"
                     signal_quality_metrics[strategy_id] = strategy_metrics
                     strategy_quality_metrics[strategy_id] = strategy_metrics
             except Exception as e:
-                log(f"Error calculating signal quality metrics for strategy {i}: {str(e)}", "error")
-        
+                log(
+                    f"Error calculating signal quality metrics for strategy {i}: {str(e)}",
+                    "error",
+                )
+
         # Calculate aggregate signal quality metrics across all strategies
         try:
-            from app.concurrency.tools.signal_quality import calculate_aggregate_signal_quality
-            
+            from app.concurrency.tools.signal_quality import (
+                calculate_aggregate_signal_quality,
+            )
+
             log("Calculating aggregate signal quality metrics", "info")
-            
+
             # Extract strategy IDs for allocation mapping
             strategy_ids = []
             for i, config in enumerate(config_list):
-                if 'strategy_id' in config:
-                    strategy_ids.append(config['strategy_id'])
+                if "strategy_id" in config:
+                    strategy_ids.append(config["strategy_id"])
                 else:
                     strategy_ids.append(f"strategy_{i+1}")
-            
+
             # Pass strategy allocations to the aggregate calculation
             aggregate_metrics = calculate_aggregate_signal_quality(
                 strategy_metrics=strategy_quality_metrics,
                 log=log,
                 strategy_allocations=strategy_allocations,
-                strategy_ids=strategy_ids
+                strategy_ids=strategy_ids,
             )
-            
+
             if aggregate_metrics:
                 signal_quality_metrics["aggregate"] = aggregate_metrics
-                log("Allocation-weighted aggregate signal quality metrics added", "info")
+                log(
+                    "Allocation-weighted aggregate signal quality metrics added", "info"
+                )
         except Exception as e:
-            log(f"Error calculating aggregate signal quality metrics: {str(e)}", "error")
+            log(
+                f"Error calculating aggregate signal quality metrics: {str(e)}", "error"
+            )
 
         # Extract adjusted expectancies and efficiencies for allocation
-        
+
         # Extract adjusted expectancies from strategy configs
         strategy_adjusted_expectancies = []
         for config in config_list:
-            ticker = config.get('TICKER', 'unknown')
+            ticker = config.get("TICKER", "unknown")
             # Get the Score value from PORTFOLIO_STATS
-            if 'PORTFOLIO_STATS' in config and 'Score' in config['PORTFOLIO_STATS']:
+            if "PORTFOLIO_STATS" in config and "Score" in config["PORTFOLIO_STATS"]:
                 # Use the pre-calculated Score value from stats_converter.py
-                adjusted_expectancy = config['PORTFOLIO_STATS']['Score']
-                log(f"Using pre-calculated Score for {ticker}: {adjusted_expectancy}", "info")
+                adjusted_expectancy = config["PORTFOLIO_STATS"]["Score"]
+                log(
+                    f"Using pre-calculated Score for {ticker}: {adjusted_expectancy}",
+                    "info",
+                )
                 strategy_adjusted_expectancies.append(adjusted_expectancy)
             else:
                 # Throw an error if PORTFOLIO_STATS is not available
                 error_msg = f"PORTFOLIO_STATS with 'Score' not found for {ticker}. Backtest must be run before analysis."
                 log(error_msg, "error")
                 raise ValueError(error_msg)
-            
+
             # Log stop loss value if available
-            if 'STOP_LOSS' in config and config['STOP_LOSS'] is not None:
+            if "STOP_LOSS" in config and config["STOP_LOSS"] is not None:
                 try:
-                    stop_loss = float(config['STOP_LOSS'])
-                    log(f"Using stop loss {stop_loss:.4f} ({stop_loss*100:.2f}%) for {ticker}", "info")
+                    stop_loss = float(config["STOP_LOSS"])
+                    log(
+                        f"Using stop loss {stop_loss:.4f} ({stop_loss*100:.2f}%) for {ticker}",
+                        "info",
+                    )
                 except (ValueError, TypeError):
-                    log(f"Warning: Invalid stop loss value for {ticker}: {config['STOP_LOSS']}", "warning")
-        
+                    log(
+                        f"Warning: Invalid stop loss value for {ticker}: {config['STOP_LOSS']}",
+                        "warning",
+                    )
+
         # Extract strategy IDs from configs
         strategy_ids = []
         for i, config in enumerate(config_list):
-            if 'strategy_id' in config:
-                strategy_ids.append(config['strategy_id'])
+            if "strategy_id" in config:
+                strategy_ids.append(config["strategy_id"])
             else:
                 try:
                     strategy_id = generate_strategy_id(config)
                     strategy_ids.append(strategy_id)
                 except ValueError:
                     # Fallback to ticker if strategy_id cannot be generated
-                    strategy_ids.append(config.get('TICKER', f"strategy_{i+1}"))
-        
+                    strategy_ids.append(config.get("TICKER", f"strategy_{i+1}"))
+
         # Allocation scores feature has been removed
-        log("Allocation scores feature has been removed - using original allocations from CSV", "info")
+        log(
+            "Allocation scores feature has been removed - using original allocations from CSV",
+            "info",
+        )
         # Use original allocations from strategy configs
         allocation_percentages = strategy_allocations
 
@@ -420,31 +488,35 @@ def analyze_concurrency(
             signal_quality_metrics,
             strategy_expectancies,
             strategy_efficiencies,  # Pass individual strategy efficiencies
-            log
+            log,
         )
 
         # Add original allocations to stats
         stats["include_allocation"] = False
         for i, percentage in enumerate(allocation_percentages, 1):
             stats[f"strategy_{i}_allocation"] = percentage
-            
+
         # Add original allocation values from strategy configs to stats
         for i, config in enumerate(config_list, 1):
-            if 'ALLOCATION' in config and config['ALLOCATION'] is not None:
+            if "ALLOCATION" in config and config["ALLOCATION"] is not None:
                 try:
-                    original_allocation = float(config['ALLOCATION'])
+                    original_allocation = float(config["ALLOCATION"])
                     stats[f"strategy_{i}_original_allocation"] = original_allocation
                 except (ValueError, TypeError):
                     # If original allocation is invalid, use the calculated allocation
-                    stats[f"strategy_{i}_original_allocation"] = stats.get(f"strategy_{i}_allocation", 0.0)
+                    stats[f"strategy_{i}_original_allocation"] = stats.get(
+                        f"strategy_{i}_allocation", 0.0
+                    )
             else:
                 # If no original allocation exists, use the calculated allocation
-                stats[f"strategy_{i}_original_allocation"] = stats.get(f"strategy_{i}_allocation", 0.0)
-                
+                stats[f"strategy_{i}_original_allocation"] = stats.get(
+                    f"strategy_{i}_allocation", 0.0
+                )
+
             # Add stop loss values to stats
-            if 'STOP_LOSS' in config and config['STOP_LOSS'] is not None:
+            if "STOP_LOSS" in config and config["STOP_LOSS"] is not None:
                 try:
-                    stop_loss = float(config['STOP_LOSS'])
+                    stop_loss = float(config["STOP_LOSS"])
                     stats[f"strategy_{i}_stop_loss"] = stop_loss
                 except (ValueError, TypeError):
                     stats[f"strategy_{i}_stop_loss"] = 0.0
@@ -481,6 +553,6 @@ def analyze_concurrency(
             "signal_metrics": signal_metrics,
             "signal_quality_metrics": {},
             "start_date": "",
-            "end_date": ""
+            "end_date": "",
         }
         raise

@@ -4,37 +4,36 @@ Strategy Query Resolvers
 This module contains GraphQL query resolvers for strategy-related operations.
 """
 
-import strawberry
 from typing import List, Optional
+
+import strawberry
+
+from app.api.graphql.types.metrics import BacktestResult, MetricsFilter
 from app.api.graphql.types.strategy import (
-    Strategy, 
+    Signal,
+    Strategy,
     StrategyConfiguration,
     StrategyFilter,
-    Signal
 )
-from app.api.graphql.types.metrics import BacktestResult, MetricsFilter
 from app.database.config import get_prisma
 
 
-
-async def get_strategies(
-    filter: Optional[StrategyFilter] = None
-) -> List[Strategy]:
+async def get_strategies(filter: Optional[StrategyFilter] = None) -> List[Strategy]:
     """Get strategies with optional filtering."""
     db = await get_prisma()
-    
+
     # Build filter conditions
     where_conditions = {}
     if filter:
         if filter.type:
             where_conditions["type"] = filter.type.value
-    
+
     strategies = await db.strategy.find_many(
         where=where_conditions,
         take=filter.limit if filter else None,
-        order_by={"createdAt": "desc"}
+        order_by={"createdAt": "desc"},
     )
-    
+
     return [
         Strategy(
             id=s.id,
@@ -42,43 +41,39 @@ async def get_strategies(
             type=s.type,
             description=s.description,
             created_at=s.createdAt,
-            updated_at=s.updatedAt
+            updated_at=s.updatedAt,
         )
         for s in strategies
     ]
 
 
-
 async def get_strategy(id: strawberry.ID) -> Optional[Strategy]:
     """Get a specific strategy by ID."""
     db = await get_prisma()
-    
-    strategy = await db.strategy.find_unique(
-        where={"id": str(id)}
-    )
-    
+
+    strategy = await db.strategy.find_unique(where={"id": str(id)})
+
     if not strategy:
         return None
-    
+
     return Strategy(
         id=strategy.id,
         name=strategy.name,
         type=strategy.type,
         description=strategy.description,
         created_at=strategy.createdAt,
-        updated_at=strategy.updatedAt
+        updated_at=strategy.updatedAt,
     )
-
 
 
 async def get_strategy_configurations(
     strategy_id: Optional[strawberry.ID] = None,
     ticker_symbol: Optional[str] = None,
-    filter: Optional[StrategyFilter] = None
+    filter: Optional[StrategyFilter] = None,
 ) -> List[StrategyConfiguration]:
     """Get strategy configurations with optional filtering."""
     db = await get_prisma()
-    
+
     # Build filter conditions
     where_conditions = {}
     if strategy_id:
@@ -88,14 +83,14 @@ async def get_strategy_configurations(
     if filter:
         if filter.timeframe:
             where_conditions["timeframe"] = filter.timeframe.value
-    
+
     configurations = await db.strategyconfiguration.find_many(
         where=where_conditions,
         take=filter.limit if filter else None,
         order_by={"createdAt": "desc"},
-        include={"ticker": True, "strategy": True}
+        include={"ticker": True, "strategy": True},
     )
-    
+
     return [
         StrategyConfiguration(
             id=c.id,
@@ -114,20 +109,19 @@ async def get_strategy_configurations(
             allocation_pct=c.allocationPct,
             parameters=c.parameters,
             created_at=c.createdAt,
-            updated_at=c.updatedAt
+            updated_at=c.updatedAt,
         )
         for c in configurations
     ]
 
 
-
 async def get_backtest_results(
     strategy_config_id: Optional[strawberry.ID] = None,
-    filter: Optional[MetricsFilter] = None
+    filter: Optional[MetricsFilter] = None,
 ) -> List[BacktestResult]:
     """Get backtest results with optional filtering."""
     db = await get_prisma()
-    
+
     # Build filter conditions
     where_conditions = {}
     if strategy_config_id:
@@ -148,13 +142,13 @@ async def get_backtest_results(
             where_conditions["maxDrawdownPct"] = {"lte": filter.max_drawdown}
         if filter.min_trades:
             where_conditions["totalTrades"] = {"gte": filter.min_trades}
-    
+
     results = await db.backtestresult.find_many(
         where=where_conditions,
         take=filter.limit if filter else None,
-        order_by={"runDate": "desc"}
+        order_by={"runDate": "desc"},
     )
-    
+
     return [
         BacktestResult(
             id=r.id,
@@ -190,30 +184,26 @@ async def get_backtest_results(
             trades_per_day=r.tradesPerDay,
             trades_per_month=r.tradesPerMonth,
             raw_metrics=r.rawMetrics,
-            created_at=r.createdAt
+            created_at=r.createdAt,
         )
         for r in results
     ]
 
 
-
 async def get_signals(
-    strategy_config_id: Optional[strawberry.ID] = None,
-    limit: Optional[int] = None
+    strategy_config_id: Optional[strawberry.ID] = None, limit: Optional[int] = None
 ) -> List[Signal]:
     """Get trading signals for a strategy configuration."""
     db = await get_prisma()
-    
+
     where_conditions = {}
     if strategy_config_id:
         where_conditions["strategyConfigId"] = str(strategy_config_id)
-    
+
     signals = await db.signal.find_many(
-        where=where_conditions,
-        take=limit,
-        order_by={"signalDate": "desc"}
+        where=where_conditions, take=limit, order_by={"signalDate": "desc"}
     )
-    
+
     return [
         Signal(
             id=s.id,
@@ -224,7 +214,7 @@ async def get_signals(
             quantity=s.quantity,
             confidence=s.confidence,
             metadata=s.metadata,
-            created_at=s.createdAt
+            created_at=s.createdAt,
         )
         for s in signals
     ]

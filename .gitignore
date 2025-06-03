@@ -156,6 +156,21 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+# Linting artifacts
+.ruff_cache/
+.pylint.d/
+.bandit/
+.vulture_whitelist.py
+.flake8_cache/
+
+# Pre-commit
+.pre-commit-config.yaml.lock
+
+# Coverage reports (additional patterns)
+coverage.json
+coverage.lcov
+.coverage.*
+
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
@@ -198,14 +213,23 @@ database/backups/
 
 # Docker runtime files
 .dockerignore.local
-node_modules
-node_modules
-node_modules
-node_modules
-node_modules
-node_modules
-node_modules
-node_modules
-node_modules
-node_modules
-node_modules
+node_modules/
+**/node_modules/
+
+# Frontend build artifacts
+dist/
+build/
+.next/
+out/
+
+# Frontend linting
+.eslintcache
+.stylelintcache
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store

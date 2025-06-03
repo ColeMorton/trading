@@ -4,15 +4,18 @@ GraphQL Types for Ticker and Price Data
 This module defines GraphQL types for tickers and price data.
 """
 
-import strawberry
 from typing import List, Optional
-from .scalars import DateTime
+
+import strawberry
+
 from .enums import AssetClass
+from .scalars import DateTime
 
 
 @strawberry.type
 class Ticker:
     """Ticker/symbol information."""
+
     id: strawberry.ID
     symbol: str
     name: Optional[str] = None
@@ -26,6 +29,7 @@ class Ticker:
 @strawberry.type
 class PriceData:
     """Price data for a specific ticker and date."""
+
     id: strawberry.ID
     ticker_id: str
     date: DateTime
@@ -40,6 +44,7 @@ class PriceData:
 @strawberry.type
 class PriceBar:
     """Price bar with OHLCV data."""
+
     date: DateTime
     open: float
     high: float
@@ -51,6 +56,7 @@ class PriceBar:
 @strawberry.input
 class PriceDataFilter:
     """Filter options for price data queries."""
+
     symbol: Optional[str] = None
     start_date: Optional[DateTime] = None
     end_date: Optional[DateTime] = None

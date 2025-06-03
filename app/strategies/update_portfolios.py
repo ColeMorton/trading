@@ -10,63 +10,52 @@ in the ticker name, e.g., 'STRK_MSTR'). Synthetic tickers are automatically dete
 processed by splitting them into their component tickers.
 """
 import os
-from app.tools.project_utils import (
-    get_project_root
+
+from app.strategies.tools.summary_processing import (
+    export_summary_results,
+    process_ticker_portfolios,
 )
-from app.tools.portfolio_results import (
-    sort_portfolios,
-    filter_open_trades,
-    filter_signal_entries,
-    calculate_breadth_metrics
-)
+from app.tools.config_management import normalize_config, resolve_portfolio_filename
 from app.tools.entry_point import run_from_command_line
-from app.tools.logging_context import logging_context
 from app.tools.error_context import error_context
 from app.tools.error_decorators import handle_errors
 from app.tools.exceptions import (
+    ExportError,
     PortfolioLoadError,
     StrategyProcessingError,
     SyntheticTickerError,
-    ExportError,
-    TradingSystemError
+    TradingSystemError,
 )
-from app.strategies.tools.summary_processing import (
-    process_ticker_portfolios,
-    export_summary_results
-)
-from app.tools.portfolio import (
-    load_portfolio_with_logging,  # Using enhanced loader
-    PortfolioLoadError            # Using specific error type
-)
-from app.tools.config_management import (
-    normalize_config,
-    resolve_portfolio_filename
-)
-from app.tools.synthetic_ticker import (
-    detect_synthetic_ticker,
-    process_synthetic_ticker
-)
-from app.tools.strategy_utils import (
-    filter_portfolios_by_signal
+from app.tools.logging_context import logging_context
+from app.tools.portfolio import PortfolioLoadError  # Using specific error type
+from app.tools.portfolio import load_portfolio_with_logging  # Using enhanced loader
+from app.tools.portfolio.allocation import (
+    calculate_position_sizes,
+    distribute_missing_allocations,
+    ensure_allocation_sum_100_percent,
+    get_allocation_summary,
+    normalize_allocations,
+    validate_allocations,
 )
 from app.tools.portfolio.schema_detection import (
     SchemaVersion,
     detect_schema_version,
-    normalize_portfolio_data
-)
-from app.tools.portfolio.allocation import (
-    validate_allocations,
-    normalize_allocations,
-    distribute_missing_allocations,
-    ensure_allocation_sum_100_percent,
-    calculate_position_sizes,
-    get_allocation_summary
+    normalize_portfolio_data,
 )
 from app.tools.portfolio.stop_loss import (
-    validate_stop_loss,
+    get_stop_loss_summary,
     normalize_stop_loss,
-    get_stop_loss_summary
+    validate_stop_loss,
 )
+from app.tools.portfolio_results import (
+    calculate_breadth_metrics,
+    filter_open_trades,
+    filter_signal_entries,
+    sort_portfolios,
+)
+from app.tools.project_utils import get_project_root
+from app.tools.strategy_utils import filter_portfolios_by_signal
+from app.tools.synthetic_ticker import detect_synthetic_ticker, process_synthetic_ticker
 
 # Default Configuration
 config = {
@@ -74,7 +63,7 @@ config = {
     # "PORTFOLIO": 'portfolio_risk.csv',
     # "PORTFOLIO": 'crypto_d_20250421.csv',
     # "PORTFOLIO": 'DAILY_crypto.csv',
-    "PORTFOLIO": 'DAILY.csv',
+    "PORTFOLIO": "DAILY.csv",
     # "PORTFOLIO": 'DAILY_test.csv',
     # "PORTFOLIO": 'crypto_h.csv',
     # "PORTFOLIO": 'DAILY_crypto_short.csv',
@@ -101,8 +90,9 @@ config = {
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
     "DIRECTION": "Long",
     "SORT_BY": "Score",
-    "SORT_ASC": False
+    "SORT_ASC": False,
 }
+
 
 @handle_errors(
     "Portfolio update process",
@@ -110,8 +100,8 @@ config = {
         PortfolioLoadError: PortfolioLoadError,
         ValueError: StrategyProcessingError,
         KeyError: StrategyProcessingError,
-        Exception: TradingSystemError
-    }
+        Exception: TradingSystemError,
+    },
 )
 def run(portfolio: str) -> bool:
     """
@@ -138,122 +128,126 @@ def run(portfolio: str) -> bool:
         TradingSystemError: For other unexpected errors
     """
     with logging_context(
-        module_name='strategies',
-        log_file='update_portfolios.log'
+        module_name="strategies", log_file="update_portfolios.log"
     ) as log:
         # Get a normalized copy of the global config
         local_config = normalize_config(config.copy())
-        
+
         # Use the enhanced portfolio loader with standardized error handling
         with error_context(
-            "Loading portfolio",
-            log,
-            {FileNotFoundError: PortfolioLoadError}
+            "Loading portfolio", log, {FileNotFoundError: PortfolioLoadError}
         ):
             daily_df = load_portfolio_with_logging(portfolio, log, local_config)
             if not daily_df:
                 return False
-                
+
             # Detect schema version using the schema_detection module
             schema_version = detect_schema_version(daily_df)
             log(f"Detected schema version: {schema_version.name}", "info")
-            
+
             # Normalize portfolio data to ensure consistent schema handling
             daily_df = normalize_portfolio_data(daily_df, schema_version, log)
             log(f"Normalized portfolio data with {len(daily_df)} rows", "info")
-            
+
             # Process allocation and stop loss data if using extended schema
             if schema_version == SchemaVersion.EXTENDED:
                 log("Processing allocation and stop loss data...", "info")
-                
+
                 # Process allocation values
                 # Validate allocation values
                 daily_df = validate_allocations(daily_df, log)
-                
+
                 # Normalize allocation field names
                 daily_df = normalize_allocations(daily_df, log)
-                
+
                 # Get allocation summary before processing
                 allocation_summary = get_allocation_summary(daily_df, log)
                 log(f"Initial allocation summary: {allocation_summary}", "info")
-                
+
                 # If we have partial allocations, distribute them
-                if allocation_summary["allocated_rows"] > 0 and allocation_summary["unallocated_rows"] > 0:
+                if (
+                    allocation_summary["allocated_rows"] > 0
+                    and allocation_summary["unallocated_rows"] > 0
+                ):
                     daily_df = distribute_missing_allocations(daily_df, log)
-                    
+
                 # Ensure allocations sum to 100% if we have any allocations
                 if allocation_summary["allocated_rows"] > 0:
                     daily_df = ensure_allocation_sum_100_percent(daily_df, log)
-                    
+
                     # Get updated allocation summary
                     updated_summary = get_allocation_summary(daily_df, log)
                     log(f"Updated allocation summary: {updated_summary}", "info")
-                
+
                 # Process stop loss values
                 # Validate stop loss values
                 daily_df = validate_stop_loss(daily_df, log)
-                
+
                 # Normalize stop loss field names
                 daily_df = normalize_stop_loss(daily_df, log)
-                
+
                 # Get stop loss summary
                 stop_loss_summary = get_stop_loss_summary(daily_df, log)
                 log(f"Stop loss summary: {stop_loss_summary}", "info")
-                
+
                 # Add schema version to each row for future reference
                 for row in daily_df:
-                    row['_schema_version'] = schema_version.name
-            
+                    row["_schema_version"] = schema_version.name
+
             # Check for allocation and stop loss columns
             has_allocation = any(
-                strategy.get('Allocation [%]') is not None and
-                strategy.get('Allocation [%]') != "" and
-                strategy.get('Allocation [%]') != "None"
+                strategy.get("Allocation [%]") is not None
+                and strategy.get("Allocation [%]") != ""
+                and strategy.get("Allocation [%]") != "None"
                 for strategy in daily_df
             )
             has_stop_loss = any(
-                strategy.get('Stop Loss [%]') is not None and
-                strategy.get('Stop Loss [%]') != "" and
-                strategy.get('Stop Loss [%]') != "None"
+                strategy.get("Stop Loss [%]") is not None
+                and strategy.get("Stop Loss [%]") != ""
+                and strategy.get("Stop Loss [%]") != "None"
                 for strategy in daily_df
             )
-            
+
             # Check for column existence even if values are empty
-            has_allocation_column = any('Allocation [%]' in strategy for strategy in daily_df)
-            has_stop_loss_column = any('Stop Loss [%]' in strategy for strategy in daily_df)
-            
+            has_allocation_column = any(
+                "Allocation [%]" in strategy for strategy in daily_df
+            )
+            has_stop_loss_column = any(
+                "Stop Loss [%]" in strategy for strategy in daily_df
+            )
+
             if has_allocation_column:
                 log("Portfolio has Allocation [%] column", "info")
                 if has_allocation:
                     log("Portfolio contains allocation values", "info")
                 else:
                     log("Portfolio has Allocation [%] column but no values", "info")
-                    
+
             if has_stop_loss_column:
                 log("Portfolio has Stop Loss [%] column", "info")
                 if has_stop_loss:
                     log("Portfolio contains stop loss values", "info")
                 else:
                     log("Portfolio has Stop Loss [%] column but no values", "info")
-                    
+
             # Set extended schema flag if either column exists
             if has_allocation_column or has_stop_loss_column:
                 local_config["USE_EXTENDED_SCHEMA"] = True
                 log("Using extended schema for processing", "info")
 
             portfolios = []
-            
+
         # Process each ticker
         for strategy in daily_df:
-            ticker = strategy['TICKER']
+            ticker = strategy["TICKER"]
             log(f"Processing {ticker}")
             # Create a copy of the config for this strategy
             strategy_config = local_config.copy()
-            
+
             # Process allocation and stop loss values
-            allocation_field = 'Allocation [%]'
-            stop_loss_field = 'Stop Loss [%]'
-            
+            allocation_field = "Allocation [%]"
+            stop_loss_field = "Stop Loss [%]"
+
             # Validate and normalize allocation value
             allocation = strategy.get(allocation_field)
             if allocation is not None and allocation != "" and allocation != "None":
@@ -261,30 +255,41 @@ def run(portfolio: str) -> bool:
                     allocation_value = float(allocation)
                     if 0 <= allocation_value <= 100:
                         strategy_config["ALLOCATION"] = allocation_value
-                        log(f"Using allocation {allocation_value}% for {ticker}", "info")
+                        log(
+                            f"Using allocation {allocation_value}% for {ticker}", "info"
+                        )
                     else:
-                        log(f"Invalid allocation value for {ticker}: {allocation_value} (must be between 0 and 100)", "warning")
+                        log(
+                            f"Invalid allocation value for {ticker}: {allocation_value} (must be between 0 and 100)",
+                            "warning",
+                        )
                 except (ValueError, TypeError):
-                    log(f"Invalid allocation value for {ticker}: {allocation}", "warning")
-            
+                    log(
+                        f"Invalid allocation value for {ticker}: {allocation}",
+                        "warning",
+                    )
+
             # Validate and normalize stop loss value using the stop_loss utility
             stop_loss = strategy.get(stop_loss_field)
             if stop_loss is not None and stop_loss != "" and stop_loss != "None":
                 # Use the validate_stop_loss function on a single-item list
                 validated_data = validate_stop_loss([strategy], log)
-                if validated_data and validated_data[0].get(stop_loss_field) is not None:
+                if (
+                    validated_data
+                    and validated_data[0].get(stop_loss_field) is not None
+                ):
                     stop_loss_value = validated_data[0][stop_loss_field]
                     strategy_config["STOP_LOSS"] = stop_loss_value
                     log(f"Using stop loss {stop_loss_value}% for {ticker}", "info")
                 else:
                     log(f"Invalid stop loss value for {ticker}: {stop_loss}", "warning")
-            
+
             # Check if this is a synthetic ticker (contains underscore)
             with error_context(
                 f"Processing synthetic ticker {ticker}",
                 log,
                 {ValueError: SyntheticTickerError},
-                reraise=False
+                reraise=False,
             ):
                 if detect_synthetic_ticker(ticker):
                     try:
@@ -293,119 +298,177 @@ def run(portfolio: str) -> bool:
                         strategy_config["USE_SYNTHETIC"] = True
                         strategy_config["TICKER_1"] = ticker1
                         strategy_config["TICKER_2"] = ticker2
-                        log(f"Detected synthetic ticker: {ticker} (components: {ticker1}, {ticker2})")
+                        log(
+                            f"Detected synthetic ticker: {ticker} (components: {ticker1}, {ticker2})"
+                        )
                     except SyntheticTickerError as e:
-                        log(f"Invalid synthetic ticker format: {ticker} - {str(e)}", "warning")
-            
+                        log(
+                            f"Invalid synthetic ticker format: {ticker} - {str(e)}",
+                            "warning",
+                        )
+
             # Process the ticker portfolio
             with error_context(
                 f"Processing ticker portfolio for {ticker}",
                 log,
                 {Exception: StrategyProcessingError},
-                reraise=False
+                reraise=False,
             ):
-                result = process_ticker_portfolios(ticker, strategy, strategy_config, log)
+                result = process_ticker_portfolios(
+                    ticker, strategy, strategy_config, log
+                )
                 if result:
                     portfolios.extend(result)
-                    
+
                     # Ensure allocation and stop loss values are preserved in the result
                     for portfolio_result in result:
                         # Only set if not already set by process_ticker_portfolios
-                        if 'Allocation [%]' not in portfolio_result or portfolio_result['Allocation [%]'] is None:
-                            if allocation is not None and allocation != "" and allocation != "None":
+                        if (
+                            "Allocation [%]" not in portfolio_result
+                            or portfolio_result["Allocation [%]"] is None
+                        ):
+                            if (
+                                allocation is not None
+                                and allocation != ""
+                                and allocation != "None"
+                            ):
                                 try:
-                                    portfolio_result['Allocation [%]'] = float(allocation)
+                                    portfolio_result["Allocation [%]"] = float(
+                                        allocation
+                                    )
                                 except (ValueError, TypeError):
-                                    log(f"Invalid allocation value for {ticker}: {allocation}", "warning")
-                                    portfolio_result['Allocation [%]'] = None
-                                    
-                        if 'Stop Loss [%]' not in portfolio_result or portfolio_result['Stop Loss [%]'] is None:
-                            if stop_loss is not None and stop_loss != "" and stop_loss != "None":
+                                    log(
+                                        f"Invalid allocation value for {ticker}: {allocation}",
+                                        "warning",
+                                    )
+                                    portfolio_result["Allocation [%]"] = None
+
+                        if (
+                            "Stop Loss [%]" not in portfolio_result
+                            or portfolio_result["Stop Loss [%]"] is None
+                        ):
+                            if (
+                                stop_loss is not None
+                                and stop_loss != ""
+                                and stop_loss != "None"
+                            ):
                                 try:
-                                    portfolio_result['Stop Loss [%]'] = float(stop_loss)
+                                    portfolio_result["Stop Loss [%]"] = float(stop_loss)
                                 except (ValueError, TypeError):
-                                    log(f"Invalid stop loss value for {ticker}: {stop_loss}", "warning")
-                                    portfolio_result['Stop Loss [%]'] = None
+                                    log(
+                                        f"Invalid stop loss value for {ticker}: {stop_loss}",
+                                        "warning",
+                                    )
+                                    portfolio_result["Stop Loss [%]"] = None
 
         # Export results with config
         with error_context(
-            "Exporting summary results",
-            log,
-            {Exception: ExportError},
-            reraise=False
+            "Exporting summary results", log, {Exception: ExportError}, reraise=False
         ):
             # Ensure we're using the correct schema for export
             # This might have been set during schema detection, but let's make sure
-            if "USE_EXTENDED_SCHEMA" not in local_config or local_config["USE_EXTENDED_SCHEMA"] is None:
+            if (
+                "USE_EXTENDED_SCHEMA" not in local_config
+                or local_config["USE_EXTENDED_SCHEMA"] is None
+            ):
                 local_config["USE_EXTENDED_SCHEMA"] = True
                 log("Explicitly setting USE_EXTENDED_SCHEMA=True for export", "info")
-            
+
             success = export_summary_results(portfolios, portfolio, log, local_config)
             # Display strategy data as requested
             if success and portfolios:
                 log("=== Strategy Summary ===")
-                
+
                 # Sort portfolios by Score (descending) for main display
                 sorted_portfolios = sort_portfolios(portfolios, "Score", False)
-                
+
                 # Use standardized utility to filter and display open trades
                 open_trades_strategies = filter_open_trades(sorted_portfolios, log)
-                
+
                 # Use standardized utility to filter and display signal entries
                 # First get signal entries using the strategy_utils filter
                 temp_config = {"USE_CURRENT": True}
-                signal_entry_strategies = filter_portfolios_by_signal(sorted_portfolios, temp_config, log)
-                
+                signal_entry_strategies = filter_portfolios_by_signal(
+                    sorted_portfolios, temp_config, log
+                )
+
                 # Then use the portfolio_results utility to process and display them
-                signal_entry_strategies = filter_signal_entries(signal_entry_strategies, open_trades_strategies, log)
-                
+                signal_entry_strategies = filter_signal_entries(
+                    signal_entry_strategies, open_trades_strategies, log
+                )
+
                 # Calculate and display breadth metrics
                 if sorted_portfolios:
                     calculate_breadth_metrics(
                         sorted_portfolios,
                         open_trades_strategies,
                         signal_entry_strategies,
-                        log
+                        log,
                     )
-                    
+
                 # Use allocation utility to get allocation summary
                 allocation_summary = get_allocation_summary(sorted_portfolios, log)
                 log(f"Allocation summary: {allocation_summary}", "info")
-                
+
                 # Calculate position sizes if account value is provided
-                if "ACCOUNT_VALUE" in local_config and local_config["ACCOUNT_VALUE"] > 0:
+                if (
+                    "ACCOUNT_VALUE" in local_config
+                    and local_config["ACCOUNT_VALUE"] > 0
+                ):
                     account_value = float(local_config["ACCOUNT_VALUE"])
-                    position_sized_portfolios = calculate_position_sizes(sorted_portfolios, account_value, log)
-                    log(f"Calculated position sizes based on account value: {account_value}", "info")
-                    
+                    position_sized_portfolios = calculate_position_sizes(
+                        sorted_portfolios, account_value, log
+                    )
+                    log(
+                        f"Calculated position sizes based on account value: {account_value}",
+                        "info",
+                    )
+
                     # Log position size summary
-                    total_position_size = sum(p.get('Position Size', 0) for p in position_sized_portfolios)
-                    log(f"Total position size: {total_position_size:.2f} across {len(position_sized_portfolios)} strategies", "info")
-                
+                    total_position_size = sum(
+                        p.get("Position Size", 0) for p in position_sized_portfolios
+                    )
+                    log(
+                        f"Total position size: {total_position_size:.2f} across {len(position_sized_portfolios)} strategies",
+                        "info",
+                    )
+
                 # Use the stop_loss utility to get a summary of stop loss values
                 stop_loss_summary = get_stop_loss_summary(sorted_portfolios, log)
                 if stop_loss_summary["strategies_with_stop_loss"] > 0:
                     log(f"Stop loss summary: {stop_loss_summary}", "info")
-                    log(f"Average stop loss: {stop_loss_summary['average_stop_loss']:.2f}% across "
-                        f"{stop_loss_summary['strategies_with_stop_loss']} strategies", "info")
-            
+                    log(
+                        f"Average stop loss: {stop_loss_summary['average_stop_loss']:.2f}% across "
+                        f"{stop_loss_summary['strategies_with_stop_loss']} strategies",
+                        "info",
+                    )
+
         return success
+
 
 if __name__ == "__main__":
     # Create a normalized copy of the default config
     normalized_config = normalize_config(config.copy())
-    portfolio_name = normalized_config.get("PORTFOLIO", 'MSTR_d_20250403.csv')
-    
+    portfolio_name = normalized_config.get("PORTFOLIO", "MSTR_d_20250403.csv")
+
     # Resolve portfolio filename with extension if needed
     resolved_portfolio = resolve_portfolio_filename(portfolio_name)
-    
+
     # Check if the portfolio file exists and detect its schema
-    portfolio_path = os.path.join(get_project_root(), 'csv', 'strategies', resolved_portfolio)
+    portfolio_path = os.path.join(
+        get_project_root(), "csv", "strategies", resolved_portfolio
+    )
     if os.path.exists(portfolio_path):
         try:
-            from app.tools.portfolio.schema_detection import detect_schema_version_from_file, SchemaVersion
+            from app.tools.portfolio.schema_detection import (
+                SchemaVersion,
+                detect_schema_version_from_file,
+            )
+
             schema_version = detect_schema_version_from_file(portfolio_path)
-            print(f"Detected schema version for {resolved_portfolio}: {schema_version.name}")
+            print(
+                f"Detected schema version for {resolved_portfolio}: {schema_version.name}"
+            )
             use_extended = schema_version == SchemaVersion.EXTENDED
         except Exception as e:
             print(f"Error detecting schema version: {str(e)}")
@@ -413,19 +476,21 @@ if __name__ == "__main__":
     else:
         print(f"Portfolio file not found: {portfolio_path}")
         use_extended = True  # Default to extended schema if file not found
-    
+
     # Set extended schema flag to ensure proper handling
     extended_config = {
         "USE_EXTENDED_SCHEMA": use_extended,  # Set based on detection
-        "HANDLE_ALLOCATIONS": True,           # Enable allocation handling
-        "HANDLE_STOP_LOSS": True              # Enable stop loss handling
+        "HANDLE_ALLOCATIONS": True,  # Enable allocation handling
+        "HANDLE_STOP_LOSS": True,  # Enable stop loss handling
     }
-    
+
     print(f"Using {'extended' if use_extended else 'base'} schema for processing")
-    
+
     # Use the standardized entry point utility
     run_from_command_line(
-        lambda _: run(resolved_portfolio),  # Wrapper function to match expected signature
-        extended_config,                    # Pass extended schema config
-        "portfolio update"
+        lambda _: run(
+            resolved_portfolio
+        ),  # Wrapper function to match expected signature
+        extended_config,  # Pass extended schema config
+        "portfolio update",
     )

@@ -4,24 +4,24 @@ Portfolio Query Resolvers
 This module contains GraphQL query resolvers for portfolio-related operations.
 """
 
-import strawberry
 from typing import List, Optional
+
+import strawberry
+
+from app.api.graphql.types.metrics import MetricsFilter, PortfolioMetrics
 from app.api.graphql.types.portfolio import (
-    Portfolio, 
-    PortfolioFilter, 
+    AnalysisFilter,
     AnalysisResult,
-    AnalysisFilter
+    Portfolio,
+    PortfolioFilter,
 )
-from app.api.graphql.types.metrics import PortfolioMetrics, MetricsFilter
 from app.database.config import get_prisma
 
 
-async def get_portfolios(
-    filter: Optional[PortfolioFilter] = None
-) -> List[Portfolio]:
+async def get_portfolios(filter: Optional[PortfolioFilter] = None) -> List[Portfolio]:
     """Get portfolios with optional filtering."""
     db = await get_prisma()
-    
+
     # Build filter conditions
     where_conditions = {}
     if filter:
@@ -31,14 +31,14 @@ async def get_portfolios(
             where_conditions["name"] = {"contains": filter.name_contains}
         if filter.created_after:
             where_conditions["createdAt"] = {"gte": filter.created_after}
-    
+
     # Execute query
     portfolios = await db.portfolio.find_many(
         where=where_conditions,
         take=filter.limit if filter else None,
-        order_by={"createdAt": "desc"}
+        order_by={"createdAt": "desc"},
     )
-    
+
     return [
         Portfolio(
             id=p.id,
@@ -47,24 +47,21 @@ async def get_portfolios(
             type=p.type,
             parameters=p.parameters,
             created_at=p.createdAt,
-            updated_at=p.updatedAt
+            updated_at=p.updatedAt,
         )
         for p in portfolios
     ]
 
 
-
 async def get_portfolio(id: strawberry.ID) -> Optional[Portfolio]:
     """Get a specific portfolio by ID."""
     db = await get_prisma()
-    
-    portfolio = await db.portfolio.find_unique(
-        where={"id": str(id)}
-    )
-    
+
+    portfolio = await db.portfolio.find_unique(where={"id": str(id)})
+
     if not portfolio:
         return None
-    
+
     return Portfolio(
         id=portfolio.id,
         name=portfolio.name,
@@ -72,18 +69,16 @@ async def get_portfolio(id: strawberry.ID) -> Optional[Portfolio]:
         type=portfolio.type,
         parameters=portfolio.parameters,
         created_at=portfolio.createdAt,
-        updated_at=portfolio.updatedAt
+        updated_at=portfolio.updatedAt,
     )
 
 
-
 async def get_portfolio_metrics(
-    portfolio_id: strawberry.ID,
-    filter: Optional[MetricsFilter] = None
+    portfolio_id: strawberry.ID, filter: Optional[MetricsFilter] = None
 ) -> List[PortfolioMetrics]:
     """Get performance metrics for a portfolio."""
     db = await get_prisma()
-    
+
     # Build filter conditions
     where_conditions = {"portfolioId": str(portfolio_id)}
     if filter:
@@ -94,13 +89,13 @@ async def get_portfolio_metrics(
                 where_conditions["metricDate"]["lte"] = filter.end_date
             else:
                 where_conditions["metricDate"] = {"lte": filter.end_date}
-    
+
     metrics = await db.portfoliometric.find_many(
         where=where_conditions,
         take=filter.limit if filter else None,
-        order_by={"metricDate": "desc"}
+        order_by={"metricDate": "desc"},
     )
-    
+
     return [
         PortfolioMetrics(
             id=m.id,
@@ -120,7 +115,7 @@ async def get_portfolio_metrics(
             correlation_matrix=m.correlationMatrix,
             strategy_weights=m.strategyWeights,
             performance_attribution=m.performanceAttribution,
-            created_at=m.createdAt
+            created_at=m.createdAt,
         )
         for m in metrics
     ]

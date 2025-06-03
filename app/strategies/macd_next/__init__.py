@@ -11,6 +11,7 @@ This package contains modules for the MACD cross strategy, including:
 
 # Import key functions for easier access
 import importlib
+
 _module = importlib.import_module("app.macd_next.1_get_portfolios")
 run = _module.run
 run_strategies = _module.run_strategies

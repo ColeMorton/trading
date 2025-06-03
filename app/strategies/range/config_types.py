@@ -5,7 +5,8 @@ This module provides centralized TypedDict definitions for configuration
 across the Range High Break strategy modules.
 """
 
-from typing import TypedDict, NotRequired, Union, List
+from typing import List, NotRequired, TypedDict, Union
+
 
 class PortfolioConfig(TypedDict, total=False):
     """Configuration type definition for portfolio analysis.
@@ -27,6 +28,7 @@ class PortfolioConfig(TypedDict, total=False):
         TICKER_1 (NotRequired[str]): First ticker for synthetic pairs
         TICKER_2 (NotRequired[str]): Second ticker for synthetic pairs
     """
+
     TICKER: Union[str, List[str]]
     WINDOWS: int
     BASE_DIR: str
@@ -41,9 +43,10 @@ class PortfolioConfig(TypedDict, total=False):
     TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
 
+
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": ['BTC-USD'],
+    "TICKER": ["BTC-USD"],
     "WINDOWS": 20,  # Maximum window size for parameter analysis
     "USE_HOURLY": False,
     "REFRESH": True,
@@ -52,5 +55,5 @@ DEFAULT_CONFIG: PortfolioConfig = {
     "USE_YEARS": False,
     "YEARS": 15,
     "DIRECTION": "Long",
-    "SORT_BY": "Score"
+    "SORT_BY": "Score",
 }

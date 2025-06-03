@@ -7,7 +7,7 @@ the system with new strategy types.
 """
 
 from app.tools.strategy.base import BaseStrategy
-from app.tools.strategy.concrete import SMAStrategy, EMAStrategy
+from app.tools.strategy.concrete import EMAStrategy, SMAStrategy
 from app.tools.strategy.factory import StrategyFactory, factory
 
 __all__ = [

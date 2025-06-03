@@ -28,8 +28,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 # ===================================================================
 
-from Crypto.Util._raw_api import c_size_t
 from Crypto.Hash.cSHAKE128 import cSHAKE_XOF
+from Crypto.Util._raw_api import c_size_t
 
 
 def _new(data, custom, function):
@@ -53,4 +53,4 @@ def new(data=None, custom=None):
     """
 
     # Use Keccak[512]
-    return cSHAKE_XOF(data, custom, 512, b'')
+    return cSHAKE_XOF(data, custom, 512, b"")

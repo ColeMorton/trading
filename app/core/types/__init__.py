@@ -1,33 +1,17 @@
 """Shared type definitions for the trading system."""
 
 from .common import (
-    TimeFrame,
-    SignalType,
+    MetricName,
     OrderType,
     PositionSide,
+    SignalType,
     StrategyType,
-    MetricName,
     TaskStatus,
+    TimeFrame,
 )
-
-from .data import (
-    PriceData,
-    OHLCVData,
-    Signal,
-    Trade,
-)
-
-from .portfolio import (
-    PortfolioMetrics,
-    PortfolioConfig,
-    AllocationConfig,
-)
-
-from .strategy import (
-    StrategyParameters,
-    BacktestResult,
-    OptimizationResult,
-)
+from .data import OHLCVData, PriceData, Signal, Trade
+from .portfolio import AllocationConfig, PortfolioConfig, PortfolioMetrics
+from .strategy import BacktestResult, OptimizationResult, StrategyParameters
 
 __all__ = [
     # Common types
@@ -45,7 +29,7 @@ __all__ = [
     "Trade",
     # Portfolio types
     "PortfolioMetrics",
-    "PortfolioConfig", 
+    "PortfolioConfig",
     "AllocationConfig",
     # Strategy types
     "StrategyParameters",

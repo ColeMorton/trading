@@ -5,19 +5,20 @@ This module handles the execution of the Range High Break trading strategy,
 including portfolio processing, filtering, and best portfolio selection.
 """
 
-from typing import List, Optional, Dict, Any, Callable
-import polars as pl
+from typing import Any, Callable, Dict, List, Optional
+
 import numpy as np
-from app.tools.get_data import get_data
-from app.tools.backtest_strategy import backtest_strategy
-from app.range.tools.export_portfolios import export_portfolios
-from app.tools.stats_converter import convert_stats
+import polars as pl
+
 from app.range.config_types import PortfolioConfig
+from app.range.tools.export_portfolios import export_portfolios
+from app.tools.backtest_strategy import backtest_strategy
+from app.tools.get_data import get_data
+from app.tools.stats_converter import convert_stats
+
 
 def process_single_ticker(
-    ticker: str,
-    config: PortfolioConfig,
-    log: Callable
+    ticker: str, config: PortfolioConfig, log: Callable
 ) -> Optional[List[Dict[str, Any]]]:
     """Process a single ticker through the portfolio analysis pipeline.
 
@@ -32,79 +33,78 @@ def process_single_ticker(
     # Create a config copy with single ticker
     ticker_config = config.copy()
     ticker_config["TICKER"] = ticker
-    
+
     try:
         # Get price data
         data = get_data(ticker, ticker_config, log)
         if data is None:
             log(f"Failed to get data for {ticker}", "error")
             return None
-            
+
         # Create parameter ranges
         range_lengths = np.arange(2, 35)  # 2 to 34
         candle_lookbacks = np.arange(1, 22)  # 1 to 21
-        
+
         portfolios = []
-        
+
         # Test all combinations
         for range_length in range_lengths:
             for candle_lookback in candle_lookbacks:
-                log(f"Testing range_length={range_length}, candle_lookback={candle_lookback}")
-                
+                log(
+                    f"Testing range_length={range_length}, candle_lookback={candle_lookback}"
+                )
+
                 # Calculate signals for this combination
                 signals_data = calculate_range_signals(
-                    data.clone(),
-                    range_length,
-                    candle_lookback,
-                    ticker_config,
-                    log
+                    data.clone(), range_length, candle_lookback, ticker_config, log
                 )
                 if signals_data is None:
                     continue
-                    
+
                 # Run backtest
                 portfolio = backtest_strategy(signals_data, ticker_config, log)
                 if portfolio is None:
                     continue
-                    
+
                 # Get portfolio stats and convert them to proper format
                 stats = portfolio.stats()
-                stats['Ticker'] = ticker
-                stats['Range Length'] = range_length
-                stats['Candle Lookback'] = candle_lookback
-                
+                stats["Ticker"] = ticker
+                stats["Range Length"] = range_length
+                stats["Candle Lookback"] = candle_lookback
+
                 # Convert stats to proper format for CSV export
                 converted_stats = convert_stats(stats, log, ticker_config, None)
                 portfolios.append(converted_stats)
-        
+
         if not portfolios:
             log(f"No valid portfolios generated for {ticker}", "warning")
             return None
-            
+
         # Export all portfolios using portfolio export functionality
         _, success = export_portfolios(
             portfolios=portfolios,
             config=ticker_config,
             export_type="portfolios",
-            log=log
+            log=log,
         )
-        
+
         if not success:
             log(f"Failed to export results for {ticker}", "error")
             return None
-            
+
         return portfolios
-        
+
     except Exception as e:
         log(f"Failed to process {ticker}: {str(e)}", "error")
         return None
+
 
 def calculate_range_signals(
     data: pl.DataFrame,
     range_length: int,
     candle_lookback: int,
     config: Dict[str, Any],
-    log: Callable
+    log: Callable,
 ) -> Optional[pl.DataFrame]:
     """Calculate Range High Break signals.
 
@@ -120,46 +120,49 @@ def calculate_range_signals(
     """
     try:
         # Calculate range high
-        data = data.with_columns([
-            pl.col("High")
-            .rolling_max(range_length)
-            .alias("Range_High")
-        ])
-        
+        data = data.with_columns(
+            [pl.col("High").rolling_max(range_length).alias("Range_High")]
+        )
+
         # Generate entry signals
         # Entry: Price close is greater than Range X High 1 candle ago
-        data = data.with_columns([
-            (pl.col("Close") > pl.col("Range_High").shift(1))
-            .cast(pl.Int32)
-            .alias("Signal")
-        ])
-        
+        data = data.with_columns(
+            [
+                (pl.col("Close") > pl.col("Range_High").shift(1))
+                .cast(pl.Int32)
+                .alias("Signal")
+            ]
+        )
+
         # Generate exit signals
         # Exit: Price close is NOT greater than Range X High Y candles ago
-        data = data.with_columns([
-            (~(pl.col("Close") > pl.col("Range_High").shift(candle_lookback)))
-            .cast(pl.Int32)
-            .alias("Exit")
-        ])
-        
+        data = data.with_columns(
+            [
+                (~(pl.col("Close") > pl.col("Range_High").shift(candle_lookback)))
+                .cast(pl.Int32)
+                .alias("Exit")
+            ]
+        )
+
         # Combine signals
-        data = data.with_columns([
-            pl.when(pl.col("Exit") == 1)
-            .then(0)
-            .otherwise(pl.col("Signal"))
-            .alias("Signal")
-        ])
-        
+        data = data.with_columns(
+            [
+                pl.when(pl.col("Exit") == 1)
+                .then(0)
+                .otherwise(pl.col("Signal"))
+                .alias("Signal")
+            ]
+        )
+
         return data
-        
+
     except Exception as e:
         log(f"Failed to calculate range signals: {str(e)}", "error")
         return None
 
+
 def execute_strategy(
-    config: PortfolioConfig,
-    strategy_type: str,
-    log: Callable
+    config: PortfolioConfig, strategy_type: str, log: Callable
 ) -> List[Dict[str, Any]]:
     """Execute the Range High Break strategy for all tickers.
 
@@ -174,10 +177,12 @@ def execute_strategy(
     if strategy_type != "RANGE":
         log(f"Invalid strategy type: {strategy_type}. Must be 'RANGE'", "error")
         return []
-        
+
     best_portfolios = []
-    tickers = [config["TICKER"]] if isinstance(config["TICKER"], str) else config["TICKER"]
-    
+    tickers = (
+        [config["TICKER"]] if isinstance(config["TICKER"], str) else config["TICKER"]
+    )
+
     for ticker in tickers:
         log(f"Processing Range High Break strategy for ticker: {ticker}")
         ticker_config = config.copy()
@@ -186,10 +191,8 @@ def execute_strategy(
         if portfolios:
             # Find best portfolio based on Score
             sorted_portfolios = sorted(
-                portfolios,
-                key=lambda x: float(x.get('Score', 0)),
-                reverse=True
+                portfolios, key=lambda x: float(x.get("Score", 0)), reverse=True
             )
             best_portfolios.append(sorted_portfolios[0])
-            
+
     return best_portfolios

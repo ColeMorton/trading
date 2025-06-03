@@ -5,27 +5,33 @@ This module handles the export of portfolio data to CSV files using the
 centralized export functionality.
 """
 
-from typing import List, Dict, Tuple, Callable, Optional
+from typing import Callable, Dict, List, Optional, Tuple
+
 import polars as pl
-from app.tools.export_csv import export_csv, ExportConfig
+
+from app.tools.export_csv import ExportConfig, export_csv
+
 
 class PortfolioExportError(Exception):
     """Custom exception for portfolio export errors."""
+
     pass
 
+
 VALID_EXPORT_TYPES = {
-    'portfolios',
-    'portfolios_scanner',
-    'portfolios_filtered',
-    'portfolios_best'
+    "portfolios",
+    "portfolios_scanner",
+    "portfolios_filtered",
+    "portfolios_best",
 }
+
 
 def export_portfolios(
     portfolios: List[Dict],
     config: ExportConfig,
     export_type: str,
     csv_filename: Optional[str] = None,
-    log: Optional[Callable] = None
+    log: Optional[Callable] = None,
 ) -> Tuple[pl.DataFrame, bool]:
     """Convert portfolio dictionaries to Polars DataFrame and export to CSV.
 
@@ -60,7 +66,7 @@ def export_portfolios(
     try:
         # Convert portfolios to DataFrame
         df = pl.DataFrame(portfolios)
-        
+
         # Apply consistent column ordering for portfolio exports
         if export_type in ["portfolios", "portfolios_best"]:
             # Define column order with strategy-specific columns first
@@ -95,16 +101,18 @@ def export_portfolios(
                 "Trades Per Day",
                 "Trades per Month",
                 "Signals per Month",
-                "Expectancy per Month"
+                "Expectancy per Month",
             ]
-            
+
             # Add any remaining columns in their original order
-            remaining_columns = [col for col in df.columns if col not in ordered_columns]
+            remaining_columns = [
+                col for col in df.columns if col not in ordered_columns
+            ]
             ordered_columns.extend(remaining_columns)
-            
+
             # Reorder columns
             df = df.select(ordered_columns)
-            
+
             # Get ticker from config
             ticker = config["TICKER"]
             if isinstance(ticker, list):
@@ -113,8 +121,10 @@ def export_portfolios(
                 else:
                     # For multiple tickers, each portfolio should already have its ticker
                     if "Ticker" not in df.columns:
-                        raise PortfolioExportError("Missing Ticker column for multiple ticker export")
-            
+                        raise PortfolioExportError(
+                            "Missing Ticker column for multiple ticker export"
+                        )
+
             # Add or update Ticker column if it's a single ticker
             if isinstance(ticker, str):
                 if "Ticker" in df.columns:
@@ -123,18 +133,20 @@ def export_portfolios(
                 # Move Ticker to first column
                 cols = df.columns
                 df = df.select(["Ticker"] + [col for col in cols if col != "Ticker"])
-        
+
         # Use empty feature1 for 'portfolios' and 'portfolios_scanner' export types
         # to export directly to csv/portfolios/ instead of csv/range/portfolios/ or csv/range/portfolios_scanner/
-        feature1 = "" if export_type in ["portfolios", "portfolios_scanner"] else "range"
-        
+        feature1 = (
+            "" if export_type in ["portfolios", "portfolios_scanner"] else "range"
+        )
+
         return export_csv(
             data=df,
             feature1=feature1,
             config=config,
             feature2=export_type,
             filename=csv_filename,
-            log=log
+            log=log,
         )
     except Exception as e:
         error_msg = f"Failed to export portfolios: {str(e)}"

@@ -1,13 +1,18 @@
 """Abstract interfaces for service contracts."""
 
-from .logging import LoggingInterface
-from .progress import ProgressTrackerInterface, ProgressUpdate
-from .strategy import StrategyExecutorInterface, StrategyAnalyzerInterface, StrategyConfig, StrategyResult
-from .portfolio import PortfolioManagerInterface, Portfolio, PortfolioFilter
-from .data import DataAccessInterface
 from .cache import CacheInterface
-from .monitoring import MonitoringInterface, MetricType
 from .configuration import ConfigurationInterface
+from .data import DataAccessInterface
+from .logging import LoggingInterface
+from .monitoring import MetricType, MonitoringInterface
+from .portfolio import Portfolio, PortfolioFilter, PortfolioManagerInterface
+from .progress import ProgressTrackerInterface, ProgressUpdate
+from .strategy import (
+    StrategyAnalyzerInterface,
+    StrategyConfig,
+    StrategyExecutorInterface,
+    StrategyResult,
+)
 
 __all__ = [
     "LoggingInterface",

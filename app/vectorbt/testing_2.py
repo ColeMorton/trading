@@ -1,10 +1,10 @@
-import vectorbt as vbt
-import yfinance as yf
+import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
-import numpy as np
+import vectorbt as vbt
+import yfinance as yf
 
-price = vbt.YFData.download('BTC-USD').get('Close')
+price = vbt.YFData.download("BTC-USD").get("Close")
 
 pf = vbt.Portfolio.from_holding(price, init_cash=100)
 print(pf.total_profit())

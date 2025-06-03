@@ -1,14 +1,18 @@
-import vectorbt as vbt
 import pandas as pd
+import vectorbt as vbt
 
 # Fetch BTC-USD historical data
-btc_data = vbt.YFData.download('BTC-USD', interval='1d').get('Close').fillna(method='ffill')
+btc_data = (
+    vbt.YFData.download("BTC-USD", interval="1d").get("Close").fillna(method="ffill")
+)
+
 
 # Calculate Donchian channel
 def donchian_channel(close, length):
     upper_bound = close.rolling(window=length).max()
     lower_bound = close.rolling(window=length).min()
     return upper_bound, lower_bound
+
 
 # Parameters
 lengths = range(2, 56)  # Lengths for Donchian channel
@@ -21,7 +25,7 @@ for length in lengths:
     upper_bound, _ = donchian_channel(btc_data, length)
     for x in exit_candles:
         # Create entry conditions: Daily price closed > Upper bound, 1 candle ago
-        entries = (btc_data.shift(1) > upper_bound.shift(1))
+        entries = btc_data.shift(1) > upper_bound.shift(1)
         # Create exit conditions: Exit after X candles
         exits = entries.shift(-x)
 
@@ -36,16 +40,20 @@ for length in lengths:
         results.append((length, x, portfolio.total_return(), portfolio))
 
 # Convert results to DataFrame
-results_df = pd.DataFrame(results, columns=['Length', 'Exit Candles', 'Total Return', 'Portfolio'])
+results_df = pd.DataFrame(
+    results, columns=["Length", "Exit Candles", "Total Return", "Portfolio"]
+)
 
 # Sort by Total Return and get top performing parameters
-top_results = results_df.sort_values(by='Total Return', ascending=False).head(5)
+top_results = results_df.sort_values(by="Total Return", ascending=False).head(5)
 
 # Display the top performing parameters and their stats
 print("Top Performing Parameters:")
-print(top_results[['Length', 'Exit Candles', 'Total Return']])
+print(top_results[["Length", "Exit Candles", "Total Return"]])
 
 # Display portfolio statistics for the top performing parameters
 for index, row in top_results.iterrows():
-    print(f"\nPortfolio Stats for Length {row['Length']} and Exit Candles {row['Exit Candles']}:")
-    print(row['Portfolio'].stats())
+    print(
+        f"\nPortfolio Stats for Length {row['Length']} and Exit Candles {row['Exit Candles']}:"
+    )
+    print(row["Portfolio"].stats())

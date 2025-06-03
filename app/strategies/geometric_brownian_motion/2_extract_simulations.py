@@ -1,11 +1,14 @@
 import csv
 from io import StringIO
+from typing import List, Tuple
+
 import numpy as np
 import polars as pl
-from typing import List, Tuple
+
 from app.tools.get_config import get_config
+
 # from app.utils import get_path, get_filename, save_csv
-from app.utils import get_path, get_filename
+from app.utils import get_filename, get_path
 
 # Default Configuration
 CONFIG = {
@@ -52,12 +55,12 @@ def calculate_performance(prices: List[float]) -> float:
 def extract_simulations(csv_content: str) -> Tuple[dict, pl.DataFrame]:
     timestamps, simulations = read_csv_data(csv_content)
     performances = [calculate_performance(sim) for sim in simulations]
-    
+
     num_simulations = len(simulations)
     print(f"Number of simulations: {num_simulations}")
     print(f"Length of timestamps: {len(timestamps)}")
     print(f"Length of first simulation: {len(simulations[0])}")
-    
+
     if num_simulations <= 6:
         # If 6 or fewer simulations, export all of them
         results = {f"simulation_{i+1}_performance": perf for i, perf in enumerate(performances)}
@@ -75,7 +78,7 @@ def extract_simulations(csv_content: str) -> Tuple[dict, pl.DataFrame]:
             "25th_percentile_performance": np.percentile(performances, 25),
             "75th_percentile_performance": np.percentile(performances, 75)
         }
-        
+
         # Extract the simulations
         highest_sim = simulations[performances.index(max(performances))]
         lowest_sim = simulations[performances.index(min(performances))]
@@ -83,7 +86,7 @@ def extract_simulations(csv_content: str) -> Tuple[dict, pl.DataFrame]:
         median_sim = simulations[performances.index(min(performances, key=lambda x: abs(x - np.median(performances))))]
         percentile_25_sim = simulations[performances.index(min(performances, key=lambda x: abs(x - np.percentile(performances, 25))))]
         percentile_75_sim = simulations[performances.index(min(performances, key=lambda x: abs(x - np.percentile(performances, 75))))]
-        
+
         df = pl.DataFrame({
             "timestamp": timestamps,
             "highest": highest_sim,
@@ -93,12 +96,12 @@ def extract_simulations(csv_content: str) -> Tuple[dict, pl.DataFrame]:
             "25th_percentile": percentile_25_sim,
             "75th_percentile": percentile_75_sim
         })
-    
+
     # Set timestamp as index by making it the first column
     df = df.with_columns(pl.col("timestamp").alias("Date")).select(
         ["Date"] + [col for col in df.columns if col != "timestamp"]
     )
-    
+
     return results, df
 
 # Read the CSV file

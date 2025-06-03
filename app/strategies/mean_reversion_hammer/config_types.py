@@ -5,7 +5,8 @@ This module provides centralized TypedDict definitions for configuration
 across the mean reversion hammer strategy modules.
 """
 
-from typing import TypedDict, NotRequired, Union, List
+from typing import List, NotRequired, TypedDict, Union
+
 
 class PortfolioConfig(TypedDict, total=False):
     """Configuration type definition for hammer strategy portfolio analysis.
@@ -29,6 +30,7 @@ class PortfolioConfig(TypedDict, total=False):
         MIN_WIN_RATE (NotRequired[float]): Minimum win rate required
         MAX_DRAWDOWN (NotRequired[float]): Maximum allowable drawdown
     """
+
     TICKER: Union[str, List[str]]
     BASE_DIR: str
     USE_CURRENT: NotRequired[bool]
@@ -40,6 +42,7 @@ class PortfolioConfig(TypedDict, total=False):
     CHANGE_PCT_START: NotRequired[float]
     CHANGE_PCT_END: NotRequired[float]
     CHANGE_PCT_STEP: NotRequired[float]
+
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
@@ -53,8 +56,9 @@ DEFAULT_CONFIG: PortfolioConfig = {
     "DIRECTION": "Long",
     "CHANGE_PCT_START": 0.1,
     "CHANGE_PCT_END": 15,
-    "CHANGE_PCT_STEP": 0.01
+    "CHANGE_PCT_STEP": 0.01,
 }
+
 
 def validate_config(config: dict) -> bool:
     """Validate configuration parameters for the hammer strategy.
@@ -71,16 +75,16 @@ def validate_config(config: dict) -> bool:
     Raises:
         ValueError: If configuration parameters are invalid
     """
-    if not 0.1 <= config.get('CHANGE_PCT_START', 2.00) <= 15.00:
+    if not 0.1 <= config.get("CHANGE_PCT_START", 2.00) <= 15.00:
         raise ValueError("CHANGE_PCT_START must be between 0.10 and 15.00")
-    
-    if not 0.1 <= config.get('CHANGE_PCT_END', 15.00) <= 21.01:
+
+    if not 0.1 <= config.get("CHANGE_PCT_END", 15.00) <= 21.01:
         raise ValueError("CHANGE_PCT_END must be between 0.10 and 21.01")
-    
-    if config.get('CHANGE_PCT_END', 15.00) <= config.get('CHANGE_PCT_START', 2.00):
+
+    if config.get("CHANGE_PCT_END", 15.00) <= config.get("CHANGE_PCT_START", 2.00):
         raise ValueError("CHANGE_PCT_END must be greater than CHANGE_PCT_START")
-    
-    if not 0.01 <= config.get('CHANGE_PCT_STEP', 0.01) <= 5.00:
+
+    if not 0.01 <= config.get("CHANGE_PCT_STEP", 0.01) <= 5.00:
         raise ValueError("CHANGE_PCT_STEP must be between 0.01 and 5.00")
-    
+
     return True

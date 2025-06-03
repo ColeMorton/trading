@@ -1,7 +1,7 @@
 # Trading Application Makefile
 # Provides convenient commands for development and deployment
 
-.PHONY: help install dev build test clean docker-build docker-up docker-down docker-logs setup-db migrate backup restore frontend-install frontend-dev frontend-build frontend-codegen frontend-test test-fullstack dev-fullstack
+.PHONY: help install dev build test clean docker-build docker-up docker-down docker-logs setup-db migrate backup restore frontend-install frontend-dev frontend-build frontend-codegen frontend-test test-fullstack dev-fullstack lint-help lint-black lint-isort lint-flake8 lint-mypy lint-pylint lint-bandit lint-vulture format-black format-isort lint-python format-python security-scan find-dead-code lint-all pre-commit-install pre-commit-run
 
 # Default target
 help:
@@ -12,6 +12,8 @@ help:
 	@echo "  dev         - Start development server"
 	@echo "  test        - Run test suite"
 	@echo "  clean       - Clean temporary files"
+	@echo "  lint-help   - Show all linting commands"
+	@echo "  lint-all    - Run all linters and formatters"
 	@echo ""
 	@echo "Frontend:"
 	@echo "  frontend-install - Install frontend dependencies"
@@ -309,3 +311,129 @@ test-fullstack:
 	@pkill -f "app.api.run" || true
 	@pkill -f "vite" || true
 	@echo "✅ Full-stack tests complete!"
+
+# Linting and code quality commands
+lint-help:
+	@echo "Linting and Code Quality Commands:"
+	@echo ""
+	@echo "Individual Linters (check only):"
+	@echo "  lint-black   - Check code formatting with Black"
+	@echo "  lint-isort   - Check import sorting with isort"
+	@echo "  lint-flake8  - Check code style with Flake8"
+	@echo "  lint-mypy    - Check type hints with mypy"
+	@echo "  lint-pylint  - Check code quality with pylint"
+	@echo "  lint-bandit  - Security vulnerability scanning"
+	@echo "  lint-vulture - Find dead code"
+	@echo ""
+	@echo "Code Formatters (auto-fix):"
+	@echo "  format-black - Auto-format code with Black"
+	@echo "  format-isort - Auto-sort imports with isort"
+	@echo ""
+	@echo "Aggregate Commands:"
+	@echo "  lint-python    - Run all Python linters (check only)"
+	@echo "  format-python  - Auto-format all Python code"
+	@echo "  security-scan  - Run security scanning with bandit"
+	@echo "  find-dead-code - Find unused code with vulture"
+	@echo "  lint-all       - Run all linters and formatters"
+	@echo ""
+	@echo "Pre-commit Hooks:"
+	@echo "  pre-commit-install - Install pre-commit hooks"
+	@echo "  pre-commit-run     - Run pre-commit hooks manually"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make lint-python       # Check all code quality issues"
+	@echo "  make format-python     # Auto-fix formatting issues"
+	@echo "  make lint-all          # Complete code quality check"
+
+# Individual Python linters (check only)
+lint-black:
+	@echo "Checking code formatting with Black..."
+	poetry run black --check --diff app tests
+	@echo "✅ Black check complete"
+
+lint-isort:
+	@echo "Checking import sorting with isort..."
+	poetry run isort --check-only --diff app tests
+	@echo "✅ isort check complete"
+
+lint-flake8:
+	@echo "Checking code style with Flake8..."
+	poetry run flake8 app tests
+	@echo "✅ Flake8 check complete"
+
+lint-mypy:
+	@echo "Checking type hints with mypy..."
+	poetry run mypy app tests
+	@echo "✅ mypy check complete"
+
+lint-pylint:
+	@echo "Checking code quality with pylint..."
+	poetry run pylint app tests
+	@echo "✅ pylint check complete"
+
+lint-bandit:
+	@echo "Scanning for security vulnerabilities with bandit..."
+	poetry run bandit -r app -ll
+	@echo "✅ Security scan complete"
+
+lint-vulture:
+	@echo "Finding dead code with vulture..."
+	poetry run vulture app tests --min-confidence 80
+	@echo "✅ Dead code check complete"
+
+# Python formatters (auto-fix)
+format-black:
+	@echo "Auto-formatting code with Black..."
+	poetry run black app tests
+	@echo "✅ Black formatting complete"
+
+format-isort:
+	@echo "Auto-sorting imports with isort..."
+	poetry run isort app tests
+	@echo "✅ isort formatting complete"
+
+# Aggregate Python commands
+lint-python: lint-black lint-isort lint-flake8 lint-mypy
+	@echo "✅ All Python linting checks complete"
+
+format-python: format-isort format-black
+	@echo "✅ All Python formatting complete"
+
+# Security and code quality scanning
+security-scan: lint-bandit
+	@echo "✅ Security scanning complete"
+
+find-dead-code: lint-vulture
+	@echo "✅ Dead code detection complete"
+
+# Combined lint command - runs all checks and fixes
+lint-all:
+	@echo "Running all linters and formatters..."
+	@echo ""
+	@echo "Step 1: Auto-formatting code..."
+	@$(MAKE) format-python
+	@echo ""
+	@echo "Step 2: Running linting checks..."
+	@$(MAKE) lint-python
+	@echo ""
+	@echo "Step 3: Running additional code quality checks..."
+	@$(MAKE) lint-pylint || true  # Continue even if pylint finds issues
+	@echo ""
+	@echo "Step 4: Security scanning..."
+	@$(MAKE) security-scan || true  # Continue even if security issues found
+	@echo ""
+	@echo "Step 5: Dead code detection..."
+	@$(MAKE) find-dead-code || true  # Continue even if dead code found
+	@echo ""
+	@echo "✅ All linting and formatting complete!"
+
+# Pre-commit hook commands
+pre-commit-install:
+	@echo "Installing pre-commit hooks..."
+	poetry run pre-commit install
+	@echo "✅ Pre-commit hooks installed"
+
+pre-commit-run:
+	@echo "Running pre-commit hooks on all files..."
+	poetry run pre-commit run --all-files
+	@echo "✅ Pre-commit hooks complete"

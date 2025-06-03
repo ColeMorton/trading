@@ -5,15 +5,17 @@ This module contains functions for generating protective stop loss exit signals
 based on holding period and PnL conditions.
 """
 
-import numpy as np
 from typing import Optional
 
+import numpy as np
+
+
 def psl_exit(
-    price: np.ndarray, 
-    entries: np.ndarray, 
-    holding_period: int, 
-    short: bool, 
-    stop_loss: Optional[float] = None
+    price: np.ndarray,
+    entries: np.ndarray,
+    holding_period: int,
+    short: bool,
+    stop_loss: Optional[float] = None,
 ) -> np.ndarray:
     """
     Generate Price Stop Loss (PSL) exit signals.
@@ -21,7 +23,7 @@ def psl_exit(
     The PSL strategy monitors price action and generates exit signals based on:
     1. Stop loss being hit (if configured)
     2. Negative PnL at OR AFTER the specified holding period
-    
+
     A trade that reaches the holding period will continue to be monitored for
     negative PnL until it exits, ensuring we catch any late drawdowns.
 
@@ -37,14 +39,14 @@ def psl_exit(
     """
     exit_signal = np.zeros_like(price)
     entry_indices = np.zeros_like(price, dtype=int) - 1  # -1 indicates no entry
-    
+
     # Track entry points
     for i in range(len(price)):
         if entries[i]:
             entry_indices[i:] = i
         elif exit_signal[i]:
             entry_indices[i:] = -1
-            
+
         # Check stop loss condition first
         if entry_indices[i] >= 0 and stop_loss is not None:
             entry_price = price[entry_indices[i]]
@@ -58,7 +60,7 @@ def psl_exit(
                 if price[i] <= entry_price * (1 - stop_loss):
                     exit_signal[i] = 1
                     entry_indices[i:] = -1
-        
+
         # Then check PnL condition for positions that have reached holding period
         if entry_indices[i] >= 0:
             days_held = i - entry_indices[i]
@@ -69,13 +71,14 @@ def psl_exit(
                     pnl = (entry_price - price[i]) / entry_price
                 else:
                     pnl = (price[i] - entry_price) / entry_price
-                
+
                 # Exit if PnL is negative at or after holding period
                 if pnl < 0:
                     exit_signal[i] = 1
                     entry_indices[i:] = -1
-                    
+
     return exit_signal
+
 
 def calculate_longest_holding_period(entries: np.ndarray) -> int:
     """

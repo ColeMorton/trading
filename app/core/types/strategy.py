@@ -1,8 +1,9 @@
 """Strategy type definitions."""
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Any, Union
 from datetime import datetime
+from typing import Any, Dict, List, Optional, Union
+
 import pandas as pd
 import polars as pl
 
@@ -10,6 +11,7 @@ import polars as pl
 @dataclass
 class StrategyParameters:
     """Base strategy parameters."""
+
     strategy_type: str
     timeframe: str
     parameters: Dict[str, Any]
@@ -21,6 +23,7 @@ class StrategyParameters:
 @dataclass
 class BacktestResult:
     """Backtest result container."""
+
     strategy: StrategyParameters
     ticker: str
     start_date: datetime
@@ -35,6 +38,7 @@ class BacktestResult:
 @dataclass
 class OptimizationResult:
     """Strategy optimization result."""
+
     strategy_type: str
     ticker: str
     best_params: Dict[str, Any]

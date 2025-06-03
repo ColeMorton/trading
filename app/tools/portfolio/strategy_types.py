@@ -5,30 +5,33 @@ This module provides centralized type definitions and constants for strategy typ
 to ensure consistency across the application.
 """
 
-from typing import TypedDict, Literal, NotRequired, Union
+from typing import Literal, NotRequired, TypedDict, Union
 
 # Define valid strategy types as literals for type checking
 StrategyTypeLiteral = Literal["SMA", "EMA", "MACD", "ATR"]
 
+
 class StrategyTypeConfig(TypedDict):
     """
     Strategy type configuration with standardized field names.
-    
+
     Fields:
         strategy_type: The strategy type (SMA, EMA, MACD, ATR)
         use_sma: Boolean derived from strategy_type (True for SMA, False otherwise)
     """
+
     strategy_type: StrategyTypeLiteral
     use_sma: bool
+
 
 class StrategyConfig(TypedDict):
     """
     Complete strategy configuration including type information.
-    
+
     Required Fields:
         TICKER: Ticker symbol
         strategy_type: Strategy type (SMA, EMA, MACD, ATR)
-    
+
     Optional Fields:
         SHORT_WINDOW: Short moving average window
         LONG_WINDOW: Long moving average window
@@ -40,6 +43,7 @@ class StrategyConfig(TypedDict):
         RSI_THRESHOLD: RSI threshold value
         STOP_LOSS: Stop loss percentage
     """
+
     TICKER: str
     strategy_type: StrategyTypeLiteral
     SHORT_WINDOW: NotRequired[int]
@@ -52,17 +56,16 @@ class StrategyConfig(TypedDict):
     RSI_THRESHOLD: NotRequired[int]
     STOP_LOSS: NotRequired[float]
 
+
 # Constants for field names to ensure consistency
 STRATEGY_TYPE_FIELDS = {
     # Internal representation
     "INTERNAL": "STRATEGY_TYPE",
-    
     # CSV representation
     "CSV": "Strategy Type",
-    
     # JSON representations
     "JSON_NEW": "strategy_type",
-    "JSON_OLD": "type"
+    "JSON_OLD": "type",
 }
 
 # Valid strategy types
@@ -77,5 +80,5 @@ DEFAULT_VALUES = {
     "RSI_THRESHOLD_LONG": 70,
     "RSI_THRESHOLD_SHORT": 30,
     "SIGNAL_WINDOW": 9,
-    "DIRECTION": "Long"
+    "DIRECTION": "Long",
 }

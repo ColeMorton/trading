@@ -1,4 +1,5 @@
-from typing import TypedDict, NotRequired
+from typing import NotRequired, TypedDict
+
 
 class Config(TypedDict):
     """Configuration type definition.
@@ -19,6 +20,7 @@ class Config(TypedDict):
         TICKER_2 (NotRequired[str]): Second ticker for synthetic pair
         USE_SCANNER (NotRequired[bool]): Whether to use scanner mode
     """
+
     TICKER: str
     WINDOWS: int
     DIRECTION: NotRequired[str]

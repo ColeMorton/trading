@@ -2,12 +2,13 @@
 Pytest configuration and fixtures for API tests.
 """
 
-import pytest
 import asyncio
-from typing import Generator
-from fastapi.testclient import TestClient
 import os
 import sys
+from typing import Generator
+
+import pytest
+from fastapi.testclient import TestClient
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -64,7 +65,7 @@ def sample_portfolio_data():
             "recovery_factor": 1.67,
             "payoff_ratio": 2.5,
             "final_balance": 125000,
-            "roi": 0.25
+            "roi": 0.25,
         },
         "MSFT": {
             "symbol": "MSFT",
@@ -86,8 +87,8 @@ def sample_portfolio_data():
             "recovery_factor": 2.5,
             "payoff_ratio": 3.33,
             "final_balance": 130000,
-            "roi": 0.30
-        }
+            "roi": 0.30,
+        },
     }
 
 
@@ -104,7 +105,7 @@ def performance_metrics():
         "cache_hit_rate": 0.4,
         "active_tasks": 5,
         "completed_tasks": 945,
-        "failed_tasks": 50
+        "failed_tasks": 50,
     }
 
 

@@ -1,7 +1,8 @@
 import logging
 import os
 import time
-from typing import Optional, Callable, Any, Tuple
+from typing import Any, Callable, Optional, Tuple
+
 
 def get_project_root() -> str:
     """
@@ -10,15 +11,18 @@ def get_project_root() -> str:
     Returns:
         str: Absolute path to project root
     """
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
 
 def setup_logging(
     module_name: str,
     log_file: str,
     level: int = logging.INFO,
-    mode: str = 'w',
-    log_subdir: str = None
-) -> Tuple[Callable[[str, str], None], Callable[[], None], logging.Logger, logging.FileHandler]:
+    mode: str = "w",
+    log_subdir: str = None,
+) -> Tuple[
+    Callable[[str, str], None], Callable[[], None], logging.Logger, logging.FileHandler
+]:
     """
     Sets up logging configuration with standardized directory structure and returns logging utilities.
 
@@ -30,7 +34,7 @@ def setup_logging(
         log_subdir (str, optional): Optional subdirectory within logs/module_name
 
     Returns:
-        Tuple[Callable, Callable, logging.Logger, logging.FileHandler]: 
+        Tuple[Callable, Callable, logging.Logger, logging.FileHandler]:
             - log: Pre-configured logging function
             - log_close: Function to close logging and print execution time
             - logger: Configured logger instance
@@ -44,12 +48,12 @@ def setup_logging(
     """
     # Get project root and set up log directory structure
     project_root = get_project_root()
-    log_base_dir = os.path.join(project_root, 'logs', module_name)
-    
+    log_base_dir = os.path.join(project_root, "logs", module_name)
+
     # Add subdirectory if specified
     if log_subdir:
         log_base_dir = os.path.join(log_base_dir, log_subdir)
-    
+
     # Create log directory if it doesn't exist
     os.makedirs(log_base_dir, exist_ok=True)
 
@@ -65,20 +69,20 @@ def setup_logging(
     # Create file handler
     log_path = os.path.join(log_base_dir, log_file)
     file_handler = logging.FileHandler(log_path, mode=mode)
-    
+
     # Create console handler
     console_handler = logging.StreamHandler()
-    
+
     # Set formatter with consistent format
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
     file_handler.setFormatter(formatter)
     console_handler.setFormatter(formatter)
-    
+
     # Add handlers to logger
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
 
-    def log(message: str, level: str = 'info') -> None:
+    def log(message: str, level: str = "info") -> None:
         """
         Pre-configured logging function with immediate flush.
 

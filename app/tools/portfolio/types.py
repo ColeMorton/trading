@@ -5,7 +5,8 @@ strategy parameters, and format specifications. These types are used throughout
 the portfolio tools to ensure type safety and consistent data structures.
 """
 
-from typing import TypedDict, NotRequired, Literal, Dict, List, Any, Callable, Union
+from typing import Any, Callable, Dict, List, Literal, NotRequired, TypedDict, Union
+
 
 class StrategyConfig(TypedDict):
     """Configuration type definition for strategy parameters.
@@ -25,17 +26,18 @@ class StrategyConfig(TypedDict):
         SHORT_WINDOW (NotRequired[int]): Period for short moving average or MACD fast line
         LONG_WINDOW (NotRequired[int]): Period for long moving average or MACD slow line
         SIGNAL_WINDOW (NotRequired[int]): Period for MACD signal line
-        
+
         # ATR strategy fields
         length (NotRequired[int]): ATR calculation period
         multiplier (NotRequired[float]): ATR multiplier for stop distance
-        
+
         # Common optional fields
         ALLOCATION (NotRequired[float]): Allocation percentage (0-100)
         STOP_LOSS (NotRequired[float]): Stop loss percentage (0-1)
         RSI_WINDOW (NotRequired[int]): Period for RSI calculation
         RSI_THRESHOLD (NotRequired[int]): RSI threshold for signal filtering
     """
+
     TICKER: str
     BASE_DIR: str
     REFRESH: bool
@@ -57,6 +59,7 @@ class StrategyConfig(TypedDict):
     RSI_WINDOW: NotRequired[int]
     RSI_THRESHOLD: NotRequired[int]
 
+
 class PortfolioConfig(TypedDict):
     """Configuration type definition for portfolio operations.
 
@@ -75,6 +78,7 @@ class PortfolioConfig(TypedDict):
         RATIO_BASED_ALLOCATION (NotRequired[bool]): Enable ratio-based allocation
         VISUALIZATION (NotRequired[bool]): Enable visualization of results
     """
+
     PORTFOLIO: str
     BASE_DIR: str
     REFRESH: NotRequired[bool]
@@ -87,6 +91,7 @@ class PortfolioConfig(TypedDict):
     RATIO_BASED_ALLOCATION: NotRequired[bool]
     VISUALIZATION: NotRequired[bool]
 
+
 class PortfolioFormat(TypedDict):
     """Type definition for portfolio format specification.
 
@@ -95,9 +100,11 @@ class PortfolioFormat(TypedDict):
         validator (Callable): Function to validate the portfolio file
         loader (Callable): Function to load the portfolio file
     """
+
     format_type: str
     validator: Callable[[str], bool]
     loader: Callable[[str, Callable, Dict], List[StrategyConfig]]
+
 
 class PortfolioResult(TypedDict):
     """Type definition for portfolio analysis results.
@@ -120,6 +127,7 @@ class PortfolioResult(TypedDict):
         sortino_ratio (NotRequired[float]): Sortino ratio
         calmar_ratio (NotRequired[float]): Calmar ratio
     """
+
     ticker: str
     strategy_type: str
     short_window: int
@@ -134,6 +142,7 @@ class PortfolioResult(TypedDict):
     sharpe_ratio: NotRequired[float]
     sortino_ratio: NotRequired[float]
     calmar_ratio: NotRequired[float]
+
 
 # Type aliases for common data structures
 PortfolioList = List[Dict[str, Any]]

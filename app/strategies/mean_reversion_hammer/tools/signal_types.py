@@ -4,7 +4,8 @@ Signal Type Definitions
 This module provides type definitions for mean reversion signal generation.
 """
 
-from typing import TypedDict, NotRequired
+from typing import NotRequired, TypedDict
+
 
 class Config(TypedDict):
     """
@@ -23,6 +24,7 @@ class Config(TypedDict):
         YEARS (NotRequired[float]): Number of years of data to use
         USE_SCANNER (NotRequired[bool]): Whether running as part of scanner
     """
+
     TICKER: str
     CHANGE_PCT_START: float
     CHANGE_PCT_END: float

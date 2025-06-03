@@ -9,16 +9,19 @@ Note: For long positions, slippage represents an increase in entry price above t
       We represent this as negative values where -5% means entering 5% above the signal price.
 """
 
-import polars as pl
+from typing import NotRequired, TypedDict
+
 import numpy as np
-from typing import TypedDict, NotRequired
-from app.tools.setup_logging import setup_logging
-from app.tools.config_service import ConfigService
-from app.tools.calculate_mas import calculate_mas
-from app.tools.get_data import get_data
-from app.tools.calculate_rsi import calculate_rsi
+import polars as pl
+
 from app.strategies.ma_cross.tools.slippage_analysis import run_sensitivity_analysis
 from app.strategies.ma_cross.tools.slippage_plotting import plot_results
+from app.tools.calculate_mas import calculate_mas
+from app.tools.calculate_rsi import calculate_rsi
+from app.tools.config_service import ConfigService
+from app.tools.get_data import get_data
+from app.tools.setup_logging import setup_logging
+
 
 class Config(TypedDict):
     """
@@ -43,6 +46,7 @@ class Config(TypedDict):
         TICKER_1 (NotRequired[str]): First ticker for synthetic pairs
         TICKER_2 (NotRequired[str]): Second ticker for synthetic pairs
     """
+
     TICKER: str
     SHORT_WINDOW: int
     LONG_WINDOW: int
@@ -60,6 +64,7 @@ class Config(TypedDict):
     TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
 
+
 # Default Configuration
 config: Config = {
     "TICKER": "XYZ",
@@ -74,8 +79,9 @@ config: Config = {
     "USE_RSI": False,
     "RSI_WINDOW": 29,
     "RSI_THRESHOLD": 48,
-    "STOP_LOSS": 0.1237
+    "STOP_LOSS": 0.1237,
 }
+
 
 def run(config: Config = config) -> bool:
     """
@@ -101,40 +107,46 @@ def run(config: Config = config) -> bool:
         Exception: If analysis fails
     """
     log, log_close, _, _ = setup_logging(
-        module_name='ma_cross',
-        log_file='5_review_slippage.log'
+        module_name="ma_cross", log_file="5_review_slippage.log"
     )
-    
+
     try:
         config = ConfigService.process_config(config)
         log(f"Starting slippage analysis for {config['TICKER']}")
-        
+
         # Create slippage range (0% to 5%)
         slippage_range = np.arange(0, 5.01, 0.01)
         log(f"Using slippage range: {slippage_range[0]}% to {slippage_range[-1]}%")
-        
+
         data = get_data(config["TICKER"], config, log)
-        data = calculate_mas(data, config['SHORT_WINDOW'], config['LONG_WINDOW'], config.get('USE_SMA', False), log)
-        
-        if config.get('USE_RSI', False):
-            data = calculate_rsi(data, config['RSI_WINDOW'])
+        data = calculate_mas(
+            data,
+            config["SHORT_WINDOW"],
+            config["LONG_WINDOW"],
+            config.get("USE_SMA", False),
+            log,
+        )
+
+        if config.get("USE_RSI", False):
+            data = calculate_rsi(data, config["RSI_WINDOW"])
             log(f"RSI enabled with period: {config['RSI_WINDOW']}")
 
         # Use new slippage analysis module
         results_df = run_sensitivity_analysis(data, slippage_range, config)
         log("Sensitivity analysis completed")
-        
+
         pl.Config.set_fmt_str_lengths(20)
         plot_results(config["TICKER"], results_df, log)
         log("Results plotted successfully")
-        
+
         log_close()
         return True
-        
+
     except Exception as e:
         log(f"Execution failed: {str(e)}", "error")
         log_close()
         raise
+
 
 if __name__ == "__main__":
     try:

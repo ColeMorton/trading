@@ -31,10 +31,10 @@
 # POSSIBILITY OF SUCH DAMAGE.
 # ===================================================================
 
-from Crypto.Util.py3compat import is_native_int
-from Crypto.Util import number
-from Crypto.Util.number import long_to_bytes, bytes_to_long
 from Crypto.Random import get_random_bytes as rng
+from Crypto.Util import number
+from Crypto.Util.number import bytes_to_long, long_to_bytes
+from Crypto.Util.py3compat import is_native_int
 
 
 def _mult_gf2(f1, f2):
@@ -60,7 +60,7 @@ def _div_gf2(a, b):
     a = b*q + r with deg(r)<deg(b)
     """
 
-    if (a < b):
+    if a < b:
         return 0, a
 
     deg = number.size
@@ -78,7 +78,7 @@ class _Element(object):
     """Element of GF(2^128) field"""
 
     # The irreducible polynomial defining this field is 1+x+x^2+x^7+x^128
-    irr_poly = 1 + 2 + 4 + 128 + 2 ** 128
+    irr_poly = 1 + 2 + 4 + 128 + 2**128
 
     def __init__(self, encoded_value):
         """Initialize the element to a certain value.
@@ -107,7 +107,6 @@ class _Element(object):
         return long_to_bytes(self._value, 16)
 
     def __mul__(self, factor):
-
         f1 = self._value
         f2 = factor._value
 
@@ -118,7 +117,7 @@ class _Element(object):
         if self.irr_poly in (f1, f2):
             return _Element(0)
 
-        mask1 = 2 ** 128
+        mask1 = 2**128
         v, z = f1, 0
         while f2:
             # if f2 ^ 1: z ^= v
@@ -259,7 +258,7 @@ class Shamir(object):
             if any(y[0] == idx for y in gf_shares):
                 raise ValueError("Duplicate share")
             if ssss:
-                value += idx ** k
+                value += idx**k
             gf_shares.append((idx, value))
 
         result = _Element(0)

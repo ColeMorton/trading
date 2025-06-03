@@ -1,10 +1,10 @@
-from dataclasses import dataclass, field
 import json
-import uuid
 import logging
-from ._websocket_stream import _WebSocketManager
-from . import _helpers
+import uuid
+from dataclasses import dataclass, field
 
+from . import _helpers
+from ._websocket_stream import _WebSocketManager
 
 logger = logging.getLogger(__name__)
 
@@ -75,9 +75,7 @@ class _V5TradeWebSocketManager(_WebSocketManager):
                 "X-BAPI-TIMESTAMP": _helpers.generate_timestamp(),
             },
             "op": operation,
-            "args": [
-                request
-            ],
+            "args": [request],
         }
 
         if self.recv_window:

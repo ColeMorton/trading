@@ -2,7 +2,8 @@
 Type definitions for protective stop loss analysis.
 """
 
-from typing import Dict, List, Tuple, TypedDict, NotRequired
+from typing import Dict, List, NotRequired, Tuple, TypedDict
+
 
 class PSLConfig(TypedDict):
     """Configuration type definition for protective stop loss analysis.
@@ -22,6 +23,7 @@ class PSLConfig(TypedDict):
         DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
         REFRESH (NotRequired[bool]): Force refresh of analysis
     """
+
     SHORT_WINDOW: int
     LONG_WINDOW: int
     BASE_DIR: str
@@ -34,6 +36,7 @@ class PSLConfig(TypedDict):
     DIRECTION: NotRequired[str]
     REFRESH: NotRequired[bool]
 
+
 class MetricMatrices(TypedDict):
     """Type definition for metric matrices.
 
@@ -43,10 +46,12 @@ class MetricMatrices(TypedDict):
         sharpe_ratio (np.ndarray): Sharpe ratios for each holding period
         win_rate (np.ndarray): Win rates for each holding period
     """
+
     trades: "np.ndarray"
     returns: "np.ndarray"
     sharpe_ratio: "np.ndarray"
     win_rate: "np.ndarray"
+
 
 AnalysisResult = Tuple[MetricMatrices, "np.ndarray"]
 HoldingPeriodResult = List[Tuple[int, float, int, float]]

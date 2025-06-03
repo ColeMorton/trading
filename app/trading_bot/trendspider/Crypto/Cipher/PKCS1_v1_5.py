@@ -20,11 +20,12 @@
 # SOFTWARE.
 # ===================================================================
 
-__all__ = ['new', 'PKCS115_Cipher']
+__all__ = ["new", "PKCS115_Cipher"]
 
 from Crypto import Random
 from Crypto.Util.number import bytes_to_long, long_to_bytes
-from Crypto.Util.py3compat import bord, is_bytes, _copy_bytes
+from Crypto.Util.py3compat import _copy_bytes, bord, is_bytes
+
 from ._pkcs1_oaep_decode import pkcs1_decode
 
 
@@ -90,7 +91,7 @@ class PKCS115_Cipher:
             ps.append(new_byte)
         ps = b"".join(ps)
         # Step 2b
-        em = b'\x00\x02' + ps + b'\x00' + _copy_bytes(None, None, message)
+        em = b"\x00\x02" + ps + b"\x00" + _copy_bytes(None, None, message)
         # Step 3a (OS2IP)
         em_int = bytes_to_long(em)
         # Step 3b (RSAEP)
@@ -157,7 +158,7 @@ class PKCS115_Cipher:
         # Step 3 (not constant time when the sentinel is not a byte string)
         output = bytes(bytearray(k))
         if not is_bytes(sentinel) or len(sentinel) > k:
-            size = pkcs1_decode(em, b'', expected_pt_len, output)
+            size = pkcs1_decode(em, b"", expected_pt_len, output)
             if size < 0:
                 return sentinel
             else:

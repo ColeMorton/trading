@@ -4,11 +4,12 @@ GraphQL Scalar Types
 This module defines custom scalar types for the GraphQL schema.
 """
 
-import strawberry
+import json
 from datetime import datetime
 from decimal import Decimal as PyDecimal
-from typing import Any, Dict, Union, List
-import json
+from typing import Any, Dict, List, Union
+
+import strawberry
 
 
 @strawberry.scalar(
@@ -17,6 +18,7 @@ import json
 )
 class DateTime:
     """DateTime scalar type that serializes to ISO format."""
+
     pass
 
 
@@ -26,13 +28,23 @@ class DateTime:
 )
 class Decimal:
     """Decimal scalar type for precise numeric values."""
+
     pass
 
 
 @strawberry.scalar(
-    serialize=lambda v: v if isinstance(v, (dict, list)) else json.dumps(v) if v is not None else None,
-    parse_value=lambda v: v if isinstance(v, (dict, list)) else json.loads(v) if isinstance(v, str) else v,
+    serialize=lambda v: v
+    if isinstance(v, (dict, list))
+    else json.dumps(v)
+    if v is not None
+    else None,
+    parse_value=lambda v: v
+    if isinstance(v, (dict, list))
+    else json.loads(v)
+    if isinstance(v, str)
+    else v,
 )
 class JSON:
     """JSON scalar type for storing arbitrary JSON data."""
+
     pass

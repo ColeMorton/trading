@@ -1,8 +1,11 @@
+from typing import Callable, Optional, Tuple
+
 import polars as pl
-from typing import Optional, Tuple, Callable
-from app.tools.get_data import get_data
-from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
+
 from app.tools.backtest_strategy import backtest_strategy
+from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
+from app.tools.get_data import get_data
+
 
 def process_ma_portfolios(
     ticker: str,
@@ -11,8 +14,16 @@ def process_ma_portfolios(
     ema_fast: Optional[int],
     ema_slow: Optional[int],
     config: dict,
-    log: Callable
-) -> Optional[Tuple[Optional[pl.DataFrame], Optional[pl.DataFrame], dict, Optional[pl.DataFrame], Optional[pl.DataFrame]]]:
+    log: Callable,
+) -> Optional[
+    Tuple[
+        Optional[pl.DataFrame],
+        Optional[pl.DataFrame],
+        dict,
+        Optional[pl.DataFrame],
+        Optional[pl.DataFrame],
+    ]
+]:
     """
     Process SMA and/or EMA portfolios for a given ticker.
 
@@ -31,24 +42,24 @@ def process_ma_portfolios(
         Returns None if processing fails entirely
     """
     current_ticker = ticker  # Store ticker for error handling
-    
+
     try:
         # Update config with ticker and strategy settings while preserving USE_HOURLY
         strategy_config = config.copy()
         strategy_config["TICKER"] = current_ticker
         strategy_config["SHORT"] = False  # Long-only strategy
-        
+
         # Get data - now passing the log parameter
         data = get_data(current_ticker, strategy_config, log)
         if data is None or len(data) == 0:
             log(f"No data available for {current_ticker}", "error")
             return None
-            
+
         sma_portfolio = None
         ema_portfolio = None
         sma_data = None
         ema_data = None
-        
+
         # Process SMA if both windows provided
         if sma_fast is not None and sma_slow is not None:
             strategy_config["USE_SMA"] = True
@@ -57,15 +68,17 @@ def process_ma_portfolios(
                 sma_fast,
                 sma_slow,
                 strategy_config,
-                log  # Pass the log parameter here
+                log,  # Pass the log parameter here
             )
             if sma_data is not None:
                 sma_portfolio = backtest_strategy(sma_data, strategy_config, log)
                 if sma_portfolio is None:
-                    log(f"Failed to backtest SMA strategy for {current_ticker}", "error")
+                    log(
+                        f"Failed to backtest SMA strategy for {current_ticker}", "error"
+                    )
             else:
                 log(f"Failed to calculate SMA signals for {current_ticker}", "error")
-        
+
         # Process EMA if both windows provided
         if ema_fast is not None and ema_slow is not None:
             strategy_config["USE_SMA"] = False
@@ -74,22 +87,24 @@ def process_ma_portfolios(
                 ema_fast,
                 ema_slow,
                 strategy_config,
-                log  # Pass the log parameter here
+                log,  # Pass the log parameter here
             )
             if ema_data is not None:
                 ema_portfolio = backtest_strategy(ema_data, strategy_config, log)
                 if ema_portfolio is None:
-                    log(f"Failed to backtest EMA strategy for {current_ticker}", "error")
+                    log(
+                        f"Failed to backtest EMA strategy for {current_ticker}", "error"
+                    )
             else:
                 log(f"Failed to calculate EMA signals for {current_ticker}", "error")
-        
+
         # Return results if at least one strategy was processed
         if sma_portfolio is not None or ema_portfolio is not None:
             return sma_portfolio, ema_portfolio, strategy_config, sma_data, ema_data
         else:
             log(f"No valid strategies processed for {current_ticker}", "error")
             return None
-        
+
     except Exception as e:
         error_msg = f"Failed to process {current_ticker}: {str(e)}"
         log(error_msg, "error")

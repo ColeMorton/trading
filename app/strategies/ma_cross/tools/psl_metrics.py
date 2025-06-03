@@ -5,11 +5,14 @@ This module handles the calculation and organization of performance metrics
 for protective stop loss analysis.
 """
 
+from typing import Any, Callable, Dict
+
 import numpy as np
 import vectorbt as vbt
-from typing import Dict, Any, Callable
+
 from app.strategies.ma_cross.tools.psl_types import MetricMatrices
 from app.tools.stats_converter import convert_stats
+
 
 def initialize_metric_matrices(num_periods: int) -> MetricMatrices:
     """
@@ -22,16 +25,15 @@ def initialize_metric_matrices(num_periods: int) -> MetricMatrices:
         MetricMatrices: Dictionary containing initialized metric arrays
     """
     return {
-        'trades': np.zeros(num_periods),
-        'returns': np.zeros(num_periods),
-        'sharpe_ratio': np.zeros(num_periods),
-        'win_rate': np.zeros(num_periods)
+        "trades": np.zeros(num_periods),
+        "returns": np.zeros(num_periods),
+        "sharpe_ratio": np.zeros(num_periods),
+        "win_rate": np.zeros(num_periods),
     }
 
+
 def calculate_portfolio_metrics(
-    portfolio: vbt.Portfolio,
-    metrics: MetricMatrices,
-    index: int
+    portfolio: vbt.Portfolio, metrics: MetricMatrices, index: int
 ) -> None:
     """
     Calculate and store portfolio metrics for a given holding period.
@@ -41,16 +43,17 @@ def calculate_portfolio_metrics(
         metrics (MetricMatrices): Dictionary of metric arrays
         index (int): Index to store metrics at
     """
-    metrics['trades'][index] = portfolio.positions.count()
-    metrics['returns'][index] = portfolio.total_return()
-    metrics['sharpe_ratio'][index] = portfolio.sharpe_ratio()
-    metrics['win_rate'][index] = portfolio.trades.win_rate()
+    metrics["trades"][index] = portfolio.positions.count()
+    metrics["returns"][index] = portfolio.total_return()
+    metrics["sharpe_ratio"][index] = portfolio.sharpe_ratio()
+    metrics["win_rate"][index] = portfolio.trades.win_rate()
+
 
 def create_portfolio_stats(
     portfolio: vbt.Portfolio,
     holding_period: int,
     config: Dict[str, Any],
-    log: Callable[[str, str], None]
+    log: Callable[[str, str], None],
 ) -> Dict:
     """
     Create portfolio statistics dictionary with holding period information.
@@ -69,6 +72,7 @@ def create_portfolio_stats(
     converted_stats["Holding Period"] = holding_period
     return converted_stats
 
+
 def create_filename(config: Dict) -> str:
     """
     Create standardized filename for exporting results.
@@ -82,16 +86,16 @@ def create_filename(config: Dict) -> str:
     ticker_prefix = config.get("TICKER", "")
     if isinstance(ticker_prefix, list):
         ticker_prefix = ticker_prefix[0] if ticker_prefix else ""
-    
+
     rsi_suffix = (
-        f"_RSI_{config['RSI_WINDOW']}_{config['RSI_THRESHOLD']}" 
-        if config.get('USE_RSI', False) else ""
+        f"_RSI_{config['RSI_WINDOW']}_{config['RSI_THRESHOLD']}"
+        if config.get("USE_RSI", False)
+        else ""
     )
     stop_loss_suffix = (
-        f"_SL_{config['STOP_LOSS']}" 
-        if config.get('STOP_LOSS') is not None else ""
+        f"_SL_{config['STOP_LOSS']}" if config.get("STOP_LOSS") is not None else ""
     )
-    
+
     return (
         f"{ticker_prefix}_D_"
         f"{'SMA' if config.get('USE_SMA', False) else 'EMA'}_"

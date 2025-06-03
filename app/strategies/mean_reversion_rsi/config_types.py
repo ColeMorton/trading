@@ -5,7 +5,8 @@ This module provides centralized TypedDict definitions for configuration
 across the mean reversion strategy modules.
 """
 
-from typing import TypedDict, NotRequired, Union, List
+from typing import List, NotRequired, TypedDict, Union
+
 
 class PortfolioConfig(TypedDict, total=False):
     """Configuration type definition for portfolio analysis.
@@ -33,6 +34,7 @@ class PortfolioConfig(TypedDict, total=False):
         MIN_WIN_RATE (NotRequired[float]): Minimum win rate required
         MAX_DRAWDOWN (NotRequired[float]): Maximum allowable drawdown
     """
+
     TICKER: Union[str, List[str]]
     BASE_DIR: str
     USE_CURRENT: NotRequired[bool]
@@ -48,6 +50,7 @@ class PortfolioConfig(TypedDict, total=False):
     RSI_START: NotRequired[int]
     RSI_END: NotRequired[int]
     RSI_STEP: NotRequired[int]
+
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
@@ -65,8 +68,9 @@ DEFAULT_CONFIG: PortfolioConfig = {
     "RSI_WINDOW": 14,
     "RSI_START": 50,
     "RSI_END": 80,
-    "RSI_STEP": 1
+    "RSI_STEP": 1,
 }
+
 
 def validate_config(config: dict) -> bool:
     """Validate configuration parameters.
@@ -80,31 +84,31 @@ def validate_config(config: dict) -> bool:
     Raises:
         ValueError: If configuration parameters are invalid
     """
-    if not 0.1 <= config.get('CHANGE_PCT_START', 2.00) <= 15.00:
+    if not 0.1 <= config.get("CHANGE_PCT_START", 2.00) <= 15.00:
         raise ValueError("CHANGE_PCT_START must be between 0.10 and 15.00")
-    
-    if not 0.1 <= config.get('CHANGE_PCT_END', 15.00) <= 21.01:
+
+    if not 0.1 <= config.get("CHANGE_PCT_END", 15.00) <= 21.01:
         raise ValueError("CHANGE_PCT_END must be between 0.10 and 21.01")
-    
-    if config.get('CHANGE_PCT_END', 15.00) <= config.get('CHANGE_PCT_START', 2.00):
+
+    if config.get("CHANGE_PCT_END", 15.00) <= config.get("CHANGE_PCT_START", 2.00):
         raise ValueError("CHANGE_PCT_END must be greater than CHANGE_PCT_START")
-    
-    if not 0.01 <= config.get('CHANGE_PCT_STEP', 0.01) <= 5.00:
+
+    if not 0.01 <= config.get("CHANGE_PCT_STEP", 0.01) <= 5.00:
         raise ValueError("CHANGE_PCT_STEP must be between 0.01 and 5.00")
-    
-    if not 2 <= config.get('RSI_WINDOW', 14) <= 50:
+
+    if not 2 <= config.get("RSI_WINDOW", 14) <= 50:
         raise ValueError("RSI_WINDOW must be between 2 and 50")
-        
-    if not 1 <= config.get('RSI_START', 30) <= 100:
+
+    if not 1 <= config.get("RSI_START", 30) <= 100:
         raise ValueError("RSI_START must be between 1 and 100")
-        
-    if not 1 <= config.get('RSI_END', 81) <= 100:
+
+    if not 1 <= config.get("RSI_END", 81) <= 100:
         raise ValueError("RSI_END must be between 1 and 100")
-        
-    if config.get('RSI_END', 81) <= config.get('RSI_START', 30):
+
+    if config.get("RSI_END", 81) <= config.get("RSI_START", 30):
         raise ValueError("RSI_END must be greater than RSI_START")
-        
-    if not 1 <= config.get('RSI_STEP', 1) <= 10:
+
+    if not 1 <= config.get("RSI_STEP", 1) <= 10:
         raise ValueError("RSI_STEP must be between 1 and 10")
-    
+
     return True

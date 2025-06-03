@@ -5,7 +5,8 @@ This module defines the configuration settings for the Range High Break trading 
 It includes settings for data retrieval, range length, and candle lookback parameters.
 """
 
-from typing import TypedDict, NotRequired, Tuple
+from typing import NotRequired, Tuple, TypedDict
+
 
 class Config(TypedDict):
     """
@@ -26,6 +27,7 @@ class Config(TypedDict):
         BASE_DIR (NotRequired[str]): Base directory for file operations
         SCANNER_LIST (NotRequired[str]): Name of scanner list file
     """
+
     # Required fields
     YEARS: int
     USE_HOURLY: bool
@@ -34,20 +36,21 @@ class Config(TypedDict):
     TICKER_1: str
     TICKER_2: str
     DIRECTION: str
-    
+
     # Optional fields
     USE_GBM: NotRequired[bool]
     USE_YEARS: NotRequired[bool]
     BASE_DIR: NotRequired[str]
     SCANNER_LIST: NotRequired[str]
 
+
 # General settings
 YEARS: int = 3
 USE_HOURLY: bool = False
 USE_SYNTHETIC: bool = False
-TICKER: str = 'MSTY'
-TICKER_1: str = 'SOFI'
-TICKER_2: str = 'SOFI'
+TICKER: str = "MSTY"
+TICKER_1: str = "SOFI"
+TICKER_2: str = "SOFI"
 DIRECTION: str = "Long"  # Default to Long position
 
 # Configuration dictionary

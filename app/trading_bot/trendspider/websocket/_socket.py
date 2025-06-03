@@ -3,12 +3,9 @@ import selectors
 import socket
 from typing import Union
 
-from ._exceptions import (
-    WebSocketConnectionClosedException,
-    WebSocketTimeoutException,
-)
+from ._exceptions import WebSocketConnectionClosedException, WebSocketTimeoutException
 from ._ssl_compat import SSLError, SSLWantReadError, SSLWantWriteError
-from ._utils import extract_error_code, extract_err_message
+from ._utils import extract_err_message, extract_error_code
 
 """
 _socket.py

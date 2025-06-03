@@ -1,47 +1,56 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 from scipy.spatial.distance import pdist, squareform
 
 MAX_ROWS = 9
 
+
 def calculate_strategy_correlation(df):
     # Extract the relevant columns for correlation calculation
-    strategy_params = df[['Strategy Type', 'Short Window', 'Long Window', 'Signal Window']].copy()
-    
+    strategy_params = df[
+        ["Strategy Type", "Short Window", "Long Window", "Signal Window"]
+    ].copy()
+
     # Convert Strategy Type to numeric using one-hot encoding
-    strategy_types = pd.get_dummies(strategy_params['Strategy Type'])
-    
+    strategy_types = pd.get_dummies(strategy_params["Strategy Type"])
+
     # Combine with the numeric parameters
-    features = pd.concat([strategy_types, 
-                          strategy_params[['Short Window', 'Long Window', 'Signal Window']]], axis=1)
-    
+    features = pd.concat(
+        [
+            strategy_types,
+            strategy_params[["Short Window", "Long Window", "Signal Window"]],
+        ],
+        axis=1,
+    )
+
     # Normalize the features so they are on the same scale
     normalized_features = (features - features.mean()) / features.std()
-    
+
     # Calculate pairwise distances between strategies
-    distances = pdist(normalized_features.values, metric='euclidean')
+    distances = pdist(normalized_features.values, metric="euclidean")
     dist_matrix = squareform(distances)
-    
+
     # Convert distances to similarity scores (closer to 1 = more similar)
     # Using negative exponential transformation
     similarity_matrix = np.exp(-dist_matrix / dist_matrix.max())
-    
+
     # For each strategy, calculate the average similarity to all other strategies
     avg_similarities = similarity_matrix.mean(axis=1)
-    
+
     # Convert to "uniqueness" score (1 - avg_similarity)
     # Higher score means more unique/different from others
     uniqueness_scores = 1 - avg_similarities
-    
+
     # Scale to 0-1 range for easier interpretation
     min_score = uniqueness_scores.min()
     max_score = uniqueness_scores.max()
     uniqueness_scores = (uniqueness_scores - min_score) / (max_score - min_score)
-    
+
     # Add the scores back to the original dataframe
-    df['Correlation'] = uniqueness_scores
-    
+    df["Correlation"] = uniqueness_scores
+
     return df
+
 
 # Read the CSV data
 data = """Ticker,Strategy Type,Short Window,Long Window,Signal Window,Signal Entry,Signal Exit,Total Open Trades,Total Trades,Score,Win Rate [%],Profit Factor,Expectancy per Trade,Sortino Ratio,Beats BNH [%],Avg Trade Duration,Trades Per Day,Trades per Month,Signals per Month,Expectancy per Month,Start,End,Period,Start Value,End Value,Total Return [%],Benchmark Return [%],Max Gross Exposure [%],Total Fees Paid,Max Drawdown [%],Max Drawdown Duration,Total Closed Trades,Open Trade PnL,Best Trade [%],Worst Trade [%],Avg Winning Trade [%],Avg Losing Trade [%],Avg Winning Trade Duration,Avg Losing Trade Duration,Expectancy,Sharpe Ratio,Calmar Ratio,Omega Ratio,Skew,Kurtosis,Tail Ratio,Common Sense Ratio,Value at Risk,Alpha,Beta,Daily Returns,Annual Returns,Cumulative Returns,Annualized Return,Annualized Volatility,Total Period
@@ -66,32 +75,32 @@ MSTR,SMA,6,81,0,false,false,1,67,1.457635294459317,40.909090909090914,2.21593778
 MSTR,MACD,30,35,35,false,false,1,103,1.449902294472188,45.09803921568628,1.7018355717351892,14.414190143185625,1.2146557350600826,4.215486318076198,35 days 01:38:49.411764704,0.010405129699795977,0.3195921985815603,0.636081560283688,4.606662718633349,0,6768,6769 days 00:00:00,1000.0,189580.88077471234,18858.088077471235,3615.7870862610744,100.0,5187.682784997966,93.6432498096734,2349 days 00:00:00,102,38989.73996577505,624.2504531722055,-67.99324999999999,45.96105594096231,-11.499306762130937,56 days 05:13:02.608695652,17 days 16:42:51.428571428,1466.5798118523262,0.7600670839128484,0.34904420845278034,1.2050038749542655,1.0588732541264043,40.59748484233387,1.228228068579487,0.36664647688269736,-0.04129214363712558,None,None,0.0013905601566484582,0.35042115947541147,188.58088077471197,0.21562317024236988,0.5548614584640907,9802.857142857143"""
 
 # Convert string data to a dataframe
-lines = data.strip().split('\n')
-header = lines[0].split(',')
-rows = [line.split(',') for line in lines[1:]]
+lines = data.strip().split("\n")
+header = lines[0].split(",")
+rows = [line.split(",") for line in lines[1:]]
 df = pd.DataFrame(rows, columns=header)
 
 # Convert numeric columns to appropriate types
-for col in ['Short Window', 'Long Window', 'Signal Window', 'Score']:
+for col in ["Short Window", "Long Window", "Signal Window", "Score"]:
     df[col] = pd.to_numeric(df[col])
 
 # Calculate correlation
 df = calculate_strategy_correlation(df)
 
 # Calculate Value column (Score * Correlation)
-df['Value'] = df['Score'] * df['Correlation']
+df["Value"] = df["Score"] * df["Correlation"]
 
 # Sort by Value in descending order
-df = df.sort_values(by='Value', ascending=False)
+df = df.sort_values(by="Value", ascending=False)
 
 # Ensure strategy type diversity in results
 # First, get the top strategy of each type
-strategy_types = df['Strategy Type'].unique()
+strategy_types = df["Strategy Type"].unique()
 selected_indices = []
 
 # Get the best strategy of each type
 for strategy_type in strategy_types:
-    type_df = df[df['Strategy Type'] == strategy_type]
+    type_df = df[df["Strategy Type"] == strategy_type]
     if not type_df.empty:
         # Get the index of the top strategy of this type
         top_idx = type_df.index[0]
@@ -110,5 +119,16 @@ if remaining_slots > 0:
 result = df.loc[selected_indices[:MAX_ROWS]]
 
 # Display results with selected columns
-result = result[['Ticker', 'Strategy Type', 'Short Window', 'Long Window', 'Signal Window', 'Correlation', 'Score', 'Value']]
+result = result[
+    [
+        "Ticker",
+        "Strategy Type",
+        "Short Window",
+        "Long Window",
+        "Signal Window",
+        "Correlation",
+        "Score",
+        "Value",
+    ]
+]
 print(result)

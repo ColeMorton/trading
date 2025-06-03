@@ -5,13 +5,18 @@ This module performs sensitivity analysis on slippage parameters, analyzing how 
 slippage percentages affect entry prices in trading signals.
 """
 
-import polars as pl
-import numpy as np
 from typing import List, Tuple
+
+import numpy as np
+import polars as pl
+
 from app.tools.calculate_ma_signals import calculate_ma_signals
 from app.utils import calculate_metrics
 
-def analyze_trades(data: pl.DataFrame, slippage: float, config: dict) -> List[Tuple[float, float]]:
+
+def analyze_trades(
+    data: pl.DataFrame, slippage: float, config: dict
+) -> List[Tuple[float, float]]:
     """
     Analyze trades with slippage on entries.
 
@@ -25,8 +30,8 @@ def analyze_trades(data: pl.DataFrame, slippage: float, config: dict) -> List[Tu
     """
     entries, exits = calculate_ma_signals(data, config)
     trades = []
-    
-    close_prices = data['Close'].to_list()
+
+    close_prices = data["Close"].to_list()
     position = 0
     entry_price = 0.0
     stop_loss = config.get("STOP_LOSS", None)
@@ -38,9 +43,11 @@ def analyze_trades(data: pl.DataFrame, slippage: float, config: dict) -> List[Tu
             # Apply slippage to entry price (positive slippage means worse price)
             # For long positions: higher entry price
             # For short positions: lower entry price
-            slippage_multiplier = (1 + slippage/100) if position > 0 else (1 - slippage/100)
+            slippage_multiplier = (
+                (1 + slippage / 100) if position > 0 else (1 - slippage / 100)
+            )
             entry_price = close_prices[i] * slippage_multiplier
-            
+
         # Exit logic
         elif position != 0:
             # Check stop loss first
@@ -59,7 +66,7 @@ def analyze_trades(data: pl.DataFrame, slippage: float, config: dict) -> List[Tu
                         position = 0
                         entry_price = 0.0
                         continue
-            
+
             # Regular exit signal
             if exits[i]:
                 exit_price = close_prices[i]
@@ -74,7 +81,10 @@ def analyze_trades(data: pl.DataFrame, slippage: float, config: dict) -> List[Tu
 
     return trades
 
-def run_sensitivity_analysis(data: pl.DataFrame, slippage_range: np.ndarray, config: dict) -> pl.DataFrame:
+
+def run_sensitivity_analysis(
+    data: pl.DataFrame, slippage_range: np.ndarray, config: dict
+) -> pl.DataFrame:
     """
     Run sensitivity analysis across slippage percentages.
 
@@ -87,16 +97,20 @@ def run_sensitivity_analysis(data: pl.DataFrame, slippage_range: np.ndarray, con
         pl.DataFrame: Results of sensitivity analysis with metrics for each slippage percentage
     """
     results = []
-    
+
     for slippage in slippage_range:
         trades = analyze_trades(data, slippage, config)
-        total_return, win_rate, expectancy = calculate_metrics(trades, config.get("SHORT", False))
-        
-        results.append({
-            'Slippage Percentage': slippage,  # Updated column name
-            'Total Return': total_return,
-            'Win Rate': win_rate,
-            'Expectancy': expectancy
-        })
+        total_return, win_rate, expectancy = calculate_metrics(
+            trades, config.get("SHORT", False)
+        )
+
+        results.append(
+            {
+                "Slippage Percentage": slippage,  # Updated column name
+                "Total Return": total_return,
+                "Win Rate": win_rate,
+                "Expectancy": expectancy,
+            }
+        )
 
     return pl.DataFrame(results)

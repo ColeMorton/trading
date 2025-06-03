@@ -15,54 +15,61 @@ Short:
 It includes functionality for parameter sensitivity analysis and portfolio filtering.
 """
 
+from app.mean_reversion_hammer.config_types import DEFAULT_CONFIG, PortfolioConfig
+from app.mean_reversion_hammer.tools.export_portfolios import (
+    PortfolioExportError,
+    export_portfolios,
+)
+from app.mean_reversion_hammer.tools.filter_portfolios import filter_portfolios
+from app.mean_reversion_hammer.tools.signal_processing import process_ticker_portfolios
 from app.tools.get_config import get_config
 from app.tools.setup_logging import setup_logging
-from app.mean_reversion_hammer.tools.filter_portfolios import filter_portfolios
-from app.mean_reversion_hammer.tools.export_portfolios import export_portfolios, PortfolioExportError
-from app.mean_reversion_hammer.tools.signal_processing import process_ticker_portfolios
-from app.mean_reversion_hammer.config_types import PortfolioConfig, DEFAULT_CONFIG
+
 
 def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
     """Run portfolio analysis for single or multiple tickers using the hammer strategy.
-    
+
     This function handles the main workflow of portfolio analysis:
     1. Processes each ticker (single or multiple)
     2. Performs parameter sensitivity analysis on Low-Close price differences
     3. Filters portfolios based on criteria
     4. Displays and saves results
-    
+
     Args:
         config (PortfolioConfig): Configuration dictionary containing analysis parameters
-        
+
     Returns:
         bool: True if execution successful
-        
+
     Raises:
         Exception: If portfolio analysis fails
     """
     log, log_close, _, _ = setup_logging(
-        module_name='mean_reversion_hammer',
-        log_file='1_get_portfolios.log'
+        module_name="mean_reversion_hammer", log_file="1_get_portfolios.log"
     )
-    
+
     try:
         # Initialize configuration and tickers
         config = get_config(config)
-        tickers = [config["TICKER"]] if isinstance(config["TICKER"], str) else config["TICKER"]
-        
+        tickers = (
+            [config["TICKER"]]
+            if isinstance(config["TICKER"], str)
+            else config["TICKER"]
+        )
+
         # Process each ticker
         for ticker in tickers:
             log(f"Processing ticker: {ticker}")
-            
+
             # Create a config copy with single ticker
             ticker_config = config.copy()
             ticker_config["TICKER"] = ticker
-            
+
             # Process portfolios for ticker
             portfolios_df = process_ticker_portfolios(ticker, ticker_config, log)
             if portfolios_df is None:
                 continue
-                
+
             # Export unfiltered portfolios if using current signals
             if config.get("USE_CURRENT", False):
                 try:
@@ -70,7 +77,7 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
                         portfolios=portfolios_df.to_dicts(),
                         config=ticker_config,
                         export_type="portfolios",
-                        log=log
+                        log=log,
                     )
                 except (ValueError, PortfolioExportError) as e:
                     log(f"Failed to export portfolios for {ticker}: {str(e)}", "error")
@@ -88,27 +95,31 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
                         portfolios=filtered_portfolios.to_dicts(),
                         config=ticker_config,
                         export_type="portfolios_filtered",
-                        log=log
+                        log=log,
                     )
                 except (ValueError, PortfolioExportError) as e:
-                    log(f"Failed to export filtered portfolios for {ticker}: {str(e)}", "error")
+                    log(
+                        f"Failed to export filtered portfolios for {ticker}: {str(e)}",
+                        "error",
+                    )
 
         log_close()
         return True
-            
+
     except Exception as e:
         log(f"Execution failed: {str(e)}", "error")
         log_close()
         raise
 
+
 if __name__ == "__main__":
     try:
         # Run analysis with both Long and Short directions
         config_copy = DEFAULT_CONFIG.copy()
-        
+
         # Run for both trading directions
         run({**config_copy, "DIRECTION": "Long"})  # Run Long strategy
-        run({**config_copy, "DIRECTION": "Short"}) # Run Short strategy
+        run({**config_copy, "DIRECTION": "Short"})  # Run Short strategy
     except Exception as e:
         print(f"Execution failed: {str(e)}")
         raise

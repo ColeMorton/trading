@@ -2,16 +2,18 @@
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, Union, Dict, Any
+from typing import Any, Dict, Optional, Union
+
 import pandas as pd
 import polars as pl
 
-from .common import SignalType, OrderType, PositionSide
+from .common import OrderType, PositionSide, SignalType
 
 
 @dataclass
 class PriceData:
     """Price data container."""
+
     ticker: str
     timestamp: datetime
     open: float
@@ -25,18 +27,19 @@ class PriceData:
 @dataclass
 class OHLCVData:
     """OHLCV data container with DataFrame."""
+
     ticker: str
     data: Union[pd.DataFrame, pl.DataFrame]
     interval: str
     start_date: datetime
     end_date: datetime
-    
+
     def to_pandas(self) -> pd.DataFrame:
         """Convert to pandas DataFrame."""
         if isinstance(self.data, pl.DataFrame):
             return self.data.to_pandas()
         return self.data
-    
+
     def to_polars(self) -> pl.DataFrame:
         """Convert to polars DataFrame."""
         if isinstance(self.data, pd.DataFrame):
@@ -47,6 +50,7 @@ class OHLCVData:
 @dataclass
 class Signal:
     """Trading signal."""
+
     timestamp: datetime
     ticker: str
     signal_type: SignalType
@@ -58,6 +62,7 @@ class Signal:
 @dataclass
 class Trade:
     """Trade record."""
+
     id: str
     ticker: str
     entry_time: datetime

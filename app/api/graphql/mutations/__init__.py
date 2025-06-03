@@ -4,9 +4,9 @@ GraphQL Mutation Resolvers
 This module contains all GraphQL mutation resolvers.
 """
 
+from .analysis_mutations import *
 from .portfolio_mutations import *
 from .strategy_mutations import *
-from .analysis_mutations import *
 
 __all__ = [
     "create_portfolio",

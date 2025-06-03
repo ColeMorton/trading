@@ -1,16 +1,18 @@
-import polars as pl
-import numpy as np
 import random
-from app.monte_carlo.utils import get_data, calculate_performance_metrics
 
-TICKER = 'BTC-USD'
+import numpy as np
+import polars as pl
+
+from app.monte_carlo.utils import calculate_performance_metrics, get_data
+
+TICKER = "BTC-USD"
 BASE_INITIAL_PORTFOLIO_VALUE = 10000
 
 # Read the JSON file
 data = get_data(TICKER)
 
 # Get the original trade data
-original_trades = data['permutations'][0]
+original_trades = data["permutations"][0]
 
 # Print a sample of the original trade data
 print("Sample of original trade data:")
@@ -18,7 +20,7 @@ for key, value in original_trades.items():
     print(f"{key}: {value[:5]}")
 
 print("\nSample of 'Return (%)' values:")
-print(original_trades['Return (%)'][:10])
+print(original_trades["Return (%)"][:10])
 
 # Number of Monte Carlo simulations
 num_simulations = 1000
@@ -28,19 +30,21 @@ results = []
 for i in range(num_simulations):
     # Create a new random permutation of trades with added randomness
     shuffled_trades = {k: random.sample(v, len(v)) for k, v in original_trades.items()}
-    
+
     # Add some random variation to the returns
-    shuffled_trades['Return (%)'] = [r + random.gauss(0, 0.001) for r in shuffled_trades['Return (%)']]
-    
+    shuffled_trades["Return (%)"] = [
+        r + random.gauss(0, 0.001) for r in shuffled_trades["Return (%)"]
+    ]
+
     sequence = pl.DataFrame(shuffled_trades)
-    
+
     # Randomize the initial portfolio value
     initial_value = BASE_INITIAL_PORTFOLIO_VALUE * (1 + random.gauss(0, 0.05))
-    
+
     metrics = calculate_performance_metrics(sequence, initial_value)
-    metrics['sequence_id'] = i
+    metrics["sequence_id"] = i
     results.append(metrics)
-    
+
     # Print detailed information for the first few simulations
     if i < 5:
         print(f"\nSimulation {i}:")
@@ -57,27 +61,27 @@ results_df = pl.DataFrame(results)
 
 # Calculate summary statistics
 summary_stats = {
-    'mean_cumulative_return': results_df['cumulative_return'].mean(),
-    'median_cumulative_return': results_df['cumulative_return'].median(),
-    'std_cumulative_return': results_df['cumulative_return'].std(),
-    'mean_max_drawdown': results_df['max_drawdown'].mean(),
-    'median_max_drawdown': results_df['max_drawdown'].median(),
-    'mean_sharpe_ratio': results_df['sharpe_ratio'].mean(),
-    'median_sharpe_ratio': results_df['sharpe_ratio'].median(),
-    'mean_final_portfolio_value': results_df['final_portfolio_value'].mean(),
-    'std_final_portfolio_value': results_df['final_portfolio_value'].std(),
-    'worst_case_portfolio_value': results_df['final_portfolio_value'].min(),
-    'var_5_percent': np.percentile(results_df['final_portfolio_value'].to_numpy(), 5),
-    'mean_loss_streak_probability': results_df['loss_streak_probability'].mean(),
-    'median_loss_streak_probability': results_df['loss_streak_probability'].median(),
-    'max_loss_streak_probability': results_df['loss_streak_probability'].max()
+    "mean_cumulative_return": results_df["cumulative_return"].mean(),
+    "median_cumulative_return": results_df["cumulative_return"].median(),
+    "std_cumulative_return": results_df["cumulative_return"].std(),
+    "mean_max_drawdown": results_df["max_drawdown"].mean(),
+    "median_max_drawdown": results_df["max_drawdown"].median(),
+    "mean_sharpe_ratio": results_df["sharpe_ratio"].mean(),
+    "median_sharpe_ratio": results_df["sharpe_ratio"].median(),
+    "mean_final_portfolio_value": results_df["final_portfolio_value"].mean(),
+    "std_final_portfolio_value": results_df["final_portfolio_value"].std(),
+    "worst_case_portfolio_value": results_df["final_portfolio_value"].min(),
+    "var_5_percent": np.percentile(results_df["final_portfolio_value"].to_numpy(), 5),
+    "mean_loss_streak_probability": results_df["loss_streak_probability"].mean(),
+    "median_loss_streak_probability": results_df["loss_streak_probability"].median(),
+    "max_loss_streak_probability": results_df["loss_streak_probability"].max(),
 }
 
 # Add summary statistics to the results DataFrame
 for key, value in summary_stats.items():
     results_df = results_df.with_columns(pl.lit(value).alias(key))
 
-fullpath = f'csv/monte_carlo/{TICKER}_performance.csv'
+fullpath = f"csv/monte_carlo/{TICKER}_performance.csv"
 
 # Save results to a CSV file
 results_df.write_csv(fullpath)

@@ -6,52 +6,51 @@ minimizing conversions between polars and pandas and implementing
 efficient batch processing techniques.
 """
 
-from typing import Dict, Any, List, Optional, Callable, Union, Tuple, TypeVar
+import time
+from functools import lru_cache
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
+
 import numpy as np
 import pandas as pd
 import polars as pl
-from pathlib import Path
-from functools import lru_cache
-import time
 
+from app.tools.error_handling import ErrorHandler, Result, validate_dataframe
 from app.tools.setup_logging import setup_logging
-from app.tools.error_handling import ErrorHandler, validate_dataframe, Result
-
 
 # Type variable for generic functions
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class DataProcessor:
     """Class for optimized data processing."""
-    
+
     def __init__(self, log: Optional[Callable[[str, str], None]] = None):
         """Initialize the DataProcessor class.
-        
+
         Args:
             log: Optional logging function. If not provided, a default logger will be created.
         """
         if log is None:
             # Create a default logger if none provided
-            self.log, _, _, _ = setup_logging("data_processor", Path("./logs"), "data_processor.log")
+            self.log, _, _, _ = setup_logging(
+                "data_processor", Path("./logs"), "data_processor.log"
+            )
         else:
             self.log = log
-        
+
         # Create error handler
         self.error_handler = ErrorHandler(log)
-        
+
         # Initialize cache for intermediate results
         self._cache = {}
-    
-    def ensure_polars(
-        self,
-        df: Union[pd.DataFrame, pl.DataFrame]
-    ) -> pl.DataFrame:
+
+    def ensure_polars(self, df: Union[pd.DataFrame, pl.DataFrame]) -> pl.DataFrame:
         """Ensure a DataFrame is a polars DataFrame.
-        
+
         Args:
             df: DataFrame to convert
-            
+
         Returns:
             pl.DataFrame: Polars DataFrame
         """
@@ -59,16 +58,13 @@ class DataProcessor:
             self.log("Converting pandas DataFrame to polars", "debug")
             return pl.from_pandas(df)
         return df
-    
-    def ensure_pandas(
-        self,
-        df: Union[pd.DataFrame, pl.DataFrame]
-    ) -> pd.DataFrame:
+
+    def ensure_pandas(self, df: Union[pd.DataFrame, pl.DataFrame]) -> pd.DataFrame:
         """Ensure a DataFrame is a pandas DataFrame.
-        
+
         Args:
             df: DataFrame to convert
-            
+
         Returns:
             pd.DataFrame: Pandas DataFrame
         """
@@ -76,22 +72,22 @@ class DataProcessor:
             self.log("Converting polars DataFrame to pandas", "debug")
             return df.to_pandas()
         return df
-    
+
     def process_in_native_format(
         self,
         df: Union[pd.DataFrame, pl.DataFrame],
         process_pandas: Callable[[pd.DataFrame], pd.DataFrame],
-        process_polars: Callable[[pl.DataFrame], pl.DataFrame]
+        process_polars: Callable[[pl.DataFrame], pl.DataFrame],
     ) -> Union[pd.DataFrame, pl.DataFrame]:
         """Process a DataFrame using the appropriate function for its type.
-        
+
         This avoids unnecessary conversions between pandas and polars.
-        
+
         Args:
             df: DataFrame to process
             process_pandas: Function to process pandas DataFrame
             process_polars: Function to process polars DataFrame
-            
+
         Returns:
             Processed DataFrame of the same type as input
         """
@@ -108,126 +104,127 @@ class DataProcessor:
             self.log(f"Error in process_in_native_format: {str(e)}", "error")
             # Return the original DataFrame on error
             return df
-    
+
     def batch_process(
         self,
         dfs: List[Union[pd.DataFrame, pl.DataFrame]],
-        process_func: Callable[[Union[pd.DataFrame, pl.DataFrame]], Union[pd.DataFrame, pl.DataFrame]],
+        process_func: Callable[
+            [Union[pd.DataFrame, pl.DataFrame]], Union[pd.DataFrame, pl.DataFrame]
+        ],
         batch_size: int = 10,
-        parallel: bool = False
+        parallel: bool = False,
     ) -> List[Union[pd.DataFrame, pl.DataFrame]]:
         """Process a list of DataFrames in batches.
-        
+
         Args:
             dfs: List of DataFrames to process
             process_func: Function to process each DataFrame
             batch_size: Number of DataFrames to process in each batch
             parallel: Whether to process batches in parallel
-            
+
         Returns:
             List[Union[pd.DataFrame, pl.DataFrame]]: List of processed DataFrames
         """
         try:
-            self.log(f"Batch processing {len(dfs)} DataFrames with batch size {batch_size}", "info")
-            
+            self.log(
+                f"Batch processing {len(dfs)} DataFrames with batch size {batch_size}",
+                "info",
+            )
+
             # Process in batches
             results = []
-            
+
             if parallel:
                 # Import only when needed to avoid dependency issues
                 try:
                     from concurrent.futures import ThreadPoolExecutor
-                    
+
                     # Process batches in parallel
                     with ThreadPoolExecutor() as executor:
                         # Submit batches
                         futures = []
                         for i in range(0, len(dfs), batch_size):
-                            batch = dfs[i:i+batch_size]
-                            futures.append(executor.submit(self._process_batch, batch, process_func))
-                        
+                            batch = dfs[i : i + batch_size]
+                            futures.append(
+                                executor.submit(
+                                    self._process_batch, batch, process_func
+                                )
+                            )
+
                         # Collect results
                         for future in futures:
                             results.extend(future.result())
                 except ImportError:
-                    self.log("ThreadPoolExecutor not available, falling back to sequential processing", "warning")
+                    self.log(
+                        "ThreadPoolExecutor not available, falling back to sequential processing",
+                        "warning",
+                    )
                     # Fall back to sequential processing
                     for i in range(0, len(dfs), batch_size):
-                        batch = dfs[i:i+batch_size]
+                        batch = dfs[i : i + batch_size]
                         results.extend(self._process_batch(batch, process_func))
             else:
                 # Process batches sequentially
                 for i in range(0, len(dfs), batch_size):
-                    batch = dfs[i:i+batch_size]
+                    batch = dfs[i : i + batch_size]
                     results.extend(self._process_batch(batch, process_func))
-            
+
             return results
         except Exception as e:
             self.log(f"Error in batch_process: {str(e)}", "error")
             # Return the original DataFrames on error
             return dfs
-    
+
     def _process_batch(
         self,
         batch: List[Union[pd.DataFrame, pl.DataFrame]],
-        process_func: Callable[[Union[pd.DataFrame, pl.DataFrame]], Union[pd.DataFrame, pl.DataFrame]]
+        process_func: Callable[
+            [Union[pd.DataFrame, pl.DataFrame]], Union[pd.DataFrame, pl.DataFrame]
+        ],
     ) -> List[Union[pd.DataFrame, pl.DataFrame]]:
         """Process a batch of DataFrames.
-        
+
         Args:
             batch: List of DataFrames to process
             process_func: Function to process each DataFrame
-            
+
         Returns:
             List[Union[pd.DataFrame, pl.DataFrame]]: List of processed DataFrames
         """
         return [process_func(df) for df in batch]
-    
+
     @lru_cache(maxsize=128)
-    def cached_calculation(
-        self,
-        func: Callable[..., T],
-        *args,
-        **kwargs
-    ) -> T:
+    def cached_calculation(self, func: Callable[..., T], *args, **kwargs) -> T:
         """Cache the result of a calculation function.
-        
+
         Args:
             func: Function to cache
             *args: Positional arguments for the function
             **kwargs: Keyword arguments for the function
-            
+
         Returns:
             T: Result of the function
         """
         self.log(f"Cached calculation: {func.__name__}", "debug")
         return func(*args, **kwargs)
-    
-    def cache_intermediate_result(
-        self,
-        key: str,
-        result: Any
-    ) -> None:
+
+    def cache_intermediate_result(self, key: str, result: Any) -> None:
         """Cache an intermediate result for reuse.
-        
+
         Args:
             key: Cache key
             result: Result to cache
         """
         self.log(f"Caching intermediate result with key: {key}", "debug")
         self._cache[key] = result
-    
-    def get_cached_result(
-        self,
-        key: str,
-        default: Optional[T] = None
-    ) -> Optional[T]:
+
+    def get_cached_result(self, key: str, default: Optional[T] = None) -> Optional[T]:
         """Get a cached intermediate result.
-        
+
         Args:
             key: Cache key
             default: Default value to return if key not found
-            
+
         Returns:
             Optional[T]: Cached result or default
         """
@@ -235,25 +232,25 @@ class DataProcessor:
             self.log(f"Using cached result for key: {key}", "debug")
             return self._cache[key]
         return default
-    
+
     def clear_cache(self) -> None:
         """Clear the cache of intermediate results."""
         self.log("Clearing cache", "debug")
         self._cache.clear()
-    
+
     def optimize_dataframe(
         self,
         df: Union[pd.DataFrame, pl.DataFrame],
         categorical_threshold: int = 50,
-        date_columns: Optional[List[str]] = None
+        date_columns: Optional[List[str]] = None,
     ) -> Union[pd.DataFrame, pl.DataFrame]:
         """Optimize a DataFrame for memory usage.
-        
+
         Args:
             df: DataFrame to optimize
             categorical_threshold: Maximum number of unique values for categorical conversion
             date_columns: List of column names to convert to datetime
-            
+
         Returns:
             Union[pd.DataFrame, pl.DataFrame]: Optimized DataFrame
         """
@@ -261,45 +258,49 @@ class DataProcessor:
             # Process based on DataFrame type
             return self.process_in_native_format(
                 df,
-                lambda pandas_df: self._optimize_pandas_dataframe(pandas_df, categorical_threshold, date_columns),
-                lambda polars_df: self._optimize_polars_dataframe(polars_df, categorical_threshold, date_columns)
+                lambda pandas_df: self._optimize_pandas_dataframe(
+                    pandas_df, categorical_threshold, date_columns
+                ),
+                lambda polars_df: self._optimize_polars_dataframe(
+                    polars_df, categorical_threshold, date_columns
+                ),
             )
         except Exception as e:
             self.log(f"Error optimizing DataFrame: {str(e)}", "error")
             # Return the original DataFrame on error
             return df
-    
+
     def _optimize_pandas_dataframe(
         self,
         df: pd.DataFrame,
         categorical_threshold: int = 50,
-        date_columns: Optional[List[str]] = None
+        date_columns: Optional[List[str]] = None,
     ) -> pd.DataFrame:
         """Optimize a pandas DataFrame for memory usage.
-        
+
         Args:
             df: Pandas DataFrame to optimize
             categorical_threshold: Maximum number of unique values for categorical conversion
             date_columns: List of column names to convert to datetime
-            
+
         Returns:
             pd.DataFrame: Optimized pandas DataFrame
         """
         # Create a copy to avoid modifying the original
         result = df.copy()
-        
+
         # Convert date columns
         if date_columns:
             for col in date_columns:
                 if col in result.columns:
                     result[col] = pd.to_datetime(result[col])
-        
+
         # Optimize numeric columns
-        for col in result.select_dtypes(include=['int']).columns:
+        for col in result.select_dtypes(include=["int"]).columns:
             # Get column min and max
             col_min = result[col].min()
             col_max = result[col].max()
-            
+
             # Convert to smallest possible integer type
             if col_min >= 0:
                 if col_max < 256:
@@ -315,56 +316,56 @@ class DataProcessor:
                     result[col] = result[col].astype(np.int16)
                 elif col_min > -2147483648 and col_max < 2147483648:
                     result[col] = result[col].astype(np.int32)
-        
+
         # Optimize float columns
-        for col in result.select_dtypes(include=['float']).columns:
+        for col in result.select_dtypes(include=["float"]).columns:
             result[col] = result[col].astype(np.float32)
-        
+
         # Convert string columns to categorical if they have few unique values
-        for col in result.select_dtypes(include=['object']).columns:
+        for col in result.select_dtypes(include=["object"]).columns:
             num_unique = result[col].nunique()
             if num_unique < categorical_threshold:
-                result[col] = result[col].astype('category')
-        
+                result[col] = result[col].astype("category")
+
         return result
-    
+
     def _optimize_polars_dataframe(
         self,
         df: pl.DataFrame,
         categorical_threshold: int = 50,
-        date_columns: Optional[List[str]] = None
+        date_columns: Optional[List[str]] = None,
     ) -> pl.DataFrame:
         """Optimize a polars DataFrame for memory usage.
-        
+
         Args:
             df: Polars DataFrame to optimize
             categorical_threshold: Maximum number of unique values for categorical conversion
             date_columns: List of column names to convert to datetime
-            
+
         Returns:
             pl.DataFrame: Optimized polars DataFrame
         """
         # Create expressions for optimizing columns
         expressions = []
-        
+
         # Process each column
         for col in df.columns:
             col_expr = pl.col(col)
-            
+
             # Convert date columns
             if date_columns and col in date_columns:
                 expressions.append(col_expr.cast(pl.Datetime))
                 continue
-            
+
             # Get column data type
             dtype = df[col].dtype
-            
+
             # Optimize numeric columns
             if dtype in [pl.Int64, pl.Int32, pl.Int16, pl.Int8]:
                 # Get column min and max
                 col_min = df[col].min()
                 col_max = df[col].max()
-                
+
                 # Convert to smallest possible integer type
                 if col_min >= 0:
                     if col_max < 256:
@@ -384,11 +385,11 @@ class DataProcessor:
                         expressions.append(col_expr.cast(pl.Int32))
                     else:
                         expressions.append(col_expr)
-            
+
             # Optimize float columns
             elif dtype in [pl.Float64, pl.Float32]:
                 expressions.append(col_expr.cast(pl.Float32))
-            
+
             # Convert string columns to categorical if they have few unique values
             elif dtype == pl.Utf8:
                 num_unique = df[col].n_unique()
@@ -396,29 +397,29 @@ class DataProcessor:
                     expressions.append(col_expr.cast(pl.Categorical))
                 else:
                     expressions.append(col_expr)
-            
+
             # Keep other columns as is
             else:
                 expressions.append(col_expr)
-        
+
         # Apply all optimizations
         return df.select(expressions)
-    
+
     def efficient_join(
         self,
         left: Union[pd.DataFrame, pl.DataFrame],
         right: Union[pd.DataFrame, pl.DataFrame],
         on: Union[str, List[str]],
-        how: str = "inner"
+        how: str = "inner",
     ) -> Union[pd.DataFrame, pl.DataFrame]:
         """Efficiently join two DataFrames.
-        
+
         Args:
             left: Left DataFrame
             right: Right DataFrame
             on: Column(s) to join on
             how: Join type ('inner', 'left', 'right', 'outer')
-            
+
         Returns:
             Union[pd.DataFrame, pl.DataFrame]: Joined DataFrame
         """
@@ -446,33 +447,31 @@ class DataProcessor:
             self.log(f"Error in efficient_join: {str(e)}", "error")
             # Return the left DataFrame on error
             return left
-    
+
     def extract_signals_and_returns(
         self,
         data: Union[pd.DataFrame, pl.DataFrame],
         signal_column: str = "Signal",
         return_column: str = "Return",
-        date_column: str = "Date"
+        date_column: str = "Date",
     ) -> Tuple[np.ndarray, np.ndarray]:
         """Efficiently extract signals and returns from a DataFrame.
-        
+
         Args:
             data: DataFrame containing signals and returns
             signal_column: Name of the signal column
             return_column: Name of the return column
             date_column: Name of the date column
-            
+
         Returns:
             Tuple[np.ndarray, np.ndarray]: Tuple of (signals, returns) as numpy arrays
         """
         try:
             # Validate DataFrame
             self.error_handler.validate_dataframe(
-                data,
-                [signal_column, return_column],
-                "Data for signal extraction"
+                data, [signal_column, return_column], "Data for signal extraction"
             )
-            
+
             # Extract based on DataFrame type
             if isinstance(data, pd.DataFrame):
                 signals = data[signal_column].to_numpy()
@@ -480,30 +479,27 @@ class DataProcessor:
             else:  # polars DataFrame
                 signals = data[signal_column].to_numpy()
                 returns = data[return_column].to_numpy()
-            
+
             # Validate arrays
             self.error_handler.validate_numeric_array(signals, "Signals array")
             self.error_handler.validate_numeric_array(returns, "Returns array")
-            
+
             return signals, returns
         except Exception as e:
             self.log(f"Error extracting signals and returns: {str(e)}", "error")
             # Return empty arrays on error
             return np.array([]), np.array([])
-    
+
     def time_operation(
-        self,
-        operation: Callable[..., T],
-        *args,
-        **kwargs
+        self, operation: Callable[..., T], *args, **kwargs
     ) -> Tuple[T, float]:
         """Time the execution of an operation.
-        
+
         Args:
             operation: Function to time
             *args: Positional arguments for the function
             **kwargs: Keyword arguments for the function
-            
+
         Returns:
             Tuple[T, float]: Tuple of (result, execution_time_seconds)
         """
@@ -511,24 +507,26 @@ class DataProcessor:
         result = operation(*args, **kwargs)
         end_time = time.time()
         execution_time = end_time - start_time
-        
-        self.log(f"Operation {operation.__name__} took {execution_time:.4f} seconds", "info")
-        
+
+        self.log(
+            f"Operation {operation.__name__} took {execution_time:.4f} seconds", "info"
+        )
+
         return result, execution_time
 
 
 # Convenience functions for backward compatibility
 
+
 def ensure_polars(
-    df: Union[pd.DataFrame, pl.DataFrame],
-    log: Optional[Callable] = None
+    df: Union[pd.DataFrame, pl.DataFrame], log: Optional[Callable] = None
 ) -> pl.DataFrame:
     """Ensure a DataFrame is a polars DataFrame.
-    
+
     Args:
         df: DataFrame to convert
         log: Optional logging function
-        
+
     Returns:
         pl.DataFrame: Polars DataFrame
     """
@@ -537,15 +535,14 @@ def ensure_polars(
 
 
 def ensure_pandas(
-    df: Union[pd.DataFrame, pl.DataFrame],
-    log: Optional[Callable] = None
+    df: Union[pd.DataFrame, pl.DataFrame], log: Optional[Callable] = None
 ) -> pd.DataFrame:
     """Ensure a DataFrame is a pandas DataFrame.
-    
+
     Args:
         df: DataFrame to convert
         log: Optional logging function
-        
+
     Returns:
         pd.DataFrame: Pandas DataFrame
     """
@@ -554,15 +551,14 @@ def ensure_pandas(
 
 
 def optimize_dataframe(
-    df: Union[pd.DataFrame, pl.DataFrame],
-    log: Optional[Callable] = None
+    df: Union[pd.DataFrame, pl.DataFrame], log: Optional[Callable] = None
 ) -> Union[pd.DataFrame, pl.DataFrame]:
     """Optimize a DataFrame for memory usage.
-    
+
     Args:
         df: DataFrame to optimize
         log: Optional logging function
-        
+
     Returns:
         Union[pd.DataFrame, pl.DataFrame]: Optimized DataFrame
     """
@@ -571,18 +567,14 @@ def optimize_dataframe(
 
 
 @lru_cache(maxsize=128)
-def cached_calculation(
-    func: Callable[..., T],
-    *args,
-    **kwargs
-) -> T:
+def cached_calculation(func: Callable[..., T], *args, **kwargs) -> T:
     """Cache the result of a calculation function.
-    
+
     Args:
         func: Function to cache
         *args: Positional arguments for the function
         **kwargs: Keyword arguments for the function
-        
+
     Returns:
         T: Result of the function
     """

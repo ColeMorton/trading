@@ -3,7 +3,9 @@
 import os
 from datetime import datetime
 from typing import Set
+
 import polars as pl
+
 
 def is_file_from_today(filepath: str, check_trading_day: bool = False) -> bool:
     """
@@ -18,22 +20,24 @@ def is_file_from_today(filepath: str, check_trading_day: bool = False) -> bool:
     """
     if not os.path.exists(filepath):
         return False
-    
+
     file_time = datetime.fromtimestamp(os.path.getctime(filepath))
     current_time = datetime.now()
-    
+
     # First check if file is from today
-    is_today = (file_time.year == current_time.year and
-                file_time.month == current_time.month and
-                file_time.day == current_time.day)
-    
+    is_today = (
+        file_time.year == current_time.year
+        and file_time.month == current_time.month
+        and file_time.day == current_time.day
+    )
+
     if is_today or not check_trading_day:
         return is_today
-        
+
     # If not today and check_trading_day is True, check if file is from last trading day
     # Get the directory containing the file
     file_dir = os.path.dirname(filepath)
-    
+
     # Look for any files in parent directories created today
     # If none found, it might be a trading holiday
     today_files_exist = False
@@ -44,21 +48,24 @@ def is_file_from_today(filepath: str, check_trading_day: bool = False) -> bool:
         for entry in os.scandir(current_dir):
             if entry.is_file():
                 entry_time = datetime.fromtimestamp(os.path.getctime(entry.path))
-                if (entry_time.year == current_time.year and
-                    entry_time.month == current_time.month and
-                    entry_time.day == current_time.day):
+                if (
+                    entry_time.year == current_time.year
+                    and entry_time.month == current_time.month
+                    and entry_time.day == current_time.day
+                ):
                     today_files_exist = True
                     break
         if today_files_exist:
             break
         current_dir = os.path.dirname(current_dir)
-    
+
     # If no files found from today, check if file is from yesterday or day before
     if not today_files_exist:
         days_diff = (current_time.date() - file_time.date()).days
         return days_diff <= 2  # Accept files from yesterday or day before
-        
+
     return False
+
 
 def is_file_from_this_hour(filepath: str) -> bool:
     """
@@ -72,14 +79,17 @@ def is_file_from_this_hour(filepath: str) -> bool:
     """
     if not os.path.exists(filepath):
         return False
-    
+
     file_time = datetime.fromtimestamp(os.path.getctime(filepath))
     current_time = datetime.now()
-    
-    return (file_time.year == current_time.year and 
-            file_time.month == current_time.month and 
-            file_time.day == current_time.day and
-            file_time.hour == current_time.hour)
+
+    return (
+        file_time.year == current_time.year
+        and file_time.month == current_time.month
+        and file_time.day == current_time.day
+        and file_time.hour == current_time.hour
+    )
+
 
 def get_current_window_combinations(filepath: str) -> Set[tuple]:
     """
@@ -97,21 +107,23 @@ def get_current_window_combinations(filepath: str) -> Set[tuple]:
 
     try:
         # Read the file content
-        with open(filepath, 'r') as f:
+        with open(filepath, "r") as f:
             lines = f.readlines()
-        
+
         if len(lines) <= 1:  # Only header or empty
             return set()
-        
+
         # Process header to find column positions
         header = lines[0].strip()
-        if 'Short Window' in header and 'Long Window' in header:
+        if "Short Window" in header and "Long Window" in header:
             # Standard CSV format
             current_signals = pl.read_csv(filepath)
-            return set(zip(
-                current_signals.get_column('Short Window').cast(pl.Int32).to_list(),
-                current_signals.get_column('Long Window').cast(pl.Int32).to_list()
-            ))
+            return set(
+                zip(
+                    current_signals.get_column("Short Window").cast(pl.Int32).to_list(),
+                    current_signals.get_column("Long Window").cast(pl.Int32).to_list(),
+                )
+            )
         else:
             # Malformed CSV - try to parse as space-separated values
             window_combs = set()
@@ -125,10 +137,11 @@ def get_current_window_combinations(filepath: str) -> Set[tuple]:
                 except (ValueError, IndexError):
                     continue
             return window_combs
-            
+
     except Exception as e:
         print(f"Error reading window combinations: {str(e)}")
         return set()
+
 
 def get_portfolio_path(config: dict) -> str:
     """Generate the portfolio file path based on configuration.
@@ -141,17 +154,17 @@ def get_portfolio_path(config: dict) -> str:
     """
     # Determine if this is for portfolios_best directory
     is_best_portfolio = config.get("USE_BEST_PORTFOLIO", False)
-    base_dir = 'portfolios_best' if is_best_portfolio else 'portfolios'
-    path_components = [f'csv/{base_dir}/']
+    base_dir = "portfolios_best" if is_best_portfolio else "portfolios"
+    path_components = [f"csv/{base_dir}/"]
 
     # Include date in path when USE_CURRENT is True
     if config.get("USE_CURRENT", False):
         today = datetime.now().strftime("%Y%m%d")
         path_components.append(today)
 
-    ma_type = 'SMA' if config.get('USE_SMA', False) else 'EMA'
-    freq_type = 'H' if config.get('USE_HOURLY', False) else 'D'
-    
+    ma_type = "SMA" if config.get("USE_SMA", False) else "EMA"
+    freq_type = "H" if config.get("USE_HOURLY", False) else "D"
+
     path_components.append(f'{config["TICKER"]}_{freq_type}_{ma_type}.csv')
-    
+
     return os.path.join(*path_components)

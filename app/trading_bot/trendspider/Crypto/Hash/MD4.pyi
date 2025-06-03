@@ -1,4 +1,4 @@
-from typing import Union, Optional
+from typing import Optional, Union
 
 Buffer = Union[bytes, bytearray, memoryview]
 
@@ -15,5 +15,6 @@ class MD4Hash(object):
     def new(self, data: Optional[Buffer] = ...) -> MD4Hash: ...
 
 def new(data: Optional[Buffer] = ...) -> MD4Hash: ...
+
 digest_size: int
 block_size: int

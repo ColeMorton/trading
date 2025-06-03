@@ -6,18 +6,21 @@ integrating signal generation, metrics calculation, and results export.
 """
 
 from typing import Callable
+
 import polars as pl
-from app.strategies.ma_cross.tools.psl_types import PSLConfig, AnalysisResult, HoldingPeriodResult
+
 from app.strategies.ma_cross.tools.psl_parameter_analysis import (
+    analyze_holding_periods,
     analyze_protective_stop_loss_parameters,
-    analyze_holding_periods
+)
+from app.strategies.ma_cross.tools.psl_types import (
+    AnalysisResult,
+    HoldingPeriodResult,
+    PSLConfig,
 )
 
-def analyze_psl(
-    data: pl.DataFrame,
-    config: PSLConfig,
-    log: Callable
-) -> AnalysisResult:
+
+def analyze_psl(data: pl.DataFrame, config: PSLConfig, log: Callable) -> AnalysisResult:
     """
     Coordinate protective stop loss analysis.
 
@@ -31,12 +34,13 @@ def analyze_psl(
     """
     return analyze_protective_stop_loss_parameters(data, config, log)
 
+
 def analyze_periods(
     data: pl.DataFrame,
     entries: pl.Series,
     exits_ema: pl.Series,
     config: PSLConfig,
-    log: Callable
+    log: Callable,
 ) -> HoldingPeriodResult:
     """
     Coordinate holding period analysis.

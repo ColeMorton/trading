@@ -5,24 +5,30 @@ This module handles the export of portfolio data to CSV files using the
 centralized export functionality.
 """
 
-from typing import List, Dict, Tuple, Callable, Optional
-import polars as pl
+from typing import Callable, Dict, List, Optional, Tuple
+
 import numpy as np
-from app.tools.export_csv import export_csv, ExportConfig
+import polars as pl
+
+from app.tools.export_csv import ExportConfig, export_csv
+from app.tools.portfolio.schema_detection import ensure_allocation_sum_100_percent
 from app.tools.portfolio.strategy_types import STRATEGY_TYPE_FIELDS
 from app.tools.portfolio.strategy_utils import get_strategy_type_for_export
-from app.tools.portfolio.schema_detection import ensure_allocation_sum_100_percent
+
 
 class PortfolioExportError(Exception):
     """Custom exception for portfolio export errors."""
+
     pass
 
+
 VALID_EXPORT_TYPES = {
-    'portfolios',
-    'portfolios_scanner',
-    'portfolios_filtered',
-    'portfolios_best'
+    "portfolios",
+    "portfolios_scanner",
+    "portfolios_filtered",
+    "portfolios_best",
 }
+
 
 def export_portfolios(
     portfolios: List[Dict],
@@ -30,7 +36,7 @@ def export_portfolios(
     export_type: str,
     csv_filename: Optional[str] = None,
     log: Optional[Callable] = None,
-    feature_dir: str = ""  # Default to empty string for direct export to csv/portfolios/
+    feature_dir: str = "",  # Default to empty string for direct export to csv/portfolios/
 ) -> Tuple[pl.DataFrame, bool]:
     """Convert portfolio dictionaries to Polars DataFrame and export to CSV.
 
@@ -76,16 +82,16 @@ def export_portfolios(
                 log("Using pre-sorted portfolios from config", "info")
             # Remove from config to avoid confusion
             del config["_SORTED_PORTFOLIOS"]
-        
+
         # Process allocation values before converting to DataFrame
         # Use ensure_allocation_sum_100_percent imported at the top of the file
-        
+
         # Apply allocation normalization to ensure Case 3 is handled properly
         portfolios = ensure_allocation_sum_100_percent(portfolios, log)
-        
+
         # Convert portfolios to DataFrame
         df = pl.DataFrame(portfolios)
-        
+
         # Special handling for portfolios_best export type
         if export_type == "portfolios_best":
             # Ensure required columns exist
@@ -93,20 +99,22 @@ def export_portfolios(
             for col in required_columns:
                 if col not in df.columns:
                     df = df.with_columns(pl.lit(None).alias(col))
-            
+
             # Check if we need to rename SMA/EMA columns to Short/Long Window
-            if "Short Window" not in df.columns or df.get_column("Short Window").null_count() == len(df):
+            if "Short Window" not in df.columns or df.get_column(
+                "Short Window"
+            ).null_count() == len(df):
                 # Create Short Window and Long Window columns based on available data
                 expressions = []
-                
+
                 # Check if we have SMA columns
                 has_sma_fast = "SMA_FAST" in df.columns
                 has_sma_slow = "SMA_SLOW" in df.columns
-                
+
                 # Check if we have EMA columns
                 has_ema_fast = "EMA_FAST" in df.columns
                 has_ema_slow = "EMA_SLOW" in df.columns
-                
+
                 # Create Short Window expression based on available columns
                 if has_sma_fast and has_ema_fast:
                     # If both SMA_FAST and EMA_FAST exist, use conditional based on Strategy Type
@@ -129,7 +137,10 @@ def export_portfolios(
                         # Default to EMA if no strategy type information
                         expressions.append(pl.col("EMA_FAST").alias("Short Window"))
                         if log:
-                            log("No strategy type information found, defaulting to EMA for Short Window", "warning")
+                            log(
+                                "No strategy type information found, defaulting to EMA for Short Window",
+                                "warning",
+                            )
                 elif has_sma_fast:
                     # If only SMA_FAST exists
                     expressions.append(pl.col("SMA_FAST").alias("Short Window"))
@@ -139,7 +150,7 @@ def export_portfolios(
                 else:
                     # If neither exists, create empty column
                     expressions.append(pl.lit(None).alias("Short Window"))
-                
+
                 # Create Long Window expression based on available columns
                 if has_sma_slow and has_ema_slow:
                     # If both SMA_SLOW and EMA_SLOW exist, use conditional based on Strategy Type
@@ -162,7 +173,10 @@ def export_portfolios(
                         # Default to EMA if no strategy type information
                         expressions.append(pl.col("EMA_SLOW").alias("Long Window"))
                         if log:
-                            log("No strategy type information found, defaulting to EMA for Long Window", "warning")
+                            log(
+                                "No strategy type information found, defaulting to EMA for Long Window",
+                                "warning",
+                            )
                 elif has_sma_slow:
                     # If only SMA_SLOW exists
                     expressions.append(pl.col("SMA_SLOW").alias("Long Window"))
@@ -172,64 +186,75 @@ def export_portfolios(
                 else:
                     # If neither exists, create empty column
                     expressions.append(pl.lit(None).alias("Long Window"))
-                
+
                 # Apply the expressions if we have any
                 if expressions:
                     df = df.with_columns(expressions)
-            
+
             # Remove redundant columns
             redundant_columns = ["EMA_FAST", "EMA_SLOW", "SMA_FAST", "SMA_SLOW"]
             for col in redundant_columns:
                 if col in df.columns:
                     df = df.drop(col)
-            
+
             # Handle Allocation [%] and Stop Loss [%] columns first
             # Case 1: When Allocation [%] column exists but no values: maintain the column with empty values
             # Case 2: When Allocation [%] column doesn't exist: add it with empty fields
             # Case 3: When some rows have Allocation [%] values and others don't: assign equal values to empty ones
             # Case 4: Always export using the Extended Schema format
-            
+
             # Check if Allocation [%] column exists
             has_allocation_column = "Allocation [%]" in df.columns
-            
+
             # Check if Stop Loss [%] column exists
             has_stop_loss_column = "Stop Loss [%]" in df.columns
-            
+
             # Add Allocation [%] column if it doesn't exist
             if not has_allocation_column:
                 if log:
-                    log("Adding empty Allocation [%] column to ensure Extended Schema format", "info")
+                    log(
+                        "Adding empty Allocation [%] column to ensure Extended Schema format",
+                        "info",
+                    )
                 df = df.with_columns(pl.lit(None).alias("Allocation [%]"))
-            
+
             # Add Stop Loss [%] column if it doesn't exist
             if not has_stop_loss_column:
                 if log:
-                    log("Adding empty Stop Loss [%] column to ensure Extended Schema format", "info")
+                    log(
+                        "Adding empty Stop Loss [%] column to ensure Extended Schema format",
+                        "info",
+                    )
                 df = df.with_columns(pl.lit(None).alias("Stop Loss [%]"))
-            
+
             # Add Strategy Type column based on strategy type information
             if STRATEGY_TYPE_FIELDS["CSV"] not in df.columns:
                 # Create a list of rows to process
                 rows = df.to_dicts()
                 strategy_types = []
-                
+
                 # Process each row to determine strategy type
                 for row in rows:
                     strategy_type = get_strategy_type_for_export(row, log)
                     strategy_types.append(strategy_type)
-                
+
                 # Add the strategy type column
-                df = df.with_columns(pl.Series(STRATEGY_TYPE_FIELDS["CSV"], strategy_types))
-                
+                df = df.with_columns(
+                    pl.Series(STRATEGY_TYPE_FIELDS["CSV"], strategy_types)
+                )
+
                 if log:
-                    log(f"Added {STRATEGY_TYPE_FIELDS['CSV']} column with determined strategy types", "info")
-            
+                    log(
+                        f"Added {STRATEGY_TYPE_FIELDS['CSV']} column with determined strategy types",
+                        "info",
+                    )
+
             # Remove Use SMA field from export as it's now redundant
             if "Use SMA" in df.columns:
                 df = df.drop("Use SMA")
                 if log:
                     log("Removed redundant 'Use SMA' field from export", "info")
-            
+
             # Get ticker from config
             ticker = config["TICKER"]
             if isinstance(ticker, list):
@@ -238,14 +263,16 @@ def export_portfolios(
                 else:
                     # For multiple tickers, each portfolio should already have its ticker
                     if "Ticker" not in df.columns:
-                        raise PortfolioExportError("Missing Ticker column for multiple ticker export")
-            
+                        raise PortfolioExportError(
+                            "Missing Ticker column for multiple ticker export"
+                        )
+
             # Add or update Ticker column if it's a single ticker
             if isinstance(ticker, str):
                 if "Ticker" in df.columns:
                     df = df.drop("Ticker")
                 df = df.with_columns(pl.lit(ticker).alias("Ticker"))
-            
+
             # Define column order with Strategy Type, Allocation [%], and Stop Loss [%]
             ordered_columns = [
                 "Ticker",
@@ -257,28 +284,32 @@ def export_portfolios(
                 "Stop Loss [%]",  # Add Stop Loss [%] column in 7th position
                 "Signal Entry",
                 "Signal Exit",
-                'Total Open Trades',
-                "Total Trades"
+                "Total Open Trades",
+                "Total Trades",
             ]
-            
+
             # Add remaining columns in their original order
-            remaining_columns = [col for col in df.columns if col not in ordered_columns]
-            
+            remaining_columns = [
+                col for col in df.columns if col not in ordered_columns
+            ]
+
             # Create a new list with existing ordered columns and remaining columns
-            existing_ordered_columns = [col for col in ordered_columns if col in df.columns]
+            existing_ordered_columns = [
+                col for col in ordered_columns if col in df.columns
+            ]
             existing_ordered_columns.extend(remaining_columns)
-            
+
             # Select the final column order
             df = df.select(existing_ordered_columns)
-            
+
             # Allocation values have already been processed by ensure_allocation_sum_100_percent
             # Just reapply column ordering to ensure correct positions
             df = df.select(existing_ordered_columns)
-        
+
         # Use the provided feature_dir parameter for the feature1 value
         # This allows different scripts to export to different directories
         feature1 = feature_dir
-        
+
         # Ensure all return metrics are included in the export
         # List of metrics that should be included in the export
         return_metrics = [
@@ -291,15 +322,15 @@ def export_portfolios(
             "Kurtosis",
             "Tail Ratio",
             "Common Sense Ratio",
-            "Value at Risk"
+            "Value at Risk",
         ]
-        
+
         # Remove 'RSI Window' column if it exists
         if "RSI Window" in df.columns:
             df = df.drop("RSI Window")
             if log:
                 log("Removed 'RSI Window' column from export data", "info")
-                
+
         # Ensure columns have the expected data types
         # Convert integer columns
         integer_columns = ["Short Window", "Long Window", "Total Trades"]
@@ -309,8 +340,11 @@ def export_portfolios(
                     df = df.with_columns(pl.col(col).cast(pl.Int64))
                 except Exception as e:
                     if log:
-                        log(f"Failed to convert column '{col}' to Int64: {str(e)}", "warning")
-        
+                        log(
+                            f"Failed to convert column '{col}' to Int64: {str(e)}",
+                            "warning",
+                        )
+
         # Convert float columns
         float_columns = ["Win Rate [%]"]
         for col in float_columns:
@@ -319,8 +353,11 @@ def export_portfolios(
                     df = df.with_columns(pl.col(col).cast(pl.Float64))
                 except Exception as e:
                     if log:
-                        log(f"Failed to convert column '{col}' to Float64: {str(e)}", "warning")
-        
+                        log(
+                            f"Failed to convert column '{col}' to Float64: {str(e)}",
+                            "warning",
+                        )
+
         # Special handling for Allocation [%] and Stop Loss [%] columns
         special_columns = ["Allocation [%]", "Stop Loss [%]"]
         for col in special_columns:
@@ -335,27 +372,41 @@ def export_portfolios(
                         .alias(col)
                     )
                     if log:
-                        log(f"Successfully converted column '{col}' to Float64 with None values", "info")
+                        log(
+                            f"Successfully converted column '{col}' to Float64 with None values",
+                            "info",
+                        )
                 except Exception as e:
                     if log:
-                        log(f"Failed to convert column '{col}' to Float64: {str(e)}", "warning")
-                
+                        log(
+                            f"Failed to convert column '{col}' to Float64: {str(e)}",
+                            "warning",
+                        )
+
         # Log which return metrics are included in the export
         included_metrics = [metric for metric in return_metrics if metric in df.columns]
-        missing_metrics = [metric for metric in return_metrics if metric not in df.columns]
-            
+        missing_metrics = [
+            metric for metric in return_metrics if metric not in df.columns
+        ]
+
         if log and missing_metrics:
-            log(f"Missing return metrics in export: {', '.join(missing_metrics)}", "warning")
-            
+            log(
+                f"Missing return metrics in export: {', '.join(missing_metrics)}",
+                "warning",
+            )
+
         # Check if any metrics are present in the DataFrame but have null values
         null_metrics = []
         for metric in included_metrics:
             if df.get_column(metric).null_count() == len(df):
                 null_metrics.append(metric)
-                
+
         if log and null_metrics:
-            log(f"Return metrics with all null values: {', '.join(null_metrics)}", "warning")
-        
+            log(
+                f"Return metrics with all null values: {', '.join(null_metrics)}",
+                "warning",
+            )
+
         # Special case for strategies module: export directly to /csv/strategies/
         if feature_dir == "strategies":
             # Skip the export_type (feature2) to avoid creating a subdirectory
@@ -365,7 +416,7 @@ def export_portfolios(
                 config=config,
                 feature2="",  # Empty string to avoid creating a subdirectory
                 filename=csv_filename,
-                log=log
+                log=log,
             )
         else:
             # Normal case: use export_type as feature2
@@ -375,7 +426,7 @@ def export_portfolios(
                 config=config,
                 feature2=export_type,  # Use original export_type to maintain correct subdirectories
                 filename=csv_filename,
-                log=log
+                log=log,
             )
     except Exception as e:
         error_msg = f"Failed to export portfolios: {str(e)}"

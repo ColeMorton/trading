@@ -13,18 +13,15 @@ import warnings
 warnings.warn(
     "app.concurrency.tools.portfolio_loader is deprecated. "
     "Use app.tools.portfolio.loader instead.",
-    DeprecationWarning, stacklevel=2
+    DeprecationWarning,
+    stacklevel=2,
 )
 
 # Re-export the legacy functions for backward compatibility
 from app.concurrency.tools.portfolio_loader_legacy import (
+    load_portfolio,
     load_portfolio_from_csv,
     load_portfolio_from_json,
-    load_portfolio
 )
 
-__all__ = [
-    'load_portfolio_from_csv',
-    'load_portfolio_from_json',
-    'load_portfolio'
-]
+__all__ = ["load_portfolio_from_csv", "load_portfolio_from_json", "load_portfolio"]

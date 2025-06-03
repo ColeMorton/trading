@@ -30,10 +30,10 @@
 
 from binascii import unhexlify
 
-from Crypto.Util.py3compat import bord, tobytes, is_bytes
 from Crypto.Random import get_random_bytes
+from Crypto.Util.py3compat import bord, is_bytes, tobytes
 
-from . import cSHAKE128, SHA3_256
+from . import SHA3_256, cSHAKE128
 from .cSHAKE128 import _bytepad, _encode_str, _right_encode
 
 
@@ -43,9 +43,7 @@ class KMAC_Hash(object):
     Use the :func:`new` function.
     """
 
-    def __init__(self, data, key, mac_len, custom,
-                 oid_variant, cshake, rate):
-
+    def __init__(self, data, key, mac_len, custom, oid_variant, cshake, rate):
         # See https://tools.ietf.org/html/rfc8702
         self.oid = "2.16.840.1.101.3.4.2." + oid_variant
         self.digest_size = mac_len

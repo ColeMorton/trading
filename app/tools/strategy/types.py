@@ -5,12 +5,13 @@ This module provides centralized type definitions for strategy configurations
 to ensure consistency across the application.
 """
 
-from typing import TypedDict, NotRequired, Union, List, Literal, Dict
+from typing import Dict, List, Literal, NotRequired, TypedDict, Union
+
 
 class MinimumConfig(TypedDict, total=False):
     """
     Configuration type definition for minimum filtering values.
-    
+
     Optional Fields:
         TRADES (int): Minimum number of trades required
         WIN_RATE (float): Minimum required win rate for portfolio filtering
@@ -20,6 +21,7 @@ class MinimumConfig(TypedDict, total=False):
         SORTINO_RATIO (float): Minimum required Sortino ratio for portfolio filtering
         BEATS_BNH (float): Minimum required percentage by which strategy beats Buy and Hold
     """
+
     TRADES: int
     WIN_RATE: float
     EXPECTANCY_PER_TRADE: float
@@ -49,6 +51,7 @@ class HeatmapConfig(TypedDict, total=False):
         REFRESH (NotRequired[bool]): Whether to refresh existing results
         DIRECTION (NotRequired[Literal["Long", "Short"]]): Trading direction
     """
+
     TICKER: str
     WINDOWS: int
     BASE_DIR: str
@@ -95,6 +98,7 @@ class StrategyConfig(TypedDict, total=False):
         STRATEGY_TYPE (NotRequired[str]): Single strategy type
         USE_MA (NotRequired[bool]): Whether to use moving averages
     """
+
     TICKER: Union[str, List[str]]
     WINDOWS: NotRequired[int]
     DIRECTION: NotRequired[str]
@@ -121,6 +125,7 @@ class StrategyConfig(TypedDict, total=False):
     STRATEGY_TYPE: NotRequired[str]
     USE_MA: NotRequired[bool]
 
+
 # Default configuration
 DEFAULT_CONFIG: StrategyConfig = {
     "TICKER": "BTC-USD",
@@ -128,7 +133,7 @@ DEFAULT_CONFIG: StrategyConfig = {
     "USE_SCANNER": False,
     "BASE_DIR": ".",
     "REFRESH": True,
-    "STRATEGY_TYPES": [ "SMA", "EMA" ],
+    "STRATEGY_TYPES": ["SMA", "EMA"],
     "DIRECTION": "Long",
     "USE_HOURLY": False,
     "USE_YEARS": False,
@@ -137,5 +142,5 @@ DEFAULT_CONFIG: StrategyConfig = {
     "USE_CURRENT": False,
     "SORT_BY": "Score",
     "SORT_ASC": False,
-    "USE_GBM": False
+    "USE_GBM": False,
 }

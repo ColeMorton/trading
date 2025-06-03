@@ -1,28 +1,28 @@
 """Concrete implementation of monitoring interface."""
 
-import time
-from typing import Any, Dict, Optional, List
-from datetime import datetime
-from collections import defaultdict
 import statistics
+import time
+from collections import defaultdict
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from app.core.interfaces import MonitoringInterface, MetricType, ConfigurationInterface
+from app.core.interfaces import ConfigurationInterface, MetricType, MonitoringInterface
 
 
 class Metric:
     """Base metric class."""
-    
+
     def __init__(self, name: str, description: str, labels: Optional[List[str]] = None):
         self.name = name
         self.description = description
         self.labels = labels or []
         self._values = defaultdict(lambda: 0)
-    
+
     def get_value(self, labels: Optional[Dict[str, str]] = None) -> float:
         """Get metric value."""
         key = self._make_key(labels)
         return self._values[key]
-    
+
     def _make_key(self, labels: Optional[Dict[str, str]] = None) -> str:
         """Create key from labels."""
         if not labels:
@@ -32,7 +32,7 @@ class Metric:
 
 class Counter(Metric):
     """Counter metric - only increases."""
-    
+
     def increment(self, value: float = 1, labels: Optional[Dict[str, str]] = None):
         """Increment counter."""
         key = self._make_key(labels)
@@ -41,7 +41,7 @@ class Counter(Metric):
 
 class Gauge(Metric):
     """Gauge metric - can increase or decrease."""
-    
+
     def set(self, value: float, labels: Optional[Dict[str, str]] = None):
         """Set gauge value."""
         key = self._make_key(labels)
@@ -50,24 +50,24 @@ class Gauge(Metric):
 
 class Histogram(Metric):
     """Histogram metric - tracks distribution."""
-    
+
     def __init__(self, name: str, description: str, labels: Optional[List[str]] = None):
         super().__init__(name, description, labels)
         self._observations = defaultdict(list)
-    
+
     def observe(self, value: float, labels: Optional[Dict[str, str]] = None):
         """Record observation."""
         key = self._make_key(labels)
         self._observations[key].append(value)
-    
+
     def get_stats(self, labels: Optional[Dict[str, str]] = None) -> Dict[str, float]:
         """Get statistics for observations."""
         key = self._make_key(labels)
         observations = self._observations[key]
-        
+
         if not observations:
             return {"count": 0, "sum": 0, "mean": 0, "min": 0, "max": 0}
-        
+
         return {
             "count": len(observations),
             "sum": sum(observations),
@@ -75,101 +75,97 @@ class Histogram(Metric):
             "min": min(observations),
             "max": max(observations),
             "p50": statistics.median(observations),
-            "p95": statistics.quantiles(observations, n=20)[18] if len(observations) > 1 else observations[0],
-            "p99": statistics.quantiles(observations, n=100)[98] if len(observations) > 1 else observations[0],
+            "p95": statistics.quantiles(observations, n=20)[18]
+            if len(observations) > 1
+            else observations[0],
+            "p99": statistics.quantiles(observations, n=100)[98]
+            if len(observations) > 1
+            else observations[0],
         }
 
 
 class MonitoringService(MonitoringInterface):
     """Concrete implementation of monitoring service."""
-    
+
     def __init__(self, config: Optional[ConfigurationInterface] = None):
         self._config = config
         self._metrics: Dict[str, Metric] = {}
         self._request_histogram = None
         self._operation_histogram = None
         self._initialize_default_metrics()
-    
+
     def track_request(
         self,
         endpoint: str,
         method: str,
         status_code: int,
         duration: float,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Track API request metrics."""
         # Increment request counter
         self.increment_counter(
             "http_requests_total",
-            labels={"endpoint": endpoint, "method": method, "status": str(status_code)}
+            labels={"endpoint": endpoint, "method": method, "status": str(status_code)},
         )
-        
+
         # Track duration
         self.observe_histogram(
             "http_request_duration_seconds",
             duration,
-            labels={"endpoint": endpoint, "method": method}
+            labels={"endpoint": endpoint, "method": method},
         )
-    
+
     def track_operation(
         self,
         operation: str,
         duration: float,
         success: bool,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Track operation metrics."""
         # Increment operation counter
         self.increment_counter(
             "operations_total",
-            labels={"operation": operation, "status": "success" if success else "failure"}
+            labels={
+                "operation": operation,
+                "status": "success" if success else "failure",
+            },
         )
-        
+
         # Track duration
         self.observe_histogram(
-            "operation_duration_seconds",
-            duration,
-            labels={"operation": operation}
+            "operation_duration_seconds", duration, labels={"operation": operation}
         )
-    
+
     def increment_counter(
-        self,
-        name: str,
-        value: float = 1,
-        labels: Optional[Dict[str, str]] = None
+        self, name: str, value: float = 1, labels: Optional[Dict[str, str]] = None
     ) -> None:
         """Increment a counter metric."""
         metric = self._get_or_create_metric(name, MetricType.COUNTER)
         if isinstance(metric, Counter):
             metric.increment(value, labels)
-    
+
     def set_gauge(
-        self,
-        name: str,
-        value: float,
-        labels: Optional[Dict[str, str]] = None
+        self, name: str, value: float, labels: Optional[Dict[str, str]] = None
     ) -> None:
         """Set a gauge metric."""
         metric = self._get_or_create_metric(name, MetricType.GAUGE)
         if isinstance(metric, Gauge):
             metric.set(value, labels)
-    
+
     def observe_histogram(
-        self,
-        name: str,
-        value: float,
-        labels: Optional[Dict[str, str]] = None
+        self, name: str, value: float, labels: Optional[Dict[str, str]] = None
     ) -> None:
         """Observe a histogram metric."""
         metric = self._get_or_create_metric(name, MetricType.HISTOGRAM)
         if isinstance(metric, Histogram):
             metric.observe(value, labels)
-    
+
     def get_metrics(self) -> Dict[str, Any]:
         """Get all current metrics."""
         result = {}
-        
+
         for name, metric in self._metrics.items():
             if isinstance(metric, Counter) or isinstance(metric, Gauge):
                 result[name] = metric._values
@@ -178,9 +174,9 @@ class MonitoringService(MonitoringInterface):
                     key: metric.get_stats(self._parse_labels(key))
                     for key in metric._observations
                 }
-        
+
         return result
-    
+
     def health_check(self) -> Dict[str, Any]:
         """Perform health check and return status."""
         return {
@@ -189,74 +185,74 @@ class MonitoringService(MonitoringInterface):
             "metrics": {
                 "total_metrics": len(self._metrics),
                 "uptime_seconds": time.time() - self._start_time,
-            }
+            },
         }
-    
+
     def register_metric(
         self,
         name: str,
         metric_type: MetricType,
         description: str,
-        labels: Optional[List[str]] = None
+        labels: Optional[List[str]] = None,
     ) -> None:
         """Register a new metric."""
         if name in self._metrics:
             return
-        
+
         if metric_type == MetricType.COUNTER:
             self._metrics[name] = Counter(name, description, labels)
         elif metric_type == MetricType.GAUGE:
             self._metrics[name] = Gauge(name, description, labels)
         elif metric_type == MetricType.HISTOGRAM:
             self._metrics[name] = Histogram(name, description, labels)
-    
+
     def _initialize_default_metrics(self) -> None:
         """Initialize default metrics."""
         self._start_time = time.time()
-        
+
         # HTTP metrics
         self.register_metric(
             "http_requests_total",
             MetricType.COUNTER,
             "Total HTTP requests",
-            ["endpoint", "method", "status"]
+            ["endpoint", "method", "status"],
         )
         self.register_metric(
             "http_request_duration_seconds",
             MetricType.HISTOGRAM,
             "HTTP request duration in seconds",
-            ["endpoint", "method"]
+            ["endpoint", "method"],
         )
-        
+
         # Operation metrics
         self.register_metric(
             "operations_total",
             MetricType.COUNTER,
             "Total operations",
-            ["operation", "status"]
+            ["operation", "status"],
         )
         self.register_metric(
             "operation_duration_seconds",
             MetricType.HISTOGRAM,
             "Operation duration in seconds",
-            ["operation"]
+            ["operation"],
         )
-    
+
     def _get_or_create_metric(self, name: str, metric_type: MetricType) -> Metric:
         """Get or create a metric."""
         if name not in self._metrics:
             self.register_metric(name, metric_type, f"Auto-created {metric_type.value}")
         return self._metrics[name]
-    
+
     def _parse_labels(self, key: str) -> Dict[str, str]:
         """Parse label key back to dict."""
         if not key:
             return {}
-        
+
         labels = {}
         for part in key.split(":"):
             if "=" in part:
                 k, v = part.split("=", 1)
                 labels[k] = v
-        
+
         return labels

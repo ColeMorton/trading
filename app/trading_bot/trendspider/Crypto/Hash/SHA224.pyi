@@ -1,4 +1,4 @@
-from typing import Union, Optional
+from typing import Optional, Union
 
 Buffer = Union[bytes, bytearray, memoryview]
 
@@ -15,5 +15,6 @@ class SHA224Hash(object):
     def new(self, data: Optional[Buffer] = ...) -> SHA224Hash: ...
 
 def new(data: Optional[Buffer] = ...) -> SHA224Hash: ...
+
 digest_size: int
 block_size: int

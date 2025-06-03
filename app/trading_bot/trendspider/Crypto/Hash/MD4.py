@@ -43,17 +43,20 @@ This algorithm is insecure. Do not use it for new designs.
 .. _RFC1320: http://tools.ietf.org/html/rfc1320
 """
 
+from Crypto.Util._raw_api import (
+    SmartPointer,
+    VoidPointer,
+    c_size_t,
+    c_uint8_ptr,
+    create_string_buffer,
+    get_raw_buffer,
+    load_pycryptodome_raw_lib,
+)
 from Crypto.Util.py3compat import bord
 
-from Crypto.Util._raw_api import (load_pycryptodome_raw_lib,
-                                  VoidPointer, SmartPointer,
-                                  create_string_buffer,
-                                  get_raw_buffer, c_size_t,
-                                  c_uint8_ptr)
-
 _raw_md4_lib = load_pycryptodome_raw_lib(
-                        "Crypto.Hash._MD4",
-                        """
+    "Crypto.Hash._MD4",
+    """
                         int md4_init(void **shaState);
                         int md4_destroy(void *shaState);
                         int md4_update(void *hs,
@@ -62,12 +65,12 @@ _raw_md4_lib = load_pycryptodome_raw_lib(
                         int md4_digest(const void *shaState,
                                           uint8_t digest[20]);
                         int md4_copy(const void *src, void *dst);
-                        """)
+                        """,
+)
 
 
 class MD4Hash(object):
-    """Class that implements an MD4 hash
-    """
+    """Class that implements an MD4 hash"""
 
     #: The size of the resulting hash in bytes.
     digest_size = 16
@@ -80,10 +83,8 @@ class MD4Hash(object):
         state = VoidPointer()
         result = _raw_md4_lib.md4_init(state.address_of())
         if result:
-            raise ValueError("Error %d while instantiating MD4"
-                             % result)
-        self._state = SmartPointer(state.get(),
-                                   _raw_md4_lib.md4_destroy)
+            raise ValueError("Error %d while instantiating MD4" % result)
+        self._state = SmartPointer(state.get(), _raw_md4_lib.md4_destroy)
         if data:
             self.update(data)
 
@@ -104,12 +105,11 @@ class MD4Hash(object):
             The next chunk of the message being hashed.
         """
 
-        result = _raw_md4_lib.md4_update(self._state.get(),
-                                         c_uint8_ptr(data),
-                                         c_size_t(len(data)))
+        result = _raw_md4_lib.md4_update(
+            self._state.get(), c_uint8_ptr(data), c_size_t(len(data))
+        )
         if result:
-            raise ValueError("Error %d while instantiating MD4"
-                             % result)
+            raise ValueError("Error %d while instantiating MD4" % result)
 
     def digest(self):
         """Return the **binary** (non-printable) digest of the message that
@@ -123,11 +123,9 @@ class MD4Hash(object):
         """
 
         bfr = create_string_buffer(self.digest_size)
-        result = _raw_md4_lib.md4_digest(self._state.get(),
-                                         bfr)
+        result = _raw_md4_lib.md4_digest(self._state.get(), bfr)
         if result:
-            raise ValueError("Error %d while instantiating MD4"
-                             % result)
+            raise ValueError("Error %d while instantiating MD4" % result)
 
         return get_raw_buffer(bfr)
 
@@ -155,8 +153,7 @@ class MD4Hash(object):
         """
 
         clone = MD4Hash()
-        result = _raw_md4_lib.md4_copy(self._state.get(),
-                                       clone._state.get())
+        result = _raw_md4_lib.md4_copy(self._state.get(), clone._state.get())
         if result:
             raise ValueError("Error %d while copying MD4" % result)
         return clone
@@ -177,6 +174,7 @@ def new(data=None):
     :Return: A `MD4Hash` object
     """
     return MD4Hash().new(data)
+
 
 #: The size of the resulting hash in bytes.
 digest_size = MD4Hash.digest_size

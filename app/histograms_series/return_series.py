@@ -1,13 +1,14 @@
-import yfinance as yf
 import matplotlib.pyplot as plt
 import numpy as np
+import yfinance as yf
 from scipy.stats import norm, percentileofscore
 
 # Constants
-TICKER = 'BTC-USD'
+TICKER = "BTC-USD"
 USE_PORTFOLIO = False
-PORTFOLIO = {'BTC-USD': 0.5, 'MSTR': 0.5 }
+PORTFOLIO = {"BTC-USD": 0.5, "MSTR": 0.5}
 # PORTFOLIO = {'LLY': 0.25, 'BLDR': 0.25, 'MPO': 0.25, 'EOG': 0.25}
+
 
 def download_stock_data(ticker, period="max"):
     """
@@ -23,18 +24,19 @@ def download_stock_data(ticker, period="max"):
     if isinstance(ticker, dict):
         data = None
         for symbol, weight in ticker.items():
-            ticker_data = yf.download(symbol, period=period)['Close']
+            ticker_data = yf.download(symbol, period=period)["Close"]
             weighted_data = ticker_data * weight
             if data is None:
                 data = weighted_data
             else:
                 data += weighted_data
-        data = data.to_frame(name='Close')
+        data = data.to_frame(name="Close")
     else:
         data = yf.download(ticker, period=period)
 
-    data['Daily Return'] = data['Close'].pct_change()
+    data["Daily Return"] = data["Close"].pct_change()
     return data
+
 
 def filter_data_by_days(data, days):
     """
@@ -49,27 +51,28 @@ def filter_data_by_days(data, days):
     """
     return data.tail(days)
 
+
 def plot_daily_returns(data_dict, ticker):
     """
     Plots daily returns for the specified time periods with horizontal lines on the Y-axis.
-    
+
     Parameters:
     data_dict (dict): A dictionary where keys are period names and values are the corresponding filtered data.
     ticker (str): Stock ticker symbol.
     """
     fig, axs = plt.subplots(2, 2, figsize=(14, 10))
-    fig.suptitle(f'Daily Returns for {ticker}')
+    fig.suptitle(f"Daily Returns for {ticker}")
 
     # Flatten the axes array for easier iteration
     axs = axs.flatten()
 
     for i, (period, data) in enumerate(data_dict.items()):
-        returns = data['Daily Return'].dropna() * 100
+        returns = data["Daily Return"].dropna() * 100
 
         returns = returns.dropna()
 
         # Plot daily returns
-        axs[i].plot(data.index, returns, label='Daily Return')
+        axs[i].plot(data.index, returns, label="Daily Return")
 
         # Add horizontal lines: Zero, Mean, Median, Std Dev
         mean = returns.mean()
@@ -78,41 +81,91 @@ def plot_daily_returns(data_dict, ticker):
         skewness = returns.skew()
         kurtosis = returns.kurtosis()
 
-        axs[i].axhline(y=0, color='black', linestyle='-', linewidth=1, label='Zero Line')
-        axs[i].axhline(y=mean, color='green', linestyle='--', linewidth=1, alpha=1, label=f'Mean Line {mean:.2f}%')
-        axs[i].axhline(y=median, color='orange', linestyle='-.', linewidth=1, alpha=1, label=f'Median Line {median:.2f}%')
-        axs[i].axhline(y=mean + std_dev, color='blue', linestyle=':', linewidth=1, alpha=1, label=f'+1 Std Dev {mean + std_dev:.2f}%')
-        axs[i].axhline(y=mean - std_dev, color='blue', linestyle=':', linewidth=1, alpha=1, label=f'-1 Std Dev {mean - std_dev:.2f}%')
+        axs[i].axhline(
+            y=0, color="black", linestyle="-", linewidth=1, label="Zero Line"
+        )
+        axs[i].axhline(
+            y=mean,
+            color="green",
+            linestyle="--",
+            linewidth=1,
+            alpha=1,
+            label=f"Mean Line {mean:.2f}%",
+        )
+        axs[i].axhline(
+            y=median,
+            color="orange",
+            linestyle="-.",
+            linewidth=1,
+            alpha=1,
+            label=f"Median Line {median:.2f}%",
+        )
+        axs[i].axhline(
+            y=mean + std_dev,
+            color="blue",
+            linestyle=":",
+            linewidth=1,
+            alpha=1,
+            label=f"+1 Std Dev {mean + std_dev:.2f}%",
+        )
+        axs[i].axhline(
+            y=mean - std_dev,
+            color="blue",
+            linestyle=":",
+            linewidth=1,
+            alpha=1,
+            label=f"-1 Std Dev {mean - std_dev:.2f}%",
+        )
 
         # Calculate Rarity based on the sign of the current return
         current_return = returns.iloc[-1]  # Use .iloc[-1] instead of [-1]
         if current_return < 0:
             negative_returns = returns[returns < 0]
-            rarity = norm.cdf(current_return, loc=np.mean(negative_returns), scale=np.std(negative_returns))
+            rarity = norm.cdf(
+                current_return,
+                loc=np.mean(negative_returns),
+                scale=np.std(negative_returns),
+            )
         else:
             positive_returns = returns[returns > 0]
-            rarity = norm.cdf(current_return, loc=np.mean(positive_returns), scale=np.std(positive_returns))
+            rarity = norm.cdf(
+                current_return,
+                loc=np.mean(positive_returns),
+                scale=np.std(positive_returns),
+            )
         rarity_percentage = (1 - rarity) * 100  # Convert to percentage
 
         # Calculate Rarity based on the sign of the current return
         if current_return < 0:
             negative_returns = returns[returns < 0]
-            percentile = percentileofscore(negative_returns, current_return, kind='rank')
+            percentile = percentileofscore(
+                negative_returns, current_return, kind="rank"
+            )
         else:
             positive_returns = returns[returns > 0]
-            percentile = percentileofscore(positive_returns, current_return, kind='rank')
+            percentile = percentileofscore(
+                positive_returns, current_return, kind="rank"
+            )
 
-        axs[i].text(0.99, 0.99, f'Std Dev: {std_dev:.2%}\nSkewness: {skewness:.2f}\nKurtosis: {kurtosis:.2f}\nRarity: {rarity_percentage:.2f}\nPercentile: {percentile:.2f}%',
-            transform=axs[i].transAxes, verticalalignment='top', horizontalalignment='right', fontsize=8)
+        axs[i].text(
+            0.99,
+            0.99,
+            f"Std Dev: {std_dev:.2%}\nSkewness: {skewness:.2f}\nKurtosis: {kurtosis:.2f}\nRarity: {rarity_percentage:.2f}\nPercentile: {percentile:.2f}%",
+            transform=axs[i].transAxes,
+            verticalalignment="top",
+            horizontalalignment="right",
+            fontsize=8,
+        )
 
-        axs[i].set_title(f'Last {period} Days')
-        axs[i].set_xlabel('Date')
-        axs[i].set_ylabel('Daily Return')
+        axs[i].set_title(f"Last {period} Days")
+        axs[i].set_xlabel("Date")
+        axs[i].set_ylabel("Daily Return")
 
         axs[i].legend()
 
     plt.tight_layout(rect=[0, 0, 1, 0.95])
     plt.show()
+
 
 def main():
     """
@@ -127,6 +180,7 @@ def main():
 
     # Plot the daily returns for the different periods
     plot_daily_returns(data_dict, ticker if isinstance(ticker, str) else "Portfolio")
+
 
 if __name__ == "__main__":
     main()

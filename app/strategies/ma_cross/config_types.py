@@ -5,12 +5,13 @@ This module provides centralized TypedDict definitions for configuration
 across the MA cross strategy modules.
 """
 
-from typing import TypedDict, NotRequired, Union, List, Literal, Dict
+from typing import Dict, List, Literal, NotRequired, TypedDict, Union
+
 
 class MinimumConfig(TypedDict, total=False):
     """
     Configuration type definition for minimum filtering values.
-    
+
     Optional Fields:
         TRADES (int): Minimum number of trades required
         WIN_RATE (float): Minimum required win rate for portfolio filtering
@@ -20,6 +21,7 @@ class MinimumConfig(TypedDict, total=False):
         SORTINO_RATIO (float): Minimum required Sortino ratio for portfolio filtering
         BEATS_BNH (float): Minimum required percentage by which strategy beats Buy and Hold
     """
+
     TRADES: int
     WIN_RATE: float
     EXPECTANCY_PER_TRADE: float
@@ -49,6 +51,7 @@ class HeatmapConfig(TypedDict, total=False):
         REFRESH (NotRequired[bool]): Whether to refresh existing results
         DIRECTION (NotRequired[Literal["Long", "Short"]]): Trading direction
     """
+
     TICKER: str
     WINDOWS: int
     BASE_DIR: str
@@ -110,6 +113,7 @@ class Config(TypedDict, total=False):
         # Advanced Options
         USE_GBM (NotRequired[bool]): Whether to use Geometric Brownian Motion
     """
+
     # Required Fields
     TICKER: Union[str, List[str]]
     WINDOWS: int
@@ -139,16 +143,17 @@ class Config(TypedDict, total=False):
     MINIMUMS: NotRequired[Dict[str, Union[int, float]]]
     SORT_BY: NotRequired[str]
     ALLOCATION: NotRequired[float]  # Allocation percentage (0-100)
-    STOP_LOSS: NotRequired[float]   # Stop loss percentage (0-100)
+    STOP_LOSS: NotRequired[float]  # Stop loss percentage (0-100)
 
     # Advanced Options
     USE_GBM: NotRequired[bool]
 
+
 # Default configuration
 DEFAULT_CONFIG: Config = {
-    "TICKER": 'BTC-USD',
-    "TICKER_1": 'AMAT',
-    "TICKER_2": 'LRCX',
+    "TICKER": "BTC-USD",
+    "TICKER_1": "AMAT",
+    "TICKER_2": "LRCX",
     "WINDOWS": 89,
     # "WINDOWS": 120,
     # "WINDOWS": 55,

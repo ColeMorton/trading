@@ -5,15 +5,17 @@ This module simulates price movements using GBM and saves the results
 to both CSV files and visualization plots.
 """
 
-import polars as pl
-import numpy as np
+from typing import NotRequired, TypedDict
+
 import matplotlib.pyplot as plt
-from typing import TypedDict, NotRequired
-from app.tools.get_data import get_data
-from app.tools.get_config import get_config
-from app.utils import get_path, get_filename
+import numpy as np
+import polars as pl
+
 from app.tools.export_csv import export_csv
+from app.tools.get_config import get_config
+from app.tools.get_data import get_data
 from app.tools.setup_logging import setup_logging
+from app.utils import get_filename, get_path
 
 
 class GBMConfig(TypedDict):
@@ -34,6 +36,7 @@ class GBMConfig(TypedDict):
         TIME_HORIZON (float): Time horizon for simulations
         SIMULATIONS (int): Number of simulations to generate
     """
+
     YEARS: float
     USE_YEARS: bool
     PERIOD: str
@@ -64,13 +67,13 @@ def calculate_gbm_parameters(data: pl.DataFrame) -> tuple[float, float, float, f
     """
     if len(data) == 0:
         raise ValueError("Empty data provided")
-    
+
     initial_price = data["Close"][0]
     returns = data["Close"].pct_change().drop_nulls()
     drift = returns.mean() * 365  # Annualized return
     volatility = returns.std() * np.sqrt(365)  # Annualized standard deviation
     dt = 0.00273972602  # Time step (in years)
-    
+
     return initial_price, drift, volatility, dt
 
 
@@ -80,7 +83,7 @@ def generate_gbm_simulations(
     volatility: float,
     dt: float,
     n_steps: int,
-    n_sims: int
+    n_sims: int,
 ) -> np.ndarray:
     """
     Generate GBM simulations using the specified parameters.
@@ -104,14 +107,12 @@ def generate_gbm_simulations(
         simulations[:, i] = simulations[:, i - 1] * np.exp(
             (drift - 0.5 * volatility**2) * dt + volatility * np.sqrt(dt) * Z
         )
-    
+
     return simulations
 
 
 def plot_simulations(
-    simulations: np.ndarray,
-    config: GBMConfig,
-    data: pl.DataFrame
+    simulations: np.ndarray, config: GBMConfig, data: pl.DataFrame
 ) -> None:
     """
     Plot and save the GBM simulations.
@@ -123,11 +124,11 @@ def plot_simulations(
     """
     plt.figure(figsize=(10, 6))
     plt.plot(simulations.T, lw=0.5)
-    plt.title('Geometric Brownian Motion Simulated Paths')
-    plt.xlabel('Time Steps')
-    plt.ylabel('Price')
-    
-    png_path = get_path("png", "geometric_brownian_motion", config, 'simulations')
+    plt.title("Geometric Brownian Motion Simulated Paths")
+    plt.xlabel("Time Steps")
+    plt.ylabel("Price")
+
+    png_path = get_path("png", "geometric_brownian_motion", config, "simulations")
     png_filename = get_filename("png", config)
     plt.savefig(f"{png_path}/{png_filename}")
     plt.close()
@@ -138,7 +139,7 @@ def save_simulations(
     data: pl.DataFrame,
     n_steps: int,
     config: GBMConfig,
-    log: callable
+    log: callable,
 ) -> None:
     """
     Save the simulations to a CSV file.
@@ -153,16 +154,16 @@ def save_simulations(
     df = pl.DataFrame(simulations.T)
     timestamps = pl.date_range(
         start=data["Date"].max(),
-        end=data["Date"].max() + pl.duration(days=n_steps-1),
-        eager=True
+        end=data["Date"].max() + pl.duration(days=n_steps - 1),
+        eager=True,
     )
     df = df.with_columns(pl.Series("Timestamp", timestamps))
-    
+
     # Reorder columns to have Timestamp first
     columns = df.columns
     df = df.select(["Timestamp"] + [col for col in columns if col != "Timestamp"])
-    
-    export_csv(df, "geometric_brownian_motion", config, 'simulations', log=log)
+
+    export_csv(df, "geometric_brownian_motion", config, "simulations", log=log)
 
 
 def main() -> bool:
@@ -173,52 +174,46 @@ def main() -> bool:
         bool: True if execution successful, False otherwise
     """
     log, log_close, _, _ = setup_logging(
-        'geometric_brownian_motion',
-        '1_generate_gbm_simulations.log'
+        "geometric_brownian_motion", "1_generate_gbm_simulations.log"
     )
-    
+
     try:
         # Default configuration
         DEFAULT_CONFIG: GBMConfig = {
             "YEARS": 5,
             "USE_YEARS": False,
-            "PERIOD": 'max',
+            "PERIOD": "max",
             "USE_HOURLY": False,
-            "TICKER": 'MSTR',
+            "TICKER": "MSTR",
             "USE_SYNTHETIC": False,
-            "TICKER_1": 'BTC-USD',
-            "TICKER_2": 'SPY',
-            "BASE_DIR": '.',
+            "TICKER_1": "BTC-USD",
+            "TICKER_2": "SPY",
+            "BASE_DIR": ".",
             "WINDOWS": 89,
             "ANNUAL_TRADING_DAYS": 365,
             "TIME_HORIZON": 5,
-            "SIMULATIONS": 1000
+            "SIMULATIONS": 1000,
         }
-        
+
         config = get_config(DEFAULT_CONFIG)
         data = get_data(config["TICKER"], config, log)
-        
+
         initial_price, drift, volatility, dt = calculate_gbm_parameters(data)
-        n_steps = int(config['TIME_HORIZON'] / dt)
-        
+        n_steps = int(config["TIME_HORIZON"] / dt)
+
         log(f"Generating {config['SIMULATIONS']} simulations over {n_steps} steps")
-        
+
         simulations = generate_gbm_simulations(
-            initial_price,
-            drift,
-            volatility,
-            dt,
-            n_steps,
-            config['SIMULATIONS']
+            initial_price, drift, volatility, dt, n_steps, config["SIMULATIONS"]
         )
-        
+
         plot_simulations(simulations, config, data)
         save_simulations(simulations, data, n_steps, config, log)
-        
+
         log("Successfully completed GBM simulations")
         log_close()
         return True
-        
+
     except Exception as e:
         log(f"Error in GBM simulation: {str(e)}", "error")
         log_close()

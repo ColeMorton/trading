@@ -1,24 +1,27 @@
-from typing import TypedDict, List, Dict, Any, Callable
-from app.portfolio_optimization.schemas import (
-    PortfolioConfig
-)
-from app.portfolio_optimization.tools.position_sizing_types import PositionSizingConfig
-from app.portfolio_optimization.tools.position_sizing import calculate_position_sizes
-import polars as pl
-import numpy as np
+from typing import Any, Callable, Dict, List, TypedDict
+
 import matplotlib
-matplotlib.use('TkAgg')  # Set interactive backend
+import numpy as np
+import polars as pl
+
+from app.portfolio_optimization.schemas import PortfolioConfig
+from app.portfolio_optimization.tools.position_sizing import calculate_position_sizes
+from app.portfolio_optimization.tools.position_sizing_types import PositionSizingConfig
+
+matplotlib.use("TkAgg")  # Set interactive backend
+import json
+from pathlib import Path
+
 from skfolio import RiskMeasure
 from skfolio.optimization import MeanRisk, ObjectiveFunction
 from skfolio.preprocessing import prices_to_returns as sk_prices_to_returns
-from app.tools.setup_logging import setup_logging
+
 from app.portfolio_optimization.tools.portfolio_config import (
-    load_portfolio_config,
-    get_portfolio_value,
     get_portfolio_tickers,
+    get_portfolio_value,
+    load_portfolio_config,
 )
-import json
-from pathlib import Path
+from app.tools.setup_logging import setup_logging
 
 # Position sizing configuration - values not stored in portfolio JSON
 config: PositionSizingConfig = {
@@ -27,10 +30,11 @@ config: PositionSizingConfig = {
     "portfolio": "btc_mstr_d_20250403.json",
     # "portfolio": "trades_20250228.json",
     # "portfolio": "spy_qqq.json",
-    "use_ema": False,     # Whether to use EMA for price calculations
-    "ema_period": 35,     # Period for EMA if used
-    "var_confidence_levels": [0.95, 0.99]
+    "use_ema": False,  # Whether to use EMA for price calculations
+    "ema_period": 35,  # Period for EMA if used
+    "var_confidence_levels": [0.95, 0.99],
 }
+
 
 class OptimizationConfig(TypedDict):
     """Portfolio optimization configuration.
@@ -40,12 +44,15 @@ class OptimizationConfig(TypedDict):
         max_weight (float): Maximum weight allocation per asset
         risk_free_rate (float): Risk-free rate for calculations
     """
+
     min_weight: float
     max_weight: float
     risk_free_rate: float
 
-from app.tools.download_data import download_data as download_data_tool
+
 from app.tools.data_types import DataConfig
+from app.tools.download_data import download_data as download_data_tool
+
 
 def download_data(ticker: str, log: callable) -> pl.DataFrame:
     """
@@ -63,17 +70,16 @@ def download_data(ticker: str, log: callable) -> pl.DataFrame:
     """
     try:
         log(f"Downloading data for {ticker}")
-        
+
         # Define a basic DataConfig.  The period is set to max to align with the original code.
-        data_config: DataConfig = {
-            "PERIOD": "max"
-        }
-        
+        data_config: DataConfig = {"PERIOD": "max"}
+
         data = download_data_tool(ticker, data_config, log)
         return data.select(pl.col("Close").alias(ticker))
     except Exception as e:
         log(f"Error downloading {ticker}: {str(e)}", "error")
         raise
+
 
 def combine_price_data(tickers: List[str], log: callable) -> pl.DataFrame:
     """
@@ -91,8 +97,9 @@ def combine_price_data(tickers: List[str], log: callable) -> pl.DataFrame:
     for ticker in tickers:
         df = download_data(ticker, log)
         dfs.append(df)
-    
+
     return pl.concat(dfs, how="horizontal")
+
 
 def calculate_var(returns: np.ndarray, confidence_level: float = 0.95) -> float:
     """
@@ -107,11 +114,12 @@ def calculate_var(returns: np.ndarray, confidence_level: float = 0.95) -> float:
     """
     # Convert returns to percentages for more intuitive values
     returns_pct = returns * 100
-    
+
     sorted_returns = np.sort(returns_pct)
     cutoff_index = int((1 - confidence_level) * len(sorted_returns))
     var = -sorted_returns[cutoff_index]  # Convert to positive value
     return var
+
 
 def calculate_cvar(returns: np.ndarray, confidence_level: float = 0.95) -> float:
     """
@@ -126,17 +134,20 @@ def calculate_cvar(returns: np.ndarray, confidence_level: float = 0.95) -> float
     """
     # Convert returns to percentages for more intuitive values
     returns_pct = returns * 100
-    
+
     sorted_returns = np.sort(returns_pct)
     cutoff_index = int((1 - confidence_level) * len(sorted_returns))
     var = sorted_returns[cutoff_index]
-    
+
     # Calculate CVaR as the mean of returns below VaR
     cvar = -sorted_returns[sorted_returns <= var].mean()  # Convert to positive value
-    
+
     return cvar
 
-def calculate_asset_metrics(returns: pl.DataFrame, weights: Dict[str, float], log: Callable[[str, str], None]) -> List[Dict[str, float]]:
+
+def calculate_asset_metrics(
+    returns: pl.DataFrame, weights: Dict[str, float], log: Callable[[str, str], None]
+) -> List[Dict[str, float]]:
     """
     Calculate performance metrics for individual assets.
 
@@ -148,71 +159,80 @@ def calculate_asset_metrics(returns: pl.DataFrame, weights: Dict[str, float], lo
         List[Dict[str, float]]: Performance metrics by asset
     """
     metrics = []
-    
+
     for asset in returns.columns:
         asset_return = returns[asset].to_numpy()
-        
+
         # Calculate metrics
         annualized_return = asset_return.mean() * 252
-        
+
         # Calculate downside volatility for Sortino ratio
         downside_returns = asset_return[asset_return < 0]
-        downside_volatility = downside_returns.std() * np.sqrt(252) if len(downside_returns) > 0 else 0
-        sortino_ratio = annualized_return / downside_volatility if downside_volatility != 0 else 0
-        
+        downside_volatility = (
+            downside_returns.std() * np.sqrt(252) if len(downside_returns) > 0 else 0
+        )
+        sortino_ratio = (
+            annualized_return / downside_volatility if downside_volatility != 0 else 0
+        )
+
         # Calculate VaR and CVaR on raw returns
         weight = weights[asset]
         var = calculate_var(asset_return)  # Returns percentage value
         cvar = calculate_cvar(asset_return)  # Returns percentage value
-        
-        metrics.append({
-            "ticker": asset,
-            "weight": weight,
-            "annualized_return": annualized_return,
-            "downside_volatility": downside_volatility,
-            "sortino_ratio": sortino_ratio,
-            "var": var,
-            "cvar": cvar
-        })
-    
+
+        metrics.append(
+            {
+                "ticker": asset,
+                "weight": weight,
+                "annualized_return": annualized_return,
+                "downside_volatility": downside_volatility,
+                "sortino_ratio": sortino_ratio,
+                "var": var,
+                "cvar": cvar,
+            }
+        )
+
     return metrics
+
 
 def main() -> None:
     """Main function to run portfolio optimization and analysis."""
-    
+
     # Setup logging
     log, log_close, _, _ = setup_logging("portfolio", "analysis.log")
-    
+
     try:
         # Load portfolio configuration
         portfolio_config: PortfolioConfig = load_portfolio_config(config["portfolio"])
-        
+
         # Get portfolio values and tickers
         TOTAL_PORTFOLIO_VALUE = get_portfolio_value(portfolio_config)
         INITIAL_VALUE = portfolio_config["initial_value"]
         TICKERS = get_portfolio_tickers(portfolio_config)
-        
+
         # Calculate weights dynamically based on number of tickers
         equal_weight = 1.0 / len(TICKERS)
-        min_weight = equal_weight * (2/3)  # Makes max_weight twice min_weight while averaging to equal_weight
+        min_weight = equal_weight * (
+            2 / 3
+        )  # Makes max_weight twice min_weight while averaging to equal_weight
         max_weight = min_weight * 2
-        
+
         optimization_config: OptimizationConfig = {
             "min_weight": min_weight,
             "max_weight": max_weight,
-            "risk_free_rate": 0.0
+            "risk_free_rate": 0.0,
         }
-        
+
         # Get and combine data
         data = combine_price_data(TICKERS, log)
-        
+
         # Convert to pandas for skfolio compatibility
         data_pd = data.to_pandas()
-        
+
         # Calculate returns
         log("Calculating returns")
         returns = sk_prices_to_returns(data_pd)
-        
+
         # Create optimization model
         log("Creating optimization model")
         # Create optimization model that maximizes Sortino ratio
@@ -223,29 +243,31 @@ def main() -> None:
             max_weights=optimization_config["max_weight"],
             portfolio_params=dict(
                 name="Optimized Portfolio",
-                risk_free_rate=optimization_config["risk_free_rate"]
-            )
+                risk_free_rate=optimization_config["risk_free_rate"],
+            ),
         )
-        
+
         # Fit model and get weights
         log("Fitting optimization model")
         model.fit(returns)
         weights = dict(zip(TICKERS, model.weights_))
-        
+
         # Get optimized portfolio
         log("Calculating portfolio metrics")
         portfolio = model.predict(returns)
         weights = dict(zip(TICKERS, model.weights_))
-        
+
         # Calculate metrics using skfolio's Portfolio object
         annualized_return = portfolio.mean * 252  # annualize the mean return
-        downside_volatility = portfolio.semi_deviation * np.sqrt(252)  # annualize the downside volatility
+        downside_volatility = portfolio.semi_deviation * np.sqrt(
+            252
+        )  # annualize the downside volatility
         sortino_ratio = portfolio.sortino_ratio
-        
+
         # Calculate asset-specific metrics
         log("\nCalculating portfolio and asset metrics")
         asset_metrics = calculate_asset_metrics(pl.from_pandas(returns), weights, log)
-        
+
         # Calculate VaR and CVaR at 95% and 99% confidence levels
         portfolio_returns = portfolio.returns
         # 95% confidence level
@@ -272,19 +294,33 @@ def main() -> None:
             asset = metrics["ticker"]
             usd_allocation = metrics["weight"] * TOTAL_PORTFOLIO_VALUE
             # Convert percentage risk to USD based on position size
-            var_usd = (metrics["var"] / 100) * usd_allocation  # e.g. 2.5% of $1000 = $25
-            cvar_usd = (metrics["cvar"] / 100) * usd_allocation  # e.g. 3.5% of $1000 = $35
-            log(f"{asset}: {metrics['weight']:.2%} (${usd_allocation:,.2f}, VaR: ${var_usd:,.2f}, CVaR: ${cvar_usd:,.2f})")
+            var_usd = (
+                metrics["var"] / 100
+            ) * usd_allocation  # e.g. 2.5% of $1000 = $25
+            cvar_usd = (
+                metrics["cvar"] / 100
+            ) * usd_allocation  # e.g. 3.5% of $1000 = $35
+            log(
+                f"{asset}: {metrics['weight']:.2%} (${usd_allocation:,.2f}, VaR: ${var_usd:,.2f}, CVaR: ${cvar_usd:,.2f})"
+            )
 
         # Print portfolio metrics
         log("\nPortfolio Risk Metrics:")
         log(f"Annualized Return: {annualized_return:.2%}")
         log(f"Downside Volatility: {downside_volatility:.2%}")
         log(f"Sortino Ratio: {sortino_ratio:.2f}")
-        log(f"Value at Risk (VaR 95%): ${portfolio_var_95_usd:,.2f} ({portfolio_var_95_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})")
-        log(f"Conditional Value at Risk (CVaR 95%): ${portfolio_cvar_95_usd:,.2f} ({portfolio_cvar_95_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})")
-        log(f"Value at Risk (VaR 99%): ${portfolio_var_99_usd:,.2f} ({portfolio_var_99_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})")
-        log(f"Conditional Value at Risk (CVaR 99%): ${portfolio_cvar_99_usd:,.2f} ({portfolio_cvar_99_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})")
+        log(
+            f"Value at Risk (VaR 95%): ${portfolio_var_95_usd:,.2f} ({portfolio_var_95_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})"
+        )
+        log(
+            f"Conditional Value at Risk (CVaR 95%): ${portfolio_cvar_95_usd:,.2f} ({portfolio_cvar_95_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})"
+        )
+        log(
+            f"Value at Risk (VaR 99%): ${portfolio_var_99_usd:,.2f} ({portfolio_var_99_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})"
+        )
+        log(
+            f"Conditional Value at Risk (CVaR 99%): ${portfolio_cvar_99_usd:,.2f} ({portfolio_cvar_99_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})"
+        )
 
         # Print detailed asset metrics
         log("\nDetailed Asset Metrics:")
@@ -305,35 +341,38 @@ def main() -> None:
         portfolio = portfolio_config["portfolio"]
         # Merge portfolio config with base config
         merged_config = {**config, **portfolio_config}
-        
+
         # Calculate position sizes and metrics
         log("Calculating position sizes and metrics", "info")
-        results = calculate_position_sizes(portfolio_config["portfolio"], merged_config, log)
-        
-        # Calculate total leveraged value to check against target if needed
-        total_leveraged_value = sum(
-            metrics["leveraged_value"] for metrics in results
+        results = calculate_position_sizes(
+            portfolio_config["portfolio"], merged_config, log
         )
-        
+
+        # Calculate total leveraged value to check against target if needed
+        total_leveraged_value = sum(metrics["leveraged_value"] for metrics in results)
+
         # If using target value and total leveraged value exceeds target,
         # scale down initial values proportionally
-        if portfolio_config["use_target_value"] and \
-           total_leveraged_value > portfolio_config["target_value"]:
-            
+        if (
+            portfolio_config["use_target_value"]
+            and total_leveraged_value > portfolio_config["target_value"]
+        ):
             log("Scaling down initial values to meet target value", "info")
             scale_factor = portfolio_config["target_value"] / total_leveraged_value
-            
+
             # Scale down initial values while keeping leverage and allocation same
             for asset, metrics in zip(portfolio_config["portfolio"], results):
                 metrics["initial_value"] *= scale_factor
-                metrics["leveraged_value"] = metrics["initial_value"] * asset["leverage"]
+                metrics["leveraged_value"] = (
+                    metrics["initial_value"] * asset["leverage"]
+                )
                 metrics["position_size"] *= scale_factor
-        
+
         # Print results for each asset
         log("Displaying results", "info")
         total_leveraged_value = sum(metrics["leveraged_value"] for metrics in results)
         total_initial_value = sum(metrics["initial_value"] for metrics in results)
-        
+
         for asset, metrics in zip(portfolio_config["portfolio"], results):
             # Modified print_asset_details to skip risk metrics
             print(f"\nAsset: {asset['ticker']}")
@@ -342,7 +381,7 @@ def main() -> None:
             print(f"  Leveraged value: ${metrics['leveraged_value']:.2f}")
             print(f"  Position size: {metrics['position_size']:.6f}")
             print(f"  Allocation: {metrics['allocation']:.2f}%")
-        
+
         # Print portfolio totals
         print(f"\nInitial Portfolio Value: ${portfolio_config['initial_value']:.2f}")
         print(f"Total Leveraged Portfolio Value: ${total_leveraged_value:.2f}")
@@ -402,6 +441,7 @@ def main() -> None:
         log(f"An error occurred: {str(e)}", "error")
         log_close()
         raise
+
 
 if __name__ == "__main__":
     main()

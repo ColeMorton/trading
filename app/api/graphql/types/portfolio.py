@@ -4,16 +4,19 @@ GraphQL Types for Portfolio Management
 This module defines GraphQL types for portfolios and related operations.
 """
 
-import strawberry
 from typing import List, Optional
-from .scalars import DateTime, JSON
-from .enums import PortfolioType, StrategyType, TimeframeType, DirectionType, SortOrder
-from .metrics import PerformanceMetrics, PortfolioMetrics, PerformanceCriteria
+
+import strawberry
+
+from .enums import DirectionType, PortfolioType, SortOrder, StrategyType, TimeframeType
+from .metrics import PerformanceCriteria, PerformanceMetrics, PortfolioMetrics
+from .scalars import JSON, DateTime
 
 
 @strawberry.type
 class Portfolio:
     """Portfolio containing multiple strategies."""
+
     id: strawberry.ID
     name: str
     description: Optional[str] = None
@@ -26,6 +29,7 @@ class Portfolio:
 @strawberry.type
 class PortfolioStrategy:
     """Strategy allocation within a portfolio."""
+
     id: strawberry.ID
     portfolio_id: str
     strategy_config_id: str
@@ -38,6 +42,7 @@ class PortfolioStrategy:
 @strawberry.type
 class AnalysisResult:
     """Result of a strategy analysis."""
+
     ticker: str
     strategy_type: str
     short_window: int
@@ -50,6 +55,7 @@ class AnalysisResult:
 @strawberry.type
 class MACrossAnalysisResponse:
     """Response for MA Cross analysis request."""
+
     request_id: str
     status: str
     timestamp: DateTime
@@ -65,6 +71,7 @@ class MACrossAnalysisResponse:
 @strawberry.type
 class AsyncAnalysisResponse:
     """Response for asynchronous analysis requests."""
+
     execution_id: strawberry.ID
     status: str
     message: str
@@ -77,6 +84,7 @@ class AsyncAnalysisResponse:
 @strawberry.type
 class AnalysisStatus:
     """Status of an asynchronous analysis."""
+
     execution_id: strawberry.ID
     status: str
     started_at: DateTime
@@ -90,6 +98,7 @@ class AnalysisStatus:
 @strawberry.input
 class PortfolioInput:
     """Input for creating or updating a portfolio."""
+
     name: str
     description: Optional[str] = None
     type: PortfolioType = PortfolioType.STANDARD
@@ -99,6 +108,7 @@ class PortfolioInput:
 @strawberry.input
 class PortfolioFilter:
     """Filter options for portfolio queries."""
+
     type: Optional[PortfolioType] = None
     name_contains: Optional[str] = None
     created_after: Optional[DateTime] = None
@@ -108,10 +118,13 @@ class PortfolioFilter:
 @strawberry.input
 class MACrossAnalysisInput:
     """Input for MA Cross strategy analysis."""
+
     tickers: List[str]
     windows: int = 89
     direction: DirectionType = DirectionType.LONG
-    strategy_types: List[StrategyType] = strawberry.field(default_factory=lambda: [StrategyType.MA_CROSS])
+    strategy_types: List[StrategyType] = strawberry.field(
+        default_factory=lambda: [StrategyType.MA_CROSS]
+    )
     use_hourly: bool = False
     use_years: bool = False
     years: float = 15.0
@@ -131,6 +144,7 @@ class MACrossAnalysisInput:
 @strawberry.input
 class AnalysisFilter:
     """Filter options for analysis results."""
+
     min_return: Optional[float] = None
     min_sharpe: Optional[float] = None
     max_drawdown: Optional[float] = None

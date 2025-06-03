@@ -4,18 +4,19 @@ This module provides configuration types and validation functions for the concur
 analysis system, supporting multiple portfolio formats and configurations.
 """
 
-from typing import TypedDict, NotRequired, Union, List, Dict, Any
-from pathlib import Path
-import json
 import csv
+import json
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, List, NotRequired, TypedDict, Union
 
+from app.concurrency.error_handling import ValidationError as BaseValidationError
 from app.concurrency.error_handling import (
-    ValidationError as BaseValidationError,
     handle_concurrency_errors,
+    track_error,
     validate_inputs,
-    track_error
 )
+
 
 class ReportIncludesConfig(TypedDict):
     """Configuration for report content inclusion.
@@ -25,9 +26,11 @@ class ReportIncludesConfig(TypedDict):
         STRATEGIES (bool): Whether to include the strategies object in the report
         TICKER_METRICS (bool): Whether to include ticker-level metrics in the report
     """
+
     STRATEGY_RELATIONSHIPS: bool
     STRATEGIES: bool
     TICKER_METRICS: NotRequired[bool]
+
 
 class ConcurrencyConfig(TypedDict):
     """Configuration for concurrency analysis.
@@ -47,6 +50,7 @@ class ConcurrencyConfig(TypedDict):
         OPTIMIZE_MIN_STRATEGIES (NotRequired[int]): Minimum strategies per permutation
         OPTIMIZE_MAX_PERMUTATIONS (NotRequired[int]): Maximum permutations to analyze
     """
+
     PORTFOLIO: str
     BASE_DIR: str
     REFRESH: bool
@@ -58,6 +62,7 @@ class ConcurrencyConfig(TypedDict):
     OPTIMIZE_MIN_STRATEGIES: NotRequired[int]
     OPTIMIZE_MAX_PERMUTATIONS: NotRequired[int]
 
+
 class CsvStrategyRow(TypedDict):
     """CSV strategy row format.
 
@@ -67,12 +72,13 @@ class CsvStrategyRow(TypedDict):
         Short Window (int): Short moving average period
         Long Window (int): Long moving average period
         Signal Window (int): Signal line period (for MACD)
-        
+
     Optional Fields:
         strategy_id (NotRequired[str]): Unique strategy identifier
         Allocation [%] (NotRequired[float]): Allocation percentage for the strategy
         Stop Loss [%] (NotRequired[float]): Stop loss percentage for the strategy
     """
+
     Ticker: str
     Use_SMA: bool
     Short_Window: int
@@ -80,7 +86,8 @@ class CsvStrategyRow(TypedDict):
     Signal_Window: int
     strategy_id: NotRequired[str]
     Allocation: NotRequired[float]  # Allocation [%] in CSV header
-    Stop_Loss: NotRequired[float]   # Stop Loss [%] in CSV header
+    Stop_Loss: NotRequired[float]  # Stop Loss [%] in CSV header
+
 
 class JsonMaStrategy(TypedDict):
     """JSON MA strategy format.
@@ -100,6 +107,7 @@ class JsonMaStrategy(TypedDict):
         rsi_threshold (NotRequired[int]): RSI signal threshold
         strategy_id (NotRequired[str]): Unique strategy identifier
     """
+
     ticker: str
     timeframe: str
     type: str
@@ -111,6 +119,8 @@ class JsonMaStrategy(TypedDict):
     rsi_period: NotRequired[int]
     rsi_threshold: NotRequired[int]
     strategy_id: NotRequired[str]
+
+
 class JsonMacdStrategy(TypedDict):
     """JSON MACD strategy format.
 
@@ -130,6 +140,7 @@ class JsonMacdStrategy(TypedDict):
         rsi_threshold (NotRequired[int]): RSI signal threshold
         strategy_id (NotRequired[str]): Unique strategy identifier
     """
+
     ticker: str
     timeframe: str
     type: str
@@ -142,6 +153,7 @@ class JsonMacdStrategy(TypedDict):
     rsi_period: NotRequired[int]
     rsi_threshold: NotRequired[int]
     strategy_id: NotRequired[str]
+
 
 class JsonAtrStrategy(TypedDict):
     """JSON ATR Trailing Stop strategy format.
@@ -161,6 +173,7 @@ class JsonAtrStrategy(TypedDict):
         rsi_threshold (NotRequired[int]): RSI signal threshold
         strategy_id (NotRequired[str]): Unique strategy identifier
     """
+
     ticker: str
     timeframe: str
     type: str
@@ -173,24 +186,33 @@ class JsonAtrStrategy(TypedDict):
     rsi_threshold: NotRequired[int]
     strategy_id: NotRequired[str]
 
+
 @dataclass
 class PortfolioFormat:
     """Portfolio file format information."""
+
     extension: str
     content_type: str
     validator: callable
 
+
 class ConfigurationError(BaseValidationError):
     """Base class for configuration-related errors."""
+
     pass
+
 
 class FileFormatError(ConfigurationError):
     """Raised when file format is invalid or unsupported."""
+
     pass
+
 
 class ValidationError(ConfigurationError):
     """Raised when configuration validation fails."""
+
     pass
+
 
 @handle_concurrency_errors("portfolio format detection")
 @validate_inputs(file_path=lambda x: isinstance(x, str) and len(x) > 0)
@@ -213,37 +235,46 @@ def detect_portfolio_format(file_path: str) -> PortfolioFormat:
         raise error
 
     extension = path.suffix.lower()
-    
-    if extension == '.csv':
+
+    if extension == ".csv":
         return PortfolioFormat(
-            extension='.csv',
-            content_type='text/csv',
-            validator=validate_csv_portfolio
+            extension=".csv", content_type="text/csv", validator=validate_csv_portfolio
         )
-    elif extension == '.json':
+    elif extension == ".json":
         # Detect JSON subtype by content
         try:
             with open(path) as f:
                 data = json.load(f)
                 if not isinstance(data, list) or not data:
                     error = FileFormatError("JSON file must contain a non-empty array")
-                    track_error(error, "portfolio format detection", {"file_path": file_path})
+                    track_error(
+                        error, "portfolio format detection", {"file_path": file_path}
+                    )
                     raise error
-                
+
                 # Use MA validator for all JSON files since it handles both MA and MACD
                 return PortfolioFormat(
-                    extension='.json',
-                    content_type='application/json+mixed',
-                    validator=validate_ma_portfolio
+                    extension=".json",
+                    content_type="application/json+mixed",
+                    validator=validate_ma_portfolio,
                 )
         except json.JSONDecodeError as e:
             error = FileFormatError(f"Invalid JSON file: {str(e)}")
-            track_error(error, "portfolio format detection", {"file_path": file_path, "json_error": str(e)})
+            track_error(
+                error,
+                "portfolio format detection",
+                {"file_path": file_path, "json_error": str(e)},
+            )
             raise error
     else:
         error = FileFormatError(f"Unsupported file extension: {extension}")
-        track_error(error, "portfolio format detection", {"file_path": file_path, "extension": extension})
+        track_error(
+            error,
+            "portfolio format detection",
+            {"file_path": file_path, "extension": extension},
+        )
         raise error
+
 
 @handle_concurrency_errors("configuration validation")
 @validate_inputs(config=lambda x: isinstance(x, dict))
@@ -259,72 +290,138 @@ def validate_config(config: Dict[str, Any]) -> ConcurrencyConfig:
     Raises:
         ValidationError: If configuration is invalid
     """
-    required_fields = {'PORTFOLIO', 'BASE_DIR', 'REFRESH'}
+    required_fields = {"PORTFOLIO", "BASE_DIR", "REFRESH"}
     missing_fields = required_fields - set(config.keys())
     if missing_fields:
         error = ValidationError(f"Missing required fields: {missing_fields}")
-        track_error(error, "configuration validation", {
-            "missing_fields": list(missing_fields),
-            "provided_fields": list(config.keys())
-        })
+        track_error(
+            error,
+            "configuration validation",
+            {
+                "missing_fields": list(missing_fields),
+                "provided_fields": list(config.keys()),
+            },
+        )
         raise error
 
     # Validate types
-    if not isinstance(config['PORTFOLIO'], str):
+    if not isinstance(config["PORTFOLIO"], str):
         error = ValidationError("PORTFOLIO must be a string")
-        track_error(error, "configuration validation", {"field": "PORTFOLIO", "type": type(config['PORTFOLIO']).__name__})
+        track_error(
+            error,
+            "configuration validation",
+            {"field": "PORTFOLIO", "type": type(config["PORTFOLIO"]).__name__},
+        )
         raise error
-    if not isinstance(config['BASE_DIR'], str):
+    if not isinstance(config["BASE_DIR"], str):
         error = ValidationError("BASE_DIR must be a string")
-        track_error(error, "configuration validation", {"field": "BASE_DIR", "type": type(config['BASE_DIR']).__name__})
+        track_error(
+            error,
+            "configuration validation",
+            {"field": "BASE_DIR", "type": type(config["BASE_DIR"]).__name__},
+        )
         raise error
-    if not isinstance(config['REFRESH'], bool):
+    if not isinstance(config["REFRESH"], bool):
         error = ValidationError("REFRESH must be a boolean")
-        track_error(error, "configuration validation", {"field": "REFRESH", "type": type(config['REFRESH']).__name__})
+        track_error(
+            error,
+            "configuration validation",
+            {"field": "REFRESH", "type": type(config["REFRESH"]).__name__},
+        )
         raise error
-    
-    if 'SL_CANDLE_CLOSE' in config and not isinstance(config['SL_CANDLE_CLOSE'], bool):
+
+    if "SL_CANDLE_CLOSE" in config and not isinstance(config["SL_CANDLE_CLOSE"], bool):
         error = ValidationError("SL_CANDLE_CLOSE must be a boolean if provided")
-        track_error(error, "configuration validation", {"field": "SL_CANDLE_CLOSE", "type": type(config['SL_CANDLE_CLOSE']).__name__})
+        track_error(
+            error,
+            "configuration validation",
+            {
+                "field": "SL_CANDLE_CLOSE",
+                "type": type(config["SL_CANDLE_CLOSE"]).__name__,
+            },
+        )
         raise error
-    
-    if 'RATIO_BASED_ALLOCATION' in config and not isinstance(config['RATIO_BASED_ALLOCATION'], bool):
+
+    if "RATIO_BASED_ALLOCATION" in config and not isinstance(
+        config["RATIO_BASED_ALLOCATION"], bool
+    ):
         error = ValidationError("RATIO_BASED_ALLOCATION must be a boolean if provided")
-        track_error(error, "configuration validation", {"field": "RATIO_BASED_ALLOCATION", "type": type(config['RATIO_BASED_ALLOCATION']).__name__})
+        track_error(
+            error,
+            "configuration validation",
+            {
+                "field": "RATIO_BASED_ALLOCATION",
+                "type": type(config["RATIO_BASED_ALLOCATION"]).__name__,
+            },
+        )
         raise error
-    
-    if 'CSV_USE_HOURLY' in config and not isinstance(config['CSV_USE_HOURLY'], bool):
+
+    if "CSV_USE_HOURLY" in config and not isinstance(config["CSV_USE_HOURLY"], bool):
         error = ValidationError("CSV_USE_HOURLY must be a boolean if provided")
-        track_error(error, "configuration validation", {"field": "CSV_USE_HOURLY", "type": type(config['CSV_USE_HOURLY']).__name__})
+        track_error(
+            error,
+            "configuration validation",
+            {
+                "field": "CSV_USE_HOURLY",
+                "type": type(config["CSV_USE_HOURLY"]).__name__,
+            },
+        )
         raise error
-    
+
     # Validate OPTIMIZE flag (default to False if not present)
     if "OPTIMIZE" in config and not isinstance(config["OPTIMIZE"], bool):
         error = ValidationError("OPTIMIZE must be a boolean")
-        track_error(error, "configuration validation", {"field": "OPTIMIZE", "type": type(config["OPTIMIZE"]).__name__})
+        track_error(
+            error,
+            "configuration validation",
+            {"field": "OPTIMIZE", "type": type(config["OPTIMIZE"]).__name__},
+        )
         raise error
     elif "OPTIMIZE" not in config:
         config["OPTIMIZE"] = False
-    
+
     # Validate OPTIMIZE_MIN_STRATEGIES (default to 3 if not present)
     if "OPTIMIZE_MIN_STRATEGIES" in config:
-        if not isinstance(config["OPTIMIZE_MIN_STRATEGIES"], int) or config["OPTIMIZE_MIN_STRATEGIES"] < 2:
+        if (
+            not isinstance(config["OPTIMIZE_MIN_STRATEGIES"], int)
+            or config["OPTIMIZE_MIN_STRATEGIES"] < 2
+        ):
             error = ValidationError("OPTIMIZE_MIN_STRATEGIES must be an integer >= 2")
-            track_error(error, "configuration validation", {"field": "OPTIMIZE_MIN_STRATEGIES", "value": config["OPTIMIZE_MIN_STRATEGIES"]})
+            track_error(
+                error,
+                "configuration validation",
+                {
+                    "field": "OPTIMIZE_MIN_STRATEGIES",
+                    "value": config["OPTIMIZE_MIN_STRATEGIES"],
+                },
+            )
             raise error
     else:
         config["OPTIMIZE_MIN_STRATEGIES"] = 3
-    
+
     # Validate OPTIMIZE_MAX_PERMUTATIONS (default to None if not present)
     if "OPTIMIZE_MAX_PERMUTATIONS" in config:
-        if not isinstance(config["OPTIMIZE_MAX_PERMUTATIONS"], int) or config["OPTIMIZE_MAX_PERMUTATIONS"] < 1:
-            error = ValidationError("OPTIMIZE_MAX_PERMUTATIONS must be a positive integer")
-            track_error(error, "configuration validation", {"field": "OPTIMIZE_MAX_PERMUTATIONS", "value": config["OPTIMIZE_MAX_PERMUTATIONS"]})
+        if (
+            not isinstance(config["OPTIMIZE_MAX_PERMUTATIONS"], int)
+            or config["OPTIMIZE_MAX_PERMUTATIONS"] < 1
+        ):
+            error = ValidationError(
+                "OPTIMIZE_MAX_PERMUTATIONS must be a positive integer"
+            )
+            track_error(
+                error,
+                "configuration validation",
+                {
+                    "field": "OPTIMIZE_MAX_PERMUTATIONS",
+                    "value": config["OPTIMIZE_MAX_PERMUTATIONS"],
+                },
+            )
             raise error
     else:
         config["OPTIMIZE_MAX_PERMUTATIONS"] = None
 
     return config
+
 
 def validate_csv_portfolio(file_path: str) -> None:
     """Validate CSV portfolio file format.
@@ -335,24 +432,23 @@ def validate_csv_portfolio(file_path: str) -> None:
     Raises:
         ValidationError: If CSV format is invalid
     """
-    required_fields = {
-        'Ticker', 'Use SMA', 'Short Window', 'Long Window'
-    }
-    
+    required_fields = {"Ticker", "Use SMA", "Short Window", "Long Window"}
+
     try:
-        with open(file_path, newline='') as f:
+        with open(file_path, newline="") as f:
             reader = csv.DictReader(f)
             headers = set(reader.fieldnames or [])
             missing_fields = required_fields - headers
             if missing_fields:
                 raise ValidationError(f"CSV missing required fields: {missing_fields}")
-            
+
             # Validate first row
             first_row = next(reader, None)
             if not first_row:
                 raise ValidationError("CSV file is empty")
     except csv.Error as e:
         raise ValidationError(f"Invalid CSV format: {str(e)}")
+
 
 def validate_ma_portfolio(file_path: str) -> None:
     """Validate mixed MA/MACD JSON portfolio file format.
@@ -364,49 +460,56 @@ def validate_ma_portfolio(file_path: str) -> None:
         ValidationError: If JSON format is invalid
     """
     ma_required_fields = {
-        'ticker', 'timeframe', 'type', 'direction',
-        'short_window', 'long_window'
+        "ticker",
+        "timeframe",
+        "type",
+        "direction",
+        "short_window",
+        "long_window",
     }
-    macd_required_fields = ma_required_fields | {'signal_window'}
+    macd_required_fields = ma_required_fields | {"signal_window"}
     atr_required_fields = {
-        'ticker', 'timeframe', 'type', 'direction',
-        'length', 'multiplier'
+        "ticker",
+        "timeframe",
+        "type",
+        "direction",
+        "length",
+        "multiplier",
     }
-    
+
     try:
         with open(file_path) as f:
             data = json.load(f)
             if not isinstance(data, list):
                 raise ValidationError("JSON must contain an array of strategies")
-            
+
             for strategy in data:
-                if 'type' not in strategy:
+                if "type" not in strategy:
                     raise ValidationError("Strategy missing 'type' field")
-                
-                if strategy['type'] == 'MACD':
+
+                if strategy["type"] == "MACD":
                     missing_fields = macd_required_fields - set(strategy.keys())
                     if missing_fields:
                         raise ValidationError(
                             f"MACD strategy missing required fields: {missing_fields}"
                         )
-                elif strategy['type'] in ('SMA', 'EMA'):
+                elif strategy["type"] in ("SMA", "EMA"):
                     missing_fields = ma_required_fields - set(strategy.keys())
                     if missing_fields:
                         raise ValidationError(
                             f"MA strategy missing required fields: {missing_fields}"
                         )
-                elif strategy['type'] == 'ATR':
+                elif strategy["type"] == "ATR":
                     missing_fields = atr_required_fields - set(strategy.keys())
                     if missing_fields:
                         raise ValidationError(
                             f"ATR strategy missing required fields: {missing_fields}"
                         )
                 else:
-                    raise ValidationError(
-                        f"Invalid strategy type: {strategy['type']}"
-                    )
+                    raise ValidationError(f"Invalid strategy type: {strategy['type']}")
     except json.JSONDecodeError as e:
         raise ValidationError(f"Invalid JSON format: {str(e)}")
+
 
 def validate_macd_portfolio(file_path: str) -> None:
     """Validate MACD JSON portfolio file format.
@@ -418,26 +521,29 @@ def validate_macd_portfolio(file_path: str) -> None:
         ValidationError: If JSON format is invalid
     """
     required_fields = {
-        'ticker', 'timeframe', 'type', 'direction',
-        'short_window', 'long_window', 'signal_window'
+        "ticker",
+        "timeframe",
+        "type",
+        "direction",
+        "short_window",
+        "long_window",
+        "signal_window",
     }
-    
+
     try:
         with open(file_path) as f:
             data = json.load(f)
             if not isinstance(data, list):
                 raise ValidationError("JSON must contain an array of strategies")
-            
+
             for strategy in data:
                 missing_fields = required_fields - set(strategy.keys())
                 if missing_fields:
                     raise ValidationError(
                         f"Strategy missing required fields: {missing_fields}"
                     )
-                
-                if strategy['type'] != 'MACD':
-                    raise ValidationError(
-                        f"Invalid strategy type: {strategy['type']}"
-                    )
+
+                if strategy["type"] != "MACD":
+                    raise ValidationError(f"Invalid strategy type: {strategy['type']}")
     except json.JSONDecodeError as e:
         raise ValidationError(f"Invalid JSON format: {str(e)}")

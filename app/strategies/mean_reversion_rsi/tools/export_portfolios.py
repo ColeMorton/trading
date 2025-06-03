@@ -5,19 +5,21 @@ This module handles the export of portfolio data to CSV files using the
 centralized export functionality.
 """
 
-from typing import List, Dict, Tuple, Callable, Optional
+from typing import Callable, Dict, List, Optional, Tuple
+
 import polars as pl
-from app.tools.export_csv import export_csv, ExportConfig
+
+from app.tools.export_csv import ExportConfig, export_csv
+
 
 class PortfolioExportError(Exception):
     """Custom exception for portfolio export errors."""
+
     pass
 
-VALID_EXPORT_TYPES = {
-    'portfolios',
-    'portfolios_scanner',
-    'portfolios_filtered'
-}
+
+VALID_EXPORT_TYPES = {"portfolios", "portfolios_scanner", "portfolios_filtered"}
+
 
 def _fix_precision(df: pl.DataFrame) -> pl.DataFrame:
     """Fix precision for numeric columns.
@@ -28,11 +30,14 @@ def _fix_precision(df: pl.DataFrame) -> pl.DataFrame:
     Returns:
         pl.DataFrame: DataFrame with fixed precision
     """
-    if 'price_change' in df.columns:
+    if "price_change" in df.columns:
         df = df.with_columns(
-            pl.col('price_change').round(2).alias('price_change')  # Round to 2 decimal places (0.01 precision)
+            pl.col("price_change")
+            .round(2)
+            .alias("price_change")  # Round to 2 decimal places (0.01 precision)
         )
     return df
+
 
 def _rename_columns(df: pl.DataFrame) -> pl.DataFrame:
     """Rename columns to match expected format.
@@ -43,10 +48,9 @@ def _rename_columns(df: pl.DataFrame) -> pl.DataFrame:
     Returns:
         pl.DataFrame: DataFrame with renamed columns
     """
-    rename_map = {
-        'Change PCT': 'price_change'
-    }
+    rename_map = {"Change PCT": "price_change"}
     return df.rename(rename_map)
+
 
 def _reorder_columns(df: pl.DataFrame, export_type: str) -> pl.DataFrame:
     """Reorder columns based on export type.
@@ -60,51 +64,52 @@ def _reorder_columns(df: pl.DataFrame, export_type: str) -> pl.DataFrame:
     """
     # First rename columns
     df = _rename_columns(df)
-    
+
     # Then fix precision
     df = _fix_precision(df)
-    
-    if export_type == 'portfolios':
+
+    if export_type == "portfolios":
         # Ensure price_change is column 1
         cols = df.columns
         ordered_cols = []
-        
+
         # First add price_change
-        if 'price_change' in cols:
-            ordered_cols.append('price_change')
-            cols.remove('price_change')
-        
+        if "price_change" in cols:
+            ordered_cols.append("price_change")
+            cols.remove("price_change")
+
         # Add remaining columns
         ordered_cols.extend(cols)
         return df.select(ordered_cols)
-        
-    elif export_type == 'portfolios_filtered':
+
+    elif export_type == "portfolios_filtered":
         # Ensure price_change is column 2
         cols = df.columns
         ordered_cols = []
-        
+
         # Keep first column
         if cols:
             ordered_cols.append(cols[0])
             cols.remove(cols[0])
-            
+
         # Add price_change
-        if 'price_change' in cols:
-            ordered_cols.append('price_change')
-            cols.remove('price_change')
-        
+        if "price_change" in cols:
+            ordered_cols.append("price_change")
+            cols.remove("price_change")
+
         # Add remaining columns
         ordered_cols.extend(cols)
         return df.select(ordered_cols)
-        
+
     return df
+
 
 def export_portfolios(
     portfolios: List[Dict],
     config: ExportConfig,
     export_type: str,
     csv_filename: Optional[str] = None,
-    log: Optional[Callable] = None
+    log: Optional[Callable] = None,
 ) -> Tuple[pl.DataFrame, bool]:
     """Convert portfolio dictionaries to Polars DataFrame and export to CSV.
 
@@ -140,11 +145,15 @@ def export_portfolios(
         # Convert to DataFrame and reorder columns
         df = pl.DataFrame(portfolios)
         df = _reorder_columns(df, export_type)
-        
+
         # Use empty feature1 for 'portfolios' and 'portfolios_scanner' export types
         # to export directly to csv/portfolios/ instead of csv/mean_reversion_rsi/portfolios/ or csv/mean_reversion_rsi/portfolios_scanner/
-        feature1 = "" if export_type in ["portfolios", "portfolios_scanner"] else "mean_reversion_rsi"
-        
+        feature1 = (
+            ""
+            if export_type in ["portfolios", "portfolios_scanner"]
+            else "mean_reversion_rsi"
+        )
+
         # Export with correct directory structure
         return export_csv(
             data=df,
@@ -152,7 +161,7 @@ def export_portfolios(
             config=config,
             feature2=export_type,
             filename=csv_filename,
-            log=log
+            log=log,
         )
     except Exception as e:
         error_msg = f"Failed to export portfolios: {str(e)}"

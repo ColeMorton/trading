@@ -1,5 +1,6 @@
-import riskfolio as rp
 import inspect
+
+import riskfolio as rp
 
 print("Available attributes in riskfolio module:")
 for name, obj in inspect.getmembers(rp):
@@ -17,7 +18,7 @@ for name, obj in inspect.getmembers(rp):
         print(f"{name}")
 
 # Try to access some common classes or functions
-common_names = ['Portfolio', 'HCPortfolio', 'RiskFunctions', 'ParamsEstimation']
+common_names = ["Portfolio", "HCPortfolio", "RiskFunctions", "ParamsEstimation"]
 for name in common_names:
     try:
         obj = getattr(rp, name)
