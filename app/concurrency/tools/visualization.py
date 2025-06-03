@@ -1,6 +1,6 @@
 """Visualization utilities for concurrency analysis."""
 
-from typing import Callable, Dict, List
+from typing import Callable, List
 
 import plotly.graph_objects as go
 import polars as pl

@@ -4,11 +4,10 @@ Data Service
 This module provides functionality for retrieving and listing data files.
 """
 
-import csv
 import json
 import os
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
@@ -17,8 +16,6 @@ from app.api.config import get_config, is_path_allowed
 
 class DataServiceError(Exception):
     """Exception raised for errors in the data service."""
-
-    pass
 
 
 def get_file_info(file_path: str, base_dir: str) -> Dict[str, Any]:

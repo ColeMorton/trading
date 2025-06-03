@@ -44,8 +44,9 @@ def get_metric_rows(df: pl.DataFrame, column: str) -> List[Any]:
     if df[column].dtype == pl.Utf8:
         try:
             df = df.with_columns(pl.col(column).cast(pl.Float64).alias(column))
-        except:
-            pass  # Keep as string if conversion fails
+        except (pl.ComputeError, pl.SchemaError):
+            # Keep as string if conversion fails (e.g., non-numeric values)
+            pass
 
     # Get the row index for max value
     max_idx = df[column].arg_max()

@@ -27,7 +27,7 @@ async def test_async_with_progress():
 
     async with httpx.AsyncClient() as client:
         # Submit async analysis
-        print(f"\nSubmitting async analysis request...")
+        print("\nSubmitting async analysis request...")
         print(f"Payload: {json.dumps(payload, indent=2)}")
 
         response = await client.post(
@@ -104,7 +104,7 @@ async def test_async_with_progress():
                                     print("\n" + "-" * 60)
 
                                     if status == "completed":
-                                        print(f"\nAnalysis completed successfully!")
+                                        print("\nAnalysis completed successfully!")
 
                                         # Show summary
                                         total_analyzed = event_data.get(
@@ -126,7 +126,7 @@ async def test_async_with_progress():
                                         # Show some portfolio results
                                         results = event_data.get("results", [])
                                         if results:
-                                            print(f"\nTop 3 portfolios:")
+                                            print("\nTop 3 portfolios:")
                                             for i, portfolio in enumerate(results[:3]):
                                                 print(
                                                     f"{i+1}. {portfolio.get('ticker')} - "
@@ -162,7 +162,7 @@ async def test_sync_analysis():
     }
 
     async with httpx.AsyncClient(timeout=httpx.Timeout(300.0)) as client:
-        print(f"\nSubmitting sync analysis request...")
+        print("\nSubmitting sync analysis request...")
         print(f"Payload: {json.dumps(payload, indent=2)}")
 
         start_time = time.time()
@@ -184,7 +184,7 @@ async def test_sync_analysis():
             # Show portfolio results
             portfolios = data.get("portfolios", [])
             if portfolios:
-                print(f"\nPortfolio results:")
+                print("\nPortfolio results:")
                 for portfolio in portfolios:
                     print(
                         f"- {portfolio.get('ticker')} - "

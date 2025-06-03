@@ -6,7 +6,7 @@ import asyncio
 import logging
 import os
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 import psutil
 from fastapi import APIRouter, Depends, status
@@ -30,7 +30,7 @@ async def check_database_health() -> Dict[str, Any]:
         await db.query_raw("SELECT 1")
 
         # Check database manager for connection info
-        db_manager = await get_database_manager()
+        await get_database_manager()
         # Since we're using Prisma, we don't have direct pool access
 
         response_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
@@ -214,16 +214,16 @@ async def metrics_endpoint():
 
     metrics.extend(
         [
-            f"# HELP cpu_usage_percent CPU usage percentage",
-            f"# TYPE cpu_usage_percent gauge",
+            "# HELP cpu_usage_percent CPU usage percentage",
+            "# TYPE cpu_usage_percent gauge",
             f"cpu_usage_percent {cpu_percent}",
             "",
-            f"# HELP memory_usage_percent Memory usage percentage",
-            f"# TYPE memory_usage_percent gauge",
+            "# HELP memory_usage_percent Memory usage percentage",
+            "# TYPE memory_usage_percent gauge",
             f"memory_usage_percent {memory.percent}",
             "",
-            f"# HELP disk_usage_percent Disk usage percentage",
-            f"# TYPE disk_usage_percent gauge",
+            "# HELP disk_usage_percent Disk usage percentage",
+            "# TYPE disk_usage_percent gauge",
             f"disk_usage_percent {disk.percent}",
             "",
         ]
@@ -247,7 +247,7 @@ async def metrics_endpoint():
                 "",
             ]
         )
-    except:
-        pass
+    except Exception:
+        pass  # Database connection errors should not fail metrics endpoint
 
     return "\n".join(metrics)

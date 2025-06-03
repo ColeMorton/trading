@@ -18,11 +18,7 @@ from app.tools.calculate_macd_signals import calculate_macd_signals
 from app.tools.get_data import get_data
 from app.tools.portfolio import StrategyConfig
 from app.tools.stats_converter import convert_stats
-from app.tools.strategy_utils import (
-    determine_strategy_type,
-    get_required_fields_for_strategy,
-    validate_strategy_config,
-)
+from app.tools.strategy_utils import determine_strategy_type, validate_strategy_config
 
 
 def process_strategies(
@@ -288,7 +284,7 @@ def process_strategies(
                             data_pd["Date"].dtype
                             != atr_columns["ATR_Trailing_Stop"]["Date"].dtype
                         ):
-                            log(f"Converting Date columns to compatible types", "info")
+                            log("Converting Date columns to compatible types", "info")
                             # Convert both to datetime for safe merging
                             data_pd["Date"] = pd.to_datetime(data_pd["Date"])
                             atr_columns["ATR_Trailing_Stop"]["Date"] = pd.to_datetime(
@@ -310,13 +306,13 @@ def process_strategies(
                         # Convert back to polars and update the strategy data
                         data = pl.from_pandas(data_pd)
                         log(
-                            f"Successfully restored ATR data to polars DataFrame",
+                            "Successfully restored ATR data to polars DataFrame",
                             "info",
                         )
                     except Exception as e:
                         log(f"Error restoring ATR columns: {str(e)}", "error")
                         # Continue without the ATR columns rather than failing
-                        log(f"Continuing without ATR visualization data", "warning")
+                        log("Continuing without ATR visualization data", "warning")
 
                 # Add expectancy to strategy config
                 strategy_config["EXPECTANCY_PER_MONTH"] = stats["Expectancy per Month"]

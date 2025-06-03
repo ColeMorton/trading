@@ -5,14 +5,11 @@ This module provides MCP tools for listing, executing, and monitoring
 trading scripts through the Trading API.
 """
 
-import json
-from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import structlog
 from mcp.types import Tool
 
-from ..config import config
 from ..handlers import get_api_client
 
 logger = structlog.get_logger(__name__)

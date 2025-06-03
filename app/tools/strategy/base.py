@@ -50,7 +50,6 @@ class BaseStrategy(ABC):
         Raises:
             Exception: If calculation fails
         """
-        pass
 
     def validate_windows(
         self, short_window: int, long_window: int, log: Callable[[str, str], None]

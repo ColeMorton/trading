@@ -4,10 +4,9 @@ Data Router
 This module provides API endpoints for data file retrieval and management.
 """
 
-import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query
+from fastapi import APIRouter, HTTPException, Path, Query
 
 from app.api.models.response import DataResponse, ErrorResponse, FileListResponse
 from app.api.services.data_service import (

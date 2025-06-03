@@ -335,9 +335,9 @@ def main() -> None:
         # Load portfolio configuration
         log("Loading portfolio configuration", "info")
         portfolio_config: PortfolioConfig = load_portfolio_config(config["portfolio"])
-        initial_value = portfolio_config["initial_value"]
-        target_value = portfolio_config["target_value"]
-        use_target_value = portfolio_config["use_target_value"]
+        portfolio_config["initial_value"]
+        portfolio_config["target_value"]
+        portfolio_config["use_target_value"]
         portfolio = portfolio_config["portfolio"]
         # Merge portfolio config with base config
         merged_config = {**config, **portfolio_config}
@@ -371,7 +371,7 @@ def main() -> None:
         # Print results for each asset
         log("Displaying results", "info")
         total_leveraged_value = sum(metrics["leveraged_value"] for metrics in results)
-        total_initial_value = sum(metrics["initial_value"] for metrics in results)
+        sum(metrics["initial_value"] for metrics in results)
 
         for asset, metrics in zip(portfolio_config["portfolio"], results):
             # Modified print_asset_details to skip risk metrics

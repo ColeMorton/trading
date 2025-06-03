@@ -10,7 +10,7 @@ formula rather than the R-ratio based formula that can produce inflated values.
 """
 
 import os
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
 

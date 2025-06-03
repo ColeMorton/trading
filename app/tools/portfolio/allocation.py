@@ -11,9 +11,8 @@ The module implements the following special cases:
    so the sum equals 100%
 """
 
-import logging
 from decimal import ROUND_HALF_UP, Decimal
-from typing import Any, Callable, Dict, List, Optional, TypeVar, Union, cast
+from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
 
 # Type variable for generic portfolio data
 T = TypeVar("T", Dict[str, Any], Dict[str, Union[str, float, int, None]])
@@ -71,7 +70,7 @@ def validate_allocations(
                     if log:
                         log(
                             f"Invalid allocation value {allocation_value} for {row.get('Ticker', 'Unknown')}: "
-                            f"must be between 0 and 100. Setting to None.",
+                            "must be between 0 and 100. Setting to None.",
                             "warning",
                         )
                     validated_row[allocation_field] = None
@@ -81,7 +80,7 @@ def validate_allocations(
                 if log:
                     log(
                         f"Invalid allocation value {row[allocation_field]} for {row.get('Ticker', 'Unknown')}: "
-                        f"must be a number. Setting to None.",
+                        "must be a number. Setting to None.",
                         "warning",
                     )
                 validated_row[allocation_field] = None

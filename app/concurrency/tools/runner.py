@@ -173,7 +173,7 @@ def run_analysis(
 
         # Log statistics for all strategies
         log("Logging analysis statistics for all strategies", "info")
-        log(f"Overall concurrency statistics:")
+        log("Overall concurrency statistics:")
         log(f"Total concurrent periods: {all_stats['total_concurrent_periods']}")
         log(f"Concurrency Ratio: {all_stats['concurrency_ratio']:.2f}")
         log(f"Exclusive Ratio: {all_stats['exclusive_ratio']:.2f}")
@@ -186,7 +186,7 @@ def run_analysis(
         log(f"Risk-Adjusted Efficiency Score: {all_stats['efficiency_score']:.2f}")
 
         # Log risk metrics
-        log(f"\nRisk Metrics:")
+        log("\nRisk Metrics:")
         for key, value in all_stats["risk_metrics"].items():
             if isinstance(value, float):
                 log(f"{key}: {value:.4f}")
@@ -291,7 +291,7 @@ def run_analysis(
                 with open(optimal_report_path, "w") as f:
                     json.dump(optimal_report, f, indent=4, cls=NumpyEncoder)
 
-                log(f"Optimization complete. Reports saved.", "info")
+                log("Optimization complete. Reports saved.", "info")
 
             except Exception as e:
                 log(f"Error during optimization: {str(e)}", "error")

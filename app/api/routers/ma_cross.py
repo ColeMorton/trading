@@ -7,7 +7,7 @@ This module provides API endpoints for MA Cross strategy analysis.
 import asyncio
 import json
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from fastapi.responses import StreamingResponse
@@ -121,7 +121,6 @@ async def analyze_portfolio(
         if request.async_execution:
             response = ma_cross_service.analyze_portfolio_async(request)
             # Return 202 Accepted status for async execution
-            from fastapi import Response
             from fastapi.responses import JSONResponse
 
             return JSONResponse(

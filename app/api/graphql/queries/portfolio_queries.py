@@ -9,12 +9,7 @@ from typing import List, Optional
 import strawberry
 
 from app.api.graphql.types.metrics import MetricsFilter, PortfolioMetrics
-from app.api.graphql.types.portfolio import (
-    AnalysisFilter,
-    AnalysisResult,
-    Portfolio,
-    PortfolioFilter,
-)
+from app.api.graphql.types.portfolio import Portfolio, PortfolioFilter
 from app.database.config import get_prisma
 
 

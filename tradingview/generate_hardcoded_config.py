@@ -350,7 +350,7 @@ def interactive_update(csv_path, pine_script_path, ticker_filter=None):
             config_end_index = new_pine_script.find("\n\n", next_line_index)
             
             config_comments = [
-                f"// Strategy configuration - Hardcoded directly in calculateBreadth() function",
+                "// Strategy configuration - Hardcoded directly in calculateBreadth() function",
                 f"// Source: {csv_path}",
                 f"// Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
                 f"// Total strategies: {strategy_count}"

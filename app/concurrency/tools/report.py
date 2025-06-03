@@ -4,8 +4,6 @@ This module provides functionality for generating JSON reports from concurrency 
 It serves as a compatibility layer for the refactored report package.
 """
 
-from typing import Any, Callable, Dict, List
-
 # Re-export all functionality from the report package
 from app.concurrency.tools.report.generator import generate_json_report
 from app.concurrency.tools.report.metrics import (

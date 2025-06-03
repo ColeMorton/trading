@@ -6,13 +6,10 @@ and optimized data processing for improved performance.
 """
 
 import time
-from functools import lru_cache
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Callable, Dict, List, Optional, TypeVar
 
 import numpy as np
-import pandas as pd
-import polars as pl
 
 from app.tools.setup_logging import setup_logging
 
@@ -119,7 +116,7 @@ class HorizonCalculator:
 
             # Check if we have enough data for any horizon
             if len(returns) <= min(horizons):
-                self.log(f"Insufficient data for any horizon", "warning")
+                self.log("Insufficient data for any horizon", "warning")
                 return {}
 
             # Generate cache key if using cache

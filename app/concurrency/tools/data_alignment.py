@@ -292,7 +292,6 @@ def validate_aligned_data_quality(
 
     # Create validator
     validator = PortfolioMetricsValidator(log)
-    results = []
 
     try:
         # Basic alignment checks

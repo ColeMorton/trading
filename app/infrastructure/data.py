@@ -1,6 +1,5 @@
 """Concrete implementation of data access interface."""
 
-import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union

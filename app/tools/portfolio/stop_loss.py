@@ -10,9 +10,8 @@ The module implements functionality for:
 3. Applying stop loss rules to trading strategies
 """
 
-import logging
 from decimal import ROUND_HALF_UP, Decimal
-from typing import Any, Callable, Dict, List, Optional, TypeVar, Union, cast
+from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
 
 # Type variable for generic portfolio data
 T = TypeVar("T", Dict[str, Any], Dict[str, Union[str, float, int, None]])
@@ -70,7 +69,7 @@ def validate_stop_loss(
                     if log:
                         log(
                             f"Invalid stop loss value {stop_loss_value} for {row.get('Ticker', 'Unknown')}: "
-                            f"must be between 0 and 100. Setting to None.",
+                            "must be between 0 and 100. Setting to None.",
                             "warning",
                         )
                     validated_row[stop_loss_field] = None
@@ -80,7 +79,7 @@ def validate_stop_loss(
                 if log:
                     log(
                         f"Invalid stop loss value {row[stop_loss_field]} for {row.get('Ticker', 'Unknown')}: "
-                        f"must be a number. Setting to None.",
+                        "must be a number. Setting to None.",
                         "warning",
                     )
                 validated_row[stop_loss_field] = None

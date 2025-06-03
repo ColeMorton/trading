@@ -5,7 +5,6 @@ import polars as pl
 
 from app.tools.data_types import DataConfig
 from app.tools.download_data import download_data
-from app.tools.export_csv import ExportConfig, export_csv
 
 
 def use_synthetic(
@@ -117,7 +116,7 @@ def use_synthetic(
             }
         )
 
-        log(f"Synthetic pair statistics:")
+        log("Synthetic pair statistics:")
 
         # Check if data is empty
         if len(data) == 0:

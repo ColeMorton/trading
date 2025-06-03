@@ -38,7 +38,7 @@ modules. It includes support for:
 """
 
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Union
 
 import polars as pl
 
@@ -47,10 +47,7 @@ from app.tools.portfolio.format import (
     standardize_portfolio_columns,
 )
 from app.tools.portfolio.paths import resolve_portfolio_path
-from app.tools.portfolio.strategy_types import (
-    STRATEGY_TYPE_FIELDS,
-    VALID_STRATEGY_TYPES,
-)
+from app.tools.portfolio.strategy_types import STRATEGY_TYPE_FIELDS
 from app.tools.portfolio.types import StrategyConfig
 from app.tools.portfolio.validation import (
     validate_portfolio_configs,
@@ -131,7 +128,7 @@ def load_portfolio_from_csv(
     # Handle legacy CSV files without Strategy Type column but with Use SMA
     if "USE_SMA" in df.columns and STRATEGY_TYPE_FIELDS["INTERNAL"] not in df.columns:
         log(
-            f"Legacy CSV file detected with USE_SMA column. Deriving strategy type.",
+            "Legacy CSV file detected with USE_SMA column. Deriving strategy type.",
             "info",
         )
         df = df.with_columns(

@@ -8,7 +8,7 @@ import csv
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, NotRequired, TypedDict, Union
+from typing import Any, Dict, NotRequired, TypedDict
 
 from app.concurrency.error_handling import ValidationError as BaseValidationError
 from app.concurrency.error_handling import (
@@ -199,19 +199,13 @@ class PortfolioFormat:
 class ConfigurationError(BaseValidationError):
     """Base class for configuration-related errors."""
 
-    pass
-
 
 class FileFormatError(ConfigurationError):
     """Raised when file format is invalid or unsupported."""
 
-    pass
-
 
 class ValidationError(ConfigurationError):
     """Raised when configuration validation fails."""
-
-    pass
 
 
 @handle_concurrency_errors("portfolio format detection")

@@ -5,7 +5,7 @@ to enable accurate covariance matrix calculation for portfolio risk metrics. Fol
 fail-fast approach with meaningful exceptions instead of fallback mechanisms.
 """
 
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Tuple
 
 import numpy as np
 import polars as pl
@@ -14,7 +14,7 @@ from app.tools.error_context import error_context
 from app.tools.error_decorators import handle_errors
 from app.tools.exceptions import DataAlignmentError, RiskCalculationError
 
-from .data_alignment import find_common_dates, prepare_dataframe
+from .data_alignment import find_common_dates
 
 
 @handle_errors(
@@ -337,7 +337,7 @@ def align_portfolio_returns(
     # Validate final result
     validate_return_matrix(returns_matrix, strategy_names, log)
 
-    log(f"Portfolio return alignment completed successfully", "info")
+    log("Portfolio return alignment completed successfully", "info")
     return returns_matrix, strategy_names
 
 

@@ -5,16 +5,14 @@ This module implements sophisticated variance estimation techniques that provide
 robust estimates especially for strategies with limited data or time-varying volatility.
 """
 
-import warnings
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
-import polars as pl
 from scipy import stats
 from scipy.optimize import minimize_scalar
 
-from app.tools.exceptions import DataAlignmentError, RiskCalculationError
+from app.tools.exceptions import RiskCalculationError
 
 
 @dataclass
@@ -87,7 +85,7 @@ class VarianceEstimator:
 
         # Additional quality checks
         if np.all(returns == 0):
-            return False, f"All returns are zero - no variance to estimate"
+            return False, "All returns are zero - no variance to estimate"
 
         if np.any(np.isnan(returns)) or np.any(np.isinf(returns)):
             return False, f"Returns contain NaN or infinite values"
@@ -131,7 +129,8 @@ class VarianceEstimator:
             normality_score = max(
                 0.0, 1.0 - abs(kurtosis) / 10.0
             )  # Penalize extreme kurtosis
-        except:
+        except (ValueError, FloatingPointError):
+            # Handle cases where kurtosis calculation fails
             normality_score = 0.5
         quality_factors.append(normality_score)
 
@@ -150,7 +149,8 @@ class VarianceEstimator:
                     stationarity_score = max(0.0, 1.0 - var_of_vars)
                 else:
                     stationarity_score = 0.5
-            except:
+            except (ValueError, ZeroDivisionError, FloatingPointError):
+                # Handle numerical errors in variance calculations
                 stationarity_score = 0.5
         else:
             stationarity_score = 0.5
@@ -525,7 +525,8 @@ class VarianceEstimator:
                     np.log(2 * np.pi * ewma_var) + returns**2 / ewma_var
                 )
                 return -log_likelihood
-            except:
+            except (ValueError, ZeroDivisionError, FloatingPointError):
+                # Handle numerical errors in likelihood calculation
                 return np.inf
 
         # Optimize lambda between 0.01 and 0.99

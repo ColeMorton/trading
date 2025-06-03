@@ -1,10 +1,8 @@
 """API client for communicating with the Trading API."""
 
-import asyncio
 import logging
 from contextlib import asynccontextmanager
-from typing import Any, Dict, Generic, Optional, Type, TypeVar
-from urllib.parse import urljoin
+from typing import Any, Dict, Optional, Type, TypeVar
 
 import httpx
 import structlog
@@ -41,19 +39,13 @@ class APIError(Exception):
 class APIConnectionError(APIError):
     """Raised when unable to connect to the API."""
 
-    pass
-
 
 class APITimeoutError(APIError):
     """Raised when API request times out."""
 
-    pass
-
 
 class APIValidationError(APIError):
     """Raised when API returns validation errors."""
-
-    pass
 
 
 class APIClient:

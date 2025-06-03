@@ -57,7 +57,7 @@ def main():
         replacements = fix_imports_in_file(py_file)
         total_replacements += replacements
     
-    print(f"\nSummary:")
+    print("\nSummary:")
     print(f"Files processed: {total_files}")
     print(f"Total replacements: {total_replacements}")
 

@@ -7,7 +7,7 @@ ensuring consistent application of filters across the entire application.
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Protocol, TypeVar, Union
+from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
 
 import numpy as np
 import pandas as pd
@@ -35,7 +35,6 @@ class FilterInterface(ABC):
         Returns:
             DataFrame: Filtered data
         """
-        pass
 
     @abstractmethod
     def get_filter_stats(self) -> Dict[str, Any]:
@@ -44,7 +43,6 @@ class FilterInterface(ABC):
         Returns:
             Dict[str, Any]: Statistics about the filter application
         """
-        pass
 
 
 class BaseFilter(FilterInterface):

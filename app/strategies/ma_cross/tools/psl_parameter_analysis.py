@@ -147,7 +147,7 @@ def analyze_holding_periods(
     if stop_loss is not None:
         log(f"Using stop loss of {stop_loss*100}%")
 
-    log(f"Processing holding periods...")
+    log("Processing holding periods...")
     results = []
     for holding_period in range(max_holding_period + 1, 0, -1):
         # Generate PSL exit signals

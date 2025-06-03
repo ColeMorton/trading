@@ -7,7 +7,6 @@ mean reversion hammer strategy parameters.
 
 from typing import Callable, Dict, List, Optional
 
-import numpy as np
 import polars as pl
 
 from app.mean_reversion_hammer.tools.signal_types import Config

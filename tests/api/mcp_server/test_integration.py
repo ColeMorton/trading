@@ -27,7 +27,7 @@ async def test_server_tools():
     # Test tool schema
     hello_tool = next((t for t in tools if t.name == "hello_world"), None)
     if hello_tool:
-        print(f"\n✓ Tool schema for 'hello_world':")
+        print("\n✓ Tool schema for 'hello_world':")
         print(f"  {json.dumps(hello_tool.inputSchema, indent=2)}")
 
     # Test calling the tool

@@ -11,8 +11,6 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-import numpy as np
-
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
@@ -25,7 +23,6 @@ os.environ["USE_FIXED_SIGNAL_PROC"] = "true"
 
 from app.concurrency.config_defaults import get_optimized_config_for_mstr
 from app.concurrency.tools.runner import main as run_concurrency
-from app.tools.setup_logging import setup_logging
 
 
 class IntegrationValidator:
@@ -84,7 +81,7 @@ class IntegrationValidator:
             strategy_id = strategy.get("strategy_id", "Unknown")
             total_trades = strategy.get("total_trades", 0)
             winning_trades = strategy.get("winning_trades", 0)
-            losing_trades = strategy.get("losing_trades", 0)
+            strategy.get("losing_trades", 0)
             win_rate = strategy.get("win_rate", 0)
 
             if total_trades > 0:

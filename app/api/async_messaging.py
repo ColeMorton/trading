@@ -6,14 +6,12 @@ long-running operations with progress tracking, cancellation, and result deliver
 """
 
 import asyncio
-import json
 import uuid
-import weakref
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, AsyncIterator, Callable, Dict, List, Optional, Union
+from typing import Any, AsyncIterator, Dict, List, Optional
 
 from app.api.event_bus import Event, EventHandler, EventPriority, event_bus
 
@@ -89,12 +87,10 @@ class AsyncOperation(ABC):
     @abstractmethod
     async def execute(self) -> Any:
         """Execute the operation."""
-        pass
 
     @abstractmethod
     def get_operation_name(self) -> str:
         """Get the name of this operation."""
-        pass
 
     def cancel(self) -> None:
         """Cancel the operation."""
@@ -436,8 +432,8 @@ class ProgressStreamHandler(EventHandler):
                 for queue in self._streams[operation_id]:
                     try:
                         await queue.put(progress_data)
-                    except:
-                        pass  # Queue might be closed
+                    except (asyncio.QueueFull, asyncio.CancelledError):
+                        pass  # Queue might be closed or full
 
     def get_event_types(self) -> List[str]:
         return [

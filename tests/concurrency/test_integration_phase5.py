@@ -568,7 +568,7 @@ class TestConcurrencyIntegrationPhase5:
         )
 
         # Log results
-        print(f"\nPerformance Comparison:")
+        print("\nPerformance Comparison:")
         print(f"Old implementation: {comparison['old_avg_time']:.4f}s")
         print(f"New implementation: {comparison['new_avg_time']:.4f}s")
         print(f"Speedup: {comparison['speedup']:.2f}x")

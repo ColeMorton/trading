@@ -144,7 +144,7 @@ def generate_signals(
             data = data.set_index("Date")
         else:
             # Create a dummy datetime index if no date column exists
-            original_index = data.index
+            data.index
             data = data.reset_index(drop=True)
             data.index = pd.date_range(start="2000-01-01", periods=len(data), freq="D")
             log(

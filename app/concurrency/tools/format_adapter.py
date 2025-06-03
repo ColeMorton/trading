@@ -7,7 +7,7 @@ and a standardized internal representation.
 import csv
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Union, cast
+from typing import Any, Dict, List, cast
 
 from app.concurrency.config import (
     CsvStrategyRow,
@@ -20,8 +20,6 @@ from app.concurrency.config import (
 
 class UnifiedStrategy(Dict[str, Any]):
     """Unified internal representation of a trading strategy."""
-
-    pass
 
 
 def convert_csv_strategy(row: CsvStrategyRow) -> UnifiedStrategy:

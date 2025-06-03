@@ -9,14 +9,13 @@ import asyncio
 import importlib.util
 import logging
 import os
-import subprocess
 import sys
 import time
 import traceback
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 from app.api.config import get_config
 from app.tools.setup_logging import setup_logging
@@ -27,8 +26,6 @@ task_status = {}
 
 class ScriptExecutionError(Exception):
     """Exception raised for errors during script execution."""
-
-    pass
 
 
 def import_script_module(script_path: str) -> Any:

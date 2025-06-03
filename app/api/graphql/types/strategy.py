@@ -4,7 +4,7 @@ GraphQL Types for Strategy and Configuration
 This module defines GraphQL types for strategies and their configurations.
 """
 
-from typing import List, Optional
+from typing import Optional
 
 import strawberry
 

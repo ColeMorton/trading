@@ -6,9 +6,7 @@ single ticker and multiple ticker analysis. It includes functionality for parame
 sensitivity analysis and portfolio filtering.
 """
 
-import json
-import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import polars as pl
 
@@ -19,17 +17,12 @@ from app.strategies.ma_cross.exceptions import (
     MACrossPortfolioError,
 )
 from app.strategies.ma_cross.tools.strategy_execution import execute_strategy
-from app.tools.config_service import ConfigService
 from app.tools.entry_point import run_from_command_line
-from app.tools.error_context import error_context
 from app.tools.error_decorators import handle_errors
 from app.tools.exceptions import (
     ConfigurationError,
-    ExportError,
     PortfolioLoadError,
     StrategyProcessingError,
-    SyntheticTickerError,
-    TradingSystemError,
 )
 
 # New imports for standardized logging and error handling
@@ -44,7 +37,6 @@ from app.tools.portfolio.allocation import (
     normalize_allocations,
     validate_allocations,
 )
-from app.tools.portfolio.collection import export_best_portfolios
 
 # Import schema detection utilities
 from app.tools.portfolio.schema_detection import (
@@ -56,7 +48,6 @@ from app.tools.portfolio.schema_detection import (
 # Import stop loss utilities
 from app.tools.portfolio.stop_loss import (
     calculate_stop_loss_levels,
-    get_stop_loss_summary,
     normalize_stop_loss,
     validate_stop_loss,
 )
@@ -71,7 +62,6 @@ from app.tools.strategy.types import StrategyConfig as Config
 from app.tools.strategy_utils import filter_portfolios_by_signal, get_strategy_types
 
 # Config management is now handled by ConfigService
-from app.tools.synthetic_ticker import process_synthetic_config
 
 CONFIG: Config = {
     "TICKER": ["JPM"],

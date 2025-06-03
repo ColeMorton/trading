@@ -6,7 +6,7 @@ based on correlation analysis, reducing risk concentration.
 """
 
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 

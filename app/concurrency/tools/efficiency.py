@@ -60,7 +60,7 @@ def calculate_strategy_efficiency(
             )
             efficiency = 0.0001
 
-        log(f"Strategy efficiency components:", "info")
+        log("Strategy efficiency components:", "info")
         log(f"Diversification: {diversification}", "info")
         log(f"Independence (raw): {independence}", "info")
         log(f"Independence (adjusted): {adjusted_independence}", "info")
@@ -219,17 +219,17 @@ def calculate_portfolio_efficiency(
         )
 
         # Log the components for debugging
-        log(f"Portfolio efficiency calculation components:", "info")
+        log("Portfolio efficiency calculation components:", "info")
         log(f"  Total weighted efficiency: {total_efficiency:.6f}", "info")
         log(
             f"  Note: Diversification ({diversification:.6f}), Independence ({adjusted_independence:.6f}), and Activity ({activity:.6f})",
             "info",
         )
         log(
-            f"  multipliers are already incorporated in the base efficiency calculation",
+            "  multipliers are already incorporated in the base efficiency calculation",
             "info",
         )
-        log(f"  and are not applied again at the portfolio level", "info")
+        log("  and are not applied again at the portfolio level", "info")
         log(f"  Portfolio efficiency: {portfolio_efficiency:.6f}", "info")
 
         # Ensure portfolio efficiency is at least a small positive value
@@ -252,7 +252,7 @@ def calculate_portfolio_efficiency(
                     "warning",
                 )
                 log(
-                    f"Setting portfolio efficiency to 50% of average strategy efficiency",
+                    "Setting portfolio efficiency to 50% of average strategy efficiency",
                     "info",
                 )
                 portfolio_efficiency = max(
@@ -377,7 +377,7 @@ def _validate_expectancy_calculation(
                 else 0
             )
 
-            log(f"Expectancy validation:", "info")
+            log("Expectancy validation:", "info")
             log(
                 f"  Individual expectancies: {[f'{e:.3f}' for e in strategy_expectancies]}",
                 "info",
@@ -393,7 +393,7 @@ def _validate_expectancy_calculation(
                     "warning",
                 )
                 log(
-                    f"This suggests expectancies are being summed instead of averaged",
+                    "This suggests expectancies are being summed instead of averaged",
                     "warning",
                 )
 
@@ -405,7 +405,7 @@ def _validate_expectancy_calculation(
 
             elif abs(total_weighted_expectancy) > 1000:
                 log(
-                    f"WARNING: Expectancy magnitude suggests unit confusion (should be per-trade dollars, not percentages)",
+                    "WARNING: Expectancy magnitude suggests unit confusion (should be per-trade dollars, not percentages)",
                     "warning",
                 )
 
@@ -417,7 +417,7 @@ def _validate_expectancy_calculation(
 
             # Debug detailed calculation
             if debug_info:
-                log(f"Expectancy calculation breakdown:", "info")
+                log("Expectancy calculation breakdown:", "info")
                 for item in debug_info:
                     log(
                         f"  Strategy {item['strategy']}: {item['expectancy']:.3f} × {item['allocation']:.3f} = {item['contribution']:.3f}",

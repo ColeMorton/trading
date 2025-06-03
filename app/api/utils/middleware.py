@@ -6,9 +6,8 @@ like rate limiting, authentication, and request tracking.
 """
 
 import math
-from typing import Optional
 
-from fastapi import Depends, HTTPException, Request
+from fastapi import HTTPException, Request
 
 from .rate_limiter import get_analysis_limiter, get_cache_limiter
 

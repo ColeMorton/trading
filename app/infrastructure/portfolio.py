@@ -15,7 +15,6 @@ from app.core.interfaces import (
     PortfolioFilter,
     PortfolioManagerInterface,
 )
-from app.core.types import PortfolioMetrics
 
 
 class ConcretePortfolio(Portfolio):

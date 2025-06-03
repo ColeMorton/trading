@@ -23,7 +23,6 @@ sys.path.insert(0, str(project_root))
 
 from app.concurrency.config_defaults import get_optimized_config_for_mstr
 from app.concurrency.tools.runner import main as run_concurrency
-from app.tools.setup_logging import setup_logging
 
 
 def validate_risk_contributions(json_path: Path) -> bool:

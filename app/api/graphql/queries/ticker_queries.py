@@ -6,10 +6,8 @@ This module contains GraphQL query resolvers for ticker and price data operation
 
 from typing import List, Optional
 
-import strawberry
-
 from app.api.graphql.types.enums import TimeframeType
-from app.api.graphql.types.ticker import PriceBar, PriceData, PriceDataFilter, Ticker
+from app.api.graphql.types.ticker import PriceBar, PriceDataFilter, Ticker
 from app.database.config import get_prisma
 
 

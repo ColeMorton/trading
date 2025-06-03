@@ -17,7 +17,7 @@ import traceback
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Tuple, Union
 
 # Define log levels with standardized names
 LOG_LEVELS = {

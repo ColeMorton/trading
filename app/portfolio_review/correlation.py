@@ -66,7 +66,7 @@ def generate_correlation_plot(assets, days, title_suffix=""):
     Returns:
         tuple: (dendrogram figure, heatmap figure)
     """
-    end_date = datetime.today().strftime("%Y-%m-%d")
+    datetime.today().strftime("%Y-%m-%d")
     start_date = (datetime.today() - timedelta(days=days)).strftime("%Y-%m-%d")
 
     # Download data

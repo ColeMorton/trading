@@ -4,7 +4,7 @@ GraphQL Types for Ticker and Price Data
 This module defines GraphQL types for tickers and price data.
 """
 
-from typing import List, Optional
+from typing import Optional
 
 import strawberry
 

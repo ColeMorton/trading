@@ -7,11 +7,8 @@ This tutorial uses the :class:`~skfolio.optimization.MeanRisk` optimization to f
 ensemble of portfolios belonging to the Mean-Variance efficient frontier (pareto font).
 """
 
-import logging
 from typing import Tuple
 
-import numpy as np
-import polars as pl
 from plotly.io import show
 from skfolio import PerfMeasure, RatioMeasure, RiskMeasure
 from skfolio.datasets import load_sp500_dataset

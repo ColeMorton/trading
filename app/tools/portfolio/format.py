@@ -121,7 +121,7 @@ def convert_csv_to_strategy_config(
 
     # Get timeframe setting from config
     use_hourly = config.get("CSV_USE_HOURLY", config.get("USE_HOURLY", False))
-    timeframe = "Hourly" if use_hourly else "Daily"
+    "Hourly" if use_hourly else "Daily"
 
     # Convert DataFrame rows to strategy configurations
     strategies = []

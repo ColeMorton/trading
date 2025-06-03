@@ -139,7 +139,7 @@ def analyze_parameter_combinations(
     total_combinations = 0
     successful_combinations = 0
 
-    log(f"Starting analysis of window combinations")
+    log("Starting analysis of window combinations")
     log(f"Data shape: {data.shape}")
     log(f"Date range: {data['Date'].min()} to {data['Date'].max()}")
 

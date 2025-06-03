@@ -18,8 +18,7 @@ import csv
 import io
 import os
 from enum import Enum, auto
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional
 
 
 class SchemaVersion(Enum):
@@ -315,13 +314,13 @@ def ensure_allocation_sum_100_percent(
             row[allocation_field] = None
             rows_without_allocations += 1
 
-    total_rows = len(normalized_data)
+    len(normalized_data)
 
     # Case 1: If no rows have allocations, maintain the column with empty values
     if rows_with_allocations == 0:
         if log:
             log(
-                f"No allocation values found. Maintaining empty allocation column as per Case 1.",
+                "No allocation values found. Maintaining empty allocation column as per Case 1.",
                 "info",
             )
 

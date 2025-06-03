@@ -342,7 +342,7 @@ class MACrossTestRunner:
         print(f"Failed: {results['failed_tests']}")
         print(f"Skipped: {results['skipped_tests']}")
 
-        print(f"\nSuite Results:")
+        print("\nSuite Results:")
         for suite_name, suite_result in results["suites"].items():
             status = "✅ PASS" if suite_result["success"] else "❌ FAIL"
             print(

@@ -11,7 +11,6 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 
 from app.concurrency.tools.risk_contribution_calculator import (
-    RiskContributionCalculator,
     calculate_risk_contributions_fixed,
 )
 

@@ -5,7 +5,7 @@ This module simulates price movements using GBM and saves the results
 to both CSV files and visualization plots.
 """
 
-from typing import NotRequired, TypedDict
+from typing import TypedDict
 
 import matplotlib.pyplot as plt
 import numpy as np

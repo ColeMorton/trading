@@ -6,7 +6,7 @@ multiple trading strategies, improving on the default signal-count-based weighti
 """
 
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
 

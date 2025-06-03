@@ -9,7 +9,7 @@ methodologies across all trading modules to eliminate discrepancies.
 import os
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd

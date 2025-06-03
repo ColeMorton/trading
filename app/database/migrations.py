@@ -7,11 +7,10 @@ This module contains scripts to migrate existing CSV/JSON data to PostgreSQL.
 import asyncio
 import json
 import logging
-import os
 from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 import pandas as pd
 

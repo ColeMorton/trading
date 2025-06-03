@@ -1,7 +1,6 @@
 import warnings
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import riskfolio as rp
 import yfinance as yf

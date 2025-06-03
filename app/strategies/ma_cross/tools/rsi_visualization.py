@@ -129,7 +129,7 @@ def create_rsi_heatmap(
                     text = (
                         f"RSI Window: {window:.0f}<br>"
                         f"RSI Threshold: {threshold:.0f}<br>"
-                        f"Status: Not Currently Active"
+                        "Status: Not Currently Active"
                     )
                 else:
                     text = (

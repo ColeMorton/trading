@@ -88,7 +88,7 @@ def process_single_ticker(
         )
 
         log(f"Beginning MACD cross analysis for {ticker}...")
-        log(f"Parameter combinations to analyze:", "info")
+        log("Parameter combinations to analyze:", "info")
 
         # Calculate number of parameter combinations
         step = config.get("STEP", 2)

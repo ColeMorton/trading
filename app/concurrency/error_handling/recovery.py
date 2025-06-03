@@ -7,7 +7,7 @@ including retry strategies, fallback operations, and graceful degradation.
 import time
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Type, Union
+from typing import Any, Callable, List, Optional, Type
 
 from .exceptions import ConcurrencyError
 

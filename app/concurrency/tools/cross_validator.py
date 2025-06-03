@@ -9,14 +9,13 @@ import json
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional
 
-import numpy as np
 import pandas as pd
 
 from app.tools.setup_logging import setup_logging
 
-from .validation import PortfolioMetricsValidator, ValidationResult, ValidationSummary
+from .validation import PortfolioMetricsValidator, ValidationSummary
 
 
 @dataclass

@@ -7,7 +7,7 @@ to ensure request data is valid for the MA Cross analysis.
 
 import re
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from app.api.models.ma_cross import MACrossRequest
 

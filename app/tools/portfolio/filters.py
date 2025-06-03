@@ -139,7 +139,7 @@ def check_invalid_metrics(stats: Dict[str, Any], log=None) -> Optional[Dict[str,
         or (isinstance(stats["Score"], float) and math.isnan(stats["Score"]))
     ):
         if log:
-            log(f"Invalid metric: Score is NaN", "info")
+            log("Invalid metric: Score is NaN", "info")
         return None
 
     # Check for inf Profit Factor
@@ -147,7 +147,7 @@ def check_invalid_metrics(stats: Dict[str, Any], log=None) -> Optional[Dict[str,
         stats["Profit Factor"] == "inf" or stats["Profit Factor"] == float("inf")
     ):
         if log:
-            log(f"Invalid metric: Profit Factor is inf", "info")
+            log("Invalid metric: Profit Factor is inf", "info")
         return None
 
     # Check for NaN Expectancy per Trade
@@ -159,7 +159,7 @@ def check_invalid_metrics(stats: Dict[str, Any], log=None) -> Optional[Dict[str,
         )
     ):
         if log:
-            log(f"Invalid metric: Expectancy per Trade is NaN", "info")
+            log("Invalid metric: Expectancy per Trade is NaN", "info")
         return None
 
     # Check for NaN Avg Losing Trade [%]
@@ -171,7 +171,7 @@ def check_invalid_metrics(stats: Dict[str, Any], log=None) -> Optional[Dict[str,
         )
     ):
         if log:
-            log(f"Invalid metric: Avg Losing Trade [%] is NaN", "info")
+            log("Invalid metric: Avg Losing Trade [%] is NaN", "info")
         return None
 
     # All metrics are valid

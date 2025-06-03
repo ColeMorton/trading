@@ -5,8 +5,6 @@ This module provides a simple facade for configuration management that consolida
 functionality from get_config.py and config_management.py into a unified interface.
 """
 
-import os
-from pathlib import Path
 from typing import Any, Dict, Optional
 
 from app.tools.config_management import normalize_config as _normalize_config

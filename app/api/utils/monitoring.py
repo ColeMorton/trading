@@ -5,12 +5,11 @@ This module provides functionality for collecting performance metrics,
 tracking API usage, and monitoring system health.
 """
 
-import time
 from collections import defaultdict, deque
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from threading import Lock
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 import psutil
 

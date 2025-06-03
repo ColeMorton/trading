@@ -10,7 +10,6 @@ from typing import Any, Callable, Dict, List, Optional
 
 import polars as pl
 
-from app.concurrency.tools.signal_processor import SignalDefinition, SignalProcessor
 from app.mean_reversion.tools.signal_generation import (
     calculate_signals,
     is_signal_current,

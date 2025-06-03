@@ -8,14 +8,13 @@ of the MA Cross scanner.
 
 import asyncio
 import json
-import os
 import sys
 import time
 import traceback
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from app.api.config import get_config
 from app.api.models.ma_cross import (
@@ -38,14 +37,11 @@ from app.core.interfaces import (
     StrategyAnalyzerInterface,
     StrategyExecutorInterface,
 )
-from app.core.types import StrategyParameters, TaskStatus
 from app.tools.setup_logging import setup_logging
 
 
 class MACrossServiceError(Exception):
     """Exception raised for errors in the MA Cross service."""
-
-    pass
 
 
 class MACrossService:
@@ -1175,7 +1171,6 @@ class MACrossService:
             Dictionary with export paths organized by type
         """
         import glob
-        import os
 
         export_paths = {"portfolios": [], "portfolios_filtered": []}
 

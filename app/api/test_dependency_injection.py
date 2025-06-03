@@ -91,7 +91,7 @@ async def test_dependency_injection():
     try:
         # Portfolio manager depends on data access
         # If there were circular dependencies, this would fail
-        pm = get_service(PortfolioManagerInterface)
+        get_service(PortfolioManagerInterface)
         print("✓ No circular dependencies detected")
     except Exception as e:
         print(f"✗ Circular dependency error: {e}")

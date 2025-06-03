@@ -4,7 +4,6 @@ Sensylate Router
 This module provides API endpoints for Sensylate - a sensitivity analysis tool for portfolio simulation and strategy creation.
 """
 
-import logging
 import os
 
 from fastapi import APIRouter, HTTPException, Request
@@ -41,7 +40,7 @@ async def sensylate(request: Request):
         HTMLResponse or FileResponse: The Sensylate HTML page
     """
     try:
-        log(f"Serving Sensylate application")
+        log("Serving Sensylate application")
 
         # Check if we have a production build
         dist_html_path = os.path.join(SENSYLATE_DIST_DIR, "index.html")

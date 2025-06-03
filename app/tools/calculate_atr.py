@@ -5,7 +5,7 @@ trading signals based on ATR Trailing Stop strategy.
 """
 
 import logging
-from typing import Callable, Tuple
+from typing import Callable
 
 import numpy as np
 import pandas as pd

@@ -6,10 +6,9 @@ appropriate error handling, logging, and recovery mechanisms.
 
 import traceback
 from contextlib import contextmanager
-from typing import Any, Callable, Dict, List, Optional, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Type
 
 from .exceptions import (
-    EXCEPTION_MAPPINGS,
     ConcurrencyError,
     PermutationAnalysisError,
     ReportGenerationError,

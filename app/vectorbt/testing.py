@@ -1,5 +1,4 @@
 import pandas as pd
-import plotly.graph_objs as go
 import vectorbt as vbt
 import yfinance as yf
 

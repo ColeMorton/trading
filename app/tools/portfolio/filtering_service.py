@@ -39,7 +39,6 @@ class PortfolioFilter(ABC):
         log: Callable,
     ) -> Union[pl.DataFrame, List[Dict[str, Any]]]:
         """Apply the filter to the data."""
-        pass
 
     def set_next(self, next_filter: "PortfolioFilter") -> "PortfolioFilter":
         """Set the next filter in the chain."""

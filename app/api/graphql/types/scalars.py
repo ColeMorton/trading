@@ -7,7 +7,6 @@ This module defines custom scalar types for the GraphQL schema.
 import json
 from datetime import datetime
 from decimal import Decimal as PyDecimal
-from typing import Any, Dict, List, Union
 
 import strawberry
 
@@ -19,8 +18,6 @@ import strawberry
 class DateTime:
     """DateTime scalar type that serializes to ISO format."""
 
-    pass
-
 
 @strawberry.scalar(
     serialize=lambda v: float(v) if v is not None else None,
@@ -28,8 +25,6 @@ class DateTime:
 )
 class Decimal:
     """Decimal scalar type for precise numeric values."""
-
-    pass
 
 
 @strawberry.scalar(
@@ -42,5 +37,3 @@ class Decimal:
 )
 class JSON:
     """JSON scalar type for storing arbitrary JSON data."""
-
-    pass

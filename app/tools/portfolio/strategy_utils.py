@@ -150,7 +150,7 @@ def get_strategy_type_for_export(
     # Check if this might be a MACD strategy based on presence of SIGNAL_WINDOW
     if "SIGNAL_WINDOW" in df and df["SIGNAL_WINDOW"] is not None:
         if log:
-            log(f"Detected MACD strategy based on presence of SIGNAL_WINDOW", "info")
+            log("Detected MACD strategy based on presence of SIGNAL_WINDOW", "info")
         return "MACD"
 
     # If no strategy type field is found, derive from USE_SMA

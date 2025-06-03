@@ -5,9 +5,8 @@ This module provides context for GraphQL operations including database connectio
 authentication, and request information.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
-import strawberry
 from fastapi import Depends, Request
 
 from app.api.utils.logging import setup_api_logging

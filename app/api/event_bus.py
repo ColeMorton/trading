@@ -6,15 +6,13 @@ through asynchronous message passing and event handling.
 """
 
 import asyncio
-import json
 import uuid
-import weakref
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Set, Type, Union
+from typing import Any, Callable, Dict, List, Optional
 
 
 class EventPriority(Enum):
@@ -73,12 +71,10 @@ class EventHandler(ABC):
     @abstractmethod
     async def handle(self, event: Event) -> None:
         """Handle an event."""
-        pass
 
     @abstractmethod
     def get_event_types(self) -> List[str]:
         """Get list of event types this handler can process."""
-        pass
 
     def get_handler_id(self) -> str:
         """Get unique identifier for this handler."""

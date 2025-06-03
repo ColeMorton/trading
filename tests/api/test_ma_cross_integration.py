@@ -50,7 +50,7 @@ def test_ma_cross_analysis():
 
         if response.status_code == 200:
             result = response.json()
-            print(f"\nResponse summary:")
+            print("\nResponse summary:")
             print(f"- Status: {result.get('status')}")
             print(f"- Request ID: {result.get('request_id')}")
             print(f"- Execution time: {result.get('execution_time', 0):.2f} seconds")
@@ -64,7 +64,7 @@ def test_ma_cross_analysis():
             # Show portfolio exports
             exports = result.get("portfolio_exports", {})
             if exports:
-                print(f"\nExported files:")
+                print("\nExported files:")
                 for export_type, files in exports.items():
                     print(f"\n  {export_type}:")
                     for file in files[:3]:  # Show first 3 files
@@ -75,7 +75,7 @@ def test_ma_cross_analysis():
             # Show sample portfolio results
             portfolios = result.get("portfolios", [])
             if portfolios:
-                print(f"\nSample portfolio results (showing first 3):")
+                print("\nSample portfolio results (showing first 3):")
                 for i, portfolio in enumerate(portfolios[:3]):
                     print(f"\n  Portfolio {i+1}:")
                     print(f"    - Ticker: {portfolio.get('ticker')}")
@@ -125,7 +125,7 @@ def test_async_ma_cross_analysis():
         if response.status_code == 202:  # Accepted
             result = response.json()
             execution_id = result.get("execution_id")
-            print(f"\nAsync analysis started:")
+            print("\nAsync analysis started:")
             print(f"- Execution ID: {execution_id}")
             print(f"- Status: {result.get('status')}")
 
@@ -145,7 +145,7 @@ def test_async_ma_cross_analysis():
                     )
 
                     if status.get("status") == "completed":
-                        print(f"\n\nAnalysis completed!")
+                        print("\n\nAnalysis completed!")
                         print(
                             f"- Total portfolios: {status.get('total_portfolios_analyzed', 0)}"
                         )

@@ -77,7 +77,7 @@ def export_results(df: pl.DataFrame, config: Dict[str, Any], log: Callable) -> N
             portfolios=df.to_dicts(), config=config, export_type="portfolios", log=log
         )
 
-        log(f"Analysis results exported successfully")
+        log("Analysis results exported successfully")
         print(f"Analysis complete. Total rows in output: {len(df)}")
 
     except Exception as e:

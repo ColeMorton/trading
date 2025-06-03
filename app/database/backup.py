@@ -6,7 +6,6 @@ and Redis cache, with support for scheduled backups and point-in-time recovery.
 """
 
 import asyncio
-import gzip
 import json
 import logging
 import os

@@ -118,7 +118,7 @@ async def test_async_ma_cross_with_progress():
 
                             # Check if complete
                             if event_data.get("status") == "completed":
-                                print(f"\n✓ Analysis completed!")
+                                print("\n✓ Analysis completed!")
                                 print(
                                     f"✓ Total portfolios: {event_data.get('total_portfolios_analyzed', 0)}"
                                 )
@@ -197,7 +197,7 @@ def test_csv_exports():
             csv_path = exports["portfolios_filtered"][0].replace("csv/", "")
             response = requests.get(f"{API_BASE_URL}/api/data/csv/{csv_path}")
             if response.status_code == 200:
-                print(f"✓ CSV file accessible via data API")
+                print("✓ CSV file accessible via data API")
 
     return True
 

@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional, Union
 import pandas as pd
 import polars as pl
 
-from .common import OrderType, PositionSide, SignalType
+from .common import PositionSide, SignalType
 
 
 @dataclass

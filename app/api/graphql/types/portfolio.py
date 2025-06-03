@@ -8,8 +8,8 @@ from typing import List, Optional
 
 import strawberry
 
-from .enums import DirectionType, PortfolioType, SortOrder, StrategyType, TimeframeType
-from .metrics import PerformanceCriteria, PerformanceMetrics, PortfolioMetrics
+from .enums import DirectionType, PortfolioType, SortOrder, StrategyType
+from .metrics import PerformanceCriteria, PerformanceMetrics
 from .scalars import JSON, DateTime
 
 

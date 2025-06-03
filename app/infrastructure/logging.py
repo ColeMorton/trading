@@ -2,7 +2,6 @@
 
 import logging
 import logging.config
-from pathlib import Path
 from typing import Any, Dict, Optional
 
 from app.core.interfaces import ConfigurationInterface, LoggingInterface

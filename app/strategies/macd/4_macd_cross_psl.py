@@ -70,7 +70,6 @@ def main():
     else:
         # Download historical data for TICKER_1 only
         data = download_data(TICKER_1, USE_HOURLY, YEARS).to_pandas()
-        synthetic_ticker = TICKER_1
 
     # Calculate MACD
     macd_indicator = vbt.MACD.run(

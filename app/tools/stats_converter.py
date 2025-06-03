@@ -459,7 +459,7 @@ def convert_stats(
             else:
                 # Set default values if we can't calculate
                 log(
-                    f"Expectancy per Trade not found and cannot be calculated",
+                    "Expectancy per Trade not found and cannot be calculated",
                     "warning",
                 )
                 stats["Expectancy per Trade"] = 0.0

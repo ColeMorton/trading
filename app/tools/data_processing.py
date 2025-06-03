@@ -9,13 +9,13 @@ efficient batch processing techniques.
 import time
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Callable, List, Optional, Tuple, TypeVar, Union
 
 import numpy as np
 import pandas as pd
 import polars as pl
 
-from app.tools.error_handling import ErrorHandler, Result, validate_dataframe
+from app.tools.error_handling import ErrorHandler
 from app.tools.setup_logging import setup_logging
 
 # Type variable for generic functions

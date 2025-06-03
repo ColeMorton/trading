@@ -7,9 +7,7 @@ It follows SOLID principles and KISS (Keep It Simple, Stupid) design philosophy.
 
 import contextlib
 import os
-from contextlib import AbstractContextManager
-from pathlib import Path
-from typing import Any, Callable, Dict, Generator, List, Optional, Union
+from typing import Any, Callable, Dict, Generator, List
 
 from app.tools.portfolio.loader import load_portfolio as base_load_portfolio
 from app.tools.portfolio.paths import resolve_portfolio_path
@@ -22,8 +20,6 @@ class PortfolioLoadError(Exception):
     This class follows the Single Responsibility Principle by focusing solely
     on representing portfolio loading errors.
     """
-
-    pass
 
 
 def load_portfolio_with_logging(

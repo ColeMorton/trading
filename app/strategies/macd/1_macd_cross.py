@@ -133,31 +133,31 @@ def main(config=config):
     interval = "1h" if config["USE_HOURLY"] else "1d"
     print(f"\nBest parameters for {interval} {config['TICKER']}:")
 
-    print(f"\nTotal Return:")
+    print("\nTotal Return:")
     print(
         f"Short window: {best_params[0]}, Long window: {best_params[1]}, Signal window: {best_params[2]}"
     )
     print(f"Best total return: {best_return:.2%}")
 
-    print(f"\nExpectancy:")
+    print("\nExpectancy:")
     print(
         f"Short window: {best_expectancy_params[0]}, Long window: {best_expectancy_params[1]}, Signal window: {best_expectancy_params[2]}"
     )
     print(f"Best expectancy value: {best_expectancy:.4f}")
 
-    print(f"\nSharpe Ratio:")
+    print("\nSharpe Ratio:")
     print(
         f"Short window: {best_sharpe_params[0]}, Long window: {best_sharpe_params[1]}, Signal window: {best_sharpe_params[2]}"
     )
     print(f"Best Sharpe ratio: {best_sharpe:.4f}")
 
-    print(f"\nSortino Ratio:")
+    print("\nSortino Ratio:")
     print(
         f"Short window: {best_sortino_params[0]}, Long window: {best_sortino_params[1]}, Signal window: {best_sortino_params[2]}"
     )
     print(f"Best Sortino ratio: {best_sortino:.4f}")
 
-    print(f"\nCalmar Ratio:")
+    print("\nCalmar Ratio:")
     print(
         f"Short window: {best_calmar_params[0]}, Long window: {best_calmar_params[1]}, Signal window: {best_calmar_params[2]}"
     )

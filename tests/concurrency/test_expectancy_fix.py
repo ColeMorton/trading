@@ -176,7 +176,7 @@ class TestExpectancyFix:
         )
 
         # Print for demonstration
-        print(f"\nVariance Fix Demonstration:")
+        print("\nVariance Fix Demonstration:")
         print(f"Win Rate: {win_rate:.1%}")
         print(f"Avg Win: {avg_win:.2%}")
         print(f"Avg Loss: {avg_loss:.4%}")

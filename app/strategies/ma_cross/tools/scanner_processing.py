@@ -192,9 +192,7 @@ def export_results(
     use_sma_col = (
         "Use SMA"
         if "Use SMA" in portfolio_df.columns
-        else "USE_SMA"
-        if "USE_SMA" in portfolio_df.columns
-        else None
+        else "USE_SMA" if "USE_SMA" in portfolio_df.columns else None
     )
 
     has_short_window = any(
@@ -203,9 +201,7 @@ def export_results(
     short_window_col = (
         "Short Window"
         if "Short Window" in portfolio_df.columns
-        else "SHORT_WINDOW"
-        if "SHORT_WINDOW" in portfolio_df.columns
-        else None
+        else "SHORT_WINDOW" if "SHORT_WINDOW" in portfolio_df.columns else None
     )
 
     has_long_window = any(
@@ -214,9 +210,7 @@ def export_results(
     long_window_col = (
         "Long Window"
         if "Long Window" in portfolio_df.columns
-        else "LONG_WINDOW"
-        if "LONG_WINDOW" in portfolio_df.columns
-        else None
+        else "LONG_WINDOW" if "LONG_WINDOW" in portfolio_df.columns else None
     )
 
     # Check if we have the new schema or old schema

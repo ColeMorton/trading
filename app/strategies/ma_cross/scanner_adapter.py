@@ -11,7 +11,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 import polars as pl
 
-from app.strategies.ma_cross.core import AnalysisConfig, AnalysisResult, TickerResult
+from app.strategies.ma_cross.core import AnalysisResult, TickerResult
 from app.strategies.ma_cross.tools.scanner_processing import process_ticker
 from app.tools.setup_logging import setup_logging
 

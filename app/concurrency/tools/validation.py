@@ -5,12 +5,10 @@ This module provides comprehensive validation checks to ensure consistency
 between CSV backtest data and JSON portfolio metrics calculations.
 """
 
-import warnings
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional
 
-import numpy as np
 import pandas as pd
 
 from app.tools.setup_logging import setup_logging
@@ -523,7 +521,7 @@ class PortfolioMetricsValidator:
             csv_expectancies = csv_data["Expectancy per Trade"].dropna()
             if len(csv_expectancies) > 0:
                 csv_min, csv_max = csv_expectancies.min(), csv_expectancies.max()
-                csv_median = csv_expectancies.median()
+                csv_expectancies.median()
 
                 # JSON expectancy should be in similar range (allowing for aggregation effects)
                 portfolio_expectancy = (
@@ -596,7 +594,7 @@ class PortfolioMetricsValidator:
 
     def _log_summary(self, summary: ValidationSummary) -> None:
         """Log validation summary."""
-        self.log(f"Validation Summary:", "info")
+        self.log("Validation Summary:", "info")
         self.log(f"  Total checks: {summary.total_checks}", "info")
         self.log(f"  Passed: {summary.passed_checks}", "info")
         self.log(f"  Failed: {summary.failed_checks}", "info")

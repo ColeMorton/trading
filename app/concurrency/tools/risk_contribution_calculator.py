@@ -159,7 +159,7 @@ class RiskContributionCalculator:
         ):
             logger.warning(
                 f"Risk contributions sum to {total_contribution:.6f}, "
-                f"normalizing to ensure 100% total"
+                "normalizing to ensure 100% total"
             )
             # Force normalization if needed
             risk_contributions_pct = risk_contributions_pct / total_contribution
@@ -467,7 +467,7 @@ class RiskContributionCalculator:
         ):
             logger.warning(
                 f"Risk contributions sum to {total_contribution:.6f}, "
-                f"normalizing to ensure 100% total"
+                "normalizing to ensure 100% total"
             )
             # Force normalization if needed
             risk_contributions_pct = risk_contributions_pct / total_contribution
@@ -687,7 +687,7 @@ class RiskContributionCalculator:
                 log(f"Could not calculate confidence intervals: {str(e)}", "warning")
                 risk_metrics["portfolio_volatility_ci"] = None
 
-            log(f"Enhanced portfolio risk calculation completed successfully", "info")
+            log("Enhanced portfolio risk calculation completed successfully", "info")
             return risk_metrics
 
         except (RiskCalculationError, PortfolioVarianceError) as e:
@@ -967,7 +967,8 @@ def calculate_risk_contributions_fixed(
                 from app.concurrency.config_defaults import ConcurrencyDefaults
 
                 use_portfolio_returns = ConcurrencyDefaults.USE_PORTFOLIO_RETURNS
-            except:
+            except ImportError:
+                # Module not found, use default value
                 use_portfolio_returns = False
 
         # Calculate using correct method

@@ -5,7 +5,7 @@ This module provides centralized type definitions and constants for strategy typ
 to ensure consistency across the application.
 """
 
-from typing import Literal, NotRequired, TypedDict, Union
+from typing import Literal, NotRequired, TypedDict
 
 # Define valid strategy types as literals for type checking
 StrategyTypeLiteral = Literal["SMA", "EMA", "MACD", "ATR"]

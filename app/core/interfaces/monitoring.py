@@ -1,7 +1,6 @@
 """Monitoring and metrics interface definition."""
 
 from abc import ABC, abstractmethod
-from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -28,7 +27,6 @@ class MonitoringInterface(ABC):
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Track API request metrics."""
-        pass
 
     @abstractmethod
     def track_operation(
@@ -39,38 +37,32 @@ class MonitoringInterface(ABC):
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Track operation metrics."""
-        pass
 
     @abstractmethod
     def increment_counter(
         self, name: str, value: float = 1, labels: Optional[Dict[str, str]] = None
     ) -> None:
         """Increment a counter metric."""
-        pass
 
     @abstractmethod
     def set_gauge(
         self, name: str, value: float, labels: Optional[Dict[str, str]] = None
     ) -> None:
         """Set a gauge metric."""
-        pass
 
     @abstractmethod
     def observe_histogram(
         self, name: str, value: float, labels: Optional[Dict[str, str]] = None
     ) -> None:
         """Observe a histogram metric."""
-        pass
 
     @abstractmethod
     def get_metrics(self) -> Dict[str, Any]:
         """Get all current metrics."""
-        pass
 
     @abstractmethod
     def health_check(self) -> Dict[str, Any]:
         """Perform health check and return status."""
-        pass
 
     @abstractmethod
     def register_metric(
@@ -81,4 +73,3 @@ class MonitoringInterface(ABC):
         labels: Optional[List[str]] = None,
     ) -> None:
         """Register a new metric."""
-        pass

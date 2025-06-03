@@ -5,7 +5,6 @@ This script compares the original (broken) and fixed implementations
 using the portfolio_d_20250530 data.
 """
 
-import os
 import sys
 from pathlib import Path
 
@@ -102,7 +101,7 @@ def main():
     # Display results
     if comparison["comparison"]:
         comp = comparison["comparison"]
-        print(f"\nRisk Contribution Sum Comparison:")
+        print("\nRisk Contribution Sum Comparison:")
         print(f"  Original Implementation: {comp['original_sum_pct']}")
         print(f"  Fixed Implementation:    {comp['fixed_sum_pct']}")
         print(f"  Difference:              {comp['sum_difference_pct']}")

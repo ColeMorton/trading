@@ -1,4 +1,4 @@
-from typing import Dict, List, NotRequired, TypedDict
+from typing import Dict, List, TypedDict
 
 
 class PortfolioAsset(TypedDict):

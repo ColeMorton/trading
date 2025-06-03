@@ -4,14 +4,10 @@ Data retrieval tools for the Trading API MCP server.
 Provides tools for listing and retrieving trading data files (CSV and JSON).
 """
 
-import json
-import os
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List
 
 from mcp.types import Tool
 
-from ..config import config
 from ..handlers.api_client import APIError, get_api_client
 from ..logging_setup import get_logger
 

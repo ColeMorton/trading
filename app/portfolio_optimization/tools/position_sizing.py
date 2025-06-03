@@ -1,6 +1,6 @@
 """Core position sizing calculations."""
 
-from typing import Any, Callable, Dict, List, Tuple, TypedDict
+from typing import Callable, Dict, List, Tuple, TypedDict
 
 import numpy as np
 import yfinance as yf

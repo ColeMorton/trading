@@ -6,21 +6,18 @@ It provides consistent logging across the API server.
 """
 
 import logging
-import os
 import time
 from typing import Callable, Tuple
 
 from app.tools.setup_logging import setup_logging as base_setup_logging
 
 
-def setup_api_logging() -> (
-    Tuple[
-        Callable[[str, str], None],
-        Callable[[], None],
-        logging.Logger,
-        logging.FileHandler,
-    ]
-):
+def setup_api_logging() -> Tuple[
+    Callable[[str, str], None],
+    Callable[[], None],
+    logging.Logger,
+    logging.FileHandler,
+]:
     """
     Sets up API-specific logging configuration.
 

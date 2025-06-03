@@ -31,7 +31,7 @@ try:
         portfolios = result.get("portfolios", [])
         if portfolios:
             p = portfolios[0]
-            print(f"\nFirst portfolio:")
+            print("\nFirst portfolio:")
             print(f"  Ticker: {p.get('ticker')}")
             print(f"  Windows: {p.get('short_window')}/{p.get('long_window')}")
             print(f"  Score: {p.get('score', 0):.2f}")

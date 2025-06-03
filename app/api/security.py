@@ -2,11 +2,9 @@
 Security configuration and middleware for production deployment
 """
 
-import hashlib
 import hmac
 import logging
 import os
-import time
 from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import List, Optional
@@ -79,21 +77,21 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-        response.headers[
-            "Permissions-Policy"
-        ] = "geolocation=(), microphone=(), camera=()"
+        response.headers["Permissions-Policy"] = (
+            "geolocation=(), microphone=(), camera=()"
+        )
 
         # HSTS (only in production with HTTPS)
         if os.getenv("ENVIRONMENT") == "production":
-            response.headers[
-                "Strict-Transport-Security"
-            ] = "max-age=31536000; includeSubDomains"
+            response.headers["Strict-Transport-Security"] = (
+                "max-age=31536000; includeSubDomains"
+            )
 
         # CSP for API endpoints
         if request.url.path.startswith("/api"):
-            response.headers[
-                "Content-Security-Policy"
-            ] = "default-src 'none'; frame-ancestors 'none';"
+            response.headers["Content-Security-Policy"] = (
+                "default-src 'none'; frame-ancestors 'none';"
+            )
 
         return response
 

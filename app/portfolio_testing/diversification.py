@@ -4,7 +4,6 @@ from typing import List, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import polars as pl
 import yfinance as yf
 from skfolio.optimization import MaximumDiversification
 

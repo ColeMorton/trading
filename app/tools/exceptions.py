@@ -26,82 +26,54 @@ class TradingSystemError(Exception):
 class ConfigurationError(TradingSystemError):
     """Raised when there's an issue with configuration parameters."""
 
-    pass
-
 
 class PortfolioError(TradingSystemError):
     """Base class for portfolio-related errors."""
-
-    pass
 
 
 class PortfolioLoadError(PortfolioError):
     """Raised when a portfolio cannot be loaded."""
 
-    pass
-
 
 class PortfolioProcessingError(PortfolioError):
     """Raised when there's an error processing a portfolio."""
-
-    pass
 
 
 class StrategyError(TradingSystemError):
     """Base class for strategy-related errors."""
 
-    pass
-
 
 class StrategyProcessingError(StrategyError):
     """Raised when there's an error processing a strategy."""
-
-    pass
 
 
 class SyntheticTickerError(StrategyError):
     """Raised when there's an issue with synthetic ticker processing."""
 
-    pass
-
 
 class DataError(TradingSystemError):
     """Base class for data-related errors."""
-
-    pass
 
 
 class DataLoadError(DataError):
     """Raised when data cannot be loaded."""
 
-    pass
-
 
 class ExportError(TradingSystemError):
     """Raised when results cannot be exported."""
-
-    pass
 
 
 class RiskCalculationError(TradingSystemError):
     """Base class for portfolio risk calculation errors."""
 
-    pass
-
 
 class DataAlignmentError(RiskCalculationError):
     """Raised when return series alignment fails."""
-
-    pass
 
 
 class CovarianceMatrixError(RiskCalculationError):
     """Raised when covariance matrix calculation fails."""
 
-    pass
-
 
 class PortfolioVarianceError(RiskCalculationError):
     """Raised when portfolio variance calculation fails."""
-
-    pass

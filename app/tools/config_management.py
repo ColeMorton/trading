@@ -6,22 +6,11 @@ application components, with validation, documentation, and preset support.
 """
 
 import copy
-import inspect
 import json
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import (
-    Any,
-    Dict,
-    List,
-    Optional,
-    Type,
-    TypedDict,
-    TypeVar,
-    Union,
-    get_type_hints,
-)
+from typing import Any, Dict, List, Optional, Type, TypeVar, Union, get_type_hints
 
 from typing_extensions import Protocol
 
@@ -32,8 +21,6 @@ from app.tools.structured_logging import get_logger
 class ConfigProtocol(Protocol):
     """Protocol for configuration dictionaries."""
 
-    pass
-
 
 T = TypeVar("T", bound=ConfigProtocol)
 ConfigDict = Dict[str, Any]
@@ -41,8 +28,6 @@ ConfigDict = Dict[str, Any]
 
 class ConfigValidationError(Exception):
     """Exception raised for configuration validation errors."""
-
-    pass
 
 
 class ConfigManager:
@@ -68,9 +53,9 @@ class ConfigManager:
 
         # Initialize configuration storage
         self.configs: Dict[str, ConfigDict] = {}
-        self.config_schemas: Dict[
-            str, Type[Any]
-        ] = {}  # Changed from Type[TypedDict] to Type[Any]
+        self.config_schemas: Dict[str, Type[Any]] = (
+            {}
+        )  # Changed from Type[TypedDict] to Type[Any]
         self.config_docs: Dict[str, Dict[str, str]] = {}
         self.config_presets: Dict[str, Dict[str, ConfigDict]] = {}
 

@@ -11,8 +11,6 @@ import polars as pl
 class StrategyConfig(ABC):
     """Abstract base for strategy configuration."""
 
-    pass
-
 
 class StrategyResult(ABC):
     """Abstract base for strategy results."""
@@ -21,13 +19,11 @@ class StrategyResult(ABC):
     @abstractmethod
     def metrics(self) -> Dict[str, float]:
         """Performance metrics."""
-        pass
 
     @property
     @abstractmethod
     def signals(self) -> Union[pd.DataFrame, pl.DataFrame]:
         """Trading signals."""
-        pass
 
 
 class StrategyAnalyzerInterface(ABC):
@@ -41,17 +37,14 @@ class StrategyAnalyzerInterface(ABC):
         data: Optional[Union[pd.DataFrame, pl.DataFrame]] = None,
     ) -> StrategyResult:
         """Analyze a strategy for a given ticker."""
-        pass
 
     @abstractmethod
     def validate_config(self, config: StrategyConfig) -> bool:
         """Validate strategy configuration."""
-        pass
 
     @abstractmethod
     def get_default_config(self) -> StrategyConfig:
         """Get default configuration for the strategy."""
-        pass
 
 
 class StrategyExecutorInterface(ABC):
@@ -66,7 +59,6 @@ class StrategyExecutorInterface(ABC):
         output_dir: Optional[Path] = None,
     ) -> Dict[str, Any]:
         """Execute a strategy for multiple tickers."""
-        pass
 
     @abstractmethod
     async def execute_with_progress(
@@ -78,14 +70,11 @@ class StrategyExecutorInterface(ABC):
         progress_tracker: "ProgressTrackerInterface",
     ) -> Dict[str, Any]:
         """Execute a strategy with progress tracking."""
-        pass
 
     @abstractmethod
     def get_supported_strategies(self) -> List[str]:
         """Get list of supported strategy types."""
-        pass
 
     @abstractmethod
     def validate_parameters(self, strategy_type: str, config: Dict[str, Any]) -> bool:
         """Validate parameters for a specific strategy."""
-        pass

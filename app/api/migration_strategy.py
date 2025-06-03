@@ -6,11 +6,8 @@ including deprecation notices, migration paths, and compatibility layers.
 """
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional
-
-from fastapi import Request, Response
-from pydantic import BaseModel
 
 from app.api.versioning import APIVersion, version_manager
 
@@ -50,7 +47,6 @@ class MigrationPlanner:
     def _setup_default_migrations(self):
         """Set up default migration paths."""
         # Future: When v2 is added, create migration path from v1 to v2
-        pass
 
     def add_migration_path(self, migration_path: MigrationPath):
         """Add a new migration path."""
@@ -222,16 +218,16 @@ class MigrationGuide:
         # Add urgency-specific messaging
         urgency = timeline.get("urgency", "low")
         if urgency == "critical":
-            notice[
-                "message"
-            ] = f"⚠️ URGENT: API version {version.value} will be sunset soon!"
-            notice[
-                "recommended_action"
-            ] = "Migrate immediately to avoid service disruption"
+            notice["message"] = (
+                f"⚠️ URGENT: API version {version.value} will be sunset soon!"
+            )
+            notice["recommended_action"] = (
+                "Migrate immediately to avoid service disruption"
+            )
         elif urgency == "high":
-            notice[
-                "message"
-            ] = f"⚠️ WARNING: API version {version.value} is being deprecated"
+            notice["message"] = (
+                f"⚠️ WARNING: API version {version.value} is being deprecated"
+            )
             notice["recommended_action"] = "Plan migration as soon as possible"
 
         return notice
@@ -284,7 +280,6 @@ def setup_future_migrations():
     #     ]
     # )
     # migration_planner.add_migration_path(v1_to_v2)
-    pass
 
 
 # Initialize future migrations setup

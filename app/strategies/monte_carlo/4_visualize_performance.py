@@ -15,7 +15,7 @@ def visualize_performance(csv_file):
 
     # Print basic statistics of the final portfolio value
     final_portfolio_values = df["final_portfolio_value"].to_numpy()
-    print(f"Final Portfolio Value Statistics:")
+    print("Final Portfolio Value Statistics:")
     print(f"Mean: {np.mean(final_portfolio_values)}")
     print(f"Median: {np.median(final_portfolio_values)}")
     print(f"Min: {np.min(final_portfolio_values)}")

@@ -15,8 +15,6 @@ from app.tools.export_csv import ExportConfig, export_csv
 class PortfolioExportError(Exception):
     """Custom exception for portfolio export errors."""
 
-    pass
-
 
 VALID_EXPORT_TYPES = {
     "portfolios",

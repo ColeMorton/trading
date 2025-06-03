@@ -26,7 +26,7 @@ def run_generator(csv_path, pine_script_path=None, ticker_filter=None):
         cmd.append(ticker_filter)
     
     print(f"\n{'='*80}")
-    print(f"Running hardcoded generator with:")
+    print("Running hardcoded generator with:")
     print(f"  CSV: {csv_path}")
     if pine_script_path:
         print(f"  Pine script: {pine_script_path}")

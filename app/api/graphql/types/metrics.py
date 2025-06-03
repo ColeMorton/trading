@@ -4,7 +4,7 @@ GraphQL Types for Performance Metrics and Backtesting
 This module defines GraphQL types for performance metrics and backtest results.
 """
 
-from typing import List, Optional
+from typing import Optional
 
 import strawberry
 

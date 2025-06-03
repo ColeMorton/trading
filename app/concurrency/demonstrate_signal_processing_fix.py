@@ -115,7 +115,7 @@ def demonstrate_signal_variance_fix():
     print(f"Filtered Signals (volume + RSI): {counts.filtered_signals}")
     print(f"Position Signals (actual changes): {counts.position_signals}")
     print(f"Trade Signals (completed trades): {counts.trade_signals}")
-    print(f"")
+    print("")
     print(f"Filter Efficiency: {counts.filter_efficiency:.1%}")
     print(f"Execution Efficiency: {counts.execution_efficiency:.1%}")
     print(f"Overall Efficiency: {reconciliation['overall_efficiency']:.1%}")
@@ -127,9 +127,9 @@ def demonstrate_signal_variance_fix():
         else 0
     )
 
-    print(f"\nVariance Analysis:")
+    print("\nVariance Analysis:")
     print(f"Legacy approach would show {legacy_variance:.1f}% variance")
-    print(f"Standardized approach clearly shows signal flow efficiency")
+    print("Standardized approach clearly shows signal flow efficiency")
 
 
 def demonstrate_consistency_across_modules():
@@ -187,7 +187,7 @@ def demonstrate_consistency_across_modules():
     raw_consistent = method1_raw == method2_raw == method3_raw
     position_consistent = method1_position == method2_position == method3_position
 
-    print(f"\nConsistency Check:")
+    print("\nConsistency Check:")
     print(f"Raw signals consistent: {'✅' if raw_consistent else '❌'}")
     print(f"Position signals consistent: {'✅' if position_consistent else '❌'}")
 

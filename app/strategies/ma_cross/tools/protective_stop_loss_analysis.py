@@ -9,10 +9,5 @@ from app.strategies.ma_cross.tools.psl_analysis import (
     analyze_holding_periods,
     analyze_protective_stop_loss_parameters,
 )
-from app.strategies.ma_cross.tools.psl_types import (
-    AnalysisResult,
-    HoldingPeriodResult,
-    PSLConfig,
-)
 
 __all__ = ["analyze_protective_stop_loss_parameters", "analyze_holding_periods"]

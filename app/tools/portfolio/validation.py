@@ -9,7 +9,6 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import polars as pl
 
-from app.tools.portfolio.strategy_types import STRATEGY_TYPE_FIELDS
 from app.tools.portfolio.strategy_utils import get_strategy_type_for_export
 
 

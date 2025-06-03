@@ -50,7 +50,7 @@ def calculate_position_metrics(
         inactive_periods = int(np.sum(active_strategies == 0))
         max_concurrent = int(np.max(active_strategies))
 
-        log(f"Basic statistics calculated:", "info")
+        log("Basic statistics calculated:", "info")
         log(f"Concurrent periods: {concurrent_periods}", "info")
         log(f"Exclusive periods: {exclusive_periods}", "info")
         log(f"Inactive periods: {inactive_periods}", "info")

@@ -20,15 +20,13 @@ Classes:
 """
 
 import json
-import os
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import numpy as np
 import pandas as pd
-import polars as pl
 
 from .correlation_calculator import CorrelationCalculator
 
@@ -703,9 +701,9 @@ def export_unified_metrics(
             }
 
             if include_validation:
-                export_data[
-                    "validation_results"
-                ] = calculation_result.validation_results
+                export_data["validation_results"] = (
+                    calculation_result.validation_results
+                )
                 if calculation_result.reconciliation_report:
                     # Convert reconciliation report to dict
                     export_data["reconciliation_summary"] = {

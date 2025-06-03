@@ -7,17 +7,9 @@ and throw meaningful exceptions rather than using fallback values.
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Callable, List, Optional
 
 import numpy as np
-import polars as pl
-
-from app.tools.exceptions import (
-    CovarianceMatrixError,
-    DataAlignmentError,
-    PortfolioVarianceError,
-    RiskCalculationError,
-)
 
 
 class ValidationLevel(Enum):

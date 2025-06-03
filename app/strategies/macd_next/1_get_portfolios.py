@@ -18,7 +18,6 @@ It includes functionality for parameter sensitivity analysis and portfolio filte
 from app.strategies.macd_next.config_types import DEFAULT_CONFIG, PortfolioConfig
 from app.strategies.macd_next.tools.export_portfolios import (
     PortfolioExportError,
-    export_best_portfolios,
     export_portfolios,
 )
 from app.strategies.macd_next.tools.filter_portfolios import filter_portfolios

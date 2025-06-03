@@ -7,7 +7,6 @@ centralized export functionality.
 
 from typing import Callable, Dict, List, Optional, Tuple
 
-import numpy as np
 import polars as pl
 
 from app.tools.export_csv import ExportConfig, export_csv
@@ -18,8 +17,6 @@ from app.tools.portfolio.strategy_utils import get_strategy_type_for_export
 
 class PortfolioExportError(Exception):
     """Custom exception for portfolio export errors."""
-
-    pass
 
 
 VALID_EXPORT_TYPES = {

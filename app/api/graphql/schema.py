@@ -51,27 +51,17 @@ from .queries.ticker_queries import (  # get_ticker_stats  # TODO: Create proper
     get_tickers,
 )
 from .types.enums import TimeframeType
-from .types.metrics import BacktestResult, MetricsFilter, PortfolioMetrics
+from .types.metrics import BacktestResult, PortfolioMetrics
 
 # Import types for schema definition
 from .types.portfolio import (
     AnalysisStatus,
     AsyncAnalysisResponse,
-    MACrossAnalysisInput,
     MACrossAnalysisResponse,
     Portfolio,
-    PortfolioFilter,
-    PortfolioInput,
 )
-from .types.strategy import (
-    Signal,
-    Strategy,
-    StrategyConfiguration,
-    StrategyConfigurationInput,
-    StrategyFilter,
-    StrategyInput,
-)
-from .types.ticker import PriceBar, PriceDataFilter, Ticker
+from .types.strategy import Signal, Strategy, StrategyConfiguration
+from .types.ticker import PriceBar, Ticker
 
 
 @strawberry.type
@@ -136,9 +126,9 @@ class Mutation:
     )
 
     # Analysis mutations
-    execute_ma_cross_analysis: Union[
-        MACrossAnalysisResponse, AsyncAnalysisResponse
-    ] = strawberry.field(resolver=execute_ma_cross_analysis)
+    execute_ma_cross_analysis: Union[MACrossAnalysisResponse, AsyncAnalysisResponse] = (
+        strawberry.field(resolver=execute_ma_cross_analysis)
+    )
     get_analysis_status: Optional[AnalysisStatus] = strawberry.field(
         resolver=get_analysis_status
     )

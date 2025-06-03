@@ -1,8 +1,5 @@
 import numpy as np
-import pandas as pd
-import plotly.graph_objs as go
 import vectorbt as vbt
-import yfinance as yf
 
 symbols = ["BTC-USD", "SOL-USD"]
 price = vbt.YFData.download(symbols, missing_index="drop").get("Close")

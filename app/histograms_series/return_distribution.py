@@ -481,7 +481,7 @@ def main():
         table.scale(1, 1.5)
 
         # Print option strategy diagnostic information
-        print(f"\nOption Strategy Analysis:")
+        print("\nOption Strategy Analysis:")
         print(f"Strike Distance: +{STRIKE_DISTANCE:.2f}%")
         print(f"Days to Expiry: {DAYS_TO_EXPIRY}")
         print(f"Historical Probability of Exceeding Strike: {historical_prob:.2f}%")

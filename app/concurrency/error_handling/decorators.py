@@ -7,9 +7,9 @@ retry logic, and error transformation.
 import inspect
 import time
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Callable, Dict, Optional, Tuple, Type
 
-from .exceptions import EXCEPTION_MAPPINGS, ConcurrencyError, ValidationError
+from .exceptions import ConcurrencyError, ValidationError
 from .registry import track_error
 
 
@@ -224,7 +224,7 @@ def retry_on_failure(
                             )
                         raise
 
-                except Exception as e:
+                except Exception:
                     # Don't retry on exceptions not in the retry list
                     raise
 

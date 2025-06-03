@@ -6,16 +6,13 @@ adjusted metrics and processing portfolio statistics for various strategy types
 including SMA, EMA, and MACD.
 """
 
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional
 
 import polars as pl
 
 from app.strategies.ma_cross.tools.process_ma_portfolios import process_ma_portfolios
 from app.strategies.ma_cross.tools.process_strategy_portfolios import (
-    process_ema_strategy,
     process_macd_strategy,
-    process_sma_strategy,
-    process_strategy_portfolios,
 )
 from app.strategies.ma_cross.tools.signal_utils import is_signal_current
 

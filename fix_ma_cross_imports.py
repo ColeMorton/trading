@@ -58,7 +58,7 @@ def main():
     
     # Report results
     print("-" * 50)
-    print(f"\nSummary:")
+    print("\nSummary:")
     print(f"Total files scanned: {len(python_files)}")
     print(f"Files updated: {len(updated_files)}")
     

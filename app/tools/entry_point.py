@@ -5,7 +5,7 @@ for trading system modules.
 """
 
 import sys
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict
 
 from app.tools.error_context import error_context
 

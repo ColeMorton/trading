@@ -118,7 +118,7 @@ class SignalMetrics:
             )
 
             # Normalize the metrics for consistent scaling
-            normalized_metrics = self.normalizer.normalize_metrics(metrics)
+            self.normalizer.normalize_metrics(metrics)
 
             return metrics
         except Exception as e:

@@ -30,9 +30,7 @@ Usage:
 import argparse
 import json
 import sys
-import time
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 import requests
 
@@ -52,7 +50,7 @@ class TradingAPIClient:
                 try:
                     error_data = response.json()
                     print(json.dumps(error_data, indent=2))
-                except:
+                except (json.JSONDecodeError, ValueError):
                     print(response.text)
                 sys.exit(1)
         except Exception as e:
@@ -118,7 +116,7 @@ class TradingAPIClient:
 
     def _print_analysis_results(self, result: Dict[str, Any]):
         """Pretty print analysis results."""
-        print(f"\n📊 MA Cross Analysis Results")
+        print("\n📊 MA Cross Analysis Results")
         print(f"{'='*60}")
         print(f"Status: {result['status']}")
         print(f"Tickers: {result['ticker']}")
@@ -127,7 +125,7 @@ class TradingAPIClient:
         print(f"Execution time: {result['execution_time']:.2f}s")
 
         if result["portfolios"]:
-            print(f"\n📈 Top Portfolios:")
+            print("\n📈 Top Portfolios:")
             print(f"{'='*60}")
             for i, portfolio in enumerate(result["portfolios"][:5]):
                 print(
@@ -185,7 +183,7 @@ class TradingAPIClient:
         response = self.session.get(f"{self.base_url}/api/ma-cross/metrics")
         result = self._handle_response(response)
 
-        print(f"\n📊 MA Cross Service Metrics")
+        print("\n📊 MA Cross Service Metrics")
         print(f"{'='*40}")
         print(f"Total Requests: {result['requests_total']}")
         print(
@@ -205,7 +203,7 @@ class TradingAPIClient:
         status_emoji = "✅" if result["status"] == "healthy" else "❌"
         print(f"\n{status_emoji} MA Cross Service Health: {result['status']}")
         print(f"Version: {result['version']}")
-        print(f"Dependencies:")
+        print("Dependencies:")
         for dep, status in result["dependencies"].items():
             emoji = "✅" if status == "healthy" else "❌"
             print(f"  {emoji} {dep}: {status}")
@@ -239,7 +237,7 @@ class TradingAPIClient:
         result = self._handle_response(response)
 
         if async_exec:
-            print(f"🚀 Script execution started!")
+            print("🚀 Script execution started!")
             print(f"Execution ID: {result['execution_id']}")
             print(
                 f"\nCheck status: python api_cli.py scripts status {result['execution_id']}"
@@ -290,7 +288,7 @@ class TradingAPIClient:
             print(f"Columns: {', '.join(columns)}")
 
             # Show first few rows
-            print(f"\nFirst 5 rows:")
+            print("\nFirst 5 rows:")
             print(f"{'='*60}")
             for i, row in enumerate(data[:5]):
                 print(f"Row {i}: {json.dumps(row, indent=2)}")

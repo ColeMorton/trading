@@ -7,7 +7,7 @@ reducing implementation lag and improving performance.
 
 import os
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, Optional, Tuple
 
 import numpy as np
 import polars as pl

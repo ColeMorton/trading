@@ -4,7 +4,7 @@ Signal Conversion Module.
 This module provides standardized functions for converting signals to trades.
 """
 
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Any, Callable, Dict, Union
 
 import pandas as pd
 import polars as pl

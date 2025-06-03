@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import plotly.graph_objects as go  # Import Plotly for visualization
 import vectorbt as vbt  # Assuming VectorBT is being used for backtesting

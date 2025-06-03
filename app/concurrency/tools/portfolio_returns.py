@@ -8,7 +8,7 @@ that account for actual portfolio behavior.
 
 import logging
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 import polars as pl
@@ -105,7 +105,7 @@ class PortfolioReturnsCalculator:
             portfolio_returns, returns_matrix, weights, return_columns
         )
 
-        self.log(f"Portfolio return calculation completed", "info")
+        self.log("Portfolio return calculation completed", "info")
 
         return portfolio_returns, diagnostics
 
@@ -262,7 +262,7 @@ class PortfolioReturnsCalculator:
         if std == 0:
             return 0.0
 
-        n = len(returns)
+        len(returns)
         m4 = np.mean((returns - mean) ** 4)
         excess_kurtosis = m4 / (std**4) - 3
 
@@ -433,7 +433,7 @@ class PortfolioReturnsCalculator:
                 "n_observations": len(portfolio_returns),
             }
 
-            self.log(f"Portfolio metrics calculated successfully", "info")
+            self.log("Portfolio metrics calculated successfully", "info")
             self.log(f"  Portfolio volatility: {portfolio_std:.6f}", "info")
             self.log(f"  VaR 95%: {var_95:.4f}, CVaR 95%: {cvar_95:.4f}", "info")
 

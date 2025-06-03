@@ -5,7 +5,7 @@ This module provides standardized functions for calculating expectancy metrics
 across both signals and trades, ensuring consistency throughout the system.
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -244,9 +244,9 @@ def calculate_expectancy_metrics(
         results["Avg Loss with Stop Loss [%]"] = (
             sl_components["avg_loss"] * 100 if sl_components["avg_loss"] else 0
         )
-        results[
-            "Expectancy per Trade"
-        ] = sl_expectancy  # Use stop-loss adjusted expectancy
+        results["Expectancy per Trade"] = (
+            sl_expectancy  # Use stop-loss adjusted expectancy
+        )
 
     # Calculate monthly expectancy if trades per month is provided
     if "TRADES_PER_MONTH" in config and config["TRADES_PER_MONTH"] is not None:

@@ -9,7 +9,7 @@ performance discrepancy investigation.
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, Optional
 
 from app.concurrency.tools.allocation_strategy import AllocationMode
 from app.concurrency.tools.correlation_filter import (
@@ -55,7 +55,9 @@ class ConcurrencyDefaults:
 
     # Phase 4: Enhanced Variance Estimation Configuration
     USE_ENHANCED_VARIANCE: bool = False  # Enable advanced variance estimation methods
-    VARIANCE_METHOD: str = "auto"  # Method for variance estimation ('auto', 'sample', 'rolling', 'ewma', 'bootstrap', 'bayesian')
+    VARIANCE_METHOD: str = (
+        "auto"  # Method for variance estimation ('auto', 'sample', 'rolling', 'ewma', 'bootstrap', 'bayesian')
+    )
     VALIDATION_LEVEL: str = (
         "moderate"  # Validation strictness ('strict', 'moderate', 'permissive')
     )

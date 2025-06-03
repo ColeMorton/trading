@@ -7,7 +7,6 @@ mean reversion strategy parameters.
 
 from typing import Callable, Dict, List, Optional
 
-import numpy as np
 import polars as pl
 
 from app.mean_reversion.tools.signal_types import Config

@@ -5,7 +5,7 @@ strategy parameters, and format specifications. These types are used throughout
 the portfolio tools to ensure type safety and consistent data structures.
 """
 
-from typing import Any, Callable, Dict, List, Literal, NotRequired, TypedDict, Union
+from typing import Any, Callable, Dict, List, NotRequired, TypedDict
 
 
 class StrategyConfig(TypedDict):

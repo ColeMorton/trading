@@ -6,7 +6,7 @@ across different modules in the application.
 """
 
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
 
 
 def resolve_portfolio_path(

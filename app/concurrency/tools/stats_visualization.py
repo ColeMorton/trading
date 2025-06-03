@@ -2,8 +2,6 @@
 
 from typing import Callable, Dict
 
-import plotly.graph_objects as go
-
 from app.concurrency.tools.types import ConcurrencyStats
 
 
@@ -47,7 +45,7 @@ def create_stats_annotation(
         log("Building concurrency metrics section", "info")
         stats_text = (
             f"Analysis Period: {stats['start_date']} to {stats['end_date']}<br>"
-            f"<br><b>Concurrency Metrics:</b><br>"
+            "<br><b>Concurrency Metrics:</b><br>"
             f"Total Periods: {stats['total_periods']}<br>"
             f"Concurrent Periods: {stats['total_concurrent_periods']}<br>"
             f"Concurrency Ratio: {stats['concurrency_ratio']:.2%}<br>"

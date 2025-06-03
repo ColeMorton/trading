@@ -4,7 +4,6 @@ CSV Viewer Router
 This module provides API endpoints for the CSV viewer.
 """
 
-import logging
 import os
 
 from fastapi import APIRouter, HTTPException, Request
@@ -40,7 +39,7 @@ async def csv_viewer(request: Request):
         HTMLResponse: The CSV viewer HTML page
     """
     try:
-        log(f"Serving CSV viewer")
+        log("Serving CSV viewer")
 
         # Read the HTML file
         html_path = os.path.join(CSV_VIEWER_DIR, "index.html")

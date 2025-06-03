@@ -11,6 +11,12 @@ processed by splitting them into their component tickers.
 """
 
 import os
+import sys
+from pathlib import Path
+
+# Add project root to path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 from app.strategies.tools.summary_processing import (
     export_summary_results,
@@ -63,8 +69,8 @@ config = {
     # "PORTFOLIO": 'BTC-USD_SPY_d.csv',
     # "PORTFOLIO": 'portfolio_risk.csv',
     # "PORTFOLIO": 'crypto_d_20250421.csv',
-    # "PORTFOLIO": 'DAILY_crypto.csv',
-    "PORTFOLIO": "DAILY.csv",
+    "PORTFOLIO": "DAILY_crypto.csv",
+    # "PORTFOLIO": "DAILY.csv",
     # "PORTFOLIO": 'DAILY_test.csv',
     # "PORTFOLIO": 'crypto_h.csv',
     # "PORTFOLIO": 'DAILY_crypto_short.csv',

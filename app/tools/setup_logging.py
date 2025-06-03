@@ -1,7 +1,7 @@
 import logging
 import os
 import time
-from typing import Any, Callable, Optional, Tuple
+from typing import Callable, Tuple
 
 
 def get_project_root() -> str:

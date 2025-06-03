@@ -10,14 +10,11 @@ from app.tools.exceptions import (
     DataError,
     PortfolioError,
     StrategyError,
-    TradingSystemError,
 )
 
 
 class MACrossError(StrategyError):
     """Base exception for MA Cross strategy errors."""
-
-    pass
 
 
 class MACrossConfigurationError(MACrossError, ConfigurationError):

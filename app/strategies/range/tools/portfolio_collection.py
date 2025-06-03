@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Union
 import polars as pl
 
 from app.range.config_types import PortfolioConfig
-from app.range.tools.export_portfolios import PortfolioExportError, export_portfolios
+from app.range.tools.export_portfolios import export_portfolios
 
 
 def sort_portfolios(

@@ -1,6 +1,6 @@
 """Type definitions for position sizing calculations."""
 
-from typing import Dict, List, TypedDict
+from typing import Dict, TypedDict
 
 
 class Asset(TypedDict):

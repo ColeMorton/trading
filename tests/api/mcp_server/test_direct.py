@@ -33,7 +33,7 @@ async def test_direct_tool_call():
 
         result = await handler(request)
 
-        print(f"\nTool call result:")
+        print("\nTool call result:")
         print(f"  Type: {type(result)}")
         if hasattr(result, "result") and hasattr(result.result, "content"):
             for content in result.result.content:

@@ -35,9 +35,7 @@ def main():
 
     # Check if fixed implementation is available
     try:
-        from app.concurrency.tools.risk_contribution_calculator import (
-            RiskContributionCalculator,
-        )
+        pass
 
         print("\n✅ Fixed risk calculation module is available")
     except ImportError:

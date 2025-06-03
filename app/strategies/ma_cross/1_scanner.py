@@ -15,7 +15,6 @@ from app.strategies.ma_cross.tools.scanner_processing import (
     load_existing_results,
     process_ticker,
 )
-from app.tools.config_service import ConfigService
 from app.tools.setup_logging import setup_logging
 
 

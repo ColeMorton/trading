@@ -254,7 +254,6 @@ def run_portfolio_analysis(config_input: Dict = None):
         except Exception as e:
             log(f"Error in portfolio analysis: {str(e)}", "error")
             # Continue execution even if analysis fails
-            pass
 
     except Exception as e:
         log(f"Error in portfolio review: {str(e)}", "error")

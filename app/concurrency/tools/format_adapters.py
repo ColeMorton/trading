@@ -23,16 +23,12 @@ Classes:
 """
 
 import json
-import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
-import numpy as np
 import pandas as pd
-import polars as pl
 
 
 @dataclass
@@ -92,7 +88,6 @@ class FormatAdapter(ABC):
         Returns:
             True if format matches
         """
-        pass
 
     @abstractmethod
     def adapt_to_standard(
@@ -110,7 +105,6 @@ class FormatAdapter(ABC):
         Returns:
             AdaptationResult with adapted data
         """
-        pass
 
     def validate_adapted_data(
         self, data: pd.DataFrame, log: Optional[Callable[[str, str], None]] = None

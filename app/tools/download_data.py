@@ -48,7 +48,7 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
             )
         else:
             period = config.get("PERIOD", "max")
-            log(f"Using maximum available period for data download")
+            log("Using maximum available period for data download")
             data = yf.download(
                 ticker, period=period, interval=interval, auto_adjust=False
             )

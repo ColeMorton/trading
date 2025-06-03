@@ -63,7 +63,7 @@ def process_single_ticker(
         f"Number of window combinations to analyze: {len(short_windows) * len(long_windows)}"
     )
 
-    log(f"Getting data...")
+    log("Getting data...")
     # Ensure synthetic tickers use underscore format
     formatted_ticker = ticker.replace("/", "_") if isinstance(ticker, str) else ticker
     data_result = get_data(formatted_ticker, config_copy, log)
@@ -90,10 +90,10 @@ def process_single_ticker(
     )
 
     if len(data) < max(short_windows[0], long_windows[0]):
-        log(f"Insufficient data for even the shortest windows", "error")
+        log("Insufficient data for even the shortest windows", "error")
         return None
 
-    log(f"Beginning analysis...")
+    log("Beginning analysis...")
     return analyze_parameter_sensitivity(
         data, short_windows, long_windows, config_copy, log
     )

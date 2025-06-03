@@ -206,7 +206,7 @@ def run_analysis(config: Dict[str, Any]) -> bool:
                         log("Processing stop loss data...", "info")
 
                         # Only use stop losses from CSV file (OPTIONAL mode)
-                        stop_loss_mode = StopLossMode.OPTIONAL
+                        StopLossMode.OPTIONAL
 
                         # Validate stop loss values
                         validated_stop_loss = validate_stop_loss(portfolio_data, log)
@@ -327,7 +327,7 @@ def run_analysis(config: Dict[str, Any]) -> bool:
         ):
             # Ensure the main function knows about synthetic tickers
             if validated_config.get("USE_SYNTHETIC", False):
-                log(f"Running analysis with synthetic ticker support enabled", "info")
+                log("Running analysis with synthetic ticker support enabled", "info")
 
             # Log allocation information
             log("CSV allocation data processing is enabled for this analysis", "info")

@@ -359,7 +359,7 @@ def create_strategy_object(
                                     }
 
                                 break
-            except Exception as e:
+            except Exception:
                 # If anything goes wrong, just continue
                 pass
 

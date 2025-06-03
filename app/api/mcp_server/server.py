@@ -3,17 +3,11 @@
 import asyncio
 import json
 import sys
-from typing import Any, Dict, List, Optional
+from typing import Any, List
 
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
-from mcp.types import (
-    CallToolRequest,
-    CallToolResult,
-    ListToolsRequest,
-    TextContent,
-    Tool,
-)
+from mcp.types import TextContent, Tool
 from pydantic import BaseModel, Field
 
 from .config import config

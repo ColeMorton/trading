@@ -17,8 +17,6 @@ from app.core.interfaces import ConfigurationInterface
 class ServiceInitializationError(Exception):
     """Exception raised during service initialization."""
 
-    pass
-
 
 class ServiceState(Enum):
     """Service lifecycle states."""
@@ -84,7 +82,6 @@ class BaseService(ABC):
     @abstractmethod
     def metadata(self) -> ServiceMetadata:
         """Get service metadata."""
-        pass
 
     @property
     def state(self) -> ServiceState:
@@ -135,7 +132,6 @@ class BaseService(ABC):
     @abstractmethod
     async def _initialize_impl(self) -> None:
         """Service-specific initialization logic."""
-        pass
 
     async def health_check(self) -> bool:
         """Perform health check with standard error handling."""
@@ -157,7 +153,6 @@ class BaseService(ABC):
     @abstractmethod
     async def _health_check_impl(self) -> bool:
         """Service-specific health check logic."""
-        pass
 
     async def shutdown(self) -> None:
         """Shutdown the service gracefully."""
@@ -190,7 +185,6 @@ class BaseService(ABC):
 
     async def _shutdown_impl(self) -> None:
         """Service-specific shutdown logic. Override if needed."""
-        pass
 
 
 class ServiceFactory:
@@ -377,7 +371,6 @@ class StandardLoggingService(BaseService):
     async def _initialize_impl(self) -> None:
         """Initialize logging service."""
         # Service-specific initialization
-        pass
 
     async def _health_check_impl(self) -> bool:
         """Check if logging service is healthy."""
@@ -399,7 +392,6 @@ class StandardCacheService(BaseService):
     async def _initialize_impl(self) -> None:
         """Initialize cache service."""
         # Service-specific initialization
-        pass
 
     async def _health_check_impl(self) -> bool:
         """Check if cache service is healthy."""

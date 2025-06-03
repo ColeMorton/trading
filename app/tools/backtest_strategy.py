@@ -109,7 +109,7 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
             # Access the stored attributes
             log_func = self._log
             config_obj = self._config
-            data_pd = self._data_pd
+            self._data_pd
 
             # Get original stats from parent class
             original_stats = super(type(self), self).stats()
@@ -217,9 +217,9 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                                     f"All trades are winning. Setting Expectancy per Trade to Avg Win: {avg_win:.4f}",
                                     "info",
                                 )
-                                stats_dict[
-                                    "Expectancy per Trade"
-                                ] = expectancy_per_trade
+                                stats_dict["Expectancy per Trade"] = (
+                                    expectancy_per_trade
+                                )
 
                                 # Add debug logging
                                 log_func(
@@ -233,7 +233,7 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                             else:
                                 # This shouldn't happen (NaN avg_loss but win_rate < 1.0)
                                 log_func(
-                                    f"Invalid state: NaN Avg Loss with Win Rate < 1.0",
+                                    "Invalid state: NaN Avg Loss with Win Rate < 1.0",
                                     "warning",
                                 )
                                 stats_dict["Expectancy per Trade"] = None

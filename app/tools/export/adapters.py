@@ -100,11 +100,7 @@ def export_portfolios_adapter(
         Tuple[pl.DataFrame, bool]: (DataFrame of exported data, success status)
     """
     # Import here to avoid circular dependency
-    from app.tools.strategy.export_portfolios import (
-        VALID_EXPORT_TYPES,
-        PortfolioExportError,
-        export_portfolios,
-    )
+    from app.tools.strategy.export_portfolios import export_portfolios
 
     # For now, delegate to the existing implementation
     # In a future phase, we can fully migrate this to use ExportManager

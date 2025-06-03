@@ -6,20 +6,10 @@ This module provides API endpoints for script execution and management.
 
 import asyncio
 import json
-import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Dict
 
-from fastapi import (
-    APIRouter,
-    BackgroundTasks,
-    Body,
-    Depends,
-    HTTPException,
-    Path,
-    Query,
-    Request,
-)
+from fastapi import APIRouter, Body, HTTPException, Path
 from fastapi.responses import StreamingResponse
 
 from app.api.models.request import ScriptExecutionRequest
@@ -261,7 +251,7 @@ async def stream_execution_status(
 
         # Check if execution ID exists
         try:
-            initial_status = get_script_status(execution_id)
+            get_script_status(execution_id)
         except ValueError:
             log(f"Execution ID not found: {execution_id}", "error")
             raise HTTPException(

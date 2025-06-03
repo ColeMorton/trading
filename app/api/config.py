@@ -5,7 +5,7 @@ This module provides configuration settings for the API server.
 """
 
 import os
-from typing import Any, Dict, List, Optional, TypedDict
+from typing import List, Optional, TypedDict
 
 
 class ApiConfig(TypedDict):

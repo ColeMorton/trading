@@ -25,7 +25,7 @@ async def test_basic_functionality():
     print("\n=== Testing Basic API Client Functionality ===")
 
     client = APIClient()
-    print(f"✓ API Client initialized")
+    print("✓ API Client initialized")
     print(f"  Base URL: {client.base_url}")
     print(f"  Timeout: {client.timeout.connect}s")
     print(f"  Pool Size: {client.limits.max_keepalive_connections}")

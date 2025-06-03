@@ -6,11 +6,9 @@ on signal returns and adjusting signal quality metrics accordingly.
 """
 
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import numpy as np
-import pandas as pd
-import polars as pl
 
 from app.tools.setup_logging import setup_logging
 

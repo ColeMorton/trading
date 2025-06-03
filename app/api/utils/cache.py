@@ -9,9 +9,8 @@ import hashlib
 import json
 import time
 from dataclasses import dataclass
-from datetime import datetime, timedelta
 from threading import Lock
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional
 
 from app.api.models.ma_cross import MACrossRequest, MACrossResponse
 

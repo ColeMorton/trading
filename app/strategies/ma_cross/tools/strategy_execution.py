@@ -7,8 +7,6 @@ filtering, and best portfolio selection for both single and multiple tickers.
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-import polars as pl
-
 from app.strategies.ma_cross.config_types import Config
 from app.strategies.ma_cross.tools.filter_portfolios import filter_portfolios
 from app.strategies.ma_cross.tools.signal_processing import process_ticker_portfolios

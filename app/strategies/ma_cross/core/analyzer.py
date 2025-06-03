@@ -7,7 +7,7 @@ decoupled from file I/O and specific execution contexts.
 
 import time
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, List, Optional
 
 from app.strategies.ma_cross.core.models import (
     AnalysisConfig,

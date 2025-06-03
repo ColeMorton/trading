@@ -9,7 +9,6 @@ from typing import Any, Callable, Dict, List
 
 from app.strategies.ma_cross.exceptions import (
     MACrossConfigurationError,
-    MACrossError,
     MACrossExecutionError,
     MACrossPortfolioError,
 )
@@ -26,11 +25,7 @@ from app.tools.exceptions import (
 )
 from app.tools.portfolio.allocation import get_allocation_summary
 from app.tools.portfolio.collection import export_best_portfolios
-from app.tools.portfolio.schema_detection import (
-    SchemaVersion,
-    detect_schema_version,
-    normalize_portfolio_data,
-)
+from app.tools.portfolio.schema_detection import SchemaVersion, detect_schema_version
 from app.tools.portfolio.stop_loss import get_stop_loss_summary
 from app.tools.strategy_utils import get_strategy_types
 from app.tools.synthetic_ticker import process_synthetic_config

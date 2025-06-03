@@ -65,13 +65,13 @@ def process_single_ticker(
         # Create parameter arrays
         change_pcts = np.arange(start_pct, end_pct + step_pct, step_pct)
 
-        log(f"Getting data...")
+        log("Getting data...")
         data = get_data(ticker, config_copy, log)
         if data is None:
             log(f"Failed to get data for {ticker}", "error")
             return None
 
-        log(f"Beginning analysis...")
+        log("Beginning analysis...")
         portfolios = analyze_parameter_combinations(
             data=data, change_pcts=change_pcts, config=config_copy, log=log
         )

@@ -8,7 +8,6 @@ import csv
 import json
 import os
 from contextlib import contextmanager
-from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 from app.concurrency.tools.strategy_id import generate_strategy_id
@@ -106,7 +105,6 @@ def load_csv_portfolio(file_path: str, config: Dict[str, Any]) -> List[Dict[str,
     try:
         # Import here to avoid circular imports
         from app.tools.portfolio.schema_detection import (
-            SchemaVersion,
             detect_schema_version_from_file,
             normalize_portfolio_data,
         )

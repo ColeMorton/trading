@@ -7,7 +7,7 @@ and KISS (Keep It Simple, Stupid) design philosophy.
 
 import logging
 from contextlib import contextmanager
-from typing import Any, Callable, Optional, Tuple
+from typing import Optional
 
 from app.tools.setup_logging import setup_logging
 

@@ -6,7 +6,7 @@ at the function level, following SOLID principles and KISS design.
 
 import functools
 import traceback
-from typing import Any, Callable, Dict, Optional, Type, TypeVar, Union
+from typing import Any, Dict, Type, TypeVar
 
 from app.tools.exceptions import TradingSystemError
 

@@ -9,12 +9,8 @@ from typing import Any, Callable, Dict, List
 
 import polars as pl
 
-from app.tools.export_csv import ExportConfig, export_csv
-from app.tools.portfolio.metrics import (
-    DURATION_METRICS,
-    NUMERIC_METRICS,
-    get_metric_rows,
-)
+from app.tools.export_csv import ExportConfig
+from app.tools.portfolio.metrics import DURATION_METRICS, NUMERIC_METRICS
 
 
 def create_metric_result(
@@ -70,8 +66,9 @@ def _process_metrics(
             if df[metric].dtype == pl.Utf8:
                 try:
                     df = df.with_columns(pl.col(metric).cast(pl.Float64).alias(metric))
-                except:
-                    pass  # Keep as string if conversion fails
+                except (pl.ComputeError, pl.SchemaError):
+                    # Keep as string if conversion fails (e.g., non-numeric values)
+                    pass
 
             # Get indices for metric extremes
             max_idx = df[metric].arg_max()

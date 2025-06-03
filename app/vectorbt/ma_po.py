@@ -1,8 +1,5 @@
 import numpy as np
-import pandas as pd
-import plotly.graph_objs as go
 import vectorbt as vbt
-import yfinance as yf
 
 # Change the frequency to 1 hour
 FREQ = "1D"

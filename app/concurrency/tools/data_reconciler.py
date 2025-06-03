@@ -19,11 +19,10 @@ Classes:
 """
 
 import json
-import os
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -298,7 +297,7 @@ class DataReconciler:
             if log:
                 log(f"Reconciling strategy: {strategy}", "info")
 
-            csv_data = csv_strategy_metrics[strategy]
+            csv_strategy_metrics[strategy]
 
             result = ReconciliationResult(
                 entity_id=strategy,
@@ -339,7 +338,7 @@ class DataReconciler:
             .get("summary", {})
             .get("total", {})
         )
-        json_efficiency = json_portfolio_metrics.get("efficiency", {})
+        json_portfolio_metrics.get("efficiency", {})
 
         # Portfolio metric mappings
         portfolio_mappings = {

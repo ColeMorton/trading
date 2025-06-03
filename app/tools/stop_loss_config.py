@@ -7,7 +7,7 @@ allowing for consistent application of stop loss rules across the system.
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
 
 class StopLossMode(Enum):

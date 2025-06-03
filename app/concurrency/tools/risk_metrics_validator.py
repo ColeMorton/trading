@@ -15,9 +15,8 @@ Classes:
     VolatilityAggregator: Correct volatility aggregation methods
 """
 
-import warnings
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -409,7 +408,7 @@ class RiskMetricsValidator:
                 results[f"max_drawdown_{ticker}"] = dd_result
 
             # Validate portfolio-level risk metrics if available
-            portfolio_metrics = json_metrics.get("portfolio_metrics", {})
+            json_metrics.get("portfolio_metrics", {})
 
             # Additional validations can be added here for:
             # - Portfolio volatility
@@ -533,7 +532,7 @@ class DrawdownCalculator:
         )
 
         if log:
-            log(f"Portfolio drawdown calculation completed:", "info")
+            log("Portfolio drawdown calculation completed:", "info")
             log(f"  Max drawdown: {max_drawdown:.4f} ({max_drawdown:.1%})", "info")
             log(f"  Peak index: {peak_idx}, Trough index: {max_dd_idx}", "info")
             log(f"  Drawdown duration: {drawdown_duration} periods", "info")
@@ -668,7 +667,7 @@ class VolatilityAggregator:
         portfolio_volatility = np.sqrt(portfolio_variance)
 
         if log:
-            log(f"Portfolio volatility calculation:", "info")
+            log("Portfolio volatility calculation:", "info")
             log(
                 f"  Individual volatilities: {[f'{v:.4f}' for v in volatilities]}",
                 "info",
@@ -728,7 +727,7 @@ class VolatilityAggregator:
             risk_contributions.append(float(rc))
 
         if log:
-            log(f"Risk contributions calculated:", "info")
+            log("Risk contributions calculated:", "info")
             total_rc = sum(risk_contributions)
             for i, rc in enumerate(risk_contributions):
                 log(f"  Strategy {i}: {rc:.4f} ({rc/total_rc:.1%} of total)", "info")

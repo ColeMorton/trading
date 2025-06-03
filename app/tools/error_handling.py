@@ -5,7 +5,6 @@ This module provides standardized error handling utilities for the application,
 including custom exceptions, validation functions, and recovery mechanisms.
 """
 
-import logging
 import traceback
 from datetime import datetime
 from functools import wraps
@@ -41,25 +40,17 @@ class SignalProcessingError(Exception):
 class DataValidationError(SignalProcessingError):
     """Exception raised for data validation errors."""
 
-    pass
-
 
 class CalculationError(SignalProcessingError):
     """Exception raised for calculation errors."""
-
-    pass
 
 
 class ConfigurationError(SignalProcessingError):
     """Exception raised for configuration errors."""
 
-    pass
-
 
 class RecoveryError(SignalProcessingError):
     """Exception raised when recovery mechanisms fail."""
-
-    pass
 
 
 class ErrorHandler:

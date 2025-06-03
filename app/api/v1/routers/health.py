@@ -6,7 +6,7 @@ import asyncio
 import logging
 import os
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 import psutil
 from fastapi import APIRouter, Depends, status
@@ -30,7 +30,7 @@ async def check_database_health() -> Dict[str, Any]:
         await db.query_raw("SELECT 1")
 
         # Check database manager for connection info
-        db_manager = await get_database_manager()
+        await get_database_manager()
         # Since we're using Prisma, we don't have direct pool access
 
         response_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
@@ -247,7 +247,7 @@ async def metrics_endpoint():
                 "",
             ]
         )
-    except:
-        pass
+    except Exception:
+        pass  # Database connection errors should not fail metrics endpoint
 
     return "\n".join(metrics)

@@ -110,7 +110,7 @@ def validate_real_portfolio():
 
 def compare_with_and_without_fixes():
     """Compare results with fixes enabled vs disabled."""
-    log = setup_logging("phase5_comparison")
+    setup_logging("phase5_comparison")
 
     print("\nComparing results with and without fixes...")
     print("=" * 60)
@@ -166,7 +166,7 @@ def compare_with_and_without_fixes():
         s.get("risk_contribution", 0) for s in stats_with["strategies"].values()
     )
 
-    print(f"\nTotal Risk Contribution:")
+    print("\nTotal Risk Contribution:")
     print(
         f"  Without fixes: {total_without:.4f} ({'✗' if abs(total_without - 1.0) > 1e-6 else '✓'})"
     )
@@ -284,15 +284,15 @@ def run_performance_benchmarks():
 
     print("\nBenchmark Results:")
     print("-" * 40)
-    print(f"Without fixes:")
+    print("Without fixes:")
     print(f"  Average time: {without_result['avg_time']:.4f}s")
     print(f"  Min time:     {without_result['min_time']:.4f}s")
     print(f"  Max time:     {without_result['max_time']:.4f}s")
-    print(f"\nWith fixes:")
+    print("\nWith fixes:")
     print(f"  Average time: {with_result['avg_time']:.4f}s")
     print(f"  Min time:     {with_result['min_time']:.4f}s")
     print(f"  Max time:     {with_result['max_time']:.4f}s")
-    print(f"\nPerformance:")
+    print("\nPerformance:")
     print(f"  Speedup:      {speedup:.2f}x")
     print(f"  Improvement:  {(speedup - 1) * 100:.1f}%")
 

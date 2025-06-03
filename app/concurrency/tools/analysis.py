@@ -1,6 +1,6 @@
 """Core analysis functionality for concurrency analysis."""
 
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Callable, List, Tuple
 
 import polars as pl
 

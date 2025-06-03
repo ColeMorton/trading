@@ -5,7 +5,7 @@ This module defines Pydantic models for API request validation.
 """
 
 import os
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, Field, validator
 

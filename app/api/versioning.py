@@ -5,8 +5,7 @@ This module provides version management, deprecation warnings,
 and migration support for the Trading API.
 """
 
-import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
 from typing import Dict, List, Optional, Union
 
@@ -118,9 +117,9 @@ class APIVersionManager:
             if info.sunset_date:
                 response.headers["Sunset"] = info.sunset_date.isoformat()
             if info.migration_guide_url:
-                response.headers[
-                    "Link"
-                ] = f'<{info.migration_guide_url}>; rel="deprecation"'
+                response.headers["Link"] = (
+                    f'<{info.migration_guide_url}>; rel="deprecation"'
+                )
 
     def deprecate_version(
         self,

@@ -5,12 +5,11 @@ This module provides utilities for processing trading signals and portfolios
 for the MACD cross strategy.
 """
 
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Optional
 
 import polars as pl
 
 from app.macd_next.config_types import PortfolioConfig
-from app.macd_next.tools.portfolio_selection import get_best_portfolio
 from app.macd_next.tools.sensitivity_analysis import analyze_parameter_combination
 from app.macd_next.tools.signal_generation import generate_current_signals
 from app.tools.get_data import get_data

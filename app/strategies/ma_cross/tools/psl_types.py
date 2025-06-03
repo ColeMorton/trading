@@ -2,7 +2,7 @@
 Type definitions for protective stop loss analysis.
 """
 
-from typing import Dict, List, NotRequired, Tuple, TypedDict
+from typing import List, NotRequired, Tuple, TypedDict
 
 
 class PSLConfig(TypedDict):

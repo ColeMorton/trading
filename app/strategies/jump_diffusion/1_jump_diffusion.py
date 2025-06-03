@@ -85,7 +85,7 @@ def calculate_var(returns, confidence_level=0.95):
 
 def log_likelihood(params, returns, dt):
     mu, sigma, lambda_jump, jump_mean, jump_std = params
-    n = len(returns)
+    len(returns)
 
     def pdf(x):
         normal = norm.pdf(
@@ -210,9 +210,7 @@ print(f"GBM VaR: {gbm_var:.4f}")
 results_df = pl.DataFrame(
     {
         "Metric": ["Final Price Mean", "Final Price Std Dev", "VaR (95%)"],
-        "Merton Jump-Diffusion"
-        if USE_MERTON
-        else "GBM": [
+        "Merton Jump-Diffusion" if USE_MERTON else "GBM": [
             jd_final_prices.mean(),
             jd_final_prices.std(),
             jd_var,

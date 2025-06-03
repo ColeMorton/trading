@@ -6,15 +6,14 @@ and Redis cache without Prisma dependency.
 """
 
 import asyncio
-import gzip
 import json
 import logging
 import os
 import shutil
 import subprocess
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
 import redis.asyncio as redis
 

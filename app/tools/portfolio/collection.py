@@ -17,8 +17,6 @@ from app.strategies.ma_cross.config_types import Config
 class PortfolioExportError(Exception):
     """Custom exception for portfolio export errors."""
 
-    pass
-
 
 def sort_portfolios(
     portfolios: Union[List[Dict[str, Any]], pl.DataFrame], config: Config
@@ -248,7 +246,7 @@ def export_best_portfolios(
 
     try:
         # Log configuration for debugging
-        log(f"Configuration for export_best_portfolios:", "info")
+        log("Configuration for export_best_portfolios:", "info")
         required_fields = ["BASE_DIR", "TICKER"]
         for field in required_fields:
             log(
@@ -367,7 +365,6 @@ def collect_filtered_portfolios_for_export(
         List of portfolio dictionaries with Metric Type column containing
         multiple metric types per strategy configuration
     """
-    import os
     from pathlib import Path
 
     import polars as pl

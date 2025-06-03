@@ -7,7 +7,6 @@ It sets up routing, middleware, and error handling.
 
 import os
 
-import strawberry
 import yaml
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,7 +16,6 @@ from strawberry.fastapi import GraphQLRouter
 
 from app.api.async_messaging import (
     operation_queue,
-    progress_stream_handler,
     submit_data_analysis,
     submit_portfolio_optimization,
 )
@@ -27,20 +25,16 @@ from app.api.dependencies import (
     get_container_health,
     get_container_registrations,
 )
-from app.api.event_bus import TradingEvents, event_bus, publish_event
+from app.api.event_bus import event_bus, publish_event
 from app.api.graphql.context import get_graphql_context
 from app.api.graphql.schema import schema
-from app.api.migration_strategy import migration_guide, migration_planner
+from app.api.migration_strategy import migration_guide
 from app.api.routers import data, health, ma_cross, scripts, sensylate, viewer
 from app.api.service_patterns import service_orchestrator
 from app.api.utils.logging import setup_api_logging
 from app.api.v1.main import v1_app
 from app.api.versioning import APIVersion, version_manager, version_middleware
-from app.database.config import (
-    database_health_check,
-    shutdown_database,
-    startup_database,
-)
+from app.database.config import shutdown_database, startup_database
 
 # Define paths
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
