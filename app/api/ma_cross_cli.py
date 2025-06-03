@@ -52,7 +52,7 @@ def analyze(args):
     if min_criteria:
         data["MIN_CRITERIA"] = min_criteria
 
-    response = requests.post(f"{BASE_URL}/api/ma-cross/analyze", json=data)
+    response = requests.post(f"{BASE_URL}/api/ma-cross/analyze", json=data, timeout=30)
 
     if response.status_code == 200:
         result = response.json()
@@ -70,7 +70,9 @@ def analyze(args):
 
 def get_status(execution_id: str):
     """Check task status."""
-    response = requests.get(f"{BASE_URL}/api/ma-cross/status/{execution_id}")
+    response = requests.get(
+        f"{BASE_URL}/api/ma-cross/status/{execution_id}", timeout=10
+    )
 
     if response.status_code == 200:
         result = response.json()
@@ -84,7 +86,7 @@ def stream_progress(execution_id: str):
     """Stream task progress."""
     try:
         response = requests.get(
-            f"{BASE_URL}/api/ma-cross/stream/{execution_id}", stream=True
+            f"{BASE_URL}/api/ma-cross/stream/{execution_id}", stream=True, timeout=60
         )
 
         for line in response.iter_lines():
@@ -101,7 +103,7 @@ def stream_progress(execution_id: str):
 
 def get_metrics():
     """Get service metrics."""
-    response = requests.get(f"{BASE_URL}/api/ma-cross/metrics")
+    response = requests.get(f"{BASE_URL}/api/ma-cross/metrics", timeout=10)
 
     if response.status_code == 200:
         result = response.json()
@@ -113,7 +115,7 @@ def get_metrics():
 
 def health_check():
     """Check service health."""
-    response = requests.get(f"{BASE_URL}/api/ma-cross/health")
+    response = requests.get(f"{BASE_URL}/api/ma-cross/health", timeout=10)
 
     if response.status_code == 200:
         result = response.json()

@@ -14,19 +14,19 @@ def main():
     try:
         # Test the root endpoint
         print("\n=== Testing Root Endpoint ===")
-        response = requests.get(f"{base_url}/")
+        response = requests.get(f"{base_url}/", timeout=10)
         print(f"Status Code: {response.status_code}")
         print(f"Response: {response.json()}")
 
         # Test the health endpoint
         print("\n=== Testing Health Endpoint ===")
-        response = requests.get(f"{base_url}/health")
+        response = requests.get(f"{base_url}/health", timeout=10)
         print(f"Status Code: {response.status_code}")
         print(f"Response: {response.json()}")
 
         # Test the list scripts endpoint
         print("\n=== Testing List Scripts Endpoint ===")
-        response = requests.get(f"{base_url}/api/scripts/list")
+        response = requests.get(f"{base_url}/api/scripts/list", timeout=10)
         print(f"Status Code: {response.status_code}")
         if response.status_code == 200:
             data = response.json()
@@ -34,7 +34,7 @@ def main():
 
         # Test the list data endpoint
         print("\n=== Testing List Data Endpoint ===")
-        response = requests.get(f"{base_url}/api/data/list")
+        response = requests.get(f"{base_url}/api/data/list", timeout=10)
         print(f"Status Code: {response.status_code}")
         if response.status_code == 200:
             data = response.json()
@@ -42,7 +42,9 @@ def main():
 
         # Test the CSV data endpoint
         print("\n=== Testing CSV Data Endpoint ===")
-        response = requests.get(f"{base_url}/api/data/csv/strategies/DAILY.csv")
+        response = requests.get(
+            f"{base_url}/api/data/csv/strategies/DAILY.csv", timeout=10
+        )
         print(f"Status Code: {response.status_code}")
         if response.status_code == 200:
             data = response.json()

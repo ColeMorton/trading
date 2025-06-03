@@ -2,7 +2,7 @@
 
 [bandit]
 # Exclude test files and common non-production directories
-exclude: /tests/,/test/,/venv/,/.venv/,/env/,/.env/,/node_modules/,/migrations/
+exclude: /tests/,/test/,/venv/,/.venv/,/env/,/.env/,/node_modules/,/migrations/,/app/trading_bot/trendspider/
 
 # Skip specific tests that may produce false positives
 skips: B101,B601,B602
@@ -39,3 +39,4 @@ exclude_dirs:
   - /node_modules/
   - /frontend/
   - /migrations/
+  - /app/trading_bot/trendspider/

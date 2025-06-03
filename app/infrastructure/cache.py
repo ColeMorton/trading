@@ -102,7 +102,9 @@ class CacheService(CacheInterface):
                 if kwargs:
                     key_parts.append(json.dumps(kwargs, sort_keys=True))
 
-                cache_key = hashlib.md5(":".join(key_parts).encode()).hexdigest()
+                cache_key = hashlib.md5(
+                    ":".join(key_parts).encode(), usedforsecurity=False
+                ).hexdigest()
 
                 # Try to get from cache
                 result = await self.get(cache_key)

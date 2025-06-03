@@ -12,6 +12,7 @@ import logging
 import os
 import shutil
 import subprocess
+import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -376,32 +377,32 @@ class BackupManager:
         for backup_file in self.backup_dir.glob("backup_*.tar.gz"):
             try:
                 # Extract just the metadata
-                cmd = [
-                    "tar",
-                    "-xzf",
-                    str(backup_file),
-                    "-C",
-                    "/tmp",
-                    f"{backup_file.stem}/metadata.json",
-                ]
-                subprocess.run(cmd, capture_output=True, check=True)
+                # Create a temporary directory for extraction
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    cmd = [
+                        "tar",
+                        "-xzf",
+                        str(backup_file),
+                        "-C",
+                        temp_dir,
+                        f"{backup_file.stem}/metadata.json",
+                    ]
+                    subprocess.run(cmd, capture_output=True, check=True)
 
-                metadata_file = Path("/tmp") / backup_file.stem / "metadata.json"
-                with open(metadata_file, "r") as f:
-                    metadata = json.load(f)
+                    metadata_file = Path(temp_dir) / backup_file.stem / "metadata.json"
+                    with open(metadata_file, "r") as f:
+                        metadata = json.load(f)
 
-                backups.append(
-                    {
-                        "file": str(backup_file),
-                        "name": metadata.get("backup_name"),
-                        "timestamp": metadata.get("timestamp"),
-                        "type": metadata.get("type"),
-                        "size": backup_file.stat().st_size,
-                    }
-                )
-
-                # Cleanup
-                shutil.rmtree(Path("/tmp") / backup_file.stem)
+                    backups.append(
+                        {
+                            "file": str(backup_file),
+                            "name": metadata.get("backup_name"),
+                            "timestamp": metadata.get("timestamp"),
+                            "type": metadata.get("type"),
+                            "size": backup_file.stat().st_size,
+                        }
+                    )
+                    # Cleanup handled automatically by TemporaryDirectory context manager
 
             except Exception as e:
                 logger.warning(f"Could not read metadata for {backup_file}: {e}")

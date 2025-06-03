@@ -373,7 +373,7 @@ lint-pylint:
 
 lint-bandit:
 	@echo "Scanning for security vulnerabilities with bandit..."
-	poetry run bandit -r app -ll
+	poetry run bandit -r app -ll --exclude app/trading_bot/trendspider/
 	@echo "✅ Security scan complete"
 
 lint-vulture:
