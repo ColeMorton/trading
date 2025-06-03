@@ -18,6 +18,7 @@ Configuration Options:
         - STRATEGY_RELATIONSHIPS: Include strategy relationship analysis
         - ALLOCATION: Include allocation calculations and fields
 """
+
 import logging
 from pathlib import Path
 from typing import Any, Dict, Optional

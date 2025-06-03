@@ -8,9 +8,4 @@ decoupled from file I/O and execution context.
 from .analyzer import MACrossAnalyzer
 from .models import AnalysisConfig, AnalysisResult, TickerResult
 
-__all__ = [
-    'MACrossAnalyzer',
-    'AnalysisConfig',
-    'AnalysisResult',
-    'TickerResult'
-]
+__all__ = ["MACrossAnalyzer", "AnalysisConfig", "AnalysisResult", "TickerResult"]

@@ -3,6 +3,7 @@
 This module provides utilities for processing synthetic tickers,
 which are combinations of two individual tickers.
 """
+
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from app.tools.exceptions import SyntheticTickerError

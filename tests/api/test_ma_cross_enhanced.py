@@ -452,9 +452,10 @@ class TestMACrossServiceHelpers:
         service = MACrossService()
 
         # Mock file system
-        with patch("os.path.exists") as mock_exists, patch(
-            "os.listdir"
-        ) as mock_listdir:
+        with (
+            patch("os.path.exists") as mock_exists,
+            patch("os.listdir") as mock_listdir,
+        ):
             mock_exists.return_value = True
             mock_listdir.side_effect = [
                 ["BTC-USD_D_SMA.csv", "ETH-USD_D_EMA.csv"],  # portfolios

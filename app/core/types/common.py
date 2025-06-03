@@ -6,6 +6,7 @@ from typing import Literal
 
 class TimeFrame(str, Enum):
     """Trading timeframes."""
+
     MINUTE_1 = "1m"
     MINUTE_5 = "5m"
     MINUTE_15 = "15m"
@@ -19,6 +20,7 @@ class TimeFrame(str, Enum):
 
 class SignalType(str, Enum):
     """Trading signal types."""
+
     BUY = "buy"
     SELL = "sell"
     HOLD = "hold"
@@ -27,6 +29,7 @@ class SignalType(str, Enum):
 
 class OrderType(str, Enum):
     """Order types."""
+
     MARKET = "market"
     LIMIT = "limit"
     STOP = "stop"
@@ -35,6 +38,7 @@ class OrderType(str, Enum):
 
 class PositionSide(str, Enum):
     """Position sides."""
+
     LONG = "long"
     SHORT = "short"
     FLAT = "flat"
@@ -42,6 +46,7 @@ class PositionSide(str, Enum):
 
 class StrategyType(str, Enum):
     """Available strategy types."""
+
     MA_CROSS = "ma_cross"
     MACD = "macd"
     RSI = "rsi"
@@ -52,6 +57,7 @@ class StrategyType(str, Enum):
 
 class MetricName(str, Enum):
     """Standard metric names."""
+
     TOTAL_RETURN = "total_return"
     SHARPE_RATIO = "sharpe_ratio"
     SORTINO_RATIO = "sortino_ratio"
@@ -66,6 +72,7 @@ class MetricName(str, Enum):
 
 class TaskStatus(str, Enum):
     """Task execution status."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"

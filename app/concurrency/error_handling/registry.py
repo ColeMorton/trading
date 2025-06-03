@@ -61,9 +61,9 @@ class ErrorStats:
             "errors_by_hour": self.errors_by_hour,
             "most_common_errors": self.most_common_errors,
             "error_rate": self.error_rate,
-            "last_error_time": self.last_error_time.isoformat()
-            if self.last_error_time
-            else None,
+            "last_error_time": (
+                self.last_error_time.isoformat() if self.last_error_time else None
+            ),
         }
 
 

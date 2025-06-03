@@ -468,10 +468,11 @@ class UnifiedMetricsCalculator:
             if win_rates:
                 enhancements["win_rate_statistics"] = {
                     "average_win_rate": float(np.mean(win_rates)),
-                    "win_rate_consistency": 1.0
-                    - float(np.std(win_rates) / np.mean(win_rates))
-                    if np.mean(win_rates) > 0
-                    else 0.0,
+                    "win_rate_consistency": (
+                        1.0 - float(np.std(win_rates) / np.mean(win_rates))
+                        if np.mean(win_rates) > 0
+                        else 0.0
+                    ),
                 }
 
             # Portfolio diversity metrics

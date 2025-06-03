@@ -145,9 +145,9 @@ def create_rsi_heatmap(
                 z=matrix,
                 x=rsi_thresholds,
                 y=rsi_windows,
-                colorscale=format_info["colorscale"]
-                if config.get("RELATIVE", True)
-                else "ice",
+                colorscale=(
+                    format_info["colorscale"] if config.get("RELATIVE", True) else "ice"
+                ),
                 zmid=zmid,
                 zmin=zmin,
                 zmax=zmax,

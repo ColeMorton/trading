@@ -45,9 +45,11 @@ def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
         metric_data = pl.DataFrame(
             {
                 "metric": [metric_name] * len(data),
-                "value": data[column_name].cast(pl.Float64)
-                if column_name == "Total Trades"
-                else data[column_name],
+                "value": (
+                    data[column_name].cast(pl.Float64)
+                    if column_name == "Total Trades"
+                    else data[column_name]
+                ),
                 "fast_window": data["Short Window"],
                 "slow_window": data["Long Window"],
             }

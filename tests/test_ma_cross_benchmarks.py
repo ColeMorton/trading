@@ -180,13 +180,18 @@ class TestWorkflowBenchmarks(TestMACrossPerformanceBenchmarks):
     ):
         """Benchmark single ticker complete workflow."""
 
-        with patch("app.tools.get_data.get_data") as mock_get_data, patch(
-            "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
-        ) as mock_process, patch(
-            "app.tools.portfolio.filtering_service.PortfolioFilterService"
-        ) as mock_filter_service, patch(
-            "app.tools.strategy.export_portfolios.export_portfolios"
-        ) as mock_export:
+        with (
+            patch("app.tools.get_data.get_data") as mock_get_data,
+            patch(
+                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
+            ) as mock_process,
+            patch(
+                "app.tools.portfolio.filtering_service.PortfolioFilterService"
+            ) as mock_filter_service,
+            patch(
+                "app.tools.strategy.export_portfolios.export_portfolios"
+            ) as mock_export,
+        ):
             # Setup mocks with large dataset
             mock_get_data.return_value = large_price_dataset
             mock_process.return_value = pl.DataFrame(large_portfolio_dataset)
@@ -217,13 +222,18 @@ class TestWorkflowBenchmarks(TestMACrossPerformanceBenchmarks):
         multi_config = performance_config.copy()
         multi_config["TICKER"] = ["BTC-USD", "ETH-USD", "SOL-USD", "ADA-USD", "DOT-USD"]
 
-        with patch("app.tools.get_data.get_data") as mock_get_data, patch(
-            "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
-        ) as mock_process, patch(
-            "app.tools.portfolio.filtering_service.PortfolioFilterService"
-        ) as mock_filter_service, patch(
-            "app.tools.strategy.export_portfolios.export_portfolios"
-        ) as mock_export:
+        with (
+            patch("app.tools.get_data.get_data") as mock_get_data,
+            patch(
+                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
+            ) as mock_process,
+            patch(
+                "app.tools.portfolio.filtering_service.PortfolioFilterService"
+            ) as mock_filter_service,
+            patch(
+                "app.tools.strategy.export_portfolios.export_portfolios"
+            ) as mock_export,
+        ):
             # Setup mocks
             mock_get_data.return_value = large_price_dataset
             mock_process.return_value = pl.DataFrame(large_portfolio_dataset)
@@ -254,13 +264,18 @@ class TestWorkflowBenchmarks(TestMACrossPerformanceBenchmarks):
         multi_strategy_config = performance_config.copy()
         multi_strategy_config["STRATEGY_TYPE"] = ["SMA", "EMA"]
 
-        with patch("app.tools.get_data.get_data") as mock_get_data, patch(
-            "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
-        ) as mock_process, patch(
-            "app.tools.portfolio.filtering_service.PortfolioFilterService"
-        ) as mock_filter_service, patch(
-            "app.tools.strategy.export_portfolios.export_portfolios"
-        ) as mock_export:
+        with (
+            patch("app.tools.get_data.get_data") as mock_get_data,
+            patch(
+                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
+            ) as mock_process,
+            patch(
+                "app.tools.portfolio.filtering_service.PortfolioFilterService"
+            ) as mock_filter_service,
+            patch(
+                "app.tools.strategy.export_portfolios.export_portfolios"
+            ) as mock_export,
+        ):
             # Setup mocks
             mock_get_data.return_value = large_price_dataset
             mock_process.return_value = pl.DataFrame(large_portfolio_dataset)
@@ -294,11 +309,15 @@ class TestMemoryBenchmarks(TestMACrossPerformanceBenchmarks):
         process = psutil.Process(os.getpid())
         initial_memory = process.memory_info().rss
 
-        with patch("app.tools.get_data.get_data") as mock_get_data, patch(
-            "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
-        ) as mock_process, patch(
-            "app.tools.portfolio.filtering_service.PortfolioFilterService"
-        ) as mock_filter_service:
+        with (
+            patch("app.tools.get_data.get_data") as mock_get_data,
+            patch(
+                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
+            ) as mock_process,
+            patch(
+                "app.tools.portfolio.filtering_service.PortfolioFilterService"
+            ) as mock_filter_service,
+        ):
             # Setup mocks with large datasets
             mock_get_data.return_value = large_price_dataset
             mock_process.return_value = pl.DataFrame(large_portfolio_dataset)
@@ -328,11 +347,15 @@ class TestMemoryBenchmarks(TestMACrossPerformanceBenchmarks):
         process = psutil.Process(os.getpid())
         initial_memory = process.memory_info().rss
 
-        with patch("app.tools.get_data.get_data") as mock_get_data, patch(
-            "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
-        ) as mock_process, patch(
-            "app.tools.portfolio.filtering_service.PortfolioFilterService"
-        ) as mock_filter_service:
+        with (
+            patch("app.tools.get_data.get_data") as mock_get_data,
+            patch(
+                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
+            ) as mock_process,
+            patch(
+                "app.tools.portfolio.filtering_service.PortfolioFilterService"
+            ) as mock_filter_service,
+        ):
             # Setup mocks
             mock_get_data.return_value = large_price_dataset
             mock_process.return_value = pl.DataFrame(large_portfolio_dataset)
@@ -375,11 +398,15 @@ class TestConcurrencyBenchmarks(TestMACrossPerformanceBenchmarks):
         concurrent_config = performance_config.copy()
         tickers = ["BTC-USD", "ETH-USD", "SOL-USD", "ADA-USD", "DOT-USD"]
 
-        with patch("app.tools.get_data.get_data") as mock_get_data, patch(
-            "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
-        ) as mock_process, patch(
-            "app.tools.portfolio.filtering_service.PortfolioFilterService"
-        ) as mock_filter_service:
+        with (
+            patch("app.tools.get_data.get_data") as mock_get_data,
+            patch(
+                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
+            ) as mock_process,
+            patch(
+                "app.tools.portfolio.filtering_service.PortfolioFilterService"
+            ) as mock_filter_service,
+        ):
             # Setup mocks
             mock_get_data.return_value = large_price_dataset
             mock_process.return_value = pl.DataFrame(large_portfolio_dataset)
@@ -478,11 +505,15 @@ class TestScalabilityBenchmarks(TestMACrossPerformanceBenchmarks):
 
         price_data = pl.from_pandas(df)
 
-        with patch("app.tools.get_data.get_data") as mock_get_data, patch(
-            "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
-        ) as mock_process, patch(
-            "app.tools.portfolio.filtering_service.PortfolioFilterService"
-        ) as mock_filter_service:
+        with (
+            patch("app.tools.get_data.get_data") as mock_get_data,
+            patch(
+                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
+            ) as mock_process,
+            patch(
+                "app.tools.portfolio.filtering_service.PortfolioFilterService"
+            ) as mock_filter_service,
+        ):
             # Setup mocks
             mock_get_data.return_value = price_data
             mock_process.return_value = pl.DataFrame(

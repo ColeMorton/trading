@@ -190,9 +190,11 @@ class PortfolioReturnsCalculator:
                 "variance": float(portfolio_variance),
                 "annualized_return": float(portfolio_mean * 252),
                 "annualized_volatility": float(portfolio_std * np.sqrt(252)),
-                "sharpe_ratio": float(portfolio_mean / portfolio_std * np.sqrt(252))
-                if portfolio_std > 0
-                else 0.0,
+                "sharpe_ratio": (
+                    float(portfolio_mean / portfolio_std * np.sqrt(252))
+                    if portfolio_std > 0
+                    else 0.0
+                ),
             },
             "diversification": {
                 "diversification_ratio": float(diversification_ratio),

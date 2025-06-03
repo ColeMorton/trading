@@ -5,6 +5,7 @@ This module handles the collection, sorting, and export of portfolios.
 It provides centralized functionality for consistent portfolio operations
 across the application.
 """
+
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import polars as pl

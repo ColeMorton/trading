@@ -126,9 +126,11 @@ def _get_filename_components(
     components.extend(
         [
             "_GBM" if config.get("USE_GBM", False) else "",
-            f"_{datetime.now().strftime('%Y%m%d')}"
-            if config.get("SHOW_LAST", False)
-            else "",
+            (
+                f"_{datetime.now().strftime('%Y%m%d')}"
+                if config.get("SHOW_LAST", False)
+                else ""
+            ),
         ]
     )
 

@@ -33,16 +33,12 @@ class Decimal:
 
 
 @strawberry.scalar(
-    serialize=lambda v: v
-    if isinstance(v, (dict, list))
-    else json.dumps(v)
-    if v is not None
-    else None,
-    parse_value=lambda v: v
-    if isinstance(v, (dict, list))
-    else json.loads(v)
-    if isinstance(v, str)
-    else v,
+    serialize=lambda v: (
+        v if isinstance(v, (dict, list)) else json.dumps(v) if v is not None else None
+    ),
+    parse_value=lambda v: (
+        v if isinstance(v, (dict, list)) else json.loads(v) if isinstance(v, str) else v
+    ),
 )
 class JSON:
     """JSON scalar type for storing arbitrary JSON data."""

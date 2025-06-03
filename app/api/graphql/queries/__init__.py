@@ -11,7 +11,7 @@ from .ticker_queries import *
 __all__ = [
     "get_portfolios",
     "get_portfolio",
-    "get_strategies", 
+    "get_strategies",
     "get_strategy",
     "get_tickers",
     "get_ticker",

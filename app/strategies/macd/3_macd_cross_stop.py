@@ -93,9 +93,11 @@ def calculate_metrics(trades: List[Tuple[float, float]]) -> Tuple[float, float, 
         return 0, 0, 0
 
     returns = [
-        (exit_price / entry_price - 1)
-        if config["SHORT"]
-        else (exit_price / entry_price - 1)
+        (
+            (exit_price / entry_price - 1)
+            if config["SHORT"]
+            else (exit_price / entry_price - 1)
+        )
         for entry_price, exit_price in trades
     ]
     total_return = np.prod([1 + r for r in returns]) - 1

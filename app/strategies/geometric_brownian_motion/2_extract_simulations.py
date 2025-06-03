@@ -14,25 +14,26 @@ from app.utils import get_filename, get_path
 CONFIG = {
     "YEARS": 1.5369,
     "USE_YEARS": False,
-    "PERIOD": 'max',
+    "PERIOD": "max",
     "USE_HOURLY": False,
-    "TICKER": 'MSTR',
+    "TICKER": "MSTR",
     "USE_SYNTHETIC": False,
-    "TICKER_1": 'BTC-USD',
-    "TICKER_2": 'SPY',
+    "TICKER_1": "BTC-USD",
+    "TICKER_2": "SPY",
     "SHORT": False,
     "USE_GBM": True,
     "USE_SMA": False,
-    "BASE_DIR": '.',
+    "BASE_DIR": ".",
     "WINDOWS": 89,
     "ANNUAL_TRADING_DAYS": 365,
     "TIME_HORIZON": 5,
-    "SIMULATIONS": 1000
+    "SIMULATIONS": 1000,
 }
 
 config = get_config(CONFIG)
 
 config["USE_GBM"] = False
+
 
 def read_csv_data(csv_content: str) -> Tuple[List[str], List[List[float]]]:
     csv_file = StringIO(csv_content)
@@ -40,7 +41,9 @@ def read_csv_data(csv_content: str) -> Tuple[List[str], List[List[float]]]:
     header = next(csv_reader)  # Read header
 
     timestamps = []
-    prices = [[] for _ in range(len(header) - 1)]  # Initialize lists for each simulation
+    prices = [
+        [] for _ in range(len(header) - 1)
+    ]  # Initialize lists for each simulation
 
     for row in csv_reader:
         timestamps.append(row[0])
@@ -49,8 +52,10 @@ def read_csv_data(csv_content: str) -> Tuple[List[str], List[List[float]]]:
 
     return timestamps, prices
 
+
 def calculate_performance(prices: List[float]) -> float:
     return (prices[-1] - prices[0]) / prices[0] * 100
+
 
 def extract_simulations(csv_content: str) -> Tuple[dict, pl.DataFrame]:
     timestamps, simulations = read_csv_data(csv_content)
@@ -63,7 +68,9 @@ def extract_simulations(csv_content: str) -> Tuple[dict, pl.DataFrame]:
 
     if num_simulations <= 6:
         # If 6 or fewer simulations, export all of them
-        results = {f"simulation_{i+1}_performance": perf for i, perf in enumerate(performances)}
+        results = {
+            f"simulation_{i+1}_performance": perf for i, perf in enumerate(performances)
+        }
         df_dict = {"timestamp": timestamps}
         for i, sim in enumerate(simulations):
             df_dict[f"simulation_{i+1}"] = sim
@@ -76,26 +83,48 @@ def extract_simulations(csv_content: str) -> Tuple[dict, pl.DataFrame]:
             "mean_performance": np.mean(performances),
             "median_performance": np.median(performances),
             "25th_percentile_performance": np.percentile(performances, 25),
-            "75th_percentile_performance": np.percentile(performances, 75)
+            "75th_percentile_performance": np.percentile(performances, 75),
         }
 
         # Extract the simulations
         highest_sim = simulations[performances.index(max(performances))]
         lowest_sim = simulations[performances.index(min(performances))]
-        mean_sim = simulations[performances.index(min(performances, key=lambda x: abs(x - np.mean(performances))))]
-        median_sim = simulations[performances.index(min(performances, key=lambda x: abs(x - np.median(performances))))]
-        percentile_25_sim = simulations[performances.index(min(performances, key=lambda x: abs(x - np.percentile(performances, 25))))]
-        percentile_75_sim = simulations[performances.index(min(performances, key=lambda x: abs(x - np.percentile(performances, 75))))]
+        mean_sim = simulations[
+            performances.index(
+                min(performances, key=lambda x: abs(x - np.mean(performances)))
+            )
+        ]
+        median_sim = simulations[
+            performances.index(
+                min(performances, key=lambda x: abs(x - np.median(performances)))
+            )
+        ]
+        percentile_25_sim = simulations[
+            performances.index(
+                min(
+                    performances, key=lambda x: abs(x - np.percentile(performances, 25))
+                )
+            )
+        ]
+        percentile_75_sim = simulations[
+            performances.index(
+                min(
+                    performances, key=lambda x: abs(x - np.percentile(performances, 75))
+                )
+            )
+        ]
 
-        df = pl.DataFrame({
-            "timestamp": timestamps,
-            "highest": highest_sim,
-            "lowest": lowest_sim,
-            "mean": mean_sim,
-            "median": median_sim,
-            "25th_percentile": percentile_25_sim,
-            "75th_percentile": percentile_75_sim
-        })
+        df = pl.DataFrame(
+            {
+                "timestamp": timestamps,
+                "highest": highest_sim,
+                "lowest": lowest_sim,
+                "mean": mean_sim,
+                "median": median_sim,
+                "25th_percentile": percentile_25_sim,
+                "75th_percentile": percentile_75_sim,
+            }
+        )
 
     # Set timestamp as index by making it the first column
     df = df.with_columns(pl.col("timestamp").alias("Date")).select(
@@ -104,12 +133,13 @@ def extract_simulations(csv_content: str) -> Tuple[dict, pl.DataFrame]:
 
     return results, df
 
+
 # Read the CSV file
 filename = get_filename("csv", config)
-path = get_path("csv", "geometric_brownian_motion", config, 'simulations')
+path = get_path("csv", "geometric_brownian_motion", config, "simulations")
 fullpath = f"{path}/{filename}"
 
-with open(fullpath, 'r') as file:
+with open(fullpath, "r") as file:
     csv_content = file.read()
 
 # Extract simulations
@@ -125,6 +155,10 @@ print(simulations_df)
 # save_csv(simulations_df, "geometric_brownian_motion", config, 'filtered_simulations')
 
 # Save the simulations to a CSV file
-simulations_df.to_csv(f'csv/geometric_brownian_motion/{config['TICKER']}_gbm_extracted_simulations.csv')
-print(f"Simulations saved to csv/geometric_brownian_motion/{config['TICKER']}_gbm_extracted_simulations.csv")
+simulations_df.to_csv(
+    f"csv/geometric_brownian_motion/{config['TICKER']}_gbm_extracted_simulations.csv"
+)
+print(
+    f"Simulations saved to csv/geometric_brownian_motion/{config['TICKER']}_gbm_extracted_simulations.csv"
+)
 print(f"Number of rows in extracted simulations: {len(simulations_df)}")

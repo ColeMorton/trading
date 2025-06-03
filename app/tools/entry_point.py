@@ -3,6 +3,7 @@
 This module provides utilities for creating standardized entry points
 for trading system modules.
 """
+
 import sys
 from typing import Any, Callable, Dict, Optional
 

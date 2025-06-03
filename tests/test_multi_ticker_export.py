@@ -53,9 +53,9 @@ class TestMultiTickerExport(unittest.TestCase):
                 "Total Return [%]": 100.0 + i * 50,
                 "Win Rate [%]": 60.0 + i * 5,
                 "Total Trades": 100 + i * 20,
-                "Metric Type": f"Most Total Return [%]"
-                if i == 0
-                else "Most Sharpe Ratio",
+                "Metric Type": (
+                    f"Most Total Return [%]" if i == 0 else "Most Sharpe Ratio"
+                ),
                 "Score": 1.5 + i * 0.2,
                 "Signal Entry": True,
                 "Signal Exit": False,

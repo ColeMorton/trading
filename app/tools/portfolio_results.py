@@ -2,6 +2,7 @@
 
 This module provides utilities for processing and displaying portfolio results.
 """
+
 from typing import Any, Callable, Dict, List, Optional
 
 

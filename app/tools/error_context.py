@@ -3,6 +3,7 @@
 This module provides a context manager for standardized error handling
 across the trading system, following SOLID principles and KISS design.
 """
+
 import sys
 import traceback
 from contextlib import contextmanager

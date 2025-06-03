@@ -210,9 +210,11 @@ async def get_analysis_status(execution_id: strawberry.ID) -> Optional[AnalysisS
             execution_id=str(execution_id),
             status=status_info["status"],
             started_at=datetime.fromisoformat(status_info["started_at"]),
-            completed_at=datetime.fromisoformat(status_info["completed_at"])
-            if status_info.get("completed_at")
-            else None,
+            completed_at=(
+                datetime.fromisoformat(status_info["completed_at"])
+                if status_info.get("completed_at")
+                else None
+            ),
             progress=status_info["progress"],
             results=results,
             error=status_info.get("error"),

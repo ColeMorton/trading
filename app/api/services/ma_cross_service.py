@@ -1124,11 +1124,11 @@ class MACrossService:
                         "operation": progress_status.get(
                             "operation", "MA Cross Analysis"
                         ),
-                        "progress_updated_at": progress_status.get(
-                            "updated_at", ""
-                        ).isoformat()
-                        if progress_status.get("updated_at")
-                        else None,
+                        "progress_updated_at": (
+                            progress_status.get("updated_at", "").isoformat()
+                            if progress_status.get("updated_at")
+                            else None
+                        ),
                     }
                 )
         except Exception:

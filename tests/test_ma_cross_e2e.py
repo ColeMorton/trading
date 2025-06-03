@@ -142,13 +142,17 @@ class TestCompleteWorkflow(TestMACrossWorkflowE2E):
         """Test complete workflow for a single ticker."""
 
         # Mock the high-level workflow components
-        with patch(
-            "app.tools.orchestration.ticker_processor.execute_strategy"
-        ) as mock_execute_strategy, patch(
-            "app.tools.portfolio.collection.export_best_portfolios"
-        ) as mock_export, patch(
-            "app.tools.orchestration.portfolio_orchestrator.filter_portfolios"
-        ) as mock_filter:
+        with (
+            patch(
+                "app.tools.orchestration.ticker_processor.execute_strategy"
+            ) as mock_execute_strategy,
+            patch(
+                "app.tools.portfolio.collection.export_best_portfolios"
+            ) as mock_export,
+            patch(
+                "app.tools.orchestration.portfolio_orchestrator.filter_portfolios"
+            ) as mock_filter,
+        ):
             # Setup mocks - simulate successful strategy execution
             mock_execute_strategy.return_value = sample_portfolio_data
             mock_filter.return_value = pl.DataFrame(sample_portfolio_data)
@@ -176,13 +180,17 @@ class TestCompleteWorkflow(TestMACrossWorkflowE2E):
         multi_ticker_config = sample_config.copy()
         multi_ticker_config["TICKER"] = ["BTC-USD", "ETH-USD"]
 
-        with patch(
-            "app.tools.orchestration.ticker_processor.execute_strategy"
-        ) as mock_execute_strategy, patch(
-            "app.tools.portfolio.collection.export_best_portfolios"
-        ) as mock_export, patch(
-            "app.tools.orchestration.portfolio_orchestrator.filter_portfolios"
-        ) as mock_filter:
+        with (
+            patch(
+                "app.tools.orchestration.ticker_processor.execute_strategy"
+            ) as mock_execute_strategy,
+            patch(
+                "app.tools.portfolio.collection.export_best_portfolios"
+            ) as mock_export,
+            patch(
+                "app.tools.orchestration.portfolio_orchestrator.filter_portfolios"
+            ) as mock_filter,
+        ):
             # Setup mocks for multiple tickers
             mock_execute_strategy.return_value = sample_portfolio_data
             mock_filter.return_value = pl.DataFrame(sample_portfolio_data)
@@ -213,13 +221,17 @@ class TestCompleteWorkflow(TestMACrossWorkflowE2E):
         synthetic_config["TICKER_1"] = "BTC-USD"
         synthetic_config["TICKER_2"] = "USD"
 
-        with patch(
-            "app.tools.orchestration.ticker_processor.execute_strategy"
-        ) as mock_execute_strategy, patch(
-            "app.tools.portfolio.collection.export_best_portfolios"
-        ) as mock_export, patch(
-            "app.tools.orchestration.portfolio_orchestrator.filter_portfolios"
-        ) as mock_filter:
+        with (
+            patch(
+                "app.tools.orchestration.ticker_processor.execute_strategy"
+            ) as mock_execute_strategy,
+            patch(
+                "app.tools.portfolio.collection.export_best_portfolios"
+            ) as mock_export,
+            patch(
+                "app.tools.orchestration.portfolio_orchestrator.filter_portfolios"
+            ) as mock_filter,
+        ):
             # Setup mocks
             mock_execute_strategy.return_value = sample_portfolio_data
             mock_filter.return_value = pl.DataFrame(sample_portfolio_data)
@@ -245,13 +257,17 @@ class TestCompleteWorkflow(TestMACrossWorkflowE2E):
         multi_strategy_config = sample_config.copy()
         multi_strategy_config["STRATEGY_TYPE"] = ["SMA", "EMA"]
 
-        with patch(
-            "app.tools.orchestration.ticker_processor.execute_strategy"
-        ) as mock_execute_strategy, patch(
-            "app.tools.portfolio.collection.export_best_portfolios"
-        ) as mock_export, patch(
-            "app.tools.orchestration.portfolio_orchestrator.filter_portfolios"
-        ) as mock_filter:
+        with (
+            patch(
+                "app.tools.orchestration.ticker_processor.execute_strategy"
+            ) as mock_execute_strategy,
+            patch(
+                "app.tools.portfolio.collection.export_best_portfolios"
+            ) as mock_export,
+            patch(
+                "app.tools.orchestration.portfolio_orchestrator.filter_portfolios"
+            ) as mock_filter,
+        ):
             # Setup mocks
             mock_execute_strategy.return_value = sample_portfolio_data
             mock_filter.return_value = pl.DataFrame(sample_portfolio_data)
@@ -284,9 +300,12 @@ class TestWorkflowErrorScenarios(TestMACrossWorkflowE2E):
     ):
         """Test workflow when portfolio processing fails."""
 
-        with patch("app.tools.get_data.get_data") as mock_get_data, patch(
-            "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
-        ) as mock_process:
+        with (
+            patch("app.tools.get_data.get_data") as mock_get_data,
+            patch(
+                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
+            ) as mock_process,
+        ):
             mock_get_data.return_value = sample_price_data
             mock_process.return_value = None
 
@@ -301,11 +320,15 @@ class TestWorkflowErrorScenarios(TestMACrossWorkflowE2E):
     ):
         """Test workflow when filtering fails."""
 
-        with patch("app.tools.get_data.get_data") as mock_get_data, patch(
-            "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
-        ) as mock_process, patch(
-            "app.tools.portfolio.filtering_service.PortfolioFilterService"
-        ) as mock_filter_service:
+        with (
+            patch("app.tools.get_data.get_data") as mock_get_data,
+            patch(
+                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
+            ) as mock_process,
+            patch(
+                "app.tools.portfolio.filtering_service.PortfolioFilterService"
+            ) as mock_filter_service,
+        ):
             mock_get_data.return_value = sample_price_data
             mock_process.return_value = pl.DataFrame(sample_portfolio_data)
 
@@ -376,11 +399,15 @@ class TestWorkflowPerformance(TestMACrossWorkflowE2E):
         """Test performance of single ticker workflow."""
         import time
 
-        with patch("app.tools.get_data.get_data") as mock_get_data, patch(
-            "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
-        ) as mock_process, patch(
-            "app.tools.portfolio.filtering_service.PortfolioFilterService"
-        ) as mock_filter_service:
+        with (
+            patch("app.tools.get_data.get_data") as mock_get_data,
+            patch(
+                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
+            ) as mock_process,
+            patch(
+                "app.tools.portfolio.filtering_service.PortfolioFilterService"
+            ) as mock_filter_service,
+        ):
             # Setup mocks
             mock_get_data.return_value = sample_price_data
             mock_process.return_value = pl.DataFrame(sample_portfolio_data)
@@ -414,11 +441,15 @@ class TestWorkflowPerformance(TestMACrossWorkflowE2E):
         process = psutil.Process(os.getpid())
         initial_memory = process.memory_info().rss
 
-        with patch("app.tools.get_data.get_data") as mock_get_data, patch(
-            "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
-        ) as mock_process, patch(
-            "app.tools.portfolio.filtering_service.PortfolioFilterService"
-        ) as mock_filter_service:
+        with (
+            patch("app.tools.get_data.get_data") as mock_get_data,
+            patch(
+                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
+            ) as mock_process,
+            patch(
+                "app.tools.portfolio.filtering_service.PortfolioFilterService"
+            ) as mock_filter_service,
+        ):
             # Setup mocks
             mock_get_data.return_value = sample_price_data
             mock_process.return_value = pl.DataFrame(sample_portfolio_data)

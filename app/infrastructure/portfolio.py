@@ -229,9 +229,11 @@ class PortfolioManager(PortfolioManagerInterface):
             ticker=data["ticker"],
             strategy=data["strategy"],
             metrics=data.get("metrics", {}),
-            created_at=datetime.fromisoformat(data["created_at"])
-            if isinstance(data["created_at"], str)
-            else data["created_at"],
+            created_at=(
+                datetime.fromisoformat(data["created_at"])
+                if isinstance(data["created_at"], str)
+                else data["created_at"]
+            ),
             metadata=data.get("metadata", {}),
         )
 

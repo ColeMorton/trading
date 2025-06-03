@@ -9,6 +9,7 @@ The module supports both regular tickers and synthetic tickers (identified by an
 in the ticker name, e.g., 'STRK_MSTR'). Synthetic tickers are automatically detected and
 processed by splitting them into their component tickers.
 """
+
 import os
 
 from app.strategies.tools.summary_processing import (

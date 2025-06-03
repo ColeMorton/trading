@@ -4,6 +4,7 @@ This module provides high-level portfolio loading functions that encapsulate
 error handling, logging, and path resolution in a consistent way across the system.
 It follows SOLID principles and KISS (Keep It Simple, Stupid) design philosophy.
 """
+
 import contextlib
 import os
 from contextlib import AbstractContextManager

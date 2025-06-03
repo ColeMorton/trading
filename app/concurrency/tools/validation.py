@@ -243,9 +243,11 @@ class PortfolioMetricsValidator:
                             actual_value=f"Sign of {json_sharpe:.3f}",
                             tolerance=tolerance,
                             error_message=f"Sharpe ratio sign mismatch for {ticker}: CSV={csv_sharpe:.3f}, JSON={json_sharpe:.3f}",
-                            severity="critical"
-                            if not signs_match and abs(csv_sharpe) > 0.1
-                            else "warning",
+                            severity=(
+                                "critical"
+                                if not signs_match and abs(csv_sharpe) > 0.1
+                                else "warning"
+                            ),
                         )
                     )
 
@@ -301,9 +303,11 @@ class PortfolioMetricsValidator:
                             actual_value=f"{json_max_dd:.3f}",
                             tolerance=tolerance,
                             error_message=f"JSON max drawdown {json_max_dd:.3f} exceeds CSV bound {csv_max_dd:.3f} for {ticker}",
-                            severity="warning"
-                            if json_max_dd <= csv_max_dd * 1.5
-                            else "critical",
+                            severity=(
+                                "warning"
+                                if json_max_dd <= csv_max_dd * 1.5
+                                else "critical"
+                            ),
                         )
                     )
 
@@ -346,9 +350,11 @@ class PortfolioMetricsValidator:
                         actual_value=total_allocation,
                         tolerance=tolerance,
                         error_message=f"Allocation weights sum to {total_allocation:.6f}, not 1.0",
-                        severity="critical"
-                        if abs(total_allocation - 1.0) > 0.1
-                        else "warning",
+                        severity=(
+                            "critical"
+                            if abs(total_allocation - 1.0) > 0.1
+                            else "warning"
+                        ),
                     )
                 )
             else:
@@ -402,9 +408,9 @@ class PortfolioMetricsValidator:
                     actual_value=f"{portfolio_expectancy:.2f}",
                     tolerance=tolerance,
                     error_message=f"Portfolio expectancy {portfolio_expectancy:.2f} appears to use wrong units",
-                    severity="critical"
-                    if abs(portfolio_expectancy) > 10000
-                    else "warning",
+                    severity=(
+                        "critical" if abs(portfolio_expectancy) > 10000 else "warning"
+                    ),
                 )
             )
 
@@ -429,9 +435,9 @@ class PortfolioMetricsValidator:
                             actual_value=f"{value:.4f}",
                             tolerance=tolerance,
                             error_message=f"{metric_name} value {value:.4f} not in decimal format",
-                            severity="warning"
-                            if value > 1 and value <= 100
-                            else "critical",
+                            severity=(
+                                "warning" if value > 1 and value <= 100 else "critical"
+                            ),
                         )
                     )
 
@@ -488,9 +494,9 @@ class PortfolioMetricsValidator:
                             actual_value=f"{json_win_rate:.3f}",
                             tolerance=tolerance,
                             error_message=f"Win rate difference {difference:.3f} exceeds tolerance for {ticker}",
-                            severity="warning"
-                            if difference <= tolerance * 2
-                            else "critical",
+                            severity=(
+                                "warning" if difference <= tolerance * 2 else "critical"
+                            ),
                         )
                     )
 

@@ -4,6 +4,7 @@ Portfolio Export Module
 This module handles the export of portfolio data to CSV files for the
 MACD cross strategy using the centralized export functionality.
 """
+
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import polars as pl

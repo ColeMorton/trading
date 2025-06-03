@@ -170,9 +170,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
     """
 
     scheme = "http"
-    ConnectionCls: (
-        type[BaseHTTPConnection] | type[BaseHTTPSConnection]
-    ) = HTTPConnection
+    ConnectionCls: type[BaseHTTPConnection] | type[BaseHTTPSConnection] = HTTPConnection
 
     def __init__(
         self,

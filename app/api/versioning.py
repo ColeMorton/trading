@@ -168,9 +168,11 @@ async def version_middleware(request: Request, call_next):
             status_code=410,  # Gone
             detail=f"API version {version.value} is no longer supported",
             headers={
-                "Sunset": version_info.sunset_date.isoformat()
-                if version_info.sunset_date
-                else None
+                "Sunset": (
+                    version_info.sunset_date.isoformat()
+                    if version_info.sunset_date
+                    else None
+                )
             },
         )
 

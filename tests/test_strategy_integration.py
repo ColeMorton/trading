@@ -33,11 +33,13 @@ class TestFactoryIntegrationWithExistingCode:
         config = {"STRATEGY_TYPE": "SMA", "DIRECTION": "Long"}
         log = Mock()
 
-        with patch("app.tools.strategy.concrete.calculate_mas") as mock_mas, patch(
-            "app.tools.strategy.concrete.calculate_ma_signals"
-        ) as mock_signals, patch(
-            "app.tools.strategy.concrete.convert_signals_to_positions"
-        ) as mock_positions:
+        with (
+            patch("app.tools.strategy.concrete.calculate_mas") as mock_mas,
+            patch("app.tools.strategy.concrete.calculate_ma_signals") as mock_signals,
+            patch(
+                "app.tools.strategy.concrete.convert_signals_to_positions"
+            ) as mock_positions,
+        ):
             # Setup mocks
             mock_mas.return_value = data
             mock_signals.return_value = (
@@ -60,11 +62,13 @@ class TestFactoryIntegrationWithExistingCode:
         config = {"DIRECTION": "Long"}  # No STRATEGY_TYPE, should default to EMA
         log = Mock()
 
-        with patch("app.tools.strategy.concrete.calculate_mas") as mock_mas, patch(
-            "app.tools.strategy.concrete.calculate_ma_signals"
-        ) as mock_signals, patch(
-            "app.tools.strategy.concrete.convert_signals_to_positions"
-        ) as mock_positions:
+        with (
+            patch("app.tools.strategy.concrete.calculate_mas") as mock_mas,
+            patch("app.tools.strategy.concrete.calculate_ma_signals") as mock_signals,
+            patch(
+                "app.tools.strategy.concrete.convert_signals_to_positions"
+            ) as mock_positions,
+        ):
             # Setup mocks
             mock_mas.return_value = data
             mock_signals.return_value = (
@@ -93,21 +97,27 @@ class TestFactoryIntegrationWithExistingCode:
         }
         log = Mock()
 
-        with patch(
-            "app.strategies.ma_cross.tools.strategy_execution.get_data"
-        ) as mock_get_data, patch(
-            "app.strategies.ma_cross.tools.strategy_execution.calculate_ma_and_signals"
-        ) as mock_calc, patch(
-            "app.strategies.ma_cross.tools.strategy_execution.is_signal_current"
-        ) as mock_signal, patch(
-            "app.strategies.ma_cross.tools.strategy_execution.is_exit_signal_current"
-        ) as mock_exit, patch(
-            "app.strategies.ma_cross.tools.strategy_execution.backtest_strategy"
-        ) as mock_backtest, patch(
-            "app.tools.portfolio.filters.check_invalid_metrics"
-        ) as mock_check, patch(
-            "app.strategies.ma_cross.tools.strategy_execution.convert_stats"
-        ) as mock_convert:
+        with (
+            patch(
+                "app.strategies.ma_cross.tools.strategy_execution.get_data"
+            ) as mock_get_data,
+            patch(
+                "app.strategies.ma_cross.tools.strategy_execution.calculate_ma_and_signals"
+            ) as mock_calc,
+            patch(
+                "app.strategies.ma_cross.tools.strategy_execution.is_signal_current"
+            ) as mock_signal,
+            patch(
+                "app.strategies.ma_cross.tools.strategy_execution.is_exit_signal_current"
+            ) as mock_exit,
+            patch(
+                "app.strategies.ma_cross.tools.strategy_execution.backtest_strategy"
+            ) as mock_backtest,
+            patch("app.tools.portfolio.filters.check_invalid_metrics") as mock_check,
+            patch(
+                "app.strategies.ma_cross.tools.strategy_execution.convert_stats"
+            ) as mock_convert,
+        ):
             # Setup mocks
             test_data = create_test_data()
             mock_get_data.return_value = test_data
@@ -142,11 +152,13 @@ class TestFactoryIntegrationWithExistingCode:
         config = {"DIRECTION": "Long"}  # No STRATEGY_TYPE in config
         log = Mock()
 
-        with patch("app.tools.strategy.concrete.calculate_mas") as mock_mas, patch(
-            "app.tools.strategy.concrete.calculate_ma_signals"
-        ) as mock_signals, patch(
-            "app.tools.strategy.concrete.convert_signals_to_positions"
-        ) as mock_positions:
+        with (
+            patch("app.tools.strategy.concrete.calculate_mas") as mock_mas,
+            patch("app.tools.strategy.concrete.calculate_ma_signals") as mock_signals,
+            patch(
+                "app.tools.strategy.concrete.convert_signals_to_positions"
+            ) as mock_positions,
+        ):
             mock_mas.return_value = data
             mock_signals.return_value = (
                 pl.Series([False] * 100),
@@ -166,11 +178,13 @@ class TestFactoryIntegrationWithExistingCode:
         config = {"STRATEGY_TYPE": "EMA", "DIRECTION": "Long"}
         log = Mock()
 
-        with patch("app.tools.strategy.concrete.calculate_mas") as mock_mas, patch(
-            "app.tools.strategy.concrete.calculate_ma_signals"
-        ) as mock_signals, patch(
-            "app.tools.strategy.concrete.convert_signals_to_positions"
-        ) as mock_positions:
+        with (
+            patch("app.tools.strategy.concrete.calculate_mas") as mock_mas,
+            patch("app.tools.strategy.concrete.calculate_ma_signals") as mock_signals,
+            patch(
+                "app.tools.strategy.concrete.convert_signals_to_positions"
+            ) as mock_positions,
+        ):
             mock_mas.return_value = data
             mock_signals.return_value = (
                 pl.Series([False] * 100),

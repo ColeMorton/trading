@@ -143,22 +143,26 @@ class ConcurrentExecutor:
                 "request_timeout": self.config.request_timeout,
             },
             "thread_pool": {
-                "max_workers": self._thread_pool._max_workers
-                if self._thread_pool
-                else 0,
-                "active": hasattr(self._thread_pool, "_threads")
-                and len(self._thread_pool._threads)
-                if self._thread_pool
-                else 0,
+                "max_workers": (
+                    self._thread_pool._max_workers if self._thread_pool else 0
+                ),
+                "active": (
+                    hasattr(self._thread_pool, "_threads")
+                    and len(self._thread_pool._threads)
+                    if self._thread_pool
+                    else 0
+                ),
             },
         }
 
         if self._process_pool:
             stats["process_pool"] = {
                 "max_workers": self._process_pool._max_workers,
-                "active": len(self._process_pool._processes)
-                if hasattr(self._process_pool, "_processes")
-                else 0,
+                "active": (
+                    len(self._process_pool._processes)
+                    if hasattr(self._process_pool, "_processes")
+                    else 0
+                ),
             }
 
         return stats

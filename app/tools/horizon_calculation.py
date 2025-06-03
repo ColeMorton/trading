@@ -59,9 +59,11 @@ class HorizonCalculator:
             "cache_hits": self._cache_hits,
             "cache_misses": self._cache_misses,
             "cache_size": len(self._cache),
-            "hit_ratio": self._cache_hits / (self._cache_hits + self._cache_misses)
-            if (self._cache_hits + self._cache_misses) > 0
-            else 0,
+            "hit_ratio": (
+                self._cache_hits / (self._cache_hits + self._cache_misses)
+                if (self._cache_hits + self._cache_misses) > 0
+                else 0
+            ),
         }
 
     def _generate_cache_key(self, signals: np.ndarray, returns: np.ndarray) -> str:

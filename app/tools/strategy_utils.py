@@ -2,6 +2,7 @@
 
 This module provides utilities for working with trading strategies.
 """
+
 from typing import Any, Callable, Dict, List, Optional
 
 from app.concurrency.tools.strategy_id import generate_strategy_id, is_valid_strategy_id

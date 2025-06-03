@@ -75,12 +75,16 @@ class Histogram(Metric):
             "min": min(observations),
             "max": max(observations),
             "p50": statistics.median(observations),
-            "p95": statistics.quantiles(observations, n=20)[18]
-            if len(observations) > 1
-            else observations[0],
-            "p99": statistics.quantiles(observations, n=100)[98]
-            if len(observations) > 1
-            else observations[0],
+            "p95": (
+                statistics.quantiles(observations, n=20)[18]
+                if len(observations) > 1
+                else observations[0]
+            ),
+            "p99": (
+                statistics.quantiles(observations, n=100)[98]
+                if len(observations) > 1
+                else observations[0]
+            ),
         }
 
 

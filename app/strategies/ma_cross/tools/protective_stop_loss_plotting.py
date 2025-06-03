@@ -104,9 +104,9 @@ def create_protective_stop_loss_heatmap(
                     ),
                     thickness=20,
                     len=0.9,
-                    tickformat=".1%"
-                    if metric_name in ["returns", "win_rate"]
-                    else None,
+                    tickformat=(
+                        ".1%" if metric_name in ["returns", "win_rate"] else None
+                    ),
                 ),
                 hoverongaps=False,
                 hovertemplate=(

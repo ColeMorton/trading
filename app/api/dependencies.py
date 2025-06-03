@@ -354,9 +354,9 @@ class EnhancedDependencyContainer:
             for interface, reg in self._registrations.items():
                 registrations[interface.__name__] = {
                     "interface": interface.__name__,
-                    "implementation": reg.implementation.__name__
-                    if reg.implementation
-                    else None,
+                    "implementation": (
+                        reg.implementation.__name__ if reg.implementation else None
+                    ),
                     "lifecycle": reg.lifecycle.value,
                     "scope": reg.scope.value,
                     "has_instance": interface in self._instances,

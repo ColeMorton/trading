@@ -460,9 +460,9 @@ class SignalFilterPipeline:
             "total_filters": len(self.filters),
             "total_signals": total_signals,
             "remaining_signals": remaining_signals,
-            "overall_pass_rate": remaining_signals / total_signals
-            if total_signals > 0
-            else 0.0,
+            "overall_pass_rate": (
+                remaining_signals / total_signals if total_signals > 0 else 0.0
+            ),
             "filter_stats": self.filter_stats,
         }
 

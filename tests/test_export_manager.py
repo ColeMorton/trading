@@ -70,9 +70,11 @@ class TestExportManager:
         manager = ExportManager()
         log = Mock()
 
-        with patch("os.makedirs"), patch(
-            "os.path.exists", return_value=False
-        ), patch.object(pl.DataFrame, "write_csv") as mock_write:
+        with (
+            patch("os.makedirs"),
+            patch("os.path.exists", return_value=False),
+            patch.object(pl.DataFrame, "write_csv") as mock_write,
+        ):
             context = ExportContext(
                 data=sample_dataframe,
                 format=ExportFormat.CSV,
@@ -94,9 +96,12 @@ class TestExportManager:
         manager = ExportManager()
         log = Mock()
 
-        with patch("os.makedirs"), patch("os.path.exists", return_value=False), patch(
-            "builtins.open", create=True
-        ) as mock_open, patch("json.dump") as mock_json_dump:
+        with (
+            patch("os.makedirs"),
+            patch("os.path.exists", return_value=False),
+            patch("builtins.open", create=True) as mock_open,
+            patch("json.dump") as mock_json_dump,
+        ):
             context = ExportContext(
                 data=sample_dict_data,
                 format=ExportFormat.JSON,
@@ -121,9 +126,11 @@ class TestExportManager:
         # Enable date subdirectory
         export_config["USE_CURRENT"] = True
 
-        with patch("pathlib.Path.mkdir") as mock_mkdir, patch(
-            "os.access", return_value=True
-        ), patch.object(pl.DataFrame, "write_csv"):
+        with (
+            patch("pathlib.Path.mkdir") as mock_mkdir,
+            patch("os.access", return_value=True),
+            patch.object(pl.DataFrame, "write_csv"),
+        ):
             context = ExportContext(
                 data=sample_dataframe,
                 format=ExportFormat.CSV,
@@ -145,9 +152,11 @@ class TestExportManager:
         # Create Pandas DataFrame
         df = pd.DataFrame({"ticker": ["BTC-USD", "ETH-USD"], "trades": [100, 75]})
 
-        with patch("os.makedirs"), patch(
-            "os.path.exists", return_value=False
-        ), patch.object(pd.DataFrame, "to_csv") as mock_to_csv:
+        with (
+            patch("os.makedirs"),
+            patch("os.path.exists", return_value=False),
+            patch.object(pd.DataFrame, "to_csv") as mock_to_csv,
+        ):
             context = ExportContext(
                 data=df,
                 format=ExportFormat.CSV,
@@ -179,9 +188,12 @@ class TestExportManager:
                     return int(obj)
                 return super().default(obj)
 
-        with patch("os.makedirs"), patch("os.path.exists", return_value=False), patch(
-            "builtins.open", create=True
-        ) as mock_open, patch("json.dump") as mock_json_dump:
+        with (
+            patch("os.makedirs"),
+            patch("os.path.exists", return_value=False),
+            patch("builtins.open", create=True) as mock_open,
+            patch("json.dump") as mock_json_dump,
+        ):
             context = ExportContext(
                 data=data,
                 format=ExportFormat.JSON,
@@ -230,9 +242,12 @@ class TestExportManager:
         # Test with synthetic ticker
         export_config["TICKER"] = ["STRK", "MSTR"]
 
-        with patch("os.makedirs"), patch("os.path.exists", return_value=False), patch(
-            "builtins.open", create=True
-        ), patch("json.dump"):
+        with (
+            patch("os.makedirs"),
+            patch("os.path.exists", return_value=False),
+            patch("builtins.open", create=True),
+            patch("json.dump"),
+        ):
             context = ExportContext(
                 data={"test": "data"},
                 format=ExportFormat.JSON,
@@ -267,12 +282,12 @@ class TestExportManager:
         manager = ExportManager()
         log = Mock()
 
-        with patch("os.makedirs"), patch(
-            "os.path.exists", return_value=False
-        ), patch.object(pl.DataFrame, "write_csv"), patch(
-            "builtins.open", create=True
-        ), patch(
-            "json.dump"
+        with (
+            patch("os.makedirs"),
+            patch("os.path.exists", return_value=False),
+            patch.object(pl.DataFrame, "write_csv"),
+            patch("builtins.open", create=True),
+            patch("json.dump"),
         ):
             # Export to both CSV and JSON
             contexts = [
@@ -325,9 +340,13 @@ class TestCSVExporter:
             {"Ticker": ["BTC-USD"], "Total Trades": [100], "Win Rate [%]": [55.5]}
         )
 
-        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True), patch(
-            "pathlib.Path.exists", return_value=False
-        ), patch("pathlib.Path.unlink"), patch.object(pl.DataFrame, "write_csv"):
+        with (
+            patch("pathlib.Path.mkdir"),
+            patch("os.access", return_value=True),
+            patch("pathlib.Path.exists", return_value=False),
+            patch("pathlib.Path.unlink"),
+            patch.object(pl.DataFrame, "write_csv"),
+        ):
             context = ExportContext(
                 data=df,
                 format=ExportFormat.CSV,
@@ -365,9 +384,11 @@ class TestJSONExporter:
 
         data = {"test": "data", "nested": {"value": 123}}
 
-        with patch("pathlib.Path.mkdir"), patch(
-            "builtins.open", create=True
-        ) as mock_open, patch("json.dump") as mock_json_dump:
+        with (
+            patch("pathlib.Path.mkdir"),
+            patch("builtins.open", create=True) as mock_open,
+            patch("json.dump") as mock_json_dump,
+        ):
             context = ExportContext(
                 data=data,
                 format=ExportFormat.JSON,

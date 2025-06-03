@@ -787,9 +787,11 @@ class FormatDetector:
             {
                 "name": adapter.format_spec.format_name,
                 "version": adapter.format_spec.format_version,
-                "description": adapter.__class__.__doc__.strip()
-                if adapter.__class__.__doc__
-                else "No description",
+                "description": (
+                    adapter.__class__.__doc__.strip()
+                    if adapter.__class__.__doc__
+                    else "No description"
+                ),
             }
             for adapter in self.adapters
         ]

@@ -465,9 +465,11 @@ def main():
             ["Probability Difference", f"{difference:.2f}%"],
             [
                 "Risk Assessment",
-                "Market overpricing risk"
-                if difference > 0
-                else "Market underpricing risk",
+                (
+                    "Market overpricing risk"
+                    if difference > 0
+                    else "Market underpricing risk"
+                ),
             ],
             ["Expected Return", f"{np.mean(custom_returns):.2%}"],
             ["Max Profit Probability", f"{100-historical_prob:.2f}%"],

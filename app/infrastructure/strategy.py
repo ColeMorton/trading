@@ -207,15 +207,21 @@ class StrategyAnalyzer(StrategyAnalyzerInterface):
 
         # Calculate basic metrics
         metrics = {
-            "total_signals": abs(data["Signal"]).sum()
-            if isinstance(data, pd.DataFrame)
-            else data.select(pl.col("Signal").abs().sum())[0, 0],
-            "buy_signals": (data["Signal"] == 1).sum()
-            if isinstance(data, pd.DataFrame)
-            else data.filter(pl.col("Signal") == 1).height,
-            "sell_signals": (data["Signal"] == -1).sum()
-            if isinstance(data, pd.DataFrame)
-            else data.filter(pl.col("Signal") == -1).height,
+            "total_signals": (
+                abs(data["Signal"]).sum()
+                if isinstance(data, pd.DataFrame)
+                else data.select(pl.col("Signal").abs().sum())[0, 0]
+            ),
+            "buy_signals": (
+                (data["Signal"] == 1).sum()
+                if isinstance(data, pd.DataFrame)
+                else data.filter(pl.col("Signal") == 1).height
+            ),
+            "sell_signals": (
+                (data["Signal"] == -1).sum()
+                if isinstance(data, pd.DataFrame)
+                else data.filter(pl.col("Signal") == -1).height
+            ),
         }
 
         return ConcreteStrategyResult(metrics, data)

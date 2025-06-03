@@ -184,11 +184,13 @@ class TestSMAStrategy:
         )
 
         # Mock the imported functions
-        with patch("app.tools.strategy.concrete.calculate_mas") as mock_mas, patch(
-            "app.tools.strategy.concrete.calculate_ma_signals"
-        ) as mock_signals, patch(
-            "app.tools.strategy.concrete.convert_signals_to_positions"
-        ) as mock_positions:
+        with (
+            patch("app.tools.strategy.concrete.calculate_mas") as mock_mas,
+            patch("app.tools.strategy.concrete.calculate_ma_signals") as mock_signals,
+            patch(
+                "app.tools.strategy.concrete.convert_signals_to_positions"
+            ) as mock_positions,
+        ):
             # Setup mocks
             mock_mas.return_value = data.with_columns(
                 [
@@ -253,13 +255,14 @@ class TestSMAStrategy:
 
         data = pl.DataFrame({"close": list(range(1, 21))})  # 20 data points for RSI
 
-        with patch("app.tools.strategy.concrete.calculate_mas") as mock_mas, patch(
-            "app.tools.strategy.concrete.calculate_rsi"
-        ) as mock_rsi, patch(
-            "app.tools.strategy.concrete.calculate_ma_signals"
-        ) as mock_signals, patch(
-            "app.tools.strategy.concrete.convert_signals_to_positions"
-        ) as mock_positions:
+        with (
+            patch("app.tools.strategy.concrete.calculate_mas") as mock_mas,
+            patch("app.tools.strategy.concrete.calculate_rsi") as mock_rsi,
+            patch("app.tools.strategy.concrete.calculate_ma_signals") as mock_signals,
+            patch(
+                "app.tools.strategy.concrete.convert_signals_to_positions"
+            ) as mock_positions,
+        ):
             mock_mas.return_value = data
             mock_rsi.return_value = data.with_columns(pl.lit(50.0).alias("rsi"))
             mock_signals.return_value = (
@@ -284,11 +287,13 @@ class TestSMAStrategy:
             {"close": [10.0, 9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0]}
         )
 
-        with patch("app.tools.strategy.concrete.calculate_mas") as mock_mas, patch(
-            "app.tools.strategy.concrete.calculate_ma_signals"
-        ) as mock_signals, patch(
-            "app.tools.strategy.concrete.convert_signals_to_positions"
-        ) as mock_positions:
+        with (
+            patch("app.tools.strategy.concrete.calculate_mas") as mock_mas,
+            patch("app.tools.strategy.concrete.calculate_ma_signals") as mock_signals,
+            patch(
+                "app.tools.strategy.concrete.convert_signals_to_positions"
+            ) as mock_positions,
+        ):
             entries = pl.Series(
                 [False, False, False, True, False, False, False, False, False, False]
             )
@@ -317,11 +322,13 @@ class TestEMAStrategy:
             {"close": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]}
         )
 
-        with patch("app.tools.strategy.concrete.calculate_mas") as mock_mas, patch(
-            "app.tools.strategy.concrete.calculate_ma_signals"
-        ) as mock_signals, patch(
-            "app.tools.strategy.concrete.convert_signals_to_positions"
-        ) as mock_positions:
+        with (
+            patch("app.tools.strategy.concrete.calculate_mas") as mock_mas,
+            patch("app.tools.strategy.concrete.calculate_ma_signals") as mock_signals,
+            patch(
+                "app.tools.strategy.concrete.convert_signals_to_positions"
+            ) as mock_positions,
+        ):
             mock_mas.return_value = data
             mock_signals.return_value = (
                 pl.Series([False] * 10),
@@ -372,11 +379,13 @@ class TestStrategyIntegration:
         strategy = factory.create_strategy(config.get("STRATEGY_TYPE", "EMA"))
 
         # Mock the strategy's dependencies
-        with patch("app.tools.strategy.concrete.calculate_mas") as mock_mas, patch(
-            "app.tools.strategy.concrete.calculate_ma_signals"
-        ) as mock_signals, patch(
-            "app.tools.strategy.concrete.convert_signals_to_positions"
-        ) as mock_positions:
+        with (
+            patch("app.tools.strategy.concrete.calculate_mas") as mock_mas,
+            patch("app.tools.strategy.concrete.calculate_ma_signals") as mock_signals,
+            patch(
+                "app.tools.strategy.concrete.convert_signals_to_positions"
+            ) as mock_positions,
+        ):
             mock_mas.return_value = data
             mock_signals.return_value = (
                 pl.Series([False] * 100),
@@ -403,13 +412,14 @@ class TestStrategyIntegration:
         data = pl.DataFrame({"close": list(range(1, 51))})  # 50 data points
 
         # Mock all the dependencies
-        with patch("app.tools.strategy.concrete.calculate_mas") as mock_mas, patch(
-            "app.tools.strategy.concrete.calculate_rsi"
-        ) as mock_rsi, patch(
-            "app.tools.strategy.concrete.calculate_ma_signals"
-        ) as mock_signals, patch(
-            "app.tools.strategy.concrete.convert_signals_to_positions"
-        ) as mock_positions:
+        with (
+            patch("app.tools.strategy.concrete.calculate_mas") as mock_mas,
+            patch("app.tools.strategy.concrete.calculate_rsi") as mock_rsi,
+            patch("app.tools.strategy.concrete.calculate_ma_signals") as mock_signals,
+            patch(
+                "app.tools.strategy.concrete.convert_signals_to_positions"
+            ) as mock_positions,
+        ):
             mock_mas.return_value = data
             mock_signals.return_value = (
                 pl.Series([False] * 50),

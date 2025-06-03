@@ -1,8 +1,4 @@
-LEVELS = {
-    552.07: 9,
-    549.01: 12,
-    533.32: 42
-}
+LEVELS = {552.07: 9, 549.01: 12, 533.32: 42}
 
 
 # Calculate the total cost and total quantity

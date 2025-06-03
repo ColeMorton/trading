@@ -232,9 +232,9 @@ async def get_api_versions():
                 "version": v.version.value,
                 "status": v.status.value,
                 "introduced": v.introduced.isoformat(),
-                "deprecated_date": v.deprecated_date.isoformat()
-                if v.deprecated_date
-                else None,
+                "deprecated_date": (
+                    v.deprecated_date.isoformat() if v.deprecated_date else None
+                ),
                 "sunset_date": v.sunset_date.isoformat() if v.sunset_date else None,
                 "migration_guide_url": v.migration_guide_url,
                 "docs_url": f"/api/{v.version.value}/docs",

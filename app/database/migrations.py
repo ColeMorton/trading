@@ -205,9 +205,11 @@ class DataMigrator:
                         "high": Decimal(str(row["high"])),
                         "low": Decimal(str(row["low"])),
                         "close": Decimal(str(row["close"])),
-                        "volume": Decimal(str(row["volume"]))
-                        if "volume" in row and pd.notna(row["volume"])
-                        else None,
+                        "volume": (
+                            Decimal(str(row["volume"]))
+                            if "volume" in row and pd.notna(row["volume"])
+                            else None
+                        ),
                     }
                     records.append(record)
 
@@ -306,19 +308,25 @@ class DataMigrator:
                 "shortWindow": config.get("short", config.get("short_window")),
                 "longWindow": config.get("long", config.get("long_window")),
                 "signalWindow": config.get("signal", config.get("signal_window")),
-                "stopLossPct": Decimal(str(config["stop_loss"]))
-                if config.get("stop_loss")
-                else None,
+                "stopLossPct": (
+                    Decimal(str(config["stop_loss"]))
+                    if config.get("stop_loss")
+                    else None
+                ),
                 "rsiPeriod": config.get("rsi_period"),
-                "rsiThreshold": Decimal(str(config["rsi_threshold"]))
-                if config.get("rsi_threshold")
-                else None,
+                "rsiThreshold": (
+                    Decimal(str(config["rsi_threshold"]))
+                    if config.get("rsi_threshold")
+                    else None
+                ),
                 "signalEntry": config.get("signal_entry"),
                 "signalExit": config.get("signal_exit"),
                 "direction": config.get("direction", "LONG"),
-                "allocationPct": Decimal(str(config["allocation"]))
-                if config.get("allocation")
-                else None,
+                "allocationPct": (
+                    Decimal(str(config["allocation"]))
+                    if config.get("allocation")
+                    else None
+                ),
                 "parameters": config.get("parameters", {}),
             }
 
@@ -412,16 +420,22 @@ class DataMigrator:
                 ).to_pydatetime(),
                 "endDate": pd.to_datetime(row.get("End", "2024-01-01")).to_pydatetime(),
                 "totalReturnPct": Decimal(str(row.get("Total Return [%]", 0))),
-                "sharpeRatio": Decimal(str(row.get("Sharpe Ratio", 0)))
-                if pd.notna(row.get("Sharpe Ratio"))
-                else None,
-                "maxDrawdownPct": Decimal(str(row.get("Max Drawdown [%]", 0)))
-                if pd.notna(row.get("Max Drawdown [%]"))
-                else None,
+                "sharpeRatio": (
+                    Decimal(str(row.get("Sharpe Ratio", 0)))
+                    if pd.notna(row.get("Sharpe Ratio"))
+                    else None
+                ),
+                "maxDrawdownPct": (
+                    Decimal(str(row.get("Max Drawdown [%]", 0)))
+                    if pd.notna(row.get("Max Drawdown [%]"))
+                    else None
+                ),
                 "totalTrades": int(row.get("# Trades", 0)),
-                "winRatePct": Decimal(str(row.get("Win Rate [%]", 0)))
-                if pd.notna(row.get("Win Rate [%]"))
-                else None,
+                "winRatePct": (
+                    Decimal(str(row.get("Win Rate [%]", 0)))
+                    if pd.notna(row.get("Win Rate [%]"))
+                    else None
+                ),
                 # Add more field mappings as needed
             }
 

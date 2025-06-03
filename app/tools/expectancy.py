@@ -219,12 +219,12 @@ def calculate_expectancy_metrics(
     results = {
         "Expectancy": raw_expectancy,
         "Win Rate [%]": raw_components["win_rate"] * 100,
-        "Avg Winning Trade [%]": raw_components["avg_win"] * 100
-        if raw_components["avg_win"]
-        else 0,
-        "Avg Losing Trade [%]": raw_components["avg_loss"] * 100
-        if raw_components["avg_loss"]
-        else 0,
+        "Avg Winning Trade [%]": (
+            raw_components["avg_win"] * 100 if raw_components["avg_win"] else 0
+        ),
+        "Avg Losing Trade [%]": (
+            raw_components["avg_loss"] * 100 if raw_components["avg_loss"] else 0
+        ),
         "Expectancy per Trade": raw_expectancy,
     }
 

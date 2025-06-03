@@ -65,11 +65,13 @@ class TestExportIntegration:
         # Create orchestrator with new export enabled
         orchestrator = PortfolioOrchestrator(log, use_new_export=True)
 
-        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True), patch(
-            "pathlib.Path.exists", return_value=False
-        ), patch("pathlib.Path.unlink"), patch(
-            "polars.DataFrame.write_csv"
-        ) as mock_write_csv:
+        with (
+            patch("pathlib.Path.mkdir"),
+            patch("os.access", return_value=True),
+            patch("pathlib.Path.exists", return_value=False),
+            patch("pathlib.Path.unlink"),
+            patch("polars.DataFrame.write_csv") as mock_write_csv,
+        ):
             # Test export
             orchestrator._export_results(sample_portfolios, test_config)
 
@@ -110,9 +112,13 @@ class TestExportIntegration:
         data = pl.DataFrame({"ticker": ["BTC-USD", "ETH-USD"], "trades": [100, 75]})
         log = Mock()
 
-        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True), patch(
-            "pathlib.Path.exists", return_value=False
-        ), patch("pathlib.Path.unlink"), patch.object(pl.DataFrame, "write_csv"):
+        with (
+            patch("pathlib.Path.mkdir"),
+            patch("os.access", return_value=True),
+            patch("pathlib.Path.exists", return_value=False),
+            patch("pathlib.Path.unlink"),
+            patch.object(pl.DataFrame, "write_csv"),
+        ):
             # Test adapter
             result_df, success = export_csv_adapter(
                 data=data,
@@ -131,8 +137,10 @@ class TestExportIntegration:
         data = {"test": "data", "count": 42}
         log = Mock()
 
-        with patch("pathlib.Path.mkdir"), patch("builtins.open", create=True), patch(
-            "json.dump"
+        with (
+            patch("pathlib.Path.mkdir"),
+            patch("builtins.open", create=True),
+            patch("json.dump"),
         ):
             # Test migration helper
             result = migrate_to_export_manager(
@@ -157,9 +165,12 @@ class TestExportIntegration:
         test_config["USE_CURRENT"] = True
         today = datetime.now().strftime("%Y%m%d")
 
-        with patch("pathlib.Path.mkdir") as mock_mkdir, patch(
-            "os.access", return_value=True
-        ), patch("builtins.open", create=True), patch("json.dump"):
+        with (
+            patch("pathlib.Path.mkdir") as mock_mkdir,
+            patch("os.access", return_value=True),
+            patch("builtins.open", create=True),
+            patch("json.dump"),
+        ):
             context = ExportContext(
                 data={"test": "data"},
                 format=ExportFormat.JSON,
@@ -181,9 +192,12 @@ class TestExportIntegration:
         # Configure synthetic ticker
         test_config["TICKER"] = ["STRK", "MSTR"]
 
-        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True), patch(
-            "builtins.open", create=True
-        ), patch("json.dump"):
+        with (
+            patch("pathlib.Path.mkdir"),
+            patch("os.access", return_value=True),
+            patch("builtins.open", create=True),
+            patch("json.dump"),
+        ):
             context = ExportContext(
                 data={"ticker": "STRK_MSTR", "data": "test"},
                 format=ExportFormat.JSON,
@@ -209,12 +223,14 @@ class TestExportIntegration:
         csv_data = pl.DataFrame({"ticker": ["BTC-USD"], "value": [100]})
         json_data = {"summary": "test", "total": 42}
 
-        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True), patch(
-            "pathlib.Path.exists", return_value=False
-        ), patch("pathlib.Path.unlink"), patch.object(pl.DataFrame, "write_csv"), patch(
-            "builtins.open", create=True
-        ), patch(
-            "json.dump"
+        with (
+            patch("pathlib.Path.mkdir"),
+            patch("os.access", return_value=True),
+            patch("pathlib.Path.exists", return_value=False),
+            patch("pathlib.Path.unlink"),
+            patch.object(pl.DataFrame, "write_csv"),
+            patch("builtins.open", create=True),
+            patch("json.dump"),
         ):
             # Create contexts
             contexts = [

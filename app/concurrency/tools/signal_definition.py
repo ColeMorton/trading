@@ -393,15 +393,16 @@ def calculate_portfolio_unique_signals_v2(
         "total_strategy_signals": total_strategy_signals,
         "overlap_ratio": overlap_ratio,
         "strategy_counts": strategy_counts,
-        "unique_signal_dates": sorted(list(all_signal_dates))
-        if all_signal_dates
-        else [],
+        "unique_signal_dates": (
+            sorted(list(all_signal_dates)) if all_signal_dates else []
+        ),
         "validation": {
             "strategy_count": len(strategy_dataframes),
-            "avg_signals_per_strategy": total_strategy_signals
-            / len(strategy_dataframes)
-            if strategy_dataframes
-            else 0,
+            "avg_signals_per_strategy": (
+                total_strategy_signals / len(strategy_dataframes)
+                if strategy_dataframes
+                else 0
+            ),
             "inflation_factor": overlap_ratio,
         },
     }

@@ -4,6 +4,7 @@ This module defines specific exception types for different error scenarios,
 following the Single Responsibility Principle by separating error types
 by their domain and purpose.
 """
+
 from typing import Any, Dict, Optional
 
 

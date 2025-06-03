@@ -245,13 +245,18 @@ class TestWorkflowRegression(TestMACrossRegression):
         """Test that single ticker workflow produces consistent results."""
 
         # Mock the data and processing components
-        with patch("app.tools.get_data.get_data") as mock_get_data, patch(
-            "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
-        ) as mock_process, patch(
-            "app.tools.portfolio.filtering_service.PortfolioFilterService"
-        ) as mock_filter_service, patch(
-            "app.tools.strategy.export_portfolios.export_portfolios"
-        ) as mock_export:
+        with (
+            patch("app.tools.get_data.get_data") as mock_get_data,
+            patch(
+                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
+            ) as mock_process,
+            patch(
+                "app.tools.portfolio.filtering_service.PortfolioFilterService"
+            ) as mock_filter_service,
+            patch(
+                "app.tools.strategy.export_portfolios.export_portfolios"
+            ) as mock_export,
+        ):
             # Setup consistent mock responses
             mock_get_data.return_value = baseline_price_data
 
@@ -307,13 +312,18 @@ class TestWorkflowRegression(TestMACrossRegression):
         multi_config = baseline_config.copy()
         multi_config["TICKER"] = ["BTC-USD", "ETH-USD"]
 
-        with patch("app.tools.get_data.get_data") as mock_get_data, patch(
-            "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
-        ) as mock_process, patch(
-            "app.tools.portfolio.filtering_service.PortfolioFilterService"
-        ) as mock_filter_service, patch(
-            "app.tools.strategy.export_portfolios.export_portfolios"
-        ) as mock_export:
+        with (
+            patch("app.tools.get_data.get_data") as mock_get_data,
+            patch(
+                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
+            ) as mock_process,
+            patch(
+                "app.tools.portfolio.filtering_service.PortfolioFilterService"
+            ) as mock_filter_service,
+            patch(
+                "app.tools.strategy.export_portfolios.export_portfolios"
+            ) as mock_export,
+        ):
             # Setup mocks
             mock_get_data.return_value = baseline_price_data
 
@@ -525,11 +535,15 @@ class TestPerformanceRegression(TestMACrossRegression):
         """Test that performance remains within acceptable bounds."""
         import time
 
-        with patch("app.tools.get_data.get_data") as mock_get_data, patch(
-            "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
-        ) as mock_process, patch(
-            "app.tools.portfolio.filtering_service.PortfolioFilterService"
-        ) as mock_filter_service:
+        with (
+            patch("app.tools.get_data.get_data") as mock_get_data,
+            patch(
+                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
+            ) as mock_process,
+            patch(
+                "app.tools.portfolio.filtering_service.PortfolioFilterService"
+            ) as mock_filter_service,
+        ):
             # Setup mocks
             mock_get_data.return_value = baseline_price_data
             mock_process.return_value = pl.DataFrame(
@@ -578,11 +592,15 @@ class TestPerformanceRegression(TestMACrossRegression):
         process = psutil.Process(os.getpid())
         initial_memory = process.memory_info().rss
 
-        with patch("app.tools.get_data.get_data") as mock_get_data, patch(
-            "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
-        ) as mock_process, patch(
-            "app.tools.portfolio.filtering_service.PortfolioFilterService"
-        ) as mock_filter_service:
+        with (
+            patch("app.tools.get_data.get_data") as mock_get_data,
+            patch(
+                "app.strategies.ma_cross.tools.signal_processing.process_ticker_portfolios"
+            ) as mock_process,
+            patch(
+                "app.tools.portfolio.filtering_service.PortfolioFilterService"
+            ) as mock_filter_service,
+        ):
             # Setup mocks
             mock_get_data.return_value = baseline_price_data
             mock_process.return_value = pl.DataFrame(

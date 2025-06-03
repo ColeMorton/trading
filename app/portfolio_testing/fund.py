@@ -3,7 +3,9 @@ class HedgeFund:
         # Initialize the hedge fund with manager's details and the initial fund size
         self.manager_name = manager_name
         self.total_fund_value = initial_fund_size
-        self.stakes = {manager_name: manager_stake}  # Manager has an initial 50% stake by default
+        self.stakes = {
+            manager_name: manager_stake
+        }  # Manager has an initial 50% stake by default
         self.cash_available = {manager_name: initial_fund_size * manager_stake}
 
     def get_stake(self, participant):
@@ -21,7 +23,9 @@ class HedgeFund:
         current_stake = self.get_stake(participant)
 
         if current_stake >= 0.5:
-            new_stake = current_stake + stake_change_percentage * (1 - (current_stake - 0.5) * 2)
+            new_stake = current_stake + stake_change_percentage * (
+                1 - (current_stake - 0.5) * 2
+            )
         else:
             new_stake = current_stake + stake_change_percentage
 
@@ -46,7 +50,9 @@ class HedgeFund:
 
         for participant in self.stakes:
             self.stakes[participant] /= total_stakes
-            self.cash_available[participant] = self.stakes[participant] * self.total_fund_value
+            self.cash_available[participant] = (
+                self.stakes[participant] * self.total_fund_value
+            )
 
     def buy_stake(self, participant, amount):
         # Ensure the participant exists in the stakes and cash_available dictionaries

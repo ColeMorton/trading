@@ -3,6 +3,7 @@
 This module provides decorators for standardized error handling
 at the function level, following SOLID principles and KISS design.
 """
+
 import functools
 import traceback
 from typing import Any, Callable, Dict, Optional, Type, TypeVar, Union

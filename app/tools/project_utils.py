@@ -2,6 +2,7 @@
 
 This module provides utilities for working with project paths and directories.
 """
+
 import os
 from pathlib import Path
 

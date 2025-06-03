@@ -500,12 +500,14 @@ class CSVMetricsExtractor:
             # Create extraction metadata
             extraction_metadata = {
                 "rows_processed": len(csv_data),
-                "unique_tickers": csv_data["Ticker"].nunique()
-                if "Ticker" in csv_data.columns
-                else 0,
-                "unique_strategies": csv_data["Strategy"].nunique()
-                if "Strategy" in csv_data.columns
-                else 0,
+                "unique_tickers": (
+                    csv_data["Ticker"].nunique() if "Ticker" in csv_data.columns else 0
+                ),
+                "unique_strategies": (
+                    csv_data["Strategy"].nunique()
+                    if "Strategy" in csv_data.columns
+                    else 0
+                ),
                 "date_range": self._get_date_range(csv_data),
                 "aggregation_method": self.aggregation_method,
             }

@@ -12,32 +12,31 @@ from .config import config
 
 
 def setup_logging(
-    log_level: Optional[str] = None,
-    log_file: Optional[str] = None
+    log_level: Optional[str] = None, log_file: Optional[str] = None
 ) -> None:
     """
     Configure structured logging for the MCP server.
-    
+
     Args:
         log_level: Logging level (DEBUG, INFO, WARNING, ERROR)
         log_file: Optional path to log file
     """
     level = log_level or config.log_level
     file_path = log_file or config.log_file
-    
+
     # Configure standard logging
     handlers = [logging.StreamHandler(sys.stdout)]
     if file_path:
         log_path = Path(file_path)
         log_path.parent.mkdir(parents=True, exist_ok=True)
         handlers.append(logging.FileHandler(file_path))
-    
+
     logging.basicConfig(
         level=getattr(logging, level.upper()),
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=handlers
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=handlers,
     )
-    
+
     # Configure structlog
     structlog.configure(
         processors=[
@@ -49,7 +48,7 @@ def setup_logging(
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
             structlog.processors.UnicodeDecoder(),
-            structlog.processors.JSONRenderer()
+            structlog.processors.JSONRenderer(),
         ],
         context_class=dict,
         logger_factory=LoggerFactory(),
@@ -60,10 +59,10 @@ def setup_logging(
 def get_logger(name: str) -> structlog.BoundLogger:
     """
     Get a structured logger instance.
-    
+
     Args:
         name: Logger name (usually __name__)
-        
+
     Returns:
         Configured structlog BoundLogger
     """

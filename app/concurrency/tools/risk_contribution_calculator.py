@@ -307,9 +307,11 @@ class RiskContributionCalculator:
             "portfolio_volatility": float(portfolio_std),
             "portfolio_variance": float(portfolio_variance),
             "portfolio_mean_return": float(portfolio_mean),
-            "portfolio_sharpe": float(portfolio_mean / portfolio_std * np.sqrt(252))
-            if portfolio_std > 0
-            else 0.0,
+            "portfolio_sharpe": (
+                float(portfolio_mean / portfolio_std * np.sqrt(252))
+                if portfolio_std > 0
+                else 0.0
+            ),
             "portfolio_var_95": var_95,
             "portfolio_cvar_95": cvar_95,
             "portfolio_var_99": var_99,
@@ -752,17 +754,23 @@ class RiskContributionCalculator:
 
                     portfolios.append(
                         {
-                            "ticker": strategy_name.split("_")[0]
-                            if "_" in strategy_name
-                            else strategy_name,
-                            "strategy_type": strategy_name.split("_")[1]
-                            if "_" in strategy_name
-                            and len(strategy_name.split("_")) > 1
-                            else "unknown",
-                            "period": strategy_name.split("_")[2]
-                            if "_" in strategy_name
-                            and len(strategy_name.split("_")) > 2
-                            else "D",
+                            "ticker": (
+                                strategy_name.split("_")[0]
+                                if "_" in strategy_name
+                                else strategy_name
+                            ),
+                            "strategy_type": (
+                                strategy_name.split("_")[1]
+                                if "_" in strategy_name
+                                and len(strategy_name.split("_")) > 1
+                                else "unknown"
+                            ),
+                            "period": (
+                                strategy_name.split("_")[2]
+                                if "_" in strategy_name
+                                and len(strategy_name.split("_")) > 2
+                                else "D"
+                            ),
                             "data": df_with_position,
                         }
                     )

@@ -324,7 +324,9 @@ class StrategyData(TypedDict):
     """
 
     id: str
-    signals: Any  # Using Any since numpy arrays aren't directly representable in TypedDict
+    signals: (
+        Any  # Using Any since numpy arrays aren't directly representable in TypedDict
+    )
     returns: Any
     parameters: NotRequired[Dict[str, Any]]
     metrics: NotRequired[Dict[str, Any]]

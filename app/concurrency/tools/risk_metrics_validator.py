@@ -303,9 +303,11 @@ class RiskMetricsValidator:
                 valid=False,
                 issue_type="invalid_inputs",
                 csv_value=portfolio_total_risk,
-                json_value=sum(individual_risk_contributions)
-                if individual_risk_contributions
-                else 0,
+                json_value=(
+                    sum(individual_risk_contributions)
+                    if individual_risk_contributions
+                    else 0
+                ),
                 difference=0,
                 relative_difference=0,
                 tolerance=self.tolerances["risk_contribution"],
