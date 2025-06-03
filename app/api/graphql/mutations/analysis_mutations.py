@@ -107,7 +107,7 @@ async def execute_ma_cross_analysis(
             )
         else:
             ma_cross_service = get_ma_cross_service()
-            response = ma_cross_service.analyze_portfolio(pydantic_request)
+            response = await ma_cross_service.analyze_portfolio(pydantic_request)
             
             # Convert portfolios to AnalysisResult
             analysis_results = []

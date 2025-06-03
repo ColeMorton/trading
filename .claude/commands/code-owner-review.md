@@ -70,7 +70,6 @@ Create a comprehensive report including:
 - Detailed analysis by category
 - Risk matrix with severity ratings
 - Prioritized action items
-- Timeline recommendations
 - Resource requirements for improvements
 
 ## Usage

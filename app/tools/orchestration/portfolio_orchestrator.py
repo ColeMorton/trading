@@ -32,7 +32,7 @@ from app.strategies.ma_cross.exceptions import (
 )
 
 # Import filter_portfolios from the correct location
-from app.ma_cross.tools.filter_portfolios import filter_portfolios
+from app.strategies.ma_cross.tools.filter_portfolios import filter_portfolios
 
 from .ticker_processor import TickerProcessor
 
@@ -228,8 +228,21 @@ class PortfolioOrchestrator:
             schema_version = detect_schema_version(portfolios)
             self.log(f"Detected schema version for export: {schema_version.name}", "info")
             
+            # Convert portfolios list to DataFrame for filtering
+            import polars as pl
+            if portfolios:
+                portfolios_df = pl.DataFrame(portfolios)
+            else:
+                portfolios_df = pl.DataFrame()
+            
             # Filter portfolios
-            filtered_portfolios = filter_portfolios(portfolios, config, self.log)
+            filtered_portfolios_df = filter_portfolios(portfolios_df, config, self.log)
+            
+            # Convert DataFrame back to list of dictionaries
+            if len(filtered_portfolios_df) > 0:
+                filtered_portfolios = filtered_portfolios_df.to_dicts()
+            else:
+                filtered_portfolios = []
             
             # Log extended schema information if available
             if schema_version == SchemaVersion.EXTENDED and filtered_portfolios:

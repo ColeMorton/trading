@@ -25,6 +25,9 @@ from app.api.models.ma_cross import (
     PortfolioMetrics
 )
 from app.api.services.script_executor import task_status
+from app.api.utils.monitoring import get_metrics_collector
+from app.api.utils.performance import get_request_optimizer, get_concurrent_executor
+from app.tools.setup_logging import setup_logging
 
 # Import interfaces
 from app.core.interfaces import (
@@ -69,13 +72,13 @@ class MACrossService:
         # Legacy support - will be removed
         self.config = get_config()
         self.executor = ThreadPoolExecutor(max_workers=4)
-        self.concurrent_executor = None
-        self.optimizer = None
+        self.concurrent_executor = get_concurrent_executor()
+        self.optimizer = get_request_optimizer()
         self.metrics = get_metrics_collector()
         
-    def analyze_portfolio(self, request: MACrossRequest) -> MACrossResponse:
+    async def analyze_portfolio(self, request: MACrossRequest) -> MACrossResponse:
         """
-        Execute MA Cross analysis synchronously.
+        Execute MA Cross analysis.
         
         Args:
             request: MACrossRequest model with analysis parameters
@@ -87,7 +90,10 @@ class MACrossService:
             MACrossServiceError: If analysis fails
         """
         # Check cache first
-        cached_result = self.cache.get(request)
+        # Handle ticker being either string or list
+        ticker_str = request.ticker if isinstance(request.ticker, str) else ','.join(request.ticker)
+        cache_key = f"ma_cross:{ticker_str}:{request.windows}:{':'.join(request.strategy_types)}"
+        cached_result = await self.cache.get(cache_key)
         if cached_result:
             return cached_result
         
@@ -117,7 +123,14 @@ class MACrossService:
                 self._execute_analysis
             )
             
-            results = optimized_analysis(strategy_config, log)
+            # Run the blocking analysis in a thread pool to avoid blocking the event loop
+            loop = asyncio.get_event_loop()
+            results = await loop.run_in_executor(
+                self.executor,
+                optimized_analysis,
+                strategy_config,
+                log
+            )
             execution_time = time.time() - start_time
             
             log(f"Analysis completed in {execution_time:.2f} seconds")
@@ -145,7 +158,7 @@ class MACrossService:
             )
             
             # Cache the result for future requests
-            self.cache.set(request, response)
+            await self.cache.set(cache_key, response)
             
             # Record metrics
             self.metrics.record_request(

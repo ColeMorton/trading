@@ -127,7 +127,7 @@ async def analyze_portfolio(
                 content=response.model_dump(mode='json')
             )
         else:
-            response = await ma_cross_service.analyze_portfolio(request)
+            response = ma_cross_service.analyze_portfolio(request)
             return response
             
     except MACrossServiceError as e:

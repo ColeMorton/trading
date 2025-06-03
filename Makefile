@@ -1,7 +1,7 @@
 # Trading Application Makefile
 # Provides convenient commands for development and deployment
 
-.PHONY: help install dev build test clean docker-build docker-up docker-down docker-logs setup-db migrate backup restore frontend-install frontend-dev frontend-build frontend-codegen frontend-test dev-fullstack
+.PHONY: help install dev build test clean docker-build docker-up docker-down docker-logs setup-db migrate backup restore frontend-install frontend-dev frontend-build frontend-codegen frontend-test test-fullstack dev-fullstack
 
 # Default target
 help:
@@ -18,7 +18,8 @@ help:
 	@echo "  frontend-dev     - Start frontend development server"
 	@echo "  frontend-build   - Build frontend for production"
 	@echo "  frontend-codegen - Generate GraphQL types"
-	@echo "  frontend-test    - Run frontend E2E tests"
+	@echo "  frontend-test    - Run frontend E2E tests (requires dev servers)"
+	@echo "  test-fullstack   - Run E2E tests with automatic server startup"
 	@echo "  dev-fullstack    - Start both backend and frontend"
 	@echo ""
 	@echo "Docker:"
@@ -247,6 +248,14 @@ frontend-build-pwa:
 
 frontend-test:
 	@echo "Running frontend E2E tests..."
+	@echo "⚠️  Prerequisites: Both backend and frontend servers must be running"
+	@echo "   Backend: http://localhost:8000 (make dev-local)"
+	@echo "   Frontend: http://localhost:5173 (make frontend-dev)"
+	@echo ""
+	@echo "Checking server availability..."
+	@curl -f http://localhost:8000/health >/dev/null 2>&1 || { echo "❌ Backend not running. Start with 'make dev-local'"; exit 1; }
+	@curl -f http://localhost:5173 >/dev/null 2>&1 || { echo "❌ Frontend not running. Start with 'make frontend-dev'"; exit 1; }
+	@echo "✅ Both servers are running, proceeding with tests..."
 	cd app/frontend/sensylate && npm run test:e2e
 	@echo "✅ Frontend tests complete"
 
@@ -282,3 +291,21 @@ setup-frontend: frontend-install frontend-codegen
 setup-fullstack: install setup-db frontend-install frontend-codegen
 	@echo "✅ Full-stack setup complete!"
 	@echo "Run 'make dev-fullstack' to start both backend and frontend"
+
+# Complete test workflow with server startup
+test-fullstack:
+	@echo "Running full-stack tests with automatic server startup..."
+	@echo "Starting backend server..."
+	poetry run python -m app.api.run --reload &
+	@echo "Waiting for backend to start..."
+	@sleep 5
+	@echo "Starting frontend server..."
+	cd app/frontend/sensylate && npm run dev &
+	@echo "Waiting for frontend to start..."
+	@sleep 5
+	@echo "Running tests..."
+	cd app/frontend/sensylate && npm run test:e2e
+	@echo "Stopping servers..."
+	@pkill -f "app.api.run" || true
+	@pkill -f "vite" || true
+	@echo "✅ Full-stack tests complete!"

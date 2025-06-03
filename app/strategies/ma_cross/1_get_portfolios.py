@@ -77,13 +77,13 @@ from app.tools.portfolio.stop_loss import (
 )
 
 CONFIG: Config = {
-    "TICKER": ["ROKU"],
-    # "TICKER": ["ROKU","LUV"],
+    "TICKER": ["NI"],
+    # "TICKER": ["MA", "L", "HOOD", "NI", "MSFT", "ROKU", "MU", "TEM", "BRO", "FCX", "GL", "CSCO", "EG", "EQT", "MMC", "PGR", "PANW", "HRL", "PLTR", "PWR", "TSM"],
     # Load tickers from JSON file
     # "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/portfolio.json"))),
     # "TICKER_2": 'AVGO',
     # "WINDOWS": 120,
-    "WINDOWS": 10,
+    "WINDOWS": 89,
     # "WINDOWS": 55,
     # "WINDOWS": 34,
     # "SCANNER_LIST": 'DAILY.csv',

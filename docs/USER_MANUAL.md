@@ -185,7 +185,7 @@ API_PORT=8000
 ENABLE_GRAPHQL=true
 VITE_USE_GRAPHQL=true
 
-# Architecture Configuration (new)
+# Architecture Configuration
 ENVIRONMENT=development
 ENABLE_DEPENDENCY_INJECTION=true
 LOG_LEVEL=INFO
@@ -514,6 +514,7 @@ trade = Trade(
 3. **Clear Contracts** - Interfaces define exact expectations between layers
 4. **Flexibility** - Swap implementations without changing dependent code
 5. **No Circular Dependencies** - DI pattern prevents circular imports
+6. **Async Integration** - Services use async/await for non-blocking operations and efficient caching
 
 ---
 
@@ -524,9 +525,36 @@ trade = Trade(
 #### REST API Endpoints
 
 **Core Analysis:**
-- `POST /api/ma-cross/analyze` - Moving average analysis
+- `POST /api/ma-cross/analyze` - Moving average analysis (async with caching)
 - `GET /api/ma-cross/status/{execution_id}` - Check analysis status
 - `GET /api/ma-cross/stream/{execution_id}` - Real-time progress (SSE)
+
+**API Versioning:**
+- `GET /api/versions` - List all API versions and their status
+- `GET /api/migration/{from_version}/to/{to_version}` - Get migration guide between versions
+- `GET /api/deprecation/{version}` - Get deprecation notice for a version
+- `GET /api/v1/*` - Version 1 API endpoints (current stable)
+
+**Service Management:**
+- `GET /api/container/health` - Health status of all services in DI container
+- `GET /api/container/registrations` - Information about all service registrations
+- `POST /api/services/initialize` - Initialize all registered services
+- `POST /api/services/shutdown` - Shutdown all services gracefully
+- `GET /api/services/health` - Health status via service orchestrator
+
+**Event Bus and Messaging:**
+- `GET /api/events/metrics` - Event bus metrics and statistics
+- `GET /api/events/subscriptions` - Current event subscriptions
+- `GET /api/events/history?limit=50` - Recent event history
+- `POST /api/events/publish` - Publish a test event
+
+**Long Operations Management:**
+- `GET /api/operations/metrics` - Operation queue metrics
+- `GET /api/operations?status=running` - List operations with optional status filter
+- `GET /api/operations/{operation_id}` - Get status of specific operation
+- `POST /api/operations/data-analysis` - Start data analysis operation
+- `POST /api/operations/portfolio-optimization` - Start portfolio optimization
+- `DELETE /api/operations/{operation_id}` - Cancel a running operation
 
 **Data Management:**
 - `GET /api/data/tickers` - List available tickers
@@ -723,8 +751,33 @@ ENABLE_GRAPHQL=true
 ENABLE_ASYNC_EXECUTION=true
 ENABLE_PROGRESS_TRACKING=true
 
-# Production Settings (new)
-ENVIRONMENT=production
+# Architecture Configuration
+ENVIRONMENT=development
+ENABLE_DEPENDENCY_INJECTION=true
+ENABLE_ENHANCED_DI=true
+ENABLE_EVENT_BUS=true
+ENABLE_ASYNC_MESSAGING=true
+LOG_LEVEL=INFO
+LOG_FORMAT=json
+
+# API Versioning
+API_VERSION_DEFAULT=v1
+API_VERSION_DEPRECATION_WARNINGS=true
+
+# Service Configuration
+SERVICE_HEALTH_CHECK_INTERVAL=60
+SERVICE_STARTUP_TIMEOUT=30
+SERVICE_SHUTDOWN_TIMEOUT=10
+
+# Event Bus Configuration
+EVENT_BUS_MAX_WORKERS=4
+EVENT_BUS_MAX_HISTORY=1000
+
+# Long Operations
+OPERATION_QUEUE_MAX_CONCURRENT=4
+OPERATION_DEFAULT_TIMEOUT=300
+
+# Production Settings
 SECRET_KEY=your_secret_key_here
 ALLOWED_HOSTS=your-domain.com
 CORS_ORIGINS=https://your-domain.com
@@ -786,7 +839,8 @@ make frontend-codegen   # Generate GraphQL TypeScript types
 ```bash
 make frontend-install   # Install frontend dependencies
 make frontend-build     # Build frontend for production
-make frontend-test      # Run frontend E2E tests
+make frontend-test      # Run frontend E2E tests (requires dev servers running)
+make test-fullstack     # Run E2E tests with automatic server startup
 make frontend-lint      # Run frontend linting
 make frontend-clean     # Clean frontend build artifacts
 ```
@@ -855,6 +909,219 @@ poetry run python app/strategies/update_portfolios.py
 - `beta` - Market sensitivity
 - `alpha` - Excess return vs benchmark
 - `information_ratio` - Active return vs tracking error
+
+---
+
+## Enhanced Architecture Features
+
+### API Versioning
+
+The platform supports full API versioning with safe evolution and migration support:
+
+**Version Management:**
+```bash
+# Check all available API versions
+curl http://localhost:8000/api/versions
+
+# Access v1 API (current stable)
+curl http://localhost:8000/api/v1/
+
+# Get migration guide when upgrading
+curl http://localhost:8000/api/migration/v1/to/v2
+
+# Check deprecation status
+curl http://localhost:8000/api/deprecation/v1
+```
+
+**Version Headers:**
+```bash
+# Specify version via header
+curl -H "API-Version: v1" http://localhost:8000/api/scripts/list
+
+# Use Accept header
+curl -H "Accept: application/vnd.trading-api;version=v1" http://localhost:8000/api/data/tickers
+```
+
+**Frontend Integration:**
+```javascript
+// Automatic version detection
+const response = await fetch('/api/v1/ma-cross/analyze', {
+  method: 'POST',
+  headers: {
+    'API-Version': 'v1',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(analysisRequest)
+});
+
+// Handle deprecation warnings
+if (response.headers.get('Deprecation') === 'true') {
+  const sunsetDate = response.headers.get('Sunset');
+  console.warn(`API version deprecated. Sunset: ${sunsetDate}`);
+}
+```
+
+### Event-Driven Architecture
+
+**Publishing Events:**
+```python
+from app.api.event_bus import publish_event, TradingEvents
+
+# Publish portfolio events
+event_id = await publish_event(
+    event_type=TradingEvents.PORTFOLIO_CREATED,
+    data={'portfolio_id': 'pf_123', 'strategy': 'ma_cross'},
+    source='portfolio_service'
+)
+```
+
+**Event Subscriptions:**
+```python
+from app.api.event_bus import EventHandler, subscribe_to_events
+
+class PortfolioNotificationHandler(EventHandler):
+    async def handle(self, event):
+        if event.event_type == TradingEvents.PORTFOLIO_CREATED:
+            # Send notification
+            await send_notification(event.data)
+    
+    def get_event_types(self):
+        return [TradingEvents.PORTFOLIO_CREATED, TradingEvents.PORTFOLIO_UPDATED]
+
+# Subscribe to events
+handler = PortfolioNotificationHandler()
+subscription_id = subscribe_to_events(handler)
+```
+
+**Event Monitoring:**
+```bash
+# Check event bus metrics
+curl http://localhost:8000/api/events/metrics
+
+# View recent events
+curl http://localhost:8000/api/events/history?limit=20
+
+# See active subscriptions
+curl http://localhost:8000/api/events/subscriptions
+
+# Publish test event
+curl -X POST http://localhost:8000/api/events/publish \
+  -H "Content-Type: application/json" \
+  -d '{"event_type": "test.event", "data": {"message": "hello"}, "source": "manual"}'
+```
+
+### Long Operation Management
+
+**Starting Long Operations:**
+```bash
+# Start data analysis
+curl -X POST http://localhost:8000/api/operations/data-analysis \
+  -H "Content-Type: application/json" \
+  -d '{"dataset_size": 10000, "timeout": 600}'
+
+# Start portfolio optimization
+curl -X POST http://localhost:8000/api/operations/portfolio-optimization \
+  -H "Content-Type: application/json" \
+  -d '{"symbols": ["BTC-USD", "ETH-USD", "SPY"], "timeout": 300}'
+```
+
+**Monitoring Operations:**
+```bash
+# Check operation status
+curl http://localhost:8000/api/operations/op_123456
+
+# List all running operations
+curl http://localhost:8000/api/operations?status=running
+
+# View operation queue metrics
+curl http://localhost:8000/api/operations/metrics
+
+# Cancel an operation
+curl -X DELETE http://localhost:8000/api/operations/op_123456
+```
+
+**Progress Streaming (JavaScript):**
+```javascript
+// Monitor operation progress with Server-Sent Events
+function monitorOperation(operationId) {
+  const eventSource = new EventSource(`/api/operations/${operationId}/stream`);
+  
+  eventSource.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    
+    switch(data.type) {
+      case 'progress':
+        updateProgressBar(data.data.progress.percentage);
+        updateStatusMessage(data.data.progress.message);
+        break;
+      case 'completed':
+        displayResults(data.data.result);
+        eventSource.close();
+        break;
+      case 'failed':
+        showError(data.data.error);
+        eventSource.close();
+        break;
+    }
+  };
+  
+  return eventSource;
+}
+```
+
+### Enhanced Service Management
+
+**Service Health Monitoring:**
+```bash
+# Check enhanced DI container health
+curl http://localhost:8000/api/container/health
+
+# View service registrations
+curl http://localhost:8000/api/container/registrations
+
+# Check service orchestrator
+curl http://localhost:8000/api/services/health
+```
+
+**Service Lifecycle Management:**
+```bash
+# Initialize all services
+curl -X POST http://localhost:8000/api/services/initialize
+
+# Graceful shutdown
+curl -X POST http://localhost:8000/api/services/shutdown
+```
+
+**Custom Service Registration:**
+```python
+from app.api.service_patterns import ServiceOrchestrator, BaseService
+
+class CustomAnalyticsService(BaseService):
+    @property
+    def metadata(self):
+        return ServiceMetadata(
+            name="analytics",
+            version="1.0.0",
+            description="Custom analytics service",
+            dependencies=["logging", "data_access"]
+        )
+    
+    async def _initialize_impl(self):
+        # Custom initialization
+        self.analytics_engine = AnalyticsEngine()
+        await self.analytics_engine.connect()
+    
+    async def _health_check_impl(self):
+        return self.analytics_engine.is_healthy()
+
+# Register with orchestrator
+orchestrator = service_orchestrator
+orchestrator.register_service(
+    "analytics",
+    CustomAnalyticsService,
+    dependencies=["logging", "data_access"]
+)
+```
 
 ---
 
@@ -1538,6 +1805,37 @@ cd app/frontend/sensylate && npm run dev
 lsof -i :5173
 ```
 
+#### Frontend Tests Failing
+
+**Symptom:** `ERR_CONNECTION_REFUSED` when running `make frontend-test`
+
+**Solutions:**
+```bash
+# Frontend tests require both backend and frontend servers to be running
+
+# Option 1: Start servers manually in separate terminals
+# Terminal 1: Start backend
+make dev-local
+
+# Terminal 2: Start frontend  
+make frontend-dev
+
+# Terminal 3: Run tests
+make frontend-test
+
+# Option 2: Use full-stack development setup
+make dev-fullstack  # Starts both servers
+# Then in another terminal:
+make frontend-test
+
+# Option 3: Automated test with server startup (recommended)
+make test-fullstack  # Automatically starts servers, runs tests, stops servers
+
+# Check server status
+curl http://localhost:8000/health  # Backend
+curl http://localhost:5173        # Frontend
+```
+
 #### Empty Analysis Results
 
 **Symptom:** `portfolios: []` in API response
@@ -1655,6 +1953,58 @@ tar -czf logs.tar.gz logs/
 poetry run python scripts/diagnose_system.py
 ```
 
+**Advanced Features Troubleshooting:**
+
+**API Versioning Issues:**
+```bash
+# Check API version status
+curl http://localhost:8000/api/versions
+
+# Test v1 endpoints specifically
+curl http://localhost:8000/api/v1/
+
+# Check for deprecation warnings
+curl -I http://localhost:8000/api/ma-cross/analyze
+```
+
+**Event Bus Issues:**
+```bash
+# Check event bus metrics
+curl http://localhost:8000/api/events/metrics
+
+# Verify event publishing works
+curl -X POST http://localhost:8000/api/events/publish \
+  -H "Content-Type: application/json" \
+  -d '{"event_type": "test", "data": {}, "source": "debug"}'
+
+# Check event history
+curl http://localhost:8000/api/events/history?limit=10
+```
+
+**Long Operation Issues:**
+```bash
+# Check operation queue status
+curl http://localhost:8000/api/operations/metrics
+
+# List stuck operations
+curl http://localhost:8000/api/operations?status=running
+
+# Cancel problematic operations
+curl -X DELETE http://localhost:8000/api/operations/{operation_id}
+```
+
+**Enhanced DI Container Issues:**
+```bash
+# Check container health
+curl http://localhost:8000/api/container/health
+
+# View service registrations
+curl http://localhost:8000/api/container/registrations
+
+# Test service orchestrator
+curl http://localhost:8000/api/services/health
+```
+
 **Support Information:**
 - **Documentation**: Check `docs/` directory for detailed guides
   - `dependency_injection_guide.md` - DI framework guide
@@ -1665,6 +2015,10 @@ poetry run python scripts/diagnose_system.py
 - **Health Check**: http://localhost:8000/health/detailed
 - **Validation**: `poetry run python scripts/validate_phase1.py`
 - **DI Testing**: `poetry run python app/api/test_dependency_injection.py`
+- **API Versioning**: http://localhost:8000/api/versions
+- **Event Bus Metrics**: http://localhost:8000/api/events/metrics
+- **Operations Queue**: http://localhost:8000/api/operations/metrics
+- **Service Health**: http://localhost:8000/api/container/health
 
 **Before Reporting Issues:**
 1. Run system validation: `poetry run python scripts/validate_phase1.py`
@@ -1675,7 +2029,7 @@ poetry run python scripts/diagnose_system.py
 
 ---
 
-*This manual covers the core functionality of the Trading Strategy Platform, including the completed GraphQL + PostgreSQL migration (Phases 1-4) and the newly implemented dependency injection framework. The platform now offers enterprise-grade features with:
+*This manual covers the core functionality of the Trading Strategy Platform. The platform offers enterprise-grade features with:
 
 - **Clean Architecture** - Dependency injection with interface-based design
 - **Docker Containerization** - Production-ready deployment
