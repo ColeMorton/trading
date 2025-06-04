@@ -3,11 +3,27 @@ Configuration Type Definitions
 
 This module provides centralized TypedDict definitions for configuration
 across the MA cross strategy modules.
+
+Updated for Phase 2: Integration with new ParameterTestingConfig system.
 """
 
 from typing import Dict, List, Literal, Optional, TypedDict, Union
 
 from typing_extensions import NotRequired
+
+# Import new configuration system for migration path
+try:
+    from app.strategies.ma_cross.config.parameter_testing import (
+        ExecutionOptions,
+        ExportOptions,
+        FilterCriteria,
+        ParameterTestingConfig,
+        ValidationResult,
+    )
+
+    _HAS_NEW_CONFIG = True
+except ImportError:
+    _HAS_NEW_CONFIG = False
 
 
 class MinimumConfig(TypedDict, total=False):
@@ -175,3 +191,81 @@ DEFAULT_CONFIG: Config = {
     # Default values for allocation and stop loss are not set
     # They will be determined based on the CSV schema
 }
+
+
+# Migration utilities for Phase 2 integration
+def migrate_to_new_config(legacy_config: Config) -> "ParameterTestingConfig":
+    """
+    Migrate legacy Config to new ParameterTestingConfig.
+
+    Args:
+        legacy_config: Legacy configuration dictionary
+
+    Returns:
+        New ParameterTestingConfig instance
+
+    Raises:
+        ImportError: If new config system is not available
+    """
+    if not _HAS_NEW_CONFIG:
+        raise ImportError("New configuration system not available")
+
+    return ParameterTestingConfig.from_dict(legacy_config)
+
+
+def migrate_from_new_config(new_config: "ParameterTestingConfig") -> Config:
+    """
+    Migrate new ParameterTestingConfig to legacy Config format.
+
+    Args:
+        new_config: New ParameterTestingConfig instance
+
+    Returns:
+        Legacy configuration dictionary
+    """
+    if not _HAS_NEW_CONFIG:
+        raise ImportError("New configuration system not available")
+
+    return new_config.to_dict()
+
+
+def validate_config_compatibility(config: Dict) -> List[str]:
+    """
+    Validate that a configuration is compatible with both systems.
+
+    Args:
+        config: Configuration dictionary to validate
+
+    Returns:
+        List of compatibility warnings (empty if fully compatible)
+    """
+    warnings = []
+
+    # Check for required fields in legacy format
+    required_legacy = {"TICKER", "WINDOWS", "BASE_DIR"}
+    missing_legacy = required_legacy - set(config.keys())
+    if missing_legacy:
+        warnings.append(f"Missing legacy required fields: {missing_legacy}")
+
+    # Check for deprecated fields
+    deprecated_fields = {"SCANNER_LIST", "USE_BEST_PORTFOLIO"}
+    present_deprecated = set(config.keys()) & deprecated_fields
+    if present_deprecated:
+        warnings.append(f"Using deprecated fields: {present_deprecated}")
+
+    # Check for new format compatibility
+    if _HAS_NEW_CONFIG:
+        try:
+            new_config = ParameterTestingConfig.from_dict(config)
+            validation_result = new_config.validate()
+            if not validation_result.is_valid:
+                warnings.extend(
+                    [
+                        f"{msg['severity']}: {msg['message']}"
+                        for msg in validation_result.messages
+                    ]
+                )
+        except Exception as e:
+            warnings.append(f"New config validation failed: {str(e)}")
+
+    return warnings

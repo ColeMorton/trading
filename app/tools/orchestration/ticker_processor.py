@@ -14,6 +14,7 @@ from app.strategies.ma_cross.exceptions import (
 )
 from app.strategies.ma_cross.tools.strategy_execution import (
     execute_strategy,
+    execute_strategy_concurrent,
     process_single_ticker,
 )
 from app.tools.error_context import error_context
@@ -62,7 +63,26 @@ class TickerProcessor:
             {Exception: MACrossExecutionError},
             reraise=True,
         ):
-            return execute_strategy(config, strategy_type, self.log, progress_tracker)
+            # Automatically choose optimal execution method based on ticker count
+            tickers = config.get("TICKER", [])
+            if isinstance(tickers, str):
+                tickers = [tickers]
+
+            # Use concurrent execution for 3+ tickers for better performance
+            if len(tickers) > 2:
+                self.log(
+                    f"Using concurrent execution for {len(tickers)} tickers", "info"
+                )
+                return execute_strategy_concurrent(
+                    config, strategy_type, self.log, progress_tracker
+                )
+            else:
+                self.log(
+                    f"Using sequential execution for {len(tickers)} tickers", "info"
+                )
+                return execute_strategy(
+                    config, strategy_type, self.log, progress_tracker
+                )
 
     def process_ticker(
         self,

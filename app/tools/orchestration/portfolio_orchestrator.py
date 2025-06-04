@@ -207,7 +207,7 @@ class PortfolioOrchestrator:
                 strategy_config = config.copy()
                 strategy_config["STRATEGY_TYPE"] = strategy_type
 
-                # Execute strategy
+                # Execute strategy using optimal method (concurrent for 3+ tickers)
                 portfolios = self.ticker_processor.execute_strategy(
                     strategy_config, strategy_type
                 )

@@ -17,20 +17,36 @@ export interface UseParameterTestingReturn {
   cancelAnalysis: () => void;
 }
 
+// Streamlined state interface
+interface AnalysisState {
+  status: 'idle' | 'analyzing' | 'completed' | 'error';
+  results: AnalysisResult[];
+  progress: number;
+  error: string | null;
+  executionId: string | null;
+}
+
 const POLLING_INTERVAL = 1000; // 1 second
 const MAX_POLLING_ATTEMPTS = 600; // 10 minutes max
 
 export const useParameterTesting = (): UseParameterTestingReturn => {
-  const [results, setResults] = useState<AnalysisResult[]>([]);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const [executionId, setExecutionId] = useState<string | null>(null);
+  // Unified state management
+  const [state, setState] = useState<AnalysisState>({
+    status: 'idle',
+    results: [],
+    progress: 0,
+    error: null,
+    executionId: null,
+  });
 
   // Refs for polling management
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const pollingAttemptsRef = useRef(0);
   const isCancelledRef = useRef(false);
+
+  // Derived state for backward compatibility
+  const isAnalyzing = state.status === 'analyzing';
+  const { results, progress, error, executionId } = state;
 
   // Cleanup polling on unmount
   useEffect(() => {
@@ -41,22 +57,22 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
     };
   }, []);
 
-  // Poll for async execution status
+  // Simplified polling for async execution status
   const pollStatus = useCallback(async (execId: string) => {
     try {
       const status = await maCrossApi.getStatus(execId);
 
       // Check if cancelled
       if (isCancelledRef.current) {
-        setIsAnalyzing(false);
-        setProgress(0);
+        setState((prev) => ({ ...prev, status: 'idle', progress: 0 }));
         return;
       }
 
       // Update progress
       const progressValue =
         typeof status.progress === 'number' ? status.progress : 0;
-      setProgress(progressValue);
+
+      setState((prev) => ({ ...prev, progress: progressValue }));
 
       // Handle different status states
       switch (status.status) {
@@ -65,7 +81,7 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
           let analysisResults: AnalysisResult[] = [];
 
           if (status.results) {
-            // New API format: direct results array
+            // Convert API results to AnalysisResult format
             analysisResults = status.results.map((portfolio) => ({
               ticker: portfolio.ticker,
               strategy_type: portfolio.strategy_type,
@@ -97,10 +113,13 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
             analysisResults = maCrossApi.responseToResults(status.result);
           }
 
-          setResults(analysisResults);
-          setError(null);
-          setIsAnalyzing(false);
-          setProgress(100);
+          setState({
+            status: 'completed',
+            results: analysisResults,
+            progress: 100,
+            error: null,
+            executionId: execId,
+          });
 
           // Clear polling
           if (pollingIntervalRef.current) {
@@ -111,10 +130,13 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
         }
 
         case 'failed':
-          // Analysis failed
-          setError(status.error || 'Analysis failed');
-          setIsAnalyzing(false);
-          setProgress(0);
+          setState({
+            status: 'error',
+            results: [],
+            progress: 0,
+            error: status.error || 'Analysis failed',
+            executionId: execId,
+          });
 
           // Clear polling
           if (pollingIntervalRef.current) {
@@ -130,9 +152,13 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
 
           // Check max attempts
           if (pollingAttemptsRef.current >= MAX_POLLING_ATTEMPTS) {
-            setError('Analysis timeout - exceeded maximum wait time');
-            setIsAnalyzing(false);
-            setProgress(0);
+            setState({
+              status: 'error',
+              results: [],
+              progress: 0,
+              error: 'Analysis timeout - exceeded maximum wait time',
+              executionId: execId,
+            });
 
             if (pollingIntervalRef.current) {
               clearInterval(pollingIntervalRef.current);
@@ -143,13 +169,16 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
       }
     } catch (err) {
       console.error('Error polling status:', err);
-      // Don't stop polling on transient errors
       pollingAttemptsRef.current++;
 
       if (pollingAttemptsRef.current >= MAX_POLLING_ATTEMPTS) {
-        setError('Failed to get analysis status');
-        setIsAnalyzing(false);
-        setProgress(0);
+        setState({
+          status: 'error',
+          results: [],
+          progress: 0,
+          error: 'Failed to get analysis status',
+          executionId: execId,
+        });
 
         if (pollingIntervalRef.current) {
           clearInterval(pollingIntervalRef.current);
@@ -159,16 +188,19 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
     }
   }, []);
 
-  // Main analysis function
+  // Streamlined analysis function
   const analyze = useCallback(
     async (config: AnalysisConfiguration) => {
       try {
-        // Reset state
-        setIsAnalyzing(true);
-        setError(null);
-        setProgress(0);
-        setResults([]);
-        setExecutionId(null);
+        // Reset state and setup for new analysis
+        setState({
+          status: 'analyzing',
+          results: [],
+          progress: 0,
+          error: null,
+          executionId: null,
+        });
+
         isCancelledRef.current = false;
         pollingAttemptsRef.current = 0;
 
@@ -187,16 +219,24 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
 
           if (syncResponse.status === 'success') {
             const analysisResults = maCrossApi.responseToResults(syncResponse);
-            setResults(analysisResults);
-            setProgress(100);
-            setIsAnalyzing(false);
+            setState({
+              status: 'completed',
+              results: analysisResults,
+              progress: 100,
+              error: null,
+              executionId: null,
+            });
           } else {
             throw new Error(syncResponse.error || 'Analysis failed');
           }
         } else {
           // Handle asynchronous response
           const asyncResponse = response as MACrossAsyncResponse;
-          setExecutionId(asyncResponse.execution_id);
+
+          setState((prev) => ({
+            ...prev,
+            executionId: asyncResponse.execution_id,
+          }));
 
           // Start polling for status
           pollingIntervalRef.current = setInterval(() => {
@@ -208,9 +248,13 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
         }
       } catch (err) {
         console.error('Analysis error:', err);
-        setError(err instanceof Error ? err.message : 'Analysis failed');
-        setIsAnalyzing(false);
-        setProgress(0);
+        setState({
+          status: 'error',
+          results: [],
+          progress: 0,
+          error: err instanceof Error ? err.message : 'Analysis failed',
+          executionId: null,
+        });
       }
     },
     [pollStatus]
@@ -218,10 +262,13 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
 
   // Clear results
   const clearResults = useCallback(() => {
-    setResults([]);
-    setError(null);
-    setProgress(0);
-    setExecutionId(null);
+    setState({
+      status: 'idle',
+      results: [],
+      progress: 0,
+      error: null,
+      executionId: null,
+    });
   }, []);
 
   // Cancel ongoing analysis
@@ -233,9 +280,13 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
       pollingIntervalRef.current = null;
     }
 
-    setIsAnalyzing(false);
-    setProgress(0);
-    setExecutionId(null);
+    setState({
+      status: 'idle',
+      results: [],
+      progress: 0,
+      error: null,
+      executionId: null,
+    });
   }, []);
 
   return {

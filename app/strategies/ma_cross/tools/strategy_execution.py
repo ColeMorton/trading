@@ -5,6 +5,8 @@ This module handles the execution of trading strategies, including portfolio pro
 filtering, and best portfolio selection for both single and multiple tickers.
 """
 
+import asyncio
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from app.strategies.ma_cross.config_types import Config
@@ -270,6 +272,207 @@ def process_single_ticker(
         return best_portfolio
 
     return None
+
+
+def process_ticker_batch(
+    ticker_batch: List[str], config: Config, strategy_type: str, log: callable
+) -> List[Dict[str, Any]]:
+    """Process a batch of tickers sequentially within a single thread.
+
+    Args:
+        ticker_batch: List of ticker symbols to process
+        config: Configuration for the analysis
+        strategy_type: Strategy type (e.g., 'EMA', 'SMA')
+        log: Logging function
+
+    Returns:
+        List of best portfolios found for the batch
+    """
+    batch_portfolios = []
+
+    for ticker in ticker_batch:
+        try:
+            log(f"Processing {strategy_type} strategy for ticker: {ticker}")
+            ticker_config = config.copy()
+
+            # Handle synthetic tickers
+            if (
+                config.get("USE_SYNTHETIC", False)
+                and isinstance(ticker, str)
+                and "_" in ticker
+            ):
+                # Extract original tickers from synthetic ticker name
+                ticker_parts = ticker.split("_")
+                if len(ticker_parts) >= 2:
+                    # Store original ticker parts for later use
+                    ticker_config["TICKER_1"] = ticker_parts[0]
+                    if "TICKER_2" not in ticker_config:
+                        ticker_config["TICKER_2"] = ticker_parts[1]
+                    log(
+                        f"Extracted ticker components: {ticker_config['TICKER_1']} and {ticker_config['TICKER_2']}"
+                    )
+
+            # Ensure synthetic tickers use underscore format
+            formatted_ticker = (
+                ticker.replace("/", "_") if isinstance(ticker, str) else ticker
+            )
+            ticker_config["TICKER"] = formatted_ticker
+
+            # Set the strategy type in the config
+            ticker_config["STRATEGY_TYPE"] = strategy_type
+
+            # Process the ticker
+            formatted_ticker_to_process = ticker_config.get("TICKER", ticker)
+            best_portfolio = process_single_ticker(
+                formatted_ticker_to_process,
+                ticker_config,
+                log,
+                None,  # No progress tracker for concurrent execution
+            )
+            if best_portfolio is not None:
+                batch_portfolios.append(best_portfolio)
+
+        except Exception as e:
+            log(f"Error processing ticker {ticker}: {str(e)}", "error")
+            continue
+
+    return batch_portfolios
+
+
+def create_ticker_batches(
+    tickers: List[str], batch_size: int = None
+) -> List[List[str]]:
+    """Create batches of tickers for concurrent processing.
+
+    Args:
+        tickers: List of all tickers to process
+        batch_size: Size of each batch (defaults to optimal size based on ticker count)
+
+    Returns:
+        List of ticker batches
+    """
+    if batch_size is None:
+        # Optimize batch size based on ticker count
+        if len(tickers) <= 4:
+            batch_size = 1  # One ticker per thread for small lists
+        elif len(tickers) <= 20:
+            batch_size = 2  # Two tickers per thread for medium lists
+        else:
+            batch_size = max(
+                1, len(tickers) // 8
+            )  # Distribute across 8 threads for large lists
+
+    batches = []
+    for i in range(0, len(tickers), batch_size):
+        batches.append(tickers[i : i + batch_size])
+
+    return batches
+
+
+def execute_strategy_concurrent(
+    config: Config,
+    strategy_type: str,
+    log: callable,
+    progress_tracker: Optional["ProgressTracker"] = None,
+    max_workers: int = 4,
+) -> List[Dict[str, Any]]:
+    """Execute a trading strategy for all tickers using concurrent processing.
+
+    Args:
+        config (Config): Configuration for the analysis
+        strategy_type (str): Strategy type (e.g., 'EMA', 'SMA')
+        log (callable): Logging function
+        progress_tracker (Optional[ProgressTracker]): Progress tracking object
+        max_workers (int): Maximum number of concurrent workers
+
+    Returns:
+        List[Dict[str, Any]]: List of best portfolios found
+    """
+    if "TICKER" not in config:
+        log(
+            f"ERROR: TICKER key not found in config. Available keys: {list(config.keys())}",
+            "error",
+        )
+        return []
+
+    tickers = (
+        [config["TICKER"]] if isinstance(config["TICKER"], str) else config["TICKER"]
+    )
+
+    # For small ticker lists, use sequential processing to avoid overhead
+    if len(tickers) <= 2:
+        log(f"Using sequential processing for {len(tickers)} tickers", "info")
+        return execute_strategy(config, strategy_type, log, progress_tracker)
+
+    log(
+        f"Using concurrent processing for {len(tickers)} tickers with {max_workers} workers",
+        "info",
+    )
+
+    # Update progress if tracker provided
+    if progress_tracker:
+        progress_tracker.set_total_steps(len(tickers))
+        progress_tracker.update(
+            phase="analysis",
+            message=f"Starting concurrent {strategy_type} strategy analysis",
+        )
+
+    # Create ticker batches for optimal processing
+    ticker_batches = create_ticker_batches(tickers)
+    log(
+        f"Created {len(ticker_batches)} ticker batches for concurrent processing",
+        "info",
+    )
+
+    all_portfolios = []
+    processed_count = 0
+
+    # Use ThreadPoolExecutor for concurrent processing
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # Submit all batch processing tasks
+        future_to_batch = {
+            executor.submit(
+                process_ticker_batch, batch, config, strategy_type, log
+            ): batch
+            for batch in ticker_batches
+        }
+
+        # Process completed tasks as they finish
+        for future in as_completed(future_to_batch):
+            batch = future_to_batch[future]
+            try:
+                batch_portfolios = future.result()
+                all_portfolios.extend(batch_portfolios)
+                processed_count += len(batch)
+
+                # Update progress
+                if progress_tracker:
+                    progress_tracker.update(
+                        step=processed_count,
+                        message=f"Processed {processed_count}/{len(tickers)} tickers",
+                    )
+
+                log(
+                    f"Completed batch with {len(batch)} tickers, found {len(batch_portfolios)} portfolios",
+                    "info",
+                )
+
+            except Exception as e:
+                log(f"Batch processing failed for {batch}: {str(e)}", "error")
+                # Continue processing other batches
+                continue
+
+    # Mark analysis complete
+    if progress_tracker:
+        progress_tracker.complete(
+            f"Completed concurrent {strategy_type} analysis for {len(tickers)} tickers"
+        )
+
+    log(
+        f"Concurrent processing completed: {len(all_portfolios)} total portfolios found",
+        "info",
+    )
+    return all_portfolios
 
 
 def execute_strategy(

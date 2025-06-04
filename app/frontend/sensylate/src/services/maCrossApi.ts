@@ -57,7 +57,7 @@ export interface PortfolioMetrics {
   has_open_trade: boolean;
   has_signal_entry: boolean;
   metric_type?: string; // Metric type classification
-  [key: string]: any; // Allow additional metrics
+  [key: string]: unknown; // Allow additional metrics
 }
 
 // Synchronous API response
@@ -75,7 +75,7 @@ export interface MACrossSyncResponse {
   total_portfolios_filtered: number;
   execution_time: number;
   error?: string;
-  error_details?: any;
+  error_details?: Record<string, unknown>;
 }
 
 // Asynchronous API response
@@ -98,7 +98,7 @@ export interface ExecutionStatusResponse {
   result?: MACrossSyncResponse;
   results?: PortfolioMetrics[]; // Direct results array for completed executions
   error?: string;
-  error_details?: any;
+  error_details?: Record<string, unknown>;
   timestamp?: string;
   started_at?: string;
   completed_at?: string;
@@ -106,13 +106,26 @@ export interface ExecutionStatusResponse {
   estimated_time_remaining?: number;
 }
 
-// Simple in-memory cache for results
+// Optimized in-memory cache with size limits
+const MAX_CACHE_SIZE = 10; // Limit cache to 10 entries
 const resultsCache = new Map<string, MACrossSyncResponse>();
 
 // IndexedDB storage for offline support
 const DB_NAME = 'sensylate-ma-cross';
 const DB_VERSION = 1;
 const STORE_NAME = 'analysis-results';
+
+// Cache management utilities
+const manageCacheSize = () => {
+  if (resultsCache.size > MAX_CACHE_SIZE) {
+    // Remove oldest entries (first inserted)
+    const keysToDelete = Array.from(resultsCache.keys()).slice(
+      0,
+      resultsCache.size - MAX_CACHE_SIZE
+    );
+    keysToDelete.forEach((key) => resultsCache.delete(key));
+  }
+};
 
 // Initialize IndexedDB
 const initDB = (): Promise<IDBDatabase> => {
@@ -149,14 +162,14 @@ const saveToIndexedDB = async (
       timestamp: Date.now(),
     });
 
-    // Clean up old entries (keep last 50)
+    // Clean up old entries (keep last 20 for better performance)
     const allKeysRequest = store.getAllKeys();
     const allKeys = await new Promise<IDBValidKey[]>((resolve) => {
       allKeysRequest.onsuccess = () => resolve(allKeysRequest.result);
     });
 
-    if (allKeys.length > 50) {
-      const keysToDelete = allKeys.slice(0, allKeys.length - 50);
+    if (allKeys.length > 20) {
+      const keysToDelete = allKeys.slice(0, allKeys.length - 20);
       for (const key of keysToDelete) {
         await store.delete(key);
       }
@@ -176,7 +189,7 @@ const loadFromIndexedDB = async (
     const store = transaction.objectStore(STORE_NAME);
 
     const request = store.get(cacheKey);
-    const result = await new Promise<any>((resolve) => {
+    const result = await new Promise<ExecutionStatusResponse>((resolve) => {
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => resolve(null);
     });
@@ -199,14 +212,24 @@ const loadFromIndexedDB = async (
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 second
 
-// Helper to generate cache key from configuration
+// Optimized cache key generation with more specific parameters
 const getCacheKey = (config: AnalysisConfiguration): string => {
   const ticker = Array.isArray(config.TICKER)
-    ? config.TICKER.join(',')
+    ? config.TICKER.sort().join(',') // Sort for consistent ordering
     : config.TICKER;
-  return `${ticker}-${config.WINDOWS}-${
-    config.DIRECTION
-  }-${config.STRATEGY_TYPES.join(',')}-${config.USE_HOURLY}`;
+
+  // Include key parameters that affect results
+  const key = [
+    `t:${ticker}`,
+    `w:${config.WINDOWS}`,
+    `d:${config.DIRECTION}`,
+    `s:${config.STRATEGY_TYPES.sort().join(',')}`, // Sort for consistency
+    `h:${config.USE_HOURLY}`,
+    `y:${config.USE_YEARS ? config.YEARS : 'all'}`,
+    `min:${config.MINIMUMS?.WIN_RATE || 0}-${config.MINIMUMS?.TRADES || 0}`,
+  ].join('|');
+
+  return key;
 };
 
 // Helper function to wait
@@ -258,7 +281,7 @@ const configToRequest = (config: AnalysisConfiguration): MACrossRequest => {
 
   // Only include minimums if they have values
   if (config.MINIMUMS) {
-    const minimums: any = {};
+    const minimums: Record<string, number> = {};
 
     // Convert win_rate from percentage to decimal (44 -> 0.44)
     if (
@@ -420,10 +443,16 @@ export const maCrossApi = {
       // Handle synchronous response
       if (response.data.status === 'success') {
         const syncResponse = response.data as MACrossSyncResponse;
-        // Cache the results
+
+        // Cache the results with size management
         resultsCache.set(cacheKey, syncResponse);
-        // Also save to IndexedDB for offline support
-        await saveToIndexedDB(cacheKey, syncResponse);
+        manageCacheSize();
+
+        // Save to IndexedDB for offline support (async, don't block)
+        saveToIndexedDB(cacheKey, syncResponse).catch((err) =>
+          console.warn('Failed to save to IndexedDB:', err)
+        );
+
         return syncResponse;
       }
 
@@ -455,33 +484,22 @@ export const maCrossApi = {
         axios.get<ExecutionStatusResponse>(
           `/api/ma-cross/status/${executionId}`,
           {
-            timeout: 10000, // 10 second timeout for status checks
+            timeout: 5000, // Reduced to 5 second timeout for faster status checks
           }
         )
       );
 
-      // Debug: Log what we receive from the API
+      // Log only if in development mode for reduced production noise
       if (
+        process.env.NODE_ENV === 'development' &&
         response.data.status === 'completed' &&
         response.data.results &&
         response.data.results.length > 0
       ) {
-        const firstResult = response.data.results[0];
         console.log(
-          '🔍 API Response Debug - First result keys:',
-          Object.keys(firstResult)
-        );
-        console.log(
-          '🔍 API Response Debug - metric_type present:',
-          'metric_type' in firstResult
-        );
-        console.log(
-          '🔍 API Response Debug - metric_type value:',
-          firstResult.metric_type
-        );
-        console.log(
-          '🔍 API Response Debug - Raw first result:',
-          JSON.stringify(firstResult, null, 2)
+          '✅ Analysis completed with',
+          response.data.results.length,
+          'results'
         );
       }
 
