@@ -401,7 +401,8 @@ class BackupManager:
                             "size": backup_file.stat().st_size,
                         }
                     )
-                    # Cleanup handled automatically by TemporaryDirectory context manager
+                    # Cleanup handled automatically by TemporaryDirectory context
+                    # manager
 
             except Exception as e:
                 logger.warning(f"Could not read metadata for {backup_file}: {e}")

@@ -42,11 +42,26 @@ def get_metric_rows(df: pl.DataFrame, column: str) -> List[Any]:
     """
     # Convert string numbers to numeric if needed
     if df[column].dtype == pl.Utf8:
-        try:
-            df = df.with_columns(pl.col(column).cast(pl.Float64).alias(column))
-        except (pl.ComputeError, pl.SchemaError):
-            # Keep as string if conversion fails (e.g., non-numeric values)
-            pass
+        # Check if this is a duration column that needs special handling
+        if column in DURATION_METRICS:
+            try:
+                # Try to convert duration strings like "1329 days 00:00:00" to numeric
+                # days
+                df = df.with_columns(
+                    pl.col(column)
+                    .str.extract(r"(\d+) days")
+                    .cast(pl.Float64)
+                    .alias(column)
+                )
+            except Exception:
+                # If duration parsing fails, keep as string
+                pass
+        else:
+            try:
+                df = df.with_columns(pl.col(column).cast(pl.Float64).alias(column))
+            except (pl.ComputeError, pl.SchemaError, pl.InvalidOperationError):
+                # Keep as string if conversion fails (e.g., non-numeric values)
+                pass
 
     # Get the row index for max value
     max_idx = df[column].arg_max()

@@ -157,7 +157,9 @@ def get_strategy_type_for_export(
     if log:
         # Note: USE_SMA is deprecated and only exists for legacy support
         log(
-            f"USE_SMA present (legacy field): {'USE_SMA' in df}, value: {df.get('USE_SMA')}",
+            f"USE_SMA present (legacy field): {
+    'USE_SMA' in df}, value: {
+        df.get('USE_SMA')}",
             "info",
         )
     if "USE_SMA" in df:

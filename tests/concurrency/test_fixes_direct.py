@@ -202,10 +202,16 @@ def main():
     print("\nEnvironment Variables:")
     print(f"USE_FIXED_RISK_CALC: {os.environ.get('USE_FIXED_RISK_CALC', 'not set')}")
     print(
-        f"USE_FIXED_EXPECTANCY_CALC: {os.environ.get('USE_FIXED_EXPECTANCY_CALC', 'not set')}"
+        f"USE_FIXED_EXPECTANCY_CALC: {
+    os.environ.get(
+        'USE_FIXED_EXPECTANCY_CALC',
+         'not set')}"
     )
     print(
-        f"USE_FIXED_WIN_RATE_CALC: {os.environ.get('USE_FIXED_WIN_RATE_CALC', 'not set')}"
+        f"USE_FIXED_WIN_RATE_CALC: {
+    os.environ.get(
+        'USE_FIXED_WIN_RATE_CALC',
+         'not set')}"
     )
     print(
         f"USE_FIXED_SIGNAL_PROC: {os.environ.get('USE_FIXED_SIGNAL_PROC', 'not set')}"

@@ -335,7 +335,8 @@ class Normalizer:
                     # For single values, z-score doesn't make sense, so use min_max
                     normalized[key] = self.min_max_scale([value], feature_range)[0]
                 elif method == "robust":
-                    # For single values, robust scaling doesn't make sense, so use min_max
+                    # For single values, robust scaling doesn't make sense, so use
+                    # min_max
                     normalized[key] = self.min_max_scale([value], feature_range)[0]
                 else:
                     # Unknown method, keep original value

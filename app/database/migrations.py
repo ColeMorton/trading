@@ -405,12 +405,14 @@ class DataMigrator:
             )
 
             # Find strategy configuration
-            # This is a simplified lookup - in practice, you'd need more sophisticated matching
+            # This is a simplified lookup - in practice, you'd need more sophisticated
+            # matching
             ticker = await self.prisma.ticker.find_unique(where={"symbol": symbol})
             if not ticker:
                 return
 
-            # Create a basic backtest result (you'll need to map all the columns properly)
+            # Create a basic backtest result (you'll need to map all the columns
+            # properly)
             result_data = {
                 "strategyConfigId": "placeholder",  # You'll need to implement proper lookup
                 "runDate": datetime.now(),
@@ -438,7 +440,8 @@ class DataMigrator:
                 # Add more field mappings as needed
             }
 
-            # Note: This is a placeholder - you'll need to implement proper strategy config lookup
+            # Note: This is a placeholder - you'll need to implement proper strategy
+            # config lookup
             logger.info(f"Would create backtest result for {symbol} (placeholder)")
 
         except Exception as e:

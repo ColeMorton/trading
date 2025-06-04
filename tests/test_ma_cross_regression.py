@@ -441,7 +441,8 @@ class TestDataValidationRegression(TestMACrossRegression):
         for invalid_config in invalid_configs:
             try:
                 processed = ConfigService.process_config(invalid_config)
-                # If processing succeeds, check that required fields are added with defaults
+                # If processing succeeds, check that required fields are added with
+                # defaults
                 assert processed is not None
             except Exception as e:
                 # If it fails, that's also acceptable for invalid configs

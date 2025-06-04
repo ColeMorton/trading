@@ -239,7 +239,8 @@ def execute_all_strategies(config: Config, log) -> List[Dict[str, Any]]:
             if isinstance(portfolios, pl.DataFrame):
                 portfolio_count = len(portfolios)
                 if portfolio_count > 0:
-                    # Convert to dictionaries and process allocation and stop loss values
+                    # Convert to dictionaries and process allocation and stop loss
+                    # values
                     portfolio_dicts = portfolios.to_dicts()
                     all_portfolios.extend(portfolio_dicts)
             else:

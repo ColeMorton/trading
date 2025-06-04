@@ -109,7 +109,9 @@ class HorizonCalculator:
             # Validate inputs
             if len(signals) != len(returns):
                 self.log(
-                    f"Signal and return arrays must be the same length: {len(signals)} vs {len(returns)}",
+                    f"Signal and return arrays must be the same length: {
+    len(signals)} vs {
+        len(returns)}",
                     "error",
                 )
                 return {}
@@ -189,7 +191,8 @@ class HorizonCalculator:
                 # Skip if insufficient sample size
                 if len(horizon_returns_np) < min_sample_size:
                     self.log(
-                        f"Insufficient sample size for horizon {horizon}: {len(horizon_returns_np)} < {min_sample_size}",
+                        f"Insufficient sample size for horizon {horizon}: {
+    len(horizon_returns_np)} < {min_sample_size}",
                         "warning",
                     )
                     continue

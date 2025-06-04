@@ -291,7 +291,8 @@ async def get_config_presets():
         import os
         from pathlib import Path
 
-        # Get project root directory (this file is in app/api/routers/, so go up 3 levels)
+        # Get project root directory (this file is in app/api/routers/, so go up 3
+        # levels)
         current_file = Path(__file__)
         project_root = current_file.parent.parent.parent.parent
         config_path = project_root / "json" / "configuration" / "ma_cross.json"

@@ -282,7 +282,8 @@ def convert_stats(
         # Set trading days per month based on asset type
         trading_days_per_month = 30 if is_crypto else 21
         log(
-            f"Using {trading_days_per_month} trading days per month for {ticker} ({'crypto' if is_crypto else 'stock'})",
+            f"Using {trading_days_per_month} trading days per month for {ticker} ({
+    'crypto' if is_crypto else 'stock'})",
             "info",
         )
 
@@ -304,7 +305,8 @@ def convert_stats(
         # Store the total calendar days as Total Period
         # For stocks, convert from trading days (252/year) to calendar days (365/year)
         if is_crypto:
-            # Crypto markets are open 24/7, so days_in_period already represents calendar days
+            # Crypto markets are open 24/7, so days_in_period already represents
+            # calendar days
             stats["Total Period"] = days_in_period
             log(
                 f"Set Total Period to {days_in_period:.2f} days for {ticker} (crypto)",
@@ -315,7 +317,9 @@ def convert_stats(
             # There are approximately 252 trading days in a year (365 calendar days)
             stats["Total Period"] = days_in_period * (365 / 252)
             log(
-                f"Set Total Period to {stats['Total Period']:.2f} days for {ticker} (stock, adjusted from {days_in_period:.2f} trading days)",
+                f"Set Total Period to {
+    stats['Total Period']:.2f} days for {ticker} (stock, adjusted from {
+        days_in_period:.2f} trading days)",
                 "info",
             )
 
@@ -389,7 +393,8 @@ def convert_stats(
             stats["Score"] = 0
             missing = [field for field in required_fields if field not in stats]
             log(
-                f"Set Score to 0 due to missing fields: {', '.join(missing)} for {ticker}",
+                f"Set Score to 0 due to missing fields: {
+    ', '.join(missing)} for {ticker}",
                 "warning",
             )
 
@@ -419,10 +424,12 @@ def convert_stats(
             # If we have separate counts for closed and open trades
             closed_trades = stats["Total Closed Trades"]
             open_trades = stats["Total Open Trades"]
-            # Closed trades have both entry and exit signals, open trades have only entry
+            # Closed trades have both entry and exit signals, open trades have only
+            # entry
             total_signals = (closed_trades * 2) + open_trades
         else:
-            # Fallback: assume each trade has entry and exit (might slightly overestimate)
+            # Fallback: assume each trade has entry and exit (might slightly
+            # overestimate)
             total_signals = stats["Total Trades"] * 2
 
         stats["Signals per Month"] = total_signals / months_in_period
@@ -434,7 +441,8 @@ def convert_stats(
         ):
             if stats["Expectancy per Trade"] <= 0:
                 log(
-                    f"Warning: Non-positive Expectancy per Trade ({stats['Expectancy per Trade']:.6f}) for {ticker}.",
+                    f"Warning: Non-positive Expectancy per Trade ({
+    stats['Expectancy per Trade']:.6f}) for {ticker}.",
                     "info",
                 )
 
@@ -452,7 +460,8 @@ def convert_stats(
                 expectancy = stats["Total Return [%]"] / (100 * stats["Total Trades"])
                 stats["Expectancy per Trade"] = expectancy
                 log(
-                    f"Calculated missing Expectancy per Trade: {expectancy:.6f} for {ticker}",
+                    f"Calculated missing Expectancy per Trade: {
+    expectancy:.6f} for {ticker}",
                     "info",
                 )
                 stats["Expectancy per Month"] = stats["Trades per Month"] * expectancy
@@ -465,7 +474,8 @@ def convert_stats(
                 stats["Expectancy per Trade"] = 0.0
                 stats["Expectancy per Month"] = 0.0
 
-        # Calculate average trade duration as weighted average of winning and losing durations
+        # Calculate average trade duration as weighted average of winning and
+        # losing durations
         if all(
             key in stats
             for key in [
@@ -533,7 +543,8 @@ def convert_stats(
 
         if missing_metrics:
             log(
-                f"Risk metrics missing from stats for {ticker}: {', '.join(missing_metrics)}",
+                f"Risk metrics missing from stats for {ticker}: {
+    ', '.join(missing_metrics)}",
                 "warning",
             )
 
@@ -570,7 +581,8 @@ def convert_stats(
                         try:
                             converted[k] = v.iloc[0]
                             log(
-                                f"Converted {k} from Series/DataFrame to scalar: {converted[k]}",
+                                f"Converted {k} from Series/DataFrame to scalar: {
+    converted[k]}",
                                 "debug",
                             )
                         except Exception as e:

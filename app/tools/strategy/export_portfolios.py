@@ -59,7 +59,8 @@ def export_portfolios(
         raise ValueError("Cannot export empty portfolio list")
 
     if export_type not in VALID_EXPORT_TYPES:
-        error_msg = f"Invalid export type: {export_type}. Must be one of: {', '.join(VALID_EXPORT_TYPES)}"
+        error_msg = f"Invalid export type: {export_type}. Must be one of: {
+    ', '.join(VALID_EXPORT_TYPES)}"
         if log:
             log(error_msg, "error")
         raise PortfolioExportError(error_msg)
@@ -114,7 +115,8 @@ def export_portfolios(
 
                 # Create Short Window expression based on available columns
                 if has_sma_fast and has_ema_fast:
-                    # If both SMA_FAST and EMA_FAST exist, use conditional based on Strategy Type
+                    # If both SMA_FAST and EMA_FAST exist, use conditional based on
+                    # Strategy Type
                     if "Strategy Type" in df.columns:
                         expressions.append(
                             pl.when(pl.col("Strategy Type").eq("SMA"))
@@ -150,7 +152,8 @@ def export_portfolios(
 
                 # Create Long Window expression based on available columns
                 if has_sma_slow and has_ema_slow:
-                    # If both SMA_SLOW and EMA_SLOW exist, use conditional based on Strategy Type
+                    # If both SMA_SLOW and EMA_SLOW exist, use conditional based on
+                    # Strategy Type
                     if "Strategy Type" in df.columns:
                         expressions.append(
                             pl.when(pl.col("Strategy Type").eq("SMA"))
@@ -242,7 +245,8 @@ def export_portfolios(
 
                 if log:
                     log(
-                        f"Added {STRATEGY_TYPE_FIELDS['CSV']} column with determined strategy types",
+                        f"Added {
+    STRATEGY_TYPE_FIELDS['CSV']} column with determined strategy types",
                         "info",
                     )
 
@@ -258,7 +262,8 @@ def export_portfolios(
                 if len(ticker) == 1:
                     ticker = ticker[0]
                 else:
-                    # For multiple tickers, each portfolio should already have its ticker
+                    # For multiple tickers, each portfolio should already have its
+                    # ticker
                     if "Ticker" not in df.columns:
                         raise PortfolioExportError(
                             "Missing Ticker column for multiple ticker export"

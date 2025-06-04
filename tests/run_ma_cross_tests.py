@@ -206,7 +206,9 @@ class MACrossTestRunner:
             print(f"  ✅ {file_result['passed_tests']} tests passed")
         else:
             print(
-                f"  ❌ {file_result['failed_tests']} tests failed, {file_result['passed_tests']} passed"
+                f"  ❌ {
+    file_result['failed_tests']} tests failed, {
+        file_result['passed_tests']} passed"
             )
 
         return file_result
@@ -346,7 +348,11 @@ class MACrossTestRunner:
         for suite_name, suite_result in results["suites"].items():
             status = "✅ PASS" if suite_result["success"] else "❌ FAIL"
             print(
-                f"  {suite_name:12} {status:8} ({suite_result['total_tests']:3} tests, {suite_result['duration']:6.2f}s)"
+                f"  {
+    suite_name:12} {
+        status:8} ({
+            suite_result['total_tests']:3} tests, {
+                suite_result['duration']:6.2f}s)"
             )
 
         if results["success"]:

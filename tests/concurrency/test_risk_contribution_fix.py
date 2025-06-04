@@ -74,7 +74,8 @@ class TestRiskContributionCalculator:
             returns, weights, strategy_names
         )
 
-        # With perfect correlation, risk contributions should be proportional to weight * volatility
+        # With perfect correlation, risk contributions should be proportional to
+        # weight * volatility
         risk_contribs = {
             name: metrics["risk_contributions"][name]["risk_contribution_pct"]
             for name in strategy_names

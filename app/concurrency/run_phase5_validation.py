@@ -168,10 +168,18 @@ def compare_with_and_without_fixes():
 
     print("\nTotal Risk Contribution:")
     print(
-        f"  Without fixes: {total_without:.4f} ({'✗' if abs(total_without - 1.0) > 1e-6 else '✓'})"
+        f"  Without fixes: {
+    total_without:.4f} ({
+        '✗' if abs(
+            total_without -
+             1.0) > 1e-6 else '✓'})"
     )
     print(
-        f"  With fixes:    {total_with:.4f} ({'✓' if abs(total_with - 1.0) < 1e-6 else '✗'})"
+        f"  With fixes:    {
+    total_with:.4f} ({
+        '✓' if abs(
+            total_with -
+             1.0) < 1e-6 else '✗'})"
     )
 
     print("\nWin Rate Comparison:")

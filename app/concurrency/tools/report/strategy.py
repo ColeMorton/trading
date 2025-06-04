@@ -140,7 +140,8 @@ def create_strategy_object(
     risk_metrics_data = stats.get("risk_metrics", {})
 
     # Use index for risk metrics lookup to match how they're stored in risk_metrics.py
-    # The index parameter is 1-based, which matches the 1-based indexing used in risk_metrics.py
+    # The index parameter is 1-based, which matches the 1-based indexing used
+    # in risk_metrics.py
     risk_metrics: StrategyRiskMetrics = {
         "var_95": {
             "value": risk_metrics_data.get(f"strategy_{index}_var_95", 0.0),
@@ -339,7 +340,8 @@ def create_strategy_object(
                                 signal_exit = row.get("Signal Exit")
 
                                 if signal_entry is not None:
-                                    # Convert to boolean if it's a string representation of a boolean
+                                    # Convert to boolean if it's a string representation
+                                    # of a boolean
                                     if signal_entry.lower() in ["true", "false"]:
                                         signal_entry = signal_entry.lower() == "true"
 
@@ -349,7 +351,8 @@ def create_strategy_object(
                                     }
 
                                 if signal_exit is not None:
-                                    # Convert to boolean if it's a string representation of a boolean
+                                    # Convert to boolean if it's a string representation
+                                    # of a boolean
                                     if signal_exit.lower() in ["true", "false"]:
                                         signal_exit = signal_exit.lower() == "true"
 

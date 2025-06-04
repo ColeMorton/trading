@@ -83,7 +83,9 @@ def extract_signals(
         # Add trade metadata if logging is enabled
         if log:
             log(
-                f"Extracted {len(entries)} entries and {len(exits)} exits for complete trades",
+                f"Extracted {
+    len(entries)} entries and {
+        len(exits)} exits for complete trades",
                 "info",
             )
 
@@ -287,7 +289,9 @@ def count_signals_standardized(
         if signal_frequency > standards.max_signal_frequency:
             validation_passed = False
             validation_issues.append(
-                f"Signal frequency {signal_frequency:.2%} exceeds maximum {standards.max_signal_frequency:.2%}"
+                f"Signal frequency {
+    signal_frequency:.2%} exceeds maximum {
+        standards.max_signal_frequency:.2%}"
             )
 
     # Check minimum signal count
@@ -339,7 +343,8 @@ def calculate_portfolio_unique_signals_v2(
 
     if log:
         log(
-            f"Calculating portfolio unique signals for {len(strategy_dataframes)} strategies",
+            f"Calculating portfolio unique signals for {
+    len(strategy_dataframes)} strategies",
             "info",
         )
 
@@ -480,12 +485,14 @@ def validate_signal_consistency(
     if log:
         if is_valid:
             log(
-                f"Signal consistency validation PASSED: {json_signals} signals vs {csv_trades} trades (diff: {difference:.1%})",
+                f"Signal consistency validation PASSED: {json_signals} signals vs {csv_trades} trades (diff: {
+    difference:.1%})",
                 "info",
             )
         else:
             log(
-                f"Signal consistency validation FAILED: {json_signals} signals vs {csv_trades} trades (diff: {difference:.1%}, type: {issue_type})",
+                f"Signal consistency validation FAILED: {json_signals} signals vs {csv_trades} trades (diff: {
+    difference:.1%}, type: {issue_type})",
                 "error",
             )
 

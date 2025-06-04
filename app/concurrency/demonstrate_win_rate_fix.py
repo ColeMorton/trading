@@ -62,7 +62,10 @@ def demonstrate_discrepancy_fix():
     print(f"Trade-based Win Rate:  {trade_result.win_rate:.3%}")
     print(f"Legacy Win Rate:       {legacy_rate:.3%}")
     print(
-        f"Discrepancy (Signal vs Trade): {abs(signal_result.win_rate - trade_result.win_rate):.3%}"
+        f"Discrepancy (Signal vs Trade): {
+    abs(
+        signal_result.win_rate -
+         trade_result.win_rate):.3%}"
     )
 
 
@@ -93,13 +96,22 @@ def demonstrate_zero_handling():
     print(f"Returns: {[f'{r:.3f}' for r in returns_with_zeros]}")
     print(f"Signals: {signals_with_zeros.tolist()}")
     print(
-        f"\nExclude Zeros - Wins: {exclude_zeros.wins}, Losses: {exclude_zeros.losses}, Rate: {exclude_zeros.win_rate:.3%}"
+        f"\nExclude Zeros - Wins: {
+    exclude_zeros.wins}, Losses: {
+        exclude_zeros.losses}, Rate: {
+            exclude_zeros.win_rate:.3%}"
     )
     print(
-        f"Include Zeros - Wins: {include_zeros.wins}, Losses: {include_zeros.losses}, Rate: {include_zeros.win_rate:.3%}"
+        f"Include Zeros - Wins: {
+    include_zeros.wins}, Losses: {
+        include_zeros.losses}, Rate: {
+            include_zeros.win_rate:.3%}"
     )
     print(
-        f"Signal-based  - Wins: {signal_based.wins}, Losses: {signal_based.losses}, Rate: {signal_based.win_rate:.3%}"
+        f"Signal-based  - Wins: {
+    signal_based.wins}, Losses: {
+        signal_based.losses}, Rate: {
+            signal_based.win_rate:.3%}"
     )
     print(f"Zero Returns Found: {exclude_zeros.zero_returns}")
 
@@ -171,7 +183,12 @@ def demonstrate_comparison_methods():
 
     for method, result in comparisons.items():
         print(
-            f"{method:<20} {result.wins:<5} {result.losses:<7} {result.total:<5} {result.win_rate:<10.3%}"
+            f"{
+    method:<20} {
+        result.wins:<5} {
+            result.losses:<7} {
+                result.total:<5} {
+                    result.win_rate:<10.3%}"
         )
 
 

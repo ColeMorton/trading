@@ -69,7 +69,10 @@ def validate_allocations(
                 if allocation_value < 0 or allocation_value > 100:
                     if log:
                         log(
-                            f"Invalid allocation value {allocation_value} for {row.get('Ticker', 'Unknown')}: "
+                            f"Invalid allocation value {allocation_value} for {
+    row.get(
+        'Ticker',
+         'Unknown')}: "
                             "must be between 0 and 100. Setting to None.",
                             "warning",
                         )
@@ -79,7 +82,10 @@ def validate_allocations(
             except (ValueError, TypeError):
                 if log:
                     log(
-                        f"Invalid allocation value {row[allocation_field]} for {row.get('Ticker', 'Unknown')}: "
+                        f"Invalid allocation value {
+    row[allocation_field]} for {
+        row.get(
+            'Ticker', 'Unknown')}: "
                         "must be a number. Setting to None.",
                         "warning",
                     )
@@ -190,7 +196,8 @@ def distribute_missing_allocations(
             )
         return distributed_data
 
-    # If some rows have allocations and others don't, distribute the remaining allocation
+    # If some rows have allocations and others don't, distribute the remaining
+    # allocation
     if rows_without_allocations > 0:
         remaining_allocation = 100.0 - existing_allocation_sum
 
@@ -383,7 +390,10 @@ def calculate_position_sizes(
             except (ValueError, TypeError):
                 if log:
                     log(
-                        f"Could not calculate position size for {row.get('Ticker', 'Unknown')}: "
+                        f"Could not calculate position size for {
+    row.get(
+        'Ticker',
+         'Unknown')}: "
                         f"invalid allocation value {allocation}",
                         "warning",
                     )

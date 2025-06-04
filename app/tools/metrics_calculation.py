@@ -52,7 +52,8 @@ class MetricsCalculator:
         try:
             self.log("Calculating return metrics", "info")
 
-            # If positions are provided, filter returns to only include when positions are active
+            # If positions are provided, filter returns to only include when positions
+            # are active
             if positions is not None:
                 active_returns = returns[positions != 0]
             else:
@@ -282,7 +283,9 @@ class MetricsCalculator:
             # Validate inputs
             if len(signals) != len(returns):
                 self.log(
-                    f"Signal and return arrays must be the same length: {len(signals)} vs {len(returns)}",
+                    f"Signal and return arrays must be the same length: {
+    len(signals)} vs {
+        len(returns)}",
                     "error",
                 )
                 return {}
@@ -326,7 +329,8 @@ class MetricsCalculator:
                 # Skip if insufficient sample size
                 if len(horizon_returns_np) < min_sample_size:
                     self.log(
-                        f"Insufficient sample size for horizon {horizon}: {len(horizon_returns_np)} < {min_sample_size}",
+                        f"Insufficient sample size for horizon {horizon}: {
+    len(horizon_returns_np)} < {min_sample_size}",
                         "warning",
                     )
                     continue
@@ -525,7 +529,9 @@ class MetricsCalculator:
             metrics.update(return_metrics)
 
             self.log(
-                f"Calculated signal quality metrics for {strategy_id}: score={signal_quality_score:.2f}, win_rate={return_metrics['win_rate']:.2f}",
+                f"Calculated signal quality metrics for {strategy_id}: score={
+    signal_quality_score:.2f}, win_rate={
+        return_metrics['win_rate']:.2f}",
                 "info",
             )
 

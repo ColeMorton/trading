@@ -193,7 +193,8 @@ class TestMACrossRouter:
         )
         assert response.status_code == 200
 
-        # Note: TestClient doesn't fully support SSE, so we just check the response headers
+        # Note: TestClient doesn't fully support SSE, so we just check the
+        # response headers
         response = client.get("/api/ma-cross/stream/test-stream-id")
 
         assert response.status_code == 200

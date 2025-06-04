@@ -111,7 +111,8 @@ async def test_portfolio_integration_with_api():
             # Test update_portfolio with API
             portfolio_tools = get_portfolio_tools()
 
-            # This will likely fail if no CSV file exists, but we can test the integration
+            # This will likely fail if no CSV file exists, but we can test the
+            # integration
             result = await portfolio_tools.update_portfolio(
                 "test_positions.csv", "strategies"
             )

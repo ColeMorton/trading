@@ -93,7 +93,9 @@ class Query:
     available_timeframes: List[TimeframeType] = strawberry.field(
         resolver=get_available_timeframes
     )
-    # ticker_stats: Optional[dict] = strawberry.field(resolver=get_ticker_stats)  # TODO: Create proper GraphQL type
+    # ticker_stats: Optional[dict] =
+    # strawberry.field(resolver=get_ticker_stats)  # TODO: Create proper
+    # GraphQL type
 
 
 @strawberry.type
@@ -126,9 +128,9 @@ class Mutation:
     )
 
     # Analysis mutations
-    execute_ma_cross_analysis: Union[MACrossAnalysisResponse, AsyncAnalysisResponse] = (
-        strawberry.field(resolver=execute_ma_cross_analysis)
-    )
+    execute_ma_cross_analysis: Union[
+        MACrossAnalysisResponse, AsyncAnalysisResponse
+    ] = strawberry.field(resolver=execute_ma_cross_analysis)
     get_analysis_status: Optional[AnalysisStatus] = strawberry.field(
         resolver=get_analysis_status
     )

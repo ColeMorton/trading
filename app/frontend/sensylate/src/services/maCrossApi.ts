@@ -5,8 +5,8 @@ import { AnalysisConfiguration, AnalysisResult } from '../types';
 export interface MACrossRequest {
   ticker: string | string[];
   windows?: number;
-  direction?: "Long" | "Short";
-  strategy_types?: ("SMA" | "EMA")[];
+  direction?: 'Long' | 'Short';
+  strategy_types?: ('SMA' | 'EMA')[];
   use_hourly?: boolean;
   use_years?: boolean;
   years?: number;
@@ -56,12 +56,13 @@ export interface PortfolioMetrics {
   beats_bnh: number;
   has_open_trade: boolean;
   has_signal_entry: boolean;
+  metric_type?: string; // Metric type classification
   [key: string]: any; // Allow additional metrics
 }
 
 // Synchronous API response
 export interface MACrossSyncResponse {
-  status: "success" | "error";
+  status: 'success' | 'error';
   request_id: string;
   timestamp: string;
   ticker: string | string[];
@@ -79,7 +80,7 @@ export interface MACrossSyncResponse {
 
 // Asynchronous API response
 export interface MACrossAsyncResponse {
-  status: "accepted";
+  status: 'accepted';
   execution_id: string;
   message: string;
   status_url: string;
@@ -91,11 +92,11 @@ export interface MACrossAsyncResponse {
 // Status polling response
 export interface ExecutionStatusResponse {
   execution_id?: string;
-  status: "pending" | "running" | "completed" | "failed";
+  status: 'pending' | 'running' | 'completed' | 'failed';
   progress: number | string;
   message?: string;
   result?: MACrossSyncResponse;
-  results?: PortfolioMetrics[];  // Direct results array for completed executions
+  results?: PortfolioMetrics[]; // Direct results array for completed executions
   error?: string;
   error_details?: any;
   timestamp?: string;
@@ -117,13 +118,13 @@ const STORE_NAME = 'analysis-results';
 const initDB = (): Promise<IDBDatabase> => {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
-    
+
     request.onerror = () => reject(request.error);
     request.onsuccess = () => resolve(request.result);
-    
+
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
-      
+
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         const store = db.createObjectStore(STORE_NAME, { keyPath: 'cacheKey' });
         store.createIndex('timestamp', 'timestamp', { unique: false });
@@ -133,24 +134,27 @@ const initDB = (): Promise<IDBDatabase> => {
 };
 
 // Save results to IndexedDB
-const saveToIndexedDB = async (cacheKey: string, response: MACrossSyncResponse) => {
+const saveToIndexedDB = async (
+  cacheKey: string,
+  response: MACrossSyncResponse
+) => {
   try {
     const db = await initDB();
     const transaction = db.transaction([STORE_NAME], 'readwrite');
     const store = transaction.objectStore(STORE_NAME);
-    
+
     await store.put({
       cacheKey,
       response,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
-    
+
     // Clean up old entries (keep last 50)
     const allKeysRequest = store.getAllKeys();
     const allKeys = await new Promise<IDBValidKey[]>((resolve) => {
       allKeysRequest.onsuccess = () => resolve(allKeysRequest.result);
     });
-    
+
     if (allKeys.length > 50) {
       const keysToDelete = allKeys.slice(0, allKeys.length - 50);
       for (const key of keysToDelete) {
@@ -163,18 +167,20 @@ const saveToIndexedDB = async (cacheKey: string, response: MACrossSyncResponse) 
 };
 
 // Load results from IndexedDB
-const loadFromIndexedDB = async (cacheKey: string): Promise<MACrossSyncResponse | null> => {
+const loadFromIndexedDB = async (
+  cacheKey: string
+): Promise<MACrossSyncResponse | null> => {
   try {
     const db = await initDB();
     const transaction = db.transaction([STORE_NAME], 'readonly');
     const store = transaction.objectStore(STORE_NAME);
-    
+
     const request = store.get(cacheKey);
     const result = await new Promise<any>((resolve) => {
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => resolve(null);
     });
-    
+
     if (result && result.timestamp) {
       // Check if cache is not too old (24 hours)
       const age = Date.now() - result.timestamp;
@@ -185,7 +191,7 @@ const loadFromIndexedDB = async (cacheKey: string): Promise<MACrossSyncResponse 
   } catch (error) {
     console.error('Failed to load from IndexedDB:', error);
   }
-  
+
   return null;
 };
 
@@ -195,12 +201,16 @@ const RETRY_DELAY = 1000; // 1 second
 
 // Helper to generate cache key from configuration
 const getCacheKey = (config: AnalysisConfiguration): string => {
-  const ticker = Array.isArray(config.TICKER) ? config.TICKER.join(',') : config.TICKER;
-  return `${ticker}-${config.WINDOWS}-${config.DIRECTION}-${config.STRATEGY_TYPES.join(',')}-${config.USE_HOURLY}`;
+  const ticker = Array.isArray(config.TICKER)
+    ? config.TICKER.join(',')
+    : config.TICKER;
+  return `${ticker}-${config.WINDOWS}-${
+    config.DIRECTION
+  }-${config.STRATEGY_TYPES.join(',')}-${config.USE_HOURLY}`;
 };
 
 // Helper function to wait
-const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Retry logic wrapper
 async function withRetry<T>(
@@ -243,34 +253,49 @@ const configToRequest = (config: AnalysisConfiguration): MACrossRequest => {
     use_gbm: config.USE_GBM,
     use_current: config.USE_CURRENT,
     use_scanner: config.USE_SCANNER,
-    async_execution: config.async_execution
+    async_execution: config.async_execution,
   };
 
   // Only include minimums if they have values
   if (config.MINIMUMS) {
     const minimums: any = {};
-    
+
     // Convert win_rate from percentage to decimal (44 -> 0.44)
-    if (config.MINIMUMS.WIN_RATE !== undefined && config.MINIMUMS.WIN_RATE !== null) {
+    if (
+      config.MINIMUMS.WIN_RATE !== undefined &&
+      config.MINIMUMS.WIN_RATE !== null
+    ) {
       minimums.win_rate = config.MINIMUMS.WIN_RATE / 100;
     }
-    
-    if (config.MINIMUMS.TRADES !== undefined && config.MINIMUMS.TRADES !== null) {
+
+    if (
+      config.MINIMUMS.TRADES !== undefined &&
+      config.MINIMUMS.TRADES !== null
+    ) {
       minimums.trades = config.MINIMUMS.TRADES;
     }
-    
-    if (config.MINIMUMS.EXPECTANCY_PER_TRADE !== undefined && config.MINIMUMS.EXPECTANCY_PER_TRADE !== null) {
+
+    if (
+      config.MINIMUMS.EXPECTANCY_PER_TRADE !== undefined &&
+      config.MINIMUMS.EXPECTANCY_PER_TRADE !== null
+    ) {
       minimums.expectancy_per_trade = config.MINIMUMS.EXPECTANCY_PER_TRADE;
     }
-    
-    if (config.MINIMUMS.PROFIT_FACTOR !== undefined && config.MINIMUMS.PROFIT_FACTOR !== null) {
+
+    if (
+      config.MINIMUMS.PROFIT_FACTOR !== undefined &&
+      config.MINIMUMS.PROFIT_FACTOR !== null
+    ) {
       minimums.profit_factor = config.MINIMUMS.PROFIT_FACTOR;
     }
-    
-    if (config.MINIMUMS.SORTINO_RATIO !== undefined && config.MINIMUMS.SORTINO_RATIO !== null) {
+
+    if (
+      config.MINIMUMS.SORTINO_RATIO !== undefined &&
+      config.MINIMUMS.SORTINO_RATIO !== null
+    ) {
       minimums.sortino_ratio = config.MINIMUMS.SORTINO_RATIO;
     }
-    
+
     // Only add minimums if there's at least one value
     if (Object.keys(minimums).length > 0) {
       request.minimums = minimums;
@@ -293,7 +318,8 @@ const portfolioToResult = (portfolio: PortfolioMetrics): AnalysisResult => {
     total_trades: portfolio.total_trades,
     win_rate: portfolio.win_rate,
     profit_factor: portfolio.profit_factor,
-    expectancy_per_trade: portfolio.expectancy_per_trade || portfolio.expectancy,
+    expectancy_per_trade:
+      portfolio.expectancy_per_trade || portfolio.expectancy,
     sortino_ratio: portfolio.sortino_ratio,
     max_drawdown: portfolio.max_drawdown,
     total_return: portfolio.total_return,
@@ -304,7 +330,8 @@ const portfolioToResult = (portfolio: PortfolioMetrics): AnalysisResult => {
     score: portfolio.score,
     beats_bnh: portfolio.beats_bnh,
     has_open_trade: portfolio.has_open_trade,
-    has_signal_entry: portfolio.has_signal_entry
+    has_signal_entry: portfolio.has_signal_entry,
+    metric_type: portfolio.metric_type,
   };
 };
 
@@ -325,20 +352,17 @@ export const maCrossApi = {
   getConfigPresets: async (): Promise<ConfigPreset[]> => {
     try {
       const response = await withRetry(() =>
-        axios.get<ConfigPresetsResponse>(
-          '/api/ma-cross/config-presets',
-          {
-            timeout: 10000 // 10 second timeout
-          }
-        )
+        axios.get<ConfigPresetsResponse>('/api/ma-cross/config-presets', {
+          timeout: 10000, // 10 second timeout
+        })
       );
-      
+
       return response.data.presets;
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const errorResponse = error.response?.data;
         let errorMessage = 'Failed to load configuration presets';
-        
+
         if (errorResponse?.detail) {
           errorMessage = errorResponse.detail;
         } else if (errorResponse?.error) {
@@ -346,7 +370,7 @@ export const maCrossApi = {
         } else if (error.message) {
           errorMessage = error.message;
         }
-        
+
         throw new Error(errorMessage);
       }
       throw error;
@@ -354,10 +378,12 @@ export const maCrossApi = {
   },
 
   // Main analysis function
-  analyze: async (config: AnalysisConfiguration): Promise<MACrossSyncResponse | MACrossAsyncResponse> => {
+  analyze: async (
+    config: AnalysisConfiguration
+  ): Promise<MACrossSyncResponse | MACrossAsyncResponse> => {
     try {
       const cacheKey = getCacheKey(config);
-      
+
       // Check cache first if not refreshing
       if (!config.REFRESH) {
         // Check in-memory cache first
@@ -366,7 +392,7 @@ export const maCrossApi = {
           console.log('Returning in-memory cached results for', cacheKey);
           return cached;
         }
-        
+
         // Check IndexedDB for offline support
         const offlineCached = await loadFromIndexedDB(cacheKey);
         if (offlineCached) {
@@ -381,12 +407,12 @@ export const maCrossApi = {
       const request = configToRequest(config);
 
       // Make API call with retry logic
-      const response = await withRetry(() => 
+      const response = await withRetry(() =>
         axios.post<MACrossSyncResponse | MACrossAsyncResponse>(
           '/api/ma-cross/analyze',
           request,
           {
-            timeout: 30000 // 30 second timeout
+            timeout: 30000, // 30 second timeout
           }
         )
       );
@@ -407,7 +433,7 @@ export const maCrossApi = {
       if (axios.isAxiosError(error)) {
         const errorResponse = error.response?.data;
         let errorMessage = 'MA Cross analysis failed';
-        
+
         if (errorResponse?.detail) {
           errorMessage = errorResponse.detail;
         } else if (errorResponse?.error) {
@@ -415,7 +441,7 @@ export const maCrossApi = {
         } else if (error.message) {
           errorMessage = error.message;
         }
-        
+
         throw new Error(errorMessage);
       }
       throw error;
@@ -429,16 +455,42 @@ export const maCrossApi = {
         axios.get<ExecutionStatusResponse>(
           `/api/ma-cross/status/${executionId}`,
           {
-            timeout: 10000 // 10 second timeout for status checks
+            timeout: 10000, // 10 second timeout for status checks
           }
         )
       );
+
+      // Debug: Log what we receive from the API
+      if (
+        response.data.status === 'completed' &&
+        response.data.results &&
+        response.data.results.length > 0
+      ) {
+        const firstResult = response.data.results[0];
+        console.log(
+          '🔍 API Response Debug - First result keys:',
+          Object.keys(firstResult)
+        );
+        console.log(
+          '🔍 API Response Debug - metric_type present:',
+          'metric_type' in firstResult
+        );
+        console.log(
+          '🔍 API Response Debug - metric_type value:',
+          firstResult.metric_type
+        );
+        console.log(
+          '🔍 API Response Debug - Raw first result:',
+          JSON.stringify(firstResult, null, 2)
+        );
+      }
+
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const errorResponse = error.response?.data;
         let errorMessage = 'Failed to get execution status';
-        
+
         if (errorResponse?.detail) {
           errorMessage = errorResponse.detail;
         } else if (errorResponse?.error) {
@@ -446,7 +498,7 @@ export const maCrossApi = {
         } else if (error.message) {
           errorMessage = error.message;
         }
-        
+
         throw new Error(errorMessage);
       }
       throw error;
@@ -459,7 +511,18 @@ export const maCrossApi = {
   },
 
   // Clear the cache (useful when changing configurations)
-  clearCache: () => {
+  clearCache: async () => {
     resultsCache.clear();
-  }
+
+    // Also clear IndexedDB cache
+    try {
+      const db = await initDB();
+      const transaction = db.transaction([STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(STORE_NAME);
+      await store.clear();
+      console.log('🧹 All caches cleared (in-memory + IndexedDB)');
+    } catch (error) {
+      console.error('Failed to clear IndexedDB cache:', error);
+    }
+  },
 };

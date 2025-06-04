@@ -37,7 +37,13 @@ def process_single_ticker(
 
     if config.get("REFRESH", True) == False:
         # Construct file path using BASE_DIR
-        file_name = f'{ticker}{"_H" if config.get("USE_HOURLY", False) else "_D"}{"_SMA" if config.get("USE_SMA", False) else "_EMA"}'
+        file_name = f'{ticker}{
+    "_H" if config.get(
+        "USE_HOURLY",
+        False) else "_D"}{
+            "_SMA" if config.get(
+                "USE_SMA",
+                 False) else "_EMA"}'
         directory = os.path.join(config["BASE_DIR"], "csv", "portfolios")
 
         # Ensure directory exists
@@ -60,7 +66,8 @@ def process_single_ticker(
         f"Generated window ranges - Short: {short_windows[0]}-{short_windows[-1]}, Long: {long_windows[0]}-{long_windows[-1]}"
     )
     log(
-        f"Number of window combinations to analyze: {len(short_windows) * len(long_windows)}"
+        f"Number of window combinations to analyze: {
+    len(short_windows) * len(long_windows)}"
     )
 
     log("Getting data...")
@@ -80,10 +87,18 @@ def process_single_ticker(
         return None
 
     log(
-        f"Retrieved {len(data)} data points from {data['Date'].min()} to {data['Date'].max()}"
+        f"Retrieved {
+    len(data)} data points from {
+        data['Date'].min()} to {
+            data['Date'].max()}"
     )
     log(
-        f"Minimum required data points for shortest windows ({short_windows[0]}, {long_windows[0]}): {max(short_windows[0], long_windows[0])}"
+        f"Minimum required data points for shortest windows ({
+    short_windows[0]}, {
+        long_windows[0]}): {
+            max(
+                short_windows[0],
+                 long_windows[0])}"
     )
     log(
         f"Minimum required data points for longest windows ({short_windows[-1]}, {long_windows[-1]}): {max(short_windows[-1], long_windows[-1])}"

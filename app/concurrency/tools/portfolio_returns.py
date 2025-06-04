@@ -78,7 +78,8 @@ class PortfolioReturnsCalculator:
         # Validate allocations
         if len(allocations) != n_strategies:
             raise DataAlignmentError(
-                f"Allocation count ({len(allocations)}) doesn't match strategies ({n_strategies})"
+                f"Allocation count ({
+    len(allocations)}) doesn't match strategies ({n_strategies})"
             )
 
         # Handle missing or zero allocations
@@ -224,12 +225,17 @@ class PortfolioReturnsCalculator:
 
         # Log summary
         self.log(
-            f"Portfolio volatility: {portfolio_std:.6f} ({portfolio_std*np.sqrt(252)*100:.2f}% annualized)",
+            f"Portfolio volatility: {
+    portfolio_std:.6f} ({
+        portfolio_std*
+        np.sqrt(252)*
+        100:.2f}% annualized)",
             "info",
         )
         self.log(f"Diversification ratio: {diversification_ratio:.4f}", "info")
         self.log(
-            f"Effective number of strategies: {diagnostics['diversification']['effective_n']:.2f}",
+            f"Effective number of strategies: {
+    diagnostics['diversification']['effective_n']:.2f}",
             "info",
         )
 

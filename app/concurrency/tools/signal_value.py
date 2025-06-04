@@ -92,7 +92,8 @@ def calculate_signal_value_metrics(
         signal_risk_adjusted_value = avg_return / abs(return_volatility)
 
         # Signal contribution ratio (how much each signal contributes to overall performance)
-        # This is calculated as the average return per signal divided by the total number of signals
+        # This is calculated as the average return per signal divided by the total
+        # number of signals
         total_return = np.sum(signal_returns)
         signal_contribution_ratio = (
             total_return / signal_count if signal_count > 0 else 0.0
@@ -151,7 +152,8 @@ def calculate_signal_value_metrics(
         signal_expected_value = avg_return * (1.0 - abs(var_95))
 
         log(
-            f"Calculated signal value metrics for {strategy_id}: opportunity_score={signal_opportunity_score:.2f}",
+            f"Calculated signal value metrics for {strategy_id}: opportunity_score={
+    signal_opportunity_score:.2f}",
             "info",
         )
 

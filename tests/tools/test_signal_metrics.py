@@ -129,7 +129,8 @@ class TestSignalMetrics(unittest.TestCase):
         self.assertIn("signal_volatility", metrics)
         self.assertIn("total_signals", metrics)
 
-        # Check if metrics are calculated (total_signals might be 0 if calculation is different)
+        # Check if metrics are calculated (total_signals might be 0 if calculation
+        # is different)
         self.assertIsInstance(metrics["total_signals"], (int, float))
 
     def test_calculate_quality_metrics(self):

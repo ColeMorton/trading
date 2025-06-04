@@ -68,7 +68,12 @@ async def test_list_trading_scripts():
                         print(f"    Description: {script.get('description')}")
                         print(f"    Directory: {script.get('directory')}")
                         print(
-                            f"    Parameters: {json.dumps(script.get('parameters', {}), indent=6)}"
+                            f"    Parameters: {
+    json.dumps(
+        script.get(
+            'parameters',
+            {}),
+             indent=6)}"
                         )
                 else:
                     print("✗ Response indicates failure")

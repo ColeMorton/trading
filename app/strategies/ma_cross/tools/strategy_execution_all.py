@@ -118,7 +118,9 @@ def execute_strategy_all(
 
     if "TICKER" not in config:
         log(
-            f"ERROR: TICKER key not found in config. Available keys: {list(config.keys())}",
+            f"ERROR: TICKER key not found in config. Available keys: {
+    list(
+        config.keys())}",
             "error",
         )
         return []
@@ -152,7 +154,9 @@ def execute_strategy_all(
                 if "TICKER_2" not in ticker_config:
                     ticker_config["TICKER_2"] = ticker_parts[1]
                 log(
-                    f"Extracted ticker components: {ticker_config['TICKER_1']} and {ticker_config['TICKER_2']}"
+                    f"Extracted ticker components: {
+    ticker_config['TICKER_1']} and {
+        ticker_config['TICKER_2']}"
                 )
 
         # Ensure synthetic tickers use underscore format

@@ -71,10 +71,14 @@ def calculate_macd(
             f"MACD Range: {stats_row['macd_min']:.4f} to {stats_row['macd_max']:.4f}"
         )
         logging.info(
-            f"Signal Line Range: {stats_row['signal_min']:.4f} to {stats_row['signal_max']:.4f}"
+            f"Signal Line Range: {
+    stats_row['signal_min']:.4f} to {
+        stats_row['signal_max']:.4f}"
         )
         logging.info(
-            f"Null values - MACD: {stats_row['macd_nulls']}, Signal Line: {stats_row['signal_nulls']}"
+            f"Null values - MACD: {
+    stats_row['macd_nulls']}, Signal Line: {
+        stats_row['signal_nulls']}"
         )
 
         # Count potential crossovers
@@ -94,7 +98,11 @@ def calculate_macd(
         logging.info("\nFirst few rows:")
         for row in sample.iter_rows(named=True):
             logging.info(
-                f"Date: {row['Date']}, Close: {row['Close']:.2f}, MACD: {row['MACD']:.4f}, Signal: {row['Signal_Line']:.4f}"
+                f"Date: {
+    row['Date']}, Close: {
+        row['Close']:.2f}, MACD: {
+            row['MACD']:.4f}, Signal: {
+                row['Signal_Line']:.4f}"
             )
 
         # Fill any null values that might have been created by the shift operations

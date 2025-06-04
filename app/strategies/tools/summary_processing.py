@@ -128,10 +128,12 @@ def process_ticker_portfolios(
                         stats["Signal Window"] = signal_window
 
                         # Add Allocation [%] and Stop Loss [%] columns
-                        # Get allocation and stop loss values, checking both naming conventions
+                        # Get allocation and stop loss values, checking both naming
+                        # conventions
                         allocation = row.get("ALLOCATION", row.get("Allocation [%]"))
                         stop_loss = row.get("STOP_LOSS", row.get("Stop Loss [%]"))
-                        # Convert allocation and stop loss values to float, handling string 'None' values
+                        # Convert allocation and stop loss values to float, handling
+                        # string 'None' values
                         if (
                             allocation is not None
                             and allocation != ""
@@ -176,7 +178,8 @@ def process_ticker_portfolios(
                         )
 
         elif strategy_type in ["SMA", "EMA"]:
-            # For backward compatibility, use the existing process_ma_portfolios function
+            # For backward compatibility, use the existing process_ma_portfolios
+            # function
             try:
                 # Set SMA or EMA values based on strategy type
                 sma_fast = short_window if strategy_type == "SMA" else None
@@ -232,10 +235,12 @@ def process_ticker_portfolios(
                         sma_stats["Long Window"] = long_window
 
                         # Add Allocation [%] and Stop Loss [%] columns
-                        # Get allocation and stop loss values, checking both naming conventions
+                        # Get allocation and stop loss values, checking both naming
+                        # conventions
                         allocation = row.get("ALLOCATION", row.get("Allocation [%]"))
                         stop_loss = row.get("STOP_LOSS", row.get("Stop Loss [%]"))
-                        # Convert allocation and stop loss values to float, handling string 'None' values
+                        # Convert allocation and stop loss values to float, handling
+                        # string 'None' values
                         if (
                             allocation is not None
                             and allocation != ""
@@ -306,10 +311,12 @@ def process_ticker_portfolios(
                         ema_stats["Long Window"] = long_window
 
                         # Add Allocation [%] and Stop Loss [%] columns
-                        # Get allocation and stop loss values, checking both naming conventions
+                        # Get allocation and stop loss values, checking both naming
+                        # conventions
                         allocation = row.get("ALLOCATION", row.get("Allocation [%]"))
                         stop_loss = row.get("STOP_LOSS", row.get("Stop Loss [%]"))
-                        # Convert allocation and stop loss values to float, handling string 'None' values
+                        # Convert allocation and stop loss values to float, handling
+                        # string 'None' values
                         if (
                             allocation is not None
                             and allocation != ""
@@ -355,7 +362,8 @@ def process_ticker_portfolios(
 
             except Exception as e:
                 log(
-                    f"Failed to process {strategy_type} strategy for {ticker}: {str(e)}",
+                    f"Failed to process {strategy_type} strategy for {ticker}: {
+    str(e)}",
                     "error",
                 )
                 return None
@@ -439,7 +447,8 @@ def export_summary_results(
             reordered_portfolios = filtered_portfolios
 
             log(
-                f"After filtering invalid metrics: {len(reordered_portfolios)} portfolios remain"
+                f"After filtering invalid metrics: {
+    len(reordered_portfolios)} portfolios remain"
             )
         except Exception as e:
             log(f"Error during invalid metrics filtering: {str(e)}", "warning")
@@ -463,7 +472,8 @@ def export_summary_results(
                     # Sort the DataFrame
                     df = df.sort(sort_by, descending=not sort_asc)
                     log(
-                        f"Sorted results by {sort_by} ({'ascending' if sort_asc else 'descending'})"
+                        f"Sorted results by {sort_by} ({
+    'ascending' if sort_asc else 'descending'})"
                     )
 
                     # Convert back to list of dictionaries
@@ -507,7 +517,8 @@ def export_summary_results(
         # Note: Allocation distribution will be handled by export_portfolios
         # which uses ensure_allocation_sum_100_percent for all export types
 
-        # Change feature_dir to "strategies" to export to /csv/strategies instead of /csv/portfolios
+        # Change feature_dir to "strategies" to export to /csv/strategies instead
+        # of /csv/portfolios
         _, success = export_portfolios(
             reordered_portfolios,
             export_config,

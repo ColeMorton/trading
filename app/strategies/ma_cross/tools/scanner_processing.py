@@ -43,7 +43,8 @@ def load_existing_results(config: dict, log: Callable) -> Tuple[set, List[Dict]]
                 existing_tickers = set(existing_results["TICKER"].to_list())
                 results_data = existing_results.to_dicts()
                 log(
-                    f"Found existing results from today with {len(existing_tickers)} tickers"
+                    f"Found existing results from today with {
+    len(existing_tickers)} tickers"
                 )
             except Exception as e:
                 log(f"Error reading existing results: {e}", "error")
@@ -125,7 +126,9 @@ def export_results(
         # Track SMA signals
         if result["SMA"]:
             log(
-                f"SMA Signal - {ticker}: Fast={result['SMA_FAST']}, Slow={result['SMA_SLOW']}"
+                f"SMA Signal - {ticker}: Fast={
+    result['SMA_FAST']}, Slow={
+        result['SMA_SLOW']}"
             )
             signal_configs.append(
                 {
@@ -139,7 +142,9 @@ def export_results(
         # Track EMA signals
         if result["EMA"]:
             log(
-                f"EMA Signal - {ticker}: Fast={result['EMA_FAST']}, Slow={result['EMA_SLOW']}"
+                f"EMA Signal - {ticker}: Fast={
+    result['EMA_FAST']}, Slow={
+        result['EMA_SLOW']}"
             )
             signal_configs.append(
                 {
@@ -222,7 +227,8 @@ def export_results(
 
     if not has_new_schema and not has_old_schema:
         log(
-            f"Warning: Missing required columns in portfolio file. Found: {portfolio_df.columns}",
+            f"Warning: Missing required columns in portfolio file. Found: {
+    portfolio_df.columns}",
             "warning",
         )
         return
@@ -241,7 +247,8 @@ def export_results(
                 pl.col(use_sma_col).cast(pl.Boolean) == signal_config["use_sma"]
             )
         else:
-            # If Use SMA column doesn't exist, assume all rows are for EMA (use_sma=False)
+            # If Use SMA column doesn't exist, assume all rows are for EMA
+            # (use_sma=False)
             use_sma_match = (
                 pl.lit(True) if not signal_config["use_sma"] else pl.lit(False)
             )

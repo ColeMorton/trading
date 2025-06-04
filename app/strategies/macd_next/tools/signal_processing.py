@@ -94,10 +94,7 @@ def process_ticker_portfolios(
         Optional[pl.DataFrame]: DataFrame of portfolios or None if processing fails
     """
     try:
-        log(
-            f"Processing ticker: {ticker} with {config.get('DIRECTION', 'Long')} direction",
-            "info",
-        )
+        log(f"Processing ticker: {ticker} with {config.get('DIRECTION', 'Long')} direction", "info")
 
         if config.get("USE_CURRENT", False):
             log(f"Using current market data for {ticker}", "info")
@@ -108,15 +105,42 @@ def process_ticker_portfolios(
             # Log parameter ranges
             log(f"Parameter ranges for {ticker}:", "info")
             log(
-                f"Short window: {config.get('SHORT_WINDOW_START', 2)} to {config.get('SHORT_WINDOW_END', 18)} with step {config.get('STEP', 2)}",
+                f"Short window: {
+    config.get(
+        'SHORT_WINDOW_START',
+        2)} to {
+            config.get(
+                'SHORT_WINDOW_END',
+                18)} with step {
+                    config.get(
+                        'STEP',
+                         2)}",
                 "info",
             )
             log(
-                f"Long window: {config.get('LONG_WINDOW_START', 4)} to {config.get('LONG_WINDOW_END', 36)} with step {config.get('STEP', 2)}",
+                f"Long window: {
+    config.get(
+        'LONG_WINDOW_START',
+        4)} to {
+            config.get(
+                'LONG_WINDOW_END',
+                36)} with step {
+                    config.get(
+                        'STEP',
+                         2)}",
                 "info",
             )
             log(
-                f"Signal window: {config.get('SIGNAL_WINDOW_START', 2)} to {config.get('SIGNAL_WINDOW_END', 18)} with step {config.get('STEP', 2)}",
+                f"Signal window: {
+    config.get(
+        'SIGNAL_WINDOW_START',
+        2)} to {
+            config.get(
+                'SIGNAL_WINDOW_END',
+                18)} with step {
+                    config.get(
+                        'STEP',
+                         2)}",
                 "info",
             )
 
@@ -127,11 +151,15 @@ def process_ticker_portfolios(
 
             portfolios_df = pl.DataFrame(portfolios)
             log(
-                f"Generated {len(portfolios_df)} portfolios for {ticker} {config.get('DIRECTION', 'Long')}",
+                f"Generated {
+    len(portfolios_df)} portfolios for {ticker} {
+        config.get(
+            'DIRECTION', 'Long')}",
                 "info",
             )
 
-            # Enhance portfolios with additional metrics for consistency with ma_cross/strategies
+            # Enhance portfolios with additional metrics for consistency with
+            # ma_cross/strategies
             portfolios_df = enhance_portfolios(portfolios_df, ticker, config, log)
 
             # Log some statistics about the portfolios
@@ -168,7 +196,8 @@ def process_ticker_portfolios(
                         portfolios_df.select(pl.col("Position Count")).mean().item()
                     )
                     log(f"Average Position Count: {avg_position_count:.0f}", "info")
-            # Always return just the DataFrame - best portfolio selection happens after filtering
+            # Always return just the DataFrame - best portfolio selection happens
+            # after filtering
             return portfolios_df
 
     except Exception as e:
@@ -204,7 +233,8 @@ def enhance_portfolios(
 
         # Add Signal Entry and Signal Exit columns if missing
         # For MACD, we'll set these based on the current signal state
-        # This is a simplification - in a real implementation, you'd want to check the actual signal state
+        # This is a simplification - in a real implementation, you'd want to check
+        # the actual signal state
         if "Signal Entry" not in df.columns:
             # Default to false, will be updated in a real implementation
             df = df.with_columns(pl.lit(False).alias("Signal Entry"))
@@ -228,7 +258,8 @@ def enhance_portfolios(
             df = df.with_columns(pl.col("Total Trades").alias("Position Count"))
 
         # Ensure column naming consistency
-        # Some columns might have slightly different names between ma_cross and macd_next
+        # Some columns might have slightly different names between ma_cross and
+        # macd_next
         column_mapping = {
             "Expectancy Per Trade": "Expectancy per Trade",
             "Expectancy": "Expectancy per Trade",

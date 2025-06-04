@@ -131,7 +131,8 @@ def export_portfolios(
         raise ValueError("Cannot export empty portfolio list")
 
     if export_type not in VALID_EXPORT_TYPES:
-        error_msg = f"Invalid export type: {export_type}. Must be one of: {', '.join(VALID_EXPORT_TYPES)}"
+        error_msg = f"Invalid export type: {export_type}. Must be one of: {
+    ', '.join(VALID_EXPORT_TYPES)}"
         if log:
             log(error_msg, "error")
         raise PortfolioExportError(error_msg)
@@ -145,7 +146,8 @@ def export_portfolios(
         df = _reorder_columns(df, export_type)
 
         # Use empty feature1 for 'portfolios' and 'portfolios_scanner' export types
-        # to export directly to csv/portfolios/ instead of csv/mean_reversion/portfolios/ or csv/mean_reversion/portfolios_scanner/
+        # to export directly to csv/portfolios/ instead of
+        # csv/mean_reversion/portfolios/ or csv/mean_reversion/portfolios_scanner/
         feature1 = (
             ""
             if export_type in ["portfolios", "portfolios_scanner"]

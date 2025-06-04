@@ -86,7 +86,8 @@ class RequestValidator:
             errors.append(
                 ValidationError(
                     field="ticker",
-                    message=f"Invalid ticker type: {type(primary_ticker).__name__}. Expected string or list",
+                    message=f"Invalid ticker type: {
+    type(primary_ticker).__name__}. Expected string or list",
                     value=primary_ticker,
                 )
             )
@@ -100,7 +101,9 @@ class RequestValidator:
             errors.append(
                 ValidationError(
                     field="tickers",
-                    message=f"Too many tickers ({len(all_tickers)}). Maximum allowed: {cls.MAX_TICKERS}",
+                    message=f"Too many tickers ({
+    len(all_tickers)}). Maximum allowed: {
+        cls.MAX_TICKERS}",
                     value=len(all_tickers),
                 )
             )
@@ -208,7 +211,8 @@ class RequestValidator:
                 )
             )
 
-        # If synthetic tickers in main ticker field, both ticker_1 and ticker_2 should be provided
+        # If synthetic tickers in main ticker field, both ticker_1 and ticker_2
+        # should be provided
         if has_synthetic and (not has_ticker_1 or not has_ticker_2):
             errors.append(
                 ValidationError(
@@ -218,9 +222,11 @@ class RequestValidator:
                 )
             )
 
-        # If ticker_1 or ticker_2 are provided, either use_synthetic should be true OR there should be synthetic tickers
+        # If ticker_1 or ticker_2 are provided, either use_synthetic should be
+        # true OR there should be synthetic tickers
         if (has_ticker_1 or has_ticker_2) and not use_synthetic and not has_synthetic:
-            # This is now just a warning - we'll allow it but ignore the ticker_1/ticker_2 fields
+            # This is now just a warning - we'll allow it but ignore the
+            # ticker_1/ticker_2 fields
             pass  # Don't add an error, just ignore these fields
 
         # Validate individual synthetic ticker symbols if they're provided

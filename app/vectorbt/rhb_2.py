@@ -54,6 +54,8 @@ print(top_results[["Length", "Exit Candles", "Total Return"]])
 # Display portfolio statistics for the top performing parameters
 for index, row in top_results.iterrows():
     print(
-        f"\nPortfolio Stats for Length {row['Length']} and Exit Candles {row['Exit Candles']}:"
+        f"\nPortfolio Stats for Length {
+    row['Length']} and Exit Candles {
+        row['Exit Candles']}:"
     )
     print(row["Portfolio"].stats())

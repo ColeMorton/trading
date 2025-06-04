@@ -5,7 +5,9 @@ This module provides centralized type definitions for strategy configurations
 to ensure consistency across the application.
 """
 
-from typing import Dict, List, Literal, NotRequired, TypedDict, Union
+from typing import Dict, List, Literal, TypedDict, Union
+
+from typing_extensions import NotRequired
 
 
 class MinimumConfig(TypedDict, total=False):

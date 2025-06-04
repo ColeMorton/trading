@@ -189,7 +189,8 @@ def validate_strategy_config(
         )
         timeframe = "Hourly" if strategy_config.get("USE_HOURLY", False) else "Daily"
         log_func(
-            f"Strategy {strategy_index} - {strategy_config['TICKER']}: {timeframe} ({direction})",
+            f"Strategy {strategy_index} - {
+    strategy_config['TICKER']}: {timeframe} ({direction})",
             "info",
         )
 
@@ -239,7 +240,8 @@ def get_strategy_id(
     except ValueError as e:
         if log_func:
             log_func(
-                f"Could not generate strategy ID for strategy {strategy_index}: {str(e)}",
+                f"Could not generate strategy ID for strategy {strategy_index}: {
+    str(e)}",
                 "warning",
             )
 

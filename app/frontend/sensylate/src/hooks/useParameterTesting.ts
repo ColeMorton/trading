@@ -1,7 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { AnalysisConfiguration, AnalysisResult } from '../types';
 import { maCrossApi } from '../services/serviceFactory';
-import { MACrossSyncResponse, MACrossAsyncResponse } from '../services/maCrossApi';
+import {
+  MACrossSyncResponse,
+  MACrossAsyncResponse,
+} from '../services/maCrossApi';
 
 export interface UseParameterTestingReturn {
   analyze: (config: AnalysisConfiguration) => Promise<void>;
@@ -23,7 +26,7 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [executionId, setExecutionId] = useState<string | null>(null);
-  
+
   // Refs for polling management
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const pollingAttemptsRef = useRef(0);
@@ -42,7 +45,7 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
   const pollStatus = useCallback(async (execId: string) => {
     try {
       const status = await maCrossApi.getStatus(execId);
-      
+
       // Check if cancelled
       if (isCancelledRef.current) {
         setIsAnalyzing(false);
@@ -51,18 +54,19 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
       }
 
       // Update progress
-      const progressValue = typeof status.progress === 'number' ? status.progress : 0;
+      const progressValue =
+        typeof status.progress === 'number' ? status.progress : 0;
       setProgress(progressValue);
 
       // Handle different status states
       switch (status.status) {
-        case 'completed':
+        case 'completed': {
           // Analysis completed successfully
           let analysisResults: AnalysisResult[] = [];
-          
+
           if (status.results) {
             // New API format: direct results array
-            analysisResults = status.results.map(portfolio => ({
+            analysisResults = status.results.map((portfolio) => ({
               ticker: portfolio.ticker,
               strategy_type: portfolio.strategy_type,
               short_window: portfolio.short_window,
@@ -73,7 +77,8 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
               total_trades: portfolio.total_trades,
               win_rate: portfolio.win_rate,
               profit_factor: portfolio.profit_factor,
-              expectancy_per_trade: portfolio.expectancy_per_trade || portfolio.expectancy || 0,
+              expectancy_per_trade:
+                portfolio.expectancy_per_trade || portfolio.expectancy || 0,
               sortino_ratio: portfolio.sortino_ratio,
               max_drawdown: portfolio.max_drawdown,
               total_return: portfolio.total_return,
@@ -84,31 +89,33 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
               score: portfolio.score,
               beats_bnh: portfolio.beats_bnh,
               has_open_trade: portfolio.has_open_trade,
-              has_signal_entry: portfolio.has_signal_entry
+              has_signal_entry: portfolio.has_signal_entry,
+              metric_type: portfolio.metric_type,
             }));
           } else if (status.result) {
             // Legacy API format: full response object
             analysisResults = maCrossApi.responseToResults(status.result);
           }
-          
+
           setResults(analysisResults);
           setError(null);
           setIsAnalyzing(false);
           setProgress(100);
-          
+
           // Clear polling
           if (pollingIntervalRef.current) {
             clearInterval(pollingIntervalRef.current);
             pollingIntervalRef.current = null;
           }
           break;
+        }
 
         case 'failed':
           // Analysis failed
           setError(status.error || 'Analysis failed');
           setIsAnalyzing(false);
           setProgress(0);
-          
+
           // Clear polling
           if (pollingIntervalRef.current) {
             clearInterval(pollingIntervalRef.current);
@@ -120,13 +127,13 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
         case 'pending':
           // Still processing - continue polling
           pollingAttemptsRef.current++;
-          
+
           // Check max attempts
           if (pollingAttemptsRef.current >= MAX_POLLING_ATTEMPTS) {
             setError('Analysis timeout - exceeded maximum wait time');
             setIsAnalyzing(false);
             setProgress(0);
-            
+
             if (pollingIntervalRef.current) {
               clearInterval(pollingIntervalRef.current);
               pollingIntervalRef.current = null;
@@ -138,12 +145,12 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
       console.error('Error polling status:', err);
       // Don't stop polling on transient errors
       pollingAttemptsRef.current++;
-      
+
       if (pollingAttemptsRef.current >= MAX_POLLING_ATTEMPTS) {
         setError('Failed to get analysis status');
         setIsAnalyzing(false);
         setProgress(0);
-        
+
         if (pollingIntervalRef.current) {
           clearInterval(pollingIntervalRef.current);
           pollingIntervalRef.current = null;
@@ -153,58 +160,61 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
   }, []);
 
   // Main analysis function
-  const analyze = useCallback(async (config: AnalysisConfiguration) => {
-    try {
-      // Reset state
-      setIsAnalyzing(true);
-      setError(null);
-      setProgress(0);
-      setResults([]);
-      setExecutionId(null);
-      isCancelledRef.current = false;
-      pollingAttemptsRef.current = 0;
+  const analyze = useCallback(
+    async (config: AnalysisConfiguration) => {
+      try {
+        // Reset state
+        setIsAnalyzing(true);
+        setError(null);
+        setProgress(0);
+        setResults([]);
+        setExecutionId(null);
+        isCancelledRef.current = false;
+        pollingAttemptsRef.current = 0;
 
-      // Clear any existing polling
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-        pollingIntervalRef.current = null;
-      }
-
-      // Make API call
-      const response = await maCrossApi.analyze(config);
-
-      // Handle synchronous response
-      if ('portfolios' in response) {
-        const syncResponse = response as MACrossSyncResponse;
-        
-        if (syncResponse.status === 'success') {
-          const analysisResults = maCrossApi.responseToResults(syncResponse);
-          setResults(analysisResults);
-          setProgress(100);
-          setIsAnalyzing(false);
-        } else {
-          throw new Error(syncResponse.error || 'Analysis failed');
+        // Clear any existing polling
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
         }
-      } else {
-        // Handle asynchronous response
-        const asyncResponse = response as MACrossAsyncResponse;
-        setExecutionId(asyncResponse.execution_id);
-        
-        // Start polling for status
-        pollingIntervalRef.current = setInterval(() => {
+
+        // Make API call
+        const response = await maCrossApi.analyze(config);
+
+        // Handle synchronous response
+        if ('portfolios' in response) {
+          const syncResponse = response as MACrossSyncResponse;
+
+          if (syncResponse.status === 'success') {
+            const analysisResults = maCrossApi.responseToResults(syncResponse);
+            setResults(analysisResults);
+            setProgress(100);
+            setIsAnalyzing(false);
+          } else {
+            throw new Error(syncResponse.error || 'Analysis failed');
+          }
+        } else {
+          // Handle asynchronous response
+          const asyncResponse = response as MACrossAsyncResponse;
+          setExecutionId(asyncResponse.execution_id);
+
+          // Start polling for status
+          pollingIntervalRef.current = setInterval(() => {
+            pollStatus(asyncResponse.execution_id);
+          }, POLLING_INTERVAL);
+
+          // Do initial poll immediately
           pollStatus(asyncResponse.execution_id);
-        }, POLLING_INTERVAL);
-        
-        // Do initial poll immediately
-        pollStatus(asyncResponse.execution_id);
+        }
+      } catch (err) {
+        console.error('Analysis error:', err);
+        setError(err instanceof Error ? err.message : 'Analysis failed');
+        setIsAnalyzing(false);
+        setProgress(0);
       }
-    } catch (err) {
-      console.error('Analysis error:', err);
-      setError(err instanceof Error ? err.message : 'Analysis failed');
-      setIsAnalyzing(false);
-      setProgress(0);
-    }
-  }, [pollStatus]);
+    },
+    [pollStatus]
+  );
 
   // Clear results
   const clearResults = useCallback(() => {
@@ -217,12 +227,12 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
   // Cancel ongoing analysis
   const cancelAnalysis = useCallback(() => {
     isCancelledRef.current = true;
-    
+
     if (pollingIntervalRef.current) {
       clearInterval(pollingIntervalRef.current);
       pollingIntervalRef.current = null;
     }
-    
+
     setIsAnalyzing(false);
     setProgress(0);
     setExecutionId(null);
@@ -236,6 +246,6 @@ export const useParameterTesting = (): UseParameterTestingReturn => {
     error,
     executionId,
     clearResults,
-    cancelAnalysis
+    cancelAnalysis,
   };
 };

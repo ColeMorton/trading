@@ -20,8 +20,13 @@ Configuration Options:
 """
 
 import logging
+import sys
 from pathlib import Path
 from typing import Any, Dict, Optional
+
+# Add project root to path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 from app.concurrency.config import (
     ConcurrencyConfig,
@@ -151,7 +156,8 @@ def run_analysis(config: Dict[str, Any]) -> bool:
                         validated_data = validate_allocations(portfolio_data, log)
                         normalized_data = normalize_allocations(validated_data, log)
 
-                        # Do NOT distribute missing allocations - only use allocations from CSV
+                        # Do NOT distribute missing allocations - only use allocations
+                        # from CSV
                         log(
                             "Using only allocations explicitly defined in CSV file",
                             "info",
@@ -174,7 +180,8 @@ def run_analysis(config: Dict[str, Any]) -> bool:
                                 "info",
                             )
 
-                        # Ensure allocations sum to 100% only for strategies that have allocations
+                        # Ensure allocations sum to 100% only for strategies that have
+                        # allocations
                         portfolio_data = ensure_allocation_sum_100_percent(
                             normalized_data, log
                         )
@@ -218,7 +225,8 @@ def run_analysis(config: Dict[str, Any]) -> bool:
                         stop_loss_summary = get_stop_loss_summary(portfolio_data, log)
                         log(f"Stop loss summary: {stop_loss_summary}", "info")
 
-                        # Apply stop loss rules if price data is available and SL_CANDLE_CLOSE is configured
+                        # Apply stop loss rules if price data is available and
+                        # SL_CANDLE_CLOSE is configured
                         if (
                             "PRICE_DATA" in validated_config
                             and validated_config.get("SL_CANDLE_CLOSE") is not None
@@ -231,14 +239,17 @@ def run_analysis(config: Dict[str, Any]) -> bool:
                                 "SL_CANDLE_CLOSE", True
                             )
 
-                            # Only apply to strategies with explicitly defined stop loss in CSV
+                            # Only apply to strategies with explicitly defined stop loss
+                            # in CSV
                             for i, strategy in enumerate(portfolio_data):
                                 if (
                                     "STOP_LOSS" in strategy
                                     and strategy["STOP_LOSS"] is not None
                                 ):
                                     log(
-                                        f"Applying stop loss of {strategy['STOP_LOSS']} to strategy {i+1}",
+                                        f"Applying stop loss of {
+    strategy['STOP_LOSS']} to strategy {
+        i+1}",
                                         "info",
                                     )
                                     portfolio_data[i] = apply_stop_loss_rules(
@@ -249,7 +260,8 @@ def run_analysis(config: Dict[str, Any]) -> bool:
                                     )
                                 else:
                                     log(
-                                        f"No stop loss defined in CSV for strategy {i+1}, skipping",
+                                        f"No stop loss defined in CSV for strategy {
+    i+1}, skipping",
                                         "info",
                                     )
 
@@ -271,7 +283,8 @@ def run_analysis(config: Dict[str, Any]) -> bool:
                         "info",
                     )
 
-                    # Also set synthetic ticker flag in the main config if any synthetic tickers are found
+                    # Also set synthetic ticker flag in the main config if any synthetic
+                    # tickers are found
                     has_synthetic_tickers = False
 
                     for strategy in portfolio_data:
@@ -288,22 +301,26 @@ def run_analysis(config: Dict[str, Any]) -> bool:
                                         "info",
                                     )
 
-                                    # Update strategy config for synthetic ticker processing
+                                    # Update strategy config for synthetic ticker
+                                    # processing
                                     strategy["USE_SYNTHETIC"] = True
                                     strategy["TICKER_1"] = ticker1
                                     strategy["TICKER_2"] = ticker2
 
-                                    # Also update the main config to indicate synthetic ticker usage
+                                    # Also update the main config to indicate synthetic
+                                    # ticker usage
                                     validated_config["USE_SYNTHETIC"] = True
 
-                                    # If this is the first synthetic ticker, set the main config ticker components
+                                    # If this is the first synthetic ticker, set the
+                                    # main config ticker components
                                     if "TICKER_1" not in validated_config:
                                         validated_config["TICKER_1"] = ticker1
                                         validated_config["TICKER_2"] = ticker2
 
                                 except SyntheticTickerError as e:
                                     log(
-                                        f"Invalid synthetic ticker format: {ticker} - {str(e)}",
+                                        f"Invalid synthetic ticker format: {ticker} - {
+    str(e)}",
                                         "warning",
                                     )
 
@@ -334,11 +351,17 @@ def run_analysis(config: Dict[str, Any]) -> bool:
 
             # Log configuration settings
             log(
-                f"Signal definition mode: {validated_config.get('SIGNAL_DEFINITION_MODE', SignalDefinitionMode.COMPLETE_TRADE.value)}",
+                f"Signal definition mode: {
+    validated_config.get(
+        'SIGNAL_DEFINITION_MODE',
+         SignalDefinitionMode.COMPLETE_TRADE.value)}",
                 "info",
             )
             log(
-                f"Execution mode: {validated_config.get('EXECUTION_MODE', ExecutionMode.SAME_PERIOD.value)}",
+                f"Execution mode: {
+    validated_config.get(
+        'EXECUTION_MODE',
+         ExecutionMode.SAME_PERIOD.value)}",
                 "info",
             )
             log(f"Using allocations only from CSV file", "info")

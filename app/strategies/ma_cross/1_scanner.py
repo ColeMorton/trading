@@ -166,7 +166,8 @@ def process_scanner() -> bool:
             )
 
         log(
-            f"Schema type: {'Minimal' if is_minimal_schema else 'New' if is_new_schema else 'Legacy'}"
+            f"Schema type: {
+    'Minimal' if is_minimal_schema else 'New' if is_new_schema else 'Legacy'}"
         )
 
         # Check if the CSV has the Use SMA column
@@ -342,10 +343,12 @@ def process_scanner() -> bool:
             signals_detected / total_processed if total_processed > 0 else 0
         )
         log(
-            f"Signal Detection Ratio: {signals_detected}/{total_processed} ({detection_ratio:.2%})"
+            f"Signal Detection Ratio: {signals_detected}/{total_processed} ({
+    detection_ratio:.2%})"
         )
         log(
-            f"Total Rows in Scanner: {len(scanner_df)}, Rows with Complete Data: {total_processed}"
+            f"Total Rows in Scanner: {
+    len(scanner_df)}, Rows with Complete Data: {total_processed}"
         )
 
         # Export results with the original scanner DataFrame

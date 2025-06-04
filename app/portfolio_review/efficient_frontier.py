@@ -41,7 +41,6 @@ ASSETS = [
     "AIZ",
     "EXR",
     "PGR",
-    "PWR",
 ]
 
 # ASSETS = ['TRX-USD', 'FET-USD', 'AVAX-USD', 'SOL-USD']
@@ -114,7 +113,8 @@ num_assets = len(mean_returns)
 # Initial guess (equal weights)
 init_guess = num_assets * [1.0 / num_assets]
 
-# Add a small random perturbation for Sharpe optimization to ensure different starting point
+# Add a small random perturbation for Sharpe optimization to ensure
+# different starting point
 np.random.seed(42)  # Set seed for reproducibility
 sharpe_perturbation = np.random.normal(0, 0.01, num_assets)
 init_guess_sharpe = np.clip(init_guess + sharpe_perturbation, 0, 1)

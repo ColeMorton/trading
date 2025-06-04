@@ -103,7 +103,8 @@ def apply_stop_loss_to_returns(
 
         # Log for debugging
         log(
-            f"Position {pos_id} at index {i}: cumulative return = {position_cumulative_returns[pos_id]}",
+            f"Position {pos_id} at index {i}: cumulative return = {
+    position_cumulative_returns[pos_id]}",
             "debug",
         )
 
@@ -416,7 +417,8 @@ def find_optimal_stop_loss(
         }
 
     log(
-        f"Found optimal stop loss of {best_stop_loss*100:.2f}% based on {optimization_metric}",
+        f"Found optimal stop loss of {
+    best_stop_loss*100:.2f}% based on {optimization_metric}",
         "info",
     )
 

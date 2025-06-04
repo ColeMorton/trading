@@ -100,7 +100,9 @@ def execute_single_strategy(
         valid_stats = check_invalid_metrics(stats, log)
         if valid_stats is None:
             log(
-                f"Portfolio for {ticker} with {strategy_type} strategy (short window: {config['SHORT_WINDOW']}, long window: {config['LONG_WINDOW']}) has invalid metrics - skipping",
+                f"Portfolio for {ticker} with {strategy_type} strategy (short window: {
+    config['SHORT_WINDOW']}, long window: {
+        config['LONG_WINDOW']}) has invalid metrics - skipping",
                 "info",
             )
             return None
@@ -152,7 +154,8 @@ def process_single_ticker(
     """
     # Create a config copy with single ticker
     ticker_config = config.copy()
-    # Use the ticker from config if it exists (for synthetic tickers), otherwise use the parameter
+    # Use the ticker from config if it exists (for synthetic tickers),
+    # otherwise use the parameter
     if "TICKER" not in ticker_config:
         # Ensure synthetic tickers use underscore format
         formatted_ticker = (
@@ -292,7 +295,9 @@ def execute_strategy(
 
     if "TICKER" not in config:
         log(
-            f"ERROR: TICKER key not found in config. Available keys: {list(config.keys())}",
+            f"ERROR: TICKER key not found in config. Available keys: {
+    list(
+        config.keys())}",
             "error",
         )
         return []
@@ -326,7 +331,9 @@ def execute_strategy(
                 if "TICKER_2" not in ticker_config:
                     ticker_config["TICKER_2"] = ticker_parts[1]
                 log(
-                    f"Extracted ticker components: {ticker_config['TICKER_1']} and {ticker_config['TICKER_2']}"
+                    f"Extracted ticker components: {
+    ticker_config['TICKER_1']} and {
+        ticker_config['TICKER_2']}"
                 )
 
         # Ensure synthetic tickers use underscore format
@@ -344,7 +351,8 @@ def execute_strategy(
                 step=i, message=f"Processing {ticker} ({i+1}/{len(tickers)})"
             )
 
-        # Pass the formatted ticker from config to ensure synthetic tickers are preserved
+        # Pass the formatted ticker from config to ensure synthetic tickers are
+        # preserved
         formatted_ticker_to_process = ticker_config.get("TICKER", ticker)
         best_portfolio = process_single_ticker(
             formatted_ticker_to_process, ticker_config, log, progress_tracker

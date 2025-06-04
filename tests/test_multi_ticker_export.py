@@ -295,7 +295,8 @@ class TestMultiTickerExport(unittest.TestCase):
 
                 if len(ticker_rows) > 0:
                     metric_type = ticker_rows.select("Metric Type").to_series()[0]
-                    # Should contain all three metric types concatenated (for the best configuration)
+                    # Should contain all three metric types concatenated (for the best
+                    # configuration)
                     self.assertIn("Most Total Return [%]", metric_type)
                     self.assertIn("Most Sharpe Ratio", metric_type)
                     self.assertIn("Median Total Trades", metric_type)
@@ -305,7 +306,8 @@ class TestMultiTickerExport(unittest.TestCase):
 
     def test_strict_one_per_ticker_strategy(self):
         """Test that portfolios_best has exactly one row per ticker+strategy combination."""
-        # Create test data with multiple strategies per ticker and multiple configurations per strategy
+        # Create test data with multiple strategies per ticker and multiple
+        # configurations per strategy
         test_portfolios = []
 
         for ticker in self.test_tickers:
@@ -383,7 +385,8 @@ class TestMultiTickerExport(unittest.TestCase):
                 )
                 actual_combinations.add(combo)
 
-                # Verify each row has the best configuration (20/40 - highest score) and aggregated metric types
+                # Verify each row has the best configuration (20/40 - highest score) and
+                # aggregated metric types
                 self.assertEqual(
                     row["Short Window"], 20, f"Expected best config 20/40 for {combo}"
                 )
@@ -412,7 +415,8 @@ class TestMultiTickerExport(unittest.TestCase):
             self.assertEqual(
                 len(test_ticker_rows),
                 4,
-                f"Expected 4 test ticker rows (one per ticker+strategy), got {len(test_ticker_rows)}",
+                f"Expected 4 test ticker rows (one per ticker+strategy), got {
+    len(test_ticker_rows)}",
             )
 
 

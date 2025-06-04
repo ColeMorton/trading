@@ -106,10 +106,12 @@ class TradingAPIClient:
             print("🚀 Async analysis started!")
             print(f"Task ID: {result['execution_id']}")
             print(
-                f"\nCheck status: python api_cli.py ma-cross status {result['execution_id']}"
+                f"\nCheck status: python api_cli.py ma-cross status {
+    result['execution_id']}"
             )
             print(
-                f"Stream progress: python api_cli.py ma-cross stream {result['execution_id']}"
+                f"Stream progress: python api_cli.py ma-cross stream {
+    result['execution_id']}"
             )
         else:
             self._print_analysis_results(result)
@@ -129,7 +131,12 @@ class TradingAPIClient:
             print(f"{'='*60}")
             for i, portfolio in enumerate(result["portfolios"][:5]):
                 print(
-                    f"\n{i+1}. {portfolio['ticker']} - {portfolio['strategy_type']} ({portfolio['short_window']}/{portfolio['long_window']})"
+                    f"\n{
+    i+1}. {
+        portfolio['ticker']} - {
+            portfolio['strategy_type']} ({
+                portfolio['short_window']}/{
+                    portfolio['long_window']})"
                 )
                 print(f"   Total Return: {portfolio['total_return']:.2%}")
                 print(f"   Sharpe Ratio: {portfolio['sharpe_ratio']:.2f}")
@@ -187,7 +194,8 @@ class TradingAPIClient:
         print(f"{'='*40}")
         print(f"Total Requests: {result['requests_total']}")
         print(
-            f"Success Rate: {result['requests_success']/result['requests_total']*100:.1f}%"
+            f"Success Rate: {
+    result['requests_success']/result['requests_total']*100:.1f}%"
         )
         print(f"Avg Response Time: {result['avg_response_time']:.2f}s")
         print(f"Cache Hit Rate: {result['cache_hit_rate']:.1%}")
@@ -240,10 +248,12 @@ class TradingAPIClient:
             print("🚀 Script execution started!")
             print(f"Execution ID: {result['execution_id']}")
             print(
-                f"\nCheck status: python api_cli.py scripts status {result['execution_id']}"
+                f"\nCheck status: python api_cli.py scripts status {
+    result['execution_id']}"
             )
             print(
-                f"Stream output: python api_cli.py scripts stream {result['execution_id']}"
+                f"Stream output: python api_cli.py scripts stream {
+    result['execution_id']}"
             )
         else:
             print(f"✅ Script completed in {result['execution_time']:.2f}s")

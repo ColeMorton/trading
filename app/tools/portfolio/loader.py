@@ -114,7 +114,8 @@ def load_portfolio_from_csv(
     # Handle legacy CSV files without Strategy Type column
     if STRATEGY_TYPE_FIELDS["INTERNAL"] not in df.columns:
         log(
-            f"Legacy CSV file detected without {STRATEGY_TYPE_FIELDS['INTERNAL']} column. Deriving from USE_SMA.",
+            f"Legacy CSV file detected without {
+    STRATEGY_TYPE_FIELDS['INTERNAL']} column. Deriving from USE_SMA.",
             "info",
         )
         # Derive STRATEGY_TYPE from USE_SMA

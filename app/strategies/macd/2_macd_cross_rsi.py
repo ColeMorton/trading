@@ -30,7 +30,8 @@ def backtest(data: pl.DataFrame, rsi_threshold: int) -> List[Tuple[float, float]
             ):
                 position, entry_price = 1, data["Close"][i]
                 log(
-                    f"Entered long position at price: {entry_price}, RSI: {data['RSI'][i]}"
+                    f"Entered long position at price: {entry_price}, RSI: {
+    data['RSI'][i]}"
                 )
         elif position == 1:
             if (
@@ -40,7 +41,8 @@ def backtest(data: pl.DataFrame, rsi_threshold: int) -> List[Tuple[float, float]
                 position, exit_price = 0, data["Close"][i]
                 trades.append((entry_price, exit_price))
                 log(
-                    f"Exited long position at price: {exit_price}, RSI: {data['RSI'][i]}"
+                    f"Exited long position at price: {exit_price}, RSI: {
+    data['RSI'][i]}"
                 )
 
     log(f"Total trades: {len(trades)}")
@@ -68,7 +70,9 @@ def calculate_metrics(
     num_positions = len(trades)
 
     log(
-        f"Metrics - Total Return: {total_return * 100}%, Win Rate: {win_rate * 100}%, Expectancy: {expectancy}, Number of Positions: {num_positions}"
+        f"Metrics - Total Return: {total_return *
+    100}%, Win Rate: {win_rate *
+     100}%, Expectancy: {expectancy}, Number of Positions: {num_positions}"
     )
     return total_return * 100, win_rate * 100, expectancy, num_positions
 
@@ -202,10 +206,16 @@ def main():
 
     # Log some statistics about the data
     log(
-        f"Data statistics: Close price - Min: {data['Close'].min()}, Max: {data['Close'].max()}, Mean: {data['Close'].mean()}"
+        f"Data statistics: Close price - Min: {
+    data['Close'].min()}, Max: {
+        data['Close'].max()}, Mean: {
+            data['Close'].mean()}"
     )
     log(
-        f"RSI statistics: Min: {data['RSI'].min()}, Max: {data['RSI'].max()}, Mean: {data['RSI'].mean()}"
+        f"RSI statistics: Min: {
+    data['RSI'].min()}, Max: {
+        data['RSI'].max()}, Mean: {
+            data['RSI'].mean()}"
     )
 
     results_df = run_sensitivity_analysis(data, rsi_range)

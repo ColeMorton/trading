@@ -95,7 +95,8 @@ def generate_optimization_report(
             "efficiency_improvement_percent": efficiency_improvement,
         },
         "all_strategies": {
-            # Risk-adjusted efficiency score (combines structural and performance metrics)
+            # Risk-adjusted efficiency score (combines structural and performance
+            # metrics)
             "efficiency_score": all_stats["efficiency_score"],
             # Structural components
             "diversification_multiplier": all_stats["diversification_multiplier"],
@@ -109,7 +110,8 @@ def generate_optimization_report(
             "risk_concentration_index": all_stats["risk_concentration_index"],
         },
         "optimal_strategies": {
-            # Risk-adjusted efficiency score (combines structural and performance metrics)
+            # Risk-adjusted efficiency score (combines structural and performance
+            # metrics)
             "efficiency_score": optimal_stats["efficiency_score"],
             # Structural components
             "diversification_multiplier": optimal_stats["diversification_multiplier"],

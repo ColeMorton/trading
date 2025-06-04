@@ -278,7 +278,10 @@ def export_csv(
                 "info",
             )
             log(
-                f"Directory is writable: {os.access(os.path.dirname(full_path), os.W_OK)}",
+                f"Directory is writable: {
+    os.access(
+        os.path.dirname(full_path),
+         os.W_OK)}",
                 "info",
             )
 
@@ -312,7 +315,8 @@ def export_csv(
             if log:
                 if missing_metrics:
                     log(
-                        f"Risk metrics missing from final export data: {', '.join(missing_metrics)}",
+                        f"Risk metrics missing from final export data: {
+    ', '.join(missing_metrics)}",
                         "warning",
                     )
 
@@ -339,7 +343,8 @@ def export_csv(
             if log:
                 if missing_metrics:
                     log(
-                        f"Risk metrics missing from final export data: {', '.join(missing_metrics)}",
+                        f"Risk metrics missing from final export data: {
+    ', '.join(missing_metrics)}",
                         "warning",
                     )
 

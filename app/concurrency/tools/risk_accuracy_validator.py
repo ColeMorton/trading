@@ -102,7 +102,9 @@ class RiskAccuracyValidator:
         # Basic shape validation
         if returns_matrix.shape[1] != len(strategy_names):
             messages.append(
-                f"Return matrix columns ({returns_matrix.shape[1]}) != strategy names ({len(strategy_names)})"
+                f"Return matrix columns ({
+    returns_matrix.shape[1]}) != strategy names ({
+        len(strategy_names)})"
             )
             return ValidationResult(
                 False,
@@ -118,7 +120,8 @@ class RiskAccuracyValidator:
         # 1. Sufficient observations check
         if n_obs < thresholds["min_observations"]:
             messages.append(
-                f"Insufficient observations: {n_obs} < {thresholds['min_observations']} required"
+                f"Insufficient observations: {n_obs} < {
+    thresholds['min_observations']} required"
             )
             corrective_actions.append(
                 "Collect more historical data or use Bayesian/bootstrap methods"
@@ -142,7 +145,9 @@ class RiskAccuracyValidator:
 
         if missing_ratio > thresholds["max_missing_ratio"]:
             messages.append(
-                f"Too many missing/invalid values: {missing_ratio:.3f} > {thresholds['max_missing_ratio']:.3f}"
+                f"Too many missing/invalid values: {
+    missing_ratio:.3f} > {
+        thresholds['max_missing_ratio']:.3f}"
             )
             corrective_actions.append("Clean data or use interpolation methods")
             if self.validation_level in [
@@ -316,7 +321,8 @@ class RiskAccuracyValidator:
 
             if condition_number > thresholds["max_condition_number"]:
                 messages.append(
-                    f"Covariance matrix ill-conditioned: condition number {condition_number:.0f}"
+                    f"Covariance matrix ill-conditioned: condition number {
+    condition_number:.0f}"
                 )
                 corrective_actions.append("Use regularization or shrinkage estimation")
                 if self.validation_level == ValidationLevel.STRICT:
@@ -362,7 +368,9 @@ class RiskAccuracyValidator:
         # Final quality threshold check
         if overall_quality < thresholds["min_quality_score"]:
             messages.append(
-                f"Overall data quality too low: {overall_quality:.3f} < {thresholds['min_quality_score']:.3f}"
+                f"Overall data quality too low: {
+    overall_quality:.3f} < {
+        thresholds['min_quality_score']:.3f}"
             )
             corrective_actions.append(
                 "Improve data collection or use more robust estimation methods"
@@ -424,7 +432,8 @@ class RiskAccuracyValidator:
         n_strategies = len(strategy_names)
         if cov_matrix.shape != (n_strategies, n_strategies):
             messages.append(
-                f"Covariance matrix shape {cov_matrix.shape} != expected ({n_strategies}, {n_strategies})"
+                f"Covariance matrix shape {
+    cov_matrix.shape} != expected ({n_strategies}, {n_strategies})"
             )
             return ValidationResult(
                 False,
@@ -462,7 +471,8 @@ class RiskAccuracyValidator:
 
             if min_eigenvalue <= 0:
                 messages.append(
-                    f"Covariance matrix not positive definite (min eigenvalue: {min_eigenvalue:.2e})"
+                    f"Covariance matrix not positive definite (min eigenvalue: {
+    min_eigenvalue:.2e})"
                 )
                 corrective_actions.append(
                     "Use regularization or check for linear dependencies"
@@ -481,7 +491,8 @@ class RiskAccuracyValidator:
                     )
             elif min_eigenvalue < 1e-8:
                 warnings.append(
-                    f"Covariance matrix nearly singular (min eigenvalue: {min_eigenvalue:.2e})"
+                    f"Covariance matrix nearly singular (min eigenvalue: {
+    min_eigenvalue:.2e})"
                 )
 
             # Eigenvalue quality score
@@ -674,7 +685,9 @@ class RiskAccuracyValidator:
         # 1. Shape validation
         if len(weights) != len(strategy_names):
             messages.append(
-                f"Weight array length ({len(weights)}) != strategy count ({len(strategy_names)})"
+                f"Weight array length ({
+    len(weights)}) != strategy count ({
+        len(strategy_names)})"
             )
             return ValidationResult(
                 False,
@@ -846,12 +859,14 @@ class RiskAccuracyValidator:
 
         if is_valid:
             self.log(
-                f"Risk calculation inputs validation passed (overall quality: {overall_quality:.3f})",
+                f"Risk calculation inputs validation passed (overall quality: {
+    overall_quality:.3f})",
                 "info",
             )
         else:
             self.log(
-                f"Risk calculation inputs validation failed with {len(all_messages)} errors",
+                f"Risk calculation inputs validation failed with {
+    len(all_messages)} errors",
                 "error",
             )
 
@@ -889,7 +904,9 @@ def create_validator(
 
     if validation_level not in level_map:
         raise ValueError(
-            f"Unknown validation level: {validation_level}. Must be one of {list(level_map.keys())}"
+            f"Unknown validation level: {validation_level}. Must be one of {
+    list(
+        level_map.keys())}"
         )
 
     return RiskAccuracyValidator(log, level_map[validation_level])

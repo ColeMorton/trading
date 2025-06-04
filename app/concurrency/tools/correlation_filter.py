@@ -104,7 +104,8 @@ def filter_correlated_strategies(
 
         if log:
             log(
-                f"Grouped strategies into {len(groups)} correlation groups using threshold {correlation_threshold}",
+                f"Grouped strategies into {
+    len(groups)} correlation groups using threshold {correlation_threshold}",
                 "info",
             )
 
@@ -125,7 +126,8 @@ def filter_correlated_strategies(
 
         if log:
             log(
-                f"Clustered strategies into {len(groups)} groups using hierarchical clustering",
+                f"Clustered strategies into {
+    len(groups)} groups using hierarchical clustering",
                 "info",
             )
 
@@ -144,7 +146,9 @@ def filter_correlated_strategies(
 
         if log:
             log(
-                f"Using dynamic correlation threshold: {dynamic_threshold:.2f} (base: {correlation_threshold:.2f})",
+                f"Using dynamic correlation threshold: {
+    dynamic_threshold:.2f} (base: {
+        correlation_threshold:.2f})",
                 "info",
             )
 
@@ -280,7 +284,8 @@ def limit_strategy_concurrency(
 
         if log:
             log(
-                f"Using volatility-based concurrency limit: {limit} (base: {max_concurrent}, volatility: {market_volatility:.4f})",
+                f"Using volatility-based concurrency limit: {limit} (base: {max_concurrent}, volatility: {
+    market_volatility:.4f})",
                 "info",
             )
 

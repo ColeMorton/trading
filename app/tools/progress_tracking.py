@@ -137,7 +137,10 @@ def create_progress_callback(
         """Update task status with progress information."""
         # Format progress message
         if progress_info.get("progress_percentage") is not None:
-            progress_msg = f"{progress_info['phase']}: {progress_info['message']} ({progress_info['progress_percentage']:.1f}%)"
+            progress_msg = f"{
+    progress_info['phase']}: {
+        progress_info['message']} ({
+            progress_info['progress_percentage']:.1f}%)"
         else:
             progress_msg = f"{progress_info['phase']}: {progress_info['message']}"
 

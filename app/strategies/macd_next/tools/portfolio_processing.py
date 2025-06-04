@@ -32,7 +32,10 @@ def process_single_ticker(
     """
     try:
         log(
-            f"Processing single ticker: {ticker} with {config.get('DIRECTION', 'Long')} direction",
+            f"Processing single ticker: {ticker} with {
+    config.get(
+        'DIRECTION',
+         'Long')} direction",
             "info",
         )
         config_copy = config.copy()
@@ -83,7 +86,9 @@ def process_single_ticker(
 
         log(f"Data retrieved for {ticker}: {len(data)} rows", "info")
         log(
-            f"Data date range: {data.select('Date').min().item()} to {data.select('Date').max().item()}",
+            f"Data date range: {
+    data.select('Date').min().item()} to {
+        data.select('Date').max().item()}",
             "info",
         )
 

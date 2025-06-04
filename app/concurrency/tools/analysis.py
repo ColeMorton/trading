@@ -209,7 +209,9 @@ def analyze_concurrency(
             equal_weight = 100.0 / len(strategy_allocations)
             strategy_allocations = [equal_weight] * len(strategy_allocations)
             log(
-                f"Applied equal weight of {equal_weight:.2f}% to each of {len(strategy_allocations)} strategies",
+                f"Applied equal weight of {
+    equal_weight:.2f}% to each of {
+        len(strategy_allocations)} strategies",
                 "info",
             )
         else:
@@ -238,7 +240,8 @@ def analyze_concurrency(
         # Calculate strategy expectancies
         strategy_expectancies = []
         for config in config_list:
-            # Prefer EXPECTANCY_PER_TRADE if available, otherwise convert from EXPECTANCY_PER_MONTH
+            # Prefer EXPECTANCY_PER_TRADE if available, otherwise convert from
+            # EXPECTANCY_PER_MONTH
             ticker = config.get("TICKER", "unknown")
             if "EXPECTANCY_PER_TRADE" in config:
                 expectancy = config["EXPECTANCY_PER_TRADE"]
@@ -251,7 +254,9 @@ def analyze_concurrency(
                 trading_days = 30 if config.get("USE_HOURLY", False) else 21
                 expectancy = monthly_expectancy / trading_days
                 log(
-                    f"Converting EXPECTANCY_PER_MONTH ({monthly_expectancy:.6f}) to EXPECTANCY_PER_TRADE for {ticker}: {expectancy:.6f}",
+                    f"Converting EXPECTANCY_PER_MONTH ({
+    monthly_expectancy:.6f}) to EXPECTANCY_PER_TRADE for {ticker}: {
+        expectancy:.6f}",
                     "info",
                 )
             else:
@@ -264,7 +269,8 @@ def analyze_concurrency(
             # Ensure expectancy is positive for efficiency calculation
             if expectancy <= 0:
                 log(
-                    f"Warning: Non-positive expectancy ({expectancy:.6f}) for {ticker}. Setting to small positive value.",
+                    f"Warning: Non-positive expectancy ({
+    expectancy:.6f}) for {ticker}. Setting to small positive value.",
                     "warning",
                 )
                 expectancy = (
@@ -340,11 +346,13 @@ def analyze_concurrency(
 
         # Log the raw and adjusted independence values for comparison
         log(
-            f"Raw independence multiplier: {portfolio_metrics['independence_multiplier']:.6f}",
+            f"Raw independence multiplier: {
+    portfolio_metrics['independence_multiplier']:.6f}",
             "info",
         )
         log(
-            f"Adjusted independence multiplier: {portfolio_metrics['independence_multiplier_adjusted']:.6f}",
+            f"Adjusted independence multiplier: {
+    portfolio_metrics['independence_multiplier_adjusted']:.6f}",
             "info",
         )
 
@@ -384,7 +392,8 @@ def analyze_concurrency(
                     strategy_quality_metrics[strategy_id] = strategy_metrics
             except Exception as e:
                 log(
-                    f"Error calculating signal quality metrics for strategy {i}: {str(e)}",
+                    f"Error calculating signal quality metrics for strategy {i}: {
+    str(e)}",
                     "error",
                 )
 
@@ -448,12 +457,15 @@ def analyze_concurrency(
                 try:
                     stop_loss = float(config["STOP_LOSS"])
                     log(
-                        f"Using stop loss {stop_loss:.4f} ({stop_loss*100:.2f}%) for {ticker}",
+                        f"Using stop loss {
+    stop_loss:.4f} ({
+        stop_loss*100:.2f}%) for {ticker}",
                         "info",
                     )
                 except (ValueError, TypeError):
                     log(
-                        f"Warning: Invalid stop loss value for {ticker}: {config['STOP_LOSS']}",
+                        f"Warning: Invalid stop loss value for {ticker}: {
+    config['STOP_LOSS']}",
                         "warning",
                     )
 

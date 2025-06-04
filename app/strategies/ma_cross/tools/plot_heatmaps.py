@@ -122,7 +122,13 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> N
 
         # Log the number of entries for each metric
         log(
-            f"Metric counts - Profit Factor: {len(profit_factor)}, Trades: {len(trades)}, Sortino: {len(sortino)}, Win Rate: {len(win_rate)}, Expectancy: {len(expectancy)}, Score: {len(score)}"
+            f"Metric counts - Profit Factor: {
+    len(profit_factor)}, Trades: {
+        len(trades)}, Sortino: {
+            len(sortino)}, Win Rate: {
+                len(win_rate)}, Expectancy: {
+                    len(expectancy)}, Score: {
+                        len(score)}"
         )
 
         # Create heatmap figures

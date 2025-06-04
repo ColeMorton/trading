@@ -76,7 +76,8 @@ def calculate_position_metrics(
         total_periods = len(position_arrays[0])
 
         for i in range(len(position_arrays)):
-            # Calculate strategy-specific correlation (average correlation with other strategies)
+            # Calculate strategy-specific correlation (average correlation with other
+            # strategies)
             strategy_correlations = []
             for j in range(len(position_arrays)):
                 if i != j:
@@ -85,13 +86,19 @@ def calculate_position_metrics(
                     )
                     strategy_correlations.append(abs(correlation))
 
-                    # Also store in the overall correlations dict for backward compatibility
+                    # Also store in the overall correlations dict for backward
+                    # compatibility
                     if j > i:
                         correlations[f"correlation_{i+1}_{j+1}"] = correlation
                         correlation_sum += abs(correlation)
                         correlation_count += 1
                         log(
-                            f"Correlation between strategy {i+1} and {j+1}: {correlation:.2f}",
+                            f"Correlation between strategy {
+    i+
+    1} and {
+        j+
+        1}: {
+            correlation:.2f}",
                             "info",
                         )
 
@@ -150,19 +157,23 @@ def calculate_position_metrics(
             log(f"Strategy {i+1} specific metrics:", "info")
             log(f"  Average correlation: {strategy_avg_correlation:.4f}", "info")
             log(
-                f"  Active periods: {strategy_active_periods} ({strategy_active_periods/total_periods:.2%})",
+                f"  Active periods: {strategy_active_periods} ({
+    strategy_active_periods/total_periods:.2%})",
                 "info",
             )
             log(
-                f"  Exclusive periods: {strategy_exclusive_periods} ({strategy_exclusive_ratio:.2%})",
+                f"  Exclusive periods: {strategy_exclusive_periods} ({
+    strategy_exclusive_ratio:.2%})",
                 "info",
             )
             log(
-                f"  Concurrent periods: {strategy_concurrent_periods} ({strategy_concurrent_ratio:.2%})",
+                f"  Concurrent periods: {strategy_concurrent_periods} ({
+    strategy_concurrent_ratio:.2%})",
                 "info",
             )
             log(
-                f"  Inactive periods: {strategy_inactive_periods} ({strategy_inactive_ratio:.2%})",
+                f"  Inactive periods: {strategy_inactive_periods} ({
+    strategy_inactive_ratio:.2%})",
                 "info",
             )
 

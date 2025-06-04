@@ -18,7 +18,8 @@ ohlc["range"] = ohlc["High"] - ohlc["Low"]
 def generate_entries_exits(close, high, range_val, x, y):
     # Generate entry signals: where close > (previous high + x * range)
     entries = close > high.shift(1) + x * range_val
-    # Generate exit signals: close should not be greater than shifted high + x * shifted range
+    # Generate exit signals: close should not be greater than shifted high + x
+    # * shifted range
     exits = ~(close > high.shift(y) + x * range_val.shift(y))
     return entries, exits
 

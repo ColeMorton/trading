@@ -54,7 +54,8 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                     # but execute at the candle's close price
                     params["sl_stop"] = stop_loss
                     log(
-                        f"Applied stop loss of {stop_loss*100:.2f}% with exit at candle close",
+                        f"Applied stop loss of {
+    stop_loss*100:.2f}% with exit at candle close",
                         "info",
                     )
                 else:
@@ -67,12 +68,14 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                         else 1 + stop_loss
                     )
                     log(
-                        f"Applied stop loss of {stop_loss*100:.2f}% with immediate exit",
+                        f"Applied stop loss of {
+    stop_loss*100:.2f}% with immediate exit",
                         "info",
                     )
             else:
                 log(
-                    f"Warning: Invalid stop loss value {stop_loss*100:.2f}% - must be between 0% and 100%",
+                    f"Warning: Invalid stop loss value {
+    stop_loss*100:.2f}% - must be between 0% and 100%",
                     "warning",
                 )
         else:
@@ -82,7 +85,8 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
             )
 
         if config.get("DIRECTION", "Long").lower() == "short":
-            # For short positions, enter when Signal is -1 (fast MA crosses below slow MA)
+            # For short positions, enter when Signal is -1 (fast MA crosses below slow
+            # MA)
             params["short_entries"] = data_pd["Signal"] == -1
             params["short_exits"] = data_pd["Signal"] == 0
         else:
@@ -186,7 +190,8 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                     else:
                         stats_dict["Common Sense Ratio"] = None
                     log_func(
-                        f"Calculated Common Sense Ratio: {stats_dict['Common Sense Ratio']}",
+                        f"Calculated Common Sense Ratio: {
+    stats_dict['Common Sense Ratio']}",
                         "debug",
                     )
                 except Exception as e:
@@ -204,17 +209,20 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                         )  # Convert percentage to decimal
                         avg_win = stats_dict["Avg Winning Trade [%]"]
 
-                        # Check if Avg Losing Trade is NaN (happens when all trades are winning)
+                        # Check if Avg Losing Trade is NaN (happens when all trades are
+                        # winning)
                         if isinstance(
                             stats_dict["Avg Losing Trade [%]"], float
                         ) and math.isnan(stats_dict["Avg Losing Trade [%]"]):
-                            # If all trades are winning (win_rate = 1.0), set expectancy to avg_win
+                            # If all trades are winning (win_rate = 1.0), set expectancy
+                            # to avg_win
                             if (
                                 win_rate >= 0.9999
                             ):  # Use 0.9999 to account for floating point precision
                                 expectancy_per_trade = avg_win
                                 log_func(
-                                    f"All trades are winning. Setting Expectancy per Trade to Avg Win: {avg_win:.4f}",
+                                    f"All trades are winning. Setting Expectancy per Trade to Avg Win: {
+    avg_win:.4f}",
                                     "info",
                                 )
                                 stats_dict["Expectancy per Trade"] = (
@@ -223,22 +231,27 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
 
                                 # Add debug logging
                                 log_func(
-                                    f"Expectancy calculation components: Win Rate={win_rate:.4f}, Avg Win={avg_win:.4f}, Avg Loss=N/A (all trades winning)",
+                                    f"Expectancy calculation components: Win Rate={
+    win_rate:.4f}, Avg Win={
+        avg_win:.4f}, Avg Loss=N/A (all trades winning)",
                                     "info",
                                 )
                                 log_func(
-                                    f"Calculated Expectancy per Trade: {expectancy_per_trade:.4f}",
+                                    f"Calculated Expectancy per Trade: {
+    expectancy_per_trade:.4f}",
                                     "info",
                                 )
                             else:
-                                # This shouldn't happen (NaN avg_loss but win_rate < 1.0)
+                                # This shouldn't happen (NaN avg_loss but win_rate <
+                                # 1.0)
                                 log_func(
                                     "Invalid state: NaN Avg Loss with Win Rate < 1.0",
                                     "warning",
                                 )
                                 stats_dict["Expectancy per Trade"] = None
                         else:
-                            # Normal case - calculate expectancy using both avg_win and avg_loss
+                            # Normal case - calculate expectancy using both avg_win and
+                            # avg_loss
                             avg_loss = abs(
                                 stats_dict["Avg Losing Trade [%]"]
                             )  # Ensure positive value for calculation
@@ -251,11 +264,15 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
 
                             # Add debug logging to diagnose expectancy calculation
                             log_func(
-                                f"Expectancy calculation components: Win Rate={win_rate:.4f}, Avg Win={avg_win:.4f}, Avg Loss={avg_loss:.4f}",
+                                f"Expectancy calculation components: Win Rate={
+    win_rate:.4f}, Avg Win={
+        avg_win:.4f}, Avg Loss={
+            avg_loss:.4f}",
                                 "info",
                             )
                             log_func(
-                                f"Calculated Expectancy per Trade: {expectancy_per_trade:.4f}",
+                                f"Calculated Expectancy per Trade: {
+    expectancy_per_trade:.4f}",
                                 "info",
                             )
                     else:
@@ -284,8 +301,12 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
 
                 # Log the calculated risk metrics
                 log_func(
-                    f"Calculated risk metrics: Skew={stats_dict.get('Skew')}, Kurtosis={stats_dict.get('Kurtosis')}, "
-                    + f"Tail Ratio={stats_dict.get('Tail Ratio')}, Common Sense Ratio={stats_dict.get('Common Sense Ratio')}, "
+                    f"Calculated risk metrics: Skew={
+    stats_dict.get('Skew')}, Kurtosis={
+        stats_dict.get('Kurtosis')}, "
+                    + f"Tail Ratio={
+    stats_dict.get('Tail Ratio')}, Common Sense Ratio={
+        stats_dict.get('Common Sense Ratio')}, "
                     + f"Value at Risk={stats_dict.get('Value at Risk')}",
                     "debug",
                 )
@@ -327,9 +348,14 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                     )
 
                     log_func(
-                        f"Calculated return metrics: Daily Returns={stats_dict['Daily Returns']}, "
-                        + f"Annual Returns={stats_dict['Annual Returns']}, Cumulative Returns={stats_dict['Cumulative Returns']}, "
-                        + f"Annualized Return={stats_dict['Annualized Return']}, Annualized Volatility={stats_dict['Annualized Volatility']}",
+                        f"Calculated return metrics: Daily Returns={
+    stats_dict['Daily Returns']}, "
+                        + f"Annual Returns={
+    stats_dict['Annual Returns']}, Cumulative Returns={
+        stats_dict['Cumulative Returns']}, "
+                        + f"Annualized Return={
+    stats_dict['Annualized Return']}, Annualized Volatility={
+        stats_dict['Annualized Volatility']}",
                         "debug",
                     )
                 except Exception as e:

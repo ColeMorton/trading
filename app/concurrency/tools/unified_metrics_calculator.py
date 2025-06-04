@@ -656,7 +656,8 @@ class UnifiedMetricsCalculator:
             if log:
                 status = "VALID" if validation["overall_valid"] else "INVALID"
                 log(
-                    f"Final validation: {status} (quality: {validation['quality_score']:.2f})",
+                    f"Final validation: {status} (quality: {
+    validation['quality_score']:.2f})",
                     "info",
                 )
 

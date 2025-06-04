@@ -213,7 +213,9 @@ class CSVLoader:
 
             if log:
                 log(
-                    f"CSV loaded: {len(data_cleaned)} rows, schema: {schema_detected}, quality: {quality_score:.2f}",
+                    f"CSV loaded: {
+    len(data_cleaned)} rows, schema: {schema_detected}, quality: {
+        quality_score:.2f}",
                     "info",
                 )
                 if missing_columns:
@@ -382,7 +384,8 @@ class CSVLoader:
                 ].dropna()
                 if len(out_of_range) > 0:
                     warnings_list.append(
-                        f"{message}. Found {len(out_of_range)} out-of-range values in {col}"
+                        f"{message}. Found {
+    len(out_of_range)} out-of-range values in {col}"
                     )
 
     def _calculate_data_quality_score(self, data: pd.DataFrame, schema: str) -> float:
@@ -511,7 +514,9 @@ class CSVMetricsExtractor:
 
             if log:
                 log(
-                    f"Metrics extracted: {len(ticker_metrics)} tickers, {len(strategy_breakdown)} strategies",
+                    f"Metrics extracted: {
+    len(ticker_metrics)} tickers, {
+        len(strategy_breakdown)} strategies",
                     "info",
                 )
 
@@ -855,7 +860,8 @@ class CSVValidator:
             if log:
                 status = "VALID" if validation_results["overall_valid"] else "INVALID"
                 log(
-                    f"CSV validation completed: {status} (quality: {validation_results['quality_score']:.2f})",
+                    f"CSV validation completed: {status} (quality: {
+    validation_results['quality_score']:.2f})",
                     "info",
                 )
 
@@ -923,7 +929,8 @@ class CSVValidator:
                 ][col].dropna()
                 if len(out_of_range) > 0:
                     results["warnings"].append(
-                        f"{col}: {len(out_of_range)} values out of range [{min_val}, {max_val}]"
+                        f"{col}: {
+    len(out_of_range)} values out of range [{min_val}, {max_val}]"
                     )
 
         # Check minimum trades
@@ -953,7 +960,8 @@ class CSVValidator:
             ]
             if len(inconsistent) > 0:
                 results["warnings"].append(
-                    f"Win rate and profit factor inconsistency in {len(inconsistent)} entries"
+                    f"Win rate and profit factor inconsistency in {
+    len(inconsistent)} entries"
                 )
 
         # Check if positive returns have negative Sharpe ratios
@@ -967,7 +975,8 @@ class CSVValidator:
             ]
             if len(inconsistent_sharpe) > 0:
                 results["warnings"].append(
-                    f"Return and Sharpe ratio inconsistency in {len(inconsistent_sharpe)} entries"
+                    f"Return and Sharpe ratio inconsistency in {
+    len(inconsistent_sharpe)} entries"
                 )
 
     def _check_duplicates(

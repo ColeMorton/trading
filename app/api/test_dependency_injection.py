@@ -79,7 +79,10 @@ async def test_dependency_injection():
     strategy_analyzer = get_service(StrategyAnalyzerInterface)
     default_config = strategy_analyzer.get_default_config()
     print(
-        f"   Default config: {default_config.to_dict() if hasattr(default_config, 'to_dict') else 'Config object'}"
+        f"   Default config: {
+    default_config.to_dict() if hasattr(
+        default_config,
+         'to_dict') else 'Config object'}"
     )
     print("✓ Strategy analyzer working")
 

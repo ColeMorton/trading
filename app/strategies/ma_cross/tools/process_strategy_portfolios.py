@@ -60,7 +60,8 @@ def process_strategy_portfolios(
             )
             return None
 
-        # Update config with ticker and strategy settings while preserving other settings
+        # Update config with ticker and strategy settings while preserving other
+        # settings
         strategy_config = config.copy() if config else {}
         strategy_config["TICKER"] = current_ticker
         strategy_config["SHORT"] = False  # Long-only strategy by default

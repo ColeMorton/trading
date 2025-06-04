@@ -8,7 +8,9 @@ try:
 
     print("Successfully imported riskfolio")
     print(
-        f"Riskfolio version: {rp.__version__ if hasattr(rp, '__version__') else 'Unknown'}"
+        f"Riskfolio version: {
+    rp.__version__ if hasattr(
+        rp, '__version__') else 'Unknown'}"
     )
     print("Riskfolio contents:")
     print(dir(rp))

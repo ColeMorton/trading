@@ -309,6 +309,11 @@ class PortfolioMetrics(BaseModel):
         False, description="Whether there's a signal for entry"
     )
 
+    # Additional fields from CSV data
+    metric_type: Optional[str] = Field(
+        default="", description="Metric type classification"
+    )
+
     model_config = {"from_attributes": True}
 
 

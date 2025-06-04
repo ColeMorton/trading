@@ -18,7 +18,8 @@ def calculate_mas(
         DataFrame with MA columns added
     """
     log(
-        f"Calculating {'SMA' if use_sma else 'EMA'} with windows {fast_window}, {slow_window}"
+        f"Calculating {
+    'SMA' if use_sma else 'EMA'} with windows {fast_window}, {slow_window}"
     )
     log(f"Input data shape: {data.shape}")
 

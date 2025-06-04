@@ -236,7 +236,8 @@ def calculate_signal_quality_metrics(
             returns_np = returns_np.copy()
 
             log(
-                f"Applying stop loss of {stop_loss*100:.2f}% to signal quality metrics for {strategy_id}",
+                f"Applying stop loss of {
+    stop_loss*100:.2f}% to signal quality metrics for {strategy_id}",
                 "info",
             )
 
@@ -273,14 +274,18 @@ def calculate_signal_quality_metrics(
             )
 
             log(
-                f"Calculated stop-loss-adjusted signal quality metrics for {strategy_id}: score={adjusted_metrics['signal_quality_score']:.2f}, win_rate={adjusted_metrics['win_rate']:.2f}",
+                f"Calculated stop-loss-adjusted signal quality metrics for {strategy_id}: score={
+    adjusted_metrics['signal_quality_score']:.2f}, win_rate={
+        adjusted_metrics['win_rate']:.2f}",
                 "info",
             )
 
             return adjusted_metrics
 
         log(
-            f"Calculated signal quality metrics for {strategy_id}: score={signal_quality_score:.2f}, win_rate={win_rate:.2f}",
+            f"Calculated signal quality metrics for {strategy_id}: score={
+    signal_quality_score:.2f}, win_rate={
+        win_rate:.2f}",
             "info",
         )
         return {
@@ -722,12 +727,14 @@ def _calculate_signal_timing_efficiency(
             # For long signals, we want to enter after negative returns and exit after positive returns
             # For short signals, the opposite
             if signals[i] > 0:  # Long signal
-                # Ideal timing would enter at the lowest point and capture all positive returns
+                # Ideal timing would enter at the lowest point and capture all positive
+                # returns
                 captured_return = post_signal_returns
                 total_captured += captured_return
                 total_available += max(0, window_return)
             else:  # Short signal
-                # Ideal timing would enter at the highest point and capture all negative returns
+                # Ideal timing would enter at the highest point and capture all negative
+                # returns
                 captured_return = -post_signal_returns
                 total_captured += captured_return
                 total_available += max(0, -window_return)
@@ -1020,7 +1027,8 @@ def calculate_aggregate_signal_quality(
             )
 
         # FIXED: Calculate weighted averages using proper portfolio theory
-        # Issue: Simple weighted averaging doesn't preserve metric signs and relationships
+        # Issue: Simple weighted averaging doesn't preserve metric signs and
+        # relationships
 
         # Separate performance metrics that need special handling
         performance_metrics = {"sharpe_ratio", "sortino_ratio", "avg_return"}
@@ -1042,7 +1050,8 @@ def calculate_aggregate_signal_quality(
             else:
                 weight = signal_count / total_signals
                 log(
-                    f"Using signal count weight {weight:.4f} for strategy {strategy_id}",
+                    f"Using signal count weight {
+    weight:.4f} for strategy {strategy_id}",
                     "info",
                 )
 
@@ -1053,7 +1062,8 @@ def calculate_aggregate_signal_quality(
 
                     if metric_name in performance_metrics:
                         # Performance metrics: Use proper portfolio aggregation
-                        # Only aggregate if the individual metric has the same sign as the weight suggests
+                        # Only aggregate if the individual metric has the same sign as
+                        # the weight suggests
                         if metric_name == "sharpe_ratio":
                             # Special handling for Sharpe ratio to preserve signs
                             weighted_metrics[metric_name] += weight * metric_value
@@ -1061,7 +1071,8 @@ def calculate_aggregate_signal_quality(
                             weighted_metrics[metric_name] += weight * metric_value
 
                     elif metric_name in ratio_metrics:
-                        # Ratio metrics: Use signal-count weighting (appropriate for ratios)
+                        # Ratio metrics: Use signal-count weighting (appropriate for
+                        # ratios)
                         signal_weight = (
                             signal_count / total_signals if total_signals > 0 else 0
                         )
@@ -1078,7 +1089,8 @@ def calculate_aggregate_signal_quality(
         _validate_performance_aggregation(strategy_metrics, weighted_metrics, log)
 
         log(
-            f"Aggregate metrics calculated across {len(strategy_metrics)} strategies with {total_signals} total signals",
+            f"Aggregate metrics calculated across {
+    len(strategy_metrics)} strategies with {total_signals} total signals",
             "info",
         )
         log(
@@ -1121,17 +1133,23 @@ def _validate_performance_aggregation(
 
                 if mostly_positive and not aggregated_positive:
                     log(
-                        f"WARNING: Sharpe ratio sign flip detected! Individual avg: {avg_individual_sharpe:.3f}, Aggregated: {aggregated_sharpe:.3f}",
+                        f"WARNING: Sharpe ratio sign flip detected! Individual avg: {
+    avg_individual_sharpe:.3f}, Aggregated: {
+        aggregated_sharpe:.3f}",
                         "warning",
                     )
                 elif not mostly_positive and aggregated_positive:
                     log(
-                        f"WARNING: Sharpe ratio sign flip detected! Individual avg: {avg_individual_sharpe:.3f}, Aggregated: {aggregated_sharpe:.3f}",
+                        f"WARNING: Sharpe ratio sign flip detected! Individual avg: {
+    avg_individual_sharpe:.3f}, Aggregated: {
+        aggregated_sharpe:.3f}",
                         "warning",
                     )
                 else:
                     log(
-                        f"Sharpe ratio aggregation validated: Individual avg: {avg_individual_sharpe:.3f}, Aggregated: {aggregated_sharpe:.3f}",
+                        f"Sharpe ratio aggregation validated: Individual avg: {
+    avg_individual_sharpe:.3f}, Aggregated: {
+        aggregated_sharpe:.3f}",
                         "info",
                     )
 
@@ -1149,17 +1167,22 @@ def _validate_performance_aggregation(
             # Win rate should be reasonable (between 0 and 1)
             if not (0 <= aggregated_win_rate <= 1):
                 log(
-                    f"WARNING: Aggregated win rate out of bounds: {aggregated_win_rate:.3f}",
+                    f"WARNING: Aggregated win rate out of bounds: {
+    aggregated_win_rate:.3f}",
                     "warning",
                 )
             elif abs(aggregated_win_rate - avg_individual_win_rate) > 0.3:
                 log(
-                    f"WARNING: Large win rate difference! Individual avg: {avg_individual_win_rate:.3f}, Aggregated: {aggregated_win_rate:.3f}",
+                    f"WARNING: Large win rate difference! Individual avg: {
+    avg_individual_win_rate:.3f}, Aggregated: {
+        aggregated_win_rate:.3f}",
                     "warning",
                 )
             else:
                 log(
-                    f"Win rate aggregation validated: Individual avg: {avg_individual_win_rate:.3f}, Aggregated: {aggregated_win_rate:.3f}",
+                    f"Win rate aggregation validated: Individual avg: {
+    avg_individual_win_rate:.3f}, Aggregated: {
+        aggregated_win_rate:.3f}",
                     "info",
                 )
 
@@ -1177,12 +1200,15 @@ def _validate_performance_aggregation(
             # Profit factor should be positive
             if aggregated_pf <= 0:
                 log(
-                    f"WARNING: Aggregated profit factor non-positive: {aggregated_pf:.3f}",
+                    f"WARNING: Aggregated profit factor non-positive: {
+    aggregated_pf:.3f}",
                     "warning",
                 )
             else:
                 log(
-                    f"Profit factor aggregation validated: Individual avg: {avg_individual_pf:.3f}, Aggregated: {aggregated_pf:.3f}",
+                    f"Profit factor aggregation validated: Individual avg: {
+    avg_individual_pf:.3f}, Aggregated: {
+        aggregated_pf:.3f}",
                     "info",
                 )
 
@@ -1245,12 +1271,18 @@ def validate_win_rate_consistency(
     if log:
         if is_valid:
             log(
-                f"Win rate validation PASSED for {ticker}: JSON={json_win_rate:.3f} vs CSV avg={csv_average:.3f} (diff: {relative_difference:.1%})",
+                f"Win rate validation PASSED for {ticker}: JSON={
+    json_win_rate:.3f} vs CSV avg={
+        csv_average:.3f} (diff: {
+            relative_difference:.1%})",
                 "info",
             )
         else:
             log(
-                f"Win rate validation FAILED for {ticker}: JSON={json_win_rate:.3f} vs CSV avg={csv_average:.3f} (diff: {relative_difference:.1%}, type: {issue_type})",
+                f"Win rate validation FAILED for {ticker}: JSON={
+    json_win_rate:.3f} vs CSV avg={
+        csv_average:.3f} (diff: {
+            relative_difference:.1%}, type: {issue_type})",
                 "warning",
             )
 

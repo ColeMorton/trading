@@ -97,7 +97,9 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
                 if "TICKER_2" not in config_copy:
                     config_copy["TICKER_2"] = ticker_parts[1]
                 log(
-                    f"Extracted ticker components: {config_copy['TICKER_1']} and {config_copy['TICKER_2']}"
+                    f"Extracted ticker components: {
+    config_copy['TICKER_1']} and {
+        config_copy['TICKER_2']}"
                 )
 
         # Get data for the actual ticker first to determine last trading day

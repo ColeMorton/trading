@@ -7,9 +7,14 @@ performance discrepancy investigation.
 """
 
 import json
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional
+
+# Add project root to path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 from app.concurrency.tools.allocation_strategy import AllocationMode
 from app.concurrency.tools.correlation_filter import (
@@ -55,9 +60,9 @@ class ConcurrencyDefaults:
 
     # Phase 4: Enhanced Variance Estimation Configuration
     USE_ENHANCED_VARIANCE: bool = False  # Enable advanced variance estimation methods
-    VARIANCE_METHOD: str = (
-        "auto"  # Method for variance estimation ('auto', 'sample', 'rolling', 'ewma', 'bootstrap', 'bayesian')
-    )
+    # Method for variance estimation ('auto', 'sample', 'rolling', 'ewma',
+    # 'bootstrap', 'bayesian')
+    VARIANCE_METHOD: str = "auto"
     VALIDATION_LEVEL: str = (
         "moderate"  # Validation strictness ('strict', 'moderate', 'permissive')
     )
@@ -111,10 +116,10 @@ class ConcurrencyDefaults:
     )
 
     # General Configuration
-    PORTFOLIO: str = "trades_20250603.csv"
+    # PORTFOLIO: str = "trades_20250603.csv"
     # PORTFOLIO: str = "BTC_d_20250530.csv"
     # PORTFOLIO: str = "portfolio_risk.csv"
-    # PORTFOLIO: str = "portfolio_d_20250530.csv"
+    PORTFOLIO: str = "portfolio_d_20250510.csv"
     # PORTFOLIO: str = "QQQ_d_20250529.csv"
     BASE_DIR: str = ""  # Will be set to project root
     REFRESH: bool = True
@@ -177,7 +182,9 @@ def validate_config(
     if validated["STOP_LOSS_MODE"] not in [mode.value for mode in StopLossMode]:
         if log:
             log(
-                f"Invalid STOP_LOSS_MODE: {validated['STOP_LOSS_MODE']}. Using default: {defaults['STOP_LOSS_MODE']}",
+                f"Invalid STOP_LOSS_MODE: {
+    validated['STOP_LOSS_MODE']}. Using default: {
+        defaults['STOP_LOSS_MODE']}",
                 "warning",
             )
         validated["STOP_LOSS_MODE"] = defaults["STOP_LOSS_MODE"]
@@ -190,7 +197,9 @@ def validate_config(
     ):
         if log:
             log(
-                f"Invalid DEFAULT_STOP_LOSS: {validated['DEFAULT_STOP_LOSS']}. Using default: {defaults['DEFAULT_STOP_LOSS']}",
+                f"Invalid DEFAULT_STOP_LOSS: {
+    validated['DEFAULT_STOP_LOSS']}. Using default: {
+        defaults['DEFAULT_STOP_LOSS']}",
                 "warning",
             )
         validated["DEFAULT_STOP_LOSS"] = defaults["DEFAULT_STOP_LOSS"]
@@ -201,7 +210,9 @@ def validate_config(
     ]:
         if log:
             log(
-                f"Invalid SIGNAL_DEFINITION_MODE: {validated['SIGNAL_DEFINITION_MODE']}. Using default: {defaults['SIGNAL_DEFINITION_MODE']}",
+                f"Invalid SIGNAL_DEFINITION_MODE: {
+    validated['SIGNAL_DEFINITION_MODE']}. Using default: {
+        defaults['SIGNAL_DEFINITION_MODE']}",
                 "warning",
             )
         validated["SIGNAL_DEFINITION_MODE"] = defaults["SIGNAL_DEFINITION_MODE"]
@@ -210,7 +221,9 @@ def validate_config(
     if validated["EXECUTION_MODE"] not in [mode.value for mode in ExecutionMode]:
         if log:
             log(
-                f"Invalid EXECUTION_MODE: {validated['EXECUTION_MODE']}. Using default: {defaults['EXECUTION_MODE']}",
+                f"Invalid EXECUTION_MODE: {
+    validated['EXECUTION_MODE']}. Using default: {
+        defaults['EXECUTION_MODE']}",
                 "warning",
             )
         validated["EXECUTION_MODE"] = defaults["EXECUTION_MODE"]
@@ -219,7 +232,9 @@ def validate_config(
     if validated["ALLOCATION_MODE"] not in [mode.value for mode in AllocationMode]:
         if log:
             log(
-                f"Invalid ALLOCATION_MODE: {validated['ALLOCATION_MODE']}. Using default: {defaults['ALLOCATION_MODE']}",
+                f"Invalid ALLOCATION_MODE: {
+    validated['ALLOCATION_MODE']}. Using default: {
+        defaults['ALLOCATION_MODE']}",
                 "warning",
             )
         validated["ALLOCATION_MODE"] = defaults["ALLOCATION_MODE"]
@@ -230,7 +245,9 @@ def validate_config(
     ]:
         if log:
             log(
-                f"Invalid CORRELATION_FILTER_MODE: {validated['CORRELATION_FILTER_MODE']}. Using default: {defaults['CORRELATION_FILTER_MODE']}",
+                f"Invalid CORRELATION_FILTER_MODE: {
+    validated['CORRELATION_FILTER_MODE']}. Using default: {
+        defaults['CORRELATION_FILTER_MODE']}",
                 "warning",
             )
         validated["CORRELATION_FILTER_MODE"] = defaults["CORRELATION_FILTER_MODE"]
@@ -241,7 +258,9 @@ def validate_config(
     ]:
         if log:
             log(
-                f"Invalid CONCURRENCY_LIMIT_MODE: {validated['CONCURRENCY_LIMIT_MODE']}. Using default: {defaults['CONCURRENCY_LIMIT_MODE']}",
+                f"Invalid CONCURRENCY_LIMIT_MODE: {
+    validated['CONCURRENCY_LIMIT_MODE']}. Using default: {
+        defaults['CONCURRENCY_LIMIT_MODE']}",
                 "warning",
             )
         validated["CONCURRENCY_LIMIT_MODE"] = defaults["CONCURRENCY_LIMIT_MODE"]

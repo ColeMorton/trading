@@ -26,14 +26,16 @@ entries_macd = macd.macd_crossed_above(macd.signal)
 exits_macd = macd.macd_crossed_below(macd.signal)
 
 # Create a size array based on the entry quantities for each strategy
-# For long-only strategies, we only specify the position sizes for entries (no negative sizes for exits)
+# For long-only strategies, we only specify the position sizes for entries
+# (no negative sizes for exits)
 size = pd.Series(0, index=data.index)
 size = size.where(~entries_ema, EMA_ENTRY_QUANTITY)  # Apply EMA entry quantity
 size = size.where(
     ~entries_macd, MACD_ENTRY_QUANTITY
 )  # Apply MACD 12/26/9 entry quantity
 
-# Portfolio simulation with proper size handling for entries and exits (no negative sizes)
+# Portfolio simulation with proper size handling for entries and exits (no
+# negative sizes)
 portfolio = vbt.Portfolio.from_signals(
     close=data["Close"],
     # entries=entries_ema | entries_macd,  # Combined entry signals

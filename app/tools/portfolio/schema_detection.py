@@ -43,10 +43,12 @@ def detect_schema_version(csv_data: List[Dict[str, Any]]) -> SchemaVersion:
     # Check if the first row has the Allocation [%] and Stop Loss [%] fields
     first_row = csv_data[0]
 
-    # Check for Allocation [%] field (might be stored with or without the [%] in the dict keys)
+    # Check for Allocation [%] field (might be stored with or without the [%]
+    # in the dict keys)
     has_allocation = any(key in first_row for key in ["Allocation [%]", "Allocation"])
 
-    # Check for Stop Loss [%] field (might be stored with or without the [%] in the dict keys)
+    # Check for Stop Loss [%] field (might be stored with or without the [%]
+    # in the dict keys)
     has_stop_loss = any(key in first_row for key in ["Stop Loss [%]", "Stop Loss"])
 
     # If either field is present, it's the extended schema

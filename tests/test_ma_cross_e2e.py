@@ -163,7 +163,8 @@ class TestCompleteWorkflow(TestMACrossWorkflowE2E):
 
             # Verify workflow execution
             assert result is not None
-            # The orchestrator should have processed the config and attempted strategy execution
+            # The orchestrator should have processed the config and attempted strategy
+            # execution
             assert mock_execute_strategy.call_count >= 1
 
     def test_multiple_ticker_workflow(

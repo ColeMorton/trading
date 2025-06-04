@@ -266,7 +266,9 @@ class CSVJSONCrossValidator:
             )
 
             self.log(
-                f"Ticker {ticker}: {len(metrics)} metrics compared, score: {overall_score:.2f}",
+                f"Ticker {ticker}: {
+    len(metrics)} metrics compared, score: {
+        overall_score:.2f}",
                 "info",
             )
 
@@ -291,7 +293,10 @@ class CSVJSONCrossValidator:
 
             if portfolio_signals > csv_total_trades * 10:
                 issues.append(
-                    f"Severe signal count inflation: {portfolio_signals:,} portfolio signals vs {csv_total_trades:,} CSV trades (ratio: {portfolio_signals/csv_total_trades:.1f}×)"
+                    f"Severe signal count inflation: {
+    portfolio_signals:,} portfolio signals vs {
+        csv_total_trades:,} CSV trades (ratio: {
+            portfolio_signals/csv_total_trades:.1f}×)"
                 )
 
             # Issue 2: Expectancy magnitude
@@ -307,7 +312,10 @@ class CSVJSONCrossValidator:
                 csv_median_expectancy = csv_expectancies.median()
                 if abs(portfolio_expectancy) > abs(csv_median_expectancy) * 100:
                     issues.append(
-                        f"Expectancy magnitude issue: Portfolio expectancy {portfolio_expectancy:.2f} vs CSV median {csv_median_expectancy:.2f} (ratio: {portfolio_expectancy/csv_median_expectancy:.1f}×)"
+                        f"Expectancy magnitude issue: Portfolio expectancy {
+    portfolio_expectancy:.2f} vs CSV median {
+        csv_median_expectancy:.2f} (ratio: {
+            portfolio_expectancy/csv_median_expectancy:.1f}×)"
                     )
 
             # Issue 3: Performance sign flips
@@ -407,7 +415,8 @@ class CSVJSONCrossValidator:
         if poor_ticker_scores:
             tickers = [tc.ticker for tc in poor_ticker_scores]
             recommendations.append(
-                f"Review metric calculations for tickers with poor validation scores: {', '.join(tickers)}"
+                f"Review metric calculations for tickers with poor validation scores: {
+    ', '.join(tickers)}"
             )
 
         # Portfolio-level recommendations
@@ -549,7 +558,11 @@ class CSVJSONCrossValidator:
                     for metric in tc.metrics:
                         status = "✅" if metric.within_tolerance else "❌"
                         f.write(
-                            f"- {status} **{metric.metric_name}:** CSV={metric.csv_value:.3f}, JSON={metric.json_value:.3f}, Diff={metric.relative_difference:.1%}\n"
+                            f"- {status} **{
+    metric.metric_name}:** CSV={
+        metric.csv_value:.3f}, JSON={
+            metric.json_value:.3f}, Diff={
+                metric.relative_difference:.1%}\n"
                         )
                     f.write("\n")
 

@@ -307,7 +307,9 @@ def batch_operation_context(
         summary = tracker.get_summary()
         log(f"Batch operation completed: {operation}", "info")
         log(
-            f"Results: {summary['successes']}/{total_items} successful, {summary['failures']} failed",
+            f"Results: {
+    summary['successes']}/{total_items} successful, {
+        summary['failures']} failed",
             "info",
         )
 

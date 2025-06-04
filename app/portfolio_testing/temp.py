@@ -84,7 +84,8 @@ rms = [
 
 # Estimate optimal portfolio:
 
-model = "Classic"  # Could be Classic (historical), BL (Black Litterman) or FM (Factor Model)
+# Could be Classic (historical), BL (Black Litterman) or FM (Factor Model)
+model = "Classic"
 rm = "CVaR"  # Risk measure used, this time will be variance
 obj = "Sharpe"  # Objective function, could be MinRisk, MaxRet, Utility or Sharpe
 hist = True  # Use historical scenarios for risk measures that depend on scenarios

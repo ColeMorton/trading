@@ -59,9 +59,9 @@ def process_current_signals(
         data_result = get_data(formatted_ticker, config_copy, log)
         if isinstance(data_result, tuple):
             data, synthetic_ticker = data_result
-            config_copy["TICKER"] = (
-                synthetic_ticker  # Update config with synthetic ticker
-            )
+            config_copy[
+                "TICKER"
+            ] = synthetic_ticker  # Update config with synthetic ticker
         else:
             data = data_result
 
@@ -140,7 +140,8 @@ def process_ticker_portfolios(
             # Convert to DataFrame
             portfolios_df = pl.DataFrame(portfolios)
 
-            # Normalize portfolio data to handle Allocation [%] and Stop Loss [%] columns
+            # Normalize portfolio data to handle Allocation [%] and Stop Loss [%]
+            # columns
             portfolio_dicts = portfolios_df.to_dicts()
             schema_version = detect_schema_version(portfolio_dicts)
             log(

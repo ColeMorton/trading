@@ -108,7 +108,10 @@ def calculate_atr_signals(
 
     # Log initial data shape and columns
     log(
-        f"Initializing ATR calculation with data shape {data.shape} and columns {list(data.columns)}",
+        f"Initializing ATR calculation with data shape {
+    data.shape} and columns {
+        list(
+            data.columns)}",
         "info",
     )
     # Process rows iteratively
@@ -175,7 +178,8 @@ def calculate_atr_signals(
     if atr_stop_count > 0:
         sample = data[data["ATR_Trailing_Stop"].notna()].head(5)
         log(
-            f"Sample of ATR trailing stop values: {sample['ATR_Trailing_Stop'].tolist()}",
+            f"Sample of ATR trailing stop values: {
+    sample['ATR_Trailing_Stop'].tolist()}",
             "info",
         )
     else:

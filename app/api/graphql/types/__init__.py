@@ -4,12 +4,44 @@ GraphQL Types Module
 This module contains all GraphQL type definitions for the trading API.
 """
 
-from .enums import *
-from .metrics import *
-from .portfolio import *
-from .scalars import *
-from .strategy import *
-from .ticker import *
+from .enums import (
+    AssetClass,
+    DirectionType,
+    PortfolioType,
+    SignalType,
+    SortOrder,
+    StrategyType,
+    TimeframeType,
+)
+from .metrics import (
+    BacktestResult,
+    MetricsFilter,
+    PerformanceCriteria,
+    PerformanceMetrics,
+    PortfolioMetrics,
+)
+from .portfolio import (
+    AnalysisFilter,
+    AnalysisResult,
+    AnalysisStatus,
+    AsyncAnalysisResponse,
+    MACrossAnalysisInput,
+    MACrossAnalysisResponse,
+    Portfolio,
+    PortfolioFilter,
+    PortfolioInput,
+    PortfolioStrategy,
+)
+from .scalars import JSON, DateTime, Decimal
+from .strategy import (
+    Signal,
+    Strategy,
+    StrategyConfiguration,
+    StrategyConfigurationInput,
+    StrategyFilter,
+    StrategyInput,
+)
+from .ticker import PriceBar, PriceData, PriceDataFilter, Ticker
 
 __all__ = [
     # Enums
@@ -19,21 +51,36 @@ __all__ = [
     "DirectionType",
     "PortfolioType",
     "AssetClass",
+    "SortOrder",
     # Scalars
     "DateTime",
+    "Decimal",
     "JSON",
     # Main types
     "Portfolio",
+    "PortfolioStrategy",
     "Strategy",
+    "StrategyConfiguration",
     "Ticker",
     "PriceData",
+    "PriceBar",
     "BacktestResult",
     "Signal",
     "PortfolioMetrics",
-    "StrategyConfiguration",
+    "PerformanceMetrics",
+    "AnalysisResult",
+    "AnalysisStatus",
+    "MACrossAnalysisResponse",
+    "AsyncAnalysisResponse",
     # Input types
     "PortfolioInput",
+    "PortfolioFilter",
     "StrategyInput",
-    "AnalysisRequest",
-    "FilterInput",
+    "StrategyConfigurationInput",
+    "StrategyFilter",
+    "MACrossAnalysisInput",
+    "AnalysisFilter",
+    "PriceDataFilter",
+    "MetricsFilter",
+    "PerformanceCriteria",
 ]

@@ -84,7 +84,8 @@ class HedgeFund:
         # Provides a summary of fund participants and their stakes
         fund_summary = f"Total Fund Value: ${self.total_fund_value}\nParticipants:\n"
         for participant, stake in self.stakes.items():
-            fund_summary += f"{participant}: {stake * 100:.2f}% stake (${self.cash_available[participant]:,.2f})\n"
+            fund_summary += f"{participant}: {stake *
+     100:.2f}% stake (${self.cash_available[participant]:,.2f})\n"
         return fund_summary
 
 

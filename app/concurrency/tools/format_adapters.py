@@ -195,14 +195,16 @@ class FormatAdapter(ABC):
                         violations = data[data[column] < min_val]
                         if len(violations) > 0:
                             result["warnings"].append(
-                                f"{column}: {len(violations)} values below minimum {min_val}"
+                                f"{column}: {
+    len(violations)} values below minimum {min_val}"
                             )
 
                     if max_val is not None:
                         violations = data[data[column] > max_val]
                         if len(violations) > 0:
                             result["warnings"].append(
-                                f"{column}: {len(violations)} values above maximum {max_val}"
+                                f"{column}: {
+    len(violations)} values above maximum {max_val}"
                             )
 
             elif rule_name == "completeness_check":
@@ -213,7 +215,9 @@ class FormatAdapter(ABC):
                     completeness = data[column].notna().sum() / len(data)
                     if completeness < min_completeness:
                         result["errors"].append(
-                            f"{column}: completeness {completeness:.2%} below threshold {min_completeness:.2%}"
+                            f"{column}: completeness {
+    completeness:.2%} below threshold {
+        min_completeness:.2%}"
                         )
                         result["critical"] = True
                         result["passed"] = False
@@ -226,7 +230,8 @@ class FormatAdapter(ABC):
                     duplicates = data.duplicated(subset=available_columns)
                     if duplicates.any():
                         result["warnings"].append(
-                            f"Found {duplicates.sum()} duplicate rows based on {available_columns}"
+                            f"Found {
+    duplicates.sum()} duplicate rows based on {available_columns}"
                         )
 
         except Exception as e:
@@ -381,7 +386,8 @@ class VectorBTAdapter(FormatAdapter):
 
             if log:
                 log(
-                    f"VectorBT adaptation completed: {len(columns_mapped)} columns mapped",
+                    f"VectorBT adaptation completed: {
+    len(columns_mapped)} columns mapped",
                     "info",
                 )
 
@@ -509,7 +515,8 @@ class CustomCSVAdapter(FormatAdapter):
 
             if log:
                 log(
-                    f"Custom CSV adaptation completed: {len(columns_mapped)} columns mapped",
+                    f"Custom CSV adaptation completed: {
+    len(columns_mapped)} columns mapped",
                     "info",
                 )
 
@@ -640,7 +647,8 @@ class JSONAdapter(FormatAdapter):
 
             if log:
                 log(
-                    f"JSON adaptation completed: {len(ticker_metrics_df)} ticker records",
+                    f"JSON adaptation completed: {
+    len(ticker_metrics_df)} ticker records",
                     "info",
                 )
 
@@ -754,7 +762,9 @@ class FormatDetector:
             except Exception as e:
                 if log:
                     log(
-                        f"Format detection failed for {adapter.format_spec.format_name}: {str(e)}",
+                        f"Format detection failed for {
+    adapter.format_spec.format_name}: {
+        str(e)}",
                         "warning",
                     )
                 continue

@@ -78,7 +78,8 @@ def process_atr_strategy(
     if "ATR_Trailing_Stop" in result_data.columns:
         non_nan_count = result_data["ATR_Trailing_Stop"].notna().sum()
         log(
-            f"ATR_Trailing_Stop column has {non_nan_count} non-NaN values out of {len(result_data)}",
+            f"ATR_Trailing_Stop column has {non_nan_count} non-NaN values out of {
+    len(result_data)}",
             "info",
         )
 

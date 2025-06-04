@@ -150,7 +150,12 @@ def plot_daily_returns(data_dict, ticker):
         axs[i].text(
             0.99,
             0.99,
-            f"Std Dev: {std_dev:.2%}\nSkewness: {skewness:.2f}\nKurtosis: {kurtosis:.2f}\nRarity: {rarity_percentage:.2f}\nPercentile: {percentile:.2f}%",
+            f"Std Dev: {
+    std_dev:.2%}\nSkewness: {
+        skewness:.2f}\nKurtosis: {
+            kurtosis:.2f}\nRarity: {
+                rarity_percentage:.2f}\nPercentile: {
+                    percentile:.2f}%",
             transform=axs[i].transAxes,
             verticalalignment="top",
             horizontalalignment="right",

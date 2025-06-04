@@ -158,7 +158,8 @@ def analyze_parameter_combinations(
         else 0
     )
     log(
-        f"Analysis complete - Successful combinations: {successful_combinations}/{total_combinations} ({success_rate:.2f}%)"
+        f"Analysis complete - Successful combinations: {successful_combinations}/{total_combinations} ({
+    success_rate:.2f}%)"
     )
 
     return portfolios

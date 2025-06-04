@@ -144,6 +144,7 @@ async def analyze_portfolio(
 @router.get(
     "/status/{execution_id}",
     response_model=MACrossStatusResponse,
+    response_model_exclude_none=False,
     responses={
         404: {"model": ErrorResponse, "description": "Execution ID not found"},
         500: {"model": ErrorResponse, "description": "Internal server error"},
@@ -185,10 +186,46 @@ async def get_analysis_status(
             # Extract portfolios from the result structure
             result = response_data["result"]
             if isinstance(result, dict) and "portfolios" in result:
-                response_data["results"] = result["portfolios"]
+                portfolios = result["portfolios"]
+                response_data["results"] = portfolios
+
+                # Debug: Check what's in the portfolios being returned
+                if portfolios and len(portfolios) > 0:
+                    first_portfolio = portfolios[0]
+                    log(f"DEBUG STATUS: Portfolio keys: {len(first_portfolio.keys()) if isinstance(first_portfolio, dict) else 'NOT_DICT'}", "info")
+                    log(f"DEBUG STATUS: metric_type present: {'metric_type' in first_portfolio if isinstance(first_portfolio, dict) else 'NOT_DICT'}", "info")
+                    log(f"DEBUG STATUS: metric_type value: '{first_portfolio.get('metric_type', 'MISSING') if isinstance(first_portfolio, dict) else 'NOT_DICT'}'", "info")
+
             response_data.pop("result", None)  # Remove the original result field
 
-        return MACrossStatusResponse(**response_data)
+        # Create the response - let FastAPI handle the serialization
+        status_response = MACrossStatusResponse(**response_data)
+
+        # Debug the final serialized response
+        if hasattr(status_response, 'results') and status_response.results and len(status_response.results) > 0:
+            first_result = status_response.results[0]
+            if hasattr(first_result, 'model_dump'):
+                result_dump = first_result.model_dump()
+                log(f"DEBUG FINAL: Final response keys: {len(result_dump.keys())}", "info")
+                log(f"DEBUG FINAL: metric_type in final: {'metric_type' in result_dump}", "info")
+                log(f"DEBUG FINAL: final metric_type: '{result_dump.get('metric_type', 'MISSING')}'", "info")
+            else:
+                log(f"DEBUG FINAL: Result is not PortfolioMetrics: {type(first_result)}", "info")
+
+        # Debug the complete response as JSON to see what FastAPI actually sends
+        try:
+            import json
+            response_json = status_response.model_dump()
+            if response_json.get('results') and len(response_json['results']) > 0:
+                first_json_result = response_json['results'][0]
+                log(f"DEBUG JSON: JSON response keys: {len(first_json_result.keys())}", "info")
+                log(f"DEBUG JSON: metric_type in JSON: {'metric_type' in first_json_result}", "info")
+                if 'metric_type' in first_json_result:
+                    log(f"DEBUG JSON: JSON metric_type: '{first_json_result['metric_type']}'", "info")
+        except Exception as e:
+            log(f"DEBUG JSON: Error serializing to JSON: {str(e)}", "error")
+
+        return status_response
 
     except HTTPException:
         raise
@@ -265,7 +302,8 @@ async def stream_analysis_updates(
         except Exception as e:
             # Fallback to basic status polling
             log(
-                f"Progress tracker streaming failed, falling back to status polling: {str(e)}",
+                f"Progress tracker streaming failed, falling back to status polling: {
+    str(e)}",
                 "warning",
             )
             while True:
@@ -334,7 +372,8 @@ async def get_config_presets():
         import os
         from pathlib import Path
 
-        # Get project root directory (this file is in app/api/routers/, so go up 3 levels)
+        # Get project root directory (this file is in app/api/routers/, so go up 3
+        # levels)
         current_file = Path(__file__)
         project_root = current_file.parent.parent.parent.parent
         config_path = project_root / "json" / "configuration" / "ma_cross.json"

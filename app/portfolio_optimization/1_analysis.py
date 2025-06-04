@@ -71,7 +71,8 @@ def download_data(ticker: str, log: callable) -> pl.DataFrame:
     try:
         log(f"Downloading data for {ticker}")
 
-        # Define a basic DataConfig.  The period is set to max to align with the original code.
+        # Define a basic DataConfig.  The period is set to max to align with the
+        # original code.
         data_config: DataConfig = {"PERIOD": "max"}
 
         data = download_data_tool(ticker, data_config, log)
@@ -301,7 +302,11 @@ def main() -> None:
                 metrics["cvar"] / 100
             ) * usd_allocation  # e.g. 3.5% of $1000 = $35
             log(
-                f"{asset}: {metrics['weight']:.2%} (${usd_allocation:,.2f}, VaR: ${var_usd:,.2f}, CVaR: ${cvar_usd:,.2f})"
+                f"{asset}: {
+    metrics['weight']:.2%} (${
+        usd_allocation:,.2f}, VaR: ${
+            var_usd:,.2f}, CVaR: ${
+                cvar_usd:,.2f})"
             )
 
         # Print portfolio metrics
@@ -310,16 +315,28 @@ def main() -> None:
         log(f"Downside Volatility: {downside_volatility:.2%}")
         log(f"Sortino Ratio: {sortino_ratio:.2f}")
         log(
-            f"Value at Risk (VaR 95%): ${portfolio_var_95_usd:,.2f} ({portfolio_var_95_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})"
+            f"Value at Risk (VaR 95%): ${
+    portfolio_var_95_usd:,.2f} ({
+        portfolio_var_95_pct:.2f}% of initial ${
+            INITIAL_VALUE:,.2f})"
         )
         log(
-            f"Conditional Value at Risk (CVaR 95%): ${portfolio_cvar_95_usd:,.2f} ({portfolio_cvar_95_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})"
+            f"Conditional Value at Risk (CVaR 95%): ${
+    portfolio_cvar_95_usd:,.2f} ({
+        portfolio_cvar_95_pct:.2f}% of initial ${
+            INITIAL_VALUE:,.2f})"
         )
         log(
-            f"Value at Risk (VaR 99%): ${portfolio_var_99_usd:,.2f} ({portfolio_var_99_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})"
+            f"Value at Risk (VaR 99%): ${
+    portfolio_var_99_usd:,.2f} ({
+        portfolio_var_99_pct:.2f}% of initial ${
+            INITIAL_VALUE:,.2f})"
         )
         log(
-            f"Conditional Value at Risk (CVaR 99%): ${portfolio_cvar_99_usd:,.2f} ({portfolio_cvar_99_pct:.2f}% of initial ${INITIAL_VALUE:,.2f})"
+            f"Conditional Value at Risk (CVaR 99%): ${
+    portfolio_cvar_99_usd:,.2f} ({
+        portfolio_cvar_99_pct:.2f}% of initial ${
+            INITIAL_VALUE:,.2f})"
         )
 
         # Print detailed asset metrics

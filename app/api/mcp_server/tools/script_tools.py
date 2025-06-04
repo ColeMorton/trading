@@ -104,7 +104,8 @@ class ScriptTools:
             # Get list of scripts from the API
             # Since the API doesn't have a dedicated endpoint for listing scripts,
             # we'll need to discover them from the file system
-            # In a real implementation, this might query the API or use a predefined list
+            # In a real implementation, this might query the API or use a predefined
+            # list
 
             # For now, return a hardcoded list based on known scripts
             # In production, this would query the API or file system

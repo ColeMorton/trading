@@ -123,7 +123,9 @@ def create_protective_stop_loss_heatmap(
         )
 
         # Update layout
-        title_text = f'{ticker} Protective Stop Loss Sensitivity Analysis<br><sub>{metric_name.capitalize().replace("_", " ")}</sub>'
+        title_text = f'{ticker} Protective Stop Loss Sensitivity Analysis<br><sub>{
+    metric_name.capitalize().replace(
+        "_", " ")}</sub>'
 
         fig.update_layout(
             title=dict(

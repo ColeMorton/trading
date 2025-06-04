@@ -294,10 +294,7 @@ def _calculate_unique_portfolio_signals(
             unique_signals = pd.DataFrame(
                 index=pd.DatetimeIndex(unique_dates_sorted), data={"unique_signal": 1}
             )
-            log(
-                f"Portfolio unique signals: {len(unique_signals)} (from {sum(len(s) for s in all_signals)} total strategy signals)",
-                "info",
-            )
+            log(f"Portfolio unique signals: {len(unique_signals)} (from {sum(len(s) for s in all_signals)} total strategy signals)", "info")
         else:
             unique_signals = pd.DataFrame()
             log("No unique signals found", "warning")

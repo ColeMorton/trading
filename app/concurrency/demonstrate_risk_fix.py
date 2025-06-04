@@ -86,7 +86,9 @@ def main():
 
     print(f"Total strategies: {len(position_arrays)}")
     print(
-        f"Allocation range: {min(allocation_pcts)*100:.1f}% to {max(allocation_pcts)*100:.1f}%"
+        f"Allocation range: {
+    min(allocation_pcts)*100:.1f}% to {
+        max(allocation_pcts)*100:.1f}%"
     )
     print()
 

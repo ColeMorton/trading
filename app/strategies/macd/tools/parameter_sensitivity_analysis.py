@@ -122,53 +122,78 @@ def parameter_sensitivity_analysis(
                         best_return = total_return
                         best_params = (short, long, signal)
                         logging.info(
-                            f"New best return: {best_return:.2%} with parameters: {best_params}"
+                            f"New best return: {
+    best_return:.2%} with parameters: {best_params}"
                         )
 
                     if expectancy > best_expectancy:
                         best_expectancy = expectancy
                         best_expectancy_params = (short, long, signal)
                         logging.info(
-                            f"New best expectancy: {best_expectancy:.4f} with parameters: {best_expectancy_params}"
+                            f"New best expectancy: {
+    best_expectancy:.4f} with parameters: {best_expectancy_params}"
                         )
 
                     if sharpe > best_sharpe:
                         best_sharpe = sharpe
                         best_sharpe_params = (short, long, signal)
                         logging.info(
-                            f"New best Sharpe: {best_sharpe:.4f} with parameters: {best_sharpe_params}"
+                            f"New best Sharpe: {
+    best_sharpe:.4f} with parameters: {best_sharpe_params}"
                         )
 
                     if sortino > best_sortino:
                         best_sortino = sortino
                         best_sortino_params = (short, long, signal)
                         logging.info(
-                            f"New best Sortino: {best_sortino:.4f} with parameters: {best_sortino_params}"
+                            f"New best Sortino: {
+    best_sortino:.4f} with parameters: {best_sortino_params}"
                         )
 
                     if calmar > best_calmar:
                         best_calmar = calmar
                         best_calmar_params = (short, long, signal)
                         logging.info(
-                            f"New best Calmar: {best_calmar:.4f} with parameters: {best_calmar_params}"
+                            f"New best Calmar: {
+    best_calmar:.4f} with parameters: {best_calmar_params}"
                         )
 
     # Log final results
     logging.info("\nOptimization Results:")
     logging.info(
-        f"Best return: {best_return:.2%} with parameters: Short={best_params[0]}, Long={best_params[1]}, Signal={best_params[2]}"
+        f"Best return: {
+    best_return:.2%} with parameters: Short={
+        best_params[0]}, Long={
+            best_params[1]}, Signal={
+                best_params[2]}"
     )
     logging.info(
-        f"Best expectancy: {best_expectancy:.4f} with parameters: Short={best_expectancy_params[0]}, Long={best_expectancy_params[1]}, Signal={best_expectancy_params[2]}"
+        f"Best expectancy: {
+    best_expectancy:.4f} with parameters: Short={
+        best_expectancy_params[0]}, Long={
+            best_expectancy_params[1]}, Signal={
+                best_expectancy_params[2]}"
     )
     logging.info(
-        f"Best Sharpe: {best_sharpe:.4f} with parameters: Short={best_sharpe_params[0]}, Long={best_sharpe_params[1]}, Signal={best_sharpe_params[2]}"
+        f"Best Sharpe: {
+    best_sharpe:.4f} with parameters: Short={
+        best_sharpe_params[0]}, Long={
+            best_sharpe_params[1]}, Signal={
+                best_sharpe_params[2]}"
     )
     logging.info(
-        f"Best Sortino: {best_sortino:.4f} with parameters: Short={best_sortino_params[0]}, Long={best_sortino_params[1]}, Signal={best_sortino_params[2]}"
+        f"Best Sortino: {
+    best_sortino:.4f} with parameters: Short={
+        best_sortino_params[0]}, Long={
+            best_sortino_params[1]}, Signal={
+                best_sortino_params[2]}"
     )
     logging.info(
-        f"Best Calmar: {best_calmar:.4f} with parameters: Short={best_calmar_params[0]}, Long={best_calmar_params[1]}, Signal={best_calmar_params[2]}"
+        f"Best Calmar: {
+    best_calmar:.4f} with parameters: Short={
+        best_calmar_params[0]}, Long={
+            best_calmar_params[1]}, Signal={
+                best_calmar_params[2]}"
     )
 
     return (

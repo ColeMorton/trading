@@ -134,7 +134,8 @@ def process_ticker_portfolios(
                         )
 
         elif strategy_type in ["SMA", "EMA"]:
-            # For backward compatibility, use the existing process_ma_portfolios function
+            # For backward compatibility, use the existing process_ma_portfolios
+            # function
             try:
                 # Set SMA or EMA values based on strategy type
                 sma_fast = short_window if strategy_type == "SMA" else None
@@ -225,7 +226,8 @@ def process_ticker_portfolios(
 
             except Exception as e:
                 log(
-                    f"Failed to process {strategy_type} strategy for {ticker}: {str(e)}",
+                    f"Failed to process {strategy_type} strategy for {ticker}: {
+    str(e)}",
                     "error",
                 )
                 return None
@@ -314,7 +316,8 @@ def export_summary_results(
                     # Sort the DataFrame
                     df = df.sort(sort_by, descending=not sort_asc)
                     log(
-                        f"Sorted results by {sort_by} ({'ascending' if sort_asc else 'descending'})"
+                        f"Sorted results by {sort_by} ({
+    'ascending' if sort_asc else 'descending'})"
                     )
 
                     # Convert back to list of dictionaries
@@ -336,7 +339,8 @@ def export_summary_results(
         # Import export_portfolios here to avoid circular imports
         from app.tools.strategy.export_portfolios import export_portfolios
 
-        # Pass the export_config which may contain _SORTED_PORTFOLIOS if sorting was applied
+        # Pass the export_config which may contain _SORTED_PORTFOLIOS if sorting
+        # was applied
         _, success = export_portfolios(
             reordered_portfolios,
             export_config,

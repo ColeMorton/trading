@@ -103,7 +103,8 @@ def apply_execution_timing(
             non_zero_original = np.count_nonzero(signals)
             non_zero_timed = np.count_nonzero(timed_signals)
         log(
-            f"Applied {mode.value} execution timing. Original signals: {non_zero_original}, Timed signals: {non_zero_timed}",
+            f"Applied {
+    mode.value} execution timing. Original signals: {non_zero_original}, Timed signals: {non_zero_timed}",
             "info",
         )
 

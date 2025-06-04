@@ -73,7 +73,8 @@ async def test_async_with_progress():
 
                                     if progress_pct is not None:
                                         print(
-                                            f"\r[{datetime.now().strftime('%H:%M:%S')}] "
+                                            f"\r[{
+    datetime.now().strftime('%H:%M:%S')}] "
                                             f"Status: {status} | Phase: {phase} | "
                                             f"Progress: {progress} | "
                                             f"Steps: {current_step}/{total_steps} "
@@ -84,7 +85,8 @@ async def test_async_with_progress():
                                         )
                                     else:
                                         print(
-                                            f"\r[{datetime.now().strftime('%H:%M:%S')}] "
+                                            f"\r[{
+    datetime.now().strftime('%H:%M:%S')}] "
                                             f"Status: {status} | Phase: {phase} | "
                                             f"Progress: {progress} | "
                                             f"Elapsed: {elapsed:.1f}s",
@@ -129,14 +131,20 @@ async def test_async_with_progress():
                                             print("\nTop 3 portfolios:")
                                             for i, portfolio in enumerate(results[:3]):
                                                 print(
-                                                    f"{i+1}. {portfolio.get('ticker')} - "
+                                                    f"{i+
+    1}. {portfolio.get('ticker')} - "
                                                     f"{portfolio.get('strategy_type')} "
                                                     f"({portfolio.get('short_window')}/{portfolio.get('long_window')}) - "
-                                                    f"Return: {portfolio.get('total_return', 0):.2f}%"
+                                                    f"Return: {
+    portfolio.get(
+        'total_return',
+         0):.2f}%"
                                                 )
                                     else:
                                         print(
-                                            f"\nAnalysis failed: {event_data.get('error', 'Unknown error')}"
+                                            f"\nAnalysis failed: {
+    event_data.get(
+        'error', 'Unknown error')}"
                                         )
 
                                     break

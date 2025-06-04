@@ -53,7 +53,8 @@ def export_portfolios(
         raise ValueError("Cannot export empty portfolio list")
 
     if export_type not in VALID_EXPORT_TYPES:
-        error_msg = f"Invalid export type: {export_type}. Must be one of: {', '.join(VALID_EXPORT_TYPES)}"
+        error_msg = f"Invalid export type: {export_type}. Must be one of: {
+    ', '.join(VALID_EXPORT_TYPES)}"
         if log:
             log(error_msg, "error")
         raise PortfolioExportError(error_msg)
@@ -117,7 +118,8 @@ def export_portfolios(
                 if len(ticker) == 1:
                     ticker = ticker[0]
                 else:
-                    # For multiple tickers, each portfolio should already have its ticker
+                    # For multiple tickers, each portfolio should already have its
+                    # ticker
                     if "Ticker" not in df.columns:
                         raise PortfolioExportError(
                             "Missing Ticker column for multiple ticker export"
@@ -133,7 +135,8 @@ def export_portfolios(
                 df = df.select(["Ticker"] + [col for col in cols if col != "Ticker"])
 
         # Use empty feature1 for 'portfolios' and 'portfolios_scanner' export types
-        # to export directly to csv/portfolios/ instead of csv/range/portfolios/ or csv/range/portfolios_scanner/
+        # to export directly to csv/portfolios/ instead of csv/range/portfolios/
+        # or csv/range/portfolios_scanner/
         feature1 = (
             "" if export_type in ["portfolios", "portfolios_scanner"] else "range"
         )

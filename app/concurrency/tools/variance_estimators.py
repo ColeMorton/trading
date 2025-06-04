@@ -259,7 +259,10 @@ class VarianceEstimator:
         effective_obs = len(rolling_vars)
 
         self.log(
-            f"Rolling variance (window={window}): {rolling_var:.8f}, CI: [{ci_lower:.8f}, {ci_upper:.8f}]",
+            f"Rolling variance (window={window}): {
+    rolling_var:.8f}, CI: [{
+        ci_lower:.8f}, {
+            ci_upper:.8f}]",
             "info",
         )
 
@@ -332,7 +335,11 @@ class VarianceEstimator:
             )
 
         self.log(
-            f"EWMA variance (λ={lambda_param:.4f}): {ewma_var:.8f}, CI: [{ci_lower:.8f}, {ci_upper:.8f}]",
+            f"EWMA variance (λ={
+    lambda_param:.4f}): {
+        ewma_var:.8f}, CI: [{
+            ci_lower:.8f}, {
+                ci_upper:.8f}]",
             "info",
         )
 
@@ -396,7 +403,10 @@ class VarianceEstimator:
             warnings_list.append("High bootstrap variance - estimate may be unstable")
 
         self.log(
-            f"Bootstrap variance ({n_bootstrap} samples): {bootstrap_var:.8f}, CI: [{ci_lower:.8f}, {ci_upper:.8f}]",
+            f"Bootstrap variance ({n_bootstrap} samples): {
+    bootstrap_var:.8f}, CI: [{
+        ci_lower:.8f}, {
+            ci_upper:.8f}]",
             "info",
         )
 
@@ -440,7 +450,8 @@ class VarianceEstimator:
 
         # Set default priors if not provided
         if prior_variance is None:
-            # Use a reasonable market variance as prior (e.g., 0.0004 ~ 20% annual volatility)
+            # Use a reasonable market variance as prior (e.g., 0.0004 ~ 20% annual
+            # volatility)
             prior_variance = 0.0004
 
         if prior_confidence is None:
@@ -497,7 +508,11 @@ class VarianceEstimator:
             warnings_list.append("High shrinkage toward prior - limited data influence")
 
         self.log(
-            f"Bayesian variance (shrinkage={shrinkage:.3f}): {posterior_var:.8f}, CI: [{ci_lower:.8f}, {ci_upper:.8f}]",
+            f"Bayesian variance (shrinkage={
+    shrinkage:.3f}): {
+        posterior_var:.8f}, CI: [{
+            ci_lower:.8f}, {
+                ci_upper:.8f}]",
             "info",
         )
 
@@ -623,7 +638,8 @@ class VarianceEstimator:
             selected_method = applicable_methods[0]
 
         self.log(
-            f"Auto-selected variance estimation method: {selected_method} (n={n}, quality={quality_score:.3f})",
+            f"Auto-selected variance estimation method: {selected_method} (n={n}, quality={
+    quality_score:.3f})",
             "info",
         )
 

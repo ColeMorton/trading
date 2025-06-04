@@ -85,7 +85,8 @@ def handle_concurrency_errors(
                         f"Error in {operation}: {str(e)}", context=context_data
                     ) from e
                 elif not isinstance(e, ConcurrencyError) and reraise:
-                    # Wrap in generic ConcurrencyError if not already a concurrency exception
+                    # Wrap in generic ConcurrencyError if not already a concurrency
+                    # exception
                     raise ConcurrencyError(
                         f"Error in {operation}: {str(e)}", context=context_data
                     ) from e
@@ -209,7 +210,11 @@ def retry_on_failure(
                     if attempt < max_retries:
                         if log_retries and log_func:
                             log_func(
-                                f"Attempt {attempt + 1} failed for {func.__name__}: {str(e)}. "
+                                f"Attempt {
+    attempt +
+    1} failed for {
+        func.__name__}: {
+            str(e)}. "
                                 f"Retrying in {current_delay:.1f} seconds...",
                                 "warning",
                             )
@@ -219,7 +224,10 @@ def retry_on_failure(
                     else:
                         if log_retries and log_func:
                             log_func(
-                                f"All {max_retries + 1} attempts failed for {func.__name__}",
+                                f"All {
+    max_retries +
+    1} attempts failed for {
+        func.__name__}",
                                 "error",
                             )
                         raise
@@ -277,13 +285,17 @@ def track_performance(
 
                 if log_performance and log_func:
                     log_func(
-                        f"Performance: {operation} ({func.__name__}) took {duration:.2f} seconds",
+                        f"Performance: {operation} ({
+    func.__name__}) took {
+        duration:.2f} seconds",
                         "debug",
                     )
 
                     if performance_threshold and duration > performance_threshold:
                         log_func(
-                            f"Performance warning: {operation} ({func.__name__}) took {duration:.2f} seconds "
+                            f"Performance warning: {operation} ({
+    func.__name__}) took {
+        duration:.2f} seconds "
                             f"(threshold: {performance_threshold:.2f}s)",
                             "warning",
                         )

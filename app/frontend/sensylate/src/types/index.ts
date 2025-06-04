@@ -20,8 +20,8 @@ export interface UpdateStatus {
 export interface AnalysisConfiguration {
   TICKER: string | string[];
   WINDOWS: number;
-  DIRECTION: "Long" | "Short";
-  STRATEGY_TYPES: ("SMA" | "EMA")[];
+  DIRECTION: 'Long' | 'Short';
+  STRATEGY_TYPES: ('SMA' | 'EMA')[];
   USE_HOURLY: boolean;
   USE_YEARS: boolean;
   YEARS: number;
@@ -57,6 +57,7 @@ export interface AnalysisResult {
   sortino_ratio: number;
   max_drawdown: number;
   total_return: number;
+  metric_type?: string;
   [key: string]: any;
 }
 

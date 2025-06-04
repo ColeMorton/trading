@@ -114,7 +114,8 @@ class TestPermutationAnalysis(ConcurrencyTestCase, MockDataMixin):
 
         # Verify log message about equal allocations
         self.log_mock.assert_any_call(
-            f"Using equal allocations ({expected_allocation:.4f}) for all strategies in permutation",
+            f"Using equal allocations ({
+    expected_allocation:.4f}) for all strategies in permutation",
             "info",
         )
 
