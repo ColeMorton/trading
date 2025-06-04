@@ -570,14 +570,14 @@ class CSVMetricsExtractor:
                     # Use different aggregation methods based on column type
                     if col == "Total Trades":
                         # Sum total trades
-                        metrics[
-                            col.lower().replace(" ", "_").replace("%", "_pct")
-                        ] = float(ticker_data[col].sum())
+                        metrics[col.lower().replace(" ", "_").replace("%", "_pct")] = (
+                            float(ticker_data[col].sum())
+                        )
                     elif col in ["Max Drawdown %"]:
                         # Use maximum for drawdown
-                        metrics[
-                            col.lower().replace(" ", "_").replace("%", "_pct")
-                        ] = float(ticker_data[col].max())
+                        metrics[col.lower().replace(" ", "_").replace("%", "_pct")] = (
+                            float(ticker_data[col].max())
+                        )
                     else:
                         # Use weighted average for other metrics
                         if (
@@ -684,17 +684,17 @@ class CSVMetricsExtractor:
             for col in numeric_columns:
                 if col in strategy_data.columns:
                     if col == "Total Trades":
-                        metrics[
-                            col.lower().replace(" ", "_").replace("%", "_pct")
-                        ] = float(strategy_data[col].sum())
+                        metrics[col.lower().replace(" ", "_").replace("%", "_pct")] = (
+                            float(strategy_data[col].sum())
+                        )
                     elif col == "Max Drawdown %":
-                        metrics[
-                            col.lower().replace(" ", "_").replace("%", "_pct")
-                        ] = float(strategy_data[col].max())
+                        metrics[col.lower().replace(" ", "_").replace("%", "_pct")] = (
+                            float(strategy_data[col].max())
+                        )
                     else:
-                        metrics[
-                            col.lower().replace(" ", "_").replace("%", "_pct")
-                        ] = float(strategy_data[col].mean())
+                        metrics[col.lower().replace(" ", "_").replace("%", "_pct")] = (
+                            float(strategy_data[col].mean())
+                        )
 
             # Add strategy-specific metrics
             if "Ticker" in strategy_data.columns:

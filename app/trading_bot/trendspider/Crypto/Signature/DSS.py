@@ -405,8 +405,7 @@ def new(key, mode, encoding="binary", randfunc=None):
 
     if key.has_private():
         private_key = getattr(key, private_key_attr)
-    else:
-        private_key = None
+    else: private_key | None = None
 
     if mode == "deterministic-rfc6979":
         return DeterministicDsaSigScheme(key, encoding, order, private_key)

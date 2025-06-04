@@ -356,8 +356,7 @@ for idx, tv in enumerate(test_vectors_verify):
         if hash_name in ("SHA512224", "SHA512256"):
             truncate = hash_name[-3:]
             hash_name = hash_name[:-3]
-        else:
-            truncate = None
+        else: truncate | None = None
         hash_module = load_hash_by_name(hash_name)
         continue
 

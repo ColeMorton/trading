@@ -36,9 +36,9 @@ class VersionInfo(BaseModel):
     version: APIVersion
     status: VersionStatus
     introduced: datetime
-    deprecated_date: Optional[datetime] = None
-    sunset_date: Optional[datetime] = None
-    migration_guide_url: Optional[str] = None
+    deprecated_date: Optional[datetime] | None = None
+    sunset_date: Optional[datetime] | None = None
+    migration_guide_url: Optional[str] | None = None
 
 
 class APIVersionManager:
@@ -124,8 +124,8 @@ class APIVersionManager:
     def deprecate_version(
         self,
         version: APIVersion,
-        sunset_date: Optional[datetime] = None,
-        migration_guide_url: Optional[str] = None,
+        sunset_date: Optional[datetime] | None = None,
+        migration_guide_url: Optional[str] | None = None,
     ) -> None:
         """Mark a version as deprecated."""
         if version not in self.versions:

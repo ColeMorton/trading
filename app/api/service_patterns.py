@@ -72,7 +72,7 @@ class ServiceProtocol(Protocol):
 class BaseService(ABC):
     """Base class for all services with standardized patterns."""
 
-    def __init__(self, config: Optional[ConfigurationInterface] = None):
+    def __init__(self, config: Optional[ConfigurationInterface] | None = None):
         self._config = config
         self._state = ServiceState.UNINITIALIZED
         self._initialization_callbacks: List[Callable] = []
@@ -190,7 +190,7 @@ class BaseService(ABC):
 class ServiceFactory:
     """Factory for creating services with standardized patterns."""
 
-    def __init__(self, config: Optional[ConfigurationInterface] = None):
+    def __init__(self, config: Optional[ConfigurationInterface] | None = None):
         self._config = config
         self._service_classes: Dict[str, Type[BaseService]] = {}
         self._service_configs: Dict[str, Dict[str, Any]] = {}
@@ -237,7 +237,7 @@ class ServiceFactory:
 class ServiceOrchestrator:
     """Orchestrates multiple services with dependency management."""
 
-    def __init__(self, config: Optional[ConfigurationInterface] = None):
+    def __init__(self, config: Optional[ConfigurationInterface] | None = None):
         self._config = config
         self._services: Dict[str, BaseService] = {}
         self._dependency_graph: Dict[str, List[str]] = {}
@@ -247,7 +247,7 @@ class ServiceOrchestrator:
         self,
         name: str,
         service_class: Type[BaseService],
-        dependencies: Optional[List[str]] = None,
+        dependencies: Optional[List[str]] | None = None,
         config: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Register a service with dependencies."""
@@ -339,7 +339,7 @@ service_orchestrator = ServiceOrchestrator()
 # Standardized service creation utilities
 def create_service_with_config(
     service_class: Type[BaseService],
-    config: Optional[ConfigurationInterface] = None,
+    config: Optional[ConfigurationInterface] | None = None,
     **kwargs,
 ) -> BaseService:
     """Create a service with standardized configuration."""

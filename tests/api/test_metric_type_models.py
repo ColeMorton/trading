@@ -59,7 +59,7 @@ class TestPortfolioMetricsMetricType:
             profit_factor=1.5,
             expectancy=100.0,
             score=1.0,
-            beats_bnh=5.0
+            beats_bnh=5.0,
             # metric_type not provided
         )
 
@@ -136,7 +136,7 @@ class TestPortfolioMetricsMetricType:
             profit_factor=1.5,
             expectancy=100.0,
             score=1.0,
-            beats_bnh=5.0
+            beats_bnh=5.0,
             # metric_type defaults to ""
         )
 

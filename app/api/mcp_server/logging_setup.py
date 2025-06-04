@@ -12,7 +12,7 @@ from .config import config
 
 
 def setup_logging(
-    log_level: Optional[str] = None, log_file: Optional[str] = None
+    log_level: Optional[str] | None = None, log_file: Optional[str] | None = None
 ) -> None:
     """
     Configure structured logging for the MCP server.

@@ -492,7 +492,7 @@ def filter_signals(
     data: DataFrame,
     config: Dict[str, Any],
     log: Optional[Callable[[str, str], None]] = None,
-    custom_pipeline: Optional[SignalFilterPipeline] = None,
+    custom_pipeline: Optional[SignalFilterPipeline] | None = None,
 ) -> Tuple[DataFrame, Dict[str, Any]]:
     """Filter signals using a standard or custom filter pipeline.
 

@@ -35,14 +35,14 @@ class GraphQLError:
 
     message: str
     code: GraphQLErrorCode
-    path: Optional[List[str]] = None
+    path: Optional[List[str]] | None = None
     extensions: Optional[Dict[str, Any]] = None
 
 
 class ValidationError(Exception):
     """Validation error for GraphQL operations."""
 
-    def __init__(self, message: str, field: Optional[str] = None):
+    def __init__(self, message: str, field: Optional[str] | None = None):
         self.message = message
         self.field = field
         super().__init__(message)
@@ -77,7 +77,7 @@ class NotFoundError(Exception):
 class DatabaseError(Exception):
     """Database error for GraphQL operations."""
 
-    def __init__(self, message: str, operation: Optional[str] = None):
+    def __init__(self, message: str, operation: Optional[str] | None = None):
         self.message = message
         self.operation = operation
         super().__init__(message)
@@ -86,14 +86,14 @@ class DatabaseError(Exception):
 class ServiceError(Exception):
     """Service error for GraphQL operations."""
 
-    def __init__(self, message: str, service: Optional[str] = None):
+    def __init__(self, message: str, service: Optional[str] | None = None):
         self.message = message
         self.service = service
         super().__init__(message)
 
 
 def format_graphql_error(
-    error: Exception, path: Optional[List[str]] = None
+    error: Exception, path: Optional[List[str]] | None = None
 ) -> Dict[str, Any]:
     """
     Format an exception into a GraphQL error response.
@@ -186,14 +186,16 @@ class ErrorLogger:
     """Utility class for logging GraphQL errors with context."""
 
     @staticmethod
-    def log_validation_error(error: ValidationError, context: Any = None):
+    def log_validation_error(error: ValidationError, context: Any | None = None):
         """Log validation error with context."""
         logger.warning(f"GraphQL validation error: {error.message}")
         if hasattr(error, "field") and error.field:
             logger.warning(f"  Field: {error.field}")
 
     @staticmethod
-    def log_authentication_error(error: AuthenticationError, context: Any = None):
+    def log_authentication_error(
+        error: AuthenticationError, context: Any | None = None
+    ):
         """Log authentication error with context."""
         client_ip = "unknown"
         if context and hasattr(context, "request") and context.request.client:
@@ -203,7 +205,7 @@ class ErrorLogger:
         )
 
     @staticmethod
-    def log_authorization_error(error: AuthorizationError, context: Any = None):
+    def log_authorization_error(error: AuthorizationError, context: Any | None = None):
         """Log authorization error with context."""
         user_info = "anonymous"
         if context and hasattr(context, "user") and context.user:
@@ -213,14 +215,14 @@ class ErrorLogger:
         )
 
     @staticmethod
-    def log_database_error(error: DatabaseError, context: Any = None):
+    def log_database_error(error: DatabaseError, context: Any | None = None):
         """Log database error with context."""
         logger.error(f"GraphQL database error: {error.message}")
         if hasattr(error, "operation") and error.operation:
             logger.error(f"  Operation: {error.operation}")
 
     @staticmethod
-    def log_service_error(error: ServiceError, context: Any = None):
+    def log_service_error(error: ServiceError, context: Any | None = None):
         """Log service error with context."""
         logger.error(f"GraphQL service error: {error.message}")
         if hasattr(error, "service") and error.service:

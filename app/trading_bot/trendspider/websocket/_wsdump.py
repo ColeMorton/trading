@@ -55,7 +55,7 @@ class VAction(argparse.Action):
         parser: argparse.Namespace,
         args: tuple,
         values: str,
-        option_string: str = None,
+        option_string: str | None = None,
     ) -> None:
         if values is None:
             values = "1"

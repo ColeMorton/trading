@@ -20,9 +20,9 @@ class AnalysisConfig:
     direction: str = "Long"
 
     # Window parameters
-    short_window: Optional[int] = None
-    long_window: Optional[int] = None
-    windows: Optional[int] = None  # For permutation scanning
+    short_window: Optional[int] | None = None
+    long_window: Optional[int] | None = None
+    windows: Optional[int] | None = None  # For permutation scanning
 
     # Data parameters
     use_years: bool = False
@@ -30,8 +30,8 @@ class AnalysisConfig:
 
     # Advanced features
     use_synthetic: bool = False
-    ticker_1: Optional[str] = None
-    ticker_2: Optional[str] = None
+    ticker_1: Optional[str] | None = None
+    ticker_2: Optional[str] | None = None
     use_gbm: bool = False
 
     def to_dict(self) -> Dict[str, Any]:
@@ -90,7 +90,7 @@ class TickerResult:
 
     ticker: str
     signals: List[SignalInfo] = field(default_factory=list)
-    error: Optional[str] = None
+    error: Optional[str] | None = None
     processing_time: float = 0.0
 
     @property
@@ -121,7 +121,7 @@ class AnalysisResult:
     tickers: List[TickerResult] = field(default_factory=list)
     total_processing_time: float = 0.0
     analysis_date: datetime = field(default_factory=datetime.now)
-    config: Optional[AnalysisConfig] = None
+    config: Optional[AnalysisConfig] | None = None
 
     @property
     def tickers_with_signals(self) -> List[TickerResult]:

@@ -31,7 +31,7 @@ class StrategyProcessingError(ConcurrencyError):
     def __init__(
         self,
         message: str,
-        strategy_id: Optional[str] = None,
+        strategy_id: Optional[str] | None = None,
         context: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(message, context)
@@ -50,8 +50,8 @@ class PermutationAnalysisError(ConcurrencyError):
     def __init__(
         self,
         message: str,
-        permutation_count: Optional[int] = None,
-        current_permutation: Optional[int] = None,
+        permutation_count: Optional[int] | None = None,
+        current_permutation: Optional[int] | None = None,
         context: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(message, context)
@@ -73,7 +73,7 @@ class ConcurrencyAnalysisError(ConcurrencyError):
     def __init__(
         self,
         message: str,
-        metric_name: Optional[str] = None,
+        metric_name: Optional[str] | None = None,
         context: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(message, context)
@@ -92,8 +92,8 @@ class ReportGenerationError(ConcurrencyError):
     def __init__(
         self,
         message: str,
-        report_type: Optional[str] = None,
-        output_path: Optional[str] = None,
+        report_type: Optional[str] | None = None,
+        output_path: Optional[str] | None = None,
         context: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(message, context)
@@ -114,7 +114,7 @@ class VisualizationError(ConcurrencyError):
     def __init__(
         self,
         message: str,
-        chart_type: Optional[str] = None,
+        chart_type: Optional[str] | None = None,
         context: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(message, context)
@@ -133,7 +133,7 @@ class OptimizationError(ConcurrencyError):
     def __init__(
         self,
         message: str,
-        optimization_type: Optional[str] = None,
+        optimization_type: Optional[str] | None = None,
         context: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(message, context)
@@ -152,7 +152,7 @@ class DataAlignmentError(ConcurrencyError):
     def __init__(
         self,
         message: str,
-        strategy_count: Optional[int] = None,
+        strategy_count: Optional[int] | None = None,
         context: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(message, context)
@@ -171,9 +171,9 @@ class ValidationError(ConcurrencyError):
     def __init__(
         self,
         message: str,
-        field_name: Optional[str] = None,
-        expected_type: Optional[str] = None,
-        actual_value: Optional[Any] = None,
+        field_name: Optional[str] | None = None,
+        expected_type: Optional[str] | None = None,
+        actual_value: Optional[Any] | None = None,
         context: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(message, context)

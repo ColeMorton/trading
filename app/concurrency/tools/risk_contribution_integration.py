@@ -192,7 +192,7 @@ def validate_portfolio_risk_contributions(
 
 
 def create_risk_contribution_report(
-    risk_metrics: Dict[str, Any], output_path: Optional[str] = None
+    risk_metrics: Dict[str, Any], output_path: Optional[str] | None = None
 ) -> str:
     """
     Create a formatted report of risk contributions.

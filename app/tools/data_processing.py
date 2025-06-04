@@ -218,7 +218,9 @@ class DataProcessor:
         self.log(f"Caching intermediate result with key: {key}", "debug")
         self._cache[key] = result
 
-    def get_cached_result(self, key: str, default: Optional[T] = None) -> Optional[T]:
+    def get_cached_result(
+        self, key: str, default: Optional[T] | None = None
+    ) -> Optional[T]:
         """Get a cached intermediate result.
 
         Args:
@@ -242,7 +244,7 @@ class DataProcessor:
         self,
         df: Union[pd.DataFrame, pl.DataFrame],
         categorical_threshold: int = 50,
-        date_columns: Optional[List[str]] = None,
+        date_columns: Optional[List[str]] | None = None,
     ) -> Union[pd.DataFrame, pl.DataFrame]:
         """Optimize a DataFrame for memory usage.
 
@@ -274,7 +276,7 @@ class DataProcessor:
         self,
         df: pd.DataFrame,
         categorical_threshold: int = 50,
-        date_columns: Optional[List[str]] = None,
+        date_columns: Optional[List[str]] | None = None,
     ) -> pd.DataFrame:
         """Optimize a pandas DataFrame for memory usage.
 
@@ -333,7 +335,7 @@ class DataProcessor:
         self,
         df: pl.DataFrame,
         categorical_threshold: int = 50,
-        date_columns: Optional[List[str]] = None,
+        date_columns: Optional[List[str]] | None = None,
     ) -> pl.DataFrame:
         """Optimize a polars DataFrame for memory usage.
 
@@ -519,7 +521,7 @@ class DataProcessor:
 
 
 def ensure_polars(
-    df: Union[pd.DataFrame, pl.DataFrame], log: Optional[Callable] = None
+    df: Union[pd.DataFrame, pl.DataFrame], log: Optional[Callable] | None = None
 ) -> pl.DataFrame:
     """Ensure a DataFrame is a polars DataFrame.
 
@@ -535,7 +537,7 @@ def ensure_polars(
 
 
 def ensure_pandas(
-    df: Union[pd.DataFrame, pl.DataFrame], log: Optional[Callable] = None
+    df: Union[pd.DataFrame, pl.DataFrame], log: Optional[Callable] | None = None
 ) -> pd.DataFrame:
     """Ensure a DataFrame is a pandas DataFrame.
 
@@ -551,7 +553,7 @@ def ensure_pandas(
 
 
 def optimize_dataframe(
-    df: Union[pd.DataFrame, pl.DataFrame], log: Optional[Callable] = None
+    df: Union[pd.DataFrame, pl.DataFrame], log: Optional[Callable] | None = None
 ) -> Union[pd.DataFrame, pl.DataFrame]:
     """Optimize a DataFrame for memory usage.
 

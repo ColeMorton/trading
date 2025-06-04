@@ -94,7 +94,7 @@ class WebSocket:
         """
         self.sock_opt = sock_opt(sockopt, sslopt)
         self.handshake_response = None
-        self.sock: Optional[socket.socket] = None
+        self.sock: Optional[socket.socket] | None = None
 
         self.connected = False
         self.get_mask_key = get_mask_key

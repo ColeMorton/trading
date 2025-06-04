@@ -44,7 +44,7 @@ class ProgressTracker(ProgressTrackerInterface):
         self._lock = asyncio.Lock()
 
     async def track(
-        self, task_id: str, operation: str, total_items: Optional[int] = None
+        self, task_id: str, operation: str, total_items: Optional[int] | None = None
     ) -> None:
         """Start tracking a new operation."""
         async with self._lock:

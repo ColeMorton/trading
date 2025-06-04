@@ -87,7 +87,7 @@ async def add_strategy_to_portfolio(
     portfolio_id: strawberry.ID,
     strategy_config_id: strawberry.ID,
     allocation_pct: float,
-    position: Optional[int] = None,
+    position: Optional[int] | None = None,
 ) -> bool:
     """Add a strategy to a portfolio."""
     db = await get_prisma()

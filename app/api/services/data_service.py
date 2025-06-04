@@ -289,7 +289,9 @@ def read_ticker_lists() -> Dict[str, List[str]]:
         raise DataServiceError(f"Failed to read ticker lists: {str(e)}")
 
 
-def read_data_file(file_path: str, file_format: Optional[str] = None) -> Dict[str, Any]:
+def read_data_file(
+    file_path: str, file_format: Optional[str] | None = None
+) -> Dict[str, Any]:
     """
     Read a data file.
 

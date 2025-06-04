@@ -222,8 +222,8 @@ def convert_stats(
     stats: Dict[str, Any],
     log: Callable[[str, str], None],
     config: StatsConfig | None = None,
-    current: Any = None,
-    exit_signal: Any = None,
+    current: Any | None = None,
+    exit_signal: Any | None = None,
 ) -> Dict[str, Any]:
     """Convert portfolio statistics to a standardized format with proper type handling.
 

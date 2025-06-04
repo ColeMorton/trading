@@ -10,7 +10,7 @@ from app.core.interfaces import ConfigurationInterface, LoggingInterface
 class LoggingService(LoggingInterface):
     """Concrete implementation of logging service."""
 
-    def __init__(self, config: Optional[ConfigurationInterface] = None):
+    def __init__(self, config: Optional[ConfigurationInterface] | None = None):
         self._config = config
         self._loggers: Dict[str, logging.Logger] = {}
         self.configure()

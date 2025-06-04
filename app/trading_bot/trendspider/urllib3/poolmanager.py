@@ -137,8 +137,7 @@ def _default_key_normalizer(
 
     # Default to ``None`` for keys missing from the context
     for field in key_class._fields:
-        if field not in context:
-            context[field] = None
+        if field not in context: context[field] | None = None
 
     # Default key_blocksize to _DEFAULT_BLOCKSIZE if missing from the context
     if context.get("key_blocksize") is None:

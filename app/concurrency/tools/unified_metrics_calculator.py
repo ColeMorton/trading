@@ -73,7 +73,7 @@ class UnifiedMetricsCalculator:
     issues identified in the portfolio metrics fix plan.
     """
 
-    def __init__(self, config: CalculationConfig = None):
+    def __init__(self, config: CalculationConfig | None = None):
         """
         Initialize the unified metrics calculator.
 
@@ -98,7 +98,7 @@ class UnifiedMetricsCalculator:
         self,
         csv_path: Union[str, Path] = None,
         json_data: Dict[str, Any] = None,
-        portfolio_data: Any = None,
+        portfolio_data: Any | None = None,
         log: Optional[Callable[[str, str], None]] = None,
     ) -> CalculationResult:
         """
@@ -294,9 +294,9 @@ class UnifiedMetricsCalculator:
 
     def _calculate_metrics(
         self,
-        csv_metrics: Any = None,
+        csv_metrics: Any | None = None,
         json_data: Dict[str, Any] = None,
-        portfolio_data: Any = None,
+        portfolio_data: Any | None = None,
         log: Optional[Callable[[str, str], None]] = None,
     ) -> Dict[str, Any]:
         """Calculate unified metrics using available data sources."""
@@ -701,9 +701,9 @@ def export_unified_metrics(
             }
 
             if include_validation:
-                export_data[
-                    "validation_results"
-                ] = calculation_result.validation_results
+                export_data["validation_results"] = (
+                    calculation_result.validation_results
+                )
                 if calculation_result.reconciliation_report:
                     # Convert reconciliation report to dict
                     export_data["reconciliation_summary"] = {

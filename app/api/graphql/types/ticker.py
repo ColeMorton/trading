@@ -18,10 +18,10 @@ class Ticker:
 
     id: strawberry.ID
     symbol: str
-    name: Optional[str] = None
+    name: Optional[str] | None = None
     asset_class: AssetClass
-    exchange: Optional[str] = None
-    sector: Optional[str] = None
+    exchange: Optional[str] | None = None
+    sector: Optional[str] | None = None
     created_at: DateTime
     updated_at: DateTime
 
@@ -37,7 +37,7 @@ class PriceData:
     high: float
     low: float
     close: float
-    volume: Optional[float] = None
+    volume: Optional[float] | None = None
     created_at: DateTime
 
 
@@ -50,14 +50,14 @@ class PriceBar:
     high: float
     low: float
     close: float
-    volume: Optional[float] = None
+    volume: Optional[float] | None = None
 
 
 @strawberry.input
 class PriceDataFilter:
     """Filter options for price data queries."""
 
-    symbol: Optional[str] = None
-    start_date: Optional[DateTime] = None
-    end_date: Optional[DateTime] = None
-    limit: Optional[int] = None
+    symbol: Optional[str] | None = None
+    start_date: Optional[DateTime] | None = None
+    end_date: Optional[DateTime] | None = None
+    limit: Optional[int] | None = None

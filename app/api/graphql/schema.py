@@ -128,9 +128,9 @@ class Mutation:
     )
 
     # Analysis mutations
-    execute_ma_cross_analysis: Union[
-        MACrossAnalysisResponse, AsyncAnalysisResponse
-    ] = strawberry.field(resolver=execute_ma_cross_analysis)
+    execute_ma_cross_analysis: Union[MACrossAnalysisResponse, AsyncAnalysisResponse] = (
+        strawberry.field(resolver=execute_ma_cross_analysis)
+    )
     get_analysis_status: Optional[AnalysisStatus] = strawberry.field(
         resolver=get_analysis_status
     )

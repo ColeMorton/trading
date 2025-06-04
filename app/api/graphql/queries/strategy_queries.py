@@ -18,7 +18,9 @@ from app.api.graphql.types.strategy import (
 from app.database.config import get_prisma
 
 
-async def get_strategies(filter: Optional[StrategyFilter] = None) -> List[Strategy]:
+async def get_strategies(
+    filter: Optional[StrategyFilter] | None = None,
+) -> List[Strategy]:
     """Get strategies with optional filtering."""
     db = await get_prisma()
 
@@ -67,9 +69,9 @@ async def get_strategy(id: strawberry.ID) -> Optional[Strategy]:
 
 
 async def get_strategy_configurations(
-    strategy_id: Optional[strawberry.ID] = None,
-    ticker_symbol: Optional[str] = None,
-    filter: Optional[StrategyFilter] = None,
+    strategy_id: Optional[strawberry.ID] | None = None,
+    ticker_symbol: Optional[str] | None = None,
+    filter: Optional[StrategyFilter] | None = None,
 ) -> List[StrategyConfiguration]:
     """Get strategy configurations with optional filtering."""
     db = await get_prisma()
@@ -116,8 +118,8 @@ async def get_strategy_configurations(
 
 
 async def get_backtest_results(
-    strategy_config_id: Optional[strawberry.ID] = None,
-    filter: Optional[MetricsFilter] = None,
+    strategy_config_id: Optional[strawberry.ID] | None = None,
+    filter: Optional[MetricsFilter] | None = None,
 ) -> List[BacktestResult]:
     """Get backtest results with optional filtering."""
     db = await get_prisma()
@@ -191,7 +193,8 @@ async def get_backtest_results(
 
 
 async def get_signals(
-    strategy_config_id: Optional[strawberry.ID] = None, limit: Optional[int] = None
+    strategy_config_id: Optional[strawberry.ID] | None = None,
+    limit: Optional[int] | None = None,
 ) -> List[Signal]:
     """Get trading signals for a strategy configuration."""
     db = await get_prisma()

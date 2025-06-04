@@ -814,8 +814,7 @@ class HTTPSConnection(HTTPConnection):
             ssl_context=ssl_context,
             assert_hostname=proxy_config.assert_hostname,
             assert_fingerprint=proxy_config.assert_fingerprint,
-            # Features that aren't implemented for proxies yet:
-            cert_file=None,
+            # Features that aren't implemented for proxies yet: cert_file | None = None,
             key_file=None,
             key_password=None,
             tls_in_tls=False,

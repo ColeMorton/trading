@@ -157,8 +157,7 @@ class IntegerNative(IntegerBase):
                 raise ValueError("Modulus must be positive")
             if mod_value == 0:
                 raise ZeroDivisionError("Modulus cannot be zero")
-        else:
-            mod_value = None
+        else: mod_value | None = None
         self._value = pow(self._value, exp_value, mod_value)
         return self
 

@@ -56,7 +56,7 @@ class StructuredLogger:
         self,
         name: str,
         log_dir: Union[str, Path] = None,
-        log_file: str = None,
+        log_file: str | None = None,
         level: Union[str, int] = "INFO",
         format_type: str = "detailed",
         include_console: bool = True,
@@ -366,7 +366,7 @@ class StructuredLogger:
 
 
 # Decorator for logging method calls and results
-def log_method(logger: StructuredLogger = None):
+def log_method(logger: StructuredLogger | None = None):
     """Decorator for logging method calls and results.
 
     Args:
@@ -425,7 +425,7 @@ _loggers = {}
 def get_logger(
     name: str,
     log_dir: Union[str, Path] = None,
-    log_file: str = None,
+    log_file: str | None = None,
     level: Union[str, int] = "INFO",
     format_type: str = "detailed",
     include_console: bool = True,
@@ -471,7 +471,7 @@ def get_logger(
 def create_logger(
     name: str,
     log_dir: Union[str, Path] = None,
-    log_file: str = None,
+    log_file: str | None = None,
     level: Union[str, int] = "INFO",
     format_type: str = "detailed",
     include_console: bool = True,

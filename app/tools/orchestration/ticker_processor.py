@@ -40,7 +40,7 @@ class TickerProcessor:
         self,
         config: Dict[str, Any],
         strategy_type: str,
-        progress_tracker: Optional[Any] = None,
+        progress_tracker: Optional[Any] | None = None,
     ) -> List[Dict[str, Any]]:
         """
         Execute a strategy for all configured tickers.
@@ -68,7 +68,7 @@ class TickerProcessor:
         self,
         ticker: str,
         config: Dict[str, Any],
-        progress_tracker: Optional[Any] = None,
+        progress_tracker: Optional[Any] | None = None,
     ) -> Optional[Dict[str, Any]]:
         """
         Process a single ticker through the portfolio analysis pipeline.

@@ -331,7 +331,7 @@ async def get_operation_metrics():
 
 
 @app.get("/api/operations", tags=["operations"])
-async def list_operations(status: str = None):
+async def list_operations(status: str | None = None):
     """List operations with optional status filter."""
     from app.api.async_messaging import OperationStatus
 

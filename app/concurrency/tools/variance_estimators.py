@@ -24,8 +24,8 @@ class VarianceEstimate:
     method: str
     data_quality_score: float
     observations_used: int
-    effective_observations: Optional[float] = None
-    warnings: List[str] = None
+    effective_observations: Optional[float] | None = None
+    warnings: List[str] | None = None
 
     def __post_init__(self):
         if self.warnings is None:
@@ -206,7 +206,7 @@ class VarianceEstimator:
         )
 
     def rolling_variance(
-        self, returns: np.ndarray, window: Optional[int] = None
+        self, returns: np.ndarray, window: Optional[int] | None = None
     ) -> VarianceEstimate:
         """
         Rolling window variance for time-varying volatility.
@@ -274,7 +274,7 @@ class VarianceEstimator:
         )
 
     def ewma_variance(
-        self, returns: np.ndarray, lambda_param: Optional[float] = None
+        self, returns: np.ndarray, lambda_param: Optional[float] | None = None
     ) -> VarianceEstimate:
         """
         Exponentially Weighted Moving Average variance estimation.
@@ -412,8 +412,8 @@ class VarianceEstimator:
     def bayesian_variance(
         self,
         returns: np.ndarray,
-        prior_variance: Optional[float] = None,
-        prior_confidence: Optional[float] = None,
+        prior_variance: Optional[float] | None = None,
+        prior_confidence: Optional[float] | None = None,
     ) -> VarianceEstimate:
         """
         Bayesian variance estimation with informative priors.
@@ -558,7 +558,7 @@ class VarianceEstimator:
         return ewma_var
 
     def select_best_estimator(
-        self, returns: np.ndarray, methods: Optional[List[str]] = None
+        self, returns: np.ndarray, methods: Optional[List[str]] | None = None
     ) -> VarianceEstimate:
         """
         Automatically select the best variance estimator based on data characteristics.

@@ -101,7 +101,7 @@ class AnalysisCache:
         self,
         request: MACrossRequest,
         response: MACrossResponse,
-        ttl: Optional[int] = None,
+        ttl: Optional[int] | None = None,
     ) -> None:
         """
         Store result in cache with TTL.
@@ -219,7 +219,7 @@ class AnalysisCache:
 
 
 # Global cache instance
-_analysis_cache: Optional[AnalysisCache] = None
+_analysis_cache: Optional[AnalysisCache] | None = None
 
 
 def get_cache() -> AnalysisCache:

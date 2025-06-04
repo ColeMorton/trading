@@ -53,9 +53,9 @@ class ConfigManager:
 
         # Initialize configuration storage
         self.configs: Dict[str, ConfigDict] = {}
-        self.config_schemas: Dict[
-            str, Type[Any]
-        ] = {}  # Changed from Type[TypedDict] to Type[Any]
+        self.config_schemas: Dict[str, Type[Any]] = (
+            {}
+        )  # Changed from Type[TypedDict] to Type[Any]
         self.config_docs: Dict[str, Dict[str, str]] = {}
         self.config_presets: Dict[str, Dict[str, ConfigDict]] = {}
 

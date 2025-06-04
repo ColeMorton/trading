@@ -57,6 +57,9 @@ export interface AnalysisResult {
   sortino_ratio: number;
   max_drawdown: number;
   total_return: number;
+  score?: number;
+  avg_trade_duration?: number;
+  beats_bnh?: number;
   metric_type?: string;
   [key: string]: any;
 }

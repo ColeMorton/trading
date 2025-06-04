@@ -133,10 +133,10 @@ def _is_no_proxy_host(hostname: str, no_proxy: Optional[list]) -> bool:
 def get_proxy_info(
     hostname: str,
     is_secure: bool,
-    proxy_host: Optional[str] = None,
+    proxy_host: Optional[str] | None = None,
     proxy_port: int = 0,
-    proxy_auth: Optional[tuple] = None,
-    no_proxy: Optional[list] = None,
+    proxy_auth: Optional[tuple] | None = None,
+    no_proxy: Optional[list] | None = None,
     proxy_type: str = "http",
 ) -> tuple:
     """

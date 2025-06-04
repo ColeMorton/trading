@@ -34,7 +34,7 @@ class ProgressTrackerInterface(ABC):
 
     @abstractmethod
     async def track(
-        self, task_id: str, operation: str, total_items: Optional[int] = None
+        self, task_id: str, operation: str, total_items: Optional[int] | None = None
     ) -> None:
         """Start tracking a new operation."""
 

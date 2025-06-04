@@ -219,8 +219,8 @@ def export_csv(
     feature1: str,
     config: ExportConfig,
     feature2: str = "",
-    filename: Optional[str] = None,
-    log: Optional[Callable] = None,
+    filename: Optional[str] | None = None,
+    log: Optional[Callable] | None = None,
 ) -> Tuple[pl.DataFrame, bool]:
     """Export data to CSV with proper formatting.
 

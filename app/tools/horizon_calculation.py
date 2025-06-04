@@ -82,7 +82,7 @@ class HorizonCalculator:
         self,
         signals: np.ndarray,
         returns: np.ndarray,
-        horizons: List[int] = None,
+        horizons: List[int] | None = None,
         min_sample_size: int = 20,
         use_cache: bool = True,
     ) -> HorizonMetrics:
@@ -359,7 +359,7 @@ def get_horizon_calculator(
 def calculate_horizon_metrics(
     signals: np.ndarray,
     returns: np.ndarray,
-    horizons: List[int] = None,
+    horizons: List[int] | None = None,
     min_sample_size: int = 20,
     use_cache: bool = True,
     log: Optional[Callable[[str, str], None]] = None,

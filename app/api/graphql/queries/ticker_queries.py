@@ -12,9 +12,9 @@ from app.database.config import get_prisma
 
 
 async def get_tickers(
-    asset_class: Optional[str] = None,
-    symbol_contains: Optional[str] = None,
-    limit: Optional[int] = None,
+    asset_class: Optional[str] | None = None,
+    symbol_contains: Optional[str] | None = None,
+    limit: Optional[int] | None = None,
 ) -> List[Ticker]:
     """Get tickers with optional filtering."""
     db = await get_prisma()
@@ -67,7 +67,7 @@ async def get_ticker(symbol: str) -> Optional[Ticker]:
 
 
 async def get_price_data(
-    symbol: str, filter: Optional[PriceDataFilter] = None
+    symbol: str, filter: Optional[PriceDataFilter] | None = None
 ) -> List[PriceBar]:
     """Get price data for a ticker with optional filtering."""
     db = await get_prisma()

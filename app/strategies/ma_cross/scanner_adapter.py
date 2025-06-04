@@ -22,7 +22,7 @@ class ScannerAdapter:
     for programmatic use.
     """
 
-    def __init__(self, log: Optional[Callable] = None):
+    def __init__(self, log: Optional[Callable] | None = None):
         """Initialize the scanner adapter."""
         self._log = log
         self._log_close = None

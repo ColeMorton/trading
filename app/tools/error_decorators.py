@@ -15,7 +15,7 @@ T = TypeVar("T")
 
 
 def handle_errors(
-    operation_name: Optional[str] = None,
+    operation_name: Optional[str] | None = None,
     error_map: Optional[Dict[Type[Exception], Type[TradingSystemError]]] = None,
     default_error_type: Type[TradingSystemError] = TradingSystemError,
     include_traceback: bool = True,
@@ -72,8 +72,10 @@ def handle_errors(
 
             # Default log function if none found
             if log_func is None:
+
                 def default_log(msg, level="info"):
                     print(f"[{level.upper()}] {msg}")
+
                 log_func = default_log
 
             try:

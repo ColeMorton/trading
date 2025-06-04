@@ -796,7 +796,7 @@ class RiskAccuracyValidator:
         returns_matrix: np.ndarray,
         weights: np.ndarray,
         strategy_names: List[str],
-        cov_matrix: Optional[np.ndarray] = None,
+        cov_matrix: Optional[np.ndarray] | None = None,
     ) -> ValidationResult:
         """
         Comprehensive validation of all risk calculation inputs.

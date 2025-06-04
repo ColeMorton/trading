@@ -108,7 +108,7 @@ class Timeout:
 
     def __init__(
         self,
-        total: _TYPE_TIMEOUT = None,
+        total: _TYPE_TIMEOUT | None = None,
         connect: _TYPE_TIMEOUT = _DEFAULT_TIMEOUT,
         read: _TYPE_TIMEOUT = _DEFAULT_TIMEOUT,
     ) -> None:

@@ -12,18 +12,15 @@ from . import __version__ as requests_version
 
 try:
     import charset_normalizer
-except ImportError:
-    charset_normalizer = None
+except ImportError: charset_normalizer | None = None
 
 try:
     import chardet
-except ImportError:
-    chardet = None
+except ImportError: chardet | None = None
 
 try:
     from urllib3.contrib import pyopenssl
-except ImportError:
-    pyopenssl = None
+except ImportError: pyopenssl | None = None
     OpenSSL = None
     cryptography = None
 else:

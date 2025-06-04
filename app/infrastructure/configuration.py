@@ -11,7 +11,7 @@ from app.core.interfaces import ConfigurationInterface
 class ConfigurationService(ConfigurationInterface):
     """Concrete implementation of configuration service."""
 
-    def __init__(self, config_path: Optional[Path] = None):
+    def __init__(self, config_path: Optional[Path] | None = None):
         self._config: Dict[str, Any] = {}
         self._config_path = config_path
         self._environment = os.getenv("ENVIRONMENT", "development")
@@ -21,7 +21,7 @@ class ConfigurationService(ConfigurationInterface):
         else:
             self._load_defaults()
 
-    def get(self, key: str, default: Any = None) -> Any:
+    def get(self, key: str, default: Any | None = None) -> Any:
         """Get configuration value by key."""
         keys = key.split(".")
         value = self._config
@@ -80,7 +80,7 @@ class ConfigurationService(ConfigurationInterface):
         """Get current environment (dev, test, prod)."""
         return self._environment
 
-    def list_keys(self, prefix: Optional[str] = None) -> List[str]:
+    def list_keys(self, prefix: Optional[str] | None = None) -> List[str]:
         """List all configuration keys."""
         keys = []
         self._collect_keys(self._config, keys, prefix or "")

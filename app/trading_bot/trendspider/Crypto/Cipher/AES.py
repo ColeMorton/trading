@@ -66,8 +66,7 @@ _cproto = """
 _raw_aes_lib = load_pycryptodome_raw_lib("Crypto.Cipher._raw_aes", _cproto)
 
 # Try to load AES with AES NI instructions
-try:
-    _raw_aesni_lib = None
+try: _raw_aesni_lib | None = None
     if _cpu_features.have_aes_ni():
         _raw_aesni_lib = load_pycryptodome_raw_lib(
             "Crypto.Cipher._raw_aesni", _cproto.replace("AES", "AESNI")

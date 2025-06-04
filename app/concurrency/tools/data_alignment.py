@@ -262,7 +262,7 @@ def align_multiple_data(
 
 def validate_aligned_data_quality(
     aligned_data: List[pl.DataFrame],
-    csv_path: Optional[str] = None,
+    csv_path: Optional[str] | None = None,
     json_metrics: Optional[Dict[str, Any]] = None,
     log: Optional[Callable[[str, str], None]] = None,
 ) -> ValidationSummary:
@@ -403,7 +403,7 @@ def validate_aligned_data_quality(
 def align_with_validation(
     data_list: List[pl.DataFrame],
     hourly_flags: List[bool],
-    csv_path: Optional[str] = None,
+    csv_path: Optional[str] | None = None,
     json_metrics: Optional[Dict[str, Any]] = None,
     log: Optional[Callable[[str, str], None]] = None,
 ) -> Tuple[List[pl.DataFrame], ValidationSummary]:

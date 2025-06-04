@@ -14,7 +14,7 @@ from app.core.interfaces import CacheInterface, ConfigurationInterface
 class CacheEntry:
     """Cache entry with value and expiration."""
 
-    def __init__(self, value: Any, ttl: Optional[timedelta] = None):
+    def __init__(self, value: Any, ttl: Optional[timedelta] | None = None):
         self.value = value
         self.created_at = time.time()
         self.ttl = ttl.total_seconds() if ttl else None
@@ -29,7 +29,7 @@ class CacheEntry:
 class CacheService(CacheInterface):
     """Concrete implementation of cache service."""
 
-    def __init__(self, config: Optional[ConfigurationInterface] = None):
+    def __init__(self, config: Optional[ConfigurationInterface] | None = None):
         self._cache: Dict[str, CacheEntry] = {}
         self._lock = asyncio.Lock()
         self._config = config
@@ -55,7 +55,9 @@ class CacheService(CacheInterface):
 
             return entry.value
 
-    async def set(self, key: str, value: Any, ttl: Optional[timedelta] = None) -> None:
+    async def set(
+        self, key: str, value: Any, ttl: Optional[timedelta] | None = None
+    ) -> None:
         """Set value in cache with optional TTL."""
         if not self._enabled:
             return
@@ -89,7 +91,9 @@ class CacheService(CacheInterface):
 
             return True
 
-    def cached(self, key_prefix: str, ttl: Optional[timedelta] = None) -> Callable:
+    def cached(
+        self, key_prefix: str, ttl: Optional[timedelta] | None = None
+    ) -> Callable:
         """Decorator for caching function results."""
 
         def decorator(func: Callable) -> Callable:
@@ -127,7 +131,7 @@ class CacheService(CacheInterface):
         return decorator
 
     async def get_or_set(
-        self, key: str, factory: Callable, ttl: Optional[timedelta] = None
+        self, key: str, factory: Callable, ttl: Optional[timedelta] | None = None
     ) -> Any:
         """Get from cache or compute and set."""
         result = await self.get(key)

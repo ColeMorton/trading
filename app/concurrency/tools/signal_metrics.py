@@ -20,7 +20,7 @@ USE_FIXED_SIGNAL_PROC = os.getenv("USE_FIXED_SIGNAL_PROC", "true").lower() == "t
 
 
 def calculate_signal_metrics(
-    aligned_data: List[pl.DataFrame], log: Optional[callable] = None
+    aligned_data: List[pl.DataFrame], log: Optional[callable] | None = None
 ) -> Dict[str, Any]:
     """Calculate signal metrics for all strategies.
 

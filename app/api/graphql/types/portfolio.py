@@ -19,9 +19,9 @@ class Portfolio:
 
     id: strawberry.ID
     name: str
-    description: Optional[str] = None
+    description: Optional[str] | None = None
     type: PortfolioType
-    parameters: Optional[JSON] = None
+    parameters: Optional[JSON] | None = None
     created_at: DateTime
     updated_at: DateTime
 
@@ -61,11 +61,11 @@ class MACrossAnalysisResponse:
     timestamp: DateTime
     tickers: List[str]
     strategy_types: List[str]
-    portfolios: Optional[List[AnalysisResult]] = None
+    portfolios: Optional[List[AnalysisResult]] | None = None
     total_portfolios_analyzed: int = 0
     total_portfolios_filtered: int = 0
     execution_time: float
-    error: Optional[str] = None
+    error: Optional[str] | None = None
 
 
 @strawberry.type
@@ -78,7 +78,7 @@ class AsyncAnalysisResponse:
     status_url: str
     stream_url: str
     timestamp: DateTime
-    estimated_time: Optional[float] = None
+    estimated_time: Optional[float] | None = None
 
 
 @strawberry.type
@@ -88,11 +88,11 @@ class AnalysisStatus:
     execution_id: strawberry.ID
     status: str
     started_at: DateTime
-    completed_at: Optional[DateTime] = None
+    completed_at: Optional[DateTime] | None = None
     progress: str
-    results: Optional[List[AnalysisResult]] = None
-    error: Optional[str] = None
-    execution_time: Optional[float] = None
+    results: Optional[List[AnalysisResult]] | None = None
+    error: Optional[str] | None = None
+    execution_time: Optional[float] | None = None
 
 
 @strawberry.input
@@ -100,19 +100,19 @@ class PortfolioInput:
     """Input for creating or updating a portfolio."""
 
     name: str
-    description: Optional[str] = None
+    description: Optional[str] | None = None
     type: PortfolioType = PortfolioType.STANDARD
-    parameters: Optional[JSON] = None
+    parameters: Optional[JSON] | None = None
 
 
 @strawberry.input
 class PortfolioFilter:
     """Filter options for portfolio queries."""
 
-    type: Optional[PortfolioType] = None
-    name_contains: Optional[str] = None
-    created_after: Optional[DateTime] = None
-    limit: Optional[int] = None
+    type: Optional[PortfolioType] | None = None
+    name_contains: Optional[str] | None = None
+    created_after: Optional[DateTime] | None = None
+    limit: Optional[int] | None = None
 
 
 @strawberry.input
@@ -129,10 +129,10 @@ class MACrossAnalysisInput:
     use_years: bool = False
     years: float = 15.0
     use_synthetic: bool = False
-    ticker_1: Optional[str] = None
-    ticker_2: Optional[str] = None
+    ticker_1: Optional[str] | None = None
+    ticker_2: Optional[str] | None = None
     refresh: bool = True
-    min_criteria: Optional[PerformanceCriteria] = None
+    min_criteria: Optional[PerformanceCriteria] | None = None
     sort_by: str = "Score"
     sort_asc: bool = False
     use_gbm: bool = False
@@ -145,11 +145,11 @@ class MACrossAnalysisInput:
 class AnalysisFilter:
     """Filter options for analysis results."""
 
-    min_return: Optional[float] = None
-    min_sharpe: Optional[float] = None
-    max_drawdown: Optional[float] = None
-    min_trades: Optional[int] = None
-    strategy_types: Optional[List[StrategyType]] = None
+    min_return: Optional[float] | None = None
+    min_sharpe: Optional[float] | None = None
+    max_drawdown: Optional[float] | None = None
+    min_trades: Optional[int] | None = None
+    strategy_types: Optional[List[StrategyType]] | None = None
     sort_by: str = "total_return"
     sort_order: SortOrder = SortOrder.DESC
-    limit: Optional[int] = None
+    limit: Optional[int] | None = None

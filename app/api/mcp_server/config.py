@@ -10,7 +10,7 @@ class MCPConfig(BaseSettings):
 
     # API connection settings
     api_base_url: str = "http://localhost:8000"
-    api_key: Optional[str] = None
+    api_key: Optional[str] | None = None
 
     # Request settings
     request_timeout: int = 30
@@ -23,7 +23,7 @@ class MCPConfig(BaseSettings):
 
     # Logging settings
     log_level: str = "INFO"
-    log_file: Optional[str] = None
+    log_file: Optional[str] | None = None
 
     class Config:
         env_prefix = "MCP_"

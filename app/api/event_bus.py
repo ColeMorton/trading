@@ -31,10 +31,10 @@ class Event:
     event_type: str
     event_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    source: Optional[str] = None
+    source: Optional[str] | None = None
     data: Dict[str, Any] = field(default_factory=dict)
     priority: EventPriority = EventPriority.NORMAL
-    correlation_id: Optional[str] = None
+    correlation_id: Optional[str] | None = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -86,10 +86,10 @@ class EventFilter:
 
     def __init__(
         self,
-        event_types: Optional[List[str]] = None,
-        sources: Optional[List[str]] = None,
-        min_priority: Optional[EventPriority] = None,
-        correlation_ids: Optional[List[str]] = None,
+        event_types: Optional[List[str]] | None = None,
+        sources: Optional[List[str]] | None = None,
+        min_priority: Optional[EventPriority] | None = None,
+        correlation_ids: Optional[List[str]] | None = None,
         custom_filter: Optional[Callable[[Event], bool]] = None,
     ):
         self.event_types = set(event_types) if event_types else None
@@ -123,7 +123,7 @@ class Subscription:
     """Event subscription."""
 
     handler: EventHandler
-    filter: Optional[EventFilter] = None
+    filter: Optional[EventFilter] | None = None
     subscription_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     created_at: datetime = field(default_factory=datetime.utcnow)
     active: bool = True
@@ -182,8 +182,8 @@ class EventBus:
     def subscribe(
         self,
         handler: EventHandler,
-        event_types: Optional[List[str]] = None,
-        filter: Optional[EventFilter] = None,
+        event_types: Optional[List[str]] | None = None,
+        filter: Optional[EventFilter] | None = None,
     ) -> str:
         """Subscribe a handler to events."""
         event_types = event_types or handler.get_event_types()
@@ -372,7 +372,9 @@ class EventBus:
             "worker_count": len(self._worker_tasks),
         }
 
-    def get_event_history(self, limit: Optional[int] = None) -> List[Dict[str, Any]]:
+    def get_event_history(
+        self, limit: Optional[int] | None = None
+    ) -> List[Dict[str, Any]]:
         """Get recent event history."""
         events = self._event_history
         if limit:
@@ -388,9 +390,9 @@ event_bus = EventBus()
 async def publish_event(
     event_type: str,
     data: Dict[str, Any],
-    source: Optional[str] = None,
+    source: Optional[str] | None = None,
     priority: EventPriority = EventPriority.NORMAL,
-    correlation_id: Optional[str] = None,
+    correlation_id: Optional[str] | None = None,
 ) -> str:
     """Convenience function to publish an event."""
     event = Event(
@@ -406,8 +408,8 @@ async def publish_event(
 
 def subscribe_to_events(
     handler: EventHandler,
-    event_types: Optional[List[str]] = None,
-    filter: Optional[EventFilter] = None,
+    event_types: Optional[List[str]] | None = None,
+    filter: Optional[EventFilter] | None = None,
 ) -> str:
     """Convenience function to subscribe to events."""
     return event_bus.subscribe(handler, event_types, filter)

@@ -242,8 +242,7 @@ class SSLTransport:
         should_loop = True
         ret = None
 
-        while should_loop:
-            errno = None
+        while should_loop: errno | None = None
             try:
                 if arg1 is None and arg2 is None:
                     ret = func()

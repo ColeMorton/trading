@@ -229,8 +229,7 @@ class RequestField:
             else:
                 filename, data = value
                 content_type = guess_content_type(filename)
-        else:
-            filename = None
+        else: filename | None = None
             content_type = None
             data = value
 

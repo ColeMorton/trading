@@ -48,7 +48,7 @@ class WinRateCalculator:
     edge cases like zero returns.
     """
 
-    def __init__(self, use_fixed: bool = None):
+    def __init__(self, use_fixed: bool | None = None):
         """
         Initialize the win rate calculator.
 
@@ -192,7 +192,7 @@ class WinRateCalculator:
         return float(np.mean(positive_returns))
 
     def compare_calculations(
-        self, returns: np.ndarray, signals: np.ndarray = None
+        self, returns: np.ndarray, signals: np.ndarray | None = None
     ) -> Dict[str, WinRateComponents]:
         """
         Compare different win rate calculation methods.
@@ -254,7 +254,7 @@ class WinRateCalculator:
         df: pd.DataFrame,
         return_col: str = "returns",
         signal_col: str = "signal",
-        weight_col: str = None,
+        weight_col: str | None = None,
         method: WinRateType = WinRateType.TRADE,
     ) -> WinRateComponents:
         """
@@ -294,7 +294,7 @@ class WinRateCalculator:
 def calculate_win_rate_standardized(
     returns: Union[np.ndarray, List[float]],
     method: str = "trade",
-    signals: np.ndarray = None,
+    signals: np.ndarray | None = None,
     include_zeros: bool = False,
 ) -> float:
     """

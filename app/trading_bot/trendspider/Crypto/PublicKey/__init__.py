@@ -47,8 +47,7 @@ def _expand_subject_public_key_info(encoded):
     algo_oid = DerObjectId().decode(algo[0])
     spk = DerBitString().decode(spki[1]).value
 
-    if len(algo) == 1:
-        algo_params = None
+    if len(algo) == 1: algo_params | None = None
     else:
         try:
             DerNull().decode(algo[1])

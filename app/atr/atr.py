@@ -159,7 +159,7 @@ def generate_signals(
             # Check if values are 2D and flatten if needed
             if hasattr(data[col].values, "shape") and len(data[col].values.shape) > 1:
                 log(
-                    f"DEBUG: Flattening {col} values from shape data[col].values.shape}"
+                    f"DEBUG: Flattening {col} values from shape {data[col].values.shape}"
                 )
                 data[col] = pd.Series(data[col].values.flatten(), index=data.index)
 
@@ -228,7 +228,7 @@ def generate_signals(
             # Check if values are 2D and flatten if needed
             if hasattr(data[col].values, "shape") and len(data[col].values.shape) > 1:
                 log(
-                    f"DEBUG: Final flattening of {col} values from shape data[col].values.shape}"
+                    f"DEBUG: Final flattening of {col} values from shape {data[col].values.shape}"
                 )
                 data[col] = pd.Series(data[col].values.flatten(), index=data.index)
 
@@ -431,14 +431,14 @@ def analyze_params(
         # Convert to scalar if needed
         if isinstance(total_return_value, pd.Series):
             log(
-                f"DEBUG: total_return_value is a Series with length len(total_return_value)}"
+                f"DEBUG: total_return_value is a Series with length {len(total_return_value)}"
             )
             if len(total_return_value) == 1:
                 total_return_value = total_return_value.item()
                 log(f"DEBUG: Converted to scalar: {total_return_value}")
             else:
                 log(
-                    f"Unexpected Series length: len(total_return_value)}, using first value",
+                    f"Unexpected Series length: {len(total_return_value)}, using first value",
                     "warning",
                 )
                 total_return_value = float(total_return_value.iloc[0])
@@ -502,14 +502,14 @@ def parameter_sensitivity_analysis(
                         data.copy(), length, multiplier
                     )
                     log(
-                        f"Result for length={length}, multiplier={multiplier}: total_return=total_return:.4f}"
+                        f"Result for length={length}, multiplier={multiplier}: total_return={total_return:.4f}"
                     )
 
                     # Store result in dictionary - ensure it's a float
                     results_dict[length][multiplier] = float(total_return)
                 except Exception as e:
                     log(
-                        f"Error analyzing params for length={length}, multiplier={multiplier}: str(e)}",
+                        f"Error analyzing params for length={length}, multiplier={multiplier}: {str(e)}",
                         "error",
                     )
                     # Store NaN for failed combinations
@@ -592,7 +592,7 @@ def plot_heatmap(results: pd.DataFrame, ticker: str, config: ATRConfig) -> None:
     plt.show()
 
 
-def main(config: ATRConfig = None) -> None:
+def main(config: ATRConfig | None = None) -> None:
     """
     Main function to run the ATR analysis.
 
@@ -714,14 +714,14 @@ def main(config: ATRConfig = None) -> None:
             data = polars_data.to_pandas()
 
             log(
-                f"DEBUG: Pandas DataFrame columns before setting index: data.columns.tolist()}"
+                f"DEBUG: Pandas DataFrame columns before setting index: {data.columns.tolist()}"
             )
             log(f"DEBUG: Pandas DataFrame shape before setting index: {data.shape}")
 
             data = data.set_index("Date")
 
             log(
-                f"DEBUG: Pandas DataFrame columns after setting index: data.columns.tolist()}"
+                f"DEBUG: Pandas DataFrame columns after setting index: {data.columns.tolist()}"
             )
             log(f"DEBUG: Pandas DataFrame shape after setting index: {data.shape}")
 
@@ -747,13 +747,10 @@ def main(config: ATRConfig = None) -> None:
 
             # Log and print results
             log(
-                f"Best parameters: ATR Length: best_params[0]}, ATR Multiplier: {
-        best_params[1]}, Return: {
-            best_return:.3f}"
+                f"Best parameters: ATR Length: {best_params[0]}, ATR Multiplier: {best_params[1]}, Return: {best_return:.3f}"
             )
             print(
-                f"Best parameters for {interval} {ticker}: ATR Length: best_params[0]}, ATR Multiplier: {
-        best_params[1]}"
+                f"Best parameters for {interval} {ticker}: ATR Length: {best_params[0]}, ATR Multiplier: {best_params[1]}"
             )
             print(f"Best total return: {best_return:.3f}")
 

@@ -432,8 +432,7 @@ def parse_url(url: str) -> Url:
             port_int = int(port)
             if not (0 <= port_int <= 65535):
                 raise LocationParseError(url)
-        else:
-            port_int = None
+        else: port_int | None = None
 
         host = _normalize_host(host, scheme)
 
@@ -455,8 +454,7 @@ def parse_url(url: str) -> Url:
     if not path:
         if query is not None or fragment is not None:
             path = ""
-        else:
-            path = None
+        else: path | None = None
 
     return Url(
         scheme=scheme,

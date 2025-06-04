@@ -308,8 +308,8 @@ class frame_buffer:
         self.lock = Lock()
 
     def clear(self) -> None:
-        self.header: Optional[tuple] = None
-        self.length: Optional[int] = None
+        self.header: Optional[tuple] | None = None
+        self.length: Optional[int] | None = None
         self.mask_value: Union[bytes, str, None] = None
 
     def has_received_header(self) -> bool:
@@ -413,8 +413,8 @@ class continuous_frame:
     def __init__(self, fire_cont_frame: bool, skip_utf8_validation: bool) -> None:
         self.fire_cont_frame = fire_cont_frame
         self.skip_utf8_validation = skip_utf8_validation
-        self.cont_data: Optional[list] = None
-        self.recving_frames: Optional[int] = None
+        self.cont_data: Optional[list] | None = None
+        self.recving_frames: Optional[int] | None = None
 
     def validate(self, frame: ABNF) -> None:
         if not self.recving_frames and frame.opcode == ABNF.OPCODE_CONT:
@@ -433,8 +433,7 @@ class continuous_frame:
                 self.recving_frames = frame.opcode
             self.cont_data = [frame.opcode, frame.data]
 
-        if frame.fin:
-            self.recving_frames = None
+        if frame.fin: self.recving_frames | None = None
 
     def is_fire(self, frame: ABNF) -> Union[bool, int]:
         return frame.fin or self.fire_cont_frame

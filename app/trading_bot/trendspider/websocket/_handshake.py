@@ -146,8 +146,7 @@ def _get_resp_headers(sock, success_statuses: tuple = SUCCESS_STATUSES) -> tuple
             response_body = sock.recv(
                 int(content_len)
             )  # read the body of the HTTP error message response and include it in the exception
-        else:
-            response_body = None
+        else: response_body | None = None
         raise WebSocketBadStatusException(
             f"Handshake status {status} {status_message} -+-+- {resp_headers} -+-+- {response_body}",
             status,
@@ -164,8 +163,7 @@ _HEADERS_TO_CHECK = {
 }
 
 
-def _validate(headers, key: str, subprotocols) -> tuple:
-    subproto = None
+def _validate(headers, key: str, subprotocols) -> tuple: subproto | None = None
     for k, v in _HEADERS_TO_CHECK.items():
         r = headers.get(k, None)
         if not r:

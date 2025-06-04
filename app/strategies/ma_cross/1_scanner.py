@@ -89,7 +89,7 @@ def validate_config(config: Config) -> None:
 
 def process_scanner() -> bool:
     """Process each ticker in scanner list with both SMA and EMA configurations.
-    
+
     Creates a DataFrame with results and exports to CSV.
 
     The function:

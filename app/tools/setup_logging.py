@@ -19,7 +19,7 @@ def setup_logging(
     log_file: str,
     level: int = logging.INFO,
     mode: str = "w",
-    log_subdir: str = None,
+    log_subdir: str | None = None,
 ) -> Tuple[
     Callable[[str, str], None], Callable[[], None], logging.Logger, logging.FileHandler
 ]:

@@ -19,7 +19,7 @@ class Strategy:
     id: strawberry.ID
     name: str
     type: StrategyType
-    description: Optional[str] = None
+    description: Optional[str] | None = None
     created_at: DateTime
     updated_at: DateTime
 
@@ -32,17 +32,17 @@ class StrategyConfiguration:
     strategy_id: str
     ticker_id: str
     timeframe: TimeframeType
-    short_window: Optional[int] = None
-    long_window: Optional[int] = None
-    signal_window: Optional[int] = None
-    stop_loss_pct: Optional[float] = None
-    rsi_period: Optional[int] = None
-    rsi_threshold: Optional[float] = None
-    signal_entry: Optional[str] = None
-    signal_exit: Optional[str] = None
+    short_window: Optional[int] | None = None
+    long_window: Optional[int] | None = None
+    signal_window: Optional[int] | None = None
+    stop_loss_pct: Optional[float] | None = None
+    rsi_period: Optional[int] | None = None
+    rsi_threshold: Optional[float] | None = None
+    signal_entry: Optional[str] | None = None
+    signal_exit: Optional[str] | None = None
     direction: DirectionType
-    allocation_pct: Optional[float] = None
-    parameters: Optional[JSON] = None
+    allocation_pct: Optional[float] | None = None
+    parameters: Optional[JSON] | None = None
     created_at: DateTime
     updated_at: DateTime
 
@@ -56,9 +56,9 @@ class Signal:
     signal_type: SignalType
     signal_date: DateTime
     price: float
-    quantity: Optional[float] = None
-    confidence: Optional[float] = None
-    metadata: Optional[JSON] = None
+    quantity: Optional[float] | None = None
+    confidence: Optional[float] | None = None
+    metadata: Optional[JSON] | None = None
     created_at: DateTime
 
 
@@ -68,7 +68,7 @@ class StrategyInput:
 
     name: str
     type: StrategyType
-    description: Optional[str] = None
+    description: Optional[str] | None = None
 
 
 @strawberry.input
@@ -78,24 +78,24 @@ class StrategyConfigurationInput:
     strategy_id: str
     ticker_id: str
     timeframe: TimeframeType
-    short_window: Optional[int] = None
-    long_window: Optional[int] = None
-    signal_window: Optional[int] = None
-    stop_loss_pct: Optional[float] = None
-    rsi_period: Optional[int] = None
-    rsi_threshold: Optional[float] = None
-    signal_entry: Optional[str] = None
-    signal_exit: Optional[str] = None
+    short_window: Optional[int] | None = None
+    long_window: Optional[int] | None = None
+    signal_window: Optional[int] | None = None
+    stop_loss_pct: Optional[float] | None = None
+    rsi_period: Optional[int] | None = None
+    rsi_threshold: Optional[float] | None = None
+    signal_entry: Optional[str] | None = None
+    signal_exit: Optional[str] | None = None
     direction: DirectionType = DirectionType.LONG
-    allocation_pct: Optional[float] = None
-    parameters: Optional[JSON] = None
+    allocation_pct: Optional[float] | None = None
+    parameters: Optional[JSON] | None = None
 
 
 @strawberry.input
 class StrategyFilter:
     """Filter options for strategy queries."""
 
-    type: Optional[StrategyType] = None
-    ticker_symbol: Optional[str] = None
-    timeframe: Optional[TimeframeType] = None
-    limit: Optional[int] = None
+    type: Optional[StrategyType] | None = None
+    ticker_symbol: Optional[str] | None = None
+    timeframe: Optional[TimeframeType] | None = None
+    limit: Optional[int] | None = None

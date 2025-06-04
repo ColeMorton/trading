@@ -52,8 +52,8 @@ class PortfolioReturnsCalculator:
         self,
         aligned_returns: pl.DataFrame,
         allocations: List[float],
-        position_arrays: Optional[List[np.ndarray]] = None,
-        strategy_names: Optional[List[str]] = None,
+        position_arrays: Optional[List[np.ndarray]] | None = None,
+        strategy_names: Optional[List[str]] | None = None,
     ) -> Tuple[np.ndarray, Dict[str, Any]]:
         """
         Calculate portfolio returns from aligned strategy returns and allocations.
@@ -113,7 +113,7 @@ class PortfolioReturnsCalculator:
         self,
         returns_matrix: np.ndarray,
         weights: np.ndarray,
-        position_arrays: Optional[List[np.ndarray]] = None,
+        position_arrays: Optional[List[np.ndarray]] | None = None,
     ) -> np.ndarray:
         """
         Calculate weighted portfolio returns accounting for positions.
@@ -272,7 +272,7 @@ class PortfolioReturnsCalculator:
         self,
         portfolio_returns: np.ndarray,
         window: int = 252,
-        min_periods: Optional[int] = None,
+        min_periods: Optional[int] | None = None,
     ) -> pl.DataFrame:
         """
         Calculate rolling portfolio metrics for stability analysis.

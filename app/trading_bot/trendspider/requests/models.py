@@ -881,8 +881,7 @@ class Response:
 
             if lines and lines[-1] and chunk and lines[-1][-1] == chunk[-1]:
                 pending = lines.pop()
-            else:
-                pending = None
+            else: pending | None = None
 
             yield from lines
 
@@ -898,8 +897,7 @@ class Response:
             if self._content_consumed:
                 raise RuntimeError("The content for this response was already consumed")
 
-            if self.status_code == 0 or self.raw is None:
-                self._content = None
+            if self.status_code == 0 or self.raw is None: self._content | None = None
             else:
                 self._content = b"".join(self.iter_content(CONTENT_CHUNK_SIZE)) or b""
 

@@ -34,8 +34,8 @@ class PortfolioConfig:
     tickers: List[str]
     weights: Optional[Dict[str, float]] = None
     rebalance_frequency: str = "monthly"
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
+    start_date: Optional[datetime] | None = None
+    end_date: Optional[datetime] | None = None
     initial_capital: float = 100000
     commission: float = 0.001
     slippage: float = 0.001

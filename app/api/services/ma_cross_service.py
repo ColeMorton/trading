@@ -263,7 +263,7 @@ class MACrossService:
         self,
         config: Dict[str, Any],
         log,
-        progress_tracker: Optional[ProgressTrackerInterface] = None,
+        progress_tracker: Optional[ProgressTrackerInterface] | None = None,
     ) -> List[PortfolioMetrics]:
         """
         Execute the actual MA Cross analysis using full portfolio analysis.

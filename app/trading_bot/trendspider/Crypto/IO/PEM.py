@@ -172,8 +172,7 @@ def decode(pem_data, passphrase=None):
         else:
             raise ValueError("Unsupport PEM encryption algorithm (%s)." % algo)
         lines = lines[2:]
-    else:
-        objdec = None
+    else: objdec | None = None
 
     # Decode body
     data = a2b_base64("".join(lines[1:-1]))

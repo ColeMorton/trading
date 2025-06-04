@@ -56,7 +56,7 @@ class StrategyAnalyzer(StrategyAnalyzerInterface):
     def __init__(
         self,
         data_access: DataAccessInterface,
-        logger: Optional[LoggingInterface] = None,
+        logger: Optional[LoggingInterface] | None = None,
     ):
         self._data_access = data_access
         self._logger = logger
@@ -254,7 +254,7 @@ class StrategyExecutor(StrategyExecutorInterface):
         self,
         analyzer: StrategyAnalyzerInterface,
         progress_tracker: ProgressTrackerInterface,
-        logger: Optional[LoggingInterface] = None,
+        logger: Optional[LoggingInterface] | None = None,
     ):
         self._analyzer = analyzer
         self._progress_tracker = progress_tracker
@@ -265,7 +265,7 @@ class StrategyExecutor(StrategyExecutorInterface):
         strategy_type: str,
         tickers: List[str],
         config: Dict[str, Any],
-        output_dir: Optional[Path] = None,
+        output_dir: Optional[Path] | None = None,
     ) -> Dict[str, Any]:
         """Execute a strategy for multiple tickers."""
         task_id = f"{strategy_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"

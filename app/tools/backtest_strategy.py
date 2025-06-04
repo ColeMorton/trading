@@ -220,9 +220,9 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                                     f"All trades are winning. Setting Expectancy per Trade to Avg Win: {avg_win:.4f}",
                                     "info",
                                 )
-                                stats_dict[
-                                    "Expectancy per Trade"
-                                ] = expectancy_per_trade
+                                stats_dict["Expectancy per Trade"] = (
+                                    expectancy_per_trade
+                                )
 
                                 # Add debug logging
                                 log_func(

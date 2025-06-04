@@ -42,7 +42,7 @@ def get_last_trading_day(today: date = date.today()) -> date:
         return today - timedelta(days=1)
 
 
-def is_signal_current(signals: pl.DataFrame, config: dict = None) -> bool:
+def is_signal_current(signals: pl.DataFrame, config: dict | None = None) -> bool:
     """
     Check if there is a valid signal on the last trading day.
     A valid signal is when the fast MA is above the slow MA (for longs)

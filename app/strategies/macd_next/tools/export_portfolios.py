@@ -72,7 +72,7 @@ def sort_portfolios(
 
 
 def _reorder_columns(
-    df: pl.DataFrame, export_type: str, config: ExportConfig = None
+    df: pl.DataFrame, export_type: str, config: ExportConfig | None = None
 ) -> pl.DataFrame:
     """Reorder columns based on export type.
 
@@ -276,8 +276,8 @@ def export_portfolios(
     portfolios: List[Dict],
     config: ExportConfig,
     export_type: str,
-    csv_filename: Optional[str] = None,
-    log: Optional[Callable] = None,
+    csv_filename: Optional[str] | None = None,
+    log: Optional[Callable] | None = None,
     feature_dir: str = "",  # Added feature_dir parameter for consistency with ma_cross
 ) -> Tuple[pl.DataFrame, bool]:
     """Convert portfolio dictionaries to Polars DataFrame and export to CSV.

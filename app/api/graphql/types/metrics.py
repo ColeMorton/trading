@@ -23,43 +23,43 @@ class BacktestResult:
 
     # Performance Metrics
     total_return_pct: float
-    annual_return_pct: Optional[float] = None
-    sharpe_ratio: Optional[float] = None
-    sortino_ratio: Optional[float] = None
-    max_drawdown_pct: Optional[float] = None
-    calmar_ratio: Optional[float] = None
+    annual_return_pct: Optional[float] | None = None
+    sharpe_ratio: Optional[float] | None = None
+    sortino_ratio: Optional[float] | None = None
+    max_drawdown_pct: Optional[float] | None = None
+    calmar_ratio: Optional[float] | None = None
 
     # Trading Metrics
     total_trades: int
-    winning_trades: Optional[int] = None
-    losing_trades: Optional[int] = None
-    win_rate_pct: Optional[float] = None
-    profit_factor: Optional[float] = None
-    expectancy_per_trade: Optional[float] = None
-    avg_trade_duration: Optional[float] = None
-    avg_winning_trade: Optional[float] = None
-    avg_losing_trade: Optional[float] = None
+    winning_trades: Optional[int] | None = None
+    losing_trades: Optional[int] | None = None
+    win_rate_pct: Optional[float] | None = None
+    profit_factor: Optional[float] | None = None
+    expectancy_per_trade: Optional[float] | None = None
+    avg_trade_duration: Optional[float] | None = None
+    avg_winning_trade: Optional[float] | None = None
+    avg_losing_trade: Optional[float] | None = None
 
     # Risk Metrics
-    value_at_risk_95: Optional[float] = None
-    conditional_value_at_risk: Optional[float] = None
-    beta: Optional[float] = None
-    alpha: Optional[float] = None
+    value_at_risk_95: Optional[float] | None = None
+    conditional_value_at_risk: Optional[float] | None = None
+    beta: Optional[float] | None = None
+    alpha: Optional[float] | None = None
 
     # Benchmark Comparison
-    benchmark_return_pct: Optional[float] = None
-    outperformance_pct: Optional[float] = None
-    tracking_error: Optional[float] = None
-    information_ratio: Optional[float] = None
+    benchmark_return_pct: Optional[float] | None = None
+    outperformance_pct: Optional[float] | None = None
+    tracking_error: Optional[float] | None = None
+    information_ratio: Optional[float] | None = None
 
     # Additional Metrics
-    score: Optional[float] = None
-    open_trades: Optional[int] = None
-    trades_per_day: Optional[float] = None
-    trades_per_month: Optional[float] = None
+    score: Optional[float] | None = None
+    open_trades: Optional[int] | None = None
+    trades_per_day: Optional[float] | None = None
+    trades_per_month: Optional[float] | None = None
 
     # Raw Data
-    raw_metrics: Optional[JSON] = None
+    raw_metrics: Optional[JSON] | None = None
     created_at: DateTime
 
 
@@ -68,16 +68,16 @@ class PerformanceMetrics:
     """Consolidated performance metrics for display."""
 
     total_return: float
-    annual_return: Optional[float] = None
-    sharpe_ratio: Optional[float] = None
-    sortino_ratio: Optional[float] = None
-    calmar_ratio: Optional[float] = None
-    max_drawdown: Optional[float] = None
-    win_rate: Optional[float] = None
-    profit_factor: Optional[float] = None
+    annual_return: Optional[float] | None = None
+    sharpe_ratio: Optional[float] | None = None
+    sortino_ratio: Optional[float] | None = None
+    calmar_ratio: Optional[float] | None = None
+    max_drawdown: Optional[float] | None = None
+    win_rate: Optional[float] | None = None
+    profit_factor: Optional[float] | None = None
     total_trades: int
-    expectancy: Optional[float] = None
-    score: Optional[float] = None
+    expectancy: Optional[float] | None = None
+    score: Optional[float] | None = None
 
 
 @strawberry.type
@@ -90,25 +90,25 @@ class PortfolioMetrics:
 
     # Portfolio Performance
     total_return_pct: float
-    sharpe_ratio: Optional[float] = None
-    sortino_ratio: Optional[float] = None
-    max_drawdown_pct: Optional[float] = None
+    sharpe_ratio: Optional[float] | None = None
+    sortino_ratio: Optional[float] | None = None
+    max_drawdown_pct: Optional[float] | None = None
 
     # Concurrency Metrics
-    max_concurrent_strategies: Optional[int] = None
-    avg_concurrent_strategies: Optional[float] = None
-    concurrency_ratio: Optional[float] = None
-    efficiency_score: Optional[float] = None
+    max_concurrent_strategies: Optional[int] | None = None
+    avg_concurrent_strategies: Optional[float] | None = None
+    concurrency_ratio: Optional[float] | None = None
+    efficiency_score: Optional[float] | None = None
 
     # Risk Analysis
-    portfolio_var: Optional[float] = None
-    diversification_ratio: Optional[float] = None
+    portfolio_var: Optional[float] | None = None
+    diversification_ratio: Optional[float] | None = None
 
     # Complex Data
-    risk_contribution: Optional[JSON] = None
-    correlation_matrix: Optional[JSON] = None
-    strategy_weights: Optional[JSON] = None
-    performance_attribution: Optional[JSON] = None
+    risk_contribution: Optional[JSON] | None = None
+    correlation_matrix: Optional[JSON] | None = None
+    strategy_weights: Optional[JSON] | None = None
+    performance_attribution: Optional[JSON] | None = None
 
     created_at: DateTime
 
@@ -117,23 +117,23 @@ class PortfolioMetrics:
 class MetricsFilter:
     """Filter options for metrics queries."""
 
-    start_date: Optional[DateTime] = None
-    end_date: Optional[DateTime] = None
-    min_sharpe: Optional[float] = None
-    min_return: Optional[float] = None
-    max_drawdown: Optional[float] = None
-    min_trades: Optional[int] = None
-    limit: Optional[int] = None
+    start_date: Optional[DateTime] | None = None
+    end_date: Optional[DateTime] | None = None
+    min_sharpe: Optional[float] | None = None
+    min_return: Optional[float] | None = None
+    max_drawdown: Optional[float] | None = None
+    min_trades: Optional[int] | None = None
+    limit: Optional[int] | None = None
 
 
 @strawberry.input
 class PerformanceCriteria:
     """Minimum criteria for filtering strategies."""
 
-    trades: Optional[int] = None
-    win_rate: Optional[float] = None
-    expectancy_per_trade: Optional[float] = None
-    profit_factor: Optional[float] = None
-    score: Optional[float] = None
-    sortino_ratio: Optional[float] = None
-    beats_bnh: Optional[float] = None
+    trades: Optional[int] | None = None
+    win_rate: Optional[float] | None = None
+    expectancy_per_trade: Optional[float] | None = None
+    profit_factor: Optional[float] | None = None
+    score: Optional[float] | None = None
+    sortino_ratio: Optional[float] | None = None
+    beats_bnh: Optional[float] | None = None

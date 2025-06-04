@@ -19,7 +19,9 @@ class DataAccessService(DataAccessInterface):
     """Concrete implementation of data access service."""
 
     def __init__(
-        self, config: ConfigurationInterface, logger: Optional[LoggingInterface] = None
+        self,
+        config: ConfigurationInterface,
+        logger: Optional[LoggingInterface] | None = None,
     ):
         self._config = config
         self._logger = logger
@@ -32,8 +34,8 @@ class DataAccessService(DataAccessInterface):
     def get_price_data(
         self,
         ticker: str,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
+        start_date: Optional[datetime] | None = None,
+        end_date: Optional[datetime] | None = None,
         interval: str = "1d",
     ) -> Union[pd.DataFrame, pl.DataFrame]:
         """Get price data for a ticker."""
@@ -60,7 +62,7 @@ class DataAccessService(DataAccessInterface):
         self,
         data: Union[pd.DataFrame, pl.DataFrame],
         ticker: str,
-        path: Optional[Path] = None,
+        path: Optional[Path] | None = None,
     ) -> Path:
         """Save price data to storage."""
         if path is None:

@@ -16,8 +16,8 @@ class CharsetMatch:
         mean_mess_ratio: float,
         has_sig_or_bom: bool,
         languages: "CoherenceMatches",
-        decoded_payload: Optional[str] = None,
-        preemptive_declaration: Optional[str] = None,
+        decoded_payload: Optional[str] | None = None,
+        preemptive_declaration: Optional[str] | None = None,
     ):
         self._payload: bytes = payload
 
@@ -25,13 +25,13 @@ class CharsetMatch:
         self._mean_mess_ratio: float = mean_mess_ratio
         self._languages: CoherenceMatches = languages
         self._has_sig_or_bom: bool = has_sig_or_bom
-        self._unicode_ranges: Optional[List[str]] = None
+        self._unicode_ranges: Optional[List[str]] | None = None
 
         self._leaves: List[CharsetMatch] = []
         self._mean_coherence_ratio: float = 0.0
 
-        self._output_payload: Optional[bytes] = None
-        self._output_encoding: Optional[str] = None
+        self._output_payload: Optional[bytes] | None = None
+        self._output_encoding: Optional[str] | None = None
 
         self._string: Optional[str] = decoded_payload
 
@@ -247,7 +247,7 @@ class CharsetMatches:
     Act like a list(iterable) but does not implements all related methods.
     """
 
-    def __init__(self, results: Optional[List[CharsetMatch]] = None):
+    def __init__(self, results: Optional[List[CharsetMatch]] | None = None):
         self._results: List[CharsetMatch] = sorted(results) if results else []
 
     def __iter__(self) -> Iterator[CharsetMatch]:

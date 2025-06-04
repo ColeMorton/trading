@@ -71,7 +71,7 @@ class Trade:
     exit_price: Optional[float]
     quantity: float
     side: PositionSide
-    pnl: Optional[float] = None
-    pnl_percent: Optional[float] = None
+    pnl: Optional[float] | None = None
+    pnl_percent: Optional[float] | None = None
     commission: float = 0.0
     metadata: Optional[Dict[str, Any]] = None

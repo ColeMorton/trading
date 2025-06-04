@@ -452,8 +452,7 @@ class EaxFSMTests(unittest.TestCase):
     def test_valid_multiple_encrypt_or_decrypt(self):
         for method_name in "encrypt", "decrypt":
             for auth_data in (None, b"333", self.data_128, self.data_128 + b"3"):
-                if auth_data is None:
-                    assoc_len = None
+                if auth_data is None: assoc_len | None = None
                 else:
                     assoc_len = len(auth_data)
                 cipher = AES.new(self.key_128, AES.MODE_EAX, nonce=self.nonce_96)

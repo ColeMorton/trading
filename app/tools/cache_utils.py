@@ -120,10 +120,10 @@ def get_cache_filepath(config: CacheConfig, analysis_type: str) -> Tuple[str, st
 
 def load_cached_analysis(
     filepath: str,
-    param_range: Optional[np.ndarray] = None,
+    param_range: Optional[np.ndarray] | None = None,
     param_column: str = "Parameter",
-    param_range_2: Optional[np.ndarray] = None,
-    param_column_2: Optional[str] = None,
+    param_range_2: Optional[np.ndarray] | None = None,
+    param_column_2: Optional[str] | None = None,
 ) -> Optional[CacheResult[np.ndarray]]:
     """
     Load cached analysis results from a CSV file.

@@ -12,8 +12,8 @@ from typing import Any, Dict, List, TypedDict
 
 from typing_extensions import NotRequired
 
+from app.concurrency.error_handling import ValidationError as BaseValidationError
 from app.concurrency.error_handling import (
-    ValidationError as BaseValidationError,
     handle_concurrency_errors,
     track_error,
     validate_inputs,

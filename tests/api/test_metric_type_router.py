@@ -70,7 +70,7 @@ class TestMACrossRouterMetricType:
             score=0.9,
             beats_bnh=5.0,
             has_open_trade=True,
-            has_signal_entry=False
+            has_signal_entry=False,
             # metric_type will default to ""
         )
 

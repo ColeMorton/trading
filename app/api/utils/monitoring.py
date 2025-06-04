@@ -25,7 +25,7 @@ class RequestMetrics:
     timestamp: datetime
     client_ip: str
     user_agent: str = ""
-    error_message: Optional[str] = None
+    error_message: Optional[str] | None = None
 
 
 @dataclass
@@ -74,7 +74,7 @@ class MetricsCollector:
         response_time: float,
         client_ip: str,
         user_agent: str = "",
-        error_message: Optional[str] = None,
+        error_message: Optional[str] | None = None,
     ) -> None:
         """
         Record a request for metrics collection.
@@ -338,7 +338,7 @@ class MetricsCollector:
 
 
 # Global metrics collector instance
-_metrics_collector: Optional[MetricsCollector] = None
+_metrics_collector: Optional[MetricsCollector] | None = None
 
 
 def get_metrics_collector() -> MetricsCollector:

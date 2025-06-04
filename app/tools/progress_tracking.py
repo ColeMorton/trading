@@ -25,7 +25,7 @@ class ProgressTracker:
 
     def __init__(
         self,
-        total_steps: Optional[int] = None,
+        total_steps: Optional[int] | None = None,
         callback: Optional[Callable[[Dict[str, Any]], None]] = None,
     ):
         """
@@ -46,9 +46,9 @@ class ProgressTracker:
 
     def update(
         self,
-        phase: Optional[str] = None,
-        message: Optional[str] = None,
-        step: Optional[int] = None,
+        phase: Optional[str] | None = None,
+        message: Optional[str] | None = None,
+        step: Optional[int] | None = None,
         force: bool = False,
     ) -> None:
         """
@@ -105,7 +105,7 @@ class ProgressTracker:
         """Set total number of steps."""
         self.total_steps = total
 
-    def increment(self, message: Optional[str] = None) -> None:
+    def increment(self, message: Optional[str] | None = None) -> None:
         """Increment current step and optionally update message."""
         self.current_step += 1
         self.update(message=message)

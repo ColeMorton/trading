@@ -24,7 +24,7 @@ class CrossValidationConfig:
 
     csv_path: str
     json_metrics: Dict[str, Any]
-    output_path: Optional[str] = None
+    output_path: Optional[str] | None = None
     tolerances: Optional[Dict[str, float]] = None
     auto_fix: bool = False
     generate_report: bool = True
@@ -571,7 +571,7 @@ class CSVJSONCrossValidator:
 def run_cross_validation(
     csv_path: str,
     json_metrics: Dict[str, Any],
-    output_path: Optional[str] = None,
+    output_path: Optional[str] | None = None,
     tolerances: Optional[Dict[str, float]] = None,
     log: Optional[Callable[[str, str], None]] = None,
 ) -> CrossValidationReport:

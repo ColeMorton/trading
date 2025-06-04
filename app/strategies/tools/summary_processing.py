@@ -382,7 +382,7 @@ def export_summary_results(
     portfolios: List[Dict],
     portfolio_name: str,
     log: Callable[[str, str], None],
-    config: Optional[Dict] = None,
+    config: Optional[Dict] | None = None,
 ) -> bool:
     """
     Export portfolio summary results to CSV.

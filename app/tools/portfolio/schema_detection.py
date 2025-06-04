@@ -117,7 +117,7 @@ def detect_schema_version_from_headers(headers: List[str]) -> SchemaVersion:
 
 def normalize_portfolio_data(
     csv_data: List[Dict[str, Any]],
-    schema_version: Optional[SchemaVersion] = None,
+    schema_version: Optional[SchemaVersion] | None = None,
     log: Optional[Callable[[str, Optional[str]], None]] = None,
 ) -> List[Dict[str, Any]]:
     """Normalize portfolio data to the extended schema.

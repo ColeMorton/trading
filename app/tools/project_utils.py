@@ -22,7 +22,7 @@ def get_project_root() -> str:
     return project_root
 
 
-def resolve_path(path: str, base_dir: Optional[str] = None) -> str:
+def resolve_path(path: str, base_dir: Optional[str] | None = None) -> str:
     """Resolve a path relative to a base directory.
 
     Args:

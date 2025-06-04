@@ -241,7 +241,7 @@ def retry_on_failure(
 def track_performance(
     operation: str,
     log_performance: bool = True,
-    performance_threshold: Optional[float] = None,
+    performance_threshold: Optional[float] | None = None,
 ):
     """Decorator for tracking function performance.
 

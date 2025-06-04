@@ -28,7 +28,7 @@ from app.tools.setup_logging import setup_logging
 from app.tools.stats_converter import convert_stats
 
 
-def run_portfolio_analysis(config_input: Dict = None):
+def run_portfolio_analysis(config_input: Dict | None = None):
     """
     Run portfolio analysis for multiple strategies.
 

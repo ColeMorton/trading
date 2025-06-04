@@ -43,8 +43,8 @@ def find_last_negative_candle(
     price: np.ndarray,
     entries: np.ndarray,
     short: bool,
-    stop_loss: Optional[float] = None,
-    log: Optional[Callable] = None,
+    stop_loss: Optional[float] | None = None,
+    log: Optional[Callable] | None = None,
 ) -> int:
     """
     Find the last candle where any trade has negative PnL, checking at each candle

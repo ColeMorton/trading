@@ -18,7 +18,7 @@ def logging_context(
     log_file: str,
     level: int = logging.INFO,
     mode: str = "w",
-    log_subdir: Optional[str] = None,
+    log_subdir: Optional[str] | None = None,
 ):
     """Context manager for standardized logging setup and cleanup.
 

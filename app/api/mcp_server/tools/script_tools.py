@@ -273,7 +273,7 @@ class ScriptTools:
 
 
 # Module-level instance
-_script_tools: Optional[ScriptTools] = None
+_script_tools: Optional[ScriptTools] | None = None
 
 
 def get_script_tools() -> ScriptTools:

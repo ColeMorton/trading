@@ -28,7 +28,7 @@ class PerformanceConfig:
 class ConcurrentExecutor:
     """Optimized executor for concurrent analysis requests."""
 
-    def __init__(self, config: PerformanceConfig = None):
+    def __init__(self, config: PerformanceConfig | None = None):
         """
         Initialize the concurrent executor.
 
@@ -100,7 +100,7 @@ class ConcurrentExecutor:
         self,
         analysis_func: Callable,
         batch_args: List[tuple],
-        max_concurrent: int = None,
+        max_concurrent: int | None = None,
     ) -> List[Any]:
         """
         Execute a batch of analysis operations concurrently.
@@ -272,8 +272,8 @@ class RequestOptimizer:
 
 
 # Global instances
-_concurrent_executor: Optional[ConcurrentExecutor] = None
-_request_optimizer: Optional[RequestOptimizer] = None
+_concurrent_executor: Optional[ConcurrentExecutor] | None = None
+_request_optimizer: Optional[RequestOptimizer] | None = None
 
 
 def get_concurrent_executor() -> ConcurrentExecutor:

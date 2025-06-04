@@ -50,7 +50,7 @@ class PortfolioManagerInterface(ABC):
 
     @abstractmethod
     def list_portfolios(
-        self, directory: Path, pattern: Optional[str] = None
+        self, directory: Path, pattern: Optional[str] | None = None
     ) -> List[Portfolio]:
         """List all portfolios in a directory."""
 

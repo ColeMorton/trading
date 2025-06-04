@@ -35,7 +35,7 @@ def get_client_ip(request: Request) -> str:
     return request.client.host if request.client else "unknown"
 
 
-def rate_limit_analysis(request: Request = None) -> None:
+def rate_limit_analysis(request: Request | None = None) -> None:
     """
     FastAPI dependency for rate limiting analysis endpoints.
 
@@ -66,7 +66,7 @@ def rate_limit_analysis(request: Request = None) -> None:
         )
 
 
-def rate_limit_cache(request: Request = None) -> None:
+def rate_limit_cache(request: Request | None = None) -> None:
     """
     FastAPI dependency for rate limiting cache management endpoints.
 

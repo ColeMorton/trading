@@ -46,13 +46,11 @@ from .exceptions import RequestsDependencyWarning
 
 try:
     from charset_normalizer import __version__ as charset_normalizer_version
-except ImportError:
-    charset_normalizer_version = None
+except ImportError: charset_normalizer_version | None = None
 
 try:
     from chardet import __version__ as chardet_version
-except ImportError:
-    chardet_version = None
+except ImportError: chardet_version | None = None
 
 
 def check_compatibility(urllib3_version, chardet_version, charset_normalizer_version):
@@ -124,8 +122,7 @@ except (AssertionError, ValueError):
 try:
     try:
         import ssl
-    except ImportError:
-        ssl = None
+    except ImportError: ssl | None = None
 
     if not getattr(ssl, "HAS_SNI", False):
         from urllib3.contrib import pyopenssl

@@ -230,7 +230,7 @@ def batch_operation_context(
     total_items: int,
     log: Callable[[str, str], None],
     continue_on_error: bool = True,
-    max_failures: Optional[int] = None,
+    max_failures: Optional[int] | None = None,
 ):
     """Context manager for batch operations that process multiple items.
 
@@ -260,8 +260,8 @@ def batch_operation_context(
         def record_error(
             self,
             error: Exception,
-            item_index: Optional[int] = None,
-            item_data: Optional[Any] = None,
+            item_index: Optional[int] | None = None,
+            item_data: Optional[Any] | None = None,
         ):
             self.failures += 1
             error_info = {

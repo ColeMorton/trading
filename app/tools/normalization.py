@@ -421,7 +421,7 @@ class Normalizer:
 def min_max_normalize(
     data: Union[np.ndarray, pd.Series, List[float]],
     feature_range: Tuple[float, float] = (0, 1),
-    log: Optional[Callable] = None,
+    log: Optional[Callable] | None = None,
 ) -> Union[np.ndarray, pd.Series, List[float]]:
     """Normalize data to a specified range using min-max scaling.
 
@@ -438,7 +438,8 @@ def min_max_normalize(
 
 
 def z_score_normalize(
-    data: Union[np.ndarray, pd.Series, List[float]], log: Optional[Callable] = None
+    data: Union[np.ndarray, pd.Series, List[float]],
+    log: Optional[Callable] | None = None,
 ) -> Union[np.ndarray, pd.Series, List[float]]:
     """Normalize data using z-score (standard score) normalization.
 
@@ -457,7 +458,7 @@ def normalize_metrics_dict(
     metrics: Dict[str, Any],
     method: str = "min_max",
     feature_range: Tuple[float, float] = (0, 1),
-    log: Optional[Callable] = None,
+    log: Optional[Callable] | None = None,
 ) -> Dict[str, Any]:
     """Normalize a dictionary of metrics.
 

@@ -123,7 +123,7 @@ def is_valid_strategy_id(strategy_id: str) -> bool:
 
 
 def _get_config_value(
-    config: Dict[str, Any], possible_keys: list, default: Any = None
+    config: Dict[str, Any], possible_keys: list, default: Any | None = None
 ) -> Any:
     """Get a value from a config dictionary, checking multiple possible keys.
 

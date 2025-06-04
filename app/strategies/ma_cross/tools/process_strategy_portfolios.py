@@ -21,9 +21,9 @@ def process_strategy_portfolios(
     strategy_type: str,
     short_window: int,
     long_window: int,
-    signal_window: Optional[int] = None,
+    signal_window: Optional[int] | None = None,
     config: Dict[str, Any] = None,
-    log: Callable = None,
+    log: Callable | None = None,
 ) -> Optional[Tuple[Optional[pl.DataFrame], dict, Optional[pl.DataFrame]]]:
     """
     Process portfolios for a given ticker based on strategy type.
@@ -148,7 +148,7 @@ def process_sma_strategy(
     short_window: int,
     long_window: int,
     config: Dict[str, Any] = None,
-    log: Callable = None,
+    log: Callable | None = None,
 ) -> Optional[Tuple[Optional[pl.DataFrame], dict, Optional[pl.DataFrame]]]:
     """
     Process SMA strategy for a given ticker.
@@ -178,7 +178,7 @@ def process_ema_strategy(
     short_window: int,
     long_window: int,
     config: Dict[str, Any] = None,
-    log: Callable = None,
+    log: Callable | None = None,
 ) -> Optional[Tuple[Optional[pl.DataFrame], dict, Optional[pl.DataFrame]]]:
     """
     Process EMA strategy for a given ticker.
@@ -209,7 +209,7 @@ def process_macd_strategy(
     long_window: int,
     signal_window: int,
     config: Dict[str, Any] = None,
-    log: Callable = None,
+    log: Callable | None = None,
 ) -> Optional[Tuple[Optional[pl.DataFrame], dict, Optional[pl.DataFrame]]]:
     """
     Process MACD strategy for a given ticker.

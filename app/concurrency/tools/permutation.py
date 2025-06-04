@@ -93,7 +93,7 @@ def find_optimal_permutation(
     analyze_concurrency_func: Callable,
     log: Callable[[str, str], None],
     min_strategies: int = 3,
-    max_permutations: Optional[int] = None,
+    max_permutations: Optional[int] | None = None,
 ) -> Tuple[List[StrategyConfig], Dict[str, Any], List[Any]]:
     """Find the optimal permutation of strategies based on risk-adjusted efficiency score.
 

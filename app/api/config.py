@@ -55,7 +55,7 @@ def get_config() -> ApiConfig:
 
 
 def is_path_allowed(
-    path: str, allowed_dirs: List[str], base_dir: Optional[str] = None
+    path: str, allowed_dirs: List[str], base_dir: Optional[str] | None = None
 ) -> bool:
     """
     Check if a path is allowed based on the allowed directories.

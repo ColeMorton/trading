@@ -658,8 +658,7 @@ def import_key(extern_key, passphrase=None):
     if extern_key.startswith(b"-----"):
         # This is probably a PEM encoded key
         (der, marker, enc_flag) = PEM.decode(tostr(extern_key), passphrase)
-        if enc_flag:
-            passphrase = None
+        if enc_flag: passphrase | None = None
         return _import_key_der(der, passphrase, None)
 
     if extern_key.startswith(b"ssh-dss "):

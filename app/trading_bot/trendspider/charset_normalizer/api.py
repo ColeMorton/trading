@@ -35,8 +35,8 @@ def from_bytes(
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.2,
-    cp_isolation: Optional[List[str]] = None,
-    cp_exclusion: Optional[List[str]] = None,
+    cp_isolation: Optional[List[str]] | None = None,
+    cp_exclusion: Optional[List[str]] | None = None,
     preemptive_behaviour: bool = True,
     explain: bool = False,
     language_threshold: float = 0.1,
@@ -153,9 +153,9 @@ def from_bytes(
     tested_but_hard_failure: List[str] = []
     tested_but_soft_failure: List[str] = []
 
-    fallback_ascii: Optional[CharsetMatch] = None
-    fallback_u8: Optional[CharsetMatch] = None
-    fallback_specified: Optional[CharsetMatch] = None
+    fallback_ascii: Optional[CharsetMatch] | None = None
+    fallback_u8: Optional[CharsetMatch] | None = None
+    fallback_specified: Optional[CharsetMatch] | None = None
 
     results: CharsetMatches = CharsetMatches()
 
@@ -189,7 +189,7 @@ def from_bytes(
 
         tested.add(encoding_iana)
 
-        decoded_payload: Optional[str] = None
+        decoded_payload: Optional[str] | None = None
         bom_or_sig_available: bool = sig_encoding == encoding_iana
         strip_sig_or_bom: bool = bom_or_sig_available and should_strip_sig_or_bom(
             encoding_iana
@@ -546,8 +546,8 @@ def from_fp(
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.20,
-    cp_isolation: Optional[List[str]] = None,
-    cp_exclusion: Optional[List[str]] = None,
+    cp_isolation: Optional[List[str]] | None = None,
+    cp_exclusion: Optional[List[str]] | None = None,
     preemptive_behaviour: bool = True,
     explain: bool = False,
     language_threshold: float = 0.1,
@@ -576,8 +576,8 @@ def from_path(
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.20,
-    cp_isolation: Optional[List[str]] = None,
-    cp_exclusion: Optional[List[str]] = None,
+    cp_isolation: Optional[List[str]] | None = None,
+    cp_exclusion: Optional[List[str]] | None = None,
     preemptive_behaviour: bool = True,
     explain: bool = False,
     language_threshold: float = 0.1,
@@ -607,8 +607,8 @@ def is_binary(
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.20,
-    cp_isolation: Optional[List[str]] = None,
-    cp_exclusion: Optional[List[str]] = None,
+    cp_isolation: Optional[List[str]] | None = None,
+    cp_exclusion: Optional[List[str]] | None = None,
     preemptive_behaviour: bool = True,
     explain: bool = False,
     language_threshold: float = 0.1,

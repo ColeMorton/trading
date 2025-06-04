@@ -106,7 +106,7 @@ class APIKeyManager:
 
 
 def validate_path(
-    path: str, allowed_dirs: List[str], base_dir: Optional[str] = None
+    path: str, allowed_dirs: List[str], base_dir: Optional[str] | None = None
 ) -> bool:
     """
     Validate that a path is within allowed directories.

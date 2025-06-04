@@ -140,28 +140,24 @@ const ResultsTable: React.FC<ResultsTableProps> = React.memo(
           cell: (info) => info.getValue(),
         }),
         columnHelper.accessor('short_window', {
-          header: 'Short Win',
+          header: 'Short Window',
           cell: (info) => info.getValue(),
         }),
         columnHelper.accessor('long_window', {
-          header: 'Long Win',
+          header: 'Long Window',
           cell: (info) => info.getValue(),
         }),
         columnHelper.accessor('signal_window', {
-          header: 'Signal Win',
-          cell: (info) => info.getValue(),
-        }),
-        columnHelper.accessor('direction', {
-          header: 'Direction',
-          cell: (info) => info.getValue(),
-        }),
-        columnHelper.accessor('timeframe', {
-          header: 'Timeframe',
+          header: 'Signal Window',
           cell: (info) => info.getValue(),
         }),
         columnHelper.accessor('total_trades', {
           header: 'Trades',
           cell: (info) => info.getValue().toLocaleString(),
+        }),
+        columnHelper.accessor('score', {
+          header: 'Score',
+          cell: (info) => info.getValue()?.toFixed(2) || 'N/A',
         }),
         columnHelper.accessor('win_rate', {
           header: 'Win Rate %',
@@ -172,20 +168,25 @@ const ResultsTable: React.FC<ResultsTableProps> = React.memo(
           cell: (info) => info.getValue().toFixed(2),
         }),
         columnHelper.accessor('expectancy_per_trade', {
-          header: 'Expectancy %',
+          header: 'Expectancy (per trade)',
           cell: (info) => (info.getValue() * 100).toFixed(2) + '%',
         }),
         columnHelper.accessor('sortino_ratio', {
           header: 'Sortino Ratio',
           cell: (info) => info.getValue().toFixed(2),
         }),
-        columnHelper.accessor('max_drawdown', {
-          header: 'Max DD %',
-          cell: (info) => (info.getValue() * 100).toFixed(2) + '%',
+        columnHelper.accessor('avg_trade_duration', {
+          header: 'Avg Trade Duration',
+          cell: (info) => info.getValue()?.toFixed(1) || 'N/A',
         }),
-        columnHelper.accessor('total_return', {
-          header: 'Total Return %',
-          cell: (info) => (info.getValue() * 100).toFixed(2) + '%',
+        columnHelper.accessor('beats_bnh', {
+          header: 'Beats BNH [%]',
+          cell: (info) => {
+            const value = info.getValue();
+            return value !== undefined && value !== null 
+              ? (value * 100).toFixed(2) + '%' 
+              : 'N/A';
+          },
         }),
       ] as ColumnDef<AnalysisResult>[];
     }, [columnHelper, expandedRows]);
@@ -210,7 +211,7 @@ const ResultsTable: React.FC<ResultsTableProps> = React.memo(
         },
         sorting: [
           {
-            id: 'sortino_ratio',
+            id: 'score',
             desc: true,
           },
         ],
@@ -219,7 +220,7 @@ const ResultsTable: React.FC<ResultsTableProps> = React.memo(
 
     // Export to CSV functionality
     const exportToCSV = () => {
-      const headers = columns.map((col) => col.header as string).join(',');
+      const headers = columns.filter(col => col.id !== 'expand').map((col) => col.header as string).join(',');
       const rows = results.map((row) => {
         return [
           row.ticker,
@@ -227,15 +228,16 @@ const ResultsTable: React.FC<ResultsTableProps> = React.memo(
           row.short_window,
           row.long_window,
           row.signal_window,
-          row.direction,
-          row.timeframe,
           row.total_trades,
+          row.score?.toFixed(2) || 'N/A',
           (row.win_rate * 100).toFixed(2),
           row.profit_factor.toFixed(2),
           (row.expectancy_per_trade * 100).toFixed(2),
           row.sortino_ratio.toFixed(2),
-          (row.max_drawdown * 100).toFixed(2),
-          (row.total_return * 100).toFixed(2),
+          row.avg_trade_duration?.toFixed(1) || 'N/A',
+          row.beats_bnh !== undefined && row.beats_bnh !== null 
+            ? (row.beats_bnh * 100).toFixed(2) 
+            : 'N/A',
         ].join(',');
       });
 

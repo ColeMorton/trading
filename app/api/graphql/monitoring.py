@@ -22,9 +22,9 @@ class GraphQLMonitoringExtension(SchemaExtension):
     """
 
     def __init__(self):
-        self.start_time: Optional[float] = None
-        self.operation_name: Optional[str] = None
-        self.operation_type: Optional[str] = None
+        self.start_time: Optional[float] | None = None
+        self.operation_name: Optional[str] | None = None
+        self.operation_type: Optional[str] | None = None
         self.variables: Optional[Dict[str, Any]] = None
 
     async def on_operation(self):

@@ -78,7 +78,7 @@ class TestMACrossServiceMetricType:
             "Score": 0.9,
             "Beats BNH [%]": 5.0,
             "Total Open Trades": 1,
-            "Signal Entry": False
+            "Signal Entry": False,
             # No "Metric Type" field
         }
 

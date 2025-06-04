@@ -158,7 +158,7 @@ class ErrorHandler:
         self,
         config: Dict[str, Any],
         required_keys: List[str],
-        optional_keys: Optional[List[str]] = None,
+        optional_keys: Optional[List[str]] | None = None,
         name: str = "Configuration",
     ) -> None:
         """Validate that a configuration dictionary has the required keys.
@@ -285,7 +285,7 @@ class ErrorHandler:
         self,
         error: Exception,
         context: Dict[str, Any],
-        fallback_value: Optional[T] = None,
+        fallback_value: Optional[T] | None = None,
     ) -> Optional[T]:
         """Handle a calculation error with detailed logging and optional recovery.
 
@@ -327,7 +327,7 @@ class ErrorHandler:
 
     def with_error_handling(
         self,
-        fallback_value: Optional[T] = None,
+        fallback_value: Optional[T] | None = None,
         context_provider: Optional[Callable[..., Dict[str, Any]]] = None,
     ) -> Callable:
         """Decorator for functions to add standardized error handling.
@@ -373,8 +373,8 @@ class Result(Generic[T]):
 
     def __init__(
         self,
-        value: Optional[T] = None,
-        error: Optional[Exception] = None,
+        value: Optional[T] | None = None,
+        error: Optional[Exception] | None = None,
         success: bool = True,
     ):
         """Initialize the Result object.
@@ -483,7 +483,7 @@ def validate_dataframe(
     df: Union[pd.DataFrame, pl.DataFrame],
     required_columns: List[str],
     name: str = "DataFrame",
-    log: Optional[Callable] = None,
+    log: Optional[Callable] | None = None,
 ) -> bool:
     """Validate that a DataFrame has the required columns.
 
@@ -509,9 +509,9 @@ def validate_dataframe(
 def validate_config(
     config: Dict[str, Any],
     required_keys: List[str],
-    optional_keys: Optional[List[str]] = None,
+    optional_keys: Optional[List[str]] | None = None,
     name: str = "Configuration",
-    log: Optional[Callable] = None,
+    log: Optional[Callable] | None = None,
 ) -> bool:
     """Validate that a configuration dictionary has the required keys.
 

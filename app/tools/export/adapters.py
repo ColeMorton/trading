@@ -23,8 +23,8 @@ def export_csv_adapter(
     feature1: str,
     config: ExportConfig,
     feature2: str = "",
-    filename: Optional[str] = None,
-    log: Optional[Callable] = None,
+    filename: Optional[str] | None = None,
+    log: Optional[Callable] | None = None,
 ) -> Tuple[pl.DataFrame, bool]:
     """Adapter for the legacy export_csv function.
 
@@ -79,8 +79,8 @@ def export_portfolios_adapter(
     portfolios: List[Dict],
     config: ExportConfig,
     export_type: str,
-    csv_filename: Optional[str] = None,
-    log: Optional[Callable] = None,
+    csv_filename: Optional[str] | None = None,
+    log: Optional[Callable] | None = None,
     feature_dir: str = "",
 ) -> Tuple[pl.DataFrame, bool]:
     """Adapter for the legacy export_portfolios function.
@@ -118,7 +118,7 @@ def save_json_report_adapter(
     report: Dict[str, Any],
     config: Dict[str, Any],
     log: Callable[[str, str], None],
-    json_encoder: Optional[type] = None,
+    json_encoder: Optional[type] | None = None,
 ) -> str:
     """Adapter for saving JSON reports.
 
@@ -175,8 +175,8 @@ def migrate_to_export_manager(
     export_format: str,
     config: Dict[str, Any],
     feature_path: str = "",
-    filename: Optional[str] = None,
-    log: Optional[Callable] = None,
+    filename: Optional[str] | None = None,
+    log: Optional[Callable] | None = None,
     **kwargs,
 ) -> ExportResult:
     """Helper function to migrate existing code to use ExportManager.

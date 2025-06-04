@@ -9,7 +9,7 @@ class ConfigurationInterface(ABC):
     """Interface for configuration management."""
 
     @abstractmethod
-    def get(self, key: str, default: Any = None) -> Any:
+    def get(self, key: str, default: Any | None = None) -> Any:
         """Get configuration value by key."""
 
     @abstractmethod
@@ -41,7 +41,7 @@ class ConfigurationInterface(ABC):
         """Get current environment (dev, test, prod)."""
 
     @abstractmethod
-    def list_keys(self, prefix: Optional[str] = None) -> List[str]:
+    def list_keys(self, prefix: Optional[str] | None = None) -> List[str]:
         """List all configuration keys."""
 
     @abstractmethod

@@ -42,7 +42,7 @@ class SimpleBackupManager:
         self.backup_dir = Path("backups")
         self.backup_dir.mkdir(exist_ok=True)
 
-    async def create_full_backup(self, backup_name: Optional[str] = None) -> str:
+    async def create_full_backup(self, backup_name: str | None = None) -> str:
         """Create a full backup of PostgreSQL and Redis."""
         if not backup_name:
             backup_name = f"backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -251,7 +251,7 @@ class SimpleBackupManager:
 
 
 # Convenience functions
-async def create_backup(backup_name: Optional[str] = None) -> str:
+async def create_backup(backup_name: str | None = None) -> str:
     """Convenience function to create a backup."""
     manager = SimpleBackupManager()
     return await manager.create_full_backup(backup_name)

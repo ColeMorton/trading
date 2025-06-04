@@ -68,7 +68,7 @@ class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
         self._symbol_count: int = 0
         self._character_count: int = 0
 
-        self._last_printable_char: Optional[str] = None
+        self._last_printable_char: Optional[str] | None = None
         self._frenzy_symbol_in_word: bool = False
 
     def eligible(self, character: str) -> bool:
@@ -165,7 +165,7 @@ class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
         self._successive_count: int = 0
         self._character_count: int = 0
 
-        self._last_latin_character: Optional[str] = None
+        self._last_latin_character: Optional[str] | None = None
 
     def eligible(self, character: str) -> bool:
         return character.isalpha() and is_latin(character)
@@ -201,7 +201,7 @@ class SuspiciousRange(MessDetectorPlugin):
     def __init__(self) -> None:
         self._suspicious_successive_range_count: int = 0
         self._character_count: int = 0
-        self._last_printable_seen: Optional[str] = None
+        self._last_printable_seen: Optional[str] | None = None
 
     def eligible(self, character: str) -> bool:
         return character.isprintable()
@@ -406,7 +406,7 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
 
         self._character_count: int = 0
 
-        self._last_alpha_seen: Optional[str] = None
+        self._last_alpha_seen: Optional[str] | None = None
         self._current_ascii_only: bool = True
 
     def eligible(self, character: str) -> bool:

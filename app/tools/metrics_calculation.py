@@ -36,7 +36,7 @@ class MetricsCalculator:
     def calculate_return_metrics(
         self,
         returns: np.ndarray,
-        positions: Optional[np.ndarray] = None,
+        positions: Optional[np.ndarray] | None = None,
         annualization_factor: int = 252,
     ) -> Dict[str, Any]:
         """Calculate return-based metrics.
@@ -260,7 +260,7 @@ class MetricsCalculator:
         self,
         signals: np.ndarray,
         returns: np.ndarray,
-        horizons: List[int] = None,
+        horizons: List[int] | None = None,
         min_sample_size: int = 20,
     ) -> Dict[str, Dict[str, float]]:
         """Calculate performance metrics for different time horizons.
@@ -710,7 +710,7 @@ def calculate_metrics_for_strategy(
     returns: np.ndarray,
     signals: np.ndarray,
     strategy_id: str,
-    log: Optional[Callable] = None,
+    log: Optional[Callable] | None = None,
 ) -> Dict[str, Any]:
     """Calculate metrics for a strategy (unified function).
 
@@ -758,7 +758,7 @@ def calculate_metrics_for_strategy(
 
 
 def calculate_signal_metrics(
-    aligned_data: List[pl.DataFrame], log: Optional[Callable] = None
+    aligned_data: List[pl.DataFrame], log: Optional[Callable] | None = None
 ) -> Dict[str, Any]:
     """Calculate signal metrics for all strategies (legacy function).
 

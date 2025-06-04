@@ -19,7 +19,7 @@ repos:
       - id: check-json
       - id: check-toml
       - id: check-xml
-      # - id: debug-statements  # Temporarily disabled due to syntax errors
+      - id: debug-statements  # Re-enabled after syntax fixes
       - id: detect-private-key
       - id: fix-byte-order-marker
       - id: mixed-line-ending
@@ -34,13 +34,13 @@ repos:
         args: ['--profile', 'black', '--line-length', '88']
         additional_dependencies: ['toml']
 
-  # black - Code formatting (temporarily disabled)
-  # - repo: https://github.com/psf/black
-  #   rev: 23.12.1
-  #   hooks:
-  #     - id: black
-  #       language_version: python3.11
-  #       args: ['--line-length', '88']
+  # black - Code formatting (re-enabled after syntax fixes)
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        language_version: python3.11
+        args: ['--line-length', '88']
 
   # flake8 - Style guide enforcement (temporarily disabled)
   # - repo: https://github.com/pycqa/flake8
@@ -96,14 +96,14 @@ repos:
   #       files: ^app/
   #       exclude: ^(tests/|scripts/|experimental/)
 
-  # bandit - Security linting (temporarily disabled)
-  # - repo: https://github.com/pycqa/bandit
-  #   rev: 1.7.6
-  #   hooks:
-  #     - id: bandit
-  #       args: ['-ll', '--skip', 'B101,B601,B602,B607']
-  #       files: ^app/
-  #       exclude: ^(tests/|scripts/|experimental/)
+  # bandit - Security linting (re-enabled after security fixes)
+  - repo: https://github.com/pycqa/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: ['-ll', '--exclude', 'app/trading_bot/trendspider/']
+        files: ^app/
+        exclude: ^(tests/|scripts/|experimental/)
 
   # vulture - Dead code detection (temporarily disabled)
   # - repo: https://github.com/jendrikseipp/vulture

@@ -15,7 +15,7 @@ def psl_exit(
     entries: np.ndarray,
     holding_period: int,
     short: bool,
-    stop_loss: Optional[float] = None,
+    stop_loss: Optional[float] | None = None,
 ) -> np.ndarray:
     """
     Generate Price Stop Loss (PSL) exit signals.

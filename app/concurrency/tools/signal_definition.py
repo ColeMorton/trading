@@ -192,9 +192,9 @@ def align_signal_definitions(
 
             # If implementation had any signals during this period, consider it aligned
             if np.any(impl_signals_during_trade != 0):
-                aligned_implementation[
-                    trade_start_idx : i + 1
-                ] = implementation_signals[trade_start_idx : i + 1]
+                aligned_implementation[trade_start_idx : i + 1] = (
+                    implementation_signals[trade_start_idx : i + 1]
+                )
 
     if log:
         match_rate = np.mean(
@@ -235,7 +235,7 @@ class SignalCountingStandards:
 
 def count_signals_standardized(
     df: pl.DataFrame,
-    standards: Optional[SignalCountingStandards] = None,
+    standards: Optional[SignalCountingStandards] | None = None,
     level: str = "strategy",  # "strategy" or "portfolio"
     log: Optional[Callable[[str, str], None]] = None,
 ) -> Dict[str, int]:
@@ -312,7 +312,7 @@ def count_signals_standardized(
 
 def calculate_portfolio_unique_signals_v2(
     strategy_dataframes: List[pl.DataFrame],
-    standards: Optional[SignalCountingStandards] = None,
+    standards: Optional[SignalCountingStandards] | None = None,
     log: Optional[Callable[[str, str], None]] = None,
 ) -> Dict[str, Any]:
     """

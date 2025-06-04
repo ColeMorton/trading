@@ -20,7 +20,7 @@ class MigrationStep:
     description: str
     required: bool
     automated: bool = False
-    migration_function: Optional[Callable] = None
+    migration_function: Optional[Callable] | None = None
 
 
 @dataclass

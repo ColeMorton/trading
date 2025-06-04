@@ -8,7 +8,6 @@ import {
 } from '../../graphql/generated';
 import {
   AnalysisConfiguration,
-  AnalysisResult,
   MACrossRequest,
   MACrossSyncResponse,
   MACrossAsyncResponse,
@@ -16,6 +15,7 @@ import {
   PortfolioMetrics,
   ConfigPreset
 } from '../maCrossApi';
+import { AnalysisResult } from '../../types';
 
 /**
  * Convert frontend configuration to GraphQL input format

@@ -252,7 +252,7 @@ class TradingAPIClient:
                 print(f"\n❌ Error:\n{result['error']}")
 
     # Data Methods
-    def data_list(self, directory: Optional[str] = None):
+    def data_list(self, directory: Optional[str] | None = None):
         """List files in a directory."""
         endpoint = f"{self.base_url}/api/data/list"
         if directory:

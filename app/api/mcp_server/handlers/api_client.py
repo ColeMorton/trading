@@ -28,7 +28,7 @@ class APIError(Exception):
     def __init__(
         self,
         message: str,
-        status_code: Optional[int] = None,
+        status_code: Optional[int] | None = None,
         details: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(message)
@@ -74,7 +74,7 @@ class APIClient:
             keepalive_expiry=30,  # seconds
         )
 
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: Optional[httpx.AsyncClient] | None = None
         self.logger = logger.bind(component="api_client")
 
     @asynccontextmanager
@@ -255,7 +255,7 @@ class APIClient:
 
 
 # Global client instance
-_client: Optional[APIClient] = None
+_client: Optional[APIClient] | None = None
 
 
 def get_api_client() -> APIClient:

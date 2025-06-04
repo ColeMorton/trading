@@ -9,7 +9,7 @@ __all__ = [
 
 import typing
 
-orig_HTTPSConnection: typing.Any = None
+orig_HTTPSConnection: typing.Any | None = None
 
 
 def inject_into_urllib3() -> None:

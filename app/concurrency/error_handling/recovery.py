@@ -39,10 +39,10 @@ class ErrorRecoveryPolicy:
     max_retries: int = 3
     retry_delay: float = 1.0
     backoff_factor: float = 2.0
-    fallback_func: Optional[Callable] = None
-    default_value: Optional[Any] = None
+    fallback_func: Optional[Callable] | None = None
+    default_value: Optional[Any] | None = None
     action_on_failure: RecoveryAction = RecoveryAction.RAISE_ERROR
-    applicable_exceptions: List[Type[Exception]] = None
+    applicable_exceptions: List[Type[Exception]] | None = None
 
     def __post_init__(self):
         if self.applicable_exceptions is None:
@@ -94,10 +94,10 @@ def create_recovery_policy(
     max_retries: int = 3,
     retry_delay: float = 1.0,
     backoff_factor: float = 2.0,
-    fallback_func: Optional[Callable] = None,
-    default_value: Optional[Any] = None,
+    fallback_func: Optional[Callable] | None = None,
+    default_value: Optional[Any] | None = None,
     action_on_failure: RecoveryAction = RecoveryAction.RAISE_ERROR,
-    applicable_exceptions: Optional[List[Type[Exception]]] = None,
+    applicable_exceptions: Optional[List[Type[Exception]]] | None = None,
 ) -> ErrorRecoveryPolicy:
     """Create a custom error recovery policy.
 
@@ -265,7 +265,7 @@ def get_recovery_policy(operation_type: str) -> Optional[ErrorRecoveryPolicy]:
 
 
 def create_fallback_function(
-    default_value: Any, log_message: Optional[str] = None
+    default_value: Any, log_message: Optional[str] | None = None
 ) -> Callable:
     """Create a simple fallback function that returns a default value.
 
@@ -300,7 +300,7 @@ def create_retry_policy(
     max_retries: int = 3,
     retry_delay: float = 1.0,
     backoff_factor: float = 2.0,
-    exceptions: Optional[List[Type[Exception]]] = None,
+    exceptions: Optional[List[Type[Exception]]] | None = None,
 ) -> ErrorRecoveryPolicy:
     """Create a retry-based recovery policy.
 
@@ -324,7 +324,7 @@ def create_retry_policy(
 
 
 def create_skip_policy(
-    exceptions: Optional[List[Type[Exception]]] = None,
+    exceptions: Optional[List[Type[Exception]]] | None = None,
 ) -> ErrorRecoveryPolicy:
     """Create a skip-based recovery policy.
 

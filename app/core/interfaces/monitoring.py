@@ -70,6 +70,6 @@ class MonitoringInterface(ABC):
         name: str,
         metric_type: MetricType,
         description: str,
-        labels: Optional[List[str]] = None,
+        labels: Optional[List[str]] | None = None,
     ) -> None:
         """Register a new metric."""

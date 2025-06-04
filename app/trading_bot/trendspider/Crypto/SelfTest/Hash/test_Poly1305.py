@@ -499,8 +499,7 @@ class Poly1305_Basic(object):
 
         if len(data) == 1:
             msg = data[0]
-        else:
-            msg = None
+        else: msg | None = None
 
         return Poly1305_MAC(key[:16], key[16:], msg)
 

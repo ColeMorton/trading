@@ -16,8 +16,8 @@ class DataAccessInterface(ABC):
     def get_price_data(
         self,
         ticker: str,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
+        start_date: Optional[datetime] | None = None,
+        end_date: Optional[datetime] | None = None,
         interval: str = "1d",
     ) -> Union[pd.DataFrame, pl.DataFrame]:
         """Get price data for a ticker."""
@@ -27,7 +27,7 @@ class DataAccessInterface(ABC):
         self,
         data: Union[pd.DataFrame, pl.DataFrame],
         ticker: str,
-        path: Optional[Path] = None,
+        path: Optional[Path] | None = None,
     ) -> Path:
         """Save price data to storage."""
 

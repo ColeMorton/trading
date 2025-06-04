@@ -318,8 +318,7 @@ if is_worker_available() and (
     and (not is_in_node())
 ):
     _fetcher = _StreamingFetcher()
-else:
-    _fetcher = None
+else: _fetcher | None = None
 
 
 def send_streaming_request(request: EmscriptenRequest) -> EmscriptenResponse | None:

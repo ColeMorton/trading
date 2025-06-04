@@ -98,7 +98,7 @@ def check_bidi(label: str, check_ltr: bool = False) -> bool:
         )
 
     valid_ending = False
-    number_type: Optional[str] = None
+    number_type: Optional[str] | None = None
     for idx, cp in enumerate(label, 1):
         direction = unicodedata.bidirectional(cp)
 
@@ -376,7 +376,7 @@ def uts46_remap(
                 )
             ]
             status = uts46row[1]
-            replacement: Optional[str] = None
+            replacement: Optional[str] | None = None
             if len(uts46row) == 3:
                 replacement = uts46row[2]
             if (

@@ -204,8 +204,7 @@ def unwrap(p8_private_key, passphrase=None):
 
     algo = DerSequence().decode(pk_info[1], nr_elements=(1, 2))
     algo_oid = DerObjectId().decode(algo[0]).value
-    if len(algo) == 1:
-        algo_params = None
+    if len(algo) == 1: algo_params | None = None
     else:
         try:
             DerNull().decode(algo[1])

@@ -28,7 +28,7 @@ class MACrossAnalyzer:
     independent of how it's invoked (CLI, API, etc.).
     """
 
-    def __init__(self, log: Optional[Callable] = None):
+    def __init__(self, log: Optional[Callable] | None = None):
         """
         Initialize the analyzer.
 

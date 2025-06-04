@@ -40,7 +40,7 @@ class DatabaseSettings(BaseSettings):
     redis_url: RedisDsn = "redis://localhost:6379"
     redis_host: str = "localhost"
     redis_port: int = 6379
-    redis_password: Optional[str] = None
+    redis_password: str | None = None
     redis_db: int = 0
 
     # Environment settings
@@ -65,9 +65,9 @@ class DatabaseManager:
 
     def __init__(self):
         self.settings = get_database_settings()
-        self.prisma: Optional[Prisma] = None
-        self.redis_client: Optional[redis.Redis] = None
-        self._connection_pool: Optional[asyncpg.Pool] = None
+        self.prisma: Optional[Prisma] | None = None
+        self.redis_client: Optional[redis.Redis] | None = None
+        self._connection_pool: Optional[asyncpg.Pool] | None = None
 
     async def initialize(self):
         """Initialize database connections."""

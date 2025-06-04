@@ -444,8 +444,7 @@ class PBES2(object):
             iteration_count, scrypt_r, scrypt_p = [scrypt_params[x] for x in (1, 2, 3)]
             if len(scrypt_params) > 4:
                 kdf_key_length = scrypt_params[4]
-            else:
-                kdf_key_length = None
+            else: kdf_key_length | None = None
         else:
             raise PbesError("Unsupported PBES2 KDF")
 

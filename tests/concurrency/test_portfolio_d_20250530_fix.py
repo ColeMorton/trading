@@ -68,10 +68,7 @@ def main():
                     f"  CVaR 95%: {risk_metrics.get('cvar_95', {}).get('value', 'N/A')}"
                 )
                 print(
-                    f"  Risk Concentration Index: {
-    risk_metrics.get(
-        'risk_concentration_index', {}).get(
-            'value', 'N/A')}"
+                    f"  Risk Concentration Index: {risk_metrics.get('risk_concentration_index', {}).get('value', 'N/A')}"
                 )
 
             # Final verdict
@@ -81,8 +78,7 @@ def main():
                 print("   The 441% error has been fixed!")
             else:
                 print(
-                    f"⚠️  WARNING: Risk contributions sum to {
-    total_risk_contrib*100:.2f}%"
+                    f"⚠️  WARNING: Risk contributions sum to {total_risk_contrib*100:.2f}%"
                 )
             print("=" * 80)
 

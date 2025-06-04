@@ -204,12 +204,10 @@ def body_to_chunks(
     # No body, we need to make a recommendation on 'Content-Length'
     # based on whether that request method is expected to have
     # a body or not.
-    if body is None:
-        chunks = None
+    if body is None: chunks | None = None
         if method.upper() not in _METHODS_NOT_EXPECTING_BODY:
             content_length = 0
-        else:
-            content_length = None
+        else: content_length | None = None
 
     # Bytes or strings become bytes
     elif isinstance(body, (str, bytes)):

@@ -25,7 +25,7 @@ def calculate_signal_quality_metrics(
     returns_df: pl.DataFrame,
     strategy_id: str,
     log: Callable[[str, str], None],
-    stop_loss: Optional[float] = None,
+    stop_loss: Optional[float] | None = None,
 ) -> Dict[str, Any]:
     """Calculate signal quality metrics for a strategy.
 
@@ -643,7 +643,7 @@ def _calculate_signal_value_ratio(
 
 
 def _calculate_signal_conviction(
-    signal_returns: np.ndarray, market_returns: np.ndarray = None
+    signal_returns: np.ndarray, market_returns: np.ndarray | None = None
 ) -> float:
     """Calculate Signal Conviction.
 
@@ -944,9 +944,9 @@ def _calculate_aggregate_metrics(
 def calculate_aggregate_signal_quality(
     strategy_metrics: Dict[str, Dict[str, Any]],
     log: Callable[[str, str], None],
-    stop_loss: Optional[float] = None,
-    strategy_allocations: Optional[List[float]] = None,
-    strategy_ids: Optional[List[str]] = None,
+    stop_loss: Optional[float] | None = None,
+    strategy_allocations: Optional[List[float]] | None = None,
+    strategy_ids: Optional[List[str]] | None = None,
 ) -> Dict[str, Any]:
     """Calculate aggregate signal quality metrics across all strategies.
 

@@ -226,7 +226,7 @@ def limit_strategy_concurrency(
     strategy_ids: List[str],
     max_concurrent: int = 5,
     mode: ConcurrencyLimitMode = ConcurrencyLimitMode.FIXED,
-    market_volatility: Optional[float] = None,
+    market_volatility: Optional[float] | None = None,
     log: Optional[Callable[[str, str], None]] = None,
 ) -> Dict[str, np.ndarray]:
     """Limit the number of concurrent strategies.

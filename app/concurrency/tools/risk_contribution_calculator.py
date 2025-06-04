@@ -510,7 +510,7 @@ class RiskContributionCalculator:
         strategy_names: List[str],
         variance_method: str = "auto",
         validation_level: str = "strict",
-        log: Optional[Any] = None,
+        log: Optional[Any] | None = None,
     ) -> Dict[str, Any]:
         """
         Calculate portfolio risk metrics using enhanced variance estimation and validation.
@@ -927,7 +927,7 @@ def calculate_risk_contributions_fixed(
     strategy_allocations: List[float],
     log: Any,  # Callable[[str, str], None]
     strategy_configs: Optional[List[Dict[str, Any]]] = None,
-    use_portfolio_returns: Optional[bool] = None,
+    use_portfolio_returns: Optional[bool] | None = None,
 ) -> Dict[str, float]:
     """
     Fixed version of calculate_risk_contributions that ensures contributions sum to 100%.

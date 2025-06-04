@@ -15,7 +15,7 @@ from app.tools.portfolio.strategy_utils import get_strategy_type_for_export
 def validate_portfolio_schema(
     df: pl.DataFrame,
     log: Callable[[str, str], None],
-    required_columns: Optional[List[str]] = None,
+    required_columns: Optional[List[str]] | None = None,
 ) -> Tuple[bool, List[str]]:
     """
     Validate that a portfolio DataFrame has the required columns.

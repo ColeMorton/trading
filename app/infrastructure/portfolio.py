@@ -57,8 +57,8 @@ class MetricFilter(PortfolioFilter):
     def __init__(
         self,
         metric_name: str,
-        min_value: Optional[float] = None,
-        max_value: Optional[float] = None,
+        min_value: Optional[float] | None = None,
+        max_value: Optional[float] | None = None,
     ):
         self.metric_name = metric_name
         self.min_value = min_value
@@ -85,7 +85,7 @@ class PortfolioManager(PortfolioManagerInterface):
     def __init__(
         self,
         data_access: DataAccessInterface,
-        logger: Optional[LoggingInterface] = None,
+        logger: Optional[LoggingInterface] | None = None,
     ):
         self._data_access = data_access
         self._logger = logger
@@ -126,7 +126,7 @@ class PortfolioManager(PortfolioManagerInterface):
             self._logger.get_logger(__name__).info(f"Saved portfolio to {path}")
 
     def list_portfolios(
-        self, directory: Path, pattern: Optional[str] = None
+        self, directory: Path, pattern: Optional[str] | None = None
     ) -> List[Portfolio]:
         """List all portfolios in a directory."""
         if not directory.exists():

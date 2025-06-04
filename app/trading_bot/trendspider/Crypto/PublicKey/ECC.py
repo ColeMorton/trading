@@ -1306,8 +1306,7 @@ def import_key(encoded, passphrase=None, curve_name=None):
         )
 
         der_encoded, marker, enc_flag = PEM.decode(text_encoded, passphrase)
-        if enc_flag:
-            passphrase = None
+        if enc_flag: passphrase | None = None
         try:
             result = _import_der(der_encoded, passphrase)
         except UnsupportedEccFeature as uef:

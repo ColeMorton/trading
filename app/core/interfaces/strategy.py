@@ -56,7 +56,7 @@ class StrategyExecutorInterface(ABC):
         strategy_type: str,
         tickers: List[str],
         config: Dict[str, Any],
-        output_dir: Optional[Path] = None,
+        output_dir: Optional[Path] | None = None,
     ) -> Dict[str, Any]:
         """Execute a strategy for multiple tickers."""
 

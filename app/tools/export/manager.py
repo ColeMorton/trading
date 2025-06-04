@@ -114,8 +114,8 @@ def export_data(
     format: str,
     feature_path: str,
     config: Dict[str, Any],
-    filename: Optional[str] = None,
-    log: Optional[Any] = None,
+    filename: Optional[str] | None = None,
+    log: Optional[Any] | None = None,
     **kwargs,
 ) -> ExportResult:
     """Convenience function for exporting data.

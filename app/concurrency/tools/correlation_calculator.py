@@ -29,7 +29,7 @@ class CorrelationResult:
     correlation: float
     observations: int
     valid: bool
-    p_value: Optional[float] = None
+    p_value: Optional[float] | None = None
     confidence_interval: Optional[Tuple[float, float]] = None
     message: str = ""
 

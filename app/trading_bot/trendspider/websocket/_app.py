@@ -170,15 +170,15 @@ class WebSocketApp:
         on_message: Optional[Callable[[WebSocket, Any], None]] = None,
         on_error: Optional[Callable[[WebSocket, Any], None]] = None,
         on_close: Optional[Callable[[WebSocket, Any, Any], None]] = None,
-        on_ping: Optional[Callable] = None,
-        on_pong: Optional[Callable] = None,
-        on_cont_message: Optional[Callable] = None,
+        on_ping: Optional[Callable] | None = None,
+        on_pong: Optional[Callable] | None = None,
+        on_cont_message: Optional[Callable] | None = None,
         keep_running: bool = True,
-        get_mask_key: Optional[Callable] = None,
-        cookie: Optional[str] = None,
-        subprotocols: Optional[list] = None,
-        on_data: Optional[Callable] = None,
-        socket: Optional[socket.socket] = None,
+        get_mask_key: Optional[Callable] | None = None,
+        cookie: Optional[str] | None = None,
+        subprotocols: Optional[list] | None = None,
+        on_data: Optional[Callable] | None = None,
+        socket: Optional[socket.socket] | None = None,
     ) -> None:
         """
         WebSocketApp initialization
@@ -260,11 +260,11 @@ class WebSocketApp:
         self.on_cont_message = on_cont_message
         self.keep_running = False
         self.get_mask_key = get_mask_key
-        self.sock: Optional[WebSocket] = None
+        self.sock: Optional[WebSocket] | None = None
         self.last_ping_tm = float(0)
         self.last_pong_tm = float(0)
-        self.ping_thread: Optional[threading.Thread] = None
-        self.stop_ping: Optional[threading.Event] = None
+        self.ping_thread: Optional[threading.Thread] | None = None
+        self.stop_ping: Optional[threading.Event] | None = None
         self.ping_interval = float(0)
         self.ping_timeout: Union[float, int, None] = None
         self.ping_payload = ""
@@ -341,23 +341,23 @@ class WebSocketApp:
 
     def run_forever(
         self,
-        sockopt: tuple = None,
-        sslopt: dict = None,
+        sockopt: tuple | None = None,
+        sslopt: dict | None = None,
         ping_interval: Union[float, int] = 0,
         ping_timeout: Union[float, int, None] = None,
         ping_payload: str = "",
-        http_proxy_host: str = None,
+        http_proxy_host: str | None = None,
         http_proxy_port: Union[int, str] = None,
-        http_no_proxy: list = None,
-        http_proxy_auth: tuple = None,
-        http_proxy_timeout: Optional[float] = None,
+        http_no_proxy: list | None = None,
+        http_proxy_auth: tuple | None = None,
+        http_proxy_timeout: Optional[float] | None = None,
         skip_utf8_validation: bool = False,
-        host: str = None,
-        origin: str = None,
+        host: str | None = None,
+        origin: str | None = None,
         dispatcher=None,
         suppress_origin: bool = False,
-        proxy_type: str = None,
-        reconnect: int = None,
+        proxy_type: str | None = None,
+        reconnect: int | None = None,
     ) -> bool:
         """
         Run event loop for WebSocket framework.
@@ -434,7 +434,7 @@ class WebSocketApp:
         self.has_done_teardown = False
         self.keep_running = True
 
-        def teardown(close_frame: ABNF = None):
+        def teardown(close_frame: ABNF | None = None):
             """
             Tears down the connection.
 
@@ -633,7 +633,7 @@ class WebSocketApp:
     def create_dispatcher(
         self,
         ping_timeout: Union[float, int, None],
-        dispatcher: Optional[DispatcherBase] = None,
+        dispatcher: Optional[DispatcherBase] | None = None,
         is_ssl: bool = False,
     ) -> Union[Dispatcher, SSLDispatcher, WrappedDispatcher]:
         if dispatcher:  # If custom dispatcher is set, use WrappedDispatcher

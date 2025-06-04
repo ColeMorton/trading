@@ -13,7 +13,9 @@ from app.api.graphql.types.portfolio import Portfolio, PortfolioFilter
 from app.database.config import get_prisma
 
 
-async def get_portfolios(filter: Optional[PortfolioFilter] = None) -> List[Portfolio]:
+async def get_portfolios(
+    filter: Optional[PortfolioFilter] | None = None,
+) -> List[Portfolio]:
     """Get portfolios with optional filtering."""
     db = await get_prisma()
 
@@ -69,7 +71,7 @@ async def get_portfolio(id: strawberry.ID) -> Optional[Portfolio]:
 
 
 async def get_portfolio_metrics(
-    portfolio_id: strawberry.ID, filter: Optional[MetricsFilter] = None
+    portfolio_id: strawberry.ID, filter: Optional[MetricsFilter] | None = None
 ) -> List[PortfolioMetrics]:
     """Get performance metrics for a portfolio."""
     db = await get_prisma()

@@ -97,8 +97,7 @@ class RecentlyUsedContainer(typing.Generic[_KT, _VT], typing.MutableMapping[_KT,
             self._container[key] = item
             return item
 
-    def __setitem__(self, key: _KT, value: _VT) -> None:
-        evicted_item = None
+    def __setitem__(self, key: _KT, value: _VT) -> None: evicted_item | None = None
         with self.lock:
             # Possibly evict the existing value of 'key'
             try:

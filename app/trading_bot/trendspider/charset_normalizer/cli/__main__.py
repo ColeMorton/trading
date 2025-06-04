@@ -45,7 +45,7 @@ def query_yes_no(question: str, default: str = "yes") -> bool:
             sys.stdout.write("Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n")
 
 
-def cli_detect(argv: Optional[List[str]] = None) -> int:
+def cli_detect(argv: Optional[List[str]] | None = None) -> int:
     """
     CLI assistant using ARGV and ArgumentParser
     :param argv:

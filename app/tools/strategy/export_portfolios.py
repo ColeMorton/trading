@@ -31,8 +31,8 @@ def export_portfolios(
     portfolios: List[Dict],
     config: ExportConfig,
     export_type: str,
-    csv_filename: Optional[str] = None,
-    log: Optional[Callable] = None,
+    csv_filename: Optional[str] | None = None,
+    log: Optional[Callable] | None = None,
     feature_dir: str = "",  # Default to empty string for direct export to csv/portfolios/
 ) -> Tuple[pl.DataFrame, bool]:
     """Convert portfolio dictionaries to Polars DataFrame and export to CSV.

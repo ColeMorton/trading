@@ -50,7 +50,7 @@ class ErrorStats:
     errors_by_hour: Dict[str, int] = field(default_factory=dict)
     most_common_errors: List[tuple] = field(default_factory=list)
     error_rate: float = 0.0
-    last_error_time: Optional[datetime] = None
+    last_error_time: Optional[datetime] | None = None
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert error stats to dictionary."""
@@ -289,7 +289,7 @@ class ErrorRegistry:
 
 
 # Global error registry instance
-_global_registry: Optional[ErrorRegistry] = None
+_global_registry: Optional[ErrorRegistry] | None = None
 _registry_lock = threading.Lock()
 
 

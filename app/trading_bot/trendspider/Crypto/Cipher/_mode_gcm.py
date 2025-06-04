@@ -97,8 +97,7 @@ def _get_ghash_clmul():
         api = _ghash_api_template.replace("%imp%", "clmul")
         lib = load_pycryptodome_raw_lib("Crypto.Hash._ghash_clmul", api)
         result = _build_impl(lib, "clmul")
-    except OSError:
-        result = None
+    except OSError: result | None = None
     return result
 
 

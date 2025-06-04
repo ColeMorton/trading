@@ -13,7 +13,9 @@ class CacheInterface(ABC):
         """Get value from cache."""
 
     @abstractmethod
-    async def set(self, key: str, value: Any, ttl: Optional[timedelta] = None) -> None:
+    async def set(
+        self, key: str, value: Any, ttl: Optional[timedelta] | None = None
+    ) -> None:
         """Set value in cache with optional TTL."""
 
     @abstractmethod
@@ -29,11 +31,13 @@ class CacheInterface(ABC):
         """Check if key exists in cache."""
 
     @abstractmethod
-    def cached(self, key_prefix: str, ttl: Optional[timedelta] = None) -> Callable:
+    def cached(
+        self, key_prefix: str, ttl: Optional[timedelta] | None = None
+    ) -> Callable:
         """Decorator for caching function results."""
 
     @abstractmethod
     async def get_or_set(
-        self, key: str, factory: Callable, ttl: Optional[timedelta] = None
+        self, key: str, factory: Callable, ttl: Optional[timedelta] | None = None
     ) -> Any:
         """Get from cache or compute and set."""

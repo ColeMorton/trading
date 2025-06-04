@@ -47,8 +47,8 @@ def sort_portfolios(
 
 def deduplicate_and_aggregate_portfolios(
     portfolios: Union[List[Dict[str, Any]], pl.DataFrame],
-    log: Optional[Callable] = None,
-    desired_metric_types: Optional[List[str]] = None,
+    log: Optional[Callable] | None = None,
+    desired_metric_types: Optional[List[str]] | None = None,
 ) -> Union[List[Dict[str, Any]], pl.DataFrame]:
     """
     Deduplicate portfolios to have exactly ONE row per {ticker,strategy_type} combination.

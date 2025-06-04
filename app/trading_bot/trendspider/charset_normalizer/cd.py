@@ -84,7 +84,7 @@ def encoding_languages(iana_name: str) -> List[str]:
     This function does the correspondence.
     """
     unicode_ranges: List[str] = encoding_unicode_range(iana_name)
-    primary_range: Optional[str] = None
+    primary_range: Optional[str] | None = None
 
     for specified_range in unicode_ranges:
         if "Latin" not in specified_range:
@@ -267,7 +267,7 @@ def alpha_unicode_split(decoded_sequence: str) -> List[str]:
         if character_range is None:
             continue
 
-        layer_target_range: Optional[str] = None
+        layer_target_range: Optional[str] | None = None
 
         for discovered_range in layers:
             if (
@@ -346,7 +346,9 @@ def filter_alt_coherence_matches(results: CoherenceMatches) -> CoherenceMatches:
 
 @lru_cache(maxsize=2048)
 def coherence_ratio(
-    decoded_sequence: str, threshold: float = 0.1, lg_inclusion: Optional[str] = None
+    decoded_sequence: str,
+    threshold: float = 0.1,
+    lg_inclusion: Optional[str] | None = None,
 ) -> CoherenceMatches:
     """
     Detect ANY language that can be identified in given sequence. The sequence will be analysed by layers.

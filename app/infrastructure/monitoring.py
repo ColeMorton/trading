@@ -12,7 +12,9 @@ from app.core.interfaces import ConfigurationInterface, MetricType, MonitoringIn
 class Metric:
     """Base metric class."""
 
-    def __init__(self, name: str, description: str, labels: Optional[List[str]] = None):
+    def __init__(
+        self, name: str, description: str, labels: Optional[List[str]] | None = None
+    ):
         self.name = name
         self.description = description
         self.labels = labels or []
@@ -51,7 +53,9 @@ class Gauge(Metric):
 class Histogram(Metric):
     """Histogram metric - tracks distribution."""
 
-    def __init__(self, name: str, description: str, labels: Optional[List[str]] = None):
+    def __init__(
+        self, name: str, description: str, labels: Optional[List[str]] | None = None
+    ):
         super().__init__(name, description, labels)
         self._observations = defaultdict(list)
 
@@ -91,7 +95,7 @@ class Histogram(Metric):
 class MonitoringService(MonitoringInterface):
     """Concrete implementation of monitoring service."""
 
-    def __init__(self, config: Optional[ConfigurationInterface] = None):
+    def __init__(self, config: Optional[ConfigurationInterface] | None = None):
         self._config = config
         self._metrics: Dict[str, Metric] = {}
         self._request_histogram = None
@@ -197,7 +201,7 @@ class MonitoringService(MonitoringInterface):
         name: str,
         metric_type: MetricType,
         description: str,
-        labels: Optional[List[str]] = None,
+        labels: Optional[List[str]] | None = None,
     ) -> None:
         """Register a new metric."""
         if name in self._metrics:

@@ -94,7 +94,10 @@ def process_ticker_portfolios(
         Optional[pl.DataFrame]: DataFrame of portfolios or None if processing fails
     """
     try:
-        log(f"Processing ticker: {ticker} with {config.get('DIRECTION', 'Long')} direction", "info")
+        log(
+            f"Processing ticker: {ticker} with {config.get('DIRECTION', 'Long')} direction",
+            "info",
+        )
 
         if config.get("USE_CURRENT", False):
             log(f"Using current market data for {ticker}", "info")

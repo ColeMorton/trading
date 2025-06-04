@@ -62,11 +62,11 @@ class SignalDefinition:
     volume_column: str = "Volume"
 
     # Filter criteria
-    min_volume: Optional[float] = None
-    rsi_column: Optional[str] = None
+    min_volume: Optional[float] | None = None
+    rsi_column: Optional[str] | None = None
     rsi_oversold: float = 30.0
     rsi_overbought: float = 70.0
-    volatility_threshold: Optional[float] = None
+    volatility_threshold: Optional[float] | None = None
 
     # Position shift (signals -> positions)
     position_shift: int = 1
@@ -78,7 +78,7 @@ class SignalProcessor:
     and filtering methodologies across all modules.
     """
 
-    def __init__(self, use_fixed: bool = None):
+    def __init__(self, use_fixed: bool | None = None):
         """
         Initialize signal processor.
 
@@ -348,7 +348,7 @@ class SignalProcessor:
 def calculate_signal_count_standardized(
     data: Union[pd.DataFrame, pl.DataFrame],
     signal_type: Union[str, SignalType] = SignalType.FILTERED,
-    signal_definition: Optional[SignalDefinition] = None,
+    signal_definition: Optional[SignalDefinition] | None = None,
 ) -> int:
     """
     Convenience function for standardized signal counting.

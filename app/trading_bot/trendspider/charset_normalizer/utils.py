@@ -374,7 +374,7 @@ def cut_sequence_chunks(
     strip_sig_or_bom: bool,
     sig_payload: bytes,
     is_multi_byte_decoder: bool,
-    decoded_payload: Optional[str] = None,
+    decoded_payload: Optional[str] | None = None,
 ) -> Generator[str, None, None]:
     if decoded_payload and is_multi_byte_decoder is False:
         for i in offsets:

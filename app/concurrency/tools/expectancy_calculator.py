@@ -24,7 +24,7 @@ from app.tools.expectancy import (
 class ExpectancyCalculator:
     """Standardized expectancy calculator that fixes the 596,446% variance issue."""
 
-    def __init__(self, use_fixed: bool = None):
+    def __init__(self, use_fixed: bool | None = None):
         """Initialize the expectancy calculator.
 
         Args:

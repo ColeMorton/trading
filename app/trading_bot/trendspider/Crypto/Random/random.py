@@ -38,8 +38,7 @@ from Crypto.Util.py3compat import is_native_int
 
 class StrongRandom(object):
     def __init__(self, rng=None, randfunc=None):
-        if randfunc is None and rng is None:
-            self._randfunc = None
+        if randfunc is None and rng is None: self._randfunc | None = None
         elif randfunc is not None and rng is None:
             self._randfunc = randfunc
         elif randfunc is None and rng is not None:

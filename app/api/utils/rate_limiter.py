@@ -197,8 +197,8 @@ class RateLimiter:
 
 
 # Global rate limiter instances for different endpoint types
-_analysis_limiter: Optional[RateLimiter] = None
-_cache_limiter: Optional[RateLimiter] = None
+_analysis_limiter: Optional[RateLimiter] | None = None
+_cache_limiter: Optional[RateLimiter] | None = None
 
 
 def get_analysis_limiter() -> RateLimiter:

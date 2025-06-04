@@ -65,7 +65,7 @@ class ReconciliationReport:
     overall_summary: Dict[str, Any] = field(default_factory=dict)
     ticker_results: List[ReconciliationResult] = field(default_factory=list)
     strategy_results: List[ReconciliationResult] = field(default_factory=list)
-    portfolio_result: Optional[ReconciliationResult] = None
+    portfolio_result: Optional[ReconciliationResult] | None = None
     critical_issues: List[str] = field(default_factory=list)
     recommendations: List[str] = field(default_factory=list)
     data_quality_assessment: Dict[str, Any] = field(default_factory=dict)

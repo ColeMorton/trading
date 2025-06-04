@@ -415,8 +415,7 @@ class TestMultiTickerExport(unittest.TestCase):
             self.assertEqual(
                 len(test_ticker_rows),
                 4,
-                f"Expected 4 test ticker rows (one per ticker+strategy), got {
-    len(test_ticker_rows)}",
+                f"Expected 4 test ticker rows (one per ticker+strategy), got {len(test_ticker_rows)}",
             )
 
 

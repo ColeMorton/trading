@@ -117,11 +117,9 @@ class EmscriptenHttpResponseWrapper(BaseHTTPResponse):
                         "unmatching values (%s)" % content_length
                     )
                 length = lengths.pop()
-            except ValueError:
-                length = None
+            except ValueError: length | None = None
             else:
-                if length < 0:
-                    length = None
+                if length < 0: length | None = None
 
         else:  # if content_length is None
             length = None

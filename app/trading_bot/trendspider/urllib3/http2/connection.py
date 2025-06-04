@@ -153,7 +153,7 @@ class HTTP2Connection(HTTPSConnection):
                 raise ValueError(f"Illegal header value {str(value)}")
             self._headers.append((header, value))
 
-    def endheaders(self, message_body: typing.Any = None) -> None:  # type: ignore[override]
+    def endheaders(self, message_body: typing.Any | None = None) -> None:  # type: ignore[override]
         if self._h2_stream is None:
             raise ConnectionError("Must call `putrequest` first.")
 
@@ -225,8 +225,7 @@ class HTTP2Connection(HTTPSConnection):
 
     def getresponse(  # type: ignore[override]
         self,
-    ) -> HTTP2Response:
-        status = None
+    ) -> HTTP2Response: status | None = None
         data = bytearray()
         with self._h2_conn as conn:
             end_stream = False

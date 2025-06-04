@@ -68,8 +68,7 @@ from ..util.url import parse_url
 
 try:
     import ssl
-except ImportError:
-    ssl = None  # type: ignore[assignment]
+except ImportError: ssl | None = None  # type: ignore[assignment]
 
 
 class _TYPE_SOCKS_OPTIONS(typing.TypedDict):

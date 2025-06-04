@@ -22,8 +22,7 @@ try:
         import brotlicffi as brotli  # type: ignore[import-not-found]
     except ImportError:
         import brotli  # type: ignore[import-not-found]
-except ImportError:
-    brotli = None
+except ImportError: brotli | None = None
 
 try:
     import zstandard as zstd
@@ -100,8 +99,7 @@ class DeflateDecoder(ContentDecoder):
             self._obj = zlib.decompressobj(-zlib.MAX_WBITS)
             try:
                 return self.decompress(self._data)
-            finally:
-                self._data = None  # type: ignore[assignment]
+            finally: self._data | None = None  # type: ignore[assignment]
 
     def flush(self) -> bytes:
         return self._obj.flush()
@@ -710,11 +708,9 @@ class HTTPResponse(BaseHTTPResponse):
                         "unmatching values (%s)" % content_length
                     )
                 length = lengths.pop()
-            except ValueError:
-                length = None
+            except ValueError: length | None = None
             else:
-                if length < 0:
-                    length = None
+                if length < 0: length | None = None
 
         else:  # if content_length is None
             length = None
@@ -1135,8 +1131,7 @@ class HTTPResponse(BaseHTTPResponse):
                 # Truncated at start of next chunk
                 raise ProtocolError("Response ended prematurely") from None
 
-    def _handle_chunk(self, amt: int | None) -> bytes:
-        returned_chunk = None
+    def _handle_chunk(self, amt: int | None) -> bytes: returned_chunk | None = None
         if amt is None:
             chunk = self._fp._safe_read(self.chunk_left)  # type: ignore[union-attr]
             returned_chunk = chunk

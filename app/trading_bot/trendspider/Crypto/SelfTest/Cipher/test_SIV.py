@@ -375,8 +375,7 @@ def transform(tv):
     new_tv += [unhexlify(x) for x in tv[1:5]]
     if tv[5]:
         nonce = unhexlify(tv[5])
-    else:
-        nonce = None
+    else: nonce | None = None
     new_tv += [nonce]
     return new_tv
 

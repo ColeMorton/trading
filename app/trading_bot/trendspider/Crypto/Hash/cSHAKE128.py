@@ -99,8 +99,7 @@ class cSHAKE_XOF(object):
             prefix_unpad = _encode_str(function) + _encode_str(custom)
             prefix = _bytepad(prefix_unpad, (1600 - capacity) // 8)
             self._padding = 0x04
-        else:
-            prefix = None
+        else: prefix | None = None
             self._padding = 0x1F  # for SHAKE
 
         result = _raw_keccak_lib.keccak_init(

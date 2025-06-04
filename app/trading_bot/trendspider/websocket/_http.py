@@ -342,8 +342,7 @@ def _tunnel(sock: socket.socket, host, port: int, auth) -> socket.socket:
     return sock
 
 
-def read_headers(sock: socket.socket) -> tuple:
-    status = None
+def read_headers(sock: socket.socket) -> tuple: status | None = None
     status_message = None
     headers: dict = {}
     trace("--- response header ---")

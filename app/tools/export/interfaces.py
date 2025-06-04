@@ -38,9 +38,9 @@ class ExportContext:
     format: ExportFormat
     feature_path: str
     config: Dict[str, Any]
-    filename: Optional[str] = None
+    filename: Optional[str] | None = None
     log: Optional[Callable[[str, str], None]] = None
-    json_encoder: Optional[Type] = None
+    json_encoder: Optional[Type] | None = None
     indent: int = 4
 
 
@@ -58,7 +58,7 @@ class ExportResult:
     success: bool
     path: str
     rows_exported: int
-    error_message: Optional[str] = None
+    error_message: Optional[str] | None = None
 
 
 class ExportStrategy:

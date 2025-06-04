@@ -32,13 +32,17 @@ class OperationProgress:
     """Progress information for an operation."""
 
     current: int = 0
-    total: Optional[int] = None
-    percentage: Optional[float] = None
+    total: Optional[int] | None = None
+    percentage: Optional[float] | None = None
     message: str = ""
     details: Dict[str, Any] = field(default_factory=dict)
 
     def update(
-        self, current: int, total: Optional[int] = None, message: str = "", **details
+        self,
+        current: int,
+        total: Optional[int] | None = None,
+        message: str = "",
+        **details,
     ):
         """Update progress information."""
         self.current = current
@@ -60,27 +64,27 @@ class OperationResult:
 
     operation_id: str
     status: OperationStatus
-    result: Any = None
-    error: Optional[str] = None
-    progress: Optional[OperationProgress] = None
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
-    duration: Optional[timedelta] = None
+    result: Any | None = None
+    error: Optional[str] | None = None
+    progress: Optional[OperationProgress] | None = None
+    started_at: Optional[datetime] | None = None
+    completed_at: Optional[datetime] | None = None
+    duration: Optional[timedelta] | None = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 
 class AsyncOperation(ABC):
     """Abstract base class for async operations."""
 
-    def __init__(self, operation_id: str, timeout: Optional[int] = None):
+    def __init__(self, operation_id: str, timeout: Optional[int] | None = None):
         self.operation_id = operation_id
         self.timeout = timeout
         self.status = OperationStatus.PENDING
         self.progress = OperationProgress()
-        self.started_at: Optional[datetime] = None
-        self.completed_at: Optional[datetime] = None
-        self.result: Any = None
-        self.error: Optional[str] = None
+        self.started_at: Optional[datetime] | None = None
+        self.completed_at: Optional[datetime] | None = None
+        self.result: Any | None = None
+        self.error: Optional[str] | None = None
         self.cancelled = False
         self._cancel_event = asyncio.Event()
 
@@ -103,7 +107,11 @@ class AsyncOperation(ABC):
         return self.cancelled
 
     async def update_progress(
-        self, current: int, total: Optional[int] = None, message: str = "", **details
+        self,
+        current: int,
+        total: Optional[int] | None = None,
+        message: str = "",
+        **details,
     ):
         """Update operation progress and notify subscribers."""
         self.progress.update(current, total, message, **details)
@@ -253,7 +261,7 @@ class OperationQueue:
         return None
 
     def list_operations(
-        self, status_filter: Optional[OperationStatus] = None
+        self, status_filter: Optional[OperationStatus] | None = None
     ) -> List[OperationResult]:
         """List operations with optional status filter."""
         results = []

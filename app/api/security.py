@@ -146,7 +146,7 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
     API key authentication for production
     """
 
-    def __init__(self, app, protected_paths: Optional[List[str]] = None):
+    def __init__(self, app, protected_paths: Optional[List[str]] | None = None):
         super().__init__(app)
         self.protected_paths = protected_paths or ["/api/scripts/execute"]
         self.api_key = os.getenv("API_KEY")
