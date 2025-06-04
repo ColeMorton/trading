@@ -43,7 +43,7 @@ ASSETS = [
     "PGR",
     "COIN",
     "UTHR",
-    "NTRA"
+    "NTRA",
 ]
 
 # ASSETS = ['TRX-USD', 'FET-USD', 'AVAX-USD', 'SOL-USD']

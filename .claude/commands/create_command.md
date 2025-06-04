@@ -1,149 +1,106 @@
 # Create Command
 
-Create a new Claude Code command with proper structure and best practices.
+Interactive command creator for Claude Code with systematic validation and best practices.
 
 ## Purpose
 
-This command guides you through creating new Claude Code commands with consistent structure, proper formatting, and adherence to best practices. It provides an interactive workflow that ensures all created commands follow the established patterns and include necessary documentation.
+Creates well-structured commands following established patterns with built-in validation and optimization guidance.
 
 ## Workflow
 
-### Step 1: Gather Command Information
-Ask the user for:
-- **Command name**: Validate it doesn't already exist and follows naming conventions
-- **Command purpose**: Clear, concise description of what the command does
-- **Command type**: Choose from workflow, automation, analysis, or utility
-- **Primary use case**: Specific scenario where this command would be used
+### Step 1: Command Definition
+**Required Information:**
+- **Name**: lowercase, descriptive, unique (validate against existing)
+- **Category**: workflow | automation | analysis | utility
+- **Objective**: specific problem solved (1-2 sentences)
+- **Success criteria**: measurable outcomes
 
-### Step 2: Define Command Structure
-Based on the command type, guide the user through:
-- **Core steps**: Main actions the command should perform
-- **Parameters**: Any arguments or inputs the command needs
-- **Prerequisites**: Dependencies or setup required
-- **Expected outputs**: What the command should produce
+### Step 2: Structure Design
+**Core Components:**
+- **Prerequisites**: dependencies, setup requirements
+- **Parameters**: inputs with types and validation
+- **Process steps**: sequential actions with decision points
+- **Outputs**: expected results and formats
+- **Error handling**: failure modes and recovery
 
-### Step 3: Create Command Content
-Generate the command file with:
-- Proper markdown structure following existing patterns
-- Clear step-by-step instructions
-- Usage examples with `/project:command-name` syntax
-- Best practices and notes sections
-- Parameter documentation if applicable
-
-### Step 4: Validation and Preview
-Before saving:
-- Check that command name doesn't conflict with existing commands
-- Validate markdown structure and formatting
-- Show preview of the generated command
-- Allow user to make adjustments if needed
-
-### Step 5: Save and Confirm
-- Write the command file to `.claude/commands/` directory
-- Provide usage instructions
-- Suggest testing the new command
-
-## Template Structure
-
-Use this template structure for all created commands:
-
+### Step 3: Content Generation
+**Template Application:**
 ```markdown
 # [Command Name]
 
-[Brief description of what the command does]
+[One-line description]
 
 ## Purpose
-
-[Detailed explanation of the command's purpose and when to use it]
-
-## Workflow
-
-### Step 1: [First Action]
-[Detailed description of what to do]
-
-### Step 2: [Second Action]
-[Detailed description of what to do]
-
-[Continue with additional steps as needed]
-
-## Usage
-
-Invoke this command with:
-```
-/project:[command-name]
-```
-
-[Include any parameter examples if applicable]
+[Problem solved and when to use - 2-3 sentences]
 
 ## Parameters
+- `param`: description (type, required/optional, default)
 
-- `$ARGUMENTS`: [Description of any arguments the command accepts]
+## Process
+1. **[Action]**: [specific steps]
+2. **[Validation]**: [check criteria]
+3. **[Output]**: [deliverable format]
 
-## Best Practices
-
-- [Guideline 1]
-- [Guideline 2]
-- [Additional best practices]
-
-## Notes
-
-- [Important considerations]
-- [Warnings or limitations]
-- [Additional context]
+## Usage
+```
+/project:[command-name] [parameters]
 ```
 
-## Command Type Templates
+## Notes
+- [Critical considerations]
+- [Limitations or warnings]
+```
 
-### Workflow Commands
-Focus on step-by-step processes with clear sequence and decision points.
+### Step 4: Quality Assurance
+**Validation Checklist:**
+- [ ] Name follows conventions and is unique
+- [ ] Purpose clearly states value proposition
+- [ ] Steps are actionable and measurable
+- [ ] Parameters are well-defined
+- [ ] Examples demonstrate usage
+- [ ] Error cases are addressed
 
-### Automation Commands
-Emphasize repeatable tasks with minimal user intervention.
+### Step 5: Implementation
+- Write to `.claude/commands/[name].md`
+- Test with sample parameters
+- Document in command registry
 
-### Analysis Commands
-Include research, investigation, and reporting steps.
+## Command Categories
 
-### Utility Commands
-Provide specific tools or helpers for common tasks.
+**Workflow**: Multi-step processes with decision points
+**Automation**: Repeatable tasks requiring minimal input
+**Analysis**: Research, investigation, and reporting tasks
+**Utility**: Specific tools for common operations
+
+## Quality Standards
+
+**Clarity**: Each step has clear success criteria
+**Completeness**: All necessary information included
+**Consistency**: Follows established patterns
+**Actionability**: Instructions are executable
+**Robustness**: Handles edge cases and errors
 
 ## Validation Rules
 
-1. **Command Name**:
-   - Must be lowercase with underscores or hyphens
-   - Cannot conflict with existing commands
-   - Should be descriptive and concise
-
-2. **Structure**:
-   - Must include Purpose, Workflow, and Usage sections
-   - Steps should be numbered and detailed
-   - Include examples where applicable
-
-3. **Content Quality**:
-   - Clear, actionable instructions
-   - Proper markdown formatting
-   - Consistent with existing command patterns
+1. **Naming**: `[a-z0-9_-]+` pattern, max 20 chars
+2. **Structure**: Required sections present and complete
+3. **Content**: Specific, actionable instructions
+4. **Examples**: Realistic usage scenarios included
+5. **Testing**: Command works as documented
 
 ## Usage
 
-Invoke this command with:
 ```
 /project:create_command
 ```
 
-This will start an interactive session to create a new command.
+Starts interactive command creation session with systematic guidance and validation.
 
 ## Best Practices
 
-- Start with the specific need or problem the command solves
-- Keep commands focused on a single responsibility
-- Use clear, actionable language in steps
-- Include examples and usage patterns
-- Test the command after creation
-- Follow DRY, SOLID, KISS, and YAGNI principles
-
-## Notes
-
-- Commands are stored in `.claude/commands/` directory
-- Command files must have `.md` extension
-- Once created, commands are immediately available for use
-- Always test new commands before relying on them
-- Consider documenting complex commands in the project's command guide
+- Start with user need, not technical capability
+- Use action verbs for clarity
+- Include realistic examples
+- Plan for failure scenarios
+- Test before deployment
+- Document assumptions and limitations

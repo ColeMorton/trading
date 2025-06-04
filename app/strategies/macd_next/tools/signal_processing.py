@@ -105,23 +105,11 @@ def process_ticker_portfolios(
             # Log parameter ranges
             log(f"Parameter ranges for {ticker}:", "info")
             log(
-                f"Short window: {config.get(
-        'SHORT_WINDOW_START',
-        2)} to {config.get(
-                'SHORT_WINDOW_END',
-                18)} with step {config.get(
-                        'STEP',
-                         2)}",
+                f"Short window: {config.get('SHORT_WINDOW_START', 2)} to {config.get('SHORT_WINDOW_END', 18)} with step {config.get('STEP', 2)}",
                 "info",
             )
             log(
-                f"Long window: {config.get(
-        'LONG_WINDOW_START',
-        4)} to {config.get(
-                'LONG_WINDOW_END',
-                36)} with step {config.get(
-                        'STEP',
-                         2)}",
+                f"Long window: {config.get('LONG_WINDOW_START', 4)} to {config.get('LONG_WINDOW_END', 36)} with step {config.get('STEP', 2)}",
                 "info",
             )
             log(

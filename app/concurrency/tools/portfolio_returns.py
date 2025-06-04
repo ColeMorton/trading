@@ -224,9 +224,7 @@ class PortfolioReturnsCalculator:
 
         # Log summary
         self.log(
-            f"Portfolio volatility: {portfolio_std:.6f} ({portfolio_std*
-        np.sqrt(252)*
-        100:.2f}% annualized)",
+            f"Portfolio volatility: {portfolio_std:.6f} ({portfolio_std*np.sqrt(252)*100:.2f}% annualized)",
             "info",
         )
         self.log(f"Diversification ratio: {diversification_ratio:.4f}", "info")

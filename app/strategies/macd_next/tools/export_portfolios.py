@@ -318,9 +318,7 @@ def export_portfolios(
         # Sort portfolios if SORT_BY is specified in config
         if "SORT_BY" in config:
             log(
-                f"Sorting portfolios by {config.get('SORT_BY')} in {'ascending' if config.get(
-            'SORT_ASC',
-             False) else 'descending'} order",
+                f"Sorting portfolios by {config.get('SORT_BY')} in {'ascending' if config.get('SORT_ASC', False) else 'descending'} order",
                 "info",
             )
             df = sort_portfolios(df, config)
@@ -390,11 +388,7 @@ def export_best_portfolios(
     try:
         # Sort portfolios using centralized function
         log(
-            f"Sorting portfolios by {config.get(
-        'SORT_BY',
-        'Total Return [%]')} in {'ascending' if config.get(
-                'SORT_ASC',
-                 False) else 'descending'} order",
+            f"Sorting portfolios by {config.get('SORT_BY', 'Total Return [%]')} in {'ascending' if config.get('SORT_ASC', False) else 'descending'} order",
             "info",
         )
         sorted_portfolios = sort_portfolios(portfolios, config)

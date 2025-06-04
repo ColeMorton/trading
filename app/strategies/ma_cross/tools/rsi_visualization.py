@@ -135,8 +135,7 @@ def create_rsi_heatmap(
                     text = (
                         f"RSI Window: {window:.0f}<br>"
                         f"RSI Threshold: {threshold:.0f}<br>"
-                        f"{metric_name.capitalize().replace('_',
-     ' ')}: {value:{format_info['format']}}{title_suffix}"
+                        f"{metric_name.capitalize().replace('_', ' ')}: {value:{format_info['format']}}{title_suffix}"
                     )
                 row_text.append(text)
             hover_text.append(row_text)
@@ -156,8 +155,7 @@ def create_rsi_heatmap(
                 hovertext=hover_text,
                 hoverinfo="text",
                 colorbar=dict(
-                    title=f"{metric_name.capitalize().replace(
-        '_', ' ')} {title_suffix}",
+                    title=f"{metric_name.capitalize().replace('_', ' ')} {title_suffix}",
                     tickformat=format_info["format"],
                 ),
             )

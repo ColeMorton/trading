@@ -103,8 +103,7 @@ def create_stop_loss_heatmap(
                 zmax=zmax,
                 colorbar=dict(
                     title=dict(
-                        text=f"{metric_name.capitalize().replace(
-        '_', ' ')} {title_suffix}",
+                        text=f"{metric_name.capitalize().replace('_', ' ')} {title_suffix}",
                         side="right",
                     ),
                     thickness=20,
@@ -122,9 +121,7 @@ def create_stop_loss_heatmap(
         )
 
         # Update layout
-        title_text = f'{ticker} Stop Loss Sensitivity Analysis<br><sub>{
-    metric_name.capitalize().replace(
-        "_", " ")}</sub>'
+        title_text = f'{ticker} Stop Loss Sensitivity Analysis<br><sub>{metric_name.capitalize().replace("_", " ")}</sub>'
 
         fig.update_layout(
             title=dict(

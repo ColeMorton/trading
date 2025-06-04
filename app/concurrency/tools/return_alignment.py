@@ -231,8 +231,7 @@ def validate_return_matrix(
     expected_cols = len(strategy_names) + 1  # +1 for Date column
     if len(returns_matrix.columns) != expected_cols:
         raise DataAlignmentError(
-            f"Return matrix column count mismatch: expected {expected_cols}, got {len(
-        returns_matrix.columns)}"
+            f"Return matrix column count mismatch: expected {expected_cols}, got {len(returns_matrix.columns)}"
         )
 
     # Check for missing values

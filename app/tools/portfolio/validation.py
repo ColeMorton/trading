@@ -155,9 +155,7 @@ def validate_strategy_config(
         )
         if stop_loss_decimal <= 0 or stop_loss_decimal > 1:
             errors.append(
-                f"Stop loss for {strategy.get(
-        'TICKER',
-         'Unknown')} ({stop_loss_float}%) is outside valid range (0-100%)"
+                f"Stop loss for {strategy.get('TICKER', 'Unknown')} ({stop_loss_float}%) is outside valid range (0-100%)"
             )
         strategy["STOP_LOSS"] = stop_loss_decimal
 

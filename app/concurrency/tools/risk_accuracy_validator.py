@@ -889,8 +889,7 @@ def create_validator(
 
     if validation_level not in level_map:
         raise ValueError(
-            f"Unknown validation level: {validation_level}. Must be one of {list(
-        level_map.keys())}"
+            f"Unknown validation level: {validation_level}. Must be one of {list(level_map.keys())}"
         )
 
     return RiskAccuracyValidator(log, level_map[validation_level])

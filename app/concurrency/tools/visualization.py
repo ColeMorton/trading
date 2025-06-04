@@ -109,8 +109,7 @@ def create_strategy_traces(
                         # Convert to pandas for easier handling of NaN values
                         pandas_data = data.to_pandas()
                         log(
-                            f"Pandas columns after conversion: {list(
-        pandas_data.columns)}",
+                            f"Pandas columns after conversion: {list(pandas_data.columns)}",
                             "info",
                         )
 
@@ -189,9 +188,7 @@ def create_strategy_traces(
 
     except Exception as e:
         log(
-            f"Error creating strategy traces for {config.get(
-        'TICKER',
-        'unknown')}: {str(e)}",
+            f"Error creating strategy traces for {config.get('TICKER', 'unknown')}: {str(e)}",
             "error",
         )
         raise

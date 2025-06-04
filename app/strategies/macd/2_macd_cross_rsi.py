@@ -68,9 +68,7 @@ def calculate_metrics(
     num_positions = len(trades)
 
     log(
-        f"Metrics - Total Return: {total_return *
-    100}%, Win Rate: {win_rate *
-     100}%, Expectancy: {expectancy}, Number of Positions: {num_positions}"
+        f"Metrics - Total Return: {total_return * 100}%, Win Rate: {win_rate * 100}%, Expectancy: {expectancy}, Number of Positions: {num_positions}"
     )
     return total_return * 100, win_rate * 100, expectancy, num_positions
 

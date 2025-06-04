@@ -219,7 +219,8 @@ def calculate_breadth_metrics(
         else float("inf")
     )
 
-    metrics = {"total_strategies": total_strategies,
+    metrics = {
+        "total_strategies": total_strategies,
         "total_open_trades": total_open_trades,
         "total_signal_entries": total_signal_entries,
         "total_signal_exits": total_signal_exits,

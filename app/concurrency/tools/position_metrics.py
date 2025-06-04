@@ -93,9 +93,7 @@ def calculate_position_metrics(
                         correlation_sum += abs(correlation)
                         correlation_count += 1
                         log(
-                            f"Correlation between strategy {i+
-    1} and {j+
-        1}: {correlation:.2f}",
+                            f"Correlation between strategy {i+1} and {j+1}: {correlation:.2f}",
                             "info",
                         )
 

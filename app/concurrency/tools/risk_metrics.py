@@ -390,8 +390,7 @@ def calculate_component_var(
 
                 if log:
                     log(
-                        f"Strategy {i+
-    1} component VaR {confidence_pct}%: {component_var:.4f}",
+                        f"Strategy {i+1} component VaR {confidence_pct}%: {component_var:.4f}",
                         "info",
                     )
             else:
@@ -578,8 +577,7 @@ def calculate_risk_contributions_legacy(
                     trigger_count = int(np.sum(stop_loss_triggers))
                     if trigger_count > 0:
                         log(
-                            f"Stop loss triggered {trigger_count} times for strategy {i+
-    1}",
+                            f"Stop loss triggered {trigger_count} times for strategy {i+1}",
                             "info",
                         )
 
@@ -828,13 +826,11 @@ def calculate_risk_contributions_legacy(
                     risk_adjusted_alpha
                 )
                 log(
-                    f"Strategy {i+
-    1} excess return: {excess_return:.6f}, volatility: {strategy_volatility:.6f}",
+                    f"Strategy {i+1} excess return: {excess_return:.6f}, volatility: {strategy_volatility:.6f}",
                     "info",
                 )
                 log(
-                    f"Strategy {i+
-    1} risk-adjusted alpha to portfolio: {risk_adjusted_alpha:.6f}",
+                    f"Strategy {i+1} risk-adjusted alpha to portfolio: {risk_adjusted_alpha:.6f}",
                     "info",
                 )
 
@@ -852,9 +848,7 @@ def calculate_risk_contributions_legacy(
                     # Handle potential NaN values
                     if np.isnan(overlap):
                         log(
-                            f"Warning: NaN detected in risk overlap between strategy {i+
-    1} and {j+
-        1}, setting to 0",
+                            f"Warning: NaN detected in risk overlap between strategy {i+1} and {j+1}, setting to 0",
                             "warning",
                         )
                         overlap = 0.0

@@ -174,8 +174,7 @@ def generate_signals(
     )
 
     log(
-        f"Data shape after initialization: data.shape}, columns: {
-        data.columns.tolist()}"
+        f"Data shape after initialization: {data.shape}, columns: {data.columns.tolist()}"
     )
 
     # Skip first row due to ATR calculation requiring previous values
@@ -310,16 +309,13 @@ def backtest_strategy(data: pd.DataFrame) -> vbt.Portfolio:
 
         # Debug values shapes
         log(
-            f"DEBUG: close_values shape: close_values.shape if hasattr(
-        close_values, 'shape') else 'no shape'}"
+            f"DEBUG: close_values shape: {close_values.shape if hasattr(close_values, 'shape') else 'no shape'}"
         )
         log(
-            f"DEBUG: entries_values shape: entries_values.shape if hasattr(
-        entries_values, 'shape') else 'no shape'}"
+            f"DEBUG: entries_values shape: {entries_values.shape if hasattr(entries_values, 'shape') else 'no shape'}"
         )
         log(
-            f"DEBUG: exits_values shape: exits_values.shape if hasattr(
-        exits_values, 'shape') else 'no shape'}"
+            f"DEBUG: exits_values shape: {exits_values.shape if hasattr(exits_values, 'shape') else 'no shape'}"
         )
 
         # Flatten if needed
@@ -479,8 +475,7 @@ def parameter_sensitivity_analysis(
         pd.DataFrame: Results matrix with ATR lengths as index and ATR multipliers as columns
     """
     log(
-        f"Starting parameter sensitivity analysis with len(atr_lengths)} lengths and {
-        len(atr_multipliers)} multipliers"
+        f"Starting parameter sensitivity analysis with {len(atr_lengths)} lengths and {len(atr_multipliers)} multipliers"
     )
 
     try:
@@ -623,15 +618,13 @@ def main(config: ATRConfig = None) -> None:
         atr_lengths: List[int] = list(range(2, 15))
         atr_multipliers: List[float] = list(np.arange(1.5, 8.5, 0.5))
         log(
-            f"Testing len(atr_lengths)} ATR lengths and {
-        len(atr_multipliers)} ATR multipliers"
+            f"Testing {len(atr_lengths)} ATR lengths and {len(atr_multipliers)} ATR multipliers"
         )
 
         # Get data based on configuration
         if config["USE_SYNTHETIC"]:
             log(
-                f"Using synthetic ticker with config['TICKER_1']} and {
-        config['TICKER_2']}"
+                f"Using synthetic ticker with {config['TICKER_1']} and {config['TICKER_2']}"
             )
 
             # Create data configs for both tickers
@@ -698,9 +691,7 @@ def main(config: ATRConfig = None) -> None:
             log(f"DEBUG: Synthetic data shape: {data.shape}")
             for col in data.columns:
                 log(
-                    f"DEBUG: Column {col} type: type(
-        data[col])}, shape: {
-            data[col].shape}"
+                    f"DEBUG: Column {col} type: {type(data[col])}, shape: {data[col].shape}"
                 )
         else:
             log(f"Using single ticker: {config['TICKER_1']}")
@@ -740,9 +731,7 @@ def main(config: ATRConfig = None) -> None:
             # Debug column structure
             for col in data.columns:
                 log(
-                    f"DEBUG: Column {col} type: type(
-        data[col])}, shape: {
-            data[col].shape}"
+                    f"DEBUG: Column {col} type: {type(data[col])}, shape: {data[col].shape}"
                 )
 
         # Run parameter sensitivity analysis

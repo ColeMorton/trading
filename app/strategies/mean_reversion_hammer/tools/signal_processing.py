@@ -38,8 +38,7 @@ def process_current_signals(
         current_signals = generate_current_signals(config_copy, log)
         if len(current_signals) == 0:
             log(
-                f"No current signals found for {ticker} {config.get(
-        'DIRECTION', 'Long')}",
+                f"No current signals found for {ticker} {config.get('DIRECTION', 'Long')}",
                 "warning",
             )
             return None

@@ -118,8 +118,7 @@ def execute_strategy_all(
 
     if "TICKER" not in config:
         log(
-            f"ERROR: TICKER key not found in config. Available keys: {list(
-        config.keys())}",
+            f"ERROR: TICKER key not found in config. Available keys: {list(config.keys())}",
             "error",
         )
         return []

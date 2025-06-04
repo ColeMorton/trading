@@ -32,9 +32,7 @@ def process_single_ticker(
     """
     try:
         log(
-            f"Processing single ticker: {ticker} with {config.get(
-        'DIRECTION',
-         'Long')} direction",
+            f"Processing single ticker: {ticker} with {config.get('DIRECTION', 'Long')} direction",
             "info",
         )
         config_copy = config.copy()

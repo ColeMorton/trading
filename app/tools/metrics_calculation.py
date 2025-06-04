@@ -148,7 +148,8 @@ class MetricsCalculator:
             var_95 = float(np.percentile(active_returns, 5))
 
             # Return metrics dictionary
-            return {"avg_return": avg_return,
+            return {
+                "avg_return": avg_return,
                 "median_return": median_return,
                 "std_return": std_return,
                 "win_rate": win_rate,

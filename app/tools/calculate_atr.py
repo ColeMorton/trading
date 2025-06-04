@@ -108,8 +108,7 @@ def calculate_atr_signals(
 
     # Log initial data shape and columns
     log(
-        f"Initializing ATR calculation with data shape {data.shape} and columns {list(
-            data.columns)}",
+        f"Initializing ATR calculation with data shape {data.shape} and columns {list(data.columns)}",
         "info",
     )
     # Process rows iteratively

@@ -347,15 +347,11 @@ def run_analysis(config: Dict[str, Any]) -> bool:
 
             # Log configuration settings
             log(
-                f"Signal definition mode: {validated_config.get(
-        'SIGNAL_DEFINITION_MODE',
-         SignalDefinitionMode.COMPLETE_TRADE.value)}",
+                f"Signal definition mode: {validated_config.get('SIGNAL_DEFINITION_MODE', SignalDefinitionMode.COMPLETE_TRADE.value)}",
                 "info",
             )
             log(
-                f"Execution mode: {validated_config.get(
-        'EXECUTION_MODE',
-         ExecutionMode.SAME_PERIOD.value)}",
+                f"Execution mode: {validated_config.get('EXECUTION_MODE', ExecutionMode.SAME_PERIOD.value)}",
                 "info",
             )
             log(f"Using allocations only from CSV file", "info")

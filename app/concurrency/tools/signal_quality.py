@@ -459,7 +459,8 @@ def _calculate_metrics_for_strategy(
         signal_reliability,
     )
 
-    return {"signal_count": signal_count,
+    return {
+        "signal_count": signal_count,
         "avg_return": avg_return,
         "win_rate": win_rate,
         "profit_factor": profit_factor,

@@ -137,8 +137,7 @@ def process_strategies(
                 ):
                     stop_loss = float(strategy_config["STOP_LOSS"])
                     log(
-                        f"Using stop loss {stop_loss:.4f} ({stop_loss*
-        100:.2f}%) for {strategy_config['TICKER']}",
+                        f"Using stop loss {stop_loss:.4f} ({stop_loss*100:.2f}%) for {strategy_config['TICKER']}",
                         "info",
                     )
 
@@ -267,13 +266,11 @@ def process_strategies(
 
                         # Log data shapes and column info for debugging
                         log(
-                            f"Portfolio data shape: {data_pd.shape}, columns: {list(
-            data_pd.columns)}",
+                            f"Portfolio data shape: {data_pd.shape}, columns: {list(data_pd.columns)}",
                             "info",
                         )
                         log(
-                            f"ATR data shape: {atr_columns['ATR_Trailing_Stop'].shape}, columns: {list(
-            atr_columns['ATR_Trailing_Stop'].columns)}",
+                            f"ATR data shape: {atr_columns['ATR_Trailing_Stop'].shape}, columns: {list(atr_columns['ATR_Trailing_Stop'].columns)}",
                             "info",
                         )
 

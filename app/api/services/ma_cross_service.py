@@ -108,7 +108,9 @@ class MACrossService:
             # Record request metrics
             start_time = time.time()
 
-            log(f"Starting synchronous MA Cross analysis for ticker(s): {request.ticker}")
+            log(
+                f"Starting synchronous MA Cross analysis for ticker(s): {request.ticker}"
+            )
 
             # Convert request to strategy config format
             strategy_config = request.to_strategy_config()
@@ -161,20 +163,40 @@ class MACrossService:
             # Debug: Log response serialization
             if results and len(results) > 0:
                 first_portfolio = results[0]
-                log(f"DEBUG: First portfolio in response metric_type: '{first_portfolio.metric_type}'", "info")
+                log(
+                    f"DEBUG: First portfolio in response metric_type: '{first_portfolio.metric_type}'",
+                    "info",
+                )
 
                 # Test different serialization methods
                 response_dict_default = response.model_dump()
                 response_dict_no_exclude = response.model_dump(exclude_none=False)
 
-                if response_dict_default.get('portfolios') and len(response_dict_default['portfolios']) > 0:
-                    first_serialized_default = response_dict_default['portfolios'][0]
-                    first_serialized_no_exclude = response_dict_no_exclude['portfolios'][0]
+                if (
+                    response_dict_default.get("portfolios")
+                    and len(response_dict_default["portfolios"]) > 0
+                ):
+                    first_serialized_default = response_dict_default["portfolios"][0]
+                    first_serialized_no_exclude = response_dict_no_exclude[
+                        "portfolios"
+                    ][0]
 
-                    log(f"DEBUG: Default serialization keys: {len(first_serialized_default.keys())}", "info")
-                    log(f"DEBUG: Default metric_type: '{first_serialized_default.get('metric_type', 'MISSING')}'", "info")
-                    log(f"DEBUG: No-exclude serialization keys: {len(first_serialized_no_exclude.keys())}", "info")
-                    log(f"DEBUG: No-exclude metric_type: '{first_serialized_no_exclude.get('metric_type', 'MISSING')}'", "info")
+                    log(
+                        f"DEBUG: Default serialization keys: {len(first_serialized_default.keys())}",
+                        "info",
+                    )
+                    log(
+                        f"DEBUG: Default metric_type: '{first_serialized_default.get('metric_type', 'MISSING')}'",
+                        "info",
+                    )
+                    log(
+                        f"DEBUG: No-exclude serialization keys: {len(first_serialized_no_exclude.keys())}",
+                        "info",
+                    )
+                    log(
+                        f"DEBUG: No-exclude metric_type: '{first_serialized_no_exclude.get('metric_type', 'MISSING')}'",
+                        "info",
+                    )
 
             # Cache the result for future requests
             await self.cache.set(cache_key, response)
@@ -575,7 +597,10 @@ class MACrossService:
                                     metric_type=portfolio_dict.get("Metric Type"),
                                 )
                                 # Simple debug - log metric_type value
-                                log(f"SIMPLE DEBUG: Created PortfolioMetrics with metric_type='{portfolio_dict.get('Metric Type')}' for {portfolio_dict.get('Ticker')}", "info")
+                                log(
+                                    f"SIMPLE DEBUG: Created PortfolioMetrics with metric_type='{portfolio_dict.get('Metric Type')}' for {portfolio_dict.get('Ticker')}",
+                                    "info",
+                                )
                                 deduplicated_portfolios.append(metrics)
                             except (ValueError, TypeError, KeyError) as e:
                                 log(
@@ -584,7 +609,9 @@ class MACrossService:
                                 )
                                 continue
 
-                        log(f"Frontend will display {len(deduplicated_portfolios)} deduplicated portfolios (matching portfolios_best export)")
+                        log(
+                            f"Frontend will display {len(deduplicated_portfolios)} deduplicated portfolios (matching portfolios_best export)"
+                        )
 
                 except Exception as e:
                     log(f"Failed to export best portfolios: {str(e)}", "error")
@@ -593,16 +620,23 @@ class MACrossService:
             # Return deduplicated portfolios if available, otherwise return all
             # analyzed portfolios
             if deduplicated_portfolios:
-                log(f"Returning {len(deduplicated_portfolios)} deduplicated portfolios", "info")
+                log(
+                    f"Returning {len(deduplicated_portfolios)} deduplicated portfolios",
+                    "info",
+                )
                 # Check first portfolio for metric_type
                 if len(deduplicated_portfolios) > 0:
                     first_portfolio = deduplicated_portfolios[0]
                     log(
-                        f"First deduplicated portfolio metric_type: '{first_portfolio.metric_type}'", "info")
+                        f"First deduplicated portfolio metric_type: '{first_portfolio.metric_type}'",
+                        "info",
+                    )
                 return deduplicated_portfolios
             else:
                 log(
-                    f"No deduplicated portfolios, returning {len(all_portfolios)} all portfolios", "info")
+                    f"No deduplicated portfolios, returning {len(all_portfolios)} all portfolios",
+                    "info",
+                )
                 log("WARNING: Returning portfolios without metric_type data", "warning")
                 return all_portfolios
 
@@ -667,7 +701,9 @@ class MACrossService:
                     None,  # No progress tracker for sync execution
                 )
 
-                log(f"execute_strategy returned {len(portfolios) if portfolios else 0} portfolios for {strategy_type}")
+                log(
+                    f"execute_strategy returned {len(portfolios) if portfolios else 0} portfolios for {strategy_type}"
+                )
 
                 if portfolios:
                     # Convert portfolio dictionaries to PortfolioMetrics objects
@@ -789,7 +825,8 @@ class MACrossService:
 
             # Update progress for export phase
             await progress_callback(
-                85.0, f"Processed {len(all_portfolios)} portfolios, exporting best results...",
+                85.0,
+                f"Processed {len(all_portfolios)} portfolios, exporting best results...",
             )
 
             log(f"Total portfolios analyzed: {len(all_portfolios)}")
@@ -970,7 +1007,10 @@ class MACrossService:
                                     metric_type=portfolio_dict.get("Metric Type"),
                                 )
                                 # Simple debug - log metric_type value
-                                log(f"SIMPLE DEBUG: Created PortfolioMetrics with metric_type='{portfolio_dict.get('Metric Type')}' for {portfolio_dict.get('Ticker')}", "info")
+                                log(
+                                    f"SIMPLE DEBUG: Created PortfolioMetrics with metric_type='{portfolio_dict.get('Metric Type')}' for {portfolio_dict.get('Ticker')}",
+                                    "info",
+                                )
                                 deduplicated_portfolios.append(metrics)
                             except (ValueError, TypeError, KeyError) as e:
                                 log(
@@ -979,7 +1019,9 @@ class MACrossService:
                                 )
                                 continue
 
-                        log(f"Frontend will display {len(deduplicated_portfolios)} deduplicated portfolios (matching portfolios_best export)")
+                        log(
+                            f"Frontend will display {len(deduplicated_portfolios)} deduplicated portfolios (matching portfolios_best export)"
+                        )
 
                 except Exception as e:
                     log(f"Failed to export best portfolios: {str(e)}", "error")
@@ -988,16 +1030,23 @@ class MACrossService:
             # Return deduplicated portfolios if available, otherwise return all
             # analyzed portfolios
             if deduplicated_portfolios:
-                log(f"Returning {len(deduplicated_portfolios)} deduplicated portfolios", "info")
+                log(
+                    f"Returning {len(deduplicated_portfolios)} deduplicated portfolios",
+                    "info",
+                )
                 # Check first portfolio for metric_type
                 if len(deduplicated_portfolios) > 0:
                     first_portfolio = deduplicated_portfolios[0]
                     log(
-                        f"First deduplicated portfolio metric_type: '{first_portfolio.metric_type}'", "info")
+                        f"First deduplicated portfolio metric_type: '{first_portfolio.metric_type}'",
+                        "info",
+                    )
                 return deduplicated_portfolios
             else:
                 log(
-                    f"No deduplicated portfolios, returning {len(all_portfolios)} all portfolios", "info")
+                    f"No deduplicated portfolios, returning {len(all_portfolios)} all portfolios",
+                    "info",
+                )
                 log("WARNING: Returning portfolios without metric_type data", "warning")
                 return all_portfolios
 
@@ -1102,14 +1151,34 @@ class MACrossService:
             # Debug: Check if metric_type is included in async results
             if results and len(results) > 0:
                 first_result_dump = results[0].model_dump()
-                portfolio_dump = result_data["portfolios"][0] if result_data["portfolios"] else {}
+                portfolio_dump = (
+                    result_data["portfolios"][0] if result_data["portfolios"] else {}
+                )
 
-                log(f"DEBUG ASYNC: First result keys in model_dump: {len(first_result_dump.keys())}", "info")
-                log(f"DEBUG ASYNC: metric_type in dump: {'metric_type' in first_result_dump}", "info")
-                log(f"DEBUG ASYNC: metric_type value: '{first_result_dump.get('metric_type', 'MISSING')}'", "info")
-                log(f"DEBUG ASYNC: Stored portfolio keys: {len(portfolio_dump.keys())}", "info")
-                log(f"DEBUG ASYNC: metric_type in stored: {'metric_type' in portfolio_dump}", "info")
-                log(f"DEBUG ASYNC: stored metric_type value: '{portfolio_dump.get('metric_type', 'MISSING')}'", "info")
+                log(
+                    f"DEBUG ASYNC: First result keys in model_dump: {len(first_result_dump.keys())}",
+                    "info",
+                )
+                log(
+                    f"DEBUG ASYNC: metric_type in dump: {'metric_type' in first_result_dump}",
+                    "info",
+                )
+                log(
+                    f"DEBUG ASYNC: metric_type value: '{first_result_dump.get('metric_type', 'MISSING')}'",
+                    "info",
+                )
+                log(
+                    f"DEBUG ASYNC: Stored portfolio keys: {len(portfolio_dump.keys())}",
+                    "info",
+                )
+                log(
+                    f"DEBUG ASYNC: metric_type in stored: {'metric_type' in portfolio_dump}",
+                    "info",
+                )
+                log(
+                    f"DEBUG ASYNC: stored metric_type value: '{portfolio_dump.get('metric_type', 'MISSING')}'",
+                    "info",
+                )
 
             # Complete progress tracking
             await self.progress_tracker.complete(

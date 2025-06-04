@@ -47,10 +47,7 @@ def analyze_parameter_combination(
             "info",
         )
         log(
-            f"Data length: {len(data)}, Required length: {max(
-            short_window,
-            long_window,
-             signal_window)}",
+            f"Data length: {len(data)}, Required length: {max(short_window, long_window, signal_window)}",
             "info",
         )
 

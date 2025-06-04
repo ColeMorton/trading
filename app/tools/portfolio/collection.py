@@ -461,8 +461,7 @@ def collect_filtered_portfolios_for_export(
                                 f"Confirmed Metric Type column present in {ticker} {strategy_type} data"
                             )
                             log(
-                                f"Sample metric types: {[p.get('Metric Type',
-     'N/A') for p in portfolios_data[:3]]}"
+                                f"Sample metric types: {[p.get('Metric Type', 'N/A') for p in portfolios_data[:3]]}"
                             )
                         else:
                             log(
@@ -498,9 +497,7 @@ def collect_filtered_portfolios_for_export(
 
             for config_key, metric_types in sample_config_groups.items():
                 log(
-                    f"Config {config_key}: {len(metric_types)} metric types - {', '.join(
-            metric_types[
-                :3])}{'...' if len(metric_types) > 3 else ''}"
+                    f"Config {config_key}: {len(metric_types)} metric types - {', '.join(metric_types[:3])}{'...' if len(metric_types) > 3 else ''}"
                 )
 
         return all_portfolios

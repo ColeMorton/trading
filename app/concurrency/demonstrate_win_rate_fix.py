@@ -62,9 +62,7 @@ def demonstrate_discrepancy_fix():
     print(f"Trade-based Win Rate:  {trade_result.win_rate:.3%}")
     print(f"Legacy Win Rate:       {legacy_rate:.3%}")
     print(
-        f"Discrepancy (Signal vs Trade): {abs(
-        signal_result.win_rate -
-         trade_result.win_rate):.3%}"
+        f"Discrepancy (Signal vs Trade): {abs(signal_result.win_rate - trade_result.win_rate):.3%}"
     )
 
 

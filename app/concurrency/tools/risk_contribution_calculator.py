@@ -549,11 +549,9 @@ class RiskContributionCalculator:
             )
 
             if not validation_result.is_valid:
-                error_msg = f"Risk calculation validation failed: {'; '.join(
-        validation_result.messages)}"
+                error_msg = f"Risk calculation validation failed: {'; '.join(validation_result.messages)}"
                 if validation_result.corrective_actions:
-                    error_msg += f". Suggested actions: {'; '.join(
-        validation_result.corrective_actions)}"
+                    error_msg += f". Suggested actions: {'; '.join(validation_result.corrective_actions)}"
                 raise RiskCalculationError(error_msg)
 
             if validation_result.warnings:
@@ -832,8 +830,7 @@ class RiskContributionCalculator:
 
                     # Log diagnostics
                     log(
-                        f"Covariance matrix condition number: {diagnostics.get(
-        'condition_number', 1.0):.2f}",
+                        f"Covariance matrix condition number: {diagnostics.get('condition_number', 1.0):.2f}",
                         "info",
                     )
                     log(
@@ -1066,8 +1063,7 @@ def calculate_risk_contributions_fixed(
                 risk_adjusted_alpha
             )
             log(
-                f"Strategy {i+
-    1} excess return: {excess_return:.6f}, alpha to portfolio: {risk_adjusted_alpha:.6f}",
+                f"Strategy {i+1} excess return: {excess_return:.6f}, alpha to portfolio: {risk_adjusted_alpha:.6f}",
                 "info",
             )
 

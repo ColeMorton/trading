@@ -347,8 +347,7 @@ class RiskMetricsValidator:
                 log("Individual risk contributions:", "info")
                 for name, contrib in zip(strategy_names, individual_risk_contributions):
                     log(
-                        f"  {name}: {contrib:.4f} ({contrib/
-        portfolio_total_risk:.1%} of total)",
+                        f"  {name}: {contrib:.4f} ({contrib/portfolio_total_risk:.1%} of total)",
                         "info",
                     )
 

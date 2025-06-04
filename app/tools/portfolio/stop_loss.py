@@ -68,9 +68,7 @@ def validate_stop_loss(
                 if stop_loss_value < 0 or stop_loss_value > 100:
                     if log:
                         log(
-                            f"Invalid stop loss value {stop_loss_value} for {row.get(
-        'Ticker',
-         'Unknown')}: "
+                            f"Invalid stop loss value {stop_loss_value} for {row.get('Ticker', 'Unknown')}: "
                             "must be between 0 and 100. Setting to None.",
                             "warning",
                         )
@@ -80,8 +78,7 @@ def validate_stop_loss(
             except (ValueError, TypeError):
                 if log:
                     log(
-                        f"Invalid stop loss value {row[stop_loss_field]} for {row.get(
-            'Ticker', 'Unknown')}: "
+                        f"Invalid stop loss value {row[stop_loss_field]} for {row.get('Ticker', 'Unknown')}: "
                         "must be a number. Setting to None.",
                         "warning",
                     )
