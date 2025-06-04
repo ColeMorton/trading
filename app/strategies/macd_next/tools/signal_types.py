@@ -4,7 +4,9 @@ Signal Type Definitions
 This module provides type definitions for MACD cross signal generation.
 """
 
-from typing import NotRequired, TypedDict
+from typing import Literal, TypedDict
+
+from typing_extensions import NotRequired
 
 
 class Config(TypedDict):

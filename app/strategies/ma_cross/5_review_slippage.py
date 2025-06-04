@@ -9,10 +9,11 @@ Note: For long positions, slippage represents an increase in entry price above t
       We represent this as negative values where -5% means entering 5% above the signal price.
 """
 
-from typing import NotRequired, TypedDict
+from typing import Any, TypedDict
 
 import numpy as np
 import polars as pl
+from typing_extensions import NotRequired
 
 from app.strategies.ma_cross.tools.slippage_analysis import run_sensitivity_analysis
 from app.strategies.ma_cross.tools.slippage_plotting import plot_results

@@ -7,7 +7,9 @@ with named constants, parameter validation, and documentation.
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List, NotRequired, Optional, TypedDict, Union
+from typing import Any, Dict, List, Literal, Optional, TypedDict, Union
+
+from typing_extensions import NotRequired
 
 from app.tools.setup_logging import setup_logging
 
@@ -332,8 +334,7 @@ class SignalConfigManager:
         # Validate annualization factor
         if config["ANNUALIZATION_FACTOR"] <= 0:
             self.log(
-                f"Invalid ANNUALIZATION_FACTOR: {
-    config['ANNUALIZATION_FACTOR']}, must be positive",
+                f"Invalid ANNUALIZATION_FACTOR: {config['ANNUALIZATION_FACTOR']}, must be positive",
                 "warning",
             )
             config["ANNUALIZATION_FACTOR"] = DEFAULT_SIGNAL_METRICS_CONFIG[
@@ -343,8 +344,7 @@ class SignalConfigManager:
         # Validate minimum sample size
         if config["MIN_SAMPLE_SIZE"] < 5:
             self.log(
-                f"Invalid MIN_SAMPLE_SIZE: {
-    config['MIN_SAMPLE_SIZE']}, must be at least 5",
+                f"Invalid MIN_SAMPLE_SIZE: {config['MIN_SAMPLE_SIZE']}, must be at least 5",
                 "warning",
             )
             config["MIN_SAMPLE_SIZE"] = DEFAULT_SIGNAL_METRICS_CONFIG["MIN_SAMPLE_SIZE"]
@@ -352,8 +352,7 @@ class SignalConfigManager:
         # Validate horizons
         if not config["HORIZONS"] or min(config["HORIZONS"]) < 1:
             self.log(
-                f"Invalid HORIZONS: {
-    config['HORIZONS']}, must be non-empty with positive values",
+                f"Invalid HORIZONS: {config['HORIZONS']}, must be non-empty with positive values",
                 "warning",
             )
             config["HORIZONS"] = DEFAULT_SIGNAL_METRICS_CONFIG["HORIZONS"]
@@ -362,8 +361,7 @@ class SignalConfigManager:
         valid_methods = ["min_max", "z_score", "robust"]
         if config["NORMALIZATION_METHOD"] not in valid_methods:
             self.log(
-                f"Invalid NORMALIZATION_METHOD: {
-    config['NORMALIZATION_METHOD']}, must be one of {valid_methods}",
+                f"Invalid NORMALIZATION_METHOD: {config['NORMALIZATION_METHOD']}, must be one of {valid_methods}",
                 "warning",
             )
             config["NORMALIZATION_METHOD"] = DEFAULT_SIGNAL_METRICS_CONFIG[
@@ -376,8 +374,7 @@ class SignalConfigManager:
             or config["FEATURE_RANGE"][0] >= config["FEATURE_RANGE"][1]
         ):
             self.log(
-                f"Invalid FEATURE_RANGE: {
-    config['FEATURE_RANGE']}, must be [min, max] with min < max",
+                f"Invalid FEATURE_RANGE: {config['FEATURE_RANGE']}, must be [min, max] with min < max",
                 "warning",
             )
             config["FEATURE_RANGE"] = DEFAULT_SIGNAL_METRICS_CONFIG["FEATURE_RANGE"]
@@ -389,8 +386,7 @@ class SignalConfigManager:
         # Validate RSI threshold
         if config["RSI_THRESHOLD"] < 0 or config["RSI_THRESHOLD"] > 100:
             self.log(
-                f"Invalid RSI_THRESHOLD: {
-    config['RSI_THRESHOLD']}, must be between 0 and 100",
+                f"Invalid RSI_THRESHOLD: {config['RSI_THRESHOLD']}, must be between 0 and 100",
                 "warning",
             )
             config["RSI_THRESHOLD"] = DEFAULT_SIGNAL_FILTER_CONFIG["RSI_THRESHOLD"]
@@ -399,8 +395,7 @@ class SignalConfigManager:
         valid_directions = ["Long", "Short"]
         if config["DIRECTION"] not in valid_directions:
             self.log(
-                f"Invalid DIRECTION: {
-    config['DIRECTION']}, must be one of {valid_directions}",
+                f"Invalid DIRECTION: {config['DIRECTION']}, must be one of {valid_directions}",
                 "warning",
             )
             config["DIRECTION"] = DEFAULT_SIGNAL_FILTER_CONFIG["DIRECTION"]
@@ -431,9 +426,7 @@ class SignalConfigManager:
             and config["MIN_ATR"] > config["MAX_ATR"]
         ):
             self.log(
-                f"Invalid ATR range: MIN_ATR ({
-    config['MIN_ATR']}) > MAX_ATR ({
-        config['MAX_ATR']})",
+                f"Invalid ATR range: MIN_ATR ({config['MIN_ATR']}) > MAX_ATR ({config['MAX_ATR']})",
                 "warning",
             )
             config.pop("MIN_ATR", None)
@@ -474,8 +467,7 @@ class SignalConfigManager:
         # Validate profit factor cap
         if config["PROFIT_FACTOR_CAP"] <= 0:
             self.log(
-                f"Invalid PROFIT_FACTOR_CAP: {
-    config['PROFIT_FACTOR_CAP']}, must be positive",
+                f"Invalid PROFIT_FACTOR_CAP: {config['PROFIT_FACTOR_CAP']}, must be positive",
                 "warning",
             )
             config["PROFIT_FACTOR_CAP"] = DEFAULT_SIGNAL_QUALITY_CONFIG[
@@ -485,8 +477,7 @@ class SignalConfigManager:
         # Validate quality score scale
         if config["QUALITY_SCORE_SCALE"] <= 0:
             self.log(
-                f"Invalid QUALITY_SCORE_SCALE: {
-    config['QUALITY_SCORE_SCALE']}, must be positive",
+                f"Invalid QUALITY_SCORE_SCALE: {config['QUALITY_SCORE_SCALE']}, must be positive",
                 "warning",
             )
             config["QUALITY_SCORE_SCALE"] = DEFAULT_SIGNAL_QUALITY_CONFIG[
@@ -500,8 +491,7 @@ class SignalConfigManager:
         # Validate horizons
         if not config["HORIZONS"] or min(config["HORIZONS"]) < 1:
             self.log(
-                f"Invalid HORIZONS: {
-    config['HORIZONS']}, must be non-empty with positive values",
+                f"Invalid HORIZONS: {config['HORIZONS']}, must be non-empty with positive values",
                 "warning",
             )
             config["HORIZONS"] = DEFAULT_HORIZON_ANALYSIS_CONFIG["HORIZONS"]
@@ -509,8 +499,7 @@ class SignalConfigManager:
         # Validate minimum sample size
         if config["MIN_SAMPLE_SIZE"] < 5:
             self.log(
-                f"Invalid MIN_SAMPLE_SIZE: {
-    config['MIN_SAMPLE_SIZE']}, must be at least 5",
+                f"Invalid MIN_SAMPLE_SIZE: {config['MIN_SAMPLE_SIZE']}, must be at least 5",
                 "warning",
             )
             config["MIN_SAMPLE_SIZE"] = DEFAULT_HORIZON_ANALYSIS_CONFIG[
@@ -546,8 +535,7 @@ class SignalConfigManager:
         # Validate sample size factor
         if config["SAMPLE_SIZE_FACTOR"] <= 0:
             self.log(
-                f"Invalid SAMPLE_SIZE_FACTOR: {
-    config['SAMPLE_SIZE_FACTOR']}, must be positive",
+                f"Invalid SAMPLE_SIZE_FACTOR: {config['SAMPLE_SIZE_FACTOR']}, must be positive",
                 "warning",
             )
             config["SAMPLE_SIZE_FACTOR"] = DEFAULT_HORIZON_ANALYSIS_CONFIG[
@@ -561,8 +549,7 @@ class SignalConfigManager:
         # Validate RSI threshold
         if config["RSI_THRESHOLD"] < 0 or config["RSI_THRESHOLD"] > 100:
             self.log(
-                f"Invalid RSI_THRESHOLD: {
-    config['RSI_THRESHOLD']}, must be between 0 and 100",
+                f"Invalid RSI_THRESHOLD: {config['RSI_THRESHOLD']}, must be between 0 and 100",
                 "warning",
             )
             config["RSI_THRESHOLD"] = DEFAULT_SIGNAL_CONVERSION_CONFIG["RSI_THRESHOLD"]
@@ -571,8 +558,7 @@ class SignalConfigManager:
         valid_directions = ["Long", "Short"]
         if config["DIRECTION"] not in valid_directions:
             self.log(
-                f"Invalid DIRECTION: {
-    config['DIRECTION']}, must be one of {valid_directions}",
+                f"Invalid DIRECTION: {config['DIRECTION']}, must be one of {valid_directions}",
                 "warning",
             )
             config["DIRECTION"] = DEFAULT_SIGNAL_CONVERSION_CONFIG["DIRECTION"]

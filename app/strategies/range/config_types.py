@@ -5,7 +5,9 @@ This module provides centralized TypedDict definitions for configuration
 across the Range High Break strategy modules.
 """
 
-from typing import List, NotRequired, TypedDict, Union
+from typing import List, Optional, TypedDict, Union
+
+from typing_extensions import NotRequired
 
 
 class PortfolioConfig(TypedDict, total=False):
@@ -42,6 +44,7 @@ class PortfolioConfig(TypedDict, total=False):
     YEARS: NotRequired[float]
     TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
+    SORT_BY: NotRequired[str]
 
 
 # Default configuration

@@ -1,11 +1,12 @@
 import json
-from typing import NotRequired, TypedDict
+from typing import Any, TypedDict
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
 from scipy.stats import norm, percentileofscore
+from typing_extensions import NotRequired
 
 from app.tools.download_data import download_data
 from app.tools.setup_logging import setup_logging
@@ -181,9 +182,8 @@ def compare_probabilities(returns, strike_return, delta):
     difference = market_implied_probability - historical_probability
 
     log(
-        f"Historical probability: {
-    historical_probability:.2f}%, Market-implied: {
-        market_implied_probability:.2f}%"
+        f"Historical probability: {historical_probability:.2f}%, "
+        f"Market-implied: {market_implied_probability:.2f}%"
     )
     return historical_probability, market_implied_probability, difference
 
@@ -300,11 +300,7 @@ def plot_return_distribution(
             color="magenta",
             linestyle="--",
             linewidth=2,
-            label=f"Strike (+{
-    strike_return*
-    100:.2f}%): {
-        historical_prob:.2f}% hist vs {
-            market_prob:.2f}% implied",
+            label=f"Strike (+{strike_return*100:.2f}%): {historical_prob:.2f}% hist vs {market_prob:.2f}% implied",
         )
 
         # Add comparison text
@@ -336,12 +332,7 @@ def plot_return_distribution(
     ax.text(
         0.99,
         0.99,
-        f"Std Dev: {
-    std_dev:.2%}\nSkewness: {
-        skewness:.2f}\nKurtosis: {
-            kurtosis:.2f}\nRarity: {
-                rarity_percentage:.2f}\nPercentile: {
-                    percentile:.2f}%",
+        f"Std Dev: {std_dev:.2%}\nSkewness: {skewness:.2f}\nKurtosis: {kurtosis:.2f}\nRarity: {rarity_percentage:.2f}\nPercentile: {percentile:.2f}%",
         transform=ax.transAxes,
         verticalalignment="top",
         horizontalalignment="right",

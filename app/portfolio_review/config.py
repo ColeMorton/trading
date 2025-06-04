@@ -1,4 +1,6 @@
-from typing import Dict, NotRequired, TypedDict
+from typing import Dict, List, TypedDict
+
+from typing_extensions import NotRequired
 
 
 class StrategyConfig(TypedDict):

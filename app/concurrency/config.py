@@ -8,10 +8,12 @@ import csv
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, NotRequired, TypedDict
+from typing import Any, Dict, List, TypedDict
 
-from app.concurrency.error_handling import ValidationError as BaseValidationError
+from typing_extensions import NotRequired
+
 from app.concurrency.error_handling import (
+    ValidationError as BaseValidationError,
     handle_concurrency_errors,
     track_error,
     validate_inputs,

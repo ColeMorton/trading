@@ -1,6 +1,8 @@
 """Type definitions for concurrency analysis module."""
 
-from typing import Any, Dict, List, Literal, NotRequired, TypedDict, Union
+from typing import Any, Dict, List, Literal, Optional, TypedDict, Union
+
+from typing_extensions import NotRequired
 
 
 class StrategyParameters(TypedDict):

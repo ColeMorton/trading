@@ -5,7 +5,9 @@ This module provides centralized TypedDict definitions for configuration
 across the MA cross strategy modules.
 """
 
-from typing import Dict, List, Literal, NotRequired, TypedDict, Union
+from typing import Dict, List, Literal, Optional, TypedDict, Union
+
+from typing_extensions import NotRequired
 
 
 class MinimumConfig(TypedDict, total=False):

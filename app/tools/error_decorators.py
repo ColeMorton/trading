@@ -6,7 +6,7 @@ at the function level, following SOLID principles and KISS design.
 
 import functools
 import traceback
-from typing import Any, Dict, Type, TypeVar
+from typing import Any, Dict, Optional, Type, TypeVar
 
 from app.tools.exceptions import TradingSystemError
 
@@ -15,8 +15,8 @@ T = TypeVar("T")
 
 
 def handle_errors(
-    operation_name: str = None,
-    error_map: Dict[Type[Exception], Type[TradingSystemError]] = None,
+    operation_name: Optional[str] = None,
+    error_map: Optional[Dict[Type[Exception], Type[TradingSystemError]]] = None,
     default_error_type: Type[TradingSystemError] = TradingSystemError,
     include_traceback: bool = True,
     reraise: bool = False,
@@ -72,7 +72,9 @@ def handle_errors(
 
             # Default log function if none found
             if log_func is None:
-                log_func = lambda msg, level="info": print(f"[{level.upper()}] {msg}")
+                def default_log(msg, level="info"):
+                    print(f"[{level.upper()}] {msg}")
+                log_func = default_log
 
             try:
                 return func(*args, **kwargs)

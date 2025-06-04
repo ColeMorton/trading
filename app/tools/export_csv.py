@@ -9,10 +9,11 @@ and proper CSV formatting.
 import logging
 import os
 from datetime import datetime
-from typing import Callable, Dict, List, NotRequired, Optional, Tuple, TypedDict, Union
+from typing import Callable, Dict, List, Literal, Optional, Tuple, TypedDict, Union
 
 import pandas as pd
 import polars as pl
+from typing_extensions import NotRequired
 
 
 class ExportConfig(TypedDict):
@@ -278,10 +279,7 @@ def export_csv(
                 "info",
             )
             log(
-                f"Directory is writable: {
-    os.access(
-        os.path.dirname(full_path),
-         os.W_OK)}",
+                f"Directory is writable: {os.access(os.path.dirname(full_path), os.W_OK)}",
                 "info",
             )
 
@@ -315,8 +313,7 @@ def export_csv(
             if log:
                 if missing_metrics:
                     log(
-                        f"Risk metrics missing from final export data: {
-    ', '.join(missing_metrics)}",
+                        f"Risk metrics missing from final export data: {', '.join(missing_metrics)}",
                         "warning",
                     )
 
@@ -343,8 +340,7 @@ def export_csv(
             if log:
                 if missing_metrics:
                     log(
-                        f"Risk metrics missing from final export data: {
-    ', '.join(missing_metrics)}",
+                        f"Risk metrics missing from final export data: {', '.join(missing_metrics)}",
                         "warning",
                     )
 

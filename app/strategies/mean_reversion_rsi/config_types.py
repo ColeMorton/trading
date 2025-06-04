@@ -5,7 +5,9 @@ This module provides centralized TypedDict definitions for configuration
 across the mean reversion strategy modules.
 """
 
-from typing import List, NotRequired, TypedDict, Union
+from typing import List, Optional, TypedDict, Union
+
+from typing_extensions import NotRequired
 
 
 class PortfolioConfig(TypedDict, total=False):

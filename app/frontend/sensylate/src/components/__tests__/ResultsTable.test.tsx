@@ -13,8 +13,14 @@ import { AnalysisResult } from '../../types';
 
 // Mock Icon component
 jest.mock('../Icon', () => {
-  return function MockIcon({ icon, size, className }: any) {
-    return <span className={`mock-icon ${className || ''}`} data-icon={icon} data-size={size} />;
+  return function MockIcon({ icon, size, className }: { icon: string; size?: string; className?: string }) {
+    return (
+      <span
+        className={`mock-icon ${className || ''}`}
+        data-icon={icon}
+        data-size={size}
+      />
+    );
   };
 });
 
@@ -30,8 +36,8 @@ jest.mock('../../utils/icons', () => ({
     sortUp: 'sort-up',
     sortDown: 'sort-down',
     warning: 'warning',
-    brand: 'brand'
-  }
+    brand: 'brand',
+  },
 }));
 
 describe('ResultsTable metric_type handling', () => {
@@ -58,7 +64,7 @@ describe('ResultsTable metric_type handling', () => {
     beats_bnh: 10.0,
     has_open_trade: false,
     has_signal_entry: true,
-    metric_type: 'Most Sharpe Ratio, Most Total Return [%]'
+    metric_type: 'Most Sharpe Ratio, Most Total Return [%]',
   };
 
   const sampleResultWithoutMetricType: AnalysisResult = {
@@ -83,7 +89,7 @@ describe('ResultsTable metric_type handling', () => {
     score: 0.9,
     beats_bnh: 5.0,
     has_open_trade: true,
-    has_signal_entry: false
+    has_signal_entry: false,
     // metric_type is undefined
   };
 
@@ -110,7 +116,7 @@ describe('ResultsTable metric_type handling', () => {
     beats_bnh: 15.0,
     has_open_trade: false,
     has_signal_entry: true,
-    metric_type: ''
+    metric_type: '',
   };
 
   describe('basic rendering with metric_type', () => {
@@ -151,7 +157,7 @@ describe('ResultsTable metric_type handling', () => {
       expect(screen.getByText('Most Total Return [%]')).toBeInTheDocument();
 
       // Should have badge styling classes
-      const badges = screen.getAllByClassName('badge bg-primary text-white');
+      const badges = Array.from(document.querySelectorAll('.badge.bg-primary.text-white'));
       expect(badges).toHaveLength(2);
     });
 
@@ -174,13 +180,13 @@ describe('ResultsTable metric_type handling', () => {
       render(<ResultsTable results={[sampleResultWithMetricType]} />);
 
       let expandButton = screen.getByTitle('Expand details');
-      expect(screen.getByDataIcon('chevron-right')).toBeInTheDocument();
+      expect(document.querySelector('[data-icon="chevron-right"]')).toBeInTheDocument();
 
       // Click to expand
       fireEvent.click(expandButton);
 
       expandButton = screen.getByTitle('Collapse details');
-      expect(screen.getByDataIcon('chevron-down')).toBeInTheDocument();
+      expect(document.querySelector('[data-icon="chevron-down"]')).toBeInTheDocument();
     });
   });
 
@@ -188,7 +194,7 @@ describe('ResultsTable metric_type handling', () => {
     it('should handle single metric type correctly', () => {
       const singleMetricResult = {
         ...sampleResultWithMetricType,
-        metric_type: 'Most Sharpe Ratio'
+        metric_type: 'Most Sharpe Ratio',
       };
 
       render(<ResultsTable results={[singleMetricResult]} />);
@@ -199,14 +205,15 @@ describe('ResultsTable metric_type handling', () => {
       expect(screen.getByText('Metric Type:')).toBeInTheDocument();
       expect(screen.getByText('Most Sharpe Ratio')).toBeInTheDocument();
 
-      const badges = screen.getAllByClassName('badge bg-primary text-white');
+      const badges = Array.from(document.querySelectorAll('.badge.bg-primary.text-white'));
       expect(badges).toHaveLength(1);
     });
 
     it('should handle multiple comma-separated metric types', () => {
       const multipleMetricResult = {
         ...sampleResultWithMetricType,
-        metric_type: 'Most Omega Ratio, Most Sharpe Ratio, Most Sortino Ratio, Most Total Return [%], Median Total Trades'
+        metric_type:
+          'Most Omega Ratio, Most Sharpe Ratio, Most Sortino Ratio, Most Total Return [%], Median Total Trades',
       };
 
       render(<ResultsTable results={[multipleMetricResult]} />);
@@ -221,14 +228,14 @@ describe('ResultsTable metric_type handling', () => {
       expect(screen.getByText('Most Total Return [%]')).toBeInTheDocument();
       expect(screen.getByText('Median Total Trades')).toBeInTheDocument();
 
-      const badges = screen.getAllByClassName('badge bg-primary text-white');
+      const badges = Array.from(document.querySelectorAll('.badge.bg-primary.text-white'));
       expect(badges).toHaveLength(5);
     });
 
     it('should handle metric types with special characters', () => {
       const specialCharsResult = {
         ...sampleResultWithMetricType,
-        metric_type: 'Most Total Return [%], Mean Avg Winning Trade [%]'
+        metric_type: 'Most Total Return [%], Mean Avg Winning Trade [%]',
       };
 
       render(<ResultsTable results={[specialCharsResult]} />);
@@ -237,7 +244,9 @@ describe('ResultsTable metric_type handling', () => {
       fireEvent.click(expandButton);
 
       expect(screen.getByText('Most Total Return [%]')).toBeInTheDocument();
-      expect(screen.getByText('Mean Avg Winning Trade [%]')).toBeInTheDocument();
+      expect(
+        screen.getByText('Mean Avg Winning Trade [%]')
+      ).toBeInTheDocument();
     });
 
     it('should handle empty metric_type gracefully', () => {
@@ -247,8 +256,12 @@ describe('ResultsTable metric_type handling', () => {
       fireEvent.click(expandButton);
 
       expect(screen.getByText('Metric Type:')).toBeInTheDocument();
-      expect(screen.getByText('No metric type data available')).toBeInTheDocument();
-      expect(screen.queryByClassName('badge bg-primary text-white')).not.toBeInTheDocument();
+      expect(
+        screen.getByText('No metric type data available')
+      ).toBeInTheDocument();
+      expect(
+        document.querySelector('.badge.bg-primary.text-white')
+      ).not.toBeInTheDocument();
     });
 
     it('should handle undefined metric_type gracefully', () => {
@@ -258,14 +271,18 @@ describe('ResultsTable metric_type handling', () => {
       fireEvent.click(expandButton);
 
       expect(screen.getByText('Metric Type:')).toBeInTheDocument();
-      expect(screen.getByText('No metric type data available')).toBeInTheDocument();
-      expect(screen.queryByClassName('badge bg-primary text-white')).not.toBeInTheDocument();
+      expect(
+        screen.getByText('No metric type data available')
+      ).toBeInTheDocument();
+      expect(
+        document.querySelector('.badge.bg-primary.text-white')
+      ).not.toBeInTheDocument();
     });
 
     it('should handle metric_type with only whitespace', () => {
       const whitespaceResult = {
         ...sampleResultWithMetricType,
-        metric_type: '   '
+        metric_type: '   ',
       };
 
       render(<ResultsTable results={[whitespaceResult]} />);
@@ -274,13 +291,15 @@ describe('ResultsTable metric_type handling', () => {
       fireEvent.click(expandButton);
 
       expect(screen.getByText('Metric Type:')).toBeInTheDocument();
-      expect(screen.getByText('No metric type data available')).toBeInTheDocument();
+      expect(
+        screen.getByText('No metric type data available')
+      ).toBeInTheDocument();
     });
 
     it('should handle metric_type with empty comma-separated values', () => {
       const emptyCommaResult = {
         ...sampleResultWithMetricType,
-        metric_type: 'Most Sharpe Ratio, , ,Most Total Return [%]'
+        metric_type: 'Most Sharpe Ratio, , ,Most Total Return [%]',
       };
 
       render(<ResultsTable results={[emptyCommaResult]} />);
@@ -291,7 +310,7 @@ describe('ResultsTable metric_type handling', () => {
       expect(screen.getByText('Most Sharpe Ratio')).toBeInTheDocument();
       expect(screen.getByText('Most Total Return [%]')).toBeInTheDocument();
 
-      const badges = screen.getAllByClassName('badge bg-primary text-white');
+      const badges = Array.from(document.querySelectorAll('.badge.bg-primary.text-white'));
       expect(badges).toHaveLength(2); // Should filter out empty values
     });
   });
@@ -302,18 +321,18 @@ describe('ResultsTable metric_type handling', () => {
         {
           ...sampleResultWithMetricType,
           ticker: 'BTC-USD',
-          metric_type: 'Most Sharpe Ratio'
+          metric_type: 'Most Sharpe Ratio',
         },
         {
           ...sampleResultWithoutMetricType,
-          ticker: 'ETH-USD'
+          ticker: 'ETH-USD',
           // metric_type is undefined
         },
         {
           ...sampleResultWithEmptyMetricType,
           ticker: 'AAPL',
-          metric_type: 'Most Total Return [%], Most Sortino Ratio'
-        }
+          metric_type: 'Most Total Return [%], Most Sortino Ratio',
+        },
       ];
 
       render(<ResultsTable results={results} />);
@@ -327,7 +346,9 @@ describe('ResultsTable metric_type handling', () => {
 
       // Expand second row (ETH-USD)
       fireEvent.click(expandButtons[1]);
-      expect(screen.getAllByText('No metric type data available')).toHaveLength(1);
+      expect(screen.getAllByText('No metric type data available')).toHaveLength(
+        1
+      );
 
       // Expand third row (AAPL)
       fireEvent.click(expandButtons[2]);
@@ -336,7 +357,9 @@ describe('ResultsTable metric_type handling', () => {
 
       // All should be visible simultaneously
       expect(screen.getByText('Most Sharpe Ratio')).toBeInTheDocument();
-      expect(screen.getByText('No metric type data available')).toBeInTheDocument();
+      expect(
+        screen.getByText('No metric type data available')
+      ).toBeInTheDocument();
       expect(screen.getByText('Most Total Return [%]')).toBeInTheDocument();
       expect(screen.getByText('Most Sortino Ratio')).toBeInTheDocument();
     });
@@ -344,7 +367,7 @@ describe('ResultsTable metric_type handling', () => {
     it('should maintain expansion state independently for each row', () => {
       const results = [
         { ...sampleResultWithMetricType, ticker: 'BTC-USD' },
-        { ...sampleResultWithoutMetricType, ticker: 'ETH-USD' }
+        { ...sampleResultWithoutMetricType, ticker: 'ETH-USD' },
       ];
 
       render(<ResultsTable results={results} />);
@@ -357,12 +380,16 @@ describe('ResultsTable metric_type handling', () => {
 
       // Expand second row
       fireEvent.click(expandButtons[1]);
-      expect(screen.getByText('No metric type data available')).toBeInTheDocument();
+      expect(
+        screen.getByText('No metric type data available')
+      ).toBeInTheDocument();
 
       // Collapse first row - second should remain expanded
       fireEvent.click(expandButtons[0]);
       expect(screen.queryByText('Most Sharpe Ratio')).not.toBeInTheDocument();
-      expect(screen.getByText('No metric type data available')).toBeInTheDocument();
+      expect(
+        screen.getByText('No metric type data available')
+      ).toBeInTheDocument();
     });
   });
 
@@ -370,7 +397,11 @@ describe('ResultsTable metric_type handling', () => {
     it('should handle empty results array', () => {
       render(<ResultsTable results={[]} />);
 
-      expect(screen.getByText('No results to display. Run an analysis to see results.')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'No results to display. Run an analysis to see results.'
+        )
+      ).toBeInTheDocument();
       expect(screen.queryByTitle('Expand details')).not.toBeInTheDocument();
     });
 
@@ -424,23 +455,10 @@ describe('ResultsTable metric_type handling', () => {
       const badges = document.querySelectorAll('.badge.bg-primary.text-white');
       expect(badges).toHaveLength(2);
 
-      badges.forEach(badge => {
+      badges.forEach((badge) => {
         expect(badge).toBeInTheDocument();
       });
     });
   });
 
-  // Helper function to find elements by data attributes
-  const getByDataIcon = (iconName: string) => {
-    return screen.getByTestId(`[data-icon="${iconName}"]`) ||
-           document.querySelector(`[data-icon="${iconName}"]`);
-  };
-
-  const getAllByClassName = (className: string) => {
-    return Array.from(document.querySelectorAll(`.${className}`));
-  };
-
-  const queryByClassName = (className: string) => {
-    return document.querySelector(`.${className}`);
-  };
 });

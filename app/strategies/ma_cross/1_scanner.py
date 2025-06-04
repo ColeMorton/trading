@@ -6,9 +6,10 @@ based on EMA/SMA crossover signals. It supports both daily and hourly data analy
 and can handle both new scans and updates to existing results.
 """
 
-from typing import NotRequired, TypedDict
+from typing import Any, TypedDict
 
 import polars as pl
+from typing_extensions import NotRequired
 
 from app.strategies.ma_cross.tools.scanner_processing import (
     export_results,
@@ -87,8 +88,8 @@ def validate_config(config: Config) -> None:
 
 
 def process_scanner() -> bool:
-    """3
-    Process each ticker in the scanner list with both SMA and EMA configurations.
+    """Process each ticker in scanner list with both SMA and EMA configurations.
+    
     Creates a DataFrame with results and exports to CSV.
 
     The function:
@@ -162,12 +163,13 @@ def process_scanner() -> bool:
 
         if not any([is_new_schema, is_legacy_schema, is_minimal_schema]):
             raise ValueError(
-                "Invalid schema: Must contain either (Short Window, Long Window) or (SMA_FAST, SMA_SLOW, EMA_FAST, EMA_SLOW)"
+                "Invalid schema: Must contain either (Short Window, Long Window) "
+                "or (SMA_FAST, SMA_SLOW, EMA_FAST, EMA_SLOW)"
             )
 
         log(
-            f"Schema type: {
-    'Minimal' if is_minimal_schema else 'New' if is_new_schema else 'Legacy'}"
+            f"Schema type: "
+            f"{'Minimal' if is_minimal_schema else 'New' if is_new_schema else 'Legacy'}"
         )
 
         # Check if the CSV has the Use SMA column
@@ -343,12 +345,12 @@ def process_scanner() -> bool:
             signals_detected / total_processed if total_processed > 0 else 0
         )
         log(
-            f"Signal Detection Ratio: {signals_detected}/{total_processed} ({
-    detection_ratio:.2%})"
+            f"Signal Detection Ratio: {signals_detected}/{total_processed} "
+            f"({detection_ratio:.2%})"
         )
         log(
-            f"Total Rows in Scanner: {
-    len(scanner_df)}, Rows with Complete Data: {total_processed}"
+            f"Total Rows in Scanner: {len(scanner_df)}, "
+            f"Rows with Complete Data: {total_processed}"
         )
 
         # Export results with the original scanner DataFrame

@@ -3,7 +3,7 @@
 This module provides utilities for processing and displaying portfolio results.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 
 def sort_portfolios(
@@ -72,8 +72,7 @@ def filter_open_trades(
                 signal_window = p.get("Signal Window", "N/A")
                 score = p.get("Score", 0)
                 log_func(
-                    f"{ticker}, {strategy_type}, {short_window}, {long_window}, {signal_window}, {
-    score:.4f}"
+                    f"{ticker}, {strategy_type}, {short_window}, {long_window}, {signal_window}, {score:.4f}"
                 )
         else:
             log_func("\n=== No Open Trades found ===")
@@ -83,7 +82,7 @@ def filter_open_trades(
 
 def filter_signal_entries(
     portfolios: List[Dict[str, Any]],
-    open_trades: List[Dict[str, Any]] = None,
+    open_trades: Optional[List[Dict[str, Any]]] = None,
     log_func=None,
 ) -> List[Dict[str, Any]]:
     """Filter portfolios to only include signal entries.
@@ -106,7 +105,7 @@ def filter_signal_entries(
 
     # Count strategies per ticker if open_trades is provided
     if open_trades:
-        ticker_counts = {}
+        ticker_counts: Dict[str, int] = {}
         for p in open_trades:
             ticker = p.get("Ticker", "Unknown")
             ticker_counts[ticker] = ticker_counts.get(ticker, 0) + 1
@@ -134,8 +133,7 @@ def filter_signal_entries(
                 score = p.get("Score", 0)
                 open_trade_count = p.get("open_trade_count", 0)
                 log_func(
-                    f"{ticker}, {strategy_type}, {short_window}, {long_window}, {signal_window}, {
-    score:.4f}, {open_trade_count}"
+                    f"{ticker}, {strategy_type}, {short_window}, {long_window}, {signal_window}, {score:.4f}, {open_trade_count}"
                 )
         else:
             log_func("\n=== No Signal Entries found ===")
@@ -145,8 +143,8 @@ def filter_signal_entries(
 
 def calculate_breadth_metrics(
     portfolios: List[Dict[str, Any]],
-    open_trades: List[Dict[str, Any]] = None,
-    signal_entries: List[Dict[str, Any]] = None,
+    open_trades: Optional[List[Dict[str, Any]]] = None,
+    signal_entries: Optional[List[Dict[str, Any]]] = None,
     log_func=None,
 ) -> Dict[str, float]:
     """Calculate breadth metrics for a set of portfolios.
@@ -240,16 +238,13 @@ def calculate_breadth_metrics(
         log_func(f"Total Signal Exits: {total_signal_exits}")
         log_func(f"Breadth Ratio: {breadth_ratio:.4f} (Open Trades / Total Strategies)")
         log_func(
-            f"Signal Entry Ratio: {
-    signal_entry_ratio:.4f} (Signal Entries / Total Strategies)"
+            f"Signal Entry Ratio: {signal_entry_ratio:.4f} (Signal Entries / Total Strategies)"
         )
         log_func(
-            f"Signal Exit Ratio: {
-    signal_exit_ratio:.4f} (Signal Exits / Total Strategies)"
+            f"Signal Exit Ratio: {signal_exit_ratio:.4f} (Signal Exits / Total Strategies)"
         )
         log_func(
-            f"Breadth Momentum: {
-    breadth_momentum:.4f} (Signal Entry Ratio / Signal Exit Ratio)"
+            f"Breadth Momentum: {breadth_momentum:.4f} (Signal Entry Ratio / Signal Exit Ratio)"
         )
 
     return metrics

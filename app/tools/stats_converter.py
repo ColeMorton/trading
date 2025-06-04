@@ -2,10 +2,11 @@
 
 import math
 from datetime import datetime
-from typing import Any, Callable, Dict, NotRequired, TypedDict
+from typing import Any, Callable, Dict, Optional, TypedDict
 
 import numpy as np
 import pandas as pd
+from typing_extensions import NotRequired
 
 
 class StatsConfig(TypedDict):
@@ -282,8 +283,7 @@ def convert_stats(
         # Set trading days per month based on asset type
         trading_days_per_month = 30 if is_crypto else 21
         log(
-            f"Using {trading_days_per_month} trading days per month for {ticker} ({
-    'crypto' if is_crypto else 'stock'})",
+            f"Using {trading_days_per_month} trading days per month for {ticker} ({'crypto' if is_crypto else 'stock'})",
             "info",
         )
 
@@ -317,9 +317,7 @@ def convert_stats(
             # There are approximately 252 trading days in a year (365 calendar days)
             stats["Total Period"] = days_in_period * (365 / 252)
             log(
-                f"Set Total Period to {
-    stats['Total Period']:.2f} days for {ticker} (stock, adjusted from {
-        days_in_period:.2f} trading days)",
+                f"Set Total Period to {stats['Total Period']:.2f} days for {ticker} (stock, adjusted from {days_in_period:.2f} trading days)",
                 "info",
             )
 
@@ -393,8 +391,7 @@ def convert_stats(
             stats["Score"] = 0
             missing = [field for field in required_fields if field not in stats]
             log(
-                f"Set Score to 0 due to missing fields: {
-    ', '.join(missing)} for {ticker}",
+                f"Set Score to 0 due to missing fields: {', '.join(missing)} for {ticker}",
                 "warning",
             )
 
@@ -441,8 +438,7 @@ def convert_stats(
         ):
             if stats["Expectancy per Trade"] <= 0:
                 log(
-                    f"Warning: Non-positive Expectancy per Trade ({
-    stats['Expectancy per Trade']:.6f}) for {ticker}.",
+                    f"Warning: Non-positive Expectancy per Trade ({stats['Expectancy per Trade']:.6f}) for {ticker}.",
                     "info",
                 )
 
@@ -460,8 +456,7 @@ def convert_stats(
                 expectancy = stats["Total Return [%]"] / (100 * stats["Total Trades"])
                 stats["Expectancy per Trade"] = expectancy
                 log(
-                    f"Calculated missing Expectancy per Trade: {
-    expectancy:.6f} for {ticker}",
+                    f"Calculated missing Expectancy per Trade: {expectancy:.6f} for {ticker}",
                     "info",
                 )
                 stats["Expectancy per Month"] = stats["Trades per Month"] * expectancy
@@ -543,8 +538,7 @@ def convert_stats(
 
         if missing_metrics:
             log(
-                f"Risk metrics missing from stats for {ticker}: {
-    ', '.join(missing_metrics)}",
+                f"Risk metrics missing from stats for {ticker}: {', '.join(missing_metrics)}",
                 "warning",
             )
 
@@ -581,8 +575,7 @@ def convert_stats(
                         try:
                             converted[k] = v.iloc[0]
                             log(
-                                f"Converted {k} from Series/DataFrame to scalar: {
-    converted[k]}",
+                                f"Converted {k} from Series/DataFrame to scalar: {converted[k]}",
                                 "debug",
                             )
                         except Exception as e:

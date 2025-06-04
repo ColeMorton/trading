@@ -1,11 +1,12 @@
-"""
-Range High Break Strategy Configuration Module
+"""Range High Break Strategy Configuration Module.
 
 This module defines the configuration settings for the Range High Break trading strategy.
 It includes settings for data retrieval, range length, and candle lookback parameters.
 """
 
-from typing import NotRequired, TypedDict
+from typing import Any, TypedDict
+
+from typing_extensions import NotRequired
 
 
 class Config(TypedDict):

@@ -6,7 +6,7 @@ across the trading system, following SOLID principles and KISS design.
 
 import traceback
 from contextlib import contextmanager
-from typing import Callable, Dict, Type, TypeVar
+from typing import Callable, Dict, Optional, Type, TypeVar
 
 from app.tools.exceptions import TradingSystemError
 
@@ -18,7 +18,7 @@ T = TypeVar("T")
 def error_context(
     operation_name: str,
     log_func: Callable[[str, str], None],
-    error_map: Dict[Type[Exception], Type[TradingSystemError]] = None,
+    error_map: Optional[Dict[Type[Exception], Type[TradingSystemError]]] = None,
     default_error_type: Type[TradingSystemError] = TradingSystemError,
     include_traceback: bool = True,
     reraise: bool = False,

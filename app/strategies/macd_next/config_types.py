@@ -5,7 +5,9 @@ This module provides centralized TypedDict definitions for configuration
 across the MACD cross strategy modules.
 """
 
-from typing import List, NotRequired, TypedDict, Union
+from typing import List, Optional, TypedDict, Union
+
+from typing_extensions import NotRequired
 
 
 class PortfolioConfig(TypedDict, total=False):
@@ -46,6 +48,8 @@ class PortfolioConfig(TypedDict, total=False):
     SIGNAL_WINDOW_START: NotRequired[int]
     SIGNAL_WINDOW_END: NotRequired[int]
     STEP: NotRequired[int]
+    SORT_BY: NotRequired[str]
+    SORT_ASC: NotRequired[bool]
 
 
 # Default configuration

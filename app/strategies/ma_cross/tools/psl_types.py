@@ -2,7 +2,12 @@
 Type definitions for protective stop loss analysis.
 """
 
-from typing import List, NotRequired, Tuple, TypedDict
+from typing import TYPE_CHECKING, List, Optional, Tuple, TypedDict
+
+from typing_extensions import NotRequired
+
+if TYPE_CHECKING:
+    import numpy as np
 
 
 class PSLConfig(TypedDict):
