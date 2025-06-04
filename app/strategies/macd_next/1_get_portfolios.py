@@ -136,8 +136,7 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
         # Export best portfolio from each ticker
         if best_portfolios:
             log(
-                f"Exporting {
-    len(best_portfolios)} best portfolios (one from each ticker)"
+                f"Exporting {len(best_portfolios)} best portfolios (one from each ticker)"
             )
             try:
                 # Export to portfolios_best directory only

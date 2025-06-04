@@ -131,8 +131,7 @@ def export_portfolios(
         raise ValueError("Cannot export empty portfolio list")
 
     if export_type not in VALID_EXPORT_TYPES:
-        error_msg = f"Invalid export type: {export_type}. Must be one of: {
-    ', '.join(VALID_EXPORT_TYPES)}"
+        error_msg = f"Invalid export type: {export_type}. Must be one of: {', '.join(VALID_EXPORT_TYPES)}"
         if log:
             log(error_msg, "error")
         raise PortfolioExportError(error_msg)

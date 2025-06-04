@@ -1,5 +1,11 @@
 import os
+import sys
 from datetime import datetime, timedelta
+
+# Add project root to Python path for imports
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
 import numpy as np
 import plotly.graph_objects as go
@@ -18,11 +24,12 @@ PORTFOLIO = [
     "EXR",
     "SHOP",
     "NVDA",
+    "PGR",
 ]
 
 # PORTFOLIO = ['SPY', 'QQQ']
 
-NEXT = ["MU", "FCX", "PANW", "PGR", "PWR"]
+NEXT = ["UTHR", "NBIX", "NTRA", "COIN"]
 
 # NEXT = [
 #     'BTC-USD',

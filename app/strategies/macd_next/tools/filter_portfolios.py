@@ -169,29 +169,23 @@ def filter_portfolios(
         log(f"USE_HOURLY: {config.get('USE_HOURLY', False)}")
         log(f"USE_CURRENT: {config.get('USE_CURRENT', False)}")
         log(
-            f"Short Window Range: {
-    config.get(
+            f"Short Window Range: {config.get(
         'SHORT_WINDOW_START',
-        8)} to {
-            config.get(
+        8)} to {config.get(
                 'SHORT_WINDOW_END',
                  20)}"
         )
         log(
-            f"Long Window Range: {
-    config.get(
+            f"Long Window Range: {config.get(
         'LONG_WINDOW_START',
-        13)} to {
-            config.get(
+        13)} to {config.get(
                 'LONG_WINDOW_END',
                  34)}"
         )
         log(
-            f"Signal Window Range: {
-    config.get(
+            f"Signal Window Range: {config.get(
         'SIGNAL_WINDOW_START',
-        5)} to {
-            config.get(
+        5)} to {config.get(
                 'SIGNAL_WINDOW_END',
                  13)}"
         )

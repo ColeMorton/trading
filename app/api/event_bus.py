@@ -328,9 +328,7 @@ class EventBus:
         except Exception as e:
             # Log error but don't propagate
             print(
-                f"Handler {
-    handler.get_handler_id()} failed for event {
-        event.event_id}: {e}"
+                f"Handler {handler.get_handler_id()} failed for event {event.event_id}: {e}"
             )
             self._events_failed += 1
 
@@ -435,11 +433,7 @@ class LoggingEventHandler(EventHandler):
 
     async def handle(self, event: Event) -> None:
         print(
-            f"[LOG] {
-    event.timestamp}: {
-        event.event_type} from {
-            event.source} - {
-                event.data}"
+            f"[LOG] {event.timestamp}: {event.event_type} from {event.source} - {event.data}"
         )
 
     def get_event_types(self) -> List[str]:

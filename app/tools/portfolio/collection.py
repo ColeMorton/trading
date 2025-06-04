@@ -75,8 +75,7 @@ def deduplicate_and_aggregate_portfolios(
         df = df.filter(pl.col("Metric Type").is_in(desired_metric_types))
         if log:
             log(
-                f"Filtered to desired Metric Types: {
-    len(df)}/{original_count} rows kept",
+                f"Filtered to desired Metric Types: {len(df)}/{original_count} rows kept",
                 "info",
             )
 
@@ -100,8 +99,7 @@ def deduplicate_and_aggregate_portfolios(
 
     if log:
         log(
-            f"Processing {
-    len(ticker_strategy_combinations)} ticker+strategy combinations",
+            f"Processing {len(ticker_strategy_combinations)} ticker+strategy combinations",
             "info",
         )
 
@@ -116,8 +114,7 @@ def deduplicate_and_aggregate_portfolios(
 
         if log:
             log(
-                f"Processing {ticker} {strategy_type}: {
-    len(ticker_strategy_df)} portfolios",
+                f"Processing {ticker} {strategy_type}: {len(ticker_strategy_df)} portfolios",
                 "info",
             )
 
@@ -202,8 +199,7 @@ def deduplicate_and_aggregate_portfolios(
 
         if log:
             log(
-                f"Best config for {ticker} {strategy_type}: {best_short}/{best_long}, {
-    len(metric_types)} metric types",
+                f"Best config for {ticker} {strategy_type}: {best_short}/{best_long}, {len(metric_types)} metric types",
                 "info",
             )
 
@@ -212,9 +208,7 @@ def deduplicate_and_aggregate_portfolios(
 
     if log:
         log(
-            f"Deduplicated portfolios from {
-    len(df)} to {
-        len(result_df)} rows (one per ticker+strategy)",
+            f"Deduplicated portfolios from {len(df)} to {len(result_df)} rows (one per ticker+strategy)",
             "info",
         )
 
@@ -226,8 +220,7 @@ def deduplicate_and_aggregate_portfolios(
             long_window = row["Long Window"]
             metric_type = row["Metric Type"]
             log(
-                f"Result {
-    i+1}: {ticker} {strategy} {short_window}/{long_window} - {metric_type}",
+                f"Result {i+1}: {ticker} {strategy} {short_window}/{long_window} - {metric_type}",
                 "info",
             )
 
@@ -257,9 +250,7 @@ def export_best_portfolios(
         required_fields = ["BASE_DIR", "TICKER"]
         for field in required_fields:
             log(
-                f"Field '{field}' present: {
-    field in config}, value: {
-        config.get(field)}",
+                f"Field '{field}' present: {field in config}, value: {config.get(field)}",
                 "info",
             )
 
@@ -433,8 +424,7 @@ def collect_filtered_portfolios_for_export(
                         if date_filtered_file.exists():
                             filtered_file = date_filtered_file
                             log(
-                                f"Found filtered file for {ticker} in date directory: {
-    date_dir.name}"
+                                f"Found filtered file for {ticker} in date directory: {date_dir.name}"
                             )
                             break
 
@@ -460,8 +450,7 @@ def collect_filtered_portfolios_for_export(
                     # Convert to dictionaries
                     portfolios_data = df.to_dicts()
                     log(
-                        f"Found {
-    len(portfolios_data)} filtered portfolios from {ticker} {strategy_type}"
+                        f"Found {len(portfolios_data)} filtered portfolios from {ticker} {strategy_type}"
                     )
 
                     # Verify the data has Metric Type column
@@ -485,8 +474,7 @@ def collect_filtered_portfolios_for_export(
 
                 except Exception as e:
                     log(
-                        f"Error reading filtered portfolios file {filtered_file}: {
-    str(e)}",
+                        f"Error reading filtered portfolios file {filtered_file}: {str(e)}",
                         "error",
                     )
                     continue
@@ -510,12 +498,9 @@ def collect_filtered_portfolios_for_export(
 
             for config_key, metric_types in sample_config_groups.items():
                 log(
-                    f"Config {config_key}: {
-    len(metric_types)} metric types - {
-        ', '.join(
+                    f"Config {config_key}: {len(metric_types)} metric types - {', '.join(
             metric_types[
-                :3])}{
-                    '...' if len(metric_types) > 3 else ''}"
+                :3])}{'...' if len(metric_types) > 3 else ''}"
                 )
 
         return all_portfolios

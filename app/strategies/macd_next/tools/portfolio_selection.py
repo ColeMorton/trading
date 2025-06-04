@@ -101,10 +101,7 @@ def get_best_portfolio(
         # 1. All top 3 have same combination
         if result := check_combination_frequency(top_3, 3):
             log(
-                f"Found matching combination in top 3: Short Window={
-    result[0]}, Long Window={
-        result[1]}, Signal Window={
-            result[2]}"
+                f"Found matching combination in top 3: Short Window={result[0]}, Long Window={result[1]}, Signal Window={result[2]}"
             )
             portfolio = (
                 sorted_portfolios.filter(
@@ -125,10 +122,7 @@ def get_best_portfolio(
         # 2. 3 out of top 5 have same combination
         if result := check_combination_frequency(top_5, 3):
             log(
-                f"Found matching combination in top 5: Short Window={
-    result[0]}, Long Window={
-        result[1]}, Signal Window={
-            result[2]}"
+                f"Found matching combination in top 5: Short Window={result[0]}, Long Window={result[1]}, Signal Window={result[2]}"
             )
             portfolio = (
                 sorted_portfolios.filter(
@@ -149,10 +143,7 @@ def get_best_portfolio(
         # 3. 5 out of top 8 have same combination
         if result := check_combination_frequency(top_8, 5):
             log(
-                f"Found matching combination in top 8: Short Window={
-    result[0]}, Long Window={
-        result[1]}, Signal Window={
-            result[2]}"
+                f"Found matching combination in top 8: Short Window={result[0]}, Long Window={result[1]}, Signal Window={result[2]}"
             )
             portfolio = (
                 sorted_portfolios.filter(
@@ -174,10 +165,7 @@ def get_best_portfolio(
         top_2 = sorted_portfolios.head(2)
         if result := check_combination_frequency(top_2, 2):
             log(
-                f"Found matching combination in top 2: Short Window={
-    result[0]}, Long Window={
-        result[1]}, Signal Window={
-            result[2]}"
+                f"Found matching combination in top 2: Short Window={result[0]}, Long Window={result[1]}, Signal Window={result[2]}"
             )
             portfolio = (
                 sorted_portfolios.filter(

@@ -236,8 +236,7 @@ def calculate_signal_quality_metrics(
             returns_np = returns_np.copy()
 
             log(
-                f"Applying stop loss of {
-    stop_loss*100:.2f}% to signal quality metrics for {strategy_id}",
+                f"Applying stop loss of {stop_loss*100:.2f}% to signal quality metrics for {strategy_id}",
                 "info",
             )
 
@@ -274,18 +273,14 @@ def calculate_signal_quality_metrics(
             )
 
             log(
-                f"Calculated stop-loss-adjusted signal quality metrics for {strategy_id}: score={
-    adjusted_metrics['signal_quality_score']:.2f}, win_rate={
-        adjusted_metrics['win_rate']:.2f}",
+                f"Calculated stop-loss-adjusted signal quality metrics for {strategy_id}: score={adjusted_metrics['signal_quality_score']:.2f}, win_rate={adjusted_metrics['win_rate']:.2f}",
                 "info",
             )
 
             return adjusted_metrics
 
         log(
-            f"Calculated signal quality metrics for {strategy_id}: score={
-    signal_quality_score:.2f}, win_rate={
-        win_rate:.2f}",
+            f"Calculated signal quality metrics for {strategy_id}: score={signal_quality_score:.2f}, win_rate={win_rate:.2f}",
             "info",
         )
         return {
@@ -464,8 +459,7 @@ def _calculate_metrics_for_strategy(
         signal_reliability,
     )
 
-    return {
-        "signal_count": signal_count,
+    return {"signal_count": signal_count,
         "avg_return": avg_return,
         "win_rate": win_rate,
         "profit_factor": profit_factor,
@@ -1050,8 +1044,7 @@ def calculate_aggregate_signal_quality(
             else:
                 weight = signal_count / total_signals
                 log(
-                    f"Using signal count weight {
-    weight:.4f} for strategy {strategy_id}",
+                    f"Using signal count weight {weight:.4f} for strategy {strategy_id}",
                     "info",
                 )
 
@@ -1089,8 +1082,7 @@ def calculate_aggregate_signal_quality(
         _validate_performance_aggregation(strategy_metrics, weighted_metrics, log)
 
         log(
-            f"Aggregate metrics calculated across {
-    len(strategy_metrics)} strategies with {total_signals} total signals",
+            f"Aggregate metrics calculated across {len(strategy_metrics)} strategies with {total_signals} total signals",
             "info",
         )
         log(
@@ -1133,23 +1125,17 @@ def _validate_performance_aggregation(
 
                 if mostly_positive and not aggregated_positive:
                     log(
-                        f"WARNING: Sharpe ratio sign flip detected! Individual avg: {
-    avg_individual_sharpe:.3f}, Aggregated: {
-        aggregated_sharpe:.3f}",
+                        f"WARNING: Sharpe ratio sign flip detected! Individual avg: {avg_individual_sharpe:.3f}, Aggregated: {aggregated_sharpe:.3f}",
                         "warning",
                     )
                 elif not mostly_positive and aggregated_positive:
                     log(
-                        f"WARNING: Sharpe ratio sign flip detected! Individual avg: {
-    avg_individual_sharpe:.3f}, Aggregated: {
-        aggregated_sharpe:.3f}",
+                        f"WARNING: Sharpe ratio sign flip detected! Individual avg: {avg_individual_sharpe:.3f}, Aggregated: {aggregated_sharpe:.3f}",
                         "warning",
                     )
                 else:
                     log(
-                        f"Sharpe ratio aggregation validated: Individual avg: {
-    avg_individual_sharpe:.3f}, Aggregated: {
-        aggregated_sharpe:.3f}",
+                        f"Sharpe ratio aggregation validated: Individual avg: {avg_individual_sharpe:.3f}, Aggregated: {aggregated_sharpe:.3f}",
                         "info",
                     )
 
@@ -1167,22 +1153,17 @@ def _validate_performance_aggregation(
             # Win rate should be reasonable (between 0 and 1)
             if not (0 <= aggregated_win_rate <= 1):
                 log(
-                    f"WARNING: Aggregated win rate out of bounds: {
-    aggregated_win_rate:.3f}",
+                    f"WARNING: Aggregated win rate out of bounds: {aggregated_win_rate:.3f}",
                     "warning",
                 )
             elif abs(aggregated_win_rate - avg_individual_win_rate) > 0.3:
                 log(
-                    f"WARNING: Large win rate difference! Individual avg: {
-    avg_individual_win_rate:.3f}, Aggregated: {
-        aggregated_win_rate:.3f}",
+                    f"WARNING: Large win rate difference! Individual avg: {avg_individual_win_rate:.3f}, Aggregated: {aggregated_win_rate:.3f}",
                     "warning",
                 )
             else:
                 log(
-                    f"Win rate aggregation validated: Individual avg: {
-    avg_individual_win_rate:.3f}, Aggregated: {
-        aggregated_win_rate:.3f}",
+                    f"Win rate aggregation validated: Individual avg: {avg_individual_win_rate:.3f}, Aggregated: {aggregated_win_rate:.3f}",
                     "info",
                 )
 
@@ -1200,15 +1181,12 @@ def _validate_performance_aggregation(
             # Profit factor should be positive
             if aggregated_pf <= 0:
                 log(
-                    f"WARNING: Aggregated profit factor non-positive: {
-    aggregated_pf:.3f}",
+                    f"WARNING: Aggregated profit factor non-positive: {aggregated_pf:.3f}",
                     "warning",
                 )
             else:
                 log(
-                    f"Profit factor aggregation validated: Individual avg: {
-    avg_individual_pf:.3f}, Aggregated: {
-        aggregated_pf:.3f}",
+                    f"Profit factor aggregation validated: Individual avg: {avg_individual_pf:.3f}, Aggregated: {aggregated_pf:.3f}",
                     "info",
                 )
 
@@ -1271,18 +1249,12 @@ def validate_win_rate_consistency(
     if log:
         if is_valid:
             log(
-                f"Win rate validation PASSED for {ticker}: JSON={
-    json_win_rate:.3f} vs CSV avg={
-        csv_average:.3f} (diff: {
-            relative_difference:.1%})",
+                f"Win rate validation PASSED for {ticker}: JSON={json_win_rate:.3f} vs CSV avg={csv_average:.3f} (diff: {relative_difference:.1%})",
                 "info",
             )
         else:
             log(
-                f"Win rate validation FAILED for {ticker}: JSON={
-    json_win_rate:.3f} vs CSV avg={
-        csv_average:.3f} (diff: {
-            relative_difference:.1%}, type: {issue_type})",
+                f"Win rate validation FAILED for {ticker}: JSON={json_win_rate:.3f} vs CSV avg={csv_average:.3f} (diff: {relative_difference:.1%}, type: {issue_type})",
                 "warning",
             )
 

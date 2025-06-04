@@ -197,8 +197,7 @@ def convert_csv_to_strategy_config(
                 log(f"Allocation set to {allocation_percent:.2f}% for {ticker}", "info")
             except (ValueError, TypeError):
                 log(
-                    f"Error: Invalid allocation value for {ticker}: {
-    row['ALLOCATION']}",
+                    f"Error: Invalid allocation value for {ticker}: {row['ALLOCATION']}",
                     "error",
                 )
         else:
@@ -221,9 +220,7 @@ def convert_csv_to_strategy_config(
                     )
                 strategy_config["STOP_LOSS"] = stop_loss_decimal
                 log(
-                    f"Stop loss set to {
-    stop_loss_decimal:.4f} ({
-        stop_loss_decimal*
+                    f"Stop loss set to {stop_loss_decimal:.4f} ({stop_loss_decimal*
         100:.2f}%) for {ticker}",
                     "info",
                 )
@@ -270,8 +267,7 @@ def convert_csv_to_strategy_config(
                 try:
                     strategy_config["RSI_WINDOW"] = int(row["RSI_WINDOW"])
                     log(
-                        f"Using RSI window: {
-    strategy_config['RSI_WINDOW']} for {ticker}",
+                        f"Using RSI window: {strategy_config['RSI_WINDOW']} for {ticker}",
                         "info",
                     )
                 except (ValueError, TypeError):
@@ -290,8 +286,7 @@ def convert_csv_to_strategy_config(
                 try:
                     strategy_config["RSI_THRESHOLD"] = int(row["RSI_THRESHOLD"])
                     log(
-                        f"Using RSI threshold: {
-    strategy_config['RSI_THRESHOLD']} for {ticker}",
+                        f"Using RSI threshold: {strategy_config['RSI_THRESHOLD']} for {ticker}",
                         "info",
                     )
                 except (ValueError, TypeError):
@@ -305,8 +300,7 @@ def convert_csv_to_strategy_config(
                 # Use default RSI threshold if not provided
                 strategy_config["RSI_THRESHOLD"] = 70 if direction == "Long" else 30
                 log(
-                    f"Using default RSI threshold: {
-    strategy_config['RSI_THRESHOLD']} for {ticker}",
+                    f"Using default RSI threshold: {strategy_config['RSI_THRESHOLD']} for {ticker}",
                     "info",
                 )
 
@@ -323,8 +317,7 @@ def convert_csv_to_strategy_config(
                 try:
                     strategy_config["SIGNAL_WINDOW"] = int(signal)
                     log(
-                        f"Using signal window: {
-    strategy_config['SIGNAL_WINDOW']} for {ticker}",
+                        f"Using signal window: {strategy_config['SIGNAL_WINDOW']} for {ticker}",
                         "info",
                     )
                 except (ValueError, TypeError):

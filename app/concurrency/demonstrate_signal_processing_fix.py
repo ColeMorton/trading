@@ -250,14 +250,7 @@ def demonstrate_filtering_transparency():
         final_ok = (signal != 0) and vol_ok and rsi_ok
 
         print(
-            f"{
-    idx:5} | {
-        signal:6} | {
-            volume:6} | {
-                rsi:3.0f} | {
-                    vol_ok!s:6} | {
-                        rsi_ok!s:6} | {
-                            final_ok!s}"
+            f"{idx:5} | {signal:6} | {volume:6} | {rsi:3.0f} | {vol_ok!s:6} | {rsi_ok!s:6} | {final_ok!s}"
         )
 
 

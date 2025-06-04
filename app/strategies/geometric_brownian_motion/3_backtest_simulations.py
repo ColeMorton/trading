@@ -193,9 +193,7 @@ else:
             equity_curve = (1 + results[column].returns()).cumprod()
             plt.plot(equity_curve.index, equity_curve.values, label=column)
             print(
-                f"Equity curve for {column}: min={
-    equity_curve.min():.2f}, max={
-        equity_curve.max():.2f}"
+                f"Equity curve for {column}: min={equity_curve.min():.2f}, max={equity_curve.max():.2f}"
             )
         plt.title("Equity Curves for Different Simulations")
         plt.xlabel("Date")

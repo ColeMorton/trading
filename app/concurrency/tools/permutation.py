@@ -31,8 +31,7 @@ def generate_strategy_permutations(
 
     if min_strategies > len(strategies):
         raise ValueError(
-            f"min_strategies ({min_strategies}) cannot be greater than the number of strategies ({
-    len(strategies)})"
+            f"min_strategies ({min_strategies}) cannot be greater than the number of strategies ({len(strategies)})"
         )
 
     permutations = []
@@ -73,8 +72,7 @@ def analyze_permutation(
         strategy["ALLOCATION"] = equal_allocation
 
     log(
-        f"Using equal allocations ({
-    equal_allocation:.4f}) for all strategies in permutation",
+        f"Using equal allocations ({equal_allocation:.4f}) for all strategies in permutation",
         "info",
     )
 
@@ -171,9 +169,7 @@ def find_optimal_permutation(
                 )
 
         log(
-            f"Analyzing permutation {
-    i+1}/{total_permutations} with {
-        len(permutation)} strategies",
+            f"Analyzing permutation {i+1}/{total_permutations} with {len(permutation)} strategies",
             "debug",
         )
 
@@ -195,8 +191,7 @@ def find_optimal_permutation(
                 best_stats = stats
                 best_aligned_data = aligned_data
                 log(
-                    f"New best permutation found! Risk-adjusted efficiency: {
-    best_efficiency:.4f}",
+                    f"New best permutation found! Risk-adjusted efficiency: {best_efficiency:.4f}",
                     "info",
                 )
 
@@ -208,9 +203,7 @@ def find_optimal_permutation(
     total_time = time.time() - start_time
     if best_permutation:
         log(
-            f"Permutation analysis complete in {
-    total_time:.1f} seconds. Best efficiency: {
-        best_efficiency:.4f}",
+            f"Permutation analysis complete in {total_time:.1f} seconds. Best efficiency: {best_efficiency:.4f}",
             "info",
         )
         return best_permutation, best_stats, best_aligned_data

@@ -69,11 +69,7 @@ def calculate_macd_signals(data, short):
             sample = crossovers.head(5)
             for row in sample.iter_rows(named=True):
                 logging.info(
-                    f"Date: {
-    row['Date']}, MACD: {
-        row['MACD']:.4f}, Signal Line: {
-            row['Signal_Line']:.4f}, Signal: {
-                row['Signal']}"
+                    f"Date: {row['Date']}, MACD: {row['MACD']:.4f}, Signal Line: {row['Signal_Line']:.4f}, Signal: {row['Signal']}"
                 )
 
         return data

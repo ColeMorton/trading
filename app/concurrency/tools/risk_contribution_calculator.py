@@ -47,16 +47,12 @@ class RiskContributionCalculator:
         # Validate inputs
         if returns.shape[1] != len(weights):
             raise ValueError(
-                f"Returns shape {
-    returns.shape} doesn't match weights length {
-        len(weights)}"
+                f"Returns shape {returns.shape} doesn't match weights length {len(weights)}"
             )
 
         if len(strategy_names) != len(weights):
             raise ValueError(
-                f"Strategy names length {
-    len(strategy_names)} doesn't match weights length {
-        len(weights)}"
+                f"Strategy names length {len(strategy_names)} doesn't match weights length {len(weights)}"
             )
 
         # Validate and normalize weights - fail fast on invalid inputs
@@ -144,8 +140,7 @@ class RiskContributionCalculator:
         else:
             # If portfolio variance is essentially zero, use equal weights
             logger.warning(
-                f"Portfolio variance is near zero ({
-    portfolio_variance:.10f}), using equal risk contributions"
+                f"Portfolio variance is near zero ({portfolio_variance:.10f}), using equal risk contributions"
             )
             risk_contributions_pct = np.ones(len(weights)) / len(weights)
 
@@ -251,9 +246,7 @@ class RiskContributionCalculator:
         portfolio_std = np.sqrt(portfolio_variance)
 
         logger.info(
-            f"Portfolio metrics from returns - Mean: {
-    portfolio_mean:.6f}, Std: {
-        portfolio_std:.6f}"
+            f"Portfolio metrics from returns - Mean: {portfolio_mean:.6f}, Std: {portfolio_std:.6f}"
         )
 
         # Calculate VaR and CVaR from portfolio returns
@@ -330,13 +323,10 @@ class RiskContributionCalculator:
 
         # Log summary
         logger.info(
-            f"Portfolio risk from returns - Volatility: {
-    portfolio_std:.6f}, VaR 95%: {
-        var_95:.4f}"
+            f"Portfolio risk from returns - Volatility: {portfolio_std:.6f}, VaR 95%: {var_95:.4f}"
         )
         logger.info(
-            f"Risk contributions calculated from portfolio returns - Total: {
-    np.sum(risk_contributions_pct)*100:.2f}%"
+            f"Risk contributions calculated from portfolio returns - Total: {np.sum(risk_contributions_pct)*100:.2f}%"
         )
 
         return risk_metrics
@@ -359,16 +349,12 @@ class RiskContributionCalculator:
         # Validate inputs
         if cov_matrix.shape[0] != len(weights):
             raise ValueError(
-                f"Covariance matrix shape {
-    cov_matrix.shape} doesn't match weights length {
-        len(weights)}"
+                f"Covariance matrix shape {cov_matrix.shape} doesn't match weights length {len(weights)}"
             )
 
         if len(strategy_names) != len(weights):
             raise ValueError(
-                f"Strategy names length {
-    len(strategy_names)} doesn't match weights length {
-        len(weights)}"
+                f"Strategy names length {len(strategy_names)} doesn't match weights length {len(weights)}"
             )
 
         # Validate and normalize weights - fail fast on invalid inputs
@@ -462,8 +448,7 @@ class RiskContributionCalculator:
         else:
             # If portfolio variance is essentially zero, use equal weights
             logger.warning(
-                f"Portfolio variance is near zero ({
-    portfolio_variance:.10f}), using equal risk contributions"
+                f"Portfolio variance is near zero ({portfolio_variance:.10f}), using equal risk contributions"
             )
             risk_contributions_pct = np.ones(len(weights)) / len(weights)
 
@@ -564,12 +549,10 @@ class RiskContributionCalculator:
             )
 
             if not validation_result.is_valid:
-                error_msg = f"Risk calculation validation failed: {
-    '; '.join(
+                error_msg = f"Risk calculation validation failed: {'; '.join(
         validation_result.messages)}"
                 if validation_result.corrective_actions:
-                    error_msg += f". Suggested actions: {
-    '; '.join(
+                    error_msg += f". Suggested actions: {'; '.join(
         validation_result.corrective_actions)}"
                 raise RiskCalculationError(error_msg)
 
@@ -578,8 +561,7 @@ class RiskContributionCalculator:
                     log(f"Validation warning: {warning}", "warning")
 
             log(
-                f"Input validation passed (quality score: {
-    validation_result.quality_score:.3f})",
+                f"Input validation passed (quality score: {validation_result.quality_score:.3f})",
                 "info",
             )
 
@@ -613,9 +595,7 @@ class RiskContributionCalculator:
                 if name in variance_estimates:
                     enhanced_cov_matrix[i, i] = variance_estimates[name].value
                     log(
-                        f"Applied {
-    variance_estimates[name].method} variance estimate for {name}: {
-        variance_estimates[name].value:.8f}",
+                        f"Applied {variance_estimates[name].method} variance estimate for {name}: {variance_estimates[name].value:.8f}",
                         "info",
                     )
 
@@ -811,9 +791,7 @@ class RiskContributionCalculator:
 
                 if returns_array.shape[1] != len(strategy_names):
                     raise DataAlignmentError(
-                        f"Strategy count mismatch: expected {
-    len(strategy_names)}, got {
-        returns_array.shape[1]}"
+                        f"Strategy count mismatch: expected {len(strategy_names)}, got {returns_array.shape[1]}"
                     )
 
                 # Use correlation calculator for robust covariance estimation
@@ -854,8 +832,7 @@ class RiskContributionCalculator:
 
                     # Log diagnostics
                     log(
-                        f"Covariance matrix condition number: {
-    diagnostics.get(
+                        f"Covariance matrix condition number: {diagnostics.get(
         'condition_number', 1.0):.2f}",
                         "info",
                     )
@@ -932,8 +909,7 @@ class RiskContributionCalculator:
                     risk_metrics[f"strategy_{i+1}_cvar_99"] = cvar_99
 
                 log(
-                    f"Portfolio risk calculation completed successfully for {
-    len(strategy_names)} strategies",
+                    f"Portfolio risk calculation completed successfully for {len(strategy_names)} strategies",
                     "info",
                 )
                 return risk_metrics
@@ -1090,11 +1066,8 @@ def calculate_risk_contributions_fixed(
                 risk_adjusted_alpha
             )
             log(
-                f"Strategy {
-    i+
-    1} excess return: {
-        excess_return:.6f}, alpha to portfolio: {
-            risk_adjusted_alpha:.6f}",
+                f"Strategy {i+
+    1} excess return: {excess_return:.6f}, alpha to portfolio: {risk_adjusted_alpha:.6f}",
                 "info",
             )
 
@@ -1139,15 +1112,11 @@ def calculate_risk_contributions_fixed(
             risk_contributions["combined_cvar_99"] = combined_cvar_99
 
             log(
-                f"Combined VaR 95%: {
-    combined_var_95:.4f}, CVaR 95%: {
-        combined_cvar_95:.4f}",
+                f"Combined VaR 95%: {combined_var_95:.4f}, CVaR 95%: {combined_cvar_95:.4f}",
                 "info",
             )
             log(
-                f"Combined VaR 99%: {
-    combined_var_99:.4f}, CVaR 99%: {
-        combined_cvar_99:.4f}",
+                f"Combined VaR 99%: {combined_var_99:.4f}, CVaR 99%: {combined_cvar_99:.4f}",
                 "info",
             )
         else:

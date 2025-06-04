@@ -302,8 +302,7 @@ async def stream_analysis_updates(
         except Exception as e:
             # Fallback to basic status polling
             log(
-                f"Progress tracker streaming failed, falling back to status polling: {
-    str(e)}",
+                f"Progress tracker streaming failed, falling back to status polling: {str(e)}",
                 "warning",
             )
             while True:

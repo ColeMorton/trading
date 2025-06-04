@@ -102,8 +102,7 @@ def generate_json_report(
             ticker = strategy.get("TICKER", "unknown")
             strategy_id = strategy.get("strategy_id", f"strategy_{idx}")
             log(
-                f"Processing strategy {idx}/{
-    len(strategies)}: {ticker} (ID: {strategy_id})",
+                f"Processing strategy {idx}/{len(strategies)}: {ticker} (ID: {strategy_id})",
                 "info",
             )
             strategy_objects.append(create_strategy_object(strategy, idx, stats))

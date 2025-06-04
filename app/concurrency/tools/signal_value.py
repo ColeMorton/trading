@@ -152,8 +152,7 @@ def calculate_signal_value_metrics(
         signal_expected_value = avg_return * (1.0 - abs(var_95))
 
         log(
-            f"Calculated signal value metrics for {strategy_id}: opportunity_score={
-    signal_opportunity_score:.2f}",
+            f"Calculated signal value metrics for {strategy_id}: opportunity_score={signal_opportunity_score:.2f}",
             "info",
         )
 

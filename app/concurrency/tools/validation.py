@@ -158,14 +158,10 @@ class PortfolioMetricsValidator:
                         passed=expected_ratio_range[0]
                         <= ratio
                         <= expected_ratio_range[1],
-                        expected_value=f"Ratio between {
-    expected_ratio_range[0]}-{
-        expected_ratio_range[1]}",
-                        actual_value=f"{
-    ratio:.2f} (Portfolio: {portfolio_signals}, CSV: {csv_total_trades})",
+                        expected_value=f"Ratio between {expected_ratio_range[0]}-{expected_ratio_range[1]}",
+                        actual_value=f"{ratio:.2f} (Portfolio: {portfolio_signals}, CSV: {csv_total_trades})",
                         tolerance=tolerance,
-                        error_message=f"Signal-to-trade ratio {
-    ratio:.2f} is outside expected range {expected_ratio_range}",
+                        error_message=f"Signal-to-trade ratio {ratio:.2f} is outside expected range {expected_ratio_range}",
                         severity="critical" if ratio > 10.0 else "warning",
                     )
                 )
@@ -181,9 +177,7 @@ class PortfolioMetricsValidator:
                         expected_value=csv_total_trades,
                         actual_value=quality_signal_count,
                         tolerance=tolerance,
-                        error_message=f"Signal quality count {quality_signal_count} differs from CSV trades {csv_total_trades} by {
-    abs(
-        ratio - 1.0)*100:.1f}%",
+                        error_message=f"Signal quality count {quality_signal_count} differs from CSV trades {csv_total_trades} by {abs(ratio - 1.0)*100:.1f}%",
                         severity="critical" if abs(ratio - 1.0) > 0.5 else "warning",
                     )
                 )
@@ -247,9 +241,7 @@ class PortfolioMetricsValidator:
                             expected_value=f"Sign of {csv_sharpe:.3f}",
                             actual_value=f"Sign of {json_sharpe:.3f}",
                             tolerance=tolerance,
-                            error_message=f"Sharpe ratio sign mismatch for {ticker}: CSV={
-    csv_sharpe:.3f}, JSON={
-        json_sharpe:.3f}",
+                            error_message=f"Sharpe ratio sign mismatch for {ticker}: CSV={csv_sharpe:.3f}, JSON={json_sharpe:.3f}",
                             severity=(
                                 "critical"
                                 if not signs_match and abs(csv_sharpe) > 0.1
@@ -309,9 +301,7 @@ class PortfolioMetricsValidator:
                             expected_value=f"≤ {csv_max_dd:.3f}",
                             actual_value=f"{json_max_dd:.3f}",
                             tolerance=tolerance,
-                            error_message=f"JSON max drawdown {
-    json_max_dd:.3f} exceeds CSV bound {
-        csv_max_dd:.3f} for {ticker}",
+                            error_message=f"JSON max drawdown {json_max_dd:.3f} exceeds CSV bound {csv_max_dd:.3f} for {ticker}",
                             severity=(
                                 "warning"
                                 if json_max_dd <= csv_max_dd * 1.5
@@ -358,8 +348,7 @@ class PortfolioMetricsValidator:
                         expected_value=1.0,
                         actual_value=total_allocation,
                         tolerance=tolerance,
-                        error_message=f"Allocation weights sum to {
-    total_allocation:.6f}, not 1.0",
+                        error_message=f"Allocation weights sum to {total_allocation:.6f}, not 1.0",
                         severity=(
                             "critical"
                             if abs(total_allocation - 1.0) > 0.1
@@ -418,8 +407,7 @@ class PortfolioMetricsValidator:
                     expected_value="Between -1000 and +1000",
                     actual_value=f"{portfolio_expectancy:.2f}",
                     tolerance=tolerance,
-                    error_message=f"Portfolio expectancy {
-    portfolio_expectancy:.2f} appears to use wrong units",
+                    error_message=f"Portfolio expectancy {portfolio_expectancy:.2f} appears to use wrong units",
                     severity=(
                         "critical" if abs(portfolio_expectancy) > 10000 else "warning"
                     ),
@@ -447,8 +435,7 @@ class PortfolioMetricsValidator:
                             expected_value="Between 0 and 1",
                             actual_value=f"{value:.4f}",
                             tolerance=tolerance,
-                            error_message=f"{metric_name} value {
-    value:.4f} not in decimal format",
+                            error_message=f"{metric_name} value {value:.4f} not in decimal format",
                             severity=(
                                 "warning" if value > 1 and value <= 100 else "critical"
                             ),
@@ -507,8 +494,7 @@ class PortfolioMetricsValidator:
                             expected_value=f"{csv_win_rate:.3f}",
                             actual_value=f"{json_win_rate:.3f}",
                             tolerance=tolerance,
-                            error_message=f"Win rate difference {
-    difference:.3f} exceeds tolerance for {ticker}",
+                            error_message=f"Win rate difference {difference:.3f} exceeds tolerance for {ticker}",
                             severity=(
                                 "warning" if difference <= tolerance * 2 else "critical"
                             ),
@@ -564,13 +550,10 @@ class PortfolioMetricsValidator:
                     ValidationResult(
                         check_name="Portfolio Expectancy Range Check",
                         passed=within_range,
-                        expected_value=f"Between {
-    reasonable_range[0]:.2f} and {
-        reasonable_range[1]:.2f}",
+                        expected_value=f"Between {reasonable_range[0]:.2f} and {reasonable_range[1]:.2f}",
                         actual_value=f"{portfolio_expectancy:.2f}",
                         tolerance=tolerance,
-                        error_message=f"Portfolio expectancy {
-    portfolio_expectancy:.2f} outside reasonable range based on CSV data",
+                        error_message=f"Portfolio expectancy {portfolio_expectancy:.2f} outside reasonable range based on CSV data",
                         severity="critical" if not within_range else "info",
                     )
                 )

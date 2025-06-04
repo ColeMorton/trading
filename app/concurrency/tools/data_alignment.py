@@ -169,15 +169,11 @@ def align_data(
 
         if aligned_1.shape != aligned_2.shape:
             log(
-                f"Alignment failed: shapes differ {
-    aligned_1.shape} vs {
-        aligned_2.shape}",
+                f"Alignment failed: shapes differ {aligned_1.shape} vs {aligned_2.shape}",
                 "error",
             )
             raise ValueError(
-                f"Aligned dataframes have different shapes: {
-    aligned_1.shape} vs {
-        aligned_2.shape}"
+                f"Aligned dataframes have different shapes: {aligned_1.shape} vs {aligned_2.shape}"
             )
 
         log(f"Successfully aligned dataframes with shape {aligned_1.shape}", "info")
@@ -254,9 +250,7 @@ def align_multiple_data(
             raise ValueError(f"Aligned dataframes have different shapes: {shapes}")
 
         log(
-            f"Successfully aligned {
-    len(aligned_dfs)} dataframes with shape {
-        shapes[0]}",
+            f"Successfully aligned {len(aligned_dfs)} dataframes with shape {shapes[0]}",
             "info",
         )
         return aligned_dfs
@@ -356,8 +350,7 @@ def validate_aligned_data_quality(
                     signal_frequency = signal_count / len(df_pd)
                     if signal_frequency > 0.5:
                         log(
-                            f"DataFrame {i} has very high signal frequency: {
-    signal_frequency:.2%}",
+                            f"DataFrame {i} has very high signal frequency: {signal_frequency:.2%}",
                             "warning",
                         )
 
@@ -369,8 +362,7 @@ def validate_aligned_data_quality(
                 validation_summary = validator.validate_all(csv_data, json_metrics)
                 cross_validation_passed = validation_summary.critical_failures == 0
                 log(
-                    f"Cross-validation completed: {
-    validation_summary.success_rate:.1%} success rate",
+                    f"Cross-validation completed: {validation_summary.success_rate:.1%} success rate",
                     "info",
                 )
             except Exception as e:
@@ -453,8 +445,7 @@ def align_with_validation(
             log("Critical failures detected in aligned data", "error")
         elif validation_summary.failed_checks > 0:
             log(
-                f"Data alignment completed with {
-    validation_summary.failed_checks} validation warnings",
+                f"Data alignment completed with {validation_summary.failed_checks} validation warnings",
                 "warning",
             )
         else:

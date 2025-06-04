@@ -172,9 +172,7 @@ def handle_resolver_errors(resolver_func):
         except Exception as e:
             # Log unexpected errors and convert to generic error
             logger.error(
-                f"Unexpected error in GraphQL resolver {
-    resolver_func.__name__}: {
-        str(e)}",
+                f"Unexpected error in GraphQL resolver {resolver_func.__name__}: {str(e)}",
                 exc_info=True,
             )
             raise ServiceError(

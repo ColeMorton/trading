@@ -69,8 +69,7 @@ def validate_allocations(
                 if allocation_value < 0 or allocation_value > 100:
                     if log:
                         log(
-                            f"Invalid allocation value {allocation_value} for {
-    row.get(
+                            f"Invalid allocation value {allocation_value} for {row.get(
         'Ticker',
          'Unknown')}: "
                             "must be between 0 and 100. Setting to None.",
@@ -82,9 +81,7 @@ def validate_allocations(
             except (ValueError, TypeError):
                 if log:
                     log(
-                        f"Invalid allocation value {
-    row[allocation_field]} for {
-        row.get(
+                        f"Invalid allocation value {row[allocation_field]} for {row.get(
             'Ticker', 'Unknown')}: "
                         "must be a number. Setting to None.",
                         "warning",
@@ -390,8 +387,7 @@ def calculate_position_sizes(
             except (ValueError, TypeError):
                 if log:
                     log(
-                        f"Could not calculate position size for {
-    row.get(
+                        f"Could not calculate position size for {row.get(
         'Ticker',
          'Unknown')}: "
                         f"invalid allocation value {allocation}",

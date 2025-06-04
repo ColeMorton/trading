@@ -247,9 +247,7 @@ def run_analysis(config: Dict[str, Any]) -> bool:
                                     and strategy["STOP_LOSS"] is not None
                                 ):
                                     log(
-                                        f"Applying stop loss of {
-    strategy['STOP_LOSS']} to strategy {
-        i+1}",
+                                        f"Applying stop loss of {strategy['STOP_LOSS']} to strategy {i+1}",
                                         "info",
                                     )
                                     portfolio_data[i] = apply_stop_loss_rules(
@@ -260,8 +258,7 @@ def run_analysis(config: Dict[str, Any]) -> bool:
                                     )
                                 else:
                                     log(
-                                        f"No stop loss defined in CSV for strategy {
-    i+1}, skipping",
+                                        f"No stop loss defined in CSV for strategy {i+1}, skipping",
                                         "info",
                                     )
 
@@ -319,8 +316,7 @@ def run_analysis(config: Dict[str, Any]) -> bool:
 
                                 except SyntheticTickerError as e:
                                     log(
-                                        f"Invalid synthetic ticker format: {ticker} - {
-    str(e)}",
+                                        f"Invalid synthetic ticker format: {ticker} - {str(e)}",
                                         "warning",
                                     )
 
@@ -351,15 +347,13 @@ def run_analysis(config: Dict[str, Any]) -> bool:
 
             # Log configuration settings
             log(
-                f"Signal definition mode: {
-    validated_config.get(
+                f"Signal definition mode: {validated_config.get(
         'SIGNAL_DEFINITION_MODE',
          SignalDefinitionMode.COMPLETE_TRADE.value)}",
                 "info",
             )
             log(
-                f"Execution mode: {
-    validated_config.get(
+                f"Execution mode: {validated_config.get(
         'EXECUTION_MODE',
          ExecutionMode.SAME_PERIOD.value)}",
                 "info",

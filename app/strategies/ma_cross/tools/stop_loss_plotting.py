@@ -103,8 +103,7 @@ def create_stop_loss_heatmap(
                 zmax=zmax,
                 colorbar=dict(
                     title=dict(
-                        text=f"{
-    metric_name.capitalize().replace(
+                        text=f"{metric_name.capitalize().replace(
         '_', ' ')} {title_suffix}",
                         side="right",
                     ),

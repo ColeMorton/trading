@@ -78,10 +78,7 @@ def calculate_latest_rsi_matrix(
                 mask_matrix[i, j] = is_active
                 status = "ACTIVE" if is_active else "INACTIVE"
                 log(
-                    f"RSI Analysis - Window: {
-    window:2.0f}, Threshold: {
-        threshold:2.0f}, Value: {
-            rsi_value:5.2f}, Status: {status}",
+                    f"RSI Analysis - Window: {window:2.0f}, Threshold: {threshold:2.0f}, Value: {rsi_value:5.2f}, Status: {status}",
                     "info",
                 )
         except Exception as e:

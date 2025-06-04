@@ -576,13 +576,8 @@ class DataReconciler:
             ]
             for discrepancy in critical_discrepancies:
                 issue = (
-                    f"{
-    result.entity_id} ({
-        result.entity_type}): {
-            discrepancy.metric_name} "
-                    f"CSV={
-    discrepancy.csv_value:.3f} vs JSON={
-        discrepancy.json_value:.3f} "
+                    f"{result.entity_id} ({result.entity_type}): {discrepancy.metric_name} "
+                    f"CSV={discrepancy.csv_value:.3f} vs JSON={discrepancy.json_value:.3f} "
                     f"({discrepancy.relative_difference:.1%} difference)"
                 )
                 critical_issues.append(issue)
@@ -593,9 +588,7 @@ class DataReconciler:
         ]
         if len(poor_results) > len(all_results) * 0.3:  # More than 30% poor results
             critical_issues.append(
-                f"Poor reconciliation quality: {
-    len(poor_results)}/{
-        len(all_results)} entities failed reconciliation"
+                f"Poor reconciliation quality: {len(poor_results)}/{len(all_results)} entities failed reconciliation"
             )
 
         # Check for specific known issues (e.g., MSTR drawdown)

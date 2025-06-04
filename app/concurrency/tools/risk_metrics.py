@@ -163,8 +163,7 @@ def calculate_portfolio_volatility_fixed(
 
         if log:
             log(
-                f"Legacy volatility calculation: {
-    weighted_vol:.4f} (may be inaccurate)",
+                f"Legacy volatility calculation: {weighted_vol:.4f} (may be inaccurate)",
                 "warning",
             )
 
@@ -278,9 +277,7 @@ def calculate_portfolio_var_fixed(
 
             if log:
                 log(
-                    f"Portfolio VaR {confidence_pct}%: {
-    var_value:.4f}, CVaR: {
-        cvar_value:.4f} (method: {method})",
+                    f"Portfolio VaR {confidence_pct}%: {var_value:.4f}, CVaR: {cvar_value:.4f} (method: {method})",
                     "info",
                 )
 
@@ -393,10 +390,8 @@ def calculate_component_var(
 
                 if log:
                     log(
-                        f"Strategy {
-    i+
-    1} component VaR {confidence_pct}%: {
-        component_var:.4f}",
+                        f"Strategy {i+
+    1} component VaR {confidence_pct}%: {component_var:.4f}",
                         "info",
                     )
             else:
@@ -416,10 +411,7 @@ def calculate_component_var(
 
         if log:
             log(
-                f"VaR reconciliation: Portfolio={
-    portfolio_var:.4f}, Components sum={
-        total_component_var:.4f}, Error={
-            var_reconciliation:.2%}",
+                f"VaR reconciliation: Portfolio={portfolio_var:.4f}, Components sum={total_component_var:.4f}, Error={var_reconciliation:.2%}",
                 "info",
             )
 
@@ -586,8 +578,7 @@ def calculate_risk_contributions_legacy(
                     trigger_count = int(np.sum(stop_loss_triggers))
                     if trigger_count > 0:
                         log(
-                            f"Stop loss triggered {trigger_count} times for strategy {
-    i+
+                            f"Stop loss triggered {trigger_count} times for strategy {i+
     1}",
                             "info",
                         )
@@ -625,10 +616,7 @@ def calculate_risk_contributions_legacy(
                 risk_contributions[f"strategy_{i+1}_cvar_99"] = cvar_99
 
                 log(
-                    f"Strategy {
-    i+1} - Volatility: {
-        vol:.4f}, Average Return: {
-            avg_return:.4f}",
+                    f"Strategy {i+1} - Volatility: {vol:.4f}, Average Return: {avg_return:.4f}",
                     "info",
                 )
                 log(
@@ -645,10 +633,7 @@ def calculate_risk_contributions_legacy(
                 risk_contributions[f"strategy_{i+1}_var_99"] = 0.0
                 risk_contributions[f"strategy_{i+1}_cvar_99"] = 0.0
                 log(
-                    f"Strategy {
-    i+1} - Volatility: {
-        vol:.4f}, Average Return: {
-            avg_return:.4f}",
+                    f"Strategy {i+1} - Volatility: {vol:.4f}, Average Return: {avg_return:.4f}",
                     "info",
                 )
                 log(
@@ -697,15 +682,11 @@ def calculate_risk_contributions_legacy(
             risk_contributions["combined_cvar_99"] = combined_cvar_99
 
             log(
-                f"Combined VaR 95% (allocation-weighted): {
-    combined_var_95:.4f}, CVaR 95%: {
-        combined_cvar_95:.4f}",
+                f"Combined VaR 95% (allocation-weighted): {combined_var_95:.4f}, CVaR 95%: {combined_cvar_95:.4f}",
                 "info",
             )
             log(
-                f"Combined VaR 99% (allocation-weighted): {
-    combined_var_99:.4f}, CVaR 99%: {
-        combined_cvar_99:.4f}",
+                f"Combined VaR 99% (allocation-weighted): {combined_var_99:.4f}, CVaR 99%: {combined_cvar_99:.4f}",
                 "info",
             )
         else:
@@ -769,8 +750,7 @@ def calculate_risk_contributions_legacy(
         else:
             weights = np.ones(len(strategy_allocations)) / len(strategy_allocations)
             log(
-                f"No allocations provided, using equal weights ({
-    100/len(strategy_allocations):.2f}% each)",
+                f"No allocations provided, using equal weights ({100/len(strategy_allocations):.2f}% each)",
                 "info",
             )
 
@@ -816,8 +796,7 @@ def calculate_risk_contributions_legacy(
                 # Handle potential NaN values
                 if np.isnan(risk_contrib):
                     log(
-                        f"Warning: NaN detected in risk contribution for strategy {
-    i+1}, setting to 0",
+                        f"Warning: NaN detected in risk contribution for strategy {i+1}, setting to 0",
                         "warning",
                     )
                     risk_contrib = 0.0
@@ -840,8 +819,7 @@ def calculate_risk_contributions_legacy(
                 # Handle potential NaN values in alpha
                 if np.isnan(risk_adjusted_alpha):
                     log(
-                        f"Warning: NaN detected in alpha for strategy {
-    i+1}, setting to 0",
+                        f"Warning: NaN detected in alpha for strategy {i+1}, setting to 0",
                         "warning",
                     )
                     risk_adjusted_alpha = 0.0
@@ -850,11 +828,8 @@ def calculate_risk_contributions_legacy(
                     risk_adjusted_alpha
                 )
                 log(
-                    f"Strategy {
-    i+
-    1} excess return: {
-        excess_return:.6f}, volatility: {
-            strategy_volatility:.6f}",
+                    f"Strategy {i+
+    1} excess return: {excess_return:.6f}, volatility: {strategy_volatility:.6f}",
                     "info",
                 )
                 log(
@@ -877,10 +852,8 @@ def calculate_risk_contributions_legacy(
                     # Handle potential NaN values
                     if np.isnan(overlap):
                         log(
-                            f"Warning: NaN detected in risk overlap between strategy {
-    i+
-    1} and {
-        j+
+                            f"Warning: NaN detected in risk overlap between strategy {i+
+    1} and {j+
         1}, setting to 0",
                             "warning",
                         )

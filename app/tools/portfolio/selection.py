@@ -120,9 +120,7 @@ def get_best_portfolio(
         # 1. All top 3 have same combination
         if result := check_combination_frequency(top_3, 3):
             log(
-                f"Found matching combination in top 3: {fast_col}={
-    result[0]}, {slow_col}={
-        result[1]}"
+                f"Found matching combination in top 3: {fast_col}={result[0]}, {slow_col}={result[1]}"
             )
             portfolio = (
                 sorted_portfolios.filter(
@@ -161,8 +159,7 @@ def get_best_portfolio(
             # Log allocation information
             if "Allocation [%]" in normalized_portfolio:
                 log(
-                    f"Best portfolio has allocation: {
-    normalized_portfolio.get('Allocation [%]')}",
+                    f"Best portfolio has allocation: {normalized_portfolio.get('Allocation [%]')}",
                     "info",
                 )
 
@@ -180,9 +177,7 @@ def get_best_portfolio(
         # 2. 3 out of top 5 have same combination
         if result := check_combination_frequency(top_5, 3):
             log(
-                f"Found matching combination in top 5: {fast_col}={
-    result[0]}, {slow_col}={
-        result[1]}"
+                f"Found matching combination in top 5: {fast_col}={result[0]}, {slow_col}={result[1]}"
             )
             portfolio = (
                 sorted_portfolios.filter(
@@ -221,8 +216,7 @@ def get_best_portfolio(
             # Log allocation information
             if "Allocation [%]" in normalized_portfolio:
                 log(
-                    f"Best portfolio has allocation: {
-    normalized_portfolio.get('Allocation [%]')}",
+                    f"Best portfolio has allocation: {normalized_portfolio.get('Allocation [%]')}",
                     "info",
                 )
 
@@ -240,9 +234,7 @@ def get_best_portfolio(
         # 3. 5 out of top 8 have same combination
         if result := check_combination_frequency(top_8, 5):
             log(
-                f"Found matching combination in top 8: {fast_col}={
-    result[0]}, {slow_col}={
-        result[1]}"
+                f"Found matching combination in top 8: {fast_col}={result[0]}, {slow_col}={result[1]}"
             )
             portfolio = (
                 sorted_portfolios.filter(
@@ -281,8 +273,7 @@ def get_best_portfolio(
             # Log allocation information
             if "Allocation [%]" in normalized_portfolio:
                 log(
-                    f"Best portfolio has allocation: {
-    normalized_portfolio.get('Allocation [%]')}",
+                    f"Best portfolio has allocation: {normalized_portfolio.get('Allocation [%]')}",
                     "info",
                 )
 
@@ -301,9 +292,7 @@ def get_best_portfolio(
         top_2 = sorted_portfolios.head(2)
         if result := check_combination_frequency(top_2, 2):
             log(
-                f"Found matching combination in top 2: {fast_col}={
-    result[0]}, {slow_col}={
-        result[1]}"
+                f"Found matching combination in top 2: {fast_col}={result[0]}, {slow_col}={result[1]}"
             )
             portfolio = (
                 sorted_portfolios.filter(
@@ -342,8 +331,7 @@ def get_best_portfolio(
             # Log allocation information
             if "Allocation [%]" in normalized_portfolio:
                 log(
-                    f"Best portfolio has allocation: {
-    normalized_portfolio.get('Allocation [%]')}",
+                    f"Best portfolio has allocation: {normalized_portfolio.get('Allocation [%]')}",
                     "info",
                 )
 

@@ -48,9 +48,7 @@ def create_strategy_traces(
         short_positions = data.filter(pl.col("Position") == -1)
 
         log(
-            f"Found {
-    len(long_positions)} long positions and {
-        len(short_positions)} short positions for {ticker}",
+            f"Found {len(long_positions)} long positions and {len(short_positions)} short positions for {ticker}",
             "info",
         )
 
@@ -111,8 +109,7 @@ def create_strategy_traces(
                         # Convert to pandas for easier handling of NaN values
                         pandas_data = data.to_pandas()
                         log(
-                            f"Pandas columns after conversion: {
-    list(
+                            f"Pandas columns after conversion: {list(
         pandas_data.columns)}",
                             "info",
                         )
@@ -138,8 +135,7 @@ def create_strategy_traces(
                                 )
                             )
                             log(
-                                f"Added ATR trailing stop trace with {
-    len(valid_stops)} points",
+                                f"Added ATR trailing stop trace with {len(valid_stops)} points",
                                 "info",
                             )
                         else:
@@ -193,11 +189,9 @@ def create_strategy_traces(
 
     except Exception as e:
         log(
-            f"Error creating strategy traces for {
-    config.get(
+            f"Error creating strategy traces for {config.get(
         'TICKER',
-        'unknown')}: {
-            str(e)}",
+        'unknown')}: {str(e)}",
             "error",
         )
         raise

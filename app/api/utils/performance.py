@@ -93,8 +93,7 @@ class ConcurrentExecutor:
             # Cancel the future and raise timeout error
             future.cancel()
             raise TimeoutError(
-                f"Analysis execution timed out after {
-    self.config.request_timeout} seconds"
+                f"Analysis execution timed out after {self.config.request_timeout} seconds"
             )
 
     async def execute_batch(

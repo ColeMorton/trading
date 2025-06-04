@@ -127,9 +127,7 @@ def process_strategies(
                 ):
                     allocation = float(strategy_config["ALLOCATION"])
                     log(
-                        f"Using allocation {
-    allocation:.2f}% for {
-        strategy_config['TICKER']}",
+                        f"Using allocation {allocation:.2f}% for {strategy_config['TICKER']}",
                         "info",
                     )
 
@@ -139,11 +137,8 @@ def process_strategies(
                 ):
                     stop_loss = float(strategy_config["STOP_LOSS"])
                     log(
-                        f"Using stop loss {
-    stop_loss:.4f} ({
-        stop_loss*
-        100:.2f}%) for {
-            strategy_config['TICKER']}",
+                        f"Using stop loss {stop_loss:.4f} ({stop_loss*
+        100:.2f}%) for {strategy_config['TICKER']}",
                         "info",
                     )
 
@@ -158,8 +153,7 @@ def process_strategies(
 
                 if is_atr:
                     log(
-                        f"Processing {direction} ATR Trailing Stop strategy {i}/{
-    len(strategies)}",
+                        f"Processing {direction} ATR Trailing Stop strategy {i}/{len(strategies)}",
                         "info",
                     )
 
@@ -199,8 +193,7 @@ def process_strategies(
 
                 else:
                     log(
-                        f"Processing {direction} MA cross strategy {i}/{
-    len(strategies)}",
+                        f"Processing {direction} MA cross strategy {i}/{len(strategies)}",
                         "info",
                     )
                     log(
@@ -219,8 +212,7 @@ def process_strategies(
                     )
 
                     log(
-                        f"MA signals calculated and positions set for {
-    strategy_config['TICKER']}",
+                        f"MA signals calculated and positions set for {strategy_config['TICKER']}",
                         "info",
                     )
 
@@ -249,14 +241,12 @@ def process_strategies(
                             ["Date", "ATR_Trailing_Stop"]
                         ).to_pandas()
                         log(
-                            f"Preserved ATR_Trailing_Stop column with {
-    atr_columns['ATR_Trailing_Stop']['ATR_Trailing_Stop'].notna().sum()} non-null values",
+                            f"Preserved ATR_Trailing_Stop column with {atr_columns['ATR_Trailing_Stop']['ATR_Trailing_Stop'].notna().sum()} non-null values",
                             "info",
                         )
                     else:
                         log(
-                            f"WARNING: ATR_Trailing_Stop column not found for {
-    strategy_config['TICKER']} ATR strategy",
+                            f"WARNING: ATR_Trailing_Stop column not found for {strategy_config['TICKER']} ATR strategy",
                             "warning",
                         )
 
@@ -277,16 +267,12 @@ def process_strategies(
 
                         # Log data shapes and column info for debugging
                         log(
-                            f"Portfolio data shape: {
-    data_pd.shape}, columns: {
-        list(
+                            f"Portfolio data shape: {data_pd.shape}, columns: {list(
             data_pd.columns)}",
                             "info",
                         )
                         log(
-                            f"ATR data shape: {
-    atr_columns['ATR_Trailing_Stop'].shape}, columns: {
-        list(
+                            f"ATR data shape: {atr_columns['ATR_Trailing_Stop'].shape}, columns: {list(
             atr_columns['ATR_Trailing_Stop'].columns)}",
                             "info",
                         )
@@ -297,8 +283,7 @@ def process_strategies(
                             "info",
                         )
                         log(
-                            f"ATR Date column type: {
-    atr_columns['ATR_Trailing_Stop']['Date'].dtype}",
+                            f"ATR Date column type: {atr_columns['ATR_Trailing_Stop']['Date'].dtype}",
                             "info",
                         )
 
@@ -319,8 +304,7 @@ def process_strategies(
                             atr_columns["ATR_Trailing_Stop"], on="Date", how="left"
                         )
                         log(
-                            f"Restored ATR_Trailing_Stop column with {
-    data_pd['ATR_Trailing_Stop'].notna().sum()} non-null values",
+                            f"Restored ATR_Trailing_Stop column with {data_pd['ATR_Trailing_Stop'].notna().sum()} non-null values",
                             "info",
                         )
 
@@ -352,8 +336,7 @@ def process_strategies(
                 # Add all portfolio stats to strategy config
                 strategy_config["PORTFOLIO_STATS"] = stats
                 log(
-                    f"Added portfolio stats to strategy config for {
-    strategy_config['TICKER']}",
+                    f"Added portfolio stats to strategy config for {strategy_config['TICKER']}",
                     "info",
                 )
 
@@ -365,9 +348,7 @@ def process_strategies(
 
             except Exception as e:
                 log(
-                    f"Error processing strategy {i} ({
-    strategy_config['TICKER']}): {
-        str(e)}",
+                    f"Error processing strategy {i} ({strategy_config['TICKER']}): {str(e)}",
                     "error",
                 )
                 raise

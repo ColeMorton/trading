@@ -182,9 +182,7 @@ def validate_config(
     if validated["STOP_LOSS_MODE"] not in [mode.value for mode in StopLossMode]:
         if log:
             log(
-                f"Invalid STOP_LOSS_MODE: {
-    validated['STOP_LOSS_MODE']}. Using default: {
-        defaults['STOP_LOSS_MODE']}",
+                f"Invalid STOP_LOSS_MODE: {validated['STOP_LOSS_MODE']}. Using default: {defaults['STOP_LOSS_MODE']}",
                 "warning",
             )
         validated["STOP_LOSS_MODE"] = defaults["STOP_LOSS_MODE"]
@@ -197,9 +195,7 @@ def validate_config(
     ):
         if log:
             log(
-                f"Invalid DEFAULT_STOP_LOSS: {
-    validated['DEFAULT_STOP_LOSS']}. Using default: {
-        defaults['DEFAULT_STOP_LOSS']}",
+                f"Invalid DEFAULT_STOP_LOSS: {validated['DEFAULT_STOP_LOSS']}. Using default: {defaults['DEFAULT_STOP_LOSS']}",
                 "warning",
             )
         validated["DEFAULT_STOP_LOSS"] = defaults["DEFAULT_STOP_LOSS"]
@@ -210,9 +206,7 @@ def validate_config(
     ]:
         if log:
             log(
-                f"Invalid SIGNAL_DEFINITION_MODE: {
-    validated['SIGNAL_DEFINITION_MODE']}. Using default: {
-        defaults['SIGNAL_DEFINITION_MODE']}",
+                f"Invalid SIGNAL_DEFINITION_MODE: {validated['SIGNAL_DEFINITION_MODE']}. Using default: {defaults['SIGNAL_DEFINITION_MODE']}",
                 "warning",
             )
         validated["SIGNAL_DEFINITION_MODE"] = defaults["SIGNAL_DEFINITION_MODE"]
@@ -221,9 +215,7 @@ def validate_config(
     if validated["EXECUTION_MODE"] not in [mode.value for mode in ExecutionMode]:
         if log:
             log(
-                f"Invalid EXECUTION_MODE: {
-    validated['EXECUTION_MODE']}. Using default: {
-        defaults['EXECUTION_MODE']}",
+                f"Invalid EXECUTION_MODE: {validated['EXECUTION_MODE']}. Using default: {defaults['EXECUTION_MODE']}",
                 "warning",
             )
         validated["EXECUTION_MODE"] = defaults["EXECUTION_MODE"]
@@ -232,9 +224,7 @@ def validate_config(
     if validated["ALLOCATION_MODE"] not in [mode.value for mode in AllocationMode]:
         if log:
             log(
-                f"Invalid ALLOCATION_MODE: {
-    validated['ALLOCATION_MODE']}. Using default: {
-        defaults['ALLOCATION_MODE']}",
+                f"Invalid ALLOCATION_MODE: {validated['ALLOCATION_MODE']}. Using default: {defaults['ALLOCATION_MODE']}",
                 "warning",
             )
         validated["ALLOCATION_MODE"] = defaults["ALLOCATION_MODE"]
@@ -245,9 +235,7 @@ def validate_config(
     ]:
         if log:
             log(
-                f"Invalid CORRELATION_FILTER_MODE: {
-    validated['CORRELATION_FILTER_MODE']}. Using default: {
-        defaults['CORRELATION_FILTER_MODE']}",
+                f"Invalid CORRELATION_FILTER_MODE: {validated['CORRELATION_FILTER_MODE']}. Using default: {defaults['CORRELATION_FILTER_MODE']}",
                 "warning",
             )
         validated["CORRELATION_FILTER_MODE"] = defaults["CORRELATION_FILTER_MODE"]
@@ -258,9 +246,7 @@ def validate_config(
     ]:
         if log:
             log(
-                f"Invalid CONCURRENCY_LIMIT_MODE: {
-    validated['CONCURRENCY_LIMIT_MODE']}. Using default: {
-        defaults['CONCURRENCY_LIMIT_MODE']}",
+                f"Invalid CONCURRENCY_LIMIT_MODE: {validated['CONCURRENCY_LIMIT_MODE']}. Using default: {defaults['CONCURRENCY_LIMIT_MODE']}",
                 "warning",
             )
         validated["CONCURRENCY_LIMIT_MODE"] = defaults["CONCURRENCY_LIMIT_MODE"]

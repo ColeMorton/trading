@@ -136,9 +136,7 @@ class TickerProcessor:
                     if "TICKER_2" not in config:
                         config["TICKER_2"] = parts[1]
                     self.log(
-                        f"Extracted ticker components: {
-    config['TICKER_1']} and {
-        config['TICKER_2']}",
+                        f"Extracted ticker components: {config['TICKER_1']} and {config['TICKER_2']}",
                         "info",
                     )
                 else:

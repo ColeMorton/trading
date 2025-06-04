@@ -99,12 +99,9 @@ def get_cache_filepath(config: CacheConfig, analysis_type: str) -> Tuple[str, st
     )
 
     # Base filename components
-    base_name = f"{ticker_prefix}_D_{
-    'SMA' if config.get(
+    base_name = f"{ticker_prefix}_D_{'SMA' if config.get(
         'USE_SMA',
-        False) else 'EMA'}_{
-            config['SHORT_WINDOW']}_{
-                config['LONG_WINDOW']}"
+        False) else 'EMA'}_{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}"
 
     # Add appropriate suffixes based on analysis type
     if analysis_type == "rsi":

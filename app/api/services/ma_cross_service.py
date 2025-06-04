@@ -284,9 +284,7 @@ class MACrossService:
                 if progress_tracker:
                     progress_tracker.update(
                         phase=f"{strategy_type}_analysis",
-                        message=f"Starting {strategy_type} analysis ({
-    i+1}/{
-        len(strategy_types)})",
+                        message=f"Starting {strategy_type} analysis ({i+1}/{len(strategy_types)})",
                     )
 
                 # Execute the strategy and get portfolio results
@@ -295,8 +293,7 @@ class MACrossService:
                 )
 
                 log(
-                    f"execute_strategy returned {
-    len(portfolios) if portfolios else 0} portfolios for {strategy_type}"
+                    f"execute_strategy returned {len(portfolios) if portfolios else 0} portfolios for {strategy_type}"
                 )
                 if portfolios:
                     log(f"First portfolio keys: {list(portfolios[0].keys())}")
@@ -451,8 +448,7 @@ class MACrossService:
 
                     export_best_portfolios(portfolio_dicts, config, log)
                     log(
-                        f"Successfully exported {
-    len(portfolio_dicts)} best portfolios with full column data"
+                        f"Successfully exported {len(portfolio_dicts)} best portfolios with full column data"
                     )
 
                     # Apply the same deduplication logic to the portfolios we return to the frontend
@@ -583,16 +579,12 @@ class MACrossService:
                                 deduplicated_portfolios.append(metrics)
                             except (ValueError, TypeError, KeyError) as e:
                                 log(
-                                    f"Error converting deduplicated portfolio to metrics: {
-    str(e)}",
+                                    f"Error converting deduplicated portfolio to metrics: {str(e)}",
                                     "error",
                                 )
                                 continue
 
-                        log(
-                            f"Frontend will display {
-    len(deduplicated_portfolios)} deduplicated portfolios (matching portfolios_best export)"
-                        )
+                        log(f"Frontend will display {len(deduplicated_portfolios)} deduplicated portfolios (matching portfolios_best export)")
 
                 except Exception as e:
                     log(f"Failed to export best portfolios: {str(e)}", "error")
@@ -675,10 +667,7 @@ class MACrossService:
                     None,  # No progress tracker for sync execution
                 )
 
-                log(
-                    f"execute_strategy returned {
-    len(portfolios) if portfolios else 0} portfolios for {strategy_type}"
-                )
+                log(f"execute_strategy returned {len(portfolios) if portfolios else 0} portfolios for {strategy_type}")
 
                 if portfolios:
                     # Convert portfolio dictionaries to PortfolioMetrics objects
@@ -800,9 +789,7 @@ class MACrossService:
 
             # Update progress for export phase
             await progress_callback(
-                85.0,
-                f"Processed {
-    len(all_portfolios)} portfolios, exporting best results...",
+                85.0, f"Processed {len(all_portfolios)} portfolios, exporting best results...",
             )
 
             log(f"Total portfolios analyzed: {len(all_portfolios)}")
@@ -987,16 +974,12 @@ class MACrossService:
                                 deduplicated_portfolios.append(metrics)
                             except (ValueError, TypeError, KeyError) as e:
                                 log(
-                                    f"Error converting deduplicated portfolio to metrics: {
-    str(e)}",
+                                    f"Error converting deduplicated portfolio to metrics: {str(e)}",
                                     "error",
                                 )
                                 continue
 
-                        log(
-                            f"Frontend will display {
-    len(deduplicated_portfolios)} deduplicated portfolios (matching portfolios_best export)"
-                        )
+                        log(f"Frontend will display {len(deduplicated_portfolios)} deduplicated portfolios (matching portfolios_best export)")
 
                 except Exception as e:
                     log(f"Failed to export best portfolios: {str(e)}", "error")
@@ -1131,8 +1114,7 @@ class MACrossService:
             # Complete progress tracking
             await self.progress_tracker.complete(
                 task_id=execution_id,
-                message=f"Analysis completed. Processed {
-    len(results)} portfolios, filtered to {filtered_count}.",
+                message=f"Analysis completed. Processed {len(results)} portfolios, filtered to {filtered_count}.",
             )
 
             # Update task status with results
@@ -1288,11 +1270,7 @@ class MACrossService:
             )
 
             log(
-                f"Found {
-    len(
-        export_paths['portfolios'])} portfolio files and {
-            len(
-                export_paths['portfolios_filtered'])} filtered files"
+                f"Found {len(export_paths['portfolios'])} portfolio files and {len(export_paths['portfolios_filtered'])} filtered files"
             )
 
         except Exception as e:

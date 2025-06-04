@@ -157,8 +157,7 @@ class RSIFilter(BaseFilter):
         # Skip if RSI filtering is disabled or RSI column is missing
         if not use_rsi or rsi_column not in data.columns:
             self.log(
-                f"RSI filtering skipped: enabled={use_rsi}, column_exists={
-    rsi_column in data.columns}",
+                f"RSI filtering skipped: enabled={use_rsi}, column_exists={rsi_column in data.columns}",
                 "info",
             )
             return data
@@ -205,9 +204,7 @@ class RSIFilter(BaseFilter):
         self._track_rejection(reason, self.filtered_signals)
 
         self.log(
-            f"RSI filter rejected {
-    self.filtered_signals} of {
-        self.total_signals} signals",
+            f"RSI filter rejected {self.filtered_signals} of {self.total_signals} signals",
             "info",
         )
 
@@ -247,8 +244,7 @@ class VolumeFilter(BaseFilter):
         # Skip if volume filtering is disabled or volume column is missing
         if not use_volume or volume_column not in data.columns:
             self.log(
-                f"Volume filtering skipped: enabled={use_volume}, column_exists={
-    volume_column in data.columns}",
+                f"Volume filtering skipped: enabled={use_volume}, column_exists={volume_column in data.columns}",
                 "info",
             )
             return data
@@ -282,9 +278,7 @@ class VolumeFilter(BaseFilter):
         self._track_rejection("Insufficient volume", self.filtered_signals)
 
         self.log(
-            f"Volume filter rejected {
-    self.filtered_signals} of {
-        self.total_signals} signals",
+            f"Volume filter rejected {self.filtered_signals} of {self.total_signals} signals",
             "info",
         )
 
@@ -325,8 +319,7 @@ class VolatilityFilter(BaseFilter):
         # Skip if volatility filtering is disabled or ATR column is missing
         if not use_volatility or atr_column not in data.columns:
             self.log(
-                f"Volatility filtering skipped: enabled={use_volatility}, column_exists={
-    atr_column in data.columns}",
+                f"Volatility filtering skipped: enabled={use_volatility}, column_exists={atr_column in data.columns}",
                 "info",
             )
             return data
@@ -382,9 +375,7 @@ class VolatilityFilter(BaseFilter):
             self._track_rejection("High volatility", high_vol_count)
 
         self.log(
-            f"Volatility filter rejected {
-    self.filtered_signals} of {
-        self.total_signals} signals",
+            f"Volatility filter rejected {self.filtered_signals} of {self.total_signals} signals",
             "info",
         )
 

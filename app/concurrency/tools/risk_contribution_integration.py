@@ -162,9 +162,7 @@ def compare_risk_calculations(
 
         # Log summary
         logger.info(
-            f"Risk contribution sum - Original: {
-    original_sum*100:.2f}%, Fixed: {
-        fixed_sum*100:.2f}%"
+            f"Risk contribution sum - Original: {original_sum*100:.2f}%, Fixed: {fixed_sum*100:.2f}%"
         )
         logger.info(f"Difference: {(original_sum - fixed_sum)*100:.2f}%")
 

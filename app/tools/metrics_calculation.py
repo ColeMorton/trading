@@ -148,8 +148,7 @@ class MetricsCalculator:
             var_95 = float(np.percentile(active_returns, 5))
 
             # Return metrics dictionary
-            return {
-                "avg_return": avg_return,
+            return {"avg_return": avg_return,
                 "median_return": median_return,
                 "std_return": std_return,
                 "win_rate": win_rate,
@@ -283,9 +282,7 @@ class MetricsCalculator:
             # Validate inputs
             if len(signals) != len(returns):
                 self.log(
-                    f"Signal and return arrays must be the same length: {
-    len(signals)} vs {
-        len(returns)}",
+                    f"Signal and return arrays must be the same length: {len(signals)} vs {len(returns)}",
                     "error",
                 )
                 return {}
@@ -329,8 +326,7 @@ class MetricsCalculator:
                 # Skip if insufficient sample size
                 if len(horizon_returns_np) < min_sample_size:
                     self.log(
-                        f"Insufficient sample size for horizon {horizon}: {
-    len(horizon_returns_np)} < {min_sample_size}",
+                        f"Insufficient sample size for horizon {horizon}: {len(horizon_returns_np)} < {min_sample_size}",
                         "warning",
                     )
                     continue
@@ -529,9 +525,7 @@ class MetricsCalculator:
             metrics.update(return_metrics)
 
             self.log(
-                f"Calculated signal quality metrics for {strategy_id}: score={
-    signal_quality_score:.2f}, win_rate={
-        return_metrics['win_rate']:.2f}",
+                f"Calculated signal quality metrics for {strategy_id}: score={signal_quality_score:.2f}, win_rate={return_metrics['win_rate']:.2f}",
                 "info",
             )
 

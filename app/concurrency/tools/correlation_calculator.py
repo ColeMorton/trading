@@ -119,8 +119,7 @@ class CorrelationCalculator:
                     correlation=0.0,
                     observations=observations,
                     valid=False,
-                    message=f"Insufficient observations: {observations} < {
-    self.min_observations}",
+                    message=f"Insufficient observations: {observations} < {self.min_observations}",
                 )
 
             # Handle outliers if requested
@@ -177,8 +176,7 @@ class CorrelationCalculator:
             if log:
                 p_str = f"{p_value:.4f}" if p_value is not None else "N/A"
                 log(
-                    f"Correlation calculated: {
-    correlation:.4f} (n={observations}, p={p_str}, method={method})",
+                    f"Correlation calculated: {correlation:.4f} (n={observations}, p={p_str}, method={method})",
                     "info",
                 )
 
@@ -299,8 +297,7 @@ class CorrelationCalculator:
 
             if len(labels) != n_vars:
                 raise ValueError(
-                    f"Number of labels ({
-    len(labels)}) must match number of variables ({n_vars})"
+                    f"Number of labels ({len(labels)}) must match number of variables ({n_vars})"
                 )
 
             # Remove rows with any NaN values
@@ -311,8 +308,7 @@ class CorrelationCalculator:
             if clean_obs < self.min_observations:
                 if log:
                     log(
-                        f"Insufficient clean observations for covariance: {clean_obs} < {
-    self.min_observations}",
+                        f"Insufficient clean observations for covariance: {clean_obs} < {self.min_observations}",
                         "warning",
                     )
                 # Return identity covariance matrix scaled by average variance
@@ -335,8 +331,7 @@ class CorrelationCalculator:
             if min_eigenval <= 0:
                 if log:
                     log(
-                        f"Covariance matrix not positive definite (min eigenvalue: {
-    min_eigenval:.2e}), regularizing",
+                        f"Covariance matrix not positive definite (min eigenvalue: {min_eigenval:.2e}), regularizing",
                         "warning",
                     )
 
@@ -358,14 +353,12 @@ class CorrelationCalculator:
 
             if log:
                 log(
-                    f"Covariance matrix calculated: {clean_obs} observations, condition number: {
-    diagnostics['condition_number']:.2e}",
+                    f"Covariance matrix calculated: {clean_obs} observations, condition number: {diagnostics['condition_number']:.2e}",
                     "info",
                 )
                 if diagnostics["regularized"]:
                     log(
-                        f"Matrix regularized, new min eigenvalue: {
-    diagnostics['min_eigenvalue']:.2e}",
+                        f"Matrix regularized, new min eigenvalue: {diagnostics['min_eigenvalue']:.2e}",
                         "info",
                     )
 
@@ -436,8 +429,7 @@ class CorrelationMatrix:
 
         if len(labels) != n_vars:
             raise ValueError(
-                f"Number of labels ({
-    len(labels)}) must match number of variables ({n_vars})"
+                f"Number of labels ({len(labels)}) must match number of variables ({n_vars})"
             )
 
         # Initialize correlation matrix
@@ -470,10 +462,7 @@ class CorrelationMatrix:
 
                     if log:
                         log(
-                            f"Invalid correlation between {
-    labels[i]} and {
-        labels[j]}: {
-            result.message}",
+                            f"Invalid correlation between {labels[i]} and {labels[j]}: {result.message}",
                             "warning",
                         )
 
@@ -492,10 +481,7 @@ class CorrelationMatrix:
                 "info",
             )
             log(
-                f"Average correlation: {
-    avg_correlation:.4f}, Range: [{
-        min_correlation:.4f}, {
-            max_correlation:.4f}]",
+                f"Average correlation: {avg_correlation:.4f}, Range: [{min_correlation:.4f}, {max_correlation:.4f}]",
                 "info",
             )
 
@@ -533,8 +519,7 @@ class CorrelationMatrix:
             if min_eigenval < 1e-8:  # Not positive definite
                 if log:
                     log(
-                        f"Correlation matrix not positive definite (min eigenvalue: {
-    min_eigenval:.2e}), applying regularization",
+                        f"Correlation matrix not positive definite (min eigenvalue: {min_eigenval:.2e}), applying regularization",
                         "warning",
                     )
 
@@ -555,8 +540,7 @@ class CorrelationMatrix:
 
                 if log:
                     log(
-                        f"Regularization applied. New min eigenvalue: {
-    new_min_eigenval:.2e}",
+                        f"Regularization applied. New min eigenvalue: {new_min_eigenval:.2e}",
                         "info",
                     )
 
@@ -564,8 +548,7 @@ class CorrelationMatrix:
             else:
                 if log:
                     log(
-                        f"Correlation matrix is positive definite (min eigenvalue: {
-    min_eigenval:.2e})",
+                        f"Correlation matrix is positive definite (min eigenvalue: {min_eigenval:.2e})",
                         "info",
                     )
                 return correlation_matrix

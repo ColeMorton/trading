@@ -303,8 +303,7 @@ def export_portfolios(
 
     # Allow empty string for direct export to strategies directory
     if export_type != "" and export_type not in VALID_EXPORT_TYPES:
-        error_msg = f"Invalid export type: {export_type}. Must be one of: {
-    ', '.join(VALID_EXPORT_TYPES)}"
+        error_msg = f"Invalid export type: {export_type}. Must be one of: {', '.join(VALID_EXPORT_TYPES)}"
         if log:
             log(error_msg, "error")
         raise PortfolioExportError(error_msg)
@@ -319,9 +318,7 @@ def export_portfolios(
         # Sort portfolios if SORT_BY is specified in config
         if "SORT_BY" in config:
             log(
-                f"Sorting portfolios by {
-    config.get('SORT_BY')} in {
-        'ascending' if config.get(
+                f"Sorting portfolios by {config.get('SORT_BY')} in {'ascending' if config.get(
             'SORT_ASC',
              False) else 'descending'} order",
                 "info",
@@ -393,11 +390,9 @@ def export_best_portfolios(
     try:
         # Sort portfolios using centralized function
         log(
-            f"Sorting portfolios by {
-    config.get(
+            f"Sorting portfolios by {config.get(
         'SORT_BY',
-        'Total Return [%]')} in {
-            'ascending' if config.get(
+        'Total Return [%]')} in {'ascending' if config.get(
                 'SORT_ASC',
                  False) else 'descending'} order",
             "info",
@@ -417,9 +412,7 @@ def export_best_portfolios(
         sort_asc = config.get("SORT_ASC", False)
 
         log(
-            f"Exported {
-    len(sorted_portfolios)} portfolios sorted by {sort_by} in {
-        'ascending' if sort_asc else 'descending'} order"
+            f"Exported {len(sorted_portfolios)} portfolios sorted by {sort_by} in {'ascending' if sort_asc else 'descending'} order"
         )
         return True
     except Exception as e:

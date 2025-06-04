@@ -75,8 +75,8 @@ config = {
     # "PORTFOLIO": 'crypto_h.csv',
     # "PORTFOLIO": 'DAILY_crypto_short.csv',
     # "PORTFOLIO": 'Indices_d.csv',
-    # "PORTFOLIO": 'trades_20250529.csv',
-    "PORTFOLIO": 'portfolio_d_20250510.csv',
+    "PORTFOLIO": 'trades_20250604.csv',
+    # "PORTFOLIO": 'portfolio_d_20250510.csv',
     # "PORTFOLIO": 'BTC_MSTR_d_20250409.csv',
     # "PORTFOLIO": "QQQ_d_20250404.csv",
     # "PORTFOLIO": "TLT_d_20250404.csv",
@@ -91,7 +91,7 @@ config = {
     # "PORTFOLIO": 'STRK_h_20250415.csv',
     # "PORTFOLIO": 'BTC_MSTR_d_20250409.csv',
     # "PORTFOLIO": 'SPY_QQQ_RSP_20250506.csv',
-    "REFRESH": False,
+    "REFRESH": True,
     "USE_CURRENT": False,
     "USE_HOURLY": False,
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
@@ -436,9 +436,7 @@ def run(portfolio: str) -> bool:
                         p.get("Position Size", 0) for p in position_sized_portfolios
                     )
                     log(
-                        f"Total position size: {
-    total_position_size:.2f} across {
-        len(position_sized_portfolios)} strategies",
+                        f"Total position size: {total_position_size:.2f} across {len(position_sized_portfolios)} strategies",
                         "info",
                     )
 
@@ -447,8 +445,7 @@ def run(portfolio: str) -> bool:
                 if stop_loss_summary["strategies_with_stop_loss"] > 0:
                     log(f"Stop loss summary: {stop_loss_summary}", "info")
                     log(
-                        f"Average stop loss: {
-    stop_loss_summary['average_stop_loss']:.2f}% across "
+                        f"Average stop loss: {stop_loss_summary['average_stop_loss']:.2f}% across "
                         f"{stop_loss_summary['strategies_with_stop_loss']} strategies",
                         "info",
                     )
@@ -477,8 +474,7 @@ if __name__ == "__main__":
 
             schema_version = detect_schema_version_from_file(portfolio_path)
             print(
-                f"Detected schema version for {resolved_portfolio}: {
-    schema_version.name}"
+                f"Detected schema version for {resolved_portfolio}: {schema_version.name}"
             )
             use_extended = schema_version == SchemaVersion.EXTENDED
         except Exception as e:

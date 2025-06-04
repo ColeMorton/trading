@@ -60,8 +60,7 @@ class ConfigManager:
         self.config_presets: Dict[str, Dict[str, ConfigDict]] = {}
 
         self.logger.info(
-            f"Configuration manager initialized with config directory: {
-    self.config_dir}"
+            f"Configuration manager initialized with config directory: {self.config_dir}"
         )
 
     def _get_project_root(self) -> str:
@@ -345,9 +344,7 @@ class ConfigManager:
                         ):
                             raise ConfigValidationError(
                                 f"Field '{field}' in {config_name} configuration has invalid type. "
-                                f"Expected one of {
-    field_type.__args__}, got {
-        type(value)}"
+                                f"Expected one of {field_type.__args__}, got {type(value)}"
                             )
                     elif origin is list:
                         if not isinstance(value, list):

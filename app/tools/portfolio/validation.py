@@ -94,14 +94,11 @@ def validate_strategy_config(
         ):
             if strategy["SHORT_WINDOW"] >= strategy["LONG_WINDOW"]:
                 errors.append(
-                    f"SHORT_WINDOW ({
-    strategy['SHORT_WINDOW']}) must be less than LONG_WINDOW ({
-        strategy['LONG_WINDOW']}) for MACD strategy {ticker}"
+                    f"SHORT_WINDOW ({strategy['SHORT_WINDOW']}) must be less than LONG_WINDOW ({strategy['LONG_WINDOW']}) for MACD strategy {ticker}"
                 )
             if strategy["SIGNAL_WINDOW"] <= 0:
                 errors.append(
-                    f"SIGNAL_WINDOW ({
-    strategy['SIGNAL_WINDOW']}) must be greater than 0 for MACD strategy {ticker}"
+                    f"SIGNAL_WINDOW ({strategy['SIGNAL_WINDOW']}) must be greater than 0 for MACD strategy {ticker}"
                 )
     else:
         # MA strategies require SHORT_WINDOW and LONG_WINDOW
@@ -146,9 +143,7 @@ def validate_strategy_config(
     if "SHORT_WINDOW" in strategy and "LONG_WINDOW" in strategy:
         if strategy["SHORT_WINDOW"] >= strategy["LONG_WINDOW"]:
             errors.append(
-                f"SHORT_WINDOW ({
-    strategy['SHORT_WINDOW']}) must be less than LONG_WINDOW ({
-        strategy['LONG_WINDOW']})"
+                f"SHORT_WINDOW ({strategy['SHORT_WINDOW']}) must be less than LONG_WINDOW ({strategy['LONG_WINDOW']})"
             )
 
     # Validate stop loss range
@@ -160,8 +155,7 @@ def validate_strategy_config(
         )
         if stop_loss_decimal <= 0 or stop_loss_decimal > 1:
             errors.append(
-                f"Stop loss for {
-    strategy.get(
+                f"Stop loss for {strategy.get(
         'TICKER',
          'Unknown')} ({stop_loss_float}%) is outside valid range (0-100%)"
             )

@@ -66,9 +66,7 @@ async def execute_script(request: ScriptExecutionRequest):
     """
     try:
         log(
-            f"Executing script {
-    request.script_path} with parameters: {
-        request.parameters}"
+            f"Executing script {request.script_path} with parameters: {request.parameters}"
         )
 
         # Start script execution
@@ -288,8 +286,7 @@ async def stream_execution_status(
                         # Exit loop if script has completed or failed
                         if status_data["status"] in ["completed", "failed"]:
                             log(
-                                f"Script execution {execution_id} {
-    status_data['status']}, closing SSE connection"
+                                f"Script execution {execution_id} {status_data['status']}, closing SSE connection"
                             )
                             break
                 except Exception as e:

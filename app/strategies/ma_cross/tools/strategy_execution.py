@@ -100,9 +100,7 @@ def execute_single_strategy(
         valid_stats = check_invalid_metrics(stats, log)
         if valid_stats is None:
             log(
-                f"Portfolio for {ticker} with {strategy_type} strategy (short window: {
-    config['SHORT_WINDOW']}, long window: {
-        config['LONG_WINDOW']}) has invalid metrics - skipping",
+                f"Portfolio for {ticker} with {strategy_type} strategy (short window: {config['SHORT_WINDOW']}, long window: {config['LONG_WINDOW']}) has invalid metrics - skipping",
                 "info",
             )
             return None
@@ -295,8 +293,7 @@ def execute_strategy(
 
     if "TICKER" not in config:
         log(
-            f"ERROR: TICKER key not found in config. Available keys: {
-    list(
+            f"ERROR: TICKER key not found in config. Available keys: {list(
         config.keys())}",
             "error",
         )
@@ -331,9 +328,7 @@ def execute_strategy(
                 if "TICKER_2" not in ticker_config:
                     ticker_config["TICKER_2"] = ticker_parts[1]
                 log(
-                    f"Extracted ticker components: {
-    ticker_config['TICKER_1']} and {
-        ticker_config['TICKER_2']}"
+                    f"Extracted ticker components: {ticker_config['TICKER_1']} and {ticker_config['TICKER_2']}"
                 )
 
         # Ensure synthetic tickers use underscore format

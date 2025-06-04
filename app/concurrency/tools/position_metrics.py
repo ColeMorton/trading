@@ -93,12 +93,9 @@ def calculate_position_metrics(
                         correlation_sum += abs(correlation)
                         correlation_count += 1
                         log(
-                            f"Correlation between strategy {
-    i+
-    1} and {
-        j+
-        1}: {
-            correlation:.2f}",
+                            f"Correlation between strategy {i+
+    1} and {j+
+        1}: {correlation:.2f}",
                             "info",
                         )
 
@@ -157,23 +154,19 @@ def calculate_position_metrics(
             log(f"Strategy {i+1} specific metrics:", "info")
             log(f"  Average correlation: {strategy_avg_correlation:.4f}", "info")
             log(
-                f"  Active periods: {strategy_active_periods} ({
-    strategy_active_periods/total_periods:.2%})",
+                f"  Active periods: {strategy_active_periods} ({strategy_active_periods/total_periods:.2%})",
                 "info",
             )
             log(
-                f"  Exclusive periods: {strategy_exclusive_periods} ({
-    strategy_exclusive_ratio:.2%})",
+                f"  Exclusive periods: {strategy_exclusive_periods} ({strategy_exclusive_ratio:.2%})",
                 "info",
             )
             log(
-                f"  Concurrent periods: {strategy_concurrent_periods} ({
-    strategy_concurrent_ratio:.2%})",
+                f"  Concurrent periods: {strategy_concurrent_periods} ({strategy_concurrent_ratio:.2%})",
                 "info",
             )
             log(
-                f"  Inactive periods: {strategy_inactive_periods} ({
-    strategy_inactive_ratio:.2%})",
+                f"  Inactive periods: {strategy_inactive_periods} ({strategy_inactive_ratio:.2%})",
                 "info",
             )
 

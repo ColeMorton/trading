@@ -86,8 +86,7 @@ class RequestValidator:
             errors.append(
                 ValidationError(
                     field="ticker",
-                    message=f"Invalid ticker type: {
-    type(primary_ticker).__name__}. Expected string or list",
+                    message=f"Invalid ticker type: {type(primary_ticker).__name__}. Expected string or list",
                     value=primary_ticker,
                 )
             )
@@ -101,9 +100,7 @@ class RequestValidator:
             errors.append(
                 ValidationError(
                     field="tickers",
-                    message=f"Too many tickers ({
-    len(all_tickers)}). Maximum allowed: {
-        cls.MAX_TICKERS}",
+                    message=f"Too many tickers ({len(all_tickers)}). Maximum allowed: {cls.MAX_TICKERS}",
                     value=len(all_tickers),
                 )
             )

@@ -156,8 +156,7 @@ def create_rsi_heatmap(
                 hovertext=hover_text,
                 hoverinfo="text",
                 colorbar=dict(
-                    title=f"{
-    metric_name.capitalize().replace(
+                    title=f"{metric_name.capitalize().replace(
         '_', ' ')} {title_suffix}",
                     tickformat=format_info["format"],
                 ),

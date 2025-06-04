@@ -42,8 +42,7 @@ def calculate_strategy_efficiency(
         # independence value
         if exclusive_ratio <= 0:
             log(
-                f"Note: exclusive_ratio is {exclusive_ratio}, using improved independence calculation: {
-    independence:.4f}",
+                f"Note: exclusive_ratio is {exclusive_ratio}, using improved independence calculation: {independence:.4f}",
                 "info",
             )
 
@@ -128,8 +127,7 @@ def calculate_portfolio_efficiency(
         # independence value
         if exclusive_ratio <= 0:
             log(
-                f"Note: exclusive_ratio is {exclusive_ratio}, using improved independence calculation: {
-    independence:.4f}",
+                f"Note: exclusive_ratio is {exclusive_ratio}, using improved independence calculation: {independence:.4f}",
                 "info",
             )
 
@@ -199,8 +197,7 @@ def calculate_portfolio_efficiency(
         # Calculate total weighted efficiency
         total_efficiency = sum(weighted_efficiencies)
         log(
-            f"Total weighted efficiency (with equal allocations): {
-    total_efficiency:.6f}",
+            f"Total weighted efficiency (with equal allocations): {total_efficiency:.6f}",
             "info",
         )
 
@@ -227,10 +224,7 @@ def calculate_portfolio_efficiency(
         log("Portfolio efficiency calculation components:", "info")
         log(f"  Total weighted efficiency: {total_efficiency:.6f}", "info")
         log(
-            f"  Note: Diversification ({
-    diversification:.6f}), Independence ({
-        adjusted_independence:.6f}), and Activity ({
-            activity:.6f})",
+            f"  Note: Diversification ({diversification:.6f}), Independence ({adjusted_independence:.6f}), and Activity ({activity:.6f})",
             "info",
         )
         log(
@@ -256,9 +250,7 @@ def calculate_portfolio_efficiency(
             )
             if avg_strategy_efficiency > portfolio_efficiency:
                 log(
-                    f"Portfolio efficiency ({
-    portfolio_efficiency:.6f}) is much lower than average strategy efficiency ({
-        avg_strategy_efficiency:.6f})",
+                    f"Portfolio efficiency ({portfolio_efficiency:.6f}) is much lower than average strategy efficiency ({avg_strategy_efficiency:.6f})",
                     "warning",
                 )
                 log(
@@ -399,9 +391,7 @@ def _validate_expectancy_calculation(
             # Validate reasonableness
             if magnitude_ratio > 50:
                 log(
-                    f"WARNING: Expectancy magnitude suspiciously high! Portfolio: {
-    total_weighted_expectancy:.2f}, Average: {
-        simple_average:.2f}",
+                    f"WARNING: Expectancy magnitude suspiciously high! Portfolio: {total_weighted_expectancy:.2f}, Average: {simple_average:.2f}",
                     "warning",
                 )
                 log(
@@ -411,9 +401,7 @@ def _validate_expectancy_calculation(
 
             elif magnitude_ratio > 10:
                 log(
-                    f"WARNING: Expectancy magnitude high. Portfolio: {
-    total_weighted_expectancy:.2f}, Average: {
-        simple_average:.2f}",
+                    f"WARNING: Expectancy magnitude high. Portfolio: {total_weighted_expectancy:.2f}, Average: {simple_average:.2f}",
                     "warning",
                 )
 
@@ -425,9 +413,7 @@ def _validate_expectancy_calculation(
 
             else:
                 log(
-                    f"Expectancy calculation validated: Portfolio={
-    total_weighted_expectancy:.3f}, Average={
-        simple_average:.3f}",
+                    f"Expectancy calculation validated: Portfolio={total_weighted_expectancy:.3f}, Average={simple_average:.3f}",
                     "info",
                 )
 
@@ -436,11 +422,7 @@ def _validate_expectancy_calculation(
                 log("Expectancy calculation breakdown:", "info")
                 for item in debug_info:
                     log(
-                        f"  Strategy {
-    item['strategy']}: {
-        item['expectancy']:.3f} × {
-            item['allocation']:.3f} = {
-                item['contribution']:.3f}",
+                        f"  Strategy {item['strategy']}: {item['expectancy']:.3f} × {item['allocation']:.3f} = {item['contribution']:.3f}",
                         "info",
                     )
 

@@ -88,8 +88,7 @@ def calculate_return_series(
 
     if len(df) < 2:
         raise DataAlignmentError(
-            f"Insufficient data for return calculation: {
-    len(df)} rows (minimum 2 required)"
+            f"Insufficient data for return calculation: {len(df)} rows (minimum 2 required)"
         )
 
     try:
@@ -166,8 +165,7 @@ def align_return_series(
 
         if len(common_dates) < min_observations:
             raise DataAlignmentError(
-                f"Insufficient common observations: {
-    len(common_dates)} < {min_observations} required"
+                f"Insufficient common observations: {len(common_dates)} < {min_observations} required"
             )
 
     # Align all return series to common dates
@@ -183,9 +181,7 @@ def align_return_series(
 
             if len(aligned) != len(common_dates):
                 raise DataAlignmentError(
-                    f"Alignment failed for {strategy_id}: expected {
-    len(common_dates)} rows, got {
-        len(aligned)}"
+                    f"Alignment failed for {strategy_id}: expected {len(common_dates)} rows, got {len(aligned)}"
                 )
 
             # Rename the column to be unique for this strategy
@@ -203,9 +199,7 @@ def align_return_series(
         returns_matrix = returns_matrix.select(["Date"] + strategy_names)
 
         log(
-            f"Successfully aligned {
-    len(strategy_names)} return series with {
-        len(returns_matrix)} observations",
+            f"Successfully aligned {len(strategy_names)} return series with {len(returns_matrix)} observations",
             "info",
         )
         return returns_matrix, strategy_names
@@ -237,8 +231,7 @@ def validate_return_matrix(
     expected_cols = len(strategy_names) + 1  # +1 for Date column
     if len(returns_matrix.columns) != expected_cols:
         raise DataAlignmentError(
-            f"Return matrix column count mismatch: expected {expected_cols}, got {
-    len(
+            f"Return matrix column count mismatch: expected {expected_cols}, got {len(
         returns_matrix.columns)}"
         )
 

@@ -105,9 +105,7 @@ class BaseService(ABC):
         """Initialize the service with standard error handling."""
         if self._state != ServiceState.UNINITIALIZED:
             raise ServiceInitializationError(
-                f"Service {
-    self.metadata.name} is already initialized (state: {
-        self._state})"
+                f"Service {self.metadata.name} is already initialized (state: {self._state})"
             )
 
         self._state = ServiceState.INITIALIZING

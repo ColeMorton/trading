@@ -159,8 +159,7 @@ def generate_signals(
             # Check if values are 2D and flatten if needed
             if hasattr(data[col].values, "shape") and len(data[col].values.shape) > 1:
                 log(
-                    f"DEBUG: Flattening {col} values from shape {
-    data[col].values.shape}"
+                    f"DEBUG: Flattening {col} values from shape data[col].values.shape}"
                 )
                 data[col] = pd.Series(data[col].values.flatten(), index=data.index)
 
@@ -175,8 +174,7 @@ def generate_signals(
     )
 
     log(
-        f"Data shape after initialization: {
-    data.shape}, columns: {
+        f"Data shape after initialization: data.shape}, columns: {
         data.columns.tolist()}"
     )
 
@@ -231,8 +229,7 @@ def generate_signals(
             # Check if values are 2D and flatten if needed
             if hasattr(data[col].values, "shape") and len(data[col].values.shape) > 1:
                 log(
-                    f"DEBUG: Final flattening of {col} values from shape {
-    data[col].values.shape}"
+                    f"DEBUG: Final flattening of {col} values from shape data[col].values.shape}"
                 )
                 data[col] = pd.Series(data[col].values.flatten(), index=data.index)
 
@@ -313,18 +310,15 @@ def backtest_strategy(data: pd.DataFrame) -> vbt.Portfolio:
 
         # Debug values shapes
         log(
-            f"DEBUG: close_values shape: {
-    close_values.shape if hasattr(
+            f"DEBUG: close_values shape: close_values.shape if hasattr(
         close_values, 'shape') else 'no shape'}"
         )
         log(
-            f"DEBUG: entries_values shape: {
-    entries_values.shape if hasattr(
+            f"DEBUG: entries_values shape: entries_values.shape if hasattr(
         entries_values, 'shape') else 'no shape'}"
         )
         log(
-            f"DEBUG: exits_values shape: {
-    exits_values.shape if hasattr(
+            f"DEBUG: exits_values shape: exits_values.shape if hasattr(
         exits_values, 'shape') else 'no shape'}"
         )
 
@@ -441,16 +435,14 @@ def analyze_params(
         # Convert to scalar if needed
         if isinstance(total_return_value, pd.Series):
             log(
-                f"DEBUG: total_return_value is a Series with length {
-    len(total_return_value)}"
+                f"DEBUG: total_return_value is a Series with length len(total_return_value)}"
             )
             if len(total_return_value) == 1:
                 total_return_value = total_return_value.item()
                 log(f"DEBUG: Converted to scalar: {total_return_value}")
             else:
                 log(
-                    f"Unexpected Series length: {
-    len(total_return_value)}, using first value",
+                    f"Unexpected Series length: len(total_return_value)}, using first value",
                     "warning",
                 )
                 total_return_value = float(total_return_value.iloc[0])
@@ -487,8 +479,7 @@ def parameter_sensitivity_analysis(
         pd.DataFrame: Results matrix with ATR lengths as index and ATR multipliers as columns
     """
     log(
-        f"Starting parameter sensitivity analysis with {
-    len(atr_lengths)} lengths and {
+        f"Starting parameter sensitivity analysis with len(atr_lengths)} lengths and {
         len(atr_multipliers)} multipliers"
     )
 
@@ -516,16 +507,14 @@ def parameter_sensitivity_analysis(
                         data.copy(), length, multiplier
                     )
                     log(
-                        f"Result for length={length}, multiplier={multiplier}: total_return={
-    total_return:.4f}"
+                        f"Result for length={length}, multiplier={multiplier}: total_return=total_return:.4f}"
                     )
 
                     # Store result in dictionary - ensure it's a float
                     results_dict[length][multiplier] = float(total_return)
                 except Exception as e:
                     log(
-                        f"Error analyzing params for length={length}, multiplier={multiplier}: {
-    str(e)}",
+                        f"Error analyzing params for length={length}, multiplier={multiplier}: str(e)}",
                         "error",
                     )
                     # Store NaN for failed combinations
@@ -634,16 +623,14 @@ def main(config: ATRConfig = None) -> None:
         atr_lengths: List[int] = list(range(2, 15))
         atr_multipliers: List[float] = list(np.arange(1.5, 8.5, 0.5))
         log(
-            f"Testing {
-    len(atr_lengths)} ATR lengths and {
+            f"Testing len(atr_lengths)} ATR lengths and {
         len(atr_multipliers)} ATR multipliers"
         )
 
         # Get data based on configuration
         if config["USE_SYNTHETIC"]:
             log(
-                f"Using synthetic ticker with {
-    config['TICKER_1']} and {
+                f"Using synthetic ticker with config['TICKER_1']} and {
         config['TICKER_2']}"
             )
 
@@ -711,8 +698,7 @@ def main(config: ATRConfig = None) -> None:
             log(f"DEBUG: Synthetic data shape: {data.shape}")
             for col in data.columns:
                 log(
-                    f"DEBUG: Column {col} type: {
-    type(
+                    f"DEBUG: Column {col} type: type(
         data[col])}, shape: {
             data[col].shape}"
                 )
@@ -737,16 +723,14 @@ def main(config: ATRConfig = None) -> None:
             data = polars_data.to_pandas()
 
             log(
-                f"DEBUG: Pandas DataFrame columns before setting index: {
-    data.columns.tolist()}"
+                f"DEBUG: Pandas DataFrame columns before setting index: data.columns.tolist()}"
             )
             log(f"DEBUG: Pandas DataFrame shape before setting index: {data.shape}")
 
             data = data.set_index("Date")
 
             log(
-                f"DEBUG: Pandas DataFrame columns after setting index: {
-    data.columns.tolist()}"
+                f"DEBUG: Pandas DataFrame columns after setting index: data.columns.tolist()}"
             )
             log(f"DEBUG: Pandas DataFrame shape after setting index: {data.shape}")
 
@@ -756,8 +740,7 @@ def main(config: ATRConfig = None) -> None:
             # Debug column structure
             for col in data.columns:
                 log(
-                    f"DEBUG: Column {col} type: {
-    type(
+                    f"DEBUG: Column {col} type: type(
         data[col])}, shape: {
             data[col].shape}"
                 )
@@ -775,14 +758,12 @@ def main(config: ATRConfig = None) -> None:
 
             # Log and print results
             log(
-                f"Best parameters: ATR Length: {
-    best_params[0]}, ATR Multiplier: {
+                f"Best parameters: ATR Length: best_params[0]}, ATR Multiplier: {
         best_params[1]}, Return: {
             best_return:.3f}"
             )
             print(
-                f"Best parameters for {interval} {ticker}: ATR Length: {
-    best_params[0]}, ATR Multiplier: {
+                f"Best parameters for {interval} {ticker}: ATR Length: best_params[0]}, ATR Multiplier: {
         best_params[1]}"
             )
             print(f"Best total return: {best_return:.3f}")

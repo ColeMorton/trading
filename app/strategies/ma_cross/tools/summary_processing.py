@@ -226,8 +226,7 @@ def process_ticker_portfolios(
 
             except Exception as e:
                 log(
-                    f"Failed to process {strategy_type} strategy for {ticker}: {
-    str(e)}",
+                    f"Failed to process {strategy_type} strategy for {ticker}: {str(e)}",
                     "error",
                 )
                 return None
@@ -316,8 +315,7 @@ def export_summary_results(
                     # Sort the DataFrame
                     df = df.sort(sort_by, descending=not sort_asc)
                     log(
-                        f"Sorted results by {sort_by} ({
-    'ascending' if sort_asc else 'descending'})"
+                        f"Sorted results by {sort_by} ({'ascending' if sort_asc else 'descending'})"
                     )
 
                     # Convert back to list of dictionaries

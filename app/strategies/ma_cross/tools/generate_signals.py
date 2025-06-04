@@ -117,9 +117,7 @@ def generate_signals(
             exits_df[strategy_name] = exits_np
 
             log(
-                f"Generated signals for {strategy_name}: {
-    sum(entries_np)} entries, {
-        sum(exits_np)} exits"
+                f"Generated signals for {strategy_name}: {sum(entries_np)} entries, {sum(exits_np)} exits"
             )
 
         return entries_df, exits_df

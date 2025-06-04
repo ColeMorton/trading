@@ -43,8 +43,7 @@ def load_existing_results(config: dict, log: Callable) -> Tuple[set, List[Dict]]
                 existing_tickers = set(existing_results["TICKER"].to_list())
                 results_data = existing_results.to_dicts()
                 log(
-                    f"Found existing results from today with {
-    len(existing_tickers)} tickers"
+                    f"Found existing results from today with {len(existing_tickers)} tickers"
                 )
             except Exception as e:
                 log(f"Error reading existing results: {e}", "error")
@@ -126,9 +125,7 @@ def export_results(
         # Track SMA signals
         if result["SMA"]:
             log(
-                f"SMA Signal - {ticker}: Fast={
-    result['SMA_FAST']}, Slow={
-        result['SMA_SLOW']}"
+                f"SMA Signal - {ticker}: Fast={result['SMA_FAST']}, Slow={result['SMA_SLOW']}"
             )
             signal_configs.append(
                 {
@@ -142,9 +139,7 @@ def export_results(
         # Track EMA signals
         if result["EMA"]:
             log(
-                f"EMA Signal - {ticker}: Fast={
-    result['EMA_FAST']}, Slow={
-        result['EMA_SLOW']}"
+                f"EMA Signal - {ticker}: Fast={result['EMA_FAST']}, Slow={result['EMA_SLOW']}"
             )
             signal_configs.append(
                 {
@@ -227,8 +222,7 @@ def export_results(
 
     if not has_new_schema and not has_old_schema:
         log(
-            f"Warning: Missing required columns in portfolio file. Found: {
-    portfolio_df.columns}",
+            f"Warning: Missing required columns in portfolio file. Found: {portfolio_df.columns}",
             "warning",
         )
         return

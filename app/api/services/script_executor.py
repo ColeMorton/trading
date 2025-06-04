@@ -180,8 +180,7 @@ async def execute_script_async(
             task_status[execution_id]["error"] = result["error"]
 
         log(
-            f"Async script execution completed with status: {
-    task_status[execution_id]['status']}"
+            f"Async script execution completed with status: {task_status[execution_id]['status']}"
         )
         log(f"Result: {result}")
 

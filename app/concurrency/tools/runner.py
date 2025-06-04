@@ -179,8 +179,7 @@ def run_analysis(
         log(f"Exclusive Ratio: {all_stats['exclusive_ratio']:.2f}")
         log(f"Inactive Ratio: {all_stats['inactive_ratio']:.2f}")
         log(
-            f"Average concurrent strategies: {
-    all_stats['avg_concurrent_strategies']:.2f}"
+            f"Average concurrent strategies: {all_stats['avg_concurrent_strategies']:.2f}"
         )
         log(f"Max concurrent strategies: {all_stats['max_concurrent_strategies']}")
         log(f"Risk Concentration Index: {all_stats['risk_concentration_index']}")
@@ -250,13 +249,11 @@ def run_analysis(
                 # Log comparison
                 log("Comparison of optimal vs. all strategies:", "info")
                 log(
-                    f"  All strategies risk-adjusted efficiency: {
-    all_stats['efficiency_score']:.4f}",
+                    f"  All strategies risk-adjusted efficiency: {all_stats['efficiency_score']:.4f}",
                     "info",
                 )
                 log(
-                    f"  Optimal combination risk-adjusted efficiency: {
-    optimal_stats['efficiency_score']:.4f}",
+                    f"  Optimal combination risk-adjusted efficiency: {optimal_stats['efficiency_score']:.4f}",
                     "info",
                 )
                 improvement = (

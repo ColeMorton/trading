@@ -66,8 +66,7 @@ def process_single_ticker(
         f"Generated window ranges - Short: {short_windows[0]}-{short_windows[-1]}, Long: {long_windows[0]}-{long_windows[-1]}"
     )
     log(
-        f"Number of window combinations to analyze: {
-    len(short_windows) * len(long_windows)}"
+        f"Number of window combinations to analyze: {len(short_windows) * len(long_windows)}"
     )
 
     log("Getting data...")
@@ -87,16 +86,10 @@ def process_single_ticker(
         return None
 
     log(
-        f"Retrieved {
-    len(data)} data points from {
-        data['Date'].min()} to {
-            data['Date'].max()}"
+        f"Retrieved {len(data)} data points from {data['Date'].min()} to {data['Date'].max()}"
     )
     log(
-        f"Minimum required data points for shortest windows ({
-    short_windows[0]}, {
-        long_windows[0]}): {
-            max(
+        f"Minimum required data points for shortest windows ({short_windows[0]}, {long_windows[0]}): {max(
                 short_windows[0],
                  long_windows[0])}"
     )

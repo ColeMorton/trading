@@ -85,16 +85,13 @@ def generate_macd_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataF
             f"Analyzing windows - Short: {short_window}, Long: {long_window}, Signal: {signal_window}"
         )
         print(
-            f"Data length: {
-    len(data)}, Required length: {
-        max(
+            f"Data length: {len(data)}, Required length: {max(
             short_window,
             long_window,
              signal_window)}"
         )
         print(
-            f"Calculating {
-    direction.capitalize()} MACD signals with short window {short_window}, long window {long_window}, and signal window {signal_window}"
+            f"Calculating {direction.capitalize()} MACD signals with short window {short_window}, long window {long_window}, and signal window {signal_window}"
         )
         print(f"Input data shape: {data.shape}")
 
@@ -244,8 +241,7 @@ def get_current_signals(
 
                     except Exception as e:
                         log(
-                            f"Failed to process parameters {short_window}/{long_window}/{signal_window}: {
-    str(e)}",
+                            f"Failed to process parameters {short_window}/{long_window}/{signal_window}: {str(e)}",
                             "warning",
                         )
                         continue

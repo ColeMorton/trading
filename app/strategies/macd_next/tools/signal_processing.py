@@ -105,40 +105,31 @@ def process_ticker_portfolios(
             # Log parameter ranges
             log(f"Parameter ranges for {ticker}:", "info")
             log(
-                f"Short window: {
-    config.get(
+                f"Short window: {config.get(
         'SHORT_WINDOW_START',
-        2)} to {
-            config.get(
+        2)} to {config.get(
                 'SHORT_WINDOW_END',
-                18)} with step {
-                    config.get(
+                18)} with step {config.get(
                         'STEP',
                          2)}",
                 "info",
             )
             log(
-                f"Long window: {
-    config.get(
+                f"Long window: {config.get(
         'LONG_WINDOW_START',
-        4)} to {
-            config.get(
+        4)} to {config.get(
                 'LONG_WINDOW_END',
-                36)} with step {
-                    config.get(
+                36)} with step {config.get(
                         'STEP',
                          2)}",
                 "info",
             )
             log(
-                f"Signal window: {
-    config.get(
+                f"Signal window: {config.get(
         'SIGNAL_WINDOW_START',
-        2)} to {
-            config.get(
+        2)} to {config.get(
                 'SIGNAL_WINDOW_END',
-                18)} with step {
-                    config.get(
+                18)} with step {config.get(
                         'STEP',
                          2)}",
                 "info",
@@ -151,9 +142,7 @@ def process_ticker_portfolios(
 
             portfolios_df = pl.DataFrame(portfolios)
             log(
-                f"Generated {
-    len(portfolios_df)} portfolios for {ticker} {
-        config.get(
+                f"Generated {len(portfolios_df)} portfolios for {ticker} {config.get(
             'DIRECTION', 'Long')}",
                 "info",
             )

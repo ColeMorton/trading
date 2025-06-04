@@ -131,24 +131,13 @@ class RiskMetricsValidator:
         # Create detailed message
         if not is_valid:
             if issue_type == "severe_understatement":
-                message = f"{ticker}: Severe drawdown understatement! JSON: {
-    json_max_drawdown:.1%} vs CSV: {
-        csv_max_drawdown:.1%} (understated by {
-            difference:.1%})"
+                message = f"{ticker}: Severe drawdown understatement! JSON: {json_max_drawdown:.1%} vs CSV: {csv_max_drawdown:.1%} (understated by {difference:.1%})"
             elif issue_type == "moderate_understatement":
-                message = f"{ticker}: Moderate drawdown understatement. JSON: {
-    json_max_drawdown:.1%} vs CSV: {
-        csv_max_drawdown:.1%} (understated by {
-            difference:.1%})"
+                message = f"{ticker}: Moderate drawdown understatement. JSON: {json_max_drawdown:.1%} vs CSV: {csv_max_drawdown:.1%} (understated by {difference:.1%})"
             else:
-                message = f"{ticker}: Drawdown difference exceeds tolerance. JSON: {
-    json_max_drawdown:.1%} vs CSV: {
-        csv_max_drawdown:.1%} (diff: {
-            relative_difference:.1%})"
+                message = f"{ticker}: Drawdown difference exceeds tolerance. JSON: {json_max_drawdown:.1%} vs CSV: {csv_max_drawdown:.1%} (diff: {relative_difference:.1%})"
         else:
-            message = f"{ticker}: Drawdown validation passed. JSON: {
-    json_max_drawdown:.1%} vs CSV: {
-        csv_max_drawdown:.1%}"
+            message = f"{ticker}: Drawdown validation passed. JSON: {json_max_drawdown:.1%} vs CSV: {csv_max_drawdown:.1%}"
 
         if log:
             level = "warning" if not is_valid else "info"
@@ -254,10 +243,7 @@ class RiskMetricsValidator:
                 issue_type = "significant_error"
                 is_valid = False
 
-            message = f"Portfolio volatility validation: Expected={
-    expected_portfolio_vol:.4f}, Actual={
-        aggregated_volatility:.4f}, Diff={
-            relative_difference:.1%}"
+            message = f"Portfolio volatility validation: Expected={expected_portfolio_vol:.4f}, Actual={aggregated_volatility:.4f}, Diff={relative_difference:.1%}"
 
             if log:
                 level = "info" if is_valid else "warning"
@@ -351,10 +337,7 @@ class RiskMetricsValidator:
             is_valid = False
 
         # Create detailed message
-        message = f"Risk contributions validation: Sum={
-    total_contributions:.4f}, Portfolio={
-        portfolio_total_risk:.4f}, Diff={
-            relative_difference:.1%}"
+        message = f"Risk contributions validation: Sum={total_contributions:.4f}, Portfolio={portfolio_total_risk:.4f}, Diff={relative_difference:.1%}"
 
         if log:
             level = "info" if is_valid else "warning"
@@ -364,9 +347,7 @@ class RiskMetricsValidator:
                 log("Individual risk contributions:", "info")
                 for name, contrib in zip(strategy_names, individual_risk_contributions):
                     log(
-                        f"  {name}: {
-    contrib:.4f} ({
-        contrib/
+                        f"  {name}: {contrib:.4f} ({contrib/
         portfolio_total_risk:.1%} of total)",
                         "info",
                     )
@@ -517,9 +498,7 @@ class DrawdownCalculator:
         ):
             if len(curve) != len(portfolio_equity):
                 raise ValueError(
-                    f"All equity curves must have same length. Strategy {i} has {
-    len(curve)}, expected {
-        len(portfolio_equity)}"
+                    f"All equity curves must have same length. Strategy {i} has {len(curve)}, expected {len(portfolio_equity)}"
                 )
 
             portfolio_equity += curve * allocation
