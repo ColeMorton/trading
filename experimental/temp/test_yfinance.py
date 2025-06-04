@@ -1,5 +1,6 @@
-import yfinance as yf
 import sys
+
+import yfinance as yf
 
 print(f"yfinance version: {yf.__version__}")
 
@@ -9,14 +10,14 @@ for ticker_symbol in tickers:
     print(f"\nTesting {ticker_symbol}:")
     try:
         ticker = yf.Ticker(ticker_symbol)
-        
+
         # Try to get info
         try:
             info = ticker.info
             print(f"  ✓ Info available: {info.get('shortName', 'N/A')}")
         except:
             print("  ✗ Info not available")
-        
+
         # Try to get history
         try:
             hist = ticker.history(period="1mo")
@@ -27,7 +28,7 @@ for ticker_symbol in tickers:
                 print("  ✗ History empty")
         except Exception as e:
             print(f"  ✗ History error: {e}")
-            
+
         # Try download
         try:
             data = yf.download(ticker_symbol, period="1mo", progress=False)
@@ -37,6 +38,6 @@ for ticker_symbol in tickers:
                 print("  ✗ Download returned empty data")
         except Exception as e:
             print(f"  ✗ Download error: {e}")
-            
+
     except Exception as e:
         print(f"  ✗ General error: {e}")

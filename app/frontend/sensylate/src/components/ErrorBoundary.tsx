@@ -27,7 +27,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     this.setState({
       error,
-      errorInfo
+      errorInfo,
     });
 
     // Call the optional error handler
@@ -70,44 +70,58 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
                 </div>
                 <div className="card-body">
                   <p className="card-text">
-                    An unexpected error occurred while rendering this component. 
-                    This could be due to a network issue, invalid data, or a temporary problem.
+                    An unexpected error occurred while rendering this component.
+                    This could be due to a network issue, invalid data, or a
+                    temporary problem.
                   </p>
-                  
-                  {process.env.NODE_ENV === 'development' && this.state.error && (
-                    <div className="mt-3">
-                      <details className="border rounded p-2 bg-light">
-                        <summary className="fw-bold text-danger cursor-pointer">
-                          Error Details (Development Mode)
-                        </summary>
-                        <div className="mt-2">
-                          <p className="mb-1"><strong>Error:</strong> {this.state.error.message}</p>
-                          <p className="mb-1"><strong>Stack:</strong></p>
-                          <pre className="bg-dark text-light p-2 rounded small overflow-auto" style={{ maxHeight: '200px' }}>
-                            {this.state.error.stack}
-                          </pre>
-                          {this.state.errorInfo && (
-                            <>
-                              <p className="mb-1"><strong>Component Stack:</strong></p>
-                              <pre className="bg-dark text-light p-2 rounded small overflow-auto" style={{ maxHeight: '200px' }}>
-                                {this.state.errorInfo.componentStack}
-                              </pre>
-                            </>
-                          )}
-                        </div>
-                      </details>
-                    </div>
-                  )}
+
+                  {process.env.NODE_ENV === 'development' &&
+                    this.state.error && (
+                      <div className="mt-3">
+                        <details className="border rounded p-2 bg-light">
+                          <summary className="fw-bold text-danger cursor-pointer">
+                            Error Details (Development Mode)
+                          </summary>
+                          <div className="mt-2">
+                            <p className="mb-1">
+                              <strong>Error:</strong> {this.state.error.message}
+                            </p>
+                            <p className="mb-1">
+                              <strong>Stack:</strong>
+                            </p>
+                            <pre
+                              className="bg-dark text-light p-2 rounded small overflow-auto"
+                              style={{ maxHeight: '200px' }}
+                            >
+                              {this.state.error.stack}
+                            </pre>
+                            {this.state.errorInfo && (
+                              <>
+                                <p className="mb-1">
+                                  <strong>Component Stack:</strong>
+                                </p>
+                                <pre
+                                  className="bg-dark text-light p-2 rounded small overflow-auto"
+                                  style={{ maxHeight: '200px' }}
+                                >
+                                  {this.state.errorInfo.componentStack}
+                                </pre>
+                              </>
+                            )}
+                          </div>
+                        </details>
+                      </div>
+                    )}
 
                   <div className="mt-3 d-flex gap-2">
-                    <button 
+                    <button
                       className="btn btn-primary"
                       onClick={this.handleReset}
                     >
                       <Icon icon={icons.refresh} className="me-1" />
                       Try Again
                     </button>
-                    <button 
+                    <button
                       className="btn btn-outline-secondary"
                       onClick={this.handleReload}
                     >
@@ -118,7 +132,8 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
                   <div className="mt-3">
                     <small className="text-muted">
-                      If this problem persists, try refreshing the page or clearing your browser cache.
+                      If this problem persists, try refreshing the page or
+                      clearing your browser cache.
                     </small>
                   </div>
                 </div>

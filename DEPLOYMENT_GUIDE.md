@@ -29,6 +29,7 @@ vim .env.production
 ```
 
 Required environment variables:
+
 - `POSTGRES_PASSWORD` - Strong password for PostgreSQL
 - `REDIS_PASSWORD` - Strong password for Redis
 - `SECRET_KEY` - Application secret key (generate with `openssl rand -hex 32`)
@@ -39,6 +40,7 @@ Required environment variables:
 ### 3. SSL Certificates
 
 For Let's Encrypt:
+
 ```bash
 # Install certbot
 sudo apt-get update
@@ -88,20 +90,22 @@ curl http://localhost/health/detailed
 ### 4. Enable HTTPS
 
 Update `nginx/conf.d/default.conf` to uncomment HTTPS configuration:
+
 ```nginx
 server {
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
     server_name your-domain.com;
-    
+
     ssl_certificate /etc/nginx/ssl/fullchain.pem;
     ssl_certificate_key /etc/nginx/ssl/privkey.pem;
-    
+
     # ... rest of configuration
 }
 ```
 
 Restart nginx:
+
 ```bash
 docker compose -f docker-compose.prod.yml restart nginx
 ```
@@ -243,6 +247,7 @@ deploy:
 ### 1. Enable Redis Caching
 
 Verify Redis is being used:
+
 ```bash
 docker compose -f docker-compose.prod.yml exec redis redis-cli
 > INFO stats
@@ -263,6 +268,7 @@ docker compose -f docker-compose.prod.yml exec postgres \
 ### 3. CDN Configuration
 
 For static assets, configure a CDN:
+
 1. Point CDN to your domain
 2. Update `VITE_API_URL` to use CDN URL
 3. Configure cache headers in nginx
@@ -286,6 +292,7 @@ docker compose -f docker-compose.prod.yml up -d
 ## Support
 
 For issues:
+
 1. Check application logs
 2. Review health check endpoints
 3. Consult monitoring dashboards

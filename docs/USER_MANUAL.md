@@ -34,6 +34,7 @@ make dev-fullstack
 ```
 
 **Access the platform:**
+
 - Frontend App: http://localhost:5173
 - API: http://localhost:8000
 - API Documentation: http://localhost:8000/docs
@@ -54,6 +55,7 @@ curl -X POST http://localhost:8000/api/ma-cross/analyze \
 ### What You Get
 
 This platform provides:
+
 - **Frontend Web App**: React PWA with real-time analysis interface
 - **Strategy Backtesting**: Test moving average, MACD, RSI strategies
 - **Portfolio Optimization**: Modern portfolio theory tools
@@ -70,18 +72,21 @@ This platform provides:
 ### Prerequisites
 
 **Required Software:**
+
 - Python 3.10 or higher
 - Poetry (dependency management)
 - Node.js 18+ and npm (for frontend)
 - Git
 
 **Database Options:**
+
 - **Option A**: PostgreSQL 15+ and Redis (local installation)
 - **Option B**: Docker and Docker Compose (containerized)
 
 ### Method 1: Local Development (Recommended)
 
 #### Step 1: Clone and Setup
+
 ```bash
 git clone <repository-url>
 cd trading
@@ -89,6 +94,7 @@ poetry install
 ```
 
 #### Step 2: Database Installation (macOS)
+
 ```bash
 # Install databases via Homebrew
 make install-db
@@ -100,6 +106,7 @@ brew services start redis
 ```
 
 #### Step 3: Database Configuration
+
 ```bash
 # Setup database and schema
 make setup-db
@@ -109,12 +116,14 @@ make test-db
 ```
 
 #### Step 4: Frontend Setup
+
 ```bash
 # Install frontend dependencies and generate GraphQL types
 make setup-frontend
 ```
 
 #### Step 5: Start Development Environment
+
 ```bash
 # Start both backend and frontend
 make dev-fullstack
@@ -127,12 +136,14 @@ make frontend-dev   # Frontend only
 ### Method 2: Docker Installation (Recommended for Production)
 
 #### Prerequisites
+
 ```bash
 # Check Docker installation
 make check-deps
 ```
 
 #### Development Setup
+
 ```bash
 # Build and start all services
 make docker-up
@@ -145,6 +156,7 @@ make docker-down
 ```
 
 #### Production Setup
+
 ```bash
 # Copy production environment template
 cp .env.production.example .env.production
@@ -214,6 +226,7 @@ poetry run python app/api/test_dependency_injection.py
 #### Starting the System
 
 **Local Development:**
+
 ```bash
 # Start full-stack (recommended)
 make dev-fullstack
@@ -225,6 +238,7 @@ make frontend-dev  # Frontend only
 ```
 
 **Production:**
+
 ```bash
 # Start all services
 make docker-up
@@ -236,6 +250,7 @@ curl http://localhost:8000/health
 #### Strategy Analysis
 
 **Basic Moving Average Analysis:**
+
 ```bash
 curl -X POST http://localhost:8000/api/ma-cross/analyze \
   -H "Content-Type: application/json" \
@@ -251,6 +266,7 @@ curl -X POST http://localhost:8000/api/ma-cross/analyze \
 ```
 
 **Multiple Ticker Analysis:**
+
 ```bash
 curl -X POST http://localhost:8000/api/ma-cross/analyze \
   -H "Content-Type: application/json" \
@@ -264,6 +280,7 @@ curl -X POST http://localhost:8000/api/ma-cross/analyze \
 #### Data Management
 
 **Price Data Download:**
+
 ```python
 # Using Python tools
 from app.tools.download_data import download_ticker_data
@@ -273,6 +290,7 @@ download_ticker_data("AAPL", "1d", "2020-01-01", "2024-01-01")
 ```
 
 **CSV Export Locations:**
+
 - `csv/portfolios/` - All analyzed portfolios
 - `csv/portfolios_filtered/` - Filtered results
 - `csv/portfolios_best/` - Top performing strategies
@@ -281,6 +299,7 @@ download_ticker_data("AAPL", "1d", "2020-01-01", "2024-01-01")
 #### Portfolio Management
 
 **Load Portfolio Results:**
+
 ```python
 from app.tools.portfolio import load_portfolio_results
 
@@ -289,6 +308,7 @@ results = load_portfolio_results("csv/portfolios/BTC-USD_D_SMA.csv")
 ```
 
 **Filter Portfolios:**
+
 ```python
 from app.tools.portfolio.filters import apply_filters
 
@@ -303,6 +323,7 @@ filtered = apply_filters(results, {
 ### Monitoring and Health Checks
 
 **System Health:**
+
 ```bash
 # Check all systems
 curl http://localhost:8000/health/detailed
@@ -316,6 +337,7 @@ curl http://localhost:8000/health/metrics
 ```
 
 **Log Monitoring:**
+
 ```bash
 # API logs
 tail -f logs/api.log
@@ -330,6 +352,7 @@ brew services list | grep -E "(postgres|redis)"
 ### Backup and Recovery
 
 **Create Backup:**
+
 ```bash
 # Full system backup
 make backup
@@ -339,6 +362,7 @@ poetry run python app/database/backup_simple.py create
 ```
 
 **Restore Backup:**
+
 ```bash
 # Restore from backup
 make restore BACKUP_FILE=backups/backup_20240601_120000.tar.gz
@@ -347,6 +371,7 @@ make restore BACKUP_FILE=backups/backup_20240601_120000.tar.gz
 ### Performance Tuning
 
 **Database Optimization:**
+
 ```sql
 -- Connect to PostgreSQL
 psql trading_db
@@ -357,6 +382,7 @@ CREATE INDEX IF NOT EXISTS idx_portfolios_performance ON portfolios(total_return
 ```
 
 **Memory Configuration:**
+
 ```bash
 # Increase shared memory (PostgreSQL)
 echo "shared_preload_libraries = 'pg_stat_statements'" >> postgresql.conf
@@ -379,7 +405,7 @@ The platform implements a comprehensive dependency injection (DI) system to redu
 All major services are defined by abstract interfaces in `/app/core/interfaces/`:
 
 - **LoggingInterface** - Logging operations
-- **ProgressTrackerInterface** - Async progress tracking  
+- **ProgressTrackerInterface** - Async progress tracking
 - **StrategyExecutorInterface** - Strategy execution
 - **StrategyAnalyzerInterface** - Strategy analysis
 - **PortfolioManagerInterface** - Portfolio management
@@ -391,6 +417,7 @@ All major services are defined by abstract interfaces in `/app/core/interfaces/`
 #### Using Dependency Injection
 
 **In API Routes:**
+
 ```python
 from fastapi import Depends
 from app.api.dependencies import get_logger, get_strategy_executor
@@ -404,7 +431,7 @@ async def analyze(
 ):
     log = logger.get_logger(__name__)
     log.info(f"Processing analysis for {request.ticker}")
-    
+
     result = await executor.execute(
         strategy_type="ma_cross",
         tickers=[request.ticker],
@@ -414,6 +441,7 @@ async def analyze(
 ```
 
 **Creating Custom Services:**
+
 ```python
 from app.core.interfaces import DataAccessInterface
 from app.api.dependencies import get_service
@@ -421,7 +449,7 @@ from app.api.dependencies import get_service
 class MyCustomService:
     def __init__(self, data_access: DataAccessInterface):
         self.data_access = data_access
-    
+
     async def process_data(self, ticker: str):
         # Service uses injected data access
         data = await self.data_access.get_price_data(ticker)
@@ -463,6 +491,7 @@ def test_my_function(mock_logger):
 The platform uses a centralized type system in `/app/core/types/` to ensure consistency:
 
 **Common Types:**
+
 ```python
 from app.core.types import (
     TimeFrame,      # Trading timeframes (1m, 5m, 1h, 1d, etc.)
@@ -484,6 +513,7 @@ async def create_order(
 ```
 
 **Data Types:**
+
 ```python
 from app.core.types import PriceData, Signal, Trade
 
@@ -525,17 +555,20 @@ trade = Trade(
 #### REST API Endpoints
 
 **Core Analysis:**
+
 - `POST /api/ma-cross/analyze` - Moving average analysis (async with caching)
 - `GET /api/ma-cross/status/{execution_id}` - Check analysis status
 - `GET /api/ma-cross/stream/{execution_id}` - Real-time progress (SSE)
 
 **API Versioning:**
+
 - `GET /api/versions` - List all API versions and their status
 - `GET /api/migration/{from_version}/to/{to_version}` - Get migration guide between versions
 - `GET /api/deprecation/{version}` - Get deprecation notice for a version
 - `GET /api/v1/*` - Version 1 API endpoints (current stable)
 
 **Service Management:**
+
 - `GET /api/container/health` - Health status of all services in DI container
 - `GET /api/container/registrations` - Information about all service registrations
 - `POST /api/services/initialize` - Initialize all registered services
@@ -543,12 +576,14 @@ trade = Trade(
 - `GET /api/services/health` - Health status via service orchestrator
 
 **Event Bus and Messaging:**
+
 - `GET /api/events/metrics` - Event bus metrics and statistics
 - `GET /api/events/subscriptions` - Current event subscriptions
 - `GET /api/events/history?limit=50` - Recent event history
 - `POST /api/events/publish` - Publish a test event
 
 **Long Operations Management:**
+
 - `GET /api/operations/metrics` - Operation queue metrics
 - `GET /api/operations?status=running` - List operations with optional status filter
 - `GET /api/operations/{operation_id}` - Get status of specific operation
@@ -557,15 +592,18 @@ trade = Trade(
 - `DELETE /api/operations/{operation_id}` - Cancel a running operation
 
 **Data Management:**
+
 - `GET /api/data/tickers` - List available tickers
 - `GET /api/data/price/{ticker}` - Get price data
 - `POST /api/data/upload` - Upload custom data
 
 **Scripts and Tools:**
+
 - `GET /api/scripts/list` - List available scripts
 - `POST /api/scripts/execute` - Execute analysis scripts
 
 **Health and Status:**
+
 - `GET /health` - Basic health check
 - `GET /health/detailed` - Comprehensive system status with all subsystems
 - `GET /health/live` - Kubernetes liveness probe
@@ -575,6 +613,7 @@ trade = Trade(
 #### GraphQL Schema
 
 **Core Types:**
+
 ```graphql
 type Portfolio {
   id: ID!
@@ -609,6 +648,7 @@ type PerformanceMetrics {
 ```
 
 **Queries:**
+
 ```graphql
 query GetPortfolios($filter: PortfolioFilter) {
   portfolios(filter: $filter) {
@@ -639,6 +679,7 @@ query GetPriceData($symbol: String!, $timeframe: Timeframe!) {
 ```
 
 **Mutations:**
+
 ```graphql
 mutation CreatePortfolio($input: CreatePortfolioInput!) {
   createPortfolio(input: $input) {
@@ -728,6 +769,7 @@ CREATE TABLE backtest_results (
 ### Configuration Files
 
 **Environment Variables (.env):**
+
 ```env
 # Database
 DATABASE_URL=postgresql://user@localhost:5432/trading_db
@@ -785,6 +827,7 @@ RATE_LIMIT_PER_MINUTE=60
 ```
 
 **Strategy Configuration:**
+
 ```json
 {
   "ma_cross": {
@@ -816,6 +859,7 @@ RATE_LIMIT_PER_MINUTE=60
 **Available Make Commands:**
 
 **Setup & Dependencies:**
+
 ```bash
 make help               # Show all commands
 make check-deps         # Check system dependencies
@@ -827,6 +871,7 @@ make setup-fullstack    # Setup both backend and frontend
 ```
 
 **Development:**
+
 ```bash
 make dev                # Start backend development server
 make dev-local          # Start backend with local databases
@@ -836,6 +881,7 @@ make frontend-codegen   # Generate GraphQL TypeScript types
 ```
 
 **Frontend Commands:**
+
 ```bash
 make frontend-install   # Install frontend dependencies
 make frontend-build     # Build frontend for production
@@ -846,6 +892,7 @@ make frontend-clean     # Clean frontend build artifacts
 ```
 
 **Database & Services:**
+
 ```bash
 make start-local        # Start local database services
 make test-db           # Test database connectivity
@@ -854,6 +901,7 @@ make restore           # Restore from backup
 ```
 
 **Docker & Production:**
+
 ```bash
 make docker-up         # Start with Docker Compose
 make docker-down       # Stop Docker services
@@ -861,6 +909,7 @@ make docker-logs       # View service logs
 ```
 
 **Python Scripts:**
+
 ```bash
 # Validation and testing
 poetry run python scripts/validate_phase1.py
@@ -881,12 +930,14 @@ poetry run python app/strategies/update_portfolios.py
 **Available Metrics (40+):**
 
 **Return Metrics:**
+
 - `total_return` - Total portfolio return
 - `annualized_return` - Annualized return
 - `risk_free_return` - Risk-free rate adjusted return
 - `excess_return` - Return above risk-free rate
 
 **Risk Metrics:**
+
 - `sharpe_ratio` - Risk-adjusted return
 - `sortino_ratio` - Downside risk-adjusted return
 - `calmar_ratio` - Return vs maximum drawdown
@@ -895,6 +946,7 @@ poetry run python app/strategies/update_portfolios.py
 - `downside_volatility` - Downside volatility only
 
 **Trade Statistics:**
+
 - `num_trades` - Total number of trades
 - `win_rate` - Percentage of winning trades
 - `avg_trade_return` - Average return per trade
@@ -903,6 +955,7 @@ poetry run python app/strategies/update_portfolios.py
 - `expectancy` - Expected value per trade
 
 **Advanced Risk:**
+
 - `var_95` - Value at Risk (95% confidence)
 - `cvar_95` - Conditional Value at Risk
 - `kelly_criterion` - Optimal position sizing
@@ -919,6 +972,7 @@ poetry run python app/strategies/update_portfolios.py
 The platform supports full API versioning with safe evolution and migration support:
 
 **Version Management:**
+
 ```bash
 # Check all available API versions
 curl http://localhost:8000/api/versions
@@ -934,6 +988,7 @@ curl http://localhost:8000/api/deprecation/v1
 ```
 
 **Version Headers:**
+
 ```bash
 # Specify version via header
 curl -H "API-Version: v1" http://localhost:8000/api/scripts/list
@@ -943,15 +998,16 @@ curl -H "Accept: application/vnd.trading-api;version=v1" http://localhost:8000/a
 ```
 
 **Frontend Integration:**
+
 ```javascript
 // Automatic version detection
 const response = await fetch('/api/v1/ma-cross/analyze', {
   method: 'POST',
   headers: {
     'API-Version': 'v1',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   },
-  body: JSON.stringify(analysisRequest)
+  body: JSON.stringify(analysisRequest),
 });
 
 // Handle deprecation warnings
@@ -964,6 +1020,7 @@ if (response.headers.get('Deprecation') === 'true') {
 ### Event-Driven Architecture
 
 **Publishing Events:**
+
 ```python
 from app.api.event_bus import publish_event, TradingEvents
 
@@ -976,6 +1033,7 @@ event_id = await publish_event(
 ```
 
 **Event Subscriptions:**
+
 ```python
 from app.api.event_bus import EventHandler, subscribe_to_events
 
@@ -984,7 +1042,7 @@ class PortfolioNotificationHandler(EventHandler):
         if event.event_type == TradingEvents.PORTFOLIO_CREATED:
             # Send notification
             await send_notification(event.data)
-    
+
     def get_event_types(self):
         return [TradingEvents.PORTFOLIO_CREATED, TradingEvents.PORTFOLIO_UPDATED]
 
@@ -994,6 +1052,7 @@ subscription_id = subscribe_to_events(handler)
 ```
 
 **Event Monitoring:**
+
 ```bash
 # Check event bus metrics
 curl http://localhost:8000/api/events/metrics
@@ -1013,6 +1072,7 @@ curl -X POST http://localhost:8000/api/events/publish \
 ### Long Operation Management
 
 **Starting Long Operations:**
+
 ```bash
 # Start data analysis
 curl -X POST http://localhost:8000/api/operations/data-analysis \
@@ -1026,6 +1086,7 @@ curl -X POST http://localhost:8000/api/operations/portfolio-optimization \
 ```
 
 **Monitoring Operations:**
+
 ```bash
 # Check operation status
 curl http://localhost:8000/api/operations/op_123456
@@ -1041,15 +1102,16 @@ curl -X DELETE http://localhost:8000/api/operations/op_123456
 ```
 
 **Progress Streaming (JavaScript):**
+
 ```javascript
 // Monitor operation progress with Server-Sent Events
 function monitorOperation(operationId) {
   const eventSource = new EventSource(`/api/operations/${operationId}/stream`);
-  
+
   eventSource.onmessage = (event) => {
     const data = JSON.parse(event.data);
-    
-    switch(data.type) {
+
+    switch (data.type) {
       case 'progress':
         updateProgressBar(data.data.progress.percentage);
         updateStatusMessage(data.data.progress.message);
@@ -1064,7 +1126,7 @@ function monitorOperation(operationId) {
         break;
     }
   };
-  
+
   return eventSource;
 }
 ```
@@ -1072,6 +1134,7 @@ function monitorOperation(operationId) {
 ### Enhanced Service Management
 
 **Service Health Monitoring:**
+
 ```bash
 # Check enhanced DI container health
 curl http://localhost:8000/api/container/health
@@ -1084,6 +1147,7 @@ curl http://localhost:8000/api/services/health
 ```
 
 **Service Lifecycle Management:**
+
 ```bash
 # Initialize all services
 curl -X POST http://localhost:8000/api/services/initialize
@@ -1093,6 +1157,7 @@ curl -X POST http://localhost:8000/api/services/shutdown
 ```
 
 **Custom Service Registration:**
+
 ```python
 from app.api.service_patterns import ServiceOrchestrator, BaseService
 
@@ -1105,12 +1170,12 @@ class CustomAnalyticsService(BaseService):
             description="Custom analytics service",
             dependencies=["logging", "data_access"]
         )
-    
+
     async def _initialize_impl(self):
         # Custom initialization
         self.analytics_engine = AnalyticsEngine()
         await self.analytics_engine.connect()
-    
+
     async def _health_check_impl(self):
         return self.analytics_engine.is_healthy()
 
@@ -1132,22 +1197,23 @@ orchestrator.register_service(
 The platform's dependency injection framework makes it easy to extend functionality:
 
 **Creating a Custom Strategy Analyzer:**
+
 ```python
 from app.core.interfaces import StrategyAnalyzerInterface
 from app.infrastructure.strategy import StrategyAnalyzer
 
 class CustomStrategyAnalyzer(StrategyAnalyzer):
     """Extended analyzer with custom indicators."""
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._register_custom_strategies()
-    
+
     def _register_custom_strategies(self):
         # Add custom strategy implementations
         self._strategy_implementations['bollinger'] = self._analyze_bollinger
         self._strategy_implementations['mean_reversion'] = self._analyze_mean_reversion
-    
+
     def _analyze_bollinger(self, ticker, data, config):
         # Custom Bollinger Bands implementation
         pass
@@ -1164,17 +1230,18 @@ _container.register(
 ```
 
 **Creating a Custom Data Source:**
+
 ```python
 from app.core.interfaces import DataAccessInterface
 from app.infrastructure.data import DataAccessService
 
 class AlphaVantageDataService(DataAccessService):
     """Data service using Alpha Vantage API."""
-    
+
     def __init__(self, api_key: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.api_key = api_key
-    
+
     async def download_data(self, ticker, start_date, end_date, interval="1d"):
         # Custom implementation using Alpha Vantage
         url = f"https://api.alphavantage.co/query?symbol={ticker}&apikey={self.api_key}"
@@ -1189,19 +1256,20 @@ data = await data_service.download_data("AAPL", start, end)
 ### Async Analysis with Progress Tracking
 
 **Start Asynchronous Analysis:**
+
 ```javascript
 // Frontend implementation
 async function startAnalysis(ticker) {
   const response = await fetch('/api/ma-cross/analyze', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       ticker: ticker,
       windows: 252,
-      async_execution: true
-    })
+      async_execution: true,
+    }),
   });
-  
+
   const data = await response.json();
   return data.execution_id;
 }
@@ -1209,19 +1277,19 @@ async function startAnalysis(ticker) {
 // Monitor progress with Server-Sent Events
 function monitorProgress(executionId) {
   const eventSource = new EventSource(`/api/ma-cross/stream/${executionId}`);
-  
+
   eventSource.onmessage = (event) => {
     const data = JSON.parse(event.data);
-    
-    if (data === "[DONE]") {
+
+    if (data === '[DONE]') {
       eventSource.close();
       return;
     }
-    
+
     updateProgressBar(data.progress);
     updateStatus(data.message);
-    
-    if (data.status === "completed") {
+
+    if (data.status === 'completed') {
       displayResults(data.result);
       eventSource.close();
     }
@@ -1232,6 +1300,7 @@ function monitorProgress(executionId) {
 ### Portfolio Optimization
 
 **Modern Portfolio Theory:**
+
 ```python
 from app.portfolio_optimization.tools.portfolio_analysis import optimize_portfolio
 
@@ -1260,6 +1329,7 @@ print(f"Sharpe ratio: {optimization_result.sharpe_ratio:.4f}")
 ### Custom Strategy Development
 
 **Create Custom Strategy:**
+
 ```python
 from app.tools.strategy.base import BaseStrategy
 from app.tools.data_types import SignalType
@@ -1269,12 +1339,12 @@ class CustomStrategy(BaseStrategy):
         super().__init__()
         self.fast_period = fast_period
         self.slow_period = slow_period
-    
+
     def generate_signals(self, price_data):
         # Calculate indicators
         fast_ma = price_data['close'].rolling(self.fast_period).mean()
         slow_ma = price_data['close'].rolling(self.slow_period).mean()
-        
+
         # Generate signals
         signals = []
         for i in range(len(price_data)):
@@ -1284,9 +1354,9 @@ class CustomStrategy(BaseStrategy):
                 signals.append(SignalType.SELL)
             else:
                 signals.append(SignalType.HOLD)
-        
+
         return signals
-    
+
     def backtest(self, price_data, signals):
         # Implement backtesting logic
         return self.calculate_performance_metrics(price_data, signals)
@@ -1299,6 +1369,7 @@ results = strategy.run_backtest("AAPL", "2023-01-01", "2024-01-01")
 ### Synthetic Data Generation
 
 **Generate Synthetic Pairs:**
+
 ```python
 from app.tools.synthetic_ticker import create_synthetic_pair
 
@@ -1322,6 +1393,7 @@ results = analyze_ma_cross(
 ### Risk Management
 
 **Implement Stop Loss:**
+
 ```python
 from app.tools.stop_loss_simulator import apply_stop_loss
 
@@ -1349,6 +1421,7 @@ print(f"Max drawdown with SL: {portfolio_with_sl.max_drawdown:.2%}")
 ### Overview
 
 The platform now includes a complete GraphQL API alongside the REST API, providing:
+
 - Type-safe queries and mutations
 - Efficient data fetching (request only what you need)
 - Real-time subscriptions support (future)
@@ -1358,12 +1431,14 @@ The platform now includes a complete GraphQL API alongside the REST API, providi
 ### Accessing GraphQL
 
 **Endpoints:**
+
 - GraphQL API: `http://localhost:8000/graphql`
 - GraphiQL Playground: `http://localhost:8000/graphql` (browser)
 
 ### Example Queries
 
 **Get Portfolios with Performance:**
+
 ```graphql
 query GetPortfolios($limit: Int) {
   portfolios(filter: { limit: $limit }) {
@@ -1387,6 +1462,7 @@ query GetPortfolios($limit: Int) {
 ```
 
 **Get Price Data:**
+
 ```graphql
 query GetPriceData($symbol: String!, $startDate: DateTime) {
   priceData(symbol: $symbol, filter: { startDate: $startDate }) {
@@ -1403,6 +1479,7 @@ query GetPriceData($symbol: String!, $startDate: DateTime) {
 ### Example Mutations
 
 **Execute MA Cross Analysis:**
+
 ```graphql
 mutation RunMACrossAnalysis($input: MACrossAnalysisInput!) {
   executeMaCrossAnalysis(input: $input) {
@@ -1443,6 +1520,7 @@ mutation RunMACrossAnalysis($input: MACrossAnalysisInput!) {
 ```
 
 **Create Portfolio:**
+
 ```graphql
 mutation CreatePortfolio($input: PortfolioInput!) {
   createPortfolio(input: $input) {
@@ -1460,6 +1538,7 @@ mutation CreatePortfolio($input: PortfolioInput!) {
 ### Frontend Integration
 
 **Enable GraphQL in Sensylate App:**
+
 ```bash
 # Using make commands (recommended)
 make frontend-install
@@ -1475,6 +1554,7 @@ npm run dev
 ```
 
 **Using Generated Hooks:**
+
 ```typescript
 import { useGetPortfoliosQuery } from './graphql/generated';
 
@@ -1501,12 +1581,14 @@ function PortfolioList() {
 ### GraphQL vs REST
 
 **When to use GraphQL:**
+
 - Need specific fields only (avoid over-fetching)
 - Multiple related resources in one request
 - Type safety is critical
 - Building modern React applications
 
 **When to use REST:**
+
 - Simple CRUD operations
 - File uploads/downloads
 - Legacy system integration
@@ -1527,6 +1609,7 @@ function PortfolioList() {
 ### Quick Deployment
 
 **1. Environment Setup:**
+
 ```bash
 # Copy production configuration
 cp .env.production.example .env.production
@@ -1543,6 +1626,7 @@ vim .env.production
 ```
 
 **2. Build and Deploy:**
+
 ```bash
 # Build production images
 docker compose -f docker-compose.prod.yml build
@@ -1577,12 +1661,14 @@ Nginx (SSL, Rate Limiting)
 ### Security Features
 
 **Network Security:**
+
 - Rate limiting (60 req/min default, configurable)
 - CORS configuration
 - Security headers (HSTS, CSP, XSS Protection)
 - API key authentication (optional)
 
 **Application Security:**
+
 - SQL injection prevention (Prisma ORM)
 - Input validation
 - Request size limits (10MB default)
@@ -1591,6 +1677,7 @@ Nginx (SSL, Rate Limiting)
 ### Monitoring
 
 **Built-in Monitoring:**
+
 ```bash
 # Prometheus metrics
 curl https://your-domain.com/health/metrics
@@ -1601,6 +1688,7 @@ docker compose -f docker-compose.prod.yml --profile monitoring up -d
 ```
 
 **Health Endpoints:**
+
 - `/health` - Basic check
 - `/health/ready` - All services ready
 - `/health/live` - Application alive
@@ -1609,6 +1697,7 @@ docker compose -f docker-compose.prod.yml --profile monitoring up -d
 ### Backup and Recovery
 
 **Automated Backups:**
+
 ```bash
 # Enable backup service
 docker compose -f docker-compose.prod.yml --profile backup up -d
@@ -1619,6 +1708,7 @@ docker compose -f docker-compose.prod.yml exec postgres \
 ```
 
 **Restore Process:**
+
 ```bash
 # Stop API service
 docker compose -f docker-compose.prod.yml stop api
@@ -1636,6 +1726,7 @@ docker compose -f docker-compose.prod.yml up -d
 The platform includes a complete GitHub Actions CI/CD pipeline:
 
 **Pipeline Stages:**
+
 1. **Linting** - Code quality checks
 2. **Testing** - Unit and integration tests
 3. **Security** - Vulnerability scanning
@@ -1643,6 +1734,7 @@ The platform includes a complete GitHub Actions CI/CD pipeline:
 5. **Deploy** - Automated deployment
 
 **Triggering Deployment:**
+
 ```bash
 # Deploy to staging (develop branch)
 git push origin develop
@@ -1654,6 +1746,7 @@ git push origin main
 ### SSL/TLS Configuration
 
 **Using Let's Encrypt:**
+
 ```bash
 # Install certbot
 sudo apt-get install certbot
@@ -1671,6 +1764,7 @@ docker compose -f docker-compose.prod.yml restart nginx
 ### Performance Optimization
 
 **Database Indexes:**
+
 ```sql
 -- Already included in migration
 -- Run manually if needed:
@@ -1679,6 +1773,7 @@ docker compose -f docker-compose.prod.yml exec postgres \
 ```
 
 **Redis Optimization:**
+
 ```bash
 # Set memory limit
 docker compose -f docker-compose.prod.yml exec redis \
@@ -1692,6 +1787,7 @@ docker compose -f docker-compose.prod.yml exec redis \
 ### Troubleshooting Production
 
 **Check Service Status:**
+
 ```bash
 # View all services
 docker compose -f docker-compose.prod.yml ps
@@ -1707,10 +1803,12 @@ docker compose -f docker-compose.prod.yml restart api
 **Common Issues:**
 
 1. **502 Bad Gateway**
+
    - Check if API is running: `docker compose -f docker-compose.prod.yml ps api`
    - Check API logs: `docker compose -f docker-compose.prod.yml logs api`
 
 2. **Database Connection Failed**
+
    - Verify credentials in `.env.production`
    - Check database logs: `docker compose -f docker-compose.prod.yml logs postgres`
 
@@ -1729,6 +1827,7 @@ docker compose -f docker-compose.prod.yml restart api
 **Symptom:** `psycopg2.OperationalError: could not connect`
 
 **Solutions:**
+
 ```bash
 # Check PostgreSQL status
 brew services list | grep postgres
@@ -1751,6 +1850,7 @@ DATABASE_URL=postgresql://$(whoami)@localhost:5432/trading_db
 **Symptom:** `redis.exceptions.ConnectionError`
 
 **Solutions:**
+
 ```bash
 # Check Redis status
 brew services list | grep redis
@@ -1769,6 +1869,7 @@ redis-cli ping
 **Symptom:** `ImportError` or `ModuleNotFoundError`
 
 **Solutions:**
+
 ```bash
 # Reinstall dependencies
 poetry install
@@ -1788,6 +1889,7 @@ lsof -i :8000
 **Symptom:** `Module not found` or `npm command not found`
 
 **Solutions:**
+
 ```bash
 # Check Node.js and npm
 make frontend-check-deps
@@ -1810,6 +1912,7 @@ lsof -i :5173
 **Symptom:** `ERR_CONNECTION_REFUSED` when running `make frontend-test`
 
 **Solutions:**
+
 ```bash
 # Frontend tests require both backend and frontend servers to be running
 
@@ -1817,7 +1920,7 @@ lsof -i :5173
 # Terminal 1: Start backend
 make dev-local
 
-# Terminal 2: Start frontend  
+# Terminal 2: Start frontend
 make frontend-dev
 
 # Terminal 3: Run tests
@@ -1841,6 +1944,7 @@ curl http://localhost:5173        # Frontend
 **Symptom:** `portfolios: []` in API response
 
 **Solutions:**
+
 ```bash
 # Check if price data exists
 ls csv/price_data/
@@ -1866,6 +1970,7 @@ poetry run python app/tools/data_processing.py validate AAPL
 **Symptom:** `MemoryError` or slow performance
 
 **Solutions:**
+
 ```bash
 # Use smaller window sizes
 "windows": 50  # instead of 252
@@ -1883,6 +1988,7 @@ ulimit -m unlimited
 ### Debug Mode
 
 **Enable Detailed Logging:**
+
 ```bash
 # Set debug level in .env
 DEBUG=true
@@ -1897,14 +2003,15 @@ tail -f logs/database.log
 ```
 
 **Database Debug Queries:**
+
 ```sql
 -- Check recent activity
 SELECT * FROM backtest_results ORDER BY created_at DESC LIMIT 10;
 
 -- Check data availability
-SELECT ticker_id, COUNT(*) as records 
-FROM price_data 
-GROUP BY ticker_id 
+SELECT ticker_id, COUNT(*) as records
+FROM price_data
+GROUP BY ticker_id
 ORDER BY records DESC;
 
 -- Check portfolio count
@@ -1914,12 +2021,13 @@ SELECT COUNT(*) as total_portfolios FROM portfolios;
 ### Performance Optimization
 
 **Database Tuning:**
+
 ```sql
 -- Add performance indexes
-CREATE INDEX CONCURRENTLY idx_price_data_symbol_date 
+CREATE INDEX CONCURRENTLY idx_price_data_symbol_date
 ON price_data(ticker_id, date DESC);
 
-CREATE INDEX CONCURRENTLY idx_backtest_metrics 
+CREATE INDEX CONCURRENTLY idx_backtest_metrics
 ON backtest_results USING GIN (metrics);
 
 -- Update statistics
@@ -1927,6 +2035,7 @@ ANALYZE;
 ```
 
 **API Optimization:**
+
 ```python
 # Use connection pooling
 DATABASE_POOL_SIZE=20
@@ -1942,6 +2051,7 @@ ASYNC_EXECUTION_THRESHOLD=100
 ### Getting Help
 
 **Log Collection:**
+
 ```bash
 # Collect system info
 make system-info > debug_info.txt
@@ -1956,6 +2066,7 @@ poetry run python scripts/diagnose_system.py
 **Advanced Features Troubleshooting:**
 
 **API Versioning Issues:**
+
 ```bash
 # Check API version status
 curl http://localhost:8000/api/versions
@@ -1968,6 +2079,7 @@ curl -I http://localhost:8000/api/ma-cross/analyze
 ```
 
 **Event Bus Issues:**
+
 ```bash
 # Check event bus metrics
 curl http://localhost:8000/api/events/metrics
@@ -1982,6 +2094,7 @@ curl http://localhost:8000/api/events/history?limit=10
 ```
 
 **Long Operation Issues:**
+
 ```bash
 # Check operation queue status
 curl http://localhost:8000/api/operations/metrics
@@ -1994,6 +2107,7 @@ curl -X DELETE http://localhost:8000/api/operations/{operation_id}
 ```
 
 **Enhanced DI Container Issues:**
+
 ```bash
 # Check container health
 curl http://localhost:8000/api/container/health
@@ -2006,6 +2120,7 @@ curl http://localhost:8000/api/services/health
 ```
 
 **Support Information:**
+
 - **Documentation**: Check `docs/` directory for detailed guides
   - `dependency_injection_guide.md` - DI framework guide
   - `code_owner_architecture_review_2025.md` - Architecture overview
@@ -2021,6 +2136,7 @@ curl http://localhost:8000/api/services/health
 - **Service Health**: http://localhost:8000/api/container/health
 
 **Before Reporting Issues:**
+
 1. Run system validation: `poetry run python scripts/validate_phase1.py`
 2. Check health endpoints: `curl http://localhost:8000/health/detailed`
 3. Review recent logs: `tail -100 logs/api.log`
@@ -2029,7 +2145,7 @@ curl http://localhost:8000/api/services/health
 
 ---
 
-*This manual covers the core functionality of the Trading Strategy Platform. The platform offers enterprise-grade features with:
+\*This manual covers the core functionality of the Trading Strategy Platform. The platform offers enterprise-grade features with:
 
 - **Clean Architecture** - Dependency injection with interface-based design
 - **Docker Containerization** - Production-ready deployment
@@ -2039,4 +2155,4 @@ curl http://localhost:8000/api/services/health
 - **High Performance** - Polars-based data processing, Redis caching
 - **Enterprise Security** - Rate limiting, CORS, input validation
 
-For architectural details, see the [Architecture and Design Patterns](#architecture-and-design-patterns) section.*
+For architectural details, see the [Architecture and Design Patterns](#architecture-and-design-patterns) section.\*

@@ -8,11 +8,11 @@ import { icons } from '../utils/icons';
  */
 const ViewToggle: React.FC = () => {
   const { viewMode, setViewMode, csvData } = useAppContext();
-  
+
   if (!csvData) {
     return null;
   }
-  
+
   return (
     <div className="card mb-4">
       <div className="card-header">
@@ -20,16 +20,20 @@ const ViewToggle: React.FC = () => {
       </div>
       <div className="card-body">
         <div className="btn-group" role="group" aria-label="View toggle">
-          <button 
+          <button
             onClick={() => setViewMode('table')}
-            className={`btn ${viewMode === 'table' ? 'btn-primary' : 'btn-outline-secondary'}`}
+            className={`btn ${
+              viewMode === 'table' ? 'btn-primary' : 'btn-outline-secondary'
+            }`}
           >
             <Icon icon={icons.table} className="me-2" />
             Table View
           </button>
-          <button 
+          <button
             onClick={() => setViewMode('text')}
-            className={`btn ${viewMode === 'text' ? 'btn-primary' : 'btn-outline-secondary'}`}
+            className={`btn ${
+              viewMode === 'text' ? 'btn-primary' : 'btn-outline-secondary'
+            }`}
           >
             <Icon icon={icons.textView} className="me-2" />
             Raw Text View

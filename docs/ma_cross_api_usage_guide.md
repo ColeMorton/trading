@@ -3,6 +3,7 @@
 This guide provides comprehensive examples and best practices for using the enhanced MA Cross API that performs full portfolio analysis with parameter sensitivity testing.
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Basic Usage](#basic-usage)
 - [Advanced Features](#advanced-features)
@@ -36,6 +37,7 @@ curl -X POST http://127.0.0.1:8000/api/ma-cross/analyze \
 ```
 
 This will:
+
 - Use default `windows=252` (testing 252 parameter combinations)
 - Test both SMA and EMA strategies
 - Apply default filtering criteria
@@ -147,21 +149,23 @@ const eventSource = new EventSource(`/api/ma-cross/stream/${execution_id}`);
 
 eventSource.onmessage = (event) => {
   const data = JSON.parse(event.data);
-  
-  if (data === "[DONE]") {
+
+  if (data === '[DONE]') {
     eventSource.close();
     return;
   }
-  
+
   console.log(`Progress: ${data.progress}% - ${data.message}`);
-  
+
   if (data.progress_details) {
     console.log(`Phase: ${data.progress_details.phase}`);
-    console.log(`Step ${data.progress_details.current} of ${data.progress_details.total}`);
+    console.log(
+      `Step ${data.progress_details.current} of ${data.progress_details.total}`
+    );
   }
-  
-  if (data.status === "completed") {
-    console.log("Analysis complete!", data.result);
+
+  if (data.status === 'completed') {
+    console.log('Analysis complete!', data.result);
   }
 };
 ```
@@ -174,7 +178,7 @@ import json
 
 def stream_progress(execution_id):
     url = f"http://127.0.0.1:8000/api/ma-cross/stream/{execution_id}"
-    
+
     with requests.get(url, stream=True) as response:
         for line in response.iter_lines():
             if line:
@@ -183,10 +187,10 @@ def stream_progress(execution_id):
                     data = line[6:]
                     if data == '[DONE]':
                         break
-                    
+
                     event = json.loads(data)
                     print(f"Progress: {event['progress']}% - {event['message']}")
-                    
+
                     if event['status'] == 'completed':
                         return event['result']
 ```
@@ -269,7 +273,7 @@ async def analyze_multiple_tickers(tickers):
         for ticker in tickers:
             task = analyze_ticker_async(session, ticker)
             tasks.append(task)
-        
+
         results = await asyncio.gather(*tasks)
         return results
 ```
@@ -282,18 +286,19 @@ The API implements rate limiting. Handle 429 responses gracefully:
 def analyze_with_retry(ticker, max_retries=3):
     for attempt in range(max_retries):
         response = requests.post(url, json={"ticker": ticker})
-        
+
         if response.status_code == 429:
             retry_after = int(response.headers.get('Retry-After', 60))
             time.sleep(retry_after)
             continue
-        
+
         return response.json()
 ```
 
 ### 4. Monitor CSV Exports
 
 Results are automatically exported to:
+
 - `csv/portfolios/` - All analyzed portfolios
 - `csv/portfolios_filtered/` - Portfolios meeting criteria
 - `csv/portfolios_best/` - Best portfolios by date
@@ -316,16 +321,19 @@ curl -N http://127.0.0.1:8000/api/ma-cross/stream/$execution_id
 ### Common Issues
 
 1. **Empty Portfolio Results**
+
    - Check that your filtering criteria aren't too strict
    - Verify the ticker has sufficient historical data
    - Try reducing the `windows` parameter
 
 2. **Timeout Errors**
+
    - Use async execution for large analyses
    - Reduce the number of tickers per request
    - Consider splitting into multiple smaller requests
 
 3. **Missing Window Values**
+
    - Ensure you're checking the correct strategy type fields
    - SMA uses `SMA_FAST`/`SMA_SLOW`
    - EMA uses `EMA_FAST`/`EMA_SLOW`
@@ -350,15 +358,17 @@ tail -f logs/api.log
 ### Performance Tips
 
 1. **Optimize Request Size**
+
    ```python
    # Good: Batch related tickers
    {"ticker": ["BTC-USD", "ETH-USD", "SOL-USD"]}
-   
+
    # Avoid: Too many unrelated tickers
    {"ticker": ["AAPL", "MSFT", "GOOGL", ...50 more...]}
    ```
 
 2. **Use Appropriate Timeframes**
+
    - Daily data for swing trading strategies
    - Hourly data for shorter-term analysis
    - Consider data availability when setting date ranges
@@ -407,17 +417,19 @@ const monitors = {};
 function startAnalysis(ticker) {
   fetch('/api/ma-cross/analyze', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       ticker: ticker,
-      async_execution: true
-    })
+      async_execution: true,
+    }),
   })
-  .then(res => res.json())
-  .then(data => {
-    monitors[ticker] = new EventSource(`/api/ma-cross/stream/${data.execution_id}`);
-    monitors[ticker].onmessage = (event) => updateProgress(ticker, event);
-  });
+    .then((res) => res.json())
+    .then((data) => {
+      monitors[ticker] = new EventSource(
+        `/api/ma-cross/stream/${data.execution_id}`
+      );
+      monitors[ticker].onmessage = (event) => updateProgress(ticker, event);
+    });
 }
 
 function updateProgress(ticker, event) {

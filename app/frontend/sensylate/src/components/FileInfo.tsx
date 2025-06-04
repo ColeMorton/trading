@@ -8,13 +8,13 @@ import { icons } from '../utils/icons';
  */
 const FileInfo: React.FC = () => {
   const { csvData, selectedFile } = useAppContext();
-  
+
   if (!csvData || !selectedFile) {
     return null;
   }
-  
+
   const fileName = selectedFile.split('/').pop();
-  
+
   return (
     <div className="card mb-4">
       <div className="card-header d-flex align-items-center">

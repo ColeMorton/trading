@@ -7,7 +7,7 @@ import {
   getPaginationRowModel,
   flexRender,
   createColumnHelper,
-  ColumnDef
+  ColumnDef,
 } from '@tanstack/react-table';
 import { useAppContext } from '../context/AppContext';
 import { cleanData, formatValue } from '../utils/csvUtils';
@@ -19,27 +19,27 @@ import { icons } from '../utils/icons';
  */
 const DataTable: React.FC = () => {
   const { csvData, viewMode } = useAppContext();
-  
+
   const data = useMemo(() => {
     if (!csvData) return [];
     return cleanData(csvData.data);
   }, [csvData]);
-  
+
   const columnHelper = createColumnHelper<any>();
-  
+
   const columns = useMemo(() => {
     if (!csvData) return [] as ColumnDef<any>[];
-    
-    return csvData.columns.map(column => {
+
+    return csvData.columns.map((column) => {
       const cleanKey = column.replace(/[\[\]%]/g, '_');
-      
+
       return columnHelper.accessor(cleanKey, {
         header: column,
-        cell: info => formatValue(info.getValue(), column)
+        cell: (info) => formatValue(info.getValue(), column),
       });
     });
   }, [csvData]);
-  
+
   const table = useReactTable({
     data,
     columns,
@@ -50,15 +50,15 @@ const DataTable: React.FC = () => {
     initialState: {
       pagination: {
         pageSize: 25,
-        pageIndex: 0
-      }
-    }
+        pageIndex: 0,
+      },
+    },
   });
-  
+
   if (viewMode !== 'table' || !csvData) {
     return null;
   }
-  
+
   return (
     <div className="card mb-4">
       <div className="card-header d-flex align-items-center">
@@ -74,7 +74,7 @@ const DataTable: React.FC = () => {
               </span>
               <input
                 value={table.getState().globalFilter || ''}
-                onChange={e => table.setGlobalFilter(e.target.value)}
+                onChange={(e) => table.setGlobalFilter(e.target.value)}
                 placeholder="Filter results..."
                 className="form-control"
               />
@@ -84,11 +84,11 @@ const DataTable: React.FC = () => {
             <span className="text-muted small">Show</span>
             <select
               value={table.getState().pagination.pageSize}
-              onChange={e => table.setPageSize(Number(e.target.value))}
+              onChange={(e) => table.setPageSize(Number(e.target.value))}
               className="form-select form-select-sm"
               style={{ width: 'auto' }}
             >
-              {[10, 25, 50, 100].map(size => (
+              {[10, 25, 50, 100].map((size) => (
                 <option key={size} value={size}>
                   {size} entries
                 </option>
@@ -96,23 +96,32 @@ const DataTable: React.FC = () => {
             </select>
           </div>
         </div>
-      
+
         <div className="table-responsive">
           <table className="react-table">
             <thead>
-              {table.getHeaderGroups().map(headerGroup => (
+              {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
-                  {headerGroup.headers.map(header => (
+                  {headerGroup.headers.map((header) => (
                     <th
                       key={header.id}
                       onClick={header.column.getToggleSortingHandler()}
                       style={{ cursor: 'pointer' }}
                     >
-                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                       <span className="ms-1">
-                        {header.column.getIsSorted() === 'asc' && <Icon icon={icons.sortUp} />}
-                        {header.column.getIsSorted() === 'desc' && <Icon icon={icons.sortDown} />}
-                        {!header.column.getIsSorted() && <Icon icon={icons.sort} className="text-muted" />}
+                        {header.column.getIsSorted() === 'asc' && (
+                          <Icon icon={icons.sortUp} />
+                        )}
+                        {header.column.getIsSorted() === 'desc' && (
+                          <Icon icon={icons.sortDown} />
+                        )}
+                        {!header.column.getIsSorted() && (
+                          <Icon icon={icons.sort} className="text-muted" />
+                        )}
                       </span>
                     </th>
                   ))}
@@ -120,11 +129,14 @@ const DataTable: React.FC = () => {
               ))}
             </thead>
             <tbody>
-              {table.getRowModel().rows.map(row => (
+              {table.getRowModel().rows.map((row) => (
                 <tr key={row.id}>
-                  {row.getVisibleCells().map(cell => (
+                  {row.getVisibleCells().map((cell) => (
                     <td key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </td>
                   ))}
                 </tr>
@@ -132,7 +144,7 @@ const DataTable: React.FC = () => {
             </tbody>
           </table>
         </div>
-      
+
         <div className="row mt-3 align-items-center">
           <div className="col-auto">
             <div className="btn-group" role="group">
@@ -176,7 +188,8 @@ const DataTable: React.FC = () => {
             <span className="text-muted small">
               Page{' '}
               <strong>
-                {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+                {table.getState().pagination.pageIndex + 1} of{' '}
+                {table.getPageCount()}
               </strong>
             </span>
           </div>

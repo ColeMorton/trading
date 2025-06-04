@@ -29,7 +29,7 @@ Let's break it down. 👇
 📅 **Seasonality Insight ([X] years of data)**
 [Current month] [and next month] show [strong/solid/mixed] historical performance:
 • [Month]: **[X]%** win rate
-• [Month]: **[X]%** win rate  
+• [Month]: **[X]%** win rate
 • [Month]: **[X]%** win rate
 • Strongest period: [months] | Weakest: [month] ([X]%)
 → [Current timing assessment relative to seasonal patterns]
@@ -63,20 +63,25 @@ Let's break it down. 👇
 **Choose based on your angle:**
 
 **Performance-Driven:**
-- "📈 This $[TICKER] strategy turned $1K into over **$[X]** with just a [X]% win rate."
+
+- "📈 This $[TICKER] strategy turned $1K into over **$[X]\*\* with just a [X]% win rate."
 - "📈 [Strategy type] just delivered a total return of **[X]%** over [X] decades."
 
 **Signal-Driven:**
+
 - "📈 A rare long signal just triggered on $[TICKER] using a dual [SMA/EMA] ([short]/[long]) cross strategy."
 - "📈 $[TICKER] just fired off a technical long entry from a dual [SMA/EMA] ([short]/[long]) cross strategy right as [technical context]."
 
 **Edge-Driven:**
+
 - "📈 $[TICKER] dual [SMA/EMA] cross ([short]/[long]) strategy delivers a compelling edge and an **entry signal flashed today!**"
 
 **Risk/Reward-Driven:**
+
 - "📈 $[TICKER] dual [SMA/EMA] ([short]/[long]) cross strategy offers **[X]:1** reward-to-risk with [X]% drawdown protection."
 
 **Timing-Driven:**
+
 - "📈 Perfect timing: $[TICKER] dual [SMA/EMA] ([short]/[long]) strategy just triggered with **[X]%** seasonal win rate in [current month]."
 
 ---
@@ -84,14 +89,16 @@ Let's break it down. 👇
 ## Key Customization Variables
 
 **Strategy Metrics (Fill based on backtest data):**
+
 - [short]/[long] - Moving average periods (e.g., 13/37, 59/87)
 - [SMA/EMA] - Moving average type
-- [X] yrs - Backtesting timeframe
+- [x] yrs - Backtesting timeframe
 - Win rate %, average win/loss %, reward/risk ratio
 - Expectancy, exposure %, max drawdown %
 - Sharpe/Sortino ratios, trade frequency
 
 **Context Elements (Adapt to current situation):**
+
 - Recent earnings data and beats/misses
 - Technical patterns (triangles, wedges, breakouts)
 - Seasonal performance for current/upcoming months
@@ -99,6 +106,7 @@ Let's break it down. 👇
 - Market environment and sector dynamics
 
 **Tone Modifiers:**
+
 - **Bold** key metrics and percentages
 - Use "**beat**" or "**missed**" for earnings context
 - Emphasize reward/risk and expectancy with bold
@@ -111,7 +119,7 @@ Let's break it down. 👇
 
 1. **Start with your strongest hook** - performance stat, signal timing, or compelling metric
 2. **Lead with strategy metrics** - focus on win rate, reward/risk, and expectancy
-3. **Connect seasonal context** - current month performance and historical patterns  
+3. **Connect seasonal context** - current month performance and historical patterns
 4. **Support with fundamentals** - recent earnings and business strength
 5. **End with synthesis** - tie together technical, fundamental, and seasonal elements
 6. **Keep conversational** - use natural language while maintaining authority

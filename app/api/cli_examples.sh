@@ -57,7 +57,7 @@ EXECUTION_ID=$(echo $RESPONSE | grep -o '"execution_id":"[^"]*' | sed 's/"execut
 if [ ! -z "$EXECUTION_ID" ]; then
   echo -e "\n\n4. Check Task Status:"
   curl "$BASE_URL/api/ma-cross/status/$EXECUTION_ID"
-  
+
   echo -e "\n\n5. Stream Progress (first 5 events):"
   curl -N "$BASE_URL/api/ma-cross/stream/$EXECUTION_ID" | head -5
 fi

@@ -1,43 +1,42 @@
 [
-    {
-        "ticker": "SPY",
-        "timeframe": "Daily",
-        "type": "SMA",
-        "direction": "Long",
-        "short_window": 108,
-        "long_window": 115
-    },
-    {
-        "ticker": "SPY",
-        "timeframe": "Daily",
-        "type": "SMA",
-        "direction": "Long",
-        "short_window": 12,
-        "long_window": 73
-    },
-    {
-        "ticker": "SPY",
-        "timeframe": "Daily",
-        "type": "EMA",
-        "direction": "Long",
-        "short_window": 51,
-        "long_window": 72
-    },
-    {
-        "ticker": "SPY",
-        "timeframe": "Daily",
-        "type": "EMA",
-        "direction": "Long",
-        "short_window": 46,
-        "long_window": 51
-    },
-    {
-        "ticker": "SPY",
-        "timeframe": "Daily",
-        "type": "EMA",
-        "direction": "Long",
-        "short_window": 18,
-        "long_window": 32
-    }
-  ]
-  
+  {
+    "ticker": "SPY",
+    "timeframe": "Daily",
+    "type": "SMA",
+    "direction": "Long",
+    "short_window": 108,
+    "long_window": 115
+  },
+  {
+    "ticker": "SPY",
+    "timeframe": "Daily",
+    "type": "SMA",
+    "direction": "Long",
+    "short_window": 12,
+    "long_window": 73
+  },
+  {
+    "ticker": "SPY",
+    "timeframe": "Daily",
+    "type": "EMA",
+    "direction": "Long",
+    "short_window": 51,
+    "long_window": 72
+  },
+  {
+    "ticker": "SPY",
+    "timeframe": "Daily",
+    "type": "EMA",
+    "direction": "Long",
+    "short_window": 46,
+    "long_window": 51
+  },
+  {
+    "ticker": "SPY",
+    "timeframe": "Daily",
+    "type": "EMA",
+    "direction": "Long",
+    "short_window": 18,
+    "long_window": 32
+  }
+]

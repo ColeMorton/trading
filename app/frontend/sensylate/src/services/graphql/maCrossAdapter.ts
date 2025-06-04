@@ -1,10 +1,10 @@
 import { getApolloClient } from '../../apollo/client';
-import { 
+import {
   ExecuteMaCrossAnalysisDocument,
   MaCrossAnalysisInput,
   TimeframeType,
   StrategyType,
-  DirectionType
+  DirectionType,
 } from '../../graphql/generated';
 import {
   AnalysisConfiguration,
@@ -13,30 +13,40 @@ import {
   MACrossAsyncResponse,
   ExecutionStatusResponse,
   PortfolioMetrics,
-  ConfigPreset
+  ConfigPreset,
 } from '../maCrossApi';
 import { AnalysisResult } from '../../types';
 
 /**
  * Convert frontend configuration to GraphQL input format
  */
-const configToGraphQLInput = (config: AnalysisConfiguration): MaCrossAnalysisInput => {
+const configToGraphQLInput = (
+  config: AnalysisConfiguration
+): MaCrossAnalysisInput => {
   // Map strategy types
-  const strategyTypes: StrategyType[] = config.STRATEGY_TYPES.map(type => {
+  const strategyTypes: StrategyType[] = config.STRATEGY_TYPES.map((type) => {
     switch (type) {
-      case 'SMA': return StrategyType.MaCross;
-      case 'EMA': return StrategyType.MaCross;
-      default: return StrategyType.MaCross;
+      case 'SMA':
+        return StrategyType.MaCross;
+      case 'EMA':
+        return StrategyType.MaCross;
+      default:
+        return StrategyType.MaCross;
     }
   });
 
   // Map direction
-  const direction = config.DIRECTION === 'Long' ? DirectionType.Long : 
-                   config.DIRECTION === 'Short' ? DirectionType.Short : 
-                   DirectionType.Both;
+  const direction =
+    config.DIRECTION === 'Long'
+      ? DirectionType.Long
+      : config.DIRECTION === 'Short'
+        ? DirectionType.Short
+        : DirectionType.Both;
 
   // Map timeframe
-  const timeframe = config.USE_HOURLY ? TimeframeType.OneHour : TimeframeType.OneDay;
+  const timeframe = config.USE_HOURLY
+    ? TimeframeType.OneHour
+    : TimeframeType.OneDay;
 
   return {
     ticker: Array.isArray(config.TICKER) ? config.TICKER : [config.TICKER],
@@ -50,19 +60,23 @@ const configToGraphQLInput = (config: AnalysisConfiguration): MaCrossAnalysisInp
     ticker1: config.ticker_1,
     ticker2: config.ticker_2,
     refresh: config.REFRESH,
-    minimums: config.MINIMUMS ? {
-      trades: config.MINIMUMS.TRADES,
-      winRate: config.MINIMUMS.WIN_RATE ? config.MINIMUMS.WIN_RATE / 100 : undefined,
-      expectancyPerTrade: config.MINIMUMS.EXPECTANCY_PER_TRADE,
-      profitFactor: config.MINIMUMS.PROFIT_FACTOR,
-      sortinoRatio: config.MINIMUMS.SORTINO_RATIO
-    } : undefined,
+    minimums: config.MINIMUMS
+      ? {
+          trades: config.MINIMUMS.TRADES,
+          winRate: config.MINIMUMS.WIN_RATE
+            ? config.MINIMUMS.WIN_RATE / 100
+            : undefined,
+          expectancyPerTrade: config.MINIMUMS.EXPECTANCY_PER_TRADE,
+          profitFactor: config.MINIMUMS.PROFIT_FACTOR,
+          sortinoRatio: config.MINIMUMS.SORTINO_RATIO,
+        }
+      : undefined,
     sortBy: config.SORT_BY,
     sortAsc: config.SORT_ASC,
     useGbm: config.USE_GBM,
     useCurrent: config.USE_CURRENT,
     useScanner: config.USE_SCANNER,
-    asyncExecution: config.async_execution
+    asyncExecution: config.async_execution,
   };
 };
 
@@ -93,7 +107,7 @@ const graphQLPortfolioToMetrics = (portfolio: any): PortfolioMetrics => {
     score: portfolio.performance.score,
     beats_bnh: portfolio.performance.beatsBnh,
     has_open_trade: portfolio.hasOpenTrade,
-    has_signal_entry: portfolio.hasSignalEntry
+    has_signal_entry: portfolio.hasSignalEntry,
   };
 };
 
@@ -115,8 +129,8 @@ export const graphqlMaCrossApi = {
           STRATEGY_TYPES: ['SMA', 'EMA'],
           USE_HOURLY: false,
           USE_YEARS: false,
-          YEARS: 2
-        }
+          YEARS: 2,
+        },
       },
       {
         name: 'Crypto Daily',
@@ -125,8 +139,8 @@ export const graphqlMaCrossApi = {
           WINDOWS: 100,
           DIRECTION: 'Long',
           STRATEGY_TYPES: ['EMA'],
-          USE_HOURLY: false
-        }
+          USE_HOURLY: false,
+        },
       },
       {
         name: 'Stocks Hourly',
@@ -135,16 +149,18 @@ export const graphqlMaCrossApi = {
           WINDOWS: 50,
           DIRECTION: 'Both',
           STRATEGY_TYPES: ['SMA', 'EMA'],
-          USE_HOURLY: true
-        }
-      }
+          USE_HOURLY: true,
+        },
+      },
     ];
   },
 
   /**
    * Execute MA Cross analysis
    */
-  analyze: async (config: AnalysisConfiguration): Promise<MACrossSyncResponse | MACrossAsyncResponse> => {
+  analyze: async (
+    config: AnalysisConfiguration
+  ): Promise<MACrossSyncResponse | MACrossAsyncResponse> => {
     try {
       const client = getApolloClient();
       const input = configToGraphQLInput(config);
@@ -152,7 +168,7 @@ export const graphqlMaCrossApi = {
       // Execute GraphQL mutation
       const { data } = await client.mutate({
         mutation: ExecuteMaCrossAnalysisDocument,
-        variables: { input }
+        variables: { input },
       });
 
       const result = data.executeMaCrossAnalysis;
@@ -166,7 +182,7 @@ export const graphqlMaCrossApi = {
           status_url: result.statusUrl,
           stream_url: result.streamUrl,
           timestamp: result.timestamp,
-          estimated_time: result.estimatedTime
+          estimated_time: result.estimatedTime,
         };
       }
 
@@ -181,7 +197,7 @@ export const graphqlMaCrossApi = {
         portfolio_exports: result.portfolioExports || {},
         total_portfolios_analyzed: result.totalPortfoliosAnalyzed,
         total_portfolios_filtered: result.totalPortfoliosFiltered,
-        execution_time: result.executionTime
+        execution_time: result.executionTime,
       };
     } catch (error) {
       console.error('GraphQL error in MA Cross analysis:', error);
@@ -194,8 +210,10 @@ export const graphqlMaCrossApi = {
    */
   getStatus: async (executionId: string): Promise<ExecutionStatusResponse> => {
     // TODO: Re-implement when GetAnalysisStatusDocument is available in schema
-    throw new Error('Analysis status query not yet implemented in GraphQL schema');
-    
+    throw new Error(
+      'Analysis status query not yet implemented in GraphQL schema'
+    );
+
     // try {
     //   const client = getApolloClient();
 
@@ -205,50 +223,50 @@ export const graphqlMaCrossApi = {
     //     fetchPolicy: 'network-only' // Always fetch fresh status
     //   });
 
-//       const status = data.analysisStatus;
-// 
-//       // Map GraphQL response to expected format
-//       const response: ExecutionStatusResponse = {
-//         execution_id: status.executionId,
-//         status: status.status as any,
-//         progress: status.progress,
-//         message: status.message,
-//         timestamp: status.timestamp,
-//         started_at: status.startedAt,
-//         completed_at: status.completedAt,
-//         execution_time: status.executionTime,
-//         estimated_time_remaining: status.estimatedTimeRemaining,
-//         error: status.error
-//       };
-// 
-//       // If completed, include results
-//       if (status.result) {
-//         response.result = {
-//           status: status.result.status as 'success' | 'error',
-//           request_id: status.result.requestId,
-//           timestamp: status.result.timestamp,
-//           ticker: status.result.ticker,
-//           strategy_types: status.result.strategyTypes,
-//           portfolios: status.result.portfolios.map(graphQLPortfolioToMetrics),
-//           portfolio_exports: {},
-//           total_portfolios_analyzed: status.result.totalPortfoliosAnalyzed,
-//           total_portfolios_filtered: status.result.totalPortfoliosFiltered,
-//           execution_time: status.result.executionTime
-//         };
-//       }
-// 
-//       return response;
-//     } catch (error) {
-//       console.error('GraphQL error getting analysis status:', error);
-//       throw error;
-//     }
+    //       const status = data.analysisStatus;
+    //
+    //       // Map GraphQL response to expected format
+    //       const response: ExecutionStatusResponse = {
+    //         execution_id: status.executionId,
+    //         status: status.status as any,
+    //         progress: status.progress,
+    //         message: status.message,
+    //         timestamp: status.timestamp,
+    //         started_at: status.startedAt,
+    //         completed_at: status.completedAt,
+    //         execution_time: status.executionTime,
+    //         estimated_time_remaining: status.estimatedTimeRemaining,
+    //         error: status.error
+    //       };
+    //
+    //       // If completed, include results
+    //       if (status.result) {
+    //         response.result = {
+    //           status: status.result.status as 'success' | 'error',
+    //           request_id: status.result.requestId,
+    //           timestamp: status.result.timestamp,
+    //           ticker: status.result.ticker,
+    //           strategy_types: status.result.strategyTypes,
+    //           portfolios: status.result.portfolios.map(graphQLPortfolioToMetrics),
+    //           portfolio_exports: {},
+    //           total_portfolios_analyzed: status.result.totalPortfoliosAnalyzed,
+    //           total_portfolios_filtered: status.result.totalPortfoliosFiltered,
+    //           execution_time: status.result.executionTime
+    //         };
+    //       }
+    //
+    //       return response;
+    //     } catch (error) {
+    //       console.error('GraphQL error getting analysis status:', error);
+    //       throw error;
+    //     }
   },
 
   /**
    * Convert sync response to results array
    */
   responseToResults: (response: MACrossSyncResponse): AnalysisResult[] => {
-    return response.portfolios.map(portfolio => ({
+    return response.portfolios.map((portfolio) => ({
       ticker: portfolio.ticker,
       strategy_type: portfolio.strategy_type,
       short_window: portfolio.short_window,
@@ -259,7 +277,8 @@ export const graphqlMaCrossApi = {
       total_trades: portfolio.total_trades,
       win_rate: portfolio.win_rate,
       profit_factor: portfolio.profit_factor,
-      expectancy_per_trade: portfolio.expectancy_per_trade || portfolio.expectancy,
+      expectancy_per_trade:
+        portfolio.expectancy_per_trade || portfolio.expectancy,
       sortino_ratio: portfolio.sortino_ratio,
       max_drawdown: portfolio.max_drawdown,
       total_return: portfolio.total_return,
@@ -270,7 +289,7 @@ export const graphqlMaCrossApi = {
       score: portfolio.score,
       beats_bnh: portfolio.beats_bnh,
       has_open_trade: portfolio.has_open_trade,
-      has_signal_entry: portfolio.has_signal_entry
+      has_signal_entry: portfolio.has_signal_entry,
     }));
   },
 
@@ -280,5 +299,5 @@ export const graphqlMaCrossApi = {
   clearCache: () => {
     const client = getApolloClient();
     client.cache.reset();
-  }
+  },
 };

@@ -15,34 +15,34 @@ from base import ConcurrencyTestCase, MockDataMixin
 
 class TestEndToEndAnalysis(ConcurrencyTestCase, MockDataMixin):
     """Test complete analysis workflow from portfolio to report."""
-    
+
     def setUp(self):
         """Set up test environment with realistic data."""
         super().setUp()
-        
+
         # Create test strategies
         self.test_strategies = [
             self.create_ma_strategy("BTC-USD", "SMA", 10, 30, 40),
             self.create_ma_strategy("ETH-USD", "EMA", 12, 26, 35),
             self.create_macd_strategy("SOL-USD", allocation=25),
         ]
-        
+
         # Create portfolio file
         self.portfolio_path = self.create_portfolio_file(
             self.test_strategies,
             "integration_test.json"
         )
-    
+
     @patch('app.tools.download_data.download_ticker_data')
     @patch('app.tools.backtest_strategy.backtest_ma_cross_strategy')
     def test_full_analysis_workflow(self, mock_backtest, mock_download):
         """Test complete analysis workflow."""
         # Setup mocks
         mock_download.return_value = self.create_mock_price_data(
-            ["BTC-USD", "ETH-USD", "SOL-USD"], 
+            ["BTC-USD", "ETH-USD", "SOL-USD"],
             periods=200
         )
-        
+
         # Mock backtest results
         mock_backtest.return_value = {
             'signals': self.create_mock_signals(200, 0.3),
@@ -53,73 +53,73 @@ class TestEndToEndAnalysis(ConcurrencyTestCase, MockDataMixin):
                 'max_drawdown': -0.1,
             }
         }
-        
+
         # Run analysis
         config = self.default_config.copy()
         config["PORTFOLIO"] = self.portfolio_path
-        
+
         result = run_analysis(config)
-        
+
         # Assert success
         self.assertTrue(result)
-        
+
         # Check that report was generated
         report = self.assert_report_exists("integration_test")
-        
+
         # Validate report structure
         self.assertIn("metadata", report)
         self.assertIn("strategies", report)
         self.assertIn("statistics", report)
-        
+
         # Validate statistics
         stats = report["statistics"]
         self.assertIn("total_concurrent_periods", stats)
         self.assertIn("concurrency_ratio", stats)
         self.assertIn("efficiency_score", stats)
-        
+
         # Validate strategies were processed
         self.assertEqual(len(report["strategies"]), 3)
-    
+
     @patch('app.tools.download_data.download_ticker_data')
     @patch('app.tools.backtest_strategy.backtest_ma_cross_strategy')
     def test_analysis_with_optimization(self, mock_backtest, mock_download):
         """Test analysis with optimization enabled."""
         # Setup mocks
         mock_download.return_value = self.create_mock_price_data(
-            ["BTC-USD", "ETH-USD", "SOL-USD"], 
+            ["BTC-USD", "ETH-USD", "SOL-USD"],
             periods=200
         )
-        
+
         mock_backtest.return_value = {
             'signals': self.create_mock_signals(200, 0.3),
             'returns': [0.001] * 200,
             'metrics': {'total_return': 0.15}
         }
-        
+
         # Run analysis with optimization
         config = self.default_config.copy()
         config["PORTFOLIO"] = self.portfolio_path
         config["OPTIMIZE"] = True
         config["OPTIMIZE_MIN_STRATEGIES"] = 2
-        
+
         result = run_analysis(config)
-        
+
         # Assert success
         self.assertTrue(result)
-        
+
         # Check that optimization report was generated
         opt_report = self.assert_optimization_report_exists("integration_test")
-        
+
         # Validate optimization report
         self.assertIn("optimization_summary", opt_report)
         self.assertIn("all_strategies", opt_report)
         self.assertIn("optimal_strategies", opt_report)
-        
+
         summary = opt_report["optimization_summary"]
         self.assertEqual(summary["all_strategies_count"], 3)
         self.assertGreaterEqual(summary["optimal_strategies_count"], 2)
         self.assertIn("efficiency_improvement_percent", summary)
-    
+
     def test_analysis_with_csv_portfolio(self):
         """Test analysis with CSV portfolio format."""
         # Create CSV portfolio
@@ -127,10 +127,10 @@ class TestEndToEndAnalysis(ConcurrencyTestCase, MockDataMixin):
             self.test_strategies,
             "integration_test.csv"
         )
-        
+
         config = self.default_config.copy()
         config["PORTFOLIO"] = csv_path
-        
+
         with patch('app.tools.download_data.download_ticker_data') as mock_download:
             with patch('app.tools.backtest_strategy.backtest_ma_cross_strategy') as mock_backtest:
                 mock_download.return_value = self.create_mock_price_data(
@@ -141,11 +141,11 @@ class TestEndToEndAnalysis(ConcurrencyTestCase, MockDataMixin):
                     'returns': [0.001] * 100,
                     'metrics': {'total_return': 0.1}
                 }
-                
+
                 result = run_analysis(config)
-        
+
         self.assertTrue(result)
-        
+
         # Check report was generated
         report = self.assert_report_exists("integration_test")
         self.assertEqual(len(report["strategies"]), 3)
@@ -153,43 +153,43 @@ class TestEndToEndAnalysis(ConcurrencyTestCase, MockDataMixin):
 
 class TestErrorScenarios(ConcurrencyTestCase):
     """Test error handling in integration scenarios."""
-    
+
     def test_invalid_portfolio_file(self):
         """Test handling of invalid portfolio file."""
         config = self.default_config.copy()
         config["PORTFOLIO"] = "nonexistent_file.json"
-        
+
         # Should handle error gracefully
         result = run_analysis(config)
         self.assertFalse(result)
-    
+
     def test_empty_portfolio(self):
         """Test handling of empty portfolio."""
         # Create empty portfolio
         empty_path = self.create_portfolio_file([], "empty.json")
-        
+
         config = self.default_config.copy()
         config["PORTFOLIO"] = empty_path
-        
+
         result = run_analysis(config)
         self.assertFalse(result)
-    
+
     @patch('app.tools.download_data.download_ticker_data')
     def test_download_failure(self, mock_download):
         """Test handling of data download failure."""
         # Setup mock to fail
         mock_download.side_effect = Exception("Download failed")
-        
+
         # Create portfolio
         strategies = [self.create_ma_strategy()]
         portfolio_path = self.create_portfolio_file(strategies, "test.json")
-        
+
         config = self.default_config.copy()
         config["PORTFOLIO"] = portfolio_path
-        
+
         result = run_analysis(config)
         self.assertFalse(result)
-    
+
     @patch('app.tools.download_data.download_ticker_data')
     @patch('app.tools.backtest_strategy.backtest_ma_cross_strategy')
     def test_partial_strategy_failure(self, mock_backtest, mock_download):
@@ -199,7 +199,7 @@ class TestErrorScenarios(ConcurrencyTestCase):
             ["BTC-USD", "ETH-USD"],
             periods=100
         )
-        
+
         # Make first strategy succeed, second fail
         mock_backtest.side_effect = [
             {
@@ -209,21 +209,21 @@ class TestErrorScenarios(ConcurrencyTestCase):
             },
             Exception("Backtest failed for ETH")
         ]
-        
+
         # Create portfolio with 2 strategies
         strategies = [
             self.create_ma_strategy("BTC-USD", allocation=50),
             self.create_ma_strategy("ETH-USD", allocation=50),
         ]
         portfolio_path = self.create_portfolio_file(strategies, "partial.json")
-        
+
         config = self.default_config.copy()
         config["PORTFOLIO"] = portfolio_path
-        
+
         # Should still complete with partial results
         result = run_analysis(config)
         self.assertTrue(result)
-        
+
         # Check report - should have 1 successful strategy
         report = self.assert_report_exists("partial")
         self.assertEqual(len(report["strategies"]), 1)
@@ -231,7 +231,7 @@ class TestErrorScenarios(ConcurrencyTestCase):
 
 class TestSyntheticTickers(ConcurrencyTestCase):
     """Test synthetic ticker handling."""
-    
+
     @patch('app.tools.download_data.download_ticker_data')
     @patch('app.tools.backtest_strategy.backtest_ma_cross_strategy')
     def test_synthetic_ticker_processing(self, mock_backtest, mock_download):
@@ -249,31 +249,31 @@ class TestSyntheticTickers(ConcurrencyTestCase):
             }
         ]
         portfolio_path = self.create_portfolio_file(strategies, "synthetic.json")
-        
+
         # Setup mocks
         mock_download.return_value = self.create_mock_price_data(
             ["BTC-USD", "ETH-USD"],
             periods=100
         )
-        
+
         mock_backtest.return_value = {
             'signals': self.create_mock_signals(100),
             'returns': [0.001] * 100,
             'metrics': {'total_return': 0.1}
         }
-        
+
         config = self.default_config.copy()
         config["PORTFOLIO"] = portfolio_path
-        
+
         result = run_analysis(config)
-        
+
         # Should process successfully
         self.assertTrue(result)
-        
+
         # Check report
         report = self.assert_report_exists("synthetic")
         self.assertEqual(len(report["strategies"]), 1)
-        
+
         # Check strategy was marked as synthetic
         strategy = report["strategies"][0]
         self.assertTrue(strategy.get("USE_SYNTHETIC", False))
@@ -281,13 +281,13 @@ class TestSyntheticTickers(ConcurrencyTestCase):
 
 class TestConvenienceFunctions(ConcurrencyTestCase):
     """Test convenience functions and shortcuts."""
-    
+
     def test_run_concurrency_review(self):
         """Test the convenience function run_concurrency_review."""
         # Create test portfolio
         strategies = [self.create_ma_strategy()]
         portfolio_path = self.create_portfolio_file(strategies, "convenience.json")
-        
+
         with patch('app.tools.download_data.download_ticker_data') as mock_download:
             with patch('app.tools.backtest_strategy.backtest_ma_cross_strategy') as mock_backtest:
                 mock_download.return_value = self.create_mock_price_data(["BTC-USD"])
@@ -296,21 +296,21 @@ class TestConvenienceFunctions(ConcurrencyTestCase):
                     'returns': [0.001] * 100,
                     'metrics': {'total_return': 0.1}
                 }
-                
+
                 # Use convenience function
                 result = run_concurrency_review(
                     portfolio_path,
                     {"VISUALIZATION": False}
                 )
-        
+
         self.assertTrue(result)
-    
+
     def test_run_concurrency_review_without_extension(self):
         """Test convenience function with portfolio name without extension."""
         # Create test portfolio
         strategies = [self.create_ma_strategy()]
         portfolio_path = self.create_portfolio_file(strategies, "no_ext_test.json")
-        
+
         with patch('app.tools.download_data.download_ticker_data') as mock_download:
             with patch('app.tools.backtest_strategy.backtest_ma_cross_strategy') as mock_backtest:
                 mock_download.return_value = self.create_mock_price_data(["BTC-USD"])
@@ -319,16 +319,16 @@ class TestConvenienceFunctions(ConcurrencyTestCase):
                     'returns': [0.001] * 100,
                     'metrics': {'total_return': 0.1}
                 }
-                
+
                 # Use convenience function without extension
                 result = run_concurrency_review("no_ext_test")
-        
+
         self.assertTrue(result)
 
 
 class TestVisualizationIntegration(ConcurrencyTestCase):
     """Test visualization integration."""
-    
+
     @patch('app.concurrency.tools.visualization.plot_concurrency')
     @patch('app.tools.download_data.download_ticker_data')
     @patch('app.tools.backtest_strategy.backtest_ma_cross_strategy')
@@ -341,23 +341,23 @@ class TestVisualizationIntegration(ConcurrencyTestCase):
             'returns': [0.001] * 100,
             'metrics': {'total_return': 0.1}
         }
-        
+
         # Mock plot to return a figure
         mock_fig = Mock()
         mock_plot.return_value = mock_fig
-        
+
         # Create portfolio
         strategies = [self.create_ma_strategy()]
         portfolio_path = self.create_portfolio_file(strategies, "viz_test.json")
-        
+
         config = self.default_config.copy()
         config["PORTFOLIO"] = portfolio_path
         config["VISUALIZATION"] = True
-        
+
         result = run_analysis(config)
-        
+
         self.assertTrue(result)
-        
+
         # Check visualization was called
         mock_plot.assert_called_once()
         mock_fig.show.assert_called_once()

@@ -64,39 +64,39 @@ from app.tools.signal_filtering import BaseFilter
 class MyCustomFilter(BaseFilter):
     def __init__(self, log=None):
         super().__init__("MyCustom", log)
-    
+
     def apply(self, data, config):
         # Extract configuration
         use_filter = config.get('USE_MY_CUSTOM_FILTER', False)
         threshold = config.get('MY_CUSTOM_THRESHOLD', 0.5)
         signal_column = config.get('SIGNAL_COLUMN', 'Signal')
-        
+
         # Skip if disabled
         if not use_filter:
             return data
-            
+
         # Convert to pandas for processing
         is_polars = isinstance(data, pl.DataFrame)
         if is_polars:
             df = data.to_pandas()
         else:
             df = data
-        
+
         # Count signals before filtering
         self.total_signals = int(np.sum(df[signal_column] != 0))
-        
+
         # Create a copy of the original signals
         original_signals = df[signal_column].copy()
-        
+
         # Apply custom filtering logic
         # ...
-        
+
         # Count filtered signals
         self.filtered_signals = int(np.sum(original_signals != 0) - np.sum(df[signal_column] != 0))
-        
+
         # Track rejection reason
         self._track_rejection("Custom rejection reason", self.filtered_signals)
-        
+
         # Convert back to polars if needed
         if is_polars:
             return pl.from_pandas(df)
@@ -110,6 +110,7 @@ class MyCustomFilter(BaseFilter):
 Filters signals based on Relative Strength Index (RSI) values.
 
 **Configuration Parameters:**
+
 - `USE_RSI` (bool): Whether to enable RSI filtering
 - `RSI_THRESHOLD` (int): RSI threshold value (default: 70)
 - `DIRECTION` (str): Trading direction ('Long' or 'Short')
@@ -117,6 +118,7 @@ Filters signals based on Relative Strength Index (RSI) values.
 - `RSI_COLUMN` (str): Name of the RSI column (default: 'RSI')
 
 **Behavior:**
+
 - For long positions: Signals are filtered out if RSI < threshold
 - For short positions: Signals are filtered out if RSI > (100 - threshold)
 
@@ -125,12 +127,14 @@ Filters signals based on Relative Strength Index (RSI) values.
 Filters signals based on trading volume thresholds.
 
 **Configuration Parameters:**
+
 - `USE_VOLUME_FILTER` (bool): Whether to enable volume filtering
 - `MIN_VOLUME` (int): Minimum required volume
 - `VOLUME_COLUMN` (str): Name of the volume column (default: 'Volume')
 - `SIGNAL_COLUMN` (str): Name of the signal column (default: 'Signal')
 
 **Behavior:**
+
 - Signals are filtered out if volume < MIN_VOLUME
 
 ### Volatility Filter
@@ -138,6 +142,7 @@ Filters signals based on trading volume thresholds.
 Filters signals based on Average True Range (ATR) volatility thresholds.
 
 **Configuration Parameters:**
+
 - `USE_VOLATILITY_FILTER` (bool): Whether to enable volatility filtering
 - `MIN_ATR` (float): Minimum required ATR value
 - `MAX_ATR` (float): Maximum allowed ATR value
@@ -145,6 +150,7 @@ Filters signals based on Average True Range (ATR) volatility thresholds.
 - `SIGNAL_COLUMN` (str): Name of the signal column (default: 'Signal')
 
 **Behavior:**
+
 - Signals are filtered out if ATR < MIN_ATR or ATR > MAX_ATR
 
 ## Filter Statistics

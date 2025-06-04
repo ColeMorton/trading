@@ -19,7 +19,7 @@ repos:
       - id: check-json
       - id: check-toml
       - id: check-xml
-      - id: debug-statements  # Re-enabled after syntax fixes
+      - id: debug-statements # Re-enabled after syntax fixes
       - id: detect-private-key
       - id: fix-byte-order-marker
       - id: mixed-line-ending

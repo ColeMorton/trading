@@ -169,7 +169,7 @@
 <body>
     <div class="container">
         <h1>Stock Price History</h1>
-        
+
         <div class="input-container">
             <input type="text" class="ticker-input" id="tickerInput" placeholder="Enter ticker symbol" value="BTC-USD">
             <button class="go-button" id="goButton">Go!</button>
@@ -183,7 +183,7 @@
         <div class="error" id="error"></div>
 
         <div class="ticker-label" id="tickerLabel"></div>
-        
+
         <div class="chart-container" id="chartContainer">
             <canvas id="priceChart"></canvas>
         </div>
@@ -191,32 +191,32 @@
 
     <script>
         let chart = null;
-        
+
         const tickerInput = document.getElementById('tickerInput');
         const goButton = document.getElementById('goButton');
         const loading = document.getElementById('loading');
         const error = document.getElementById('error');
         const chartContainer = document.getElementById('chartContainer');
         const tickerLabel = document.getElementById('tickerLabel');
-        
+
         goButton.addEventListener('click', fetchPriceHistory);
         tickerInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 fetchPriceHistory();
             }
         });
-        
+
         async function fetchPriceHistory() {
             const ticker = tickerInput.value.trim();
             if (!ticker) return;
-            
+
             // UI states
             goButton.disabled = true;
             loading.classList.add('visible');
             error.classList.remove('visible');
             chartContainer.classList.remove('visible');
             tickerLabel.classList.remove('visible');
-            
+
             try {
                 const response = await fetch('/api/ticker-history', {
                     method: 'POST',
@@ -225,9 +225,9 @@
                     },
                     body: JSON.stringify({ ticker })
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
                     renderChart(data.data, ticker);
                     tickerLabel.textContent = ticker.toUpperCase();
@@ -242,23 +242,23 @@
                 loading.classList.remove('visible');
             }
         }
-        
+
         function showError(message) {
             error.textContent = message;
             error.classList.add('visible');
         }
-        
+
         function renderChart(data, ticker) {
             const ctx = document.getElementById('priceChart').getContext('2d');
-            
+
             // Destroy existing chart if any
             if (chart) {
                 chart.destroy();
             }
-            
+
             const dates = data.map(d => d.date);
             const prices = data.map(d => d.close);
-            
+
             chart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -345,7 +345,7 @@
                     }
                 }
             });
-            
+
             chartContainer.style.height = '400px';
             chartContainer.classList.add('visible');
         }

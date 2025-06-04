@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ### Running the Application
+
 ```bash
 # Start the Flask server (automatically finds available port)
 python app.py
@@ -13,6 +14,7 @@ python app.py
 ```
 
 ### Testing
+
 ```bash
 # Run Puppeteer UI tests (ensure Flask server is running first)
 npm test
@@ -22,6 +24,7 @@ npm test
 ```
 
 ### Dependencies
+
 ```bash
 # Install Python dependencies
 pip install -r requirements.txt
@@ -34,13 +37,15 @@ npm install
 
 This is a stock price visualization web application with:
 
-1. **Backend (Flask)**: 
+1. **Backend (Flask)**:
+
    - `app.py` - Main Flask application with yfinance integration
    - Endpoint `/api/ticker-history` accepts POST with ticker symbol
    - Implements fallback strategies for fetching data (period="1mo" → period="max" → yf.download())
    - Auto-finds available port to avoid conflicts
 
-2. **Frontend**: 
+2. **Frontend**:
+
    - Single-page application in `templates/index.html`
    - Chart.js for price visualization
    - Dark theme with purple gradient accents
@@ -54,6 +59,6 @@ This is a stock price visualization web application with:
 ## Key Implementation Details
 
 - The app has multiple versions (`app.py`, `app_fixed.py`, `app_simple.py`) - use `app.py` as the primary version
-- yfinance error handling includes clearing shared._ERRORS and trying multiple fetch methods
+- yfinance error handling includes clearing shared.\_ERRORS and trying multiple fetch methods
 - Frontend expects data in format: `{date, open, high, low, close, volume}`
 - All API responses follow consistent JSON structure with `success` flag

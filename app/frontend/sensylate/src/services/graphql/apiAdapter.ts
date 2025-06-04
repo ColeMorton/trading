@@ -1,10 +1,10 @@
 import { getApolloClient } from '../../apollo/client';
 import { CSVFile, CSVData, UpdateStatus } from '../../types';
-import { 
+import {
   GetFileListDocument,
   GetPortfoliosDocument,
   GetPriceDataDocument,
-  UpdatePortfolioDocument
+  UpdatePortfolioDocument,
 } from '../../graphql/generated';
 
 /**
@@ -18,22 +18,22 @@ export const graphqlApi = {
   getFileList: async (): Promise<CSVFile[]> => {
     try {
       const client = getApolloClient();
-      
+
       // Execute GraphQL query
       const { data } = await client.query({
         query: GetFileListDocument,
-        fetchPolicy: 'cache-first' // Use cache when available for offline support
+        fetchPolicy: 'cache-first', // Use cache when available for offline support
       });
 
       // Transform strategies to file list format
       const files: CSVFile[] = [];
-      
+
       // Add strategy files
       if (data.strategies) {
-        data.strategies.forEach(strategy => {
+        data.strategies.forEach((strategy) => {
           files.push({
             path: `strategies/${strategy.name}.csv`,
-            name: `${strategy.name}.csv`
+            name: `${strategy.name}.csv`,
           });
         });
       }
@@ -42,17 +42,17 @@ export const graphqlApi = {
       const portfolioResult = await client.query({
         query: GetPortfoliosDocument,
         variables: { filter: { limit: 100 } },
-        fetchPolicy: 'cache-first'
+        fetchPolicy: 'cache-first',
       });
 
       if (portfolioResult.data.portfolios) {
         const uniquePortfolios = new Set<string>();
-        portfolioResult.data.portfolios.forEach(portfolio => {
+        portfolioResult.data.portfolios.forEach((portfolio) => {
           if (!uniquePortfolios.has(portfolio.name)) {
             uniquePortfolios.add(portfolio.name);
             files.push({
               path: `portfolios/${portfolio.name}.csv`,
-              name: `${portfolio.name}.csv`
+              name: `${portfolio.name}.csv`,
             });
           }
         });
@@ -72,7 +72,7 @@ export const graphqlApi = {
   getCSVData: async (filePath: string): Promise<CSVData> => {
     try {
       const client = getApolloClient();
-      
+
       // Extract symbol from file path (e.g., "strategies/BTC-USD.csv" -> "BTC-USD")
       const pathParts = filePath.split('/');
       const fileName = pathParts[pathParts.length - 1];
@@ -84,10 +84,10 @@ export const graphqlApi = {
         variables: {
           symbol,
           filter: {
-            limit: 1000 // Get recent data
-          }
+            limit: 1000, // Get recent data
+          },
         },
-        fetchPolicy: 'cache-first'
+        fetchPolicy: 'cache-first',
       });
 
       if (!data.priceData || data.priceData.length === 0) {
@@ -96,15 +96,15 @@ export const graphqlApi = {
 
       // Transform price data to CSV format
       const csvData = {
-        data: data.priceData.map(bar => ({
+        data: data.priceData.map((bar) => ({
           date: bar.date,
           open: bar.open,
           high: bar.high,
           low: bar.low,
           close: bar.close,
-          volume: bar.volume || 0
+          volume: bar.volume || 0,
         })),
-        columns: ['date', 'open', 'high', 'low', 'close', 'volume']
+        columns: ['date', 'open', 'high', 'low', 'close', 'volume'],
       };
 
       return csvData;
@@ -120,7 +120,7 @@ export const graphqlApi = {
   updatePortfolio: async (fileName: string): Promise<UpdateStatus> => {
     try {
       const client = getApolloClient();
-      
+
       // Extract portfolio name from file name
       const portfolioName = fileName.replace('.csv', '');
 
@@ -130,9 +130,9 @@ export const graphqlApi = {
         variables: {
           filter: {
             name: portfolioName,
-            limit: 1
-          }
-        }
+            limit: 1,
+          },
+        },
       });
 
       if (!portfolioData.portfolios || portfolioData.portfolios.length === 0) {
@@ -148,24 +148,24 @@ export const graphqlApi = {
           id: portfolio.id,
           input: {
             name: portfolio.name,
-            type: portfolio.type
-          }
-        }
+            type: portfolio.type,
+          },
+        },
       });
 
       // Return update status
       return {
         status: 'success',
         message: `Portfolio ${portfolioName} updated successfully`,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
       console.error('GraphQL error updating portfolio:', error);
       return {
         status: 'error',
         message: error instanceof Error ? error.message : 'Update failed',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
-  }
+  },
 };

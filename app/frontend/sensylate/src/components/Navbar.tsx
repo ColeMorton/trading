@@ -23,9 +23,9 @@ const Navbar: React.FC = () => {
           <Icon icon={icons.brand} className="me-2" />
           Sensylate
         </a>
-        <button 
-          className="navbar-toggler" 
-          type="button" 
+        <button
+          className="navbar-toggler"
+          type="button"
           onClick={toggleNavbar}
           aria-controls="navbarNav"
           aria-expanded={isOpen}
@@ -33,11 +33,16 @@ const Navbar: React.FC = () => {
         >
           <Icon icon={isOpen ? icons.times : icons.menu} />
         </button>
-        <div className={`collapse navbar-collapse ${isOpen ? 'show' : ''}`} id="navbarNav">
+        <div
+          className={`collapse navbar-collapse ${isOpen ? 'show' : ''}`}
+          id="navbarNav"
+        >
           <ul className="navbar-nav">
             <li className="nav-item">
-              <button 
-                className={`nav-link btn btn-link ${currentView === 'csv-viewer' ? 'active' : ''}`}
+              <button
+                className={`nav-link btn btn-link ${
+                  currentView === 'csv-viewer' ? 'active' : ''
+                }`}
                 aria-current={currentView === 'csv-viewer' ? 'page' : undefined}
                 onClick={() => handleNavClick('csv-viewer')}
               >
@@ -46,9 +51,13 @@ const Navbar: React.FC = () => {
               </button>
             </li>
             <li className="nav-item">
-              <button 
-                className={`nav-link btn btn-link ${currentView === 'parameter-testing' ? 'active' : ''}`}
-                aria-current={currentView === 'parameter-testing' ? 'page' : undefined}
+              <button
+                className={`nav-link btn btn-link ${
+                  currentView === 'parameter-testing' ? 'active' : ''
+                }`}
+                aria-current={
+                  currentView === 'parameter-testing' ? 'page' : undefined
+                }
                 onClick={() => handleNavClick('parameter-testing')}
                 data-testid="nav-parameter-testing"
               >

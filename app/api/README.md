@@ -90,7 +90,7 @@ sequenceDiagram
     participant Sensylate
     participant API
     participant Scripts
-    
+
     User->>Sensylate: Click "Update" button
     Sensylate->>API: POST /api/scripts/update-portfolio
     API-->>Sensylate: 202 Accepted + execution_id
@@ -110,11 +110,13 @@ sequenceDiagram
 ### 1. List Available Strategy Files
 
 **Request:**
+
 ```bash
 curl -X GET "http://127.0.0.1:8000/api/data/list/strategies"
 ```
 
 **Response:**
+
 ```json
 {
   "status": "success",
@@ -137,11 +139,13 @@ curl -X GET "http://127.0.0.1:8000/api/data/list/strategies"
 ### 2. Get CSV Portfolio Data
 
 **Request:**
+
 ```bash
 curl -X GET "http://127.0.0.1:8000/api/data/csv/csv/strategies/DAILY_test.csv"
 ```
 
 **Response:**
+
 ```json
 {
   "status": "success",
@@ -196,6 +200,7 @@ curl -X GET "http://127.0.0.1:8000/api/data/csv/csv/strategies/DAILY_test.csv"
 ### 3. Update Portfolio with Real-Time Status
 
 **Initial Request:**
+
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/scripts/update-portfolio" \
   -H "Content-Type: application/json" \
@@ -203,6 +208,7 @@ curl -X POST "http://127.0.0.1:8000/api/scripts/update-portfolio" \
 ```
 
 **Initial Response:**
+
 ```json
 {
   "status": "accepted",
@@ -213,12 +219,14 @@ curl -X POST "http://127.0.0.1:8000/api/scripts/update-portfolio" \
 ```
 
 **SSE Status Stream:**
+
 ```bash
 curl -X GET "http://127.0.0.1:8000/api/scripts/status-stream/9322338b-68ee-4ed6-ae5c-2db7f965584e" \
   -H "Accept: text/event-stream"
 ```
 
 **SSE Response Stream:**
+
 ```
 data: {"status": "running", "execution_id": "9322338b-68ee-4ed6-ae5c-2db7f965584e", "message": "Processing strategy configuration for BTC-USD_RSP", "progress": 33}
 
@@ -232,6 +240,7 @@ data: {"status": "completed", "execution_id": "9322338b-68ee-4ed6-ae5c-2db7f9655
 ### 4. Execute Generic Script
 
 **Request:**
+
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/scripts/execute" \
   -H "Content-Type: application/json" \
@@ -247,6 +256,7 @@ curl -X POST "http://127.0.0.1:8000/api/scripts/execute" \
 ```
 
 **Response:**
+
 ```json
 {
   "status": "accepted",
@@ -258,17 +268,19 @@ curl -X POST "http://127.0.0.1:8000/api/scripts/execute" \
 ### 5. Get Script Execution Status
 
 **Request:**
+
 ```bash
 curl -X GET "http://127.0.0.1:8000/api/scripts/status/9322338b-68ee-4ed6-ae5c-2db7f965584e"
 ```
 
 **Response:**
+
 ```json
 {
   "status": "completed",
   "execution_id": "9322338b-68ee-4ed6-ae5c-2db7f965584e",
   "script_path": "app/strategies/update_portfolios.py",
-  "parameters": {"portfolio": "DAILY_test.csv"},
+  "parameters": { "portfolio": "DAILY_test.csv" },
   "start_time": "2025-05-26T13:48:07.787000",
   "end_time": "2025-05-26T13:48:18.404000",
   "execution_time": 10.617,
@@ -310,15 +322,18 @@ The API integrates with the Model Context Protocol (MCP) to provide AI assistant
 ### Available MCP Tools
 
 #### Script Tools
+
 - **`list_trading_scripts`** - Lists available Python scripts
 - **`execute_trading_script`** - Executes scripts with parameters
 - **`check_script_status`** - Checks execution status
 
 #### Data Tools
+
 - **`list_data_files`** - Lists CSV/JSON data files
 - **`get_trading_data`** - Retrieves file contents
 
 #### Portfolio Tools
+
 - **`update_portfolio`** - Specialized portfolio update tool
 
 ### MCP Usage Example
@@ -335,6 +350,7 @@ get_trading_data({"file_path": "csv/strategies/DAILY_test.csv", "format": "csv"}
 ## Error Handling
 
 ### Network Errors
+
 ```json
 {
   "status": "error",
@@ -345,6 +361,7 @@ get_trading_data({"file_path": "csv/strategies/DAILY_test.csv", "format": "csv"}
 ```
 
 ### Script Execution Errors
+
 ```json
 {
   "status": "failed",
@@ -356,6 +373,7 @@ get_trading_data({"file_path": "csv/strategies/DAILY_test.csv", "format": "csv"}
 ```
 
 ### Path Validation Errors
+
 ```json
 {
   "status": "error",
@@ -365,6 +383,7 @@ get_trading_data({"file_path": "csv/strategies/DAILY_test.csv", "format": "csv"}
 ```
 
 ### File Not Found Errors
+
 ```json
 {
   "status": "error",
@@ -380,6 +399,7 @@ get_trading_data({"file_path": "csv/strategies/DAILY_test.csv", "format": "csv"}
 When a user clicks "Update" in Sensylate, the following detailed workflow occurs:
 
 #### Phase 1: Request Initialization (< 1 second)
+
 ```
 POST /api/scripts/update-portfolio {"portfolio": "DAILY_test.csv"}
 → 202 Accepted + execution_id
@@ -387,6 +407,7 @@ POST /api/scripts/update-portfolio {"portfolio": "DAILY_test.csv"}
 ```
 
 #### Phase 2: Portfolio Loading (1-2 seconds)
+
 ```
 - Load CSV configuration from csv/strategies/DAILY_test.csv
 - Validate 3 strategy configurations (BTC-USD_RSP, BTC-USD_QQQ, BTC-USD_SPY)
@@ -394,6 +415,7 @@ POST /api/scripts/update-portfolio {"portfolio": "DAILY_test.csv"}
 ```
 
 #### Phase 3: Market Data Acquisition (3-5 seconds)
+
 ```
 For each synthetic pair:
   1. Download BTC-USD: 3,904 records (2014-2025)
@@ -404,6 +426,7 @@ For each synthetic pair:
 ```
 
 #### Phase 4: Technical Analysis (2-3 seconds)
+
 ```
 For each strategy:
   1. Calculate SMA indicators (short/long windows)
@@ -414,6 +437,7 @@ For each strategy:
 ```
 
 #### Phase 5: Signal Aggregation (< 1 second)
+
 ```
 - Rank strategies by Score (normalized performance)
 - Identify active positions and signal entries
@@ -422,6 +446,7 @@ For each strategy:
 ```
 
 #### Phase 6: Data Export & Completion (< 1 second)
+
 ```
 - Export updated portfolio to CSV with new metrics
 - Log execution summary and performance stats
@@ -443,7 +468,7 @@ During execution, the frontend receives granular updates:
 }
 
 {
-  "status": "running", 
+  "status": "running",
   "message": "Processing strategy configuration for BTC-USD_RSP",
   "progress": 33,
   "execution_id": "9322338b-68ee-4ed6-ae5c-2db7f965584e"
@@ -474,7 +499,7 @@ The system generates actionable trading signals:
     "current_position": "long",
     "score": 2.0743,
     "win_rate": 70.73,
-    "total_return": 12779.20,
+    "total_return": 12779.2,
     "max_drawdown": 63.02
   }
 }

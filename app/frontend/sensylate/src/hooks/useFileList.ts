@@ -10,28 +10,30 @@ import { useAppContext } from '../context/AppContext';
 export const useFileList = () => {
   const [files, setFiles] = useState<CSVFile[]>([]);
   const { setError, setIsLoading, setSelectedFile } = useAppContext();
-  
+
   useEffect(() => {
     const fetchFiles = async () => {
       try {
         setIsLoading(true);
         const fileList = await api.getFileList();
         setFiles(fileList);
-        
+
         // Check if DAILY.csv exists and select it by default
-        const dailyFile = fileList.find(file => file.name === 'DAILY.csv');
+        const dailyFile = fileList.find((file) => file.name === 'DAILY.csv');
         if (dailyFile) {
           setSelectedFile(dailyFile.path);
         }
       } catch (error) {
-        setError(error instanceof Error ? error.message : 'Failed to load file list');
+        setError(
+          error instanceof Error ? error.message : 'Failed to load file list'
+        );
       } finally {
         setIsLoading(false);
       }
     };
-    
+
     fetchFiles();
   }, [setError, setIsLoading, setSelectedFile]);
-  
+
   return files;
 };

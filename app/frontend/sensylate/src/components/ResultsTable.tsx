@@ -183,8 +183,8 @@ const ResultsTable: React.FC<ResultsTableProps> = React.memo(
           header: 'Beats BNH [%]',
           cell: (info) => {
             const value = info.getValue();
-            return value !== undefined && value !== null 
-              ? (value * 100).toFixed(2) + '%' 
+            return value !== undefined && value !== null
+              ? (value * 100).toFixed(2) + '%'
               : 'N/A';
           },
         }),
@@ -220,7 +220,10 @@ const ResultsTable: React.FC<ResultsTableProps> = React.memo(
 
     // Export to CSV functionality
     const exportToCSV = () => {
-      const headers = columns.filter(col => col.id !== 'expand').map((col) => col.header as string).join(',');
+      const headers = columns
+        .filter((col) => col.id !== 'expand')
+        .map((col) => col.header as string)
+        .join(',');
       const rows = results.map((row) => {
         return [
           row.ticker,
@@ -235,8 +238,8 @@ const ResultsTable: React.FC<ResultsTableProps> = React.memo(
           (row.expectancy_per_trade * 100).toFixed(2),
           row.sortino_ratio.toFixed(2),
           row.avg_trade_duration?.toFixed(1) || 'N/A',
-          row.beats_bnh !== undefined && row.beats_bnh !== null 
-            ? (row.beats_bnh * 100).toFixed(2) 
+          row.beats_bnh !== undefined && row.beats_bnh !== null
+            ? (row.beats_bnh * 100).toFixed(2)
             : 'N/A',
         ].join(',');
       });

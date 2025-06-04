@@ -112,11 +112,13 @@ pytest test_analysis.py::TestSignalMetrics
 Unit tests focus on individual components:
 
 - **Configuration**: `test_config.py`
+
   - Config validation
   - Portfolio format detection
   - File format validation
 
 - **Analysis**: `test_analysis.py`
+
   - Data alignment
   - Signal metrics calculation
   - Efficiency metrics
@@ -182,10 +184,10 @@ class TestMyComponent(ConcurrencyTestCase, MockDataMixin):
         """Test basic component functionality."""
         # Create test data
         strategy = self.create_ma_strategy("BTC-USD")
-        
+
         # Test component
         result = my_component_function(strategy)
-        
+
         # Assert results
         self.assertIsNotNone(result)
         self.assertEqual(result['status'], 'success')
@@ -202,7 +204,7 @@ class TestComponentPerformance(ConcurrencyTestCase, PerformanceTestMixin):
         # Test with different sizes
         for size in [10, 50, 100]:
             data = self.create_large_dataset(size)
-            
+
             # Time the operation
             result = self.assert_performance(
                 my_function,

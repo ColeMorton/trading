@@ -2,16 +2,16 @@ openapi: 3.0.3
 info:
   title: Trading API
   description: |
-    FastAPI server for executing trading scripts and retrieving data files. 
+    FastAPI server for executing trading scripts and retrieving data files.
     Serves as the backend for Sensylate, a React PWA for CSV-based portfolio analysis and strategy visualization.
-    
+
     ## Features
     - Execute Python scripts with parameters (sync/async)
     - Real-time status updates via Server-Sent Events (SSE)
     - Retrieve CSV and JSON data files with security validation
     - Specialized portfolio update workflows
     - MCP server integration for AI assistant access
-    
+
     ## Sensylate Integration
     This API handles the complete portfolio analysis workflow:
     1. Initial data loading via file listings
@@ -49,13 +49,13 @@ paths:
                 properties:
                   name:
                     type: string
-                    example: "Trading API"
+                    example: 'Trading API'
                   version:
                     type: string
-                    example: "0.1.0"
+                    example: '0.1.0'
                   description:
                     type: string
-                    example: "API for executing trading scripts and retrieving data"
+                    example: 'API for executing trading scripts and retrieving data'
 
   /health:
     get:
@@ -73,7 +73,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "healthy"
+                    example: 'healthy'
 
   # Script Execution Endpoints
   /api/scripts/execute:
@@ -82,9 +82,9 @@ paths:
         - scripts
       summary: Execute a script
       description: |
-        Execute a Python script with the provided parameters. 
+        Execute a Python script with the provided parameters.
         The script can be executed synchronously or asynchronously.
-        
+
         **Allowed script directories:**
         - `app/ma_cross/`
         - `app/concurrency/`
@@ -99,19 +99,19 @@ paths:
               async_execution:
                 summary: Asynchronous execution example
                 value:
-                  script_path: "app/ma_cross/1_get_portfolios.py"
+                  script_path: 'app/ma_cross/1_get_portfolios.py'
                   async_execution: true
                   parameters:
-                    TICKER: ["NVDA", "NFLX"]
+                    TICKER: ['NVDA', 'NFLX']
                     WINDOWS: 89
-                    DIRECTION: "Long"
+                    DIRECTION: 'Long'
               sync_execution:
                 summary: Synchronous execution example
                 value:
-                  script_path: "app/strategies/correlation.py"
+                  script_path: 'app/strategies/correlation.py'
                   async_execution: false
                   parameters:
-                    portfolio: "crypto.json"
+                    portfolio: 'crypto.json'
       responses:
         '200':
           description: Synchronous execution completed
@@ -152,7 +152,7 @@ paths:
       description: |
         Execute the update_portfolios.py script with the specified portfolio file.
         This is a specialized endpoint for Sensylate portfolio updates.
-        
+
         **Workflow:**
         1. Accepts portfolio filename
         2. Executes `app/strategies/update_portfolios.py` asynchronously
@@ -170,11 +170,11 @@ paths:
                 portfolio:
                   type: string
                   description: Portfolio filename (e.g., "DAILY_test.csv")
-                  example: "DAILY_test.csv"
+                  example: 'DAILY_test.csv'
               required:
                 - portfolio
             example:
-              portfolio: "DAILY_test.csv"
+              portfolio: 'DAILY_test.csv'
       responses:
         '202':
           description: Portfolio update started
@@ -187,12 +187,12 @@ paths:
                     properties:
                       script_path:
                         type: string
-                        example: "app/strategies/update_portfolios.py"
+                        example: 'app/strategies/update_portfolios.py'
               example:
-                status: "accepted"
-                execution_id: "9322338b-68ee-4ed6-ae5c-2db7f965584e"
-                message: "Portfolio update started"
-                script_path: "app/strategies/update_portfolios.py"
+                status: 'accepted'
+                execution_id: '9322338b-68ee-4ed6-ae5c-2db7f965584e'
+                message: 'Portfolio update started'
+                script_path: 'app/strategies/update_portfolios.py'
         '400':
           description: Bad request - missing portfolio parameter
           content:
@@ -220,7 +220,7 @@ paths:
             type: string
             format: uuid
           description: Unique execution identifier
-          example: "9322338b-68ee-4ed6-ae5c-2db7f965584e"
+          example: '9322338b-68ee-4ed6-ae5c-2db7f965584e'
       responses:
         '200':
           description: Script execution status
@@ -232,15 +232,15 @@ paths:
                 completed:
                   summary: Completed portfolio update
                   value:
-                    execution_id: "9322338b-68ee-4ed6-ae5c-2db7f965584e"
-                    status: "completed"
+                    execution_id: '9322338b-68ee-4ed6-ae5c-2db7f965584e'
+                    status: 'completed'
                     progress: 100
-                    message: "Portfolio update completed in 10.62 seconds"
-                    start_time: "2025-05-26T13:48:07.787000"
+                    message: 'Portfolio update completed in 10.62 seconds'
+                    start_time: '2025-05-26T13:48:07.787000'
                     elapsed_time: 10.617
                     result:
                       success: true
-                      message: "Portfolio update completed in 10.62 seconds"
+                      message: 'Portfolio update completed in 10.62 seconds'
                       data:
                         total_strategies: 3
                         total_open_trades: 2
@@ -250,11 +250,11 @@ paths:
                 running:
                   summary: Script in progress
                   value:
-                    execution_id: "9322338b-68ee-4ed6-ae5c-2db7f965584e"
-                    status: "running"
+                    execution_id: '9322338b-68ee-4ed6-ae5c-2db7f965584e'
+                    status: 'running'
                     progress: 66
-                    message: "Processing strategy configuration for BTC-USD_QQQ"
-                    start_time: "2025-05-26T13:48:07.787000"
+                    message: 'Processing strategy configuration for BTC-USD_QQQ'
+                    start_time: '2025-05-26T13:48:07.787000'
                     elapsed_time: 5.234
         '404':
           description: Execution ID not found
@@ -276,16 +276,16 @@ paths:
       summary: Stream script execution status
       description: |
         Stream real-time status updates for a script execution using Server-Sent Events (SSE).
-        
+
         **Usage in Sensylate:**
         - Provides real-time progress updates during portfolio updates
         - Updates every 0.5 seconds until completion
         - Automatically closes connection when script completes or fails
-        
+
         **Event Format:**
         ```
         data: {"status": "running", "execution_id": "...", "message": "...", "progress": 33}
-        
+
         data: {"status": "completed", "execution_id": "...", "result": {...}}
         ```
       parameters:
@@ -296,7 +296,7 @@ paths:
             type: string
             format: uuid
           description: Unique execution identifier
-          example: "9322338b-68ee-4ed6-ae5c-2db7f965584e"
+          example: '9322338b-68ee-4ed6-ae5c-2db7f965584e'
       responses:
         '200':
           description: Server-Sent Events stream
@@ -306,28 +306,28 @@ paths:
                 type: string
                 description: |
                   SSE stream with JSON-encoded status updates.
-                  
+
                   Example events:
                   ```
                   data: {"status": "running", "execution_id": "9322338b-68ee-4ed6-ae5c-2db7f965584e", "message": "Processing strategy configuration for BTC-USD_RSP", "progress": 33}
-                  
+
                   data: {"status": "running", "execution_id": "9322338b-68ee-4ed6-ae5c-2db7f965584e", "message": "Processing strategy configuration for BTC-USD_QQQ", "progress": 66}
-                  
+
                   data: {"status": "completed", "execution_id": "9322338b-68ee-4ed6-ae5c-2db7f965584e", "message": "Portfolio update completed in 10.62 seconds", "result": {"success": true, "total_strategies": 3, "signal_entries": 1, "breadth_ratio": 0.6667}}
                   ```
           headers:
             Cache-Control:
               schema:
                 type: string
-                example: "no-cache"
+                example: 'no-cache'
             Connection:
               schema:
                 type: string
-                example: "keep-alive"
+                example: 'keep-alive'
             Content-Type:
               schema:
                 type: string
-                example: "text/event-stream"
+                example: 'text/event-stream'
         '404':
           description: Execution ID not found
           content:
@@ -394,21 +394,21 @@ paths:
               basic_analysis:
                 summary: Basic MA Cross analysis
                 value:
-                  ticker: "BTC-USD"
+                  ticker: 'BTC-USD'
                   windows: 8
               advanced_analysis:
                 summary: Advanced analysis with multiple tickers
                 value:
-                  ticker: ["BTC-USD", "ETH-USD", "SOL-USD"]
+                  ticker: ['BTC-USD', 'ETH-USD', 'SOL-USD']
                   windows: 12
-                  strategy_types: ["SMA", "EMA"]
+                  strategy_types: ['SMA', 'EMA']
                   async_execution: true
               custom_criteria:
                 summary: Analysis with filtering criteria
                 value:
-                  ticker: "AAPL"
+                  ticker: 'AAPL'
                   windows: 252
-                  strategy_types: ["SMA"]
+                  strategy_types: ['SMA']
                   min_criteria:
                     trades: 10
                     win_rate: 0.6
@@ -498,17 +498,17 @@ paths:
                 type: string
                 description: |
                   SSE stream with analysis progress updates.
-                  
+
                   Example events:
                   ```
                   data: {"status": "running", "progress": 10, "message": "Initializing SMA analysis", "progress_details": {"phase": "initializing", "current": 1, "total": 10, "percentage": 10.0}}
-                  
+
                   data: {"status": "running", "progress": 30, "message": "Processing BTC-USD", "progress_details": {"phase": "backtesting", "current": 3, "total": 10, "percentage": 30.0}}
-                  
+
                   data: {"status": "running", "progress": 60, "message": "Filtering portfolios", "progress_details": {"phase": "filtering", "current": 6, "total": 10, "percentage": 60.0}}
-                  
+
                   data: {"status": "completed", "progress": 100, "message": "Analysis complete", "result": {"success": true, "portfolios": [...]}}
-                  
+
                   data: [DONE]
                   ```
         '404':
@@ -558,12 +558,12 @@ paths:
       summary: Get CSV data
       description: |
         Retrieve and parse CSV file data with security validation.
-        
+
         **Sensylate Usage:**
         - Primary endpoint for loading portfolio data
         - Returns parsed CSV with column headers and data rows
         - Used for displaying strategy metrics in data tables
-        
+
         **Allowed directories:**
         - `csv/` - All CSV data files
         - `csv/strategies/` - Portfolio strategy files
@@ -575,7 +575,7 @@ paths:
           schema:
             type: string
           description: Path to the CSV file (relative to project root)
-          example: "csv/strategies/DAILY_test.csv"
+          example: 'csv/strategies/DAILY_test.csv'
       responses:
         '200':
           description: CSV data retrieved successfully
@@ -591,44 +591,56 @@ paths:
                       file_path:
                         type: string
                         description: Path to the file
-                        example: "csv/strategies/DAILY_test.csv"
+                        example: 'csv/strategies/DAILY_test.csv'
               example:
-                status: "success"
+                status: 'success'
                 data:
                   data:
-                    - Ticker: "BTC-USD_RSP"
+                    - Ticker: 'BTC-USD_RSP'
                       Short Window: 61
                       Long Window: 66
-                      Strategy Type: "SMA"
+                      Strategy Type: 'SMA'
                       Signal Entry: false
                       Signal Exit: false
                       Total Trades: 39
                       Score: 2.0971743838296493
                       Win Rate [%]: 74.35897435897436
                       Total Return [%]: 6283.200931687664
-                    - Ticker: "BTC-USD_QQQ"
+                    - Ticker: 'BTC-USD_QQQ'
                       Short Window: 71
                       Long Window: 77
-                      Strategy Type: "SMA"
+                      Strategy Type: 'SMA'
                       Signal Entry: false
                       Signal Exit: false
                       Total Trades: 37
                       Score: 2.090154800932333
                       Win Rate [%]: 70.27027027027027
                       Total Return [%]: 7327.536342956961
-                    - Ticker: "BTC-USD_SPY"
+                    - Ticker: 'BTC-USD_SPY'
                       Short Window: 73
                       Long Window: 76
-                      Strategy Type: "SMA"
+                      Strategy Type: 'SMA'
                       Signal Entry: true
                       Signal Exit: false
                       Total Trades: 41
                       Score: 2.0720115150269995
                       Win Rate [%]: 70.73170731707317
                       Total Return [%]: 12779.198986911862
-                  columns: ["Ticker", "Short Window", "Long Window", "Strategy Type", "Signal Entry", "Signal Exit", "Total Trades", "Score", "Win Rate [%]", "Total Return [%]"]
-                format: "csv"
-                file_path: "csv/strategies/DAILY_test.csv"
+                  columns:
+                    [
+                      'Ticker',
+                      'Short Window',
+                      'Long Window',
+                      'Strategy Type',
+                      'Signal Entry',
+                      'Signal Exit',
+                      'Total Trades',
+                      'Score',
+                      'Win Rate [%]',
+                      'Total Return [%]',
+                    ]
+                format: 'csv'
+                file_path: 'csv/strategies/DAILY_test.csv'
         '400':
           description: Bad request - invalid file path
           content:
@@ -636,9 +648,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               example:
-                status: "error"
-                message: "File path must be within allowed directories"
-                detail: "Attempted to access: ../../../etc/passwd"
+                status: 'error'
+                message: 'File path must be within allowed directories'
+                detail: 'Attempted to access: ../../../etc/passwd'
         '404':
           description: File not found
           content:
@@ -646,9 +658,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               example:
-                status: "error"
-                message: "File not found: nonexistent.csv"
-                detail: "The requested file does not exist or is not accessible"
+                status: 'error'
+                message: 'File not found: nonexistent.csv'
+                detail: 'The requested file does not exist or is not accessible'
         '500':
           description: Internal server error
           content:
@@ -663,7 +675,7 @@ paths:
       summary: Get JSON data
       description: |
         Retrieve JSON file data with security validation.
-        
+
         **Common Use Cases:**
         - Portfolio configuration files
         - Strategy parameter files
@@ -675,7 +687,7 @@ paths:
           schema:
             type: string
           description: Path to the JSON file (relative to project root)
-          example: "json/portfolios/crypto.json"
+          example: 'json/portfolios/crypto.json'
       responses:
         '200':
           description: JSON data retrieved successfully
@@ -709,7 +721,7 @@ paths:
       summary: List files in default directory
       description: |
         List files in the default directory (csv).
-        
+
         **Query Parameters:**
         - `directory` - Override default directory
       parameters:
@@ -717,9 +729,9 @@ paths:
           name: directory
           schema:
             type: string
-            default: "csv"
+            default: 'csv'
           description: Directory to list files from
-          example: "strategies"
+          example: 'strategies'
       responses:
         '200':
           description: File list retrieved successfully
@@ -753,7 +765,7 @@ paths:
       summary: List files in specific directory
       description: |
         List files in a specific directory.
-        
+
         **Sensylate Usage:**
         - Primary endpoint for loading strategy file lists
         - Called on app initialization to populate file selector
@@ -765,7 +777,7 @@ paths:
           schema:
             type: string
           description: Directory to list files from
-          example: "strategies"
+          example: 'strategies'
       responses:
         '200':
           description: File list retrieved successfully
@@ -774,19 +786,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/FileListResponse'
               example:
-                status: "success"
+                status: 'success'
                 files:
-                  - name: "DAILY.csv"
-                    path: "csv/strategies/DAILY.csv"
-                    type: "file"
+                  - name: 'DAILY.csv'
+                    path: 'csv/strategies/DAILY.csv'
+                    type: 'file'
                     size: 12345
-                    last_modified: "2025-05-26T13:47:38.000Z"
-                  - name: "DAILY_test.csv"
-                    path: "csv/strategies/DAILY_test.csv"
-                    type: "file"
+                    last_modified: '2025-05-26T13:47:38.000Z'
+                  - name: 'DAILY_test.csv'
+                    path: 'csv/strategies/DAILY_test.csv'
+                    type: 'file'
                     size: 34567
-                    last_modified: "2025-05-26T13:47:59.000Z"
-                directory: "csv/strategies"
+                    last_modified: '2025-05-26T13:47:59.000Z'
+                directory: 'csv/strategies'
         '400':
           description: Bad request - invalid directory
           content:
@@ -817,7 +829,7 @@ components:
         script_path:
           type: string
           description: Path to the script to execute (must be in allowed directories)
-          example: "app/ma_cross/1_get_portfolios.py"
+          example: 'app/ma_cross/1_get_portfolios.py'
         async_execution:
           type: boolean
           default: false
@@ -827,9 +839,9 @@ components:
           additionalProperties: true
           description: Parameters to pass to the script
           example:
-            TICKER: ["NVDA", "NFLX"]
+            TICKER: ['NVDA', 'NFLX']
             WINDOWS: 89
-            DIRECTION: "Long"
+            DIRECTION: 'Long'
 
     # MA Cross Models
     MACrossRequest:
@@ -844,7 +856,7 @@ components:
               items:
                 type: string
           description: Trading symbol(s) to analyze
-          example: "BTC-USD"
+          example: 'BTC-USD'
         windows:
           type: integer
           minimum: 2
@@ -855,13 +867,13 @@ components:
           type: array
           items:
             type: string
-            enum: ["SMA", "EMA"]
-          default: ["SMA", "EMA"]
+            enum: ['SMA', 'EMA']
+          default: ['SMA', 'EMA']
           description: Moving average types to analyze
         direction:
           type: string
-          enum: ["Long", "Short"]
-          default: "Long"
+          enum: ['Long', 'Short']
+          default: 'Long'
           description: Trading direction
         use_hourly:
           type: boolean
@@ -1001,11 +1013,11 @@ components:
           description: Ticker symbol
         timeframe:
           type: string
-          default: "D"
+          default: 'D'
           description: Data timeframe (D=Daily, H=Hourly)
         strategy:
           type: string
-          enum: ["SMA", "EMA"]
+          enum: ['SMA', 'EMA']
           description: Moving average type
         fast_window:
           type: integer
@@ -1190,7 +1202,7 @@ components:
           description: Number of window combinations
         message:
           type: string
-          default: "Analysis started"
+          default: 'Analysis started'
           description: Status message
 
     MACrossStatusResponse:
@@ -1206,7 +1218,7 @@ components:
           description: Execution identifier
         status:
           type: string
-          enum: ["pending", "running", "completed", "failed"]
+          enum: ['pending', 'running', 'completed', 'failed']
           description: Current task status
         progress:
           type: integer
@@ -1317,7 +1329,7 @@ components:
       properties:
         status:
           type: string
-          enum: ["healthy", "degraded", "unhealthy"]
+          enum: ['healthy', 'degraded', 'unhealthy']
           description: Overall health status
         timestamp:
           type: string
@@ -1331,13 +1343,13 @@ components:
           properties:
             database:
               type: string
-              enum: ["healthy", "unhealthy"]
+              enum: ['healthy', 'unhealthy']
             cache:
               type: string
-              enum: ["healthy", "unhealthy"]
+              enum: ['healthy', 'unhealthy']
             external_api:
               type: string
-              enum: ["healthy", "unhealthy"]
+              enum: ['healthy', 'unhealthy']
         metrics:
           type: object
           properties:
@@ -1374,19 +1386,19 @@ components:
             status:
               type: string
               enum: [error]
-              example: "error"
+              example: 'error'
             message:
               type: string
               description: Error message
-              example: "File not found"
+              example: 'File not found'
             error_id:
               type: string
               description: Unique identifier for the error
-              example: "a1b2c3d4e5f6"
+              example: 'a1b2c3d4e5f6'
             detail:
               type: string
               description: Detailed error information
-              example: "The requested file does not exist or is not accessible"
+              example: 'The requested file does not exist or is not accessible'
 
     ScriptExecutionResponse:
       allOf:
@@ -1398,7 +1410,7 @@ components:
             status:
               type: string
               enum: [success]
-              example: "success"
+              example: 'success'
             execution_id:
               type: string
               nullable: true
@@ -1419,15 +1431,15 @@ components:
             status:
               type: string
               enum: [accepted]
-              example: "accepted"
+              example: 'accepted'
             execution_id:
               type: string
               format: uuid
               description: Unique identifier for the execution
-              example: "9322338b-68ee-4ed6-ae5c-2db7f965584e"
+              example: '9322338b-68ee-4ed6-ae5c-2db7f965584e'
             message:
               type: string
-              example: "Script execution started"
+              example: 'Script execution started'
 
     ScriptStatusResponse:
       type: object
@@ -1441,12 +1453,12 @@ components:
           type: string
           format: uuid
           description: Unique identifier for the execution
-          example: "9322338b-68ee-4ed6-ae5c-2db7f965584e"
+          example: '9322338b-68ee-4ed6-ae5c-2db7f965584e'
         status:
           type: string
           enum: [pending, running, completed, failed]
           description: Current status of the execution
-          example: "completed"
+          example: 'completed'
         progress:
           type: integer
           minimum: 0
@@ -1458,12 +1470,12 @@ components:
           type: string
           nullable: true
           description: Status message
-          example: "Portfolio update completed in 10.62 seconds"
+          example: 'Portfolio update completed in 10.62 seconds'
         start_time:
           type: string
           format: date-time
           description: When the execution started
-          example: "2025-05-26T13:48:07.787000"
+          example: '2025-05-26T13:48:07.787000'
         elapsed_time:
           type: number
           format: float
@@ -1476,7 +1488,7 @@ components:
           description: Result if completed
           example:
             success: true
-            message: "Portfolio update completed in 10.62 seconds"
+            message: 'Portfolio update completed in 10.62 seconds'
             data:
               total_strategies: 3
               total_open_trades: 2
@@ -1487,7 +1499,7 @@ components:
           type: string
           nullable: true
           description: Error message if failed
-          example: "Script execution failed: Invalid data format"
+          example: 'Script execution failed: Invalid data format'
 
     DataResponse:
       allOf:
@@ -1500,7 +1512,7 @@ components:
             status:
               type: string
               enum: [success]
-              example: "success"
+              example: 'success'
             data:
               oneOf:
                 - $ref: '#/components/schemas/CSVData'
@@ -1511,7 +1523,7 @@ components:
               type: string
               enum: [csv, json]
               description: Format of the data
-              example: "csv"
+              example: 'csv'
 
     CSVData:
       type: object
@@ -1526,10 +1538,10 @@ components:
             additionalProperties: true
           description: Array of row objects with column headers as keys
           example:
-            - Ticker: "BTC-USD_RSP"
+            - Ticker: 'BTC-USD_RSP'
               Short Window: 61
               Long Window: 66
-              Strategy Type: "SMA"
+              Strategy Type: 'SMA'
               Signal Entry: false
               Total Trades: 39
               Score: 2.0971743838296493
@@ -1538,7 +1550,14 @@ components:
           items:
             type: string
           description: Array of column header names
-          example: ["Ticker", "Short Window", "Long Window", "Strategy Type", "Signal Entry"]
+          example:
+            [
+              'Ticker',
+              'Short Window',
+              'Long Window',
+              'Strategy Type',
+              'Signal Entry',
+            ]
 
     FileInfo:
       type: object
@@ -1551,16 +1570,16 @@ components:
         name:
           type: string
           description: Name of the file
-          example: "DAILY_test.csv"
+          example: 'DAILY_test.csv'
         path:
           type: string
           description: Full path to the file
-          example: "csv/strategies/DAILY_test.csv"
+          example: 'csv/strategies/DAILY_test.csv'
         type:
           type: string
           enum: [file, directory]
           description: Type of the file system entry
-          example: "file"
+          example: 'file'
         size:
           type: integer
           nullable: true
@@ -1570,7 +1589,7 @@ components:
           type: string
           format: date-time
           description: When the file was last modified
-          example: "2025-05-26T13:47:59.000Z"
+          example: '2025-05-26T13:47:59.000Z'
 
     FileListResponse:
       allOf:
@@ -1583,7 +1602,7 @@ components:
             status:
               type: string
               enum: [success]
-              example: "success"
+              example: 'success'
             files:
               type: array
               items:
@@ -1592,7 +1611,7 @@ components:
             directory:
               type: string
               description: Directory that was listed
-              example: "csv/strategies"
+              example: 'csv/strategies'
 
     ScriptInfo:
       type: object
@@ -1603,21 +1622,21 @@ components:
         path:
           type: string
           description: Path to the script
-          example: "app/ma_cross/1_get_portfolios.py"
+          example: 'app/ma_cross/1_get_portfolios.py'
         description:
           type: string
           nullable: true
           description: Description of the script
-          example: "Generate moving average crossover portfolios"
+          example: 'Generate moving average crossover portfolios'
         parameters:
           type: object
           additionalProperties:
             type: string
           description: Parameters accepted by the script with their descriptions
           example:
-            TICKER: "Stock ticker symbol(s)"
-            WINDOWS: "Moving average window size"
-            DIRECTION: "Trading direction (Long/Short)"
+            TICKER: 'Stock ticker symbol(s)'
+            WINDOWS: 'Moving average window size'
+            DIRECTION: 'Trading direction (Long/Short)'
 
     ScriptListResponse:
       allOf:
@@ -1629,7 +1648,7 @@ components:
             status:
               type: string
               enum: [success]
-              example: "success"
+              example: 'success'
             scripts:
               type: array
               items:

@@ -28,10 +28,10 @@ tickerInput = input.string("BTC-USD", "Ticker for Strategies", options=["BTC-USD
 smaCrossSignal(shortWindow, longWindow) =>
     shortSMA = ta.sma(close, shortWindow)
     longSMA = ta.sma(close, longWindow)
-    
+
     // Current state
     crossUp = shortSMA > longSMA
-    
+
     // Return the signal (true if bullish)
     crossUp
 
@@ -39,20 +39,20 @@ smaCrossSignal(shortWindow, longWindow) =>
 emaCrossSignal(shortWindow, longWindow) =>
     shortEMA = ta.ema(close, shortWindow)
     longEMA = ta.ema(close, longWindow)
-    
+
     // Current state
     crossUp = shortEMA > longEMA
-    
+
     // Return the signal (true if bullish)
     crossUp
 
 // Function to calculate MACD signal
 macdSignal(shortWindow, longWindow, signalWindow) =>
     [macdLine, signalLine, _] = ta.macd(close, shortWindow, longWindow, signalWindow)
-    
+
     // Current state
     crossUp = macdLine > signalLine
-    
+
     // Return the signal (true if bullish)
     crossUp
 
@@ -77,7 +77,7 @@ checkParameter(param, paramName) =>
 calculateBreadth() =>
     int strategiesInPosition = 0
     int totalApplicableStrategies = 0
-    
+
     // Process each strategy directly with hardcoded parameters
 
     // Strategy 0: SMA(104, 105)
@@ -159,8 +159,8 @@ oversoldThreshold = input.int(3, "Oversold Threshold", minval=0, maxval=10)
 // ================ Visualization ================
 
 // Colors based on the position relative to thresholds
-oscillatorColor = strategiesActive > overboughtThreshold ? bullColor : 
-                  strategiesActive < oversoldThreshold ? bearColor : 
+oscillatorColor = strategiesActive > overboughtThreshold ? bullColor :
+                  strategiesActive < oversoldThreshold ? bearColor :
                   neutralColor
 
 // Plotting the oscillator
@@ -179,7 +179,7 @@ hline(11, "Max", color=color.new(#787b86, 70), linestyle=hline.style_dotted)
 // Create alerts for trading signals
 crossingUp = ta.crossover(strategiesActive, oversoldThreshold)
 crossingDown = ta.crossunder(strategiesActive, overboughtThreshold)
-crossingMAUp = ta.crossover(fastMA, slowMA) 
+crossingMAUp = ta.crossover(fastMA, slowMA)
 crossingMADown = ta.crossunder(fastMA, slowMA)
 
 // Alert conditions

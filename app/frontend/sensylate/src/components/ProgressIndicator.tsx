@@ -27,11 +27,14 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   percentage,
   className = '',
   size = 'md',
-  variant = 'horizontal'
+  variant = 'horizontal',
 }) => {
-  const completedSteps = steps.filter(step => step.status === 'completed').length;
+  const completedSteps = steps.filter(
+    (step) => step.status === 'completed'
+  ).length;
   const totalSteps = steps.length;
-  const progressPercentage = percentage ?? (totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0);
+  const progressPercentage =
+    percentage ?? (totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0);
 
   const getStepIcon = (step: ProgressStep) => {
     switch (step.status) {
@@ -73,7 +76,9 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
 
   if (variant === 'vertical') {
     return (
-      <div className={`progress-indicator progress-vertical ${getSizeClass()} ${className}`}>
+      <div
+        className={`progress-indicator progress-vertical ${getSizeClass()} ${className}`}
+      >
         {title && (
           <div className="progress-title mb-3">
             <h6 className="mb-1">{title}</h6>
@@ -84,23 +89,27 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
             )}
           </div>
         )}
-        
+
         <div className="steps-container">
           {steps.map((step, index) => (
             <div key={step.id} className={getStepClass(step)}>
               <div className="step-connector">
                 {index < steps.length - 1 && (
-                  <div className={`connector ${step.status === 'completed' ? 'completed' : ''}`} />
+                  <div
+                    className={`connector ${
+                      step.status === 'completed' ? 'completed' : ''
+                    }`}
+                  />
                 )}
               </div>
-              
+
               <div className="step-icon">
-                <Icon 
-                  icon={getStepIcon(step)} 
-                  className={step.status === 'active' ? 'fa-spin' : ''} 
+                <Icon
+                  icon={getStepIcon(step)}
+                  className={step.status === 'active' ? 'fa-spin' : ''}
                 />
               </div>
-              
+
               <div className="step-content">
                 <div className="step-label">{step.label}</div>
                 {step.description && (
@@ -117,7 +126,9 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   }
 
   return (
-    <div className={`progress-indicator progress-horizontal ${getSizeClass()} ${className}`}>
+    <div
+      className={`progress-indicator progress-horizontal ${getSizeClass()} ${className}`}
+    >
       {title && (
         <div className="progress-title mb-3">
           <div className="d-flex justify-content-between align-items-center">
@@ -130,35 +141,46 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
           </div>
         </div>
       )}
-      
+
       {/* Progress Bar */}
-      <div className="progress mb-3" style={{ height: size === 'lg' ? '8px' : size === 'sm' ? '4px' : '6px' }}>
-        <div 
-          className="progress-bar" 
-          role="progressbar" 
+      <div
+        className="progress mb-3"
+        style={{
+          height: size === 'lg' ? '8px' : size === 'sm' ? '4px' : '6px',
+        }}
+      >
+        <div
+          className="progress-bar"
+          role="progressbar"
           style={{ width: `${progressPercentage}%` }}
           aria-valuenow={progressPercentage}
           aria-valuemin={0}
           aria-valuemax={100}
         />
       </div>
-      
+
       {/* Steps */}
       <div className="steps-container d-flex justify-content-between">
         {steps.map((step) => (
-          <div key={step.id} className={`step-horizontal ${getStepClass(step)}`}>
+          <div
+            key={step.id}
+            className={`step-horizontal ${getStepClass(step)}`}
+          >
             <div className="step-icon-container">
               <div className="step-icon">
-                <Icon 
-                  icon={getStepIcon(step)} 
-                  className={step.status === 'active' ? 'fa-spin' : ''} 
+                <Icon
+                  icon={getStepIcon(step)}
+                  className={step.status === 'active' ? 'fa-spin' : ''}
                 />
               </div>
             </div>
             <div className="step-content text-center">
               <div className="step-label small">{step.label}</div>
               {step.description && size !== 'sm' && (
-                <div className="step-description text-muted" style={{ fontSize: '0.75rem' }}>
+                <div
+                  className="step-description text-muted"
+                  style={{ fontSize: '0.75rem' }}
+                >
                   {step.description}
                 </div>
               )}

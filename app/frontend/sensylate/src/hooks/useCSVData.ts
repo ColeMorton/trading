@@ -8,13 +8,13 @@ import { useAppContext } from '../context/AppContext';
  */
 export const useCSVData = (filePath: string | null) => {
   const { setCsvData, setError, setIsLoading } = useAppContext();
-  
+
   useEffect(() => {
     if (!filePath) {
       setCsvData(null);
       return;
     }
-    
+
     const fetchData = async () => {
       try {
         setIsLoading(true);
@@ -22,13 +22,15 @@ export const useCSVData = (filePath: string | null) => {
         const data = await api.getCSVData(filePath);
         setCsvData(data);
       } catch (error) {
-        setError(error instanceof Error ? error.message : 'Failed to load CSV data');
+        setError(
+          error instanceof Error ? error.message : 'Failed to load CSV data'
+        );
         setCsvData(null);
       } finally {
         setIsLoading(false);
       }
     };
-    
+
     fetchData();
   }, [filePath, setCsvData, setError, setIsLoading]);
 };

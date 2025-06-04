@@ -57,14 +57,14 @@ class ServiceRegistration:
     """Registration information for a service."""
 
     interface: Type
-    implementation: Optional[Type] | None = None
-    factory: Optional[Callable] | None = None
-    instance: Optional[Any] | None = None
+    implementation: Optional[Type] = None
+    factory: Optional[Callable] = None
+    instance: Optional[Any] = None
     lifecycle: ServiceLifecycle = ServiceLifecycle.SINGLETON
     scope: ServiceScope = ServiceScope.APPLICATION
-    dependencies: List[Type] | None = None
-    registered_at: datetime | None = None
-    health_check: Optional[Callable] | None = None
+    dependencies: Optional[List[Type]] = None
+    registered_at: Optional[datetime] = None
+    health_check: Optional[Callable] = None
 
     def __post_init__(self):
         if self.dependencies is None:
@@ -79,7 +79,7 @@ class ServiceHealth:
     def __init__(self, service_type: Type, registration: ServiceRegistration):
         self.service_type = service_type
         self.registration = registration
-        self.last_check: Optional[datetime] | None = None
+        self.last_check: Optional[datetime] = None
         self.status: str = "unknown"
         self.message: str = ""
         self.check_count: int = 0
@@ -141,16 +141,16 @@ class EnhancedDependencyContainer:
         self._scoped_instances: Dict[str, Dict[Type, Any]] = {}
         self._health_checks: Dict[Type, ServiceHealth] = {}
         self._lock = threading.RLock()
-        self._config: Optional[ConfigurationInterface] | None = None
+        self._config: Optional[ConfigurationInterface] = None
 
     def register(
         self,
         interface: Type[T],
-        implementation: Optional[Type] | None = None,
+        implementation: Optional[Type] = None,
         factory: Optional[Callable[[], T]] = None,
         lifecycle: ServiceLifecycle = ServiceLifecycle.SINGLETON,
         scope: ServiceScope = ServiceScope.APPLICATION,
-        health_check: Optional[Callable] | None = None,
+        health_check: Optional[Callable] = None,
     ) -> "EnhancedDependencyContainer":
         """Register a service with the container."""
         with self._lock:
@@ -224,7 +224,7 @@ class EnhancedDependencyContainer:
         # }
         return self
 
-    def get(self, interface: Type[T], scope_id: Optional[str] | None = None) -> T:
+    def get(self, interface: Type[T], scope_id: Optional[str] = None) -> T:
         """Get an instance of the requested interface."""
         with self._lock:
             if interface not in self._registrations:
@@ -375,7 +375,7 @@ class DependencyContainer:
     def __init__(self):
         self._instances: Dict[Type, Any] = {}
         self._factories: Dict[Type, Callable] = {}
-        self._config: Optional[ConfigurationInterface] | None = None
+        self._config: Optional[ConfigurationInterface] = None
 
     def register(self, interface: Type[T], factory: Callable[[], T]) -> None:
         """Register a factory for an interface."""
@@ -593,9 +593,7 @@ def configure_enhanced_dependencies(settings: Optional[Dict[str, Any]] = None) -
     )
 
 
-def get_enhanced_service(
-    interface: Type[T], scope_id: Optional[str] | None = None
-) -> T:
+def get_enhanced_service(interface: Type[T], scope_id: Optional[str] = None) -> T:
     """Get a service instance from the enhanced dependency container."""
     return _enhanced_container.get(interface, scope_id)
 

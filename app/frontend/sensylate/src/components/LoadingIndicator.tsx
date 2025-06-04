@@ -8,11 +8,11 @@ import { icons } from '../utils/icons';
  */
 const LoadingIndicator: React.FC = () => {
   const { isLoading } = useAppContext();
-  
+
   if (!isLoading) {
     return null;
   }
-  
+
   return (
     <div className="d-flex align-items-center justify-content-center p-4">
       <Icon icon={icons.loading} spin size="2x" className="text-primary me-3" />

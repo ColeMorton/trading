@@ -8,46 +8,61 @@ import ProgressIndicator from './ProgressIndicator';
 import { useParameterTesting } from '../hooks/useParameterTesting';
 
 const ParameterTestingContainer: React.FC = () => {
-  const { 
-    analyze, 
-    results, 
-    isAnalyzing, 
-    progress, 
-    error, 
+  const {
+    analyze,
+    results,
+    isAnalyzing,
+    progress,
+    error,
     executionId,
     clearResults,
-    cancelAnalysis 
+    cancelAnalysis,
   } = useParameterTesting();
 
   // Progress steps for analysis workflow
   const getProgressSteps = () => {
     if (!isAnalyzing) return [];
-    
+
     const steps = [
       {
         id: 'validation',
         label: 'Validation',
         description: 'Validating configuration',
-        status: progress > 0 ? 'completed' as const : 'active' as const
+        status: progress > 0 ? ('completed' as const) : ('active' as const),
       },
       {
         id: 'setup',
         label: 'Setup',
         description: 'Preparing analysis',
-        status: progress > 20 ? 'completed' as const : progress > 0 ? 'active' as const : 'pending' as const
+        status:
+          progress > 20
+            ? ('completed' as const)
+            : progress > 0
+              ? ('active' as const)
+              : ('pending' as const),
       },
       {
         id: 'processing',
         label: 'Processing',
         description: 'Running strategy analysis',
-        status: progress > 70 ? 'completed' as const : progress > 20 ? 'active' as const : 'pending' as const
+        status:
+          progress > 70
+            ? ('completed' as const)
+            : progress > 20
+              ? ('active' as const)
+              : ('pending' as const),
       },
       {
         id: 'results',
         label: 'Results',
         description: 'Generating results',
-        status: progress >= 100 ? 'completed' as const : progress > 70 ? 'active' as const : 'pending' as const
-      }
+        status:
+          progress >= 100
+            ? ('completed' as const)
+            : progress > 70
+              ? ('active' as const)
+              : ('pending' as const),
+      },
     ];
 
     return steps;
@@ -63,21 +78,22 @@ const ParameterTestingContainer: React.FC = () => {
         </div>
         <div className="card-body">
           <p className="card-text text-muted mb-0">
-            Analyze trading strategies with customizable parameters and configurations.
+            Analyze trading strategies with customizable parameters and
+            configurations.
           </p>
         </div>
       </div>
 
       {/* Analysis Configuration */}
       <AnalysisConfiguration onAnalyze={analyze} isAnalyzing={isAnalyzing} />
-      
+
       {/* Progress Section */}
       {isAnalyzing && (
         <div className="card mb-4">
           <div className="card-body">
             <div className="d-flex align-items-center justify-content-between mb-3">
               <h6 className="mb-0">Analysis Progress</h6>
-              <button 
+              <button
                 className="btn btn-sm btn-outline-danger"
                 onClick={cancelAnalysis}
                 title="Cancel Analysis"
@@ -86,7 +102,7 @@ const ParameterTestingContainer: React.FC = () => {
                 Cancel
               </button>
             </div>
-            
+
             <ProgressIndicator
               steps={getProgressSteps()}
               title="Parameter Testing Analysis"
@@ -95,7 +111,7 @@ const ParameterTestingContainer: React.FC = () => {
               variant="horizontal"
               size="md"
             />
-            
+
             {executionId && (
               <div className="mt-3">
                 <small className="text-muted">
@@ -107,15 +123,18 @@ const ParameterTestingContainer: React.FC = () => {
           </div>
         </div>
       )}
-      
+
       {/* Error Section */}
       {error && (
-        <div className="alert alert-danger alert-dismissible fade show" role="alert">
+        <div
+          className="alert alert-danger alert-dismissible fade show"
+          role="alert"
+        >
           <Icon icon={icons.warning} className="me-2" />
           <strong>Error:</strong> {error}
-          <button 
-            type="button" 
-            className="btn-close" 
+          <button
+            type="button"
+            className="btn-close"
             onClick={() => clearResults()}
             aria-label="Close"
           ></button>
@@ -128,11 +147,7 @@ const ParameterTestingContainer: React.FC = () => {
           console.error('Results table error:', error, errorInfo);
         }}
       >
-        <ResultsTable 
-          results={results} 
-          isLoading={isAnalyzing}
-          error={error}
-        />
+        <ResultsTable results={results} isLoading={isAnalyzing} error={error} />
       </ErrorBoundary>
     </div>
   );

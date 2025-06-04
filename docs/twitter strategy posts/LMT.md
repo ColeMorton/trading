@@ -1,4 +1,4 @@
-📈 Lockheed Martin Corporation $LMT just fired off a technical long entry from a dual SMA (59/87) cross strategy right as price coils inside a symmetrical triangle and fundamentals point higher. 
+📈 Lockheed Martin Corporation $LMT just fired off a technical long entry from a dual SMA (59/87) cross strategy right as price coils inside a symmetrical triangle and fundamentals point higher.
 
 Let's zoom in: 👇
 

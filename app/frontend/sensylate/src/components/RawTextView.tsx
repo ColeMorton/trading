@@ -9,16 +9,16 @@ import { icons } from '../utils/icons';
  */
 const RawTextView: React.FC = () => {
   const { csvData, viewMode } = useAppContext();
-  
+
   const rawText = useMemo(() => {
     if (!csvData) return '';
     return convertToRawText(csvData.data, csvData.columns);
   }, [csvData]);
-  
+
   if (viewMode !== 'text' || !csvData) {
     return null;
   }
-  
+
   return (
     <div className="card mb-4">
       <div className="card-header d-flex align-items-center">

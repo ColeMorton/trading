@@ -169,7 +169,7 @@ model BacktestResult {
   runDate                 DateTime @map("run_date")
   startDate               DateTime @map("start_date")
   endDate                 DateTime @map("end_date")
-  
+
   // Performance Metrics
   totalReturnPct          Decimal  @map("total_return_pct") @db.Decimal(10, 4)
   annualReturnPct         Decimal? @map("annual_return_pct") @db.Decimal(10, 4)
@@ -177,7 +177,7 @@ model BacktestResult {
   sortinoRatio            Decimal? @map("sortino_ratio") @db.Decimal(10, 4)
   maxDrawdownPct          Decimal? @map("max_drawdown_pct") @db.Decimal(8, 4)
   calmarRatio             Decimal? @map("calmar_ratio") @db.Decimal(10, 4)
-  
+
   // Trading Metrics
   totalTrades             Int      @map("total_trades")
   winningTrades           Int?     @map("winning_trades")
@@ -188,28 +188,28 @@ model BacktestResult {
   avgTradeDuration        Decimal? @map("avg_trade_duration") @db.Decimal(8, 2)
   avgWinningTrade         Decimal? @map("avg_winning_trade") @db.Decimal(12, 6)
   avgLosingTrade          Decimal? @map("avg_losing_trade") @db.Decimal(12, 6)
-  
+
   // Risk Metrics
   valueAtRisk95           Decimal? @map("value_at_risk_95") @db.Decimal(8, 4)
   conditionalValueAtRisk  Decimal? @map("conditional_value_at_risk") @db.Decimal(8, 4)
   beta                    Decimal? @map("beta") @db.Decimal(8, 4)
   alpha                   Decimal? @map("alpha") @db.Decimal(8, 4)
-  
+
   // Benchmark Comparison
   benchmarkReturnPct      Decimal? @map("benchmark_return_pct") @db.Decimal(10, 4)
   outperformancePct       Decimal? @map("outperformance_pct") @db.Decimal(10, 4)
   trackingError           Decimal? @map("tracking_error") @db.Decimal(8, 4)
   informationRatio        Decimal? @map("information_ratio") @db.Decimal(10, 4)
-  
+
   // Additional Metrics
   score                   Decimal? @map("score") @db.Decimal(10, 4)
   openTrades              Int?     @map("open_trades")
   tradesPerDay            Decimal? @map("trades_per_day") @db.Decimal(8, 4)
   tradesPerMonth          Decimal? @map("trades_per_month") @db.Decimal(8, 4)
-  
+
   // Raw Data Storage
   rawMetrics              Json?    @map("raw_metrics") // Store additional metrics as JSON
-  
+
   createdAt               DateTime @default(now()) @map("created_at")
 
   // Relations
@@ -260,29 +260,29 @@ model PortfolioMetric {
   id                      String   @id @default(cuid())
   portfolioId             String   @map("portfolio_id")
   metricDate              DateTime @map("metric_date")
-  
+
   // Portfolio Performance
   totalReturnPct          Decimal  @map("total_return_pct") @db.Decimal(10, 4)
   sharpeRatio             Decimal? @map("sharpe_ratio") @db.Decimal(10, 4)
   sortinoRatio            Decimal? @map("sortino_ratio") @db.Decimal(10, 4)
   maxDrawdownPct          Decimal? @map("max_drawdown_pct") @db.Decimal(8, 4)
-  
+
   // Concurrency Metrics
   maxConcurrentStrategies Int?     @map("max_concurrent_strategies")
   avgConcurrentStrategies Decimal? @map("avg_concurrent_strategies") @db.Decimal(8, 2)
   concurrencyRatio        Decimal? @map("concurrency_ratio") @db.Decimal(5, 4)
   efficiencyScore         Decimal? @map("efficiency_score") @db.Decimal(8, 4)
-  
+
   // Risk Analysis
   portfolioVaR            Decimal? @map("portfolio_var") @db.Decimal(8, 4)
   diversificationRatio    Decimal? @map("diversification_ratio") @db.Decimal(8, 4)
-  
+
   // Complex Data (JSON)
   riskContribution        Json?    @map("risk_contribution") // Risk contribution by strategy
   correlationMatrix       Json?    @map("correlation_matrix") // Strategy correlation matrix
   strategyWeights         Json?    @map("strategy_weights") // Allocation weights over time
   performanceAttribution  Json?    @map("performance_attribution") // Performance breakdown
-  
+
   createdAt               DateTime @default(now()) @map("created_at")
 
   // Relations
@@ -326,4 +326,3 @@ model Configuration {
   @@index([category])
   @@map("configurations")
 }
-

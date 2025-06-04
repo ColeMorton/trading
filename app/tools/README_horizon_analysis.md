@@ -41,7 +41,7 @@ for i in range(len(positions) - horizon):
             horizon_return = np.sum(returns[i:i+horizon])
         else:  # Short position
             horizon_return = -np.sum(returns[i:i+horizon])
-        
+
         horizon_returns.append(horizon_return)
 ```
 
@@ -58,6 +58,7 @@ combined_score = (0.6 * sharpe) + (0.3 * win_rate) + (0.1 * sample_size_factor)
 ```
 
 This approach balances:
+
 - Risk-adjusted returns (Sharpe ratio)
 - Consistency (win rate)
 - Statistical significance (sample size)

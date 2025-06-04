@@ -7,7 +7,7 @@ like rate limiting, authentication, and request tracking.
 
 import math
 
-from fastapi import HTTPException, Request
+from fastapi import Depends, HTTPException, Request
 
 from .rate_limiter import get_analysis_limiter, get_cache_limiter
 
@@ -35,7 +35,7 @@ def get_client_ip(request: Request) -> str:
     return request.client.host if request.client else "unknown"
 
 
-def rate_limit_analysis(request: Request | None = None) -> None:
+def rate_limit_analysis(request: Request) -> None:
     """
     FastAPI dependency for rate limiting analysis endpoints.
 
@@ -45,9 +45,6 @@ def rate_limit_analysis(request: Request | None = None) -> None:
     Raises:
         HTTPException: 429 if rate limit exceeded
     """
-    if request is None:
-        return  # Skip rate limiting if no request (testing)
-
     client_ip = get_client_ip(request)
     limiter = get_analysis_limiter()
 
@@ -66,7 +63,7 @@ def rate_limit_analysis(request: Request | None = None) -> None:
         )
 
 
-def rate_limit_cache(request: Request | None = None) -> None:
+def rate_limit_cache(request: Request) -> None:
     """
     FastAPI dependency for rate limiting cache management endpoints.
 
@@ -76,9 +73,6 @@ def rate_limit_cache(request: Request | None = None) -> None:
     Raises:
         HTTPException: 429 if rate limit exceeded
     """
-    if request is None:
-        return  # Skip rate limiting if no request (testing)
-
     client_ip = get_client_ip(request)
     limiter = get_cache_limiter()
 

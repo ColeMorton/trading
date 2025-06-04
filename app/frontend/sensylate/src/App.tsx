@@ -31,13 +31,13 @@ const AppContent: React.FC = () => {
         <Icon icon={icons.skipLink} className="me-2" />
         Skip to main content
       </a>
-      
+
       <Navbar />
-      
+
       <main id="main-content" className="container-fluid px-4 py-4 flex-fill">
         <OfflineBanner />
         <ErrorMessage />
-        
+
         {currentView === 'csv-viewer' && (
           <>
             {/* Control Panel Card */}
@@ -57,11 +57,11 @@ const AppContent: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             <FileInfo />
             <ViewToggle />
             <LoadingIndicator />
-            
+
             <DataTable />
             <RawTextView />
           </>
@@ -72,11 +72,11 @@ const AppContent: React.FC = () => {
             <ParameterTestingContainer />
           </ErrorBoundary>
         )}
-        
+
         <PWAUpdateNotification />
         <InstallPrompt />
       </main>
-      
+
       <Footer />
     </div>
   );

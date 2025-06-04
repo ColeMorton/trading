@@ -4,7 +4,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
-  
+
   return {
     entry: './src/scripts/main.js',
     output: {
@@ -29,9 +29,10 @@ module.exports = (env, argv) => {
       new HtmlWebpackPlugin({
         template: './src/index.html',
       }),
-      isProduction && new MiniCssExtractPlugin({
-        filename: 'css/[name].[contenthash].css',
-      }),
+      isProduction &&
+        new MiniCssExtractPlugin({
+          filename: 'css/[name].[contenthash].css',
+        }),
     ].filter(Boolean),
     devServer: {
       static: [

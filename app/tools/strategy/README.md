@@ -42,7 +42,7 @@ import polars as pl
 
 class WMAStrategy(BaseStrategy):
     """Weighted Moving Average strategy."""
-    
+
     def calculate(self, data, short_window, long_window, config, log):
         # Implement WMA calculation logic
         pass

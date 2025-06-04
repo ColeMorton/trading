@@ -2,7 +2,7 @@
 
 ## Overview
 
-The MA Cross (Moving Average Crossover) API provides endpoints for parameter sensitivity analysis of trading strategies based on moving average crossovers. 
+The MA Cross (Moving Average Crossover) API provides endpoints for parameter sensitivity analysis of trading strategies based on moving average crossovers.
 
 The API performs comprehensive parameter sweeps, testing all combinations of fast and slow moving average windows from 2 to the specified WINDOWS value (default: 89). This allows you to find optimal parameter combinations for your trading strategy.
 
@@ -29,6 +29,7 @@ The endpoint tests all window combinations from 2 to the specified WINDOWS value
 **Endpoint:** `POST /analyze`
 
 **Request Body:**
+
 ```json
 {
   "TICKER": ["AAPL", "MSFT", "GOOGL"],
@@ -42,6 +43,7 @@ The endpoint tests all window combinations from 2 to the specified WINDOWS value
 ```
 
 **Parameters:**
+
 - `TICKER` (string or array, required): Trading symbol or list of symbols to analyze
 - `WINDOWS` (integer, optional): Maximum window size for parameter analysis (default: 89)
 - `DIRECTION` (string, optional): Trading direction - "Long" or "Short" (default: "Long")
@@ -53,6 +55,7 @@ The endpoint tests all window combinations from 2 to the specified WINDOWS value
 
 **Response (Synchronous):**
 When `async_execution` is false, returns complete results immediately:
+
 ```json
 {
   "success": true,
@@ -97,6 +100,7 @@ When `async_execution` is false, returns complete results immediately:
 
 **Response (Asynchronous):**
 When `async_execution` is true, returns immediately with a task ID:
+
 ```json
 {
   "status": "accepted",
@@ -112,6 +116,7 @@ When `async_execution` is true, returns immediately with a task ID:
 Use the `execution_id` to check status or stream progress updates.
 
 **Example Request (Python):**
+
 ```python
 import requests
 
@@ -148,6 +153,7 @@ Check the status of an asynchronous analysis task.
 **Endpoint:** `GET /status/{execution_id}`
 
 **Response:**
+
 ```json
 {
   "execution_id": "550e8400-e29b-41d4-a716-446655440000",
@@ -161,12 +167,14 @@ Check the status of an asynchronous analysis task.
 ```
 
 **Status Values:**
+
 - `pending`: Task is queued
 - `running`: Task is in progress
 - `completed`: Task finished successfully
 - `failed`: Task failed with error
 
 **Example Request:**
+
 ```bash
 curl http://localhost:8000/api/ma-cross/status/550e8400-e29b-41d4-a716-446655440000
 ```
@@ -178,6 +186,7 @@ Stream real-time updates for async analysis tasks using Server-Sent Events.
 **Endpoint:** `GET /stream/{execution_id}`
 
 **Response:** Server-Sent Event stream
+
 ```
 data: {"progress": 0, "message": "Starting parameter sensitivity analysis..."}
 
@@ -193,16 +202,17 @@ data: {"progress": 100, "message": "Complete", "result": {...}}
 ```
 
 **Example (JavaScript):**
+
 ```javascript
 // First start async analysis
 const response = await fetch('/api/ma-cross/analyze', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-        TICKER: ['AAPL', 'MSFT'],
-        WINDOWS: 89,
-        async_execution: true
-    })
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    TICKER: ['AAPL', 'MSFT'],
+    WINDOWS: 89,
+    async_execution: true,
+  }),
 });
 
 const { execution_id } = await response.json();
@@ -211,13 +221,13 @@ const { execution_id } = await response.json();
 const eventSource = new EventSource(`/api/ma-cross/stream/${execution_id}`);
 
 eventSource.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    console.log(`Progress: ${data.progress}% - ${data.message}`);
-    
-    if (data.progress === 100) {
-        console.log('Analysis complete:', data.result);
-        eventSource.close();
-    }
+  const data = JSON.parse(event.data);
+  console.log(`Progress: ${data.progress}% - ${data.message}`);
+
+  if (data.progress === 100) {
+    console.log('Analysis complete:', data.result);
+    eventSource.close();
+  }
 };
 ```
 
@@ -228,6 +238,7 @@ Retrieve API performance metrics and statistics.
 **Endpoint:** `GET /metrics`
 
 **Response:**
+
 ```json
 {
   "requests_total": 1250,
@@ -252,6 +263,7 @@ Check API health status and dependencies.
 **Endpoint:** `GET /health`
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -283,12 +295,14 @@ All endpoints return consistent error responses:
 ```
 
 **Common Error Codes:**
+
 - `VALIDATION_ERROR`: Invalid request parameters
 - `NOT_FOUND`: Resource not found
 - `RATE_LIMITED`: Too many requests
 - `INTERNAL_ERROR`: Server error
 
 **HTTP Status Codes:**
+
 - `200`: Success
 - `400`: Bad Request
 - `404`: Not Found
@@ -299,10 +313,12 @@ All endpoints return consistent error responses:
 ## Rate Limiting
 
 The API implements rate limiting to ensure fair usage:
+
 - Default: 100 requests per minute per IP
 - Burst: Up to 10 concurrent requests
 
 Rate limit headers:
+
 ```
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 95
@@ -312,21 +328,25 @@ X-RateLimit-Reset: 1705316400
 ## Best Practices
 
 ### 1. Use Appropriate Intervals
+
 - Daily (1d): Best for long-term analysis
 - Hourly (1h): For intraday strategies
 - Weekly (1wk): For position trading
 - Monthly (1mo): For investment analysis
 
 ### 2. Optimize MA Periods
+
 - The API analyzes all window combinations from 2 to WINDOWS value
 - Smaller windows (10-20) are more responsive but may generate more false signals
 - Larger windows (50-100) are more stable but may lag behind price movements
 
 ### 3. Portfolio Management
+
 - Use multiple tickers in TICKER array for diversification
 - Apply MINIMUMS criteria to filter quality strategies
 
 ### 4. Performance Optimization
+
 - Cache frequently analyzed portfolios
 - Use streaming for real-time updates
 - Batch multiple tickers in single request
@@ -334,6 +354,7 @@ X-RateLimit-Reset: 1705316400
 ## Code Examples
 
 ### Python Client
+
 ```python
 import requests
 import json
@@ -341,7 +362,7 @@ import json
 class MACrossClient:
     def __init__(self, base_url="http://localhost:8000"):
         self.base_url = f"{base_url}/api/ma-cross"
-    
+
     def analyze(self, tickers, start_date, end_date, **kwargs):
         """Analyze portfolio with MA Cross strategy."""
         data = {
@@ -353,7 +374,7 @@ class MACrossClient:
         response = requests.post(f"{self.base_url}/analyze", json=data)
         response.raise_for_status()
         return response.json()
-    
+
     def get_status(self, execution_id):
         """Get task status."""
         response = requests.get(f"{self.base_url}/status/{execution_id}")
@@ -386,6 +407,7 @@ print(f"Status: {status['status']}, Progress: {status['progress']}%")
 ```
 
 ### JavaScript/TypeScript Client
+
 ```typescript
 interface MACrossRequest {
   TICKER: string | string[];
@@ -408,13 +430,13 @@ class MACrossClient {
     const response = await fetch(`${this.baseUrl}/analyze`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request)
+      body: JSON.stringify(request),
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     return await response.json();
   }
 }
@@ -425,7 +447,7 @@ const result = await client.analyze({
   tickers: ['AAPL', 'MSFT'],
   start_date: '2023-01-01',
   end_date: '2023-12-31',
-  ma_type: 'EMA'
+  ma_type: 'EMA',
 });
 
 console.log(`Total ROI: ${(result.metrics.total_roi * 100).toFixed(2)}%`);
@@ -434,6 +456,7 @@ console.log(`Total ROI: ${(result.metrics.total_roi * 100).toFixed(2)}%`);
 ## Changelog
 
 ### Version 1.0.0 (2024-01-15)
+
 - Initial release
 - Basic MA Cross analysis
 - Support for SMA and EMA
@@ -446,6 +469,7 @@ console.log(`Total ROI: ${(result.metrics.total_roi * 100).toFixed(2)}%`);
 ## Support
 
 For issues, questions, or feature requests:
+
 - GitHub: https://github.com/yourrepo/trading-api
 - Email: support@example.com
 - Documentation: https://docs.example.com/ma-cross-api

@@ -8,16 +8,19 @@ import { icons } from '../utils/icons';
  */
 const ErrorMessage: React.FC = () => {
   const { error, setError } = useAppContext();
-  
+
   if (!error) {
     return null;
   }
-  
+
   return (
-    <div className="alert alert-danger alert-dismissible d-flex align-items-center" role="alert">
+    <div
+      className="alert alert-danger alert-dismissible d-flex align-items-center"
+      role="alert"
+    >
       <Icon icon={icons.error} className="me-2 flex-shrink-0" />
       <div className="flex-grow-1">{error}</div>
-      <button 
+      <button
         type="button"
         className="btn-close"
         aria-label="Close"
