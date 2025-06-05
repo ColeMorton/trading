@@ -295,10 +295,15 @@ download_ticker_data("AAPL", "1d", "2020-01-01", "2024-01-01")
 
 **CSV Export Locations:**
 
-- `csv/portfolios/` - All analyzed portfolios
-- `csv/portfolios_filtered/` - Filtered results
-- `csv/portfolios_best/` - Top performing strategies
-- `csv/price_data/` - Historical price data
+- `csv/portfolios/` - All analyzed portfolios (59-column canonical schema)
+- `csv/portfolios_filtered/` - Filtered results (59-column canonical schema)
+- `csv/portfolios_best/` - Top performing strategies (59-column canonical schema)
+- `csv/strategies/` - Strategy export files (59-column canonical schema)
+- `csv/price_data/` - Historical price data (OHLCV format)
+
+**CSV Schema Standardization:**
+
+All portfolio CSV exports now use a standardized 59-column canonical schema for consistency and enhanced analytical capabilities. This includes comprehensive risk metrics, trade analysis, and performance indicators. See `docs/CSV_SCHEMA_MIGRATION_GUIDE.md` for migration details.
 
 #### Portfolio Management
 
