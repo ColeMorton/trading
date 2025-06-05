@@ -80,7 +80,9 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
                 return data[col_name]
             else:
                 available_cols = list(data.columns)
-                raise KeyError(f"Column '{col_name}' not found for {ticker}. Available columns: {available_cols}")
+                raise KeyError(
+                    f"Column '{col_name}' not found for {ticker}. Available columns: {available_cols}"
+                )
 
         # Convert to Polars DataFrame with explicit schema
         df = pl.DataFrame(

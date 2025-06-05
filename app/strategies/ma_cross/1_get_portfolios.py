@@ -65,7 +65,19 @@ from app.tools.strategy_utils import filter_portfolios_by_signal, get_strategy_t
 
 CONFIG: Config = {
     # "TICKER": ["JPM"],
-    "TICKER": ["NBIS", "SMCI", "TXN", "NCLH", "USLM", "FMC", "ILMN", "PHM", "TECH", "POOL", "WY"],
+    "TICKER": [
+        "NBIS",
+        "SMCI",
+        "TXN",
+        "NCLH",
+        "USLM",
+        "FMC",
+        "ILMN",
+        "PHM",
+        "TECH",
+        "POOL",
+        "WY",
+    ],
     # Load tickers from JSON file
     # "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/portfolio.json"))),
     # "TICKER_2": 'AVGO',

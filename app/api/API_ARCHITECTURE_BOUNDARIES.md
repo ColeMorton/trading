@@ -21,6 +21,7 @@ This document defines clear service boundaries between REST and GraphQL APIs in 
 ## REST API Responsibilities
 
 ### Primary Use Cases
+
 - **Strategy Execution**: Trigger and control strategy runs
 - **System Operations**: Health checks, monitoring, lifecycle management
 - **File Operations**: Direct file access, uploads, downloads
@@ -29,6 +30,7 @@ This document defines clear service boundaries between REST and GraphQL APIs in 
 ### Endpoint Categories
 
 #### 1. Execution Control (`/api/v1/scripts`, `/api/v1/ma-cross`)
+
 ```
 POST /api/v1/scripts/execute          # Execute trading scripts
 GET  /api/v1/scripts/status/{id}      # Check execution status
@@ -38,6 +40,7 @@ POST /api/v1/ma-cross/optimize        # Parameter optimization
 ```
 
 #### 2. System Monitoring (`/api/v1/health`, `/api/performance`)
+
 ```
 GET  /api/v1/health                   # System health status
 GET  /api/performance/metrics         # Performance metrics
@@ -46,6 +49,7 @@ POST /api/performance/alerts          # Configure alerts
 ```
 
 #### 3. Data Access (`/api/v1/data`)
+
 ```
 GET  /api/v1/data/csv/{path}          # Direct CSV file access
 GET  /api/v1/data/json/{path}         # Direct JSON file access
@@ -53,6 +57,7 @@ POST /api/v1/data/upload              # File uploads
 ```
 
 #### 4. Administrative (`/api/admin`, `/api/services`)
+
 ```
 GET  /api/services/health             # Service health checks
 POST /api/services/initialize         # Initialize services
@@ -63,6 +68,7 @@ GET  /api/container/registrations     # Dependency container info
 ## GraphQL API Responsibilities
 
 ### Primary Use Cases
+
 - **Complex Data Queries**: Multi-table joins, nested relationships
 - **Data Aggregation**: Portfolio metrics, performance analytics
 - **Real-time Subscriptions**: Live data updates
@@ -71,40 +77,46 @@ GET  /api/container/registrations     # Dependency container info
 ### Schema Organization
 
 #### 1. Query Operations (`/graphql`)
+
 ```graphql
 type Query {
   # Portfolio Operations
   portfolios(filter: PortfolioFilter): [Portfolio!]!
   portfolio(id: ID!): Portfolio
   portfolioMetrics(portfolioIds: [ID!]!): [PortfolioMetrics!]!
-  
-  # Strategy Operations  
+
+  # Strategy Operations
   strategies(type: StrategyType): [Strategy!]!
   strategy(id: ID!): Strategy
   backtestResults(strategyId: ID!, timeRange: TimeRange): [BacktestResult!]!
   signals(ticker: String!, strategy: String!, timeRange: TimeRange): [Signal!]!
-  
+
   # Market Data
   tickers(exchange: String, sector: String): [Ticker!]!
   ticker(symbol: String!): Ticker
-  priceData(symbol: String!, timeframe: Timeframe!, range: DateRange): [PriceBar!]!
+  priceData(
+    symbol: String!
+    timeframe: Timeframe!
+    range: DateRange
+  ): [PriceBar!]!
   availableTimeframes: [Timeframe!]!
 }
 ```
 
 #### 2. Mutation Operations (`/graphql`)
+
 ```graphql
 type Mutation {
   # Portfolio Management
   createPortfolio(input: CreatePortfolioInput!): Portfolio!
   updatePortfolio(id: ID!, input: UpdatePortfolioInput!): Portfolio
   deletePortfolio(id: ID!): Boolean!
-  
+
   # Strategy Configuration
   createStrategy(input: CreateStrategyInput!): Strategy!
   updateStrategy(id: ID!, input: UpdateStrategyInput!): Strategy
   deleteStrategy(id: ID!): Boolean!
-  
+
   # Analysis Operations (Async)
   executeAnalysis(input: AnalysisInput!): AnalysisResponse!
   cancelAnalysis(analysisId: ID!): Boolean!
@@ -112,6 +124,7 @@ type Mutation {
 ```
 
 #### 3. Subscription Operations (`/graphql`)
+
 ```graphql
 type Subscription {
   # Real-time updates
@@ -125,6 +138,7 @@ type Subscription {
 ## Clear Boundary Rules
 
 ### REST API Boundaries
+
 1. **Operation-Focused**: Use REST for actions that change system state
 2. **Simple Queries**: Use REST for straightforward, single-resource queries
 3. **File Operations**: All file uploads/downloads go through REST
@@ -132,6 +146,7 @@ type Subscription {
 5. **Streaming**: Use Server-Sent Events for real-time operational updates
 
 ### GraphQL API Boundaries
+
 1. **Data-Focused**: Use GraphQL for complex data retrieval and relationships
 2. **Aggregations**: Use GraphQL for analytics and metric calculations
 3. **Flexible Queries**: Use GraphQL when clients need to specify exact fields
@@ -141,12 +156,14 @@ type Subscription {
 ### Forbidden Overlaps
 
 #### ❌ Do Not Duplicate
+
 - Portfolio CRUD operations (GraphQL only)
-- Strategy execution endpoints (REST only) 
+- Strategy execution endpoints (REST only)
 - Health check endpoints (REST only)
 - Complex analytical queries (GraphQL only)
 
 #### ✅ Allowed Complements
+
 - REST: `POST /api/v1/ma-cross/execute` → GraphQL: `query { backtestResults }`
 - REST: `GET /api/v1/health` → GraphQL: `subscription { systemHealth }`
 - REST: `GET /api/v1/data/csv/file.csv` → GraphQL: `query { portfolioMetrics }`
@@ -154,52 +171,57 @@ type Subscription {
 ## Integration Patterns
 
 ### 1. Execute → Query Pattern
+
 ```typescript
 // 1. Execute via REST
 const response = await fetch('/api/v1/ma-cross/analyze', {
   method: 'POST',
-  body: JSON.stringify(analysisConfig)
+  body: JSON.stringify(analysisConfig),
 });
 const { analysis_id } = await response.json();
 
 // 2. Query results via GraphQL
 const results = await graphqlClient.query({
   query: GET_ANALYSIS_RESULTS,
-  variables: { analysisId: analysis_id }
+  variables: { analysisId: analysis_id },
 });
 ```
 
 ### 2. Monitor → Subscribe Pattern
+
 ```typescript
 // 1. Start monitoring via REST
 await fetch('/api/performance/start-monitoring', { method: 'POST' });
 
 // 2. Subscribe to updates via GraphQL
 const subscription = graphqlClient.subscribe({
-  query: PERFORMANCE_UPDATES_SUBSCRIPTION
+  query: PERFORMANCE_UPDATES_SUBSCRIPTION,
 });
 ```
 
 ### 3. Configure → Query Pattern
+
 ```typescript
 // 1. Configure via REST
 await fetch('/api/services/initialize', { method: 'POST' });
 
 // 2. Query configuration via GraphQL
 const config = await graphqlClient.query({
-  query: GET_SYSTEM_CONFIGURATION
+  query: GET_SYSTEM_CONFIGURATION,
 });
 ```
 
 ## Versioning Strategy
 
 ### REST API Versioning
+
 - URL-based versioning: `/api/v1/`, `/api/v2/`
 - Version-specific routers for backward compatibility
 - Deprecation warnings in response headers
 - Migration guides for version transitions
 
 ### GraphQL API Versioning
+
 - Schema evolution with field deprecation
 - Single evolving schema (no URL versioning)
 - Deprecation directives on fields and types
@@ -208,12 +230,14 @@ const config = await graphqlClient.query({
 ## Performance Considerations
 
 ### REST API Optimizations
+
 - Response caching for read-heavy operations
 - Pagination for large datasets
 - Compression for file transfers
 - Rate limiting per operation type
 
 ### GraphQL API Optimizations
+
 - Query complexity analysis and limits
 - DataLoader for N+1 query prevention
 - Response caching with TTL
@@ -222,6 +246,7 @@ const config = await graphqlClient.query({
 ## Error Handling
 
 ### REST API Errors
+
 ```typescript
 // Standard HTTP status codes with detailed error objects
 {
@@ -237,6 +262,7 @@ const config = await graphqlClient.query({
 ```
 
 ### GraphQL API Errors
+
 ```typescript
 // GraphQL error format with extensions
 {
@@ -259,16 +285,19 @@ const config = await graphqlClient.query({
 ## Security Model
 
 ### Authentication
+
 - Both APIs use the same JWT-based authentication
 - Shared security middleware for token validation
 - Role-based access control (RBAC) across both APIs
 
 ### Authorization
+
 - REST: Endpoint-level permissions
 - GraphQL: Field-level permissions with custom directives
 - Shared permission service for consistency
 
 ### Rate Limiting
+
 - REST: Per-endpoint rate limits
 - GraphQL: Query complexity-based limits
 - Shared rate limiting infrastructure
@@ -276,16 +305,19 @@ const config = await graphqlClient.query({
 ## Monitoring and Observability
 
 ### Metrics Collection
+
 - REST: HTTP request metrics (response time, status codes)
 - GraphQL: Query complexity, field resolution time, error rates
 - Unified performance monitoring dashboard
 
 ### Logging
+
 - Structured logging format for both APIs
 - Request correlation IDs across REST and GraphQL
 - Centralized log aggregation and analysis
 
 ### Tracing
+
 - Distributed tracing across API boundaries
 - Service map visualization
 - Performance bottleneck identification
@@ -295,11 +327,12 @@ const config = await graphqlClient.query({
 ### For Developers
 
 #### When to Use REST
+
 ```typescript
 // ✅ Good: System operations
 await restClient.post('/api/v1/scripts/execute', config);
 
-// ✅ Good: File operations  
+// ✅ Good: File operations
 await restClient.get('/api/v1/data/csv/portfolio.csv');
 
 // ✅ Good: Health checks
@@ -307,6 +340,7 @@ const health = await restClient.get('/api/v1/health');
 ```
 
 #### When to Use GraphQL
+
 ```typescript
 // ✅ Good: Complex data queries
 const portfolio = await graphqlClient.query(`
@@ -342,16 +376,19 @@ const metrics = await graphqlClient.query(`
 ### Migration Path
 
 #### Phase 1: Establish Boundaries (Current)
+
 - Document clear API responsibilities
 - Identify and eliminate overlaps
 - Implement unified error handling
 
 #### Phase 2: Consolidate Operations
+
 - Move complex queries to GraphQL
 - Keep operational endpoints in REST
 - Update client integrations
 
 #### Phase 3: Optimize Performance
+
 - Implement API-specific optimizations
 - Add comprehensive monitoring
 - Performance tune based on usage patterns
@@ -359,6 +396,7 @@ const metrics = await graphqlClient.query(`
 ## Conclusion
 
 This architecture provides:
+
 - **Clear Separation**: No functional overlap between APIs
 - **Optimal Use Cases**: Each API handles what it does best
 - **Consistent Integration**: Predictable patterns for client development
