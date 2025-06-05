@@ -1,8 +1,10 @@
 """
 Test data factories for creating consistent test scenarios.
-Phase 3: Testing Infrastructure Consolidation
+Phase 3: Testing Infrastructure Consolidation - Optimized with intelligent caching
 """
 
+import hashlib
+import pickle
 import random
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
@@ -11,7 +13,161 @@ import numpy as np
 import pandas as pd
 import polars as pl
 
+# =============================================================================
+# Intelligent caching system for test data factories
+# =============================================================================
 
+
+class TestDataCache:
+    """
+    Intelligent cache for test data with automatic invalidation and performance optimization.
+    """
+
+    def __init__(self, max_size_mb: float = 100.0):
+        self._cache: Dict[str, Any] = {}
+        self._cache_metadata: Dict[str, Dict[str, Any]] = {}
+        self.max_size_mb = max_size_mb
+        self._current_size_mb = 0.0
+
+    def _calculate_size_mb(self, obj: Any) -> float:
+        """Calculate approximate object size in MB."""
+        try:
+            size_bytes = len(pickle.dumps(obj))
+            return size_bytes / (1024 * 1024)
+        except Exception:
+            # Fallback estimation for complex objects
+            if isinstance(obj, (pl.DataFrame, pd.DataFrame)):
+                return (
+                    obj.memory_usage(deep=True).sum() / (1024 * 1024)
+                    if hasattr(obj, "memory_usage")
+                    else 1.0
+                )
+            elif isinstance(obj, dict):
+                return len(str(obj)) / (1024 * 1024)
+            else:
+                return 0.1  # Small default size
+
+    def _generate_cache_key(self, func_name: str, **kwargs) -> str:
+        """Generate cache key from function name and parameters."""
+        # Create deterministic hash from function name and sorted kwargs
+        key_data = f"{func_name}:{sorted(kwargs.items())}"
+        return hashlib.md5(key_data.encode()).hexdigest()
+
+    def _evict_if_needed(self, new_size_mb: float):
+        """Evict oldest cached items if cache would exceed size limit."""
+        if self._current_size_mb + new_size_mb <= self.max_size_mb:
+            return
+
+        # Sort by access time (oldest first)
+        sorted_items = sorted(
+            self._cache_metadata.items(), key=lambda x: x[1]["last_accessed"]
+        )
+
+        # Evict items until we have enough space
+        space_needed = (self._current_size_mb + new_size_mb) - self.max_size_mb
+        space_freed = 0.0
+
+        for cache_key, metadata in sorted_items:
+            if space_freed >= space_needed:
+                break
+
+            item_size = metadata["size_mb"]
+            del self._cache[cache_key]
+            del self._cache_metadata[cache_key]
+            self._current_size_mb -= item_size
+            space_freed += item_size
+
+    def get(self, func_name: str, **kwargs) -> Optional[Any]:
+        """Get cached result if available."""
+        cache_key = self._generate_cache_key(func_name, **kwargs)
+
+        if cache_key in self._cache:
+            # Update access time
+            self._cache_metadata[cache_key]["last_accessed"] = datetime.now()
+            self._cache_metadata[cache_key]["access_count"] += 1
+            return self._cache[cache_key]
+
+        return None
+
+    def set(self, func_name: str, result: Any, **kwargs):
+        """Cache result with metadata."""
+        cache_key = self._generate_cache_key(func_name, **kwargs)
+
+        # Calculate size and evict if needed
+        result_size = self._calculate_size_mb(result)
+        self._evict_if_needed(result_size)
+
+        # Store result and metadata
+        self._cache[cache_key] = result
+        self._cache_metadata[cache_key] = {
+            "created": datetime.now(),
+            "last_accessed": datetime.now(),
+            "access_count": 1,
+            "size_mb": result_size,
+            "func_name": func_name,
+            "kwargs": kwargs,
+        }
+
+        self._current_size_mb += result_size
+
+    def clear(self):
+        """Clear all cached data."""
+        self._cache.clear()
+        self._cache_metadata.clear()
+        self._current_size_mb = 0.0
+
+    def get_stats(self) -> Dict[str, Any]:
+        """Get cache statistics."""
+        total_items = len(self._cache)
+        total_accesses = sum(
+            meta["access_count"] for meta in self._cache_metadata.values()
+        )
+
+        return {
+            "total_items": total_items,
+            "total_size_mb": round(self._current_size_mb, 2),
+            "max_size_mb": self.max_size_mb,
+            "utilization_pct": round(
+                (self._current_size_mb / self.max_size_mb) * 100, 1
+            ),
+            "total_accesses": total_accesses,
+            "avg_accesses_per_item": round(total_accesses / max(total_items, 1), 1),
+        }
+
+
+# Global cache instance
+_test_data_cache = TestDataCache()
+
+
+def cached_factory(cache_ttl_minutes: Optional[int] = None):
+    """
+    Decorator for caching factory function results.
+
+    Args:
+        cache_ttl_minutes: Time-to-live in minutes (None for no expiration)
+    """
+
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            # Check cache first
+            cached_result = _test_data_cache.get(func.__name__, **kwargs)
+            if cached_result is not None:
+                return cached_result
+
+            # Generate result and cache it
+            result = func(*args, **kwargs)
+            _test_data_cache.set(func.__name__, result, **kwargs)
+            return result
+
+        wrapper._original_func = func
+        wrapper.clear_cache = lambda: _test_data_cache.clear()
+        wrapper.cache_stats = lambda: _test_data_cache.get_stats()
+        return wrapper
+
+    return decorator
+
+
+@cached_factory()
 def create_test_market_data(
     ticker: str = "TEST",
     days: int = 252,
@@ -85,6 +241,7 @@ def create_test_market_data(
     return data
 
 
+@cached_factory()
 def create_test_signals(
     num_signals: int = 50,
     ticker: str = "TEST",
@@ -131,6 +288,7 @@ def create_test_signals(
     )
 
 
+@cached_factory()
 def create_test_portfolio(
     tickers: Optional[List[str]] = None,
     num_trades: int = 100,
@@ -217,6 +375,7 @@ def create_test_portfolio(
     }
 
 
+@cached_factory()
 def create_test_strategy_config(
     strategy_type: str = "MA_CROSS", timeframe: str = "D"
 ) -> Dict[str, Any]:
@@ -391,3 +550,82 @@ class TestDataFactory:
             pass
 
         return data
+
+
+# =============================================================================
+# API-specific test data factories (moved from tests/api/conftest.py)
+# =============================================================================
+
+
+@cached_factory()
+def create_api_portfolio_data() -> Dict[str, Any]:
+    """
+    Create sample portfolio data for API testing.
+    Moved from tests/api/conftest.py to eliminate duplication.
+    """
+    return {
+        "AAPL": {
+            "symbol": "AAPL",
+            "timeframe": "D",
+            "ma_type": "SMA",
+            "fast_period": 20,
+            "slow_period": 50,
+            "initial_capital": 100000,
+            "allocation": 0.5,
+            "num_trades": 12,
+            "total_return": 0.25,
+            "sharpe_ratio": 1.5,
+            "max_drawdown": -0.15,
+            "win_rate": 0.6,
+            "avg_gain": 0.05,
+            "avg_loss": -0.02,
+            "expectancy": 0.03,
+            "profit_factor": 2.5,
+            "recovery_factor": 1.67,
+            "payoff_ratio": 2.5,
+            "final_balance": 125000,
+            "roi": 0.25,
+        },
+        "MSFT": {
+            "symbol": "MSFT",
+            "timeframe": "D",
+            "ma_type": "SMA",
+            "fast_period": 20,
+            "slow_period": 50,
+            "initial_capital": 100000,
+            "allocation": 0.5,
+            "num_trades": 10,
+            "total_return": 0.30,
+            "sharpe_ratio": 1.8,
+            "max_drawdown": -0.12,
+            "win_rate": 0.65,
+            "avg_gain": 0.06,
+            "avg_loss": -0.018,
+            "expectancy": 0.035,
+            "profit_factor": 3.0,
+            "recovery_factor": 2.5,
+            "payoff_ratio": 3.33,
+            "final_balance": 130000,
+            "roi": 0.30,
+        },
+    }
+
+
+@cached_factory()
+def create_api_performance_metrics() -> Dict[str, Any]:
+    """
+    Create sample performance metrics for API testing.
+    Moved from tests/api/conftest.py to eliminate duplication.
+    """
+    return {
+        "requests_total": 1000,
+        "requests_success": 950,
+        "requests_failed": 50,
+        "avg_response_time": 0.5,
+        "cache_hits": 400,
+        "cache_misses": 600,
+        "cache_hit_rate": 0.4,
+        "active_tasks": 5,
+        "completed_tasks": 945,
+        "failed_tasks": 50,
+    }

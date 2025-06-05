@@ -16,7 +16,7 @@ from app.strategies.ma_cross.core.models import (
     PortfolioResult,
     TradingSignal,
 )
-from app.strategies.ma_cross.core.scanner_adapter import ScannerAdapter
+from app.strategies.ma_cross.scanner_adapter import ScannerAdapter
 
 
 @pytest.fixture

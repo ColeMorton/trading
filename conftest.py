@@ -20,8 +20,16 @@ import pytest
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
+from tests.shared.cleanup import (
+    get_cleanup_manager,
+    managed_temp_directory,
+    managed_temp_file,
+)
+
 # Import test utilities
 from tests.shared.factories import (
+    create_api_performance_metrics,
+    create_api_portfolio_data,
     create_test_market_data,
     create_test_portfolio,
     create_test_signals,
@@ -118,9 +126,8 @@ def mock_market_data():
 
 @pytest.fixture
 def temp_csv_dir() -> Generator[Path, None, None]:
-    """Temporary directory for CSV files."""
-    with tempfile.TemporaryDirectory(prefix="csv_test_") as temp_dir:
-        csv_dir = Path(temp_dir)
+    """Temporary directory for CSV files with automatic cleanup."""
+    with managed_temp_directory(prefix="csv_test_") as csv_dir:
         yield csv_dir
 
 
@@ -134,6 +141,18 @@ def test_signals() -> pl.DataFrame:
 def test_portfolio() -> Dict[str, Any]:
     """Test portfolio data."""
     return create_test_portfolio()
+
+
+@pytest.fixture
+def sample_portfolio_data() -> Dict[str, Any]:
+    """Sample portfolio data for API testing (moved from API conftest.py)."""
+    return create_api_portfolio_data()
+
+
+@pytest.fixture
+def performance_metrics() -> Dict[str, Any]:
+    """Sample performance metrics for testing (moved from API conftest.py)."""
+    return create_api_performance_metrics()
 
 
 @pytest.fixture
