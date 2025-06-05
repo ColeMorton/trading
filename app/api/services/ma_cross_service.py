@@ -26,6 +26,7 @@ from app.api.models.ma_cross import (
 from app.api.services.script_executor import task_status
 from app.api.utils.monitoring import get_metrics_collector
 from app.api.utils.performance import get_concurrent_executor, get_request_optimizer
+from app.api.utils.performance_monitoring import get_performance_monitor, timing_context
 
 # Import interfaces
 from app.core.interfaces import (
@@ -37,6 +38,7 @@ from app.core.interfaces import (
     StrategyAnalyzerInterface,
     StrategyExecutorInterface,
 )
+from app.tools.performance_tracker import get_strategy_performance_tracker
 from app.tools.setup_logging import setup_logging
 
 
@@ -86,140 +88,151 @@ class MACrossService:
         Raises:
             MACrossServiceError: If analysis fails
         """
-        # Check cache first
-        # Handle ticker being either string or list
-        ticker_str = (
-            request.ticker
-            if isinstance(request.ticker, str)
-            else ",".join(request.ticker)
-        )
-        cache_key = f"ma_cross:{ticker_str}:{request.windows}:{':'.join(request.strategy_types)}"
-        cached_result = await self.cache.get(cache_key)
-        if cached_result:
-            return cached_result
+        # Start performance monitoring for the complete analysis
+        ticker_count = len(request.ticker) if isinstance(request.ticker, list) else 1
+        with timing_context(
+            "ma_cross_api_analysis", throughput_items=ticker_count
+        ) as perf_metrics:
+            # Check cache first
+            # Handle ticker being either string or list
+            ticker_str = (
+                request.ticker
+                if isinstance(request.ticker, str)
+                else ",".join(request.ticker)
+            )
+            cache_key = f"ma_cross:{ticker_str}:{request.windows}:{':'.join(request.strategy_types)}"
+            cached_result = await self.cache.get(cache_key)
+            if cached_result:
+                # Update performance metrics for cache hit
+                get_strategy_performance_tracker().update_execution_progress(
+                    execution_id=f"api_cache_{int(time.time())}", cache_hits=1
+                )
+                return cached_result
 
-        log, log_close, _, _ = setup_logging(
-            module_name="api",
-            log_file=f'ma_cross_sync_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log',
-            log_subdir="ma_cross",
-        )
-
-        try:
-            # Record request metrics
-            start_time = time.time()
-
-            log(
-                f"Starting synchronous MA Cross analysis for ticker(s): {request.ticker}"
+            log, log_close, _, _ = setup_logging(
+                module_name="api",
+                log_file=f'ma_cross_sync_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log',
+                log_subdir="ma_cross",
             )
 
-            # Convert request to strategy config format
-            strategy_config = request.to_strategy_config()
-            log(f"Strategy config: {json.dumps(strategy_config, indent=2)}")
+            try:
+                # Record request metrics
+                start_time = time.time()
 
-            # Add project root to Python path
-            project_root = self.config["BASE_DIR"]
-            if project_root not in sys.path:
-                sys.path.insert(0, project_root)
-
-            # Use performance-optimized analysis
-            optimized_analysis = self.optimizer.time_operation("ma_cross_analysis")(
-                self._execute_analysis
-            )
-
-            # Run the blocking analysis in a thread pool to avoid blocking the event
-            # loop
-            loop = asyncio.get_event_loop()
-            results = await loop.run_in_executor(
-                self.executor, optimized_analysis, strategy_config, log
-            )
-            execution_time = time.time() - start_time
-
-            log(f"Analysis completed in {execution_time:.2f} seconds")
-
-            # Collect exported file paths
-            portfolio_exports = self._collect_export_paths(
-                strategy_config, request.strategy_types, log
-            )
-
-            # Count filtered portfolios
-            filtered_count = 0
-            if portfolio_exports and "portfolios_filtered" in portfolio_exports:
-                filtered_count = len(portfolio_exports["portfolios_filtered"])
-
-            # Build response
-            response = MACrossResponse(
-                status="success",
-                request_id=str(uuid.uuid4()),
-                timestamp=datetime.now(),
-                ticker=request.ticker,
-                strategy_types=request.strategy_types,
-                portfolios=results,
-                portfolio_exports=portfolio_exports,
-                total_portfolios_analyzed=len(results),
-                total_portfolios_filtered=filtered_count,
-                execution_time=execution_time,
-            )
-
-            # Debug: Log response serialization
-            if results and len(results) > 0:
-                first_portfolio = results[0]
                 log(
-                    f"DEBUG: First portfolio in response metric_type: '{first_portfolio.metric_type}'",
-                    "info",
+                    f"Starting synchronous MA Cross analysis for ticker(s): {request.ticker}"
                 )
 
-                # Test different serialization methods
-                response_dict_default = response.model_dump()
-                response_dict_no_exclude = response.model_dump(exclude_none=False)
+                # Convert request to strategy config format
+                strategy_config = request.to_strategy_config()
+                log(f"Strategy config: {json.dumps(strategy_config, indent=2)}")
 
-                if (
-                    response_dict_default.get("portfolios")
-                    and len(response_dict_default["portfolios"]) > 0
-                ):
-                    first_serialized_default = response_dict_default["portfolios"][0]
-                    first_serialized_no_exclude = response_dict_no_exclude[
-                        "portfolios"
-                    ][0]
+                # Add project root to Python path
+                project_root = self.config["BASE_DIR"]
+                if project_root not in sys.path:
+                    sys.path.insert(0, project_root)
 
+                # Use performance-optimized analysis
+                optimized_analysis = self.optimizer.time_operation("ma_cross_analysis")(
+                    self._execute_analysis
+                )
+
+                # Run the blocking analysis in a thread pool to avoid blocking the event
+                # loop
+                loop = asyncio.get_event_loop()
+                results = await loop.run_in_executor(
+                    self.executor, optimized_analysis, strategy_config, log
+                )
+                execution_time = time.time() - start_time
+
+                log(f"Analysis completed in {execution_time:.2f} seconds")
+
+                # Collect exported file paths
+                portfolio_exports = self._collect_export_paths(
+                    strategy_config, request.strategy_types, log
+                )
+
+                # Count filtered portfolios
+                filtered_count = 0
+                if portfolio_exports and "portfolios_filtered" in portfolio_exports:
+                    filtered_count = len(portfolio_exports["portfolios_filtered"])
+
+                # Build response
+                response = MACrossResponse(
+                    status="success",
+                    request_id=str(uuid.uuid4()),
+                    timestamp=datetime.now(),
+                    ticker=request.ticker,
+                    strategy_types=request.strategy_types,
+                    portfolios=results,
+                    portfolio_exports=portfolio_exports,
+                    total_portfolios_analyzed=len(results),
+                    total_portfolios_filtered=filtered_count,
+                    execution_time=execution_time,
+                )
+
+                # Debug: Log response serialization
+                if results and len(results) > 0:
+                    first_portfolio = results[0]
                     log(
-                        f"DEBUG: Default serialization keys: {len(first_serialized_default.keys())}",
+                        f"DEBUG: First portfolio in response metric_type: '{first_portfolio.metric_type}'",
                         "info",
                     )
-                    log(
-                        f"DEBUG: Default metric_type: '{first_serialized_default.get('metric_type', 'MISSING')}'",
-                        "info",
-                    )
-                    log(
-                        f"DEBUG: No-exclude serialization keys: {len(first_serialized_no_exclude.keys())}",
-                        "info",
-                    )
-                    log(
-                        f"DEBUG: No-exclude metric_type: '{first_serialized_no_exclude.get('metric_type', 'MISSING')}'",
-                        "info",
-                    )
 
-            # Cache the result for future requests
-            await self.cache.set(cache_key, response)
+                    # Test different serialization methods
+                    response_dict_default = response.model_dump()
+                    response_dict_no_exclude = response.model_dump(exclude_none=False)
 
-            # Record metrics
-            self.metrics.record_request(
-                endpoint="/api/ma-cross/analyze",
-                method="POST",
-                status_code=200,
-                response_time=execution_time,
-                client_ip="internal",  # Will be overridden by middleware
-                user_agent="ma_cross_service",
-            )
+                    if (
+                        response_dict_default.get("portfolios")
+                        and len(response_dict_default["portfolios"]) > 0
+                    ):
+                        first_serialized_default = response_dict_default["portfolios"][
+                            0
+                        ]
+                        first_serialized_no_exclude = response_dict_no_exclude[
+                            "portfolios"
+                        ][0]
 
-            log_close()
-            return response
+                        log(
+                            f"DEBUG: Default serialization keys: {len(first_serialized_default.keys())}",
+                            "info",
+                        )
+                        log(
+                            f"DEBUG: Default metric_type: '{first_serialized_default.get('metric_type', 'MISSING')}'",
+                            "info",
+                        )
+                        log(
+                            f"DEBUG: No-exclude serialization keys: {len(first_serialized_no_exclude.keys())}",
+                            "info",
+                        )
+                        log(
+                            f"DEBUG: No-exclude metric_type: '{first_serialized_no_exclude.get('metric_type', 'MISSING')}'",
+                            "info",
+                        )
 
-        except Exception as e:
-            error_msg = f"MA Cross analysis failed: {str(e)}"
-            log(error_msg, "error")
-            log(traceback.format_exc(), "error")
-            log_close()
-            raise MACrossServiceError(error_msg)
+                # Cache the result for future requests
+                await self.cache.set(cache_key, response)
+
+                # Record metrics
+                self.metrics.record_request(
+                    endpoint="/api/ma-cross/analyze",
+                    method="POST",
+                    status_code=200,
+                    response_time=execution_time,
+                    client_ip="internal",  # Will be overridden by middleware
+                    user_agent="ma_cross_service",
+                )
+
+                log_close()
+                return response
+
+            except Exception as e:
+                error_msg = f"MA Cross analysis failed: {str(e)}"
+                log(error_msg, "error")
+                log(traceback.format_exc(), "error")
+                log_close()
+                raise MACrossServiceError(error_msg)
 
     def analyze_portfolio_async(self, request: MACrossRequest) -> MACrossAsyncResponse:
         """
@@ -488,6 +501,20 @@ class MACrossService:
                 else:
                     signal_entry_bool = bool(signal_entry)
 
+                # Handle missing fields by providing defaults based on analysis
+                avg_trade_duration = portfolio.get("Avg Trade Duration")
+                if not avg_trade_duration:
+                    # Try alternative field names or provide a default based on the data we have
+                    avg_trade_duration = portfolio.get("Average Trade Duration")
+
+                metric_type = portfolio.get("Metric Type")
+                if not metric_type:
+                    # Generate a default metric type based on the portfolio characteristics
+                    if float(portfolio.get("Score", 0.0)) > 1.0:
+                        metric_type = "High Performance Strategy"
+                    else:
+                        metric_type = "Standard Strategy"
+
                 metrics = PortfolioMetrics(
                     ticker=portfolio.get("Ticker", ""),
                     strategy_type=strategy_type_value,
@@ -508,16 +535,16 @@ class MACrossService:
                     losing_trades=losing_trades,
                     win_rate=win_rate_pct / 100.0,  # Convert percentage to decimal
                     profit_factor=float(portfolio.get("Profit Factor", 0.0)),
-                    expectancy=float(
-                        portfolio.get(
-                            "Expectancy", portfolio.get("Expectancy per Trade", 0.0)
-                        )
+                    expectancy=float(portfolio.get("Expectancy", 0.0)),
+                    expectancy_per_trade=float(
+                        portfolio.get("Expectancy per Trade", 0.0)
                     ),
                     score=float(portfolio.get("Score", 0.0)),
                     beats_bnh=float(portfolio.get("Beats BNH [%]", 0.0)),
                     has_open_trade=bool(total_open_trades > 0),
                     has_signal_entry=signal_entry_bool,
-                    metric_type=portfolio.get("Metric Type"),
+                    metric_type=metric_type,
+                    avg_trade_duration=avg_trade_duration,
                 )
                 portfolio_metrics.append(metrics)
 

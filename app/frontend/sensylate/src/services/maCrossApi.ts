@@ -57,6 +57,7 @@ export interface PortfolioMetrics {
   has_open_trade: boolean;
   has_signal_entry: boolean;
   metric_type?: string; // Metric type classification
+  avg_trade_duration?: string; // Average trade duration
   [key: string]: unknown; // Allow additional metrics
 }
 
@@ -355,6 +356,7 @@ const portfolioToResult = (portfolio: PortfolioMetrics): AnalysisResult => {
     has_open_trade: portfolio.has_open_trade,
     has_signal_entry: portfolio.has_signal_entry,
     metric_type: portfolio.metric_type,
+    avg_trade_duration: portfolio.avg_trade_duration,
   };
 };
 

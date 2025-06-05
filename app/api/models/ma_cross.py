@@ -167,7 +167,7 @@ class MACrossRequest(BaseModel):
     )
 
     use_current: bool = Field(
-        True, description="Whether to use current market data", alias="USE_CURRENT"
+        False, description="Whether to use current market data", alias="USE_CURRENT"
     )
 
     use_scanner: bool = Field(
@@ -295,7 +295,11 @@ class PortfolioMetrics(BaseModel):
     losing_trades: int = Field(..., description="Number of losing trades")
     win_rate: float = Field(..., description="Win rate (0-1)")
     profit_factor: float = Field(..., description="Profit factor")
-    expectancy: float = Field(..., description="Expectancy per trade")
+    expectancy: float = Field(..., description="Expectancy value")
+    expectancy_per_trade: float = Field(..., description="Expectancy per trade")
+    avg_trade_duration: Optional[str] = Field(
+        None, description="Average trade duration"
+    )
 
     # Additional metrics
     score: float = Field(..., description="Overall portfolio score")

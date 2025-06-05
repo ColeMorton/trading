@@ -54,6 +54,7 @@ vulture = "^2.11"
 pre-commit = "^3.6.0"
 autoflake = "^2.3.1"
 autopep8 = "^2.3.2"
+types-requests = "^2.32.0.20250602"
 
 [build-system]
 requires = ["poetry-core"]
@@ -105,8 +106,8 @@ ignore_errors = false
 show_error_codes = true
 # Allow untyped calls for now - we'll gradually improve
 disallow_untyped_calls = false
-# Focus on critical errors first - temporarily ignore most type errors to enable pre-commit
-disable_error_code = ["no-any-return", "misc", "union-attr", "attr-defined", "import-untyped", "typeddict-item", "unreachable", "index", "literal-required", "call-arg", "return-value", "assignment", "arg-type", "name-defined", "method-assign", "var-annotated"]
+# Focus on critical errors first - gradually enabling type checking
+disable_error_code = ["misc", "union-attr", "attr-defined", "import-untyped", "unreachable", "index", "literal-required", "call-arg", "assignment", "arg-type", "name-defined", "method-assign"]
 # Alternatively, use a more permissive approach for now
 ignore_missing_imports = true
 

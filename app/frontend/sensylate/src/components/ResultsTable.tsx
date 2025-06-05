@@ -169,7 +169,7 @@ const ResultsTable: React.FC<ResultsTableProps> = React.memo(
         }),
         columnHelper.accessor('expectancy_per_trade', {
           header: 'Expectancy (per trade)',
-          cell: (info) => (info.getValue() * 100).toFixed(2) + '%',
+          cell: (info) => info.getValue().toFixed(2),
         }),
         columnHelper.accessor('sortino_ratio', {
           header: 'Sortino Ratio',
@@ -177,7 +177,7 @@ const ResultsTable: React.FC<ResultsTableProps> = React.memo(
         }),
         columnHelper.accessor('avg_trade_duration', {
           header: 'Avg Trade Duration',
-          cell: (info) => info.getValue()?.toFixed(1) || 'N/A',
+          cell: (info) => info.getValue() || 'N/A',
         }),
         columnHelper.accessor('beats_bnh', {
           header: 'Beats BNH [%]',
@@ -218,7 +218,7 @@ const ResultsTable: React.FC<ResultsTableProps> = React.memo(
       },
     });
 
-    // Export to CSV functionality
+    // Export to CSV functionality (local download)
     const exportToCSV = () => {
       const headers = columns
         .filter((col) => col.id !== 'expand')
@@ -235,9 +235,9 @@ const ResultsTable: React.FC<ResultsTableProps> = React.memo(
           row.score?.toFixed(2) || 'N/A',
           (row.win_rate * 100).toFixed(2),
           row.profit_factor.toFixed(2),
-          (row.expectancy_per_trade * 100).toFixed(2),
+          row.expectancy_per_trade.toFixed(2),
           row.sortino_ratio.toFixed(2),
-          row.avg_trade_duration?.toFixed(1) || 'N/A',
+          row.avg_trade_duration || 'N/A',
           row.beats_bnh !== undefined && row.beats_bnh !== null
             ? (row.beats_bnh * 100).toFixed(2)
             : 'N/A',
@@ -256,6 +256,34 @@ const ResultsTable: React.FC<ResultsTableProps> = React.memo(
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    };
+
+    // Export to server portfolios_best directory
+    const exportToServer = async () => {
+      try {
+        const response = await fetch('/api/ma-cross/export', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ results }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Export result:', result);
+
+        // Show success notification
+        alert(
+          `Successfully exported ${result.rows_exported} results to ${result.filename}`
+        );
+      } catch (error) {
+        console.error('Export to server failed:', error);
+        alert('Failed to export to server. Please try again.');
+      }
     };
 
     if (isLoading) {
@@ -304,14 +332,24 @@ const ResultsTable: React.FC<ResultsTableProps> = React.memo(
             <Icon icon={icons.table} className="me-2" />
             <h5 className="card-title mb-0">Analysis Results</h5>
           </div>
-          <button
-            onClick={exportToCSV}
-            className="btn btn-sm btn-outline-primary"
-            title="Export to CSV"
-          >
-            <Icon icon={icons.download} className="me-1" />
-            Export CSV
-          </button>
+          <div className="d-flex gap-2">
+            <button
+              onClick={exportToCSV}
+              className="btn btn-sm btn-outline-primary"
+              title="Export to CSV (download)"
+            >
+              <Icon icon={icons.download} className="me-1" />
+              Download CSV
+            </button>
+            <button
+              onClick={exportToServer}
+              className="btn btn-sm btn-outline-success"
+              title="Export to portfolios_best directory"
+            >
+              <Icon icon={icons.save} className="me-1" />
+              Save to Server
+            </button>
+          </div>
         </div>
         <div className="card-body">
           <div className="row mb-3 align-items-center">

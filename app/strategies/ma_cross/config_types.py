@@ -210,7 +210,7 @@ def migrate_to_new_config(legacy_config: Config) -> "ParameterTestingConfig":
     if not _HAS_NEW_CONFIG:
         raise ImportError("New configuration system not available")
 
-    return ParameterTestingConfig.from_dict(legacy_config)
+    return ParameterTestingConfig.from_dict(dict(legacy_config))
 
 
 def migrate_from_new_config(new_config: "ParameterTestingConfig") -> Config:

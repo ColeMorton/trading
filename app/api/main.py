@@ -29,7 +29,15 @@ from app.api.event_bus import event_bus, publish_event
 from app.api.graphql.context import get_graphql_context
 from app.api.graphql.schema import schema
 from app.api.migration_strategy import migration_guide
-from app.api.routers import data, health, ma_cross, scripts, sensylate, viewer
+from app.api.routers import (
+    data,
+    health,
+    ma_cross,
+    performance,
+    scripts,
+    sensylate,
+    viewer,
+)
 from app.api.service_patterns import service_orchestrator
 from app.api.utils.logging import setup_api_logging
 from app.api.v1.main import v1_app
@@ -161,6 +169,7 @@ app.include_router(
     sensylate.router, prefix="/sensylate", tags=["sensylate"]
 )  # Keep non-API routes as-is
 app.include_router(ma_cross.router, prefix="/api/ma-cross", tags=["ma-cross", "legacy"])
+app.include_router(performance.router, prefix="/api", tags=["performance"])
 app.include_router(graphql_app, prefix="/graphql", tags=["graphql"])
 
 # Mount static files directories

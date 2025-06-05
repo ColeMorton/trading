@@ -69,15 +69,28 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
         # Reset index to make the datetime index a column
         data = data.reset_index()
 
+        # Helper function to get column data with fallback
+        def get_column_data(col_name: str):
+            # Try ticker-specific column first (from MultiIndex flattening)
+            ticker_col = f"{col_name}_{ticker}"
+            if ticker_col in data.columns:
+                return data[ticker_col]
+            # Fallback to simple column name
+            elif col_name in data.columns:
+                return data[col_name]
+            else:
+                available_cols = list(data.columns)
+                raise KeyError(f"Column '{col_name}' not found for {ticker}. Available columns: {available_cols}")
+
         # Convert to Polars DataFrame with explicit schema
         df = pl.DataFrame(
             {
                 "Date": pl.Series(data["Datetime"] if use_hourly else data["Date"]),
-                "Open": pl.Series(data[f"Open_{ticker}"], dtype=pl.Float64),
-                "High": pl.Series(data[f"High_{ticker}"], dtype=pl.Float64),
-                "Low": pl.Series(data[f"Low_{ticker}"], dtype=pl.Float64),
-                "Close": pl.Series(data[f"Close_{ticker}"], dtype=pl.Float64),
-                "Volume": pl.Series(data[f"Volume_{ticker}"], dtype=pl.Float64),
+                "Open": pl.Series(get_column_data("Open"), dtype=pl.Float64),
+                "High": pl.Series(get_column_data("High"), dtype=pl.Float64),
+                "Low": pl.Series(get_column_data("Low"), dtype=pl.Float64),
+                "Close": pl.Series(get_column_data("Close"), dtype=pl.Float64),
+                "Volume": pl.Series(get_column_data("Volume"), dtype=pl.Float64),
             }
         )
 

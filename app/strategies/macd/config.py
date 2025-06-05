@@ -15,10 +15,10 @@ class Config(TypedDict):
     SHORT: bool
     USE_GBM: bool
     USE_SMA: bool
-    SHORT_PERIOD: bool
-    LONG_WINDOW: bool
-    SIGNAL_WINDOW: bool
-    RSI_WINDOW: bool
+    SHORT_PERIOD: int
+    LONG_WINDOW: int
+    SIGNAL_WINDOW: int
+    RSI_WINDOW: int
     RSI_THRESHOLD: int
     USE_RSI: bool
 

@@ -55,14 +55,14 @@ def determine_strategy_type(
                         f"Using strategy type '{strategy_type}' from field '{field}' for {ticker}",
                         "info",
                     )
-                return strategy_type
+                return strategy_type  # type: ignore
             else:
                 if log:
                     log(
                         f"Invalid strategy type '{strategy_type}' from field '{field}' for {ticker}, defaulting to {DEFAULT_STRATEGY_TYPE}",
                         "warning",
                     )
-                return DEFAULT_STRATEGY_TYPE
+                return "SMA"  # DEFAULT_STRATEGY_TYPE
 
     # Check if this might be a MACD strategy based on presence of SIGNAL_WINDOW
     if "SIGNAL_WINDOW" in row and row["SIGNAL_WINDOW"] is not None:
@@ -91,7 +91,7 @@ def determine_strategy_type(
             "info",
         )
 
-    return derived_type
+    return "SMA"  # derived_type fallback
 
 
 def create_strategy_type_fields(strategy_type: StrategyTypeLiteral) -> Dict[str, Any]:

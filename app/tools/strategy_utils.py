@@ -33,7 +33,7 @@ def get_strategy_types(
     if log_func:
         log_func(f"Using strategy types: {strategy_types}")
 
-    return strategy_types
+    return list(strategy_types)
 
 
 def filter_portfolios_by_signal(
@@ -104,7 +104,7 @@ def determine_strategy_type(strategy_config: Dict[str, Any], log_func=None) -> s
     if log_func:
         log_func(f"Using strategy type: {strategy_type}")
 
-    return strategy_type
+    return str(strategy_type)
 
 
 def get_required_fields_for_strategy(strategy_type: str) -> List[str]:
@@ -220,7 +220,7 @@ def get_strategy_id(
                     f"Using existing strategy ID for strategy {strategy_index}: {strategy_id}",
                     "debug",
                 )
-            return strategy_id
+            return str(strategy_id)
         elif log_func:
             log_func(
                 f"Invalid existing strategy ID for strategy {strategy_index}: {strategy_id}",

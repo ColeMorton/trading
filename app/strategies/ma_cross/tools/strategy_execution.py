@@ -6,6 +6,7 @@ filtering, and best portfolio selection for both single and multiple tickers.
 """
 
 import asyncio
+import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
@@ -15,6 +16,11 @@ from app.strategies.ma_cross.tools.signal_processing import process_ticker_portf
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.get_data import get_data
+from app.tools.performance_tracker import (
+    get_strategy_performance_tracker,
+    monitor_performance,
+    timing_context,
+)
 from app.tools.portfolio.schema_detection import (
     SchemaVersion,
     detect_schema_version,
@@ -369,6 +375,7 @@ def create_ticker_batches(
     return batches
 
 
+@monitor_performance("strategy_execution_concurrent", track_throughput=True)
 def execute_strategy_concurrent(
     config: Config,
     strategy_type: str,
@@ -388,6 +395,9 @@ def execute_strategy_concurrent(
     Returns:
         List[Dict[str, Any]]: List of best portfolios found
     """
+    # Generate unique execution ID for performance tracking
+    execution_id = str(uuid.uuid4())
+
     if "TICKER" not in config:
         log(
             f"ERROR: TICKER key not found in config. Available keys: {list(config.keys())}",
@@ -409,6 +419,27 @@ def execute_strategy_concurrent(
         "info",
     )
 
+    # Initialize performance tracking
+    tracker = get_strategy_performance_tracker()
+
+    # Calculate parameter combinations for tracking
+    short_windows = config.get("SHORT_WINDOWS", [5])
+    long_windows = config.get("LONG_WINDOWS", [20])
+    parameter_combinations = len(tickers) * len(short_windows) * len(long_windows)
+
+    # Create ticker batches for optimal processing
+    ticker_batches = create_ticker_batches(tickers)
+
+    tracker.start_strategy_execution(
+        execution_id=execution_id,
+        strategy_type=strategy_type,
+        ticker_count=len(tickers),
+        parameter_combinations=parameter_combinations,
+        concurrent_execution=True,
+        batch_size=len(ticker_batches[0]) if ticker_batches else 1,
+        worker_count=max_workers,
+    )
+
     # Update progress if tracker provided
     if progress_tracker:
         progress_tracker.set_total_steps(len(tickers))
@@ -416,9 +447,6 @@ def execute_strategy_concurrent(
             phase="analysis",
             message=f"Starting concurrent {strategy_type} strategy analysis",
         )
-
-    # Create ticker batches for optimal processing
-    ticker_batches = create_ticker_batches(tickers)
     log(
         f"Created {len(ticker_batches)} ticker batches for concurrent processing",
         "info",
@@ -452,6 +480,11 @@ def execute_strategy_concurrent(
                         message=f"Processed {processed_count}/{len(tickers)} tickers",
                     )
 
+                # Update performance tracking progress
+                tracker.update_execution_progress(
+                    execution_id=execution_id, portfolios_generated=len(all_portfolios)
+                )
+
                 log(
                     f"Completed batch with {len(batch)} tickers, found {len(batch_portfolios)} portfolios",
                     "info",
@@ -459,6 +492,10 @@ def execute_strategy_concurrent(
 
             except Exception as e:
                 log(f"Batch processing failed for {batch}: {str(e)}", "error")
+                # Update error count in performance tracking
+                tracker.update_execution_progress(
+                    execution_id=execution_id, error_count=1
+                )
                 # Continue processing other batches
                 continue
 
@@ -468,6 +505,21 @@ def execute_strategy_concurrent(
             f"Completed concurrent {strategy_type} analysis for {len(tickers)} tickers"
         )
 
+    # Finalize performance tracking
+    tracker.update_execution_progress(
+        execution_id=execution_id,
+        portfolios_generated=len(all_portfolios),
+        portfolios_filtered=len(
+            all_portfolios
+        ),  # For best portfolios, filtered equals generated
+    )
+
+    final_metrics = tracker.end_strategy_execution(execution_id)
+    if final_metrics:
+        log(
+            f"Concurrent strategy execution completed with efficiency score: {final_metrics.calculate_efficiency_score():.2f}"
+        )
+
     log(
         f"Concurrent processing completed: {len(all_portfolios)} total portfolios found",
         "info",
@@ -475,6 +527,7 @@ def execute_strategy_concurrent(
     return all_portfolios
 
 
+@monitor_performance("strategy_execution", track_throughput=True)
 def execute_strategy(
     config: Config,
     strategy_type: str,
@@ -492,6 +545,9 @@ def execute_strategy(
     Returns:
         List[Dict[str, Any]]: List of best portfolios found
     """
+    # Generate unique execution ID for performance tracking
+    execution_id = str(uuid.uuid4())
+
     best_portfolios = []
 
     if "TICKER" not in config:
@@ -503,6 +559,24 @@ def execute_strategy(
 
     tickers = (
         [config["TICKER"]] if isinstance(config["TICKER"], str) else config["TICKER"]
+    )
+
+    # Initialize performance tracking
+    tracker = get_strategy_performance_tracker()
+
+    # Calculate parameter combinations for tracking
+    short_windows = config.get("SHORT_WINDOWS", [5])
+    long_windows = config.get("LONG_WINDOWS", [20])
+    parameter_combinations = len(tickers) * len(short_windows) * len(long_windows)
+
+    tracker.start_strategy_execution(
+        execution_id=execution_id,
+        strategy_type=strategy_type,
+        ticker_count=len(tickers),
+        parameter_combinations=parameter_combinations,
+        concurrent_execution=False,  # This is the sequential version
+        batch_size=None,
+        worker_count=None,
     )
 
     # Update progress if tracker provided
@@ -563,10 +637,30 @@ def execute_strategy(
                 message=f"Completed {ticker} ({i+1}/{len(tickers)})"
             )
 
+        # Update performance tracking progress
+        tracker.update_execution_progress(
+            execution_id=execution_id, portfolios_generated=len(best_portfolios)
+        )
+
     # Mark analysis complete
     if progress_tracker:
         progress_tracker.complete(
             f"Completed {strategy_type} analysis for {len(tickers)} tickers"
+        )
+
+    # Finalize performance tracking
+    tracker.update_execution_progress(
+        execution_id=execution_id,
+        portfolios_generated=len(best_portfolios),
+        portfolios_filtered=len(
+            best_portfolios
+        ),  # Filtered count equals generated for best portfolios
+    )
+
+    final_metrics = tracker.end_strategy_execution(execution_id)
+    if final_metrics:
+        log(
+            f"Strategy execution completed with efficiency score: {final_metrics.calculate_efficiency_score():.2f}"
         )
 
     return best_portfolios

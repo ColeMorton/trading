@@ -58,27 +58,28 @@ repos:
   #           '--extend-ignore=E203,W503,D100,D101,D102,D103,D104,D105,D106,D107',
   #         ]
 
-  # mypy - Static type checking (temporarily disabled)
-  # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: v1.8.0
-  #   hooks:
-  #     - id: mypy
-  #       additional_dependencies:
-  #         - types-requests
-  #         - types-PyYAML
-  #         - types-python-dateutil
-  #         - types-pytz
-  #         - pandas-stubs
-  #         - types-Pillow
-  #       args:
-  #         [
-  #           '--ignore-missing-imports',
-  #           '--no-strict-optional',
-  #           '--warn-redundant-casts',
-  #           '--warn-unused-ignores',
-  #         ]
-  #       files: ^app/
-  #       exclude: ^(tests/|scripts/|experimental/)
+  # mypy - Static type checking (enabled with gradual adoption)
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-requests
+          - types-PyYAML
+          - types-python-dateutil
+          - types-pytz
+          - pandas-stubs
+          - types-Pillow
+        args:
+          [
+            '--ignore-missing-imports',
+            '--no-strict-optional',
+            '--warn-redundant-casts',
+            '--warn-unused-ignores',
+            '--config-file=pyproject.toml',
+          ]
+        files: ^app/
+        exclude: ^(tests/|scripts/|experimental/)
 
   # pylint - Code analysis (temporarily disabled)
   # - repo: https://github.com/pycqa/pylint

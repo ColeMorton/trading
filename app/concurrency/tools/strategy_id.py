@@ -168,7 +168,7 @@ def _get_strategy_type(config: Dict[str, Any]) -> str:
     )
 
     if strategy_type:
-        return strategy_type
+        return str(strategy_type)
 
     # Infer from configuration
     if "SIGNAL_WINDOW" in config or "signal_window" in config:

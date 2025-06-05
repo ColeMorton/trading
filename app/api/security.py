@@ -31,8 +31,10 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         # Get client IP
         client_ip = request.client.host
 
-        # Special handling for health check endpoints
-        if request.url.path.startswith("/health"):
+        # Special handling for health check and status endpoints
+        if (request.url.path.startswith("/health") or 
+            request.url.path.startswith("/api/ma-cross/status") or
+            request.url.path.startswith("/api/scripts/status")):
             return await call_next(request)
 
         # Get current time

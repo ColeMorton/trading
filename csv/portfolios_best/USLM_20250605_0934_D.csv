@@ -1,0 +1,2 @@
+Ticker,Strategy Type,Short Window,Long Window,Signal Window,Total Trades,Score,Win Rate [%],Profit Factor,Expectancy (per trade),Sortino Ratio,Avg Trade Duration,Beats BNH [%],Metric Type
+USLM,SMA,55,80,,,,,,7.06,,67 days 05:16:29.010989010,,Most Expectancy
