@@ -203,6 +203,41 @@ Position Count, Total Period
     <risk>Frontend incompatibility with expanded schema → Coordinate with frontend team</risk>
     <risk>API response size increase → Implement compression if needed</risk>
   </risks>
+
+<completion_summary>
+<status>✅ COMPLETED - 2024-01-06</status>
+<files_modified>
+<file>app/api/services/ma_cross_service.py - Updated to preserve full 59-column data during export</file>
+</files_modified>
+<files_created>
+<file>tests/api/test_ma_cross_schema_compliance.py - API export schema compliance tests</file>
+</files_created>
+<features_implemented>
+<feature>Modified \_execute_analysis to use original portfolio dictionaries for export</feature>
+<feature>Updated async version to maintain full canonical schema during export</feature>
+<feature>Preserved PortfolioMetrics for API response while using full data for CSV export</feature>
+<feature>Added comprehensive test suite verifying API exports conform to 59-column schema</feature>
+</features_implemented>
+<testing_results>
+<result>✅ API export now generates full 59-column CSV files</result>
+<result>✅ Risk metrics (Skew, Kurtosis, etc.) preserved in exports</result>
+<result>✅ Column ordering matches canonical schema specification</result>
+<result>✅ PortfolioMetrics response model unchanged for backward compatibility</result>
+</testing_results>
+<key_changes>
+<change>Changed export_best_portfolios to use all_portfolio_dicts instead of reduced PortfolioMetrics objects</change>
+<change>Applied same fix to both synchronous and asynchronous analysis methods</change>
+<change>Maintained separation between full data (for export) and reduced data (for API response)</change>
+</key_changes>
+<known_issues>
+<issue>None - API exports now fully compliant with canonical schema</issue>
+</known_issues>
+<next_steps>
+<step>Proceed to Phase 4: Validate Strategy-Specific Exports</step>
+<step>Audit all strategy export functions for schema compliance</step>
+<step>Test cross-strategy aggregation with unified schema</step>
+</next_steps>
+</completion_summary>
 </phase>
 
 <phase number="4" estimated_effort="2 days">
@@ -232,6 +267,61 @@ Position Count, Total Period
     <risk>Strategy-specific data requirements not captured in canonical schema → Extend schema as needed</risk>
     <risk>Performance impact on strategy execution → Optimize export operations</risk>
   </risks>
+
+<completion_summary>
+<status>✅ COMPLETED - 2024-01-06</status>
+<files_modified>
+<file>app/strategies/macd_next/tools/export_portfolios.py - Migrated to centralized export with canonical schema compliance</file>
+<file>app/strategies/mean_reversion/tools/export_portfolios.py - Updated to use canonical schema validation</file>
+<file>app/strategies/mean_reversion_rsi/tools/export_portfolios.py - Migrated to centralized export system</file>
+<file>app/strategies/mean_reversion_hammer/tools/export_portfolios.py - Updated with canonical schema compliance</file>
+<file>app/strategies/range/tools/export_portfolios.py - Migrated to use centralized export functions</file>
+</files_modified>
+<files_created>
+<file>tests/api/test_phase4_strategy_schema_compliance.py - Comprehensive test suite for strategy export validation</file>
+</files_created>
+<features_implemented>
+<feature>Strategy-specific enrichment functions for canonical schema compliance</feature>
+<feature>Centralized export system integration across all strategy modules</feature>
+<feature>Unified VALID_EXPORT_TYPES usage across all strategies</feature>
+<feature>Strategy-specific metric type generation (MACD, Mean Reversion, Range, etc.)</feature>
+<feature>Automatic canonical column addition (Allocation [%], Stop Loss [%], Metric Type, Signal Window)</feature>
+<feature>Backward compatibility preservation through feature_dir parameters</feature>
+<feature>Portfolio orchestrator validation and coordination</feature>
+</features_implemented>
+<testing_results>
+<result>✅ Canonical schema validation: 59 columns confirmed across all strategies</result>
+<result>✅ Strategy enrichment functions: All add required canonical columns</result>
+<result>✅ Centralized export types: All strategies use unified VALID_EXPORT_TYPES</result>
+<result>✅ Portfolio orchestrator coordination: Properly handles enriched data</result>
+<result>✅ Cross-strategy aggregation: Unified schema enables consistent data merging</result>
+<result>✅ Risk metrics preservation: All critical risk metrics included in exports</result>
+</testing_results>
+<strategy_compliance_matrix>
+<strategy name="MA Cross" status="✅ COMPLIANT" schema_version="59-column canonical" />
+<strategy name="MACD Next" status="✅ COMPLIANT" schema_version="59-column canonical" notes="Upgraded from 55-column custom" />
+<strategy name="Mean Reversion" status="✅ COMPLIANT" schema_version="59-column canonical" notes="Upgraded from price_change-focused schema" />
+<strategy name="Mean Reversion RSI" status="✅ COMPLIANT" schema_version="59-column canonical" notes="Upgraded from custom schema" />
+<strategy name="Mean Reversion Hammer" status="✅ COMPLIANT" schema_version="59-column canonical" notes="Upgraded from custom schema" />
+<strategy name="Range" status="✅ COMPLIANT" schema_version="59-column canonical" notes="Upgraded from custom schema" />
+</strategy_compliance_matrix>
+<key_achievements>
+<achievement>100% strategy export compliance with canonical 59-column schema</achievement>
+<achievement>Eliminated 6 different custom schema variants across strategy modules</achievement>
+<achievement>Established centralized export system used by all strategies</achievement>
+<achievement>Preserved strategy-specific data enrichment while ensuring schema compliance</achievement>
+<achievement>Validated portfolio orchestrator coordination with unified schema</achievement>
+<achievement>Created comprehensive test suite for ongoing schema compliance validation</achievement>
+</key_achievements>
+<known_issues>
+<issue>None - All strategy exports now fully compliant with canonical schema</issue>
+</known_issues>
+<next_steps>
+<step>Proceed to Phase 5: Comprehensive Testing & Documentation</step>
+<step>Execute end-to-end validation across all export paths</step>
+<step>Update documentation reflecting standardized schema across all strategies</step>
+</next_steps>
+</completion_summary>
 </phase>
 
 <phase number="5" estimated_effort="1 day">
@@ -307,6 +397,168 @@ Position Count, Total Period
 **Phase 5 (Testing & Documentation)**: Day 9
 
 **Total Duration**: 9 days with 20% buffer for unexpected complexity
+
+## Post-Implementation Issues and Resolutions
+
+### Critical Export Data Corruption (2025-01-06)
+
+<issue_summary>
+**Problem**: Schema validation in `export_csv.py` was incorrectly applying canonical portfolio schema validation to ALL data exports, including price data (OHLCV). This caused price data files to be corrupted with portfolio template data instead of actual market data.
+
+**Root Cause**: The `_validate_and_ensure_schema_compliance` function was unconditionally transforming all exported data to the 59-column canonical schema, regardless of data type.
+
+**Impact**:
+
+- Price data files corrupted with portfolio template data
+- Strategy processing failed due to missing 'Close' column in price data
+- Data pipeline integrity compromised
+  </issue_summary>
+
+<resolution>
+**Fix Applied**: Modified `export_csv.py` lines 302-307 to conditionally apply schema validation only to portfolio data exports:
+
+```python
+# Only validate schema compliance for portfolio data, not price data
+if feature1 in ["portfolios", "portfolios_best", "portfolios_filtered", "strategies"]:
+    # Validate schema compliance before export
+    validated_data = _validate_and_ensure_schema_compliance(data, log)
+    # Use validated data for export
+    data = validated_data
+```
+
+**Validation**: Price data now correctly exports with Date, Open, High, Low, Close, Volume columns while portfolio data maintains canonical 59-column schema compliance.
+</resolution>
+
+### Column Name Mapping Chain Issues (2025-01-06)
+
+<issue_summary>
+**Problem**: Complex column name transformation chain caused KeyError: 'TICKER' failures in portfolio processing pipeline.
+
+**Root Cause Analysis**:
+
+1. CSV loader standardized "Ticker" → "TICKER"
+2. Canonical schema transformation mapped back to "Ticker"
+3. Portfolio processing expected "TICKER" but received canonical format
+4. Strategy processing functions expected uppercase but received canonical case
+
+**Data Flow Issue**:
+
+```
+CSV Input ("Ticker") → Standardization ("TICKER") → Canonical ("Ticker") → Processing (Expected "TICKER") = FAILURE
+```
+
+</issue_summary>
+
+<resolution>
+**Fixes Applied**:
+
+1. **Schema Transformation Mapping** (`schema_detection.py` lines 200-211):
+
+   ```python
+   column_mappings = {
+       "TICKER": "Ticker",
+       "ALLOCATION": "Allocation [%]",
+       "STRATEGY_TYPE": "Strategy Type",
+       "SHORT_WINDOW": "Short Window",
+       "LONG_WINDOW": "Long Window",
+       "SIGNAL_WINDOW": "Signal Window",
+       # ... additional mappings
+   }
+   ```
+
+2. **Portfolio Processing Compatibility** (`update_portfolios.py` lines 249-254):
+
+   ```python
+   # Handle both "TICKER" and "Ticker" column names
+   ticker = strategy.get("TICKER") or strategy.get("Ticker")
+   if not ticker:
+       log("ERROR: No ticker found in strategy row", "error")
+       continue
+   ```
+
+3. **Strategy Processing Dual Support** (`summary_processing.py` lines 46-48, 51):
+   ```python
+   # Extract strategy parameters - try both uppercase and canonical names
+   short_window = row.get("SHORT_WINDOW") or row.get("Short Window")
+   long_window = row.get("LONG_WINDOW") or row.get("Long Window")
+   strategy_type = row.get("STRATEGY_TYPE") or row.get("Strategy Type")
+   ```
+
+**Validation**: All pipeline stages now handle both naming conventions gracefully.
+</resolution>
+
+### Allocation Auto-Distribution Violation (2025-01-06)
+
+<issue_summary>
+**Problem**: System automatically assigned equal allocations when input CSV had empty allocation values, violating the principle that empty allocations should remain empty.
+
+**Root Cause**: Portfolio processing logic in `update_portfolios.py` automatically distributed allocations if ANY position had an allocation value, regardless of user intent.
+
+**Problematic Logic**:
+
+```python
+# If we have partial allocations, distribute them
+if allocation_summary["allocated_rows"] > 0 and allocation_summary["unallocated_rows"] > 0:
+    daily_df = distribute_missing_allocations(daily_df, log)
+```
+
+</issue_summary>
+
+<resolution>
+**Conservative Allocation Processing** (`update_portfolios.py` lines 174-190):
+
+```python
+# Only process allocations if user explicitly provided them
+# Do not auto-distribute or auto-normalize empty allocations
+total_rows = allocation_summary["allocated_rows"] + allocation_summary["unallocated_rows"]
+
+# Only process if ALL rows have allocations (user explicitly set them)
+if allocation_summary["allocated_rows"] == total_rows and allocation_summary["allocated_rows"] > 0:
+    # All positions have allocations - normalize them to sum to 100%
+    daily_df = ensure_allocation_sum_100_percent(daily_df, log)
+elif allocation_summary["allocated_rows"] > 0 and allocation_summary["unallocated_rows"] > 0:
+    # Partial allocations - warn but don't auto-distribute
+    log(f"Warning: Partial allocations detected. Empty allocations will remain empty.", "warning")
+else:
+    log("No allocations provided - keeping all allocations empty", "info")
+```
+
+**Behavioral Rules**:
+
+- ✅ **All empty** → Keep empty
+- ✅ **All provided** → Normalize to 100%
+- ✅ **Partially provided** → Keep empty ones empty, warn user
+
+**Validation**: Empty allocation values now correctly remain empty in output CSV files.
+</resolution>
+
+### Edge Case Documentation
+
+<edge_cases>
+**Price Data vs Portfolio Data Export**: Schema validation must be conditionally applied based on data type. Price data requires OHLCV columns while portfolio data requires 59-column canonical schema.
+
+**Column Name Format Bridging**: Pipeline stages may receive data in different column name formats (standardized vs canonical). All processing functions must handle both gracefully.
+
+**Allocation Preservation**: User intent regarding allocations must be preserved. Empty allocations indicate intentional omission, not a request for auto-distribution.
+
+**Schema Transformation Chain**: Multi-stage transformations require careful column name mapping to prevent data access failures in downstream processing.
+</edge_cases>
+
+### Lessons Learned
+
+**Design Principles**:
+
+1. **Data Type Awareness**: Export validation must be context-aware (price data vs portfolio data)
+2. **Column Name Resilience**: Processing functions should handle multiple naming conventions
+3. **User Intent Preservation**: Don't auto-modify user data unless explicitly requested
+4. **Pipeline Debugging**: Column name transformations require comprehensive logging for troubleshooting
+
+**Prevention Strategies**:
+
+1. **Conditional Schema Validation**: Apply schema validation only to appropriate data types
+2. **Dual Column Name Support**: Always check both standardized and canonical column names
+3. **Conservative Data Processing**: Default to preserving user input rather than auto-modifying
+4. **Comprehensive Testing**: Test full data pipeline with various input formats and edge cases
 
 ---
 

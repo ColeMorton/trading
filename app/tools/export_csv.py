@@ -299,11 +299,17 @@ def export_csv(
         if os.path.exists(full_path):
             os.remove(full_path)
 
-        # Validate schema compliance before export
-        validated_data = _validate_and_ensure_schema_compliance(data, log)
-
-        # Use validated data for export
-        data = validated_data
+        # Only validate schema compliance for portfolio data, not price data
+        if feature1 in [
+            "portfolios",
+            "portfolios_best",
+            "portfolios_filtered",
+            "strategies",
+        ]:
+            # Validate schema compliance before export
+            validated_data = _validate_and_ensure_schema_compliance(data, log)
+            # Use validated data for export
+            data = validated_data
 
         # Check for specific metrics before export
         risk_metrics = [

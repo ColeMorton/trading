@@ -385,13 +385,12 @@ class MACrossService:
 
                 log("Exporting best portfolios...")
 
-                # Convert back to dictionaries for export processing
-                portfolio_dicts_for_export = [p.model_dump() for p in portfolio_metrics]
-
-                # Export best portfolios
-                export_best_portfolios(portfolio_dicts_for_export, config, log)
+                # IMPORTANT: Use the original portfolio dictionaries (all_portfolio_dicts) for export
+                # to ensure all 59 columns are preserved in the CSV export.
+                # Do NOT use the reduced PortfolioMetrics objects which only have 14 fields.
+                export_best_portfolios(all_portfolio_dicts, config, log)
                 log(
-                    f"Successfully exported {len(portfolio_dicts_for_export)} best portfolios"
+                    f"Successfully exported {len(all_portfolio_dicts)} best portfolios with full canonical schema"
                 )
 
                 # Apply deduplication logic for frontend results
@@ -407,11 +406,12 @@ class MACrossService:
                     ],
                 )
 
+                # Apply deduplication to the original portfolio dictionaries
                 deduplicated_dicts = deduplicate_and_aggregate_portfolios(
-                    portfolio_dicts_for_export, log, desired_metric_types
+                    all_portfolio_dicts, log, desired_metric_types
                 )
 
-                # Convert back to PortfolioMetrics
+                # Convert deduplicated results to PortfolioMetrics for API response
                 deduplicated_portfolios = self._convert_portfolios_to_metrics(
                     deduplicated_dicts, log
                 )
@@ -670,25 +670,25 @@ class MACrossService:
 
                 log("Exporting best portfolios...")
 
-                # Convert back to dictionaries for export processing
-                portfolio_dicts_for_export = [p.model_dump() for p in portfolio_metrics]
-
+                # IMPORTANT: Use the original portfolio dictionaries (all_portfolio_dicts) for export
+                # to ensure all 59 columns are preserved in the CSV export.
+                # Do NOT use the reduced PortfolioMetrics objects which only have 14 fields.
                 # Run export in thread pool
                 loop = asyncio.get_event_loop()
                 await loop.run_in_executor(
                     self.executor,
                     export_best_portfolios,
-                    portfolio_dicts_for_export,
+                    all_portfolio_dicts,
                     config,
                     log,
                 )
 
                 await progress_callback(
                     95.0,
-                    f"Successfully exported {len(portfolio_dicts_for_export)} best portfolios",
+                    f"Successfully exported {len(all_portfolio_dicts)} best portfolios with full canonical schema",
                 )
                 log(
-                    f"Successfully exported {len(portfolio_dicts_for_export)} best portfolios"
+                    f"Successfully exported {len(all_portfolio_dicts)} best portfolios with full canonical schema"
                 )
 
                 # Apply deduplication logic for frontend results
@@ -704,16 +704,16 @@ class MACrossService:
                     ],
                 )
 
-                # Apply deduplication in thread pool
+                # Apply deduplication to the original portfolio dictionaries
                 deduplicated_dicts = await loop.run_in_executor(
                     self.executor,
                     deduplicate_and_aggregate_portfolios,
-                    portfolio_dicts_for_export,
+                    all_portfolio_dicts,
                     log,
                     desired_metric_types,
                 )
 
-                # Convert back to PortfolioMetrics
+                # Convert deduplicated results to PortfolioMetrics for API response
                 deduplicated_portfolios = self._convert_portfolios_to_metrics(
                     deduplicated_dicts, log
                 )

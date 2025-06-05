@@ -1,8 +1,9 @@
 """
 Portfolio Export Module
 
-This module handles the export of portfolio data to CSV files using the
-centralized export functionality.
+This module handles the export of portfolio data to CSV files for the
+mean reversion RSI strategy using the centralized export functionality with
+canonical 59-column schema compliance.
 """
 
 from typing import Callable, Dict, List, Optional, Tuple
@@ -10,96 +11,129 @@ from typing import Callable, Dict, List, Optional, Tuple
 import polars as pl
 
 from app.tools.export_csv import ExportConfig, export_csv
+from app.tools.strategy.export_portfolios import (
+    VALID_EXPORT_TYPES as CENTRAL_VALID_EXPORT_TYPES,
+)
+from app.tools.strategy.export_portfolios import (
+    export_portfolios as central_export_portfolios,
+)
 
 
 class PortfolioExportError(Exception):
     """Custom exception for portfolio export errors."""
 
 
-VALID_EXPORT_TYPES = {"portfolios", "portfolios_scanner", "portfolios_filtered"}
-
-
-def _fix_precision(df: pl.DataFrame) -> pl.DataFrame:
-    """Fix precision for numeric columns.
+def export_best_portfolios(
+    portfolios: List[Dict], config: ExportConfig, log: Callable
+) -> bool:
+    """Export the best mean reversion RSI portfolios to a CSV file using canonical schema.
 
     Args:
-        df (pl.DataFrame): DataFrame to process
+        portfolios: List of portfolio dictionaries to export
+        config: Configuration for the export
+        log: Logging function
 
     Returns:
-        pl.DataFrame: DataFrame with fixed precision
+        bool: True if export successful, False otherwise
     """
-    if "price_change" in df.columns:
-        df = df.with_columns(
-            pl.col("price_change")
-            .round(2)
-            .alias("price_change")  # Round to 2 decimal places (0.01 precision)
+    if not portfolios:
+        log("No portfolios to export", "warning")
+        return False
+
+    try:
+        # Use centralized export function for canonical schema compliance
+        export_portfolios(
+            portfolios=portfolios,
+            config=config,
+            export_type="portfolios_best",
+            log=log,
+            feature_dir="",  # Export to portfolios_best directly
         )
-    return df
+
+        # Get sort parameters from config
+        sort_by = config.get("SORT_BY", "Total Return [%]")
+        sort_asc = config.get("SORT_ASC", False)
+
+        log(
+            f"Exported {len(portfolios)} mean reversion RSI portfolios sorted by {sort_by} in {'ascending' if sort_asc else 'descending'} order with canonical schema compliance"
+        )
+        return True
+    except Exception as e:
+        log(f"Failed to export mean reversion RSI portfolios: {str(e)}", "error")
+        return False
 
 
-def _rename_columns(df: pl.DataFrame) -> pl.DataFrame:
-    """Rename columns to match expected format.
+# Use centralized valid export types for consistency
+VALID_EXPORT_TYPES = CENTRAL_VALID_EXPORT_TYPES
+
+
+def _enrich_mean_reversion_rsi_portfolios(
+    portfolios: List[Dict], config: ExportConfig, log: Optional[Callable] = None
+) -> List[Dict]:
+    """Enrich mean reversion RSI portfolios with canonical schema columns.
 
     Args:
-        df (pl.DataFrame): DataFrame to process
+        portfolios: List of portfolio dictionaries
+        config: Export configuration
+        log: Optional logging function
 
     Returns:
-        pl.DataFrame: DataFrame with renamed columns
+        Enriched portfolios with canonical schema columns
     """
-    rename_map = {"Change PCT": "price_change"}
-    return df.rename(rename_map)
+    enriched_portfolios = []
 
+    for portfolio in portfolios:
+        enriched = portfolio.copy()
 
-def _reorder_columns(df: pl.DataFrame, export_type: str) -> pl.DataFrame:
-    """Reorder columns based on export type.
+        # Rename legacy column names to canonical format
+        if "Change PCT" in enriched:
+            enriched["Price Change PCT"] = enriched.pop("Change PCT")
 
-    Args:
-        df (pl.DataFrame): DataFrame to reorder
-        export_type (str): Type of export
+        # Ensure Strategy Type is set to Mean Reversion RSI
+        enriched["Strategy Type"] = "Mean Reversion RSI"
 
-    Returns:
-        pl.DataFrame: DataFrame with reordered columns
-    """
-    # First rename columns
-    df = _rename_columns(df)
+        # Add missing canonical columns with appropriate defaults
+        if "Allocation [%]" not in enriched:
+            enriched["Allocation [%]"] = None
 
-    # Then fix precision
-    df = _fix_precision(df)
+        if "Stop Loss [%]" not in enriched:
+            enriched["Stop Loss [%]"] = None
 
-    if export_type == "portfolios":
-        # Ensure price_change is column 1
-        cols = df.columns
-        ordered_cols = []
+        if "Metric Type" not in enriched:
+            # Generate metric type based on performance if available
+            if enriched.get("Score", 0) > 1.0:
+                enriched["Metric Type"] = "High Performance Mean Reversion RSI"
+            else:
+                enriched["Metric Type"] = "Standard Mean Reversion RSI"
 
-        # First add price_change
-        if "price_change" in cols:
-            ordered_cols.append("price_change")
-            cols.remove("price_change")
+        if "Signal Window" not in enriched:
+            enriched["Signal Window"] = enriched.get(
+                "RSI Window", 14
+            )  # Use RSI window if available
 
-        # Add remaining columns
-        ordered_cols.extend(cols)
-        return df.select(ordered_cols)
+        if "Short Window" not in enriched:
+            enriched["Short Window"] = enriched.get("RSI Window", 14)
 
-    elif export_type == "portfolios_filtered":
-        # Ensure price_change is column 2
-        cols = df.columns
-        ordered_cols = []
+        if "Long Window" not in enriched:
+            enriched["Long Window"] = enriched.get("MA Window", 50)
 
-        # Keep first column
-        if cols:
-            ordered_cols.append(cols[0])
-            cols.remove(cols[0])
+        # Ensure Ticker is set from config if not present
+        if "Ticker" not in enriched and "TICKER" in config:
+            ticker = config["TICKER"]
+            if isinstance(ticker, str):
+                enriched["Ticker"] = ticker
+            elif isinstance(ticker, list) and len(ticker) == 1:
+                enriched["Ticker"] = ticker[0]
 
-        # Add price_change
-        if "price_change" in cols:
-            ordered_cols.append("price_change")
-            cols.remove("price_change")
+        enriched_portfolios.append(enriched)
 
-        # Add remaining columns
-        ordered_cols.extend(cols)
-        return df.select(ordered_cols)
+    if log:
+        log(
+            f"Enriched {len(portfolios)} mean reversion RSI portfolios with canonical schema columns",
+            "info",
+        )
 
-    return df
+    return enriched_portfolios
 
 
 def export_portfolios(
@@ -108,15 +142,20 @@ def export_portfolios(
     export_type: str,
     csv_filename: Optional[str] | None = None,
     log: Optional[Callable] | None = None,
+    feature_dir: str = "mean_reversion_rsi",  # Default to mean_reversion_rsi for backward compatibility
 ) -> Tuple[pl.DataFrame, bool]:
     """Convert portfolio dictionaries to Polars DataFrame and export to CSV.
+
+    This function now uses the centralized export system to ensure canonical
+    59-column schema compliance.
 
     Args:
         portfolios (List[Dict]): List of portfolio dictionaries to export
         config (ExportConfig): Export configuration dictionary
-        export_type (str): Type of export (must be one of: portfolios, portfolios_scanner, portfolios_filtered)
+        export_type (str): Type of export (must be one of: portfolios, portfolios_scanner, portfolios_filtered, portfolios_best)
         csv_filename (Optional[str]): Optional custom filename for the CSV
         log (Optional[Callable]): Optional logging function
+        feature_dir (str): Directory for exports (default: "mean_reversion_rsi")
 
     Returns:
         Tuple[pl.DataFrame, bool]: (DataFrame of exported data, success status)
@@ -130,41 +169,25 @@ def export_portfolios(
             log("No portfolios to export", "warning")
         raise ValueError("Cannot export empty portfolio list")
 
-    if export_type not in VALID_EXPORT_TYPES:
-        error_msg = f"Invalid export type: {export_type}. Must be one of: {', '.join(VALID_EXPORT_TYPES)}"
-        if log:
-            log(error_msg, "error")
-        raise PortfolioExportError(error_msg)
+    # Ensure mean reversion RSI-specific enrichment before using centralized export
+    enriched_portfolios = _enrich_mean_reversion_rsi_portfolios(portfolios, config, log)
+
+    # Set STRATEGY_TYPE to Mean Reversion RSI for proper identification
+    export_config = config.copy()
+    export_config["STRATEGY_TYPE"] = "Mean Reversion RSI"
 
     if log:
-        log(f"Exporting {len(portfolios)} portfolios as {export_type}...", "info")
-
-    try:
-        # Convert to DataFrame and reorder columns
-        df = pl.DataFrame(portfolios)
-        df = _reorder_columns(df, export_type)
-
-        # Use empty feature1 for 'portfolios' and 'portfolios_scanner' export types
-        # to export directly to csv/portfolios/ instead of
-        # csv/mean_reversion_rsi/portfolios/ or
-        # csv/mean_reversion_rsi/portfolios_scanner/
-        feature1 = (
-            ""
-            if export_type in ["portfolios", "portfolios_scanner"]
-            else "mean_reversion_rsi"
+        log(
+            f"Using centralized export for {len(enriched_portfolios)} mean reversion RSI portfolios as {export_type} with canonical schema compliance",
+            "info",
         )
 
-        # Export with correct directory structure
-        return export_csv(
-            data=df,
-            feature1=feature1,
-            config=config,
-            feature2=export_type,
-            filename=csv_filename,
-            log=log,
-        )
-    except Exception as e:
-        error_msg = f"Failed to export portfolios: {str(e)}"
-        if log:
-            log(error_msg, "error")
-        raise PortfolioExportError(error_msg) from e
+    # Use centralized export function which handles canonical schema validation
+    return central_export_portfolios(
+        portfolios=enriched_portfolios,
+        config=export_config,
+        export_type=export_type,
+        csv_filename=csv_filename,
+        log=log,
+        feature_dir=feature_dir,
+    )

@@ -197,19 +197,42 @@ def _transform_to_canonical_schema(
 
     canonical_data = []
 
+    # Column name mappings from standardized to canonical
+    column_mappings = {
+        "TICKER": "Ticker",
+        "ALLOCATION": "Allocation [%]",
+        "STRATEGY_TYPE": "Strategy Type",
+        "SHORT_WINDOW": "Short Window",
+        "LONG_WINDOW": "Long Window",
+        "SIGNAL_WINDOW": "Signal Window",
+        "STOP_LOSS": "Stop Loss [%]",
+        "SIGNAL_ENTRY": "Signal Entry",
+        "SIGNAL_EXIT": "Signal Exit",
+    }
+
     for row in csv_data:
         canonical_row = {}
 
         # Process each canonical column
         for col_name in CANONICAL_COLUMN_NAMES:
+            # Check for direct mapping
             if col_name in row:
                 # Direct mapping - column exists in source
                 canonical_row[col_name] = row[col_name]
             else:
-                # Apply transformation rules for missing columns
-                canonical_row[col_name] = _get_canonical_default_value(
-                    col_name, row, current_schema
-                )
+                # Check for mapped column names
+                mapped = False
+                for std_name, canon_name in column_mappings.items():
+                    if canon_name == col_name and std_name in row:
+                        canonical_row[col_name] = row[std_name]
+                        mapped = True
+                        break
+
+                if not mapped:
+                    # Apply transformation rules for missing columns
+                    canonical_row[col_name] = _get_canonical_default_value(
+                        col_name, row, current_schema
+                    )
 
         canonical_data.append(canonical_row)
 
@@ -248,7 +271,7 @@ def _get_canonical_default_value(
 
     # Column defaults for canonical schema migration
     defaults = {
-        "Ticker": source_row.get("Ticker", "UNKNOWN"),
+        "Ticker": source_row.get("Ticker") or source_row.get("TICKER") or "UNKNOWN",
         "Allocation [%]": None,
         "Strategy Type": "SMA",
         "Short Window": 20,

@@ -39,13 +39,16 @@ def process_ticker_portfolios(
     try:
         portfolios = []
 
-        # Extract strategy parameters
-        short_window = row.get("SHORT_WINDOW")
-        long_window = row.get("LONG_WINDOW")
-        signal_window = row.get("SIGNAL_WINDOW")
+        # Debug: log available keys
+        log(f"Available keys for {ticker}: {list(row.keys())[:10]}...", "debug")
 
-        # Determine strategy type
-        strategy_type = row.get("STRATEGY_TYPE")
+        # Extract strategy parameters - try both uppercase and canonical names
+        short_window = row.get("SHORT_WINDOW") or row.get("Short Window")
+        long_window = row.get("LONG_WINDOW") or row.get("Long Window")
+        signal_window = row.get("SIGNAL_WINDOW") or row.get("Signal Window")
+
+        # Determine strategy type - try both uppercase and canonical names
+        strategy_type = row.get("STRATEGY_TYPE") or row.get("Strategy Type")
         use_sma = row.get("USE_SMA", True)
 
         # Handle legacy portfolios without explicit strategy type

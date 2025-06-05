@@ -75,17 +75,14 @@ config = {
     # "PORTFOLIO": 'crypto_h.csv',
     # "PORTFOLIO": 'DAILY_crypto_short.csv',
     # "PORTFOLIO": 'Indices_d.csv',
-    "PORTFOLIO": "trades_20250605.csv",
+    # "PORTFOLIO": "trades_20250605.csv",
     # "PORTFOLIO": 'portfolio_d_20250510.csv',
     # "PORTFOLIO": 'BTC_MSTR_d_20250409.csv',
     # "PORTFOLIO": "QQQ_d_20250404.csv",
     # "PORTFOLIO": "TLT_d_20250404.csv",
     # "PORTFOLIO": 'HOURLY Crypto.csv',
     # "PORTFOLIO": 'BTC_MSTR_TLT_d_20250404.csv',
-    # "PORTFOLIO": 'HIMS_d_20250513.csv',
-    # "PORTFOLIO": 'QQQ_d_20250508.csv',
-    # "PORTFOLIO": 'NFLX_d_20250410.csv',
-    # "PORTFOLIO": 'COIN_d_20250414.csv',
+    "PORTFOLIO": "protected_20250603.csv",
     # "PORTFOLIO": 'MSTY_h.csv',
     # "PORTFOLIO": 'BTC_h_20250416.csv',
     # "PORTFOLIO": 'STRK_h_20250415.csv',
@@ -171,20 +168,38 @@ def run(portfolio: str) -> bool:
                 allocation_summary = get_allocation_summary(daily_df, log)
                 log(f"Initial allocation summary: {allocation_summary}", "info")
 
-                # If we have partial allocations, distribute them
-                if (
-                    allocation_summary["allocated_rows"] > 0
-                    and allocation_summary["unallocated_rows"] > 0
-                ):
-                    daily_df = distribute_missing_allocations(daily_df, log)
+                # Only process allocations if user explicitly provided them
+                # Do not auto-distribute or auto-normalize empty allocations
+                total_rows = (
+                    allocation_summary["allocated_rows"]
+                    + allocation_summary["unallocated_rows"]
+                )
 
-                # Ensure allocations sum to 100% if we have any allocations
-                if allocation_summary["allocated_rows"] > 0:
+                # Only process if ALL rows have allocations (user explicitly set them)
+                if (
+                    allocation_summary["allocated_rows"] == total_rows
+                    and allocation_summary["allocated_rows"] > 0
+                ):
+                    # All positions have allocations - normalize them to sum to 100%
                     daily_df = ensure_allocation_sum_100_percent(daily_df, log)
 
                     # Get updated allocation summary
                     updated_summary = get_allocation_summary(daily_df, log)
                     log(f"Updated allocation summary: {updated_summary}", "info")
+                elif (
+                    allocation_summary["allocated_rows"] > 0
+                    and allocation_summary["unallocated_rows"] > 0
+                ):
+                    # Partial allocations - warn but don't auto-distribute
+                    log(
+                        f"Warning: Partial allocations detected ({allocation_summary['allocated_rows']} of {total_rows} positions). Empty allocations will remain empty.",
+                        "warning",
+                    )
+                else:
+                    log(
+                        "No allocations provided - keeping all allocations empty",
+                        "info",
+                    )
 
                 # Process stop loss values
                 # Validate stop loss values
@@ -246,7 +261,12 @@ def run(portfolio: str) -> bool:
 
         # Process each ticker
         for strategy in daily_df:
-            ticker = strategy["TICKER"]
+            # Handle both "TICKER" and "Ticker" column names
+            ticker = strategy.get("TICKER") or strategy.get("Ticker")
+            if not ticker:
+                log("ERROR: No ticker found in strategy row", "error")
+                log(f"Available keys: {list(strategy.keys())}", "error")
+                continue
             log(f"Processing {ticker}")
             # Create a copy of the config for this strategy
             strategy_config = local_config.copy()
