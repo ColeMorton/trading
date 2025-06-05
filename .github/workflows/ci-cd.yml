@@ -103,19 +103,70 @@ jobs:
           poetry run prisma generate
           poetry run prisma migrate deploy
 
-      - name: Run tests with coverage
+      - name: Run unified test suite
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
           REDIS_URL: redis://localhost:6379
           ENVIRONMENT: test
+          PYTEST_RUNNING: 1
         run: |
-          poetry run pytest tests/ -v --cov=app --cov-report=xml --cov-report=html
+          poetry run python tests/run_unified_tests.py ci -c --save ci_results.json
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v3
         with:
           file: ./coverage.xml
           flags: backend
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: ci-test-results
+          path: ci_results.json
+          retention-days: 30
+
+  # Performance tests
+  test-performance:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    if: github.event_name != 'pull_request'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Run performance tests
+        env:
+          ENVIRONMENT: test
+          PYTEST_RUNNING: 1
+        run: |
+          poetry run python tests/run_unified_tests.py performance --save performance_results.json
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: performance-test-results
+          path: performance_results.json
+          retention-days: 90
+
+      - name: Performance regression check
+        run: |
+          # Compare with baseline if available
+          if [ -f baseline_performance.json ]; then
+            poetry run python tests/check_performance_regression.py performance_results.json baseline_performance.json
+          fi
 
   # Frontend tests
   test-frontend:
@@ -227,7 +278,7 @@ jobs:
 
       - name: Run integration tests
         run: |
-          docker compose -f docker-compose.prod.yml exec -T api pytest tests/integration/ -v
+          docker compose -f docker-compose.prod.yml exec -T api python tests/run_unified_tests.py e2e -v --save integration_results.json
 
       - name: Collect logs
         if: failure()

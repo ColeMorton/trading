@@ -211,8 +211,12 @@ class CSVExporter(ExportStrategy):
             components.append("SHORT")
 
         # Add strategy type
-        if context.config.get("STRATEGY_TYPE"):
-            components.append(context.config["STRATEGY_TYPE"])
+        strategy_type = context.config.get("STRATEGY_TYPE")
+        if strategy_type:
+            # Clean up strategy type if it has enum prefix
+            if isinstance(strategy_type, str) and strategy_type.startswith("StrategyTypeEnum."):
+                strategy_type = strategy_type.replace("StrategyTypeEnum.", "")
+            components.append(strategy_type)
 
         # Join components with underscore
         filename = "_".join(filter(None, components))
@@ -415,8 +419,12 @@ class JSONExporter(ExportStrategy):
         components.append("H" if context.config.get("USE_HOURLY", False) else "D")
 
         # Add strategy type
-        if context.config.get("STRATEGY_TYPE"):
-            components.append(context.config["STRATEGY_TYPE"])
+        strategy_type = context.config.get("STRATEGY_TYPE")
+        if strategy_type:
+            # Clean up strategy type if it has enum prefix
+            if isinstance(strategy_type, str) and strategy_type.startswith("StrategyTypeEnum."):
+                strategy_type = strategy_type.replace("StrategyTypeEnum.", "")
+            components.append(strategy_type)
 
         # Join components
         filename = "_".join(filter(None, components))

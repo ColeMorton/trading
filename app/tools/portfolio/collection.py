@@ -137,21 +137,9 @@ def deduplicate_and_aggregate_portfolios(
             best_long = best_row["Long Window"]
             best_signal = best_row.get("Signal Window", 0)
         else:
-            # get_best_portfolio may rename columns, so check both formats
-            if "Short Window" in best_portfolio:
-                best_short = best_portfolio["Short Window"]
-                best_long = best_portfolio["Long Window"]
-            else:
-                # Check for renamed columns (SMA_FAST/EMA_FAST, SMA_SLOW/EMA_SLOW)
-                strategy_prefix = "SMA" if strategy_type == "SMA" else "EMA"
-                fast_col = f"{strategy_prefix}_FAST"
-                slow_col = f"{strategy_prefix}_SLOW"
-                best_short = best_portfolio.get(
-                    fast_col, best_portfolio.get("Short Window", 0)
-                )
-                best_long = best_portfolio.get(
-                    slow_col, best_portfolio.get("Long Window", 0)
-                )
+            # get_best_portfolio returns consistent column names
+            best_short = best_portfolio["Short Window"]
+            best_long = best_portfolio["Long Window"]
             best_signal = best_portfolio.get("Signal Window", 0)
 
         # Find ALL metric types for this exact best configuration

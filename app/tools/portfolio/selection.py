@@ -86,17 +86,14 @@ def get_best_portfolio(
         else:
             use_sma = portfolios.select("Use SMA").row(0)[0]
 
-        fast_col = "SMA_FAST" if use_sma else "EMA_FAST"
-        slow_col = "SMA_SLOW" if use_sma else "EMA_SLOW"
+        fast_col = "Short Window"
+        slow_col = "Long Window"
 
         log(f"Using strategy type: {'SMA' if use_sma else 'EMA'}", "info")
         log(f"Fast column: {fast_col}, Slow column: {slow_col}", "info")
 
-        # Rename columns and sort using centralized function
-        renamed_portfolios = portfolios.rename(
-            {"Short Window": fast_col, "Long Window": slow_col}
-        )
-        sorted_portfolios = sort_portfolios(renamed_portfolios, config)
+        # Sort using centralized function
+        sorted_portfolios = sort_portfolios(portfolios, config)
 
         # Get top portfolios for analysis
         top_3 = sorted_portfolios.head(3)

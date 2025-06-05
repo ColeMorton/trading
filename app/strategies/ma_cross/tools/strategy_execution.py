@@ -124,10 +124,8 @@ def execute_single_strategy(
             {
                 "TICKER": ticker,  # Use uppercase TICKER
                 "Strategy Type": strategy_type,
-                "SMA_FAST": config["SHORT_WINDOW"] if strategy_type == "SMA" else None,
-                "SMA_SLOW": config["LONG_WINDOW"] if strategy_type == "SMA" else None,
-                "EMA_FAST": config["SHORT_WINDOW"] if strategy_type == "EMA" else None,
-                "EMA_SLOW": config["LONG_WINDOW"] if strategy_type == "EMA" else None,
+                "Short Window": config["SHORT_WINDOW"],  # Always use Short Window
+                "Long Window": config["LONG_WINDOW"],   # Always use Long Window
                 # Add Allocation [%] and Stop Loss [%] fields if they exist in config
                 "Allocation [%]": config.get("ALLOCATION", None),
                 "Stop Loss [%]": config.get("STOP_LOSS", None),
