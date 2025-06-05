@@ -5,7 +5,6 @@ from contextlib import asynccontextmanager
 from typing import Any, Dict, Optional, Type, TypeVar
 
 import httpx
-import structlog
 from pydantic import BaseModel
 from tenacity import (
     before_sleep_log,
@@ -19,7 +18,7 @@ from ..config import config
 
 T = TypeVar("T", bound=BaseModel)
 
-logger = structlog.get_logger()
+logger = logging.getLogger(__name__)
 
 
 class APIError(Exception):
@@ -75,7 +74,7 @@ class APIClient:
         )
 
         self._client: Optional[httpx.AsyncClient] | None = None
-        self.logger = logger.bind(component="api_client")
+        self.logger = logger
 
     @asynccontextmanager
     async def _get_client(self):
@@ -124,11 +123,13 @@ class APIClient:
         """Make an HTTP request with retry logic."""
         url = self._build_url(endpoint)
 
-        log = self.logger.bind(
-            method=method, url=url, params=params, has_json=json_data is not None
+        self.logger.info(
+            "Making API request - method: %s, url: %s, params: %s, has_json: %s",
+            method,
+            url,
+            params,
+            json_data is not None,
         )
-
-        log.info("Making API request")
 
         try:
             async with self._get_client() as client:
@@ -141,26 +142,32 @@ class APIClient:
                 except RuntimeError:
                     elapsed_ms = None
 
-                log.info(
-                    "API request completed",
-                    status_code=response.status_code,
-                    elapsed_ms=elapsed_ms,
+                self.logger.info(
+                    "API request completed - status_code: %s, elapsed_ms: %s",
+                    response.status_code,
+                    elapsed_ms,
                 )
 
                 response.raise_for_status()
                 return response
 
         except httpx.ConnectError as e:
-            log.error("Connection error", error=str(e))
+            self.logger.error("Connection error: %s", str(e))
             raise APIConnectionError(f"Failed to connect to API: {e}")
         except httpx.TimeoutException as e:
-            log.error("Request timeout", error=str(e))
+            self.logger.error("Request timeout: %s", str(e))
             raise APITimeoutError(f"API request timed out: {e}")
         except httpx.HTTPStatusError as e:
-            log.error("HTTP error", status_code=e.response.status_code, error=str(e))
+            self.logger.error(
+                "HTTP error - status_code: %s, error: %s",
+                e.response.status_code,
+                str(e),
+            )
             self._handle_http_error(e.response)
         except Exception as e:
-            log.error("Unexpected error", error=str(e), error_type=type(e).__name__)
+            self.logger.error(
+                "Unexpected error - error: %s, error_type: %s", str(e), type(e).__name__
+            )
             raise
 
     def _handle_http_error(self, response: httpx.Response):
@@ -250,7 +257,7 @@ class APIClient:
             await self.get("/health")
             return True
         except Exception as e:
-            self.logger.warning("Health check failed", error=str(e))
+            self.logger.warning("Health check failed: %s", str(e))
             return False
 
 

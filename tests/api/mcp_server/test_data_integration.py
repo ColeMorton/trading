@@ -6,7 +6,8 @@ from typing import Any, Dict, List
 
 from mcp.server import Server
 from mcp.types import Tool
-from mcp_server.server import TradingAPIMCPServer
+
+from app.api.mcp_server.server import TradingAPIMCPServer
 
 
 async def test_data_tools_registration():

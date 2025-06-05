@@ -5,7 +5,8 @@ import json
 from unittest.mock import AsyncMock, patch
 
 from mcp.types import TextContent
-from mcp_server.server import TradingAPIMCPServer
+
+from app.api.mcp_server.server import TradingAPIMCPServer
 
 
 async def test_list_trading_scripts():
@@ -16,11 +17,14 @@ async def test_list_trading_scripts():
     mock_api_client = AsyncMock()
 
     with patch(
-        "mcp_server.handlers.api_client.get_api_client", return_value=mock_api_client
+        "app.api.mcp_server.handlers.api_client.get_api_client",
+        return_value=mock_api_client,
     ):
-        with patch("mcp_server.server.get_api_client", return_value=mock_api_client):
+        with patch(
+            "app.api.mcp_server.server.get_api_client", return_value=mock_api_client
+        ):
             with patch(
-                "mcp_server.tools.script_tools.get_api_client",
+                "app.api.mcp_server.tools.script_tools.get_api_client",
                 return_value=mock_api_client,
             ):
                 # Create the MCP server
@@ -67,14 +71,8 @@ async def test_list_trading_scripts():
                         print(f"    Name: {script.get('name')}")
                         print(f"    Description: {script.get('description')}")
                         print(f"    Directory: {script.get('directory')}")
-                        print(
-                            f"    Parameters: {
-    json.dumps(
-        script.get(
-            'parameters',
-            {}),
-             indent=6)}"
-                        )
+                        parameters = script.get("parameters", {})
+                        print(f"    Parameters: {json.dumps(parameters, indent=6)}")
                 else:
                     print("✗ Response indicates failure")
                     print(f"  Error: {result.get('error')}")
@@ -102,7 +100,7 @@ async def test_with_real_api():
 
     try:
         # Import without mocking
-        from mcp_server.server import TradingAPIMCPServer
+        from app.api.mcp_server.server import TradingAPIMCPServer
 
         # Create server without mocks
         server = TradingAPIMCPServer()

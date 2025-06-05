@@ -3,8 +3,8 @@
 import asyncio
 import json
 
-from mcp_server.logging_setup import get_logger, setup_logging
-from mcp_server.server import TradingAPIMCPServer
+from app.api.mcp_server.logging_setup import get_logger, setup_logging
+from app.api.mcp_server.server import TradingAPIMCPServer
 
 # Setup logging
 setup_logging()
@@ -79,7 +79,7 @@ async def test_mcp_server():
         print("   ✓ hello_world tool is available")
 
         print("\n5. Server configuration:")
-        from mcp_server.config import config
+        from app.api.mcp_server.config import config
 
         print(f"   - Server name: {config.server_name}")
         print(f"   - Server version: {config.server_version}")

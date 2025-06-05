@@ -15,7 +15,7 @@ sys.path.insert(
     0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
 
-from mcp_server.tools.portfolio_tools import PortfolioTools, get_portfolio_tools
+from app.api.mcp_server.tools.portfolio_tools import PortfolioTools, get_portfolio_tools
 
 
 class TestPortfolioTools:
@@ -24,7 +24,7 @@ class TestPortfolioTools:
     @pytest.fixture
     def portfolio_tools(self):
         """Create PortfolioTools instance for testing"""
-        with patch("mcp_server.tools.portfolio_tools.get_api_client"):
+        with patch("app.api.mcp_server.tools.portfolio_tools.get_api_client"):
             return PortfolioTools()
 
     def test_tool_creation(self, portfolio_tools):
@@ -91,7 +91,7 @@ class TestPortfolioTools:
     @pytest.mark.asyncio
     async def test_update_portfolio_api_error(self, portfolio_tools):
         """Test portfolio update with API error"""
-        from mcp_server.handlers.api_client import APIError
+        from app.api.mcp_server.handlers.api_client import APIError
 
         portfolio_tools.api_client.post = AsyncMock(
             side_effect=APIError("Connection failed")
@@ -138,7 +138,7 @@ class TestPortfolioTools:
 
     def test_get_portfolio_tools_singleton(self):
         """Test that get_portfolio_tools returns the same instance"""
-        with patch("mcp_server.tools.portfolio_tools.get_api_client"):
+        with patch("app.api.mcp_server.tools.portfolio_tools.get_api_client"):
             tools1 = get_portfolio_tools()
             tools2 = get_portfolio_tools()
             assert tools1 is tools2

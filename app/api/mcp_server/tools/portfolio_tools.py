@@ -2,15 +2,15 @@
 Portfolio management tools for MCP server.
 """
 
+import logging
 from typing import Any, Dict, List
 
-import structlog
 from mcp import Tool
 
 from ..config import config
 from ..handlers.api_client import APIError, get_api_client
 
-logger = structlog.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class PortfolioTools:
@@ -20,7 +20,7 @@ class PortfolioTools:
         self.config = config
         self.api_client = get_api_client()
         self.tools = self._create_tools()
-        logger.info("PortfolioTools initialized", tool_count=len(self.tools))
+        logger.info("PortfolioTools initialized - tool_count: %d", len(self.tools))
 
     def _create_tools(self) -> List[Tool]:
         """Create portfolio management tools."""
@@ -60,19 +60,21 @@ class PortfolioTools:
             Dict containing update results or error information
         """
         logger.info(
-            "Updating portfolio", csv_filename=csv_filename, script_dir=script_dir
+            "Updating portfolio - csv_filename: %s, script_dir: %s",
+            csv_filename,
+            script_dir,
         )
 
         # Validate inputs
         if not csv_filename:
             error_msg = "csv_filename is required"
-            logger.error("Portfolio update failed", error=error_msg)
+            logger.error("Portfolio update failed: %s", error_msg)
             return {"status": "error", "error": error_msg}
 
         # Validate csv_filename format
         if not csv_filename.endswith(".csv"):
             error_msg = "csv_filename must be a CSV file (end with .csv)"
-            logger.error("Portfolio update failed", error=error_msg)
+            logger.error("Portfolio update failed: %s", error_msg)
             return {"status": "error", "error": error_msg}
 
         try:
@@ -91,9 +93,9 @@ class PortfolioTools:
             )
 
             logger.info(
-                "Portfolio update successful",
-                csv_filename=csv_filename,
-                response_status=response.get("status"),
+                "Portfolio update successful - csv_filename: %s, response_status: %s",
+                csv_filename,
+                response.get("status"),
             )
 
             # Extract the result from the response
@@ -123,14 +125,15 @@ class PortfolioTools:
 
         except APIError as e:
             logger.error(
-                "API error during portfolio update",
-                error=str(e),
-                csv_filename=csv_filename,
+                "API error during portfolio update - error: %s, csv_filename: %s",
+                str(e),
+                csv_filename,
             )
             return {"status": "error", "error": f"API error: {str(e)}"}
         except Exception as e:
             logger.exception(
-                "Unexpected error during portfolio update", csv_filename=csv_filename
+                "Unexpected error during portfolio update - csv_filename: %s",
+                csv_filename,
             )
             return {"status": "error", "error": f"Unexpected error: {str(e)}"}
 
@@ -153,7 +156,7 @@ class PortfolioTools:
                 script_dir=arguments.get("script_dir", "strategies"),
             )
         else:
-            logger.error("Unknown portfolio tool", tool_name=name)
+            logger.error("Unknown portfolio tool: %s", name)
             return {"status": "error", "error": f"Unknown portfolio tool: {name}"}
 
 

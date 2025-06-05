@@ -4,8 +4,8 @@ import asyncio
 import json
 from unittest.mock import AsyncMock, patch
 
-from mcp_server.server import TradingAPIMCPServer
-from mcp_server.tools.script_tools import ScriptTools
+from app.api.mcp_server.server import TradingAPIMCPServer
+from app.api.mcp_server.tools.script_tools import ScriptTools
 
 
 async def test_script_tools_integration():
@@ -17,11 +17,14 @@ async def test_script_tools_integration():
 
     # Patch the get_api_client function
     with patch(
-        "mcp_server.handlers.api_client.get_api_client", return_value=mock_api_client
+        "app.api.mcp_server.handlers.api_client.get_api_client",
+        return_value=mock_api_client,
     ):
-        with patch("mcp_server.server.get_api_client", return_value=mock_api_client):
+        with patch(
+            "app.api.mcp_server.server.get_api_client", return_value=mock_api_client
+        ):
             with patch(
-                "mcp_server.tools.script_tools.get_api_client",
+                "app.api.mcp_server.tools.script_tools.get_api_client",
                 return_value=mock_api_client,
             ):
                 # Create the server
@@ -113,18 +116,21 @@ async def test_error_handling():
     mock_api_client = AsyncMock()
 
     with patch(
-        "mcp_server.handlers.api_client.get_api_client", return_value=mock_api_client
+        "app.api.mcp_server.handlers.api_client.get_api_client",
+        return_value=mock_api_client,
     ):
-        with patch("mcp_server.server.get_api_client", return_value=mock_api_client):
+        with patch(
+            "app.api.mcp_server.server.get_api_client", return_value=mock_api_client
+        ):
             with patch(
-                "mcp_server.tools.script_tools.get_api_client",
+                "app.api.mcp_server.tools.script_tools.get_api_client",
                 return_value=mock_api_client,
             ):
                 # Create a fresh mock for error testing
                 mock_api_client_error = AsyncMock()
 
                 with patch(
-                    "mcp_server.tools.script_tools.get_api_client",
+                    "app.api.mcp_server.tools.script_tools.get_api_client",
                     return_value=mock_api_client_error,
                 ):
                     # Create fresh tools instance with error mock

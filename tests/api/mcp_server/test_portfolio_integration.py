@@ -12,9 +12,9 @@ sys.path.insert(
     0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
 
-from mcp_server.handlers.api_client import get_api_client
-from mcp_server.server import TradingAPIMCPServer
-from mcp_server.tools.portfolio_tools import get_portfolio_tools
+from app.api.mcp_server.handlers.api_client import get_api_client
+from app.api.mcp_server.server import TradingAPIMCPServer
+from app.api.mcp_server.tools.portfolio_tools import get_portfolio_tools
 
 
 async def test_portfolio_tools_registration():

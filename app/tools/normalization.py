@@ -29,9 +29,7 @@ class Normalizer:
         """
         if log is None:
             # Create a default logger if none provided
-            self.log, _, _, _ = setup_logging(
-                "normalizer", Path("./logs"), "normalizer.log"
-            )
+            self.log, _, _, _ = setup_logging("normalizer", "normalizer.log")
         else:
             self.log = log
 

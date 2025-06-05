@@ -13,7 +13,8 @@ sys.path.insert(
 )
 
 from mcp.types import TextContent
-from mcp_server.server import TradingAPIMCPServer
+
+from app.api.mcp_server.server import TradingAPIMCPServer
 
 
 async def test_portfolio_tool_complete():

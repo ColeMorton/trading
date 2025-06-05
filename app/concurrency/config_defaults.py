@@ -116,10 +116,10 @@ class ConcurrencyDefaults:
     )
 
     # General Configuration
-    # PORTFOLIO: str = "trades_20250603.csv"
+    PORTFOLIO: str = "trades_20250605.csv"
     # PORTFOLIO: str = "BTC_d_20250530.csv"
     # PORTFOLIO: str = "portfolio_risk.csv"
-    PORTFOLIO: str = "portfolio_d_20250510.csv"
+    # PORTFOLIO: str = "portfolio_d_20250510.csv"
     # PORTFOLIO: str = "QQQ_d_20250529.csv"
     BASE_DIR: str = ""  # Will be set to project root
     REFRESH: bool = True

@@ -142,3 +142,10 @@ class AnalysisResult:
             "signal_count": self.signal_count,
             "config": self.config.to_dict() if self.config else None,
         }
+
+
+# Type aliases for backward compatibility with existing tests
+MACrossConfig = AnalysisConfig
+MACrossResult = AnalysisResult
+PortfolioResult = TickerResult
+TradingSignal = SignalInfo

@@ -64,9 +64,7 @@ class ErrorHandler:
         """
         if log is None:
             # Create a default logger if none provided
-            self.log, _, _, _ = setup_logging(
-                "error_handler", Path("./logs"), "error_handler.log"
-            )
+            self.log, _, _, _ = setup_logging("error_handler", "error_handler.log")
         else:
             self.log = log
 

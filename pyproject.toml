@@ -57,6 +57,7 @@ autopep8 = "^2.3.2"
 types-requests = "^2.32.0.20250602"
 pytest-mock = "^3.14.1"
 pytest-timeout = "^2.4.0"
+pytest-xdist = "^3.7.0"
 
 [build-system]
 requires = ["poetry-core"]

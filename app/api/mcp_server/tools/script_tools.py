@@ -5,14 +5,14 @@ This module provides MCP tools for listing, executing, and monitoring
 trading scripts through the Trading API.
 """
 
+import logging
 from typing import Any, Dict, List, Optional
 
-import structlog
 from mcp.types import Tool
 
 from ..handlers import get_api_client
 
-logger = structlog.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class ScriptTools:
@@ -146,12 +146,12 @@ class ScriptTools:
                 },
             ]
 
-            logger.info("Found scripts", count=len(scripts))
+            logger.info("Found scripts - count: %d", len(scripts))
 
             return {"success": True, "scripts": scripts, "total": len(scripts)}
 
         except Exception as e:
-            logger.error("Failed to list scripts", error=str(e))
+            logger.error("Failed to list scripts: %s", str(e))
             return {"success": False, "error": f"Failed to list scripts: {str(e)}"}
 
     async def execute_trading_script(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
@@ -176,10 +176,10 @@ class ScriptTools:
 
         try:
             logger.info(
-                "Executing script",
-                script=script_name,
-                async_mode=async_mode,
-                parameters=parameters,
+                "Executing script - script: %s, async_mode: %s, parameters: %s",
+                script_name,
+                async_mode,
+                parameters,
             )
 
             # Prepare the request payload
@@ -194,9 +194,9 @@ class ScriptTools:
 
             if async_mode and "execution_id" in response:
                 logger.info(
-                    "Script execution started",
-                    script=script_name,
-                    execution_id=response["execution_id"],
+                    "Script execution started - script: %s, execution_id: %s",
+                    script_name,
+                    response["execution_id"],
                 )
                 return {
                     "success": True,
@@ -204,7 +204,7 @@ class ScriptTools:
                     "message": f"Script '{script_name}' started executing asynchronously",
                 }
             else:
-                logger.info("Script executed successfully", script=script_name)
+                logger.info("Script executed successfully - script: %s", script_name)
                 return {
                     "success": True,
                     "result": response.get("result"),
@@ -213,7 +213,9 @@ class ScriptTools:
                 }
 
         except Exception as e:
-            logger.error("Failed to execute script", script=script_name, error=str(e))
+            logger.error(
+                "Failed to execute script - script: %s, error: %s", script_name, str(e)
+            )
             return {
                 "success": False,
                 "error": f"Failed to execute script '{script_name}': {str(e)}",
@@ -236,14 +238,16 @@ class ScriptTools:
             return {"success": False, "error": "execution_id is required"}
 
         try:
-            logger.info("Checking script status", execution_id=execution_id)
+            logger.info("Checking script status - execution_id: %s", execution_id)
 
             # Call the API
             response = await self.api_client.get(f"/api/scripts/status/{execution_id}")
 
             status = response.get("status", "unknown")
             logger.info(
-                "Script status retrieved", execution_id=execution_id, status=status
+                "Script status retrieved - execution_id: %s, status: %s",
+                execution_id,
+                status,
             )
 
             result = {"success": True, "execution_id": execution_id, "status": status}
@@ -264,7 +268,9 @@ class ScriptTools:
 
         except Exception as e:
             logger.error(
-                "Failed to check script status", execution_id=execution_id, error=str(e)
+                "Failed to check script status - execution_id: %s, error: %s",
+                execution_id,
+                str(e),
             )
             return {
                 "success": False,

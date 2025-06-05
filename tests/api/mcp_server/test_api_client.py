@@ -9,8 +9,8 @@ import httpx
 
 sys.path.insert(0, ".")
 
-from mcp_server.config import config
-from mcp_server.handlers.api_client import (
+from app.api.mcp_server.config import config
+from app.api.mcp_server.handlers.api_client import (
     APIClient,
     APIConnectionError,
     APIError,

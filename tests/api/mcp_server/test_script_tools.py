@@ -4,7 +4,8 @@ import json
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
-from mcp_server.tools.script_tools import ScriptTools, get_script_tools
+
+from app.api.mcp_server.tools.script_tools import ScriptTools, get_script_tools
 
 
 @pytest.fixture
@@ -18,7 +19,8 @@ def mock_api_client():
 def script_tools(mock_api_client):
     """Create script tools instance with mocked API client."""
     with patch(
-        "mcp_server.tools.script_tools.get_api_client", return_value=mock_api_client
+        "app.api.mcp_server.tools.script_tools.get_api_client",
+        return_value=mock_api_client,
     ):
         tools = ScriptTools()
         return tools

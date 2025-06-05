@@ -42,6 +42,7 @@ ASSETS = [
     "COIN",
     "UTHR",
     "NBIX",
+    "FMC",
 ]
 
 # ASSETS = ['TRX-USD', 'FET-USD', 'AVAX-USD', 'SOL-USD']
