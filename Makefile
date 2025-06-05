@@ -10,7 +10,9 @@ help:
 	@echo "Development:"
 	@echo "  install     - Install dependencies using Poetry"
 	@echo "  dev         - Start development server"
-	@echo "  test        - Run test suite"
+	@echo "  test        - Run unified test suite (CI configuration)"
+	@echo "  test-quick  - Run quick tests for development"
+	@echo "  test-full   - Run full test suite with coverage"
 	@echo "  clean       - Clean temporary files"
 	@echo "  lint-help   - Show all linting commands"
 	@echo "  lint-all    - Run all linters and formatters"
@@ -57,7 +59,40 @@ install:
 dev:
 	poetry run python -m app.api.run --reload
 
+# Unified test execution - delegates to comprehensive test infrastructure
 test:
+	@echo "🧪 Running unified test suite..."
+	@echo "📊 Using Phase 3 consolidated test infrastructure"
+	poetry run python tests/run_unified_tests.py ci -v
+	@echo "✅ All tests completed successfully!"
+	@echo "📈 View detailed results: cat test_results.json"
+
+# Quick test for development
+test-quick:
+	@echo "🚀 Running quick test suite for development..."
+	poetry run python tests/run_unified_tests.py quick -v
+
+# Full test suite with coverage
+test-full:
+	@echo "🚀 Running full test suite with coverage..."
+	poetry run python tests/run_unified_tests.py all -c --save test_results.json
+	@echo "📊 Coverage report available at: htmlcov/index.html"
+
+# Individual test categories (delegating to unified runner)
+test-unit:
+	poetry run python tests/run_unified_tests.py unit -v
+
+test-integration:
+	poetry run python tests/run_unified_tests.py integration -v
+
+test-api:
+	poetry run python tests/run_unified_tests.py api -v
+
+test-e2e:
+	poetry run python tests/run_unified_tests.py e2e -v
+
+# Legacy pytest command for direct pytest access
+test-pytest:
 	poetry run pytest
 
 test-db:

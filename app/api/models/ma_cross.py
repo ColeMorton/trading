@@ -250,7 +250,10 @@ class MACrossRequest(BaseModel):
             "TICKER": self.ticker,
             "WINDOWS": self.windows,
             "DIRECTION": self.direction,
-            "STRATEGY_TYPES": [strategy.value if hasattr(strategy, 'value') else strategy for strategy in self.strategy_types],  # Convert enum to string value
+            "STRATEGY_TYPES": [
+                strategy.value if hasattr(strategy, "value") else strategy
+                for strategy in self.strategy_types
+            ],  # Convert enum to string value
             "USE_HOURLY": self.use_hourly,
             "USE_YEARS": self.use_years,
             "YEARS": self.years,

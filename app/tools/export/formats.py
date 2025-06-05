@@ -214,7 +214,9 @@ class CSVExporter(ExportStrategy):
         strategy_type = context.config.get("STRATEGY_TYPE")
         if strategy_type:
             # Clean up strategy type if it has enum prefix
-            if isinstance(strategy_type, str) and strategy_type.startswith("StrategyTypeEnum."):
+            if isinstance(strategy_type, str) and strategy_type.startswith(
+                "StrategyTypeEnum."
+            ):
                 strategy_type = strategy_type.replace("StrategyTypeEnum.", "")
             components.append(strategy_type)
 
@@ -422,7 +424,9 @@ class JSONExporter(ExportStrategy):
         strategy_type = context.config.get("STRATEGY_TYPE")
         if strategy_type:
             # Clean up strategy type if it has enum prefix
-            if isinstance(strategy_type, str) and strategy_type.startswith("StrategyTypeEnum."):
+            if isinstance(strategy_type, str) and strategy_type.startswith(
+                "StrategyTypeEnum."
+            ):
                 strategy_type = strategy_type.replace("StrategyTypeEnum.", "")
             components.append(strategy_type)
 

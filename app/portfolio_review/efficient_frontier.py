@@ -34,16 +34,14 @@ ASSETS = [
     "MCO",
     "ETH-USD",
     "LMT",
-    "AAPL",
     "NVDA",
-    "ILMN",
     "SHOP",
     "AIZ",
     "EXR",
     "PGR",
     "COIN",
     "UTHR",
-    "NTRA",
+    "NBIX",
 ]
 
 # ASSETS = ['TRX-USD', 'FET-USD', 'AVAX-USD', 'SOL-USD']

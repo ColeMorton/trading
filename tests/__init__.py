@@ -1,0 +1,1 @@
+# Tests package for Trading Strategy Platform

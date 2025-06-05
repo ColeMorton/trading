@@ -97,9 +97,11 @@ def _get_filename_components(
         if config.get("USE_MA", False):
             # Use STRATEGY_TYPE if available, otherwise fall back to USE_SMA
             if "STRATEGY_TYPE" in config:
-                strategy_type = config['STRATEGY_TYPE']
+                strategy_type = config["STRATEGY_TYPE"]
                 # Clean up strategy type if it has enum prefix
-                if isinstance(strategy_type, str) and strategy_type.startswith("StrategyTypeEnum."):
+                if isinstance(strategy_type, str) and strategy_type.startswith(
+                    "StrategyTypeEnum."
+                ):
                     strategy_type = strategy_type.replace("StrategyTypeEnum.", "")
                 components.append(f"_{strategy_type}")
             else:
@@ -124,9 +126,11 @@ def _get_filename_components(
     if config.get("USE_MA", False):
         # Use STRATEGY_TYPE if available, otherwise fall back to USE_SMA
         if "STRATEGY_TYPE" in config:
-            strategy_type = config['STRATEGY_TYPE']
+            strategy_type = config["STRATEGY_TYPE"]
             # Clean up strategy type if it has enum prefix
-            if isinstance(strategy_type, str) and strategy_type.startswith("StrategyTypeEnum."):
+            if isinstance(strategy_type, str) and strategy_type.startswith(
+                "StrategyTypeEnum."
+            ):
                 strategy_type = strategy_type.replace("StrategyTypeEnum.", "")
             components.append(f"_{strategy_type}")
         else:

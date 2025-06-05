@@ -125,7 +125,7 @@ def execute_single_strategy(
                 "TICKER": ticker,  # Use uppercase TICKER
                 "Strategy Type": strategy_type,
                 "Short Window": config["SHORT_WINDOW"],  # Always use Short Window
-                "Long Window": config["LONG_WINDOW"],   # Always use Long Window
+                "Long Window": config["LONG_WINDOW"],  # Always use Long Window
                 # Add Allocation [%] and Stop Loss [%] fields if they exist in config
                 "Allocation [%]": config.get("ALLOCATION", None),
                 "Stop Loss [%]": config.get("STOP_LOSS", None),

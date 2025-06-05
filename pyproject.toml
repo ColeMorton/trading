@@ -55,6 +55,8 @@ pre-commit = "^3.6.0"
 autoflake = "^2.3.1"
 autopep8 = "^2.3.2"
 types-requests = "^2.32.0.20250602"
+pytest-mock = "^3.14.1"
+pytest-timeout = "^2.4.0"
 
 [build-system]
 requires = ["poetry-core"]
