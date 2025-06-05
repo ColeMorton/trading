@@ -72,6 +72,12 @@ def deduplicate_and_aggregate_portfolios(
     # Filter to desired Metric Types if specified
     if desired_metric_types is not None and "Metric Type" in df.columns:
         original_count = len(df)
+        # Get unique metric types present in data for debugging
+        unique_metric_types = df["Metric Type"].unique().to_list()
+        if log:
+            log(f"Metric types present in data: {unique_metric_types}", "info")
+            log(f"Desired metric types: {desired_metric_types}", "info")
+
         df = df.filter(pl.col("Metric Type").is_in(desired_metric_types))
         if log:
             log(
@@ -82,9 +88,33 @@ def deduplicate_and_aggregate_portfolios(
     # Verify Score column exists (should be calculated by stats_converter)
     if "Score" not in df.columns:
         if log:
-            log("Warning: Score column not found in portfolios", "warning")
-        # Use Total Return [%] as fallback
-        df = df.with_columns(pl.col("Total Return [%]").cast(pl.Float64).alias("Score"))
+            log(f"Score column not found. Available columns: {df.columns}", "warning")
+        # Try to find score column with different casing
+        score_col = None
+        for col in df.columns:
+            if col.lower() == "score":
+                score_col = col
+                break
+
+        if score_col:
+            df = df.rename({score_col: "Score"})
+            if log:
+                log(f"Renamed '{score_col}' column to 'Score'", "info")
+        else:
+            # Use Total Return [%] as fallback
+            if "Total Return [%]" in df.columns:
+                df = df.with_columns(
+                    pl.col("Total Return [%]").cast(pl.Float64).alias("Score")
+                )
+                if log:
+                    log("Using 'Total Return [%]' as Score column", "info")
+            else:
+                if log:
+                    log(
+                        "ERROR: Neither Score nor Total Return [%] column found",
+                        "error",
+                    )
+                raise ValueError("Neither Score nor Total Return [%] column found")
 
     # Check if Metric Type column exists
     if "Metric Type" not in df.columns:

@@ -144,7 +144,7 @@ class CSVExporter(ExportStrategy):
             DataFrame with canonical schema compliance
         """
         try:
-            from app.tools.portfolio.canonical_schema import CANONICAL_COLUMN_NAMES
+            from app.tools.portfolio.base_extended_schemas import CANONICAL_COLUMN_NAMES
             from app.tools.portfolio.schema_validation import validate_dataframe_schema
         except ImportError:
             if context.log:
@@ -207,7 +207,7 @@ class CSVExporter(ExportStrategy):
             DataFrame with canonical column order
         """
         try:
-            from app.tools.portfolio.canonical_schema import CANONICAL_COLUMN_NAMES
+            from app.tools.portfolio.base_extended_schemas import CANONICAL_COLUMN_NAMES
         except ImportError:
             if context.log:
                 context.log(
@@ -265,7 +265,7 @@ class CSVExporter(ExportStrategy):
             "Signal Exit": False,
             "Total Open Trades": 0,
             "Total Trades": 0,
-            "Metric Type": "Standard",
+            "Metric Type": "Most Total Return [%]",
             "Score": 0.0,
             "Win Rate [%]": 50.0,
             "Profit Factor": 1.0,

@@ -127,9 +127,8 @@ def get_best_portfolio(
                 .to_dicts()[0]
             )
 
-            # Remove "Metric Type" column if it exists
-            if "Metric Type" in portfolio:
-                del portfolio["Metric Type"]
+            # Preserve "Metric Type" column for API compatibility
+            # Note: Metric Type is needed for proper frontend display
 
             # Apply schema detection and normalization
             portfolio_list = [portfolio]
@@ -184,9 +183,8 @@ def get_best_portfolio(
                 .to_dicts()[0]
             )
 
-            # Remove "Metric Type" column if it exists
-            if "Metric Type" in portfolio:
-                del portfolio["Metric Type"]
+            # Preserve "Metric Type" column for API compatibility
+            # Note: Metric Type is needed for proper frontend display
 
             # Apply schema detection and normalization
             portfolio_list = [portfolio]
@@ -241,9 +239,8 @@ def get_best_portfolio(
                 .to_dicts()[0]
             )
 
-            # Remove "Metric Type" column if it exists
-            if "Metric Type" in portfolio:
-                del portfolio["Metric Type"]
+            # Preserve "Metric Type" column for API compatibility
+            # Note: Metric Type is needed for proper frontend display
 
             # Apply schema detection and normalization
             portfolio_list = [portfolio]
@@ -299,9 +296,8 @@ def get_best_portfolio(
                 .to_dicts()[0]
             )
 
-            # Remove "Metric Type" column if it exists
-            if "Metric Type" in portfolio:
-                del portfolio["Metric Type"]
+            # Preserve "Metric Type" column for API compatibility
+            # Note: Metric Type is needed for proper frontend display
 
             # Apply schema detection and normalization
             portfolio_list = [portfolio]

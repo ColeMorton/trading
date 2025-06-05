@@ -1,0 +1,3 @@
+Ticker,Allocation [%],Strategy Type,Short Window,Long Window,Signal Window,Stop Loss [%],Signal Entry,Signal Exit,Total Open Trades,Total Trades,Total Return [%],Win Rate [%],Metric Type,Score,Profit Factor,Expectancy per Trade,Sortino Ratio,Beats BNH [%],Avg Trade Duration,Max Drawdown [%],Sharpe Ratio,Omega Ratio,Calmar Ratio
+PWR,,SMA,60,210,0,,true,false,1,120,150.0,65.0,Most Sharpe Ratio,1.7,2.5,1.5,1.3,60.0,40 days,18.0,1.7,1.4000000000000001,2.3
+MU,,SMA,50,200,0,,true,false,1,100,100.0,60.0,Most Total Return [%],1.5,2.0,1.0,1.2,50.0,30 days,20.0,1.5,1.3,2.0

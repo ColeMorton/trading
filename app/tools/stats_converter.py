@@ -638,7 +638,7 @@ def _ensure_canonical_schema_compliance(
         Dict[str, Any]: Dictionary with all 59 columns in canonical order
     """
     try:
-        from app.tools.portfolio.canonical_schema import CANONICAL_COLUMN_NAMES
+        from app.tools.portfolio.base_extended_schemas import CANONICAL_COLUMN_NAMES
     except ImportError:
         log(
             "Warning: Could not import canonical schema, using existing stats",
@@ -689,7 +689,7 @@ def _get_default_value_for_column(
         "Signal Exit": False,  # Default signal state
         "Total Open Trades": 0,  # Default trade count
         "Total Trades": stats.get("Total Trades", 0),
-        "Metric Type": "Standard",  # Default metric type
+        "Metric Type": "Most Total Return [%]",  # Default metric type in proper format
         "Score": 0.0,  # Default score
         "Win Rate [%]": 50.0,  # Default win rate
         "Profit Factor": 1.0,  # Default profit factor

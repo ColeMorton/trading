@@ -1,29 +1,37 @@
 """Schema detection and normalization for portfolio CSV files.
 
 This module provides utilities for detecting the schema version of portfolio CSV files
-and normalizing data to the canonical 59-column schema.
+and normalizing data to the canonical 60-column Extended schema.
 
 It handles schema versions:
-1. Base Schema: Original schema without Allocation [%] and Stop Loss [%] columns
-2. Extended Schema: New schema with Allocation [%] (2nd column) and Stop Loss [%] (7th column)
-3. Canonical Schema: Full 59-column schema as defined in canonical_schema.py (TARGET)
+1. Base Schema: Standard 58-column schema without Allocation [%] and Stop Loss [%] columns
+2. Extended Schema: Enhanced 60-column schema with Allocation [%] and Stop Loss [%] at the end (CANONICAL)
+3. Filtered Schema: Extended schema with Metric Type prepended (61 columns)
 
-The module migrates all data to the canonical 59-column schema to ensure consistency.
+The module migrates all data to the canonical Extended schema to ensure consistency.
 """
 
 import csv
 import io
 import os
-from enum import Enum, auto
 from typing import Any, Callable, Dict, List, Optional
 
+from app.tools.portfolio.base_extended_schemas import (
+    BasePortfolioSchema,
+    ExtendedPortfolioSchema,
+    FilteredPortfolioSchema,
+    SchemaTransformer,
+    SchemaType,
+)
 
-class SchemaVersion(Enum):
-    """Enum representing the different schema versions."""
 
-    BASE = auto()  # Original schema without Allocation and Stop Loss columns
-    EXTENDED = auto()  # New schema with Allocation and Stop Loss columns
-    CANONICAL = auto()  # Full 59-column canonical schema (target)
+# Backward compatibility aliases
+class SchemaVersion:
+    """Backward compatibility wrapper for SchemaType."""
+
+    BASE = SchemaType.BASE
+    EXTENDED = SchemaType.EXTENDED
+    CANONICAL = SchemaType.FILTERED  # Keep old meaning of canonical as filtered
 
 
 def detect_schema_version(csv_data: List[Dict[str, Any]]) -> SchemaVersion:
@@ -39,31 +47,20 @@ def detect_schema_version(csv_data: List[Dict[str, Any]]) -> SchemaVersion:
         return SchemaVersion.BASE
 
     first_row = csv_data[0]
-    column_names = list(first_row.keys())
 
-    # Try to import canonical schema for comparison
-    try:
-        from .canonical_schema import CANONICAL_COLUMN_NAMES
+    # Use the new schema detection
+    transformer = SchemaTransformer()
+    schema_type = transformer.detect_schema_type(first_row)
 
-        # Check if this is the canonical 59-column schema
-        if (
-            len(column_names) == len(CANONICAL_COLUMN_NAMES)
-            and column_names == CANONICAL_COLUMN_NAMES
-        ):
-            return SchemaVersion.CANONICAL
-
-    except ImportError:
-        pass  # Fall back to legacy detection
-
-    # Check for Allocation [%] and Stop Loss [%] fields for extended schema
-    has_allocation = any(key in first_row for key in ["Allocation [%]", "Allocation"])
-    has_stop_loss = any(key in first_row for key in ["Stop Loss [%]", "Stop Loss"])
-
-    # If either field is present, it's the extended schema
-    if has_allocation or has_stop_loss:
+    if schema_type == SchemaType.FILTERED:
+        return SchemaVersion.CANONICAL  # Filtered is considered canonical
+    elif schema_type == SchemaType.EXTENDED:
         return SchemaVersion.EXTENDED
-
-    return SchemaVersion.BASE
+    elif schema_type == SchemaType.BASE:
+        return SchemaVersion.BASE
+    else:
+        # Fallback for unknown schemas
+        return SchemaVersion.BASE
 
 
 def detect_schema_version_from_file(file_path: str) -> SchemaVersion:
@@ -90,7 +87,21 @@ def detect_schema_version_from_file(file_path: str) -> SchemaVersion:
         if not header:
             raise ValueError(f"Empty CSV file: {file_path}")
 
-        # Check if the header contains Allocation [%] and Stop Loss [%]
+        # Use the new schema detection logic
+        try:
+            from .base_extended_schemas import SchemaTransformer
+
+            schema_type = SchemaTransformer.detect_schema_type_from_columns(header)
+            if schema_type == "filtered":
+                return SchemaVersion.CANONICAL  # Filtered is considered canonical
+            elif schema_type == "extended":
+                return SchemaVersion.EXTENDED
+            elif schema_type == "base":
+                return SchemaVersion.BASE
+        except ImportError:
+            pass  # Fall back to legacy detection
+
+        # Legacy detection fallback
         has_allocation = any(
             h.strip() in ["Allocation [%]", "Allocation"] for h in header
         )
@@ -128,12 +139,12 @@ def normalize_portfolio_data(
     schema_version: Optional[SchemaVersion] | None = None,
     log: Optional[Callable[[str, Optional[str]], None]] = None,
 ) -> List[Dict[str, Any]]:
-    """Normalize portfolio data to the canonical 59-column schema.
+    """Normalize portfolio data to the canonical 61-column schema.
 
     This function migrates data from any schema version to the canonical schema:
     1. Detects current schema version
     2. Applies transformations to reach canonical schema
-    3. Ensures all 59 columns are present with appropriate defaults
+    3. Ensures all 61 columns are present with appropriate defaults
     4. Maintains data integrity during transformation
 
     Args:
@@ -153,11 +164,32 @@ def normalize_portfolio_data(
         if log:
             log(f"Detected schema version: {schema_version.name}", "info")
 
-    # If already canonical, return as-is
+    # If already canonical, check if we need to add missing columns
     if schema_version == SchemaVersion.CANONICAL:
-        if log:
-            log("Data already in canonical schema format", "info")
-        return csv_data.copy()
+        # Check if we need to add missing columns (e.g., Alpha, Beta)
+        first_row = csv_data[0] if csv_data else {}
+        try:
+            from .base_extended_schemas import FilteredPortfolioSchema
+
+            expected_columns = set(FilteredPortfolioSchema.get_column_names())
+            actual_columns = set(first_row.keys())
+            missing_columns = expected_columns - actual_columns
+
+            if missing_columns:
+                if log:
+                    log(
+                        f"Adding missing columns to canonical data: {missing_columns}",
+                        "info",
+                    )
+                return _transform_to_canonical_schema(csv_data, schema_version, log)
+            else:
+                if log:
+                    log("Data already in canonical schema format", "info")
+                return csv_data.copy()
+        except ImportError:
+            if log:
+                log("Data already in canonical schema format", "info")
+            return csv_data.copy()
 
     # Transform to canonical schema
     return _transform_to_canonical_schema(csv_data, schema_version, log)
@@ -169,7 +201,7 @@ def _transform_to_canonical_schema(
     log: Optional[Callable[[str, Optional[str]], None]] = None,
 ) -> List[Dict[str, Any]]:
     """
-    Transform data from any schema to the canonical 59-column schema.
+    Transform data from any schema to the canonical 61-column schema.
 
     Args:
         csv_data: Input data in current schema format
@@ -180,18 +212,29 @@ def _transform_to_canonical_schema(
         Data transformed to canonical schema
     """
     try:
-        from .canonical_schema import CANONICAL_COLUMN_NAMES
+        from .base_extended_schemas import (
+            ExtendedPortfolioSchema,
+            FilteredPortfolioSchema,
+        )
+
+        # Determine target schema based on whether we have Metric Type
+        if csv_data and "Metric Type" in csv_data[0]:
+            CANONICAL_COLUMN_NAMES = FilteredPortfolioSchema.get_column_names()
+            target_schema_name = "FILTERED"
+        else:
+            CANONICAL_COLUMN_NAMES = ExtendedPortfolioSchema.get_column_names()
+            target_schema_name = "EXTENDED"
     except ImportError:
         if log:
             log(
-                "Warning: Could not import canonical schema, returning original data",
+                "Warning: Could not import schema definitions, returning original data",
                 "warning",
             )
         return csv_data
 
     if log:
         log(
-            f"Transforming {len(csv_data)} rows from {current_schema.name} to CANONICAL schema",
+            f"Transforming {len(csv_data)} rows from {current_schema.name} to {target_schema_name} schema",
             "info",
         )
 
@@ -238,7 +281,7 @@ def _transform_to_canonical_schema(
 
     if log:
         log(
-            f"Successfully transformed data to canonical schema with {len(CANONICAL_COLUMN_NAMES)} columns",
+            f"Successfully transformed data to {target_schema_name} schema with {len(CANONICAL_COLUMN_NAMES)} columns",
             "info",
         )
 
@@ -282,7 +325,7 @@ def _get_canonical_default_value(
         "Signal Exit": False,
         "Total Open Trades": 0,
         "Total Trades": source_row.get("Total Trades", 0),
-        "Metric Type": "Standard",
+        "Metric Type": "Most Total Return [%]",
         "Score": 0.0,
         "Win Rate [%]": 50.0,
         "Profit Factor": 1.0,
@@ -322,6 +365,8 @@ def _get_canonical_default_value(
         "Tail Ratio": 1.0,
         "Common Sense Ratio": 1.0,
         "Value at Risk": 0.0,
+        "Alpha": None,
+        "Beta": None,
         "Daily Returns": 0.0,
         "Annual Returns": 0.0,
         "Cumulative Returns": 0.0,

@@ -258,34 +258,6 @@ const ResultsTable: React.FC<ResultsTableProps> = React.memo(
       URL.revokeObjectURL(url);
     };
 
-    // Export to server portfolios_best directory
-    const exportToServer = async () => {
-      try {
-        const response = await fetch('/api/ma-cross/export', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ results }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        console.log('Export result:', result);
-
-        // Show success notification
-        alert(
-          `Successfully exported ${result.rows_exported} results to ${result.filename}`
-        );
-      } catch (error) {
-        console.error('Export to server failed:', error);
-        alert('Failed to export to server. Please try again.');
-      }
-    };
-
     if (isLoading) {
       return (
         <div className="card mb-4">
@@ -340,14 +312,6 @@ const ResultsTable: React.FC<ResultsTableProps> = React.memo(
             >
               <Icon icon={icons.download} className="me-1" />
               Download CSV
-            </button>
-            <button
-              onClick={exportToServer}
-              className="btn btn-sm btn-outline-success"
-              title="Export to portfolios_best directory"
-            >
-              <Icon icon={icons.save} className="me-1" />
-              Save to Server
             </button>
           </div>
         </div>

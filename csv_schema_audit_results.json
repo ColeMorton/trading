@@ -1,0 +1,916 @@
+{
+  "audit_timestamp": "",
+  "total_files": 277,
+  "directories": {
+    "csv/portfolios": {
+      "total_files": 107,
+      "compliant_files": 107,
+      "non_compliant_files": 0,
+      "error_files": 0,
+      "column_count_distribution": {
+        "58": 107
+      },
+      "schema_type_distribution": {
+        "base": 107
+      },
+      "common_issues": {}
+    },
+    "csv/portfolios_filtered": {
+      "total_files": 58,
+      "compliant_files": 0,
+      "non_compliant_files": 58,
+      "error_files": 0,
+      "column_count_distribution": {
+        "61": 58
+      },
+      "schema_type_distribution": {
+        "filtered": 58
+      },
+      "common_issues": {
+        "Column count mismatch: expected 58, got 61": 58,
+        "Schema type mismatch: expected base, detected filtered": 58
+      }
+    },
+    "csv/portfolios_best": {
+      "total_files": 12,
+      "compliant_files": 0,
+      "non_compliant_files": 12,
+      "error_files": 0,
+      "column_count_distribution": {
+        "61": 12
+      },
+      "schema_type_distribution": {
+        "filtered": 12
+      },
+      "common_issues": {
+        "Column count mismatch: expected 58, got 61": 12,
+        "Schema type mismatch: expected base, detected filtered": 12
+      }
+    },
+    "csv/strategies": {
+      "total_files": 100,
+      "compliant_files": 100,
+      "non_compliant_files": 0,
+      "error_files": 0,
+      "column_count_distribution": {
+        "58": 37,
+        "55": 11,
+        "56": 40,
+        "53": 5,
+        "59": 4,
+        "40": 1,
+        "54": 1,
+        "57": 1
+      },
+      "schema_type_distribution": {
+        "base": 58,
+        "unknown": 23,
+        "extended": 18,
+        "filtered": 1
+      },
+      "common_issues": {}
+    }
+  },
+  "non_compliant_files": [
+    {
+      "file_path": "csv/portfolios_filtered/QQQ_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/MSTR_D_EMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/USLM_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/BTC-USD_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/MSTR_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/BTC-USD_D_EMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/FMC_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/QQQ_D_EMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250604/NTRA_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250604/AAPL_D_EMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250604/HIMS_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250604/ON_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250604/GL_D_EMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250604/HD_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250604/XBI_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250604/COIN_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250604/CEG_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250604/UTHR_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250604/NBIX_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250604/HD_D_EMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250604/GL_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250604/AAPL_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250604/UTHR_D_EMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250604/ETH-USD_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250604/FMC_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250604/MA_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250604/XBI_D_EMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250603/CSCO_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250603/MU_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250603/PENDLE-USD_D_EMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250603/PWR_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250602/AIG_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250602/DLR_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250602/L_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250602/KMI_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250602/K_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250602/GD_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250602/RCL_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250602/NSC_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250602/BRO_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250602/AMT_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250602/V_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250602/EXR_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250602/SHOP_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250602/GM_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250602/KO_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250602/WBA_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250602/CTVA_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250602/AIZ_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250602/MA_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250605/PHM_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250605/POOL_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250605/USLM_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250605/ILMN_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250605/TECH_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250531/QQQ_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250531/MSTR_D_SMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_filtered/20250531/QQQ_D_EMA.csv",
+      "directory": "csv/portfolios_filtered",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_best/20250603/PENDLE-USD_20250603_2135_D.csv",
+      "directory": "csv/portfolios_best",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_best/20250603/PENDLE-USD_20250603_2137_D.csv",
+      "directory": "csv/portfolios_best",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_best/20250603/20250603_2112_D.csv",
+      "directory": "csv/portfolios_best",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_best/20250603/20250603_1801_D.csv",
+      "directory": "csv/portfolios_best",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_best/20250603/PENDLE-USD_20250603_2140_D.csv",
+      "directory": "csv/portfolios_best",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_best/20250603/20250603_1808_D.csv",
+      "directory": "csv/portfolios_best",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_best/20250602/20250602_1313_D.csv",
+      "directory": "csv/portfolios_best",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_best/20250602/V_20250602_1345_D.csv",
+      "directory": "csv/portfolios_best",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_best/20250605/PENDLE-USD_20250605_2137_D.csv",
+      "directory": "csv/portfolios_best",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_best/20250605/20250605_2112_D.csv",
+      "directory": "csv/portfolios_best",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_best/20250531/20250531_1236_D.csv",
+      "directory": "csv/portfolios_best",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    },
+    {
+      "file_path": "csv/portfolios_best/20250531/MSTR_20250531_2203_D.csv",
+      "directory": "csv/portfolios_best",
+      "column_count": 61,
+      "schema_type": "filtered",
+      "compliance_status": "non_compliant",
+      "issues": [
+        "Column count mismatch: expected 58, got 61",
+        "Schema type mismatch: expected base, detected filtered"
+      ],
+      "expected_columns": 58
+    }
+  ]
+}

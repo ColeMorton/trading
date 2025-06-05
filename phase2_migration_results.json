@@ -1,0 +1,38 @@
+{
+  "migration_started": "2025-06-05T23:19:32.468415",
+  "dry_run": false,
+  "directories_processed": {
+    "csv/portfolios": {
+      "directory": "csv/portfolios",
+      "target_schema": "base",
+      "total_files": 107,
+      "successful_migrations": 107,
+      "failed_migrations": 0,
+      "skipped_files": 0,
+      "errors": []
+    },
+    "csv/portfolios_filtered": {
+      "directory": "csv/portfolios_filtered",
+      "target_schema": "filtered",
+      "total_files": 58,
+      "successful_migrations": 58,
+      "failed_migrations": 0,
+      "skipped_files": 0,
+      "errors": []
+    },
+    "csv/portfolios_best": {
+      "directory": "csv/portfolios_best",
+      "target_schema": "filtered",
+      "total_files": 12,
+      "successful_migrations": 12,
+      "failed_migrations": 0,
+      "skipped_files": 0,
+      "errors": []
+    }
+  },
+  "files_migrated": 177,
+  "files_skipped": 0,
+  "errors": [],
+  "migration_completed": "2025-06-05T23:19:33.227293",
+  "total_errors": 0
+}

@@ -509,11 +509,13 @@ class MACrossService:
 
                 metric_type = portfolio.get("Metric Type")
                 if not metric_type:
-                    # Generate a default metric type based on the portfolio characteristics
+                    # Fallback for portfolios missing metric type (this should rarely happen now)
                     if float(portfolio.get("Score", 0.0)) > 1.0:
-                        metric_type = "High Performance Strategy"
+                        metric_type = (
+                            "Most Total Return [%]"  # Use proper metric type format
+                        )
                     else:
-                        metric_type = "Standard Strategy"
+                        metric_type = "Most Total Return [%]"  # Default to most common metric type
 
                 metrics = PortfolioMetrics(
                     ticker=portfolio.get("Ticker", ""),
