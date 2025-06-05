@@ -1,17 +1,14 @@
 """Schema detection and normalization for portfolio CSV files.
 
 This module provides utilities for detecting the schema version of portfolio CSV files
-and normalizing data between different schema versions.
+and normalizing data to the canonical 59-column schema.
 
-It handles two main schema versions:
+It handles schema versions:
 1. Base Schema: Original schema without Allocation [%] and Stop Loss [%] columns
 2. Extended Schema: New schema with Allocation [%] (2nd column) and Stop Loss [%] (7th column)
+3. Canonical Schema: Full 59-column schema as defined in canonical_schema.py (TARGET)
 
-The module also handles special cases for allocation values:
-- When Allocation [%] column exists but no values: maintain the column with empty values
-- When Allocation [%] column doesn't exist: add it with empty fields
-- When some rows have Allocation [%] values and others don't: assign equal values to empty ones
-  so the sum equals 100%
+The module migrates all data to the canonical 59-column schema to ensure consistency.
 """
 
 import csv
@@ -26,6 +23,7 @@ class SchemaVersion(Enum):
 
     BASE = auto()  # Original schema without Allocation and Stop Loss columns
     EXTENDED = auto()  # New schema with Allocation and Stop Loss columns
+    CANONICAL = auto()  # Full 59-column canonical schema (target)
 
 
 def detect_schema_version(csv_data: List[Dict[str, Any]]) -> SchemaVersion:
@@ -40,15 +38,25 @@ def detect_schema_version(csv_data: List[Dict[str, Any]]) -> SchemaVersion:
     if not csv_data:
         return SchemaVersion.BASE
 
-    # Check if the first row has the Allocation [%] and Stop Loss [%] fields
     first_row = csv_data[0]
+    column_names = list(first_row.keys())
 
-    # Check for Allocation [%] field (might be stored with or without the [%]
-    # in the dict keys)
+    # Try to import canonical schema for comparison
+    try:
+        from .canonical_schema import CANONICAL_COLUMN_NAMES
+
+        # Check if this is the canonical 59-column schema
+        if (
+            len(column_names) == len(CANONICAL_COLUMN_NAMES)
+            and column_names == CANONICAL_COLUMN_NAMES
+        ):
+            return SchemaVersion.CANONICAL
+
+    except ImportError:
+        pass  # Fall back to legacy detection
+
+    # Check for Allocation [%] and Stop Loss [%] fields for extended schema
     has_allocation = any(key in first_row for key in ["Allocation [%]", "Allocation"])
-
-    # Check for Stop Loss [%] field (might be stored with or without the [%]
-    # in the dict keys)
     has_stop_loss = any(key in first_row for key in ["Stop Loss [%]", "Stop Loss"])
 
     # If either field is present, it's the extended schema
@@ -120,13 +128,13 @@ def normalize_portfolio_data(
     schema_version: Optional[SchemaVersion] | None = None,
     log: Optional[Callable[[str, Optional[str]], None]] = None,
 ) -> List[Dict[str, Any]]:
-    """Normalize portfolio data to the extended schema.
+    """Normalize portfolio data to the canonical 59-column schema.
 
-    This function handles the following cases:
-    1. When Allocation [%] column exists but no values: maintain the column with empty values
-    2. When Allocation [%] column doesn't exist: add it with empty fields
-    3. When some rows have Allocation [%] values and others don't: assign equal values to empty ones
-       so the sum equals 100%
+    This function migrates data from any schema version to the canonical schema:
+    1. Detects current schema version
+    2. Applies transformations to reach canonical schema
+    3. Ensures all 59 columns are present with appropriate defaults
+    4. Maintains data integrity during transformation
 
     Args:
         csv_data: List of dictionaries representing CSV rows
@@ -134,7 +142,7 @@ def normalize_portfolio_data(
         log: Optional logging function
 
     Returns:
-        List of dictionaries with normalized data
+        List of dictionaries with canonical schema compliance
     """
     if not csv_data:
         return []
@@ -145,306 +153,257 @@ def normalize_portfolio_data(
         if log:
             log(f"Detected schema version: {schema_version.name}", "info")
 
-    # Create a copy of the data to avoid modifying the original
-    normalized_data = []
+    # If already canonical, return as-is
+    if schema_version == SchemaVersion.CANONICAL:
+        if log:
+            log("Data already in canonical schema format", "info")
+        return csv_data.copy()
 
-    # Determine the allocation and stop loss field names in the data
-    allocation_field = next(
-        (k for k in csv_data[0].keys() if k.startswith("Allocation")), "Allocation [%]"
-    )
-    stop_loss_field = next(
-        (k for k in csv_data[0].keys() if k.startswith("Stop Loss")), "Stop Loss [%]"
-    )
-
-    # Normalize field names to the standard format
-    standard_allocation_field = "Allocation [%]"
-    standard_stop_loss_field = "Stop Loss [%]"
-
-    # Check if we need to handle allocation distribution (case 3)
-    has_some_allocations = False
-    if schema_version == SchemaVersion.EXTENDED:
-        has_some_allocations = any(
-            row.get(allocation_field) is not None
-            and row.get(allocation_field) != ""
-            and row.get(allocation_field) != "None"
-            for row in csv_data
-        )
-
-        if not has_some_allocations and log:
-            log(
-                "Extended schema detected but no allocation values found in the CSV file. "
-                "Maintaining empty allocation column as per Case 1.",
-                "info",
-            )
-
-    # Process each row
-    for row in csv_data:
-        normalized_row = {}
-
-        # Copy existing fields
-        for key, value in row.items():
-            # Normalize field names
-            if key.startswith("Allocation"):
-                normalized_row[standard_allocation_field] = value
-            elif key.startswith("Stop Loss"):
-                normalized_row[standard_stop_loss_field] = value
-            else:
-                normalized_row[key] = value
-
-        # Handle base schema (add missing fields)
-        if schema_version == SchemaVersion.BASE:
-            if standard_allocation_field not in normalized_row:
-                normalized_row[standard_allocation_field] = None
-            if standard_stop_loss_field not in normalized_row:
-                normalized_row[standard_stop_loss_field] = None
-
-        # Handle extended schema (ensure fields exist)
-        else:
-            if standard_allocation_field not in normalized_row:
-                normalized_row[standard_allocation_field] = None
-            if standard_stop_loss_field not in normalized_row:
-                normalized_row[standard_stop_loss_field] = None
-
-        normalized_data.append(normalized_row)
-
-    # Handle case 3: When some rows have Allocation values and others don't
-    if has_some_allocations:
-        # Count rows with missing allocations
-        rows_with_allocations = sum(
-            1 for row in normalized_data if row.get(standard_allocation_field)
-        )
-        rows_without_allocations = len(normalized_data) - rows_with_allocations
-
-        if rows_without_allocations > 0 and rows_with_allocations > 0:
-            if log:
-                log(
-                    f"Found {rows_with_allocations} rows with allocations and "
-                    f"{rows_without_allocations} rows without allocations",
-                    "info",
-                )
-
-            # Calculate the sum of existing allocations
-            existing_allocation_sum = 0.0
-            for row in normalized_data:
-                value = row.get(standard_allocation_field)
-                if value is not None and value != "" and value != "None":
-                    try:
-                        existing_allocation_sum += float(value)
-                    except (ValueError, TypeError):
-                        # Skip invalid values
-                        if log:
-                            log(
-                                f"Skipping invalid allocation value: {value}", "warning"
-                            )
-
-            # Calculate the remaining allocation to distribute
-            remaining_allocation = 100.0 - existing_allocation_sum
-
-            if remaining_allocation > 0:
-                # Calculate equal allocation for rows without allocation
-                equal_allocation = remaining_allocation / rows_without_allocations
-
-                # Distribute equal allocations
-                for row in normalized_data:
-                    if not row.get(standard_allocation_field):
-                        row[standard_allocation_field] = equal_allocation
-
-                if log:
-                    log(
-                        f"Distributed equal allocations of {equal_allocation:.2f}% "
-                        f"to {rows_without_allocations} rows",
-                        "info",
-                    )
-    elif schema_version == SchemaVersion.EXTENDED and log:
-        # No allocations found in extended schema
-        log(
-            "No allocation values found in the CSV file. Allocations will be calculated based on strategy performance.",
-            "info",
-        )
-
-    return normalized_data
+    # Transform to canonical schema
+    return _transform_to_canonical_schema(csv_data, schema_version, log)
 
 
-def ensure_allocation_sum_100_percent(
+def _transform_to_canonical_schema(
     csv_data: List[Dict[str, Any]],
+    current_schema: SchemaVersion,
     log: Optional[Callable[[str, Optional[str]], None]] = None,
 ) -> List[Dict[str, Any]]:
-    """Ensure the sum of all allocations equals 100%.
-
-    This function handles the following cases:
-    1. When no rows have allocation values: distribute equally
-    2. When all rows have allocation values but sum != 100%: scale to 100%
-    3. When some rows have allocation values and others don't:
-       distribute remaining allocation equally among rows without values
+    """
+    Transform data from any schema to the canonical 59-column schema.
 
     Args:
-        csv_data: List of dictionaries representing CSV rows
+        csv_data: Input data in current schema format
+        current_schema: Current schema version
         log: Optional logging function
 
     Returns:
-        List of dictionaries with normalized allocations
+        Data transformed to canonical schema
     """
-    if not csv_data:
-        return []
+    try:
+        from .canonical_schema import CANONICAL_COLUMN_NAMES
+    except ImportError:
+        if log:
+            log(
+                "Warning: Could not import canonical schema, returning original data",
+                "warning",
+            )
+        return csv_data
 
-    # Create a copy of the data to avoid modifying the original
-    normalized_data = [row.copy() for row in csv_data]
+    if log:
+        log(
+            f"Transforming {len(csv_data)} rows from {current_schema.name} to CANONICAL schema",
+            "info",
+        )
 
-    # Determine the allocation field name
-    allocation_field = next(
-        (k for k in normalized_data[0].keys() if k.startswith("Allocation")),
-        "Allocation [%]",
-    )
+    canonical_data = []
 
-    # Count rows with and without allocations
-    rows_with_allocations = 0
-    rows_without_allocations = 0
+    for row in csv_data:
+        canonical_row = {}
 
-    for row in normalized_data:
-        allocation_value = row.get(allocation_field)
-        if allocation_value is not None and allocation_value != "":
-            # Try to convert to float to ensure it's a valid number
+        # Process each canonical column
+        for col_name in CANONICAL_COLUMN_NAMES:
+            if col_name in row:
+                # Direct mapping - column exists in source
+                canonical_row[col_name] = row[col_name]
+            else:
+                # Apply transformation rules for missing columns
+                canonical_row[col_name] = _get_canonical_default_value(
+                    col_name, row, current_schema
+                )
+
+        canonical_data.append(canonical_row)
+
+    if log:
+        log(
+            f"Successfully transformed data to canonical schema with {len(CANONICAL_COLUMN_NAMES)} columns",
+            "info",
+        )
+
+    return canonical_data
+
+
+def _get_canonical_default_value(
+    column_name: str, source_row: Dict[str, Any], source_schema: SchemaVersion
+) -> Any:
+    """
+    Get appropriate default value for a missing canonical column.
+
+    Args:
+        column_name: Name of the canonical column
+        source_row: Source data row for context
+        source_schema: Source schema version
+
+    Returns:
+        Appropriate default value
+    """
+    # Handle legacy column name mappings
+    legacy_mappings = {
+        "Expectancy per Trade": source_row.get(
+            "Expectancy (per trade)"
+        ),  # Handle name variation
+    }
+
+    if column_name in legacy_mappings and legacy_mappings[column_name] is not None:
+        return legacy_mappings[column_name]
+
+    # Column defaults for canonical schema migration
+    defaults = {
+        "Ticker": source_row.get("Ticker", "UNKNOWN"),
+        "Allocation [%]": None,
+        "Strategy Type": "SMA",
+        "Short Window": 20,
+        "Long Window": 50,
+        "Signal Window": 0,
+        "Stop Loss [%]": None,
+        "Signal Entry": False,
+        "Signal Exit": False,
+        "Total Open Trades": 0,
+        "Total Trades": source_row.get("Total Trades", 0),
+        "Metric Type": "Standard",
+        "Score": 0.0,
+        "Win Rate [%]": 50.0,
+        "Profit Factor": 1.0,
+        "Expectancy per Trade": 0.0,
+        "Sortino Ratio": 0.0,
+        "Beats BNH [%]": 0.0,
+        "Avg Trade Duration": "0 days 00:00:00",
+        "Trades Per Day": 0.0,
+        "Trades per Month": 0.0,
+        "Signals per Month": 0.0,
+        "Expectancy per Month": 0.0,
+        "Start": 0,
+        "End": 0,
+        "Period": "0 days 00:00:00",
+        "Start Value": 1000.0,
+        "End Value": 1000.0,
+        "Total Return [%]": 0.0,
+        "Benchmark Return [%]": 0.0,
+        "Max Gross Exposure [%]": 100.0,
+        "Total Fees Paid": 0.0,
+        "Max Drawdown [%]": 0.0,
+        "Max Drawdown Duration": "0 days 00:00:00",
+        "Total Closed Trades": source_row.get("Total Trades", 0),
+        "Open Trade PnL": 0.0,
+        "Best Trade [%]": 0.0,
+        "Worst Trade [%]": 0.0,
+        "Avg Winning Trade [%]": 0.0,
+        "Avg Losing Trade [%]": 0.0,
+        "Avg Winning Trade Duration": "0 days 00:00:00",
+        "Avg Losing Trade Duration": "0 days 00:00:00",
+        "Expectancy": 0.0,
+        "Sharpe Ratio": 0.0,
+        "Calmar Ratio": 0.0,
+        "Omega Ratio": 1.0,
+        "Skew": 0.0,
+        "Kurtosis": 3.0,
+        "Tail Ratio": 1.0,
+        "Common Sense Ratio": 1.0,
+        "Value at Risk": 0.0,
+        "Daily Returns": 0.0,
+        "Annual Returns": 0.0,
+        "Cumulative Returns": 0.0,
+        "Annualized Return": 0.0,
+        "Annualized Volatility": 0.0,
+        "Signal Count": 0,
+        "Position Count": source_row.get("Total Trades", 0),
+        "Total Period": 0.0,
+    }
+
+    return defaults.get(column_name, None)
+
+
+# Legacy functions preserved for backward compatibility
+def ensure_allocation_sum_100_percent(
+    portfolio_list: List[Dict[str, Any]],
+    log: Optional[Callable[[str, Optional[str]], None]] = None,
+) -> List[Dict[str, Any]]:
+    """
+    Ensure portfolio allocations sum to 100%.
+
+    Legacy function preserved for backward compatibility.
+
+    Args:
+        portfolio_list: List of portfolio dictionaries
+        log: Optional logging function
+
+    Returns:
+        Portfolio list with normalized allocations
+    """
+    if not portfolio_list:
+        return portfolio_list
+
+    allocation_field = "Allocation [%]"
+
+    # Check if all allocations are already set
+    total_allocation = 0.0
+    missing_allocation_count = 0
+
+    for portfolio in portfolio_list:
+        allocation = portfolio.get(allocation_field)
+        if allocation is not None and allocation != "" and allocation != "None":
             try:
-                float_value = float(allocation_value)
-                if not isinstance(row[allocation_field], float):
-                    row[allocation_field] = float_value
-                rows_with_allocations += 1
+                total_allocation += float(allocation)
             except (ValueError, TypeError):
-                row[allocation_field] = None
-                rows_without_allocations += 1
+                missing_allocation_count += 1
         else:
-            row[allocation_field] = None
-            rows_without_allocations += 1
+            missing_allocation_count += 1
 
-    len(normalized_data)
-
-    # Case 1: If no rows have allocations, maintain the column with empty values
-    if rows_with_allocations == 0:
-        if log:
-            log(
-                "No allocation values found. Maintaining empty allocation column as per Case 1.",
-                "info",
-            )
-
-        # Keep all allocation values as None
-        for row in normalized_data:
-            row[allocation_field] = None
-
-        return normalized_data
-
-    # Calculate the sum of existing allocations
-    allocation_sum = 0.0
-    for row in normalized_data:
-        value = row.get(allocation_field)
-        if value is not None and value != "" and value != "None":
-            try:
-                allocation_sum += float(value)
-            except (ValueError, TypeError):
-                # Skip invalid values
-                if log:
-                    log(f"Skipping invalid allocation value: {value}", "warning")
-
-    # Case 3: When some rows have allocation values and others don't
-    if rows_with_allocations > 0 and rows_without_allocations > 0:
-        if log:
-            log(
-                f"Found {rows_with_allocations} rows with allocations and "
-                f"{rows_without_allocations} rows without allocations",
-                "info",
-            )
-
-        # Calculate the remaining allocation to distribute
-        remaining_allocation = 100.0 - allocation_sum
-
+    # If some allocations are missing, distribute equally
+    if missing_allocation_count > 0:
+        remaining_allocation = 100.0 - total_allocation
         if remaining_allocation > 0:
-            # Calculate equal allocation for rows without allocation
-            equal_allocation = remaining_allocation / rows_without_allocations
+            equal_allocation = remaining_allocation / missing_allocation_count
 
-            # Distribute equal allocations
-            for row in normalized_data:
-                if row.get(allocation_field) is None:
-                    row[allocation_field] = equal_allocation
+            for portfolio in portfolio_list:
+                allocation = portfolio.get(allocation_field)
+                if allocation is None or allocation == "" or allocation == "None":
+                    portfolio[allocation_field] = equal_allocation
 
             if log:
                 log(
-                    f"Distributed equal allocations of {equal_allocation:.2f}% "
-                    f"to {rows_without_allocations} rows without allocations",
+                    f"Distributed {remaining_allocation:.2f}% equally among {missing_allocation_count} portfolios",
                     "info",
                 )
 
-            # Update allocation sum after distribution
-            allocation_sum = 100.0
-
-    # Case 2: When all rows have allocation values but sum != 100%
-    if abs(allocation_sum - 100.0) > 0.01:  # Allow for small floating-point errors
-        if log:
-            log(f"Allocation sum is {allocation_sum:.2f}%, adjusting to 100%", "info")
-
-        # Scale factor to adjust allocations
-        scale_factor = 100.0 / allocation_sum if allocation_sum > 0 else 0
-
-        # Adjust allocations
-        for row in normalized_data:
-            value = row.get(allocation_field)
-            if value is not None and value != "" and value != "None":
-                try:
-                    row[allocation_field] = float(value) * scale_factor
-                except (ValueError, TypeError):
-                    # Skip invalid values
-                    if log:
-                        log(
-                            f"Skipping invalid allocation value during scaling: {value}",
-                            "warning",
-                        )
-                    row[allocation_field] = None
-
-    return normalized_data
+    return portfolio_list
 
 
 def convert_to_extended_schema_csv(
-    csv_data: List[Dict[str, Any]],
+    portfolio_list: List[Dict[str, Any]],
+    ticker: str = "",
     log: Optional[Callable[[str, Optional[str]], None]] = None,
 ) -> str:
-    """Convert portfolio data to extended schema CSV format.
+    """
+    Convert portfolio list to extended schema CSV string.
+
+    Legacy function preserved for backward compatibility.
 
     Args:
-        csv_data: List of dictionaries representing CSV rows
+        portfolio_list: List of portfolio dictionaries
+        ticker: Optional ticker for logging
         log: Optional logging function
 
     Returns:
         CSV string in extended schema format
     """
-    if not csv_data:
+    if not portfolio_list:
         return ""
 
-    # Normalize the data to the extended schema
-    normalized_data = normalize_portfolio_data(csv_data, SchemaVersion.EXTENDED, log)
+    # Normalize to canonical schema first
+    normalized_data = normalize_portfolio_data(portfolio_list, log=log)
 
-    # Define the extended schema header order
-    header_order = [
-        "Ticker",
-        "Allocation [%]",
-        "Strategy Type",
-        "Short Window",
-        "Long Window",
-        "Signal Window",
-        "Stop Loss [%]",
-        "Signal Entry",
-        "Signal Exit",
-    ]
+    # Convert to CSV string
+    import csv
+    import io
 
-    # Get all other fields from the first row
-    other_fields = [
-        field for field in normalized_data[0].keys() if field not in header_order
-    ]
-
-    # Create the full header list
-    full_headers = header_order + other_fields
-
-    # Create a CSV string
     output = io.StringIO()
-    writer = csv.DictWriter(output, fieldnames=full_headers)
-    writer.writeheader()
-    writer.writerows(normalized_data)
+
+    if normalized_data:
+        # Get column names from first row
+        fieldnames = list(normalized_data[0].keys())
+
+        writer = csv.DictWriter(output, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(normalized_data)
 
     return output.getvalue()

@@ -103,34 +103,220 @@ class CSVExporter(ExportStrategy):
     def _prepare_dataframe(
         self, context: ExportContext
     ) -> Union[pl.DataFrame, pd.DataFrame]:
-        """Convert data to DataFrame if necessary.
+        """Convert data to DataFrame and ensure canonical schema compliance.
 
         Args:
             context: Export context
 
         Returns:
-            DataFrame ready for export
+            DataFrame ready for export with canonical schema compliance
 
         Raises:
             ExportValidationError: If data cannot be converted to DataFrame
         """
         data = context.data
 
-        # If already a DataFrame, return as is
+        # Convert to DataFrame first
         if isinstance(data, (pl.DataFrame, pd.DataFrame)):
-            return data
+            df = data
+        elif isinstance(data, list) and all(isinstance(item, dict) for item in data):
+            df = pl.DataFrame(data)
+        elif isinstance(data, dict):
+            df = pl.DataFrame([data])
+        else:
+            raise ExportValidationError(
+                f"Cannot convert data of type {type(data)} to DataFrame"
+            )
 
-        # Convert list of dicts to Polars DataFrame
-        if isinstance(data, list) and all(isinstance(item, dict) for item in data):
-            return pl.DataFrame(data)
+        # Ensure canonical schema compliance
+        return self._ensure_canonical_schema_compliance(df, context)
 
-        # Convert single dict to DataFrame
-        if isinstance(data, dict):
-            return pl.DataFrame([data])
+    def _ensure_canonical_schema_compliance(
+        self, df: Union[pl.DataFrame, pd.DataFrame], context: ExportContext
+    ) -> Union[pl.DataFrame, pd.DataFrame]:
+        """Ensure DataFrame complies with canonical 59-column schema.
 
-        raise ExportValidationError(
-            f"Cannot convert data of type {type(data)} to DataFrame"
-        )
+        Args:
+            df: Input DataFrame
+            context: Export context with logging
+
+        Returns:
+            DataFrame with canonical schema compliance
+        """
+        try:
+            from app.tools.portfolio.canonical_schema import CANONICAL_COLUMN_NAMES
+            from app.tools.portfolio.schema_validation import validate_dataframe_schema
+        except ImportError:
+            if context.log:
+                context.log(
+                    "Warning: Could not import schema validation, skipping compliance check",
+                    "warning",
+                )
+            return df
+
+        # Convert to pandas for validation if needed
+        was_polars = isinstance(df, pl.DataFrame)
+        df_pandas = df.to_pandas() if was_polars else df.copy()
+
+        # Validate current schema
+        try:
+            validation_result = validate_dataframe_schema(df_pandas, strict=False)
+
+            if context.log:
+                if validation_result["is_valid"]:
+                    context.log(
+                        "Export data is fully compliant with canonical schema", "info"
+                    )
+                else:
+                    violations = len(validation_result.get("violations", []))
+                    warnings = len(validation_result.get("warnings", []))
+                    context.log(
+                        f"Export schema validation: {violations} violations, {warnings} warnings",
+                        "warning",
+                    )
+
+                    # Log specific violations
+                    for violation in validation_result.get("violations", []):
+                        context.log(
+                            f"Schema violation: {violation['message']}", "warning"
+                        )
+
+        except Exception as e:
+            if context.log:
+                context.log(f"Schema validation failed: {str(e)}", "error")
+
+        # Ensure canonical column order and completeness
+        canonical_df = self._apply_canonical_column_order(df_pandas, context)
+
+        # Convert back to original format
+        if was_polars:
+            return pl.from_pandas(canonical_df)
+        else:
+            return canonical_df
+
+    def _apply_canonical_column_order(
+        self, df: pd.DataFrame, context: ExportContext
+    ) -> pd.DataFrame:
+        """Apply canonical column order and add missing columns.
+
+        Args:
+            df: Input pandas DataFrame
+            context: Export context
+
+        Returns:
+            DataFrame with canonical column order
+        """
+        try:
+            from app.tools.portfolio.canonical_schema import CANONICAL_COLUMN_NAMES
+        except ImportError:
+            if context.log:
+                context.log(
+                    "Warning: Could not import canonical schema, returning original DataFrame",
+                    "warning",
+                )
+            return df
+
+        # Create new DataFrame with canonical column order
+        canonical_df = pd.DataFrame()
+        missing_columns = []
+
+        for col_name in CANONICAL_COLUMN_NAMES:
+            if col_name in df.columns:
+                canonical_df[col_name] = df[col_name]
+            else:
+                # Add missing column with appropriate default
+                canonical_df[col_name] = self._get_default_column_value(
+                    col_name, len(df)
+                )
+                missing_columns.append(col_name)
+
+        if context.log and missing_columns:
+            context.log(
+                f"Added {len(missing_columns)} missing columns to ensure canonical schema compliance",
+                "info",
+            )
+            context.log(
+                f"Missing columns: {', '.join(missing_columns[:5])}{'...' if len(missing_columns) > 5 else ''}",
+                "debug",
+            )
+
+        return canonical_df
+
+    def _get_default_column_value(self, column_name: str, num_rows: int) -> pd.Series:
+        """Get default values for a missing column.
+
+        Args:
+            column_name: Name of the missing column
+            num_rows: Number of rows needed
+
+        Returns:
+            Pandas Series with appropriate default values
+        """
+        # Default values for canonical schema compliance
+        defaults = {
+            "Ticker": "UNKNOWN",
+            "Allocation [%]": None,
+            "Strategy Type": "SMA",
+            "Short Window": 20,
+            "Long Window": 50,
+            "Signal Window": 0,
+            "Stop Loss [%]": None,
+            "Signal Entry": False,
+            "Signal Exit": False,
+            "Total Open Trades": 0,
+            "Total Trades": 0,
+            "Metric Type": "Standard",
+            "Score": 0.0,
+            "Win Rate [%]": 50.0,
+            "Profit Factor": 1.0,
+            "Expectancy per Trade": 0.0,
+            "Sortino Ratio": 0.0,
+            "Beats BNH [%]": 0.0,
+            "Avg Trade Duration": "0 days 00:00:00",
+            "Trades Per Day": 0.0,
+            "Trades per Month": 0.0,
+            "Signals per Month": 0.0,
+            "Expectancy per Month": 0.0,
+            "Start": 0,
+            "End": 0,
+            "Period": "0 days 00:00:00",
+            "Start Value": 1000.0,
+            "End Value": 1000.0,
+            "Total Return [%]": 0.0,
+            "Benchmark Return [%]": 0.0,
+            "Max Gross Exposure [%]": 100.0,
+            "Total Fees Paid": 0.0,
+            "Max Drawdown [%]": 0.0,
+            "Max Drawdown Duration": "0 days 00:00:00",
+            "Total Closed Trades": 0,
+            "Open Trade PnL": 0.0,
+            "Best Trade [%]": 0.0,
+            "Worst Trade [%]": 0.0,
+            "Avg Winning Trade [%]": 0.0,
+            "Avg Losing Trade [%]": 0.0,
+            "Avg Winning Trade Duration": "0 days 00:00:00",
+            "Avg Losing Trade Duration": "0 days 00:00:00",
+            "Expectancy": 0.0,
+            "Sharpe Ratio": 0.0,
+            "Calmar Ratio": 0.0,
+            "Omega Ratio": 1.0,
+            "Skew": 0.0,
+            "Kurtosis": 3.0,
+            "Tail Ratio": 1.0,
+            "Common Sense Ratio": 1.0,
+            "Value at Risk": 0.0,
+            "Daily Returns": 0.0,
+            "Annual Returns": 0.0,
+            "Cumulative Returns": 0.0,
+            "Annualized Return": 0.0,
+            "Annualized Volatility": 0.0,
+            "Signal Count": 0,
+            "Position Count": 0,
+            "Total Period": 0.0,
+        }
+
+        default_value = defaults.get(column_name, None)
+        return pd.Series([default_value] * num_rows, name=column_name)
 
     def _create_export_directory(self, context: ExportContext) -> Path:
         """Create the export directory structure.

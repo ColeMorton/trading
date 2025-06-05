@@ -610,9 +610,146 @@ def convert_stats(
             converted["Signal Exit"] = exit_signal
             log(f"Added Signal Exit: {exit_signal} for {ticker}", "info")
 
+        # Ensure canonical schema compliance
+        converted = _ensure_canonical_schema_compliance(converted, log)
+
         log(f"Successfully converted stats for {ticker}", "info")
         return converted
 
     except Exception as e:
         log(f"Failed to convert stats for {ticker}: {str(e)}", "error")
         raise
+
+
+def _ensure_canonical_schema_compliance(
+    stats: Dict[str, Any], log: Callable[[str, str], None]
+) -> Dict[str, Any]:
+    """
+    Ensure the stats dictionary conforms to the canonical 59-column schema.
+
+    This function ensures all required columns are present and properly ordered
+    according to the canonical schema definition.
+
+    Args:
+        stats: Dictionary containing portfolio statistics
+        log: Logging function for recording events
+
+    Returns:
+        Dict[str, Any]: Dictionary with all 59 columns in canonical order
+    """
+    try:
+        from app.tools.portfolio.canonical_schema import CANONICAL_COLUMN_NAMES
+    except ImportError:
+        log(
+            "Warning: Could not import canonical schema, using existing stats",
+            "warning",
+        )
+        return stats
+
+    # Create canonical ordered dictionary
+    canonical_stats = {}
+
+    # Ensure all 59 columns are present in canonical order
+    for column_name in CANONICAL_COLUMN_NAMES:
+        if column_name in stats:
+            canonical_stats[column_name] = stats[column_name]
+        else:
+            # Set default values for missing columns
+            canonical_stats[column_name] = _get_default_value_for_column(
+                column_name, stats, log
+            )
+
+    return canonical_stats
+
+
+def _get_default_value_for_column(
+    column_name: str, stats: Dict[str, Any], log: Callable[[str, str], None]
+) -> Any:
+    """
+    Get appropriate default value for a missing column.
+
+    Args:
+        column_name: Name of the missing column
+        stats: Existing stats dictionary (for context)
+        log: Logging function
+
+    Returns:
+        Appropriate default value for the column
+    """
+    # Column-specific defaults
+    column_defaults = {
+        "Ticker": stats.get("Ticker", "UNKNOWN"),
+        "Allocation [%]": None,  # Optional allocation
+        "Strategy Type": "SMA",  # Default strategy type
+        "Short Window": 20,  # Default short window
+        "Long Window": 50,  # Default long window
+        "Signal Window": 0,  # Default signal window
+        "Stop Loss [%]": None,  # Optional stop loss
+        "Signal Entry": False,  # Default signal state
+        "Signal Exit": False,  # Default signal state
+        "Total Open Trades": 0,  # Default trade count
+        "Total Trades": stats.get("Total Trades", 0),
+        "Metric Type": "Standard",  # Default metric type
+        "Score": 0.0,  # Default score
+        "Win Rate [%]": 50.0,  # Default win rate
+        "Profit Factor": 1.0,  # Default profit factor
+        "Expectancy per Trade": 0.0,  # Default expectancy
+        "Sortino Ratio": 0.0,  # Default Sortino ratio
+        "Beats BNH [%]": 0.0,  # Default BNH comparison
+        "Avg Trade Duration": "0 days 00:00:00",  # Default duration
+        "Trades Per Day": 0.0,  # Default frequency
+        "Trades per Month": 0.0,  # Default frequency
+        "Signals per Month": 0.0,  # Default frequency
+        "Expectancy per Month": 0.0,  # Default expectancy
+        "Start": 0,  # Default start
+        "End": 0,  # Default end
+        "Period": "0 days 00:00:00",  # Default period
+        "Start Value": 1000.0,  # Default start value
+        "End Value": 1000.0,  # Default end value
+        "Total Return [%]": 0.0,  # Default return
+        "Benchmark Return [%]": 0.0,  # Default benchmark
+        "Max Gross Exposure [%]": 100.0,  # Default exposure
+        "Total Fees Paid": 0.0,  # Default fees
+        "Max Drawdown [%]": 0.0,  # Default drawdown
+        "Max Drawdown Duration": "0 days 00:00:00",  # Default duration
+        "Total Closed Trades": stats.get("Total Trades", 0),
+        "Open Trade PnL": 0.0,  # Default PnL
+        "Best Trade [%]": 0.0,  # Default best trade
+        "Worst Trade [%]": 0.0,  # Default worst trade
+        "Avg Winning Trade [%]": 0.0,  # Default avg winning
+        "Avg Losing Trade [%]": 0.0,  # Default avg losing
+        "Avg Winning Trade Duration": "0 days 00:00:00",  # Default duration
+        "Avg Losing Trade Duration": "0 days 00:00:00",  # Default duration
+        "Expectancy": 0.0,  # Default expectancy
+        "Sharpe Ratio": 0.0,  # Default Sharpe
+        "Calmar Ratio": 0.0,  # Default Calmar
+        "Omega Ratio": 1.0,  # Default Omega
+        "Skew": 0.0,  # Default skew
+        "Kurtosis": 3.0,  # Default kurtosis
+        "Tail Ratio": 1.0,  # Default tail ratio
+        "Common Sense Ratio": 1.0,  # Default common sense ratio
+        "Value at Risk": 0.0,  # Default VaR
+        "Daily Returns": 0.0,  # Default daily returns
+        "Annual Returns": 0.0,  # Default annual returns
+        "Cumulative Returns": 0.0,  # Default cumulative returns
+        "Annualized Return": 0.0,  # Default annualized return
+        "Annualized Volatility": 0.0,  # Default volatility
+        "Signal Count": 0,  # Default signal count
+        "Position Count": stats.get("Total Trades", 0),
+        "Total Period": stats.get("Total Period", 0.0),
+    }
+
+    default_value = column_defaults.get(column_name, None)
+
+    if default_value is None:
+        log(
+            f"Warning: No default value defined for column '{column_name}', using None",
+            "warning",
+        )
+    else:
+        log(
+            f"Using default value for missing column '{column_name}': {default_value}",
+            "debug",
+        )
+
+    return default_value

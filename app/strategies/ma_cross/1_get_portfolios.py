@@ -64,7 +64,7 @@ from app.tools.strategy_utils import filter_portfolios_by_signal, get_strategy_t
 # Config management is now handled by ConfigService
 
 CONFIG: Config = {
-    "TICKER": ["NCLH"],
+    "TICKER": ["COIN"],
     # "TICKER": [
     #     "NBIS",
     #     "TXN",
@@ -81,7 +81,7 @@ CONFIG: Config = {
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
-    "REFRESH": False,
+    "REFRESH": True,
     "STRATEGY_TYPES": ["SMA", "EMA"],
     # "STRATEGY_TYPES": [ "SMA" ],
     "DIRECTION": "Long",

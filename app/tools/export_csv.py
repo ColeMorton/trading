@@ -299,6 +299,12 @@ def export_csv(
         if os.path.exists(full_path):
             os.remove(full_path)
 
+        # Validate schema compliance before export
+        validated_data = _validate_and_ensure_schema_compliance(data, log)
+
+        # Use validated data for export
+        data = validated_data
+
         # Check for specific metrics before export
         risk_metrics = [
             "Skew",
@@ -384,3 +390,196 @@ def export_csv(
             log(error_msg, "error")
         logging.error(error_msg)
         return pl.DataFrame(), False
+
+
+def _validate_and_ensure_schema_compliance(
+    data: Union[pl.DataFrame, pd.DataFrame], log: Optional[Callable] = None
+) -> Union[pl.DataFrame, pd.DataFrame]:
+    """
+    Validate and ensure schema compliance for export data.
+
+    Args:
+        data: DataFrame to validate and potentially transform
+        log: Optional logging function
+
+    Returns:
+        DataFrame with canonical schema compliance
+    """
+    try:
+        from app.tools.portfolio.canonical_schema import CANONICAL_COLUMN_NAMES
+        from app.tools.portfolio.schema_validation import validate_dataframe_schema
+    except ImportError:
+        if log:
+            log(
+                "Warning: Could not import schema validation, skipping compliance check",
+                "warning",
+            )
+        return data
+
+    # Convert to pandas for validation if needed
+    was_polars = isinstance(data, pl.DataFrame)
+    if was_polars:
+        df_pandas = data.to_pandas()
+    else:
+        df_pandas = data.copy()
+
+    # Validate current schema
+    try:
+        validation_result = validate_dataframe_schema(df_pandas, strict=False)
+
+        if log:
+            if validation_result["is_valid"]:
+                log(
+                    "Schema validation passed: Data is fully compliant with canonical schema",
+                    "info",
+                )
+            else:
+                violations = len(validation_result.get("violations", []))
+                warnings = len(validation_result.get("warnings", []))
+                log(
+                    f"Schema validation detected {violations} violations and {warnings} warnings",
+                    "warning",
+                )
+
+                # Log specific issues
+                for violation in validation_result.get("violations", []):
+                    log(f"Schema violation: {violation['message']}", "warning")
+
+    except Exception as e:
+        if log:
+            log(f"Schema validation failed: {str(e)}", "error")
+
+    # Ensure canonical column order and completeness
+    canonical_df = _ensure_canonical_column_order(df_pandas, log)
+
+    # Convert back to original format
+    if was_polars:
+        return pl.from_pandas(canonical_df)
+    else:
+        return canonical_df
+
+
+def _ensure_canonical_column_order(
+    df: pd.DataFrame, log: Optional[Callable] = None
+) -> pd.DataFrame:
+    """
+    Ensure DataFrame has all canonical columns in the correct order.
+
+    Args:
+        df: Input DataFrame
+        log: Optional logging function
+
+    Returns:
+        DataFrame with canonical column order and completeness
+    """
+    try:
+        from app.tools.portfolio.canonical_schema import CANONICAL_COLUMN_NAMES
+    except ImportError:
+        if log:
+            log(
+                "Warning: Could not import canonical schema, returning original DataFrame",
+                "warning",
+            )
+        return df
+
+    # Create new DataFrame with canonical column order
+    canonical_df = pd.DataFrame()
+
+    for col_name in CANONICAL_COLUMN_NAMES:
+        if col_name in df.columns:
+            canonical_df[col_name] = df[col_name]
+        else:
+            # Add missing column with appropriate default
+            canonical_df[col_name] = _get_default_column_value(col_name, df, log)
+            if log:
+                log(f"Added missing column '{col_name}' with default value", "debug")
+
+    if log:
+        original_cols = len(df.columns)
+        canonical_cols = len(canonical_df.columns)
+        log(f"Schema enforcement: {original_cols} -> {canonical_cols} columns", "info")
+
+    return canonical_df
+
+
+def _get_default_column_value(
+    column_name: str, existing_df: pd.DataFrame, log: Optional[Callable] = None
+) -> pd.Series:
+    """
+    Get default values for a missing column.
+
+    Args:
+        column_name: Name of the missing column
+        existing_df: Existing DataFrame for context
+        log: Optional logging function
+
+    Returns:
+        Pandas Series with appropriate default values
+    """
+    num_rows = len(existing_df)
+
+    # Column-specific defaults for CSV export
+    defaults = {
+        "Ticker": "UNKNOWN",
+        "Allocation [%]": None,
+        "Strategy Type": "SMA",
+        "Short Window": 20,
+        "Long Window": 50,
+        "Signal Window": 0,
+        "Stop Loss [%]": None,
+        "Signal Entry": False,
+        "Signal Exit": False,
+        "Total Open Trades": 0,
+        "Total Trades": 0,
+        "Metric Type": "Standard",
+        "Score": 0.0,
+        "Win Rate [%]": 50.0,
+        "Profit Factor": 1.0,
+        "Expectancy per Trade": 0.0,
+        "Sortino Ratio": 0.0,
+        "Beats BNH [%]": 0.0,
+        "Avg Trade Duration": "0 days 00:00:00",
+        "Trades Per Day": 0.0,
+        "Trades per Month": 0.0,
+        "Signals per Month": 0.0,
+        "Expectancy per Month": 0.0,
+        "Start": 0,
+        "End": 0,
+        "Period": "0 days 00:00:00",
+        "Start Value": 1000.0,
+        "End Value": 1000.0,
+        "Total Return [%]": 0.0,
+        "Benchmark Return [%]": 0.0,
+        "Max Gross Exposure [%]": 100.0,
+        "Total Fees Paid": 0.0,
+        "Max Drawdown [%]": 0.0,
+        "Max Drawdown Duration": "0 days 00:00:00",
+        "Total Closed Trades": 0,
+        "Open Trade PnL": 0.0,
+        "Best Trade [%]": 0.0,
+        "Worst Trade [%]": 0.0,
+        "Avg Winning Trade [%]": 0.0,
+        "Avg Losing Trade [%]": 0.0,
+        "Avg Winning Trade Duration": "0 days 00:00:00",
+        "Avg Losing Trade Duration": "0 days 00:00:00",
+        "Expectancy": 0.0,
+        "Sharpe Ratio": 0.0,
+        "Calmar Ratio": 0.0,
+        "Omega Ratio": 1.0,
+        "Skew": 0.0,
+        "Kurtosis": 3.0,
+        "Tail Ratio": 1.0,
+        "Common Sense Ratio": 1.0,
+        "Value at Risk": 0.0,
+        "Daily Returns": 0.0,
+        "Annual Returns": 0.0,
+        "Cumulative Returns": 0.0,
+        "Annualized Return": 0.0,
+        "Annualized Volatility": 0.0,
+        "Signal Count": 0,
+        "Position Count": 0,
+        "Total Period": 0.0,
+    }
+
+    default_value = defaults.get(column_name, None)
+    return pd.Series([default_value] * num_rows, name=column_name)
