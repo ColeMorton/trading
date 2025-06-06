@@ -213,6 +213,9 @@ def deduplicate_and_aggregate_portfolios(
         )
         final_portfolio["Metric Type"] = aggregated_metric_type
 
+        # Clear Allocation [%] for portfolios_best exports since this represents aggregated data
+        final_portfolio["Allocation [%]"] = ""
+
         result_portfolios.append(final_portfolio)
 
         if log:
@@ -283,12 +286,110 @@ def export_best_portfolios(
         desired_metric_types = config.get(
             "DESIRED_METRIC_TYPES",
             [
+                # Total Return [%] variants
                 "Most Total Return [%]",
+                "Mean Total Return [%]",
+                "Median Total Return [%]",
+                "Least Total Return [%]",
+                # Total Trades variants
+                "Most Total Trades",
+                "Mean Total Trades",
                 "Median Total Trades",
+                "Least Total Trades",
+                # Avg Winning Trade [%] variants
+                "Most Avg Winning Trade [%]",
                 "Mean Avg Winning Trade [%]",
+                "Median Avg Winning Trade [%]",
+                "Least Avg Winning Trade [%]",
+                # Avg Winning Trade Duration variants
+                "Most Avg Winning Trade Duration",
+                "Mean Avg Winning Trade Duration",
+                "Median Avg Winning Trade Duration",
+                "Least Avg Winning Trade Duration",
+                # Avg Losing Trade [%] variants
+                "Most Avg Losing Trade [%]",
+                "Mean Avg Losing Trade [%]",
+                "Median Avg Losing Trade [%]",
+                "Least Avg Losing Trade [%]",
+                # Avg Losing Trade Duration variants
+                "Most Avg Losing Trade Duration",
+                "Mean Avg Losing Trade Duration",
+                "Median Avg Losing Trade Duration",
+                "Least Avg Losing Trade Duration",
+                # Sharpe Ratio variants
                 "Most Sharpe Ratio",
+                "Mean Sharpe Ratio",
+                "Median Sharpe Ratio",
+                "Least Sharpe Ratio",
+                # Omega Ratio variants
                 "Most Omega Ratio",
+                "Mean Omega Ratio",
+                "Median Omega Ratio",
+                "Least Omega Ratio",
+                # Sortino Ratio variants
                 "Most Sortino Ratio",
+                "Mean Sortino Ratio",
+                "Median Sortino Ratio",
+                "Least Sortino Ratio",
+                # Win Rate [%] variants
+                "Most Win Rate [%]",
+                "Mean Win Rate [%]",
+                "Median Win Rate [%]",
+                "Least Win Rate [%]",
+                # Score variants
+                "Most Score",
+                "Mean Score",
+                "Median Score",
+                "Least Score",
+                # Profit Factor variants
+                "Most Profit Factor",
+                "Mean Profit Factor",
+                "Median Profit Factor",
+                "Least Profit Factor",
+                # Expectancy variants (both per Trade and standalone)
+                "Most Expectancy per Trade",
+                "Mean Expectancy per Trade",
+                "Median Expectancy per Trade",
+                "Least Expectancy per Trade",
+                "Most Expectancy",
+                "Mean Expectancy",
+                "Median Expectancy",
+                "Least Expectancy",
+                # Beats BNH [%] variants
+                "Most Beats BNH [%]",
+                "Mean Beats BNH [%]",
+                "Median Beats BNH [%]",
+                "Least Beats BNH [%]",
+                # Calmar Ratio variants
+                "Most Calmar Ratio",
+                "Mean Calmar Ratio",
+                "Median Calmar Ratio",
+                "Least Calmar Ratio",
+                # Max Drawdown [%] variants
+                "Most Max Drawdown [%]",
+                "Mean Max Drawdown [%]",
+                "Median Max Drawdown [%]",
+                "Least Max Drawdown [%]",
+                # Max Drawdown Duration variants
+                "Most Max Drawdown Duration",
+                "Mean Max Drawdown Duration",
+                "Median Max Drawdown Duration",
+                "Least Max Drawdown Duration",
+                # Best Trade [%] variants
+                "Most Best Trade [%]",
+                "Mean Best Trade [%]",
+                "Median Best Trade [%]",
+                "Least Best Trade [%]",
+                # Worst Trade [%] variants
+                "Most Worst Trade [%]",
+                "Mean Worst Trade [%]",
+                "Median Worst Trade [%]",
+                "Least Worst Trade [%]",
+                # Total Fees Paid variants
+                "Most Total Fees Paid",
+                "Mean Total Fees Paid",
+                "Median Total Fees Paid",
+                "Least Total Fees Paid",
             ],
         )
 

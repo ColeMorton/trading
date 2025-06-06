@@ -78,3 +78,23 @@ class StrategyExecutorInterface(ABC):
     @abstractmethod
     def validate_parameters(self, strategy_type: str, config: Dict[str, Any]) -> bool:
         """Validate parameters for a specific strategy."""
+
+
+class StrategyInterface(ABC):
+    """Simplified interface for individual strategy implementations."""
+
+    @abstractmethod
+    def validate_parameters(self, config: Dict[str, Any]) -> bool:
+        """Validate strategy-specific parameters."""
+
+    @abstractmethod
+    def execute(self, config: Dict[str, Any], log: Any) -> List[Dict[str, Any]]:
+        """Execute the strategy and return portfolio results."""
+
+    @abstractmethod
+    def get_parameter_ranges(self) -> Dict[str, Any]:
+        """Get strategy-specific parameter ranges and defaults."""
+
+    @abstractmethod
+    def get_strategy_type(self) -> str:
+        """Get the strategy type identifier."""

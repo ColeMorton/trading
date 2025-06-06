@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from threading import Lock
 from typing import Any, Dict, Optional
 
-from app.api.models.ma_cross import MACrossRequest, MACrossResponse
+from app.api.models.strategy_analysis import MACrossRequest, MACrossResponse
 
 
 @dataclass

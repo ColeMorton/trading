@@ -18,8 +18,11 @@ from app.api.graphql.types.portfolio import (
     MACrossAnalysisInput,
     MACrossAnalysisResponse,
 )
-from app.api.models.ma_cross import MACrossRequest
-from app.api.services.ma_cross_service import MACrossService, MACrossServiceError
+from app.api.models.strategy_analysis import MACrossRequest
+from app.api.services.strategy_analysis_service import (
+    MACrossService,
+    MACrossServiceError,
+)
 from app.api.utils.logging import setup_api_logging
 from app.core.interfaces import (
     CacheInterface,

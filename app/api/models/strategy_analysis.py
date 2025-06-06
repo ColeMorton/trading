@@ -23,6 +23,7 @@ class StrategyTypeEnum(str, Enum):
 
     SMA = "SMA"
     EMA = "EMA"
+    MACD = "MACD"
 
 
 class MinimumCriteria(BaseModel):
@@ -174,6 +175,53 @@ class MACrossRequest(BaseModel):
         False, description="Whether to use scanner mode", alias="USE_SCANNER"
     )
 
+    # MACD-specific parameters (optional for backward compatibility)
+    short_window_start: Optional[int] = Field(
+        None,
+        description="MACD short EMA window start",
+        alias="SHORT_WINDOW_START",
+        ge=2,
+        le=50,
+    )
+    short_window_end: Optional[int] = Field(
+        None,
+        description="MACD short EMA window end",
+        alias="SHORT_WINDOW_END",
+        ge=3,
+        le=100,
+    )
+    long_window_start: Optional[int] = Field(
+        None,
+        description="MACD long EMA window start",
+        alias="LONG_WINDOW_START",
+        ge=4,
+        le=100,
+    )
+    long_window_end: Optional[int] = Field(
+        None,
+        description="MACD long EMA window end",
+        alias="LONG_WINDOW_END",
+        ge=5,
+        le=200,
+    )
+    signal_window_start: Optional[int] = Field(
+        None,
+        description="MACD signal window start",
+        alias="SIGNAL_WINDOW_START",
+        ge=2,
+        le=50,
+    )
+    signal_window_end: Optional[int] = Field(
+        None,
+        description="MACD signal window end",
+        alias="SIGNAL_WINDOW_END",
+        ge=3,
+        le=100,
+    )
+    step: Optional[int] = Field(
+        1, description="Parameter increment step", alias="STEP", ge=1, le=10
+    )
+
     # API-specific fields (not in StrategyConfig)
     async_execution: bool = Field(
         False, description="Whether to execute analysis asynchronously"
@@ -233,6 +281,85 @@ class MACrossRequest(BaseModel):
             )
         return v
 
+    @field_validator("short_window_end")
+    @classmethod
+    def validate_short_window_range(cls, v, info):
+        """Validate MACD short window range."""
+        if v is not None:
+            short_start = info.data.get("short_window_start")
+            if short_start is not None and v <= short_start:
+                raise ValueError(
+                    "short_window_end must be greater than short_window_start"
+                )
+        return v
+
+    @field_validator("long_window_end")
+    @classmethod
+    def validate_long_window_range(cls, v, info):
+        """Validate MACD long window range."""
+        if v is not None:
+            long_start = info.data.get("long_window_start")
+            if long_start is not None and v <= long_start:
+                raise ValueError(
+                    "long_window_end must be greater than long_window_start"
+                )
+
+            # Validate that long window is larger than short window (minimum start value check)
+            short_start = info.data.get("short_window_start")
+            if (
+                short_start is not None
+                and long_start is not None
+                and long_start <= short_start
+            ):
+                raise ValueError(
+                    "long_window_start must be greater than short_window_start"
+                )
+        return v
+
+    @field_validator("signal_window_end")
+    @classmethod
+    def validate_signal_window_range(cls, v, info):
+        """Validate MACD signal window range."""
+        if v is not None:
+            signal_start = info.data.get("signal_window_start")
+            if signal_start is not None and v <= signal_start:
+                raise ValueError(
+                    "signal_window_end must be greater than signal_window_start"
+                )
+        return v
+
+    @field_validator("strategy_types")
+    @classmethod
+    def validate_macd_parameters(cls, v, info):
+        """Validate MACD parameters when MACD strategy is selected."""
+        if StrategyTypeEnum.MACD in v:
+            # Check if at least some MACD parameters are provided
+            macd_params = [
+                "short_window_start",
+                "short_window_end",
+                "long_window_start",
+                "long_window_end",
+                "signal_window_start",
+                "signal_window_end",
+            ]
+
+            provided_params = [
+                param for param in macd_params if info.data.get(param) is not None
+            ]
+
+            # If any MACD params are provided, we should validate their completeness
+            # But for flexibility, we'll allow defaults to be used
+            if len(provided_params) > 0 and len(provided_params) < 6:
+                # Only require all parameters if some are provided
+                missing_params = [
+                    param for param in macd_params if info.data.get(param) is None
+                ]
+                if len(missing_params) > 3:  # Allow some flexibility
+                    raise ValueError(
+                        f"When providing MACD parameters, please provide all window ranges. Missing: {missing_params}"
+                    )
+        return v
+
     @property
     def tickers(self) -> List[str]:
         """Get tickers as a list for compatibility."""
@@ -274,14 +401,98 @@ class MACrossRequest(BaseModel):
         if self.minimums:
             config["MINIMUMS"] = self.minimums.to_dict()
 
+        # Add MACD-specific parameters
+        if self.short_window_start is not None:
+            config["SHORT_WINDOW_START"] = self.short_window_start
+        if self.short_window_end is not None:
+            config["SHORT_WINDOW_END"] = self.short_window_end
+        if self.long_window_start is not None:
+            config["LONG_WINDOW_START"] = self.long_window_start
+        if self.long_window_end is not None:
+            config["LONG_WINDOW_END"] = self.long_window_end
+        if self.signal_window_start is not None:
+            config["SIGNAL_WINDOW_START"] = self.signal_window_start
+        if self.signal_window_end is not None:
+            config["SIGNAL_WINDOW_END"] = self.signal_window_end
+        if self.step is not None:
+            config["STEP"] = self.step
+
         return config
+
+
+class StrategyAnalysisRequest(BaseModel):
+    """
+    Unified request model for all strategy analysis types.
+
+    This model provides a flexible interface supporting different strategy types
+    with strategy-specific parameters.
+    """
+
+    # Required fields
+    strategy_type: StrategyTypeEnum = Field(
+        ..., description="Type of strategy to analyze"
+    )
+    ticker: Union[str, List[str]] = Field(
+        ..., description="Trading symbol or list of symbols to analyze"
+    )
+
+    # Common optional fields
+    direction: DirectionEnum = Field(
+        DirectionEnum.LONG, description="Trading direction"
+    )
+
+    use_hourly: bool = Field(
+        False, description="Whether to use hourly data instead of daily"
+    )
+
+    use_years: bool = Field(False, description="Whether to limit data by years")
+
+    years: float = Field(
+        15,
+        description="Number of years of data to use (if use_years is True)",
+        gt=0,
+        le=50,
+    )
+
+    refresh: bool = Field(True, description="Whether to refresh cached data")
+
+    # Strategy-specific parameters (flexible dictionary)
+    parameters: Optional[Dict[str, Any]] = Field(
+        default_factory=dict, description="Strategy-specific parameters"
+    )
+
+    # API-specific fields
+    async_execution: bool = Field(
+        False, description="Whether to execute analysis asynchronously"
+    )
+
+    model_config = {"populate_by_name": True, "use_enum_values": True}
+
+    def to_strategy_config(self) -> Dict[str, Any]:
+        """Convert to strategy config format."""
+        config = {
+            "TICKER": self.ticker,
+            "DIRECTION": self.direction,
+            "USE_HOURLY": self.use_hourly,
+            "USE_YEARS": self.use_years,
+            "YEARS": self.years,
+            "REFRESH": self.refresh,
+        }
+
+        # Add strategy-specific parameters
+        config.update(self.parameters)
+
+        return config
+
+
+# MACrossRequest is defined above and remains unchanged for backward compatibility
 
 
 class PortfolioMetrics(BaseModel):
     """Metrics for a single portfolio result."""
 
     ticker: str = Field(..., description="Ticker symbol")
-    strategy_type: str = Field(..., description="Strategy type (SMA/EMA)")
+    strategy_type: str = Field(..., description="Strategy type (SMA/EMA/MACD)")
     short_window: int = Field(..., description="Short moving average window")
     long_window: int = Field(..., description="Long moving average window")
 

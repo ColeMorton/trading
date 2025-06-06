@@ -116,13 +116,7 @@ def process_ticker_portfolios(
                 "info",
             )
             log(
-                f"Signal window: {config.get(
-        'SIGNAL_WINDOW_START',
-        2)} to {config.get(
-                'SIGNAL_WINDOW_END',
-                18)} with step {config.get(
-                        'STEP',
-                         2)}",
+                f"Signal window: {config.get('SIGNAL_WINDOW_START', 2)} to {config.get('SIGNAL_WINDOW_END', 18)} with step {config.get('STEP', 2)}",
                 "info",
             )
 
@@ -133,8 +127,7 @@ def process_ticker_portfolios(
 
             portfolios_df = pl.DataFrame(portfolios)
             log(
-                f"Generated {len(portfolios_df)} portfolios for {ticker} {config.get(
-            'DIRECTION', 'Long')}",
+                f"Generated {len(portfolios_df)} portfolios for {ticker} {config.get('DIRECTION', 'Long')}",
                 "info",
             )
 

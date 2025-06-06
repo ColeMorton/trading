@@ -9,7 +9,7 @@ import re
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-from app.api.models.ma_cross import MACrossRequest
+from app.api.models.strategy_analysis import MACrossRequest
 
 
 @dataclass

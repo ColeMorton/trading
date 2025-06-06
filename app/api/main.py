@@ -36,6 +36,7 @@ from app.api.routers import (
     performance,
     scripts,
     sensylate,
+    strategy,
     viewer,
 )
 from app.api.service_patterns import service_orchestrator
@@ -169,6 +170,7 @@ app.include_router(
     sensylate.router, prefix="/sensylate", tags=["sensylate"]
 )  # Keep non-API routes as-is
 app.include_router(ma_cross.router, prefix="/api/ma-cross", tags=["ma-cross", "legacy"])
+app.include_router(strategy.router, prefix="/api/strategy", tags=["strategy"])
 app.include_router(performance.router, prefix="/api", tags=["performance"])
 app.include_router(graphql_app, prefix="/graphql", tags=["graphql"])
 

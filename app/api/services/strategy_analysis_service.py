@@ -1,9 +1,9 @@
 """
-MA Cross Service
+Strategy Analysis Service
 
-This module provides functionality for executing MA Cross strategy analysis
+This module provides functionality for executing strategy analysis
 through the API. It handles both synchronous and asynchronous execution
-of the MA Cross scanner.
+of various trading strategies using the Strategy Pattern.
 """
 
 import asyncio
@@ -22,11 +22,14 @@ from app.api.models.strategy_analysis import (
     MACrossRequest,
     MACrossResponse,
     PortfolioMetrics,
+    StrategyAnalysisRequest,
+    StrategyTypeEnum,
 )
 from app.api.services.script_executor import task_status
 from app.api.utils.monitoring import get_metrics_collector
 from app.api.utils.performance import get_concurrent_executor, get_request_optimizer
 from app.api.utils.performance_monitoring import get_performance_monitor, timing_context
+from app.api.utils.portfolio_processor import PortfolioProcessor
 
 # Import interfaces
 from app.core.interfaces import (
@@ -38,89 +41,17 @@ from app.core.interfaces import (
     StrategyAnalyzerInterface,
     StrategyExecutorInterface,
 )
+from app.core.strategies.strategy_factory import StrategyFactory
 from app.tools.performance_tracker import get_strategy_performance_tracker
 from app.tools.setup_logging import setup_logging
 
-# Shared constant for desired metric types to ensure DRY
-DEFAULT_DESIRED_METRIC_TYPES = [
-    # Total Return [%] variants
-    "Most Total Return [%]",
-    "Mean Total Return [%]",
-    "Median Total Return [%]",
-    # Total Trades variants
-    "Most Total Trades",
-    # Avg Winning Trade [%] variants
-    "Most Avg Winning Trade [%]",
-    "Mean Avg Winning Trade [%]",
-    "Median Avg Winning Trade [%]",
-    # Avg Winning Trade Duration variants
-    "Most Avg Winning Trade Duration",
-    "Mean Avg Winning Trade Duration",
-    "Median Avg Winning Trade Duration",
-    # Avg Losing Trade [%] variants
-    "Most Avg Losing Trade [%]",
-    "Mean Avg Losing Trade [%]",
-    "Median Avg Losing Trade [%]",
-    # Avg Losing Trade Duration variants
-    "Least Avg Losing Trade Duration",
-    # Sharpe Ratio variants
-    "Most Sharpe Ratio",
-    "Mean Sharpe Ratio",
-    "Median Sharpe Ratio",
-    # Omega Ratio variants
-    "Most Omega Ratio",
-    "Mean Omega Ratio",
-    "Median Omega Ratio",
-    # Sortino Ratio variants
-    "Most Sortino Ratio",
-    "Mean Sortino Ratio",
-    "Median Sortino Ratio",
-    # Win Rate [%] variants
-    "Most Win Rate [%]",
-    "Mean Win Rate [%]",
-    "Median Win Rate [%]",
-    # Score variants
-    "Most Score",
-    "Mean Score",
-    "Median Score",
-    # Profit Factor variants
-    "Most Profit Factor",
-    "Mean Profit Factor",
-    "Median Profit Factor",
-    # Expectancy variants (both per Trade and standalone)
-    "Most Expectancy per Trade",
-    "Mean Expectancy per Trade",
-    "Median Expectancy per Trade",
-    "Most Expectancy",
-    "Mean Expectancy",
-    "Median Expectancy",
-    # Beats BNH [%] variants
-    "Most Beats BNH [%]",
-    # Calmar Ratio variants
-    "Most Calmar Ratio",
-    "Mean Calmar Ratio",
-    "Median Calmar Ratio",
-    # Max Drawdown [%] variants
-    "Least Max Drawdown [%]",
-    # Max Drawdown Duration variants
-    "Least Max Drawdown Duration",
-    # Best Trade [%] variants
-    "Most Best Trade [%]",
-    "Mean Best Trade [%]",
-    "Median Best Trade [%]",
-    # Worst Trade [%] variants
-    "Least Worst Trade [%]",
-    # Total Fees Paid variants
-    "Least Total Fees Paid",
-]
+
+class StrategyAnalysisServiceError(Exception):
+    """Exception raised for errors in the Strategy Analysis service."""
 
 
-class MACrossServiceError(Exception):
-    """Exception raised for errors in the MA Cross service."""
-
-
-class MACrossService:
-    """Service for executing MA Cross strategy analysis."""
+class StrategyAnalysisService:
+    """Service for executing strategy analysis using the Strategy Pattern."""
 
     def __init__(
         self,
@@ -131,8 +62,9 @@ class MACrossService:
         cache: CacheInterface,
         monitoring: MonitoringInterface,
         configuration: ConfigurationInterface,
+        strategy_factory: Optional[StrategyFactory] = None,
     ):
-        """Initialize the MA Cross service with injected dependencies."""
+        """Initialize the Strategy Analysis service with injected dependencies."""
         self.logger = logger
         self.progress_tracker = progress_tracker
         self.strategy_executor = strategy_executor
@@ -141,12 +73,194 @@ class MACrossService:
         self.monitoring = monitoring
         self.configuration = configuration
 
+        # Strategy Pattern support
+        self.strategy_factory = strategy_factory or StrategyFactory()
+        self.portfolio_processor = PortfolioProcessor()
+
         # Legacy support - will be removed
         self.config = get_config()
         self.executor = ThreadPoolExecutor(max_workers=4)
         self.concurrent_executor = get_concurrent_executor()
         self.optimizer = get_request_optimizer()
         self.metrics = get_metrics_collector()
+
+    async def analyze_strategy(
+        self, request: StrategyAnalysisRequest
+    ) -> MACrossResponse:
+        """
+        Execute strategy analysis using Strategy Pattern.
+
+        Args:
+            request: StrategyAnalysisRequest model with analysis parameters
+
+        Returns:
+            MACrossResponse with analysis results
+
+        Raises:
+            StrategyAnalysisServiceError: If analysis fails
+        """
+        # Start performance monitoring for the complete analysis
+        ticker_count = len(request.ticker) if isinstance(request.ticker, list) else 1
+        with timing_context(
+            "strategy_analysis", throughput_items=ticker_count
+        ) as perf_metrics:
+            # Check cache first
+            ticker_str = (
+                request.ticker
+                if isinstance(request.ticker, str)
+                else ",".join(request.ticker)
+            )
+            cache_key = f"strategy:{request.strategy_type.value}:{ticker_str}"
+            cached_result = await self.cache.get(cache_key)
+            if cached_result:
+                # Update performance metrics for cache hit
+                get_strategy_performance_tracker().update_execution_progress(
+                    execution_id=f"api_cache_{int(time.time())}", cache_hits=1
+                )
+                return cached_result
+
+            log, log_close, _, _ = setup_logging(
+                module_name="api",
+                log_file=f'strategy_analysis_{request.strategy_type.value}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log',
+                log_subdir="strategy_analysis",
+            )
+
+            try:
+                # Record request metrics
+                start_time = time.time()
+
+                log(
+                    f"Starting strategy analysis for {request.strategy_type.value} on ticker(s): {request.ticker}"
+                )
+
+                # Get strategy instance from factory
+                try:
+                    strategy = self.strategy_factory.create_strategy(
+                        request.strategy_type
+                    )
+                except ValueError as e:
+                    error_msg = (
+                        f"Unsupported strategy type: {request.strategy_type.value}"
+                    )
+                    log(error_msg, "error")
+                    raise StrategyAnalysisServiceError(error_msg)
+
+                # Convert request to strategy config format
+                strategy_config = request.to_strategy_config()
+
+                # For MA Cross strategies, we need to add STRATEGY_TYPES based on the strategy_type
+                if request.strategy_type in [
+                    StrategyTypeEnum.SMA,
+                    StrategyTypeEnum.EMA,
+                ]:
+                    strategy_config["STRATEGY_TYPES"] = [request.strategy_type.value]
+                    # Set default windows if not provided in parameters
+                    if "WINDOWS" not in strategy_config:
+                        strategy_config["WINDOWS"] = 89
+
+                log(f"Strategy config: {json.dumps(strategy_config, indent=2)}")
+
+                # Validate strategy parameters
+                if not strategy.validate_parameters(strategy_config):
+                    error_msg = (
+                        f"Invalid parameters for {request.strategy_type.value} strategy"
+                    )
+                    log(error_msg, "error")
+                    raise StrategyAnalysisServiceError(error_msg)
+
+                # Add project root to Python path
+                project_root = self.config["BASE_DIR"]
+                if project_root not in sys.path:
+                    sys.path.insert(0, project_root)
+
+                # Execute strategy analysis
+                loop = asyncio.get_event_loop()
+                all_portfolio_dicts = await loop.run_in_executor(
+                    self.executor, strategy.execute, strategy_config, log
+                )
+
+                execution_time = time.time() - start_time
+                log(f"Strategy analysis completed in {execution_time:.2f} seconds")
+
+                # Process portfolios using common utility
+                portfolio_metrics = []
+                deduplicated_portfolios = []
+
+                if all_portfolio_dicts:
+                    # Convert to PortfolioMetrics
+                    portfolio_metrics = (
+                        self.portfolio_processor.convert_portfolios_to_metrics(
+                            all_portfolio_dicts, log
+                        )
+                    )
+
+                    # Export and deduplicate
+                    deduplicated_dicts = (
+                        self.portfolio_processor.export_and_deduplicate_portfolios(
+                            all_portfolio_dicts, strategy_config, log
+                        )
+                    )
+
+                    if deduplicated_dicts:
+                        deduplicated_portfolios = (
+                            self.portfolio_processor.convert_portfolios_to_metrics(
+                                deduplicated_dicts, log
+                            )
+                        )
+
+                # Collect exported file paths
+                portfolio_exports = self.portfolio_processor.collect_export_paths(
+                    strategy_config, [request.strategy_type.value], log
+                )
+
+                # Count filtered portfolios
+                filtered_count = 0
+                if portfolio_exports and "portfolios_filtered" in portfolio_exports:
+                    filtered_count = len(portfolio_exports["portfolios_filtered"])
+
+                # Use deduplicated portfolios if available, otherwise use all portfolios
+                final_portfolios = (
+                    deduplicated_portfolios
+                    if deduplicated_portfolios
+                    else portfolio_metrics
+                )
+
+                # Build response
+                response = MACrossResponse(
+                    status="success",
+                    request_id=str(uuid.uuid4()),
+                    timestamp=datetime.now(),
+                    ticker=request.ticker,
+                    strategy_types=[request.strategy_type.value],
+                    portfolios=final_portfolios,
+                    portfolio_exports=portfolio_exports,
+                    total_portfolios_analyzed=len(all_portfolio_dicts),
+                    total_portfolios_filtered=filtered_count,
+                    execution_time=execution_time,
+                )
+
+                # Cache the result for future requests
+                await self.cache.set(cache_key, response)
+
+                # Record metrics
+                self.metrics.record_request(
+                    endpoint="/api/strategy/analyze",
+                    method="POST",
+                    status_code=200,
+                    response_time=execution_time,
+                    client_ip="internal",
+                    user_agent="strategy_analysis_service",
+                )
+
+                log_close()
+                return response
+
+            except Exception as e:
+                error_msg = f"Strategy analysis failed: {str(e)}"
+                log(error_msg, "error")
+                log(traceback.format_exc(), "error")
+                log_close()
+                raise StrategyAnalysisServiceError(error_msg)
 
     async def analyze_portfolio(self, request: MACrossRequest) -> MACrossResponse:
         """
@@ -221,7 +335,7 @@ class MACrossService:
                 log(f"Analysis completed in {execution_time:.2f} seconds")
 
                 # Collect exported file paths
-                portfolio_exports = self._collect_export_paths(
+                portfolio_exports = self.portfolio_processor.collect_export_paths(
                     strategy_config, request.strategy_types, log
                 )
 
@@ -305,7 +419,7 @@ class MACrossService:
                 log(error_msg, "error")
                 log(traceback.format_exc(), "error")
                 log_close()
-                raise MACrossServiceError(error_msg)
+                raise StrategyAnalysisServiceError(error_msg)
 
     def analyze_portfolio_async(self, request: MACrossRequest) -> MACrossAsyncResponse:
         """
@@ -442,7 +556,7 @@ class MACrossService:
         portfolio_metrics = []
         if all_portfolio_dicts:
             # Convert portfolio dictionaries to PortfolioMetrics objects
-            portfolio_metrics = self._convert_portfolios_to_metrics(
+            portfolio_metrics = self.portfolio_processor.convert_portfolios_to_metrics(
                 all_portfolio_dicts, log
             )
 
@@ -469,7 +583,52 @@ class MACrossService:
                 # Apply deduplication logic for frontend results
                 desired_metric_types = config.get(
                     "DESIRED_METRIC_TYPES",
-                    DEFAULT_DESIRED_METRIC_TYPES,
+                    [
+                        # Total Return [%] variants
+                        "Most Total Return [%]",
+                        "Mean Total Return [%]",
+                        "Median Total Return [%]",
+                        # Total Trades variants
+                        "Most Total Trades",
+                        "Mean Total Trades",
+                        "Median Total Trades",
+                        # Avg Winning Trade [%] variants
+                        "Most Avg Winning Trade [%]",
+                        "Mean Avg Winning Trade [%]",
+                        "Median Avg Winning Trade [%]",
+                        # Sharpe Ratio variants
+                        "Most Sharpe Ratio",
+                        "Mean Sharpe Ratio",
+                        "Median Sharpe Ratio",
+                        # Omega Ratio variants
+                        "Most Omega Ratio",
+                        "Mean Omega Ratio",
+                        "Median Omega Ratio",
+                        # Sortino Ratio variants
+                        "Most Sortino Ratio",
+                        "Mean Sortino Ratio",
+                        "Median Sortino Ratio",
+                        # Win Rate [%] variants
+                        "Most Win Rate [%]",
+                        "Mean Win Rate [%]",
+                        "Median Win Rate [%]",
+                        # Score variants
+                        "Most Score",
+                        "Mean Score",
+                        "Median Score",
+                        # Profit Factor variants
+                        "Most Profit Factor",
+                        "Mean Profit Factor",
+                        "Median Profit Factor",
+                        # Expectancy per Trade variants
+                        "Most Expectancy per Trade",
+                        "Mean Expectancy per Trade",
+                        "Median Expectancy per Trade",
+                        # Beats BNH [%] variants
+                        "Most Beats BNH [%]",
+                        "Mean Beats BNH [%]",
+                        "Median Beats BNH [%]",
+                    ],
                 )
 
                 # Apply deduplication to the original portfolio dictionaries
@@ -478,8 +637,10 @@ class MACrossService:
                 )
 
                 # Convert deduplicated results to PortfolioMetrics for API response
-                deduplicated_portfolios = self._convert_portfolios_to_metrics(
-                    deduplicated_dicts, log
+                deduplicated_portfolios = (
+                    self.portfolio_processor.convert_portfolios_to_metrics(
+                        deduplicated_dicts, log
+                    )
                 )
 
                 log(
@@ -723,7 +884,7 @@ class MACrossService:
         portfolio_metrics = []
         if all_portfolio_dicts:
             # Convert portfolio dictionaries to PortfolioMetrics objects
-            portfolio_metrics = self._convert_portfolios_to_metrics(
+            portfolio_metrics = self.portfolio_processor.convert_portfolios_to_metrics(
                 all_portfolio_dicts, log
             )
 
@@ -762,7 +923,52 @@ class MACrossService:
                 # Apply deduplication logic for frontend results
                 desired_metric_types = config.get(
                     "DESIRED_METRIC_TYPES",
-                    DEFAULT_DESIRED_METRIC_TYPES,
+                    [
+                        # Total Return [%] variants
+                        "Most Total Return [%]",
+                        "Mean Total Return [%]",
+                        "Median Total Return [%]",
+                        # Total Trades variants
+                        "Most Total Trades",
+                        "Mean Total Trades",
+                        "Median Total Trades",
+                        # Avg Winning Trade [%] variants
+                        "Most Avg Winning Trade [%]",
+                        "Mean Avg Winning Trade [%]",
+                        "Median Avg Winning Trade [%]",
+                        # Sharpe Ratio variants
+                        "Most Sharpe Ratio",
+                        "Mean Sharpe Ratio",
+                        "Median Sharpe Ratio",
+                        # Omega Ratio variants
+                        "Most Omega Ratio",
+                        "Mean Omega Ratio",
+                        "Median Omega Ratio",
+                        # Sortino Ratio variants
+                        "Most Sortino Ratio",
+                        "Mean Sortino Ratio",
+                        "Median Sortino Ratio",
+                        # Win Rate [%] variants
+                        "Most Win Rate [%]",
+                        "Mean Win Rate [%]",
+                        "Median Win Rate [%]",
+                        # Score variants
+                        "Most Score",
+                        "Mean Score",
+                        "Median Score",
+                        # Profit Factor variants
+                        "Most Profit Factor",
+                        "Mean Profit Factor",
+                        "Median Profit Factor",
+                        # Expectancy per Trade variants
+                        "Most Expectancy per Trade",
+                        "Mean Expectancy per Trade",
+                        "Median Expectancy per Trade",
+                        # Beats BNH [%] variants
+                        "Most Beats BNH [%]",
+                        "Mean Beats BNH [%]",
+                        "Median Beats BNH [%]",
+                    ],
                 )
 
                 # Apply deduplication to the original portfolio dictionaries
@@ -775,8 +981,10 @@ class MACrossService:
                 )
 
                 # Convert deduplicated results to PortfolioMetrics for API response
-                deduplicated_portfolios = self._convert_portfolios_to_metrics(
-                    deduplicated_dicts, log
+                deduplicated_portfolios = (
+                    self.portfolio_processor.convert_portfolios_to_metrics(
+                        deduplicated_dicts, log
+                    )
                 )
 
                 log(
@@ -972,7 +1180,9 @@ class MACrossService:
             MACrossServiceError: If execution ID not found
         """
         if execution_id not in task_status:
-            raise MACrossServiceError(f"Execution ID not found: {execution_id}")
+            raise StrategyAnalysisServiceError(
+                f"Execution ID not found: {execution_id}"
+            )
 
         # Get base status from task_status
         status = task_status[execution_id].copy()
@@ -1085,3 +1295,16 @@ class MACrossService:
             log(f"Error collecting export paths: {str(e)}", "error")
 
         return export_paths
+
+
+# Backward compatibility alias
+class MACrossService(StrategyAnalysisService):
+    """Backward compatibility alias for MACrossService."""
+
+    pass
+
+
+class MACrossServiceError(StrategyAnalysisServiceError):
+    """Backward compatibility alias for MACrossServiceError."""
+
+    pass
