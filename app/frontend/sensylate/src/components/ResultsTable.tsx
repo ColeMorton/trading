@@ -149,7 +149,15 @@ const ResultsTable: React.FC<ResultsTableProps> = React.memo(
         }),
         columnHelper.accessor('signal_window', {
           header: 'Signal Window',
-          cell: (info) => info.getValue(),
+          cell: (info) => {
+            const value = info.getValue();
+            const strategyType = info.row.original.strategy_type;
+            // Only show signal window for MACD strategies
+            if (strategyType === 'MACD') {
+              return value || 'N/A';
+            }
+            return '-';
+          },
         }),
         columnHelper.accessor('total_trades', {
           header: 'Trades',
@@ -230,7 +238,7 @@ const ResultsTable: React.FC<ResultsTableProps> = React.memo(
           row.strategy_type,
           row.short_window,
           row.long_window,
-          row.signal_window,
+          row.strategy_type === 'MACD' ? row.signal_window || 'N/A' : '-',
           row.total_trades,
           row.score?.toFixed(2) || 'N/A',
           (row.win_rate * 100).toFixed(2),

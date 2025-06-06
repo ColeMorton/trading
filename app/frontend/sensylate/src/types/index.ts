@@ -4,7 +4,7 @@ export interface CSVFile {
 }
 
 export interface CSVData {
-  data: Record<string, any>[];
+  data: Record<string, unknown>[];
   columns: string[];
 }
 
@@ -21,7 +21,7 @@ export interface AnalysisConfiguration {
   TICKER: string | string[];
   WINDOWS: number;
   DIRECTION: 'Long' | 'Short';
-  STRATEGY_TYPES: ('SMA' | 'EMA')[];
+  STRATEGY_TYPES: ('SMA' | 'EMA' | 'MACD')[];
   USE_HOURLY: boolean;
   USE_YEARS: boolean;
   YEARS: number;
@@ -40,6 +40,14 @@ export interface AnalysisConfiguration {
   SORT_ASC: boolean;
   USE_GBM: boolean;
   async_execution: boolean;
+  // MACD-specific parameters
+  SHORT_WINDOW_START?: number;
+  SHORT_WINDOW_END?: number;
+  LONG_WINDOW_START?: number;
+  LONG_WINDOW_END?: number;
+  SIGNAL_WINDOW_START?: number;
+  SIGNAL_WINDOW_END?: number;
+  STEP?: number;
 }
 
 export interface AnalysisResult {
@@ -61,7 +69,7 @@ export interface AnalysisResult {
   avg_trade_duration?: string;
   beats_bnh?: number;
   metric_type?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface MACrossResponse {

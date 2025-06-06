@@ -6,7 +6,7 @@ export interface MACrossRequest {
   ticker: string | string[];
   windows?: number;
   direction?: 'Long' | 'Short';
-  strategy_types?: ('SMA' | 'EMA')[];
+  strategy_types?: ('SMA' | 'EMA' | 'MACD')[];
   use_hourly?: boolean;
   use_years?: boolean;
   years?: number;
@@ -29,6 +29,14 @@ export interface MACrossRequest {
   use_current?: boolean;
   use_scanner?: boolean;
   async_execution?: boolean;
+  // MACD-specific parameters
+  short_window_start?: number;
+  short_window_end?: number;
+  long_window_start?: number;
+  long_window_end?: number;
+  signal_window_start?: number;
+  signal_window_end?: number;
+  step?: number;
 }
 
 // Portfolio metrics returned by the API
@@ -220,7 +228,7 @@ const getCacheKey = (config: AnalysisConfiguration): string => {
     : config.TICKER;
 
   // Include key parameters that affect results
-  const key = [
+  const keyParts = [
     `t:${ticker}`,
     `w:${config.WINDOWS}`,
     `d:${config.DIRECTION}`,
@@ -228,9 +236,23 @@ const getCacheKey = (config: AnalysisConfiguration): string => {
     `h:${config.USE_HOURLY}`,
     `y:${config.USE_YEARS ? config.YEARS : 'all'}`,
     `min:${config.MINIMUMS?.WIN_RATE || 0}-${config.MINIMUMS?.TRADES || 0}`,
-  ].join('|');
+  ];
 
-  return key;
+  // Add MACD-specific parameters to cache key if MACD is selected
+  if (config.STRATEGY_TYPES.includes('MACD')) {
+    keyParts.push(
+      `macd:${config.SHORT_WINDOW_START || 6}-${
+        config.SHORT_WINDOW_END || 15
+      }` +
+        `_${config.LONG_WINDOW_START || 12}-${config.LONG_WINDOW_END || 35}` +
+        `_${config.SIGNAL_WINDOW_START || 5}-${
+          config.SIGNAL_WINDOW_END || 12
+        }` +
+        `_${config.STEP || 1}`
+    );
+  }
+
+  return keyParts.join('|');
 };
 
 // Helper function to wait
@@ -279,6 +301,17 @@ const configToRequest = (config: AnalysisConfiguration): MACrossRequest => {
     use_scanner: config.USE_SCANNER,
     async_execution: config.async_execution,
   };
+
+  // Add MACD-specific parameters if MACD strategy is selected
+  if (config.STRATEGY_TYPES.includes('MACD')) {
+    request.short_window_start = config.SHORT_WINDOW_START;
+    request.short_window_end = config.SHORT_WINDOW_END;
+    request.long_window_start = config.LONG_WINDOW_START;
+    request.long_window_end = config.LONG_WINDOW_END;
+    request.signal_window_start = config.SIGNAL_WINDOW_START;
+    request.signal_window_end = config.SIGNAL_WINDOW_END;
+    request.step = config.STEP;
+  }
 
   // Only include minimums if they have values
   if (config.MINIMUMS) {

@@ -155,6 +155,35 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
       return undefined;
     };
 
+    const validateMACDParameters = (): string | undefined => {
+      if (!parameterTesting.configuration.STRATEGY_TYPES.includes('MACD')) {
+        return undefined;
+      }
+
+      const shortStart = parameterTesting.configuration.SHORT_WINDOW_START || 6;
+      const shortEnd = parameterTesting.configuration.SHORT_WINDOW_END || 15;
+      const longStart = parameterTesting.configuration.LONG_WINDOW_START || 12;
+      const longEnd = parameterTesting.configuration.LONG_WINDOW_END || 35;
+      const signalStart =
+        parameterTesting.configuration.SIGNAL_WINDOW_START || 5;
+      const signalEnd = parameterTesting.configuration.SIGNAL_WINDOW_END || 12;
+
+      if (shortStart >= shortEnd) {
+        return 'Short window end must be greater than start';
+      }
+      if (longStart >= longEnd) {
+        return 'Long window end must be greater than start';
+      }
+      if (signalStart >= signalEnd) {
+        return 'Signal window end must be greater than start';
+      }
+      if (longStart <= shortEnd) {
+        return 'Long window start must be greater than short window end';
+      }
+
+      return undefined;
+    };
+
     const handleTickerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       const error = validateTicker(value);
@@ -176,11 +205,11 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
     };
 
     const handleStrategyTypeChange = (
-      strategyType: 'SMA' | 'EMA',
+      strategyType: 'SMA' | 'EMA' | 'MACD',
       checked: boolean
     ) => {
       const currentTypes = parameterTesting.configuration.STRATEGY_TYPES;
-      let newTypes: ('SMA' | 'EMA')[];
+      let newTypes: ('SMA' | 'EMA' | 'MACD')[];
 
       if (checked) {
         newTypes = [...currentTypes, strategyType];
@@ -286,7 +315,8 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
       const ticker = parameterTesting.configuration.TICKER;
       const tickerValue = Array.isArray(ticker) ? ticker.join(', ') : ticker;
       const hasRequiredFields = tickerValue.trim() !== '';
-      return !hasErrors && hasRequiredFields;
+      const macdError = validateMACDParameters();
+      return !hasErrors && hasRequiredFields && !macdError;
     };
 
     return (
@@ -428,7 +458,7 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
                 <Icon icon={icons.brand} className="me-1" />
                 Strategy Types
               </label>
-              <div className="d-flex gap-3">
+              <div className="d-flex gap-3 flex-wrap">
                 <div className="form-check">
                   <input
                     className="form-check-input"
@@ -461,8 +491,209 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
                     EMA (Exponential Moving Average)
                   </label>
                 </div>
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="macd-checkbox"
+                    checked={parameterTesting.configuration.STRATEGY_TYPES.includes(
+                      'MACD'
+                    )}
+                    onChange={(e) =>
+                      handleStrategyTypeChange('MACD', e.target.checked)
+                    }
+                  />
+                  <label className="form-check-label" htmlFor="macd-checkbox">
+                    MACD (Moving Average Convergence Divergence)
+                  </label>
+                </div>
               </div>
             </div>
+
+            {/* MACD Parameters - Only show when MACD is selected */}
+            {parameterTesting.configuration.STRATEGY_TYPES.includes('MACD') && (
+              <div className="col-12">
+                <div className="card border-primary">
+                  <div className="card-header bg-primary bg-opacity-10">
+                    <h6 className="card-title mb-0">
+                      <Icon icon={icons.calculator} className="me-1" />
+                      MACD Parameters
+                    </h6>
+                  </div>
+                  <div className="card-body">
+                    <div className="row g-3">
+                      <div className="col-md-4">
+                        <label className="form-label">
+                          Short EMA Window Range
+                        </label>
+                        <div className="d-flex gap-2">
+                          <div>
+                            <input
+                              type="number"
+                              className="form-control form-control-sm"
+                              placeholder="Start"
+                              value={
+                                parameterTesting.configuration
+                                  .SHORT_WINDOW_START || 6
+                              }
+                              min="2"
+                              max="50"
+                              onChange={(e) =>
+                                updateConfiguration({
+                                  SHORT_WINDOW_START: parseInt(e.target.value),
+                                })
+                              }
+                              aria-label="Short window start"
+                            />
+                          </div>
+                          <span className="align-self-center">-</span>
+                          <div>
+                            <input
+                              type="number"
+                              className="form-control form-control-sm"
+                              placeholder="End"
+                              value={
+                                parameterTesting.configuration
+                                  .SHORT_WINDOW_END || 15
+                              }
+                              min="2"
+                              max="50"
+                              onChange={(e) =>
+                                updateConfiguration({
+                                  SHORT_WINDOW_END: parseInt(e.target.value),
+                                })
+                              }
+                              aria-label="Short window end"
+                            />
+                          </div>
+                        </div>
+                        <div className="form-text">Typically 6-15 periods</div>
+                      </div>
+
+                      <div className="col-md-4">
+                        <label className="form-label">
+                          Long EMA Window Range
+                        </label>
+                        <div className="d-flex gap-2">
+                          <div>
+                            <input
+                              type="number"
+                              className="form-control form-control-sm"
+                              placeholder="Start"
+                              value={
+                                parameterTesting.configuration
+                                  .LONG_WINDOW_START || 12
+                              }
+                              min="4"
+                              max="100"
+                              onChange={(e) =>
+                                updateConfiguration({
+                                  LONG_WINDOW_START: parseInt(e.target.value),
+                                })
+                              }
+                              aria-label="Long window start"
+                            />
+                          </div>
+                          <span className="align-self-center">-</span>
+                          <div>
+                            <input
+                              type="number"
+                              className="form-control form-control-sm"
+                              placeholder="End"
+                              value={
+                                parameterTesting.configuration
+                                  .LONG_WINDOW_END || 35
+                              }
+                              min="4"
+                              max="100"
+                              onChange={(e) =>
+                                updateConfiguration({
+                                  LONG_WINDOW_END: parseInt(e.target.value),
+                                })
+                              }
+                              aria-label="Long window end"
+                            />
+                          </div>
+                        </div>
+                        <div className="form-text">
+                          Typically 12-35 periods (must be &gt; short)
+                        </div>
+                      </div>
+
+                      <div className="col-md-4">
+                        <label className="form-label">
+                          Signal EMA Window Range
+                        </label>
+                        <div className="d-flex gap-2">
+                          <div>
+                            <input
+                              type="number"
+                              className="form-control form-control-sm"
+                              placeholder="Start"
+                              value={
+                                parameterTesting.configuration
+                                  .SIGNAL_WINDOW_START || 5
+                              }
+                              min="2"
+                              max="50"
+                              onChange={(e) =>
+                                updateConfiguration({
+                                  SIGNAL_WINDOW_START: parseInt(e.target.value),
+                                })
+                              }
+                              aria-label="Signal window start"
+                            />
+                          </div>
+                          <span className="align-self-center">-</span>
+                          <div>
+                            <input
+                              type="number"
+                              className="form-control form-control-sm"
+                              placeholder="End"
+                              value={
+                                parameterTesting.configuration
+                                  .SIGNAL_WINDOW_END || 12
+                              }
+                              min="2"
+                              max="50"
+                              onChange={(e) =>
+                                updateConfiguration({
+                                  SIGNAL_WINDOW_END: parseInt(e.target.value),
+                                })
+                              }
+                              aria-label="Signal window end"
+                            />
+                          </div>
+                        </div>
+                        <div className="form-text">Typically 5-12 periods</div>
+                      </div>
+
+                      <div className="col-md-4">
+                        <label htmlFor="macd-step" className="form-label">
+                          Step Size
+                        </label>
+                        <input
+                          type="number"
+                          className="form-control form-control-sm"
+                          id="macd-step"
+                          value={parameterTesting.configuration.STEP || 1}
+                          min="1"
+                          max="10"
+                          onChange={(e) =>
+                            updateConfiguration({
+                              STEP: parseInt(e.target.value),
+                            })
+                          }
+                        />
+                        <div className="form-text">
+                          Parameter increment (1-10)
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Basic Options */}
             <div className="col-md-6">
@@ -901,8 +1132,8 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
                   className="form-text text-danger"
                   role="alert"
                 >
-                  Please fix validation errors and ensure all required fields
-                  are filled.
+                  {validateMACDParameters() ||
+                    'Please fix validation errors and ensure all required fields are filled.'}
                 </div>
               )}
             </div>
