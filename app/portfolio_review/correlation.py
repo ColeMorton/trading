@@ -18,20 +18,17 @@ from scipy.spatial.distance import squareform
 PORTFOLIO = [
     "MSTR",
     "BTC-USD",
-    "LMT",
-    "MCO",
-    "AAPL",
-    "ILMN",
+    "FMC",
+    "CMG",
     "AIZ",
-    "EXR",
-    "SHOP",
+    "NBIX",
     "NVDA",
     "PGR",
 ]
 
 # PORTFOLIO = ['SPY', 'QQQ']
 
-NEXT = ["UTHR", "NBIX", "NTRA", "COIN"]
+NEXT = ["ACMR", "HIMS", "BBY", "HBAN", "USB", "RF", "EQT", "FTNT", "J", "BKR", "CVX", "UTHR", "GD", "PLD"]
 
 # NEXT = [
 #     'BTC-USD',

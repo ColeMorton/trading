@@ -5,14 +5,209 @@ This module handles the export of portfolio data to CSV files using the
 centralized export functionality.
 """
 
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import polars as pl
 
 from app.tools.export_csv import ExportConfig, export_csv
+from app.tools.portfolio.base_extended_schemas import (
+    SchemaTransformer, 
+    SchemaType, 
+    PortfolioSchemaValidationError,
+    CANONICAL_COLUMN_NAMES,
+    ExtendedPortfolioSchema,
+    FilteredPortfolioSchema
+)
 from app.tools.portfolio.schema_detection import ensure_allocation_sum_100_percent
 from app.tools.portfolio.strategy_types import STRATEGY_TYPE_FIELDS
 from app.tools.portfolio.strategy_utils import get_strategy_type_for_export
+
+
+def _validate_portfolio_schema(
+    portfolio: Dict, 
+    expected_schema: SchemaType, 
+    transformer: SchemaTransformer,
+    log: Optional[Callable] = None
+) -> tuple[bool, List[str]]:
+    """
+    Perform mandatory schema validation before export.
+    
+    Args:
+        portfolio: Portfolio dictionary to validate
+        expected_schema: Expected schema type
+        transformer: SchemaTransformer instance
+        log: Optional logging function
+        
+    Returns:
+        Tuple of (is_valid, list_of_errors)
+        
+    Raises:
+        PortfolioSchemaValidationError: If strict validation fails
+    """
+    is_valid, errors = transformer.validate_schema(portfolio, expected_schema)
+    
+    if not is_valid:
+        error_msg = f"Schema validation failed for {expected_schema.name}: {'; '.join(errors)}"
+        if log:
+            log(error_msg, "error")
+        # In Phase 3, we implement fail-fast validation
+        raise PortfolioSchemaValidationError(error_msg, {"errors": errors, "schema": expected_schema.name})
+    
+    if log:
+        log(f"Schema validation passed for {expected_schema.name}", "debug")
+    
+    return is_valid, errors
+
+
+def _validate_canonical_ordering(
+    df: pl.DataFrame, 
+    expected_schema: SchemaType,
+    log: Optional[Callable] = None
+) -> tuple[bool, List[str]]:
+    """
+    Perform strict canonical ordering validation on DataFrame.
+    
+    Args:
+        df: DataFrame to validate
+        expected_schema: Expected schema type
+        log: Optional logging function
+        
+    Returns:
+        Tuple of (is_valid, list_of_errors)
+    """
+    errors = []
+    columns = df.columns
+    
+    if expected_schema == SchemaType.EXTENDED:
+        expected_columns = ExtendedPortfolioSchema.get_column_names()
+        schema_name = "Extended (60-column)"
+    elif expected_schema == SchemaType.FILTERED:
+        expected_columns = FilteredPortfolioSchema.get_column_names()
+        schema_name = "Filtered (61-column)"
+    else:
+        # For other schema types, use CANONICAL_COLUMN_NAMES
+        expected_columns = CANONICAL_COLUMN_NAMES
+        schema_name = "Canonical"
+    
+    # Check if columns match expected ordering exactly
+    if len(columns) != len(expected_columns):
+        errors.append(f"Column count mismatch: expected {len(expected_columns)}, got {len(columns)}")
+    
+    # Check column ordering
+    for i, (actual, expected) in enumerate(zip(columns, expected_columns)):
+        if actual != expected:
+            errors.append(f"Column ordering error at position {i}: expected '{expected}', got '{actual}'")
+            break  # Only report first ordering error to avoid spam
+    
+    # Specific validation for critical columns
+    critical_positions = {
+        "Allocation [%]": 59,  # Position 59 in Extended schema
+        "Stop Loss [%]": 60,   # Position 60 in Extended schema  
+    }
+    
+    for col_name, expected_pos in critical_positions.items():
+        if col_name in columns:
+            actual_pos = columns.index(col_name) + 1  # 1-based indexing
+            if actual_pos != expected_pos and expected_schema == SchemaType.EXTENDED:
+                errors.append(f"Critical column '{col_name}' at wrong position: expected {expected_pos}, got {actual_pos}")
+    
+    is_valid = len(errors) == 0
+    
+    if log:
+        if is_valid:
+            log(f"Canonical ordering validation passed for {schema_name} schema", "debug")
+        else:
+            log(f"Canonical ordering validation failed for {schema_name} schema: {'; '.join(errors)}", "error")
+    
+    return is_valid, errors
+
+
+class ExportTypeRouter:
+    """
+    Enhanced export type routing based on SchemaType enum with validation and monitoring.
+    """
+    
+    # Schema routing configuration with additional metadata
+    EXPORT_SCHEMA_CONFIG = {
+        "portfolios_best": {
+            "schema": SchemaType.FILTERED,
+            "description": "61 columns, Metric Type + Extended for best portfolios with aggregated metrics",
+            "allocation_handling": "none",  # No allocation values for analysis
+            "validation_level": "strict"
+        },
+        "portfolios_filtered": {
+            "schema": SchemaType.FILTERED,
+            "description": "61 columns, Metric Type + Extended for filtered results", 
+            "allocation_handling": "none",
+            "validation_level": "strict"
+        },
+        "portfolios_scanner": {
+            "schema": SchemaType.EXTENDED,
+            "description": "60 columns, canonical format for scanner results",
+            "allocation_handling": "none",
+            "validation_level": "strict"
+        },
+        "portfolios": {
+            "schema": SchemaType.EXTENDED,
+            "description": "60 columns, canonical format (default)",
+            "allocation_handling": "none", 
+            "validation_level": "strict"
+        },
+    }
+    
+    @classmethod
+    def get_target_schema_type(cls, export_type: str) -> SchemaType:
+        """
+        Determine the appropriate target schema type based on export type.
+        
+        Args:
+            export_type: Type of export
+            
+        Returns:
+            SchemaType: Appropriate schema type for the export
+        """
+        config = cls.EXPORT_SCHEMA_CONFIG.get(export_type)
+        if config:
+            return config["schema"]
+        return SchemaType.EXTENDED  # Default fallback
+    
+    @classmethod
+    def get_export_config(cls, export_type: str) -> Dict[str, Any]:
+        """
+        Get complete export configuration for the given export type.
+        
+        Args:
+            export_type: Type of export
+            
+        Returns:
+            Dictionary with export configuration
+        """
+        return cls.EXPORT_SCHEMA_CONFIG.get(export_type, {
+            "schema": SchemaType.EXTENDED,
+            "description": "Default configuration",
+            "allocation_handling": "none",
+            "validation_level": "strict"
+        })
+    
+    @classmethod 
+    def validate_export_type(cls, export_type: str) -> bool:
+        """
+        Validate if export type is supported.
+        
+        Args:
+            export_type: Type of export to validate
+            
+        Returns:
+            True if supported, False otherwise
+        """
+        return export_type in cls.EXPORT_SCHEMA_CONFIG
+
+
+def _get_target_schema_type(export_type: str) -> SchemaType:
+    """
+    Legacy wrapper for backward compatibility.
+    """
+    return ExportTypeRouter.get_target_schema_type(export_type)
 
 
 class PortfolioExportError(Exception):
@@ -58,11 +253,41 @@ def export_portfolios(
             log("No portfolios to export", "warning")
         raise ValueError("Cannot export empty portfolio list")
 
-    if export_type not in VALID_EXPORT_TYPES:
-        error_msg = f"Invalid export type: {export_type}. Must be one of: {', '.join(VALID_EXPORT_TYPES)}"
+    # Enhanced export type validation using ExportTypeRouter (Phase 3)
+    if not ExportTypeRouter.validate_export_type(export_type):
+        supported_types = list(ExportTypeRouter.EXPORT_SCHEMA_CONFIG.keys())
+        error_msg = f"Invalid export type: {export_type}. Must be one of: {', '.join(supported_types)}"
         if log:
             log(error_msg, "error")
         raise PortfolioExportError(error_msg)
+    
+    # Get export configuration with schema routing details
+    export_config = ExportTypeRouter.get_export_config(export_type)
+    if log:
+        log(f"Export configuration: {export_config['description']}", "info")
+
+    # Phase 1 Data Flow Audit: Log incoming portfolio data to export_portfolios
+    log(f"📊 PHASE 1 AUDIT: export_portfolios() entry with {len(portfolios)} portfolios, export_type='{export_type}'", "info")
+    
+    # Log metric type distribution in incoming data
+    incoming_metric_counts = {}
+    incoming_cbre_data = []
+    for p in portfolios:
+        metric_type = p.get("Metric Type", "Unknown")
+        incoming_metric_counts[metric_type] = incoming_metric_counts.get(metric_type, 0) + 1
+        
+        if p.get("Ticker") == "CBRE":
+            incoming_cbre_data.append({
+                "Ticker": p.get("Ticker"),
+                "Strategy": p.get("Strategy Type"),
+                "Short": p.get("Short Window"),
+                "Long": p.get("Long Window"),
+                "Metric": p.get("Metric Type")
+            })
+    
+    log(f"📊 INCOMING METRIC TYPES TO export_portfolios(): {dict(incoming_metric_counts)}", "info")
+    if incoming_cbre_data:
+        log(f"📊 INCOMING CBRE DATA TO export_portfolios(): {incoming_cbre_data}", "info")
 
     if log:
         log(f"Exporting {len(portfolios)} portfolios as {export_type}...", "info")
@@ -80,15 +305,54 @@ def export_portfolios(
             # Remove from config to avoid confusion
             del config["_SORTED_PORTFOLIOS"]
 
-        # Process allocation values before converting to DataFrame
-        # Use ensure_allocation_sum_100_percent imported at the top of the file
-
-        # Apply allocation normalization to ensure Case 3 is handled properly
-        portfolios = ensure_allocation_sum_100_percent(portfolios, log)
+        # Note: Allocation processing is now handled by SchemaTransformer defaults
+        # The schema ensures proper allocation handling (None for analysis exports)
+        # No manual allocation processing needed as SchemaTransformer handles this
 
         # Convert portfolios to DataFrame
         df = pl.DataFrame(portfolios)
 
+        # Initialize SchemaTransformer for unified schema handling
+        transformer = SchemaTransformer()
+        target_schema_type = _get_target_schema_type(export_type)
+        
+        if log:
+            log(f"Using schema type {target_schema_type.name} for export type {export_type}", "info")
+            
+        # Phase 4: Special handling for portfolios_best with metric type aggregation
+        if export_type == "portfolios_best" and "Metric Type" in df.columns:
+            from app.tools.portfolio.collection import deduplicate_and_aggregate_portfolios
+            
+            if log:
+                log("📊 DETECTED Metric Type column - applying aggregation for portfolios_best export", "info")
+                
+                # Log detailed pre-aggregation data
+                pre_agg_cbre = df.filter(pl.col("Ticker") == "CBRE")
+                if len(pre_agg_cbre) > 0:
+                    log(f"📊 PRE-AGGREGATION CBRE DATA: {len(pre_agg_cbre)} rows", "info")
+                    cbre_details = pre_agg_cbre.select("Ticker", "Strategy Type", "Short Window", "Long Window", "Metric Type").to_dicts()
+                    log(f"📊 PRE-AGGREGATION CBRE DETAILS: {cbre_details}", "info")
+            
+            # Apply metric type aggregation before schema transformation
+            pre_aggregation_count = len(df)
+            
+            # Convert to dict for aggregation function
+            pre_agg_portfolios = df.to_dicts()
+            log(f"📊 CALLING deduplicate_and_aggregate_portfolios() with {len(pre_agg_portfolios)} portfolios", "info")
+            
+            aggregated_portfolios = deduplicate_and_aggregate_portfolios(pre_agg_portfolios, log)
+            df = pl.DataFrame(aggregated_portfolios)
+            
+            if log:
+                log(f"📊 AGGREGATION RESULT: {pre_aggregation_count} → {len(df)} portfolios", "info")
+                
+                # Log post-aggregation CBRE data
+                post_agg_cbre = df.filter(pl.col("Ticker") == "CBRE")
+                if len(post_agg_cbre) > 0:
+                    log(f"📊 POST-AGGREGATION CBRE DATA: {len(post_agg_cbre)} rows", "info")
+                    cbre_post_details = post_agg_cbre.select("Ticker", "Strategy Type", "Short Window", "Long Window", "Metric Type").to_dicts()
+                    log(f"📊 POST-AGGREGATION CBRE DETAILS: {cbre_post_details}", "info")
+        
         # Special handling for portfolios_best export type
         if export_type == "portfolios_best":
             # Ensure required columns exist
@@ -196,36 +460,6 @@ def export_portfolios(
                 if col in df.columns:
                     df = df.drop(col)
 
-            # Handle Allocation [%] and Stop Loss [%] columns first
-            # Case 1: When Allocation [%] column exists but no values: maintain the column with empty values
-            # Case 2: When Allocation [%] column doesn't exist: add it with empty fields
-            # Case 3: When some rows have Allocation [%] values and others don't: assign equal values to empty ones
-            # Case 4: Always export using the Extended Schema format
-
-            # Check if Allocation [%] column exists
-            has_allocation_column = "Allocation [%]" in df.columns
-
-            # Check if Stop Loss [%] column exists
-            has_stop_loss_column = "Stop Loss [%]" in df.columns
-
-            # Add Allocation [%] column if it doesn't exist
-            if not has_allocation_column:
-                if log:
-                    log(
-                        "Adding empty Allocation [%] column to ensure Extended Schema format",
-                        "info",
-                    )
-                df = df.with_columns(pl.lit(None).alias("Allocation [%]"))
-
-            # Add Stop Loss [%] column if it doesn't exist
-            if not has_stop_loss_column:
-                if log:
-                    log(
-                        "Adding empty Stop Loss [%] column to ensure Extended Schema format",
-                        "info",
-                    )
-                df = df.with_columns(pl.lit(None).alias("Stop Loss [%]"))
-
             # Add Strategy Type column based on strategy type information
             if STRATEGY_TYPE_FIELDS["CSV"] not in df.columns:
                 # Create a list of rows to process
@@ -273,38 +507,72 @@ def export_portfolios(
                     df = df.drop("Ticker")
                 df = df.with_columns(pl.lit(ticker).alias("Ticker"))
 
-            # Define column order with Strategy Type, Allocation [%], and Stop Loss [%]
-            ordered_columns = [
-                "Ticker",
-                "Allocation [%]",  # Add Allocation [%] column in 2nd position
-                STRATEGY_TYPE_FIELDS["CSV"],
-                "Short Window",
-                "Long Window",
-                "Signal Window",
-                "Stop Loss [%]",  # Add Stop Loss [%] column in 7th position
-                "Signal Entry",
-                "Signal Exit",
-                "Total Open Trades",
-                "Total Trades",
-            ]
-
-            # Add remaining columns in their original order
-            remaining_columns = [
-                col for col in df.columns if col not in ordered_columns
-            ]
-
-            # Create a new list with existing ordered columns and remaining columns
-            existing_ordered_columns = [
-                col for col in ordered_columns if col in df.columns
-            ]
-            existing_ordered_columns.extend(remaining_columns)
-
-            # Select the final column order
-            df = df.select(existing_ordered_columns)
-
-            # Allocation values have already been processed by ensure_allocation_sum_100_percent
-            # Just reapply column ordering to ensure correct positions
-            df = df.select(existing_ordered_columns)
+            # Use SchemaTransformer to normalize to target schema with mandatory validation
+            # This replaces the custom column ordering logic and ensures proper allocation handling
+            portfolios_normalized = []
+            validation_failures = 0
+            
+            for portfolio_dict in df.to_dicts():
+                try:
+                    # Step 1: Normalize each portfolio to target schema with canonical ordering
+                    # For analysis exports (portfolios_best, portfolios_filtered), force allocation/stop loss to None
+                    force_analysis_defaults = export_type in ["portfolios_best", "portfolios_filtered"]
+                    
+                    # Preserve existing metric type if present (critical for aggregated portfolios)
+                    existing_metric_type = portfolio_dict.get("Metric Type", "Most Total Return [%]")
+                    
+                    normalized_portfolio = transformer.normalize_to_schema(
+                        portfolio_dict, 
+                        target_schema_type,
+                        metric_type=existing_metric_type,
+                        force_analysis_defaults=force_analysis_defaults
+                    )
+                    
+                    # Step 2: Mandatory schema validation (Phase 3 enhancement)
+                    _validate_portfolio_schema(
+                        normalized_portfolio, 
+                        target_schema_type, 
+                        transformer, 
+                        log
+                    )
+                    
+                    portfolios_normalized.append(normalized_portfolio)
+                    
+                except PortfolioSchemaValidationError as e:
+                    validation_failures += 1
+                    if log:
+                        log(f"Schema validation failed for portfolio: {str(e)}", "error")
+                    # Re-raise validation errors as they are critical
+                    raise
+                    
+                except Exception as e:
+                    if log:
+                        log(f"Schema normalization failed for portfolio: {str(e)}", "warning")
+                    # Fall back to original portfolio if normalization fails
+                    portfolios_normalized.append(portfolio_dict)
+            
+            # Recreate DataFrame with normalized portfolios
+            df = pl.DataFrame(portfolios_normalized)
+            
+            # Phase 3: Strict canonical ordering validation
+            ordering_valid, ordering_errors = _validate_canonical_ordering(df, target_schema_type, log)
+            if not ordering_valid:
+                error_msg = f"Canonical ordering validation failed: {'; '.join(ordering_errors)}"
+                if log:
+                    log(error_msg, "error")
+                raise PortfolioSchemaValidationError(error_msg, {"errors": ordering_errors, "validation_type": "canonical_ordering"})
+            
+            # Performance monitoring and compliance reporting (Phase 3 enhancement)
+            if log:
+                total_portfolios = len(df.to_dicts()) if portfolios_normalized else len(df)
+                success_rate = ((total_portfolios - validation_failures) / total_portfolios * 100) if total_portfolios > 0 else 0
+                log(f"Schema compliance report: {len(portfolios_normalized)}/{total_portfolios} portfolios processed", "info")
+                log(f"Schema validation success rate: {success_rate:.1f}%", "info")
+                log(f"Applied SchemaTransformer normalization with {target_schema_type.name} schema", "info")
+                log(f"Canonical ordering validation: {'PASSED' if ordering_valid else 'FAILED'}", "info")
+                
+                if validation_failures > 0:
+                    log(f"WARNING: {validation_failures} validation failures encountered", "warning")
 
         # Use the provided feature_dir parameter for the feature1 value
         # This allows different scripts to export to different directories

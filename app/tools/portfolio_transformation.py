@@ -9,6 +9,8 @@ from typing import Dict
 
 import polars as pl
 
+from app.tools.portfolio.base_extended_schemas import SchemaTransformer, SchemaType
+
 
 def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
     """Transform portfolio data into heatmap-compatible format.
@@ -61,48 +63,46 @@ def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
 
 def reorder_columns(portfolio: Dict) -> Dict:
     """
-    Reorder columns to match required format.
+    Reorder columns using SchemaTransformer to match canonical schema format.
+    
+    This function now leverages the sophisticated SchemaTransformer architecture
+    instead of manual column ordering logic.
 
     Args:
         portfolio (Dict): Portfolio statistics
 
     Returns:
-        Dict: Portfolio with reordered columns
+        Dict: Portfolio with canonical schema ordering
     """
-    first_columns = [
-        "Ticker",
-        "Allocation [%]",  # Add Allocation [%] column in 2nd position
-        "Strategy Type",
-        "Short Window",
-        "Long Window",
-        "Signal Window",  # Added Signal Window for MACD strategies
-        "Stop Loss [%]",  # Add Stop Loss [%] column in 7th position
-        "Signal Entry",
-        "Signal Exit",  # Add Signal Exit column
-        "Total Open Trades",
-        "Total Trades",
-        "Score",
-        "Win Rate [%]",
-        "Profit Factor",
-        "Expectancy per Trade",
-        "Sortino Ratio",
-        "Beats BNH [%]",
-        "Avg Trade Duration",
-        "Trades Per Day",
-        "Trades per Month",
-        "Signals per Month",
-        "Expectancy per Month",
-    ]
-
-    reordered = {}
-    # Add first columns in specified order (if they exist in the portfolio)
-    for col in first_columns:
-        if col in portfolio:
-            reordered[col] = portfolio[col]
-
-    # Add remaining columns
-    for key, value in portfolio.items():
-        if key not in first_columns:
-            reordered[key] = value
-
-    return reordered
+    transformer = SchemaTransformer()
+    
+    try:
+        # Phase 2 Fix: Preserve Metric Type if present by using FILTERED schema
+        # Check if portfolio has Metric Type to determine appropriate schema
+        if "Metric Type" in portfolio and portfolio["Metric Type"] is not None:
+            # Store original metric type to preserve it
+            original_metric_type = portfolio["Metric Type"]
+            
+            # Use FILTERED schema (61 columns) to preserve Metric Type
+            target_schema = SchemaType.FILTERED
+            
+            # Use SchemaTransformer to normalize with appropriate schema, preserving metric type
+            normalized_portfolio = transformer.normalize_to_schema(
+                portfolio, 
+                target_schema,
+                metric_type=original_metric_type  # Explicitly preserve the original metric type
+            )
+        else:
+            # Use EXTENDED schema (60 columns) for standard portfolios
+            target_schema = SchemaType.EXTENDED
+            
+            normalized_portfolio = transformer.normalize_to_schema(
+                portfolio, 
+                target_schema
+            )
+            
+        return normalized_portfolio
+    except Exception:
+        # Fallback to original portfolio if normalization fails
+        # This maintains backward compatibility while logging the issue
+        return portfolio

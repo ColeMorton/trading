@@ -663,6 +663,7 @@ class SchemaTransformer:
         portfolio: Dict[str, Any],
         allocation_pct: Optional[float] = None,
         stop_loss_pct: Optional[float] = None,
+        force_analysis_defaults: bool = False,
     ) -> Dict[str, Any]:
         """
         Transform portfolio to extended schema.
@@ -671,21 +672,25 @@ class SchemaTransformer:
             portfolio: Source portfolio data
             allocation_pct: Allocation percentage value
             stop_loss_pct: Stop loss percentage value
+            force_analysis_defaults: Force analysis export defaults (None for allocation/stop loss)
 
         Returns:
-            Portfolio with extended schema (58 columns)
+            Portfolio with extended schema (60 columns)
         """
         defaults = self._get_default_values(portfolio)
 
         # Start with defaults, then override with actual data
         extended = {}
         for col in ExtendedPortfolioSchema.get_column_names():
-            if col in portfolio:
+            # For analysis exports, force allocation/stop loss to None regardless of source data
+            if force_analysis_defaults and col in ["Allocation [%]", "Stop Loss [%]"]:
+                extended[col] = None
+            elif col in portfolio:
                 extended[col] = portfolio[col]
             else:
                 extended[col] = defaults.get(col)
 
-        # Set allocation and stop loss if provided
+        # Set allocation and stop loss if explicitly provided (overrides force_analysis_defaults)
         if allocation_pct is not None:
             extended["Allocation [%]"] = allocation_pct
         if stop_loss_pct is not None:
@@ -699,6 +704,7 @@ class SchemaTransformer:
         metric_type: str = "Most Total Return [%]",
         allocation_pct: Optional[float] = None,
         stop_loss_pct: Optional[float] = None,
+        force_analysis_defaults: bool = False,
     ) -> Dict[str, Any]:
         """
         Transform portfolio to filtered schema.
@@ -708,12 +714,13 @@ class SchemaTransformer:
             metric_type: Metric type value
             allocation_pct: Allocation percentage value
             stop_loss_pct: Stop loss percentage value
+            force_analysis_defaults: Force analysis export defaults (None for allocation/stop loss)
 
         Returns:
-            Portfolio with filtered schema (59 columns)
+            Portfolio with filtered schema (61 columns)
         """
-        # First transform to extended
-        extended = self.transform_to_extended(portfolio, allocation_pct, stop_loss_pct)
+        # First transform to extended with analysis defaults if needed
+        extended = self.transform_to_extended(portfolio, allocation_pct, stop_loss_pct, force_analysis_defaults)
 
         # Create filtered with metric type first
         filtered = {"Metric Type": metric_type}
@@ -728,6 +735,7 @@ class SchemaTransformer:
         metric_type: str = "Most Total Return [%]",
         allocation_pct: Optional[float] = None,
         stop_loss_pct: Optional[float] = None,
+        force_analysis_defaults: bool = False,
     ) -> Dict[str, Any]:
         """
         Normalize portfolio to target schema type.
@@ -738,6 +746,7 @@ class SchemaTransformer:
             metric_type: Metric type for filtered schema
             allocation_pct: Allocation percentage
             stop_loss_pct: Stop loss percentage
+            force_analysis_defaults: Force analysis export defaults (None for allocation/stop loss)
 
         Returns:
             Portfolio normalized to target schema
@@ -754,11 +763,11 @@ class SchemaTransformer:
             return base
 
         elif target_schema == SchemaType.EXTENDED:
-            return self.transform_to_extended(portfolio, allocation_pct, stop_loss_pct)
+            return self.transform_to_extended(portfolio, allocation_pct, stop_loss_pct, force_analysis_defaults)
 
         elif target_schema == SchemaType.FILTERED:
             return self.transform_to_filtered(
-                portfolio, metric_type, allocation_pct, stop_loss_pct
+                portfolio, metric_type, allocation_pct, stop_loss_pct, force_analysis_defaults
             )
 
         else:

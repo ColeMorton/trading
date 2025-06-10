@@ -29,6 +29,7 @@ from app.api.services.script_executor import task_status
 from app.api.utils.monitoring import get_metrics_collector
 from app.api.utils.performance import get_concurrent_executor, get_request_optimizer
 from app.api.utils.performance_monitoring import get_performance_monitor, timing_context
+from app.api.utils.performance_optimizer import performance_optimizer, ParameterComplexity
 from app.api.utils.portfolio_processor import PortfolioProcessor
 
 # Import interfaces
@@ -295,6 +296,23 @@ class StrategyAnalysisService:
                     execution_id=f"api_cache_{int(time.time())}", cache_hits=1
                 )
                 return cached_result
+
+            # Analyze request complexity and apply optimizations
+            complexity = performance_optimizer.analyze_parameter_complexity(request)
+            
+            # Log performance analysis
+            log(f"Performance Analysis - Total combinations: {complexity.total_combinations}, "
+                f"Estimated time: {complexity.estimated_execution_time:.2f}s, "
+                f"Recommended mode: {complexity.recommended_mode.value}", "info")
+            
+            # Apply optimizations if needed
+            optimized_request, optimization_warnings = performance_optimizer.optimize_request_parameters(request)
+            
+            if optimization_warnings:
+                for warning in optimization_warnings:
+                    log(f"Performance optimization: {warning}", "warning")
+                # Use optimized request for analysis
+                request = optimized_request
 
             log, log_close, _, _ = setup_logging(
                 module_name="api",

@@ -469,7 +469,7 @@ def _ensure_canonical_column_order(
     df: pd.DataFrame, log: Optional[Callable] = None
 ) -> pd.DataFrame:
     """
-    Ensure DataFrame has all canonical columns in the correct order.
+    Ensure DataFrame has all canonical columns in the correct order using SchemaTransformer.
 
     Args:
         df: Input DataFrame
@@ -479,33 +479,45 @@ def _ensure_canonical_column_order(
         DataFrame with canonical column order and completeness
     """
     try:
-        from app.tools.portfolio.base_extended_schemas import CANONICAL_COLUMN_NAMES
+        from app.tools.portfolio.base_extended_schemas import SchemaTransformer, SchemaType
+        
+        transformer = SchemaTransformer()
+        
+        # Convert DataFrame to list of dictionaries for SchemaTransformer processing
+        portfolios = df.to_dict('records')
+        normalized_portfolios = []
+        
+        for portfolio in portfolios:
+            try:
+                # Normalize each portfolio to Extended schema with canonical ordering
+                normalized_portfolio = transformer.normalize_to_schema(
+                    portfolio, 
+                    SchemaType.EXTENDED
+                )
+                normalized_portfolios.append(normalized_portfolio)
+            except Exception as e:
+                if log:
+                    log(f"Schema normalization failed for portfolio: {str(e)}", "warning")
+                # Fall back to original portfolio if normalization fails
+                normalized_portfolios.append(portfolio)
+        
+        # Create new DataFrame from normalized portfolios
+        canonical_df = pd.DataFrame(normalized_portfolios)
+        
+        if log:
+            original_cols = len(df.columns)
+            canonical_cols = len(canonical_df.columns)
+            log(f"SchemaTransformer normalization: {original_cols} -> {canonical_cols} columns", "info")
+        
+        return canonical_df
+        
     except ImportError:
         if log:
             log(
-                "Warning: Could not import canonical schema, returning original DataFrame",
+                "Warning: Could not import SchemaTransformer, returning original DataFrame",
                 "warning",
             )
         return df
-
-    # Create new DataFrame with canonical column order
-    canonical_df = pd.DataFrame()
-
-    for col_name in CANONICAL_COLUMN_NAMES:
-        if col_name in df.columns:
-            canonical_df[col_name] = df[col_name]
-        else:
-            # Add missing column with appropriate default
-            canonical_df[col_name] = _get_default_column_value(col_name, df, log)
-            if log:
-                log(f"Added missing column '{col_name}' with default value", "debug")
-
-    if log:
-        original_cols = len(df.columns)
-        canonical_cols = len(canonical_df.columns)
-        log(f"Schema enforcement: {original_cols} -> {canonical_cols} columns", "info")
-
-    return canonical_df
 
 
 def _get_default_column_value(

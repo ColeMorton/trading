@@ -64,13 +64,8 @@ from app.tools.strategy_utils import filter_portfolios_by_signal, get_strategy_t
 # Config management is now handled by ConfigService
 
 CONFIG: Config = {
-    "TICKER": ["COIN"],
-    # "TICKER": [
-    #     "NBIS",
-    #     "TXN",
-    #     "NCLH",
-    #     "WY",
-    # ],
+    "TICKER": "IVZ",
+    # "TICKER": ["JPM", "IVZ"],
     # Load tickers from JSON file
     # "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/portfolio.json"))),
     # "TICKER_2": 'AVGO',

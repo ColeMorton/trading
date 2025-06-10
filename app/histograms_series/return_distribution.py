@@ -8,10 +8,14 @@ import seaborn as sns
 from scipy.stats import norm, percentileofscore
 from typing_extensions import NotRequired
 
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent.parent))
+
 from app.tools.download_data import download_data
 from app.tools.setup_logging import setup_logging
 
-TICKER = "PENDLE-USD"
+TICKER = "BTC-USD"
 INCLUDE_OPTION_STRATEGY = False
 
 # 09-05-25 @ 100000 SOL-USD
@@ -491,7 +495,14 @@ def main():
         print(f"Difference: {difference:.2f}%")
 
     plt.tight_layout()
-    plt.show()
+    
+    # Save the plot instead of showing it
+    output_path = f"app/histograms_series/{TICKER}_return_distribution.png"
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    print(f"\nPlot saved to: {output_path}")
+    
+    # Close the plot to free memory
+    plt.close()
 
     # Print some diagnostic information
     print(f"\nTotal days of data: {len(data)}")

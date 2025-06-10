@@ -30,20 +30,18 @@ HALF_RULE = True
 
 # ASSETS = ['PENDLE-USD', 'SUI20947-USD']
 
-ASSETS = [
-    "MCO",
-    "ETH-USD",
-    "LMT",
-    "NVDA",
-    "SHOP",
-    "AIZ",
-    "EXR",
-    "PGR",
-    "COIN",
-    "UTHR",
-    "NBIX",
-    "FMC",
-]
+# ASSETS = [
+#     "MCO",
+#     "ETH-USD",
+#     "LMT",
+#     "NVDA",
+#     "AIZ",
+#     "PGR",
+#     "COIN",
+#     "UTHR",
+#     "NBIX",
+#     "FMC"
+# ]
 
 # ASSETS = ['TRX-USD', 'FET-USD', 'AVAX-USD', 'SOL-USD']
 
@@ -53,7 +51,7 @@ ASSETS = [
 
 # ASSETS = ['BTC-USD', 'SPY', 'QQQ', 'SOL-USD']
 
-# ASSETS = ['BTC-USD', 'SOL-USD', 'MSTR']
+ASSETS = ['USB', 'RF', 'FTNT', 'J']
 
 # ASSETS = ['SPY', 'QQQ']
 
