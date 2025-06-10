@@ -28,7 +28,22 @@ PORTFOLIO = [
 
 # PORTFOLIO = ['SPY', 'QQQ']
 
-NEXT = ["ACMR", "HIMS", "BBY", "HBAN", "USB", "RF", "EQT", "FTNT", "J", "BKR", "CVX", "UTHR", "GD", "PLD"]
+NEXT = [
+    "ACMR",
+    "HIMS",
+    "BBY",
+    "HBAN",
+    "USB",
+    "RF",
+    "EQT",
+    "FTNT",
+    "J",
+    "BKR",
+    "CVX",
+    "UTHR",
+    "GD",
+    "PLD",
+]
 
 # NEXT = [
 #     'BTC-USD',

@@ -479,38 +479,46 @@ def _ensure_canonical_column_order(
         DataFrame with canonical column order and completeness
     """
     try:
-        from app.tools.portfolio.base_extended_schemas import SchemaTransformer, SchemaType
-        
+        from app.tools.portfolio.base_extended_schemas import (
+            SchemaTransformer,
+            SchemaType,
+        )
+
         transformer = SchemaTransformer()
-        
+
         # Convert DataFrame to list of dictionaries for SchemaTransformer processing
-        portfolios = df.to_dict('records')
+        portfolios = df.to_dict("records")
         normalized_portfolios = []
-        
+
         for portfolio in portfolios:
             try:
                 # Normalize each portfolio to Extended schema with canonical ordering
                 normalized_portfolio = transformer.normalize_to_schema(
-                    portfolio, 
-                    SchemaType.EXTENDED
+                    portfolio, SchemaType.EXTENDED
                 )
                 normalized_portfolios.append(normalized_portfolio)
             except Exception as e:
                 if log:
-                    log(f"Schema normalization failed for portfolio: {str(e)}", "warning")
+                    log(
+                        f"Schema normalization failed for portfolio: {str(e)}",
+                        "warning",
+                    )
                 # Fall back to original portfolio if normalization fails
                 normalized_portfolios.append(portfolio)
-        
+
         # Create new DataFrame from normalized portfolios
         canonical_df = pd.DataFrame(normalized_portfolios)
-        
+
         if log:
             original_cols = len(df.columns)
             canonical_cols = len(canonical_df.columns)
-            log(f"SchemaTransformer normalization: {original_cols} -> {canonical_cols} columns", "info")
-        
+            log(
+                f"SchemaTransformer normalization: {original_cols} -> {canonical_cols} columns",
+                "info",
+            )
+
         return canonical_df
-        
+
     except ImportError:
         if log:
             log(

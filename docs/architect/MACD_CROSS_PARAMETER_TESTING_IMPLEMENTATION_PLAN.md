@@ -649,7 +649,7 @@
     - Created advanced performance optimization system in `/app/api/utils/performance_optimizer.py`
     - Implements intelligent parameter combination analysis with execution mode recommendations:
       - `SYNC_FAST` (< 50 combinations)
-      - `SYNC_STANDARD` (50-200 combinations)  
+      - `SYNC_STANDARD` (50-200 combinations)
       - `ASYNC_RECOMMENDED` (200-500 combinations)
       - `ASYNC_REQUIRED` (> 500 combinations)
     - Auto-optimization features:
@@ -665,7 +665,7 @@
     **4.3 Documentation and Presets ✅**
     - Enhanced configuration presets in `/json/configuration/ma_cross.json` with 7 MACD-specific presets:
       - `MACD Standard` - General-purpose MACD analysis
-      - `MACD Quick Test` - Fast parameter exploration  
+      - `MACD Quick Test` - Fast parameter exploration
       - `MACD Comprehensive` - Thorough parameter analysis
       - `MACD Crypto Focus` - Cryptocurrency-specific parameters
       - `MACD Conservative` - Risk-averse parameter selection

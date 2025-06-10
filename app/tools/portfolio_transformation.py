@@ -64,7 +64,7 @@ def transform_portfolio_data(data: pl.DataFrame) -> pl.DataFrame:
 def reorder_columns(portfolio: Dict) -> Dict:
     """
     Reorder columns using SchemaTransformer to match canonical schema format.
-    
+
     This function now leverages the sophisticated SchemaTransformer architecture
     instead of manual column ordering logic.
 
@@ -75,32 +75,31 @@ def reorder_columns(portfolio: Dict) -> Dict:
         Dict: Portfolio with canonical schema ordering
     """
     transformer = SchemaTransformer()
-    
+
     try:
         # Phase 2 Fix: Preserve Metric Type if present by using FILTERED schema
         # Check if portfolio has Metric Type to determine appropriate schema
         if "Metric Type" in portfolio and portfolio["Metric Type"] is not None:
             # Store original metric type to preserve it
             original_metric_type = portfolio["Metric Type"]
-            
+
             # Use FILTERED schema (61 columns) to preserve Metric Type
             target_schema = SchemaType.FILTERED
-            
+
             # Use SchemaTransformer to normalize with appropriate schema, preserving metric type
             normalized_portfolio = transformer.normalize_to_schema(
-                portfolio, 
+                portfolio,
                 target_schema,
-                metric_type=original_metric_type  # Explicitly preserve the original metric type
+                metric_type=original_metric_type,  # Explicitly preserve the original metric type
             )
         else:
             # Use EXTENDED schema (60 columns) for standard portfolios
             target_schema = SchemaType.EXTENDED
-            
+
             normalized_portfolio = transformer.normalize_to_schema(
-                portfolio, 
-                target_schema
+                portfolio, target_schema
             )
-            
+
         return normalized_portfolio
     except Exception:
         # Fallback to original portfolio if normalization fails

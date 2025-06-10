@@ -11,12 +11,12 @@ import polars as pl
 
 from app.tools.export_csv import ExportConfig, export_csv
 from app.tools.portfolio.base_extended_schemas import (
-    SchemaTransformer, 
-    SchemaType, 
-    PortfolioSchemaValidationError,
     CANONICAL_COLUMN_NAMES,
     ExtendedPortfolioSchema,
-    FilteredPortfolioSchema
+    FilteredPortfolioSchema,
+    PortfolioSchemaValidationError,
+    SchemaTransformer,
+    SchemaType,
 )
 from app.tools.portfolio.schema_detection import ensure_allocation_sum_100_percent
 from app.tools.portfolio.strategy_types import STRATEGY_TYPE_FIELDS
@@ -24,60 +24,62 @@ from app.tools.portfolio.strategy_utils import get_strategy_type_for_export
 
 
 def _validate_portfolio_schema(
-    portfolio: Dict, 
-    expected_schema: SchemaType, 
+    portfolio: Dict,
+    expected_schema: SchemaType,
     transformer: SchemaTransformer,
-    log: Optional[Callable] = None
+    log: Optional[Callable] = None,
 ) -> tuple[bool, List[str]]:
     """
     Perform mandatory schema validation before export.
-    
+
     Args:
         portfolio: Portfolio dictionary to validate
         expected_schema: Expected schema type
         transformer: SchemaTransformer instance
         log: Optional logging function
-        
+
     Returns:
         Tuple of (is_valid, list_of_errors)
-        
+
     Raises:
         PortfolioSchemaValidationError: If strict validation fails
     """
     is_valid, errors = transformer.validate_schema(portfolio, expected_schema)
-    
+
     if not is_valid:
-        error_msg = f"Schema validation failed for {expected_schema.name}: {'; '.join(errors)}"
+        error_msg = (
+            f"Schema validation failed for {expected_schema.name}: {'; '.join(errors)}"
+        )
         if log:
             log(error_msg, "error")
         # In Phase 3, we implement fail-fast validation
-        raise PortfolioSchemaValidationError(error_msg, {"errors": errors, "schema": expected_schema.name})
-    
+        raise PortfolioSchemaValidationError(
+            error_msg, {"errors": errors, "schema": expected_schema.name}
+        )
+
     if log:
         log(f"Schema validation passed for {expected_schema.name}", "debug")
-    
+
     return is_valid, errors
 
 
 def _validate_canonical_ordering(
-    df: pl.DataFrame, 
-    expected_schema: SchemaType,
-    log: Optional[Callable] = None
+    df: pl.DataFrame, expected_schema: SchemaType, log: Optional[Callable] = None
 ) -> tuple[bool, List[str]]:
     """
     Perform strict canonical ordering validation on DataFrame.
-    
+
     Args:
         df: DataFrame to validate
         expected_schema: Expected schema type
         log: Optional logging function
-        
+
     Returns:
         Tuple of (is_valid, list_of_errors)
     """
     errors = []
     columns = df.columns
-    
+
     if expected_schema == SchemaType.EXTENDED:
         expected_columns = ExtendedPortfolioSchema.get_column_names()
         schema_name = "Extended (60-column)"
@@ -88,37 +90,49 @@ def _validate_canonical_ordering(
         # For other schema types, use CANONICAL_COLUMN_NAMES
         expected_columns = CANONICAL_COLUMN_NAMES
         schema_name = "Canonical"
-    
+
     # Check if columns match expected ordering exactly
     if len(columns) != len(expected_columns):
-        errors.append(f"Column count mismatch: expected {len(expected_columns)}, got {len(columns)}")
-    
+        errors.append(
+            f"Column count mismatch: expected {len(expected_columns)}, got {len(columns)}"
+        )
+
     # Check column ordering
     for i, (actual, expected) in enumerate(zip(columns, expected_columns)):
         if actual != expected:
-            errors.append(f"Column ordering error at position {i}: expected '{expected}', got '{actual}'")
+            errors.append(
+                f"Column ordering error at position {i}: expected '{expected}', got '{actual}'"
+            )
             break  # Only report first ordering error to avoid spam
-    
+
     # Specific validation for critical columns
     critical_positions = {
         "Allocation [%]": 59,  # Position 59 in Extended schema
-        "Stop Loss [%]": 60,   # Position 60 in Extended schema  
+        "Stop Loss [%]": 60,  # Position 60 in Extended schema
     }
-    
+
     for col_name, expected_pos in critical_positions.items():
         if col_name in columns:
             actual_pos = columns.index(col_name) + 1  # 1-based indexing
             if actual_pos != expected_pos and expected_schema == SchemaType.EXTENDED:
-                errors.append(f"Critical column '{col_name}' at wrong position: expected {expected_pos}, got {actual_pos}")
-    
+                errors.append(
+                    f"Critical column '{col_name}' at wrong position: expected {expected_pos}, got {actual_pos}"
+                )
+
     is_valid = len(errors) == 0
-    
+
     if log:
         if is_valid:
-            log(f"Canonical ordering validation passed for {schema_name} schema", "debug")
+            log(
+                f"Canonical ordering validation passed for {schema_name} schema",
+                "debug",
+            )
         else:
-            log(f"Canonical ordering validation failed for {schema_name} schema: {'; '.join(errors)}", "error")
-    
+            log(
+                f"Canonical ordering validation failed for {schema_name} schema: {'; '.join(errors)}",
+                "error",
+            )
+
     return is_valid, errors
 
 
@@ -126,43 +140,43 @@ class ExportTypeRouter:
     """
     Enhanced export type routing based on SchemaType enum with validation and monitoring.
     """
-    
+
     # Schema routing configuration with additional metadata
     EXPORT_SCHEMA_CONFIG = {
         "portfolios_best": {
             "schema": SchemaType.FILTERED,
             "description": "61 columns, Metric Type + Extended for best portfolios with aggregated metrics",
             "allocation_handling": "none",  # No allocation values for analysis
-            "validation_level": "strict"
+            "validation_level": "strict",
         },
         "portfolios_filtered": {
             "schema": SchemaType.FILTERED,
-            "description": "61 columns, Metric Type + Extended for filtered results", 
+            "description": "61 columns, Metric Type + Extended for filtered results",
             "allocation_handling": "none",
-            "validation_level": "strict"
+            "validation_level": "strict",
         },
         "portfolios_scanner": {
             "schema": SchemaType.EXTENDED,
             "description": "60 columns, canonical format for scanner results",
             "allocation_handling": "none",
-            "validation_level": "strict"
+            "validation_level": "strict",
         },
         "portfolios": {
             "schema": SchemaType.EXTENDED,
             "description": "60 columns, canonical format (default)",
-            "allocation_handling": "none", 
-            "validation_level": "strict"
+            "allocation_handling": "none",
+            "validation_level": "strict",
         },
     }
-    
+
     @classmethod
     def get_target_schema_type(cls, export_type: str) -> SchemaType:
         """
         Determine the appropriate target schema type based on export type.
-        
+
         Args:
             export_type: Type of export
-            
+
         Returns:
             SchemaType: Appropriate schema type for the export
         """
@@ -170,33 +184,36 @@ class ExportTypeRouter:
         if config:
             return config["schema"]
         return SchemaType.EXTENDED  # Default fallback
-    
+
     @classmethod
     def get_export_config(cls, export_type: str) -> Dict[str, Any]:
         """
         Get complete export configuration for the given export type.
-        
+
         Args:
             export_type: Type of export
-            
+
         Returns:
             Dictionary with export configuration
         """
-        return cls.EXPORT_SCHEMA_CONFIG.get(export_type, {
-            "schema": SchemaType.EXTENDED,
-            "description": "Default configuration",
-            "allocation_handling": "none",
-            "validation_level": "strict"
-        })
-    
-    @classmethod 
+        return cls.EXPORT_SCHEMA_CONFIG.get(
+            export_type,
+            {
+                "schema": SchemaType.EXTENDED,
+                "description": "Default configuration",
+                "allocation_handling": "none",
+                "validation_level": "strict",
+            },
+        )
+
+    @classmethod
     def validate_export_type(cls, export_type: str) -> bool:
         """
         Validate if export type is supported.
-        
+
         Args:
             export_type: Type of export to validate
-            
+
         Returns:
             True if supported, False otherwise
         """
@@ -260,34 +277,46 @@ def export_portfolios(
         if log:
             log(error_msg, "error")
         raise PortfolioExportError(error_msg)
-    
+
     # Get export configuration with schema routing details
     export_config = ExportTypeRouter.get_export_config(export_type)
     if log:
         log(f"Export configuration: {export_config['description']}", "info")
 
     # Phase 1 Data Flow Audit: Log incoming portfolio data to export_portfolios
-    log(f"📊 PHASE 1 AUDIT: export_portfolios() entry with {len(portfolios)} portfolios, export_type='{export_type}'", "info")
-    
+    log(
+        f"📊 PHASE 1 AUDIT: export_portfolios() entry with {len(portfolios)} portfolios, export_type='{export_type}'",
+        "info",
+    )
+
     # Log metric type distribution in incoming data
     incoming_metric_counts = {}
     incoming_cbre_data = []
     for p in portfolios:
         metric_type = p.get("Metric Type", "Unknown")
-        incoming_metric_counts[metric_type] = incoming_metric_counts.get(metric_type, 0) + 1
-        
+        incoming_metric_counts[metric_type] = (
+            incoming_metric_counts.get(metric_type, 0) + 1
+        )
+
         if p.get("Ticker") == "CBRE":
-            incoming_cbre_data.append({
-                "Ticker": p.get("Ticker"),
-                "Strategy": p.get("Strategy Type"),
-                "Short": p.get("Short Window"),
-                "Long": p.get("Long Window"),
-                "Metric": p.get("Metric Type")
-            })
-    
-    log(f"📊 INCOMING METRIC TYPES TO export_portfolios(): {dict(incoming_metric_counts)}", "info")
+            incoming_cbre_data.append(
+                {
+                    "Ticker": p.get("Ticker"),
+                    "Strategy": p.get("Strategy Type"),
+                    "Short": p.get("Short Window"),
+                    "Long": p.get("Long Window"),
+                    "Metric": p.get("Metric Type"),
+                }
+            )
+
+    log(
+        f"📊 INCOMING METRIC TYPES TO export_portfolios(): {dict(incoming_metric_counts)}",
+        "info",
+    )
     if incoming_cbre_data:
-        log(f"📊 INCOMING CBRE DATA TO export_portfolios(): {incoming_cbre_data}", "info")
+        log(
+            f"📊 INCOMING CBRE DATA TO export_portfolios(): {incoming_cbre_data}", "info"
+        )
 
     if log:
         log(f"Exporting {len(portfolios)} portfolios as {export_type}...", "info")
@@ -315,44 +344,77 @@ def export_portfolios(
         # Initialize SchemaTransformer for unified schema handling
         transformer = SchemaTransformer()
         target_schema_type = _get_target_schema_type(export_type)
-        
+
         if log:
-            log(f"Using schema type {target_schema_type.name} for export type {export_type}", "info")
-            
+            log(
+                f"Using schema type {target_schema_type.name} for export type {export_type}",
+                "info",
+            )
+
         # Phase 4: Special handling for portfolios_best with metric type aggregation
         if export_type == "portfolios_best" and "Metric Type" in df.columns:
-            from app.tools.portfolio.collection import deduplicate_and_aggregate_portfolios
-            
+            from app.tools.portfolio.collection import (
+                deduplicate_and_aggregate_portfolios,
+            )
+
             if log:
-                log("📊 DETECTED Metric Type column - applying aggregation for portfolios_best export", "info")
-                
+                log(
+                    "📊 DETECTED Metric Type column - applying aggregation for portfolios_best export",
+                    "info",
+                )
+
                 # Log detailed pre-aggregation data
                 pre_agg_cbre = df.filter(pl.col("Ticker") == "CBRE")
                 if len(pre_agg_cbre) > 0:
-                    log(f"📊 PRE-AGGREGATION CBRE DATA: {len(pre_agg_cbre)} rows", "info")
-                    cbre_details = pre_agg_cbre.select("Ticker", "Strategy Type", "Short Window", "Long Window", "Metric Type").to_dicts()
+                    log(
+                        f"📊 PRE-AGGREGATION CBRE DATA: {len(pre_agg_cbre)} rows", "info"
+                    )
+                    cbre_details = pre_agg_cbre.select(
+                        "Ticker",
+                        "Strategy Type",
+                        "Short Window",
+                        "Long Window",
+                        "Metric Type",
+                    ).to_dicts()
                     log(f"📊 PRE-AGGREGATION CBRE DETAILS: {cbre_details}", "info")
-            
+
             # Apply metric type aggregation before schema transformation
             pre_aggregation_count = len(df)
-            
+
             # Convert to dict for aggregation function
             pre_agg_portfolios = df.to_dicts()
-            log(f"📊 CALLING deduplicate_and_aggregate_portfolios() with {len(pre_agg_portfolios)} portfolios", "info")
-            
-            aggregated_portfolios = deduplicate_and_aggregate_portfolios(pre_agg_portfolios, log)
+            log(
+                f"📊 CALLING deduplicate_and_aggregate_portfolios() with {len(pre_agg_portfolios)} portfolios",
+                "info",
+            )
+
+            aggregated_portfolios = deduplicate_and_aggregate_portfolios(
+                pre_agg_portfolios, log
+            )
             df = pl.DataFrame(aggregated_portfolios)
-            
+
             if log:
-                log(f"📊 AGGREGATION RESULT: {pre_aggregation_count} → {len(df)} portfolios", "info")
-                
+                log(
+                    f"📊 AGGREGATION RESULT: {pre_aggregation_count} → {len(df)} portfolios",
+                    "info",
+                )
+
                 # Log post-aggregation CBRE data
                 post_agg_cbre = df.filter(pl.col("Ticker") == "CBRE")
                 if len(post_agg_cbre) > 0:
-                    log(f"📊 POST-AGGREGATION CBRE DATA: {len(post_agg_cbre)} rows", "info")
-                    cbre_post_details = post_agg_cbre.select("Ticker", "Strategy Type", "Short Window", "Long Window", "Metric Type").to_dicts()
+                    log(
+                        f"📊 POST-AGGREGATION CBRE DATA: {len(post_agg_cbre)} rows",
+                        "info",
+                    )
+                    cbre_post_details = post_agg_cbre.select(
+                        "Ticker",
+                        "Strategy Type",
+                        "Short Window",
+                        "Long Window",
+                        "Metric Type",
+                    ).to_dicts()
                     log(f"📊 POST-AGGREGATION CBRE DETAILS: {cbre_post_details}", "info")
-        
+
         # Special handling for portfolios_best export type
         if export_type == "portfolios_best":
             # Ensure required columns exist
@@ -511,68 +573,101 @@ def export_portfolios(
             # This replaces the custom column ordering logic and ensures proper allocation handling
             portfolios_normalized = []
             validation_failures = 0
-            
+
             for portfolio_dict in df.to_dicts():
                 try:
                     # Step 1: Normalize each portfolio to target schema with canonical ordering
                     # For analysis exports (portfolios_best, portfolios_filtered), force allocation/stop loss to None
-                    force_analysis_defaults = export_type in ["portfolios_best", "portfolios_filtered"]
-                    
+                    force_analysis_defaults = export_type in [
+                        "portfolios_best",
+                        "portfolios_filtered",
+                    ]
+
                     # Preserve existing metric type if present (critical for aggregated portfolios)
-                    existing_metric_type = portfolio_dict.get("Metric Type", "Most Total Return [%]")
-                    
+                    existing_metric_type = portfolio_dict.get(
+                        "Metric Type", "Most Total Return [%]"
+                    )
+
                     normalized_portfolio = transformer.normalize_to_schema(
-                        portfolio_dict, 
+                        portfolio_dict,
                         target_schema_type,
                         metric_type=existing_metric_type,
-                        force_analysis_defaults=force_analysis_defaults
+                        force_analysis_defaults=force_analysis_defaults,
                     )
-                    
+
                     # Step 2: Mandatory schema validation (Phase 3 enhancement)
                     _validate_portfolio_schema(
-                        normalized_portfolio, 
-                        target_schema_type, 
-                        transformer, 
-                        log
+                        normalized_portfolio, target_schema_type, transformer, log
                     )
-                    
+
                     portfolios_normalized.append(normalized_portfolio)
-                    
+
                 except PortfolioSchemaValidationError as e:
                     validation_failures += 1
                     if log:
-                        log(f"Schema validation failed for portfolio: {str(e)}", "error")
+                        log(
+                            f"Schema validation failed for portfolio: {str(e)}", "error"
+                        )
                     # Re-raise validation errors as they are critical
                     raise
-                    
+
                 except Exception as e:
                     if log:
-                        log(f"Schema normalization failed for portfolio: {str(e)}", "warning")
+                        log(
+                            f"Schema normalization failed for portfolio: {str(e)}",
+                            "warning",
+                        )
                     # Fall back to original portfolio if normalization fails
                     portfolios_normalized.append(portfolio_dict)
-            
+
             # Recreate DataFrame with normalized portfolios
             df = pl.DataFrame(portfolios_normalized)
-            
+
             # Phase 3: Strict canonical ordering validation
-            ordering_valid, ordering_errors = _validate_canonical_ordering(df, target_schema_type, log)
+            ordering_valid, ordering_errors = _validate_canonical_ordering(
+                df, target_schema_type, log
+            )
             if not ordering_valid:
                 error_msg = f"Canonical ordering validation failed: {'; '.join(ordering_errors)}"
                 if log:
                     log(error_msg, "error")
-                raise PortfolioSchemaValidationError(error_msg, {"errors": ordering_errors, "validation_type": "canonical_ordering"})
-            
+                raise PortfolioSchemaValidationError(
+                    error_msg,
+                    {
+                        "errors": ordering_errors,
+                        "validation_type": "canonical_ordering",
+                    },
+                )
+
             # Performance monitoring and compliance reporting (Phase 3 enhancement)
             if log:
-                total_portfolios = len(df.to_dicts()) if portfolios_normalized else len(df)
-                success_rate = ((total_portfolios - validation_failures) / total_portfolios * 100) if total_portfolios > 0 else 0
-                log(f"Schema compliance report: {len(portfolios_normalized)}/{total_portfolios} portfolios processed", "info")
+                total_portfolios = (
+                    len(df.to_dicts()) if portfolios_normalized else len(df)
+                )
+                success_rate = (
+                    ((total_portfolios - validation_failures) / total_portfolios * 100)
+                    if total_portfolios > 0
+                    else 0
+                )
+                log(
+                    f"Schema compliance report: {len(portfolios_normalized)}/{total_portfolios} portfolios processed",
+                    "info",
+                )
                 log(f"Schema validation success rate: {success_rate:.1f}%", "info")
-                log(f"Applied SchemaTransformer normalization with {target_schema_type.name} schema", "info")
-                log(f"Canonical ordering validation: {'PASSED' if ordering_valid else 'FAILED'}", "info")
-                
+                log(
+                    f"Applied SchemaTransformer normalization with {target_schema_type.name} schema",
+                    "info",
+                )
+                log(
+                    f"Canonical ordering validation: {'PASSED' if ordering_valid else 'FAILED'}",
+                    "info",
+                )
+
                 if validation_failures > 0:
-                    log(f"WARNING: {validation_failures} validation failures encountered", "warning")
+                    log(
+                        f"WARNING: {validation_failures} validation failures encountered",
+                        "warning",
+                    )
 
         # Use the provided feature_dir parameter for the feature1 value
         # This allows different scripts to export to different directories

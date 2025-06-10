@@ -1,11 +1,15 @@
 from datetime import datetime, timedelta
 from typing import Callable
+import threading
 
 import polars as pl
 import yfinance as yf
 
 from app.tools.data_types import DataConfig
 from app.tools.export_csv import ExportConfig, export_csv
+
+# Thread lock for yfinance downloads to prevent concurrent access issues
+_yfinance_lock = threading.Lock()
 
 
 def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFrame:
@@ -35,23 +39,29 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
         if use_hourly:
             start_date = end_date - timedelta(days=730)
             log(f"Setting date range: {start_date} to {end_date}")
-            data = yf.download(
-                ticker, start=start_date, end=end_date, interval=interval
-            )
+            # Use lock to ensure thread-safe yfinance download
+            with _yfinance_lock:
+                data = yf.download(
+                    ticker, start=start_date, end=end_date, interval=interval
+                )
         elif config.get("USE_YEARS", False) and config.get("YEARS", False):
             # Convert years to days for timedelta
             days = config["YEARS"] * 365
             start_date = end_date - timedelta(days=days)
             log(f"Setting date range: {start_date} to {end_date}")
-            data = yf.download(
-                ticker, start=start_date, end=end_date, interval=interval
-            )
+            # Use lock to ensure thread-safe yfinance download
+            with _yfinance_lock:
+                data = yf.download(
+                    ticker, start=start_date, end=end_date, interval=interval
+                )
         else:
             period = config.get("PERIOD", "max")
             log("Using maximum available period for data download")
-            data = yf.download(
-                ticker, period=period, interval=interval, auto_adjust=False
-            )
+            # Use lock to ensure thread-safe yfinance download
+            with _yfinance_lock:
+                data = yf.download(
+                    ticker, period=period, interval=interval, auto_adjust=False
+                )
 
         # Flatten MultiIndex columns - do this for all data retrieval methods
         data.columns = [

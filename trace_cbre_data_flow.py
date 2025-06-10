@@ -17,6 +17,7 @@ sys.path.insert(0, str(project_root))
 from app.strategies.tools.summary_processing import export_summary_results
 from app.tools.get_config import get_config
 
+
 def create_mock_cbre_portfolios():
     """
     Create mock CBRE portfolio data with 4 metric types for the same configuration.
@@ -53,28 +54,30 @@ def create_mock_cbre_portfolios():
         "Sharpe Ratio": 0.8516114620789481,
         "Calmar Ratio": 0.8605988169848027,
         "Omega Ratio": 1.1849690013526852,
-        "Allocation [%]": 2.78  # This should be reduced to None for analysis exports
+        "Allocation [%]": 2.78,  # This should be reduced to None for analysis exports
     }
-    
+
     # Create 4 portfolios with different metric types for the same configuration
     portfolios = []
     metric_types = [
         "Most Calmar Ratio",
-        "Most Expectancy", 
+        "Most Expectancy",
         "Median Max Drawdown Duration",
-        "Least Max Drawdown [%]"
+        "Least Max Drawdown [%]",
     ]
-    
+
     for metric_type in metric_types:
         portfolio = base_portfolio.copy()
         portfolio["Metric Type"] = metric_type
         portfolios.append(portfolio)
-    
+
     return portfolios
+
 
 def mock_log(message, level="info"):
     """Mock logging function that prints with level prefix"""
     print(f"[{level.upper()}] {message}")
+
 
 def trace_cbre_data_flow():
     """
@@ -83,36 +86,38 @@ def trace_cbre_data_flow():
     print("=" * 80)
     print("🔍 PHASE 1 DATA FLOW TRACING: CBRE Portfolio Aggregation")
     print("=" * 80)
-    
+
     # Create mock CBRE portfolios (simulating portfolios_filtered input)
     mock_portfolios = create_mock_cbre_portfolios()
     print(f"✅ Created {len(mock_portfolios)} mock CBRE portfolios with metric types:")
     for i, p in enumerate(mock_portfolios):
         print(f"   {i+1}. {p['Metric Type']}")
-    
+
     # Get configuration
     config = get_config({})
-    
+
     # Test portfolios_best export which should use aggregation
     print("\n🚀 Testing portfolios_best export with aggregation...")
     try:
         from app.tools.strategy.export_portfolios import export_portfolios
-        
+
         # Configure for portfolios_best export (this should trigger aggregation)
         config["USE_MA"] = False
-        
+
         success_df, success = export_portfolios(
             portfolios=mock_portfolios,
             config=config,
             export_type="portfolios_best",
             csv_filename="cbre_aggregation_test",
-            log=mock_log
+            log=mock_log,
         )
         print(f"\n📊 Export completed with success={success}")
     except Exception as e:
         print(f"\n❌ Export failed with error: {str(e)}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     trace_cbre_data_flow()

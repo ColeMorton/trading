@@ -720,7 +720,9 @@ class SchemaTransformer:
             Portfolio with filtered schema (61 columns)
         """
         # First transform to extended with analysis defaults if needed
-        extended = self.transform_to_extended(portfolio, allocation_pct, stop_loss_pct, force_analysis_defaults)
+        extended = self.transform_to_extended(
+            portfolio, allocation_pct, stop_loss_pct, force_analysis_defaults
+        )
 
         # Create filtered with metric type first
         filtered = {"Metric Type": metric_type}
@@ -763,11 +765,17 @@ class SchemaTransformer:
             return base
 
         elif target_schema == SchemaType.EXTENDED:
-            return self.transform_to_extended(portfolio, allocation_pct, stop_loss_pct, force_analysis_defaults)
+            return self.transform_to_extended(
+                portfolio, allocation_pct, stop_loss_pct, force_analysis_defaults
+            )
 
         elif target_schema == SchemaType.FILTERED:
             return self.transform_to_filtered(
-                portfolio, metric_type, allocation_pct, stop_loss_pct, force_analysis_defaults
+                portfolio,
+                metric_type,
+                allocation_pct,
+                stop_loss_pct,
+                force_analysis_defaults,
             )
 
         else:

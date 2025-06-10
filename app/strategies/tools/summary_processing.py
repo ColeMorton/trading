@@ -401,26 +401,34 @@ def export_summary_results(
     """
     if portfolios:
         # Phase 1 Data Flow Audit: Log initial portfolio data
-        log(f"📊 PHASE 1 AUDIT: export_summary_results() entry with {len(portfolios)} portfolios", "info")
-        
+        log(
+            f"📊 PHASE 1 AUDIT: export_summary_results() entry with {len(portfolios)} portfolios",
+            "info",
+        )
+
         # Log metric type distribution in input data
         metric_type_counts = {}
         ticker_strategy_configs = {}
         for p in portfolios:
             metric_type = p.get("Metric Type", "Unknown")
             metric_type_counts[metric_type] = metric_type_counts.get(metric_type, 0) + 1
-            
+
             # Track configurations per ticker+strategy
             key = f"{p.get('Ticker', 'N/A')},{p.get('Strategy Type', 'N/A')},{p.get('Short Window', 'N/A')},{p.get('Long Window', 'N/A')}"
             if key not in ticker_strategy_configs:
                 ticker_strategy_configs[key] = []
             ticker_strategy_configs[key].append(metric_type)
-        
+
         log(f"📊 INPUT METRIC TYPES: {dict(metric_type_counts)}", "info")
-        log(f"📊 CONFIGURATIONS WITH MULTIPLE METRICS: {len([k for k, v in ticker_strategy_configs.items() if len(v) > 1])}", "info")
-        
+        log(
+            f"📊 CONFIGURATIONS WITH MULTIPLE METRICS: {len([k for k, v in ticker_strategy_configs.items() if len(v) > 1])}",
+            "info",
+        )
+
         # Log CBRE specific data if present
-        cbre_configs = {k: v for k, v in ticker_strategy_configs.items() if k.startswith("CBRE")}
+        cbre_configs = {
+            k: v for k, v in ticker_strategy_configs.items() if k.startswith("CBRE")
+        }
         if cbre_configs:
             log(f"📊 CBRE CONFIGURATIONS: {cbre_configs}", "info")
         # Reorder columns for each portfolio
@@ -435,34 +443,52 @@ def export_summary_results(
             # Convert to Polars DataFrame for deduplication
             df = pl.DataFrame(reordered_portfolios)
             log(f"📊 BEFORE DEDUPLICATION: {len(df)} portfolios in DataFrame", "info")
-            
+
             # Log metric type distribution before deduplication
             if "Metric Type" in df.columns:
-                metric_dist_before = df.group_by("Metric Type").agg(pl.len().alias("count")).sort("count", descending=True)
-                log(f"📊 METRIC TYPES BEFORE DEDUP: {metric_dist_before.to_dicts()}", "info")
-                
+                metric_dist_before = (
+                    df.group_by("Metric Type")
+                    .agg(pl.len().alias("count"))
+                    .sort("count", descending=True)
+                )
+                log(
+                    f"📊 METRIC TYPES BEFORE DEDUP: {metric_dist_before.to_dicts()}",
+                    "info",
+                )
+
                 # Log CBRE specific data before deduplication
                 cbre_data = df.filter(pl.col("Ticker") == "CBRE")
                 if len(cbre_data) > 0:
                     log(f"📊 CBRE DATA BEFORE DEDUP: {len(cbre_data)} rows", "info")
-                    cbre_metrics = cbre_data.select("Ticker", "Strategy Type", "Short Window", "Long Window", "Metric Type").to_dicts()
+                    cbre_metrics = cbre_data.select(
+                        "Ticker",
+                        "Strategy Type",
+                        "Short Window",
+                        "Long Window",
+                        "Metric Type",
+                    ).to_dicts()
                     log(f"📊 CBRE METRICS BEFORE: {cbre_metrics}", "info")
 
             # Phase 2 Fix: Include Metric Type in uniqueness check to preserve all metric types
-            uniqueness_columns = ["Ticker", "Strategy Type", "Short Window", "Long Window"]
-            
+            uniqueness_columns = [
+                "Ticker",
+                "Strategy Type",
+                "Short Window",
+                "Long Window",
+            ]
+
             # If Metric Type column exists, include it in uniqueness check to preserve different metric types
             if "Metric Type" in df.columns:
                 uniqueness_columns.append("Metric Type")
                 log(f"📊 PHASE 2 FIX: Including Metric Type in uniqueness check", "info")
             else:
-                log(f"📊 No Metric Type column found, using standard uniqueness check", "info")
-            
+                log(
+                    f"📊 No Metric Type column found, using standard uniqueness check",
+                    "info",
+                )
+
             # Check for duplicate entries using the enhanced uniqueness columns
-            duplicate_count = (
-                len(df)
-                - df.unique(subset=uniqueness_columns).height
-            )
+            duplicate_count = len(df) - df.unique(subset=uniqueness_columns).height
 
             if duplicate_count > 0:
                 log(
@@ -475,33 +501,58 @@ def export_summary_results(
                     subset=uniqueness_columns,
                     keep="first",
                 )
-                log(f"📊 AFTER DEDUPLICATION: {len(df)} unique combinations (Metric Types preserved)", "info")
-                
+                log(
+                    f"📊 AFTER DEDUPLICATION: {len(df)} unique combinations (Metric Types preserved)",
+                    "info",
+                )
+
                 # Log metric type distribution after deduplication
                 if "Metric Type" in df.columns:
-                    metric_dist_after = df.group_by("Metric Type").agg(pl.len().alias("count")).sort("count", descending=True)
-                    log(f"📊 METRIC TYPES AFTER DEDUP: {metric_dist_after.to_dicts()}", "warning")
-                    
+                    metric_dist_after = (
+                        df.group_by("Metric Type")
+                        .agg(pl.len().alias("count"))
+                        .sort("count", descending=True)
+                    )
+                    log(
+                        f"📊 METRIC TYPES AFTER DEDUP: {metric_dist_after.to_dicts()}",
+                        "warning",
+                    )
+
                     # Log CBRE specific data after deduplication
                     cbre_data_after = df.filter(pl.col("Ticker") == "CBRE")
                     if len(cbre_data_after) > 0:
-                        log(f"📊 CBRE DATA AFTER DEDUP: {len(cbre_data_after)} rows", "info")
-                        cbre_metrics_after = cbre_data_after.select("Ticker", "Strategy Type", "Short Window", "Long Window", "Metric Type").to_dicts()
+                        log(
+                            f"📊 CBRE DATA AFTER DEDUP: {len(cbre_data_after)} rows",
+                            "info",
+                        )
+                        cbre_metrics_after = cbre_data_after.select(
+                            "Ticker",
+                            "Strategy Type",
+                            "Short Window",
+                            "Long Window",
+                            "Metric Type",
+                        ).to_dicts()
                         log(f"📊 CBRE METRICS AFTER: {cbre_metrics_after}", "info")
-                        
+
                         # Phase 2 Validation: Check if multiple metric types are preserved for same configuration
                         cbre_configs = {}
                         for row in cbre_metrics_after:
                             config_key = f"{row['Ticker']},{row['Strategy Type']},{row['Short Window']},{row['Long Window']}"
                             if config_key not in cbre_configs:
                                 cbre_configs[config_key] = []
-                            cbre_configs[config_key].append(row['Metric Type'])
-                        
+                            cbre_configs[config_key].append(row["Metric Type"])
+
                         for config_key, metrics in cbre_configs.items():
                             if len(metrics) > 1:
-                                log(f"✅ PHASE 2 SUCCESS: {config_key} preserved {len(metrics)} metric types: {metrics}", "info")
+                                log(
+                                    f"✅ PHASE 2 SUCCESS: {config_key} preserved {len(metrics)} metric types: {metrics}",
+                                    "info",
+                                )
                             else:
-                                log(f"⚠️ PHASE 2 NOTICE: {config_key} has only {len(metrics)} metric type(s): {metrics}", "warning")
+                                log(
+                                    f"⚠️ PHASE 2 NOTICE: {config_key} has only {len(metrics)} metric type(s): {metrics}",
+                                    "warning",
+                                )
 
                 # Convert back to list of dictionaries
                 reordered_portfolios = df.to_dicts()
@@ -587,24 +638,31 @@ def export_summary_results(
         reordered_portfolios = df.to_dicts()
 
         # Phase 1 Data Flow Audit: Log final data before export_portfolios
-        log(f"📊 FINAL DATA TO export_portfolios(): {len(reordered_portfolios)} portfolios", "info")
-        
+        log(
+            f"📊 FINAL DATA TO export_portfolios(): {len(reordered_portfolios)} portfolios",
+            "info",
+        )
+
         # Log final metric type distribution
         final_metric_counts = {}
         final_cbre_data = []
         for p in reordered_portfolios:
             metric_type = p.get("Metric Type", "Unknown")
-            final_metric_counts[metric_type] = final_metric_counts.get(metric_type, 0) + 1
-            
+            final_metric_counts[metric_type] = (
+                final_metric_counts.get(metric_type, 0) + 1
+            )
+
             if p.get("Ticker") == "CBRE":
-                final_cbre_data.append({
-                    "Ticker": p.get("Ticker"),
-                    "Strategy": p.get("Strategy Type"),
-                    "Short": p.get("Short Window"),
-                    "Long": p.get("Long Window"),
-                    "Metric": p.get("Metric Type")
-                })
-        
+                final_cbre_data.append(
+                    {
+                        "Ticker": p.get("Ticker"),
+                        "Strategy": p.get("Strategy Type"),
+                        "Short": p.get("Short Window"),
+                        "Long": p.get("Long Window"),
+                        "Metric": p.get("Metric Type"),
+                    }
+                )
+
         log(f"📊 FINAL METRIC TYPES: {dict(final_metric_counts)}", "info")
         if final_cbre_data:
             log(f"📊 FINAL CBRE DATA: {final_cbre_data}", "info")

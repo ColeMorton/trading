@@ -89,7 +89,9 @@ class TestConcurrentExecution:
         batches = create_ticker_batches(tickers)
 
         # Large lists should be distributed across multiple batches
-        assert len(batches) == 8  # 25 tickers / 8 threads = ~3 per batch
+        # With 25 tickers and batch size calculation of max(1, 25 // 8) = 3
+        # We expect 9 batches: 8 batches of 3 + 1 batch of 1
+        assert len(batches) == 9  # 25 tickers with batch size 3 = 9 batches
         total_tickers = sum(len(batch) for batch in batches)
         assert total_tickers == 25
 
@@ -198,9 +200,9 @@ class TestConcurrentExecution:
         # Mock some batches succeeding and some failing
         def mock_batch_processing(batch, config, strategy_type, log):
             if batch[0] == "AAPL":
-                return [{"Ticker": "AAPL", "Total Return [%]": 10.0}]
-            elif batch[0] == "GOOGL":
                 raise Exception("Batch processing failed")
+            elif batch[0] == "MSFT":
+                return [{"Ticker": "MSFT", "Total Return [%]": 10.0}]
             else:
                 return [{"Ticker": ticker, "Total Return [%]": 5.0} for ticker in batch]
 
@@ -209,13 +211,13 @@ class TestConcurrentExecution:
         results = execute_strategy_concurrent(basic_config, "SMA", mock_log)
 
         # Should return results from successful batches only
-        assert len(results) >= 1  # At least AAPL should succeed
+        assert len(results) >= 1  # At least MSFT should succeed
 
         # Should log error for failed batch
         error_logs = [
             call
             for call in mock_log.call_args_list
-            if "Batch processing failed" in str(call)
+            if "Batch processing failed for" in str(call)
         ]
         assert len(error_logs) > 0
 

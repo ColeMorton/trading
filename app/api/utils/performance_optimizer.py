@@ -14,20 +14,20 @@ Key Features:
 """
 
 import asyncio
-import time
 import logging
-from typing import Dict, Any, List, Optional, Tuple
+import time
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
 
 from app.api.models.strategy_analysis import MACrossRequest, StrategyTypeEnum
-
 
 logger = logging.getLogger(__name__)
 
 
 class ExecutionMode(Enum):
     """Execution mode recommendations based on parameter complexity"""
+
     SYNC_FAST = "sync_fast"
     SYNC_STANDARD = "sync_standard"
     ASYNC_RECOMMENDED = "async_recommended"
@@ -37,6 +37,7 @@ class ExecutionMode(Enum):
 @dataclass
 class ParameterComplexity:
     """Analysis of parameter space complexity"""
+
     total_combinations: int
     ticker_count: int
     strategy_count: int
@@ -50,6 +51,7 @@ class ParameterComplexity:
 @dataclass
 class PerformanceMetrics:
     """Performance tracking metrics"""
+
     start_time: float
     end_time: Optional[float] = None
     combinations_processed: int = 0
@@ -77,7 +79,7 @@ class PerformanceMetrics:
         """Estimate remaining execution time"""
         if self.combinations_processed == 0:
             return 0.0
-        
+
         rate = self.combinations_processed / self.elapsed_time
         remaining = self.total_combinations - self.combinations_processed
         return remaining / rate if rate > 0 else 0.0
@@ -91,11 +93,11 @@ class PerformanceOptimizer:
     SYNC_STANDARD_THRESHOLD = 200
     ASYNC_RECOMMENDED_THRESHOLD = 500
     ASYNC_REQUIRED_THRESHOLD = 1000
-    
+
     # Performance estimates (in seconds per combination)
     MACD_EXECUTION_TIME_PER_COMBINATION = 0.1
     MA_EXECUTION_TIME_PER_COMBINATION = 0.05
-    
+
     # Memory estimates (in MB per combination)
     MEMORY_PER_COMBINATION = 0.5
     MAX_MEMORY_LIMIT_MB = 2048  # 2GB limit
@@ -103,49 +105,53 @@ class PerformanceOptimizer:
     def __init__(self):
         self.active_metrics: Dict[str, PerformanceMetrics] = {}
 
-    def analyze_parameter_complexity(self, request: MACrossRequest) -> ParameterComplexity:
+    def analyze_parameter_complexity(
+        self, request: MACrossRequest
+    ) -> ParameterComplexity:
         """
         Analyze the complexity of parameter combinations and provide recommendations
-        
+
         Args:
             request: The strategy analysis request
-            
+
         Returns:
             ParameterComplexity analysis with recommendations
         """
         # Calculate combinations for each strategy type
         total_combinations = 0
-        
+
         # Get ticker count
         ticker_count = len(request.ticker) if isinstance(request.ticker, list) else 1
         strategy_count = len(request.strategy_types)
-        
+
         for strategy_type in request.strategy_types:
             if strategy_type == StrategyTypeEnum.MACD:
                 combinations = self._calculate_macd_combinations(request)
             else:
                 combinations = self._calculate_ma_combinations(request)
-            
+
             total_combinations += combinations
 
         # Multiply by tickers and windows
         total_combinations *= ticker_count * (request.windows or 10)
 
         # Estimate execution time
-        estimated_time = self._estimate_execution_time(total_combinations, request.strategy_types)
-        
+        estimated_time = self._estimate_execution_time(
+            total_combinations, request.strategy_types
+        )
+
         # Estimate memory usage
         memory_estimate = total_combinations * self.MEMORY_PER_COMBINATION
-        
+
         # Determine execution mode
         recommended_mode = self._determine_execution_mode(total_combinations)
-        
+
         # Check if parameters should be limited
         should_limit = (
-            total_combinations > self.ASYNC_REQUIRED_THRESHOLD or
-            memory_estimate > self.MAX_MEMORY_LIMIT_MB
+            total_combinations > self.ASYNC_REQUIRED_THRESHOLD
+            or memory_estimate > self.MAX_MEMORY_LIMIT_MB
         )
-        
+
         max_recommended = self._calculate_max_recommended_combinations(
             ticker_count, strategy_count
         )
@@ -158,20 +164,29 @@ class PerformanceOptimizer:
             recommended_mode=recommended_mode,
             memory_estimate_mb=memory_estimate,
             should_limit_parameters=should_limit,
-            max_recommended_combinations=max_recommended
+            max_recommended_combinations=max_recommended,
         )
 
     def _calculate_macd_combinations(self, request: MACrossRequest) -> int:
         """Calculate MACD parameter combinations"""
-        if not hasattr(request, 'short_window_start') or request.short_window_start is None:
+        if (
+            not hasattr(request, "short_window_start")
+            or request.short_window_start is None
+        ):
             return 1
-        
+
         step = request.step or 1
-        
-        short_range = max(1, (request.short_window_end - request.short_window_start) // step + 1)
-        long_range = max(1, (request.long_window_end - request.long_window_start) // step + 1)
-        signal_range = max(1, (request.signal_window_end - request.signal_window_start) // step + 1)
-        
+
+        short_range = max(
+            1, (request.short_window_end - request.short_window_start) // step + 1
+        )
+        long_range = max(
+            1, (request.long_window_end - request.long_window_start) // step + 1
+        )
+        signal_range = max(
+            1, (request.signal_window_end - request.signal_window_start) // step + 1
+        )
+
         return short_range * long_range * signal_range
 
     def _calculate_ma_combinations(self, request: MACrossRequest) -> int:
@@ -180,16 +195,18 @@ class PerformanceOptimizer:
         windows = request.windows or 10
         return windows * (windows - 1) // 2  # Combination of window pairs
 
-    def _estimate_execution_time(self, combinations: int, strategy_types: List[StrategyTypeEnum]) -> float:
+    def _estimate_execution_time(
+        self, combinations: int, strategy_types: List[StrategyTypeEnum]
+    ) -> float:
         """Estimate total execution time"""
         time_per_combination = 0
-        
+
         for strategy_type in strategy_types:
             if strategy_type == StrategyTypeEnum.MACD:
                 time_per_combination += self.MACD_EXECUTION_TIME_PER_COMBINATION
             else:
                 time_per_combination += self.MA_EXECUTION_TIME_PER_COMBINATION
-        
+
         return combinations * time_per_combination
 
     def _determine_execution_mode(self, combinations: int) -> ExecutionMode:
@@ -203,22 +220,26 @@ class PerformanceOptimizer:
         else:
             return ExecutionMode.ASYNC_REQUIRED
 
-    def _calculate_max_recommended_combinations(self, ticker_count: int, strategy_count: int) -> int:
+    def _calculate_max_recommended_combinations(
+        self, ticker_count: int, strategy_count: int
+    ) -> int:
         """Calculate maximum recommended combinations based on resources"""
         base_limit = self.ASYNC_RECOMMENDED_THRESHOLD
-        
+
         # Adjust based on ticker and strategy count
         adjustment_factor = 1.0 / (ticker_count * strategy_count)
-        
+
         return int(base_limit * adjustment_factor)
 
-    def optimize_request_parameters(self, request: MACrossRequest) -> Tuple[MACrossRequest, List[str]]:
+    def optimize_request_parameters(
+        self, request: MACrossRequest
+    ) -> Tuple[MACrossRequest, List[str]]:
         """
         Optimize request parameters to improve performance
-        
+
         Args:
             request: Original request
-            
+
         Returns:
             Tuple of (optimized_request, optimization_warnings)
         """
@@ -235,7 +256,9 @@ class PerformanceOptimizer:
 
             # Auto-optimize MACD parameters if present
             if StrategyTypeEnum.MACD in request.strategy_types:
-                optimized_request = self._optimize_macd_parameters(optimized_request, warnings)
+                optimized_request = self._optimize_macd_parameters(
+                    optimized_request, warnings
+                )
 
             # Recommend async execution
             if not optimized_request.async_execution:
@@ -251,17 +274,21 @@ class PerformanceOptimizer:
 
         return optimized_request, warnings
 
-    def _optimize_macd_parameters(self, request: MACrossRequest, warnings: List[str]) -> MACrossRequest:
+    def _optimize_macd_parameters(
+        self, request: MACrossRequest, warnings: List[str]
+    ) -> MACrossRequest:
         """Optimize MACD parameters to reduce combinations"""
         optimized = request.copy()
-        
+
         # Increase step size if too small
         if (request.step or 1) == 1:
             optimized.step = 2
             warnings.append("Increased MACD step size to 2 for performance.")
 
         # Reduce window ranges if too large
-        short_range = (request.short_window_end or 15) - (request.short_window_start or 6)
+        short_range = (request.short_window_end or 15) - (
+            request.short_window_start or 6
+        )
         if short_range > 10:
             optimized.short_window_end = (request.short_window_start or 6) + 10
             warnings.append("Reduced MACD short window range for performance.")
@@ -271,27 +298,36 @@ class PerformanceOptimizer:
             optimized.long_window_end = (request.long_window_start or 12) + 15
             warnings.append("Reduced MACD long window range for performance.")
 
-        signal_range = (request.signal_window_end or 12) - (request.signal_window_start or 5)
+        signal_range = (request.signal_window_end or 12) - (
+            request.signal_window_start or 5
+        )
         if signal_range > 8:
             optimized.signal_window_end = (request.signal_window_start or 5) + 8
             warnings.append("Reduced MACD signal window range for performance.")
 
         return optimized
 
-    def start_performance_tracking(self, request_id: str, total_combinations: int) -> PerformanceMetrics:
+    def start_performance_tracking(
+        self, request_id: str, total_combinations: int
+    ) -> PerformanceMetrics:
         """Start performance tracking for a request"""
         metrics = PerformanceMetrics(
-            start_time=time.time(),
-            total_combinations=total_combinations
+            start_time=time.time(), total_combinations=total_combinations
         )
         self.active_metrics[request_id] = metrics
-        
-        logger.info(f"Started performance tracking for {request_id}: {total_combinations} combinations")
+
+        logger.info(
+            f"Started performance tracking for {request_id}: {total_combinations} combinations"
+        )
         return metrics
 
-    def update_progress(self, request_id: str, combinations_processed: int, 
-                       current_ticker: Optional[str] = None, 
-                       current_strategy: Optional[str] = None) -> Optional[PerformanceMetrics]:
+    def update_progress(
+        self,
+        request_id: str,
+        combinations_processed: int,
+        current_ticker: Optional[str] = None,
+        current_strategy: Optional[str] = None,
+    ) -> Optional[PerformanceMetrics]:
         """Update progress for an active request"""
         if request_id not in self.active_metrics:
             return None
@@ -311,7 +347,9 @@ class PerformanceOptimizer:
 
         return metrics
 
-    def finish_performance_tracking(self, request_id: str) -> Optional[PerformanceMetrics]:
+    def finish_performance_tracking(
+        self, request_id: str
+    ) -> Optional[PerformanceMetrics]:
         """Finish performance tracking and return final metrics"""
         if request_id not in self.active_metrics:
             return None
@@ -329,44 +367,50 @@ class PerformanceOptimizer:
         del self.active_metrics[request_id]
         return metrics
 
-    def get_performance_recommendations(self, request: MACrossRequest) -> Dict[str, Any]:
+    def get_performance_recommendations(
+        self, request: MACrossRequest
+    ) -> Dict[str, Any]:
         """Get comprehensive performance recommendations"""
         complexity = self.analyze_parameter_complexity(request)
-        
+
         recommendations = {
             "execution_mode": complexity.recommended_mode.value,
             "estimated_time_seconds": complexity.estimated_execution_time,
             "estimated_memory_mb": complexity.memory_estimate_mb,
             "total_combinations": complexity.total_combinations,
-            "should_use_async": complexity.recommended_mode in [
-                ExecutionMode.ASYNC_RECOMMENDED, 
-                ExecutionMode.ASYNC_REQUIRED
-            ],
-            "recommendations": []
+            "should_use_async": complexity.recommended_mode
+            in [ExecutionMode.ASYNC_RECOMMENDED, ExecutionMode.ASYNC_REQUIRED],
+            "recommendations": [],
         }
 
         # Add specific recommendations
         if complexity.should_limit_parameters:
-            recommendations["recommendations"].append({
-                "type": "parameter_optimization",
-                "message": "Consider reducing parameter ranges to improve performance",
-                "max_recommended_combinations": complexity.max_recommended_combinations
-            })
+            recommendations["recommendations"].append(
+                {
+                    "type": "parameter_optimization",
+                    "message": "Consider reducing parameter ranges to improve performance",
+                    "max_recommended_combinations": complexity.max_recommended_combinations,
+                }
+            )
 
         if complexity.recommended_mode == ExecutionMode.ASYNC_REQUIRED:
-            recommendations["recommendations"].append({
-                "type": "async_required",
-                "message": "Async execution required for this parameter space",
-                "reason": f"Combinations ({complexity.total_combinations}) exceed sync limit"
-            })
+            recommendations["recommendations"].append(
+                {
+                    "type": "async_required",
+                    "message": "Async execution required for this parameter space",
+                    "reason": f"Combinations ({complexity.total_combinations}) exceed sync limit",
+                }
+            )
 
         if complexity.memory_estimate_mb > self.MAX_MEMORY_LIMIT_MB:
-            recommendations["recommendations"].append({
-                "type": "memory_warning",
-                "message": "Memory usage may exceed system limits",
-                "estimated_mb": complexity.memory_estimate_mb,
-                "limit_mb": self.MAX_MEMORY_LIMIT_MB
-            })
+            recommendations["recommendations"].append(
+                {
+                    "type": "memory_warning",
+                    "message": "Memory usage may exceed system limits",
+                    "estimated_mb": complexity.memory_estimate_mb,
+                    "limit_mb": self.MAX_MEMORY_LIMIT_MB,
+                }
+            )
 
         return recommendations
 

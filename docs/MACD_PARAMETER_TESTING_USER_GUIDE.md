@@ -7,11 +7,13 @@ The MACD (Moving Average Convergence Divergence) strategy has been integrated in
 ## What is MACD?
 
 MACD is a trend-following momentum indicator that uses three exponential moving averages:
+
 - **Short EMA**: Fast-moving average (typically 6-15 periods)
-- **Long EMA**: Slow-moving average (typically 12-35 periods) 
+- **Long EMA**: Slow-moving average (typically 12-35 periods)
 - **Signal EMA**: Signal line smoothing (typically 5-12 periods)
 
 ### MACD Calculation
+
 1. **MACD Line** = Short EMA - Long EMA
 2. **Signal Line** = EMA of MACD Line (using Signal window)
 3. **Entry Signal** = MACD Line crosses above Signal Line
@@ -30,12 +32,14 @@ MACD is a trend-following momentum indicator that uses three exponential moving 
 When MACD is selected, you'll see a dedicated parameter card with the following controls:
 
 #### Short EMA Window Range
+
 - **Start**: Minimum short window (default: 6)
 - **End**: Maximum short window (default: 15)
 - **Typical Range**: 6-15 periods
 - **Description**: Fast-moving average for trend detection
 
 #### Long EMA Window Range
+
 - **Start**: Minimum long window (default: 12)
 - **End**: Maximum long window (default: 35)
 - **Typical Range**: 12-35 periods
@@ -43,12 +47,14 @@ When MACD is selected, you'll see a dedicated parameter card with the following 
 - **Description**: Slow-moving average for trend confirmation
 
 #### Signal EMA Window Range
+
 - **Start**: Minimum signal window (default: 5)
 - **End**: Maximum signal window (default: 12)
 - **Typical Range**: 5-12 periods
 - **Description**: Signal line smoothing for entry/exit timing
 
 #### Step Size
+
 - **Range**: 1-10
 - **Default**: 1
 - **Description**: Parameter increment for testing combinations
@@ -56,6 +62,7 @@ When MACD is selected, you'll see a dedicated parameter card with the following 
 ### Parameter Validation
 
 The system enforces these validation rules:
+
 - Short window end > Short window start
 - Long window start > Short window end
 - Long window end > Long window start
@@ -70,15 +77,17 @@ Invalid configurations will show error messages and prevent analysis execution.
 ### Available Presets
 
 #### MACD Standard
+
 - **Use Case**: General-purpose MACD analysis
 - **Short Range**: 6-15
-- **Long Range**: 12-35  
+- **Long Range**: 12-35
 - **Signal Range**: 5-12
 - **Step**: 1
 - **Timeframe**: 3 years
 - **Best For**: Most asset types, balanced approach
 
 #### MACD Quick Test
+
 - **Use Case**: Fast parameter exploration
 - **Short Range**: 8-12
 - **Long Range**: 20-30
@@ -88,6 +97,7 @@ Invalid configurations will show error messages and prevent analysis execution.
 - **Best For**: Initial testing, parameter space exploration
 
 #### MACD Comprehensive
+
 - **Use Case**: Thorough parameter analysis
 - **Short Range**: 5-20
 - **Long Range**: 15-50
@@ -97,6 +107,7 @@ Invalid configurations will show error messages and prevent analysis execution.
 - **Best For**: Final strategy optimization, research
 
 #### MACD Crypto Focus
+
 - **Use Case**: Cryptocurrency-specific parameters
 - **Short Range**: 10-18
 - **Long Range**: 22-35
@@ -106,6 +117,7 @@ Invalid configurations will show error messages and prevent analysis execution.
 - **Best For**: Bitcoin, Ethereum, major cryptocurrencies
 
 #### MACD Conservative
+
 - **Use Case**: Risk-averse parameter selection
 - **Short Range**: 8-16
 - **Long Range**: 25-40
@@ -116,6 +128,7 @@ Invalid configurations will show error messages and prevent analysis execution.
 - **Best For**: Conservative portfolios, risk management focus
 
 #### MACD Intraday
+
 - **Use Case**: Hourly/short-term trading
 - **Short Range**: 5-10
 - **Long Range**: 12-20
@@ -125,6 +138,7 @@ Invalid configurations will show error messages and prevent analysis execution.
 - **Best For**: Day trading, short-term strategies
 
 #### Mixed Strategy All
+
 - **Use Case**: Compare MACD with SMA/EMA
 - **Strategies**: SMA, EMA, MACD
 - **MACD Range**: Moderate (10-16, 20-30, 8-12)
@@ -136,6 +150,7 @@ Invalid configurations will show error messages and prevent analysis execution.
 ### Parameter Combination Limits
 
 MACD testing can generate many parameter combinations:
+
 - **Small**: < 50 combinations (fast execution)
 - **Medium**: 50-200 combinations (standard execution)
 - **Large**: 200-500 combinations (async recommended)
@@ -171,6 +186,7 @@ When viewing MACD results, you'll see these specific columns:
 ### MACD-Specific Metrics
 
 MACD strategies include additional context:
+
 - **Signal Quality**: How well signal timing aligns with trends
 - **Whipsaw Reduction**: Fewer false signals compared to simple MA crosses
 - **Trend Confirmation**: Multiple EMA layers provide trend validation
@@ -178,6 +194,7 @@ MACD strategies include additional context:
 ### Interpreting Results
 
 **Good MACD Parameters:**
+
 - Win Rate > 35% (conservative) to 50% (aggressive)
 - Profit Factor > 1.2
 - Sortino Ratio > 0.6
@@ -185,6 +202,7 @@ MACD strategies include additional context:
 - Reasonable drawdown (< 25%)
 
 **Red Flags:**
+
 - Very high win rate (> 70%) may indicate overfitting
 - Too few trades (< 20) reduces statistical significance
 - Extreme parameter values may not be robust
@@ -208,6 +226,7 @@ MACD strategies include additional context:
 ### Common Pitfalls
 
 ❌ **Avoid These Mistakes:**
+
 - Using identical short and long windows
 - Setting signal window larger than short window
 - Testing too many combinations without focus
@@ -215,6 +234,7 @@ MACD strategies include additional context:
 - Over-optimizing on limited data
 
 ✅ **Best Practices:**
+
 - Ensure logical parameter relationships
 - Start with standard ranges and adjust
 - Monitor performance warnings
@@ -243,6 +263,7 @@ MACD strategies include additional context:
 ### Performance Warnings
 
 If you see performance warnings:
+
 - **"Parameter combination count exceeds limit"**: Reduce ranges
 - **"Memory usage may exceed limits"**: Limit scope or use async
 - **"Async execution required"**: Enable async execution
@@ -251,6 +272,7 @@ If you see performance warnings:
 ### Getting Help
 
 For additional support:
+
 1. Check parameter validation messages
 2. Review preset configurations for guidance
 3. Start with smaller parameter ranges
@@ -261,6 +283,7 @@ For additional support:
 ### Custom Parameter Ranges
 
 You can create custom MACD configurations:
+
 - Adjust window ranges based on asset characteristics
 - Modify step sizes for performance vs. precision trade-offs
 - Set specific minimum filters for your strategy requirements
@@ -268,6 +291,7 @@ You can create custom MACD configurations:
 ### Mixed Strategy Analysis
 
 Compare MACD with traditional moving averages:
+
 - Select multiple strategy types (SMA, EMA, MACD)
 - Use identical tickers and timeframes
 - Compare results side-by-side
@@ -276,6 +300,7 @@ Compare MACD with traditional moving averages:
 ### Async Execution
 
 For large parameter spaces:
+
 - Enables background processing
 - Provides real-time progress updates
 - Allows multiple concurrent analyses
@@ -283,4 +308,4 @@ For large parameter spaces:
 
 ---
 
-*This guide covers the complete MACD parameter testing functionality. For technical implementation details, see the MACD Cross Parameter Testing Implementation Plan.*
+_This guide covers the complete MACD parameter testing functionality. For technical implementation details, see the MACD Cross Parameter Testing Implementation Plan._

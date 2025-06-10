@@ -1,4 +1,6 @@
 import json
+import sys
+from pathlib import Path
 from typing import Any, TypedDict
 
 import matplotlib.pyplot as plt
@@ -8,8 +10,6 @@ import seaborn as sns
 from scipy.stats import norm, percentileofscore
 from typing_extensions import NotRequired
 
-import sys
-from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from app.tools.download_data import download_data
@@ -495,12 +495,12 @@ def main():
         print(f"Difference: {difference:.2f}%")
 
     plt.tight_layout()
-    
+
     # Save the plot instead of showing it
     output_path = f"app/histograms_series/{TICKER}_return_distribution.png"
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.savefig(output_path, dpi=300, bbox_inches="tight")
     print(f"\nPlot saved to: {output_path}")
-    
+
     # Close the plot to free memory
     plt.close()
 
