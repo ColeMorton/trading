@@ -1,6 +1,6 @@
+import threading
 from datetime import datetime, timedelta
 from typing import Callable
-import threading
 
 import polars as pl
 import yfinance as yf

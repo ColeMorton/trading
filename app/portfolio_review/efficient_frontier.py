@@ -30,16 +30,7 @@ HALF_RULE = True
 
 # ASSETS = ['PENDLE-USD', 'SUI20947-USD']
 
-ASSETS = [
-    "CMG",
-    "ETH-USD",
-    "NVDA",
-    "AIZ",
-    "COIN",
-    "USB",
-    "NBIX",
-    "PLTR"
-]
+ASSETS = ["CMG", "ETH-USD", "NVDA", "AIZ", "COIN", "USB", "NBIX", "PLTR"]
 
 # ASSETS = ['TRX-USD', 'FET-USD', 'AVAX-USD', 'SOL-USD']
 
