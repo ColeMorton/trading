@@ -104,7 +104,7 @@ CONFIG: Config = {
     #     # "BEATS_BNH": 0
     #     # "BEATS_BNH": 0.13
     # },
-    "SORT_BY": "Total Return [%]",
+    "SORT_BY": "Score",
     "SORT_ASC": False,
     "USE_GBM": False,
 }

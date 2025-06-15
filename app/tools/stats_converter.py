@@ -66,9 +66,18 @@ def calculate_win_rate_normalized(win_rate, total_trades=None):
         # Use lower bound for conservative confidence-adjusted win rate
         confidence_adjusted_win_rate = max(0, (center - margin) * 100)
 
-        # Blend original and confidence-adjusted based on sample size
+        # Asymmetric confidence adjustment: harsher for low win rates
         # More weight to confidence adjustment for smaller samples
-        confidence_weight = 1 - math.exp(-3 / math.sqrt(total_trades))
+        base_confidence_weight = 1 - math.exp(-3 / math.sqrt(total_trades))
+        
+        # Apply additional confidence penalty for low win rates
+        if win_rate < 40:
+            # Increase confidence weight (use more conservative estimate) for low win rates
+            low_win_penalty = 1 + (40 - win_rate) / 40  # 1.0 to 2.0 multiplier
+            confidence_weight = min(0.95, base_confidence_weight * low_win_penalty)
+        else:
+            confidence_weight = base_confidence_weight
+            
         effective_win_rate = (
             confidence_adjusted_win_rate * confidence_weight
             + win_rate * (1 - confidence_weight)
@@ -76,11 +85,26 @@ def calculate_win_rate_normalized(win_rate, total_trades=None):
     else:
         effective_win_rate = win_rate
 
-    # Apply normalization to effective win rate
+    # Apply normalization to effective win rate with dynamic penalty
     if effective_win_rate <= 50:
-        # Below break-even: gentler than cubic but still penalizing
+        # Below break-even: Dynamic penalty that intensifies for lower win rates
         normalized = effective_win_rate / 50
-        return 0.1 + 0.9 * (normalized**1.8)
+        
+        # Dynamic power curve: steeper penalties for lower win rates
+        # At 50%: power = 1.8 (original)
+        # At 40%: power = 3.0 (cubic)
+        # At 30%: power = 5.0 (very harsh)
+        # At 20%: power = 8.0 (extreme penalty)
+        dynamic_power = 1.8 + (50 - effective_win_rate) * 0.13
+        
+        # Additional penalty multiplier for very low win rates
+        if effective_win_rate < 40:
+            # Exponential penalty acceleration below 40%
+            penalty_factor = math.exp((40 - effective_win_rate) / 25)
+            base_score = 0.1 + 0.9 * (normalized**dynamic_power)
+            return base_score / penalty_factor
+        else:
+            return 0.1 + 0.9 * (normalized**dynamic_power)
     else:
         # Above break-even: controlled growth with soft cap
         excess = effective_win_rate - 50
