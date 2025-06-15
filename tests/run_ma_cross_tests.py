@@ -59,12 +59,18 @@ class MACrossTestRunner:
             },
             "e2e": {
                 "description": "End-to-end workflow tests",
-                "files": ["test_ma_cross_e2e.py"],
+                "files": [
+                    "test_ma_cross_e2e.py",
+                    "test_ma_cross_portfolio_comprehensive.py",
+                ],
                 "timeout": 600,
             },
             "performance": {
                 "description": "Performance benchmarks",
-                "files": ["test_ma_cross_benchmarks.py"],
+                "files": [
+                    "test_ma_cross_benchmarks.py",
+                    "test_ma_cross_portfolio_comprehensive.py::TestMACrossPortfolioComprehensive::test_execution_performance",
+                ],
                 "timeout": 900,
             },
             "regression": {
@@ -76,6 +82,11 @@ class MACrossTestRunner:
                 "description": "Quick smoke tests",
                 "files": ["test_ma_cross_smoke.py"],
                 "timeout": 60,
+            },
+            "portfolio": {
+                "description": "Comprehensive portfolio analysis tests",
+                "files": ["test_ma_cross_portfolio_comprehensive.py"],
+                "timeout": 300,
             },
         }
 
@@ -206,9 +217,8 @@ class MACrossTestRunner:
             print(f"  ✅ {file_result['passed_tests']} tests passed")
         else:
             print(
-                f"  ❌ {
-    file_result['failed_tests']} tests failed, {
-        file_result['passed_tests']} passed"
+                f"  ❌ {file_result['failed_tests']} tests failed, "
+                f"{file_result['passed_tests']} passed"
             )
 
         return file_result
@@ -348,11 +358,9 @@ class MACrossTestRunner:
         for suite_name, suite_result in results["suites"].items():
             status = "✅ PASS" if suite_result["success"] else "❌ FAIL"
             print(
-                f"  {
-    suite_name:12} {
-        status:8} ({
-            suite_result['total_tests']:3} tests, {
-                suite_result['duration']:6.2f}s)"
+                f"  {suite_name:12} {status:8} "
+                f"({suite_result['total_tests']:3} tests, "
+                f"{suite_result['duration']:6.2f}s)"
             )
 
         if results["success"]:
@@ -396,7 +404,15 @@ def main():
     parser.add_argument(
         "--suite",
         "-s",
-        choices=["unit", "integration", "e2e", "performance", "regression", "smoke"],
+        choices=[
+            "unit",
+            "integration",
+            "e2e",
+            "performance",
+            "regression",
+            "smoke",
+            "portfolio",
+        ],
         nargs="+",
         help="Specific test suite(s) to run",
     )

@@ -182,22 +182,50 @@ def calculate_sortino_normalized(sortino_ratio):
 
 def calculate_total_trades_normalized(total_trades):
     """
-    Optimized total trades normalization emphasizing statistical confidence
+    Statistical confidence-based normalization using piecewise function.
+
+    Models three distinct phases of statistical significance:
+    - Phase 1 (< 54): Rapidly decreasing confidence with steep penalties
+    - Phase 2 (54-100): Meaningful significance with linear growth
+    - Phase 3 (100+): Diminishing returns with asymptotic approach
+
+    Args:
+        total_trades (int): Number of trades executed
+
+    Returns:
+        float: Normalized confidence score in range [0.1, 2.0]
+
+    Statistical Foundation:
+        - Based on sample size requirements for reliable estimates
+        - 54 trades ≈ minimum for basic statistical significance
+        - 100+ trades ≈ strong confidence threshold
+        - Asymptotic cap prevents over-trading gaming
     """
 
     if pd.isna(total_trades) or total_trades <= 0:
         return 0.1
 
-    # Confidence factor: rapid improvement early, diminishing returns
-    confidence = 1 - math.exp(-total_trades / 35)
+    if total_trades < 54:
+        # Phase 1: Extremely steep confidence penalty
+        # Reflects statistical reality: very few trades = very little confidence
+        # Maps [1, 54) → [0.1, 0.5]
+        normalized_trades = total_trades / 54
+        return 0.1 + 0.4 * (normalized_trades**4.5)  # Very steep power curve
 
-    # Frequency adequacy: linear up to reasonable trading frequency
-    frequency_factor = min(total_trades / 100, 0.4)
+    elif total_trades <= 100:
+        # Phase 2: Meaningful significance zone
+        # Linear growth where each trade adds meaningful confidence
+        # Maps [54, 100] → [0.5, 1.2]
+        progress = (total_trades - 54) / (100 - 54)  # [0, 1]
+        return 0.5 + 0.7 * progress  # Linear growth
 
-    # Combined score with cap to prevent over-trading gaming
-    total_normalized = min((confidence * 1.1) + frequency_factor, 1.5)
-
-    return pow(total_normalized, 1.5)  # Slight non-linearity preserved
+    else:
+        # Phase 3: Diminishing returns
+        # Logarithmic growth approaching asymptotic maximum
+        # Maps [100, ∞) → [1.2, 2.0)
+        excess_trades = total_trades - 100
+        # Logarithmic approach to maximum with diminishing returns
+        return 1.2 + 0.8 * (1 - math.exp(-excess_trades / 120))  # Asymptotic to 2.0
 
 
 def calculate_beats_bnh_normalized(beats_bnh_percent):
