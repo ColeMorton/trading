@@ -64,7 +64,7 @@ from app.tools.strategy_utils import filter_portfolios_by_signal, get_strategy_t
 # Config management is now handled by ConfigService
 
 CONFIG: Config = {
-    "TICKER": ["GLD", "CL=F", "BTC-USD", "SPY", "QQQ", "DX-Y.NYB"],
+    "TICKER": "BTC-USD",
     # "TICKER": [
     #     "IR",
     #     "JBHT",

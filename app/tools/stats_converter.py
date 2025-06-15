@@ -24,44 +24,67 @@ class StatsConfig(TypedDict):
     TICKER: NotRequired[str]
 
 
-def calculate_win_rate_normalized(win_rate):
+def calculate_win_rate_normalized(win_rate, total_trades=None):
     """
-    Optimized win rate normalization using piecewise function.
+    Statistical confidence-aware win rate normalization.
 
-    Eliminates cap violations while maintaining strong discrimination
-    and preserving break-even psychology at 50%.
+    For single-shot strategies, incorporates sample size to reflect
+    confidence in the win rate estimate using Wilson score interval.
 
     Args:
         win_rate (float): Win rate as percentage (0-100)
+        total_trades (int, optional): Number of trades for confidence adjustment
 
     Returns:
         float: Normalized value in range [0.1, 2.618]
 
     Mathematical Properties:
-        - Smooth, continuous function
-        - No cap violations (max ≤ 2.618)
-        - Better discrimination in critical ranges
+        - Uses Wilson score interval for small sample confidence
         - Maintains 50% break-even point (maps to 1.0)
-        - Less harsh penalties than cubic scaling
+        - Higher penalties for low-confidence win rates
+        - Asymptotic approach to maximum for high-confidence strategies
     """
 
     # Handle edge cases
     if pd.isna(win_rate) or win_rate <= 0:
         return 0.1
-    if win_rate >= 100:
+    if win_rate >= 100 and (total_trades is None or total_trades >= 100):
         return 2.618
 
-    if win_rate <= 50:
+    # Apply confidence adjustment for small samples
+    if total_trades is not None and total_trades > 0:
+        # Wilson score interval lower bound (95% confidence)
+        z = 1.96  # 95% confidence z-score
+        p = win_rate / 100.0
+        n = total_trades
+
+        # Calculate Wilson score interval lower bound
+        denominator = 1 + z**2 / n
+        center = (p + z**2 / (2 * n)) / denominator
+        margin = z * math.sqrt(p * (1 - p) / n + z**2 / (4 * n**2)) / denominator
+
+        # Use lower bound for conservative confidence-adjusted win rate
+        confidence_adjusted_win_rate = max(0, (center - margin) * 100)
+
+        # Blend original and confidence-adjusted based on sample size
+        # More weight to confidence adjustment for smaller samples
+        confidence_weight = 1 - math.exp(-3 / math.sqrt(total_trades))
+        effective_win_rate = (
+            confidence_adjusted_win_rate * confidence_weight
+            + win_rate * (1 - confidence_weight)
+        )
+    else:
+        effective_win_rate = win_rate
+
+    # Apply normalization to effective win rate
+    if effective_win_rate <= 50:
         # Below break-even: gentler than cubic but still penalizing
-        # Maps 0% → 0.1, 50% → 1.0
-        normalized = win_rate / 50
-        return 0.1 + 0.9 * (normalized**1.8)  # Power 1.8 (less harsh than cubic 3.0)
+        normalized = effective_win_rate / 50
+        return 0.1 + 0.9 * (normalized**1.8)
     else:
         # Above break-even: controlled growth with soft cap
-        # Maps 50% → 1.0, approaches 2.618 asymptotically
-        excess = win_rate - 50
-        max_excess = 50  # 100% - 50%
-        normalized_excess = excess / max_excess
+        excess = effective_win_rate - 50
+        normalized_excess = excess / 50
 
         # Soft exponential growth that approaches but never exceeds 2.618
         return 1.0 + 1.618 * (1 - math.exp(-2.5 * normalized_excess))
@@ -182,50 +205,59 @@ def calculate_sortino_normalized(sortino_ratio):
 
 def calculate_total_trades_normalized(total_trades):
     """
-    Statistical confidence-based normalization using piecewise function.
+    Statistical validity-based normalization for trading strategy confidence.
 
-    Models three distinct phases of statistical significance:
-    - Phase 1 (< 54): Rapidly decreasing confidence with steep penalties
-    - Phase 2 (54-100): Meaningful significance with linear growth
-    - Phase 3 (100+): Diminishing returns with asymptotic approach
+    Prioritizes sample sizes that provide reliable statistical inference
+    for single-shot strategy deployment, based on daily SMA/EMA analysis.
 
     Args:
         total_trades (int): Number of trades executed
 
     Returns:
-        float: Normalized confidence score in range [0.1, 2.0]
+        float: Normalized statistical confidence score in range [0.2, 2.2]
 
-    Statistical Foundation:
-        - Based on sample size requirements for reliable estimates
-        - 54 trades ≈ minimum for basic statistical significance
-        - 100+ trades ≈ strong confidence threshold
-        - Asymptotic cap prevents over-trading gaming
+    Statistical Validity Philosophy:
+        - Very low (1-30): Insufficient for statistical confidence
+        - Low (31-49): Minimal statistical significance
+        - Optimal (50-100): Sweet spot for daily SMA/EMA strategies
+        - High (101-200): Strong statistical confidence
+        - Very high (200+): Excellent confidence, diminishing returns
     """
 
     if pd.isna(total_trades) or total_trades <= 0:
-        return 0.1
+        return 0.2
 
-    if total_trades < 54:
-        # Phase 1: Extremely steep confidence penalty
-        # Reflects statistical reality: very few trades = very little confidence
-        # Maps [1, 54) → [0.1, 0.5]
-        normalized_trades = total_trades / 54
-        return 0.1 + 0.4 * (normalized_trades**4.5)  # Very steep power curve
+    if total_trades <= 30:
+        # Insufficient sample size: steep penalty for statistical insignificance
+        # Maps [1, 30] → [0.2, 0.6]
+        normalized = total_trades / 30
+        return 0.2 + 0.4 * (normalized**2.5)  # Steep curve penalizing small samples
+
+    elif total_trades <= 49:
+        # Minimal significance: still penalized but improving
+        # Maps [31, 49] → [0.6, 1.0]
+        progress = (total_trades - 30) / 19
+        return 0.6 + 0.4 * progress  # Linear growth to baseline
 
     elif total_trades <= 100:
-        # Phase 2: Meaningful significance zone
-        # Linear growth where each trade adds meaningful confidence
-        # Maps [54, 100] → [0.5, 1.2]
-        progress = (total_trades - 54) / (100 - 54)  # [0, 1]
-        return 0.5 + 0.7 * progress  # Linear growth
+        # Optimal range for daily strategies: highest scores
+        # Maps [50, 100] → [1.0, 2.2]
+        progress = (total_trades - 50) / 50
+        # Gentle curve peaking around 75-80 trades
+        curve_factor = 4 * progress * (1 - progress)  # Parabolic peak
+        return 1.0 + 1.2 * (0.7 * progress + 0.3 * curve_factor)
+
+    elif total_trades <= 200:
+        # Strong confidence zone: good scores with slight decline
+        # Maps [101, 200] → [2.0, 1.8]
+        progress = (total_trades - 100) / 100
+        return 2.2 - 0.4 * progress  # Gentle decline
 
     else:
-        # Phase 3: Diminishing returns
-        # Logarithmic growth approaching asymptotic maximum
-        # Maps [100, ∞) → [1.2, 2.0)
-        excess_trades = total_trades - 100
-        # Logarithmic approach to maximum with diminishing returns
-        return 1.2 + 0.8 * (1 - math.exp(-excess_trades / 120))  # Asymptotic to 2.0
+        # Excellent confidence but diminishing returns
+        # Maps [200+, ∞) → [1.5, 1.8]
+        excess = total_trades - 200
+        return 1.8 - 0.3 * (1 - math.exp(-excess / 100))  # Asymptotic approach to 1.5
 
 
 def calculate_beats_bnh_normalized(beats_bnh_percent):
@@ -365,9 +397,9 @@ def convert_stats(
         ]
         if all(field in stats for field in required_fields):
             try:
-                # Use optimized normalization functions
+                # Use optimized normalization functions with confidence adjustment
                 win_rate_normalized = calculate_win_rate_normalized(
-                    stats["Win Rate [%]"]
+                    stats["Win Rate [%]"], total_trades=stats.get("Total Trades")
                 )
                 total_trades_normalized = calculate_total_trades_normalized(
                     stats["Total Trades"]
@@ -387,18 +419,25 @@ def convert_stats(
                     stats["Beats BNH [%]"]
                 )
 
-                # Calculate optimized composite score with double weighting for win rate
+                # Calculate optimized composite score for single-shot strategy confidence
+                # Rebalanced weights to reflect confidence-adjusted metrics
                 stats["Score"] = (
-                    win_rate_normalized * 2
-                    + total_trades_normalized  # Double weighted for psychological importance
-                    + sortino_normalized
-                    + profit_factor_normalized
-                    + expectancy_per_trade_normalized
-                    + beats_bnh_normalized
-                ) / 7
+                    win_rate_normalized * 2.5  # Increased weight (includes confidence)
+                    + total_trades_normalized * 1.5  # Execution feasibility weight
+                    + sortino_normalized * 1.2  # Risk-adjusted return importance
+                    + profit_factor_normalized * 1.2  # Profit sustainability
+                    + expectancy_per_trade_normalized * 1.0  # Per-trade expectation
+                    + beats_bnh_normalized * 0.6  # Market outperformance (reduced)
+                ) / 8.0  # Adjusted denominator for new weights
 
-                log(f"Normalized: Win Rate {win_rate_normalized:.4f} (×2)", "info")
-                log(f"Normalized: Total Trades {total_trades_normalized:.4f}", "info")
+                log(
+                    f"Normalized: Win Rate {win_rate_normalized:.4f} (×2.5, confidence-adjusted)",
+                    "info",
+                )
+                log(
+                    f"Normalized: Total Trades {total_trades_normalized:.4f} (×1.5, statistical validity)",
+                    "info",
+                )
                 log(f"Normalized: Sortino {sortino_normalized:.4f}", "info")
                 log(f"Normalized: Profit Factor {profit_factor_normalized:.4f}", "info")
                 log(
