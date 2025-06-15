@@ -176,13 +176,17 @@ class TestRiskContributionCalculator:
             returns = np.random.randn(n_periods) * 0.01
             prices = 100 * np.exp(np.cumsum(returns))
 
-            # Create dataframe
-            df = pl.DataFrame({"Close": prices})
-            data_list.append(df)
-
             # Create position array (1 = long, 0 = no position)
             positions = np.random.choice([0, 1], size=n_periods, p=[0.3, 0.7])
             position_arrays.append(positions)
+
+            # Create dataframe with required columns: Date, Close, Position
+            import datetime
+
+            start_date = datetime.date(2024, 1, 1)
+            dates = [start_date + datetime.timedelta(days=j) for j in range(n_periods)]
+            df = pl.DataFrame({"Date": dates, "Close": prices, "Position": positions})
+            data_list.append(df)
 
         # Allocations
         strategy_allocations = [40.0, 35.0, 25.0]
@@ -226,9 +230,16 @@ class TestRiskContributionCalculator:
 
         for i in range(n_strategies):
             prices = 100 + np.cumsum(np.random.randn(n_periods) * 0.5)
-            df = pl.DataFrame({"Close": prices})
+            positions = np.ones(n_periods)
+            position_arrays.append(positions)
+
+            # Create dataframe with required columns: Date, Close, Position
+            import datetime
+
+            start_date = datetime.date(2024, 1, 1)
+            dates = [start_date + datetime.timedelta(days=j) for j in range(n_periods)]
+            df = pl.DataFrame({"Date": dates, "Close": prices, "Position": positions})
             data_list.append(df)
-            position_arrays.append(np.ones(n_periods))
 
         strategy_allocations = [50.0, 50.0]
 

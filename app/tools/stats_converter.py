@@ -69,7 +69,7 @@ def calculate_win_rate_normalized(win_rate, total_trades=None):
         # Asymmetric confidence adjustment: harsher for low win rates
         # More weight to confidence adjustment for smaller samples
         base_confidence_weight = 1 - math.exp(-3 / math.sqrt(total_trades))
-        
+
         # Apply additional confidence penalty for low win rates
         if win_rate < 40:
             # Increase confidence weight (use more conservative estimate) for low win rates
@@ -77,7 +77,7 @@ def calculate_win_rate_normalized(win_rate, total_trades=None):
             confidence_weight = min(0.95, base_confidence_weight * low_win_penalty)
         else:
             confidence_weight = base_confidence_weight
-            
+
         effective_win_rate = (
             confidence_adjusted_win_rate * confidence_weight
             + win_rate * (1 - confidence_weight)
@@ -89,14 +89,14 @@ def calculate_win_rate_normalized(win_rate, total_trades=None):
     if effective_win_rate <= 50:
         # Below break-even: Dynamic penalty that intensifies for lower win rates
         normalized = effective_win_rate / 50
-        
+
         # Dynamic power curve: steeper penalties for lower win rates
         # At 50%: power = 1.8 (original)
         # At 40%: power = 3.0 (cubic)
         # At 30%: power = 5.0 (very harsh)
         # At 20%: power = 8.0 (extreme penalty)
         dynamic_power = 1.8 + (50 - effective_win_rate) * 0.13
-        
+
         # Additional penalty multiplier for very low win rates
         if effective_win_rate < 40:
             # Exponential penalty acceleration below 40%
@@ -229,39 +229,47 @@ def calculate_sortino_normalized(sortino_ratio):
 
 def calculate_total_trades_normalized(total_trades):
     """
-    Statistical validity-based normalization for trading strategy confidence.
+    Statistical validity-based normalization with harsh penalties for small samples.
 
-    Prioritizes sample sizes that provide reliable statistical inference
-    for single-shot strategy deployment, based on daily SMA/EMA analysis.
+    Implements quantitative trading best practices by severely penalizing strategies
+    with insufficient trade counts that cannot provide statistical confidence.
 
     Args:
         total_trades (int): Number of trades executed
 
     Returns:
-        float: Normalized statistical confidence score in range [0.2, 2.2]
+        float: Normalized statistical confidence score in range [0.05, 2.2]
 
     Statistical Validity Philosophy:
-        - Very low (1-30): Insufficient for statistical confidence
-        - Low (31-49): Minimal statistical significance
+        - Critical minimum (1-19): Statistically meaningless, severe penalty
+        - Very low (20-39): Insufficient confidence, harsh penalty
+        - Low (40-49): Minimal statistical significance
         - Optimal (50-100): Sweet spot for daily SMA/EMA strategies
         - High (101-200): Strong statistical confidence
         - Very high (200+): Excellent confidence, diminishing returns
     """
 
     if pd.isna(total_trades) or total_trades <= 0:
-        return 0.2
+        return 0.05
 
-    if total_trades <= 30:
-        # Insufficient sample size: steep penalty for statistical insignificance
-        # Maps [1, 30] → [0.2, 0.6]
-        normalized = total_trades / 30
-        return 0.2 + 0.4 * (normalized**2.5)  # Steep curve penalizing small samples
+    if total_trades < 20:
+        # Critical minimum: statistically meaningless sample sizes
+        # Extremely harsh penalty - these strategies should essentially be excluded
+        # Maps [1, 19] → [0.05, 0.15]
+        normalized = total_trades / 20
+        return 0.05 + 0.1 * (normalized**4.0)  # Very steep curve, almost unusable
+
+    elif total_trades < 40:
+        # Very low sample size: insufficient for statistical confidence
+        # Maps [20, 39] → [0.15, 0.5]
+        progress = (total_trades - 20) / 20
+        return 0.15 + 0.35 * (progress**3.0)  # Steep penalty curve
 
     elif total_trades <= 49:
         # Minimal significance: still penalized but improving
-        # Maps [31, 49] → [0.6, 1.0]
-        progress = (total_trades - 30) / 19
-        return 0.6 + 0.4 * progress  # Linear growth to baseline
+        # Maps [40, 49] → [0.5, 1.0]
+        progress = (total_trades - 40) / 9
+        return 0.5 + 0.5 * (progress**2.0)  # Quadratic improvement
 
     elif total_trades <= 100:
         # Optimal range for daily strategies: highest scores
@@ -445,7 +453,7 @@ def convert_stats(
 
                 # Calculate optimized composite score for single-shot strategy confidence
                 # Rebalanced weights to reflect confidence-adjusted metrics
-                stats["Score"] = (
+                base_score = (
                     win_rate_normalized * 2.5  # Increased weight (includes confidence)
                     + total_trades_normalized * 1.5  # Execution feasibility weight
                     + sortino_normalized * 1.2  # Risk-adjusted return importance
@@ -454,6 +462,34 @@ def convert_stats(
                     + beats_bnh_normalized * 0.6  # Market outperformance (reduced)
                 ) / 8.0  # Adjusted denominator for new weights
 
+                # Apply statistical confidence multiplier to entire score
+                # This ensures low-count strategies cannot achieve high scores regardless of other metrics
+                total_trades_count = stats["Total Trades"]
+                if total_trades_count < 20:
+                    # Extremely harsh penalty for statistically meaningless strategies
+                    confidence_multiplier = 0.1 + 0.4 * (total_trades_count / 20) ** 3
+                elif total_trades_count < 40:
+                    # Harsh penalty for insufficient confidence
+                    confidence_multiplier = (
+                        0.5 + 0.3 * ((total_trades_count - 20) / 20) ** 2
+                    )
+                elif total_trades_count < 50:
+                    # Moderate penalty for minimal significance
+                    confidence_multiplier = 0.8 + 0.2 * ((total_trades_count - 40) / 10)
+                else:
+                    # No penalty for adequate sample sizes
+                    confidence_multiplier = 1.0
+
+                stats["Score"] = base_score * confidence_multiplier
+
+                log(
+                    f"Statistical Confidence: {total_trades_count} trades → multiplier {confidence_multiplier:.4f}",
+                    "info",
+                )
+                log(
+                    f"Final Score: {base_score:.4f} × {confidence_multiplier:.4f} = {stats['Score']:.4f}",
+                    "info",
+                )
                 log(
                     f"Normalized: Win Rate {win_rate_normalized:.4f} (×2.5, confidence-adjusted)",
                     "info",

@@ -64,14 +64,14 @@ from app.tools.strategy_utils import filter_portfolios_by_signal, get_strategy_t
 # Config management is now handled by ConfigService
 
 CONFIG: Config = {
-    "TICKER": "BTC-USD",
+    "TICKER": "GLD",
     # "TICKER": [
-    #     "IR",
-    #     "JBHT",
-    #     "PARA",
-    #     "VZ",
-    #     "KO",
-    #     "CPT"
+    #     "BTC-USD",
+    #     "XAU",
+    #     "CL=F",
+    #     "DX-Y.NYB",
+    #     "QQQ",
+    #     "SPY"
     # ],
     # Load tickers from JSON file
     # "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/portfolio.json"))),

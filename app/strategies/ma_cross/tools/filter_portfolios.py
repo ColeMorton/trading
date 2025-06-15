@@ -90,16 +90,22 @@ def filter_portfolios(
             log("No portfolios to filter - returning empty DataFrame", "warning")
             return df
 
-        # Filter by strategy type if specified in config
-        strategy_type = config.get('STRATEGY_TYPE')
-        if strategy_type and 'Strategy Type' in df.columns:
+        # Apply strategy type filtering specifically for portfolios_filtered export
+        # This ensures each strategy type gets its own filtered file
+        strategy_type = config.get("STRATEGY_TYPE")
+        if strategy_type and "Strategy Type" in df.columns:
             original_count = len(df)
-            df = df.filter(pl.col('Strategy Type') == strategy_type)
-            log(f"Filtered from {original_count} to {len(df)} portfolios for strategy type: {strategy_type}", "info")
-            
+            df = df.filter(pl.col("Strategy Type") == strategy_type)
+            log(
+                f"Filtered portfolios_filtered from {original_count} to {len(df)} for strategy type: {strategy_type}",
+                "info",
+            )
+
             # Check if filtering removed all portfolios
             if len(df) == 0:
-                log(f"No portfolios found for strategy type: {strategy_type}", "warning")
+                log(
+                    f"No portfolios found for strategy type: {strategy_type}", "warning"
+                )
                 return df
 
         # Process metrics

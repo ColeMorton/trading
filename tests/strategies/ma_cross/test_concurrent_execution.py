@@ -164,7 +164,7 @@ class TestConcurrentExecution:
         # Test concurrent execution
         start_time = time.time()
         results = execute_strategy_concurrent(
-            basic_config, "SMA", mock_log, max_workers=4
+            basic_config, "SMA", mock_log, None, max_workers=4
         )
         concurrent_time = time.time() - start_time
 
@@ -185,7 +185,7 @@ class TestConcurrentExecution:
             {"Ticker": "AAPL", "Total Return [%]": 10.0}
         ]
 
-        results = execute_strategy_concurrent(small_config, "SMA", mock_log)
+        results = execute_strategy_concurrent(small_config, "SMA", mock_log, None)
 
         # Should call sequential execution for small lists
         mock_execute_strategy.assert_called_once()
@@ -208,7 +208,7 @@ class TestConcurrentExecution:
 
         mock_process_ticker_batch.side_effect = mock_batch_processing
 
-        results = execute_strategy_concurrent(basic_config, "SMA", mock_log)
+        results = execute_strategy_concurrent(basic_config, "SMA", mock_log, None)
 
         # Should return results from successful batches only
         assert len(results) >= 1  # At least MSFT should succeed
@@ -244,7 +244,7 @@ class TestConcurrentExecution:
             side_effect=mock_batch_processing,
         ):
             results = execute_strategy_concurrent(
-                config, "SMA", mock_log, max_workers=4
+                config, "SMA", mock_log, None, max_workers=4
             )
 
             # All tickers should be processed
@@ -267,7 +267,7 @@ class TestConcurrentExecution:
         ]
 
         results = execute_strategy_concurrent(
-            basic_config, "SMA", mock_log, progress_tracker=mock_progress_tracker
+            basic_config, "SMA", mock_log, mock_progress_tracker
         )
 
         # Should call progress tracker methods
@@ -279,7 +279,7 @@ class TestConcurrentExecution:
         """Test handling of empty ticker lists."""
         config = {"TICKER": [], "STRATEGY_TYPES": ["SMA"]}
 
-        results = execute_strategy_concurrent(config, "SMA", mock_log)
+        results = execute_strategy_concurrent(config, "SMA", mock_log, None)
 
         # Should return empty results gracefully
         assert results == []
@@ -288,7 +288,7 @@ class TestConcurrentExecution:
         """Test handling of invalid configuration."""
         config = {}  # Missing TICKER key
 
-        results = execute_strategy_concurrent(config, "SMA", mock_log)
+        results = execute_strategy_concurrent(config, "SMA", mock_log, None)
 
         # Should return empty results and log error
         assert results == []
@@ -349,7 +349,7 @@ class TestConcurrentExecutionIntegration:
         mock_log = Mock()
 
         # Run sequential execution
-        sequential_results = execute_strategy(integration_config, "SMA", mock_log)
+        sequential_results = execute_strategy(integration_config, "SMA", mock_log, None)
 
         # Reset mock
         mock_process_single_ticker.reset_mock()
@@ -357,7 +357,7 @@ class TestConcurrentExecutionIntegration:
 
         # Run concurrent execution
         concurrent_results = execute_strategy_concurrent(
-            integration_config, "SMA", mock_log
+            integration_config, "SMA", mock_log, None
         )
 
         # Results should be identical (order may differ)
@@ -383,7 +383,9 @@ class TestConcurrentExecutionIntegration:
         ) as mock_batch:
             mock_batch.return_value = [{"Ticker": "TEST", "Total Return [%]": 10.0}]
 
-            results = execute_strategy_concurrent(integration_config, "SMA", mock_log)
+            results = execute_strategy_concurrent(
+                integration_config, "SMA", mock_log, None
+            )
 
             # Should have called batch processing (indicating concurrent execution)
             assert mock_batch.called

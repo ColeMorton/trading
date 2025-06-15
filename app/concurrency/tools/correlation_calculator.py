@@ -385,6 +385,53 @@ class CorrelationCalculator:
 
             return fallback_cov, diagnostics
 
+    def apply_shrinkage_estimator(
+        self, sample_cov: np.ndarray, shrinkage_target: str = "constant_correlation"
+    ) -> Tuple[np.ndarray, float]:
+        """Apply shrinkage estimator to covariance matrix.
+
+        Args:
+            sample_cov: Sample covariance matrix
+            shrinkage_target: Shrinkage target method
+
+        Returns:
+            Tuple of (shrunk_cov_matrix, shrinkage_intensity)
+        """
+        try:
+            n_assets = sample_cov.shape[0]
+
+            # Default shrinkage intensity (Ledoit-Wolf method approximation)
+            shrinkage_intensity = min(1.0, max(0.0, 1.0 / n_assets))
+
+            if shrinkage_target == "constant_correlation":
+                # Target: constant correlation matrix
+                sample_corr = np.corrcoef(sample_cov)
+                avg_corr = np.mean(sample_corr[np.triu_indices(n_assets, k=1)])
+
+                # Create target matrix with constant correlation
+                target = np.full((n_assets, n_assets), avg_corr)
+                np.fill_diagonal(target, 1.0)
+
+                # Convert back to covariance
+                sample_std = np.sqrt(np.diag(sample_cov))
+                target_cov = np.outer(sample_std, sample_std) * target
+
+            else:
+                # Default target: diagonal matrix (identity scaled by average variance)
+                avg_variance = np.mean(np.diag(sample_cov))
+                target_cov = np.eye(n_assets) * avg_variance
+
+            # Apply shrinkage
+            shrunk_cov = (
+                1 - shrinkage_intensity
+            ) * sample_cov + shrinkage_intensity * target_cov
+
+            return shrunk_cov, shrinkage_intensity
+
+        except Exception:
+            # Fallback: return original matrix with zero shrinkage
+            return sample_cov, 0.0
+
 
 class CorrelationMatrix:
     """

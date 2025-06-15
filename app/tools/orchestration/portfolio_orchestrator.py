@@ -256,7 +256,7 @@ class PortfolioOrchestrator:
             else:
                 portfolios_df = pl.DataFrame()
 
-            # Filter portfolios
+            # Filter portfolios with strategy filtering enabled for portfolios_filtered export
             filtered_portfolios_df = filter_portfolios(portfolios_df, config, self.log)
 
             # Convert DataFrame back to list of dictionaries

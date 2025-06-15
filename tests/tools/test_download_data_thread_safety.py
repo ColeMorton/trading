@@ -372,7 +372,7 @@ class TestConcurrentStrategyExecution:
 
         # Execute strategy concurrently
         results = execute_strategy_concurrent(
-            strategy_config, "SMA", mock_log, max_workers=4
+            strategy_config, "SMA", mock_log, None, max_workers=4
         )
 
         # Verify downloads happened sequentially (no overlap due to lock)
