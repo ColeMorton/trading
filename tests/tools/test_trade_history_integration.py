@@ -164,6 +164,112 @@ class TestTradeHistoryBacktestIntegration(unittest.TestCase):
 
             self.assertFalse(os.path.exists(expected_path))
 
+    def test_backtest_with_force_refresh_trade_history(self):
+        """Test backtest with force refresh trade history parameter."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config = {
+                "BASE_DIR": temp_dir,
+                "TICKER": "BTC-USD",
+                "STRATEGY_TYPE": "SMA",
+                "short_window": 10,
+                "long_window": 20,
+                "EXPORT_TRADE_HISTORY": True,
+            }
+
+            def mock_log(message, level="info"):
+                pass
+
+            # First backtest - should create file
+            portfolio1 = backtest_strategy(
+                self.test_data, config, mock_log, export_trade_history=True
+            )
+
+            expected_filename = generate_trade_filename(config, "json")
+            expected_path = os.path.join(
+                temp_dir, "json", "trade_history", expected_filename
+            )
+
+            self.assertTrue(os.path.exists(expected_path))
+            original_mtime = os.path.getmtime(expected_path)
+
+            # Small delay to ensure timestamp difference
+            import time
+
+            time.sleep(0.1)
+
+            # Second backtest without force refresh - should skip
+            portfolio2 = backtest_strategy(
+                self.test_data,
+                config,
+                mock_log,
+                export_trade_history=True,
+                force_refresh_trade_history=False,
+            )
+
+            # File should not have been modified
+            current_mtime = os.path.getmtime(expected_path)
+            self.assertEqual(original_mtime, current_mtime)
+
+            # Small delay to ensure timestamp difference
+            time.sleep(0.1)
+
+            # Third backtest with force refresh - should regenerate
+            portfolio3 = backtest_strategy(
+                self.test_data,
+                config,
+                mock_log,
+                export_trade_history=True,
+                force_refresh_trade_history=True,
+            )
+
+            # File should have been modified
+            final_mtime = os.path.getmtime(expected_path)
+            self.assertGreater(final_mtime, current_mtime)
+
+    def test_backtest_optimization_with_old_file(self):
+        """Test that backtest regenerates file when existing file is old."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config = {
+                "BASE_DIR": temp_dir,
+                "TICKER": "ETH-USD",
+                "STRATEGY_TYPE": "SMA",
+                "short_window": 10,
+                "long_window": 20,
+                "EXPORT_TRADE_HISTORY": True,
+            }
+
+            def mock_log(message, level="info"):
+                pass
+
+            # First backtest - creates file
+            portfolio1 = backtest_strategy(
+                self.test_data, config, mock_log, export_trade_history=True
+            )
+
+            expected_filename = generate_trade_filename(config, "json")
+            expected_path = os.path.join(
+                temp_dir, "json", "trade_history", expected_filename
+            )
+
+            self.assertTrue(os.path.exists(expected_path))
+
+            # Simulate old file by changing modification time
+            import time
+
+            old_time = time.time() - (24 * 60 * 60 + 1)  # More than 24 hours ago
+            os.utime(expected_path, (old_time, old_time))
+
+            old_mtime = os.path.getmtime(expected_path)
+
+            # Second backtest should regenerate the old file
+            portfolio2 = backtest_strategy(
+                self.test_data, config, mock_log, export_trade_history=True
+            )
+
+            # File should have been regenerated
+            new_mtime = os.path.getmtime(expected_path)
+            self.assertGreater(new_mtime, old_mtime)
+
     def test_multiple_strategy_exports(self):
         """Test exporting multiple strategies to same directory."""
         with tempfile.TemporaryDirectory() as temp_dir:

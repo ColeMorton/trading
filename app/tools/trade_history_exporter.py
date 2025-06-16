@@ -626,7 +626,7 @@ def _is_trade_history_current(filepath: str) -> bool:
     Returns:
         True if file exists and was created today, False otherwise
     """
-    if not os.path.exists(filepath):
+    if not os.path.exists(filepath) or not os.path.isfile(filepath):
         return False
 
     try:

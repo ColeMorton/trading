@@ -75,10 +75,10 @@ class TestTradeHistoryExporter(unittest.TestCase):
         dates = pd.date_range("2023-01-01", periods=100, freq="D")
         prices = pd.Series([100 + i * 0.5 for i in range(100)], index=dates)
 
-        # Create mock trades DataFrame
+        # Create mock trades DataFrame with integer indices (like VectorBT returns)
         trade_data = {
-            "Entry Timestamp": ["2023-01-05", "2023-02-01"],
-            "Exit Timestamp": ["2023-01-10", "2023-02-15"],
+            "Entry Timestamp": [4, 31],  # Integer indices into the date range
+            "Exit Timestamp": [9, 45],  # Integer indices into the date range
             "Avg Entry Price": [102.5, 120.0],
             "Avg Exit Price": [105.0, 118.0],
             "Size": [0.5, 0.3],
@@ -92,7 +92,7 @@ class TestTradeHistoryExporter(unittest.TestCase):
         order_data = {
             "Order Id": [0, 1, 2, 3],
             "Column": [0, 0, 0, 0],
-            "Timestamp": ["2023-01-05", "2023-01-10", "2023-02-01", "2023-02-15"],
+            "Timestamp": [4, 9, 31, 45],  # Integer indices
             "Size": [0.5, 0.5, 0.3, 0.3],
             "Price": [102.5, 105.0, 120.0, 118.0],
             "Fees": [0.1, 0.1, 0.12, 0.12],
@@ -104,10 +104,10 @@ class TestTradeHistoryExporter(unittest.TestCase):
             "Position Id": [0, 1],
             "Column": [0, 0],
             "Size": [0.5, 0.3],
-            "Entry Timestamp": ["2023-01-05", "2023-02-01"],
+            "Entry Timestamp": [4, 31],  # Integer indices
             "Avg Entry Price": [102.5, 120.0],
             "Entry Fees": [0.1, 0.12],
-            "Exit Timestamp": ["2023-01-10", "2023-02-15"],
+            "Exit Timestamp": [9, 45],  # Integer indices
             "Avg Exit Price": [105.0, 118.0],
             "Exit Fees": [0.1, 0.12],
             "PnL": [1.25, -0.6],
@@ -140,6 +140,10 @@ class TestTradeHistoryExporter(unittest.TestCase):
         mock_portfolio.total_return.return_value = 0.15
         mock_portfolio.sharpe_ratio.return_value = 1.2
         mock_portfolio.max_drawdown.return_value = -0.05
+
+        # Add required _data_pd attribute for timestamp mapping
+        dates = pd.date_range("2023-01-01", periods=100, freq="D")
+        mock_portfolio._data_pd = pd.DataFrame({"Date": dates})
 
         return mock_portfolio
 
@@ -494,6 +498,41 @@ class TestTradeHistoryExporter(unittest.TestCase):
             self.assertTrue(os.path.exists(orders_file))
             self.assertTrue(os.path.exists(positions_file))
 
+    def test_csv_export_optimization_not_affected(self):
+        """Test that CSV export is not affected by JSON optimization (since it doesn't use the current file check)."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config = self.test_configs["sma_config"].copy()
+            config["BASE_DIR"] = temp_dir
+
+            # First CSV export
+            success1 = export_trade_history(
+                self.mock_portfolio, config, export_type="csv"
+            )
+            self.assertTrue(success1)
+
+            base_filename = generate_trade_filename(config, "csv")
+            trade_history_dir = os.path.join(temp_dir, "json", "trade_history")
+            trades_file = os.path.join(
+                trade_history_dir, base_filename.replace(".csv", "_trades.csv")
+            )
+
+            self.assertTrue(os.path.exists(trades_file))
+            original_mtime = os.path.getmtime(trades_file)
+
+            import time
+
+            time.sleep(0.1)
+
+            # Second CSV export (CSV doesn't have optimization, so file should be regenerated)
+            success2 = export_trade_history(
+                self.mock_portfolio, config, export_type="csv"
+            )
+            self.assertTrue(success2)
+
+            # File should have been modified (CSV doesn't skip)
+            current_mtime = os.path.getmtime(trades_file)
+            self.assertGreater(current_mtime, original_mtime)
+
     def test_empty_portfolio_handling(self):
         """Test handling of empty portfolio data."""
         # Create mock portfolio with no trades
@@ -595,6 +634,116 @@ class TestTradeHistoryExporter(unittest.TestCase):
 
             # Old file should return False
             self.assertFalse(_is_trade_history_current(test_file))
+
+    def test_is_trade_history_current_edge_cases(self):
+        """Test edge cases for trade history currency check."""
+        # Test with invalid file path
+        self.assertFalse(_is_trade_history_current("/nonexistent/path/file.json"))
+
+        # Test with directory instead of file
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.assertFalse(_is_trade_history_current(temp_dir))
+
+    def test_export_trade_history_with_base_dir_override(self):
+        """Test export with base_dir parameter override."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config = self.test_configs["sma_config"].copy()
+            # Don't set BASE_DIR in config
+            if "BASE_DIR" in config:
+                del config["BASE_DIR"]
+
+            # Use base_dir parameter instead
+            success = export_trade_history(
+                self.mock_portfolio, config, export_type="json", base_dir=temp_dir
+            )
+
+            self.assertTrue(success)
+
+            expected_filename = generate_trade_filename(config, "json")
+            expected_path = os.path.join(
+                temp_dir, "json", "trade_history", expected_filename
+            )
+            self.assertTrue(os.path.exists(expected_path))
+
+    def test_export_optimization_with_config_changes(self):
+        """Test that optimization works correctly when configs change."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # First config
+            config1 = {
+                "BASE_DIR": temp_dir,
+                "TICKER": "BTC-USD",
+                "STRATEGY_TYPE": "SMA",
+                "short_window": 10,
+                "long_window": 20,
+            }
+
+            # Export first strategy
+            success1 = export_trade_history(
+                self.mock_portfolio, config1, export_type="json"
+            )
+            self.assertTrue(success1)
+
+            filename1 = generate_trade_filename(config1, "json")
+            path1 = os.path.join(temp_dir, "json", "trade_history", filename1)
+            self.assertTrue(os.path.exists(path1))
+
+            # Different config (different filename)
+            config2 = {
+                "BASE_DIR": temp_dir,
+                "TICKER": "ETH-USD",  # Different ticker
+                "STRATEGY_TYPE": "SMA",
+                "short_window": 10,
+                "long_window": 20,
+            }
+
+            # Export second strategy (should create new file, not skip)
+            success2 = export_trade_history(
+                self.mock_portfolio, config2, export_type="json"
+            )
+            self.assertTrue(success2)
+
+            filename2 = generate_trade_filename(config2, "json")
+            path2 = os.path.join(temp_dir, "json", "trade_history", filename2)
+            self.assertTrue(os.path.exists(path2))
+
+            # Verify different filenames
+            self.assertNotEqual(filename1, filename2)
+
+    def test_export_skip_behavior_with_config_export_history_false(self):
+        """Test that optimization still works when EXPORT_TRADE_HISTORY is in config."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config = self.test_configs["sma_config"].copy()
+            config["BASE_DIR"] = temp_dir
+            config[
+                "EXPORT_TRADE_HISTORY"
+            ] = False  # Should not affect the function directly
+
+            # First export
+            success1 = export_trade_history(
+                self.mock_portfolio, config, export_type="json"
+            )
+            self.assertTrue(success1)
+
+            expected_filename = generate_trade_filename(config, "json")
+            expected_path = os.path.join(
+                temp_dir, "json", "trade_history", expected_filename
+            )
+
+            original_mtime = os.path.getmtime(expected_path)
+
+            import time
+
+            time.sleep(0.1)
+
+            # Second export should still be skipped
+            success2 = export_trade_history(
+                self.mock_portfolio, config, export_type="json"
+            )
+            self.assertTrue(success2)
+
+            # File should not have been modified
+            current_mtime = os.path.getmtime(expected_path)
+            self.assertEqual(original_mtime, current_mtime)
 
 
 class TestTradeHistoryExporterIntegration(unittest.TestCase):

@@ -105,7 +105,7 @@ CONFIG: Config = {
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
     "REFRESH": True,
     # "STRATEGY_TYPES": ["SMA", "EMA"],
-    "STRATEGY_TYPES": ["SMA"],
+    "STRATEGY_TYPES": ["EMA"],
     "DIRECTION": "Long",
     "USE_HOURLY": False,
     "USE_YEARS": False,
