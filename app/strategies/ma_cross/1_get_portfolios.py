@@ -64,15 +64,22 @@ from app.tools.strategy_utils import filter_portfolios_by_signal, get_strategy_t
 # Config management is now handled by ConfigService
 
 CONFIG: Config = {
-    "TICKER": "GLD",
-    # "TICKER": [
-    #     "BTC-USD",
-    #     "XAU",
-    #     "CL=F",
-    #     "DX-Y.NYB",
-    #     "QQQ",
-    #     "SPY"
-    # ],
+    # "TICKER": "GLD",
+    "TICKER": [
+        "LMT",
+        "EQT",
+        "COR",
+        "CRWD",
+        "MPC",
+        "ABT",
+        "PWR",
+        "CEG",
+        "DASH",
+        "NI",
+        "ELV",
+        "IDXX",
+        "J",
+    ],
     # Load tickers from JSON file
     # "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/portfolio.json"))),
     # "TICKER_2": 'AVGO',
@@ -91,19 +98,19 @@ CONFIG: Config = {
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": False,
-    # "MINIMUMS": {
-    #     "WIN_RATE": 0.44,
-    #     # "TRADES": 34,
-    #     # "WIN_RATE": 0.50,
-    #     # "TRADES": 54,
-    #     # "WIN_RATE": 0.61,
-    #     "EXPECTANCY_PER_TRADE": 1,
-    #     "PROFIT_FACTOR": 1,
-    #     # "SORTINO_RATIO": 0.4,
-    #     # "BEATS_BNH": 0
-    #     # "BEATS_BNH": 0.13
-    # },
+    "USE_CURRENT": True,
+    "MINIMUMS": {
+        "WIN_RATE": 0.44,
+        "TRADES": 34,
+        # "WIN_RATE": 0.50,
+        # "TRADES": 54,
+        # "WIN_RATE": 0.61,
+        "EXPECTANCY_PER_TRADE": 1,
+        "PROFIT_FACTOR": 1,
+        # "SORTINO_RATIO": 0.4,
+        # "BEATS_BNH": 0
+        # "BEATS_BNH": 0.13
+    },
     "SORT_BY": "Score",
     "SORT_ASC": False,
     "USE_GBM": False,

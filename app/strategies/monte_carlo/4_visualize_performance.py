@@ -6,7 +6,7 @@ import polars as pl
 from scipy import stats
 
 TICKER = "BTC-USD"
-BASE_DIR = "C:/Projects/trading"  # Add this line
+BASE_DIR = "/Users/colemorton/Projects/trading"
 
 
 def visualize_performance(csv_file):

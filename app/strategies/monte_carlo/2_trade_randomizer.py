@@ -6,7 +6,7 @@ from typing import List
 import matplotlib.pyplot as plt
 import polars as pl
 
-TICKER = "SUI20947-USD"
+TICKER = "BTC-USD"
 NUM_PERMUTATIONS = 1000
 
 # Set up logging
