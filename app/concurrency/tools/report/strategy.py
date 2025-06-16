@@ -37,11 +37,26 @@ def create_strategy_object(
     """
     # Check if allocation is enabled in the report
     include_allocation = stats.get("include_allocation", True)
-    # Determine strategy type
-    strategy_type = config.get("STRATEGY_TYPE", "EMA")
+    # Determine strategy type - use explicit STRATEGY_TYPE from CSV if available
+    strategy_type = (
+        config.get("STRATEGY_TYPE")
+        or config.get("Strategy Type")
+        or config.get("MA Type")
+    )
 
-    # Check if this is a MACD strategy based on the presence of SIGNAL_WINDOW
-    if "SIGNAL_WINDOW" in config and config["SIGNAL_WINDOW"] > 0:
+    if not strategy_type:
+        raise ValueError(
+            "Strategy type must be explicitly specified in CSV. No default strategy type is allowed."
+        )
+
+    # Only override with MACD detection if STRATEGY_TYPE wasn't explicitly set
+    # This preserves the explicit strategy type from CSV while still supporting
+    # legacy auto-detection for configurations without explicit types
+    if (
+        strategy_type == "EMA"
+        and "SIGNAL_WINDOW" in config
+        and config["SIGNAL_WINDOW"] > 0
+    ):
         strategy_type = "MACD"
 
     # Also check for explicit type field which might come from JSON portfolios

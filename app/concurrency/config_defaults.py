@@ -116,8 +116,8 @@ class ConcurrencyDefaults:
     )
 
     # General Configuration
-    PORTFOLIO: str = "protected.csv"
-    # PORTFOLIO: str = "BTC_d_20250530.csv"
+    # PORTFOLIO: str = "protected.csv"
+    PORTFOLIO: str = "BTC_d_20250530.csv"
     # PORTFOLIO: str = "portfolio_risk.csv"
     # PORTFOLIO: str = "portfolio_d_20250510.csv"
     # PORTFOLIO: str = "QQQ_d_20250529.csv"
@@ -151,6 +151,9 @@ def get_default_config() -> Dict[str, Any]:
     config = {}
     for key, value in defaults.__dict__.items():
         config[key] = value
+
+    # Add Monte Carlo defaults
+    config = add_monte_carlo_to_defaults(config)
 
     return config
 
@@ -250,6 +253,30 @@ def validate_config(
                 "warning",
             )
         validated["CONCURRENCY_LIMIT_MODE"] = defaults["CONCURRENCY_LIMIT_MODE"]
+
+    # Monte Carlo validation (basic)
+    if (
+        not isinstance(validated.get("MC_NUM_SIMULATIONS"), int)
+        or validated["MC_NUM_SIMULATIONS"] < 10
+    ):
+        if log:
+            log(
+                f"Invalid MC_NUM_SIMULATIONS: {validated.get('MC_NUM_SIMULATIONS')}. Using default: {defaults['MC_NUM_SIMULATIONS']}",
+                "warning",
+            )
+        validated["MC_NUM_SIMULATIONS"] = defaults["MC_NUM_SIMULATIONS"]
+
+    # Ensure reasonable limits
+    validated["MC_NUM_SIMULATIONS"] = min(
+        1000, validated["MC_NUM_SIMULATIONS"]
+    )  # Cap at 1000 for beginners
+    validated["MC_MAX_PARAMETERS_TO_TEST"] = min(
+        50, validated.get("MC_MAX_PARAMETERS_TO_TEST", 10)
+    )  # Cap at 50
+
+    # Validate confidence level
+    confidence = validated.get("MC_CONFIDENCE_LEVEL", 0.95)
+    validated["MC_CONFIDENCE_LEVEL"] = max(0.5, min(0.999, confidence))
 
     if log:
         log("Configuration validated successfully", "info")
@@ -384,5 +411,46 @@ def get_optimized_config_for_mstr() -> Dict[str, Any]:
     # 10. Signal Processing Fix
     # Use consistent signal processing that matches backtest behavior
     config["USE_FIXED_SIGNAL_PROC"] = True
+
+    return config
+
+
+# === MONTE CARLO CONFIGURATION ADDITIONS ===
+
+
+def get_monte_carlo_defaults() -> Dict[str, Any]:
+    """Get minimal Monte Carlo configuration defaults.
+
+    Returns:
+        Dict[str, Any]: Monte Carlo configuration dictionary
+    """
+    return {
+        # === MONTE CARLO ANALYSIS (BASIC) ===
+        # Enable Monte Carlo analysis and include results in reports
+        "MC_INCLUDE_IN_REPORTS": True,
+        # Number of simulations (keep small for beginners)
+        "MC_NUM_SIMULATIONS": 100,
+        # Confidence level for statistical analysis
+        "MC_CONFIDENCE_LEVEL": 0.95,
+        # Maximum number of parameters to test
+        "MC_MAX_PARAMETERS_TO_TEST": 10,
+    }
+
+
+def add_monte_carlo_to_defaults(config: Dict[str, Any]) -> Dict[str, Any]:
+    """Add Monte Carlo configuration to existing configuration.
+
+    Args:
+        config: Existing configuration dictionary
+
+    Returns:
+        Dict[str, Any]: Configuration with Monte Carlo defaults added
+    """
+    mc_defaults = get_monte_carlo_defaults()
+
+    # Add Monte Carlo defaults if not already present
+    for key, value in mc_defaults.items():
+        if key not in config:
+            config[key] = value
 
     return config

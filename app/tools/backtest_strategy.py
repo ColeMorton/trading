@@ -7,7 +7,9 @@ import vectorbt as vbt
 from app.tools.expectancy import calculate_expectancy
 
 
-def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Portfolio:
+def backtest_strategy(
+    data: pl.DataFrame, config: dict, log: Callable, export_trade_history: bool = False
+) -> vbt.Portfolio:
     """
     Backtest the MA cross strategy.
 
@@ -23,7 +25,9 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
             - short_window (int, optional): Short-term window size
             - long_window (int, optional): Long-term window size
             - signal_window (int, optional): Signal line window size
+            - EXPORT_TRADE_HISTORY (bool, optional): Whether to export trade history to CSV
         log: Logging function for recording events and errors
+        export_trade_history: Whether to export trade history to CSV (overrides config setting)
 
     Returns:
         Portfolio object with backtest results including performance metrics.
@@ -220,9 +224,9 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
                                     f"All trades are winning. Setting Expectancy per Trade to Avg Win: {avg_win:.4f}",
                                     "info",
                                 )
-                                stats_dict["Expectancy per Trade"] = (
-                                    expectancy_per_trade
-                                )
+                                stats_dict[
+                                    "Expectancy per Trade"
+                                ] = expectancy_per_trade
 
                                 # Add debug logging
                                 log_func(
@@ -352,6 +356,24 @@ def backtest_strategy(data: pl.DataFrame, config: dict, log: Callable) -> vbt.Po
 
         # Attach the stats method to the portfolio instance
         portfolio.stats = stats.__get__(portfolio)
+
+        # Export trade history if requested
+        should_export = export_trade_history or config.get(
+            "EXPORT_TRADE_HISTORY", False
+        )
+        if should_export:
+            try:
+                from app.tools.trade_history_exporter import export_trade_history
+
+                success = export_trade_history(portfolio, config, export_type="trades")
+                if success:
+                    log("Trade history exported successfully", "info")
+                else:
+                    log("Trade history export completed with warnings", "warning")
+            except ImportError:
+                log("Trade history exporter not available", "warning")
+            except Exception as e:
+                log(f"Failed to export trade history: {e}", "warning")
 
         return portfolio
 

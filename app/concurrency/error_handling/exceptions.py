@@ -142,6 +142,29 @@ class OptimizationError(ConcurrencyError):
             self.context["optimization_type"] = optimization_type
 
 
+class MonteCarloAnalysisError(ConcurrencyError):
+    """Raised when Monte Carlo analysis fails.
+
+    This includes failures in bootstrap sampling, parameter robustness testing,
+    or portfolio-level Monte Carlo orchestration.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        ticker: Optional[str] = None,
+        simulation_count: Optional[int] = None,
+        context: Optional[Dict[str, Any]] = None,
+    ):
+        super().__init__(message, context)
+        self.ticker = ticker
+        self.simulation_count = simulation_count
+        if ticker:
+            self.context["ticker"] = ticker
+        if simulation_count is not None:
+            self.context["simulation_count"] = simulation_count
+
+
 class DataAlignmentError(ConcurrencyError):
     """Raised when strategy data alignment fails.
 
@@ -202,6 +225,11 @@ EXCEPTION_MAPPINGS = {
     "metric_calculation": ConcurrencyAnalysisError,
     "efficiency_scoring": ConcurrencyAnalysisError,
     "data_alignment": DataAlignmentError,
+    # Monte Carlo analysis errors
+    "monte_carlo_analysis": MonteCarloAnalysisError,
+    "bootstrap_sampling": MonteCarloAnalysisError,
+    "parameter_robustness": MonteCarloAnalysisError,
+    "portfolio_monte_carlo": MonteCarloAnalysisError,
     # Report generation errors
     "json_report": ReportGenerationError,
     "optimization_report": ReportGenerationError,

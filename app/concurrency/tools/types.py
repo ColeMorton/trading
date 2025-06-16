@@ -181,6 +181,23 @@ class SignalMetrics(TypedDict):
     summary: Dict[str, Dict[str, Union[float, str]]]
 
 
+class MonteCarloMetrics(TypedDict):
+    """Monte Carlo parameter robustness metrics for individual strategies.
+
+    Each strategy (identified by ticker for now) is analyzed for parameter stability
+    by testing variations around the base parameters. Multiple strategies may exist
+    for the same asset with different parameter sets.
+    """
+
+    total_strategies_analyzed: int
+    stable_strategies_count: int
+    stable_strategies_percentage: float
+    average_stability_score: float
+    simulation_parameters: Dict[str, Any]
+    strategy_results: Dict[str, Dict[str, Any]]
+    description: str
+
+
 class PortfolioMetrics(TypedDict):
     """Complete portfolio metrics."""
 
@@ -188,6 +205,7 @@ class PortfolioMetrics(TypedDict):
     efficiency: EfficiencyMetrics
     risk: RiskMetrics
     signals: SignalMetrics
+    monte_carlo: NotRequired[MonteCarloMetrics]
 
 
 # Legacy type definitions kept for backward compatibility

@@ -10,7 +10,7 @@ from typing import Dict, List, Type
 
 from app.tools.exceptions import StrategyError
 from app.tools.strategy.base import BaseStrategy
-from app.tools.strategy.concrete import EMAStrategy, SMAStrategy
+from app.tools.strategy.concrete import EMAStrategy, MACDStrategy, SMAStrategy
 
 
 class StrategyFactory:
@@ -33,7 +33,11 @@ class StrategyFactory:
 
     def _initialize_default_strategies(self):
         """Initialize factory with default strategy types."""
-        self._strategies = {"SMA": SMAStrategy, "EMA": EMAStrategy}
+        self._strategies = {
+            "SMA": SMAStrategy,
+            "EMA": EMAStrategy,
+            "MACD": MACDStrategy,
+        }
 
     def register_strategy(self, strategy_type: str, strategy_class: Type[BaseStrategy]):
         """

@@ -37,6 +37,8 @@ class NumpyEncoder(json.JSONEncoder):
             return int(obj)
         elif isinstance(obj, (np.floating, np.float64, np.float32, np.float16)):
             return float(obj)
+        elif isinstance(obj, (np.bool_, np.bool8)):
+            return bool(obj)
         elif isinstance(obj, (np.ndarray,)):
             return obj.tolist()
         return super(NumpyEncoder, self).default(obj)
@@ -193,9 +195,142 @@ def run_analysis(
             else:
                 log(f"{key}: {value}")
 
+        # Run Monte Carlo analysis if enabled
+        monte_carlo_results = {}
+        if config.get("MC_INCLUDE_IN_REPORTS", False):
+            log(
+                "Monte Carlo analysis enabled - running parameter robustness testing",
+                "info",
+            )
+            try:
+                from app.concurrency.tools.monte_carlo import (
+                    PortfolioMonteCarloManager,
+                    create_monte_carlo_config,
+                )
+
+                # Create Monte Carlo configuration
+                mc_config = create_monte_carlo_config(config)
+                log(f"Monte Carlo simulations: {mc_config.num_simulations}", "info")
+                log(f"Confidence level: {mc_config.confidence_level}", "info")
+                log(
+                    f"Max parameters to test: {mc_config.max_parameters_to_test}",
+                    "info",
+                )
+
+                # Create manager and run analysis
+                mc_manager = PortfolioMonteCarloManager(
+                    config=mc_config,
+                    max_workers=config.get("MC_MAX_WORKERS", 4),
+                    log=log,
+                )
+
+                # Convert strategies to format expected by Monte Carlo manager
+                portfolio_strategies = []
+                for strategy in updated_strategies:
+                    # Extract strategy type - fail fast if not available
+                    strategy_type = (
+                        strategy.get("type")
+                        or strategy.get("STRATEGY_TYPE")
+                        or strategy.get("Strategy Type")
+                    )
+                    if not strategy_type:
+                        raise ValueError(
+                            f"Strategy type must be explicitly specified for Monte Carlo analysis. Strategy: {strategy.get('ticker', 'unknown')}"
+                        )
+
+                    # Extract parameters from strategy data
+                    portfolio_strategy = {
+                        "ticker": strategy.get("ticker") or strategy.get("TICKER"),
+                        "Strategy Type": strategy_type,  # Use actual strategy type
+                        "Window Short": strategy.get("short_window")
+                        or strategy.get("SHORT_WINDOW"),
+                        "Window Long": strategy.get("long_window")
+                        or strategy.get("LONG_WINDOW"),
+                    }
+
+                    # Add signal window for MACD strategies
+                    if strategy_type == "MACD":
+                        signal_window = strategy.get("signal_window") or strategy.get(
+                            "SIGNAL_WINDOW"
+                        )
+                        if signal_window:
+                            portfolio_strategy["Signal Window"] = signal_window
+
+                    # Only include strategies with valid parameters
+                    if all(
+                        portfolio_strategy[key]
+                        for key in ["ticker", "Window Short", "Window Long"]
+                    ):
+                        portfolio_strategies.append(portfolio_strategy)
+
+                log(
+                    f"Running Monte Carlo analysis on {len(portfolio_strategies)} strategies",
+                    "info",
+                )
+                monte_carlo_results = mc_manager.analyze_portfolio(portfolio_strategies)
+
+                if monte_carlo_results:
+                    # Log portfolio-level metrics
+                    portfolio_metrics = mc_manager.get_portfolio_stability_metrics()
+                    log(
+                        f"Portfolio stability score: {portfolio_metrics['portfolio_stability_score']:.3f}",
+                        "info",
+                    )
+                    log(
+                        f"Stable tickers: {portfolio_metrics['stable_tickers_percentage']:.1f}%",
+                        "info",
+                    )
+
+                    # Log recommendations
+                    recommendations = mc_manager.get_recommendations()
+                    if recommendations:
+                        log(
+                            f"Monte Carlo parameter recommendations for top {min(3, len(recommendations))} tickers:",
+                            "info",
+                        )
+                        for rec in recommendations[:3]:
+                            log(
+                                f"  {rec['ticker']}: {rec['recommended_parameters']} (stability: {rec['stability_score']:.3f})",
+                                "info",
+                            )
+
+                    # Generate visualizations if requested
+                    if config.get("VISUALIZATION", False):
+                        try:
+                            from app.concurrency.tools.monte_carlo import (
+                                create_monte_carlo_visualizations,
+                            )
+
+                            log("Generating Monte Carlo visualizations", "info")
+                            viz_paths = create_monte_carlo_visualizations(
+                                monte_carlo_results, portfolio_metrics
+                            )
+
+                            if viz_paths:
+                                log(f"Monte Carlo visualizations saved to:", "info")
+                                for path in viz_paths:
+                                    log(f"  {path}", "info")
+                            else:
+                                log("No visualizations generated", "warning")
+
+                        except Exception as viz_error:
+                            log(
+                                f"Error generating Monte Carlo visualizations: {str(viz_error)}",
+                                "error",
+                            )
+
+                else:
+                    log("No Monte Carlo results generated", "warning")
+
+            except Exception as e:
+                log(f"Error during Monte Carlo analysis: {str(e)}", "error")
+                log("Continuing with standard analysis results", "info")
+
         # Generate and save JSON report for all strategies
         log("Generating JSON report for all strategies", "info")
-        all_report = generate_json_report(updated_strategies, all_stats, log, config)
+        all_report = generate_json_report(
+            updated_strategies, all_stats, log, config, monte_carlo_results
+        )
         save_json_report(all_report, config, log)
 
         # If optimization is enabled, run permutation analysis

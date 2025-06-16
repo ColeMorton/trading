@@ -17,8 +17,8 @@ from scipy.optimize import minimize
 # start_date = '2023-10-24'
 # end_date = '2024-11-02'
 
-start_date = "2020-06-10"
-end_date = "2025-06-10"
+start_date = "2020-06-15"
+end_date = "2025-06-15"
 
 HALF_RULE = True
 
@@ -31,7 +31,7 @@ HALF_RULE = True
 # ASSETS = ['PENDLE-USD', 'SUI20947-USD']
 
 ASSETS = [
-    "SMCI",
+    "COR",
     "TSLA",
     "HIMS",
     "CLSK",
@@ -39,10 +39,7 @@ ASSETS = [
     "USB",
     "AIZ",
     "CMG",
-    "NBIX",
-    "PLTR",
     "COIN",
-    "FANG",
     "ALGN",
 ]
 

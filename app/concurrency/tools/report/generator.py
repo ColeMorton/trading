@@ -23,6 +23,7 @@ def generate_json_report(
     stats: Dict[str, Any],
     log: Callable[[str, str], None],
     config: Dict[str, Any],
+    monte_carlo_results: Dict[str, Any] = None,
 ) -> ConcurrencyReport:
     """Generate a comprehensive JSON report of the concurrency analysis.
 
@@ -31,11 +32,13 @@ def generate_json_report(
         stats (Dict[str, Any]): Statistics from the concurrency analysis
         log (Callable[[str, str], None]): Logging function
         config (Dict[str, Any]): Configuration dictionary containing RATIO_BASED_ALLOCATION
+        monte_carlo_results (Dict[str, Any], optional): Monte Carlo analysis results
 
     Returns:
         ConcurrencyReport: Complete report containing:
             - strategies: List of strategy details and parameters
             - portfolio_metrics: Dictionary of concurrency, efficiency, risk and signal metrics
+                - monte_carlo: Monte Carlo parameter robustness results (if enabled)
 
     Raises:
         ValueError: If input data is invalid or missing required fields
@@ -140,6 +143,100 @@ def generate_json_report(
         # Only include strategies if configured to do so
         if include_strategies:
             report["strategies"] = strategy_objects
+
+        # Add Monte Carlo analysis results if available
+        if monte_carlo_results and config.get("MC_INCLUDE_IN_REPORTS", False):
+            log("Including Monte Carlo analysis in report", "info")
+
+            # Add portfolio-level Monte Carlo metrics
+            if (
+                hasattr(monte_carlo_results, "__iter__")
+                and len(monte_carlo_results) > 0
+            ):
+                # Calculate portfolio-level metrics from ticker results
+                total_tickers = len(monte_carlo_results)
+                stable_tickers = 0
+                stability_scores = []
+
+                strategy_results = {}
+                for strategy_id, result in monte_carlo_results.items():
+                    # Convert MonteCarloPortfolioResult to serializable format
+                    strategy_data = {
+                        "strategy_id": strategy_id,
+                        "ticker": getattr(
+                            result,
+                            "ticker",
+                            strategy_id.split("_")[0]
+                            if "_" in strategy_id
+                            else strategy_id,
+                        ),
+                        "strategy_stability_score": float(
+                            getattr(result, "portfolio_stability_score", 0.0)
+                        ),
+                        "recommended_parameters": getattr(
+                            result, "recommended_parameters", None
+                        ),
+                        "parameter_variations": [],
+                        "analysis_metadata": getattr(result, "analysis_metadata", {}),
+                    }
+
+                    # Add parameter results if available
+                    if (
+                        hasattr(result, "parameter_results")
+                        and result.parameter_results
+                    ):
+                        for param_result in result.parameter_results:
+                            param_data = {
+                                "parameter_combination": getattr(
+                                    param_result, "parameter_combination", None
+                                ),
+                                "stability_score": float(
+                                    getattr(param_result, "stability_score", 0.0)
+                                ),
+                                "parameter_robustness": float(
+                                    getattr(param_result, "parameter_robustness", 0.0)
+                                ),
+                                "regime_consistency": float(
+                                    getattr(param_result, "regime_consistency", 0.0)
+                                ),
+                                "is_stable": bool(
+                                    getattr(param_result, "is_stable", False)
+                                ),
+                            }
+                            strategy_data["parameter_variations"].append(param_data)
+
+                            # Count stable strategies
+                            if param_data["is_stable"]:
+                                stable_tickers += 1
+                                break  # Count strategy as stable if any parameter is stable
+
+                    # Use strategy_id as key for individual strategy analysis
+                    strategy_results[strategy_id] = strategy_data
+                    stability_scores.append(strategy_data["strategy_stability_score"])
+
+                # Add Monte Carlo metrics to portfolio_metrics
+                report["portfolio_metrics"]["monte_carlo"] = {
+                    "total_strategies_analyzed": total_tickers,  # More accurate naming
+                    "stable_strategies_count": stable_tickers,
+                    "stable_strategies_percentage": (
+                        stable_tickers / total_tickers * 100
+                    )
+                    if total_tickers > 0
+                    else 0.0,
+                    "average_stability_score": sum(stability_scores)
+                    / len(stability_scores)
+                    if stability_scores
+                    else 0.0,
+                    "simulation_parameters": {
+                        "num_simulations": config.get("MC_NUM_SIMULATIONS", 100),
+                        "confidence_level": config.get("MC_CONFIDENCE_LEVEL", 0.95),
+                        "max_parameters_tested": config.get(
+                            "MC_MAX_PARAMETERS_TO_TEST", 10
+                        ),
+                    },
+                    "strategy_results": strategy_results,
+                    "description": "Parameter robustness analysis for individual strategies. Each strategy is tested with parameter variations to assess stability.",
+                }
 
         log("Successfully generated JSON report", "info")
         return report

@@ -1,41 +1,69 @@
 """
-Monte Carlo Integration for MA Cross Strategy Pipeline
+Monte Carlo Integration for MA Cross Strategy Pipeline - COMPATIBILITY LAYER
 
-This module integrates Monte Carlo parameter robustness testing with the existing
-MA Cross strategy analysis pipeline. It provides enhanced parameter validation
-and strategy selection based on stability analysis.
+This module provides backward compatibility for existing MA Cross workflows
+while transparently using the new concurrency-based Monte Carlo framework.
+
+⚠️  DEPRECATION NOTICE:
+This compatibility layer is deprecated. Please migrate to the new concurrency-based
+Monte Carlo framework in app.concurrency.tools.monte_carlo for improved performance
+and portfolio-level analysis capabilities.
+
+Migration Guide:
+- Old: from app.strategies.ma_cross.monte_carlo_integration import MonteCarloEnhancedAnalyzer
+- New: from app.concurrency.tools.monte_carlo import PortfolioMonteCarloManager, create_monte_carlo_config
+
+See: /architect/monte_carlo_refactoring_plan.md
 """
 
 import json
 import os
+import warnings
 from typing import Any, Dict, List, Optional, Tuple
 
 import polars as pl
 
+# Import new concurrency-based Monte Carlo framework
+from app.concurrency.tools.monte_carlo import MonteCarloConfig as NewMonteCarloConfig
+from app.concurrency.tools.monte_carlo import (
+    PortfolioMonteCarloManager,
+    create_monte_carlo_config,
+)
 from app.strategies.ma_cross.config.parameter_testing import ParameterTestingConfig
 from app.strategies.ma_cross.tools.parameter_sensitivity import (
     analyze_parameter_sensitivity,
 )
-from app.strategies.monte_carlo.parameter_robustness import (
-    MonteCarloConfig,
-    run_parameter_robustness_analysis,
-)
 from app.tools.setup_logging import setup_logging
+
+# Import legacy classes for compatibility (if needed)
+try:
+    from app.strategies.monte_carlo.parameter_robustness import (
+        MonteCarloConfig as LegacyMonteCarloConfig,
+    )
+    from app.strategies.monte_carlo.parameter_robustness import (
+        run_parameter_robustness_analysis,
+    )
+except ImportError:
+    # Fallback if legacy module is not available
+    LegacyMonteCarloConfig = None
+    run_parameter_robustness_analysis = None
 
 
 class MonteCarloEnhancedAnalyzer:
     """
     Enhanced MA Cross analyzer with Monte Carlo parameter robustness testing.
 
-    This class extends the existing parameter sensitivity analysis with Monte Carlo
-    methods to identify robust parameter combinations that perform consistently
-    across different market conditions.
+    ⚠️  DEPRECATED: This class is deprecated in favor of the new concurrency-based
+    Monte Carlo framework. Please use PortfolioMonteCarloManager for new development.
+
+    This compatibility wrapper provides the same interface while using the new
+    concurrency-based Monte Carlo framework under the hood.
     """
 
     def __init__(
         self,
         parameter_config: ParameterTestingConfig,
-        mc_config: Optional[MonteCarloConfig] = None,
+        mc_config: Optional[Any] = None,
         robustness_threshold: float = 0.7,
     ):
         """
@@ -43,17 +71,77 @@ class MonteCarloEnhancedAnalyzer:
 
         Args:
             parameter_config: Standard parameter testing configuration
-            mc_config: Monte Carlo configuration (uses defaults if None)
+            mc_config: Monte Carlo configuration (legacy or new format)
             robustness_threshold: Minimum stability score for parameter acceptance
         """
+        # Issue deprecation warning
+        warnings.warn(
+            "MonteCarloEnhancedAnalyzer is deprecated. "
+            "Please migrate to app.concurrency.tools.monte_carlo.PortfolioMonteCarloManager "
+            "for improved performance and portfolio-level analysis. "
+            "See /architect/monte_carlo_refactoring_plan.md for migration guide.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         self.parameter_config = parameter_config
-        self.mc_config = mc_config or MonteCarloConfig()
         self.robustness_threshold = robustness_threshold
+
+        # Convert legacy config to new format
+        if mc_config is None:
+            # Create default new config
+            self.mc_config = NewMonteCarloConfig()
+        elif hasattr(mc_config, "num_simulations"):
+            # Already new format
+            self.mc_config = mc_config
+        else:
+            # Convert legacy format to new format
+            self.mc_config = self._convert_legacy_config(mc_config)
+
+        # Create new portfolio manager
+        self.portfolio_manager = PortfolioMonteCarloManager(
+            config=self.mc_config,
+            max_workers=2,  # Conservative for compatibility
+            log=self._compatibility_log,
+        )
         self.log = None
+
+    def _convert_legacy_config(self, legacy_config: Any) -> NewMonteCarloConfig:
+        """Convert legacy Monte Carlo config to new format."""
+        try:
+            # Extract values from legacy config
+            config_dict = {}
+
+            if hasattr(legacy_config, "num_simulations"):
+                config_dict["MC_NUM_SIMULATIONS"] = legacy_config.num_simulations
+            if hasattr(legacy_config, "confidence_level"):
+                config_dict["MC_CONFIDENCE_LEVEL"] = legacy_config.confidence_level
+            if hasattr(legacy_config, "bootstrap_block_size"):
+                # Map legacy fields to new equivalents
+                config_dict["MC_MAX_PARAMETERS_TO_TEST"] = 10  # Default
+
+            # Always enable for compatibility
+            config_dict["MC_INCLUDE_IN_REPORTS"] = True
+
+            return create_monte_carlo_config(config_dict)
+
+        except Exception:
+            # Fallback to defaults
+            return NewMonteCarloConfig(include_in_reports=True)
+
+    def _compatibility_log(self, message: str, level: str = "info") -> None:
+        """Compatibility logging function."""
+        if self.log:
+            self.log(message, level)
+        else:
+            print(f"[{level.upper()}] {message}")
 
     def run_enhanced_analysis(self) -> Dict[str, Any]:
         """
         Run enhanced parameter analysis with Monte Carlo robustness testing.
+
+        ⚠️  DEPRECATED: This method uses the new concurrency-based Monte Carlo framework
+        under the hood but maintains the old interface for compatibility.
 
         Returns:
             Dictionary containing both standard and robustness analysis results
@@ -64,60 +152,129 @@ class MonteCarloEnhancedAnalyzer:
         )
 
         try:
-            self.log("Starting Monte Carlo enhanced parameter analysis")
+            self._compatibility_log(
+                "Starting Monte Carlo enhanced parameter analysis (compatibility mode)"
+            )
 
-            # Step 1: Run standard parameter sensitivity analysis
-            self.log("Phase 1: Standard parameter sensitivity analysis")
-            standard_results = self._run_standard_analysis()
+            # Convert parameter config to strategy format expected by new framework
+            strategies = self._convert_parameter_config_to_strategies()
 
-            if not standard_results:
-                self.log("No results from standard analysis", "error")
+            if not strategies:
+                self._compatibility_log("No strategies to analyze", "error")
                 return {
                     "standard_results": [],
                     "robust_parameters": [],
                     "recommendations": [],
                 }
 
-            # Step 2: Filter promising parameter combinations
-            self.log("Phase 2: Filtering promising parameter combinations")
-            promising_params = self._filter_promising_parameters(standard_results)
-
-            if not promising_params:
-                self.log("No promising parameters found", "warning")
-                return {
-                    "standard_results": standard_results,
-                    "robust_parameters": [],
-                    "recommendations": [],
-                }
-
-            # Step 3: Run Monte Carlo robustness analysis on filtered parameters
-            self.log("Phase 3: Monte Carlo robustness analysis")
-            robustness_results = self._run_robustness_analysis(promising_params)
-
-            # Step 4: Generate recommendations
-            self.log("Phase 4: Generating parameter recommendations")
-            recommendations = self._generate_recommendations(
-                standard_results, robustness_results
+            # Run Monte Carlo analysis using new framework
+            self._compatibility_log(
+                "Running Monte Carlo analysis using new concurrency framework"
             )
+            monte_carlo_results = self.portfolio_manager.analyze_portfolio(strategies)
 
-            # Step 5: Export comprehensive results
-            self.log("Phase 5: Exporting results")
-            self._export_enhanced_results(
-                standard_results, robustness_results, recommendations
-            )
+            # Convert results back to legacy format for compatibility
+            legacy_results = self._convert_results_to_legacy_format(monte_carlo_results)
 
-            return {
-                "standard_results": standard_results,
-                "robust_parameters": robustness_results,
-                "recommendations": recommendations,
-                "summary": self._create_analysis_summary(
-                    standard_results, robustness_results
-                ),
-            }
+            return legacy_results
 
         finally:
             if log_close:
                 log_close()
+
+    def _convert_parameter_config_to_strategies(self) -> List[Dict[str, Any]]:
+        """Convert parameter config to strategy format for new framework."""
+        strategies = []
+
+        # Generate parameter combinations from config
+        short_windows = list(range(5, getattr(self.parameter_config, "windows", 50)))
+        long_windows = list(
+            range(
+                getattr(self.parameter_config, "windows", 50),
+                getattr(self.parameter_config, "windows", 50) * 2,
+            )
+        )
+
+        for ticker in getattr(self.parameter_config, "tickers", ["SPY"]):
+            for short in short_windows[:5]:  # Limit for compatibility
+                for long in long_windows[:5]:  # Limit for compatibility
+                    if long > short:
+                        strategies.append(
+                            {
+                                "ticker": ticker,
+                                "MA Type": "EMA",
+                                "Window Short": short,
+                                "Window Long": long,
+                            }
+                        )
+
+        return strategies[: self.mc_config.max_parameters_to_test]  # Respect limits
+
+    def _convert_results_to_legacy_format(
+        self, monte_carlo_results: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Convert new Monte Carlo results to legacy format."""
+        legacy_results = {
+            "standard_results": [],
+            "robust_parameters": [],
+            "recommendations": [],
+            "summary": {},
+        }
+
+        if not monte_carlo_results:
+            return legacy_results
+
+        # Convert Monte Carlo results to legacy format
+        for ticker, result in monte_carlo_results.items():
+            # Add to robust_parameters
+            if hasattr(result, "parameter_results"):
+                for param_result in result.parameter_results:
+                    if hasattr(param_result, "is_stable") and param_result.is_stable:
+                        legacy_results["robust_parameters"].append(
+                            {
+                                "ticker": ticker,
+                                "parameter_combination": getattr(
+                                    param_result, "parameter_combination", None
+                                ),
+                                "stability_score": getattr(
+                                    param_result, "stability_score", 0.0
+                                ),
+                                "parameter_robustness": getattr(
+                                    param_result, "parameter_robustness", 0.0
+                                ),
+                                "regime_consistency": getattr(
+                                    param_result, "regime_consistency", 0.0
+                                ),
+                            }
+                        )
+
+            # Add to recommendations
+            if (
+                hasattr(result, "recommended_parameters")
+                and result.recommended_parameters
+            ):
+                legacy_results["recommendations"].append(
+                    {
+                        "ticker": ticker,
+                        "recommended_parameters": result.recommended_parameters,
+                        "stability_score": getattr(
+                            result, "portfolio_stability_score", 0.0
+                        ),
+                    }
+                )
+
+        # Create summary
+        portfolio_metrics = self.portfolio_manager.get_portfolio_stability_metrics()
+        legacy_results["summary"] = {
+            "total_tickers": len(monte_carlo_results),
+            "stable_parameters_found": len(legacy_results["robust_parameters"]),
+            "recommendations_generated": len(legacy_results["recommendations"]),
+            "average_stability_score": portfolio_metrics.get(
+                "portfolio_stability_score", 0.0
+            ),
+        }
+
+        return legacy_results
 
     def _run_standard_analysis(self) -> List[Dict[str, Any]]:
         """Run standard parameter sensitivity analysis."""

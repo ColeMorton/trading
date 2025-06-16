@@ -51,6 +51,12 @@ class ConcurrencyConfig(TypedDict):
         OPTIMIZE (NotRequired[bool]): Whether to run permutation analysis
         OPTIMIZE_MIN_STRATEGIES (NotRequired[int]): Minimum strategies per permutation
         OPTIMIZE_MAX_PERMUTATIONS (NotRequired[int]): Maximum permutations to analyze
+
+        Monte Carlo Analysis:
+        MC_INCLUDE_IN_REPORTS (NotRequired[bool]): Enable Monte Carlo analysis and include in reports
+        MC_NUM_SIMULATIONS (NotRequired[int]): Number of Monte Carlo simulations to run
+        MC_CONFIDENCE_LEVEL (NotRequired[float]): Confidence level for statistical analysis
+        MC_MAX_PARAMETERS_TO_TEST (NotRequired[int]): Maximum number of parameters to test
     """
 
     PORTFOLIO: str
@@ -63,6 +69,12 @@ class ConcurrencyConfig(TypedDict):
     OPTIMIZE: NotRequired[bool]
     OPTIMIZE_MIN_STRATEGIES: NotRequired[int]
     OPTIMIZE_MAX_PERMUTATIONS: NotRequired[int]
+
+    # Monte Carlo Analysis Configuration
+    MC_INCLUDE_IN_REPORTS: NotRequired[bool]
+    MC_NUM_SIMULATIONS: NotRequired[int]
+    MC_CONFIDENCE_LEVEL: NotRequired[float]
+    MC_MAX_PARAMETERS_TO_TEST: NotRequired[int]
 
 
 class CsvStrategyRow(TypedDict):

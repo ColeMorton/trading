@@ -22,7 +22,7 @@ def generate_strategy_id(strategy_config: Dict[str, Any]) -> str:
         ValueError: If required fields are missing from the strategy configuration
     """
     # Extract required fields with appropriate case handling
-    ticker = _get_config_value(strategy_config, ["TICKER", "ticker"])
+    ticker = _get_config_value(strategy_config, ["TICKER", "Ticker", "ticker"])
 
     # Determine strategy type
     strategy_type = _get_strategy_type(strategy_config)
@@ -37,12 +37,16 @@ def generate_strategy_id(strategy_config: Dict[str, Any]) -> str:
     else:
         # MA and MACD strategies use short and long windows
         short_window = _get_config_value(
-            strategy_config, ["SHORT_WINDOW", "short_window"]
+            strategy_config, ["SHORT_WINDOW", "Short Window", "short_window"]
         )
-        long_window = _get_config_value(strategy_config, ["LONG_WINDOW", "long_window"])
+        long_window = _get_config_value(
+            strategy_config, ["LONG_WINDOW", "Long Window", "long_window"]
+        )
         # Get signal window (default to 0 for MA strategies)
         signal_window = _get_config_value(
-            strategy_config, ["SIGNAL_WINDOW", "signal_window"], default=0
+            strategy_config,
+            ["SIGNAL_WINDOW", "Signal Window", "signal_window"],
+            default=0,
         )
 
     # Format the strategy ID
@@ -164,7 +168,9 @@ def _get_strategy_type(config: Dict[str, Any]) -> str:
     """
     # Check for explicit strategy type
     strategy_type = _get_config_value(
-        config, ["STRATEGY_TYPE", "strategy_type", "TYPE", "type"], default=None
+        config,
+        ["STRATEGY_TYPE", "Strategy Type", "MA Type", "strategy_type", "TYPE", "type"],
+        default=None,
     )
 
     if strategy_type:
@@ -181,5 +187,7 @@ def _get_strategy_type(config: Dict[str, Any]) -> str:
         use_sma = _get_config_value(config, ["USE_SMA", "Use_SMA"])
         return "SMA" if use_sma else "EMA"
     else:
-        # Default to SMA if we can't determine
-        return "SMA"
+        # Fail fast - no default strategy type allowed
+        raise ValueError(
+            "Strategy type cannot be determined. Must be explicitly specified (STRATEGY_TYPE, Strategy Type, or MA Type field required)."
+        )
