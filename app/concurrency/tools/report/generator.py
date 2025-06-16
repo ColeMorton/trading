@@ -210,6 +210,122 @@ def generate_json_report(
                                 stable_tickers += 1
                                 break  # Count strategy as stable if any parameter is stable
 
+                    # Enhance recommended_parameters with detailed metrics
+                    if strategy_data["recommended_parameters"] is not None:
+                        # Find the matching parameter result for recommended parameters
+                        recommended_details = None
+                        for param_data in strategy_data["parameter_variations"]:
+                            if (
+                                param_data["parameter_combination"]
+                                == strategy_data["recommended_parameters"]
+                            ):
+                                recommended_details = param_data
+                                break
+
+                        # If no exact match found, search in raw parameter_results
+                        if recommended_details is None and hasattr(
+                            result, "parameter_results"
+                        ):
+                            for param_result in result.parameter_results:
+                                if (
+                                    getattr(param_result, "parameter_combination", None)
+                                    == strategy_data["recommended_parameters"]
+                                ):
+                                    recommended_details = {
+                                        "parameter_combination": getattr(
+                                            param_result, "parameter_combination", None
+                                        ),
+                                        "stability_score": float(
+                                            getattr(
+                                                param_result, "stability_score", 0.0
+                                            )
+                                        ),
+                                        "parameter_robustness": float(
+                                            getattr(
+                                                param_result,
+                                                "parameter_robustness",
+                                                0.0,
+                                            )
+                                        ),
+                                        "regime_consistency": float(
+                                            getattr(
+                                                param_result, "regime_consistency", 0.0
+                                            )
+                                        ),
+                                        "is_stable": bool(
+                                            getattr(param_result, "is_stable", False)
+                                        ),
+                                    }
+                                    break
+
+                        # Transform recommended_parameters from simple tuple to detailed object
+                        if recommended_details:
+                            # Validate that all required metrics are present
+                            required_metrics = [
+                                "stability_score",
+                                "parameter_robustness",
+                                "regime_consistency",
+                                "is_stable",
+                            ]
+                            missing_metrics = [
+                                metric
+                                for metric in required_metrics
+                                if metric not in recommended_details
+                            ]
+
+                            if missing_metrics:
+                                log(
+                                    f"Warning: Recommended parameters for {strategy_id} missing metrics: {missing_metrics}",
+                                    "warning",
+                                )
+
+                            # Calculate composite score for validation
+                            composite_score = (
+                                recommended_details.get("stability_score", 0.0) * 0.4
+                                + recommended_details.get("parameter_robustness", 0.0)
+                                * 0.4
+                                + recommended_details.get("regime_consistency", 0.0)
+                                * 0.2
+                            )
+
+                            strategy_data["recommended_parameters"] = {
+                                "parameters": strategy_data["recommended_parameters"],
+                                "stability_score": recommended_details[
+                                    "stability_score"
+                                ],
+                                "parameter_robustness": recommended_details[
+                                    "parameter_robustness"
+                                ],
+                                "regime_consistency": recommended_details[
+                                    "regime_consistency"
+                                ],
+                                "is_stable": recommended_details["is_stable"],
+                                "composite_score": round(composite_score, 6),
+                                "selection_reason": "Highest weighted composite score (stability*0.4 + robustness*0.4 + consistency*0.2)",
+                                "validated": True,
+                            }
+                            log(
+                                f"Enhanced recommended_parameters for {strategy_id} with detailed metrics (composite score: {composite_score:.4f})",
+                                "debug",
+                            )
+                        else:
+                            # Keep simple format if no details found, but add warning and validation flag
+                            log(
+                                f"Warning: No detailed metrics found for recommended parameters {strategy_data['recommended_parameters']} in strategy {strategy_id}",
+                                "warning",
+                            )
+                            # Convert to structured format even without details
+                            strategy_data["recommended_parameters"] = {
+                                "parameters": strategy_data["recommended_parameters"],
+                                "stability_score": None,
+                                "parameter_robustness": None,
+                                "regime_consistency": None,
+                                "is_stable": None,
+                                "composite_score": None,
+                                "selection_reason": "Data unavailable - no matching parameter analysis found",
+                                "validated": False,
+                            }
+
                     # Store for adding to individual strategies
                     strategy_results[strategy_id] = strategy_data
                     stability_scores.append(strategy_data["strategy_stability_score"])
