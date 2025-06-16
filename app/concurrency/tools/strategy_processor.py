@@ -22,13 +22,16 @@ from app.tools.strategy_utils import determine_strategy_type, validate_strategy_
 
 
 def process_strategies(
-    strategies: List[StrategyConfig], log: Callable[[str, str], None]
+    strategies: List[StrategyConfig],
+    log: Callable[[str, str], None],
+    main_config: dict = None,
 ) -> Tuple[List[pl.DataFrame], List[StrategyConfig]]:
     """Process multiple trading strategies and prepare their data for concurrency analysis.
 
     Args:
         strategies (List[StrategyConfig]): List of strategy configurations to process
         log: Callable for logging messages
+        main_config: Main configuration dictionary (optional, for global settings like EXPORT_TRADE_HISTORY)
 
     Returns:
         Tuple[List[pl.DataFrame], List[StrategyConfig]]: Processed data and updated configs
@@ -248,6 +251,14 @@ def process_strategies(
                             f"WARNING: ATR_Trailing_Stop column not found for {strategy_config['TICKER']} ATR strategy",
                             "warning",
                         )
+
+                # Propagate trade history export flag from main config if present
+                if main_config and main_config.get("EXPORT_TRADE_HISTORY", False):
+                    strategy_config["EXPORT_TRADE_HISTORY"] = True
+                    log(
+                        f"Trade history export enabled for strategy {i}: {strategy_config['TICKER']}",
+                        "info",
+                    )
 
                 # Calculate expectancy
                 log(f"Running backtest for {strategy_config['TICKER']}", "info")

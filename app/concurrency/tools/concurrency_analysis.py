@@ -72,12 +72,7 @@ class ConcurrencyAnalysis:
         strategies = load_portfolio(str(portfolio_path))
 
         # Process strategies
-        data_list, aligned_data = process_strategies(
-            strategies,
-            self.log,
-            refresh=self.config.get("REFRESH", True),
-            use_hourly=self.config.get("CSV_USE_HOURLY", False),
-        )
+        data_list, aligned_data = process_strategies(strategies, self.log, self.config)
 
         # Convert strategies to config list
         config_list = []

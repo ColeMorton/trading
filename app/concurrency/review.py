@@ -359,6 +359,11 @@ def run_analysis(config: Dict[str, Any]) -> bool:
             log(f"Correlation filtering disabled", "info")
             log(f"Concurrency limits disabled", "info")
 
+            # Enable trade history export for concurrency analysis
+            # This is the only entry point where trade history export should be available
+            validated_config["EXPORT_TRADE_HISTORY"] = True
+            log("Trade history export enabled for concurrency analysis", "info")
+
             result = main(validated_config)
             if result:
                 log("Concurrency analysis completed successfully!", "info")

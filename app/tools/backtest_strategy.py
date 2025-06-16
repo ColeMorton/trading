@@ -357,7 +357,7 @@ def backtest_strategy(
         # Attach the stats method to the portfolio instance
         portfolio.stats = stats.__get__(portfolio)
 
-        # Export trade history if requested
+        # Export trade history if requested (only available through app/concurrency/review.py)
         should_export = export_trade_history or config.get(
             "EXPORT_TRADE_HISTORY", False
         )

@@ -74,7 +74,13 @@ def run(config: Dict[str, Any]) -> bool:
             data, config["EMA_FAST"], config["EMA_SLOW"], config, log
         )
 
-        portfolio = backtest_strategy(data, config, log)
+        # Ensure trade history export is not enabled for Monte Carlo data generation
+        # Trade history export should only be used through app/concurrency/review.py
+        config_copy = config.copy()
+        if "EXPORT_TRADE_HISTORY" in config_copy:
+            del config_copy["EXPORT_TRADE_HISTORY"]
+
+        portfolio = backtest_strategy(data, config_copy, log)
         stats = portfolio.stats()
         log(f"Portfolio stats: {stats}")
 

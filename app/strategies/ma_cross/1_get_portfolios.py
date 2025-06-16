@@ -311,9 +311,21 @@ def run(config: Config = CONFIG) -> bool:
     with logging_context(
         module_name="ma_cross", log_file="1_get_portfolios.log"
     ) as log:
+        # SAFEGUARD: Trade history export is not available for MA Cross strategy
+        # to prevent generating thousands of JSON files due to parameter sweep combinations.
+        # Trade history export is only available through app/concurrency/review.py
+        config_copy = config.copy()
+        if "EXPORT_TRADE_HISTORY" in config_copy:
+            del config_copy["EXPORT_TRADE_HISTORY"]
+        if config.get("EXPORT_TRADE_HISTORY", False):
+            log(
+                "WARNING: Trade history export is not supported for MA Cross strategy. Use app/concurrency/review.py for trade history export.",
+                "warning",
+            )
+
         # Use the new PortfolioOrchestrator for cleaner workflow management
         orchestrator = PortfolioOrchestrator(log)
-        return orchestrator.run(config)
+        return orchestrator.run(config_copy)
 
 
 @handle_errors(
@@ -349,6 +361,17 @@ def run_strategies(config: Dict[str, Any] = None) -> bool:
         else:
             config_copy = CONFIG.copy()
         config_copy["USE_MA"] = True  # Ensure USE_MA is set for proper filename suffix
+
+        # SAFEGUARD: Trade history export is not available for MA Cross strategy
+        # to prevent generating thousands of JSON files due to parameter sweep combinations.
+        # Trade history export is only available through app/concurrency/review.py
+        if "EXPORT_TRADE_HISTORY" in config_copy:
+            del config_copy["EXPORT_TRADE_HISTORY"]
+        if config_copy.get("EXPORT_TRADE_HISTORY", False):
+            log(
+                "WARNING: Trade history export is not supported for MA Cross strategy. Use app/concurrency/review.py for trade history export.",
+                "warning",
+            )
 
         # Use the new PortfolioOrchestrator for cleaner workflow management
         orchestrator = PortfolioOrchestrator(log)

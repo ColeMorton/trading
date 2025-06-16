@@ -156,7 +156,9 @@ def run_analysis(
 
         # Process strategies and get data for all strategies
         log("Processing strategy data for all strategies", "info")
-        strategy_data, updated_strategies = process_strategies(updated_strategies, log)
+        strategy_data, updated_strategies = process_strategies(
+            updated_strategies, log, config
+        )
 
         # Analyze concurrency for all strategies
         log("Running concurrency analysis for all strategies", "info")

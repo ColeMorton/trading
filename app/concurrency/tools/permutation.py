@@ -77,7 +77,8 @@ def analyze_permutation(
     )
 
     # Process strategies and get data
-    strategy_data, updated_strategies = process_strategies_func(permutation, log)
+    # Pass None for main_config since permutation analysis doesn't need trade history export
+    strategy_data, updated_strategies = process_strategies_func(permutation, log, None)
 
     # Analyze concurrency
     stats, aligned_data = analyze_concurrency_func(

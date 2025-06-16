@@ -3,6 +3,9 @@ Trade History Export Module
 
 This module provides trade history extraction and export functionality for VectorBT portfolios.
 It exports comprehensive trade data including trades, orders, positions, and metadata in a single JSON file.
+
+IMPORTANT: Trade history export is only available through app/concurrency/review.py to prevent
+generating thousands of files from parameter sweep strategies like MA Cross analysis.
 """
 
 import json
@@ -159,23 +162,95 @@ def _enrich_trade_data(
         "Entry Timestamp" in enriched_df.columns
         and "Exit Timestamp" in enriched_df.columns
     ):
-        enriched_df["Entry Timestamp"] = pd.to_datetime(enriched_df["Entry Timestamp"])
-        enriched_df["Exit Timestamp"] = pd.to_datetime(enriched_df["Exit Timestamp"])
+        # VectorBT returns integer indices that need to be mapped to actual dates
+        try:
+            # Get the original data's datetime index
+            portfolio_data = portfolio._data_pd
+
+            # Check if we have a proper datetime index in the portfolio data
+            if hasattr(portfolio_data, "columns") and "Date" in portfolio_data.columns:
+                # Use the Date column to map indices to actual dates
+                date_column = portfolio_data["Date"]
+
+                # Map integer indices to actual dates
+                entry_indices = enriched_df["Entry Timestamp"].astype(int)
+                exit_indices = enriched_df["Exit Timestamp"].astype(int)
+
+                # Convert indices to actual dates using the Date column
+                enriched_df["Entry Timestamp"] = date_column.iloc[entry_indices].values
+                enriched_df["Exit Timestamp"] = date_column.iloc[exit_indices].values
+
+                # Ensure they are datetime objects
+                enriched_df["Entry Timestamp"] = pd.to_datetime(
+                    enriched_df["Entry Timestamp"]
+                )
+                enriched_df["Exit Timestamp"] = pd.to_datetime(
+                    enriched_df["Exit Timestamp"]
+                )
+
+            elif hasattr(
+                portfolio_data, "index"
+            ) and pd.api.types.is_datetime64_any_dtype(portfolio_data.index):
+                # Use the datetime index if available
+                date_index = portfolio_data.index
+
+                entry_indices = enriched_df["Entry Timestamp"].astype(int)
+                exit_indices = enriched_df["Exit Timestamp"].astype(int)
+
+                enriched_df["Entry Timestamp"] = date_index[entry_indices]
+                enriched_df["Exit Timestamp"] = date_index[exit_indices]
+
+            else:
+                print(f"Warning: Could not find datetime reference in portfolio data")
+                print(
+                    f"Portfolio data columns: {list(portfolio_data.columns) if hasattr(portfolio_data, 'columns') else 'No columns'}"
+                )
+                print(
+                    f"Portfolio data index type: {type(portfolio_data.index[0]) if len(portfolio_data) > 0 else 'Empty'}"
+                )
+                return enriched_df
+
+        except Exception as e:
+            print(f"Warning: Could not convert timestamps: {e}")
+            return enriched_df
+
+        # Initialize Duration and Duration_Days columns
+        enriched_df["Duration"] = pd.NaT
+        enriched_df["Duration_Days"] = float("nan")
 
         # Calculate duration for closed trades only
         closed_mask = enriched_df["Status"] == "Closed"
-        enriched_df.loc[closed_mask, "Duration"] = (
-            enriched_df.loc[closed_mask, "Exit Timestamp"]
-            - enriched_df.loc[closed_mask, "Entry Timestamp"]
-        )
-        enriched_df.loc[closed_mask, "Duration_Days"] = enriched_df.loc[
-            closed_mask, "Duration"
-        ].dt.days
+        if closed_mask.any():
+            duration_timedelta = (
+                enriched_df.loc[closed_mask, "Exit Timestamp"]
+                - enriched_df.loc[closed_mask, "Entry Timestamp"]
+            )
+            enriched_df.loc[closed_mask, "Duration"] = duration_timedelta
 
-        # Add entry month for analysis
-        enriched_df["Entry_Month"] = enriched_df["Entry Timestamp"].dt.to_period("M")
-        enriched_df["Entry_Year"] = enriched_df["Entry Timestamp"].dt.year
-        enriched_df["Entry_Quarter"] = enriched_df["Entry Timestamp"].dt.quarter
+            # Convert to days as float (includes fractional days)
+            enriched_df.loc[
+                closed_mask, "Duration_Days"
+            ] = duration_timedelta.dt.total_seconds() / (24 * 60 * 60)
+
+        # For open trades, set Exit Timestamp and Duration_Days to None for JSON compatibility
+        open_mask = enriched_df["Status"] == "Open"
+        if open_mask.any():
+            enriched_df.loc[open_mask, "Exit Timestamp"] = None
+            enriched_df.loc[open_mask, "Duration"] = None
+            enriched_df.loc[open_mask, "Duration_Days"] = None
+
+        # Add entry month for analysis (only for valid timestamps)
+        valid_entry_mask = pd.notnull(enriched_df["Entry Timestamp"])
+        if valid_entry_mask.any():
+            enriched_df.loc[valid_entry_mask, "Entry_Month"] = enriched_df.loc[
+                valid_entry_mask, "Entry Timestamp"
+            ].dt.to_period("M")
+            enriched_df.loc[valid_entry_mask, "Entry_Year"] = enriched_df.loc[
+                valid_entry_mask, "Entry Timestamp"
+            ].dt.year
+            enriched_df.loc[valid_entry_mask, "Entry_Quarter"] = enriched_df.loc[
+                valid_entry_mask, "Entry Timestamp"
+            ].dt.quarter
 
     # Add trade performance categorization
     enriched_df["Trade_Type"] = enriched_df["Return"].apply(
@@ -218,18 +293,41 @@ def _enrich_position_data(position_df: pd.DataFrame) -> pd.DataFrame:
         "Entry Timestamp" in enriched_df.columns
         and "Exit Timestamp" in enriched_df.columns
     ):
-        enriched_df["Entry Timestamp"] = pd.to_datetime(enriched_df["Entry Timestamp"])
-        enriched_df["Exit Timestamp"] = pd.to_datetime(enriched_df["Exit Timestamp"])
+        # Convert timestamps properly - handle various formats VectorBT might return
+        try:
+            enriched_df["Entry Timestamp"] = pd.to_datetime(
+                enriched_df["Entry Timestamp"], errors="coerce"
+            )
+            enriched_df["Exit Timestamp"] = pd.to_datetime(
+                enriched_df["Exit Timestamp"], errors="coerce"
+            )
+        except Exception as e:
+            print(f"Warning: Could not convert position timestamps: {e}")
+
+        # Initialize Duration and Duration_Days columns
+        enriched_df["Duration"] = pd.NaT
+        enriched_df["Duration_Days"] = float("nan")
 
         # Calculate duration for closed positions only
         closed_mask = enriched_df["Status"] == "Closed"
-        enriched_df.loc[closed_mask, "Duration"] = (
-            enriched_df.loc[closed_mask, "Exit Timestamp"]
-            - enriched_df.loc[closed_mask, "Entry Timestamp"]
-        )
-        enriched_df.loc[closed_mask, "Duration_Days"] = enriched_df.loc[
-            closed_mask, "Duration"
-        ].dt.days
+        if closed_mask.any():
+            duration_timedelta = (
+                enriched_df.loc[closed_mask, "Exit Timestamp"]
+                - enriched_df.loc[closed_mask, "Entry Timestamp"]
+            )
+            enriched_df.loc[closed_mask, "Duration"] = duration_timedelta
+
+            # Convert to days as float (includes fractional days)
+            enriched_df.loc[
+                closed_mask, "Duration_Days"
+            ] = duration_timedelta.dt.total_seconds() / (24 * 60 * 60)
+
+        # For open positions, set Exit Timestamp and Duration_Days to None for JSON compatibility
+        open_mask = enriched_df["Status"] == "Open"
+        if open_mask.any():
+            enriched_df.loc[open_mask, "Exit Timestamp"] = None
+            enriched_df.loc[open_mask, "Duration"] = None
+            enriched_df.loc[open_mask, "Duration_Days"] = None
 
     # Add position performance categorization
     enriched_df["Position_Type"] = enriched_df["Return"].apply(
@@ -383,11 +481,11 @@ def create_comprehensive_trade_history(
 ) -> Dict[str, Any]:
     """
     Create comprehensive trade history data structure with all components.
-    
+
     Args:
         portfolio: VectorBT Portfolio object
         config: Strategy configuration dictionary
-        
+
     Returns:
         Dictionary containing all trade history data and metadata
     """
@@ -395,7 +493,7 @@ def create_comprehensive_trade_history(
     trades_df = extract_trade_history(portfolio)
     orders_df = extract_orders_history(portfolio)
     positions_df = extract_positions_history(portfolio)
-    
+
     # Generate metadata
     metadata = {
         "export_timestamp": datetime.now().isoformat(),
@@ -404,52 +502,117 @@ def create_comprehensive_trade_history(
             "timeframe": "H" if config.get("USE_HOURLY", False) else "D",
             "strategy_type": config.get("STRATEGY_TYPE", ""),
             "direction": config.get("DIRECTION", "Long"),
-            "parameters": _extract_all_strategy_parameters(config)
+            "parameters": _extract_all_strategy_parameters(config),
         },
         "portfolio_summary": {
-            "total_return": float(portfolio.total_return()) if hasattr(portfolio.total_return(), 'iloc') else portfolio.total_return(),
-            "total_trades": int(portfolio.trades.count()) if hasattr(portfolio.trades.count(), 'iloc') else portfolio.trades.count(),
-            "win_rate": float(portfolio.trades.win_rate()) if hasattr(portfolio.trades.win_rate(), 'iloc') else portfolio.trades.win_rate(),
-            "sharpe_ratio": float(portfolio.sharpe_ratio()) if hasattr(portfolio.sharpe_ratio(), 'iloc') else portfolio.sharpe_ratio(),
-            "max_drawdown": float(portfolio.max_drawdown()) if hasattr(portfolio.max_drawdown(), 'iloc') else portfolio.max_drawdown()
-        }
+            "total_return": float(portfolio.total_return())
+            if hasattr(portfolio.total_return(), "iloc")
+            else portfolio.total_return(),
+            "total_trades": int(portfolio.trades.count())
+            if hasattr(portfolio.trades.count(), "iloc")
+            else portfolio.trades.count(),
+            "win_rate": float(portfolio.trades.win_rate())
+            if hasattr(portfolio.trades.win_rate(), "iloc")
+            else portfolio.trades.win_rate(),
+            "sharpe_ratio": float(portfolio.sharpe_ratio())
+            if hasattr(portfolio.sharpe_ratio(), "iloc")
+            else portfolio.sharpe_ratio(),
+            "max_drawdown": float(portfolio.max_drawdown())
+            if hasattr(portfolio.max_drawdown(), "iloc")
+            else portfolio.max_drawdown(),
+        },
     }
-    
+
     # Handle pandas timestamp serialization
     def convert_timestamps(df):
         df_copy = df.copy()
         for col in df_copy.columns:
             if pd.api.types.is_datetime64_any_dtype(df_copy[col]):
-                df_copy[col] = df_copy[col].dt.strftime('%Y-%m-%d %H:%M:%S')
-            elif col in ['Duration']:
-                df_copy[col] = df_copy[col].astype(str)
-            elif col in ['Entry_Month']:
-                df_copy[col] = df_copy[col].astype(str)
+                # Handle None values properly - convert to None instead of NaN
+                df_copy[col] = df_copy[col].apply(
+                    lambda x: x.strftime("%Y-%m-%d %H:%M:%S") if pd.notnull(x) else None
+                )
+            elif col in ["Duration"]:
+                # Convert Duration, handling None values
+                df_copy[col] = df_copy[col].apply(
+                    lambda x: str(x) if x is not None else None
+                )
+            elif col in ["Entry_Month"]:
+                # Convert Entry_Month, handling None values
+                df_copy[col] = df_copy[col].apply(
+                    lambda x: str(x) if pd.notnull(x) else None
+                )
+
+        # Handle specific columns that might have NaN values for JSON compatibility
+        for col in ["Duration_Days", "Entry_Year", "Entry_Quarter"]:
+            if col in df_copy.columns:
+                df_copy[col] = df_copy[col].apply(lambda x: None if pd.isna(x) else x)
+
         return df_copy
-    
+
+    # Helper function to clean NaN values from records after pandas to_dict conversion
+    def clean_nan_values(records):
+        import math
+
+        cleaned_records = []
+        for record in records:
+            cleaned_record = {}
+            for key, value in record.items():
+                # Convert various forms of NaN to None for JSON compatibility
+                if pd.isna(value) or (isinstance(value, float) and math.isnan(value)):
+                    cleaned_record[key] = None
+                else:
+                    cleaned_record[key] = value
+            cleaned_records.append(cleaned_record)
+        return cleaned_records
+
     # Create comprehensive data structure
+    trades_records = (
+        convert_timestamps(trades_df).to_dict("records") if len(trades_df) > 0 else []
+    )
+    orders_records = (
+        convert_timestamps(orders_df).to_dict("records") if len(orders_df) > 0 else []
+    )
+    positions_records = (
+        convert_timestamps(positions_df).to_dict("records")
+        if len(positions_df) > 0
+        else []
+    )
+
     trade_history = {
         "metadata": metadata,
-        "trades": convert_timestamps(trades_df).to_dict("records") if len(trades_df) > 0 else [],
-        "orders": convert_timestamps(orders_df).to_dict("records") if len(orders_df) > 0 else [],
-        "positions": convert_timestamps(positions_df).to_dict("records") if len(positions_df) > 0 else [],
-        "analytics": analyze_trade_performance(trades_df) if len(trades_df) > 0 else {}
+        "trades": clean_nan_values(trades_records),
+        "orders": clean_nan_values(orders_records),
+        "positions": clean_nan_values(positions_records),
+        "analytics": analyze_trade_performance(trades_df) if len(trades_df) > 0 else {},
     }
-    
+
     return trade_history
 
 
 def _extract_all_strategy_parameters(config: Dict[str, Any]) -> Dict[str, Any]:
     """Extract all strategy parameters for metadata."""
     params = {}
-    
+
     # Common parameters
-    for key in ["short_window", "long_window", "SHORT_WINDOW", "LONG_WINDOW", 
-                "fast_window", "slow_window", "signal_window", "FAST_WINDOW", "SLOW_WINDOW", "SIGNAL_WINDOW",
-                "RSI_WINDOW", "RSI_THRESHOLD", "STOP_LOSS"]:
+    for key in [
+        "short_window",
+        "long_window",
+        "SHORT_WINDOW",
+        "LONG_WINDOW",
+        "fast_window",
+        "slow_window",
+        "signal_window",
+        "FAST_WINDOW",
+        "SLOW_WINDOW",
+        "SIGNAL_WINDOW",
+        "RSI_WINDOW",
+        "RSI_THRESHOLD",
+        "STOP_LOSS",
+    ]:
         if key in config and config[key] is not None:
             params[key.lower()] = config[key]
-    
+
     return params
 
 
@@ -484,19 +647,21 @@ def export_trade_history(
             trade_history_data = create_comprehensive_trade_history(portfolio, config)
             filename = generate_trade_filename(config, "json")
             filepath = os.path.join(trade_history_dir, filename)
-            
-            with open(filepath, 'w') as f:
+
+            with open(filepath, "w") as f:
                 json.dump(trade_history_data, f, indent=2, default=str)
-            
+
             trade_count = len(trade_history_data["trades"])
             order_count = len(trade_history_data["orders"])
             position_count = len(trade_history_data["positions"])
-            
+
             print(f"Exported comprehensive trade history to {filepath}")
-            print(f"  - {trade_count} trades, {order_count} orders, {position_count} positions")
-            
+            print(
+                f"  - {trade_count} trades, {order_count} orders, {position_count} positions"
+            )
+
             return trade_count > 0
-            
+
         else:
             # Legacy CSV export (kept for backward compatibility)
             return _export_legacy_csv(portfolio, config, trade_history_dir)
@@ -506,10 +671,12 @@ def export_trade_history(
         return False
 
 
-def _export_legacy_csv(portfolio: vbt.Portfolio, config: Dict[str, Any], trade_history_dir: str) -> bool:
+def _export_legacy_csv(
+    portfolio: vbt.Portfolio, config: Dict[str, Any], trade_history_dir: str
+) -> bool:
     """Export individual CSV files (legacy format)."""
     success = True
-    
+
     # Export trades
     trades_df = extract_trade_history(portfolio)
     if len(trades_df) > 0:
@@ -521,7 +688,7 @@ def _export_legacy_csv(portfolio: vbt.Portfolio, config: Dict[str, Any], trade_h
     else:
         print("No trades found to export")
         success = False
-    
+
     # Export orders
     orders_df = extract_orders_history(portfolio)
     if len(orders_df) > 0:
@@ -530,7 +697,7 @@ def _export_legacy_csv(portfolio: vbt.Portfolio, config: Dict[str, Any], trade_h
         filepath = os.path.join(trade_history_dir, filename)
         orders_df.to_csv(filepath, index=False)
         print(f"Exported {len(orders_df)} orders to {filepath}")
-    
+
     # Export positions
     positions_df = extract_positions_history(portfolio)
     if len(positions_df) > 0:
@@ -539,7 +706,7 @@ def _export_legacy_csv(portfolio: vbt.Portfolio, config: Dict[str, Any], trade_h
         filepath = os.path.join(trade_history_dir, filename)
         positions_df.to_csv(filepath, index=False)
         print(f"Exported {len(positions_df)} positions to {filepath}")
-    
+
     return success
 
 
@@ -573,8 +740,9 @@ def analyze_trade_performance(trade_df: pd.DataFrame) -> Dict[str, Any]:
         "best_trade": closed_trades["Return"].max() * 100,
         "worst_trade": closed_trades["Return"].min() * 100,
         "total_pnl": closed_trades["PnL"].sum(),
-        "avg_trade_duration": closed_trades["Duration_Days"].mean()
+        "avg_trade_duration": closed_trades["Duration_Days"].dropna().mean()
         if "Duration_Days" in closed_trades.columns
+        and len(closed_trades["Duration_Days"].dropna()) > 0
         else None,
         "profit_factor": None,
     }
