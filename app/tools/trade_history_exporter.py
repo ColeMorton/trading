@@ -2,9 +2,10 @@
 Trade History Export Module
 
 This module provides trade history extraction and export functionality for VectorBT portfolios.
-It extracts trade-level data including entry/exit dates, durations, and performance metrics.
+It exports comprehensive trade data including trades, orders, positions, and metadata in a single JSON file.
 """
 
+import json
 import os
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
@@ -262,16 +263,16 @@ def _categorize_trade_performance(return_value: float) -> str:
         return "Big Loser"
 
 
-def generate_trade_filename(config: Dict[str, Any], data_type: str = "trades") -> str:
+def generate_trade_filename(config: Dict[str, Any], extension: str = "json") -> str:
     """
     Generate standardized filename for trade history exports following existing conventions.
 
     Args:
         config: Strategy configuration dictionary
-        data_type: Type of data ("trades", "orders", "positions")
+        extension: File extension ("json" or "csv")
 
     Returns:
-        Filename following pattern: {TICKER}_{TIMEFRAME}_{STRATEGY}_{PARAMS}_{data_type}.csv
+        Filename following pattern: {TICKER}_{TIMEFRAME}_{STRATEGY}_{PARAMS}.{extension}
     """
     components = []
 
@@ -314,11 +315,8 @@ def generate_trade_filename(config: Dict[str, Any], data_type: str = "trades") -
         if isinstance(stop_loss, float):
             components.append(f"SL_{stop_loss:.4f}")
 
-    # Add data type suffix
-    components.append(data_type)
-
-    # Join components and add extension
-    filename = "_".join(str(c) for c in components if c) + ".csv"
+    # Join components and add extension (no redundant trade_history suffix)
+    filename = "_".join(str(c) for c in components if c) + f".{extension}"
 
     return filename
 
@@ -380,19 +378,94 @@ def _extract_strategy_parameters(
     return params
 
 
+def create_comprehensive_trade_history(
+    portfolio: vbt.Portfolio, config: Dict[str, Any]
+) -> Dict[str, Any]:
+    """
+    Create comprehensive trade history data structure with all components.
+    
+    Args:
+        portfolio: VectorBT Portfolio object
+        config: Strategy configuration dictionary
+        
+    Returns:
+        Dictionary containing all trade history data and metadata
+    """
+    # Extract all data components
+    trades_df = extract_trade_history(portfolio)
+    orders_df = extract_orders_history(portfolio)
+    positions_df = extract_positions_history(portfolio)
+    
+    # Generate metadata
+    metadata = {
+        "export_timestamp": datetime.now().isoformat(),
+        "strategy_config": {
+            "ticker": config.get("TICKER", ""),
+            "timeframe": "H" if config.get("USE_HOURLY", False) else "D",
+            "strategy_type": config.get("STRATEGY_TYPE", ""),
+            "direction": config.get("DIRECTION", "Long"),
+            "parameters": _extract_all_strategy_parameters(config)
+        },
+        "portfolio_summary": {
+            "total_return": float(portfolio.total_return()) if hasattr(portfolio.total_return(), 'iloc') else portfolio.total_return(),
+            "total_trades": int(portfolio.trades.count()) if hasattr(portfolio.trades.count(), 'iloc') else portfolio.trades.count(),
+            "win_rate": float(portfolio.trades.win_rate()) if hasattr(portfolio.trades.win_rate(), 'iloc') else portfolio.trades.win_rate(),
+            "sharpe_ratio": float(portfolio.sharpe_ratio()) if hasattr(portfolio.sharpe_ratio(), 'iloc') else portfolio.sharpe_ratio(),
+            "max_drawdown": float(portfolio.max_drawdown()) if hasattr(portfolio.max_drawdown(), 'iloc') else portfolio.max_drawdown()
+        }
+    }
+    
+    # Handle pandas timestamp serialization
+    def convert_timestamps(df):
+        df_copy = df.copy()
+        for col in df_copy.columns:
+            if pd.api.types.is_datetime64_any_dtype(df_copy[col]):
+                df_copy[col] = df_copy[col].dt.strftime('%Y-%m-%d %H:%M:%S')
+            elif col in ['Duration']:
+                df_copy[col] = df_copy[col].astype(str)
+            elif col in ['Entry_Month']:
+                df_copy[col] = df_copy[col].astype(str)
+        return df_copy
+    
+    # Create comprehensive data structure
+    trade_history = {
+        "metadata": metadata,
+        "trades": convert_timestamps(trades_df).to_dict("records") if len(trades_df) > 0 else [],
+        "orders": convert_timestamps(orders_df).to_dict("records") if len(orders_df) > 0 else [],
+        "positions": convert_timestamps(positions_df).to_dict("records") if len(positions_df) > 0 else [],
+        "analytics": analyze_trade_performance(trades_df) if len(trades_df) > 0 else {}
+    }
+    
+    return trade_history
+
+
+def _extract_all_strategy_parameters(config: Dict[str, Any]) -> Dict[str, Any]:
+    """Extract all strategy parameters for metadata."""
+    params = {}
+    
+    # Common parameters
+    for key in ["short_window", "long_window", "SHORT_WINDOW", "LONG_WINDOW", 
+                "fast_window", "slow_window", "signal_window", "FAST_WINDOW", "SLOW_WINDOW", "SIGNAL_WINDOW",
+                "RSI_WINDOW", "RSI_THRESHOLD", "STOP_LOSS"]:
+        if key in config and config[key] is not None:
+            params[key.lower()] = config[key]
+    
+    return params
+
+
 def export_trade_history(
     portfolio: vbt.Portfolio,
     config: Dict[str, Any],
-    export_type: str = "trades",
+    export_type: str = "json",
     base_dir: Optional[str] = None,
 ) -> bool:
     """
-    Export trade history to CSV file.
+    Export comprehensive trade history to single JSON file.
 
     Args:
         portfolio: VectorBT Portfolio object
         config: Strategy configuration dictionary
-        export_type: Type of export ("trades", "orders", "positions", "all")
+        export_type: Export format ("json" for comprehensive, "csv" for legacy)
         base_dir: Base directory for exports (defaults to config BASE_DIR)
 
     Returns:
@@ -403,46 +476,71 @@ def export_trade_history(
             base_dir = config.get("BASE_DIR", ".")
 
         # Create trade_history directory
-        trade_history_dir = os.path.join(base_dir, "csv", "trade_history")
+        trade_history_dir = os.path.join(base_dir, "json", "trade_history")
         os.makedirs(trade_history_dir, exist_ok=True)
 
-        success = True
-
-        if export_type in ["trades", "all"]:
-            # Export trades
-            trades_df = extract_trade_history(portfolio)
-            if len(trades_df) > 0:
-                filename = generate_trade_filename(config, "trades")
-                filepath = os.path.join(trade_history_dir, filename)
-                trades_df.to_csv(filepath, index=False)
-                print(f"Exported {len(trades_df)} trades to {filepath}")
-            else:
-                print("No trades found to export")
-                success = False
-
-        if export_type in ["orders", "all"]:
-            # Export orders
-            orders_df = extract_orders_history(portfolio)
-            if len(orders_df) > 0:
-                filename = generate_trade_filename(config, "orders")
-                filepath = os.path.join(trade_history_dir, filename)
-                orders_df.to_csv(filepath, index=False)
-                print(f"Exported {len(orders_df)} orders to {filepath}")
-
-        if export_type in ["positions", "all"]:
-            # Export positions
-            positions_df = extract_positions_history(portfolio)
-            if len(positions_df) > 0:
-                filename = generate_trade_filename(config, "positions")
-                filepath = os.path.join(trade_history_dir, filename)
-                positions_df.to_csv(filepath, index=False)
-                print(f"Exported {len(positions_df)} positions to {filepath}")
-
-        return success
+        if export_type == "json":
+            # Export comprehensive JSON
+            trade_history_data = create_comprehensive_trade_history(portfolio, config)
+            filename = generate_trade_filename(config, "json")
+            filepath = os.path.join(trade_history_dir, filename)
+            
+            with open(filepath, 'w') as f:
+                json.dump(trade_history_data, f, indent=2, default=str)
+            
+            trade_count = len(trade_history_data["trades"])
+            order_count = len(trade_history_data["orders"])
+            position_count = len(trade_history_data["positions"])
+            
+            print(f"Exported comprehensive trade history to {filepath}")
+            print(f"  - {trade_count} trades, {order_count} orders, {position_count} positions")
+            
+            return trade_count > 0
+            
+        else:
+            # Legacy CSV export (kept for backward compatibility)
+            return _export_legacy_csv(portfolio, config, trade_history_dir)
 
     except Exception as e:
         print(f"Error exporting trade history: {e}")
         return False
+
+
+def _export_legacy_csv(portfolio: vbt.Portfolio, config: Dict[str, Any], trade_history_dir: str) -> bool:
+    """Export individual CSV files (legacy format)."""
+    success = True
+    
+    # Export trades
+    trades_df = extract_trade_history(portfolio)
+    if len(trades_df) > 0:
+        base_filename = generate_trade_filename(config, "csv")
+        filename = base_filename.replace(".csv", "_trades.csv")
+        filepath = os.path.join(trade_history_dir, filename)
+        trades_df.to_csv(filepath, index=False)
+        print(f"Exported {len(trades_df)} trades to {filepath}")
+    else:
+        print("No trades found to export")
+        success = False
+    
+    # Export orders
+    orders_df = extract_orders_history(portfolio)
+    if len(orders_df) > 0:
+        base_filename = generate_trade_filename(config, "csv")
+        filename = base_filename.replace(".csv", "_orders.csv")
+        filepath = os.path.join(trade_history_dir, filename)
+        orders_df.to_csv(filepath, index=False)
+        print(f"Exported {len(orders_df)} orders to {filepath}")
+    
+    # Export positions
+    positions_df = extract_positions_history(portfolio)
+    if len(positions_df) > 0:
+        base_filename = generate_trade_filename(config, "csv")
+        filename = base_filename.replace(".csv", "_positions.csv")
+        filepath = os.path.join(trade_history_dir, filename)
+        positions_df.to_csv(filepath, index=False)
+        print(f"Exported {len(positions_df)} positions to {filepath}")
+    
+    return success
 
 
 def analyze_trade_performance(trade_df: pd.DataFrame) -> Dict[str, Any]:

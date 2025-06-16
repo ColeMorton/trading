@@ -365,7 +365,7 @@ def backtest_strategy(
             try:
                 from app.tools.trade_history_exporter import export_trade_history
 
-                success = export_trade_history(portfolio, config, export_type="trades")
+                success = export_trade_history(portfolio, config, export_type="json")
                 if success:
                     log("Trade history exported successfully", "info")
                 else:

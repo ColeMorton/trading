@@ -210,13 +210,24 @@ def generate_json_report(
                                 stable_tickers += 1
                                 break  # Count strategy as stable if any parameter is stable
 
-                    # Use strategy_id as key for individual strategy analysis
+                    # Store for adding to individual strategies
                     strategy_results[strategy_id] = strategy_data
                     stability_scores.append(strategy_data["strategy_stability_score"])
 
-                # Add Monte Carlo metrics to portfolio_metrics
+                # Add Monte Carlo results to individual strategies
+                if include_strategies and "strategies" in report:
+                    for strategy_obj in report["strategies"]:
+                        strategy_id = strategy_obj.get("id")
+                        if strategy_id in strategy_results:
+                            strategy_obj["monte_carlo"] = strategy_results[strategy_id]
+                            log(
+                                f"Added Monte Carlo results to strategy {strategy_id}",
+                                "debug",
+                            )
+
+                # Add portfolio-level Monte Carlo summary (without strategy_results)
                 report["portfolio_metrics"]["monte_carlo"] = {
-                    "total_strategies_analyzed": total_tickers,  # More accurate naming
+                    "total_strategies_analyzed": total_tickers,
                     "stable_strategies_count": stable_tickers,
                     "stable_strategies_percentage": (
                         stable_tickers / total_tickers * 100
@@ -234,8 +245,7 @@ def generate_json_report(
                             "MC_MAX_PARAMETERS_TO_TEST", 10
                         ),
                     },
-                    "strategy_results": strategy_results,
-                    "description": "Parameter robustness analysis for individual strategies. Each strategy is tested with parameter variations to assess stability.",
+                    "description": "Parameter robustness analysis summary for portfolio. Individual strategy results are nested within each strategy object.",
                 }
 
         log("Successfully generated JSON report", "info")
