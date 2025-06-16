@@ -21,6 +21,7 @@ from app.tools.trade_history_exporter import (
     _enrich_trade_data,
     _extract_all_strategy_parameters,
     _extract_strategy_parameters,
+    _is_trade_history_current,
     analyze_trade_performance,
     create_comprehensive_trade_history,
     export_trade_history,
@@ -393,6 +394,76 @@ class TestTradeHistoryExporter(unittest.TestCase):
             self.assertIn("positions", data)
             self.assertIn("analytics", data)
 
+    def test_export_trade_history_skip_if_current(self):
+        """Test that export is skipped if current file exists."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config = self.test_configs["sma_config"].copy()
+            config["BASE_DIR"] = temp_dir
+
+            # First export
+            success1 = export_trade_history(
+                self.mock_portfolio, config, export_type="json"
+            )
+            self.assertTrue(success1)
+
+            expected_filename = generate_trade_filename(config, "json")
+            expected_path = os.path.join(
+                temp_dir, "json", "trade_history", expected_filename
+            )
+
+            # Get file modification time
+            original_mtime = os.path.getmtime(expected_path)
+
+            # Small delay to ensure timestamp difference would be detectable
+            import time
+
+            time.sleep(0.1)
+
+            # Second export should be skipped
+            success2 = export_trade_history(
+                self.mock_portfolio, config, export_type="json"
+            )
+            self.assertTrue(success2)
+
+            # File should not have been modified
+            current_mtime = os.path.getmtime(expected_path)
+            self.assertEqual(original_mtime, current_mtime)
+
+    def test_export_trade_history_force_refresh(self):
+        """Test that force_refresh bypasses current file check."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config = self.test_configs["sma_config"].copy()
+            config["BASE_DIR"] = temp_dir
+
+            # First export
+            success1 = export_trade_history(
+                self.mock_portfolio, config, export_type="json"
+            )
+            self.assertTrue(success1)
+
+            expected_filename = generate_trade_filename(config, "json")
+            expected_path = os.path.join(
+                temp_dir, "json", "trade_history", expected_filename
+            )
+
+            # Get file modification time
+            original_mtime = os.path.getmtime(expected_path)
+
+            # Small delay to ensure timestamp difference
+            import time
+
+            time.sleep(0.1)
+
+            # Force refresh should regenerate the file
+            success2 = export_trade_history(
+                self.mock_portfolio, config, export_type="json", force_refresh=True
+            )
+            self.assertTrue(success2)
+
+            # File should have been modified
+            current_mtime = os.path.getmtime(expected_path)
+            self.assertGreater(current_mtime, original_mtime)
+
     def test_export_trade_history_csv_legacy(self):
         """Test legacy CSV export functionality."""
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -500,6 +571,30 @@ class TestTradeHistoryExporter(unittest.TestCase):
         enriched_minimal = _enrich_position_data(minimal_df)
         self.assertEqual(len(enriched_minimal), 2)
         self.assertIn("Position_Type", enriched_minimal.columns)
+
+    def test_is_trade_history_current(self):
+        """Test trade history currency check."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            test_file = os.path.join(temp_dir, "test_file.json")
+
+            # Non-existent file should return False
+            self.assertFalse(_is_trade_history_current(test_file))
+
+            # Create file and test
+            with open(test_file, "w") as f:
+                f.write("{}")
+
+            # File created today should return True
+            self.assertTrue(_is_trade_history_current(test_file))
+
+            # Simulate old file by changing modification time
+            import time
+
+            old_time = time.time() - (24 * 60 * 60 + 1)  # More than 24 hours ago
+            os.utime(test_file, (old_time, old_time))
+
+            # Old file should return False
+            self.assertFalse(_is_trade_history_current(test_file))
 
 
 class TestTradeHistoryExporterIntegration(unittest.TestCase):

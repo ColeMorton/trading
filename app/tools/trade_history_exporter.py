@@ -616,11 +616,36 @@ def _extract_all_strategy_parameters(config: Dict[str, Any]) -> Dict[str, Any]:
     return params
 
 
+def _is_trade_history_current(filepath: str) -> bool:
+    """
+    Check if trade history file exists and was created today.
+
+    Args:
+        filepath: Path to the trade history file
+
+    Returns:
+        True if file exists and was created today, False otherwise
+    """
+    if not os.path.exists(filepath):
+        return False
+
+    try:
+        # Get file modification time
+        file_mtime = os.path.getmtime(filepath)
+        file_date = datetime.fromtimestamp(file_mtime).date()
+        today = datetime.now().date()
+
+        return file_date == today
+    except (OSError, ValueError):
+        return False
+
+
 def export_trade_history(
     portfolio: vbt.Portfolio,
     config: Dict[str, Any],
     export_type: str = "json",
     base_dir: Optional[str] = None,
+    force_refresh: bool = False,
 ) -> bool:
     """
     Export comprehensive trade history to single JSON file.
@@ -630,6 +655,7 @@ def export_trade_history(
         config: Strategy configuration dictionary
         export_type: Export format ("json" for comprehensive, "csv" for legacy)
         base_dir: Base directory for exports (defaults to config BASE_DIR)
+        force_refresh: Force regeneration even if current file exists
 
     Returns:
         True if export was successful, False otherwise
@@ -643,10 +669,17 @@ def export_trade_history(
         os.makedirs(trade_history_dir, exist_ok=True)
 
         if export_type == "json":
-            # Export comprehensive JSON
-            trade_history_data = create_comprehensive_trade_history(portfolio, config)
             filename = generate_trade_filename(config, "json")
             filepath = os.path.join(trade_history_dir, filename)
+
+            # Check if current trade history already exists (unless forced refresh)
+            if not force_refresh and _is_trade_history_current(filepath):
+                print(f"Trade history file already current: {filepath}")
+                print("  - Skipping regeneration (file created today)")
+                return True
+
+            # Export comprehensive JSON
+            trade_history_data = create_comprehensive_trade_history(portfolio, config)
 
             with open(filepath, "w") as f:
                 json.dump(trade_history_data, f, indent=2, default=str)

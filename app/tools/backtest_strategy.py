@@ -8,7 +8,11 @@ from app.tools.expectancy import calculate_expectancy
 
 
 def backtest_strategy(
-    data: pl.DataFrame, config: dict, log: Callable, export_trade_history: bool = False
+    data: pl.DataFrame,
+    config: dict,
+    log: Callable,
+    export_trade_history: bool = False,
+    force_refresh_trade_history: bool = False,
 ) -> vbt.Portfolio:
     """
     Backtest the MA cross strategy.
@@ -28,6 +32,7 @@ def backtest_strategy(
             - EXPORT_TRADE_HISTORY (bool, optional): Whether to export trade history to CSV
         log: Logging function for recording events and errors
         export_trade_history: Whether to export trade history to CSV (overrides config setting)
+        force_refresh_trade_history: Force regeneration of trade history even if current file exists
 
     Returns:
         Portfolio object with backtest results including performance metrics.
@@ -365,7 +370,12 @@ def backtest_strategy(
             try:
                 from app.tools.trade_history_exporter import export_trade_history
 
-                success = export_trade_history(portfolio, config, export_type="json")
+                success = export_trade_history(
+                    portfolio,
+                    config,
+                    export_type="json",
+                    force_refresh=force_refresh_trade_history,
+                )
                 if success:
                     log("Trade history exported successfully", "info")
                 else:
