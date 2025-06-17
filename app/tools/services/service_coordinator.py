@@ -1,0 +1,366 @@
+"""
+Service Coordinator
+
+This module coordinates interactions between the modular strategy analysis services
+while maintaining the original interface contract. It acts as a facade pattern
+implementation that orchestrates the decomposed services.
+"""
+
+import asyncio
+import time
+import traceback
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from app.api.models.strategy_analysis import (
+    MACrossAsyncResponse,
+    MACrossRequest,
+    MACrossResponse,
+    PortfolioMetrics,
+    StrategyAnalysisRequest,
+    StrategyTypeEnum,
+)
+from app.api.utils.monitoring import get_metrics_collector
+from app.api.utils.performance import get_concurrent_executor
+from app.api.utils.performance_monitoring import timing_context
+from app.core.interfaces import (
+    CacheInterface,
+    ConfigurationInterface,
+    LoggingInterface,
+    MonitoringInterface,
+    ProgressTrackerInterface,
+)
+from app.core.strategies.strategy_factory import StrategyFactory
+from app.tools.services.portfolio_processing_service import PortfolioProcessingService
+from app.tools.services.result_aggregation_service import ResultAggregationService
+from app.tools.services.strategy_execution_engine import StrategyExecutionEngine
+from app.tools.setup_logging import setup_logging
+
+
+class StrategyAnalysisServiceError(Exception):
+    """Exception raised by StrategyAnalysisService."""
+    pass
+
+
+class ServiceCoordinator:
+    """
+    Coordinates strategy analysis services while maintaining interface compatibility.
+    
+    This coordinator maintains the exact same interface as the original
+    StrategyAnalysisService but uses decomposed, modular services internally.
+    """
+
+    def __init__(
+        self,
+        strategy_factory: StrategyFactory,
+        cache: CacheInterface,
+        config: ConfigurationInterface,
+        logger: LoggingInterface,
+        metrics: MonitoringInterface,
+        progress_tracker: Optional[ProgressTrackerInterface] = None,
+        executor: Optional[ThreadPoolExecutor] = None,
+    ):
+        """Initialize the service coordinator with modular services."""
+        self.strategy_factory = strategy_factory
+        self.cache = cache
+        self.config = config
+        self.logger = logger
+        self.metrics = metrics
+        self.progress_tracker = progress_tracker
+        self.executor = executor or get_concurrent_executor()
+
+        # Initialize modular services
+        self.strategy_engine = StrategyExecutionEngine(
+            strategy_factory=strategy_factory,
+            cache=cache,
+            config=config,
+            logger=logger,
+            progress_tracker=progress_tracker,
+            executor=self.executor,
+        )
+
+        self.portfolio_processor = PortfolioProcessingService(logger=logger)
+
+        self.result_aggregator = ResultAggregationService(
+            logger=logger,
+            metrics=metrics,
+            progress_tracker=progress_tracker,
+        )
+
+    async def analyze_strategy(self, request: StrategyAnalysisRequest) -> MACrossResponse:
+        """
+        Execute strategy analysis using the Strategy Pattern.
+
+        This method maintains exact compatibility with the original interface
+        while using the new modular service architecture internally.
+
+        Args:
+            request: StrategyAnalysisRequest with analysis parameters
+
+        Returns:
+            MACrossResponse with analysis results
+
+        Raises:
+            StrategyAnalysisServiceError: If analysis fails
+        """
+        # Start performance monitoring for the complete analysis
+        ticker_count = len(request.ticker) if isinstance(request.ticker, list) else 1
+        with timing_context(
+            "strategy_analysis", throughput_items=ticker_count
+        ) as perf_metrics:
+            # Check cache first
+            ticker_str = (
+                request.ticker
+                if isinstance(request.ticker, str)
+                else ",".join(request.ticker)
+            )
+            strategy_type_str = request.strategy_type.value if hasattr(request.strategy_type, 'value') else str(request.strategy_type)
+            cache_key = f"strategy:{strategy_type_str}:{ticker_str}"
+            
+            cached_result = await self.strategy_engine.check_cache(cache_key, self.logger.log)
+            if cached_result:
+                return cached_result
+
+            strategy_type_str = request.strategy_type.value if hasattr(request.strategy_type, 'value') else str(request.strategy_type)
+            log, log_close, _, _ = setup_logging(
+                module_name="api",
+                log_file=f'strategy_analysis_{strategy_type_str}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log',
+                log_subdir="strategy_analysis",
+            )
+
+            try:
+                # Record request metrics
+                start_time = time.time()
+
+                log(
+                    f"Starting strategy analysis for {strategy_type_str} on ticker(s): {request.ticker}"
+                )
+
+                # Convert request to strategy config format
+                strategy_config = request.to_strategy_config()
+
+                # Execute strategy analysis using the strategy execution engine
+                all_portfolio_dicts = await self.strategy_engine.execute_strategy_analysis(
+                    strategy_type=request.strategy_type,
+                    strategy_config=strategy_config,
+                    log=log,
+                )
+
+                execution_time = time.time() - start_time
+                log(f"Strategy analysis completed in {execution_time:.2f} seconds")
+
+                # Process portfolios using the portfolio processing service
+                portfolio_metrics, deduplicated_portfolios = (
+                    self.portfolio_processor.process_and_deduplicate_portfolios(
+                        all_portfolio_dicts, log
+                    )
+                )
+
+                # Collect export paths
+                strategy_types = strategy_config.get("STRATEGY_TYPES", [strategy_type_str])
+                export_paths = self.portfolio_processor.collect_export_paths(
+                    strategy_config, strategy_types, log
+                )
+
+                # Create response using the result aggregation service
+                response = self.result_aggregator.create_analysis_response(
+                    request=request,
+                    portfolio_metrics=portfolio_metrics,
+                    deduplicated_portfolios=deduplicated_portfolios,
+                    export_paths=export_paths,
+                    execution_time=execution_time,
+                    log=log,
+                )
+
+                # Cache the result for future requests
+                await self.strategy_engine.cache_result(cache_key, response, log)
+
+                # Record metrics
+                self.result_aggregator.record_metrics(
+                    endpoint="/api/strategy/analyze",
+                    method="POST",
+                    execution_time=execution_time,
+                )
+
+                log_close()
+                return response
+
+            except Exception as e:
+                error_msg = f"Strategy analysis failed: {str(e)}"
+                log(error_msg, "error")
+                log(traceback.format_exc(), "error")
+                log_close()
+                raise StrategyAnalysisServiceError(error_msg)
+
+    # Legacy method compatibility - analyze_portfolio
+    async def analyze_portfolio(self, request: MACrossRequest) -> MACrossResponse:
+        """
+        Execute MA Cross analysis (legacy method for backward compatibility).
+
+        Args:
+            request: MACrossRequest model with analysis parameters
+
+        Returns:
+            MACrossResponse with analysis results
+
+        Raises:
+            StrategyAnalysisServiceError: If analysis fails
+        """
+        # Convert MACrossRequest to StrategyAnalysisRequest
+        # For MA Cross, use the first strategy type or default to SMA
+        strategy_type = (
+            request.strategy_types[0] if request.strategy_types else StrategyTypeEnum.SMA
+        )
+        
+        strategy_request = StrategyAnalysisRequest(
+            ticker=request.ticker,
+            strategy_type=strategy_type,
+            direction=request.direction,
+            use_hourly=request.use_hourly,
+            use_years=request.use_years,
+            years=request.years,
+            refresh=request.refresh,
+            parameters={"windows": request.windows},
+        )
+        
+        return await self.analyze_strategy(strategy_request)
+
+    def analyze_portfolio_async(self, request: MACrossRequest) -> MACrossAsyncResponse:
+        """
+        Execute MA Cross analysis asynchronously.
+
+        Args:
+            request: MACrossRequest model with analysis parameters
+
+        Returns:
+            MACrossAsyncResponse with execution ID for status tracking
+        """
+        # Generate unique execution ID
+        execution_id = self.result_aggregator.generate_execution_id()
+
+        # Create async response
+        async_response = self.result_aggregator.create_async_response(request, execution_id)
+
+        # Submit task to executor
+        if hasattr(self.executor, 'submit'):
+            # Standard ThreadPoolExecutor
+            future = self.executor.submit(
+                self._execute_async_analysis, execution_id, request
+            )
+        else:
+            # ConcurrentExecutor - use execute_analysis
+            import threading
+            threading.Thread(
+                target=self._execute_async_analysis,
+                args=(execution_id, request),
+                daemon=True
+            ).start()
+
+        return async_response
+
+    def _execute_async_analysis(self, execution_id: str, request: MACrossRequest):
+        """Execute analysis asynchronously with progress tracking."""
+        try:
+            self.result_aggregator.update_task_status(
+                execution_id, "running", "Starting analysis..."
+            )
+
+            # Create progress callback
+            async def progress_callback(percentage: float, message: str):
+                self.result_aggregator.update_task_status(
+                    execution_id, "running", f"{message} ({percentage:.1f}%)"
+                )
+
+            # Convert request to strategy config
+            strategy_config = request.to_strategy_config()
+
+            # Execute strategy using concurrent support
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            
+            try:
+                log, log_close, _, _ = setup_logging(
+                    module_name="api_async",
+                    log_file=f'async_analysis_{execution_id}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log',
+                    log_subdir="strategy_analysis",
+                )
+
+                all_portfolio_dicts = loop.run_until_complete(
+                    self.strategy_engine.execute_strategy_with_concurrent_support(
+                        strategy_type=request.strategy_type,
+                        config=strategy_config,
+                        log=log,
+                        execution_id=execution_id,
+                        progress_callback=progress_callback,
+                    )
+                )
+
+                # Process results
+                portfolio_metrics, deduplicated_portfolios = (
+                    self.portfolio_processor.process_and_deduplicate_portfolios(
+                        all_portfolio_dicts, log
+                    )
+                )
+
+                # Create final response
+                strategy_types = strategy_config.get("STRATEGY_TYPES", [request.strategy_type.value])
+                export_paths = self.portfolio_processor.collect_export_paths(
+                    strategy_config, strategy_types, log
+                )
+
+                response = self.result_aggregator.create_analysis_response(
+                    request=request,
+                    portfolio_metrics=portfolio_metrics,
+                    deduplicated_portfolios=deduplicated_portfolios,
+                    export_paths=export_paths,
+                    execution_time=0.0,  # Will be calculated elsewhere
+                    log=log,
+                )
+
+                # Update task status with results
+                self.result_aggregator.update_task_status(
+                    execution_id, "completed", "Analysis completed successfully", response
+                )
+
+                log_close()
+
+            finally:
+                loop.close()
+
+        except Exception as e:
+            error_msg = f"Async analysis failed: {str(e)}"
+            self.result_aggregator.update_task_status(
+                execution_id, "failed", error_msg, error=error_msg
+            )
+
+    async def get_analysis_status(self, execution_id: str) -> Dict[str, Any]:
+        """Get the status of an asynchronous analysis."""
+        return await self.result_aggregator.get_task_status(execution_id)
+
+    def cleanup_old_tasks(self, max_age_hours: int = 24) -> int:
+        """Clean up old task statuses."""
+        return self.result_aggregator.cleanup_old_tasks(max_age_hours)
+
+    # Additional utility methods for interface compatibility
+    def _collect_export_paths(
+        self, config: Dict[str, Any], strategy_types: List[str], log
+    ) -> Dict[str, List[str]]:
+        """Legacy method for export path collection."""
+        return self.portfolio_processor.collect_export_paths(config, strategy_types, log)
+
+
+# Backward compatibility aliases
+class StrategyAnalysisService(ServiceCoordinator):
+    """Backward compatibility alias for StrategyAnalysisService."""
+    pass
+
+
+class MACrossService(ServiceCoordinator):
+    """Backward compatibility alias for MACrossService."""
+    pass
+
+
+class MACrossServiceError(StrategyAnalysisServiceError):
+    """Backward compatibility alias for MACrossServiceError."""
+    pass

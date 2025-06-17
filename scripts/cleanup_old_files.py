@@ -1,15 +1,50 @@
 #!/usr/bin/env python3
 """
 Cleanup script to remove CSV and JSON files older than 1 week.
-Excludes files in csv/strategies/ directory.
+Excludes files in csv/strategies/ directory and patterns listed in .cleanupignore file.
 """
 
 import argparse
+import fnmatch
 import os
 import sys
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
+
+
+def load_ignore_patterns(base_path: Path) -> list:
+    """Load patterns from .cleanupignore file."""
+    ignore_file = base_path / ".cleanupignore"
+    patterns = []
+    
+    if ignore_file.exists():
+        try:
+            with open(ignore_file, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    # Skip empty lines and comments
+                    if line and not line.startswith('#'):
+                        patterns.append(line)
+        except Exception as e:
+            print(f"Warning: Could not read .cleanupignore file: {e}")
+    
+    return patterns
+
+
+def is_ignored(file_path: Path, base_path: Path, ignore_patterns: list) -> bool:
+    """Check if a file should be ignored based on patterns."""
+    relative_path = file_path.relative_to(base_path)
+    relative_path_str = str(relative_path)
+    
+    for pattern in ignore_patterns:
+        if fnmatch.fnmatch(relative_path_str, pattern):
+            return True
+        # Also check against the file name only
+        if fnmatch.fnmatch(file_path.name, pattern):
+            return True
+    
+    return False
 
 
 def cleanup_old_files(
@@ -23,6 +58,9 @@ def cleanup_old_files(
     base_path = Path(base_path)
     exclude_paths = [base_path / exclude_dir for exclude_dir in exclude_dirs]
     
+    # Load ignore patterns from .cleanupignore file
+    ignore_patterns = load_ignore_patterns(base_path)
+
     # Only scan csv/ and json/ directories
     target_dirs = [base_path / "csv", base_path / "json"]
     target_dirs = [d for d in target_dirs if d.exists()]
@@ -33,6 +71,8 @@ def cleanup_old_files(
     print(f"Base path: {base_path}")
     print(f"Target directories: {[str(d.relative_to(base_path)) for d in target_dirs]}")
     print(f"Excluding directories: {exclude_dirs}")
+    if ignore_patterns:
+        print(f"Ignore patterns: {ignore_patterns}")
     print(f"Cutoff date: {datetime.fromtimestamp(cutoff_time)}")
     print("-" * 60)
 
@@ -42,13 +82,19 @@ def cleanup_old_files(
 
             # Skip excluded directories
             if any(
-                current_path.is_relative_to(exclude_path) for exclude_path in exclude_paths
+                current_path.is_relative_to(exclude_path)
+                for exclude_path in exclude_paths
             ):
                 continue
 
             for file in files:
                 if file.endswith((".csv", ".json")):
                     file_path = current_path / file
+                    
+                    # Check if file should be ignored
+                    if is_ignored(file_path, base_path, ignore_patterns):
+                        continue
+                    
                     try:
                         stat_info = file_path.stat()
                         if stat_info.st_mtime < cutoff_time:

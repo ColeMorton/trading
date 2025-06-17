@@ -1004,7 +1004,7 @@
       "Trade_Type": "Loser",
       "Cumulative_PnL": 14880.152940256723,
       "Trade_Number": 47,
-      "Rolling_Avg_Return": -9.919491699192789e-05,
+      "Rolling_Avg_Return": -9.919491699192789e-5,
       "Rolling_Win_Rate": 0.2
     },
     {

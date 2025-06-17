@@ -2,18 +2,17 @@
 Strategy Analysis Service
 
 This module provides functionality for executing strategy analysis
-through the API. It handles both synchronous and asynchronous execution
-of various trading strategies using the Strategy Pattern.
+through the API. It now uses a modular service architecture while
+maintaining exact interface compatibility with the original implementation.
+
+The service has been decomposed into focused, modular components:
+- StrategyExecutionEngine: Handles strategy validation and execution
+- PortfolioProcessingService: Manages portfolio data processing
+- ResultAggregationService: Handles result formatting and task management
+- ServiceCoordinator: Orchestrates all services with interface compatibility
 """
 
-import asyncio
-import json
-import sys
-import time
-import traceback
-import uuid
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from app.api.config import get_config
@@ -25,15 +24,8 @@ from app.api.models.strategy_analysis import (
     StrategyAnalysisRequest,
     StrategyTypeEnum,
 )
-from app.api.services.script_executor import task_status
 from app.api.utils.monitoring import get_metrics_collector
-from app.api.utils.performance import get_concurrent_executor, get_request_optimizer
-from app.api.utils.performance_monitoring import get_performance_monitor, timing_context
-from app.api.utils.performance_optimizer import (
-    ParameterComplexity,
-    performance_optimizer,
-)
-from app.api.utils.portfolio_processor import PortfolioProcessor
+from app.api.utils.performance import get_concurrent_executor
 
 # Import interfaces
 from app.core.interfaces import (
@@ -42,1296 +34,119 @@ from app.core.interfaces import (
     LoggingInterface,
     MonitoringInterface,
     ProgressTrackerInterface,
-    StrategyAnalyzerInterface,
-    StrategyExecutorInterface,
 )
 from app.core.strategies.strategy_factory import StrategyFactory
-from app.tools.performance_tracker import get_strategy_performance_tracker
-from app.tools.setup_logging import setup_logging
+
+# Import the new modular service coordinator
+from app.tools.services import (
+    ServiceCoordinator,
+    StrategyAnalysisServiceError,
+)
 
 
-class StrategyAnalysisServiceError(Exception):
-    """Exception raised for errors in the Strategy Analysis service."""
+class StrategyAnalysisService(ServiceCoordinator):
+    """
+    Service for executing strategy analysis using the Strategy Pattern.
 
-
-class StrategyAnalysisService:
-    """Service for executing strategy analysis using the Strategy Pattern."""
+    This service now uses a modular architecture with decomposed services
+    while maintaining exact interface compatibility with the original implementation.
+    The service has been refactored to use:
+    - StrategyExecutionEngine for strategy execution
+    - PortfolioProcessingService for data processing
+    - ResultAggregationService for result formatting
+    - ServiceCoordinator for orchestration
+    """
 
     def __init__(
         self,
-        logger: LoggingInterface,
-        progress_tracker: ProgressTrackerInterface,
-        strategy_executor: StrategyExecutorInterface,
-        strategy_analyzer: StrategyAnalyzerInterface,
+        strategy_factory: StrategyFactory,
         cache: CacheInterface,
-        monitoring: MonitoringInterface,
-        configuration: ConfigurationInterface,
-        strategy_factory: Optional[StrategyFactory] = None,
+        config: ConfigurationInterface,
+        logger: LoggingInterface,
+        metrics: MonitoringInterface,
+        progress_tracker: Optional[ProgressTrackerInterface] = None,
+        executor: Optional[ThreadPoolExecutor] = None,
     ):
-        """Initialize the Strategy Analysis service with injected dependencies."""
-        self.logger = logger
-        self.progress_tracker = progress_tracker
-        self.strategy_executor = strategy_executor
-        self.strategy_analyzer = strategy_analyzer
-        self.cache = cache
-        self.monitoring = monitoring
-        self.configuration = configuration
-
-        # Strategy Pattern support
-        self.strategy_factory = strategy_factory or StrategyFactory()
-        self.portfolio_processor = PortfolioProcessor()
-
-        # Legacy support - will be removed
-        self.config = get_config()
-        self.executor = ThreadPoolExecutor(max_workers=4)
-        self.concurrent_executor = get_concurrent_executor()
-        self.optimizer = get_request_optimizer()
-        self.metrics = get_metrics_collector()
-
-    async def analyze_strategy(
-        self, request: StrategyAnalysisRequest
-    ) -> MACrossResponse:
-        """
-        Execute strategy analysis using Strategy Pattern.
-
-        Args:
-            request: StrategyAnalysisRequest model with analysis parameters
-
-        Returns:
-            MACrossResponse with analysis results
-
-        Raises:
-            StrategyAnalysisServiceError: If analysis fails
-        """
-        # Start performance monitoring for the complete analysis
-        ticker_count = len(request.ticker) if isinstance(request.ticker, list) else 1
-        with timing_context(
-            "strategy_analysis", throughput_items=ticker_count
-        ) as perf_metrics:
-            # Check cache first
-            ticker_str = (
-                request.ticker
-                if isinstance(request.ticker, str)
-                else ",".join(request.ticker)
-            )
-            cache_key = f"strategy:{request.strategy_type.value}:{ticker_str}"
-            cached_result = await self.cache.get(cache_key)
-            if cached_result:
-                # Update performance metrics for cache hit
-                get_strategy_performance_tracker().update_execution_progress(
-                    execution_id=f"api_cache_{int(time.time())}", cache_hits=1
-                )
-                return cached_result
-
-            log, log_close, _, _ = setup_logging(
-                module_name="api",
-                log_file=f'strategy_analysis_{request.strategy_type.value}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log',
-                log_subdir="strategy_analysis",
-            )
-
-            try:
-                # Record request metrics
-                start_time = time.time()
-
-                log(
-                    f"Starting strategy analysis for {request.strategy_type.value} on ticker(s): {request.ticker}"
-                )
-
-                # Get strategy instance from factory
-                try:
-                    strategy = self.strategy_factory.create_strategy(
-                        request.strategy_type
-                    )
-                except ValueError as e:
-                    error_msg = (
-                        f"Unsupported strategy type: {request.strategy_type.value}"
-                    )
-                    log(error_msg, "error")
-                    raise StrategyAnalysisServiceError(error_msg)
-
-                # Convert request to strategy config format
-                strategy_config = request.to_strategy_config()
-
-                # For MA Cross strategies, we need to add STRATEGY_TYPES based on the strategy_type
-                if request.strategy_type in [
-                    StrategyTypeEnum.SMA,
-                    StrategyTypeEnum.EMA,
-                ]:
-                    strategy_config["STRATEGY_TYPES"] = [request.strategy_type.value]
-                    # Set default windows if not provided in parameters
-                    if "WINDOWS" not in strategy_config:
-                        strategy_config["WINDOWS"] = 89
-
-                log(f"Strategy config: {json.dumps(strategy_config, indent=2)}")
-
-                # Validate strategy parameters
-                if not strategy.validate_parameters(strategy_config):
-                    error_msg = (
-                        f"Invalid parameters for {request.strategy_type.value} strategy"
-                    )
-                    log(error_msg, "error")
-                    raise StrategyAnalysisServiceError(error_msg)
-
-                # Add project root to Python path
-                project_root = self.config["BASE_DIR"]
-                if project_root not in sys.path:
-                    sys.path.insert(0, project_root)
-
-                # Execute strategy analysis
-                loop = asyncio.get_event_loop()
-                all_portfolio_dicts = await loop.run_in_executor(
-                    self.executor, strategy.execute, strategy_config, log
-                )
-
-                execution_time = time.time() - start_time
-                log(f"Strategy analysis completed in {execution_time:.2f} seconds")
-
-                # Process portfolios using common utility
-                portfolio_metrics = []
-                deduplicated_portfolios = []
-
-                if all_portfolio_dicts:
-                    # Convert to PortfolioMetrics
-                    portfolio_metrics = (
-                        self.portfolio_processor.convert_portfolios_to_metrics(
-                            all_portfolio_dicts, log
-                        )
-                    )
-
-                    # Export and deduplicate
-                    deduplicated_dicts = (
-                        self.portfolio_processor.export_and_deduplicate_portfolios(
-                            all_portfolio_dicts, strategy_config, log
-                        )
-                    )
-
-                    if deduplicated_dicts:
-                        deduplicated_portfolios = (
-                            self.portfolio_processor.convert_portfolios_to_metrics(
-                                deduplicated_dicts, log
-                            )
-                        )
-
-                # Collect exported file paths
-                portfolio_exports = self.portfolio_processor.collect_export_paths(
-                    strategy_config, [request.strategy_type.value], log
-                )
-
-                # Count filtered portfolios
-                filtered_count = 0
-                if portfolio_exports and "portfolios_filtered" in portfolio_exports:
-                    filtered_count = len(portfolio_exports["portfolios_filtered"])
-
-                # Use deduplicated portfolios if available, otherwise use all portfolios
-                final_portfolios = (
-                    deduplicated_portfolios
-                    if deduplicated_portfolios
-                    else portfolio_metrics
-                )
-
-                # Build response
-                response = MACrossResponse(
-                    status="success",
-                    request_id=str(uuid.uuid4()),
-                    timestamp=datetime.now(),
-                    ticker=request.ticker,
-                    strategy_types=[request.strategy_type.value],
-                    portfolios=final_portfolios,
-                    portfolio_exports=portfolio_exports,
-                    total_portfolios_analyzed=len(all_portfolio_dicts),
-                    total_portfolios_filtered=filtered_count,
-                    execution_time=execution_time,
-                )
-
-                # Cache the result for future requests
-                await self.cache.set(cache_key, response)
-
-                # Record metrics
-                self.metrics.record_request(
-                    endpoint="/api/strategy/analyze",
-                    method="POST",
-                    status_code=200,
-                    response_time=execution_time,
-                    client_ip="internal",
-                    user_agent="strategy_analysis_service",
-                )
-
-                log_close()
-                return response
-
-            except Exception as e:
-                error_msg = f"Strategy analysis failed: {str(e)}"
-                log(error_msg, "error")
-                log(traceback.format_exc(), "error")
-                log_close()
-                raise StrategyAnalysisServiceError(error_msg)
-
-    async def analyze_portfolio(self, request: MACrossRequest) -> MACrossResponse:
-        """
-        Execute MA Cross analysis.
-
-        Args:
-            request: MACrossRequest model with analysis parameters
-
-        Returns:
-            MACrossResponse with analysis results
-
-        Raises:
-            MACrossServiceError: If analysis fails
-        """
-        # Start performance monitoring for the complete analysis
-        ticker_count = len(request.ticker) if isinstance(request.ticker, list) else 1
-        with timing_context(
-            "ma_cross_api_analysis", throughput_items=ticker_count
-        ) as perf_metrics:
-            # Check cache first
-            # Handle ticker being either string or list
-            ticker_str = (
-                request.ticker
-                if isinstance(request.ticker, str)
-                else ",".join(request.ticker)
-            )
-            cache_key = f"ma_cross:{ticker_str}:{request.windows}:{':'.join(request.strategy_types)}"
-            cached_result = await self.cache.get(cache_key)
-            if cached_result:
-                # Update performance metrics for cache hit
-                get_strategy_performance_tracker().update_execution_progress(
-                    execution_id=f"api_cache_{int(time.time())}", cache_hits=1
-                )
-                return cached_result
-
-            # Analyze request complexity and apply optimizations
-            complexity = performance_optimizer.analyze_parameter_complexity(request)
-
-            # Log performance analysis
-            log(
-                f"Performance Analysis - Total combinations: {complexity.total_combinations}, "
-                f"Estimated time: {complexity.estimated_execution_time:.2f}s, "
-                f"Recommended mode: {complexity.recommended_mode.value}",
-                "info",
-            )
-
-            # Apply optimizations if needed
-            (
-                optimized_request,
-                optimization_warnings,
-            ) = performance_optimizer.optimize_request_parameters(request)
-
-            if optimization_warnings:
-                for warning in optimization_warnings:
-                    log(f"Performance optimization: {warning}", "warning")
-                # Use optimized request for analysis
-                request = optimized_request
-
-            log, log_close, _, _ = setup_logging(
-                module_name="api",
-                log_file=f'ma_cross_sync_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log',
-                log_subdir="ma_cross",
-            )
-
-            try:
-                # Record request metrics
-                start_time = time.time()
-
-                log(
-                    f"Starting synchronous MA Cross analysis for ticker(s): {request.ticker}"
-                )
-
-                # Convert request to strategy config format
-                strategy_config = request.to_strategy_config()
-                log(f"Strategy config: {json.dumps(strategy_config, indent=2)}")
-
-                # Add project root to Python path
-                project_root = self.config["BASE_DIR"]
-                if project_root not in sys.path:
-                    sys.path.insert(0, project_root)
-
-                # Use performance-optimized analysis
-                optimized_analysis = self.optimizer.time_operation("ma_cross_analysis")(
-                    self._execute_analysis
-                )
-
-                # Run the blocking analysis in a thread pool to avoid blocking the event
-                # loop
-                loop = asyncio.get_event_loop()
-                results = await loop.run_in_executor(
-                    self.executor, optimized_analysis, strategy_config, log
-                )
-                execution_time = time.time() - start_time
-
-                log(f"Analysis completed in {execution_time:.2f} seconds")
-
-                # Collect exported file paths
-                portfolio_exports = self.portfolio_processor.collect_export_paths(
-                    strategy_config, request.strategy_types, log
-                )
-
-                # Count filtered portfolios
-                filtered_count = 0
-                if portfolio_exports and "portfolios_filtered" in portfolio_exports:
-                    filtered_count = len(portfolio_exports["portfolios_filtered"])
-
-                # Build response
-                response = MACrossResponse(
-                    status="success",
-                    request_id=str(uuid.uuid4()),
-                    timestamp=datetime.now(),
-                    ticker=request.ticker,
-                    strategy_types=request.strategy_types,
-                    portfolios=results,
-                    portfolio_exports=portfolio_exports,
-                    total_portfolios_analyzed=len(results),
-                    total_portfolios_filtered=filtered_count,
-                    execution_time=execution_time,
-                )
-
-                # Debug: Log response serialization
-                if results and len(results) > 0:
-                    first_portfolio = results[0]
-                    log(
-                        f"DEBUG: First portfolio in response metric_type: '{first_portfolio.metric_type}'",
-                        "info",
-                    )
-
-                    # Test different serialization methods
-                    response_dict_default = response.model_dump()
-                    response_dict_no_exclude = response.model_dump(exclude_none=False)
-
-                    if (
-                        response_dict_default.get("portfolios")
-                        and len(response_dict_default["portfolios"]) > 0
-                    ):
-                        first_serialized_default = response_dict_default["portfolios"][
-                            0
-                        ]
-                        first_serialized_no_exclude = response_dict_no_exclude[
-                            "portfolios"
-                        ][0]
-
-                        log(
-                            f"DEBUG: Default serialization keys: {len(first_serialized_default.keys())}",
-                            "info",
-                        )
-                        log(
-                            f"DEBUG: Default metric_type: '{first_serialized_default.get('metric_type', 'MISSING')}'",
-                            "info",
-                        )
-                        log(
-                            f"DEBUG: No-exclude serialization keys: {len(first_serialized_no_exclude.keys())}",
-                            "info",
-                        )
-                        log(
-                            f"DEBUG: No-exclude metric_type: '{first_serialized_no_exclude.get('metric_type', 'MISSING')}'",
-                            "info",
-                        )
-
-                # Cache the result for future requests
-                await self.cache.set(cache_key, response)
-
-                # Record metrics
-                self.metrics.record_request(
-                    endpoint="/api/ma-cross/analyze",
-                    method="POST",
-                    status_code=200,
-                    response_time=execution_time,
-                    client_ip="internal",  # Will be overridden by middleware
-                    user_agent="ma_cross_service",
-                )
-
-                log_close()
-                return response
-
-            except Exception as e:
-                error_msg = f"MA Cross analysis failed: {str(e)}"
-                log(error_msg, "error")
-                log(traceback.format_exc(), "error")
-                log_close()
-                raise StrategyAnalysisServiceError(error_msg)
-
-    def analyze_portfolio_async(self, request: MACrossRequest) -> MACrossAsyncResponse:
-        """
-        Execute MA Cross analysis asynchronously.
-
-        Args:
-            request: MACrossRequest model with analysis parameters
-
-        Returns:
-            MACrossAsyncResponse with execution ID for status tracking
-        """
-        # Generate unique execution ID
-        execution_id = str(uuid.uuid4())
-
-        # Initialize task status
-        task_status[execution_id] = {
-            "status": "pending",
-            "started_at": datetime.now().isoformat(),
-            "progress": "Initializing analysis...",
-            "results": None,
-            "error": None,
-        }
-
-        # Submit task to executor
-        future = self.executor.submit(
-            self._execute_async_analysis, execution_id, request
+        """Initialize the service with required dependencies."""
+        # Initialize the ServiceCoordinator with all required services
+        super().__init__(
+            strategy_factory=strategy_factory,
+            cache=cache,
+            config=config,
+            logger=logger,
+            metrics=metrics,
+            progress_tracker=progress_tracker,
+            executor=executor or get_concurrent_executor(),
         )
 
-        # Return immediate response with execution ID
-        return MACrossAsyncResponse(
-            status="accepted",
-            execution_id=execution_id,
-            message="Analysis task submitted",
-            status_url=f"/api/ma-cross/status/{execution_id}",
-            stream_url=f"/api/ma-cross/stream/{execution_id}",
-            timestamp=datetime.now(),
-            estimated_time=60.0,  # Estimate based on typical analysis time
-        )
 
-    def _execute_analysis(
-        self,
-        config: Dict[str, Any],
-        log,
-        progress_tracker: Optional[ProgressTrackerInterface] | None = None,
-    ) -> List[PortfolioMetrics]:
-        """
-        Execute the actual MA Cross analysis using full portfolio analysis.
-
-        This method now uses the execute_strategy function from the MA Cross module
-        to perform complete backtesting and portfolio analysis.
-
-        Args:
-            config: Strategy configuration dictionary
-            log: Logging function
-            progress_tracker: Optional progress tracker for reporting status
-
-        Returns:
-            List of PortfolioMetrics results
-        """
-        # Import the execute_strategy functions from ma_cross module
-        from app.strategies.ma_cross.tools.strategy_execution import (
-            execute_strategy,
-            execute_strategy_concurrent,
-        )
-        from app.tools.project_utils import get_project_root
-
-        # Ensure BASE_DIR is set in config
-        if "BASE_DIR" not in config:
-            config["BASE_DIR"] = get_project_root()
-
-        # Get strategy types to analyze
-        strategy_types = config.get("STRATEGY_TYPES", ["SMA", "EMA"])
-
-        # Determine optimal execution strategy based on ticker count
-        tickers = config.get("TICKER", [])
-        if isinstance(tickers, str):
-            tickers = [tickers]
-        use_concurrent = len(tickers) > 2  # Use concurrent for 3+ tickers
-
-        log(
-            f"Processing {len(tickers)} tickers with {'concurrent' if use_concurrent else 'sequential'} execution"
-        )
-
-        # Update progress for strategy types
-        if progress_tracker:
-            progress_tracker.update(
-                phase="initialization",
-                message=f"Analyzing {len(strategy_types)} strategy types",
-            )
-
-        # Collect all portfolios in a single list to minimize conversions
-        all_portfolio_dicts = []
-
-        try:
-            # Execute strategy for each strategy type
-            for i, strategy_type in enumerate(strategy_types):
-                log(f"Executing {strategy_type} strategy analysis")
-
-                if progress_tracker:
-                    progress_tracker.update(
-                        phase=f"{strategy_type}_analysis",
-                        message=f"Starting {strategy_type} analysis ({i+1}/{len(strategy_types)})",
-                    )
-
-                # Execute the strategy using optimal execution method
-                if use_concurrent:
-                    portfolios = execute_strategy_concurrent(
-                        config, strategy_type, log, progress_tracker
-                    )
-                else:
-                    portfolios = execute_strategy(
-                        config, strategy_type, log, progress_tracker
-                    )
-
-                log(
-                    f"execute_strategy returned {len(portfolios) if portfolios else 0} portfolios for {strategy_type}"
-                )
-                if portfolios:
-                    log(f"First portfolio keys: {list(portfolios[0].keys())}")
-                    # Keep portfolios as dictionaries to avoid unnecessary conversions
-                    all_portfolio_dicts.extend(portfolios)
-
-        except Exception as e:
-            log(f"Error in portfolio analysis: {str(e)}", "error")
-            log(f"Error type: {type(e).__name__}", "error")
-            import traceback
-
-            log(traceback.format_exc(), "error")
-            return []
-
-        log(f"Total portfolios collected: {len(all_portfolio_dicts)}")
-
-        # Streamlined processing: convert to PortfolioMetrics only once at the end
-        portfolio_metrics = []
-        if all_portfolio_dicts:
-            # Convert portfolio dictionaries to PortfolioMetrics objects
-            portfolio_metrics = self.portfolio_processor.convert_portfolios_to_metrics(
-                all_portfolio_dicts, log
-            )
-
-        # Export best portfolios using filtered portfolios data (multiple metric types)
-        deduplicated_portfolios = []
-        if portfolio_metrics:
-            try:
-                from app.tools.portfolio.collection import (
-                    collect_filtered_portfolios_for_export,
-                    deduplicate_and_aggregate_portfolios,
-                    export_best_portfolios,
-                )
-
-                log("Exporting best portfolios...")
-
-                # IMPORTANT: Use the original portfolio dictionaries (all_portfolio_dicts) for export
-                # to ensure all 59 columns are preserved in the CSV export.
-                # Do NOT use the reduced PortfolioMetrics objects which only have 14 fields.
-                export_best_portfolios(all_portfolio_dicts, config, log)
-                log(
-                    f"Successfully exported {len(all_portfolio_dicts)} best portfolios with full canonical schema"
-                )
-
-                # Apply deduplication logic for frontend results
-                desired_metric_types = config.get(
-                    "DESIRED_METRIC_TYPES",
-                    [
-                        # Total Return [%] variants
-                        "Most Total Return [%]",
-                        "Mean Total Return [%]",
-                        "Median Total Return [%]",
-                        # Total Trades variants
-                        "Most Total Trades",
-                        "Mean Total Trades",
-                        "Median Total Trades",
-                        # Avg Winning Trade [%] variants
-                        "Most Avg Winning Trade [%]",
-                        "Mean Avg Winning Trade [%]",
-                        "Median Avg Winning Trade [%]",
-                        # Sharpe Ratio variants
-                        "Most Sharpe Ratio",
-                        "Mean Sharpe Ratio",
-                        "Median Sharpe Ratio",
-                        # Omega Ratio variants
-                        "Most Omega Ratio",
-                        "Mean Omega Ratio",
-                        "Median Omega Ratio",
-                        # Sortino Ratio variants
-                        "Most Sortino Ratio",
-                        "Mean Sortino Ratio",
-                        "Median Sortino Ratio",
-                        # Win Rate [%] variants
-                        "Most Win Rate [%]",
-                        "Mean Win Rate [%]",
-                        "Median Win Rate [%]",
-                        # Score variants
-                        "Most Score",
-                        "Mean Score",
-                        "Median Score",
-                        # Profit Factor variants
-                        "Most Profit Factor",
-                        "Mean Profit Factor",
-                        "Median Profit Factor",
-                        # Expectancy per Trade variants
-                        "Most Expectancy per Trade",
-                        "Mean Expectancy per Trade",
-                        "Median Expectancy per Trade",
-                        # Beats BNH [%] variants
-                        "Most Beats BNH [%]",
-                        "Mean Beats BNH [%]",
-                        "Median Beats BNH [%]",
-                    ],
-                )
-
-                # Apply deduplication to the original portfolio dictionaries
-                deduplicated_dicts = deduplicate_and_aggregate_portfolios(
-                    all_portfolio_dicts, log, desired_metric_types
-                )
-
-                # Convert deduplicated results to PortfolioMetrics for API response
-                deduplicated_portfolios = (
-                    self.portfolio_processor.convert_portfolios_to_metrics(
-                        deduplicated_dicts, log
-                    )
-                )
-
-                log(
-                    f"Frontend will display {len(deduplicated_portfolios)} deduplicated portfolios"
-                )
-
-            except Exception as e:
-                log(f"Failed to export best portfolios: {str(e)}", "error")
-
-        # Return deduplicated portfolios if available, otherwise return all portfolios
-        if deduplicated_portfolios:
-            log(
-                f"Returning {len(deduplicated_portfolios)} deduplicated portfolios",
-                "info",
-            )
-            return deduplicated_portfolios
-        else:
-            log(f"Returning {len(portfolio_metrics)} portfolios", "info")
-            return portfolio_metrics
-
-    def _convert_portfolios_to_metrics(
-        self, portfolio_dicts: List[Dict], log
-    ) -> List[PortfolioMetrics]:
-        """Convert portfolio dictionaries to PortfolioMetrics objects efficiently.
-
-        Args:
-            portfolio_dicts: List of portfolio dictionaries
-            log: Logging function
-
-        Returns:
-            List of PortfolioMetrics objects
-        """
-        portfolio_metrics = []
-
-        for portfolio in portfolio_dicts:
-            try:
-                # Clean up strategy type if it has enum prefix
-                strategy_type_value = portfolio.get(
-                    "Strategy Type", portfolio.get("MA Type", "")
-                )
-                if (
-                    isinstance(strategy_type_value, str)
-                    and "StrategyTypeEnum." in strategy_type_value
-                ):
-                    strategy_type_value = strategy_type_value.replace(
-                        "StrategyTypeEnum.", ""
-                    )
-
-                # Determine window column names based on strategy type
-                if strategy_type_value == "SMA":
-                    short_window = portfolio.get(
-                        "SMA_FAST", portfolio.get("Short Window", 0)
-                    )
-                    long_window = portfolio.get(
-                        "SMA_SLOW", portfolio.get("Long Window", 0)
-                    )
-                else:  # EMA
-                    short_window = portfolio.get(
-                        "EMA_FAST", portfolio.get("Short Window", 0)
-                    )
-                    long_window = portfolio.get(
-                        "EMA_SLOW", portfolio.get("Long Window", 0)
-                    )
-
-                # Convert to int, handling None values
-                short_window = int(short_window) if short_window is not None else 0
-                long_window = int(long_window) if long_window is not None else 0
-
-                # Calculate winning/losing trades from total trades and win rate
-                total_trades = int(portfolio.get("Total Trades", 0))
-                win_rate_pct = float(portfolio.get("Win Rate [%]", 0.0))
-                winning_trades = int(total_trades * win_rate_pct / 100)
-                losing_trades = total_trades - winning_trades
-
-                # Convert string values to appropriate types
-                total_open_trades = portfolio.get("Total Open Trades", 0)
-                if isinstance(total_open_trades, str):
-                    total_open_trades = (
-                        int(total_open_trades) if total_open_trades.isdigit() else 0
-                    )
-
-                signal_entry = portfolio.get("Signal Entry", False)
-                if isinstance(signal_entry, str):
-                    signal_entry_bool = signal_entry.lower() == "true"
-                else:
-                    signal_entry_bool = bool(signal_entry)
-
-                # Handle missing fields by providing defaults based on analysis
-                avg_trade_duration = portfolio.get("Avg Trade Duration")
-                if not avg_trade_duration:
-                    # Try alternative field names or provide a default based on the data we have
-                    avg_trade_duration = portfolio.get("Average Trade Duration")
-
-                metric_type = portfolio.get("Metric Type")
-                if not metric_type:
-                    # Fallback for portfolios missing metric type (this should rarely happen now)
-                    if float(portfolio.get("Score", 0.0)) > 1.0:
-                        metric_type = (
-                            "Most Total Return [%]"  # Use proper metric type format
-                        )
-                    else:
-                        metric_type = "Most Total Return [%]"  # Default to most common metric type
-
-                metrics = PortfolioMetrics(
-                    ticker=portfolio.get("Ticker", ""),
-                    strategy_type=strategy_type_value,
-                    short_window=short_window,
-                    long_window=long_window,
-                    total_return=float(portfolio.get("Total Return [%]", 0.0)),
-                    annual_return=float(
-                        portfolio.get(
-                            "Ann. Return [%]",
-                            portfolio.get("Annual Returns", 0.0) * 100,
-                        )
-                    ),
-                    sharpe_ratio=float(portfolio.get("Sharpe Ratio", 0.0)),
-                    sortino_ratio=float(portfolio.get("Sortino Ratio", 0.0)),
-                    max_drawdown=float(portfolio.get("Max Drawdown [%]", 0.0)),
-                    total_trades=total_trades,
-                    winning_trades=winning_trades,
-                    losing_trades=losing_trades,
-                    win_rate=win_rate_pct / 100.0,  # Convert percentage to decimal
-                    profit_factor=float(portfolio.get("Profit Factor", 0.0)),
-                    expectancy=float(portfolio.get("Expectancy", 0.0)),
-                    expectancy_per_trade=float(
-                        portfolio.get("Expectancy per Trade", 0.0)
-                    ),
-                    score=float(portfolio.get("Score", 0.0)),
-                    beats_bnh=float(portfolio.get("Beats BNH [%]", 0.0)),
-                    has_open_trade=bool(total_open_trades > 0),
-                    has_signal_entry=signal_entry_bool,
-                    metric_type=metric_type,
-                    avg_trade_duration=avg_trade_duration,
-                )
-                portfolio_metrics.append(metrics)
-
-            except (ValueError, TypeError, KeyError) as e:
-                log(f"Error converting portfolio to metrics: {str(e)}", "error")
-                continue
-
-        return portfolio_metrics
-
-    async def _execute_analysis_async(
-        self, config: Dict[str, Any], log, execution_id: str, progress_callback
-    ) -> List[PortfolioMetrics]:
-        """
-        Execute the actual MA Cross analysis asynchronously with progress tracking.
-
-        Args:
-            config: Strategy configuration dictionary
-            log: Logging function
-            execution_id: Execution ID for tracking
-            progress_callback: Async callback for progress updates
-
-        Returns:
-            List of PortfolioMetrics results
-        """
-        # Import the execute_strategy functions from ma_cross module
-        from app.strategies.ma_cross.tools.strategy_execution import (
-            execute_strategy,
-            execute_strategy_concurrent,
-        )
-        from app.tools.project_utils import get_project_root
-
-        # Ensure BASE_DIR is set in config
-        if "BASE_DIR" not in config:
-            config["BASE_DIR"] = get_project_root()
-
-        # Get strategy types to analyze
-        strategy_types = config.get("STRATEGY_TYPES", ["SMA", "EMA"])
-
-        # Determine optimal execution strategy based on ticker count
-        tickers = config.get("TICKER", [])
-        if isinstance(tickers, str):
-            tickers = [tickers]
-        use_concurrent = len(tickers) > 2  # Use concurrent for 3+ tickers
-
-        log(
-            f"Processing {len(tickers)} tickers with {'concurrent' if use_concurrent else 'sequential'} execution"
-        )
-
-        # Update progress for strategy types
-        await progress_callback(20.0, f"Analyzing {len(strategy_types)} strategy types")
-
-        # Collect all portfolios in a single list to minimize conversions
-        all_portfolio_dicts = []
-
-        try:
-            # Execute strategy for each strategy type
-            for i, strategy_type in enumerate(strategy_types):
-                log(f"Executing {strategy_type} strategy analysis")
-
-                # Update progress for each strategy
-                progress = 20.0 + (i / len(strategy_types)) * 60.0
-                await progress_callback(
-                    progress,
-                    f"Analyzing {strategy_type} strategy ({i+1}/{len(strategy_types)})",
-                )
-
-                # Execute the strategy using optimal execution method in a thread pool
-                loop = asyncio.get_event_loop()
-                if use_concurrent:
-                    portfolios = await loop.run_in_executor(
-                        self.executor,
-                        execute_strategy_concurrent,
-                        config,
-                        strategy_type,
-                        log,
-                        None,  # No progress tracker for concurrent execution
-                    )
-                else:
-                    portfolios = await loop.run_in_executor(
-                        self.executor,
-                        execute_strategy,
-                        config,
-                        strategy_type,
-                        log,
-                        None,  # No progress tracker for sync execution
-                    )
-
-                log(
-                    f"execute_strategy returned {len(portfolios) if portfolios else 0} portfolios for {strategy_type}"
-                )
-
-                if portfolios:
-                    log(f"First portfolio keys: {list(portfolios[0].keys())}")
-                    # Keep portfolios as dictionaries to avoid unnecessary conversions
-                    all_portfolio_dicts.extend(portfolios)
-
-        except Exception as e:
-            log(f"Error in async portfolio analysis: {str(e)}", "error")
-            log(f"Error type: {type(e).__name__}", "error")
-            import traceback
-
-            log(traceback.format_exc(), "error")
-            return []
-
-        log(f"Total portfolios collected: {len(all_portfolio_dicts)}")
-
-        # Streamlined processing: convert to PortfolioMetrics only once at the end
-        portfolio_metrics = []
-        if all_portfolio_dicts:
-            # Convert portfolio dictionaries to PortfolioMetrics objects
-            portfolio_metrics = self.portfolio_processor.convert_portfolios_to_metrics(
-                all_portfolio_dicts, log
-            )
-
-        # Export best portfolios and apply deduplication logic
-        deduplicated_portfolios = []
-        if portfolio_metrics:
-            try:
-                from app.tools.portfolio.collection import (
-                    deduplicate_and_aggregate_portfolios,
-                    export_best_portfolios,
-                )
-
-                log("Exporting best portfolios...")
-
-                # IMPORTANT: Use the original portfolio dictionaries (all_portfolio_dicts) for export
-                # to ensure all 59 columns are preserved in the CSV export.
-                # Do NOT use the reduced PortfolioMetrics objects which only have 14 fields.
-                # Run export in thread pool
-                loop = asyncio.get_event_loop()
-                await loop.run_in_executor(
-                    self.executor,
-                    export_best_portfolios,
-                    all_portfolio_dicts,
-                    config,
-                    log,
-                )
-
-                await progress_callback(
-                    95.0,
-                    f"Successfully exported {len(all_portfolio_dicts)} best portfolios with full canonical schema",
-                )
-                log(
-                    f"Successfully exported {len(all_portfolio_dicts)} best portfolios with full canonical schema"
-                )
-
-                # Apply deduplication logic for frontend results
-                desired_metric_types = config.get(
-                    "DESIRED_METRIC_TYPES",
-                    [
-                        # Total Return [%] variants
-                        "Most Total Return [%]",
-                        "Mean Total Return [%]",
-                        "Median Total Return [%]",
-                        # Total Trades variants
-                        "Most Total Trades",
-                        "Mean Total Trades",
-                        "Median Total Trades",
-                        # Avg Winning Trade [%] variants
-                        "Most Avg Winning Trade [%]",
-                        "Mean Avg Winning Trade [%]",
-                        "Median Avg Winning Trade [%]",
-                        # Sharpe Ratio variants
-                        "Most Sharpe Ratio",
-                        "Mean Sharpe Ratio",
-                        "Median Sharpe Ratio",
-                        # Omega Ratio variants
-                        "Most Omega Ratio",
-                        "Mean Omega Ratio",
-                        "Median Omega Ratio",
-                        # Sortino Ratio variants
-                        "Most Sortino Ratio",
-                        "Mean Sortino Ratio",
-                        "Median Sortino Ratio",
-                        # Win Rate [%] variants
-                        "Most Win Rate [%]",
-                        "Mean Win Rate [%]",
-                        "Median Win Rate [%]",
-                        # Score variants
-                        "Most Score",
-                        "Mean Score",
-                        "Median Score",
-                        # Profit Factor variants
-                        "Most Profit Factor",
-                        "Mean Profit Factor",
-                        "Median Profit Factor",
-                        # Expectancy per Trade variants
-                        "Most Expectancy per Trade",
-                        "Mean Expectancy per Trade",
-                        "Median Expectancy per Trade",
-                        # Beats BNH [%] variants
-                        "Most Beats BNH [%]",
-                        "Mean Beats BNH [%]",
-                        "Median Beats BNH [%]",
-                    ],
-                )
-
-                # Apply deduplication to the original portfolio dictionaries
-                deduplicated_dicts = await loop.run_in_executor(
-                    self.executor,
-                    deduplicate_and_aggregate_portfolios,
-                    all_portfolio_dicts,
-                    log,
-                    desired_metric_types,
-                )
-
-                # Convert deduplicated results to PortfolioMetrics for API response
-                deduplicated_portfolios = (
-                    self.portfolio_processor.convert_portfolios_to_metrics(
-                        deduplicated_dicts, log
-                    )
-                )
-
-                log(
-                    f"Frontend will display {len(deduplicated_portfolios)} deduplicated portfolios"
-                )
-
-            except Exception as e:
-                log(f"Failed to export best portfolios: {str(e)}", "error")
-
-        # Return deduplicated portfolios if available, otherwise return all portfolios
-        if deduplicated_portfolios:
-            log(
-                f"Returning {len(deduplicated_portfolios)} deduplicated portfolios",
-                "info",
-            )
-            return deduplicated_portfolios
-        else:
-            log(f"Returning {len(portfolio_metrics)} portfolios", "info")
-            return portfolio_metrics
-
-    def _execute_async_analysis(
-        self, execution_id: str, request: MACrossRequest
-    ) -> None:
-        """
-        Execute analysis in background thread.
-
-        Args:
-            execution_id: Unique ID for tracking execution
-            request: Analysis request parameters
-        """
-        # Run the async analysis in the event loop
-        asyncio.run(self._run_async_analysis(execution_id, request))
-
-    async def _run_async_analysis(
-        self, execution_id: str, request: MACrossRequest
-    ) -> None:
-        """
-        Run the async analysis with proper async context.
-
-        Args:
-            execution_id: Unique ID for tracking execution
-            request: Analysis request parameters
-        """
-        log, log_close, _, _ = setup_logging(
-            module_name="api",
-            log_file=f"ma_cross_async_{execution_id}.log",
-            log_subdir="ma_cross",
-        )
-
-        try:
-            # Update status
-            task_status[execution_id]["status"] = "running"
-            task_status[execution_id]["progress"] = "Starting analysis..."
-
-            log(f"Starting async MA Cross analysis for execution {execution_id}")
-
-            # Initialize progress tracking
-            await self.progress_tracker.track(
-                task_id=execution_id, operation="MA Cross Analysis", total_items=None
-            )
-
-            # Convert request to strategy config
-            strategy_config = request.to_strategy_config()
-
-            # Add project root to Python path
-            project_root = self.config["BASE_DIR"]
-            if project_root not in sys.path:
-                sys.path.insert(0, project_root)
-
-            # Execute analysis with progress tracking
-            start_time = time.time()
-
-            # Update progress
-            await self.progress_tracker.update(
-                task_id=execution_id,
-                progress=10.0,
-                message="Initializing strategy analysis...",
-            )
-
-            # Create a progress callback for the execution
-            async def progress_callback(progress: float, message: str):
-                await self.progress_tracker.update(
-                    task_id=execution_id, progress=progress, message=message
-                )
-
-            results = await self._execute_analysis_async(
-                strategy_config, log, execution_id, progress_callback
-            )
-            execution_time = time.time() - start_time
-
-            # Collect exported file paths
-            portfolio_exports = self._collect_export_paths(
-                strategy_config, request.strategy_types, log
-            )
-
-            # Count filtered portfolios
-            filtered_count = 0
-            if portfolio_exports and "portfolios_filtered" in portfolio_exports:
-                filtered_count = len(portfolio_exports["portfolios_filtered"])
-
-            # Create result structure that matches what frontend expects
-            result_data = {
-                "status": "success",
-                "portfolios": [r.model_dump() for r in results],
-                "portfolio_exports": portfolio_exports,
-                "total_portfolios_analyzed": len(results),
-                "total_portfolios_filtered": filtered_count,
-                "execution_time": execution_time,
-            }
-
-            # Debug: Check if metric_type is included in async results
-            if results and len(results) > 0:
-                first_result_dump = results[0].model_dump()
-                portfolio_dump = (
-                    result_data["portfolios"][0] if result_data["portfolios"] else {}
-                )
-
-                log(
-                    f"DEBUG ASYNC: First result keys in model_dump: {len(first_result_dump.keys())}",
-                    "info",
-                )
-                log(
-                    f"DEBUG ASYNC: metric_type in dump: {'metric_type' in first_result_dump}",
-                    "info",
-                )
-                log(
-                    f"DEBUG ASYNC: metric_type value: '{first_result_dump.get('metric_type', 'MISSING')}'",
-                    "info",
-                )
-                log(
-                    f"DEBUG ASYNC: Stored portfolio keys: {len(portfolio_dump.keys())}",
-                    "info",
-                )
-                log(
-                    f"DEBUG ASYNC: metric_type in stored: {'metric_type' in portfolio_dump}",
-                    "info",
-                )
-                log(
-                    f"DEBUG ASYNC: stored metric_type value: '{portfolio_dump.get('metric_type', 'MISSING')}'",
-                    "info",
-                )
-
-            # Complete progress tracking
-            await self.progress_tracker.complete(
-                task_id=execution_id,
-                message=f"Analysis completed. Processed {len(results)} portfolios, filtered to {filtered_count}.",
-            )
-
-            # Update task status with results
-            task_status[execution_id].update(
-                {
-                    "status": "completed",
-                    "completed_at": datetime.now().isoformat(),
-                    "execution_time": execution_time,
-                    "result": result_data,  # Frontend expects results in 'result' field
-                    "progress": f"Analysis completed. Processed {len(results)} portfolios, filtered to {filtered_count}.",
-                }
-            )
-
-            log(f"Async analysis completed in {execution_time:.2f} seconds")
-
-        except Exception as e:
-            error_msg = f"Async MA Cross analysis failed: {str(e)}"
-            log(error_msg, "error")
-            log(traceback.format_exc(), "error")
-
-            # Mark progress tracking as failed
-            await self.progress_tracker.fail(task_id=execution_id, error=error_msg)
-
-            # Update task status with error
-            task_status[execution_id].update(
-                {
-                    "status": "failed",
-                    "completed_at": datetime.now().isoformat(),
-                    "error": error_msg,
-                    "progress": "Analysis failed.",
-                }
-            )
-        finally:
-            log_close()
-
-    async def get_task_status(self, execution_id: str) -> Dict[str, Any]:
-        """
-        Get status of an async task.
-
-        Args:
-            execution_id: Unique execution ID
-
-        Returns:
-            Task status dictionary
-
-        Raises:
-            MACrossServiceError: If execution ID not found
-        """
-        if execution_id not in task_status:
-            raise StrategyAnalysisServiceError(
-                f"Execution ID not found: {execution_id}"
-            )
-
-        # Get base status from task_status
-        status = task_status[execution_id].copy()
-
-        # Try to get enhanced progress data from progress tracker
-        try:
-            progress_status = await self.progress_tracker.get_status(execution_id)
-            if progress_status:
-                # Merge progress tracking data
-                status.update(
-                    {
-                        "progress_percentage": progress_status.get("progress", 0.0),
-                        "progress_message": progress_status.get(
-                            "message", status.get("progress", "")
-                        ),
-                        "operation": progress_status.get(
-                            "operation", "MA Cross Analysis"
-                        ),
-                        "progress_updated_at": (
-                            progress_status.get("updated_at", "").isoformat()
-                            if progress_status.get("updated_at")
-                            else None
-                        ),
-                    }
-                )
-        except Exception:
-            # If progress tracker fails, continue with basic status
-            pass
-
-        return status
-
-    def cleanup_old_tasks(self, max_age_hours: int = 24) -> int:
-        """
-        Clean up old task statuses.
-
-        Args:
-            max_age_hours: Maximum age of tasks to keep
-
-        Returns:
-            Number of tasks cleaned up
-        """
-        current_time = datetime.now()
-        cleaned = 0
-
-        for exec_id, status in list(task_status.items()):
-            started_at = datetime.fromisoformat(status["started_at"])
-            age_hours = (current_time - started_at).total_seconds() / 3600
-
-            if age_hours > max_age_hours:
-                del task_status[exec_id]
-                cleaned += 1
-
-        return cleaned
-
-    def _collect_export_paths(
-        self, config: Dict[str, Any], strategy_types: List[str], log
-    ) -> Dict[str, List[str]]:
-        """
-        Collect paths of exported portfolio CSV files.
-
-        Args:
-            config: Strategy configuration
-            strategy_types: List of strategy types analyzed
-            log: Logging function
-
-        Returns:
-            Dictionary with export paths organized by type
-        """
-        import glob
-
-        export_paths = {"portfolios": [], "portfolios_filtered": []}
-
-        try:
-            # Get ticker list
-            tickers = []
-            if isinstance(config.get("TICKER"), str):
-                tickers = [config["TICKER"]]
-            elif isinstance(config.get("TICKER"), list):
-                tickers = config["TICKER"]
-
-            # Construct expected file paths for each ticker and strategy type
-            for ticker in tickers:
-                # Format ticker for filename (replace special characters)
-                ticker_formatted = ticker.replace("-", "-").replace("/", "_")
-
-                for strategy_type in strategy_types:
-                    # Check for portfolio files
-                    portfolio_pattern = (
-                        f"csv/portfolios/{ticker_formatted}_*_{strategy_type}.csv"
-                    )
-                    portfolio_files = glob.glob(portfolio_pattern)
-                    export_paths["portfolios"].extend(portfolio_files)
-
-                    # Check for filtered portfolio files
-                    filtered_pattern = f"csv/portfolios_filtered/{ticker_formatted}_*_{strategy_type}.csv"
-                    filtered_files = glob.glob(filtered_pattern)
-                    export_paths["portfolios_filtered"].extend(filtered_files)
-
-            # Remove duplicates and sort
-            export_paths["portfolios"] = sorted(list(set(export_paths["portfolios"])))
-            export_paths["portfolios_filtered"] = sorted(
-                list(set(export_paths["portfolios_filtered"]))
-            )
-
-            log(
-                f"Found {len(export_paths['portfolios'])} portfolio files and {len(export_paths['portfolios_filtered'])} filtered files"
-            )
-
-        except Exception as e:
-            log(f"Error collecting export paths: {str(e)}", "error")
-
-        return export_paths
-
-
-# Backward compatibility alias
+# Factory function for creating the service (maintains backward compatibility)
+def create_strategy_analysis_service(
+    strategy_factory: Optional[StrategyFactory] = None,
+    cache: Optional[CacheInterface] = None,
+    config: Optional[ConfigurationInterface] = None,
+    logger: Optional[LoggingInterface] = None,
+    metrics: Optional[MonitoringInterface] = None,
+    progress_tracker: Optional[ProgressTrackerInterface] = None,
+    executor: Optional[ThreadPoolExecutor] = None,
+) -> StrategyAnalysisService:
+    """
+    Create a StrategyAnalysisService instance with default dependencies.
+    
+    This factory function maintains backward compatibility while using
+    the new modular architecture.
+    """
+    # Use default implementations if not provided
+    if strategy_factory is None:
+        strategy_factory = StrategyFactory()
+    
+    if config is None:
+        config = get_config()
+    
+    if metrics is None:
+        metrics = get_metrics_collector()
+    
+    # Create a simple logger if none provided
+    if logger is None:
+        class SimpleLogger:
+            def log(self, message: str, level: str = "info"):
+                print(f"[{level.upper()}] {message}")
+        logger = SimpleLogger()
+    
+    return StrategyAnalysisService(
+        strategy_factory=strategy_factory,
+        cache=cache,
+        config=config,
+        logger=logger,
+        metrics=metrics,
+        progress_tracker=progress_tracker,
+        executor=executor,
+    )
+
+
+# Backward compatibility aliases
 class MACrossService(StrategyAnalysisService):
     """Backward compatibility alias for MACrossService."""
-
     pass
 
 
 class MACrossServiceError(StrategyAnalysisServiceError):
     """Backward compatibility alias for MACrossServiceError."""
-
     pass
+
+
+# Legacy interface methods for complete backward compatibility
+def get_service_instance(*args, **kwargs) -> StrategyAnalysisService:
+    """Legacy function to get service instance."""
+    return create_strategy_analysis_service(*args, **kwargs)
+
+
+# Module-level exports for backward compatibility
+__all__ = [
+    "StrategyAnalysisService",
+    "StrategyAnalysisServiceError",
+    "MACrossService", 
+    "MACrossServiceError",
+    "create_strategy_analysis_service",
+    "get_service_instance",
+]

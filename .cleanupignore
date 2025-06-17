@@ -1,0 +1,15 @@
+# Cleanup ignore file
+# Files and directories listed here will be excluded from automatic cleanup
+# One pattern per line, supports basic glob patterns
+
+# Specific files to preserve
+csv/Metric Types.csv
+
+# Strategy files (already excluded by default)
+csv/strategies/
+
+# Add other files/patterns here as needed
+# Example patterns:
+# csv/important_*.csv
+# json/config/
+# csv/**/permanent_data.csv
