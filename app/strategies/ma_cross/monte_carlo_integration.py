@@ -739,10 +739,9 @@ def run_monte_carlo_enhanced_ma_cross(
         years=3,
     )
 
-    mc_config = MonteCarloConfig(
+    mc_config = NewMonteCarloConfig(
         num_simulations=mc_simulations,
         confidence_level=0.95,
-        enable_regime_analysis=True,
     )
 
     # Run enhanced analysis

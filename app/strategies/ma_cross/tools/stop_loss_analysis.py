@@ -32,15 +32,21 @@ def analyze_stop_loss_parameters(
         log: Optional logging function
 
     Returns:
-        Dict[str, np.ndarray]: Dictionary containing metric arrays for returns, win rates, and Sharpe Ratio
+        Dict[str, np.ndarray]: Dictionary containing metric arrays for returns, win rates, and Score
     """
     num_stops = len(stop_loss_range)
 
     # Initialize result arrays
     returns_array = np.zeros(num_stops)
     win_rate_array = np.zeros(num_stops)
-    sharpe_ratio_array = np.zeros(num_stops)
+    score_array = np.zeros(num_stops)
     trades_array = np.zeros(num_stops)
+    profit_factor_array = np.zeros(num_stops)
+    expectancy_array = np.zeros(num_stops)
+    sortino_array = np.zeros(num_stops)
+    beats_bnh_array = np.zeros(num_stops)
+    avg_trade_duration_array = np.zeros(num_stops)
+    trades_per_day_array = np.zeros(num_stops)
 
     # Store portfolios for export
     portfolios = []
@@ -73,15 +79,27 @@ def analyze_stop_loss_parameters(
         baseline_metrics = {
             "returns": float(baseline_stats.get("Total Return [%]", 0)),
             "win_rate": float(baseline_stats.get("Win Rate [%]", 0)),
-            "sharpe_ratio": float(baseline_stats.get("Sharpe Ratio", 0)),
+            "score": float(baseline_stats.get("Score", 0)),
             "trades": float(baseline_stats.get("Total Closed Trades", 0)),
+            "profit_factor": float(baseline_stats.get("Profit Factor", 0)),
+            "expectancy": float(baseline_stats.get("Expectancy per Trade", 0)),
+            "sortino": float(baseline_stats.get("Sortino Ratio", 0)),
+            "beats_bnh": float(baseline_stats.get("Beats BNH [%]", 0)),
+            "avg_trade_duration": float(
+                baseline_stats.get("Avg Trade Duration", "0")
+                .replace(" days", "")
+                .split()[0]
+                if isinstance(baseline_stats.get("Avg Trade Duration"), str)
+                else 0
+            ),
+            "trades_per_day": float(baseline_stats.get("Trades Per Day", 0)),
         }
 
         if log:
             log(
                 f"Baseline metrics - Returns: {baseline_metrics['returns']:.2f}%, "
                 f"Win Rate: {baseline_metrics['win_rate']:.2f}%, "
-                f"Sharpe: {baseline_metrics['sharpe_ratio']:.2f}, "
+                f"Score: {baseline_metrics['score']:.2f}, "
                 f"Trades: {baseline_metrics['trades']}"
             )
 
@@ -107,36 +125,91 @@ def analyze_stop_loss_parameters(
         current_metrics = {
             "returns": float(converted_stats.get("Total Return [%]", 0)),
             "win_rate": float(converted_stats.get("Win Rate [%]", 0)),
-            "sharpe_ratio": float(converted_stats.get("Sharpe Ratio", 0)),
+            "score": float(converted_stats.get("Score", 0)),
             "trades": float(converted_stats.get("Total Closed Trades", 0)),
+            "profit_factor": float(converted_stats.get("Profit Factor", 0)),
+            "expectancy": float(converted_stats.get("Expectancy per Trade", 0)),
+            "sortino": float(converted_stats.get("Sortino Ratio", 0)),
+            "beats_bnh": float(converted_stats.get("Beats BNH [%]", 0)),
+            "avg_trade_duration": float(
+                converted_stats.get("Avg Trade Duration", "0")
+                .replace(" days", "")
+                .split()[0]
+                if isinstance(converted_stats.get("Avg Trade Duration"), str)
+                else 0
+            ),
+            "trades_per_day": float(converted_stats.get("Trades Per Day", 0)),
         }
 
         # Calculate relative or absolute metrics based on config
         if config.get("RELATIVE", True):
+            # Additive differences for rates and percentages
             returns_array[i] = current_metrics["returns"] - baseline_metrics["returns"]
             win_rate_array[i] = (
                 current_metrics["win_rate"] - baseline_metrics["win_rate"]
             )
+            beats_bnh_array[i] = (
+                current_metrics["beats_bnh"] - baseline_metrics["beats_bnh"]
+            )
 
-            # For Sharpe and trades, use percentage change when baseline is non-zero
-            if baseline_metrics["sharpe_ratio"] != 0:
-                sharpe_ratio_array[i] = (
-                    current_metrics["sharpe_ratio"] / baseline_metrics["sharpe_ratio"]
-                ) * 100 - 100
-            else:
-                sharpe_ratio_array[i] = current_metrics["sharpe_ratio"]
+            # Duration differences (in days)
+            avg_trade_duration_array[i] = (
+                current_metrics["avg_trade_duration"]
+                - baseline_metrics["avg_trade_duration"]
+            )
+            trades_per_day_array[i] = (
+                current_metrics["trades_per_day"] - baseline_metrics["trades_per_day"]
+            )
 
-            if baseline_metrics["trades"] != 0:
-                trades_array[i] = (
-                    current_metrics["trades"] / baseline_metrics["trades"]
-                ) * 100 - 100
-            else:
-                trades_array[i] = current_metrics["trades"]
+            # Percentage changes for ratios and factors
+            for metric_name, array, baseline_val, current_val in [
+                (
+                    "score",
+                    score_array,
+                    baseline_metrics["score"],
+                    current_metrics["score"],
+                ),
+                (
+                    "trades",
+                    trades_array,
+                    baseline_metrics["trades"],
+                    current_metrics["trades"],
+                ),
+                (
+                    "profit_factor",
+                    profit_factor_array,
+                    baseline_metrics["profit_factor"],
+                    current_metrics["profit_factor"],
+                ),
+                (
+                    "expectancy",
+                    expectancy_array,
+                    baseline_metrics["expectancy"],
+                    current_metrics["expectancy"],
+                ),
+                (
+                    "sortino",
+                    sortino_array,
+                    baseline_metrics["sortino"],
+                    current_metrics["sortino"],
+                ),
+            ]:
+                if baseline_val != 0:
+                    array[i] = (current_val / baseline_val) * 100 - 100
+                else:
+                    array[i] = current_val
         else:
+            # Absolute values
             returns_array[i] = current_metrics["returns"]
             win_rate_array[i] = current_metrics["win_rate"]
-            sharpe_ratio_array[i] = current_metrics["sharpe_ratio"]
+            score_array[i] = current_metrics["score"]
             trades_array[i] = current_metrics["trades"]
+            profit_factor_array[i] = current_metrics["profit_factor"]
+            expectancy_array[i] = current_metrics["expectancy"]
+            sortino_array[i] = current_metrics["sortino"]
+            beats_bnh_array[i] = current_metrics["beats_bnh"]
+            avg_trade_duration_array[i] = current_metrics["avg_trade_duration"]
+            trades_per_day_array[i] = current_metrics["trades_per_day"]
 
         if log:
             log(f"Analyzed stop loss {stop_loss_pct:.2f}%")
@@ -162,12 +235,24 @@ def analyze_stop_loss_parameters(
     # Ensure no NaN values in final arrays
     returns_array = np.nan_to_num(returns_array, 0)
     win_rate_array = np.nan_to_num(win_rate_array, 0)
-    sharpe_ratio_array = np.nan_to_num(sharpe_ratio_array, 0)
+    score_array = np.nan_to_num(score_array, 0)
     trades_array = np.nan_to_num(trades_array, 0)
+    profit_factor_array = np.nan_to_num(profit_factor_array, 0)
+    expectancy_array = np.nan_to_num(expectancy_array, 0)
+    sortino_array = np.nan_to_num(sortino_array, 0)
+    beats_bnh_array = np.nan_to_num(beats_bnh_array, 0)
+    avg_trade_duration_array = np.nan_to_num(avg_trade_duration_array, 0)
+    trades_per_day_array = np.nan_to_num(trades_per_day_array, 0)
 
     return {
         "trades": trades_array,
         "returns": returns_array,
-        "sharpe_ratio": sharpe_ratio_array,
+        "score": score_array,
         "win_rate": win_rate_array,
+        "profit_factor": profit_factor_array,
+        "expectancy": expectancy_array,
+        "sortino": sortino_array,
+        "beats_bnh": beats_bnh_array,
+        "avg_trade_duration": avg_trade_duration_array,
+        "trades_per_day": trades_per_day_array,
     }

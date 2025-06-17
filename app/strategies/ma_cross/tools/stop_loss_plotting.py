@@ -59,7 +59,7 @@ def create_stop_loss_heatmap(
             "format": "+.1f",
             "title_suffix": "pp vs Baseline",
         },
-        "sharpe_ratio": {
+        "score": {
             "colorscale": "RdBu",
             "format": "+.0f",
             "title_suffix": "% vs Baseline",
@@ -71,8 +71,12 @@ def create_stop_loss_heatmap(
         },
     }
 
-    # Create heatmap for each metric
+    # Create heatmap for each metric that has format definitions
     for metric_name, array in metric_matrices.items():
+        # Only create heatmaps for metrics we have format definitions for
+        if metric_name not in metric_formats:
+            continue
+
         format_info = metric_formats[metric_name]
 
         # Set visualization parameters

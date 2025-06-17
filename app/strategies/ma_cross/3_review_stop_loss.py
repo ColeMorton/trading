@@ -11,8 +11,16 @@ The analysis can be performed in relative or absolute terms based on the config:
 """
 
 import os
+import sys
 
 import numpy as np
+import polars as pl
+
+# Add the project root to Python path for module imports
+if __name__ == "__main__":
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
 
 from app.strategies.ma_cross.tools.stop_loss_analysis import (
     analyze_stop_loss_parameters,
@@ -23,18 +31,97 @@ from app.tools.config_service import ConfigService
 from app.tools.get_data import get_data
 from app.tools.setup_logging import setup_logging
 
+
+def export_stop_loss_sensitivity_csv(
+    metric_matrices: dict[str, np.ndarray],
+    stop_loss_range: np.ndarray,
+    config: CacheConfig,
+    log: callable,
+) -> str:
+    """
+    Export stop loss sensitivity analysis results to CSV.
+
+    Args:
+        metric_matrices: Dictionary containing metric arrays (trades, returns, score, win_rate)
+        stop_loss_range: Array of stop loss percentages tested
+        config: Strategy configuration
+        log: Logging function
+
+    Returns:
+        str: Path to exported CSV file
+    """
+    # Create output directory
+    output_dir = "./csv/stop_loss"
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Generate filename using consistent naming convention
+    ticker = config.get("TICKER", "UNKNOWN")
+    if isinstance(ticker, list):
+        ticker = ticker[0] if ticker else "UNKNOWN"
+
+    timeframe = "H" if config.get("USE_HOURLY", False) else "D"
+    strategy_type = "SMA" if config.get("USE_SMA", False) else "EMA"
+    short_window = config.get("SHORT_WINDOW", 0)
+    long_window = config.get("LONG_WINDOW", 0)
+
+    filename = f"{ticker}_{timeframe}_{strategy_type}_{short_window}_{long_window}.csv"
+    filepath = os.path.join(output_dir, filename)
+
+    # Create comprehensive DataFrame with core metrics only
+    data = {
+        "Stop Loss [%]": stop_loss_range,
+        "Score": metric_matrices["score"],
+        "Total Return [%]": metric_matrices["returns"],
+        "Win Rate [%]": metric_matrices["win_rate"],
+        "Total Trades": metric_matrices["trades"],
+        "Profit Factor": metric_matrices["profit_factor"],
+        "Expectancy per Trade": metric_matrices["expectancy"],
+        "Sortino Ratio": metric_matrices["sortino"],
+        "Beats BNH [%]": metric_matrices["beats_bnh"],
+        "Avg Trade Duration": metric_matrices["avg_trade_duration"],
+        "Trades Per Day": metric_matrices["trades_per_day"],
+    }
+
+    # Create and export DataFrame
+    df = pl.DataFrame(data)
+
+    # Reorder columns for logical grouping
+    column_order = [
+        "Stop Loss [%]",
+        "Score",
+        "Total Return [%]",
+        "Win Rate [%]",
+        "Total Trades",
+        "Profit Factor",
+        "Expectancy per Trade",
+        "Sortino Ratio",
+        "Beats BNH [%]",
+        "Avg Trade Duration",
+        "Trades Per Day",
+    ]
+
+    df = df.select(column_order)
+    df.write_csv(filepath)
+
+    log(f"Exported stop loss sensitivity analysis to {filepath}")
+    log(f"CSV contains {len(df)} rows and {len(df.columns)} columns")
+    log(f"Columns: {', '.join(df.columns)}")
+
+    return filepath
+
+
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
-    "TICKER": "GLD",
-    "SHORT_WINDOW": 83,
-    "LONG_WINDOW": 98,
+    "TICKER": "COR",
+    "SHORT_WINDOW": 8,
+    "LONG_WINDOW": 26,
     "BASE_DIR": ".",
     "USE_SMA": True,
     "REFRESH": True,
     "USE_HOURLY": False,
-    "RELATIVE": True,
+    "RELATIVE": False,
     "DIRECTION": "Long",
-    "USE_CURRENT": True,
+    "USE_CURRENT": False,
     "USE_RSI": False,
     "RSI_WINDOW": 4,
     "RSI_THRESHOLD": 52,
@@ -49,7 +136,8 @@ def run(config: CacheConfig) -> bool:
     1. Setting up logging
     2. Loading cached results or preparing new data
     3. Running sensitivity analysis across stop loss parameters
-    4. Displaying interactive heatmaps in browser
+    4. Exporting comprehensive results to CSV in ./csv/stop_loss/
+    5. Displaying interactive heatmaps in browser
 
     Args:
         config (CacheConfig): Configuration dictionary containing strategy parameters.
@@ -61,6 +149,17 @@ def run(config: CacheConfig) -> bool:
 
     Raises:
         Exception: If data preparation or analysis fails
+
+    CSV Export:
+        Exports sensitivity analysis to ./csv/stop_loss/ with naming convention:
+        [TICKER]_[TIMEFRAME]_[STRATEGY_TYPE]_[SHORT_WINDOW]_[LONG_WINDOW].csv
+
+        Contains 300 rows of optimized stop loss analysis (0.01% to 15.0%) with metrics:
+        - Stop Loss Percentage
+        - Score (optimized composite metric)
+        - Returns, Win Rate, Trade Count
+        - Profit Factor, Expectancy per Trade, Sortino Ratio
+        - Beats Buy-and-Hold [%], Avg Trade Duration, Trades Per Day
     """
     log, log_close, _, _ = setup_logging(
         module_name="ma_cross", log_file="3_review_stop_loss.log"
@@ -70,10 +169,16 @@ def run(config: CacheConfig) -> bool:
         config = ConfigService.process_config(config)
         log(f"Starting stop loss analysis for {config['TICKER']}")
 
-        # Define parameter ranges with explicit 2 decimal place precision
-        # stop_loss_range = np.round(np.arange(0, 15, 0.01), decimals=2)
-        # stop_loss_range = np.round(np.arange(0, 20, 0.01), decimals=2)
-        stop_loss_range = np.round(np.arange(0, 25, 0.1), decimals=2)
+        # Define optimized parameter ranges (300 rows max, 15.0% max stop loss)
+        # 0.01 to 1.99 (0.01 steps) - high precision for critical low stop loss values (199 points)
+        range1 = np.arange(0.01, 2.00, 0.01)
+        # 2.00 to 4.96 (0.04 steps) - medium precision for mid-range values (75 points)
+        range2 = np.arange(2.00, 5.00, 0.04)
+        # 5.00 to 15.0 (0.4 steps) - coarse precision for high stop loss values (26 points)
+        range3 = np.arange(5.00, 15.4, 0.4)
+
+        # Combine ranges and round to 2 decimal places (total: 300 points)
+        stop_loss_range = np.round(np.concatenate([range1, range2, range3]), decimals=2)
         log(
             f"Using stop loss range: {stop_loss_range[0]:.2f}% to {stop_loss_range[-1]:.2f}%"
         )
@@ -104,6 +209,19 @@ def run(config: CacheConfig) -> bool:
         if metric_matrices is None:
             raise Exception("Failed to generate or load metric matrices")
 
+        # Export sensitivity analysis results to CSV
+        try:
+            csv_filepath = export_stop_loss_sensitivity_csv(
+                metric_matrices=metric_matrices,
+                stop_loss_range=stop_loss_range,
+                config=config,
+                log=log,
+            )
+            log(f"Stop loss sensitivity analysis exported to: {csv_filepath}")
+        except Exception as csv_error:
+            log(f"Warning: Failed to export CSV: {str(csv_error)}", "warning")
+            # Continue with heatmap generation even if CSV export fails
+
         # Create heatmap figures
         figures = create_stop_loss_heatmap(
             metric_matrices=metric_matrices,
@@ -116,7 +234,7 @@ def run(config: CacheConfig) -> bool:
             raise Exception("Failed to create heatmap figures")
 
         # Display all heatmaps in specific order
-        metrics_to_display = ["trades", "returns", "sharpe_ratio", "win_rate"]
+        metrics_to_display = ["trades", "returns", "score", "win_rate"]
         for metric_name in metrics_to_display:
             if metric_name in figures:
                 figures[metric_name].show()
