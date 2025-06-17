@@ -1,13 +1,20 @@
 import logging
 import os
+import sys
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import vectorbt as vbt
 
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from app.strategies.macd.config_types import DEFAULT_CONFIG, PortfolioConfig
 from app.tools.calculate_rsi import calculate_rsi
-from app.tools.get_data import download_data
+from app.tools.get_data import get_data
 
 # Ensure the logs directory exists
 os.makedirs("logs", exist_ok=True)
@@ -22,24 +29,9 @@ logging.basicConfig(
 
 logging.info("Total Return, Win Rate, and Expectancy vs Stop Loss Percentage")
 
-# Constants for easy configuration
-YEARS = 30  # Set timeframe in years for daily data
-USE_HOURLY = False  # Set to False for daily data
-USE_SYNTHETIC = False  # Toggle between synthetic and original ticker
-TICKER_1 = "EVRG"  # Ticker for X to USD exchange rate
-TICKER_2 = "BTC-USD"  # Ticker for Y to USD exchange rate
-SHORT = False  # Set to True for short-only strategy, False for long-only strategy
 
-SHORT_PERIOD = 8
-LONG_WINDOW = 15
-SIGNAL_WINDOW = 7
-RSI_WINDOW = 14
-
-RSI_THRESHOLD = 48
-USE_RSI = False
-
-
-def calculate_rsi(data, period: int):
+def calculate_rsi_local(data, period: int):
+    """Local RSI calculation using pandas for vectorbt compatibility."""
     delta = data["Close"].diff()
     gain = (delta > 0).astype(int) * delta
     loss = (delta < 0).astype(int) * -delta
@@ -50,15 +42,43 @@ def calculate_rsi(data, period: int):
     return data.assign(RSI=rsi)
 
 
+def log_wrapper(message, level="info"):
+    """Wrapper function to make logging compatible with get_data expectations."""
+    logging.info(message)
+
+
 def main():
     logging.info("Starting main execution")
 
-    if USE_SYNTHETIC:
-        # Download historical data for TICKER_1 and TICKER_2
-        data_ticker_1 = download_data(TICKER_1, USE_HOURLY, YEARS)
-        data_ticker_2 = download_data(TICKER_2, USE_HOURLY, YEARS)
+    config = DEFAULT_CONFIG.copy()
 
-        # Create synthetic ticker XY
+    # Configuration from DEFAULT_CONFIG with fallbacks
+    YEARS = 30  # Set timeframe in years for daily data
+    USE_HOURLY = config.get("USE_HOURLY", False)
+    USE_SYNTHETIC = config.get("USE_SYNTHETIC", False)
+    TICKER_1 = config.get("TICKER", "EVRG")
+    TICKER_2 = config.get("TICKER_2", "BTC-USD")
+    SHORT = config.get("SHORT", False)
+
+    SHORT_PERIOD = config.get("SHORT_WINDOW_START", 8)
+    LONG_WINDOW = config.get("LONG_WINDOW_START", 15)
+    SIGNAL_WINDOW = config.get("SIGNAL_WINDOW_START", 7)
+    RSI_WINDOW = config.get("RSI_WINDOW", 14)
+
+    RSI_THRESHOLD = config.get("RSI_THRESHOLD", 48)
+    USE_RSI = config.get("USE_RSI", False)
+
+    if USE_SYNTHETIC:
+        # Get data for both tickers and create synthetic pair
+        config_1 = config.copy()
+        config_1["TICKER"] = TICKER_1
+        data_ticker_1 = get_data(TICKER_1, config_1, log_wrapper)
+
+        config_2 = config.copy()
+        config_2["TICKER"] = TICKER_2
+        data_ticker_2 = get_data(TICKER_2, config_2, log_wrapper)
+
+        # Convert to pandas for vectorbt compatibility
         data_ticker_1 = data_ticker_1.to_pandas()
         data_ticker_2 = data_ticker_2.to_pandas()
         data_ticker_1["Close"] = data_ticker_1["Close"].ffill()
@@ -68,8 +88,8 @@ def main():
         data_ticker_3 = data_ticker_3.dropna()
         data = data_ticker_3
     else:
-        # Download historical data for TICKER_1 only
-        data = download_data(TICKER_1, USE_HOURLY, YEARS).to_pandas()
+        # Get data for single ticker
+        data = get_data(TICKER_1, config, log_wrapper).to_pandas()
 
     # Calculate MACD
     macd_indicator = vbt.MACD.run(
@@ -84,7 +104,7 @@ def main():
     data["Signal"] = macd_indicator.signal
 
     if USE_RSI:
-        data = calculate_rsi(data, RSI_WINDOW)
+        data = calculate_rsi_local(data, RSI_WINDOW)
 
     # Generate entry and exit signals based on SHORT flag
     if SHORT:

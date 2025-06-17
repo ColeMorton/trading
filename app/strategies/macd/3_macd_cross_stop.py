@@ -1,4 +1,6 @@
+import sys
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import List, Tuple
 
 import matplotlib.pyplot as plt
@@ -7,7 +9,11 @@ import polars as pl
 import yfinance as yf
 from scipy.signal import find_peaks
 
-from app.strategies.macd.config import config
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from app.strategies.macd.config_types import DEFAULT_CONFIG, PortfolioConfig
 from app.tools.calculate_macd import calculate_macd
 from app.tools.calculate_macd_signals import calculate_macd_signals
 from app.tools.calculate_rsi import calculate_rsi
@@ -15,7 +21,7 @@ from app.tools.get_data import get_data
 from app.tools.setup_logging import setup_logging
 
 log, log_close, _, _ = setup_logging(
-    module_name="macd_cross", log_file="3_macd_cross_stop.log"
+    module_name="macd_stop", log_file="3_macd_cross_stop.log"
 )
 
 
@@ -37,14 +43,17 @@ def download_data(ticker: str, years: int, use_hourly: bool) -> pl.DataFrame:
 
 
 def backtest(
-    data: pl.DataFrame, stop_loss_percentage: float, rsi_threshold: int = 70
+    data: pl.DataFrame,
+    stop_loss_percentage: float,
+    config: PortfolioConfig,
+    rsi_threshold: int = 70,
 ) -> List[Tuple[float, float]]:
     position, entry_price = 0, 0
     trades = []
 
     for i in range(1, len(data)):
         if position == 0:
-            if config["SHORT"]:
+            if config.get("SHORT", False):
                 # Short entry condition
                 if (
                     data["MACD"][i] < data["Signal"][i]
@@ -88,14 +97,16 @@ def backtest(
     return trades
 
 
-def calculate_metrics(trades: List[Tuple[float, float]]) -> Tuple[float, float, float]:
+def calculate_metrics(
+    trades: List[Tuple[float, float]], config: PortfolioConfig
+) -> Tuple[float, float, float]:
     if not trades:
         return 0, 0, 0
 
     returns = [
         (
             (exit_price / entry_price - 1)
-            if config["SHORT"]
+            if config.get("SHORT", False)
             else (exit_price / entry_price - 1)
         )
         for entry_price, exit_price in trades
@@ -116,12 +127,12 @@ def calculate_metrics(trades: List[Tuple[float, float]]) -> Tuple[float, float, 
 
 
 def run_sensitivity_analysis(
-    data: pl.DataFrame, stop_loss_range: np.ndarray
+    data: pl.DataFrame, stop_loss_range: np.ndarray, config: PortfolioConfig
 ) -> pl.DataFrame:
     results = []
     for stop_loss_percentage in stop_loss_range:
-        trades = backtest(data, stop_loss_percentage)
-        total_return, win_rate, expectancy = calculate_metrics(trades)
+        trades = backtest(data, stop_loss_percentage, config)
+        total_return, win_rate, expectancy = calculate_metrics(trades, config)
 
         results.append(
             {
@@ -218,14 +229,19 @@ def main():
 
     stop_loss_range = np.arange(0, 21, 0.01)
 
+    config = DEFAULT_CONFIG.copy()
+
     data = get_data(config["TICKER"], config, log)
     data = calculate_macd(
-        data, config["SHORT_PERIOD"], config["LONG_WINDOW"], config["SIGNAL_WINDOW"]
+        data,
+        config["SHORT_WINDOW_START"],
+        config["LONG_WINDOW_START"],
+        config["SIGNAL_WINDOW_START"],
     )
-    data = calculate_rsi(data, config["RSI_WINDOW"])
+    data = calculate_rsi(data, config.get("RSI_WINDOW", 14))
     data = calculate_macd_signals(data, config)
 
-    results_df = run_sensitivity_analysis(data, stop_loss_range)
+    results_df = run_sensitivity_analysis(data, stop_loss_range, config)
 
     pl.Config.set_fmt_str_lengths(20)
 

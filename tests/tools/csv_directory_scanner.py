@@ -36,7 +36,7 @@ class CSVDirectoryScanner:
             "csv/portfolios_filtered",
             "csv/strategies",
             "csv/ma_cross",
-            "csv/macd_next",
+            "csv/macd",
             "csv/mean_reversion",
             "csv/mean_reversion_rsi",
             "csv/mean_reversion_hammer",

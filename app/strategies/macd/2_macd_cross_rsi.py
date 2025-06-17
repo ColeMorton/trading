@@ -1,3 +1,5 @@
+import sys
+from pathlib import Path
 from typing import List, Tuple
 
 import matplotlib.pyplot as plt
@@ -5,18 +7,24 @@ import numpy as np
 import polars as pl
 from scipy.signal import find_peaks
 
-from app.strategies.macd.config import config
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from app.strategies.macd.config_types import DEFAULT_CONFIG, PortfolioConfig
 from app.tools.calculate_macd import calculate_macd
 from app.tools.calculate_rsi import calculate_rsi
 from app.tools.get_data import get_data
 from app.tools.setup_logging import setup_logging
 
 log, log_close, _, _ = setup_logging(
-    module_name="macd_cross", log_file="2_macd_cross_rsi.log"
+    module_name="macd_rsi", log_file="2_macd_cross_rsi.log"
 )
 
 
-def backtest(data: pl.DataFrame, rsi_threshold: int) -> List[Tuple[float, float]]:
+def backtest(
+    data: pl.DataFrame, rsi_threshold: int, config: PortfolioConfig
+) -> List[Tuple[float, float]]:
     log(f"Running backtest with RSI threshold: {rsi_threshold}")
     position, entry_price = 0, 0
     trades = []
@@ -73,11 +81,13 @@ def calculate_metrics(
     return total_return * 100, win_rate * 100, expectancy, num_positions
 
 
-def run_sensitivity_analysis(data: pl.DataFrame, rsi_range: np.ndarray) -> pl.DataFrame:
+def run_sensitivity_analysis(
+    data: pl.DataFrame, rsi_range: np.ndarray, config: PortfolioConfig
+) -> pl.DataFrame:
     log("Starting sensitivity analysis")
     results = []
     for rsi_threshold in rsi_range:
-        trades = backtest(data, rsi_threshold)
+        trades = backtest(data, rsi_threshold, config)
         total_return, win_rate, expectancy, num_positions = calculate_metrics(trades)
         results.append(
             {
@@ -194,11 +204,16 @@ def main():
     log("RSI Threshold Sensitivity Analysis - New Execution")
     rsi_range = np.arange(29, 79, 1)  # 30 to 80
 
+    config = DEFAULT_CONFIG.copy()
+
     data = get_data(config["TICKER"], config, log)
     data = calculate_macd(
-        data, config["SHORT_PERIOD"], config["LONG_WINDOW"], config["SIGNAL_WINDOW"]
+        data,
+        config["SHORT_WINDOW_START"],
+        config["LONG_WINDOW_START"],
+        config["SIGNAL_WINDOW_START"],
     )
-    data = calculate_rsi(data, config["RSI_WINDOW"])
+    data = calculate_rsi(data, config.get("RSI_WINDOW", 14))
 
     # Log some statistics about the data
     log(
@@ -208,7 +223,7 @@ def main():
         f"RSI statistics: Min: {data['RSI'].min()}, Max: {data['RSI'].max()}, Mean: {data['RSI'].mean()}"
     )
 
-    results_df = run_sensitivity_analysis(data, rsi_range)
+    results_df = run_sensitivity_analysis(data, rsi_range, config)
 
     pl.Config.set_fmt_str_lengths(20)
     plot_results(config["TICKER"], results_df)

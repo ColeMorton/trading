@@ -93,7 +93,7 @@ class MACDStrategy(StrategyInterface):
         """Execute MACD strategy analysis."""
         try:
             # Import the MACD strategy execution functions
-            from app.strategies.macd_next import run
+            from app.strategies.macd import run
 
             # Ensure BASE_DIR is set in config
             if "BASE_DIR" not in config:
@@ -101,12 +101,12 @@ class MACDStrategy(StrategyInterface):
 
             log("Starting MACD strategy execution")
 
-            # Convert API config format to MACD Next config format
+            # Convert API config format to MACD config format
             macd_config = self._convert_config_to_macd_format(config)
 
             log(f"Converted config: {macd_config}")
 
-            # Execute MACD strategy using the existing MACD Next implementation
+            # Execute MACD strategy using the existing MACD implementation
             portfolios = run(macd_config)
 
             log(
