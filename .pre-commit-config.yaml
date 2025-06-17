@@ -150,6 +150,17 @@ repos:
         args: ['--write', '--single-quote', '--trailing-comma=es5']
         exclude: ^(node_modules/|build/|dist/|package-lock\.json)
 
+  # Local cleanup script
+  - repo: local
+    hooks:
+      - id: cleanup-old-files
+        name: Cleanup old CSV/JSON files
+        entry: python scripts/cleanup_old_files.py
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [commit]
+
 # Configuration for specific stages
 default_stages: [commit]
 fail_fast: false

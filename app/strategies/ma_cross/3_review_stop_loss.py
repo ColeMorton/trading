@@ -112,16 +112,16 @@ def export_stop_loss_sensitivity_csv(
 
 # Use CacheConfig from cache_utils.py
 default_config: CacheConfig = {
-    "TICKER": "COR",
-    "SHORT_WINDOW": 8,
-    "LONG_WINDOW": 26,
+    "TICKER": "AMAT",
+    "SHORT_WINDOW": 64,
+    "LONG_WINDOW": 77,
     "BASE_DIR": ".",
     "USE_SMA": True,
     "REFRESH": True,
     "USE_HOURLY": False,
     "RELATIVE": False,
     "DIRECTION": "Long",
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     "USE_RSI": False,
     "RSI_WINDOW": 4,
     "RSI_THRESHOLD": 52,

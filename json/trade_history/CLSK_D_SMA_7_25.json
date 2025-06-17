@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-17T08:14:57.381628",
+    "export_timestamp": "2025-06-18T08:51:13.577762",
     "strategy_config": {
       "ticker": "CLSK",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 0.8804823813299606,
+      "total_return": 0.7397393633666236,
       "total_trades": "48",
       "win_rate": 0.3958333333333333,
-      "sharpe_ratio": 0.6413162964078872,
+      "sharpe_ratio": 0.6302013067040512,
       "max_drawdown": -0.9100054249931802
     }
   },
@@ -1011,10 +1011,10 @@
       "Entry Timestamp": "2025-06-10 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 10.130000114440918,
-      "Avg Exit Price": 9.619999885559082,
+      "Avg Exit Price": 8.899999618530273,
       "Size": 195.4763413410034,
-      "PnL": -101.67315418505018,
-      "Return": -0.05134553041660866,
+      "PnL": -242.4161721483872,
+      "Return": -0.12242156781984674,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -1023,9 +1023,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Big Loser",
-      "Cumulative_PnL": 880.48238132996,
+      "Cumulative_PnL": 739.739363366623,
       "Trade_Number": 48,
-      "Rolling_Avg_Return": 0.04438618115010888,
+      "Rolling_Avg_Return": 0.03017097366946127,
       "Rolling_Win_Rate": 0.6
     }
   ],
@@ -2741,10 +2741,10 @@
       "Avg Entry Price": 10.130000114440918,
       "Entry Fees": 1.9801753601545897,
       "Exit Timestamp": null,
-      "Avg Exit Price": 9.619999885559082,
+      "Avg Exit Price": 8.899999618530273,
       "Exit Fees": 0.0,
-      "PnL": -101.67315418505018,
-      "Return": -0.05134553041660866,
+      "PnL": -242.4161721483872,
+      "Return": -0.12242156781984674,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

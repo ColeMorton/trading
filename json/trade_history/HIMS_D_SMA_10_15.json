@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-17T08:14:52.700158",
+    "export_timestamp": "2025-06-18T08:51:10.128691",
     "strategy_config": {
       "ticker": "HIMS",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 8.722230722901898,
+      "total_return": 8.63440910177155,
       "total_trades": "55",
       "win_rate": 0.4727272727272727,
-      "sharpe_ratio": 1.1785503633022396,
+      "sharpe_ratio": 1.1747468064025302,
       "max_drawdown": -0.6943767167721342
     }
   },
@@ -1158,10 +1158,10 @@
       "Entry Timestamp": "2025-06-11 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 57.56000137329102,
-      "Avg Exit Price": 59.779998779296875,
+      "Avg Exit Price": 59.2400016784668,
       "Size": 162.6335048750272,
-      "PnL": 351.68477418825205,
-      "Return": 0.03756840432661947,
+      "PnL": 263.8631530579023,
+      "Return": 0.028186939977303944,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -1170,9 +1170,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Winner",
-      "Cumulative_PnL": 8722.230722901897,
+      "Cumulative_PnL": 8634.409101771547,
       "Trade_Number": 55,
-      "Rolling_Avg_Return": 0.1353010071402719,
+      "Rolling_Avg_Return": 0.1334247142704088,
       "Rolling_Win_Rate": 1.0
     }
   ],
@@ -3140,10 +3140,10 @@
       "Avg Entry Price": 57.56000137329102,
       "Entry Fees": 9.361184763949495,
       "Exit Timestamp": null,
-      "Avg Exit Price": 59.779998779296875,
+      "Avg Exit Price": 59.2400016784668,
       "Exit Fees": 0.0,
-      "PnL": 351.68477418825205,
-      "Return": 0.03756840432661947,
+      "PnL": 263.8631530579023,
+      "Return": 0.028186939977303944,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

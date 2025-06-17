@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-17T08:14:54.936340",
+    "export_timestamp": "2025-06-18T08:51:11.996486",
     "strategy_config": {
       "ticker": "GME",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 13.220507077489547,
+      "total_return": 13.019273530660877,
       "total_trades": "74",
       "win_rate": 0.5,
-      "sharpe_ratio": 0.5547303379022556,
+      "sharpe_ratio": 0.5536180010428323,
       "max_drawdown": -0.9020648623448732
     }
   },
@@ -636,7 +636,7 @@
       "Avg Exit Price": 5.987500190734863,
       "Size": 269.2144308276031,
       "PnL": 0.14477975376199437,
-      "Return": 9.000602770058373e-5,
+      "Return": 9.000602770058373e-05,
       "Direction": "Long",
       "Status": "Closed",
       "Duration": "12 days 00:00:00",
@@ -1557,10 +1557,10 @@
       "Entry Timestamp": "2025-05-16 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 28.45000076293945,
-      "Avg Exit Price": 23.31999969482422,
+      "Avg Exit Price": 22.989999771118164,
       "Size": 609.798767735222,
-      "PnL": -3145.6171052243444,
-      "Return": -0.1813163771720474,
+      "PnL": -3346.8506520530136,
+      "Return": -0.19291567119160788,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -1569,9 +1569,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Big Loser",
-      "Cumulative_PnL": 13220.507077489543,
+      "Cumulative_PnL": 13019.273530660874,
       "Trade_Number": 74,
-      "Rolling_Avg_Return": -0.03834376242675836,
+      "Rolling_Avg_Return": -0.04066362123067045,
       "Rolling_Win_Rate": 0.4
     }
   ],
@@ -3434,7 +3434,7 @@
       "Avg Exit Price": 5.987500190734863,
       "Exit Fees": 1.6119214559288513,
       "PnL": 0.14477975376199437,
-      "Return": 9.000602770058373e-5,
+      "Return": 9.000602770058373e-05,
       "Direction": "Long",
       "Status": "Closed",
       "Duration": "0 days 00:00:00.000000008",
@@ -4223,10 +4223,10 @@
       "Avg Entry Price": 28.45000076293945,
       "Entry Fees": 17.348775407303037,
       "Exit Timestamp": null,
-      "Avg Exit Price": 23.31999969482422,
+      "Avg Exit Price": 22.989999771118164,
       "Exit Fees": 0.0,
-      "PnL": -3145.6171052243444,
-      "Return": -0.1813163771720474,
+      "PnL": -3346.8506520530136,
+      "Return": -0.19291567119160788,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

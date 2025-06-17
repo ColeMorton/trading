@@ -29,6 +29,9 @@ python app/api/test_api.py
 # Run MA Cross strategy analysis
 python app/ma_cross/1_get_portfolios.py
 
+# Run MACD strategy analysis
+python app/strategies/macd/1_get_portfolios.py
+
 # Update and aggregate portfolio results
 python app/strategies/update_portfolios.py
 
@@ -42,6 +45,7 @@ python app/concurrency/review.py
 
 - **FastAPI REST API** (`/app/api/`): RESTful endpoints with routers for scripts, data, MA Cross analysis, CSV viewer, and trading dashboard
 - **MA Cross Strategy** (`/app/ma_cross/`): Moving average crossover implementation with core abstraction layer for programmatic and CLI usage
+- **MACD Strategy** (`/app/strategies/macd/`): MACD crossover strategy with comprehensive parameter analysis and multi-ticker support
 - **Portfolio Management** (`/app/strategies/`): Portfolio aggregation, filtering, and performance metrics calculation
 - **Trading Tools** (`/app/tools/`): Comprehensive utilities for backtesting, signal processing, metrics calculation, and data management
 
@@ -69,6 +73,11 @@ python app/concurrency/review.py
 - **Trade History Export**: Comprehensive trade data export (trades, orders, positions) to JSON format
   - **IMPORTANT**: Only available through `app/concurrency/review.py` to prevent generating thousands of files from parameter sweep strategies
   - Exports to `./json/trade_history/` with filenames like `BTC-USD_D_SMA_20_50.json`
+- **Standardized CSV Exports**: All strategies export to consistent directory structure
+  - Base portfolios: `/csv/portfolios/` (e.g., `NFLX_D_MACD.csv`, `AAPL_D_SMA.csv`)
+  - Filtered portfolios: `/csv/portfolios_filtered/`
+  - Best portfolios: `/csv/portfolios_best/`
+  - Strategy type included in filename for easy identification
 
 ## important-instruction-reminders
 

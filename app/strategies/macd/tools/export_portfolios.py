@@ -35,12 +35,17 @@ def export_portfolios(
     export_type: str,
     csv_filename: Optional[str] | None = None,
     log: Optional[Callable] | None = None,
-    feature_dir: str = "macd",  # Default to macd for backward compatibility
+    feature_dir: str = "",  # Export to standard directories (csv/portfolios/, csv/portfolios_filtered/, etc.)
 ) -> Tuple[pl.DataFrame, bool]:
     """Convert portfolio dictionaries to Polars DataFrame and export to CSV.
 
-    This function now uses the centralized export system to ensure canonical
-    59-column schema compliance.
+    This function uses the centralized export system to ensure canonical
+    60-column schema compliance and exports to standard directories.
+
+    Export Directories:
+        - portfolios: csv/portfolios/
+        - portfolios_filtered: csv/portfolios_filtered/
+        - portfolios_best: csv/portfolios_best/
 
     Args:
         portfolios (List[Dict]): List of portfolio dictionaries to export
@@ -48,7 +53,7 @@ def export_portfolios(
         export_type (str): Type of export (must be one of: portfolios, portfolios_scanner, portfolios_filtered, portfolios_best)
         csv_filename (Optional[str]): Optional custom filename for the CSV
         log (Optional[Callable]): Optional logging function
-        feature_dir (str): Directory for exports (default: "macd")
+        feature_dir (str): Directory for exports (default: "" for standard directories)
 
     Returns:
         Tuple[pl.DataFrame, bool]: (DataFrame of exported data, success status)
@@ -56,6 +61,10 @@ def export_portfolios(
     Raises:
         PortfolioExportError: If export fails or invalid export type provided
         ValueError: If portfolios list is empty
+
+    Note:
+        Files are named with MACD strategy identifier: {TICKER}_D_MACD.csv
+        This makes it easy to identify MACD strategy files among other strategies.
     """
     if not portfolios:
         if log:

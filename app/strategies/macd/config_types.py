@@ -56,10 +56,11 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": "CEG",
+    # "TICKER": ["NFLX", "AMAT"],
+    "TICKER": "CRWD",
     "BASE_DIR": ".",
     "USE_HOURLY": False,
-    "REFRESH": False,
+    "REFRESH": True,
     "USE_CURRENT": True,
     "USE_YEARS": False,
     "YEARS": 15,
