@@ -165,6 +165,12 @@ class TestStrategyAnalysisService:
         assert isinstance(service.portfolio_processor, PortfolioProcessingService)
         assert isinstance(service.result_aggregator, ResultAggregationService)
 
+        # Test memory optimization integration
+        assert hasattr(service.strategy_engine, "memory_optimizer")
+        assert hasattr(service.strategy_engine, "data_converter")
+        assert hasattr(service.strategy_engine, "streaming_processor")
+        assert service.strategy_engine.enable_memory_optimization is True
+
     @pytest.mark.asyncio
     async def test_analyze_strategy_success(
         self, service, sample_strategy_request, mock_dependencies
@@ -317,6 +323,91 @@ class TestModularServices:
         assert hasattr(coordinator, "strategy_engine")
         assert hasattr(coordinator, "portfolio_processor")
         assert hasattr(coordinator, "result_aggregator")
+
+
+class TestMemoryOptimizationIntegration:
+    """Test memory optimization integration with strategy analysis."""
+
+    def test_memory_optimization_disabled(self, mock_dependencies):
+        """Test service with memory optimization disabled."""
+        from app.tools.services.service_coordinator import ServiceCoordinator
+
+        # Create service with memory optimization disabled
+        service = ServiceCoordinator(
+            strategy_factory=mock_dependencies["strategy_factory"],
+            cache=mock_dependencies["cache"],
+            config=mock_dependencies["config"],
+            logger=mock_dependencies["logger"],
+            metrics=mock_dependencies["metrics"],
+        )
+
+        # Override strategy engine with memory optimization disabled
+        from app.tools.services.strategy_execution_engine import StrategyExecutionEngine
+
+        service.strategy_engine = StrategyExecutionEngine(
+            strategy_factory=mock_dependencies["strategy_factory"],
+            cache=mock_dependencies["cache"],
+            config=mock_dependencies["config"],
+            logger=mock_dependencies["logger"],
+            enable_memory_optimization=False,
+        )
+
+        assert service.strategy_engine.enable_memory_optimization is False
+        assert service.strategy_engine.memory_optimizer is None
+        assert service.strategy_engine.data_converter is None
+        assert service.strategy_engine.streaming_processor is None
+
+    @pytest.mark.asyncio
+    async def test_memory_optimization_in_strategy_execution(
+        self, service, sample_strategy_request
+    ):
+        """Test memory optimization during strategy execution."""
+        with patch("app.tools.setup_logging.setup_logging") as mock_setup_logging:
+            mock_log = Mock()
+            mock_log_close = Mock()
+            mock_setup_logging.return_value = (mock_log, mock_log_close, None, None)
+
+            # Mock memory optimizer to track calls
+            with patch.object(
+                service.strategy_engine.memory_optimizer.monitor, "monitor_operation"
+            ) as mock_monitor:
+                mock_monitor.return_value.__enter__ = Mock()
+                mock_monitor.return_value.__exit__ = Mock()
+
+                response = await service.analyze_strategy(sample_strategy_request)
+
+                # Verify memory monitoring was called
+                mock_monitor.assert_called()
+                assert response.status == "success"
+
+    def test_dataframe_optimization_integration(self, service):
+        """Test DataFrame optimization integration."""
+        import pandas as pd
+
+        # Create test DataFrame with inefficient types
+        test_df = pd.DataFrame(
+            {
+                "int_col": [1, 2, 3, 4, 5],
+                "float_col": [1.0, 2.0, 3.0, 4.0, 5.0],
+                "string_col": ["A", "B", "A", "B", "A"],
+            }
+        )
+
+        # Force inefficient types
+        test_df["int_col"] = test_df["int_col"].astype("int64")
+        test_df["float_col"] = test_df["float_col"].astype("float64")
+
+        # Test optimization through strategy engine
+        portfolio_dicts = [{"test_data": test_df}]
+        optimized = service.strategy_engine._optimize_portfolio_results(
+            portfolio_dicts, service.logger.log
+        )
+
+        assert len(optimized) == 1
+        assert "test_data" in optimized[0]
+        # Verify optimization was applied (string column should be categorical)
+        optimized_df = optimized[0]["test_data"]
+        assert optimized_df["string_col"].dtype.name == "category"
 
 
 class TestErrorHandling:

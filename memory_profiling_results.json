@@ -1,0 +1,82 @@
+{
+  "dataframe_optimization": {
+    "baseline_mb": 12.028219223022461,
+    "optimized_mb": 1.8130121231079102,
+    "reduction_pct": 84.9270113098892
+  },
+  "conversion_optimization": {
+    "cache_hits": 0,
+    "cache_misses": 1
+  },
+  "streaming_optimization": {
+    "regular_memory_mb": 14.866859436035156,
+    "streaming_peak_mb": 239.140625,
+    "reduction_pct": -1508.548369135428,
+    "chunks_processed": 10,
+    "total_rows": 100000
+  },
+  "parameter_sweep_optimization": {
+    "total_combinations": 60,
+    "successful": 60,
+    "failed": 0,
+    "processing_time": 0.04926896095275879,
+    "memory_stats": {
+      "timestamp": "2025-06-18T11:26:18.659192",
+      "pooling_enabled": true,
+      "monitoring_enabled": true,
+      "pools": {
+        "pandas": {
+          "created": 0,
+          "reused": 0,
+          "returned": 0,
+          "gc_collected": 0,
+          "pool_size": 0,
+          "in_use": 0
+        },
+        "polars": {
+          "created": 0,
+          "reused": 0,
+          "returned": 0,
+          "gc_collected": 0,
+          "pool_size": 0,
+          "in_use": 0
+        }
+      },
+      "memory": {
+        "rss_mb": 249.5,
+        "vms_mb": 403033.828125,
+        "percent": 1.5228271484375,
+        "gc_count": 0,
+        "operation_count": 21
+      }
+    }
+  },
+  "overall": {
+    "memory_reduction_pct": -74.38025554220815,
+    "profiler_summary": {
+      "baseline_mb": 115.359375,
+      "peak_mb": 249.5,
+      "final_mb": 249.5,
+      "measurements": [
+        ["after_dataframe_creation", 143.078125],
+        ["after_dataframe_optimization", 148.578125],
+        ["after_dataframe_cleanup", 146.59375],
+        ["before_conversion_test", 156.96875],
+        ["after_pandas_to_polars", 159.796875],
+        ["after_polars_to_pandas", 166.90625],
+        ["after_cached_conversion", 168.375],
+        ["after_conversion_cleanup", 166.453125],
+        ["before_streaming_test", 166.46875],
+        ["after_regular_loading", 183.984375],
+        ["streaming_chunk_5", 223.5625],
+        ["streaming_chunk_10", 239.140625],
+        ["after_streaming_complete", 238.71875],
+        ["before_parameter_sweep", 238.71875],
+        ["after_parameter_sweep", 249.5],
+        ["final_measurement", 249.5]
+      ],
+      "total_reduction_pct": -116.2806447243668
+    },
+    "target_achieved": false
+  }
+}

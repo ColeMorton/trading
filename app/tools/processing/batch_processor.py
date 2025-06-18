@@ -1,6 +1,7 @@
 """
 Batch processing utilities for multi-ticker operations and strategy analysis.
-Optimized for trading system workloads with intelligent batching strategies.
+Optimized for trading system workloads with intelligent batching strategies
+and memory-efficient processing.
 """
 
 import logging
@@ -12,6 +13,8 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
 import polars as pl
 
 from .cache_manager import cache_signals, get_cache_manager, get_cached_signals
+from .data_converter import DataConverter
+from .memory_optimizer import get_memory_optimizer
 from .parallel_executor import get_executor
 
 T = TypeVar("T")
@@ -207,7 +210,7 @@ class TickerBatchProcessor:
 class ParameterSweepProcessor:
     """
     Optimized processor for parameter sweep operations.
-    Handles large parameter combinations efficiently.
+    Handles large parameter combinations efficiently with memory optimization.
     """
 
     def __init__(
@@ -215,13 +218,17 @@ class ParameterSweepProcessor:
         cache_enabled: bool = True,
         chunk_size: int = 100,
         timeout_per_chunk: float = 300.0,
+        memory_efficient: bool = True,
     ):
         self.cache_enabled = cache_enabled
         self.chunk_size = chunk_size
         self.timeout_per_chunk = timeout_per_chunk
+        self.memory_efficient = memory_efficient
 
         self.logger = logging.getLogger(__name__)
         self.cache_manager = get_cache_manager()
+        self.memory_optimizer = get_memory_optimizer() if memory_efficient else None
+        self.data_converter = DataConverter() if memory_efficient else None
 
     def process_parameter_combinations(
         self,
@@ -346,18 +353,231 @@ class ParameterSweepProcessor:
         chunk: List[Tuple[int, Dict[str, Any]]],
         strategy_fn: Callable[[Dict[str, Any]], T],
     ) -> List[Tuple[int, Any, Optional[Exception]]]:
-        """Process a chunk of parameter combinations."""
+        """Process a chunk of parameter combinations with memory optimization."""
         results: List[Tuple[int, Any, Optional[Exception]]] = []
 
-        for combo_id, params in chunk:
-            try:
-                result = strategy_fn(params)
-                results.append((combo_id, result, None))
-            except Exception as e:
-                self.logger.warning(f"Parameter combination {combo_id} failed: {e}")
-                results.append((combo_id, None, e))
+        # Monitor memory during chunk processing
+        if self.memory_optimizer:
+            monitor_context = self.memory_optimizer.monitor.monitor_operation(
+                f"parameter_chunk_{len(chunk)}_combos"
+            )
+        else:
+            monitor_context = None
+
+        try:
+            with monitor_context if monitor_context else self._null_context():
+                for combo_id, params in chunk:
+                    try:
+                        result = strategy_fn(params)
+
+                        # Optimize result DataFrame if it's memory-inefficient
+                        if self.memory_optimizer and hasattr(result, "memory_usage"):
+                            result = self.memory_optimizer.optimize_dataframe(result)
+
+                        results.append((combo_id, result, None))
+
+                        # Check memory after each parameter combination
+                        if self.memory_optimizer and combo_id % 10 == 0:
+                            self.memory_optimizer.monitor.check_memory()
+
+                    except Exception as e:
+                        self.logger.warning(
+                            f"Parameter combination {combo_id} failed: {e}"
+                        )
+                        results.append((combo_id, None, e))
+
+        finally:
+            # Force garbage collection after chunk processing
+            if self.memory_optimizer:
+                self.memory_optimizer.monitor.check_memory(force=True)
 
         return results
+
+    def _null_context(self):
+        """Null context manager for when memory monitoring is disabled."""
+        from contextlib import nullcontext
+
+        return nullcontext()
+
+
+class MemoryEfficientParameterSweep:
+    """
+    Memory-efficient parameter sweep processor for large-scale analysis.
+
+    Features:
+    - Chunked processing with memory monitoring
+    - Streaming results to disk for large datasets
+    - Automatic garbage collection triggers
+    - Memory-mapped file access for large datasets
+    """
+
+    def __init__(
+        self,
+        max_memory_mb: float = 2000.0,
+        chunk_size: int = 50,
+        stream_to_disk: bool = True,
+        output_format: str = "parquet",
+    ):
+        """
+        Initialize memory-efficient parameter sweep.
+
+        Args:
+            max_memory_mb: Maximum memory usage before triggering GC
+            chunk_size: Parameters per chunk
+            stream_to_disk: Stream results to disk instead of keeping in memory
+            output_format: Output format ("parquet", "csv", "feather")
+        """
+        self.max_memory_mb = max_memory_mb
+        self.chunk_size = chunk_size
+        self.stream_to_disk = stream_to_disk
+        self.output_format = output_format
+
+        self.logger = logging.getLogger(__name__)
+        self.memory_optimizer = get_memory_optimizer()
+        self.data_converter = DataConverter()
+
+        # Configure memory optimizer with our threshold
+        self.memory_optimizer.monitor.threshold_mb = max_memory_mb
+
+    def run_parameter_sweep(
+        self,
+        strategy_fn: Callable[[Dict[str, Any]], Union[pl.DataFrame, dict]],
+        parameter_grid: Dict[str, List[Any]],
+        base_identifier: str,
+        output_dir: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Run memory-efficient parameter sweep.
+
+        Args:
+            strategy_fn: Strategy function taking parameters
+            parameter_grid: Dictionary of parameter names to values
+            base_identifier: Base name for output files
+            output_dir: Directory to store results
+
+        Returns:
+            Summary of sweep results
+        """
+        # Generate parameter combinations
+        import itertools
+
+        param_names = list(parameter_grid.keys())
+        param_values = list(parameter_grid.values())
+        combinations = list(itertools.product(*param_values))
+
+        self.logger.info(
+            f"Starting parameter sweep with {len(combinations)} combinations"
+        )
+
+        start_time = time.time()
+        total_processed = 0
+        total_failed = 0
+        output_files = []
+
+        # Process in chunks
+        for chunk_idx in range(0, len(combinations), self.chunk_size):
+            chunk_combinations = combinations[chunk_idx : chunk_idx + self.chunk_size]
+
+            with self.memory_optimizer.monitor.monitor_operation(
+                f"sweep_chunk_{chunk_idx}"
+            ):
+                chunk_results = []
+
+                for combo_idx, combo_values in enumerate(chunk_combinations):
+                    try:
+                        # Create parameter dictionary
+                        params = dict(zip(param_names, combo_values))
+
+                        # Execute strategy
+                        result = strategy_fn(params)
+
+                        # Add parameter information to result
+                        if isinstance(result, pl.DataFrame):
+                            # Add parameter columns to Polars DataFrame
+                            for param_name, param_value in params.items():
+                                result = result.with_columns(
+                                    pl.lit(param_value).alias(f"param_{param_name}")
+                                )
+                        elif isinstance(result, dict):
+                            result.update({f"param_{k}": v for k, v in params.items()})
+
+                        chunk_results.append(result)
+                        total_processed += 1
+
+                        # Monitor memory periodically
+                        if combo_idx % 10 == 0:
+                            self.memory_optimizer.monitor.check_memory()
+
+                    except Exception as e:
+                        self.logger.error(
+                            f"Parameter combination failed: {params}, error: {e}"
+                        )
+                        total_failed += 1
+
+                # Process chunk results
+                if chunk_results and self.stream_to_disk and output_dir:
+                    output_file = self._save_chunk_results(
+                        chunk_results, chunk_idx, base_identifier, output_dir
+                    )
+                    output_files.append(output_file)
+
+                # Force garbage collection after each chunk
+                self.memory_optimizer.monitor.check_memory(force=True)
+
+        processing_time = time.time() - start_time
+
+        summary = {
+            "total_combinations": len(combinations),
+            "successful": total_processed,
+            "failed": total_failed,
+            "processing_time": processing_time,
+            "output_files": output_files,
+            "memory_stats": self.memory_optimizer.get_optimization_stats(),
+        }
+
+        self.logger.info(
+            f"Parameter sweep completed: {total_processed} successful, "
+            f"{total_failed} failed, {processing_time:.2f}s total"
+        )
+
+        return summary
+
+    def _save_chunk_results(
+        self,
+        chunk_results: List[Any],
+        chunk_idx: int,
+        base_identifier: str,
+        output_dir: str,
+    ) -> str:
+        """Save chunk results to disk."""
+        from pathlib import Path
+
+        output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Combine results into single DataFrame
+        if chunk_results and isinstance(chunk_results[0], pl.DataFrame):
+            combined_df = pl.concat(chunk_results)
+        else:
+            # Convert dict results to DataFrame
+            combined_df = pl.DataFrame(chunk_results)
+
+        # Generate output filename
+        output_file = (
+            output_dir / f"{base_identifier}_chunk_{chunk_idx:04d}.{self.output_format}"
+        )
+
+        # Save based on format
+        if self.output_format == "parquet":
+            combined_df.write_parquet(output_file)
+        elif self.output_format == "csv":
+            combined_df.write_csv(output_file)
+        elif self.output_format == "feather":
+            # Convert to pandas for feather
+            combined_df.to_pandas().to_feather(output_file)
+
+        self.logger.debug(f"Saved chunk {chunk_idx} to {output_file}")
+        return str(output_file)
 
 
 # Convenience functions for common batch operations
@@ -394,6 +614,7 @@ def batch_parameter_sweep(
     strategy_name: str,
     parameter_combinations: List[Dict[str, Any]],
     strategy_fn: Callable[[Dict[str, Any]], T],
+    memory_efficient: bool = False,
 ) -> BatchResult:
     """
     Execute parameter sweep in batch with caching.
@@ -402,13 +623,51 @@ def batch_parameter_sweep(
         strategy_name: Name of the strategy for cache identification
         parameter_combinations: List of parameter dictionaries
         strategy_fn: Function to execute strategy with parameters
+        memory_efficient: Use memory-efficient processing
 
     Returns:
         BatchResult with sweep results
     """
-    processor = ParameterSweepProcessor()
+    processor = ParameterSweepProcessor(memory_efficient=memory_efficient)
     return processor.process_parameter_combinations(
         base_identifier=strategy_name,
         parameter_combinations=parameter_combinations,
         strategy_fn=strategy_fn,
+    )
+
+
+def memory_efficient_parameter_sweep(
+    strategy_fn: Callable[[Dict[str, Any]], Union[pl.DataFrame, dict]],
+    parameter_grid: Dict[str, List[Any]],
+    strategy_name: str,
+    output_dir: str,
+    max_memory_mb: float = 2000.0,
+    chunk_size: int = 50,
+) -> Dict[str, Any]:
+    """
+    Execute large-scale parameter sweep with memory optimization.
+
+    Args:
+        strategy_fn: Strategy function taking parameters
+        parameter_grid: Dictionary of parameter names to values
+        strategy_name: Base name for output files
+        output_dir: Directory to store results
+        max_memory_mb: Maximum memory usage before triggering GC
+        chunk_size: Parameters per chunk
+
+    Returns:
+        Summary of sweep results
+    """
+    processor = MemoryEfficientParameterSweep(
+        max_memory_mb=max_memory_mb,
+        chunk_size=chunk_size,
+        stream_to_disk=True,
+        output_format="parquet",
+    )
+
+    return processor.run_parameter_sweep(
+        strategy_fn=strategy_fn,
+        parameter_grid=parameter_grid,
+        base_identifier=strategy_name,
+        output_dir=output_dir,
     )

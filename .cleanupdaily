@@ -1,0 +1,5 @@
+# Files listed here will be cleaned up daily instead of the default one week
+# Use glob patterns, one per line
+
+# Large trade history JSON files
+json/trade_history/*.json

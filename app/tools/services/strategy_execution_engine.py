@@ -21,6 +21,7 @@ from app.core.interfaces import (
 )
 from app.core.strategies.strategy_factory import StrategyFactory
 from app.tools.performance_tracker import get_strategy_performance_tracker
+from app.tools.processing import DataConverter, StreamingProcessor, get_memory_optimizer
 
 
 class StrategyExecutionEngineError(Exception):
@@ -48,6 +49,7 @@ class StrategyExecutionEngine:
         logger: LoggingInterface,
         progress_tracker: Optional[ProgressTrackerInterface] = None,
         executor=None,
+        enable_memory_optimization: bool = True,
     ):
         """Initialize the strategy execution engine."""
         self.strategy_factory = strategy_factory
@@ -56,6 +58,17 @@ class StrategyExecutionEngine:
         self.logger = logger
         self.progress_tracker = progress_tracker
         self.executor = executor
+        self.enable_memory_optimization = enable_memory_optimization
+
+        # Initialize memory optimization components
+        if enable_memory_optimization:
+            self.memory_optimizer = get_memory_optimizer()
+            self.data_converter = DataConverter()
+            self.streaming_processor = StreamingProcessor()
+        else:
+            self.memory_optimizer = None
+            self.data_converter = None
+            self.streaming_processor = None
 
     async def execute_strategy_analysis(
         self,
@@ -186,7 +199,7 @@ class StrategyExecutionEngine:
         log,
         execution_id: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
-        """Execute strategy with performance tracking."""
+        """Execute strategy with performance tracking and memory optimization."""
         start_time = time.time()
 
         # Update cache hit tracking if execution_id provided
@@ -195,16 +208,77 @@ class StrategyExecutionEngine:
                 execution_id=execution_id, cache_hits=0
             )
 
-        # Execute strategy analysis in thread pool
-        loop = asyncio.get_event_loop()
-        all_portfolio_dicts = await loop.run_in_executor(
-            self.executor, strategy.execute, strategy_config, log
-        )
+        # Monitor memory during execution if optimization enabled
+        monitor_context = None
+        if self.memory_optimizer:
+            monitor_context = self.memory_optimizer.monitor.monitor_operation(
+                f"strategy_execution_{strategy_config.get('STRATEGY_TYPES', ['unknown'])[0]}"
+            )
+
+        try:
+            with monitor_context if monitor_context else self._null_context():
+                # Execute strategy analysis in thread pool
+                loop = asyncio.get_event_loop()
+                all_portfolio_dicts = await loop.run_in_executor(
+                    self.executor, strategy.execute, strategy_config, log
+                )
+
+                # Optimize portfolio dictionaries if memory optimization enabled
+                if self.memory_optimizer and all_portfolio_dicts:
+                    all_portfolio_dicts = self._optimize_portfolio_results(
+                        all_portfolio_dicts, log
+                    )
+
+        finally:
+            # Force memory check after strategy execution
+            if self.memory_optimizer:
+                self.memory_optimizer.monitor.check_memory(force=True)
 
         execution_time = time.time() - start_time
         log(f"Strategy analysis completed in {execution_time:.2f} seconds")
 
         return all_portfolio_dicts or []
+
+    def _optimize_portfolio_results(
+        self, portfolio_dicts: List[Dict[str, Any]], log
+    ) -> List[Dict[str, Any]]:
+        """Optimize portfolio results for memory efficiency."""
+        if not self.memory_optimizer:
+            return portfolio_dicts
+
+        optimized_results = []
+
+        for portfolio_dict in portfolio_dicts:
+            try:
+                # Convert any DataFrame values to optimized format
+                optimized_dict = {}
+                for key, value in portfolio_dict.items():
+                    if hasattr(value, "memory_usage"):  # pandas DataFrame
+                        optimized_dict[key] = self.memory_optimizer.optimize_dataframe(
+                            value
+                        )
+                    elif hasattr(value, "estimated_size"):  # polars DataFrame
+                        # Polars is already memory-efficient, but we can convert to pandas if needed
+                        optimized_dict[key] = value
+                    else:
+                        optimized_dict[key] = value
+
+                optimized_results.append(optimized_dict)
+
+            except Exception as e:
+                log(f"Failed to optimize portfolio result: {e}", "warning")
+                optimized_results.append(portfolio_dict)  # Fallback to original
+
+        log(
+            f"Optimized {len(optimized_results)} portfolio results for memory efficiency"
+        )
+        return optimized_results
+
+    def _null_context(self):
+        """Null context manager for when memory monitoring is disabled."""
+        from contextlib import nullcontext
+
+        return nullcontext()
 
     async def execute_strategy_with_concurrent_support(
         self,
