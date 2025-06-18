@@ -7,5 +7,572 @@
     "size_bytes": 55,
     "ttl_seconds": 86400,
     "metadata": {}
+  },
+  "6d309911fe192af5": {
+    "key": "6d309911fe192af5",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/6d309911fe192af5.pkl",
+    "created_at": 1750212327.3114161,
+    "accessed_at": 1750212327.312114,
+    "size_bytes": 31,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "9f171d770531a4db": {
+    "key": "9f171d770531a4db",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/9f171d770531a4db.pkl",
+    "created_at": 1750212327.43122,
+    "accessed_at": 1750212327.43122,
+    "size_bytes": 23033,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "8201e9603229421b": {
+    "key": "8201e9603229421b",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/8201e9603229421b.pkl",
+    "created_at": 1750212327.43381,
+    "accessed_at": 1750212327.43381,
+    "size_bytes": 23033,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "be733f29bff215ee": {
+    "key": "be733f29bff215ee",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/be733f29bff215ee.pkl",
+    "created_at": 1750212327.4363892,
+    "accessed_at": 1750212327.4363892,
+    "size_bytes": 23033,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "af15ab480c7c8837": {
+    "key": "af15ab480c7c8837",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/af15ab480c7c8837.pkl",
+    "created_at": 1750212327.438238,
+    "accessed_at": 1750212327.438238,
+    "size_bytes": 23033,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "080bd1ea45fc5262": {
+    "key": "080bd1ea45fc5262",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/080bd1ea45fc5262.pkl",
+    "created_at": 1750212327.441346,
+    "accessed_at": 1750212327.441346,
+    "size_bytes": 23033,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "db96d844849a443f": {
+    "key": "db96d844849a443f",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/db96d844849a443f.pkl",
+    "created_at": 1750212336.402726,
+    "accessed_at": 1750212336.4036539,
+    "size_bytes": 11268,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "e4f186288264cb43": {
+    "key": "e4f186288264cb43",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/e4f186288264cb43.pkl",
+    "created_at": 1750212336.411171,
+    "accessed_at": 1750212336.411807,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "19d0f22f7c723d0f": {
+    "key": "19d0f22f7c723d0f",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/19d0f22f7c723d0f.pkl",
+    "created_at": 1750212336.4119449,
+    "accessed_at": 1750212336.412718,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "6b1b53bcc482ce97": {
+    "key": "6b1b53bcc482ce97",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/6b1b53bcc482ce97.pkl",
+    "created_at": 1750212336.4129632,
+    "accessed_at": 1750212336.4135911,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "cfc9fce5b8cd22bb": {
+    "key": "cfc9fce5b8cd22bb",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/cfc9fce5b8cd22bb.pkl",
+    "created_at": 1750212336.413719,
+    "accessed_at": 1750212336.414238,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "9b32a6500065063c": {
+    "key": "9b32a6500065063c",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/9b32a6500065063c.pkl",
+    "created_at": 1750212336.4143412,
+    "accessed_at": 1750212336.414836,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "d75522b040f16cc8": {
+    "key": "d75522b040f16cc8",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/d75522b040f16cc8.pkl",
+    "created_at": 1750212336.414937,
+    "accessed_at": 1750212336.415416,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "2e124773f37d8602": {
+    "key": "2e124773f37d8602",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/2e124773f37d8602.pkl",
+    "created_at": 1750212336.4155252,
+    "accessed_at": 1750212336.416008,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "c8169420760f9b22": {
+    "key": "c8169420760f9b22",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/c8169420760f9b22.pkl",
+    "created_at": 1750212336.416106,
+    "accessed_at": 1750212336.4167879,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "49d203985d100ad7": {
+    "key": "49d203985d100ad7",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/49d203985d100ad7.pkl",
+    "created_at": 1750212336.4170291,
+    "accessed_at": 1750212336.417706,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "5d4c543b9dc57caf": {
+    "key": "5d4c543b9dc57caf",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/5d4c543b9dc57caf.pkl",
+    "created_at": 1750212336.4178681,
+    "accessed_at": 1750212336.418422,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "b51d7492e76aba95": {
+    "key": "b51d7492e76aba95",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/b51d7492e76aba95.pkl",
+    "created_at": 1750212336.4185338,
+    "accessed_at": 1750212336.419164,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "ca42fbb1b5aac972": {
+    "key": "ca42fbb1b5aac972",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/ca42fbb1b5aac972.pkl",
+    "created_at": 1750212336.419395,
+    "accessed_at": 1750212336.4201138,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "f507c2fe0740661e": {
+    "key": "f507c2fe0740661e",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/f507c2fe0740661e.pkl",
+    "created_at": 1750212336.42029,
+    "accessed_at": 1750212336.4211352,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "f510715d673aa04b": {
+    "key": "f510715d673aa04b",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/f510715d673aa04b.pkl",
+    "created_at": 1750212336.4213262,
+    "accessed_at": 1750212336.421911,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "82a0f7f325c59af0": {
+    "key": "82a0f7f325c59af0",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/82a0f7f325c59af0.pkl",
+    "created_at": 1750212336.4220428,
+    "accessed_at": 1750212336.422729,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "8ba1f9c96e39532e": {
+    "key": "8ba1f9c96e39532e",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/8ba1f9c96e39532e.pkl",
+    "created_at": 1750212336.422875,
+    "accessed_at": 1750212336.4234009,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "1a11ad2de14f9898": {
+    "key": "1a11ad2de14f9898",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/1a11ad2de14f9898.pkl",
+    "created_at": 1750212336.423511,
+    "accessed_at": 1750212336.424185,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "f5aa500b1d53f153": {
+    "key": "f5aa500b1d53f153",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/f5aa500b1d53f153.pkl",
+    "created_at": 1750212336.4243069,
+    "accessed_at": 1750212336.424897,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "d7734b2ae83245ce": {
+    "key": "d7734b2ae83245ce",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/d7734b2ae83245ce.pkl",
+    "created_at": 1750212336.4250839,
+    "accessed_at": 1750212336.42565,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "af59c1e01895cf58": {
+    "key": "af59c1e01895cf58",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/af59c1e01895cf58.pkl",
+    "created_at": 1750212336.426083,
+    "accessed_at": 1750212336.426721,
+    "size_bytes": 2789,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "4217342b3e7fe073": {
+    "key": "4217342b3e7fe073",
+    "filepath": "/Users/colemorton/Projects/trading/cache/portfolio/4217342b3e7fe073.pkl",
+    "created_at": 1750212347.611518,
+    "accessed_at": 1750212347.612229,
+    "size_bytes": 218,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "6eabda60bfba4b81": {
+    "key": "6eabda60bfba4b81",
+    "filepath": "/Users/colemorton/Projects/trading/cache/portfolio/6eabda60bfba4b81.pkl",
+    "created_at": 1750212347.615584,
+    "accessed_at": 1750212347.616147,
+    "size_bytes": 218,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "80bee66c5a6153e3": {
+    "key": "80bee66c5a6153e3",
+    "filepath": "/Users/colemorton/Projects/trading/cache/portfolio/80bee66c5a6153e3.pkl",
+    "created_at": 1750212347.619832,
+    "accessed_at": 1750212347.620438,
+    "size_bytes": 218,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "c11b933c17d24e11": {
+    "key": "c11b933c17d24e11",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/c11b933c17d24e11.pkl",
+    "created_at": 1750212347.704511,
+    "accessed_at": 1750212347.704511,
+    "size_bytes": 177,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "f3da35e8a41372fd": {
+    "key": "f3da35e8a41372fd",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/f3da35e8a41372fd.pkl",
+    "created_at": 1750212347.7067719,
+    "accessed_at": 1750212347.7067719,
+    "size_bytes": 177,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "018967b5d48292cf": {
+    "key": "018967b5d48292cf",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/018967b5d48292cf.pkl",
+    "created_at": 1750212347.7093089,
+    "accessed_at": 1750212347.7093089,
+    "size_bytes": 177,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "af745d2f6da7ef28": {
+    "key": "af745d2f6da7ef28",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/af745d2f6da7ef28.pkl",
+    "created_at": 1750212347.713003,
+    "accessed_at": 1750212347.713003,
+    "size_bytes": 177,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "a4104f227d198b00": {
+    "key": "a4104f227d198b00",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/a4104f227d198b00.pkl",
+    "created_at": 1750212347.715837,
+    "accessed_at": 1750212347.715837,
+    "size_bytes": 177,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "eaa60fd9deadec7e": {
+    "key": "eaa60fd9deadec7e",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/eaa60fd9deadec7e.pkl",
+    "created_at": 1750212347.7183082,
+    "accessed_at": 1750212347.7183082,
+    "size_bytes": 177,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "5541355642ae2a87": {
+    "key": "5541355642ae2a87",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/5541355642ae2a87.pkl",
+    "created_at": 1750212347.7205381,
+    "accessed_at": 1750212347.7205381,
+    "size_bytes": 177,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "ea7a00b91837993f": {
+    "key": "ea7a00b91837993f",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/ea7a00b91837993f.pkl",
+    "created_at": 1750212347.722618,
+    "accessed_at": 1750212347.722618,
+    "size_bytes": 177,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "03cb1be7d61c85f7": {
+    "key": "03cb1be7d61c85f7",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/03cb1be7d61c85f7.pkl",
+    "created_at": 1750212347.7245288,
+    "accessed_at": 1750212347.7245288,
+    "size_bytes": 177,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "b006160bc68acf69": {
+    "key": "b006160bc68acf69",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/b006160bc68acf69.pkl",
+    "created_at": 1750212347.726516,
+    "accessed_at": 1750212347.726516,
+    "size_bytes": 177,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "b0693ffcf0829378": {
+    "key": "b0693ffcf0829378",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/b0693ffcf0829378.pkl",
+    "created_at": 1750212321.731294,
+    "accessed_at": 1750212321.7319949,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "a0b7e028061c7371": {
+    "key": "a0b7e028061c7371",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/a0b7e028061c7371.pkl",
+    "created_at": 1750212321.7321532,
+    "accessed_at": 1750212321.7326221,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "b3794bf4aac3199a": {
+    "key": "b3794bf4aac3199a",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/b3794bf4aac3199a.pkl",
+    "created_at": 1750212321.732743,
+    "accessed_at": 1750212321.7333171,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "3e731cfeb3354aa4": {
+    "key": "3e731cfeb3354aa4",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/3e731cfeb3354aa4.pkl",
+    "created_at": 1750212321.7335129,
+    "accessed_at": 1750212321.734015,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "d4ce3191237ad2f7": {
+    "key": "d4ce3191237ad2f7",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/d4ce3191237ad2f7.pkl",
+    "created_at": 1750212321.734147,
+    "accessed_at": 1750212321.734856,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "52258ffdf239e51a": {
+    "key": "52258ffdf239e51a",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/52258ffdf239e51a.pkl",
+    "created_at": 1750212321.7351098,
+    "accessed_at": 1750212321.73563,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "f738c74b15b6123f": {
+    "key": "f738c74b15b6123f",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/f738c74b15b6123f.pkl",
+    "created_at": 1750212321.735751,
+    "accessed_at": 1750212321.736352,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "8fc53f40cf84572a": {
+    "key": "8fc53f40cf84572a",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/8fc53f40cf84572a.pkl",
+    "created_at": 1750212321.736484,
+    "accessed_at": 1750212321.737104,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "a9a33f7be17b112b": {
+    "key": "a9a33f7be17b112b",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/a9a33f7be17b112b.pkl",
+    "created_at": 1750212321.737222,
+    "accessed_at": 1750212321.737845,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "3eab1490960bd29e": {
+    "key": "3eab1490960bd29e",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/3eab1490960bd29e.pkl",
+    "created_at": 1750212321.7380202,
+    "accessed_at": 1750212321.738518,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "9c6e20c5cc2c4fb2": {
+    "key": "9c6e20c5cc2c4fb2",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/9c6e20c5cc2c4fb2.pkl",
+    "created_at": 1750212321.738662,
+    "accessed_at": 1750212321.739129,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "f2127a60fc68dd90": {
+    "key": "f2127a60fc68dd90",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/f2127a60fc68dd90.pkl",
+    "created_at": 1750212321.739249,
+    "accessed_at": 1750212321.7397199,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "d585787f94528de8": {
+    "key": "d585787f94528de8",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/d585787f94528de8.pkl",
+    "created_at": 1750212321.7398221,
+    "accessed_at": 1750212321.740305,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "823ffbbe521f2fc9": {
+    "key": "823ffbbe521f2fc9",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/823ffbbe521f2fc9.pkl",
+    "created_at": 1750212321.740423,
+    "accessed_at": 1750212321.740909,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "3910e31739f2b731": {
+    "key": "3910e31739f2b731",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/3910e31739f2b731.pkl",
+    "created_at": 1750212321.741288,
+    "accessed_at": 1750212321.7420008,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "0d1d4a1e2113eb68": {
+    "key": "0d1d4a1e2113eb68",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/0d1d4a1e2113eb68.pkl",
+    "created_at": 1750212321.7421381,
+    "accessed_at": 1750212321.742635,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "583107394d192a3b": {
+    "key": "583107394d192a3b",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/583107394d192a3b.pkl",
+    "created_at": 1750212321.7427578,
+    "accessed_at": 1750212321.743252,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "ca00533df1ceb5d3": {
+    "key": "ca00533df1ceb5d3",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/ca00533df1ceb5d3.pkl",
+    "created_at": 1750212321.743356,
+    "accessed_at": 1750212321.7438312,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "f20b5f9d6445602d": {
+    "key": "f20b5f9d6445602d",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/f20b5f9d6445602d.pkl",
+    "created_at": 1750212321.743934,
+    "accessed_at": 1750212321.744415,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "772b08b3e2cff904": {
+    "key": "772b08b3e2cff904",
+    "filepath": "/Users/colemorton/Projects/trading/cache/test/772b08b3e2cff904.pkl",
+    "created_at": 1750212321.74451,
+    "accessed_at": 1750212321.74451,
+    "size_bytes": 226,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "c84fba2282b7c81d": {
+    "key": "c84fba2282b7c81d",
+    "filepath": "/Users/colemorton/Projects/trading/cache/portfolio/c84fba2282b7c81d.pkl",
+    "created_at": 1750212396.151187,
+    "accessed_at": 1750212396.151187,
+    "size_bytes": 286,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "bde610fc82dbaf32": {
+    "key": "bde610fc82dbaf32",
+    "filepath": "/Users/colemorton/Projects/trading/cache/portfolio/bde610fc82dbaf32.pkl",
+    "created_at": 1750212396.169091,
+    "accessed_at": 1750212396.169091,
+    "size_bytes": 286,
+    "ttl_seconds": 86400,
+    "metadata": {}
+  },
+  "84ef9ebf71e697db": {
+    "key": "84ef9ebf71e697db",
+    "filepath": "/Users/colemorton/Projects/trading/cache/portfolio/84ef9ebf71e697db.pkl",
+    "created_at": 1750212396.1868749,
+    "accessed_at": 1750212396.1868749,
+    "size_bytes": 286,
+    "ttl_seconds": 86400,
+    "metadata": {}
   }
 }

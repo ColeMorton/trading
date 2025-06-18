@@ -13,7 +13,7 @@ import weakref
 from collections import deque
 from contextlib import contextmanager
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Type, TypeVar
+from typing import Any, Callable, Dict, Generic, List, Optional, Type, TypeVar
 
 import pandas as pd
 import polars as pl
@@ -24,7 +24,7 @@ T = TypeVar("T")
 logger = logging.getLogger(__name__)
 
 
-class ObjectPool:
+class ObjectPool(Generic[T]):
     """
     Generic object pool for reusing expensive objects like DataFrames.
 
@@ -32,7 +32,7 @@ class ObjectPool:
     by maintaining a pool of reusable objects.
     """
 
-    def __init__(self, factory: Callable[[], T], max_size: int = 10):
+    def __init__(self, factory: Callable[..., T], max_size: int = 10):
         """
         Initialize object pool.
 
@@ -46,14 +46,15 @@ class ObjectPool:
         self._in_use: weakref.WeakSet = weakref.WeakSet()
         self._stats = {"created": 0, "reused": 0, "returned": 0, "gc_collected": 0}
 
-    def acquire(self) -> T:
+    def acquire(self, *args: Any, **kwargs: Any) -> T:
         """Acquire an object from the pool or create a new one."""
-        if self._pool:
+        if self._pool and not args and not kwargs:
+            # Only reuse if no specific args/kwargs provided
             obj = self._pool.popleft()
             self._stats["reused"] += 1
             logger.debug(f"Reused object from pool. Pool size: {len(self._pool)}")
         else:
-            obj = self.factory()
+            obj = self.factory(*args, **kwargs) if args or kwargs else self.factory()
             self._stats["created"] += 1
             logger.debug(f"Created new object. Total created: {self._stats['created']}")
 

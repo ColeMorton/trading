@@ -68,7 +68,7 @@ class ConversionCache:
         key = self._generate_key(source_df, target_type)
         self.cache[key] = result_df
 
-    def get_stats(self) -> Dict[str, int]:
+    def get_stats(self) -> Dict[str, Any]:
         """Get cache statistics."""
         total = self._hits + self._misses
         hit_rate = self._hits / total if total > 0 else 0

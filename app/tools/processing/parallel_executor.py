@@ -354,7 +354,7 @@ def parallel_ticker_analysis(
         except Exception as e:
             logging.getLogger(__name__).error(f"Failed to analyze {ticker}: {e}")
             # Type ignore needed for Optional[T] assignment
-            results[ticker] = None  # type: ignore
+            results[ticker] = None
 
     return results
 

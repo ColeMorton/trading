@@ -8,6 +8,7 @@ import logging
 import time
 from concurrent.futures import as_completed
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
 
 import polars as pl
@@ -547,11 +548,9 @@ class MemoryEfficientParameterSweep:
         chunk_results: List[Any],
         chunk_idx: int,
         base_identifier: str,
-        output_dir: str,
+        output_dir: Union[str, Path],
     ) -> str:
         """Save chunk results to disk."""
-        from pathlib import Path
-
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
 
