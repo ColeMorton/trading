@@ -56,8 +56,8 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    # "TICKER": ["AMZN", "PWR", "LYV", "INTC", "VRSN", "META", "DKNG", "CEG", "COIN", "IRM", "DG", "SCHW", "CSCO", "HWM", "GEV", "GOOG"],
-    "TICKER": "GEV",
+    "TICKER": ["AMZN", "VRSN", "IRM"],
+    # "TICKER": "GEV",
     "BASE_DIR": ".",
     "USE_HOURLY": False,
     "REFRESH": True,
