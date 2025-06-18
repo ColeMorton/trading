@@ -46,7 +46,7 @@ python app/concurrency/review.py
 - **FastAPI REST API** (`/app/api/`): RESTful endpoints with routers for scripts, data, strategy analysis, CSV viewer, and trading dashboard
 - **Modular Strategy Analysis Service** (`/app/api/services/`, `/app/tools/services/`): Decomposed service architecture with:
   - **StrategyExecutionEngine**: Strategy validation and execution logic
-  - **PortfolioProcessingService**: Portfolio data processing and conversion  
+  - **PortfolioProcessingService**: Portfolio data processing and conversion
   - **ResultAggregationService**: Result formatting and task management
   - **ServiceCoordinator**: Orchestrates all services while maintaining interface compatibility
 - **MA Cross Strategy** (`/app/ma_cross/`): Moving average crossover implementation with core abstraction layer for programmatic and CLI usage
@@ -108,7 +108,7 @@ pytest --cov=app
 ### Test Structure
 
 - **Unit Tests**: `/tests/` - Core functionality testing with mocking
-- **Integration Tests**: `/tests/api/` - Service layer and API endpoint testing  
+- **Integration Tests**: `/tests/api/` - Service layer and API endpoint testing
 - **Strategy Tests**: `/app/strategies/*/test_*.py` - Strategy-specific validation
 - **End-to-End Tests**: Full workflow validation with real data
 

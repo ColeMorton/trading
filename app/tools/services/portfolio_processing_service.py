@@ -2,7 +2,7 @@
 Portfolio Processing Service
 
 This module handles portfolio data processing, conversion, and metrics calculation.
-It provides utilities for converting portfolio dictionaries to metrics and 
+It provides utilities for converting portfolio dictionaries to metrics and
 processing portfolio data with proper validation.
 """
 
@@ -16,13 +16,14 @@ from app.core.interfaces import LoggingInterface
 
 class PortfolioProcessingServiceError(Exception):
     """Exception raised by PortfolioProcessingService."""
+
     pass
 
 
 class PortfolioProcessingService:
     """
     Handles portfolio data processing and conversion.
-    
+
     This service is responsible for:
     - Converting portfolio dictionaries to PortfolioMetrics
     - Portfolio data validation and processing
@@ -40,26 +41,28 @@ class PortfolioProcessingService:
     ) -> List[PortfolioMetrics]:
         """
         Convert portfolio dictionaries to PortfolioMetrics objects.
-        
+
         Args:
             portfolio_dicts: List of portfolio dictionaries
             log: Logging function
-            
+
         Returns:
             List of PortfolioMetrics objects
         """
-        return self.portfolio_processor.convert_portfolios_to_metrics(portfolio_dicts, log)
+        return self.portfolio_processor.convert_portfolios_to_metrics(
+            portfolio_dicts, log
+        )
 
     def process_and_deduplicate_portfolios(
         self, all_portfolio_dicts: List[Dict[str, Any]], log
     ) -> tuple[List[PortfolioMetrics], List[Dict[str, Any]]]:
         """
         Process portfolios and return both metrics and deduplicated dictionaries.
-        
+
         Args:
             all_portfolio_dicts: List of portfolio dictionaries
             log: Logging function
-            
+
         Returns:
             Tuple of (portfolio_metrics, deduplicated_portfolios)
         """
@@ -68,14 +71,16 @@ class PortfolioProcessingService:
 
         if all_portfolio_dicts:
             # Convert to PortfolioMetrics
-            portfolio_metrics = self.convert_portfolios_to_metrics(all_portfolio_dicts, log)
+            portfolio_metrics = self.convert_portfolios_to_metrics(
+                all_portfolio_dicts, log
+            )
 
             # Deduplicate portfolios for response
             seen_portfolios = set()
             for portfolio_dict in all_portfolio_dicts:
                 # Create a key for deduplication based on core attributes
                 dedup_key = self._create_deduplication_key(portfolio_dict)
-                
+
                 if dedup_key not in seen_portfolios:
                     seen_portfolios.add(dedup_key)
                     deduplicated_portfolios.append(portfolio_dict)
@@ -95,11 +100,11 @@ class PortfolioProcessingService:
         ticker = portfolio_dict.get("ticker", "unknown")
         strategy_type = portfolio_dict.get("strategy_type", "unknown")
         timeframe = portfolio_dict.get("timeframe", "unknown")
-        
+
         # Include key parameters that make portfolios unique
         short_window = portfolio_dict.get("short_window", "")
         long_window = portfolio_dict.get("long_window", "")
-        
+
         return f"{ticker}_{strategy_type}_{timeframe}_{short_window}_{long_window}"
 
     def collect_export_paths(
@@ -163,31 +168,33 @@ class PortfolioProcessingService:
     def validate_portfolio_data(self, portfolio_dict: Dict[str, Any], log) -> bool:
         """
         Validate portfolio dictionary contains required fields.
-        
+
         Args:
             portfolio_dict: Portfolio dictionary to validate
             log: Logging function
-            
+
         Returns:
             True if valid, False otherwise
         """
         required_fields = ["ticker", "strategy_type", "timeframe"]
-        
+
         for field in required_fields:
             if field not in portfolio_dict:
                 log(f"Portfolio missing required field: {field}", "warning")
                 return False
-        
+
         return True
 
-    def calculate_portfolio_summary(self, portfolios: List[Dict[str, Any]], log) -> Dict[str, Any]:
+    def calculate_portfolio_summary(
+        self, portfolios: List[Dict[str, Any]], log
+    ) -> Dict[str, Any]:
         """
         Calculate summary statistics for a collection of portfolios.
-        
+
         Args:
             portfolios: List of portfolio dictionaries
             log: Logging function
-            
+
         Returns:
             Dictionary with summary statistics
         """
@@ -205,7 +212,9 @@ class PortfolioProcessingService:
             for portfolio in portfolios:
                 if self.validate_portfolio_data(portfolio, log):
                     summary["tickers"].add(portfolio.get("ticker", "unknown"))
-                    summary["strategy_types"].add(portfolio.get("strategy_type", "unknown"))
+                    summary["strategy_types"].add(
+                        portfolio.get("strategy_type", "unknown")
+                    )
                     summary["timeframes"].add(portfolio.get("timeframe", "unknown"))
 
             # Convert sets to lists for JSON serialization
@@ -213,9 +222,11 @@ class PortfolioProcessingService:
             summary["strategy_types"] = sorted(list(summary["strategy_types"]))
             summary["timeframes"] = sorted(list(summary["timeframes"]))
 
-            log(f"Portfolio summary: {summary['total_count']} portfolios, "
+            log(
+                f"Portfolio summary: {summary['total_count']} portfolios, "
                 f"{len(summary['tickers'])} tickers, "
-                f"{len(summary['strategy_types'])} strategy types")
+                f"{len(summary['strategy_types'])} strategy types"
+            )
 
         except Exception as e:
             log(f"Error calculating portfolio summary: {str(e)}", "error")
@@ -224,19 +235,16 @@ class PortfolioProcessingService:
         return summary
 
     def filter_portfolios_by_criteria(
-        self, 
-        portfolios: List[Dict[str, Any]], 
-        criteria: Dict[str, Any], 
-        log
+        self, portfolios: List[Dict[str, Any]], criteria: Dict[str, Any], log
     ) -> List[Dict[str, Any]]:
         """
         Filter portfolios based on specified criteria.
-        
+
         Args:
             portfolios: List of portfolio dictionaries
             criteria: Filtering criteria (e.g., {"ticker": "BTC-USD", "min_return": 0.1})
             log: Logging function
-            
+
         Returns:
             Filtered list of portfolios
         """
@@ -244,11 +252,11 @@ class PortfolioProcessingService:
             return portfolios
 
         filtered = []
-        
+
         try:
             for portfolio in portfolios:
                 include = True
-                
+
                 # Check each criterion
                 for key, value in criteria.items():
                     if key.startswith("min_"):
@@ -261,7 +269,7 @@ class PortfolioProcessingService:
                     elif key.startswith("max_"):
                         # Numeric maximum threshold
                         field = key[4:]  # Remove "max_" prefix
-                        portfolio_value = portfolio.get(field, float('inf'))
+                        portfolio_value = portfolio.get(field, float("inf"))
                         if portfolio_value > value:
                             include = False
                             break
@@ -270,11 +278,13 @@ class PortfolioProcessingService:
                         if portfolio.get(key) != value:
                             include = False
                             break
-                
+
                 if include:
                     filtered.append(portfolio)
 
-            log(f"Filtered {len(portfolios)} portfolios to {len(filtered)} based on criteria: {criteria}")
+            log(
+                f"Filtered {len(portfolios)} portfolios to {len(filtered)} based on criteria: {criteria}"
+            )
 
         except Exception as e:
             log(f"Error filtering portfolios: {str(e)}", "error")

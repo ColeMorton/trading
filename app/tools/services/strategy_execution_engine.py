@@ -25,13 +25,14 @@ from app.tools.performance_tracker import get_strategy_performance_tracker
 
 class StrategyExecutionEngineError(Exception):
     """Exception raised by StrategyExecutionEngine."""
+
     pass
 
 
 class StrategyExecutionEngine:
     """
     Handles strategy execution logic including validation and execution.
-    
+
     This service is responsible for:
     - Strategy validation and configuration
     - Strategy factory management
@@ -65,41 +66,47 @@ class StrategyExecutionEngine:
     ) -> List[Dict[str, Any]]:
         """
         Execute strategy analysis with the given configuration.
-        
+
         Args:
             strategy_type: Type of strategy to execute
             strategy_config: Configuration parameters for the strategy
             log: Logging function
             execution_id: Optional execution ID for tracking
-            
+
         Returns:
             List of portfolio dictionaries from strategy execution
-            
+
         Raises:
             StrategyExecutionEngineError: If strategy execution fails
         """
         try:
             # Get strategy instance from factory
             strategy = self._get_strategy_instance(strategy_type, log)
-            
+
             # Validate strategy parameters
-            self._validate_strategy_parameters(strategy, strategy_config, strategy_type, log)
-            
+            self._validate_strategy_parameters(
+                strategy, strategy_config, strategy_type, log
+            )
+
             # Configure strategy parameters
             configured_params = self._configure_strategy_parameters(
                 strategy_type, strategy_config, log
             )
-            
+
             # Add project root to Python path
             self._setup_python_path()
-            
+
             # Execute strategy analysis
             return await self._execute_strategy_with_tracking(
                 strategy, configured_params, log, execution_id
             )
-            
+
         except Exception as e:
-            strategy_type_str = strategy_type.value if hasattr(strategy_type, 'value') else str(strategy_type)
+            strategy_type_str = (
+                strategy_type.value
+                if hasattr(strategy_type, "value")
+                else str(strategy_type)
+            )
             error_msg = f"Strategy execution failed for {strategy_type_str}: {str(e)}"
             log(error_msg, "error")
             raise StrategyExecutionEngineError(error_msg)
@@ -108,25 +115,41 @@ class StrategyExecutionEngine:
         """Get strategy instance from factory."""
         try:
             strategy = self.strategy_factory.create_strategy(strategy_type)
-            strategy_type_str = strategy_type.value if hasattr(strategy_type, 'value') else str(strategy_type)
+            strategy_type_str = (
+                strategy_type.value
+                if hasattr(strategy_type, "value")
+                else str(strategy_type)
+            )
             log(f"Created strategy instance for {strategy_type_str}")
             return strategy
         except ValueError as e:
-            strategy_type_str = strategy_type.value if hasattr(strategy_type, 'value') else str(strategy_type)
+            strategy_type_str = (
+                strategy_type.value
+                if hasattr(strategy_type, "value")
+                else str(strategy_type)
+            )
             error_msg = f"Unsupported strategy type: {strategy_type_str}"
             log(error_msg, "error")
             raise StrategyExecutionEngineError(error_msg)
 
     def _validate_strategy_parameters(
-        self, strategy, strategy_config: Dict[str, Any], strategy_type: StrategyTypeEnum, log
+        self,
+        strategy,
+        strategy_config: Dict[str, Any],
+        strategy_type: StrategyTypeEnum,
+        log,
     ):
         """Validate strategy parameters using strategy's validation method."""
-        strategy_type_str = strategy_type.value if hasattr(strategy_type, 'value') else str(strategy_type)
+        strategy_type_str = (
+            strategy_type.value
+            if hasattr(strategy_type, "value")
+            else str(strategy_type)
+        )
         if not strategy.validate_parameters(strategy_config):
             error_msg = f"Invalid parameters for {strategy_type_str} strategy"
             log(error_msg, "error")
             raise StrategyExecutionEngineError(error_msg)
-        
+
         log(f"Strategy parameters validated for {strategy_type_str}")
 
     def _configure_strategy_parameters(
@@ -134,15 +157,19 @@ class StrategyExecutionEngine:
     ) -> Dict[str, Any]:
         """Configure strategy-specific parameters."""
         configured_params = strategy_config.copy()
-        strategy_type_str = strategy_type.value if hasattr(strategy_type, 'value') else str(strategy_type)
-        
+        strategy_type_str = (
+            strategy_type.value
+            if hasattr(strategy_type, "value")
+            else str(strategy_type)
+        )
+
         # For MA Cross strategies, add STRATEGY_TYPES based on the strategy_type
         if strategy_type_str in ["SMA", "EMA"]:
             configured_params["STRATEGY_TYPES"] = [strategy_type_str]
             # Set default windows if not provided in parameters
             if "WINDOWS" not in configured_params:
                 configured_params["WINDOWS"] = 89
-        
+
         log(f"Strategy config: {json.dumps(configured_params, indent=2)}")
         return configured_params
 
@@ -161,22 +188,22 @@ class StrategyExecutionEngine:
     ) -> List[Dict[str, Any]]:
         """Execute strategy with performance tracking."""
         start_time = time.time()
-        
+
         # Update cache hit tracking if execution_id provided
         if execution_id:
             get_strategy_performance_tracker().update_execution_progress(
                 execution_id=execution_id, cache_hits=0
             )
-        
+
         # Execute strategy analysis in thread pool
         loop = asyncio.get_event_loop()
         all_portfolio_dicts = await loop.run_in_executor(
             self.executor, strategy.execute, strategy_config, log
         )
-        
+
         execution_time = time.time() - start_time
         log(f"Strategy analysis completed in {execution_time:.2f} seconds")
-        
+
         return all_portfolio_dicts or []
 
     async def execute_strategy_with_concurrent_support(
@@ -189,7 +216,7 @@ class StrategyExecutionEngine:
     ) -> List[Dict[str, Any]]:
         """
         Execute strategy with concurrent support for multiple tickers.
-        
+
         This method provides optimized execution for scenarios with multiple tickers,
         using either sequential or concurrent execution based on ticker count.
         """
@@ -278,7 +305,7 @@ class StrategyExecutionEngine:
         if cached_result:
             log(f"Cache hit for key: {cache_key}")
             return cached_result
-        
+
         log(f"Cache miss for key: {cache_key}")
         return None
 

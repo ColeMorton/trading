@@ -13,7 +13,7 @@ The services are organized as follows:
 
 Usage:
     from app.tools.services import ServiceCoordinator
-    
+
     # ServiceCoordinator maintains exact compatibility with StrategyAnalysisService
     coordinator = ServiceCoordinator(...)
     result = await coordinator.analyze_strategy(request)
@@ -31,7 +31,7 @@ from .strategy_execution_engine import StrategyExecutionEngine
 
 __all__ = [
     "StrategyExecutionEngine",
-    "PortfolioProcessingService", 
+    "PortfolioProcessingService",
     "ResultAggregationService",
     "ServiceCoordinator",
     "StrategyAnalysisService",

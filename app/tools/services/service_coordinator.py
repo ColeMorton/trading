@@ -40,13 +40,14 @@ from app.tools.setup_logging import setup_logging
 
 class StrategyAnalysisServiceError(Exception):
     """Exception raised by StrategyAnalysisService."""
+
     pass
 
 
 class ServiceCoordinator:
     """
     Coordinates strategy analysis services while maintaining interface compatibility.
-    
+
     This coordinator maintains the exact same interface as the original
     StrategyAnalysisService but uses decomposed, modular services internally.
     """
@@ -88,7 +89,9 @@ class ServiceCoordinator:
             progress_tracker=progress_tracker,
         )
 
-    async def analyze_strategy(self, request: StrategyAnalysisRequest) -> MACrossResponse:
+    async def analyze_strategy(
+        self, request: StrategyAnalysisRequest
+    ) -> MACrossResponse:
         """
         Execute strategy analysis using the Strategy Pattern.
 
@@ -115,14 +118,24 @@ class ServiceCoordinator:
                 if isinstance(request.ticker, str)
                 else ",".join(request.ticker)
             )
-            strategy_type_str = request.strategy_type.value if hasattr(request.strategy_type, 'value') else str(request.strategy_type)
+            strategy_type_str = (
+                request.strategy_type.value
+                if hasattr(request.strategy_type, "value")
+                else str(request.strategy_type)
+            )
             cache_key = f"strategy:{strategy_type_str}:{ticker_str}"
-            
-            cached_result = await self.strategy_engine.check_cache(cache_key, self.logger.log)
+
+            cached_result = await self.strategy_engine.check_cache(
+                cache_key, self.logger.log
+            )
             if cached_result:
                 return cached_result
 
-            strategy_type_str = request.strategy_type.value if hasattr(request.strategy_type, 'value') else str(request.strategy_type)
+            strategy_type_str = (
+                request.strategy_type.value
+                if hasattr(request.strategy_type, "value")
+                else str(request.strategy_type)
+            )
             log, log_close, _, _ = setup_logging(
                 module_name="api",
                 log_file=f'strategy_analysis_{strategy_type_str}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log',
@@ -141,24 +154,29 @@ class ServiceCoordinator:
                 strategy_config = request.to_strategy_config()
 
                 # Execute strategy analysis using the strategy execution engine
-                all_portfolio_dicts = await self.strategy_engine.execute_strategy_analysis(
-                    strategy_type=request.strategy_type,
-                    strategy_config=strategy_config,
-                    log=log,
+                all_portfolio_dicts = (
+                    await self.strategy_engine.execute_strategy_analysis(
+                        strategy_type=request.strategy_type,
+                        strategy_config=strategy_config,
+                        log=log,
+                    )
                 )
 
                 execution_time = time.time() - start_time
                 log(f"Strategy analysis completed in {execution_time:.2f} seconds")
 
                 # Process portfolios using the portfolio processing service
-                portfolio_metrics, deduplicated_portfolios = (
-                    self.portfolio_processor.process_and_deduplicate_portfolios(
-                        all_portfolio_dicts, log
-                    )
+                (
+                    portfolio_metrics,
+                    deduplicated_portfolios,
+                ) = self.portfolio_processor.process_and_deduplicate_portfolios(
+                    all_portfolio_dicts, log
                 )
 
                 # Collect export paths
-                strategy_types = strategy_config.get("STRATEGY_TYPES", [strategy_type_str])
+                strategy_types = strategy_config.get(
+                    "STRATEGY_TYPES", [strategy_type_str]
+                )
                 export_paths = self.portfolio_processor.collect_export_paths(
                     strategy_config, strategy_types, log
                 )
@@ -210,9 +228,11 @@ class ServiceCoordinator:
         # Convert MACrossRequest to StrategyAnalysisRequest
         # For MA Cross, use the first strategy type or default to SMA
         strategy_type = (
-            request.strategy_types[0] if request.strategy_types else StrategyTypeEnum.SMA
+            request.strategy_types[0]
+            if request.strategy_types
+            else StrategyTypeEnum.SMA
         )
-        
+
         strategy_request = StrategyAnalysisRequest(
             ticker=request.ticker,
             strategy_type=strategy_type,
@@ -223,7 +243,7 @@ class ServiceCoordinator:
             refresh=request.refresh,
             parameters={"windows": request.windows},
         )
-        
+
         return await self.analyze_strategy(strategy_request)
 
     def analyze_portfolio_async(self, request: MACrossRequest) -> MACrossAsyncResponse:
@@ -240,10 +260,12 @@ class ServiceCoordinator:
         execution_id = self.result_aggregator.generate_execution_id()
 
         # Create async response
-        async_response = self.result_aggregator.create_async_response(request, execution_id)
+        async_response = self.result_aggregator.create_async_response(
+            request, execution_id
+        )
 
         # Submit task to executor
-        if hasattr(self.executor, 'submit'):
+        if hasattr(self.executor, "submit"):
             # Standard ThreadPoolExecutor
             future = self.executor.submit(
                 self._execute_async_analysis, execution_id, request
@@ -251,10 +273,11 @@ class ServiceCoordinator:
         else:
             # ConcurrentExecutor - use execute_analysis
             import threading
+
             threading.Thread(
                 target=self._execute_async_analysis,
                 args=(execution_id, request),
-                daemon=True
+                daemon=True,
             ).start()
 
         return async_response
@@ -278,7 +301,7 @@ class ServiceCoordinator:
             # Execute strategy using concurrent support
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-            
+
             try:
                 log, log_close, _, _ = setup_logging(
                     module_name="api_async",
@@ -297,14 +320,17 @@ class ServiceCoordinator:
                 )
 
                 # Process results
-                portfolio_metrics, deduplicated_portfolios = (
-                    self.portfolio_processor.process_and_deduplicate_portfolios(
-                        all_portfolio_dicts, log
-                    )
+                (
+                    portfolio_metrics,
+                    deduplicated_portfolios,
+                ) = self.portfolio_processor.process_and_deduplicate_portfolios(
+                    all_portfolio_dicts, log
                 )
 
                 # Create final response
-                strategy_types = strategy_config.get("STRATEGY_TYPES", [request.strategy_type.value])
+                strategy_types = strategy_config.get(
+                    "STRATEGY_TYPES", [request.strategy_type.value]
+                )
                 export_paths = self.portfolio_processor.collect_export_paths(
                     strategy_config, strategy_types, log
                 )
@@ -320,7 +346,10 @@ class ServiceCoordinator:
 
                 # Update task status with results
                 self.result_aggregator.update_task_status(
-                    execution_id, "completed", "Analysis completed successfully", response
+                    execution_id,
+                    "completed",
+                    "Analysis completed successfully",
+                    response,
                 )
 
                 log_close()
@@ -347,20 +376,25 @@ class ServiceCoordinator:
         self, config: Dict[str, Any], strategy_types: List[str], log
     ) -> Dict[str, List[str]]:
         """Legacy method for export path collection."""
-        return self.portfolio_processor.collect_export_paths(config, strategy_types, log)
+        return self.portfolio_processor.collect_export_paths(
+            config, strategy_types, log
+        )
 
 
 # Backward compatibility aliases
 class StrategyAnalysisService(ServiceCoordinator):
     """Backward compatibility alias for StrategyAnalysisService."""
+
     pass
 
 
 class MACrossService(ServiceCoordinator):
     """Backward compatibility alias for MACrossService."""
+
     pass
 
 
 class MACrossServiceError(StrategyAnalysisServiceError):
     """Backward compatibility alias for MACrossServiceError."""
+
     pass

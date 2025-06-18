@@ -27,13 +27,14 @@ from app.core.interfaces import (
 
 class ResultAggregationServiceError(Exception):
     """Exception raised by ResultAggregationService."""
+
     pass
 
 
 class ResultAggregationService:
     """
     Handles result aggregation and response formatting.
-    
+
     This service is responsible for:
     - Creating structured responses from analysis results
     - Managing asynchronous task status
@@ -63,7 +64,7 @@ class ResultAggregationService:
     ) -> MACrossResponse:
         """
         Create a structured response from analysis results.
-        
+
         Args:
             request: Original analysis request
             portfolio_metrics: List of portfolio metrics
@@ -71,7 +72,7 @@ class ResultAggregationService:
             export_paths: Export file paths
             execution_time: Analysis execution time
             log: Logging function
-            
+
         Returns:
             MACrossResponse with structured results
         """
@@ -81,7 +82,9 @@ class ResultAggregationService:
                 "portfolios": [p.model_dump() for p in portfolio_metrics]
             }
             response_dict_no_exclude = {
-                "portfolios": [p.model_dump(exclude_none=False) for p in portfolio_metrics]
+                "portfolios": [
+                    p.model_dump(exclude_none=False) for p in portfolio_metrics
+                ]
             }
 
             # Debug logging for serialization comparison
@@ -111,13 +114,13 @@ class ResultAggregationService:
 
             # Create response
             import uuid
-            
+
             strategy_type_str = (
-                request.strategy_type.value 
-                if hasattr(request.strategy_type, 'value') 
+                request.strategy_type.value
+                if hasattr(request.strategy_type, "value")
                 else str(request.strategy_type)
             )
-            
+
             response = MACrossResponse(
                 status="success",
                 request_id=str(uuid.uuid4()),
@@ -144,11 +147,11 @@ class ResultAggregationService:
     ) -> MACrossAsyncResponse:
         """
         Create asynchronous response for long-running analysis.
-        
+
         Args:
             request: Analysis request
             execution_id: Unique execution identifier
-            
+
         Returns:
             MACrossAsyncResponse with task information
         """
@@ -232,7 +235,7 @@ class ResultAggregationService:
     ):
         """
         Record performance metrics for the analysis.
-        
+
         Args:
             endpoint: API endpoint
             method: HTTP method
@@ -287,16 +290,16 @@ class ResultAggregationService:
         return str(uuid.uuid4())
 
     def update_task_status(
-        self, 
-        execution_id: str, 
-        status: str, 
-        progress: str = None, 
-        results: Any = None, 
-        error: str = None
+        self,
+        execution_id: str,
+        status: str,
+        progress: str = None,
+        results: Any = None,
+        error: str = None,
     ):
         """
         Update task status with new information.
-        
+
         Args:
             execution_id: Task execution ID
             status: New status (pending, running, completed, failed)
@@ -307,16 +310,16 @@ class ResultAggregationService:
         if execution_id in task_status:
             task_data = task_status[execution_id]
             task_data["status"] = status
-            
+
             if progress is not None:
                 task_data["progress"] = progress
-                
+
             if results is not None:
                 task_data["results"] = results
-                
+
             if error is not None:
                 task_data["error"] = error
-                
+
             # Update timestamp
             task_data["updated_at"] = datetime.now().isoformat()
 
@@ -325,10 +328,10 @@ class ResultAggregationService:
     ) -> Dict[str, Any]:
         """
         Generate summary statistics for analysis results.
-        
+
         Args:
             portfolio_metrics: List of portfolio metrics
-            
+
         Returns:
             Dictionary with summary statistics
         """
@@ -343,7 +346,9 @@ class ResultAggregationService:
 
         try:
             # Calculate performance statistics
-            returns = [p.total_return for p in portfolio_metrics if hasattr(p, 'total_return')]
+            returns = [
+                p.total_return for p in portfolio_metrics if hasattr(p, "total_return")
+            ]
             if returns:
                 summary["performance_stats"] = {
                     "avg_return": sum(returns) / len(returns),
@@ -354,10 +359,10 @@ class ResultAggregationService:
             # Strategy type breakdown
             strategy_counts = {}
             for p in portfolio_metrics:
-                if hasattr(p, 'strategy_type'):
+                if hasattr(p, "strategy_type"):
                     strategy = p.strategy_type
                     strategy_counts[strategy] = strategy_counts.get(strategy, 0) + 1
-            
+
             summary["strategy_breakdown"] = strategy_counts
 
         except Exception as e:

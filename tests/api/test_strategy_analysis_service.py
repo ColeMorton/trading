@@ -21,51 +21,51 @@ from app.api.services.strategy_analysis_service import (
     create_strategy_analysis_service,
 )
 from app.tools.services import (
-    StrategyExecutionEngine,
     PortfolioProcessingService,
     ResultAggregationService,
     ServiceCoordinator,
+    StrategyExecutionEngine,
 )
 
 
 @pytest.fixture
 def mock_dependencies():
     """Create mock dependencies for service testing."""
-    
+
     class MockCache:
         def __init__(self):
             self._cache = {}
-        
+
         async def get(self, key):
             return self._cache.get(key)
-        
+
         async def set(self, key, value):
             self._cache[key] = value
-    
+
     class MockConfig:
         def __init__(self):
             self.data = {"BASE_DIR": "/mock/path"}
-        
+
         def __getitem__(self, key):
             return self.data[key]
-        
+
         def get(self, key, default=None):
             return self.data.get(key, default)
-    
+
     class MockLogger:
         def __init__(self):
             self.logs = []
-        
+
         def log(self, message: str, level: str = "info"):
             self.logs.append(f"[{level.upper()}] {message}")
-    
+
     class MockMetrics:
         def __init__(self):
             self.requests = []
-        
+
         def record_request(self, **kwargs):
             self.requests.append(kwargs)
-    
+
     class MockStrategyFactory:
         def create_strategy(self, strategy_type):
             mock_strategy = Mock()
@@ -85,17 +85,18 @@ def mock_dependencies():
                 }
             ]
             return mock_strategy
-    
+
     import concurrent.futures
-    
+
     class MockExecutor(concurrent.futures.ThreadPoolExecutor):
         def __init__(self):
             # Don't call super().__init__ to avoid creating real threads
             pass
-            
+
         def submit(self, func, *args, **kwargs):
             # Execute immediately for testing
             from concurrent.futures import Future
+
             future = Future()
             try:
                 result = func(*args, **kwargs)
@@ -103,7 +104,7 @@ def mock_dependencies():
             except Exception as e:
                 future.set_exception(e)
             return future
-    
+
     return {
         "cache": MockCache(),
         "config": MockConfig(),
@@ -133,7 +134,7 @@ def sample_strategy_request():
     return StrategyAnalysisRequest(
         ticker=["BTC-USD"],
         strategy_type=StrategyTypeEnum.SMA,
-        parameters={"windows": 89}
+        parameters={"windows": 89},
     )
 
 
@@ -154,28 +155,30 @@ class TestStrategyAnalysisService:
         assert service is not None
         assert isinstance(service, StrategyAnalysisService)
         assert isinstance(service, ServiceCoordinator)
-        
+
         # Test that modular components are properly initialized
         assert hasattr(service, "strategy_engine")
         assert hasattr(service, "portfolio_processor")
         assert hasattr(service, "result_aggregator")
-        
+
         assert isinstance(service.strategy_engine, StrategyExecutionEngine)
         assert isinstance(service.portfolio_processor, PortfolioProcessingService)
         assert isinstance(service.result_aggregator, ResultAggregationService)
 
     @pytest.mark.asyncio
-    async def test_analyze_strategy_success(self, service, sample_strategy_request, mock_dependencies):
+    async def test_analyze_strategy_success(
+        self, service, sample_strategy_request, mock_dependencies
+    ):
         """Test successful strategy analysis with new analyze_strategy method."""
-        
-        with patch('app.tools.setup_logging.setup_logging') as mock_setup_logging:
+
+        with patch("app.tools.setup_logging.setup_logging") as mock_setup_logging:
             # Mock logging setup
             mock_log = Mock()
             mock_log_close = Mock()
             mock_setup_logging.return_value = (mock_log, mock_log_close, None, None)
-            
+
             response = await service.analyze_strategy(sample_strategy_request)
-            
+
             assert isinstance(response, MACrossResponse)
             assert response.status == "success"
             assert len(response.portfolios) >= 0
@@ -185,45 +188,47 @@ class TestStrategyAnalysisService:
             assert response.ticker is not None
             assert response.strategy_types is not None
 
-    @pytest.mark.asyncio 
-    async def test_analyze_portfolio_backward_compatibility(self, service, sample_ma_cross_request):
+    @pytest.mark.asyncio
+    async def test_analyze_portfolio_backward_compatibility(
+        self, service, sample_ma_cross_request
+    ):
         """Test backward compatibility with analyze_portfolio method."""
-        
-        with patch('app.tools.setup_logging.setup_logging') as mock_setup_logging:
+
+        with patch("app.tools.setup_logging.setup_logging") as mock_setup_logging:
             # Mock logging setup
             mock_log = Mock()
             mock_log_close = Mock()
             mock_setup_logging.return_value = (mock_log, mock_log_close, None, None)
-            
+
             response = await service.analyze_portfolio(sample_ma_cross_request)
-            
+
             assert isinstance(response, MACrossResponse)
             assert response.status == "success"
 
     def test_analyze_portfolio_async(self, service, sample_ma_cross_request):
         """Test asynchronous analysis functionality."""
         response = service.analyze_portfolio_async(sample_ma_cross_request)
-        
-        assert hasattr(response, 'execution_id')
-        assert hasattr(response, 'status')
+
+        assert hasattr(response, "execution_id")
+        assert hasattr(response, "status")
         assert response.status == "accepted"
         assert response.execution_id is not None
 
     @pytest.mark.asyncio
     async def test_cache_functionality(self, service, sample_strategy_request):
         """Test caching functionality in modular architecture."""
-        
-        with patch('app.tools.setup_logging.setup_logging') as mock_setup_logging:
+
+        with patch("app.tools.setup_logging.setup_logging") as mock_setup_logging:
             mock_log = Mock()
             mock_log_close = Mock()
             mock_setup_logging.return_value = (mock_log, mock_log_close, None, None)
-            
+
             # First request should execute strategy
             response1 = await service.analyze_strategy(sample_strategy_request)
-            
+
             # Second request should hit cache
             response2 = await service.analyze_strategy(sample_strategy_request)
-            
+
             # Both responses should be successful
             assert response1.status == "success"
             assert response2.status == "success"
@@ -231,7 +236,7 @@ class TestStrategyAnalysisService:
     def test_factory_function(self):
         """Test factory function for creating service with defaults."""
         service = create_strategy_analysis_service()
-        
+
         assert isinstance(service, StrategyAnalysisService)
         assert hasattr(service, "strategy_engine")
         assert hasattr(service, "portfolio_processor")
@@ -243,7 +248,7 @@ class TestStrategyAnalysisService:
             MACrossService,
             MACrossServiceError,
         )
-        
+
         # Test that aliases exist and are correct types
         assert issubclass(MACrossService, StrategyAnalysisService)
         assert issubclass(MACrossServiceError, Exception)
@@ -260,27 +265,27 @@ class TestModularServices:
             config=mock_dependencies["config"],
             logger=mock_dependencies["logger"],
         )
-        
+
         assert engine is not None
         assert hasattr(engine, "strategy_factory")
         assert hasattr(engine, "cache")
 
     def test_portfolio_processing_service(self, mock_dependencies):
         """Test PortfolioProcessingService independently."""
-        processor = PortfolioProcessingService(
-            logger=mock_dependencies["logger"]
-        )
-        
+        processor = PortfolioProcessingService(logger=mock_dependencies["logger"])
+
         assert processor is not None
-        
+
         # Test portfolio validation
         valid_portfolio = {
             "ticker": "BTC-USD",
             "strategy_type": "SMA",
-            "timeframe": "D"
+            "timeframe": "D",
         }
-        
-        assert processor.validate_portfolio_data(valid_portfolio, mock_dependencies["logger"].log)
+
+        assert processor.validate_portfolio_data(
+            valid_portfolio, mock_dependencies["logger"].log
+        )
 
     def test_result_aggregation_service(self, mock_dependencies):
         """Test ResultAggregationService independently."""
@@ -288,11 +293,11 @@ class TestModularServices:
             logger=mock_dependencies["logger"],
             metrics=mock_dependencies["metrics"],
         )
-        
+
         assert aggregator is not None
         assert hasattr(aggregator, "logger")
         assert hasattr(aggregator, "metrics")
-        
+
         # Test execution ID generation
         exec_id = aggregator.generate_execution_id()
         assert exec_id is not None
@@ -307,7 +312,7 @@ class TestModularServices:
             logger=mock_dependencies["logger"],
             metrics=mock_dependencies["metrics"],
         )
-        
+
         assert coordinator is not None
         assert hasattr(coordinator, "strategy_engine")
         assert hasattr(coordinator, "portfolio_processor")
@@ -323,7 +328,7 @@ class TestErrorHandling:
         # Create a failing strategy factory
         failing_factory = Mock()
         failing_factory.create_strategy.side_effect = ValueError("Invalid strategy")
-        
+
         service = StrategyAnalysisService(
             strategy_factory=failing_factory,
             cache=mock_dependencies["cache"],
@@ -331,31 +336,31 @@ class TestErrorHandling:
             logger=mock_dependencies["logger"],
             metrics=mock_dependencies["metrics"],
         )
-        
+
         request = StrategyAnalysisRequest(
             ticker=["BTC-USD"],
             strategy_type=StrategyTypeEnum.SMA,
         )
-        
-        with patch('app.tools.setup_logging.setup_logging') as mock_setup_logging:
+
+        with patch("app.tools.setup_logging.setup_logging") as mock_setup_logging:
             mock_log = Mock()
             mock_log_close = Mock()
             mock_setup_logging.return_value = (mock_log, mock_log_close, None, None)
-            
+
             with pytest.raises(Exception):  # Should raise StrategyAnalysisServiceError
                 await service.analyze_strategy(request)
 
     def test_portfolio_processing_error(self, mock_dependencies):
         """Test error handling in portfolio processing."""
-        processor = PortfolioProcessingService(
-            logger=mock_dependencies["logger"]
-        )
-        
+        processor = PortfolioProcessingService(logger=mock_dependencies["logger"])
+
         # Test with invalid portfolio data
         invalid_portfolios = [{"invalid": "data"}]
-        
+
         # Should handle errors gracefully
-        summary = processor.calculate_portfolio_summary(invalid_portfolios, mock_dependencies["logger"].log)
+        summary = processor.calculate_portfolio_summary(
+            invalid_portfolios, mock_dependencies["logger"].log
+        )
         assert "error" in summary or summary["total_count"] == 1
 
 

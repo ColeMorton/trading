@@ -38,10 +38,7 @@ from app.core.interfaces import (
 from app.core.strategies.strategy_factory import StrategyFactory
 
 # Import the new modular service coordinator
-from app.tools.services import (
-    ServiceCoordinator,
-    StrategyAnalysisServiceError,
-)
+from app.tools.services import ServiceCoordinator, StrategyAnalysisServiceError
 
 
 class StrategyAnalysisService(ServiceCoordinator):
@@ -92,27 +89,29 @@ def create_strategy_analysis_service(
 ) -> StrategyAnalysisService:
     """
     Create a StrategyAnalysisService instance with default dependencies.
-    
+
     This factory function maintains backward compatibility while using
     the new modular architecture.
     """
     # Use default implementations if not provided
     if strategy_factory is None:
         strategy_factory = StrategyFactory()
-    
+
     if config is None:
         config = get_config()
-    
+
     if metrics is None:
         metrics = get_metrics_collector()
-    
+
     # Create a simple logger if none provided
     if logger is None:
+
         class SimpleLogger:
             def log(self, message: str, level: str = "info"):
                 print(f"[{level.upper()}] {message}")
+
         logger = SimpleLogger()
-    
+
     return StrategyAnalysisService(
         strategy_factory=strategy_factory,
         cache=cache,
@@ -127,11 +126,13 @@ def create_strategy_analysis_service(
 # Backward compatibility aliases
 class MACrossService(StrategyAnalysisService):
     """Backward compatibility alias for MACrossService."""
+
     pass
 
 
 class MACrossServiceError(StrategyAnalysisServiceError):
     """Backward compatibility alias for MACrossServiceError."""
+
     pass
 
 
@@ -145,7 +146,7 @@ def get_service_instance(*args, **kwargs) -> StrategyAnalysisService:
 __all__ = [
     "StrategyAnalysisService",
     "StrategyAnalysisServiceError",
-    "MACrossService", 
+    "MACrossService",
     "MACrossServiceError",
     "create_strategy_analysis_service",
     "get_service_instance",
