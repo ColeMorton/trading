@@ -30,10 +30,7 @@ from app.api.models.strategy_analysis import (
     MACrossResponse,
     MACrossStatusResponse,
 )
-from app.api.services.strategy_analysis_service import (
-    MACrossService,
-    MACrossServiceError,
-)
+from app.api.services.ma_cross_service import MACrossService, MACrossServiceError
 from app.api.utils.logging import setup_api_logging
 from app.api.utils.middleware import rate_limit_analysis, rate_limit_cache
 from app.api.utils.validation import validate_ma_cross_request

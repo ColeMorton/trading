@@ -218,16 +218,16 @@ class MigrationGuide:
         # Add urgency-specific messaging
         urgency = timeline.get("urgency", "low")
         if urgency == "critical":
-            notice["message"] = (
-                f"⚠️ URGENT: API version {version.value} will be sunset soon!"
-            )
-            notice["recommended_action"] = (
-                "Migrate immediately to avoid service disruption"
-            )
+            notice[
+                "message"
+            ] = f"⚠️ URGENT: API version {version.value} will be sunset soon!"
+            notice[
+                "recommended_action"
+            ] = "Migrate immediately to avoid service disruption"
         elif urgency == "high":
-            notice["message"] = (
-                f"⚠️ WARNING: API version {version.value} is being deprecated"
-            )
+            notice[
+                "message"
+            ] = f"⚠️ WARNING: API version {version.value} is being deprecated"
             notice["recommended_action"] = "Plan migration as soon as possible"
 
         return notice

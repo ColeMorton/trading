@@ -38,6 +38,7 @@ The module follows a clean architecture with these key components:
 ### Configuration
 
 Configuration is handled through environment variables and defaults in `config_defaults.py`:
+
 - `PORTFOLIO`: Portfolio file (JSON or CSV format)
 - `VISUALIZATION`: Enable/disable chart generation
 - `REPORT_INCLUDES`: Control report content (ticker metrics, strategies, relationships, allocation)

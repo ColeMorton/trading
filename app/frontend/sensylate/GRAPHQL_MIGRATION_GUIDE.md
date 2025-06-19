@@ -9,11 +9,13 @@ This guide explains how to use the new GraphQL API integration in the Sensylate 
 ### Enabling GraphQL
 
 1. Create a `.env` file in the `app/sensylate` directory:
+
 ```bash
 cp .env.example .env
 ```
 
 2. Set the GraphQL flag to enable GraphQL:
+
 ```env
 VITE_USE_GRAPHQL=true
 ```
@@ -30,17 +32,20 @@ npm install
 ### 1. Generate GraphQL Types
 
 First, ensure the backend GraphQL server is running:
+
 ```bash
 cd ../..
 python -m app.api.run
 ```
 
 Then generate TypeScript types from the GraphQL schema:
+
 ```bash
 npm run codegen
 ```
 
 For continuous development with auto-regeneration:
+
 ```bash
 npm run codegen:watch
 ```
@@ -48,11 +53,13 @@ npm run codegen:watch
 ### 2. Writing GraphQL Operations
 
 GraphQL operations are organized in `src/graphql/`:
+
 - `queries/` - Query operations
 - `mutations/` - Mutation operations
 - `fragments/` - Reusable fragments
 
 Example query (`src/graphql/queries/portfolios.graphql`):
+
 ```graphql
 query GetPortfolios($filter: PortfolioFilter) {
   portfolios(filter: $filter) {
@@ -114,6 +121,7 @@ This allows components to remain unchanged while switching between APIs.
 ### Apollo Client Configuration
 
 Apollo Client is configured with:
+
 - **Cache persistence**: LocalStorage caching for offline support
 - **Error handling**: Comprehensive error handling with fallbacks
 - **Type safety**: Full TypeScript support with generated types
@@ -123,6 +131,7 @@ Apollo Client is configured with:
 ### Offline Support
 
 The GraphQL implementation maintains offline capabilities through:
+
 1. Apollo Cache persistence to LocalStorage
 2. Cache-first fetch policies for read operations
 3. Automatic cache rehydration on app startup
@@ -131,16 +140,19 @@ The GraphQL implementation maintains offline capabilities through:
 ## Migration Strategy
 
 ### Phase 1: Parallel Implementation ✅
+
 - Apollo Client setup
 - GraphQL adapters matching REST interface
 - Service factory for API switching
 
 ### Phase 2: Component Migration (Current)
+
 - Gradual migration of components to use GraphQL hooks
 - Feature flags for A/B testing
 - Performance monitoring
 
 ### Phase 3: REST Deprecation (Future)
+
 - Remove REST API calls
 - Clean up adapter layers
 - Full GraphQL adoption
@@ -148,12 +160,14 @@ The GraphQL implementation maintains offline capabilities through:
 ## Testing
 
 ### Manual Testing
+
 1. Enable GraphQL in `.env`
 2. Run the application
 3. Verify all features work as expected
 4. Check network tab for GraphQL requests
 
 ### Integration Testing
+
 ```bash
 # Run GraphQL integration tests
 npm run test:graphql
@@ -162,11 +176,13 @@ npm run test:graphql
 ## Performance Considerations
 
 ### Query Optimization
+
 - Use fragments to avoid over-fetching
 - Implement pagination for large datasets
 - Leverage Apollo Cache for data deduplication
 
 ### Cache Management
+
 ```typescript
 // Clear cache when needed
 import { getApolloClient } from './apollo/client';
@@ -180,9 +196,11 @@ client.cache.reset();
 ### Common Issues
 
 1. **"Cannot find module './graphql/generated'"**
+
    - Run `npm run codegen` to generate types
 
 2. **GraphQL endpoint not reachable**
+
    - Ensure backend is running on port 8000
    - Check Vite proxy configuration
 
@@ -193,6 +211,7 @@ client.cache.reset();
 ### Debug Mode
 
 Enable GraphQL logging in development:
+
 ```typescript
 // Logs are automatically enabled in dev mode
 // Check browser console for GraphQL operations

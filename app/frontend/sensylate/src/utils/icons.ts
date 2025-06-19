@@ -52,7 +52,7 @@ import {
   faClock,
   faCode,
   faFlask,
-  faList
+  faList,
 } from '@fortawesome/free-solid-svg-icons';
 
 // Navigation icons

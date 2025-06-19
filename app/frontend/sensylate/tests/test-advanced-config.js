@@ -1,10 +1,16 @@
-const { testAdvancedConfigCollapse } = require('./advancedConfigAnimation.spec.js');
+const {
+  testAdvancedConfigCollapse,
+} = require('./advancedConfigAnimation.spec.js');
 
-console.log('🧪 Running Advanced Configuration Animation Test for Sensylate...\n');
+console.log(
+  '🧪 Running Advanced Configuration Animation Test for Sensylate...\n'
+);
 
 testAdvancedConfigCollapse()
   .then(() => {
-    console.log('\n🎉 Advanced Configuration collapse test completed successfully!');
+    console.log(
+      '\n🎉 Advanced Configuration collapse test completed successfully!'
+    );
     process.exit(0);
   })
   .catch((error) => {

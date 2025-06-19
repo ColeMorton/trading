@@ -9,6 +9,7 @@ This module provides comprehensive analysis of strategy interactions, risk conce
 ## Key Features
 
 ### 1. Multi-Strategy Support
+
 - **MA Cross Strategies**: SMA and EMA with customizable parameters
 - **MACD Strategies**: Traditional MACD with signal line
 - **ATR Strategies**: ATR-based trailing stop strategies
@@ -16,12 +17,14 @@ This module provides comprehensive analysis of strategy interactions, risk conce
 - **Position Types**: Both long and short positions
 
 ### 2. Concurrency Analysis
+
 - **Correlation Analysis**: Measures statistical relationships between strategies
 - **Independence Metrics**: Evaluates how independently strategies operate
 - **Activity Tracking**: Monitors strategy activity levels
 - **Risk Concentration**: Identifies periods of concentrated exposure
 
 ### 3. Efficiency Scoring
+
 The module uses a sophisticated efficiency scoring system:
 
 ```
@@ -30,18 +33,21 @@ Risk-Adjusted Efficiency = Base Efficiency × Expectancy × Risk Factor
 ```
 
 ### 4. Optimization Engine
+
 - **Permutation Analysis**: Systematically evaluates all strategy combinations
 - **Optimal Subset Selection**: Finds the best combination of strategies
 - **Progress Tracking**: Real-time progress updates for large analyses
 - **Configurable Constraints**: Minimum strategies per combination
 
 ### 5. Risk Management
+
 - **VaR and CVaR**: Value at Risk calculations at 95% and 99% confidence
 - **Risk Contributions**: Individual strategy risk contributions
 - **Stop Loss Integration**: Adjusts metrics for stop loss strategies
 - **Allocation Management**: Position sizing and capital allocation
 
 ### 6. Advanced Metrics
+
 - **Signal Quality Score**: 0-10 scale evaluation of signal effectiveness
 - **Horizon Analysis**: Performance across 1, 3, 5, 10-day horizons
 - **Win Rate & Profit Factor**: Traditional performance metrics
@@ -132,6 +138,7 @@ Strategy efficiency measures how effectively multiple strategies work together:
 ### 2. Correlation Analysis
 
 Correlation measures the statistical relationship between strategy positions:
+
 - **1**: Perfect positive correlation (strategies move identically)
 - **0**: No correlation (strategies move independently)
 - **-1**: Perfect negative correlation (strategies move oppositely)
@@ -139,6 +146,7 @@ Correlation measures the statistical relationship between strategy positions:
 ### 3. Risk-Adjusted Performance
 
 The module combines structural efficiency with performance metrics:
+
 - **Expectancy**: Expected return per trade
 - **Risk Factor**: Inverse of risk contribution
 - **Allocation**: Position sizing weight
@@ -146,11 +154,13 @@ The module combines structural efficiency with performance metrics:
 ### 4. Strategy Identification
 
 Strategies are uniquely identified using a standardized format:
+
 ```
 {ticker}_{type}_{short}_{long}_{signal}
 ```
 
 Examples:
+
 - `BTC-USD_SMA_80_85_0`: Bitcoin SMA strategy
 - `AAPL_EMA_19_21_0`: Apple EMA strategy
 - `MSTR_MACD_12_26_9`: MicroStrategy MACD strategy
@@ -169,7 +179,9 @@ The module supports multiple allocation strategies:
 ## Output Formats
 
 ### 1. JSON Reports
+
 Comprehensive analysis results in structured JSON format:
+
 ```json
 {
     "portfolio_metrics": {
@@ -184,14 +196,18 @@ Comprehensive analysis results in structured JSON format:
 ```
 
 ### 2. Visualizations
+
 Interactive Plotly charts showing:
+
 - Price movements with position indicators
 - Strategy-specific overlays (e.g., ATR stops)
 - Concurrency heatmap
 - Performance statistics
 
 ### 3. Optimization Reports
+
 Comparison between full portfolio and optimal subset:
+
 - Efficiency improvement percentage
 - Strategy selection rationale
 - Detailed metrics comparison
@@ -206,6 +222,7 @@ Comparison between full portfolio and optimal subset:
 ## Error Handling
 
 The module includes a comprehensive error handling system:
+
 - Custom exception hierarchy
 - Automatic retry with backoff
 - Context-aware error messages
@@ -214,11 +231,13 @@ The module includes a comprehensive error handling system:
 ## Integration Points
 
 1. **Data Sources**
+
    - CSV portfolios from MA cross analysis
    - JSON strategy configurations
    - Price data via yfinance
 
 2. **Downstream Usage**
+
    - Portfolio optimization decisions
    - Risk management insights
    - Strategy selection criteria
@@ -231,11 +250,13 @@ The module includes a comprehensive error handling system:
 ## Best Practices
 
 1. **Portfolio Construction**
+
    - Include diverse strategy types (trend, mean-reversion)
    - Mix different timeframes
    - Target correlations below 0.7
 
 2. **Optimization**
+
    - Start with smaller strategy sets for faster analysis
    - Use `OPTIMIZE_MAX_PERMUTATIONS` for large portfolios
    - Review both full and optimal results
@@ -248,6 +269,7 @@ The module includes a comprehensive error handling system:
 ## Examples
 
 ### Example 1: Basic Analysis
+
 ```python
 from app.concurrency.review import run_concurrency_review
 
@@ -257,6 +279,7 @@ print(f"Portfolio efficiency: {results['portfolio_metrics']['efficiency']['score
 ```
 
 ### Example 2: Custom Configuration
+
 ```python
 config = {
     "PORTFOLIO": "btc_strategies.csv",
@@ -269,6 +292,7 @@ results = run_concurrency_review("btc_strategies", config)
 ```
 
 ### Example 3: Command Line with Options
+
 ```bash
 # Full analysis with optimization and visualization
 python app/concurrency/review.py my_portfolio --optimize --visualize --refresh
@@ -286,7 +310,9 @@ python app/concurrency/review.py my_portfolio --no-refresh
 3. **Memory issues**: Reduce `OPTIMIZE_MAX_PERMUTATIONS` for large portfolios
 
 ### Debug Mode
+
 Enable detailed logging:
+
 ```python
 config = {"DEBUG": True}
 ```
@@ -300,6 +326,7 @@ config = {"DEBUG": True}
 ## Contributing
 
 When contributing to this module:
+
 1. Maintain type safety with TypedDict and Pydantic
 2. Add appropriate error handling
 3. Update tests for new features

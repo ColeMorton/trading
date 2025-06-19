@@ -59,9 +59,9 @@ def process_current_signals(
         data_result = get_data(formatted_ticker, config_copy, log)
         if isinstance(data_result, tuple):
             data, synthetic_ticker = data_result
-            config_copy["TICKER"] = (
-                synthetic_ticker  # Update config with synthetic ticker
-            )
+            config_copy[
+                "TICKER"
+            ] = synthetic_ticker  # Update config with synthetic ticker
         else:
             data = data_result
 

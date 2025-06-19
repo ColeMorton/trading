@@ -9,17 +9,20 @@ Claude Code is an official terminal-based coding tool developed by Anthropic tha
 ### Basic CLI Command Structure
 
 **Interactive Mode (Default)**
+
 ```bash
 claude  # Starts interactive session
 ```
 
 **Non-Interactive Print Mode**
+
 ```bash
 claude -p "Your prompt here"  # Execute single command
 claude --print "Generate a factorial function in Python"
 ```
 
 **Advanced Command Syntax**
+
 ```bash
 # With specific flags
 claude --continue --print "Run the tests again"
@@ -30,6 +33,7 @@ claude --model claude-3-7-sonnet --verbose
 ### Interactive Slash Commands
 
 **Core Commands**
+
 - `/help` - Get usage help
 - `/compact` - Compact conversation to free context
 - `/clear` - Reset conversation context
@@ -41,6 +45,7 @@ claude --model claude-3-7-sonnet --verbose
 ### XML Tag Structure for Complex Prompts
 
 Claude is fine-tuned to respond well to XML tags:
+
 ```xml
 <instructions>
 Refactor this React component to use hooks
@@ -66,11 +71,13 @@ Provide refactored component with explanations
 ### The Power of Specificity
 
 **Poor Command:**
+
 ```
 Write a sorting function
 ```
 
 **Effective Command:**
+
 ```
 Write a JavaScript function that sorts an array of user objects by registration date (newest first). Requirements:
 - Handle null/undefined dates gracefully
@@ -85,16 +92,19 @@ Write a JavaScript function that sorts an array of user objects by registration 
 The research-plan-implement pattern significantly outperforms direct coding:
 
 1. **Research Phase**
+
 ```bash
 claude "Read the authentication system files and understand the current implementation, but don't write any code yet"
 ```
 
 2. **Planning Phase**
+
 ```bash
 claude "Based on your research, create a detailed plan for implementing OAuth2 authentication"
 ```
 
 3. **Implementation Phase**
+
 ```bash
 claude "Now implement the OAuth2 system following your plan"
 ```
@@ -102,6 +112,7 @@ claude "Now implement the OAuth2 system following your plan"
 ### Context-Rich Prompting
 
 Always provide comprehensive context:
+
 ```
 I'm working on a Node.js Express API with:
 - TypeScript strict mode
@@ -120,6 +131,7 @@ Create a user registration endpoint following these patterns...
 ## 3. Well-Structured Command Examples
 
 ### Code Generation Pattern
+
 ```bash
 claude "Create a Python class for database connection pooling that:
 1. Manages up to 10 concurrent connections
@@ -131,6 +143,7 @@ Use asyncio and include comprehensive logging"
 ```
 
 ### Debugging Pattern
+
 ```bash
 claude "Analyze this error and provide solutions:
 <error_context>
@@ -149,6 +162,7 @@ Provide:
 ```
 
 ### Refactoring Pattern
+
 ```bash
 claude "Refactor this monolithic service to microservices:
 <current_architecture>
@@ -170,6 +184,7 @@ Create migration plan with phases and rollback strategies"
 ### Essential CLI Flags
 
 **Core Operation Flags**
+
 - `--print, -p` - Non-interactive mode for automation
 - `--continue` - Resume most recent conversation
 - `--resume` - Show conversation picker
@@ -178,24 +193,28 @@ Create migration plan with phases and rollback strategies"
 - `--max-turns <number>` - Limit conversation turns
 
 **Enterprise Integration**
+
 - `--use-bedrock` - Amazon Bedrock integration
 - `--use-vertex` - Google Vertex AI integration
 - `--mcp-config <path>` - Load MCP server configuration
 - `--model <model-name>` - Specify Claude model version
 
 **Advanced Options**
+
 - `--dangerously-skip-permissions` - Bypass permission checks (automation use)
 - `--append-system-prompt` - Add system prompt (print mode only)
 
 ### Thinking Mode Keywords (Performance Boost)
 
 Allocate more computational budget for complex problems:
+
 - `think` - Basic extended thinking
 - `think hard` - Moderate computational budget
 - `think harder` - High computational budget
 - `ultrathink` - Maximum thinking budget
 
 Example:
+
 ```bash
 claude "think harder about the optimal database schema for a multi-tenant SaaS application"
 ```
@@ -238,6 +257,7 @@ Start with your analysis:"
 ### Prompt Chaining for Complex Tasks
 
 Break complex tasks into sequential prompts:
+
 ```bash
 # Step 1: Analysis
 claude -p "Analyze the performance bottlenecks in this codebase" > analysis.md
@@ -254,22 +274,27 @@ claude -p "Implement the first optimization from the plan" > optimization.py
 ### Critical Mistakes and Solutions
 
 **1. Vague Instructions**
+
 - ❌ "Fix the bug in my code"
 - ✅ "Debug the null pointer exception in the user authentication module at line 47, which occurs when users log in with OAuth providers"
 
 **2. Overwhelming with Multiple Tasks**
+
 - ❌ "Build complete app with auth, database, tests, and deployment"
 - ✅ Break into focused, sequential tasks
 
 **3. Insufficient Context**
+
 - ❌ Requesting changes without codebase context
 - ✅ Use Projects feature or provide comprehensive file context
 
 **4. Blind Trust in Output**
+
 - ❌ Accepting generated code without review
 - ✅ Always review, test, and validate AI-generated code
 
 **5. Ignoring Security**
+
 - ❌ Not requesting security considerations
 - ✅ Explicitly ask for security best practices and vulnerability checks
 
@@ -321,9 +346,11 @@ Create reusable templates in `.claude/commands/`:
 
 ```markdown
 <!-- .claude/commands/fix-github-issue.md -->
+
 Analyze and fix GitHub issue: $ARGUMENTS
 
 Steps:
+
 1. Use `gh issue view` to get details
 2. Identify root cause
 3. Implement fix with tests
@@ -339,24 +366,29 @@ Usage: `/project:fix-github-issue 1234`
 ## 8. Official Documentation and Resources
 
 ### Official Anthropic Resources
+
 - **Installation**: `npm install -g @anthropic-ai/claude-code`
 - **Documentation**: Available through Anthropic Console
 - **Support**: Built-in `/bug` command for reporting issues
 - **Updates**: Regular releases with new features
 
 ### Configuration Hierarchy
+
 1. Enterprise managed policies
 2. User settings: `~/.claude/settings.json`
 3. Project settings: `.claude/settings.json`
 4. Local settings: `.claude/settings.local.json`
 
 ### Memory System
+
 - `CLAUDE.md` - Project-specific context file
 - Automatically loaded for every session
 - Include coding standards, build commands, and project information
 
 ### MCP (Model Context Protocol) Integration
+
 Connect to external tools and services:
+
 ```json
 {
   "mcpServers": {
@@ -373,21 +405,25 @@ Connect to external tools and services:
 ### Performance Optimization Strategies
 
 **1. Batch Related Operations**
+
 ```bash
 claude -p "Analyze these 5 functions for performance issues and suggest optimizations for all of them together"
 ```
 
 **2. Use Appropriate Thinking Levels**
+
 - Simple tasks: No special keywords needed
 - Medium complexity: `think` or `think hard`
 - Complex architecture: `think harder` or `ultrathink`
 
 **3. Context Management**
+
 - Use `/compact` to free up context in long sessions
 - Start fresh conversations for unrelated tasks
 - Leverage git worktrees for parallel development
 
 **4. Automation Integration**
+
 ```bash
 # CI/CD Integration
 claude -p "Run tests and fix any failures" --output-format json | jq .result
@@ -399,6 +435,7 @@ done
 ```
 
 ### Cost-Effective Usage
+
 - Use `--max-turns` to limit conversation length
 - Batch similar tasks together
 - Use appropriate models for task complexity
@@ -409,6 +446,7 @@ done
 ### Effectiveness Metrics by Approach
 
 **Structured XML Prompts**: 30-39% accuracy improvement
+
 ```xml
 <task>Implement feature</task>
 <requirements>Clear specifications</requirements>
@@ -417,6 +455,7 @@ done
 ```
 
 **Chain of Thought**: Up to 39% improvement for complex tasks
+
 ```
 Let me think through this step-by-step...
 1. Analyze the problem
@@ -425,6 +464,7 @@ Let me think through this step-by-step...
 ```
 
 **Few-Shot Examples**: Most effective for consistency
+
 ```
 Example 1: [input] -> [output]
 Example 2: [input] -> [output]
@@ -434,21 +474,25 @@ Now process: [actual input]
 ### Task-Specific Command Strategies
 
 **For Code Generation**:
+
 - Provide architectural context
 - Specify error handling requirements
 - Include test expectations
 
 **For Debugging**:
+
 - Use systematic analysis prompts
 - Request multiple solution alternatives
 - Include full error context
 
 **For Refactoring**:
+
 - Break into subtasks
 - Specify performance goals
 - Request impact analysis
 
 **For Documentation**:
+
 - Provide style examples
 - Specify coverage requirements
 - Use structured templates
@@ -456,6 +500,7 @@ Now process: [actual input]
 ### Performance Comparison
 
 Based on benchmarks and real-world usage:
+
 - **Claude Code + Structured Prompts**: Highest success rate for complex tasks
 - **Simple Commands**: Quick but limited for sophisticated requirements
 - **Multi-Step Workflows**: 54% better outcomes than single-shot approaches

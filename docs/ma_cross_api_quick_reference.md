@@ -3,49 +3,55 @@
 ## Endpoints
 
 ### POST /api/ma-cross/analyze
+
 Execute portfolio analysis with parameter sensitivity testing
 
 ### GET /api/ma-cross/status/{execution_id}
+
 Check status of async analysis
 
 ### GET /api/ma-cross/stream/{execution_id}
+
 SSE stream for real-time progress
 
 ### GET /api/ma-cross/metrics
+
 Service performance metrics
 
 ### GET /api/ma-cross/health
+
 Service health check
 
 ## Request Parameters
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `ticker` | string or array | required | Ticker symbol(s) to analyze |
-| `windows` | integer | 252 | Number of parameter combinations |
-| `strategy_types` | array | ["SMA", "EMA"] | Moving average types |
-| `direction` | string | "Long" | Trading direction (Long/Short) |
-| `use_hourly` | boolean | false | Use hourly instead of daily data |
-| `start_date` | string | null | Start date (YYYY-MM-DD) |
-| `end_date` | string | null | End date (YYYY-MM-DD) |
-| `async_execution` | boolean | false | Execute asynchronously |
-| `min_criteria` | object | defaults | Filtering criteria |
+| Parameter         | Type            | Default        | Description                      |
+| ----------------- | --------------- | -------------- | -------------------------------- |
+| `ticker`          | string or array | required       | Ticker symbol(s) to analyze      |
+| `windows`         | integer         | 252            | Number of parameter combinations |
+| `strategy_types`  | array           | ["SMA", "EMA"] | Moving average types             |
+| `direction`       | string          | "Long"         | Trading direction (Long/Short)   |
+| `use_hourly`      | boolean         | false          | Use hourly instead of daily data |
+| `start_date`      | string          | null           | Start date (YYYY-MM-DD)          |
+| `end_date`        | string          | null           | End date (YYYY-MM-DD)            |
+| `async_execution` | boolean         | false          | Execute asynchronously           |
+| `min_criteria`    | object          | defaults       | Filtering criteria               |
 
 ### Filtering Criteria (min_criteria)
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `trades` | integer | 10 | Minimum number of trades |
-| `win_rate` | float | 0.5 | Minimum win rate (0-1) |
-| `profit_factor` | float | 1.0 | Minimum profit factor |
-| `expectancy_per_trade` | float | 0.001 | Minimum expectancy |
-| `sortino_ratio` | float | 0.0 | Minimum Sortino ratio |
-| `score` | float | 1.0 | Minimum portfolio score |
-| `beats_bnh` | float | 0.0 | Min % to beat buy-and-hold |
+| Field                  | Type    | Default | Description                |
+| ---------------------- | ------- | ------- | -------------------------- |
+| `trades`               | integer | 10      | Minimum number of trades   |
+| `win_rate`             | float   | 0.5     | Minimum win rate (0-1)     |
+| `profit_factor`        | float   | 1.0     | Minimum profit factor      |
+| `expectancy_per_trade` | float   | 0.001   | Minimum expectancy         |
+| `sortino_ratio`        | float   | 0.0     | Minimum Sortino ratio      |
+| `score`                | float   | 1.0     | Minimum portfolio score    |
+| `beats_bnh`            | float   | 0.0     | Min % to beat buy-and-hold |
 
 ## Quick Examples
 
 ### Basic Analysis
+
 ```bash
 curl -X POST http://127.0.0.1:8000/api/ma-cross/analyze \
   -H "Content-Type: application/json" \
@@ -53,6 +59,7 @@ curl -X POST http://127.0.0.1:8000/api/ma-cross/analyze \
 ```
 
 ### Multiple Tickers (Async)
+
 ```bash
 curl -X POST http://127.0.0.1:8000/api/ma-cross/analyze \
   -H "Content-Type: application/json" \
@@ -64,6 +71,7 @@ curl -X POST http://127.0.0.1:8000/api/ma-cross/analyze \
 ```
 
 ### With Filtering
+
 ```bash
 curl -X POST http://127.0.0.1:8000/api/ma-cross/analyze \
   -H "Content-Type: application/json" \
@@ -78,11 +86,13 @@ curl -X POST http://127.0.0.1:8000/api/ma-cross/analyze \
 ```
 
 ### Check Status
+
 ```bash
 curl http://127.0.0.1:8000/api/ma-cross/status/{execution_id}
 ```
 
 ### Stream Progress
+
 ```bash
 curl -N http://127.0.0.1:8000/api/ma-cross/stream/{execution_id}
 ```
@@ -90,6 +100,7 @@ curl -N http://127.0.0.1:8000/api/ma-cross/stream/{execution_id}
 ## Response Fields
 
 ### Sync Response
+
 - `success`: Boolean indicating success
 - `execution_id`: Unique identifier
 - `ticker`: Analyzed ticker(s)
@@ -101,6 +112,7 @@ curl -N http://127.0.0.1:8000/api/ma-cross/stream/{execution_id}
 - `execution_time`: Time in seconds
 
 ### Async Response
+
 - `success`: Boolean (true)
 - `execution_id`: Task tracking ID
 - `ticker`: Ticker(s) being analyzed
@@ -108,7 +120,9 @@ curl -N http://127.0.0.1:8000/api/ma-cross/stream/{execution_id}
 - `message`: "Analysis started"
 
 ### Portfolio Metrics
+
 Each portfolio includes:
+
 - `ticker`, `strategy`, `timeframe`
 - `fast_window`, `slow_window`
 - `total_return`, `sharpe_ratio`
@@ -118,19 +132,20 @@ Each portfolio includes:
 
 ## Status Codes
 
-| Code | Meaning |
-|------|---------|
-| 200 | Success (sync) |
-| 202 | Accepted (async) |
-| 400 | Bad request |
-| 404 | Not found |
-| 422 | Validation error |
-| 429 | Rate limited |
-| 500 | Server error |
+| Code | Meaning          |
+| ---- | ---------------- |
+| 200  | Success (sync)   |
+| 202  | Accepted (async) |
+| 400  | Bad request      |
+| 404  | Not found        |
+| 422  | Validation error |
+| 429  | Rate limited     |
+| 500  | Server error     |
 
 ## Export Locations
 
 Results are automatically saved to:
+
 - `csv/portfolios/` - All results
 - `csv/portfolios_filtered/` - Filtered results
 - `csv/portfolios_best/` - Daily best
@@ -147,16 +162,19 @@ Results are automatically saved to:
 ## Common Issues
 
 **Empty results?**
+
 - Check filtering criteria
 - Verify ticker has data
 - Try smaller windows
 
 **Timeout?**
+
 - Use async execution
 - Reduce ticker count
 - Lower windows parameter
 
 **Rate limited?**
+
 - Implement retry logic
 - Use async execution
 - Add delays between requests

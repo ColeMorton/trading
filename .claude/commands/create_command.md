@@ -9,14 +9,18 @@ Creates well-structured commands following established patterns with built-in va
 ## Workflow
 
 ### Step 1: Command Definition
+
 **Required Information:**
+
 - **Name**: lowercase, descriptive, unique (validate against existing)
 - **Category**: workflow | automation | analysis | utility
 - **Objective**: specific problem solved (1-2 sentences)
 - **Success criteria**: measurable outcomes
 
 ### Step 2: Structure Design
+
 **Core Components:**
+
 - **Prerequisites**: dependencies, setup requirements
 - **Parameters**: inputs with types and validation
 - **Process steps**: sequential actions with decision points
@@ -24,26 +28,33 @@ Creates well-structured commands following established patterns with built-in va
 - **Error handling**: failure modes and recovery
 
 ### Step 3: Content Generation
+
 **Template Application:**
+
 ```markdown
 # [Command Name]
 
 [One-line description]
 
 ## Purpose
+
 [Problem solved and when to use - 2-3 sentences]
 
 ## Parameters
+
 - `param`: description (type, required/optional, default)
 
 ## Process
+
 1. **[Action]**: [specific steps]
 2. **[Validation]**: [check criteria]
 3. **[Output]**: [deliverable format]
 
 ## Usage
 ```
+
 /project:[command-name] [parameters]
+
 ```
 
 ## Notes
@@ -52,7 +63,9 @@ Creates well-structured commands following established patterns with built-in va
 ```
 
 ### Step 4: Quality Assurance
+
 **Validation Checklist:**
+
 - [ ] Name follows conventions and is unique
 - [ ] Purpose clearly states value proposition
 - [ ] Steps are actionable and measurable
@@ -61,6 +74,7 @@ Creates well-structured commands following established patterns with built-in va
 - [ ] Error cases are addressed
 
 ### Step 5: Implementation
+
 - Write to `.claude/commands/[name].md`
 - Test with sample parameters
 - Document in command registry

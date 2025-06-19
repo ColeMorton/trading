@@ -115,7 +115,9 @@ def create_protective_stop_loss_heatmap(
                     + (
                         "%{z:.1%}"
                         if metric_name in ["returns", "win_rate"]
-                        else "%{z:.2f}" if metric_name == "sharpe_ratio" else "%{z:.0f}"
+                        else "%{z:.2f}"
+                        if metric_name == "sharpe_ratio"
+                        else "%{z:.0f}"
                     )
                     + "<extra></extra>"
                 ),

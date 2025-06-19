@@ -9,7 +9,8 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 const InstallPrompt: React.FC = () => {
-  const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
+  const [installPromptEvent, setInstallPromptEvent] =
+    useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState<boolean>(false);
 
   useEffect(() => {
@@ -28,7 +29,10 @@ const InstallPrompt: React.FC = () => {
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener(
+        'beforeinstallprompt',
+        handleBeforeInstallPrompt
+      );
     };
   }, []);
 
@@ -60,13 +64,18 @@ const InstallPrompt: React.FC = () => {
   if (!showPrompt) return null;
 
   return (
-    <div className="position-fixed bottom-0 start-0 end-0 p-4 bg-primary text-white" style={{ zIndex: 1050 }}>
+    <div
+      className="position-fixed bottom-0 start-0 end-0 p-4 bg-primary text-white"
+      style={{ zIndex: 1050 }}
+    >
       <div className="container-fluid d-flex justify-content-between align-items-center">
         <div className="d-flex align-items-start">
           <Icon icon={icons.mobile} className="me-3" size="lg" />
           <div>
             <p className="fw-medium mb-1">Install Sensylate</p>
-            <p className="small mb-0 opacity-75">Add to your home screen for quick access</p>
+            <p className="small mb-0 opacity-75">
+              Add to your home screen for quick access
+            </p>
           </div>
         </div>
         <div className="d-flex gap-2">
@@ -77,10 +86,7 @@ const InstallPrompt: React.FC = () => {
             <Icon icon={icons.times} className="me-2" />
             Not now
           </button>
-          <button
-            onClick={handleInstallClick}
-            className="btn btn-light btn-sm"
-          >
+          <button onClick={handleInstallClick} className="btn btn-light btn-sm">
             <Icon icon={icons.download} className="me-2" />
             Install
           </button>

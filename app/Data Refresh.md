@@ -31,14 +31,14 @@ config = {
 
 Different modules have different default values for REFRESH:
 
-| Module | Default Value | Configuration File |
-|--------|---------------|-------------------|
-| MA Cross | `False` | `app/ma_cross/1_get_portfolios.py` |
-| Strategies | `True` | `app/strategies/update_portfolios.py` |
-| Concurrency | `True` | `app/concurrency/review.py` |
-| Mean Reversion | `True` | `app/mean_reversion/config_types.py` |
-| Range | `True` | `app/range/config_types.py` |
-| MACD Next | `False` | `app/macd_next/config_types.py` |
+| Module         | Default Value | Configuration File                    |
+| -------------- | ------------- | ------------------------------------- |
+| MA Cross       | `False`       | `app/ma_cross/1_get_portfolios.py`    |
+| Strategies     | `True`        | `app/strategies/update_portfolios.py` |
+| Concurrency    | `True`        | `app/concurrency/review.py`           |
+| Mean Reversion | `True`        | `app/mean_reversion/config_types.py`  |
+| Range          | `True`        | `app/range/config_types.py`           |
+| MACD Next      | `False`       | `app/macd_next/config_types.py`       |
 
 ## Implementation Details
 
@@ -94,12 +94,14 @@ The REFRESH parameter plays a crucial role in the data flow between different co
 ```
 
 When REFRESH=True:
+
 - Fresh market data is downloaded from external sources
 - New strategy analysis is performed with the latest data
 - Portfolio updates incorporate the latest market conditions
 - Concurrency analysis uses the most current strategy relationships
 
 When REFRESH=False:
+
 - Cached market data is used if available and fresh enough
 - Previous strategy analysis results are reused
 - Portfolio updates may use cached strategy results
@@ -110,24 +112,28 @@ When REFRESH=False:
 ### Market Data Retrieval (`app/tools/get_data.py`)
 
 When `REFRESH` is `False`:
+
 1. Constructs a file path based on ticker and timeframe
 2. Checks if the file exists and is fresh (today for daily, current hour for hourly)
 3. If valid, loads the cached data
 4. If invalid or non-existent, downloads fresh data
 
 When `REFRESH` is `True`:
+
 - Always downloads fresh market data from Yahoo Finance
 - Saves the downloaded data to CSV for future use
 
 ### Portfolio Processing (`app/tools/portfolio/processing.py`)
 
 When `REFRESH` is `False`:
+
 1. Constructs a file path for cached portfolio analysis
 2. Checks if the file exists and was created today
 3. If valid, loads the cached portfolio analysis
 4. If invalid or non-existent, performs new parameter sensitivity analysis
 
 When `REFRESH` is `True`:
+
 - Always performs new parameter sensitivity analysis
 - Saves the results to CSV for future use
 
@@ -146,6 +152,7 @@ CONFIG: Config = {
 ```
 
 Key behaviors:
+
 - When executing strategies via `execute_strategy()`, the REFRESH parameter is passed to the underlying data retrieval and analysis functions
 - For synthetic pairs (when USE_SYNTHETIC=True), the REFRESH parameter controls whether to regenerate the synthetic data
 - The `run()` and `run_both_strategies()` functions pass the REFRESH parameter to ensure consistent behavior throughout the analysis pipeline
@@ -166,6 +173,7 @@ config = {
 ```
 
 Key behaviors:
+
 - The `run()` function passes the REFRESH parameter to the portfolio loader
 - When processing each ticker in the portfolio, the REFRESH parameter determines whether to use cached analysis or perform new analysis
 - For synthetic tickers (containing an underscore), the REFRESH parameter controls whether to regenerate the synthetic pair analysis
@@ -187,6 +195,7 @@ DEFAULT_CONFIG: ConcurrencyConfig = {
 ```
 
 Key behaviors:
+
 - The `run_analysis()` function validates that REFRESH is provided and is a boolean
 - The module uses REFRESH when loading portfolio data via the shared `load_portfolio()` function
 - When analyzing concurrent exposure between strategies, REFRESH controls whether to use cached relationship data
@@ -225,16 +234,19 @@ if not isinstance(config['REFRESH'], bool):
 The REFRESH parameter affects the data flow through the system in the following ways:
 
 1. **Market Data Layer**:
+
    - When REFRESH=False, the system checks for cached price data files
    - Files are considered "fresh" based on creation time (today for daily data, current hour for hourly data)
    - If fresh cached data exists, it's used; otherwise, new data is downloaded
 
 2. **Strategy Analysis Layer**:
+
    - When REFRESH=False, the system checks for cached strategy analysis files
    - If fresh cached analysis exists, it's used; otherwise, new analysis is performed
    - Analysis includes parameter sensitivity, signal generation, and performance metrics
 
 3. **Portfolio Management Layer**:
+
    - When REFRESH=False, the system may use cached portfolio files
    - Portfolio updates incorporate the latest strategy signals based on REFRESH setting
    - Performance metrics are recalculated based on the freshness of the underlying data
@@ -260,6 +272,7 @@ The REFRESH parameter affects the data flow through the system in the following 
 ### Debugging Tips
 
 1. Enable detailed logging to see which files are being checked and loaded:
+
    ```python
    log(f"Checking existing data from {file_path}.")
    log(f"Loading existing data from {file_path}.")
@@ -273,10 +286,10 @@ The REFRESH parameter affects the data flow through the system in the following 
 
 The REFRESH parameter has significant performance implications:
 
-| Setting | Pros | Cons |
-|---------|------|------|
-| REFRESH=True | - Always uses latest data<br>- Ensures consistency<br>- Avoids stale analysis | - Slower execution<br>- Higher API usage<br>- More disk I/O |
-| REFRESH=False | - Faster execution<br>- Reduced API calls<br>- Less computational overhead | - May use stale data<br>- Potential inconsistencies<br>- Requires careful cache management |
+| Setting       | Pros                                                                          | Cons                                                                                       |
+| ------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| REFRESH=True  | - Always uses latest data<br>- Ensures consistency<br>- Avoids stale analysis | - Slower execution<br>- Higher API usage<br>- More disk I/O                                |
+| REFRESH=False | - Faster execution<br>- Reduced API calls<br>- Less computational overhead    | - May use stale data<br>- Potential inconsistencies<br>- Requires careful cache management |
 
 For large-scale backtesting or when analyzing many tickers, setting REFRESH=False can significantly improve performance, especially when the underlying data hasn't changed.
 

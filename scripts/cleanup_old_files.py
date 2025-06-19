@@ -1,7 +1,20 @@
 #!/usr/bin/env python3
 """
-Cleanup script to remove CSV and JSON files older than 1 week.
-Excludes files in csv/strategies/ directory and patterns listed in .cleanupignore file.
+Cleanup script to remove CSV and JSON files older than specified age.
+
+IMPORTANT: This script can remove important analysis data if not configured properly.
+Always run with --dry-run first to see what would be deleted.
+
+Protected by default:
+- Root directory files (script only scans csv/ and json/ subdirectories)
+- Dot directories (.claude, .git, etc.) - completely skipped
+- csv/strategies/ directory (contains important strategy results)
+- All patterns in .cleanupignore file (price data, portfolios, etc.)
+
+Safe to clean:
+- csv/cache/ directory (automatically generated)
+- csv/experimental/temp/ directory (temporary files)
+- Files with temp/tmp in name (temporary files)
 """
 
 import argparse
@@ -61,9 +74,9 @@ def cleanup_old_files(
     # Load ignore patterns from .cleanupignore file
     ignore_patterns = load_ignore_patterns(base_path)
 
-    # Only scan csv/ and json/ directories
+    # Only scan csv/ and json/ directories (not root or other directories)
     target_dirs = [base_path / "csv", base_path / "json"]
-    target_dirs = [d for d in target_dirs if d.exists()]
+    target_dirs = [d for d in target_dirs if d.exists() and d.is_dir()]
 
     print(
         f"{'DRY RUN: ' if dry_run else ''}Cleaning up files older than {max_age_days} days..."
@@ -85,6 +98,10 @@ def cleanup_old_files(
                 current_path.is_relative_to(exclude_path)
                 for exclude_path in exclude_paths
             ):
+                continue
+
+            # Skip dot directories (like .claude, .git, etc.)
+            if any(part.startswith(".") for part in current_path.parts):
                 continue
 
             for file in files:
@@ -160,6 +177,16 @@ def main():
     if not Path(args.base_path).exists():
         print(f"Error: Base path {args.base_path} does not exist")
         sys.exit(1)
+
+    # Safety warning for non-dry-run mode
+    if not args.dry_run:
+        print("⚠️  WARNING: You are about to permanently delete files!")
+        print("⚠️  This action cannot be undone.")
+        print("⚠️  Consider running with --dry-run first to preview changes.")
+        response = input("\nContinue? (yes/no): ").lower().strip()
+        if response not in ["yes", "y"]:
+            print("Cleanup cancelled.")
+            sys.exit(0)
 
     try:
         removed_count, total_size = cleanup_old_files(

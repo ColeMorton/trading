@@ -5,25 +5,30 @@
 ## Test Coverage
 
 ### 1. API Health Tests ✓
+
 - Root endpoint (`/`) - **PASS**
 - Health endpoint (`/health`) - **PASS**
 
 ### 2. Synchronous MA Cross Analysis ✓
+
 - Single ticker analysis (AAPL) - **PASS**
 - Execution time: 5.17s
 - Results returned successfully
 - Note: 0 portfolios due to test data/filtering
 
 ### 3. MA Cross Endpoints ✓
+
 - Metrics endpoint (`/api/ma-cross/metrics`) - **PASS**
 - 8 metrics available
 - Invalid execution ID handling - **PASS** (returns 500 as expected)
 
 ### 4. CSV Export Functionality ✓
+
 - Portfolio export paths returned - **PASS**
 - File accessibility confirmed - **PASS**
 
 ### 5. Asynchronous Analysis with Progress Tracking ✓
+
 - Multi-ticker analysis (AAPL, MSFT) - **PASS**
 - Multiple strategy types (SMA, EMA) - **PASS**
 - SSE progress streaming - **PASS**
@@ -43,6 +48,7 @@
 ## Key Findings
 
 ### Working Features:
+
 - ✅ Full portfolio analysis via API
 - ✅ Synchronous and asynchronous execution
 - ✅ Progress tracking with detailed SSE updates
@@ -52,6 +58,7 @@
 - ✅ Performance optimization with caching
 
 ### Known Limitations:
+
 1. Portfolio count shows 0 analyzed but filters are applied correctly
 2. Some enum serialization inconsistencies in filenames
 3. Window values extracted from filtered results (summary rows)
@@ -66,6 +73,7 @@
 ## API Stability
 
 All endpoints tested are stable and responding correctly:
+
 - No timeouts observed
 - Proper error handling for invalid requests
 - Graceful degradation for missing data

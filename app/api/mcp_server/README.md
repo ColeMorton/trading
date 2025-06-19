@@ -7,6 +7,7 @@ Model Context Protocol (MCP) server that exposes Trading API functionality to AI
 This is the Phase 1 implementation providing core MCP infrastructure:
 
 ### ✅ Completed
+
 - Basic MCP server structure
 - Configuration management system
 - Logging infrastructure
@@ -14,6 +15,7 @@ This is the Phase 1 implementation providing core MCP infrastructure:
 - MCP server manifest file
 
 ### Directory Structure
+
 ```
 mcp_server/
 ├── __init__.py
@@ -30,6 +32,7 @@ mcp_server/
 ## Installation
 
 1. Install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -48,6 +51,7 @@ The MCP server can be configured using environment variables:
 ## Running the Server
 
 ### Option 1: Direct Python
+
 ```bash
 # From the project root
 python -m app.api.mcp_server.server
@@ -57,6 +61,7 @@ python -m mcp_server.server
 ```
 
 ### Option 2: Using MCP Client
+
 Configure your MCP client to use the manifest file at `mcp_server.json`.
 
 ## Testing

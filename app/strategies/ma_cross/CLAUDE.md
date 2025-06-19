@@ -3,15 +3,18 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 Strictly adhere to DRY, SOLID, KISS and YAGNI principles!
+
 # important-instruction-reminders
+
 Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
-NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.
 
 ## Commands
 
 ### Development Environment
+
 ```bash
 # Install dependencies (requires Poetry)
 poetry install
@@ -24,6 +27,7 @@ python <script_name.py>
 ```
 
 ### Common Workflows
+
 ```bash
 # 1. Generate and analyze portfolios
 python 1_get_portfolios.py
@@ -48,6 +52,7 @@ jupyter notebook 5_review.ipynb
 ## Architecture Overview
 
 ### Core Strategy System
+
 The app implements Moving Average (MA) crossover strategies with comprehensive backtesting:
 
 1. **Signal Generation**: MA crossovers (SMA/EMA) trigger buy/sell signals when fast MA crosses above/below slow MA
@@ -72,6 +77,7 @@ The app implements Moving Average (MA) crossover strategies with comprehensive b
 - **Configuration**: Strategy configs include ticker lists, MA types, window ranges, filters
 
 ### Data Flow
+
 1. Ticker lists (JSON) → Price data fetching (yfinance)
 2. Price data → Signal generation (MA crossovers)
 3. Signals → Portfolio backtesting (vectorbt)

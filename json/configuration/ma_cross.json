@@ -1,0 +1,30 @@
+{
+  "TICKER": ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"],
+  "WINDOWS": 50,
+  "SCANNER_LIST": "portfolio",
+  "BASE_DIR": ".",
+  "USE_SCANNER": false,
+  "USE_CURRENT": true,
+  "USE_BEST_PORTFOLIO": false,
+  "STRATEGY_TYPES": ["SMA", "EMA"],
+  "USE_HOURLY": false,
+  "USE_SYNTHETIC": false,
+  "REFRESH": true,
+  "DIRECTION": "Long",
+  "USE_YEARS": true,
+  "YEARS": 5,
+  "SHORT_WINDOW_MIN": 5,
+  "SHORT_WINDOW_MAX": 20,
+  "LONG_WINDOW_MIN": 20,
+  "LONG_WINDOW_MAX": 50,
+  "STEP": 1,
+  "MINIMUMS": {
+    "TRADES": 10,
+    "WIN_RATE": 0.4,
+    "EXPECTANCY_PER_TRADE": 0.01,
+    "PROFIT_FACTOR": 1.1,
+    "SCORE": 0.0,
+    "SORTINO_RATIO": 0.5,
+    "BEATS_BNH": 0.0
+  }
+}

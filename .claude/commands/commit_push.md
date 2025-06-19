@@ -13,6 +13,7 @@ Generate a meaningful commit title, create the commit, and push to remote.
 ## Usage
 
 This command will:
+
 - Automatically stage ALL changed files using `git add -A` at the beginning
 - Generate an appropriate commit message based on the changes
 - Create the commit with Claude Code attribution

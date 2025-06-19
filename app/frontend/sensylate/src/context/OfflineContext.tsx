@@ -1,4 +1,10 @@
-import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  ReactNode,
+} from 'react';
 
 interface OfflineContextType {
   isOnline: boolean;
@@ -7,7 +13,9 @@ interface OfflineContextType {
 
 const OfflineContext = createContext<OfflineContextType | undefined>(undefined);
 
-export const OfflineProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const OfflineProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
@@ -34,7 +42,7 @@ export const OfflineProvider: React.FC<{ children: ReactNode }> = ({ children })
     <OfflineContext.Provider
       value={{
         isOnline,
-        lastUpdated
+        lastUpdated,
       }}
     >
       {children}

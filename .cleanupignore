@@ -2,14 +2,82 @@
 # Files and directories listed here will be excluded from automatic cleanup
 # One pattern per line, supports basic glob patterns
 
-# Specific files to preserve
-csv/Metric Types.csv
+# ================================
+# CRITICAL DATA - NEVER DELETE
+# ================================
 
-# Strategy files (already excluded by default)
+# Price data files - fundamental market data
+csv/price_data/
+
+# Portfolio analysis results - strategy outputs
+csv/portfolios/
+csv/portfolios_best/
+csv/portfolios_filtered/
+
+# Trade history exports - important analysis data
+json/trade_history/
+
+# Monte Carlo simulation results
+csv/monte_carlo/
+json/monte_carlo/
+
+# Portfolio optimization results
+json/portfolio_optimization/
+json/portfolios/
+
+# Strategy analysis results
+csv/ma_cross/
+csv/macd/
+csv/macd_cross/
+csv/mean_reversion/
+csv/mean_reversion_rsi/
+csv/range/
+
+# Configuration and symbol lists
+json/configuration/
+json/symbol_lists/
+json/ticker_lists/
+
+# Concurrency analysis results
+json/concurrency/
+
+# Important standalone files
+csv/Metric Types.csv
+correlation_analysis.html
+
+# Root-level files (protected by design - script only scans csv/ and json/ dirs)
+*.json
+*.csv
+*.html
+*.md
+*.py
+*.lock
+*.toml
+
+# ================================
+# STRATEGY FILES (already excluded by default)
+# ================================
 csv/strategies/
 
-# Add other files/patterns here as needed
-# Example patterns:
-# csv/important_*.csv
-# json/config/
-# csv/**/permanent_data.csv
+# ================================
+# TEMPORARY/CACHE FILES - OK TO DELETE
+# ================================
+# Cache files older than 7 days can be cleaned
+cache/
+experimental/temp/
+
+# ================================
+# PATTERNS FOR TEMPORARY FILES
+# ================================
+# Files with "temp" in name older than 1 day
+*temp*
+*tmp*
+*.temp
+*.tmp
+
+# Test results that are regenerated
+test_results.json
+final_test_results.json
+
+# Log files older than 3 days
+*.log

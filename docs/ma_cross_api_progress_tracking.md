@@ -9,12 +9,14 @@ This document describes the progress tracking implementation for the MA Cross AP
 ### Progress Tracking Components
 
 1. **ProgressTracker Class** (`app/tools/progress_tracking.py`)
+
    - Tracks operation phases, steps, and messages
    - Calculates progress percentage and elapsed time
    - Supports callback functions for real-time updates
    - Rate-limits updates to prevent excessive messaging
 
 2. **Progress Callback Integration**
+
    - `create_progress_callback()` creates callbacks that update task status
    - Callbacks update the global `task_status` dictionary
    - SSE endpoints stream these updates to clients
@@ -60,7 +62,7 @@ async with httpx.AsyncClient() as client:
 ## Progress Phases
 
 1. **Initialization**: Strategy type setup
-2. **{Strategy}_analysis**: Processing each strategy type (SMA, EMA)
+2. **{Strategy}\_analysis**: Processing each strategy type (SMA, EMA)
 3. **Portfolio Analysis**: Analyzing portfolios for each ticker
 4. **Filtering**: Applying portfolio filters
 5. **Export**: Exporting results to CSV

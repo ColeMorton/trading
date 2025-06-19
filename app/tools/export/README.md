@@ -94,12 +94,14 @@ The system provides adapters for existing export functions:
 ## Testing
 
 Comprehensive test coverage includes:
+
 - Unit tests for each component
 - Integration tests with existing systems
 - Real file I/O tests
 - Backward compatibility verification
 
 Run tests:
+
 ```bash
 poetry run pytest tests/test_export_manager.py tests/test_export_integration.py -v
 ```

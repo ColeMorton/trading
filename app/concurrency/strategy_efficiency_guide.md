@@ -92,6 +92,7 @@ diversification = 1 - correlation
 ```
 
 This formula transforms correlation into a diversification metric where:
+
 - Higher values (closer to 1) indicate better diversification
 - Lower values (closer to 0) indicate poor diversification
 
@@ -116,6 +117,7 @@ This formula transforms correlation into a diversification metric where:
 To measure and improve your strategy diversification:
 
 1. **Calculate the diversification matrix**:
+
    ```python
    diversification_matrix = 1 - abs(correlation_matrix)
    ```
@@ -124,6 +126,7 @@ To measure and improve your strategy diversification:
    Look for values below 0.3, which indicate poor diversification
 
 3. **Improve diversification**:
+
    - Add strategies with different logic
    - Modify existing strategies to reduce correlation
    - Adjust entry/exit criteria to create more independence
@@ -134,10 +137,12 @@ To measure and improve your strategy diversification:
 ### Case Study: Diversification in Action
 
 Consider two strategies:
+
 - Strategy A: Trend-following on daily timeframe
 - Strategy B: Mean-reversion on hourly timeframe
 
 These strategies often have low correlation because they:
+
 - Trade on different signals
 - Have different holding periods
 - Perform well in different market conditions
@@ -163,6 +168,7 @@ independence = calculate_independence_factor(exclusive_ratio, concurrent_ratio, 
 ```
 
 The implementation uses a sophisticated formula that:
+
 1. Calculates the proportion of active periods that are exclusive
 2. Calculates the proportion of active periods that are concurrent
 3. Derives independence as a function of these proportions
@@ -181,11 +187,13 @@ High independence between strategies provides several benefits:
 To measure and improve strategy independence:
 
 1. **Calculate activity periods**:
+
    - Exclusive periods (only one strategy active)
    - Concurrent periods (multiple strategies active)
    - Inactive periods (no strategies active)
 
 2. **Calculate ratios**:
+
    ```python
    exclusive_ratio = exclusive_periods / total_periods
    concurrent_ratio = concurrent_periods / total_periods
@@ -238,6 +246,7 @@ While high activity is generally desirable, there's a trade-off with selectivity
 - **Low activity, high selectivity**: Fewer trades, potentially higher quality
 
 The optimal balance depends on:
+
 - Strategy type (trend-following vs. mean-reversion)
 - Market conditions
 - Transaction costs
@@ -248,15 +257,18 @@ The optimal balance depends on:
 To optimize your strategy activity:
 
 1. **Measure baseline activity**:
+
    ```python
    activity_ratio = active_periods / total_periods
    ```
 
 2. **Analyze inactive periods**:
+
    - Are there specific market conditions when all strategies are inactive?
    - Are there long stretches of inactivity?
 
 3. **Adjust filters and parameters**:
+
    - Loosen overly restrictive filters
    - Add complementary strategies that are active in different conditions
    - Consider strategies with different timeframes
@@ -296,6 +308,7 @@ portfolio_efficiency = total_weighted_efficiency
 The implementation calculates efficiency at two levels:
 
 1. **Strategy-level efficiency**:
+
    - Base calculation: How each strategy works structurally with others
    - Risk-adjusted: Combines base efficiency with strategy's performance metrics
 
@@ -319,6 +332,7 @@ Efficiency scores serve several purposes:
 To calculate and use efficiency scores:
 
 1. **Calculate individual components**:
+
    ```python
    diversification = 1 - correlation
    independence = calculate_independence_factor(exclusive_ratio, concurrent_ratio, inactive_ratio)
@@ -327,11 +341,13 @@ To calculate and use efficiency scores:
    ```
 
 2. **Calculate efficiency score**:
+
    ```python
    efficiency = diversification * adjusted_independence * activity
    ```
 
 3. **Use scores for allocation**:
+
    - Higher efficiency scores warrant higher allocations
    - Adjust allocations based on efficiency, expectancy, and risk
 
@@ -344,15 +360,19 @@ To calculate and use efficiency scores:
 The implementation includes several advanced concepts that transform the base efficiency into practical allocation decisions:
 
 1. **Weighted efficiency**: This is how base efficiency is combined with performance metrics
+
    ```python
    weighted_eff = base_efficiency * expectancy * normalized_allocation * risk_factor
    ```
+
    This formula shows that while base efficiency measures structural compatibility, the final allocation decisions incorporate both structure and performance.
 
 2. **Risk-adjusted efficiency**: Strategies with lower risk contributions are favored
+
    ```python
    risk_factor = 1 - risk_contribution
    ```
+
    This ensures that strategies contributing less to overall portfolio risk receive higher allocations.
 
 3. **Ratio-based allocation**: Ensuring balanced allocations across strategies to prevent excessive concentration in any single strategy.
@@ -436,6 +456,7 @@ Strategy efficiency is a multifaceted concept that combines correlation, diversi
 2. Then incorporating performance metrics to create risk-adjusted efficiency scores
 
 This approach allows traders to:
+
 - Understand the structural compatibility of strategies independent of their performance
 - Make allocation decisions that balance both structural efficiency and expected returns
 - Create more robust, balanced portfolios that perform well across different market conditions
@@ -455,6 +476,7 @@ Strategy IDs provide a standardized way to uniquely identify trading strategies 
 ```
 
 For example:
+
 - `BTC-USD_SMA_80_85_0`: Bitcoin SMA strategy with 80/85 windows and no signal window
 - `AAPL_EMA_19_21_0`: Apple EMA strategy with 19/21 windows
 - `MSTR_MACD_12_26_9`: MicroStrategy MACD strategy with 12/26/9 parameters

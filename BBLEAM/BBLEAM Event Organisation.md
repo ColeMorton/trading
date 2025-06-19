@@ -43,10 +43,11 @@ The pre-sale process operates through carefully designed bonding windows—struc
 #### Bonding Windows:
 
 **Milestone-Based Releases**
-   - New bonding opportunities unlocked as project reaches development milestones
-   - Creates natural marketing beats and renewed attention
-   - Allows price adjustment based on demonstrated progress
-   - Rewards strongest believers who participate before validation
+
+- New bonding opportunities unlocked as project reaches development milestones
+- Creates natural marketing beats and renewed attention
+- Allows price adjustment based on demonstrated progress
+- Rewards strongest believers who participate before validation
 
 ---
 
@@ -997,18 +998,23 @@ Each pre-sale cycle generates valuable insights for continuous enhancement:
 The BBLEAM platform's NFT pre-sale crowdfunding mechanism represents a fundamental reimagining of how events are financed, organized, and experienced. By fusing Bitcoin's economic foundation with the cultural dimensions of real-world gatherings, the system creates unprecedented alignment between all stakeholders while delivering tangible benefits to each:
 
 ### For Alchemists (Event Creators)
+
 Pre-sales transform the financial dynamics of event production by providing upfront capital, validating demand before full resource commitment, and establishing a direct economic relationship with attendees that extends beyond the event itself. This model shifts the focus from ticket sales to community building, where early supporters become invested partners in bringing creative visions to life.
 
 ### For Attendees & NFT Purchasers
+
 Unlike traditional ticketing, which represents a pure expense with no residual value, Bitcoin-bonded NFTs offer a multi-dimensional value proposition combining event access, community membership, digital collectibility, and intrinsic financial worth through BTC backing. This fundamentally alters the decision calculus around event participation, making it both an experience and an investment.
 
 ### For Partners & Sponsors
+
 The pre-sale framework provides unprecedented transparency around audience composition, engagement levels, and financial viability—reducing risk while creating new possibilities for meaningful brand integration. The blockchain-based infrastructure enables novel promotional mechanics and verifiable performance metrics that strengthen the value proposition for sponsorship.
 
 ### For the BBLEAM Platform
+
 The system establishes a self-reinforcing ecosystem where each successful event strengthens network effects, enriches platform data, and contributes to a growing treasury of bonded Bitcoin. The multi-layered revenue model—combining transaction fees, marketplace activity, DeFi integration, and professional services—creates sustainable economics with natural scaling.
 
 ### The Future of Event Funding
+
 As this model matures, it has the potential to fundamentally reshape the events industry by democratizing access to capital, reducing financial risk, strengthening communities, and creating more meaningful connections between creators and participants. The fusion of Bitcoin's economic security with the emotional and cultural dimensions of shared experiences represents a uniquely powerful application of blockchain technology—one that delivers tangible value in both digital and physical realms.
 
 By implementing this comprehensive pre-sale framework, the BBLEAM platform establishes itself as the pioneer of a new paradigm—where memorable moments are not just attended and forgotten, but collectively funded, experienced, and permanently preserved through Bitcoin-backed digital artifacts that maintain their value long after the event concludes.

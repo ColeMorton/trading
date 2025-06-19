@@ -13,7 +13,15 @@ import { AnalysisResult } from '../../types';
 
 // Mock Icon component
 jest.mock('../Icon', () => {
-  return function MockIcon({ icon, size, className }: { icon: string; size?: string; className?: string }) {
+  return function MockIcon({
+    icon,
+    size,
+    className,
+  }: {
+    icon: string;
+    size?: string;
+    className?: string;
+  }) {
     return (
       <span
         className={`mock-icon ${className || ''}`}
@@ -157,7 +165,9 @@ describe('ResultsTable metric_type handling', () => {
       expect(screen.getByText('Most Total Return [%]')).toBeInTheDocument();
 
       // Should have badge styling classes
-      const badges = Array.from(document.querySelectorAll('.badge.bg-primary.text-white'));
+      const badges = Array.from(
+        document.querySelectorAll('.badge.bg-primary.text-white')
+      );
       expect(badges).toHaveLength(2);
     });
 
@@ -180,13 +190,17 @@ describe('ResultsTable metric_type handling', () => {
       render(<ResultsTable results={[sampleResultWithMetricType]} />);
 
       let expandButton = screen.getByTitle('Expand details');
-      expect(document.querySelector('[data-icon="chevron-right"]')).toBeInTheDocument();
+      expect(
+        document.querySelector('[data-icon="chevron-right"]')
+      ).toBeInTheDocument();
 
       // Click to expand
       fireEvent.click(expandButton);
 
       expandButton = screen.getByTitle('Collapse details');
-      expect(document.querySelector('[data-icon="chevron-down"]')).toBeInTheDocument();
+      expect(
+        document.querySelector('[data-icon="chevron-down"]')
+      ).toBeInTheDocument();
     });
   });
 
@@ -205,7 +219,9 @@ describe('ResultsTable metric_type handling', () => {
       expect(screen.getByText('Metric Type:')).toBeInTheDocument();
       expect(screen.getByText('Most Sharpe Ratio')).toBeInTheDocument();
 
-      const badges = Array.from(document.querySelectorAll('.badge.bg-primary.text-white'));
+      const badges = Array.from(
+        document.querySelectorAll('.badge.bg-primary.text-white')
+      );
       expect(badges).toHaveLength(1);
     });
 
@@ -228,7 +244,9 @@ describe('ResultsTable metric_type handling', () => {
       expect(screen.getByText('Most Total Return [%]')).toBeInTheDocument();
       expect(screen.getByText('Median Total Trades')).toBeInTheDocument();
 
-      const badges = Array.from(document.querySelectorAll('.badge.bg-primary.text-white'));
+      const badges = Array.from(
+        document.querySelectorAll('.badge.bg-primary.text-white')
+      );
       expect(badges).toHaveLength(5);
     });
 
@@ -310,7 +328,9 @@ describe('ResultsTable metric_type handling', () => {
       expect(screen.getByText('Most Sharpe Ratio')).toBeInTheDocument();
       expect(screen.getByText('Most Total Return [%]')).toBeInTheDocument();
 
-      const badges = Array.from(document.querySelectorAll('.badge.bg-primary.text-white'));
+      const badges = Array.from(
+        document.querySelectorAll('.badge.bg-primary.text-white')
+      );
       expect(badges).toHaveLength(2); // Should filter out empty values
     });
   });
@@ -460,5 +480,4 @@ describe('ResultsTable metric_type handling', () => {
       });
     });
   });
-
 });

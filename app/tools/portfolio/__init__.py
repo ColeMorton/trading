@@ -6,6 +6,7 @@ This package provides tools for portfolio management, including:
 - Calculating portfolio metrics
 - Selecting optimal portfolios
 - Managing allocation percentages
+- Position sizing schema extensions and integration
 """
 
 # Import allocation utility functions
@@ -39,6 +40,16 @@ from app.tools.portfolio.loader import (
     load_portfolio_from_json,
 )
 from app.tools.portfolio.paths import get_project_root, resolve_portfolio_path
+from app.tools.portfolio.position_sizing_integration import (
+    PositionSizingPortfolioIntegration,
+)
+
+# Import position sizing extensions
+from app.tools.portfolio.position_sizing_schema_extension import (
+    PositionSizingPortfolioRow,
+    PositionSizingSchema,
+    PositionSizingSchemaValidator,
+)
 
 # Import schema detection functions
 from app.tools.portfolio.schema_detection import (
@@ -94,4 +105,9 @@ __all__ = [
     "ensure_allocation_sum_100_percent",
     "calculate_position_sizes",
     "get_allocation_summary",
+    # Position sizing extensions
+    "PositionSizingSchema",
+    "PositionSizingSchemaValidator",
+    "PositionSizingPortfolioRow",
+    "PositionSizingPortfolioIntegration",
 ]

@@ -167,45 +167,53 @@ And right now, it's lining up with:
 ## Hook Variations
 
 **Performance-Focused Hooks:**
+
 - "📈 [Strategy] just delivered a total return of **[X]%** over [X] decades."
-- "📈 This $[TICKER] strategy turned $1K into over **$[X]** with just a [X]% win rate."
+- "📈 This $[TICKER] strategy turned $1K into over **$[X]\*\* with just a [X]% win rate."
 - "📈 A rare long signal just triggered on $[TICKER] using a dual [SMA/EMA] ([short]/[long]) cross strategy."
 
 **Signal-Focused Hooks:**
+
 - "📈 $[TICKER] dual [SMA/EMA] cross ([short]/[long]) strategy delivers a compelling edge and an **entry signal flashed today!**"
 - "📈 $[TICKER] just fired off a technical long entry from a dual [SMA/EMA] ([short]/[long]) cross strategy right as [technical context]."
 
 **Context-Focused Hooks:**
+
 - "📈 [Key stat or achievement] just triggered on $[TICKER] using a dual [SMA/EMA] ([short]/[long]) cross strategy. After [X] years of backtested data, here's what we found..."
 
 ## Key Variable Fields
 
 **Strategy Metrics:**
+
 - [short]/[long] - Moving average periods
 - [SMA/EMA] - Type of moving average
-- [X] yrs - Backtesting timeframe
+- [x] yrs - Backtesting timeframe
 - [total trades] - Number of historical trades
 - [positions] - Total positions taken
 - Win rate, avg win/loss, reward/risk, expectancy, exposure percentages
 - Sharpe/Sortino ratios, beta, average length, trades/month, relative volatility
 
 **Performance Stats:**
+
 - Total return %, max drawdown %
 - Sharpe/Sortino ratios, beta vs asset
 - Trade frequency (trades/month), average duration (days)
 - Relative volatility %
 
 **Seasonal Data:**
+
 - Monthly win rates for current and upcoming months
 - Historical seasonal patterns
 
 **Current Context:**
+
 - Recent earnings data (revenue, EPS, margins)
 - Technical patterns
 - Fundamental catalysts
 - Macro/sector themes
 
 **Closing Elements:**
+
 - Big picture summary
 - Risk/suitability context
 - Call to action

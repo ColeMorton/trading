@@ -2,7 +2,7 @@
 
 ## **Introduction**
 
-At the heart of the BBLEAM platform—*BTC-Backed Live Experiences and Artisan Markets*—lies a profound fusion of culture, technology, and community. Built on Bitcoin's foundational strength, BBLEAM uses NFTs to anchor immersive real-world gatherings with digital scarcity and programmable access. These experiences—spanning workshops, live music, artisan showcases, spiritual rituals, and culinary events—are not mere transactions. They are alchemical processes, driven by visionaries known within the platform as **Alchemists**.
+At the heart of the BBLEAM platform—_BTC-Backed Live Experiences and Artisan Markets_—lies a profound fusion of culture, technology, and community. Built on Bitcoin's foundational strength, BBLEAM uses NFTs to anchor immersive real-world gatherings with digital scarcity and programmable access. These experiences—spanning workshops, live music, artisan showcases, spiritual rituals, and culinary events—are not mere transactions. They are alchemical processes, driven by visionaries known within the platform as **Alchemists**.
 
 The Alchemist is not just a creator, performer, or vendor. They are a transformational force. They forge meaning from raw materials—time, space, culture, intention—and infuse their offerings with value, emotion, and symbolic depth. This document explores why the Alchemist is the most fitting and potent archetype to represent the initiators of BBLEAM experiences, examining their role from historical, symbolic, strategic, and cultural lenses.
 
@@ -98,7 +98,7 @@ The Alchemist is an identity that translates across dimensions:
 
 The archetype of the Alchemist is already embedded in global consciousness:
 
-- *Paulo Coelho’s The Alchemist* popularized the pursuit of personal legend.
+- _Paulo Coelho’s The Alchemist_ popularized the pursuit of personal legend.
 - RPG games, fantasy media, and anime use Alchemists as class archetypes known for wisdom, creation, and depth.
 - The hip-hop artist “The Alchemist” represents transformation of sound into cultural resonance.
 
@@ -110,7 +110,7 @@ This makes the term simultaneously mystical and accessible—ideal for BBLEAM’
 
 The Alchemist is more than a label. It is a philosophical statement. By choosing this term, BBLEAM affirms its role not just as a platform for events and assets, but as a crucible for cultural alchemy. In this crucible, creators become catalysts, Bitcoin becomes a medium of meaning, and attendees become participants in a living ritual.
 
-In the age of programmable experiences, scarcity-backed identity, and gamified community, the Alchemist is BBLEAM’s most sacred figure. They do not merely create—they *transmute*. They do not just host—they *initiate*. And through every act, they leave behind more than NFTs—they leave **artifacts of collective memory**.
+In the age of programmable experiences, scarcity-backed identity, and gamified community, the Alchemist is BBLEAM’s most sacred figure. They do not merely create—they _transmute_. They do not just host—they _initiate_. And through every act, they leave behind more than NFTs—they leave **artifacts of collective memory**.
 
 To be an Alchemist in BBLEAM is to craft reality itself.
 

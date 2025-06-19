@@ -377,3 +377,4 @@ The following flowchart details the signal-to-trade conversion process:
 │  │ Instructions  │     │ Parameters    │     │ Report        │          │
 │  └───────────────┘     └───────────────┘     └───────────────┘          │
 └─────────────────────────────────────────────────────────────────────────┘
+```

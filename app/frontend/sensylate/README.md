@@ -44,12 +44,14 @@ http://127.0.0.1:8000/viewer
 Sensylate uses Webpack for bundling and Tailwind CSS for styling. To set up the development environment:
 
 1. Install dependencies:
+
    ```
    cd app/sensylate
    npm install
    ```
 
 2. Start the Webpack development server:
+
    ```
    npm run start
    ```
@@ -58,6 +60,7 @@ Sensylate uses Webpack for bundling and Tailwind CSS for styling. To set up the 
    ```
    python -m app.api.run --reload
    ```
+
 ### Development and Production Modes
 
 The application supports both development and production modes:

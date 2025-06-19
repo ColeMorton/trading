@@ -85,12 +85,15 @@ summary = get_allocation_summary(portfolio_data, log_function)
 The module handles these specific cases:
 
 1. **Case 1**: When Allocation [%] column exists (Extended Schema) yet no Allocation values exist in any row
+
    - The column is maintained with empty values
 
 2. **Case 2**: When Allocation [%] column does not exist (Base Schema)
+
    - The system adds the column with empty fields
 
 3. **Case 3**: When Allocation [%] column exists (Extended Schema) and some rows contain Allocation values while some do not
+
    - The empty Allocation [%] values are assigned equal values
    - The sum of all Allocations equals 100%
 
@@ -154,3 +157,4 @@ adjusted_data = ensure_allocation_sum_100_percent(normalized_data)
 # Calculate position sizes
 account_value = 100000.0
 position_data = calculate_position_sizes(adjusted_data, account_value)
+```

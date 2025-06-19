@@ -63,6 +63,7 @@ adjusted_returns, triggers = apply_stop_loss_to_returns(returns, signals, 0.05, 
 ```
 
 This function simulates the effect of a stop loss by:
+
 1. Tracking cumulative returns for each position
 2. Triggering a stop loss when cumulative returns fall below the stop loss threshold
 3. Adjusting returns at the trigger point to reflect the stop loss
@@ -76,6 +77,7 @@ metrics = calculate_stop_loss_adjusted_metrics(returns, signals, 0.05, log)
 ```
 
 This function calculates:
+
 - Raw metrics (without stop loss)
 - Adjusted metrics (with stop loss)
 - Impact metrics (difference between raw and adjusted)

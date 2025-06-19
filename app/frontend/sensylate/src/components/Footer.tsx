@@ -8,7 +8,8 @@ const Footer: React.FC = () => {
       <div className="container text-center">
         <span className="text-muted">
           <Icon icon={icons.copyright} className="me-1" />
-          Sensylate 2025 - Sensitivity Analysis meets Strategy Portfolio Management
+          Sensylate 2025 - Sensitivity Analysis meets Strategy Portfolio
+          Management
         </span>
       </div>
     </footer>

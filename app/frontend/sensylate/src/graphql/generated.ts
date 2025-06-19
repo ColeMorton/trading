@@ -2,21 +2,34 @@ import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
-export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type Exact<T extends { [key: string]: unknown }> = {
+  [K in keyof T]: T[K];
+};
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]?: Maybe<T[SubKey]>;
+};
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]: Maybe<T[SubKey]>;
+};
+export type MakeEmpty<
+  T extends { [key: string]: unknown },
+  K extends keyof T,
+> = { [_ in K]?: never };
+export type Incremental<T> =
+  | T
+  | {
+      [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never;
+    };
 const defaultOptions = {} as const;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string; output: string; }
-  String: { input: string; output: string; }
-  Boolean: { input: boolean; output: boolean; }
-  Int: { input: number; output: number; }
-  Float: { input: number; output: number; }
-  DateTime: { input: string; output: string; }
-  JSON: { input: Record<string, any>; output: Record<string, any>; }
+  ID: { input: string; output: string };
+  String: { input: string; output: string };
+  Boolean: { input: boolean; output: boolean };
+  Int: { input: number; output: number };
+  Float: { input: number; output: number };
+  DateTime: { input: string; output: string };
+  JSON: { input: Record<string, any>; output: Record<string, any> };
 };
 
 export type AnalysisResult = {
@@ -49,7 +62,7 @@ export enum AssetClass {
   Etf = 'ETF',
   Forex = 'FOREX',
   Index = 'INDEX',
-  Stock = 'STOCK'
+  Stock = 'STOCK',
 }
 
 export type AsyncAnalysisResponse = {
@@ -104,7 +117,7 @@ export type BacktestResult = {
 export enum DirectionType {
   Both = 'BOTH',
   Long = 'LONG',
-  Short = 'SHORT'
+  Short = 'SHORT',
 }
 
 export type MaCrossAnalysisInput = {
@@ -142,7 +155,9 @@ export type MaCrossAnalysisResponse = {
   totalPortfoliosFiltered: Scalars['Int']['output'];
 };
 
-export type MaCrossAnalysisResponseAsyncAnalysisResponse = AsyncAnalysisResponse | MaCrossAnalysisResponse;
+export type MaCrossAnalysisResponseAsyncAnalysisResponse =
+  | AsyncAnalysisResponse
+  | MaCrossAnalysisResponse;
 
 export type MetricsFilter = {
   endDate?: InputMaybe<Scalars['DateTime']['input']>;
@@ -172,7 +187,6 @@ export type Mutation = {
   updateStrategyConfiguration?: Maybe<StrategyConfiguration>;
 };
 
-
 export type MutationAddStrategyToPortfolioArgs = {
   allocationPct: Scalars['Float']['input'];
   portfolioId: Scalars['ID']['input'];
@@ -180,69 +194,56 @@ export type MutationAddStrategyToPortfolioArgs = {
   strategyConfigId: Scalars['ID']['input'];
 };
 
-
 export type MutationCancelAnalysisArgs = {
   executionId: Scalars['ID']['input'];
 };
-
 
 export type MutationCreatePortfolioArgs = {
   input: PortfolioInput;
 };
 
-
 export type MutationCreateStrategyArgs = {
   input: StrategyInput;
 };
-
 
 export type MutationCreateStrategyConfigurationArgs = {
   input: StrategyConfigurationInput;
 };
 
-
 export type MutationDeletePortfolioArgs = {
   id: Scalars['ID']['input'];
 };
-
 
 export type MutationDeleteStrategyArgs = {
   id: Scalars['ID']['input'];
 };
 
-
 export type MutationDeleteStrategyConfigurationArgs = {
   id: Scalars['ID']['input'];
 };
-
 
 export type MutationExecuteMaCrossAnalysisArgs = {
   input: MaCrossAnalysisInput;
 };
 
-
 export type MutationGetAnalysisStatusArgs = {
   executionId: Scalars['ID']['input'];
 };
-
 
 export type MutationRemoveStrategyFromPortfolioArgs = {
   portfolioId: Scalars['ID']['input'];
   strategyConfigId: Scalars['ID']['input'];
 };
 
-
 export type MutationUpdatePortfolioArgs = {
   id: Scalars['ID']['input'];
   input: PortfolioInput;
 };
 
-
 export type MutationUpdateStrategyArgs = {
   id: Scalars['ID']['input'];
   input: StrategyInput;
 };
-
 
 export type MutationUpdateStrategyConfigurationArgs = {
   id: Scalars['ID']['input'];
@@ -324,7 +325,7 @@ export type PortfolioMetrics = {
 export enum PortfolioType {
   Best = 'BEST',
   Filtered = 'FILTERED',
-  Standard = 'STANDARD'
+  Standard = 'STANDARD',
 }
 
 export type PriceBar = {
@@ -360,50 +361,41 @@ export type Query = {
   tickers: Array<Ticker>;
 };
 
-
 export type QueryBacktestResultsArgs = {
   filter?: InputMaybe<MetricsFilter>;
   strategyConfigId?: InputMaybe<Scalars['ID']['input']>;
 };
 
-
 export type QueryPortfolioArgs = {
   id: Scalars['ID']['input'];
 };
-
 
 export type QueryPortfolioMetricsArgs = {
   filter?: InputMaybe<MetricsFilter>;
   portfolioId: Scalars['ID']['input'];
 };
 
-
 export type QueryPortfoliosArgs = {
   filter?: InputMaybe<PortfolioFilter>;
 };
-
 
 export type QueryPriceDataArgs = {
   filter?: InputMaybe<PriceDataFilter>;
   symbol: Scalars['String']['input'];
 };
 
-
 export type QuerySignalsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   strategyConfigId?: InputMaybe<Scalars['ID']['input']>;
 };
 
-
 export type QueryStrategiesArgs = {
   filter?: InputMaybe<StrategyFilter>;
 };
 
-
 export type QueryStrategyArgs = {
   id: Scalars['ID']['input'];
 };
-
 
 export type QueryStrategyConfigurationsArgs = {
   filter?: InputMaybe<StrategyFilter>;
@@ -411,11 +403,9 @@ export type QueryStrategyConfigurationsArgs = {
   tickerSymbol?: InputMaybe<Scalars['String']['input']>;
 };
 
-
 export type QueryTickerArgs = {
   symbol: Scalars['String']['input'];
 };
-
 
 export type QueryTickersArgs = {
   assetClass?: InputMaybe<Scalars['String']['input']>;
@@ -439,7 +429,7 @@ export type Signal = {
 export enum SignalType {
   Buy = 'BUY',
   Hold = 'HOLD',
-  Sell = 'SELL'
+  Sell = 'SELL',
 }
 
 export type Strategy = {
@@ -511,7 +501,7 @@ export enum StrategyType {
   MaCross = 'MA_CROSS',
   MeanReversion = 'MEAN_REVERSION',
   Range = 'RANGE',
-  Rsi = 'RSI'
+  Rsi = 'RSI',
 }
 
 export type Ticker = {
@@ -540,110 +530,225 @@ export enum TimeframeType {
   ThirtyMinutes = 'THIRTY_MINUTES',
   ThreeDays = 'THREE_DAYS',
   TwelveHours = 'TWELVE_HOURS',
-  TwoHours = 'TWO_HOURS'
+  TwoHours = 'TWO_HOURS',
 }
 
 export type ExecuteMaCrossAnalysisMutationVariables = Exact<{
   input: MaCrossAnalysisInput;
 }>;
 
-
-export type ExecuteMaCrossAnalysisMutation = { __typename?: 'Mutation', executeMaCrossAnalysis: { __typename?: 'AsyncAnalysisResponse', status: string, executionId: string, message: string, statusUrl: string, streamUrl: string, timestamp: string, estimatedTime?: number | null } | { __typename?: 'MACrossAnalysisResponse', status: string, requestId: string, timestamp: string, tickers: Array<string>, strategyTypes: Array<string>, totalPortfoliosAnalyzed: number, totalPortfoliosFiltered: number, executionTime: number, portfolios?: Array<{ __typename?: 'AnalysisResult', ticker: string, strategyType: string, shortWindow: number, longWindow: number, hasOpenTrade: boolean, hasSignalEntry: boolean, performance: { __typename?: 'PerformanceMetrics', totalReturn: number, sharpeRatio?: number | null, maxDrawdown?: number | null, winRate?: number | null, profitFactor?: number | null, expectancy?: number | null } }> | null } };
+export type ExecuteMaCrossAnalysisMutation = {
+  __typename?: 'Mutation';
+  executeMaCrossAnalysis:
+    | {
+        __typename?: 'AsyncAnalysisResponse';
+        status: string;
+        executionId: string;
+        message: string;
+        statusUrl: string;
+        streamUrl: string;
+        timestamp: string;
+        estimatedTime?: number | null;
+      }
+    | {
+        __typename?: 'MACrossAnalysisResponse';
+        status: string;
+        requestId: string;
+        timestamp: string;
+        tickers: Array<string>;
+        strategyTypes: Array<string>;
+        totalPortfoliosAnalyzed: number;
+        totalPortfoliosFiltered: number;
+        executionTime: number;
+        portfolios?: Array<{
+          __typename?: 'AnalysisResult';
+          ticker: string;
+          strategyType: string;
+          shortWindow: number;
+          longWindow: number;
+          hasOpenTrade: boolean;
+          hasSignalEntry: boolean;
+          performance: {
+            __typename?: 'PerformanceMetrics';
+            totalReturn: number;
+            sharpeRatio?: number | null;
+            maxDrawdown?: number | null;
+            winRate?: number | null;
+            profitFactor?: number | null;
+            expectancy?: number | null;
+          };
+        }> | null;
+      };
+};
 
 export type CreatePortfolioMutationVariables = Exact<{
   input: PortfolioInput;
 }>;
 
-
-export type CreatePortfolioMutation = { __typename?: 'Mutation', createPortfolio: { __typename?: 'Portfolio', id: string, name: string, type: PortfolioType, description?: string | null, parameters?: Record<string, any> | null, createdAt: string } };
+export type CreatePortfolioMutation = {
+  __typename?: 'Mutation';
+  createPortfolio: {
+    __typename?: 'Portfolio';
+    id: string;
+    name: string;
+    type: PortfolioType;
+    description?: string | null;
+    parameters?: Record<string, any> | null;
+    createdAt: string;
+  };
+};
 
 export type UpdatePortfolioMutationVariables = Exact<{
   id: Scalars['ID']['input'];
   input: PortfolioInput;
 }>;
 
-
-export type UpdatePortfolioMutation = { __typename?: 'Mutation', updatePortfolio?: { __typename?: 'Portfolio', id: string, name: string, type: PortfolioType, description?: string | null, parameters?: Record<string, any> | null, updatedAt: string } | null };
+export type UpdatePortfolioMutation = {
+  __typename?: 'Mutation';
+  updatePortfolio?: {
+    __typename?: 'Portfolio';
+    id: string;
+    name: string;
+    type: PortfolioType;
+    description?: string | null;
+    parameters?: Record<string, any> | null;
+    updatedAt: string;
+  } | null;
+};
 
 export type DeletePortfolioMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
-
-export type DeletePortfolioMutation = { __typename?: 'Mutation', deletePortfolio: boolean };
+export type DeletePortfolioMutation = {
+  __typename?: 'Mutation';
+  deletePortfolio: boolean;
+};
 
 export type GetFileListQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
-
-export type GetFileListQuery = { __typename?: 'Query', tickers: Array<{ __typename?: 'Ticker', id: string, symbol: string, name?: string | null, assetClass: AssetClass, exchange?: string | null }>, strategies: Array<{ __typename?: 'Strategy', id: string, name: string, type: StrategyType, description?: string | null, createdAt: string, updatedAt: string }> };
+export type GetFileListQuery = {
+  __typename?: 'Query';
+  tickers: Array<{
+    __typename?: 'Ticker';
+    id: string;
+    symbol: string;
+    name?: string | null;
+    assetClass: AssetClass;
+    exchange?: string | null;
+  }>;
+  strategies: Array<{
+    __typename?: 'Strategy';
+    id: string;
+    name: string;
+    type: StrategyType;
+    description?: string | null;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+};
 
 export type GetPortfoliosQueryVariables = Exact<{
   filter?: InputMaybe<PortfolioFilter>;
 }>;
 
-
-export type GetPortfoliosQuery = { __typename?: 'Query', portfolios: Array<{ __typename?: 'Portfolio', id: string, name: string, type: PortfolioType, description?: string | null, parameters?: Record<string, any> | null, createdAt: string, updatedAt: string }> };
+export type GetPortfoliosQuery = {
+  __typename?: 'Query';
+  portfolios: Array<{
+    __typename?: 'Portfolio';
+    id: string;
+    name: string;
+    type: PortfolioType;
+    description?: string | null;
+    parameters?: Record<string, any> | null;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+};
 
 export type GetPortfolioByIdQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
-
-export type GetPortfolioByIdQuery = { __typename?: 'Query', portfolio?: { __typename?: 'Portfolio', id: string, name: string, type: PortfolioType, description?: string | null, parameters?: Record<string, any> | null, createdAt: string, updatedAt: string } | null };
+export type GetPortfolioByIdQuery = {
+  __typename?: 'Query';
+  portfolio?: {
+    __typename?: 'Portfolio';
+    id: string;
+    name: string;
+    type: PortfolioType;
+    description?: string | null;
+    parameters?: Record<string, any> | null;
+    createdAt: string;
+    updatedAt: string;
+  } | null;
+};
 
 export type GetPriceDataQueryVariables = Exact<{
   symbol: Scalars['String']['input'];
   filter?: InputMaybe<PriceDataFilter>;
 }>;
 
-
-export type GetPriceDataQuery = { __typename?: 'Query', priceData: Array<{ __typename?: 'PriceBar', date: string, open: number, high: number, low: number, close: number, volume?: number | null }> };
-
+export type GetPriceDataQuery = {
+  __typename?: 'Query';
+  priceData: Array<{
+    __typename?: 'PriceBar';
+    date: string;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+    volume?: number | null;
+  }>;
+};
 
 export const ExecuteMaCrossAnalysisDocument = /*#__PURE__*/ gql`
-    mutation ExecuteMACrossAnalysis($input: MACrossAnalysisInput!) {
-  executeMaCrossAnalysis(input: $input) {
-    ... on MACrossAnalysisResponse {
-      status
-      requestId
-      timestamp
-      tickers
-      strategyTypes
-      totalPortfoliosAnalyzed
-      totalPortfoliosFiltered
-      executionTime
-      portfolios {
-        ticker
-        strategyType
-        shortWindow
-        longWindow
-        performance {
-          totalReturn
-          sharpeRatio
-          maxDrawdown
-          winRate
-          profitFactor
-          expectancy
+  mutation ExecuteMACrossAnalysis($input: MACrossAnalysisInput!) {
+    executeMaCrossAnalysis(input: $input) {
+      ... on MACrossAnalysisResponse {
+        status
+        requestId
+        timestamp
+        tickers
+        strategyTypes
+        totalPortfoliosAnalyzed
+        totalPortfoliosFiltered
+        executionTime
+        portfolios {
+          ticker
+          strategyType
+          shortWindow
+          longWindow
+          performance {
+            totalReturn
+            sharpeRatio
+            maxDrawdown
+            winRate
+            profitFactor
+            expectancy
+          }
+          hasOpenTrade
+          hasSignalEntry
         }
-        hasOpenTrade
-        hasSignalEntry
+      }
+      ... on AsyncAnalysisResponse {
+        status
+        executionId
+        message
+        statusUrl
+        streamUrl
+        timestamp
+        estimatedTime
       }
     }
-    ... on AsyncAnalysisResponse {
-      status
-      executionId
-      message
-      statusUrl
-      streamUrl
-      timestamp
-      estimatedTime
-    }
   }
-}
-    `;
-export type ExecuteMaCrossAnalysisMutationFn = Apollo.MutationFunction<ExecuteMaCrossAnalysisMutation, ExecuteMaCrossAnalysisMutationVariables>;
+`;
+export type ExecuteMaCrossAnalysisMutationFn = Apollo.MutationFunction<
+  ExecuteMaCrossAnalysisMutation,
+  ExecuteMaCrossAnalysisMutationVariables
+>;
 
 /**
  * __useExecuteMaCrossAnalysisMutation__
@@ -662,26 +767,43 @@ export type ExecuteMaCrossAnalysisMutationFn = Apollo.MutationFunction<ExecuteMa
  *   },
  * });
  */
-export function useExecuteMaCrossAnalysisMutation(baseOptions?: Apollo.MutationHookOptions<ExecuteMaCrossAnalysisMutation, ExecuteMaCrossAnalysisMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<ExecuteMaCrossAnalysisMutation, ExecuteMaCrossAnalysisMutationVariables>(ExecuteMaCrossAnalysisDocument, options);
-      }
-export type ExecuteMaCrossAnalysisMutationHookResult = ReturnType<typeof useExecuteMaCrossAnalysisMutation>;
-export type ExecuteMaCrossAnalysisMutationResult = Apollo.MutationResult<ExecuteMaCrossAnalysisMutation>;
-export type ExecuteMaCrossAnalysisMutationOptions = Apollo.BaseMutationOptions<ExecuteMaCrossAnalysisMutation, ExecuteMaCrossAnalysisMutationVariables>;
-export const CreatePortfolioDocument = /*#__PURE__*/ gql`
-    mutation CreatePortfolio($input: PortfolioInput!) {
-  createPortfolio(input: $input) {
-    id
-    name
-    type
-    description
-    parameters
-    createdAt
-  }
+export function useExecuteMaCrossAnalysisMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    ExecuteMaCrossAnalysisMutation,
+    ExecuteMaCrossAnalysisMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    ExecuteMaCrossAnalysisMutation,
+    ExecuteMaCrossAnalysisMutationVariables
+  >(ExecuteMaCrossAnalysisDocument, options);
 }
-    `;
-export type CreatePortfolioMutationFn = Apollo.MutationFunction<CreatePortfolioMutation, CreatePortfolioMutationVariables>;
+export type ExecuteMaCrossAnalysisMutationHookResult = ReturnType<
+  typeof useExecuteMaCrossAnalysisMutation
+>;
+export type ExecuteMaCrossAnalysisMutationResult =
+  Apollo.MutationResult<ExecuteMaCrossAnalysisMutation>;
+export type ExecuteMaCrossAnalysisMutationOptions = Apollo.BaseMutationOptions<
+  ExecuteMaCrossAnalysisMutation,
+  ExecuteMaCrossAnalysisMutationVariables
+>;
+export const CreatePortfolioDocument = /*#__PURE__*/ gql`
+  mutation CreatePortfolio($input: PortfolioInput!) {
+    createPortfolio(input: $input) {
+      id
+      name
+      type
+      description
+      parameters
+      createdAt
+    }
+  }
+`;
+export type CreatePortfolioMutationFn = Apollo.MutationFunction<
+  CreatePortfolioMutation,
+  CreatePortfolioMutationVariables
+>;
 
 /**
  * __useCreatePortfolioMutation__
@@ -700,26 +822,43 @@ export type CreatePortfolioMutationFn = Apollo.MutationFunction<CreatePortfolioM
  *   },
  * });
  */
-export function useCreatePortfolioMutation(baseOptions?: Apollo.MutationHookOptions<CreatePortfolioMutation, CreatePortfolioMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreatePortfolioMutation, CreatePortfolioMutationVariables>(CreatePortfolioDocument, options);
-      }
-export type CreatePortfolioMutationHookResult = ReturnType<typeof useCreatePortfolioMutation>;
-export type CreatePortfolioMutationResult = Apollo.MutationResult<CreatePortfolioMutation>;
-export type CreatePortfolioMutationOptions = Apollo.BaseMutationOptions<CreatePortfolioMutation, CreatePortfolioMutationVariables>;
-export const UpdatePortfolioDocument = /*#__PURE__*/ gql`
-    mutation UpdatePortfolio($id: ID!, $input: PortfolioInput!) {
-  updatePortfolio(id: $id, input: $input) {
-    id
-    name
-    type
-    description
-    parameters
-    updatedAt
-  }
+export function useCreatePortfolioMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    CreatePortfolioMutation,
+    CreatePortfolioMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    CreatePortfolioMutation,
+    CreatePortfolioMutationVariables
+  >(CreatePortfolioDocument, options);
 }
-    `;
-export type UpdatePortfolioMutationFn = Apollo.MutationFunction<UpdatePortfolioMutation, UpdatePortfolioMutationVariables>;
+export type CreatePortfolioMutationHookResult = ReturnType<
+  typeof useCreatePortfolioMutation
+>;
+export type CreatePortfolioMutationResult =
+  Apollo.MutationResult<CreatePortfolioMutation>;
+export type CreatePortfolioMutationOptions = Apollo.BaseMutationOptions<
+  CreatePortfolioMutation,
+  CreatePortfolioMutationVariables
+>;
+export const UpdatePortfolioDocument = /*#__PURE__*/ gql`
+  mutation UpdatePortfolio($id: ID!, $input: PortfolioInput!) {
+    updatePortfolio(id: $id, input: $input) {
+      id
+      name
+      type
+      description
+      parameters
+      updatedAt
+    }
+  }
+`;
+export type UpdatePortfolioMutationFn = Apollo.MutationFunction<
+  UpdatePortfolioMutation,
+  UpdatePortfolioMutationVariables
+>;
 
 /**
  * __useUpdatePortfolioMutation__
@@ -739,19 +878,36 @@ export type UpdatePortfolioMutationFn = Apollo.MutationFunction<UpdatePortfolioM
  *   },
  * });
  */
-export function useUpdatePortfolioMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePortfolioMutation, UpdatePortfolioMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdatePortfolioMutation, UpdatePortfolioMutationVariables>(UpdatePortfolioDocument, options);
-      }
-export type UpdatePortfolioMutationHookResult = ReturnType<typeof useUpdatePortfolioMutation>;
-export type UpdatePortfolioMutationResult = Apollo.MutationResult<UpdatePortfolioMutation>;
-export type UpdatePortfolioMutationOptions = Apollo.BaseMutationOptions<UpdatePortfolioMutation, UpdatePortfolioMutationVariables>;
-export const DeletePortfolioDocument = /*#__PURE__*/ gql`
-    mutation DeletePortfolio($id: ID!) {
-  deletePortfolio(id: $id)
+export function useUpdatePortfolioMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdatePortfolioMutation,
+    UpdatePortfolioMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdatePortfolioMutation,
+    UpdatePortfolioMutationVariables
+  >(UpdatePortfolioDocument, options);
 }
-    `;
-export type DeletePortfolioMutationFn = Apollo.MutationFunction<DeletePortfolioMutation, DeletePortfolioMutationVariables>;
+export type UpdatePortfolioMutationHookResult = ReturnType<
+  typeof useUpdatePortfolioMutation
+>;
+export type UpdatePortfolioMutationResult =
+  Apollo.MutationResult<UpdatePortfolioMutation>;
+export type UpdatePortfolioMutationOptions = Apollo.BaseMutationOptions<
+  UpdatePortfolioMutation,
+  UpdatePortfolioMutationVariables
+>;
+export const DeletePortfolioDocument = /*#__PURE__*/ gql`
+  mutation DeletePortfolio($id: ID!) {
+    deletePortfolio(id: $id)
+  }
+`;
+export type DeletePortfolioMutationFn = Apollo.MutationFunction<
+  DeletePortfolioMutation,
+  DeletePortfolioMutationVariables
+>;
 
 /**
  * __useDeletePortfolioMutation__
@@ -770,32 +926,46 @@ export type DeletePortfolioMutationFn = Apollo.MutationFunction<DeletePortfolioM
  *   },
  * });
  */
-export function useDeletePortfolioMutation(baseOptions?: Apollo.MutationHookOptions<DeletePortfolioMutation, DeletePortfolioMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeletePortfolioMutation, DeletePortfolioMutationVariables>(DeletePortfolioDocument, options);
-      }
-export type DeletePortfolioMutationHookResult = ReturnType<typeof useDeletePortfolioMutation>;
-export type DeletePortfolioMutationResult = Apollo.MutationResult<DeletePortfolioMutation>;
-export type DeletePortfolioMutationOptions = Apollo.BaseMutationOptions<DeletePortfolioMutation, DeletePortfolioMutationVariables>;
-export const GetFileListDocument = /*#__PURE__*/ gql`
-    query GetFileList($limit: Int) {
-  tickers(limit: $limit) {
-    id
-    symbol
-    name
-    assetClass
-    exchange
-  }
-  strategies {
-    id
-    name
-    type
-    description
-    createdAt
-    updatedAt
-  }
+export function useDeletePortfolioMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    DeletePortfolioMutation,
+    DeletePortfolioMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    DeletePortfolioMutation,
+    DeletePortfolioMutationVariables
+  >(DeletePortfolioDocument, options);
 }
-    `;
+export type DeletePortfolioMutationHookResult = ReturnType<
+  typeof useDeletePortfolioMutation
+>;
+export type DeletePortfolioMutationResult =
+  Apollo.MutationResult<DeletePortfolioMutation>;
+export type DeletePortfolioMutationOptions = Apollo.BaseMutationOptions<
+  DeletePortfolioMutation,
+  DeletePortfolioMutationVariables
+>;
+export const GetFileListDocument = /*#__PURE__*/ gql`
+  query GetFileList($limit: Int) {
+    tickers(limit: $limit) {
+      id
+      symbol
+      name
+      assetClass
+      exchange
+    }
+    strategies {
+      id
+      name
+      type
+      description
+      createdAt
+      updatedAt
+    }
+  }
+`;
 
 /**
  * __useGetFileListQuery__
@@ -813,38 +983,74 @@ export const GetFileListDocument = /*#__PURE__*/ gql`
  *   },
  * });
  */
-export function useGetFileListQuery(baseOptions?: Apollo.QueryHookOptions<GetFileListQuery, GetFileListQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetFileListQuery, GetFileListQueryVariables>(GetFileListDocument, options);
-      }
-export function useGetFileListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetFileListQuery, GetFileListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetFileListQuery, GetFileListQueryVariables>(GetFileListDocument, options);
-        }
-export function useGetFileListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetFileListQuery, GetFileListQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetFileListQuery, GetFileListQueryVariables>(GetFileListDocument, options);
-        }
-export type GetFileListQueryHookResult = ReturnType<typeof useGetFileListQuery>;
-export type GetFileListLazyQueryHookResult = ReturnType<typeof useGetFileListLazyQuery>;
-export type GetFileListSuspenseQueryHookResult = ReturnType<typeof useGetFileListSuspenseQuery>;
-export type GetFileListQueryResult = Apollo.QueryResult<GetFileListQuery, GetFileListQueryVariables>;
-export function refetchGetFileListQuery(variables?: GetFileListQueryVariables) {
-      return { query: GetFileListDocument, variables: variables }
-    }
-export const GetPortfoliosDocument = /*#__PURE__*/ gql`
-    query GetPortfolios($filter: PortfolioFilter) {
-  portfolios(filter: $filter) {
-    id
-    name
-    type
-    description
-    parameters
-    createdAt
-    updatedAt
-  }
+export function useGetFileListQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetFileListQuery,
+    GetFileListQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetFileListQuery, GetFileListQueryVariables>(
+    GetFileListDocument,
+    options
+  );
 }
-    `;
+export function useGetFileListLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetFileListQuery,
+    GetFileListQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetFileListQuery, GetFileListQueryVariables>(
+    GetFileListDocument,
+    options
+  );
+}
+export function useGetFileListSuspenseQuery(
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        GetFileListQuery,
+        GetFileListQueryVariables
+      >
+) {
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<GetFileListQuery, GetFileListQueryVariables>(
+    GetFileListDocument,
+    options
+  );
+}
+export type GetFileListQueryHookResult = ReturnType<typeof useGetFileListQuery>;
+export type GetFileListLazyQueryHookResult = ReturnType<
+  typeof useGetFileListLazyQuery
+>;
+export type GetFileListSuspenseQueryHookResult = ReturnType<
+  typeof useGetFileListSuspenseQuery
+>;
+export type GetFileListQueryResult = Apollo.QueryResult<
+  GetFileListQuery,
+  GetFileListQueryVariables
+>;
+export function refetchGetFileListQuery(variables?: GetFileListQueryVariables) {
+  return { query: GetFileListDocument, variables: variables };
+}
+export const GetPortfoliosDocument = /*#__PURE__*/ gql`
+  query GetPortfolios($filter: PortfolioFilter) {
+    portfolios(filter: $filter) {
+      id
+      name
+      type
+      description
+      parameters
+      createdAt
+      updatedAt
+    }
+  }
+`;
 
 /**
  * __useGetPortfoliosQuery__
@@ -862,38 +1068,78 @@ export const GetPortfoliosDocument = /*#__PURE__*/ gql`
  *   },
  * });
  */
-export function useGetPortfoliosQuery(baseOptions?: Apollo.QueryHookOptions<GetPortfoliosQuery, GetPortfoliosQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetPortfoliosQuery, GetPortfoliosQueryVariables>(GetPortfoliosDocument, options);
-      }
-export function useGetPortfoliosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPortfoliosQuery, GetPortfoliosQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetPortfoliosQuery, GetPortfoliosQueryVariables>(GetPortfoliosDocument, options);
-        }
-export function useGetPortfoliosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortfoliosQuery, GetPortfoliosQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetPortfoliosQuery, GetPortfoliosQueryVariables>(GetPortfoliosDocument, options);
-        }
-export type GetPortfoliosQueryHookResult = ReturnType<typeof useGetPortfoliosQuery>;
-export type GetPortfoliosLazyQueryHookResult = ReturnType<typeof useGetPortfoliosLazyQuery>;
-export type GetPortfoliosSuspenseQueryHookResult = ReturnType<typeof useGetPortfoliosSuspenseQuery>;
-export type GetPortfoliosQueryResult = Apollo.QueryResult<GetPortfoliosQuery, GetPortfoliosQueryVariables>;
-export function refetchGetPortfoliosQuery(variables?: GetPortfoliosQueryVariables) {
-      return { query: GetPortfoliosDocument, variables: variables }
-    }
-export const GetPortfolioByIdDocument = /*#__PURE__*/ gql`
-    query GetPortfolioById($id: ID!) {
-  portfolio(id: $id) {
-    id
-    name
-    type
-    description
-    parameters
-    createdAt
-    updatedAt
-  }
+export function useGetPortfoliosQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetPortfoliosQuery,
+    GetPortfoliosQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetPortfoliosQuery, GetPortfoliosQueryVariables>(
+    GetPortfoliosDocument,
+    options
+  );
 }
-    `;
+export function useGetPortfoliosLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPortfoliosQuery,
+    GetPortfoliosQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetPortfoliosQuery, GetPortfoliosQueryVariables>(
+    GetPortfoliosDocument,
+    options
+  );
+}
+export function useGetPortfoliosSuspenseQuery(
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        GetPortfoliosQuery,
+        GetPortfoliosQueryVariables
+      >
+) {
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<
+    GetPortfoliosQuery,
+    GetPortfoliosQueryVariables
+  >(GetPortfoliosDocument, options);
+}
+export type GetPortfoliosQueryHookResult = ReturnType<
+  typeof useGetPortfoliosQuery
+>;
+export type GetPortfoliosLazyQueryHookResult = ReturnType<
+  typeof useGetPortfoliosLazyQuery
+>;
+export type GetPortfoliosSuspenseQueryHookResult = ReturnType<
+  typeof useGetPortfoliosSuspenseQuery
+>;
+export type GetPortfoliosQueryResult = Apollo.QueryResult<
+  GetPortfoliosQuery,
+  GetPortfoliosQueryVariables
+>;
+export function refetchGetPortfoliosQuery(
+  variables?: GetPortfoliosQueryVariables
+) {
+  return { query: GetPortfoliosDocument, variables: variables };
+}
+export const GetPortfolioByIdDocument = /*#__PURE__*/ gql`
+  query GetPortfolioById($id: ID!) {
+    portfolio(id: $id) {
+      id
+      name
+      type
+      description
+      parameters
+      createdAt
+      updatedAt
+    }
+  }
+`;
 
 /**
  * __useGetPortfolioByIdQuery__
@@ -911,37 +1157,81 @@ export const GetPortfolioByIdDocument = /*#__PURE__*/ gql`
  *   },
  * });
  */
-export function useGetPortfolioByIdQuery(baseOptions: Apollo.QueryHookOptions<GetPortfolioByIdQuery, GetPortfolioByIdQueryVariables> & ({ variables: GetPortfolioByIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetPortfolioByIdQuery, GetPortfolioByIdQueryVariables>(GetPortfolioByIdDocument, options);
-      }
-export function useGetPortfolioByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPortfolioByIdQuery, GetPortfolioByIdQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetPortfolioByIdQuery, GetPortfolioByIdQueryVariables>(GetPortfolioByIdDocument, options);
-        }
-export function useGetPortfolioByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortfolioByIdQuery, GetPortfolioByIdQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetPortfolioByIdQuery, GetPortfolioByIdQueryVariables>(GetPortfolioByIdDocument, options);
-        }
-export type GetPortfolioByIdQueryHookResult = ReturnType<typeof useGetPortfolioByIdQuery>;
-export type GetPortfolioByIdLazyQueryHookResult = ReturnType<typeof useGetPortfolioByIdLazyQuery>;
-export type GetPortfolioByIdSuspenseQueryHookResult = ReturnType<typeof useGetPortfolioByIdSuspenseQuery>;
-export type GetPortfolioByIdQueryResult = Apollo.QueryResult<GetPortfolioByIdQuery, GetPortfolioByIdQueryVariables>;
-export function refetchGetPortfolioByIdQuery(variables: GetPortfolioByIdQueryVariables) {
-      return { query: GetPortfolioByIdDocument, variables: variables }
-    }
-export const GetPriceDataDocument = /*#__PURE__*/ gql`
-    query GetPriceData($symbol: String!, $filter: PriceDataFilter) {
-  priceData(symbol: $symbol, filter: $filter) {
-    date
-    open
-    high
-    low
-    close
-    volume
-  }
+export function useGetPortfolioByIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetPortfolioByIdQuery,
+    GetPortfolioByIdQueryVariables
+  > &
+    (
+      | { variables: GetPortfolioByIdQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    )
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetPortfolioByIdQuery, GetPortfolioByIdQueryVariables>(
+    GetPortfolioByIdDocument,
+    options
+  );
 }
-    `;
+export function useGetPortfolioByIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPortfolioByIdQuery,
+    GetPortfolioByIdQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetPortfolioByIdQuery,
+    GetPortfolioByIdQueryVariables
+  >(GetPortfolioByIdDocument, options);
+}
+export function useGetPortfolioByIdSuspenseQuery(
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        GetPortfolioByIdQuery,
+        GetPortfolioByIdQueryVariables
+      >
+) {
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<
+    GetPortfolioByIdQuery,
+    GetPortfolioByIdQueryVariables
+  >(GetPortfolioByIdDocument, options);
+}
+export type GetPortfolioByIdQueryHookResult = ReturnType<
+  typeof useGetPortfolioByIdQuery
+>;
+export type GetPortfolioByIdLazyQueryHookResult = ReturnType<
+  typeof useGetPortfolioByIdLazyQuery
+>;
+export type GetPortfolioByIdSuspenseQueryHookResult = ReturnType<
+  typeof useGetPortfolioByIdSuspenseQuery
+>;
+export type GetPortfolioByIdQueryResult = Apollo.QueryResult<
+  GetPortfolioByIdQuery,
+  GetPortfolioByIdQueryVariables
+>;
+export function refetchGetPortfolioByIdQuery(
+  variables: GetPortfolioByIdQueryVariables
+) {
+  return { query: GetPortfolioByIdDocument, variables: variables };
+}
+export const GetPriceDataDocument = /*#__PURE__*/ gql`
+  query GetPriceData($symbol: String!, $filter: PriceDataFilter) {
+    priceData(symbol: $symbol, filter: $filter) {
+      date
+      open
+      high
+      low
+      close
+      volume
+    }
+  }
+`;
 
 /**
  * __useGetPriceDataQuery__
@@ -960,22 +1250,66 @@ export const GetPriceDataDocument = /*#__PURE__*/ gql`
  *   },
  * });
  */
-export function useGetPriceDataQuery(baseOptions: Apollo.QueryHookOptions<GetPriceDataQuery, GetPriceDataQueryVariables> & ({ variables: GetPriceDataQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetPriceDataQuery, GetPriceDataQueryVariables>(GetPriceDataDocument, options);
-      }
-export function useGetPriceDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPriceDataQuery, GetPriceDataQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetPriceDataQuery, GetPriceDataQueryVariables>(GetPriceDataDocument, options);
-        }
-export function useGetPriceDataSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPriceDataQuery, GetPriceDataQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetPriceDataQuery, GetPriceDataQueryVariables>(GetPriceDataDocument, options);
-        }
-export type GetPriceDataQueryHookResult = ReturnType<typeof useGetPriceDataQuery>;
-export type GetPriceDataLazyQueryHookResult = ReturnType<typeof useGetPriceDataLazyQuery>;
-export type GetPriceDataSuspenseQueryHookResult = ReturnType<typeof useGetPriceDataSuspenseQuery>;
-export type GetPriceDataQueryResult = Apollo.QueryResult<GetPriceDataQuery, GetPriceDataQueryVariables>;
-export function refetchGetPriceDataQuery(variables: GetPriceDataQueryVariables) {
-      return { query: GetPriceDataDocument, variables: variables }
-    }
+export function useGetPriceDataQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetPriceDataQuery,
+    GetPriceDataQueryVariables
+  > &
+    (
+      | { variables: GetPriceDataQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    )
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetPriceDataQuery, GetPriceDataQueryVariables>(
+    GetPriceDataDocument,
+    options
+  );
+}
+export function useGetPriceDataLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPriceDataQuery,
+    GetPriceDataQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetPriceDataQuery, GetPriceDataQueryVariables>(
+    GetPriceDataDocument,
+    options
+  );
+}
+export function useGetPriceDataSuspenseQuery(
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        GetPriceDataQuery,
+        GetPriceDataQueryVariables
+      >
+) {
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
+  return Apollo.useSuspenseQuery<GetPriceDataQuery, GetPriceDataQueryVariables>(
+    GetPriceDataDocument,
+    options
+  );
+}
+export type GetPriceDataQueryHookResult = ReturnType<
+  typeof useGetPriceDataQuery
+>;
+export type GetPriceDataLazyQueryHookResult = ReturnType<
+  typeof useGetPriceDataLazyQuery
+>;
+export type GetPriceDataSuspenseQueryHookResult = ReturnType<
+  typeof useGetPriceDataSuspenseQuery
+>;
+export type GetPriceDataQueryResult = Apollo.QueryResult<
+  GetPriceDataQuery,
+  GetPriceDataQueryVariables
+>;
+export function refetchGetPriceDataQuery(
+  variables: GetPriceDataQueryVariables
+) {
+  return { query: GetPriceDataDocument, variables: variables };
+}

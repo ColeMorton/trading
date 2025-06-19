@@ -134,8 +134,8 @@ The module is implemented as a class-based design with the following components:
 - **calculate_frequency_metrics**: Method for calculating frequency metrics
 - **calculate_quality_metrics**: Method for calculating quality metrics
 - **calculate_portfolio_metrics**: Method for calculating portfolio-level metrics
-- **_calculate_horizon_metrics**: Helper method for horizon analysis
-- **_find_best_horizon**: Helper method for selecting the best horizon
+- **\_calculate_horizon_metrics**: Helper method for horizon analysis
+- **\_find_best_horizon**: Helper method for selecting the best horizon
 
 ## Benefits
 

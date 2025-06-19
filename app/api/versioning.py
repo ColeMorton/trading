@@ -117,9 +117,9 @@ class APIVersionManager:
             if info.sunset_date:
                 response.headers["Sunset"] = info.sunset_date.isoformat()
             if info.migration_guide_url:
-                response.headers["Link"] = (
-                    f'<{info.migration_guide_url}>; rel="deprecation"'
-                )
+                response.headers[
+                    "Link"
+                ] = f'<{info.migration_guide_url}>; rel="deprecation"'
 
     def deprecate_version(
         self,

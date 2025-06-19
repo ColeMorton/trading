@@ -142,8 +142,8 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
     };
 
     const validateWindows = (value: number): string | undefined => {
-      if (value < 1 || value > 50) {
-        return 'Windows must be between 1 and 50';
+      if (value < 1 || value > 120) {
+        return 'Windows must be between 1 and 120';
       }
       return undefined;
     };
@@ -432,7 +432,7 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
                 </div>
               )}
               <div id="windows-help" className="form-text">
-                Number of window combinations (1-50)
+                Number of window combinations (1-120)
               </div>
             </div>
 

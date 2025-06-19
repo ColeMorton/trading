@@ -86,66 +86,66 @@ success = config_manager.save_config_to_file("config/my_signal_config.json")
 
 ### Signal Metrics Configuration
 
-| Parameter | Type | Default | Description | Impact |
-|-----------|------|---------|-------------|--------|
-| SIGNAL_COLUMN | str | "Signal" | Name of the signal column | Identifies which column contains signal values |
-| DATE_COLUMN | str | "Date" | Name of the date column | Identifies which column contains date values |
-| RETURN_COLUMN | str | "Return" | Name of the return column | Identifies which column contains return values |
-| ANNUALIZATION_FACTOR | int | 252 | Number of periods in a year | Scales metrics to annual basis (252 for daily, 12 for monthly) |
-| MIN_SAMPLE_SIZE | int | 20 | Minimum sample size for metrics | Prevents unreliable metrics from small samples |
-| HORIZONS | List[int] | [1, 3, 5, 10] | Time horizons to analyze | Determines which holding periods are analyzed |
-| NORMALIZATION_METHOD | str | "min_max" | Method for normalizing metrics | Affects how metrics are scaled for comparison |
-| FEATURE_RANGE | List[float] | [0, 1] | Target range for min-max normalization | Determines the scale of normalized metrics |
+| Parameter            | Type        | Default       | Description                            | Impact                                                         |
+| -------------------- | ----------- | ------------- | -------------------------------------- | -------------------------------------------------------------- |
+| SIGNAL_COLUMN        | str         | "Signal"      | Name of the signal column              | Identifies which column contains signal values                 |
+| DATE_COLUMN          | str         | "Date"        | Name of the date column                | Identifies which column contains date values                   |
+| RETURN_COLUMN        | str         | "Return"      | Name of the return column              | Identifies which column contains return values                 |
+| ANNUALIZATION_FACTOR | int         | 252           | Number of periods in a year            | Scales metrics to annual basis (252 for daily, 12 for monthly) |
+| MIN_SAMPLE_SIZE      | int         | 20            | Minimum sample size for metrics        | Prevents unreliable metrics from small samples                 |
+| HORIZONS             | List[int]   | [1, 3, 5, 10] | Time horizons to analyze               | Determines which holding periods are analyzed                  |
+| NORMALIZATION_METHOD | str         | "min_max"     | Method for normalizing metrics         | Affects how metrics are scaled for comparison                  |
+| FEATURE_RANGE        | List[float] | [0, 1]        | Target range for min-max normalization | Determines the scale of normalized metrics                     |
 
 ### Signal Filter Configuration
 
-| Parameter | Type | Default | Description | Impact |
-|-----------|------|---------|-------------|--------|
-| USE_RSI | bool | False | Whether to enable RSI filtering | Controls whether RSI filter is applied |
-| RSI_THRESHOLD | int | 70 | RSI threshold value | Determines RSI filter sensitivity |
-| RSI_COLUMN | str | "RSI" | Name of the RSI column | Identifies which column contains RSI values |
-| USE_VOLUME_FILTER | bool | None | Whether to enable volume filtering | Controls whether volume filter is applied |
-| MIN_VOLUME | int | None | Minimum required volume | Sets the volume threshold for filtering |
-| VOLUME_COLUMN | str | None | Name of the volume column | Identifies which column contains volume values |
-| USE_VOLATILITY_FILTER | bool | None | Whether to enable volatility filtering | Controls whether volatility filter is applied |
-| MIN_ATR | float | None | Minimum required ATR value | Sets the lower ATR threshold for filtering |
-| MAX_ATR | float | None | Maximum allowed ATR value | Sets the upper ATR threshold for filtering |
-| ATR_COLUMN | str | None | Name of the ATR column | Identifies which column contains ATR values |
-| DIRECTION | str | "Long" | Trading direction | Determines how filters are applied (long vs. short) |
+| Parameter             | Type  | Default | Description                            | Impact                                              |
+| --------------------- | ----- | ------- | -------------------------------------- | --------------------------------------------------- |
+| USE_RSI               | bool  | False   | Whether to enable RSI filtering        | Controls whether RSI filter is applied              |
+| RSI_THRESHOLD         | int   | 70      | RSI threshold value                    | Determines RSI filter sensitivity                   |
+| RSI_COLUMN            | str   | "RSI"   | Name of the RSI column                 | Identifies which column contains RSI values         |
+| USE_VOLUME_FILTER     | bool  | None    | Whether to enable volume filtering     | Controls whether volume filter is applied           |
+| MIN_VOLUME            | int   | None    | Minimum required volume                | Sets the volume threshold for filtering             |
+| VOLUME_COLUMN         | str   | None    | Name of the volume column              | Identifies which column contains volume values      |
+| USE_VOLATILITY_FILTER | bool  | None    | Whether to enable volatility filtering | Controls whether volatility filter is applied       |
+| MIN_ATR               | float | None    | Minimum required ATR value             | Sets the lower ATR threshold for filtering          |
+| MAX_ATR               | float | None    | Maximum allowed ATR value              | Sets the upper ATR threshold for filtering          |
+| ATR_COLUMN            | str   | None    | Name of the ATR column                 | Identifies which column contains ATR values         |
+| DIRECTION             | str   | "Long"  | Trading direction                      | Determines how filters are applied (long vs. short) |
 
 ### Signal Quality Configuration
 
-| Parameter | Type | Default | Description | Impact |
-|-----------|------|---------|-------------|--------|
-| WIN_RATE_WEIGHT | float | 0.4 | Weight of win rate in quality score | Determines importance of win rate in quality score |
-| PROFIT_FACTOR_WEIGHT | float | 0.3 | Weight of profit factor in quality score | Determines importance of profit factor in quality score |
-| RISK_REWARD_WEIGHT | float | 0.2 | Weight of risk-reward ratio in quality score | Determines importance of risk-reward in quality score |
-| POSITIVE_RETURN_WEIGHT | float | 0.1 | Weight of positive return check in quality score | Determines importance of positive return in quality score |
-| PROFIT_FACTOR_CAP | float | 5.0 | Maximum value for profit factor normalization | Prevents extremely high profit factors from skewing scores |
-| QUALITY_SCORE_SCALE | float | 10.0 | Scale factor for quality score | Determines the range of quality scores (0 to SCALE) |
+| Parameter              | Type  | Default | Description                                      | Impact                                                     |
+| ---------------------- | ----- | ------- | ------------------------------------------------ | ---------------------------------------------------------- |
+| WIN_RATE_WEIGHT        | float | 0.4     | Weight of win rate in quality score              | Determines importance of win rate in quality score         |
+| PROFIT_FACTOR_WEIGHT   | float | 0.3     | Weight of profit factor in quality score         | Determines importance of profit factor in quality score    |
+| RISK_REWARD_WEIGHT     | float | 0.2     | Weight of risk-reward ratio in quality score     | Determines importance of risk-reward in quality score      |
+| POSITIVE_RETURN_WEIGHT | float | 0.1     | Weight of positive return check in quality score | Determines importance of positive return in quality score  |
+| PROFIT_FACTOR_CAP      | float | 5.0     | Maximum value for profit factor normalization    | Prevents extremely high profit factors from skewing scores |
+| QUALITY_SCORE_SCALE    | float | 10.0    | Scale factor for quality score                   | Determines the range of quality scores (0 to SCALE)        |
 
 ### Horizon Analysis Configuration
 
-| Parameter | Type | Default | Description | Impact |
-|-----------|------|---------|-------------|--------|
-| HORIZONS | List[int] | [1, 3, 5, 10] | Time horizons to analyze | Determines which holding periods are analyzed |
-| MIN_SAMPLE_SIZE | int | 20 | Minimum sample size for horizon metrics | Prevents unreliable metrics from small samples |
-| SHARPE_WEIGHT | float | 0.6 | Weight of Sharpe ratio in best horizon selection | Determines importance of Sharpe ratio in horizon selection |
-| WIN_RATE_WEIGHT | float | 0.3 | Weight of win rate in best horizon selection | Determines importance of win rate in horizon selection |
-| SAMPLE_SIZE_WEIGHT | float | 0.1 | Weight of sample size in best horizon selection | Determines importance of sample size in horizon selection |
-| SAMPLE_SIZE_FACTOR | int | 100 | Sample size normalization factor | Scales sample size for comparison (sample_size / FACTOR) |
+| Parameter          | Type      | Default       | Description                                      | Impact                                                     |
+| ------------------ | --------- | ------------- | ------------------------------------------------ | ---------------------------------------------------------- |
+| HORIZONS           | List[int] | [1, 3, 5, 10] | Time horizons to analyze                         | Determines which holding periods are analyzed              |
+| MIN_SAMPLE_SIZE    | int       | 20            | Minimum sample size for horizon metrics          | Prevents unreliable metrics from small samples             |
+| SHARPE_WEIGHT      | float     | 0.6           | Weight of Sharpe ratio in best horizon selection | Determines importance of Sharpe ratio in horizon selection |
+| WIN_RATE_WEIGHT    | float     | 0.3           | Weight of win rate in best horizon selection     | Determines importance of win rate in horizon selection     |
+| SAMPLE_SIZE_WEIGHT | float     | 0.1           | Weight of sample size in best horizon selection  | Determines importance of sample size in horizon selection  |
+| SAMPLE_SIZE_FACTOR | int       | 100           | Sample size normalization factor                 | Scales sample size for comparison (sample_size / FACTOR)   |
 
 ### Signal Conversion Configuration
 
-| Parameter | Type | Default | Description | Impact |
-|-----------|------|---------|-------------|--------|
-| STRATEGY_TYPE | str | "MA Cross" | Type of strategy | Used for tracking and identification |
-| DIRECTION | str | "Long" | Trading direction | Determines how signals are converted to positions |
-| USE_RSI | bool | False | Whether to enable RSI filtering | Controls whether RSI filter is applied during conversion |
-| RSI_THRESHOLD | int | 70 | RSI threshold value | Determines RSI filter sensitivity during conversion |
-| SIGNAL_COLUMN | str | "Signal" | Name of the signal column | Identifies which column contains signal values |
-| POSITION_COLUMN | str | "Position" | Name of the position column | Determines where position values are stored |
-| DATE_COLUMN | str | "Date" | Name of the date column | Identifies which column contains date values |
+| Parameter       | Type | Default    | Description                     | Impact                                                   |
+| --------------- | ---- | ---------- | ------------------------------- | -------------------------------------------------------- |
+| STRATEGY_TYPE   | str  | "MA Cross" | Type of strategy                | Used for tracking and identification                     |
+| DIRECTION       | str  | "Long"     | Trading direction               | Determines how signals are converted to positions        |
+| USE_RSI         | bool | False      | Whether to enable RSI filtering | Controls whether RSI filter is applied during conversion |
+| RSI_THRESHOLD   | int  | 70         | RSI threshold value             | Determines RSI filter sensitivity during conversion      |
+| SIGNAL_COLUMN   | str  | "Signal"   | Name of the signal column       | Identifies which column contains signal values           |
+| POSITION_COLUMN | str  | "Position" | Name of the position column     | Determines where position values are stored              |
+| DATE_COLUMN     | str  | "Date"     | Name of the date column         | Identifies which column contains date values             |
 
 ## Configuration File Format
 

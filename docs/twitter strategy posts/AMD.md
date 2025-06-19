@@ -51,4 +51,4 @@ And right now, it's lining up with:
 
 📍 Low win rate, high positive skew. May/June could be a smart entry window.
 
-#AMD #trading #TradingStrategy #TradingSignals  #investing #backtest #analysis #earnings #EarningsReport  #seasonality
+#AMD #trading #TradingStrategy #TradingSignals #investing #backtest #analysis #earnings #EarningsReport #seasonality

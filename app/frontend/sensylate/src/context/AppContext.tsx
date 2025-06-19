@@ -1,5 +1,9 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
-import { CSVData, ParameterTestingState, AnalysisConfiguration } from '../types';
+import {
+  CSVData,
+  ParameterTestingState,
+  AnalysisConfiguration,
+} from '../types';
 
 interface AppContextType {
   selectedFile: string | null;
@@ -39,7 +43,7 @@ const defaultConfiguration: AnalysisConfiguration = {
   USE_SCANNER: false,
   REFRESH: false,
   MINIMUMS: {
-    WIN_RATE: 0,  // Start with 0 to show all results
+    WIN_RATE: 0, // Start with 0 to show all results
     TRADES: 1,
     EXPECTANCY_PER_TRADE: 0,
     PROFIT_FACTOR: 0,
@@ -58,15 +62,18 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [updateStatus, setUpdateStatus] = useState<string | null>(null);
-  const [currentView, setCurrentView] = useState<'csv-viewer' | 'parameter-testing'>('csv-viewer');
-  const [parameterTesting, setParameterTesting] = useState<ParameterTestingState>({
-    configuration: defaultConfiguration,
-    results: [],
-    isAnalyzing: false,
-    error: null,
-    progress: 0,
-    executionId: null,
-  });
+  const [currentView, setCurrentView] = useState<
+    'csv-viewer' | 'parameter-testing'
+  >('csv-viewer');
+  const [parameterTesting, setParameterTesting] =
+    useState<ParameterTestingState>({
+      configuration: defaultConfiguration,
+      results: [],
+      isAnalyzing: false,
+      error: null,
+      progress: 0,
+      executionId: null,
+    });
 
   return (
     <AppContext.Provider
@@ -86,7 +93,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         currentView,
         setCurrentView,
         parameterTesting,
-        setParameterTesting
+        setParameterTesting,
       }}
     >
       {children}

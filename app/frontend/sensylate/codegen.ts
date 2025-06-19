@@ -9,7 +9,7 @@ const config: CodegenConfig = {
       plugins: [
         'typescript',
         'typescript-operations',
-        'typescript-react-apollo'
+        'typescript-react-apollo',
       ],
       config: {
         withHooks: true,
@@ -24,11 +24,11 @@ const config: CodegenConfig = {
         scalars: {
           DateTime: 'string',
           JSON: 'Record<string, any>',
-          ID: 'string'
-        }
-      }
-    }
-  }
+          ID: 'string',
+        },
+      },
+    },
+  },
 };
 
 export default config;

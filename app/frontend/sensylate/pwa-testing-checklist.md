@@ -99,16 +99,19 @@ Test the application on the following devices:
 If you encounter issues during testing, check the following:
 
 1. **Service Worker Not Registering**
+
    - Ensure the application is served over HTTPS or localhost
    - Check browser console for errors
    - Verify the service worker path is correct
 
 2. **Install Prompt Not Appearing**
+
    - Ensure the manifest.json is valid
    - Ensure all required icons are present
    - The user may have already dismissed the prompt (check Application tab in DevTools)
 
 3. **Offline Support Not Working**
+
    - Check if the service worker is registered correctly
    - Verify the caching strategy in the service worker
    - Check if the cached resources are available in the Cache Storage (in Application tab of DevTools)

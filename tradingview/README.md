@@ -55,11 +55,13 @@ This will run the generator with various test cases to demonstrate its capabilit
 When the source CSV file changes (strategies are added/removed/improved), follow these steps:
 
 1. Run the generator script with the updated CSV file:
+
    ```bash
    python tradingview/generate_hardcoded_config.py path/to/updated/csv/file.csv tradingview/strategy_breadth_refactored.pine
    ```
 
 2. The script will automatically:
+
    - Create a backup of the original Pine script
    - Generate hardcoded strategy blocks from the CSV
    - Update the Pine script with the new strategy blocks
@@ -74,6 +76,7 @@ When the source CSV file changes (strategies are added/removed/improved), follow
 The current implementation supports SMA, EMA, and MACD strategies. To add support for a new strategy type:
 
 1. Add a new signal generation function in the Pine script:
+
    ```pine
    newStrategySignal(param1, param2) =>
        // Implementation
@@ -82,6 +85,7 @@ The current implementation supports SMA, EMA, and MACD strategies. To add suppor
    ```
 
 2. Update the `generate_hardcoded_config.py` script to handle the new strategy type:
+
    ```python
    elif strategy_type == 'NEW_TYPE':
        strategy_block = f"""

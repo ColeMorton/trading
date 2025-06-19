@@ -384,9 +384,9 @@ def calculate_component_var(
 
                 # Component VaR = weight * marginal VaR
                 component_var = normalized_weights[i] * marginal_var
-                component_vars[f"strategy_{i+1}_component_var_{confidence_pct}"] = (
-                    component_var
-                )
+                component_vars[
+                    f"strategy_{i+1}_component_var_{confidence_pct}"
+                ] = component_var
 
                 if log:
                     log(
