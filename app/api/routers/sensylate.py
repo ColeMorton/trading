@@ -19,7 +19,7 @@ log, _, logger, _ = setup_api_logging()
 
 # Define directories
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-SENSYLATE_DIR = os.path.join(BASE_DIR, "app", "sensylate")
+SENSYLATE_DIR = os.path.join(BASE_DIR, "app", "frontend", "sensylate")
 SENSYLATE_DIST_DIR = os.path.join(SENSYLATE_DIR, "dist")
 
 
