@@ -21,6 +21,10 @@
     "test:cleanup-screenshots": "node tests/screenshotCleanup.js",
     "test:cleanup-screenshots-verbose": "node tests/screenshotCleanup.js --verbose",
     "test:advanced-config": "node tests/test-advanced-config.js",
+    "test:position-sizing": "node tests/runPositionSizingTest.js",
+    "test:position-sizing-screenshots": "node tests/runPositionSizingTest.js --screenshots",
+    "test:position-sizing-verbose": "node tests/runPositionSizingTest.js --verbose --screenshots --headed",
+    "test:position-sizing-full": "node tests/runPositionSizingTest.js --screenshots --full",
     "codegen": "graphql-codegen --config codegen.ts",
     "codegen:watch": "graphql-codegen --config codegen.ts --watch"
   },

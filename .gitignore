@@ -188,6 +188,20 @@ csv/ma_cross/stop_loss
 csv/ma_cross/rsi
 csv/ma_cross/current_signals
 
+# Screenshots and test artifacts
+screenshots/
+**/screenshots/
+*.screenshot.png
+*.screenshot.jpg
+*.screenshot.jpeg
+**/Screenshot*.png
+**/Screenshot*.jpg
+test_screenshots/
+**/test_screenshots/
+*.test.png
+*.test.jpg
+*.test.jpeg
+
 # Portfolio rules
 csv/ma_cross/portfolios/*/
 !csv/ma_cross/portfolios/*.*

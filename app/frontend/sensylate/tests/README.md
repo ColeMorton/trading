@@ -1,10 +1,12 @@
-# Sensylate Parameter Testing Test Suite
+# Sensylate E2E Test Suite
 
-Comprehensive Puppeteer-based testing for the Parameter Testing feature migration from SensitivityTrader to Sensylate.
+Comprehensive Puppeteer-based testing for Sensylate features including Parameter Testing and Position Sizing.
 
 ## Overview
 
-This test suite validates the complete Parameter Testing workflow implemented in **Phase 6** of the migration plan. It includes:
+This test suite provides comprehensive end-to-end testing for multiple Sensylate features:
+
+### Parameter Testing
 
 - ✅ Full workflow testing (navigation, configuration, analysis execution)
 - ✅ CSV export and validation functionality
@@ -12,6 +14,16 @@ This test suite validates the complete Parameter Testing workflow implemented in
 - ✅ Responsive design validation
 - ✅ Accessibility compliance testing
 - ✅ Error boundary and error handling validation
+
+### Position Sizing
+
+- ✅ Dashboard component loading and data display
+- ✅ Table interactions (search, sort, filtering)
+- ✅ Real-time refresh functionality (manual and auto-refresh)
+- ✅ Incoming signals display and interaction
+- ✅ Risk allocation visualization
+- ✅ Strategic holdings P&L tracking
+- ✅ Responsive behavior across viewports
 
 ## Test Structure
 
@@ -22,7 +34,10 @@ tests/
 ├── parameterTesting.spec.js     # Main workflow tests
 ├── endToEndWorkflow.spec.js     # Complete end-to-end workflow tests
 ├── advancedConfigAnimation.spec.js # Advanced config collapse/expand tests
+├── positionSizing.spec.js       # Position Sizing feature tests
+├── runPositionSizingTest.js     # Position Sizing test runner
 ├── screenshots/                 # Generated screenshots (--screenshots)
+│   └── position-sizing/         # Position Sizing screenshots
 └── downloads/                   # Test download directory
 ```
 
@@ -61,6 +76,12 @@ npm run test:e2e-verbose
 
 # Run in CI mode (headless, with report)
 npm run test:ci
+
+# Position Sizing tests
+npm run test:position-sizing               # Basic test run
+npm run test:position-sizing-screenshots   # With screenshots
+npm run test:position-sizing-verbose       # Verbose with screenshots in headed mode
+npm run test:position-sizing-full          # Full test suite including auto-refresh test
 ```
 
 ### Individual Test Suites
@@ -92,7 +113,20 @@ node tests/testRunner.js --ci --save-report
 
 ## Test Suites
 
-### 1. End-to-End Workflow (`endToEndWorkflow.spec.js`)
+### 1. Position Sizing (`positionSizing.spec.js`)
+
+**Critical Test Suite** - Tests Position Sizing dashboard functionality
+
+- ✅ **Dashboard Load Test**: All 5 main sections load with data
+- ✅ **Table Interaction Test**: Search, sort, and filter functionality
+- ✅ **Refresh Functionality Test**: Manual refresh button operation
+- ✅ **Incoming Signals Test**: Signal display and execute buttons
+- ✅ **Risk Allocation Test**: Account balances and risk tier display
+- ✅ **Strategic Holdings Test**: P&L color coding and allocations
+- ✅ **Responsive Behavior Test**: Mobile, tablet, desktop viewports
+- ✅ **Auto-refresh Test** (optional): 30-second auto-refresh validation
+
+### 2. End-to-End Workflow (`endToEndWorkflow.spec.js`)
 
 **Critical Test Suite** - Tests complete user workflow
 
@@ -105,7 +139,7 @@ node tests/testRunner.js --ci --save-report
 - ✅ **Analysis Execution**: Run analysis and wait for completion
 - ✅ **Results Validation**: Ensure returned results match strategy in focus
 
-### 2. Parameter Testing Workflow (`parameterTesting.spec.js`)
+### 3. Parameter Testing Workflow (`parameterTesting.spec.js`)
 
 **Critical Test Suite** - Tests core functionality
 
@@ -117,7 +151,7 @@ node tests/testRunner.js --ci --save-report
 - ✅ **Responsive Design**: Mobile, tablet, desktop viewports
 - ✅ **Accessibility**: ARIA labels, keyboard navigation
 
-### 3. Advanced Config Animation (`advancedConfigAnimation.spec.js`)
+### 4. Advanced Config Animation (`advancedConfigAnimation.spec.js`)
 
 **Non-Critical Test Suite** - Tests UI interaction functionality
 
@@ -138,6 +172,8 @@ node tests/testRunner.js --ci --save-report
 
 Screenshots are captured at key workflow points when `--screenshots` flag is used:
 
+#### Parameter Testing Screenshots:
+
 ```
 01_page_loaded.png          # Initial application load
 02_parameter_testing.png    # Parameter Testing view
@@ -146,6 +182,22 @@ Screenshots are captured at key workflow points when `--screenshots` flag is use
 05_analysis_complete.png    # Analysis results displayed
 06_results_validation.png   # Result validation complete
 07_final_state.png         # Final test state
+```
+
+#### Position Sizing Screenshots:
+
+```
+01_initial_load.png         # Initial page load
+02_all_sections_loaded.png  # All dashboard sections loaded
+03_search_active.png        # Active positions search
+04_sorted_table.png         # Table after sorting
+05_after_refresh.png        # Dashboard after manual refresh
+06_incoming_signals.png     # Incoming signals display
+07_risk_allocation.png      # Risk allocation display
+08_strategic_holdings.png   # Strategic holdings display
+09_tablet_view.png          # Tablet viewport
+10_mobile_view.png          # Mobile viewport
+11_after_auto_refresh.png   # After auto-refresh (optional)
 ```
 
 #### Automatic Screenshot Cleanup
