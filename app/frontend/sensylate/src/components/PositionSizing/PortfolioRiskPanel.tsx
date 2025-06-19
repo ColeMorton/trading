@@ -154,30 +154,31 @@ const PortfolioRiskPanel: React.FC<PortfolioRiskPanelProps> = ({
               </div>
 
               {/* Confidence Metrics */}
-              {Object.keys(portfolioRisk.kellyMetrics.confidenceMetrics)
-                .length > 0 && (
-                <div className="mt-3 pt-3 border-top">
-                  <div className="text-muted small mb-2">
-                    Confidence Metrics
-                  </div>
-                  <div className="row g-2">
-                    {Object.entries(
-                      portfolioRisk.kellyMetrics.confidenceMetrics
-                    ).map(([key, value]) => (
-                      <div key={key} className="col-sm-6">
-                        <div className="small">
-                          <span className="text-muted">{key}:</span>{' '}
-                          <span className="fw-bold">
-                            {typeof value === 'number'
-                              ? formatDecimal(value, 3)
-                              : String(value)}
-                          </span>
+              {portfolioRisk.kellyMetrics.confidenceMetrics &&
+                Object.keys(portfolioRisk.kellyMetrics.confidenceMetrics)
+                  .length > 0 && (
+                  <div className="mt-3 pt-3 border-top">
+                    <div className="text-muted small mb-2">
+                      Confidence Metrics
+                    </div>
+                    <div className="row g-2">
+                      {Object.entries(
+                        portfolioRisk.kellyMetrics.confidenceMetrics
+                      ).map(([key, value]) => (
+                        <div key={key} className="col-sm-6">
+                          <div className="small">
+                            <span className="text-muted">{key}:</span>{' '}
+                            <span className="fw-bold">
+                              {typeof value === 'number'
+                                ? formatDecimal(value, 3)
+                                : String(value)}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           </div>
         </div>

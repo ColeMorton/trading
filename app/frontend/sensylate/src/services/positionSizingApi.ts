@@ -41,7 +41,7 @@ export const positionSizingApi = {
         return cache.dashboard;
       }
 
-      const response = await axios.get<ApiResponse<PositionSizingDashboard>>(
+      const response = await axios.get<ApiResponse<any>>(
         '/api/position-sizing/dashboard'
       );
 
@@ -51,7 +51,46 @@ export const positionSizingApi = {
         );
       }
 
-      const dashboard = response.data.data;
+      // Transform backend response to frontend expected format
+      const backendData = response.data.data;
+      const dashboard: PositionSizingDashboard = {
+        portfolioRisk: {
+          netWorth: backendData.net_worth || 0,
+          cvarTrading: backendData.portfolio_risk_metrics?.trading_cvar || 0,
+          cvarInvestment:
+            backendData.portfolio_risk_metrics?.investment_cvar || 0,
+          riskAmount: backendData.portfolio_risk_metrics?.risk_amount || 0,
+          kellyMetrics: {
+            numPrimary: backendData.portfolio_risk_metrics?.num_primary || 0,
+            numOutliers: backendData.portfolio_risk_metrics?.num_outliers || 0,
+            kellyCriterion:
+              backendData.portfolio_risk_metrics?.kelly_criterion || 0,
+            confidenceMetrics:
+              backendData.portfolio_risk_metrics?.confidence_metrics || {},
+          },
+          totalStrategies:
+            backendData.portfolio_risk_metrics?.total_strategies || 0,
+        },
+        activePositions: backendData.active_positions || [],
+        incomingSignals: backendData.incoming_signals || [],
+        strategicHoldings: backendData.strategic_holdings || [],
+        accountBalances: {
+          ibkr: backendData.account_balances?.ibkr || 0,
+          bybit: backendData.account_balances?.bybit || 0,
+          cash: backendData.account_balances?.cash || 0,
+          total: backendData.net_worth || 0,
+          accountBreakdown: backendData.account_balances || {},
+        },
+        riskAllocationBuckets: (backendData.risk_allocation_buckets || []).map(
+          (bucket: any) => ({
+            riskLevel: bucket.risk_level,
+            allocationAmount: bucket.allocation_amount,
+            percentage: bucket.percentage,
+            status: bucket.status,
+          })
+        ),
+        lastUpdated: backendData.last_updated || new Date().toISOString(),
+      };
 
       // Update cache
       cache.dashboard = dashboard;

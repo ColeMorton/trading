@@ -112,7 +112,7 @@ export interface KellyMetrics {
   kellyCriterion: number;
   numPrimary: number;
   numOutliers: number;
-  confidenceMetrics: Record<string, number>;
+  confidenceMetrics?: Record<string, number>;
 }
 
 export interface AccountBalances {

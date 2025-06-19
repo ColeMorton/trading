@@ -37,7 +37,10 @@ class KellyCriterionSizer:
 
     def __init__(self):
         """Initialize Kelly Criterion calculator."""
-        pass
+        # Initialize with default parameters from trading journal
+        self._num_primary = 10
+        self._num_outliers = 2
+        self._kelly_criterion = 0.25
 
     def calculate_confidence_metrics(
         self, num_primary: int, num_outliers: int
@@ -316,4 +319,40 @@ class KellyCriterionSizer:
                 "B20_confidence_ratio": confidence_metrics.confidence_ratio,
                 "B21_adjusted_position_size": position_multiplier,
             },
+        }
+
+    def update_parameters(
+        self, num_primary: int, num_outliers: int, kelly_criterion: float
+    ) -> None:
+        """Update Kelly criterion parameters from manual trading journal.
+
+        Args:
+            num_primary: Number of primary (non-outlier) trades
+            num_outliers: Number of outlier trades
+            kelly_criterion: Kelly criterion value from trading journal
+        """
+        # Validate inputs first
+        is_valid, message = self.validate_kelly_inputs(
+            num_primary, num_outliers, kelly_criterion
+        )
+        if not is_valid:
+            raise ValueError(f"Invalid Kelly parameters: {message}")
+
+        self._num_primary = num_primary
+        self._num_outliers = num_outliers
+        self._kelly_criterion = kelly_criterion
+
+    def get_current_parameters(self) -> Dict[str, Any]:
+        """Get current Kelly criterion parameters.
+
+        Returns:
+            Dictionary containing current parameters with keys:
+            - num_primary: Number of primary trades
+            - num_outliers: Number of outlier trades
+            - kelly_criterion: Kelly criterion value
+        """
+        return {
+            "num_primary": self._num_primary,
+            "num_outliers": self._num_outliers,
+            "kelly_criterion": self._kelly_criterion,
         }

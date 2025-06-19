@@ -22,8 +22,12 @@ from app.tools.accounts import (
     StrategiesCountIntegration,
 )
 from app.tools.allocation import AllocationOptimizer
-from app.tools.portfolio import PositionSizingIntegration, PositionSizingSchemaExtension
-from app.tools.risk import CVaRCalculator, KellyCriterionSizer, RiskAllocationCalculator
+from app.tools.portfolio import (
+    PositionSizingPortfolioIntegration,
+    PositionSizingSchemaValidator,
+)
+from app.tools.position_sizing import KellyCriterionSizer, RiskAllocationCalculator
+from app.tools.risk import CVaRCalculator
 
 
 @dataclass
@@ -88,9 +92,9 @@ class PositionSizingOrchestrator:
 
         # Initialize Phase 1 components
         self.cvar_calculator = CVaRCalculator(base_dir=base_dir)
-        self.kelly_sizer = KellyCriterionSizer(base_dir=base_dir)
+        self.kelly_sizer = KellyCriterionSizer()
         self.allocation_optimizer = AllocationOptimizer(base_dir=base_dir)
-        self.risk_allocator = RiskAllocationCalculator(base_dir=base_dir)
+        self.risk_allocator = RiskAllocationCalculator()
 
         # Initialize Phase 2 components
         self.account_service = ManualAccountBalanceService(base_dir=base_dir)
@@ -100,8 +104,10 @@ class PositionSizingOrchestrator:
         self.portfolio_manager = DualPortfolioManager(base_dir=base_dir)
 
         # Initialize integration components
-        self.schema_extension = PositionSizingSchemaExtension()
-        self.position_sizing_integration = PositionSizingIntegration(base_dir=base_dir)
+        self.schema_extension = PositionSizingSchemaValidator()
+        self.position_sizing_integration = PositionSizingPortfolioIntegration(
+            base_dir=base_dir
+        )
 
     def calculate_position_size(
         self, request: PositionSizingRequest
@@ -221,10 +227,10 @@ class PositionSizingOrchestrator:
             )
 
         # Get portfolio holdings by type
-        risk_on_holdings = self.portfolio_manager.get_portfolio_holdings(
+        risk_on_holdings = self.portfolio_manager.get_holdings_by_portfolio_type(
             PortfolioType.RISK_ON
         )
-        investment_holdings = self.portfolio_manager.get_portfolio_holdings(
+        investment_holdings = self.portfolio_manager.get_holdings_by_portfolio_type(
             PortfolioType.INVESTMENT
         )
 
@@ -390,14 +396,14 @@ class PositionSizingOrchestrator:
         risk_on_holding = None
         investment_holding = None
 
-        for holding in self.portfolio_manager.get_portfolio_holdings(
+        for holding in self.portfolio_manager.get_holdings_by_portfolio_type(
             PortfolioType.RISK_ON
         ):
             if holding.symbol == symbol:
                 risk_on_holding = holding
                 break
 
-        for holding in self.portfolio_manager.get_portfolio_holdings(
+        for holding in self.portfolio_manager.get_holdings_by_portfolio_type(
             PortfolioType.INVESTMENT
         ):
             if holding.symbol == symbol:
@@ -630,13 +636,13 @@ class PositionSizingOrchestrator:
             "strategies_count": self.strategies_integration.get_comprehensive_summary(),
             "risk_on_portfolio": [
                 h.__dict__
-                for h in self.portfolio_manager.get_portfolio_holdings(
+                for h in self.portfolio_manager.get_holdings_by_portfolio_type(
                     PortfolioType.RISK_ON
                 )
             ],
             "investment_portfolio": [
                 h.__dict__
-                for h in self.portfolio_manager.get_portfolio_holdings(
+                for h in self.portfolio_manager.get_holdings_by_portfolio_type(
                     PortfolioType.INVESTMENT
                 )
             ],
