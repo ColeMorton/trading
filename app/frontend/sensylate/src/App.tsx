@@ -16,6 +16,7 @@ import OfflineBanner from './components/OfflineBanner';
 import PWAUpdateNotification from './components/PWAUpdateNotification';
 import InstallPrompt from './components/InstallPrompt';
 import ParameterTestingContainer from './components/ParameterTestingContainer';
+import PositionSizingDashboard from './components/PositionSizing/PositionSizingDashboard';
 import ErrorBoundary from './components/ErrorBoundary';
 import Icon from './components/Icon';
 import { icons } from './utils/icons';
@@ -70,6 +71,12 @@ const AppContent: React.FC = () => {
         {currentView === 'parameter-testing' && (
           <ErrorBoundary>
             <ParameterTestingContainer />
+          </ErrorBoundary>
+        )}
+
+        {currentView === 'position-sizing' && (
+          <ErrorBoundary>
+            <PositionSizingDashboard />
           </ErrorBoundary>
         )}
 

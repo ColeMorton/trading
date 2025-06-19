@@ -97,3 +97,193 @@ export interface ParameterTestingState {
   progress: number;
   executionId: string | null;
 }
+
+// Position Sizing interfaces
+export interface PortfolioRiskMetrics {
+  netWorth: number;
+  cvarTrading: number;
+  cvarInvestment: number;
+  riskAmount: number;
+  kellyMetrics: KellyMetrics;
+  totalStrategies: number;
+}
+
+export interface KellyMetrics {
+  kellyCriterion: number;
+  numPrimary: number;
+  numOutliers: number;
+  confidenceMetrics: Record<string, number>;
+}
+
+export interface AccountBalances {
+  ibkr: number;
+  bybit: number;
+  cash: number;
+  total: number;
+  accountBreakdown: Record<string, number>;
+  lastUpdated: string;
+}
+
+export interface TradingPosition {
+  symbol: string;
+  positionValue: number;
+  currentPosition: number;
+  maxDrawdown?: number;
+  riskAmount?: number;
+  accountType: string;
+  entryDate?: string;
+  stopLossPrice?: number;
+}
+
+export interface SignalAnalysis {
+  symbol: string;
+  signalType: 'entry' | 'exit';
+  price: number;
+  confidence: 'primary' | 'outlier';
+  recommendedSize: number;
+  positionValue: number;
+  riskAmount: number;
+  timestamp: string;
+}
+
+export interface InvestmentHolding {
+  symbol: string;
+  shares: number;
+  averagePrice: number;
+  currentValue: number;
+  unrealizedPnl: number;
+  allocationPercentage: number;
+}
+
+export interface RiskBucket {
+  riskLevel: number;
+  allocationAmount: number;
+  percentage: number;
+  status: 'active' | 'future';
+}
+
+export interface PositionSizingDashboard {
+  portfolioRisk: PortfolioRiskMetrics;
+  activePositions: TradingPosition[];
+  incomingSignals: SignalAnalysis[];
+  strategicHoldings: InvestmentHolding[];
+  accountBalances: AccountBalances;
+  riskAllocationBuckets: RiskBucket[];
+  lastUpdated: string;
+}
+
+export interface PositionSizingRequest {
+  symbol: string;
+  signalType: 'entry' | 'exit';
+  portfolioType: 'Risk_On' | 'Investment';
+  entryPrice?: number;
+  stopLossDistance?: number;
+  confidenceLevel?: 'primary' | 'outlier';
+}
+
+export interface PositionSizingResponse {
+  symbol: string;
+  recommendedPositionSize: number;
+  positionValue: number;
+  riskAmount: number;
+  kellyPercentage: number;
+  allocationPercentage: number;
+  stopLossPrice?: number;
+  confidenceMetrics: Record<string, number>;
+  riskBucketAllocation: number;
+  accountAllocation: Record<string, number>;
+  calculationTimestamp: string;
+}
+
+export interface PositionEntryRequest {
+  symbol: string;
+  positionValue: number;
+  stopLossDistance?: number;
+  entryPrice?: number;
+  portfolioType: 'Risk_On' | 'Investment';
+}
+
+export interface PositionUpdateRequest {
+  positionValue?: number;
+  stopLossDistance?: number;
+  currentPosition?: number;
+  entryPrice?: number;
+  shares?: number;
+  currentValue?: number;
+}
+
+export interface AccountBalanceUpdate {
+  accountType: 'IBKR' | 'Bybit' | 'Cash';
+  balance: number;
+}
+
+export interface KellyParametersUpdate {
+  numPrimary: number;
+  numOutliers: number;
+  kellyCriterion: number;
+}
+
+export interface ExcelValidationRequest {
+  netWorth?: number;
+  tradingCvar?: number;
+  investmentCvar?: number;
+  riskAmount?: number;
+  totalStrategies?: number;
+}
+
+export interface ValidationResult {
+  validated: boolean;
+  discrepancies: Array<{
+    field: string;
+    expected: number;
+    actual: number;
+    difference: number;
+  }>;
+  validations: Array<{
+    field: string;
+    status: 'passed';
+    value: number;
+  }>;
+}
+
+export interface RiskAllocationSummary {
+  netWorth: number;
+  riskAllocationLimit: number;
+  currentRiskExposure: number;
+  riskUtilizationPercentage: number;
+  availableRiskCapacity: number;
+  riskBuckets: RiskBucket[];
+  positionCount: number;
+}
+
+export interface PositionAnalysis {
+  symbol: string;
+  positionTracking: {
+    positionValue: number;
+    currentPosition: number;
+    accountType?: string;
+    entryDate?: string;
+  };
+  riskMetrics: {
+    stopLossDistance?: number;
+    maxRiskAmount?: number;
+    stopLossPrice?: number;
+    riskPercentage?: number;
+  };
+  portfolioAllocation: {
+    riskOn: {
+      shares: number;
+      value: number;
+      allocation: number;
+    };
+    investment: {
+      shares: number;
+      value: number;
+      allocation: number;
+    };
+  };
+  totalExposure: {
+    totalValue: number;
+    percentageOfPortfolio: number;
+  };
+}

@@ -11,7 +11,9 @@ const Navbar: React.FC = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleNavClick = (view: 'csv-viewer' | 'parameter-testing') => {
+  const handleNavClick = (
+    view: 'csv-viewer' | 'parameter-testing' | 'position-sizing'
+  ) => {
     setCurrentView(view);
     setIsOpen(false); // Close mobile menu
   };
@@ -63,6 +65,21 @@ const Navbar: React.FC = () => {
               >
                 <Icon icon={icons.parameterTesting} className="me-2" />
                 Parameter Testing
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                className={`nav-link btn btn-link ${
+                  currentView === 'position-sizing' ? 'active' : ''
+                }`}
+                aria-current={
+                  currentView === 'position-sizing' ? 'page' : undefined
+                }
+                onClick={() => handleNavClick('position-sizing')}
+                data-testid="nav-position-sizing"
+              >
+                <Icon icon={icons.calculator} className="me-2" />
+                Position Sizing
               </button>
             </li>
           </ul>

@@ -18,8 +18,10 @@ interface AppContextType {
   setError: (error: string | null) => void;
   updateStatus: string | null;
   setUpdateStatus: (status: string | null) => void;
-  currentView: 'csv-viewer' | 'parameter-testing';
-  setCurrentView: (view: 'csv-viewer' | 'parameter-testing') => void;
+  currentView: 'csv-viewer' | 'parameter-testing' | 'position-sizing';
+  setCurrentView: (
+    view: 'csv-viewer' | 'parameter-testing' | 'position-sizing'
+  ) => void;
   parameterTesting: ParameterTestingState;
   setParameterTesting: (state: ParameterTestingState) => void;
 }
@@ -63,7 +65,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
   const [updateStatus, setUpdateStatus] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<
-    'csv-viewer' | 'parameter-testing'
+    'csv-viewer' | 'parameter-testing' | 'position-sizing'
   >('csv-viewer');
   const [parameterTesting, setParameterTesting] =
     useState<ParameterTestingState>({
