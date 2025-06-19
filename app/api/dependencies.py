@@ -644,6 +644,33 @@ async def get_enhanced_configuration() -> ConfigurationInterface:
     return get_enhanced_service(ConfigurationInterface)
 
 
+async def get_service_coordinator():
+    """FastAPI dependency for service coordinator with position sizing."""
+    from app.core.strategies.strategy_factory import StrategyFactory
+    from app.tools.services.enhanced_service_coordinator import (
+        EnhancedServiceCoordinator,
+    )
+
+    # Get required dependencies
+    strategy_factory = StrategyFactory()
+    cache = get_enhanced_service(CacheInterface)
+    config = get_enhanced_service(ConfigurationInterface)
+    logger = get_enhanced_service(LoggingInterface)
+    metrics = get_enhanced_service(MonitoringInterface)
+    progress_tracker = get_enhanced_service(ProgressTrackerInterface)
+
+    # Create enhanced service coordinator
+    return EnhancedServiceCoordinator(
+        strategy_factory=strategy_factory,
+        cache=cache,
+        config=config,
+        logger=logger,
+        metrics=metrics,
+        progress_tracker=progress_tracker,
+        base_dir=None,  # Uses current working directory
+    )
+
+
 async def get_container_health() -> Dict[str, Any]:
     """Get health status of all services in the enhanced container."""
     return await _enhanced_container.health_check_all()

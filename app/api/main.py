@@ -34,6 +34,7 @@ from app.api.routers import (
     health,
     ma_cross,
     performance,
+    position_sizing,
     scripts,
     sensylate,
     strategy,
@@ -171,6 +172,7 @@ app.include_router(
 )  # Keep non-API routes as-is
 app.include_router(ma_cross.router, prefix="/api/ma-cross", tags=["ma-cross", "legacy"])
 app.include_router(strategy.router, prefix="/api/strategy", tags=["strategy"])
+app.include_router(position_sizing.router, prefix="/api", tags=["position-sizing"])
 app.include_router(performance.router, prefix="/api", tags=["performance"])
 app.include_router(graphql_app, prefix="/graphql", tags=["graphql"])
 
