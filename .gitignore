@@ -202,8 +202,8 @@ postgres-data/
 redis-data/
 
 # Generated files
-app/sensylate/dist/
-app/sensylate/node_modules/
+app/frontend/sensylate/dist/
+app/frontend/sensylate/node_modules/
 
 # Database backups
 *.sql.gz

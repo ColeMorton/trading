@@ -181,22 +181,22 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: app/sensylate/package-lock.json
+          cache-dependency-path: app/frontend/sensylate/package-lock.json
 
       - name: Install dependencies
-        working-directory: app/sensylate
+        working-directory: app/frontend/sensylate
         run: npm ci
 
       - name: Run linter
-        working-directory: app/sensylate
+        working-directory: app/frontend/sensylate
         run: npm run lint
 
       - name: Run tests
-        working-directory: app/sensylate
+        working-directory: app/frontend/sensylate
         run: npm test -- --coverage
 
       - name: Build application
-        working-directory: app/sensylate
+        working-directory: app/frontend/sensylate
         run: npm run build
 
   # Build Docker images
@@ -213,8 +213,8 @@ jobs:
           - dockerfile: Dockerfile.api
             context: .
             image: api
-          - dockerfile: app/sensylate/Dockerfile
-            context: app/sensylate
+          - dockerfile: app/frontend/sensylate/Dockerfile
+            context: app/frontend/sensylate
             image: frontend
     steps:
       - uses: actions/checkout@v3

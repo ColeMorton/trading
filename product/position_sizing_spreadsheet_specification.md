@@ -20,8 +20,8 @@ Based on the screenshots, the spreadsheet contains:
 **Observable Structure:**
 
 ```
-Row 1: Net Worth | IBKR | Bybit | Cash | [Column E]
-Row 2: Balances | $13,683 | $7,784 | $5,457 | $442
+Row 1: Net Worth | IBKR | Bybit | Cash
+Row 2: $13,683 | $7,784 | $5,457 | $442
 ```
 
 **Bold Labels (Formulas/Headers):**
@@ -49,7 +49,7 @@ D5 = =$B$2*0.05    // 5% risk bucket = $684 (inferred)
 E5 = =$B$2*0.03    // 3% risk bucket = $410 (inferred)
 ```
 
-These are risk-based allocation buckets that calculate specific dollar amounts based on different percentage allocations of the total portfolio value ($27,366).
+These are risk-based allocation buckets that calculate specific dollar amounts based on different percentage allocations of the total portfolio value ($13,683).
 
 ### 2.3 Risk Metrics Section
 

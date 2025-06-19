@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-18T08:51:04.909927",
+    "export_timestamp": "2025-06-19T08:27:36.646136",
     "strategy_config": {
       "ticker": "NVDA",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 4460.65418860854,
+      "total_return": 4502.7569684119335,
       "total_trades": "71",
       "win_rate": 0.647887323943662,
-      "sharpe_ratio": 1.1270771718385326,
+      "sharpe_ratio": 1.1279566102680114,
       "max_drawdown": -0.7133299997601668
     }
   },
@@ -1494,10 +1494,10 @@
       "Entry Timestamp": "2025-05-29 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 139.19000244140625,
-      "Avg Exit Price": 144.1199951171875,
+      "Avg Exit Price": 145.47999572753906,
       "Size": 30957.912432488352,
-      "PnL": 148313.24964258634,
-      "Return": 0.03441915790867669,
+      "PnL": 190416.02944598068,
+      "Return": 0.04418997899134798,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -1506,9 +1506,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Winner",
-      "Cumulative_PnL": 4460654.188608539,
+      "Cumulative_PnL": 4502756.968411934,
       "Trade_Number": 71,
-      "Rolling_Avg_Return": 0.3253988990384182,
+      "Rolling_Avg_Return": 0.32735306325495245,
       "Rolling_Win_Rate": 0.6
     }
   ],
@@ -4052,10 +4052,10 @@
       "Avg Entry Price": 139.19000244140625,
       "Entry Fees": 4309.031907058321,
       "Exit Timestamp": null,
-      "Avg Exit Price": 144.1199951171875,
+      "Avg Exit Price": 145.47999572753906,
       "Exit Fees": 0.0,
-      "PnL": 148313.24964258634,
-      "Return": 0.03441915790867669,
+      "PnL": 190416.02944598068,
+      "Return": 0.04418997899134798,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

@@ -48,7 +48,7 @@ from app.database.config import shutdown_database, startup_database
 # Define paths
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 CSV_VIEWER_DIR = os.path.join(BASE_DIR, "app", "csv_viewer")
-SENSYLATE_DIR = os.path.join(BASE_DIR, "app", "sensylate")
+SENSYLATE_DIR = os.path.join(BASE_DIR, "app", "frontend", "sensylate")
 SENSYLATE_DIST_DIR = os.path.join(SENSYLATE_DIR, "dist")
 OPENAPI_YAML_PATH = os.path.join(os.path.dirname(__file__), "openapi.yaml")
 

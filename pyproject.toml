@@ -38,6 +38,7 @@ prisma = "^0.11.0"
 pydantic-settings = "^2.9.1"
 vectorbt = "^0.27.3"
 pyarrow = "^20.0.0"
+cachetools = "^6.1.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"
