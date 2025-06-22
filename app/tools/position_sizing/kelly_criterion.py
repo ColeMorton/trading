@@ -4,8 +4,11 @@ Kelly Criterion Calculator for Position Sizing
 This module implements Excel B17-B21 Kelly calculations using manual trading journal inputs.
 """
 
+import json
 import math
 from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
 
@@ -35,12 +38,19 @@ class KellyMetrics:
 class KellyCriterionSizer:
     """Implements Excel B17-B21 Kelly calculations using manual trading journal inputs."""
 
-    def __init__(self):
-        """Initialize Kelly Criterion calculator."""
-        # Initialize with default parameters from trading journal
-        self._num_primary = 10
-        self._num_outliers = 2
-        self._kelly_criterion = 0.25
+    def __init__(self, base_dir: Optional[str] = None):
+        """Initialize Kelly Criterion calculator.
+
+        Args:
+            base_dir: Base directory path. If None, uses current working directory.
+        """
+        self.base_dir = Path(base_dir) if base_dir else Path.cwd()
+        self.data_dir = self.base_dir / "data" / "kelly"
+        self.data_dir.mkdir(parents=True, exist_ok=True)
+        self.kelly_file = self.data_dir / "kelly_parameters.json"
+
+        # Load parameters from file or use defaults
+        self._load_parameters()
 
     def calculate_confidence_metrics(
         self, num_primary: int, num_outliers: int
@@ -119,6 +129,23 @@ class KellyCriterionSizer:
             Maximum risk amount per position in dollars
         """
         return portfolio_value * risk_percentage
+
+    def calculate_kelly_amount(
+        self, net_worth: float, kelly_fraction: float = 0.236
+    ) -> float:
+        """Calculate Kelly Amount using the specific formula.
+
+        Formula: Kelly Amount = Kelly Criterion × Kelly Fraction × Net Worth
+        Where Kelly Fraction is 23.6% (0.236) by default
+
+        Args:
+            net_worth: Total net worth
+            kelly_fraction: Kelly fraction multiplier (default 0.236 = 23.6%)
+
+        Returns:
+            Kelly Amount in dollars
+        """
+        return self._kelly_criterion * kelly_fraction * net_worth
 
     def calculate_recommended_position_size(
         self,
@@ -342,6 +369,40 @@ class KellyCriterionSizer:
         self._num_outliers = num_outliers
         self._kelly_criterion = kelly_criterion
 
+    def _load_parameters(self) -> None:
+        """Load Kelly parameters from JSON file."""
+        if not self.kelly_file.exists():
+            # Set defaults
+            self._num_primary = 10
+            self._num_outliers = 2
+            self._kelly_criterion = 0.0448
+            self._save_parameters()
+            return
+
+        try:
+            with open(self.kelly_file, "r") as f:
+                data = json.load(f)
+                self._num_primary = data.get("num_primary", 10)
+                self._num_outliers = data.get("num_outliers", 2)
+                self._kelly_criterion = data.get("kelly_criterion", 0.0448)
+        except (json.JSONDecodeError, FileNotFoundError):
+            # Fallback to defaults
+            self._num_primary = 10
+            self._num_outliers = 2
+            self._kelly_criterion = 0.0448
+            self._save_parameters()
+
+    def _save_parameters(self) -> None:
+        """Save Kelly parameters to JSON file."""
+        data = {
+            "num_primary": self._num_primary,
+            "num_outliers": self._num_outliers,
+            "kelly_criterion": self._kelly_criterion,
+            "last_updated": datetime.now().isoformat(),
+        }
+        with open(self.kelly_file, "w") as f:
+            json.dump(data, f, indent=2)
+
     def get_current_parameters(self) -> Dict[str, Any]:
         """Get current Kelly criterion parameters.
 
@@ -356,3 +417,35 @@ class KellyCriterionSizer:
             "num_outliers": self._num_outliers,
             "kelly_criterion": self._kelly_criterion,
         }
+
+    def update_kelly_criterion(self, kelly_criterion: float) -> None:
+        """Update just the Kelly criterion value.
+
+        Args:
+            kelly_criterion: New Kelly criterion value (0-1)
+        """
+        if kelly_criterion < 0:
+            raise ValueError("Kelly criterion cannot be negative")
+        if kelly_criterion > 1:
+            raise ValueError("Kelly criterion should be <= 1 (100%)")
+
+        self._kelly_criterion = kelly_criterion
+        self._save_parameters()
+
+    def update_trade_counts(self, num_primary: int, num_outliers: int) -> None:
+        """Update trade count parameters.
+
+        Args:
+            num_primary: Number of primary trades
+            num_outliers: Number of outlier trades
+        """
+        if num_primary < 0:
+            raise ValueError("Number of primary trades cannot be negative")
+        if num_outliers < 0:
+            raise ValueError("Number of outliers cannot be negative")
+        if num_primary + num_outliers == 0:
+            raise ValueError("Total trades cannot be zero")
+
+        self._num_primary = num_primary
+        self._num_outliers = num_outliers
+        self._save_parameters()

@@ -7,7 +7,7 @@ import PortfolioRiskPanel from './PortfolioRiskPanel';
 import ActivePositionsTable from './ActivePositionsTable';
 import IncomingSignalsTable from './IncomingSignalsTable';
 import StrategicHoldingsTable from './StrategicHoldingsTable';
-import RiskAllocationBuckets from './RiskAllocationBuckets';
+import RiskAllocation from './RiskAllocation';
 
 const PositionSizingDashboard: React.FC = () => {
   const { dashboard, isLoading, error, lastUpdated, refresh } =
@@ -114,10 +114,10 @@ const PositionSizingDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Second Row - Risk Allocation Buckets */}
+          {/* Second Row - Risk Allocation */}
           <div className="row mb-4">
             <div className="col-12">
-              <RiskAllocationBuckets
+              <RiskAllocation
                 accountBalances={dashboard.accountBalances}
                 riskAllocation={dashboard.riskAllocation}
               />

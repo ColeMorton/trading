@@ -54,7 +54,7 @@ class PositionSizingResponse:
     allocation_percentage: float
     stop_loss_price: Optional[float]
     confidence_metrics: Dict[str, float]
-    risk_bucket_allocation: float
+    risk_allocation_amount: float
     account_allocation: Dict[str, float]
     calculation_timestamp: datetime
 
@@ -69,7 +69,7 @@ class DashboardData:
     active_positions: List[Dict[str, Any]]
     incoming_signals: List[Dict[str, Any]]
     strategic_holdings: List[Dict[str, Any]]
-    risk_allocation_buckets: List[Dict[str, float]]
+    risk_allocation: Dict[str, Any]  # Single 11.8% risk allocation
     total_strategies_count: int
     last_updated: datetime
 
@@ -92,7 +92,7 @@ class PositionSizingOrchestrator:
 
         # Initialize Phase 1 components
         self.cvar_calculator = CVaRCalculator(base_dir=base_dir)
-        self.kelly_sizer = KellyCriterionSizer()
+        self.kelly_sizer = KellyCriterionSizer(base_dir=base_dir)
         self.allocation_optimizer = AllocationOptimizer(base_dir=base_dir)
         self.risk_allocator = RiskAllocationCalculator()
 
@@ -138,10 +138,8 @@ class PositionSizingOrchestrator:
             kelly_params["num_primary"], kelly_params["num_outliers"]
         )
 
-        # Calculate Kelly position size
-        kelly_position = self.kelly_sizer.calculate_kelly_position(
-            net_worth=net_worth, confidence_level=request.confidence_level or "primary"
-        )
+        # Calculate Kelly amount using the specific formula
+        kelly_amount = self.kelly_sizer.calculate_kelly_amount(net_worth)
 
         # Get allocation percentage from optimizer
         max_allocation = self.allocation_optimizer.calculate_max_allocation_percentage(
@@ -150,14 +148,14 @@ class PositionSizingOrchestrator:
             request.symbol, 0.1
         )  # Default 10% if not found
 
-        # Calculate risk allocation (currently 11.8% tier)
-        risk_bucket_allocation = self.risk_allocator.calculate_risk_allocation(
+        # Calculate risk allocation (11.8% target)
+        risk_allocation_amount = self.risk_allocator.calculate_risk_allocation(
             net_worth, risk_level=0.118
         )
 
-        # Determine final position size (minimum of Kelly, allocation, and risk bucket)
+        # Determine final position size (minimum of Kelly, allocation, and risk target)
         position_value = min(
-            kelly_position, net_worth * max_allocation, risk_bucket_allocation
+            kelly_amount, net_worth * max_allocation, risk_allocation_amount
         )
 
         # Calculate risk amount based on stop loss distance
@@ -186,7 +184,7 @@ class PositionSizingOrchestrator:
             allocation_percentage=max_allocation,
             stop_loss_price=stop_loss_price,
             confidence_metrics=confidence_metrics,
-            risk_bucket_allocation=risk_bucket_allocation,
+            risk_allocation_amount=risk_allocation_amount,
             account_allocation=account_allocation,
             calculation_timestamp=datetime.now(),
         )
@@ -315,9 +313,9 @@ class PositionSizingOrchestrator:
         # Get strategies count
         total_strategies = self.strategies_integration.get_total_strategies_count()
 
-        # Calculate risk allocation buckets
-        risk_buckets = self._calculate_risk_allocation_buckets(
-            net_worth_calc.total_net_worth
+        # Calculate single risk allocation (11.8% CVaR target)
+        risk_allocation = self._calculate_risk_allocation(
+            net_worth_calc.total_net_worth, trading_cvar
         )
 
         # Get Kelly parameters
@@ -338,7 +336,7 @@ class PositionSizingOrchestrator:
             active_positions=active_positions,
             incoming_signals=incoming_signals,
             strategic_holdings=strategic_holdings,
-            risk_allocation_buckets=risk_buckets,
+            risk_allocation=risk_allocation,
             total_strategies_count=total_strategies,
             last_updated=datetime.now(),
         )
@@ -556,40 +554,37 @@ class PositionSizingOrchestrator:
 
         return allocation
 
-    def _calculate_risk_allocation_buckets(
-        self, net_worth: float
-    ) -> List[Dict[str, float]]:
-        """Calculate risk allocation buckets for dashboard display.
+    def _calculate_risk_allocation(
+        self, net_worth: float, current_cvar: float
+    ) -> Dict[str, Any]:
+        """Calculate single risk allocation for 11.8% CVaR target.
 
         Args:
             net_worth: Total net worth for calculations
+            current_cvar: Current trading CVaR
 
         Returns:
-            List of risk bucket allocations
+            Dictionary with risk allocation data
         """
-        # Currently only using 11.8% tier
-        buckets = [
-            {
-                "risk_level": 0.118,
-                "allocation_amount": net_worth * 0.118,
-                "percentage": 11.8,
-                "status": "active",
-            }
-        ]
+        target_cvar = 0.118  # 11.8% target CVaR
+        max_risk_amount = net_worth * target_cvar
 
-        # Future tiers (not yet implemented)
-        future_tiers = [0.08, 0.05, 0.03]
-        for tier in future_tiers:
-            buckets.append(
-                {
-                    "risk_level": tier,
-                    "allocation_amount": 0.0,
-                    "percentage": tier * 100,
-                    "status": "future",
-                }
-            )
+        # Calculate utilization (current CVaR vs target)
+        utilization = abs(current_cvar) / target_cvar if target_cvar > 0 else 0
+        utilization = min(utilization, 1.0)  # Cap at 100%
 
-        return buckets
+        # Available risk is remaining capacity
+        available_risk = target_cvar - abs(current_cvar)
+        available_risk = max(available_risk, 0)  # Don't go negative
+
+        return {
+            "target_cvar": target_cvar,
+            "current_cvar": abs(current_cvar),  # Use absolute value for display
+            "max_risk_amount": max_risk_amount,
+            "utilization": utilization,
+            "available_risk": available_risk,
+            "risk_percentage": target_cvar * 100,  # 11.8%
+        }
 
     def _get_incoming_signals(self) -> List[Dict[str, Any]]:
         """Get incoming signals for dashboard display.

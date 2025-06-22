@@ -207,14 +207,23 @@ class EnhancedServiceCoordinator(ServiceCoordinator):
         dashboard = self.position_sizing.get_dashboard_data()
 
         # Convert to dictionary format for API response
+        # Transform account_balances to frontend format
+        account_balances = {
+            "ibkr": dashboard.account_balances.get("IBKR", 0),
+            "bybit": dashboard.account_balances.get("Bybit", 0),
+            "cash": dashboard.account_balances.get("Cash", 0),
+            "total": dashboard.net_worth,
+            "lastUpdated": dashboard.last_updated.isoformat(),
+        }
+
         return {
             "net_worth": dashboard.net_worth,
-            "account_balances": dashboard.account_balances,
+            "account_balances": account_balances,
             "portfolio_risk_metrics": dashboard.portfolio_risk_metrics,
             "active_positions": dashboard.active_positions,
             "incoming_signals": dashboard.incoming_signals,
             "strategic_holdings": dashboard.strategic_holdings,
-            "risk_allocation_buckets": dashboard.risk_allocation_buckets,
+            "risk_allocation": dashboard.risk_allocation,  # Single 11.8% allocation
             "total_strategies_count": dashboard.total_strategies_count,
             "last_updated": dashboard.last_updated.isoformat(),
         }
