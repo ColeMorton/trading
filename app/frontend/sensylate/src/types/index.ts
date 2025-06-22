@@ -133,6 +133,12 @@ export interface TradingPosition {
   accountType: string;
   entryDate?: string;
   stopLossPrice?: number;
+  // Enhanced fields for manual entry
+  manualPositionSize?: number;
+  manualEntryDate?: string;
+  currentStatus?: 'Active' | 'Closed' | 'Pending';
+  stopStatus?: 'Risk' | 'Protected';
+  portfolioType?: 'Risk_On' | 'Investment' | 'Protected';
 }
 
 export interface SignalAnalysis {
@@ -168,7 +174,8 @@ export interface PositionSizingDashboard {
   incomingSignals: SignalAnalysis[];
   strategicHoldings: InvestmentHolding[];
   accountBalances: AccountBalances;
-  riskAllocationBuckets: RiskBucket[];
+  riskAllocation: RiskAllocation; // Updated from riskAllocationBuckets
+  kellyInput?: KellyInput; // Manual Kelly Criterion data
   lastUpdated: string;
 }
 
@@ -221,6 +228,64 @@ export interface KellyParametersUpdate {
   numPrimary: number;
   numOutliers: number;
   kellyCriterion: number;
+}
+
+// Enhanced interfaces for manual data entry
+export interface KellyInput {
+  kellyCriterion: number;
+  lastUpdated: Date;
+  source: 'Trading Journal' | 'Manual' | 'Calculated';
+  notes?: string;
+}
+
+export interface StrategyRow {
+  // Core strategy data from CSV
+  ticker: string;
+  strategyType: string;
+  shortWindow: number;
+  longWindow: number;
+  signalWindow?: number;
+  signalEntry: boolean;
+  signalExit: boolean;
+  totalTrades: number;
+  winRate: number;
+  profitFactor: number;
+  expectancyPerTrade: number;
+  sortinoRatio: number;
+  allocation?: number;
+  stopLoss?: number;
+
+  // Enhanced manual entry fields
+  manualPositionSize?: number;
+  manualEntryDate?: string;
+  currentStatus?: 'Active' | 'Closed' | 'Pending';
+  stopStatus?: 'Risk' | 'Protected';
+  notes?: string;
+}
+
+export type PortfolioType = 'Risk_On' | 'Protected' | 'Investment';
+
+export interface RiskAllocation {
+  targetCVaR: 0.118; // Fixed 11.8% target
+  currentCVaR: number;
+  utilization: number; // currentCVaR / targetCVaR
+  availableRisk: number; // 0.118 - currentCVaR
+  riskAmount: number; // Net worth × current CVaR
+}
+
+export interface PositionUpdateRequest {
+  positionValue?: number;
+  stopLossDistance?: number;
+  currentPosition?: number;
+  entryPrice?: number;
+  shares?: number;
+  currentValue?: number;
+  // Enhanced manual entry fields
+  manualPositionSize?: number;
+  manualEntryDate?: string;
+  currentStatus?: 'Active' | 'Closed' | 'Pending';
+  stopStatus?: 'Risk' | 'Protected';
+  portfolioTransition?: 'Risk_to_Protected' | 'Protected_to_Investment';
 }
 
 export interface ExcelValidationRequest {

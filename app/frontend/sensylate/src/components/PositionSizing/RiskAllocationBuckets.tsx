@@ -1,16 +1,18 @@
 import React from 'react';
-import { RiskBucket, AccountBalances } from '../../types';
+import { RiskBucket, AccountBalances, RiskAllocation } from '../../types';
 import Icon from '../Icon';
 import { icons } from '../../utils/icons';
 
 interface RiskAllocationBucketsProps {
-  riskBuckets: RiskBucket[];
+  riskBuckets?: RiskBucket[];
   accountBalances: AccountBalances;
+  riskAllocation?: RiskAllocation;
 }
 
 const RiskAllocationBuckets: React.FC<RiskAllocationBucketsProps> = ({
-  riskBuckets,
+  riskBuckets = [],
   accountBalances,
+  riskAllocation,
 }) => {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -44,11 +46,28 @@ const RiskAllocationBuckets: React.FC<RiskAllocationBucketsProps> = ({
     return iconMap[account] || icons.portfolio;
   };
 
-  // Get active bucket (11.8% tier)
-  const activeBucket = riskBuckets.find((bucket) => bucket.status === 'active');
-  const futureBuckets = riskBuckets.filter(
-    (bucket) => bucket.status === 'future'
+  // Handle both legacy buckets and new single risk allocation
+  const activeBucket = riskBuckets?.find(
+    (bucket) => bucket.status === 'active'
   );
+  const futureBuckets =
+    riskBuckets?.filter((bucket) => bucket.status === 'future') || [];
+
+  // Create a virtual active bucket from new risk allocation if available
+  const virtualActiveBucket = riskAllocation
+    ? {
+        status: 'active' as const,
+        percentage: 11.8, // Fixed 11.8% target
+        allocationAmount: accountBalances.total * 0.118,
+        riskLevel: riskAllocation.currentCVaR / 0.118, // Current utilization
+        currentCVaR: riskAllocation.currentCVaR,
+        utilization: riskAllocation.utilization,
+        availableRisk: riskAllocation.availableRisk,
+      }
+    : null;
+
+  // Use virtual bucket if no legacy buckets exist
+  const displayBucket = activeBucket || virtualActiveBucket;
 
   return (
     <div className="row">
@@ -164,31 +183,31 @@ const RiskAllocationBuckets: React.FC<RiskAllocationBucketsProps> = ({
                 <h6 className="mb-0">Risk Allocation Buckets</h6>
               </div>
               <span className="badge bg-info">
-                {riskBuckets.filter((b) => b.status === 'active').length} Active
+                {displayBucket ? '1' : '0'} Active
               </span>
             </div>
           </div>
           <div className="card-body">
             {/* Active Risk Bucket (11.8%) */}
-            {activeBucket && (
+            {displayBucket && (
               <div className="mb-4">
                 <div className="d-flex align-items-center justify-content-between mb-2">
                   <div className="d-flex align-items-center">
                     <span
                       className={`badge ${
-                        getBucketStatus(activeBucket.status).badge
+                        getBucketStatus(displayBucket.status).badge
                       } me-2`}
                     >
                       <Icon
-                        icon={getBucketStatus(activeBucket.status).icon}
+                        icon={getBucketStatus(displayBucket.status).icon}
                         className="me-1"
                       />
-                      {getBucketStatus(activeBucket.status).text}
+                      {getBucketStatus(displayBucket.status).text}
                     </span>
                     <span className="fw-bold">Current Risk Tier</span>
                   </div>
                   <span className="badge bg-danger text-white px-3 py-2">
-                    {formatPercentage(activeBucket.percentage)}
+                    {formatPercentage(displayBucket.percentage)}
                   </span>
                 </div>
 
@@ -199,13 +218,15 @@ const RiskAllocationBuckets: React.FC<RiskAllocationBucketsProps> = ({
                         Maximum Risk Allocation
                       </div>
                       <div className="h4 mb-0 text-danger">
-                        {formatCurrency(activeBucket.allocationAmount)}
+                        {formatCurrency(displayBucket.allocationAmount)}
                       </div>
                     </div>
                     <div className="text-end">
-                      <div className="text-muted small">Risk Level</div>
+                      <div className="text-muted small">Current CVaR</div>
                       <div className="fw-bold">
-                        {formatPercentage(activeBucket.riskLevel * 100)}
+                        {displayBucket.currentCVaR
+                          ? formatPercentage(displayBucket.currentCVaR * 100)
+                          : formatPercentage(displayBucket.riskLevel * 100)}
                       </div>
                     </div>
                   </div>
@@ -220,12 +241,30 @@ const RiskAllocationBuckets: React.FC<RiskAllocationBucketsProps> = ({
                   <div className="progress" style={{ height: '8px' }}>
                     <div
                       className="progress-bar bg-danger"
-                      style={{ width: '35%' }} // This would be calculated based on actual usage
+                      style={{
+                        width: `${
+                          displayBucket.utilization
+                            ? Math.min(displayBucket.utilization * 100, 100)
+                            : displayBucket.riskLevel * 100
+                        }%`,
+                      }}
                     />
                   </div>
                   <div className="d-flex justify-content-between mt-1">
-                    <small className="text-muted">35% Used</small>
-                    <small className="text-success">65% Available</small>
+                    <small className="text-muted">
+                      {displayBucket.utilization
+                        ? formatPercentage(displayBucket.utilization * 100)
+                        : formatPercentage(displayBucket.riskLevel * 100)}{' '}
+                      Used
+                    </small>
+                    <small className="text-success">
+                      {displayBucket.availableRisk
+                        ? formatPercentage(displayBucket.availableRisk * 100)
+                        : formatPercentage(
+                            (1 - displayBucket.riskLevel) * 100
+                          )}{' '}
+                      Available
+                    </small>
                   </div>
                 </div>
               </div>

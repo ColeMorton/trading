@@ -3,7 +3,6 @@ import { usePositionSizingDashboard } from '../../hooks/usePositionSizing';
 import Icon from '../Icon';
 import { icons } from '../../utils/icons';
 import LoadingIndicator from '../LoadingIndicator';
-import ErrorMessage from '../ErrorMessage';
 import PortfolioRiskPanel from './PortfolioRiskPanel';
 import ActivePositionsTable from './ActivePositionsTable';
 import IncomingSignalsTable from './IncomingSignalsTable';
@@ -55,7 +54,7 @@ const PositionSizingDashboard: React.FC = () => {
   }
 
   return (
-    <div className="container-fluid">
+    <div className="container-fluid" data-testid="position-sizing-dashboard">
       {/* Header Section */}
       <div className="row mb-4">
         <div className="col-12">
@@ -119,8 +118,8 @@ const PositionSizingDashboard: React.FC = () => {
           <div className="row mb-4">
             <div className="col-12">
               <RiskAllocationBuckets
-                riskBuckets={dashboard.riskAllocationBuckets}
                 accountBalances={dashboard.accountBalances}
+                riskAllocation={dashboard.riskAllocation}
               />
             </div>
           </div>

@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-19T10:09:14.370485",
+    "export_timestamp": "2025-06-21T07:46:36.270556",
     "strategy_config": {
       "ticker": "IRM",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 10.595752874658334,
+      "total_return": 10.44664045353531,
       "total_trades": "71",
       "win_rate": 0.5492957746478874,
-      "sharpe_ratio": 0.5791066320795608,
+      "sharpe_ratio": 0.5767123712259896,
       "max_drawdown": -0.44150600175306187
     }
   },
@@ -1494,10 +1494,10 @@
       "Entry Timestamp": "2025-06-17 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 102.7699966430664,
-      "Avg Exit Price": 102.6500015258789,
+      "Avg Exit Price": 101.33000183105469,
       "Size": 112.9639815128006,
-      "PnL": -25.16443420045107,
-      "Return": -0.002167608456816841,
+      "PnL": -174.2768553234764,
+      "Return": -0.015011821144774286,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -1505,10 +1505,10 @@
       "Entry_Month": "2025-06",
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
-      "Trade_Type": "Breakeven",
-      "Cumulative_PnL": 10595.752874658336,
+      "Trade_Type": "Loser",
+      "Cumulative_PnL": 10446.64045353531,
       "Trade_Number": 71,
-      "Rolling_Avg_Return": 0.15147525078980423,
+      "Rolling_Avg_Return": 0.14890640825221274,
       "Rolling_Win_Rate": 0.8
     }
   ],
@@ -4052,15 +4052,15 @@
       "Avg Entry Price": 102.7699966430664,
       "Entry Fees": 11.60930800085589,
       "Exit Timestamp": null,
-      "Avg Exit Price": 102.6500015258789,
+      "Avg Exit Price": 101.33000183105469,
       "Exit Fees": 0.0,
-      "PnL": -25.16443420045107,
-      "Return": -0.002167608456816841,
+      "PnL": -174.2768553234764,
+      "Return": -0.015011821144774286,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
       "Duration_Days": null,
-      "Position_Type": "Breakeven"
+      "Position_Type": "Loser"
     }
   ],
   "analytics": {

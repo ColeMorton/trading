@@ -12,6 +12,9 @@ import {
   RiskAllocationSummary,
   PositionAnalysis,
   TradingPosition,
+  KellyInput,
+  RiskAllocation,
+  StrategyRow,
 } from '../types';
 import { positionSizingApi } from '../services/positionSizingApi';
 
@@ -442,5 +445,352 @@ export const usePositionSizingHealth = (checkInterval = 60000) => {
     isChecking,
     error,
     checkHealth,
+  };
+};
+
+// ===== ENHANCED HOOKS FOR MANUAL DATA ENTRY =====
+
+/**
+ * Kelly Criterion management hook
+ */
+export const useKellyInput = () => {
+  const [kellyInput, setKellyInput] = useState<KellyInput | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchKellyInput = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const data = await positionSizingApi.getKellyInput();
+      setKellyInput(data);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to fetch Kelly input'
+      );
+      console.error('Kelly input fetch error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const updateKellyInput = useCallback(
+    async (input: Omit<KellyInput, 'lastUpdated'>): Promise<boolean> => {
+      try {
+        setIsUpdating(true);
+        setError(null);
+
+        const updatedInput = await positionSizingApi.updateKellyInput(input);
+        setKellyInput(updatedInput);
+        return true;
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : 'Failed to update Kelly input'
+        );
+        console.error('Kelly input update error:', err);
+        return false;
+      } finally {
+        setIsUpdating(false);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    fetchKellyInput();
+  }, [fetchKellyInput]);
+
+  return {
+    kellyInput,
+    isLoading,
+    isUpdating,
+    error,
+    updateKellyInput,
+    refetch: fetchKellyInput,
+  };
+};
+
+/**
+ * Enhanced position management hook with manual entry support
+ */
+export const useEnhancedPositionManagement = () => {
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const updatePosition = useCallback(
+    async (
+      symbol: string,
+      updates: PositionUpdateRequest
+    ): Promise<TradingPosition | null> => {
+      try {
+        setIsUpdating(true);
+        setError(null);
+
+        const updatedPosition = await positionSizingApi.updatePositionEnhanced(
+          symbol,
+          updates
+        );
+        return updatedPosition;
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : 'Failed to update position'
+        );
+        console.error('Position update error:', err);
+        return null;
+      } finally {
+        setIsUpdating(false);
+      }
+    },
+    []
+  );
+
+  const transitionPosition = useCallback(
+    async (
+      symbol: string,
+      transition: 'Risk_to_Protected' | 'Protected_to_Investment'
+    ): Promise<{
+      success: boolean;
+      fromPortfolio: string;
+      toPortfolio: string;
+      position: TradingPosition;
+    } | null> => {
+      try {
+        setIsTransitioning(true);
+        setError(null);
+
+        const result = await positionSizingApi.transitionPosition(
+          symbol,
+          transition
+        );
+        return result;
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : 'Failed to transition position'
+        );
+        console.error('Position transition error:', err);
+        return null;
+      } finally {
+        setIsTransitioning(false);
+      }
+    },
+    []
+  );
+
+  const addPosition = useCallback(
+    async (
+      position: PositionEntryRequest & {
+        manualPositionSize?: number;
+        manualEntryDate?: string;
+        currentStatus?: 'Active' | 'Closed' | 'Pending';
+        stopStatus?: 'Risk' | 'Protected';
+        notes?: string;
+      }
+    ): Promise<TradingPosition | null> => {
+      try {
+        setIsUpdating(true);
+        setError(null);
+
+        const newPosition =
+          await positionSizingApi.addPositionEnhanced(position);
+        return newPosition;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to add position');
+        console.error('Position add error:', err);
+        return null;
+      } finally {
+        setIsUpdating(false);
+      }
+    },
+    []
+  );
+
+  const validatePosition = useCallback(
+    async (
+      symbol: string,
+      positionData: Partial<TradingPosition>
+    ): Promise<{
+      valid: boolean;
+      warnings: string[];
+      suggestions: string[];
+    } | null> => {
+      try {
+        setError(null);
+        const validation = await positionSizingApi.validatePosition(
+          symbol,
+          positionData
+        );
+        return validation;
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : 'Failed to validate position'
+        );
+        console.error('Position validation error:', err);
+        return null;
+      }
+    },
+    []
+  );
+
+  return {
+    updatePosition,
+    transitionPosition,
+    addPosition,
+    validatePosition,
+    isUpdating,
+    isTransitioning,
+    error,
+  };
+};
+
+/**
+ * CSV import/export hook for enhanced portfolio management
+ */
+export const useCSVPortfolioManagement = () => {
+  const [isImporting, setIsImporting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const exportPortfolioCSV = useCallback(
+    async (
+      portfolioType: 'Risk_On' | 'Investment' | 'Protected'
+    ): Promise<{
+      csvContent: string;
+      filename: string;
+      rowCount: number;
+    } | null> => {
+      try {
+        setIsExporting(true);
+        setError(null);
+
+        const result = await positionSizingApi.exportEnhancedCSV(portfolioType);
+        return result;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to export CSV');
+        console.error('CSV export error:', err);
+        return null;
+      } finally {
+        setIsExporting(false);
+      }
+    },
+    []
+  );
+
+  const importPortfolioCSV = useCallback(
+    async (
+      portfolioType: 'Risk_On' | 'Investment' | 'Protected',
+      csvContent: string,
+      options: { validateOnly?: boolean; backupOriginal?: boolean } = {}
+    ): Promise<{
+      success: boolean;
+      imported: number;
+      warnings: string[];
+      backupPath?: string;
+    } | null> => {
+      try {
+        setIsImporting(true);
+        setError(null);
+
+        const result = await positionSizingApi.importEnhancedCSV(
+          portfolioType,
+          csvContent,
+          options
+        );
+        return result;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to import CSV');
+        console.error('CSV import error:', err);
+        return null;
+      } finally {
+        setIsImporting(false);
+      }
+    },
+    []
+  );
+
+  const bulkUpdatePositions = useCallback(
+    async (
+      portfolioType: 'Risk_On' | 'Investment' | 'Protected',
+      strategies: StrategyRow[]
+    ): Promise<{
+      success: boolean;
+      updated: number;
+      errors: Array<{ symbol: string; error: string }>;
+    } | null> => {
+      try {
+        setIsBulkUpdating(true);
+        setError(null);
+
+        const result = await positionSizingApi.bulkUpdatePositions(
+          portfolioType,
+          strategies
+        );
+        return result;
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : 'Failed to bulk update positions'
+        );
+        console.error('Bulk update error:', err);
+        return null;
+      } finally {
+        setIsBulkUpdating(false);
+      }
+    },
+    []
+  );
+
+  return {
+    exportPortfolioCSV,
+    importPortfolioCSV,
+    bulkUpdatePositions,
+    isImporting,
+    isExporting,
+    isBulkUpdating,
+    error,
+  };
+};
+
+/**
+ * Real-time risk allocation monitoring hook
+ */
+export const useRiskAllocationMonitoring = (refreshInterval = 10000) => {
+  const [riskAllocation, setRiskAllocation] = useState<RiskAllocation | null>(
+    null
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchRiskAllocation = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const data = await positionSizingApi.getRiskAllocation();
+      setRiskAllocation(data);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to fetch risk allocation'
+      );
+      console.error('Risk allocation fetch error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRiskAllocation();
+
+    const interval = setInterval(fetchRiskAllocation, refreshInterval);
+    return () => clearInterval(interval);
+  }, [fetchRiskAllocation, refreshInterval]);
+
+  return {
+    riskAllocation,
+    isLoading,
+    error,
+    refetch: fetchRiskAllocation,
   };
 };

@@ -12,7 +12,10 @@ const IncomingSignalsTable: React.FC<IncomingSignalsTableProps> = ({
   signals,
   isLoading = false,
 }) => {
-  const formatCurrency = (value: number) => {
+  const formatCurrency = (value: number | undefined) => {
+    if (value === undefined || value === null || isNaN(value)) {
+      return '$0';
+    }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -21,19 +24,29 @@ const IncomingSignalsTable: React.FC<IncomingSignalsTableProps> = ({
     }).format(value);
   };
 
-  const formatTime = (timestamp: string) => {
-    return new Date(timestamp).toLocaleTimeString();
+  const formatTime = (timestamp: string | undefined) => {
+    if (!timestamp) return 'N/A';
+    try {
+      return new Date(timestamp).toLocaleTimeString();
+    } catch {
+      return 'Invalid time';
+    }
   };
 
-  const getSignalTypeBadge = (signalType: 'entry' | 'exit') => {
+  const getSignalTypeBadge = (signalType: 'entry' | 'exit' | undefined) => {
+    if (!signalType) return 'bg-secondary';
     return signalType === 'entry' ? 'bg-success' : 'bg-danger';
   };
 
-  const getConfidenceBadge = (confidence: 'primary' | 'outlier') => {
+  const getConfidenceBadge = (
+    confidence: 'primary' | 'outlier' | undefined
+  ) => {
+    if (!confidence) return 'bg-secondary';
     return confidence === 'primary' ? 'bg-primary' : 'bg-warning';
   };
 
-  const getSignalIcon = (signalType: 'entry' | 'exit') => {
+  const getSignalIcon = (signalType: 'entry' | 'exit' | undefined) => {
+    if (!signalType) return icons.question;
     return signalType === 'entry' ? icons.add : icons.remove;
   };
 
@@ -80,7 +93,9 @@ const IncomingSignalsTable: React.FC<IncomingSignalsTableProps> = ({
                         className={`me-2 ${
                           signal.signalType === 'entry'
                             ? 'text-success'
-                            : 'text-danger'
+                            : signal.signalType === 'exit'
+                              ? 'text-danger'
+                              : 'text-muted'
                         }`}
                       />
                       <span className="fw-bold">{signal.symbol}</span>
@@ -89,7 +104,7 @@ const IncomingSignalsTable: React.FC<IncomingSignalsTableProps> = ({
                           signal.signalType
                         )} ms-2`}
                       >
-                        {signal.signalType.toUpperCase()}
+                        {signal.signalType?.toUpperCase() || 'UNKNOWN'}
                       </span>
                       <span
                         className={`badge ${getConfidenceBadge(
@@ -111,7 +126,7 @@ const IncomingSignalsTable: React.FC<IncomingSignalsTableProps> = ({
                       <div className="col-6">
                         <div className="text-muted">Position Size</div>
                         <div className="fw-bold">
-                          {signal.recommendedSize.toFixed(4)}
+                          {signal.recommendedSize?.toFixed(4) || '0.0000'}
                         </div>
                       </div>
                       <div className="col-6">
@@ -143,9 +158,11 @@ const IncomingSignalsTable: React.FC<IncomingSignalsTableProps> = ({
                       className={`btn btn-sm ${
                         signal.signalType === 'entry'
                           ? 'btn-outline-success'
-                          : 'btn-outline-danger'
+                          : signal.signalType === 'exit'
+                            ? 'btn-outline-danger'
+                            : 'btn-outline-secondary'
                       }`}
-                      title={`Execute ${signal.signalType} signal`}
+                      title={`Execute ${signal.signalType || 'unknown'} signal`}
                     >
                       <Icon icon={icons.parameterTesting} />
                     </button>

@@ -226,6 +226,36 @@ class PositionSizingOrchestrator:
                 }
             )
 
+        # If no positions from tracker, load from protected.csv
+        if not active_positions:
+            try:
+                protected_csv_path = (
+                    self.base_dir / "csv" / "strategies" / "protected.csv"
+                )
+                if protected_csv_path.exists():
+                    df = pl.read_csv(protected_csv_path)
+
+                    for row in df.iter_rows(named=True):
+                        active_positions.append(
+                            {
+                                "symbol": row.get("Ticker", ""),
+                                "strategy_type": row.get("Strategy Type", ""),
+                                "win_rate": row.get("Win Rate [%]", 0),
+                                "total_return": row.get("Total Return [%]", 0),
+                                "max_drawdown": row.get("Max Drawdown [%]", 0) / 100,
+                                "allocation_percentage": row.get("Allocation [%]", 0),
+                                "stop_loss": row.get("Stop Loss [%]", 0) / 100,
+                                "position_value": 10000,  # Placeholder value
+                                "current_position": 1,  # Active position
+                                "risk_amount": 10000
+                                * (row.get("Stop Loss [%]", 0) / 100),
+                                "account_type": "Protected",
+                                "entry_date": "2024-01-01T00:00:00Z",  # Placeholder
+                            }
+                        )
+            except Exception:
+                pass  # Continue with empty list if CSV loading fails
+
         # Get portfolio holdings by type
         risk_on_holdings = self.portfolio_manager.get_holdings_by_portfolio_type(
             PortfolioType.RISK_ON
@@ -234,19 +264,50 @@ class PositionSizingOrchestrator:
             PortfolioType.INVESTMENT
         )
 
-        # Format holdings for dashboard
+        # Format holdings for dashboard from CSV data
         strategic_holdings = []
+
+        # First try to get holdings from portfolio manager
         for holding in investment_holdings:
             strategic_holdings.append(
                 {
                     "symbol": holding.symbol,
                     "shares": holding.shares,
-                    "average_price": holding.average_price,
-                    "current_value": holding.current_value,
-                    "unrealized_pnl": holding.unrealized_pnl,
-                    "allocation_percentage": holding.allocation_percentage,
+                    "averagePrice": holding.average_price,  # Fixed field name
+                    "currentValue": holding.current_value,  # Fixed field name
+                    "unrealizedPnl": holding.unrealized_pnl,  # Fixed field name
+                    "allocationPercentage": holding.allocation_percentage,  # Fixed field name
                 }
             )
+
+        # If no holdings from portfolio manager, load from CSV
+        if not strategic_holdings:
+            try:
+                portfolio_csv_path = (
+                    self.base_dir / "csv" / "strategies" / "portfolio.csv"
+                )
+                if portfolio_csv_path.exists():
+                    df = pl.read_csv(portfolio_csv_path)
+
+                    for row in df.iter_rows(named=True):
+                        strategic_holdings.append(
+                            {
+                                "symbol": row.get("Ticker", ""),
+                                "allocationPercentage": row.get(
+                                    "Allocation [%]", 0
+                                ),  # Fixed field name
+                                "strategy_type": row.get("Strategy Type", ""),
+                                "win_rate": row.get("Win Rate [%]", 0),
+                                "total_return": row.get("Total Return [%]", 0),
+                                "max_drawdown": row.get("Max Drawdown [%]", 0),
+                                "shares": 0,  # Placeholder - would need market data
+                                "averagePrice": 0,  # Added missing field
+                                "currentValue": 0,  # Fixed field name
+                                "unrealizedPnl": 0,  # Fixed field name
+                            }
+                        )
+            except Exception:
+                pass  # Continue with empty list if CSV loading fails
 
         # Get incoming signals (placeholder - would come from signal service)
         incoming_signals = self._get_incoming_signals()
@@ -533,13 +594,46 @@ class PositionSizingOrchestrator:
     def _get_incoming_signals(self) -> List[Dict[str, Any]]:
         """Get incoming signals for dashboard display.
 
-        This is a placeholder that would integrate with signal service.
+        Loads active trading signals from trades.csv file.
 
         Returns:
             List of incoming signal data
         """
-        # Placeholder - would come from signal service integration
-        return []
+        try:
+            # Load trades.csv for Risk On portfolio signals
+            trades_csv_path = self.base_dir / "csv" / "strategies" / "trades.csv"
+            if not trades_csv_path.exists():
+                return []
+
+            # Read CSV with Polars
+            df = pl.read_csv(trades_csv_path)
+
+            # Convert to signal format for dashboard
+            signals = []
+            for row in df.iter_rows(named=True):
+                signals.append(
+                    {
+                        "symbol": row.get("Ticker", ""),
+                        "signalType": "entry",  # Default to entry signal
+                        "price": 100.0,  # Placeholder price
+                        "confidence": "primary",  # Default confidence level
+                        "recommendedSize": 0.01,  # Placeholder recommended size
+                        "positionValue": 1000.0,  # Placeholder position value
+                        "riskAmount": 50.0,  # Placeholder risk amount
+                        "timestamp": "2024-01-01T00:00:00Z",  # Placeholder timestamp
+                        # Additional fields for display (not part of SignalAnalysis interface)
+                        "strategy_type": row.get("Strategy Type", ""),
+                        "win_rate": row.get("Win Rate [%]", 0),
+                        "expected_return": row.get("Total Return [%]", 0),
+                        "max_drawdown": row.get("Max Drawdown [%]", 0),
+                    }
+                )
+
+            return signals[:10]  # Limit to first 10 signals
+
+        except Exception as e:
+            # Return empty list if CSV reading fails
+            return []
 
     def validate_excel_compatibility(
         self, excel_data: Dict[str, Any]

@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-19T10:09:06.128420",
+    "export_timestamp": "2025-06-21T07:46:29.978362",
     "strategy_config": {
       "ticker": "NFLX",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 482.1633745147116,
+      "total_return": 485.7684498041722,
       "total_trades": "109",
-      "win_rate": 0.5779816513761468,
-      "sharpe_ratio": 1.021892563579941,
+      "win_rate": 0.5871559633027523,
+      "sharpe_ratio": 1.0227338572272042,
       "max_drawdown": -0.7536773980805233
     }
   },
@@ -2292,10 +2292,10 @@
       "Entry Timestamp": "2025-06-16 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 1225.3499755859375,
-      "Avg Exit Price": 1222.2900390625,
+      "Avg Exit Price": 1231.4100341796875,
       "Size": 395.2935547812361,
-      "PnL": -1693.9461334549705,
-      "Return": -0.003497193931859503,
+      "PnL": 1911.1291560055688,
+      "Return": 0.003945573684654664,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -2304,10 +2304,10 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Breakeven",
-      "Cumulative_PnL": 482163.3745147116,
+      "Cumulative_PnL": 485768.44980417215,
       "Trade_Number": 109,
-      "Rolling_Avg_Return": 0.15238310991859194,
-      "Rolling_Win_Rate": 0.4
+      "Rolling_Avg_Return": 0.1538716634418948,
+      "Rolling_Win_Rate": 0.6
     }
   ],
   "orders": [
@@ -6218,10 +6218,10 @@
       "Avg Entry Price": 1225.3499755859375,
       "Entry Fees": 484.3729477004381,
       "Exit Timestamp": null,
-      "Avg Exit Price": 1222.2900390625,
+      "Avg Exit Price": 1231.4100341796875,
       "Exit Fees": 0.0,
-      "PnL": -1693.9461334549705,
-      "Return": -0.003497193931859503,
+      "PnL": 1911.1291560055688,
+      "Return": 0.003945573684654664,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

@@ -26,7 +26,10 @@ const StrategicHoldingsTable: React.FC<StrategicHoldingsTableProps> = ({
   ]);
   const [globalFilter, setGlobalFilter] = useState('');
 
-  const formatCurrency = (value: number) => {
+  const formatCurrency = (value: number | undefined) => {
+    if (value === undefined || value === null || isNaN(value)) {
+      return '$0';
+    }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -35,21 +38,29 @@ const StrategicHoldingsTable: React.FC<StrategicHoldingsTableProps> = ({
     }).format(value);
   };
 
-  const formatPercentage = (value: number) => {
+  const formatPercentage = (value: number | undefined) => {
+    if (value === undefined || value === null || isNaN(value)) {
+      return '0.00%';
+    }
     return `${value.toFixed(2)}%`;
   };
 
-  const formatShares = (value: number) => {
+  const formatShares = (value: number | undefined) => {
+    if (value === undefined || value === null || isNaN(value)) {
+      return '0.0000';
+    }
     return value.toFixed(4);
   };
 
-  const getPnLColor = (pnl: number) => {
+  const getPnLColor = (pnl: number | undefined) => {
+    if (pnl === undefined || pnl === null || isNaN(pnl)) return 'text-muted';
     if (pnl > 0) return 'text-success';
     if (pnl < 0) return 'text-danger';
     return 'text-muted';
   };
 
-  const getPnLIcon = (pnl: number) => {
+  const getPnLIcon = (pnl: number | undefined) => {
+    if (pnl === undefined || pnl === null || isNaN(pnl)) return icons.remove;
     if (pnl > 0) return icons.chevronUp;
     if (pnl < 0) return icons.chevronDown;
     return icons.remove;
