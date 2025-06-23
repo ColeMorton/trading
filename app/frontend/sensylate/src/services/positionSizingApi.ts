@@ -76,7 +76,17 @@ export const positionSizingApi = {
           totalStrategies:
             backendData.portfolio_risk_metrics?.total_strategies || 0,
         },
-        activePositions: backendData.active_positions || [],
+        activePositions: (backendData.active_positions || []).map((position: any) => ({
+          ...position,
+          accountType: position.account_type,
+          portfolioType: position.portfolio_type || position.account_type,
+          positionValue: position.position_value,
+          currentPosition: position.current_position,
+          maxDrawdown: position.max_drawdown,
+          riskAmount: position.risk_amount,
+          entryDate: position.entry_date,
+          stopLossPrice: position.stop_loss_price,
+        })),
         incomingSignals: backendData.incoming_signals || [],
         strategicHoldings: backendData.strategic_holdings || [],
         accountBalances: {
@@ -88,14 +98,18 @@ export const positionSizingApi = {
         },
         riskAllocation: {
           targetCVaR: 0.118, // Fixed 11.8% target
-          currentCVaR: backendData.portfolio_risk_metrics?.current_cvar || 0,
+          currentCVaR: Math.abs(backendData.portfolio_risk_metrics?.current_cvar || 
+                                backendData.portfolio_risk_metrics?.trading_cvar || 0),
           utilization:
-            (backendData.portfolio_risk_metrics?.current_cvar || 0) / 0.118,
+            Math.abs(backendData.portfolio_risk_metrics?.current_cvar || 
+                     backendData.portfolio_risk_metrics?.trading_cvar || 0) / 0.118,
           availableRisk:
-            0.118 - (backendData.portfolio_risk_metrics?.current_cvar || 0),
+            0.118 - Math.abs(backendData.portfolio_risk_metrics?.current_cvar || 
+                             backendData.portfolio_risk_metrics?.trading_cvar || 0),
           riskAmount:
             (backendData.net_worth || 0) *
-            (backendData.portfolio_risk_metrics?.current_cvar || 0),
+            Math.abs(backendData.portfolio_risk_metrics?.current_cvar || 
+                     backendData.portfolio_risk_metrics?.trading_cvar || 0),
         },
         kellyInput: cache.kellyInput, // Include cached Kelly input
         lastUpdated: backendData.last_updated || new Date().toISOString(),

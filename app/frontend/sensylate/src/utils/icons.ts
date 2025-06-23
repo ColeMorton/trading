@@ -53,6 +53,7 @@ import {
   faCode,
   faFlask,
   faList,
+  faShield,
 } from '@fortawesome/free-solid-svg-icons';
 
 // Navigation icons
@@ -138,6 +139,8 @@ export const portfolioIcons = {
   calculator: faCalculator,
   settings: faCog,
   parameterTesting: faFlask,
+  shield: faShield,
+  strategy: faChartLine,
 } as const;
 
 // Accessibility and UI icons

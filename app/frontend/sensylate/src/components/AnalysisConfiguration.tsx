@@ -27,6 +27,8 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
     const [loadingPresets, setLoadingPresets] = useState(true);
     const [presetsError, setPresetsError] = useState<string | null>(null);
     const [isAdvancedExpanded, setIsAdvancedExpanded] = useState(false);
+    const [hasUserInteracted, setHasUserInteracted] = useState(false);
+    const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
     // Load presets from API on component mount
     useEffect(() => {
@@ -81,7 +83,7 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
 
     // Auto-select Default preset when presets are loaded
     useEffect(() => {
-      if (presets.length > 0 && !selectedPreset && !loadingPresets) {
+      if (presets.length > 0 && !loadingPresets && selectedPreset !== 'Default') {
         const defaultPreset = presets.find((p) => p.name === 'Default');
         if (defaultPreset) {
           // Apply the default preset configuration
@@ -188,6 +190,7 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
       const value = e.target.value;
       const error = validateTicker(value);
 
+      setHasUserInteracted(true);
       setFormErrors((prev) => ({ ...prev, TICKER: error }));
       updateConfiguration({ TICKER: value });
     };
@@ -196,11 +199,13 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
       const value = parseInt(e.target.value);
       const error = validateWindows(value);
 
+      setHasUserInteracted(true);
       setFormErrors((prev) => ({ ...prev, WINDOWS: error }));
       updateConfiguration({ WINDOWS: value });
     };
 
     const handleDirectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setHasUserInteracted(true);
       updateConfiguration({ DIRECTION: e.target.value as 'Long' | 'Short' });
     };
 
@@ -236,6 +241,7 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
       const value = parseInt(e.target.value);
       const error = validateYears(value);
 
+      setHasUserInteracted(true);
       setFormErrors((prev) => ({ ...prev, YEARS: error }));
       updateConfiguration({ YEARS: value });
     };
@@ -294,8 +300,10 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
 
         updateConfiguration(convertedConfig);
         setSelectedPreset(presetName);
-        // Clear any validation errors when loading a preset
+        // Clear any validation errors and reset interaction state when loading a preset
         setFormErrors({});
+        setHasUserInteracted(false);
+        setAttemptedSubmit(false);
       }
     };
 
@@ -366,6 +374,8 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
                   updateConfiguration({ TICKER: tickers });
                   // Clear any validation errors when tickers are loaded from preset
                   setFormErrors((prev) => ({ ...prev, TICKER: undefined }));
+                  setHasUserInteracted(false);
+                  setAttemptedSubmit(false);
                 }}
                 currentTickers={
                   Array.isArray(parameterTesting.configuration.TICKER)
@@ -384,7 +394,7 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
               <input
                 type="text"
                 className={`form-control ${
-                  formErrors.TICKER ? 'is-invalid' : ''
+                  formErrors.TICKER && (hasUserInteracted || attemptedSubmit) ? 'is-invalid' : ''
                 }`}
                 id="ticker-input"
                 placeholder="e.g., AAPL, GOOGL, MSFT"
@@ -398,7 +408,7 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
                 aria-required="true"
                 aria-invalid={!!formErrors.TICKER}
               />
-              {formErrors.TICKER && (
+              {formErrors.TICKER && (hasUserInteracted || attemptedSubmit) && (
                 <div className="invalid-feedback" role="alert">
                   {formErrors.TICKER}
                 </div>
@@ -416,7 +426,7 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
               <input
                 type="number"
                 className={`form-control ${
-                  formErrors.WINDOWS ? 'is-invalid' : ''
+                  formErrors.WINDOWS && (hasUserInteracted || attemptedSubmit) ? 'is-invalid' : ''
                 }`}
                 id="windows-input"
                 value={parameterTesting.configuration.WINDOWS}
@@ -426,7 +436,7 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
                 aria-describedby="windows-help"
                 aria-invalid={!!formErrors.WINDOWS}
               />
-              {formErrors.WINDOWS && (
+              {formErrors.WINDOWS && (hasUserInteracted || attemptedSubmit) && (
                 <div className="invalid-feedback" role="alert">
                   {formErrors.WINDOWS}
                 </div>
@@ -833,7 +843,7 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
                           <input
                             type="number"
                             className={`form-control ${
-                              formErrors.YEARS ? 'is-invalid' : ''
+                              formErrors.YEARS && (hasUserInteracted || attemptedSubmit) ? 'is-invalid' : ''
                             }`}
                             placeholder="Years"
                             value={parameterTesting.configuration.YEARS}
@@ -842,7 +852,7 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
                             onChange={handleYearsChange}
                           />
                         )}
-                        {formErrors.YEARS && (
+                        {formErrors.YEARS && (hasUserInteracted || attemptedSubmit) && (
                           <div className="invalid-feedback">
                             {formErrors.YEARS}
                           </div>
@@ -1098,6 +1108,7 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
                 className="btn btn-primary"
                 disabled={isAnalyzing || !isFormValid()}
                 onClick={async () => {
+                  setAttemptedSubmit(true);
                   if (onAnalyze && isFormValid()) {
                     await onAnalyze(parameterTesting.configuration);
                   }
@@ -1126,7 +1137,7 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
                   </>
                 )}
               </button>
-              {!isFormValid() && (
+              {!isFormValid() && (hasUserInteracted || attemptedSubmit) && (
                 <div
                   id="validation-error"
                   className="form-text text-danger"

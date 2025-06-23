@@ -5,7 +5,6 @@ import { icons } from '../../utils/icons';
 import LoadingIndicator from '../LoadingIndicator';
 import PortfolioRiskPanel from './PortfolioRiskPanel';
 import ActivePositionsTable from './ActivePositionsTable';
-import IncomingSignalsTable from './IncomingSignalsTable';
 import StrategicHoldingsTable from './StrategicHoldingsTable';
 import RiskAllocation from './RiskAllocation';
 
@@ -124,31 +123,117 @@ const PositionSizingDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Third Row - Active Positions and Incoming Signals */}
+          {/* Third Row - Three Portfolio Display */}
           <div className="row mb-4">
-            <div className="col-xl-8 mb-3">
-              <ActivePositionsTable
-                positions={dashboard.activePositions}
-                isLoading={isLoading}
-              />
+            <div className="col-lg-4 mb-3">
+              <div className="card h-100">
+                <div className="card-header d-flex align-items-center">
+                  <Icon icon={icons.portfolio} className="me-2 text-success" />
+                  <h5 className="mb-0">Risk-On Trading</h5>
+                </div>
+                <div className="card-body">
+                  <div className="mb-3">
+                    <div className="d-flex justify-content-between">
+                      <span>Current CVaR:</span>
+                      <span className="fw-bold">{dashboard.portfolioRisk.currentCVaR?.toFixed(2) ?? 'N/A'}%</span>
+                    </div>
+                    <div className="d-flex justify-content-between">
+                      <span>Active Positions:</span>
+                      <span className="fw-bold">{dashboard.activePositions.length}</span>
+                    </div>
+                    <div className="d-flex justify-content-between">
+                      <span>Risk Source:</span>
+                      <span className="small text-muted">trades.json</span>
+                    </div>
+                  </div>
+                  <ActivePositionsTable
+                    positions={dashboard.activePositions.filter(p => 
+                      p.portfolioType === 'Risk_On' || p.accountType === 'Risk_On'
+                    )}
+                    isLoading={isLoading}
+                  />
+                </div>
+              </div>
             </div>
-            <div className="col-xl-4 mb-3">
-              <IncomingSignalsTable
-                signals={dashboard.incomingSignals}
-                isLoading={isLoading}
-              />
+            
+            <div className="col-lg-4 mb-3">
+              <div className="card h-100">
+                <div className="card-header d-flex align-items-center">
+                  <Icon icon={icons.shield} className="me-2 text-warning" />
+                  <h5 className="mb-0">Protected Portfolio</h5>
+                  <span className="ms-auto badge bg-success">CVaR: 0%</span>
+                </div>
+                <div className="card-body">
+                  {dashboard.activePositions.filter(p => p.portfolioType === 'Protected' || p.accountType === 'Protected').length > 0 ? (
+                    <div className="table-responsive">
+                      <table className="table table-sm">
+                        <thead>
+                          <tr>
+                            <th>Symbol</th>
+                            <th>Value</th>
+                            <th>Protection</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {dashboard.activePositions
+                            .filter(p => p.portfolioType === 'Protected' || p.accountType === 'Protected')
+                            .map((position, index) => (
+                            <tr key={index}>
+                              <td className="fw-bold">{position.symbol}</td>
+                              <td>${position.positionValue?.toLocaleString() ?? 'N/A'}</td>
+                              <td>
+                                <span className="badge bg-success">
+                                  <Icon icon={icons.shield} className="me-1" />
+                                  Active
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="text-center text-muted py-4">
+                      <Icon icon={icons.shield} className="fa-2x mb-2 opacity-50" />
+                      <div>No protected positions</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            <div className="col-lg-4 mb-3">
+              <div className="card h-100">
+                <div className="card-header d-flex align-items-center">
+                  <Icon icon={icons.strategy} className="me-2 text-info" />
+                  <h5 className="mb-0">Investment Portfolio</h5>
+                </div>
+                <div className="card-body">
+                  <div className="mb-3">
+                    <div className="d-flex justify-content-between">
+                      <span>Strategic Holdings:</span>
+                      <span className="fw-bold">{dashboard.strategicHoldings.length}</span>
+                    </div>
+                    <div className="d-flex justify-content-between">
+                      <span>Account:</span>
+                      <span className="small text-muted">Bybit</span>
+                    </div>
+                    <div className="d-flex justify-content-between">
+                      <span>Risk Source:</span>
+                      <span className="small text-muted">portfolio.json</span>
+                    </div>
+                  </div>
+                  <StrategicHoldingsTable
+                    holdings={dashboard.strategicHoldings.filter(h => 
+                      h.symbol // Only show actual strategic holdings, not filtered positions
+                    )}
+                    isLoading={isLoading}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Fourth Row - Strategic Holdings */}
-          <div className="row mb-4">
-            <div className="col-12">
-              <StrategicHoldingsTable
-                holdings={dashboard.strategicHoldings}
-                isLoading={isLoading}
-              />
-            </div>
-          </div>
 
           {/* Footer Info */}
           <div className="row">
@@ -200,9 +285,9 @@ const PositionSizingDashboard: React.FC = () => {
                         <Icon icon={icons.info} className="me-2 text-success" />
                         <div>
                           <div className="fw-bold">
-                            {dashboard.incomingSignals.length}
+                            {dashboard.strategicHoldings.length}
                           </div>
-                          <small className="text-muted">Pending Signals</small>
+                          <small className="text-muted">Strategic Holdings</small>
                         </div>
                       </div>
                     </div>

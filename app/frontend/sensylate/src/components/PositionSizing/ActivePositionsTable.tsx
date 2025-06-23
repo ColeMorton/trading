@@ -71,7 +71,8 @@ const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
         accessorKey: 'currentPosition',
         header: 'Current Position',
         cell: ({ getValue }) => {
-          const value = getValue() as number;
+          const value = getValue() as number | undefined;
+          if (value == null) return <span className="text-muted">-</span>;
           return <div className="text-end">{value.toFixed(4)}</div>;
         },
       },

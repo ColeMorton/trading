@@ -224,35 +224,43 @@ class PositionSizingOrchestrator:
                 }
             )
 
-        # If no positions from tracker, load from protected.csv
-        if not active_positions:
+        # Load positions from CSV files - trades.csv for Risk-On, protected.csv for Protected
+        def load_csv_positions(csv_filename: str, account_type: str):
+            """Load positions from CSV file and assign to specific account type."""
             try:
-                protected_csv_path = (
-                    self.base_dir / "csv" / "strategies" / "protected.csv"
-                )
-                if protected_csv_path.exists():
-                    df = pl.read_csv(protected_csv_path)
-
+                csv_path = self.base_dir / "csv" / "strategies" / csv_filename
+                if csv_path.exists():
+                    df = pl.read_csv(csv_path)
+                    positions = []
+                    
                     for row in df.iter_rows(named=True):
-                        active_positions.append(
-                            {
-                                "symbol": row.get("Ticker", ""),
-                                "strategy_type": row.get("Strategy Type", ""),
-                                "win_rate": row.get("Win Rate [%]", 0),
-                                "total_return": row.get("Total Return [%]", 0),
-                                "max_drawdown": row.get("Max Drawdown [%]", 0) / 100,
-                                "allocation_percentage": row.get("Allocation [%]", 0),
-                                "stop_loss": row.get("Stop Loss [%]", 0) / 100,
-                                "position_value": 10000,  # Placeholder value
-                                "current_position": 1,  # Active position
-                                "risk_amount": 10000
-                                * (row.get("Stop Loss [%]", 0) / 100),
-                                "account_type": "Protected",
-                                "entry_date": "2024-01-01T00:00:00Z",  # Placeholder
-                            }
-                        )
+                        positions.append({
+                            "symbol": row.get("Ticker", ""),
+                            "strategy_type": row.get("Strategy Type", ""),
+                            "win_rate": row.get("Win Rate [%]", 0),
+                            "total_return": row.get("Total Return [%]", 0),
+                            "max_drawdown": (row.get("Max Drawdown [%]", 0) or 0) / 100,
+                            "allocation_percentage": row.get("Allocation [%]", 0) or 0,
+                            "stop_loss": (row.get("Stop Loss [%]", 0) or 0) / 100,
+                            "position_value": 10000,  # Placeholder value
+                            "current_position": 1,  # Active position
+                            "risk_amount": 10000 * ((row.get("Stop Loss [%]", 0) or 0) / 100),
+                            "account_type": account_type,
+                            "entry_date": "2024-01-01T00:00:00Z",  # Placeholder
+                        })
+                    return positions
             except Exception:
                 pass  # Continue with empty list if CSV loading fails
+            return []
+
+        # Load from both CSV files
+        trades_positions = load_csv_positions("trades.csv", "Risk_On")
+        protected_positions = load_csv_positions("protected.csv", "Protected")
+        
+        # Add CSV positions to active_positions (will be empty list if position tracker had data)
+        if not active_positions:
+            active_positions.extend(trades_positions)
+            active_positions.extend(protected_positions)
 
         # Get portfolio holdings by type
         risk_on_holdings = self.portfolio_manager.get_holdings_by_portfolio_type(
@@ -327,6 +335,7 @@ class PositionSizingOrchestrator:
             portfolio_risk_metrics={
                 "trading_cvar": trading_cvar,
                 "investment_cvar": investment_cvar,
+                "current_cvar": trading_cvar,  # Use trading_cvar as current risk
                 "risk_amount": net_worth_calc.total_net_worth * 0.118,  # 11.8% risk
                 "kelly_criterion": kelly_params["kelly_criterion"],
                 "num_primary": kelly_params["num_primary"],
