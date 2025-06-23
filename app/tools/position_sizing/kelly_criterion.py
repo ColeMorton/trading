@@ -368,6 +368,7 @@ class KellyCriterionSizer:
         self._num_primary = num_primary
         self._num_outliers = num_outliers
         self._kelly_criterion = kelly_criterion
+        self._save_parameters()
 
     def _load_parameters(self) -> None:
         """Load Kelly parameters from JSON file."""

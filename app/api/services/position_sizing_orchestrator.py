@@ -232,22 +232,27 @@ class PositionSizingOrchestrator:
                 if csv_path.exists():
                     df = pl.read_csv(csv_path)
                     positions = []
-                    
+
                     for row in df.iter_rows(named=True):
-                        positions.append({
-                            "symbol": row.get("Ticker", ""),
-                            "strategy_type": row.get("Strategy Type", ""),
-                            "win_rate": row.get("Win Rate [%]", 0),
-                            "total_return": row.get("Total Return [%]", 0),
-                            "max_drawdown": (row.get("Max Drawdown [%]", 0) or 0) / 100,
-                            "allocation_percentage": row.get("Allocation [%]", 0) or 0,
-                            "stop_loss": (row.get("Stop Loss [%]", 0) or 0) / 100,
-                            "position_value": 10000,  # Placeholder value
-                            "current_position": 1,  # Active position
-                            "risk_amount": 10000 * ((row.get("Stop Loss [%]", 0) or 0) / 100),
-                            "account_type": account_type,
-                            "entry_date": "2024-01-01T00:00:00Z",  # Placeholder
-                        })
+                        positions.append(
+                            {
+                                "symbol": row.get("Ticker", ""),
+                                "strategy_type": row.get("Strategy Type", ""),
+                                "win_rate": row.get("Win Rate [%]", 0),
+                                "total_return": row.get("Total Return [%]", 0),
+                                "max_drawdown": (row.get("Max Drawdown [%]", 0) or 0)
+                                / 100,
+                                "allocation_percentage": row.get("Allocation [%]", 0)
+                                or 0,
+                                "stop_loss": (row.get("Stop Loss [%]", 0) or 0) / 100,
+                                "position_value": 10000,  # Placeholder value
+                                "current_position": 1,  # Active position
+                                "risk_amount": 10000
+                                * ((row.get("Stop Loss [%]", 0) or 0) / 100),
+                                "account_type": account_type,
+                                "entry_date": "2024-01-01T00:00:00Z",  # Placeholder
+                            }
+                        )
                     return positions
             except Exception:
                 pass  # Continue with empty list if CSV loading fails
@@ -256,7 +261,7 @@ class PositionSizingOrchestrator:
         # Load from both CSV files
         trades_positions = load_csv_positions("trades.csv", "Risk_On")
         protected_positions = load_csv_positions("protected.csv", "Protected")
-        
+
         # Add CSV positions to active_positions (will be empty list if position tracker had data)
         if not active_positions:
             active_positions.extend(trades_positions)

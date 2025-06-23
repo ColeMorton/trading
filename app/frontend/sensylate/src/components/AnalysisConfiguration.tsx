@@ -83,7 +83,11 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
 
     // Auto-select Default preset when presets are loaded
     useEffect(() => {
-      if (presets.length > 0 && !loadingPresets && selectedPreset !== 'Default') {
+      if (
+        presets.length > 0 &&
+        !loadingPresets &&
+        selectedPreset !== 'Default'
+      ) {
         const defaultPreset = presets.find((p) => p.name === 'Default');
         if (defaultPreset) {
           // Apply the default preset configuration
@@ -394,7 +398,9 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
               <input
                 type="text"
                 className={`form-control ${
-                  formErrors.TICKER && (hasUserInteracted || attemptedSubmit) ? 'is-invalid' : ''
+                  formErrors.TICKER && (hasUserInteracted || attemptedSubmit)
+                    ? 'is-invalid'
+                    : ''
                 }`}
                 id="ticker-input"
                 placeholder="e.g., AAPL, GOOGL, MSFT"
@@ -426,7 +432,9 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
               <input
                 type="number"
                 className={`form-control ${
-                  formErrors.WINDOWS && (hasUserInteracted || attemptedSubmit) ? 'is-invalid' : ''
+                  formErrors.WINDOWS && (hasUserInteracted || attemptedSubmit)
+                    ? 'is-invalid'
+                    : ''
                 }`}
                 id="windows-input"
                 value={parameterTesting.configuration.WINDOWS}
@@ -843,7 +851,10 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
                           <input
                             type="number"
                             className={`form-control ${
-                              formErrors.YEARS && (hasUserInteracted || attemptedSubmit) ? 'is-invalid' : ''
+                              formErrors.YEARS &&
+                              (hasUserInteracted || attemptedSubmit)
+                                ? 'is-invalid'
+                                : ''
                             }`}
                             placeholder="Years"
                             value={parameterTesting.configuration.YEARS}
@@ -852,11 +863,12 @@ const AnalysisConfiguration: React.FC<AnalysisConfigurationProps> = React.memo(
                             onChange={handleYearsChange}
                           />
                         )}
-                        {formErrors.YEARS && (hasUserInteracted || attemptedSubmit) && (
-                          <div className="invalid-feedback">
-                            {formErrors.YEARS}
-                          </div>
-                        )}
+                        {formErrors.YEARS &&
+                          (hasUserInteracted || attemptedSubmit) && (
+                            <div className="invalid-feedback">
+                              {formErrors.YEARS}
+                            </div>
+                          )}
                       </div>
 
                       {/* Additional Options */}

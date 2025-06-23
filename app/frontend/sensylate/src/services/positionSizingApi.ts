@@ -76,17 +76,19 @@ export const positionSizingApi = {
           totalStrategies:
             backendData.portfolio_risk_metrics?.total_strategies || 0,
         },
-        activePositions: (backendData.active_positions || []).map((position: any) => ({
-          ...position,
-          accountType: position.account_type,
-          portfolioType: position.portfolio_type || position.account_type,
-          positionValue: position.position_value,
-          currentPosition: position.current_position,
-          maxDrawdown: position.max_drawdown,
-          riskAmount: position.risk_amount,
-          entryDate: position.entry_date,
-          stopLossPrice: position.stop_loss_price,
-        })),
+        activePositions: (backendData.active_positions || []).map(
+          (position: any) => ({
+            ...position,
+            accountType: position.account_type,
+            portfolioType: position.portfolio_type || position.account_type,
+            positionValue: position.position_value,
+            currentPosition: position.current_position,
+            maxDrawdown: position.max_drawdown,
+            riskAmount: position.risk_amount,
+            entryDate: position.entry_date,
+            stopLossPrice: position.stop_loss_price,
+          })
+        ),
         incomingSignals: backendData.incoming_signals || [],
         strategicHoldings: backendData.strategic_holdings || [],
         accountBalances: {
@@ -98,22 +100,61 @@ export const positionSizingApi = {
         },
         riskAllocation: {
           targetCVaR: 0.118, // Fixed 11.8% target
-          currentCVaR: Math.abs(backendData.portfolio_risk_metrics?.current_cvar || 
-                                backendData.portfolio_risk_metrics?.trading_cvar || 0),
+          currentCVaR: Math.abs(
+            backendData.portfolio_risk_metrics?.current_cvar ||
+              backendData.portfolio_risk_metrics?.trading_cvar ||
+              0
+          ),
           utilization:
-            Math.abs(backendData.portfolio_risk_metrics?.current_cvar || 
-                     backendData.portfolio_risk_metrics?.trading_cvar || 0) / 0.118,
+            Math.abs(
+              backendData.portfolio_risk_metrics?.current_cvar ||
+                backendData.portfolio_risk_metrics?.trading_cvar ||
+                0
+            ) / 0.118,
           availableRisk:
-            0.118 - Math.abs(backendData.portfolio_risk_metrics?.current_cvar || 
-                             backendData.portfolio_risk_metrics?.trading_cvar || 0),
+            0.118 -
+            Math.abs(
+              backendData.portfolio_risk_metrics?.current_cvar ||
+                backendData.portfolio_risk_metrics?.trading_cvar ||
+                0
+            ),
           riskAmount:
             (backendData.net_worth || 0) *
-            Math.abs(backendData.portfolio_risk_metrics?.current_cvar || 
-                     backendData.portfolio_risk_metrics?.trading_cvar || 0),
+            Math.abs(
+              backendData.portfolio_risk_metrics?.current_cvar ||
+                backendData.portfolio_risk_metrics?.trading_cvar ||
+                0
+            ),
         },
-        kellyInput: cache.kellyInput, // Include cached Kelly input
+        kellyInput: null, // Will be populated by separate API call
         lastUpdated: backendData.last_updated || new Date().toISOString(),
       };
+
+      // Fetch Kelly input data separately and merge it
+      try {
+        const kellyResponse = await axios.get<ApiResponse<KellyInput>>(
+          '/api/position-sizing/kelly'
+        );
+        if (kellyResponse.data.status === 'success') {
+          const kellyData = kellyResponse.data.data;
+          dashboard.kellyInput = {
+            ...kellyData,
+            lastUpdated: new Date(kellyData.lastUpdated),
+          };
+          cache.kellyInput = dashboard.kellyInput;
+          cache.kellyLastFetch = now;
+        }
+      } catch (error) {
+        console.warn('Failed to fetch Kelly input data:', error);
+        // Use cached Kelly input or create default from dashboard data
+        dashboard.kellyInput = cache.kellyInput || {
+          kellyCriterion: dashboard.portfolioRisk.kellyMetrics.kellyCriterion,
+          numPrimary: dashboard.portfolioRisk.kellyMetrics.numPrimary,
+          numOutliers: dashboard.portfolioRisk.kellyMetrics.numOutliers,
+          lastUpdated: new Date(),
+          source: 'Trading Journal' as const,
+        };
+      }
 
       // Update cache
       cache.dashboard = dashboard;
@@ -406,11 +447,16 @@ export const positionSizingApi = {
         throw new Error(response.data.message || 'Failed to fetch Kelly input');
       }
 
-      // Update cache
-      cache.kellyInput = response.data.data;
+      // Update cache with proper date conversion
+      const kellyData = response.data.data;
+      const kellyInput = {
+        ...kellyData,
+        lastUpdated: new Date(kellyData.lastUpdated),
+      };
+      cache.kellyInput = kellyInput;
       cache.kellyLastFetch = now;
 
-      return response.data.data;
+      return kellyInput;
     } catch (error) {
       // If error, return cached data or null
       if (cache.kellyInput) {
@@ -427,9 +473,11 @@ export const positionSizingApi = {
   updateKellyInput: async (
     kellyInput: Omit<KellyInput, 'lastUpdated'>
   ): Promise<KellyInput> => {
+    // Convert frontend KellyInput to backend KellyParametersUpdate
     const payload = {
-      ...kellyInput,
-      lastUpdated: new Date().toISOString(),
+      kelly_criterion: kellyInput.kellyCriterion,
+      num_primary: kellyInput.numPrimary,
+      num_outliers: kellyInput.numOutliers,
     };
 
     const response = await axios.post<ApiResponse<KellyInput>>(
@@ -441,12 +489,17 @@ export const positionSizingApi = {
       throw new Error(response.data.message || 'Failed to update Kelly input');
     }
 
-    // Clear related caches
-    cache.kellyInput = response.data.data;
+    // Clear related caches with proper date conversion
+    const kellyData = response.data.data;
+    const updatedKellyInput = {
+      ...kellyData,
+      lastUpdated: new Date(kellyData.lastUpdated),
+    };
+    cache.kellyInput = updatedKellyInput;
     cache.kellyLastFetch = Date.now();
     cache.dashboard = null; // Force dashboard refresh
 
-    return response.data.data;
+    return updatedKellyInput;
   },
 
   /**

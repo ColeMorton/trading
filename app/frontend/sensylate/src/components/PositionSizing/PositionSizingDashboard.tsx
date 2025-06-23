@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { usePositionSizingDashboard } from '../../hooks/usePositionSizing';
+import { KellyInput } from '../../types';
 import Icon from '../Icon';
 import { icons } from '../../utils/icons';
 import LoadingIndicator from '../LoadingIndicator';
@@ -19,6 +20,11 @@ const PositionSizingDashboard: React.FC = () => {
     if (!date) return 'Never';
     return date.toLocaleTimeString();
   };
+
+  const handleKellyUpdate = useCallback((updatedKelly: KellyInput) => {
+    // Force a dashboard refresh to reflect the updated Kelly data
+    refresh();
+  }, [refresh]);
 
   if (isLoading && !dashboard) {
     return (
@@ -109,7 +115,11 @@ const PositionSizingDashboard: React.FC = () => {
           {/* Top Row - Portfolio Risk Panel */}
           <div className="row mb-4">
             <div className="col-12">
-              <PortfolioRiskPanel portfolioRisk={dashboard.portfolioRisk} />
+              <PortfolioRiskPanel 
+                portfolioRisk={dashboard.portfolioRisk}
+                kellyInput={dashboard.kellyInput}
+                onKellyUpdate={handleKellyUpdate}
+              />
             </div>
           </div>
 
@@ -135,11 +145,17 @@ const PositionSizingDashboard: React.FC = () => {
                   <div className="mb-3">
                     <div className="d-flex justify-content-between">
                       <span>Current CVaR:</span>
-                      <span className="fw-bold">{dashboard.portfolioRisk.currentCVaR?.toFixed(2) ?? 'N/A'}%</span>
+                      <span className="fw-bold">
+                        {dashboard.portfolioRisk.currentCVaR?.toFixed(2) ??
+                          'N/A'}
+                        %
+                      </span>
                     </div>
                     <div className="d-flex justify-content-between">
                       <span>Active Positions:</span>
-                      <span className="fw-bold">{dashboard.activePositions.length}</span>
+                      <span className="fw-bold">
+                        {dashboard.activePositions.length}
+                      </span>
                     </div>
                     <div className="d-flex justify-content-between">
                       <span>Risk Source:</span>
@@ -147,15 +163,17 @@ const PositionSizingDashboard: React.FC = () => {
                     </div>
                   </div>
                   <ActivePositionsTable
-                    positions={dashboard.activePositions.filter(p => 
-                      p.portfolioType === 'Risk_On' || p.accountType === 'Risk_On'
+                    positions={dashboard.activePositions.filter(
+                      (p) =>
+                        p.portfolioType === 'Risk_On' ||
+                        p.accountType === 'Risk_On'
                     )}
                     isLoading={isLoading}
                   />
                 </div>
               </div>
             </div>
-            
+
             <div className="col-lg-4 mb-3">
               <div className="card h-100">
                 <div className="card-header d-flex align-items-center">
@@ -164,7 +182,11 @@ const PositionSizingDashboard: React.FC = () => {
                   <span className="ms-auto badge bg-success">CVaR: 0%</span>
                 </div>
                 <div className="card-body">
-                  {dashboard.activePositions.filter(p => p.portfolioType === 'Protected' || p.accountType === 'Protected').length > 0 ? (
+                  {dashboard.activePositions.filter(
+                    (p) =>
+                      p.portfolioType === 'Protected' ||
+                      p.accountType === 'Protected'
+                  ).length > 0 ? (
                     <div className="table-responsive">
                       <table className="table table-sm">
                         <thead>
@@ -176,32 +198,46 @@ const PositionSizingDashboard: React.FC = () => {
                         </thead>
                         <tbody>
                           {dashboard.activePositions
-                            .filter(p => p.portfolioType === 'Protected' || p.accountType === 'Protected')
+                            .filter(
+                              (p) =>
+                                p.portfolioType === 'Protected' ||
+                                p.accountType === 'Protected'
+                            )
                             .map((position, index) => (
-                            <tr key={index}>
-                              <td className="fw-bold">{position.symbol}</td>
-                              <td>${position.positionValue?.toLocaleString() ?? 'N/A'}</td>
-                              <td>
-                                <span className="badge bg-success">
-                                  <Icon icon={icons.shield} className="me-1" />
-                                  Active
-                                </span>
-                              </td>
-                            </tr>
-                          ))}
+                              <tr key={index}>
+                                <td className="fw-bold">{position.symbol}</td>
+                                <td>
+                                  $
+                                  {position.positionValue?.toLocaleString() ??
+                                    'N/A'}
+                                </td>
+                                <td>
+                                  <span className="badge bg-success">
+                                    <Icon
+                                      icon={icons.shield}
+                                      className="me-1"
+                                    />
+                                    Active
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
                         </tbody>
                       </table>
                     </div>
                   ) : (
                     <div className="text-center text-muted py-4">
-                      <Icon icon={icons.shield} className="fa-2x mb-2 opacity-50" />
+                      <Icon
+                        icon={icons.shield}
+                        className="fa-2x mb-2 opacity-50"
+                      />
                       <div>No protected positions</div>
                     </div>
                   )}
                 </div>
               </div>
             </div>
-            
+
             <div className="col-lg-4 mb-3">
               <div className="card h-100">
                 <div className="card-header d-flex align-items-center">
@@ -212,7 +248,9 @@ const PositionSizingDashboard: React.FC = () => {
                   <div className="mb-3">
                     <div className="d-flex justify-content-between">
                       <span>Strategic Holdings:</span>
-                      <span className="fw-bold">{dashboard.strategicHoldings.length}</span>
+                      <span className="fw-bold">
+                        {dashboard.strategicHoldings.length}
+                      </span>
                     </div>
                     <div className="d-flex justify-content-between">
                       <span>Account:</span>
@@ -224,8 +262,8 @@ const PositionSizingDashboard: React.FC = () => {
                     </div>
                   </div>
                   <StrategicHoldingsTable
-                    holdings={dashboard.strategicHoldings.filter(h => 
-                      h.symbol // Only show actual strategic holdings, not filtered positions
+                    holdings={dashboard.strategicHoldings.filter(
+                      (h) => h.symbol // Only show actual strategic holdings, not filtered positions
                     )}
                     isLoading={isLoading}
                   />
@@ -233,7 +271,6 @@ const PositionSizingDashboard: React.FC = () => {
               </div>
             </div>
           </div>
-
 
           {/* Footer Info */}
           <div className="row">
@@ -287,7 +324,9 @@ const PositionSizingDashboard: React.FC = () => {
                           <div className="fw-bold">
                             {dashboard.strategicHoldings.length}
                           </div>
-                          <small className="text-muted">Strategic Holdings</small>
+                          <small className="text-muted">
+                            Strategic Holdings
+                          </small>
                         </div>
                       </div>
                     </div>

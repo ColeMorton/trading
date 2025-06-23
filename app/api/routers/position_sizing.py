@@ -383,7 +383,34 @@ async def get_account_balances(
         )
 
 
-@router.post("/kelly/parameters", summary="Update Kelly criterion parameters")
+@router.get("/kelly", summary="Get Kelly criterion parameters")
+async def get_kelly_parameters(
+    service: EnhancedServiceCoordinator = Depends(get_service_coordinator),
+) -> Dict[str, Any]:
+    """
+    Get current Kelly criterion parameters.
+    """
+    try:
+        params = service.position_sizing.kelly_sizer.get_current_parameters()
+        
+        return {
+            "status": "success",
+            "data": {
+                "kellyCriterion": params.get("kelly_criterion", 0.0448),
+                "numPrimary": params.get("num_primary", 214),
+                "numOutliers": params.get("num_outliers", 25),
+                "lastUpdated": datetime.now().isoformat(),
+                "source": "Trading Journal",
+            },
+            "timestamp": datetime.now().isoformat(),
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get Kelly parameters: {str(e)}"
+        )
+
+
+@router.post("/kelly", summary="Update Kelly criterion parameters")
 async def update_kelly_parameters(
     request: KellyParametersUpdate,
     service: EnhancedServiceCoordinator = Depends(get_service_coordinator),
@@ -404,7 +431,13 @@ async def update_kelly_parameters(
 
         return {
             "status": "success",
-            "data": params,
+            "data": {
+                "kellyCriterion": params.get("kelly_criterion", request.kelly_criterion),
+                "numPrimary": params.get("num_primary", request.num_primary),
+                "numOutliers": params.get("num_outliers", request.num_outliers),
+                "lastUpdated": datetime.now().isoformat(),
+                "source": "Trading Journal",
+            },
             "message": "Kelly parameters updated successfully",
             "timestamp": datetime.now().isoformat(),
         }

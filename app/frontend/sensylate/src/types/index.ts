@@ -233,6 +233,8 @@ export interface KellyParametersUpdate {
 // Enhanced interfaces for manual data entry
 export interface KellyInput {
   kellyCriterion: number;
+  numPrimary: number;
+  numOutliers: number;
   lastUpdated: Date;
   source: 'Trading Journal' | 'Manual' | 'Calculated';
   notes?: string;

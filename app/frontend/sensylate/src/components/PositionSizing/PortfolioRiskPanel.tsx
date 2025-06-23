@@ -1,14 +1,19 @@
 import React from 'react';
-import { PortfolioRiskMetrics } from '../../types';
+import { PortfolioRiskMetrics, KellyInput } from '../../types';
 import Icon from '../Icon';
 import { icons } from '../../utils/icons';
+import KellyEditor from './KellyEditor';
 
 interface PortfolioRiskPanelProps {
   portfolioRisk: PortfolioRiskMetrics;
+  kellyInput?: KellyInput | null;
+  onKellyUpdate?: (updatedKelly: KellyInput) => void;
 }
 
 const PortfolioRiskPanel: React.FC<PortfolioRiskPanelProps> = ({
   portfolioRisk,
+  kellyInput,
+  onKellyUpdate,
 }) => {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -33,7 +38,7 @@ const PortfolioRiskPanel: React.FC<PortfolioRiskPanelProps> = ({
       ? portfolioRisk.riskAmount / portfolioRisk.netWorth
       : 0;
   const kellyAmount =
-    portfolioRisk.netWorth * portfolioRisk.kellyMetrics.kellyCriterion;
+    portfolioRisk.netWorth * (kellyInput?.kellyCriterion || portfolioRisk.kellyMetrics.kellyCriterion);
 
   return (
     <div className="card">
@@ -122,12 +127,10 @@ const PortfolioRiskPanel: React.FC<PortfolioRiskPanelProps> = ({
 
               <div className="row g-3">
                 <div className="col-sm-6">
-                  <div className="text-muted small">Kelly Criterion</div>
-                  <div className="h5 mb-1 text-primary">
-                    {formatPercentage(
-                      portfolioRisk.kellyMetrics.kellyCriterion
-                    )}
-                  </div>
+                  <KellyEditor
+                    kellyInput={kellyInput}
+                    onUpdate={onKellyUpdate}
+                  />
                   <small className="text-muted">
                     Amount: {formatCurrency(kellyAmount)}
                   </small>
