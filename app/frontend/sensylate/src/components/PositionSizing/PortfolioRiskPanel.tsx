@@ -38,7 +38,8 @@ const PortfolioRiskPanel: React.FC<PortfolioRiskPanelProps> = ({
       ? portfolioRisk.riskAmount / portfolioRisk.netWorth
       : 0;
   const kellyAmount =
-    portfolioRisk.netWorth * (kellyInput?.kellyCriterion || portfolioRisk.kellyMetrics.kellyCriterion);
+    portfolioRisk.netWorth *
+    (kellyInput?.kellyCriterion || portfolioRisk.kellyMetrics.kellyCriterion);
 
   return (
     <div className="card">

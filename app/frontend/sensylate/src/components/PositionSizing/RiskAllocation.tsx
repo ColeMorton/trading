@@ -5,15 +5,18 @@ import {
 } from '../../types';
 import Icon from '../Icon';
 import { icons } from '../../utils/icons';
+import AccountBalanceEditor from './AccountBalanceEditor';
 
 interface RiskAllocationProps {
   accountBalances: AccountBalances;
   riskAllocation?: RiskAllocationData;
+  onBalanceUpdate?: (updatedBalances: AccountBalances) => void;
 }
 
 const RiskAllocation: React.FC<RiskAllocationProps> = ({
   accountBalances,
   riskAllocation,
+  onBalanceUpdate,
 }) => {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -28,25 +31,12 @@ const RiskAllocation: React.FC<RiskAllocationProps> = ({
     return `${value.toFixed(1)}%`;
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
-  };
-
   const getRiskStatus = (utilization: number) => {
     if (utilization < 0.7)
       return { badge: 'bg-success', icon: icons.success, text: 'Conservative' };
     if (utilization < 0.9)
       return { badge: 'bg-warning', icon: icons.warning, text: 'Moderate' };
     return { badge: 'bg-danger', icon: icons.error, text: 'High' };
-  };
-
-  const getAccountIcon = (account: string) => {
-    const iconMap: Record<string, any> = {
-      IBKR: icons.star,
-      Bybit: icons.portfolio,
-      Cash: icons.folder,
-    };
-    return iconMap[account] || icons.portfolio;
   };
 
   // Single 11.8% CVaR target risk allocation
@@ -62,104 +52,10 @@ const RiskAllocation: React.FC<RiskAllocationProps> = ({
     <div className="row">
       {/* Account Balances Card */}
       <div className="col-lg-6 mb-3">
-        <div className="card h-100">
-          <div className="card-header">
-            <div className="d-flex align-items-center">
-              <Icon icon={icons.portfolio} className="me-2" />
-              <h6 className="mb-0">Account Balances</h6>
-            </div>
-          </div>
-          <div className="card-body">
-            <div className="row g-3">
-              {/* Individual Account Balances */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center justify-content-between p-3 border rounded">
-                  <div className="d-flex align-items-center">
-                    <Icon
-                      icon={getAccountIcon('IBKR')}
-                      className="me-2 text-primary"
-                    />
-                    <div>
-                      <div className="fw-bold">IBKR</div>
-                      <small className="text-muted">Interactive Brokers</small>
-                    </div>
-                  </div>
-                  <div className="text-end">
-                    <div className="fw-bold">
-                      {formatCurrency(accountBalances.ibkr)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-md-6">
-                <div className="d-flex align-items-center justify-content-between p-3 border rounded">
-                  <div className="d-flex align-items-center">
-                    <Icon
-                      icon={getAccountIcon('Bybit')}
-                      className="me-2 text-warning"
-                    />
-                    <div>
-                      <div className="fw-bold">Bybit</div>
-                      <small className="text-muted">Crypto Exchange</small>
-                    </div>
-                  </div>
-                  <div className="text-end">
-                    <div className="fw-bold">
-                      {formatCurrency(accountBalances.bybit)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-md-6">
-                <div className="d-flex align-items-center justify-content-between p-3 border rounded">
-                  <div className="d-flex align-items-center">
-                    <Icon
-                      icon={getAccountIcon('Cash')}
-                      className="me-2 text-success"
-                    />
-                    <div>
-                      <div className="fw-bold">Cash</div>
-                      <small className="text-muted">Liquid Assets</small>
-                    </div>
-                  </div>
-                  <div className="text-end">
-                    <div className="fw-bold">
-                      {formatCurrency(accountBalances.cash)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Total Net Worth */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center justify-content-between p-3 bg-primary text-white rounded">
-                  <div className="d-flex align-items-center">
-                    <Icon icon={icons.portfolio} className="me-2" />
-                    <div>
-                      <div className="fw-bold">Total</div>
-                      <small>Net Worth</small>
-                    </div>
-                  </div>
-                  <div className="text-end">
-                    <div className="fw-bold h5 mb-0">
-                      {formatCurrency(accountBalances.total)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Last Updated */}
-            <div className="mt-3 pt-3 border-top">
-              <small className="text-muted">
-                <Icon icon={icons.lastUpdated} className="me-1" />
-                Last updated: {formatDate(accountBalances.lastUpdated)}
-              </small>
-            </div>
-          </div>
-        </div>
+        <AccountBalanceEditor
+          accountBalances={accountBalances}
+          onUpdate={onBalanceUpdate}
+        />
       </div>
 
       {/* Risk Allocation Card */}

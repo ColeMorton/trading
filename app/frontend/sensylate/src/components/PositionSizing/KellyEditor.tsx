@@ -22,7 +22,7 @@ const KellyEditor: React.FC<KellyEditorProps> = ({
     kellyCriterion: kellyInput?.kellyCriterion || 0.0448, // Default to 4.48%
     numPrimary: kellyInput?.numPrimary || 214,
     numOutliers: kellyInput?.numOutliers || 25,
-    source: kellyInput?.source || 'Trading Journal' as const,
+    source: kellyInput?.source || ('Trading Journal' as const),
     notes: kellyInput?.notes || '',
   });
 
@@ -77,7 +77,9 @@ const KellyEditor: React.FC<KellyEditorProps> = ({
       setIsEditing(false);
       onUpdate?.(updatedKelly);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update Kelly Criterion');
+      setError(
+        err instanceof Error ? err.message : 'Failed to update Kelly Criterion'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -86,7 +88,7 @@ const KellyEditor: React.FC<KellyEditorProps> = ({
   const handlePercentageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const percentageValue = parseFloat(e.target.value) || 0;
     const decimalValue = percentageValue / 100;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       kellyCriterion: decimalValue,
     }));
@@ -131,10 +133,12 @@ const KellyEditor: React.FC<KellyEditorProps> = ({
               type="number"
               className="form-control form-control-sm"
               value={formData.numPrimary}
-              onChange={(e) => setFormData(prev => ({
-                ...prev,
-                numPrimary: parseInt(e.target.value) || 0,
-              }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  numPrimary: parseInt(e.target.value) || 0,
+                }))
+              }
               min="0"
               disabled={isLoading}
             />
@@ -146,10 +150,12 @@ const KellyEditor: React.FC<KellyEditorProps> = ({
               type="number"
               className="form-control form-control-sm"
               value={formData.numOutliers}
-              onChange={(e) => setFormData(prev => ({
-                ...prev,
-                numOutliers: parseInt(e.target.value) || 0,
-              }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  numOutliers: parseInt(e.target.value) || 0,
+                }))
+              }
               min="0"
               disabled={isLoading}
             />
@@ -160,10 +166,12 @@ const KellyEditor: React.FC<KellyEditorProps> = ({
             <select
               className="form-select form-select-sm"
               value={formData.source}
-              onChange={(e) => setFormData(prev => ({
-                ...prev,
-                source: e.target.value as KellyInput['source'],
-              }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  source: e.target.value as KellyInput['source'],
+                }))
+              }
               disabled={isLoading}
             >
               <option value="Trading Journal">Trading Journal</option>
@@ -178,10 +186,12 @@ const KellyEditor: React.FC<KellyEditorProps> = ({
               className="form-control form-control-sm"
               rows={2}
               value={formData.notes}
-              onChange={(e) => setFormData(prev => ({
-                ...prev,
-                notes: e.target.value,
-              }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  notes: e.target.value,
+                }))
+              }
               placeholder="Add any notes about this Kelly Criterion update..."
               disabled={isLoading}
             />
@@ -230,7 +240,11 @@ const KellyEditor: React.FC<KellyEditorProps> = ({
           <small className="text-muted">
             Source: {kellyInput.source}
             {kellyInput.lastUpdated && (
-              <> • Updated: {new Date(kellyInput.lastUpdated).toLocaleDateString()}</>
+              <>
+                {' '}
+                • Updated:{' '}
+                {new Date(kellyInput.lastUpdated).toLocaleDateString()}
+              </>
             )}
           </small>
         )}

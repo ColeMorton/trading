@@ -392,7 +392,7 @@ async def get_kelly_parameters(
     """
     try:
         params = service.position_sizing.kelly_sizer.get_current_parameters()
-        
+
         return {
             "status": "success",
             "data": {
@@ -432,7 +432,9 @@ async def update_kelly_parameters(
         return {
             "status": "success",
             "data": {
-                "kellyCriterion": params.get("kelly_criterion", request.kelly_criterion),
+                "kellyCriterion": params.get(
+                    "kelly_criterion", request.kelly_criterion
+                ),
                 "numPrimary": params.get("num_primary", request.num_primary),
                 "numOutliers": params.get("num_outliers", request.num_outliers),
                 "lastUpdated": datetime.now().isoformat(),

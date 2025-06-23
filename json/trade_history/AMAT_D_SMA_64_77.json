@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-21T07:46:32.317183",
+    "export_timestamp": "2025-06-24T09:41:55.203923",
     "strategy_config": {
       "ticker": "AMAT",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 2192.432870185273,
+      "total_return": 2224.792022541039,
       "total_trades": "101",
       "win_rate": 0.594059405940594,
-      "sharpe_ratio": 0.7879879297574913,
+      "sharpe_ratio": 0.7890426826900512,
       "max_drawdown": -0.6849130032877286
     }
   },
@@ -2124,10 +2124,10 @@
       "Entry Timestamp": "2025-06-16 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 176.5500030517578,
-      "Avg Exit Price": 169.4600067138672,
+      "Avg Exit Price": 171.9600067138672,
       "Size": 12943.660942306458,
-      "PnL": -94055.71205871599,
-      "Return": -0.041158573862001675,
+      "PnL": -61696.5597029496,
+      "Return": -0.02699827957264325,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -2136,9 +2136,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Loser",
-      "Cumulative_PnL": 2192432.870185273,
+      "Cumulative_PnL": 2224792.022541039,
       "Trade_Number": 101,
-      "Rolling_Avg_Return": 0.05619250177755804,
+      "Rolling_Avg_Return": 0.059024560635429726,
       "Rolling_Win_Rate": 0.6
     }
   ],
@@ -5762,10 +5762,10 @@
       "Avg Entry Price": 176.5500030517578,
       "Entry Fees": 2285.2033788650297,
       "Exit Timestamp": null,
-      "Avg Exit Price": 169.4600067138672,
+      "Avg Exit Price": 171.9600067138672,
       "Exit Fees": 0.0,
-      "PnL": -94055.71205871599,
-      "Return": -0.041158573862001675,
+      "PnL": -61696.5597029496,
+      "Return": -0.02699827957264325,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

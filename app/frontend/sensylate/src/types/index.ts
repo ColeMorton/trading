@@ -220,7 +220,7 @@ export interface PositionUpdateRequest {
 }
 
 export interface AccountBalanceUpdate {
-  accountType: 'IBKR' | 'Bybit' | 'Cash';
+  account_type: 'IBKR' | 'Bybit' | 'Cash';
   balance: number;
 }
 

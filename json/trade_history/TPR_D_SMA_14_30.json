@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-21T07:46:44.792628",
+    "export_timestamp": "2025-06-24T09:42:02.222164",
     "strategy_config": {
       "ticker": "TPR",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 18.163959416418706,
+      "total_return": 18.486653436224074,
       "total_trades": "107",
       "win_rate": 0.4672897196261682,
-      "sharpe_ratio": 0.6768337985179668,
+      "sharpe_ratio": 0.6796134803843082,
       "max_drawdown": -0.617470526620151
     }
   },
@@ -2250,10 +2250,10 @@
       "Entry Timestamp": "2025-06-18 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 84.23999786376953,
-      "Avg Exit Price": 84.33000183105469,
+      "Avg Exit Price": 85.75,
       "Size": 227.2496027547997,
-      "PnL": 1.309859761302505,
-      "Return": 6.842319049811597e-5,
+      "PnL": 324.00387956666964,
+      "Return": 0.016925002071728628,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -2261,10 +2261,10 @@
       "Entry_Month": "2025-06",
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
-      "Trade_Type": "Breakeven",
-      "Cumulative_PnL": 18163.959416418707,
+      "Trade_Type": "Winner",
+      "Cumulative_PnL": 18486.653436224075,
       "Trade_Number": 107,
-      "Rolling_Avg_Return": 0.1262181176385266,
+      "Rolling_Avg_Return": 0.12958943341477275,
       "Rolling_Win_Rate": 0.8
     }
   ],
@@ -6104,15 +6104,15 @@
       "Avg Entry Price": 84.23999786376953,
       "Entry Fees": 19.14350605060463,
       "Exit Timestamp": null,
-      "Avg Exit Price": 84.33000183105469,
+      "Avg Exit Price": 85.75,
       "Exit Fees": 0.0,
-      "PnL": 1.309859761302505,
-      "Return": 6.842319049811597e-5,
+      "PnL": 324.00387956666964,
+      "Return": 0.016925002071728628,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
       "Duration_Days": null,
-      "Position_Type": "Breakeven"
+      "Position_Type": "Winner"
     }
   ],
   "analytics": {

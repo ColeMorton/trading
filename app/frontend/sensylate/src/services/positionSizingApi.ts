@@ -97,6 +97,7 @@ export const positionSizingApi = {
           cash: backendData.account_balances?.cash || 0,
           total: backendData.net_worth || 0,
           accountBreakdown: backendData.account_balances || {},
+          lastUpdated: backendData.last_updated || new Date().toISOString(),
         },
         riskAllocation: {
           targetCVaR: 0.118, // Fixed 11.8% target

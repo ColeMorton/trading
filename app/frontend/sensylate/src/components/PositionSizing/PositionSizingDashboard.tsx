@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { usePositionSizingDashboard } from '../../hooks/usePositionSizing';
-import { KellyInput } from '../../types';
+import { KellyInput, AccountBalances } from '../../types';
 import Icon from '../Icon';
 import { icons } from '../../utils/icons';
 import LoadingIndicator from '../LoadingIndicator';
@@ -21,10 +21,21 @@ const PositionSizingDashboard: React.FC = () => {
     return date.toLocaleTimeString();
   };
 
-  const handleKellyUpdate = useCallback((updatedKelly: KellyInput) => {
-    // Force a dashboard refresh to reflect the updated Kelly data
-    refresh();
-  }, [refresh]);
+  const handleKellyUpdate = useCallback(
+    (updatedKelly: KellyInput) => {
+      // Force a dashboard refresh to reflect the updated Kelly data
+      refresh();
+    },
+    [refresh]
+  );
+
+  const handleBalanceUpdate = useCallback(
+    (updatedBalances: AccountBalances) => {
+      // Force a dashboard refresh to reflect the updated account balances
+      refresh();
+    },
+    [refresh]
+  );
 
   if (isLoading && !dashboard) {
     return (
@@ -115,7 +126,7 @@ const PositionSizingDashboard: React.FC = () => {
           {/* Top Row - Portfolio Risk Panel */}
           <div className="row mb-4">
             <div className="col-12">
-              <PortfolioRiskPanel 
+              <PortfolioRiskPanel
                 portfolioRisk={dashboard.portfolioRisk}
                 kellyInput={dashboard.kellyInput}
                 onKellyUpdate={handleKellyUpdate}
@@ -129,6 +140,7 @@ const PositionSizingDashboard: React.FC = () => {
               <RiskAllocation
                 accountBalances={dashboard.accountBalances}
                 riskAllocation={dashboard.riskAllocation}
+                onBalanceUpdate={handleBalanceUpdate}
               />
             </div>
           </div>

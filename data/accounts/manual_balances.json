@@ -2,22 +2,22 @@
   "balances": [
     {
       "account_type": "IBKR",
-      "balance": 7803.0,
-      "updated_at": "2025-06-22T20:49:08.729543",
+      "balance": 7867.0,
+      "updated_at": "2025-06-24T09:44:09.146096",
       "id": 1
     },
     {
       "account_type": "Bybit",
-      "balance": 5333,
-      "updated_at": "2025-06-22T20:49:08.729890",
+      "balance": 5203.0,
+      "updated_at": "2025-06-24T09:44:09.171624",
       "id": 2
     },
     {
       "account_type": "Cash",
       "balance": 1124.36,
-      "updated_at": "2025-06-22T20:49:08.730059",
+      "updated_at": "2025-06-24T09:44:09.190446",
       "id": 3
     }
   ],
-  "last_updated": "2025-06-22T20:49:08.730059"
+  "last_updated": "2025-06-24T09:44:09.190446"
 }
