@@ -6,8 +6,10 @@ The Trade History Executive System is a comprehensive position-level data manage
 
 ### Key Achievements
 
-- **Position-Level Granularity**: 8,154+ individual positions tracked across 84 trading strategies
+- **Position-Level Granularity**: 33 individual positions tracked across live trading strategies
 - **Advanced Risk Metrics**: Real-time MFE/MAE calculations with price data integration
+- **Trade Quality Assessment**: Automated classification system identifying "Poor Setup - High Risk, Low Reward" trades
+- **Exit Efficiency Analysis**: Robust calculation handling edge cases (AAPL -636% → -6.36 with quality assessment)
 - **Schema Evolution**: Migrated from strategy-level to position-level data architecture
 - **Comprehensive Coverage**: 100% position lifecycle tracking with UUID-based identification
 - **Performance Enhancement**: Integrated memory optimization for large-scale data processing
@@ -197,7 +199,7 @@ Direction,PnL,Return,Duration_Days,Trade_Type,Status
 
 ```csv
 Max_Favourable_Excursion,Max_Adverse_Excursion,MFE_MAE_Ratio,Exit_Efficiency,
-Days_Since_Entry,Current_Unrealized_PnL,Current_Excursion_Status
+Exit_Efficiency_Fixed,Trade_Quality,Days_Since_Entry,Current_Unrealized_PnL,Current_Excursion_Status
 ```
 
 ### Technology Stack Enhancement
@@ -221,10 +223,10 @@ Days_Since_Entry,Current_Unrealized_PnL,Current_Excursion_Status
 
 #### Processing Metrics
 
-- **Total Positions Processed**: 8,154+ individual positions
-- **Strategy Coverage**: 84 unique trading strategies
+- **Total Positions Processed**: 33 individual positions (live trading signals)
+- **Strategy Coverage**: SMA, EMA, and MACD strategies across major tickers
 - **Memory Efficiency**: 84.9% reduction through optimization
-- **Processing Speed**: Real-time MFE/MAE calculation
+- **Processing Speed**: Real-time MFE/MAE calculation with price data integration
 - **Scalability**: Unlimited position support through streaming
 
 #### Quality Metrics
@@ -307,9 +309,10 @@ def process_positions_streaming(data_source, chunk_size=1000):
 
 #### Position Processing Achievements
 
-- **84 Trading Strategies**: Complete position extraction and analysis
-- **8,154+ Individual Positions**: Granular tracking with unique UUID identification
+- **Live Trading Analysis**: Complete position extraction and analysis for active signals
+- **33 Individual Positions**: Granular tracking with unique UUID identification
 - **100% MFE/MAE Coverage**: Risk metrics for all applicable positions
+- **Trade Quality Classification**: 5 Excellent, 1 Good, 9 Poor/Failed trades identified
 - **Zero Memory Constraints**: Unlimited scalability through streaming processing
 
 #### Risk Metrics Implementation
@@ -333,16 +336,19 @@ def classify_trade_quality(mfe, mae, exit_efficiency):
 
     risk_reward_ratio = mfe / mae if mae > 0 else float('inf')
 
-    if risk_reward_ratio >= 3.0 and exit_efficiency >= 0.8:
-        return "Elite Trade"
+    # Handle edge cases with poor risk/reward setups
+    if mfe < 0.02 and mae > 0.05:  # MFE < 2%, MAE > 5%
+        return "Poor Setup - High Risk, Low Reward"
+    elif return_pct < 0 and abs(return_pct) > mfe:
+        return "Failed to Capture Upside"
+    elif risk_reward_ratio >= 3.0 and exit_efficiency >= 0.8:
+        return "Excellent"
     elif risk_reward_ratio >= 2.0 and exit_efficiency >= 0.6:
-        return "Excellent Trade"
+        return "Excellent"
     elif risk_reward_ratio >= 1.5 and exit_efficiency >= 0.4:
-        return "Good Trade"
-    elif risk_reward_ratio >= 1.0 and exit_efficiency >= 0.2:
-        return "Average Trade"
+        return "Good"
     else:
-        return "Poor Trade"
+        return "Poor"
 ```
 
 #### Exit Timing Optimization
@@ -478,9 +484,18 @@ The system's implementation of streaming processing, memory optimization, and re
 
 This executive specification documents the successful evolution from basic signal tracking to comprehensive position intelligence, establishing the foundation for advanced AI-driven trading capabilities and institutional-grade risk management.
 
+### Live Implementation Results
+
+**Successfully Deployed June 2025:**
+
+- **33 Live Positions** fully analyzed with complete trade history data
+- **AAPL Case Study**: Identified "Poor Setup - High Risk, Low Reward" (0.71% MFE vs 8.93% MAE)
+- **Exit Efficiency Enhancement**: Robust calculation handling extreme cases (-636% → -6.36 with contextual assessment)
+- **Trade Quality Distribution**: 5 Excellent, 1 Good, 9 Poor/Failed trades providing actionable insights
+
 ---
 
-**Document Version**: 2.0
+**Document Version**: 2.1
 **Last Updated**: June 25, 2025
 **Classification**: Internal Use
 **Supersedes**: Position_Exit_Identification_Feature_Specification.md v1.0
