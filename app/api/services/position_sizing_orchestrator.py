@@ -603,29 +603,35 @@ class PositionSizingOrchestrator:
     def _get_incoming_signals(self) -> List[Dict[str, Any]]:
         """Get incoming signals for dashboard display.
 
-        Loads active trading signals from trades.csv file.
+        Loads candidate trading signals from incoming.csv file.
 
         Returns:
             List of incoming signal data
         """
         try:
-            # Load trades.csv for Risk On portfolio signals
-            trades_csv_path = self.base_dir / "csv" / "strategies" / "trades.csv"
-            if not trades_csv_path.exists():
+            # Load incoming.csv for candidate signals
+            incoming_csv_path = self.base_dir / "csv" / "strategies" / "incoming.csv"
+            if not incoming_csv_path.exists():
                 return []
 
             # Read CSV with Polars
-            df = pl.read_csv(trades_csv_path)
+            df = pl.read_csv(incoming_csv_path)
 
             # Convert to signal format for dashboard
             signals = []
             for row in df.iter_rows(named=True):
+                # Get score from the CSV (higher score = better strategy)
+                score = row.get("Score", 0) or 0
+
+                # Determine confidence based on score threshold
+                confidence = "primary" if score > 1.0 else "outlier"
+
                 signals.append(
                     {
                         "symbol": row.get("Ticker", ""),
                         "signalType": "entry",  # Default to entry signal
                         "price": 100.0,  # Placeholder price
-                        "confidence": "primary",  # Default confidence level
+                        "confidence": confidence,  # Based on strategy score
                         "recommendedSize": 0.01,  # Placeholder recommended size
                         "positionValue": 1000.0,  # Placeholder position value
                         "riskAmount": 50.0,  # Placeholder risk amount
@@ -635,8 +641,15 @@ class PositionSizingOrchestrator:
                         "win_rate": row.get("Win Rate [%]", 0),
                         "expected_return": row.get("Total Return [%]", 0),
                         "max_drawdown": row.get("Max Drawdown [%]", 0),
+                        "score": score,  # Include strategy score for display
+                        "profit_factor": row.get("Profit Factor", 0),
+                        "expectancy_per_trade": row.get("Expectancy per Trade", 0),
+                        "sortino_ratio": row.get("Sortino Ratio", 0),
                     }
                 )
+
+            # Sort by score descending to show best strategies first
+            signals.sort(key=lambda x: x.get("score", 0), reverse=True)
 
             return signals[:10]  # Limit to first 10 signals
 

@@ -145,13 +145,91 @@ const PositionSizingDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Third Row - Three Portfolio Display */}
+          {/* Third Row - Four Portfolio Display */}
           <div className="row mb-4">
-            <div className="col-lg-4 mb-3">
+            {/* Incoming Positions */}
+            <div className="col-lg-3 mb-3">
+              <div className="card h-100">
+                <div className="card-header d-flex align-items-center">
+                  <Icon
+                    icon={icons.parameterTesting}
+                    className="me-2 text-secondary"
+                  />
+                  <h6 className="mb-0">Incoming Positions</h6>
+                </div>
+                <div className="card-body">
+                  <div className="mb-3">
+                    <div className="d-flex justify-content-between">
+                      <span>Candidate Signals:</span>
+                      <span className="fw-bold">
+                        {dashboard.incomingSignals.length}
+                      </span>
+                    </div>
+                    <div className="d-flex justify-content-between">
+                      <span>Data Source:</span>
+                      <span className="small text-muted">incoming.csv</span>
+                    </div>
+                    <div className="d-flex justify-content-between">
+                      <span>Status:</span>
+                      <span className="small badge bg-secondary">Pending</span>
+                    </div>
+                  </div>
+                  {dashboard.incomingSignals.length > 0 ? (
+                    <div className="table-responsive">
+                      <table className="table table-sm">
+                        <thead>
+                          <tr>
+                            <th>Symbol</th>
+                            <th>Strategy</th>
+                            <th>Score</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {dashboard.incomingSignals
+                            .slice(0, 5)
+                            .map((signal: any, index) => (
+                              <tr key={index}>
+                                <td className="fw-bold">{signal.symbol}</td>
+                                <td className="small">
+                                  {signal.strategy_type || 'SMA'}
+                                </td>
+                                <td>
+                                  <span
+                                    className={`badge ${
+                                      (signal.score || 0) > 1.5
+                                        ? 'bg-success'
+                                        : (signal.score || 0) > 1.0
+                                          ? 'bg-warning'
+                                          : 'bg-secondary'
+                                    }`}
+                                  >
+                                    {(signal.score || 0).toFixed(2)}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="text-center text-muted py-4">
+                      <Icon
+                        icon={icons.parameterTesting}
+                        className="fa-2x mb-2 opacity-50"
+                      />
+                      <div>No incoming signals</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Risk-On Trading */}
+            <div className="col-lg-3 mb-3">
               <div className="card h-100">
                 <div className="card-header d-flex align-items-center">
                   <Icon icon={icons.portfolio} className="me-2 text-success" />
-                  <h5 className="mb-0">Risk-On Trading</h5>
+                  <h6 className="mb-0">Risk-On Trading</h6>
                 </div>
                 <div className="card-body">
                   <div className="mb-3">
@@ -186,11 +264,12 @@ const PositionSizingDashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="col-lg-4 mb-3">
+            {/* Protected Portfolio */}
+            <div className="col-lg-3 mb-3">
               <div className="card h-100">
                 <div className="card-header d-flex align-items-center">
                   <Icon icon={icons.shield} className="me-2 text-warning" />
-                  <h5 className="mb-0">Protected Portfolio</h5>
+                  <h6 className="mb-0">Protected Portfolio</h6>
                   <span className="ms-auto badge bg-success">CVaR: 0%</span>
                 </div>
                 <div className="card-body">
@@ -250,11 +329,12 @@ const PositionSizingDashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="col-lg-4 mb-3">
+            {/* Investment Portfolio */}
+            <div className="col-lg-3 mb-3">
               <div className="card h-100">
                 <div className="card-header d-flex align-items-center">
                   <Icon icon={icons.strategy} className="me-2 text-info" />
-                  <h5 className="mb-0">Investment Portfolio</h5>
+                  <h6 className="mb-0">Investment Portfolio</h6>
                 </div>
                 <div className="card-body">
                   <div className="mb-3">
