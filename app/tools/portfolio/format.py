@@ -78,6 +78,13 @@ def standardize_portfolio_columns(
         # Position size columns
         "Position Size": "POSITION_SIZE",
         "position_size": "POSITION_SIZE",
+        # Position date columns
+        "last_position_open_date": "Last Position Open Date",
+        "last position open date": "Last Position Open Date",
+        "Last_Position_Open_Date": "Last Position Open Date",
+        "last_position_close_date": "Last Position Close Date",
+        "last position close date": "Last Position Close Date",
+        "Last_Position_Close_Date": "Last Position Close Date",
     }
 
     # Create a mapping of existing columns
