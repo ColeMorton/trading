@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-24T10:09:38.051099",
+    "export_timestamp": "2025-06-25T07:05:08.197671",
     "strategy_config": {
       "ticker": "HWM",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 5.088499286250227,
+      "total_return": 5.121085997145066,
       "total_trades": "154",
       "win_rate": 0.525974025974026,
-      "sharpe_ratio": 1.0618086829919846,
+      "sharpe_ratio": 1.0641909064648425,
       "max_drawdown": -0.3582835150274075
     }
   },
@@ -3237,10 +3237,10 @@
       "Entry Timestamp": "2025-06-20 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 173.33999633789062,
-      "Avg Exit Price": 175.6300048828125,
+      "Avg Exit Price": 176.57000732421875,
       "Size": 34.66662368034848,
-      "PnL": 73.37775202979083,
-      "Return": 0.012211079919824085,
+      "PnL": 105.96446292463042,
+      "Return": 0.01763396247010358,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -3249,9 +3249,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Winner",
-      "Cumulative_PnL": 5088.499286250228,
+      "Cumulative_PnL": 5121.085997145067,
       "Trade_Number": 154,
-      "Rolling_Avg_Return": 0.052952996406781014,
+      "Rolling_Avg_Return": 0.05403757291683692,
       "Rolling_Win_Rate": 0.6
     }
   ],
@@ -8783,10 +8783,10 @@
       "Avg Entry Price": 173.33999633789062,
       "Entry Fees": 6.009112421797909,
       "Exit Timestamp": null,
-      "Avg Exit Price": 175.6300048828125,
+      "Avg Exit Price": 176.57000732421875,
       "Exit Fees": 0.0,
-      "PnL": 73.37775202979083,
-      "Return": 0.012211079919824085,
+      "PnL": 105.96446292463042,
+      "Return": 0.01763396247010358,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

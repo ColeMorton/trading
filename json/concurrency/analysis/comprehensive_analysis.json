@@ -1,0 +1,2557 @@
+{
+  "metadata": {
+    "analysis_date": "2025-06-24T17:06:41.274298",
+    "trades_portfolio_size": 13,
+    "incoming_portfolio_size": 6
+  },
+  "trades_portfolio": {
+    "rankings": {
+      "Score": [
+        {
+          "Ticker": "NFLX",
+          "Strategy Type": "SMA",
+          "Short Window": 82,
+          "Long Window": 83,
+          "Score": 1.7435464335001878
+        },
+        {
+          "Ticker": "AMAT",
+          "Strategy Type": "SMA",
+          "Short Window": 64,
+          "Long Window": 77,
+          "Score": 1.7009051645633746
+        },
+        {
+          "Ticker": "AMZN",
+          "Strategy Type": "SMA",
+          "Short Window": 51,
+          "Long Window": 69,
+          "Score": 1.5487419847000694
+        },
+        {
+          "Ticker": "BLDR",
+          "Strategy Type": "SMA",
+          "Short Window": 50,
+          "Long Window": 51,
+          "Score": 1.535537881810755
+        },
+        {
+          "Ticker": "ALGN",
+          "Strategy Type": "SMA",
+          "Short Window": 13,
+          "Long Window": 39,
+          "Score": 1.5193200167167633
+        },
+        {
+          "Ticker": "TSLA",
+          "Strategy Type": "SMA",
+          "Short Window": 4,
+          "Long Window": 39,
+          "Score": 1.4352545426782402
+        },
+        {
+          "Ticker": "SMCI",
+          "Strategy Type": "SMA",
+          "Short Window": 58,
+          "Long Window": 60,
+          "Score": 1.3889377385463455
+        },
+        {
+          "Ticker": "COR",
+          "Strategy Type": "SMA",
+          "Short Window": 8,
+          "Long Window": 26,
+          "Score": 1.25607228317037
+        },
+        {
+          "Ticker": "GME",
+          "Strategy Type": "SMA",
+          "Short Window": 53,
+          "Long Window": 61,
+          "Score": 1.2546258531717516
+        },
+        {
+          "Ticker": "HWM",
+          "Strategy Type": "SMA",
+          "Short Window": 7,
+          "Long Window": 9,
+          "Score": 1.2449146251868437
+        }
+      ],
+      "Win Rate": [
+        {
+          "Ticker": "AMZN",
+          "Strategy Type": "SMA",
+          "Short Window": 51,
+          "Long Window": 69,
+          "Win Rate [%]": 61.66666666666667
+        },
+        {
+          "Ticker": "AMAT",
+          "Strategy Type": "SMA",
+          "Short Window": 64,
+          "Long Window": 77,
+          "Win Rate [%]": 60.0
+        },
+        {
+          "Ticker": "NFLX",
+          "Strategy Type": "SMA",
+          "Short Window": 82,
+          "Long Window": 83,
+          "Win Rate [%]": 58.333333333333336
+        },
+        {
+          "Ticker": "SMCI",
+          "Strategy Type": "SMA",
+          "Short Window": 58,
+          "Long Window": 60,
+          "Win Rate [%]": 54.08163265306123
+        },
+        {
+          "Ticker": "BLDR",
+          "Strategy Type": "SMA",
+          "Short Window": 50,
+          "Long Window": 51,
+          "Win Rate [%]": 53.125
+        },
+        {
+          "Ticker": "HWM",
+          "Strategy Type": "SMA",
+          "Short Window": 7,
+          "Long Window": 9,
+          "Win Rate [%]": 52.28758169934641
+        },
+        {
+          "Ticker": "GME",
+          "Strategy Type": "SMA",
+          "Short Window": 53,
+          "Long Window": 61,
+          "Win Rate [%]": 50.68493150684932
+        },
+        {
+          "Ticker": "ALGN",
+          "Strategy Type": "SMA",
+          "Short Window": 13,
+          "Long Window": 39,
+          "Win Rate [%]": 50.63291139240506
+        },
+        {
+          "Ticker": "COR",
+          "Strategy Type": "SMA",
+          "Short Window": 8,
+          "Long Window": 26,
+          "Win Rate [%]": 48.05194805194805
+        },
+        {
+          "Ticker": "TPR",
+          "Strategy Type": "SMA",
+          "Short Window": 14,
+          "Long Window": 30,
+          "Win Rate [%]": 46.22641509433962
+        }
+      ],
+      "Total Return": [
+        {
+          "Ticker": "AMAT",
+          "Strategy Type": "SMA",
+          "Short Window": 64,
+          "Long Window": 77,
+          "Total Return [%]": 222479.2022541039
+        },
+        {
+          "Ticker": "NFLX",
+          "Strategy Type": "SMA",
+          "Short Window": 82,
+          "Long Window": 83,
+          "Total Return [%]": 49451.62981016252
+        },
+        {
+          "Ticker": "AMZN",
+          "Strategy Type": "SMA",
+          "Short Window": 51,
+          "Long Window": 69,
+          "Total Return [%]": 48576.67176450108
+        },
+        {
+          "Ticker": "ALGN",
+          "Strategy Type": "SMA",
+          "Short Window": 13,
+          "Long Window": 39,
+          "Total Return [%]": 37563.58661104817
+        },
+        {
+          "Ticker": "TSLA",
+          "Strategy Type": "SMA",
+          "Short Window": 4,
+          "Long Window": 39,
+          "Total Return [%]": 17929.51910936722
+        },
+        {
+          "Ticker": "BLDR",
+          "Strategy Type": "SMA",
+          "Short Window": 50,
+          "Long Window": 51,
+          "Total Return [%]": 7774.629097012359
+        },
+        {
+          "Ticker": "COR",
+          "Strategy Type": "SMA",
+          "Short Window": 8,
+          "Long Window": 26,
+          "Total Return [%]": 5243.069886479946
+        },
+        {
+          "Ticker": "SMCI",
+          "Strategy Type": "SMA",
+          "Short Window": 58,
+          "Long Window": 60,
+          "Total Return [%]": 3236.638981319316
+        },
+        {
+          "Ticker": "VRSN",
+          "Strategy Type": "SMA",
+          "Short Window": 12,
+          "Long Window": 31,
+          "Total Return [%]": 3047.5105076519235
+        },
+        {
+          "Ticker": "TPR",
+          "Strategy Type": "SMA",
+          "Short Window": 14,
+          "Long Window": 30,
+          "Total Return [%]": 1848.6653436224071
+        }
+      ],
+      "Sortino Ratio": [
+        {
+          "Ticker": "TSLA",
+          "Strategy Type": "SMA",
+          "Short Window": 4,
+          "Long Window": 39,
+          "Sortino Ratio": 1.985646229688812
+        },
+        {
+          "Ticker": "NFLX",
+          "Strategy Type": "SMA",
+          "Short Window": 82,
+          "Long Window": 83,
+          "Sortino Ratio": 1.6263847632425397
+        },
+        {
+          "Ticker": "ALGN",
+          "Strategy Type": "SMA",
+          "Short Window": 13,
+          "Long Window": 39,
+          "Sortino Ratio": 1.6200611354894086
+        },
+        {
+          "Ticker": "HWM",
+          "Strategy Type": "SMA",
+          "Short Window": 7,
+          "Long Window": 9,
+          "Sortino Ratio": 1.6030345802429469
+        },
+        {
+          "Ticker": "AMZN",
+          "Strategy Type": "SMA",
+          "Short Window": 51,
+          "Long Window": 69,
+          "Sortino Ratio": 1.4132257446661087
+        },
+        {
+          "Ticker": "BLDR",
+          "Strategy Type": "SMA",
+          "Short Window": 50,
+          "Long Window": 51,
+          "Sortino Ratio": 1.347463280535424
+        },
+        {
+          "Ticker": "COR",
+          "Strategy Type": "SMA",
+          "Short Window": 8,
+          "Long Window": 26,
+          "Sortino Ratio": 1.2635555902605635
+        },
+        {
+          "Ticker": "SMCI",
+          "Strategy Type": "SMA",
+          "Short Window": 58,
+          "Long Window": 60,
+          "Sortino Ratio": 1.2353892824280404
+        },
+        {
+          "Ticker": "AMAT",
+          "Strategy Type": "SMA",
+          "Short Window": 64,
+          "Long Window": 77,
+          "Sortino Ratio": 1.2064908609569835
+        },
+        {
+          "Ticker": "GME",
+          "Strategy Type": "SMA",
+          "Short Window": 53,
+          "Long Window": 61,
+          "Sortino Ratio": 1.083989875154093
+        }
+      ],
+      "Sharpe Ratio": [
+        {
+          "Ticker": "TSLA",
+          "Strategy Type": "SMA",
+          "Short Window": 4,
+          "Long Window": 39,
+          "Sharpe Ratio": 1.250750977526771
+        },
+        {
+          "Ticker": "HWM",
+          "Strategy Type": "SMA",
+          "Short Window": 7,
+          "Long Window": 9,
+          "Sharpe Ratio": 1.0556450168008296
+        },
+        {
+          "Ticker": "NFLX",
+          "Strategy Type": "SMA",
+          "Short Window": 82,
+          "Long Window": 83,
+          "Sharpe Ratio": 1.0248600402624466
+        },
+        {
+          "Ticker": "ALGN",
+          "Strategy Type": "SMA",
+          "Short Window": 13,
+          "Long Window": 39,
+          "Sharpe Ratio": 0.9632078127942808
+        },
+        {
+          "Ticker": "AMZN",
+          "Strategy Type": "SMA",
+          "Short Window": 51,
+          "Long Window": 69,
+          "Sharpe Ratio": 0.8805594480964525
+        },
+        {
+          "Ticker": "COR",
+          "Strategy Type": "SMA",
+          "Short Window": 8,
+          "Long Window": 26,
+          "Sharpe Ratio": 0.8387079944453145
+        },
+        {
+          "Ticker": "BLDR",
+          "Strategy Type": "SMA",
+          "Short Window": 50,
+          "Long Window": 51,
+          "Sharpe Ratio": 0.8294993579130232
+        },
+        {
+          "Ticker": "AMAT",
+          "Strategy Type": "SMA",
+          "Short Window": 64,
+          "Long Window": 77,
+          "Sharpe Ratio": 0.7890426826900512
+        },
+        {
+          "Ticker": "SMCI",
+          "Strategy Type": "SMA",
+          "Short Window": 58,
+          "Long Window": 60,
+          "Sharpe Ratio": 0.7843447037822983
+        },
+        {
+          "Ticker": "TPR",
+          "Strategy Type": "SMA",
+          "Short Window": 14,
+          "Long Window": 30,
+          "Sharpe Ratio": 0.6796134803843082
+        }
+      ],
+      "Calmar Ratio": [
+        {
+          "Ticker": "TSLA",
+          "Strategy Type": "SMA",
+          "Short Window": 4,
+          "Long Window": 39,
+          "Calmar Ratio": 1.2036405990590189
+        },
+        {
+          "Ticker": "HWM",
+          "Strategy Type": "SMA",
+          "Short Window": 7,
+          "Long Window": 9,
+          "Calmar Ratio": 0.9826477633270572
+        },
+        {
+          "Ticker": "ALGN",
+          "Strategy Type": "SMA",
+          "Short Window": 13,
+          "Long Window": 39,
+          "Calmar Ratio": 0.709288894142314
+        },
+        {
+          "Ticker": "NFLX",
+          "Strategy Type": "SMA",
+          "Short Window": 82,
+          "Long Window": 83,
+          "Calmar Ratio": 0.632845685864617
+        },
+        {
+          "Ticker": "SMCI",
+          "Strategy Type": "SMA",
+          "Short Window": 58,
+          "Long Window": 60,
+          "Calmar Ratio": 0.573412419852261
+        },
+        {
+          "Ticker": "BLDR",
+          "Strategy Type": "SMA",
+          "Short Window": 50,
+          "Long Window": 51,
+          "Calmar Ratio": 0.5402843893907295
+        },
+        {
+          "Ticker": "AMZN",
+          "Strategy Type": "SMA",
+          "Short Window": 51,
+          "Long Window": 69,
+          "Calmar Ratio": 0.4379983364619262
+        },
+        {
+          "Ticker": "COR",
+          "Strategy Type": "SMA",
+          "Short Window": 8,
+          "Long Window": 26,
+          "Calmar Ratio": 0.4265108828791165
+        },
+        {
+          "Ticker": "AMAT",
+          "Strategy Type": "SMA",
+          "Short Window": 64,
+          "Long Window": 77,
+          "Calmar Ratio": 0.4082703458066613
+        },
+        {
+          "Ticker": "TPR",
+          "Strategy Type": "SMA",
+          "Short Window": 14,
+          "Long Window": 30,
+          "Calmar Ratio": 0.3086934925436863
+        }
+      ],
+      "Profit Factor": [
+        {
+          "Ticker": "TSLA",
+          "Strategy Type": "SMA",
+          "Short Window": 4,
+          "Long Window": 39,
+          "Profit Factor": 5.145423963467825
+        },
+        {
+          "Ticker": "NFLX",
+          "Strategy Type": "SMA",
+          "Short Window": 82,
+          "Long Window": 83,
+          "Profit Factor": 3.91790935759114
+        },
+        {
+          "Ticker": "BLDR",
+          "Strategy Type": "SMA",
+          "Short Window": 50,
+          "Long Window": 51,
+          "Profit Factor": 3.0106358500381396
+        },
+        {
+          "Ticker": "AMAT",
+          "Strategy Type": "SMA",
+          "Short Window": 64,
+          "Long Window": 77,
+          "Profit Factor": 2.656118387222116
+        },
+        {
+          "Ticker": "AMZN",
+          "Strategy Type": "SMA",
+          "Short Window": 51,
+          "Long Window": 69,
+          "Profit Factor": 2.3896219030500925
+        },
+        {
+          "Ticker": "ALGN",
+          "Strategy Type": "SMA",
+          "Short Window": 13,
+          "Long Window": 39,
+          "Profit Factor": 2.302903711767404
+        },
+        {
+          "Ticker": "SMCI",
+          "Strategy Type": "SMA",
+          "Short Window": 58,
+          "Long Window": 60,
+          "Profit Factor": 2.1519964856389744
+        },
+        {
+          "Ticker": "COR",
+          "Strategy Type": "SMA",
+          "Short Window": 8,
+          "Long Window": 26,
+          "Profit Factor": 2.0863014165141247
+        },
+        {
+          "Ticker": "TPR",
+          "Strategy Type": "SMA",
+          "Short Window": 14,
+          "Long Window": 30,
+          "Profit Factor": 1.9957775462100211
+        },
+        {
+          "Ticker": "HWM",
+          "Strategy Type": "SMA",
+          "Short Window": 7,
+          "Long Window": 9,
+          "Profit Factor": 1.93568318795618
+        }
+      ],
+      "Expectancy per Trade": [
+        {
+          "Ticker": "GME",
+          "Strategy Type": "SMA",
+          "Short Window": 53,
+          "Long Window": 61,
+          "Expectancy per Trade": 29.064098811657377
+        },
+        {
+          "Ticker": "AMZN",
+          "Strategy Type": "SMA",
+          "Short Window": 51,
+          "Long Window": 69,
+          "Expectancy per Trade": 17.35706982913557
+        },
+        {
+          "Ticker": "TSLA",
+          "Strategy Type": "SMA",
+          "Short Window": 4,
+          "Long Window": 39,
+          "Expectancy per Trade": 12.541946858046844
+        },
+        {
+          "Ticker": "AMAT",
+          "Strategy Type": "SMA",
+          "Short Window": 64,
+          "Long Window": 77,
+          "Expectancy per Trade": 12.43797584757765
+        },
+        {
+          "Ticker": "ALGN",
+          "Strategy Type": "SMA",
+          "Short Window": 13,
+          "Long Window": 39,
+          "Expectancy per Trade": 11.75384999301335
+        },
+        {
+          "Ticker": "NFLX",
+          "Strategy Type": "SMA",
+          "Short Window": 82,
+          "Long Window": 83,
+          "Expectancy per Trade": 11.40195571289738
+        },
+        {
+          "Ticker": "USB",
+          "Strategy Type": "SMA",
+          "Short Window": 28,
+          "Long Window": 88,
+          "Expectancy per Trade": 6.953272658430594
+        },
+        {
+          "Ticker": "SMCI",
+          "Strategy Type": "SMA",
+          "Short Window": 58,
+          "Long Window": 60,
+          "Expectancy per Trade": 6.128226396040306
+        },
+        {
+          "Ticker": "VRSN",
+          "Strategy Type": "SMA",
+          "Short Window": 12,
+          "Long Window": 31,
+          "Expectancy per Trade": 5.962119182827759
+        },
+        {
+          "Ticker": "TPR",
+          "Strategy Type": "SMA",
+          "Short Window": 14,
+          "Long Window": 30,
+          "Expectancy per Trade": 4.9492257530001895
+        }
+      ]
+    },
+    "risk_metrics": {
+      "sharpe_ratio": {
+        "mean": 0.8245544283723449,
+        "median": 0.8294993579130232,
+        "std": 0.22138285866925106,
+        "min": 0.4231120321569965,
+        "max": 1.250750977526771,
+        "percentiles": {
+          "25th": 0.6796134803843082,
+          "75th": 0.9632078127942808,
+          "90th": 1.049488021493153
+        }
+      },
+      "sortino_ratio": {
+        "mean": 1.3097771511141223,
+        "median": 1.2635555902605635,
+        "std": 0.35012185501780496,
+        "min": 0.6253619376375654,
+        "max": 1.985646229688812,
+        "percentiles": {
+          "25th": 1.083989875154093,
+          "75th": 1.6030345802429469,
+          "90th": 1.6251200376919135
+        }
+      },
+      "calmar_ratio": {
+        "mean": 0.5256695331256783,
+        "median": 0.4379983364619262,
+        "std": 0.3057581091101715,
+        "min": 0.1182240607015851,
+        "max": 1.2036405990590189,
+        "percentiles": {
+          "25th": 0.3086934925436863,
+          "75th": 0.632845685864617,
+          "90th": 0.9279759894901087
+        }
+      },
+      "correlations": {
+        "Sharpe Ratio": {
+          "Sharpe Ratio": 1.0,
+          "Sortino Ratio": 0.9757010880314011,
+          "Calmar Ratio": 0.9390578351539786,
+          "Omega Ratio": 0.8871958301974496
+        },
+        "Sortino Ratio": {
+          "Sharpe Ratio": 0.9757010880314011,
+          "Sortino Ratio": 1.0,
+          "Calmar Ratio": 0.9153060951753133,
+          "Omega Ratio": 0.9581599484159592
+        },
+        "Calmar Ratio": {
+          "Sharpe Ratio": 0.9390578351539786,
+          "Sortino Ratio": 0.9153060951753133,
+          "Calmar Ratio": 1.0,
+          "Omega Ratio": 0.8720850429734552
+        },
+        "Omega Ratio": {
+          "Sharpe Ratio": 0.8871958301974496,
+          "Sortino Ratio": 0.9581599484159592,
+          "Calmar Ratio": 0.8720850429734552,
+          "Omega Ratio": 1.0
+        }
+      }
+    },
+    "drawdown_analysis": {
+      "max_drawdown": {
+        "mean": 64.40948544089905,
+        "median": 63.29560240925994,
+        "std": 14.562789310758841,
+        "min": 35.82835150274074,
+        "max": 90.20648623448734,
+        "above_50_pct": 11,
+        "above_75_pct": 3
+      },
+      "recovery_analysis": {
+        "mean_days": 2037.6923076923076,
+        "median_days": 1476.0,
+        "max_days": "6588",
+        "strategies_over_365_days": 13
+      }
+    },
+    "trade_frequency_expectancy": {
+      "trade_frequency": {
+        "total_trades": {
+          "mean": 105.61538461538461,
+          "median": 101.0,
+          "std": 33.05182410886088,
+          "min": "61",
+          "max": "161"
+        },
+        "trades_per_month": {
+          "mean": 0.4308119409337608,
+          "median": 0.3617192530585962,
+          "std": 0.34868845874144183
+        }
+      },
+      "expectancy": {
+        "expectancy_per_trade": {
+          "mean": 9.785511925710756,
+          "median": 6.953272658430594,
+          "positive_expectancy": 13,
+          "negative_expectancy": 0
+        },
+        "expectancy_per_month": {
+          "mean": 3.066039402814378,
+          "median": 2.709600844681749,
+          "top_10_pct": 5.03692691342706
+        }
+      },
+      "win_metrics": {
+        "avg_win_rate": 51.30364360873501,
+        "strategies_above_50_pct": 8,
+        "avg_profit_factor": 2.4484998358730725,
+        "strategies_pf_above_2": 8
+      }
+    },
+    "strategy_distribution": {
+      "strategy_types": {
+        "SMA": 13
+      },
+      "signal_entry_exit": {
+        "using_signals": 3,
+        "no_signals": 10
+      },
+      "window_parameters": {
+        "short_window": {
+          "mean": 34.15384615384615,
+          "median": 28.0,
+          "min": "4",
+          "max": "82",
+          "most_common": "4"
+        },
+        "long_window": {
+          "mean": 51.0,
+          "median": 51.0,
+          "min": "9",
+          "max": "88",
+          "most_common": "39"
+        },
+        "window_spread": {
+          "mean": 16.846153846153847,
+          "median": 16.0
+        }
+      }
+    },
+    "top_bottom_performers": {
+      "top_performers": {
+        "Score": [
+          {
+            "Ticker": "NFLX",
+            "Strategy Type": "SMA",
+            "Short Window": 82,
+            "Long Window": 83,
+            "Score": 1.7435464335001878
+          },
+          {
+            "Ticker": "AMAT",
+            "Strategy Type": "SMA",
+            "Short Window": 64,
+            "Long Window": 77,
+            "Score": 1.7009051645633746
+          },
+          {
+            "Ticker": "AMZN",
+            "Strategy Type": "SMA",
+            "Short Window": 51,
+            "Long Window": 69,
+            "Score": 1.5487419847000694
+          },
+          {
+            "Ticker": "BLDR",
+            "Strategy Type": "SMA",
+            "Short Window": 50,
+            "Long Window": 51,
+            "Score": 1.535537881810755
+          },
+          {
+            "Ticker": "ALGN",
+            "Strategy Type": "SMA",
+            "Short Window": 13,
+            "Long Window": 39,
+            "Score": 1.5193200167167633
+          }
+        ],
+        "Total Return [%]": [
+          {
+            "Ticker": "AMAT",
+            "Strategy Type": "SMA",
+            "Short Window": 64,
+            "Long Window": 77,
+            "Total Return [%]": 222479.2022541039
+          },
+          {
+            "Ticker": "NFLX",
+            "Strategy Type": "SMA",
+            "Short Window": 82,
+            "Long Window": 83,
+            "Total Return [%]": 49451.62981016252
+          },
+          {
+            "Ticker": "AMZN",
+            "Strategy Type": "SMA",
+            "Short Window": 51,
+            "Long Window": 69,
+            "Total Return [%]": 48576.67176450108
+          },
+          {
+            "Ticker": "ALGN",
+            "Strategy Type": "SMA",
+            "Short Window": 13,
+            "Long Window": 39,
+            "Total Return [%]": 37563.58661104817
+          },
+          {
+            "Ticker": "TSLA",
+            "Strategy Type": "SMA",
+            "Short Window": 4,
+            "Long Window": 39,
+            "Total Return [%]": 17929.51910936722
+          }
+        ],
+        "Sharpe Ratio": [
+          {
+            "Ticker": "TSLA",
+            "Strategy Type": "SMA",
+            "Short Window": 4,
+            "Long Window": 39,
+            "Sharpe Ratio": 1.250750977526771
+          },
+          {
+            "Ticker": "HWM",
+            "Strategy Type": "SMA",
+            "Short Window": 7,
+            "Long Window": 9,
+            "Sharpe Ratio": 1.0556450168008296
+          },
+          {
+            "Ticker": "NFLX",
+            "Strategy Type": "SMA",
+            "Short Window": 82,
+            "Long Window": 83,
+            "Sharpe Ratio": 1.0248600402624466
+          },
+          {
+            "Ticker": "ALGN",
+            "Strategy Type": "SMA",
+            "Short Window": 13,
+            "Long Window": 39,
+            "Sharpe Ratio": 0.9632078127942808
+          },
+          {
+            "Ticker": "AMZN",
+            "Strategy Type": "SMA",
+            "Short Window": 51,
+            "Long Window": 69,
+            "Sharpe Ratio": 0.8805594480964525
+          }
+        ],
+        "Win Rate [%]": [
+          {
+            "Ticker": "AMZN",
+            "Strategy Type": "SMA",
+            "Short Window": 51,
+            "Long Window": 69,
+            "Win Rate [%]": 61.66666666666667
+          },
+          {
+            "Ticker": "AMAT",
+            "Strategy Type": "SMA",
+            "Short Window": 64,
+            "Long Window": 77,
+            "Win Rate [%]": 60.0
+          },
+          {
+            "Ticker": "NFLX",
+            "Strategy Type": "SMA",
+            "Short Window": 82,
+            "Long Window": 83,
+            "Win Rate [%]": 58.333333333333336
+          },
+          {
+            "Ticker": "SMCI",
+            "Strategy Type": "SMA",
+            "Short Window": 58,
+            "Long Window": 60,
+            "Win Rate [%]": 54.08163265306123
+          },
+          {
+            "Ticker": "BLDR",
+            "Strategy Type": "SMA",
+            "Short Window": 50,
+            "Long Window": 51,
+            "Win Rate [%]": 53.125
+          }
+        ]
+      },
+      "bottom_performers": {
+        "Score": [
+          {
+            "Ticker": "USB",
+            "Strategy Type": "SMA",
+            "Short Window": 28,
+            "Long Window": 88,
+            "Score": 1.0486520780928348
+          },
+          {
+            "Ticker": "VRSN",
+            "Strategy Type": "SMA",
+            "Short Window": 12,
+            "Long Window": 31,
+            "Score": 1.2000716921379446
+          },
+          {
+            "Ticker": "TPR",
+            "Strategy Type": "SMA",
+            "Short Window": 14,
+            "Long Window": 30,
+            "Score": 1.2412088860476411
+          },
+          {
+            "Ticker": "HWM",
+            "Strategy Type": "SMA",
+            "Short Window": 7,
+            "Long Window": 9,
+            "Score": 1.2449146251868437
+          },
+          {
+            "Ticker": "GME",
+            "Strategy Type": "SMA",
+            "Short Window": 53,
+            "Long Window": 61,
+            "Score": 1.2546258531717516
+          }
+        ],
+        "Total Return [%]": [
+          {
+            "Ticker": "HWM",
+            "Strategy Type": "SMA",
+            "Short Window": 7,
+            "Long Window": 9,
+            "Total Return [%]": 500.9112421798638
+          },
+          {
+            "Ticker": "USB",
+            "Strategy Type": "SMA",
+            "Short Window": 28,
+            "Long Window": 88,
+            "Total Return [%]": 1245.1057593783075
+          },
+          {
+            "Ticker": "GME",
+            "Strategy Type": "SMA",
+            "Short Window": 53,
+            "Long Window": 61,
+            "Total Return [%]": 1291.5607693621937
+          },
+          {
+            "Ticker": "TPR",
+            "Strategy Type": "SMA",
+            "Short Window": 14,
+            "Long Window": 30,
+            "Total Return [%]": 1848.6653436224071
+          },
+          {
+            "Ticker": "VRSN",
+            "Strategy Type": "SMA",
+            "Short Window": 12,
+            "Long Window": 31,
+            "Total Return [%]": 3047.5105076519235
+          }
+        ],
+        "Sharpe Ratio": [
+          {
+            "Ticker": "USB",
+            "Strategy Type": "SMA",
+            "Short Window": 28,
+            "Long Window": 88,
+            "Sharpe Ratio": 0.4231120321569965
+          },
+          {
+            "Ticker": "GME",
+            "Strategy Type": "SMA",
+            "Short Window": 53,
+            "Long Window": 61,
+            "Sharpe Ratio": 0.5529351870352708
+          },
+          {
+            "Ticker": "VRSN",
+            "Strategy Type": "SMA",
+            "Short Window": 12,
+            "Long Window": 31,
+            "Sharpe Ratio": 0.646928834952441
+          },
+          {
+            "Ticker": "TPR",
+            "Strategy Type": "SMA",
+            "Short Window": 14,
+            "Long Window": 30,
+            "Sharpe Ratio": 0.6796134803843082
+          },
+          {
+            "Ticker": "SMCI",
+            "Strategy Type": "SMA",
+            "Short Window": 58,
+            "Long Window": 60,
+            "Sharpe Ratio": 0.7843447037822983
+          }
+        ],
+        "Win Rate [%]": [
+          {
+            "Ticker": "TSLA",
+            "Strategy Type": "SMA",
+            "Short Window": 4,
+            "Long Window": 39,
+            "Win Rate [%]": 42.465753424657535
+          },
+          {
+            "Ticker": "USB",
+            "Strategy Type": "SMA",
+            "Short Window": 28,
+            "Long Window": 88,
+            "Win Rate [%]": 43.373493975903614
+          },
+          {
+            "Ticker": "VRSN",
+            "Strategy Type": "SMA",
+            "Short Window": 12,
+            "Long Window": 31,
+            "Win Rate [%]": 46.017699115044245
+          },
+          {
+            "Ticker": "TPR",
+            "Strategy Type": "SMA",
+            "Short Window": 14,
+            "Long Window": 30,
+            "Win Rate [%]": 46.22641509433962
+          },
+          {
+            "Ticker": "COR",
+            "Strategy Type": "SMA",
+            "Short Window": 8,
+            "Long Window": 26,
+            "Win Rate [%]": 48.05194805194805
+          }
+        ]
+      }
+    },
+    "portfolio_metrics": {
+      "portfolio_size": 13,
+      "equal_weight": 0.07692307692307693,
+      "weighted_metrics": {
+        "total_return": 30783.746241245324,
+        "sharpe_ratio": 0.8245544283723449,
+        "sortino_ratio": 1.3097771511141223,
+        "win_rate": 51.303643608735015,
+        "max_drawdown": 90.20648623448734,
+        "avg_drawdown": 64.40948544089905
+      },
+      "diversification": {
+        "unique_tickers": 13,
+        "unique_strategies": 1,
+        "ticker_concentration": {
+          "NFLX": 1,
+          "AMAT": 1,
+          "AMZN": 1,
+          "ALGN": 1,
+          "TSLA": 1,
+          "COR": 1,
+          "GME": 1,
+          "TPR": 1,
+          "VRSN": 1,
+          "USB": 1,
+          "BLDR": 1,
+          "SMCI": 1,
+          "HWM": 1
+        }
+      }
+    },
+    "risk_contribution": {
+      "highest_risk_contributors": [
+        {
+          "Ticker": "GME",
+          "Strategy Type": "SMA",
+          "risk_contribution": 12.36499019788721,
+          "Max Drawdown [%]": 90.20648623448734,
+          "Sharpe Ratio": 0.5529351870352708
+        },
+        {
+          "Ticker": "AMZN",
+          "Strategy Type": "SMA",
+          "risk_contribution": 9.726849425388437,
+          "Max Drawdown [%]": 85.93101055845027,
+          "Sharpe Ratio": 0.8805594480964525
+        },
+        {
+          "Ticker": "USB",
+          "Strategy Type": "SMA",
+          "risk_contribution": 9.467684728944176,
+          "Max Drawdown [%]": 63.29560240925994,
+          "Sharpe Ratio": 0.4231120321569965
+        },
+        {
+          "Ticker": "VRSN",
+          "Strategy Type": "SMA",
+          "risk_contribution": 8.784203268324879,
+          "Max Drawdown [%]": 67.96226896879939,
+          "Sharpe Ratio": 0.646928834952441
+        },
+        {
+          "Ticker": "AMAT",
+          "Strategy Type": "SMA",
+          "risk_contribution": 8.149370260323503,
+          "Max Drawdown [%]": 68.49130032877282,
+          "Sharpe Ratio": 0.7890426826900512
+        },
+        {
+          "Ticker": "BLDR",
+          "Strategy Type": "SMA",
+          "risk_contribution": 8.033470003445526,
+          "Max Drawdown [%]": 69.04402437315728,
+          "Sharpe Ratio": 0.8294993579130232
+        },
+        {
+          "Ticker": "NFLX",
+          "Strategy Type": "SMA",
+          "risk_contribution": 7.923185469790536,
+          "Max Drawdown [%]": 75.36773980805233,
+          "Sharpe Ratio": 1.0248600402624466
+        },
+        {
+          "Ticker": "TPR",
+          "Strategy Type": "SMA",
+          "risk_contribution": 7.825574341407288,
+          "Max Drawdown [%]": 61.747052662014966,
+          "Sharpe Ratio": 0.6796134803843082
+        },
+        {
+          "Ticker": "SMCI",
+          "Strategy Type": "SMA",
+          "risk_contribution": 6.698028924212683,
+          "Max Drawdown [%]": 56.14569138696884,
+          "Sharpe Ratio": 0.7843447037822983
+        },
+        {
+          "Ticker": "ALGN",
+          "Strategy Type": "SMA",
+          "risk_contribution": 6.46881003593409,
+          "Max Drawdown [%]": 59.65973650030446,
+          "Sharpe Ratio": 0.9632078127942808
+        }
+      ],
+      "lowest_risk_contributors": [
+        {
+          "Ticker": "HWM",
+          "Strategy Type": "SMA",
+          "risk_contribution": 3.7101207729945456,
+          "Max Drawdown [%]": 35.82835150274074,
+          "Sharpe Ratio": 1.0556450168008296
+        },
+        {
+          "Ticker": "TSLA",
+          "Strategy Type": "SMA",
+          "risk_contribution": 5.137017868817034,
+          "Max Drawdown [%]": 54.316175542691006,
+          "Sharpe Ratio": 1.250750977526771
+        },
+        {
+          "Ticker": "COR",
+          "Strategy Type": "SMA",
+          "risk_contribution": 5.7106947025300965,
+          "Max Drawdown [%]": 49.32787045598811,
+          "Sharpe Ratio": 0.8387079944453145
+        },
+        {
+          "Ticker": "ALGN",
+          "Strategy Type": "SMA",
+          "risk_contribution": 6.46881003593409,
+          "Max Drawdown [%]": 59.65973650030446,
+          "Sharpe Ratio": 0.9632078127942808
+        },
+        {
+          "Ticker": "SMCI",
+          "Strategy Type": "SMA",
+          "risk_contribution": 6.698028924212683,
+          "Max Drawdown [%]": 56.14569138696884,
+          "Sharpe Ratio": 0.7843447037822983
+        },
+        {
+          "Ticker": "TPR",
+          "Strategy Type": "SMA",
+          "risk_contribution": 7.825574341407288,
+          "Max Drawdown [%]": 61.747052662014966,
+          "Sharpe Ratio": 0.6796134803843082
+        },
+        {
+          "Ticker": "NFLX",
+          "Strategy Type": "SMA",
+          "risk_contribution": 7.923185469790536,
+          "Max Drawdown [%]": 75.36773980805233,
+          "Sharpe Ratio": 1.0248600402624466
+        },
+        {
+          "Ticker": "BLDR",
+          "Strategy Type": "SMA",
+          "risk_contribution": 8.033470003445526,
+          "Max Drawdown [%]": 69.04402437315728,
+          "Sharpe Ratio": 0.8294993579130232
+        },
+        {
+          "Ticker": "AMAT",
+          "Strategy Type": "SMA",
+          "risk_contribution": 8.149370260323503,
+          "Max Drawdown [%]": 68.49130032877282,
+          "Sharpe Ratio": 0.7890426826900512
+        },
+        {
+          "Ticker": "VRSN",
+          "Strategy Type": "SMA",
+          "risk_contribution": 8.784203268324879,
+          "Max Drawdown [%]": 67.96226896879939,
+          "Sharpe Ratio": 0.646928834952441
+        }
+      ],
+      "risk_return_analysis": {
+        "high_return_low_risk": [
+          {
+            "Ticker": "ALGN",
+            "Strategy Type": "SMA",
+            "Total Return [%]": 37563.58661104817,
+            "risk_score": 30.388905398348697
+          },
+          {
+            "Ticker": "TSLA",
+            "Strategy Type": "SMA",
+            "Total Return [%]": 17929.51910936722,
+            "risk_score": 24.132467822973528
+          }
+        ],
+        "low_return_high_risk": [
+          {
+            "Ticker": "GME",
+            "Strategy Type": "SMA",
+            "Total Return [%]": 1291.5607693621937,
+            "risk_score": 58.08773410994811
+          },
+          {
+            "Ticker": "VRSN",
+            "Strategy Type": "SMA",
+            "Total Return [%]": 3047.5105076519235,
+            "risk_score": 41.26606294482783
+          },
+          {
+            "Ticker": "USB",
+            "Strategy Type": "SMA",
+            "Total Return [%]": 1245.1057593783075,
+            "risk_score": 44.47689358182394
+          }
+        ]
+      }
+    },
+    "correlations": {
+      "correlation_matrix": {
+        "ALGN": {
+          "ALGN": NaN,
+          "AMAT": NaN,
+          "AMZN": NaN,
+          "BLDR": NaN,
+          "COR": NaN,
+          "GME": NaN,
+          "HWM": NaN,
+          "NFLX": NaN,
+          "SMCI": NaN,
+          "TPR": NaN,
+          "TSLA": NaN,
+          "USB": NaN,
+          "VRSN": NaN
+        },
+        "AMAT": {
+          "ALGN": NaN,
+          "AMAT": NaN,
+          "AMZN": NaN,
+          "BLDR": NaN,
+          "COR": NaN,
+          "GME": NaN,
+          "HWM": NaN,
+          "NFLX": NaN,
+          "SMCI": NaN,
+          "TPR": NaN,
+          "TSLA": NaN,
+          "USB": NaN,
+          "VRSN": NaN
+        },
+        "AMZN": {
+          "ALGN": NaN,
+          "AMAT": NaN,
+          "AMZN": NaN,
+          "BLDR": NaN,
+          "COR": NaN,
+          "GME": NaN,
+          "HWM": NaN,
+          "NFLX": NaN,
+          "SMCI": NaN,
+          "TPR": NaN,
+          "TSLA": NaN,
+          "USB": NaN,
+          "VRSN": NaN
+        },
+        "BLDR": {
+          "ALGN": NaN,
+          "AMAT": NaN,
+          "AMZN": NaN,
+          "BLDR": NaN,
+          "COR": NaN,
+          "GME": NaN,
+          "HWM": NaN,
+          "NFLX": NaN,
+          "SMCI": NaN,
+          "TPR": NaN,
+          "TSLA": NaN,
+          "USB": NaN,
+          "VRSN": NaN
+        },
+        "COR": {
+          "ALGN": NaN,
+          "AMAT": NaN,
+          "AMZN": NaN,
+          "BLDR": NaN,
+          "COR": NaN,
+          "GME": NaN,
+          "HWM": NaN,
+          "NFLX": NaN,
+          "SMCI": NaN,
+          "TPR": NaN,
+          "TSLA": NaN,
+          "USB": NaN,
+          "VRSN": NaN
+        },
+        "GME": {
+          "ALGN": NaN,
+          "AMAT": NaN,
+          "AMZN": NaN,
+          "BLDR": NaN,
+          "COR": NaN,
+          "GME": NaN,
+          "HWM": NaN,
+          "NFLX": NaN,
+          "SMCI": NaN,
+          "TPR": NaN,
+          "TSLA": NaN,
+          "USB": NaN,
+          "VRSN": NaN
+        },
+        "HWM": {
+          "ALGN": NaN,
+          "AMAT": NaN,
+          "AMZN": NaN,
+          "BLDR": NaN,
+          "COR": NaN,
+          "GME": NaN,
+          "HWM": NaN,
+          "NFLX": NaN,
+          "SMCI": NaN,
+          "TPR": NaN,
+          "TSLA": NaN,
+          "USB": NaN,
+          "VRSN": NaN
+        },
+        "NFLX": {
+          "ALGN": NaN,
+          "AMAT": NaN,
+          "AMZN": NaN,
+          "BLDR": NaN,
+          "COR": NaN,
+          "GME": NaN,
+          "HWM": NaN,
+          "NFLX": NaN,
+          "SMCI": NaN,
+          "TPR": NaN,
+          "TSLA": NaN,
+          "USB": NaN,
+          "VRSN": NaN
+        },
+        "SMCI": {
+          "ALGN": NaN,
+          "AMAT": NaN,
+          "AMZN": NaN,
+          "BLDR": NaN,
+          "COR": NaN,
+          "GME": NaN,
+          "HWM": NaN,
+          "NFLX": NaN,
+          "SMCI": NaN,
+          "TPR": NaN,
+          "TSLA": NaN,
+          "USB": NaN,
+          "VRSN": NaN
+        },
+        "TPR": {
+          "ALGN": NaN,
+          "AMAT": NaN,
+          "AMZN": NaN,
+          "BLDR": NaN,
+          "COR": NaN,
+          "GME": NaN,
+          "HWM": NaN,
+          "NFLX": NaN,
+          "SMCI": NaN,
+          "TPR": NaN,
+          "TSLA": NaN,
+          "USB": NaN,
+          "VRSN": NaN
+        },
+        "TSLA": {
+          "ALGN": NaN,
+          "AMAT": NaN,
+          "AMZN": NaN,
+          "BLDR": NaN,
+          "COR": NaN,
+          "GME": NaN,
+          "HWM": NaN,
+          "NFLX": NaN,
+          "SMCI": NaN,
+          "TPR": NaN,
+          "TSLA": NaN,
+          "USB": NaN,
+          "VRSN": NaN
+        },
+        "USB": {
+          "ALGN": NaN,
+          "AMAT": NaN,
+          "AMZN": NaN,
+          "BLDR": NaN,
+          "COR": NaN,
+          "GME": NaN,
+          "HWM": NaN,
+          "NFLX": NaN,
+          "SMCI": NaN,
+          "TPR": NaN,
+          "TSLA": NaN,
+          "USB": NaN,
+          "VRSN": NaN
+        },
+        "VRSN": {
+          "ALGN": NaN,
+          "AMAT": NaN,
+          "AMZN": NaN,
+          "BLDR": NaN,
+          "COR": NaN,
+          "GME": NaN,
+          "HWM": NaN,
+          "NFLX": NaN,
+          "SMCI": NaN,
+          "TPR": NaN,
+          "TSLA": NaN,
+          "USB": NaN,
+          "VRSN": NaN
+        }
+      },
+      "high_correlations": [],
+      "avg_correlation": NaN
+    }
+  },
+  "incoming_portfolio": {
+    "rankings": {
+      "Score": [
+        {
+          "Ticker": "AXON",
+          "Strategy Type": "SMA",
+          "Short Window": 84,
+          "Long Window": 86,
+          "Score": 1.6279620229646412
+        },
+        {
+          "Ticker": "ASML",
+          "Strategy Type": "SMA",
+          "Short Window": 71,
+          "Long Window": 74,
+          "Score": 1.613221578366384
+        },
+        {
+          "Ticker": "WELL",
+          "Strategy Type": "SMA",
+          "Short Window": 64,
+          "Long Window": 76,
+          "Score": 1.5676880993754014
+        },
+        {
+          "Ticker": "RJF",
+          "Strategy Type": "SMA",
+          "Short Window": 68,
+          "Long Window": 77,
+          "Score": 1.560655522613028
+        },
+        {
+          "Ticker": "FITB",
+          "Strategy Type": "SMA",
+          "Short Window": 20,
+          "Long Window": 88,
+          "Score": 1.2909324093856598
+        },
+        {
+          "Ticker": "PNR",
+          "Strategy Type": "SMA",
+          "Short Window": 69,
+          "Long Window": 88,
+          "Score": 1.1709188310725906
+        }
+      ],
+      "Win Rate": [
+        {
+          "Ticker": "RJF",
+          "Strategy Type": "SMA",
+          "Short Window": 68,
+          "Long Window": 77,
+          "Win Rate [%]": 60.909090909090914
+        },
+        {
+          "Ticker": "ASML",
+          "Strategy Type": "SMA",
+          "Short Window": 71,
+          "Long Window": 74,
+          "Win Rate [%]": 60.76923076923077
+        },
+        {
+          "Ticker": "WELL",
+          "Strategy Type": "SMA",
+          "Short Window": 64,
+          "Long Window": 76,
+          "Win Rate [%]": 55.670103092783506
+        },
+        {
+          "Ticker": "AXON",
+          "Strategy Type": "SMA",
+          "Short Window": 84,
+          "Long Window": 86,
+          "Win Rate [%]": 53.125
+        },
+        {
+          "Ticker": "FITB",
+          "Strategy Type": "SMA",
+          "Short Window": 20,
+          "Long Window": 88,
+          "Win Rate [%]": 52.112676056338024
+        },
+        {
+          "Ticker": "PNR",
+          "Strategy Type": "SMA",
+          "Short Window": 69,
+          "Long Window": 88,
+          "Win Rate [%]": 52.083333333333336
+        }
+      ],
+      "Total Return": [
+        {
+          "Ticker": "AXON",
+          "Strategy Type": "SMA",
+          "Short Window": 84,
+          "Long Window": 86,
+          "Total Return [%]": 55786.96701750951
+        },
+        {
+          "Ticker": "ASML",
+          "Strategy Type": "SMA",
+          "Short Window": 71,
+          "Long Window": 74,
+          "Total Return [%]": 49339.797047898064
+        },
+        {
+          "Ticker": "RJF",
+          "Strategy Type": "SMA",
+          "Short Window": 68,
+          "Long Window": 77,
+          "Total Return [%]": 8999.005540228078
+        },
+        {
+          "Ticker": "FITB",
+          "Strategy Type": "SMA",
+          "Short Window": 20,
+          "Long Window": 88,
+          "Total Return [%]": 7827.398808634366
+        },
+        {
+          "Ticker": "WELL",
+          "Strategy Type": "SMA",
+          "Short Window": 64,
+          "Long Window": 76,
+          "Total Return [%]": 5694.4623397939295
+        },
+        {
+          "Ticker": "PNR",
+          "Strategy Type": "SMA",
+          "Short Window": 69,
+          "Long Window": 88,
+          "Total Return [%]": 1441.678894803411
+        }
+      ],
+      "Sortino Ratio": [
+        {
+          "Ticker": "AXON",
+          "Strategy Type": "SMA",
+          "Short Window": 84,
+          "Long Window": 86,
+          "Sortino Ratio": 1.5273576719185642
+        },
+        {
+          "Ticker": "ASML",
+          "Strategy Type": "SMA",
+          "Short Window": 71,
+          "Long Window": 74,
+          "Sortino Ratio": 1.442032853795246
+        },
+        {
+          "Ticker": "WELL",
+          "Strategy Type": "SMA",
+          "Short Window": 64,
+          "Long Window": 76,
+          "Sortino Ratio": 1.053316298362993
+        },
+        {
+          "Ticker": "RJF",
+          "Strategy Type": "SMA",
+          "Short Window": 68,
+          "Long Window": 77,
+          "Sortino Ratio": 0.9648444543866954
+        },
+        {
+          "Ticker": "FITB",
+          "Strategy Type": "SMA",
+          "Short Window": 20,
+          "Long Window": 88,
+          "Sortino Ratio": 0.9620040921052824
+        },
+        {
+          "Ticker": "PNR",
+          "Strategy Type": "SMA",
+          "Short Window": 69,
+          "Long Window": 88,
+          "Sortino Ratio": 0.5916311687320037
+        }
+      ],
+      "Sharpe Ratio": [
+        {
+          "Ticker": "AXON",
+          "Strategy Type": "SMA",
+          "Short Window": 84,
+          "Long Window": 86,
+          "Sharpe Ratio": 0.9568839466990994
+        },
+        {
+          "Ticker": "ASML",
+          "Strategy Type": "SMA",
+          "Short Window": 71,
+          "Long Window": 74,
+          "Sharpe Ratio": 0.931488393598285
+        },
+        {
+          "Ticker": "WELL",
+          "Strategy Type": "SMA",
+          "Short Window": 64,
+          "Long Window": 76,
+          "Sharpe Ratio": 0.7210297895561585
+        },
+        {
+          "Ticker": "RJF",
+          "Strategy Type": "SMA",
+          "Short Window": 68,
+          "Long Window": 77,
+          "Sharpe Ratio": 0.6312395304120287
+        },
+        {
+          "Ticker": "FITB",
+          "Strategy Type": "SMA",
+          "Short Window": 20,
+          "Long Window": 88,
+          "Sharpe Ratio": 0.6126349005406492
+        },
+        {
+          "Ticker": "PNR",
+          "Strategy Type": "SMA",
+          "Short Window": 69,
+          "Long Window": 88,
+          "Sharpe Ratio": 0.4080064065008092
+        }
+      ],
+      "Calmar Ratio": [
+        {
+          "Ticker": "ASML",
+          "Strategy Type": "SMA",
+          "Short Window": 71,
+          "Long Window": 74,
+          "Calmar Ratio": 0.5932055217690761
+        },
+        {
+          "Ticker": "AXON",
+          "Strategy Type": "SMA",
+          "Short Window": 84,
+          "Long Window": 86,
+          "Calmar Ratio": 0.5559699716527366
+        },
+        {
+          "Ticker": "WELL",
+          "Strategy Type": "SMA",
+          "Short Window": 64,
+          "Long Window": 76,
+          "Calmar Ratio": 0.3993444467125911
+        },
+        {
+          "Ticker": "RJF",
+          "Strategy Type": "SMA",
+          "Short Window": 68,
+          "Long Window": 77,
+          "Calmar Ratio": 0.2933192302681817
+        },
+        {
+          "Ticker": "FITB",
+          "Strategy Type": "SMA",
+          "Short Window": 20,
+          "Long Window": 88,
+          "Calmar Ratio": 0.1950311996142035
+        },
+        {
+          "Ticker": "PNR",
+          "Strategy Type": "SMA",
+          "Short Window": 69,
+          "Long Window": 88,
+          "Calmar Ratio": 0.1211043248943587
+        }
+      ],
+      "Profit Factor": [
+        {
+          "Ticker": "WELL",
+          "Strategy Type": "SMA",
+          "Short Window": 64,
+          "Long Window": 76,
+          "Profit Factor": 6.765595582329286
+        },
+        {
+          "Ticker": "AXON",
+          "Strategy Type": "SMA",
+          "Short Window": 84,
+          "Long Window": 86,
+          "Profit Factor": 4.104911598444738
+        },
+        {
+          "Ticker": "RJF",
+          "Strategy Type": "SMA",
+          "Short Window": 68,
+          "Long Window": 77,
+          "Profit Factor": 2.273485960685478
+        },
+        {
+          "Ticker": "ASML",
+          "Strategy Type": "SMA",
+          "Short Window": 71,
+          "Long Window": 74,
+          "Profit Factor": 2.0924092330890685
+        },
+        {
+          "Ticker": "FITB",
+          "Strategy Type": "SMA",
+          "Short Window": 20,
+          "Long Window": 88,
+          "Profit Factor": 1.9914760072775757
+        },
+        {
+          "Ticker": "PNR",
+          "Strategy Type": "SMA",
+          "Short Window": 69,
+          "Long Window": 88,
+          "Profit Factor": 1.766014221914251
+        }
+      ],
+      "Expectancy per Trade": [
+        {
+          "Ticker": "AXON",
+          "Strategy Type": "SMA",
+          "Short Window": 84,
+          "Long Window": 86,
+          "Expectancy per Trade": 44.324478529836504
+        },
+        {
+          "Ticker": "FITB",
+          "Strategy Type": "SMA",
+          "Short Window": 20,
+          "Long Window": 88,
+          "Expectancy per Trade": 8.92327190514455
+        },
+        {
+          "Ticker": "ASML",
+          "Strategy Type": "SMA",
+          "Short Window": 71,
+          "Long Window": 74,
+          "Expectancy per Trade": 6.845614588325077
+        },
+        {
+          "Ticker": "RJF",
+          "Strategy Type": "SMA",
+          "Short Window": 68,
+          "Long Window": 77,
+          "Expectancy per Trade": 5.583810488311974
+        },
+        {
+          "Ticker": "WELL",
+          "Strategy Type": "SMA",
+          "Short Window": 64,
+          "Long Window": 76,
+          "Expectancy per Trade": 4.987782136521215
+        },
+        {
+          "Ticker": "PNR",
+          "Strategy Type": "SMA",
+          "Short Window": 69,
+          "Long Window": 88,
+          "Expectancy per Trade": 4.491714539424574
+        }
+      ]
+    },
+    "risk_metrics": {
+      "sharpe_ratio": {
+        "mean": 0.7102138278845049,
+        "median": 0.6761346599840936,
+        "std": 0.20833313622030558,
+        "min": 0.4080064065008092,
+        "max": 0.9568839466990994,
+        "percentiles": {
+          "25th": 0.617286058008494,
+          "75th": 0.8788737425877533,
+          "90th": 0.9441861701486922
+        }
+      },
+      "sortino_ratio": {
+        "mean": 1.0901977565501308,
+        "median": 1.0090803763748442,
+        "std": 0.34553514370382393,
+        "min": 0.5916311687320037,
+        "max": 1.5273576719185642,
+        "percentiles": {
+          "25th": 0.9627141826756356,
+          "75th": 1.3448537149371829,
+          "90th": 1.484695262856905
+        }
+      },
+      "calmar_ratio": {
+        "mean": 0.359662449151858,
+        "median": 0.3463318384903864,
+        "std": 0.19134707771678539,
+        "min": 0.1211043248943587,
+        "max": 0.5932055217690761,
+        "percentiles": {
+          "25th": 0.21960320727769805,
+          "75th": 0.5168135904177003,
+          "90th": 0.5745877467109064
+        }
+      },
+      "correlations": {
+        "Sharpe Ratio": {
+          "Sharpe Ratio": 1.0,
+          "Sortino Ratio": 0.9956509838964404,
+          "Calmar Ratio": 0.9729471887979806,
+          "Omega Ratio": 0.9601522537241053
+        },
+        "Sortino Ratio": {
+          "Sharpe Ratio": 0.9956509838964404,
+          "Sortino Ratio": 1.0,
+          "Calmar Ratio": 0.9524944194597834,
+          "Omega Ratio": 0.9760868894862842
+        },
+        "Calmar Ratio": {
+          "Sharpe Ratio": 0.9729471887979806,
+          "Sortino Ratio": 0.9524944194597834,
+          "Calmar Ratio": 1.0,
+          "Omega Ratio": 0.8754558341666684
+        },
+        "Omega Ratio": {
+          "Sharpe Ratio": 0.9601522537241053,
+          "Sortino Ratio": 0.9760868894862842,
+          "Calmar Ratio": 0.8754558341666684,
+          "Omega Ratio": 1.0
+        }
+      }
+    },
+    "drawdown_analysis": {
+      "max_drawdown": {
+        "mean": 62.73578649924858,
+        "median": 61.74740018393251,
+        "std": 17.22622877019714,
+        "min": 34.73090102405553,
+        "max": 83.78242867107706,
+        "above_50_pct": 5,
+        "above_75_pct": 2
+      },
+      "recovery_analysis": {
+        "mean_days": 2440.8333333333335,
+        "median_days": 2221.0,
+        "max_days": "4797",
+        "strategies_over_365_days": 6
+      }
+    },
+    "trade_frequency_expectancy": {
+      "trade_frequency": {
+        "total_trades": {
+          "mean": 101.0,
+          "median": 97.5,
+          "std": 19.40103090044444,
+          "min": "72",
+          "max": "131"
+        },
+        "trades_per_month": {
+          "mean": 0.23114144882158838,
+          "median": 0.20041011209243675,
+          "std": 0.09633817420972285
+        }
+      },
+      "expectancy": {
+        "expectancy_per_trade": {
+          "mean": 12.52611203126065,
+          "median": 6.214712538318525,
+          "positive_expectancy": 6,
+          "negative_expectancy": 0
+        },
+        "expectancy_per_month": {
+          "mean": 3.5728680830288706,
+          "median": 1.2066360250068593,
+          "top_10_pct": 8.714004812634979
+        }
+      },
+      "win_metrics": {
+        "avg_win_rate": 55.778239026796086,
+        "strategies_above_50_pct": 6,
+        "avg_profit_factor": 3.1656487672900666,
+        "strategies_pf_above_2": 4
+      }
+    },
+    "strategy_distribution": {
+      "strategy_types": {
+        "SMA": 6
+      },
+      "signal_entry_exit": {
+        "using_signals": 6,
+        "no_signals": 0
+      },
+      "window_parameters": {
+        "short_window": {
+          "mean": 62.666666666666664,
+          "median": 68.5,
+          "min": "20",
+          "max": "84",
+          "most_common": "20"
+        },
+        "long_window": {
+          "mean": 81.5,
+          "median": 81.5,
+          "min": "74",
+          "max": "88",
+          "most_common": "88"
+        },
+        "window_spread": {
+          "mean": 18.833333333333332,
+          "median": 10.5
+        }
+      }
+    },
+    "top_bottom_performers": {
+      "top_performers": {
+        "Score": [
+          {
+            "Ticker": "AXON",
+            "Strategy Type": "SMA",
+            "Short Window": 84,
+            "Long Window": 86,
+            "Score": 1.6279620229646412
+          },
+          {
+            "Ticker": "ASML",
+            "Strategy Type": "SMA",
+            "Short Window": 71,
+            "Long Window": 74,
+            "Score": 1.613221578366384
+          },
+          {
+            "Ticker": "WELL",
+            "Strategy Type": "SMA",
+            "Short Window": 64,
+            "Long Window": 76,
+            "Score": 1.5676880993754014
+          },
+          {
+            "Ticker": "RJF",
+            "Strategy Type": "SMA",
+            "Short Window": 68,
+            "Long Window": 77,
+            "Score": 1.560655522613028
+          },
+          {
+            "Ticker": "FITB",
+            "Strategy Type": "SMA",
+            "Short Window": 20,
+            "Long Window": 88,
+            "Score": 1.2909324093856598
+          }
+        ],
+        "Total Return [%]": [
+          {
+            "Ticker": "AXON",
+            "Strategy Type": "SMA",
+            "Short Window": 84,
+            "Long Window": 86,
+            "Total Return [%]": 55786.96701750951
+          },
+          {
+            "Ticker": "ASML",
+            "Strategy Type": "SMA",
+            "Short Window": 71,
+            "Long Window": 74,
+            "Total Return [%]": 49339.797047898064
+          },
+          {
+            "Ticker": "RJF",
+            "Strategy Type": "SMA",
+            "Short Window": 68,
+            "Long Window": 77,
+            "Total Return [%]": 8999.005540228078
+          },
+          {
+            "Ticker": "FITB",
+            "Strategy Type": "SMA",
+            "Short Window": 20,
+            "Long Window": 88,
+            "Total Return [%]": 7827.398808634366
+          },
+          {
+            "Ticker": "WELL",
+            "Strategy Type": "SMA",
+            "Short Window": 64,
+            "Long Window": 76,
+            "Total Return [%]": 5694.4623397939295
+          }
+        ],
+        "Sharpe Ratio": [
+          {
+            "Ticker": "AXON",
+            "Strategy Type": "SMA",
+            "Short Window": 84,
+            "Long Window": 86,
+            "Sharpe Ratio": 0.9568839466990994
+          },
+          {
+            "Ticker": "ASML",
+            "Strategy Type": "SMA",
+            "Short Window": 71,
+            "Long Window": 74,
+            "Sharpe Ratio": 0.931488393598285
+          },
+          {
+            "Ticker": "WELL",
+            "Strategy Type": "SMA",
+            "Short Window": 64,
+            "Long Window": 76,
+            "Sharpe Ratio": 0.7210297895561585
+          },
+          {
+            "Ticker": "RJF",
+            "Strategy Type": "SMA",
+            "Short Window": 68,
+            "Long Window": 77,
+            "Sharpe Ratio": 0.6312395304120287
+          },
+          {
+            "Ticker": "FITB",
+            "Strategy Type": "SMA",
+            "Short Window": 20,
+            "Long Window": 88,
+            "Sharpe Ratio": 0.6126349005406492
+          }
+        ],
+        "Win Rate [%]": [
+          {
+            "Ticker": "RJF",
+            "Strategy Type": "SMA",
+            "Short Window": 68,
+            "Long Window": 77,
+            "Win Rate [%]": 60.909090909090914
+          },
+          {
+            "Ticker": "ASML",
+            "Strategy Type": "SMA",
+            "Short Window": 71,
+            "Long Window": 74,
+            "Win Rate [%]": 60.76923076923077
+          },
+          {
+            "Ticker": "WELL",
+            "Strategy Type": "SMA",
+            "Short Window": 64,
+            "Long Window": 76,
+            "Win Rate [%]": 55.670103092783506
+          },
+          {
+            "Ticker": "AXON",
+            "Strategy Type": "SMA",
+            "Short Window": 84,
+            "Long Window": 86,
+            "Win Rate [%]": 53.125
+          },
+          {
+            "Ticker": "FITB",
+            "Strategy Type": "SMA",
+            "Short Window": 20,
+            "Long Window": 88,
+            "Win Rate [%]": 52.112676056338024
+          }
+        ]
+      },
+      "bottom_performers": {
+        "Score": [
+          {
+            "Ticker": "PNR",
+            "Strategy Type": "SMA",
+            "Short Window": 69,
+            "Long Window": 88,
+            "Score": 1.1709188310725906
+          },
+          {
+            "Ticker": "FITB",
+            "Strategy Type": "SMA",
+            "Short Window": 20,
+            "Long Window": 88,
+            "Score": 1.2909324093856598
+          },
+          {
+            "Ticker": "RJF",
+            "Strategy Type": "SMA",
+            "Short Window": 68,
+            "Long Window": 77,
+            "Score": 1.560655522613028
+          },
+          {
+            "Ticker": "WELL",
+            "Strategy Type": "SMA",
+            "Short Window": 64,
+            "Long Window": 76,
+            "Score": 1.5676880993754014
+          },
+          {
+            "Ticker": "ASML",
+            "Strategy Type": "SMA",
+            "Short Window": 71,
+            "Long Window": 74,
+            "Score": 1.613221578366384
+          }
+        ],
+        "Total Return [%]": [
+          {
+            "Ticker": "PNR",
+            "Strategy Type": "SMA",
+            "Short Window": 69,
+            "Long Window": 88,
+            "Total Return [%]": 1441.678894803411
+          },
+          {
+            "Ticker": "WELL",
+            "Strategy Type": "SMA",
+            "Short Window": 64,
+            "Long Window": 76,
+            "Total Return [%]": 5694.4623397939295
+          },
+          {
+            "Ticker": "FITB",
+            "Strategy Type": "SMA",
+            "Short Window": 20,
+            "Long Window": 88,
+            "Total Return [%]": 7827.398808634366
+          },
+          {
+            "Ticker": "RJF",
+            "Strategy Type": "SMA",
+            "Short Window": 68,
+            "Long Window": 77,
+            "Total Return [%]": 8999.005540228078
+          },
+          {
+            "Ticker": "ASML",
+            "Strategy Type": "SMA",
+            "Short Window": 71,
+            "Long Window": 74,
+            "Total Return [%]": 49339.797047898064
+          }
+        ],
+        "Sharpe Ratio": [
+          {
+            "Ticker": "PNR",
+            "Strategy Type": "SMA",
+            "Short Window": 69,
+            "Long Window": 88,
+            "Sharpe Ratio": 0.4080064065008092
+          },
+          {
+            "Ticker": "FITB",
+            "Strategy Type": "SMA",
+            "Short Window": 20,
+            "Long Window": 88,
+            "Sharpe Ratio": 0.6126349005406492
+          },
+          {
+            "Ticker": "RJF",
+            "Strategy Type": "SMA",
+            "Short Window": 68,
+            "Long Window": 77,
+            "Sharpe Ratio": 0.6312395304120287
+          },
+          {
+            "Ticker": "WELL",
+            "Strategy Type": "SMA",
+            "Short Window": 64,
+            "Long Window": 76,
+            "Sharpe Ratio": 0.7210297895561585
+          },
+          {
+            "Ticker": "ASML",
+            "Strategy Type": "SMA",
+            "Short Window": 71,
+            "Long Window": 74,
+            "Sharpe Ratio": 0.931488393598285
+          }
+        ],
+        "Win Rate [%]": [
+          {
+            "Ticker": "PNR",
+            "Strategy Type": "SMA",
+            "Short Window": 69,
+            "Long Window": 88,
+            "Win Rate [%]": 52.083333333333336
+          },
+          {
+            "Ticker": "FITB",
+            "Strategy Type": "SMA",
+            "Short Window": 20,
+            "Long Window": 88,
+            "Win Rate [%]": 52.112676056338024
+          },
+          {
+            "Ticker": "AXON",
+            "Strategy Type": "SMA",
+            "Short Window": 84,
+            "Long Window": 86,
+            "Win Rate [%]": 53.125
+          },
+          {
+            "Ticker": "WELL",
+            "Strategy Type": "SMA",
+            "Short Window": 64,
+            "Long Window": 76,
+            "Win Rate [%]": 55.670103092783506
+          },
+          {
+            "Ticker": "ASML",
+            "Strategy Type": "SMA",
+            "Short Window": 71,
+            "Long Window": 74,
+            "Win Rate [%]": 60.76923076923077
+          }
+        ]
+      }
+    },
+    "portfolio_metrics": {
+      "portfolio_size": 6,
+      "equal_weight": 0.16666666666666666,
+      "weighted_metrics": {
+        "total_return": 21514.884941477892,
+        "sharpe_ratio": 0.7102138278845049,
+        "sortino_ratio": 1.0901977565501306,
+        "win_rate": 55.77823902679609,
+        "max_drawdown": 83.78242867107706,
+        "avg_drawdown": 62.73578649924858
+      },
+      "diversification": {
+        "unique_tickers": 6,
+        "unique_strategies": 1,
+        "ticker_concentration": {
+          "AXON": 1,
+          "ASML": 1,
+          "WELL": 1,
+          "RJF": 1,
+          "FITB": 1,
+          "PNR": 1
+        }
+      }
+    },
+    "risk_contribution": {
+      "highest_risk_contributors": [
+        {
+          "Ticker": "FITB",
+          "Strategy Type": "SMA",
+          "risk_contribution": 21.463741675676495,
+          "Max Drawdown [%]": 76.98459364224595,
+          "Sharpe Ratio": 0.6126349005406492
+        },
+        {
+          "Ticker": "PNR",
+          "Strategy Type": "SMA",
+          "risk_contribution": 20.80651245514548,
+          "Max Drawdown [%]": 65.15777655615133,
+          "Sharpe Ratio": 0.4080064065008092
+        },
+        {
+          "Ticker": "AXON",
+          "Strategy Type": "SMA",
+          "risk_contribution": 19.24976980997291,
+          "Max Drawdown [%]": 83.78242867107706,
+          "Sharpe Ratio": 0.9568839466990994
+        },
+        {
+          "Ticker": "RJF",
+          "Strategy Type": "SMA",
+          "risk_contribution": 15.826985610744119,
+          "Max Drawdown [%]": 57.42199529024794,
+          "Sharpe Ratio": 0.6312395304120287
+        },
+        {
+          "Ticker": "ASML",
+          "Strategy Type": "SMA",
+          "risk_contribution": 13.579689243683685,
+          "Max Drawdown [%]": 58.337023811713685,
+          "Sharpe Ratio": 0.931488393598285
+        },
+        {
+          "Ticker": "WELL",
+          "Strategy Type": "SMA",
+          "risk_contribution": 9.073301204777318,
+          "Max Drawdown [%]": 34.73090102405553,
+          "Sharpe Ratio": 0.7210297895561585
+        }
+      ],
+      "lowest_risk_contributors": [
+        {
+          "Ticker": "WELL",
+          "Strategy Type": "SMA",
+          "risk_contribution": 9.073301204777318,
+          "Max Drawdown [%]": 34.73090102405553,
+          "Sharpe Ratio": 0.7210297895561585
+        },
+        {
+          "Ticker": "ASML",
+          "Strategy Type": "SMA",
+          "risk_contribution": 13.579689243683685,
+          "Max Drawdown [%]": 58.337023811713685,
+          "Sharpe Ratio": 0.931488393598285
+        },
+        {
+          "Ticker": "RJF",
+          "Strategy Type": "SMA",
+          "risk_contribution": 15.826985610744119,
+          "Max Drawdown [%]": 57.42199529024794,
+          "Sharpe Ratio": 0.6312395304120287
+        },
+        {
+          "Ticker": "AXON",
+          "Strategy Type": "SMA",
+          "risk_contribution": 19.24976980997291,
+          "Max Drawdown [%]": 83.78242867107706,
+          "Sharpe Ratio": 0.9568839466990994
+        },
+        {
+          "Ticker": "PNR",
+          "Strategy Type": "SMA",
+          "risk_contribution": 20.80651245514548,
+          "Max Drawdown [%]": 65.15777655615133,
+          "Sharpe Ratio": 0.4080064065008092
+        },
+        {
+          "Ticker": "FITB",
+          "Strategy Type": "SMA",
+          "risk_contribution": 21.463741675676495,
+          "Max Drawdown [%]": 76.98459364224595,
+          "Sharpe Ratio": 0.6126349005406492
+        }
+      ],
+      "risk_return_analysis": {
+        "high_return_low_risk": [
+          {
+            "Ticker": "ASML",
+            "Strategy Type": "SMA",
+            "Total Return [%]": 49339.797047898064,
+            "risk_score": 30.203144893371146
+          },
+          {
+            "Ticker": "RJF",
+            "Strategy Type": "SMA",
+            "Total Return [%]": 8999.005540228078,
+            "risk_score": 35.201449094201344
+          }
+        ],
+        "low_return_high_risk": [
+          {
+            "Ticker": "FITB",
+            "Strategy Type": "SMA",
+            "Total Return [%]": 7827.398808634366,
+            "risk_score": 47.73838989621038
+          },
+          {
+            "Ticker": "PNR",
+            "Strategy Type": "SMA",
+            "Total Return [%]": 1441.678894803411,
+            "risk_score": 46.276619378516926
+          }
+        ]
+      }
+    },
+    "correlations": {
+      "correlation_matrix": {
+        "ASML": {
+          "ASML": NaN,
+          "AXON": NaN,
+          "FITB": NaN,
+          "PNR": NaN,
+          "RJF": NaN,
+          "WELL": NaN
+        },
+        "AXON": {
+          "ASML": NaN,
+          "AXON": NaN,
+          "FITB": NaN,
+          "PNR": NaN,
+          "RJF": NaN,
+          "WELL": NaN
+        },
+        "FITB": {
+          "ASML": NaN,
+          "AXON": NaN,
+          "FITB": NaN,
+          "PNR": NaN,
+          "RJF": NaN,
+          "WELL": NaN
+        },
+        "PNR": {
+          "ASML": NaN,
+          "AXON": NaN,
+          "FITB": NaN,
+          "PNR": NaN,
+          "RJF": NaN,
+          "WELL": NaN
+        },
+        "RJF": {
+          "ASML": NaN,
+          "AXON": NaN,
+          "FITB": NaN,
+          "PNR": NaN,
+          "RJF": NaN,
+          "WELL": NaN
+        },
+        "WELL": {
+          "ASML": NaN,
+          "AXON": NaN,
+          "FITB": NaN,
+          "PNR": NaN,
+          "RJF": NaN,
+          "WELL": NaN
+        }
+      },
+      "high_correlations": [],
+      "avg_correlation": NaN
+    }
+  },
+  "comparative_analysis": {
+    "statistical_significance": {
+      "Score": {
+        "trades_mean": 1.3936760907940864,
+        "incoming_mean": 1.4718964106296175,
+        "difference": -0.07822031983553113,
+        "t_test": {
+          "statistic": -0.7791383947299444,
+          "p_value": 0.44660941120677033,
+          "significant_at_0.05": "False"
+        },
+        "mann_whitney": {
+          "statistic": 27.0,
+          "p_value": 0.32286598850066345,
+          "significant_at_0.05": "False"
+        },
+        "effect_size_cohens_d": -0.39069431800465815
+      },
+      "Win Rate [%]": {
+        "trades_mean": 51.30364360873501,
+        "incoming_mean": 55.778239026796086,
+        "difference": -4.474595418061078,
+        "t_test": {
+          "statistic": -1.6147030387548746,
+          "p_value": 0.12478115738775507,
+          "significant_at_0.05": "False"
+        },
+        "mann_whitney": {
+          "statistic": 21.5,
+          "p_value": 0.13579013365078638,
+          "significant_at_0.05": "False"
+        },
+        "effect_size_cohens_d": -0.8562211813117938
+      },
+      "Total Return [%]": {
+        "trades_mean": 30783.746241245317,
+        "incoming_mean": 21514.884941477892,
+        "difference": 9268.861299767424,
+        "t_test": {
+          "statistic": 0.3580223217783528,
+          "p_value": 0.7247334204270315,
+          "significant_at_0.05": "False"
+        },
+        "mann_whitney": {
+          "statistic": 29.0,
+          "p_value": 0.41552410437859355,
+          "significant_at_0.05": "False"
+        },
+        "effect_size_cohens_d": 0.20126654500797217
+      },
+      "Sharpe Ratio": {
+        "trades_mean": 0.8245544283723449,
+        "incoming_mean": 0.7102138278845049,
+        "difference": 0.11434060048784,
+        "t_test": {
+          "statistic": 1.064535845332407,
+          "p_value": 0.30197349069958235,
+          "significant_at_0.05": "False"
+        },
+        "mann_whitney": {
+          "statistic": 52.0,
+          "p_value": 0.2818074598260357,
+          "significant_at_0.05": "False"
+        },
+        "effect_size_cohens_d": 0.5319230100284308
+      },
+      "Sortino Ratio": {
+        "trades_mean": 1.3097771511141223,
+        "incoming_mean": 1.0901977565501308,
+        "difference": 0.21957939456399145,
+        "t_test": {
+          "statistic": 1.2755916028877787,
+          "p_value": 0.21925550750737396,
+          "significant_at_0.05": "False"
+        },
+        "mann_whitney": {
+          "statistic": 55.0,
+          "p_value": 0.17912428129146396,
+          "significant_at_0.05": "False"
+        },
+        "effect_size_cohens_d": 0.6312726596980611
+      },
+      "Calmar Ratio": {
+        "trades_mean": 0.5256695331256783,
+        "incoming_mean": 0.359662449151858,
+        "difference": 0.1660070839738203,
+        "t_test": {
+          "statistic": 1.2140283933428955,
+          "p_value": 0.24133364324820689,
+          "significant_at_0.05": "False"
+        },
+        "mann_whitney": {
+          "statistic": 53.0,
+          "p_value": 0.24406604747162025,
+          "significant_at_0.05": "False"
+        },
+        "effect_size_cohens_d": 0.6508787466836286
+      }
+    },
+    "portfolio_comparison": {
+      "trades_vs_incoming": {
+        "total_return_diff": 9268.861299767424,
+        "sharpe_diff": 0.11434060048784,
+        "win_rate_diff": -4.474595418061078,
+        "max_dd_diff": 1.6736989416504642
+      }
+    }
+  }
+}

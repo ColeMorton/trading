@@ -814,6 +814,8 @@ def _get_default_value_for_column(
         "Stop Loss [%]": None,  # Optional stop loss
         "Signal Entry": False,  # Default signal state
         "Signal Exit": False,  # Default signal state
+        "Last Position Open Date": None,  # Optional position date
+        "Last Position Close Date": None,  # Optional position date
         "Total Open Trades": 0,  # Default trade count
         "Total Trades": stats.get("Total Trades", 0),
         "Metric Type": "Most Total Return [%]",  # Default metric type in proper format

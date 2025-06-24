@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-24T10:09:35.709857",
+    "export_timestamp": "2025-06-25T07:05:02.794286",
     "strategy_config": {
       "ticker": "BLDR",
       "timeframe": "D",
@@ -15,7 +15,7 @@
       "total_return": 80.62048777625225,
       "total_trades": "161",
       "win_rate": 0.5341614906832298,
-      "sharpe_ratio": 0.8339289924118503,
+      "sharpe_ratio": 0.833845934783211,
       "max_drawdown": -0.6904402437315725
     }
   },

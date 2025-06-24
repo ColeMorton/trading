@@ -446,17 +446,17 @@ class BasePortfolioSchema:
 
 class ExtendedPortfolioSchema:
     """
-    Extended 60-column portfolio CSV schema definition (CANONICAL).
+    Extended 62-column portfolio CSV schema definition (CANONICAL).
 
     This is the canonical schema that all CSV exports must follow.
-    Adds Allocation [%] and Stop Loss [%] as columns 59-60 at the end.
+    Adds Allocation [%], Stop Loss [%], Last Position Open Date, and Last Position Close Date as columns 59-62 at the end.
     """
 
-    # Extended column definitions (60 columns)
+    # Extended column definitions (62 columns)
     COLUMNS: List[ColumnDefinition] = [
         # Start with all base schema columns
         *BasePortfolioSchema.COLUMNS,
-        # Add the two additional columns at the end
+        # Add the four additional columns at the end
         ColumnDefinition(
             "Allocation [%]",
             ColumnDataType.PERCENTAGE,
@@ -469,6 +469,18 @@ class ExtendedPortfolioSchema:
             nullable=True,
             description="Stop loss threshold as percentage",
         ),
+        ColumnDefinition(
+            "Last Position Open Date",
+            ColumnDataType.STRING,
+            nullable=True,
+            description="Date when the last position was opened (YYYY-MM-DD format)",
+        ),
+        ColumnDefinition(
+            "Last Position Close Date",
+            ColumnDataType.STRING,
+            nullable=True,
+            description="Date when the last position was closed (YYYY-MM-DD format)",
+        ),
     ]
 
     @classmethod
@@ -478,7 +490,7 @@ class ExtendedPortfolioSchema:
 
     @classmethod
     def get_column_count(cls) -> int:
-        """Get the extended column count (should always be 60)."""
+        """Get the extended column count (should always be 62)."""
         return len(cls.COLUMNS)
 
     @classmethod
@@ -537,7 +549,7 @@ class FilteredPortfolioSchema:
     Filtered portfolio schema with Metric Type as first column.
 
     This is used for portfolios_filtered directories where Metric Type
-    is prepended as the first column for filtering purposes (61 columns total).
+    is prepended as the first column for filtering purposes (63 columns total).
     """
 
     @classmethod
@@ -548,7 +560,7 @@ class FilteredPortfolioSchema:
 
     @classmethod
     def get_column_count(cls) -> int:
-        """Get the filtered column count (should be 61)."""
+        """Get the filtered column count (should be 63)."""
         return 1 + ExtendedPortfolioSchema.get_column_count()
 
 
@@ -572,7 +584,7 @@ class SchemaTransformer:
         if num_columns >= 59 and "Metric Type" in columns:
             return SchemaType.FILTERED
 
-        # Check for extended schema (58+ columns with Allocation and Stop Loss)
+        # Check for extended schema (58+ columns with Allocation, Stop Loss, and potentially Last Position Open Date)
         if (
             num_columns >= 58
             and "Allocation [%]" in columns
@@ -655,6 +667,8 @@ class SchemaTransformer:
             "Total Period": 365.0,
             "Allocation [%]": None,
             "Stop Loss [%]": None,
+            "Last Position Open Date": None,
+            "Last Position Close Date": None,
             "Metric Type": "Most Total Return [%]",
         }
 
@@ -663,6 +677,8 @@ class SchemaTransformer:
         portfolio: Dict[str, Any],
         allocation_pct: Optional[float] = None,
         stop_loss_pct: Optional[float] = None,
+        last_position_open_date: Optional[str] = None,
+        last_position_close_date: Optional[str] = None,
         force_analysis_defaults: bool = False,
     ) -> Dict[str, Any]:
         """
@@ -672,29 +688,40 @@ class SchemaTransformer:
             portfolio: Source portfolio data
             allocation_pct: Allocation percentage value
             stop_loss_pct: Stop loss percentage value
-            force_analysis_defaults: Force analysis export defaults (None for allocation/stop loss)
+            last_position_open_date: Last position open date (YYYY-MM-DD format)
+            last_position_close_date: Last position close date (YYYY-MM-DD format)
+            force_analysis_defaults: Force analysis export defaults (None for allocation/stop loss/position dates)
 
         Returns:
-            Portfolio with extended schema (60 columns)
+            Portfolio with extended schema (62 columns)
         """
         defaults = self._get_default_values(portfolio)
 
         # Start with defaults, then override with actual data
         extended = {}
         for col in ExtendedPortfolioSchema.get_column_names():
-            # For analysis exports, force allocation/stop loss to None regardless of source data
-            if force_analysis_defaults and col in ["Allocation [%]", "Stop Loss [%]"]:
+            # For analysis exports, force allocation/stop loss/position dates to None regardless of source data
+            if force_analysis_defaults and col in [
+                "Allocation [%]",
+                "Stop Loss [%]",
+                "Last Position Open Date",
+                "Last Position Close Date",
+            ]:
                 extended[col] = None
             elif col in portfolio:
                 extended[col] = portfolio[col]
             else:
                 extended[col] = defaults.get(col)
 
-        # Set allocation and stop loss if explicitly provided (overrides force_analysis_defaults)
+        # Set values if explicitly provided (overrides force_analysis_defaults)
         if allocation_pct is not None:
             extended["Allocation [%]"] = allocation_pct
         if stop_loss_pct is not None:
             extended["Stop Loss [%]"] = stop_loss_pct
+        if last_position_open_date is not None:
+            extended["Last Position Open Date"] = last_position_open_date
+        if last_position_close_date is not None:
+            extended["Last Position Close Date"] = last_position_close_date
 
         return extended
 
@@ -704,6 +731,8 @@ class SchemaTransformer:
         metric_type: str = "Most Total Return [%]",
         allocation_pct: Optional[float] = None,
         stop_loss_pct: Optional[float] = None,
+        last_position_open_date: Optional[str] = None,
+        last_position_close_date: Optional[str] = None,
         force_analysis_defaults: bool = False,
     ) -> Dict[str, Any]:
         """
@@ -714,14 +743,21 @@ class SchemaTransformer:
             metric_type: Metric type value
             allocation_pct: Allocation percentage value
             stop_loss_pct: Stop loss percentage value
-            force_analysis_defaults: Force analysis export defaults (None for allocation/stop loss)
+            last_position_open_date: Last position open date (YYYY-MM-DD format)
+            last_position_close_date: Last position close date (YYYY-MM-DD format)
+            force_analysis_defaults: Force analysis export defaults (None for allocation/stop loss/position dates)
 
         Returns:
-            Portfolio with filtered schema (61 columns)
+            Portfolio with filtered schema (63 columns)
         """
         # First transform to extended with analysis defaults if needed
         extended = self.transform_to_extended(
-            portfolio, allocation_pct, stop_loss_pct, force_analysis_defaults
+            portfolio,
+            allocation_pct,
+            stop_loss_pct,
+            last_position_open_date,
+            last_position_close_date,
+            force_analysis_defaults,
         )
 
         # Create filtered with metric type first
@@ -737,6 +773,8 @@ class SchemaTransformer:
         metric_type: str = "Most Total Return [%]",
         allocation_pct: Optional[float] = None,
         stop_loss_pct: Optional[float] = None,
+        last_position_open_date: Optional[str] = None,
+        last_position_close_date: Optional[str] = None,
         force_analysis_defaults: bool = False,
     ) -> Dict[str, Any]:
         """
@@ -748,7 +786,9 @@ class SchemaTransformer:
             metric_type: Metric type for filtered schema
             allocation_pct: Allocation percentage
             stop_loss_pct: Stop loss percentage
-            force_analysis_defaults: Force analysis export defaults (None for allocation/stop loss)
+            last_position_open_date: Last position open date (YYYY-MM-DD format)
+            last_position_close_date: Last position close date (YYYY-MM-DD format)
+            force_analysis_defaults: Force analysis export defaults (None for allocation/stop loss/position dates)
 
         Returns:
             Portfolio normalized to target schema
@@ -766,7 +806,12 @@ class SchemaTransformer:
 
         elif target_schema == SchemaType.EXTENDED:
             return self.transform_to_extended(
-                portfolio, allocation_pct, stop_loss_pct, force_analysis_defaults
+                portfolio,
+                allocation_pct,
+                stop_loss_pct,
+                last_position_open_date,
+                last_position_close_date,
+                force_analysis_defaults,
             )
 
         elif target_schema == SchemaType.FILTERED:
@@ -775,6 +820,8 @@ class SchemaTransformer:
                 metric_type,
                 allocation_pct,
                 stop_loss_pct,
+                last_position_open_date,
+                last_position_close_date,
                 force_analysis_defaults,
             )
 
@@ -877,7 +924,7 @@ class SchemaTransformer:
         if num_columns >= 59 and len(columns) > 0 and columns[0] == "Metric Type":
             return "filtered"
 
-        # Check for extended schema (58+ columns with Allocation and Stop Loss)
+        # Check for extended schema (58+ columns with Allocation, Stop Loss, and potentially Last Position Open Date)
         if (
             num_columns >= 58
             and "Allocation [%]" in columns
@@ -928,12 +975,12 @@ assert (
 ), f"Base column count mismatch: expected 58, got {BASE_COLUMN_COUNT}"
 
 assert (
-    EXTENDED_COLUMN_COUNT == 60
-), f"Extended column count mismatch: expected 60, got {EXTENDED_COLUMN_COUNT}"
+    EXTENDED_COLUMN_COUNT == 62
+), f"Extended column count mismatch: expected 62, got {EXTENDED_COLUMN_COUNT}"
 
 assert (
-    FILTERED_COLUMN_COUNT == 61
-), f"Filtered column count mismatch: expected 61, got {FILTERED_COLUMN_COUNT}"
+    FILTERED_COLUMN_COUNT == 63
+), f"Filtered column count mismatch: expected 63, got {FILTERED_COLUMN_COUNT}"
 
 assert all(
     risk_metric in CANONICAL_COLUMN_NAMES for risk_metric in RISK_METRICS

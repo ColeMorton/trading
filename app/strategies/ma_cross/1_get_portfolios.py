@@ -64,8 +64,8 @@ from app.tools.strategy_utils import filter_portfolios_by_signal, get_strategy_t
 # Config management is now handled by ConfigService
 
 CONFIG: Config = {
-    # "TICKER": "COIN",
-    "TICKER": ['WELL', 'IRM', 'INTC', 'LII', 'NWS', 'AWK', 'UNP', 'FOX', 'FITB', 'RJF', 'PNR', 'KEY', 'JNPR', 'TFC', 'PHM', 'DOC', 'INVH', 'GL', 'REG', 'GE', 'TT', 'RL', 'CRWD', 'ASML', 'META', 'NTAP', 'BKNG', 'RVTY', 'MNST', 'DDC', 'ZION', 'LVS', 'MDLZ', 'SYY', 'MET', 'NOC', 'LH', 'PWR', 'AXON', 'SWKS'],
+    # "TICKER": "INTC",
+    "TICKER": ["TPR", "COR", "SMCI"],
     # Load tickers from JSON file
     # "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/portfolio.json"))),
     # "TICKER_2": 'AVGO',
@@ -77,26 +77,26 @@ CONFIG: Config = {
     # "USE_SCANNER": True,
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
     "REFRESH": True,
-    "STRATEGY_TYPES": ["SMA", "EMA"],
-    # "STRATEGY_TYPES": ["EMA"],
+    # "STRATEGY_TYPES": ["SMA", "EMA"],
+    "STRATEGY_TYPES": ["SMA"],
     "DIRECTION": "Long",
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
     "USE_CURRENT": True,
-    "MINIMUMS": {
-        "WIN_RATE": 0.44,
-        "TRADES": 34,
-        # "WIN_RATE": 0.50,
-        # "TRADES": 54,
-        # "WIN_RATE": 0.61,
-        "EXPECTANCY_PER_TRADE": 1,
-        "PROFIT_FACTOR": 1,
-        # "SORTINO_RATIO": 0.4,
-        # "BEATS_BNH": 0
-        # "BEATS_BNH": 0.13
-    },
+    # "MINIMUMS": {
+    #     "WIN_RATE": 0.44,
+    #     "TRADES": 34,
+    #     # "WIN_RATE": 0.50,
+    #     # "TRADES": 54,
+    #     # "WIN_RATE": 0.61,
+    #     "EXPECTANCY_PER_TRADE": 1,
+    #     "PROFIT_FACTOR": 1,
+    #     # "SORTINO_RATIO": 0.4,
+    #     # "BEATS_BNH": 0
+    #     # "BEATS_BNH": 0.13
+    # },
     "SORT_BY": "Score",
     "SORT_ASC": False,
     "USE_GBM": False,

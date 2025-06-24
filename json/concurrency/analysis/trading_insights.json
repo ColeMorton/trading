@@ -1,0 +1,229 @@
+{
+  "portfolio_recommendations": {
+    "core_holdings": {
+      "allocation_pct": 60,
+      "strategies": [
+        {
+          "Ticker": "TSLA",
+          "Strategy Type": "SMA",
+          "Short Window": 4,
+          "Long Window": 39,
+          "composite_score": 1.02194401171809,
+          "Total Return [%]": 17929.51910936722,
+          "Sharpe Ratio": 1.250750977526771,
+          "Max Drawdown [%]": 54.316175542691006
+        },
+        {
+          "Ticker": "ASML",
+          "Strategy Type": "SMA",
+          "Short Window": 71,
+          "Long Window": 74,
+          "composite_score": 0.9350353688452653,
+          "Total Return [%]": 49339.797047898064,
+          "Sharpe Ratio": 0.931488393598285,
+          "Max Drawdown [%]": 58.337023811713685
+        },
+        {
+          "Ticker": "ALGN",
+          "Strategy Type": "SMA",
+          "Short Window": 13,
+          "Long Window": 39,
+          "composite_score": 0.9329739506015073,
+          "Total Return [%]": 37563.58661104817,
+          "Sharpe Ratio": 0.9632078127942808,
+          "Max Drawdown [%]": 59.65973650030446
+        },
+        {
+          "Ticker": "HWM",
+          "Strategy Type": "SMA",
+          "Short Window": 7,
+          "Long Window": 9,
+          "composite_score": 0.9146477391587402,
+          "Total Return [%]": 500.9112421798638,
+          "Sharpe Ratio": 1.0556450168008296,
+          "Max Drawdown [%]": 35.82835150274074
+        }
+      ],
+      "rationale": "Highest composite scores with acceptable risk profiles"
+    },
+    "growth_positions": {
+      "allocation_pct": 25,
+      "strategies": [
+        {
+          "Ticker": "AMAT",
+          "Strategy Type": "SMA",
+          "Short Window": 64,
+          "Long Window": 77,
+          "Total Return [%]": 222479.2022541039,
+          "Sharpe Ratio": 0.7890426826900512,
+          "Max Drawdown [%]": 68.49130032877282
+        },
+        {
+          "Ticker": "NFLX",
+          "Strategy Type": "SMA",
+          "Short Window": 82,
+          "Long Window": 83,
+          "Total Return [%]": 49451.62981016252,
+          "Sharpe Ratio": 1.0248600402624466,
+          "Max Drawdown [%]": 75.36773980805233
+        }
+      ],
+      "rationale": "High return potential with elevated but manageable risk"
+    },
+    "speculative_positions": {
+      "allocation_pct": 15,
+      "strategies": [
+        {
+          "Ticker": "AXON",
+          "Strategy Type": "SMA",
+          "Short Window": 84,
+          "Long Window": 86,
+          "Total Return [%]": 55786.96701750951,
+          "Max Drawdown [%]": 83.78242867107706
+        },
+        {
+          "Ticker": "AMZN",
+          "Strategy Type": "SMA",
+          "Short Window": 51,
+          "Long Window": 69,
+          "Total Return [%]": 48576.67176450108,
+          "Max Drawdown [%]": 85.93101055845027
+        }
+      ],
+      "rationale": "Highest return potential with significant risk - small allocations only"
+    },
+    "diversification_metrics": {
+      "unique_tickers": 19,
+      "sector_concentration_risk": "HIGH - Tech heavy portfolio",
+      "strategy_diversity": "LOW - All SMA strategies",
+      "parameter_diversity": "MEDIUM - Various window combinations"
+    }
+  },
+  "risk_management_rules": {
+    "position_sizing_rules": {
+      "max_single_position": "10% for strategies with <60% max DD",
+      "reduced_position": "5% for strategies with 60-75% max DD",
+      "minimal_position": "2% for strategies with >75% max DD",
+      "absolute_max_dd_limit": "85% - avoid strategies exceeding this"
+    },
+    "portfolio_level_limits": {
+      "max_portfolio_drawdown": "50% - based on historical worst-case scenarios",
+      "correlation_limit": "No more than 30% in single sector/asset class",
+      "rebalancing_trigger": "Monthly or when any position exceeds +/- 2% of target allocation"
+    },
+    "stop_loss_recommendations": {
+      "individual_strategy": "25% loss from peak for strategies without built-in stops",
+      "portfolio_level": "20% portfolio drawdown triggers review/rebalancing",
+      "time_based_stop": "Exit if no new high for 12 months (trend breakdown)"
+    },
+    "risk_monitoring_alerts": {
+      "daily": "Portfolio value, individual position P&L",
+      "weekly": "Drawdown metrics, correlation analysis",
+      "monthly": "Performance attribution, rebalancing needs",
+      "quarterly": "Strategy performance review, parameter optimization"
+    }
+  },
+  "parameter_optimization": {
+    "optimal_parameter_ranges": {
+      "short_window": {
+        "best_performance_range": "13-39 days (based on top performers)",
+        "sweet_spot": "20-30 days for balanced risk/return",
+        "avoid": "<10 days (too noisy) or >60 days (too slow)"
+      },
+      "long_window": {
+        "best_performance_range": "51-77 days (based on top performers)",
+        "sweet_spot": "60-80 days for trend capture",
+        "avoid": "<40 days (insufficient trend filtering)"
+      },
+      "window_ratio": {
+        "optimal_ratio": "2.79 (75th percentile of performers)",
+        "minimum_ratio": "1.5 (long must be 50% longer than short)",
+        "maximum_ratio": "4.0 (beyond this becomes too slow)"
+      }
+    },
+    "parameter_optimization_recommendations": {
+      "trending_markets": "Use longer windows (60/80, 70/90) for stable trend capture",
+      "volatile_markets": "Use shorter windows (20/40, 30/50) for quicker adaptation",
+      "sector_specific": {
+        "tech_stocks": "Shorter windows due to higher volatility",
+        "utilities/staples": "Longer windows for stable trend following",
+        "financials": "Medium windows (40/60) for balance"
+      }
+    },
+    "signal_timing_insights": {
+      "entry_signals": "9 strategies use entry signals",
+      "exit_signals": "0 strategies use exit signals",
+      "performance_impact": "Mixed results - requires individual strategy testing"
+    }
+  },
+  "trade_execution_guidance": {
+    "timing_considerations": {
+      "average_trade_duration": "48 days",
+      "holding_period_range": "8-97 days",
+      "recommended_review_frequency": "Weekly for position management, monthly for rebalancing"
+    },
+    "execution_logistics": {
+      "trade_frequency": "0.37 trades per strategy per month",
+      "total_monthly_trades": "7 across all strategies",
+      "execution_window": "Market open first hour for best liquidity",
+      "order_types": "Limit orders preferred, market orders for urgent exits"
+    },
+    "capital_deployment": {
+      "initial_deployment": "Phase in over 3 months to avoid timing risk",
+      "cash_reserve": "20% for rebalancing and new opportunities",
+      "scaling_approach": "Start with top 5 strategies, add others as proven"
+    },
+    "monitoring_dashboard_requirements": {
+      "real_time": ["Portfolio value", "Daily P&L", "Open positions"],
+      "daily": ["Individual strategy performance", "Signal generation"],
+      "weekly": ["Risk metrics", "Drawdown tracking"],
+      "monthly": ["Performance attribution", "Rebalancing analysis"]
+    }
+  },
+  "performance_monitoring": {
+    "key_performance_indicators": {
+      "primary_metrics": {
+        "total_return": "Track against benchmark and targets",
+        "sharpe_ratio": "Target: >0.84",
+        "max_drawdown": "Alert if exceeds 76.0%",
+        "win_rate": "Target: >52.3%"
+      },
+      "secondary_metrics": {
+        "sortino_ratio": "Risk-adjusted downside performance",
+        "calmar_ratio": "Return per unit of max drawdown",
+        "profit_factor": "Gross profit / gross loss ratio",
+        "expectancy": "Expected profit per trade"
+      }
+    },
+    "performance_benchmarks": {
+      "absolute_targets": {
+        "annual_return": "15-25% target range",
+        "sharpe_ratio": ">1.0 for acceptable risk-adjusted return",
+        "max_drawdown": "<30% portfolio level, <70% individual strategy"
+      },
+      "relative_benchmarks": {
+        "market_benchmark": "S&P 500 total return",
+        "peer_comparison": "Trend-following strategy indices",
+        "risk_parity": "Compare to balanced portfolio allocation"
+      }
+    },
+    "alert_thresholds": {
+      "immediate_action": {
+        "portfolio_dd_20pct": "Review all positions and risk exposure",
+        "strategy_dd_30pct": "Consider position size reduction",
+        "consecutive_losses": "5+ losing trades in single strategy"
+      },
+      "review_triggers": {
+        "monthly_performance": "<-5% relative to benchmark",
+        "rolling_sharpe": "Below 0.5 for 3+ months",
+        "correlation_increase": "Strategy correlation >0.8"
+      }
+    },
+    "reporting_schedule": {
+      "daily": "P&L summary, position updates",
+      "weekly": "Performance metrics, risk dashboard",
+      "monthly": "Detailed attribution analysis, rebalancing report",
+      "quarterly": "Strategy review, parameter optimization assessment"
+    }
+  }
+}

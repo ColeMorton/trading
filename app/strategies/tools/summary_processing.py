@@ -40,7 +40,14 @@ def process_ticker_portfolios(
         portfolios = []
 
         # Debug: log available keys
-        log(f"Available keys for {ticker}: {list(row.keys())[:10]}...", "debug")
+        all_keys = list(row.keys())
+        log(f"Available keys for {ticker}: {all_keys[:10]}...", "debug")
+
+        # Check for date columns specifically
+        date_related_keys = [
+            k for k in all_keys if "position" in k.lower() or "date" in k.lower()
+        ]
+        log(f"Date-related keys for {ticker}: {date_related_keys}", "info")
 
         # Extract strategy parameters - try both uppercase and canonical names
         short_window = row.get("SHORT_WINDOW") or row.get("Short Window")
@@ -169,6 +176,43 @@ def process_ticker_portfolios(
                         else:
                             stats["Stop Loss [%]"] = None
 
+                        # Preserve Last Position Open Date and Last Position Close Date
+                        last_open_date = row.get("Last Position Open Date")
+                        if (
+                            last_open_date is not None
+                            and last_open_date != ""
+                            and last_open_date != "None"
+                        ):
+                            stats["Last Position Open Date"] = last_open_date
+                            log(
+                                f"DEBUG: Set Last Position Open Date for {ticker}: {last_open_date}",
+                                "info",
+                            )
+                        else:
+                            stats["Last Position Open Date"] = None
+                            log(
+                                f"DEBUG: Set Last Position Open Date for {ticker} to None (input was: {last_open_date})",
+                                "info",
+                            )
+
+                        last_close_date = row.get("Last Position Close Date")
+                        if (
+                            last_close_date is not None
+                            and last_close_date != ""
+                            and last_close_date != "None"
+                        ):
+                            stats["Last Position Close Date"] = last_close_date
+                            log(
+                                f"DEBUG: Set Last Position Close Date for {ticker}: {last_close_date}",
+                                "info",
+                            )
+                        else:
+                            stats["Last Position Close Date"] = None
+                            log(
+                                f"DEBUG: Set Last Position Close Date for {ticker} to None (input was: {last_close_date})",
+                                "info",
+                            )
+
                         # Convert stats with current signal status
                         converted_stats = convert_stats(
                             stats, log, config, current_signal, exit_signal
@@ -276,6 +320,43 @@ def process_ticker_portfolios(
                         else:
                             sma_stats["Stop Loss [%]"] = None
 
+                        # Preserve Last Position Open Date and Last Position Close Date
+                        last_open_date = row.get("Last Position Open Date")
+                        if (
+                            last_open_date is not None
+                            and last_open_date != ""
+                            and last_open_date != "None"
+                        ):
+                            sma_stats["Last Position Open Date"] = last_open_date
+                            log(
+                                f"DEBUG: Set Last Position Open Date for {ticker} (SMA): {last_open_date}",
+                                "info",
+                            )
+                        else:
+                            sma_stats["Last Position Open Date"] = None
+                            log(
+                                f"DEBUG: Set Last Position Open Date for {ticker} (SMA) to None (input was: {last_open_date})",
+                                "info",
+                            )
+
+                        last_close_date = row.get("Last Position Close Date")
+                        if (
+                            last_close_date is not None
+                            and last_close_date != ""
+                            and last_close_date != "None"
+                        ):
+                            sma_stats["Last Position Close Date"] = last_close_date
+                            log(
+                                f"DEBUG: Set Last Position Close Date for {ticker} (SMA): {last_close_date}",
+                                "info",
+                            )
+                        else:
+                            sma_stats["Last Position Close Date"] = None
+                            log(
+                                f"DEBUG: Set Last Position Close Date for {ticker} (SMA) to None (input was: {last_close_date})",
+                                "info",
+                            )
+
                         # Convert stats with current signal status
                         sma_converted_stats = convert_stats(
                             sma_stats, log, config, current_signal, exit_signal
@@ -351,6 +432,43 @@ def process_ticker_portfolios(
                                 ema_stats["Stop Loss [%]"] = None
                         else:
                             ema_stats["Stop Loss [%]"] = None
+
+                        # Preserve Last Position Open Date and Last Position Close Date
+                        last_open_date = row.get("Last Position Open Date")
+                        if (
+                            last_open_date is not None
+                            and last_open_date != ""
+                            and last_open_date != "None"
+                        ):
+                            ema_stats["Last Position Open Date"] = last_open_date
+                            log(
+                                f"DEBUG: Set Last Position Open Date for {ticker} (EMA): {last_open_date}",
+                                "info",
+                            )
+                        else:
+                            ema_stats["Last Position Open Date"] = None
+                            log(
+                                f"DEBUG: Set Last Position Open Date for {ticker} (EMA) to None (input was: {last_open_date})",
+                                "info",
+                            )
+
+                        last_close_date = row.get("Last Position Close Date")
+                        if (
+                            last_close_date is not None
+                            and last_close_date != ""
+                            and last_close_date != "None"
+                        ):
+                            ema_stats["Last Position Close Date"] = last_close_date
+                            log(
+                                f"DEBUG: Set Last Position Close Date for {ticker} (EMA): {last_close_date}",
+                                "info",
+                            )
+                        else:
+                            ema_stats["Last Position Close Date"] = None
+                            log(
+                                f"DEBUG: Set Last Position Close Date for {ticker} (EMA) to None (input was: {last_close_date})",
+                                "info",
+                            )
 
                         # Convert stats with current signal status
                         ema_converted_stats = convert_stats(
@@ -633,6 +751,25 @@ def export_summary_results(
             )
             # Use pl.Float64 type with None values instead of string "None"
             df = df.with_columns(pl.lit(None).cast(pl.Float64).alias("Stop Loss [%]"))
+
+        # Ensure Last Position Open Date and Last Position Close Date columns exist
+        if "Last Position Open Date" not in df.columns:
+            log(
+                "Adding empty Last Position Open Date column to ensure Extended Schema format",
+                "info",
+            )
+            df = df.with_columns(
+                pl.lit(None).cast(pl.Utf8).alias("Last Position Open Date")
+            )
+
+        if "Last Position Close Date" not in df.columns:
+            log(
+                "Adding empty Last Position Close Date column to ensure Extended Schema format",
+                "info",
+            )
+            df = df.with_columns(
+                pl.lit(None).cast(pl.Utf8).alias("Last Position Close Date")
+            )
 
         # Convert back to list of dictionaries
         reordered_portfolios = df.to_dicts()

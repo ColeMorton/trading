@@ -1,0 +1,48 @@
+{
+  "recommended_core_portfolio": [
+    {
+      "Ticker": "TSLA",
+      "Strategy Type": "SMA",
+      "Short Window": 4,
+      "Long Window": 39,
+      "composite_score": 1.02194401171809,
+      "Total Return [%]": 17929.51910936722,
+      "Sharpe Ratio": 1.250750977526771,
+      "Max Drawdown [%]": 54.316175542691006
+    },
+    {
+      "Ticker": "ASML",
+      "Strategy Type": "SMA",
+      "Short Window": 71,
+      "Long Window": 74,
+      "composite_score": 0.9350353688452653,
+      "Total Return [%]": 49339.797047898064,
+      "Sharpe Ratio": 0.931488393598285,
+      "Max Drawdown [%]": 58.337023811713685
+    },
+    {
+      "Ticker": "ALGN",
+      "Strategy Type": "SMA",
+      "Short Window": 13,
+      "Long Window": 39,
+      "composite_score": 0.9329739506015073,
+      "Total Return [%]": 37563.58661104817,
+      "Sharpe Ratio": 0.9632078127942808,
+      "Max Drawdown [%]": 59.65973650030446
+    }
+  ],
+  "key_risk_rules": {
+    "max_position_size": "10% for strategies with <60% max DD",
+    "portfolio_dd_limit": "50% - based on historical worst-case scenarios",
+    "stop_loss": "25% loss from peak for strategies without built-in stops"
+  },
+  "optimal_parameters": {
+    "short_window": "20-30 days for balanced risk/return",
+    "long_window": "60-80 days for trend capture"
+  },
+  "execution_priorities": {
+    "phase_1": "Deploy top 3 core strategies with 60% allocation",
+    "phase_2": "Add growth positions with 25% allocation",
+    "phase_3": "Consider speculative positions with 15% allocation"
+  }
+}

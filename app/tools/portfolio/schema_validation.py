@@ -2,7 +2,7 @@
 Portfolio CSV Schema Validation Module
 
 Provides comprehensive validation functions to ensure all CSV exports conform
-to the canonical 58-column Extended schema defined in base_extended_schemas.py.
+to the canonical 62-column Extended schema defined in base_extended_schemas.py.
 """
 
 import logging

@@ -1,0 +1,2 @@
+Position_UUID,Ticker,Strategy_Type,Short_Window,Long_Window,Signal_Window,Entry_Timestamp,Exit_Timestamp,Avg_Entry_Price,Avg_Exit_Price,Position_Size,Direction,PnL,Return,Duration_Days,Trade_Type,Status,Max_Favourable_Excursion,Max_Adverse_Excursion,MFE_MAE_Ratio,Exit_Efficiency,Days_Since_Entry,Current_Unrealized_PnL,Current_Excursion_Status
+LIN_SMA_68_86_0_2025-03-31,LIN,SMA,68,86,0,2025-03-31 00:00:00,2025-06-02 00:00:00,465.6400146484375,464.57000732421875,49.55410416536729,Long,-99.11897872653796,-0.004295630279329575,63.0,Breakeven,Closed,,,,,63,,

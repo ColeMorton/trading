@@ -118,10 +118,10 @@ class ConcurrencyDefaults:
     # General Configuration
     # PORTFOLIO: str = "portfolio.csv"
     # PORTFOLIO: str = "protected.csv"
-    # PORTFOLIO: str = "trades.csv"
-    PORTFOLIO: str = "trades_next.csv"
+    PORTFOLIO: str = "trades.csv"
+    # PORTFOLIO: str = "trades_next.csv"
     # PORTFOLIO: str = "incoming.csv"
-    # PORTFOLIO: str = "BTC_d_20250530.csv"
+    # PORTFOLIO: str = "live_signals.csv"
     # PORTFOLIO: str = "portfolio_risk.csv"
     # PORTFOLIO: str = "portfolio_d_20250510.csv"
     # PORTFOLIO: str = "QQQ_d_20250529.csv"
@@ -133,8 +133,8 @@ class ConcurrencyDefaults:
     REPORT_INCLUDES: Dict[str, bool] = field(
         default_factory=lambda: {
             "TICKER_METRICS": True,
-            "STRATEGIES": True,
-            "STRATEGY_RELATIONSHIPS": True,
+            "STRATEGIES": False,
+            "STRATEGY_RELATIONSHIPS": False,
         }
     )
     ENSURE_COUNTERPART: bool = True

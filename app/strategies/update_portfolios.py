@@ -82,7 +82,8 @@ config = {
     # "PORTFOLIO": "TLT_d_20250404.csv",
     # "PORTFOLIO": 'HOURLY Crypto.csv',
     # "PORTFOLIO": 'BTC_MSTR_TLT_d_20250404.csv',
-    "PORTFOLIO": "protected_20250603.csv",
+    # "PORTFOLIO": "protected.csv",
+    "PORTFOLIO": "live_signals.csv",
     # "PORTFOLIO": 'MSTY_h.csv',
     # "PORTFOLIO": 'BTC_h_20250416.csv',
     # "PORTFOLIO": 'STRK_h_20250415.csv',
@@ -387,6 +388,41 @@ def run(portfolio: str) -> bool:
                                         "warning",
                                     )
                                     portfolio_result["Stop Loss [%]"] = None
+
+                        # Ensure Last Position Open Date and Last Position Close Date are preserved
+                        if (
+                            "Last Position Open Date" not in portfolio_result
+                            or portfolio_result["Last Position Open Date"] is None
+                            or portfolio_result["Last Position Open Date"] == ""
+                        ):
+                            last_open_date = strategy.get("Last Position Open Date")
+                            if (
+                                last_open_date is not None
+                                and last_open_date != ""
+                                and last_open_date != "None"
+                            ):
+                                portfolio_result[
+                                    "Last Position Open Date"
+                                ] = last_open_date
+                            else:
+                                portfolio_result["Last Position Open Date"] = None
+
+                        if (
+                            "Last Position Close Date" not in portfolio_result
+                            or portfolio_result["Last Position Close Date"] is None
+                            or portfolio_result["Last Position Close Date"] == ""
+                        ):
+                            last_close_date = strategy.get("Last Position Close Date")
+                            if (
+                                last_close_date is not None
+                                and last_close_date != ""
+                                and last_close_date != "None"
+                            ):
+                                portfolio_result[
+                                    "Last Position Close Date"
+                                ] = last_close_date
+                            else:
+                                portfolio_result["Last Position Close Date"] = None
 
         # Export results with config
         with error_context(

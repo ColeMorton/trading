@@ -24,18 +24,20 @@ Ticker,Strategy Type,Short Window,Long Window,Signal Window,Signal Entry,Signal 
 
 ## 2. Extended Strategy Portfolio CSV Schema
 
-An extended version of the Strategy Portfolio schema that includes allocation percentages and stop loss values.
+An extended version of the Strategy Portfolio schema that includes allocation percentages, stop loss values, and position tracking dates.
 
 **Header Fields:**
 
 ```
-Ticker,Allocation [%],Strategy Type,Short Window,Long Window,Signal Window,Stop Loss [%],Signal Entry,Signal Exit,Total Open Trades,Total Trades,Score,Win Rate [%],Profit Factor,Expectancy per Trade,Sortino Ratio,Beats BNH [%],...
+Ticker,Allocation [%],Strategy Type,Short Window,Long Window,Signal Window,Stop Loss [%],Signal Entry,Signal Exit,Total Open Trades,Total Trades,Score,Win Rate [%],Profit Factor,Expectancy per Trade,Sortino Ratio,Beats BNH [%],...,Last Position Open Date,Last Position Close Date
 ```
 
 **Key Differences from Base Schema:**
 
-- Addition of `Allocation [%]` column (2nd column) - specifies allocation percentage for the strategy
-- Addition of `Stop Loss [%]` column (7th column) - specifies stop loss percentage for the strategy
+- Addition of `Allocation [%]` column (59th column) - specifies allocation percentage for the strategy
+- Addition of `Stop Loss [%]` column (60th column) - specifies stop loss percentage for the strategy
+- Addition of `Last Position Open Date` column (61st column) - date when the last position was opened (YYYY-MM-DD format)
+- Addition of `Last Position Close Date` column (62nd column) - date when the last position was closed (YYYY-MM-DD format)
 
 **Used By:**
 
@@ -160,29 +162,31 @@ The CSV files participate in a data flow pipeline:
 
 Some of the most important fields in the CSV schemas:
 
-| Field                | Description                                                       |
-| -------------------- | ----------------------------------------------------------------- |
-| Ticker               | Asset symbol (e.g., "BTC-USD", "AAPL")                            |
-| Allocation [%]       | Percentage of portfolio allocated to this strategy (0-100%)       |
-| Strategy Type        | Trading strategy type (e.g., "SMA", "EMA")                        |
-| Short Window         | Short-term moving average period                                  |
-| Long Window          | Long-term moving average period                                   |
-| Signal Window        | Additional parameter for signal generation                        |
-| Stop Loss [%]        | Percentage-based stop loss level (0-100%)                         |
-| Score                | Composite performance score                                       |
-| Win Rate [%]         | Percentage of winning trades                                      |
-| Profit Factor        | Ratio of gross profits to gross losses                            |
-| Expectancy per Trade | Expected profit per trade                                         |
-| Sortino Ratio        | Risk-adjusted return metric focusing on downside risk             |
-| Beats BNH [%]        | Performance compared to buy-and-hold strategy                     |
-| Max Drawdown [%]     | Maximum observed loss from peak to trough                         |
-| Stop Level           | Calculated price level for stop loss (derived from Stop Loss [%]) |
+| Field                    | Description                                                       |
+| ------------------------ | ----------------------------------------------------------------- |
+| Ticker                   | Asset symbol (e.g., "BTC-USD", "AAPL")                            |
+| Allocation [%]           | Percentage of portfolio allocated to this strategy (0-100%)       |
+| Strategy Type            | Trading strategy type (e.g., "SMA", "EMA")                        |
+| Short Window             | Short-term moving average period                                  |
+| Long Window              | Long-term moving average period                                   |
+| Signal Window            | Additional parameter for signal generation                        |
+| Stop Loss [%]            | Percentage-based stop loss level (0-100%)                         |
+| Last Position Open Date  | Date when the last position was opened (YYYY-MM-DD format)        |
+| Last Position Close Date | Date when the last position was closed (YYYY-MM-DD format)        |
+| Score                    | Composite performance score                                       |
+| Win Rate [%]             | Percentage of winning trades                                      |
+| Profit Factor            | Ratio of gross profits to gross losses                            |
+| Expectancy per Trade     | Expected profit per trade                                         |
+| Sortino Ratio            | Risk-adjusted return metric focusing on downside risk             |
+| Beats BNH [%]            | Performance compared to buy-and-hold strategy                     |
+| Max Drawdown [%]         | Maximum observed loss from peak to trough                         |
+| Stop Level               | Calculated price level for stop loss (derived from Stop Loss [%]) |
 
 ## Schema Evolution and Implementation
 
 The trading system's CSV schemas have evolved to support more sophisticated portfolio management:
 
-1. **Completed Implementation**: The system now fully supports the Extended Schema with Allocation [%] and Stop Loss [%] columns through dedicated utility modules:
+1. **Completed Implementation**: The system now fully supports the Extended Schema with Allocation [%], Stop Loss [%], Last Position Open Date, and Last Position Close Date columns through dedicated utility modules:
 
    - `app/tools/portfolio/schema_detection.py`: Automatically detects schema version (Base or Extended)
    - `app/tools/portfolio/allocation.py`: Validates, normalizes, and processes allocation percentages
