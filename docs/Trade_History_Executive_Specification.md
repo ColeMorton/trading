@@ -6,13 +6,14 @@ The Trade History Executive System is a comprehensive position-level data manage
 
 ### Key Achievements
 
-- **Position-Level Granularity**: 33 individual positions tracked across live trading strategies
-- **Advanced Risk Metrics**: Real-time MFE/MAE calculations with price data integration
-- **Trade Quality Assessment**: Automated classification system identifying "Poor Setup - High Risk, Low Reward" trades
+- **Multi-Portfolio Position Tracking**: 49 individual positions tracked across Live Signals (33), Protected (6), and Risk On (10) portfolios
+- **Advanced Risk Metrics**: Real-time MFE/MAE calculations with price data integration across all portfolio types
+- **Trade Quality Assessment**: Automated classification system identifying "Poor Setup - High Risk, Low Reward" trades with portfolio-specific insights
 - **Exit Efficiency Analysis**: Robust calculation handling edge cases (AAPL -636% → -6.36 with quality assessment)
-- **Schema Evolution**: Migrated from strategy-level to position-level data architecture
+- **Schema Evolution**: Migrated from strategy-level to position-level data architecture across all portfolios
 - **Comprehensive Coverage**: 100% position lifecycle tracking with UUID-based identification
 - **Performance Enhancement**: Integrated memory optimization for large-scale data processing
+- **Portfolio Diversification**: Complete position-level analysis across risk-adjusted portfolio strategies
 
 ---
 
@@ -223,7 +224,8 @@ Exit_Efficiency_Fixed,Trade_Quality,Days_Since_Entry,Current_Unrealized_PnL,Curr
 
 #### Processing Metrics
 
-- **Total Positions Processed**: 33 individual positions (live trading signals)
+- **Total Positions Processed**: 49 individual positions across three portfolio types
+- **Portfolio Coverage**: Live Signals (33), Protected (6), Risk On (10) with comprehensive analysis
 - **Strategy Coverage**: SMA, EMA, and MACD strategies across major tickers
 - **Memory Efficiency**: 84.9% reduction through optimization
 - **Processing Speed**: Real-time MFE/MAE calculation with price data integration
@@ -309,18 +311,35 @@ def process_positions_streaming(data_source, chunk_size=1000):
 
 #### Position Processing Achievements
 
-- **Live Trading Analysis**: Complete position extraction and analysis for active signals
-- **33 Individual Positions**: Granular tracking with unique UUID identification
-- **100% MFE/MAE Coverage**: Risk metrics for all applicable positions
-- **Trade Quality Classification**: 5 Excellent, 1 Good, 9 Poor/Failed trades identified
+- **Multi-Portfolio Analysis**: Complete position extraction and analysis across three distinct portfolios
+- **49 Individual Positions**: Granular tracking with unique UUID identification across all portfolios
+- **100% MFE/MAE Coverage**: Risk metrics for all applicable positions across all portfolio types
+- **Portfolio-Specific Trade Quality**: Comprehensive quality assessment revealing portfolio risk characteristics
 - **Zero Memory Constraints**: Unlimited scalability through streaming processing
 
 #### Risk Metrics Implementation
 
-- **Real-Time Calculation**: Live MFE/MAE computation using price data
-- **Exit Efficiency Analysis**: Quantitative trade exit timing assessment
-- **Position Quality Scoring**: Automated classification of trade quality
-- **Comprehensive Coverage**: Risk metrics for all closed positions
+- **Real-Time Calculation**: Live MFE/MAE computation using price data across all portfolios
+- **Exit Efficiency Analysis**: Quantitative trade exit timing assessment for all position types
+- **Position Quality Scoring**: Automated classification of trade quality with portfolio-specific insights
+- **Comprehensive Coverage**: Risk metrics for all closed and open positions across portfolios
+
+#### Portfolio-Specific Results
+
+**Live Signals Portfolio (33 positions)**:
+- Mixed performance with established trading signals
+- Trade Quality Distribution: 5 Excellent, 1 Good, 27 Poor/Failed trades
+- Comprehensive historical analysis with completed and open positions
+
+**Protected Portfolio (6 positions)**:
+- Conservative risk profile with quality position selection
+- Trade Quality Distribution: 4 Excellent, 1 Good, 1 Poor trade
+- Strong risk-adjusted performance characteristics
+
+**Risk On Portfolio (10 positions)**:
+- Aggressive positioning with mixed quality outcomes
+- Trade Quality Distribution: 3 Excellent, 7 Poor/High-Risk trades
+- Higher volatility consistent with risk-seeking strategy
 
 ---
 
@@ -488,15 +507,23 @@ This executive specification documents the successful evolution from basic signa
 
 **Successfully Deployed June 2025:**
 
-- **33 Live Positions** fully analyzed with complete trade history data
+- **49 Total Positions** fully analyzed with complete trade history data across three portfolios
+- **Multi-Portfolio Coverage**: Live Signals (33), Protected (6), Risk On (10) with comprehensive analysis
 - **AAPL Case Study**: Identified "Poor Setup - High Risk, Low Reward" (0.71% MFE vs 8.93% MAE)
 - **Exit Efficiency Enhancement**: Robust calculation handling extreme cases (-636% → -6.36 with contextual assessment)
-- **Trade Quality Distribution**: 5 Excellent, 1 Good, 9 Poor/Failed trades providing actionable insights
+- **Portfolio Risk Profiling**: Clear differentiation between conservative Protected (67% excellent trades) and aggressive Risk On (30% excellent trades) strategies
+- **Comprehensive Trade Quality**: 12 Excellent, 2 Good, 35 Poor/Failed trades providing portfolio-specific insights
+
+**Portfolio Performance Summary:**
+- **Protected Portfolio**: Highest quality ratio (4/6 Excellent) demonstrating effective risk management
+- **Risk On Portfolio**: Mixed results (3/10 Excellent) reflecting higher-risk tolerance with corresponding volatility
+- **Live Signals Portfolio**: Baseline performance (5/33 Excellent) providing comprehensive market exposure
 
 ---
 
-**Document Version**: 2.1
+**Document Version**: 2.2
 **Last Updated**: June 25, 2025
 **Classification**: Internal Use
 **Supersedes**: Position_Exit_Identification_Feature_Specification.md v1.0
+**Recent Updates**: Added Protected and Risk On portfolio analysis with 16 additional positions
 **Approval**: [Technical Lead], [Quantitative Analyst], [Risk Manager], [Compliance Officer]

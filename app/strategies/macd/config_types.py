@@ -56,7 +56,11 @@ class PortfolioConfig(TypedDict, total=False):
 
 # Default configuration
 DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": ['WELL', 'IRM', 'INTC', 'LII', 'NWS', 'AWK', 'UNP', 'FOX', 'FITB', 'RJF', 'PNR', 'KEY', 'JNPR', 'TFC', 'PHM', 'DOC', 'INVH', 'GL', 'REG', 'GE', 'TT', 'RL', 'CRWD', 'ASML', 'META', 'NTAP', 'BKNG', 'RVTY', 'MNST', 'DDC', 'ZION', 'LVS', 'MDLZ', 'SYY', 'MET', 'NOC', 'LH', 'PWR', 'AXON', 'SWKS'],
+    "TICKER": [
+    "APTV", "SCHW", "HUBB", "NBIX", "FTNT", "DOC", "NTAP", "MNST", "DDC", "ZION",
+    "LVS", "MDLZ", "MET", "CRWD", "RVTY", "LH", "SWKS", "RL", "TT", "META", "REG",
+    "UNP", "SYY", "AXON", "NBIS", "NAKA", "TSXV:MATA", "XRAY", "QCOM", "SIRI", "ROKU", "TTD"
+],
     # "TICKER": "GEV",
     "BASE_DIR": ".",
     "USE_HOURLY": False,

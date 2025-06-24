@@ -65,7 +65,11 @@ from app.tools.strategy_utils import filter_portfolios_by_signal, get_strategy_t
 
 CONFIG: Config = {
     # "TICKER": "INTC",
-    "TICKER": ["TPR", "COR", "SMCI"],
+    "TICKER": [
+    "APTV", "SCHW", "HUBB", "NBIX", "FTNT", "DOC", "NTAP", "MNST", "DDC", "ZION",
+    "LVS", "MDLZ", "MET", "CRWD", "RVTY", "LH", "SWKS", "RL", "TT", "META", "REG",
+    "UNP", "SYY", "AXON", "NBIS", "NAKA", "TSXV:MATA", "XRAY", "QCOM", "SIRI", "ROKU", "TTD"
+],
     # Load tickers from JSON file
     # "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/portfolio.json"))),
     # "TICKER_2": 'AVGO',
@@ -77,26 +81,26 @@ CONFIG: Config = {
     # "USE_SCANNER": True,
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
     "REFRESH": True,
-    # "STRATEGY_TYPES": ["SMA", "EMA"],
-    "STRATEGY_TYPES": ["SMA"],
+    "STRATEGY_TYPES": ["SMA", "EMA"],
+    # "STRATEGY_TYPES": ["SMA"],
     "DIRECTION": "Long",
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
     "USE_CURRENT": True,
-    # "MINIMUMS": {
-    #     "WIN_RATE": 0.44,
-    #     "TRADES": 34,
-    #     # "WIN_RATE": 0.50,
-    #     # "TRADES": 54,
-    #     # "WIN_RATE": 0.61,
-    #     "EXPECTANCY_PER_TRADE": 1,
-    #     "PROFIT_FACTOR": 1,
-    #     # "SORTINO_RATIO": 0.4,
-    #     # "BEATS_BNH": 0
-    #     # "BEATS_BNH": 0.13
-    # },
+    "MINIMUMS": {
+        "WIN_RATE": 0.44,
+        "TRADES": 34,
+        # "WIN_RATE": 0.50,
+        # "TRADES": 54,
+        # "WIN_RATE": 0.61,
+        "EXPECTANCY_PER_TRADE": 1,
+        "PROFIT_FACTOR": 1,
+        # "SORTINO_RATIO": 0.4,
+        # "BEATS_BNH": 0
+        # "BEATS_BNH": 0.13
+    },
     "SORT_BY": "Score",
     "SORT_ASC": False,
     "USE_GBM": False,
