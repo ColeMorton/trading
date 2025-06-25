@@ -1,21 +1,77 @@
 """
 Trade History CSV Exporter
 
-Specialized exporter for generating position-level trade history CSV files.
+Generalized exporter for creating position-level trade history CSV files from any ticker and strategy.
 Each row represents a single position with unique UUID identification.
 
-Focus: Individual position data only (no strategy-level aggregates)
+Features:
+- Configuration-driven file paths for any trading system
+- Generic ticker/strategy support with validation
+- Modular MFE/MAE calculation for any price data format
+- Reusable position extraction and migration functions
+
 Output: CSV format optimized for position analysis and risk management
 """
 
 import json
 import logging
+import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 import polars as pl
+
+
+# Configuration class for flexible path management
+class TradingSystemConfig:
+    """Configuration for trading system file paths and settings."""
+
+    def __init__(self, base_dir: str = None):
+        self.base_dir = Path(base_dir) if base_dir else Path.cwd()
+
+    @property
+    def price_data_dir(self) -> Path:
+        return self.base_dir / "csv" / "price_data"
+
+    @property
+    def positions_dir(self) -> Path:
+        return self.base_dir / "csv" / "positions"
+
+    @property
+    def strategies_dir(self) -> Path:
+        return self.base_dir / "csv" / "strategies"
+
+    @property
+    def trade_history_dir(self) -> Path:
+        return self.base_dir / "json" / "trade_history"
+
+    @property
+    def trade_history_csv_dir(self) -> Path:
+        return self.base_dir / "csv" / "trade_history"
+
+    def get_price_data_file(self, ticker: str, timeframe: str = "D") -> Path:
+        """Get price data file path for any ticker and timeframe."""
+        return self.price_data_dir / f"{ticker}_{timeframe}.csv"
+
+
+# Global configuration instance
+_config = None
+
+
+def get_config() -> TradingSystemConfig:
+    """Get or create global configuration instance."""
+    global _config
+    if _config is None:
+        _config = TradingSystemConfig()
+    return _config
+
+
+def set_config(config: TradingSystemConfig):
+    """Set global configuration instance."""
+    global _config
+    _config = config
 
 
 def generate_position_uuid(
@@ -72,7 +128,7 @@ def extract_position_data(trade_data: Dict[str, Any]) -> List[Dict[str, Any]]:
         current_unrealized_pnl = None
         current_excursion_status = None
 
-        # Calculate MFE/MAE using price data
+        # Calculate MFE/MAE using price data with configuration
         mfe, mae, mfe_mae_ratio, exit_efficiency = calculate_mfe_mae(
             ticker,
             entry_timestamp,
@@ -218,14 +274,32 @@ def calculate_mfe_mae(
     exit_date: str,
     entry_price: float,
     direction: str = "Long",
+    timeframe: str = "D",
+    config: TradingSystemConfig = None,
 ) -> tuple:
-    """Calculate Max Favourable Excursion and Max Adverse Excursion using price data."""
+    """Calculate Max Favourable Excursion and Max Adverse Excursion using price data.
+
+    Args:
+        ticker: Stock/asset ticker symbol
+        entry_date: Position entry date (YYYY-MM-DD or datetime string)
+        exit_date: Position exit date (YYYY-MM-DD or datetime string, empty for open positions)
+        entry_price: Entry price for position
+        direction: Position direction ('Long' or 'Short')
+        timeframe: Price data timeframe ('D' for daily, 'H' for hourly, etc.)
+        config: Trading system configuration (uses global if None)
+
+    Returns:
+        tuple: (mfe, mae, mfe_mae_ratio, exit_efficiency)
+    """
+
+    if config is None:
+        config = get_config()
 
     try:
-        # Load price data
-        price_file = f"/Users/colemorton/Projects/trading/csv/price_data/{ticker}_D.csv"
-        if not Path(price_file).exists():
-            logging.warning(f"Price data not found for {ticker}")
+        # Load price data using configuration
+        price_file = config.get_price_data_file(ticker, timeframe)
+        if not price_file.exists():
+            logging.warning(f"Price data not found for {ticker} at {price_file}")
             return None, None, None, None
 
         # Read price data

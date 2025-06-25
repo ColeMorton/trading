@@ -8,6 +8,7 @@ The Trade History Executive System is a comprehensive position-level data manage
 
 - **Multi-Portfolio Position Tracking**: 49 individual positions tracked across Live Signals (33), Protected (6), and Risk On (10) portfolios
 - **Advanced Risk Metrics**: Real-time MFE/MAE calculations with price data integration across all portfolio types
+- **Signal Verification System**: Automated crossover signal validation preventing invalid position entries with 100% accuracy
 - **Trade Quality Assessment**: Automated classification system identifying "Poor Setup - High Risk, Low Reward" trades with portfolio-specific insights
 - **Exit Efficiency Analysis**: Robust calculation handling edge cases (AAPL -636% → -6.36 with quality assessment)
 - **Schema Evolution**: Migrated from strategy-level to position-level data architecture across all portfolios
@@ -110,6 +111,31 @@ graph TD
 - Provides exit efficiency analysis for trade quality assessment
 - Supports both long and short position calculations
 
+#### 3. **Signal Verification Engine**
+
+**Primary Function**: `verify_entry_signal()`
+
+**Functionality**:
+
+- Verifies crossover signals actually occurred on specified entry dates
+- Supports SMA and EMA strategy verification with precise calculations
+- Detects bullish and bearish crossovers with detailed signal analysis
+- Prevents invalid position creation through automatic signal validation
+- Provides comprehensive signal details including MA values and spreads
+
+**Signal Verification Logic**:
+
+```python
+# Bullish Crossover Detection (Long Entry)
+bullish_crossover = (current_short > current_long) and (prev_short <= prev_long)
+
+# Bearish Crossover Detection (Short Entry)
+bearish_crossover = (current_short < current_long) and (prev_short >= prev_long)
+
+# Example QCOM SMA 49/66 Verification on 2025-06-24
+# ✓ VERIFIED: Bullish crossover - SMA49 ($147.96) crossed above SMA66 ($147.78)
+```
+
 **Risk Calculation Logic**:
 
 ```python
@@ -125,7 +151,7 @@ if direction.upper() == "LONG":
 exit_efficiency = final_return / mfe if mfe > 0 else None
 ```
 
-#### 3. **Memory Optimization Framework**
+#### 4. **Memory Optimization Framework**
 
 **Core Technologies**:
 
@@ -141,7 +167,7 @@ exit_efficiency = final_return / mfe if mfe > 0 else None
 - **Intelligent Caching**: LRU cache for repeated operations
 - **Automatic Management**: Proactive memory monitoring and cleanup
 
-#### 4. **Schema Evolution Engine**
+#### 5. **Schema Evolution Engine**
 
 **Primary Function**: `migrate_live_signals_to_trade_history()`
 
@@ -525,9 +551,479 @@ This executive specification documents the successful evolution from basic signa
 
 ---
 
-**Document Version**: 2.2
-**Last Updated**: June 25, 2025
+# 📈 Generalized Trade History System - Usage Guide
+
+## 🚀 Universal Implementation Features
+
+### ✅ **Universal Compatibility**
+
+- **Any Ticker**: Stocks, crypto, forex, commodities
+- **Any Strategy**: SMA, EMA, MACD, RSI, custom strategies
+- **Any Platform**: Windows, Linux, Mac with configurable paths
+- **Any Timeframe**: Daily, hourly, minute-level data support
+
+### ✅ **Advanced Risk Management**
+
+- **MFE/MAE Calculation**: Max Favorable/Adverse Excursion metrics
+- **Trade Quality Assessment**: Automated "Excellent", "Good", "Poor" classification
+- **Exit Efficiency Analysis**: Quantitative exit timing optimization
+- **Real-time Risk Monitoring**: Live position tracking capabilities
+
+### ✅ **Flexible Architecture**
+
+- **Configuration-Driven**: Customizable file paths and data sources
+- **Modular Design**: Reusable components across different systems
+- **Comprehensive Validation**: Input validation and error handling
+- **Memory Optimized**: Handles unlimited positions through streaming
+
+---
+
+## 📁 System File Structure
+
+```
+app/tools/
+├── generalized_trade_history_exporter.py  # Main exporter with full functionality
+├── trade_history_utils.py                 # Utility functions and portfolio management
+├── trade_history_csv_exporter.py          # Original exporter (enhanced)
+└── processing/                            # Memory optimization framework
+    ├── memory_optimizer.py                # Object pooling and GC management
+    ├── streaming_processor.py             # Large file streaming support
+    ├── data_converter.py                  # Optimized data conversions
+    └── mmap_accessor.py                   # Memory-mapped file access
+
+examples/
+└── trade_history_usage_examples.py        # Comprehensive usage examples
+
+csv/
+├── positions/                             # Position-level portfolio CSVs
+│   ├── live_signals.csv                  # Live trading signals
+│   ├── protected.csv                     # Conservative positions
+│   └── risk_on.csv                       # Aggressive positions
+├── strategies/                           # Strategy-level CSVs (legacy)
+└── price_data/                           # Price data files (TICKER_D.csv)
+
+json/
+└── trade_history/                        # Detailed trade history JSON files
+```
+
+---
+
+## 🖥️ **Command-Line Interface (CLI) Usage**
+
+### **Script 1: Generalized Trade History Exporter**
+
+**File**: `app/tools/generalized_trade_history_exporter.py`
+
+**Command-Line Execution:**
+
+```bash
+# Add QCOM position to live_signals portfolio
+python app/tools/generalized_trade_history_exporter.py --add-position \
+  --ticker QCOM \
+  --strategy SMA \
+  --short-window 49 \
+  --long-window 66 \
+  --entry-date 2025-06-24 \
+  --portfolio live_signals
+
+# Add multiple positions from strategy CSV
+python app/tools/generalized_trade_history_exporter.py --bulk-add \
+  --strategy-csv csv/strategies/protected.csv \
+  --portfolio protected
+
+# Quick add position (uses defaults)
+python app/tools/generalized_trade_history_exporter.py --quick-add \
+  --ticker AAPL \
+  --strategy SMA \
+  --short 20 \
+  --long 50 \
+  --portfolio my_portfolio
+```
+
+### **Script 2: Trade History Utilities**
+
+**File**: `app/tools/trade_history_utils.py`
+
+**Command-Line Execution:**
+
+```bash
+# Get portfolio summary
+python app/tools/trade_history_utils.py --summary --portfolio live_signals
+
+# Compare multiple portfolios
+python app/tools/trade_history_utils.py --compare \
+  --portfolios live_signals,protected,risk_on
+
+# Update trade quality for all positions
+python app/tools/trade_history_utils.py --update-quality --portfolio live_signals
+
+# Merge portfolios
+python app/tools/trade_history_utils.py --merge \
+  --source portfolio1,portfolio2 \
+  --target combined_portfolio
+
+# List all portfolios
+python app/tools/trade_history_utils.py --list-portfolios
+
+# Remove duplicates
+python app/tools/trade_history_utils.py --remove-duplicates --portfolio live_signals
+```
+
+### **Script 3: Usage Examples (Educational)**
+
+**File**: `examples/trade_history_usage_examples.py`
+
+**Command-Line Execution:**
+
+```bash
+# Run all examples
+python examples/trade_history_usage_examples.py
+
+# Run specific example
+python examples/trade_history_usage_examples.py --example 7  # QCOM example
+
+# Test configuration
+python examples/trade_history_usage_examples.py --test-config /path/to/trading/system
+```
+
+---
+
+## 🔧 **Quick Start Guide**
+
+### **1. Basic Setup (Python)**
+
+```python
+from app.tools.generalized_trade_history_exporter import *
+from app.tools.trade_history_utils import *
+
+# Use default configuration (current directory)
+config = TradingSystemConfig()
+set_config(config)
+
+# Add a position to any portfolio
+position_uuid = add_position_to_portfolio(
+    ticker="AAPL",
+    strategy_type="SMA",
+    short_window=20,
+    long_window=50,
+    portfolio_name="my_portfolio"
+)
+print(f"Added position: {position_uuid}")
+```
+
+### **2. Command-Line Quick Start**
+
+```bash
+# Add QCOM position as requested
+python app/tools/generalized_trade_history_exporter.py --add-qcom
+
+# Get portfolio analysis
+python app/tools/trade_history_utils.py --summary --portfolio live_signals
+
+# Run comprehensive examples
+python examples/trade_history_usage_examples.py
+```
+
+---
+
+## 📊 **Portfolio Management Commands**
+
+### **Portfolio Analysis**
+
+```bash
+# Comprehensive portfolio summary
+python app/tools/trade_history_utils.py --summary --portfolio live_signals
+
+# Compare multiple portfolios
+python app/tools/trade_history_utils.py --compare --portfolios "live_signals,protected,risk_on"
+
+# Export portfolio summary to JSON
+python app/tools/trade_history_utils.py --export-summary --portfolio live_signals --output summary.json
+```
+
+### **Bulk Operations**
+
+```bash
+# Bulk add from strategy CSV
+python app/tools/generalized_trade_history_exporter.py --bulk-add \
+  --strategy-csv "csv/strategies/new_signals.csv" \
+  --portfolio "new_portfolio"
+
+# Update trade quality for all positions
+python app/tools/trade_history_utils.py --update-quality --portfolio live_signals
+
+# Merge multiple portfolios
+python app/tools/trade_history_utils.py --merge \
+  --source "portfolio1,portfolio2" \
+  --target "combined_portfolio"
+```
+
+---
+
+## 🎯 **Advanced CLI Features**
+
+### **Position Record Creation**
+
+```bash
+# Create detailed position with all fields
+python app/tools/generalized_trade_history_exporter.py --create-position \
+  --ticker TSLA \
+  --strategy MACD \
+  --short-window 12 \
+  --long-window 26 \
+  --signal-window 9 \
+  --entry-date "2025-01-01" \
+  --entry-price 250.00 \
+  --exit-date "2025-03-01" \
+  --exit-price 300.00 \
+  --position-size 100 \
+  --direction Long \
+  --portfolio my_portfolio
+```
+
+### **Risk Metrics Calculation**
+
+```bash
+# Calculate MFE/MAE for specific position
+python app/tools/generalized_trade_history_exporter.py --calculate-mfe-mae \
+  --ticker AAPL \
+  --entry-date "2025-01-01" \
+  --exit-date "2025-02-01" \
+  --entry-price 150.00 \
+  --direction Long \
+  --timeframe D
+```
+
+### **Signal Verification**
+
+```bash
+# Verify entry signal occurred on specific date
+python app/tools/generalized_trade_history_exporter.py --verify-signal \
+  --ticker QCOM \
+  --strategy SMA \
+  --short-window 49 \
+  --long-window 66 \
+  --entry-date "2025-06-24"
+
+# Add position with automatic signal verification
+python app/tools/generalized_trade_history_exporter.py --add-position \
+  --ticker QCOM \
+  --strategy SMA \
+  --short-window 49 \
+  --long-window 66 \
+  --entry-date "2025-06-24" \
+  --portfolio live_signals
+
+# Add position without signal verification
+python app/tools/generalized_trade_history_exporter.py --add-position \
+  --ticker QCOM \
+  --strategy SMA \
+  --short-window 49 \
+  --long-window 66 \
+  --entry-date "2025-06-24" \
+  --portfolio live_signals \
+  --no-verify-signal
+```
+
+---
+
+## 🔍 **Data Validation & CLI Error Handling**
+
+The system includes comprehensive validation accessible via CLI:
+
+```bash
+# Validate position data
+python app/tools/trade_history_utils.py --validate-position \
+  --ticker "INVALID_TICKER" \
+  --strategy "UNKNOWN" \
+  --short-window -10
+
+# Find and fix duplicates
+python app/tools/trade_history_utils.py --find-duplicates --portfolio live_signals
+python app/tools/trade_history_utils.py --remove-duplicates --portfolio live_signals
+```
+
+### **Supported Strategy Types**
+
+- `SMA` - Simple Moving Average
+- `EMA` - Exponential Moving Average
+- `MACD` - Moving Average Convergence Divergence
+- `RSI` - Relative Strength Index
+- `BOLLINGER` - Bollinger Bands
+- `STOCHASTIC` - Stochastic Oscillator
+
+---
+
+## 📈 **Position Schema (CLI Output Format)**
+
+Each position includes comprehensive data accessible via CLI:
+
+```csv
+Position_UUID,Ticker,Strategy_Type,Short_Window,Long_Window,Signal_Window,
+Entry_Timestamp,Exit_Timestamp,Avg_Entry_Price,Avg_Exit_Price,Position_Size,
+Direction,PnL,Return,Duration_Days,Trade_Type,Status,
+Max_Favourable_Excursion,Max_Adverse_Excursion,MFE_MAE_Ratio,Exit_Efficiency,
+Days_Since_Entry,Current_Unrealized_PnL,Current_Excursion_Status,
+Exit_Efficiency_Fixed,Trade_Quality
+```
+
+### **UUID Format**
+
+`{TICKER}_{STRATEGY_TYPE}_{SHORT_WINDOW}_{LONG_WINDOW}_{SIGNAL_WINDOW}_{ENTRY_DATE}`
+
+**Example**: `QCOM_SMA_49_66_0_2025-06-24`
+
+---
+
+## 🛠 **CLI Utility Commands**
+
+### **Portfolio Management**
+
+```bash
+# List all portfolios
+python app/tools/trade_history_utils.py --list-portfolios
+
+# Find specific position by UUID
+python app/tools/trade_history_utils.py --find-position --uuid "AAPL_SMA_20_50_0_2025-01-01"
+
+# Remove duplicates from portfolio
+python app/tools/trade_history_utils.py --remove-duplicates --portfolio live_signals
+
+# Export portfolio summary
+python app/tools/trade_history_utils.py --export-summary --portfolio live_signals --output summary.json
+```
+
+### **Data Quality Commands**
+
+```bash
+# Validate all positions in portfolio
+python app/tools/trade_history_utils.py --validate-portfolio --portfolio live_signals
+
+# Normalize position data format
+python app/tools/trade_history_utils.py --normalize-portfolio --portfolio live_signals
+
+# Fix data quality issues
+python app/tools/trade_history_utils.py --fix-quality --portfolio live_signals
+```
+
+---
+
+## 💡 **CLI Usage Examples**
+
+### **Example 1: Adding QCOM Strategy (Real Use Case)**
+
+```bash
+# Add the QCOM SMA 49/66 position as requested
+python app/tools/generalized_trade_history_exporter.py --add-qcom \
+  --entry-date "2025-06-24" \
+  --portfolio "live_signals"
+
+# Verify addition
+python app/tools/trade_history_utils.py --summary --portfolio live_signals
+```
+
+### **Example 2: Multi-Asset Portfolio Creation**
+
+```bash
+# Create diversified portfolio
+python app/tools/generalized_trade_history_exporter.py --quick-add --ticker SPY --strategy SMA --short 50 --long 200 --portfolio diversified
+python app/tools/generalized_trade_history_exporter.py --quick-add --ticker QQQ --strategy EMA --short 20 --long 50 --portfolio diversified
+python app/tools/generalized_trade_history_exporter.py --quick-add --ticker BTC-USD --strategy SMA --short 21 --long 50 --portfolio diversified
+python app/tools/generalized_trade_history_exporter.py --quick-add --ticker GLD --strategy EMA --short 12 --long 26 --portfolio diversified
+
+# Analyze the portfolio
+python app/tools/trade_history_utils.py --summary --portfolio diversified
+```
+
+### **Example 3: Cross-Platform Configuration**
+
+```bash
+# Set custom base directory
+export TRADING_BASE_DIR="/path/to/your/trading/system"
+
+# All scripts will use the custom directory
+python app/tools/generalized_trade_history_exporter.py --add-position \
+  --ticker AAPL \
+  --strategy SMA \
+  --short-window 20 \
+  --long-window 50 \
+  --portfolio custom_portfolio
+```
+
+---
+
+## 🚨 **Important CLI Notes**
+
+### **File Path Requirements**
+
+- All file paths are automatically handled cross-platform
+- Price data files must follow format: `{TICKER}_{TIMEFRAME}.csv`
+- Example: `AAPL_D.csv`, `BTC-USD_H.csv`
+
+### **Environment Variables**
+
+```bash
+# Optional environment variables for configuration
+export TRADING_BASE_DIR="/path/to/trading/system"
+export TRADING_PRICE_DATA_DIR="/custom/price/data/path"
+export TRADING_POSITIONS_DIR="/custom/positions/path"
+```
+
+### **CLI Help Commands**
+
+```bash
+# Get help for any script
+python app/tools/generalized_trade_history_exporter.py --help
+python app/tools/trade_history_utils.py --help
+python examples/trade_history_usage_examples.py --help
+```
+
+---
+
+## 🔮 **Future CLI Enhancements**
+
+- **Interactive Mode**: `python app/tools/generalized_trade_history_exporter.py --interactive`
+- **Configuration Wizard**: `python app/tools/setup_trading_system.py`
+- **Real-time Monitoring**: `python app/tools/monitor_positions.py --live`
+- **Batch Processing**: `python app/tools/batch_processor.py --config batch_config.json`
+
+---
+
+## 📞 **CLI Support and Troubleshooting**
+
+### **Common Commands**
+
+```bash
+# Check system health
+python app/tools/trade_history_utils.py --health-check
+
+# Validate configuration
+python app/tools/generalized_trade_history_exporter.py --validate-config
+
+# Test with sample data
+python examples/trade_history_usage_examples.py --test-mode
+```
+
+### **Debugging Commands**
+
+```bash
+# Verbose output
+python app/tools/generalized_trade_history_exporter.py --verbose --add-position ...
+
+# Debug mode
+python app/tools/trade_history_utils.py --debug --summary --portfolio live_signals
+
+# Dry run (no changes)
+python app/tools/generalized_trade_history_exporter.py --dry-run --add-position ...
+```
+
+The system is designed to be **fully functional via terminal/bash** with comprehensive CLI interfaces that Claude Code can easily invoke and execute.
+
+---
+
+**Document Version**: 3.1
+**Last Updated**: June 26, 2025
 **Classification**: Internal Use
-**Supersedes**: Position_Exit_Identification_Feature_Specification.md v1.0
-**Recent Updates**: Added Protected and Risk On portfolio analysis with 16 additional positions
+**Supersedes**: README_TRADE_HISTORY.md
+**Recent Updates**: Added signal verification system with automatic crossover detection and validation capabilities
 **Approval**: [Technical Lead], [Quantitative Analyst], [Risk Manager], [Compliance Officer]

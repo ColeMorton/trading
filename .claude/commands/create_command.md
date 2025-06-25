@@ -1,6 +1,8 @@
 # Create Command
 
-Interactive command creator for Claude Code with systematic validation and best practices.
+Think like the createor of Claude Code.
+This "Create Command" command is an unteractive command creator for Claude Code with systematic validation and best practices.
+Examine the prior conversation, actions, files to build a comprehensive context.
 
 ## Purpose
 
