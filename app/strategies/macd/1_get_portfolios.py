@@ -32,6 +32,14 @@ from app.strategies.macd.tools.signal_processing import process_ticker_portfolio
 from app.tools.get_config import get_config
 from app.tools.setup_logging import setup_logging
 
+# Use centralized error handling
+from app.tools.strategy.error_handling import (
+    ErrorSeverity,
+    StrategyErrorCode,
+    create_error_handler,
+    handle_strategy_error,
+)
+
 
 def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
     """Run portfolio analysis for single or multiple tickers using the MACD cross strategy.

@@ -22,6 +22,17 @@ from app.tools.exceptions import StrategyError
 from app.tools.signal_conversion import convert_signals_to_positions
 from app.tools.strategy.base import BaseStrategy
 
+# Import unified configuration system
+from app.tools.strategy.unified_config import (
+    BasePortfolioConfig,
+    ConfigFactory,
+    ConfigValidator,
+    MACDConfig,
+    MAConfig,
+    MeanReversionConfig,
+    RangeConfig,
+)
+
 
 class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
     """
@@ -120,19 +131,21 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
             raise
 
     def validate_parameters(self, config: Dict[str, Any]) -> bool:
-        """Validate strategy-specific parameters."""
-        required_params = ["SHORT_WINDOW", "LONG_WINDOW"]
-
-        for param in required_params:
-            if param not in config:
+        """Validate strategy-specific parameters using unified configuration system."""
+        try:
+            validation_result = ConfigValidator.validate_ma_config(config)
+            return validation_result["is_valid"]
+        except Exception:
+            # Fallback to basic validation if unified config validation fails
+            required_params = ["SHORT_WINDOW", "LONG_WINDOW"]
+            for param in required_params:
+                if param not in config:
+                    return False
+                if not isinstance(config[param], int) or config[param] <= 0:
+                    return False
+            if config.get("SHORT_WINDOW", 0) >= config.get("LONG_WINDOW", 0):
                 return False
-            if not isinstance(config[param], int) or config[param] <= 0:
-                return False
-
-        if config["SHORT_WINDOW"] >= config["LONG_WINDOW"]:
-            return False
-
-        return True
+            return True
 
     def execute(self, config: Dict[str, Any], log: Any) -> List[Dict[str, Any]]:
         """Execute the strategy and return portfolio results."""
@@ -149,15 +162,48 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
             )
 
     def get_parameter_ranges(self) -> Dict[str, Any]:
-        """Get strategy-specific parameter ranges and defaults."""
-        return {
-            "SHORT_WINDOW": {"min": 5, "max": 50, "default": 10},
-            "LONG_WINDOW": {"min": 20, "max": 200, "default": 50},
-            "DIRECTION": {"options": ["Long", "Short"], "default": "Long"},
-            "USE_RSI": {"type": "bool", "default": False},
-            "RSI_WINDOW": {"min": 10, "max": 30, "default": 14},
-            "RSI_THRESHOLD": {"min": 30, "max": 80, "default": 70},
-        }
+        """Get strategy-specific parameter ranges and defaults using unified config system."""
+        try:
+            defaults = ConfigFactory.get_default_config(self.ma_type)
+            # Convert defaults to parameter ranges format
+            ranges = {
+                "SHORT_WINDOW": {
+                    "min": 5,
+                    "max": 50,
+                    "default": defaults.get("SHORT_WINDOW", 10),
+                },
+                "LONG_WINDOW": {
+                    "min": 20,
+                    "max": 200,
+                    "default": defaults.get("LONG_WINDOW", 50),
+                },
+                "DIRECTION": {
+                    "options": ["Long", "Short"],
+                    "default": defaults.get("DIRECTION", "Long"),
+                },
+                "USE_RSI": {"type": "bool", "default": defaults.get("USE_RSI", False)},
+                "RSI_WINDOW": {
+                    "min": 10,
+                    "max": 30,
+                    "default": defaults.get("RSI_WINDOW", 14),
+                },
+                "RSI_THRESHOLD": {
+                    "min": 30,
+                    "max": 80,
+                    "default": defaults.get("RSI_THRESHOLD", 70),
+                },
+            }
+            return ranges
+        except Exception:
+            # Fallback to hardcoded ranges if unified config fails
+            return {
+                "SHORT_WINDOW": {"min": 5, "max": 50, "default": 10},
+                "LONG_WINDOW": {"min": 20, "max": 200, "default": 50},
+                "DIRECTION": {"options": ["Long", "Short"], "default": "Long"},
+                "USE_RSI": {"type": "bool", "default": False},
+                "RSI_WINDOW": {"min": 10, "max": 30, "default": 14},
+                "RSI_THRESHOLD": {"min": 30, "max": 80, "default": 70},
+            }
 
     def get_strategy_type(self) -> str:
         """Get the strategy type identifier."""
@@ -317,19 +363,21 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
         return entries, exits
 
     def validate_parameters(self, config: Dict[str, Any]) -> bool:
-        """Validate strategy-specific parameters."""
-        required_params = ["SHORT_WINDOW", "LONG_WINDOW", "SIGNAL_WINDOW"]
-
-        for param in required_params:
-            if param not in config:
+        """Validate strategy-specific parameters using unified configuration system."""
+        try:
+            validation_result = ConfigValidator.validate_macd_config(config)
+            return validation_result["is_valid"]
+        except Exception:
+            # Fallback to basic validation if unified config validation fails
+            required_params = ["SHORT_WINDOW", "LONG_WINDOW", "SIGNAL_WINDOW"]
+            for param in required_params:
+                if param not in config:
+                    return False
+                if not isinstance(config[param], int) or config[param] <= 0:
+                    return False
+            if config.get("SHORT_WINDOW", 0) >= config.get("LONG_WINDOW", 0):
                 return False
-            if not isinstance(config[param], int) or config[param] <= 0:
-                return False
-
-        if config["SHORT_WINDOW"] >= config["LONG_WINDOW"]:
-            return False
-
-        return True
+            return True
 
     def execute(self, config: Dict[str, Any], log: Any) -> List[Dict[str, Any]]:
         """Execute the strategy and return portfolio results."""
@@ -342,16 +390,53 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
             raise StrategyError("Failed to import MACD strategy execution")
 
     def get_parameter_ranges(self) -> Dict[str, Any]:
-        """Get strategy-specific parameter ranges and defaults."""
-        return {
-            "SHORT_WINDOW": {"min": 8, "max": 21, "default": 12},
-            "LONG_WINDOW": {"min": 21, "max": 35, "default": 26},
-            "SIGNAL_WINDOW": {"min": 5, "max": 15, "default": 9},
-            "DIRECTION": {"options": ["Long", "Short"], "default": "Long"},
-            "USE_RSI": {"type": "bool", "default": False},
-            "RSI_WINDOW": {"min": 10, "max": 30, "default": 14},
-            "RSI_THRESHOLD": {"min": 30, "max": 80, "default": 70},
-        }
+        """Get strategy-specific parameter ranges and defaults using unified config system."""
+        try:
+            defaults = ConfigFactory.get_default_config("MACD")
+            ranges = {
+                "SHORT_WINDOW": {
+                    "min": 8,
+                    "max": 21,
+                    "default": defaults.get("SHORT_WINDOW", 12),
+                },
+                "LONG_WINDOW": {
+                    "min": 21,
+                    "max": 35,
+                    "default": defaults.get("LONG_WINDOW", 26),
+                },
+                "SIGNAL_WINDOW": {
+                    "min": 5,
+                    "max": 15,
+                    "default": defaults.get("SIGNAL_WINDOW", 9),
+                },
+                "DIRECTION": {
+                    "options": ["Long", "Short"],
+                    "default": defaults.get("DIRECTION", "Long"),
+                },
+                "USE_RSI": {"type": "bool", "default": defaults.get("USE_RSI", False)},
+                "RSI_WINDOW": {
+                    "min": 10,
+                    "max": 30,
+                    "default": defaults.get("RSI_WINDOW", 14),
+                },
+                "RSI_THRESHOLD": {
+                    "min": 30,
+                    "max": 80,
+                    "default": defaults.get("RSI_THRESHOLD", 70),
+                },
+            }
+            return ranges
+        except Exception:
+            # Fallback to hardcoded ranges if unified config fails
+            return {
+                "SHORT_WINDOW": {"min": 8, "max": 21, "default": 12},
+                "LONG_WINDOW": {"min": 21, "max": 35, "default": 26},
+                "SIGNAL_WINDOW": {"min": 5, "max": 15, "default": 9},
+                "DIRECTION": {"options": ["Long", "Short"], "default": "Long"},
+                "USE_RSI": {"type": "bool", "default": False},
+                "RSI_WINDOW": {"min": 10, "max": 30, "default": 14},
+                "RSI_THRESHOLD": {"min": 30, "max": 80, "default": 70},
+            }
 
     def get_strategy_type(self) -> str:
         """Get the strategy type identifier."""

@@ -14,6 +14,7 @@ import polars as pl
 from app.core.interfaces.strategy import StrategyInterface
 from app.tools.exceptions import StrategyError
 from app.tools.strategy.factory import StrategyFactory
+from app.tools.strategy.unified_config import ConfigFactory, ConfigValidator
 
 
 class StrategyAdapter:
@@ -97,7 +98,7 @@ class StrategyAdapter:
 
     def get_strategy_parameter_ranges(self, strategy_type: str) -> Dict[str, Any]:
         """
-        Get parameter ranges for a strategy type.
+        Get parameter ranges for a strategy type using unified configuration system.
 
         Args:
             strategy_type: The type of strategy
@@ -106,17 +107,44 @@ class StrategyAdapter:
             Dictionary containing parameter ranges and defaults
         """
         try:
-            unified_type = self._map_legacy_strategy_type(strategy_type)
-            strategy = self.factory.create_strategy(unified_type)
+            # First try the unified configuration system
+            defaults = ConfigFactory.get_default_config(strategy_type)
 
-            if isinstance(strategy, StrategyInterface):
-                return strategy.get_parameter_ranges()
-            else:
-                # Return default ranges for legacy strategies
-                return self._get_default_parameter_ranges(strategy_type)
+            # Convert defaults to parameter ranges format
+            ranges = {}
+            for key, value in defaults.items():
+                if key in ["SHORT_WINDOW", "LONG_WINDOW"]:
+                    ranges[key] = {
+                        "min": 5 if "SHORT" in key else 20,
+                        "max": 50 if "SHORT" in key else 200,
+                        "default": value,
+                    }
+                elif key == "SIGNAL_WINDOW":
+                    ranges[key] = {"min": 5, "max": 15, "default": value}
+                elif key == "DIRECTION":
+                    ranges[key] = {"options": ["Long", "Short"], "default": value}
+                elif isinstance(value, bool):
+                    ranges[key] = {"type": "bool", "default": value}
+                elif isinstance(value, (int, float)):
+                    ranges[key] = {"default": value}
+                else:
+                    ranges[key] = {"default": value}
+
+            return ranges
 
         except Exception:
-            return self._get_default_parameter_ranges(strategy_type)
+            # Fallback to strategy instance method
+            try:
+                unified_type = self._map_legacy_strategy_type(strategy_type)
+                strategy = self.factory.create_strategy(unified_type)
+
+                if isinstance(strategy, StrategyInterface):
+                    return strategy.get_parameter_ranges()
+                else:
+                    return self._get_default_parameter_ranges(strategy_type)
+
+            except Exception:
+                return self._get_default_parameter_ranges(strategy_type)
 
     def _get_default_parameter_ranges(self, strategy_type: str) -> Dict[str, Any]:
         """Get default parameter ranges for legacy strategies."""
@@ -142,7 +170,7 @@ class StrategyAdapter:
         self, strategy_type: str, config: Dict[str, Any]
     ) -> bool:
         """
-        Validate parameters for a strategy type.
+        Validate parameters for a strategy type using unified configuration system.
 
         Args:
             strategy_type: The type of strategy
@@ -152,17 +180,23 @@ class StrategyAdapter:
             True if parameters are valid, False otherwise
         """
         try:
-            unified_type = self._map_legacy_strategy_type(strategy_type)
-            strategy = self.factory.create_strategy(unified_type)
-
-            if isinstance(strategy, StrategyInterface):
-                return strategy.validate_parameters(config)
-            else:
-                # Basic validation for legacy strategies
-                return self._validate_legacy_parameters(strategy_type, config)
+            # First try the unified configuration validation
+            validation_result = ConfigFactory.validate_config(strategy_type, config)
+            return validation_result["is_valid"]
 
         except Exception:
-            return False
+            # Fallback to strategy instance validation
+            try:
+                unified_type = self._map_legacy_strategy_type(strategy_type)
+                strategy = self.factory.create_strategy(unified_type)
+
+                if isinstance(strategy, StrategyInterface):
+                    return strategy.validate_parameters(config)
+                else:
+                    return self._validate_legacy_parameters(strategy_type, config)
+
+            except Exception:
+                return False
 
     def _validate_legacy_parameters(
         self, strategy_type: str, config: Dict[str, Any]

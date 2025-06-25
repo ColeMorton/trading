@@ -58,6 +58,14 @@ from app.tools.portfolio_results import (
     sort_portfolios,
 )
 from app.tools.project_utils import get_project_root
+
+# Use centralized error handling
+from app.tools.strategy.error_handling import (
+    ErrorSeverity,
+    StrategyErrorCode,
+    create_error_handler,
+    handle_strategy_error,
+)
 from app.tools.strategy.types import StrategyConfig as Config
 from app.tools.strategy_utils import filter_portfolios_by_signal, get_strategy_types
 
