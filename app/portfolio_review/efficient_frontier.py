@@ -32,21 +32,18 @@ HALF_RULE = True
 
 ASSETS = [
     "BLDR",
-    "NFLX",
     "TPR",
     "HWM",
     "COR",
     "ALGN",
-    "USB",
-    "VRSN",
-    "AMAT",
-    "INTC",
     "GME",
     "AMZN",
     "SMCI",
     "WELL",
-    "ASML",
     "RJF",
+    "QCOM",
+    "VRSN",
+    "SCHW",
 ]
 
 # ASSETS = ['TRX-USD', 'FET-USD', 'AVAX-USD', 'SOL-USD']

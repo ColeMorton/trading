@@ -11,6 +11,12 @@ from typing import Dict, List, Type
 from app.tools.exceptions import StrategyError
 from app.tools.strategy.base import BaseStrategy
 from app.tools.strategy.concrete import EMAStrategy, MACDStrategy, SMAStrategy
+from app.tools.strategy.unified_strategies import (
+    UnifiedMACDStrategy,
+    UnifiedMAStrategy,
+    UnifiedMeanReversionStrategy,
+    UnifiedRangeStrategy,
+)
 
 
 class StrategyFactory:
@@ -34,9 +40,20 @@ class StrategyFactory:
     def _initialize_default_strategies(self):
         """Initialize factory with default strategy types."""
         self._strategies = {
+            # Original concrete strategies (maintained for backward compatibility)
             "SMA": SMAStrategy,
             "EMA": EMAStrategy,
             "MACD": MACDStrategy,
+            # New unified strategies implementing StrategyInterface
+            "UNIFIED_SMA": lambda: UnifiedMAStrategy("SMA"),
+            "UNIFIED_EMA": lambda: UnifiedMAStrategy("EMA"),
+            "UNIFIED_MACD": UnifiedMACDStrategy,
+            "MEAN_REVERSION": UnifiedMeanReversionStrategy,
+            "RANGE": UnifiedRangeStrategy,
+            # Aliases for easier migration
+            "MA_CROSS_SMA": lambda: UnifiedMAStrategy("SMA"),
+            "MA_CROSS_EMA": lambda: UnifiedMAStrategy("EMA"),
+            "MACD_CROSS": UnifiedMACDStrategy,
         }
 
     def register_strategy(self, strategy_type: str, strategy_class: Type[BaseStrategy]):
@@ -77,8 +94,13 @@ class StrategyFactory:
                 f"Available strategies: {available}"
             )
 
-        strategy_class = self._strategies[strategy_type]
-        return strategy_class()
+        strategy_factory = self._strategies[strategy_type]
+
+        # Handle both class constructors and callable factories
+        if callable(strategy_factory) and not isinstance(strategy_factory, type):
+            return strategy_factory()
+        else:
+            return strategy_factory()
 
     def get_available_strategies(self) -> List[str]:
         """

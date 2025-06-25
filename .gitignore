@@ -181,6 +181,13 @@ coverage.lcov
 # logging
 logs/
 
+# Audio/Media files
+*.wav
+*.mp3
+*.mp4
+*.avi
+*.mov
+
 # Custom
 png/
 csv/price_data
