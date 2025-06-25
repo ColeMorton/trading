@@ -1,0 +1,46 @@
+{
+  "timestamp": "2025-06-25T11:35:05.166174",
+  "total_capital": 14194.36,
+  "kelly_criterion": 0.044800000000000006,
+  "cvar_target": 0.118,
+  "cvar_utilization": 0.009094010582094168,
+  "positions": [
+    {
+      "ticker": "QCOM",
+      "strategy_type": "SMA",
+      "theoretical_kelly": 0.426,
+      "risk_adjusted_kelly": 0.15,
+      "stop_loss_adjusted_kelly": 0.143,
+      "final_allocation": 0.143,
+      "position_shares": 13,
+      "dollar_amount": 2024.23,
+      "stop_loss_percentage": null,
+      "max_risk_per_trade": 212.54,
+      "expected_return": 24.389,
+      "risk_contribution": 0.005,
+      "priority": 1
+    },
+    {
+      "ticker": "XRAY",
+      "strategy_type": "SMA",
+      "theoretical_kelly": 0.439,
+      "risk_adjusted_kelly": 0.15,
+      "stop_loss_adjusted_kelly": 0.125,
+      "final_allocation": 0.125,
+      "position_shares": 113,
+      "dollar_amount": 1767.32,
+      "stop_loss_percentage": null,
+      "max_risk_per_trade": 212.08,
+      "expected_return": 7.145,
+      "risk_contribution": 0.004,
+      "priority": 2
+    }
+  ],
+  "portfolio_summary": {
+    "total_allocation": 0.26785714285714285,
+    "total_amount": 3791.5501260757446,
+    "total_risk": 0.009094010582094168,
+    "remaining_capacity": 0.10890598941790583,
+    "average_kelly": 0.13392857142857142
+  }
+}

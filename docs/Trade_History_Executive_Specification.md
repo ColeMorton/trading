@@ -327,16 +327,19 @@ def process_positions_streaming(data_source, chunk_size=1000):
 #### Portfolio-Specific Results
 
 **Live Signals Portfolio (33 positions)**:
+
 - Mixed performance with established trading signals
 - Trade Quality Distribution: 5 Excellent, 1 Good, 27 Poor/Failed trades
 - Comprehensive historical analysis with completed and open positions
 
 **Protected Portfolio (6 positions)**:
+
 - Conservative risk profile with quality position selection
 - Trade Quality Distribution: 4 Excellent, 1 Good, 1 Poor trade
 - Strong risk-adjusted performance characteristics
 
 **Risk On Portfolio (10 positions)**:
+
 - Aggressive positioning with mixed quality outcomes
 - Trade Quality Distribution: 3 Excellent, 7 Poor/High-Risk trades
 - Higher volatility consistent with risk-seeking strategy
@@ -515,6 +518,7 @@ This executive specification documents the successful evolution from basic signa
 - **Comprehensive Trade Quality**: 12 Excellent, 2 Good, 35 Poor/Failed trades providing portfolio-specific insights
 
 **Portfolio Performance Summary:**
+
 - **Protected Portfolio**: Highest quality ratio (4/6 Excellent) demonstrating effective risk management
 - **Risk On Portfolio**: Mixed results (3/10 Excellent) reflecting higher-risk tolerance with corresponding volatility
 - **Live Signals Portfolio**: Baseline performance (5/33 Excellent) providing comprehensive market exposure

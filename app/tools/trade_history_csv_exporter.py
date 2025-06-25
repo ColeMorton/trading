@@ -460,21 +460,23 @@ def migrate_live_signals_to_trade_history():
     return output_file
 
 
-def estimate_strategy_entry_date(ticker: str, strategy_type: str, short_window: int, long_window: int) -> tuple:
+def estimate_strategy_entry_date(
+    ticker: str, strategy_type: str, short_window: int, long_window: int
+) -> tuple:
     """Estimate entry date and price for a strategy by finding recent crossover signals."""
-    
+
     try:
         # Load price data
         price_file = f"/Users/colemorton/Projects/trading/csv/price_data/{ticker}_D.csv"
         if not Path(price_file).exists():
             logging.warning(f"Price data not found for {ticker}")
             return None, None
-            
+
         # Read price data
         df = pd.read_csv(price_file)
         df["Date"] = pd.to_datetime(df["Date"])
         df = df.sort_values("Date")
-        
+
         # Calculate moving averages
         if strategy_type.upper() == "SMA":
             df[f"MA_{short_window}"] = df["Close"].rolling(window=short_window).mean()
@@ -485,23 +487,22 @@ def estimate_strategy_entry_date(ticker: str, strategy_type: str, short_window: 
         else:
             logging.warning(f"Unknown strategy type: {strategy_type}")
             return None, None
-            
+
         # Find crossover signals (short MA crossing above long MA for long entry)
-        df["Signal"] = (
-            (df[f"MA_{short_window}"] > df[f"MA_{long_window}"]) & 
-            (df[f"MA_{short_window}"].shift(1) <= df[f"MA_{long_window}"].shift(1))
+        df["Signal"] = (df[f"MA_{short_window}"] > df[f"MA_{long_window}"]) & (
+            df[f"MA_{short_window}"].shift(1) <= df[f"MA_{long_window}"].shift(1)
         )
-        
+
         # Get most recent signal within last 200 days
         recent_signals = df[df["Signal"] == True].tail(5)  # Last 5 signals
-        
+
         if recent_signals.empty:
             # No signals found, estimate based on current position being profitable
             # Use a date where the strategy would have entered (estimate 30-90 days ago)
             current_date = pd.Timestamp.now()
             estimate_days_ago = 60  # Estimate 60 days ago
             entry_date = current_date - pd.Timedelta(days=estimate_days_ago)
-            
+
             # Find closest date in price data
             closest_idx = df["Date"].searchsorted(entry_date)
             if closest_idx < len(df):
@@ -509,37 +510,45 @@ def estimate_strategy_entry_date(ticker: str, strategy_type: str, short_window: 
                 return entry_row["Date"].strftime("%Y-%m-%d"), entry_row["Close"]
             else:
                 return None, None
-        
+
         # Use the most recent signal
         entry_row = recent_signals.iloc[-1]
         entry_date = entry_row["Date"].strftime("%Y-%m-%d")
         entry_price = entry_row["Close"]  # Use closing price as entry price
-        
+
         return entry_date, entry_price
-        
+
     except Exception as e:
         logging.error(f"Error estimating entry for {ticker} {strategy_type}: {e}")
         return None, None
 
 
-def assess_trade_quality(mfe: float, mae: float, exit_efficiency: float, return_pct: float = None) -> str:
+def assess_trade_quality(
+    mfe: float, mae: float, exit_efficiency: float, return_pct: float = None
+) -> str:
     """Assess trade quality based on MFE/MAE and exit efficiency metrics."""
-    
+
     if mfe is None or mae is None:
         return ""
-        
-    risk_reward_ratio = mfe / mae if mae > 0 else float('inf')
-    
+
+    risk_reward_ratio = mfe / mae if mae > 0 else float("inf")
+
     # Handle edge cases with poor risk/reward setups
     if mfe < 0.02 and mae > 0.05:  # MFE < 2%, MAE > 5%
         return "Poor Setup - High Risk, Low Reward"
     elif return_pct is not None and return_pct < 0 and abs(return_pct) > mfe:
         return "Failed to Capture Upside"
-    elif risk_reward_ratio >= 3.0 and (exit_efficiency is None or exit_efficiency >= 0.8):
+    elif risk_reward_ratio >= 3.0 and (
+        exit_efficiency is None or exit_efficiency >= 0.8
+    ):
         return "Excellent"
-    elif risk_reward_ratio >= 2.0 and (exit_efficiency is None or exit_efficiency >= 0.6):
+    elif risk_reward_ratio >= 2.0 and (
+        exit_efficiency is None or exit_efficiency >= 0.6
+    ):
         return "Excellent"
-    elif risk_reward_ratio >= 1.5 and (exit_efficiency is None or exit_efficiency >= 0.4):
+    elif risk_reward_ratio >= 1.5 and (
+        exit_efficiency is None or exit_efficiency >= 0.4
+    ):
         return "Good"
     else:
         return "Poor"
@@ -547,61 +556,67 @@ def assess_trade_quality(mfe: float, mae: float, exit_efficiency: float, return_
 
 def convert_strategy_to_trade_history(strategy_name: str):
     """Convert strategy CSV data to position-level trade history CSV."""
-    
-    strategy_file = f"/Users/colemorton/Projects/trading/csv/strategies/{strategy_name}.csv"
-    output_file = f"/Users/colemorton/Projects/trading/csv/positions/{strategy_name}.csv"
-    
+
+    strategy_file = (
+        f"/Users/colemorton/Projects/trading/csv/strategies/{strategy_name}.csv"
+    )
+    output_file = (
+        f"/Users/colemorton/Projects/trading/csv/positions/{strategy_name}.csv"
+    )
+
     # Create output directory
     Path(output_file).parent.mkdir(parents=True, exist_ok=True)
-    
+
     # Read strategy data
     df = pd.read_csv(strategy_file)
-    
+
     positions = []
-    
+
     for _, row in df.iterrows():
         if pd.isna(row["Ticker"]) or row["Ticker"] == "":
             continue
-            
+
         ticker = row["Ticker"]
         strategy_type = row["Strategy Type"]
         short_window = int(row["Short Window"])
         long_window = int(row["Long Window"])
-        signal_window = int(row["Signal Window"]) if pd.notna(row["Signal Window"]) else 0
-        
+        signal_window = (
+            int(row["Signal Window"]) if pd.notna(row["Signal Window"]) else 0
+        )
+
         # Skip if no open trades
         if row["Total Open Trades"] == 0:
             continue
-            
+
         # Estimate entry date and price
         entry_date, entry_price = estimate_strategy_entry_date(
             ticker, strategy_type, short_window, long_window
         )
-        
+
         if entry_date is None or entry_price is None:
             logging.warning(f"Could not estimate entry for {ticker} {strategy_type}")
             continue
-            
+
         # Generate Position UUID
         position_uuid = generate_position_uuid(
             ticker, strategy_type, short_window, long_window, signal_window, entry_date
         )
-        
+
         # Calculate MFE/MAE for open position (no exit date)
         mfe, mae, mfe_mae_ratio, _ = calculate_mfe_mae(
             ticker, f"{entry_date} 00:00:00", "", entry_price, "Long"
         )
-        
+
         # Calculate days since entry
         try:
             entry_dt = datetime.strptime(entry_date, "%Y-%m-%d")
             days_since_entry = (datetime.now() - entry_dt).days
         except:
             days_since_entry = None
-            
+
         # Assess trade quality for open position
         trade_quality = assess_trade_quality(mfe, mae, None, None)
-        
+
         position = {
             "Position_UUID": position_uuid,
             "Ticker": ticker,
@@ -630,20 +645,24 @@ def convert_strategy_to_trade_history(strategy_name: str):
             "Exit_Efficiency_Fixed": None,  # N/A for open positions
             "Trade_Quality": trade_quality,
         }
-        
+
         positions.append(position)
-        
-        logging.info(f"Created position for {ticker} {strategy_type} - Entry: {entry_date} @ ${entry_price:.2f}")
-    
+
+        logging.info(
+            f"Created position for {ticker} {strategy_type} - Entry: {entry_date} @ ${entry_price:.2f}"
+        )
+
     if not positions:
         logging.warning(f"No positions created from {strategy_name}.csv")
         return None
-        
+
     # Create DataFrame and save
     positions_df = pd.DataFrame(positions)
     positions_df.to_csv(output_file, index=False)
-    
-    logging.info(f"Created {len(positions)} {strategy_name} portfolio positions in {output_file}")
+
+    logging.info(
+        f"Created {len(positions)} {strategy_name} portfolio positions in {output_file}"
+    )
     return output_file
 
 
@@ -665,12 +684,12 @@ if __name__ == "__main__":
     risk_on_file = convert_risk_on_to_trade_history()
     if risk_on_file:
         print(f"Risk On portfolio trade history created: {risk_on_file}")
-    
+
     # Convert protected.csv to trade history
     # protected_file = convert_protected_to_trade_history()
     # if protected_file:
     #     print(f"Protected portfolio trade history created: {protected_file}")
-    
+
     # Migrate live signals to new schema (if needed)
     # migrated_file = migrate_live_signals_to_trade_history()
     # print(f"Live signals migration complete: {migrated_file}")
