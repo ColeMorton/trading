@@ -11,7 +11,13 @@ from typing import Any, Callable, Dict, List, Optional
 
 import polars as pl
 
-from app.strategies.ma_cross.core import AnalysisResult, TickerResult
+from app.strategies.ma_cross.core import (
+    AnalysisConfig,
+    AnalysisResult,
+    SignalInfo,
+    TickerResult,
+)
+from app.strategies.ma_cross.core.analyzer import MACrossAnalyzer
 from app.strategies.ma_cross.tools.scanner_processing import process_ticker
 from app.tools.setup_logging import setup_logging
 
@@ -150,6 +156,136 @@ class ScannerAdapter:
         """Clean up resources."""
         if self._log_close:
             self._log_close()
+
+    def _json_to_config(self, json_portfolio: Dict[str, Any]) -> AnalysisConfig:
+        """
+        Convert JSON portfolio format to AnalysisConfig.
+
+        Args:
+            json_portfolio: Portfolio in JSON format
+
+        Returns:
+            AnalysisConfig instance
+        """
+        # Extract first ticker from symbols list
+        ticker = json_portfolio.get("symbols", ["UNKNOWN"])[0]
+
+        # Extract MA type (default to SMA)
+        ma_types = json_portfolio.get("ma_types", ["SMA"])
+        use_sma = ma_types[0].upper() == "SMA" if ma_types else True
+
+        # Extract periods
+        fast_periods = json_portfolio.get("fast_periods", [20])
+        slow_periods = json_portfolio.get("slow_periods", [50])
+
+        # Extract timeframe (convert to hourly if needed)
+        timeframes = json_portfolio.get("timeframes", ["D"])
+        use_hourly = timeframes[0].upper() == "H" if timeframes else False
+
+        return AnalysisConfig(
+            ticker=ticker,
+            use_sma=use_sma,
+            short_window=fast_periods[0] if fast_periods else 20,
+            long_window=slow_periods[0] if slow_periods else 50,
+            use_hourly=use_hourly,
+            direction="Long",  # Default to Long
+        )
+
+    def scan_portfolio(self, json_portfolio: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """
+        Scan a portfolio and return results in the expected format.
+
+        Args:
+            json_portfolio: Portfolio configuration in JSON format
+
+        Returns:
+            List of result dictionaries with symbol and metrics
+        """
+        results = []
+
+        # Get list of symbols to process
+        symbols = json_portfolio.get("symbols", [])
+
+        # Create analyzer
+        analyzer = MACrossAnalyzer(log=self._log)
+
+        try:
+            for symbol in symbols:
+                # Create config for this symbol
+                config = self._json_to_config(json_portfolio)
+                config.ticker = symbol  # Override ticker
+
+                # Analyze the ticker
+                ticker_result = analyzer.analyze_single(config)
+
+                # Format result for output
+                result_dict = {
+                    "symbol": symbol,
+                    "total_return": getattr(ticker_result, "total_return_pct", 0.0),
+                    "sharpe_ratio": getattr(ticker_result, "sharpe_ratio", 0.0),
+                    "max_drawdown": getattr(ticker_result, "max_drawdown_pct", 0.0),
+                    "win_rate": getattr(ticker_result, "win_rate_pct", 0.0),
+                    "total_trades": getattr(ticker_result, "total_trades", 0),
+                    "strategy_type": getattr(ticker_result, "strategy_type", "SMA"),
+                    "short_window": config.short_window,
+                    "long_window": config.long_window,
+                }
+
+                results.append(result_dict)
+
+        finally:
+            analyzer.close()
+
+        return results
+
+    def _convert_timeframe(self, timeframe: str) -> str:
+        """
+        Convert portfolio timeframe to yfinance interval format.
+
+        Args:
+            timeframe: Timeframe string (D, H, W, M)
+
+        Returns:
+            yfinance interval string
+
+        Raises:
+            ValueError: If timeframe is invalid
+        """
+        mapping = {"D": "1d", "H": "1h", "W": "1wk", "M": "1mo"}
+
+        upper_tf = timeframe.upper()
+        if upper_tf not in mapping:
+            raise ValueError(f"Invalid timeframe: {timeframe}")
+
+        return mapping[upper_tf]
+
+    def _format_result(self, portfolio_result: TickerResult) -> Dict[str, Any]:
+        """
+        Format a TickerResult for CLI output.
+
+        Args:
+            portfolio_result: TickerResult instance
+
+        Returns:
+            Formatted dictionary
+        """
+        return {
+            "ticker": portfolio_result.ticker,
+            "total_return_pct": getattr(portfolio_result, "total_return_pct", 0.0),
+            "sharpe_ratio": getattr(portfolio_result, "sharpe_ratio", 0.0),
+            "max_drawdown_pct": getattr(portfolio_result, "max_drawdown_pct", 0.0),
+            "win_rate_pct": getattr(portfolio_result, "win_rate_pct", 0.0),
+            "total_trades": getattr(portfolio_result, "total_trades", 0),
+            "profit_factor": getattr(portfolio_result, "profit_factor", 0.0),
+            "sortino_ratio": getattr(portfolio_result, "sortino_ratio", 0.0),
+            "strategy_type": getattr(portfolio_result, "strategy_type", "SMA"),
+            "short_window": getattr(portfolio_result, "short_window", 0),
+            "long_window": getattr(portfolio_result, "long_window", 0),
+            "beats_bnh_pct": getattr(portfolio_result, "beats_bnh_pct", 0.0),
+            "expectancy_per_trade": getattr(
+                portfolio_result, "expectancy_per_trade", 0.0
+            ),
+        }
 
 
 def run_scanner_with_config(config: Dict[str, Any]) -> List[Dict[str, Any]]:

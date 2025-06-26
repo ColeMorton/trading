@@ -179,7 +179,7 @@ class TestPhase5ComprehensiveValidation:
 
     def test_api_export_compliance(self, sample_canonical_data, mock_log, tmp_path):
         """Test that API exports maintain canonical schema compliance."""
-        from app.api.models.ma_cross import MACrossRequest
+        from app.api.models.strategy_analysis import MACrossRequest
         from app.api.services.ma_cross_service import MACrossService
 
         # Mock dependencies for service

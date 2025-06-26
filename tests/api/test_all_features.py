@@ -120,26 +120,18 @@ async def test_async_ma_cross_with_progress():
                             if event_data.get("status") == "completed":
                                 print("\n✓ Analysis completed!")
                                 print(
-                                    f"✓ Total portfolios: {
-    event_data.get(
-        'total_portfolios_analyzed', 0)}"
+                                    f"✓ Total portfolios: {event_data.get('total_portfolios_analyzed', 0)}"
                                 )
                                 print(
-                                    f"✓ Filtered portfolios: {
-    event_data.get(
-        'total_portfolios_filtered', 0)}"
+                                    f"✓ Filtered portfolios: {event_data.get('total_portfolios_filtered', 0)}"
                                 )
                                 print(
-                                    f"✓ Execution time: {
-    event_data.get(
-        'execution_time', 0):.2f}s"
+                                    f"✓ Execution time: {event_data.get('execution_time', 0):.2f}s"
                                 )
                                 break
                             elif event_data.get("status") == "failed":
                                 print(
-                                    f"\n✗ Analysis failed: {
-    event_data.get(
-        'error', 'Unknown error')}"
+                                    f"\n✗ Analysis failed: {event_data.get('error', 'Unknown error')}"
                                 )
                                 return False
 

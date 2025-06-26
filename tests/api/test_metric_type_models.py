@@ -7,7 +7,7 @@ to ensure metric_type field is properly handled.
 
 import pytest
 
-from app.api.models.ma_cross import PortfolioMetrics
+from app.api.models.strategy_analysis import PortfolioMetrics
 
 
 class TestPortfolioMetricsMetricType:

@@ -2,12 +2,9 @@ from typing import Any, Callable, Dict, Optional
 
 import polars as pl
 
-from app.strategies.ma_cross.tools.sensitivity_analysis import (
-    analyze_parameter_combinations,
-)
-
 # Import export_portfolios inside functions to avoid circular imports
 from app.tools.portfolio.collection import sort_portfolios
+from app.tools.strategy.sensitivity_analysis import analyze_parameter_combinations
 
 
 def analyze_parameter_sensitivity(
@@ -33,9 +30,22 @@ def analyze_parameter_sensitivity(
     try:
         log("Starting parameter sensitivity analysis")
 
+        # Convert window lists to parameter sets format for unified framework
+        parameter_sets = []
+        for short_window in short_windows:
+            for long_window in long_windows:
+                if short_window < long_window:  # Ensure short < long
+                    parameter_sets.append(
+                        {"short_window": short_window, "long_window": long_window}
+                    )
+
         # Analyze all parameter combinations
         portfolios = analyze_parameter_combinations(
-            data, short_windows, long_windows, config, log
+            data,
+            parameter_sets,
+            config,
+            log,
+            strategy_type=config.get("STRATEGY_TYPE", "SMA"),
         )
 
         if not portfolios:

@@ -377,7 +377,7 @@ class TestMACrossOrchestrator:
 
     def test_generate_cache_key(self, orchestrator):
         """Test cache key generation."""
-        from app.api.models.ma_cross import MACrossRequest, MinimumCriteria
+        from app.api.models.strategy_analysis import MACrossRequest, MinimumCriteria
 
         request = MACrossRequest(
             ticker=["AAPL", "GOOGL"],
@@ -398,7 +398,7 @@ class TestMACrossOrchestrator:
 
     def test_create_config_from_request(self, orchestrator):
         """Test configuration creation from request."""
-        from app.api.models.ma_cross import MACrossRequest
+        from app.api.models.strategy_analysis import MACrossRequest
 
         request = MACrossRequest(
             ticker=["AAPL", "GOOGL"],
@@ -422,7 +422,7 @@ class TestMACrossOrchestrator:
 
     def test_create_filter_criteria(self, orchestrator):
         """Test filter criteria creation from request."""
-        from app.api.models.ma_cross import MACrossRequest, MinimumCriteria
+        from app.api.models.strategy_analysis import MACrossRequest, MinimumCriteria
 
         request = MACrossRequest(
             ticker="AAPL",

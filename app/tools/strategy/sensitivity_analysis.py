@@ -37,13 +37,14 @@ class SensitivityAnalyzerBase(ABC):
 
     @abstractmethod
     def _calculate_signals(
-        self, data: pl.DataFrame, strategy_config: Dict[str, Any]
+        self, data: pl.DataFrame, strategy_config: Dict[str, Any], log: Callable
     ) -> Optional[pl.DataFrame]:
         """Calculate signals for the strategy with given parameters.
 
         Args:
             data: Price data DataFrame
             strategy_config: Strategy-specific configuration
+            log: Logging function
 
         Returns:
             DataFrame with signals or None if failed
@@ -116,7 +117,7 @@ class SensitivityAnalyzerBase(ABC):
                 return None
 
             # Calculate signals using strategy-specific implementation
-            temp_data = self._calculate_signals(data.clone(), strategy_config)
+            temp_data = self._calculate_signals(data.clone(), strategy_config, log)
             if temp_data is None or len(temp_data) == 0:
                 log(f"No signals generated for {param_str}", "warning")
                 return None
@@ -130,9 +131,24 @@ class SensitivityAnalyzerBase(ABC):
             # Convert statistics
             stats = portfolio.stats()
 
-            # Add strategy-specific parameters to stats
+            # Add strategy-specific parameters to stats with proper column name mapping
+            parameter_mapping = {
+                "short_window": "Short Window",
+                "long_window": "Long Window",
+                "signal_window": "Signal Window",
+                "change_pct": "Change PCT",
+            }
+
             for param, value in strategy_params.items():
-                stats[param] = value
+                # Use mapped column name if available, otherwise use original parameter name
+                column_name = parameter_mapping.get(param, param)
+                stats[column_name] = value
+
+            # Add ticker and strategy information from config to ensure proper context preservation
+            if "TICKER" in config:
+                stats["Ticker"] = config["TICKER"]
+            if "STRATEGY_TYPE" in config:
+                stats["Strategy Type"] = config["STRATEGY_TYPE"]
 
             # Convert stats to standard format
             converted_stats = convert_stats(stats, log, config, current)
@@ -213,13 +229,20 @@ class MASensitivityAnalyzer(SensitivityAnalyzerBase):
         self.ma_type = ma_type
 
     def _calculate_signals(
-        self, data: pl.DataFrame, strategy_config: Dict[str, Any]
+        self, data: pl.DataFrame, strategy_config: Dict[str, Any], log: Callable
     ) -> Optional[pl.DataFrame]:
         """Calculate MA signals."""
         try:
             from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 
-            return calculate_ma_and_signals(data, strategy_config)
+            return calculate_ma_and_signals(
+                data=data,
+                short_window=strategy_config.get("short_window"),
+                long_window=strategy_config.get("long_window"),
+                config=strategy_config,
+                log=log,
+                strategy_type=self.ma_type,
+            )
         except ImportError:
             return None
 
@@ -272,7 +295,7 @@ class MACDSensitivityAnalyzer(SensitivityAnalyzerBase):
         super().__init__("MACD")
 
     def _calculate_signals(
-        self, data: pl.DataFrame, strategy_config: Dict[str, Any]
+        self, data: pl.DataFrame, strategy_config: Dict[str, Any], log: Callable
     ) -> Optional[pl.DataFrame]:
         """Calculate MACD signals."""
         try:
@@ -334,7 +357,7 @@ class MeanReversionSensitivityAnalyzer(SensitivityAnalyzerBase):
         super().__init__("MEAN_REVERSION")
 
     def _calculate_signals(
-        self, data: pl.DataFrame, strategy_config: Dict[str, Any]
+        self, data: pl.DataFrame, strategy_config: Dict[str, Any], log: Callable
     ) -> Optional[pl.DataFrame]:
         """Calculate Mean Reversion signals."""
         try:

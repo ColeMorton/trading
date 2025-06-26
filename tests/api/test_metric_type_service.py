@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from app.api.models.ma_cross import MACrossRequest, PortfolioMetrics
+from app.api.models.strategy_analysis import MACrossRequest, PortfolioMetrics
 from app.api.services.ma_cross_service import MACrossService
 
 

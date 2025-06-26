@@ -14,7 +14,7 @@ from fastapi.testclient import TestClient
 from httpx import AsyncClient
 
 from app.api.main import app
-from app.api.models.ma_cross import MACrossRequest
+from app.api.models.strategy_analysis import MACrossRequest
 from app.api.services.ma_cross_service import MACrossService
 from app.tools.progress_tracking import ProgressTracker
 

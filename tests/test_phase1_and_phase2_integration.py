@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from app.api.models.ma_cross import MACrossRequest, MinimumCriteria
+from app.api.models.strategy_analysis import MACrossRequest, MinimumCriteria
 from app.api.services.ma_cross_orchestrator import MACrossOrchestrator
 from app.strategies.ma_cross.config.parameter_testing import ParameterTestingConfig
 

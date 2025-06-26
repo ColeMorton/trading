@@ -15,6 +15,7 @@ from app.strategies.ma_cross.core.models import (
     SignalInfo,
     TickerResult,
 )
+from app.strategies.ma_cross.tools.strategy_execution import execute_single_strategy
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.get_data import get_data
 from app.tools.setup_logging import setup_logging
@@ -43,22 +44,65 @@ class MACrossAnalyzer:
                 "ma_cross_analyzer", "analyzer.log"
             )
 
-    def analyze_single(self, config: AnalysisConfig) -> TickerResult:
+    def analyze_single(
+        self, config: AnalysisConfig, calculate_metrics: bool = True
+    ) -> TickerResult:
         """
         Analyze a single ticker with the given configuration.
 
         Args:
             config: Analysis configuration
+            calculate_metrics: Whether to calculate portfolio metrics (default: True)
 
         Returns:
-            TickerResult with detected signals
+            TickerResult with detected signals and optionally portfolio metrics
         """
         start_time = time.time()
 
         try:
             self._log(f"Analyzing {config.ticker}")
 
-            # Get price data
+            # If we need portfolio metrics and have specific windows, use strategy execution
+            if calculate_metrics and config.short_window and config.long_window:
+                # Convert to strategy execution config format
+                exec_config = config.to_dict()
+                exec_config["STRATEGY_TYPE"] = "SMA" if config.use_sma else "EMA"
+
+                # Execute strategy to get portfolio metrics
+                portfolio_stats = execute_single_strategy(
+                    config.ticker, exec_config, self._log
+                )
+
+                if portfolio_stats:
+                    # Create TickerResult with portfolio metrics
+                    result = TickerResult(
+                        ticker=config.ticker,
+                        processing_time=time.time() - start_time,
+                        strategy_type="SMA" if config.use_sma else "EMA",
+                        short_window=config.short_window,
+                        long_window=config.long_window,
+                        total_trades=int(portfolio_stats.get("Total Trades", 0)),
+                        total_return_pct=float(portfolio_stats.get("Total Return", 0)),
+                        sharpe_ratio=float(portfolio_stats.get("Sharpe Ratio", 0)),
+                        max_drawdown_pct=float(portfolio_stats.get("Max Drawdown", 0)),
+                        win_rate_pct=float(portfolio_stats.get("Win Rate", 0)),
+                        profit_factor=float(portfolio_stats.get("Profit Factor", 0)),
+                        expectancy_per_trade=float(
+                            portfolio_stats.get("Expectancy Per Trade", 0)
+                        ),
+                        sortino_ratio=float(portfolio_stats.get("Sortino Ratio", 0)),
+                        beats_bnh_pct=float(portfolio_stats.get("Beats BnH %", 0)),
+                    )
+
+                    # Also check for current signals
+                    data = self._fetch_data(config)
+                    if data is not None:
+                        signals = self._analyze_signals(data, config)
+                        result.signals = signals
+
+                    return result
+
+            # Otherwise, just analyze for signals (original behavior)
             data = self._fetch_data(config)
             if data is None:
                 return TickerResult(

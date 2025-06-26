@@ -11,7 +11,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.api.main import app
-from app.api.models.ma_cross import PortfolioMetrics
+from app.api.models.strategy_analysis import PortfolioMetrics
 
 
 class TestMACrossRouterMetricType:
@@ -84,7 +84,7 @@ class TestMACrossRouterMetricType:
         mock_get_service.return_value = mock_service
 
         # Mock the analyze_portfolio method to return a response with portfolios
-        from app.api.models.ma_cross import MACrossResponse
+        from app.api.models.strategy_analysis import MACrossResponse
 
         mock_response = MACrossResponse(
             status="success",
@@ -126,7 +126,7 @@ class TestMACrossRouterMetricType:
         mock_get_service.return_value = mock_service
 
         # Mock async analysis response
-        from app.api.models.ma_cross import MACrossAsyncResponse
+        from app.api.models.strategy_analysis import MACrossAsyncResponse
 
         mock_async_response = MACrossAsyncResponse(
             status="accepted",

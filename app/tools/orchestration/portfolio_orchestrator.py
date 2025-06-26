@@ -12,9 +12,6 @@ from app.strategies.ma_cross.exceptions import (
     MACrossExecutionError,
     MACrossPortfolioError,
 )
-
-# Import filter_portfolios from the correct location
-from app.strategies.ma_cross.tools.filter_portfolios import filter_portfolios
 from app.tools.config_service import ConfigService
 from app.tools.error_context import error_context
 from app.tools.exceptions import (
@@ -27,6 +24,9 @@ from app.tools.portfolio.allocation import get_allocation_summary
 from app.tools.portfolio.collection import export_best_portfolios
 from app.tools.portfolio.schema_detection import SchemaVersion, detect_schema_version
 from app.tools.portfolio.stop_loss import get_stop_loss_summary
+
+# Import filter_portfolios from the unified location
+from app.tools.strategy.filter_portfolios import filter_portfolios
 from app.tools.strategy_utils import get_strategy_types
 from app.tools.synthetic_ticker import process_synthetic_config
 

@@ -14,7 +14,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from app.api.models.ma_cross import MACrossRequest
+from app.api.models.strategy_analysis import MACrossRequest
 from app.api.services.ma_cross_service import MACrossService
 from app.tools.portfolio.canonical_schema import (
     CANONICAL_COLUMN_COUNT,

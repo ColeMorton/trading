@@ -23,12 +23,10 @@ import polars as pl
 from scipy import stats
 
 from app.strategies.ma_cross.config.parameter_testing import ParameterTestingConfig
-from app.strategies.ma_cross.tools.sensitivity_analysis import (
-    analyze_window_combination,
-)
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.get_data import download_data
 from app.tools.setup_logging import setup_logging
+from app.tools.strategy.sensitivity_analysis import analyze_window_combination
 
 
 @dataclass

@@ -251,7 +251,7 @@ class MASignalProcessor(SignalProcessorBase):
         """Analyze MA parameter combination."""
         try:
             # Import strategy-specific analysis
-            from app.strategies.ma_cross.tools.sensitivity_analysis import (
+            from app.tools.strategy.sensitivity_analysis import (
                 analyze_window_combination,
             )
 
@@ -264,8 +264,8 @@ class MASignalProcessor(SignalProcessorBase):
 
             return analyze_window_combination(
                 data=data,
-                short_window=short_window,
-                long_window=long_window,
+                short=short_window,
+                long=long_window,
                 config=config,
                 log=log,
             )

@@ -5,15 +5,25 @@ This module performs basic smoke tests to ensure the refactored code
 maintains compatibility with existing functionality.
 """
 
+import importlib.util
 import os
 import sys
 import unittest
+from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
 
 # Add the project root to the Python path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 from app.strategies.ma_cross.config_types import Config
+
+# Import get_portfolios using importlib due to numeric filename
+spec = importlib.util.spec_from_file_location(
+    "get_portfolios", str(project_root / "app/strategies/ma_cross/1_get_portfolios.py")
+)
+get_portfolios_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(get_portfolios_module)
 
 
 class TestOrchestratorSmoke(unittest.TestCase):
@@ -21,17 +31,13 @@ class TestOrchestratorSmoke(unittest.TestCase):
 
     def test_run_function_exists(self):
         """Test that the run function still exists and is callable."""
-        from app.strategies.ma_cross import get_portfolios
-
-        self.assertTrue(hasattr(get_portfolios, "run"))
-        self.assertTrue(callable(get_portfolios.run))
+        self.assertTrue(hasattr(get_portfolios_module, "run"))
+        self.assertTrue(callable(get_portfolios_module.run))
 
     def test_run_strategies_function_exists(self):
         """Test that the run_strategies function still exists and is callable."""
-        from app.strategies.ma_cross import get_portfolios
-
-        self.assertTrue(hasattr(get_portfolios, "run_strategies"))
-        self.assertTrue(callable(get_portfolios.run_strategies))
+        self.assertTrue(hasattr(get_portfolios_module, "run_strategies"))
+        self.assertTrue(callable(get_portfolios_module.run_strategies))
 
     @patch("app.tools.orchestration.portfolio_orchestrator.ConfigService")
     @patch("app.tools.orchestration.portfolio_orchestrator.process_synthetic_config")
@@ -64,10 +70,8 @@ class TestOrchestratorSmoke(unittest.TestCase):
         mock_get_strategies.return_value = ["SMA"]
         mock_execute.return_value = []
 
-        # Import and run
-        from app.strategies.ma_cross import get_portfolios
-
-        result = get_portfolios.run(config)
+        # Run using imported module
+        result = get_portfolios_module.run(config)
 
         # Verify it ran successfully
         self.assertTrue(result)
@@ -104,10 +108,8 @@ class TestOrchestratorSmoke(unittest.TestCase):
         mock_get_strategies.return_value = ["SMA", "EMA"]
         mock_execute.return_value = []
 
-        # Import and run
-        from app.strategies.ma_cross import get_portfolios
-
-        result = get_portfolios.run_strategies(config)
+        # Run using imported module
+        result = get_portfolios_module.run_strategies(config)
 
         # Verify it ran successfully
         self.assertTrue(result)

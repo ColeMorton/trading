@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock, Mock, patch
 import pandas as pd
 import pytest
 
-from app.api.models.ma_cross import (
+from app.api.models.strategy_analysis import (
     MACrossRequest,
     MACrossResponse,
     MACrossStatus,

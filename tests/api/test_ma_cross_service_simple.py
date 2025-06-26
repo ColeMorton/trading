@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from app.api.models.ma_cross import (
+from app.api.models.strategy_analysis import (
     MACrossAsyncResponse,
     MACrossRequest,
     MACrossResponse,

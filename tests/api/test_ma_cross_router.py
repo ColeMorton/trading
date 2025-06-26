@@ -10,7 +10,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.api.main import app
-from app.api.models.ma_cross import (
+from app.api.models.strategy_analysis import (
     HealthResponse,
     MACrossAsyncResponse,
     MACrossMetrics,

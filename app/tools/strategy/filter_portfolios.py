@@ -158,12 +158,20 @@ def get_metric_rows(df: pl.DataFrame, metric: str) -> Dict[str, int]:
     min_idx = metric_series.arg_min()
 
     # Calculate mean and find closest value
-    mean_val = valid_series.mean()
-    mean_idx = (metric_series - mean_val).abs().arg_min()
+    try:
+        mean_val = valid_series.mean()
+        mean_idx = (metric_series - mean_val).abs().arg_min()
+    except Exception:
+        # Handle string columns or non-numeric data
+        mean_idx = None
 
     # Calculate median and find closest value
-    median_val = valid_series.median()
-    median_idx = (metric_series - median_val).abs().arg_min()
+    try:
+        median_val = valid_series.median()
+        median_idx = (metric_series - median_val).abs().arg_min()
+    except Exception:
+        # Handle string columns or non-numeric data
+        median_idx = None
 
     return {"most": max_idx, "least": min_idx, "mean": mean_idx, "median": median_idx}
 

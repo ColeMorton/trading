@@ -11,8 +11,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from app.strategies.ma_cross.config_types import Config
-from app.strategies.ma_cross.tools.filter_portfolios import filter_portfolios
-from app.strategies.ma_cross.tools.signal_processing import process_ticker_portfolios
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from app.tools.get_data import get_data
@@ -30,6 +28,8 @@ from app.tools.portfolio.schema_detection import (
 from app.tools.portfolio.selection import get_best_portfolio
 from app.tools.stats_converter import convert_stats
 from app.tools.strategy.export_portfolios import PortfolioExportError, export_portfolios
+from app.tools.strategy.filter_portfolios import filter_portfolios
+from app.tools.strategy.signal_processing import process_ticker_portfolios
 from app.tools.strategy.signal_utils import is_exit_signal_current, is_signal_current
 
 if TYPE_CHECKING:
