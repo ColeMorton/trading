@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-26T09:53:57.858506",
+    "export_timestamp": "2025-06-27T09:39:03.476908",
     "strategy_config": {
       "ticker": "RJF",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 90.45416072751402,
+      "total_return": 90.98457732449495,
       "total_trades": "111",
       "win_rate": 0.6126126126126126,
-      "sharpe_ratio": 0.6317037661901801,
+      "sharpe_ratio": 0.6322695613019029,
       "max_drawdown": -0.574219952902479
     }
   },
@@ -2334,10 +2334,10 @@
       "Entry Timestamp": "2025-06-23 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 150.9600067138672,
-      "Avg Exit Price": 151.72999572753906,
+      "Avg Exit Price": 152.61000061035156,
       "Size": 602.742788523753,
-      "PnL": 373.1152698309743,
-      "Return": 0.004100615920952848,
+      "PnL": 903.5318668118998,
+      "Return": 0.009930006777303838,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -2346,9 +2346,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Breakeven",
-      "Cumulative_PnL": 90454.160727514,
+      "Cumulative_PnL": 90984.57732449492,
       "Trade_Number": 111,
-      "Rolling_Avg_Return": 0.024205043589710307,
+      "Rolling_Avg_Return": 0.025370921760980502,
       "Rolling_Win_Rate": 0.8
     }
   ],
@@ -6332,10 +6332,10 @@
       "Avg Entry Price": 150.9600067138672,
       "Entry Fees": 90.99005540227517,
       "Exit Timestamp": null,
-      "Avg Exit Price": 151.72999572753906,
+      "Avg Exit Price": 152.61000061035156,
       "Exit Fees": 0.0,
-      "PnL": 373.1152698309743,
-      "Return": 0.004100615920952848,
+      "PnL": 903.5318668118998,
+      "Return": 0.009930006777303838,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-26T09:53:55.519636",
+    "export_timestamp": "2025-06-27T09:39:00.791496",
     "strategy_config": {
       "ticker": "WELL",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 56.68520260324913,
+      "total_return": 56.704002292417634,
       "total_trades": "98",
       "win_rate": 0.5510204081632653,
-      "sharpe_ratio": 0.720279710777621,
+      "sharpe_ratio": 0.7202975750327154,
       "max_drawdown": -0.34730901024055505
     }
   },
@@ -2061,10 +2061,10 @@
       "Entry Timestamp": "2025-06-23 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 154.1199951171875,
-      "Avg Exit Price": 153.42999267578125,
+      "Avg Exit Price": 153.47999572753906,
       "Size": 375.9708359313158,
-      "PnL": -317.36541808809125,
-      "Return": -0.005477046867809617,
+      "PnL": -298.56572891958785,
+      "Return": -0.005152604528450622,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -2073,9 +2073,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Breakeven",
-      "Cumulative_PnL": 56685.20260324915,
+      "Cumulative_PnL": 56704.00229241765,
       "Trade_Number": 98,
-      "Rolling_Avg_Return": 0.1602205445949611,
+      "Rolling_Avg_Return": 0.1602854330628329,
       "Rolling_Win_Rate": 0.8
     }
   ],
@@ -5591,10 +5591,10 @@
       "Avg Entry Price": 154.1199951171875,
       "Entry Fees": 57.944623397932446,
       "Exit Timestamp": null,
-      "Avg Exit Price": 153.42999267578125,
+      "Avg Exit Price": 153.47999572753906,
       "Exit Fees": 0.0,
-      "PnL": -317.36541808809125,
-      "Return": -0.005477046867809617,
+      "PnL": -298.56572891958785,
+      "Return": -0.005152604528450622,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

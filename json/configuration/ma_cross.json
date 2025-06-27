@@ -15,11 +15,11 @@
     "SORT_ASC": false,
     "USE_GBM": false,
     "MINIMUMS": {
-      "WIN_RATE": 44,
-      "TRADES": 55,
-      "EXPECTANCY_PER_TRADE": 0.236,
+      "WIN_RATE": 50,
+      "TRADES": 34,
+      "EXPECTANCY_PER_TRADE": 0.386,
       "PROFIT_FACTOR": 1.236,
-      "SORTINO_RATIO": 0.618
+      "SORTINO_RATIO": 0.5
     }
   },
   "Current": {
@@ -38,11 +38,11 @@
     "SORT_ASC": false,
     "USE_GBM": false,
     "MINIMUMS": {
-      "WIN_RATE": 44,
-      "TRADES": 55,
-      "EXPECTANCY_PER_TRADE": 0.236,
+      "WIN_RATE": 50,
+      "TRADES": 34,
+      "EXPECTANCY_PER_TRADE": 0.386,
       "PROFIT_FACTOR": 1.236,
-      "SORTINO_RATIO": 0.618
+      "SORTINO_RATIO": 0.5
     }
   },
   "Quick Test": {

@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-26T09:54:07.266944",
+    "export_timestamp": "2025-06-27T09:39:09.155485",
     "strategy_config": {
       "ticker": "SCHW",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 116.00037874991366,
+      "total_return": 115.53133413599471,
       "total_trades": "228",
       "win_rate": 0.5394736842105263,
-      "sharpe_ratio": 0.6790915433938637,
+      "sharpe_ratio": 0.6786359425949394,
       "max_drawdown": -0.6382917871006042
     }
   },
@@ -4791,10 +4791,10 @@
       "Entry Timestamp": "2025-06-24 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 89.31999969482422,
-      "Avg Exit Price": 89.80000305175781,
+      "Avg Exit Price": 89.44000244140625,
       "Size": 1302.8994963672603,
-      "PnL": 509.0211493854731,
-      "Return": 0.004373974010004568,
+      "PnL": 39.97653546651418,
+      "Return": 0.000343514856605974,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -4803,9 +4803,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Breakeven",
-      "Cumulative_PnL": 116000.3787499137,
+      "Cumulative_PnL": 115531.33413599474,
       "Trade_Number": 228,
-      "Rolling_Avg_Return": 0.05314887942548922,
+      "Rolling_Avg_Return": 0.0523427875948095,
       "Rolling_Win_Rate": 0.8
     }
   ],
@@ -13001,10 +13001,10 @@
       "Avg Entry Price": 89.31999969482422,
       "Entry Fees": 116.37498261789733,
       "Exit Timestamp": null,
-      "Avg Exit Price": 89.80000305175781,
+      "Avg Exit Price": 89.44000244140625,
       "Exit Fees": 0.0,
-      "PnL": 509.0211493854731,
-      "Return": 0.004373974010004568,
+      "PnL": 39.97653546651418,
+      "Return": 0.000343514856605974,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
