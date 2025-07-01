@@ -1,15 +1,17 @@
 """
-ATR Trailing Stop Portfolio Analysis for MA Cross Strategy
+Volume-Based Exit Portfolio Analysis for MA Cross Strategy
 
-This module implements ATR trailing stop parameter sensitivity analysis,
-processing 860 combinations of ATR parameters to optimize exit timing
+This module implements volume and EMA-based exit parameter sensitivity analysis,
+processing 231 combinations of exit parameters to optimize exit timing
 while using proven MA Cross entry configurations.
 
+Exit Criteria: RVOL(volume_Lookback) >= X AND Price Close < EMA(N)
+
 Key Features:
-- Fixed MA Cross entry parameters (SMA 51/69)
-- ATR parameter sweep: 20 lengths × 42 multipliers = 840 combinations
+- Fixed MA Cross entry parameters (SMA 53/64)
+- Volume exit parameter sweep: 11 EMA periods × 7 RVOL thresholds × 3 volume lookbacks = 231 combinations
 - Memory-optimized processing with progress tracking
-- Export to ATR Extended portfolio schema with _ATR suffix
+- Export to Volume Extended portfolio schema with _VOLUME suffix
 """
 
 import os
@@ -18,7 +20,9 @@ from typing import Any, Dict, List
 
 import polars as pl
 
-from app.strategies.ma_cross.tools.atr_parameter_sweep import create_atr_sweep_engine
+from app.strategies.ma_cross.tools.volume_parameter_sweep import (
+    create_volume_sweep_engine,
+)
 from app.tools.cache_utils import CacheConfig
 from app.tools.entry_point import run_from_command_line
 from app.tools.logging_context import logging_context
@@ -27,7 +31,7 @@ from app.tools.portfolio.filtering_service import PortfolioFilterService
 from app.tools.portfolio_results import sort_portfolios
 from app.tools.project_utils import get_project_root
 
-# ATR-specific configuration based on proven MA Cross settings
+# Volume-specific configuration based on proven MA Cross settings
 default_config: CacheConfig = {
     "TICKER": "NVDA",
     "SHORT_WINDOW": 53,  # Proven MA Cross entry configuration
@@ -42,35 +46,41 @@ default_config: CacheConfig = {
     "USE_RSI": False,
     "RSI_WINDOW": 4,
     "RSI_THRESHOLD": 52,
-    # ATR Parameter Range Configuration
-    "ATR_LENGTH_MIN": 2,  # Minimum ATR period length
-    "ATR_LENGTH_MAX": 21,  # Maximum ATR period length
-    "ATR_MULTIPLIER_MIN": 1.5,  # Minimum ATR multiplier for stop distance
-    "ATR_MULTIPLIER_MAX": 10.0,  # Maximum ATR multiplier for stop distance
-    "ATR_MULTIPLIER_STEP": 0.2,  # Step size for ATR multiplier increments
-    # "ATR_LENGTH_MIN": 2,        # Minimum ATR period length
-    # "ATR_LENGTH_MAX": 12,       # Maximum ATR period length
-    # "ATR_MULTIPLIER_MIN": 1.5,  # Minimum ATR multiplier for stop distance
-    # "ATR_MULTIPLIER_MAX": 8.0, # Maximum ATR multiplier for stop distance
-    # "ATR_MULTIPLIER_STEP": 1, # Step size for ATR multiplier increments
-    "MINIMUMS": {
-        "WIN_RATE": 0.5,
-        "TRADES": 44,
-        # "WIN_RATE": 0.50,
-        # "TRADES": 54,
-        # "WIN_RATE": 0.61,
-        "EXPECTANCY_PER_TRADE": 0.5,
-        "PROFIT_FACTOR": 1.236,
-        "SORTINO_RATIO": 0.5,
-        # "BEATS_BNH": 0
-        # "BEATS_BNH": 0.13
-    },
+    # Volume Exit Parameter Configuration
+    # Exit Criteria: RVOL(volume_Lookback) >= X AND Price Close < EMA(N)
+    "EMA_PERIODS": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+    ],  # EMA periods for price exit (N)
+    "RVOL_THRESHOLDS": [1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0],  # RVOL thresholds (X)
+    "VOLUME_LOOKBACKS": [10, 15, 20],  # Volume lookback periods for RVOL calculation
+    # "MINIMUMS": {
+    #     "WIN_RATE": 0.3,  # Reduced for initial testing
+    #     "TRADES": 10,     # Reduced for initial testing
+    #     # "WIN_RATE": 0.50,
+    #     # "TRADES": 54,
+    #     # "WIN_RATE": 0.61,
+    #     "EXPECTANCY_PER_TRADE": 0.1,  # Reduced for initial testing
+    #     "PROFIT_FACTOR": 1.0,         # Reduced for initial testing
+    #     "SORTINO_RATIO": 0.1,         # Reduced for initial testing
+    #     # "BEATS_BNH": 0
+    #     # "BEATS_BNH": 0.13
+    # },
     "SORT_BY": "Score",
     "SORT_ASC": False,
 }
 
 
-def execute_atr_analysis_for_ticker(
+def execute_volume_analysis_for_ticker(
     ticker: str,
     config: CacheConfig,
     log: callable,
@@ -86,12 +96,12 @@ def execute_atr_analysis_for_ticker(
     Returns:
         List of ATR portfolio results
     """
-    log(f"=== Starting ATR analysis for {ticker} ===", "info")
+    log(f"=== Starting volume analysis for {ticker} ===", "info")
     analysis_start_time = time.time()
 
     try:
-        # Create ATR parameter sweep engine
-        sweep_engine = create_atr_sweep_engine(
+        # Create volume parameter sweep engine
+        sweep_engine = create_volume_sweep_engine(
             config, enable_memory_optimization=True  # Use sensible default
         )
 
@@ -113,33 +123,26 @@ def execute_atr_analysis_for_ticker(
             "info",
         )
 
-        # Log ATR parameter ranges
-        atr_length_min = config.get("ATR_LENGTH_MIN", 2)
-        atr_length_max = config.get("ATR_LENGTH_MAX", 21)
-        atr_multiplier_min = config.get("ATR_MULTIPLIER_MIN", 1.5)
-        atr_multiplier_max = config.get("ATR_MULTIPLIER_MAX", 10.0)
-        atr_multiplier_step = config.get("ATR_MULTIPLIER_STEP", 0.2)
+        # Log volume parameter ranges
+        ema_periods = config.get("EMA_PERIODS", [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+        rvol_thresholds = config.get(
+            "RVOL_THRESHOLDS", [1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0]
+        )
+        volume_lookbacks = config.get("VOLUME_LOOKBACKS", [10, 15, 20])
 
         # Calculate expected combinations
-        length_count = atr_length_max - atr_length_min + 1
-        multiplier_count = int(
-            (atr_multiplier_max - atr_multiplier_min) / atr_multiplier_step
+        expected_combinations = (
+            len(ema_periods) * len(rvol_thresholds) * len(volume_lookbacks)
         )
-        expected_combinations = length_count * multiplier_count
 
-        log(f"ATR parameter ranges:", "info")
-        log(
-            f"  ATR Length: {atr_length_min} to {atr_length_max} ({length_count} values)",
-            "info",
-        )
-        log(
-            f"  ATR Multiplier: {atr_multiplier_min} to {atr_multiplier_max} step {atr_multiplier_step} ({multiplier_count} values)",
-            "info",
-        )
+        log(f"Volume parameter ranges:", "info")
+        log(f"  EMA Periods: {config.get('EMA_PERIODS', [])}", "info")
+        log(f"  RVOL Thresholds: {config.get('RVOL_THRESHOLDS', [])}", "info")
+        log(f"  Volume Lookbacks: {config.get('VOLUME_LOOKBACKS', [])}", "info")
         log(f"  Expected combinations: {expected_combinations}", "info")
 
         # Execute the parameter sweep
-        portfolio_results, sweep_stats = sweep_engine.execute_atr_parameter_sweep(
+        portfolio_results, sweep_stats = sweep_engine.execute_volume_parameter_sweep(
             ticker,
             ma_config,
             log,
@@ -152,7 +155,7 @@ def execute_atr_analysis_for_ticker(
         )
         if not is_valid:
             log(
-                f"ATR sweep validation failed for {ticker}: {len(validation_errors)} errors",
+                f"Volume sweep validation failed for {ticker}: {len(validation_errors)} errors",
                 "error",
             )
             for error in validation_errors[:3]:  # Log first 3 errors
@@ -161,7 +164,7 @@ def execute_atr_analysis_for_ticker(
 
         # Log final statistics
         analysis_duration = time.time() - analysis_start_time
-        log(f"=== ATR analysis completed for {ticker} ===", "info")
+        log(f"=== Volume analysis completed for {ticker} ===", "info")
         log(f"  Total portfolios generated: {len(portfolio_results)}", "info")
         log(f"  Analysis duration: {analysis_duration:.2f}s", "info")
         log(
@@ -180,21 +183,21 @@ def execute_atr_analysis_for_ticker(
         return portfolio_results
 
     except Exception as e:
-        log(f"ATR analysis failed for {ticker}: {str(e)}", "error")
+        log(f"Volume analysis failed for {ticker}: {str(e)}", "error")
         import traceback
 
         log(f"Error details: {traceback.format_exc()}", "error")
         return []
 
 
-def export_atr_portfolios(
+def export_volume_portfolios(
     portfolios: List[Dict[str, Any]],
     ticker: str,
     config: CacheConfig,
     log: callable,
 ) -> bool:
     """
-    Export ATR portfolios to CSV with _ATR suffix naming.
+    Export volume portfolios to CSV with _VOLUME suffix naming.
 
     Args:
         portfolios: List of portfolio dictionaries
@@ -235,9 +238,9 @@ def export_atr_portfolios(
         )
         sorted_portfolios = sort_portfolios(filtered_portfolios, sort_by, sort_asc)
 
-        # Create filename with _ATR suffix
+        # Create filename with _VOLUME suffix
         strategy_type = "SMA" if config.get("USE_SMA", True) else "EMA"
-        filename = f"{ticker}_D_{strategy_type}_{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}_ATR.csv"
+        filename = f"{ticker}_D_{strategy_type}_{config['SHORT_WINDOW']}_{config['LONG_WINDOW']}_VOLUME.csv"
 
         # Determine export directory
         base_dir = config.get("BASE_DIR", ".")
@@ -254,11 +257,7 @@ def export_atr_portfolios(
         sample_portfolio = sorted_portfolios[0]
         detected_schema = schema_transformer.detect_schema_type(sample_portfolio)
 
-        if detected_schema != SchemaType.ATR_EXTENDED:
-            log(
-                f"Warning: Expected ATR Extended schema, detected {detected_schema}",
-                "warning",
-            )
+        log(f"Detected portfolio schema: {detected_schema}", "info")
 
         # Convert duration columns to strings for CSV compatibility
         # Convert to pandas first for easier duration handling, then back to polars
@@ -285,19 +284,19 @@ def export_atr_portfolios(
         portfolios_df.write_csv(export_path)
 
         log(
-            f"Exported {len(sorted_portfolios)} sorted ATR portfolios to {export_path}",
+            f"Exported {len(sorted_portfolios)} sorted volume portfolios to {export_path}",
             "info",
         )
         return True
 
     except Exception as e:
-        log(f"Failed to export ATR portfolios for {ticker}: {str(e)}", "error")
+        log(f"Failed to export volume portfolios for {ticker}: {str(e)}", "error")
         return False
 
 
-def run_atr_analysis(config: CacheConfig = None) -> bool:
+def run_volume_analysis(config: CacheConfig = None) -> bool:
     """
-    Run ATR trailing stop parameter sensitivity analysis.
+    Run volume-based exit parameter sensitivity analysis.
 
     Args:
         config: Configuration dictionary (uses default_config if None)
@@ -309,37 +308,31 @@ def run_atr_analysis(config: CacheConfig = None) -> bool:
         config = default_config.copy()
 
     with logging_context(
-        module_name="ma_cross_atr", log_file="3_get_atr_stop_portfolios.log"
+        module_name="ma_cross_volume", log_file="3_get_volume_stop_portfolios.log"
     ) as log:
-        log("=== ATR Trailing Stop Parameter Sensitivity Analysis ===", "info")
+        log("=== Volume-Based Exit Parameter Sensitivity Analysis ===", "info")
         log(
-            f"Configuration: MA Cross SMA({config['SHORT_WINDOW']}/{config['LONG_WINDOW']}) + ATR Trailing Stops",
+            f"Configuration: MA Cross SMA({config['SHORT_WINDOW']}/{config['LONG_WINDOW']}) + Volume Exits",
             "info",
         )
 
         # Calculate and log target combinations dynamically
-        atr_length_min = config.get("ATR_LENGTH_MIN", 2)
-        atr_length_max = config.get("ATR_LENGTH_MAX", 21)
-        atr_multiplier_min = config.get("ATR_MULTIPLIER_MIN", 1.5)
-        atr_multiplier_max = config.get("ATR_MULTIPLIER_MAX", 10.0)
-        atr_multiplier_step = config.get("ATR_MULTIPLIER_STEP", 0.2)
+        ema_periods = config.get("EMA_PERIODS", [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+        rvol_thresholds = config.get(
+            "RVOL_THRESHOLDS", [1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0]
+        )
+        volume_lookbacks = config.get("VOLUME_LOOKBACKS", [10, 15, 20])
 
-        length_count = atr_length_max - atr_length_min + 1
-        multiplier_count = int(
-            (atr_multiplier_max - atr_multiplier_min) / atr_multiplier_step
-        )
-        target_combinations = length_count * multiplier_count
+        ema_count = len(ema_periods)
+        rvol_count = len(rvol_thresholds)
+        lookback_count = len(volume_lookbacks)
+        target_combinations = ema_count * rvol_count * lookback_count
 
+        log(f"EMA Periods: {ema_periods} ({ema_count} values)", "info")
+        log(f"RVOL Thresholds: {rvol_thresholds} ({rvol_count} values)", "info")
+        log(f"Volume Lookbacks: {volume_lookbacks} ({lookback_count} values)", "info")
         log(
-            f"ATR Length Range: {atr_length_min}-{atr_length_max} ({length_count} values)",
-            "info",
-        )
-        log(
-            f"ATR Multiplier Range: {atr_multiplier_min}-{atr_multiplier_max} step {atr_multiplier_step} ({multiplier_count} values)",
-            "info",
-        )
-        log(
-            f"Target combinations: {target_combinations} ({length_count} lengths × {multiplier_count} multipliers)",
+            f"Target combinations: {target_combinations} ({ema_count} EMAs × {rvol_count} thresholds × {lookback_count} lookbacks)",
             "info",
         )
 
@@ -356,23 +349,23 @@ def run_atr_analysis(config: CacheConfig = None) -> bool:
         for i, ticker in enumerate(tickers):
             log(f"\n--- Processing ticker {i+1}/{len(tickers)}: {ticker} ---", "info")
 
-            # Execute ATR analysis for this ticker
-            ticker_portfolios = execute_atr_analysis_for_ticker(ticker, config, log)
+            # Execute volume analysis for this ticker
+            ticker_portfolios = execute_volume_analysis_for_ticker(ticker, config, log)
 
             if ticker_portfolios:
                 total_portfolios += len(ticker_portfolios)
 
                 # Export results
-                if export_atr_portfolios(ticker_portfolios, ticker, config, log):
+                if export_volume_portfolios(ticker_portfolios, ticker, config, log):
                     successful_exports += 1
-                    log(f"Successfully exported ATR results for {ticker}", "info")
+                    log(f"Successfully exported volume results for {ticker}", "info")
                 else:
-                    log(f"Failed to export ATR results for {ticker}", "error")
+                    log(f"Failed to export volume results for {ticker}", "error")
             else:
-                log(f"No ATR portfolios generated for {ticker}", "warning")
+                log(f"No volume portfolios generated for {ticker}", "warning")
 
         # Final summary
-        log("\n=== ATR Analysis Summary ===", "info")
+        log("\n=== Volume Analysis Summary ===", "info")
         log(f"Tickers processed: {len(tickers)}", "info")
         log(f"Total portfolios generated: {total_portfolios}", "info")
         log(f"Successful exports: {successful_exports}/{len(tickers)}", "info")
@@ -394,5 +387,5 @@ def run_atr_analysis(config: CacheConfig = None) -> bool:
 
 if __name__ == "__main__":
     run_from_command_line(
-        run_atr_analysis, default_config, "ATR Trailing Stop Parameter Analysis"
+        run_volume_analysis, default_config, "Volume-Based Exit Parameter Analysis"
     )

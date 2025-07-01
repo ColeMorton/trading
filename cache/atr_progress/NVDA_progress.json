@@ -1,0 +1,12 @@
+{
+  "ticker": "NVDA",
+  "total_combinations": 840,
+  "completed_combinations": 840,
+  "successful_combinations": 840,
+  "failed_combinations": 0,
+  "start_time": 1751404936.953399,
+  "last_update_time": 1751405537.341436,
+  "estimated_completion_time": 1751405537.341436,
+  "current_chunk": 17,
+  "total_chunks": 17
+}

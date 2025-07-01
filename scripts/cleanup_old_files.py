@@ -5,6 +5,11 @@ Cleanup script to remove CSV and JSON files older than specified age.
 IMPORTANT: This script can remove important analysis data if not configured properly.
 Always run with --dry-run first to see what would be deleted.
 
+ENVIRONMENT DETECTION:
+- Interactive environments: Prompts for confirmation before deletion
+- Non-interactive (CI/pre-commit): Automatically runs in --dry-run mode for safety
+- Use --auto-confirm to skip confirmation in automated environments
+
 Protected by default:
 - Root directory files (script only scans csv/ and json/ subdirectories)
 - Dot directories (.claude, .git, etc.) - completely skipped
@@ -24,6 +29,29 @@ import sys
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
+
+
+def is_interactive_environment() -> bool:
+    """Check if we're running in an interactive environment."""
+    # Check if stdin is a TTY (terminal)
+    if not sys.stdin.isatty():
+        return False
+
+    # Check for common non-interactive environment variables
+    non_interactive_vars = [
+        "CI",  # Generic CI indicator
+        "GITHUB_ACTIONS",  # GitHub Actions
+        "PRE_COMMIT",  # Pre-commit hook
+        "BUILD_ID",  # Jenkins
+        "TRAVIS",  # Travis CI
+        "CIRCLECI",  # Circle CI
+    ]
+
+    for var in non_interactive_vars:
+        if os.environ.get(var):
+            return False
+
+    return True
 
 
 def load_ignore_patterns(base_path: Path) -> list:
@@ -171,6 +199,11 @@ def main():
         action="store_true",
         help="Show what would be deleted without actually deleting",
     )
+    parser.add_argument(
+        "--auto-confirm",
+        action="store_true",
+        help="Skip interactive confirmation (for automated environments)",
+    )
 
     args = parser.parse_args()
 
@@ -183,10 +216,26 @@ def main():
         print("⚠️  WARNING: You are about to permanently delete files!")
         print("⚠️  This action cannot be undone.")
         print("⚠️  Consider running with --dry-run first to preview changes.")
-        response = input("\nContinue? (yes/no): ").lower().strip()
-        if response not in ["yes", "y"]:
-            print("Cleanup cancelled.")
-            sys.exit(0)
+
+        # Check if we need confirmation
+        if args.auto_confirm:
+            print("✅ Auto-confirmed (--auto-confirm flag)")
+        elif not is_interactive_environment():
+            print(
+                "🔧 Non-interactive environment detected - running in dry-run mode for safety"
+            )
+            print("   Use --auto-confirm flag to skip this safety check")
+            args.dry_run = True  # Force dry-run in non-interactive environments
+        else:
+            # Interactive environment - prompt for confirmation
+            try:
+                response = input("\nContinue? (yes/no): ").lower().strip()
+                if response not in ["yes", "y"]:
+                    print("Cleanup cancelled.")
+                    sys.exit(0)
+            except (EOFError, KeyboardInterrupt):
+                print("\nCleanup cancelled.")
+                sys.exit(0)
 
     try:
         removed_count, total_size = cleanup_old_files(

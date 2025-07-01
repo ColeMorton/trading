@@ -155,7 +155,7 @@ repos:
     hooks:
       - id: cleanup-old-files
         name: Cleanup old CSV/JSON files
-        entry: python scripts/cleanup_old_files.py
+        entry: python scripts/cleanup_old_files.py --dry-run
         language: system
         pass_filenames: false
         always_run: true
