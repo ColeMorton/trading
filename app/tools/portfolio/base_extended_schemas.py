@@ -32,8 +32,10 @@ class SchemaType(Enum):
     """Enumeration of portfolio schema types."""
 
     BASE = "base"  # 58-column schema without Allocation/Stop Loss
-    EXTENDED = "extended"  # 60-column schema with Allocation/Stop Loss
-    FILTERED = "filtered"  # 61-column schema with Metric Type prepended
+    EXTENDED = "extended"  # 62-column schema with Allocation/Stop Loss
+    ATR_EXTENDED = "atr_extended"  # 64-column schema with ATR Stop Length/Multiplier
+    FILTERED = "filtered"  # 63-column schema with Metric Type prepended
+    ATR_FILTERED = "atr_filtered"  # 65-column schema with Metric Type + ATR fields
     UNKNOWN = "unknown"  # Unknown or invalid schema
 
 
@@ -544,6 +546,120 @@ class ExtendedPortfolioSchema:
         }
 
 
+class ATRExtendedPortfolioSchema:
+    """
+    ATR Extended 64-column portfolio CSV schema definition.
+    
+    Extends the Extended schema with ATR-specific fields for trailing stop analysis.
+    Adds ATR Stop Length and ATR Stop Multiplier as columns 59-60, maintaining 
+    Allocation [%], Stop Loss [%], and position dates as columns 61-64.
+    """
+    
+    # ATR Extended column definitions (64 columns)
+    COLUMNS: List[ColumnDefinition] = [
+        # Start with all base schema columns (58 columns)
+        *BasePortfolioSchema.COLUMNS,
+        # Add ATR-specific columns before allocation/stop loss
+        ColumnDefinition(
+            "ATR Stop Length",
+            ColumnDataType.INTEGER,
+            nullable=True,
+            description="ATR period length for trailing stop calculation (e.g., 14, 20)",
+        ),
+        ColumnDefinition(
+            "ATR Stop Multiplier",
+            ColumnDataType.FLOAT,
+            nullable=True,
+            description="ATR multiplier for trailing stop distance (e.g., 2.0, 2.5)",
+        ),
+        # Add the extended schema columns at the end (4 columns)
+        ColumnDefinition(
+            "Allocation [%]",
+            ColumnDataType.PERCENTAGE,
+            nullable=True,
+            description="Portfolio allocation percentage for this position",
+        ),
+        ColumnDefinition(
+            "Stop Loss [%]",
+            ColumnDataType.PERCENTAGE,
+            nullable=True,
+            description="Stop loss threshold as percentage",
+        ),
+        ColumnDefinition(
+            "Last Position Open Date",
+            ColumnDataType.STRING,
+            nullable=True,
+            description="Date when the last position was opened (YYYY-MM-DD format)",
+        ),
+        ColumnDefinition(
+            "Last Position Close Date",
+            ColumnDataType.STRING,
+            nullable=True,
+            description="Date when the last position was closed (YYYY-MM-DD format)",
+        ),
+    ]
+    
+    @classmethod
+    def get_column_names(cls) -> List[str]:
+        """Get ordered list of ATR extended column names."""
+        return [col.name for col in cls.COLUMNS]
+    
+    @classmethod
+    def get_column_count(cls) -> int:
+        """Get the ATR extended column count (should always be 64)."""
+        return len(cls.COLUMNS)
+    
+    @classmethod
+    def get_column_types(cls) -> Dict[str, ColumnDataType]:
+        """Get mapping of column names to their data types."""
+        return {col.name: col.data_type for col in cls.COLUMNS}
+    
+    @classmethod
+    def get_required_columns(cls) -> List[str]:
+        """Get list of non-nullable column names."""
+        return [col.name for col in cls.COLUMNS if not col.nullable]
+    
+    @classmethod
+    def get_column_descriptions(cls) -> Dict[str, str]:
+        """Get mapping of column names to their descriptions."""
+        return {col.name: col.description for col in cls.COLUMNS}
+    
+    @classmethod
+    def validate_column_order(cls, columns: List[str]) -> bool:
+        """
+        Validate that columns are in the correct ATR extended order.
+        
+        Args:
+            columns: List of column names to validate
+            
+        Returns:
+            True if columns match canonical order, False otherwise
+        """
+        canonical_names = cls.get_column_names()
+        if len(columns) != len(canonical_names):
+            return False
+        return columns == canonical_names
+    
+    @classmethod
+    def validate_column_completeness(cls, columns: List[str]) -> Dict[str, List[str]]:
+        """
+        Validate that all ATR extended columns are present.
+        
+        Args:
+            columns: List of column names to validate
+            
+        Returns:
+            Dictionary with 'missing' and 'extra' column lists
+        """
+        canonical_names = set(cls.get_column_names())
+        provided_names = set(columns)
+        
+        return {
+            "missing": list(canonical_names - provided_names),
+            "extra": list(provided_names - canonical_names),
+        }
+
+
 class FilteredPortfolioSchema:
     """
     Filtered portfolio schema with Metric Type as first column.
@@ -564,6 +680,26 @@ class FilteredPortfolioSchema:
         return 1 + ExtendedPortfolioSchema.get_column_count()
 
 
+class ATRFilteredPortfolioSchema:
+    """
+    ATR Filtered portfolio schema with Metric Type as first column.
+    
+    This is used for portfolios_filtered directories where Metric Type
+    is prepended as the first column for ATR portfolios (65 columns total).
+    """
+    
+    @classmethod
+    def get_column_names(cls) -> List[str]:
+        """Get ordered list of ATR filtered schema column names."""
+        # Start with Metric Type, then add all ATR Extended schema columns
+        return ["Metric Type"] + ATRExtendedPortfolioSchema.get_column_names()
+    
+    @classmethod
+    def get_column_count(cls) -> int:
+        """Get the ATR filtered column count (should be 65)."""
+        return 1 + ATRExtendedPortfolioSchema.get_column_count()
+
+
 class SchemaTransformer:
     """Comprehensive utilities for transforming between schema versions."""
 
@@ -580,24 +716,53 @@ class SchemaTransformer:
         num_columns = len(portfolio)
         columns = list(portfolio.keys())
 
-        # Check for filtered schema (59+ columns with Metric Type first)
-        if num_columns >= 59 and "Metric Type" in columns:
+        # Check for ATR filtered schema (65 columns with Metric Type first and ATR fields)
+        if (
+            num_columns >= 65 
+            and "Metric Type" in columns
+            and "ATR Stop Length" in columns
+            and "ATR Stop Multiplier" in columns
+        ):
+            return SchemaType.ATR_FILTERED
+
+        # Check for filtered schema (63 columns with Metric Type first, no ATR fields)
+        if (
+            num_columns >= 59 
+            and "Metric Type" in columns
+            and "ATR Stop Length" not in columns
+            and "ATR Stop Multiplier" not in columns
+        ):
             return SchemaType.FILTERED
 
-        # Check for extended schema (58+ columns with Allocation, Stop Loss, and potentially Last Position Open Date)
+        # Check for ATR extended schema (64 columns with ATR fields, no Metric Type)
         if (
-            num_columns >= 58
+            num_columns >= 64
+            and "ATR Stop Length" in columns
+            and "ATR Stop Multiplier" in columns
             and "Allocation [%]" in columns
             and "Stop Loss [%]" in columns
             and "Metric Type" not in columns
         ):
+            return SchemaType.ATR_EXTENDED
+
+        # Check for extended schema (62 columns with Allocation, Stop Loss, no ATR fields)
+        if (
+            num_columns >= 58
+            and "Allocation [%]" in columns
+            and "Stop Loss [%]" in columns
+            and "ATR Stop Length" not in columns
+            and "ATR Stop Multiplier" not in columns
+            and "Metric Type" not in columns
+        ):
             return SchemaType.EXTENDED
 
-        # Check for base schema (56+ columns without Allocation, Stop Loss, or Metric Type)
+        # Check for base schema (58 columns without Allocation, Stop Loss, ATR fields, or Metric Type)
         if (
             num_columns >= 56
             and "Allocation [%]" not in columns
             and "Stop Loss [%]" not in columns
+            and "ATR Stop Length" not in columns
+            and "ATR Stop Multiplier" not in columns
             and "Metric Type" not in columns
         ):
             return SchemaType.BASE
@@ -669,6 +834,8 @@ class SchemaTransformer:
             "Stop Loss [%]": None,
             "Last Position Open Date": None,
             "Last Position Close Date": None,
+            "ATR Stop Length": None,
+            "ATR Stop Multiplier": None,
             "Metric Type": "Most Total Return [%]",
         }
 
@@ -725,6 +892,69 @@ class SchemaTransformer:
 
         return extended
 
+    def transform_to_atr_extended(
+        self,
+        portfolio: Dict[str, Any],
+        atr_stop_length: Optional[int] = None,
+        atr_stop_multiplier: Optional[float] = None,
+        allocation_pct: Optional[float] = None,
+        stop_loss_pct: Optional[float] = None,
+        last_position_open_date: Optional[str] = None,
+        last_position_close_date: Optional[str] = None,
+        force_analysis_defaults: bool = False,
+    ) -> Dict[str, Any]:
+        """
+        Transform portfolio to ATR extended schema.
+
+        Args:
+            portfolio: Source portfolio data
+            atr_stop_length: ATR period length value
+            atr_stop_multiplier: ATR multiplier value
+            allocation_pct: Allocation percentage value
+            stop_loss_pct: Stop loss percentage value
+            last_position_open_date: Last position open date (YYYY-MM-DD format)
+            last_position_close_date: Last position close date (YYYY-MM-DD format)
+            force_analysis_defaults: Force analysis export defaults (None for allocation/stop loss/position dates)
+
+        Returns:
+            Portfolio with ATR extended schema (64 columns)
+        """
+        defaults = self._get_default_values(portfolio)
+
+        # Start with defaults, then override with actual data
+        atr_extended = {}
+        for col in ATRExtendedPortfolioSchema.get_column_names():
+            # For analysis exports, force allocation/stop loss/position dates to None regardless of source data
+            if force_analysis_defaults and col in [
+                "Allocation [%]",
+                "Stop Loss [%]",
+                "Last Position Open Date",
+                "Last Position Close Date",
+            ]:
+                atr_extended[col] = None
+            elif col in portfolio:
+                atr_extended[col] = portfolio[col]
+            else:
+                atr_extended[col] = defaults.get(col)
+
+        # Set ATR values if explicitly provided
+        if atr_stop_length is not None:
+            atr_extended["ATR Stop Length"] = atr_stop_length
+        if atr_stop_multiplier is not None:
+            atr_extended["ATR Stop Multiplier"] = atr_stop_multiplier
+        
+        # Set other values if explicitly provided (overrides force_analysis_defaults)
+        if allocation_pct is not None:
+            atr_extended["Allocation [%]"] = allocation_pct
+        if stop_loss_pct is not None:
+            atr_extended["Stop Loss [%]"] = stop_loss_pct
+        if last_position_open_date is not None:
+            atr_extended["Last Position Open Date"] = last_position_open_date
+        if last_position_close_date is not None:
+            atr_extended["Last Position Close Date"] = last_position_close_date
+
+        return atr_extended
+
     def transform_to_filtered(
         self,
         portfolio: Dict[str, Any],
@@ -766,11 +996,60 @@ class SchemaTransformer:
 
         return filtered
 
+    def transform_to_atr_filtered(
+        self,
+        portfolio: Dict[str, Any],
+        metric_type: str = "Most Total Return [%]",
+        atr_stop_length: Optional[int] = None,
+        atr_stop_multiplier: Optional[float] = None,
+        allocation_pct: Optional[float] = None,
+        stop_loss_pct: Optional[float] = None,
+        last_position_open_date: Optional[str] = None,
+        last_position_close_date: Optional[str] = None,
+        force_analysis_defaults: bool = False,
+    ) -> Dict[str, Any]:
+        """
+        Transform portfolio to ATR filtered schema.
+
+        Args:
+            portfolio: Source portfolio data
+            metric_type: Metric type value
+            atr_stop_length: ATR period length value
+            atr_stop_multiplier: ATR multiplier value
+            allocation_pct: Allocation percentage value
+            stop_loss_pct: Stop loss percentage value
+            last_position_open_date: Last position open date (YYYY-MM-DD format)
+            last_position_close_date: Last position close date (YYYY-MM-DD format)
+            force_analysis_defaults: Force analysis export defaults (None for allocation/stop loss/position dates)
+
+        Returns:
+            Portfolio with ATR filtered schema (65 columns)
+        """
+        # First transform to ATR extended with analysis defaults if needed
+        atr_extended = self.transform_to_atr_extended(
+            portfolio,
+            atr_stop_length,
+            atr_stop_multiplier,
+            allocation_pct,
+            stop_loss_pct,
+            last_position_open_date,
+            last_position_close_date,
+            force_analysis_defaults,
+        )
+
+        # Create ATR filtered with metric type first
+        atr_filtered = {"Metric Type": metric_type}
+        atr_filtered.update(atr_extended)
+
+        return atr_filtered
+
     def normalize_to_schema(
         self,
         portfolio: Dict[str, Any],
         target_schema: SchemaType,
         metric_type: str = "Most Total Return [%]",
+        atr_stop_length: Optional[int] = None,
+        atr_stop_multiplier: Optional[float] = None,
         allocation_pct: Optional[float] = None,
         stop_loss_pct: Optional[float] = None,
         last_position_open_date: Optional[str] = None,
@@ -784,6 +1063,8 @@ class SchemaTransformer:
             portfolio: Source portfolio data
             target_schema: Target schema type
             metric_type: Metric type for filtered schema
+            atr_stop_length: ATR period length value
+            atr_stop_multiplier: ATR multiplier value
             allocation_pct: Allocation percentage
             stop_loss_pct: Stop loss percentage
             last_position_open_date: Last position open date (YYYY-MM-DD format)
@@ -814,10 +1095,35 @@ class SchemaTransformer:
                 force_analysis_defaults,
             )
 
+        elif target_schema == SchemaType.ATR_EXTENDED:
+            return self.transform_to_atr_extended(
+                portfolio,
+                atr_stop_length,
+                atr_stop_multiplier,
+                allocation_pct,
+                stop_loss_pct,
+                last_position_open_date,
+                last_position_close_date,
+                force_analysis_defaults,
+            )
+
         elif target_schema == SchemaType.FILTERED:
             return self.transform_to_filtered(
                 portfolio,
                 metric_type,
+                allocation_pct,
+                stop_loss_pct,
+                last_position_open_date,
+                last_position_close_date,
+                force_analysis_defaults,
+            )
+
+        elif target_schema == SchemaType.ATR_FILTERED:
+            return self.transform_to_atr_filtered(
+                portfolio,
+                metric_type,
+                atr_stop_length,
+                atr_stop_multiplier,
                 allocation_pct,
                 stop_loss_pct,
                 last_position_open_date,
@@ -847,8 +1153,12 @@ class SchemaTransformer:
             expected_columns = BasePortfolioSchema.get_column_names()
         elif expected_schema == SchemaType.EXTENDED:
             expected_columns = ExtendedPortfolioSchema.get_column_names()
+        elif expected_schema == SchemaType.ATR_EXTENDED:
+            expected_columns = ATRExtendedPortfolioSchema.get_column_names()
         elif expected_schema == SchemaType.FILTERED:
             expected_columns = FilteredPortfolioSchema.get_column_names()
+        elif expected_schema == SchemaType.ATR_FILTERED:
+            expected_columns = ATRFilteredPortfolioSchema.get_column_names()
         else:
             return False, [f"Unknown schema type: {expected_schema}"]
 
@@ -924,19 +1234,33 @@ class SchemaTransformer:
         if num_columns >= 59 and len(columns) > 0 and columns[0] == "Metric Type":
             return "filtered"
 
-        # Check for extended schema (58+ columns with Allocation, Stop Loss, and potentially Last Position Open Date)
+        # Check for ATR extended schema (64+ columns with ATR fields, Allocation, Stop Loss)
+        if (
+            num_columns >= 64
+            and "ATR Stop Length" in columns
+            and "ATR Stop Multiplier" in columns
+            and "Allocation [%]" in columns
+            and "Stop Loss [%]" in columns
+        ):
+            return "atr_extended"
+
+        # Check for extended schema (58+ columns with Allocation, Stop Loss, no ATR fields)
         if (
             num_columns >= 58
             and "Allocation [%]" in columns
             and "Stop Loss [%]" in columns
+            and "ATR Stop Length" not in columns
+            and "ATR Stop Multiplier" not in columns
         ):
             return "extended"
 
-        # Check for base schema (56+ columns without Allocation or Stop Loss)
+        # Check for base schema (56+ columns without Allocation, Stop Loss, or ATR fields)
         if (
             num_columns >= 56
             and "Allocation [%]" not in columns
             and "Stop Loss [%]" not in columns
+            and "ATR Stop Length" not in columns
+            and "ATR Stop Multiplier" not in columns
         ):
             return "base"
 
@@ -953,7 +1277,9 @@ REQUIRED_COLUMNS = ExtendedPortfolioSchema.get_required_columns()
 CanonicalPortfolioSchema = ExtendedPortfolioSchema
 BASE_COLUMN_COUNT = BasePortfolioSchema.get_column_count()
 EXTENDED_COLUMN_COUNT = ExtendedPortfolioSchema.get_column_count()
+ATR_EXTENDED_COLUMN_COUNT = ATRExtendedPortfolioSchema.get_column_count()
 FILTERED_COLUMN_COUNT = FilteredPortfolioSchema.get_column_count()
+ATR_FILTERED_COLUMN_COUNT = ATRFilteredPortfolioSchema.get_column_count()
 
 # Risk metrics subset for validation
 RISK_METRICS = [
@@ -981,6 +1307,14 @@ assert (
 assert (
     FILTERED_COLUMN_COUNT == 63
 ), f"Filtered column count mismatch: expected 63, got {FILTERED_COLUMN_COUNT}"
+
+assert (
+    ATR_EXTENDED_COLUMN_COUNT == 64
+), f"ATR Extended column count mismatch: expected 64, got {ATR_EXTENDED_COLUMN_COUNT}"
+
+assert (
+    ATR_FILTERED_COLUMN_COUNT == 65
+), f"ATR Filtered column count mismatch: expected 65, got {ATR_FILTERED_COLUMN_COUNT}"
 
 assert all(
     risk_metric in CANONICAL_COLUMN_NAMES for risk_metric in RISK_METRICS

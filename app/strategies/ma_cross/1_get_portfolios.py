@@ -72,14 +72,14 @@ from app.tools.strategy_utils import filter_portfolios_by_signal, get_strategy_t
 # Config management is now handled by ConfigService
 
 CONFIG: Config = {
-    "TICKER": "META",
-    #     "TICKER": [
-    #     "NBIX", "LVS", "CRWD", "SWKS", "TT", "USB", "ALGN", "AMZN", "SMCI", "SIRI",
-    #     "HUBB", "TECH", "KKR", "DOV", "TROW", "AMP", "TTD", "ROKU", "AXON", "UNP",
-    #     "META", "RL", "RVTY", "MET", "ZION", "NTAP", "FTNT", "APTV", "MTD", "XYL", "WAT"
-    # ],
-    # Load tickers from JSON file
-    # "TICKER": json.load(open(os.path.join(get_project_root(), "app/ma_cross/ticker_lists/portfolio.json"))),
+    "TICKER": [
+    "QBTS", "APTV", "HIMS", "GDDY", "XYL", "DXCM", "WBA", "TT", "GM", "FTNT", "RGTI", "QUBT"
+],
+#     "TICKER": [
+#     "HWM", "NFLX", "NVDA", "TPR", "RTX", "AMD", "FFIV", "TEM", "BLDR",  # Main section
+#     "SMCI", "QCOM", "SCHW", "DOV", "VRSN", "RJF",                       # CURRENT
+#     "MTD", "GME"                                                       # OUTGOING
+# ],
     # "TICKER_2": 'AVGO',
     # "WINDOWS": 120,
     "WINDOWS": 89,
@@ -89,14 +89,14 @@ CONFIG: Config = {
     # "USE_SCANNER": True,
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver
     "REFRESH": True,
-    # "STRATEGY_TYPES": ["SMA", "EMA"],
-    "STRATEGY_TYPES": ["SMA"],
+    "STRATEGY_TYPES": ["SMA", "EMA"],
+    # "STRATEGY_TYPES": ["SMA"],
     "DIRECTION": "Long",
     "USE_HOURLY": False,
     "USE_YEARS": False,
     "YEARS": 15,
     "USE_SYNTHETIC": False,
-    "USE_CURRENT": False,
+    "USE_CURRENT": True,
     "MINIMUMS": {
         "WIN_RATE": 0.5,
         "TRADES": 44,

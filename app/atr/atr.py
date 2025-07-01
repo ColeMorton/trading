@@ -36,7 +36,7 @@ class ATRConfig(TypedDict):
 DEFAULT_CONFIG: ATRConfig = {
     "USE_HOURLY": False,  # Set to False for daily data
     "USE_SYNTHETIC": False,  # Toggle between synthetic and original ticker
-    "TICKER_1": "MSTY",  # Ticker for X to USD
+    "TICKER_1": "AMD",  # Ticker for X to USD
     "TICKER_2": "BTC-USD",  # Ticker for Y to USD
 }
 

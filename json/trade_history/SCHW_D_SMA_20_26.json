@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-27T09:39:09.155485",
+    "export_timestamp": "2025-07-01T08:41:00.584237",
     "strategy_config": {
       "ticker": "SCHW",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 115.53133413599471,
+      "total_return": 117.8765472652552,
       "total_trades": "228",
       "win_rate": 0.5394736842105263,
-      "sharpe_ratio": 0.6786359425949394,
+      "sharpe_ratio": 0.6806331118885981,
       "max_drawdown": -0.6382917871006042
     }
   },
@@ -4791,10 +4791,10 @@
       "Entry Timestamp": "2025-06-24 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 89.31999969482422,
-      "Avg Exit Price": 89.44000244140625,
+      "Avg Exit Price": 91.23999786376953,
       "Size": 1302.8994963672603,
-      "PnL": 39.97653546651418,
-      "Return": 0.000343514856605974,
+      "PnL": 2385.189664727004,
+      "Return": 0.0204957252071797,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -4802,10 +4802,10 @@
       "Entry_Month": "2025-06",
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
-      "Trade_Type": "Breakeven",
-      "Cumulative_PnL": 115531.33413599474,
+      "Trade_Type": "Winner",
+      "Cumulative_PnL": 117876.54726525523,
       "Trade_Number": 228,
-      "Rolling_Avg_Return": 0.0523427875948095,
+      "Rolling_Avg_Return": 0.05637322966492425,
       "Rolling_Win_Rate": 0.8
     }
   ],
@@ -13001,15 +13001,15 @@
       "Avg Entry Price": 89.31999969482422,
       "Entry Fees": 116.37498261789733,
       "Exit Timestamp": null,
-      "Avg Exit Price": 89.44000244140625,
+      "Avg Exit Price": 91.23999786376953,
       "Exit Fees": 0.0,
-      "PnL": 39.97653546651418,
-      "Return": 0.000343514856605974,
+      "PnL": 2385.189664727004,
+      "Return": 0.0204957252071797,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
       "Duration_Days": null,
-      "Position_Type": "Breakeven"
+      "Position_Type": "Winner"
     }
   ],
   "analytics": {

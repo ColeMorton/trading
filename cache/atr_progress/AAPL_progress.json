@@ -1,0 +1,12 @@
+{
+  "ticker": "AAPL",
+  "total_combinations": 6,
+  "completed_combinations": 6,
+  "successful_combinations": 0,
+  "failed_combinations": 6,
+  "start_time": 1751340336.610568,
+  "last_update_time": 1751340343.916959,
+  "estimated_completion_time": 1751340343.916959,
+  "current_chunk": 2,
+  "total_chunks": 2
+}

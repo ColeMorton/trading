@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-27T09:39:10.177835",
+    "export_timestamp": "2025-07-01T08:40:53.635190",
     "strategy_config": {
       "ticker": "SMCI",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 15.197277486310384,
+      "total_return": 14.626056805586586,
       "total_trades": "61",
       "win_rate": 0.5573770491803278,
-      "sharpe_ratio": 0.6803959499162017,
+      "sharpe_ratio": 0.6748357966271831,
       "max_drawdown": -0.7862813721597509
     }
   },
@@ -1282,23 +1282,23 @@
     },
     {
       "Entry Timestamp": "2025-06-25 00:00:00",
-      "Exit Timestamp": null,
+      "Exit Timestamp": "2025-06-27 00:00:00",
       "Avg Entry Price": 46.61000061035156,
-      "Avg Exit Price": 49.27000045776367,
+      "Avg Exit Price": 47.58000183105469,
       "Size": 328.74522703110944,
-      "PnL": 859.1394385076419,
-      "Return": 0.05606929441278227,
+      "PnL": 287.91875778384366,
+      "Return": 0.01879019967374165,
       "Direction": "Long",
-      "Status": "Open",
-      "Duration": null,
-      "Duration_Days": null,
+      "Status": "Closed",
+      "Duration": "2 days 00:00:00",
+      "Duration_Days": 2.0,
       "Entry_Month": "2025-06",
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
-      "Trade_Type": "Big Winner",
-      "Cumulative_PnL": 15197.277486310384,
+      "Trade_Type": "Winner",
+      "Cumulative_PnL": 14626.056805586586,
       "Trade_Number": 61,
-      "Rolling_Avg_Return": 0.03894254592059082,
+      "Rolling_Avg_Return": 0.031486726972782694,
       "Rolling_Win_Rate": 0.6
     }
   ],
@@ -2391,6 +2391,15 @@
       "Price": 46.61000061035156,
       "Fees": 15.322815232568246,
       "Side": "Buy"
+    },
+    {
+      "Order Id": 121,
+      "Column": 0,
+      "Timestamp": 4591,
+      "Size": 328.74522703110944,
+      "Price": 47.58000183105469,
+      "Fees": 15.641698504090677,
+      "Side": "Sell"
     }
   ],
   "positions": [
@@ -3481,36 +3490,36 @@
       "Entry Timestamp": "1970-01-01 00:00:00",
       "Avg Entry Price": 46.61000061035156,
       "Entry Fees": 15.322815232568246,
-      "Exit Timestamp": null,
-      "Avg Exit Price": 49.27000045776367,
-      "Exit Fees": 0.0,
-      "PnL": 859.1394385076419,
-      "Return": 0.05606929441278227,
+      "Exit Timestamp": "1970-01-01 00:00:00",
+      "Avg Exit Price": 47.58000183105469,
+      "Exit Fees": 15.641698504090677,
+      "PnL": 287.91875778384366,
+      "Return": 0.01879019967374165,
       "Direction": "Long",
-      "Status": "Open",
-      "Duration": null,
-      "Duration_Days": null,
-      "Position_Type": "Big Winner"
+      "Status": "Closed",
+      "Duration": "0 days 00:00:00.000000002",
+      "Duration_Days": 2.314814814814815e-14,
+      "Position_Type": "Winner"
     }
   ],
   "analytics": {
     "total_trades": 61,
-    "closed_trades": 60,
-    "open_trades": 1,
-    "win_rate": 55.00000000000001,
-    "avg_return": 7.966943013464088,
-    "avg_winner": 23.90681051040513,
+    "closed_trades": 61,
+    "open_trades": 0,
+    "win_rate": 55.73770491803278,
+    "avg_return": 7.867140996315074,
+    "avg_winner": 23.258934317963043,
     "avg_loser": -11.515117260574963,
     "best_trade": 117.49324182832865,
     "worst_trade": -47.79566883812328,
-    "total_pnl": 14338.138047802742,
-    "avg_trade_duration": 64.56666666666666,
-    "profit_factor": 3.1893291198174754,
+    "total_pnl": 14626.056805586586,
+    "avg_trade_duration": 63.540983606557376,
+    "profit_factor": 3.2332922144993845,
     "trade_type_distribution": {
       "Big Winner": 21,
       "Big Loser": 17,
       "Loser": 9,
-      "Winner": 7,
+      "Winner": 8,
       "Breakeven": 6
     }
   }

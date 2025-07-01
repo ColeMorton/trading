@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-27T09:39:07.878907",
+    "export_timestamp": "2025-07-01T08:40:59.324452",
     "strategy_config": {
       "ticker": "VRSN",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 59.83195074629596,
+      "total_return": 61.03265125884293,
       "total_trades": "236",
-      "win_rate": 0.5169491525423728,
-      "sharpe_ratio": 0.7121045205687361,
+      "win_rate": 0.5211864406779662,
+      "sharpe_ratio": 0.7143562879010901,
       "max_drawdown": -0.7738965496289775
     }
   },
@@ -4959,10 +4959,10 @@
       "Entry Timestamp": "2025-06-24 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 285.0299987792969,
-      "Avg Exit Price": 283.2099914550781,
+      "Avg Exit Price": 288.79998779296875,
       "Size": 214.79450789766696,
-      "PnL": -452.15045589958027,
-      "Return": -0.007385318499853678,
+      "PnL": 748.5500566473929,
+      "Return": 0.012226639405738662,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -4970,11 +4970,11 @@
       "Entry_Month": "2025-06",
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
-      "Trade_Type": "Breakeven",
-      "Cumulative_PnL": 59831.950746295974,
+      "Trade_Type": "Winner",
+      "Cumulative_PnL": 61032.65125884295,
       "Trade_Number": 236,
-      "Rolling_Avg_Return": 0.049594921448005015,
-      "Rolling_Win_Rate": 0.6
+      "Rolling_Avg_Return": 0.05351731302912348,
+      "Rolling_Win_Rate": 0.8
     }
   ],
   "orders": [
@@ -13457,15 +13457,15 @@
       "Avg Entry Price": 285.0299987792969,
       "Entry Fees": 61.22287832386792,
       "Exit Timestamp": null,
-      "Avg Exit Price": 283.2099914550781,
+      "Avg Exit Price": 288.79998779296875,
       "Exit Fees": 0.0,
-      "PnL": -452.15045589958027,
-      "Return": -0.007385318499853678,
+      "PnL": 748.5500566473929,
+      "Return": 0.012226639405738662,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
       "Duration_Days": null,
-      "Position_Type": "Breakeven"
+      "Position_Type": "Winner"
     }
   ],
   "analytics": {
