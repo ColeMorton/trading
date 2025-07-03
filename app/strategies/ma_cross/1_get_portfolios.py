@@ -73,12 +73,13 @@ from app.tools.strategy_utils import filter_portfolios_by_signal, get_strategy_t
 
 CONFIG: Config = {
     "TICKER": [
-    "QBTS", "APTV", "HIMS", "GDDY", "XYL", "DXCM", "WBA", "TT", "GM", "FTNT", "RGTI", "QUBT"
+    "BKR", "DAL", "BK", "ISRG", "IFF", "VRTX", "EXR", "TECH", "MTD", "IONQ",
+    "QBTS", "NTAP", "BIIB", "UAL", "MCHP", "VFC", "ALK", "LEG"
 ],
 #     "TICKER": [
 #     "HWM", "NFLX", "NVDA", "TPR", "RTX", "AMD", "FFIV", "TEM", "BLDR",  # Main section
 #     "SMCI", "QCOM", "SCHW", "DOV", "VRSN", "RJF",                       # CURRENT
-#     "MTD", "GME"                                                       # OUTGOING
+#     "GME"                                                       # OUTGOING
 # ],
     # "TICKER_2": 'AVGO',
     # "WINDOWS": 120,

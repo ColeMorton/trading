@@ -33,9 +33,9 @@ from app.tools.project_utils import get_project_root
 
 # Volume-specific configuration based on proven MA Cross settings
 default_config: CacheConfig = {
-    "TICKER": "NVDA",
-    "SHORT_WINDOW": 53,  # Proven MA Cross entry configuration
-    "LONG_WINDOW": 64,  # Proven MA Cross entry configuration
+    "TICKER": "AMD",
+    "SHORT_WINDOW": 19,  # Proven MA Cross entry configuration
+    "LONG_WINDOW": 29,  # Proven MA Cross entry configuration
     "BASE_DIR": get_project_root(),
     "USE_SMA": True,
     "REFRESH": True,
@@ -48,19 +48,7 @@ default_config: CacheConfig = {
     "RSI_THRESHOLD": 52,
     # Volume Exit Parameter Configuration
     # Exit Criteria: RVOL(volume_Lookback) >= X AND Price Close < EMA(N)
-    "EMA_PERIODS": [
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-    ],  # EMA periods for price exit (N)
+    "EMA_PERIODS": [3,4,5,6,7,8,9,10,11,12,13],  # EMA periods for price exit (N)
     "RVOL_THRESHOLDS": [1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0],  # RVOL thresholds (X)
     "VOLUME_LOOKBACKS": [10, 15, 20],  # Volume lookback periods for RVOL calculation
     # "MINIMUMS": {

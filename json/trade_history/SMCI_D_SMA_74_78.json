@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-07-01T08:40:53.635190",
+    "export_timestamp": "2025-07-02T09:33:21.276224",
     "strategy_config": {
       "ticker": "SMCI",
       "timeframe": "D",
@@ -15,7 +15,7 @@
       "total_return": 14.626056805586586,
       "total_trades": "61",
       "win_rate": 0.5573770491803278,
-      "sharpe_ratio": 0.6748357966271831,
+      "sharpe_ratio": 0.674762269455612,
       "max_drawdown": -0.7862813721597509
     }
   },
@@ -521,7 +521,7 @@
       "Trade_Type": "Loser",
       "Cumulative_PnL": 444.4061587595317,
       "Trade_Number": 24,
-      "Rolling_Avg_Return": -9.547669060256357e-5,
+      "Rolling_Avg_Return": -9.547669060256357e-05,
       "Rolling_Win_Rate": 0.4
     },
     {
