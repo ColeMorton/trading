@@ -724,6 +724,9 @@ def convert_stats(
                 elif isinstance(v, (int, float)):
                     # Keep numeric values as is
                     converted[k] = v
+                elif k == "_equity_data":
+                    # Preserve EquityData objects without string conversion
+                    converted[k] = v
                 else:
                     converted[k] = str(v)
 
@@ -785,6 +788,16 @@ def _ensure_canonical_schema_compliance(
             canonical_stats[column_name] = _get_default_value_for_column(
                 column_name, stats, log
             )
+
+    # Preserve non-canonical fields (like _equity_data for equity export)
+    for key, value in stats.items():
+        if key not in CANONICAL_COLUMN_NAMES:
+            # Special handling for _equity_data to preserve EquityData objects
+            if key == "_equity_data":
+                canonical_stats[key] = value  # Preserve as-is without any conversion
+                log(f"DEBUG: Preserving _equity_data as {type(value)}", "debug")
+            else:
+                canonical_stats[key] = value
 
     return canonical_stats
 

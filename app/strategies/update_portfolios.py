@@ -83,7 +83,8 @@ config = {
     # "PORTFOLIO": 'HOURLY Crypto.csv',
     # "PORTFOLIO": 'BTC_MSTR_TLT_d_20250404.csv',
     # "PORTFOLIO": "protected.csv",
-    "PORTFOLIO": "live_signals.csv",
+    # "PORTFOLIO": "live_signals.csv",
+    "PORTFOLIO": "risk_on.csv",
     # "PORTFOLIO": 'MSTY_h.csv',
     # "PORTFOLIO": 'BTC_h_20250416.csv',
     # "PORTFOLIO": 'STRK_h_20250415.csv',
@@ -96,6 +97,15 @@ config = {
     "DIRECTION": "Long",
     "SORT_BY": "Score",
     "SORT_ASC": False,
+    "EQUITY_DATA": {
+        "EXPORT": True,
+        "METRIC": "mean",
+        # Automatic Fresh Analysis Control:
+        # - True: Always run fresh analysis to generate equity data (ignore existing files)
+        # - False: Only generate missing equity data files (skip if file already exists)
+        # This enables intelligent equity export that avoids redundant processing.
+        "FORCE_FRESH_ANALYSIS": False,  # Set to True to force regeneration of all equity files
+    },
 }
 
 

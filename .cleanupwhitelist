@@ -1,0 +1,46 @@
+# Cleanup Whitelist
+# Files and directories listed here are EXPLICITLY SAFE to clean when old
+# Only files matching these patterns will be considered for cleanup
+# One pattern per line, supports basic glob patterns
+
+# ================================
+# EXPLICITLY SAFE TO CLEAN
+# ================================
+
+# Price data files - regenerated automatically from yfinance
+csv/price_data/*.csv
+
+# Strategy equity curve files - generated during analysis runs
+csv/ma_cross/equity_data/*.csv
+csv/macd_cross/equity_data/*.csv
+
+# Cache directories - temporary data
+cache/*.csv
+cache/*.json
+
+# Experimental temporary files
+experimental/temp/*.csv
+experimental/temp/*.json
+
+# Temporary files with specific naming patterns
+*temp*.csv
+*temp*.json
+*tmp*.csv
+*tmp*.json
+*.temp
+*.tmp
+
+# Test result files that are regenerated
+test_results.json
+final_test_results.json
+
+# Log files
+*.log
+
+# Stop loss analysis files (regenerated)
+csv/stop_loss/*.csv
+
+# Trade history position files (can be regenerated from trade history exports)
+csv/trade_history/*_positions.csv
+
+# Position files are completely excluded from cleanup - all files in csv/positions/ are protected

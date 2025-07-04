@@ -6,65 +6,71 @@
 # CRITICAL DATA - NEVER DELETE
 # ================================
 
-# Price data files - fundamental market data
-csv/price_data/
+# Price data files - old files cleaned automatically (not protected)
 
 # Portfolio analysis results - strategy outputs
-csv/portfolios/
-csv/portfolios_best/
-csv/portfolios_filtered/
+csv/portfolios/*
+csv/portfolios_best/*
+csv/portfolios_filtered/*
 
 # Trade history exports - important analysis data
-json/trade_history/
+json/trade_history/*
 
 # Monte Carlo simulation results
-csv/monte_carlo/
-json/monte_carlo/
+csv/monte_carlo/*
+json/monte_carlo/*
 
 # Portfolio optimization results
-json/portfolio_optimization/
-json/portfolios/
+json/portfolio_optimization/*
+json/portfolios/*
 
-# Strategy analysis results
-csv/ma_cross/
-csv/macd/
-csv/macd_cross/
-csv/mean_reversion/
-csv/mean_reversion_rsi/
-csv/range/
+# Strategy analysis results (excluding equity_data which can be cleaned)
+csv/ma_cross/current_signals/*
+csv/ma_cross/price_data/*
+csv/ma_cross/protective_stop_loss/*
+csv/ma_cross/rsi/*
+csv/ma_cross/signals/*
+csv/ma_cross/stop_loss/*
+csv/macd/*
+csv/macd_cross/current_signals/*
+csv/macd_cross/price_data/*
+csv/mean_reversion/*
+csv/mean_reversion_rsi/*
+csv/range/*
 
 # Configuration and symbol lists
-json/configuration/
-json/symbol_lists/
-json/ticker_lists/
+json/configuration/*
+json/symbol_lists/*
+json/ticker_lists/*
 
 # Concurrency analysis results
-json/concurrency/
+json/concurrency/*
 
 # Important standalone files
 csv/Metric Types.csv
 correlation_analysis.html
 
 # Root-level files (protected by design - script only scans csv/ and json/ dirs)
-*.json
-*.csv
-*.html
-*.md
-*.py
-*.lock
-*.toml
+# Note: These patterns are not needed since script only scans csv/ and json/ subdirectories
+# *.json
+# *.csv
+# *.html
+# *.md
+# *.py
+# *.lock
+# *.toml
 
 # ================================
 # STRATEGY FILES (already excluded by default)
 # ================================
-csv/strategies/
+csv/strategies/*
 
 # ================================
 # TEMPORARY/CACHE FILES - OK TO DELETE
 # ================================
 # Cache files older than 7 days can be cleaned
-cache/
-experimental/temp/
+cache/*
+experimental/temp/*
 
 # ================================
 # PATTERNS FOR TEMPORARY FILES

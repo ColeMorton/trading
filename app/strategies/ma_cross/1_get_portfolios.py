@@ -73,14 +73,30 @@ from app.tools.strategy_utils import filter_portfolios_by_signal, get_strategy_t
 
 CONFIG: Config = {
     "TICKER": [
-    "BKR", "DAL", "BK", "ISRG", "IFF", "VRTX", "EXR", "TECH", "MTD", "IONQ",
-    "QBTS", "NTAP", "BIIB", "UAL", "MCHP", "VFC", "ALK", "LEG"
-],
-#     "TICKER": [
-#     "HWM", "NFLX", "NVDA", "TPR", "RTX", "AMD", "FFIV", "TEM", "BLDR",  # Main section
-#     "SMCI", "QCOM", "SCHW", "DOV", "VRSN", "RJF",                       # CURRENT
-#     "GME"                                                       # OUTGOING
-# ],
+        "BKR",
+        "DAL",
+        "BK",
+        "ISRG",
+        "IFF",
+        "VRTX",
+        "EXR",
+        "TECH",
+        "MTD",
+        "IONQ",
+        "QBTS",
+        "NTAP",
+        "BIIB",
+        "UAL",
+        "MCHP",
+        "VFC",
+        "ALK",
+        "LEG",
+    ],
+    #     "TICKER": [
+    #     "HWM", "NFLX", "NVDA", "TPR", "RTX", "AMD", "FFIV", "TEM", "BLDR",  # Main section
+    #     "SMCI", "QCOM", "SCHW", "DOV", "VRSN", "RJF",                       # CURRENT
+    #     "GME"                                                       # OUTGOING
+    # ],
     # "TICKER_2": 'AVGO',
     # "WINDOWS": 120,
     "WINDOWS": 89,

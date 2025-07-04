@@ -10,14 +10,92 @@ from typing import Any, Callable, Dict, List, Optional
 
 import polars as pl
 
+# Import fresh analysis dispatcher for automatic equity export
+from app.strategies.tools.fresh_analysis_dispatcher import (
+    dispatch_fresh_analysis,
+    should_trigger_fresh_analysis,
+)
 from app.strategies.tools.process_ma_portfolios import process_ma_portfolios
 from app.strategies.tools.process_strategy_portfolios import process_macd_strategy
+
+# Import configuration validation for Phase 4 integration
+from app.tools.config_validation import (
+    get_equity_metric_selection,
+    get_validated_equity_config,
+    is_equity_export_enabled,
+    log_configuration_validation,
+)
+
+# Import equity data extractor for Phase 2 integration
+from app.tools.equity_data_extractor import (
+    EquityData,
+    MetricType,
+    extract_equity_data_from_portfolio,
+)
 
 # Import export_portfolios inside functions to avoid circular imports
 from app.tools.get_config import get_config
 from app.tools.portfolio_transformation import reorder_columns
 from app.tools.stats_converter import convert_stats
 from app.tools.strategy.signal_utils import is_exit_signal_current, is_signal_current
+
+
+def _extract_equity_data_if_enabled(
+    portfolio: any,
+    ticker: str,
+    strategy_type: str,
+    short_window: int,
+    long_window: int,
+    signal_window: Optional[int],
+    config: Dict[str, Any],
+    log: Callable[[str, str], None],
+) -> Optional[EquityData]:
+    """
+    Extract equity data from portfolio if equity export is enabled.
+
+    Args:
+        portfolio: VectorBT Portfolio object
+        ticker: Ticker symbol
+        strategy_type: Strategy type (SMA, EMA, MACD)
+        short_window: Short window parameter
+        long_window: Long window parameter
+        signal_window: Signal window parameter (optional)
+        config: Configuration dictionary
+        log: Logging function
+
+    Returns:
+        EquityData object if extraction successful, None otherwise
+    """
+    # Use validated configuration check
+    if not is_equity_export_enabled(config):
+        log(f"Equity data export disabled for {ticker} {strategy_type}", "debug")
+        return None
+
+    try:
+        # Get validated metric selection from config
+        metric_str = get_equity_metric_selection(config)
+        log(f"Using metric '{metric_str}' for {ticker} {strategy_type}", "debug")
+
+        # Convert string to MetricType enum (already validated)
+        metric_type = MetricType(metric_str)
+
+        # Extract equity data
+        equity_data = extract_equity_data_from_portfolio(
+            portfolio=portfolio, metric_type=metric_type, config=config, log=log
+        )
+
+        log(
+            f"Successfully extracted equity data for {ticker} {strategy_type} using {metric_str} metric",
+            "info",
+        )
+        return equity_data
+
+    except Exception as e:
+        log(
+            f"Failed to extract equity data for {ticker} {strategy_type}: {str(e)}",
+            "warning",
+        )
+        return None
 
 
 def process_ticker_portfolios(
@@ -116,6 +194,21 @@ def process_ticker_portfolios(
 
                 if portfolio is not None and signal_data is not None:
                     try:
+                        # Debug: Log portfolio type for equity extraction troubleshooting
+                        log(
+                            f"DEBUG: Portfolio type for {ticker}: {type(portfolio)}",
+                            "debug",
+                        )
+
+                        # Check if this is a VectorBT Portfolio object (required for equity extraction)
+                        has_vectorbt_portfolio = hasattr(
+                            portfolio, "value"
+                        ) and hasattr(portfolio, "stats")
+                        log(
+                            f"DEBUG: {ticker} has VectorBT Portfolio methods: {has_vectorbt_portfolio}",
+                            "debug",
+                        )
+
                         # Check if there's a current entry signal
                         current_signal = is_signal_current(signal_data, config)
                         log(
@@ -213,6 +306,110 @@ def process_ticker_portfolios(
                                 "info",
                             )
 
+                        # Extract equity data if enabled (with automatic fresh analysis)
+                        equity_data = None
+                        if has_vectorbt_portfolio:
+                            equity_data = _extract_equity_data_if_enabled(
+                                portfolio=portfolio,
+                                ticker=ticker,
+                                strategy_type="MACD",
+                                short_window=short_window,
+                                long_window=long_window,
+                                signal_window=signal_window,
+                                config=config,
+                                log=log,
+                            )
+                        elif should_trigger_fresh_analysis(
+                            config,
+                            has_vectorbt_portfolio,
+                            ticker=ticker,
+                            strategy_type="MACD",
+                            short_window=short_window,
+                            long_window=long_window,
+                            signal_window=signal_window,
+                        ):
+                            log(
+                                f"Triggering fresh MACD analysis for {ticker} to enable equity export",
+                                "info",
+                            )
+                            # Dispatch fresh analysis to get VectorBT Portfolio object
+                            fresh_portfolio = dispatch_fresh_analysis(
+                                ticker=ticker,
+                                strategy_type="MACD",
+                                short_window=short_window,
+                                long_window=long_window,
+                                signal_window=signal_window,
+                                config=config,
+                                log=log,
+                            )
+
+                            if fresh_portfolio is not None:
+                                equity_data = _extract_equity_data_if_enabled(
+                                    portfolio=fresh_portfolio,
+                                    ticker=ticker,
+                                    strategy_type="MACD",
+                                    short_window=short_window,
+                                    long_window=long_window,
+                                    signal_window=signal_window,
+                                    config=config,
+                                    log=log,
+                                )
+                            else:
+                                log(
+                                    f"Failed to generate fresh Portfolio for {ticker} MACD equity export",
+                                    "warning",
+                                )
+                        else:
+                            # Check if we're skipping due to existing file
+                            force_fresh = config.get("EQUITY_DATA", {}).get(
+                                "FORCE_FRESH_ANALYSIS", True
+                            )
+                            if not force_fresh:
+                                try:
+                                    from app.tools.equity_export import (
+                                        equity_file_exists,
+                                        get_equity_file_path,
+                                    )
+
+                                    file_exists = equity_file_exists(
+                                        ticker=ticker,
+                                        strategy_type="MACD",
+                                        short_window=short_window,
+                                        long_window=long_window,
+                                        signal_window=signal_window,
+                                    )
+                                    if file_exists:
+                                        file_path = get_equity_file_path(
+                                            ticker=ticker,
+                                            strategy_type="MACD",
+                                            short_window=short_window,
+                                            long_window=long_window,
+                                            signal_window=signal_window,
+                                        )
+                                        log(
+                                            f"Skipping equity export for {ticker} MACD: file already exists at {file_path}",
+                                            "info",
+                                        )
+                                    else:
+                                        log(
+                                            f"Skipping equity extraction for {ticker}: Not a VectorBT Portfolio object (likely pre-computed results)",
+                                            "debug",
+                                        )
+                                except:
+                                    log(
+                                        f"Skipping equity extraction for {ticker}: Not a VectorBT Portfolio object (likely pre-computed results)",
+                                        "debug",
+                                    )
+                            else:
+                                log(
+                                    f"Skipping equity extraction for {ticker}: Not a VectorBT Portfolio object (likely pre-computed results)",
+                                    "debug",
+                                )
+
+                        # Store equity data in stats for later export
+                        if equity_data is not None:
+                            stats["_equity_data"] = equity_data
+
                         # Convert stats with current signal status
                         converted_stats = convert_stats(
                             stats, log, config, current_signal, exit_signal
@@ -262,6 +459,12 @@ def process_ticker_portfolios(
                     and sma_data is not None
                 ):
                     try:
+                        # Debug: Log portfolio type for equity extraction troubleshooting
+                        log(
+                            f"DEBUG: SMA Portfolio type for {ticker}: {type(sma_portfolio)}",
+                            "debug",
+                        )
+
                         # Check if there's a current entry signal
                         current_signal = is_signal_current(sma_data, config)
                         log(
@@ -357,10 +560,128 @@ def process_ticker_portfolios(
                                 "info",
                             )
 
+                        # Extract equity data if enabled (with automatic fresh analysis)
+                        has_sma_vectorbt_portfolio = hasattr(
+                            sma_portfolio, "value"
+                        ) and hasattr(sma_portfolio, "stats")
+                        equity_data = None
+                        if has_sma_vectorbt_portfolio:
+                            equity_data = _extract_equity_data_if_enabled(
+                                portfolio=sma_portfolio,
+                                ticker=ticker,
+                                strategy_type="SMA",
+                                short_window=short_window,
+                                long_window=long_window,
+                                signal_window=None,
+                                config=config,
+                                log=log,
+                            )
+                        elif should_trigger_fresh_analysis(
+                            config,
+                            has_sma_vectorbt_portfolio,
+                            ticker=ticker,
+                            strategy_type="SMA",
+                            short_window=short_window,
+                            long_window=long_window,
+                            signal_window=None,
+                        ):
+                            log(
+                                f"Triggering fresh SMA analysis for {ticker} to enable equity export",
+                                "info",
+                            )
+                            # Dispatch fresh analysis to get VectorBT Portfolio object
+                            fresh_portfolio = dispatch_fresh_analysis(
+                                ticker=ticker,
+                                strategy_type="SMA",
+                                short_window=short_window,
+                                long_window=long_window,
+                                signal_window=None,
+                                config=config,
+                                log=log,
+                            )
+
+                            if fresh_portfolio is not None:
+                                equity_data = _extract_equity_data_if_enabled(
+                                    portfolio=fresh_portfolio,
+                                    ticker=ticker,
+                                    strategy_type="SMA",
+                                    short_window=short_window,
+                                    long_window=long_window,
+                                    signal_window=None,
+                                    config=config,
+                                    log=log,
+                                )
+                            else:
+                                log(
+                                    f"Failed to generate fresh Portfolio for {ticker} SMA equity export",
+                                    "warning",
+                                )
+                        else:
+                            # Check if we're skipping due to existing file
+                            force_fresh = config.get("EQUITY_DATA", {}).get(
+                                "FORCE_FRESH_ANALYSIS", True
+                            )
+                            if not force_fresh:
+                                try:
+                                    from app.tools.equity_export import (
+                                        equity_file_exists,
+                                        get_equity_file_path,
+                                    )
+
+                                    file_exists = equity_file_exists(
+                                        ticker=ticker,
+                                        strategy_type="SMA",
+                                        short_window=short_window,
+                                        long_window=long_window,
+                                        signal_window=None,
+                                    )
+                                    if file_exists:
+                                        file_path = get_equity_file_path(
+                                            ticker=ticker,
+                                            strategy_type="SMA",
+                                            short_window=short_window,
+                                            long_window=long_window,
+                                            signal_window=None,
+                                        )
+                                        log(
+                                            f"Skipping equity export for {ticker} SMA: file already exists at {file_path}",
+                                            "info",
+                                        )
+                                    else:
+                                        log(
+                                            f"Skipping SMA equity extraction for {ticker}: Not a VectorBT Portfolio object (likely pre-computed results)",
+                                            "debug",
+                                        )
+                                except:
+                                    log(
+                                        f"Skipping SMA equity extraction for {ticker}: Not a VectorBT Portfolio object (likely pre-computed results)",
+                                        "debug",
+                                    )
+                            else:
+                                log(
+                                    f"Skipping SMA equity extraction for {ticker}: Not a VectorBT Portfolio object (likely pre-computed results)",
+                                    "debug",
+                                )
+
+                        # Store equity data in stats for later export
+                        if equity_data is not None:
+                            sma_stats["_equity_data"] = equity_data
+                            log(
+                                f"DEBUG: Stored equity data for {ticker} - type: {type(equity_data)}",
+                                "debug",
+                            )
+
                         # Convert stats with current signal status
                         sma_converted_stats = convert_stats(
                             sma_stats, log, config, current_signal, exit_signal
                         )
+
+                        # Debug: Check if equity data survived conversion
+                        if "_equity_data" in sma_converted_stats:
+                            log(
+                                f"DEBUG: After convert_stats, equity data type: {type(sma_converted_stats['_equity_data'])}",
+                                "debug",
+                            )
                         portfolios.append(sma_converted_stats)
                     except Exception as e:
                         log(
@@ -470,6 +791,113 @@ def process_ticker_portfolios(
                                 "info",
                             )
 
+                        # Extract equity data if enabled (with automatic fresh analysis)
+                        has_ema_vectorbt_portfolio = hasattr(
+                            ema_portfolio, "value"
+                        ) and hasattr(ema_portfolio, "stats")
+                        equity_data = None
+                        if has_ema_vectorbt_portfolio:
+                            equity_data = _extract_equity_data_if_enabled(
+                                portfolio=ema_portfolio,
+                                ticker=ticker,
+                                strategy_type="EMA",
+                                short_window=short_window,
+                                long_window=long_window,
+                                signal_window=None,
+                                config=config,
+                                log=log,
+                            )
+                        elif should_trigger_fresh_analysis(
+                            config,
+                            has_ema_vectorbt_portfolio,
+                            ticker=ticker,
+                            strategy_type="EMA",
+                            short_window=short_window,
+                            long_window=long_window,
+                            signal_window=None,
+                        ):
+                            log(
+                                f"Triggering fresh EMA analysis for {ticker} to enable equity export",
+                                "info",
+                            )
+                            # Dispatch fresh analysis to get VectorBT Portfolio object
+                            fresh_portfolio = dispatch_fresh_analysis(
+                                ticker=ticker,
+                                strategy_type="EMA",
+                                short_window=short_window,
+                                long_window=long_window,
+                                signal_window=None,
+                                config=config,
+                                log=log,
+                            )
+
+                            if fresh_portfolio is not None:
+                                equity_data = _extract_equity_data_if_enabled(
+                                    portfolio=fresh_portfolio,
+                                    ticker=ticker,
+                                    strategy_type="EMA",
+                                    short_window=short_window,
+                                    long_window=long_window,
+                                    signal_window=None,
+                                    config=config,
+                                    log=log,
+                                )
+                            else:
+                                log(
+                                    f"Failed to generate fresh Portfolio for {ticker} EMA equity export",
+                                    "warning",
+                                )
+                        else:
+                            # Check if we're skipping due to existing file
+                            force_fresh = config.get("EQUITY_DATA", {}).get(
+                                "FORCE_FRESH_ANALYSIS", True
+                            )
+                            if not force_fresh:
+                                try:
+                                    from app.tools.equity_export import (
+                                        equity_file_exists,
+                                        get_equity_file_path,
+                                    )
+
+                                    file_exists = equity_file_exists(
+                                        ticker=ticker,
+                                        strategy_type="EMA",
+                                        short_window=short_window,
+                                        long_window=long_window,
+                                        signal_window=None,
+                                    )
+                                    if file_exists:
+                                        file_path = get_equity_file_path(
+                                            ticker=ticker,
+                                            strategy_type="EMA",
+                                            short_window=short_window,
+                                            long_window=long_window,
+                                            signal_window=None,
+                                        )
+                                        log(
+                                            f"Skipping equity export for {ticker} EMA: file already exists at {file_path}",
+                                            "info",
+                                        )
+                                    else:
+                                        log(
+                                            f"Skipping EMA equity extraction for {ticker}: Not a VectorBT Portfolio object (likely pre-computed results)",
+                                            "debug",
+                                        )
+                                except:
+                                    log(
+                                        f"Skipping EMA equity extraction for {ticker}: Not a VectorBT Portfolio object (likely pre-computed results)",
+                                        "debug",
+                                    )
+                            else:
+                                log(
+                                    f"Skipping EMA equity extraction for {ticker}: Not a VectorBT Portfolio object (likely pre-computed results)",
+                                    "debug",
+                                )
+
+                        # Store equity data in stats for later export
+                        if equity_data is not None:
+                            ema_stats["_equity_data"] = equity_data
+
                         # Convert stats with current signal status
                         ema_converted_stats = convert_stats(
                             ema_stats, log, config, current_signal, exit_signal
@@ -517,6 +945,19 @@ def export_summary_results(
     Returns:
         bool: True if export successful, False otherwise
     """
+    # Phase 4: Validate and log configuration before processing
+    if config:
+        try:
+            validated_config = log_configuration_validation(config, log)
+            # Update config with validated values (in-place to preserve references)
+            config.update(validated_config)
+            log("Configuration validation completed successfully", "info")
+        except Exception as e:
+            log(f"Configuration validation failed: {str(e)}", "error")
+            # Continue with unvalidated config but log the issue
+    else:
+        log("No configuration provided - using default settings", "warning")
+
     if portfolios:
         # Phase 1 Data Flow Audit: Log initial portfolio data
         log(
@@ -820,6 +1261,36 @@ def export_summary_results(
         if not success:
             log("Failed to export portfolios", "error")
             return False
+
+        # Export equity data if enabled and available
+        try:
+            from app.tools.equity_export import export_equity_data_batch
+
+            equity_results = export_equity_data_batch(
+                portfolios=reordered_portfolios, log=log, config=export_config
+            )
+
+            if equity_results["exported_count"] > 0:
+                log(
+                    f"Equity data export completed: {equity_results['exported_count']} files exported",
+                    "info",
+                )
+            elif (
+                equity_results["total_portfolios"] > 0
+                and equity_results["exported_count"] == 0
+            ):
+                log(
+                    "No equity data was exported. This happens when processing pre-computed strategy results from CSV files. "
+                    + "Equity export requires live backtesting with VectorBT Portfolio objects. "
+                    + "To export equity data, run fresh strategy analysis instead of loading existing results.",
+                    "info",
+                )
+
+        except ImportError:
+            log("Equity export module not available", "warning")
+        except Exception as e:
+            log(f"Error during equity data export: {str(e)}", "warning")
+            # Don't fail the entire export process due to equity export errors
 
         log("Portfolio summary exported successfully")
         return True

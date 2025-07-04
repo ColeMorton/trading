@@ -6,52 +6,84 @@ The `scripts/cleanup_old_files.py` script was too aggressive and removed importa
 
 ### Critical Data That Was Removed:
 
-- **Price Data**: `csv/price_data/` files (AAPL_D.csv, BTC-USD_D.csv, etc.)
 - **Portfolio Analysis**: `csv/portfolios/` files (strategy results like AAPL_D_EMA.csv, BTC-USD_D_MACD.csv)
 - **Portfolio Optimization**: `json/portfolio_optimization/` files (optimization results)
 - **Trade History**: `json/trade_history/` files (comprehensive trade data)
 - **Monte Carlo**: `csv/monte_carlo/` and `json/monte_carlo/` files (simulation results)
 - **Best/Filtered Portfolios**: `csv/portfolios_best/` and `csv/portfolios_filtered/` files
 
+### Data That Should Be Cleaned When Old:
+
+- **Price Data**: `csv/price_data/` files (AAPL_D.csv, BTC-USD_D.csv, etc.) - regenerated automatically
+- **Equity Data**: Strategy equity data (`csv/ma_cross/equity_data/`, `csv/macd_cross/equity_data/`) - generated during analysis
+
 ## Solution Implemented
 
-### 1. Enhanced `.cleanupignore` File
+### 1. **CONSERVATIVE WHITELIST APPROACH**
 
-Created comprehensive protection patterns for:
+**BREAKING CHANGE**: Replaced `.cleanupignore` blacklist with `.cleanupwhitelist` for maximum safety.
 
-- Price data files (fundamental market data)
-- Portfolio analysis results (strategy outputs)
-- Trade history exports (important analysis data)
-- Monte Carlo simulation results
-- Portfolio optimization results
-- Strategy analysis results
-- Configuration and symbol lists
-- Concurrency analysis results
+**New Safety Policy**:
 
-### 2. Improved Cleanup Script Safety
+- **ONLY** files explicitly listed in `.cleanupwhitelist` can be cleaned
+- **ALL** other files are automatically protected
+- Script exits immediately if no whitelist file exists
+- No more accidental deletion of important files
 
+**Whitelisted for cleanup** (when old):
+
+- Price data files (`csv/price_data/*.csv`) - regenerated automatically
+- Strategy equity curves (`csv/ma_cross/equity_data/*.csv`, `csv/macd_cross/equity_data/*.csv`)
+- Stop loss analysis (`csv/stop_loss/*.csv`) - regenerated from analysis
+- Trade history positions (`csv/trade_history/*_positions.csv`) - derived data
+- Cache and temporary files
+- Test files and logs
+
+### 2. Enhanced Script Safety Features
+
+- **WHITELIST-ONLY**: Only files matching `.cleanupwhitelist` patterns are considered
+- **Fail-safe mode**: Script exits if no whitelist file exists
 - **Default age maintained**: 7 days (as originally intended)
 - **Root file protection**: Script only scans csv/ and json/ subdirectories, never root
 - **Dot directory protection**: All directories starting with "." are completely skipped (.claude, .git, etc.)
 - **Safety warning**: Added confirmation prompt for non-dry-run mode
-- **Better documentation**: Clear warnings about potential data loss
-- **Explicit safe-to-clean categories**: Only temporary files, cache, and explicitly temporary patterns
+- **Conservative by design**: Unknown files are never cleaned
 
-### 3. Protected Directories
+### 3. Current Protection Status
 
 ```
-# CRITICAL DATA - NEVER DELETE
-csv/price_data/          # Market data
-csv/portfolios/          # Strategy results
-csv/portfolios_best/     # Best performing strategies
-csv/portfolios_filtered/ # Filtered strategy results
-json/trade_history/      # Trade analysis data
-csv/monte_carlo/         # Simulation results
-json/monte_carlo/        # Simulation configurations
-json/portfolio_optimization/ # Optimization results
-csv/ma_cross/           # MA strategy results
-csv/macd/               # MACD strategy results
-json/concurrency/       # Concurrency analysis
+# AUTOMATICALLY PROTECTED (not in whitelist)
+csv/portfolios/                    # Strategy results - PROTECTED
+csv/portfolios_best/               # Best performing strategies - PROTECTED
+csv/portfolios_filtered/           # Filtered strategy results - PROTECTED
+json/trade_history/                # Trade analysis data - PROTECTED
+csv/monte_carlo/                   # Simulation results - PROTECTED
+json/monte_carlo/                  # Simulation configurations - PROTECTED
+json/portfolio_optimization/       # Optimization results - PROTECTED
+csv/ma_cross/current_signals/      # MA strategy signals - PROTECTED
+csv/ma_cross/price_data/           # MA strategy price data - PROTECTED
+csv/ma_cross/protective_stop_loss/ # MA strategy stop loss - PROTECTED
+csv/ma_cross/rsi/                  # MA strategy RSI - PROTECTED
+csv/ma_cross/signals/              # MA strategy signals - PROTECTED
+csv/macd/                          # MACD strategy results - PROTECTED
+csv/macd_cross/current_signals/    # MACD strategy signals - PROTECTED
+csv/macd_cross/price_data/         # MACD strategy price data - PROTECTED
+json/concurrency/                  # Concurrency analysis - PROTECTED
+ALL OTHER FILES                    # Everything else - PROTECTED BY DEFAULT
+```
+
+```
+# WHITELISTED FOR CLEANUP (when old, only these can be removed)
+csv/price_data/*.csv               # Market data (regenerated automatically)
+csv/ma_cross/equity_data/*.csv     # MA strategy equity curves
+csv/macd_cross/equity_data/*.csv   # MACD strategy equity curves
+csv/stop_loss/*.csv                # Stop loss analysis (regenerated)
+csv/trade_history/*_positions.csv  # Trade position files (derived data)
+cache/*                            # Cache files
+experimental/temp/*                # Temporary experimental files
+*temp*, *tmp*                      # Files with temp/tmp in name
+test_results.json                  # Test result files
+*.log                              # Log files
 ```
 
 ### 4. Safe to Clean (When Old)
@@ -66,9 +98,10 @@ test_results.json      # Regenerated test results
 
 ## Current Status
 
-✅ **Fixed**: Cleanup script now protects all important analysis data
-✅ **Tested**: Dry-run shows 0 files would be removed (all data protected)
-✅ **Safe**: 30-day default age with confirmation prompt
+✅ **ULTRA-SAFE**: Conservative whitelist approach implemented
+✅ **TESTED**: Only explicitly whitelisted files are considered for cleanup
+✅ **FAIL-SAFE**: Script exits if no whitelist file exists
+✅ **VERIFIED**: All critical analysis data automatically protected by default
 
 ## Recommendations
 
@@ -88,44 +121,49 @@ git checkout HEAD -- json/trade_history/
 ### Future Usage
 
 ```bash
-# Always test first
+# Always test first - ONLY whitelisted files considered
 python scripts/cleanup_old_files.py --dry-run
 
-# Default cleanup (7+ days old)
+# Default cleanup (7+ days old, whitelisted files only)
 python scripts/cleanup_old_files.py
 
-# Conservative cleanup (30+ days old)
+# Conservative cleanup (30+ days old, whitelisted files only)
 python scripts/cleanup_old_files.py --max-age 30
 
-# More aggressive cleanup (1+ days old) - use with extreme caution
+# Aggressive cleanup (1+ days old, still only whitelisted files)
 python scripts/cleanup_old_files.py --max-age 1
+
+# To add new cleanable files, edit .cleanupwhitelist
 ```
 
 ### Best Practices
 
 1. **Always run `--dry-run` first** to preview changes
-2. **Use conservative age limits** (30+ days) for analysis projects
-3. **Review `.cleanupignore`** before adding new important data types
-4. **Backup important results** before running cleanup scripts
+2. **Review `.cleanupwhitelist`** before adding new cleanable patterns
+3. **Only add files to whitelist that are truly regenerable**
+4. **Use conservative age limits** (30+ days) for important derived data
+5. **Test whitelist changes thoroughly** with dry-run mode
 
 ## File Categories
 
-### Keep Forever
+### Automatically Protected (Not in Whitelist)
 
-- Price data (csv/price_data/)
-- Strategy results (csv/portfolios/)
-- Analysis outputs (json/trade_history/)
-- Configuration files
+- **Strategy results** (csv/portfolios/) - PROTECTED
+- **Analysis outputs** (json/trade_history/) - PROTECTED
+- **Configuration files** - PROTECTED
+- **Strategy analysis core data** (signals, price_data subdirectories) - PROTECTED
+- **Best portfolios** (csv/portfolios_best/) - PROTECTED
+- **Filtered results** (csv/portfolios_filtered/) - PROTECTED
+- **Monte Carlo results** - PROTECTED
+- **ALL OTHER FILES** - PROTECTED BY DEFAULT
 
-### Keep for Analysis Period (30+ days)
+### Whitelisted for Cleanup (Only When Explicitly Added)
 
-- Best portfolios (csv/portfolios_best/)
-- Filtered results (csv/portfolios_filtered/)
-- Monte Carlo results
-
-### Safe to Clean (7+ days)
-
-- Cache files (cache/)
-- Temporary files (_temp_, _tmp_)
-- Log files (\*.log)
-- Regenerated test results
+- **Price data** (csv/price_data/\*.csv) - regenerated automatically
+- **Strategy equity data** (csv/_/equity_data/_.csv) - generated during analysis
+- **Stop loss analysis** (csv/stop_loss/\*.csv) - regenerated from analysis
+- **Trade positions** (csv/trade_history/\*\_positions.csv) - derived data
+- **Cache files** (cache/\*) - temporary data
+- **Temporary files** (_temp_, _tmp_) - temporary data
+- **Log files** (\*.log) - regenerated
+- **Test results** (test_results.json) - regenerated

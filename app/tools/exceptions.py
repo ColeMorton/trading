@@ -27,6 +27,10 @@ class ConfigurationError(TradingSystemError):
     """Raised when there's an issue with configuration parameters."""
 
 
+class PerformanceError(TradingSystemError):
+    """Raised when there's an issue with performance monitoring or optimization."""
+
+
 class PortfolioError(TradingSystemError):
     """Base class for portfolio-related errors."""
 

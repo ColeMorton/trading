@@ -66,17 +66,21 @@ def reorder_columns(portfolio: Dict) -> Dict:
     Reorder columns using SchemaTransformer to match canonical schema format.
 
     This function now leverages the sophisticated SchemaTransformer architecture
-    instead of manual column ordering logic.
+    instead of manual column ordering logic, while preserving non-canonical fields
+    like _equity_data for equity export functionality.
 
     Args:
         portfolio (Dict): Portfolio statistics
 
     Returns:
-        Dict: Portfolio with canonical schema ordering
+        Dict: Portfolio with canonical schema ordering plus preserved non-canonical fields
     """
     transformer = SchemaTransformer()
 
     try:
+        # Preserve non-canonical fields (fields starting with underscore like _equity_data)
+        non_canonical_fields = {k: v for k, v in portfolio.items() if k.startswith("_")}
+
         # Phase 2 Fix: Preserve Metric Type if present by using FILTERED schema
         # Check if portfolio has Metric Type to determine appropriate schema
         if "Metric Type" in portfolio and portfolio["Metric Type"] is not None:
@@ -99,6 +103,9 @@ def reorder_columns(portfolio: Dict) -> Dict:
             normalized_portfolio = transformer.normalize_to_schema(
                 portfolio, target_schema
             )
+
+        # Restore non-canonical fields after normalization
+        normalized_portfolio.update(non_canonical_fields)
 
         return normalized_portfolio
     except Exception:

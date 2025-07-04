@@ -2,21 +2,24 @@
 """
 Cleanup script to remove CSV and JSON files older than specified age.
 
-IMPORTANT: This script can remove important analysis data if not configured properly.
+IMPORTANT: This script ONLY removes files explicitly listed in .cleanupwhitelist
 Always run with --dry-run first to see what would be deleted.
 
-ENVIRONMENT DETECTION:
+SAFETY FEATURES:
+- WHITELIST APPROACH: Only files matching patterns in .cleanupwhitelist are cleaned
 - Interactive environments: Prompts for confirmation before deletion
 - Non-interactive (CI/pre-commit): Automatically runs in --dry-run mode for safety
 - Use --auto-confirm to skip confirmation in automated environments
 
-Protected by default:
+Protected by design:
 - Root directory files (script only scans csv/ and json/ subdirectories)
 - Dot directories (.claude, .git, etc.) - completely skipped
-- csv/strategies/ directory (contains important strategy results)
-- All patterns in .cleanupignore file (price data, portfolios, etc.)
+- csv/strategies/ directory (excluded by default)
+- ALL files not explicitly whitelisted in .cleanupwhitelist
 
-Safe to clean:
+Safe to clean (when explicitly whitelisted):
+- csv/price_data/ files (regenerated automatically)
+- csv/*/equity_data/ files (generated during analysis)
 - csv/cache/ directory (automatically generated)
 - csv/experimental/temp/ directory (temporary files)
 - Files with temp/tmp in name (temporary files)
@@ -54,31 +57,35 @@ def is_interactive_environment() -> bool:
     return True
 
 
-def load_ignore_patterns(base_path: Path) -> list:
-    """Load patterns from .cleanupignore file."""
-    ignore_file = base_path / ".cleanupignore"
+def load_whitelist_patterns(base_path: Path) -> list:
+    """Load patterns from .cleanupwhitelist file - ONLY these files are safe to clean."""
+    whitelist_file = base_path / ".cleanupwhitelist"
     patterns = []
 
-    if ignore_file.exists():
+    if whitelist_file.exists():
         try:
-            with open(ignore_file, "r") as f:
+            with open(whitelist_file, "r") as f:
                 for line in f:
                     line = line.strip()
                     # Skip empty lines and comments
                     if line and not line.startswith("#"):
                         patterns.append(line)
         except Exception as e:
-            print(f"Warning: Could not read .cleanupignore file: {e}")
+            print(f"Warning: Could not read .cleanupwhitelist file: {e}")
+    else:
+        print(
+            f"Warning: .cleanupwhitelist file not found. No files will be cleaned for safety."
+        )
 
     return patterns
 
 
-def is_ignored(file_path: Path, base_path: Path, ignore_patterns: list) -> bool:
-    """Check if a file should be ignored based on patterns."""
+def is_whitelisted(file_path: Path, base_path: Path, whitelist_patterns: list) -> bool:
+    """Check if a file is whitelisted for cleanup based on patterns."""
     relative_path = file_path.relative_to(base_path)
     relative_path_str = str(relative_path)
 
-    for pattern in ignore_patterns:
+    for pattern in whitelist_patterns:
         if fnmatch.fnmatch(relative_path_str, pattern):
             return True
         # Also check against the file name only
@@ -91,7 +98,7 @@ def is_ignored(file_path: Path, base_path: Path, ignore_patterns: list) -> bool:
 def cleanup_old_files(
     base_path: str, exclude_dirs: list, max_age_days: int = 7, dry_run: bool = False
 ):
-    """Remove CSV and JSON files older than max_age_days from csv/ and json/ directories only."""
+    """Remove ONLY whitelisted files older than max_age_days from csv/ and json/ directories."""
     cutoff_time = time.time() - (max_age_days * 24 * 60 * 60)
     removed_count = 0
     total_size_removed = 0
@@ -99,21 +106,25 @@ def cleanup_old_files(
     base_path = Path(base_path)
     exclude_paths = [base_path / exclude_dir for exclude_dir in exclude_dirs]
 
-    # Load ignore patterns from .cleanupignore file
-    ignore_patterns = load_ignore_patterns(base_path)
+    # Load whitelist patterns from .cleanupwhitelist file - ONLY these files can be cleaned
+    whitelist_patterns = load_whitelist_patterns(base_path)
+
+    if not whitelist_patterns:
+        print("⚠️  No whitelist patterns found. Exiting for safety.")
+        return 0, 0
 
     # Only scan csv/ and json/ directories (not root or other directories)
     target_dirs = [base_path / "csv", base_path / "json"]
     target_dirs = [d for d in target_dirs if d.exists() and d.is_dir()]
 
     print(
-        f"{'DRY RUN: ' if dry_run else ''}Cleaning up files older than {max_age_days} days..."
+        f"{'DRY RUN: ' if dry_run else ''}Cleaning up WHITELISTED files older than {max_age_days} days..."
     )
     print(f"Base path: {base_path}")
     print(f"Target directories: {[str(d.relative_to(base_path)) for d in target_dirs]}")
     print(f"Excluding directories: {exclude_dirs}")
-    if ignore_patterns:
-        print(f"Ignore patterns: {ignore_patterns}")
+    if whitelist_patterns:
+        print(f"Whitelist patterns (ONLY these can be cleaned): {whitelist_patterns}")
     print(f"Cutoff date: {datetime.fromtimestamp(cutoff_time)}")
     print("-" * 60)
 
@@ -136,8 +147,8 @@ def cleanup_old_files(
                 if file.endswith((".csv", ".json")):
                     file_path = current_path / file
 
-                    # Check if file should be ignored
-                    if is_ignored(file_path, base_path, ignore_patterns):
+                    # ONLY clean files that are explicitly whitelisted
+                    if not is_whitelisted(file_path, base_path, whitelist_patterns):
                         continue
 
                     try:

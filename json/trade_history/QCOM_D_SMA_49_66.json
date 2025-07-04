@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-07-03T08:26:00.254092",
+    "export_timestamp": "2025-07-04T09:26:58.686626",
     "strategy_config": {
       "ticker": "QCOM",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 95.0750016323984,
+      "total_return": 95.00989376927478,
       "total_trades": "82",
       "win_rate": 0.5609756097560976,
-      "sharpe_ratio": 0.6742614750615947,
+      "sharpe_ratio": 0.6741521084754183,
       "max_drawdown": -0.6409680058684095
     }
   },
@@ -1725,10 +1725,10 @@
       "Entry Timestamp": "2025-06-24 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 155.7100067138672,
-      "Avg Exit Price": 162.32000732421875,
+      "Avg Exit Price": 162.2100067138672,
       "Size": 591.886380589534,
-      "PnL": 3820.2067046601587,
-      "Return": 0.0414507117419763,
+      "PnL": 3755.0988415365427,
+      "Return": 0.04074426639094833,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -1737,9 +1737,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Winner",
-      "Cumulative_PnL": 95075.00163239843,
+      "Cumulative_PnL": 95009.89376927481,
       "Trade_Number": 82,
-      "Rolling_Avg_Return": -0.04548600254426897,
+      "Rolling_Avg_Return": -0.045627291614474555,
       "Rolling_Win_Rate": 0.6
     }
   ],
@@ -4679,10 +4679,10 @@
       "Avg Entry Price": 155.7100067138672,
       "Entry Fees": 92.16263229543983,
       "Exit Timestamp": null,
-      "Avg Exit Price": 162.32000732421875,
+      "Avg Exit Price": 162.2100067138672,
       "Exit Fees": 0.0,
-      "PnL": 3820.2067046601587,
-      "Return": 0.0414507117419763,
+      "PnL": 3755.0988415365427,
+      "Return": 0.04074426639094833,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
