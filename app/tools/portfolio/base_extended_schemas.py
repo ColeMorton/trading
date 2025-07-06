@@ -865,7 +865,7 @@ class SchemaTransformer:
         defaults = self._get_default_values(portfolio)
 
         # Start with defaults, then override with actual data
-        extended = {}
+        extended: Dict[str, Any] = {}
         for col in ExtendedPortfolioSchema.get_column_names():
             # For analysis exports, force allocation/stop loss/position dates to None regardless of source data
             if force_analysis_defaults and col in [
@@ -922,7 +922,7 @@ class SchemaTransformer:
         defaults = self._get_default_values(portfolio)
 
         # Start with defaults, then override with actual data
-        atr_extended = {}
+        atr_extended: Dict[str, Any] = {}
         for col in ATRExtendedPortfolioSchema.get_column_names():
             # For analysis exports, force allocation/stop loss/position dates to None regardless of source data
             if force_analysis_defaults and col in [

@@ -148,7 +148,7 @@ class CVaRCalculator:
 
         return pl.read_csv(strategy_file)
 
-    def validate_cvar_calculations(self) -> Tuple[bool, Dict[str, any]]:
+    def validate_cvar_calculations(self) -> Tuple[bool, Dict[str, Any]]:
         """Validate CVaR calculations by cross-referencing with backtest data.
 
         Returns:
@@ -192,7 +192,7 @@ class CVaRCalculator:
             and len(validation_results["errors"]) == 0
         )
 
-        return is_valid, validation_results
+        return (is_valid, validation_results)
 
     def calculate_excel_b12_equivalent(self, net_worth: float) -> float:
         """Calculate Excel B12 equivalent: Trading CVaR * Net Worth.

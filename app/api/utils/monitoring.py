@@ -171,12 +171,12 @@ class MetricsCollector:
             unique_clients = len(set(req.client_ip for req in recent_requests))
 
             # Status code distribution
-            status_codes = defaultdict(int)
+            status_codes: Dict[int, int] = defaultdict(int)
             for req in recent_requests:
                 status_codes[req.status_code] += 1
 
             # Endpoint statistics
-            endpoint_stats = defaultdict(
+            endpoint_stats: Dict[str, Dict[str, Any]] = defaultdict(
                 lambda: {"count": 0, "avg_time": 0.0, "errors": 0}
             )
             for req in recent_requests:

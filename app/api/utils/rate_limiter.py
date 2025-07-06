@@ -141,7 +141,7 @@ class RateLimiter:
 
         self._last_cleanup = now
 
-    def get_stats(self) -> Dict[str, any]:
+    def get_stats(self) -> Dict[str, Any]:
         """Get rate limiter statistics."""
         with self._lock:
             active_clients = len(self._buckets)
