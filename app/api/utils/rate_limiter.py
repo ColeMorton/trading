@@ -8,7 +8,7 @@ limits per client IP address.
 import time
 from dataclasses import dataclass
 from threading import Lock
-from typing import Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 
 @dataclass

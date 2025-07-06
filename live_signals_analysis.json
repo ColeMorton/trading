@@ -1,0 +1,165 @@
+{
+  "summary": {
+    "portfolio": "live_signals.csv",
+    "total_strategies": 21,
+    "use_trade_history": true,
+    "signal_distribution": {
+      "SELL": 4,
+      "HOLD": 17
+    },
+    "high_confidence_analyses": 7,
+    "confidence_rate": 0.3333333333333333,
+    "immediate_exits": 0,
+    "strong_sells": 0,
+    "holds": 17
+  },
+  "results": {
+    "MA_SMA_78_82": {
+      "strategy_name": "MA_SMA_78_82",
+      "ticker": "MA",
+      "exit_signal": "SELL",
+      "confidence": 72.86838782056077,
+      "dual_layer_score": 0.6992731095218789
+    },
+    "PGR_SMA_37_61": {
+      "strategy_name": "PGR_SMA_37_61",
+      "ticker": "PGR",
+      "exit_signal": "SELL",
+      "confidence": 71.36357810004544,
+      "dual_layer_score": 0.6539165499729356
+    },
+    "AMZN_SMA_51_69": {
+      "strategy_name": "AMZN_SMA_51_69",
+      "ticker": "AMZN",
+      "exit_signal": "HOLD",
+      "confidence": 74.12517954438836,
+      "dual_layer_score": 0.7399256856163687
+    },
+    "GD_SMA_70_85": {
+      "strategy_name": "GD_SMA_70_85",
+      "ticker": "GD",
+      "exit_signal": "HOLD",
+      "confidence": 80.62001113486554,
+      "dual_layer_score": 0.922823549911296
+    },
+    "GOOGL_SMA_9_39": {
+      "strategy_name": "GOOGL_SMA_9_39",
+      "ticker": "GOOGL",
+      "exit_signal": "HOLD",
+      "confidence": 79.51696673398104,
+      "dual_layer_score": 0.8898814638408892
+    },
+    "PWR_SMA_66_78": {
+      "strategy_name": "PWR_SMA_66_78",
+      "ticker": "PWR",
+      "exit_signal": "HOLD",
+      "confidence": 69.09720368698444,
+      "dual_layer_score": 0.5838807041077848
+    },
+    "INTU_SMA_54_64": {
+      "strategy_name": "INTU_SMA_54_64",
+      "ticker": "INTU",
+      "exit_signal": "HOLD",
+      "confidence": 76.77969644093001,
+      "dual_layer_score": 0.8153055307956718
+    },
+    "NFLX_EMA_19_46": {
+      "strategy_name": "NFLX_EMA_19_46",
+      "ticker": "NFLX",
+      "exit_signal": "HOLD",
+      "confidence": 78.3246464924088,
+      "dual_layer_score": 0.857417315618012
+    },
+    "SMCI_SMA_58_60": {
+      "strategy_name": "SMCI_SMA_58_60",
+      "ticker": "SMCI",
+      "exit_signal": "HOLD",
+      "confidence": 80.6719948391708,
+      "dual_layer_score": 0.9231972683590939
+    },
+    "QCOM_SMA_49_66": {
+      "strategy_name": "QCOM_SMA_49_66",
+      "ticker": "QCOM",
+      "exit_signal": "HOLD",
+      "confidence": 82.93783562806394,
+      "dual_layer_score": 0.9868167431576867
+    },
+    "GOOGL_EMA_9_46": {
+      "strategy_name": "GOOGL_EMA_9_46",
+      "ticker": "GOOGL",
+      "exit_signal": "HOLD",
+      "confidence": 79.52250048759649,
+      "dual_layer_score": 0.8898814638408892
+    },
+    "DOV_SMA_45_86": {
+      "strategy_name": "DOV_SMA_45_86",
+      "ticker": "DOV",
+      "exit_signal": "HOLD",
+      "confidence": 80.9252676328114,
+      "dual_layer_score": 0.9315422327525705
+    },
+    "COR_SMA_8_26": {
+      "strategy_name": "COR_SMA_8_26",
+      "ticker": "COR",
+      "exit_signal": "SELL",
+      "confidence": 71.10550892431739,
+      "dual_layer_score": 0.645347488131591
+    },
+    "COST_EMA_29_68": {
+      "strategy_name": "COST_EMA_29_68",
+      "ticker": "COST",
+      "exit_signal": "HOLD",
+      "confidence": 79.01848734448757,
+      "dual_layer_score": 0.8772765317398392
+    },
+    "AMD_SMA_7_45": {
+      "strategy_name": "AMD_SMA_7_45",
+      "ticker": "AMD",
+      "exit_signal": "HOLD",
+      "confidence": 81.32256811711463,
+      "dual_layer_score": 0.9401830683772994
+    },
+    "AMZN_SMA_10_27": {
+      "strategy_name": "AMZN_SMA_10_27",
+      "ticker": "AMZN",
+      "exit_signal": "HOLD",
+      "confidence": 74.11576092682441,
+      "dual_layer_score": 0.7399256856163687
+    },
+    "FFIV_SMA_14_45": {
+      "strategy_name": "FFIV_SMA_14_45",
+      "ticker": "FFIV",
+      "exit_signal": "HOLD",
+      "confidence": 74.63473533786392,
+      "dual_layer_score": 0.7562705051487961
+    },
+    "ILMN_EMA_21_32": {
+      "strategy_name": "ILMN_EMA_21_32",
+      "ticker": "ILMN",
+      "exit_signal": "HOLD",
+      "confidence": 80.75984642659935,
+      "dual_layer_score": 0.9269497795025399
+    },
+    "RTX_EMA_27_41": {
+      "strategy_name": "RTX_EMA_27_41",
+      "ticker": "RTX",
+      "exit_signal": "HOLD",
+      "confidence": 75.25416820123212,
+      "dual_layer_score": 0.7687256776384628
+    },
+    "LMT_EMA_59_87": {
+      "strategy_name": "LMT_EMA_59_87",
+      "ticker": "LMT",
+      "exit_signal": "HOLD",
+      "confidence": 83.27573417523344,
+      "dual_layer_score": 0.9980800280633372
+    },
+    "CRWD_EMA_5_21": {
+      "strategy_name": "CRWD_EMA_5_21",
+      "ticker": "CRWD",
+      "exit_signal": "SELL",
+      "confidence": 70.87587919359929,
+      "dual_layer_score": 0.6347908923271507
+    }
+  }
+}

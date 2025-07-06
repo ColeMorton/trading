@@ -64,11 +64,15 @@ def filter_invalid_metrics(
 
     # Apply all filters if any exist
     if filters:
-        combined_filter = filters[0]
-        for f in filters[1:]:
-            combined_filter = combined_filter & f
-
-        filtered_df = df.filter(combined_filter)
+        # Apply filters one by one to avoid complex expression issues
+        filtered_df = df
+        for filter_expr in filters:
+            try:
+                filtered_df = filtered_df.filter(filter_expr)
+            except Exception as e:
+                if log:
+                    log(f"Warning: Filter expression failed: {e}", "warning")
+                continue
     else:
         filtered_df = df
 

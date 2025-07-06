@@ -549,12 +549,12 @@ class ExtendedPortfolioSchema:
 class ATRExtendedPortfolioSchema:
     """
     ATR Extended 64-column portfolio CSV schema definition.
-    
+
     Extends the Extended schema with ATR-specific fields for trailing stop analysis.
-    Adds ATR Stop Length and ATR Stop Multiplier as columns 59-60, maintaining 
+    Adds ATR Stop Length and ATR Stop Multiplier as columns 59-60, maintaining
     Allocation [%], Stop Loss [%], and position dates as columns 61-64.
     """
-    
+
     # ATR Extended column definitions (64 columns)
     COLUMNS: List[ColumnDefinition] = [
         # Start with all base schema columns (58 columns)
@@ -598,40 +598,40 @@ class ATRExtendedPortfolioSchema:
             description="Date when the last position was closed (YYYY-MM-DD format)",
         ),
     ]
-    
+
     @classmethod
     def get_column_names(cls) -> List[str]:
         """Get ordered list of ATR extended column names."""
         return [col.name for col in cls.COLUMNS]
-    
+
     @classmethod
     def get_column_count(cls) -> int:
         """Get the ATR extended column count (should always be 64)."""
         return len(cls.COLUMNS)
-    
+
     @classmethod
     def get_column_types(cls) -> Dict[str, ColumnDataType]:
         """Get mapping of column names to their data types."""
         return {col.name: col.data_type for col in cls.COLUMNS}
-    
+
     @classmethod
     def get_required_columns(cls) -> List[str]:
         """Get list of non-nullable column names."""
         return [col.name for col in cls.COLUMNS if not col.nullable]
-    
+
     @classmethod
     def get_column_descriptions(cls) -> Dict[str, str]:
         """Get mapping of column names to their descriptions."""
         return {col.name: col.description for col in cls.COLUMNS}
-    
+
     @classmethod
     def validate_column_order(cls, columns: List[str]) -> bool:
         """
         Validate that columns are in the correct ATR extended order.
-        
+
         Args:
             columns: List of column names to validate
-            
+
         Returns:
             True if columns match canonical order, False otherwise
         """
@@ -639,21 +639,21 @@ class ATRExtendedPortfolioSchema:
         if len(columns) != len(canonical_names):
             return False
         return columns == canonical_names
-    
+
     @classmethod
     def validate_column_completeness(cls, columns: List[str]) -> Dict[str, List[str]]:
         """
         Validate that all ATR extended columns are present.
-        
+
         Args:
             columns: List of column names to validate
-            
+
         Returns:
             Dictionary with 'missing' and 'extra' column lists
         """
         canonical_names = set(cls.get_column_names())
         provided_names = set(columns)
-        
+
         return {
             "missing": list(canonical_names - provided_names),
             "extra": list(provided_names - canonical_names),
@@ -683,17 +683,17 @@ class FilteredPortfolioSchema:
 class ATRFilteredPortfolioSchema:
     """
     ATR Filtered portfolio schema with Metric Type as first column.
-    
+
     This is used for portfolios_filtered directories where Metric Type
     is prepended as the first column for ATR portfolios (65 columns total).
     """
-    
+
     @classmethod
     def get_column_names(cls) -> List[str]:
         """Get ordered list of ATR filtered schema column names."""
         # Start with Metric Type, then add all ATR Extended schema columns
         return ["Metric Type"] + ATRExtendedPortfolioSchema.get_column_names()
-    
+
     @classmethod
     def get_column_count(cls) -> int:
         """Get the ATR filtered column count (should be 65)."""
@@ -718,7 +718,7 @@ class SchemaTransformer:
 
         # Check for ATR filtered schema (65 columns with Metric Type first and ATR fields)
         if (
-            num_columns >= 65 
+            num_columns >= 65
             and "Metric Type" in columns
             and "ATR Stop Length" in columns
             and "ATR Stop Multiplier" in columns
@@ -727,7 +727,7 @@ class SchemaTransformer:
 
         # Check for filtered schema (63 columns with Metric Type first, no ATR fields)
         if (
-            num_columns >= 59 
+            num_columns >= 59
             and "Metric Type" in columns
             and "ATR Stop Length" not in columns
             and "ATR Stop Multiplier" not in columns
@@ -942,7 +942,7 @@ class SchemaTransformer:
             atr_extended["ATR Stop Length"] = atr_stop_length
         if atr_stop_multiplier is not None:
             atr_extended["ATR Stop Multiplier"] = atr_stop_multiplier
-        
+
         # Set other values if explicitly provided (overrides force_analysis_defaults)
         if allocation_pct is not None:
             atr_extended["Allocation [%]"] = allocation_pct

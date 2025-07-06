@@ -8,7 +8,7 @@ and @csv/strategies/ backtests for validation.
 import json
 import os
 from pathlib import Path
-from typing import Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 import polars as pl
 

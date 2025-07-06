@@ -801,6 +801,8 @@ Examples:
                 mfe = 0.0
                 mae = 0.0
                 unrealized_pnl = 0.0
+                current_price = 0.0
+                entry_price = 0.0
 
                 # Try asset analysis first
                 if hasattr(result, "asset_analysis") and result.asset_analysis:
@@ -834,6 +836,21 @@ Examples:
                 if hasattr(result, "_temp_trade_mae") and result._temp_trade_mae != 0.0:
                     mae = result._temp_trade_mae
 
+                # Extract current price and entry price for unrealized P&L calculation
+                if hasattr(result, "_temp_current_price"):
+                    current_price = result._temp_current_price
+                if hasattr(result, "_temp_entry_price"):
+                    entry_price = result._temp_entry_price
+
+                # Calculate unrealized P&L if we have price data
+                if current_price > 0 and entry_price > 0:
+                    unrealized_pnl = (
+                        (current_price - entry_price) / entry_price
+                    ) * 100.0
+                elif current_return != 0.0:
+                    # Fallback to current_return as unrealized P&L
+                    unrealized_pnl = current_return * 100.0
+
                 # Extract sample size and confidence
                 sample_size = 0
                 sample_size_confidence = 0.5
@@ -862,6 +879,33 @@ Examples:
                     statistical_significance = ConfidenceLevel.LOW
                     sample_size_confidence = 0.70
 
+                # Calculate dynamic p_value based on confidence and sample size
+                p_value = 0.1  # Default
+                if sample_size >= 30:
+                    p_value = 0.05  # High confidence
+                elif sample_size >= 15:
+                    p_value = 0.1  # Medium confidence
+                else:
+                    p_value = 0.2  # Low confidence
+
+                # Fix strategy_layer_percentile calculation
+                # If strategy_layer_percentile is 0.0, calculate it from convergence data
+                if (
+                    strategy_layer_percentile == 0.0
+                    and dual_layer_convergence_score > 0
+                ):
+                    # Use dual-layer convergence score to derive strategy layer percentile
+                    strategy_layer_percentile = (
+                        asset_layer_percentile * dual_layer_convergence_score
+                    )
+                elif strategy_layer_percentile == 0.0:
+                    # Use signal confidence as fallback
+                    strategy_layer_percentile = (
+                        signal_confidence * 100.0
+                        if signal_confidence <= 1.0
+                        else signal_confidence
+                    )
+
                 # Get overall confidence
                 overall_confidence = getattr(
                     result, "overall_confidence", signal_confidence * 100.0
@@ -889,7 +933,7 @@ Examples:
                     ),
                     target_exit_timeframe="",  # Not available in current model
                     statistical_significance=statistical_significance,
-                    p_value=0.1,  # Default p-value
+                    p_value=p_value,  # Dynamic p-value based on sample size
                     divergence_metrics={
                         "z_score": z_score,
                         "iqr_score": iqr_score,
@@ -926,7 +970,7 @@ Examples:
                     exit_recommendation="Analysis failed - manual review required",
                     target_exit_timeframe="",
                     statistical_significance=ConfidenceLevel.LOW,
-                    p_value=0.1,
+                    p_value=0.2,  # Low confidence fallback
                     divergence_metrics={
                         "z_score": 0.0,
                         "iqr_score": 0.0,

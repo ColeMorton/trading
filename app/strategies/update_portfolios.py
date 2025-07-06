@@ -83,8 +83,8 @@ config = {
     # "PORTFOLIO": 'HOURLY Crypto.csv',
     # "PORTFOLIO": 'BTC_MSTR_TLT_d_20250404.csv',
     # "PORTFOLIO": "protected.csv",
-    # "PORTFOLIO": "live_signals.csv",
-    "PORTFOLIO": "risk_on.csv",
+    "PORTFOLIO": "live_signals.csv",
+    # "PORTFOLIO": "risk_on.csv",
     # "PORTFOLIO": 'MSTY_h.csv',
     # "PORTFOLIO": 'BTC_h_20250416.csv',
     # "PORTFOLIO": 'STRK_h_20250415.csv',
@@ -149,6 +149,7 @@ def run(portfolio: str) -> bool:
         local_config = normalize_config(config.copy())
 
         # Use the enhanced portfolio loader with standardized error handling
+        daily_df = None
         with error_context(
             "Loading portfolio", log, {FileNotFoundError: PortfolioLoadError}
         ):
@@ -156,119 +157,121 @@ def run(portfolio: str) -> bool:
             if not daily_df:
                 return False
 
-            # Detect schema version using the schema_detection module
-            schema_version = detect_schema_version(daily_df)
-            log(f"Detected schema version: {schema_version.name}", "info")
+        # Check if portfolio was loaded successfully
+        if not daily_df:
+            return False
 
-            # Normalize portfolio data to ensure consistent schema handling
-            daily_df = normalize_portfolio_data(daily_df, schema_version, log)
-            log(f"Normalized portfolio data with {len(daily_df)} rows", "info")
+        # Detect schema version using the schema_detection module
+        schema_version = detect_schema_version(daily_df)
+        log(f"Detected schema version: {schema_version.name}", "info")
 
-            # Process allocation and stop loss data if using extended schema
-            if schema_version == SchemaVersion.EXTENDED:
-                log("Processing allocation and stop loss data...", "info")
+        # Normalize portfolio data to ensure consistent schema handling
+        daily_df = normalize_portfolio_data(daily_df, schema_version, log)
+        log(f"Normalized portfolio data with {len(daily_df)} rows", "info")
 
-                # Process allocation values
-                # Validate allocation values
-                daily_df = validate_allocations(daily_df, log)
+        # Process allocation and stop loss data if using extended schema
+        if schema_version == SchemaVersion.EXTENDED:
+            log("Processing allocation and stop loss data...", "info")
 
-                # Normalize allocation field names
-                daily_df = normalize_allocations(daily_df, log)
+            # Process allocation values
+            # Validate allocation values
+            daily_df = validate_allocations(daily_df, log)
 
-                # Get allocation summary before processing
-                allocation_summary = get_allocation_summary(daily_df, log)
-                log(f"Initial allocation summary: {allocation_summary}", "info")
+            # Normalize allocation field names
+            daily_df = normalize_allocations(daily_df, log)
 
-                # Only process allocations if user explicitly provided them
-                # Do not auto-distribute or auto-normalize empty allocations
-                total_rows = (
-                    allocation_summary["allocated_rows"]
-                    + allocation_summary["unallocated_rows"]
+            # Get allocation summary before processing
+            allocation_summary = get_allocation_summary(daily_df, log)
+            log(f"Initial allocation summary: {allocation_summary}", "info")
+
+            # Only process allocations if user explicitly provided them
+            # Do not auto-distribute or auto-normalize empty allocations
+            total_rows = (
+                allocation_summary["allocated_rows"]
+                + allocation_summary["unallocated_rows"]
+            )
+
+            # Only process if ALL rows have allocations (user explicitly set them)
+            if (
+                allocation_summary["allocated_rows"] == total_rows
+                and allocation_summary["allocated_rows"] > 0
+            ):
+                # All positions have allocations - normalize them to sum to 100%
+                daily_df = ensure_allocation_sum_100_percent(daily_df, log)
+
+                # Get updated allocation summary
+                updated_summary = get_allocation_summary(daily_df, log)
+                log(f"Updated allocation summary: {updated_summary}", "info")
+            elif (
+                allocation_summary["allocated_rows"] > 0
+                and allocation_summary["unallocated_rows"] > 0
+            ):
+                # Partial allocations - warn but don't auto-distribute
+                log(
+                    f"Warning: Partial allocations detected ({allocation_summary['allocated_rows']} of {total_rows} positions). Empty allocations will remain empty.",
+                    "warning",
+                )
+            else:
+                log(
+                    "No allocations provided - keeping all allocations empty",
+                    "info",
                 )
 
-                # Only process if ALL rows have allocations (user explicitly set them)
-                if (
-                    allocation_summary["allocated_rows"] == total_rows
-                    and allocation_summary["allocated_rows"] > 0
-                ):
-                    # All positions have allocations - normalize them to sum to 100%
-                    daily_df = ensure_allocation_sum_100_percent(daily_df, log)
+            # Process stop loss values
+            # Validate stop loss values
+            daily_df = validate_stop_loss(daily_df, log)
 
-                    # Get updated allocation summary
-                    updated_summary = get_allocation_summary(daily_df, log)
-                    log(f"Updated allocation summary: {updated_summary}", "info")
-                elif (
-                    allocation_summary["allocated_rows"] > 0
-                    and allocation_summary["unallocated_rows"] > 0
-                ):
-                    # Partial allocations - warn but don't auto-distribute
-                    log(
-                        f"Warning: Partial allocations detected ({allocation_summary['allocated_rows']} of {total_rows} positions). Empty allocations will remain empty.",
-                        "warning",
-                    )
-                else:
-                    log(
-                        "No allocations provided - keeping all allocations empty",
-                        "info",
-                    )
+            # Normalize stop loss field names
+            daily_df = normalize_stop_loss(daily_df, log)
 
-                # Process stop loss values
-                # Validate stop loss values
-                daily_df = validate_stop_loss(daily_df, log)
+            # Get stop loss summary
+            stop_loss_summary = get_stop_loss_summary(daily_df, log)
+            log(f"Stop loss summary: {stop_loss_summary}", "info")
 
-                # Normalize stop loss field names
-                daily_df = normalize_stop_loss(daily_df, log)
+            # Add schema version to each row for future reference
+            for row in daily_df:
+                row["_schema_version"] = schema_version.name
 
-                # Get stop loss summary
-                stop_loss_summary = get_stop_loss_summary(daily_df, log)
-                log(f"Stop loss summary: {stop_loss_summary}", "info")
+        # Check for allocation and stop loss columns
+        has_allocation = any(
+            strategy.get("Allocation [%]") is not None
+            and strategy.get("Allocation [%]") != ""
+            and strategy.get("Allocation [%]") != "None"
+            for strategy in daily_df
+        )
+        has_stop_loss = any(
+            strategy.get("Stop Loss [%]") is not None
+            and strategy.get("Stop Loss [%]") != ""
+            and strategy.get("Stop Loss [%]") != "None"
+            for strategy in daily_df
+        )
 
-                # Add schema version to each row for future reference
-                for row in daily_df:
-                    row["_schema_version"] = schema_version.name
+        # Check for column existence even if values are empty
+        has_allocation_column = any(
+            "Allocation [%]" in strategy for strategy in daily_df
+        )
+        has_stop_loss_column = any("Stop Loss [%]" in strategy for strategy in daily_df)
 
-            # Check for allocation and stop loss columns
-            has_allocation = any(
-                strategy.get("Allocation [%]") is not None
-                and strategy.get("Allocation [%]") != ""
-                and strategy.get("Allocation [%]") != "None"
-                for strategy in daily_df
-            )
-            has_stop_loss = any(
-                strategy.get("Stop Loss [%]") is not None
-                and strategy.get("Stop Loss [%]") != ""
-                and strategy.get("Stop Loss [%]") != "None"
-                for strategy in daily_df
-            )
+        if has_allocation_column:
+            log("Portfolio has Allocation [%] column", "info")
+            if has_allocation:
+                log("Portfolio contains allocation values", "info")
+            else:
+                log("Portfolio has Allocation [%] column but no values", "info")
 
-            # Check for column existence even if values are empty
-            has_allocation_column = any(
-                "Allocation [%]" in strategy for strategy in daily_df
-            )
-            has_stop_loss_column = any(
-                "Stop Loss [%]" in strategy for strategy in daily_df
-            )
+        if has_stop_loss_column:
+            log("Portfolio has Stop Loss [%] column", "info")
+            if has_stop_loss:
+                log("Portfolio contains stop loss values", "info")
+            else:
+                log("Portfolio has Stop Loss [%] column but no values", "info")
 
-            if has_allocation_column:
-                log("Portfolio has Allocation [%] column", "info")
-                if has_allocation:
-                    log("Portfolio contains allocation values", "info")
-                else:
-                    log("Portfolio has Allocation [%] column but no values", "info")
+        # Set extended schema flag if either column exists
+        if has_allocation_column or has_stop_loss_column:
+            local_config["USE_EXTENDED_SCHEMA"] = True
+            log("Using extended schema for processing", "info")
 
-            if has_stop_loss_column:
-                log("Portfolio has Stop Loss [%] column", "info")
-                if has_stop_loss:
-                    log("Portfolio contains stop loss values", "info")
-                else:
-                    log("Portfolio has Stop Loss [%] column but no values", "info")
-
-            # Set extended schema flag if either column exists
-            if has_allocation_column or has_stop_loss_column:
-                local_config["USE_EXTENDED_SCHEMA"] = True
-                log("Using extended schema for processing", "info")
-
-            portfolios = []
+        portfolios = []
 
         # Process each ticker
         for strategy in daily_df:
