@@ -39,6 +39,37 @@ python app/strategies/update_portfolios.py
 python app/concurrency/review.py
 ```
 
+### Statistical Performance Divergence System
+
+```bash
+# Quick portfolio analysis
+python -m app.tools --portfolio risk_on.csv
+
+# Analysis with trade history
+python -m app.tools --portfolio risk_on.csv --trade-history
+
+# Analysis with equity curves only
+python -m app.tools --portfolio conservative.csv --no-trade-history
+
+# Interactive mode
+python -m app.tools --interactive
+
+# Show configuration
+python -m app.tools --show-config
+
+# List available portfolios
+python -m app.tools --list-portfolios
+
+# Create demo files and run example
+python -m app.tools --demo
+
+# Output as JSON
+python -m app.tools --portfolio risk_on.csv --output-format json
+
+# Save results to file
+python -m app.tools --portfolio risk_on.csv --save-results results.json
+```
+
 ## Architecture Overview
 
 ### Core Components

@@ -512,7 +512,7 @@ Examples:
   python %(prog)s --remove-duplicates --portfolio live_signals
 
   # Find position by UUID
-  python %(prog)s --find-position --uuid "AAPL_SMA_20_50_0_2025-01-01"
+  python %(prog)s --find-position --uuid "AAPL_SMA_20_50_20250101"
         """,
     )
 

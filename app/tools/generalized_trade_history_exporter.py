@@ -41,6 +41,8 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import pandas as pd
 import polars as pl
 
+from .uuid_utils import generate_position_uuid as _generate_position_uuid
+
 logger = logging.getLogger(__name__)
 
 
@@ -132,9 +134,18 @@ def validate_date_string(date_str: str) -> bool:
     """Validate date string format."""
     try:
         if " " in date_str:
-            datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+            # Try with timestamp
+            date_part = date_str.split(" ")[0]
+            if len(date_part) == 8 and date_part.isdigit():
+                datetime.strptime(date_str, "%Y%m%d %H:%M:%S")
+            else:
+                datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
         else:
-            datetime.strptime(date_str, "%Y-%m-%d")
+            # Try YYYYMMDD format first (new convention), then YYYY-MM-DD (old format)
+            if len(date_str) == 8 and date_str.isdigit():
+                datetime.strptime(date_str, "%Y%m%d")
+            else:
+                datetime.strptime(date_str, "%Y-%m-%d")
         return True
     except ValueError:
         return False
@@ -157,11 +168,15 @@ def generate_position_uuid(
     if not validate_date_string(entry_date):
         raise ValueError(f"Invalid entry date: {entry_date}")
 
-    # Clean entry date to YYYY-MM-DD format
-    if isinstance(entry_date, str) and " " in entry_date:
-        entry_date = entry_date.split(" ")[0]
-
-    return f"{ticker.upper()}_{strategy_type.upper()}_{short_window}_{long_window}_{signal_window}_{entry_date}"
+    # Use centralized UUID generation
+    return _generate_position_uuid(
+        ticker=ticker,
+        strategy_type=strategy_type,
+        short_window=short_window,
+        long_window=long_window,
+        signal_window=signal_window,
+        entry_date=entry_date,
+    )
 
 
 def calculate_mfe_mae(
@@ -518,13 +533,13 @@ def estimate_strategy_entry_date(
             closest_idx = df["Date"].searchsorted(entry_date)
             if closest_idx < len(df):
                 entry_row = df.iloc[closest_idx]
-                return entry_row["Date"].strftime("%Y-%m-%d"), entry_row["Close"]
+                return entry_row["Date"].strftime("%Y%m%d"), entry_row["Close"]
             else:
                 return None, None
 
         # Use the most recent signal
         entry_row = recent_signals.iloc[-1]
-        entry_date = entry_row["Date"].strftime("%Y-%m-%d")
+        entry_date = entry_row["Date"].strftime("%Y%m%d")
         entry_price = entry_row["Close"]
 
         return entry_date, entry_price
@@ -603,7 +618,11 @@ def create_position_record(
     days_since_entry = None
     if entry_date:
         try:
-            entry_dt = datetime.strptime(entry_date, "%Y-%m-%d")
+            # Try YYYYMMDD format first (new convention), then YYYY-MM-DD (old format)
+            if len(entry_date) == 8 and entry_date.isdigit():
+                entry_dt = datetime.strptime(entry_date, "%Y%m%d")
+            else:
+                entry_dt = datetime.strptime(entry_date, "%Y-%m-%d")
             days_since_entry = (datetime.now() - entry_dt).days
         except ValueError:
             logger.warning(

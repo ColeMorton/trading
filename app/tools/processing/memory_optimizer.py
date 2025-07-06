@@ -259,8 +259,7 @@ class MemoryOptimizer:
 
     def _configure_pandas(self):
         """Configure pandas for memory efficiency."""
-        # Use categorical types for string columns with low cardinality
-        pd.options.mode.use_inf_as_na = True
+        # Note: use_inf_as_na is deprecated. We handle inf values explicitly in optimize_dataframe instead
 
         # Reduce display options to save memory
         pd.options.display.max_rows = 50
@@ -277,6 +276,12 @@ class MemoryOptimizer:
             Optimized DataFrame
         """
         start_mem = df.memory_usage().sum() / 1024 / 1024
+
+        # Handle inf values explicitly (replaces deprecated use_inf_as_na option)
+        numeric_cols = df.select_dtypes(include=["int", "float"]).columns
+        df[numeric_cols] = df[numeric_cols].replace(
+            [float("inf"), float("-inf")], float("nan")
+        )
 
         # Downcast numeric columns
         for col in df.select_dtypes(include=["int"]).columns:
@@ -300,6 +305,26 @@ class MemoryOptimizer:
         )
 
         return df
+
+    def read_csv_optimized(self, filepath: str, **kwargs) -> pd.DataFrame:
+        """
+        Read CSV file with memory optimization.
+
+        Args:
+            filepath: Path to CSV file
+            **kwargs: Additional arguments passed to pd.read_csv
+
+        Returns:
+            Optimized DataFrame
+        """
+        # Monitor memory during operation
+        if self.monitor:
+            with self.monitor.monitor_operation(f"read_csv_optimized({filepath})"):
+                df = pd.read_csv(filepath, **kwargs)
+                return self.optimize_dataframe(df)
+        else:
+            df = pd.read_csv(filepath, **kwargs)
+            return self.optimize_dataframe(df)
 
     def clear_memory_cache(self):
         """Clear various memory caches and trigger garbage collection."""

@@ -150,9 +150,9 @@ def example_4_closed_positions():
         strategy_type="SMA",
         short_window=20,
         long_window=50,
-        entry_date="2025-01-01",
+        entry_date="20250101",
         entry_price=500.00,
-        exit_date="2025-03-01",
+        exit_date="20250301",
         exit_price=550.00,
         position_size=100,
         portfolio_name="closed_trades",
@@ -166,9 +166,9 @@ def example_4_closed_positions():
         strategy_type="EMA",
         short_window=12,
         long_window=26,
-        entry_date="2025-01-15",
+        entry_date="20250115",
         entry_price=300.00,
-        exit_date="2025-02-15",
+        exit_date="20250215",
         exit_price=280.00,
         position_size=50,
         portfolio_name="closed_trades",
@@ -251,9 +251,7 @@ def example_7_real_world_qcom():
     print("=" * 60)
 
     # Add the QCOM position as requested
-    qcom_uuid = add_qcom_position(
-        entry_date="2025-06-24", portfolio_name="live_signals"
-    )
+    qcom_uuid = add_qcom_position(entry_date="20250624", portfolio_name="live_signals")
     print(f"Added QCOM SMA 49/66 position: {qcom_uuid}")
 
     # Get portfolio summary
@@ -338,7 +336,7 @@ def example_10_advanced_features():
         short_window=12,
         long_window=26,
         signal_window=9,
-        entry_date="2025-06-01",
+        entry_date="20250601",
         entry_price=65000.00,
         position_size=0.1,
         direction="Long",

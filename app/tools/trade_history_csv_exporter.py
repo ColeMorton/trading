@@ -23,6 +23,8 @@ from typing import Any, Dict, List, Optional, Union
 import pandas as pd
 import polars as pl
 
+from .uuid_utils import generate_position_uuid as _generate_position_uuid
+
 
 # Configuration class for flexible path management
 class TradingSystemConfig:
@@ -83,12 +85,15 @@ def generate_position_uuid(
     entry_date: str,
 ) -> str:
     """Generate unique position identifier."""
-    # Clean entry date to YYYY-MM-DD format
-    if isinstance(entry_date, str):
-        if " " in entry_date:
-            entry_date = entry_date.split(" ")[0]
-
-    return f"{ticker}_{strategy_type}_{short_window}_{long_window}_{signal_window}_{entry_date}"
+    # Use centralized UUID generation
+    return _generate_position_uuid(
+        ticker=ticker,
+        strategy_type=strategy_type,
+        short_window=short_window,
+        long_window=long_window,
+        signal_window=signal_window,
+        entry_date=entry_date,
+    )
 
 
 def extract_position_data(trade_data: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -146,9 +151,12 @@ def extract_position_data(trade_data: Dict[str, Any]) -> List[Dict[str, Any]]:
             # Open position
             if entry_timestamp:
                 try:
-                    entry_date = datetime.strptime(
-                        entry_timestamp.split(" ")[0], "%Y-%m-%d"
-                    )
+                    entry_date_str = entry_timestamp.split(" ")[0]
+                    # Try YYYYMMDD format first (new convention), then YYYY-MM-DD (old format)
+                    if len(entry_date_str) == 8 and entry_date_str.isdigit():
+                        entry_date = datetime.strptime(entry_date_str, "%Y%m%d")
+                    else:
+                        entry_date = datetime.strptime(entry_date_str, "%Y-%m-%d")
                     days_since_entry = (datetime.now() - entry_date).days
                     current_excursion_status = "Open"
                 except:
@@ -219,8 +227,14 @@ def export_single_trade_history_to_csv(
 
     output_filename = f"{ticker}_{strategy_type}"
     if params:
+        # For SMA and EMA strategies, omit signal_window parameter
+        strategy_upper = strategy_type.upper()
         for key, value in params.items():
-            if value != 0:  # Skip signal_window if 0
+            # Skip signal_window for SMA/EMA strategies, regardless of value
+            if key == "signal_window" and strategy_upper in ["SMA", "EMA"]:
+                continue
+            # For other strategies, include all non-zero parameters
+            if value != 0:
                 output_filename += f"_{value}"
     output_filename += "_positions.csv"
 
@@ -450,7 +464,11 @@ def migrate_live_signals_to_trade_history():
             days_since_entry = None
             if not matching_trade.get("Exit Timestamp"):
                 try:
-                    entry_dt = datetime.strptime(entry_date, "%Y-%m-%d")
+                    # Try YYYYMMDD format first (new convention), then YYYY-MM-DD (old format)
+                    if len(entry_date) == 8 and entry_date.isdigit():
+                        entry_dt = datetime.strptime(entry_date, "%Y%m%d")
+                    else:
+                        entry_dt = datetime.strptime(entry_date, "%Y-%m-%d")
                     days_since_entry = (datetime.now() - entry_dt).days
                 except:
                     pass
@@ -490,7 +508,11 @@ def migrate_live_signals_to_trade_history():
             days_since_entry = None
             if not exit_date:
                 try:
-                    entry_dt = datetime.strptime(entry_date, "%Y-%m-%d")
+                    # Try YYYYMMDD format first (new convention), then YYYY-MM-DD (old format)
+                    if len(entry_date) == 8 and entry_date.isdigit():
+                        entry_dt = datetime.strptime(entry_date, "%Y%m%d")
+                    else:
+                        entry_dt = datetime.strptime(entry_date, "%Y-%m-%d")
                     days_since_entry = (datetime.now() - entry_dt).days
                 except:
                     pass
@@ -581,13 +603,13 @@ def estimate_strategy_entry_date(
             closest_idx = df["Date"].searchsorted(entry_date)
             if closest_idx < len(df):
                 entry_row = df.iloc[closest_idx]
-                return entry_row["Date"].strftime("%Y-%m-%d"), entry_row["Close"]
+                return entry_row["Date"].strftime("%Y%m%d"), entry_row["Close"]
             else:
                 return None, None
 
         # Use the most recent signal
         entry_row = recent_signals.iloc[-1]
-        entry_date = entry_row["Date"].strftime("%Y-%m-%d")
+        entry_date = entry_row["Date"].strftime("%Y%m%d")
         entry_price = entry_row["Close"]  # Use closing price as entry price
 
         return entry_date, entry_price
@@ -635,7 +657,7 @@ def convert_strategy_to_trade_history(strategy_name: str):
         f"/Users/colemorton/Projects/trading/csv/strategies/{strategy_name}.csv"
     )
     output_file = (
-        f"/Users/colemorton/Projects/trading/csv/positions/{strategy_name}.csv"
+        f"/Users/colemorton/Projects/trading/csv/trade_history/{strategy_name}.csv"
     )
 
     # Create output directory
@@ -683,7 +705,11 @@ def convert_strategy_to_trade_history(strategy_name: str):
 
         # Calculate days since entry
         try:
-            entry_dt = datetime.strptime(entry_date, "%Y-%m-%d")
+            # Try YYYYMMDD format first (new convention), then YYYY-MM-DD (old format)
+            if len(entry_date) == 8 and entry_date.isdigit():
+                entry_dt = datetime.strptime(entry_date, "%Y%m%d")
+            else:
+                entry_dt = datetime.strptime(entry_date, "%Y-%m-%d")
             days_since_entry = (datetime.now() - entry_dt).days
         except:
             days_since_entry = None

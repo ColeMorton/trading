@@ -34,17 +34,23 @@ def generate_equity_filename(
         signal_window: Signal period (optional, defaults to 0)
 
     Returns:
-        Filename string in format: {Ticker}_{Strategy_Type}_{Short}_{Long}_{Signal}.csv
+        Filename string in format:
+        - MACD: {Ticker}_{Strategy_Type}_{Short}_{Long}_{Signal}.csv
+        - SMA/EMA: {Ticker}_{Strategy_Type}_{Short}_{Long}.csv
     """
-    # Default signal window to 0 if not provided
-    signal = signal_window if signal_window is not None else 0
-
     # Clean ticker for filename (replace invalid characters)
     clean_ticker = ticker.replace("/", "-").replace("\\", "-").replace(":", "-")
 
-    filename = (
-        f"{clean_ticker}_{strategy_type}_{short_window}_{long_window}_{signal}.csv"
-    )
+    if strategy_type == "MACD":
+        # MACD strategies require signal window
+        signal = signal_window if signal_window is not None else 0
+        filename = (
+            f"{clean_ticker}_{strategy_type}_{short_window}_{long_window}_{signal}.csv"
+        )
+    else:
+        # SMA/EMA strategies don't use signal window
+        filename = f"{clean_ticker}_{strategy_type}_{short_window}_{long_window}.csv"
+
     return filename
 
 

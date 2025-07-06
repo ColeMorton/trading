@@ -1,0 +1,518 @@
+"""
+Portfolio Statistical Analysis - Simplified Interface
+
+This module provides a clean, portfolio-centric interface for the Statistical
+Performance Divergence System. Just specify a portfolio and whether to use
+trade history - everything else is handled automatically.
+"""
+
+import asyncio
+import logging
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+import pandas as pd
+
+from .config.statistical_analysis_config import SPDSConfig, StatisticalAnalysisConfig
+from .models.statistical_analysis_models import StatisticalAnalysisResult
+from .services.statistical_analysis_service import StatisticalAnalysisService
+
+
+class PortfolioStatisticalAnalyzer:
+    """
+    Simplified portfolio-based statistical analyzer.
+
+    Usage:
+        # Analyze portfolio with trade history
+        analyzer = PortfolioStatisticalAnalyzer("risk_on.csv", use_trade_history=True)
+        results = await analyzer.analyze()
+
+        # Analyze portfolio with equity curves
+        analyzer = PortfolioStatisticalAnalyzer("conservative.csv", use_trade_history=False)
+        results = await analyzer.analyze()
+    """
+
+    def __init__(
+        self,
+        portfolio: str,
+        use_trade_history: bool = True,
+        logger: Optional[logging.Logger] = None,
+    ):
+        """
+        Initialize portfolio analyzer.
+
+        Args:
+            portfolio: Portfolio filename (e.g., "risk_on.csv")
+            use_trade_history: Use trade history (True) or equity curves (False)
+            logger: Optional logger instance
+        """
+        self.portfolio = portfolio
+        self.use_trade_history = use_trade_history
+        self.logger = logger or logging.getLogger(__name__)
+
+        # Create configuration
+        self.config = StatisticalAnalysisConfig.create(portfolio, use_trade_history)
+
+        # Initialize service
+        self.service = StatisticalAnalysisService(
+            config=self.config, logger=self.logger
+        )
+
+        # Cache loaded data
+        self._portfolio_data: Optional[pd.DataFrame] = None
+        self._trade_history_data: Optional[pd.DataFrame] = None
+
+        self.logger.info(
+            f"Portfolio analyzer initialized for '{portfolio}' with "
+            f"trade_history={use_trade_history}"
+        )
+
+    def load_portfolio(self) -> pd.DataFrame:
+        """Load portfolio CSV from ./csv/strategies/"""
+        if self._portfolio_data is not None:
+            return self._portfolio_data
+
+        portfolio_path = self.config.get_portfolio_file_path()
+
+        if not portfolio_path.exists():
+            raise FileNotFoundError(f"Portfolio file not found: {portfolio_path}")
+
+        self.logger.info(f"Loading portfolio from: {portfolio_path}")
+        self._portfolio_data = pd.read_csv(portfolio_path)
+
+        self.logger.info(
+            f"Loaded {len(self._portfolio_data)} strategies from portfolio"
+        )
+        return self._portfolio_data
+
+    def load_trade_history(self) -> Optional[pd.DataFrame]:
+        """Load trade history CSV from ./csv/trade_history/ (same filename as portfolio)"""
+        if not self.use_trade_history:
+            return None
+
+        if self._trade_history_data is not None:
+            return self._trade_history_data
+
+        trade_history_path = self.config.get_trade_history_file_path()
+
+        if not trade_history_path.exists():
+            if self.config.FALLBACK_TO_EQUITY:
+                self.logger.warning(
+                    f"Trade history file not found: {trade_history_path}, "
+                    "will fallback to equity data"
+                )
+                return None
+            else:
+                raise FileNotFoundError(
+                    f"Trade history file not found: {trade_history_path}"
+                )
+
+        self.logger.info(f"Loading trade history from: {trade_history_path}")
+        self._trade_history_data = pd.read_csv(trade_history_path)
+
+        self.logger.info(f"Loaded {len(self._trade_history_data)} trades from history")
+        return self._trade_history_data
+
+    async def analyze(self) -> Dict[str, StatisticalAnalysisResult]:
+        """
+        Analyze entire portfolio and return results for all strategies.
+
+        Returns:
+            Dictionary mapping strategy names to analysis results
+        """
+        portfolio_data = self.load_portfolio()
+        trade_history_data = self.load_trade_history()
+
+        results = {}
+
+        # Extract unique strategies from portfolio
+        strategies = self._extract_strategies_from_portfolio(portfolio_data)
+
+        self.logger.info(f"Analyzing {len(strategies)} strategies from portfolio")
+
+        for strategy_info in strategies:
+            try:
+                result = await self._analyze_strategy(strategy_info, trade_history_data)
+                results[strategy_info["strategy_name"]] = result
+
+            except Exception as e:
+                self.logger.error(
+                    f"Failed to analyze strategy {strategy_info['strategy_name']}: {e}"
+                )
+                # Continue with other strategies
+
+        self.logger.info(f"Completed analysis of {len(results)} strategies")
+        return results
+
+    def get_exit_signals(
+        self, results: Dict[str, StatisticalAnalysisResult]
+    ) -> Dict[str, str]:
+        """
+        Extract exit signals from analysis results.
+
+        Args:
+            results: Analysis results from analyze()
+
+        Returns:
+            Dictionary mapping strategy names to exit signals
+        """
+        signals = {}
+
+        for strategy_name, result in results.items():
+            # Check for exit_signal field (ProbabilisticExitSignal object)
+            if hasattr(result, "exit_signal") and result.exit_signal:
+                if hasattr(result.exit_signal, "signal_type"):
+                    if hasattr(result.exit_signal.signal_type, "value"):
+                        signals[strategy_name] = result.exit_signal.signal_type.value
+                    else:
+                        signals[strategy_name] = str(result.exit_signal.signal_type)
+                else:
+                    signals[strategy_name] = "HOLD"  # Default
+            elif hasattr(result, "exit_signals") and result.exit_signals:
+                # Legacy field name
+                signals[strategy_name] = result.exit_signals.primary_signal
+            else:
+                signals[strategy_name] = "HOLD"  # Default
+
+        return signals
+
+    def get_summary_report(
+        self, results: Dict[str, StatisticalAnalysisResult]
+    ) -> Dict[str, Any]:
+        """
+        Generate summary report of portfolio analysis.
+
+        Args:
+            results: Analysis results from analyze()
+
+        Returns:
+            Summary statistics and recommendations
+        """
+        exit_signals = self.get_exit_signals(results)
+
+        signal_counts = {}
+        for signal in exit_signals.values():
+            signal_counts[signal] = signal_counts.get(signal, 0) + 1
+
+        high_confidence_count = 0
+        total_strategies = len(results)
+
+        for result in results.values():
+            # Check multiple ways to get confidence
+            confidence = 0.5  # Default
+
+            # Try overall_confidence field directly
+            if hasattr(result, "overall_confidence"):
+                confidence = result.overall_confidence
+                # Convert to fraction if percentage
+                if confidence > 1.0:
+                    confidence = confidence / 100.0
+            # Try exit_signal.confidence
+            elif (
+                hasattr(result, "exit_signal")
+                and result.exit_signal
+                and hasattr(result.exit_signal, "confidence")
+            ):
+                confidence = result.exit_signal.confidence
+                # Convert to fraction if percentage
+                if confidence > 1.0:
+                    confidence = confidence / 100.0
+            # Try confidence_metrics.overall_confidence
+            elif (
+                hasattr(result, "confidence_metrics")
+                and result.confidence_metrics
+                and hasattr(result.confidence_metrics, "overall_confidence")
+            ):
+                confidence = result.confidence_metrics.overall_confidence
+                # Convert to fraction if percentage
+                if confidence > 1.0:
+                    confidence = confidence / 100.0
+
+            # Count as high confidence if > 80%
+            if confidence > 0.8:
+                high_confidence_count += 1
+
+        return {
+            "portfolio": self.portfolio,
+            "total_strategies": total_strategies,
+            "use_trade_history": self.use_trade_history,
+            "signal_distribution": signal_counts,
+            "high_confidence_analyses": high_confidence_count,
+            "confidence_rate": high_confidence_count / total_strategies
+            if total_strategies > 0
+            else 0,
+            "immediate_exits": signal_counts.get("EXIT_IMMEDIATELY", 0),
+            "strong_sells": signal_counts.get("STRONG_SELL", 0),
+            "holds": signal_counts.get("HOLD", 0),
+        }
+
+    def _extract_strategies_from_portfolio(
+        self, portfolio_data: pd.DataFrame
+    ) -> List[Dict[str, Any]]:
+        """Extract strategy information from portfolio CSV."""
+        strategies = []
+
+        for _, row in portfolio_data.iterrows():
+            # Handle your specific CSV format with Ticker, Strategy Type, Short Window, Long Window
+            ticker = row.get("Ticker", row.get("ticker", row.get("Symbol", "UNKNOWN")))
+            strategy_type = row.get("Strategy Type", row.get("strategy_type", "SMA"))
+            short_window = row.get("Short Window", row.get("short_window", ""))
+            long_window = row.get("Long Window", row.get("long_window", ""))
+
+            # Create strategy name from components
+            if ticker != "UNKNOWN" and str(short_window) and str(long_window):
+                strategy_name = f"{ticker}_{strategy_type}_{short_window}_{long_window}"
+            else:
+                # Fallback to existing logic for other formats
+                strategy_name = row.get("strategy_name", row.get("Strategy", "UNKNOWN"))
+
+            strategy_info = {
+                "strategy_name": strategy_name,
+                "ticker": ticker,
+                "allocation": row.get("allocation", row.get("Allocation", 0.0)),
+                "strategy_type": strategy_type,
+                "short_window": short_window,
+                "long_window": long_window,
+            }
+
+            # Add any additional columns as metadata
+            for col in portfolio_data.columns:
+                if col not in [
+                    "strategy_name",
+                    "ticker",
+                    "allocation",
+                    "Strategy",
+                    "Ticker",
+                    "Symbol",
+                    "Allocation",
+                    "Strategy Type",
+                    "Short Window",
+                    "Long Window",
+                ]:
+                    strategy_info[col.lower().replace(" ", "_")] = row[col]
+
+            strategies.append(strategy_info)
+
+        return strategies
+
+    async def _analyze_strategy(
+        self, strategy_info: Dict[str, Any], trade_history_data: Optional[pd.DataFrame]
+    ) -> StatisticalAnalysisResult:
+        """Analyze individual strategy from portfolio."""
+        strategy_name = strategy_info["strategy_name"]
+        ticker = strategy_info["ticker"]
+
+        # Filter trade history for this strategy if available
+        strategy_trade_data = None
+        if trade_history_data is not None:
+            # Check if trade history has strategy_name column
+            if "strategy_name" in trade_history_data.columns:
+                strategy_trades = trade_history_data[
+                    trade_history_data["strategy_name"] == strategy_name
+                ]
+            else:
+                # Try multiple matching approaches for trade history
+                strategy_trades = None
+
+                # Approach 1: Exact component matching
+                if "Ticker" in trade_history_data.columns:
+                    strategy_trades = trade_history_data[
+                        (trade_history_data["Ticker"] == ticker)
+                        & (
+                            trade_history_data["Strategy_Type"]
+                            == strategy_info.get("strategy_type", "SMA")
+                        )
+                        & (
+                            trade_history_data["Short_Window"].astype(str)
+                            == str(strategy_info.get("short_window", ""))
+                        )
+                        & (
+                            trade_history_data["Long_Window"].astype(str)
+                            == str(strategy_info.get("long_window", ""))
+                        )
+                    ]
+
+                # Approach 2: Fuzzy UUID matching if exact matching fails
+                if strategy_trades is None or len(strategy_trades) == 0:
+                    strategy_trades = self._fuzzy_match_trade_history(
+                        trade_history_data, strategy_name, ticker, strategy_info
+                    )
+
+            if strategy_trades is not None and len(strategy_trades) > 0:
+                strategy_trade_data = strategy_trades.to_dict("records")
+                self.logger.info(
+                    f"Found {len(strategy_trades)} trade history records for {strategy_name}"
+                )
+            else:
+                self.logger.warning(
+                    f"No trade history found for {strategy_name} (ticker: {ticker})"
+                )
+
+        # Use the existing service method
+        result = await self.service.analyze_position(
+            strategy_name=strategy_name,
+            ticker=ticker,
+            current_position_data=strategy_trade_data,
+        )
+
+        # Extract MFE/MAE directly from trade data and attach to result for export
+        if strategy_trade_data:
+            try:
+                # Extract MFE/MAE values from the trade data
+                mfe_values = []
+                mae_values = []
+                for trade in strategy_trade_data:
+                    mfe_val = trade.get("Max_Favourable_Excursion", 0.0)
+                    mae_val = trade.get("Max_Adverse_Excursion", 0.0)
+                    if mfe_val != 0.0:
+                        mfe_values.append(float(mfe_val))
+                    if mae_val != 0.0:
+                        mae_values.append(float(mae_val))
+
+                # Calculate averages if we have data
+                avg_mfe = sum(mfe_values) / len(mfe_values) if mfe_values else 0.0
+                avg_mae = sum(mae_values) / len(mae_values) if mae_values else 0.0
+
+                # Store in result as temporary attributes for later extraction
+                result._temp_trade_mfe = avg_mfe
+                result._temp_trade_mae = avg_mae
+                result._temp_trade_data = strategy_trade_data
+
+                self.logger.info(
+                    f"Extracted MFE/MAE for {strategy_name}: MFE={avg_mfe:.4f}, MAE={avg_mae:.4f}"
+                )
+
+            except Exception as e:
+                self.logger.error(
+                    f"Failed to extract MFE/MAE from trade data for {strategy_name}: {e}"
+                )
+
+        return result
+
+    def _fuzzy_match_trade_history(
+        self, trade_history_data, strategy_name, ticker, strategy_info
+    ):
+        """
+        Fuzzy match trade history using Position_UUID pattern matching.
+        Handles UUIDs like 'RJF_SMA_68_77_2025-06-23' for strategy 'RJF_SMA_68_77'
+        """
+        import re
+
+        import pandas as pd
+
+        if "Position_UUID" not in trade_history_data.columns:
+            return None
+
+        # Extract strategy components for fuzzy matching
+        strategy_type = strategy_info.get("strategy_type", "SMA")
+        short_window = str(strategy_info.get("short_window", ""))
+        long_window = str(strategy_info.get("long_window", ""))
+
+        # Create expected strategy prefix pattern
+        expected_prefix = f"{ticker}_{strategy_type}_{short_window}_{long_window}"
+
+        self.logger.info(
+            f"Fuzzy matching for {strategy_name}: expected_prefix={expected_prefix}"
+        )
+
+        # Pattern to match UUID with date suffix: {strategy_prefix}_{YYYY-MM-DD}
+        date_pattern = r"_\d{4}-\d{2}-\d{2}$"
+
+        matched_rows = []
+
+        for idx, row in trade_history_data.iterrows():
+            position_uuid = str(row["Position_UUID"])
+
+            # Remove date suffix if present
+            uuid_without_date = re.sub(date_pattern, "", position_uuid)
+
+            # Check if the UUID matches our expected strategy pattern
+            if uuid_without_date == expected_prefix:
+                matched_rows.append(row)
+                self.logger.info(
+                    f"Fuzzy matched trade history: {position_uuid} -> {strategy_name}"
+                )
+
+        if matched_rows:
+            return pd.DataFrame(matched_rows)
+        else:
+            # Try broader matching - just ticker and strategy type
+            broader_pattern = f"{ticker}_{strategy_type}"
+            for idx, row in trade_history_data.iterrows():
+                position_uuid = str(row["Position_UUID"])
+                uuid_without_date = re.sub(date_pattern, "", position_uuid)
+
+                if uuid_without_date.startswith(broader_pattern):
+                    matched_rows.append(row)
+                    self.logger.info(
+                        f"Broad fuzzy matched trade history: {position_uuid} -> {strategy_name}"
+                    )
+
+            if matched_rows:
+                return pd.DataFrame(matched_rows)
+
+        return None
+
+
+# Convenience function for quick analysis
+async def analyze_portfolio(
+    portfolio: str, use_trade_history: bool = True
+) -> Tuple[Dict[str, StatisticalAnalysisResult], Dict[str, Any]]:
+    """
+    Quick portfolio analysis function.
+
+    Args:
+        portfolio: Portfolio filename (e.g., "risk_on.csv")
+        use_trade_history: Use trade history (True) or equity curves (False)
+
+    Returns:
+        Tuple of (analysis_results, summary_report)
+
+    Example:
+        results, summary = await analyze_portfolio("risk_on.csv", use_trade_history=True)
+
+        print(f"Portfolio: {summary['portfolio']}")
+        print(f"Immediate exits: {summary['immediate_exits']}")
+        print(f"Strong sells: {summary['strong_sells']}")
+    """
+    analyzer = PortfolioStatisticalAnalyzer(portfolio, use_trade_history)
+    results = await analyzer.analyze()
+    summary = analyzer.get_summary_report(results)
+
+    return results, summary
+
+
+# Example usage
+if __name__ == "__main__":
+
+    async def example():
+        # Example 1: Analyze risk_on portfolio with trade history
+        print("=== Risk On Portfolio with Trade History ===")
+        analyzer1 = PortfolioStatisticalAnalyzer("risk_on.csv", use_trade_history=True)
+        results1 = await analyzer1.analyze()
+        summary1 = analyzer1.get_summary_report(results1)
+
+        print(f"Total strategies: {summary1['total_strategies']}")
+        print(f"Immediate exits: {summary1['immediate_exits']}")
+        print(f"Confidence rate: {summary1['confidence_rate']:.1%}")
+
+        # Example 2: Analyze conservative portfolio with equity curves
+        print("\n=== Conservative Portfolio with Equity Curves ===")
+        analyzer2 = PortfolioStatisticalAnalyzer(
+            "conservative.csv", use_trade_history=False
+        )
+        results2 = await analyzer2.analyze()
+        summary2 = analyzer2.get_summary_report(results2)
+
+        print(f"Total strategies: {summary2['total_strategies']}")
+        print(f"Signal distribution: {summary2['signal_distribution']}")
+
+        # Example 3: Quick analysis function
+        print("\n=== Quick Analysis ===")
+        results3, summary3 = await analyze_portfolio(
+            "momentum.csv", use_trade_history=True
+        )
+        print(f"Quick analysis complete for {summary3['total_strategies']} strategies")
+
+    # Run example
+    asyncio.run(example())
