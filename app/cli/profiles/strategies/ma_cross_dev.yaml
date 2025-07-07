@@ -1,0 +1,38 @@
+# MA Cross Development Profile
+# CLI profile for development and testing with relaxed filters
+
+metadata:
+  name: 'ma_cross_dev'
+  description: 'Development profile with relaxed filters for testing MA Cross strategies'
+  version: '1.0'
+  tags: ['ma_cross', 'development', 'testing']
+  author: 'trading-cli'
+
+config_type: 'strategy'
+
+config:
+  # Small ticker list for fast testing
+  ticker:
+    - 'AAPL'
+    - 'MSFT'
+    - 'GOOGL'
+
+  # Fast parameters for development
+  windows: 55
+  strategy_types:
+    - 'SMA'
+  direction: 'Long'
+
+  # Relaxed filters for more results during development
+  minimums:
+    win_rate: 0.3
+    trades: 10
+    expectancy_per_trade: 0.0
+    profit_factor: 1.0
+    sortino_ratio: 0.0
+
+  # Development settings
+  refresh: true
+  use_current: true
+  sort_by: 'Score'
+  sort_ascending: false

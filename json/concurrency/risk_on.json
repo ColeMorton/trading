@@ -195,9 +195,9 @@
     },
     "monte_carlo": {
       "total_strategies_analyzed": 6,
-      "stable_strategies_count": 2,
-      "stable_strategies_percentage": 33.33333333333333,
-      "average_stability_score": 0.3088968702947097,
+      "stable_strategies_count": 1,
+      "stable_strategies_percentage": 16.666666666666664,
+      "average_stability_score": 0.30305969755468415,
       "simulation_parameters": {
         "num_simulations": 100,
         "confidence_level": 0.95,
@@ -948,7 +948,7 @@
   },
   "strategies": [
     {
-      "id": "DOV_SMA_45_86_0",
+      "id": "DOV_SMA_45_86",
       "parameters": {
         "ticker": {
           "value": "DOV",
@@ -1167,7 +1167,7 @@
           "description": "ALLOCATION metric from portfolio data"
         },
         "strategy_id": {
-          "value": "DOV_SMA_45_86_0",
+          "value": "DOV_SMA_45_86",
           "description": "strategy_id metric from portfolio data"
         },
         "EXPORT_TRADE_HISTORY": {
@@ -1440,88 +1440,10 @@
           "value": null,
           "description": "Last Position Close Date from strategy analysis"
         }
-      },
-      "monte_carlo": {
-        "strategy_id": "DOV_SMA_45_86_0",
-        "ticker": "DOV_SMA_45_86_0",
-        "strategy_stability_score": 0.4619079195932258,
-        "recommended_parameters": {
-          "parameters": [43, 84],
-          "stability_score": 0.5098991836054585,
-          "parameter_robustness": 0.5049990785996452,
-          "regime_consistency": 0.83,
-          "is_stable": true,
-          "composite_score": 0.571959,
-          "selection_reason": "Highest weighted composite score (stability*0.4 + robustness*0.4 + consistency*0.2)",
-          "validated": true
-        },
-        "parameter_variations": [
-          {
-            "parameter_combination": [42, 83],
-            "stability_score": 0.4416240162157766,
-            "parameter_robustness": 0.47242190644977605,
-            "regime_consistency": 0.74,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [42, 84],
-            "stability_score": 0.4231389862415409,
-            "parameter_robustness": 0.4643124726513225,
-            "regime_consistency": 0.79,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [42, 85],
-            "stability_score": 0.42491027090672573,
-            "parameter_robustness": 0.46507745955465285,
-            "regime_consistency": 0.81,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [42, 87],
-            "stability_score": 0.457037387365534,
-            "parameter_robustness": 0.4794035701212986,
-            "regime_consistency": 0.81,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [42, 88],
-            "stability_score": 0.49769195466534744,
-            "parameter_robustness": 0.49884863473589997,
-            "regime_consistency": 0.82,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [42, 89],
-            "stability_score": 0.4844774949482855,
-            "parameter_robustness": 0.49235738008045227,
-            "regime_consistency": 0.83,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [43, 83],
-            "stability_score": 0.4636705975032833,
-            "parameter_robustness": 0.48247207769595646,
-            "regime_consistency": 0.83,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [43, 84],
-            "stability_score": 0.5098991836054585,
-            "parameter_robustness": 0.5049990785996452,
-            "regime_consistency": 0.83,
-            "is_stable": true
-          }
-        ],
-        "analysis_metadata": {
-          "num_simulations": 100,
-          "confidence_level": 0.95,
-          "parameters_tested": 10
-        }
       }
     },
     {
-      "id": "GME_SMA_53_61_0",
+      "id": "GME_SMA_53_61",
       "parameters": {
         "ticker": {
           "value": "GME",
@@ -1744,7 +1666,7 @@
           "description": "ALLOCATION metric from portfolio data"
         },
         "strategy_id": {
-          "value": "GME_SMA_53_61_0",
+          "value": "GME_SMA_53_61",
           "description": "strategy_id metric from portfolio data"
         },
         "EXPORT_TRADE_HISTORY": {
@@ -2017,102 +1939,10 @@
           "value": null,
           "description": "Last Position Close Date from strategy analysis"
         }
-      },
-      "monte_carlo": {
-        "strategy_id": "GME_SMA_53_61_0",
-        "ticker": "GME_SMA_53_61_0",
-        "strategy_stability_score": 0.2555533239531541,
-        "recommended_parameters": {
-          "parameters": [51, 59],
-          "stability_score": 0.400184722757018,
-          "parameter_robustness": 0.45462179908375205,
-          "regime_consistency": 0.18,
-          "is_stable": false,
-          "composite_score": 0.377923,
-          "selection_reason": "Highest weighted composite score (stability*0.4 + robustness*0.4 + consistency*0.2)",
-          "validated": true
-        },
-        "parameter_variations": [
-          {
-            "parameter_combination": [50, 58],
-            "stability_score": 0.2721763090612598,
-            "parameter_robustness": 0.407224590704649,
-            "regime_consistency": 0.25,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [50, 59],
-            "stability_score": 0.21515811554929598,
-            "parameter_robustness": 0.3891529425146038,
-            "regime_consistency": 0.18,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [50, 60],
-            "stability_score": 0.35795196390381656,
-            "parameter_robustness": 0.4378099556207196,
-            "regime_consistency": 0.21,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [50, 62],
-            "stability_score": 0.27966222356604664,
-            "parameter_robustness": 0.40972262733772774,
-            "regime_consistency": 0.19,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [50, 63],
-            "stability_score": 0.2825729424615696,
-            "parameter_robustness": 0.41070222392705164,
-            "regime_consistency": 0.19,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [50, 64],
-            "stability_score": 0.046750440211221767,
-            "parameter_robustness": 0.34405652947362475,
-            "regime_consistency": 0.2,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [51, 58],
-            "stability_score": 0.0,
-            "parameter_robustness": 0.30628363536503644,
-            "regime_consistency": 0.24,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [51, 59],
-            "stability_score": 0.400184722757018,
-            "parameter_robustness": 0.45462179908375205,
-            "regime_consistency": 0.18,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [51, 60],
-            "stability_score": 0.38835588929561415,
-            "parameter_robustness": 0.44978423866535705,
-            "regime_consistency": 0.16,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [51, 62],
-            "stability_score": 0.3127206327256985,
-            "parameter_robustness": 0.421130876002567,
-            "regime_consistency": 0.22,
-            "is_stable": false
-          }
-        ],
-        "analysis_metadata": {
-          "num_simulations": 100,
-          "confidence_level": 0.95,
-          "parameters_tested": 10
-        }
       }
     },
     {
-      "id": "MA_SMA_78_82_0",
+      "id": "MA_SMA_78_82",
       "parameters": {
         "ticker": {
           "value": "MA",
@@ -2331,7 +2161,7 @@
           "description": "ALLOCATION metric from portfolio data"
         },
         "strategy_id": {
-          "value": "MA_SMA_78_82_0",
+          "value": "MA_SMA_78_82",
           "description": "strategy_id metric from portfolio data"
         },
         "EXPORT_TRADE_HISTORY": {
@@ -2604,39 +2434,10 @@
           "value": null,
           "description": "Last Position Close Date from strategy analysis"
         }
-      },
-      "monte_carlo": {
-        "strategy_id": "MA_SMA_78_82_0",
-        "ticker": "MA_SMA_78_82_0",
-        "strategy_stability_score": 0.763216106875088,
-        "recommended_parameters": {
-          "parameters": [75, 79],
-          "stability_score": 0.7701237728279208,
-          "parameter_robustness": 0.6850476579258657,
-          "regime_consistency": 0.99,
-          "is_stable": true,
-          "composite_score": 0.780069,
-          "selection_reason": "Highest weighted composite score (stability*0.4 + robustness*0.4 + consistency*0.2)",
-          "validated": true
-        },
-        "parameter_variations": [
-          {
-            "parameter_combination": [75, 79],
-            "stability_score": 0.7701237728279208,
-            "parameter_robustness": 0.6850476579258657,
-            "regime_consistency": 0.99,
-            "is_stable": true
-          }
-        ],
-        "analysis_metadata": {
-          "num_simulations": 100,
-          "confidence_level": 0.95,
-          "parameters_tested": 10
-        }
       }
     },
     {
-      "id": "QCOM_SMA_49_66_0",
+      "id": "QCOM_SMA_49_66",
       "parameters": {
         "ticker": {
           "value": "QCOM",
@@ -2855,7 +2656,7 @@
           "description": "ALLOCATION metric from portfolio data"
         },
         "strategy_id": {
-          "value": "QCOM_SMA_49_66_0",
+          "value": "QCOM_SMA_49_66",
           "description": "strategy_id metric from portfolio data"
         },
         "EXPORT_TRADE_HISTORY": {
@@ -3128,102 +2929,10 @@
           "value": null,
           "description": "Last Position Close Date from strategy analysis"
         }
-      },
-      "monte_carlo": {
-        "strategy_id": "QCOM_SMA_49_66_0",
-        "ticker": "QCOM_SMA_49_66_0",
-        "strategy_stability_score": 0.03624958767074473,
-        "recommended_parameters": {
-          "parameters": [47, 67],
-          "stability_score": 0.1237772738283266,
-          "parameter_robustness": 0.36331328533636553,
-          "regime_consistency": 0.7,
-          "is_stable": false,
-          "composite_score": 0.334836,
-          "selection_reason": "Highest weighted composite score (stability*0.4 + robustness*0.4 + consistency*0.2)",
-          "validated": true
-        },
-        "parameter_variations": [
-          {
-            "parameter_combination": [46, 63],
-            "stability_score": 0.011688661801232736,
-            "parameter_robustness": 0.3359512134101769,
-            "regime_consistency": 0.68,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [46, 64],
-            "stability_score": 0.09850142028872078,
-            "parameter_robustness": 0.3567609751720222,
-            "regime_consistency": 0.7,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [46, 65],
-            "stability_score": 0.07191134748409256,
-            "parameter_robustness": 0.35011832011908695,
-            "regime_consistency": 0.68,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [46, 67],
-            "stability_score": 0.02050392122212008,
-            "parameter_robustness": 0.3379529065146418,
-            "regime_consistency": 0.65,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [46, 68],
-            "stability_score": 0.0,
-            "parameter_robustness": 0.267575385455893,
-            "regime_consistency": 0.66,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [46, 69],
-            "stability_score": 0.0,
-            "parameter_robustness": 0.331416492810176,
-            "regime_consistency": 0.67,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [47, 63],
-            "stability_score": 0.010274232105469738,
-            "parameter_robustness": 0.335632242373483,
-            "regime_consistency": 0.67,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [47, 64],
-            "stability_score": 0.0,
-            "parameter_robustness": 0.30586639531724097,
-            "regime_consistency": 0.69,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [47, 65],
-            "stability_score": 0.025839019977484834,
-            "parameter_robustness": 0.33917598333959664,
-            "regime_consistency": 0.69,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [47, 67],
-            "stability_score": 0.1237772738283266,
-            "parameter_robustness": 0.36331328533636553,
-            "regime_consistency": 0.7,
-            "is_stable": false
-          }
-        ],
-        "analysis_metadata": {
-          "num_simulations": 100,
-          "confidence_level": 0.95,
-          "parameters_tested": 10
-        }
       }
     },
     {
-      "id": "RJF_SMA_68_77_0",
+      "id": "RJF_SMA_68_77",
       "parameters": {
         "ticker": {
           "value": "RJF",
@@ -3446,7 +3155,7 @@
           "description": "ALLOCATION metric from portfolio data"
         },
         "strategy_id": {
-          "value": "RJF_SMA_68_77_0",
+          "value": "RJF_SMA_68_77",
           "description": "strategy_id metric from portfolio data"
         },
         "EXPORT_TRADE_HISTORY": {
@@ -3719,102 +3428,10 @@
           "value": null,
           "description": "Last Position Close Date from strategy analysis"
         }
-      },
-      "monte_carlo": {
-        "strategy_id": "RJF_SMA_68_77_0",
-        "ticker": "RJF_SMA_68_77_0",
-        "strategy_stability_score": 0.3364542836760455,
-        "recommended_parameters": {
-          "parameters": [65, 78],
-          "stability_score": 0.39614168536591643,
-          "parameter_robustness": 0.45295668236710646,
-          "regime_consistency": 0.81,
-          "is_stable": false,
-          "composite_score": 0.501639,
-          "selection_reason": "Highest weighted composite score (stability*0.4 + robustness*0.4 + consistency*0.2)",
-          "validated": true
-        },
-        "parameter_variations": [
-          {
-            "parameter_combination": [65, 74],
-            "stability_score": 0.33603853175037335,
-            "parameter_robustness": 0.4295674845249847,
-            "regime_consistency": 0.72,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [65, 75],
-            "stability_score": 0.2562453206792301,
-            "parameter_robustness": 0.40200853778741663,
-            "regime_consistency": 0.68,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [65, 76],
-            "stability_score": 0.3659947642599961,
-            "parameter_robustness": 0.4409150718547795,
-            "regime_consistency": 0.78,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [65, 78],
-            "stability_score": 0.39614168536591643,
-            "parameter_robustness": 0.45295668236710646,
-            "regime_consistency": 0.81,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [65, 79],
-            "stability_score": 0.34864599193377677,
-            "parameter_robustness": 0.43427129839916373,
-            "regime_consistency": 0.76,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [65, 80],
-            "stability_score": 0.3266599948021369,
-            "parameter_robustness": 0.4261339405330204,
-            "regime_consistency": 0.77,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [66, 74],
-            "stability_score": 0.2855531376229429,
-            "parameter_robustness": 0.4117100677598538,
-            "regime_consistency": 0.72,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [66, 75],
-            "stability_score": 0.3718362634693091,
-            "parameter_robustness": 0.44319807826618424,
-            "regime_consistency": 0.8,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [66, 76],
-            "stability_score": 0.37469000808334807,
-            "parameter_robustness": 0.44432201223805834,
-            "regime_consistency": 0.8,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [66, 78],
-            "stability_score": 0.3027371387934257,
-            "parameter_robustness": 0.4176192348404688,
-            "regime_consistency": 0.72,
-            "is_stable": false
-          }
-        ],
-        "analysis_metadata": {
-          "num_simulations": 100,
-          "confidence_level": 0.95,
-          "parameters_tested": 10
-        }
       }
     },
     {
-      "id": "SCHW_SMA_20_26_0",
+      "id": "SCHW_SMA_20_26",
       "parameters": {
         "ticker": {
           "value": "SCHW",
@@ -4033,7 +3650,7 @@
           "description": "ALLOCATION metric from portfolio data"
         },
         "strategy_id": {
-          "value": "SCHW_SMA_20_26_0",
+          "value": "SCHW_SMA_20_26",
           "description": "strategy_id metric from portfolio data"
         },
         "EXPORT_TRADE_HISTORY": {
@@ -4305,98 +3922,6 @@
         "Last Position Close Date": {
           "value": null,
           "description": "Last Position Close Date from strategy analysis"
-        }
-      },
-      "monte_carlo": {
-        "strategy_id": "SCHW_SMA_20_26_0",
-        "ticker": "SCHW_SMA_20_26_0",
-        "strategy_stability_score": 0.0,
-        "recommended_parameters": {
-          "parameters": [17, 23],
-          "stability_score": 0.0,
-          "parameter_robustness": 0.3082682401056639,
-          "regime_consistency": 0.64,
-          "is_stable": false,
-          "composite_score": 0.251307,
-          "selection_reason": "Highest weighted composite score (stability*0.4 + robustness*0.4 + consistency*0.2)",
-          "validated": true
-        },
-        "parameter_variations": [
-          {
-            "parameter_combination": [17, 23],
-            "stability_score": 0.0,
-            "parameter_robustness": 0.3082682401056639,
-            "regime_consistency": 0.64,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [17, 24],
-            "stability_score": 0.0,
-            "parameter_robustness": 0.2549376025251039,
-            "regime_consistency": 0.59,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [17, 25],
-            "stability_score": 0.0,
-            "parameter_robustness": 0.2651692143267033,
-            "regime_consistency": 0.64,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [17, 27],
-            "stability_score": 0.0,
-            "parameter_robustness": 0.22181399213865016,
-            "regime_consistency": 0.61,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [17, 28],
-            "stability_score": 0.0,
-            "parameter_robustness": 0.1464039151558613,
-            "regime_consistency": 0.51,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [17, 29],
-            "stability_score": 0.0,
-            "parameter_robustness": 0.14629048112663676,
-            "regime_consistency": 0.51,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [18, 23],
-            "stability_score": 0.0,
-            "parameter_robustness": 0.27280544797491085,
-            "regime_consistency": 0.67,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [18, 24],
-            "stability_score": 0.0,
-            "parameter_robustness": 0.2607838087281371,
-            "regime_consistency": 0.59,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [18, 25],
-            "stability_score": 0.0,
-            "parameter_robustness": 0.24288568168726407,
-            "regime_consistency": 0.6,
-            "is_stable": false
-          },
-          {
-            "parameter_combination": [18, 27],
-            "stability_score": 0.0,
-            "parameter_robustness": 0.12010352791905832,
-            "regime_consistency": 0.53,
-            "is_stable": false
-          }
-        ],
-        "analysis_metadata": {
-          "num_simulations": 100,
-          "confidence_level": 0.95,
-          "parameters_tested": 10
         }
       }
     }

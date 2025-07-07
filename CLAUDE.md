@@ -43,31 +43,120 @@ python app/concurrency/review.py
 
 ```bash
 # Quick portfolio analysis
-python -m app.tools --portfolio risk_on.csv
+trading-cli spds analyze risk_on.csv
 
 # Analysis with trade history
-python -m app.tools --portfolio risk_on.csv --trade-history
+trading-cli spds analyze risk_on.csv --trade-history
 
 # Analysis with equity curves only
-python -m app.tools --portfolio conservative.csv --no-trade-history
+trading-cli spds analyze conservative.csv --no-trade-history
 
 # Interactive mode
-python -m app.tools --interactive
+trading-cli spds interactive
 
 # Show configuration
-python -m app.tools --show-config
+trading-cli spds health
 
 # List available portfolios
-python -m app.tools --list-portfolios
+trading-cli spds list-portfolios
 
 # Create demo files and run example
-python -m app.tools --demo
+trading-cli spds demo
 
 # Output as JSON
-python -m app.tools --portfolio risk_on.csv --output-format json
+trading-cli spds analyze risk_on.csv --output-format json
 
 # Save results to file
-python -m app.tools --portfolio risk_on.csv --save-results results.json
+trading-cli spds analyze risk_on.csv --save-results results.json
+```
+
+### Trade History Analysis
+
+```bash
+# List all available strategies for analysis
+trading-cli trade-history list
+
+# Generate comprehensive sell signal report
+trading-cli trade-history close MA_SMA_78_82
+
+# Enhanced analysis with market context and export
+trading-cli trade-history close CRWD_EMA_5_21 \
+  --current-price 245.50 \
+  --market-condition bearish \
+  --output reports/CRWD_exit_analysis.md
+
+# Generate JSON format for programmatic use
+trading-cli trade-history close QCOM_SMA_49_66 \
+  --format json \
+  --include-raw-data \
+  --output data/QCOM_analysis.json
+
+# System health check and data validation
+trading-cli trade-history health
+trading-cli trade-history validate
+```
+
+### Enhanced Console Output
+
+The command now provides comprehensive console summaries when files are exported:
+
+```bash
+# File export shows enhanced console summary
+trading-cli trade-history close PGR_SMA_37_61 --output reports/analysis.md
+
+✅ Report generated successfully: reports/analysis.md
+
+======================================================================
+📊 SELL Signal Analysis for PGR_SMA_37_61 Complete
+======================================================================
+
+🎯 **Key Findings:**
+   • Current Signal: 🚨 **SELL**
+   • Confidence Level: 71.4%
+   • Current P&L: 1.50% unrealized gains
+   • Statistical Significance: HIGH (p-value: 0.050)
+   • Sample Size: 11,418 observations
+   • Risk Level: MODERATE
+   • Max Favorable Excursion: -6.95%
+   • Max Adverse Excursion: 11.09%
+
+🎯 **Primary Recommendation:**
+   • Strategy: Stop Loss
+   • Confidence: 95%
+   • Expected Return: -5.88%
+   • Risk Score: 1.0/10
+
+🚀 **Recommended Actions:**
+   1. Prepare for position exit within 1-3 trading sessions
+   2. Set trailing stop at 3.10% below peak
+   3. Hard stop loss at 5.88%
+   4. Target profit at 15.72%
+
+⚠️  **Risk Management:**
+   • Take Profit Target: 15.72%
+   • Stop Loss Limit: 5.88%
+   • Trailing Stop: 3.10%
+   • Max Holding Period: 180 days
+
+📋 The comprehensive report includes statistical foundation, technical analysis,
+    multiple exit scenarios, and risk management framework for this position.
+======================================================================
+```
+
+```bash
+# Console output shows brief summary when no file specified
+trading-cli trade-history close PGR_SMA_37_61
+
+📋 Analysis Summary:
+==================================================
+🎯 🚨 SELL Signal: PGR_SMA_37_61
+📊 Confidence: 71.4% | P&L: 1.50% | Risk: MODERATE
+🚀 Recommendation: Stop Loss (95% confidence)
+📈 MFE: -6.95% | MAE: 11.09%
+==================================================
+
+📄 Full Report:
+[Complete markdown report follows...]
 ```
 
 ## Architecture Overview
@@ -375,6 +464,30 @@ strategy_engine = StrategyExecutionEngine(
 2. **Configure Thresholds**: Set appropriate memory thresholds based on available system memory
 3. **Monitor Performance**: Use memory profiling scripts to validate optimization effectiveness
 4. **Gradual Adoption**: Enable optimization service-by-service for controlled rollout
+
+## Custom Commands
+
+### SPDS Assistant
+
+The Statistical Performance Divergence System Assistant provides comprehensive guidance for portfolio analysis, exit signal generation, and system configuration.
+
+```bash
+# Available via /spds_assistant command with the following tasks:
+# - analyze: Portfolio analysis with guided configuration
+# - configure: System configuration and setup guidance
+# - interpret: Interpret analysis results and exit signals
+# - export: Export guidance and format selection
+# - troubleshoot: Diagnose and resolve system issues
+# - demo: Demo mode guidance and examples
+
+# Example usage:
+/spds_assistant analyze portfolio=risk_on.csv data_source=trade_history
+/spds_assistant configure confidence_level=high
+/spds_assistant interpret portfolio=conservative.csv
+/spds_assistant export format=all
+/spds_assistant troubleshoot
+/spds_assistant demo
+```
 
 ## important-instruction-reminders
 

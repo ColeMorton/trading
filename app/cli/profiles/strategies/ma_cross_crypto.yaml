@@ -1,0 +1,41 @@
+# MA Cross Crypto Analysis Profile
+# CLI profile for crypto-focused MA Cross analysis
+
+metadata:
+  name: 'ma_cross_crypto'
+  description: 'MA Cross analysis focused on cryptocurrency assets'
+  version: '1.0'
+  tags: ['ma_cross', 'crypto', 'btc', 'eth']
+  author: 'trading-cli'
+
+config_type: 'strategy'
+
+config:
+  # Crypto-focused ticker list
+  ticker:
+    - 'BTC-USD'
+    - 'ETH-USD'
+    - 'SOL-USD'
+    - 'AVAX-USD'
+    - 'MATIC-USD'
+
+  # Crypto-optimized parameters
+  windows: 120 # Longer window for crypto volatility
+  strategy_types:
+    - 'SMA'
+    - 'EMA'
+  direction: 'Long'
+
+  # More lenient filters for crypto's higher volatility
+  minimums:
+    win_rate: 0.45
+    trades: 30
+    expectancy_per_trade: 0.3
+    profit_factor: 1.1
+    sortino_ratio: 0.3
+
+  # Data settings
+  refresh: true
+  use_current: true
+  sort_by: 'Score'
+  sort_ascending: false

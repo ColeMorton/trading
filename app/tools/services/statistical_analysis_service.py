@@ -38,6 +38,11 @@ from ..models.statistical_analysis_models import (
     VaRMetrics,
 )
 from ..processing.memory_optimizer import get_memory_optimizer
+from .strategy_data_coordinator import (
+    DataCoordinationConfig,
+    StrategyDataCoordinator,
+    StrategyDataCoordinatorError,
+)
 
 
 class StatisticalAnalysisService:
@@ -54,18 +59,48 @@ class StatisticalAnalysisService:
         config: Optional[SPDSConfig] = None,
         logger: Optional[logging.Logger] = None,
         enable_memory_optimization: bool = True,
+        data_coordinator: Optional[StrategyDataCoordinator] = None,
+        use_coordinator: bool = True,
     ):
         """
-        Initialize the Statistical Analysis Service
+        Initialize the Statistical Analysis Service with central data coordination
 
         Args:
             config: SPDS configuration instance
             logger: Logger instance for service operations
             enable_memory_optimization: Enable memory optimization features
+            data_coordinator: Central data coordinator instance
+            use_coordinator: Whether to use coordinator for data loading (recommended)
         """
         self.config = config or get_spds_config()
         self.logger = logger or logging.getLogger(__name__)
         self.enable_memory_optimization = enable_memory_optimization
+        self.use_coordinator = use_coordinator
+
+        # Initialize central data coordinator
+        if use_coordinator:
+            if data_coordinator:
+                self.data_coordinator = data_coordinator
+            else:
+                # Create new coordinator with optimized configuration
+                coordinator_config = DataCoordinationConfig(
+                    enable_validation=True,
+                    enable_auto_refresh=True,
+                    max_data_age_minutes=30,
+                    enable_memory_optimization=enable_memory_optimization,
+                    concurrent_loading=True,
+                )
+                self.data_coordinator = StrategyDataCoordinator(
+                    logger=self.logger, config=coordinator_config
+                )
+            self.logger.info(
+                "StatisticalAnalysisService initialized with central data coordinator"
+            )
+        else:
+            self.data_coordinator = None
+            self.logger.warning(
+                "StatisticalAnalysisService initialized without data coordinator (legacy mode)"
+            )
 
         # Initialize components
         self.divergence_detector = DivergenceDetector(
@@ -92,12 +127,15 @@ class StatisticalAnalysisService:
             "bootstrap_validations": 0,
             "high_confidence_signals": 0,
             "total_processing_time": 0.0,
+            "coordinator_cache_hits": 0,
+            "coordinator_data_loads": 0,
         }
 
         self.logger.info(
             f"StatisticalAnalysisService initialized with "
             f"USE_TRADE_HISTORY={self.config.USE_TRADE_HISTORY}, "
-            f"memory_optimization={self.enable_memory_optimization}"
+            f"memory_optimization={self.enable_memory_optimization}, "
+            f"coordinator_enabled={self.use_coordinator}"
         )
 
     async def analyze_position(
@@ -230,9 +268,26 @@ class StatisticalAnalysisService:
     async def _analyze_asset_distribution(
         self, ticker: str
     ) -> AssetDistributionAnalysis:
-        """Analyze asset-level return distribution (Layer 1)"""
+        """Analyze asset-level return distribution (Layer 1) using coordinated data loading"""
         try:
-            # Load return distribution data
+            # Use coordinator for data loading if available
+            if self.use_coordinator and self.data_coordinator:
+                # Try to get coordinated strategy data first
+                try:
+                    strategy_data = self.data_coordinator.get_strategy_data(
+                        strategy_identifier=ticker, force_refresh=False
+                    )
+                    if strategy_data and hasattr(strategy_data, "raw_analysis_data"):
+                        # Extract asset distribution from coordinated data
+                        return self._extract_asset_analysis_from_coordinated_data(
+                            strategy_data, ticker
+                        )
+                except (StrategyDataCoordinatorError, AttributeError):
+                    self.logger.debug(
+                        f"Coordinator data not available for {ticker}, falling back to direct file access"
+                    )
+
+            # Fallback to direct file loading (legacy method)
             distribution_file = (
                 Path(self.config.RETURN_DISTRIBUTION_PATH) / f"{ticker}.json"
             )
@@ -391,11 +446,41 @@ class StatisticalAnalysisService:
     async def _analyze_strategy_performance(
         self, strategy_name: str, ticker: str, use_trade_history: bool
     ) -> StrategyDistributionAnalysis:
-        """Analyze strategy-level performance distribution (Layer 2)"""
-        if use_trade_history:
-            return await self._analyze_trade_history_performance(strategy_name, ticker)
-        else:
-            return await self._analyze_equity_curve_performance(strategy_name, ticker)
+        """Analyze strategy-level performance distribution (Layer 2) using coordinated data loading"""
+        try:
+            # Use coordinator for data loading if available
+            if self.use_coordinator and self.data_coordinator:
+                try:
+                    strategy_data = self.data_coordinator.get_strategy_data(
+                        strategy_identifier=strategy_name, force_refresh=False
+                    )
+                    if strategy_data:
+                        self.metrics["coordinator_cache_hits"] += 1
+                        # Extract strategy distribution analysis from coordinated data
+                        return self._extract_strategy_analysis_from_coordinated_data(
+                            strategy_data, use_trade_history
+                        )
+                except StrategyDataCoordinatorError:
+                    self.logger.debug(
+                        f"Coordinator data not available for {strategy_name}, falling back to legacy analysis"
+                    )
+                    self.metrics["coordinator_data_loads"] += 1
+
+            # Fallback to legacy analysis methods
+            if use_trade_history:
+                return await self._analyze_trade_history_performance(
+                    strategy_name, ticker
+                )
+            else:
+                return await self._analyze_equity_curve_performance(
+                    strategy_name, ticker
+                )
+
+        except Exception as e:
+            self.logger.error(
+                f"Error in strategy performance analysis for {strategy_name}: {e}"
+            )
+            raise
 
     async def _analyze_trade_history_performance(
         self, strategy_name: str, ticker: str
@@ -1089,7 +1174,7 @@ class StatisticalAnalysisService:
         return metrics
 
     async def health_check(self) -> Dict[str, Any]:
-        """Perform service health check"""
+        """Perform service health check including coordinator status"""
         health_status = {
             "service": "StatisticalAnalysisService",
             "status": "healthy",
@@ -1098,14 +1183,33 @@ class StatisticalAnalysisService:
                 "use_trade_history": self.config.USE_TRADE_HISTORY,
                 "memory_optimization": self.enable_memory_optimization,
                 "bootstrap_enabled": self.config.ENABLE_BOOTSTRAP,
+                "coordinator_enabled": self.use_coordinator,
             },
             "metrics": self.get_service_metrics(),
         }
 
-        # Check data source availability
+        # Check coordinator health if enabled
+        if self.use_coordinator and self.data_coordinator:
+            try:
+                coordinator_status = self.data_coordinator.get_coordination_status()
+                health_status["coordinator_status"] = coordinator_status
+
+                # Check if coordinator has critical issues
+                data_sources = coordinator_status.get("data_sources", {})
+                if not any(data_sources.values()):
+                    health_status["status"] = "degraded"
+                    health_status[
+                        "coordinator_warning"
+                    ] = "No data sources available via coordinator"
+
+            except Exception as coord_error:
+                health_status["status"] = "degraded"
+                health_status["coordinator_error"] = str(coord_error)
+
+        # Check data source availability (legacy fallback)
         try:
             return_dist_path = Path(self.config.RETURN_DISTRIBUTION_PATH)
-            health_status["data_sources"] = {
+            health_status["legacy_data_sources"] = {
                 "return_distribution_path_exists": return_dist_path.exists(),
                 "trade_history_path_exists": Path(
                     self.config.TRADE_HISTORY_PATH
@@ -1114,6 +1218,11 @@ class StatisticalAnalysisService:
                     Path(p).exists() for p in self.config.EQUITY_DATA_PATHS
                 ],
             }
+
+            # If coordinator is disabled, legacy data sources are primary
+            if not self.use_coordinator:
+                health_status["data_sources"] = health_status["legacy_data_sources"]
+
         except Exception as e:
             health_status["status"] = "degraded"
             health_status["error"] = str(e)
@@ -1308,3 +1417,193 @@ class StatisticalAnalysisService:
         except Exception as e:
             self.logger.error(f"Failed to extract raw analysis data: {e}")
             return None
+
+    def _extract_asset_analysis_from_coordinated_data(
+        self, strategy_data, ticker: str
+    ) -> AssetDistributionAnalysis:
+        """Extract asset distribution analysis from coordinated strategy data"""
+        try:
+            # Check if we have return distribution data in the coordinated data
+            raw_data = strategy_data.raw_analysis_data or {}
+
+            # Try to extract asset-level distribution data
+            asset_analysis = raw_data.get("asset_analysis", {})
+            if not asset_analysis:
+                # Fallback to loading directly from file
+                raise ValueError("No asset analysis data in coordinated data")
+
+            # Extract statistical metrics
+            stats = asset_analysis.get("statistics", {})
+            statistical_metrics = StatisticalMetrics(
+                mean=float(stats.get("mean", 0.0)),
+                median=float(stats.get("median", 0.0)),
+                std=float(stats.get("std", 0.0)),
+                min=float(stats.get("min", 0.0)),
+                max=float(stats.get("max", 0.0)),
+                skewness=float(stats.get("skewness", 0.0)),
+                kurtosis=float(stats.get("kurtosis", 0.0)),
+                count=int(stats.get("count", 0)),
+            )
+
+            # Extract percentile metrics
+            percentiles_data = asset_analysis.get("percentiles", {})
+            percentiles = PercentileMetrics(
+                p5=float(percentiles_data.get("5", 0.0)),
+                p10=float(percentiles_data.get("10", 0.0)),
+                p25=float(percentiles_data.get("25", 0.0)),
+                p50=float(percentiles_data.get("50", 0.0)),
+                p75=float(percentiles_data.get("75", 0.0)),
+                p90=float(percentiles_data.get("90", 0.0)),
+                p95=float(percentiles_data.get("95", 0.0)),
+                p99=float(percentiles_data.get("99", 0.0)),
+            )
+
+            # Extract VaR metrics
+            var_data = asset_analysis.get("var_metrics", {})
+            var_metrics = VaRMetrics(
+                var_95=float(var_data.get("var_95", 0.0)),
+                var_99=float(var_data.get("var_99", 0.0)),
+                expected_shortfall_95=float(var_data.get("expected_shortfall_95", 0.0)),
+                expected_shortfall_99=float(var_data.get("expected_shortfall_99", 0.0)),
+            )
+
+            # Extract additional data
+            current_return = asset_analysis.get("current_return")
+            current_percentile = asset_analysis.get("current_percentile")
+            regime_score = asset_analysis.get("regime_score", 0.0)
+            volatility_regime = asset_analysis.get("volatility_regime", "medium")
+
+            # Create asset distribution analysis
+            return AssetDistributionAnalysis(
+                ticker=ticker,
+                timeframe="D",
+                data_source=DataSource.RETURN_DISTRIBUTION,
+                statistics=statistical_metrics,
+                percentiles=percentiles,
+                var_metrics=var_metrics,
+                current_return=current_return,
+                current_percentile=current_percentile,
+                regime_score=regime_score,
+                volatility_regime=volatility_regime,
+                last_updated=datetime.now(),
+                sample_period_start=datetime.now().date(),
+                sample_period_end=datetime.now().date(),
+            )
+
+        except Exception as e:
+            self.logger.error(
+                f"Failed to extract asset analysis from coordinated data: {e}"
+            )
+            # Re-raise to trigger fallback to direct file loading
+            raise
+
+    def _extract_strategy_analysis_from_coordinated_data(
+        self, strategy_data, use_trade_history: bool
+    ) -> StrategyDistributionAnalysis:
+        """Extract strategy distribution analysis from coordinated strategy data"""
+        try:
+            # Extract core statistical metrics from coordinated data
+            stats = StatisticalMetrics(
+                mean=float(strategy_data.performance.current_return),
+                median=float(strategy_data.performance.current_return),  # Approximation
+                std=0.02,  # Default volatility estimate
+                min=float(strategy_data.performance.mae)
+                if strategy_data.performance.mae
+                else -0.1,
+                max=float(strategy_data.performance.mfe)
+                if strategy_data.performance.mfe
+                else 0.1,
+                skewness=0.0,  # Default
+                kurtosis=0.0,  # Default
+                count=int(strategy_data.statistics.sample_size)
+                if strategy_data.statistics.sample_size
+                else 100,
+            )
+
+            # Create percentile metrics from available data
+            percentiles = PercentileMetrics(
+                p5=float(strategy_data.performance.mae)
+                if strategy_data.performance.mae
+                else -0.05,
+                p10=float(strategy_data.performance.mae) * 0.8
+                if strategy_data.performance.mae
+                else -0.04,
+                p25=float(strategy_data.performance.mae) * 0.5
+                if strategy_data.performance.mae
+                else -0.025,
+                p50=0.0,  # Median
+                p75=float(strategy_data.performance.mfe) * 0.5
+                if strategy_data.performance.mfe
+                else 0.025,
+                p90=float(strategy_data.performance.mfe) * 0.8
+                if strategy_data.performance.mfe
+                else 0.04,
+                p95=float(strategy_data.performance.mfe)
+                if strategy_data.performance.mfe
+                else 0.05,
+                p99=float(strategy_data.performance.mfe) * 1.2
+                if strategy_data.performance.mfe
+                else 0.06,
+            )
+
+            # Create VaR metrics
+            var_metrics = VaRMetrics(
+                var_95=percentiles.p5,
+                var_99=percentiles.p5 * 1.5,
+                expected_shortfall_95=percentiles.p5 * 1.2,
+                expected_shortfall_99=percentiles.p5 * 1.8,
+            )
+
+            # Extract additional strategy metrics
+            win_rate = None  # Not available from coordinated data
+            profit_factor = None
+            sharpe_ratio = None
+            max_drawdown = (
+                -abs(float(strategy_data.performance.mae))
+                if strategy_data.performance.mae
+                else None
+            )
+
+            # Confidence assessment
+            confidence_level = (
+                ConfidenceLevel.HIGH
+                if strategy_data.statistics.sample_size > 1000
+                else ConfidenceLevel.MEDIUM
+            )
+            confidence_score = (
+                float(strategy_data.statistics.sample_size_confidence)
+                if strategy_data.statistics.sample_size_confidence
+                else 0.7
+            )
+
+            # Bootstrap results (not available from coordinated data)
+            bootstrap_results = None
+
+            return StrategyDistributionAnalysis(
+                strategy_name=strategy_data.strategy_name,
+                ticker=strategy_data.ticker,
+                timeframe=strategy_data.timeframe or "D",
+                data_source=DataSource.TRADE_HISTORY
+                if use_trade_history
+                else DataSource.EQUITY_CURVES,
+                statistics=stats,
+                percentiles=percentiles,
+                var_metrics=var_metrics,
+                win_rate=win_rate,
+                profit_factor=profit_factor,
+                sharpe_ratio=sharpe_ratio,
+                max_drawdown=max_drawdown,
+                mfe_statistics=None,
+                mae_statistics=None,
+                duration_statistics=None,
+                bootstrap_results=bootstrap_results,
+                confidence_level=confidence_level,
+                confidence_score=confidence_score,
+            )
+
+        except Exception as e:
+            self.logger.error(
+                f"Failed to extract strategy analysis from coordinated data: {e}"
+            )
+            # Re-raise to trigger fallback to legacy analysis methods
+            raise

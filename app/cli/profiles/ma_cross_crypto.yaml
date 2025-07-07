@@ -1,0 +1,31 @@
+metadata:
+  name: ma_cross_crypto
+  description: MA Cross strategy for cryptocurrency analysis
+  created_at: '2025-07-07T08:48:08.874836'
+  updated_at: '2025-07-07T08:48:08.874887'
+  version: '1.0'
+  tags:
+    - ma_cross
+    - crypto
+    - parameter_sweep
+  author: null
+inherits_from: null
+config_type: ma_cross
+config:
+  ticker:
+    - BTC-USD
+    - ETH-USD
+  strategy_types:
+    - SMA
+    - EMA
+  windows: 89
+  fast_period_range:
+    - 5
+    - 50
+  slow_period_range:
+    - 20
+    - 200
+  minimums:
+    win_rate: 0.55
+    trades: 50
+    profit_factor: 1.5

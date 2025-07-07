@@ -34,6 +34,11 @@ from app.core.interfaces import (
 from app.core.strategies.strategy_factory import StrategyFactory
 from app.tools.services.portfolio_processing_service import PortfolioProcessingService
 from app.tools.services.result_aggregation_service import ResultAggregationService
+from app.tools.services.strategy_data_coordinator import (
+    DataCoordinationConfig,
+    StrategyDataCoordinator,
+    StrategyDataCoordinatorError,
+)
 from app.tools.services.strategy_execution_engine import StrategyExecutionEngine
 from app.tools.setup_logging import setup_logging
 
@@ -61,8 +66,9 @@ class ServiceCoordinator:
         metrics: MonitoringInterface,
         progress_tracker: Optional[ProgressTrackerInterface] = None,
         executor: Optional[ThreadPoolExecutor] = None,
+        data_coordinator: Optional[StrategyDataCoordinator] = None,
     ):
-        """Initialize the service coordinator with modular services."""
+        """Initialize the service coordinator with modular services and central data coordination."""
         self.strategy_factory = strategy_factory
         self.cache = cache
         self.config = config
@@ -71,7 +77,21 @@ class ServiceCoordinator:
         self.progress_tracker = progress_tracker
         self.executor = executor or get_concurrent_executor()
 
-        # Initialize modular services
+        # Initialize central data coordinator for system-wide data consistency
+        self.data_coordinator = data_coordinator or StrategyDataCoordinator(
+            config=DataCoordinationConfig(
+                enable_validation=True,
+                enable_auto_refresh=True,
+                max_data_age_minutes=30,
+                enable_memory_optimization=True,
+                concurrent_loading=True,
+                max_workers=4,
+                cache_ttl_minutes=15,
+            ),
+            logger=logger,
+        )
+
+        # Initialize modular services with data coordinator integration
         self.strategy_engine = StrategyExecutionEngine(
             strategy_factory=strategy_factory,
             cache=cache,
@@ -79,6 +99,7 @@ class ServiceCoordinator:
             logger=logger,
             progress_tracker=progress_tracker,
             executor=self.executor,
+            data_coordinator=self.data_coordinator,  # Pass coordinator to engine
         )
 
         self.portfolio_processor = PortfolioProcessingService(logger=logger)
@@ -131,6 +152,21 @@ class ServiceCoordinator:
             if cached_result:
                 return cached_result
 
+            # Create data snapshot for consistent analysis across all services
+            strategy_identifiers = self._extract_strategy_identifiers(request)
+            try:
+                snapshot_id = self.data_coordinator.create_data_snapshot(
+                    strategy_identifiers
+                )
+                self.logger.log(
+                    f"Created data snapshot {snapshot_id} for coordinated analysis"
+                )
+            except StrategyDataCoordinatorError as e:
+                self.logger.log(
+                    f"Warning: Could not create data snapshot: {e}", "warning"
+                )
+                snapshot_id = None
+
             strategy_type_str = (
                 request.strategy_type.value
                 if hasattr(request.strategy_type, "value")
@@ -153,13 +189,12 @@ class ServiceCoordinator:
                 # Convert request to strategy config format
                 strategy_config = request.to_strategy_config()
 
-                # Execute strategy analysis using the strategy execution engine
-                all_portfolio_dicts = (
-                    await self.strategy_engine.execute_strategy_analysis(
-                        strategy_type=request.strategy_type,
-                        strategy_config=strategy_config,
-                        log=log,
-                    )
+                # Execute strategy analysis using the strategy execution engine with data snapshot
+                all_portfolio_dicts = await self.strategy_engine.execute_strategy_analysis(
+                    strategy_type=request.strategy_type,
+                    strategy_config=strategy_config,
+                    log=log,
+                    data_snapshot_id=snapshot_id,  # Pass snapshot for consistent data
                 )
 
                 execution_time = time.time() - start_time
@@ -309,6 +344,19 @@ class ServiceCoordinator:
                     log_subdir="strategy_analysis",
                 )
 
+                # Create data snapshot for async analysis
+                strategy_identifiers = (
+                    self._extract_strategy_identifiers_from_ma_request(request)
+                )
+                try:
+                    snapshot_id = self.data_coordinator.create_data_snapshot(
+                        strategy_identifiers
+                    )
+                    log(f"Created data snapshot {snapshot_id} for async analysis")
+                except StrategyDataCoordinatorError as e:
+                    log(f"Warning: Could not create data snapshot: {e}", "warning")
+                    snapshot_id = None
+
                 all_portfolio_dicts = loop.run_until_complete(
                     self.strategy_engine.execute_strategy_with_concurrent_support(
                         strategy_type=request.strategy_type,
@@ -316,6 +364,7 @@ class ServiceCoordinator:
                         log=log,
                         execution_id=execution_id,
                         progress_callback=progress_callback,
+                        data_snapshot_id=snapshot_id,  # Pass snapshot for consistency
                     )
                 )
 
@@ -379,6 +428,80 @@ class ServiceCoordinator:
         return self.portfolio_processor.collect_export_paths(
             config, strategy_types, log
         )
+
+    def _extract_strategy_identifiers(
+        self, request: StrategyAnalysisRequest
+    ) -> List[str]:
+        """Extract strategy identifiers from request for data snapshot creation."""
+        identifiers = []
+
+        # Handle ticker(s)
+        tickers = (
+            request.ticker if isinstance(request.ticker, list) else [request.ticker]
+        )
+
+        # Generate strategy identifiers based on request
+        strategy_type_str = (
+            request.strategy_type.value
+            if hasattr(request.strategy_type, "value")
+            else str(request.strategy_type)
+        )
+
+        for ticker in tickers:
+            # Create identifier pattern that matches coordinator expectations
+            if hasattr(request, "parameters") and request.parameters:
+                # If parameters specified, create specific strategy names
+                windows = request.parameters.get("windows", [])
+                if windows:
+                    for window_pair in windows:
+                        if len(window_pair) >= 2:
+                            strategy_name = f"{ticker}_{strategy_type_str}_{window_pair[0]}_{window_pair[1]}"
+                            identifiers.append(strategy_name)
+                else:
+                    # Default strategy name
+                    strategy_name = f"{ticker}_{strategy_type_str}"
+                    identifiers.append(strategy_name)
+            else:
+                # Generic strategy identifier
+                strategy_name = f"{ticker}_{strategy_type_str}"
+                identifiers.append(strategy_name)
+
+        return identifiers
+
+    def _extract_strategy_identifiers_from_ma_request(self, request) -> List[str]:
+        """Extract strategy identifiers from MACrossRequest for data snapshot creation."""
+        identifiers = []
+
+        # Handle ticker(s) - MACrossRequest format
+        tickers = (
+            request.ticker if isinstance(request.ticker, list) else [request.ticker]
+        )
+
+        # Handle strategy types
+        strategy_types = (
+            request.strategy_types if hasattr(request, "strategy_types") else ["SMA"]
+        )
+
+        for ticker in tickers:
+            for strategy_type in strategy_types:
+                strategy_type_str = (
+                    strategy_type.value
+                    if hasattr(strategy_type, "value")
+                    else str(strategy_type)
+                )
+
+                # Create identifiers based on windows if available
+                if hasattr(request, "windows") and request.windows:
+                    for window_pair in request.windows:
+                        if len(window_pair) >= 2:
+                            strategy_name = f"{ticker}_{strategy_type_str}_{window_pair[0]}_{window_pair[1]}"
+                            identifiers.append(strategy_name)
+                else:
+                    # Default strategy name
+                    strategy_name = f"{ticker}_{strategy_type_str}"
+                    identifiers.append(strategy_name)
+
+        return identifiers
 
 
 # Backward compatibility aliases

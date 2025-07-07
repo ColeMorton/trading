@@ -22,6 +22,10 @@ from app.core.interfaces import (
 from app.core.strategies.strategy_factory import StrategyFactory
 from app.tools.performance_tracker import get_strategy_performance_tracker
 from app.tools.processing import DataConverter, StreamingProcessor, get_memory_optimizer
+from app.tools.services.strategy_data_coordinator import (
+    StrategyDataCoordinator,
+    StrategyDataCoordinatorError,
+)
 
 
 class StrategyExecutionEngineError(Exception):
@@ -50,8 +54,9 @@ class StrategyExecutionEngine:
         progress_tracker: Optional[ProgressTrackerInterface] = None,
         executor=None,
         enable_memory_optimization: bool = True,
+        data_coordinator: Optional[StrategyDataCoordinator] = None,
     ):
-        """Initialize the strategy execution engine."""
+        """Initialize the strategy execution engine with optional data coordination."""
         self.strategy_factory = strategy_factory
         self.cache = cache
         self.config = config
@@ -59,6 +64,9 @@ class StrategyExecutionEngine:
         self.progress_tracker = progress_tracker
         self.executor = executor
         self.enable_memory_optimization = enable_memory_optimization
+        self.data_coordinator = (
+            data_coordinator  # Central data coordinator for consistency
+        )
 
         # Initialize memory optimization components
         if enable_memory_optimization:
@@ -76,15 +84,17 @@ class StrategyExecutionEngine:
         strategy_config: Dict[str, Any],
         log,
         execution_id: Optional[str] = None,
+        data_snapshot_id: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """
-        Execute strategy analysis with the given configuration.
+        Execute strategy analysis with the given configuration and optional data snapshot.
 
         Args:
             strategy_type: Type of strategy to execute
             strategy_config: Configuration parameters for the strategy
             log: Logging function
             execution_id: Optional execution ID for tracking
+            data_snapshot_id: Optional data snapshot ID for coordinated data access
 
         Returns:
             List of portfolio dictionaries from strategy execution
@@ -287,12 +297,21 @@ class StrategyExecutionEngine:
         log,
         execution_id: str,
         progress_callback,
+        data_snapshot_id: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """
-        Execute strategy with concurrent support for multiple tickers.
+        Execute strategy with concurrent support for multiple tickers and optional data snapshot.
 
         This method provides optimized execution for scenarios with multiple tickers,
         using either sequential or concurrent execution based on ticker count.
+
+        Args:
+            strategy_type: Strategy type to execute
+            config: Strategy configuration
+            log: Logging function
+            execution_id: Execution tracking ID
+            progress_callback: Progress callback function
+            data_snapshot_id: Optional data snapshot ID for coordinated data access
         """
         # Import the execute_strategy functions from ma_cross module
         from app.strategies.ma_cross.tools.strategy_execution import (
@@ -317,6 +336,14 @@ class StrategyExecutionEngine:
         log(
             f"Processing {len(tickers)} tickers with {'concurrent' if use_concurrent else 'sequential'} execution"
         )
+
+        # Log data coordination status
+        if data_snapshot_id and self.data_coordinator:
+            log(f"Using data snapshot {data_snapshot_id} for coordinated analysis")
+        elif self.data_coordinator:
+            log("Data coordinator available but no snapshot specified")
+        else:
+            log("No data coordination - using independent data loading")
 
         # Update progress for strategy types
         await progress_callback(20.0, f"Analyzing {len(strategy_types)} strategy types")

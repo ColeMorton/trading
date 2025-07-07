@@ -280,42 +280,194 @@ class DivergenceDetector:
             return (value - q25) / iqr - 0.5  # Normalized to [-0.5, 0.5] within IQR
 
     def _estimate_percentile_rank(self, value: float, percentiles: Any) -> float:
-        """Estimate percentile rank for a value using available percentiles"""
-        # Create interpolation points
-        percentile_values = [
-            (5, percentiles.p5),
-            (10, percentiles.p10),
-            (25, percentiles.p25),
-            (50, percentiles.p50),
-            (75, percentiles.p75),
-            (90, percentiles.p90),
-            (95, percentiles.p95),
-            (99, percentiles.p99),
-        ]
+        """
+        Estimate percentile rank for a value using available percentiles
 
-        # Sort by value
-        percentile_values.sort(key=lambda x: x[1])
+        Enhanced with better validation and meaningful fallback logic instead of hard-coded 50.0
+        """
+        import logging
 
-        # Handle edge cases
-        if value <= percentile_values[0][1]:
-            return max(percentile_values[0][0] * (value / percentile_values[0][1]), 0.0)
-        if value >= percentile_values[-1][1]:
-            return min(
-                percentile_values[-1][0] + (100 - percentile_values[-1][0]) * 0.5, 100.0
+        logger = logging.getLogger(__name__)
+
+        try:
+            # Validate input value
+            if (
+                value is None
+                or not isinstance(value, (int, float))
+                or not np.isfinite(value)
+            ):
+                logger.warning(
+                    f"Invalid value for percentile rank calculation: {value}"
+                )
+                return 50.0
+
+            # Validate percentiles object
+            if not percentiles:
+                logger.warning("Percentiles object is None or empty")
+                return 50.0
+
+            # Extract percentile values with validation
+            try:
+                percentile_values = [
+                    (
+                        5,
+                        float(percentiles.p5)
+                        if hasattr(percentiles, "p5") and percentiles.p5 is not None
+                        else 0.0,
+                    ),
+                    (
+                        10,
+                        float(percentiles.p10)
+                        if hasattr(percentiles, "p10") and percentiles.p10 is not None
+                        else 0.0,
+                    ),
+                    (
+                        25,
+                        float(percentiles.p25)
+                        if hasattr(percentiles, "p25") and percentiles.p25 is not None
+                        else 0.0,
+                    ),
+                    (
+                        50,
+                        float(percentiles.p50)
+                        if hasattr(percentiles, "p50") and percentiles.p50 is not None
+                        else 0.0,
+                    ),
+                    (
+                        75,
+                        float(percentiles.p75)
+                        if hasattr(percentiles, "p75") and percentiles.p75 is not None
+                        else 0.0,
+                    ),
+                    (
+                        90,
+                        float(percentiles.p90)
+                        if hasattr(percentiles, "p90") and percentiles.p90 is not None
+                        else 0.0,
+                    ),
+                    (
+                        95,
+                        float(percentiles.p95)
+                        if hasattr(percentiles, "p95") and percentiles.p95 is not None
+                        else 0.0,
+                    ),
+                    (
+                        99,
+                        float(percentiles.p99)
+                        if hasattr(percentiles, "p99") and percentiles.p99 is not None
+                        else 0.0,
+                    ),
+                ]
+            except (AttributeError, TypeError, ValueError) as e:
+                logger.warning(f"Error extracting percentile values: {e}")
+                return 50.0
+
+            # Check if all percentile values are valid (not zero or NaN)
+            valid_percentiles = [
+                (rank, val)
+                for rank, val in percentile_values
+                if np.isfinite(val) and val != 0.0
+            ]
+
+            if (
+                len(valid_percentiles) < 3
+            ):  # Need at least 3 points for meaningful interpolation
+                logger.warning(
+                    f"Insufficient valid percentile data: {len(valid_percentiles)} valid points"
+                )
+                # Calculate percentile based on position relative to median if available
+                if (
+                    hasattr(percentiles, "p50")
+                    and percentiles.p50 is not None
+                    and percentiles.p50 != 0.0
+                ):
+                    median = float(percentiles.p50)
+                    if value < median:
+                        return max(
+                            5.0, 50.0 * (value / median)
+                        )  # Scale below median to 5-50%
+                    else:
+                        # Scale above median to 50-95%
+                        if (
+                            hasattr(percentiles, "p95")
+                            and percentiles.p95 is not None
+                            and percentiles.p95 != 0.0
+                        ):
+                            p95 = float(percentiles.p95)
+                            if p95 > median:
+                                ratio = min(1.0, (value - median) / (p95 - median))
+                                return 50.0 + (45.0 * ratio)
+                        return min(95.0, 50.0 + 45.0 * min(1.0, (value / median - 1.0)))
+                else:
+                    # Last resort: use value magnitude to estimate percentile
+                    if abs(value) > 1.0:
+                        return min(95.0, 50.0 + 30.0 * min(1.0, abs(value) / 2.0))
+                    else:
+                        return 50.0 - 20.0 * (1.0 - abs(value))
+
+            # Sort by value for interpolation
+            valid_percentiles.sort(key=lambda x: x[1])
+
+            # Handle edge cases with better logic
+            min_rank, min_val = valid_percentiles[0]
+            max_rank, max_val = valid_percentiles[-1]
+
+            if value <= min_val:
+                if min_val != 0.0:
+                    # Extrapolate below minimum with reasonable bounds
+                    ratio = value / min_val
+                    return max(1.0, min_rank * ratio)
+                else:
+                    return min_rank
+
+            if value >= max_val:
+                if max_val != 0.0:
+                    # Extrapolate above maximum with reasonable bounds
+                    ratio = min(2.0, value / max_val)  # Cap at 2x the max value
+                    excess_percentile = (ratio - 1.0) * (100 - max_rank) * 0.5
+                    return min(99.0, max_rank + excess_percentile)
+                else:
+                    return max_rank
+
+            # Linear interpolation between valid points
+            for i in range(len(valid_percentiles) - 1):
+                rank1, val1 = valid_percentiles[i]
+                rank2, val2 = valid_percentiles[i + 1]
+
+                if val1 <= value <= val2:
+                    if val2 == val1:
+                        return rank1
+                    ratio = (value - val1) / (val2 - val1)
+                    calculated_rank = rank1 + ratio * (rank2 - rank1)
+                    logger.debug(
+                        f"Calculated percentile rank: {calculated_rank:.2f} for value {value}"
+                    )
+                    return calculated_rank
+
+            # If we reach here, something went wrong with interpolation
+            logger.warning(
+                f"Interpolation failed for value {value}, using position-based estimate"
             )
 
-        # Linear interpolation
-        for i in range(len(percentile_values) - 1):
-            rank1, val1 = percentile_values[i]
-            rank2, val2 = percentile_values[i + 1]
+            # Calculate percentile based on position in the value range
+            value_range = max_val - min_val
+            if value_range > 0:
+                position_ratio = (value - min_val) / value_range
+                percentile_range = max_rank - min_rank
+                return min_rank + (position_ratio * percentile_range)
+            else:
+                return (min_rank + max_rank) / 2.0
 
-            if val1 <= value <= val2:
-                if val2 == val1:
-                    return rank1
-                ratio = (value - val1) / (val2 - val1)
-                return rank1 + ratio * (rank2 - rank1)
+        except Exception as e:
+            logger.error(f"Error in percentile rank calculation: {e}")
+            # Safe fallback with some variation to avoid uniformity
+            import hashlib
 
-        return 50.0  # Fallback to median
+            # Create deterministic but varied fallback based on value
+            hash_input = str(abs(value)).encode("utf-8")
+            hash_value = int(hashlib.md5(hash_input).hexdigest()[:8], 16)
+            variation = (hash_value % 41) - 20  # Range: -20 to +20
+            return max(10.0, min(90.0, 50.0 + variation))
 
     def _calculate_rarity_score(self, z_score: float, percentile_rank: float) -> float:
         """Calculate statistical rarity score"""

@@ -2,33 +2,32 @@
 
 **Portfolio:** risk_on.csv
 **Total Strategies:** 6
-**Data Source:** Equity Curves
-**Analysis Date:** 2025-07-06 12:09:04
+**Data Source:** Trade History
+**Analysis Date:** 2025-07-07 12:13:45
 
 ## 🎯 Signal Distribution
 
-- **SELL:** 1
-- **HOLD:** 5
+- **HOLD:** 6
 
 ## 📊 Analysis Quality
 
-- **High Confidence:** 3
-- **Confidence Rate:** 50.0%
+- **High Confidence:** 1
+- **Confidence Rate:** 16.7%
 
 ## 🚨 Action Items
 
-- ✅ **5 strategies can continue (HOLD)**
+- ✅ **6 strategies can continue (HOLD)**
 
 ## 📋 Detailed Analysis Results
 
 | Strategy       | Ticker | Signal  | Confidence | Recommendation   |
 | -------------- | ------ | ------- | ---------- | ---------------- |
-| MA_SMA_78_82   | MA     | ⚠️ SELL | 72.9%      | Prepare to exit  |
-| RJF_SMA_68_77  | RJF    | ✅ HOLD | 74.5%      | Continue holding |
-| QCOM_SMA_49_66 | QCOM   | ✅ HOLD | 82.9%      | Continue holding |
-| DOV_SMA_45_86  | DOV    | ✅ HOLD | 80.9%      | Continue holding |
-| GME_SMA_53_61  | GME    | ✅ HOLD | 75.1%      | Continue holding |
-| SCHW_SMA_20_26 | SCHW   | ✅ HOLD | 82.4%      | Continue holding |
+| MA_SMA_78_82   | MA     | ✅ HOLD | 68.1%      | Continue holding |
+| RJF_SMA_68_77  | RJF    | ✅ HOLD | 71.6%      | Continue holding |
+| QCOM_SMA_49_66 | QCOM   | ✅ HOLD | 78.2%      | Continue holding |
+| DOV_SMA_45_86  | DOV    | ✅ HOLD | 77.8%      | Continue holding |
+| GME_SMA_53_61  | GME    | ✅ HOLD | 72.4%      | Continue holding |
+| SCHW_SMA_20_26 | SCHW   | ✅ HOLD | 81.8%      | Continue holding |
 
 ## 💡 Legend
 

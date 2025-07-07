@@ -1,0 +1,20 @@
+#!/usr/bin/env poetry run python3
+"""
+Unified Trading CLI Entry Point
+
+This script provides the main entry point for the trading CLI system.
+It can be run directly or used to create a system-wide command.
+"""
+
+import sys
+from pathlib import Path
+
+# Add the project root to Python path
+project_root = Path(__file__).parent
+sys.path.insert(0, str(project_root))
+
+# Import and run the CLI
+from app.cli.main import cli_main
+
+if __name__ == "__main__":
+    cli_main()

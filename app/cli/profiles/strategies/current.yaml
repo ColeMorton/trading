@@ -1,0 +1,19 @@
+# MA Cross Portfolio Analysis Profile
+# CLI profile for running MA Cross portfolio analysis via trading-cli
+
+metadata:
+  name: 'current'
+  description: 'MA Cross portfolio analysis with specific ticker list from 1_get_portfolios.py'
+  version: '1.0'
+  tags: ['ma_cross', 'portfolio', 'analysis', 'production']
+  author: 'trading-cli'
+
+inherits_from: 'default_strategy_current'
+
+config_type: 'strategy'
+
+config:
+  name: 'current'
+  ticker:
+    - HYPE32196-USD
+    - ETH-USD

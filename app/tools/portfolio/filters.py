@@ -43,76 +43,77 @@ def filter_invalid_metrics(
 
     original_count = len(df)
 
-    # Create filters for each invalid metric condition
-    filters = []
+    # Note: Filters are now applied directly below to avoid Polars implementation errors
 
-    # Filter out NaN Score
-    if "Score" in df.columns:
-        filters.append(~pl.col("Score").is_nan())
+    # Use pandas fallback to avoid Polars implementation errors
+    try:
+        import pandas as pd
 
-    # Filter out inf Profit Factor
-    if "Profit Factor" in df.columns:
-        filters.append(~pl.col("Profit Factor").is_infinite())
+        # Convert to pandas for safer filtering operations
+        pandas_df = df.to_pandas()
+        original_pandas_count = len(pandas_df)
 
-    # Filter out NaN Avg Losing Trade [%]
-    if "Avg Losing Trade [%]" in df.columns:
-        filters.append(~pl.col("Avg Losing Trade [%]").is_nan())
+        # Apply filters using pandas (more robust)
+        if "Score" in pandas_df.columns:
+            pandas_df = pandas_df[
+                pandas_df["Score"].notna()
+                & pandas_df["Score"]
+                .replace([float("inf"), float("-inf")], float("nan"))
+                .notna()
+            ]
 
-    # Filter out NaN Expectancy per Trade
-    if "Expectancy per Trade" in df.columns:
-        filters.append(~pl.col("Expectancy per Trade").is_nan())
+        if "Profit Factor" in pandas_df.columns:
+            pandas_df = pandas_df[
+                pandas_df["Profit Factor"].notna()
+                & pandas_df["Profit Factor"]
+                .replace([float("inf"), float("-inf")], float("nan"))
+                .notna()
+            ]
 
-    # Apply all filters if any exist
-    if filters:
-        # Apply filters one by one to avoid complex expression issues
+        if "Avg Losing Trade [%]" in pandas_df.columns:
+            pandas_df = pandas_df[
+                pandas_df["Avg Losing Trade [%]"].notna()
+                & pandas_df["Avg Losing Trade [%]"]
+                .replace([float("inf"), float("-inf")], float("nan"))
+                .notna()
+            ]
+
+        if "Expectancy per Trade" in pandas_df.columns:
+            pandas_df = pandas_df[
+                pandas_df["Expectancy per Trade"].notna()
+                & pandas_df["Expectancy per Trade"]
+                .replace([float("inf"), float("-inf")], float("nan"))
+                .notna()
+            ]
+
+        # Convert back to Polars
+        filtered_df = pl.from_pandas(pandas_df)
+
+        if log:
+            filtered_count = original_pandas_count - len(pandas_df)
+            if filtered_count > 0:
+                log(
+                    f"Using pandas fallback: Filtered out {filtered_count} portfolios with invalid metrics",
+                    "info",
+                )
+
+    except Exception as e:
+        if log:
+            log(
+                f"Warning: Pandas fallback filtering failed, returning original data: {e}",
+                "warning",
+            )
         filtered_df = df
-        for filter_expr in filters:
-            try:
-                filtered_df = filtered_df.filter(filter_expr)
-            except Exception as e:
-                if log:
-                    log(f"Warning: Filter expression failed: {e}", "warning")
-                continue
-    else:
-        filtered_df = df
 
-    # Log the filtering results
+    # Log final filtering results
     if log:
         filtered_count = original_count - len(filtered_df)
         if filtered_count > 0:
-            # Count specific invalid metrics
-            nan_score_count = 0
-            inf_profit_factor_count = 0
-            nan_expectancy_count = 0
-            nan_avg_loss_count = 0
-
-            if "Score" in df.columns:
-                nan_score_count = df.filter(pl.col("Score").is_nan()).height
-
-            if "Profit Factor" in df.columns:
-                inf_profit_factor_count = df.filter(
-                    pl.col("Profit Factor").is_infinite()
-                ).height
-
-            if "Expectancy per Trade" in df.columns:
-                nan_expectancy_count = df.filter(
-                    pl.col("Expectancy per Trade").is_nan()
-                ).height
-
-            if "Avg Losing Trade [%]" in df.columns:
-                nan_avg_loss_count = df.filter(
-                    pl.col("Avg Losing Trade [%]").is_nan()
-                ).height
-
             log(
-                f"Filtered out {filtered_count} portfolios with invalid metrics:",
+                f"Final result: Filtered out {filtered_count} portfolios with invalid metrics",
                 "info",
             )
-            log(f"  - NaN Score: {nan_score_count}", "info")
-            log(f"  - inf Profit Factor: {inf_profit_factor_count}", "info")
-            log(f"  - NaN Expectancy per Trade: {nan_expectancy_count}", "info")
-            log(f"  - NaN Avg Losing Trade [%]: {nan_avg_loss_count}", "info")
-            log(f"Remaining portfolios: {len(filtered_df)}", "info")
+        log(f"Remaining portfolios: {len(filtered_df)}", "info")
 
     # Return in original format
     return filtered_df.to_dicts() if input_is_list else filtered_df

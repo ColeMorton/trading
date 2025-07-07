@@ -72,26 +72,7 @@ from app.tools.strategy_utils import filter_portfolios_by_signal, get_strategy_t
 # Config management is now handled by ConfigService
 
 CONFIG: Config = {
-    "TICKER": [
-        "BKR",
-        "DAL",
-        "BK",
-        "ISRG",
-        "IFF",
-        "VRTX",
-        "EXR",
-        "TECH",
-        "MTD",
-        "IONQ",
-        "QBTS",
-        "NTAP",
-        "BIIB",
-        "UAL",
-        "MCHP",
-        "VFC",
-        "ALK",
-        "LEG",
-    ],
+    "TICKER": ["HYPE32196-USD", "UNI7083-USD", "TRX-USD", "AAVE-USD", "PENDLE-USD"],
     #     "TICKER": [
     #     "HWM", "NFLX", "NVDA", "TPR", "RTX", "AMD", "FFIV", "TEM", "BLDR",  # Main section
     #     "SMCI", "QCOM", "SCHW", "DOV", "VRSN", "RJF",                       # CURRENT
