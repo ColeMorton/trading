@@ -41,7 +41,12 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import pandas as pd
 import polars as pl
 
-from .uuid_utils import generate_position_uuid as _generate_position_uuid
+from .utils.mfe_mae_calculator import get_mfe_mae_calculator
+
+try:
+    from .uuid_utils import generate_position_uuid as _generate_position_uuid
+except ImportError:
+    from app.tools.uuid_utils import generate_position_uuid as _generate_position_uuid
 
 logger = logging.getLogger(__name__)
 
@@ -255,25 +260,15 @@ def calculate_mfe_mae(
             )
             return None, None, None, None
 
-        # Calculate MFE/MAE based on direction
-        if direction.upper() == "LONG":
-            # For long positions
-            # MFE = (Max High - Entry Price) / Entry Price
-            max_high = position_df["High"].max()
-            mfe = (max_high - entry_price) / entry_price
-
-            # MAE = (Entry Price - Min Low) / Entry Price
-            min_low = position_df["Low"].min()
-            mae = (entry_price - min_low) / entry_price
-        else:
-            # For short positions
-            # MFE = (Entry Price - Min Low) / Entry Price
-            min_low = position_df["Low"].min()
-            mfe = (entry_price - min_low) / entry_price
-
-            # MAE = (Max High - Entry Price) / Entry Price
-            max_high = position_df["High"].max()
-            mae = (max_high - entry_price) / entry_price
+        # Use centralized MFE/MAE calculator
+        calculator = get_mfe_mae_calculator(logger)
+        mfe, mae = calculator.calculate_from_ohlc(
+            entry_price=entry_price,
+            ohlc_data=position_df,
+            direction=direction,
+            high_col="High",
+            low_col="Low",
+        )
 
         # Calculate ratios with validation
         mfe_mae_ratio = mfe / mae if mae != 0 else None
@@ -947,6 +942,11 @@ Examples:
         action="store_true",
         help="Verify entry signal occurred on specified date",
     )
+    operations.add_argument(
+        "--update-open-positions",
+        action="store_true",
+        help="Update dynamic metrics for open positions in portfolio",
+    )
 
     # Position parameters
     position_group = parser.add_argument_group("Position Parameters")
@@ -1258,6 +1258,185 @@ Examples:
 
             # Return exit code based on verification result
             return 0 if signal_verified else 1
+
+        elif args.update_open_positions:
+            if not args.portfolio:
+                logger.error("Missing required argument: --portfolio")
+                return 1
+
+            # Get or set up configuration
+            config = get_config()
+            if config is None:
+                config = TradingSystemConfig()
+                set_config(config)
+
+            # Import the update logic used in the successful direct execution
+            import numpy as np
+
+            def read_price_data_fixed(ticker):
+                try:
+                    price_file = config.price_data_dir / f"{ticker}_D.csv"
+                    if not price_file.exists():
+                        return None
+
+                    with open(price_file, "r") as f:
+                        lines = f.readlines()
+
+                    data_start = 0
+                    for i, line in enumerate(lines):
+                        if line.startswith("20"):
+                            data_start = i
+                            break
+
+                    if data_start == 0:
+                        return None
+
+                    df = pd.read_csv(
+                        price_file,
+                        skiprows=data_start,
+                        header=None,
+                        names=["Date", "Close", "High", "Low", "Open", "Volume"],
+                    )
+                    df["Date"] = pd.to_datetime(df["Date"])
+                    df.set_index("Date", inplace=True)
+                    return df
+
+                except Exception as e:
+                    if args.verbose:
+                        print(f"Error reading {ticker}: {str(e)}")
+                    return None
+
+            def calculate_mfe_mae_fixed(
+                ticker, entry_date, entry_price, direction="Long"
+            ):
+                try:
+                    price_data = read_price_data_fixed(ticker)
+                    if price_data is None:
+                        return None, None, None
+
+                    entry_date = pd.to_datetime(entry_date)
+
+                    if entry_date < price_data.index.min():
+                        if args.verbose:
+                            print(
+                                f"   📅 Entry date {entry_date.date()} before available data, using {price_data.index.min().date()}"
+                            )
+                        entry_date = price_data.index.min()
+
+                    position_data = price_data[entry_date:]
+
+                    if position_data.empty:
+                        return None, None, None
+
+                    # Use centralized MFE/MAE calculator
+                    calculator = get_mfe_mae_calculator()
+                    mfe, mae = calculator.calculate_from_ohlc(
+                        entry_price=entry_price,
+                        ohlc_data=position_data,
+                        direction=direction,
+                        high_col="High",
+                        low_col="Low",
+                    )
+
+                    current_price = position_data["Close"].iloc[-1]
+                    if direction.upper() == "LONG":
+                        current_excursion = (current_price - entry_price) / entry_price
+                    else:
+                        current_excursion = (entry_price - current_price) / entry_price
+
+                    return mfe, mae, current_excursion
+
+                except Exception as e:
+                    if args.verbose:
+                        print(f"Error calculating MFE/MAE for {ticker}: {str(e)}")
+                    return None, None, None
+
+            # Main update process
+            portfolio_file = config.positions_dir / f"{args.portfolio}.csv"
+            if not portfolio_file.exists():
+                logger.error(f"Portfolio file not found: {portfolio_file}")
+                return 1
+
+            df = pd.read_csv(portfolio_file)
+            open_positions = df[df["Status"] == "Open"].copy()
+
+            print(
+                f"🔄 Updating dynamic metrics for {len(open_positions)} open positions..."
+            )
+
+            updated_count = 0
+
+            for idx, position in open_positions.iterrows():
+                ticker = position["Ticker"]
+                entry_date = position["Entry_Timestamp"]
+                entry_price = position["Avg_Entry_Price"]
+                direction = position.get("Direction", "Long")
+
+                if args.verbose:
+                    print(
+                        f"📊 Processing {ticker} - Entry: {entry_date} @ ${entry_price:.2f}"
+                    )
+
+                entry_dt = pd.to_datetime(entry_date)
+                days_since_entry = (datetime.now() - entry_dt).days
+
+                mfe, mae, current_excursion = calculate_mfe_mae_fixed(
+                    ticker, entry_date, entry_price, direction
+                )
+
+                if mfe is not None and mae is not None:
+                    df.loc[idx, "Days_Since_Entry"] = days_since_entry
+                    df.loc[idx, "Max_Favourable_Excursion"] = mfe
+                    df.loc[idx, "Max_Adverse_Excursion"] = mae
+                    df.loc[idx, "Current_Unrealized_PnL"] = current_excursion
+
+                    if mae > 0:
+                        df.loc[idx, "MFE_MAE_Ratio"] = mfe / mae
+                    else:
+                        df.loc[idx, "MFE_MAE_Ratio"] = float("inf") if mfe > 0 else 0
+
+                    if current_excursion > 0:
+                        df.loc[idx, "Current_Excursion_Status"] = "Favorable"
+                    elif current_excursion < 0:
+                        df.loc[idx, "Current_Excursion_Status"] = "Adverse"
+                    else:
+                        df.loc[idx, "Current_Excursion_Status"] = "Neutral"
+
+                    risk_reward_ratio = mfe / mae if mae > 0 else float("inf")
+
+                    if mfe < 0.02 and mae > 0.05:
+                        trade_quality = "Poor Setup - High Risk, Low Reward"
+                    elif risk_reward_ratio >= 3.0:
+                        trade_quality = "Excellent"
+                    elif risk_reward_ratio >= 2.0:
+                        trade_quality = "Excellent"
+                    elif risk_reward_ratio >= 1.5:
+                        trade_quality = "Good"
+                    else:
+                        trade_quality = "Poor"
+
+                    df.loc[idx, "Trade_Quality"] = trade_quality
+
+                    if args.verbose:
+                        print(
+                            f"   ✅ MFE: {mfe:.4f}, MAE: {mae:.4f}, Current P&L: {current_excursion:.4f}, Quality: {trade_quality}"
+                        )
+                    updated_count += 1
+                else:
+                    if args.verbose:
+                        print(f"   ⚠️  Could not calculate metrics for {ticker}")
+
+            if not args.dry_run:
+                df.to_csv(portfolio_file, index=False)
+                print(
+                    f"✅ DYNAMIC METRICS UPDATED: {updated_count} positions in {args.portfolio}"
+                )
+            else:
+                print(
+                    f"🔍 DRY RUN: Would update {updated_count} positions in {args.portfolio}"
+                )
+
+            return 0
 
         return 0
 

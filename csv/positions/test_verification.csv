@@ -1,3 +1,0 @@
-Position_UUID,Ticker,Strategy_Type,Short_Window,Long_Window,Signal_Window,Entry_Timestamp,Exit_Timestamp,Avg_Entry_Price,Avg_Exit_Price,Position_Size,Direction,PnL,Return,Duration_Days,Trade_Type,Status,Max_Favourable_Excursion,Max_Adverse_Excursion,MFE_MAE_Ratio,Exit_Efficiency,Days_Since_Entry,Current_Unrealized_PnL,Current_Excursion_Status,Exit_Efficiency_Fixed,Trade_Quality
-QCOM_SMA_49_66_0_2025-06-24,QCOM,SMA,49,66,0,2025-06-24 00:00:00,,155.7100067138672,,1.0,Long,,,,,Open,0.0052770262384328,0.0100187062495571,0.5267173332550837,,2,,Open,,Poor
-QCOM_SMA_49_66_0_2025-06-23,QCOM,SMA,49,66,0,2025-06-23 00:00:00,,155.7100067138672,,1.0,Long,,,,,Open,0.005277026238432803,0.03872592497646407,0.13626598310149982,,3,,Open,,Poor

@@ -35,11 +35,13 @@ This command uses **sub-commands** following the modern CLI pattern:
 ### Analysis Parameters (for `close` sub-command)
 
 - **strategy** (required for close): Strategy name or Position_UUID to analyze
-- **output** (optional): Output file path for reports (stdout if not specified)
+- **output** (ALWAYS REQUIRED for close): Output file path for reports - file export is mandatory for all close operations
 - **format** (optional): Output format (markdown, json, html) - default: markdown
 - **include_raw_data** (optional): Include raw statistical data in appendices
 - **current_price** (optional): Current market price for enhanced analysis
 - **market_condition** (optional): Market condition (bullish/bearish/sideways/volatile)
+
+**IMPORTANT**: The `close` command ALWAYS exports analysis reports to a file. This ensures proper documentation, audit trails, and enables further analysis of sell signal recommendations.
 
 ## Objectives
 
@@ -73,6 +75,7 @@ This command uses **sub-commands** following the modern CLI pattern:
 2. **Exit Strategy Optimization**: Provide multiple exit scenarios with risk-adjusted recommendations
 3. **Multi-Source Integration**: Aggregate data from statistical analysis, backtesting parameters, and trade history
 4. **Actionable Insights**: Deliver clear SELL/HOLD recommendations with confidence levels
+5. **Mandatory File Export**: ALWAYS export reports to specified file path for documentation and audit purposes
 
 ## Dynamic Fields Updated
 
@@ -256,9 +259,13 @@ case "$SUBCOMMAND" in
         # Generate comprehensive sell signal report using SPDS data
         echo "📈 Generating sell signal report using SPDS data..."
 
-        # Determine output parameters
-        OUTPUT_PARAMS=""
-        if [[ -n "$output" ]]; then
+        # Ensure output file is always specified for close command
+        if [[ -z "$output" ]]; then
+            # Auto-generate filename based on strategy and timestamp
+            OUTPUT_FILE="reports/${strategy}_analysis_$(date +%Y%m%d_%H%M%S).md"
+            echo "🔄 Auto-generating output file: $OUTPUT_FILE"
+            OUTPUT_PARAMS="--output $OUTPUT_FILE"
+        else
             OUTPUT_PARAMS="--output $output"
         fi
 
@@ -599,11 +606,13 @@ trading-cli trade-history add GOOGL --strategy-type SMA --short-window 49 --long
 
 ### **Sell Signal Report Generation**
 
+**IMPORTANT**: All `close` commands ALWAYS export to files. If no `--output` is specified, files are auto-generated in the `reports/` directory.
+
 ```bash
-# Generate sell signal report (console output)
+# Generate sell signal report (auto-exported to reports/MA_SMA_78_82_analysis_YYYYMMDD_HHMMSS.md)
 trading-cli trade-history close MA_SMA_78_82
 
-# Generate report with file output
+# Generate report with specific file output
 trading-cli trade-history close CRWD_EMA_5_21 --output reports/CRWD_analysis.md
 
 # Generate enhanced report with market context

@@ -23,6 +23,7 @@ from typing import Any, Dict, List, Optional, Union
 import pandas as pd
 import polars as pl
 
+from .utils.mfe_mae_calculator import get_mfe_mae_calculator
 from .uuid_utils import generate_position_uuid as _generate_position_uuid
 
 
@@ -335,24 +336,15 @@ def calculate_mfe_mae(
             )
             return None, None, None, None
 
-        if direction.upper() == "LONG":
-            # For long positions
-            # MFE = (Max High - Entry Price) / Entry Price
-            max_high = position_df["High"].max()
-            mfe = (max_high - entry_price) / entry_price
-
-            # MAE = (Entry Price - Min Low) / Entry Price
-            min_low = position_df["Low"].min()
-            mae = (entry_price - min_low) / entry_price
-        else:
-            # For short positions (if applicable)
-            # MFE = (Entry Price - Min Low) / Entry Price
-            min_low = position_df["Low"].min()
-            mfe = (entry_price - min_low) / entry_price
-
-            # MAE = (Max High - Entry Price) / Entry Price
-            max_high = position_df["High"].max()
-            mae = (max_high - entry_price) / entry_price
+        # Use centralized MFE/MAE calculator
+        calculator = get_mfe_mae_calculator()
+        mfe, mae = calculator.calculate_from_ohlc(
+            entry_price=entry_price,
+            ohlc_data=position_df,
+            direction=direction,
+            high_col="High",
+            low_col="Low",
+        )
 
         # Calculate ratios
         mfe_mae_ratio = mfe / mae if mae != 0 else None

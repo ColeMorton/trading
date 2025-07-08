@@ -16,6 +16,7 @@ from ..models.concurrency import ConcurrencyAnalysisConfig, ConcurrencyConfig
 from ..models.portfolio import PortfolioConfig, PortfolioProcessingConfig
 from ..models.strategy import MACDConfig, MACrossConfig, StrategyConfig
 from ..models.tools import HealthConfig, SchemaConfig, ValidationConfig
+from ..models.trade_history import TradeHistoryConfig
 from .manager import ConfigManager, ProfileManager
 from .profiles import Profile, ProfileConfig
 
@@ -226,6 +227,58 @@ class ConfigLoader:
         self.profile_manager.save_profile(ma_cross_profile)
         profiles_created.append("ma_cross_crypto")
 
+        # Default trade history profile
+        trade_history_config = {
+            "analysis": {
+                "use_statistical_data": True,
+                "use_backtesting_data": True,
+                "use_trade_history": True,
+                "enable_risk_scoring": True,
+                "confidence_threshold": 70.0,
+            },
+            "output": {
+                "output_format": "markdown",
+                "show_progress": True,
+                "verbose": False,
+                "include_appendices": True,
+            },
+            "position": {
+                "timeframe": "D",
+                "use_auto_sizing": True,
+                "risk_per_trade": 0.02,
+            },
+            "listing": {
+                "show_signals": True,
+                "show_performance": True,
+                "sort_by": "confidence",
+                "sort_descending": True,
+            },
+            "update": {
+                "refresh_prices": True,
+                "recalculate_metrics": True,
+                "update_risk_assessment": True,
+                "update_signals": True,
+                "portfolio": "live_signals",
+                "parallel_processing": True,
+            },
+            "validation": {
+                "check_data_integrity": True,
+                "check_file_existence": True,
+                "check_strategy_data": True,
+                "check_dependencies": True,
+            },
+        }
+
+        trade_history_profile = self.profile_manager.create_profile(
+            name="default_trade_history",
+            config_type="trade_history",
+            config=trade_history_config,
+            description="Default configuration for trade history analysis and position management",
+            tags=["default", "trade_history", "positions"],
+        )
+        self.profile_manager.save_profile(trade_history_profile)
+        profiles_created.append("default_trade_history")
+
         return profiles_created
 
     def get_config_template(self, config_type: str) -> Dict[str, Any]:
@@ -295,6 +348,83 @@ class ConfigLoader:
                 "check_performance": False,
                 "output_format": "table",
                 "save_report": None,
+            },
+            "spds": {
+                "portfolio": "live_signals.csv",
+                "trade_history": False,
+                "output_format": "table",
+                "save_results": None,
+                "export_backtesting": False,
+                "percentile_threshold": 95,
+                "dual_layer_threshold": 0.85,
+                "sample_size_min": 15,
+                "confidence_level": "medium",
+                "verbose": False,
+                "quiet": False,
+            },
+            "trade_history": {
+                "analysis": {
+                    "use_statistical_data": True,
+                    "use_backtesting_data": True,
+                    "use_trade_history": True,
+                    "include_raw_data": False,
+                    "current_price": None,
+                    "market_condition": None,
+                    "enable_risk_scoring": True,
+                    "confidence_threshold": 70.0,
+                },
+                "output": {
+                    "output_format": "markdown",
+                    "output_file": None,
+                    "show_progress": True,
+                    "verbose": False,
+                    "quiet": False,
+                    "include_charts": False,
+                    "include_appendices": True,
+                },
+                "position": {
+                    "ticker": None,
+                    "strategy_type": None,
+                    "short_window": None,
+                    "long_window": None,
+                    "timeframe": "D",
+                    "entry_price": None,
+                    "quantity": None,
+                    "signal_date": None,
+                    "use_auto_sizing": True,
+                    "risk_per_trade": 0.02,
+                },
+                "listing": {
+                    "show_signals": True,
+                    "show_performance": True,
+                    "show_risk_scores": False,
+                    "filter_signal": None,
+                    "filter_ticker": None,
+                    "filter_strategy": None,
+                    "min_confidence": None,
+                    "sort_by": "confidence",
+                    "sort_descending": True,
+                    "limit": None,
+                },
+                "update": {
+                    "refresh_prices": True,
+                    "recalculate_metrics": True,
+                    "update_risk_assessment": True,
+                    "update_signals": True,
+                    "portfolio": "live_signals",
+                    "batch_size": 50,
+                    "parallel_processing": True,
+                },
+                "validation": {
+                    "check_data_integrity": True,
+                    "check_file_existence": True,
+                    "check_strategy_data": True,
+                    "check_dependencies": True,
+                    "show_details": False,
+                    "generate_report": False,
+                    "report_file": None,
+                },
+                "base_path": None,
             },
         }
 

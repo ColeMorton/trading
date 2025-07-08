@@ -111,7 +111,7 @@ class SellReportGenerator:
                     )
                     return None
             else:
-                # Fallback to legacy aggregator
+                # Fallback to legacy aggregator - keep legacy format for backward compatibility
                 legacy_data = self.aggregator.get_strategy_data(strategy_identifier)
                 if legacy_data:
                     # Convert legacy data to unified format for consistent processing
@@ -291,19 +291,19 @@ class SellReportGenerator:
 - **Risk Management**: Capital preservation priority
 
 #### Scenario 3: Trailing Stop
-- **Initial Stop**: {data.trailing_stop_pct:.2f}% below peak
+- **Initial Stop**: {data.backtesting.trailing_stop_pct:.2f}% below peak
 - **Mechanism**: Dynamic adjustment with price movement
 - **Benefit**: Captures upside while protecting gains
 
 #### Scenario 4: Time-Based Exit
-- **Minimum Hold**: {data.min_holding_days} days
-- **Maximum Hold**: {data.max_holding_days} days
+- **Minimum Hold**: {data.backtesting.min_holding_days} days
+- **Maximum Hold**: {data.backtesting.max_holding_days} days
 - **Current Duration**: Assess against holding period guidelines
 
 ### Exit Timing Optimization
 {self._generate_timing_recommendations(data)}"""
 
-    def _generate_risk_management(self, data: StrategyData) -> str:
+    def _generate_risk_management(self, data: UnifiedStrategyData) -> str:
         """Generate risk management framework"""
         risk_score = self._calculate_risk_score(data)
         portfolio_impact = self._assess_portfolio_impact(data)
@@ -312,7 +312,7 @@ class SellReportGenerator:
 
 ### Position-Specific Risk Assessment
 - **Overall Risk Score**: {risk_score}/10
-- **Statistical Risk**: {"Low" if data.statistical_validity == "HIGH" else "Moderate"}
+- **Statistical Risk**: {"Low" if data.statistics.statistical_significance == "HIGH" else "Moderate"}
 - **Volatility Risk**: {self._assess_volatility_risk(data)}
 - **Liquidity Risk**: {self._assess_liquidity_risk(data.ticker)}
 
@@ -321,9 +321,9 @@ class SellReportGenerator:
 
 ### Risk Mitigation Strategies
 1. **Immediate Risk Controls**
-   - Monitor {data.trailing_stop_pct:.2f}% trailing stop
-   - Set {data.stop_loss_pct:.2f}% hard stop loss
-   - Track momentum threshold at {data.momentum_exit_threshold:.4f}
+   - Monitor {data.backtesting.trailing_stop_pct:.2f}% trailing stop
+   - Set {data.backtesting.stop_loss_pct:.2f}% hard stop loss
+   - Track momentum threshold at {data.backtesting.momentum_exit_threshold:.4f}
 
 2. **Contingency Planning**
    - Prepare for rapid exit if signal strengthens

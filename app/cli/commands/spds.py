@@ -262,7 +262,7 @@ def export(
         summary = analyzer.get_summary_report(results)
 
         # Export results
-        asyncio.run(_run_export_operations(results, summary, portfolio, format))
+        asyncio.run(_run_export_operations(results, summary, portfolio, format, config))
 
         rprint(f"[green]📁 All exports completed for {portfolio}[/green]")
 
@@ -488,15 +488,15 @@ async def _run_analyzer_analysis(analyzer):
     return await analyzer.analyze()
 
 
-async def _run_export_operations(results, summary, portfolio, format):
+async def _run_export_operations(results, summary, portfolio, format, config):
     """Run export operations asynchronously."""
     from ...tools.services.backtesting_parameter_export_service import (
         BacktestingParameterExportService,
     )
     from ...tools.services.divergence_export_service import DivergenceExportService
 
-    export_service = DivergenceExportService()
-    backtesting_service = BacktestingParameterExportService()
+    export_service = DivergenceExportService(config)
+    backtesting_service = BacktestingParameterExportService(config)
 
     # Export based on format
     if format == "all" or format == "json":
@@ -520,14 +520,15 @@ async def _run_export_operations(results, summary, portfolio, format):
 async def _export_all_formats(
     results, summary, analyzer, portfolio, config, export_backtesting
 ):
-    """Export results in all formats"""
+    """Export results in all formats with validation and fallback"""
     try:
         from ...tools.services.backtesting_parameter_export_service import (
             BacktestingParameterExportService,
         )
         from ...tools.services.divergence_export_service import DivergenceExportService
+        from ...tools.services.export_validator import ExportValidator
 
-        export_service = DivergenceExportService()
+        export_service = DivergenceExportService(config)
 
         # Export JSON and CSV
         await export_service.export_json(results, portfolio)
@@ -536,11 +537,44 @@ async def _export_all_formats(
 
         # Export backtesting parameters if requested
         if export_backtesting:
-            backtesting_service = BacktestingParameterExportService()
+            backtesting_service = BacktestingParameterExportService(config)
             await backtesting_service.export_backtesting_parameters(results, portfolio)
+
+        # CRITICAL: Validate exports and use fallback if needed
+        validator = ExportValidator()
+        is_valid, issues = validator.validate_exports(portfolio)
+
+        if not is_valid:
+            rprint(
+                f"[yellow]⚠️ Export validation failed: {len(issues)} issues found[/yellow]"
+            )
+            rprint(f"[yellow]🔧 Generating fallback exports...[/yellow]")
+
+            # Generate fallback exports using position data
+            fallback_success = validator.generate_fallback_exports(portfolio)
+            if fallback_success:
+                rprint(f"[green]✅ Fallback exports generated successfully[/green]")
+            else:
+                rprint(f"[red]❌ Fallback export generation failed[/red]")
+                for issue in issues:
+                    rprint(f"[red]   - {issue}[/red]")
+        else:
+            rprint(f"[green]✅ Export validation passed[/green]")
 
     except Exception as e:
         rprint(f"[yellow]⚠️ Export warning: {e}[/yellow]")
+
+        # Always attempt fallback on any export failure
+        try:
+            from ...tools.services.export_validator import ExportValidator
+
+            validator = ExportValidator()
+            rprint(f"[yellow]🔧 Attempting fallback export generation...[/yellow]")
+            fallback_success = validator.generate_fallback_exports(portfolio)
+            if fallback_success:
+                rprint(f"[green]✅ Fallback exports generated successfully[/green]")
+        except Exception as fallback_error:
+            rprint(f"[red]❌ Fallback export failed: {fallback_error}[/red]")
 
 
 def _output_json_results(results, summary, save_path: Optional[str] = None):

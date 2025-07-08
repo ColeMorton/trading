@@ -147,9 +147,15 @@ class TradeHistoryCloseCommand:
                 {"error": f"Strategy '{args.strategy}' not found"}, indent=2
             )
 
+        # Convert UnifiedStrategyData to legacy format for exit strategy optimizer
+        legacy_data_dict = strategy_data.to_legacy_strategy_data()
+        # Filter out fields that don't exist in legacy StrategyData
+        legacy_data_dict.pop("target_exit_timeframe", None)
+        legacy_strategy_data = StrategyData(**legacy_data_dict)
+
         # Get optimization results
         optimization_result = optimize_exit_strategy(
-            strategy_data, args.current_price, market_condition
+            legacy_strategy_data, args.current_price, market_condition
         )
 
         # Build comprehensive JSON report
@@ -160,27 +166,27 @@ class TradeHistoryCloseCommand:
                 "position_uuid": strategy_data.position_uuid,
                 "analysis_timestamp": strategy_data.generation_timestamp
                 or "2025-07-06T13:50:00",
-                "exit_signal": strategy_data.exit_signal,
-                "signal_confidence": strategy_data.signal_confidence,
-                "statistical_validity": strategy_data.statistical_validity,
+                "exit_signal": strategy_data.signal.exit_signal,
+                "signal_confidence": strategy_data.signal.signal_confidence,
+                "statistical_validity": strategy_data.statistics.statistical_significance,
             },
             "statistical_foundation": {
-                "sample_size": strategy_data.sample_size,
-                "sample_size_confidence": strategy_data.sample_size_confidence,
-                "p_value": strategy_data.p_value,
-                "statistical_significance": strategy_data.statistical_significance,
-                "dual_layer_convergence_score": strategy_data.dual_layer_convergence_score,
+                "sample_size": strategy_data.statistics.sample_size,
+                "sample_size_confidence": strategy_data.statistics.sample_size_confidence,
+                "p_value": strategy_data.statistics.p_value,
+                "statistical_significance": strategy_data.statistics.statistical_significance,
+                "dual_layer_convergence_score": strategy_data.statistics.dual_layer_convergence_score,
             },
             "performance_metrics": {
-                "current_return": strategy_data.current_return,
-                "unrealized_pnl": strategy_data.unrealized_pnl,
-                "mfe": strategy_data.mfe,
-                "mae": strategy_data.mae,
+                "current_return": strategy_data.performance.current_return,
+                "unrealized_pnl": strategy_data.performance.unrealized_pnl,
+                "mfe": strategy_data.performance.mfe,
+                "mae": strategy_data.performance.mae,
             },
             "divergence_analysis": {
-                "z_score_divergence": strategy_data.z_score_divergence,
-                "iqr_divergence": strategy_data.iqr_divergence,
-                "rarity_score": strategy_data.rarity_score,
+                "z_score_divergence": strategy_data.statistics.z_score_divergence,
+                "iqr_divergence": strategy_data.statistics.iqr_divergence,
+                "rarity_score": strategy_data.statistics.rarity_score,
             },
             "exit_strategy": {
                 "primary_recommendation": {
@@ -206,11 +212,11 @@ class TradeHistoryCloseCommand:
                 "expected_outcomes": optimization_result.expected_outcomes,
             },
             "risk_management": {
-                "take_profit_pct": strategy_data.take_profit_pct,
-                "stop_loss_pct": strategy_data.stop_loss_pct,
-                "trailing_stop_pct": strategy_data.trailing_stop_pct,
-                "max_holding_days": strategy_data.max_holding_days,
-                "min_holding_days": strategy_data.min_holding_days,
+                "take_profit_pct": strategy_data.backtesting.take_profit_pct,
+                "stop_loss_pct": strategy_data.backtesting.stop_loss_pct,
+                "trailing_stop_pct": strategy_data.backtesting.trailing_stop_pct,
+                "max_holding_days": strategy_data.backtesting.max_holding_days,
+                "min_holding_days": strategy_data.backtesting.min_holding_days,
                 "risk_mitigation_plan": optimization_result.risk_mitigation_plan,
                 "monitoring_thresholds": optimization_result.monitoring_thresholds,
             },
@@ -286,35 +292,52 @@ class TradeHistoryCloseCommand:
                 print("\n⚠️  Could not retrieve strategy data for console summary")
                 return
 
-            # Generate exit strategy recommendation
+            # Generate exit strategy recommendation - convert to legacy format for optimizer
+            legacy_data_dict = strategy_data.to_legacy_strategy_data()
+            # Filter out fields that don't exist in legacy StrategyData
+            legacy_data_dict.pop("target_exit_timeframe", None)
+            legacy_strategy_data = StrategyData(**legacy_data_dict)
+
             exit_optimizer = ExitStrategyOptimizer()
-            optimization_result = exit_optimizer.optimize_exit_strategy(strategy_data)
+            optimization_result = exit_optimizer.optimize_exit_strategy(
+                legacy_strategy_data
+            )
 
             print(f"\n{'='*70}")
             print(
-                f"📊 {strategy_data.exit_signal} Signal Analysis for {strategy_data.strategy_name} Complete"
+                f"📊 {strategy_data.signal.exit_signal} Signal Analysis for {strategy_data.strategy_name} Complete"
             )
             print(f"{'='*70}")
 
             # Key findings section
             print(f"\n🎯 **Key Findings:**")
             print(
-                f"   • Current Signal: {self._format_signal_emoji(strategy_data.exit_signal)} **{strategy_data.exit_signal}**"
-            )
-            print(f"   • Confidence Level: {strategy_data.signal_confidence:.1f}%")
-            print(
-                f"   • Current P&L: {strategy_data.current_return*100:.2f}% unrealized gains"
+                f"   • Current Signal: {self._format_signal_emoji(strategy_data.signal.exit_signal)} **{strategy_data.signal.exit_signal}**"
             )
             print(
-                f"   • Statistical Significance: {strategy_data.statistical_validity} (p-value: {strategy_data.p_value:.3f})"
+                f"   • Confidence Level: {strategy_data.signal.signal_confidence:.1f}%"
             )
-            print(f"   • Sample Size: {strategy_data.sample_size:,} observations")
+            print(
+                f"   • Current P&L: {strategy_data.performance.current_return*100:.2f}% unrealized gains"
+            )
+            print(
+                f"   • Statistical Significance: {strategy_data.statistics.statistical_significance} (p-value: {strategy_data.statistics.p_value:.3f})"
+            )
+            print(
+                f"   • Sample Size: {strategy_data.statistics.sample_size:,} observations"
+            )
             print(f"   • Risk Level: {self._assess_risk_level(strategy_data)}")
 
             # MFE/MAE Analysis
-            if hasattr(strategy_data, "mfe") and hasattr(strategy_data, "mae"):
-                print(f"   • Max Favorable Excursion: {strategy_data.mfe*100:.2f}%")
-                print(f"   • Max Adverse Excursion: {strategy_data.mae*100:.2f}%")
+            if hasattr(strategy_data.performance, "mfe") and hasattr(
+                strategy_data.performance, "mae"
+            ):
+                print(
+                    f"   • Max Favorable Excursion: {strategy_data.performance.mfe*100:.2f}%"
+                )
+                print(
+                    f"   • Max Adverse Excursion: {strategy_data.performance.mae*100:.2f}%"
+                )
 
             # Primary recommendation
             primary_rec = optimization_result.primary_recommendation
@@ -328,29 +351,41 @@ class TradeHistoryCloseCommand:
 
             # Action items
             print(f"\n🚀 **Recommended Actions:**")
-            if strategy_data.exit_signal == "SELL":
+            if strategy_data.signal.exit_signal == "SELL":
                 print(f"   1. Prepare for position exit within 1-3 trading sessions")
                 print(
-                    f"   2. Set trailing stop at {strategy_data.trailing_stop_pct:.2f}% below peak"
+                    f"   2. Set trailing stop at {strategy_data.backtesting.trailing_stop_pct:.2f}% below peak"
                 )
-                print(f"   3. Hard stop loss at {strategy_data.stop_loss_pct:.2f}%")
-                print(f"   4. Target profit at {strategy_data.take_profit_pct:.2f}%")
-            elif strategy_data.exit_signal == "HOLD":
+                print(
+                    f"   3. Hard stop loss at {strategy_data.backtesting.stop_loss_pct:.2f}%"
+                )
+                print(
+                    f"   4. Target profit at {strategy_data.backtesting.take_profit_pct:.2f}%"
+                )
+            elif strategy_data.signal.exit_signal == "HOLD":
                 print(f"   1. Continue monitoring position")
                 print(
-                    f"   2. Maintain trailing stop at {strategy_data.trailing_stop_pct:.2f}%"
+                    f"   2. Maintain trailing stop at {strategy_data.backtesting.trailing_stop_pct:.2f}% "
                 )
                 print(
-                    f"   3. Consider partial profit taking at {strategy_data.take_profit_pct*0.8:.2f}%"
+                    f"   3. Consider partial profit taking at {strategy_data.backtesting.take_profit_pct*0.8:.2f}%"
                 )
                 print(f"   4. Review position if confidence drops below 60%")
 
             # Risk management
             print(f"\n⚠️  **Risk Management:**")
-            print(f"   • Take Profit Target: {strategy_data.take_profit_pct:.2f}%")
-            print(f"   • Stop Loss Limit: {strategy_data.stop_loss_pct:.2f}%")
-            print(f"   • Trailing Stop: {strategy_data.trailing_stop_pct:.2f}%")
-            print(f"   • Max Holding Period: {strategy_data.max_holding_days} days")
+            print(
+                f"   • Take Profit Target: {strategy_data.backtesting.take_profit_pct:.2f}%"
+            )
+            print(
+                f"   • Stop Loss Limit: {strategy_data.backtesting.stop_loss_pct:.2f}%"
+            )
+            print(
+                f"   • Trailing Stop: {strategy_data.backtesting.trailing_stop_pct:.2f}%"
+            )
+            print(
+                f"   • Max Holding Period: {strategy_data.backtesting.max_holding_days} days"
+            )
 
             # Footer
             print(
@@ -373,16 +408,23 @@ class TradeHistoryCloseCommand:
                 print("⚠️  Could not retrieve strategy data")
                 return
 
-            # Generate exit strategy recommendation
+            # Generate exit strategy recommendation - convert to legacy format for optimizer
+            legacy_data_dict = strategy_data.to_legacy_strategy_data()
+            # Filter out fields that don't exist in legacy StrategyData
+            legacy_data_dict.pop("target_exit_timeframe", None)
+            legacy_strategy_data = StrategyData(**legacy_data_dict)
+
             exit_optimizer = ExitStrategyOptimizer()
-            optimization_result = exit_optimizer.optimize_exit_strategy(strategy_data)
+            optimization_result = exit_optimizer.optimize_exit_strategy(
+                legacy_strategy_data
+            )
             primary_rec = optimization_result.primary_recommendation
 
             print(
-                f"🎯 {self._format_signal_emoji(strategy_data.exit_signal)} {strategy_data.exit_signal} Signal: {strategy_data.strategy_name}"
+                f"🎯 {self._format_signal_emoji(strategy_data.signal.exit_signal)} {strategy_data.signal.exit_signal} Signal: {strategy_data.strategy_name}"
             )
             print(
-                f"📊 Confidence: {strategy_data.signal_confidence:.1f}% | P&L: {strategy_data.current_return*100:.2f}% | Risk: {self._assess_risk_level(strategy_data)}"
+                f"📊 Confidence: {strategy_data.signal.signal_confidence:.1f}% | P&L: {strategy_data.performance.current_return*100:.2f}% | Risk: {self._assess_risk_level(legacy_strategy_data)}"
             )
             print(
                 f"🚀 Recommendation: {primary_rec.scenario.value.replace('_', ' ').title()} ({primary_rec.confidence*100:.0f}% confidence)"
@@ -407,32 +449,48 @@ class TradeHistoryCloseCommand:
         }
         return signal_emojis.get(signal, "⚠️")
 
-    def _assess_risk_level(self, strategy_data: StrategyData) -> str:
-        """Assess overall risk level based on multiple factors"""
+    def _assess_risk_level(self, strategy_data) -> str:
+        """Assess overall risk level based on multiple factors - handles both legacy and unified formats"""
         risk_score = 0
 
+        # Check if this is UnifiedStrategyData or legacy StrategyData
+        is_unified = hasattr(strategy_data, "signal")
+
+        if is_unified:
+            # UnifiedStrategyData format
+            signal_confidence = strategy_data.signal.signal_confidence
+            statistical_validity = strategy_data.statistics.statistical_significance
+            exit_signal = strategy_data.signal.exit_signal
+            current_return = strategy_data.performance.current_return
+        else:
+            # Legacy StrategyData format
+            signal_confidence = strategy_data.signal_confidence
+            statistical_validity = strategy_data.statistical_validity
+            exit_signal = strategy_data.exit_signal
+            current_return = strategy_data.current_return
+
         # Signal confidence factor
-        if strategy_data.signal_confidence > 80:
+        if signal_confidence > 80:
             risk_score += 1
-        elif strategy_data.signal_confidence < 60:
+        elif signal_confidence < 60:
             risk_score += 3
         else:
             risk_score += 2
 
         # Statistical validity factor
-        if strategy_data.statistical_validity == "HIGH":
+        if statistical_validity == "HIGH":
             risk_score += 0
-        elif strategy_data.statistical_validity == "MEDIUM":
+        elif statistical_validity == "MEDIUM":
             risk_score += 1
         else:
             risk_score += 2
 
         # Exit signal factor
-        if strategy_data.exit_signal in ["SELL", "STRONG_SELL"]:
+        if exit_signal in ["SELL", "STRONG_SELL"]:
             risk_score += 2
 
         # Current return factor (if negative, add risk)
-        if strategy_data.current_return < 0:
+        if current_return < 0:
             risk_score += 2
 
         # Risk level assessment

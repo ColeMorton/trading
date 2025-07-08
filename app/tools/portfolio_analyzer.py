@@ -16,6 +16,7 @@ import pandas as pd
 from .config.statistical_analysis_config import SPDSConfig, StatisticalAnalysisConfig
 from .models.statistical_analysis_models import StatisticalAnalysisResult
 from .services.statistical_analysis_service import StatisticalAnalysisService
+from .uuid_utils import parse_strategy_uuid
 
 
 class PortfolioStatisticalAnalyzer:
@@ -253,18 +254,60 @@ class PortfolioStatisticalAnalyzer:
         strategies = []
 
         for _, row in portfolio_data.iterrows():
-            # Handle your specific CSV format with Ticker, Strategy Type, Short Window, Long Window
-            ticker = row.get("Ticker", row.get("ticker", row.get("Symbol", "UNKNOWN")))
-            strategy_type = row.get("Strategy Type", row.get("strategy_type", "SMA"))
-            short_window = row.get("Short Window", row.get("short_window", ""))
-            long_window = row.get("Long Window", row.get("long_window", ""))
+            # First try to parse Position_UUID if available (for live_signals.csv format)
+            position_uuid = row.get("Position_UUID", "")
+            if position_uuid:
+                try:
+                    # Parse Position_UUID like "MA_SMA_78_82_0_2025-04-14"
+                    parsed = parse_strategy_uuid(position_uuid)
+                    ticker = parsed.get("ticker", "UNKNOWN")
+                    strategy_type = parsed.get("strategy_type", "SMA")
+                    short_window = parsed.get("short_window", "")
+                    long_window = parsed.get("long_window", "")
 
-            # Create strategy name from components
-            if ticker != "UNKNOWN" and str(short_window) and str(long_window):
-                strategy_name = f"{ticker}_{strategy_type}_{short_window}_{long_window}"
+                    # Strategy name should NOT include ticker - just the strategy part
+                    if str(short_window) and str(long_window):
+                        strategy_name = f"{strategy_type}_{short_window}_{long_window}"  # e.g. "SMA_78_82"
+                    else:
+                        strategy_name = strategy_type
+
+                except Exception as e:
+                    self.logger.warning(
+                        f"Failed to parse Position_UUID '{position_uuid}': {e}"
+                    )
+                    # Fall back to manual extraction
+                    ticker = row.get(
+                        "Ticker", row.get("ticker", row.get("Symbol", "UNKNOWN"))
+                    )
+                    strategy_type = row.get(
+                        "Strategy Type", row.get("strategy_type", "SMA")
+                    )
+                    short_window = row.get("Short Window", row.get("short_window", ""))
+                    long_window = row.get("Long Window", row.get("long_window", ""))
+                    strategy_name = (
+                        f"{strategy_type}_{short_window}_{long_window}"
+                        if str(short_window) and str(long_window)
+                        else strategy_type
+                    )
             else:
-                # Fallback to existing logic for other formats
-                strategy_name = row.get("strategy_name", row.get("Strategy", "UNKNOWN"))
+                # Handle other CSV formats with separate columns
+                ticker = row.get(
+                    "Ticker", row.get("ticker", row.get("Symbol", "UNKNOWN"))
+                )
+                strategy_type = row.get(
+                    "Strategy Type", row.get("strategy_type", "SMA")
+                )
+                short_window = row.get("Short Window", row.get("short_window", ""))
+                long_window = row.get("Long Window", row.get("long_window", ""))
+
+                # Strategy name should NOT include ticker - just the strategy part
+                if ticker != "UNKNOWN" and str(short_window) and str(long_window):
+                    strategy_name = f"{strategy_type}_{short_window}_{long_window}"  # e.g. "SMA_78_82"
+                else:
+                    # Fallback to existing logic for other formats
+                    strategy_name = row.get(
+                        "strategy_name", row.get("Strategy", "UNKNOWN")
+                    )
 
             strategy_info = {
                 "strategy_name": strategy_name,

@@ -22,6 +22,10 @@ from ..models.statistical_analysis_models import (
     TradeHistoryMetrics,
     VaRMetrics,
 )
+from ..utils.mfe_mae_calculator import (
+    get_mfe_mae_calculator,
+    standardize_mfe_mae_columns,
+)
 
 
 class TradeHistoryAnalyzer:
@@ -179,21 +183,21 @@ class TradeHistoryAnalyzer:
         Returns:
             DataFrame with trade history or None if not found
         """
-        # Try JSON trade history first
-        json_file = (
-            Path(self.config.TRADE_HISTORY_PATH) / f"{ticker}_{strategy_name}.json"
+        # Try most common pattern first (actual file structure)
+        primary_file = (
+            Path("./json/trade_history/") / f"{ticker}_D_{strategy_name}.json"
         )
-        if json_file.exists():
-            return await self._load_json_trade_history(json_file)
+        if primary_file.exists():
+            return await self._load_json_trade_history(primary_file)
 
-        # Try alternative naming conventions
-        alternative_files = [
+        # Fallback to legacy patterns
+        fallback_files = [
+            Path(self.config.TRADE_HISTORY_PATH) / f"{ticker}_{strategy_name}.json",
             Path(self.config.TRADE_HISTORY_PATH) / f"{strategy_name}_{ticker}.json",
-            Path("./json/trade_history/") / f"{ticker}_D_{strategy_name}.json",
             Path("./csv/positions/") / f"{strategy_name}_{ticker}_positions.csv",
         ]
 
-        for file_path in alternative_files:
+        for file_path in fallback_files:
             if file_path.exists():
                 if file_path.suffix == ".json":
                     return await self._load_json_trade_history(file_path)
@@ -242,8 +246,8 @@ class TradeHistoryAnalyzer:
             raise
 
     def _standardize_trade_columns(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Standardize trade data column names and formats"""
-        # Common column mappings
+        """Standardize trade data column names and formats using centralized MFE/MAE utility"""
+        # Non-MFE/MAE column mappings
         column_mappings = {
             "pnl": "return_pct",
             "pnl_pct": "return_pct",
@@ -259,22 +263,91 @@ class TradeHistoryAnalyzer:
             "duration_days": "duration",
             "Duration_Days": "duration",
             "holding_period": "duration",
-            "max_profit": "mfe",
-            "max_loss": "mae",
-            "max_favorable_excursion": "mfe",
-            "max_adverse_excursion": "mae",
-            "Max_Favourable_Excursion": "mfe",
-            "Max_Adverse_Excursion": "mae",
         }
 
-        # Apply mappings
+        # Apply non-MFE/MAE mappings first
         df = df.rename(columns=column_mappings)
+
+        # Use centralized MFE/MAE utility for standardization and calculation
+        df = standardize_mfe_mae_columns(df)
+
+        # Get centralized calculator for enhanced MFE/MAE handling
+        mfe_mae_calculator = get_mfe_mae_calculator(self.logger)
+
+        # If MFE/MAE data is missing or invalid, try to calculate from available data
+        if (
+            "mfe" not in df.columns
+            or "mae" not in df.columns
+            or df["mfe"].isna().any()
+            or df["mae"].isna().any()
+            or (df["mfe"] == 0.0).all()
+            and (df["mae"] == 0.0).all()
+        ):
+            self.logger.info(
+                "MFE/MAE data missing or invalid, attempting calculation from trade data"
+            )
+
+            # Try to calculate MFE/MAE from available trade data
+            try:
+                df = mfe_mae_calculator.calculate_from_trades(
+                    df,
+                    entry_price_col="entry_price"
+                    if "entry_price" in df.columns
+                    else "Avg Entry Price",
+                    exit_price_col="exit_price"
+                    if "exit_price" in df.columns
+                    else "Avg Exit Price",
+                    direction_col="direction"
+                    if "direction" in df.columns
+                    else "Direction",
+                    return_col="return_pct",
+                )
+                self.logger.debug(
+                    f"Successfully calculated MFE/MAE for {len(df)} trades"
+                )
+            except Exception as e:
+                self.logger.warning(f"Failed to calculate MFE/MAE from trade data: {e}")
+
+        # Validate MFE/MAE data consistency using centralized utility
+        if "mfe" in df.columns and "mae" in df.columns and "return_pct" in df.columns:
+            direction_col = "direction" if "direction" in df.columns else "Direction"
+            default_direction = "Long"  # Default assumption if direction not available
+
+            for idx, row in df.iterrows():
+                current_return = row.get("return_pct", 0.0)
+                mfe = row.get("mfe", 0.0)
+                mae = row.get("mae", 0.0)
+                direction = row.get(direction_col, default_direction)
+
+                # Validate using centralized utility
+                validation_errors = mfe_mae_calculator.validate_mfe_mae(
+                    current_return, mfe, mae, direction
+                )
+
+                if validation_errors:
+                    strategy_id = f"{row.get('strategy_name', 'Unknown')}_{idx}"
+                    self.logger.warning(
+                        f"MFE/MAE validation issues for {strategy_id}: {validation_errors}"
+                    )
+
+                    # Apply corrective measures for common validation failures
+                    if "exceeds MFE" in str(validation_errors):
+                        # If current return exceeds MFE, adjust MFE to match current return
+                        df.at[idx, "mfe"] = (
+                            abs(current_return) if current_return > 0 else mfe
+                        )
+
+                    if "Negative MFE" in str(
+                        validation_errors
+                    ) and "positive return" in str(validation_errors):
+                        # For positive returns with negative MFE, recalculate MFE
+                        if current_return > 0:
+                            df.at[idx, "mfe"] = abs(current_return)
+                            df.at[idx, "mae"] = 0.0
 
         # Ensure required columns exist with defaults
         required_columns = {
             "return_pct": 0.0,
-            "mfe": 0.0,
-            "mae": 0.0,
             "duration": 1.0,
             "status": "closed",
             "entry_time": None,
@@ -285,21 +358,152 @@ class TradeHistoryAnalyzer:
             if col not in df.columns:
                 df[col] = default_value
 
-        # Convert data types
-        try:
-            df["return_pct"] = pd.to_numeric(df["return_pct"], errors="coerce").fillna(
-                0.0
-            )
-            df["mfe"] = pd.to_numeric(df["mfe"], errors="coerce").fillna(0.0)
-            df["mae"] = pd.to_numeric(df["mae"], errors="coerce").fillna(0.0)
-            df["duration"] = pd.to_numeric(df["duration"], errors="coerce").fillna(1.0)
-        except Exception as e:
-            self.logger.warning(f"Failed to convert some columns to numeric: {e}")
+        # Comprehensive data type conversion with robust error handling and fallbacks
+        type_conversions = {
+            "return_pct": (pd.to_numeric, 0.0, "Return percentage"),
+            "duration": (pd.to_numeric, 1.0, "Trade duration"),
+            "mfe": (pd.to_numeric, 0.0, "Maximum Favorable Excursion"),
+            "mae": (pd.to_numeric, 0.0, "Maximum Adverse Excursion"),
+        }
+
+        for col, (converter, default_value, description) in type_conversions.items():
+            if col in df.columns:
+                try:
+                    # Handle string conversions for JSON data
+                    if df[col].dtype == "object":
+                        # Remove any non-numeric characters and handle special cases
+                        df[col] = (
+                            df[col].astype(str).str.replace("[^0-9.-]", "", regex=True)
+                        )
+                        df[col] = df[col].replace("", default_value)
+
+                    # Convert to numeric with coercion
+                    original_values = df[col].copy()
+                    df[col] = converter(df[col], errors="coerce")
+
+                    # Fill NaN values with defaults
+                    nan_count = df[col].isna().sum()
+                    if nan_count > 0:
+                        self.logger.debug(
+                            f"Found {nan_count} invalid values in {col} ({description}), using default: {default_value}"
+                        )
+                        df[col] = df[col].fillna(default_value)
+
+                    # Validate reasonable ranges
+                    if col in ["mfe", "mae"]:
+                        # MFE/MAE should not be negative
+                        negative_count = (df[col] < 0).sum()
+                        if negative_count > 0:
+                            self.logger.warning(
+                                f"Found {negative_count} negative values in {col}, converting to absolute values"
+                            )
+                            df[col] = df[col].abs()
+
+                    elif col == "duration":
+                        # Duration should be positive
+                        zero_or_negative = (df[col] <= 0).sum()
+                        if zero_or_negative > 0:
+                            self.logger.warning(
+                                f"Found {zero_or_negative} zero/negative duration values, setting to default: {default_value}"
+                            )
+                            df.loc[df[col] <= 0, col] = default_value
+
+                    self.logger.debug(
+                        f"Successfully converted {col} ({description}) to numeric type"
+                    )
+
+                except Exception as conversion_error:
+                    self.logger.error(
+                        f"Failed to convert {col} ({description}) to numeric: {conversion_error}"
+                    )
+                    self.logger.info(
+                        f"Setting all {col} values to default: {default_value}"
+                    )
+                    df[col] = default_value
+
+        # Handle timestamp columns with fallbacks
+        timestamp_columns = ["entry_time", "exit_time"]
+        for col in timestamp_columns:
+            if col in df.columns and df[col].notna().any():
+                try:
+                    df[col] = pd.to_datetime(df[col], errors="coerce")
+                    invalid_timestamps = df[col].isna().sum()
+                    if invalid_timestamps > 0:
+                        self.logger.debug(
+                            f"Found {invalid_timestamps} invalid timestamps in {col}"
+                        )
+                except Exception as e:
+                    self.logger.warning(f"Failed to convert {col} to datetime: {e}")
+
+        # Validate final data integrity
+        self._validate_data_integrity(df)
 
         # Add returns column for convenience
         df["returns"] = df["return_pct"]
 
         return df
+
+    def _validate_data_integrity(self, df: pd.DataFrame) -> None:
+        """Final validation of data integrity after all conversions"""
+        try:
+            total_rows = len(df)
+            if total_rows == 0:
+                self.logger.warning("DataFrame is empty after standardization")
+                return
+
+            # Check for required columns
+            required_cols = ["return_pct", "mfe", "mae"]
+            missing_cols = [col for col in required_cols if col not in df.columns]
+            if missing_cols:
+                self.logger.error(
+                    f"Missing critical columns after standardization: {missing_cols}"
+                )
+
+            # Validate data types
+            numeric_cols = ["return_pct", "mfe", "mae", "duration"]
+            for col in numeric_cols:
+                if col in df.columns:
+                    non_numeric_count = (
+                        df[col]
+                        .apply(
+                            lambda x: not isinstance(
+                                x, (int, float, np.integer, np.floating)
+                            )
+                        )
+                        .sum()
+                    )
+                    if non_numeric_count > 0:
+                        self.logger.warning(
+                            f"Found {non_numeric_count} non-numeric values in {col} after conversion"
+                        )
+
+            # Check for extreme outliers that might indicate data issues
+            if "return_pct" in df.columns:
+                extreme_returns = (df["return_pct"].abs() > 5.0).sum()  # >500% returns
+                if extreme_returns > 0:
+                    self.logger.info(
+                        f"Found {extreme_returns} trades with extreme returns (>500%)"
+                    )
+
+            if "mfe" in df.columns and "mae" in df.columns:
+                extreme_mfe = (df["mfe"] > 10.0).sum()  # >1000% MFE
+                extreme_mae = (df["mae"] > 10.0).sum()  # >1000% MAE
+                if extreme_mfe > 0:
+                    self.logger.info(
+                        f"Found {extreme_mfe} trades with extreme MFE (>1000%)"
+                    )
+                if extreme_mae > 0:
+                    self.logger.info(
+                        f"Found {extreme_mae} trades with extreme MAE (>1000%)"
+                    )
+
+            # Summary of data quality
+            self.logger.debug(
+                f"Data integrity validation complete: {total_rows} rows processed"
+            )
+
+        except Exception as e:
+            self.logger.error(f"Error during data integrity validation: {e}")
 
     def _analyze_trade_returns(self, trade_data: pd.DataFrame) -> Dict[str, Any]:
         """Analyze trade return distributions"""

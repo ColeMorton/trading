@@ -738,12 +738,12 @@ class DivergenceExportService:
         file_base: str,
         analysis_results: List[StatisticalAnalysisResult],
     ) -> Path:
-        """Generate export summary file with full portfolio analysis summary"""
-        summary_file = self.export_base_path / f"{file_base}_export_summary.md"
+        """Generate comprehensive SPDS analysis report"""
+        summary_file = self.export_base_path / f"{file_base}.md"
 
-        # Generate full portfolio analysis summary instead of basic metadata
-        summary_content = self._generate_portfolio_analysis_summary(
-            analysis_results, exported_files
+        # Generate comprehensive SPDS analysis report
+        summary_content = self._generate_comprehensive_spds_report(
+            analysis_results, exported_files, file_base
         )
 
         with open(summary_file, "w", encoding="utf-8") as f:
@@ -909,6 +909,431 @@ class DivergenceExportService:
         )
 
         return "\n".join(summary_lines)
+
+    def _generate_comprehensive_spds_report(
+        self,
+        analysis_results: List[StatisticalAnalysisResult],
+        exported_files: Dict[str, str],
+        file_base: str,
+    ) -> str:
+        """Generate comprehensive SPDS analysis report matching console output quality"""
+
+        # Extract portfolio name from file_base
+        portfolio_name = f"{file_base}.csv"
+
+        # Calculate portfolio metrics
+        signal_distribution = {}
+        total_results = len(analysis_results)
+        high_confidence_count = 0
+
+        for result in analysis_results:
+            signal = result.exit_signal
+            signal_distribution[signal] = signal_distribution.get(signal, 0) + 1
+
+            # Calculate high confidence based on signal confidence and convergence
+            confidence_score = result.signal_confidence
+            if confidence_score > 1.0:  # Convert percentage to fraction if needed
+                confidence_score = confidence_score / 100.0
+
+            if confidence_score > 0.80 or result.dual_layer_convergence_score > 0.8:
+                high_confidence_count += 1
+
+        confidence_rate = (
+            high_confidence_count / total_results if total_results > 0 else 0.0
+        )
+
+        # Count action items
+        immediate_exits = signal_distribution.get("EXIT_IMMEDIATELY", 0)
+        strong_sells = signal_distribution.get("STRONG_SELL", 0)
+        sells = signal_distribution.get("SELL", 0)
+        holds = signal_distribution.get("HOLD", 0)
+        time_exits = signal_distribution.get("TIME_EXIT", 0)
+
+        # Calculate statistical thresholds if available from analysis results
+        performance_values = []
+        for result in analysis_results:
+            if (
+                result.performance_metrics
+                and "current_return" in result.performance_metrics
+            ):
+                performance_values.append(result.performance_metrics["current_return"])
+
+        # Calculate percentile thresholds
+        thresholds = {}
+        if performance_values:
+            import numpy as np
+
+            performance_values.sort()
+            thresholds = {
+                "p95_exit_immediately": np.percentile(performance_values, 95)
+                if len(performance_values) > 4
+                else None,
+                "p90_strong_sell": np.percentile(performance_values, 90)
+                if len(performance_values) > 4
+                else None,
+                "p80_sell": np.percentile(performance_values, 80)
+                if len(performance_values) > 4
+                else None,
+                "p70_hold": np.percentile(performance_values, 70)
+                if len(performance_values) > 4
+                else None,
+            }
+
+        # Generate comprehensive report
+        report_lines = [
+            f"# {file_base.upper()} Portfolio - SPDS Analysis Complete",
+            "",
+            f"**Generated**: {datetime.now().strftime('%B %d, %Y %H:%M:%S')}  ",
+            f"**Portfolio**: {portfolio_name}  ",
+            f"**Analysis Type**: Statistical Performance Divergence System (SPDS)  ",
+            f"**Total Positions**: {total_results}  ",
+            "",
+            "---",
+            "",
+            "## 📊 Executive Summary",
+            "",
+            f"The {file_base} portfolio analysis reveals **{immediate_exits + strong_sells} positions requiring immediate attention** out of {total_results} total positions analyzed. ",
+            f"Statistical analysis indicates **{confidence_rate:.1%} high-confidence signals** with comprehensive risk assessment completed.",
+            "",
+            "### Key Findings",
+            "",
+            f"- **Portfolio Quality**: {high_confidence_count}/{total_results} high-confidence analyses ({confidence_rate:.1%})",
+            f"- **Immediate Action Required**: {immediate_exits} EXIT_IMMEDIATELY + {strong_sells} STRONG_SELL signals",
+            f"- **Current Holdings**: {holds} HOLD positions can continue monitoring",
+            "",
+        ]
+
+        # Add statistical thresholds if available
+        if thresholds and any(v is not None for v in thresholds.values()):
+            report_lines.extend(
+                [
+                    "### Statistical Thresholds",
+                    "",
+                    "| Percentile | Threshold | Action Required |",
+                    "|------------|-----------|-----------------|",
+                ]
+            )
+
+            if thresholds.get("p95_exit_immediately") is not None:
+                report_lines.append(
+                    f"| 95th | {thresholds['p95_exit_immediately']:.4f} | EXIT_IMMEDIATELY |"
+                )
+            if thresholds.get("p90_strong_sell") is not None:
+                report_lines.append(
+                    f"| 90th | {thresholds['p90_strong_sell']:.4f} | STRONG_SELL |"
+                )
+            if thresholds.get("p80_sell") is not None:
+                report_lines.append(f"| 80th | {thresholds['p80_sell']:.4f} | SELL |")
+            if thresholds.get("p70_hold") is not None:
+                report_lines.append(f"| 70th | {thresholds['p70_hold']:.4f} | HOLD |")
+
+            report_lines.extend(["", ""])
+
+        # Exit Signal Summary Table
+        report_lines.extend(
+            [
+                "## 🚨 Exit Signal Summary",
+                "",
+                "| Position | Signal Type | Action Required | Confidence | Performance |",
+                "|----------|-------------|-----------------|------------|-------------|",
+            ]
+        )
+
+        # Signal priority for sorting
+        signal_priority = {
+            "EXIT_IMMEDIATELY": 1,
+            "STRONG_SELL": 2,
+            "SELL": 3,
+            "TIME_EXIT": 4,
+            "HOLD": 5,
+        }
+
+        # Sort results by signal urgency, then by confidence
+        sorted_results = sorted(
+            analysis_results,
+            key=lambda x: (
+                signal_priority.get(x.exit_signal, 6),
+                -x.signal_confidence,  # Negative for descending order
+                -x.dual_layer_convergence_score,
+            ),
+        )
+
+        # Add position rows to table
+        for result in sorted_results:
+            strategy_name = result.strategy_name
+            ticker = result.ticker
+            signal = result.exit_signal
+            confidence = (
+                f"{result.signal_confidence:.1f}%"
+                if result.signal_confidence
+                else "N/A"
+            )
+
+            # Get performance if available
+            performance = "N/A"
+            if (
+                result.performance_metrics
+                and "current_return" in result.performance_metrics
+            ):
+                perf_val = result.performance_metrics["current_return"]
+                performance = (
+                    f"{perf_val:+.2%}"
+                    if isinstance(perf_val, (int, float))
+                    else str(perf_val)
+                )
+
+            # Action text based on signal
+            action_map = {
+                "EXIT_IMMEDIATELY": "Take profits now",
+                "STRONG_SELL": "Exit soon",
+                "SELL": "Consider exit",
+                "TIME_EXIT": "Extended holding period",
+                "HOLD": "Continue monitoring",
+            }
+            action = action_map.get(signal, signal)
+
+            # Format position name (strategy + ticker)
+            position_name = (
+                f"**{ticker}**"
+                if signal in ["EXIT_IMMEDIATELY", "STRONG_SELL"]
+                else ticker
+            )
+
+            report_lines.append(
+                f"| {position_name} | **{signal}** | {action} | {confidence} | {performance} |"
+            )
+
+        report_lines.extend(
+            [
+                "",
+                "---",
+                "",
+                "## 📈 Key Insights",
+                "",
+            ]
+        )
+
+        # Immediate action required section
+        if immediate_exits > 0 or strong_sells > 0:
+            report_lines.extend(
+                [
+                    "### 🚨 Immediate Action Required:",
+                    "",
+                ]
+            )
+
+            for result in sorted_results:
+                if result.exit_signal == "EXIT_IMMEDIATELY":
+                    ticker = result.ticker
+                    performance = "N/A"
+                    if (
+                        result.performance_metrics
+                        and "current_return" in result.performance_metrics
+                    ):
+                        perf_val = result.performance_metrics["current_return"]
+                        performance = (
+                            f"{perf_val:+.2%}"
+                            if isinstance(perf_val, (int, float))
+                            else str(perf_val)
+                        )
+
+                    report_lines.append(
+                        f"- **{ticker}**: At 95th percentile performance ({performance}) - statistical exhaustion detected"
+                    )
+
+                elif result.exit_signal == "STRONG_SELL":
+                    ticker = result.ticker
+                    performance = "N/A"
+                    if (
+                        result.performance_metrics
+                        and "current_return" in result.performance_metrics
+                    ):
+                        perf_val = result.performance_metrics["current_return"]
+                        performance = (
+                            f"{perf_val:+.2%}"
+                            if isinstance(perf_val, (int, float))
+                            else str(perf_val)
+                        )
+
+                    report_lines.append(
+                        f"- **{ticker}**: At 90th percentile ({performance}) - approaching performance limits"
+                    )
+
+            report_lines.extend(["", ""])
+
+        # Portfolio performance section
+        report_lines.extend(
+            [
+                "### 📊 Portfolio Performance:",
+                "",
+            ]
+        )
+
+        # Calculate portfolio metrics if performance data available
+        profitable_positions = 0
+        total_performance = 0
+        for result in sorted_results:
+            if (
+                result.performance_metrics
+                and "current_return" in result.performance_metrics
+            ):
+                perf_val = result.performance_metrics["current_return"]
+                if isinstance(perf_val, (int, float)):
+                    total_performance += perf_val
+                    if perf_val > 0:
+                        profitable_positions += 1
+
+        if total_performance != 0:
+            success_rate = (
+                profitable_positions / total_results if total_results > 0 else 0
+            )
+            avg_performance = (
+                total_performance / total_results if total_results > 0 else 0
+            )
+
+            report_lines.extend(
+                [
+                    f"- **Total Unrealized P&L**: {total_performance:+.2%}",
+                    f"- **Success Rate**: {success_rate:.1%} ({profitable_positions} of {total_results} positions profitable)",
+                    f"- **Average Performance**: {avg_performance:+.2%} per position",
+                ]
+            )
+        else:
+            report_lines.extend(
+                [
+                    f"- **Total Positions**: {total_results}",
+                    f"- **Signal Distribution**: {dict(signal_distribution)}",
+                    f"- **High Confidence Rate**: {confidence_rate:.1%}",
+                ]
+            )
+
+        report_lines.extend(
+            [
+                "",
+                "### 📁 Export Files Generated:",
+                "",
+            ]
+        )
+
+        # List exported files
+        for format_type, file_path in exported_files.items():
+            if format_type != "summary":  # Don't list the summary file itself
+                clean_path = file_path.replace(str(self.export_base_path) + "/", "")
+                if format_type == "json":
+                    report_lines.append(f"- **Statistical analysis**: `{clean_path}`")
+                elif format_type == "csv":
+                    report_lines.append(f"- **CSV export**: `{clean_path}`")
+                elif format_type == "markdown":
+                    report_lines.append(f"- **Technical report**: `{clean_path}`")
+
+        # Add backtesting parameters if they exist
+        backtesting_json = f"exports/backtesting_parameters/{file_base}.json"
+        backtesting_csv = f"exports/backtesting_parameters/{file_base}.csv"
+        report_lines.extend(
+            [
+                f"- **Backtesting parameters**: `{backtesting_json}` & `{backtesting_csv}`",
+                "",
+                "---",
+                "",
+                "## 💡 Recommendations",
+                "",
+            ]
+        )
+
+        # Generate specific recommendations
+        recommendations = []
+        for i, result in enumerate(sorted_results, 1):
+            signal = result.exit_signal
+            ticker = result.ticker
+
+            if signal == "EXIT_IMMEDIATELY":
+                recommendations.append(
+                    f"{i}. **Consider taking profits** on {ticker} immediately (95th percentile exhaustion)"
+                )
+            elif signal == "STRONG_SELL":
+                recommendations.append(
+                    f"{i}. **Monitor {ticker} closely** for exit opportunity (approaching limits)"
+                )
+            elif signal == "SELL":
+                recommendations.append(
+                    f"{i}. **Prepare exit strategy** for {ticker} (80th percentile threshold)"
+                )
+            elif signal == "TIME_EXIT":
+                recommendations.append(
+                    f"{i}. **Review {ticker}** position due to extended holding period"
+                )
+            elif signal == "HOLD" and i <= 3:  # Only mention top 3 holds
+                recommendations.append(
+                    f"{i}. **Continue holding** {ticker} position (below statistical thresholds)"
+                )
+
+        # Limit to top 6 recommendations to avoid clutter
+        for rec in recommendations[:6]:
+            report_lines.append(rec)
+
+        if len(recommendations) > 6:
+            report_lines.append(
+                f"... and {len(recommendations) - 6} additional positions to monitor"
+            )
+
+        report_lines.extend(
+            [
+                "",
+                f"The {file_base} portfolio demonstrates {'strong performance with effective risk management' if confidence_rate > 0.5 else 'mixed performance requiring careful monitoring'}, validating the {'conservative' if file_base == 'protected' else 'active'} positioning strategy.",
+                "",
+                "---",
+                "",
+                "## 📋 Technical Notes",
+                "",
+                "### Methodology",
+                "",
+                "- **Dual-Layer Analysis**: Combined asset-level and strategy-level statistical analysis",
+                "- **Percentile-Based Signals**: Exit signals based on performance distribution percentiles",
+                "- **Confidence Weighting**: Signal reliability adjusted for sample size and convergence",
+                "- **Bootstrap Validation**: Enhanced confidence for portfolios with limited sample sizes",
+                "",
+                "### Signal Definitions",
+                "",
+                "- **🚨 EXIT_IMMEDIATELY**: Statistical exhaustion detected (95th+ percentile)",
+                "- **📉 STRONG_SELL**: High probability diminishing returns (90th+ percentile)",
+                "- **⚠️ SELL**: Performance approaching limits (80th+ percentile)",
+                "- **⏰ TIME_EXIT**: Duration-based exit criteria met",
+                "- **✅ HOLD**: Continue monitoring (below 70th percentile)",
+                "",
+                f"*Generated by Statistical Performance Divergence System (SPDS) v2.0 on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*",
+            ]
+        )
+
+        return "\n".join(report_lines)
+
+    # Public interface methods
+
+    async def export_json(
+        self,
+        results: List[StatisticalAnalysisResult],
+        portfolio_name: str,
+        include_raw_data: bool = True,
+    ) -> str:
+        """Public method to export analysis results as JSON"""
+        json_path = await self._export_json(results, portfolio_name, include_raw_data)
+        return str(json_path)
+
+    async def export_csv(
+        self,
+        results: List[StatisticalAnalysisResult],
+        portfolio_name: str,
+        include_raw_data: bool = True,
+    ) -> str:
+        """Public method to export analysis results as CSV"""
+        csv_path = await self._export_csv(results, portfolio_name, include_raw_data)
+        return str(csv_path)
+
+    async def export_markdown(
+        self, results: List[StatisticalAnalysisResult], portfolio_name: str
+    ) -> str:
+        """Public method to export analysis results as Markdown"""
+        md_path = await self._export_markdown(results, portfolio_name)
+        return str(md_path)
 
     def _ensure_export_directories(self):
         """Create export directory if it doesn't exist"""
