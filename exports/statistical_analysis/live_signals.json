@@ -1,0 +1,801 @@
+{
+  "export_metadata": {
+    "export_timestamp": "2025-07-10T12:29:40.906494",
+    "export_version": "1.0.0",
+    "total_results": 19,
+    "include_raw_data": true,
+    "config_version": "1.0.0"
+  },
+  "statistical_analysis_results": [
+    {
+      "strategy_name": "SMA_78_82",
+      "ticker": "MA",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-10T12:29:40.462279",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.20927310952187894,
+      "asset_layer_percentile": 80.0726890478121,
+      "strategy_layer_percentile": 1.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 36.366376727244536,
+      "exit_recommendation": null,
+      "target_exit_timeframe": null,
+      "statistical_significance": "MEDIUM",
+      "p_value": 0.9000000000000001,
+      "divergence_metrics": {
+        "asset_divergence": {
+          "z_score": 0.6072313985679529,
+          "iqr_position": 0.22650089622679892,
+          "percentile_rank": 80.0726890478121,
+          "rarity_score": 0.3620277920960875,
+          "is_outlier": false,
+          "outlier_method": "none",
+          "consecutive_periods_above_threshold": 2,
+          "trend_direction": "up"
+        },
+        "strategy_divergence": {
+          "z_score": 0.0,
+          "iqr_position": -3.555629580279812,
+          "percentile_rank": 1.0,
+          "rarity_score": 0.3528,
+          "is_outlier": true,
+          "outlier_method": "iqr",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        }
+      },
+      "performance_metrics": {},
+      "raw_analysis_data": null
+    },
+    {
+      "strategy_name": "SMA_51_69",
+      "ticker": "AMZN",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-10T12:29:40.483385",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.24992568561636874,
+      "asset_layer_percentile": 76.00743143836313,
+      "strategy_layer_percentile": 1.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 33.48932197689086,
+      "exit_recommendation": null,
+      "target_exit_timeframe": null,
+      "statistical_significance": "MEDIUM",
+      "p_value": 0.9000000000000001,
+      "divergence_metrics": {
+        "asset_divergence": {
+          "z_score": 0.4040720136160154,
+          "iqr_position": 0.04443989418352446,
+          "percentile_rank": 76.00743143836313,
+          "rarity_score": 0.28887385423010814,
+          "is_outlier": false,
+          "outlier_method": "none",
+          "consecutive_periods_above_threshold": 1,
+          "trend_direction": "up"
+        },
+        "strategy_divergence": {
+          "z_score": 0.0,
+          "iqr_position": -5.478794304756137,
+          "percentile_rank": 1.0,
+          "rarity_score": 0.3528,
+          "is_outlier": true,
+          "outlier_method": "iqr",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        }
+      },
+      "performance_metrics": {},
+      "raw_analysis_data": null
+    },
+    {
+      "strategy_name": "SMA_70_85",
+      "ticker": "GD",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-10T12:29:40.507260",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.4352210129040285,
+      "asset_layer_percentile": 57.477898709597156,
+      "strategy_layer_percentile": 1.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 30.645799578404116,
+      "exit_recommendation": null,
+      "target_exit_timeframe": null,
+      "statistical_significance": "MEDIUM",
+      "p_value": 0.9000000000000001,
+      "divergence_metrics": {
+        "asset_divergence": {
+          "z_score": 0.12088672414178968,
+          "iqr_position": 0.14955797419194317,
+          "percentile_rank": 57.477898709597156,
+          "rarity_score": 0.08400053450513519,
+          "is_outlier": false,
+          "outlier_method": "none",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        },
+        "strategy_divergence": {
+          "z_score": 0.0,
+          "iqr_position": -1.2926250675635098,
+          "percentile_rank": 1.0,
+          "rarity_score": 0.3528,
+          "is_outlier": true,
+          "outlier_method": "percentile",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        }
+      },
+      "performance_metrics": {},
+      "raw_analysis_data": null
+    },
+    {
+      "strategy_name": "SMA_9_39",
+      "ticker": "GOOGL",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-10T12:29:40.528624",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.3998814638408892,
+      "asset_layer_percentile": 61.011853615911086,
+      "strategy_layer_percentile": 1.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 27.94273901719269,
+      "exit_recommendation": null,
+      "target_exit_timeframe": null,
+      "statistical_significance": "MEDIUM",
+      "p_value": 0.9000000000000001,
+      "divergence_metrics": {
+        "asset_divergence": {
+          "z_score": 0.20582895601492665,
+          "iqr_position": 0.21243623892534735,
+          "percentile_rank": 61.011853615911086,
+          "rarity_score": 0.12926062013027403,
+          "is_outlier": false,
+          "outlier_method": "none",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "up"
+        },
+        "strategy_divergence": {
+          "z_score": 0.0,
+          "iqr_position": -4.9381968779866225,
+          "percentile_rank": 1.0,
+          "rarity_score": 0.3528,
+          "is_outlier": true,
+          "outlier_method": "iqr",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        }
+      },
+      "performance_metrics": {},
+      "raw_analysis_data": null
+    },
+    {
+      "strategy_name": "SMA_66_78",
+      "ticker": "PWR",
+      "timeframe": "trade_level",
+      "analysis_timestamp": "2025-07-10T12:29:40.549401",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.09388070410778482,
+      "asset_layer_percentile": 91.61192958922152,
+      "strategy_layer_percentile": 1.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 39.54271435251607,
+      "exit_recommendation": null,
+      "target_exit_timeframe": null,
+      "statistical_significance": "MEDIUM",
+      "p_value": 0.9000000000000001,
+      "divergence_metrics": {
+        "asset_divergence": {
+          "z_score": 1.0797932793242784,
+          "iqr_position": 0.8528710363078439,
+          "percentile_rank": 91.61192958922152,
+          "rarity_score": 0.5488540925786278,
+          "is_outlier": false,
+          "outlier_method": "none",
+          "consecutive_periods_above_threshold": 3,
+          "trend_direction": "down"
+        },
+        "strategy_divergence": {
+          "z_score": 0.0,
+          "iqr_position": -0.022416595821876634,
+          "percentile_rank": 1.0,
+          "rarity_score": 0.3528,
+          "is_outlier": true,
+          "outlier_method": "percentile",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        }
+      },
+      "performance_metrics": {},
+      "raw_analysis_data": null
+    },
+    {
+      "strategy_name": "SMA_54_64",
+      "ticker": "INTU",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-10T12:29:40.572209",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.3253055307956718,
+      "asset_layer_percentile": 68.46944692043282,
+      "strategy_layer_percentile": 1.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 34.419250815746956,
+      "exit_recommendation": null,
+      "target_exit_timeframe": null,
+      "statistical_significance": "MEDIUM",
+      "p_value": 0.9000000000000001,
+      "divergence_metrics": {
+        "asset_divergence": {
+          "z_score": 0.27317216409701905,
+          "iqr_position": 0.36860688767409366,
+          "percentile_rank": 68.46944692043282,
+          "rarity_score": 0.20239000818286634,
+          "is_outlier": false,
+          "outlier_method": "none",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "up"
+        },
+        "strategy_divergence": {
+          "z_score": 0.0,
+          "iqr_position": -0.022416595821876634,
+          "percentile_rank": 1.0,
+          "rarity_score": 0.3528,
+          "is_outlier": true,
+          "outlier_method": "percentile",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        }
+      },
+      "performance_metrics": {},
+      "raw_analysis_data": null
+    },
+    {
+      "strategy_name": "SMA_58_60",
+      "ticker": "SMCI",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-10T12:29:40.593634",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.5868027316409061,
+      "asset_layer_percentile": 42.31972683590939,
+      "strategy_layer_percentile": 1.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 31.520932783455923,
+      "exit_recommendation": null,
+      "target_exit_timeframe": null,
+      "statistical_significance": "MEDIUM",
+      "p_value": 0.9000000000000001,
+      "divergence_metrics": {
+        "asset_divergence": {
+          "z_score": -0.13726631022933464,
+          "iqr_position": -0.1443333864489743,
+          "percentile_rank": 42.31972683590939,
+          "rarity_score": 0.08889544735859178,
+          "is_outlier": false,
+          "outlier_method": "none",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        },
+        "strategy_divergence": {
+          "z_score": 0.0,
+          "iqr_position": -0.6127598055233738,
+          "percentile_rank": 1.0,
+          "rarity_score": 0.3528,
+          "is_outlier": true,
+          "outlier_method": "percentile",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        }
+      },
+      "performance_metrics": {},
+      "raw_analysis_data": null
+    },
+    {
+      "strategy_name": "SMA_49_66",
+      "ticker": "QCOM",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-10T12:29:40.614937",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.5348254665624772,
+      "asset_layer_percentile": 47.51745334375228,
+      "strategy_layer_percentile": 1.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 32.91294555031459,
+      "exit_recommendation": null,
+      "target_exit_timeframe": null,
+      "statistical_significance": "MEDIUM",
+      "p_value": 0.9000000000000001,
+      "divergence_metrics": {
+        "asset_divergence": {
+          "z_score": -0.05923558934649674,
+          "iqr_position": -0.049650933124954444,
+          "percentile_rank": 47.51745334375228,
+          "rarity_score": 0.03170749111928111,
+          "is_outlier": false,
+          "outlier_method": "none",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "up"
+        },
+        "strategy_divergence": {
+          "z_score": 0.0,
+          "iqr_position": -0.23319523321850852,
+          "percentile_rank": 1.0,
+          "rarity_score": 0.3528,
+          "is_outlier": true,
+          "outlier_method": "percentile",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        }
+      },
+      "performance_metrics": {},
+      "raw_analysis_data": null
+    },
+    {
+      "strategy_name": "SMA_59_87",
+      "ticker": "LMT",
+      "timeframe": "trade_level",
+      "analysis_timestamp": "2025-07-10T12:29:40.686495",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.5199399402360685,
+      "asset_layer_percentile": 49.006005976393155,
+      "strategy_layer_percentile": 1.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 28.27448861780562,
+      "exit_recommendation": null,
+      "target_exit_timeframe": null,
+      "statistical_significance": "MEDIUM",
+      "p_value": 0.9000000000000001,
+      "divergence_metrics": {
+        "asset_divergence": {
+          "z_score": -0.03938116148586908,
+          "iqr_position": -0.019879880472136846,
+          "percentile_rank": 49.006005976393155,
+          "rarity_score": 0.015828184486028577,
+          "is_outlier": false,
+          "outlier_method": "none",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        },
+        "strategy_divergence": {
+          "z_score": 0.0,
+          "iqr_position": 1.459565954145485,
+          "percentile_rank": 1.0,
+          "rarity_score": 0.3528,
+          "is_outlier": true,
+          "outlier_method": "iqr",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        }
+      },
+      "performance_metrics": {},
+      "raw_analysis_data": {
+        "returns": [],
+        "durations": [
+          48, 20, 26, 27, 23, 11, 46, 28, 52, 15, 164, 34, 180, 12, 18, 14, 9,
+          141, 72, 84, 56, 180, 51, 144, 24, 88, 112, 36, 78, 11, 96, 11, 93,
+          168, 103, 105, 55, 23, 81, 29, 28, 180, 40, 18, 31, 10, 36, 2, 56,
+          103, 18, 67, 43, 58, 163, 9, 7, 13, 79, 24, 30, 50, 180, 54, 94, 63,
+          28, 22, 174, 115, 52, 29, 115, 15, 21, 44, 180, 9, 133, 58, 4, 59, 12,
+          61, 24, 72, 18, 8, 97, 34, 150, 24, 22, 18, 21, 105, 24, 19, 25, 74
+        ],
+        "data_source": "trade_history"
+      }
+    },
+    {
+      "strategy_name": "EMA_9_46",
+      "ticker": "GOOGL",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-10T12:29:40.703171",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.3998814638408892,
+      "asset_layer_percentile": 61.011853615911086,
+      "strategy_layer_percentile": 1.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 31.83526961719269,
+      "exit_recommendation": null,
+      "target_exit_timeframe": null,
+      "statistical_significance": "MEDIUM",
+      "p_value": 0.9000000000000001,
+      "divergence_metrics": {
+        "asset_divergence": {
+          "z_score": 0.20582895601492665,
+          "iqr_position": 0.21243623892534735,
+          "percentile_rank": 61.011853615911086,
+          "rarity_score": 0.12926062013027403,
+          "is_outlier": false,
+          "outlier_method": "none",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "up"
+        },
+        "strategy_divergence": {
+          "z_score": 0.0,
+          "iqr_position": -0.7374579051895345,
+          "percentile_rank": 1.0,
+          "rarity_score": 0.3528,
+          "is_outlier": true,
+          "outlier_method": "percentile",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        }
+      },
+      "performance_metrics": {},
+      "raw_analysis_data": null
+    },
+    {
+      "strategy_name": "SMA_45_86",
+      "ticker": "DOV",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-10T12:29:40.723221",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.4491166009744346,
+      "asset_layer_percentile": 56.08833990255654,
+      "strategy_layer_percentile": 1.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 32.49446027427191,
+      "exit_recommendation": null,
+      "target_exit_timeframe": null,
+      "statistical_significance": "MEDIUM",
+      "p_value": 0.9000000000000001,
+      "divergence_metrics": {
+        "asset_divergence": {
+          "z_score": 0.11124837075067583,
+          "iqr_position": 0.12176679805113078,
+          "percentile_rank": 56.08833990255654,
+          "rarity_score": 0.0709563933705875,
+          "is_outlier": false,
+          "outlier_method": "none",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        },
+        "strategy_divergence": {
+          "z_score": 0.0,
+          "iqr_position": -0.5512424949966644,
+          "percentile_rank": 1.0,
+          "rarity_score": 0.3528,
+          "is_outlier": true,
+          "outlier_method": "percentile",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        }
+      },
+      "performance_metrics": {},
+      "raw_analysis_data": null
+    },
+    {
+      "strategy_name": "SMA_8_26",
+      "ticker": "COR",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-10T12:29:40.746258",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.15534748813159116,
+      "asset_layer_percentile": 85.46525118684089,
+      "strategy_layer_percentile": 1.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 36.832143239078555,
+      "exit_recommendation": null,
+      "target_exit_timeframe": null,
+      "statistical_significance": "MEDIUM",
+      "p_value": 0.9000000000000001,
+      "divergence_metrics": {
+        "asset_divergence": {
+          "z_score": 0.8300675760390821,
+          "iqr_position": 0.4263553910161782,
+          "percentile_rank": 85.46525118684089,
+          "rarity_score": 0.4497355247025436,
+          "is_outlier": false,
+          "outlier_method": "none",
+          "consecutive_periods_above_threshold": 2,
+          "trend_direction": "neutral"
+        },
+        "strategy_divergence": {
+          "z_score": 0.0,
+          "iqr_position": -4.714647942266433,
+          "percentile_rank": 1.0,
+          "rarity_score": 0.3528,
+          "is_outlier": true,
+          "outlier_method": "iqr",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        }
+      },
+      "performance_metrics": {},
+      "raw_analysis_data": null
+    },
+    {
+      "strategy_name": "EMA_29_68",
+      "ticker": "COST",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-10T12:29:40.764392",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.39417071661121106,
+      "asset_layer_percentile": 61.582928338878894,
+      "strategy_layer_percentile": 1.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 32.95263672559299,
+      "exit_recommendation": null,
+      "target_exit_timeframe": null,
+      "statistical_significance": "MEDIUM",
+      "p_value": 0.9000000000000001,
+      "divergence_metrics": {
+        "asset_divergence": {
+          "z_score": 0.20777387064096373,
+          "iqr_position": 0.2316585667775779,
+          "percentile_rank": 61.582928338878894,
+          "rarity_score": 0.1342182008392239,
+          "is_outlier": false,
+          "outlier_method": "none",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        },
+        "strategy_divergence": {
+          "z_score": 0.0,
+          "iqr_position": -0.29851567711807875,
+          "percentile_rank": 1.0,
+          "rarity_score": 0.3528,
+          "is_outlier": true,
+          "outlier_method": "percentile",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        }
+      },
+      "performance_metrics": {},
+      "raw_analysis_data": null
+    },
+    {
+      "strategy_name": "SMA_7_45",
+      "ticker": "AMD",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-10T12:29:40.788348",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.5755696474607495,
+      "asset_layer_percentile": 43.443035253925046,
+      "strategy_layer_percentile": 1.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 35.06031152986286,
+      "exit_recommendation": null,
+      "target_exit_timeframe": null,
+      "statistical_significance": "MEDIUM",
+      "p_value": 0.9000000000000001,
+      "divergence_metrics": {
+        "asset_divergence": {
+          "z_score": -0.14582614961883145,
+          "iqr_position": -0.13113929492149912,
+          "percentile_rank": 43.443035253925046,
+          "rarity_score": 0.08162094789236592,
+          "is_outlier": false,
+          "outlier_method": "none",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        },
+        "strategy_divergence": {
+          "z_score": 0.0,
+          "iqr_position": -0.007916903889862686,
+          "percentile_rank": 1.0,
+          "rarity_score": 0.3528,
+          "is_outlier": true,
+          "outlier_method": "percentile",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        }
+      },
+      "performance_metrics": {},
+      "raw_analysis_data": null
+    },
+    {
+      "strategy_name": "SMA_10_27",
+      "ticker": "AMZN",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-10T12:29:40.806391",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.24992568561636874,
+      "asset_layer_percentile": 76.00743143836313,
+      "strategy_layer_percentile": 1.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 35.12263162689087,
+      "exit_recommendation": null,
+      "target_exit_timeframe": null,
+      "statistical_significance": "MEDIUM",
+      "p_value": 0.9000000000000001,
+      "divergence_metrics": {
+        "asset_divergence": {
+          "z_score": 0.4040720136160154,
+          "iqr_position": 0.04443989418352446,
+          "percentile_rank": 76.00743143836313,
+          "rarity_score": 0.28887385423010814,
+          "is_outlier": false,
+          "outlier_method": "none",
+          "consecutive_periods_above_threshold": 1,
+          "trend_direction": "up"
+        },
+        "strategy_divergence": {
+          "z_score": 0.0,
+          "iqr_position": -0.07737882597178503,
+          "percentile_rank": 1.0,
+          "rarity_score": 0.3528,
+          "is_outlier": true,
+          "outlier_method": "percentile",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        }
+      },
+      "performance_metrics": {},
+      "raw_analysis_data": null
+    },
+    {
+      "strategy_name": "SMA_14_45",
+      "ticker": "FFIV",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-10T12:29:40.827777",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.26627050514879613,
+      "asset_layer_percentile": 74.37294948512039,
+      "strategy_layer_percentile": 1.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 33.962721361300275,
+      "exit_recommendation": null,
+      "target_exit_timeframe": null,
+      "statistical_significance": "MEDIUM",
+      "p_value": 0.9000000000000001,
+      "divergence_metrics": {
+        "asset_divergence": {
+          "z_score": 0.3307041429616815,
+          "iqr_position": 0.4877293631520325,
+          "percentile_rank": 74.37294948512039,
+          "rarity_score": 0.2611244244732994,
+          "is_outlier": false,
+          "outlier_method": "none",
+          "consecutive_periods_above_threshold": 1,
+          "trend_direction": "up"
+        },
+        "strategy_divergence": {
+          "z_score": 0.0,
+          "iqr_position": -0.24938970694786594,
+          "percentile_rank": 1.0,
+          "rarity_score": 0.3528,
+          "is_outlier": true,
+          "outlier_method": "percentile",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        }
+      },
+      "performance_metrics": {},
+      "raw_analysis_data": null
+    },
+    {
+      "strategy_name": "EMA_21_32",
+      "ticker": "ILMN",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-10T12:29:40.846012",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.4369497795025399,
+      "asset_layer_percentile": 57.305022049746015,
+      "strategy_layer_percentile": 1.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 31.059629208474625,
+      "exit_recommendation": null,
+      "target_exit_timeframe": null,
+      "statistical_significance": "MEDIUM",
+      "p_value": 0.9000000000000001,
+      "divergence_metrics": {
+        "asset_divergence": {
+          "z_score": 0.10323423455111493,
+          "iqr_position": 0.13975275598442516,
+          "percentile_rank": 57.305022049746015,
+          "rarity_score": 0.0790870233081911,
+          "is_outlier": false,
+          "outlier_method": "none",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "up"
+        },
+        "strategy_divergence": {
+          "z_score": 0.0,
+          "iqr_position": -0.16495412501864837,
+          "percentile_rank": 1.0,
+          "rarity_score": 0.3528,
+          "is_outlier": true,
+          "outlier_method": "percentile",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        }
+      },
+      "performance_metrics": {},
+      "raw_analysis_data": null
+    },
+    {
+      "strategy_name": "EMA_27_41",
+      "ticker": "RTX",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-10T12:29:40.868602",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.27962094746033617,
+      "asset_layer_percentile": 73.03790525396639,
+      "strategy_layer_percentile": 1.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 35.011406682346895,
+      "exit_recommendation": null,
+      "target_exit_timeframe": null,
+      "statistical_significance": "MEDIUM",
+      "p_value": 0.9000000000000001,
+      "divergence_metrics": {
+        "asset_divergence": {
+          "z_score": 0.45742465702582175,
+          "iqr_position": 0.4607581050793277,
+          "percentile_rank": 73.03790525396639,
+          "rarity_score": 0.27578817343689543,
+          "is_outlier": false,
+          "outlier_method": "none",
+          "consecutive_periods_above_threshold": 1,
+          "trend_direction": "neutral"
+        },
+        "strategy_divergence": {
+          "z_score": 0.0,
+          "iqr_position": -0.11545109713352858,
+          "percentile_rank": 1.0,
+          "rarity_score": 0.3528,
+          "is_outlier": true,
+          "outlier_method": "percentile",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        }
+      },
+      "performance_metrics": {},
+      "raw_analysis_data": null
+    },
+    {
+      "strategy_name": "EMA_5_21",
+      "ticker": "CRWD",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-10T12:29:40.887604",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.1447908923271507,
+      "asset_layer_percentile": 86.52091076728493,
+      "strategy_layer_percentile": 1.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 33.6896628784496,
+      "exit_recommendation": null,
+      "target_exit_timeframe": null,
+      "statistical_significance": "MEDIUM",
+      "p_value": 0.9000000000000001,
+      "divergence_metrics": {
+        "asset_divergence": {
+          "z_score": 0.9461664524750365,
+          "iqr_position": 0.38892078087069193,
+          "percentile_rank": 86.52091076728493,
+          "rarity_score": 0.4814005766332868,
+          "is_outlier": false,
+          "outlier_method": "none",
+          "consecutive_periods_above_threshold": 2,
+          "trend_direction": "neutral"
+        },
+        "strategy_divergence": {
+          "z_score": 0.0,
+          "iqr_position": -0.31379738486012493,
+          "percentile_rank": 1.0,
+          "rarity_score": 0.3528,
+          "is_outlier": true,
+          "outlier_method": "percentile",
+          "consecutive_periods_above_threshold": 0,
+          "trend_direction": "neutral"
+        }
+      },
+      "performance_metrics": {},
+      "raw_analysis_data": null
+    }
+  ]
+}

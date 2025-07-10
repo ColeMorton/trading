@@ -33,7 +33,7 @@ def run(
         None,
         "--ticker",
         "-t",
-        help="Ticker symbols to analyze (can be used multiple times)",
+        help="Ticker symbols to analyze (multiple args or comma-separated: --ticker AAPL,MSFT or --ticker AAPL --ticker MSFT)",
     ),
     strategy_type: Optional[List[str]] = typer.Option(
         None,
@@ -65,7 +65,8 @@ def run(
 
     Examples:
         trading-cli strategy run --profile ma_cross_crypto
-        trading-cli strategy run --ticker AAPL MSFT --strategy SMA EMA
+        trading-cli strategy run --ticker AAPL,MSFT,GOOGL --strategy SMA EMA
+        trading-cli strategy run --ticker AAPL --ticker MSFT --strategy SMA
         trading-cli strategy run --ticker BTC-USD --windows 55 --min-trades 20
     """
     try:
@@ -75,7 +76,16 @@ def run(
         # Build configuration overrides from CLI arguments
         overrides = {}
         if ticker:
-            overrides["ticker"] = ticker
+            # Handle comma-separated ticker values
+            flattened_tickers = []
+            for t in ticker:
+                if "," in t:
+                    # Split comma-separated values and add to list
+                    flattened_tickers.extend([tick.strip() for tick in t.split(",")])
+                else:
+                    # Single ticker value
+                    flattened_tickers.append(t)
+            overrides["ticker"] = flattened_tickers
         if strategy_type:
             overrides["strategy_types"] = strategy_type
         if windows:
@@ -105,48 +115,37 @@ def run(
         if verbose:
             rprint("[dim]Loading strategy execution module...[/dim]")
 
-        # Import and execute strategy
-        # TODO: Integrate with existing strategy execution logic
-        from ...strategies.ma_cross.tools.strategy_execution import execute_strategy
-        from ...tools.logging_context import logging_context
+        # Use the same implementation as direct execution
+        import importlib
 
-        with logging_context("cli_strategy", "strategy_run.log") as log:
-            rprint("[bold]Executing strategy analysis...[/bold]")
+        ma_cross_module = importlib.import_module(
+            "app.strategies.ma_cross.1_get_portfolios"
+        )
+        run = ma_cross_module.run
 
-            # Convert Pydantic model to legacy config format
-            legacy_config = _convert_to_legacy_config(config)
+        rprint("[bold]Executing strategy analysis...[/bold]")
 
-            # Execute each strategy type
-            all_results = []
+        # Convert Pydantic model to legacy config format
+        legacy_config = _convert_to_legacy_config(config)
 
-            # Debug: Show all tickers that will be processed
-            tickers_to_process = legacy_config.get("TICKER", [])
-            if isinstance(tickers_to_process, str):
-                tickers_to_process = [tickers_to_process]
+        # Debug: Show all tickers that will be processed
+        tickers_to_process = legacy_config.get("TICKER", [])
+        if isinstance(tickers_to_process, str):
+            tickers_to_process = [tickers_to_process]
+        rprint(
+            f"[bold]Processing {len(tickers_to_process)} tickers:[/bold] {', '.join(tickers_to_process)}"
+        )
+
+        # Execute using the same function as direct execution
+        # This ensures identical filtering, export, and aggregation behavior
+        success = run(legacy_config)
+
+        if success:
+            rprint(f"[green]Strategy analysis completed successfully![/green]")
+        else:
             rprint(
-                f"[bold]Processing {len(tickers_to_process)} tickers:[/bold] {', '.join(tickers_to_process)}"
+                "[yellow]No strategies found matching the specified criteria[/yellow]"
             )
-
-            for strategy_type in config.strategy_types:
-                rprint(f"Running {strategy_type} analysis...")
-
-                strategy_config = legacy_config.copy()
-                strategy_config["STRATEGY_TYPE"] = strategy_type
-
-                results = execute_strategy(strategy_config, strategy_type, log)
-                if results:
-                    all_results.extend(
-                        results if isinstance(results, list) else [results]
-                    )
-
-            if all_results:
-                _display_results(all_results, config)
-                rprint(f"[green]Strategy analysis completed successfully![/green]")
-                rprint(f"Found {len(all_results)} strategies matching criteria")
-            else:
-                rprint(
-                    "[yellow]No strategies found matching the specified criteria[/yellow]"
-                )
 
     except Exception as e:
         rprint(f"[red]Error executing strategy: {e}[/red]")

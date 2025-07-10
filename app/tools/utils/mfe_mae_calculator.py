@@ -123,7 +123,7 @@ class MFEMAECalculator:
                 mfe = abs(min(returns.min(), 0.0))
                 mae = max(returns.max(), 0.0)
 
-            return float(mfe), float(mae)
+            return round(float(mfe), 6), round(float(mae), 6)
 
         except Exception as e:
             self.logger.error(f"Error calculating MFE/MAE from price series: {e}")
@@ -167,7 +167,7 @@ class MFEMAECalculator:
                 mfe = abs(min((min_low - entry_price) / entry_price, 0.0))
                 mae = max((max_high - entry_price) / entry_price, 0.0)
 
-            return float(mfe), float(mae)
+            return round(float(mfe), 6), round(float(mae), 6)
 
         except Exception as e:
             self.logger.error(f"Error calculating MFE/MAE from OHLC: {e}")
@@ -210,7 +210,7 @@ class MFEMAECalculator:
                 mfe = abs(min(return_values.min(), 0.0))
                 mae = max(return_values.max(), 0.0)
 
-            return float(mfe), float(mae)
+            return round(float(mfe), 6), round(float(mae), 6)
 
         except Exception as e:
             self.logger.error(f"Error calculating MFE/MAE from returns: {e}")
@@ -343,9 +343,9 @@ class MFEMAECalculator:
         try:
             return_pct = float(return_pct)
             if direction.lower() in ["long", "buy", "1"]:
-                return max(return_pct, 0.0)
+                return round(max(return_pct, 0.0), 6)
             else:
-                return abs(min(return_pct, 0.0))
+                return round(abs(min(return_pct, 0.0)), 6)
         except:
             return 0.0
 
@@ -354,9 +354,9 @@ class MFEMAECalculator:
         try:
             return_pct = float(return_pct)
             if direction.lower() in ["long", "buy", "1"]:
-                return abs(min(return_pct, 0.0))
+                return round(abs(min(return_pct, 0.0)), 6)
             else:
-                return max(return_pct, 0.0)
+                return round(max(return_pct, 0.0), 6)
         except:
             return 0.0
 
@@ -367,14 +367,14 @@ class MFEMAECalculator:
         try:
             if direction.lower() in ["long", "buy", "1"]:
                 if return_pct >= 0:
-                    return float(return_pct), 0.0
+                    return round(float(return_pct), 6), 0.0
                 else:
-                    return 0.0, abs(float(return_pct))
+                    return 0.0, round(abs(float(return_pct)), 6)
             else:
                 if return_pct <= 0:
-                    return abs(float(return_pct)), 0.0
+                    return round(abs(float(return_pct)), 6), 0.0
                 else:
-                    return 0.0, float(return_pct)
+                    return 0.0, round(float(return_pct), 6)
         except:
             return 0.0, 0.0
 

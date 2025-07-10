@@ -98,7 +98,7 @@ config = {
     "SORT_BY": "Score",
     "SORT_ASC": False,
     "EQUITY_DATA": {
-        "EXPORT": False,
+        "EXPORT": True,
         "METRIC": "mean",
         # Automatic Fresh Analysis Control:
         # - True: Always run fresh analysis to generate equity data (ignore existing files)

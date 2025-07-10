@@ -32,6 +32,16 @@ def close(
     strategy: str = typer.Argument(
         ..., help="Strategy name (e.g., 'MA_SMA_78_82') or Position_UUID to analyze"
     ),
+    portfolio: Optional[str] = typer.Option(
+        None,
+        "--portfolio",
+        help="Portfolio name for position closing (live_signals, protected, risk_on, custom)",
+    ),
+    price: Optional[float] = typer.Option(
+        None,
+        "--price",
+        help="Closing price for position exit (required when portfolio specified)",
+    ),
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
@@ -62,17 +72,57 @@ def close(
     ),
 ):
     """
-    Generate comprehensive sell signal reports from SPDS data.
+    Close positions and generate comprehensive sell signal reports from SPDS data.
 
-    Analyzes trade history and statistical data to generate detailed
-    sell signal reports with exit strategy optimization and risk assessment.
+    Two operation modes:
+    1. Position Closing: When --portfolio and --price are provided, closes the position
+       in the specified portfolio and generates analysis report.
+    2. Report Only: When only strategy is provided, generates analysis report without
+       modifying positions.
 
     Examples:
+        # Close position with portfolio update
+        trading-cli trade-history close NFLX_SMA_82_83_2025-06-16 --portfolio risk_on --price 1273.99
+
+        # Generate report only (existing behavior)
         trading-cli trade-history close MA_SMA_78_82
         trading-cli trade-history close CRWD_EMA_5_21 --output reports/CRWD_analysis.md
-        trading-cli trade-history close QCOM_SMA_49_66 --format json --include-raw-data
     """
     try:
+        # Validate parameters for position closing mode
+        position_closing_mode = portfolio is not None or price is not None
+
+        if position_closing_mode:
+            # Both portfolio and price are required for position closing
+            if portfolio is None:
+                rprint(
+                    "[red]❌ Error: --portfolio is required when --price is specified[/red]"
+                )
+                raise typer.Exit(1)
+            if price is None:
+                rprint(
+                    "[red]❌ Error: --price is required when --portfolio is specified[/red]"
+                )
+                raise typer.Exit(1)
+            if price <= 0:
+                rprint("[red]❌ Error: --price must be a positive number[/red]")
+                raise typer.Exit(1)
+
+            # Validate portfolio file exists
+            from pathlib import Path
+
+            portfolio_file = Path(f"csv/positions/{portfolio}.csv")
+            if not portfolio_file.exists():
+                rprint(f"[red]❌ Portfolio file not found: {portfolio_file}[/red]")
+                rprint("[yellow]Available portfolios:[/yellow]")
+                portfolios_dir = Path("csv/positions/")
+                if portfolios_dir.exists():
+                    for pf in portfolios_dir.glob("*.csv"):
+                        rprint(f"  - {pf.stem}")
+                else:
+                    rprint("  No portfolios directory found")
+                raise typer.Exit(1)
+
         # Load configuration
         loader = ConfigLoader()
 
@@ -123,6 +173,104 @@ def close(
                 self.validate_data = False
 
         args = MockArgs()
+
+        # Handle position closing if portfolio and price provided
+        if position_closing_mode:
+            rprint(f"🔄 Closing Position: [cyan]{strategy}[/cyan]")
+            rprint(f"   Portfolio: [yellow]{portfolio}[/yellow]")
+            rprint(f"   Exit Price: [green]${price:.2f}[/green]")
+            rprint("-" * 60)
+
+            # Import required modules for position closing
+            from datetime import datetime
+
+            import pandas as pd
+
+            try:
+                # Load portfolio CSV
+                portfolio_df = pd.read_csv(f"csv/positions/{portfolio}.csv")
+
+                # Find the position by UUID (strategy parameter should be Position_UUID)
+                position_mask = portfolio_df["Position_UUID"] == strategy
+                if not position_mask.any():
+                    rprint(
+                        f"[red]❌ Position '{strategy}' not found in portfolio '{portfolio}'[/red]"
+                    )
+                    rprint("[yellow]Available positions:[/yellow]")
+                    for pos_uuid in portfolio_df["Position_UUID"].head(10):
+                        rprint(f"  - {pos_uuid}")
+                    if len(portfolio_df) > 10:
+                        rprint(f"  ... and {len(portfolio_df) - 10} more")
+                    raise typer.Exit(1)
+
+                # Check if position is already closed
+                position_row = portfolio_df[position_mask].iloc[0]
+                if position_row["Status"] == "Closed":
+                    rprint(f"[red]❌ Position '{strategy}' is already closed[/red]")
+                    rprint(f"   Exit Date: {position_row['Exit_Timestamp']}")
+                    rprint(f"   Exit Price: ${position_row['Avg_Exit_Price']:.2f}")
+                    raise typer.Exit(1)
+
+                # Calculate position metrics
+                entry_price = position_row["Avg_Entry_Price"]
+                position_size = position_row["Position_Size"]
+                direction = position_row["Direction"]
+                entry_date = pd.to_datetime(position_row["Entry_Timestamp"])
+                exit_date = datetime.now()
+
+                # Calculate P&L and return
+                if direction.upper() == "LONG":
+                    pnl = (price - entry_price) * position_size
+                    return_pct = (price - entry_price) / entry_price
+                else:  # SHORT
+                    pnl = (entry_price - price) * position_size
+                    return_pct = (entry_price - price) / entry_price
+
+                # Calculate duration
+                duration_days = (exit_date - entry_date).days
+
+                # Update the position record
+                idx = portfolio_df[position_mask].index[0]
+                portfolio_df.loc[idx, "Exit_Timestamp"] = exit_date.strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
+                portfolio_df.loc[idx, "Avg_Exit_Price"] = price
+                portfolio_df.loc[idx, "PnL"] = round(pnl, 2)
+                portfolio_df.loc[idx, "Return"] = round(return_pct, 4)
+                portfolio_df.loc[idx, "Duration_Days"] = duration_days
+                portfolio_df.loc[idx, "Status"] = "Closed"
+                portfolio_df.loc[idx, "Days_Since_Entry"] = duration_days
+                portfolio_df.loc[idx, "Current_Unrealized_PnL"] = round(return_pct, 4)
+
+                # Calculate exit efficiency if MFE exists
+                if (
+                    not pd.isna(position_row["Max_Favourable_Excursion"])
+                    and position_row["Max_Favourable_Excursion"] > 0
+                ):
+                    exit_efficiency = (
+                        return_pct / position_row["Max_Favourable_Excursion"]
+                    )
+                    portfolio_df.loc[idx, "Exit_Efficiency_Fixed"] = round(
+                        exit_efficiency, 4
+                    )
+
+                # Save updated portfolio
+                portfolio_df.to_csv(f"csv/positions/{portfolio}.csv", index=False)
+
+                # Display success message
+                rprint("[green]✅ Position closed successfully![/green]")
+                rprint(f"   Entry Price: ${entry_price:.2f}")
+                rprint(f"   Exit Price: ${price:.2f}")
+                rprint(f"   P&L: ${pnl:.2f}")
+                rprint(f"   Return: {return_pct:.2%}")
+                rprint(f"   Duration: {duration_days} days")
+                rprint()
+
+            except Exception as e:
+                rprint(f"[red]❌ Failed to close position: {str(e)}[/red]")
+                if verbose:
+                    raise
+                raise typer.Exit(1)
 
         rprint(f"🎯 Generating Sell Signal Report: [cyan]{strategy}[/cyan]")
         rprint(f"   Format: [yellow]{format}[/yellow]")

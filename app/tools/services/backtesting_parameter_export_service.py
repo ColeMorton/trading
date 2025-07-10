@@ -141,8 +141,12 @@ class BacktestingParameterExportService:
             Dictionary mapping framework to exported file path
         """
         try:
-            # Use portfolio name directly as file base
-            file_base = export_name
+            # Remove extension from portfolio name to create clean file base
+            file_base = (
+                export_name.replace(".csv", "")
+                if export_name.endswith(".csv")
+                else export_name
+            )
 
             exported_files = {}
 
@@ -326,8 +330,12 @@ class BacktestingParameterExportService:
                 ticker = parts[-2] if len(parts) > 1 else "UNKNOWN"
                 timeframe = parts[-1] if len(parts) > 0 else "D"
 
+                # Construct strategy_name for SPDS compatibility
+                constructed_strategy_name = f"{ticker}_{strategy_name}"
+
                 row = {
-                    "Strategy": strategy_name,
+                    "strategy_name": constructed_strategy_name,  # Added for SPDS compatibility
+                    "Strategy": strategy_name,  # Keep for backward compatibility
                     "Ticker": ticker,
                     "Timeframe": timeframe,
                     "Entry_Signal": params.get("entry_signal", "STATISTICAL"),

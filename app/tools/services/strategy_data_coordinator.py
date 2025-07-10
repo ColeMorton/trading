@@ -135,6 +135,9 @@ class StrategyDataCoordinator:
         self._snapshot_lock = threading.RLock()
         self._active_snapshots: Set[str] = set()
 
+        # Warning cache to prevent repeated messages
+        self._warning_cache: Set[str] = set()
+
         # File paths
         self.exports_path = self.base_path / "exports"
         self.statistical_csv = (
@@ -274,7 +277,20 @@ class StrategyDataCoordinator:
             if not strategy_row:
                 return None
 
-            strategy_name = strategy_row["strategy_name"]
+            # Get strategy_name from row (may be constructed if CSV doesn't have strategy_name column)
+            strategy_name = strategy_row.get("strategy_name")
+            if not strategy_name:
+                # Construct strategy_name if not present (backup safety check)
+                ticker = strategy_row.get("ticker", "UNKNOWN")
+                strategy_type = strategy_row.get("strategy_type", "UNKNOWN")
+                short_window = strategy_row.get("short_window", 0)
+                long_window = strategy_row.get("long_window", 0)
+                strategy_name = (
+                    f"{ticker}_{strategy_type}_{int(short_window)}_{int(long_window)}"
+                )
+                strategy_row[
+                    "strategy_name"
+                ] = strategy_name  # Add to row for consistency
 
             # Step 2: Create unified strategy data object with structured components
             strategy_data = UnifiedStrategyData(
@@ -629,9 +645,59 @@ class StrategyDataCoordinator:
         """Load backtesting parameters from CSV file using structured format"""
         try:
             df = pd.read_csv(file_path)
+            matches = pd.DataFrame()  # Initialize empty matches
 
-            # Find matching strategy
-            matches = df[df["strategy_name"] == strategy_name]
+            # Handle CSV files with explicit strategy_name column (new format)
+            if "strategy_name" in df.columns:
+                matches = df[df["strategy_name"] == strategy_name]
+
+            # Handle CSV files without strategy_name column (legacy format)
+            elif all(
+                col in df.columns
+                for col in ["ticker", "strategy_type", "short_window", "long_window"]
+            ):
+                # Show warning only once per file
+                warning_key = f"backtesting_csv_no_strategy_name_{file_path}"
+                if warning_key not in self._warning_cache:
+                    logger.info(
+                        f"CSV file {file_path} missing 'strategy_name' column, constructing from components"
+                    ) if self.logger else None
+                    self._warning_cache.add(warning_key)
+
+                # Parse strategy_name components from input
+                if "_" in strategy_name:
+                    parts = strategy_name.split("_")
+                    if len(parts) >= 3:
+                        strategy_type = parts[0]  # e.g., "SMA"
+                        short_window = parts[1]  # e.g., "78"
+                        long_window = parts[2]  # e.g., "82"
+
+                        # Extract ticker from strategy_data
+                        ticker = (
+                            strategy_data.ticker
+                            if hasattr(strategy_data, "ticker")
+                            else None
+                        )
+
+                        if ticker:
+                            # Find matching row using component matching
+                            matches = df[
+                                (df["ticker"] == ticker)
+                                & (df["strategy_type"] == strategy_type)
+                                & (df["short_window"].astype(str) == short_window)
+                                & (df["long_window"].astype(str) == long_window)
+                            ]
+            else:
+                # Unknown CSV format
+                warning_key = f"backtesting_csv_unknown_format_{file_path}"
+                if warning_key not in self._warning_cache:
+                    logger.warning(
+                        f"CSV file {file_path} has unrecognized format for backtesting parameters"
+                    ) if self.logger else None
+                    self._warning_cache.add(warning_key)
+                return
+
+            # Process matched row if found
             if not matches.empty:
                 row = matches.iloc[0]
 
@@ -662,7 +728,11 @@ class StrategyDataCoordinator:
 
         except (pd.errors.EmptyDataError, ValueError, KeyError) as e:
             logger.warning(
-                f"Error parsing backtesting CSV: {e}"
+                f"Error parsing backtesting CSV {file_path}: {e}"
+            ) if self.logger else None
+        except Exception as e:
+            logger.warning(
+                f"Unexpected error reading backtesting CSV {file_path}: {e}"
             ) if self.logger else None
 
     def _populate_from_positions_data(
@@ -1024,32 +1094,107 @@ class StrategyDataCoordinator:
             return validation_result
 
     def _find_strategy_in_csv(self, identifier: str) -> Optional[Dict[str, Any]]:
-        """Find strategy in statistical CSV by name or UUID"""
+        """Find strategy in statistical CSV by name or UUID, with support for CSV files missing strategy_name column"""
         try:
             if not self.statistical_csv.exists():
                 return None
 
             df = pd.read_csv(self.statistical_csv)
 
-            # Try different matching strategies
-            for column in ["strategy_name", "ticker"]:
-                if column in df.columns:
-                    # Exact match
-                    matches = df[df[column] == identifier]
-                    if not matches.empty:
-                        return matches.iloc[0].to_dict()
+            # If the CSV has a strategy_name column, use existing logic
+            if "strategy_name" in df.columns:
+                # Try different matching strategies
+                for column in ["strategy_name", "ticker"]:
+                    if column in df.columns:
+                        # Exact match
+                        matches = df[df[column] == identifier]
+                        if not matches.empty:
+                            return matches.iloc[0].to_dict()
 
-                    # Partial match (case insensitive)
-                    matches = df[
-                        df[column].str.contains(identifier, case=False, na=False)
-                    ]
-                    if not matches.empty:
-                        return matches.iloc[0].to_dict()
+                        # Partial match (case insensitive)
+                        matches = df[
+                            df[column].str.contains(identifier, case=False, na=False)
+                        ]
+                        if not matches.empty:
+                            return matches.iloc[0].to_dict()
+            else:
+                # Handle CSV files without strategy_name column
+                # Generate strategy_name from available columns: ticker, strategy_type, short_window, long_window
+                return self._find_strategy_by_constructed_name(df, identifier)
 
             return None
 
         except Exception as e:
             logger.error(f"Error finding strategy in CSV: {e}") if self.logger else None
+            return None
+
+    def _find_strategy_by_constructed_name(
+        self, df: pd.DataFrame, identifier: str
+    ) -> Optional[Dict[str, Any]]:
+        """Find strategy in CSV by constructing strategy names from ticker, strategy_type, and window parameters"""
+        try:
+            # Required columns for constructing strategy name
+            required_cols = ["ticker", "strategy_type", "short_window", "long_window"]
+
+            # Check if we have the required columns
+            missing_cols = [col for col in required_cols if col not in df.columns]
+            if missing_cols:
+                logger.warning(
+                    f"Cannot construct strategy names, missing columns: {missing_cols}"
+                ) if self.logger else None
+                return None
+
+            # Add constructed strategy_name column to dataframe for searching
+            df_with_strategy_name = df.copy()
+            df_with_strategy_name["strategy_name"] = df_with_strategy_name.apply(
+                lambda row: f"{row['ticker']}_{row['strategy_type']}_{int(row['short_window'])}_{int(row['long_window'])}",
+                axis=1,
+            )
+
+            # Try to find the strategy using the constructed name
+            # Exact match
+            matches = df_with_strategy_name[
+                df_with_strategy_name["strategy_name"] == identifier
+            ]
+            if not matches.empty:
+                result = matches.iloc[0].to_dict()
+                logger.info(
+                    f"Found strategy using constructed name: {result['strategy_name']}"
+                ) if self.logger else None
+                return result
+
+            # Partial match (case insensitive)
+            matches = df_with_strategy_name[
+                df_with_strategy_name["strategy_name"].str.contains(
+                    identifier, case=False, na=False
+                )
+            ]
+            if not matches.empty:
+                result = matches.iloc[0].to_dict()
+                logger.info(
+                    f"Found strategy using partial constructed name match: {result['strategy_name']}"
+                ) if self.logger else None
+                return result
+
+            # Try matching by ticker only as fallback
+            matches = df_with_strategy_name[
+                df_with_strategy_name["ticker"].str.contains(
+                    identifier, case=False, na=False
+                )
+            ]
+            if not matches.empty:
+                result = matches.iloc[0].to_dict()
+                logger.info(
+                    f"Found strategy using ticker fallback: {result['strategy_name']}"
+                ) if self.logger else None
+                return result
+
+            return None
+
+        except Exception as e:
+            logger.error(
+                f"Error constructing strategy name for search: {e}"
+            ) if self.logger else None
             return None
 
     def _generate_position_uuid(self, strategy_row: Dict[str, Any]) -> str:

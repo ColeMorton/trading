@@ -1,63 +1,46 @@
 {
   "export_metadata": {
-    "export_timestamp": "2025-07-08T12:21:59.555522",
+    "export_timestamp": "2025-07-10T14:27:27.127443",
     "export_version": "2.0.0",
     "portfolio_name": "protected",
-    "total_results": 6,
+    "total_results": 4,
     "analysis_type": "Statistical Performance Divergence System",
     "data_source": "position_tracking",
     "statistical_thresholds": {
-      "p95_exit_immediately": 0.2911499178234266,
-      "p90_strong_sell": 0.23962523240913922,
-      "p80_sell": 0.1365758615805645,
-      "p70_hold": 0.1284135329725135
+      "p95_exit_immediately": 0.11485914972827097,
+      "p90_strong_sell": 0.11352652209275023,
+      "p80_sell": 0.11086126682170877,
+      "p70_hold": 0.10819601155066728
     }
   },
   "portfolio_summary": {
-    "total_positions": 6,
-    "profitable_positions": 5,
-    "success_rate": 0.8333333333333334,
-    "average_return": 0.1005269136463929,
-    "total_unrealized_pnl": 0.6031614818783574,
+    "total_positions": 4,
+    "profitable_positions": 3,
+    "success_rate": 0.75,
+    "average_return": 0.04817685022482965,
+    "total_unrealized_pnl": 0.04817685022482965,
     "signal_distribution": {
-      "HOLD": 3,
-      "SELL": 1,
-      "EXIT_IMMEDIATELY": 1,
-      "TIME_EXIT": 1
+      "HOLD": 2,
+      "TIME_EXIT": 1,
+      "EXIT_IMMEDIATELY": 1
     }
   },
   "statistical_analysis_results": [
-    {
-      "strategy_name": "NVDA_SMA_53_64",
-      "ticker": "NVDA",
-      "strategy_type": "SMA_53_64",
-      "exit_signal": "SELL",
-      "confidence_level": 0.8,
-      "current_return": 0.1365758615805645,
-      "max_favorable_excursion": 0.1565485516483526,
-      "max_adverse_excursion": 0.04504636944094,
-      "exit_efficiency": 0.8724185573262168,
-      "days_held": 40,
-      "trade_quality": "Excellent",
-      "percentile_rank": 0.8333333333333334,
-      "statistical_significance": "MEDIUM",
-      "analysis_timestamp": "2025-07-08T12:21:59.555140"
-    },
     {
       "strategy_name": "TSLA_SMA_4_39",
       "ticker": "TSLA",
       "strategy_type": "SMA_4_39",
       "exit_signal": "HOLD",
       "confidence_level": 0.6,
-      "current_return": -0.1074043388942395,
-      "max_favorable_excursion": 0.0953037912176161,
-      "max_adverse_excursion": 0.115368938016678,
-      "exit_efficiency": -1.1269681669745235,
-      "days_held": 27,
+      "current_return": -0.0883037169874364,
+      "max_favorable_excursion": 0.095304,
+      "max_adverse_excursion": 0.115369,
+      "exit_efficiency": -0.9265478572508646,
+      "days_held": 29,
       "trade_quality": "Poor",
-      "percentile_rank": 0.16666666666666666,
+      "percentile_rank": 0.25,
       "statistical_significance": "LOW",
-      "analysis_timestamp": "2025-07-08T12:21:59.555213"
+      "analysis_timestamp": "2025-07-10T14:27:27.127182"
     },
     {
       "strategy_name": "PLTR_SMA_12_14",
@@ -65,31 +48,15 @@
       "strategy_type": "SMA_12_14",
       "exit_signal": "HOLD",
       "confidence_level": 0.6,
-      "current_return": 0.0173027692287783,
-      "max_favorable_excursion": 0.1223307517640158,
-      "max_adverse_excursion": 0.0549749707788292,
-      "exit_efficiency": 0.14144251530601643,
-      "days_held": 29,
+      "current_return": 0.0575117473959765,
+      "max_favorable_excursion": 0.122331,
+      "max_adverse_excursion": 0.054975,
+      "exit_efficiency": 0.47013224281642835,
+      "days_held": 31,
       "trade_quality": "Excellent",
-      "percentile_rank": 0.3333333333333333,
+      "percentile_rank": 0.5,
       "statistical_significance": "LOW",
-      "analysis_timestamp": "2025-07-08T12:21:59.555275"
-    },
-    {
-      "strategy_name": "AMD_SMA_19_29",
-      "ticker": "AMD",
-      "strategy_type": "SMA_19_29",
-      "exit_signal": "EXIT_IMMEDIATELY",
-      "confidence_level": 0.95,
-      "current_return": 0.3426746032377139,
-      "max_favorable_excursion": 0.4528024034769032,
-      "max_adverse_excursion": 0.0013765918765925,
-      "exit_efficiency": 0.7567861844514111,
-      "days_held": 61,
-      "trade_quality": "Excellent",
-      "percentile_rank": 1.0,
-      "statistical_significance": "HIGH",
-      "analysis_timestamp": "2025-07-08T12:21:59.555335"
+      "analysis_timestamp": "2025-07-10T14:27:27.127261"
     },
     {
       "strategy_name": "FFIV_SMA_14_45",
@@ -97,31 +64,31 @@
       "strategy_type": "SMA_14_45",
       "exit_signal": "TIME_EXIT",
       "confidence_level": 0.7,
-      "current_return": 0.0937613823610776,
-      "max_favorable_excursion": 0.1050376011759222,
-      "max_adverse_excursion": 0.0193308523603581,
-      "exit_efficiency": 0.892645884058618,
-      "days_held": 61,
+      "current_return": 0.1073075931269868,
+      "max_favorable_excursion": 0.115545,
+      "max_adverse_excursion": 0.019331,
+      "exit_efficiency": 0.9287082359858653,
+      "days_held": 63,
       "trade_quality": "Excellent",
-      "percentile_rank": 0.5,
+      "percentile_rank": 0.75,
       "statistical_significance": "MEDIUM",
-      "analysis_timestamp": "2025-07-08T12:21:59.555392"
+      "analysis_timestamp": "2025-07-10T14:27:27.127322"
     },
     {
       "strategy_name": "RTX_EMA_27_41",
       "ticker": "RTX",
       "strategy_type": "EMA_27_41",
-      "exit_signal": "HOLD",
-      "confidence_level": 0.6,
-      "current_return": 0.1202512043644625,
-      "max_favorable_excursion": 0.143229145970609,
-      "max_adverse_excursion": 0.0242800109392056,
-      "exit_efficiency": 0.8395721663322516,
-      "days_held": 57,
+      "exit_signal": "EXIT_IMMEDIATELY",
+      "confidence_level": 0.95,
+      "current_return": 0.1161917773637917,
+      "max_favorable_excursion": 0.143229,
+      "max_adverse_excursion": 0.02428,
+      "exit_efficiency": 0.8112308077539584,
+      "days_held": 59,
       "trade_quality": "Excellent",
-      "percentile_rank": 0.6666666666666666,
-      "statistical_significance": "LOW",
-      "analysis_timestamp": "2025-07-08T12:21:59.555453"
+      "percentile_rank": 1.0,
+      "statistical_significance": "HIGH",
+      "analysis_timestamp": "2025-07-10T14:27:27.127376"
     }
   ]
 }

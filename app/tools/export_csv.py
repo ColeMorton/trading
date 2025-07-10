@@ -185,21 +185,26 @@ def _combine_with_custom_filename(
     Returns:
         str: Combined filename
     """
-    # If custom filename is provided and already contains ticker prefix, use it directly
-    ticker_prefix = _get_ticker_prefix(config)
-    if custom_filename.startswith(ticker_prefix):
-        return custom_filename
-
-    # Otherwise, combine with standard components
-    components = _get_filename_components(config, feature1, feature2)
-
     # Split custom filename into name and extension
     name, ext = os.path.splitext(custom_filename)
     if not ext:
         ext = ".csv"
 
+    # For strategies feature_dir, use the custom filename as-is (with extension)
+    # This avoids adding unwanted prefixes from standard components
+    if feature1 == "strategies":
+        return f"{name}{ext}"
+
+    # If custom filename is provided and already contains ticker prefix, use it directly
+    ticker_prefix = _get_ticker_prefix(config)
+    if ticker_prefix and custom_filename.startswith(ticker_prefix):
+        return f"{name}{ext}"
+
+    # Otherwise, combine with standard components
+    components = _get_filename_components(config, feature1, feature2)
+
     # Insert custom name before the extension
-    return f"{''.join(components)}_{name}{ext}"
+    return f"{''.join(components)}{name}{ext}"
 
 
 def _get_export_path(feature1: str, config: ExportConfig, feature2: str = "") -> str:

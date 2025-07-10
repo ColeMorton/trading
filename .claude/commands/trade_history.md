@@ -1,5 +1,17 @@
 # trade_history
 
+## Primary Usage - Close Position with Portfolio Update
+
+```bash
+# Close position and update portfolio
+python -m app.cli trade-history close --strategy POSITION_UUID --portfolio PORTFOLIO_NAME --price CLOSING_PRICE
+
+# Examples
+python -m app.cli trade-history close --strategy NFLX_SMA_82_83_2025-06-16 --portfolio risk_on --price 1273.99
+python -m app.cli trade-history close --strategy AAPL_SMA_20_50_2025-01-01 --portfolio live_signals --price 150.00
+python -m app.cli trade-history close --strategy TSLA_EMA_12_26_2025-02-15 --portfolio protected --price 245.50
+```
+
 ## Description
 
 Comprehensive trade history management system supporting position lifecycle operations, statistical analysis, and risk management across all portfolios. This unified command consolidates position management, sell signal generation, and portfolio updates into a single interface with support for live_signals, protected, risk_on, and custom portfolios.
@@ -34,14 +46,26 @@ This command uses **sub-commands** following the modern CLI pattern:
 
 ### Analysis Parameters (for `close` sub-command)
 
-- **strategy** (required for close): Strategy name or Position_UUID to analyze
-- **output** (ALWAYS REQUIRED for close): Output file path for reports - file export is mandatory for all close operations
+#### Primary Position Closing Parameters
+
+- **strategy** (required for close): Position_UUID to close (e.g., NFLX_SMA_82_83_2025-06-16)
+- **portfolio** (required for position closing): Portfolio name (live_signals, protected, risk_on, custom)
+- **price** (required for position closing): Closing price for position exit (must be positive)
+
+#### Report Generation Parameters
+
+- **output** (optional): Output file path for reports - auto-generated if not specified
 - **format** (optional): Output format (markdown, json, html) - default: markdown
 - **include_raw_data** (optional): Include raw statistical data in appendices
 - **current_price** (optional): Current market price for enhanced analysis
 - **market_condition** (optional): Market condition (bullish/bearish/sideways/volatile)
 
-**IMPORTANT**: The `close` command ALWAYS exports analysis reports to a file. This ensures proper documentation, audit trails, and enables further analysis of sell signal recommendations.
+#### Operation Modes
+
+1. **Position Closing Mode**: When `--portfolio` and `--price` are provided, closes the position in the specified portfolio and generates analysis report
+2. **Report Only Mode**: When only `--strategy` is provided, generates analysis report without modifying positions (existing behavior)
+
+**IMPORTANT**: Position closing requires both `--portfolio` and `--price` parameters. The `close` command ALWAYS generates analysis reports for documentation and audit trails.
 
 ## Objectives
 
@@ -71,11 +95,14 @@ This command uses **sub-commands** following the modern CLI pattern:
 
 #### Close Action
 
-1. **SPDS Analysis**: Generate comprehensive sell signal reports using Statistical Performance Divergence System
-2. **Exit Strategy Optimization**: Provide multiple exit scenarios with risk-adjusted recommendations
-3. **Multi-Source Integration**: Aggregate data from statistical analysis, backtesting parameters, and trade history
-4. **Actionable Insights**: Deliver clear SELL/HOLD recommendations with confidence levels
-5. **Mandatory File Export**: ALWAYS export reports to specified file path for documentation and audit purposes
+1. **Position Closing**: Close positions in portfolios with automatic P&L calculation and status updates
+2. **Portfolio Integration**: Update position records in CSV files with exit metrics and timestamps
+3. **SPDS Analysis**: Generate comprehensive sell signal reports using Statistical Performance Divergence System
+4. **Exit Strategy Optimization**: Provide multiple exit scenarios with risk-adjusted recommendations
+5. **Multi-Source Integration**: Aggregate data from statistical analysis, backtesting parameters, and trade history
+6. **Actionable Insights**: Deliver clear SELL/HOLD recommendations with confidence levels
+7. **Dual Operation Modes**: Support both position closing + reporting and report-only generation
+8. **Data Integrity**: Validate positions exist and are open before closing, prevent duplicate closures
 
 ## Dynamic Fields Updated
 
@@ -604,19 +631,37 @@ trading-cli trade-history add BTC-USD --strategy-type EMA --short-window 12 --lo
 trading-cli trade-history add GOOGL --strategy-type SMA --short-window 49 --long-window 66 --portfolio protected --entry-price 2750.00
 ```
 
-### **Sell Signal Report Generation**
+### **Position Closing Operations**
 
-**IMPORTANT**: All `close` commands ALWAYS export to files. If no `--output` is specified, files are auto-generated in the `reports/` directory.
+**PRIMARY USAGE**: Close positions and update portfolios with automatic P&L calculation.
+
+```bash
+# Close position in risk_on portfolio
+python -m app.cli trade-history close --strategy NFLX_SMA_82_83_2025-06-16 --portfolio risk_on --price 1273.99
+
+# Close position in live_signals portfolio
+python -m app.cli trade-history close --strategy AAPL_SMA_20_50_2025-01-01 --portfolio live_signals --price 150.00
+
+# Close position in protected portfolio
+python -m app.cli trade-history close --strategy TSLA_EMA_12_26_2025-02-15 --portfolio protected --price 245.50
+
+# Close with verbose output for detailed logging
+python -m app.cli trade-history close --strategy GOOGL_SMA_49_66_2025-03-01 --portfolio live_signals --price 2750.00 --verbose
+```
+
+### **Report-Only Generation**
+
+**LEGACY MODE**: Generate analysis reports without modifying positions.
 
 ```bash
 # Generate sell signal report (auto-exported to reports/MA_SMA_78_82_analysis_YYYYMMDD_HHMMSS.md)
-trading-cli trade-history close MA_SMA_78_82
+python -m app.cli trade-history close MA_SMA_78_82
 
 # Generate report with specific file output
-trading-cli trade-history close CRWD_EMA_5_21 --output reports/CRWD_analysis.md
+python -m app.cli trade-history close CRWD_EMA_5_21 --output reports/CRWD_analysis.md
 
 # Generate enhanced report with market context
-trading-cli trade-history close QCOM_SMA_49_66 --current-price 147.50 --market-condition bearish --format json --output analysis.json
+python -m app.cli trade-history close QCOM_SMA_49_66 --current-price 147.50 --market-condition bearish --format json --output analysis.json
 ```
 
 ### **System Management Operations**

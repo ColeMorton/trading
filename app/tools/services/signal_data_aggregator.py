@@ -578,7 +578,18 @@ class SignalDataAggregator:
             # Load backtesting CSV for additional validation
             if self.backtesting_csv.exists():
                 df = pd.read_csv(self.backtesting_csv)
-                match = df[df["Strategy"] == strategy_name]
+
+                # Handle CSV files with or without strategy_name column
+                match = None
+                if "strategy_name" in df.columns:
+                    # Try strategy_name column first
+                    match = df[df["strategy_name"] == strategy_name]
+
+                if match is None or match.empty:
+                    # Fallback to Strategy column for backward compatibility
+                    if "Strategy" in df.columns:
+                        match = df[df["Strategy"] == strategy_name]
+
                 if not match.empty:
                     row = match.iloc[0]
                     # Cross-validate key parameters

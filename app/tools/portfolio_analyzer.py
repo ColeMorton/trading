@@ -229,8 +229,8 @@ class PortfolioStatisticalAnalyzer:
                 if confidence > 1.0:
                     confidence = confidence / 100.0
 
-            # Count as high confidence if > 80%
-            if confidence > 0.8:
+            # Count as high confidence if > 50% (adjusted for statistical analysis context)
+            if confidence > 0.5:
                 high_confidence_count += 1
 
         return {

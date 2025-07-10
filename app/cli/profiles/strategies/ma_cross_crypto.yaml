@@ -36,6 +36,9 @@ config:
 
   # Data settings
   refresh: true
-  use_current: true
   sort_by: 'Score'
   sort_ascending: false
+
+  # Filter configuration
+  filter:
+    use_current: true

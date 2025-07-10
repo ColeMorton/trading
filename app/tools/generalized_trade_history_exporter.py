@@ -644,7 +644,7 @@ def create_position_record(
     # Assess trade quality
     trade_quality = assess_trade_quality(mfe, mae, exit_efficiency, return_pct)
 
-    # Create position record
+    # Create position record with standardized precision
     position = {
         "Position_UUID": position_uuid,
         "Ticker": ticker.upper(),
@@ -658,19 +658,23 @@ def create_position_record(
         "Avg_Exit_Price": exit_price,
         "Position_Size": position_size,
         "Direction": direction.title(),
-        "PnL": pnl,
-        "Return": return_pct,
+        "PnL": round(pnl, 6) if pnl is not None else None,
+        "Return": round(return_pct, 6) if return_pct is not None else None,
         "Duration_Days": None,  # Could be calculated
-        "Trade_Type": "",
+        "Trade_Type": direction.title(),
         "Status": "Closed" if exit_date else "Open",
-        "Max_Favourable_Excursion": mfe,
-        "Max_Adverse_Excursion": mae,
-        "MFE_MAE_Ratio": mfe_mae_ratio,
-        "Exit_Efficiency": exit_efficiency,
+        "Max_Favourable_Excursion": round(mfe, 6) if mfe is not None else None,
+        "Max_Adverse_Excursion": round(mae, 6) if mae is not None else None,
+        "MFE_MAE_Ratio": round(mfe_mae_ratio, 6) if mfe_mae_ratio is not None else None,
+        "Exit_Efficiency": round(exit_efficiency, 6)
+        if exit_efficiency is not None
+        else None,
         "Days_Since_Entry": days_since_entry if not exit_date else None,
         "Current_Unrealized_PnL": None,
         "Current_Excursion_Status": "Open" if not exit_date else None,
-        "Exit_Efficiency_Fixed": exit_efficiency,
+        "Exit_Efficiency_Fixed": round(exit_efficiency, 6)
+        if exit_efficiency is not None
+        else None,
         "Trade_Quality": trade_quality,
     }
 
@@ -1404,16 +1408,45 @@ Examples:
 
                     risk_reward_ratio = mfe / mae if mae > 0 else float("inf")
 
+                    # Debug print for trade quality assessment
+                    if args.verbose:
+                        print(
+                            f"   DEBUG: {ticker} - MFE: {mfe:.6f}, MAE: {mae:.6f}, Risk/Reward: {risk_reward_ratio:.2f}"
+                        )
+
                     if mfe < 0.02 and mae > 0.05:
                         trade_quality = "Poor Setup - High Risk, Low Reward"
+                        if args.verbose:
+                            print(
+                                f"   DEBUG: {ticker} - Condition 1 met (MFE < 0.02 and MAE > 0.05)"
+                            )
                     elif risk_reward_ratio >= 3.0:
                         trade_quality = "Excellent"
+                        if args.verbose:
+                            print(
+                                f"   DEBUG: {ticker} - Condition 2 met (Risk/Reward >= 3.0)"
+                            )
                     elif risk_reward_ratio >= 2.0:
                         trade_quality = "Excellent"
+                        if args.verbose:
+                            print(
+                                f"   DEBUG: {ticker} - Condition 3 met (Risk/Reward >= 2.0)"
+                            )
                     elif risk_reward_ratio >= 1.5:
                         trade_quality = "Good"
+                        if args.verbose:
+                            print(
+                                f"   DEBUG: {ticker} - Condition 4 met (Risk/Reward >= 1.5)"
+                            )
                     else:
                         trade_quality = "Poor"
+                        if args.verbose:
+                            print(f"   DEBUG: {ticker} - Default condition met (Poor)")
+
+                    if args.verbose:
+                        print(
+                            f"   DEBUG: {ticker} - Final trade quality: {trade_quality}"
+                        )
 
                     df.loc[idx, "Trade_Quality"] = trade_quality
 

@@ -28,6 +28,47 @@ app = typer.Typer(
 console = Console()
 
 
+def _detect_available_data_sources(portfolio: str) -> dict:
+    """
+    Detect which data sources are available for the given portfolio.
+
+    Args:
+        portfolio: Portfolio filename (e.g., "risk_on.csv")
+
+    Returns:
+        Dictionary with availability status for each data source
+    """
+    try:
+        from ...tools.config.statistical_analysis_config import SPDSConfig
+
+        # Create a temporary config to check file paths
+        temp_config = SPDSConfig(PORTFOLIO=portfolio, USE_TRADE_HISTORY=True)
+        trade_history_path = temp_config.get_trade_history_file_path()
+
+        # Check portfolio file in strategies directory
+        portfolio_path = temp_config.get_portfolio_file_path()
+
+        # Check for equity data paths (simplified check)
+        has_equity_data = False
+        for equity_path in temp_config.EQUITY_DATA_PATHS:
+            equity_dir = Path(equity_path)
+            if equity_dir.exists():
+                # Look for any files that might contain equity data for this portfolio
+                potential_files = list(equity_dir.glob("*.csv"))
+                if potential_files:
+                    has_equity_data = True
+                    break
+
+        return {
+            "trade_history": trade_history_path.exists(),
+            "equity_data": has_equity_data,
+            "portfolio_file": portfolio_path.exists(),
+        }
+    except Exception:
+        # If any error occurs during detection, default to safe values
+        return {"trade_history": False, "equity_data": False, "portfolio_file": False}
+
+
 @app.command()
 def analyze(
     portfolio: str = typer.Argument(
@@ -36,10 +77,10 @@ def analyze(
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
-    trade_history: bool = typer.Option(
-        False,
-        "--trade-history/--no-trade-history",
-        help="Use trade history data vs equity curves",
+    data_source: Optional[str] = typer.Option(
+        None,
+        "--data-source",
+        help="Data source mode: 'trade-history', 'equity-curves', 'both', or 'auto' (default: auto)",
     ),
     output_format: str = typer.Option(
         "table", "--output-format", help="Output format: json, table, summary"
@@ -73,21 +114,70 @@ def analyze(
     Analyze portfolio using Statistical Performance Divergence System.
 
     Performs comprehensive statistical analysis on portfolio data to generate
-    exit signals and divergence metrics.
+    exit signals and divergence metrics. Automatically detects and uses both
+    trade history and equity data when available for maximum analysis depth.
 
     Examples:
-        trading-cli spds analyze risk_on.csv --trade-history
-        trading-cli spds analyze conservative.csv --no-trade-history
+        trading-cli spds analyze risk_on.csv                            # Auto-detects and uses all available data
+        trading-cli spds analyze risk_on.csv --data-source both         # Force both data sources
+        trading-cli spds analyze risk_on.csv --data-source trade-history # Force trade history only
+        trading-cli spds analyze risk_on.csv --data-source equity-curves # Force equity curves only
         trading-cli spds analyze risk_on.csv --export-backtesting --save-results results.json
     """
     try:
+        # Auto-detect available data sources if not explicitly specified
+        if data_source is None:
+            data_source = "auto"
+
+        # Detect available data sources
+        available_sources = _detect_available_data_sources(portfolio)
+
+        # Determine which data sources to use based on availability and user preference
+        if data_source == "auto":
+            # Use both sources if available, prioritize trade history if only one is available
+            if available_sources["trade_history"] and available_sources["equity_data"]:
+                use_trade_history = (
+                    True  # Start with trade history, but we'll also use equity
+                )
+                data_source_status = (
+                    "Both Trade History and Equity Data (Auto-detected)"
+                )
+            elif available_sources["trade_history"]:
+                use_trade_history = True
+                data_source_status = "Trade History Only (Auto-detected)"
+            elif available_sources["equity_data"]:
+                use_trade_history = False
+                data_source_status = "Equity Curves Only (Auto-detected)"
+            else:
+                use_trade_history = False
+                data_source_status = "No data sources detected - using fallback"
+        elif data_source == "both":
+            use_trade_history = True  # We'll handle both in the analyzer
+            data_source_status = "Both Trade History and Equity Data (Requested)"
+        elif data_source == "trade-history":
+            use_trade_history = True
+            data_source_status = "Trade History Only (Requested)"
+        elif data_source == "equity-curves":
+            use_trade_history = False
+            data_source_status = "Equity Curves Only (Requested)"
+        else:
+            raise ValueError(
+                f"Invalid data source: {data_source}. Must be 'auto', 'both', 'trade-history', or 'equity-curves'"
+            )
+
+        if verbose:
+            rprint(
+                f"[dim]Available sources: TH={available_sources['trade_history']}, EQ={available_sources['equity_data']}[/dim]"
+            )
+            rprint(f"[dim]Selected: {data_source_status}[/dim]")
+
         # Load configuration
         loader = ConfigLoader()
 
         # Build configuration overrides from CLI arguments
         overrides = {
             "portfolio": portfolio,
-            "trade_history": trade_history,
+            "trade_history": use_trade_history,
             "output_format": output_format,
             "save_results": save_results,
             "export_backtesting": export_backtesting,
@@ -108,9 +198,7 @@ def analyze(
 
         if verbose:
             rprint(f"[dim]Analyzing portfolio: {portfolio}[/dim]")
-            rprint(
-                f"[dim]Data source: {'Trade History' if trade_history else 'Equity Curves'}[/dim]"
-            )
+            rprint(f"[dim]Data source: {data_source_status}[/dim]")
 
         # Import SPDS modules
         from ...tools.config.statistical_analysis_config import (
@@ -122,7 +210,7 @@ def analyze(
         )
 
         # Create SPDS config from CLI config
-        spds_config = StatisticalAnalysisConfig.create(portfolio, trade_history)
+        spds_config = StatisticalAnalysisConfig.create(portfolio, use_trade_history)
 
         # Apply overrides
         if percentile_threshold != 95:
@@ -135,18 +223,16 @@ def analyze(
             spds_config.MIN_SAMPLE_SIZE = sample_size_min
 
         rprint(f"📊 Analyzing Portfolio: [cyan]{portfolio}[/cyan]")
-        rprint(
-            f"   Data Source: [yellow]{'Trade History' if trade_history else 'Equity Curves'}[/yellow]"
-        )
+        rprint(f"   Data Source: [yellow]{data_source_status}[/yellow]")
         rprint("-" * 60)
 
         # Run analysis
         if output_format == "json":
             results, summary = asyncio.run(
-                _run_portfolio_analysis(portfolio, trade_history)
+                _run_portfolio_analysis(portfolio, use_trade_history)
             )
             # Also export all formats for JSON output
-            analyzer = PortfolioStatisticalAnalyzer(portfolio, trade_history)
+            analyzer = PortfolioStatisticalAnalyzer(portfolio, use_trade_history)
             asyncio.run(
                 _export_all_formats(
                     results,
@@ -159,7 +245,7 @@ def analyze(
             )
             return _output_json_results(results, summary, save_results)
         else:
-            analyzer = PortfolioStatisticalAnalyzer(portfolio, trade_history)
+            analyzer = PortfolioStatisticalAnalyzer(portfolio, use_trade_history)
             results = asyncio.run(_run_analyzer_analysis(analyzer))
             summary = analyzer.get_summary_report(results)
 
@@ -200,10 +286,10 @@ def export(
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
-    trade_history: bool = typer.Option(
-        False,
-        "--trade-history/--no-trade-history",
-        help="Use trade history data vs equity curves",
+    data_source: Optional[str] = typer.Option(
+        None,
+        "--data-source",
+        help="Data source mode: 'trade-history', 'equity-curves', 'both', or 'auto' (default: auto)",
     ),
     format: str = typer.Option(
         "all", "--format", help="Export format: all, json, csv, markdown"
@@ -219,20 +305,68 @@ def export(
     Export backtesting parameters and analysis results.
 
     Exports deterministic backtesting parameters for strategy development
-    and comprehensive analysis results in multiple formats.
+    and comprehensive analysis results in multiple formats. Automatically
+    detects and uses both trade history and equity data when available.
 
     Examples:
-        trading-cli spds export risk_on.csv --format all
+        trading-cli spds export risk_on.csv --format all                      # Auto-detects and uses all available data
         trading-cli spds export conservative.csv --format json --output-dir ./exports/
+        trading-cli spds export risk_on.csv --data-source both --format all  # Force both data sources
     """
     try:
+        # Auto-detect available data sources if not explicitly specified
+        if data_source is None:
+            data_source = "auto"
+
+        # Detect available data sources
+        available_sources = _detect_available_data_sources(portfolio)
+
+        # Determine which data sources to use based on availability and user preference
+        if data_source == "auto":
+            # Use both sources if available, prioritize trade history if only one is available
+            if available_sources["trade_history"] and available_sources["equity_data"]:
+                use_trade_history = (
+                    True  # Start with trade history, but we'll also use equity
+                )
+                data_source_status = (
+                    "Both Trade History and Equity Data (Auto-detected)"
+                )
+            elif available_sources["trade_history"]:
+                use_trade_history = True
+                data_source_status = "Trade History Only (Auto-detected)"
+            elif available_sources["equity_data"]:
+                use_trade_history = False
+                data_source_status = "Equity Curves Only (Auto-detected)"
+            else:
+                use_trade_history = False
+                data_source_status = "No data sources detected - using fallback"
+        elif data_source == "both":
+            use_trade_history = True  # We'll handle both in the analyzer
+            data_source_status = "Both Trade History and Equity Data (Requested)"
+        elif data_source == "trade-history":
+            use_trade_history = True
+            data_source_status = "Trade History Only (Requested)"
+        elif data_source == "equity-curves":
+            use_trade_history = False
+            data_source_status = "Equity Curves Only (Requested)"
+        else:
+            raise ValueError(
+                f"Invalid data source: {data_source}. Must be 'auto', 'both', 'trade-history', or 'equity-curves'"
+            )
+
+        if verbose:
+            rprint(
+                f"[dim]Available sources: TH={available_sources['trade_history']}, EQ={available_sources['equity_data']}[/dim]"
+            )
+            rprint(f"[dim]Selected: {data_source_status}[/dim]")
+
         # Load configuration
         loader = ConfigLoader()
 
         # Build configuration overrides from CLI arguments
         overrides = {
             "portfolio": portfolio,
-            "trade_history": trade_history,
+            "trade_history": use_trade_history,
             "format": format,
             "output_dir": output_dir,
             "verbose": verbose,
@@ -247,6 +381,7 @@ def export(
 
         rprint(f"📤 Exporting Analysis Results: [cyan]{portfolio}[/cyan]")
         rprint(f"   Format: [yellow]{format}[/yellow]")
+        rprint(f"   Data Source: [yellow]{data_source_status}[/yellow]")
         rprint("-" * 60)
 
         # Import SPDS modules
@@ -257,7 +392,7 @@ def export(
         from ...tools.services.divergence_export_service import DivergenceExportService
 
         # Run analysis
-        analyzer = PortfolioStatisticalAnalyzer(portfolio, trade_history)
+        analyzer = PortfolioStatisticalAnalyzer(portfolio, use_trade_history)
         results = asyncio.run(_run_analyzer_analysis(analyzer))
         summary = analyzer.get_summary_report(results)
 
@@ -498,21 +633,24 @@ async def _run_export_operations(results, summary, portfolio, format, config):
     export_service = DivergenceExportService(config)
     backtesting_service = BacktestingParameterExportService(config)
 
+    # Convert results dict to list for export service compatibility
+    results_list = list(results.values()) if isinstance(results, dict) else results
+
     # Export based on format
     if format == "all" or format == "json":
-        await export_service.export_json(results, portfolio)
+        await export_service.export_json(results_list, portfolio)
         rprint("[green]✅ JSON export completed[/green]")
 
     if format == "all" or format == "csv":
-        await export_service.export_csv(results, portfolio)
+        await export_service.export_csv(results_list, portfolio)
         rprint("[green]✅ CSV export completed[/green]")
 
     if format == "all" or format == "markdown":
-        await export_service.export_markdown(results, summary, portfolio)
+        await export_service.export_markdown(results_list, portfolio)
         rprint("[green]✅ Markdown export completed[/green]")
 
     # Export backtesting parameters
-    await backtesting_service.export_backtesting_parameters(results, portfolio)
+    await backtesting_service.export_backtesting_parameters(results_list, portfolio)
     rprint("[green]✅ Backtesting parameters exported[/green]")
 
 
@@ -530,15 +668,20 @@ async def _export_all_formats(
 
         export_service = DivergenceExportService(config)
 
+        # Convert results dict to list for export service compatibility
+        results_list = list(results.values()) if isinstance(results, dict) else results
+
         # Export JSON and CSV
-        await export_service.export_json(results, portfolio)
-        await export_service.export_csv(results, portfolio)
-        await export_service.export_markdown(results, summary, portfolio)
+        await export_service.export_json(results_list, portfolio)
+        await export_service.export_csv(results_list, portfolio)
+        await export_service.export_markdown(results_list, portfolio)
 
         # Export backtesting parameters if requested
         if export_backtesting:
             backtesting_service = BacktestingParameterExportService(config)
-            await backtesting_service.export_backtesting_parameters(results, portfolio)
+            await backtesting_service.export_backtesting_parameters(
+                results_list, portfolio
+            )
 
         # CRITICAL: Validate exports and use fallback if needed
         validator = ExportValidator()
@@ -616,8 +759,27 @@ def _output_table_results(results, summary, analyzer):
         strategy_name = getattr(result, "strategy_name", name)
         ticker = getattr(result, "ticker", "Unknown")
         exit_signal = getattr(result, "exit_signal", "HOLD")
-        confidence = getattr(result, "confidence", "N/A")
-        p_value = getattr(result, "p_value", "N/A")
+        # Fix confidence extraction - try multiple fields
+        confidence = "N/A"
+        if hasattr(result, "overall_confidence"):
+            confidence = f"{result.overall_confidence:.1f}%"
+        elif hasattr(result, "confidence"):
+            confidence = f"{result.confidence:.1f}%"
+        elif hasattr(result, "exit_signal") and hasattr(
+            result.exit_signal, "confidence"
+        ):
+            confidence = f"{result.exit_signal.confidence:.1f}%"
+
+        # Fix p_value extraction
+        p_value = "N/A"
+        if hasattr(result, "p_value"):
+            p_value = f"{result.p_value:.3f}"
+        elif hasattr(result, "exit_signal") and hasattr(
+            result.exit_signal, "confidence"
+        ):
+            # Convert confidence to approximate p-value
+            conf_val = result.exit_signal.confidence
+            p_value = f"{(100 - conf_val) / 100:.3f}"
 
         if hasattr(exit_signal, "signal_type"):
             exit_signal = exit_signal.signal_type.value

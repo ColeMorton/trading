@@ -74,6 +74,47 @@ class SPDSConfig:
     TIMEFRAMES: List[str] = field(default_factory=lambda: ["D", "3D", "W", "2W"])
     CONVERGENCE_THRESHOLD: float = 0.85
 
+    # Dual-Source Analysis Configuration
+    DUAL_SOURCE_CONVERGENCE_THRESHOLD: float = (
+        0.7  # Minimum convergence score for reliable dual-source analysis
+    )
+    TRIPLE_LAYER_CONVERGENCE_THRESHOLD: float = (
+        0.75  # Asset + Trade History + Equity convergence threshold
+    )
+    SOURCE_AGREEMENT_THRESHOLD: float = (
+        0.8  # Threshold for considering sources in strong agreement
+    )
+    SOURCE_DIVERGENCE_THRESHOLD: float = (
+        0.5  # Below this, sources are considered significantly divergent
+    )
+
+    # Source Reliability Weights
+    ASSET_LAYER_WEIGHT: float = 0.3  # Weight for asset distribution analysis
+    TRADE_HISTORY_WEIGHT: float = 0.4  # Weight for trade history analysis
+    EQUITY_CURVE_WEIGHT: float = 0.3  # Weight for equity curve analysis
+
+    # Multi-Source Confidence Thresholds
+    MIN_TRADE_COUNT_FOR_RELIABILITY: int = (
+        20  # Minimum trades for reliable trade history analysis
+    )
+    MIN_EQUITY_PERIODS_FOR_RELIABILITY: int = (
+        50  # Minimum periods for reliable equity analysis
+    )
+    MULTI_SOURCE_CONFIDENCE_BOOST: float = (
+        0.15  # Confidence boost when sources agree strongly
+    )
+
+    # Source-Specific Exit Signal Adjustments
+    DUAL_SOURCE_SIGNAL_ADJUSTMENT: bool = (
+        True  # Enable signal adjustments based on source agreement
+    )
+    CONSERVATIVE_MODE_ON_DIVERGENCE: bool = (
+        True  # Be more conservative when sources diverge
+    )
+    AGGRESSIVE_MODE_ON_CONVERGENCE: bool = (
+        True  # Be more aggressive when sources strongly agree
+    )
+
     # Bootstrap Validation
     ENABLE_BOOTSTRAP: bool = True
     BOOTSTRAP_ITERATIONS: int = 1000
@@ -123,8 +164,9 @@ class SPDSConfig:
         if not self.PORTFOLIO:
             raise ValueError("PORTFOLIO parameter is required (e.g., 'risk_on.csv')")
 
+        # Auto-append .csv extension if not present
         if not self.PORTFOLIO.endswith(".csv"):
-            raise ValueError("PORTFOLIO must be a CSV filename (e.g., 'risk_on.csv')")
+            self.PORTFOLIO = self.PORTFOLIO + ".csv"
 
         # Check if portfolio file exists
         portfolio_file = self.get_portfolio_file_path()

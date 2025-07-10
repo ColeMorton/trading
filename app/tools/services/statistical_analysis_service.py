@@ -28,12 +28,15 @@ from ..models.statistical_analysis_models import (
     DataSource,
     DivergenceMetrics,
     DualLayerConvergence,
+    DualSourceConvergence,
+    EquityAnalysis,
     PercentileMetrics,
     ProbabilisticExitSignal,
     SignalType,
     StatisticalAnalysisResult,
     StatisticalMetrics,
     StrategyDistributionAnalysis,
+    TradeHistoryAnalysis,
     TradeHistoryMetrics,
     VaRMetrics,
 )
@@ -231,6 +234,16 @@ class StatisticalAnalysisService:
                 asset_analysis,
             )
 
+            # Generate source agreement summary
+            source_agreement_summary = self._generate_source_agreement_summary(
+                strategy_analysis
+            )
+
+            # Generate data quality assessment
+            data_quality_assessment = self._generate_data_quality_assessment(
+                strategy_analysis
+            )
+
             # Create complete result
             result = StatisticalAnalysisResult(
                 strategy_name=strategy_name,
@@ -240,11 +253,15 @@ class StatisticalAnalysisService:
                 strategy_analysis=strategy_analysis,
                 asset_divergence=asset_divergence,
                 strategy_divergence=strategy_divergence,
+                trade_history_divergence=None,  # Can be populated later for source-specific divergence
+                equity_curve_divergence=None,  # Can be populated later for source-specific divergence
                 dual_layer_convergence=dual_layer_convergence,
                 exit_signal=exit_signal,
                 trade_history_metrics=trade_history_metrics,
                 overall_confidence=overall_confidence,
                 recommendation_summary=recommendation_summary,
+                source_agreement_summary=source_agreement_summary,
+                data_quality_assessment=data_quality_assessment,
                 configuration_hash=self._get_config_hash(),
                 data_sources_used=self._get_data_sources_used(use_trade_history),
                 raw_analysis_data=raw_analysis_data,
@@ -444,9 +461,13 @@ class StatisticalAnalysisService:
             raise
 
     async def _analyze_strategy_performance(
-        self, strategy_name: str, ticker: str, use_trade_history: bool
+        self,
+        strategy_name: str,
+        ticker: str,
+        use_trade_history: bool = None,
+        enable_dual_source: bool = True,
     ) -> StrategyDistributionAnalysis:
-        """Analyze strategy-level performance distribution (Layer 2) using coordinated data loading"""
+        """Enhanced strategy-level performance distribution analysis (Layer 2) with dual-source support"""
         try:
             # Use coordinator for data loading if available
             if self.use_coordinator and self.data_coordinator:
@@ -462,11 +483,52 @@ class StatisticalAnalysisService:
                         )
                 except StrategyDataCoordinatorError:
                     self.logger.debug(
-                        f"Coordinator data not available for {strategy_name}, falling back to legacy analysis"
+                        f"Coordinator data not available for {strategy_name}, falling back to analysis"
                     )
                     self.metrics["coordinator_data_loads"] += 1
 
-            # Fallback to legacy analysis methods
+            # Determine analysis mode based on configuration and data availability
+            if enable_dual_source:
+                # Check availability of both data sources
+                trade_history_available = await self._check_trade_history_availability(
+                    strategy_name, ticker
+                )
+                equity_data_available = await self._check_equity_data_availability(
+                    strategy_name, ticker
+                )
+
+                if trade_history_available and equity_data_available:
+                    # Both sources available - perform dual-source analysis
+                    self.logger.info(
+                        f"Performing dual-source analysis for {strategy_name} on {ticker}"
+                    )
+                    return await self._analyze_combined_strategy_performance(
+                        strategy_name, ticker
+                    )
+                elif trade_history_available and (
+                    use_trade_history is None or use_trade_history
+                ):
+                    # Only trade history available or preferred
+                    self.logger.info(
+                        f"Using trade history analysis for {strategy_name} on {ticker}"
+                    )
+                    return await self._analyze_trade_history_performance(
+                        strategy_name, ticker
+                    )
+                elif equity_data_available:
+                    # Only equity data available or fallback
+                    self.logger.info(
+                        f"Using equity curve analysis for {strategy_name} on {ticker}"
+                    )
+                    return await self._analyze_equity_curve_performance(
+                        strategy_name, ticker
+                    )
+                else:
+                    raise FileNotFoundError(
+                        f"No data sources available for {strategy_name} on {ticker}"
+                    )
+
+            # Legacy single-source mode (for compatibility)
             if use_trade_history:
                 return await self._analyze_trade_history_performance(
                     strategy_name, ticker
@@ -511,6 +573,7 @@ class StatisticalAnalysisService:
                 strategy_name=strategy_name,
                 ticker=ticker,
                 timeframe="trade_level",
+                data_sources_used=[DataSource.TRADE_HISTORY],
                 data_source=DataSource.TRADE_HISTORY,
                 statistics=trade_data["return_statistics"],
                 percentiles=trade_data["return_percentiles"],
@@ -525,6 +588,7 @@ class StatisticalAnalysisService:
                 bootstrap_results=bootstrap_results,
                 confidence_level=confidence_level,
                 confidence_score=confidence_score,
+                combined_confidence=confidence_score,
             )
 
         except Exception as e:
@@ -548,21 +612,57 @@ class StatisticalAnalysisService:
     ) -> StrategyDistributionAnalysis:
         """Analyze strategy performance using equity curve data"""
         try:
-            # Search for equity data files
+            # Search for equity data files with enhanced pattern matching
             equity_file = None
             for equity_path in self.config.EQUITY_DATA_PATHS:
-                # Try the correct naming pattern: {strategy_name}.csv
-                potential_file = Path(equity_path) / f"{strategy_name}.csv"
+                equity_dir = Path(equity_path)
+                if not equity_dir.exists():
+                    continue
+
+                # Pattern 1: Exact strategy name
+                potential_file = equity_dir / f"{strategy_name}.csv"
                 if potential_file.exists():
                     equity_file = potential_file
                     break
 
-                # Fallback to old naming pattern for compatibility
-                potential_file_old = (
-                    Path(equity_path) / f"{strategy_name}_{ticker}_equity.csv"
-                )
+                # Pattern 2: Legacy naming with ticker and equity suffix
+                potential_file_old = equity_dir / f"{strategy_name}_{ticker}_equity.csv"
                 if potential_file_old.exists():
                     equity_file = potential_file_old
+                    break
+
+                # Pattern 3: Ticker + Strategy pattern (e.g., PWR_SMA_66_78.csv)
+                if "_" in strategy_name:
+                    parts = strategy_name.split("_")
+                    if len(parts) >= 3:  # ticker_type_window1_window2
+                        potential_file_ticker = (
+                            equity_dir
+                            / f"{ticker}_{parts[-3]}_{parts[-2]}_{parts[-1]}.csv"
+                        )
+                        if potential_file_ticker.exists():
+                            equity_file = potential_file_ticker
+                            break
+
+                # Pattern 4: Glob pattern matching for flexible file discovery
+                import glob
+
+                pattern_searches = [
+                    f"{ticker}*{strategy_name.split('_')[-1]}*.csv",  # ticker + last component
+                    f"{ticker}_*.csv",  # any file starting with ticker
+                    f"*{strategy_name.replace(ticker + '_', '')}*.csv",  # strategy part without ticker
+                ]
+
+                for pattern in pattern_searches:
+                    glob_pattern = str(equity_dir / pattern)
+                    matches = glob.glob(glob_pattern)
+                    if matches:
+                        equity_file = Path(matches[0])
+                        self.logger.info(
+                            f"Found equity data file for {strategy_name} using pattern '{pattern}': {equity_file}"
+                        )
+                        break
+
+                if equity_file:
                     break
 
             if not equity_file:
@@ -618,6 +718,7 @@ class StatisticalAnalysisService:
                 strategy_name=strategy_name,
                 ticker=ticker,
                 timeframe="D",  # Assuming daily equity data
+                data_sources_used=[DataSource.EQUITY_CURVES],
                 data_source=DataSource.EQUITY_CURVES,
                 statistics=stats,
                 percentiles=percentiles,
@@ -629,11 +730,142 @@ class StatisticalAnalysisService:
                 bootstrap_results=bootstrap_results,
                 confidence_level=confidence_level,
                 confidence_score=confidence_score,
+                combined_confidence=confidence_score,
             )
 
         except Exception as e:
             self.logger.error(
                 f"Failed to analyze equity curve for {strategy_name} on {ticker}: {e}"
+            )
+            raise
+
+    async def _check_trade_history_availability(
+        self, strategy_name: str, ticker: str
+    ) -> bool:
+        """Check if trade history data is available for the strategy"""
+        try:
+            # Use trade history analyzer to check availability
+            trade_data = await self.trade_history_analyzer.analyze_strategy_trades(
+                strategy_name, ticker
+            )
+            return trade_data is not None and trade_data.get("total_trades", 0) > 0
+        except Exception:
+            return False
+
+    async def _check_equity_data_availability(
+        self, strategy_name: str, ticker: str
+    ) -> bool:
+        """Check if equity curve data is available for the strategy with enhanced pattern matching"""
+        try:
+            # Search for equity data files with multiple naming patterns
+            for equity_path in self.config.EQUITY_DATA_PATHS:
+                equity_dir = Path(equity_path)
+                if not equity_dir.exists():
+                    continue
+
+                # Pattern 1: Exact strategy name
+                potential_file = equity_dir / f"{strategy_name}.csv"
+                if potential_file.exists():
+                    return True
+
+                # Pattern 2: Legacy naming with ticker and equity suffix
+                potential_file_old = equity_dir / f"{strategy_name}_{ticker}_equity.csv"
+                if potential_file_old.exists():
+                    return True
+
+                # Pattern 3: Ticker + Strategy pattern (e.g., PWR_SMA_66_78.csv)
+                if "_" in strategy_name:
+                    # Try different combinations based on strategy name components
+                    parts = strategy_name.split("_")
+                    if len(parts) >= 3:  # ticker_type_window1_window2
+                        potential_file_ticker = (
+                            equity_dir
+                            / f"{ticker}_{parts[-3]}_{parts[-2]}_{parts[-1]}.csv"
+                        )
+                        if potential_file_ticker.exists():
+                            return True
+
+                # Pattern 4: Search by glob patterns for flexible matching
+                import glob
+
+                pattern_searches = [
+                    f"{ticker}*{strategy_name.split('_')[-1]}*.csv",  # ticker + last component
+                    f"{ticker}_*.csv",  # any file starting with ticker
+                    f"*{strategy_name.replace(ticker + '_', '')}*.csv",  # strategy part without ticker
+                ]
+
+                for pattern in pattern_searches:
+                    glob_pattern = str(equity_dir / pattern)
+                    matches = glob.glob(glob_pattern)
+                    if matches:
+                        self.logger.info(
+                            f"Found equity data file for {strategy_name}: {matches[0]}"
+                        )
+                        return True
+
+            return False
+        except Exception as e:
+            self.logger.warning(
+                f"Error checking equity data availability for {strategy_name}: {e}"
+            )
+            return False
+
+    async def _analyze_combined_strategy_performance(
+        self, strategy_name: str, ticker: str
+    ) -> StrategyDistributionAnalysis:
+        """Analyze strategy performance using BOTH trade history AND equity curve data"""
+        try:
+            # Perform both analyses in parallel
+            trade_analysis_task = self._analyze_trade_history_performance_raw(
+                strategy_name, ticker
+            )
+            equity_analysis_task = self._analyze_equity_curve_performance_raw(
+                strategy_name, ticker
+            )
+
+            trade_analysis, equity_analysis = await asyncio.gather(
+                trade_analysis_task, equity_analysis_task, return_exceptions=True
+            )
+
+            # Handle analysis results
+            trade_history_analysis = None
+            equity_curve_analysis = None
+
+            if not isinstance(trade_analysis, Exception):
+                trade_history_analysis = trade_analysis
+                self.logger.info(
+                    f"Trade history analysis completed for {strategy_name}"
+                )
+            else:
+                self.logger.warning(
+                    f"Trade history analysis failed for {strategy_name}: {trade_analysis}"
+                )
+
+            if not isinstance(equity_analysis, Exception):
+                equity_curve_analysis = equity_analysis
+                self.logger.info(f"Equity curve analysis completed for {strategy_name}")
+            else:
+                self.logger.warning(
+                    f"Equity curve analysis failed for {strategy_name}: {equity_analysis}"
+                )
+
+            # Ensure at least one analysis succeeded
+            if trade_history_analysis is None and equity_curve_analysis is None:
+                raise ValueError(
+                    f"Both trade history and equity analysis failed for {strategy_name}"
+                )
+
+            # Combine analyses and calculate convergence
+            return await self._combine_strategy_analyses(
+                strategy_name=strategy_name,
+                ticker=ticker,
+                trade_history_analysis=trade_history_analysis,
+                equity_analysis=equity_curve_analysis,
+            )
+
+        except Exception as e:
+            self.logger.error(
+                f"Failed combined analysis for {strategy_name} on {ticker}: {e}"
             )
             raise
 
@@ -678,7 +910,7 @@ class StatisticalAnalysisService:
         strategy_divergence: DivergenceMetrics,
         current_position_data: Optional[Dict],
     ) -> ProbabilisticExitSignal:
-        """Generate probabilistic exit signal with confidence weighting"""
+        """Enhanced probabilistic exit signal generation with multi-source confidence weighting"""
         try:
             # Calculate signal strength for each layer
             primary_strength = self._calculate_primary_signal_strength(
@@ -691,39 +923,102 @@ class StatisticalAnalysisService:
                 asset_analysis, strategy_analysis
             )
 
-            # Calculate component scores
+            # Enhanced multi-source signal contributions
+            asset_layer_contribution = self._calculate_asset_layer_contribution(
+                asset_analysis, asset_divergence
+            )
+
+            trade_history_contribution = None
+            equity_curve_contribution = None
+            intra_strategy_consistency = None
+            source_divergence_warning = None
+
+            # Calculate source-specific contributions for dual-source analysis
+            if (
+                strategy_analysis.trade_history_analysis
+                and strategy_analysis.equity_analysis
+                and strategy_analysis.dual_source_convergence
+            ):
+                trade_history_contribution = self._calculate_trade_history_contribution(
+                    strategy_analysis.trade_history_analysis
+                )
+                equity_curve_contribution = self._calculate_equity_curve_contribution(
+                    strategy_analysis.equity_analysis
+                )
+
+                # Calculate intra-strategy consistency
+                intra_strategy_consistency = (
+                    strategy_analysis.dual_source_convergence.convergence_score
+                )
+
+                # Generate source divergence warning if needed
+                if strategy_analysis.dual_source_convergence.has_significant_divergence:
+                    source_divergence_warning = (
+                        f"Significant divergence detected between trade history and equity curve analysis. "
+                        f"Convergence score: {strategy_analysis.dual_source_convergence.convergence_score:.2f}"
+                    )
+
+            # Enhanced multi-source confidence assessment
+            data_source_confidence = self._calculate_data_source_confidence(
+                asset_analysis, strategy_analysis
+            )
+
+            combined_source_confidence = self._calculate_combined_source_confidence(
+                data_source_confidence, strategy_analysis
+            )
+
+            source_reliability_score = self._calculate_source_reliability_score(
+                strategy_analysis, dual_layer_convergence
+            )
+
+            # Calculate component scores with multi-source enhancements
             dual_layer_score = dual_layer_convergence.convergence_score
+            triple_layer_score = dual_layer_convergence.triple_layer_convergence
             timeframe_score = dual_layer_convergence.cross_timeframe_score
             risk_adjusted_score = self._calculate_risk_adjusted_score(
                 asset_analysis, strategy_analysis
             )
 
-            # Sample size confidence adjustment
-            sample_size_confidence = strategy_analysis.confidence_score
+            # Enhanced sample size confidence with multi-source weighting
+            sample_size_confidence = self._calculate_enhanced_sample_size_confidence(
+                strategy_analysis, combined_source_confidence
+            )
 
-            # Determine signal type based on convergence and thresholds
-            signal_type = self._determine_signal_type(
+            # Determine signal type with multi-source analysis
+            signal_type = self._determine_enhanced_signal_type(
                 dual_layer_convergence,
                 asset_divergence,
                 strategy_divergence,
                 primary_strength,
+                strategy_analysis,
             )
 
-            # Calculate overall confidence
-            base_confidence = (
-                (primary_strength + secondary_strength + tertiary_strength) / 3 * 100
+            # Enhanced confidence calculation with multi-source weighting
+            base_confidence = self._calculate_enhanced_base_confidence(
+                primary_strength,
+                secondary_strength,
+                tertiary_strength,
+                asset_layer_contribution,
+                trade_history_contribution,
+                equity_curve_contribution,
             )
-            adjusted_confidence = base_confidence * sample_size_confidence
 
-            # Generate expected outcomes
-            expected_upside = self._estimate_expected_upside(
-                signal_type, asset_divergence, strategy_divergence
+            adjusted_confidence = (
+                base_confidence * sample_size_confidence * combined_source_confidence
+            )
+
+            # Enhanced expected outcomes with multi-source insights
+            expected_upside = self._estimate_enhanced_expected_upside(
+                signal_type, asset_divergence, strategy_divergence, strategy_analysis
             )
             expected_timeline = self._estimate_expected_timeline(
                 signal_type, strategy_analysis
             )
-            risk_warning = self._generate_risk_warning(
-                signal_type, strategy_analysis, dual_layer_convergence
+            risk_warning = self._generate_enhanced_risk_warning(
+                signal_type,
+                strategy_analysis,
+                dual_layer_convergence,
+                source_divergence_warning,
             )
 
             return ProbabilisticExitSignal(
@@ -732,14 +1027,23 @@ class StatisticalAnalysisService:
                 primary_signal_strength=primary_strength,
                 secondary_signal_strength=secondary_strength,
                 tertiary_signal_strength=tertiary_strength,
+                asset_layer_contribution=asset_layer_contribution,
+                trade_history_contribution=trade_history_contribution,
+                equity_curve_contribution=equity_curve_contribution,
                 dual_layer_score=dual_layer_score,
+                triple_layer_score=triple_layer_score,
                 timeframe_score=timeframe_score,
                 risk_adjusted_score=risk_adjusted_score,
+                intra_strategy_consistency=intra_strategy_consistency,
+                source_reliability_score=source_reliability_score,
                 sample_size_confidence=sample_size_confidence,
                 statistical_validity=strategy_analysis.confidence_level,
+                data_source_confidence=data_source_confidence,
+                combined_source_confidence=combined_source_confidence,
                 expected_upside=expected_upside,
                 expected_timeline=expected_timeline,
                 risk_warning=risk_warning,
+                source_divergence_warning=source_divergence_warning,
             )
 
         except Exception as e:
@@ -982,6 +1286,11 @@ class StatisticalAnalysisService:
         primary_strength: float,
     ) -> SignalType:
         """Determine signal type based on analysis results"""
+        # Get the maximum percentile rank
+        max_percentile_rank = max(
+            asset_div.percentile_rank, strategy_div.percentile_rank
+        )
+
         # Check for immediate exit conditions
         if (
             convergence.convergence_score > 0.85
@@ -993,15 +1302,19 @@ class StatisticalAnalysisService:
             return SignalType.EXIT_IMMEDIATELY
 
         # Check for strong sell conditions
-        elif convergence.convergence_score > 0.70 and max(
-            asset_div.percentile_rank, strategy_div.percentile_rank
-        ) > self.config.get_percentile_threshold("strong_sell"):
+        elif (
+            convergence.convergence_score > 0.70
+            and max_percentile_rank
+            > self.config.get_percentile_threshold("strong_sell")
+        ):
             return SignalType.STRONG_SELL
 
-        # Check for sell conditions
-        elif convergence.convergence_score > 0.60 and max(
-            asset_div.percentile_rank, strategy_div.percentile_rank
-        ) > self.config.get_percentile_threshold("sell"):
+        # FIXED: Check for sell conditions - use P70 threshold (70.0) instead of P80
+        # If percentile rank > 70.0, it means the value exceeds the P70 threshold
+        elif (
+            convergence.convergence_score > 0.60
+            and max_percentile_rank > self.config.get_percentile_threshold("hold")
+        ):
             return SignalType.SELL
 
         # Default to hold
@@ -1065,24 +1378,72 @@ class StatisticalAnalysisService:
         exit_signal: ProbabilisticExitSignal,
     ) -> float:
         """Calculate overall analysis confidence"""
-        # Weight different confidence factors
-        signal_confidence = exit_signal.confidence
-        convergence_confidence = convergence.convergence_score * 100
-        sample_size_confidence = strategy_analysis.confidence_score * 100
-        data_quality_confidence = (
-            90.0 if asset_analysis.statistics.count > 1000 else 70.0
-        )
+        try:
+            # Weight different confidence factors
+            signal_confidence = (
+                exit_signal.confidence
+                if exit_signal and hasattr(exit_signal, "confidence")
+                else 50.0
+            )
+            convergence_confidence = (
+                convergence.convergence_score * 100
+                if convergence and hasattr(convergence, "convergence_score")
+                else 50.0
+            )
+            sample_size_confidence = (
+                strategy_analysis.confidence_score * 100
+                if strategy_analysis and hasattr(strategy_analysis, "confidence_score")
+                else 50.0
+            )
+            data_quality_confidence = (
+                90.0
+                if asset_analysis
+                and hasattr(asset_analysis, "statistics")
+                and hasattr(asset_analysis.statistics, "count")
+                and asset_analysis.statistics.count > 1000
+                else 70.0
+            )
 
-        # Weighted average
-        weights = [0.4, 0.3, 0.2, 0.1]  # Signal, convergence, sample size, data quality
-        confidences = [
-            signal_confidence,
-            convergence_confidence,
-            sample_size_confidence,
-            data_quality_confidence,
-        ]
+            # Enhanced debug logging
+            self.logger.info(
+                f"Confidence calculation inputs: "
+                f"exit_signal={exit_signal is not None}, "
+                f"convergence={convergence is not None}, "
+                f"strategy_analysis={strategy_analysis is not None}, "
+                f"asset_analysis={asset_analysis is not None}"
+            )
 
-        return sum(w * c for w, c in zip(weights, confidences))
+            self.logger.info(
+                f"Confidence values: signal={signal_confidence:.1f}, "
+                f"convergence={convergence_confidence:.1f}, "
+                f"sample_size={sample_size_confidence:.1f}, "
+                f"data_quality={data_quality_confidence:.1f}"
+            )
+
+            # Weighted average
+            weights = [
+                0.4,
+                0.3,
+                0.2,
+                0.1,
+            ]  # Signal, convergence, sample size, data quality
+            confidences = [
+                signal_confidence,
+                convergence_confidence,
+                sample_size_confidence,
+                data_quality_confidence,
+            ]
+
+            calculated_confidence = sum(w * c for w, c in zip(weights, confidences))
+            self.logger.info(
+                f"Final calculated confidence: {calculated_confidence:.1f}"
+            )
+
+            return calculated_confidence
+
+        except Exception as e:
+            self.logger.error(f"Failed to calculate overall confidence: {e}")
+            return 50.0  # Default confidence
 
     def _generate_recommendation_summary(
         self,
@@ -1583,6 +1944,12 @@ class StatisticalAnalysisService:
                 strategy_name=strategy_data.strategy_name,
                 ticker=strategy_data.ticker,
                 timeframe=strategy_data.timeframe or "D",
+                data_sources_used=[
+                    DataSource.TRADE_HISTORY
+                    if use_trade_history
+                    else DataSource.EQUITY_CURVES
+                ],
+                combined_confidence=confidence_score,
                 data_source=DataSource.TRADE_HISTORY
                 if use_trade_history
                 else DataSource.EQUITY_CURVES,
@@ -1607,3 +1974,821 @@ class StatisticalAnalysisService:
             )
             # Re-raise to trigger fallback to legacy analysis methods
             raise
+
+    async def _analyze_trade_history_performance_raw(
+        self, strategy_name: str, ticker: str
+    ) -> TradeHistoryAnalysis:
+        """Analyze strategy performance using trade history data returning raw TradeHistoryAnalysis"""
+        try:
+            # Use trade history analyzer
+            trade_data = await self.trade_history_analyzer.analyze_strategy_trades(
+                strategy_name, ticker
+            )
+
+            # Calculate additional trade-specific metrics
+            mfe_values = trade_data.get("mfe_values", [])
+            mae_values = trade_data.get("mae_values", [])
+            durations = trade_data.get("durations", [])
+
+            # MFE statistics
+            mfe_statistics = self._calculate_statistical_metrics(
+                pd.Series(mfe_values) if mfe_values else pd.Series([0])
+            )
+
+            # MAE statistics
+            mae_statistics = self._calculate_statistical_metrics(
+                pd.Series(mae_values) if mae_values else pd.Series([0])
+            )
+
+            # Duration statistics
+            duration_statistics = self._calculate_statistical_metrics(
+                pd.Series(durations) if durations else pd.Series([0])
+            )
+
+            # Trade quality metrics
+            total_trades = trade_data.get("total_trades", 0)
+            winning_trades = trade_data.get("winning_trades", 0)
+            losing_trades = total_trades - winning_trades
+
+            # Exit efficiency calculations
+            average_exit_efficiency = 0.7  # Default estimate
+            mfe_capture_ratio = 0.6  # Default estimate
+
+            if mfe_values and trade_data.get("returns"):
+                returns = trade_data["returns"]
+                if len(returns) == len(mfe_values):
+                    # Calculate actual capture ratio
+                    positive_returns = [r for r in returns if r > 0]
+                    positive_mfe = [
+                        mfe_values[i] for i, r in enumerate(returns) if r > 0
+                    ]
+                    if positive_returns and positive_mfe:
+                        mfe_capture_ratio = sum(positive_returns) / sum(positive_mfe)
+                        mfe_capture_ratio = min(1.0, max(0.0, mfe_capture_ratio))
+
+            # Confidence assessment
+            confidence_level = self.config.get_confidence_level(total_trades)
+            confidence_score = self.config.get_confidence_threshold(total_trades)
+
+            return TradeHistoryAnalysis(
+                statistics=trade_data["return_statistics"],
+                percentiles=trade_data["return_percentiles"],
+                var_metrics=trade_data["var_metrics"],
+                mfe_statistics=mfe_statistics,
+                mae_statistics=mae_statistics,
+                duration_statistics=duration_statistics,
+                win_rate=trade_data.get("win_rate", 0.0),
+                profit_factor=trade_data.get("profit_factor", 1.0),
+                average_exit_efficiency=average_exit_efficiency,
+                mfe_capture_ratio=mfe_capture_ratio,
+                total_trades=total_trades,
+                winning_trades=winning_trades,
+                losing_trades=losing_trades,
+                confidence_level=confidence_level,
+                confidence_score=confidence_score,
+            )
+
+        except Exception as e:
+            self.logger.error(
+                f"Failed to analyze trade history for {strategy_name} on {ticker}: {e}"
+            )
+            raise
+
+    async def _analyze_equity_curve_performance_raw(
+        self, strategy_name: str, ticker: str
+    ) -> EquityAnalysis:
+        """Analyze strategy performance using equity curve data returning raw EquityAnalysis"""
+        try:
+            # Search for equity data files
+            equity_file = None
+            for equity_path in self.config.EQUITY_DATA_PATHS:
+                # Try the correct naming pattern: {strategy_name}.csv
+                potential_file = Path(equity_path) / f"{strategy_name}.csv"
+                if potential_file.exists():
+                    equity_file = potential_file
+                    break
+
+                # Fallback to old naming pattern for compatibility
+                potential_file_old = (
+                    Path(equity_path) / f"{strategy_name}_{ticker}_equity.csv"
+                )
+                if potential_file_old.exists():
+                    equity_file = potential_file_old
+                    break
+
+            if not equity_file:
+                raise FileNotFoundError(
+                    f"Equity data not found for {strategy_name} on {ticker}"
+                )
+
+            # Load and process equity data
+            if self.enable_memory_optimization:
+                df = self.memory_optimizer.read_csv_optimized(str(equity_file))
+            else:
+                df = pd.read_csv(equity_file)
+
+            # Calculate returns from equity curve
+            if "equity_change_pct" in df.columns:
+                returns = df["equity_change_pct"].dropna()
+            elif "equity" in df.columns:
+                returns = df["equity"].pct_change().dropna()
+            else:
+                raise ValueError("No suitable equity column found in data")
+
+            # Calculate statistics
+            stats = self._calculate_statistical_metrics(returns)
+            percentiles = self._calculate_percentile_metrics(returns)
+            var_metrics = self._calculate_var_metrics(returns)
+
+            # Performance metrics
+            sharpe_ratio = (
+                returns.mean() / returns.std() * np.sqrt(252)
+                if returns.std() > 0
+                else 0.0
+            )
+
+            max_drawdown = self._calculate_max_drawdown(
+                df.get("equity", returns.cumsum())
+            )
+
+            # Recovery factor (total return / max drawdown)
+            total_return = returns.sum()
+            recovery_factor = (
+                abs(total_return / max_drawdown) if max_drawdown != 0 else 0.0
+            )
+
+            # Calmar ratio (annualized return / max drawdown)
+            annualized_return = returns.mean() * 252
+            calmar_ratio = (
+                abs(annualized_return / max_drawdown) if max_drawdown != 0 else 0.0
+            )
+
+            # Volatility metrics
+            volatility = returns.std() * np.sqrt(252)  # Annualized volatility
+            downside_returns = returns[returns < 0]
+            downside_deviation = (
+                downside_returns.std() * np.sqrt(252)
+                if len(downside_returns) > 0
+                else 0.0
+            )
+
+            # Confidence assessment
+            confidence_level = self.config.get_confidence_level(len(returns))
+            confidence_score = self.config.get_confidence_threshold(len(returns))
+
+            return EquityAnalysis(
+                statistics=stats,
+                percentiles=percentiles,
+                var_metrics=var_metrics,
+                sharpe_ratio=sharpe_ratio,
+                max_drawdown=max_drawdown,
+                recovery_factor=recovery_factor,
+                calmar_ratio=calmar_ratio,
+                volatility=volatility,
+                downside_deviation=downside_deviation,
+                confidence_level=confidence_level,
+                confidence_score=confidence_score,
+            )
+
+        except Exception as e:
+            self.logger.error(
+                f"Failed to analyze equity curve for {strategy_name} on {ticker}: {e}"
+            )
+            raise
+
+    async def _combine_strategy_analyses(
+        self,
+        strategy_name: str,
+        ticker: str,
+        trade_history_analysis: Optional[TradeHistoryAnalysis],
+        equity_analysis: Optional[EquityAnalysis],
+    ) -> StrategyDistributionAnalysis:
+        """Combine trade history and equity curve analyses into unified StrategyDistributionAnalysis"""
+        try:
+            # Determine data sources used
+            data_sources_used = []
+            if trade_history_analysis:
+                data_sources_used.append(DataSource.TRADE_HISTORY)
+            if equity_analysis:
+                data_sources_used.append(DataSource.EQUITY_CURVES)
+
+            # Select primary source for combined metrics (prefer trade history)
+            primary_analysis = (
+                trade_history_analysis if trade_history_analysis else equity_analysis
+            )
+
+            if not primary_analysis:
+                raise ValueError("At least one analysis must be provided")
+
+            # Calculate convergence between sources if both are available
+            dual_source_convergence = None
+            if trade_history_analysis and equity_analysis:
+                dual_source_convergence = await self._calculate_dual_source_convergence(
+                    trade_history_analysis, equity_analysis
+                )
+
+            # Combined confidence assessment
+            analysis_agreement_score = None
+            combined_confidence = primary_analysis.confidence_score
+
+            if dual_source_convergence:
+                analysis_agreement_score = dual_source_convergence.convergence_score
+                # Weight confidence by convergence strength
+                combined_confidence = (
+                    primary_analysis.confidence_score * 0.7
+                    + dual_source_convergence.convergence_score * 0.3
+                )
+
+            # Source agreement summary for reporting
+            source_agreement_summary = "Single source analysis"
+            if trade_history_analysis and equity_analysis:
+                convergence_strength = (
+                    dual_source_convergence.convergence_strength
+                    if dual_source_convergence
+                    else "unknown"
+                )
+                source_agreement_summary = (
+                    f"Dual-source analysis with {convergence_strength} convergence"
+                )
+
+            # Extract combined metrics (prioritize trade history, fallback to equity)
+            win_rate = (
+                trade_history_analysis.win_rate if trade_history_analysis else None
+            )
+            profit_factor = (
+                trade_history_analysis.profit_factor if trade_history_analysis else None
+            )
+            sharpe_ratio = equity_analysis.sharpe_ratio if equity_analysis else None
+            max_drawdown = equity_analysis.max_drawdown if equity_analysis else None
+
+            # Legacy fields for backward compatibility
+            mfe_statistics = (
+                trade_history_analysis.mfe_statistics
+                if trade_history_analysis
+                else None
+            )
+            mae_statistics = (
+                trade_history_analysis.mae_statistics
+                if trade_history_analysis
+                else None
+            )
+            duration_statistics = (
+                trade_history_analysis.duration_statistics
+                if trade_history_analysis
+                else None
+            )
+
+            return StrategyDistributionAnalysis(
+                strategy_name=strategy_name,
+                ticker=ticker,
+                timeframe="D",  # Default timeframe
+                data_sources_used=data_sources_used,
+                trade_history_analysis=trade_history_analysis,
+                equity_analysis=equity_analysis,
+                dual_source_convergence=dual_source_convergence,
+                statistics=primary_analysis.statistics,
+                percentiles=primary_analysis.percentiles,
+                var_metrics=primary_analysis.var_metrics,
+                win_rate=win_rate,
+                profit_factor=profit_factor,
+                sharpe_ratio=sharpe_ratio,
+                max_drawdown=max_drawdown,
+                mfe_statistics=mfe_statistics,
+                mae_statistics=mae_statistics,
+                duration_statistics=duration_statistics,
+                bootstrap_results=None,  # Can be added later if needed
+                confidence_level=primary_analysis.confidence_level,
+                confidence_score=primary_analysis.confidence_score,
+                analysis_agreement_score=analysis_agreement_score,
+                combined_confidence=combined_confidence,
+            )
+
+        except Exception as e:
+            self.logger.error(
+                f"Failed to combine strategy analyses for {strategy_name} on {ticker}: {e}"
+            )
+            raise
+
+    async def _calculate_dual_source_convergence(
+        self,
+        trade_history_analysis: TradeHistoryAnalysis,
+        equity_analysis: EquityAnalysis,
+    ) -> DualSourceConvergence:
+        """Calculate convergence metrics between trade history and equity curve analyses"""
+        try:
+            # Compare return characteristics
+            th_mean = trade_history_analysis.statistics.mean
+            eq_mean = equity_analysis.statistics.mean
+
+            th_std = trade_history_analysis.statistics.std
+            eq_std = equity_analysis.statistics.std
+
+            # Calculate correlation proxy (normalized difference in means and stds)
+            mean_agreement = 1.0 - min(
+                1.0, abs(th_mean - eq_mean) / max(abs(th_mean), abs(eq_mean), 0.01)
+            )
+            std_agreement = 1.0 - min(
+                1.0, abs(th_std - eq_std) / max(th_std, eq_std, 0.01)
+            )
+
+            return_correlation = (mean_agreement + std_agreement) / 2.0
+
+            # Performance agreement (compare win rates vs positive returns)
+            th_win_rate = trade_history_analysis.win_rate
+            eq_positive_rate = (
+                1.0  # Placeholder - would need actual equity return distribution
+            )
+            performance_agreement = 1.0 - abs(th_win_rate - eq_positive_rate)
+
+            # Risk agreement (compare VaR metrics)
+            th_var95 = trade_history_analysis.var_metrics.var_95
+            eq_var95 = equity_analysis.var_metrics.var_95
+            risk_agreement = 1.0 - min(
+                1.0, abs(th_var95 - eq_var95) / max(abs(th_var95), abs(eq_var95), 0.01)
+            )
+
+            # Overall convergence score
+            convergence_score = (
+                return_correlation + performance_agreement + risk_agreement
+            ) / 3.0
+
+            # Convergence strength classification
+            if convergence_score >= 0.8:
+                convergence_strength = "strong"
+            elif convergence_score >= 0.6:
+                convergence_strength = "moderate"
+            else:
+                convergence_strength = "weak"
+
+            # Divergence detection
+            has_significant_divergence = convergence_score < 0.5
+            divergence_explanation = None
+            if has_significant_divergence:
+                divergence_explanation = f"Low convergence score ({convergence_score:.2f}) indicates significant differences between trade history and equity curve analysis"
+
+            return DualSourceConvergence(
+                return_correlation=return_correlation,
+                performance_agreement=performance_agreement,
+                risk_agreement=risk_agreement,
+                convergence_score=convergence_score,
+                convergence_strength=convergence_strength,
+                has_significant_divergence=has_significant_divergence,
+                divergence_explanation=divergence_explanation,
+            )
+
+        except Exception as e:
+            self.logger.error(f"Failed to calculate dual source convergence: {e}")
+            # Return default convergence result
+            return DualSourceConvergence(
+                convergence_score=0.5,
+                convergence_strength="moderate",
+                has_significant_divergence=False,
+            )
+
+    async def _check_trade_history_availability(
+        self, strategy_name: str, ticker: str
+    ) -> bool:
+        """Check if trade history data is available for the strategy"""
+        try:
+            # Check if trade history analyzer can find data
+            trade_data = await self.trade_history_analyzer.analyze_strategy_trades(
+                strategy_name, ticker
+            )
+            return trade_data.get("total_trades", 0) > 0
+        except Exception:
+            return False
+
+    async def _check_equity_data_availability(
+        self, strategy_name: str, ticker: str
+    ) -> bool:
+        """Check if equity curve data is available for the strategy"""
+        try:
+            # Search for equity data files
+            for equity_path in self.config.EQUITY_DATA_PATHS:
+                # Try the correct naming pattern: {strategy_name}.csv
+                potential_file = Path(equity_path) / f"{strategy_name}.csv"
+                if potential_file.exists():
+                    return True
+
+                # Fallback to old naming pattern for compatibility
+                potential_file_old = (
+                    Path(equity_path) / f"{strategy_name}_{ticker}_equity.csv"
+                )
+                if potential_file_old.exists():
+                    return True
+
+            return False
+        except Exception:
+            return False
+
+    def _generate_source_agreement_summary(
+        self, strategy_analysis: StrategyDistributionAnalysis
+    ) -> str:
+        """Generate summary of agreement/divergence between data sources"""
+        if not strategy_analysis.dual_source_convergence:
+            # Single source analysis
+            if DataSource.TRADE_HISTORY in strategy_analysis.data_sources_used:
+                return "Single source analysis using trade history data"
+            elif DataSource.EQUITY_CURVES in strategy_analysis.data_sources_used:
+                return "Single source analysis using equity curve data"
+            else:
+                return "Single source analysis"
+
+        # Dual source analysis
+        convergence = strategy_analysis.dual_source_convergence
+        strength = convergence.convergence_strength
+        score = convergence.convergence_score
+
+        if convergence.has_significant_divergence:
+            return f"Dual-source analysis with {strength} convergence ({score:.2f}). Significant divergence detected between trade history and equity curve data."
+        else:
+            return f"Dual-source analysis with {strength} convergence ({score:.2f}). Good agreement between trade history and equity curve data."
+
+    def _generate_data_quality_assessment(
+        self, strategy_analysis: StrategyDistributionAnalysis
+    ) -> Dict[str, str]:
+        """Generate quality assessment for each data source"""
+        assessment = {}
+
+        if strategy_analysis.trade_history_analysis:
+            total_trades = strategy_analysis.trade_history_analysis.total_trades
+            confidence = strategy_analysis.trade_history_analysis.confidence_level.value
+            assessment[
+                "trade_history"
+            ] = f"{confidence} confidence with {total_trades} trades"
+
+        if strategy_analysis.equity_analysis:
+            confidence = strategy_analysis.equity_analysis.confidence_level.value
+            sharpe = strategy_analysis.equity_analysis.sharpe_ratio
+            assessment[
+                "equity_curves"
+            ] = f"{confidence} confidence, Sharpe ratio: {sharpe:.2f}"
+
+        if not assessment:
+            assessment["unknown"] = "Data quality assessment unavailable"
+
+        return assessment
+
+    def _calculate_asset_layer_contribution(
+        self,
+        asset_analysis: AssetDistributionAnalysis,
+        asset_divergence: DivergenceMetrics,
+    ) -> float:
+        """Calculate asset layer contribution to exit signal"""
+        # Base contribution from asset divergence strength
+        divergence_strength = asset_divergence.rarity_score
+
+        # Adjust for volatility regime
+        regime_adjustment = {"low": 0.8, "medium": 1.0, "high": 1.2}.get(
+            asset_analysis.volatility_regime, 1.0
+        )
+
+        # Adjust for sample size quality
+        sample_quality = min(
+            1.0, asset_analysis.statistics.count / self.config.PREFERRED_SAMPLE_SIZE
+        )
+
+        contribution = divergence_strength * regime_adjustment * sample_quality
+        return min(1.0, max(0.0, contribution))
+
+    def _calculate_trade_history_contribution(
+        self, trade_history_analysis: TradeHistoryAnalysis
+    ) -> float:
+        """Calculate trade history contribution to exit signal"""
+        # Base contribution from win rate deviation from 50%
+        win_rate_deviation = abs(trade_history_analysis.win_rate - 0.5) * 2.0
+
+        # Adjust for trade count quality
+        trade_count_quality = min(1.0, trade_history_analysis.total_trades / 30.0)
+
+        # Adjust for MFE capture efficiency
+        mfe_efficiency = trade_history_analysis.mfe_capture_ratio
+
+        # Adjust for confidence level
+        confidence_multiplier = trade_history_analysis.confidence_score
+
+        contribution = (
+            win_rate_deviation
+            * trade_count_quality
+            * mfe_efficiency
+            * confidence_multiplier
+        )
+        return min(1.0, max(0.0, contribution))
+
+    def _calculate_equity_curve_contribution(
+        self, equity_analysis: EquityAnalysis
+    ) -> float:
+        """Calculate equity curve contribution to exit signal"""
+        # Base contribution from Sharpe ratio strength
+        sharpe_strength = min(1.0, abs(equity_analysis.sharpe_ratio) / 2.0)
+
+        # Adjust for drawdown severity (higher drawdown = stronger signal)
+        drawdown_severity = min(1.0, abs(equity_analysis.max_drawdown) / 0.2)
+
+        # Adjust for volatility
+        volatility_factor = min(1.0, equity_analysis.volatility / 0.3)
+
+        # Adjust for confidence level
+        confidence_multiplier = equity_analysis.confidence_score
+
+        contribution = (
+            (sharpe_strength + drawdown_severity + volatility_factor)
+            / 3.0
+            * confidence_multiplier
+        )
+        return min(1.0, max(0.0, contribution))
+
+    def _calculate_data_source_confidence(
+        self,
+        asset_analysis: AssetDistributionAnalysis,
+        strategy_analysis: StrategyDistributionAnalysis,
+    ) -> Dict[str, float]:
+        """Calculate confidence scores for each data source"""
+        confidence_scores = {}
+
+        # Asset data confidence
+        asset_sample_ratio = min(
+            1.0, asset_analysis.statistics.count / self.config.PREFERRED_SAMPLE_SIZE
+        )
+        confidence_scores["asset"] = (
+            asset_sample_ratio * 0.9
+        )  # Asset data is generally reliable
+
+        # Strategy data confidence
+        if strategy_analysis.trade_history_analysis:
+            trade_confidence = strategy_analysis.trade_history_analysis.confidence_score
+            confidence_scores["trade_history"] = trade_confidence
+
+        if strategy_analysis.equity_analysis:
+            equity_confidence = strategy_analysis.equity_analysis.confidence_score
+            confidence_scores["equity_curves"] = equity_confidence
+
+        return confidence_scores
+
+    def _calculate_combined_source_confidence(
+        self,
+        data_source_confidence: Dict[str, float],
+        strategy_analysis: StrategyDistributionAnalysis,
+    ) -> float:
+        """Calculate combined confidence from all data sources"""
+        if not data_source_confidence:
+            return 0.5  # Default
+
+        # Weight sources by availability and quality
+        total_confidence = 0.0
+        total_weight = 0.0
+
+        # Asset layer (always present)
+        asset_confidence = data_source_confidence.get("asset", 0.5)
+        total_confidence += asset_confidence * 0.3
+        total_weight += 0.3
+
+        # Trade history (if available)
+        if "trade_history" in data_source_confidence:
+            trade_confidence = data_source_confidence["trade_history"]
+            total_confidence += trade_confidence * 0.4
+            total_weight += 0.4
+
+        # Equity curves (if available)
+        if "equity_curves" in data_source_confidence:
+            equity_confidence = data_source_confidence["equity_curves"]
+            total_confidence += equity_confidence * 0.3
+            total_weight += 0.3
+
+        # Bonus for dual-source convergence
+        if (
+            strategy_analysis.dual_source_convergence
+            and strategy_analysis.dual_source_convergence.convergence_score > 0.7
+        ):
+            convergence_bonus = (
+                strategy_analysis.dual_source_convergence.convergence_score * 0.1
+            )
+            total_confidence += convergence_bonus
+
+        combined_confidence = total_confidence / max(total_weight, 0.3)
+        return min(1.0, max(0.1, combined_confidence))
+
+    def _calculate_source_reliability_score(
+        self,
+        strategy_analysis: StrategyDistributionAnalysis,
+        dual_layer_convergence: DualLayerConvergence,
+    ) -> float:
+        """Calculate overall source reliability assessment"""
+        reliability_factors = []
+
+        # Base reliability from convergence
+        base_reliability = dual_layer_convergence.weighted_convergence_score
+        reliability_factors.append(base_reliability)
+
+        # Sample size reliability
+        if strategy_analysis.trade_history_analysis:
+            trade_sample_reliability = min(
+                1.0, strategy_analysis.trade_history_analysis.total_trades / 50.0
+            )
+            reliability_factors.append(trade_sample_reliability)
+
+        if strategy_analysis.equity_analysis:
+            equity_sample_reliability = (
+                strategy_analysis.equity_analysis.confidence_score
+            )
+            reliability_factors.append(equity_sample_reliability)
+
+        # Convergence consistency reliability
+        if strategy_analysis.dual_source_convergence:
+            consistency_reliability = 1.0 - (
+                1.0
+                if strategy_analysis.dual_source_convergence.has_significant_divergence
+                else 0.0
+            )
+            reliability_factors.append(consistency_reliability)
+
+        # Calculate weighted average
+        overall_reliability = (
+            sum(reliability_factors) / len(reliability_factors)
+            if reliability_factors
+            else 0.5
+        )
+        return min(1.0, max(0.1, overall_reliability))
+
+    def _calculate_enhanced_sample_size_confidence(
+        self,
+        strategy_analysis: StrategyDistributionAnalysis,
+        combined_source_confidence: float,
+    ) -> float:
+        """Calculate enhanced sample size confidence with multi-source weighting"""
+        base_confidence = strategy_analysis.confidence_score
+
+        # Boost confidence if multiple high-quality sources agree
+        if (
+            strategy_analysis.trade_history_analysis
+            and strategy_analysis.equity_analysis
+            and strategy_analysis.dual_source_convergence
+            and strategy_analysis.dual_source_convergence.convergence_score > 0.8
+        ):
+            multi_source_boost = 0.15  # 15% boost for strong dual-source agreement
+            enhanced_confidence = base_confidence + multi_source_boost
+        else:
+            enhanced_confidence = base_confidence
+
+        # Weight by combined source confidence
+        final_confidence = enhanced_confidence * combined_source_confidence
+        return min(1.0, max(0.1, final_confidence))
+
+    def _determine_enhanced_signal_type(
+        self,
+        dual_layer_convergence: DualLayerConvergence,
+        asset_divergence: DivergenceMetrics,
+        strategy_divergence: DivergenceMetrics,
+        primary_strength: float,
+        strategy_analysis: StrategyDistributionAnalysis,
+    ) -> SignalType:
+        """Determine signal type with enhanced multi-source analysis"""
+        # Base signal determination
+        base_signal = self._determine_signal_type(
+            dual_layer_convergence,
+            asset_divergence,
+            strategy_divergence,
+            primary_strength,
+        )
+
+        # Enhanced logic for dual-source analysis
+        if (
+            strategy_analysis.trade_history_analysis
+            and strategy_analysis.equity_analysis
+            and strategy_analysis.dual_source_convergence
+        ):
+            convergence_score = (
+                strategy_analysis.dual_source_convergence.convergence_score
+            )
+
+            # If sources strongly agree and both indicate extreme conditions
+            if convergence_score > 0.8:
+                trade_percentile = (
+                    strategy_divergence.percentile_rank
+                )  # Represents combined strategy
+
+                if trade_percentile > 95:
+                    return SignalType.EXIT_IMMEDIATELY
+                elif trade_percentile > 90:
+                    return SignalType.STRONG_SELL
+                elif trade_percentile > 70:  # FIXED: Use P70 threshold instead of P80
+                    return SignalType.SELL
+
+            # If sources disagree significantly, be more conservative
+            elif convergence_score < 0.5:
+                if base_signal in [SignalType.EXIT_IMMEDIATELY, SignalType.STRONG_SELL]:
+                    return SignalType.SELL  # Downgrade aggressive signals
+                elif base_signal == SignalType.SELL:
+                    return SignalType.HOLD  # Downgrade to hold
+
+        return base_signal
+
+    def _calculate_enhanced_base_confidence(
+        self,
+        primary_strength: float,
+        secondary_strength: float,
+        tertiary_strength: float,
+        asset_layer_contribution: float,
+        trade_history_contribution: Optional[float],
+        equity_curve_contribution: Optional[float],
+    ) -> float:
+        """Calculate enhanced base confidence with multi-source contributions"""
+        # Traditional layer-based confidence
+        layer_confidence = (
+            primary_strength + secondary_strength + tertiary_strength
+        ) / 3.0
+
+        # Multi-source contribution confidence
+        source_contributions = [asset_layer_contribution]
+        if trade_history_contribution is not None:
+            source_contributions.append(trade_history_contribution)
+        if equity_curve_contribution is not None:
+            source_contributions.append(equity_curve_contribution)
+
+        source_confidence = sum(source_contributions) / len(source_contributions)
+
+        # Weighted combination with bonus for multiple sources
+        if len(source_contributions) > 1:
+            # Multi-source bonus
+            multi_source_bonus = (len(source_contributions) - 1) * 0.05
+            enhanced_confidence = (
+                layer_confidence * 0.6 + source_confidence * 0.4 + multi_source_bonus
+            ) * 100
+        else:
+            enhanced_confidence = (
+                layer_confidence * 0.7 + source_confidence * 0.3
+            ) * 100
+
+        return min(100.0, max(10.0, enhanced_confidence))
+
+    def _estimate_enhanced_expected_upside(
+        self,
+        signal_type: SignalType,
+        asset_divergence: DivergenceMetrics,
+        strategy_divergence: DivergenceMetrics,
+        strategy_analysis: StrategyDistributionAnalysis,
+    ) -> Optional[float]:
+        """Estimate expected upside with enhanced multi-source insights"""
+        base_upside = self._estimate_expected_upside(
+            signal_type, asset_divergence, strategy_divergence
+        )
+
+        # Enhance with dual-source insights
+        if (
+            strategy_analysis.trade_history_analysis
+            and strategy_analysis.equity_analysis
+            and strategy_analysis.dual_source_convergence
+        ):
+            # Use average MFE from trade history as upside estimate
+            if hasattr(strategy_analysis.trade_history_analysis, "mfe_statistics"):
+                avg_mfe = strategy_analysis.trade_history_analysis.mfe_statistics.mean
+                if avg_mfe > 0:
+                    trade_upside = avg_mfe * 0.7  # Conservative estimate
+
+                    # Blend with base estimate if available
+                    if base_upside is not None:
+                        enhanced_upside = (base_upside + trade_upside) / 2.0
+                    else:
+                        enhanced_upside = trade_upside
+
+                    return max(0.0, enhanced_upside)
+
+        return base_upside
+
+    def _generate_enhanced_risk_warning(
+        self,
+        signal_type: SignalType,
+        strategy_analysis: StrategyDistributionAnalysis,
+        dual_layer_convergence: DualLayerConvergence,
+        source_divergence_warning: Optional[str],
+    ) -> Optional[str]:
+        """Generate enhanced risk warning with multi-source considerations"""
+        base_warning = self._generate_risk_warning(
+            signal_type, strategy_analysis, dual_layer_convergence
+        )
+
+        warnings = []
+        if base_warning:
+            warnings.append(base_warning)
+
+        # Add source divergence warning
+        if source_divergence_warning:
+            warnings.append(source_divergence_warning)
+
+        # Add low convergence warning
+        if dual_layer_convergence.weighted_convergence_score < 0.5:
+            warnings.append(
+                f"Low convergence across analysis layers (score: {dual_layer_convergence.weighted_convergence_score:.2f}). "
+                "Signal reliability may be reduced."
+            )
+
+        # Add sample size warnings for dual-source analysis
+        if (
+            strategy_analysis.trade_history_analysis
+            and strategy_analysis.trade_history_analysis.total_trades < 20
+        ):
+            warnings.append(
+                f"Limited trade history ({strategy_analysis.trade_history_analysis.total_trades} trades). Consider additional validation."
+            )
+
+        return " ".join(warnings) if warnings else None

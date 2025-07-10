@@ -1,0 +1,162 @@
+{
+  "metadata": {
+    "export_timestamp": "2025-07-10T14:25:08.211206",
+    "portfolio": "risk_on",
+    "parameter_count": 9
+  },
+  "backtesting_parameters": [
+    {
+      "ticker": "WELL",
+      "strategy_type": "SMA",
+      "short_window": 64,
+      "long_window": 76,
+      "signal_window": 0,
+      "exit_threshold_pct": 0.08143870745342006,
+      "stop_loss_pct": -0.1,
+      "take_profit_pct": 0.21244865634782845,
+      "max_holding_days": 90,
+      "position_size": 1000,
+      "risk_management": {
+        "max_drawdown": -0.15,
+        "profit_target": 0.2,
+        "stop_loss": -0.08
+      }
+    },
+    {
+      "ticker": "RJF",
+      "strategy_type": "SMA",
+      "short_window": 68,
+      "long_window": 77,
+      "signal_window": 0,
+      "exit_threshold_pct": 0.08143870745342006,
+      "stop_loss_pct": -0.1,
+      "take_profit_pct": 0.21244865634782845,
+      "max_holding_days": 90,
+      "position_size": 1000,
+      "risk_management": {
+        "max_drawdown": -0.15,
+        "profit_target": 0.2,
+        "stop_loss": -0.08
+      }
+    },
+    {
+      "ticker": "AMZN",
+      "strategy_type": "SMA",
+      "short_window": 51,
+      "long_window": 69,
+      "signal_window": 0,
+      "exit_threshold_pct": 0.08143870745342006,
+      "stop_loss_pct": -0.1,
+      "take_profit_pct": 0.21244865634782845,
+      "max_holding_days": 90,
+      "position_size": 1000,
+      "risk_management": {
+        "max_drawdown": -0.15,
+        "profit_target": 0.2,
+        "stop_loss": -0.08
+      }
+    },
+    {
+      "ticker": "ALGN",
+      "strategy_type": "SMA",
+      "short_window": 13,
+      "long_window": 39,
+      "signal_window": 0,
+      "exit_threshold_pct": 0.08143870745342006,
+      "stop_loss_pct": -0.1,
+      "take_profit_pct": 0.21244865634782845,
+      "max_holding_days": 90,
+      "position_size": 1000,
+      "risk_management": {
+        "max_drawdown": -0.15,
+        "profit_target": 0.2,
+        "stop_loss": -0.08
+      }
+    },
+    {
+      "ticker": "COR",
+      "strategy_type": "SMA",
+      "short_window": 8,
+      "long_window": 26,
+      "signal_window": 0,
+      "exit_threshold_pct": 0.08143870745342006,
+      "stop_loss_pct": -0.1,
+      "take_profit_pct": 0.21244865634782845,
+      "max_holding_days": 90,
+      "position_size": 1000,
+      "risk_management": {
+        "max_drawdown": -0.15,
+        "profit_target": 0.2,
+        "stop_loss": -0.08
+      }
+    },
+    {
+      "ticker": "GME",
+      "strategy_type": "SMA",
+      "short_window": 53,
+      "long_window": 61,
+      "signal_window": 0,
+      "exit_threshold_pct": 0.08143870745342006,
+      "stop_loss_pct": -0.1,
+      "take_profit_pct": 0.21244865634782845,
+      "max_holding_days": 90,
+      "position_size": 1000,
+      "risk_management": {
+        "max_drawdown": -0.15,
+        "profit_target": 0.2,
+        "stop_loss": -0.08
+      }
+    },
+    {
+      "ticker": "HWM",
+      "strategy_type": "SMA",
+      "short_window": 7,
+      "long_window": 9,
+      "signal_window": 0,
+      "exit_threshold_pct": 0.08143870745342006,
+      "stop_loss_pct": -0.1,
+      "take_profit_pct": 0.21244865634782845,
+      "max_holding_days": 90,
+      "position_size": 1000,
+      "risk_management": {
+        "max_drawdown": -0.15,
+        "profit_target": 0.2,
+        "stop_loss": -0.08
+      }
+    },
+    {
+      "ticker": "TPR",
+      "strategy_type": "SMA",
+      "short_window": 14,
+      "long_window": 30,
+      "signal_window": 0,
+      "exit_threshold_pct": 0.08143870745342006,
+      "stop_loss_pct": -0.1,
+      "take_profit_pct": 0.21244865634782845,
+      "max_holding_days": 90,
+      "position_size": 1000,
+      "risk_management": {
+        "max_drawdown": -0.15,
+        "profit_target": 0.2,
+        "stop_loss": -0.08
+      }
+    },
+    {
+      "ticker": "PLTR",
+      "strategy_type": "SMA",
+      "short_window": 10,
+      "long_window": 11,
+      "signal_window": 0,
+      "exit_threshold_pct": 0.08143870745342006,
+      "stop_loss_pct": -0.1,
+      "take_profit_pct": 0.21244865634782845,
+      "max_holding_days": 90,
+      "position_size": 1000,
+      "risk_management": {
+        "max_drawdown": -0.15,
+        "profit_target": 0.2,
+        "stop_loss": -0.08
+      }
+    }
+  ]
+}

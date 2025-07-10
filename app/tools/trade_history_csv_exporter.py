@@ -179,12 +179,16 @@ def extract_position_data(trade_data: Dict[str, Any]) -> List[Dict[str, Any]]:
             "PnL": trade.get("PnL", None),
             "Return": trade.get("Return", None),
             "Duration_Days": trade.get("Duration_Days", None),
-            "Trade_Type": trade.get("Trade_Type", ""),
+            "Trade_Type": trade.get("Trade_Type", trade.get("Direction", "Long")),
             "Status": trade.get("Status", ""),
-            "Max_Favourable_Excursion": mfe,
-            "Max_Adverse_Excursion": mae,
-            "MFE_MAE_Ratio": mfe_mae_ratio,
-            "Exit_Efficiency": exit_efficiency,
+            "Max_Favourable_Excursion": round(mfe, 6) if mfe is not None else None,
+            "Max_Adverse_Excursion": round(mae, 6) if mae is not None else None,
+            "MFE_MAE_Ratio": round(mfe_mae_ratio, 6)
+            if mfe_mae_ratio is not None
+            else None,
+            "Exit_Efficiency": round(exit_efficiency, 6)
+            if exit_efficiency is not None
+            else None,
             "Days_Since_Entry": days_since_entry,
             "Current_Unrealized_PnL": current_unrealized_pnl,
             "Current_Excursion_Status": current_excursion_status,

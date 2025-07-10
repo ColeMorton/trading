@@ -1,7 +1,5 @@
 ticker,strategy_type,short_window,long_window,signal_window,exit_threshold_pct,stop_loss_pct,take_profit_pct,max_holding_days,position_size,risk_management
-NVDA,SMA,53,64,0,0.1365758615805645,-0.1,0.2911499178234266,90,1000,"{'max_drawdown': -0.15, 'profit_target': 0.2, 'stop_loss': -0.08}"
-TSLA,SMA,4,39,0,0.1365758615805645,-0.1,0.2911499178234266,90,1000,"{'max_drawdown': -0.15, 'profit_target': 0.2, 'stop_loss': -0.08}"
-PLTR,SMA,12,14,0,0.1365758615805645,-0.1,0.2911499178234266,90,1000,"{'max_drawdown': -0.15, 'profit_target': 0.2, 'stop_loss': -0.08}"
-AMD,SMA,19,29,0,0.1365758615805645,-0.1,0.2911499178234266,90,1000,"{'max_drawdown': -0.15, 'profit_target': 0.2, 'stop_loss': -0.08}"
-FFIV,SMA,14,45,0,0.1365758615805645,-0.1,0.2911499178234266,90,1000,"{'max_drawdown': -0.15, 'profit_target': 0.2, 'stop_loss': -0.08}"
-RTX,EMA,27,41,0,0.1365758615805645,-0.1,0.2911499178234266,90,1000,"{'max_drawdown': -0.15, 'profit_target': 0.2, 'stop_loss': -0.08}"
+TSLA,SMA,4,39,0,0.11086126682170877,-0.1,0.11485914972827097,90,1000,"{'max_drawdown': -0.15, 'profit_target': 0.2, 'stop_loss': -0.08}"
+PLTR,SMA,12,14,0,0.11086126682170877,-0.1,0.11485914972827097,90,1000,"{'max_drawdown': -0.15, 'profit_target': 0.2, 'stop_loss': -0.08}"
+FFIV,SMA,14,45,0,0.11086126682170877,-0.1,0.11485914972827097,90,1000,"{'max_drawdown': -0.15, 'profit_target': 0.2, 'stop_loss': -0.08}"
+RTX,EMA,27,41,0,0.11086126682170877,-0.1,0.11485914972827097,90,1000,"{'max_drawdown': -0.15, 'profit_target': 0.2, 'stop_loss': -0.08}"

@@ -25,7 +25,10 @@ config:
 
   # Data settings
   refresh: true
-  use_current: true
+
+  # Filter configuration
+  filter:
+    use_current: true
 
   # Performance filters (maps to CLI --min-* options)
   minimums:

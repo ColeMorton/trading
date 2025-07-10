@@ -256,7 +256,9 @@ class ExportValidator:
                 if len(open_positions) > 0
                 else 0,
                 "average_return": float(returns.mean()) if len(returns) > 0 else 0,
-                "total_unrealized_pnl": float(returns.sum()) if len(returns) > 0 else 0,
+                "total_unrealized_pnl": float(returns.mean())
+                if len(returns) > 0
+                else 0,
                 "signal_distribution": pd.Series([r["exit_signal"] for r in results])
                 .value_counts()
                 .to_dict()
@@ -360,7 +362,7 @@ class ExportValidator:
             if len(open_positions) > 0
             else 0
         )
-        total_performance = returns.sum() if len(returns) > 0 else 0
+        total_performance = returns.mean() if len(returns) > 0 else 0
         avg_performance = returns.mean() if len(returns) > 0 else 0
         success_rate = (
             profitable_positions / len(open_positions) if len(open_positions) > 0 else 0

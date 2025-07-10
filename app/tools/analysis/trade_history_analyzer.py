@@ -183,12 +183,63 @@ class TradeHistoryAnalyzer:
         Returns:
             DataFrame with trade history or None if not found
         """
-        # Try most common pattern first (actual file structure)
-        primary_file = (
-            Path("./json/trade_history/") / f"{ticker}_D_{strategy_name}.json"
-        )
+        # Enhanced file discovery with multiple naming patterns
+        trade_history_dir = Path("./json/trade_history/")
+
+        # Pattern 1: Most common pattern (actual file structure)
+        primary_file = trade_history_dir / f"{ticker}_D_{strategy_name}.json"
         if primary_file.exists():
+            self.logger.info(
+                f"Found trade history using primary pattern: {primary_file}"
+            )
             return await self._load_json_trade_history(primary_file)
+
+        # Pattern 2: Strategy name might include ticker already
+        if "_" in strategy_name:
+            # Extract components for flexible matching
+            parts = strategy_name.split("_")
+            if len(parts) >= 3:  # e.g., SMA_59_87
+                strategy_type = parts[0]
+                param1 = parts[1] if len(parts) > 1 else ""
+                param2 = parts[2] if len(parts) > 2 else ""
+
+                # Try various combinations
+                flexible_patterns = [
+                    f"{ticker}_D_{strategy_type}_{param1}_{param2}.json",
+                    f"{ticker}_{strategy_type}_{param1}_{param2}.json",
+                    f"{strategy_name}_{ticker}.json",
+                    f"{ticker}_{strategy_name}.json",
+                ]
+
+                for pattern in flexible_patterns:
+                    test_file = trade_history_dir / pattern
+                    if test_file.exists():
+                        self.logger.info(
+                            f"Found trade history using flexible pattern: {test_file}"
+                        )
+                        return await self._load_json_trade_history(test_file)
+
+        # Pattern 3: Glob search for any file containing ticker and strategy components
+        import glob
+
+        # Search for files containing the ticker
+        glob_patterns = [
+            str(trade_history_dir / f"{ticker}*.json"),
+            str(trade_history_dir / f"*{ticker}*.json"),
+        ]
+
+        for glob_pattern in glob_patterns:
+            matching_files = glob.glob(glob_pattern)
+            for file_path in matching_files:
+                file_name = Path(file_path).name
+                # Check if strategy components are in the filename
+                if strategy_name in file_name or self._filename_matches_strategy(
+                    file_name, strategy_name
+                ):
+                    self.logger.info(
+                        f"Found trade history using glob pattern: {file_path}"
+                    )
+                    return await self._load_json_trade_history(Path(file_path))
 
         # Fallback to legacy patterns
         fallback_files = [
@@ -199,12 +250,26 @@ class TradeHistoryAnalyzer:
 
         for file_path in fallback_files:
             if file_path.exists():
+                self.logger.info(
+                    f"Found trade history using fallback pattern: {file_path}"
+                )
                 if file_path.suffix == ".json":
                     return await self._load_json_trade_history(file_path)
                 else:
                     return await self._load_csv_trade_history(file_path)
 
+        self.logger.warning(
+            f"No trade history found for {strategy_name} (ticker: {ticker})"
+        )
         return None
+
+    def _filename_matches_strategy(self, filename: str, strategy_name: str) -> bool:
+        """Check if filename contains key components of strategy name"""
+        if "_" in strategy_name:
+            parts = strategy_name.split("_")
+            # Check if all major parts are in the filename
+            return all(part in filename for part in parts if len(part) > 1)
+        return strategy_name in filename
 
     async def _load_json_trade_history(self, file_path: Path) -> pd.DataFrame:
         """Load trade history from JSON format"""

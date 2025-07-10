@@ -121,20 +121,134 @@ class AssetDistributionAnalysis(BaseModel):
     sample_period_end: date = Field(description="Sample period end date")
 
 
+class TradeHistoryAnalysis(BaseModel):
+    """Trade-level analysis specific metrics"""
+
+    # Trade-specific statistics
+    statistics: StatisticalMetrics = Field(description="Trade return statistics")
+    percentiles: PercentileMetrics = Field(description="Trade return percentiles")
+    var_metrics: VaRMetrics = Field(description="Trade-level risk metrics")
+
+    # Trade execution metrics
+    mfe_statistics: StatisticalMetrics = Field(description="MFE statistics")
+    mae_statistics: StatisticalMetrics = Field(description="MAE statistics")
+    duration_statistics: StatisticalMetrics = Field(
+        description="Trade duration statistics"
+    )
+
+    # Trade quality metrics
+    win_rate: float = Field(description="Win rate", ge=0, le=1)
+    profit_factor: float = Field(description="Profit factor", ge=0)
+    average_exit_efficiency: float = Field(
+        description="Average exit efficiency", ge=0, le=1
+    )
+    mfe_capture_ratio: float = Field(description="MFE capture ratio", ge=0, le=1)
+
+    # Trade counts
+    total_trades: int = Field(description="Total number of trades", ge=0)
+    winning_trades: int = Field(description="Number of winning trades", ge=0)
+    losing_trades: int = Field(description="Number of losing trades", ge=0)
+
+    # Data quality
+    confidence_level: ConfidenceLevel = Field(
+        description="Statistical confidence level"
+    )
+    confidence_score: float = Field(
+        description="Numerical confidence score", ge=0, le=1
+    )
+
+
+class EquityAnalysis(BaseModel):
+    """Equity curve analysis specific metrics"""
+
+    # Equity curve statistics
+    statistics: StatisticalMetrics = Field(description="Equity curve statistics")
+    percentiles: PercentileMetrics = Field(description="Equity curve percentiles")
+    var_metrics: VaRMetrics = Field(description="Equity curve risk metrics")
+
+    # Performance metrics
+    sharpe_ratio: float = Field(description="Sharpe ratio")
+    max_drawdown: float = Field(description="Maximum drawdown", le=0)
+    recovery_factor: float = Field(description="Recovery factor")
+    calmar_ratio: float = Field(description="Calmar ratio")
+
+    # Volatility metrics
+    volatility: float = Field(description="Annualized volatility", ge=0)
+    downside_deviation: float = Field(description="Downside deviation", ge=0)
+
+    # Data quality
+    confidence_level: ConfidenceLevel = Field(
+        description="Statistical confidence level"
+    )
+    confidence_score: float = Field(
+        description="Numerical confidence score", ge=0, le=1
+    )
+
+
+class DualSourceConvergence(BaseModel):
+    """Convergence analysis between trade history and equity curve data"""
+
+    # Convergence metrics
+    return_correlation: Optional[float] = Field(
+        description="Correlation between trade returns and equity returns",
+        ge=-1,
+        le=1,
+        default=None,
+    )
+    performance_agreement: Optional[float] = Field(
+        description="Agreement in performance ranking", ge=0, le=1, default=None
+    )
+    risk_agreement: Optional[float] = Field(
+        description="Agreement in risk assessment", ge=0, le=1, default=None
+    )
+
+    # Overall convergence score
+    convergence_score: float = Field(
+        description="Overall convergence between sources", ge=0, le=1
+    )
+    convergence_strength: Literal["weak", "moderate", "strong"] = Field(
+        description="Convergence strength classification"
+    )
+
+    # Divergence flags
+    has_significant_divergence: bool = Field(
+        description="Flag for significant divergence between sources"
+    )
+    divergence_explanation: Optional[str] = Field(
+        description="Explanation of divergence if present", default=None
+    )
+
+
 class StrategyDistributionAnalysis(BaseModel):
-    """Strategy-level performance distribution analysis (Layer 2)"""
+    """Enhanced strategy-level performance distribution analysis (Layer 2) with dual-source support"""
 
     strategy_name: str = Field(description="Strategy identifier")
     ticker: str = Field(description="Asset ticker symbol")
     timeframe: str = Field(description="Analysis timeframe")
-    data_source: DataSource = Field(description="Data source type")
+    data_sources_used: List[DataSource] = Field(
+        description="Data sources used in analysis"
+    )
 
-    # Core statistics
-    statistics: StatisticalMetrics
-    percentiles: PercentileMetrics
-    var_metrics: VaRMetrics
+    # Dual-source analysis results
+    trade_history_analysis: Optional[TradeHistoryAnalysis] = Field(
+        description="Trade history analysis results", default=None
+    )
+    equity_analysis: Optional[EquityAnalysis] = Field(
+        description="Equity curve analysis results", default=None
+    )
 
-    # Strategy-specific metrics
+    # Source convergence (when both sources available)
+    dual_source_convergence: Optional[DualSourceConvergence] = Field(
+        description="Convergence analysis between trade history and equity data",
+        default=None,
+    )
+
+    # Combined/primary analysis (for backward compatibility and unified interface)
+    statistics: StatisticalMetrics = Field(description="Combined/primary statistics")
+    percentiles: PercentileMetrics = Field(description="Combined/primary percentiles")
+    var_metrics: VaRMetrics = Field(description="Combined/primary risk metrics")
+
+    # Combined strategy metrics (derived from best available source or combination)
     win_rate: Optional[float] = Field(description="Win rate", ge=0, le=1, default=None)
     profit_factor: Optional[float] = Field(
         description="Profit factor", ge=0, default=None
@@ -144,15 +258,15 @@ class StrategyDistributionAnalysis(BaseModel):
         description="Maximum drawdown", le=0, default=None
     )
 
-    # Trade history specific (when USE_TRADE_HISTORY=True)
+    # Legacy fields for backward compatibility
     mfe_statistics: Optional[StatisticalMetrics] = Field(
-        description="MFE statistics", default=None
+        description="MFE statistics (legacy)", default=None
     )
     mae_statistics: Optional[StatisticalMetrics] = Field(
-        description="MAE statistics", default=None
+        description="MAE statistics (legacy)", default=None
     )
     duration_statistics: Optional[StatisticalMetrics] = Field(
-        description="Trade duration statistics", default=None
+        description="Trade duration statistics (legacy)", default=None
     )
 
     # Bootstrap validation for small samples
@@ -160,12 +274,20 @@ class StrategyDistributionAnalysis(BaseModel):
         description="Bootstrap validation results", default=None
     )
 
-    # Confidence assessment
+    # Combined confidence assessment
     confidence_level: ConfidenceLevel = Field(
-        description="Statistical confidence level"
+        description="Overall statistical confidence level"
     )
     confidence_score: float = Field(
-        description="Numerical confidence score", ge=0, le=1
+        description="Overall numerical confidence score", ge=0, le=1
+    )
+
+    # Multi-source confidence (new)
+    analysis_agreement_score: Optional[float] = Field(
+        description="Agreement score between multiple sources", ge=0, le=1, default=None
+    )
+    combined_confidence: float = Field(
+        description="Combined confidence from all sources", ge=0, le=1
     )
 
 
@@ -191,21 +313,46 @@ class DivergenceMetrics(BaseModel):
 
 
 class DualLayerConvergence(BaseModel):
-    """Dual-layer convergence analysis results"""
+    """Enhanced multi-layer convergence analysis results (Asset + Trade History + Equity)"""
 
+    # Layer percentiles
     asset_layer_percentile: float = Field(
         description="Asset layer percentile", ge=0, le=100
     )
     strategy_layer_percentile: float = Field(
-        description="Strategy layer percentile", ge=0, le=100
+        description="Combined strategy layer percentile", ge=0, le=100
+    )
+
+    # Individual strategy source percentiles (when available)
+    trade_history_percentile: Optional[float] = Field(
+        description="Trade history layer percentile", ge=0, le=100, default=None
+    )
+    equity_curve_percentile: Optional[float] = Field(
+        description="Equity curve layer percentile", ge=0, le=100, default=None
     )
 
     # Convergence scoring
     convergence_score: float = Field(
-        description="Convergence alignment score", ge=0, le=1
+        description="Overall convergence alignment score", ge=0, le=1
     )
     convergence_strength: Literal["weak", "moderate", "strong"] = Field(
-        description="Convergence strength classification"
+        description="Overall convergence strength classification"
+    )
+
+    # Multi-source convergence (new for dual-source analysis)
+    asset_trade_convergence: Optional[float] = Field(
+        description="Asset-Trade History convergence", ge=0, le=1, default=None
+    )
+    asset_equity_convergence: Optional[float] = Field(
+        description="Asset-Equity convergence", ge=0, le=1, default=None
+    )
+    trade_equity_convergence: Optional[float] = Field(
+        description="Trade History-Equity convergence", ge=0, le=1, default=None
+    )
+
+    # Triple-layer convergence (when all sources available)
+    triple_layer_convergence: Optional[float] = Field(
+        description="Asset-Trade History-Equity convergence", ge=0, le=1, default=None
     )
 
     # Multi-timeframe validation
@@ -217,12 +364,20 @@ class DualLayerConvergence(BaseModel):
         description="Cross-timeframe agreement score", ge=0, le=1
     )
 
+    # Source reliability weighting
+    source_weights: Dict[str, float] = Field(
+        description="Weights assigned to each data source", default_factory=dict
+    )
+    weighted_convergence_score: float = Field(
+        description="Source-weighted convergence score", ge=0, le=1
+    )
+
 
 class ProbabilisticExitSignal(BaseModel):
-    """Probabilistic exit signal with confidence weighting"""
+    """Enhanced probabilistic exit signal with multi-source confidence weighting"""
 
     signal_type: SignalType = Field(description="Primary exit signal")
-    confidence: float = Field(description="Signal confidence", ge=0, le=100)
+    confidence: float = Field(description="Overall signal confidence", ge=0, le=100)
 
     # Signal layer breakdown
     primary_signal_strength: float = Field(
@@ -235,9 +390,23 @@ class ProbabilisticExitSignal(BaseModel):
         description="Tertiary signal strength", ge=0, le=1
     )
 
+    # Multi-source signal contributions (new for dual-source analysis)
+    asset_layer_contribution: float = Field(
+        description="Asset layer signal contribution", ge=0, le=1
+    )
+    trade_history_contribution: Optional[float] = Field(
+        description="Trade history signal contribution", ge=0, le=1, default=None
+    )
+    equity_curve_contribution: Optional[float] = Field(
+        description="Equity curve signal contribution", ge=0, le=1, default=None
+    )
+
     # Multi-factor scoring
     dual_layer_score: float = Field(
         description="Dual-layer convergence contribution", ge=0, le=1
+    )
+    triple_layer_score: Optional[float] = Field(
+        description="Triple-layer convergence contribution", ge=0, le=1, default=None
     )
     timeframe_score: float = Field(
         description="Multi-timeframe contribution", ge=0, le=1
@@ -246,12 +415,31 @@ class ProbabilisticExitSignal(BaseModel):
         description="Risk-adjusted contribution", ge=0, le=1
     )
 
+    # Source agreement scoring (new)
+    intra_strategy_consistency: Optional[float] = Field(
+        description="Consistency between trade history and equity analysis",
+        ge=0,
+        le=1,
+        default=None,
+    )
+    source_reliability_score: float = Field(
+        description="Overall source reliability assessment", ge=0, le=1
+    )
+
     # Sample size adjustment
     sample_size_confidence: float = Field(
         description="Sample size confidence multiplier", ge=0, le=1
     )
     statistical_validity: ConfidenceLevel = Field(
         description="Statistical validity level"
+    )
+
+    # Multi-source confidence (new)
+    data_source_confidence: Dict[str, float] = Field(
+        description="Confidence by data source", default_factory=dict
+    )
+    combined_source_confidence: float = Field(
+        description="Combined confidence from all sources", ge=0, le=1
     )
 
     # Expected outcomes
@@ -263,6 +451,11 @@ class ProbabilisticExitSignal(BaseModel):
     )
     risk_warning: Optional[str] = Field(
         description="Risk warning message", default=None
+    )
+
+    # Source divergence warnings (new)
+    source_divergence_warning: Optional[str] = Field(
+        description="Warning about divergence between data sources", default=None
     )
 
 
@@ -304,40 +497,48 @@ class TradeHistoryMetrics(BaseModel):
 
 
 class StatisticalAnalysisResult(BaseModel):
-    """Complete statistical analysis result for a position"""
+    """Complete enhanced statistical analysis result for a position with dual-source support"""
 
     # Identification
     strategy_name: str = Field(description="Strategy identifier")
     ticker: str = Field(description="Asset ticker")
     analysis_timestamp: datetime = Field(description="Analysis timestamp")
 
-    # Dual-layer analysis
+    # Enhanced dual-layer analysis
     asset_analysis: AssetDistributionAnalysis = Field(
-        description="Asset layer analysis"
+        description="Asset layer analysis (Layer 1)"
     )
     strategy_analysis: StrategyDistributionAnalysis = Field(
-        description="Strategy layer analysis"
+        description="Enhanced strategy layer analysis (Layer 2) with dual-source support"
     )
 
     # Divergence detection
     asset_divergence: DivergenceMetrics = Field(description="Asset layer divergence")
     strategy_divergence: DivergenceMetrics = Field(
-        description="Strategy layer divergence"
+        description="Combined strategy layer divergence"
     )
 
-    # Convergence analysis
+    # Source-specific divergence (new)
+    trade_history_divergence: Optional[DivergenceMetrics] = Field(
+        description="Trade history specific divergence", default=None
+    )
+    equity_curve_divergence: Optional[DivergenceMetrics] = Field(
+        description="Equity curve specific divergence", default=None
+    )
+
+    # Enhanced convergence analysis
     dual_layer_convergence: DualLayerConvergence = Field(
-        description="Dual-layer convergence results"
+        description="Enhanced multi-layer convergence results (Asset + Trade History + Equity)"
     )
 
-    # Exit signal generation
+    # Enhanced exit signal generation
     exit_signal: ProbabilisticExitSignal = Field(
-        description="Probabilistic exit signal"
+        description="Enhanced probabilistic exit signal with multi-source confidence"
     )
 
-    # Trade history context (when available)
+    # Legacy trade history context (maintained for compatibility)
     trade_history_metrics: Optional[TradeHistoryMetrics] = Field(
-        description="Trade history metrics", default=None
+        description="Trade history metrics (legacy)", default=None
     )
 
     # Overall assessment
@@ -346,6 +547,14 @@ class StatisticalAnalysisResult(BaseModel):
     )
     recommendation_summary: str = Field(
         description="Human-readable recommendation summary"
+    )
+
+    # Multi-source assessment (new)
+    source_agreement_summary: str = Field(
+        description="Summary of agreement/divergence between data sources"
+    )
+    data_quality_assessment: Dict[str, str] = Field(
+        description="Quality assessment for each data source", default_factory=dict
     )
 
     # Metadata
