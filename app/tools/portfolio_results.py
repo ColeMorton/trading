@@ -216,7 +216,7 @@ def calculate_breadth_metrics(
     breadth_momentum = (
         signal_entry_ratio / signal_exit_ratio
         if signal_exit_ratio > 0
-        else float("inf")
+        else 0.0  # When no exit signals, momentum is 0 (no selling pressure)
     )
 
     metrics = {
@@ -243,8 +243,11 @@ def calculate_breadth_metrics(
         log_func(
             f"Signal Exit Ratio: {signal_exit_ratio:.4f} (Signal Exits / Total Strategies)"
         )
-        log_func(
+        momentum_msg = (
             f"Breadth Momentum: {breadth_momentum:.4f} (Signal Entry Ratio / Signal Exit Ratio)"
+            if signal_exit_ratio > 0
+            else f"Breadth Momentum: {breadth_momentum:.4f} (No exit signals - momentum neutral)"
         )
+        log_func(momentum_msg)
 
     return metrics
