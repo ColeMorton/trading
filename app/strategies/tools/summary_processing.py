@@ -36,6 +36,7 @@ from app.tools.equity_data_extractor import (
 # Import export_portfolios inside functions to avoid circular imports
 from app.tools.get_config import get_config
 from app.tools.portfolio_transformation import reorder_columns
+from app.tools.project_utils import get_project_root
 from app.tools.stats_converter import convert_stats
 from app.tools.strategy.signal_utils import is_exit_signal_current, is_signal_current
 
@@ -927,6 +928,117 @@ def process_ticker_portfolios(
         return None
 
 
+def _generate_spds_compatible_entries(
+    aggregated_portfolios: List[Dict],
+    portfolio_name: str,
+    log: Callable[[str, str], None],
+) -> List[Dict]:
+    """
+    Generate SPDS-compatible individual strategy entries from trade history data.
+
+    This function creates individual strategy entries that match the actual positions
+    in the trade history, ensuring SPDS can properly analyze each strategy.
+
+    Args:
+        aggregated_portfolios: List of aggregated portfolio data
+        portfolio_name: Name of the portfolio file
+        log: Logging function
+
+    Returns:
+        List of individual strategy entries compatible with SPDS
+    """
+    try:
+        # Load trade history data from positions file
+        positions_file = get_project_root() / "csv" / "positions" / portfolio_name
+
+        if not positions_file.exists():
+            log(
+                f"No positions file found at {positions_file}, using aggregated data",
+                "warning",
+            )
+            return aggregated_portfolios
+
+        # Read positions data
+        positions_df = pl.read_csv(str(positions_file))
+
+        # Create individual strategy entries from positions
+        individual_entries = []
+
+        for row in positions_df.iter_rows(named=True):
+            # Extract strategy components from Position_UUID
+            # Format: TICKER_STRATEGY_TYPE_SHORT_WINDOW_LONG_WINDOW_SIGNAL_WINDOW_DATE
+            position_uuid = row.get("Position_UUID", "")
+            ticker = row.get("Ticker", "")
+            strategy_type = row.get("Strategy_Type", "")
+            short_window = row.get("Short_Window", 0)
+            long_window = row.get("Long_Window", 0)
+            signal_window = row.get("Signal_Window", 0)
+            status = row.get("Status", "")
+
+            # Find matching aggregated data for this strategy
+            matching_aggregated = None
+            for agg_entry in aggregated_portfolios:
+                if (
+                    agg_entry.get("Ticker") == ticker
+                    and agg_entry.get("Strategy Type") == strategy_type
+                    and agg_entry.get("Short Window") == short_window
+                    and agg_entry.get("Long Window") == long_window
+                ):
+                    matching_aggregated = agg_entry
+                    break
+
+            # Create individual strategy entry
+            if matching_aggregated:
+                # Copy the aggregated data as base
+                individual_entry = matching_aggregated.copy()
+
+                # Override key fields for SPDS compatibility
+                individual_entry["Ticker"] = ticker
+                individual_entry["Strategy Type"] = strategy_type
+                individual_entry["Short Window"] = short_window
+                individual_entry["Long Window"] = long_window
+                individual_entry["Signal Window"] = signal_window
+
+                # Set signal status based on position status
+                individual_entry["Signal Entry"] = status == "Open"
+                individual_entry["Signal Exit"] = status == "Closed"
+
+                # Set trade counts based on position status
+                individual_entry["Total Open Trades"] = 1 if status == "Open" else 0
+
+                # Add position-specific data
+                individual_entry["Position_UUID"] = position_uuid
+                individual_entry["Entry_Timestamp"] = row.get("Entry_Timestamp", "")
+                individual_entry["Exit_Timestamp"] = row.get("Exit_Timestamp", "")
+                individual_entry["Status"] = status
+
+                individual_entries.append(individual_entry)
+
+            else:
+                log(
+                    f"No matching aggregated data found for {ticker} {strategy_type} {short_window}/{long_window}",
+                    "warning",
+                )
+
+        if individual_entries:
+            log(
+                f"Generated {len(individual_entries)} individual strategy entries for SPDS compatibility",
+                "info",
+            )
+            return individual_entries
+        else:
+            log(
+                "No individual entries generated, falling back to aggregated data",
+                "warning",
+            )
+            return aggregated_portfolios
+
+    except Exception as e:
+        log(f"Error generating SPDS-compatible entries: {str(e)}", "error")
+        log("Falling back to aggregated data", "warning")
+        return aggregated_portfolios
+
+
 def export_summary_results(
     portfolios: List[Dict],
     portfolio_name: str,
@@ -1248,10 +1360,15 @@ def export_summary_results(
         # Note: Allocation distribution will be handled by export_portfolios
         # which uses ensure_allocation_sum_100_percent for all export types
 
+        # Generate SPDS-compatible individual strategy entries from trade history
+        spds_compatible_portfolios = _generate_spds_compatible_entries(
+            reordered_portfolios, portfolio_name, log
+        )
+
         # Change feature_dir to "strategies" to export to /csv/strategies instead
         # of /csv/portfolios
         _, success = export_portfolios(
-            reordered_portfolios,
+            spds_compatible_portfolios,
             export_config,
             "portfolios",
             portfolio_name,

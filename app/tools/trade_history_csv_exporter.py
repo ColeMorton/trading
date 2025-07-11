@@ -205,7 +205,7 @@ def export_single_trade_history_to_csv(
     """Export single JSON trade history file to position-level CSV."""
 
     if output_dir is None:
-        output_dir = "/Users/colemorton/Projects/trading/csv/trade_history"
+        output_dir = "/Users/colemorton/Projects/trading/csv/positions"
 
     # Create output directory
     Path(output_dir).mkdir(parents=True, exist_ok=True)
@@ -261,7 +261,7 @@ def export_all_trade_histories_to_csv(
         json_dir = "/Users/colemorton/Projects/trading/json/trade_history"
 
     if output_dir is None:
-        output_dir = "/Users/colemorton/Projects/trading/csv/trade_history"
+        output_dir = "/Users/colemorton/Projects/trading/csv/positions"
 
     # Create output directory
     Path(output_dir).mkdir(parents=True, exist_ok=True)
@@ -653,7 +653,7 @@ def convert_strategy_to_trade_history(strategy_name: str):
         f"/Users/colemorton/Projects/trading/csv/strategies/{strategy_name}.csv"
     )
     output_file = (
-        f"/Users/colemorton/Projects/trading/csv/trade_history/{strategy_name}.csv"
+        f"/Users/colemorton/Projects/trading/csv/positions/{strategy_name}.csv"
     )
 
     # Create output directory

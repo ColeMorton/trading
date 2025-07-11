@@ -498,7 +498,7 @@ Examples:
 
         for portfolio_file in sorted(portfolio_files):
             portfolio_name = portfolio_file.name
-            trade_history_file = Path(f"./csv/trade_history/{portfolio_name}")
+            trade_history_file = Path(f"./csv/positions/{portfolio_name}")
 
             print(f"📊 {portfolio_name}")
             print(f"   Portfolio: {'✅' if portfolio_file.exists() else '❌'}")

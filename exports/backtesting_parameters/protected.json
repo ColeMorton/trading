@@ -1,77 +1,184 @@
 {
-  "metadata": {
-    "export_timestamp": "2025-07-10T14:27:27.129784",
-    "portfolio": "protected",
-    "parameter_count": 4
+  "strategy_parameters": {
+    "RJF_SMA_68_77_RJF_D": {
+      "take_profit_pct": 13.41,
+      "stop_loss_pct": 6.6,
+      "max_holding_days": 172,
+      "min_holding_days": 20,
+      "trailing_stop_pct": 2.53,
+      "confidence_level": 0.9,
+      "sample_size": 111,
+      "statistical_validity": "HIGH",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.05559767171425265,
+      "trend_exit_threshold": 0.003,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-11T10:55:43.916568"
+    },
+    "QCOM_SMA_49_66_QCOM_D": {
+      "take_profit_pct": 16.12,
+      "stop_loss_pct": 8.6,
+      "max_holding_days": 128,
+      "min_holding_days": 12,
+      "trailing_stop_pct": 3.91,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.02,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-11T10:55:43.926286"
+    },
+    "HWM_SMA_7_9_HWM_D": {
+      "take_profit_pct": 11.94,
+      "stop_loss_pct": 7.96,
+      "max_holding_days": 125,
+      "min_holding_days": 15,
+      "trailing_stop_pct": 3.8,
+      "confidence_level": 0.9,
+      "sample_size": 154,
+      "statistical_validity": "HIGH",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.05728617357764935,
+      "trend_exit_threshold": 0.0030277800981292746,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-11T10:55:43.935718"
+    },
+    "DOV_SMA_45_86_DOV_D": {
+      "take_profit_pct": 16.12,
+      "stop_loss_pct": 8.6,
+      "max_holding_days": 180,
+      "min_holding_days": 24,
+      "trailing_stop_pct": 2.92,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.02,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-11T10:55:43.946768"
+    },
+    "TPR_SMA_14_30_TPR_D": {
+      "take_profit_pct": 13.57,
+      "stop_loss_pct": 6.95,
+      "max_holding_days": 171,
+      "min_holding_days": 19,
+      "trailing_stop_pct": 3.37,
+      "confidence_level": 0.9,
+      "sample_size": 107,
+      "statistical_validity": "HIGH",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.054971648567572445,
+      "trend_exit_threshold": 0.0030236480758322215,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-11T10:55:43.957513"
+    },
+    "FFIV_SMA_14_45_FFIV_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 2.98,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-11T10:55:43.965614"
+    },
+    "RTX_EMA_27_41_RTX_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 3.25,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-11T10:55:43.979670"
+    },
+    "SCHW_SMA_20_26_SCHW_D": {
+      "take_profit_pct": 13.76,
+      "stop_loss_pct": 8.11,
+      "max_holding_days": 139,
+      "min_holding_days": 14,
+      "trailing_stop_pct": 2.56,
+      "confidence_level": 0.9,
+      "sample_size": 228,
+      "statistical_validity": "HIGH",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.062343832597790215,
+      "trend_exit_threshold": 0.003,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-11T10:55:44.000870"
+    }
   },
-  "backtesting_parameters": [
-    {
-      "ticker": "TSLA",
-      "strategy_type": "SMA",
-      "short_window": 4,
-      "long_window": 39,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.11086126682170877,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.11485914972827097,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "PLTR",
-      "strategy_type": "SMA",
-      "short_window": 12,
-      "long_window": 14,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.11086126682170877,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.11485914972827097,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "FFIV",
-      "strategy_type": "SMA",
-      "short_window": 14,
-      "long_window": 45,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.11086126682170877,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.11485914972827097,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "RTX",
-      "strategy_type": "EMA",
-      "short_window": 27,
-      "long_window": 41,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.11086126682170877,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.11485914972827097,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
+  "generation_metadata": {
+    "generation_timestamp": "2025-07-11T10:55:43.899438",
+    "confidence_level": 0.9,
+    "total_strategies": 8,
+    "spds_version": "1.0.0",
+    "statistical_validity": {
+      "RJF_SMA_68_77_RJF_D": {
+        "sample_size": 111,
+        "confidence": 0.95,
+        "validity_level": "HIGH"
+      },
+      "QCOM_SMA_49_66_QCOM_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "HWM_SMA_7_9_HWM_D": {
+        "sample_size": 154,
+        "confidence": 0.95,
+        "validity_level": "HIGH"
+      },
+      "DOV_SMA_45_86_DOV_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "TPR_SMA_14_30_TPR_D": {
+        "sample_size": 107,
+        "confidence": 0.95,
+        "validity_level": "HIGH"
+      },
+      "FFIV_SMA_14_45_FFIV_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "RTX_EMA_27_41_RTX_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "SCHW_SMA_20_26_SCHW_D": {
+        "sample_size": 228,
+        "confidence": 0.95,
+        "validity_level": "HIGH"
       }
     }
-  ]
+  },
+  "framework_compatibility": {
+    "vectorbt": true,
+    "backtrader": true,
+    "zipline": true,
+    "custom": true
+  },
+  "usage_instructions": {
+    "description": "Statistical analysis-derived backtesting parameters",
+    "confidence_interpretation": "Higher confidence = more reliable parameters",
+    "sample_size_guidance": "Sample size \u226530 recommended for high reliability",
+    "parameter_derivation": "Parameters derived from percentile analysis of historical returns"
+  }
 }

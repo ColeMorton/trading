@@ -207,6 +207,19 @@ def run_strategies() -> bool:
 
 
 if __name__ == "__main__":
+    # DEPRECATION WARNING: Direct script execution is deprecated
+    # Use the CLI interface instead for better UX and features
+    import warnings
+
+    warnings.warn(
+        "Direct script execution is deprecated. Use the CLI interface instead:\n"
+        "python -m app.cli strategy run --strategy MACD --ticker AAPL,MSFT,GOOGL\n"
+        "python -m app.cli strategy run --strategy MACD --ticker BTC-USD --min-trades 30\n"
+        "For more information: python -m app.cli strategy --help",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
     try:
         # Run analysis with the direction specified in the configuration
         run_strategies()

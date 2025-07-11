@@ -87,7 +87,7 @@ class PortfolioStatisticalAnalyzer:
         return self._portfolio_data
 
     def load_trade_history(self) -> Optional[pd.DataFrame]:
-        """Load trade history CSV from ./csv/trade_history/ (same filename as portfolio)"""
+        """Load trade history CSV from ./csv/positions/ (same filename as portfolio)"""
         if not self.use_trade_history:
             return None
 
@@ -265,11 +265,11 @@ class PortfolioStatisticalAnalyzer:
                     short_window = parsed.get("short_window", "")
                     long_window = parsed.get("long_window", "")
 
-                    # Strategy name should NOT include ticker - just the strategy part
+                    # Strategy name should include ticker to match Position_UUID pattern
                     if str(short_window) and str(long_window):
-                        strategy_name = f"{strategy_type}_{short_window}_{long_window}"  # e.g. "SMA_78_82"
+                        strategy_name = f"{ticker}_{strategy_type}_{short_window}_{long_window}"  # e.g. "MA_SMA_78_82"
                     else:
-                        strategy_name = strategy_type
+                        strategy_name = f"{ticker}_{strategy_type}"
 
                 except Exception as e:
                     self.logger.warning(
@@ -300,9 +300,9 @@ class PortfolioStatisticalAnalyzer:
                 short_window = row.get("Short Window", row.get("short_window", ""))
                 long_window = row.get("Long Window", row.get("long_window", ""))
 
-                # Strategy name should NOT include ticker - just the strategy part
+                # Strategy name should include ticker to match Position_UUID pattern
                 if ticker != "UNKNOWN" and str(short_window) and str(long_window):
-                    strategy_name = f"{strategy_type}_{short_window}_{long_window}"  # e.g. "SMA_78_82"
+                    strategy_name = f"{ticker}_{strategy_type}_{short_window}_{long_window}"  # e.g. "MA_SMA_78_82"
                 else:
                     # Fallback to existing logic for other formats
                     strategy_name = row.get(
@@ -357,8 +357,24 @@ class PortfolioStatisticalAnalyzer:
                 # Try multiple matching approaches for trade history
                 strategy_trades = None
 
-                # Approach 1: Exact component matching
-                if "Ticker" in trade_history_data.columns:
+                # Approach 1: Position_UUID pattern matching
+                if "Position_UUID" in trade_history_data.columns:
+                    # Match against Position_UUID pattern (e.g., MA_SMA_78_82_2025-04-14)
+                    strategy_pattern = f"{strategy_name}_"  # e.g., "MA_SMA_78_82_"
+                    strategy_trades = trade_history_data[
+                        trade_history_data["Position_UUID"].str.startswith(
+                            strategy_pattern
+                        )
+                    ]
+                    if not strategy_trades.empty:
+                        self.logger.info(
+                            f"Found {len(strategy_trades)} trades using Position_UUID pattern matching"
+                        )
+
+                # Approach 2: Exact component matching (fallback if Position_UUID matching failed)
+                if (
+                    strategy_trades is None or strategy_trades.empty
+                ) and "Ticker" in trade_history_data.columns:
                     strategy_trades = trade_history_data[
                         (trade_history_data["Ticker"] == ticker)
                         & (
@@ -375,7 +391,7 @@ class PortfolioStatisticalAnalyzer:
                         )
                     ]
 
-                # Approach 2: Fuzzy UUID matching if exact matching fails
+                # Approach 3: Fuzzy UUID matching if exact matching fails
                 if strategy_trades is None or len(strategy_trades) == 0:
                     strategy_trades = self._fuzzy_match_trade_history(
                         trade_history_data, strategy_name, ticker, strategy_info

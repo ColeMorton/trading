@@ -251,9 +251,8 @@ class StrategyDataCoordinator:
                     ) if self.logger else None
                     return strategy_data
                 else:
-                    logger.warning(
-                        f"Strategy data not found for {strategy_identifier}"
-                    ) if self.logger else None
+                    # Enhanced error reporting with suggestions
+                    self._log_strategy_not_found_with_suggestions(strategy_identifier)
                     return None
 
         except Exception as e:
@@ -1094,23 +1093,80 @@ class StrategyDataCoordinator:
             return validation_result
 
     def _find_strategy_in_csv(self, identifier: str) -> Optional[Dict[str, Any]]:
-        """Find strategy in statistical CSV by name or UUID, with support for CSV files missing strategy_name column"""
+        """Find strategy in statistical CSV by name or UUID, with enhanced name resolution"""
         try:
             if not self.statistical_csv.exists():
                 return None
 
             df = pd.read_csv(self.statistical_csv)
 
-            # If the CSV has a strategy_name column, use existing logic
+            # Enhanced strategy name resolution
+            # First, try to parse the identifier to extract components
+            parsed_components = self._parse_strategy_identifier(identifier)
+
+            # If the CSV has a strategy_name column, use enhanced matching logic
             if "strategy_name" in df.columns:
-                # Try different matching strategies
-                for column in ["strategy_name", "ticker"]:
-                    if column in df.columns:
-                        # Exact match
-                        matches = df[df[column] == identifier]
+                # Try exact match first
+                matches = df[df["strategy_name"] == identifier]
+                if not matches.empty:
+                    return matches.iloc[0].to_dict()
+
+                # Try Position_UUID format parsing (e.g., TSLA_SMA_4_39_0_2025-06-11)
+                if parsed_components:
+                    ticker = parsed_components.get("ticker")
+                    strategy_type = parsed_components.get("strategy_type")
+                    short_window = parsed_components.get("short_window")
+                    long_window = parsed_components.get("long_window")
+
+                    if ticker and strategy_type and short_window and long_window:
+                        # Look for matching strategy by components
+                        expected_strategy_name = (
+                            f"{strategy_type}_{short_window}_{long_window}"
+                        )
+
+                        # Match by strategy_name and ticker
+                        matches = df[
+                            (df["strategy_name"] == expected_strategy_name)
+                            & (df["ticker"] == ticker)
+                        ]
                         if not matches.empty:
+                            logger.info(
+                                f"Found strategy using component matching: {expected_strategy_name} for ticker {ticker}"
+                            ) if self.logger else None
                             return matches.iloc[0].to_dict()
 
+                        # Try partial matching with different patterns
+                        for pattern in [
+                            f"{strategy_type}_{short_window}_{long_window}",
+                            f"{short_window}_{long_window}",
+                            f"{strategy_type}_{short_window}",
+                            f"{strategy_type}_{long_window}",
+                        ]:
+                            matches = df[
+                                (
+                                    df["strategy_name"].str.contains(
+                                        pattern, case=False, na=False
+                                    )
+                                )
+                                & (df["ticker"] == ticker)
+                            ]
+                            if not matches.empty:
+                                logger.info(
+                                    f"Found strategy using pattern matching: {pattern} for ticker {ticker}"
+                                ) if self.logger else None
+                                return matches.iloc[0].to_dict()
+
+                        # Try ticker-only matching as fallback
+                        matches = df[df["ticker"] == ticker]
+                        if not matches.empty:
+                            logger.info(
+                                f"Found strategy using ticker-only matching: {ticker}"
+                            ) if self.logger else None
+                            return matches.iloc[0].to_dict()
+
+                # Traditional matching strategies
+                for column in ["strategy_name", "ticker"]:
+                    if column in df.columns:
                         # Partial match (case insensitive)
                         matches = df[
                             df[column].str.contains(identifier, case=False, na=False)
@@ -1126,6 +1182,91 @@ class StrategyDataCoordinator:
 
         except Exception as e:
             logger.error(f"Error finding strategy in CSV: {e}") if self.logger else None
+            return None
+
+    def _parse_strategy_identifier(self, identifier: str) -> Optional[Dict[str, Any]]:
+        """
+        Parse strategy identifier to extract components.
+
+        Supports formats like:
+        - TSLA_SMA_4_39_0_2025-06-11 (Position_UUID format)
+        - AAPL_EMA_12_26_2025-07-10 (Position_UUID format)
+        - SMA_20_50 (strategy_name format)
+        """
+        try:
+            if not identifier or not isinstance(identifier, str):
+                return None
+
+            parts = identifier.split("_")
+
+            # Handle Position_UUID format: TICKER_STRATEGY_SHORT_LONG_SIGNAL_DATE
+            if len(parts) >= 4:
+                ticker = parts[0]
+                strategy_type = parts[1]
+
+                # Try to extract numeric parameters
+                try:
+                    short_window = int(parts[2])
+                    long_window = int(parts[3])
+
+                    # Extract signal window and date if present
+                    signal_window = None
+                    entry_date = None
+
+                    if len(parts) >= 5:
+                        try:
+                            signal_window = int(parts[4])
+                        except ValueError:
+                            pass
+
+                    if len(parts) >= 6:
+                        # Handle date format (might have hyphens)
+                        date_part = "_".join(parts[5:])
+                        # Look for date patterns like 2025-06-11
+                        import re
+
+                        date_match = re.search(r"(\d{4}-\d{2}-\d{2})", date_part)
+                        if date_match:
+                            entry_date = date_match.group(1)
+
+                    return {
+                        "ticker": ticker,
+                        "strategy_type": strategy_type,
+                        "short_window": short_window,
+                        "long_window": long_window,
+                        "signal_window": signal_window,
+                        "entry_date": entry_date,
+                        "format": "position_uuid",
+                    }
+                except (ValueError, IndexError):
+                    pass
+
+            # Handle strategy_name format: SMA_20_50
+            if len(parts) >= 3:
+                strategy_type = parts[0]
+                try:
+                    short_window = int(parts[1])
+                    long_window = int(parts[2])
+
+                    return {
+                        "strategy_type": strategy_type,
+                        "short_window": short_window,
+                        "long_window": long_window,
+                        "format": "strategy_name",
+                    }
+                except (ValueError, IndexError):
+                    pass
+
+            # Handle simple ticker format
+            if len(parts) == 1 and identifier.isalpha():
+                return {"ticker": identifier, "format": "ticker_only"}
+
+            return None
+
+        except Exception as e:
+            logger.warning(
+                f"Error parsing strategy identifier '{identifier}': {e}"
+            ) if self.logger else None
             return None
 
     def _find_strategy_by_constructed_name(
@@ -1368,3 +1509,417 @@ class StrategyDataCoordinator:
             }
         except Exception as e:
             return {"error": str(e)}
+
+    def _log_strategy_not_found_with_suggestions(
+        self, strategy_identifier: str
+    ) -> None:
+        """
+        Log detailed error message with suggestions when strategy is not found.
+        """
+        try:
+            logger.warning(
+                f"Strategy data not found for {strategy_identifier}"
+            ) if self.logger else None
+
+            # Parse the identifier to provide specific suggestions
+            parsed_components = self._parse_strategy_identifier(strategy_identifier)
+
+            if parsed_components:
+                if parsed_components.get("format") == "position_uuid":
+                    # Position UUID format - suggest checking ticker and strategy availability
+                    ticker = parsed_components.get("ticker")
+                    strategy_type = parsed_components.get("strategy_type")
+                    short_window = parsed_components.get("short_window")
+                    long_window = parsed_components.get("long_window")
+
+                    logger.info(
+                        f"Parsed Position_UUID format: ticker={ticker}, strategy_type={strategy_type}, "
+                        f"short_window={short_window}, long_window={long_window}"
+                    ) if self.logger else None
+
+                    # Check if ticker exists in CSV
+                    if ticker and self.statistical_csv.exists():
+                        try:
+                            df = pd.read_csv(self.statistical_csv)
+                            if "ticker" in df.columns:
+                                ticker_strategies = df[df["ticker"] == ticker]
+                                if ticker_strategies.empty:
+                                    logger.warning(
+                                        f"No strategies found for ticker {ticker} in statistical analysis data"
+                                    ) if self.logger else None
+
+                                    # Show available tickers
+                                    available_tickers = df["ticker"].unique()[:10]
+                                    logger.info(
+                                        f"Available tickers: {', '.join(available_tickers)}"
+                                    ) if self.logger else None
+                                else:
+                                    # Show available strategies for this ticker
+                                    available_strategies = ticker_strategies[
+                                        "strategy_name"
+                                    ].tolist()
+                                    logger.info(
+                                        f"Available strategies for {ticker}: {', '.join(available_strategies)}"
+                                    ) if self.logger else None
+
+                                    # Suggest closest match
+                                    expected_strategy = (
+                                        f"{strategy_type}_{short_window}_{long_window}"
+                                    )
+                                    closest_match = self._find_closest_strategy_match(
+                                        expected_strategy, available_strategies
+                                    )
+                                    if closest_match:
+                                        logger.info(
+                                            f"Closest match for {ticker}: {closest_match}"
+                                        ) if self.logger else None
+                        except Exception as e:
+                            logger.warning(
+                                f"Error checking ticker availability: {e}"
+                            ) if self.logger else None
+
+                elif parsed_components.get("format") == "strategy_name":
+                    # Strategy name format - suggest checking available strategies
+                    strategy_type = parsed_components.get("strategy_type")
+                    short_window = parsed_components.get("short_window")
+                    long_window = parsed_components.get("long_window")
+
+                    logger.info(
+                        f"Parsed strategy_name format: strategy_type={strategy_type}, "
+                        f"short_window={short_window}, long_window={long_window}"
+                    ) if self.logger else None
+
+                    # Show available strategies
+                    self._show_available_strategies(limit=10)
+
+            else:
+                logger.info(
+                    f"Could not parse strategy identifier: {strategy_identifier}"
+                ) if self.logger else None
+                self._show_available_strategies(limit=10)
+
+        except Exception as e:
+            logger.error(
+                f"Error in strategy not found reporting: {e}"
+            ) if self.logger else None
+
+    def _find_closest_strategy_match(
+        self, target_strategy: str, available_strategies: List[str]
+    ) -> Optional[str]:
+        """
+        Find the closest matching strategy name using simple similarity.
+        """
+        try:
+            if not available_strategies:
+                return None
+
+            # Simple similarity based on common characters
+            best_match = None
+            best_score = 0
+
+            for strategy in available_strategies:
+                # Count common characters
+                common_chars = sum(
+                    1 for a, b in zip(target_strategy, strategy) if a == b
+                )
+                score = common_chars / max(len(target_strategy), len(strategy))
+
+                if score > best_score:
+                    best_score = score
+                    best_match = strategy
+
+            # Only return if similarity is reasonably high
+            if best_score > 0.5:
+                return best_match
+
+            return None
+
+        except Exception as e:
+            logger.warning(
+                f"Error finding closest strategy match: {e}"
+            ) if self.logger else None
+            return None
+
+    def _show_available_strategies(self, limit: int = 10) -> None:
+        """
+        Show available strategies for troubleshooting.
+        """
+        try:
+            if not self.statistical_csv.exists():
+                logger.warning(
+                    "Statistical CSV file not found"
+                ) if self.logger else None
+                return
+
+            df = pd.read_csv(self.statistical_csv)
+
+            if "strategy_name" in df.columns:
+                available_strategies = df["strategy_name"].unique()[:limit]
+                logger.info(
+                    f"Available strategies: {', '.join(available_strategies)}"
+                ) if self.logger else None
+
+                if len(df) > limit:
+                    logger.info(
+                        f"... and {len(df) - limit} more strategies"
+                    ) if self.logger else None
+            else:
+                logger.info(
+                    "No strategy_name column found in statistical CSV"
+                ) if self.logger else None
+
+        except Exception as e:
+            logger.warning(
+                f"Error showing available strategies: {e}"
+            ) if self.logger else None
+
+    def diagnose_strategy_data_issue(self, strategy_identifier: str) -> Dict[str, Any]:
+        """
+        Comprehensive diagnostic tool for strategy data issues.
+
+        Returns detailed analysis and suggestions for resolving strategy data problems.
+        """
+        try:
+            diagnosis = {
+                "strategy_identifier": strategy_identifier,
+                "timestamp": datetime.now().isoformat(),
+                "status": "unknown",
+                "found_in_sources": {},
+                "parsing_results": {},
+                "suggestions": [],
+                "available_alternatives": [],
+                "data_integrity_issues": [],
+            }
+
+            # Step 1: Parse the identifier
+            parsed_components = self._parse_strategy_identifier(strategy_identifier)
+            if parsed_components:
+                diagnosis["parsing_results"] = parsed_components
+                diagnosis["status"] = "parsed_successfully"
+            else:
+                diagnosis["status"] = "parsing_failed"
+                diagnosis["suggestions"].append(
+                    "Strategy identifier format not recognized"
+                )
+                return diagnosis
+
+            # Step 2: Check availability in different data sources
+            diagnosis["found_in_sources"] = self._check_strategy_in_all_sources(
+                strategy_identifier, parsed_components
+            )
+
+            # Step 3: Generate specific suggestions based on findings
+            diagnosis["suggestions"] = self._generate_diagnostic_suggestions(
+                parsed_components, diagnosis["found_in_sources"]
+            )
+
+            # Step 4: Find alternative strategies
+            diagnosis["available_alternatives"] = self._find_alternative_strategies(
+                parsed_components
+            )
+
+            # Step 5: Check data integrity
+            diagnosis["data_integrity_issues"] = self._check_data_integrity_issues()
+
+            # Step 6: Overall assessment
+            if any(diagnosis["found_in_sources"].values()):
+                diagnosis["status"] = "partially_found"
+            else:
+                diagnosis["status"] = "not_found"
+
+            return diagnosis
+
+        except Exception as e:
+            return {
+                "strategy_identifier": strategy_identifier,
+                "status": "diagnostic_error",
+                "error": str(e),
+                "suggestions": ["Unable to complete diagnostic - check system logs"],
+            }
+
+    def _check_strategy_in_all_sources(
+        self, strategy_identifier: str, parsed_components: Dict[str, Any]
+    ) -> Dict[str, bool]:
+        """
+        Check if strategy exists in all data sources.
+        """
+        sources = {
+            "statistical_csv": False,
+            "statistical_json": False,
+            "backtesting_json": False,
+            "backtesting_csv": False,
+            "positions_csv": False,
+        }
+
+        try:
+            # Check statistical CSV
+            if self.statistical_csv.exists():
+                strategy_row = self._find_strategy_in_csv(strategy_identifier)
+                sources["statistical_csv"] = strategy_row is not None
+
+            # Check positions CSV
+            if self.positions_csv.exists():
+                df = pd.read_csv(self.positions_csv)
+                if "Position_UUID" in df.columns:
+                    sources["positions_csv"] = (
+                        strategy_identifier in df["Position_UUID"].values
+                    )
+
+            # Check statistical JSON
+            if self.statistical_json.exists():
+                with open(self.statistical_json, "r") as f:
+                    data = json.load(f)
+                    results = data.get("results", [])
+                    sources["statistical_json"] = any(
+                        result.get("strategy_name") == strategy_identifier
+                        for result in results
+                    )
+
+            # Check backtesting JSON
+            if self.backtesting_json.exists():
+                with open(self.backtesting_json, "r") as f:
+                    data = json.load(f)
+                    results = data.get("results", [])
+                    sources["backtesting_json"] = any(
+                        result.get("strategy_name") == strategy_identifier
+                        for result in results
+                    )
+
+            # Check backtesting CSV
+            if self.backtesting_csv.exists():
+                df = pd.read_csv(self.backtesting_csv)
+                if "strategy_name" in df.columns:
+                    sources["backtesting_csv"] = (
+                        strategy_identifier in df["strategy_name"].values
+                    )
+
+        except Exception as e:
+            logger.warning(f"Error checking sources: {e}") if self.logger else None
+
+        return sources
+
+    def _generate_diagnostic_suggestions(
+        self, parsed_components: Dict[str, Any], sources: Dict[str, bool]
+    ) -> List[str]:
+        """
+        Generate specific suggestions based on diagnostic results.
+        """
+        suggestions = []
+
+        # Check if position exists but strategy data doesn't
+        if sources.get("positions_csv") and not sources.get("statistical_csv"):
+            suggestions.append(
+                "Position exists but no statistical analysis data found - run SPDS analysis for this strategy"
+            )
+
+        # Check if it's a ticker issue
+        if parsed_components.get("format") == "position_uuid":
+            ticker = parsed_components.get("ticker")
+            if ticker and not sources.get("statistical_csv"):
+                suggestions.append(
+                    f"No statistical data found for ticker {ticker} - check if ticker is included in analysis"
+                )
+
+        # Check for partial data
+        if sources.get("statistical_csv") and not sources.get("statistical_json"):
+            suggestions.append(
+                "Strategy found in CSV but not JSON - check statistical analysis export process"
+            )
+
+        # Check if no data found anywhere
+        if not any(sources.values()):
+            suggestions.append(
+                "Strategy not found in any data source - check strategy name format and availability"
+            )
+
+            if parsed_components.get("format") == "position_uuid":
+                ticker = parsed_components.get("ticker")
+                strategy_type = parsed_components.get("strategy_type")
+                short_window = parsed_components.get("short_window")
+                long_window = parsed_components.get("long_window")
+
+                suggestions.append(
+                    f"Try searching for: {strategy_type}_{short_window}_{long_window} with ticker {ticker}"
+                )
+
+        return suggestions
+
+    def _find_alternative_strategies(
+        self, parsed_components: Dict[str, Any]
+    ) -> List[str]:
+        """
+        Find alternative strategies that might be what the user is looking for.
+        """
+        alternatives = []
+
+        try:
+            if not self.statistical_csv.exists():
+                return alternatives
+
+            df = pd.read_csv(self.statistical_csv)
+
+            if parsed_components.get("format") == "position_uuid":
+                ticker = parsed_components.get("ticker")
+                strategy_type = parsed_components.get("strategy_type")
+
+                # Find strategies for same ticker
+                if ticker and "ticker" in df.columns:
+                    ticker_strategies = df[df["ticker"] == ticker]
+                    if not ticker_strategies.empty:
+                        alternatives.extend(
+                            ticker_strategies["strategy_name"].tolist()[:5]
+                        )
+
+                # Find strategies of same type
+                if strategy_type and "strategy_name" in df.columns:
+                    type_strategies = df[
+                        df["strategy_name"].str.contains(
+                            strategy_type, case=False, na=False
+                        )
+                    ]
+                    if not type_strategies.empty:
+                        alternatives.extend(
+                            type_strategies["strategy_name"].tolist()[:5]
+                        )
+
+        except Exception as e:
+            logger.warning(f"Error finding alternatives: {e}") if self.logger else None
+
+        return list(set(alternatives))  # Remove duplicates
+
+    def _check_data_integrity_issues(self) -> List[str]:
+        """
+        Check for common data integrity issues.
+        """
+        issues = []
+
+        try:
+            # Check if required files exist
+            required_files = [
+                ("statistical_csv", self.statistical_csv),
+                ("statistical_json", self.statistical_json),
+                ("positions_csv", self.positions_csv),
+            ]
+
+            for name, file_path in required_files:
+                if not file_path.exists():
+                    issues.append(f"Missing required file: {file_path}")
+                elif file_path.stat().st_size == 0:
+                    issues.append(f"Empty file: {file_path}")
+
+            # Check CSV column integrity
+            if self.statistical_csv.exists():
+                df = pd.read_csv(self.statistical_csv)
+                required_columns = ["strategy_name", "ticker", "timeframe"]
+                missing_columns = [
+                    col for col in required_columns if col not in df.columns
+                ]
+                if missing_columns:
+                    issues.append(
+                        f"Missing columns in statistical CSV: {missing_columns}"
+                    )
+
+        except Exception as e:
+            issues.append(f"Error checking data integrity: {e}")
+
+        return issues

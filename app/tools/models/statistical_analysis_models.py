@@ -574,6 +574,72 @@ class StatisticalAnalysisResult(BaseModel):
     class Config:
         use_enum_values = True
 
+    # Legacy properties for backward compatibility
+    @property
+    def timeframe(self) -> str:
+        """Legacy timeframe property for backward compatibility"""
+        return self.strategy_analysis.timeframe
+
+    @property
+    def sample_size(self) -> int:
+        """Legacy sample_size property for backward compatibility"""
+        if self.strategy_analysis.trade_history_analysis:
+            return self.strategy_analysis.trade_history_analysis.total_trades
+        elif self.strategy_analysis.equity_analysis:
+            return self.strategy_analysis.statistics.count
+        else:
+            return self.strategy_analysis.statistics.count
+
+    @property
+    def sample_size_confidence(self) -> float:
+        """Legacy sample_size_confidence property for backward compatibility"""
+        if self.strategy_analysis.trade_history_analysis:
+            return self.strategy_analysis.trade_history_analysis.confidence_score
+        elif self.strategy_analysis.equity_analysis:
+            return self.strategy_analysis.equity_analysis.confidence_score
+        else:
+            return self.strategy_analysis.confidence_score
+
+    @property
+    def performance_metrics(self) -> Dict[str, Any]:
+        """Legacy performance_metrics property for backward compatibility"""
+        metrics = {}
+
+        # Add basic statistics
+        stats = self.strategy_analysis.statistics
+        metrics.update(
+            {
+                "mean": stats.mean,
+                "std": stats.std,
+                "min": stats.min_value,
+                "max": stats.max_value,
+                "count": stats.count,
+            }
+        )
+
+        # Add strategy-specific metrics
+        if self.strategy_analysis.win_rate is not None:
+            metrics["win_rate"] = self.strategy_analysis.win_rate
+        if self.strategy_analysis.profit_factor is not None:
+            metrics["profit_factor"] = self.strategy_analysis.profit_factor
+        if self.strategy_analysis.sharpe_ratio is not None:
+            metrics["sharpe_ratio"] = self.strategy_analysis.sharpe_ratio
+        if self.strategy_analysis.max_drawdown is not None:
+            metrics["max_drawdown"] = self.strategy_analysis.max_drawdown
+
+        # Add trade history metrics if available
+        if self.strategy_analysis.trade_history_analysis:
+            th = self.strategy_analysis.trade_history_analysis
+            metrics.update(
+                {
+                    "mfe": th.mfe_statistics.mean if th.mfe_statistics else None,
+                    "mae": th.mae_statistics.mean if th.mae_statistics else None,
+                    "current_return": self.asset_analysis.current_return,
+                }
+            )
+
+        return metrics
+
 
 class BacktestingParameters(BaseModel):
     """Deterministic backtesting parameters generated from statistical analysis"""

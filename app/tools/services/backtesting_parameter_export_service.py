@@ -2038,6 +2038,44 @@ These parameters have limited statistical support. Not recommended for productio
 
         return report_file
 
+    async def export_backtesting_parameters(
+        self, results_list: List[StatisticalAnalysisResult], portfolio: str
+    ) -> Dict[str, str]:
+        """
+        Export backtesting parameters from statistical analysis results
+
+        Args:
+            results_list: List of statistical analysis results
+            portfolio: Portfolio name for export naming
+
+        Returns:
+            Dictionary mapping framework to exported file path
+        """
+        try:
+            self.logger.info(
+                f"Starting backtesting parameter export for portfolio: {portfolio}"
+            )
+
+            # Generate deterministic parameters
+            parameters_data = await self.generate_deterministic_parameters(
+                results_list, confidence_level=0.90, export_name=portfolio
+            )
+
+            # Export to all frameworks
+            exported_files = await self.export_all_frameworks(
+                parameters_data, portfolio
+            )
+
+            self.logger.info(
+                f"Successfully exported backtesting parameters: {list(exported_files.keys())}"
+            )
+
+            return exported_files
+
+        except Exception as e:
+            self.logger.error(f"Backtesting parameter export failed: {e}")
+            raise
+
     def _ensure_export_directories(self):
         """Create export directory if it doesn't exist"""
         self.export_base_path.mkdir(parents=True, exist_ok=True)

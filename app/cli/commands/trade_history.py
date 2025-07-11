@@ -16,6 +16,7 @@ from rich.table import Table
 
 from ..config import ConfigLoader
 from ..models.trade_history import TradeHistoryConfig
+from ..utils import resolve_portfolio_path
 
 # Create trade-history sub-app
 app = typer.Typer(
@@ -111,7 +112,7 @@ def close(
             # Validate portfolio file exists
             from pathlib import Path
 
-            portfolio_file = Path(f"csv/positions/{portfolio}.csv")
+            portfolio_file = Path(f"csv/positions/{resolve_portfolio_path(portfolio)}")
             if not portfolio_file.exists():
                 rprint(f"[red]❌ Portfolio file not found: {portfolio_file}[/red]")
                 rprint("[yellow]Available portfolios:[/yellow]")
@@ -188,7 +189,9 @@ def close(
 
             try:
                 # Load portfolio CSV
-                portfolio_df = pd.read_csv(f"csv/positions/{portfolio}.csv")
+                portfolio_df = pd.read_csv(
+                    f"csv/positions/{resolve_portfolio_path(portfolio)}"
+                )
 
                 # Find the position by UUID (strategy parameter should be Position_UUID)
                 position_mask = portfolio_df["Position_UUID"] == strategy
@@ -255,7 +258,9 @@ def close(
                     )
 
                 # Save updated portfolio
-                portfolio_df.to_csv(f"csv/positions/{portfolio}.csv", index=False)
+                portfolio_df.to_csv(
+                    f"csv/positions/{resolve_portfolio_path(portfolio)}", index=False
+                )
 
                 # Display success message
                 rprint("[green]✅ Position closed successfully![/green]")
@@ -545,7 +550,7 @@ from datetime import datetime
 import os
 
 # Basic update - at minimum update Days_Since_Entry
-df = pd.read_csv('csv/positions/{portfolio}.csv')
+df = pd.read_csv(f'csv/positions/{resolve_portfolio_path(portfolio)}')
 open_positions = df[df['Status'] == 'Open'].copy()
 
 print(f"🔄 Fallback: Updating {{len(open_positions)}} open positions...")
@@ -569,7 +574,7 @@ for idx, position in open_positions.iterrows():
     updated_count += 1
 
 # Save updated dataframe
-df.to_csv('csv/positions/{portfolio}.csv', index=False)
+df.to_csv(f'csv/positions/{resolve_portfolio_path(portfolio)}', index=False)
 print(f"✅ Fallback update completed: {{updated_count}} positions")
 """
 

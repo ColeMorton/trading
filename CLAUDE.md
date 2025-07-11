@@ -35,31 +35,52 @@ python app/api/test_api.py
 
 ### Strategy Execution
 
+**Primary Interface (Recommended):**
+
 ```bash
 # Run MA Cross strategy analysis
-python app/ma_cross/1_get_portfolios.py
+python -m app.cli strategy run --profile ma_cross_crypto
 
 # Run MACD strategy analysis
-python app/strategies/macd/1_get_portfolios.py
+python -m app.cli strategy run --strategy MACD --ticker AAPL,MSFT,GOOGL
+
+# Custom strategy execution with parameters
+python -m app.cli strategy run --ticker BTC-USD --strategy SMA --min-trades 50
+
+# Parameter sweep analysis
+python -m app.cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50 --slow-min 20 --slow-max 200
 
 # Update and aggregate portfolio results
-python app/strategies/update_portfolios.py
+python -m app.cli portfolio update --validate --export-format json
 
 # Run concurrency analysis with trade history export
-python app/concurrency/review.py
+python -m app.cli concurrency analyze --export-trades
+```
+
+**Legacy Interface (Deprecated):**
+
+```bash
+# Direct script execution - use CLI instead
+python app/strategies/ma_cross/1_get_portfolios.py       # → python -m app.cli strategy run
+python app/strategies/macd/1_get_portfolios.py           # → python -m app.cli strategy run --strategy MACD
+python app/strategies/update_portfolios.py               # → python -m app.cli portfolio update
+python app/concurrency/review.py                         # → python -m app.cli concurrency analyze
 ```
 
 ### Statistical Performance Divergence System
 
 ```bash
-# Quick portfolio analysis
+# Quick portfolio analysis - automatically uses both equity curves and trade history data
+# Always exports both statistical analysis and backtesting parameters
 python -m app.cli spds analyze risk_on.csv
 
-# Analysis with trade history
-python -m app.cli spds analyze risk_on.csv --trade-history
+# Explicit data source specification (auto-detects by default)
+python -m app.cli spds analyze risk_on.csv --data-source auto
 
-# Analysis with equity curves only
-python -m app.cli spds analyze conservative.csv --no-trade-history
+# Force specific data source
+python -m app.cli spds analyze risk_on.csv --data-source trade-history
+python -m app.cli spds analyze conservative.csv --data-source equity-curves
+python -m app.cli spds analyze portfolio.csv --data-source both
 
 # Interactive mode
 python -m app.cli spds interactive
@@ -82,9 +103,17 @@ python -m app.cli spds analyze risk_on.csv --save-results results.json
 
 ### Trade History Analysis
 
+**Primary Interface (Recommended):**
+
 ```bash
 # List all available strategies for analysis
 python -m app.cli trade-history list
+
+# Close position and update portfolio (primary use case)
+python -m app.cli trade-history close \
+  --strategy NFLX_SMA_82_83_2025-06-16 \
+  --portfolio risk_on \
+  --price 1273.99
 
 # Generate comprehensive sell signal report
 python -m app.cli trade-history close MA_SMA_78_82
@@ -116,29 +145,40 @@ python -m app.cli trade-history update \
   --update-risk \
   --dry-run
 
-# Alternative direct execution (if CLI not working)
-python -m app.tools.generalized_trade_history_exporter --update-open-positions --portfolio live_signals
-
-# IMPORTANT: Use module execution (-m), NOT direct script execution
-# ❌ WRONG: python app/tools/generalized_trade_history_exporter.py
-# ✅ CORRECT: python -m app.tools.generalized_trade_history_exporter
-
 # System health check and data validation
 python -m app.cli trade-history health
 python -m app.cli trade-history validate
+```
+
+**Legacy Interface (Deprecated):**
+
+```bash
+# Direct module execution - use CLI instead
+python -m app.tools.generalized_trade_history_exporter --update-open-positions --portfolio live_signals
+
+# IMPORTANT: Use CLI interface instead of direct module execution
+# ❌ DEPRECATED: python app/tools/generalized_trade_history_exporter.py
+# ❌ DEPRECATED: python -m app.tools.generalized_trade_history_exporter
+# ✅ RECOMMENDED: python -m app.cli trade-history update --portfolio live_signals
 ```
 
 ## Architecture Overview
 
 ### Core Components
 
+- **Unified Trading CLI** (`/app/cli/`): **Primary interface** built with Typer for comprehensive trading operations with:
+  - **Type-Safe Configuration**: YAML-based profiles with Pydantic validation
+  - **Profile Management**: Inheritance, templates, and runtime overrides
+  - **Rich Terminal Output**: Formatted tables, progress bars, and interactive features
+  - **Unified Commands**: Strategy execution, portfolio management, SPDS analysis, trade history
+  - **Backward Compatibility**: Legacy config conversion for existing implementations
 - **FastAPI REST API** (`/app/api/`): RESTful endpoints with routers for scripts, data, strategy analysis, CSV viewer, and trading dashboard
 - **Modular Strategy Analysis Service** (`/app/api/services/`, `/app/tools/services/`): Decomposed service architecture with:
   - **StrategyExecutionEngine**: Strategy validation and execution logic
   - **PortfolioProcessingService**: Portfolio data processing and conversion
   - **ResultAggregationService**: Result formatting and task management
   - **ServiceCoordinator**: Orchestrates all services while maintaining interface compatibility
-- **MA Cross Strategy** (`/app/ma_cross/`): Moving average crossover implementation with core abstraction layer for programmatic and CLI usage
+- **MA Cross Strategy** (`/app/strategies/ma_cross/`): Moving average crossover implementation with core abstraction layer for programmatic and CLI usage
 - **MACD Strategy** (`/app/strategies/macd/`): MACD crossover strategy with comprehensive parameter analysis and multi-ticker support
 - **Portfolio Management** (`/app/strategies/`): Portfolio aggregation, filtering, and performance metrics calculation
 - **Trading Tools** (`/app/tools/`): Comprehensive utilities for backtesting, signal processing, metrics calculation, and data management
@@ -153,17 +193,21 @@ python -m app.cli trade-history validate
 
 ### Data Flow
 
-1. Market data acquisition via yfinance → CSV storage (`/csv/price_data/`)
-2. Strategy analysis → Portfolio CSVs (`/csv/portfolios/`)
-3. Portfolio aggregation/filtering → Best portfolios (`/csv/portfolios_best/`, `/csv/portfolios_filtered/`)
-4. API access → Real-time strategy execution and data retrieval
+1. **CLI Command** → Profile/config loading → Parameter validation
+2. **Market Data Acquisition** → yfinance → CSV storage (`/csv/price_data/`)
+3. **Strategy Analysis** → CLI execution → Portfolio CSVs (`/csv/portfolios/`)
+4. **Portfolio Processing** → Aggregation/filtering → Best portfolios (`/csv/portfolios_best/`, `/csv/portfolios_filtered/`)
+5. **Output Generation** → Rich formatted results → JSON/CSV exports
+6. **API Access** → Real-time strategy execution and data retrieval (alternative interface)
 
 ### Key Technologies
 
+- **Typer** for CLI framework with Rich formatting
+- **Pydantic** for type-safe configuration and validation
+- **YAML** for human-readable configuration profiles
 - **Poetry** for dependency management
 - **Polars** for high-performance data processing
 - **VectorBT** for backtesting
-- **Pydantic** for type-safe request/response handling
 - **Memory Optimization** for efficient large-scale data processing
 
 ### Notable Features
@@ -434,6 +478,165 @@ strategy_engine = StrategyExecutionEngine(
 3. **Monitor Performance**: Use memory profiling scripts to validate optimization effectiveness
 4. **Gradual Adoption**: Enable optimization service-by-service for controlled rollout
 
+## Migration Guide: Direct Scripts → CLI
+
+### Overview
+
+The trading system has been standardized to use the **Unified Trading CLI** as the primary interface. This provides better UX, type safety, and maintainability while maintaining 100% backward compatibility.
+
+### Migration Benefits
+
+- **Consistent Interface**: Single entry point for all trading operations
+- **Dynamic Configuration**: Runtime parameter overrides without code changes
+- **Type Safety**: Comprehensive validation with clear error messages
+- **Rich Output**: Formatted tables, progress indicators, and interactive features
+- **Profile Management**: Reusable configuration templates with inheritance
+- **Better Documentation**: Built-in help system with examples
+
+### Common Migration Patterns
+
+#### Strategy Execution
+
+```bash
+# OLD: Direct script execution
+python app/strategies/ma_cross/1_get_portfolios.py
+
+# NEW: CLI with profile
+python -m app.cli strategy run --profile ma_cross_crypto
+
+# NEW: CLI with custom parameters
+python -m app.cli strategy run --ticker AAPL,MSFT --strategy SMA --min-trades 50
+```
+
+#### Portfolio Management
+
+```bash
+# OLD: Direct script execution
+python app/strategies/update_portfolios.py
+
+# NEW: CLI with validation
+python -m app.cli portfolio update --validate --export-format json
+```
+
+#### Trade History Analysis
+
+```bash
+# OLD: Direct module execution
+python -m app.tools.generalized_trade_history_exporter --update-open-positions --portfolio live_signals
+
+# NEW: CLI command
+python -m app.cli trade-history update --portfolio live_signals --refresh-prices
+```
+
+#### Parameter Sweeps
+
+```bash
+# OLD: Edit CONFIG dictionary in source code
+# NEW: CLI parameter sweep
+python -m app.cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50 --slow-min 20 --slow-max 200
+```
+
+### Configuration Migration
+
+#### From Hardcoded CONFIG to CLI Profiles
+
+**Old Approach (Hardcoded):**
+
+```python
+CONFIG = {
+    "TICKER": ["AAPL", "MSFT", "GOOGL"],
+    "STRATEGY_TYPES": ["SMA", "EMA"],
+    "WINDOWS": 89,
+    "MINIMUMS": {
+        "WIN_RATE": 0.5,
+        "TRADES": 44,
+    }
+}
+```
+
+**New Approach (CLI Profile):**
+
+```yaml
+# app/cli/profiles/my_strategy.yaml
+metadata:
+  name: my_strategy
+  description: 'Custom strategy configuration'
+
+config_type: strategy
+config:
+  ticker: [AAPL, MSFT, GOOGL]
+  strategy_types: [SMA, EMA]
+  windows: 89
+  minimums:
+    win_rate: 0.5
+    trades: 44
+```
+
+**Usage:**
+
+```bash
+python -m app.cli strategy run --profile my_strategy
+```
+
+### Performance Comparison
+
+The CLI maintains **identical performance** to direct script execution because:
+
+1. **Same Core Logic**: CLI calls the same underlying functions
+2. **Minimal Overhead**: Configuration conversion is lightweight
+3. **No Additional Processing**: Same algorithms, same data paths
+4. **Identical Outputs**: Same CSV exports, same filtering, same results
+
+### Compatibility Guarantee
+
+- **100% Backward Compatibility**: All existing functionality preserved
+- **Same Results**: CLI produces identical outputs to direct scripts
+- **Legacy Support**: Direct script execution still works with deprecation warnings
+- **Gradual Migration**: No forced migration timeline
+
+### CLI Quick Start
+
+```bash
+# Initialize CLI system
+python -m app.cli init
+
+# List available profiles
+python -m app.cli config list
+
+# Run strategy with profile
+python -m app.cli strategy run --profile ma_cross_crypto
+
+# Get help for any command
+python -m app.cli strategy --help
+python -m app.cli --help
+```
+
+### Error Handling and Troubleshooting
+
+The CLI provides enhanced error handling:
+
+```bash
+# Validate configuration
+python -m app.cli config validate
+
+# System health check
+python -m app.cli tools health
+
+# Run with dry-run to preview
+python -m app.cli strategy run --profile my_strategy --dry-run
+
+# Verbose output for debugging
+python -m app.cli strategy run --profile my_strategy --verbose
+```
+
+### Best Practices
+
+1. **Use Profiles**: Create reusable configuration profiles instead of hardcoded values
+2. **Start with Dry Run**: Test configurations with `--dry-run` before execution
+3. **Validate Configs**: Use `python -m app.cli config validate` regularly
+4. **Health Checks**: Run `python -m app.cli tools health` for system diagnostics
+5. **Help System**: Use `--help` flags for command-specific documentation
+
 ## Custom Commands
 
 ### SPDS Assistant
@@ -457,6 +660,34 @@ The Statistical Performance Divergence System Assistant provides comprehensive g
 /spds_assistant troubleshoot
 /spds_assistant demo
 ```
+
+## CLI-First Architecture
+
+### Design Principles
+
+The trading system follows a **CLI-first architecture** with the following principles:
+
+1. **Unified Interface**: Single entry point for all trading operations
+2. **Type Safety**: Comprehensive validation with Pydantic models
+3. **Configuration Management**: YAML-based profiles with inheritance
+4. **Rich User Experience**: Formatted output, progress indicators, interactive features
+5. **Backward Compatibility**: Legacy support through config conversion
+6. **Performance Parity**: Identical performance to direct script execution
+
+### Implementation Strategy
+
+- **Primary Interface**: CLI commands for all user interactions
+- **Legacy Support**: Direct script execution with deprecation warnings
+- **Configuration**: Profile-based with runtime overrides
+- **Validation**: Type-safe configuration with business logic validation
+- **Error Handling**: Comprehensive error messages with resolution guidance
+
+### Integration Points
+
+- **API Server**: Alternative interface for programmatic access
+- **Direct Functions**: Internal library functions for advanced use cases
+- **Configuration System**: Shared configuration models across interfaces
+- **Service Layer**: Common business logic regardless of interface
 
 ## important-instruction-reminders
 

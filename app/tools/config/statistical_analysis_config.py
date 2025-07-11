@@ -38,7 +38,7 @@ class SPDSConfig:
 
     # Auto-derived paths based on PORTFOLIO
     PORTFOLIO_PATH: str = "./csv/strategies/"
-    TRADE_HISTORY_PATH: str = "./csv/trade_history/"
+    TRADE_HISTORY_PATH: str = "./csv/positions/"
     FALLBACK_TO_EQUITY: bool = True
 
     # Data Source Paths

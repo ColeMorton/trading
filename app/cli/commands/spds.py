@@ -17,6 +17,7 @@ from rich.table import Table
 
 from ..config import ConfigLoader
 from ..models.spds import SPDSConfig
+from ..utils import resolve_portfolio_path
 
 # Create SPDS sub-app
 app = typer.Typer(
@@ -42,7 +43,9 @@ def _detect_available_data_sources(portfolio: str) -> dict:
         from ...tools.config.statistical_analysis_config import SPDSConfig
 
         # Create a temporary config to check file paths
-        temp_config = SPDSConfig(PORTFOLIO=portfolio, USE_TRADE_HISTORY=True)
+        temp_config = SPDSConfig(
+            PORTFOLIO=resolve_portfolio_path(portfolio), USE_TRADE_HISTORY=True
+        )
         trade_history_path = temp_config.get_trade_history_file_path()
 
         # Check portfolio file in strategies directory
@@ -128,6 +131,9 @@ def analyze(
         # Auto-detect available data sources if not explicitly specified
         if data_source is None:
             data_source = "auto"
+
+        # Resolve portfolio path
+        portfolio = resolve_portfolio_path(portfolio)
 
         # Detect available data sources
         available_sources = _detect_available_data_sources(portfolio)
@@ -231,7 +237,7 @@ def analyze(
             results, summary = asyncio.run(
                 _run_portfolio_analysis(portfolio, use_trade_history)
             )
-            # Also export all formats for JSON output
+            # Also export all formats for JSON output (including backtesting parameters)
             analyzer = PortfolioStatisticalAnalyzer(portfolio, use_trade_history)
             asyncio.run(
                 _export_all_formats(
@@ -240,7 +246,7 @@ def analyze(
                     analyzer,
                     portfolio,
                     spds_config,
-                    export_backtesting,
+                    True,  # Always export backtesting parameters
                 )
             )
             return _output_json_results(results, summary, save_results)
@@ -249,7 +255,7 @@ def analyze(
             results = asyncio.run(_run_analyzer_analysis(analyzer))
             summary = analyzer.get_summary_report(results)
 
-            # ALWAYS export to all formats automatically
+            # ALWAYS export to all formats automatically (including backtesting parameters)
             asyncio.run(
                 _export_all_formats(
                     results,
@@ -257,7 +263,7 @@ def analyze(
                     analyzer,
                     portfolio,
                     spds_config,
-                    export_backtesting,
+                    True,  # Always export backtesting parameters
                 )
             )
 
@@ -317,6 +323,9 @@ def export(
         # Auto-detect available data sources if not explicitly specified
         if data_source is None:
             data_source = "auto"
+
+        # Resolve portfolio path
+        portfolio = resolve_portfolio_path(portfolio)
 
         # Detect available data sources
         available_sources = _detect_available_data_sources(portfolio)
@@ -676,12 +685,9 @@ async def _export_all_formats(
         await export_service.export_csv(results_list, portfolio)
         await export_service.export_markdown(results_list, portfolio)
 
-        # Export backtesting parameters if requested
-        if export_backtesting:
-            backtesting_service = BacktestingParameterExportService(config)
-            await backtesting_service.export_backtesting_parameters(
-                results_list, portfolio
-            )
+        # Always export backtesting parameters for comprehensive analysis
+        backtesting_service = BacktestingParameterExportService(config)
+        await backtesting_service.export_backtesting_parameters(results_list, portfolio)
 
         # CRITICAL: Validate exports and use fallback if needed
         validator = ExportValidator()

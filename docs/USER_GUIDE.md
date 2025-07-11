@@ -352,14 +352,20 @@ The Statistical Performance Divergence System (SPDS) provides comprehensive port
 ### Basic SPDS Analysis
 
 ```bash
-# Quick portfolio analysis with equity curves
+# Quick portfolio analysis - automatically uses both equity curves and trade history data
+# Always exports both statistical analysis and backtesting parameters
 ./trading-cli spds analyze risk_on.csv
 
-# Analysis with trade history data
-./trading-cli spds analyze live_signals.csv --trade-history
+# Explicit data source specification (auto-detects by default)
+./trading-cli spds analyze risk_on.csv --data-source auto
 
-# Analysis with backtesting parameter export
-./trading-cli spds analyze risk_on.csv --export-backtesting --save-results results.json
+# Force specific data source
+./trading-cli spds analyze live_signals.csv --data-source trade-history
+./trading-cli spds analyze conservative.csv --data-source equity-curves
+./trading-cli spds analyze portfolio.csv --data-source both
+
+# Save detailed results to JSON file
+./trading-cli spds analyze risk_on.csv --save-results results.json
 ```
 
 ### Advanced SPDS Features
@@ -389,14 +395,18 @@ The Statistical Performance Divergence System (SPDS) provides comprehensive port
 
 #### Data Sources
 
-- `--trade-history`: Use comprehensive trade history data
-- `--no-trade-history`: Use equity curves only (faster analysis)
+- `--data-source auto`: Auto-detect and use both trade history and equity curves (default)
+- `--data-source both`: Force use of both trade history and equity curves
+- `--data-source trade-history`: Use comprehensive trade history data only
+- `--data-source equity-curves`: Use equity curves only (faster analysis)
 
 #### Output Options
 
 - `--output-format`: Choose between table, json, or summary output
-- `--export-backtesting`: Generate deterministic backtesting parameters
+- `--export-backtesting`: Generate deterministic backtesting parameters (always enabled by default)
 - `--save-results`: Save detailed results to JSON file
+
+**Note**: Statistical analysis and backtesting parameters are automatically exported in all formats (JSON, CSV, markdown) for every analysis.
 
 ## Trade History Analysis
 
@@ -835,10 +845,10 @@ Analyze portfolio using Statistical Performance Divergence System.
 **Options:**
 
 - `--profile, -p TEXT`: Configuration profile name
-- `--trade-history/--no-trade-history`: Use trade history data vs equity curves
+- `--data-source TEXT`: Data source mode (auto, both, trade-history, equity-curves)
 - `--output-format TEXT`: Output format (json, table, summary)
 - `--save-results TEXT`: Save results to file (JSON format)
-- `--export-backtesting/--no-export-backtesting`: Export deterministic backtesting parameters
+- `--export-backtesting/--no-export-backtesting`: Export deterministic backtesting parameters (always enabled by default)
 - `--percentile-threshold INTEGER`: Percentile threshold for exit signals (default: 95)
 - `--dual-layer-threshold FLOAT`: Dual layer convergence threshold (default: 0.85)
 - `--sample-size-min INTEGER`: Minimum sample size for analysis (default: 15)
@@ -849,9 +859,9 @@ Analyze portfolio using Statistical Performance Divergence System.
 **Examples:**
 
 ```bash
-./trading-cli spds analyze risk_on.csv --trade-history
-./trading-cli spds analyze conservative.csv --no-trade-history
-./trading-cli spds analyze risk_on.csv --export-backtesting --save-results results.json
+./trading-cli spds analyze risk_on.csv --data-source auto
+./trading-cli spds analyze conservative.csv --data-source equity-curves
+./trading-cli spds analyze risk_on.csv --save-results results.json
 ```
 
 #### `export`
@@ -861,7 +871,7 @@ Export backtesting parameters and analysis results.
 **Options:**
 
 - `--profile, -p TEXT`: Configuration profile name
-- `--trade-history/--no-trade-history`: Use trade history data vs equity curves
+- `--data-source TEXT`: Data source mode (auto, both, trade-history, equity-curves)
 - `--format TEXT`: Export format (all, json, csv, markdown)
 - `--output-dir TEXT`: Output directory for exports
 - `--verbose, -v`: Enable verbose output

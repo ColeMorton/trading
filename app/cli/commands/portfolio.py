@@ -16,6 +16,7 @@ from rich.table import Table
 
 from ..config import ConfigLoader
 from ..models.portfolio import PortfolioConfig, PortfolioProcessingConfig
+from ..utils import resolve_portfolio_path
 
 # Create portfolio sub-app
 app = typer.Typer(
@@ -64,7 +65,7 @@ def update(
         # Build configuration overrides from CLI arguments
         overrides = {}
         if portfolio_file:
-            overrides["portfolio"] = portfolio_file
+            overrides["portfolio"] = resolve_portfolio_path(portfolio_file)
         if not refresh:
             overrides["refresh"] = False
         if export_equity:
@@ -116,7 +117,7 @@ def update(
         normalized_config = normalize_config(legacy_config)
 
         # Execute portfolio update
-        success = update_portfolios_run(config.portfolio)
+        success = update_portfolios_run(resolve_portfolio_path(config.portfolio))
 
         if success:
             rprint(f"[green]Portfolio update completed successfully![/green]")

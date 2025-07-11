@@ -73,42 +73,42 @@ from app.tools.strategy_utils import filter_portfolios_by_signal, get_strategy_t
 
 CONFIG: Config = {
     "TICKER": [
-        "SMCI",
-        "NFLX",
-        "PLTR",
-        "HWM",
-        "ASML",
-        "AAPL",
-        "BBY",
-        "HRL",
-        "HD",
-        "VST",
-        "GE",
-        "TT",
-        "FMC",
-        "LNT",
-        "PRTH",
-        "GOOGL",
-        "AMZN",
-        "NVDA",
-        "NOC",
-        "CRWD",
-        "DELL",
-        "VRSN",
-        "CEG",
-        "APP",
-        "MSFT",
-        "DOCU",
-        "ROKU",
-        "BKR",
-        "NU",
-        "HIMS",
-        "AMD",
-        "META",
-        "HAL",
-        "AKAM",
-        "APO",
-        "PANW",
+        "EG",
+        "EVRG"
+        # "PLTR",
+        # "HWM",
+        # "ASML",
+        # "AAPL",
+        # "BBY",
+        # "HRL",
+        # "HD",
+        # "VST",
+        # "GE",
+        # "TT",
+        # "FMC",
+        # "LNT",
+        # "PRTH",
+        # "GOOGL",
+        # "AMZN",
+        # "NVDA",
+        # "NOC",
+        # "CRWD",
+        # "DELL",
+        # "VRSN",
+        # "CEG",
+        # "APP",
+        # "MSFT",
+        # "DOCU",
+        # "ROKU",
+        # "BKR",
+        # "NU",
+        # "HIMS",
+        # "AMD",
+        # "META",
+        # "HAL",
+        # "AKAM",
+        # "APO",
+        # "PANW",
     ],
     # "TICKER_2": 'AVGO',
     # "WINDOWS": 120,
@@ -407,6 +407,19 @@ def run_strategies(config: Dict[str, Any] = None) -> bool:
 
 
 if __name__ == "__main__":
+    # DEPRECATION WARNING: Direct script execution is deprecated
+    # Use the CLI interface instead for better UX and features
+    import warnings
+
+    warnings.warn(
+        "Direct script execution is deprecated. Use the CLI interface instead:\n"
+        "python -m app.cli strategy run --profile ma_cross_crypto\n"
+        "python -m app.cli strategy run --ticker AAPL,MSFT --strategy SMA --min-trades 50\n"
+        "For more information: python -m app.cli strategy --help",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
     run_from_command_line(
         run_strategies,
         {},  # Empty config as run_strategies uses the default CONFIG

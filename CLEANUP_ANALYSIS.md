@@ -35,7 +35,7 @@ The `scripts/cleanup_old_files.py` script was too aggressive and removed importa
 - Price data files (`csv/price_data/*.csv`) - regenerated automatically
 - Strategy equity curves (`csv/ma_cross/equity_data/*.csv`, `csv/macd_cross/equity_data/*.csv`)
 - Stop loss analysis (`csv/stop_loss/*.csv`) - regenerated from analysis
-- Trade history positions (`csv/trade_history/*_positions.csv`) - derived data
+- Trade history positions (`csv/positions/*_positions.csv`) - derived data
 - Cache and temporary files
 - Test files and logs
 
@@ -78,7 +78,7 @@ csv/price_data/*.csv               # Market data (regenerated automatically)
 csv/ma_cross/equity_data/*.csv     # MA strategy equity curves
 csv/macd_cross/equity_data/*.csv   # MACD strategy equity curves
 csv/stop_loss/*.csv                # Stop loss analysis (regenerated)
-csv/trade_history/*_positions.csv  # Trade position files (derived data)
+csv/positions/*_positions.csv  # Trade position files (derived data)
 cache/*                            # Cache files
 experimental/temp/*                # Temporary experimental files
 *temp*, *tmp*                      # Files with temp/tmp in name
@@ -162,7 +162,7 @@ python scripts/cleanup_old_files.py --max-age 1
 - **Price data** (csv/price_data/\*.csv) - regenerated automatically
 - **Strategy equity data** (csv/_/equity_data/_.csv) - generated during analysis
 - **Stop loss analysis** (csv/stop_loss/\*.csv) - regenerated from analysis
-- **Trade positions** (csv/trade_history/\*\_positions.csv) - derived data
+- **Trade positions** (csv/positions/\*\_positions.csv) - derived data
 - **Cache files** (cache/\*) - temporary data
 - **Temporary files** (_temp_, _tmp_) - temporary data
 - **Log files** (\*.log) - regenerated
