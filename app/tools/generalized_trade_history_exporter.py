@@ -25,7 +25,7 @@ Usage:
         strategy_type="SMA",
         short_window=20,
         long_window=50,
-        entry_date="2025-01-01",
+        entry_date="20250101",
         entry_price=150.00,
         portfolio_name="my_portfolio"
     )
@@ -40,6 +40,8 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 import polars as pl
+
+from app.cli.utils import resolve_portfolio_path
 
 from .utils.mfe_mae_calculator import get_mfe_mae_calculator
 
@@ -89,7 +91,7 @@ class TradingSystemConfig:
 
     def get_portfolio_file(self, portfolio_name: str) -> Path:
         """Get portfolio positions file path."""
-        return self.positions_dir / f"{portfolio_name}.csv"
+        return self.positions_dir / resolve_portfolio_path(portfolio_name)
 
     def ensure_directories(self):
         """Create all required directories if they don't exist."""
@@ -842,7 +844,7 @@ def bulk_add_positions_from_strategy_csv(
 
 # Convenience functions for common operations
 def add_qcom_position(
-    entry_date: str = "2025-06-24", portfolio_name: str = "live_signals"
+    entry_date: str = "20250624", portfolio_name: str = "live_signals"
 ):
     """Add QCOM SMA 49/66 position to portfolio."""
     return add_position_to_portfolio(
@@ -872,6 +874,23 @@ def main():
     """Main CLI entry point for generalized trade history exporter."""
     import argparse
     import sys
+    import warnings
+
+    # Show deprecation warning for direct script usage
+    warnings.warn(
+        "\n"
+        "⚠️  DEPRECATION WARNING: Direct execution of this script is deprecated.\n"
+        "   Use the unified CLI interface instead:\n"
+        "   \n"
+        "   Replace: python -m app.tools.generalized_trade_history_exporter --update-open-positions --portfolio live_signals\n"
+        "   With:    python -m app.cli trade-history update --portfolio live_signals\n"
+        "   \n"
+        "   For more information: python -m app.cli trade-history --help\n"
+        "   \n"
+        "   This script will be removed in a future version.\n",
+        DeprecationWarning,
+        stacklevel=2,
+    )
 
     parser = argparse.ArgumentParser(
         description="Generalized Trade History Exporter - Add positions to any portfolio",
@@ -879,25 +898,25 @@ def main():
         epilog="""
 Examples:
   # Add QCOM position
-  python %(prog)s --add-qcom --entry-date 2025-06-24 --portfolio live_signals
+  python %(prog)s --add-qcom --entry-date 20250624 --portfolio live_signals
 
   # Add custom position with signal verification
-  python %(prog)s --add-position --ticker AAPL --strategy SMA --short-window 20 --long-window 50 --entry-date 2025-01-01 --portfolio my_portfolio
+  python %(prog)s --add-position --ticker AAPL --strategy SMA --short-window 20 --long-window 50 --entry-date 20250101 --portfolio my_portfolio
 
   # Add position without signal verification
-  python %(prog)s --add-position --ticker AAPL --strategy SMA --short-window 20 --long-window 50 --entry-date 2025-01-01 --portfolio my_portfolio --no-verify-signal
+  python %(prog)s --add-position --ticker AAPL --strategy SMA --short-window 20 --long-window 50 --entry-date 20250101 --portfolio my_portfolio --no-verify-signal
 
   # Quick add position
   python %(prog)s --quick-add --ticker MSFT --strategy EMA --short 12 --long 26 --portfolio tech_stocks
 
   # Verify entry signal occurred on specific date
-  python %(prog)s --verify-signal --ticker QCOM --strategy SMA --short-window 49 --long-window 66 --entry-date 2025-06-24
+  python %(prog)s --verify-signal --ticker QCOM --strategy SMA --short-window 49 --long-window 66 --entry-date 20250624
 
   # Bulk add from CSV
   python %(prog)s --bulk-add --strategy-csv csv/strategies/signals.csv --portfolio new_portfolio
 
   # Calculate MFE/MAE
-  python %(prog)s --calculate-mfe-mae --ticker AAPL --entry-date 2025-01-01 --exit-date 2025-02-01 --entry-price 150.00
+  python %(prog)s --calculate-mfe-mae --ticker AAPL --entry-date 20250101 --exit-date 20250201 --entry-price 150.00
         """,
     )
 
@@ -1031,7 +1050,7 @@ Examples:
 
         # Handle operations
         if args.add_qcom:
-            entry_date = args.entry_date or "2025-06-24"
+            entry_date = args.entry_date or "20250624"
             portfolio = args.portfolio or "live_signals"
 
             if args.dry_run:

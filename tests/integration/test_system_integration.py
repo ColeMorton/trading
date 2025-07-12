@@ -56,8 +56,8 @@ class TestSystemIntegration:
 
         # Create mock positions data
         positions_data = """Position_UUID,Ticker,Strategy_Type,Short_Window,Long_Window,Signal_Window,Entry_Timestamp,Exit_Timestamp,Status
-AAPL_SMA_10_50_0_2025-01-01,AAPL,SMA,10,50,0,2025-01-01 00:00:00,,Open
-MSFT_EMA_12_26_9_2025-01-02,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:00:00,Closed"""
+AAPL_SMA_10_50_0_20250101,AAPL,SMA,10,50,0,2025-01-01 00:00:00,,Open
+MSFT_EMA_12_26_9_20250102,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:00:00,Closed"""
 
         # Create temporary positions file
         with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
@@ -78,7 +78,7 @@ MSFT_EMA_12_26_9_2025-01-02,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:0
                         mock_df = Mock()
                         mock_df.iter_rows.return_value = [
                             {
-                                "Position_UUID": "AAPL_SMA_10_50_0_2025-01-01",
+                                "Position_UUID": "AAPL_SMA_10_50_0_20250101",
                                 "Ticker": "AAPL",
                                 "Strategy_Type": "SMA",
                                 "Short_Window": 10,
@@ -89,7 +89,7 @@ MSFT_EMA_12_26_9_2025-01-02,MSFT,EMA,12,26,9,2025-01-02 00:00:00,2025-01-15 00:0
                                 "Status": "Open",
                             },
                             {
-                                "Position_UUID": "MSFT_EMA_12_26_9_2025-01-02",
+                                "Position_UUID": "MSFT_EMA_12_26_9_20250102",
                                 "Ticker": "MSFT",
                                 "Strategy_Type": "EMA",
                                 "Short_Window": 12,

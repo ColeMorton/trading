@@ -409,6 +409,24 @@ def run_concurrency_review(
 
 
 if __name__ == "__main__":
+    import warnings
+
+    # Show deprecation warning for direct script usage
+    warnings.warn(
+        "\n"
+        "⚠️  DEPRECATION WARNING: Direct execution of this script is deprecated.\n"
+        "   Use the unified CLI interface instead:\n"
+        "   \n"
+        "   Replace: python app/concurrency/review.py\n"
+        "   With:    python -m app.cli concurrency analyze\n"
+        "   \n"
+        "   For more information: python -m app.cli concurrency --help\n"
+        "   \n"
+        "   This script will be removed in a future version.\n",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
     # Create a normalized copy of the default config
     config = normalize_config(DEFAULT_CONFIG.copy())
 

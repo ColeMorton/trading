@@ -83,7 +83,7 @@ def close(
 
     Examples:
         # Close position with portfolio update
-        trading-cli trade-history close NFLX_SMA_82_83_2025-06-16 --portfolio risk_on --price 1273.99
+        trading-cli trade-history close NFLX_SMA_82_83_20250616 --portfolio risk_on --price 1273.99
 
         # Generate report only (existing behavior)
         trading-cli trade-history close MA_SMA_78_82
@@ -302,11 +302,27 @@ def close(
 @app.command()
 def add(
     ticker: str = typer.Argument(..., help="Ticker symbol (e.g., 'AAPL', 'BTC-USD')"),
-    strategy_type: str = typer.Option(
-        ..., "--strategy-type", "-s", help="Strategy type: SMA, EMA, MACD"
+    portfolio: Optional[str] = typer.Option(
+        None,
+        "--portfolio",
+        help="Portfolio name to add position to (live_signals, protected, risk_on, custom)",
     ),
-    short_window: int = typer.Option(..., "--short-window", help="Short period window"),
-    long_window: int = typer.Option(..., "--long-window", help="Long period window"),
+    strategy_type: Optional[str] = typer.Option(
+        None,
+        "--strategy-type",
+        "-s",
+        help="Strategy type: SMA, EMA, MACD (auto-selected if not specified)",
+    ),
+    short_window: Optional[int] = typer.Option(
+        None,
+        "--short-window",
+        help="Short period window (auto-selected if not specified)",
+    ),
+    long_window: Optional[int] = typer.Option(
+        None,
+        "--long-window",
+        help="Long period window (auto-selected if not specified)",
+    ),
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
@@ -330,49 +346,115 @@ def add(
     ),
 ):
     """
-    Add new live signal position with verification.
+    Add new position to specified portfolio with automatic strategy selection.
 
-    Creates a new position entry in the live signals portfolio with
-    comprehensive signal verification and risk assessment.
+    Automatically selects the best performing strategy for the ticker and adds it to
+    the specified portfolio. Can also manually override strategy parameters if needed.
 
     Examples:
-        trading-cli trade-history add AAPL --strategy-type SMA --short-window 20 --long-window 50
-        trading-cli trade-history add BTC-USD --strategy-type EMA --short-window 12 --long-window 26 --timeframe D
+        # Auto-select best strategy for ticker and add to portfolio
+        trading-cli trade-history add TSLA --portfolio risk_on
+        trading-cli trade-history add ASML --portfolio risk_on --entry-price 797.42
+
+        # Manual strategy specification (optional)
+        trading-cli trade-history add AAPL --portfolio live_signals --strategy-type SMA --short-window 20 --long-window 50
     """
     try:
-        # Load configuration
-        loader = ConfigLoader()
+        # Validate portfolio parameter is provided
+        if portfolio is None:
+            rprint("[red]❌ Error: --portfolio parameter is required[/red]")
+            rprint(
+                "[yellow]Available portfolios: live_signals, protected, risk_on, or custom portfolio name[/yellow]"
+            )
+            rprint(
+                "[dim]Example: trading-cli trade-history add TSLA --portfolio risk_on[/dim]"
+            )
+            raise typer.Exit(1)
 
-        # Build configuration overrides from CLI arguments
-        overrides = {
-            "output": {
-                "verbose": verbose,
-            },
-            "position": {
-                "ticker": ticker,
-                "strategy_type": strategy_type,
-                "short_window": short_window,
-                "long_window": long_window,
-                "timeframe": timeframe,
-                "entry_price": entry_price,
-                "quantity": quantity,
-                "signal_date": signal_date,
-            },
-            "dry_run": dry_run,
-        }
+        # Validate portfolio file exists
+        import os
 
-        # Load configuration
-        if profile:
-            config = loader.load_from_profile(profile, TradeHistoryConfig, overrides)
-        else:
-            template = loader.get_config_template("trade_history")
-            config = loader.load_from_dict(template, TradeHistoryConfig, overrides)
+        portfolio_path = f"csv/positions/{resolve_portfolio_path(portfolio)}"
+        if not os.path.exists(portfolio_path):
+            rprint(
+                f"[red]❌ Portfolio '{portfolio}' not found at {portfolio_path}[/red]"
+            )
+            # List available portfolios
+            try:
+                available_portfolios = [
+                    f.replace(".csv", "")
+                    for f in os.listdir("csv/positions/")
+                    if f.endswith(".csv")
+                ]
+                if available_portfolios:
+                    rprint("[yellow]Available portfolios:[/yellow]")
+                    for p in available_portfolios:
+                        rprint(f"  - {p}")
+                else:
+                    rprint("[yellow]No portfolios found in csv/positions/[/yellow]")
+            except:
+                pass
+            raise typer.Exit(1)
+
+        # Auto-select best strategy if not manually specified
+        if strategy_type is None or short_window is None or long_window is None:
+            if verbose:
+                rprint(f"[dim]Auto-selecting best strategy for {ticker}...[/dim]")
+
+            # Find latest portfolio files for the ticker
+            import glob
+            from pathlib import Path
+
+            # Look for strategy data in latest portfolio directories
+            portfolio_pattern = f"csv/portfolios/*/{ ticker}_{timeframe}_*.csv"
+            portfolio_files = glob.glob(portfolio_pattern)
+
+            if not portfolio_files:
+                rprint(f"[red]❌ No strategy data found for {ticker}[/red]")
+                rprint(f"[yellow]Searched for: {portfolio_pattern}[/yellow]")
+                raise typer.Exit(1)
+
+            # Find the latest portfolio file
+            latest_file = max(portfolio_files, key=lambda x: Path(x).stat().st_mtime)
+
+            if verbose:
+                rprint(f"[dim]Found strategy data: {latest_file}[/dim]")
+
+            # Read and find best strategy
+            import pandas as pd
+
+            try:
+                df = pd.read_csv(latest_file)
+                if len(df) == 0:
+                    rprint(f"[red]❌ No strategies found in {latest_file}[/red]")
+                    raise typer.Exit(1)
+
+                # Find highest scoring strategy
+                best_strategy = df.loc[df["Score"].idxmax()]
+
+                # Use auto-selected values if not manually specified
+                if strategy_type is None:
+                    strategy_type = best_strategy["Strategy Type"]
+                if short_window is None:
+                    short_window = int(best_strategy["Short Window"])
+                if long_window is None:
+                    long_window = int(best_strategy["Long Window"])
+
+                if verbose:
+                    rprint(
+                        f"[green]✅ Auto-selected: {strategy_type} {short_window}/{long_window} (Score: {best_strategy['Score']:.4f})[/green]"
+                    )
+
+            except Exception as e:
+                rprint(f"[red]❌ Error reading strategy data: {e}[/red]")
+                raise typer.Exit(1)
 
         strategy_name = (
             f"{ticker}_{timeframe}_{strategy_type}_{short_window}_{long_window}"
         )
 
-        rprint(f"➕ Adding Live Signal Position: [cyan]{strategy_name}[/cyan]")
+        rprint(f"➕ Adding Position to Portfolio: [cyan]{portfolio}[/cyan]")
+        rprint(f"   Strategy: [yellow]{strategy_name}[/yellow]")
         if dry_run:
             rprint("   [yellow]DRY RUN - No changes will be made[/yellow]")
         rprint("-" * 60)
@@ -383,6 +465,7 @@ def add(
         table.add_column("Value", style="white")
 
         table.add_row("Ticker", ticker)
+        table.add_row("Portfolio", portfolio)
         table.add_row("Strategy Type", strategy_type)
         table.add_row("Short Window", str(short_window))
         table.add_row("Long Window", str(long_window))
@@ -400,13 +483,40 @@ def add(
                 "\n[green]✅ Dry run completed - Position would be added successfully[/green]"
             )
         else:
-            # Here would integrate with the actual add functionality
-            # For now, showing the structure
-            rprint("\n[green]✅ Live signal position added successfully![/green]")
-            rprint(f"[dim]Strategy: {strategy_name}[/dim]")
+            # Import and use the actual position addition functionality
+            from ...tools.generalized_trade_history_exporter import (
+                add_position_to_portfolio,
+            )
+
+            try:
+                position_uuid = add_position_to_portfolio(
+                    ticker=ticker,
+                    strategy_type=strategy_type,
+                    short_window=short_window,
+                    long_window=long_window,
+                    signal_window=0,  # Default value
+                    entry_date=signal_date,
+                    entry_price=entry_price,
+                    position_size=quantity or 1.0,
+                    portfolio_name=portfolio,
+                    verify_signal=True,
+                )
+
+                rprint(
+                    f"\n[green]✅ Position added successfully to {portfolio} portfolio![/green]"
+                )
+                rprint(f"[dim]Position UUID: {position_uuid}[/dim]")
+                rprint(f"[dim]Strategy: {strategy_name}[/dim]")
+
+            except Exception as e:
+                rprint(f"[red]❌ Failed to add position: {e}[/red]")
+                if verbose:
+                    raise
+                raise typer.Exit(1)
 
     except Exception as e:
-        rprint(f"[red]❌ Add command failed: {e}[/red]")
+        if "❌" not in str(e):  # Don't double-print formatted errors
+            rprint(f"[red]❌ Add command failed: {e}[/red]")
         if verbose:
             raise
         raise typer.Exit(1)
@@ -470,142 +580,57 @@ def update(
         for item in update_items:
             rprint(f"   {item}")
 
-        if dry_run:
-            rprint("\n[yellow]🔍 DRY RUN - Testing update command...[/yellow]")
+        # Import and use trade history service directly
+        from ...contexts.portfolio.services.trade_history_service import (
+            TradeHistoryService,
+        )
 
-            # Test the command in dry-run mode
-            import subprocess
-            import sys
+        rprint("\n🔄 Executing trade history update...")
 
-            try:
-                result = subprocess.run(
-                    [
-                        sys.executable,
-                        "-m",
-                        "app.tools.generalized_trade_history_exporter",
-                        "--update-open-positions",
-                        "--portfolio",
-                        portfolio,
-                        "--dry-run",
-                    ],
-                    capture_output=True,
-                    text=True,
-                    check=False,
+        try:
+            # Create service instance
+            service = TradeHistoryService()
+
+            # Execute the update
+            result = service.update_open_positions(
+                portfolio_name=portfolio, dry_run=dry_run, verbose=verbose
+            )
+
+            if result["success"]:
+                if dry_run:
+                    rprint(f"\n[yellow]🔍 {result['message']}[/yellow]")
+                else:
+                    rprint(f"\n[green]✅ {result['message']}[/green]")
+
+                # Display statistics
+                rprint(f"   Updated positions: [cyan]{result['updated_count']}[/cyan]")
+                rprint(f"   Total positions: [dim]{result['total_positions']}[/dim]")
+                rprint(
+                    f"   Open positions: [dim]{result.get('open_positions', 'N/A')}[/dim]"
                 )
 
-                if result.returncode == 0:
+                # Show errors if any
+                if result.get("errors"):
                     rprint(
-                        "[green]✅ Dry run completed - Updates would be applied successfully[/green]"
+                        f"\n[yellow]⚠️  Warnings ({len(result['errors'])}):[/yellow]"
                     )
-                    if verbose:
-                        rprint(f"[dim]{result.stdout}[/dim]")
-                else:
-                    rprint(f"[red]❌ Dry run failed: {result.stderr}[/red]")
-                    raise typer.Exit(1)
-            except Exception as e:
-                rprint(f"[red]❌ Dry run error: {e}[/red]")
+                    for error in result["errors"][:5]:  # Show first 5 errors
+                        rprint(f"   - {error}")
+                    if len(result["errors"]) > 5:
+                        rprint(f"   ... and {len(result['errors']) - 5} more")
+
+            else:
+                rprint(f"[red]❌ {result['message']}[/red]")
+                if result.get("errors"):
+                    for error in result["errors"]:
+                        rprint(f"   - {error}")
                 raise typer.Exit(1)
-        else:
-            # Execute the actual update functionality
-            import subprocess
-            import sys
 
-            try:
-                rprint("\n🔄 Executing trade history update...")
-
-                # Build command arguments
-                cmd_args = [
-                    sys.executable,
-                    "-m",
-                    "app.tools.generalized_trade_history_exporter",
-                    "--update-open-positions",
-                    "--portfolio",
-                    portfolio,
-                ]
-
-                if verbose:
-                    cmd_args.append("--verbose")
-
-                # Execute the update command
-                result = subprocess.run(cmd_args, check=False)
-
-                if result.returncode == 0:
-                    rprint("\n[green]✅ Trade history updated successfully![/green]")
-                    rprint(f"[dim]Portfolio: {portfolio}[/dim]")
-
-                    # If recalculate_metrics or update_risk_assessment, run additional commands
-                    if recalculate_metrics or update_risk_assessment:
-                        rprint("[dim]Running additional metric calculations...[/dim]")
-                else:
-                    # Fallback mechanism - use direct Python execution
-                    rprint(
-                        "[yellow]⚠️  Primary update failed, trying fallback method...[/yellow]"
-                    )
-
-                    try:
-                        # Direct Python fallback execution
-                        fallback_code = f"""
-import pandas as pd
-from datetime import datetime
-import os
-
-# Basic update - at minimum update Days_Since_Entry
-df = pd.read_csv(f'csv/positions/{resolve_portfolio_path(portfolio)}')
-open_positions = df[df['Status'] == 'Open'].copy()
-
-print(f"🔄 Fallback: Updating {{len(open_positions)}} open positions...")
-
-updated_count = 0
-for idx, position in open_positions.iterrows():
-    ticker = position['Ticker']
-    entry_date = position['Entry_Timestamp']
-
-    # Calculate days since entry
-    entry_dt = pd.to_datetime(entry_date)
-    days_since_entry = (datetime.now() - entry_dt).days
-
-    # Update at minimum the days since entry
-    df.loc[idx, 'Days_Since_Entry'] = days_since_entry
-
-    # Set basic status if missing
-    if pd.isna(df.loc[idx, 'Current_Excursion_Status']):
-        df.loc[idx, 'Current_Excursion_Status'] = 'Favorable'
-
-    updated_count += 1
-
-# Save updated dataframe
-df.to_csv(f'csv/positions/{resolve_portfolio_path(portfolio)}', index=False)
-print(f"✅ Fallback update completed: {{updated_count}} positions")
-"""
-
-                        fallback_result = subprocess.run(
-                            [sys.executable, "-c", fallback_code],
-                            capture_output=True,
-                            text=True,
-                            check=False,
-                        )
-
-                        if fallback_result.returncode == 0:
-                            rprint("[green]✅ Fallback update successful![/green]")
-                            if verbose:
-                                rprint(f"[dim]{fallback_result.stdout}[/dim]")
-                        else:
-                            rprint(
-                                f"[red]❌ Fallback update also failed: {fallback_result.stderr}[/red]"
-                            )
-                            raise typer.Exit(1)
-
-                    except Exception as fallback_error:
-                        rprint(
-                            f"[red]❌ Fallback execution failed: {fallback_error}[/red]"
-                        )
-                        raise typer.Exit(1)
-
-            except Exception as e:
-                rprint(f"[red]❌ Update execution failed: {e}[/red]")
-                if verbose:
-                    raise
-                raise typer.Exit(1)
+        except Exception as e:
+            rprint(f"[red]❌ Update execution failed: {e}[/red]")
+            if verbose:
+                raise
+            raise typer.Exit(1)
 
     except Exception as e:
         rprint(f"[red]❌ Update command failed: {e}[/red]")

@@ -15,24 +15,4 @@ config_type: 'strategy'
 config:
   name: 'current'
   ticker:
-    - DOCU
-    - PANW
-    - PLTR
-    - PDD
-    - DHI
-    - KULR
-    - ROKU
-    - CSGP
-    - BKR
-    - NU
-    - SMCI
-    - META
-    - AMD
-    - EVO
-    - OKLO
-    - CRM
-    - HIMS
-    - EG
-    - APO
-    - AKAM
-    - HAL
+    - BTC-USD

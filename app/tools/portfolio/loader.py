@@ -46,7 +46,7 @@ from app.tools.portfolio.format import (
     convert_csv_to_strategy_config,
     standardize_portfolio_columns,
 )
-from app.tools.portfolio.paths import resolve_portfolio_path
+from app.tools.portfolio.paths import resolve_portfolio_file_path
 from app.tools.portfolio.strategy_types import STRATEGY_TYPE_FIELDS
 from app.tools.portfolio.types import StrategyConfig
 from app.tools.portfolio.validation import (
@@ -236,7 +236,7 @@ def load_portfolio(
         log(f"Current working directory: {Path.cwd()}", "info")
 
         # Resolve the portfolio path
-        path = resolve_portfolio_path(portfolio_name, config.get("BASE_DIR"))
+        path = resolve_portfolio_file_path(portfolio_name, config.get("BASE_DIR"))
         log(f"Resolved portfolio path: {path}", "info")
         log(f"Path exists: {path.exists()}", "info")
 

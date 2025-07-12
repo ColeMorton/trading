@@ -523,6 +523,24 @@ def run(portfolio: str) -> bool:
 
 
 if __name__ == "__main__":
+    import warnings
+
+    # Show deprecation warning for direct script usage
+    warnings.warn(
+        "\n"
+        "⚠️  DEPRECATION WARNING: Direct execution of this script is deprecated.\n"
+        "   Use the unified CLI interface instead:\n"
+        "   \n"
+        "   Replace: python app/strategies/update_portfolios.py\n"
+        "   With:    python -m app.cli portfolio update\n"
+        "   \n"
+        "   For more information: python -m app.cli portfolio --help\n"
+        "   \n"
+        "   This script will be removed in a future version.\n",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
     # Create a normalized copy of the default config
     normalized_config = normalize_config(config.copy())
     portfolio_name = normalized_config.get("PORTFOLIO", "MSTR_d_20250403.csv")

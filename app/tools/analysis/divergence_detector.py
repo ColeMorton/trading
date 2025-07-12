@@ -703,6 +703,12 @@ class DivergenceDetector:
 
     def _calculate_rarity_score(self, z_score: float, percentile_rank: float) -> float:
         """Calculate statistical rarity score"""
+        # Handle NaN/inf values
+        if np.isnan(z_score) or np.isinf(z_score):
+            z_score = 0.0
+        if np.isnan(percentile_rank) or np.isinf(percentile_rank):
+            percentile_rank = 50.0  # Default to median
+
         # Combine z-score and percentile information
         z_score_weight = min(abs(z_score) / 3.0, 1.0)  # Cap at 3 sigma
 
@@ -711,6 +717,10 @@ class DivergenceDetector:
 
         # Weighted combination
         rarity_score = z_score_weight * 0.6 + percentile_extremity * 0.4
+
+        # Ensure result is finite and within bounds
+        if np.isnan(rarity_score) or np.isinf(rarity_score):
+            rarity_score = 0.0
 
         return min(rarity_score, 1.0)
 

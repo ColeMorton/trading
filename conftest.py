@@ -166,35 +166,8 @@ def mock_file_system():
 
 
 # =============================================================================
-# API Testing fixtures
+# API Testing fixtures (REMOVED - API no longer exists)
 # =============================================================================
-
-
-@pytest.fixture
-def api_client():
-    """FastAPI test client."""
-    from fastapi.testclient import TestClient
-
-    from app.api.main import app
-
-    return TestClient(app)
-
-
-@pytest.fixture
-def authenticated_api_client(api_client):
-    """API client with authentication headers."""
-    # Add authentication logic here when implemented
-    return api_client
-
-
-@pytest.fixture
-def async_api_client():
-    """Async FastAPI test client."""
-    from httpx import AsyncClient
-
-    from app.api.main import app
-
-    return AsyncClient(app=app, base_url="http://test")
 
 
 # =============================================================================
@@ -301,7 +274,6 @@ def async_event_loop():
 def test_config():
     """Test configuration settings."""
     return {
-        "api": {"host": "127.0.0.1", "port": 8000, "debug": True},
         "data": {"csv_dir": "tests/data/csv", "json_dir": "tests/data/json"},
         "trading": {
             "default_capital": 100000.0,
@@ -318,8 +290,6 @@ def override_config(test_config):
         os.environ,
         {
             "TRADING_ENV": "test",
-            "API_HOST": test_config["api"]["host"],
-            "API_PORT": str(test_config["api"]["port"]),
         },
     ):
         yield test_config
@@ -383,9 +353,7 @@ def pytest_collection_modifyitems(config, items):
         elif "unit" in str(item.fspath):
             item.add_marker(pytest.mark.unit)
 
-        # Add API marker for API tests
-        if "api" in str(item.fspath):
-            item.add_marker(pytest.mark.api)
+        # API marker removed - API no longer exists
 
         # Add strategy marker for strategy tests
         if "strateg" in str(item.fspath):

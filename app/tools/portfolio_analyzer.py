@@ -98,9 +98,10 @@ class PortfolioStatisticalAnalyzer:
 
         if not trade_history_path.exists():
             if self.config.FALLBACK_TO_EQUITY:
-                self.logger.warning(
-                    f"Trade history file not found: {trade_history_path}, "
-                    "will fallback to equity data"
+                self.logger.info(
+                    f"Trade history file not found: {trade_history_path}. "
+                    f"Using equity curve analysis (fallback mode enabled). "
+                    f"This is normal when analyzing strategies without individual trade data."
                 )
                 return None
             else:
@@ -474,8 +475,8 @@ class PortfolioStatisticalAnalyzer:
             f"Fuzzy matching for {strategy_name}: expected_prefix={expected_prefix}"
         )
 
-        # Pattern to match UUID with date suffix: {strategy_prefix}_{YYYY-MM-DD}
-        date_pattern = r"_\d{4}-\d{2}-\d{2}$"
+        # Pattern to match UUID with date suffix: {strategy_prefix}_{YYYYMMDD}
+        date_pattern = r"_\d{8}$"
 
         matched_rows = []
 

@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-07-10T08:07:21.888126",
+    "export_timestamp": "2025-07-11T19:47:04.160258",
     "strategy_config": {
       "ticker": "AMD",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 6005.166835594232,
+      "total_return": 6254.6824659021095,
       "total_trades": "168",
       "win_rate": 0.3869047619047619,
-      "sharpe_ratio": 0.8090928592910921,
+      "sharpe_ratio": 0.8116856992445377,
       "max_drawdown": -0.7259141880681514
     }
   },
@@ -3531,10 +3531,10 @@
       "Entry Timestamp": "2025-05-07 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 100.36000061035155,
-      "Avg Exit Price": 138.41000366210938,
+      "Avg Exit Price": 144.16000366210938,
       "Size": 43394.022662239564,
-      "PnL": 1646787.6705853958,
-      "Return": 0.3781351416934247,
+      "PnL": 1896303.3008932732,
+      "Return": 0.435428883871889,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -3543,9 +3543,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Big Winner",
-      "Cumulative_PnL": 6005166.835594233,
+      "Cumulative_PnL": 6254682.465902111,
       "Trade_Number": 168,
-      "Rolling_Avg_Return": 0.042563272170724045,
+      "Rolling_Avg_Return": 0.0540220206064169,
       "Rolling_Win_Rate": 0.2
     }
   ],
@@ -9581,10 +9581,10 @@
       "Avg Entry Price": 100.36000061035155,
       "Entry Fees": 4355.024140867405,
       "Exit Timestamp": null,
-      "Avg Exit Price": 138.41000366210938,
+      "Avg Exit Price": 144.16000366210938,
       "Exit Fees": 0.0,
-      "PnL": 1646787.6705853958,
-      "Return": 0.3781351416934247,
+      "PnL": 1896303.3008932732,
+      "Return": 0.435428883871889,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

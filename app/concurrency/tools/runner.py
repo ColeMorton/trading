@@ -58,9 +58,9 @@ def get_portfolio_path(config: ConcurrencyConfig) -> Path:
         return Path(config["PORTFOLIO"])
 
     # Otherwise resolve it
-    from app.tools.portfolio.paths import resolve_portfolio_path
+    from app.tools.portfolio.paths import resolve_portfolio_file_path
 
-    return resolve_portfolio_path(config["PORTFOLIO"], config.get("BASE_DIR"))
+    return resolve_portfolio_file_path(config["PORTFOLIO"], config.get("BASE_DIR"))
 
 
 def save_json_report(

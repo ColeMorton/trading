@@ -407,15 +407,20 @@ def run_strategies(config: Dict[str, Any] = None) -> bool:
 
 
 if __name__ == "__main__":
-    # DEPRECATION WARNING: Direct script execution is deprecated
-    # Use the CLI interface instead for better UX and features
     import warnings
 
+    # Show deprecation warning for direct script usage
     warnings.warn(
-        "Direct script execution is deprecated. Use the CLI interface instead:\n"
-        "python -m app.cli strategy run --profile ma_cross_crypto\n"
-        "python -m app.cli strategy run --ticker AAPL,MSFT --strategy SMA --min-trades 50\n"
-        "For more information: python -m app.cli strategy --help",
+        "\n"
+        "⚠️  DEPRECATION WARNING: Direct execution of this script is deprecated.\n"
+        "   Use the unified CLI interface instead:\n"
+        "   \n"
+        "   Replace: python app/strategies/ma_cross/1_get_portfolios.py\n"
+        "   With:    python -m app.cli strategy run --profile ma_cross_crypto\n"
+        "   \n"
+        "   For more information: python -m app.cli strategy --help\n"
+        "   \n"
+        "   This script will be removed in a future version.\n",
         DeprecationWarning,
         stacklevel=2,
     )

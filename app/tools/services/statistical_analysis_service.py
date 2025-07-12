@@ -581,7 +581,7 @@ class StatisticalAnalysisService:
                 win_rate=trade_data.get("win_rate"),
                 profit_factor=trade_data.get("profit_factor"),
                 sharpe_ratio=trade_data.get("sharpe_ratio"),
-                max_drawdown=trade_data.get("max_drawdown"),
+                max_drawdown=self._safe_max_drawdown(trade_data.get("max_drawdown")),
                 mfe_statistics=trade_data.get("mfe_statistics"),
                 mae_statistics=trade_data.get("mae_statistics"),
                 duration_statistics=trade_data.get("duration_statistics"),
@@ -691,11 +691,14 @@ class StatisticalAnalysisService:
 
             # Additional strategy metrics
             win_rate = (returns > 0).mean() if len(returns) > 0 else None
-            profit_factor = (
-                returns[returns > 0].sum() / abs(returns[returns < 0].sum())
-                if len(returns[returns < 0]) > 0
-                else None
-            )
+            # Profit factor with division by zero protection
+            negative_returns_sum = returns[returns < 0].sum()
+            positive_returns_sum = returns[returns > 0].sum()
+            profit_factor = None
+            if len(returns[returns < 0]) > 0 and negative_returns_sum != 0:
+                pf_value = positive_returns_sum / abs(negative_returns_sum)
+                if np.isfinite(pf_value):
+                    profit_factor = pf_value
             sharpe_ratio = (
                 returns.mean() / returns.std() * np.sqrt(252)
                 if returns.std() > 0
@@ -726,7 +729,7 @@ class StatisticalAnalysisService:
                 win_rate=win_rate,
                 profit_factor=profit_factor,
                 sharpe_ratio=sharpe_ratio,
-                max_drawdown=max_drawdown,
+                max_drawdown=self._safe_max_drawdown(max_drawdown),
                 bootstrap_results=bootstrap_results,
                 confidence_level=confidence_level,
                 confidence_score=confidence_score,
@@ -1065,19 +1068,59 @@ class StatisticalAnalysisService:
 
     # Helper methods
 
+    def _safe_max_drawdown(self, value: Optional[float]) -> Optional[float]:
+        """Safely handle max_drawdown values, converting NaN/inf to valid values"""
+        if value is None:
+            return None
+        if np.isnan(value) or np.isinf(value):
+            return 0.0  # Valid max_drawdown fallback
+        return min(value, 0.0)  # Ensure it's <= 0
+
     def _calculate_statistical_metrics(
         self, data: Union[pd.Series, np.ndarray, List]
     ) -> StatisticalMetrics:
         """Calculate basic statistical metrics from data"""
         data = np.array(data)
+
+        # Handle empty data
+        if len(data) == 0:
+            return StatisticalMetrics(
+                mean=0.0,
+                median=0.0,
+                std=0.0,
+                min=0.0,
+                max=0.0,
+                skewness=0.0,
+                kurtosis=0.0,
+                count=0,
+            )
+
+        # Filter out non-finite values for calculations
+        finite_data = data[np.isfinite(data)]
+        if len(finite_data) == 0:
+            return StatisticalMetrics(
+                mean=0.0,
+                median=0.0,
+                std=0.0,
+                min=0.0,
+                max=0.0,
+                skewness=0.0,
+                kurtosis=0.0,
+                count=len(data),
+            )
+
+        # Calculate metrics with fallbacks for NaN results
+        def safe_float(value, fallback=0.0):
+            return fallback if np.isnan(value) or np.isinf(value) else float(value)
+
         return StatisticalMetrics(
-            mean=float(np.mean(data)),
-            median=float(np.median(data)),
-            std=float(np.std(data)),
-            min=float(np.min(data)),
-            max=float(np.max(data)),
-            skewness=float(self._calculate_skewness(data)),
-            kurtosis=float(self._calculate_kurtosis(data)),
+            mean=safe_float(np.mean(finite_data)),
+            median=safe_float(np.median(finite_data)),
+            std=safe_float(np.std(finite_data)),
+            min=safe_float(np.min(finite_data)),
+            max=safe_float(np.max(finite_data)),
+            skewness=self._calculate_skewness(finite_data),
+            kurtosis=self._calculate_kurtosis(finite_data),
             count=len(data),
         )
 
@@ -1086,15 +1129,36 @@ class StatisticalAnalysisService:
     ) -> PercentileMetrics:
         """Calculate percentile metrics from data"""
         data = np.array(data)
+
+        # Handle empty data
+        if len(data) == 0:
+            return PercentileMetrics(
+                p5=0.0, p10=0.0, p25=0.0, p50=0.0, p75=0.0, p90=0.0, p95=0.0, p99=0.0
+            )
+
+        # Filter out non-finite values
+        finite_data = data[np.isfinite(data)]
+        if len(finite_data) == 0:
+            return PercentileMetrics(
+                p5=0.0, p10=0.0, p25=0.0, p50=0.0, p75=0.0, p90=0.0, p95=0.0, p99=0.0
+            )
+
+        def safe_percentile(data, percentile, fallback=0.0):
+            try:
+                value = np.percentile(data, percentile)
+                return fallback if np.isnan(value) or np.isinf(value) else float(value)
+            except Exception:
+                return fallback
+
         return PercentileMetrics(
-            p5=float(np.percentile(data, 5)),
-            p10=float(np.percentile(data, 10)),
-            p25=float(np.percentile(data, 25)),
-            p50=float(np.percentile(data, 50)),
-            p75=float(np.percentile(data, 75)),
-            p90=float(np.percentile(data, 90)),
-            p95=float(np.percentile(data, 95)),
-            p99=float(np.percentile(data, 99)),
+            p5=safe_percentile(finite_data, 5),
+            p10=safe_percentile(finite_data, 10),
+            p25=safe_percentile(finite_data, 25),
+            p50=safe_percentile(finite_data, 50),
+            p75=safe_percentile(finite_data, 75),
+            p90=safe_percentile(finite_data, 90),
+            p95=safe_percentile(finite_data, 95),
+            p99=safe_percentile(finite_data, 99),
         )
 
     def _calculate_var_metrics(
@@ -1102,16 +1166,53 @@ class StatisticalAnalysisService:
     ) -> VaRMetrics:
         """Calculate VaR metrics from data"""
         data = np.array(data)
-        var_95 = float(np.percentile(data, 5))  # 95% VaR (5th percentile)
-        var_99 = float(np.percentile(data, 1))  # 99% VaR (1st percentile)
 
-        # Calculate expected shortfall (CVaR)
-        es_95 = (
-            float(np.mean(data[data <= var_95])) if np.any(data <= var_95) else var_95
-        )
-        es_99 = (
-            float(np.mean(data[data <= var_99])) if np.any(data <= var_99) else var_99
-        )
+        # Handle empty data
+        if len(data) == 0:
+            return VaRMetrics(
+                var_95=0.0,
+                var_99=0.0,
+                expected_shortfall_95=0.0,
+                expected_shortfall_99=0.0,
+            )
+
+        # Filter out non-finite values
+        finite_data = data[np.isfinite(data)]
+        if len(finite_data) == 0:
+            return VaRMetrics(
+                var_95=0.0,
+                var_99=0.0,
+                expected_shortfall_95=0.0,
+                expected_shortfall_99=0.0,
+            )
+
+        def safe_percentile(data, percentile, fallback=0.0):
+            try:
+                value = np.percentile(data, percentile)
+                return fallback if np.isnan(value) or np.isinf(value) else float(value)
+            except Exception:
+                return fallback
+
+        var_95 = safe_percentile(finite_data, 5)  # 95% VaR (5th percentile)
+        var_99 = safe_percentile(finite_data, 1)  # 99% VaR (1st percentile)
+
+        # Calculate expected shortfall (CVaR) with safety checks
+        def safe_es(data, var_threshold, fallback=0.0):
+            try:
+                tail_data = data[data <= var_threshold]
+                if len(tail_data) > 0:
+                    es_value = np.mean(tail_data)
+                    return (
+                        fallback
+                        if np.isnan(es_value) or np.isinf(es_value)
+                        else float(es_value)
+                    )
+                return var_threshold
+            except Exception:
+                return fallback
+
+        es_95 = safe_es(finite_data, var_95, var_95)
+        es_99 = safe_es(finite_data, var_99, var_99)
 
         return VaRMetrics(
             var_95=var_95,
@@ -1129,7 +1230,19 @@ class StatisticalAnalysisService:
         std = np.std(data)
         if std == 0:
             return 0.0
-        return (n / ((n - 1) * (n - 2))) * np.sum(((data - mean) / std) ** 3)
+
+        # Additional safety check for division by zero
+        denominator = (n - 1) * (n - 2)
+        if denominator == 0:
+            return 0.0
+
+        result = (n / denominator) * np.sum(((data - mean) / std) ** 3)
+
+        # Ensure result is finite
+        if np.isnan(result) or np.isinf(result):
+            return 0.0
+
+        return result
 
     def _calculate_kurtosis(self, data: np.ndarray) -> float:
         """Calculate kurtosis of data"""
@@ -1140,9 +1253,22 @@ class StatisticalAnalysisService:
         std = np.std(data)
         if std == 0:
             return 0.0
-        return (n * (n + 1) / ((n - 1) * (n - 2) * (n - 3))) * np.sum(
+
+        # Additional safety checks for division by zero
+        denominator1 = (n - 1) * (n - 2) * (n - 3)
+        denominator2 = (n - 2) * (n - 3)
+        if denominator1 == 0 or denominator2 == 0:
+            return 0.0
+
+        result = (n * (n + 1) / denominator1) * np.sum(
             ((data - mean) / std) ** 4
-        ) - 3 * (n - 1) ** 2 / ((n - 2) * (n - 3))
+        ) - 3 * (n - 1) ** 2 / denominator2
+
+        # Ensure result is finite
+        if np.isnan(result) or np.isinf(result):
+            return 0.0
+
+        return result
 
     def _calculate_max_drawdown(
         self, equity_series: Union[pd.Series, np.ndarray]
@@ -1152,6 +1278,13 @@ class StatisticalAnalysisService:
             equity = np.array(equity_series)
             if len(equity) == 0:
                 return 0.0
+
+            # Handle NaN/inf values in input
+            if np.any(np.isnan(equity)) or np.any(np.isinf(equity)):
+                # Filter out NaN/inf values
+                equity = equity[np.isfinite(equity)]
+                if len(equity) == 0:
+                    return 0.0
 
             peak = np.maximum.accumulate(equity)
 
@@ -1165,7 +1298,10 @@ class StatisticalAnalysisService:
 
             max_dd = float(np.min(drawdown))
 
-            # Ensure drawdown is negative or zero
+            # Ensure result is finite and negative or zero
+            if np.isnan(max_dd) or np.isinf(max_dd):
+                return 0.0
+
             return min(max_dd, 0.0)
         except Exception as e:
             self.logger.warning(f"Error calculating max drawdown: {e}")
@@ -1959,7 +2095,7 @@ class StatisticalAnalysisService:
                 win_rate=win_rate,
                 profit_factor=profit_factor,
                 sharpe_ratio=sharpe_ratio,
-                max_drawdown=max_drawdown,
+                max_drawdown=self._safe_max_drawdown(max_drawdown),
                 mfe_statistics=None,
                 mae_statistics=None,
                 duration_statistics=None,
@@ -2113,15 +2249,19 @@ class StatisticalAnalysisService:
 
             # Recovery factor (total return / max drawdown)
             total_return = returns.sum()
-            recovery_factor = (
-                abs(total_return / max_drawdown) if max_drawdown != 0 else 0.0
-            )
+            recovery_factor = 0.0
+            if max_drawdown != 0 and np.isfinite(max_drawdown):
+                rf_value = abs(total_return / max_drawdown)
+                if np.isfinite(rf_value):
+                    recovery_factor = rf_value
 
             # Calmar ratio (annualized return / max drawdown)
             annualized_return = returns.mean() * 252
-            calmar_ratio = (
-                abs(annualized_return / max_drawdown) if max_drawdown != 0 else 0.0
-            )
+            calmar_ratio = 0.0
+            if max_drawdown != 0 and np.isfinite(max_drawdown):
+                cr_value = abs(annualized_return / max_drawdown)
+                if np.isfinite(cr_value):
+                    calmar_ratio = cr_value
 
             # Volatility metrics
             volatility = returns.std() * np.sqrt(252)  # Annualized volatility
@@ -2141,7 +2281,7 @@ class StatisticalAnalysisService:
                 percentiles=percentiles,
                 var_metrics=var_metrics,
                 sharpe_ratio=sharpe_ratio,
-                max_drawdown=max_drawdown,
+                max_drawdown=self._safe_max_drawdown(max_drawdown),
                 recovery_factor=recovery_factor,
                 calmar_ratio=calmar_ratio,
                 volatility=volatility,
@@ -2219,7 +2359,17 @@ class StatisticalAnalysisService:
                 trade_history_analysis.profit_factor if trade_history_analysis else None
             )
             sharpe_ratio = equity_analysis.sharpe_ratio if equity_analysis else None
-            max_drawdown = equity_analysis.max_drawdown if equity_analysis else None
+
+            # Handle max_drawdown with NaN validation
+            max_drawdown = None
+            if equity_analysis and equity_analysis.max_drawdown is not None:
+                if not (
+                    np.isnan(equity_analysis.max_drawdown)
+                    or np.isinf(equity_analysis.max_drawdown)
+                ):
+                    max_drawdown = equity_analysis.max_drawdown
+                else:
+                    max_drawdown = 0.0  # Fallback for NaN/inf values
 
             # Legacy fields for backward compatibility
             mfe_statistics = (
@@ -2252,7 +2402,7 @@ class StatisticalAnalysisService:
                 win_rate=win_rate,
                 profit_factor=profit_factor,
                 sharpe_ratio=sharpe_ratio,
-                max_drawdown=max_drawdown,
+                max_drawdown=self._safe_max_drawdown(max_drawdown),
                 mfe_statistics=mfe_statistics,
                 mae_statistics=mae_statistics,
                 duration_statistics=duration_statistics,

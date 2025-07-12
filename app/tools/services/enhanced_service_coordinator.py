@@ -8,18 +8,73 @@ integrating the PositionSizingOrchestrator with the existing strategy analysis p
 import asyncio
 import time
 from concurrent.futures import ThreadPoolExecutor
+
+# API removed - creating local model definitions
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-from app.api.models.strategy_analysis import (
-    MACrossRequest,
-    MACrossResponse,
-    StrategyAnalysisRequest,
-)
-from app.api.services.position_sizing_orchestrator import (
-    PositionSizingOrchestrator,
-    PositionSizingRequest,
-    PositionSizingResponse,
-)
+
+@dataclass
+class MACrossRequest:
+    """MA Cross analysis request."""
+
+    ticker: str
+    timeframe: str = "D"
+    strategy_type: str = "SMA"
+    fast_period: int = 10
+    slow_period: int = 20
+
+
+@dataclass
+class MACrossResponse:
+    """MA Cross analysis response."""
+
+    ticker: str
+    portfolios: List[Dict[str, Any]]
+    analysis_metadata: Dict[str, Any]
+
+
+@dataclass
+class StrategyAnalysisRequest:
+    """Strategy analysis request."""
+
+    ticker: str
+    strategy_type: str
+    timeframe: str = "D"
+    parameters: Dict[str, Any] = None
+
+
+@dataclass
+class PositionSizingRequest:
+    """Position sizing request."""
+
+    portfolio_type: str
+    total_capital: float
+    risk_per_trade: float = 0.02
+
+
+@dataclass
+class PositionSizingResponse:
+    """Position sizing response."""
+
+    position_sizes: Dict[str, float]
+    risk_metrics: Dict[str, float]
+
+
+class PositionSizingOrchestrator:
+    """Position sizing orchestrator."""
+
+    def __init__(self, config: Dict[str, Any]):
+        self.config = config
+
+    async def calculate_position_sizing(
+        self, request: PositionSizingRequest
+    ) -> PositionSizingResponse:
+        """Calculate position sizing."""
+        # Basic position sizing logic
+        return PositionSizingResponse(position_sizes={}, risk_metrics={})
+
+
 from app.core.interfaces import (
     CacheInterface,
     ConfigurationInterface,

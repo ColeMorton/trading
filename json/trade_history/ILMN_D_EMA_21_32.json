@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-07-10T08:07:26.598652",
+    "export_timestamp": "2025-07-11T19:47:07.386089",
     "strategy_config": {
       "ticker": "ILMN",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 24.10783914915692,
+      "total_return": 24.780370695359565,
       "total_trades": "62",
       "win_rate": 0.4838709677419355,
-      "sharpe_ratio": 0.6354902650177995,
+      "sharpe_ratio": 0.6388035721970126,
       "max_drawdown": -0.7141121869691358
     }
   },
@@ -1305,10 +1305,10 @@
       "Entry Timestamp": "2025-05-29 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 84.27999877929688,
-      "Avg Exit Price": 97.44000244140625,
+      "Avg Exit Price": 100.05000305175781,
       "Size": 257.6748616591534,
-      "PnL": 3369.2852860419007,
-      "Return": 0.1551462251153011,
+      "PnL": 4041.8168322445454,
+      "Return": 0.1861144340397737,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -1317,9 +1317,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Big Winner",
-      "Cumulative_PnL": 24107.83914915692,
+      "Cumulative_PnL": 24780.370695359565,
       "Trade_Number": 62,
-      "Rolling_Avg_Return": 0.035415507402655776,
+      "Rolling_Avg_Return": 0.0416091491875503,
       "Rolling_Win_Rate": 0.6
     }
   ],
@@ -3539,10 +3539,10 @@
       "Avg Entry Price": 84.27999877929688,
       "Entry Fees": 21.716837026087887,
       "Exit Timestamp": null,
-      "Avg Exit Price": 97.44000244140625,
+      "Avg Exit Price": 100.05000305175781,
       "Exit Fees": 0.0,
-      "PnL": 3369.2852860419007,
-      "Return": 0.1551462251153011,
+      "PnL": 4041.8168322445454,
+      "Return": 0.1861144340397737,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

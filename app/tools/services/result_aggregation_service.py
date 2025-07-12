@@ -7,17 +7,88 @@ It provides utilities for creating responses and managing asynchronous task exec
 
 import time
 import uuid
+from collections import defaultdict
+
+# API removed - creating local definitions
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from app.api.models.strategy_analysis import (
-    MACrossAsyncResponse,
-    MACrossResponse,
-    PortfolioMetrics,
-    StrategyAnalysisRequest,
-)
-from app.api.services.script_executor import task_status
-from app.api.utils.monitoring import get_metrics_collector
+
+@dataclass
+class MACrossResponse:
+    """MA Cross analysis response."""
+
+    ticker: str
+    portfolios: List[Dict[str, Any]]
+    analysis_metadata: Dict[str, Any]
+
+
+@dataclass
+class MACrossAsyncResponse:
+    """Async MA Cross analysis response."""
+
+    request_id: str
+    ticker: str
+    status: str
+    portfolios: List[Dict[str, Any]]
+    analysis_metadata: Dict[str, Any]
+
+
+@dataclass
+class PortfolioMetrics:
+    """Portfolio metrics."""
+
+    total_return: float
+    win_rate: float
+    sharpe_ratio: float
+    max_drawdown: float
+
+
+@dataclass
+class StrategyAnalysisRequest:
+    """Strategy analysis request."""
+
+    ticker: str
+    strategy_type: str
+    timeframe: str = "D"
+    parameters: Dict[str, Any] = None
+
+
+class TaskStatus:
+    """Task status enumeration."""
+
+    PENDING = "pending"
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
+task_status = TaskStatus()
+
+
+class MetricsCollector:
+    """Basic metrics collector."""
+
+    def __init__(self):
+        self.metrics = defaultdict(list)
+
+    def record(self, name: str, value: float):
+        """Record a metric."""
+        self.metrics[name].append(value)
+
+    def get_metrics(self) -> Dict[str, List[float]]:
+        """Get all metrics."""
+        return dict(self.metrics)
+
+
+def get_metrics_collector():
+    """Get metrics collector instance."""
+    if not hasattr(get_metrics_collector, "_instance"):
+        get_metrics_collector._instance = MetricsCollector()
+    return get_metrics_collector._instance
+
+
 from app.core.interfaces import (
     LoggingInterface,
     MonitoringInterface,

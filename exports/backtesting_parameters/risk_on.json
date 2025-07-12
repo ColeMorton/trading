@@ -1,44 +1,111 @@
 {
-  "strategy_parameters": {
-    "MA_SMA_78_82_MA_D": {
-      "take_profit_pct": 16.51,
-      "stop_loss_pct": 3.16,
-      "max_holding_days": 180,
-      "min_holding_days": 31,
-      "trailing_stop_pct": 2.78,
-      "confidence_level": 0.9,
-      "sample_size": 62,
-      "statistical_validity": "MEDIUM",
-      "entry_signal": "STATISTICAL_DIVERGENCE",
-      "momentum_exit_threshold": 0.0781055091486947,
-      "trend_exit_threshold": 0.003,
-      "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-11T09:31:51.921517"
-    }
+  "metadata": {
+    "export_timestamp": "2025-07-12T10:29:50.948961",
+    "portfolio": "risk_on",
+    "parameter_count": 6
   },
-  "generation_metadata": {
-    "generation_timestamp": "2025-07-11T09:31:51.910566",
-    "confidence_level": 0.9,
-    "total_strategies": 1,
-    "spds_version": "1.0.0",
-    "statistical_validity": {
-      "MA_SMA_78_82_MA_D": {
-        "sample_size": 62,
-        "confidence": 0.95,
-        "validity_level": "MEDIUM"
+  "backtesting_parameters": [
+    {
+      "ticker": "RJF",
+      "strategy_type": "SMA",
+      "short_window": 68,
+      "long_window": 77,
+      "signal_window": 0,
+      "exit_threshold_pct": NaN,
+      "stop_loss_pct": -0.1,
+      "take_profit_pct": NaN,
+      "max_holding_days": 90,
+      "position_size": 1000,
+      "risk_management": {
+        "max_drawdown": -0.15,
+        "profit_target": 0.2,
+        "stop_loss": -0.08
+      }
+    },
+    {
+      "ticker": "HWM",
+      "strategy_type": "SMA",
+      "short_window": 7,
+      "long_window": 9,
+      "signal_window": 0,
+      "exit_threshold_pct": NaN,
+      "stop_loss_pct": -0.1,
+      "take_profit_pct": NaN,
+      "max_holding_days": 90,
+      "position_size": 1000,
+      "risk_management": {
+        "max_drawdown": -0.15,
+        "profit_target": 0.2,
+        "stop_loss": -0.08
+      }
+    },
+    {
+      "ticker": "TPR",
+      "strategy_type": "SMA",
+      "short_window": 14,
+      "long_window": 30,
+      "signal_window": 0,
+      "exit_threshold_pct": NaN,
+      "stop_loss_pct": -0.1,
+      "take_profit_pct": NaN,
+      "max_holding_days": 90,
+      "position_size": 1000,
+      "risk_management": {
+        "max_drawdown": -0.15,
+        "profit_target": 0.2,
+        "stop_loss": -0.08
+      }
+    },
+    {
+      "ticker": "TSLA",
+      "strategy_type": "SMA",
+      "short_window": 15,
+      "long_window": 25,
+      "signal_window": 0,
+      "exit_threshold_pct": NaN,
+      "stop_loss_pct": -0.1,
+      "take_profit_pct": NaN,
+      "max_holding_days": 90,
+      "position_size": 1000,
+      "risk_management": {
+        "max_drawdown": -0.15,
+        "profit_target": 0.2,
+        "stop_loss": -0.08
+      }
+    },
+    {
+      "ticker": "ASML",
+      "strategy_type": "SMA",
+      "short_window": 71,
+      "long_window": 80,
+      "signal_window": 0,
+      "exit_threshold_pct": NaN,
+      "stop_loss_pct": -0.1,
+      "take_profit_pct": NaN,
+      "max_holding_days": 90,
+      "position_size": 1000,
+      "risk_management": {
+        "max_drawdown": -0.15,
+        "profit_target": 0.2,
+        "stop_loss": -0.08
+      }
+    },
+    {
+      "ticker": "MA",
+      "strategy_type": "SMA",
+      "short_window": 78,
+      "long_window": 82,
+      "signal_window": 0,
+      "exit_threshold_pct": NaN,
+      "stop_loss_pct": -0.1,
+      "take_profit_pct": NaN,
+      "max_holding_days": 90,
+      "position_size": 1000,
+      "risk_management": {
+        "max_drawdown": -0.15,
+        "profit_target": 0.2,
+        "stop_loss": -0.08
       }
     }
-  },
-  "framework_compatibility": {
-    "vectorbt": true,
-    "backtrader": true,
-    "zipline": true,
-    "custom": true
-  },
-  "usage_instructions": {
-    "description": "Statistical analysis-derived backtesting parameters",
-    "confidence_interpretation": "Higher confidence = more reliable parameters",
-    "sample_size_guidance": "Sample size \u226530 recommended for high reliability",
-    "parameter_derivation": "Parameters derived from percentile analysis of historical returns"
-  }
+  ]
 }

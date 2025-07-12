@@ -1517,8 +1517,9 @@ class StrategyDataCoordinator:
         Log detailed error message with suggestions when strategy is not found.
         """
         try:
-            logger.warning(
-                f"Strategy data not found for {strategy_identifier}"
+            # Use INFO level instead of WARNING since system has robust fallback mechanisms
+            logger.info(
+                f"Primary strategy data not found for {strategy_identifier} - checking fallback sources"
             ) if self.logger else None
 
             # Parse the identifier to provide specific suggestions

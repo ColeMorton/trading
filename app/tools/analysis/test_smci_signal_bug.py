@@ -38,7 +38,7 @@ async def test_smci_signal_generation():
 
     # Find SMCI position
     smci_position = positions_df[
-        positions_df["Position_UUID"] == "SMCI_SMA_58_60_2025-06-23"
+        positions_df["Position_UUID"] == "SMCI_SMA_58_60_20250623"
     ]
 
     if smci_position.empty:

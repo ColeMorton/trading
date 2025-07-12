@@ -9,21 +9,125 @@ implementation that orchestrates the decomposed services.
 import asyncio
 import time
 import traceback
+from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor as ConcurrentExecutor
+
+# API removed - creating local model definitions
+from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from app.api.models.strategy_analysis import (
-    MACrossAsyncResponse,
-    MACrossRequest,
-    MACrossResponse,
-    PortfolioMetrics,
-    StrategyAnalysisRequest,
-    StrategyTypeEnum,
-)
-from app.api.utils.monitoring import get_metrics_collector
-from app.api.utils.performance import get_concurrent_executor
-from app.api.utils.performance_monitoring import timing_context
+
+class StrategyTypeEnum(str, Enum):
+    """Strategy type enumeration."""
+
+    SMA = "SMA"
+    EMA = "EMA"
+    MACD = "MACD"
+    RSI = "RSI"
+    BOLLINGER_BANDS = "BOLLINGER_BANDS"
+
+
+@dataclass
+class MACrossRequest:
+    """MA Cross analysis request."""
+
+    ticker: str
+    timeframe: str = "D"
+    strategy_type: str = "SMA"
+    fast_period: int = 10
+    slow_period: int = 20
+
+
+@dataclass
+class MACrossResponse:
+    """MA Cross analysis response."""
+
+    ticker: str
+    portfolios: List[Dict[str, Any]]
+    analysis_metadata: Dict[str, Any]
+
+
+@dataclass
+class MACrossAsyncResponse:
+    """Async MA Cross analysis response."""
+
+    request_id: str
+    ticker: str
+    status: str
+    portfolios: List[Dict[str, Any]]
+    analysis_metadata: Dict[str, Any]
+
+
+@dataclass
+class PortfolioMetrics:
+    """Portfolio metrics."""
+
+    total_return: float
+    win_rate: float
+    sharpe_ratio: float
+    max_drawdown: float
+
+
+@dataclass
+class StrategyAnalysisRequest:
+    """Strategy analysis request."""
+
+    ticker: str
+    strategy_type: str
+    timeframe: str = "D"
+    parameters: Dict[str, Any] = None
+
+
+class MetricsCollector:
+    """Basic metrics collector."""
+
+    def __init__(self):
+        self.metrics = defaultdict(list)
+
+    def record(self, name: str, value: float):
+        """Record a metric."""
+        self.metrics[name].append(value)
+
+    def get_metrics(self) -> Dict[str, List[float]]:
+        """Get all metrics."""
+        return dict(self.metrics)
+
+
+def get_metrics_collector():
+    """Get metrics collector instance."""
+    if not hasattr(get_metrics_collector, "_instance"):
+        get_metrics_collector._instance = MetricsCollector()
+    return get_metrics_collector._instance
+
+
+def get_concurrent_executor():
+    """Get concurrent executor instance."""
+    if not hasattr(get_concurrent_executor, "_instance"):
+        get_concurrent_executor._instance = ConcurrentExecutor(max_workers=4)
+    return get_concurrent_executor._instance
+
+
+class timing_context:
+    """Context manager for timing operations."""
+
+    def __init__(self, name: str):
+        self.name = name
+        self.start_time = None
+
+    def __enter__(self):
+        self.start_time = time.time()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.start_time is not None:
+            duration = time.time() - self.start_time
+            collector = get_metrics_collector()
+            collector.record(self.name, duration)
+
+
 from app.core.interfaces import (
     CacheInterface,
     ConfigurationInterface,

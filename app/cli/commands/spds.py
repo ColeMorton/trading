@@ -230,6 +230,32 @@ def analyze(
 
         rprint(f"📊 Analyzing Portfolio: [cyan]{portfolio}[/cyan]")
         rprint(f"   Data Source: [yellow]{data_source_status}[/yellow]")
+
+        # Add helpful information about what to expect
+        if "Both" in data_source_status:
+            rprint(
+                "[dim]ℹ️  Using comprehensive analysis with trade-level data and equity curves[/dim]"
+            )
+        elif "Trade History Only" in data_source_status:
+            rprint("[dim]ℹ️  Using detailed trade-level analysis[/dim]")
+        elif "Equity Curves Only" in data_source_status:
+            rprint(
+                "[dim]ℹ️  Using equity curve analysis (individual trade data not available)[/dim]"
+            )
+        elif "fallback" in data_source_status:
+            rprint(
+                "[dim]ℹ️  Using fallback analysis - this is normal for position-based portfolios[/dim]"
+            )
+
+        if not quiet:
+            rprint(
+                "[dim]📝 Strategy matching messages below are informational - SPDS uses robust fallback analysis[/dim]"
+            )
+
+        # Pre-analysis validation for data source mapping
+        if verbose and data_source in ["auto", "both", "trade-history"]:
+            _validate_data_source_mapping(portfolio, verbose)
+
         rprint("-" * 60)
 
         # Run analysis
@@ -911,3 +937,147 @@ def _display_spds_health_results(health_results):
         table.add_row(check_name.replace("_", " ").title(), status, issues, details)
 
     console.print(table)
+
+
+def _validate_data_source_mapping(portfolio: str, verbose: bool = False):
+    """
+    Validate Position_UUID to trade history file mapping.
+
+    Provides detailed feedback about which strategies will use trade history
+    vs fallback to equity curve analysis.
+    """
+    try:
+        from pathlib import Path
+
+        import pandas as pd
+
+        rprint("[dim]🔍 Validating data source mapping...[/dim]")
+
+        # Load position data
+        portfolio_path = Path(f"csv/positions/{portfolio}")
+        if not portfolio_path.exists():
+            rprint(f"[yellow]⚠️  Portfolio file not found: {portfolio_path}[/yellow]")
+            return
+
+        positions_df = pd.read_csv(portfolio_path)
+
+        if "Position_UUID" not in positions_df.columns:
+            rprint("[yellow]⚠️  No Position_UUID column found in portfolio[/yellow]")
+            return
+
+        # Check trade history directory
+        trade_history_dir = Path("./json/trade_history/")
+        if not trade_history_dir.exists():
+            rprint(
+                f"[yellow]⚠️  Trade history directory not found: {trade_history_dir}[/yellow]"
+            )
+            return
+
+        # Get all trade history files
+        trade_history_files = {f.stem for f in trade_history_dir.glob("*.json")}
+
+        validation_results = {
+            "matched_strategies": [],
+            "fallback_strategies": [],
+            "total_strategies": len(positions_df),
+        }
+
+        # Parse each Position_UUID and check for matching trade history
+        for _, position in positions_df.iterrows():
+            position_uuid = position["Position_UUID"]
+            ticker = position.get("Ticker", "UNKNOWN")
+
+            # Simulate the parsing logic from TradeHistoryAnalyzer
+            parsed_strategy = _parse_uuid_for_validation(position_uuid, ticker)
+
+            # Check for matching trade history files
+            potential_files = [
+                f"{ticker}_D_{parsed_strategy}",
+                f"{ticker}_{parsed_strategy}",
+            ]
+
+            found_match = any(
+                pattern in trade_history_files for pattern in potential_files
+            )
+
+            if found_match:
+                validation_results["matched_strategies"].append(
+                    {
+                        "position_uuid": position_uuid,
+                        "ticker": ticker,
+                        "parsed_strategy": parsed_strategy,
+                        "status": "✅ Trade History",
+                    }
+                )
+            else:
+                validation_results["fallback_strategies"].append(
+                    {
+                        "position_uuid": position_uuid,
+                        "ticker": ticker,
+                        "parsed_strategy": parsed_strategy,
+                        "status": "📈 Equity Fallback",
+                    }
+                )
+
+        # Display results
+        matched_count = len(validation_results["matched_strategies"])
+        fallback_count = len(validation_results["fallback_strategies"])
+        total_count = validation_results["total_strategies"]
+
+        rprint(f"[dim]Data Source Mapping Results:[/dim]")
+        rprint(
+            f"[dim]  • Trade History Available: {matched_count}/{total_count} strategies[/dim]"
+        )
+        rprint(
+            f"[dim]  • Equity Fallback: {fallback_count}/{total_count} strategies[/dim]"
+        )
+
+        if verbose and fallback_count > 0:
+            rprint(f"[dim]📈 Strategies using equity fallback (first 5):[/dim]")
+            for strategy in validation_results["fallback_strategies"][:5]:
+                rprint(
+                    f"[dim]  • {strategy['ticker']} ({strategy['parsed_strategy']}) - {strategy['status']}[/dim]"
+                )
+            if fallback_count > 5:
+                rprint(f"[dim]  • ... and {fallback_count - 5} more[/dim]")
+
+        if verbose and matched_count > 0:
+            rprint(f"[dim]✅ Strategies with trade history (first 3):[/dim]")
+            for strategy in validation_results["matched_strategies"][:3]:
+                rprint(
+                    f"[dim]  • {strategy['ticker']} ({strategy['parsed_strategy']}) - {strategy['status']}[/dim]"
+                )
+
+    except Exception as e:
+        rprint(f"[yellow]⚠️  Validation error: {e}[/yellow]")
+
+
+def _parse_uuid_for_validation(position_uuid: str, ticker: str) -> str:
+    """
+    Simplified version of Position_UUID parsing for validation.
+
+    Mirrors the logic in TradeHistoryAnalyzer._parse_position_uuid
+    """
+    import re
+
+    # If it's already a simple strategy format, return as-is
+    if not position_uuid.startswith(ticker + "_"):
+        return position_uuid
+
+    # Remove ticker prefix if present
+    if position_uuid.startswith(ticker + "_"):
+        remaining = position_uuid[len(ticker) + 1 :]
+
+        # Remove date suffix if present (format: YYYYMMDD)
+        date_pattern = r"_\d{8}$"
+        remaining = re.sub(date_pattern, "", remaining)
+
+        # Remove any trailing numeric signal window (often 0)
+        signal_pattern = r"_\d+$"
+        # Only remove if it's a single digit (likely signal window, not strategy parameter)
+        if re.search(r"_\d{1}$", remaining):
+            remaining = re.sub(signal_pattern, "", remaining)
+
+        return remaining
+
+    return position_uuid

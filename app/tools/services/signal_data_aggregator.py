@@ -399,16 +399,16 @@ class SignalDataAggregator:
                 signal_window = "0"  # Default
 
                 # Use current date as entry_date placeholder
-                entry_date = "2025-07-06"  # Could be enhanced to use actual entry date
+                entry_date = "20250706"  # Could be enhanced to use actual entry date
 
                 return f"{ticker}_{strategy_type}_{short_window}_{long_window}_{signal_window}_{entry_date}"
 
             # Fallback UUID
-            return f"{ticker}_{strategy_name}_2025-07-06"
+            return f"{ticker}_{strategy_name}_20250706"
 
         except Exception as e:
             logger.warning(f"Error generating Position_UUID: {e}")
-            return f"UNKNOWN_{strategy_row.get('ticker', 'UNK')}_2025-07-06"
+            return f"UNKNOWN_{strategy_row.get('ticker', 'UNK')}_20250706"
 
     def _populate_from_statistical_csv(
         self, strategy_data: StrategyData, row: Dict[str, Any]

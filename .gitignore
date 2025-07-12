@@ -270,20 +270,6 @@ csv/
 !csv/strategies/
 !csv/positions/
 
-# Legacy CSV patterns (consolidated under csv/ ignore)
-csv/price_data
-csv/ma_cross/stop_loss
-csv/ma_cross/rsi
-csv/ma_cross/current_signals
-
-# Portfolio rules
-csv/ma_cross/portfolios/*/
-!csv/ma_cross/portfolios/*.*
-csv/ma_cross/portfolios_best/*/
-!csv/ma_cross/portfolios_best/*.*
-csv/ma_cross/portfolios_filtered/*/
-!csv/ma_cross/portfolios_filtered/*.*
-
 # Trading data formats
 *.pkl
 *.h5

@@ -1,2 +1,7 @@
-strategy_name,ticker,timeframe,analysis_timestamp,sample_size,sample_size_confidence,dual_layer_convergence_score,asset_layer_percentile,strategy_layer_percentile,exit_signal,signal_confidence,exit_recommendation,target_exit_timeframe,statistical_significance,p_value,z_score_divergence,iqr_divergence,rarity_score,current_return,mfe,mae,unrealized_pnl
-MA_SMA_78_82,MA,D,2025-07-11T09:31:51.888026,0,0.0,0.6992731095218789,80.0726890478121,50.0,HOLD,64.04189482182599,,,HIGH,0.935,0.6072313985679529,,0.3620277920960875,0.013748344555140735,0.0,0.0,
+strategy_name,ticker,strategy_type,exit_signal,confidence_level,current_return,max_favorable_excursion,max_adverse_excursion,exit_efficiency,days_held,trade_quality,percentile_rank,statistical_significance,analysis_timestamp
+RJF_SMA_68_77,RJF,SMA_68_77,HOLD,0.6,0.0555113225445667,0.066508,0.02504,0.8346563202106018,19,Excellent,0.6666666666666666,LOW,2025-07-12T10:29:50.946444
+HWM_SMA_7_9,HWM,SMA_7_9,HOLD,0.6,0.0291335130866962,0.081747,0.024691,0.3563863271642531,22,Excellent,0.5,LOW,2025-07-12T10:29:50.946552
+TPR_SMA_14_30,TPR,SMA_14_30,TIME_EXIT,0.7,0.3394330280820391,0.35149,0.013648,0.9656975392814564,67,Excellent,0.8333333333333334,MEDIUM,2025-07-12T10:29:50.946621
+TSLA_SMA_15_25,TSLA,SMA_15_25,HOLD,0.6,-0.007261109611949,0.013619,0.031852,-0.5331602622768926,2,Poor,0.16666666666666666,LOW,2025-07-12T10:29:50.946681
+ASML_SMA_71_80,ASML,SMA_71_80,HOLD,0.6,-0.0063334749463966,0.011233,0.006944,-0.563827556876756,2,Good,0.3333333333333333,LOW,2025-07-12T10:29:50.946737
+MA_SMA_78_82,MA,SMA_78_82,HOLD,0.6,,0.010875,0.032004,,11,Poor,0.0,LOW,2025-07-12T10:29:50.946789

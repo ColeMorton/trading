@@ -55,7 +55,7 @@ class UnifiedTestRunner:
             "api": {
                 "description": "API endpoint and service tests",
                 "markers": ["api"],
-                "paths": ["tests/api/", "app/api/tests/"],
+                "paths": ["tests/"],
                 "max_duration": 600,  # 10 minutes
                 "parallel": True,
                 "workers": 4,  # Moderate parallelism for API tests
@@ -441,15 +441,13 @@ class UnifiedTestRunner:
         coverage_modules = set()
 
         # Default core modules always included
-        core_modules = ["app.core", "app.api", "app.tools"]
+        core_modules = ["app.core", "app.tools"]
         coverage_modules.update(core_modules)
 
         # Add specific modules based on test paths
         for path in test_paths:
             if "api" in path:
-                coverage_modules.update(
-                    ["app.api", "app.api.services", "app.api.routers"]
-                )
+                coverage_modules.update(["app.tools.services"])
             if "strategies" in path:
                 coverage_modules.update(["app.strategies", "app.concurrency"])
             if "concurrency" in path:

@@ -39,7 +39,7 @@ from app.tools.portfolio.loader import (
     load_portfolio_from_csv,
     load_portfolio_from_json,
 )
-from app.tools.portfolio.paths import get_project_root, resolve_portfolio_path
+from app.tools.portfolio.paths import get_project_root, resolve_portfolio_file_path
 from app.tools.portfolio.position_sizing_integration import (
     PositionSizingPortfolioIntegration,
 )
@@ -72,7 +72,7 @@ __all__ = [
     "load_portfolio_from_json",
     "load_portfolio_from_csv",
     # Path resolution functions
-    "resolve_portfolio_path",
+    "resolve_portfolio_file_path",
     "get_project_root",
     # Format conversion functions
     "standardize_portfolio_columns",

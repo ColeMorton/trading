@@ -2,9 +2,9 @@
 VectorBT Strategy Parameters
 Generated from Statistical Performance Divergence System
 
-Generation Date: 2025-07-11T09:31:51.910566
+Generation Date: 2025-07-12T10:29:50.941251
 Confidence Level: 0.9
-Total Strategies: 1
+Total Strategies: 0
 """
 
 import numpy as np
@@ -12,20 +12,7 @@ import pandas as pd
 import vectorbt as vbt
 
 # Statistical analysis-derived parameters
-exit_parameters = {
-    "MA_SMA_78_82_MA_D": {
-        "take_profit": 0.16510000000000002,
-        "stop_loss": 0.0316,
-        "max_holding_days": 180,
-        "trailing_stop": 0.0278,
-        "min_holding_days": 31,
-        "momentum_exit_threshold": 0.0781055091486947,
-        "trend_exit_threshold": 0.003,
-        "confidence_level": 0.9,
-        "sample_size": 62,
-        "statistical_validity": "MEDIUM",
-    }
-}
+exit_parameters = {}
 
 
 # Parameter validation function

@@ -20,19 +20,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 poetry install  # Install dependencies
 ```
 
-### API Server
-
-```bash
-# Default server (http://127.0.0.1:8000)
-python -m app.api.run
-
-# Custom options
-python -m app.api.run --host 0.0.0.0 --port 8080 --reload
-
-# Test API endpoints
-python app/api/test_api.py
-```
-
 ### Strategy Execution
 
 **Primary Interface (Recommended):**
@@ -57,15 +44,7 @@ python -m app.cli portfolio update --validate --export-format json
 python -m app.cli concurrency analyze --export-trades
 ```
 
-**Legacy Interface (Deprecated):**
-
-```bash
-# Direct script execution - use CLI instead
-python app/strategies/ma_cross/1_get_portfolios.py       # → python -m app.cli strategy run
-python app/strategies/macd/1_get_portfolios.py           # → python -m app.cli strategy run --strategy MACD
-python app/strategies/update_portfolios.py               # → python -m app.cli portfolio update
-python app/concurrency/review.py                         # → python -m app.cli concurrency analyze
-```
+**Important Note:** All functionality is now available through the unified CLI interface. Direct script execution is deprecated and will be removed in future versions. Always use the CLI commands shown above.
 
 ### Statistical Performance Divergence System
 
@@ -111,7 +90,7 @@ python -m app.cli trade-history list
 
 # Close position and update portfolio (primary use case)
 python -m app.cli trade-history close \
-  --strategy NFLX_SMA_82_83_2025-06-16 \
+  --strategy NFLX_SMA_82_83_20250616 \
   --portfolio risk_on \
   --price 1273.99
 
@@ -150,17 +129,7 @@ python -m app.cli trade-history health
 python -m app.cli trade-history validate
 ```
 
-**Legacy Interface (Deprecated):**
-
-```bash
-# Direct module execution - use CLI instead
-python -m app.tools.generalized_trade_history_exporter --update-open-positions --portfolio live_signals
-
-# IMPORTANT: Use CLI interface instead of direct module execution
-# ❌ DEPRECATED: python app/tools/generalized_trade_history_exporter.py
-# ❌ DEPRECATED: python -m app.tools.generalized_trade_history_exporter
-# ✅ RECOMMENDED: python -m app.cli trade-history update --portfolio live_signals
-```
+**Important Note:** All trade history functionality is now integrated into the CLI. Direct module execution is deprecated and will be removed in future versions.
 
 ## Architecture Overview
 
@@ -172,8 +141,7 @@ python -m app.tools.generalized_trade_history_exporter --update-open-positions -
   - **Rich Terminal Output**: Formatted tables, progress bars, and interactive features
   - **Unified Commands**: Strategy execution, portfolio management, SPDS analysis, trade history
   - **Backward Compatibility**: Legacy config conversion for existing implementations
-- **FastAPI REST API** (`/app/api/`): RESTful endpoints with routers for scripts, data, strategy analysis, CSV viewer, and trading dashboard
-- **Modular Strategy Analysis Service** (`/app/api/services/`, `/app/tools/services/`): Decomposed service architecture with:
+- **Modular Service Architecture** (`/app/contexts/`, `/app/tools/services/`): Decomposed service architecture with:
   - **StrategyExecutionEngine**: Strategy validation and execution logic
   - **PortfolioProcessingService**: Portfolio data processing and conversion
   - **ResultAggregationService**: Result formatting and task management
@@ -198,7 +166,6 @@ python -m app.tools.generalized_trade_history_exporter --update-open-positions -
 3. **Strategy Analysis** → CLI execution → Portfolio CSVs (`/csv/portfolios/`)
 4. **Portfolio Processing** → Aggregation/filtering → Best portfolios (`/csv/portfolios_best/`, `/csv/portfolios_filtered/`)
 5. **Output Generation** → Rich formatted results → JSON/CSV exports
-6. **API Access** → Real-time strategy execution and data retrieval (alternative interface)
 
 ### Key Technologies
 
@@ -495,6 +462,8 @@ The trading system has been standardized to use the **Unified Trading CLI** as t
 
 ### Common Migration Patterns
 
+**⚠️ Note: All "OLD" patterns shown below are now deprecated and will be removed in future versions. Use only the "NEW" CLI patterns.**
+
 #### Strategy Execution
 
 ```bash
@@ -587,12 +556,12 @@ The CLI maintains **identical performance** to direct script execution because:
 3. **No Additional Processing**: Same algorithms, same data paths
 4. **Identical Outputs**: Same CSV exports, same filtering, same results
 
-### Compatibility Guarantee
+### Compatibility and Migration Status
 
-- **100% Backward Compatibility**: All existing functionality preserved
+- **CLI-First Enforcement**: All functionality is now integrated into the CLI interface
 - **Same Results**: CLI produces identical outputs to direct scripts
-- **Legacy Support**: Direct script execution still works with deprecation warnings
-- **Gradual Migration**: No forced migration timeline
+- **Deprecation Warnings**: Direct script execution will show deprecation warnings
+- **Migration Complete**: Use CLI commands for all operations - direct script usage is deprecated
 
 ### CLI Quick Start
 

@@ -112,7 +112,6 @@ acceptance_frameworks:
         - 'cyclomatic_complexity <= 10'
 
       performance:
-        - 'api_response_time_95th_percentile <= current_baseline * 1.1'
         - 'memory_usage_increase <= 10%'
         - 'strategy_execution_time_regression = 0'
 
@@ -147,7 +146,6 @@ risk_management:
 
     performance_degradation:
       strategy_execution_time: 'Alert if 95th percentile increases >20%'
-      api_response_time: 'Alert if latency increases >15%'
       memory_usage: 'Alert if baseline memory usage increases >25%'
 
   mitigation_strategies:

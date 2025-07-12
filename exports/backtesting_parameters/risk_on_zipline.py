@@ -2,9 +2,9 @@
 Zipline Algorithm Template
 Generated from Statistical Performance Divergence System
 
-Generation Date: 2025-07-11T09:31:51.910566
+Generation Date: 2025-07-12T10:29:50.941251
 Confidence Level: 0.9
-Total Strategies: 1
+Total Strategies: 0
 """
 
 import numpy as np
@@ -13,23 +13,7 @@ import zipline
 from zipline.api import cancel_order, get_open_orders, order_target, record, symbol
 
 # Statistical parameters
-exit_parameters = {
-    "MA_SMA_78_82_MA_D": {
-        "take_profit_pct": 16.51,
-        "stop_loss_pct": 3.16,
-        "max_holding_days": 180,
-        "min_holding_days": 31,
-        "trailing_stop_pct": 2.78,
-        "confidence_level": 0.9,
-        "sample_size": 62,
-        "statistical_validity": "MEDIUM",
-        "entry_signal": "STATISTICAL_DIVERGENCE",
-        "momentum_exit_threshold": 0.0781055091486947,
-        "trend_exit_threshold": 0.003,
-        "derivation_method": "advanced_quantitative_optimization",
-        "generation_timestamp": "2025-07-11T09:31:51.921517",
-    }
-}
+exit_parameters = {}
 
 
 def initialize(context):

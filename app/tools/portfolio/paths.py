@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Optional
 
 
-def resolve_portfolio_path(
+def resolve_portfolio_file_path(
     portfolio_name: str,
     base_dir: Optional[str] | None = None,
     file_type: Optional[str] | None = None,

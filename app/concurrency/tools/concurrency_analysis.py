@@ -63,9 +63,9 @@ class ConcurrencyAnalysis:
 
         # Load portfolio
         from app.tools.portfolio import load_portfolio
-        from app.tools.portfolio.paths import resolve_portfolio_path
+        from app.tools.portfolio.paths import resolve_portfolio_file_path
 
-        portfolio_path = resolve_portfolio_path(
+        portfolio_path = resolve_portfolio_file_path(
             self.config["PORTFOLIO"], self.config.get("BASE_DIR", "")
         )
 

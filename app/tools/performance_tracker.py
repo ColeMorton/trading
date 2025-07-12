@@ -15,14 +15,193 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import psutil
 
-from app.api.utils.performance_monitoring import (
-    PerformanceMonitor,
-    get_performance_monitor,
-    monitor_performance,
-    timing_context,
-)
+# API removed - creating local performance monitoring functionality
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class OperationMetrics:
+    """Simple operation metrics for performance tracking."""
+
+    operation_name: str
+    start_time: float
+    end_time: Optional[float] = None
+    duration: Optional[float] = None
+    memory_before: Optional[float] = None
+    memory_after: Optional[float] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "operation_name": self.operation_name,
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+            "duration": self.duration,
+            "memory_before": self.memory_before,
+            "memory_after": self.memory_after,
+            "metadata": self.metadata,
+        }
+
+
+@dataclass
+class PerformanceMonitor:
+    """Basic performance monitor for tracking execution metrics."""
+
+    def __init__(self):
+        self.metrics = defaultdict(list)
+        self.timings = defaultdict(list)
+        self.start_time = time.time()
+        self._active_operations: Dict[str, OperationMetrics] = {}
+        self._completed_operations: List[OperationMetrics] = []
+        self._operation_counter = 0
+
+    def record_metric(self, name: str, value: float):
+        """Record a metric value."""
+        self.metrics[name].append(value)
+
+    def record_timing(self, name: str, duration: float):
+        """Record a timing measurement."""
+        self.timings[name].append(duration)
+
+    def get_metrics(self) -> Dict[str, List[float]]:
+        """Get all recorded metrics."""
+        return dict(self.metrics)
+
+    def get_timings(self) -> Dict[str, List[float]]:
+        """Get all recorded timings."""
+        return dict(self.timings)
+
+    def start_operation(self, operation_name: str, **kwargs) -> str:
+        """Start tracking an operation and return operation ID."""
+        self._operation_counter += 1
+        operation_id = f"{operation_name}_{self._operation_counter}"
+
+        # Get current memory usage
+        memory_before = None
+        try:
+            process = psutil.Process()
+            memory_before = process.memory_info().rss / 1024 / 1024  # MB
+        except Exception:
+            pass
+
+        operation = OperationMetrics(
+            operation_name=operation_name,
+            start_time=time.time(),
+            memory_before=memory_before,
+            metadata=kwargs,
+        )
+
+        self._active_operations[operation_id] = operation
+        return operation_id
+
+    def end_operation(self, operation_id: str) -> Optional[OperationMetrics]:
+        """End tracking an operation and return metrics."""
+        operation = self._active_operations.pop(operation_id, None)
+        if not operation:
+            return None
+
+        # Get current memory usage
+        memory_after = None
+        try:
+            process = psutil.Process()
+            memory_after = process.memory_info().rss / 1024 / 1024  # MB
+        except Exception:
+            pass
+
+        # Calculate metrics
+        end_time = time.time()
+        operation.end_time = end_time
+        operation.duration = end_time - operation.start_time
+        operation.memory_after = memory_after
+
+        # Store completed operation
+        self._completed_operations.append(operation)
+
+        # Keep only last 100 completed operations to prevent memory leaks
+        if len(self._completed_operations) > 100:
+            self._completed_operations = self._completed_operations[-100:]
+
+        return operation
+
+    def get_recent_metrics(self, limit: int = 20) -> List[OperationMetrics]:
+        """Get recent completed operation metrics."""
+        return (
+            self._completed_operations[-limit:] if limit else self._completed_operations
+        )
+
+
+def get_performance_monitor():
+    """Get or create a performance monitor instance."""
+    if not hasattr(get_performance_monitor, "_instance"):
+        get_performance_monitor._instance = PerformanceMonitor()
+    return get_performance_monitor._instance
+
+
+def monitor_performance(operation_name=None, track_throughput=False):
+    """Decorator to monitor function performance.
+
+    Args:
+        operation_name: Optional name for the operation (if None, uses function name)
+        track_throughput: Whether to track throughput metrics (currently not implemented)
+
+    Usage:
+        @monitor_performance
+        def my_function():
+            pass
+
+        @monitor_performance("custom_operation", track_throughput=True)
+        def my_function():
+            pass
+    """
+
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            monitor = get_performance_monitor()
+            start_time = time.time()
+            try:
+                result = func(*args, **kwargs)
+                duration = time.time() - start_time
+                # Use operation_name if provided, otherwise use function name
+                name = operation_name if operation_name is not None else func.__name__
+                monitor.record_timing(name, duration)
+                return result
+            except Exception as e:
+                duration = time.time() - start_time
+                name = operation_name if operation_name is not None else func.__name__
+                monitor.record_timing(f"{name}_error", duration)
+                raise
+
+        return wrapper
+
+    # Handle both @monitor_performance and @monitor_performance() usage
+    if callable(operation_name):
+        # Direct usage: @monitor_performance
+        func = operation_name
+        operation_name = None
+        return decorator(func)
+    else:
+        # Parameterized usage: @monitor_performance("name", track_throughput=True)
+        return decorator
+
+
+class timing_context:
+    """Context manager for timing operations."""
+
+    def __init__(self, name: str, monitor: Optional[PerformanceMonitor] = None):
+        self.name = name
+        self.monitor = monitor or get_performance_monitor()
+        self.start_time = None
+
+    def __enter__(self):
+        self.start_time = time.time()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.start_time is not None:
+            duration = time.time() - self.start_time
+            self.monitor.record_timing(self.name, duration)
 
 
 @dataclass

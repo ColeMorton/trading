@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-07-10T08:07:12.881847",
+    "export_timestamp": "2025-07-11T19:46:54.250732",
     "strategy_config": {
       "ticker": "INTU",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 79.87416356698037,
+      "total_return": 77.59481905366597,
       "total_trades": "82",
       "win_rate": 0.5609756097560976,
-      "sharpe_ratio": 0.6748813081337862,
+      "sharpe_ratio": 0.6717719877080044,
       "max_drawdown": -0.6594963931830801
     }
   },
@@ -1725,10 +1725,10 @@
       "Entry Timestamp": "2025-04-29 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 623.1500244140625,
-      "Avg Exit Price": 769.5900268554688,
+      "Avg Exit Price": 747.9000244140625,
       "Size": 105.08733318365725,
-      "PnL": 15323.504153736649,
-      "Return": 0.23399959352340788,
+      "PnL": 13044.159640422251,
+      "Return": 0.19919256216398365,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -1737,9 +1737,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Big Winner",
-      "Cumulative_PnL": 79874.16356698037,
+      "Cumulative_PnL": 77594.81905366597,
       "Trade_Number": 82,
-      "Rolling_Avg_Return": 0.018175244063638064,
+      "Rolling_Avg_Return": 0.011213837791753212,
       "Rolling_Win_Rate": 0.2
     }
   ],
@@ -4679,10 +4679,10 @@
       "Avg Entry Price": 623.1500244140625,
       "Entry Fees": 65.48517423899466,
       "Exit Timestamp": null,
-      "Avg Exit Price": 769.5900268554688,
+      "Avg Exit Price": 747.9000244140625,
       "Exit Fees": 0.0,
-      "PnL": 15323.504153736649,
-      "Return": 0.23399959352340788,
+      "PnL": 13044.159640422251,
+      "Return": 0.19919256216398365,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

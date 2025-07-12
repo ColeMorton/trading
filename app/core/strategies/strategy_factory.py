@@ -4,9 +4,21 @@ Strategy Factory
 This module provides a factory for creating strategy instances based on strategy type.
 """
 
+# API removed - creating local definition
+from enum import Enum
 from typing import Any, Dict
 
-from app.api.models.strategy_analysis import StrategyTypeEnum
+
+class StrategyTypeEnum(str, Enum):
+    """Strategy type enumeration."""
+
+    SMA = "SMA"
+    EMA = "EMA"
+    MACD = "MACD"
+    RSI = "RSI"
+    BOLLINGER_BANDS = "BOLLINGER_BANDS"
+
+
 from app.core.interfaces.strategy import StrategyInterface
 from app.core.strategies.ma_cross_strategy import MACrossStrategy
 from app.core.strategies.macd_strategy import MACDStrategy

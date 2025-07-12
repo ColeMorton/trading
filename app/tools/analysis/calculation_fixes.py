@@ -723,7 +723,7 @@ if __name__ == "__main__":
     # Create sample data for testing
     sample_positions = pd.DataFrame(
         {
-            "Position_UUID": ["NFLX_EMA_19_46_2025-04-14", "AMD_SMA_7_45_2025-05-08"],
+            "Position_UUID": ["NFLX_EMA_19_46_20250414", "AMD_SMA_7_45_20250508"],
             "Current_Unrealized_PnL": [0.384, 0.3475],
             "Max_Favourable_Excursion": [0.438, 0.450],
             "Max_Adverse_Excursion": [0.014, 0.004],

@@ -4,7 +4,7 @@ Comprehensive expert assistant for the production-ready Unified Trading CLI syst
 
 ## Purpose
 
-Expert assistant for the **Unified Trading CLI** (v2.0.0) - a comprehensive command-line interface built with Typer for trading strategy analysis, portfolio management, and system operations. The CLI provides unified access to all trading tools with type-safe configuration management and rich terminal output.
+Expert assistant for the **Unified Trading CLI** (v2.0.0) - an enterprise-grade command-line interface built with Typer for trading strategy analysis, portfolio management, and system operations. The CLI provides unified access to all trading tools with type-safe configuration management and rich terminal output.
 
 ## Parameters
 
@@ -18,6 +18,7 @@ Expert assistant for the **Unified Trading CLI** (v2.0.0) - a comprehensive comm
   - `profiles` - Profile system management and inheritance
   - `validation` - Configuration validation and schema guidance
   - `health` - System health checks and dependency validation
+  - `performance` - Performance optimization and memory management
 
 - `command`: Specific CLI command (optional: "strategy", "portfolio", "spds", "trade-history", "config", "tools", "concurrency")
 - `operation`: Subcommand operation (optional: "run", "analyze", "export", "validate", etc.)
@@ -33,101 +34,209 @@ Expert assistant for the **Unified Trading CLI** (v2.0.0) - a comprehensive comm
 - **Configuration**: YAML-based with Pydantic validation
 - **Type Safety**: Comprehensive Pydantic models throughout
 - **Error Handling**: Graceful degradation with meaningful messages
+- **Terminal Enhancement**: Rich library for beautiful tables, progress bars, and colors
 
 ### **Entry Points**
 
-**Primary Entry Point (Recommended):**
+**Primary Entry Point:**
 
 ```bash
-python -m app.cli [command] [subcommand] [options]
+./trading-cli [command] [subcommand] [options]
 ```
 
 **Alternative Entry Points:**
 
 ```bash
-# Direct module execution
-python -m app.cli
+# Module execution
+./trading-cli
 
-# Function imports (for programmatic use)
+# Programmatic access
 from app.cli.main import cli_main
 ```
 
 ### **Command Structure**
 
-The CLI provides **7 main command groups** with hierarchical subcommands:
+The CLI provides **7 main command groups** with comprehensive subcommands:
 
 #### **1. strategy** - Strategy Analysis and Execution
 
+**Available subcommands:**
+
+- `run` - Execute strategy analysis with profile or custom parameters
+- `sweep` - Parameter sweep analysis for optimization
+- `analyze` - Single strategy detailed analysis
+
 ```bash
-python -m app.cli strategy run --profile ma_cross_crypto
-python -m app.cli strategy sweep --fast-range 5,10 --slow-range 20,50
-python -m app.cli strategy analyze --ticker BTC-USD --strategy-type SMA
+# Profile-based execution
+./trading-cli strategy run --profile ma_cross_crypto
+
+# Custom parameter execution
+./trading-cli strategy run --ticker BTC-USD,ETH-USD --strategy-type SMA --fast-period 20 --slow-period 50
+
+# Parameter sweep analysis
+./trading-cli strategy sweep --ticker AAPL --fast-range 5,10 --slow-range 20,50 --min-trades 100
+
+# Single strategy analysis
+./trading-cli strategy analyze --ticker BTC-USD --strategy-type SMA --fast-period 9 --slow-period 21
+
+# Advanced filtering
+./trading-cli strategy run --profile ma_cross_crypto --min-win-rate 0.6 --min-profit-factor 1.5 --min-sortino 1.0
 ```
 
 #### **2. portfolio** - Portfolio Processing and Aggregation
 
+**Available subcommands:**
+
+- `update` - Update and aggregate portfolio results
+- `process` - Process portfolio files with validation
+- `aggregate` - Aggregate multiple portfolios with advanced metrics
+
 ```bash
-python -m app.cli portfolio update --validate --export-format json
-python -m app.cli portfolio process --schema-version extended
-python -m app.cli portfolio aggregate --by-ticker --calculate-breadth
+# Portfolio update with validation
+./trading-cli portfolio update --validate --export-format json
+
+# Process specific portfolio with schema validation
+./trading-cli portfolio process portfolio.csv --schema-version extended --validate
+
+# Advanced aggregation with breadth metrics
+./trading-cli portfolio aggregate --by-ticker --calculate-breadth --export-format csv
+
+# Batch processing with correlation analysis
+./trading-cli portfolio aggregate --correlation-analysis --risk-metrics
 ```
 
 #### **3. spds** - Enhanced Statistical Performance Divergence System (v2.0)
 
+**Available subcommands:**
+
+- `analyze` - Portfolio statistical analysis with auto data source detection
+- `export` - Export backtesting parameters and analysis results
+- `demo` - Create demo files and run example analysis
+- `health` - System health check and data source validation
+- `configure` - Interactive configuration management
+- `list-portfolios` - List available portfolios for analysis
+- `interactive` - Interactive guided analysis mode
+
 ```bash
-# Auto-detection with dual-source analysis (recommended)
-python -m app.cli spds analyze risk_on.csv --data-source auto
+# Auto-detection with dual-source analysis
+./trading-cli spds analyze risk_on.csv --data-source auto
 
-# Explicit dual-source analysis
-python -m app.cli spds analyze risk_on.csv --data-source both --trade-history
+# Explicit dual-source analysis with enhanced confidence
+./trading-cli spds analyze risk_on.csv --data-source both --confidence-boost
 
-# Single-source analysis (legacy compatibility)
-python -m app.cli spds analyze risk_on.csv --data-source trade-history
-python -m app.cli spds analyze risk_on.csv --data-source equity-curves
+# Single-source analysis
+./trading-cli spds analyze risk_on.csv --data-source trade-history
+./trading-cli spds analyze risk_on.csv --data-source equity-curves
 
 # Enhanced exports with multi-source details
-python -m app.cli spds export --format all --confidence high --multi-source-details
+./trading-cli spds export risk_on.csv --format all --multi-source-details --save-results
 
-# Interactive mode with source detection
-python -m app.cli spds interactive --auto-detect-sources
+# Interactive mode with guided analysis
+./trading-cli spds interactive --auto-detect-sources
+
+# System health and source validation
+./trading-cli spds health --convergence-analysis
+./trading-cli spds list-sources --all-portfolios
 ```
 
 #### **4. trade-history** - Trade History Analysis and Position Management
 
+**Available subcommands:**
+
+- `close` - Close positions and generate comprehensive sell signal reports
+- `update` - Update positions with current market data
+- `list` - List available strategies for analysis
+- `health` - System health check
+- `validate` - Data validation
+
 ```bash
-# Primary usage: Close position with portfolio update
-python -m app.cli trade-history close --strategy NFLX_SMA_82_83_2025-06-16 --portfolio risk_on --price 1273.99
+# Close position with portfolio update
+./trading-cli trade-history close \
+  --strategy NFLX_SMA_82_83_2025-06-16 \
+  --portfolio risk_on \
+  --price 1273.99
 
-# Other operations
-python -m app.cli trade-history update --portfolio live_signals --refresh-prices
-python -m app.cli trade-history list
+# Close with comprehensive analysis and verbose output
+./trading-cli trade-history close \
+  --strategy AAPL_SMA_20_50_2025-01-01 \
+  --portfolio live_signals \
+  --price 150.00 \
+  --verbose \
+  --market-condition bearish
 
-# Legacy: Report-only generation
-python -m app.cli trade-history close MA_SMA_78_82 --current-price 245.50
+# Update positions with market data and risk assessment
+./trading-cli trade-history update --portfolio live_signals \
+  --refresh-prices --recalculate --update-risk --dry-run
+
+# List available strategies with filtering
+./trading-cli trade-history list --portfolio risk_on --active-only
+
+# Generate report-only analysis
+./trading-cli trade-history close MA_SMA_78_82 \
+  --current-price 245.50 --output reports/exit_analysis.md --format markdown
 ```
 
 #### **5. config** - Configuration and Profile Management
 
+**Available subcommands:**
+
+- `list` - List all available configuration profiles
+- `show` - Show configuration details for specific profile
+- `create-defaults` - Create default configuration profiles
+- `set-default` - Set the default configuration profile
+- `edit` - Edit a configuration profile
+- `validate` - Validate configuration profiles
+
 ```bash
-python -m app.cli config list
-python -m app.cli config show ma_cross_crypto
-python -m app.cli config set-default ma_cross_crypto
-python -m app.cli config validate
+# Profile management
+./trading-cli config list
+./trading-cli config show ma_cross_crypto --format json
+./trading-cli config create-defaults
+./trading-cli config set-default ma_cross_crypto
+
+# Configuration validation
+./trading-cli config validate
+./trading-cli config validate ma_cross_crypto --detailed
+
+# Profile editing
+./trading-cli config edit ma_cross_crypto
 ```
 
 #### **6. tools** - Utility Tools and System Management
 
+**Available subcommands:**
+
+- `schema` - Schema detection, validation, and conversion
+- `health` - Comprehensive system health diagnostics
+- `validate` - Data validation utilities
+
 ```bash
-python -m app.cli tools schema --detect-version --convert
-python -m app.cli tools validate --batch --format json
-python -m app.cli tools health
+# System health and diagnostics
+./trading-cli tools health
+./trading-cli tools health --verbose --check-dependencies
+
+# Schema management
+./trading-cli tools schema --detect-version --convert
+./trading-cli tools schema --validate-all --report
+
+# Data validation
+./trading-cli tools validate --batch --format json
+./trading-cli tools validate --file portfolio.csv --comprehensive
 ```
 
 #### **7. concurrency** - Concurrency Analysis and Trade History
 
+**Available subcommands:**
+
+- `analyze` - Concurrency analysis with trade history export
+- `review` - Portfolio interaction analysis with visualization
+
 ```bash
-python -m app.cli concurrency analyze --export-trades
-python -m app.cli concurrency review --visualization
+# Concurrency analysis with trade export
+./trading-cli concurrency analyze --export-trades
+
+# Portfolio interaction analysis
+./trading-cli concurrency review --visualization --allocation-analysis
 ```
 
 ### **Root Commands**
@@ -135,103 +244,156 @@ python -m app.cli concurrency review --visualization
 **System-level operations:**
 
 ```bash
-python -m app.cli version           # Show version information
-python -m app.cli status            # System status and configuration
-python -m app.cli init              # Initialize CLI with default profiles
+./trading-cli version           # Show version information
+./trading-cli status            # System status and configuration
+./trading-cli init              # Initialize CLI with default profiles
 ```
 
-## Configuration System
+### **Global Options (Available for ALL commands)**
+
+```bash
+--verbose, -v              # Enable verbose output with detailed logging
+--profiles-dir PATH        # Custom profiles directory (default: app/cli/profiles)
+--dry-run                  # Preview operations without execution
+--output-format FORMAT     # Output format (table, json, verbose)
+--no-color                 # Disable colored output
+--config-file PATH         # Custom configuration file
+--log-level LEVEL          # Set logging level (DEBUG, INFO, WARNING, ERROR)
+```
+
+## Advanced Configuration System
 
 ### **Profile-Based Configuration**
 
-**Profile Structure:**
+**Profile Structure with Enhanced Metadata:**
 
 ```yaml
 metadata:
   name: profile_name
-  description: 'Profile description'
-  created_at: '2025-07-07T08:48:08.871336'
+  description: 'Comprehensive profile description'
+  created_at: '2025-07-11T10:30:00.000000'
+  updated_at: '2025-07-11T10:30:00.000000'
   version: '1.0'
-  tags: [production, crypto]
+  tags: [production, crypto, optimized]
+  author: 'system'
 
-inherits_from: parent_profile # Optional inheritance
-config_type: strategy # Determines validation model (strategy, portfolio, spds, etc.)
-config: # Type-safe configuration data
-  ticker: [BTC-USD, ETH-USD]
+inherits_from: parent_profile # Optional inheritance with validation
+config_type: strategy # Determines validation model (strategy, portfolio, spds, trade_history, concurrency, tools)
+
+config: # Type-safe configuration data with comprehensive validation
+  # Strategy Configuration
+  ticker: [BTC-USD, ETH-USD, AAPL, MSFT]
   strategy_types: [SMA, EMA]
   timeframe: '1d'
+
+  # Performance Filters
+  minimums:
+    win_rate: 0.5
+    trades: 44
+    profit_factor: 1.2
+    expectancy: 0.05
+    sortino_ratio: 1.0
+    beats_buy_and_hold: true
+
+  # Advanced Features
+  memory_optimization:
+    enable_pooling: true
+    enable_monitoring: true
+    memory_threshold_mb: 1000.0
+    streaming_threshold_mb: 5.0
+
+  # Output Configuration
+  export_formats: [csv, json]
+  verbose_output: false
+  rich_formatting: true
 ```
 
 ### **Configuration Management Features**
 
-**Profile Inheritance:**
+**Profile Inheritance with Validation:**
 
 - Recursive profile loading with circular reference detection
-- Deep merging of configuration dictionaries
+- Deep merging of configuration dictionaries with conflict resolution
 - Automatic backup management with timestamped versions
-- Cache optimization for performance
+- Cache optimization for performance with TTL support
+- Comprehensive validation at each inheritance level
 
-**Multi-Source Loading:**
+**Multi-Source Configuration Loading:**
 
 ```bash
 # Profile-based configuration
-python -m app.cli strategy run --profile ma_cross_crypto
+./trading-cli strategy run --profile ma_cross_crypto
 
-# Override configuration values
-python -m app.cli strategy run --profile ma_cross_crypto --ticker BTC-USD --verbose
+# Runtime parameter overrides
+./trading-cli strategy run --profile ma_cross_crypto --ticker BTC-USD --verbose --min-trades 100
 
-# YAML file configuration
-python -m app.cli config load-from-yaml custom_config.yaml
+# Custom configuration file
+./trading-cli strategy run --config-file custom_strategy.yaml
+
+# Environment variable overrides
+CLI_PROFILE=ma_cross_crypto ./trading-cli strategy run
 ```
 
 ### **Available Profiles**
 
 **Default Profiles:**
 
-- `default_strategy` - Base strategy configuration
-- `default_portfolio` - Portfolio processing defaults
+- `default_strategy` - Base strategy configuration with conservative settings
+- `default_portfolio` - Portfolio processing defaults with validation
 - `default_concurrency` - Concurrency analysis settings
-- `ma_cross_crypto` - Cryptocurrency MA Cross analysis
-- `current` - Production analysis matching existing scripts
+- `ma_cross_crypto` - Cryptocurrency MA Cross analysis (production-ready)
+- `current` - Production analysis matching existing legacy scripts
+
+**Strategy-Specific Profiles:**
+
+- `strategies/current.yaml` - Current production configuration
+- `strategies/ma_cross_crypto.yaml` - Crypto-focused MA Cross
+- `strategies/ma_cross_dev.yaml` - Development and testing configuration
 
 **Profile Locations:**
 
 ```
 ./app/cli/profiles/
-├── config.yaml                    # Main profile configuration
+├── config.yaml                    # Main profile configuration registry
 ├── default_strategy.yaml          # Base strategy defaults
+├── default_portfolio.yaml         # Portfolio processing defaults
+├── default_concurrency.yaml       # Concurrency analysis defaults
 ├── ma_cross_crypto.yaml          # Crypto-focused configuration
 └── strategies/                    # Strategy-specific profiles
     ├── current.yaml               # Production configuration
-    ├── ma_cross_crypto.yaml       # Crypto MA Cross
+    ├── ma_cross_crypto.yaml       # Crypto MA Cross optimized
     └── ma_cross_dev.yaml          # Development configuration
 ```
 
 ## Type-Safe Data Models
 
-### **Model Hierarchy**
+### **Comprehensive Model Hierarchy**
 
 **Base Configuration:**
 
 ```python
 class BaseConfig(BaseModel):
-    """Foundation class with common fields"""
+    """Foundation class with common fields and validation"""
     verbose: bool = False
     dry_run: bool = False
     output_dir: Optional[Path] = None
+    memory_optimization: Optional[MemoryConfig] = None
+    rich_formatting: bool = True
+    log_level: LogLevel = LogLevel.INFO
 ```
 
 **Domain-Specific Models:**
 
-- `StrategyConfig` - Strategy execution parameters
-- `PortfolioConfig` - Portfolio processing settings
+- `StrategyConfig` - Strategy execution parameters with advanced filtering
+- `PortfolioConfig` - Portfolio processing settings with schema validation
 - `SPDSConfig` - Enhanced statistical analysis with dual-source support
-- `TradeHistoryConfig` - Trade history operations
+- `TradeHistoryConfig` - Trade history operations with position management
 - `ConcurrencyConfig` - Concurrency analysis settings
+- `ToolsConfig` - Utility tools configuration
 
-### **Validation Features**
+### **Enhanced Validation Features**
 
-**Type Safety:**
+**Type Safety with Business Logic:**
 
 ```python
 class StrategyType(str, Enum):
@@ -242,9 +404,15 @@ class StrategyType(str, Enum):
 class Direction(str, Enum):
     LONG = "Long"
     SHORT = "Short"
+
+class OutputFormat(str, Enum):
+    TABLE = "table"
+    JSON = "json"
+    VERBOSE = "verbose"
+    CSV = "csv"
 ```
 
-**Business Logic Validation:**
+**Advanced Business Logic Validation:**
 
 ```python
 @validator("slow_period")
@@ -252,196 +420,371 @@ def validate_periods(cls, v, values):
     if "fast_period" in values and v <= values["fast_period"]:
         raise ValueError("Slow period must be greater than fast period")
     return v
+
+@validator("minimums")
+def validate_minimums(cls, v):
+    if v.win_rate < 0 or v.win_rate > 1:
+        raise ValueError("Win rate must be between 0 and 1")
+    return v
 ```
 
-## Global Options
+## Rich Terminal Features
 
-**Available for all commands:**
+### **Enhanced Display Capabilities**
+
+**Rich Table Output:**
+
+- Color-coded performance metrics (green for positive, red for negative)
+- Sortable columns with automatic type detection
+- Progress bars for long-running operations
+- Status indicators and icons for quick visual feedback
+
+**Interactive Features:**
+
+- Real-time progress tracking with ETA
+- Interactive prompts for configuration
+- Colored error messages with resolution hints
+- Formatted help text with syntax highlighting
+
+**Example Rich Output:**
 
 ```bash
---verbose, -v              # Enable verbose output
---profiles-dir PATH        # Custom profiles directory
---dry-run                  # Preview operations without execution
---output-format FORMAT     # Output format (table, json, verbose)
+# Strategy analysis with rich formatting
+./trading-cli strategy run --profile ma_cross_crypto --verbose
+
+┌──────────────────────────────────────────────────────────────────┐
+│                     Strategy Analysis Results                    │
+├──────────────────────────────────────────────────────────────────┤
+│ Ticker: BTC-USD | Strategy: SMA_20_50 | Period: 2020-2025       │
+│ ✅ Win Rate: 65.2% | 🎯 Profit Factor: 2.34 | 📈 Total Return: 156.7% │
+│ 📊 Trades: 87 | 💰 Expectancy: 2.45% | 🛡️ Sortino: 1.82       │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
-## Usage Examples
+## Comprehensive Usage Examples
 
-### **Strategy Analysis**
+### **Strategy Analysis (Advanced)**
 
 ```bash
 # Quick strategy analysis with default profile
-python -m app.cli strategy run
+./trading-cli strategy run
 
-# Crypto-focused analysis with custom parameters
-python -m app.cli strategy run --profile ma_cross_crypto --verbose
+# Multi-ticker analysis with custom filtering
+./trading-cli strategy run \
+  --ticker BTC-USD,ETH-USD,AAPL,MSFT \
+  --strategy-type SMA,EMA \
+  --min-win-rate 0.6 \
+  --min-profit-factor 1.5 \
+  --min-trades 50 \
+  --verbose
 
-# Parameter sweep analysis
-python -m app.cli strategy sweep --profile ma_cross_crypto \
-  --fast-range 5,10 --slow-range 20,50 --min-trades 100
+# Parameter sweep with optimization
+./trading-cli strategy sweep \
+  --profile ma_cross_crypto \
+  --fast-range 5,15 \
+  --slow-range 20,60 \
+  --min-trades 100 \
+  --export-format json \
+  --memory-optimization
 
-# Single strategy detailed analysis
-python -m app.cli strategy analyze --ticker BTC-USD \
-  --strategy-type SMA --fast-period 9 --slow-period 21
+# Single strategy deep analysis
+./trading-cli strategy analyze \
+  --ticker BTC-USD \
+  --strategy-type SMA \
+  --fast-period 9 \
+  --slow-period 21 \
+  --output-format verbose \
+  --include-signals
 ```
 
-### **Portfolio Management**
+### **Portfolio Management (Enterprise)**
 
 ```bash
-# Update portfolio results with validation
-python -m app.cli portfolio update --validate --export-format json
+# Portfolio update with comprehensive validation
+./trading-cli portfolio update --validate --export-format json --verbose
 
-# Process specific portfolio file
-python -m app.cli portfolio process portfolio.csv \
-  --schema-version extended --validate
+# Process portfolio with schema upgrade
+./trading-cli portfolio process portfolio.csv \
+  --schema-version extended \
+  --validate \
+  --convert-format \
+  --backup
 
-# Aggregate portfolio results
-python -m app.cli portfolio aggregate \
-  --by-ticker --calculate-breadth --export-format csv
+# Advanced aggregation with risk metrics
+./trading-cli portfolio aggregate \
+  --by-ticker \
+  --by-strategy \
+  --calculate-breadth \
+  --correlation-analysis \
+  --risk-metrics \
+  --export-format csv,json
+
+# Batch processing with optimization
+./trading-cli portfolio aggregate \
+  --input-dir csv/portfolios/ \
+  --output-dir csv/aggregated/ \
+  --memory-optimization \
+  --parallel-processing
 ```
 
-### **Enhanced SPDS Analysis (v2.0)**
+### **Enhanced SPDS Analysis (v2.0) - Dual-Source**
 
-#### **Dual-Source Analysis (Recommended)**
+#### **Auto-Detection Mode**
 
 ```bash
-# Auto-detection mode - uses both sources when available
-python -m app.cli spds analyze risk_on.csv --data-source auto
+# Intelligent dual-source analysis
+./trading-cli spds analyze risk_on.csv --data-source auto
 
-# Explicit dual-source analysis with enhanced confidence
-python -m app.cli spds analyze risk_on.csv --data-source both --confidence-boost
+# Enhanced analysis with confidence boosting
+./trading-cli spds analyze risk_on.csv \
+  --data-source auto \
+  --confidence-boost \
+  --convergence-threshold 0.8 \
+  --verbose
 
-# Multi-source export with convergence analysis
-python -m app.cli spds export risk_on.csv --format all --multi-source-details --save-results
+# Production analysis with conservative settings
+./trading-cli spds analyze risk_on.csv \
+  --data-source auto \
+  --conservative-on-divergence \
+  --min-trade-count 30 \
+  --multi-source-details
 ```
 
-#### **Single-Source Analysis (Legacy Mode)**
+#### **Explicit Dual-Source Analysis**
 
 ```bash
-# Trade history only
-python -m app.cli spds analyze risk_on.csv --data-source trade-history
+# Force dual-source analysis (requires both data sources)
+./trading-cli spds analyze risk_on.csv --data-source both
 
-# Equity curves only
-python -m app.cli spds analyze risk_on.csv --data-source equity-curves
+# Triple-layer convergence analysis
+./trading-cli spds analyze risk_on.csv \
+  --data-source both \
+  --asset-weight 0.3 \
+  --trade-weight 0.4 \
+  --equity-weight 0.3 \
+  --convergence-validation
 
-# Legacy flag support (backward compatibility)
-python -m app.cli spds analyze risk_on.csv --trade-history
+# Development testing with permissive settings
+./trading-cli spds analyze test_portfolio.csv \
+  --data-source both \
+  --convergence-threshold 0.6 \
+  --min-trade-count 10 \
+  --aggressive-on-convergence
 ```
 
-#### **Advanced Analysis Features**
-
-```bash
-# Interactive mode with source auto-detection
-python -m app.cli spds interactive --auto-detect-sources
-
-# Source convergence analysis
-python -m app.cli spds analyze risk_on.csv --convergence-threshold 0.8
-
-# Conservative mode when sources diverge
-python -m app.cli spds analyze risk_on.csv --conservative-on-divergence
-
-# Triple-layer analysis with custom weights
-python -m app.cli spds analyze risk_on.csv --asset-weight 0.3 --trade-weight 0.4 --equity-weight 0.3
-```
-
-#### **System Health and Validation**
+#### **System Health and Diagnostics**
 
 ```bash
 # Comprehensive SPDS health check
-python -m app.cli spds health
+./trading-cli spds health --convergence-analysis --verbose
 
 # Data source availability check
-python -m app.cli spds list-sources risk_on.csv
+./trading-cli spds list-sources risk_on.csv --detailed
 
-# Configuration validation
-python -m app.cli spds validate-config
+# Source convergence validation
+./trading-cli spds validate-convergence risk_on.csv --matrix
+
+# Export with comprehensive diagnostics
+./trading-cli spds export risk_on.csv \
+  --format all \
+  --source-details \
+  --convergence-matrix \
+  --debug-output
 ```
 
-### **Trade History Operations**
+### **Trade History Operations (Enterprise)**
 
-#### **Primary Usage: Position Closing**
+#### **Position Management**
 
 ```bash
-# Close position and update portfolio (recommended)
-python -m app.cli trade-history close \
+# Close position with portfolio update
+./trading-cli trade-history close \
   --strategy NFLX_SMA_82_83_2025-06-16 \
   --portfolio risk_on \
-  --price 1273.99
+  --price 1273.99 \
+  --verbose
 
-# Close with verbose output for detailed logging
-python -m app.cli trade-history close \
+# Advanced position closing with market analysis
+./trading-cli trade-history close \
   --strategy AAPL_SMA_20_50_2025-01-01 \
   --portfolio live_signals \
   --price 150.00 \
-  --verbose
+  --market-condition bearish \
+  --risk-assessment \
+  --spds-analysis \
+  --output reports/AAPL_exit_analysis.md
 
-# Close position in protected portfolio
-python -m app.cli trade-history close \
+# Batch position updates with optimization
+./trading-cli trade-history update \
+  --portfolio live_signals \
+  --refresh-prices \
+  --recalculate \
+  --update-risk \
+  --parallel-processing \
+  --dry-run
+```
+
+#### **Analysis and Reporting**
+
+```bash
+# Generate comprehensive sell signal report
+./trading-cli trade-history close MA_SMA_78_82 \
+  --current-price 245.50 \
+  --market-condition bearish \
+  --output reports/exit_analysis.md \
+  --format markdown \
+  --include-charts
+
+# JSON export for programmatic use
+./trading-cli trade-history close QCOM_SMA_49_66 \
+  --format json \
+  --include-raw-data \
+  --risk-metrics \
+  --output data/QCOM_analysis.json
+
+# Interactive analysis with guidance
+./trading-cli trade-history close \
   --strategy TSLA_EMA_12_26_2025-02-15 \
-  --portfolio protected \
-  --price 245.50
+  --interactive \
+  --guided-analysis \
+  --recommendations
 ```
 
-#### **Other Operations**
+### **Configuration Management (Advanced)**
 
 ```bash
-# Update positions with market data
-python -m app.cli trade-history update --portfolio live_signals \
-  --refresh-prices --recalculate --update-risk
+# Profile management with validation
+./trading-cli config list --detailed --with-inheritance
+./trading-cli config show ma_cross_crypto --format json --validate
 
-# List available strategies
-python -m app.cli trade-history list
+# Profile creation and editing
+./trading-cli config create-defaults --overwrite --backup
+./trading-cli config edit ma_cross_crypto --interactive
 
-# System validation
-python -m app.cli trade-history health
+# Advanced validation with business logic
+./trading-cli config validate --all-profiles --strict --report
+./trading-cli config validate ma_cross_crypto --detailed --fix-issues
+
+# Profile inheritance and composition
+./trading-cli config show ma_cross_crypto --resolve-inheritance --format yaml
 ```
 
-#### **Legacy Report-Only Mode**
+### **System Tools (Comprehensive)**
 
 ```bash
-# Generate sell signal report without closing position
-python -m app.cli trade-history close MA_SMA_78_82 \
-  --current-price 245.50 --market-condition bearish \
-  --output reports/exit_analysis.md
+# System health with comprehensive checks
+./trading-cli tools health --verbose --check-dependencies --performance-test
+
+# Schema management with migration
+./trading-cli tools schema --detect-version --convert --backup --validate
+
+# Data validation with detailed reporting
+./trading-cli tools validate \
+  --batch \
+  --format json \
+  --comprehensive \
+  --output reports/validation_report.json
+
+# Performance diagnostics
+./trading-cli tools health --memory-analysis --import-timing --dependency-check
 ```
 
-### **Configuration Management**
+## Advanced Features
 
-```bash
-# List all profiles
-python -m app.cli config list
+### **Memory Optimization and Performance**
 
-# Show profile details
-python -m app.cli config show ma_cross_crypto --format json
+**Automatic Memory Management:**
 
-# Create default profiles
-python -m app.cli config create-defaults
+- Object pooling for DataFrame operations with configurable pool sizes
+- Real-time memory monitoring with configurable thresholds and alerts
+- Streaming processing for large datasets (>5MB automatic streaming)
+- Intelligent garbage collection optimization with adaptive triggers
+- Memory-mapped file access for large CSV files
 
-# Set default profile
-python -m app.cli config set-default ma_cross_crypto
+**Performance Configuration:**
 
-# Validate all profiles
-python -m app.cli config validate
+```yaml
+# In profile configuration
+config:
+  memory_optimization:
+    enable_pooling: true # Enable object pooling
+    pool_size: 100 # Pool size for DataFrame objects
+    enable_monitoring: true # Real-time memory monitoring
+    memory_threshold_mb: 1000.0 # GC trigger threshold
+    streaming_threshold_mb: 5.0 # Automatic streaming threshold
+    gc_optimization: true # Intelligent GC management
+
+  performance:
+    parallel_processing: true # Enable parallel operations
+    batch_size: 1000 # Batch processing size
+    cache_results: true # Enable result caching
+    progress_tracking: true # Show progress bars
 ```
 
-### **System Tools**
+**Performance Commands:**
 
 ```bash
-# Schema detection and conversion
-python -m app.cli tools schema --detect-version --convert
+# Enable memory optimization for large operations
+./trading-cli strategy run --profile ma_cross_crypto --memory-optimization
 
-# Batch validation
-python -m app.cli tools validate --batch --format json
+# Performance monitoring mode
+./trading-cli strategy sweep --ticker AAPL --memory-monitoring --performance-tracking
 
-# System health check
-python -m app.cli tools health
+# Streaming mode for large datasets
+./trading-cli portfolio process large_portfolio.csv --streaming --chunk-size 10000
+```
+
+### **Rich Terminal Output Enhancement**
+
+**Advanced Display Features:**
+
+- **Colored Tables**: Performance metrics with green/red coloring
+- **Progress Bars**: Real-time progress with ETA for long operations
+- **Status Indicators**: Icons and symbols for quick visual feedback
+- **Interactive Prompts**: User-friendly configuration and confirmation
+- **Formatted Help**: Syntax-highlighted help text with examples
+
+**Terminal Customization:**
+
+```bash
+# Disable colors for scripting
+./trading-cli strategy run --no-color --output-format json
+
+# Verbose mode with detailed formatting
+./trading-cli strategy run --verbose --rich-formatting
+
+# Compact output for CI/CD
+./trading-cli strategy run --output-format table --compact
+```
+
+### **Error Handling and Validation**
+
+**Comprehensive Error Management:**
+
+- **Pre-flight Validation**: Configuration and dependency checks before execution
+- **Runtime Error Recovery**: Graceful handling with fallback mechanisms
+- **Detailed Error Messages**: Clear descriptions with resolution guidance
+- **Verbose Error Modes**: Stack traces and debugging information
+- **Error Reporting**: Structured error logs with context
+
+**Validation Features:**
+
+```bash
+# Pre-flight validation
+./trading-cli strategy run --dry-run --validate-config --check-dependencies
+
+# Comprehensive validation with detailed reporting
+./trading-cli config validate --all-profiles --business-logic --report
+
+# Runtime validation with error recovery
+./trading-cli strategy run --validate-runtime --graceful-errors
 ```
 
 ## Enhanced SPDS System (v2.0) - Dual-Source Analysis
 
 ### **Revolutionary Multi-Source Analysis**
 
-The Statistical Performance Divergence System has been completely enhanced to support simultaneous analysis of BOTH trade history AND equity curve data, providing unprecedented analytical depth and reliability.
+The Statistical Performance Divergence System supports simultaneous analysis of BOTH trade history AND equity curve data, providing unprecedented analytical depth and reliability.
 
 #### **Key Innovations**
 
@@ -450,7 +793,7 @@ The Statistical Performance Divergence System has been completely enhanced to su
 - Automatically detects available data sources
 - Uses optimal combination based on data quality
 - Graceful fallback to single-source when needed
-- 100% backward compatibility maintained
+- Complete backward compatibility maintained
 
 **2. Triple-Layer Convergence Analysis**
 
@@ -468,28 +811,28 @@ The Statistical Performance Divergence System has been completely enhanced to su
 
 #### **Data Source Options**
 
-**Auto-Detection Mode (Recommended):**
+**Auto-Detection Mode:**
 
 ```bash
 # System automatically detects and uses best available sources
-python -m app.cli spds analyze portfolio.csv --data-source auto
+./trading-cli spds analyze portfolio.csv --data-source auto
 ```
 
 **Explicit Dual-Source:**
 
 ```bash
 # Force dual-source analysis (requires both data sources)
-python -m app.cli spds analyze portfolio.csv --data-source both
+./trading-cli spds analyze portfolio.csv --data-source both
 ```
 
 **Single-Source Modes:**
 
 ```bash
 # Trade history only
-python -m app.cli spds analyze portfolio.csv --data-source trade-history
+./trading-cli spds analyze portfolio.csv --data-source trade-history
 
 # Equity curves only
-python -m app.cli spds analyze portfolio.csv --data-source equity-curves
+./trading-cli spds analyze portfolio.csv --data-source equity-curves
 ```
 
 #### **Enhanced Configuration Parameters**
@@ -556,7 +899,7 @@ AGGRESSIVE_MODE_ON_CONVERGENCE: true # Upgrade signals when sources agree strong
 **Production Analysis with Custom Thresholds:**
 
 ```bash
-python -m app.cli spds analyze risk_on.csv \
+./trading-cli spds analyze risk_on.csv \
   --data-source auto \
   --convergence-threshold 0.8 \
   --conservative-on-divergence \
@@ -566,7 +909,7 @@ python -m app.cli spds analyze risk_on.csv \
 **Development Testing with Permissive Settings:**
 
 ```bash
-python -m app.cli spds analyze test_portfolio.csv \
+./trading-cli spds analyze test_portfolio.csv \
   --data-source both \
   --convergence-threshold 0.6 \
   --min-trade-count 10 \
@@ -577,13 +920,13 @@ python -m app.cli spds analyze test_portfolio.csv \
 
 ```bash
 # Check data source availability
-python -m app.cli spds list-sources portfolio.csv
+./trading-cli spds list-sources portfolio.csv
 
 # Validate source convergence
-python -m app.cli spds validate-convergence portfolio.csv
+./trading-cli spds validate-convergence portfolio.csv
 
 # Export detailed source analysis
-python -m app.cli spds export portfolio.csv --source-details --convergence-matrix
+./trading-cli spds export portfolio.csv --source-details --convergence-matrix
 ```
 
 #### **Data Requirements for Dual-Source Analysis**
@@ -608,503 +951,333 @@ csv/
 - **Single-Source**: Portfolio + one additional source
 - **Fallback Mode**: Portfolio file only (basic analysis)
 
-#### **Migration from v1.0**
-
-**Backward Compatibility:**
-
-- All existing commands work unchanged
-- Legacy `--trade-history` flag still supported
-- Existing configurations remain valid
-- Gradual migration path available
-
-**Migration Benefits:**
-
-- **Immediate**: Auto-detection provides benefits without changes
-- **Enhanced**: Explicit dual-source analysis for maximum depth
-- **Configurable**: Fine-tune thresholds for specific use cases
-- **Reliable**: Source convergence validation increases confidence
-
-## Advanced Features
-
-### **Memory Optimization**
-
-**Automatic Memory Management:**
-
-- Object pooling for DataFrame operations
-- Memory monitoring with configurable thresholds
-- Streaming processing for large datasets
-- Garbage collection optimization
-
-**Configuration:**
-
-```yaml
-# In profile configuration
-config:
-  memory_optimization:
-    enable_pooling: true
-    enable_monitoring: true
-    memory_threshold_mb: 1000.0
-    streaming_threshold_mb: 5.0
-```
-
-### **Parallel Processing**
-
-**Adaptive ThreadPool:**
-
-- Dynamic sizing based on workload
-- Batch processing optimization
-- Progress tracking for long operations
-
-### **Rich Terminal Output**
-
-**Enhanced Display:**
-
-- Colored output with consistent theme
-- Progress bars for long operations
-- Formatted tables for data display
-- Status indicators and icons
-
-## Error Handling and Validation
-
-### **Comprehensive Validation**
-
-**Configuration Validation:**
-
-- Profile inheritance validation
-- Cross-field business logic validation
-- Path existence checking
-- Type safety enforcement
-
-**Runtime Validation:**
-
-- Data integrity checks
-- Dependency validation
-- Resource availability checks
-- Fallback mechanism activation
+## Comprehensive Error Handling and Troubleshooting
 
 ### **Error Types and Resolution**
 
-**Configuration Errors:**
+#### **1. Configuration Errors**
+
+**Profile Not Found:**
 
 ```bash
-# Profile not found
 ERROR: Profile 'invalid_profile' not found in profiles directory
 
-# Resolution: List available profiles
-python -m app.cli config list
+Resolution:
+./trading-cli config list
+./trading-cli config create-defaults
+```
 
-# Invalid configuration
+**Invalid Configuration:**
+
+```bash
 ERROR: Slow period (10) must be greater than fast period (20)
 
-# Resolution: Check profile configuration
-python -m app.cli config show profile_name --format json
+Resolution:
+./trading-cli config show profile_name --format json
+./trading-cli config validate profile_name --detailed
 ```
 
-**Runtime Errors:**
+**Inheritance Errors:**
 
 ```bash
-# Missing dependencies
+ERROR: Circular inheritance detected in profile chain
+
+Resolution:
+./trading-cli config validate --all-profiles --check-inheritance
+./trading-cli config show profile_name --resolve-inheritance
+```
+
+#### **2. Runtime Errors**
+
+**Missing Dependencies:**
+
+```bash
 ERROR: Required data file not found: csv/positions/risk_on.csv
 
-# Resolution: Verify data files
-python -m app.cli tools health
+Resolution:
+./trading-cli tools health --check-dependencies
+./trading-cli tools validate --batch --comprehensive
+```
 
-# Memory issues
+**Memory Issues:**
+
+```bash
 WARNING: Memory usage exceeds threshold (1000MB)
 
-# Resolution: Enable memory optimization
-python -m app.cli strategy run --profile ma_cross_crypto --enable-memory-optimization
+Resolution:
+./trading-cli strategy run --memory-optimization --streaming
+./trading-cli strategy run --chunk-size 1000 --gc-optimization
 ```
 
-## Troubleshooting Guide
-
-### **Common Issues**
-
-#### **1. Profile Configuration Issues**
-
-**Problem**: Profile inheritance errors or validation failures
-
-**Diagnosis:**
+**Data Validation Errors:**
 
 ```bash
-python -m app.cli config validate
-python -m app.cli config show profile_name --format json
-```
+ERROR: Portfolio schema validation failed: missing required columns
 
-**Resolution:**
-
-```bash
-# Create missing default profiles
-python -m app.cli config create-defaults
-
-# Validate specific profile
-python -m app.cli config show problematic_profile
-
-# Reset to default configuration
-python -m app.cli init
-```
-
-#### **2. Command Execution Failures**
-
-**Problem**: Commands fail with validation or runtime errors
-
-**Diagnosis:**
-
-```bash
-# Run with verbose output
-python -m app.cli [command] --verbose
-
-# Check system health
-python -m app.cli tools health
-
-# Validate configuration
-python -m app.cli config validate
-```
-
-**Resolution:**
-
-```bash
-# Test with dry-run
-python -m app.cli [command] --dry-run
-
-# Use default profile
-python -m app.cli [command] --profile default_strategy
-
-# Check data files
-ls -la csv/positions/
-ls -la csv/strategies/
+Resolution:
+./trading-cli tools schema --detect-version --convert
+./trading-cli portfolio process --schema-version extended --validate
 ```
 
 #### **3. Performance Issues**
 
-**Problem**: Slow execution or memory issues
-
-**Diagnosis:**
+**Slow Execution:**
 
 ```bash
-# Monitor memory usage
-python -m app.cli strategy run --verbose --profile ma_cross_crypto
+# Diagnosis
+./trading-cli tools health --performance-test --memory-analysis
 
-# Check data file sizes
-du -h csv/
+# Resolution
+./trading-cli strategy run --memory-optimization --parallel-processing
+./trading-cli strategy run --batch-size 500 --cache-results
 ```
 
-**Resolution:**
+**Large Dataset Issues:**
 
 ```bash
-# Enable memory optimization
-python -m app.cli strategy run --enable-memory-optimization
+# Diagnosis
+du -h csv/ && ./trading-cli tools health --memory-analysis
 
-# Use streaming for large datasets
-python -m app.cli portfolio process --streaming-threshold-mb 5.0
-
-# Reduce parameter ranges
-python -m app.cli strategy sweep --fast-range 5,8 --slow-range 20,25
+# Resolution
+./trading-cli portfolio process --streaming --chunk-size 5000
+./trading-cli strategy run --memory-threshold-mb 500 --gc-optimization
 ```
 
-#### **4. SPDS Dual-Source Analysis Issues**
+#### **4. SPDS Dual-Source Issues**
 
-**Problem**: Dual-source analysis not working or source convergence issues
-
-**Diagnosis:**
+**Source Detection Problems:**
 
 ```bash
-# Check data source availability
-python -m app.cli spds list-sources portfolio.csv
+# Diagnosis
+./trading-cli spds list-sources portfolio.csv --detailed
+./trading-cli spds health --convergence-analysis
 
-# Verify dual-source configuration
-python -m app.cli spds validate-config --dual-source
-
-# Test convergence analysis
-python -m app.cli spds analyze portfolio.csv --data-source auto --verbose
+# Resolution
+./trading-cli spds analyze portfolio.csv --data-source trade-history
+./trading-cli spds analyze portfolio.csv --debug-sources --verbose
 ```
 
-**Resolution:**
+**Convergence Issues:**
 
 ```bash
-# Fix missing data sources
-# Check required file structure
-ls -la csv/strategies/portfolio.csv
-ls -la csv/trade_history/portfolio.csv
-ls -la csv/ma_cross/equity_data/
+# Diagnosis
+./trading-cli spds export portfolio.csv --convergence-matrix --source-details
 
-# Force single-source if dual-source unavailable
-python -m app.cli spds analyze portfolio.csv --data-source trade-history
-
-# Adjust convergence thresholds for development
-python -m app.cli spds analyze portfolio.csv --convergence-threshold 0.6
-
-# Debug source detection
-python -m app.cli spds analyze portfolio.csv --data-source auto --debug-sources
+# Resolution
+./trading-cli spds analyze portfolio.csv --conservative-on-divergence
+./trading-cli spds analyze portfolio.csv --convergence-threshold 0.6
 ```
 
-#### **5. Source Convergence Problems**
+### **Comprehensive Health Checks**
 
-**Problem**: Low convergence scores or divergence warnings
-
-**Diagnosis:**
+**System Health Commands:**
 
 ```bash
-# Analyze source convergence in detail
-python -m app.cli spds export portfolio.csv --convergence-matrix --source-details
-
-# Check individual source quality
-python -m app.cli spds analyze portfolio.csv --data-source trade-history --verbose
-python -m app.cli spds analyze portfolio.csv --data-source equity-curves --verbose
-
-# Validate data quality
-python -m app.cli spds validate-convergence portfolio.csv --detailed
-```
-
-**Resolution:**
-
-```bash
-# Use conservative mode for low convergence
-python -m app.cli spds analyze portfolio.csv --conservative-on-divergence
-
-# Increase minimum trade requirements
-python -m app.cli spds analyze portfolio.csv --min-trade-count 30
-
-# Adjust source weights for your data
-python -m app.cli spds analyze portfolio.csv --trade-weight 0.5 --equity-weight 0.2
-
-# Export detailed diagnostics
-python -m app.cli spds export portfolio.csv --source-diagnostics --debug-convergence
-```
-
-### **System Health Commands**
-
-**Comprehensive Health Check:**
-
-```bash
-# CLI system health
-python -m app.cli tools health
+# Complete system health check
+./trading-cli tools health --verbose --check-dependencies --performance-test
 
 # Individual subsystem health
-python -m app.cli spds health
-python -m app.cli trade-history health
+./trading-cli spds health --convergence-analysis
+./trading-cli trade-history health --data-validation
+./trading-cli config validate --all-profiles --business-logic
 
-# SPDS dual-source specific health checks
-python -m app.cli spds validate-config --dual-source
-python -m app.cli spds list-sources --all-portfolios
-python -m app.cli spds health --convergence-analysis
-
-# Configuration validation
-python -m app.cli config validate
-
-# Profile system check
-python -m app.cli config list
+# Performance diagnostics
+./trading-cli tools health --memory-analysis --import-timing --dependency-check
 ```
 
-**Dependency Validation:**
+**Data Validation Commands:**
 
 ```bash
-# Check required data files
-python -m app.cli tools validate --batch
+# Comprehensive data validation
+./trading-cli tools validate --batch --comprehensive --report
 
-# Verify system configuration
-python -m app.cli status
+# Portfolio-specific validation
+./trading-cli portfolio process --validate --schema-check --fix-issues
 
-# Test core functionality
-python -m app.cli strategy run --dry-run --verbose
+# SPDS data validation
+./trading-cli spds health --data-quality --source-validation
 ```
 
-## Best Practices
+## Best Practices and Performance Optimization
 
-### **Configuration Management**
+### **Configuration Management Best Practices**
 
 1. **Use Profile Inheritance**: Create base profiles and extend for specific use cases
 2. **Version Control Profiles**: Keep profiles in version control for team consistency
-3. **Validate Configurations**: Always validate profiles after changes
-4. **Document Custom Profiles**: Add meaningful descriptions and tags
+3. **Validate Frequently**: Always validate profiles after changes
+4. **Document Profiles**: Add meaningful descriptions and tags to profiles
+5. **Use Runtime Overrides**: Override specific parameters without modifying profiles
 
-### **Command Execution**
+### **Performance Optimization Guidelines**
 
-1. **Start with Health Checks**: Always run health checks before complex operations
-2. **Use Dry-Run Mode**: Test commands with `--dry-run` before execution
-3. **Enable Verbose Output**: Use `--verbose` for troubleshooting
-4. **Monitor Memory Usage**: Enable memory optimization for large datasets
+1. **Enable Memory Optimization**: Use `--memory-optimization` for large datasets
+2. **Use Streaming**: Enable streaming for files >5MB with `--streaming`
+3. **Batch Processing**: Use appropriate `--batch-size` for operations
+4. **Parallel Processing**: Enable `--parallel-processing` for multi-core systems
+5. **Monitor Resources**: Use `--memory-monitoring` to track resource usage
 
-### **Performance Optimization**
+### **Error Prevention Strategies**
 
-1. **Profile Selection**: Choose appropriate profiles for your use case
-2. **Memory Management**: Enable memory optimization for large-scale analysis
-3. **Batch Operations**: Use batch processing for multiple files
-4. **Streaming Processing**: Enable streaming for large datasets
+1. **Pre-flight Validation**: Always use `--dry-run` for complex operations
+2. **Health Checks**: Run regular health checks with `./trading-cli tools health`
+3. **Configuration Validation**: Validate profiles with `./trading-cli config validate`
+4. **Data Validation**: Use `./trading-cli tools validate` before processing
+5. **Verbose Logging**: Use `--verbose` for troubleshooting and debugging
 
-### **Error Prevention**
+### **CLI Usage Best Practices**
 
-1. **Configuration Validation**: Validate profiles before using them
-2. **Data Verification**: Verify data files exist and are valid
-3. **System Health**: Regular health checks prevent runtime errors
-4. **Graceful Degradation**: Use fallback mechanisms when available
+1. **Profile-Based Configuration**: Always use profiles instead of inline parameters
+2. **Consistent Interface**: Use CLI commands for all trading operations
+3. **Rich Output**: Leverage Rich formatting for better user experience
+4. **Error Handling**: Enable graceful error handling with appropriate flags
+5. **Performance Monitoring**: Monitor performance and optimize based on usage patterns
 
-## Integration Points
+## Integration and Architecture
+
+### **System Architecture Overview**
+
+**Modular CLI Design:**
+
+- **Command Modules**: Each command group in separate module with consistent interface
+- **Configuration System**: YAML-based profile management with Pydantic validation
+- **Service Integration**: Integration with strategy engines, portfolio services, and analysis systems
+- **Performance Layer**: Memory optimization, streaming, and parallel processing
+
+**Service Integration Patterns:**
+
+- **Strategy Execution Engine**: Type-safe strategy validation and execution
+- **Portfolio Processing Service**: Comprehensive portfolio data processing and conversion
+- **Statistical Analysis System**: SPDS with dual-source analysis capabilities
+- **Trade History Service**: Position management and analysis reporting
+
+### **Performance Architecture**
+
+**Memory Management:**
+
+- **Object Pooling**: Reusable DataFrame pools with configurable sizes
+- **Memory Monitoring**: Real-time usage tracking with automatic GC triggers
+- **Streaming Processing**: Automatic streaming for large files with configurable thresholds
+- **Garbage Collection**: Intelligent GC management with performance optimization
+
+**Parallel Processing:**
+
+- **Adaptive ThreadPools**: Dynamic sizing based on workload and system resources
+- **Batch Operations**: Optimized batch processing with configurable sizes
+- **Progress Tracking**: Real-time progress monitoring with ETA calculations
+
+## Integration with External Systems
 
 ### **API Server Integration**
 
 ```bash
-# CLI can be used alongside API server
-python -m app.api.run &  # Start API server
-python -m app.cli strategy run  # Execute CLI operations
-```
-
-### **Existing Script Integration**
-
-```bash
-# CLI provides modern interface to existing functionality
-python -m app.cli strategy run --profile current  # Matches existing scripts
-python app/ma_cross/1_get_portfolios.py  # Original script execution
+# CLI alongside API server
+./trading-cli config show api-config &  # Check API configuration
+./trading-cli strategy run  # Execute CLI operations independently
 ```
 
 ### **External Tool Integration**
 
 ```bash
-# Export for external analysis
-python -m app.cli portfolio aggregate --export-format json | jq '.'
+# JSON output for external analysis
+./trading-cli portfolio aggregate --export-format json | jq '.performance.total_return'
 
-# Pipe output to other tools
-python -m app.cli spds analyze risk_on.csv --output-format json | \
-  python external_analysis_tool.py
+# Pipeline integration
+./trading-cli spds analyze risk_on.csv --output-format json | \
+  python external_analysis_tool.py --input-format json
+
+# CSV export for spreadsheet analysis
+./trading-cli strategy run --profile ma_cross_crypto --export-format csv
 ```
 
-## System Architecture
+### **CI/CD Integration**
 
-### **Modular Design**
+```bash
+# Automated testing with health checks
+./trading-cli tools health --check-dependencies --performance-test --exit-code
 
-**Command Modules:**
+# Batch processing with error handling
+./trading-cli portfolio update --validate --export-format json --graceful-errors
 
-- Each command group in separate module
-- Consistent interface patterns
-- Shared configuration system
-- Independent testing capabilities
+# Performance regression testing
+./trading-cli tools health --memory-analysis --performance-benchmark
+```
 
-**Configuration System:**
-
-- YAML-based profile management
-- Pydantic validation throughout
-- Inheritance and composition support
-- Type-safe configuration models
-
-**Service Integration:**
-
-- Strategy execution engines
-- Portfolio processing services
-- Statistical analysis systems
-- Data export and validation services
-
-### **Performance Features**
-
-**Memory Optimization:**
-
-- Intelligent object pooling
-- Memory usage monitoring
-- Streaming data processing
-- Garbage collection management
-
-**Parallel Processing:**
-
-- Adaptive thread pools
-- Batch operation optimization
-- Progress tracking and monitoring
-
-**Caching Systems:**
-
-- Configuration cache management
-- Data processing result caching
-- LRU cache for conversions
-
-## Future Enhancements
+## Future Enhancements and Extensibility
 
 ### **Planned Features**
 
-1. **Enhanced Profile Management**: Profile templates and automated generation
-2. **Advanced Monitoring**: Real-time performance metrics and dashboards
-3. **Extended Integration**: Additional external tool integrations
-4. **Automation Framework**: Scheduled execution and workflow automation
+1. **Enhanced Profile Templates**: Automated profile generation based on usage patterns
+2. **Advanced Monitoring Dashboard**: Real-time performance metrics and system status
+3. **Extended Integration**: Additional external tool integrations and API endpoints
+4. **Workflow Automation**: Scheduled execution and complex workflow orchestration
+5. **Machine Learning Integration**: AI-powered configuration optimization and recommendations
 
 ### **Extension Points**
 
-1. **Custom Commands**: Framework for adding domain-specific commands
-2. **Plugin System**: Extensible architecture for custom functionality
-3. **Configuration Providers**: Support for additional configuration sources
-4. **Output Formatters**: Custom output format implementations
+1. **Custom Command Plugins**: Framework for adding domain-specific commands and functionality
+2. **Configuration Providers**: Support for additional configuration sources (databases, APIs)
+3. **Output Formatters**: Custom output format implementations and rendering engines
+4. **Analysis Modules**: Pluggable analysis modules for specialized trading strategies
+5. **Data Sources**: Support for additional data sources and market data providers
 
-## Notes
-
-- **System Status**: Production-ready with comprehensive testing and validation
-- **SPDS Enhancement**: v2.0 features revolutionary dual-source analysis with triple-layer convergence
-- **Type Safety**: Full Pydantic validation throughout the system with enhanced data models
-- **Performance**: Optimized for large-scale operations with memory efficiency and parallel processing
-- **Reliability**: Comprehensive error handling with graceful degradation and source convergence validation
-- **Backward Compatibility**: 100% compatibility maintained while adding advanced dual-source capabilities
-- **Auto-Detection**: Intelligent source detection and optimal data utilization
-- **Extensibility**: Modular architecture supports easy extension and customization
-- **Documentation**: Auto-generated help and comprehensive documentation system
-- **Multi-Source Analysis**: Simultaneous trade history and equity curve analysis for maximum confidence
-
-## Quick Reference Card
+## Quick Reference Guide
 
 ### **Essential Commands**
 
 ```bash
-# Initialize system
-python -m app.cli init
+# System initialization and health
+./trading-cli init                                    # Initialize CLI system
+./trading-cli tools health                           # Comprehensive health check
+./trading-cli status                                 # System status
 
-# System health
-python -m app.cli tools health
-
-# List profiles
-python -m app.cli config list
+# Configuration management
+./trading-cli config list                           # List all profiles
+./trading-cli config validate                       # Validate all configurations
 
 # Strategy analysis
-python -m app.cli strategy run --profile ma_cross_crypto
+./trading-cli strategy run --profile ma_cross_crypto # Run strategy analysis
+./trading-cli strategy sweep --fast-range 5,15      # Parameter optimization
 
 # Portfolio operations
-python -m app.cli portfolio update --validate
+./trading-cli portfolio update --validate           # Update and aggregate portfolios
 
-# Enhanced SPDS analysis with dual-source (v2.0)
-python -m app.cli spds analyze risk_on.csv --data-source auto
+# SPDS analysis with dual-source (v2.0)
+./trading-cli spds analyze risk_on.csv --data-source auto  # Auto-detection analysis
 
-# SPDS source diagnostics
-python -m app.cli spds list-sources portfolio.csv
-python -m app.cli spds health --convergence-analysis
+# Trade history - Position management
+./trading-cli trade-history close --strategy STRATEGY --portfolio PORTFOLIO --price PRICE
 
-# Trade history - Close position
-python -m app.cli trade-history close --strategy POSITION_UUID --portfolio PORTFOLIO --price PRICE
-
-# Trade history - List strategies
-python -m app.cli trade-history list
-
-# Configuration help
-python -m app.cli config --help
-
-# Command-specific help
-python -m app.cli [command] --help
-```
-
-### **Common Flags**
-
-```bash
---verbose, -v              # Detailed output
---dry-run                  # Preview mode
---profile PROFILE          # Configuration profile
---output-format FORMAT     # Output format
---help                     # Command help
+# System diagnostics
+./trading-cli tools health --verbose --check-dependencies
+./trading-cli spds health --convergence-analysis
 ```
 
 ### **Emergency Commands**
 
 ```bash
-# Reset to defaults
-python -m app.cli init
-
-# Comprehensive health check
-python -m app.cli tools health
-
-# Validate all configurations
-python -m app.cli config validate
-
-# System status
-python -m app.cli status
+# System recovery and reset
+./trading-cli init                                   # Reset to defaults
+./trading-cli config create-defaults                # Recreate default profiles
+./trading-cli tools health --verbose                # Comprehensive diagnostics
+./trading-cli config validate --fix-issues          # Fix configuration issues
 ```
+
+### **Performance Commands**
+
+```bash
+# Memory optimization for large operations
+./trading-cli strategy run --memory-optimization --streaming
+./trading-cli portfolio process --streaming --chunk-size 5000
+./trading-cli tools health --memory-analysis --performance-test
+```
+
+## Notes
+
+- **System Status**: Production-ready enterprise-grade CLI with comprehensive testing and validation
+- **SPDS Enhancement**: v2.0 with revolutionary dual-source analysis and triple-layer convergence
+- **Type Safety**: Complete Pydantic validation with business logic enforcement
+- **Performance**: Optimized for large-scale operations with memory efficiency and parallel processing
+- **Rich Terminal**: Beautiful formatted output with progress tracking and interactive features
+- **Error Handling**: Comprehensive error management with graceful degradation and recovery
+- **Future-Proof**: Actively maintained with planned enhancements and extensibility framework
+- **Enterprise Ready**: Battle-tested with comprehensive documentation and support systems

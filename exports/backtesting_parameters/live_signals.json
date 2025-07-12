@@ -1,315 +1,404 @@
 {
-  "metadata": {
-    "export_timestamp": "2025-07-10T09:59:57.562666",
-    "portfolio": "live_signals",
-    "parameter_count": 18
+  "strategy_parameters": {
+    "MA_SMA_78_82_MA_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 3.28,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-12T08:45:26.875028"
+    },
+    "AMZN_SMA_51_69_AMZN_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 3.41,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-12T08:45:26.883356"
+    },
+    "GD_SMA_70_85_GD_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 2.54,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-12T08:45:26.896732"
+    },
+    "GOOGL_SMA_9_39_GOOGL_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 4.1,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-12T08:45:26.902520"
+    },
+    "PWR_SMA_66_78_PWR_D": {
+      "take_profit_pct": 4.53,
+      "stop_loss_pct": 0.92,
+      "max_holding_days": 141,
+      "min_holding_days": 15,
+      "trailing_stop_pct": 3.23,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.010036161766446297,
+      "trend_exit_threshold": 0.003,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-12T08:45:26.913808"
+    },
+    "INTU_SMA_54_64_INTU_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 3.02,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-12T08:45:26.921649"
+    },
+    "SMCI_SMA_58_60_SMCI_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 8.48,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-12T08:45:26.926726"
+    },
+    "QCOM_SMA_49_66_QCOM_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 3.74,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-12T08:45:26.935533"
+    },
+    "LMT_SMA_59_87_LMT_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 3.84,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-12T08:45:26.945851"
+    },
+    "GOOGL_EMA_9_46_GOOGL_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 4.1,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-12T08:45:26.951370"
+    },
+    "DOV_SMA_45_86_DOV_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 2.78,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-12T08:45:26.961895"
+    },
+    "COR_SMA_8_26_COR_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 2.88,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-12T08:45:26.969257"
+    },
+    "COST_EMA_29_68_COST_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 2.94,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-12T08:45:26.977772"
+    },
+    "AMD_SMA_7_45_AMD_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 5.34,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-12T08:45:26.987125"
+    },
+    "AMZN_SMA_10_27_AMZN_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 3.41,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-12T08:45:26.994002"
+    },
+    "FFIV_SMA_14_45_FFIV_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 3.08,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-12T08:45:27.001042"
+    },
+    "ILMN_EMA_21_32_ILMN_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 4.88,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-12T08:45:27.007450"
+    },
+    "RTX_EMA_27_41_RTX_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 3.22,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-12T08:45:27.020944"
+    },
+    "CRWD_EMA_5_21_CRWD_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 5.68,
+      "confidence_level": 0.9,
+      "sample_size": 100,
+      "statistical_validity": "LOW",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-12T08:45:27.023867"
+    }
   },
-  "backtesting_parameters": [
-    {
-      "ticker": "CRWD",
-      "strategy_type": "EMA",
-      "short_window": 5,
-      "long_window": 21,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.1645970913312127,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.3287505367256653,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "COST",
-      "strategy_type": "EMA",
-      "short_window": 29,
-      "long_window": 68,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.1645970913312127,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.3287505367256653,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "INTU",
-      "strategy_type": "SMA",
-      "short_window": 54,
-      "long_window": 64,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.1645970913312127,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.3287505367256653,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "GOOGL",
-      "strategy_type": "SMA",
-      "short_window": 9,
-      "long_window": 39,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.1645970913312127,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.3287505367256653,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "AMZN",
-      "strategy_type": "SMA",
-      "short_window": 10,
-      "long_window": 27,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.1645970913312127,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.3287505367256653,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "FFIV",
-      "strategy_type": "SMA",
-      "short_window": 14,
-      "long_window": 45,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.1645970913312127,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.3287505367256653,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "RTX",
-      "strategy_type": "EMA",
-      "short_window": 27,
-      "long_window": 41,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.1645970913312127,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.3287505367256653,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "AMD",
-      "strategy_type": "SMA",
-      "short_window": 7,
-      "long_window": 45,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.1645970913312127,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.3287505367256653,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "GD",
-      "strategy_type": "SMA",
-      "short_window": 70,
-      "long_window": 85,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.1645970913312127,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.3287505367256653,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "GOOGL",
-      "strategy_type": "EMA",
-      "short_window": 9,
-      "long_window": 46,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.1645970913312127,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.3287505367256653,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "LMT",
-      "strategy_type": "EMA",
-      "short_window": 59,
-      "long_window": 87,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.1645970913312127,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.3287505367256653,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "ILMN",
-      "strategy_type": "EMA",
-      "short_window": 21,
-      "long_window": 32,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.1645970913312127,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.3287505367256653,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "COR",
-      "strategy_type": "SMA",
-      "short_window": 8,
-      "long_window": 26,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.1645970913312127,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.3287505367256653,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "AMZN",
-      "strategy_type": "SMA",
-      "short_window": 51,
-      "long_window": 69,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.1645970913312127,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.3287505367256653,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "SMCI",
-      "strategy_type": "SMA",
-      "short_window": 58,
-      "long_window": 60,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.1645970913312127,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.3287505367256653,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "QCOM",
-      "strategy_type": "SMA",
-      "short_window": 49,
-      "long_window": 66,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.1645970913312127,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.3287505367256653,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "DOV",
-      "strategy_type": "SMA",
-      "short_window": 45,
-      "long_window": 86,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.1645970913312127,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.3287505367256653,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
-      }
-    },
-    {
-      "ticker": "MA",
-      "strategy_type": "SMA",
-      "short_window": 78,
-      "long_window": 82,
-      "signal_window": 0,
-      "exit_threshold_pct": 0.1645970913312127,
-      "stop_loss_pct": -0.1,
-      "take_profit_pct": 0.3287505367256653,
-      "max_holding_days": 90,
-      "position_size": 1000,
-      "risk_management": {
-        "max_drawdown": -0.15,
-        "profit_target": 0.2,
-        "stop_loss": -0.08
+  "generation_metadata": {
+    "generation_timestamp": "2025-07-12T08:45:26.866367",
+    "confidence_level": 0.9,
+    "total_strategies": 19,
+    "spds_version": "1.0.0",
+    "statistical_validity": {
+      "MA_SMA_78_82_MA_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "AMZN_SMA_51_69_AMZN_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "GD_SMA_70_85_GD_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "GOOGL_SMA_9_39_GOOGL_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "PWR_SMA_66_78_PWR_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "INTU_SMA_54_64_INTU_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "SMCI_SMA_58_60_SMCI_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "QCOM_SMA_49_66_QCOM_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "LMT_SMA_59_87_LMT_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "GOOGL_EMA_9_46_GOOGL_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "DOV_SMA_45_86_DOV_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "COR_SMA_8_26_COR_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "COST_EMA_29_68_COST_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "AMD_SMA_7_45_AMD_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "AMZN_SMA_10_27_AMZN_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "FFIV_SMA_14_45_FFIV_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "ILMN_EMA_21_32_ILMN_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "RTX_EMA_27_41_RTX_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
+      },
+      "CRWD_EMA_5_21_CRWD_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
       }
     }
-  ]
+  },
+  "framework_compatibility": {
+    "vectorbt": true,
+    "backtrader": true,
+    "zipline": true,
+    "custom": true
+  },
+  "usage_instructions": {
+    "description": "Statistical analysis-derived backtesting parameters",
+    "confidence_interpretation": "Higher confidence = more reliable parameters",
+    "sample_size_guidance": "Sample size \u226530 recommended for high reliability",
+    "parameter_derivation": "Parameters derived from percentile analysis of historical returns"
+  }
 }

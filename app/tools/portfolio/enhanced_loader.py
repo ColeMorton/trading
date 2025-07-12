@@ -10,7 +10,7 @@ import os
 from typing import Any, Callable, Dict, Generator, List
 
 from app.tools.portfolio.loader import load_portfolio as base_load_portfolio
-from app.tools.portfolio.paths import resolve_portfolio_path
+from app.tools.portfolio.paths import resolve_portfolio_file_path
 from app.tools.portfolio.types import StrategyConfig
 
 
@@ -66,7 +66,9 @@ def load_portfolio_with_logging(
 
     try:
         # Resolve portfolio path
-        portfolio_path = resolve_portfolio_path(portfolio_name, config.get("BASE_DIR"))
+        portfolio_path = resolve_portfolio_file_path(
+            portfolio_name, config.get("BASE_DIR")
+        )
         log(f"Resolved portfolio path: {portfolio_path}", "info")
         log(f"Path exists: {portfolio_path.exists()}", "info")
     except FileNotFoundError as e:

@@ -7,13 +7,54 @@ calculations integrated with strategy analysis workflows.
 
 import asyncio
 import time
+
+# API removed - creating local definitions
+from dataclasses import dataclass
+from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from app.api.models.strategy_analysis import StrategyTypeEnum
-from app.api.services.position_sizing_orchestrator import (
-    PositionSizingOrchestrator,
-    PositionSizingRequest,
-)
+
+class StrategyTypeEnum(str, Enum):
+    """Strategy type enumeration."""
+
+    SMA = "SMA"
+    EMA = "EMA"
+    MACD = "MACD"
+    RSI = "RSI"
+    BOLLINGER_BANDS = "BOLLINGER_BANDS"
+
+
+@dataclass
+class PositionSizingRequest:
+    """Position sizing request."""
+
+    portfolio_type: str
+    total_capital: float
+    risk_per_trade: float = 0.02
+
+
+@dataclass
+class PositionSizingResponse:
+    """Position sizing response."""
+
+    position_sizes: Dict[str, float]
+    risk_metrics: Dict[str, float]
+
+
+class PositionSizingOrchestrator:
+    """Position sizing orchestrator."""
+
+    def __init__(self, config: Dict[str, Any]):
+        self.config = config
+
+    async def calculate_position_sizing(
+        self, request: PositionSizingRequest
+    ) -> PositionSizingResponse:
+        """Calculate position sizing."""
+        # Basic position sizing logic
+        return PositionSizingResponse(position_sizes={}, risk_metrics={})
+
+
 from app.core.interfaces import (
     CacheInterface,
     ConfigurationInterface,

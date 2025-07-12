@@ -9,9 +9,20 @@ import asyncio
 import json
 import sys
 import time
+from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from app.api.models.strategy_analysis import StrategyTypeEnum
+
+class StrategyTypeEnum(str, Enum):
+    """Strategy type enumeration."""
+
+    SMA = "SMA"
+    EMA = "EMA"
+    MACD = "MACD"
+    RSI = "RSI"
+    BOLLINGER_BANDS = "BOLLINGER_BANDS"
+
+
 from app.core.interfaces import (
     CacheInterface,
     ConfigurationInterface,

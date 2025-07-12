@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-07-10T08:07:19.141387",
+    "export_timestamp": "2025-07-11T19:47:01.837413",
     "strategy_config": {
       "ticker": "COR",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 53.7121021382265,
+      "total_return": 53.19443766656099,
       "total_trades": "155",
       "win_rate": 0.4838709677419355,
-      "sharpe_ratio": 0.8419570671953841,
+      "sharpe_ratio": 0.8402057172828441,
       "max_drawdown": -0.4932787045598811
     }
   },
@@ -2348,7 +2348,7 @@
       "Trade_Type": "Loser",
       "Cumulative_PnL": 28049.36830393177,
       "Trade_Number": 111,
-      "Rolling_Avg_Return": -5.225618037463381e-5,
+      "Rolling_Avg_Return": -5.225618037463381e-05,
       "Rolling_Win_Rate": 0.2
     },
     {
@@ -3258,10 +3258,10 @@
       "Entry Timestamp": "2025-06-13 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 295.5400085449219,
-      "Avg Exit Price": 300.1600036621094,
+      "Avg Exit Price": 297.32000732421875,
       "Size": 182.2764574583895,
-      "PnL": 788.246357641212,
-      "Return": 0.01463238473171157,
+      "PnL": 270.5818859757055,
+      "Return": 0.005022869079758919,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -3269,10 +3269,10 @@
       "Entry_Month": "2025-06",
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
-      "Trade_Type": "Winner",
-      "Cumulative_PnL": 53712.10213822649,
+      "Trade_Type": "Breakeven",
+      "Cumulative_PnL": 53194.43766656098,
       "Trade_Number": 155,
-      "Rolling_Avg_Return": 0.020556741475066746,
+      "Rolling_Avg_Return": 0.018634838344676215,
       "Rolling_Win_Rate": 0.6
     }
   ],
@@ -8840,15 +8840,15 @@
       "Avg Entry Price": 295.5400085449219,
       "Entry Fees": 53.86998579478677,
       "Exit Timestamp": null,
-      "Avg Exit Price": 300.1600036621094,
+      "Avg Exit Price": 297.32000732421875,
       "Exit Fees": 0.0,
-      "PnL": 788.246357641212,
-      "Return": 0.01463238473171157,
+      "PnL": 270.5818859757055,
+      "Return": 0.005022869079758919,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
       "Duration_Days": null,
-      "Position_Type": "Winner"
+      "Position_Type": "Breakeven"
     }
   ],
   "analytics": {

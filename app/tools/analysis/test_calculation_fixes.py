@@ -48,9 +48,9 @@ class TestPortfolioAggregationFixes(unittest.TestCase):
         self.sample_positions = pd.DataFrame(
             {
                 "Position_UUID": [
-                    "NFLX_EMA_19_46_2025-04-14",
-                    "AMD_SMA_7_45_2025-05-08",
-                    "CRWD_EMA_5_21_2025-04-14",
+                    "NFLX_EMA_19_46_20250414",
+                    "AMD_SMA_7_45_20250508",
+                    "CRWD_EMA_5_21_20250414",
                 ],
                 "Current_Unrealized_PnL": [0.3840, 0.3475, 0.3119],
                 "Max_Favourable_Excursion": [0.438, 0.450, 0.339],
@@ -383,9 +383,9 @@ class TestSPDSCalculationCorrector(unittest.TestCase):
         self.positions = pd.DataFrame(
             {
                 "Position_UUID": [
-                    "NFLX_EMA_19_46_2025-04-14",
-                    "AMD_SMA_7_45_2025-05-08",
-                    "CRWD_EMA_5_21_2025-04-14",
+                    "NFLX_EMA_19_46_20250414",
+                    "AMD_SMA_7_45_20250508",
+                    "CRWD_EMA_5_21_20250414",
                 ],
                 "Current_Unrealized_PnL": [0.3840, 0.3475, 0.3119],
                 "Max_Favourable_Excursion": [0.438, 0.450, 0.339],

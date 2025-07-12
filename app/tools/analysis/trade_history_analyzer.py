@@ -177,7 +177,7 @@ class TradeHistoryAnalyzer:
         Load trade history data from available sources
 
         Args:
-            strategy_name: Strategy identifier
+            strategy_name: Strategy identifier (may be Position_UUID format)
             ticker: Asset ticker symbol
 
         Returns:
@@ -186,17 +186,31 @@ class TradeHistoryAnalyzer:
         # Enhanced file discovery with multiple naming patterns
         trade_history_dir = Path("./json/trade_history/")
 
+        # First, parse the strategy_name to handle Position_UUID format
+        parsed_strategy = self._parse_position_uuid(strategy_name, ticker)
+
         # Pattern 1: Most common pattern (actual file structure)
-        primary_file = trade_history_dir / f"{ticker}_D_{strategy_name}.json"
+        primary_file = trade_history_dir / f"{ticker}_D_{parsed_strategy}.json"
         if primary_file.exists():
             self.logger.info(
                 f"Found trade history using primary pattern: {primary_file}"
             )
             return await self._load_json_trade_history(primary_file)
 
-        # Pattern 2: Strategy name might include ticker already
+        # Pattern 2: Strategy name might include ticker already or be a Position_UUID
         if "_" in strategy_name:
-            # Extract components for flexible matching
+            # Try to handle Position_UUID format: TICKER_STRATEGY_PARAMS_DATE
+            uuid_patterns = self._extract_position_uuid_patterns(strategy_name, ticker)
+
+            for pattern in uuid_patterns:
+                test_file = trade_history_dir / pattern
+                if test_file.exists():
+                    self.logger.info(
+                        f"Found trade history using Position_UUID pattern: {test_file}"
+                    )
+                    return await self._load_json_trade_history(test_file)
+
+            # Extract components for flexible matching (legacy method)
             parts = strategy_name.split("_")
             if len(parts) >= 3:  # e.g., SMA_59_87
                 strategy_type = parts[0]
@@ -258,8 +272,11 @@ class TradeHistoryAnalyzer:
                 else:
                     return await self._load_csv_trade_history(file_path)
 
-        self.logger.warning(
-            f"No trade history found for {strategy_name} (ticker: {ticker})"
+        # Enhanced logging to indicate fallback behavior
+        parsed_strategy = self._parse_position_uuid(strategy_name, ticker)
+        self.logger.info(
+            f"No trade history found for {strategy_name} (ticker: {ticker}) - parsed as {parsed_strategy}. "
+            f"SPDS will use equity curve analysis as fallback."
         )
         return None
 
@@ -270,6 +287,95 @@ class TradeHistoryAnalyzer:
             # Check if all major parts are in the filename
             return all(part in filename for part in parts if len(part) > 1)
         return strategy_name in filename
+
+    def _parse_position_uuid(self, strategy_name: str, ticker: str) -> str:
+        """
+        Parse Position_UUID format to extract strategy components.
+
+        Handles formats like:
+        - CRWD_EMA_5_21_2025-04-14 -> EMA_5_21
+        - INTU_SMA_54_64_2025-04-30 -> SMA_54_64
+        - SMA_54_64 -> SMA_54_64 (unchanged)
+
+        Args:
+            strategy_name: Strategy identifier (potentially Position_UUID)
+            ticker: Asset ticker symbol
+
+        Returns:
+            Parsed strategy string suitable for trade history filename matching
+        """
+        import re
+
+        # If it's already a simple strategy format, return as-is
+        if not strategy_name.startswith(ticker + "_"):
+            return strategy_name
+
+        # Remove ticker prefix if present
+        if strategy_name.startswith(ticker + "_"):
+            remaining = strategy_name[len(ticker) + 1 :]
+
+            # Remove date suffix if present (format: YYYYMMDD)
+            date_pattern = r"_\d{8}$"
+            remaining = re.sub(date_pattern, "", remaining)
+
+            # Remove any trailing numeric signal window (often 0)
+            signal_pattern = r"_\d+$"
+            # Only remove if it's a single digit (likely signal window, not strategy parameter)
+            if re.search(r"_\d{1}$", remaining):
+                remaining = re.sub(signal_pattern, "", remaining)
+
+            self.logger.debug(f"Parsed Position_UUID {strategy_name} -> {remaining}")
+            return remaining
+
+        return strategy_name
+
+    def _extract_position_uuid_patterns(
+        self, strategy_name: str, ticker: str
+    ) -> List[str]:
+        """
+        Extract multiple filename patterns from Position_UUID format.
+
+        Args:
+            strategy_name: Strategy identifier (potentially Position_UUID)
+            ticker: Asset ticker symbol
+
+        Returns:
+            List of potential trade history filename patterns to try
+        """
+        patterns = []
+
+        # Parse the strategy name to get components
+        parsed_strategy = self._parse_position_uuid(strategy_name, ticker)
+
+        if "_" in parsed_strategy:
+            parts = parsed_strategy.split("_")
+            if len(parts) >= 3:  # e.g., EMA_5_21
+                strategy_type = parts[0]
+                param1 = parts[1]
+                param2 = parts[2]
+
+                # Generate potential patterns based on observed trade history file structure
+                patterns.extend(
+                    [
+                        f"{ticker}_D_{strategy_type}_{param1}_{param2}.json",  # Most common: CRWD_D_EMA_5_21.json
+                        f"{ticker}_{strategy_type}_{param1}_{param2}.json",  # Without timeframe: CRWD_EMA_5_21.json
+                        f"{ticker}_D_{parsed_strategy}.json",  # Direct: CRWD_D_EMA_5_21.json
+                        f"{ticker}_{parsed_strategy}.json",  # Simple: CRWD_EMA_5_21.json
+                    ]
+                )
+        else:
+            # Single component strategy name
+            patterns.extend(
+                [
+                    f"{ticker}_D_{parsed_strategy}.json",
+                    f"{ticker}_{parsed_strategy}.json",
+                ]
+            )
+
+        self.logger.debug(
+            f"Generated {len(patterns)} patterns for {strategy_name}: {patterns}"
+        )
+        return patterns
 
     async def _load_json_trade_history(self, file_path: Path) -> pd.DataFrame:
         """Load trade history from JSON format"""
