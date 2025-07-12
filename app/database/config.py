@@ -11,10 +11,9 @@ from typing import Optional
 
 import asyncpg
 import redis.asyncio as redis
+from prisma import Prisma
 from pydantic import ConfigDict, PostgresDsn, RedisDsn
 from pydantic_settings import BaseSettings
-
-from prisma import Prisma
 
 logger = logging.getLogger(__name__)
 

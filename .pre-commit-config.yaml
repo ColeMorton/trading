@@ -150,7 +150,6 @@ repos:
         args: ['--write', '--single-quote', '--trailing-comma=es5']
         exclude: ^(node_modules/|build/|dist/|package-lock\.json)
 
-
 # Configuration for specific stages
-default_stages: [commit]
+default_stages: [pre-commit]
 fail_fast: false

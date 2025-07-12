@@ -13,9 +13,9 @@ from pathlib import Path
 from typing import Any, Dict
 
 import pandas as pd
+from prisma import Prisma
 
 from app.database.config import get_database_settings
-from prisma import Prisma
 
 logger = logging.getLogger(__name__)
 
