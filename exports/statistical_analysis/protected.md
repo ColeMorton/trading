@@ -1,9 +1,9 @@
 # PROTECTED Portfolio - Comprehensive SPDS Analysis Report
 
-**Generated**: July 14, 2025 21:07:32
+**Generated**: July 15, 2025 13:07:01
 **Portfolio**: protected.csv
 **Analysis Type**: Enhanced Statistical Performance Divergence System (SPDS) v2.0
-**Total Positions**: 8
+**Total Positions**: 7
 **Analysis Confidence**: Medium (Single-source analysis)
 
 ---
@@ -15,10 +15,10 @@ The protected portfolio demonstrates **mixed** performance with moderate positio
 
 **Key Performance Metrics:**
 - **Total Unrealized P&L**: -0.82% (Moderate)
-- **Success Rate**: 25.0% (2 of 8 positions profitable)
-- **Average Performance**: -0.10% per position
+- **Success Rate**: 28.6% (2 of 7 positions profitable)
+- **Average Performance**: -0.12% per position
 - **Statistical Exhaustion Detected**: 0 positions (0.0% of portfolio)
-- **Near-Exhaustion Positions**: 2 positions (25.0% of portfolio)
+- **Near-Exhaustion Positions**: 2 positions (28.6% of portfolio)
 
 ### Immediate Action Required
 **🚨 CRITICAL ALERTS**: 0 positions require immediate portfolio management decisions based on statistical performance exhaustion and risk-adjusted return optimization.
@@ -90,7 +90,7 @@ Portfolio-Level Metrics:
 Total Return: -0.82%
 Sharpe Ratio: 1.85 (Good)
 Maximum Drawdown: -8.0% (Well-controlled)
-Win Rate: 25.0% (Moderate hit rate)
+Win Rate: 28.6% (Moderate hit rate)
 Average Winner: +15.7%
 Average Loser: -4.2%
 Profit Factor: 2.45 (Moderate)
@@ -186,7 +186,6 @@ SELL: 80% (p-value < 0.20)
 | HWM | **HOLD** | Continue monitoring | 78.2% | +0.64% |
 | SCHW | **HOLD** | Continue monitoring | 72.6% | -1.15% |
 | RJF | **HOLD** | Continue monitoring | 72.4% | -1.12% |
-| FFIV | **HOLD** | Continue monitoring | 65.9% | N/A |
 | DOV | **HOLD** | Continue monitoring | 61.9% | N/A |
 | QCOM | **HOLD** | Continue monitoring | 60.4% | N/A |
 

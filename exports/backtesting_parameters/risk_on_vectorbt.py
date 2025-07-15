@@ -2,7 +2,7 @@
 VectorBT Strategy Parameters
 Generated from Statistical Performance Divergence System
 
-Generation Date: 2025-07-14T21:27:50.051865
+Generation Date: 2025-07-15T13:06:39.574725
 Confidence Level: 0.9
 Total Strategies: 3
 """
@@ -29,7 +29,7 @@ exit_parameters = {
         "take_profit": 0.15,
         "stop_loss": 0.08,
         "max_holding_days": 450,
-        "trailing_stop": 0.037599999999999995,
+        "trailing_stop": 0.0374,
         "min_holding_days": 21,
         "momentum_exit_threshold": 0.02,
         "trend_exit_threshold": 0.015,
@@ -41,7 +41,7 @@ exit_parameters = {
         "take_profit": 0.15,
         "stop_loss": 0.08,
         "max_holding_days": 461,
-        "trailing_stop": 0.0926,
+        "trailing_stop": 0.09119999999999999,
         "min_holding_days": 21,
         "momentum_exit_threshold": 0.02,
         "trend_exit_threshold": 0.015,

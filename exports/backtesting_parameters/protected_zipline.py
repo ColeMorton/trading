@@ -2,9 +2,9 @@
 Zipline Algorithm Template
 Generated from Statistical Performance Divergence System
 
-Generation Date: 2025-07-14T21:07:32.472379
+Generation Date: 2025-07-15T13:07:01.979280
 Confidence Level: 0.9
-Total Strategies: 8
+Total Strategies: 7
 """
 
 import numpy as np
@@ -19,7 +19,7 @@ exit_parameters = {
         "stop_loss_pct": 8.0,
         "max_holding_days": 440,
         "min_holding_days": 21,
-        "trailing_stop_pct": 2.91,
+        "trailing_stop_pct": 2.88,
         "confidence_level": 0.9,
         "sample_size": 112,
         "statistical_validity": "HIGH",
@@ -27,14 +27,14 @@ exit_parameters = {
         "momentum_exit_threshold": 0.02,
         "trend_exit_threshold": 0.015,
         "derivation_method": "advanced_quantitative_optimization",
-        "generation_timestamp": "2025-07-14T21:07:32.492988",
+        "generation_timestamp": "2025-07-15T13:07:01.994112",
     },
     "QCOM_SMA_49_66_QCOM_D": {
         "take_profit_pct": 16.12,
         "stop_loss_pct": 8.6,
         "max_holding_days": 132,
         "min_holding_days": 13,
-        "trailing_stop_pct": 3.92,
+        "trailing_stop_pct": 3.98,
         "confidence_level": 0.9,
         "sample_size": 100,
         "statistical_validity": "LOW",
@@ -42,14 +42,14 @@ exit_parameters = {
         "momentum_exit_threshold": 0.02,
         "trend_exit_threshold": 0.015,
         "derivation_method": "advanced_quantitative_optimization",
-        "generation_timestamp": "2025-07-14T21:07:32.502408",
+        "generation_timestamp": "2025-07-15T13:07:02.004326",
     },
     "HWM_SMA_7_9_HWM_D": {
         "take_profit_pct": 15.0,
         "stop_loss_pct": 8.0,
         "max_holding_days": 456,
         "min_holding_days": 21,
-        "trailing_stop_pct": 3.64,
+        "trailing_stop_pct": 3.58,
         "confidence_level": 0.9,
         "sample_size": 154,
         "statistical_validity": "HIGH",
@@ -57,14 +57,14 @@ exit_parameters = {
         "momentum_exit_threshold": 0.02,
         "trend_exit_threshold": 0.015,
         "derivation_method": "advanced_quantitative_optimization",
-        "generation_timestamp": "2025-07-14T21:07:32.506706",
+        "generation_timestamp": "2025-07-15T13:07:02.007823",
     },
     "DOV_SMA_45_86_DOV_D": {
         "take_profit_pct": 16.12,
         "stop_loss_pct": 8.6,
         "max_holding_days": 180,
         "min_holding_days": 25,
-        "trailing_stop_pct": 2.92,
+        "trailing_stop_pct": 2.91,
         "confidence_level": 0.9,
         "sample_size": 100,
         "statistical_validity": "LOW",
@@ -72,14 +72,14 @@ exit_parameters = {
         "momentum_exit_threshold": 0.02,
         "trend_exit_threshold": 0.015,
         "derivation_method": "advanced_quantitative_optimization",
-        "generation_timestamp": "2025-07-14T21:07:32.520221",
+        "generation_timestamp": "2025-07-15T13:07:02.019639",
     },
     "TPR_SMA_14_30_TPR_D": {
         "take_profit_pct": 15.0,
         "stop_loss_pct": 8.0,
         "max_holding_days": 458,
         "min_holding_days": 21,
-        "trailing_stop_pct": 3.82,
+        "trailing_stop_pct": 3.71,
         "confidence_level": 0.9,
         "sample_size": 107,
         "statistical_validity": "HIGH",
@@ -87,29 +87,14 @@ exit_parameters = {
         "momentum_exit_threshold": 0.02,
         "trend_exit_threshold": 0.015,
         "derivation_method": "advanced_quantitative_optimization",
-        "generation_timestamp": "2025-07-14T21:07:32.528323",
-    },
-    "FFIV_SMA_14_45_FFIV_D": {
-        "take_profit_pct": 15.0,
-        "stop_loss_pct": 8.0,
-        "max_holding_days": 468,
-        "min_holding_days": 21,
-        "trailing_stop_pct": 3.08,
-        "confidence_level": 0.9,
-        "sample_size": 100,
-        "statistical_validity": "LOW",
-        "entry_signal": "STATISTICAL_DIVERGENCE",
-        "momentum_exit_threshold": 0.02,
-        "trend_exit_threshold": 0.015,
-        "derivation_method": "advanced_quantitative_optimization",
-        "generation_timestamp": "2025-07-14T21:07:32.537084",
+        "generation_timestamp": "2025-07-15T13:07:02.027798",
     },
     "RTX_EMA_27_41_RTX_D": {
         "take_profit_pct": 15.0,
         "stop_loss_pct": 8.0,
         "max_holding_days": 468,
         "min_holding_days": 21,
-        "trailing_stop_pct": 3.22,
+        "trailing_stop_pct": 3.15,
         "confidence_level": 0.9,
         "sample_size": 100,
         "statistical_validity": "LOW",
@@ -117,14 +102,14 @@ exit_parameters = {
         "momentum_exit_threshold": 0.02,
         "trend_exit_threshold": 0.015,
         "derivation_method": "advanced_quantitative_optimization",
-        "generation_timestamp": "2025-07-14T21:07:32.554676",
+        "generation_timestamp": "2025-07-15T13:07:02.042182",
     },
     "SCHW_SMA_20_26_SCHW_D": {
         "take_profit_pct": 13.76,
         "stop_loss_pct": 8.11,
         "max_holding_days": 136,
         "min_holding_days": 14,
-        "trailing_stop_pct": 2.59,
+        "trailing_stop_pct": 2.57,
         "confidence_level": 0.9,
         "sample_size": 228,
         "statistical_validity": "HIGH",
@@ -132,7 +117,7 @@ exit_parameters = {
         "momentum_exit_threshold": 0.06234860657481649,
         "trend_exit_threshold": 0.003,
         "derivation_method": "advanced_quantitative_optimization",
-        "generation_timestamp": "2025-07-14T21:07:32.573166",
+        "generation_timestamp": "2025-07-15T13:07:02.061405",
     },
 }
 

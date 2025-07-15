@@ -2,7 +2,7 @@
 Backtrader Strategy Templates
 Generated from Statistical Performance Divergence System
 
-Generation Date: 2025-07-14T21:27:50.051865
+Generation Date: 2025-07-15T13:06:39.574725
 Confidence Level: 0.9
 Total Strategies: 3
 """
@@ -114,7 +114,7 @@ class ASML_SMA_71_80_ASML_DExitStrategy(bt.Strategy):
         ("max_days", 450),
         ("momentum_exit_threshold", 0.02),
         ("trend_exit_threshold", 0.015),
-        ("trailing_pct", 3.76),
+        ("trailing_pct", 3.74),
         ("min_days", 21),
         ("statistical_validity", "MEDIUM"),
     )
@@ -200,7 +200,7 @@ class TSLA_SMA_15_25_TSLA_DExitStrategy(bt.Strategy):
         ("max_days", 461),
         ("momentum_exit_threshold", 0.02),
         ("trend_exit_threshold", 0.015),
-        ("trailing_pct", 9.26),
+        ("trailing_pct", 9.12),
         ("min_days", 21),
         ("statistical_validity", "MEDIUM"),
     )

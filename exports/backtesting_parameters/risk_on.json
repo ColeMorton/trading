@@ -13,14 +13,14 @@
       "momentum_exit_threshold": 0.02,
       "trend_exit_threshold": 0.015,
       "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-14T21:27:50.059337"
+      "generation_timestamp": "2025-07-15T13:06:39.585987"
     },
     "ASML_SMA_71_80_ASML_D": {
       "take_profit_pct": 15.0,
       "stop_loss_pct": 8.0,
       "max_holding_days": 450,
       "min_holding_days": 21,
-      "trailing_stop_pct": 3.76,
+      "trailing_stop_pct": 3.74,
       "confidence_level": 0.9,
       "sample_size": 76,
       "statistical_validity": "MEDIUM",
@@ -28,14 +28,14 @@
       "momentum_exit_threshold": 0.02,
       "trend_exit_threshold": 0.015,
       "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-14T21:27:50.066565"
+      "generation_timestamp": "2025-07-15T13:06:39.593422"
     },
     "TSLA_SMA_15_25_TSLA_D": {
       "take_profit_pct": 15.0,
       "stop_loss_pct": 8.0,
       "max_holding_days": 461,
       "min_holding_days": 21,
-      "trailing_stop_pct": 9.26,
+      "trailing_stop_pct": 9.12,
       "confidence_level": 0.9,
       "sample_size": 83,
       "statistical_validity": "MEDIUM",
@@ -43,11 +43,11 @@
       "momentum_exit_threshold": 0.02,
       "trend_exit_threshold": 0.015,
       "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-14T21:27:50.071555"
+      "generation_timestamp": "2025-07-15T13:06:39.599485"
     }
   },
   "generation_metadata": {
-    "generation_timestamp": "2025-07-14T21:27:50.051865",
+    "generation_timestamp": "2025-07-15T13:06:39.574725",
     "confidence_level": 0.9,
     "total_strategies": 3,
     "spds_version": "1.0.0",

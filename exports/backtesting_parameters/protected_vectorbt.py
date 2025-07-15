@@ -2,9 +2,9 @@
 VectorBT Strategy Parameters
 Generated from Statistical Performance Divergence System
 
-Generation Date: 2025-07-14T21:07:32.472379
+Generation Date: 2025-07-15T13:07:01.979280
 Confidence Level: 0.9
-Total Strategies: 8
+Total Strategies: 7
 """
 
 import numpy as np
@@ -17,7 +17,7 @@ exit_parameters = {
         "take_profit": 0.15,
         "stop_loss": 0.08,
         "max_holding_days": 440,
-        "trailing_stop": 0.0291,
+        "trailing_stop": 0.0288,
         "min_holding_days": 21,
         "momentum_exit_threshold": 0.02,
         "trend_exit_threshold": 0.015,
@@ -29,7 +29,7 @@ exit_parameters = {
         "take_profit": 0.1612,
         "stop_loss": 0.086,
         "max_holding_days": 132,
-        "trailing_stop": 0.0392,
+        "trailing_stop": 0.0398,
         "min_holding_days": 13,
         "momentum_exit_threshold": 0.02,
         "trend_exit_threshold": 0.015,
@@ -41,7 +41,7 @@ exit_parameters = {
         "take_profit": 0.15,
         "stop_loss": 0.08,
         "max_holding_days": 456,
-        "trailing_stop": 0.0364,
+        "trailing_stop": 0.0358,
         "min_holding_days": 21,
         "momentum_exit_threshold": 0.02,
         "trend_exit_threshold": 0.015,
@@ -53,7 +53,7 @@ exit_parameters = {
         "take_profit": 0.1612,
         "stop_loss": 0.086,
         "max_holding_days": 180,
-        "trailing_stop": 0.0292,
+        "trailing_stop": 0.0291,
         "min_holding_days": 25,
         "momentum_exit_threshold": 0.02,
         "trend_exit_threshold": 0.015,
@@ -65,7 +65,7 @@ exit_parameters = {
         "take_profit": 0.15,
         "stop_loss": 0.08,
         "max_holding_days": 458,
-        "trailing_stop": 0.0382,
+        "trailing_stop": 0.0371,
         "min_holding_days": 21,
         "momentum_exit_threshold": 0.02,
         "trend_exit_threshold": 0.015,
@@ -73,23 +73,11 @@ exit_parameters = {
         "sample_size": 107,
         "statistical_validity": "HIGH",
     },
-    "FFIV_SMA_14_45_FFIV_D": {
-        "take_profit": 0.15,
-        "stop_loss": 0.08,
-        "max_holding_days": 468,
-        "trailing_stop": 0.0308,
-        "min_holding_days": 21,
-        "momentum_exit_threshold": 0.02,
-        "trend_exit_threshold": 0.015,
-        "confidence_level": 0.9,
-        "sample_size": 100,
-        "statistical_validity": "LOW",
-    },
     "RTX_EMA_27_41_RTX_D": {
         "take_profit": 0.15,
         "stop_loss": 0.08,
         "max_holding_days": 468,
-        "trailing_stop": 0.0322,
+        "trailing_stop": 0.0315,
         "min_holding_days": 21,
         "momentum_exit_threshold": 0.02,
         "trend_exit_threshold": 0.015,
@@ -101,7 +89,7 @@ exit_parameters = {
         "take_profit": 0.1376,
         "stop_loss": 0.08109999999999999,
         "max_holding_days": 136,
-        "trailing_stop": 0.0259,
+        "trailing_stop": 0.025699999999999997,
         "min_holding_days": 14,
         "momentum_exit_threshold": 0.06234860657481649,
         "trend_exit_threshold": 0.003,
