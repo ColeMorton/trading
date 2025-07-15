@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-27T09:39:06.496983",
+    "export_timestamp": "2025-07-14T11:52:59.258262",
     "strategy_config": {
       "ticker": "TPR",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 18.59346102692313,
+      "total_return": 21.36817846850601,
       "total_trades": "107",
       "win_rate": 0.4672897196261682,
-      "sharpe_ratio": 0.6803143222704551,
+      "sharpe_ratio": 0.7019922966039799,
       "max_drawdown": -0.617470526620151
     }
   },
@@ -2250,10 +2250,10 @@
       "Entry Timestamp": "2025-06-18 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 84.23999786376953,
-      "Avg Exit Price": 86.22000122070312,
+      "Avg Exit Price": 98.43000030517578,
       "Size": 227.2496027547997,
-      "PnL": 430.8114702657258,
-      "Return": 0.02250431394995538,
+      "PnL": 3205.5289118486035,
+      "Return": 0.16744732670048162,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -2261,10 +2261,10 @@
       "Entry_Month": "2025-06",
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
-      "Trade_Type": "Winner",
-      "Cumulative_PnL": 18593.46102692313,
+      "Trade_Type": "Big Winner",
+      "Cumulative_PnL": 21368.17846850601,
       "Trade_Number": 107,
-      "Rolling_Avg_Return": 0.13070529579041806,
+      "Rolling_Avg_Return": 0.15969389834052333,
       "Rolling_Win_Rate": 0.8
     }
   ],
@@ -6104,15 +6104,15 @@
       "Avg Entry Price": 84.23999786376953,
       "Entry Fees": 19.14350605060463,
       "Exit Timestamp": null,
-      "Avg Exit Price": 86.22000122070312,
+      "Avg Exit Price": 98.43000030517578,
       "Exit Fees": 0.0,
-      "PnL": 430.8114702657258,
-      "Return": 0.02250431394995538,
+      "PnL": 3205.5289118486035,
+      "Return": 0.16744732670048162,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
       "Duration_Days": null,
-      "Position_Type": "Winner"
+      "Position_Type": "Big Winner"
     }
   ],
   "analytics": {

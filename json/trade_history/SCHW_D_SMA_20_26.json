@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-07-07T13:46:24.489643",
+    "export_timestamp": "2025-07-14T11:53:02.808334",
     "strategy_config": {
       "ticker": "SCHW",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 118.18925030142404,
+      "total_return": 118.82766827135039,
       "total_trades": "228",
       "win_rate": 0.5394736842105263,
-      "sharpe_ratio": 0.680799475909239,
+      "sharpe_ratio": 0.6811595480837073,
       "max_drawdown": -0.6382917871006042
     }
   },
@@ -1403,7 +1403,7 @@
       "Trade_Type": "Big Loser",
       "Cumulative_PnL": 21774.10680723561,
       "Trade_Number": 66,
-      "Rolling_Avg_Return": -1.1598729920131446e-5,
+      "Rolling_Avg_Return": -1.1598729920131446e-05,
       "Rolling_Win_Rate": 0.6
     },
     {
@@ -4791,10 +4791,10 @@
       "Entry Timestamp": "2025-06-24 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 89.31999969482422,
-      "Avg Exit Price": 91.4800033569336,
+      "Avg Exit Price": 91.97000122070312,
       "Size": 1302.8994963672603,
-      "PnL": 2697.8927008958417,
-      "Return": 0.02318275492039155,
+      "PnL": 3336.3106708221894,
+      "Return": 0.028668624439465436,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -4803,9 +4803,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Winner",
-      "Cumulative_PnL": 118189.25030142406,
+      "Cumulative_PnL": 118827.66827135041,
       "Trade_Number": 228,
-      "Rolling_Avg_Return": 0.056910635607566616,
+      "Rolling_Avg_Return": 0.0580078095113814,
       "Rolling_Win_Rate": 0.8
     }
   ],
@@ -13001,10 +13001,10 @@
       "Avg Entry Price": 89.31999969482422,
       "Entry Fees": 116.37498261789733,
       "Exit Timestamp": null,
-      "Avg Exit Price": 91.4800033569336,
+      "Avg Exit Price": 91.97000122070312,
       "Exit Fees": 0.0,
-      "PnL": 2697.8927008958417,
-      "Return": 0.02318275492039155,
+      "PnL": 3336.3106708221894,
+      "Return": 0.028668624439465436,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

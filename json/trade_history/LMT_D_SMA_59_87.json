@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-07-11T19:46:57.830156",
+    "export_timestamp": "2025-07-14T11:53:53.168434",
     "strategy_config": {
       "ticker": "LMT",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 15.303980334698412,
+      "total_return": 15.416346935393133,
       "total_trades": "82",
       "win_rate": 0.6097560975609756,
-      "sharpe_ratio": 0.43952492146543987,
+      "sharpe_ratio": 0.4402464133487551,
       "max_drawdown": -0.5863251248822796
     }
   },
@@ -1725,10 +1725,10 @@
       "Entry Timestamp": "2025-05-20 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 475.82000732421875,
-      "Avg Exit Price": 464.30999755859375,
+      "Avg Exit Price": 467.510009765625,
       "Size": 35.114428766184226,
-      "PnL": -420.875565765833,
-      "Return": -0.02518983983114046,
+      "PnL": -308.50896507111247,
+      "Return": -0.018464582049260672,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -1737,9 +1737,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Loser",
-      "Cumulative_PnL": 15303.980334698415,
+      "Cumulative_PnL": 15416.346935393136,
       "Trade_Number": 82,
-      "Rolling_Avg_Return": -0.022051690408332908,
+      "Rolling_Avg_Return": -0.020706638851956952,
       "Rolling_Win_Rate": 0.2
     }
   ],
@@ -4679,10 +4679,10 @@
       "Avg Entry Price": 475.82000732421875,
       "Entry Fees": 16.70814775270992,
       "Exit Timestamp": null,
-      "Avg Exit Price": 464.30999755859375,
+      "Avg Exit Price": 467.510009765625,
       "Exit Fees": 0.0,
-      "PnL": -420.875565765833,
-      "Return": -0.02518983983114046,
+      "PnL": -308.50896507111247,
+      "Return": -0.018464582049260672,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

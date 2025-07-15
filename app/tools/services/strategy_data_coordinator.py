@@ -456,14 +456,18 @@ class StrategyDataCoordinator:
                 "target_exit_timeframe", ""
             )
 
-            # Update performance metrics
-            strategy_data.performance.current_return = float(
-                strategy_row.get("current_return", 0.0)
+            # Update performance metrics with NaN handling
+            strategy_data.performance.current_return = self._safe_float_conversion(
+                strategy_row.get("current_return", 0.0), default=0.0
             )
-            strategy_data.performance.mfe = float(strategy_row.get("mfe", 0.0))
-            strategy_data.performance.mae = float(strategy_row.get("mae", 0.0))
-            strategy_data.performance.unrealized_pnl = float(
-                strategy_row.get("unrealized_pnl", 0.0)
+            strategy_data.performance.mfe = self._safe_float_conversion(
+                strategy_row.get("mfe", 0.0), default=0.0
+            )
+            strategy_data.performance.mae = self._safe_float_conversion(
+                strategy_row.get("mae", 0.0), default=0.0
+            )
+            strategy_data.performance.unrealized_pnl = self._safe_float_conversion(
+                strategy_row.get("unrealized_pnl", 0.0), default=0.0
             )
 
             # Add data lineage
@@ -507,8 +511,10 @@ class StrategyDataCoordinator:
                     "current_return" in performance_metrics
                     and performance_metrics["current_return"] is not None
                 ):
-                    strategy_data.performance.current_return = float(
-                        performance_metrics["current_return"]
+                    strategy_data.performance.current_return = (
+                        self._safe_float_conversion(
+                            performance_metrics["current_return"], default=0.0
+                        )
                     )
 
                 # Use JSON MFE/MAE if they have valid values (not zero)
@@ -516,13 +522,17 @@ class StrategyDataCoordinator:
                     None,
                     0.0,
                 ):
-                    strategy_data.performance.mfe = float(performance_metrics["mfe"])
+                    strategy_data.performance.mfe = self._safe_float_conversion(
+                        performance_metrics["mfe"], default=0.0
+                    )
 
                 if "mae" in performance_metrics and performance_metrics["mae"] not in (
                     None,
                     0.0,
                 ):
-                    strategy_data.performance.mae = float(performance_metrics["mae"])
+                    strategy_data.performance.mae = self._safe_float_conversion(
+                        performance_metrics["mae"], default=0.0
+                    )
 
                 if (
                     "unrealized_pnl" in performance_metrics
@@ -818,7 +828,7 @@ class StrategyDataCoordinator:
 
             for col in mfe_columns:
                 if col in position and pd.notna(position[col]):
-                    new_mfe = float(position[col])
+                    new_mfe = self._safe_float_conversion(position[col], default=0.0)
 
                     # Validate MFE - log warning but continue processing
                     if strategy_data.performance.current_return > 0 and new_mfe < 0:
@@ -839,7 +849,7 @@ class StrategyDataCoordinator:
 
             for col in mae_columns:
                 if col in position and pd.notna(position[col]):
-                    new_mae = float(position[col])
+                    new_mae = self._safe_float_conversion(position[col], default=0.0)
 
                     # Use positions MAE if JSON had zero or if positions value seems more reasonable
                     if strategy_data.performance.mae == 0.0 or abs(new_mae) > abs(
@@ -1545,14 +1555,8 @@ class StrategyDataCoordinator:
                             if "ticker" in df.columns:
                                 ticker_strategies = df[df["ticker"] == ticker]
                                 if ticker_strategies.empty:
-                                    logger.warning(
-                                        f"No strategies found for ticker {ticker} in statistical analysis data"
-                                    ) if self.logger else None
-
-                                    # Show available tickers
-                                    available_tickers = df["ticker"].unique()[:10]
                                     logger.info(
-                                        f"Available tickers: {', '.join(available_tickers)}"
+                                        f"No strategies found for ticker {ticker} in statistical analysis data - using fallback analysis"
                                     ) if self.logger else None
                                 else:
                                     # Show available strategies for this ticker
@@ -1887,6 +1891,31 @@ class StrategyDataCoordinator:
             logger.warning(f"Error finding alternatives: {e}") if self.logger else None
 
         return list(set(alternatives))  # Remove duplicates
+
+    def _safe_float_conversion(self, value: Any, default: float = 0.0) -> float:
+        """
+        Safely convert a value to float, handling NaN, None, and invalid values.
+
+        Args:
+            value: Value to convert to float
+            default: Default value to return if conversion fails
+
+        Returns:
+            Valid float value, never NaN or inf
+        """
+        try:
+            if value is None:
+                return default
+
+            float_val = float(value)
+
+            # Check for NaN or infinite values
+            if np.isnan(float_val) or np.isinf(float_val):
+                return default
+
+            return float_val
+        except (ValueError, TypeError, OverflowError):
+            return default
 
     def _check_data_integrity_issues(self) -> List[str]:
         """

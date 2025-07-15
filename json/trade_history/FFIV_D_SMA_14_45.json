@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-07-11T19:47:06.358374",
+    "export_timestamp": "2025-07-14T11:53:00.204718",
     "strategy_config": {
       "ticker": "FFIV",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 51.58444706042369,
+      "total_return": 50.1816808596999,
       "total_trades": "80",
       "win_rate": 0.475,
-      "sharpe_ratio": 0.7045881390694475,
+      "sharpe_ratio": 0.7012322838937549,
       "max_drawdown": -0.5427077862380173
     }
   },
@@ -1683,10 +1683,10 @@
       "Entry Timestamp": "2025-05-08 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 273.1400146484375,
-      "Avg Exit Price": 299.8900146484375,
+      "Avg Exit Price": 291.8900146484375,
       "Size": 175.3457750904734,
-      "PnL": 4642.605536093419,
-      "Return": 0.09693511959216362,
+      "PnL": 3239.83933536963,
+      "Return": 0.06764611186366612,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -1695,9 +1695,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Big Winner",
-      "Cumulative_PnL": 51584.447060423685,
+      "Cumulative_PnL": 50181.680859699896,
       "Trade_Number": 80,
-      "Rolling_Avg_Return": 0.1456315024299501,
+      "Rolling_Avg_Return": 0.13977370088425062,
       "Rolling_Win_Rate": 0.8
     }
   ],
@@ -4565,10 +4565,10 @@
       "Avg Entry Price": 273.1400146484375,
       "Entry Fees": 47.89394757674745,
       "Exit Timestamp": null,
-      "Avg Exit Price": 299.8900146484375,
+      "Avg Exit Price": 291.8900146484375,
       "Exit Fees": 0.0,
-      "PnL": 4642.605536093419,
-      "Return": 0.09693511959216362,
+      "PnL": 3239.83933536963,
+      "Return": 0.06764611186366612,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

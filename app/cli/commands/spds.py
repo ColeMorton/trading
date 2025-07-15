@@ -6,6 +6,7 @@ exit signal generation, and backtesting parameter export.
 
 import asyncio
 import json
+import logging
 import sys
 from pathlib import Path
 from typing import List, Optional
@@ -74,8 +75,9 @@ def _detect_available_data_sources(portfolio: str) -> dict:
 
 @app.command()
 def analyze(
-    portfolio: str = typer.Argument(
-        ..., help='Portfolio filename (e.g., "risk_on.csv")'
+    parameter: str = typer.Argument(
+        ...,
+        help='Analysis parameter: portfolio file (e.g., "risk_on.csv"), ticker (e.g., "AMD"), strategy (e.g., "TSLA_SMA_15_25"), or position UUID (e.g., "TSLA_SMA_15_25_20250710")',
     ),
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
@@ -87,6 +89,16 @@ def analyze(
     ),
     output_format: str = typer.Option(
         "table", "--output-format", help="Output format: json, table, summary"
+    ),
+    detailed: bool = typer.Option(
+        True,
+        "--detailed/--no-detailed",
+        help="Show detailed component scores breakdown",
+    ),
+    components: Optional[str] = typer.Option(
+        None,
+        "--components",
+        help="Show specific components: 'risk,momentum,trend,risk-adj,mean-rev,volume' (comma-separated)",
     ),
     save_results: Optional[str] = typer.Option(
         None, "--save-results", help="Save results to file (JSON format)"
@@ -114,189 +126,93 @@ def analyze(
     quiet: bool = typer.Option(False, "--quiet", "-q", help="Quiet mode (errors only)"),
 ):
     """
-    Analyze portfolio using Statistical Performance Divergence System.
+    Analyze using Statistical Performance Divergence System with enhanced parameter support.
 
-    Performs comprehensive statistical analysis on portfolio data to generate
-    exit signals and divergence metrics. Automatically detects and uses both
-    trade history and equity data when available for maximum analysis depth.
+    Supports multiple analysis types through intelligent parameter detection:
+
+    • Portfolio Analysis: Analyzes entire portfolio files
+    • Asset Distribution Analysis: Analyzes individual tickers
+    • Multi-Ticker Analysis: Analyzes multiple tickers in parallel
+    • Strategy Analysis: Analyzes specific strategy configurations
+    • Multi-Strategy Analysis: Analyzes multiple strategies in parallel
+    • Position Analysis: Analyzes individual position UUIDs
+    • Multi-Position Analysis: Analyzes multiple positions in parallel
+    • Multi-Portfolio Analysis: Analyzes multiple portfolios in parallel
 
     Examples:
-        trading-cli spds analyze risk_on.csv                            # Auto-detects and uses all available data
-        trading-cli spds analyze risk_on.csv --data-source both         # Force both data sources
-        trading-cli spds analyze risk_on.csv --data-source trade-history # Force trade history only
-        trading-cli spds analyze risk_on.csv --data-source equity-curves # Force equity curves only
-        trading-cli spds analyze risk_on.csv --export-backtesting --save-results results.json
+        trading-cli spds analyze risk_on.csv                            # Portfolio analysis (existing)
+        trading-cli spds analyze AMD                                     # Asset distribution analysis
+        trading-cli spds analyze NVDA,MSFT,QCOM                        # Multi-ticker parallel analysis
+        trading-cli spds analyze TSLA_SMA_15_25                        # Strategy analysis
+        trading-cli spds analyze TSLA_SMA_15_25,RJF_SMA_68_77,SMCI_SMA_58_60  # Multi-strategy parallel analysis
+        trading-cli spds analyze TSLA_SMA_15_25_20250710               # Position UUID analysis
+        trading-cli spds analyze TSLA_SMA_15_25_20250710,TPR_SMA_14_30_20250506,MA_SMA_78_82_20250701  # Multi-position parallel analysis
+        trading-cli spds analyze risk_on,live_signals,protected         # Multi-portfolio parallel analysis
+        trading-cli spds analyze risk_on.csv --data-source both         # Force both data sources (portfolio)
+        trading-cli spds analyze NVDA,MSFT,QCOM --components risk,trend  # Multi-ticker with component scores (detailed is now default)
     """
     try:
-        # Auto-detect available data sources if not explicitly specified
-        if data_source is None:
-            data_source = "auto"
+        # Import enhanced parameter parsing and analysis components
+        from ...tools.enhanced_test_analyzer import create_test_analyzer
+        from ...tools.parameter_parser import ParameterType, parse_spds_parameter
 
-        # Resolve portfolio path
-        portfolio = resolve_portfolio_path(portfolio)
+        # Parse the input parameter to detect type and extract components
+        if verbose:
+            rprint(f"[dim]Parsing input parameter: {parameter}[/dim]")
 
-        # Detect available data sources
-        available_sources = _detect_available_data_sources(portfolio)
+        try:
+            parsed_param = parse_spds_parameter(parameter)
+        except ValueError as e:
+            rprint(f"[red]❌ Parameter parsing failed: {e}[/red]")
+            raise typer.Exit(1)
 
-        # Determine which data sources to use based on availability and user preference
-        if data_source == "auto":
-            # Use both sources if available, prioritize trade history if only one is available
-            if available_sources["trade_history"] and available_sources["equity_data"]:
-                use_trade_history = (
-                    True  # Start with trade history, but we'll also use equity
-                )
-                data_source_status = (
-                    "Both Trade History and Equity Data (Auto-detected)"
-                )
-            elif available_sources["trade_history"]:
-                use_trade_history = True
-                data_source_status = "Trade History Only (Auto-detected)"
-            elif available_sources["equity_data"]:
-                use_trade_history = False
-                data_source_status = "Equity Curves Only (Auto-detected)"
-            else:
-                use_trade_history = False
-                data_source_status = "No data sources detected - using fallback"
-        elif data_source == "both":
-            use_trade_history = True  # We'll handle both in the analyzer
-            data_source_status = "Both Trade History and Equity Data (Requested)"
-        elif data_source == "trade-history":
-            use_trade_history = True
-            data_source_status = "Trade History Only (Requested)"
-        elif data_source == "equity-curves":
-            use_trade_history = False
-            data_source_status = "Equity Curves Only (Requested)"
-        else:
-            raise ValueError(
-                f"Invalid data source: {data_source}. Must be 'auto', 'both', 'trade-history', or 'equity-curves'"
-            )
+        parameter_type = parsed_param.parameter_type
 
         if verbose:
-            rprint(
-                f"[dim]Available sources: TH={available_sources['trade_history']}, EQ={available_sources['equity_data']}[/dim]"
-            )
-            rprint(f"[dim]Selected: {data_source_status}[/dim]")
+            rprint(f"[dim]Detected parameter type: {parameter_type}[/dim]")
+            rprint(f"[dim]Parsed components: {parsed_param.dict()}[/dim]")
 
-        # Load configuration
-        loader = ConfigLoader()
-
-        # Build configuration overrides from CLI arguments
-        overrides = {
-            "portfolio": portfolio,
-            "trade_history": use_trade_history,
-            "output_format": output_format,
-            "save_results": save_results,
-            "export_backtesting": export_backtesting,
-            "percentile_threshold": percentile_threshold,
-            "dual_layer_threshold": dual_layer_threshold,
-            "sample_size_min": sample_size_min,
-            "confidence_level": confidence_level,
-            "verbose": verbose,
-            "quiet": quiet,
-        }
-
-        # Load configuration
-        if profile:
-            config = loader.load_from_profile(profile, SPDSConfig, overrides)
-        else:
-            template = loader.get_config_template("spds")
-            config = loader.load_from_dict(template, SPDSConfig, overrides)
-
-        if verbose:
-            rprint(f"[dim]Analyzing portfolio: {portfolio}[/dim]")
-            rprint(f"[dim]Data source: {data_source_status}[/dim]")
-
-        # Import SPDS modules
-        from ...tools.config.statistical_analysis_config import (
-            StatisticalAnalysisConfig,
-        )
-        from ...tools.portfolio_analyzer import (
-            PortfolioStatisticalAnalyzer,
-            analyze_portfolio,
-        )
-
-        # Create SPDS config from CLI config
-        spds_config = StatisticalAnalysisConfig.create(portfolio, use_trade_history)
-
-        # Apply overrides
-        if percentile_threshold != 95:
-            spds_config.PERCENTILE_THRESHOLDS["exit_immediately"] = float(
-                percentile_threshold
-            )
-        if dual_layer_threshold != 0.85:
-            spds_config.CONVERGENCE_THRESHOLD = dual_layer_threshold
-        if sample_size_min != 15:
-            spds_config.MIN_SAMPLE_SIZE = sample_size_min
-
-        rprint(f"📊 Analyzing Portfolio: [cyan]{portfolio}[/cyan]")
-        rprint(f"   Data Source: [yellow]{data_source_status}[/yellow]")
-
-        # Add helpful information about what to expect
-        if "Both" in data_source_status:
-            rprint(
-                "[dim]ℹ️  Using comprehensive analysis with trade-level data and equity curves[/dim]"
-            )
-        elif "Trade History Only" in data_source_status:
-            rprint("[dim]ℹ️  Using detailed trade-level analysis[/dim]")
-        elif "Equity Curves Only" in data_source_status:
-            rprint(
-                "[dim]ℹ️  Using equity curve analysis (individual trade data not available)[/dim]"
-            )
-        elif "fallback" in data_source_status:
-            rprint(
-                "[dim]ℹ️  Using fallback analysis - this is normal for position-based portfolios[/dim]"
-            )
-
-        if not quiet:
-            rprint(
-                "[dim]📝 Strategy matching messages below are informational - SPDS uses robust fallback analysis[/dim]"
-            )
-
-        # Pre-analysis validation for data source mapping
-        if verbose and data_source in ["auto", "both", "trade-history"]:
-            _validate_data_source_mapping(portfolio, verbose)
-
-        rprint("-" * 60)
-
-        # Run analysis
-        if output_format == "json":
-            results, summary = asyncio.run(
-                _run_portfolio_analysis(portfolio, use_trade_history)
-            )
-            # Also export all formats for JSON output (including backtesting parameters)
-            analyzer = PortfolioStatisticalAnalyzer(portfolio, use_trade_history)
-            asyncio.run(
-                _export_all_formats(
-                    results,
-                    summary,
-                    analyzer,
-                    portfolio,
-                    spds_config,
-                    True,  # Always export backtesting parameters
+        # Route to appropriate analysis based on parameter type
+        if parameter_type == ParameterType.PORTFOLIO_FILE:
+            # Use existing portfolio analysis logic (backward compatibility)
+            return asyncio.run(
+                _analyze_portfolio_mode(
+                    parameter,
+                    data_source,
+                    profile,
+                    output_format,
+                    detailed,
+                    components,
+                    save_results,
+                    export_backtesting,
+                    percentile_threshold,
+                    dual_layer_threshold,
+                    sample_size_min,
+                    confidence_level,
+                    verbose,
+                    quiet,
                 )
             )
-            return _output_json_results(results, summary, save_results)
         else:
-            analyzer = PortfolioStatisticalAnalyzer(portfolio, use_trade_history)
-            results = asyncio.run(_run_analyzer_analysis(analyzer))
-            summary = analyzer.get_summary_report(results)
-
-            # ALWAYS export to all formats automatically (including backtesting parameters)
-            asyncio.run(
-                _export_all_formats(
-                    results,
-                    summary,
-                    analyzer,
-                    portfolio,
-                    spds_config,
-                    True,  # Always export backtesting parameters
+            # Use enhanced parameter analysis
+            return asyncio.run(
+                _analyze_enhanced_parameter_mode(
+                    parsed_param,
+                    data_source,
+                    profile,
+                    output_format,
+                    detailed,
+                    components,
+                    save_results,
+                    export_backtesting,
+                    percentile_threshold,
+                    dual_layer_threshold,
+                    sample_size_min,
+                    confidence_level,
+                    verbose,
+                    quiet,
                 )
             )
-
-            if output_format == "summary":
-                return _output_summary_results(summary)
-            else:  # table format
-                return _output_table_results(results, summary, analyzer)
 
     except FileNotFoundError as e:
         rprint(f"[red]❌ File not found: {e}[/red]")
@@ -645,6 +561,385 @@ def interactive():
         raise typer.Exit(1)
 
 
+# Enhanced parameter analysis functions
+async def _analyze_portfolio_mode(
+    portfolio: str,
+    data_source: Optional[str],
+    profile: Optional[str],
+    output_format: str,
+    detailed: bool,
+    components: Optional[str],
+    save_results: Optional[str],
+    export_backtesting: bool,
+    percentile_threshold: int,
+    dual_layer_threshold: float,
+    sample_size_min: int,
+    confidence_level: str,
+    verbose: bool,
+    quiet: bool,
+):
+    """Handle portfolio-based analysis (backward compatibility)."""
+    # Auto-detect available data sources if not explicitly specified
+    if data_source is None:
+        data_source = "auto"
+
+    # Resolve portfolio path
+    portfolio = resolve_portfolio_path(portfolio)
+
+    # Detect available data sources
+    available_sources = _detect_available_data_sources(portfolio)
+
+    # Determine which data sources to use based on availability and user preference
+    if data_source == "auto":
+        # Use both sources if available, prioritize trade history if only one is available
+        if available_sources["trade_history"] and available_sources["equity_data"]:
+            use_trade_history = (
+                True  # Start with trade history, but we'll also use equity
+            )
+            data_source_status = "Both Trade History and Equity Data (Auto-detected)"
+        elif available_sources["trade_history"]:
+            use_trade_history = True
+            data_source_status = "Trade History Only (Auto-detected)"
+        elif available_sources["equity_data"]:
+            use_trade_history = False
+            data_source_status = "Equity Curves Only (Auto-detected)"
+        else:
+            use_trade_history = False
+            data_source_status = "No data sources detected - using fallback"
+    elif data_source == "both":
+        use_trade_history = True  # We'll handle both in the analyzer
+        data_source_status = "Both Trade History and Equity Data (Requested)"
+    elif data_source == "trade-history":
+        use_trade_history = True
+        data_source_status = "Trade History Only (Requested)"
+    elif data_source == "equity-curves":
+        use_trade_history = False
+        data_source_status = "Equity Curves Only (Requested)"
+    else:
+        raise ValueError(
+            f"Invalid data source: {data_source}. Must be 'auto', 'both', 'trade-history', or 'equity-curves'"
+        )
+
+    if verbose:
+        rprint(
+            f"[dim]Available sources: TH={available_sources['trade_history']}, EQ={available_sources['equity_data']}[/dim]"
+        )
+        rprint(f"[dim]Selected: {data_source_status}[/dim]")
+
+    # Load configuration
+    loader = ConfigLoader()
+
+    # Build configuration overrides from CLI arguments
+    overrides = {
+        "portfolio": portfolio,
+        "trade_history": use_trade_history,
+        "output_format": output_format,
+        "save_results": save_results,
+        "export_backtesting": export_backtesting,
+        "percentile_threshold": percentile_threshold,
+        "dual_layer_threshold": dual_layer_threshold,
+        "sample_size_min": sample_size_min,
+        "confidence_level": confidence_level,
+        "verbose": verbose,
+        "quiet": quiet,
+    }
+
+    # Load configuration
+    if profile:
+        config = loader.load_from_profile(profile, SPDSConfig, overrides)
+    else:
+        template = loader.get_config_template("spds")
+        config = loader.load_from_dict(template, SPDSConfig, overrides)
+
+    if verbose:
+        rprint(f"[dim]Analyzing portfolio: {portfolio}[/dim]")
+        rprint(f"[dim]Data source: {data_source_status}[/dim]")
+
+    # Import SPDS modules
+    from ...tools.config.statistical_analysis_config import StatisticalAnalysisConfig
+    from ...tools.portfolio_analyzer import (
+        PortfolioStatisticalAnalyzer,
+        analyze_portfolio,
+    )
+
+    # Create SPDS config from CLI config
+    spds_config = StatisticalAnalysisConfig.create(portfolio, use_trade_history)
+
+    # Apply overrides
+    if percentile_threshold != 95:
+        spds_config.PERCENTILE_THRESHOLDS["exit_immediately"] = float(
+            percentile_threshold
+        )
+    if dual_layer_threshold != 0.85:
+        spds_config.CONVERGENCE_THRESHOLD = dual_layer_threshold
+    if sample_size_min != 15:
+        spds_config.MIN_SAMPLE_SIZE = sample_size_min
+
+    rprint(f"📊 Analyzing Portfolio: [cyan]{portfolio}[/cyan]")
+    rprint(f"   Data Source: [yellow]{data_source_status}[/yellow]")
+
+    # Add helpful information about what to expect
+    if "Both" in data_source_status:
+        rprint(
+            "[dim]ℹ️  Using comprehensive analysis with trade-level data and equity curves[/dim]"
+        )
+    elif "Trade History Only" in data_source_status:
+        rprint("[dim]ℹ️  Using detailed trade-level analysis[/dim]")
+    elif "Equity Curves Only" in data_source_status:
+        rprint(
+            "[dim]ℹ️  Using equity curve analysis (individual trade data not available)[/dim]"
+        )
+    elif "fallback" in data_source_status:
+        rprint(
+            "[dim]ℹ️  Using fallback analysis - this is normal for position-based portfolios[/dim]"
+        )
+
+    if not quiet:
+        rprint(
+            "[dim]📝 Strategy matching messages below are informational - SPDS uses robust fallback analysis[/dim]"
+        )
+
+    # Pre-analysis validation for data source mapping
+    if verbose and data_source in ["auto", "both", "trade-history"]:
+        _validate_data_source_mapping(portfolio, verbose)
+
+    rprint("-" * 60)
+
+    # Run analysis
+    if output_format == "json":
+        results, summary = await _run_portfolio_analysis(portfolio, use_trade_history)
+        # Also export all formats for JSON output (including backtesting parameters)
+        analyzer = PortfolioStatisticalAnalyzer(portfolio, use_trade_history)
+        await _export_all_formats(
+            results,
+            summary,
+            analyzer,
+            portfolio,
+            spds_config,
+            True,  # Always export backtesting parameters
+        )
+        return _output_json_results(results, summary, save_results)
+    else:
+        analyzer = PortfolioStatisticalAnalyzer(portfolio, use_trade_history)
+        results = await _run_analyzer_analysis(analyzer, detailed)
+        summary = analyzer.get_summary_report(results)
+
+        # ALWAYS export to all formats automatically (including backtesting parameters)
+        await _export_all_formats(
+            results,
+            summary,
+            analyzer,
+            portfolio,
+            spds_config,
+            True,  # Always export backtesting parameters
+        )
+
+        if output_format == "summary":
+            return _output_summary_results(summary)
+        else:  # table format
+            return _output_table_results(
+                results, summary, analyzer, detailed, components
+            )
+
+
+async def _analyze_enhanced_parameter_mode(
+    parsed_param,
+    data_source: Optional[str],
+    profile: Optional[str],
+    output_format: str,
+    detailed: bool,
+    components: Optional[str],
+    save_results: Optional[str],
+    export_backtesting: bool,
+    percentile_threshold: int,
+    dual_layer_threshold: float,
+    sample_size_min: int,
+    confidence_level: str,
+    verbose: bool,
+    quiet: bool,
+):
+    """Handle enhanced parameter analysis (ticker, strategy, position UUID)."""
+    from ...tools.parameter_parser import ParameterType
+    from ...tools.specialized_analyzers import create_analyzer
+
+    parameter_type = parsed_param.parameter_type
+
+    # Display analysis type information
+    type_descriptions = {
+        ParameterType.TICKER_ONLY: "Asset Distribution Analysis",
+        ParameterType.MULTI_TICKER: "Multi-Ticker Parallel Analysis",
+        ParameterType.STRATEGY_SPEC: "Strategy Performance Analysis",
+        ParameterType.MULTI_STRATEGY_SPEC: "Multi-Strategy Parallel Analysis",
+        ParameterType.POSITION_UUID: "Position-Specific Analysis",
+        ParameterType.MULTI_POSITION_UUID: "Multi-Position Parallel Analysis",
+        ParameterType.MULTI_PORTFOLIO_FILE: "Multi-Portfolio Parallel Analysis",
+    }
+
+    analysis_description = type_descriptions.get(parameter_type, "Unknown Analysis")
+
+    rprint(f"🎯 {analysis_description}: [cyan]{parsed_param.original_input}[/cyan]")
+
+    if parameter_type == ParameterType.TICKER_ONLY:
+        rprint(f"   Ticker: [yellow]{parsed_param.ticker}[/yellow]")
+        rprint("[dim]ℹ️  Analyzing underlying asset distribution characteristics[/dim]")
+    elif parameter_type == ParameterType.MULTI_TICKER:
+        rprint(
+            f"   Tickers: [yellow]{', '.join(parsed_param.tickers)}[/yellow] ({len(parsed_param.tickers)} total)"
+        )
+        rprint(
+            "[dim]ℹ️  Analyzing multiple assets in parallel for comparative distribution analysis[/dim]"
+        )
+    elif parameter_type == ParameterType.STRATEGY_SPEC:
+        rprint(
+            f"   Strategy: [yellow]{parsed_param.ticker} {parsed_param.strategy_type} {parsed_param.short_window}/{parsed_param.long_window}[/yellow]"
+        )
+        rprint(
+            "[dim]ℹ️  Analyzing strategy-specific performance and equity curves[/dim]"
+        )
+    elif parameter_type == ParameterType.MULTI_STRATEGY_SPEC:
+        strategy_count = len(parsed_param.strategies)
+        strategy_list = [
+            f"{s['ticker']}_{s['strategy_type']}_{s['short_window']}_{s['long_window']}"
+            for s in parsed_param.strategies[:3]
+        ]
+        if strategy_count > 3:
+            strategy_display = (
+                ", ".join(strategy_list) + f", ... (+{strategy_count-3} more)"
+            )
+        else:
+            strategy_display = ", ".join(strategy_list)
+        rprint(
+            f"   Strategies: [yellow]{strategy_display}[/yellow] ({strategy_count} total)"
+        )
+        rprint(
+            "[dim]ℹ️  Analyzing multiple strategies in parallel for comparative performance analysis[/dim]"
+        )
+    elif parameter_type == ParameterType.POSITION_UUID:
+        rprint(
+            f"   Position: [yellow]{parsed_param.ticker} {parsed_param.strategy_type} {parsed_param.short_window}/{parsed_param.long_window} ({parsed_param.entry_date})[/yellow]"
+        )
+        rprint(
+            "[dim]ℹ️  Analyzing individual position with trade history and metrics[/dim]"
+        )
+    elif parameter_type == ParameterType.MULTI_POSITION_UUID:
+        position_count = len(parsed_param.positions)
+        position_list = [
+            f"{p['ticker']}_{p['strategy_type']}_{p['short_window']}_{p['long_window']}_{p['entry_date'].replace('-', '')}"
+            for p in parsed_param.positions[:3]
+        ]
+        if position_count > 3:
+            position_display = (
+                ", ".join(position_list) + f", ... (+{position_count-3} more)"
+            )
+        else:
+            position_display = ", ".join(position_list)
+        rprint(
+            f"   Positions: [yellow]{position_display}[/yellow] ({position_count} total)"
+        )
+        rprint(
+            "[dim]ℹ️  Analyzing multiple positions in parallel for comparative trade analysis[/dim]"
+        )
+    elif parameter_type == ParameterType.MULTI_PORTFOLIO_FILE:
+        rprint(
+            f"   Portfolios: [yellow]{', '.join(parsed_param.portfolio_files)}[/yellow] ({len(parsed_param.portfolio_files)} total)"
+        )
+        rprint(
+            "[dim]ℹ️  Analyzing multiple portfolios in parallel for comparative portfolio analysis[/dim]"
+        )
+
+    if not quiet:
+        rprint(
+            "[dim]📝 Enhanced parameter analysis provides specialized insights for each input type[/dim]"
+        )
+
+    rprint("-" * 60)
+
+    # Create appropriate analyzer
+    try:
+        analyzer = create_analyzer(parsed_param, logger=logging.getLogger(__name__))
+    except Exception as e:
+        rprint(f"[red]❌ Failed to create analyzer: {e}[/red]")
+        raise typer.Exit(1)
+
+    # Run analysis
+    try:
+        results = await analyzer.analyze()
+    except Exception as e:
+        rprint(f"[red]❌ Analysis failed: {e}[/red]")
+        if verbose:
+            raise
+        raise typer.Exit(1)
+
+    # Create summary
+    summary = {
+        "analysis_type": analysis_description,
+        "parameter_type": str(parameter_type),
+        "total_results": len(results),
+        "input_parameter": parsed_param.original_input,
+    }
+
+    if results:
+        # Add summary statistics
+        exit_signals = [
+            getattr(result, "exit_signal", "UNKNOWN") for result in results.values()
+        ]
+        signal_counts = {}
+        for signal in exit_signals:
+            signal_counts[str(signal)] = signal_counts.get(str(signal), 0) + 1
+        summary["exit_signal_distribution"] = signal_counts
+
+        # Average confidence
+        confidences = [
+            getattr(result, "confidence_level", 0.0) for result in results.values()
+        ]
+        summary["average_confidence"] = (
+            sum(confidences) / len(confidences) if confidences else 0.0
+        )
+
+    # Export results (using simplified config for enhanced mode)
+    try:
+        from ...tools.config.statistical_analysis_config import (
+            StatisticalAnalysisConfig,
+        )
+
+        # Create a minimal config for export compatibility
+        # Use special naming for enhanced analysis to distinguish from real portfolios
+        virtual_portfolio = f"enhanced_{parsed_param.parameter_type}_{parsed_param.original_input.replace('/', '_').replace('-', '_')}.csv"
+        spds_config = StatisticalAnalysisConfig.create(virtual_portfolio, False)
+
+        # Apply parameter overrides
+        if percentile_threshold != 95:
+            spds_config.PERCENTILE_THRESHOLDS["exit_immediately"] = float(
+                percentile_threshold
+            )
+        if dual_layer_threshold != 0.85:
+            spds_config.CONVERGENCE_THRESHOLD = dual_layer_threshold
+        if sample_size_min != 15:
+            spds_config.MIN_SAMPLE_SIZE = sample_size_min
+
+        # Export using existing infrastructure
+        await _export_all_formats(
+            results,
+            summary,
+            analyzer,
+            virtual_portfolio,
+            spds_config,
+            export_backtesting,
+        )
+
+    except Exception as e:
+        if verbose:
+            rprint(f"[yellow]⚠️  Export warning: {e}[/yellow]")
+
+    # Output results
+    if output_format == "json":
+        return _output_json_results(results, summary, save_results)
+    elif output_format == "summary":
+        return _output_summary_results(summary)
+    else:  # table format
+        return _output_table_results(results, summary, analyzer, detailed, components)
+
+
 # Helper async functions
 async def _run_portfolio_analysis(portfolio, trade_history):
     """Run portfolio analysis asynchronously."""
@@ -653,9 +948,15 @@ async def _run_portfolio_analysis(portfolio, trade_history):
     return await analyze_portfolio(portfolio, trade_history)
 
 
-async def _run_analyzer_analysis(analyzer):
+async def _run_analyzer_analysis(analyzer, detailed: bool = False):
     """Run analyzer analysis asynchronously."""
-    return await analyzer.analyze()
+    if (
+        hasattr(analyzer, "analyze")
+        and "detailed" in analyzer.analyze.__code__.co_varnames
+    ):
+        return await analyzer.analyze(detailed=detailed)
+    else:
+        return await analyzer.analyze()
 
 
 async def _run_export_operations(results, summary, portfolio, format, config):
@@ -777,15 +1078,51 @@ def _output_summary_results(summary):
     return 0
 
 
-def _output_table_results(results, summary, analyzer):
+def _output_table_results(
+    results, summary, analyzer, detailed: bool = False, components: Optional[str] = None
+):
     """Output results in table format"""
     # Create results table
-    table = Table(title="SPDS Analysis Results", show_header=True)
+    table_title = "SPDS Analysis Results"
+    if detailed:
+        table_title += " (Detailed Component Scores)"
+
+    table = Table(title=table_title, show_header=True)
     table.add_column("Strategy", style="cyan", no_wrap=True)
     table.add_column("Ticker", style="white")
-    table.add_column("Exit Signal", style="yellow")
+    table.add_column("Recommendation", style="yellow")
     table.add_column("Confidence", style="green")
     table.add_column("P-Value", style="blue")
+
+    # Add component score columns when detailed flag is set
+    if detailed:
+        # Parse components filter if provided
+        component_filter = None
+        if components:
+            component_filter = [c.strip() for c in components.split(",")]
+
+        # Standard component columns (always show if detailed)
+        component_columns = {
+            "risk": ("Risk", "red"),
+            "momentum": ("Momentum", "magenta"),
+            "trend": ("Trend", "bright_green"),
+            "risk-adj": ("Risk-Adj", "orange1"),
+            "mean-rev": ("Mean-Rev", "purple"),
+            "volume": ("Volume", "cyan"),
+            "overall": ("Overall", "bold yellow"),
+            "regime": ("Regime", "dim white"),
+        }
+
+        # Add only requested columns if filter specified, otherwise add all
+        # Always include overall and regime for debugging
+        for comp_key, (col_name, style) in component_columns.items():
+            if (
+                not component_filter
+                or comp_key in component_filter
+                or comp_key in ["overall", "regime"]
+            ):
+                width = 6 if comp_key == "regime" else 8
+                table.add_column(col_name, style=style, justify="right", width=width)
 
     for name, result in results.items():
         strategy_name = getattr(result, "strategy_name", name)
@@ -816,9 +1153,82 @@ def _output_table_results(results, summary, analyzer):
         if hasattr(exit_signal, "signal_type"):
             exit_signal = exit_signal.signal_type.value
 
-        table.add_row(
-            strategy_name, ticker, str(exit_signal), str(confidence), str(p_value)
-        )
+        # Prepare row data
+        row_data = [
+            strategy_name,
+            ticker,
+            str(exit_signal),
+            str(confidence),
+            str(p_value),
+        ]
+
+        # Add component scores when detailed mode is enabled
+        if detailed:
+            # Try to get component scores from the result
+            component_scores = {}
+            if hasattr(result, "component_scores"):
+                component_scores = result.component_scores
+            elif (
+                hasattr(result, "raw_analysis_data")
+                and result.raw_analysis_data
+                and "component_scores" in result.raw_analysis_data
+            ):
+                # Check if component scores are in raw_analysis_data
+                component_scores = result.raw_analysis_data["component_scores"]
+            elif hasattr(result, "divergence_metrics") and isinstance(
+                result.divergence_metrics, dict
+            ):
+                # Check if component scores are in divergence_metrics
+                metrics = result.divergence_metrics
+                if "component_scores" in metrics:
+                    component_scores = metrics["component_scores"]
+
+            # Extract individual component scores with proper mapping
+            risk_score = component_scores.get("risk_score", 0.0)
+            momentum_score = component_scores.get("momentum_score", 0.0)
+            trend_score = component_scores.get("trend_score", 0.0)
+            risk_adj_score = component_scores.get("risk_adjusted_score", 0.0)
+            mean_rev_score = component_scores.get("mean_reversion_score", 0.0)
+            volume_score = component_scores.get("volume_liquidity_score", 0.0)
+
+            # Add component scores based on filter
+            component_filter = None
+            if components:
+                component_filter = [c.strip() for c in components.split(",")]
+
+            # Get overall score and regime information for debugging
+            overall_score = component_scores.get("overall_score", 0.0)
+            volatility_regime = component_scores.get("volatility_regime", "unknown")
+
+            component_values = {
+                "risk": f"{risk_score:+.0f}",
+                "momentum": f"{momentum_score:+.0f}",
+                "trend": f"{trend_score:+.0f}",
+                "risk-adj": f"{risk_adj_score:+.0f}",
+                "mean-rev": f"{mean_rev_score:+.0f}",
+                "volume": f"{volume_score:+.0f}",
+                "overall": f"{overall_score:+.1f}",
+                "regime": volatility_regime[:4],  # Truncate for display
+            }
+
+            for comp_key in [
+                "risk",
+                "momentum",
+                "trend",
+                "risk-adj",
+                "mean-rev",
+                "volume",
+                "overall",
+                "regime",
+            ]:
+                if (
+                    not component_filter
+                    or comp_key in component_filter
+                    or comp_key in ["overall", "regime"]
+                ):
+                    row_data.append(component_values[comp_key])
+
+        table.add_row(*row_data)
 
     console.print(table)
 

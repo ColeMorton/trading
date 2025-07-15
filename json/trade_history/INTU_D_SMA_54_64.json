@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-07-11T19:46:54.250732",
+    "export_timestamp": "2025-07-14T11:53:50.084677",
     "strategy_config": {
       "ticker": "INTU",
       "timeframe": "D",
@@ -15,7 +15,7 @@
       "total_return": 77.59481905366597,
       "total_trades": "82",
       "win_rate": 0.5609756097560976,
-      "sharpe_ratio": 0.6717719877080044,
+      "sharpe_ratio": 0.6717306717794148,
       "max_drawdown": -0.6594963931830801
     }
   },

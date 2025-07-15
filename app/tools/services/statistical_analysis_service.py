@@ -122,11 +122,16 @@ class StatisticalAnalysisService:
         else:
             self.memory_optimizer = None
 
+        # Position context cache
+        self._position_cache = {}
+        self._position_cache_timestamp = None
+
         # Service metrics
         self.metrics = {
             "analyses_performed": 0,
             "dual_layer_analyses": 0,
             "trade_history_analyses": 0,
+            "position_aware_analyses": 0,
             "bootstrap_validations": 0,
             "high_confidence_signals": 0,
             "total_processing_time": 0.0,
@@ -140,6 +145,402 @@ class StatisticalAnalysisService:
             f"memory_optimization={self.enable_memory_optimization}, "
             f"coordinator_enabled={self.use_coordinator}"
         )
+
+    # =================== POSITION CONTEXT INTEGRATION ===================
+
+    async def _load_position_context(
+        self, portfolio_name: str
+    ) -> Dict[str, Dict[str, Any]]:
+        """
+        Load position context data from positions/{portfolio}.csv
+
+        Args:
+            portfolio_name: Portfolio filename (e.g., "protected.csv")
+
+        Returns:
+            Dictionary mapping position UUIDs to position data
+        """
+        try:
+            # Cache check - refresh every 5 minutes
+            current_time = datetime.now()
+            if (
+                self._position_cache_timestamp
+                and (current_time - self._position_cache_timestamp).seconds < 300
+                and portfolio_name in self._position_cache
+            ):
+                self.logger.debug(f"Using cached position data for {portfolio_name}")
+                return self._position_cache[portfolio_name]
+
+            # Determine position file path - ensure .csv extension
+            if not portfolio_name.endswith(".csv"):
+                portfolio_name = f"{portfolio_name}.csv"
+            position_file_path = Path("csv/positions") / portfolio_name
+
+            if not position_file_path.exists():
+                self.logger.warning(f"Position file not found: {position_file_path}")
+                return {}
+
+            # Load position data
+            self.logger.info(f"Loading position context from: {position_file_path}")
+
+            if self.enable_memory_optimization and self.memory_optimizer:
+                import polars as pl
+
+                try:
+                    # Use Polars for efficient loading
+                    df = pl.read_csv(str(position_file_path))
+                    position_data = df.to_pandas().to_dict("records")
+                except Exception:
+                    # Fallback to pandas
+                    import pandas as pd
+
+                    df = pd.read_csv(position_file_path)
+                    position_data = df.to_dict("records")
+            else:
+                # Standard pandas loading
+                import pandas as pd
+
+                df = pd.read_csv(position_file_path)
+                position_data = df.to_dict("records")
+
+            # Create UUID mapping
+            position_map = {}
+            for pos in position_data:
+                if "Position_UUID" in pos:
+                    position_map[pos["Position_UUID"]] = pos
+                else:
+                    # Fallback: create UUID from strategy components
+                    strategy_uuid = self._create_strategy_uuid_from_position(pos)
+                    if strategy_uuid:
+                        position_map[strategy_uuid] = pos
+
+            # Cache the results
+            self._position_cache[portfolio_name] = position_map
+            self._position_cache_timestamp = current_time
+
+            self.logger.info(
+                f"Loaded {len(position_map)} positions for {portfolio_name}"
+            )
+            return position_map
+
+        except Exception as e:
+            self.logger.error(
+                f"Error loading position context for {portfolio_name}: {e}"
+            )
+            return {}
+
+    def _create_strategy_uuid_from_position(
+        self, position_data: Dict[str, Any]
+    ) -> Optional[str]:
+        """Create strategy UUID from position components"""
+        try:
+            ticker = position_data.get("Ticker", "")
+            strategy_type = position_data.get("Strategy_Type", "")
+            short_window = position_data.get("Short_Window", "")
+            long_window = position_data.get("Long_Window", "")
+            signal_window = position_data.get("Signal_Window", 0)
+
+            if signal_window and signal_window != 0:
+                return f"{ticker}_{strategy_type}_{short_window}_{long_window}_{signal_window}"
+            else:
+                return f"{ticker}_{strategy_type}_{short_window}_{long_window}"
+        except Exception:
+            return None
+
+    def _find_matching_position(
+        self, strategy_name: str, position_map: Dict[str, Dict[str, Any]]
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Find matching position data for a given strategy name
+
+        Args:
+            strategy_name: Strategy identifier (e.g., "FFIV_SMA_14_45")
+            position_map: Position data mapping
+
+        Returns:
+            Position data if found, None otherwise
+        """
+        try:
+            # Direct UUID match
+            if strategy_name in position_map:
+                return position_map[strategy_name]
+
+            # Pattern matching for variations
+            for position_uuid, position_data in position_map.items():
+                if strategy_name in position_uuid or position_uuid.startswith(
+                    strategy_name
+                ):
+                    return position_data
+
+            # Component-based matching
+            strategy_parts = strategy_name.split("_")
+            if len(strategy_parts) >= 4:  # TICKER_TYPE_SHORT_LONG
+                ticker = strategy_parts[0]
+                for position_uuid, position_data in position_map.items():
+                    if position_data.get("Ticker") == ticker and strategy_name.replace(
+                        "_", ""
+                    ) in position_uuid.replace("_", ""):
+                        return position_data
+
+            return None
+
+        except Exception as e:
+            self.logger.error(f"Error finding position match for {strategy_name}: {e}")
+            return None
+
+    def _is_position_open(self, position_data: Optional[Dict[str, Any]]) -> bool:
+        """Check if position is currently open"""
+        if not position_data:
+            return False
+        return position_data.get("Status", "").upper() == "OPEN"
+
+    def _get_position_metrics(self, position_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Extract key position metrics for analysis"""
+        try:
+            return {
+                "status": position_data.get("Status", ""),
+                "days_since_entry": position_data.get("Days_Since_Entry", 0),
+                "current_unrealized_pnl": position_data.get(
+                    "Current_Unrealized_PnL", 0.0
+                ),
+                "mfe": position_data.get("Max_Favourable_Excursion", 0.0),
+                "mae": position_data.get("Max_Adverse_Excursion", 0.0),
+                "mfe_mae_ratio": position_data.get("MFE_MAE_Ratio", 0.0),
+                "trade_quality": position_data.get("Trade_Quality", ""),
+                "excursion_status": position_data.get("Current_Excursion_Status", ""),
+                "entry_price": position_data.get("Avg_Entry_Price", 0.0),
+                "entry_timestamp": position_data.get("Entry_Timestamp", ""),
+            }
+        except Exception as e:
+            self.logger.error(f"Error extracting position metrics: {e}")
+            return {}
+
+    async def _generate_position_aware_signal(
+        self,
+        strategy_analysis: "StrategyDistributionAnalysis",
+        asset_analysis: "AssetDistributionAnalysis",
+        dual_layer_convergence: "DualLayerConvergence",
+        asset_divergence: "DivergenceMetrics",
+        strategy_divergence: "DivergenceMetrics",
+        position_data: Optional[Dict[str, Any]],
+        component_scores: Optional[Dict[str, Any]] = None,
+    ) -> "ProbabilisticExitSignal":
+        """
+        Generate position-aware signals based on whether position is open or represents new opportunity
+
+        Args:
+            strategy_analysis: Strategy performance analysis
+            asset_analysis: Asset distribution analysis
+            dual_layer_convergence: Convergence between analysis layers
+            asset_divergence: Asset divergence metrics
+            strategy_divergence: Strategy divergence metrics
+            position_data: Position context data (if any)
+            component_scores: Component scores for override logic
+
+        Returns:
+            Position-appropriate signal
+        """
+        try:
+            if position_data and self._is_position_open(position_data):
+                # Generate exit signals for open positions
+                self.metrics["position_aware_analyses"] += 1
+                return await self._generate_exit_signals_for_open_position(
+                    strategy_analysis,
+                    asset_analysis,
+                    dual_layer_convergence,
+                    asset_divergence,
+                    strategy_divergence,
+                    position_data,
+                    component_scores,
+                )
+            else:
+                # Generate entry signals for new opportunities (existing logic)
+                return await self._generate_exit_signal(
+                    asset_analysis,
+                    strategy_analysis,
+                    dual_layer_convergence,
+                    asset_divergence,
+                    strategy_divergence,
+                    position_data,
+                    component_scores,
+                )
+
+        except Exception as e:
+            self.logger.error(f"Error in position-aware signal generation: {e}")
+            # Fallback to existing signal generation
+            return await self._generate_exit_signal(
+                asset_analysis,
+                strategy_analysis,
+                dual_layer_convergence,
+                asset_divergence,
+                strategy_divergence,
+                position_data,
+                component_scores,
+            )
+
+    async def _generate_exit_signals_for_open_position(
+        self,
+        strategy_analysis: "StrategyDistributionAnalysis",
+        asset_analysis: "AssetDistributionAnalysis",
+        dual_layer_convergence: "DualLayerConvergence",
+        asset_divergence: "DivergenceMetrics",
+        strategy_divergence: "DivergenceMetrics",
+        position_data: Dict[str, Any],
+        component_scores: Optional[Dict[str, Any]] = None,
+    ) -> "ProbabilisticExitSignal":
+        """
+        Generate exit signals for open positions using position-specific metrics
+
+        Args:
+            strategy_analysis: Strategy performance analysis
+            asset_analysis: Asset distribution analysis
+            dual_layer_convergence: Layer convergence metrics
+            asset_divergence: Asset divergence metrics
+            strategy_divergence: Strategy divergence metrics
+            position_data: Open position data with MFE/MAE metrics
+            component_scores: Component scores for analysis
+
+        Returns:
+            Exit-focused signal for open position
+        """
+        try:
+            position_metrics = self._get_position_metrics(position_data)
+
+            # Analyze position-specific exit factors
+            exit_factors = self._analyze_position_exit_factors(position_metrics)
+
+            # Calculate position-aware signal strength
+            primary_strength = self._calculate_position_exit_strength(
+                position_metrics,
+                dual_layer_convergence,
+                asset_divergence,
+                strategy_divergence,
+            )
+
+            # Use actual position performance for secondary strength
+            secondary_strength = self._calculate_position_performance_strength(
+                position_metrics
+            )
+
+            # Asset analysis for tertiary strength (market context)
+            tertiary_strength = self._calculate_tertiary_signal_strength(
+                asset_analysis, strategy_analysis
+            )
+
+            # Enhanced position-specific contributions
+            asset_layer_contribution = self._calculate_asset_layer_contribution(
+                asset_analysis, asset_divergence
+            )
+
+            # Use actual position metrics instead of theoretical
+            position_performance_contribution = (
+                self._calculate_position_performance_contribution(position_metrics)
+            )
+
+            # Determine signal type based on position context
+            signal_type = self._determine_position_exit_signal_type(
+                position_metrics,
+                dual_layer_convergence,
+                asset_divergence,
+                strategy_divergence,
+                component_scores,
+            )
+
+            # Calculate position-aware confidence
+            confidence = self._calculate_position_exit_confidence(
+                position_metrics,
+                primary_strength,
+                secondary_strength,
+                tertiary_strength,
+                dual_layer_convergence,
+            )
+
+            # Generate position-aware exit signal
+            from ..models.statistical_analysis_models import (
+                ConfidenceLevel,
+                ProbabilisticExitSignal,
+            )
+
+            # Calculate missing required fields
+            sample_size = position_metrics.get("days_since_entry", 30)
+            confidence_level = (
+                ConfidenceLevel.HIGH
+                if sample_size >= 30
+                else ConfidenceLevel.MEDIUM
+                if sample_size >= 15
+                else ConfidenceLevel.LOW
+            )
+
+            return ProbabilisticExitSignal(
+                signal_type=signal_type,
+                confidence=confidence * 100,  # Convert to percentage
+                primary_signal_strength=primary_strength,
+                secondary_signal_strength=secondary_strength,
+                tertiary_signal_strength=tertiary_strength,
+                asset_layer_contribution=asset_layer_contribution,
+                trade_history_contribution=position_performance_contribution,
+                equity_curve_contribution=position_performance_contribution
+                * 0.8,  # Derived
+                dual_layer_score=dual_layer_convergence.convergence_score,
+                timeframe_score=0.8,  # Position analysis uses single timeframe
+                risk_adjusted_score=tertiary_strength,
+                source_reliability_score=0.9,  # High reliability for position data
+                sample_size_confidence=min(sample_size / 30.0, 1.0),
+                statistical_validity=confidence_level,
+                combined_source_confidence=position_performance_contribution,
+                expected_upside=self._estimate_position_exit_upside(
+                    position_metrics, signal_type
+                ),
+                expected_timeline=self._estimate_position_exit_timeline(
+                    position_metrics, signal_type
+                ),
+                risk_warning=self._generate_position_risk_warning(
+                    position_metrics, signal_type
+                ),
+            )
+
+        except Exception as e:
+            self.logger.error(f"Error generating exit signals for open position: {e}")
+            # Fallback to standard signal generation
+            return await self._generate_exit_signal(
+                asset_analysis,
+                strategy_analysis,
+                dual_layer_convergence,
+                asset_divergence,
+                strategy_divergence,
+                position_data,
+                component_scores,
+            )
+
+    def _generate_entry_signals_for_new_strategy(
+        self,
+        strategy_analysis: "StrategyDistributionAnalysis",
+        asset_analysis: "AssetDistributionAnalysis",
+        dual_layer_convergence: "DualLayerConvergence",
+        asset_divergence: "DivergenceMetrics",
+        strategy_divergence: "DivergenceMetrics",
+        component_scores: Optional[Dict[str, Any]] = None,
+    ) -> "ProbabilisticExitSignal":
+        """
+        Generate entry signals for new strategy opportunities (wrapper around existing logic)
+
+        This maintains the existing signal generation for strategies without open positions
+        """
+        try:
+            return self._generate_exit_signal(
+                asset_analysis,
+                strategy_analysis,
+                dual_layer_convergence,
+                asset_divergence,
+                strategy_divergence,
+                None,
+                component_scores,
+            )
+        except Exception as e:
+            self.logger.error(f"Error generating entry signals for new strategy: {e}")
+            raise
+
+    # =================== END POSITION CONTEXT INTEGRATION ===================
 
     async def analyze_position(
         self,
@@ -204,6 +605,7 @@ class StatisticalAnalysisService:
                 asset_divergence,
                 strategy_divergence,
                 current_position_data,
+                component_scores=None,  # Component scores handled later via update method
             )
 
             # Trade history metrics (if available)
@@ -904,6 +1306,339 @@ class StatisticalAnalysisService:
             asset_analysis, strategy_analysis, asset_divergence, strategy_divergence
         )
 
+    # =================== POSITION-SPECIFIC ANALYSIS METHODS ===================
+
+    def _analyze_position_exit_factors(
+        self, position_metrics: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Analyze position-specific factors that influence exit decisions"""
+        try:
+            days_held = position_metrics.get("days_since_entry", 0)
+            current_pnl = position_metrics.get("current_unrealized_pnl", 0.0)
+            mfe = position_metrics.get("mfe", 0.0)
+            mae = position_metrics.get("mae", 0.0)
+
+            return {
+                "duration_factor": min(days_held / 60.0, 1.0),  # Normalize to 60 days
+                "profit_factor": max(
+                    min(current_pnl / 0.2, 1.0), -1.0
+                ),  # Normalize to 20%
+                "mfe_utilization": current_pnl / mfe if mfe > 0 else 0.0,
+                "risk_factor": mae / 0.1
+                if mae > 0
+                else 0.0,  # Risk relative to 10% drawdown
+                "trade_quality": position_metrics.get("trade_quality", "").lower(),
+            }
+        except Exception as e:
+            self.logger.error(f"Error analyzing position exit factors: {e}")
+            return {}
+
+    def _calculate_position_exit_strength(
+        self,
+        position_metrics: Dict[str, Any],
+        dual_layer_convergence: "DualLayerConvergence",
+        asset_divergence: "DivergenceMetrics",
+        strategy_divergence: "DivergenceMetrics",
+    ) -> float:
+        """Calculate position-specific exit signal strength"""
+        try:
+            exit_factors = self._analyze_position_exit_factors(position_metrics)
+
+            # Base strength from market analysis
+            base_strength = (
+                dual_layer_convergence.convergence_score * 0.4
+                + asset_divergence.percentile_rank / 100.0 * 0.3
+                + strategy_divergence.percentile_rank / 100.0 * 0.3
+            )
+
+            # Position-specific adjustments
+            duration_adjustment = exit_factors.get("duration_factor", 0) * 0.2
+            profit_adjustment = abs(exit_factors.get("profit_factor", 0)) * 0.15
+
+            position_strength = base_strength + duration_adjustment + profit_adjustment
+            return max(0.1, min(1.0, position_strength))
+
+        except Exception as e:
+            self.logger.error(f"Error calculating position exit strength: {e}")
+            return 0.5
+
+    def _calculate_position_performance_strength(
+        self, position_metrics: Dict[str, Any]
+    ) -> float:
+        """Calculate strength based on actual position performance"""
+        try:
+            current_pnl = position_metrics.get("current_unrealized_pnl", 0.0)
+            mfe = position_metrics.get("mfe", 0.0)
+            mae = position_metrics.get("mae", 0.0)
+            days_held = position_metrics.get("days_since_entry", 0)
+
+            # Performance relative to potential
+            mfe_utilization = current_pnl / mfe if mfe > 0 else 0.5
+
+            # Time-adjusted performance
+            time_factor = min(days_held / 30.0, 2.0)  # Normalize around 30 days
+
+            # Risk-adjusted performance
+            risk_adj_performance = (
+                current_pnl / max(mae, 0.01) if mae > 0 else current_pnl
+            )
+
+            performance_strength = (
+                mfe_utilization * 0.4
+                + risk_adj_performance * 0.3
+                + (1.0 / max(time_factor, 0.5)) * 0.3  # Shorter holds get bonus
+            )
+
+            return max(0.1, min(1.0, performance_strength))
+
+        except Exception as e:
+            self.logger.error(f"Error calculating position performance strength: {e}")
+            return 0.5
+
+    def _calculate_position_performance_contribution(
+        self, position_metrics: Dict[str, Any]
+    ) -> float:
+        """Calculate position performance contribution to signal confidence"""
+        try:
+            current_pnl = position_metrics.get("current_unrealized_pnl", 0.0)
+            mfe = position_metrics.get("mfe", 0.0)
+            mae = position_metrics.get("mae", 0.0)
+            trade_quality = position_metrics.get("trade_quality", "").lower()
+
+            # Base contribution from current performance
+            pnl_contribution = min(abs(current_pnl) / 0.15, 1.0)  # Normalize to 15%
+
+            # MFE/MAE ratio contribution
+            mfe_mae_ratio = mfe / max(mae, 0.001)
+            ratio_contribution = min(
+                mfe_mae_ratio / 5.0, 1.0
+            )  # Normalize to ratio of 5
+
+            # Trade quality bonus
+            quality_bonus = {"excellent": 0.2, "good": 0.1, "poor": -0.1}.get(
+                trade_quality, 0.0
+            )
+
+            total_contribution = (
+                pnl_contribution + ratio_contribution
+            ) / 2.0 + quality_bonus
+            return max(0.1, min(1.0, total_contribution))
+
+        except Exception as e:
+            self.logger.error(
+                f"Error calculating position performance contribution: {e}"
+            )
+            return 0.5
+
+    def _determine_position_exit_signal_type(
+        self,
+        position_metrics: Dict[str, Any],
+        dual_layer_convergence: "DualLayerConvergence",
+        asset_divergence: "DivergenceMetrics",
+        strategy_divergence: "DivergenceMetrics",
+        component_scores: Optional[Dict[str, Any]] = None,
+    ) -> "SignalType":
+        """Determine exit signal type for open position based on position-specific factors"""
+        try:
+            from ..models.statistical_analysis_models import SignalType
+
+            days_held = position_metrics.get("days_since_entry", 0)
+            current_pnl = position_metrics.get("current_unrealized_pnl", 0.0)
+            mfe = position_metrics.get("mfe", 0.0)
+            mae = position_metrics.get("mae", 0.0)
+
+            # Position-specific exit logic
+
+            # 1. Time-based exits (held > 60 days)
+            if days_held > 60:
+                if current_pnl > 0.1:  # Profitable long-term position
+                    return SignalType.SELL
+                elif current_pnl < -0.1:  # Losing long-term position
+                    return SignalType.STRONG_SELL
+
+            # 2. Profit-taking exits
+            if current_pnl > 0.15:  # 15%+ profit
+                # Check if near MFE peak
+                mfe_utilization = current_pnl / mfe if mfe > 0 else 0
+                if mfe_utilization > 0.8:  # Near peak performance
+                    return SignalType.STRONG_SELL
+                else:
+                    return SignalType.SELL
+
+            # 3. Risk management exits
+            if current_pnl < -0.1:  # 10%+ loss
+                if mae > 0.15:  # Significant drawdown experienced
+                    return SignalType.EXIT_IMMEDIATELY
+                else:
+                    return SignalType.STRONG_SELL
+
+            # 4. Market-based exits (use existing logic for market conditions)
+            max_percentile = max(
+                asset_divergence.percentile_rank, strategy_divergence.percentile_rank
+            )
+
+            if dual_layer_convergence.convergence_score > 0.8 and max_percentile > 90:
+                return SignalType.STRONG_SELL
+            elif max_percentile > 80:
+                return SignalType.SELL
+
+            # 5. Component score overrides for open positions
+            if component_scores:
+                component_override = self._check_component_score_override(
+                    component_scores, SignalType.HOLD
+                )
+                if component_override and component_override in [
+                    SignalType.SELL,
+                    SignalType.STRONG_SELL,
+                    SignalType.EXIT_IMMEDIATELY,
+                ]:
+                    return component_override
+
+            # Default to hold for positions within normal ranges
+            return SignalType.HOLD
+
+        except Exception as e:
+            self.logger.error(f"Error determining position exit signal type: {e}")
+            return SignalType.HOLD
+
+    def _calculate_position_exit_confidence(
+        self,
+        position_metrics: Dict[str, Any],
+        primary_strength: float,
+        secondary_strength: float,
+        tertiary_strength: float,
+        dual_layer_convergence: "DualLayerConvergence",
+    ) -> float:
+        """Calculate confidence for position exit signals"""
+        try:
+            # Base confidence from signal strengths
+            base_confidence = (
+                primary_strength + secondary_strength + tertiary_strength
+            ) / 3.0
+
+            # Position-specific confidence adjustments
+            days_held = position_metrics.get("days_since_entry", 0)
+            trade_quality = position_metrics.get("trade_quality", "").lower()
+            mfe_mae_ratio = position_metrics.get("mfe", 0) / max(
+                position_metrics.get("mae", 0.001), 0.001
+            )
+
+            # Experience bonus (longer holds have more data)
+            experience_bonus = min(days_held / 30.0, 1.0) * 0.1
+
+            # Quality bonus
+            quality_bonus = {"excellent": 0.15, "good": 0.05, "poor": -0.1}.get(
+                trade_quality, 0.0
+            )
+
+            # Risk management bonus (good MFE/MAE ratio)
+            risk_bonus = min(mfe_mae_ratio / 3.0, 1.0) * 0.1
+
+            # Convergence bonus
+            convergence_bonus = dual_layer_convergence.convergence_score * 0.1
+
+            total_confidence = (
+                base_confidence
+                + experience_bonus
+                + quality_bonus
+                + risk_bonus
+                + convergence_bonus
+            )
+
+            return max(0.1, min(1.0, total_confidence))
+
+        except Exception as e:
+            self.logger.error(f"Error calculating position exit confidence: {e}")
+            return 0.5
+
+    def _estimate_position_exit_upside(
+        self, position_metrics: Dict[str, Any], signal_type: "SignalType"
+    ) -> Optional[float]:
+        """Estimate remaining upside for open position"""
+        try:
+            current_pnl = position_metrics.get("current_unrealized_pnl", 0.0)
+            mfe = position_metrics.get("mfe", 0.0)
+
+            # Remaining upside based on historical peak
+            remaining_to_peak = max(0, mfe - current_pnl)
+
+            from ..models.statistical_analysis_models import SignalType
+
+            if signal_type == SignalType.EXIT_IMMEDIATELY:
+                return min(remaining_to_peak * 0.2, 0.02)  # Very limited upside
+            elif signal_type == SignalType.STRONG_SELL:
+                return min(remaining_to_peak * 0.4, 0.05)  # Limited upside
+            elif signal_type == SignalType.SELL:
+                return min(remaining_to_peak * 0.6, 0.08)  # Some upside possible
+            else:
+                return None  # Hold - upside unknown
+
+        except Exception as e:
+            self.logger.error(f"Error estimating position exit upside: {e}")
+            return None
+
+    def _estimate_position_exit_timeline(
+        self, position_metrics: Dict[str, Any], signal_type: "SignalType"
+    ) -> Optional[str]:
+        """Estimate timeline for position exit execution"""
+        try:
+            current_pnl = position_metrics.get("current_unrealized_pnl", 0.0)
+            days_held = position_metrics.get("days_since_entry", 0)
+
+            from ..models.statistical_analysis_models import SignalType
+
+            if signal_type == SignalType.EXIT_IMMEDIATELY:
+                return "Immediate" if current_pnl < -0.1 else "Same day"
+            elif signal_type == SignalType.STRONG_SELL:
+                if days_held > 60:
+                    return "1-2 days"  # Faster exit for long holds
+                else:
+                    return "2-3 days"
+            elif signal_type == SignalType.SELL:
+                if current_pnl > 0.1:
+                    return "3-5 days"  # Gradual profit taking
+                else:
+                    return "1-3 days"  # Faster exit for losses
+            else:
+                return None  # Hold
+
+        except Exception as e:
+            self.logger.error(f"Error estimating position exit timeline: {e}")
+            return None
+
+    def _generate_position_risk_warning(
+        self, position_metrics: Dict[str, Any], signal_type: "SignalType"
+    ) -> Optional[str]:
+        """Generate position-specific risk warnings"""
+        try:
+            days_held = position_metrics.get("days_since_entry", 0)
+            current_pnl = position_metrics.get("current_unrealized_pnl", 0.0)
+            mae = position_metrics.get("mae", 0.0)
+
+            warnings = []
+
+            if days_held > 60:
+                warnings.append(f"Long-term position ({days_held} days)")
+
+            if current_pnl < -0.1:
+                warnings.append(f"Significant loss ({current_pnl:.1%})")
+
+            if mae > 0.15:
+                warnings.append(f"High drawdown experienced ({mae:.1%})")
+
+            from ..models.statistical_analysis_models import SignalType
+
+            if signal_type in [SignalType.STRONG_SELL, SignalType.EXIT_IMMEDIATELY]:
+                warnings.append("Consider immediate exit")
+
+            return "; ".join(warnings) if warnings else None
+
+        except Exception as e:
+            self.logger.error(f"Error generating position risk warning: {e}")
+            return None
+
+    # =================== END POSITION-SPECIFIC ANALYSIS METHODS ===================
+
     async def _generate_exit_signal(
         self,
         asset_analysis: AssetDistributionAnalysis,
@@ -912,6 +1647,7 @@ class StatisticalAnalysisService:
         asset_divergence: DivergenceMetrics,
         strategy_divergence: DivergenceMetrics,
         current_position_data: Optional[Dict],
+        component_scores: Optional[Dict[str, Any]] = None,
     ) -> ProbabilisticExitSignal:
         """Enhanced probabilistic exit signal generation with multi-source confidence weighting"""
         try:
@@ -994,6 +1730,7 @@ class StatisticalAnalysisService:
                 strategy_divergence,
                 primary_strength,
                 strategy_analysis,
+                component_scores,
             )
 
             # Enhanced confidence calculation with multi-source weighting
@@ -1051,19 +1788,30 @@ class StatisticalAnalysisService:
 
         except Exception as e:
             self.logger.error(f"Failed to generate exit signal: {e}")
-            # Return default HOLD signal
+            # Return default HOLD signal with all required fields
             return ProbabilisticExitSignal(
                 signal_type=SignalType.HOLD,
                 confidence=50.0,
                 primary_signal_strength=0.5,
                 secondary_signal_strength=0.5,
                 tertiary_signal_strength=0.5,
+                asset_layer_contribution=0.5,
+                trade_history_contribution=None,
+                equity_curve_contribution=None,
                 dual_layer_score=0.5,
+                triple_layer_score=None,
                 timeframe_score=0.5,
                 risk_adjusted_score=0.5,
+                intra_strategy_consistency=None,
+                source_reliability_score=0.5,
                 sample_size_confidence=0.5,
                 statistical_validity=ConfidenceLevel.LOW,
+                data_source_confidence={},
+                combined_source_confidence=0.5,
+                expected_upside=None,
+                expected_timeline=None,
                 risk_warning="Analysis failed - using default HOLD signal",
+                source_divergence_warning=None,
             )
 
     # Helper methods
@@ -1386,13 +2134,27 @@ class StatisticalAnalysisService:
         strategy_analysis: StrategyDistributionAnalysis,
     ) -> float:
         """Calculate tertiary signal strength from risk-adjusted metrics"""
-        # Risk adjustment based on VaR and volatility
-        asset_var_score = (
-            1.0 - abs(asset_analysis.var_metrics.var_95) / 0.1
-        )  # Normalize by 10%
-        strategy_var_score = 1.0 - abs(strategy_analysis.var_metrics.var_95) / 0.1
+        # Risk adjustment based on VaR and volatility with NaN handling
+        try:
+            asset_var_95 = asset_analysis.var_metrics.var_95
+            strategy_var_95 = strategy_analysis.var_metrics.var_95
 
-        return max(min((asset_var_score + strategy_var_score) / 2, 1.0), 0.0)
+            # Handle NaN or invalid VaR values
+            if np.isnan(asset_var_95) or np.isinf(asset_var_95):
+                asset_var_score = 0.5  # Neutral fallback
+            else:
+                asset_var_score = 1.0 - abs(asset_var_95) / 0.1  # Normalize by 10%
+
+            if np.isnan(strategy_var_95) or np.isinf(strategy_var_95):
+                strategy_var_score = 0.5  # Neutral fallback
+            else:
+                strategy_var_score = 1.0 - abs(strategy_var_95) / 0.1
+
+            combined_score = (asset_var_score + strategy_var_score) / 2
+            return max(min(combined_score, 1.0), 0.0)
+        except Exception:
+            # Fallback to neutral score if any error occurs
+            return 0.5
 
     def _calculate_risk_adjusted_score(
         self,
@@ -1400,19 +2162,39 @@ class StatisticalAnalysisService:
         strategy_analysis: StrategyDistributionAnalysis,
     ) -> float:
         """Calculate risk-adjusted score combining both layers"""
-        # Sharpe ratio-like calculation
-        asset_score = asset_analysis.statistics.mean / max(
-            asset_analysis.statistics.std, 0.001
-        )
-        strategy_score = strategy_analysis.statistics.mean / max(
-            strategy_analysis.statistics.std, 0.001
-        )
+        try:
+            # Sharpe ratio-like calculation with NaN handling
+            asset_mean = asset_analysis.statistics.mean
+            asset_std = asset_analysis.statistics.std
+            strategy_mean = strategy_analysis.statistics.mean
+            strategy_std = strategy_analysis.statistics.std
 
-        # Normalize to [0, 1]
-        combined_score = (asset_score + strategy_score) / 2
-        return max(
-            min(1 / (1 + np.exp(-combined_score)), 1.0), 0.0
-        )  # Sigmoid normalization
+            # Handle NaN or invalid values
+            if np.isnan(asset_mean) or np.isinf(asset_mean):
+                asset_score = 0.0
+            elif np.isnan(asset_std) or np.isinf(asset_std) or asset_std <= 0:
+                asset_score = 0.0
+            else:
+                asset_score = asset_mean / max(asset_std, 0.001)
+
+            if np.isnan(strategy_mean) or np.isinf(strategy_mean):
+                strategy_score = 0.0
+            elif np.isnan(strategy_std) or np.isinf(strategy_std) or strategy_std <= 0:
+                strategy_score = 0.0
+            else:
+                strategy_score = strategy_mean / max(strategy_std, 0.001)
+
+            # Normalize to [0, 1] with NaN protection
+            combined_score = (asset_score + strategy_score) / 2
+            if np.isnan(combined_score) or np.isinf(combined_score):
+                return 0.5  # Neutral fallback
+
+            # Sigmoid normalization with bounds checking
+            sigmoid_score = 1 / (1 + np.exp(-combined_score))
+            return max(min(sigmoid_score, 1.0), 0.0)
+        except Exception:
+            # Fallback to neutral score if any error occurs
+            return 0.5
 
     def _determine_signal_type(
         self,
@@ -1421,12 +2203,33 @@ class StatisticalAnalysisService:
         strategy_div: DivergenceMetrics,
         primary_strength: float,
     ) -> SignalType:
-        """Determine signal type based on analysis results"""
-        # Get the maximum percentile rank
+        """Determine signal type based on analysis results - Complete Entry/Exit System"""
+        # Get the minimum and maximum percentile ranks for comprehensive analysis
+        min_percentile_rank = min(
+            asset_div.percentile_rank, strategy_div.percentile_rank
+        )
         max_percentile_rank = max(
             asset_div.percentile_rank, strategy_div.percentile_rank
         )
 
+        # ENTRY SIGNALS - Low percentiles indicate undervalued conditions (good entries)
+        # Entry signals always require dual-layer convergence >= 0.7
+        if convergence.convergence_score >= 0.7:
+            # Check for strong buy conditions (bottom 10%)
+            if min_percentile_rank <= self.config.get_percentile_threshold(
+                "strong_buy"
+            ) and max_percentile_rank <= self.config.get_percentile_threshold(
+                "strong_buy"
+            ):
+                return SignalType.STRONG_BUY
+
+            # Check for buy conditions (bottom 20%)
+            elif min_percentile_rank <= self.config.get_percentile_threshold(
+                "buy"
+            ) and max_percentile_rank <= self.config.get_percentile_threshold("buy"):
+                return SignalType.BUY
+
+        # EXIT SIGNALS - High percentiles indicate overvalued conditions (good exits)
         # Check for immediate exit conditions
         if (
             convergence.convergence_score > 0.85
@@ -1445,15 +2248,14 @@ class StatisticalAnalysisService:
         ):
             return SignalType.STRONG_SELL
 
-        # FIXED: Check for sell conditions - use P70 threshold (70.0) instead of P80
-        # If percentile rank > 70.0, it means the value exceeds the P70 threshold
+        # Check for sell conditions
         elif (
             convergence.convergence_score > 0.60
-            and max_percentile_rank > self.config.get_percentile_threshold("hold")
+            and max_percentile_rank > self.config.get_percentile_threshold("sell")
         ):
             return SignalType.SELL
 
-        # Default to hold
+        # Default to hold (20-70% percentile range)
         else:
             return SignalType.HOLD
 
@@ -1463,26 +2265,44 @@ class StatisticalAnalysisService:
         asset_div: DivergenceMetrics,
         strategy_div: DivergenceMetrics,
     ) -> Optional[float]:
-        """Estimate expected additional upside based on signal type"""
-        if signal_type == SignalType.EXIT_IMMEDIATELY:
-            return 2.0  # Minimal upside expected
-        elif signal_type == SignalType.STRONG_SELL:
-            return 5.0  # Limited upside
-        elif signal_type == SignalType.SELL:
-            return 10.0  # Some upside possible
-        else:
+        """Estimate expected upside based on signal type - Complete Entry/Exit System"""
+        # Entry signals - significant upside potential
+        if signal_type == SignalType.STRONG_BUY:
+            return 25.0  # High upside potential from undervalued entry
+        elif signal_type == SignalType.BUY:
+            return 15.0  # Good upside potential from entry opportunity
+        # Neutral signal
+        elif signal_type == SignalType.HOLD:
             return None  # Hold - upside unknown
+        # Exit signals - limited remaining upside
+        elif signal_type == SignalType.SELL:
+            return 10.0  # Some upside possible before exit
+        elif signal_type == SignalType.STRONG_SELL:
+            return 5.0  # Limited upside remaining
+        elif signal_type == SignalType.EXIT_IMMEDIATELY:
+            return 2.0  # Minimal upside expected
+        else:
+            return None  # Unknown signal type
 
     def _estimate_expected_timeline(
         self, signal_type: SignalType, strategy_analysis: StrategyDistributionAnalysis
     ) -> Optional[str]:
-        """Estimate expected timeline for signal execution"""
-        if signal_type == SignalType.EXIT_IMMEDIATELY:
-            return "Immediate"
-        elif signal_type == SignalType.STRONG_SELL:
-            return "1-3 days"
+        """Estimate expected timeline for signal execution - Complete Entry/Exit System"""
+        # Entry signals - time to potential realization
+        if signal_type == SignalType.STRONG_BUY:
+            return "1-4 weeks"  # Time for undervalued entry to realize gains
+        elif signal_type == SignalType.BUY:
+            return "2-6 weeks"  # Time for entry opportunity to develop
+        # Neutral signal
+        elif signal_type == SignalType.HOLD:
+            return None  # No specific timeline
+        # Exit signals - urgency-based timelines
         elif signal_type == SignalType.SELL:
-            return "3-7 days"
+            return "3-7 days"  # Moderate exit urgency
+        elif signal_type == SignalType.STRONG_SELL:
+            return "1-3 days"  # High exit urgency
+        elif signal_type == SignalType.EXIT_IMMEDIATELY:
+            return "Immediate"  # Maximum urgency
         else:
             return None
 
@@ -2791,6 +3611,7 @@ class StatisticalAnalysisService:
         strategy_divergence: DivergenceMetrics,
         primary_strength: float,
         strategy_analysis: StrategyDistributionAnalysis,
+        component_scores: Optional[Dict[str, Any]] = None,
     ) -> SignalType:
         """Determine signal type with enhanced multi-source analysis"""
         # Base signal determination
@@ -2801,7 +3622,17 @@ class StatisticalAnalysisService:
             primary_strength,
         )
 
-        # Enhanced logic for dual-source analysis
+        # COMPONENT SCORE OVERRIDE: Check for extreme component scores and override signal if necessary
+        component_override_signal = self._check_component_score_override(
+            component_scores, base_signal
+        )
+        if component_override_signal is not None:
+            self.logger.info(
+                f"Component score override: changed {base_signal.value} to {component_override_signal.value}"
+            )
+            base_signal = component_override_signal
+
+        # Enhanced logic for dual-source analysis - Complete Entry/Exit System
         if (
             strategy_analysis.trade_history_analysis
             and strategy_analysis.equity_analysis
@@ -2817,17 +3648,44 @@ class StatisticalAnalysisService:
                     strategy_divergence.percentile_rank
                 )  # Represents combined strategy
 
-                if trade_percentile > 95:
+                # Entry signal enhancement with strong convergence
+                if trade_percentile <= 10:  # Bottom 10% with strong convergence
+                    return SignalType.STRONG_BUY
+                elif trade_percentile <= 20:  # Bottom 20% with strong convergence
+                    return SignalType.BUY
+                # Exit signal enhancement (existing logic)
+                elif trade_percentile > 95:
                     return SignalType.EXIT_IMMEDIATELY
                 elif trade_percentile > 90:
                     return SignalType.STRONG_SELL
-                elif trade_percentile > 70:  # FIXED: Use P70 threshold instead of P80
+                elif trade_percentile > 80:
                     return SignalType.SELL
+
+            # Balanced convergence (0.5-0.8) - require base signal validation
+            elif 0.5 <= convergence_score <= 0.8:
+                # Entry signals require at least 0.7 convergence (validated in base signal)
+                # Exit signals can proceed with moderate convergence
+                if base_signal in [SignalType.STRONG_BUY, SignalType.BUY]:
+                    # Entry signals already validated convergence >= 0.7 in base signal
+                    return base_signal
+                elif base_signal in [
+                    SignalType.SELL,
+                    SignalType.STRONG_SELL,
+                    SignalType.EXIT_IMMEDIATELY,
+                ]:
+                    # Exit signals can proceed with moderate convergence
+                    return base_signal
 
             # If sources disagree significantly, be more conservative
             elif convergence_score < 0.5:
-                if base_signal in [SignalType.EXIT_IMMEDIATELY, SignalType.STRONG_SELL]:
-                    return SignalType.SELL  # Downgrade aggressive signals
+                # Downgrade all aggressive signals when convergence is poor
+                if base_signal in [SignalType.STRONG_BUY, SignalType.BUY]:
+                    return SignalType.HOLD  # Entry signals require good convergence
+                elif base_signal in [
+                    SignalType.EXIT_IMMEDIATELY,
+                    SignalType.STRONG_SELL,
+                ]:
+                    return SignalType.SELL  # Downgrade aggressive exit signals
                 elif base_signal == SignalType.SELL:
                     return SignalType.HOLD  # Downgrade to hold
 
@@ -2942,3 +3800,420 @@ class StatisticalAnalysisService:
             )
 
         return " ".join(warnings) if warnings else None
+
+    def _check_component_score_override(
+        self,
+        component_scores: Optional[Dict[str, Any]],
+        base_signal: SignalType,
+    ) -> Optional[SignalType]:
+        """
+        Check component scores for extreme values and override signal if necessary.
+
+        Complete Entry/Exit System: Handles both extreme negative scores (sell signals)
+        and extreme positive scores (buy signals) with dual-layer convergence validation.
+        """
+        try:
+            # Check if component scores are provided
+            if component_scores is None or not isinstance(component_scores, dict):
+                return None
+
+            # Extract key component scores
+            momentum_score = component_scores.get("momentum_score", 0)
+            risk_score = component_scores.get("risk_score", 0)
+            trend_score = component_scores.get("trend_score", 0)
+            overall_score = component_scores.get("overall_score", 0)
+            mean_reversion_score = component_scores.get("mean_reversion_score", 0)
+
+            # Check dual-layer convergence requirement for entry signals
+            dual_layer_convergence = component_scores.get("dual_layer_convergence", 0)
+
+            # Define extreme thresholds for both directions
+            # Positive thresholds for entry signals
+            EXTREME_POSITIVE_THRESHOLD = +80  # Very positive scores
+            SEVERE_POSITIVE_THRESHOLD = +95  # Extremely positive scores
+            EXTREME_OVERALL_POSITIVE = +15  # Very positive overall scores
+
+            # Negative thresholds for exit signals (existing)
+            EXTREME_NEGATIVE_THRESHOLD = -80  # Very negative scores
+            SEVERE_NEGATIVE_THRESHOLD = (
+                -95
+            )  # Extremely negative scores (like -96 momentum)
+            EXTREME_OVERALL_NEGATIVE = -15  # Very negative overall scores
+
+            # ENTRY SIGNAL OVERRIDES - Only if dual-layer convergence >= 0.7
+            if dual_layer_convergence >= 0.7:
+                # Check for extremely positive momentum (strong buy signal)
+                if momentum_score >= SEVERE_POSITIVE_THRESHOLD:
+                    self.logger.info(
+                        f"Extreme positive momentum detected: {momentum_score} with convergence {dual_layer_convergence}. Overriding to STRONG_BUY"
+                    )
+                    return SignalType.STRONG_BUY
+
+                # Check for very positive risk score (exceptional entry opportunity)
+                if risk_score >= EXTREME_POSITIVE_THRESHOLD and overall_score > 0:
+                    self.logger.info(
+                        f"Positive risk score ({risk_score}) + positive overall ({overall_score}) with convergence {dual_layer_convergence}. Overriding to STRONG_BUY"
+                    )
+                    return SignalType.STRONG_BUY
+
+                # Check for extremely positive overall score
+                if overall_score >= EXTREME_OVERALL_POSITIVE:
+                    self.logger.info(
+                        f"Extreme positive overall score detected: {overall_score} with convergence {dual_layer_convergence}. Overriding to BUY"
+                    )
+                    return SignalType.BUY
+
+                # Check for combination of multiple positive indicators
+                positive_indicators = 0
+                if momentum_score >= 50:
+                    positive_indicators += 1
+                if risk_score >= 30:
+                    positive_indicators += 1
+                if trend_score >= 30:
+                    positive_indicators += 1
+                if mean_reversion_score >= 30:
+                    positive_indicators += 1
+                if overall_score >= 10:
+                    positive_indicators += 1
+
+                # Multiple positive indicators should trigger BUY
+                if positive_indicators >= 3:
+                    self.logger.info(
+                        f"Multiple positive indicators detected ({positive_indicators}) with convergence {dual_layer_convergence}. Overriding to BUY"
+                    )
+                    return SignalType.BUY
+
+            # EXIT SIGNAL OVERRIDES (existing logic)
+            # Check for extremely negative momentum (like the -96 case)
+            if momentum_score <= SEVERE_NEGATIVE_THRESHOLD:
+                self.logger.info(
+                    f"Extreme negative momentum detected: {momentum_score}. Overriding to STRONG_SELL"
+                )
+                return SignalType.STRONG_SELL
+
+            # Check for very negative momentum combined with negative overall
+            if momentum_score <= EXTREME_NEGATIVE_THRESHOLD and overall_score < 0:
+                self.logger.info(
+                    f"Negative momentum ({momentum_score}) + negative overall ({overall_score}). Overriding to SELL"
+                )
+                return SignalType.SELL
+
+            # Check for extremely negative overall score
+            if overall_score <= EXTREME_OVERALL_NEGATIVE:
+                self.logger.info(
+                    f"Extreme negative overall score detected: {overall_score}. Overriding to SELL"
+                )
+                return SignalType.SELL
+
+            # Check for combination of multiple negative indicators
+            negative_indicators = 0
+            if momentum_score <= -50:
+                negative_indicators += 1
+            if risk_score <= -30:
+                negative_indicators += 1
+            if mean_reversion_score <= -30:
+                negative_indicators += 1
+            if overall_score <= -10:
+                negative_indicators += 1
+
+            # Multiple severe negative indicators should trigger SELL
+            if negative_indicators >= 3:
+                self.logger.info(
+                    f"Multiple negative indicators detected ({negative_indicators}). Overriding to SELL"
+                )
+                return SignalType.SELL
+
+            # Don't override if component scores don't indicate extreme conditions
+            return None
+
+        except Exception as e:
+            self.logger.error(f"Error in component score override check: {e}")
+            return None
+
+    def validate_signal_generation_for_extreme_scores(self) -> Dict[str, Any]:
+        """
+        Validation method to test signal generation with extreme component scores.
+
+        Complete Entry/Exit System: Tests both extreme negative scores (sell signals)
+        and extreme positive scores (buy signals) with dual-layer convergence validation.
+        Returns a report of test cases and their expected vs actual signals.
+        """
+        test_cases = [
+            # EXIT SIGNAL TEST CASES (existing)
+            {
+                "name": "Extreme Negative Momentum (like MA_SMA_78_82)",
+                "component_scores": {
+                    "momentum_score": -96,
+                    "risk_score": 3,
+                    "trend_score": -1,
+                    "overall_score": -17.7,
+                    "mean_reversion_score": 1,
+                    "volume_score": 5,
+                    "dual_layer_convergence": 0.8,
+                },
+                "expected_signal": "STRONG_SELL",
+            },
+            {
+                "name": "Multiple Negative Indicators",
+                "component_scores": {
+                    "momentum_score": -60,
+                    "risk_score": -35,
+                    "trend_score": -5,
+                    "overall_score": -12,
+                    "mean_reversion_score": -40,
+                    "volume_score": 10,
+                    "dual_layer_convergence": 0.6,
+                },
+                "expected_signal": "SELL",
+            },
+            {
+                "name": "Extreme Negative Overall Score",
+                "component_scores": {
+                    "momentum_score": -30,
+                    "risk_score": 10,
+                    "trend_score": 5,
+                    "overall_score": -20,
+                    "mean_reversion_score": 0,
+                    "volume_score": 15,
+                    "dual_layer_convergence": 0.5,
+                },
+                "expected_signal": "SELL",
+            },
+            # ENTRY SIGNAL TEST CASES (new)
+            {
+                "name": "Extreme Positive Momentum with Strong Convergence",
+                "component_scores": {
+                    "momentum_score": 96,
+                    "risk_score": 15,
+                    "trend_score": 20,
+                    "overall_score": 18.5,
+                    "mean_reversion_score": 10,
+                    "volume_score": 25,
+                    "dual_layer_convergence": 0.85,
+                },
+                "expected_signal": "STRONG_BUY",
+            },
+            {
+                "name": "High Risk Score with Positive Overall and Strong Convergence",
+                "component_scores": {
+                    "momentum_score": 40,
+                    "risk_score": 85,
+                    "trend_score": 15,
+                    "overall_score": 12,
+                    "mean_reversion_score": 20,
+                    "volume_score": 30,
+                    "dual_layer_convergence": 0.8,
+                },
+                "expected_signal": "STRONG_BUY",
+            },
+            {
+                "name": "Multiple Positive Indicators with Good Convergence",
+                "component_scores": {
+                    "momentum_score": 60,
+                    "risk_score": 35,
+                    "trend_score": 40,
+                    "overall_score": 15,
+                    "mean_reversion_score": 35,
+                    "volume_score": 25,
+                    "dual_layer_convergence": 0.75,
+                },
+                "expected_signal": "BUY",
+            },
+            {
+                "name": "Extreme Positive Overall Score with Adequate Convergence",
+                "component_scores": {
+                    "momentum_score": 20,
+                    "risk_score": 10,
+                    "trend_score": 25,
+                    "overall_score": 22,
+                    "mean_reversion_score": 15,
+                    "volume_score": 20,
+                    "dual_layer_convergence": 0.7,
+                },
+                "expected_signal": "BUY",
+            },
+            {
+                "name": "Positive Scores but Insufficient Convergence (should remain HOLD)",
+                "component_scores": {
+                    "momentum_score": 70,
+                    "risk_score": 40,
+                    "trend_score": 30,
+                    "overall_score": 15,
+                    "mean_reversion_score": 25,
+                    "volume_score": 35,
+                    "dual_layer_convergence": 0.6,  # Below 0.7 threshold
+                },
+                "expected_signal": "HOLD",
+            },
+            {
+                "name": "Normal Scores (should remain HOLD)",
+                "component_scores": {
+                    "momentum_score": -20,
+                    "risk_score": 5,
+                    "trend_score": 2,
+                    "overall_score": -3,
+                    "mean_reversion_score": 0,
+                    "volume_score": 10,
+                    "dual_layer_convergence": 0.5,
+                },
+                "expected_signal": "HOLD",
+            },
+        ]
+
+        results = []
+
+        for test_case in test_cases:
+            # Create mock strategy analysis with component scores
+            from ..models.statistical_analysis_models import (
+                ConfidenceLevel,
+                DataSource,
+                PercentileMetrics,
+                StatisticalMetrics,
+                StrategyDistributionAnalysis,
+                VaRMetrics,
+            )
+
+            mock_strategy_analysis = StrategyDistributionAnalysis(
+                strategy_name=f"TEST_{test_case['name'].replace(' ', '_')}",
+                ticker="TEST",
+                timeframe="D",
+                data_sources_used=[DataSource.TRADE_HISTORY],
+                statistics=StatisticalMetrics(
+                    mean=0.0,
+                    median=0.0,
+                    std=1.0,
+                    min_value=-1.0,
+                    max_value=1.0,
+                    skewness=0.0,
+                    kurtosis=0.0,
+                    count=100,
+                ),
+                percentiles=PercentileMetrics(
+                    p5=-2.0,
+                    p10=-1.5,
+                    p25=-0.5,
+                    p50=0.0,
+                    p75=0.5,
+                    p90=1.5,
+                    p95=2.0,
+                    p99=3.0,
+                ),
+                var_metrics=VaRMetrics(
+                    var_95=-2.0,
+                    var_99=-3.0,
+                    expected_shortfall_95=-2.5,
+                    expected_shortfall_99=-3.5,
+                ),
+                confidence_level=ConfidenceLevel.HIGH,
+                confidence_score=0.8,
+                combined_confidence=0.8,
+                raw_analysis_data={"component_scores": test_case["component_scores"]},
+            )
+
+            # Test the component score override logic
+            override_signal = self._check_component_score_override(
+                test_case["component_scores"], SignalType.HOLD
+            )
+
+            actual_signal = override_signal.value if override_signal else "HOLD"
+
+            test_result = {
+                "test_case": test_case["name"],
+                "component_scores": test_case["component_scores"],
+                "expected_signal": test_case["expected_signal"],
+                "actual_signal": actual_signal,
+                "passed": actual_signal == test_case["expected_signal"],
+            }
+
+            results.append(test_result)
+
+            self.logger.info(
+                f"Signal validation test: {test_case['name']} - "
+                f"Expected: {test_case['expected_signal']}, Got: {actual_signal}, "
+                f"{'PASS' if test_result['passed'] else 'FAIL'}"
+            )
+
+        # Generate summary report
+        passed_tests = sum(1 for r in results if r["passed"])
+        total_tests = len(results)
+
+        summary = {
+            "total_tests": total_tests,
+            "passed_tests": passed_tests,
+            "failed_tests": total_tests - passed_tests,
+            "success_rate": passed_tests / total_tests if total_tests > 0 else 0,
+            "test_results": results,
+        }
+
+        self.logger.info(
+            f"Signal generation validation complete: {passed_tests}/{total_tests} tests passed "
+            f"({summary['success_rate']:.1%} success rate)"
+        )
+
+        return summary
+
+    def update_exit_signal_with_component_scores(
+        self, result: "StatisticalAnalysisResult", component_scores: Dict[str, Any]
+    ) -> "StatisticalAnalysisResult":
+        """
+        Update the exit signal in a StatisticalAnalysisResult with component score override logic.
+
+        This is called after component scores are calculated to apply component-based signal overrides.
+        """
+        try:
+            # Get the current exit signal
+            current_signal = result.exit_signal.signal_type
+
+            # Check for component score override
+            override_signal = self._check_component_score_override(
+                component_scores, current_signal
+            )
+
+            if override_signal is not None:
+                self.logger.info(
+                    f"Component score override for {result.strategy_name}: "
+                    f"changed {current_signal.value} to {override_signal.value}"
+                )
+
+                # Create updated exit signal with the override
+                updated_exit_signal = ProbabilisticExitSignal(
+                    signal_type=override_signal,
+                    confidence=result.exit_signal.confidence,
+                    primary_signal_strength=result.exit_signal.primary_signal_strength,
+                    secondary_signal_strength=result.exit_signal.secondary_signal_strength,
+                    tertiary_signal_strength=result.exit_signal.tertiary_signal_strength,
+                    asset_layer_contribution=result.exit_signal.asset_layer_contribution,
+                    trade_history_contribution=result.exit_signal.trade_history_contribution,
+                    equity_curve_contribution=result.exit_signal.equity_curve_contribution,
+                    dual_layer_score=result.exit_signal.dual_layer_score,
+                    triple_layer_score=result.exit_signal.triple_layer_score,
+                    timeframe_score=result.exit_signal.timeframe_score,
+                    risk_adjusted_score=result.exit_signal.risk_adjusted_score,
+                    intra_strategy_consistency=result.exit_signal.intra_strategy_consistency,
+                    source_reliability_score=result.exit_signal.source_reliability_score,
+                    sample_size_confidence=result.exit_signal.sample_size_confidence,
+                    statistical_validity=result.exit_signal.statistical_validity,
+                    data_source_confidence=result.exit_signal.data_source_confidence,
+                    combined_source_confidence=result.exit_signal.combined_source_confidence,
+                    expected_upside=result.exit_signal.expected_upside,
+                    expected_timeline=result.exit_signal.expected_timeline,
+                    risk_warning=result.exit_signal.risk_warning
+                    or f"Signal overridden based on extreme component scores",
+                    source_divergence_warning=result.exit_signal.source_divergence_warning,
+                )
+
+                # Update the result with the new exit signal
+                result.exit_signal = updated_exit_signal
+
+                # Update recommendation summary
+                result.recommendation_summary = self._generate_recommendation_summary(
+                    updated_exit_signal,
+                    result.dual_layer_convergence,
+                    result.overall_confidence,
+                )
+
+            return result
+
+        except Exception as e:
+            self.logger.error(f"Error updating exit signal with component scores: {e}")
+            return result

@@ -275,3 +275,5 @@ csv/
 *.h5
 *.parquet
 *.feather
+
+attribution_data/

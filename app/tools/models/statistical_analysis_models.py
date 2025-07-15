@@ -15,12 +15,14 @@ from pydantic import BaseModel, Field, root_validator, validator
 
 
 class SignalType(str, Enum):
-    """Exit signal types"""
+    """Recommendation signal types"""
 
-    EXIT_IMMEDIATELY = "EXIT_IMMEDIATELY"
-    STRONG_SELL = "STRONG_SELL"
-    SELL = "SELL"
+    STRONG_BUY = "STRONG_BUY"
+    BUY = "BUY"
     HOLD = "HOLD"
+    SELL = "SELL"
+    STRONG_SELL = "STRONG_SELL"
+    EXIT_IMMEDIATELY = "EXIT_IMMEDIATELY"
     TIME_EXIT = "TIME_EXIT"
 
 
@@ -313,7 +315,7 @@ class DivergenceMetrics(BaseModel):
 
 
 class DualLayerConvergence(BaseModel):
-    """Enhanced multi-layer convergence analysis results (Asset + Trade History + Equity)"""
+    """Dual-layer convergence analysis results (Asset Distribution + Strategy Performance)"""
 
     # Layer percentiles
     asset_layer_percentile: float = Field(

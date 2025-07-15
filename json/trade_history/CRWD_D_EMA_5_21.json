@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-07-11T19:47:09.459271",
+    "export_timestamp": "2025-07-14T11:54:16.007419",
     "strategy_config": {
       "ticker": "CRWD",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 4.731826831847018,
+      "total_return": 4.629924863245258,
       "total_trades": "36",
       "win_rate": 0.5,
-      "sharpe_ratio": 1.1150753559423734,
+      "sharpe_ratio": 1.1055507895018797,
       "max_drawdown": -0.45761155604000514
     }
   },
@@ -759,10 +759,10 @@
       "Entry Timestamp": "2025-04-11 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 377.8999938964844,
-      "Avg Exit Price": 487.1099853515625,
+      "Avg Exit Price": 478.45001220703125,
       "Size": 11.767007460769214,
-      "PnL": 1280.6280321948434,
-      "Return": 0.28799177882758425,
+      "PnL": 1178.7260635930825,
+      "Return": 0.2650757341480401,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -771,9 +771,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Big Winner",
-      "Cumulative_PnL": 4731.826831847019,
+      "Cumulative_PnL": 4629.924863245258,
       "Trade_Number": 36,
-      "Rolling_Avg_Return": 0.10091530206645793,
+      "Rolling_Avg_Return": 0.09633209313054909,
       "Rolling_Win_Rate": 0.6
     }
   ],
@@ -2057,10 +2057,10 @@
       "Avg Entry Price": 377.8999938964844,
       "Entry Fees": 4.446752047603695,
       "Exit Timestamp": null,
-      "Avg Exit Price": 487.1099853515625,
+      "Avg Exit Price": 478.45001220703125,
       "Exit Fees": 0.0,
-      "PnL": 1280.6280321948434,
-      "Return": 0.28799177882758425,
+      "PnL": 1178.7260635930825,
+      "Return": 0.2650757341480401,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

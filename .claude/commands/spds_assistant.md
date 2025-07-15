@@ -18,7 +18,7 @@ Expert assistant for the Enhanced Statistical Performance Divergence System (SPD
   - `demo` - Demo mode guidance and examples
 
 - `portfolio`: Portfolio filename (optional, e.g., "risk_on.csv")
-- `data_source`: Data source mode (optional: "auto", "both", "trade_history", "equity_curves")
+- `data_source`: Data source mode (optional: "auto", "both", "positions", "equity_curves")
 - `convergence_analysis`: Enable source convergence analysis (optional: "true", "false")
 - `source_weighting`: Custom source weights (optional: "balanced", "trade_heavy", "equity_heavy")
 - `confidence_level`: Analysis confidence level (optional: "low", "medium", "high")
@@ -41,7 +41,7 @@ The SPDS v2.0 system features revolutionary dual-source analysis capabilities:
 
 **Enhanced Unified Trading CLI (v2.0 - Recommended):**
 
-```bash
+````bash
 # 🚀 Dual-source analysis with auto-detection (RECOMMENDED)
 python -m app.cli spds analyze risk_on.csv --data-source auto
 
@@ -56,19 +56,13 @@ python -m app.cli spds health --convergence-analysis
 python -m app.cli spds list-sources risk_on.csv
 python -m app.cli spds validate-convergence risk_on.csv
 
-# 🌟 Legacy compatibility (v1.0 commands still work)
-python -m app.cli spds analyze risk_on.csv --trade-history
-python -m app.cli spds list-portfolios
-python -m app.cli spds demo
-```
-
 **Trade History Analysis CLI:**
 
 ```bash
 python -m app.cli trade-history close {strategy_uuid e.g MA_SMA_78_82} --output report.md
 python -m app.cli trade-history list
 python -m app.cli trade-history health
-```
+````
 
 ### **Revolutionary Dual-Source Configuration (v2.0)**
 
@@ -76,21 +70,19 @@ python -m app.cli trade-history health
 
 #### **Core Parameters (v1.0 Compatible)**
 
-1. **Portfolio filename** (e.g., "risk_on.csv")
-2. **USE_TRADE_HISTORY** (True/False - legacy compatibility)
+1. **Portfolio filename** (e.g., "risk_on.csv" or "risk_on")
 
 #### **🚀 New Dual-Source Parameters (v2.0)**
 
 3. **DUAL_SOURCE_CONVERGENCE_THRESHOLD** (0.7) - Minimum convergence for reliable dual-source analysis
-4. **TRIPLE_LAYER_CONVERGENCE_THRESHOLD** (0.75) - Asset + Trade History + Equity threshold
+4. **TRIPLE_LAYER_CONVERGENCE_THRESHOLD** (0.75) - Asset + Equity threshold
 5. **SOURCE_AGREEMENT_THRESHOLD** (0.8) - Strong agreement classification
 6. **SOURCE_DIVERGENCE_THRESHOLD** (0.5) - Significant divergence warning
 
 #### **🎯 Source Weighting Strategy**
 
-- **ASSET_LAYER_WEIGHT** (0.3) - Asset distribution weight (30%)
-- **TRADE_HISTORY_WEIGHT** (0.4) - Trade history weight (40%)
-- **EQUITY_CURVE_WEIGHT** (0.3) - Equity curve weight (30%)
+- **ASSET_LAYER_WEIGHT** (0.5) - Asset distribution weight (30%)
+- **EQUITY_CURVE_WEIGHT** (0.5) - Equity curve weight (30%)
 
 #### **⚡ Quality & Reliability Thresholds**
 
@@ -188,12 +180,10 @@ from datetime import datetime
 │   ├── risk_on.csv
 │   ├── live_signals.csv
 │   └── protected.csv
-├── trade_history/           # Trade history data (same filenames as portfolios)
+├── positions/           # Trade history data (same filenames as portfolios)
 │   ├── risk_on.csv          # Individual trade records with MFE/MAE
 │   ├── live_signals.csv
 │   └── protected.csv
-├── positions/               # Legacy position files (v1.0 compatibility)
-│   └── *.csv
 └── ma_cross/equity_data/    # Strategy-specific equity curves
     ├── SMA_20_50.csv        # Individual strategy equity curves
     ├── SMA_78_82.csv
@@ -275,7 +265,7 @@ The system automatically detects available sources and uses the best combination
 
 ```
 # Trade history only (v1.0 compatibility)
-/spds_assistant analyze portfolio=risk_on.csv data_source=trade_history
+/spds_assistant analyze portfolio=risk_on.csv data_source=positions
 
 # Equity curves only
 /spds_assistant analyze portfolio=risk_on.csv data_source=equity_curves
@@ -424,7 +414,7 @@ python -m app.cli spds list-sources risk_on.csv
 
 # Verify file structure
 ls -la csv/strategies/risk_on.csv
-ls -la csv/trade_history/risk_on.csv
+ls -la csv/positions/risk_on.csv
 ls -la csv/ma_cross/equity_data/
 
 # Test source convergence

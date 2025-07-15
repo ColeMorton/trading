@@ -504,6 +504,7 @@ class DivergenceDetector:
         Estimate percentile rank for a value using available percentiles
 
         Enhanced with better validation and meaningful fallback logic instead of hard-coded 50.0
+        Enhanced for extreme value detection to support component score analysis
         """
         import logging
 
@@ -520,6 +521,34 @@ class DivergenceDetector:
                     f"Invalid value for percentile rank calculation: {value}"
                 )
                 return 50.0
+
+            # ENHANCED: Check for extreme values that should trigger high percentile ranks
+            # This helps with component scores like momentum -96 that represent extreme negative conditions
+            if (
+                abs(value) > 50
+            ):  # Very extreme values (like component scores -96, +80, etc.)
+                # For very negative values, assign high percentile rank (indicating extreme condition)
+                if value <= -80:
+                    logger.debug(
+                        f"Extreme negative value detected: {value}, assigning percentile rank 95+"
+                    )
+                    return min(
+                        99.0, 95.0 + abs(value) / 20.0
+                    )  # 95-99% for very extreme negatives
+                elif value <= -50:
+                    logger.debug(
+                        f"Very negative value detected: {value}, assigning percentile rank 85+"
+                    )
+                    return min(
+                        95.0, 85.0 + abs(value) / 10.0
+                    )  # 85-95% for negative extremes
+                elif value >= 50:
+                    logger.debug(
+                        f"Very positive value detected: {value}, assigning percentile rank 80+"
+                    )
+                    return min(
+                        90.0, 80.0 + value / 20.0
+                    )  # 80-90% for positive extremes
 
             # Validate percentiles object
             if not percentiles:

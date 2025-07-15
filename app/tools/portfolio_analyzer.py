@@ -115,15 +115,34 @@ class PortfolioStatisticalAnalyzer:
         self.logger.info(f"Loaded {len(self._trade_history_data)} trades from history")
         return self._trade_history_data
 
-    async def analyze(self) -> Dict[str, StatisticalAnalysisResult]:
+    async def analyze(
+        self, detailed: bool = False
+    ) -> Dict[str, StatisticalAnalysisResult]:
         """
         Analyze entire portfolio and return results for all strategies.
+
+        Args:
+            detailed: If True, include component score calculations
 
         Returns:
             Dictionary mapping strategy names to analysis results
         """
         portfolio_data = self.load_portfolio()
         trade_history_data = self.load_trade_history()
+
+        # CRITICAL FIX: Load position context for the entire portfolio
+        # This is needed to prevent BUY signals for already-held positions
+        portfolio_name = self.portfolio.replace(".csv", "")
+        position_context = await self.service._load_position_context(portfolio_name)
+
+        if position_context:
+            self.logger.info(
+                f"Loaded position context with {len(position_context)} positions for portfolio {portfolio_name}"
+            )
+        else:
+            self.logger.info(
+                f"No position context found for portfolio {portfolio_name}"
+            )
 
         results = {}
 
@@ -134,7 +153,9 @@ class PortfolioStatisticalAnalyzer:
 
         for strategy_info in strategies:
             try:
-                result = await self._analyze_strategy(strategy_info, trade_history_data)
+                result = await self._analyze_strategy(
+                    strategy_info, trade_history_data, detailed, position_context
+                )
                 results[strategy_info["strategy_name"]] = result
 
             except Exception as e:
@@ -340,7 +361,11 @@ class PortfolioStatisticalAnalyzer:
         return strategies
 
     async def _analyze_strategy(
-        self, strategy_info: Dict[str, Any], trade_history_data: Optional[pd.DataFrame]
+        self,
+        strategy_info: Dict[str, Any],
+        trade_history_data: Optional[pd.DataFrame],
+        detailed: bool = False,
+        position_context: Optional[Dict[str, Dict[str, Any]]] = None,
     ) -> StatisticalAnalysisResult:
         """Analyze individual strategy from portfolio."""
         strategy_name = strategy_info["strategy_name"]
@@ -404,16 +429,64 @@ class PortfolioStatisticalAnalyzer:
                     f"Found {len(strategy_trades)} trade history records for {strategy_name}"
                 )
             else:
-                self.logger.warning(
-                    f"No trade history found for {strategy_name} (ticker: {ticker})"
+                self.logger.info(
+                    f"No trade history found for {strategy_name} (ticker: {ticker}) - using equity curve analysis"
                 )
 
-        # Use the existing service method
+        # CRITICAL FIX: Check for open position in position context
+        position_data = None
+        if position_context:
+            position_data = self.service._find_matching_position(
+                strategy_name, position_context
+            )
+            if position_data:
+                self.logger.info(
+                    f"Found open position for {strategy_name}: {position_data.get('current_unrealized_pnl', 0):.1%} P&L, {position_data.get('days_since_entry', 0)} days held"
+                )
+
+        # Use the existing service method with position context
         result = await self.service.analyze_position(
             strategy_name=strategy_name,
             ticker=ticker,
             current_position_data=strategy_trade_data,
         )
+
+        # CRITICAL FIX: If there's an open position, override the signal generation
+        if position_data and self.service._is_position_open(position_data):
+            self.logger.info(
+                f"Overriding signal generation for open position {strategy_name}"
+            )
+
+            # Use position-aware signal generation instead of generic signal generation
+            position_aware_signal = await self.service._generate_position_aware_signal(
+                result.strategy_analysis,
+                result.asset_analysis,
+                result.dual_layer_convergence,
+                result.asset_divergence,
+                result.strategy_divergence,
+                position_data,
+                component_scores=result.raw_analysis_data.get("component_scores")
+                if result.raw_analysis_data
+                else None,
+            )
+
+            # Replace the exit signal with position-aware signal
+            result.exit_signal = position_aware_signal
+
+            # Update recommendation summary for position
+            signal_type = position_aware_signal.signal_type
+            confidence = position_aware_signal.confidence
+
+            if signal_type.name.startswith("STRONG_BUY") or signal_type.name.startswith(
+                "BUY"
+            ):
+                result.recommendation_summary = f"Position already held ({position_data.get('current_unrealized_pnl', 0):.1%} P&L, {position_data.get('days_since_entry', 0)} days). Signal: {signal_type.name} - Continue holding."
+            else:
+                result.recommendation_summary = f"Position held ({position_data.get('current_unrealized_pnl', 0):.1%} P&L, {position_data.get('days_since_entry', 0)} days). Exit signal: {signal_type.name} (confidence: {confidence:.1f}%)"
+
+            self.logger.info(
+                f"Updated signal for open position {strategy_name}: {signal_type.name} with {confidence:.1f}% confidence"
+            )
 
         # Extract MFE/MAE directly from trade data and attach to result for export
         if strategy_trade_data:
@@ -445,6 +518,48 @@ class PortfolioStatisticalAnalyzer:
             except Exception as e:
                 self.logger.error(
                     f"Failed to extract MFE/MAE from trade data for {strategy_name}: {e}"
+                )
+
+        # Add component score calculation if detailed analysis is requested
+        if detailed:
+            try:
+                from .market_data_analyzer import MarketDataAnalyzer
+
+                self.logger.info(f"Calculating component scores for {ticker}")
+                market_analyzer = MarketDataAnalyzer(ticker, self.logger)
+
+                # Fetch data and calculate component scores
+                if market_analyzer.fetch_data():
+                    analysis_result = await market_analyzer.analyze(
+                        include_components=True
+                    )
+                    component_scores = analysis_result.get("component_scores", {})
+
+                    if component_scores:
+                        # Store component scores in the raw_analysis_data field
+                        if result.raw_analysis_data is None:
+                            result.raw_analysis_data = {}
+                        result.raw_analysis_data["component_scores"] = component_scores
+                        self.logger.info(
+                            f"Added component scores for {ticker}: {len(component_scores)} components"
+                        )
+
+                        # Apply component score override to exit signal
+                        result = self.service.update_exit_signal_with_component_scores(
+                            result, component_scores
+                        )
+                    else:
+                        self.logger.warning(
+                            f"No component scores returned for {ticker}"
+                        )
+                else:
+                    self.logger.warning(
+                        f"Failed to fetch market data for component scores: {ticker}"
+                    )
+
+            except Exception as e:
+                self.logger.error(
+                    f"Failed to calculate component scores for {strategy_name}: {e}"
                 )
 
         return result

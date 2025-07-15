@@ -40,7 +40,5 @@ final_test_results.json
 # Stop loss analysis files (regenerated)
 csv/stop_loss/*.csv
 
-# Trade history position files (can be regenerated from trade history exports)
-csv/trade_history/*_positions.csv
-
-# Position files are completely excluded from cleanup - all files in csv/positions/ are protected
+attribution_data
+json/**/*

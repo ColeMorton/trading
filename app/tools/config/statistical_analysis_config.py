@@ -60,13 +60,18 @@ class SPDSConfig:
     MEDIUM_CONFIDENCE_THRESHOLD: float = 0.90  # 90% for 15 <= n < 30
     LOW_CONFIDENCE_THRESHOLD: float = 0.80  # 80% for n < 15
 
-    # Divergence Detection
+    # Divergence Detection - Complete Entry/Exit Signal System
     PERCENTILE_THRESHOLDS: Dict[str, float] = field(
         default_factory=lambda: {
-            "exit_immediately": 95.0,
-            "strong_sell": 90.0,
-            "sell": 80.0,
-            "hold": 70.0,
+            # Entry signals (low percentiles = good entry opportunities)
+            "strong_buy": 10.0,  # Bottom 10% = excellent entry
+            "buy": 20.0,  # Bottom 20% = good entry
+            # Neutral range
+            "hold": 70.0,  # 20-70% = normal conditions
+            # Exit signals (high percentiles = overvalued conditions)
+            "sell": 80.0,  # Top 20% = overvalued
+            "strong_sell": 90.0,  # Top 10% = significantly overvalued
+            "exit_immediately": 95.0,  # Top 5% = extremely overvalued
         }
     )
 
@@ -74,45 +79,44 @@ class SPDSConfig:
     TIMEFRAMES: List[str] = field(default_factory=lambda: ["D", "3D", "W", "2W"])
     CONVERGENCE_THRESHOLD: float = 0.85
 
-    # Dual-Source Analysis Configuration
-    DUAL_SOURCE_CONVERGENCE_THRESHOLD: float = (
-        0.7  # Minimum convergence score for reliable dual-source analysis
+    # Dual-Layer Convergence Analysis Configuration
+    LAYER_CONVERGENCE_THRESHOLD: float = (
+        0.7  # Minimum convergence score for reliable dual-layer analysis
     )
-    TRIPLE_LAYER_CONVERGENCE_THRESHOLD: float = (
-        0.75  # Asset + Trade History + Equity convergence threshold
+    LAYER_AGREEMENT_THRESHOLD: float = (
+        0.75  # Asset + Strategy layer agreement threshold
     )
     SOURCE_AGREEMENT_THRESHOLD: float = (
-        0.8  # Threshold for considering sources in strong agreement
+        0.8  # Threshold for considering data sources in strong agreement
     )
-    SOURCE_DIVERGENCE_THRESHOLD: float = (
-        0.5  # Below this, sources are considered significantly divergent
+    DIVERGENCE_WARNING_THRESHOLD: float = (
+        0.5  # Below this, layers are considered significantly divergent
     )
 
-    # Source Reliability Weights
-    ASSET_LAYER_WEIGHT: float = 0.3  # Weight for asset distribution analysis
-    TRADE_HISTORY_WEIGHT: float = 0.4  # Weight for trade history analysis
-    EQUITY_CURVE_WEIGHT: float = 0.3  # Weight for equity curve analysis
+    # Dual-Layer Analysis Weights
+    ASSET_LAYER_WEIGHT: float = 0.5  # Weight for asset distribution analysis
+    STRATEGY_LAYER_WEIGHT: float = 0.5  # Weight for strategy performance analysis
 
-    # Multi-Source Confidence Thresholds
+    # Data Source Quality Thresholds
     MIN_TRADE_COUNT_FOR_RELIABILITY: int = (
         20  # Minimum trades for reliable trade history analysis
     )
     MIN_EQUITY_PERIODS_FOR_RELIABILITY: int = (
         50  # Minimum periods for reliable equity analysis
     )
-    MULTI_SOURCE_CONFIDENCE_BOOST: float = (
-        0.15  # Confidence boost when sources agree strongly
+    CONVERGENCE_CONFIDENCE_BOOST: float = (
+        0.15  # Confidence boost when layers show strong convergence
     )
 
-    # Source-Specific Exit Signal Adjustments
-    DUAL_SOURCE_SIGNAL_ADJUSTMENT: bool = (
-        True  # Enable signal adjustments based on source agreement
+    # Convergence-Based Exit Signal Adjustments
+    CONVERGENCE_SIGNAL_ADJUSTMENT: bool = (
+        True  # Enable signal adjustments based on layer convergence
     )
     CONSERVATIVE_MODE_ON_DIVERGENCE: bool = (
-        True  # Be more conservative when sources diverge
+        True  # Be more conservative when layers diverge
     )
     AGGRESSIVE_MODE_ON_CONVERGENCE: bool = (
-        True  # Be more aggressive when sources strongly agree
+        True  # Be more aggressive when layers strongly converge
     )
 
     # Bootstrap Validation
@@ -215,10 +219,55 @@ class SPDSConfig:
                     f"Percentile threshold {threshold_name} must be between 0 and 100, got {value}"
                 )
 
-        # Ensure thresholds are in descending order
-        thresholds = list(self.PERCENTILE_THRESHOLDS.values())
-        if thresholds != sorted(thresholds, reverse=True):
-            raise ValueError("Percentile thresholds must be in descending order")
+        # Validate threshold ranges and logical ordering
+        # Entry signals should be low percentiles, exit signals should be high percentiles
+        entry_thresholds = {
+            k: v
+            for k, v in self.PERCENTILE_THRESHOLDS.items()
+            if k in ["strong_buy", "buy"]
+        }
+        exit_thresholds = {
+            k: v
+            for k, v in self.PERCENTILE_THRESHOLDS.items()
+            if k in ["sell", "strong_sell", "exit_immediately"]
+        }
+
+        # Entry thresholds should be in ascending order (strong_buy < buy)
+        if entry_thresholds:
+            entry_values = [
+                entry_thresholds.get("strong_buy", 0),
+                entry_thresholds.get("buy", 0),
+            ]
+            if len(entry_values) > 1 and entry_values[0] > entry_values[1]:
+                raise ValueError(
+                    "Entry signal thresholds must be in ascending order (strong_buy <= buy)"
+                )
+
+        # Exit thresholds should be in ascending order (sell < strong_sell < exit_immediately)
+        if exit_thresholds:
+            exit_values = [
+                exit_thresholds.get("sell", 100),
+                exit_thresholds.get("strong_sell", 100),
+                exit_thresholds.get("exit_immediately", 100),
+            ]
+            if exit_values != sorted(exit_values):
+                raise ValueError(
+                    "Exit signal thresholds must be in ascending order (sell <= strong_sell <= exit_immediately)"
+                )
+
+        # Ensure entry thresholds are below hold threshold and exit thresholds are above hold threshold
+        hold_threshold = self.PERCENTILE_THRESHOLDS.get("hold", 70.0)
+        for name, value in entry_thresholds.items():
+            if value >= hold_threshold:
+                raise ValueError(
+                    f"Entry threshold {name} ({value}) must be below hold threshold ({hold_threshold})"
+                )
+
+        for name, value in exit_thresholds.items():
+            if value <= hold_threshold:
+                raise ValueError(
+                    f"Exit threshold {name} ({value}) must be above hold threshold ({hold_threshold})"
+                )
 
         # Validate confidence thresholds
         for conf_name, conf_value in [

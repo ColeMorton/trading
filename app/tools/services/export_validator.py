@@ -38,6 +38,15 @@ class ExportValidator:
         issues = []
         portfolio_base = portfolio_name.replace(".csv", "")
 
+        # Skip position validation for enhanced parameter analysis
+        is_enhanced_analysis = portfolio_base.startswith("enhanced_")
+        if is_enhanced_analysis:
+            self.logger.debug(
+                f"Skipping position validation for enhanced analysis: {portfolio_base}"
+            )
+            # For enhanced analysis, only validate that export files were created
+            return self._validate_enhanced_exports(portfolio_base)
+
         # Check statistical analysis files
         json_file = self.statistical_dir / f"{portfolio_base}.json"
         csv_file = self.statistical_dir / f"{portfolio_base}.csv"
@@ -74,6 +83,31 @@ class ExportValidator:
 
         return len(issues) == 0, issues
 
+    def _validate_enhanced_exports(self, portfolio_base: str) -> Tuple[bool, List[str]]:
+        """
+        Validate exports for enhanced parameter analysis (no position file validation).
+
+        Args:
+            portfolio_base: Base name of the enhanced analysis
+
+        Returns:
+            Tuple of (is_valid, list_of_issues)
+        """
+        issues = []
+
+        # Only check if basic export files exist, don't validate position data
+        json_file = self.statistical_dir / f"{portfolio_base}.json"
+        csv_file = self.statistical_dir / f"{portfolio_base}.csv"
+
+        if not json_file.exists():
+            issues.append(f"Missing JSON export for enhanced analysis: {json_file}")
+
+        if not csv_file.exists():
+            issues.append(f"Missing CSV export for enhanced analysis: {csv_file}")
+
+        # Enhanced analysis validation passes if basic exports exist
+        return len(issues) == 0, issues
+
     def generate_fallback_exports(
         self, portfolio_name: str, position_data_path: Optional[str] = None
     ) -> bool:
@@ -96,8 +130,15 @@ class ExportValidator:
 
             # Load position data
             if not Path(position_data_path).exists():
-                self.logger.error(f"Position data not found: {position_data_path}")
-                return False
+                # Check if this is an enhanced analysis that shouldn't have position data
+                if portfolio_name.startswith("enhanced_"):
+                    self.logger.debug(
+                        f"Enhanced analysis fallback export - skipping position validation: {position_data_path}"
+                    )
+                    return True  # Enhanced analysis doesn't need position data
+                else:
+                    self.logger.error(f"Position data not found: {position_data_path}")
+                    return False
 
             df = pd.read_csv(position_data_path)
             open_positions = df[df["Status"] == "Open"]

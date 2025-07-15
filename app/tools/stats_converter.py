@@ -361,13 +361,39 @@ def convert_stats(
         # stats['Total Return [%]'] = [351.0781, 19.5554, -5.2920]
         # stats['Benchmark Return [%]'] = [370.3095, -6.2193, -6.2193]
         # Expected output: [-0.05194, 4.144, 0.1491]
+
+        # Convert benchmark_return to numeric if it's a string
         benchmark_return = stats["Benchmark Return [%]"]
-        if stats["Benchmark Return [%]"] == 0:
+        if isinstance(benchmark_return, str):
+            try:
+                benchmark_return = float(benchmark_return)
+            except (ValueError, TypeError):
+                benchmark_return = 0.0
+                log(
+                    f"Invalid benchmark return value '{stats['Benchmark Return [%]']}' for {ticker}, using 0.0",
+                    "warning",
+                )
+
+        # Convert total_return to numeric if it's a string
+        total_return = stats["Total Return [%]"]
+        if isinstance(total_return, str):
+            try:
+                total_return = float(total_return)
+            except (ValueError, TypeError):
+                total_return = 0.0
+                log(
+                    f"Invalid total return value '{stats['Total Return [%]']}' for {ticker}, using 0.0",
+                    "warning",
+                )
+        else:
+            total_return = stats["Total Return [%]"]
+
+        if benchmark_return == 0:
             stats["Beats BNH [%]"] = 0
         else:
-            stats["Beats BNH [%]"] = (
-                stats["Total Return [%]"] - benchmark_return
-            ) / abs(benchmark_return)
+            stats["Beats BNH [%]"] = (total_return - benchmark_return) / abs(
+                benchmark_return
+            )
 
         # Determine if it's a crypto asset using ticker from either source
         is_crypto = "-USD" in ticker

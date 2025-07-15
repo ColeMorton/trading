@@ -8,7 +8,7 @@ import yfinance as yf
 # Define the list of assets
 # ASSETS = ['SPY', 'QQQ', 'BTC-USD', 'SOL-USD']
 
-# ASSETS = ['BTC-USD', 'WLD-USD', 'SC-USD', 'RSR-USD', 'AERGO-USD', 'UNI-USD', 'AGLD-USD']
+# ASSETS = ['BTC-USD', 'WLD-USD', 'SC-USD', 'RSR-USD', 'AERGO-USD', 'AGLD-USD']
 
 # ASSETS = ['BTC-USD', 'SPY', 'QQQ', 'SOL-USD', 'MSTR']
 

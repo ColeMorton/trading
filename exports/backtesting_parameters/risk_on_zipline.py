@@ -2,9 +2,9 @@
 Zipline Algorithm Template
 Generated from Statistical Performance Divergence System
 
-Generation Date: 2025-07-12T10:29:50.941251
+Generation Date: 2025-07-14T21:27:50.051865
 Confidence Level: 0.9
-Total Strategies: 0
+Total Strategies: 3
 """
 
 import numpy as np
@@ -13,7 +13,53 @@ import zipline
 from zipline.api import cancel_order, get_open_orders, order_target, record, symbol
 
 # Statistical parameters
-exit_parameters = {}
+exit_parameters = {
+    "MA_SMA_78_82_MA_D": {
+        "take_profit_pct": 15.0,
+        "stop_loss_pct": 8.0,
+        "max_holding_days": 468,
+        "min_holding_days": 21,
+        "trailing_stop_pct": 3.28,
+        "confidence_level": 0.9,
+        "sample_size": 100,
+        "statistical_validity": "LOW",
+        "entry_signal": "STATISTICAL_DIVERGENCE",
+        "momentum_exit_threshold": 0.02,
+        "trend_exit_threshold": 0.015,
+        "derivation_method": "advanced_quantitative_optimization",
+        "generation_timestamp": "2025-07-14T21:27:50.059337",
+    },
+    "ASML_SMA_71_80_ASML_D": {
+        "take_profit_pct": 15.0,
+        "stop_loss_pct": 8.0,
+        "max_holding_days": 450,
+        "min_holding_days": 21,
+        "trailing_stop_pct": 3.76,
+        "confidence_level": 0.9,
+        "sample_size": 76,
+        "statistical_validity": "MEDIUM",
+        "entry_signal": "STATISTICAL_DIVERGENCE",
+        "momentum_exit_threshold": 0.02,
+        "trend_exit_threshold": 0.015,
+        "derivation_method": "advanced_quantitative_optimization",
+        "generation_timestamp": "2025-07-14T21:27:50.066565",
+    },
+    "TSLA_SMA_15_25_TSLA_D": {
+        "take_profit_pct": 15.0,
+        "stop_loss_pct": 8.0,
+        "max_holding_days": 461,
+        "min_holding_days": 21,
+        "trailing_stop_pct": 9.26,
+        "confidence_level": 0.9,
+        "sample_size": 83,
+        "statistical_validity": "MEDIUM",
+        "entry_signal": "STATISTICAL_DIVERGENCE",
+        "momentum_exit_threshold": 0.02,
+        "trend_exit_threshold": 0.015,
+        "derivation_method": "advanced_quantitative_optimization",
+        "generation_timestamp": "2025-07-14T21:27:50.071555",
+    },
+}
 
 
 def initialize(context):

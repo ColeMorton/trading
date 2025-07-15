@@ -118,10 +118,8 @@ class ConcurrencyDefaults:
     # General Configuration
     # PORTFOLIO: str = "investment_sample.csv"
     # PORTFOLIO: str = "protected.csv"
-    PORTFOLIO: str = "risk_on.csv"
-    # PORTFOLIO: str = "trades_next.csv"
-    # PORTFOLIO: str = "incoming.csv"
-    # PORTFOLIO: str = "live_signals.csv"
+    # PORTFOLIO: str = "risk_on.csv"
+    PORTFOLIO: str = "live_signals.csv"
     # PORTFOLIO: str = "portfolio_risk.csv"
     # PORTFOLIO: str = "portfolio_d_20250510.csv"
     # PORTFOLIO: str = "QQQ_d_20250529.csv"

@@ -11,6 +11,7 @@ from typing import Dict, Optional
 
 from pydantic import BaseModel, Field, validator
 
+from ...tools.parameter_parser import ParameterType, ParsedParameter
 from .base import BaseConfig
 
 
@@ -198,6 +199,108 @@ class SPDSOutputConfig(BaseModel):
     )
 
 
+class SPDSParameterConfig(BaseModel):
+    """SPDS parameter-specific configuration for enhanced input support."""
+
+    # Parameter information
+    parameter_type: ParameterType = Field(
+        ..., description="Type of parameter being analyzed"
+    )
+    parsed_parameter: ParsedParameter = Field(
+        ..., description="Parsed parameter components"
+    )
+
+    # Analysis scope
+    enable_asset_distribution: bool = Field(
+        default=True, description="Enable asset distribution analysis"
+    )
+    enable_strategy_analysis: bool = Field(
+        default=True, description="Enable strategy-specific analysis"
+    )
+    enable_position_analysis: bool = Field(
+        default=True, description="Enable position-specific analysis"
+    )
+
+    # Data source preferences
+    prefer_trade_history: bool = Field(
+        default=True, description="Prefer trade history when available"
+    )
+    require_equity_data: bool = Field(
+        default=False, description="Require equity curve data for analysis"
+    )
+    fallback_to_market_data: bool = Field(
+        default=True,
+        description="Fallback to market data when other sources unavailable",
+    )
+
+
+class SPDSTickerConfig(BaseModel):
+    """Configuration for ticker-only analysis."""
+
+    ticker: str = Field(..., description="Ticker symbol to analyze")
+
+    # Analysis options
+    lookback_periods: int = Field(
+        default=252, ge=30, description="Number of periods for distribution analysis"
+    )
+    include_crypto_pairs: bool = Field(
+        default=True, description="Include crypto trading pairs (e.g., BTC-USD)"
+    )
+    market_hours_only: bool = Field(
+        default=False, description="Analyze only market hours data"
+    )
+
+
+class SPDSStrategyConfig(BaseModel):
+    """Configuration for strategy-specific analysis."""
+
+    ticker: str = Field(..., description="Ticker symbol")
+    strategy_type: str = Field(..., description="Strategy type (SMA, EMA, MACD)")
+    short_window: int = Field(..., ge=1, description="Short window parameter")
+    long_window: int = Field(..., ge=1, description="Long window parameter")
+    signal_window: int = Field(default=0, ge=0, description="Signal window parameter")
+
+    # Strategy analysis options
+    include_backtest_metrics: bool = Field(
+        default=True, description="Include backtesting performance metrics"
+    )
+    compare_with_benchmark: bool = Field(
+        default=True, description="Compare strategy performance with buy-and-hold"
+    )
+
+    @validator("long_window")
+    def validate_windows(cls, v, values):
+        """Ensure long window > short window."""
+        if "short_window" in values and v <= values["short_window"]:
+            raise ValueError("Long window must be greater than short window")
+        return v
+
+
+class SPDSPositionConfig(BaseModel):
+    """Configuration for position UUID analysis."""
+
+    ticker: str = Field(..., description="Ticker symbol")
+    strategy_type: str = Field(..., description="Strategy type (SMA, EMA, MACD)")
+    short_window: int = Field(..., ge=1, description="Short window parameter")
+    long_window: int = Field(..., ge=1, description="Long window parameter")
+    signal_window: int = Field(default=0, ge=0, description="Signal window parameter")
+    entry_date: str = Field(..., description="Position entry date (YYYY-MM-DD)")
+
+    # Position analysis options
+    include_trade_metrics: bool = Field(
+        default=True, description="Include individual trade performance metrics"
+    )
+    calculate_mfe_mae: bool = Field(
+        default=True, description="Calculate Maximum Favorable/Adverse Excursion"
+    )
+    include_exit_efficiency: bool = Field(
+        default=True, description="Calculate exit efficiency metrics"
+    )
+    track_unrealized_pnl: bool = Field(
+        default=True, description="Track current unrealized P&L"
+    )
+
+
 class SPDSConfig(BaseConfig):
     """Complete SPDS configuration model."""
 
@@ -210,7 +313,13 @@ class SPDSConfig(BaseConfig):
         default_factory=SPDSOutputConfig, description="Output and export configuration"
     )
 
-    # Portfolio override for SPDS
+    # Enhanced parameter support
+    parameter_config: Optional[SPDSParameterConfig] = Field(
+        default=None,
+        description="Enhanced parameter configuration for different input types",
+    )
+
+    # Portfolio override for SPDS (backward compatibility)
     portfolio: str = Field(..., description="Portfolio filename for SPDS analysis")
 
     # Memory optimization
@@ -273,6 +382,105 @@ class SPDSConfig(BaseConfig):
             "VERBOSE": self.output.verbose,
             "QUIET": self.output.quiet,
         }
+
+    @property
+    def is_enhanced_parameter_mode(self) -> bool:
+        """Check if using enhanced parameter mode (non-portfolio analysis)."""
+        return self.parameter_config is not None
+
+    @property
+    def analysis_type_description(self) -> str:
+        """Get human-readable description of the analysis type."""
+        if not self.is_enhanced_parameter_mode:
+            return f"Portfolio Analysis ({self.data_source_description})"
+
+        param_type = self.parameter_config.parameter_type
+        if param_type == ParameterType.TICKER_ONLY:
+            return "Asset Distribution Analysis"
+        elif param_type == ParameterType.STRATEGY_SPEC:
+            return "Strategy Performance Analysis"
+        elif param_type == ParameterType.POSITION_UUID:
+            return "Position-Specific Analysis"
+        else:
+            return "Portfolio Analysis"
+
+    @classmethod
+    def for_ticker_analysis(
+        cls, ticker: str, parsed_param: ParsedParameter, **kwargs
+    ) -> "SPDSConfig":
+        """Create configuration for ticker-only analysis."""
+        parameter_config = SPDSParameterConfig(
+            parameter_type=ParameterType.TICKER_ONLY,
+            parsed_parameter=parsed_param,
+            enable_asset_distribution=True,
+            enable_strategy_analysis=False,
+            enable_position_analysis=False,
+            prefer_trade_history=False,
+            fallback_to_market_data=True,
+        )
+
+        return cls(
+            portfolio=f"{ticker}_virtual_portfolio.csv",
+            parameter_config=parameter_config,
+            **kwargs,
+        )
+
+    @classmethod
+    def for_strategy_analysis(
+        cls,
+        ticker: str,
+        strategy_type: str,
+        short_window: int,
+        long_window: int,
+        parsed_param: ParsedParameter,
+        signal_window: int = 0,
+        **kwargs,
+    ) -> "SPDSConfig":
+        """Create configuration for strategy-specific analysis."""
+        parameter_config = SPDSParameterConfig(
+            parameter_type=ParameterType.STRATEGY_SPEC,
+            parsed_parameter=parsed_param,
+            enable_asset_distribution=True,
+            enable_strategy_analysis=True,
+            enable_position_analysis=False,
+            prefer_trade_history=False,
+            require_equity_data=True,
+        )
+
+        return cls(
+            portfolio=f"{ticker}_{strategy_type}_{short_window}_{long_window}_strategy.csv",
+            parameter_config=parameter_config,
+            **kwargs,
+        )
+
+    @classmethod
+    def for_position_analysis(
+        cls,
+        ticker: str,
+        strategy_type: str,
+        short_window: int,
+        long_window: int,
+        entry_date: str,
+        parsed_param: ParsedParameter,
+        signal_window: int = 0,
+        **kwargs,
+    ) -> "SPDSConfig":
+        """Create configuration for position UUID analysis."""
+        parameter_config = SPDSParameterConfig(
+            parameter_type=ParameterType.POSITION_UUID,
+            parsed_parameter=parsed_param,
+            enable_asset_distribution=True,
+            enable_strategy_analysis=True,
+            enable_position_analysis=True,
+            prefer_trade_history=True,
+            require_equity_data=False,
+        )
+
+        return cls(
+            portfolio=f"{ticker}_{strategy_type}_{short_window}_{long_window}_{entry_date}_position.csv",
+            parameter_config=parameter_config,
+            **kwargs,
+        )
 
     class Config:
         """Pydantic configuration."""

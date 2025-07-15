@@ -18,6 +18,7 @@ class DataConfig(TypedDict):
         TICKER_1 (NotRequired[str]): First ticker for synthetic pair
         TICKER_2 (NotRequired[str]): Second ticker for synthetic pair
         BASE_DIR (NotRequired[str]): Base directory for data storage
+        REFRESH (NotRequired[bool]): Whether to force refresh of cached data
     """
 
     TICKER: str
@@ -29,3 +30,4 @@ class DataConfig(TypedDict):
     TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
     BASE_DIR: NotRequired[str]
+    REFRESH: NotRequired[bool]

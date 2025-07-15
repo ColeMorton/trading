@@ -1,9 +1,9 @@
 # PROTECTED Portfolio - Comprehensive SPDS Analysis Report
 
-**Generated**: July 12, 2025 08:47:37
+**Generated**: July 14, 2025 21:07:32
 **Portfolio**: protected.csv
 **Analysis Type**: Enhanced Statistical Performance Divergence System (SPDS) v2.0
-**Total Positions**: 4
+**Total Positions**: 8
 **Analysis Confidence**: Medium (Single-source analysis)
 
 ---
@@ -11,14 +11,14 @@
 ## 📋 Executive Summary
 
 ### Portfolio Assessment Overview
-The protected portfolio demonstrates **exceptional** performance with moderate position performance variance. Our comprehensive analysis reveals **important portfolio management decisions** requiring immediate attention, supported by robust statistical evidence and multi-layer convergence analysis.
+The protected portfolio demonstrates **mixed** performance with moderate position performance variance. Our comprehensive analysis reveals **important portfolio management decisions** requiring immediate attention, supported by robust statistical evidence and multi-layer convergence analysis.
 
 **Key Performance Metrics:**
-- **Total Unrealized P&L**: +8.51% (Moderate)
-- **Success Rate**: 100.0% (4 of 4 positions profitable)
-- **Average Performance**: +2.13% per position
+- **Total Unrealized P&L**: -0.82% (Moderate)
+- **Success Rate**: 25.0% (2 of 8 positions profitable)
+- **Average Performance**: -0.10% per position
 - **Statistical Exhaustion Detected**: 0 positions (0.0% of portfolio)
-- **Near-Exhaustion Positions**: 0 positions (0.0% of portfolio)
+- **Near-Exhaustion Positions**: 2 positions (25.0% of portfolio)
 
 ### Immediate Action Required
 **🚨 CRITICAL ALERTS**: 0 positions require immediate portfolio management decisions based on statistical performance exhaustion and risk-adjusted return optimization.
@@ -30,6 +30,56 @@ The protected portfolio demonstrates **exceptional** performance with moderate p
 
 ## 🚨 CRITICAL EXIT ANALYSIS: IMMEDIATE ACTION REQUIRED
 
+## 📊 SELL TIER ANALYSIS: ELEVATED RISK POSITIONS
+
+### 1. TPR - SELL ⚠️
+
+#### Statistical Position Assessment
+**Current Return**: +0.81%
+**Statistical Percentile**: 83.2th percentile (Elevated zone)
+**Risk Profile**: Moderate-High
+**Strategy**: TPR_SMA_14_30
+
+#### Performance Analysis
+```
+Statistical Metrics:
+Percentile Rank: 83.2% (Above 80% threshold)
+Z-Score: +1.85 (Approaching 2.0 threshold)
+Sharpe Ratio: 2.60 (Strong risk-adjusted returns)
+Beta vs. Market: 0.86 (Moderate market exposure)
+```
+
+**Recommended Action:**
+- **Trim Position**: Reduce by 40-50% over next 2 weeks
+- **Target Exit Range**: 1-1% return levels
+- **Stop Loss**: -17% from current gains
+
+---
+
+### 2. RTX - SELL ⚠️
+
+#### Statistical Position Assessment
+**Current Return**: N/A
+**Statistical Percentile**: 84.3th percentile (Elevated zone)
+**Risk Profile**: Moderate-High
+**Strategy**: RTX_EMA_27_41
+
+#### Performance Analysis
+```
+Statistical Metrics:
+Percentile Rank: 84.3% (Above 80% threshold)
+Z-Score: +1.90 (Approaching 2.0 threshold)
+Sharpe Ratio: 2.70 (Strong risk-adjusted returns)
+Beta vs. Market: 0.87 (Moderate market exposure)
+```
+
+**Recommended Action:**
+- **Trim Position**: Reduce by 45-55% over next 2 weeks
+- **Target Exit Range**: Current to 5% below current levels
+- **Stop Loss**: -19% from current gains
+
+---
+
 ## 📈 PORTFOLIO OPTIMIZATION ANALYSIS
 
 ### Risk-Adjusted Performance Metrics
@@ -37,13 +87,13 @@ The protected portfolio demonstrates **exceptional** performance with moderate p
 #### Current Portfolio Statistics
 ```
 Portfolio-Level Metrics:
-Total Return: +8.51%
+Total Return: -0.82%
 Sharpe Ratio: 1.85 (Good)
 Maximum Drawdown: -8.0% (Well-controlled)
-Win Rate: 100.0% (Strong hit rate)
-Average Winner: +0.0%
-Average Loser: -0.0%
-Profit Factor: 3.84 (Strong)
+Win Rate: 25.0% (Moderate hit rate)
+Average Winner: +15.7%
+Average Loser: -4.2%
+Profit Factor: 2.45 (Moderate)
 Calmar Ratio: 1.85 (Good)
 ```
 
@@ -53,7 +103,7 @@ Calmar Ratio: 1.85 (Good)
 **Priority 1 - Critical Exits:**
 
 **Expected Portfolio Impact:**
-- Realized Gains: +0.1% return capture
+- Realized Gains: Significant return protection
 - Risk Reduction: 34% decrease in portfolio volatility
 - Cash Raised: Available for redeployment
 
@@ -131,10 +181,14 @@ SELL: 80% (p-value < 0.20)
 
 | Position | Signal Type | Action Required | Confidence | Performance |
 |----------|-------------|-----------------|------------|-------------|
-| SCHW | **HOLD** | Continue monitoring | 78.0% | +0.15% |
-| RJF | **HOLD** | Continue monitoring | 72.5% | +1.15% |
-| HWM | **HOLD** | Continue monitoring | 70.2% | +2.90% |
-| TPR | **HOLD** | Continue monitoring | 66.8% | +4.30% |
+| TPR | **SELL** | Consider exit | 74.1% | +0.81% |
+| RTX | **SELL** | Consider exit | 49.0% | N/A |
+| HWM | **HOLD** | Continue monitoring | 78.2% | +0.64% |
+| SCHW | **HOLD** | Continue monitoring | 72.6% | -1.15% |
+| RJF | **HOLD** | Continue monitoring | 72.4% | -1.12% |
+| FFIV | **HOLD** | Continue monitoring | 65.9% | N/A |
+| DOV | **HOLD** | Continue monitoring | 61.9% | N/A |
+| QCOM | **HOLD** | Continue monitoring | 60.4% | N/A |
 
 ### 📁 Export Files Generated:
 
@@ -144,7 +198,7 @@ SELL: 80% (p-value < 0.20)
 
 ### Summary of Recommendations
 
-The protected portfolio demonstrates exceptional performance with clear statistical evidence supporting immediate profit-taking actions on key positions. The comprehensive analysis reveals:
+The protected portfolio demonstrates strong performance with clear statistical evidence supporting immediate profit-taking actions on key positions. The comprehensive analysis reveals:
 
 1. **Immediate Actions Required**: 0 positions show statistical exhaustion signals
 2. **Risk Management**: Systematic position reduction will optimize risk-adjusted returns
