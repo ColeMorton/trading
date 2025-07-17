@@ -2,8 +2,8 @@
 
 ## Generation Summary
 
-- **Generation Date:** 2025-07-15T13:07:01.979280
-- **Total Strategies:** 7
+- **Generation Date:** 2025-07-17T09:10:00.535425
+- **Total Strategies:** 3
 - **Confidence Level:** 0.9
 - **SPDS Version:** 1.0.0
 
@@ -11,13 +11,13 @@
 
 | Validity Level | Count | Percentage |
 |----------------|-------|------------|
-| HIGH | 4 | 57.1% |
+| HIGH | 2 | 66.7% |
 | MEDIUM | 0 | 0.0% |
-| LOW | 3 | 42.9% |
+| LOW | 1 | 33.3% |
 
 ## Statistical Summary
 
-- **Average Sample Size:** 128.7
+- **Average Sample Size:** 122.3
 - **Average Confidence:** 90.0%
 
 ## Framework Compatibility
@@ -29,13 +29,13 @@
 
 ## Recommendations
 
-### High Validity Parameters (4 strategies)
+### High Validity Parameters (2 strategies)
 These parameters are derived from robust statistical analysis with sample sizes ≥30 and high confidence levels. Recommended for production backtesting.
 
 ### Medium Validity Parameters (0 strategies)
 These parameters have moderate statistical support. Use with additional validation and consider paper trading before live deployment.
 
-### Low Validity Parameters (3 strategies)
+### Low Validity Parameters (1 strategies)
 These parameters have limited statistical support. Not recommended for production use without significant additional validation.
 
 ## Usage Guidelines

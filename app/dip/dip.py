@@ -72,7 +72,7 @@ def calculate_signals(data: pd.DataFrame, distance: float) -> pd.DataFrame:
         raise
 
 
-def backtest_strategy(data: pd.DataFrame) -> vbt.Portfolio:
+def backtest_strategy(data: pd.DataFrame) -> "vbt.Portfolio":
     """Backtest the mean reversion strategy with 1-candle exit."""
     logging.info("Starting strategy backtest")
     try:

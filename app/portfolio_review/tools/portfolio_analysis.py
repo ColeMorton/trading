@@ -149,7 +149,7 @@ def calculate_risk_metrics(returns: np.ndarray) -> Dict[str, float]:
 
 
 def check_open_positions(
-    portfolio: vbt.Portfolio, price_df_pd: pd.DataFrame, log
+    portfolio: "vbt.Portfolio", price_df_pd: pd.DataFrame, log
 ) -> List[Tuple[str, float]]:
     """Check which strategies have open positions at the end."""
     positions = portfolio.positions.values[-1]

@@ -15,6 +15,16 @@ from rich.table import Table
 
 from ..config import ConfigLoader
 from ..models.strategy import MACDConfig, MACrossConfig, StrategyConfig
+from .strategy_utils import (
+    build_configuration_overrides,
+    convert_to_legacy_config,
+    handle_command_error,
+    show_config_preview,
+    display_results_table,
+    display_sweep_results_table,
+    show_execution_progress,
+    validate_parameter_relationships,
+)
 
 # Create strategy sub-app
 app = typer.Typer(
@@ -73,32 +83,15 @@ def run(
         # Load configuration
         loader = ConfigLoader()
 
-        # Build configuration overrides from CLI arguments
-        overrides = {}
-        if ticker:
-            # Handle comma-separated ticker values
-            flattened_tickers = []
-            for t in ticker:
-                if "," in t:
-                    # Split comma-separated values and add to list
-                    flattened_tickers.extend([tick.strip() for tick in t.split(",")])
-                else:
-                    # Single ticker value
-                    flattened_tickers.append(t)
-            overrides["ticker"] = flattened_tickers
-        if strategy_type:
-            overrides["strategy_types"] = strategy_type
-        if windows:
-            overrides["windows"] = windows
-        if min_trades or min_win_rate:
-            minimums = {}
-            if min_trades:
-                minimums["trades"] = min_trades
-            if min_win_rate:
-                minimums["win_rate"] = min_win_rate
-            overrides["minimums"] = minimums
-
-        overrides["dry_run"] = dry_run
+        # Build configuration overrides using shared utility
+        overrides = build_configuration_overrides(
+            ticker=ticker,
+            strategy_type=strategy_type,
+            windows=windows,
+            min_trades=min_trades,
+            min_win_rate=min_win_rate,
+            dry_run=dry_run
+        )
 
         # Load configuration
         if profile:
@@ -108,8 +101,11 @@ def run(
             template = loader.get_config_template("strategy")
             config = loader.load_from_dict(template, StrategyConfig, overrides)
 
+        # Validate parameter relationships
+        validate_parameter_relationships(config)
+
         if dry_run:
-            _show_config_preview(config)
+            show_config_preview(config, "Strategy Configuration Preview")
             return
 
         if verbose:
@@ -123,15 +119,17 @@ def run(
         )
         run = ma_cross_module.run
 
-        rprint("[bold]Executing strategy analysis...[/bold]")
+        # Show execution progress
+        tickers_to_process = config.ticker if isinstance(config.ticker, list) else [config.ticker]
+        show_execution_progress(
+            "Executing strategy analysis",
+            ticker_count=len(tickers_to_process)
+        )
 
-        # Convert Pydantic model to legacy config format
-        legacy_config = _convert_to_legacy_config(config)
+        # Convert Pydantic model to legacy config format using shared utility
+        legacy_config = convert_to_legacy_config(config)
 
         # Debug: Show all tickers that will be processed
-        tickers_to_process = legacy_config.get("TICKER", [])
-        if isinstance(tickers_to_process, str):
-            tickers_to_process = [tickers_to_process]
         rprint(
             f"[bold]Processing {len(tickers_to_process)} tickers:[/bold] {', '.join(tickers_to_process)}"
         )
@@ -148,10 +146,7 @@ def run(
             )
 
     except Exception as e:
-        rprint(f"[red]Error executing strategy: {e}[/red]")
-        if verbose:
-            raise
-        raise typer.Exit(1)
+        handle_command_error(e, "strategy run", verbose)
 
 
 @app.command()
@@ -159,8 +154,8 @@ def sweep(
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
-    ticker: Optional[str] = typer.Option(
-        None, "--ticker", "-t", help="Single ticker symbol for parameter sweep"
+    ticker: Optional[List[str]] = typer.Option(
+        None, "--ticker", "-t", help="Ticker symbols for parameter sweep (multiple args or comma-separated: --ticker AAPL,MSFT or --ticker AAPL --ticker MSFT)"
     ),
     fast_min: Optional[int] = typer.Option(
         None, "--fast-min", help="Minimum fast period for sweep"
@@ -186,40 +181,49 @@ def sweep(
 
     This command runs a comprehensive parameter sweep across different
     fast and slow moving average periods to find optimal combinations.
+    Supports multiple tickers for comparative analysis.
 
     Examples:
         trading-cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50 --slow-min 20 --slow-max 200
+        trading-cli strategy sweep --ticker AAPL,MSFT,GOOGL --fast-min 10 --fast-max 30 --slow-min 40 --slow-max 80
         trading-cli strategy sweep --profile ma_cross_crypto --max-results 20
     """
     try:
         loader = ConfigLoader()
 
-        # Build overrides for sweep parameters
-        overrides = {}
-        if ticker:
-            overrides["ticker"] = ticker
-        if fast_min and fast_max:
-            overrides["fast_period_range"] = (fast_min, fast_max)
-        if slow_min and slow_max:
-            overrides["slow_period_range"] = (slow_min, slow_max)
+        # Build configuration overrides using shared utility
+        overrides = build_configuration_overrides(
+            ticker=ticker,
+            fast_min=fast_min,
+            fast_max=fast_max,
+            slow_min=slow_min,
+            slow_max=slow_max,
+            dry_run=dry_run
+        )
 
-        # Load MA Cross configuration
+        # Load configuration (use StrategyConfig instead of MACrossConfig for consistency)
         if profile:
-            config = loader.load_from_profile(profile, MACrossConfig, overrides)
+            config = loader.load_from_profile(profile, StrategyConfig, overrides)
         else:
-            template = loader.get_config_template("ma_cross")
-            config = loader.load_from_dict(template, MACrossConfig, overrides)
+            template = loader.get_config_template("strategy")
+            config = loader.load_from_dict(template, StrategyConfig, overrides)
+
+        # Validate parameter relationships
+        validate_parameter_relationships(config)
 
         if dry_run:
-            _show_sweep_preview(config)
+            show_config_preview(config, "Parameter Sweep Preview")
             return
 
-        rprint("[bold]Starting parameter sweep analysis...[/bold]")
-        rprint(f"Ticker: {config.ticker}")
-        rprint(f"Fast period range: {config.fast_period_range}")
-        rprint(f"Slow period range: {config.slow_period_range}")
-
-        rprint("[bold]Executing parameter sweep...[/bold]")
+        # Show configuration summary
+        ticker_display = ", ".join(config.ticker) if isinstance(config.ticker, list) else config.ticker
+        fast_range_display = config.fast_period_range or (5, 50)
+        slow_range_display = config.slow_period_range or (20, 200)
+        
+        show_execution_progress("Starting parameter sweep analysis")
+        rprint(f"Ticker(s): {ticker_display}")
+        rprint(f"Fast period range: {fast_range_display}")
+        rprint(f"Slow period range: {slow_range_display}")
 
         # Import required modules for parameter sweep
         from ...strategies.ma_cross.tools.parameter_sensitivity import (
@@ -229,62 +233,81 @@ def sweep(
         from ...tools.logging_context import logging_context
 
         with logging_context("cli_parameter_sweep", "parameter_sweep.log") as log:
-            # Convert config to legacy format
-            legacy_config = _convert_sweep_to_legacy_config(config)
+            # Convert config to legacy format using shared utility
+            legacy_config = convert_to_legacy_config(config)
 
-            # Get price data
-            rprint(f"Fetching price data for {config.ticker}...")
-            data = get_data(config.ticker, legacy_config, log)
-            if data is None:
-                rprint("[red]Failed to fetch price data[/red]")
-                raise typer.Exit(1)
+            # Generate parameter combinations with defaults if not specified
+            if config.fast_period_range is None or config.slow_period_range is None:
+                rprint("[yellow]Warning: No period ranges specified in profile. Using defaults.[/yellow]")
+                rprint("[dim]For custom ranges, use: --fast-min X --fast-max Y --slow-min Z --slow-max W[/dim]")
+                fast_range = config.fast_period_range or (5, 50)
+                slow_range = config.slow_period_range or (20, 200)
+            else:
+                fast_range = config.fast_period_range
+                slow_range = config.slow_period_range
+            
+            short_windows = list(range(fast_range[0], fast_range[1] + 1))
+            long_windows = list(range(slow_range[0], slow_range[1] + 1))
 
-            # Generate parameter combinations
-            short_windows = list(
-                range(config.fast_period_range[0], config.fast_period_range[1] + 1)
-            )
-            long_windows = list(
-                range(config.slow_period_range[0], config.slow_period_range[1] + 1)
-            )
-
-            # Filter combinations where short < long
+            # Handle multiple tickers
+            ticker_list = config.ticker if isinstance(config.ticker, list) else [config.ticker]
+            
+            # Calculate total combinations
             total_combinations = sum(
                 1 for s in short_windows for l in long_windows if s < l
-            ) * len(config.strategy_types)
-            rprint(f"Analyzing {total_combinations} parameter combinations...")
+            ) * len(config.strategy_types) * len(ticker_list)
+            
+            show_execution_progress(
+                "Executing parameter sweep",
+                ticker_count=len(ticker_list),
+                combination_count=total_combinations
+            )
 
             all_results = []
-            for strategy_type in config.strategy_types:
-                rprint(f"Running {strategy_type} parameter sweep...")
+            
+            # Process each ticker individually
+            for single_ticker in ticker_list:
+                rprint(f"\n[bold]Processing parameter sweep for {single_ticker}...[/bold]")
+                
+                # Get price data for single ticker
+                rprint(f"Fetching price data for {single_ticker}...")
+                data = get_data(single_ticker, legacy_config, log)
+                if data is None:
+                    rprint(f"[red]Failed to fetch price data for {single_ticker}[/red]")
+                    continue
 
-                # Set strategy type in legacy config
-                strategy_config = legacy_config.copy()
-                strategy_config["STRATEGY_TYPE"] = strategy_type
+                for strategy_type in config.strategy_types:
+                    rprint(f"Running {strategy_type} parameter sweep for {single_ticker}...")
 
-                # Run parameter sensitivity analysis
-                results_df = analyze_parameter_sensitivity(
-                    data=data,
-                    short_windows=short_windows,
-                    long_windows=long_windows,
-                    config=strategy_config,
-                    log=log,
-                )
+                    # Set strategy type in legacy config
+                    strategy_config = legacy_config.copy()
+                    strategy_config["STRATEGY_TYPE"] = strategy_type
+                    strategy_config["TICKER"] = single_ticker  # Ensure single ticker in config
 
-                if results_df is not None:
-                    # Convert to list of dicts for display
-                    strategy_results = results_df.to_dicts()
-                    all_results.extend(strategy_results)
-                    rprint(
-                        f"Found {len(strategy_results)} valid {strategy_type} combinations"
+                    # Run parameter sensitivity analysis
+                    results_df = analyze_parameter_sensitivity(
+                        data=data,
+                        short_windows=short_windows,
+                        long_windows=long_windows,
+                        config=strategy_config,
+                        log=log,
                     )
 
+                    if results_df is not None:
+                        # Convert to list of dicts for display
+                        strategy_results = results_df.to_dicts()
+                        all_results.extend(strategy_results)
+                        rprint(
+                            f"Found {len(strategy_results)} valid {strategy_type} combinations for {single_ticker}"
+                        )
+
             if all_results:
-                # Sort by score and display top results
+                # Sort by score and display top results using shared utility
                 sorted_results = sorted(
                     all_results, key=lambda x: x.get("Score", 0), reverse=True
                 )
 
-                _display_sweep_results(sorted_results[:max_results], config)
+                display_sweep_results_table(sorted_results[:max_results])
                 rprint(f"\n[green]Parameter sweep completed![/green]")
                 rprint(
                     f"Found {len(all_results)} total combinations, showing top {min(max_results, len(sorted_results))}"
@@ -297,8 +320,7 @@ def sweep(
                 rprint("[yellow]No valid parameter combinations found[/yellow]")
 
     except Exception as e:
-        rprint(f"[red]Error performing parameter sweep: {e}[/red]")
-        raise typer.Exit(1)
+        handle_command_error(e, "strategy sweep", verbose=False)
 
 
 @app.command()
@@ -306,9 +328,11 @@ def analyze(
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
-    ticker: str = typer.Argument(help="Ticker symbol to analyze"),
-    strategy_type: str = typer.Option(
-        "SMA", "--strategy", "-s", help="Strategy type: SMA, EMA, or MACD"
+    ticker: Optional[List[str]] = typer.Option(
+        None, "--ticker", "-t", help="Ticker symbol(s) to analyze (multiple args or comma-separated)"
+    ),
+    strategy_type: Optional[List[str]] = typer.Option(
+        ["SMA", "EMA"], "--strategy", "-s", help="Strategy types: SMA, EMA, MACD (can be used multiple times)"
     ),
     fast_period: Optional[int] = typer.Option(
         None, "--fast", help="Fast period parameter"
@@ -317,21 +341,67 @@ def analyze(
         None, "--slow", help="Slow period parameter"
     ),
     show_trades: bool = typer.Option(
-        False, "--show-trades", help="Show individual trade details"
+        True, "--show-trades/--no-show-trades", help="Show individual trade details (default: True)"
+    ),
+    dry_run: bool = typer.Option(
+        False, "--dry-run", help="Preview configuration without executing"
+    ),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Enable verbose output"
     ),
 ):
     """
-    Analyze a single strategy configuration in detail.
+    Analyze strategy configurations for one or more tickers.
 
-    This command provides detailed analysis of a specific strategy
-    configuration including performance metrics and trade details.
+    This command provides detailed analysis of specific strategy
+    configurations including performance metrics and trade details.
+    By default, analyzes both SMA and EMA strategies with trade details shown.
 
     Examples:
-        trading-cli strategy analyze AAPL --strategy SMA --fast 20 --slow 50
-        trading-cli strategy analyze BTC-USD --strategy EMA --show-trades
+        trading-cli strategy analyze --ticker AAPL  # Analyzes SMA and EMA with trade details
+        trading-cli strategy analyze --ticker AAPL --strategy MACD --fast 12 --slow 26
+        trading-cli strategy analyze --ticker AAPL,MSFT,GOOGL --strategy SMA --no-show-trades
+        trading-cli strategy analyze --ticker BTC-USD --strategy SMA --strategy EMA
     """
     try:
-        rprint(f"[bold]Analyzing {strategy_type} strategy for {ticker}...[/bold]")
+        # Load configuration
+        loader = ConfigLoader()
+
+        # Build configuration overrides using shared utility
+        overrides = build_configuration_overrides(
+            ticker=ticker,
+            strategy_type=strategy_type,
+            fast_period=fast_period,
+            slow_period=slow_period,
+            dry_run=dry_run
+        )
+
+        # Load configuration
+        if profile:
+            config = loader.load_from_profile(profile, StrategyConfig, overrides)
+        else:
+            template = loader.get_config_template("strategy")
+            config = loader.load_from_dict(template, StrategyConfig, overrides)
+
+        # Validate parameter relationships
+        validate_parameter_relationships(config)
+
+        # Handle default ticker if none specified
+        if not config.ticker:
+            rprint("[red]Error: No ticker specified. Use --ticker option or configure in profile.[/red]")
+            raise typer.Exit(1)
+
+        # Ensure ticker is a list for consistent processing
+        ticker_list = config.ticker if isinstance(config.ticker, list) else [config.ticker]
+
+        if dry_run:
+            show_config_preview(config, "Strategy Analysis Preview")
+            return
+
+        show_execution_progress(
+            f"Analyzing {', '.join(config.strategy_types)} strategies",
+            ticker_count=len(ticker_list)
+        )
 
         # Import required modules for single strategy analysis
         from ...strategies.ma_cross.tools.strategy_execution import (
@@ -340,282 +410,56 @@ def analyze(
         from ...tools.get_data import get_data
         from ...tools.logging_context import logging_context
 
+        all_results = []
+
         with logging_context("cli_strategy_analyze", "strategy_analyze.log") as log:
-            # Build configuration for single strategy analysis
-            config_dict = {
-                "TICKER": ticker,
-                "STRATEGY_TYPE": strategy_type,
-                "SHORT_WINDOW": fast_period or 20,  # Default values if not provided
-                "LONG_WINDOW": slow_period or 50,
-                "BASE_DIR": str(Path.cwd()),
-                "REFRESH": True,
-                "USE_HOURLY": False,
-                "USE_YEARS": False,
-                "YEARS": [],
-                "DIRECTION": "BOTH",
-                "USE_CURRENT": False,
-                "USE_SYNTHETIC": False,
-                "USE_GBM": False,
-                "USE_SCANNER": False,
-                "SCANNER_LIST": [],
-                "SORT_BY": "Score",
-                "SORT_ASC": False,
-                "MINIMUMS": {},
-            }
+            for single_ticker in ticker_list:
+                for single_strategy in config.strategy_types:
+                    rprint(f"\n[bold]Processing {single_ticker} with {single_strategy}...[/bold]")
+                    
+                    # Build configuration for single strategy analysis using shared utility
+                    legacy_config = convert_to_legacy_config(config)
+                    legacy_config.update({
+                        "TICKER": single_ticker,
+                        "STRATEGY_TYPE": single_strategy,
+                        "SHORT_WINDOW": config.fast_period or 20,  # Default values if not provided
+                        "LONG_WINDOW": config.slow_period or 50,
+                    })
 
-            rprint(f"Configuration:")
-            rprint(f"  Ticker: {ticker}")
-            rprint(f"  Strategy: {strategy_type}")
-            rprint(f"  Fast Period: {config_dict['SHORT_WINDOW']}")
-            rprint(f"  Slow Period: {config_dict['LONG_WINDOW']}")
+                    if verbose:
+                        rprint(f"Configuration:")
+                        rprint(f"  Ticker: {single_ticker}")
+                        rprint(f"  Strategy: {single_strategy}")
+                        rprint(f"  Fast Period: {legacy_config['SHORT_WINDOW']}")
+                        rprint(f"  Slow Period: {legacy_config['LONG_WINDOW']}")
 
-            # Execute single strategy analysis
-            result = execute_single_strategy(ticker, config_dict, log)
+                    # Execute single strategy analysis
+                    result = execute_single_strategy(single_ticker, legacy_config, log)
 
-            if result:
-                _display_detailed_analysis(result, ticker, strategy_type, show_trades)
-                rprint(f"\n[green]Strategy analysis completed successfully![/green]")
-            else:
-                rprint(
-                    "[red]Strategy analysis failed - no valid results generated[/red]"
-                )
+                    if result:
+                        all_results.append(result)
+                        if len(ticker_list) == 1 and len(config.strategy_types) == 1:
+                            # For single ticker and single strategy, show detailed analysis
+                            _display_detailed_analysis(result, single_ticker, single_strategy, show_trades)
+                    else:
+                        rprint(f"[yellow]No valid results for {single_ticker} with {single_strategy}[/yellow]")
+
+        if all_results:
+            if len(ticker_list) > 1 or len(config.strategy_types) > 1:
+                # For multiple tickers or strategies, show summary table using shared utility
+                display_results_table(all_results, "Strategy Analysis Results")
+            rprint(f"\n[green]Strategy analysis completed successfully![/green]")
+        else:
+            rprint(
+                "[red]Strategy analysis failed - no valid results generated[/red]"
+            )
 
     except Exception as e:
-        rprint(f"[red]Error analyzing strategy: {e}[/red]")
-        raise typer.Exit(1)
+        handle_command_error(e, "strategy analyze", verbose)
 
 
-def _show_config_preview(config: StrategyConfig):
-    """Display configuration preview for dry run."""
-    table = Table(title="Strategy Configuration Preview", show_header=True)
-    table.add_column("Parameter", style="cyan", no_wrap=True)
-    table.add_column("Value", style="green")
-
-    table.add_row("Ticker(s)", str(config.ticker))
-    table.add_row("Strategy Types", ", ".join(config.strategy_types))
-    table.add_row("Windows", str(config.windows))
-    table.add_row("Direction", config.direction)
-    table.add_row("Use Hourly", str(config.use_hourly))
-
-    if config.minimums.win_rate:
-        table.add_row("Min Win Rate", f"{config.minimums.win_rate:.2%}")
-    if config.minimums.trades:
-        table.add_row("Min Trades", str(config.minimums.trades))
-
-    console.print(table)
-    rprint("\n[yellow]This is a dry run. Use --no-dry-run to execute.[/yellow]")
-
-
-def _show_sweep_preview(config: MACrossConfig):
-    """Display parameter sweep preview."""
-    table = Table(title="Parameter Sweep Preview", show_header=True)
-    table.add_column("Parameter", style="cyan")
-    table.add_column("Value", style="green")
-
-    table.add_row("Ticker", str(config.ticker))
-    table.add_row("Strategy Types", ", ".join(config.strategy_types))
-    table.add_row("Fast Period Range", str(config.fast_period_range))
-    table.add_row("Slow Period Range", str(config.slow_period_range))
-
-    if config.fast_period_range and config.slow_period_range:
-        fast_count = config.fast_period_range[1] - config.fast_period_range[0] + 1
-        slow_count = config.slow_period_range[1] - config.slow_period_range[0] + 1
-        total_combinations = fast_count * slow_count * len(config.strategy_types)
-        table.add_row("Total Combinations", str(total_combinations))
-
-    console.print(table)
-    rprint("\n[yellow]This is a dry run. Use --no-dry-run to execute.[/yellow]")
-
-
-def _convert_to_legacy_config(config: StrategyConfig) -> dict:
-    """Convert Pydantic StrategyConfig to legacy config format.
-
-    Maps lowercase field names to uppercase field names expected by
-    existing strategy execution modules.
-    """
-    legacy_config = {
-        # Core fields - these are required
-        "TICKER": config.ticker,  # Pass the full list or string
-        "WINDOWS": config.windows,
-        "BASE_DIR": str(config.base_dir),
-        # Strategy execution fields
-        "STRATEGY_TYPES": config.strategy_types,
-        "DIRECTION": config.direction,
-        "USE_HOURLY": config.use_hourly,
-        "USE_YEARS": config.use_years,
-        "YEARS": config.years,
-        "REFRESH": config.refresh,
-        # Filtering minimums
-        "MINIMUMS": {},
-        # Synthetic ticker support
-        "USE_SYNTHETIC": config.synthetic.use_synthetic,
-        # Additional features
-        "USE_GBM": config.use_gbm,
-        "USE_SCANNER": config.use_scanner,
-        "SCANNER_LIST": config.scanner_list,
-        # Display and sorting
-        "SORT_BY": config.sort_by,
-        "SORT_ASC": config.sort_ascending,
-        "USE_CURRENT": config.filter.use_current,
-    }
-
-    # Add minimums if they exist
-    if config.minimums.win_rate is not None:
-        legacy_config["MINIMUMS"]["WIN_RATE"] = config.minimums.win_rate
-    if config.minimums.trades is not None:
-        legacy_config["MINIMUMS"]["TRADES"] = config.minimums.trades
-    if config.minimums.expectancy_per_trade is not None:
-        legacy_config["MINIMUMS"][
-            "EXPECTANCY_PER_TRADE"
-        ] = config.minimums.expectancy_per_trade
-    if config.minimums.profit_factor is not None:
-        legacy_config["MINIMUMS"]["PROFIT_FACTOR"] = config.minimums.profit_factor
-    if config.minimums.sortino_ratio is not None:
-        legacy_config["MINIMUMS"]["SORTINO_RATIO"] = config.minimums.sortino_ratio
-    if config.minimums.beats_bnh is not None:
-        legacy_config["MINIMUMS"]["BEATS_BNH"] = config.minimums.beats_bnh
-
-    # Handle synthetic ticker configuration
-    if config.synthetic.use_synthetic:
-        if config.synthetic.ticker_1:
-            legacy_config["TICKER_1"] = config.synthetic.ticker_1
-        if config.synthetic.ticker_2:
-            legacy_config["TICKER_2"] = config.synthetic.ticker_2
-
-    return legacy_config
-
-
-def _convert_sweep_to_legacy_config(config) -> dict:
-    """Convert MACrossConfig to legacy config format for parameter sweep."""
-    legacy_config = {
-        # Core fields
-        "TICKER": config.ticker,
-        "BASE_DIR": str(config.base_dir),
-        "REFRESH": config.refresh,
-        # Strategy execution fields
-        "STRATEGY_TYPES": config.strategy_types,
-        "DIRECTION": config.direction,
-        "USE_HOURLY": config.use_hourly,
-        "USE_YEARS": config.use_years,
-        "YEARS": config.years,
-        # Filtering minimums
-        "MINIMUMS": {},
-        # Synthetic ticker support (inherited from base config)
-        "USE_SYNTHETIC": getattr(config, "use_synthetic", False),
-        # Additional features (inherited from base config)
-        "USE_GBM": getattr(config, "use_gbm", False),
-        "USE_SCANNER": getattr(config, "use_scanner", False),
-        "SCANNER_LIST": getattr(config, "scanner_list", []),
-        # Display and sorting
-        "SORT_BY": config.sort_by,
-        "SORT_ASC": config.sort_ascending,
-        "USE_CURRENT": config.filter.use_current,
-        # Parameter sweep specific
-        "FAST_PERIOD_RANGE": config.fast_period_range,
-        "SLOW_PERIOD_RANGE": config.slow_period_range,
-    }
-
-    # Add minimums if they exist
-    if config.minimums.win_rate is not None:
-        legacy_config["MINIMUMS"]["WIN_RATE"] = config.minimums.win_rate
-    if config.minimums.trades is not None:
-        legacy_config["MINIMUMS"]["TRADES"] = config.minimums.trades
-    if config.minimums.expectancy_per_trade is not None:
-        legacy_config["MINIMUMS"][
-            "EXPECTANCY_PER_TRADE"
-        ] = config.minimums.expectancy_per_trade
-    if config.minimums.profit_factor is not None:
-        legacy_config["MINIMUMS"]["PROFIT_FACTOR"] = config.minimums.profit_factor
-    if config.minimums.sortino_ratio is not None:
-        legacy_config["MINIMUMS"]["SORTINO_RATIO"] = config.minimums.sortino_ratio
-    if config.minimums.beats_bnh is not None:
-        legacy_config["MINIMUMS"]["BEATS_BNH"] = config.minimums.beats_bnh
-
-    return legacy_config
-
-
-def _display_results(results: List, config: StrategyConfig):
-    """Display strategy analysis results."""
-    if not results:
-        return
-
-    # Create results table
-    table = Table(title="Strategy Analysis Results", show_header=True)
-    table.add_column("Ticker", style="cyan", no_wrap=True)
-    table.add_column("Strategy", style="blue", no_wrap=True)
-    table.add_column("Score", style="green", justify="right")
-    table.add_column("Win Rate", style="yellow", justify="right")
-    table.add_column("Trades", style="white", justify="right")
-    table.add_column("Return %", style="magenta", justify="right")
-
-    # Sort results by score if available
-    sorted_results = sorted(results, key=lambda x: x.get("Score", 0), reverse=True)
-
-    # Display top results
-    for result in sorted_results[:20]:  # Show top 20
-        ticker = result.get("Ticker", "N/A")
-        strategy = result.get("Strategy", "N/A")
-        score = result.get("Score", 0)
-        win_rate = result.get("Win Rate [%]", 0)
-        trades = result.get("Total Trades", 0)
-        total_return = result.get("Total Return [%]", 0)
-
-        table.add_row(
-            ticker,
-            strategy,
-            f"{score:.2f}",
-            f"{win_rate:.1f}%",
-            str(int(trades)),
-            f"{total_return:.1f}%",
-        )
-
-    console.print(table)
-
-    if len(sorted_results) > 20:
-        rprint(f"\n[dim]Showing top 20 results of {len(sorted_results)} total[/dim]")
-
-
-def _display_sweep_results(results: List, config):
-    """Display parameter sweep results with MA period information."""
-    if not results:
-        return
-
-    # Create sweep results table
-    table = Table(title="Parameter Sweep Results", show_header=True)
-    table.add_column("Rank", style="white", no_wrap=True, justify="right")
-    table.add_column("Strategy", style="blue", no_wrap=True)
-    table.add_column("Fast", style="cyan", justify="right")
-    table.add_column("Slow", style="cyan", justify="right")
-    table.add_column("Score", style="green", justify="right")
-    table.add_column("Win Rate", style="yellow", justify="right")
-    table.add_column("Trades", style="white", justify="right")
-    table.add_column("Return %", style="magenta", justify="right")
-    table.add_column("Sharpe", style="bright_blue", justify="right")
-
-    # Display results with rank
-    for i, result in enumerate(results, 1):
-        strategy = result.get("Strategy Type", "N/A")
-        fast_period = result.get("Short Window", 0)
-        slow_period = result.get("Long Window", 0)
-        score = result.get("Score", 0)
-        win_rate = result.get("Win Rate [%]", 0)
-        trades = result.get("Total Trades", 0)
-        total_return = result.get("Total Return [%]", 0)
-        sharpe = result.get("Sharpe Ratio", 0)
-
-        table.add_row(
-            str(i),
-            strategy,
-            str(int(fast_period)),
-            str(int(slow_period)),
-            f"{score:.2f}",
-            f"{win_rate:.1f}%",
-            str(int(trades)),
-            f"{total_return:.1f}%",
-            f"{sharpe:.2f}",
-        )
-
-    console.print(table)
+# Legacy display function still needed for detailed analysis
+# Will be refactored in a future iteration
 
 
 def _display_detailed_analysis(

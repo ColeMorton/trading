@@ -280,8 +280,7 @@ def create_heatmap_figures(
 
     score_fig.update_layout(
         title=dict(
-            text=f'{
-    config["TICKER"]} - {ma_type} Cross Strategy Score<br><sup>{title}</sup>',
+            text=f'{config["TICKER"]} - {ma_type} Cross Strategy Score<br><sup>{title}</sup>',
             x=0.5,
             xanchor="center",
         ),

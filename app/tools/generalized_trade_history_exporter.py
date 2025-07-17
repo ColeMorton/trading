@@ -1302,26 +1302,20 @@ Examples:
                     if not price_file.exists():
                         return None
 
-                    with open(price_file, "r") as f:
-                        lines = f.readlines()
-
-                    data_start = 0
-                    for i, line in enumerate(lines):
-                        if line.startswith("20"):
-                            data_start = i
-                            break
-
-                    if data_start == 0:
+                    df = pd.read_csv(price_file)
+                    
+                    if df.empty:
                         return None
-
-                    df = pd.read_csv(
-                        price_file,
-                        skiprows=data_start,
-                        header=None,
-                        names=["Date", "Close", "High", "Low", "Open", "Volume"],
-                    )
+                        
                     df["Date"] = pd.to_datetime(df["Date"])
                     df.set_index("Date", inplace=True)
+                    
+                    required_columns = ["Close", "High", "Low", "Open", "Volume"]
+                    if not all(col in df.columns for col in required_columns):
+                        if args.verbose:
+                            print(f"Missing required columns in {ticker} price data")
+                        return None
+                        
                     return df
 
                 except Exception as e:

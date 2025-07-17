@@ -114,7 +114,7 @@ class EquityDataExtractor:
 
     def extract_equity_data(
         self,
-        portfolio: vbt.Portfolio,
+        portfolio: "vbt.Portfolio",
         metric_type: MetricType = MetricType.MEAN,
         config: Optional[Dict[str, Any]] = None,
     ) -> EquityData:
@@ -182,7 +182,7 @@ class EquityDataExtractor:
             raise TradingSystemError(error_msg) from e
 
     def _extract_base_equity_curve(
-        self, portfolio: vbt.Portfolio, metric_type: MetricType
+        self, portfolio: "vbt.Portfolio", metric_type: MetricType
     ) -> np.ndarray:
         """
         Extract the base equity curve from portfolio based on metric type.
@@ -235,7 +235,7 @@ class EquityDataExtractor:
                 f"Failed to extract base equity curve: {str(e)}"
             ) from e
 
-    def _extract_timestamp_index(self, portfolio: vbt.Portfolio) -> pd.Index:
+    def _extract_timestamp_index(self, portfolio: "vbt.Portfolio") -> pd.Index:
         """
         Extract timestamp index from portfolio.
 
@@ -374,7 +374,7 @@ class EquityDataExtractor:
         }
 
     def _calculate_mfe_mae_metrics(
-        self, portfolio: vbt.Portfolio, equity_curve: np.ndarray
+        self, portfolio: "vbt.Portfolio", equity_curve: np.ndarray
     ) -> Dict[str, np.ndarray]:
         """
         Calculate Maximum Favorable Excursion (MFE) and Maximum Adverse Excursion (MAE).
@@ -471,7 +471,7 @@ class EquityDataExtractor:
 
 
 def extract_equity_data_from_portfolio(
-    portfolio: vbt.Portfolio,
+    portfolio: "vbt.Portfolio",
     metric_type: Union[str, MetricType] = MetricType.MEAN,
     config: Optional[Dict[str, Any]] = None,
     log: Optional[Callable[[str, str], None]] = None,

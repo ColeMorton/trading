@@ -46,38 +46,35 @@ python -m app.cli concurrency analyze --export-trades
 
 **Important Note:** All functionality is now available through the unified CLI interface. Direct script execution is deprecated and will be removed in future versions. Always use the CLI commands shown above.
 
-### Statistical Performance Divergence System
+### Statistical Performance Divergence System (New Architecture)
+
+**⚠️ Updated**: SPDS now uses simplified 3-layer architecture (Phase 4 Complete)
 
 ```bash
-# Quick portfolio analysis - automatically uses both equity curves and trade history data
-# Always exports both statistical analysis and backtesting parameters
-python -m app.cli spds analyze risk_on.csv
+# NEW: Use updated CLI with modernized architecture
+python -m app.tools.spds_cli_updated analyze --portfolio risk_on.csv
 
-# Explicit data source specification (auto-detects by default)
-python -m app.cli spds analyze risk_on.csv --data-source auto
+# Modern command structure with subcommands
+python -m app.tools.spds_cli_updated analyze --portfolio risk_on.csv --data-source trade-history
+python -m app.tools.spds_cli_updated analyze --strategy AAPL_SMA_20_50
+python -m app.tools.spds_cli_updated analyze --position AAPL_SMA_20_50_20250101
 
-# Force specific data source
-python -m app.cli spds analyze risk_on.csv --data-source trade-history
-python -m app.cli spds analyze conservative.csv --data-source equity-curves
-python -m app.cli spds analyze portfolio.csv --data-source both
+# System health and management
+python -m app.tools.spds_cli_updated health
+python -m app.tools.spds_cli_updated list-portfolios
+python -m app.tools.spds_cli_updated demo
 
-# Interactive mode
-python -m app.cli spds interactive
+# Interactive mode with new architecture
+python -m app.tools.spds_cli_updated interactive
 
-# Show configuration
-python -m app.cli spds health
+# Output formats
+python -m app.tools.spds_cli_updated analyze --portfolio risk_on.csv --output-format json
+python -m app.tools.spds_cli_updated analyze --portfolio risk_on.csv --save-results results.json
 
-# List available portfolios
-python -m app.cli spds list-portfolios
-
-# Create demo files and run example
-python -m app.cli spds demo
-
-# Output as JSON
-python -m app.cli spds analyze risk_on.csv --output-format json
-
-# Save results to file
-python -m app.cli spds analyze risk_on.csv --save-results results.json
+# DEPRECATED (Phase 4 Cleanup): Old commands removed
+# python -m app.cli spds analyze (REMOVED - use spds_cli_updated)
+# Complex service coordination (REMOVED - use unified engine)
+```
 ```
 
 ### Trade History Analysis

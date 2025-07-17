@@ -16,9 +16,9 @@ from app.tools.download_data import download_data
 from app.tools.setup_logging import setup_logging
 
 # TICKERS = ["ETH-USD", "MSTR"]
-# TICKERS = "risk_on.csv"
+TICKERS = "risk_on.csv"
 # TICKERS = "live_signals.csv"
-TICKERS = "protected.csv"
+# TICKERS = "protected.csv"
 INCLUDE_OPTION_STRATEGY = False
 
 # 09-05-25 @ 100000 SOL-USD

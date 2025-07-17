@@ -73,29 +73,9 @@ from app.tools.strategy_utils import filter_portfolios_by_signal, get_strategy_t
 
 CONFIG: Config = {
     "TICKER": [
-        "LYV",
-        "ACGL",
-        "ED",
-        "ETR",
-        "PM",
-        "CTRA",
-        "ROKU",
-        "HIMS",
-        "EG",
-        "LNT",
-        "TT",
-        "EOG",
-        "LLY",
-        "NI",
-        "FANG",
-        "MSFT",
-        "AMZN",
-        "URA",
-        "ADI",
-        "AWK",
-        "CEG",
-        "GOOGL",
-    ],
+    "ROKU","ARM","EVO","ABNB","PM","HIMS","TT","AAPL","APP"
+    # "XLE", "XLU", "XLRE", "XLI", "XLV", "XLP", "XLB", "XLF", "XLK", "XLC"
+],
     # "TICKER_2": 'AVGO',
     # "WINDOWS": 120,
     "WINDOWS": 89,

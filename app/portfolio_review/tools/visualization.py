@@ -8,7 +8,7 @@ import vectorbt as vbt
 
 
 def create_portfolio_plots(
-    portfolio: vbt.Portfolio, benchmark_portfolio: vbt.Portfolio, log
+    portfolio: "vbt.Portfolio", benchmark_portfolio: "vbt.Portfolio", log
 ):
     """
     Create and display portfolio analysis plots.

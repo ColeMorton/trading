@@ -13,7 +13,7 @@ def backtest_strategy(
     log: Callable,
     export_trade_history: bool = False,
     force_refresh_trade_history: bool = False,
-) -> vbt.Portfolio:
+) -> "vbt.Portfolio":
     """
     Backtest the MA cross strategy.
 

@@ -13,89 +13,29 @@
       "momentum_exit_threshold": 0.02,
       "trend_exit_threshold": 0.015,
       "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-15T13:13:26.278456"
+      "generation_timestamp": "2025-07-17T09:10:29.006409"
     },
-    "AMZN_SMA_51_69_AMZN_D": {
+    "WELL_SMA_67_88_WELL_D": {
       "take_profit_pct": 15.0,
       "stop_loss_pct": 8.0,
-      "max_holding_days": 468,
+      "max_holding_days": 455,
       "min_holding_days": 21,
-      "trailing_stop_pct": 3.37,
+      "trailing_stop_pct": 3.21,
       "confidence_level": 0.9,
-      "sample_size": 100,
-      "statistical_validity": "LOW",
+      "sample_size": 75,
+      "statistical_validity": "MEDIUM",
       "entry_signal": "STATISTICAL_DIVERGENCE",
       "momentum_exit_threshold": 0.02,
       "trend_exit_threshold": 0.015,
       "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-15T13:13:26.293762"
-    },
-    "GD_SMA_70_85_GD_D": {
-      "take_profit_pct": 15.0,
-      "stop_loss_pct": 8.0,
-      "max_holding_days": 468,
-      "min_holding_days": 21,
-      "trailing_stop_pct": 2.52,
-      "confidence_level": 0.9,
-      "sample_size": 100,
-      "statistical_validity": "LOW",
-      "entry_signal": "STATISTICAL_DIVERGENCE",
-      "momentum_exit_threshold": 0.02,
-      "trend_exit_threshold": 0.015,
-      "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-15T13:13:26.315163"
-    },
-    "GOOGL_SMA_9_39_GOOGL_D": {
-      "take_profit_pct": 12.75,
-      "stop_loss_pct": 6.8,
-      "max_holding_days": 30,
-      "min_holding_days": 3,
-      "trailing_stop_pct": 3.85,
-      "confidence_level": 0.9,
-      "sample_size": 100,
-      "statistical_validity": "LOW",
-      "entry_signal": "STATISTICAL_DIVERGENCE",
-      "momentum_exit_threshold": 0.02,
-      "trend_exit_threshold": 0.015,
-      "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-15T13:13:26.327647"
-    },
-    "PWR_SMA_66_78_PWR_D": {
-      "take_profit_pct": 15.64,
-      "stop_loss_pct": 8.34,
-      "max_holding_days": 80,
-      "min_holding_days": 12,
-      "trailing_stop_pct": 3.85,
-      "confidence_level": 0.9,
-      "sample_size": 100,
-      "statistical_validity": "LOW",
-      "entry_signal": "STATISTICAL_DIVERGENCE",
-      "momentum_exit_threshold": 0.02,
-      "trend_exit_threshold": 0.015,
-      "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-15T13:13:26.343799"
-    },
-    "INTU_SMA_54_64_INTU_D": {
-      "take_profit_pct": 16.12,
-      "stop_loss_pct": 8.6,
-      "max_holding_days": 71,
-      "min_holding_days": 71,
-      "trailing_stop_pct": 3.13,
-      "confidence_level": 0.9,
-      "sample_size": 100,
-      "statistical_validity": "LOW",
-      "entry_signal": "STATISTICAL_DIVERGENCE",
-      "momentum_exit_threshold": 0.02,
-      "trend_exit_threshold": 0.015,
-      "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-15T13:13:26.355956"
+      "generation_timestamp": "2025-07-17T09:10:29.008300"
     },
     "SMCI_SMA_58_60_SMCI_D": {
       "take_profit_pct": 15.0,
       "stop_loss_pct": 8.0,
       "max_holding_days": 468,
       "min_holding_days": 21,
-      "trailing_stop_pct": 8.31,
+      "trailing_stop_pct": 7.6,
       "confidence_level": 0.9,
       "sample_size": 100,
       "statistical_validity": "LOW",
@@ -103,44 +43,14 @@
       "momentum_exit_threshold": 0.02,
       "trend_exit_threshold": 0.015,
       "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-15T13:13:26.364670"
-    },
-    "QCOM_SMA_49_66_QCOM_D": {
-      "take_profit_pct": 15.0,
-      "stop_loss_pct": 8.0,
-      "max_holding_days": 30,
-      "min_holding_days": 21,
-      "trailing_stop_pct": 3.79,
-      "confidence_level": 0.9,
-      "sample_size": 100,
-      "statistical_validity": "LOW",
-      "entry_signal": "STATISTICAL_DIVERGENCE",
-      "momentum_exit_threshold": 0.02,
-      "trend_exit_threshold": 0.015,
-      "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-15T13:13:26.395015"
-    },
-    "LMT_SMA_59_87_LMT_D": {
-      "take_profit_pct": 16.12,
-      "stop_loss_pct": 8.6,
-      "max_holding_days": 55,
-      "min_holding_days": 55,
-      "trailing_stop_pct": 3.97,
-      "confidence_level": 0.9,
-      "sample_size": 100,
-      "statistical_validity": "LOW",
-      "entry_signal": "STATISTICAL_DIVERGENCE",
-      "momentum_exit_threshold": 0.02,
-      "trend_exit_threshold": 0.015,
-      "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-15T13:13:26.436854"
+      "generation_timestamp": "2025-07-17T09:10:29.009905"
     },
     "GOOGL_EMA_9_46_GOOGL_D": {
       "take_profit_pct": 15.0,
       "stop_loss_pct": 8.0,
       "max_holding_days": 468,
       "min_holding_days": 21,
-      "trailing_stop_pct": 4.05,
+      "trailing_stop_pct": 3.98,
       "confidence_level": 0.9,
       "sample_size": 100,
       "statistical_validity": "LOW",
@@ -148,14 +58,14 @@
       "momentum_exit_threshold": 0.02,
       "trend_exit_threshold": 0.015,
       "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-15T13:13:26.464211"
+      "generation_timestamp": "2025-07-17T09:10:29.011336"
     },
     "DOV_SMA_45_86_DOV_D": {
       "take_profit_pct": 15.0,
       "stop_loss_pct": 8.0,
       "max_holding_days": 468,
       "min_holding_days": 21,
-      "trailing_stop_pct": 2.77,
+      "trailing_stop_pct": 2.76,
       "confidence_level": 0.9,
       "sample_size": 100,
       "statistical_validity": "LOW",
@@ -163,59 +73,14 @@
       "momentum_exit_threshold": 0.02,
       "trend_exit_threshold": 0.015,
       "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-15T13:13:26.499533"
-    },
-    "COR_SMA_8_26_COR_D": {
-      "take_profit_pct": 15.0,
-      "stop_loss_pct": 8.0,
-      "max_holding_days": 468,
-      "min_holding_days": 21,
-      "trailing_stop_pct": 2.88,
-      "confidence_level": 0.9,
-      "sample_size": 100,
-      "statistical_validity": "LOW",
-      "entry_signal": "STATISTICAL_DIVERGENCE",
-      "momentum_exit_threshold": 0.02,
-      "trend_exit_threshold": 0.015,
-      "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-15T13:13:26.534225"
-    },
-    "AMD_SMA_7_45_AMD_D": {
-      "take_profit_pct": 16.12,
-      "stop_loss_pct": 8.6,
-      "max_holding_days": 68,
-      "min_holding_days": 68,
-      "trailing_stop_pct": 5.66,
-      "confidence_level": 0.9,
-      "sample_size": 100,
-      "statistical_validity": "LOW",
-      "entry_signal": "STATISTICAL_DIVERGENCE",
-      "momentum_exit_threshold": 0.02,
-      "trend_exit_threshold": 0.015,
-      "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-15T13:13:26.552817"
-    },
-    "COST_EMA_29_68_COST_D": {
-      "take_profit_pct": 16.12,
-      "stop_loss_pct": 8.6,
-      "max_holding_days": 75,
-      "min_holding_days": 75,
-      "trailing_stop_pct": 3.04,
-      "confidence_level": 0.9,
-      "sample_size": 100,
-      "statistical_validity": "LOW",
-      "entry_signal": "STATISTICAL_DIVERGENCE",
-      "momentum_exit_threshold": 0.02,
-      "trend_exit_threshold": 0.015,
-      "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-15T13:13:26.597176"
+      "generation_timestamp": "2025-07-17T09:10:29.012737"
     },
     "AMZN_SMA_10_27_AMZN_D": {
       "take_profit_pct": 15.0,
       "stop_loss_pct": 8.0,
       "max_holding_days": 468,
       "min_holding_days": 21,
-      "trailing_stop_pct": 3.37,
+      "trailing_stop_pct": 3.35,
       "confidence_level": 0.9,
       "sample_size": 100,
       "statistical_validity": "LOW",
@@ -223,73 +88,13 @@
       "momentum_exit_threshold": 0.02,
       "trend_exit_threshold": 0.015,
       "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-15T13:13:26.614577"
-    },
-    "FFIV_SMA_14_45_FFIV_D": {
-      "take_profit_pct": 16.12,
-      "stop_loss_pct": 8.6,
-      "max_holding_days": 67,
-      "min_holding_days": 67,
-      "trailing_stop_pct": 3.22,
-      "confidence_level": 0.9,
-      "sample_size": 100,
-      "statistical_validity": "LOW",
-      "entry_signal": "STATISTICAL_DIVERGENCE",
-      "momentum_exit_threshold": 0.02,
-      "trend_exit_threshold": 0.015,
-      "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-15T13:13:26.625463"
-    },
-    "ILMN_EMA_21_32_ILMN_D": {
-      "take_profit_pct": 16.12,
-      "stop_loss_pct": 8.6,
-      "max_holding_days": 43,
-      "min_holding_days": 43,
-      "trailing_stop_pct": 5.16,
-      "confidence_level": 0.9,
-      "sample_size": 100,
-      "statistical_validity": "LOW",
-      "entry_signal": "STATISTICAL_DIVERGENCE",
-      "momentum_exit_threshold": 0.02,
-      "trend_exit_threshold": 0.015,
-      "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-15T13:13:26.639122"
-    },
-    "RTX_EMA_27_41_RTX_D": {
-      "take_profit_pct": 15.0,
-      "stop_loss_pct": 8.0,
-      "max_holding_days": 468,
-      "min_holding_days": 21,
-      "trailing_stop_pct": 3.15,
-      "confidence_level": 0.9,
-      "sample_size": 100,
-      "statistical_validity": "LOW",
-      "entry_signal": "STATISTICAL_DIVERGENCE",
-      "momentum_exit_threshold": 0.02,
-      "trend_exit_threshold": 0.015,
-      "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-15T13:13:26.672012"
-    },
-    "CRWD_EMA_5_21_CRWD_D": {
-      "take_profit_pct": 16.12,
-      "stop_loss_pct": 8.6,
-      "max_holding_days": 91,
-      "min_holding_days": 91,
-      "trailing_stop_pct": 5.98,
-      "confidence_level": 0.9,
-      "sample_size": 100,
-      "statistical_validity": "LOW",
-      "entry_signal": "STATISTICAL_DIVERGENCE",
-      "momentum_exit_threshold": 0.02,
-      "trend_exit_threshold": 0.015,
-      "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-15T13:13:26.684204"
+      "generation_timestamp": "2025-07-17T09:10:29.014714"
     }
   },
   "generation_metadata": {
-    "generation_timestamp": "2025-07-15T13:13:26.262037",
+    "generation_timestamp": "2025-07-17T09:10:29.002869",
     "confidence_level": 0.9,
-    "total_strategies": 19,
+    "total_strategies": 6,
     "spds_version": "1.0.0",
     "statistical_validity": {
       "MA_SMA_78_82_MA_D": {
@@ -297,42 +102,12 @@
         "confidence": 0.7,
         "validity_level": "LOW"
       },
-      "AMZN_SMA_51_69_AMZN_D": {
-        "sample_size": 100,
-        "confidence": 0.7,
-        "validity_level": "LOW"
-      },
-      "GD_SMA_70_85_GD_D": {
-        "sample_size": 100,
-        "confidence": 0.7,
-        "validity_level": "LOW"
-      },
-      "GOOGL_SMA_9_39_GOOGL_D": {
-        "sample_size": 100,
-        "confidence": 0.7,
-        "validity_level": "LOW"
-      },
-      "PWR_SMA_66_78_PWR_D": {
-        "sample_size": 100,
-        "confidence": 0.7,
-        "validity_level": "LOW"
-      },
-      "INTU_SMA_54_64_INTU_D": {
-        "sample_size": 100,
-        "confidence": 0.7,
-        "validity_level": "LOW"
+      "WELL_SMA_67_88_WELL_D": {
+        "sample_size": 75,
+        "confidence": 0.95,
+        "validity_level": "MEDIUM"
       },
       "SMCI_SMA_58_60_SMCI_D": {
-        "sample_size": 100,
-        "confidence": 0.7,
-        "validity_level": "LOW"
-      },
-      "QCOM_SMA_49_66_QCOM_D": {
-        "sample_size": 100,
-        "confidence": 0.7,
-        "validity_level": "LOW"
-      },
-      "LMT_SMA_59_87_LMT_D": {
         "sample_size": 100,
         "confidence": 0.7,
         "validity_level": "LOW"
@@ -347,42 +122,7 @@
         "confidence": 0.7,
         "validity_level": "LOW"
       },
-      "COR_SMA_8_26_COR_D": {
-        "sample_size": 100,
-        "confidence": 0.7,
-        "validity_level": "LOW"
-      },
-      "AMD_SMA_7_45_AMD_D": {
-        "sample_size": 100,
-        "confidence": 0.7,
-        "validity_level": "LOW"
-      },
-      "COST_EMA_29_68_COST_D": {
-        "sample_size": 100,
-        "confidence": 0.7,
-        "validity_level": "LOW"
-      },
       "AMZN_SMA_10_27_AMZN_D": {
-        "sample_size": 100,
-        "confidence": 0.7,
-        "validity_level": "LOW"
-      },
-      "FFIV_SMA_14_45_FFIV_D": {
-        "sample_size": 100,
-        "confidence": 0.7,
-        "validity_level": "LOW"
-      },
-      "ILMN_EMA_21_32_ILMN_D": {
-        "sample_size": 100,
-        "confidence": 0.7,
-        "validity_level": "LOW"
-      },
-      "RTX_EMA_27_41_RTX_D": {
-        "sample_size": 100,
-        "confidence": 0.7,
-        "validity_level": "LOW"
-      },
-      "CRWD_EMA_5_21_CRWD_D": {
         "sample_size": 100,
         "confidence": 0.7,
         "validity_level": "LOW"

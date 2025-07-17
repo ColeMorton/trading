@@ -1,22 +1,34 @@
-# Statistical Performance Divergence System - Simplified Interface
+# Statistical Performance Divergence System - New Architecture
 
 ## Overview
 
-The Statistical Performance Divergence System (SPDS) provides advanced statistical analysis for trading portfolios with a dramatically simplified interface. Instead of complex configuration, you only need **two parameters**:
+The Statistical Performance Divergence System (SPDS) provides advanced statistical analysis for trading portfolios using a streamlined **3-layer architecture**. The system has been completely modernized with scipy/numpy implementations and simplified interfaces.
 
-1. **PORTFOLIO** - Portfolio filename (e.g., "risk_on.csv")
-2. **USE_TRADE_HISTORY** - Data source: trade history (True) or equity curves (False)
+**New Architecture**: CLI → SPDSAnalysisEngine → Results (replaces old 5-layer system)
 
 ## Quick Start
 
 ```python
-from app.tools.portfolio_analyzer import analyze_portfolio
+from app.tools.spds_analysis_engine import SPDSAnalysisEngine, AnalysisRequest
 
-# Analyze portfolio with trade history - ONE LINE!
-results, summary = await analyze_portfolio("risk_on.csv", use_trade_history=True)
+# New unified analysis interface
+engine = SPDSAnalysisEngine()
+request = AnalysisRequest(
+    analysis_type="portfolio",
+    parameter="risk_on.csv",
+    use_trade_history=True
+)
 
-print(f"Immediate exits: {summary['immediate_exits']}")
-print(f"Strong sells: {summary['strong_sells']}")
+results = await engine.analyze(request)
+```
+
+## Modern CLI Interface
+
+```bash
+# Use the updated CLI for all analysis
+python -m app.tools.spds_cli_updated analyze --portfolio risk_on.csv
+python -m app.tools.spds_cli_updated analyze --strategy AAPL_SMA_20_50
+python -m app.tools.spds_cli_updated health
 ```
 
 ## File Structure
@@ -34,15 +46,32 @@ The system automatically locates files based on the portfolio name:
 ### Basic Portfolio Analysis
 
 ```python
-from app.tools.portfolio_analyzer import PortfolioStatisticalAnalyzer
+from app.tools.spds_analysis_engine import SPDSAnalysisEngine, AnalysisRequest
 
-# Method 1: Full analyzer interface
-analyzer = PortfolioStatisticalAnalyzer("risk_on.csv", use_trade_history=True)
-results = await analyzer.analyze()
-summary = analyzer.get_summary_report(results)
+# New streamlined interface - all analysis types
+engine = SPDSAnalysisEngine()
 
-# Method 2: Quick one-liner
-results, summary = await analyze_portfolio("risk_on.csv", use_trade_history=True)
+# Portfolio analysis
+portfolio_request = AnalysisRequest(
+    analysis_type="portfolio",
+    parameter="risk_on.csv",
+    use_trade_history=True
+)
+results = await engine.analyze(portfolio_request)
+
+# Strategy analysis  
+strategy_request = AnalysisRequest(
+    analysis_type="strategy",
+    parameter="AAPL_SMA_20_50"
+)
+results = await engine.analyze(strategy_request)
+
+# Position analysis
+position_request = AnalysisRequest(
+    analysis_type="position", 
+    parameter="AAPL_SMA_20_50_20250101"
+)
+results = await engine.analyze(position_request)
 ```
 
 ### Portfolio CSV Format
@@ -106,14 +135,19 @@ summary = {
 ### Configuration Options
 
 ```python
-from app.tools.config.statistical_analysis_config import StatisticalAnalysisConfig
+from app.tools.spds_config import SPDSConfig
 
-# Simple configuration
-config = StatisticalAnalysisConfig.create("risk_on.csv", use_trade_history=True)
+# New unified configuration
+config = SPDSConfig(
+    USE_TRADE_HISTORY=True,
+    PORTFOLIO="risk_on.csv",
+    PERCENTILE_THRESHOLD=95,
+    CONVERGENCE_THRESHOLD=0.85
+)
 
-# Access file paths
-portfolio_path = config.get_portfolio_file_path()      # ./csv/strategies/risk_on.csv
-trade_history_path = config.get_trade_history_file_path()  # ./csv/positions/risk_on.csv
+# Configuration presets available
+config = SPDSConfig.conservative()  # Conservative analysis settings
+config = SPDSConfig.aggressive()   # Aggressive analysis settings
 ```
 
 ### Individual Strategy Analysis
@@ -138,31 +172,65 @@ for portfolio in portfolios:
     print(f"{portfolio}: {summary['immediate_exits']} immediate exits")
 ```
 
-## Interface Comparison
+## Architecture Evolution
 
-### Before (Complex)
+### Before (5-Layer Architecture - Deprecated)
 
 ```python
-# OLD: 20+ parameters, complex configuration
-config = SPDSConfig(
-    USE_TRADE_HISTORY=True,
-    TRADE_HISTORY_PATH="./csv/positions/",
-    PERCENTILE_THRESHOLD=95,
-    DUAL_LAYER_THRESHOLD=0.85,
-    RARITY_THRESHOLD=0.05,
-    MULTI_TIMEFRAME_AGREEMENT=3,
-    SAMPLE_SIZE_MINIMUM=15,
-    # ... 15+ more parameters
-)
-service = StatisticalAnalysisService(config=config)
-# Then manually loop through strategies...
+# OLD: Complex 5-layer architecture (REMOVED in Phase 4)
+CLI → ConfigLoader → ServiceCoordinator → StatisticalAnalysisService → DivergenceDetector → Results
+
+# Complex service coordination (DEPRECATED)
+from app.tools.services.statistical_analysis_service import StatisticalAnalysisService
+from app.tools.services.service_coordinator import ServiceCoordinator
+service = StatisticalAnalysisService(config=complex_config)
+coordinator = ServiceCoordinator(service)
+# Manual coordination required...
 ```
 
-### After (Simple)
+### After (3-Layer Architecture - Current)
+
+```python  
+# NEW: Simplified 3-layer architecture (Phase 4 Complete)
+CLI → SPDSAnalysisEngine → Results
+
+# Unified analysis engine
+from app.tools.spds_analysis_engine import SPDSAnalysisEngine, AnalysisRequest
+engine = SPDSAnalysisEngine()
+results = await engine.analyze(request)
+```
+
+## Statistical Library Improvements
+
+### Custom Implementation (Replaced)
 
 ```python
-# NEW: 2 parameters, automatic everything
-results, summary = await analyze_portfolio("risk_on.csv", use_trade_history=True)
+# OLD: 230-line custom percentile estimation (REMOVED in Phase 4B)
+def _estimate_percentile_rank(self, value, percentiles):
+    # ... 230 lines of complex custom logic ...
+    # ... extensive edge case handling ...
+    # ... manual interpolation and extrapolation ...
+```
+
+### SciPy Implementation (Current)
+
+```python
+# NEW: 15-line scipy implementation (Phase 4B Complete)
+def _estimate_percentile_rank(self, value, data_array):
+    from scipy.stats import percentileofscore
+    
+    if not isinstance(data_array, np.ndarray) or len(data_array) == 0:
+        return 50.0
+    
+    if not np.isfinite(value):
+        return 50.0
+    
+    try:
+        percentile = percentileofscore(data_array, value, kind='rank')
+        return max(1.0, min(99.0, percentile))
+    except Exception as e:
+        self.logger.warning(f"Percentile calculation failed: {e}")
+        return 50.0
 ```
 
 ## Error Handling

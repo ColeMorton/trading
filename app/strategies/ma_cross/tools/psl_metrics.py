@@ -33,13 +33,13 @@ def initialize_metric_matrices(num_periods: int) -> MetricMatrices:
 
 
 def calculate_portfolio_metrics(
-    portfolio: vbt.Portfolio, metrics: MetricMatrices, index: int
+    portfolio: "vbt.Portfolio", metrics: MetricMatrices, index: int
 ) -> None:
     """
     Calculate and store portfolio metrics for a given holding period.
 
     Args:
-        portfolio (vbt.Portfolio): VectorBT portfolio object
+        portfolio ("vbt.Portfolio"): VectorBT portfolio object
         metrics (MetricMatrices): Dictionary of metric arrays
         index (int): Index to store metrics at
     """
@@ -50,7 +50,7 @@ def calculate_portfolio_metrics(
 
 
 def create_portfolio_stats(
-    portfolio: vbt.Portfolio,
+    portfolio: "vbt.Portfolio",
     holding_period: int,
     config: Dict[str, Any],
     log: Callable[[str, str], None],
@@ -59,13 +59,13 @@ def create_portfolio_stats(
     Create portfolio statistics dictionary with holding period information.
 
     Args:
-        portfolio (vbt.Portfolio): VectorBT portfolio object
+        portfolio ("vbt.Portfolio"): VectorBT portfolio object
         holding_period (int): Current holding period being analyzed
         config (Dict[str, Any]): Configuration dictionary
         log (Callable[[str, str], None]): Logging function
 
     Returns:
-        Dict: Portfolio statistics with holding period
+        Dict: "vbt.Portfolio" statistics with holding period
     """
     stats = portfolio.stats()
     converted_stats = convert_stats(stats, log, config, None)

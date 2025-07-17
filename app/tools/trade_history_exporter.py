@@ -19,7 +19,7 @@ import vectorbt as vbt
 from app.tools.export_csv import ExportConfig
 
 
-def extract_trade_history(portfolio: vbt.Portfolio) -> pd.DataFrame:
+def extract_trade_history(portfolio: "vbt.Portfolio") -> pd.DataFrame:
     """
     Extract comprehensive trade history from VectorBT portfolio.
 
@@ -62,7 +62,7 @@ def extract_trade_history(portfolio: vbt.Portfolio) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-def extract_orders_history(portfolio: vbt.Portfolio) -> pd.DataFrame:
+def extract_orders_history(portfolio: "vbt.Portfolio") -> pd.DataFrame:
     """
     Extract order history from VectorBT portfolio.
 
@@ -92,7 +92,7 @@ def extract_orders_history(portfolio: vbt.Portfolio) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-def extract_positions_history(portfolio: vbt.Portfolio) -> pd.DataFrame:
+def extract_positions_history(portfolio: "vbt.Portfolio") -> pd.DataFrame:
     """
     Extract position history from VectorBT portfolio.
 
@@ -140,7 +140,7 @@ def extract_positions_history(portfolio: vbt.Portfolio) -> pd.DataFrame:
 
 
 def _enrich_trade_data(
-    trade_df: pd.DataFrame, portfolio: vbt.Portfolio
+    trade_df: pd.DataFrame, portfolio: "vbt.Portfolio"
 ) -> pd.DataFrame:
     """
     Add enriched metrics to trade data.
@@ -477,7 +477,7 @@ def _extract_strategy_parameters(
 
 
 def create_comprehensive_trade_history(
-    portfolio: vbt.Portfolio, config: Dict[str, Any]
+    portfolio: "vbt.Portfolio", config: Dict[str, Any]
 ) -> Dict[str, Any]:
     """
     Create comprehensive trade history data structure with all components.
@@ -641,7 +641,7 @@ def _is_trade_history_current(filepath: str) -> bool:
 
 
 def export_trade_history(
-    portfolio: vbt.Portfolio,
+    portfolio: "vbt.Portfolio",
     config: Dict[str, Any],
     export_type: str = "json",
     base_dir: Optional[str] = None,
@@ -705,7 +705,7 @@ def export_trade_history(
 
 
 def _export_legacy_csv(
-    portfolio: vbt.Portfolio, config: Dict[str, Any], trade_history_dir: str
+    portfolio: "vbt.Portfolio", config: Dict[str, Any], trade_history_dir: str
 ) -> bool:
     """Export individual CSV files (legacy format)."""
     success = True

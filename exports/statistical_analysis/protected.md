@@ -1,10 +1,10 @@
 # PROTECTED Portfolio - Comprehensive SPDS Analysis Report
 
-**Generated**: July 15, 2025 13:07:01
-**Portfolio**: protected.csv
-**Analysis Type**: Enhanced Statistical Performance Divergence System (SPDS) v2.0
-**Total Positions**: 7
-**Analysis Confidence**: Medium (Single-source analysis)
+**Generated**: July 17, 2025 09:10:00  
+**Portfolio**: protected.csv  
+**Analysis Type**: Enhanced Statistical Performance Divergence System (SPDS) v2.0  
+**Total Positions**: 3  
+**Analysis Confidence**: High (Multi-source validation enabled)
 
 ---
 
@@ -14,11 +14,11 @@
 The protected portfolio demonstrates **mixed** performance with moderate position performance variance. Our comprehensive analysis reveals **important portfolio management decisions** requiring immediate attention, supported by robust statistical evidence and multi-layer convergence analysis.
 
 **Key Performance Metrics:**
-- **Total Unrealized P&L**: -0.82% (Moderate)
-- **Success Rate**: 28.6% (2 of 7 positions profitable)
-- **Average Performance**: -0.12% per position
+- **Total Unrealized P&L**: -0.28% (Moderate)
+- **Success Rate**: 0.0% (0 of 3 positions profitable)
+- **Average Performance**: -0.09% per position
 - **Statistical Exhaustion Detected**: 0 positions (0.0% of portfolio)
-- **Near-Exhaustion Positions**: 2 positions (28.6% of portfolio)
+- **Near-Exhaustion Positions**: 0 positions (0.0% of portfolio)
 
 ### Immediate Action Required
 **🚨 CRITICAL ALERTS**: 0 positions require immediate portfolio management decisions based on statistical performance exhaustion and risk-adjusted return optimization.
@@ -30,56 +30,6 @@ The protected portfolio demonstrates **mixed** performance with moderate positio
 
 ## 🚨 CRITICAL EXIT ANALYSIS: IMMEDIATE ACTION REQUIRED
 
-## 📊 SELL TIER ANALYSIS: ELEVATED RISK POSITIONS
-
-### 1. TPR - SELL ⚠️
-
-#### Statistical Position Assessment
-**Current Return**: +0.81%
-**Statistical Percentile**: 83.2th percentile (Elevated zone)
-**Risk Profile**: Moderate-High
-**Strategy**: TPR_SMA_14_30
-
-#### Performance Analysis
-```
-Statistical Metrics:
-Percentile Rank: 83.2% (Above 80% threshold)
-Z-Score: +1.85 (Approaching 2.0 threshold)
-Sharpe Ratio: 2.60 (Strong risk-adjusted returns)
-Beta vs. Market: 0.86 (Moderate market exposure)
-```
-
-**Recommended Action:**
-- **Trim Position**: Reduce by 40-50% over next 2 weeks
-- **Target Exit Range**: 1-1% return levels
-- **Stop Loss**: -17% from current gains
-
----
-
-### 2. RTX - SELL ⚠️
-
-#### Statistical Position Assessment
-**Current Return**: N/A
-**Statistical Percentile**: 84.3th percentile (Elevated zone)
-**Risk Profile**: Moderate-High
-**Strategy**: RTX_EMA_27_41
-
-#### Performance Analysis
-```
-Statistical Metrics:
-Percentile Rank: 84.3% (Above 80% threshold)
-Z-Score: +1.90 (Approaching 2.0 threshold)
-Sharpe Ratio: 2.70 (Strong risk-adjusted returns)
-Beta vs. Market: 0.87 (Moderate market exposure)
-```
-
-**Recommended Action:**
-- **Trim Position**: Reduce by 45-55% over next 2 weeks
-- **Target Exit Range**: Current to 5% below current levels
-- **Stop Loss**: -19% from current gains
-
----
-
 ## 📈 PORTFOLIO OPTIMIZATION ANALYSIS
 
 ### Risk-Adjusted Performance Metrics
@@ -87,10 +37,10 @@ Beta vs. Market: 0.87 (Moderate market exposure)
 #### Current Portfolio Statistics
 ```
 Portfolio-Level Metrics:
-Total Return: -0.82%
+Total Return: -0.28%
 Sharpe Ratio: 1.85 (Good)
 Maximum Drawdown: -8.0% (Well-controlled)
-Win Rate: 28.6% (Moderate hit rate)
+Win Rate: 0.0% (Moderate hit rate)
 Average Winner: +15.7%
 Average Loser: -4.2%
 Profit Factor: 2.45 (Moderate)
@@ -181,13 +131,9 @@ SELL: 80% (p-value < 0.20)
 
 | Position | Signal Type | Action Required | Confidence | Performance |
 |----------|-------------|-----------------|------------|-------------|
-| TPR | **SELL** | Consider exit | 74.1% | +0.81% |
-| RTX | **SELL** | Consider exit | 49.0% | N/A |
-| HWM | **HOLD** | Continue monitoring | 78.2% | +0.64% |
-| SCHW | **HOLD** | Continue monitoring | 72.6% | -1.15% |
-| RJF | **HOLD** | Continue monitoring | 72.4% | -1.12% |
-| DOV | **HOLD** | Continue monitoring | 61.9% | N/A |
-| QCOM | **HOLD** | Continue monitoring | 60.4% | N/A |
+| HWM | **HOLD** | Continue monitoring | 81.3% | -0.21% |
+| RJF | **HOLD** | Continue monitoring | 79.4% | -0.08% |
+| DOV | **HOLD** | Continue monitoring | 67.6% | N/A |
 
 ### 📁 Export Files Generated:
 

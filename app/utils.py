@@ -94,7 +94,7 @@ def add_peak_labels(
 
 def backtest_strategy(
     data: pl.DataFrame, config: Dict[str, Any], log: Callable[[str, str], None]
-) -> Optional[vbt.Portfolio]:
+) -> Optional["vbt.Portfolio"]:
     """Backtest the MA cross strategy.
 
     Args:

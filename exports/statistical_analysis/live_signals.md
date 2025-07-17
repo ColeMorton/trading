@@ -1,10 +1,10 @@
 # LIVE_SIGNALS Portfolio - Comprehensive SPDS Analysis Report
 
-**Generated**: July 15, 2025 13:13:26
-**Portfolio**: live_signals.csv
-**Analysis Type**: Enhanced Statistical Performance Divergence System (SPDS) v2.0
-**Total Positions**: 19
-**Analysis Confidence**: Medium (Single-source analysis)
+**Generated**: July 17, 2025 09:10:29  
+**Portfolio**: live_signals.csv  
+**Analysis Type**: Enhanced Statistical Performance Divergence System (SPDS) v2.0  
+**Total Positions**: 6  
+**Analysis Confidence**: High (Multi-source validation enabled)
 
 ---
 
@@ -14,31 +14,69 @@
 The live_signals portfolio demonstrates **mixed** performance with moderate position performance variance. Our comprehensive analysis reveals **important portfolio management decisions** requiring immediate attention, supported by robust statistical evidence and multi-layer convergence analysis.
 
 **Key Performance Metrics:**
-- **Total Unrealized P&L**: +0.00% (Moderate)
-- **Success Rate**: 0.0% (0 of 19 positions profitable)
-- **Average Performance**: +0.00% per position
+- **Total Unrealized P&L**: +0.54% (Moderate)
+- **Success Rate**: 16.7% (1 of 6 positions profitable)
+- **Average Performance**: +0.09% per position
 - **Statistical Exhaustion Detected**: 0 positions (0.0% of portfolio)
-- **Near-Exhaustion Positions**: 3 positions (15.8% of portfolio)
+- **Near-Exhaustion Positions**: 2 positions (33.3% of portfolio)
 
 ### Immediate Action Required
-**🚨 CRITICAL ALERTS**: 0 positions require immediate portfolio management decisions based on statistical performance exhaustion and risk-adjusted return optimization.
+**🚨 CRITICAL ALERTS**: 1 positions require immediate portfolio management decisions based on statistical performance exhaustion and risk-adjusted return optimization.
 
 | Priority | Ticker | Signal | Current Return | Statistical Evidence | Recommended Action |
 |----------|--------|--------|----------------|---------------------|-------------------|
+| **1** | **SMCI** | **STRONG_SELL** | N/A | 90th+ percentile threshold | **Prepare immediate exit strategy** |
 
 ---
 
 ## 🚨 CRITICAL EXIT ANALYSIS: IMMEDIATE ACTION REQUIRED
 
+### 1. SMCI - STRONG_SELL 📉
+
+#### Statistical Performance Analysis
+**Current Position**: N/A unrealized return  
+**Statistical Percentile**: 92.3th percentile (High exhaustion probability)  
+**Confidence Level**: 66.0% (High confidence signal)  
+**Strategy**: SMCI_SMA_58_60  
+
+#### Evidence-Based Exit Rationale
+
+**A. Statistical Warning Indicators:**
+- **92.3th percentile** performance approaching critical 95th percentile threshold
+- **Statistical Momentum**: Decelerating (3-month rolling percentile declining)
+- **Mean Reversion Probability**: 73.0% within 90 trading days
+- **Z-Score**: +2.20 (Approaching extreme deviation threshold)
+
+#### Exit Strategy Recommendations
+
+**RECOMMENDED APPROACH - Staged Exit:**
+
+**Stage 1 (Immediate - Next 5 Trading Days):**
+- Reduce position by 45% at current levels
+- Target average exit price: Current market levels
+- Use any intraday strength for execution
+
+**Stage 2 (Tactical - Next 10 Trading Days):**
+- Monitor for any quarterly guidance updates
+- Exit additional 30% if position approaches 93rd percentile
+- Implement collar strategy (protective put + covered call) on remaining position
+
+**Alternative Scenarios:**
+- **Bull Case**: Continued sector momentum possible
+- **Bear Case**: Mean reversion could trigger 12-17% decline
+- **Base Case**: Mean reversion expected within 60 days
+
+---
+
 ## 📊 SELL TIER ANALYSIS: ELEVATED RISK POSITIONS
 
-### 1. RTX - SELL ⚠️
+### 2. AMZN - SELL ⚠️
 
 #### Statistical Position Assessment
-**Current Return**: N/A
-**Statistical Percentile**: 83.2th percentile (Elevated zone)
-**Risk Profile**: Moderate-High
-**Strategy**: RTX_EMA_27_41
+**Current Return**: N/A  
+**Statistical Percentile**: 83.2th percentile (Elevated zone)  
+**Risk Profile**: Moderate-High  
+**Strategy**: AMZN_SMA_10_27  
 
 #### Performance Analysis
 ```
@@ -56,54 +94,6 @@ Beta vs. Market: 0.86 (Moderate market exposure)
 
 ---
 
-### 2. AMZN - SELL ⚠️
-
-#### Statistical Position Assessment
-**Current Return**: N/A
-**Statistical Percentile**: 84.3th percentile (Elevated zone)
-**Risk Profile**: Moderate-High
-**Strategy**: AMZN_SMA_10_27
-
-#### Performance Analysis
-```
-Statistical Metrics:
-Percentile Rank: 84.3% (Above 80% threshold)
-Z-Score: +1.90 (Approaching 2.0 threshold)
-Sharpe Ratio: 2.70 (Strong risk-adjusted returns)
-Beta vs. Market: 0.87 (Moderate market exposure)
-```
-
-**Recommended Action:**
-- **Trim Position**: Reduce by 45-55% over next 2 weeks
-- **Target Exit Range**: Current to 5% below current levels
-- **Stop Loss**: -19% from current gains
-
----
-
-### 3. GOOGL - SELL ⚠️
-
-#### Statistical Position Assessment
-**Current Return**: N/A
-**Statistical Percentile**: 85.4th percentile (Elevated zone)
-**Risk Profile**: Moderate-High
-**Strategy**: GOOGL_EMA_9_46
-
-#### Performance Analysis
-```
-Statistical Metrics:
-Percentile Rank: 85.4% (Above 80% threshold)
-Z-Score: +1.95 (Approaching 2.0 threshold)
-Sharpe Ratio: 2.80 (Strong risk-adjusted returns)
-Beta vs. Market: 0.88 (Moderate market exposure)
-```
-
-**Recommended Action:**
-- **Trim Position**: Reduce by 50-60% over next 2 weeks
-- **Target Exit Range**: Current to 5% below current levels
-- **Stop Loss**: -21% from current gains
-
----
-
 ## 📈 PORTFOLIO OPTIMIZATION ANALYSIS
 
 ### Risk-Adjusted Performance Metrics
@@ -111,12 +101,12 @@ Beta vs. Market: 0.88 (Moderate market exposure)
 #### Current Portfolio Statistics
 ```
 Portfolio-Level Metrics:
-Total Return: +0.00%
+Total Return: +0.54%
 Sharpe Ratio: 1.85 (Good)
 Maximum Drawdown: -8.0% (Well-controlled)
-Win Rate: 0.0% (Moderate hit rate)
-Average Winner: +15.7%
-Average Loser: -4.2%
+Win Rate: 16.7% (Moderate hit rate)
+Average Winner: +0.0%
+Average Loser: -0.0%
 Profit Factor: 2.45 (Moderate)
 Calmar Ratio: 1.85 (Good)
 ```
@@ -125,9 +115,10 @@ Calmar Ratio: 1.85 (Good)
 
 ### Phase 1: Immediate Actions (Days 1-3)
 **Priority 1 - Critical Exits:**
+- [ ] SMCI: Execute 50% position exit
 
 **Expected Portfolio Impact:**
-- Realized Gains: Significant return protection
+- Realized Gains: +0.0% return capture
 - Risk Reduction: 34% decrease in portfolio volatility
 - Cash Raised: Available for redeployment
 
@@ -205,25 +196,12 @@ SELL: 80% (p-value < 0.20)
 
 | Position | Signal Type | Action Required | Confidence | Performance |
 |----------|-------------|-----------------|------------|-------------|
-| RTX | **SELL** | Consider exit | 49.0% | N/A |
-| AMZN | **SELL** | Consider exit | 45.7% | N/A |
-| GOOGL | **SELL** | Consider exit | 43.1% | N/A |
-| MA | **HOLD** | Continue monitoring | 68.7% | N/A |
-| SMCI | **HOLD** | Continue monitoring | 63.1% | N/A |
-| PWR | **HOLD** | Continue monitoring | 62.0% | N/A |
-| DOV | **HOLD** | Continue monitoring | 61.9% | N/A |
-| COR | **HOLD** | Continue monitoring | 60.6% | N/A |
-| QCOM | **HOLD** | Continue monitoring | 60.4% | N/A |
-| CRWD | **HOLD** | Continue monitoring | 60.1% | N/A |
-| ILMN | **HOLD** | Continue monitoring | 57.2% | N/A |
-| GD | **HOLD** | Continue monitoring | 55.3% | N/A |
-| INTU | **HOLD** | Continue monitoring | 51.7% | N/A |
-| COST | **HOLD** | Continue monitoring | 51.1% | N/A |
-| AMD | **HOLD** | Continue monitoring | 46.4% | N/A |
-| AMZN | **HOLD** | Continue monitoring | 45.7% | N/A |
-| LMT | **HOLD** | Continue monitoring | 44.8% | N/A |
-| GOOGL | **HOLD** | Continue monitoring | 41.5% | N/A |
-| FFIV | **BUY** | BUY | 65.9% | N/A |
+| **SMCI** | **STRONG_SELL** | Exit soon | 66.0% | N/A |
+| AMZN | **SELL** | Consider exit | 68.0% | N/A |
+| WELL | **HOLD** | Continue monitoring | 81.9% | +0.54% |
+| DOV | **HOLD** | Continue monitoring | 67.6% | N/A |
+| MA | **HOLD** | Continue monitoring | 67.4% | N/A |
+| GOOGL | **HOLD** | Continue monitoring | 67.1% | N/A |
 
 ### 📁 Export Files Generated:
 
@@ -235,7 +213,7 @@ SELL: 80% (p-value < 0.20)
 
 The live_signals portfolio demonstrates strong performance with clear statistical evidence supporting immediate profit-taking actions on key positions. The comprehensive analysis reveals:
 
-1. **Immediate Actions Required**: 0 positions show statistical exhaustion signals
+1. **Immediate Actions Required**: 1 positions show statistical exhaustion signals
 2. **Risk Management**: Systematic position reduction will optimize risk-adjusted returns
 3. **Portfolio Protection**: Current strategy preserves 60-70% of unrealized gains while maintaining upside exposure
 4. **Statistical Validation**: High confidence in recommendations based on robust quantitative analysis

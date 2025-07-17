@@ -71,10 +71,10 @@ The CLI provides **7 main command groups** with comprehensive subcommands:
 ./trading-cli strategy run --profile ma_cross_crypto
 
 # Custom parameter execution
-./trading-cli strategy run --ticker BTC-USD,ETH-USD --strategy-type SMA --fast-period 20 --slow-period 50
+./trading-cli strategy run --strategy-type SMA --fast-period 8 --slow-period 21 --ticker BTC-USD,ETH-USD
 
 # Parameter sweep analysis
-./trading-cli strategy sweep --ticker AAPL --fast-range 5,10 --slow-range 20,50 --min-trades 100
+./trading-cli strategy sweep --ticker AAPL --fast-range 5,89 --slow-range 8,89 --min-trades 50
 
 # Single strategy analysis
 ./trading-cli strategy analyze --ticker BTC-USD --strategy-type SMA --fast-period 9 --slow-period 21

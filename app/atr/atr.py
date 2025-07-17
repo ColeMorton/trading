@@ -241,7 +241,7 @@ def generate_signals(
     return data
 
 
-def backtest_strategy(data: pd.DataFrame) -> vbt.Portfolio:
+def backtest_strategy(data: pd.DataFrame) -> "vbt.Portfolio":
     """
     Backtest the ATR Trailing Stop strategy.
 
@@ -341,7 +341,7 @@ def backtest_strategy(data: pd.DataFrame) -> vbt.Portfolio:
         log(f"DEBUG: entries_series shape: {entries_series.shape}")
         log(f"DEBUG: exits_series shape: {exits_series.shape}")
 
-        portfolio: vbt.Portfolio = vbt.Portfolio.from_signals(
+        portfolio: "vbt.Portfolio" = vbt.Portfolio.from_signals(
             close=close_series,
             entries=entries_series,
             exits=exits_series,
@@ -418,7 +418,7 @@ def analyze_params(
                 )
 
         # Backtest the strategy
-        portfolio: vbt.Portfolio = backtest_strategy(data_with_signals)
+        portfolio: "vbt.Portfolio" = backtest_strategy(data_with_signals)
 
         # Get total return as scalar value
         total_return_value = portfolio.total_return()

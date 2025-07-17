@@ -83,6 +83,25 @@ class StrategyConfig(BaseConfig):
         default=15, gt=0, description="Number of years of historical data"
     )
 
+    # Strategy-specific parameters
+    fast_period: Optional[int] = Field(
+        default=None, gt=0, description="Fast moving average period"
+    )
+    slow_period: Optional[int] = Field(
+        default=None, gt=0, description="Slow moving average period"
+    )
+    signal_period: Optional[int] = Field(
+        default=9, gt=0, description="MACD signal line period"
+    )
+
+    # Parameter sweep configuration
+    fast_period_range: Optional[tuple] = Field(
+        default=None, description="Range for fast period parameter sweep (min, max)"
+    )
+    slow_period_range: Optional[tuple] = Field(
+        default=None, description="Range for slow period parameter sweep (min, max)"
+    )
+
     # Filtering and minimums
     minimums: StrategyMinimums = Field(
         default_factory=StrategyMinimums,
@@ -104,6 +123,11 @@ class StrategyConfig(BaseConfig):
         default=None, description="Scanner list filename"
     )
 
+    # Multi-ticker support
+    multi_ticker: bool = Field(
+        default=False, description="Enable multi-ticker analysis"
+    )
+
     @validator("ticker", pre=True)
     def validate_ticker(cls, v):
         """Validate ticker input."""
@@ -121,26 +145,6 @@ class StrategyConfig(BaseConfig):
             return [v]
         return v
 
-
-class MACrossConfig(StrategyConfig):
-    """Configuration specific to MA Cross strategies."""
-
-    # MA Cross specific parameters
-    fast_period: Optional[int] = Field(
-        default=None, gt=0, description="Fast moving average period"
-    )
-    slow_period: Optional[int] = Field(
-        default=None, gt=0, description="Slow moving average period"
-    )
-
-    # Parameter sweep configuration
-    fast_period_range: Optional[tuple] = Field(
-        default=None, description="Range for fast period parameter sweep (min, max)"
-    )
-    slow_period_range: Optional[tuple] = Field(
-        default=None, description="Range for slow period parameter sweep (min, max)"
-    )
-
     @validator("fast_period_range", "slow_period_range")
     def validate_period_range(cls, v):
         """Validate period range tuples."""
@@ -151,30 +155,38 @@ class MACrossConfig(StrategyConfig):
                 raise ValueError("Range minimum must be less than maximum")
         return v
 
+    @validator("slow_period")
+    def validate_periods(cls, v, values):
+        """Ensure slow period is greater than fast period when both are specified."""
+        if v is not None and "fast_period" in values and values["fast_period"] is not None:
+            if v <= values["fast_period"]:
+                raise ValueError("Slow period must be greater than fast period")
+        return v
+
+
+class MACrossConfig(StrategyConfig):
+    """Configuration specific to MA Cross strategies.
+    
+    This class inherits all MA Cross functionality from StrategyConfig.
+    It exists for backward compatibility and specific MA Cross defaults.
+    """
+    pass
+
 
 class MACDConfig(StrategyConfig):
-    """Configuration specific to MACD strategies."""
-
-    # MACD specific parameters
+    """Configuration specific to MACD strategies.
+    
+    MACD-specific defaults are inherited from StrategyConfig with
+    fast_period=12, slow_period=26, signal_period=9 defaults.
+    """
+    
+    # Override defaults for MACD
     fast_period: Optional[int] = Field(
         default=12, gt=0, description="MACD fast EMA period"
     )
     slow_period: Optional[int] = Field(
         default=26, gt=0, description="MACD slow EMA period"
     )
-    signal_period: Optional[int] = Field(
-        default=9, gt=0, description="MACD signal line period"
-    )
-
-    # Multi-ticker support
     multi_ticker: bool = Field(
-        default=False, description="Enable multi-ticker MACD analysis"
+        default=True, description="Enable multi-ticker MACD analysis"
     )
-
-    @validator("slow_period")
-    def validate_macd_periods(cls, v, values):
-        """Ensure slow period is greater than fast period."""
-        if "fast_period" in values and values["fast_period"] is not None:
-            if v <= values["fast_period"]:
-                raise ValueError("MACD slow period must be greater than fast period")
-        return v

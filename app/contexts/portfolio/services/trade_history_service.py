@@ -100,7 +100,7 @@ class TradeHistoryService:
                     days_since_entry = (datetime.now() - entry_dt).days
 
                     # Calculate MFE/MAE metrics
-                    mfe, mae, current_excursion = self._calculate_position_metrics(
+                    mfe, mae, current_excursion, error_msg = self._calculate_position_metrics(
                         ticker, entry_date, entry_price, direction, verbose
                     )
 
@@ -141,10 +141,13 @@ class TradeHistoryService:
 
                         updated_count += 1
                     else:
-                        error_msg = f"Could not calculate metrics for {ticker}"
-                        errors.append(error_msg)
+                        if error_msg:
+                            full_error_msg = f"Could not calculate metrics for {ticker}: {error_msg}"
+                        else:
+                            full_error_msg = f"Could not calculate metrics for {ticker}"
+                        errors.append(full_error_msg)
                         if verbose:
-                            self.logger.warning(f"   ⚠️  {error_msg}")
+                            self.logger.warning(f"   ⚠️  {full_error_msg}")
 
                 except Exception as e:
                     error_msg = f"Error processing {ticker}: {str(e)}"
@@ -177,40 +180,35 @@ class TradeHistoryService:
                 "errors": [str(e)],
             }
 
-    def _read_price_data(self, ticker: str) -> Optional[pd.DataFrame]:
-        """Read price data for a ticker."""
+    def _read_price_data(self, ticker: str) -> tuple[Optional[pd.DataFrame], Optional[str]]:
+        """Read price data for a ticker.
+        
+        Returns:
+            tuple: (DataFrame, error_message) - DataFrame is None if error occurred
+        """
         try:
             price_file = self.base_dir / "csv" / "price_data" / f"{ticker}_D.csv"
 
             if not price_file.exists():
-                return None
+                return None, f"Price data file not found: csv/price_data/{ticker}_D.csv"
 
-            with open(price_file, "r") as f:
-                lines = f.readlines()
-
-            # Find where actual data starts (skip headers)
-            data_start = 0
-            for i, line in enumerate(lines):
-                if line.startswith("20"):  # Start with year 20xx
-                    data_start = i
-                    break
-
-            if data_start == 0:
-                return None
-
-            df = pd.read_csv(
-                price_file,
-                skiprows=data_start,
-                header=None,
-                names=["Date", "Close", "High", "Low", "Open", "Volume"],
-            )
+            df = pd.read_csv(price_file)
+            
+            if df.empty:
+                return None, f"Price data file is empty: csv/price_data/{ticker}_D.csv"
+                
             df["Date"] = pd.to_datetime(df["Date"])
             df.set_index("Date", inplace=True)
-            return df
+            
+            required_columns = ["Close", "High", "Low", "Open", "Volume"]
+            missing_columns = [col for col in required_columns if col not in df.columns]
+            if missing_columns:
+                return None, f"Missing required columns in price data: {', '.join(missing_columns)}"
+                
+            return df, None
 
         except Exception as e:
-            self.logger.warning(f"Error reading price data for {ticker}: {str(e)}")
-            return None
+            return None, f"Error reading price data file: {str(e)}"
 
     def _calculate_position_metrics(
         self,
@@ -219,13 +217,17 @@ class TradeHistoryService:
         entry_price: float,
         direction: str = "Long",
         verbose: bool = False,
-    ) -> Tuple[Optional[float], Optional[float], Optional[float]]:
-        """Calculate MFE, MAE, and current excursion for a position."""
+    ) -> Tuple[Optional[float], Optional[float], Optional[float], Optional[str]]:
+        """Calculate MFE, MAE, and current excursion for a position.
+        
+        Returns:
+            tuple: (mfe, mae, current_excursion, error_message)
+        """
         try:
-            price_data = self._read_price_data(ticker)
+            price_data, error_msg = self._read_price_data(ticker)
 
             if price_data is None:
-                return None, None, None
+                return None, None, None, error_msg
 
             entry_date = pd.to_datetime(entry_date)
 
@@ -241,7 +243,7 @@ class TradeHistoryService:
             position_data = price_data[entry_date:]
 
             if position_data.empty:
-                return None, None, None
+                return None, None, None, f"No price data available for {ticker} after entry date {entry_date.date()}"
 
             # Use centralized MFE/MAE calculator
             calculator = get_mfe_mae_calculator()
@@ -260,12 +262,13 @@ class TradeHistoryService:
             else:
                 current_excursion = (entry_price - current_price) / entry_price
 
-            return mfe, mae, current_excursion
+            return mfe, mae, current_excursion, None
 
         except Exception as e:
+            error_msg = f"Error calculating MFE/MAE for {ticker}: {str(e)}"
             if verbose:
-                self.logger.error(f"Error calculating MFE/MAE for {ticker}: {str(e)}")
-            return None, None, None
+                self.logger.error(error_msg)
+            return None, None, None, error_msg
 
     def _assess_trade_quality(
         self,

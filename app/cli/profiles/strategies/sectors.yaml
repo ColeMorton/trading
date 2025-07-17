@@ -1,0 +1,40 @@
+# MA Cross Portfolio Analysis Profile
+# CLI profile for running MA Cross portfolio analysis via trading-cli
+
+metadata:
+  name: 'current'
+  description: 'MA Cross portfolio analysis with specific ticker list from 1_get_portfolios.py'
+  version: '1.0'
+  tags: ['ma_cross', 'portfolio', 'analysis', 'production']
+  author: 'trading-cli'
+
+inherits_from: null
+
+config_type: 'strategy'
+
+config:
+  name: 'sectors'
+  ticker:
+    - XLK
+    - XLY
+    - XLE
+    - XLU
+    - XLRE
+    - XLI
+    - XLP
+    - XLB
+    - XLF
+    - XLC
+  strategy_types:
+      - SMA
+      - EMA
+  windows: 89
+  fast_period_range:
+    - 5
+    - 89
+  slow_period_range:
+    - 8
+    - 89
+  direction: Long
+  filter:
+    use_current: true

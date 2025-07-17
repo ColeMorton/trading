@@ -17,6 +17,12 @@ config:
     - SMA
     - EMA
   windows: 89
+  fast_period_range:
+    - 5
+    - 89
+  slow_period_range:
+    - 8
+    - 89
   direction: Long
   minimums:
     win_rate: 0.5

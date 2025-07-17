@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-07-14T11:53:54.156622",
+    "export_timestamp": "2025-07-17T08:57:48.962467",
     "strategy_config": {
       "ticker": "GOOGL",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 32.94113305013167,
+      "total_return": 33.4647820160503,
       "total_trades": "65",
       "win_rate": 0.5230769230769231,
-      "sharpe_ratio": 1.0393695872687627,
+      "sharpe_ratio": 1.0429807091585144,
       "max_drawdown": -0.3385145339911091
     }
   },
@@ -1368,10 +1368,10 @@
       "Entry Timestamp": "2025-05-19 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 166.5399932861328,
-      "Avg Exit Price": 180.19000244140625,
+      "Avg Exit Price": 182.97000122070312,
       "Size": 188.36302009135366,
-      "PnL": 2539.786972660564,
-      "Return": 0.08096234961905714,
+      "PnL": 3063.4359385791977,
+      "Return": 0.09765502940390942,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -1380,9 +1380,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Big Winner",
-      "Cumulative_PnL": 32941.13305013166,
+      "Cumulative_PnL": 33464.782016050296,
       "Trade_Number": 65,
-      "Rolling_Avg_Return": 0.06374349012733835,
+      "Rolling_Avg_Return": 0.0670820260843088,
       "Rolling_Win_Rate": 0.8
     }
   ],
@@ -3710,10 +3710,10 @@
       "Avg Entry Price": 166.5399932861328,
       "Entry Fees": 31.369976101366774,
       "Exit Timestamp": null,
-      "Avg Exit Price": 180.19000244140625,
+      "Avg Exit Price": 182.97000122070312,
       "Exit Fees": 0.0,
-      "PnL": 2539.786972660564,
-      "Return": 0.08096234961905714,
+      "PnL": 3063.4359385791977,
+      "Return": 0.09765502940390942,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
