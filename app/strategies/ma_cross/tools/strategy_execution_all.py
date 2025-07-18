@@ -46,10 +46,31 @@ def process_ticker_portfolios_all(
         log(f"Failed to get data for {ticker}", "error")
         return []
 
-    # Get window parameters
-    max_window = ticker_config.get("WINDOWS", 89)
-    short_windows = list(range(2, max_window))
-    long_windows = list(range(3, max_window + 1))
+    # Get window parameters using explicit ranges
+    fast_range = ticker_config.get("FAST_PERIOD_RANGE")
+    slow_range = ticker_config.get("SLOW_PERIOD_RANGE")
+
+    # Backward compatibility: fallback to WINDOWS if ranges not specified
+    if fast_range is None or slow_range is None:
+        if "WINDOWS" in ticker_config:
+            import warnings
+
+            warnings.warn(
+                "WINDOWS parameter is deprecated. Use FAST_PERIOD_RANGE and SLOW_PERIOD_RANGE instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            max_window = ticker_config["WINDOWS"]
+            short_windows = list(range(2, max_window))
+            long_windows = list(range(3, max_window + 1))
+        else:
+            # Default ranges
+            short_windows = list(range(5, 90))  # [5, 6, ..., 89]
+            long_windows = list(range(8, 90))  # [8, 9, ..., 89]
+    else:
+        # Use explicit ranges
+        short_windows = list(range(fast_range[0], fast_range[1] + 1))
+        long_windows = list(range(slow_range[0], slow_range[1] + 1))
 
     # Run parameter sensitivity analysis
     portfolios_df = analyze_parameter_sensitivity(

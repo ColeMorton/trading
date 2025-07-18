@@ -173,10 +173,10 @@ class SignificanceTestingEngine:
                 test_name=test_name,
                 test_type=test_type,
                 test_statistic=float(test_stat),
-                p_value=float(p_value),
+                p_value=float(self._validate_p_value(p_value)),
                 alpha=alpha,
                 degrees_of_freedom=dof,
-                is_significant=p_value < alpha,
+                is_significant=self._validate_p_value(p_value) < alpha,
                 significance_level=significance_level,
                 effect_size=effect_size["value"],
                 effect_size_interpretation=effect_size["interpretation"],
@@ -216,9 +216,10 @@ class SignificanceTestingEngine:
 
             # Calculate t-statistic for correlation
             if abs(correlation) >= 1.0:
-                # Perfect correlation
+                # Perfect correlation - handle edge case gracefully
+                self.logger.warning(f"Perfect correlation detected: {correlation}")
                 test_stat = float("inf") if correlation > 0 else float("-inf")
-                p_value = 0.0
+                p_value = 1e-10  # Very small but non-zero p-value
             else:
                 test_stat = correlation * np.sqrt(
                     (sample_size - 2) / (1 - correlation**2)
@@ -245,11 +246,13 @@ class SignificanceTestingEngine:
                 test_name="Correlation significance test",
                 test_type="parametric",
                 test_statistic=float(test_stat),
-                p_value=float(p_value),
+                p_value=float(self._validate_p_value(p_value)),
                 alpha=alpha,
                 degrees_of_freedom=sample_size - 2,
-                is_significant=p_value < alpha,
-                significance_level=self._classify_significance(p_value),
+                is_significant=self._validate_p_value(p_value) < alpha,
+                significance_level=self._classify_significance(
+                    self._validate_p_value(p_value)
+                ),
                 effect_size=abs(correlation),
                 effect_size_interpretation=effect_interpretation,
                 assumptions_met={"normality": True, "linearity": True},
@@ -327,11 +330,13 @@ class SignificanceTestingEngine:
                 test_name=test_name,
                 test_type=test_type,
                 test_statistic=float(test_stat),
-                p_value=float(p_value),
+                p_value=float(self._validate_p_value(p_value)),
                 alpha=alpha,
                 degrees_of_freedom=dof,
-                is_significant=p_value < alpha,
-                significance_level=self._classify_significance(p_value),
+                is_significant=self._validate_p_value(p_value) < alpha,
+                significance_level=self._classify_significance(
+                    self._validate_p_value(p_value)
+                ),
                 effect_size=effect_size["value"],
                 effect_size_interpretation=effect_size["interpretation"],
                 assumptions_met=assumptions,
@@ -380,11 +385,13 @@ class SignificanceTestingEngine:
                 test_name=test_name,
                 test_type="parametric",
                 test_statistic=float(test_stat),
-                p_value=float(p_value),
+                p_value=float(self._validate_p_value(p_value)),
                 alpha=alpha,
                 degrees_of_freedom=None,
-                is_significant=p_value < alpha,
-                significance_level=self._classify_significance(p_value),
+                is_significant=self._validate_p_value(p_value) < alpha,
+                significance_level=self._classify_significance(
+                    self._validate_p_value(p_value)
+                ),
                 effect_size=None,
                 effect_size_interpretation=None,
                 assumptions_met={
@@ -434,17 +441,18 @@ class SignificanceTestingEngine:
 
             # For ADF test, null hypothesis is non-stationarity
             # So significant result means data IS stationary
-            is_stationary = p_value < alpha
+            validated_p_value = self._validate_p_value(p_value)
+            is_stationary = validated_p_value < alpha
 
             return SignificanceTestResult(
                 test_name="Augmented Dickey-Fuller test",
                 test_type="parametric",
                 test_statistic=float(test_stat),
-                p_value=float(p_value),
+                p_value=float(validated_p_value),
                 alpha=alpha,
                 degrees_of_freedom=None,
                 is_significant=is_stationary,
-                significance_level=self._classify_significance(p_value),
+                significance_level=self._classify_significance(validated_p_value),
                 effect_size=None,
                 effect_size_interpretation="Stationary"
                 if is_stationary
@@ -713,3 +721,32 @@ class SignificanceTestingEngine:
             return "Weak relationship"
         else:
             return "Negligible relationship"
+
+    def _validate_p_value(self, p_value: float) -> float:
+        """
+        Validate and sanitize p-value to ensure it's within statistical bounds
+
+        Args:
+            p_value: Raw p-value to validate
+
+        Returns:
+            Validated p-value within bounds [1e-10, 1.0]
+        """
+        if p_value < 0:
+            self.logger.warning(
+                f"Negative p-value detected: {p_value}, setting to 1e-10"
+            )
+            return 1e-10
+        elif p_value > 1.0:
+            self.logger.warning(f"P-value > 1.0 detected: {p_value}, setting to 1.0")
+            return 1.0
+        elif p_value == 0.0:
+            self.logger.warning("P-value of exactly 0.0 detected, setting to 1e-10")
+            return 1e-10
+        elif np.isnan(p_value) or np.isinf(p_value):
+            self.logger.warning(
+                f"Invalid p-value detected: {p_value}, setting to 1e-10"
+            )
+            return 1e-10
+        else:
+            return p_value

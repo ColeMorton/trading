@@ -23,7 +23,8 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> N
             - slow_window: int, long moving average window
         config: Configuration dictionary containing:
             - TICKER: str, ticker symbol
-            - WINDOWS: int, maximum window size
+            - FAST_PERIOD_RANGE: list, fast period range [min, max]
+            - SLOW_PERIOD_RANGE: list, slow period range [min, max]
             - USE_CURRENT: bool, whether to show only current signals
         log: Logging function for recording events and errors
 
@@ -36,9 +37,32 @@ def plot_heatmap(portfolio_data: pl.DataFrame, config: Dict, log: Callable) -> N
     log("Starting heatmap generation from portfolio data")
 
     try:
-        # Generate windows array
-        windows = np.arange(2, config["WINDOWS"])
-        log(f"Generated windows array up to {config['WINDOWS']}")
+        # Generate windows array using explicit ranges
+        fast_range = config.get("FAST_PERIOD_RANGE")
+        slow_range = config.get("SLOW_PERIOD_RANGE")
+
+        # Backward compatibility: fallback to WINDOWS if ranges not specified
+        if fast_range is None or slow_range is None:
+            if "WINDOWS" in config:
+                import warnings
+
+                warnings.warn(
+                    "WINDOWS parameter is deprecated. Use FAST_PERIOD_RANGE and SLOW_PERIOD_RANGE instead.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+                windows = np.arange(2, config["WINDOWS"])
+                log(f"Generated windows array up to {config['WINDOWS']} (deprecated)")
+            else:
+                # Default range
+                windows = np.arange(2, 90)  # [2, 3, ..., 89]
+                log("Generated windows array up to 89 (default)")
+        else:
+            # Use the larger range for window array (needed for heatmap dimensions)
+            min_window = min(fast_range[0], slow_range[0])
+            max_window = max(fast_range[1], slow_range[1])
+            windows = np.arange(min_window, max_window + 1)
+            log(f"Generated windows array from {min_window} to {max_window}")
 
         # Convert portfolio data to pandas and prepare Series
         df = portfolio_data.to_pandas()

@@ -2,13 +2,14 @@
 Backtrader Strategy Templates
 Generated from Statistical Performance Divergence System
 
-Generation Date: 2025-07-17T09:10:00.535425
+Generation Date: 2025-07-18T08:23:46.726564
 Confidence Level: 0.9
 Total Strategies: 3
 """
 
-import backtrader as bt
 import datetime
+
+import backtrader as bt
 
 
 class RJF_SMA_68_77_RJF_DExitStrategy(bt.Strategy):
@@ -20,15 +21,16 @@ class RJF_SMA_68_77_RJF_DExitStrategy(bt.Strategy):
     Confidence: 0.9
     Validity: HIGH
     """
+
     params = (
-        ('take_profit_pct', 15.0),
-        ('stop_loss_pct', 8.0),
-        ('max_days', 450),
-        ('momentum_exit_threshold', 0.02),
-        ('trend_exit_threshold', 0.015),
-        ('trailing_pct', 2.93),
-        ('min_days', 21),
-        ('statistical_validity', 'HIGH'),
+        ("take_profit_pct", 15.0),
+        ("stop_loss_pct", 8.0),
+        ("max_days", 450),
+        ("momentum_exit_threshold", 0.02),
+        ("trend_exit_threshold", 0.015),
+        ("trailing_pct", 2.89),
+        ("min_days", 21),
+        ("statistical_validity", "HIGH"),
     )
 
     def __init__(self):
@@ -38,7 +40,7 @@ class RJF_SMA_68_77_RJF_DExitStrategy(bt.Strategy):
         self.days_held = 0
 
         # Validate parameters
-        if self.params.statistical_validity == 'LOW':
+        if self.params.statistical_validity == "LOW":
             print(f"Warning: Low reliability parameters for RJF_SMA_68_77_RJF_D")
 
     def next(self):
@@ -70,9 +72,12 @@ class RJF_SMA_68_77_RJF_DExitStrategy(bt.Strategy):
             return
 
         # Trailing stop (only after minimum holding period)
-        if (self.days_held >= self.params.min_days and
-            self.highest_price and
-            current_price <= self.highest_price * (1 - self.params.trailing_pct / 100)):
+        if (
+            self.days_held >= self.params.min_days
+            and self.highest_price
+            and current_price
+            <= self.highest_price * (1 - self.params.trailing_pct / 100)
+        ):
             self.sell(exectype=bt.Order.Market)
             return
 
@@ -92,6 +97,7 @@ class RJF_SMA_68_77_RJF_DExitStrategy(bt.Strategy):
                 self.highest_price = order.executed.price
                 self.days_held = 0
 
+
 class HWM_SMA_7_9_HWM_DExitStrategy(bt.Strategy):
     """
     Statistical exit strategy for HWM_SMA_7_9_HWM_D
@@ -101,15 +107,16 @@ class HWM_SMA_7_9_HWM_DExitStrategy(bt.Strategy):
     Confidence: 0.9
     Validity: HIGH
     """
+
     params = (
-        ('take_profit_pct', 15.0),
-        ('stop_loss_pct', 8.0),
-        ('max_days', 448),
-        ('momentum_exit_threshold', 0.02),
-        ('trend_exit_threshold', 0.015),
-        ('trailing_pct', 3.67),
-        ('min_days', 21),
-        ('statistical_validity', 'HIGH'),
+        ("take_profit_pct", 15.0),
+        ("stop_loss_pct", 8.0),
+        ("max_days", 448),
+        ("momentum_exit_threshold", 0.02),
+        ("trend_exit_threshold", 0.015),
+        ("trailing_pct", 3.63),
+        ("min_days", 21),
+        ("statistical_validity", "HIGH"),
     )
 
     def __init__(self):
@@ -119,7 +126,7 @@ class HWM_SMA_7_9_HWM_DExitStrategy(bt.Strategy):
         self.days_held = 0
 
         # Validate parameters
-        if self.params.statistical_validity == 'LOW':
+        if self.params.statistical_validity == "LOW":
             print(f"Warning: Low reliability parameters for HWM_SMA_7_9_HWM_D")
 
     def next(self):
@@ -151,9 +158,12 @@ class HWM_SMA_7_9_HWM_DExitStrategy(bt.Strategy):
             return
 
         # Trailing stop (only after minimum holding period)
-        if (self.days_held >= self.params.min_days and
-            self.highest_price and
-            current_price <= self.highest_price * (1 - self.params.trailing_pct / 100)):
+        if (
+            self.days_held >= self.params.min_days
+            and self.highest_price
+            and current_price
+            <= self.highest_price * (1 - self.params.trailing_pct / 100)
+        ):
             self.sell(exectype=bt.Order.Market)
             return
 
@@ -173,6 +183,7 @@ class HWM_SMA_7_9_HWM_DExitStrategy(bt.Strategy):
                 self.highest_price = order.executed.price
                 self.days_held = 0
 
+
 class DOV_SMA_45_86_DOV_DExitStrategy(bt.Strategy):
     """
     Statistical exit strategy for DOV_SMA_45_86_DOV_D
@@ -182,15 +193,16 @@ class DOV_SMA_45_86_DOV_DExitStrategy(bt.Strategy):
     Confidence: 0.9
     Validity: LOW
     """
+
     params = (
-        ('take_profit_pct', 16.12),
-        ('stop_loss_pct', 8.6),
-        ('max_days', 175),
-        ('momentum_exit_threshold', 0.02),
-        ('trend_exit_threshold', 0.015),
-        ('trailing_pct', 2.9),
-        ('min_days', 21),
-        ('statistical_validity', 'LOW'),
+        ("take_profit_pct", 16.12),
+        ("stop_loss_pct", 8.6),
+        ("max_days", 175),
+        ("momentum_exit_threshold", 0.02),
+        ("trend_exit_threshold", 0.015),
+        ("trailing_pct", 2.87),
+        ("min_days", 21),
+        ("statistical_validity", "LOW"),
     )
 
     def __init__(self):
@@ -200,7 +212,7 @@ class DOV_SMA_45_86_DOV_DExitStrategy(bt.Strategy):
         self.days_held = 0
 
         # Validate parameters
-        if self.params.statistical_validity == 'LOW':
+        if self.params.statistical_validity == "LOW":
             print(f"Warning: Low reliability parameters for DOV_SMA_45_86_DOV_D")
 
     def next(self):
@@ -232,9 +244,12 @@ class DOV_SMA_45_86_DOV_DExitStrategy(bt.Strategy):
             return
 
         # Trailing stop (only after minimum holding period)
-        if (self.days_held >= self.params.min_days and
-            self.highest_price and
-            current_price <= self.highest_price * (1 - self.params.trailing_pct / 100)):
+        if (
+            self.days_held >= self.params.min_days
+            and self.highest_price
+            and current_price
+            <= self.highest_price * (1 - self.params.trailing_pct / 100)
+        ):
             self.sell(exectype=bt.Order.Market)
             return
 
@@ -261,6 +276,7 @@ strategy_registry = {
     "HWM_SMA_7_9_HWM_D": HWM_SMA_7_9_HWM_DExitStrategy,
     "DOV_SMA_45_86_DOV_D": DOV_SMA_45_86_DOV_DExitStrategy,
 }
+
 
 # Usage example
 def create_strategy(strategy_key):

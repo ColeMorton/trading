@@ -502,22 +502,22 @@ class DivergenceDetector:
     def _estimate_percentile_rank(self, value: float, data_array: np.ndarray) -> float:
         """
         Calculate percentile rank using scipy (replaces 230-line custom implementation)
-        
+
         Simplified implementation using scipy.stats.percentileofscore for better
         accuracy and maintainability.
         """
         from scipy.stats import percentileofscore
-        
+
         # Handle edge cases
         if not isinstance(data_array, np.ndarray) or len(data_array) == 0:
             return 50.0
-        
+
         if not np.isfinite(value):
             return 50.0
-        
+
         # Use scipy's percentileofscore (handles all edge cases)
         try:
-            percentile = percentileofscore(data_array, value, kind='rank')
+            percentile = percentileofscore(data_array, value, kind="rank")
             return max(1.0, min(99.0, percentile))
         except Exception as e:
             self.logger.warning(f"Percentile calculation failed: {e}")
@@ -526,22 +526,22 @@ class DivergenceDetector:
     def _calculate_rarity_score(self, z_score: float, percentile_rank: float) -> float:
         """Calculate statistical rarity score using scipy"""
         from scipy.stats import norm
-        
+
         # Handle NaN/inf values
         if not np.isfinite(z_score):
             z_score = 0.0
         if not np.isfinite(percentile_rank):
             percentile_rank = 50.0
-        
+
         # Convert z-score to percentile using scipy
         z_percentile = norm.cdf(z_score) * 100
-        
+
         # Combine z-score and empirical percentile
         z_score_weight = min(abs(z_score) / 3.0, 1.0)
         percentile_extremity = abs(percentile_rank - 50.0) / 50.0
-        
+
         rarity_score = z_score_weight * 0.6 + percentile_extremity * 0.4
-        
+
         return min(max(rarity_score, 0.0), 1.0)
 
     def _calculate_strategy_rarity_score(

@@ -142,17 +142,42 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
                 data, [short_window], [long_window], config, log
             )
         else:
-            # Use window permutations if WINDOWS is provided
-            windows = config.get("WINDOWS")
-            if windows is None or windows < 2:
-                log("Missing or invalid WINDOWS parameter", "error")
-                return pl.DataFrame(
-                    schema={"Short Window": pl.Int32, "Long Window": pl.Int32}
-                )
+            # Use window permutations from explicit ranges
+            fast_range = config.get("FAST_PERIOD_RANGE")
+            slow_range = config.get("SLOW_PERIOD_RANGE")
 
-            # Create distinct integer values for windows
-            short_windows = list(np.arange(2, windows))
-            long_windows = list(np.arange(2, windows))
+            # Backward compatibility: fallback to WINDOWS if ranges not specified
+            if fast_range is None or slow_range is None:
+                if "WINDOWS" in config:
+                    import warnings
+
+                    warnings.warn(
+                        "WINDOWS parameter is deprecated. Use FAST_PERIOD_RANGE and SLOW_PERIOD_RANGE instead.",
+                        DeprecationWarning,
+                        stacklevel=2,
+                    )
+                    windows = config.get("WINDOWS")
+                    if windows is None or windows < 2:
+                        log("Missing or invalid WINDOWS parameter", "error")
+                        return pl.DataFrame(
+                            schema={"Short Window": pl.Int32, "Long Window": pl.Int32}
+                        )
+                    # Legacy behavior
+                    short_windows = list(np.arange(2, windows))
+                    long_windows = list(np.arange(2, windows))
+                else:
+                    # Default ranges
+                    log(
+                        "No parameter ranges specified. Using defaults: FAST=[5,89], SLOW=[8,89]",
+                        "warning",
+                    )
+                    short_windows = list(np.arange(5, 90))  # [5, 6, ..., 89]
+                    long_windows = list(np.arange(8, 90))  # [8, 9, ..., 89]
+            else:
+                # Use explicit ranges
+                short_windows = list(np.arange(fast_range[0], fast_range[1] + 1))
+                long_windows = list(np.arange(slow_range[0], slow_range[1] + 1))
+
             current_signals = get_current_signals(
                 data, short_windows, long_windows, config, log
             )

@@ -75,7 +75,8 @@ python -m app.tools.spds_cli_updated analyze --portfolio risk_on.csv --save-resu
 # python -m app.cli spds analyze (REMOVED - use spds_cli_updated)
 # Complex service coordination (REMOVED - use unified engine)
 ```
-```
+
+````
 
 ### Trade History Analysis
 
@@ -124,7 +125,7 @@ python -m app.cli trade-history update \
 # System health check and data validation
 python -m app.cli trade-history health
 python -m app.cli trade-history validate
-```
+````
 
 **Important Note:** All trade history functionality is now integrated into the CLI. Direct module execution is deprecated and will be removed in future versions.
 

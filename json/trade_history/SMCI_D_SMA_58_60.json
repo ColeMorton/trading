@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-07-17T08:57:47.996641",
+    "export_timestamp": "2025-07-18T08:34:34.304775",
     "strategy_config": {
       "ticker": "SMCI",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 38.18268575785973,
+      "total_return": 37.83665212925739,
       "total_trades": "99",
       "win_rate": 0.5454545454545454,
-      "sharpe_ratio": 0.8054086856766515,
+      "sharpe_ratio": 0.8040078830912403,
       "max_drawdown": -0.5614569138696891
     }
   },
@@ -2082,10 +2082,10 @@
       "Entry Timestamp": "2025-06-20 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 45.31999969482422,
-      "Avg Exit Price": 53.220001220703125,
+      "Avg Exit Price": 52.75,
       "Size": 736.2398507916092,
-      "PnL": 5782.929554853377,
-      "Return": 0.17331601012965425,
+      "PnL": 5436.89592625104,
+      "Return": 0.16294528586072196,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -2094,9 +2094,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Big Winner",
-      "Cumulative_PnL": 38182.68575785973,
+      "Cumulative_PnL": 37836.65212925739,
       "Trade_Number": 99,
-      "Rolling_Avg_Return": 0.09916383619367364,
+      "Rolling_Avg_Return": 0.09708969133988718,
       "Rolling_Win_Rate": 0.4
     }
   ],
@@ -5648,10 +5648,10 @@
       "Avg Entry Price": 45.31999969482422,
       "Entry Fees": 33.366389813192654,
       "Exit Timestamp": null,
-      "Avg Exit Price": 53.220001220703125,
+      "Avg Exit Price": 52.75,
       "Exit Fees": 0.0,
-      "PnL": 5782.929554853377,
-      "Return": 0.17331601012965425,
+      "PnL": 5436.89592625104,
+      "Return": 0.16294528586072196,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

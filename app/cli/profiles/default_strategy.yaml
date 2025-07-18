@@ -16,7 +16,6 @@ config:
   strategy_types:
     - SMA
     - EMA
-  windows: 89
   fast_period_range:
     - 5
     - 89
@@ -24,9 +23,16 @@ config:
     - 8
     - 89
   direction: Long
-  minimums:
-    win_rate: 0.5
-    trades: 44
-    expectancy_per_trade: 0.5
-    profit_factor: 1.236
-    sortino_ratio: 0.5
+
+  # Data settings
+  refresh: true
+
+  # Result configuration
+  sort_by: 'Score'
+  sort_ascending: false
+
+  # Feature flags
+  use_synthetic: false
+  use_hourly: false
+  use_years: false
+  years: 15

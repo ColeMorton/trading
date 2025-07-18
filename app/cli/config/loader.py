@@ -141,7 +141,6 @@ class ConfigLoader:
         strategy_config = {
             "ticker": ["AAPL", "MSFT", "GOOGL"],
             "strategy_types": ["SMA", "EMA"],
-            "windows": 89,
             "direction": "Long",
             "minimums": {
                 "win_rate": 0.5,
@@ -211,9 +210,6 @@ class ConfigLoader:
         ma_cross_config = {
             "ticker": ["BTC-USD", "ETH-USD"],
             "strategy_types": ["SMA", "EMA"],
-            "windows": 89,
-            "fast_period_range": [5, 50],
-            "slow_period_range": [20, 200],
             "minimums": {"win_rate": 0.55, "trades": 50, "profit_factor": 1.5},
         }
 
@@ -303,7 +299,6 @@ class ConfigLoader:
             "strategy": {
                 "ticker": ["AAPL"],
                 "strategy_types": ["SMA"],
-                "windows": 89,
                 "direction": "Long",
                 "minimums": {"win_rate": 0.5, "trades": 20},
             },

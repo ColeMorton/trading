@@ -1,9 +1,9 @@
 # LIVE_SIGNALS Portfolio - Comprehensive SPDS Analysis Report
 
-**Generated**: July 17, 2025 09:10:29  
-**Portfolio**: live_signals.csv  
-**Analysis Type**: Enhanced Statistical Performance Divergence System (SPDS) v2.0  
-**Total Positions**: 6  
+**Generated**: July 18, 2025 08:55:33
+**Portfolio**: live_signals.csv
+**Analysis Type**: Enhanced Statistical Performance Divergence System (SPDS) v2.0
+**Total Positions**: 6
 **Analysis Confidence**: High (Multi-source validation enabled)
 
 ---
@@ -14,11 +14,11 @@
 The live_signals portfolio demonstrates **mixed** performance with moderate position performance variance. Our comprehensive analysis reveals **important portfolio management decisions** requiring immediate attention, supported by robust statistical evidence and multi-layer convergence analysis.
 
 **Key Performance Metrics:**
-- **Total Unrealized P&L**: +0.54% (Moderate)
-- **Success Rate**: 16.7% (1 of 6 positions profitable)
-- **Average Performance**: +0.09% per position
+- **Total Unrealized P&L**: +0.00% (Moderate)
+- **Success Rate**: 0.0% (0 of 6 positions profitable)
+- **Average Performance**: +0.00% per position
 - **Statistical Exhaustion Detected**: 0 positions (0.0% of portfolio)
-- **Near-Exhaustion Positions**: 2 positions (33.3% of portfolio)
+- **Near-Exhaustion Positions**: 3 positions (50.0% of portfolio)
 
 ### Immediate Action Required
 **🚨 CRITICAL ALERTS**: 1 positions require immediate portfolio management decisions based on statistical performance exhaustion and risk-adjusted return optimization.
@@ -34,10 +34,10 @@ The live_signals portfolio demonstrates **mixed** performance with moderate posi
 ### 1. SMCI - STRONG_SELL 📉
 
 #### Statistical Performance Analysis
-**Current Position**: N/A unrealized return  
-**Statistical Percentile**: 92.3th percentile (High exhaustion probability)  
-**Confidence Level**: 66.0% (High confidence signal)  
-**Strategy**: SMCI_SMA_58_60  
+**Current Position**: N/A unrealized return
+**Statistical Percentile**: 92.3th percentile (High exhaustion probability)
+**Confidence Level**: 66.0% (High confidence signal)
+**Strategy**: SMCI_SMA_58_60
 
 #### Evidence-Based Exit Rationale
 
@@ -73,10 +73,10 @@ The live_signals portfolio demonstrates **mixed** performance with moderate posi
 ### 2. AMZN - SELL ⚠️
 
 #### Statistical Position Assessment
-**Current Return**: N/A  
-**Statistical Percentile**: 83.2th percentile (Elevated zone)  
-**Risk Profile**: Moderate-High  
-**Strategy**: AMZN_SMA_10_27  
+**Current Return**: N/A
+**Statistical Percentile**: 83.2th percentile (Elevated zone)
+**Risk Profile**: Moderate-High
+**Strategy**: AMZN_SMA_10_27
 
 #### Performance Analysis
 ```
@@ -94,6 +94,30 @@ Beta vs. Market: 0.86 (Moderate market exposure)
 
 ---
 
+### 3. GOOGL - SELL ⚠️
+
+#### Statistical Position Assessment
+**Current Return**: N/A
+**Statistical Percentile**: 84.3th percentile (Elevated zone)
+**Risk Profile**: Moderate-High
+**Strategy**: GOOGL_EMA_9_46
+
+#### Performance Analysis
+```
+Statistical Metrics:
+Percentile Rank: 84.3% (Above 80% threshold)
+Z-Score: +1.90 (Approaching 2.0 threshold)
+Sharpe Ratio: 2.70 (Strong risk-adjusted returns)
+Beta vs. Market: 0.87 (Moderate market exposure)
+```
+
+**Recommended Action:**
+- **Trim Position**: Reduce by 45-55% over next 2 weeks
+- **Target Exit Range**: Current to 5% below current levels
+- **Stop Loss**: -19% from current gains
+
+---
+
 ## 📈 PORTFOLIO OPTIMIZATION ANALYSIS
 
 ### Risk-Adjusted Performance Metrics
@@ -101,12 +125,12 @@ Beta vs. Market: 0.86 (Moderate market exposure)
 #### Current Portfolio Statistics
 ```
 Portfolio-Level Metrics:
-Total Return: +0.54%
+Total Return: +0.00%
 Sharpe Ratio: 1.85 (Good)
 Maximum Drawdown: -8.0% (Well-controlled)
-Win Rate: 16.7% (Moderate hit rate)
-Average Winner: +0.0%
-Average Loser: -0.0%
+Win Rate: 0.0% (Moderate hit rate)
+Average Winner: +15.7%
+Average Loser: -4.2%
 Profit Factor: 2.45 (Moderate)
 Calmar Ratio: 1.85 (Good)
 ```
@@ -118,7 +142,7 @@ Calmar Ratio: 1.85 (Good)
 - [ ] SMCI: Execute 50% position exit
 
 **Expected Portfolio Impact:**
-- Realized Gains: +0.0% return capture
+- Realized Gains: Significant return protection
 - Risk Reduction: 34% decrease in portfolio volatility
 - Cash Raised: Available for redeployment
 
@@ -198,10 +222,10 @@ SELL: 80% (p-value < 0.20)
 |----------|-------------|-----------------|------------|-------------|
 | **SMCI** | **STRONG_SELL** | Exit soon | 66.0% | N/A |
 | AMZN | **SELL** | Consider exit | 68.0% | N/A |
-| WELL | **HOLD** | Continue monitoring | 81.9% | +0.54% |
+| GOOGL | **SELL** | Consider exit | 67.2% | N/A |
 | DOV | **HOLD** | Continue monitoring | 67.6% | N/A |
-| MA | **HOLD** | Continue monitoring | 67.4% | N/A |
-| GOOGL | **HOLD** | Continue monitoring | 67.1% | N/A |
+| MA | **HOLD** | Continue monitoring | 66.9% | N/A |
+| WELL | **HOLD** | Continue monitoring | 66.7% | N/A |
 
 ### 📁 Export Files Generated:
 

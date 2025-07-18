@@ -52,12 +52,47 @@ def process_single_ticker(
             log(f"Loading existing data from {file_path}.")
             return pl.read_csv(file_path)
 
-    # Create distinct integer values for windows and convert to lists
-    short_windows = list(np.arange(2, config["WINDOWS"] + 1))  # [2, 3, ..., WINDOWS]
-    long_windows = list(np.arange(3, config["WINDOWS"] + 1))  # [3, 4, ..., WINDOWS]
+    # Check if USE_CURRENT is enabled - if so, skip parameter sweep
+    if config.get("USE_CURRENT", False):
+        log("USE_CURRENT enabled - processing current signals only", "info")
+        # Import current signal processing
+        from app.tools.strategy.signal_processing import process_current_signals
+
+        return process_current_signals(ticker, config_copy, log)
+
+    # Generate parameter ranges using explicit range configuration
+    fast_range = config.get("FAST_PERIOD_RANGE")
+    slow_range = config.get("SLOW_PERIOD_RANGE")
+
+    # Backward compatibility: fallback to WINDOWS if ranges not specified
+    if fast_range is None or slow_range is None:
+        if "WINDOWS" in config:
+            import warnings
+
+            warnings.warn(
+                "WINDOWS parameter is deprecated. Use FAST_PERIOD_RANGE and SLOW_PERIOD_RANGE instead. "
+                f"Current WINDOWS={config['WINDOWS']} generates ranges [2, {config['WINDOWS']}] and [3, {config['WINDOWS']}].",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            # Legacy behavior for backward compatibility
+            short_windows = list(np.arange(2, config["WINDOWS"] + 1))
+            long_windows = list(np.arange(3, config["WINDOWS"] + 1))
+        else:
+            # Default ranges if nothing specified
+            log(
+                "No parameter ranges specified. Using defaults: FAST=[5,89], SLOW=[8,89]",
+                "warning",
+            )
+            short_windows = list(np.arange(5, 90))  # [5, 6, ..., 89]
+            long_windows = list(np.arange(8, 90))  # [8, 9, ..., 89]
+    else:
+        # Use explicit ranges
+        short_windows = list(np.arange(fast_range[0], fast_range[1] + 1))
+        long_windows = list(np.arange(slow_range[0], slow_range[1] + 1))
 
     log(
-        f"Generated window ranges - Short: {short_windows[0]}-{short_windows[-1]}, Long: {long_windows[0]}-{long_windows[-1]}"
+        f"Generated window ranges - Fast: {short_windows[0]}-{short_windows[-1]}, Slow: {long_windows[0]}-{long_windows[-1]}"
     )
     log(
         f"Number of window combinations to analyze: {len(short_windows) * len(long_windows)}"

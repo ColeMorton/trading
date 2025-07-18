@@ -102,9 +102,9 @@ class ProfileManager:
             return profile
 
         except yaml.YAMLError as e:
-            raise ValidationError(f"Invalid YAML in profile '{name}': {e}", Profile)
+            raise ValueError(f"Invalid YAML in profile '{name}': {e}")
         except Exception as e:
-            raise ValidationError(f"Error loading profile '{name}': {e}", Profile)
+            raise ValueError(f"Error loading profile '{name}': {e}")
 
     def save_profile(self, profile: Profile, name: Optional[str] = None) -> Path:
         """Save a profile to disk.

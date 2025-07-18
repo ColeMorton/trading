@@ -678,9 +678,78 @@ def create_position_record(
         if exit_efficiency is not None
         else None,
         "Trade_Quality": trade_quality,
+        "X_Status": None,  # Extended status field - preserved and unmodified
     }
 
     return position
+
+
+def align_position_with_dataframe_schema(
+    position: Dict[str, Any], existing_df: pd.DataFrame
+) -> pd.DataFrame:
+    """Align a position dictionary with existing DataFrame schema to avoid concatenation warnings.
+
+    This function specifically handles the FutureWarning about DataFrame concatenation with
+    empty or all-NA entries by ensuring proper dtype alignment and handling all-NA columns.
+
+    Args:
+        position: Position dictionary to add
+        existing_df: Existing DataFrame to align with
+
+    Returns:
+        pd.DataFrame: Single-row DataFrame aligned with existing schema
+    """
+    # Create a copy of the position to avoid modifying the original
+    aligned_position = position.copy()
+
+    # Ensure all columns from existing DataFrame are present
+    for col in existing_df.columns:
+        if col not in aligned_position:
+            aligned_position[col] = None
+
+    # Remove any extra columns not in existing DataFrame
+    aligned_position = {
+        k: v for k, v in aligned_position.items() if k in existing_df.columns
+    }
+
+    # Create DataFrame with same column order as existing
+    new_df = pd.DataFrame([aligned_position], columns=existing_df.columns)
+
+    # Handle dtype alignment, especially for all-NA columns which cause FutureWarnings
+    for col in existing_df.columns:
+        existing_col = existing_df[col]
+
+        # Check if the existing column is all NA
+        if existing_col.isna().all():
+            # For all-NA columns, explicitly set the dtype to match existing to avoid warnings
+            new_df[col] = new_df[col].astype(existing_col.dtype)
+        elif existing_col.notna().any():
+            # For columns with some data, align dtypes more carefully
+            try:
+                existing_dtype = existing_col.dtype
+                new_value = new_df[col].iloc[0]
+
+                # Handle dtype conversion with special cases for empty strings
+                if new_value is not None and new_value != "":
+                    if pd.api.types.is_numeric_dtype(existing_dtype):
+                        new_df[col] = new_df[col].astype(existing_dtype)
+                    elif existing_dtype == "object":
+                        new_df[col] = new_df[col].astype("object")
+                else:
+                    # For None values or empty strings, convert appropriately for the target dtype
+                    if pd.api.types.is_numeric_dtype(existing_dtype):
+                        # Convert empty strings and None to NaN for numeric columns
+                        new_df[col] = pd.NA if new_value == "" else new_value
+                        new_df[col] = new_df[col].astype(existing_dtype)
+                    else:
+                        # For non-numeric columns, keep as-is
+                        new_df[col] = new_df[col].astype(existing_dtype)
+
+            except (ValueError, TypeError):
+                # If conversion fails, keep original dtype but log the issue
+                pass
+
+    return new_df
 
 
 def add_position_to_portfolio(
@@ -777,8 +846,9 @@ def add_position_to_portfolio(
             )
             return existing_uuid
 
-        # Add new position
-        new_df = pd.concat([df, pd.DataFrame([position])], ignore_index=True)
+        # Add new position using schema-aligned concatenation
+        aligned_position_df = align_position_with_dataframe_schema(position, df)
+        new_df = pd.concat([df, aligned_position_df], ignore_index=True)
     else:
         # Create new portfolio file
         new_df = pd.DataFrame([position])
@@ -1303,19 +1373,19 @@ Examples:
                         return None
 
                     df = pd.read_csv(price_file)
-                    
+
                     if df.empty:
                         return None
-                        
+
                     df["Date"] = pd.to_datetime(df["Date"])
                     df.set_index("Date", inplace=True)
-                    
+
                     required_columns = ["Close", "High", "Low", "Open", "Volume"]
                     if not all(col in df.columns for col in required_columns):
                         if args.verbose:
                             print(f"Missing required columns in {ticker} price data")
                         return None
-                        
+
                     return df
 
                 except Exception as e:

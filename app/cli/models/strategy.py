@@ -73,11 +73,9 @@ class StrategyConfig(BaseConfig):
     )
 
     # Time configuration
-    windows: Optional[int] = Field(
-        default=89, gt=0, description="Look-back window for analysis"
-    )
     use_years: bool = Field(
-        default=False, description="Use years instead of windows for historical data"
+        default=False,
+        description="Use years instead of period ranges for historical data",
     )
     years: Optional[int] = Field(
         default=15, gt=0, description="Number of years of historical data"
@@ -158,7 +156,11 @@ class StrategyConfig(BaseConfig):
     @validator("slow_period")
     def validate_periods(cls, v, values):
         """Ensure slow period is greater than fast period when both are specified."""
-        if v is not None and "fast_period" in values and values["fast_period"] is not None:
+        if (
+            v is not None
+            and "fast_period" in values
+            and values["fast_period"] is not None
+        ):
             if v <= values["fast_period"]:
                 raise ValueError("Slow period must be greater than fast period")
         return v
@@ -166,20 +168,21 @@ class StrategyConfig(BaseConfig):
 
 class MACrossConfig(StrategyConfig):
     """Configuration specific to MA Cross strategies.
-    
+
     This class inherits all MA Cross functionality from StrategyConfig.
     It exists for backward compatibility and specific MA Cross defaults.
     """
+
     pass
 
 
 class MACDConfig(StrategyConfig):
     """Configuration specific to MACD strategies.
-    
+
     MACD-specific defaults are inherited from StrategyConfig with
     fast_period=12, slow_period=26, signal_period=9 defaults.
     """
-    
+
     # Override defaults for MACD
     fast_period: Optional[int] = Field(
         default=12, gt=0, description="MACD fast EMA period"

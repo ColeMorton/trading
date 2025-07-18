@@ -59,7 +59,7 @@ portfolio_request = AnalysisRequest(
 )
 results = await engine.analyze(portfolio_request)
 
-# Strategy analysis  
+# Strategy analysis
 strategy_request = AnalysisRequest(
     analysis_type="strategy",
     parameter="AAPL_SMA_20_50"
@@ -68,7 +68,7 @@ results = await engine.analyze(strategy_request)
 
 # Position analysis
 position_request = AnalysisRequest(
-    analysis_type="position", 
+    analysis_type="position",
     parameter="AAPL_SMA_20_50_20250101"
 )
 results = await engine.analyze(position_request)
@@ -190,7 +190,7 @@ coordinator = ServiceCoordinator(service)
 
 ### After (3-Layer Architecture - Current)
 
-```python  
+```python
 # NEW: Simplified 3-layer architecture (Phase 4 Complete)
 CLI → SPDSAnalysisEngine → Results
 
@@ -218,13 +218,13 @@ def _estimate_percentile_rank(self, value, percentiles):
 # NEW: 15-line scipy implementation (Phase 4B Complete)
 def _estimate_percentile_rank(self, value, data_array):
     from scipy.stats import percentileofscore
-    
+
     if not isinstance(data_array, np.ndarray) or len(data_array) == 0:
         return 50.0
-    
+
     if not np.isfinite(value):
         return 50.0
-    
+
     try:
         percentile = percentileofscore(data_array, value, kind='rank')
         return max(1.0, min(99.0, percentile))

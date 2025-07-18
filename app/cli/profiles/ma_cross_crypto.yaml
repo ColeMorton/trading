@@ -18,13 +18,12 @@ config:
   strategy_types:
     - SMA
     - EMA
-  windows: 89
   fast_period_range:
     - 5
-    - 50
+    - 89
   slow_period_range:
-    - 20
-    - 200
+    - 8
+    - 89
   minimums:
     win_rate: 0.55
     trades: 50

@@ -8,7 +8,7 @@ metadata:
   tags: ['ma_cross', 'portfolio', 'analysis', 'production']
   author: 'trading-cli'
 
-inherits_from: null
+inherits_from: 'default_strategy_current'
 
 config_type: 'strategy'
 
@@ -21,20 +21,8 @@ config:
     - XLU
     - XLRE
     - XLI
+    - XLV
     - XLP
     - XLB
     - XLF
     - XLC
-  strategy_types:
-      - SMA
-      - EMA
-  windows: 89
-  fast_period_range:
-    - 5
-    - 89
-  slow_period_range:
-    - 8
-    - 89
-  direction: Long
-  filter:
-    use_current: true

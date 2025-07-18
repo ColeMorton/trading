@@ -20,9 +20,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Import new architecture
-from app.tools.spds_analysis_engine import SPDSAnalysisEngine, AnalysisRequest
-from app.tools.spds_export import SPDSExportService
+from app.tools.spds_analysis_engine import AnalysisRequest, SPDSAnalysisEngine
 from app.tools.spds_config import SPDSConfig
+from app.tools.spds_export import SPDSExporter as SPDSExportService
 
 
 class SPDSCLIUpdated:
@@ -56,7 +56,10 @@ Examples:
         analyze_parser = subparsers.add_parser("analyze", help="Run SPDS analysis")
         analyze_group = analyze_parser.add_mutually_exclusive_group(required=True)
         analyze_group.add_argument(
-            "--portfolio", "-p", type=str, help='Portfolio filename (e.g., "risk_on.csv")'
+            "--portfolio",
+            "-p",
+            type=str,
+            help='Portfolio filename (e.g., "risk_on.csv")',
         )
         analyze_group.add_argument(
             "--strategy", "-s", type=str, help="Strategy name (e.g., AAPL_SMA_20_50)"
@@ -91,13 +94,19 @@ Examples:
         )
 
         # Demo command
-        demo_parser = subparsers.add_parser("demo", help="Create demo files and run example")
+        demo_parser = subparsers.add_parser(
+            "demo", help="Create demo files and run example"
+        )
 
         # Interactive command
-        interactive_parser = subparsers.add_parser("interactive", help="Interactive mode")
+        interactive_parser = subparsers.add_parser(
+            "interactive", help="Interactive mode"
+        )
 
         # Global options
-        parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
+        parser.add_argument(
+            "--verbose", "-v", action="store_true", help="Verbose output"
+        )
         parser.add_argument("--quiet", "-q", action="store_true", help="Quiet mode")
 
         return parser
@@ -133,8 +142,9 @@ Examples:
             return 1
         except Exception as e:
             logger.error(f"Application error: {e}")
-            if hasattr(parsed_args, 'verbose') and parsed_args.verbose:
+            if hasattr(parsed_args, "verbose") and parsed_args.verbose:
                 import traceback
+
                 traceback.print_exc()
             return 1
 
@@ -160,13 +170,15 @@ Examples:
 
             # Determine data source
             use_trade_history = self._determine_data_source(args.data_source)
-            print(f"   Data Source: {args.data_source} ({'Trade History' if use_trade_history else 'Equity Curves'})")
+            print(
+                f"   Data Source: {args.data_source} ({'Trade History' if use_trade_history else 'Equity Curves'})"
+            )
 
             # Create request
             request = AnalysisRequest(
                 analysis_type=analysis_type,
                 parameter=parameter,
-                use_trade_history=use_trade_history
+                use_trade_history=use_trade_history,
             )
 
             # Run analysis
@@ -194,7 +206,9 @@ Examples:
         else:  # auto or both
             return False  # Default to equity curves
 
-    def _output_json_results(self, results: Dict, save_path: Optional[str] = None) -> int:
+    def _output_json_results(
+        self, results: Dict, save_path: Optional[str] = None
+    ) -> int:
         """Output results in JSON format"""
         # Convert results to serializable format
         serializable_results = {}
@@ -206,20 +220,20 @@ Examples:
                 "exit_signal": {
                     "signal_type": result.exit_signal.signal_type.value,
                     "risk_level": result.exit_signal.risk_level.value,
-                    "reasoning": result.exit_signal.reasoning
+                    "reasoning": result.exit_signal.reasoning,
                 },
                 "confidence_level": result.confidence_level,
                 "statistical_metrics": result.statistical_metrics,
                 "divergence_metrics": result.divergence_metrics,
-                "component_scores": result.component_scores
+                "component_scores": result.component_scores,
             }
 
         output_data = {
             "analysis_summary": {
                 "total_results": len(results),
-                "timestamp": "2025-07-15T20:00:00Z"
+                "timestamp": "2025-07-15T20:00:00Z",
             },
-            "results": serializable_results
+            "results": serializable_results,
         }
 
         json_output = json.dumps(output_data, indent=2, default=str)
@@ -251,7 +265,9 @@ Examples:
 
         # Show high confidence results
         high_confidence = sum(1 for r in results.values() if r.confidence_level >= 75)
-        print(f"\nHigh Confidence Results: {high_confidence}/{len(results)} ({high_confidence/len(results)*100:.1f}%)")
+        print(
+            f"\nHigh Confidence Results: {high_confidence}/{len(results)} ({high_confidence/len(results)*100:.1f}%)"
+        )
 
         return 0
 
@@ -269,21 +285,25 @@ Examples:
         print("=" * 100)
 
         # Table header
-        print(f"{'Strategy':<30} {'Ticker':<8} {'Signal':<15} {'Risk':<10} {'Confidence':<10} {'Reasoning'}")
+        print(
+            f"{'Strategy':<30} {'Ticker':<8} {'Signal':<15} {'Risk':<10} {'Confidence':<10} {'Reasoning'}"
+        )
         print("-" * 100)
 
         # Sort by confidence level (highest first)
         sorted_results = sorted(
-            results.items(),
-            key=lambda x: x[1].confidence_level,
-            reverse=True
+            results.items(), key=lambda x: x[1].confidence_level, reverse=True
         )
 
         for strategy_name, result in sorted_results:
             signal = result.exit_signal.signal_type.value
             risk = result.exit_signal.risk_level.value
             confidence = result.confidence_level
-            reasoning = result.exit_signal.reasoning[:40] + "..." if len(result.exit_signal.reasoning) > 40 else result.exit_signal.reasoning
+            reasoning = (
+                result.exit_signal.reasoning[:40] + "..."
+                if len(result.exit_signal.reasoning) > 40
+                else result.exit_signal.reasoning
+            )
 
             # Signal icon
             signal_icons = {
@@ -295,7 +315,9 @@ Examples:
             }
             signal_icon = signal_icons.get(signal, "❓")
 
-            print(f"{strategy_name:<30} {result.ticker:<8} {signal_icon} {signal:<13} {risk:<10} {confidence:>6.1f}%    {reasoning}")
+            print(
+                f"{strategy_name:<30} {result.ticker:<8} {signal_icon} {signal:<13} {risk:<10} {confidence:>6.1f}%    {reasoning}"
+            )
 
         print(f"\n💡 Architecture: New 3-layer SPDS system (CLI → Engine → Results)")
         print(f"📊 Performance: {len(results)} results processed")
@@ -328,7 +350,7 @@ Examples:
             directories = [
                 ("Portfolio Directory", Path("csv/positions")),
                 ("Price Data Directory", Path("csv/price_data")),
-                ("Export Directory", Path("exports"))
+                ("Export Directory", Path("exports")),
             ]
 
             for name, path in directories:
@@ -339,8 +361,7 @@ Examples:
             print("5. Simple Analysis Test... ", end="")
             try:
                 request = AnalysisRequest(
-                    analysis_type="strategy",
-                    parameter="TEST_SMA_20_50"
+                    analysis_type="strategy", parameter="TEST_SMA_20_50"
                 )
                 await engine.analyze(request)
                 print("✅")
@@ -386,15 +407,18 @@ Examples:
             # Try to read position count
             try:
                 import pandas as pd
+
                 df = pd.read_csv(portfolio_file)
                 print(f"   Positions: {len(df)}")
-                
+
                 # Show sample tickers
-                if 'Ticker' in df.columns:
-                    tickers = df['Ticker'].value_counts().head(3)
-                    ticker_list = ', '.join([f"{ticker}({count})" for ticker, count in tickers.items()])
+                if "Ticker" in df.columns:
+                    tickers = df["Ticker"].value_counts().head(3)
+                    ticker_list = ", ".join(
+                        [f"{ticker}({count})" for ticker, count in tickers.items()]
+                    )
                     print(f"   Top Tickers: {ticker_list}")
-                    
+
             except Exception as e:
                 print(f"   Error reading file: {e}")
             print()
@@ -434,11 +458,12 @@ Examples:
             # Create demo portfolio file
             portfolio_dir = Path("csv/positions")
             portfolio_dir.mkdir(parents=True, exist_ok=True)
-            
+
             import pandas as pd
+
             demo_file = portfolio_dir / "demo_new_architecture.csv"
             pd.DataFrame(sample_data).to_csv(demo_file, index=False)
-            
+
             print(f"✅ Created demo portfolio: {demo_file}")
 
             # Run analysis on demo portfolio
@@ -446,13 +471,13 @@ Examples:
             request = AnalysisRequest(
                 analysis_type="portfolio",
                 parameter="demo_new_architecture.csv",
-                use_trade_history=False
+                use_trade_history=False,
             )
 
             results = await self.engine.analyze(request)
-            
+
             print(f"✅ Demo analysis completed: {len(results)} results")
-            
+
             # Show sample result
             if results:
                 sample_key = list(results.keys())[0]
@@ -463,7 +488,9 @@ Examples:
                 print(f"   Confidence: {sample_result.confidence_level:.1f}%")
 
             print(f"\n🎉 Demo completed successfully!")
-            print(f"💡 Try: python -m app.tools.spds_cli_updated analyze --portfolio demo_new_architecture.csv")
+            print(
+                f"💡 Try: python -m app.tools.spds_cli_updated analyze --portfolio demo_new_architecture.csv"
+            )
 
             return 0
 

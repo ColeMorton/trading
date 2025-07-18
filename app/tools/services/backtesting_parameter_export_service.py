@@ -32,6 +32,13 @@ class BacktestingParameterExportService:
     - Backtrader strategy templates
     - Zipline algorithm templates
     - Generic CSV/JSON parameter files
+
+    Features comprehensive 5-tier profit factor classification system:
+    - Exceptional (≥2.5): Elite performance with dominant edge
+    - Excellent (2.0-2.49): Strong edge with consistent profitability
+    - Good (1.5-1.99): Solid performance with meaningful edge
+    - Acceptable (1.2-1.49): Minimal edge requiring careful management
+    - Poor (<1.2): Weak or no edge - requires optimization
     """
 
     def __init__(self, config: SPDSConfig, logger: Optional[logging.Logger] = None):
@@ -532,10 +539,11 @@ class BacktestingParameterExportService:
         # Prepare strategy-specific metrics for trailing stop calculation
         strategy_metrics = {
             "strategy_name": strategy_name,
-            "ticker": getattr(analysis_result, "ticker", None)
-            or strategy_name.split("_")[0]
-            if "_" in strategy_name
-            else strategy_name,
+            "ticker": (
+                getattr(analysis_result, "ticker", None) or strategy_name.split("_")[0]
+                if "_" in strategy_name
+                else strategy_name
+            ),
             "sample_size": sample_size,
             "current_return": performance_metrics.get("current_return", 0.0),
         }
@@ -800,6 +808,69 @@ class BacktestingParameterExportService:
             self.logger.error(f"Error calculating real ATR for {ticker}: {str(e)}")
             return None
 
+    def _classify_profit_factor(self, profit_factor: float) -> Dict[str, Any]:
+        """
+        Classify profit factor using comprehensive 5-tier grading system.
+
+        Args:
+            profit_factor: The profit factor value to classify
+
+        Returns:
+            Dict containing grade, description, adjustment_factor, and tier_info
+        """
+        if profit_factor >= 2.5:
+            return {
+                "grade": "Exceptional",
+                "description": "Elite performance with dominant edge",
+                "adjustment_factor": 0.95,
+                "tier": 1,
+                "risk_profile": "Low - Very tight stops acceptable",
+            }
+        elif profit_factor >= 2.0:
+            return {
+                "grade": "Excellent",
+                "description": "Strong edge with consistent profitability",
+                "adjustment_factor": 0.98,
+                "tier": 2,
+                "risk_profile": "Low - Tighter stops acceptable",
+            }
+        elif profit_factor >= 1.5:
+            return {
+                "grade": "Good",
+                "description": "Solid performance with meaningful edge",
+                "adjustment_factor": 1.0,
+                "tier": 3,
+                "risk_profile": "Medium - Standard stop management",
+            }
+        elif profit_factor >= 1.2:
+            return {
+                "grade": "Acceptable",
+                "description": "Minimal edge requiring careful management",
+                "adjustment_factor": 1.03,
+                "tier": 4,
+                "risk_profile": "Medium-High - Slightly wider stops needed",
+            }
+        else:
+            return {
+                "grade": "Poor",
+                "description": "Weak or no edge - requires optimization",
+                "adjustment_factor": 1.05,
+                "tier": 5,
+                "risk_profile": "High - Wider stops essential",
+            }
+
+    def get_profit_factor_classification(self, profit_factor: float) -> Dict[str, Any]:
+        """
+        Public utility function for external profit factor classification access.
+
+        Args:
+            profit_factor: The profit factor value to classify
+
+        Returns:
+            Dict containing complete classification information
+        """
+        return self._classify_profit_factor(profit_factor)
+
     def _calculate_optimal_trailing_stop(
         self,
         returns_data: List[float],
@@ -932,15 +1003,17 @@ class BacktestingParameterExportService:
             elif avg_duration > long_threshold:
                 adjustment_factor *= 1.05  # Long-term strategies need room
 
-            # 4. Profit Factor using quantitative thresholds
+            # 4. Profit Factor using comprehensive 5-tier classification system
             profit_factor = strategy_metrics.get("profit_factor", 1.5)
-            excellent_pf = 2.0  # Based on quantitative research
-            poor_pf = 1.2  # Below this indicates weak edge
+            pf_classification = self._classify_profit_factor(profit_factor)
 
-            if profit_factor > excellent_pf:
-                adjustment_factor *= 0.98  # Strong edge allows slightly tighter stops
-            elif profit_factor < poor_pf:
-                adjustment_factor *= 1.05  # Weak edge needs more room
+            # Apply classification-based adjustment factor
+            adjustment_factor *= pf_classification["adjustment_factor"]
+
+            self.logger.info(
+                f"Profit Factor Classification: {profit_factor:.2f} = {pf_classification['grade']} "
+                f"(Tier {pf_classification['tier']}) - {pf_classification['description']}"
+            )
 
             # Apply statistical adjustments
             base_stop *= adjustment_factor

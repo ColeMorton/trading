@@ -12,38 +12,8 @@ metadata:
 inherits_from: 'default_strategy'
 config_type: strategy
 config:
-  # Ticker configuration - matches the CONFIG from 1_get_portfolios.py
   ticker:
     - BTC-USD
-
-  # Strategy parameters (maps to CLI --windows, --strategy-types, etc.)
-  windows: 89
-  strategy_types:
-    - 'SMA'
-    - 'EMA'
-  direction: 'Long'
-
-  # Data settings
-  refresh: true
-
   # Filter configuration
   filter:
     use_current: true
-
-  # Performance filters (maps to CLI --min-* options)
-  minimums:
-    win_rate: 0.5
-    trades: 44
-    expectancy_per_trade: 0.5
-    profit_factor: 1.236
-    sortino_ratio: 0.5
-
-  # Result configuration
-  sort_by: 'Score'
-  sort_ascending: false
-
-  # Feature flags
-  use_synthetic: false
-  use_hourly: false
-  use_years: false
-  years: 15

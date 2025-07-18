@@ -72,15 +72,10 @@ from app.tools.strategy_utils import filter_portfolios_by_signal, get_strategy_t
 # Config management is now handled by ConfigService
 
 CONFIG: Config = {
-    "TICKER": [
-    "ROKU","ARM","EVO","ABNB","PM","HIMS","TT","AAPL","APP"
-    # "XLE", "XLU", "XLRE", "XLI", "XLV", "XLP", "XLB", "XLF", "XLK", "XLC"
-],
+    "TICKER": ["AAPL"],
     # "TICKER_2": 'AVGO',
-    # "WINDOWS": 120,
-    "WINDOWS": 89,
-    # "WINDOWS": 55,
-    # "WINDOWS": 34,
+    "FAST_PERIOD_RANGE": [5, 89],
+    "SLOW_PERIOD_RANGE": [8, 89],
     # "SCANNER_LIST": 'DAILY.csv',
     # "USE_SCANNER": True,
     "BASE_DIR": get_project_root(),  # Use standardized project root resolver

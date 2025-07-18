@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-07-17T08:57:51.295979",
+    "export_timestamp": "2025-07-18T08:34:37.760777",
     "strategy_config": {
       "ticker": "AMZN",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 112.70770821627558,
+      "total_return": 113.05924097051056,
       "total_trades": "139",
       "win_rate": 0.45323741007194246,
-      "sharpe_ratio": 0.7444455263287921,
+      "sharpe_ratio": 0.744725133386358,
       "max_drawdown": -0.9048697994641766
     }
   },
@@ -2922,10 +2922,10 @@
       "Entry Timestamp": "2025-05-05 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 186.35000610351562,
-      "Avg Exit Price": 223.19000244140625,
+      "Avg Exit Price": 223.8800048828125,
       "Size": 509.46595713276673,
-      "PnL": 18673.78501082986,
-      "Return": 0.1966924879596,
+      "PnL": 19025.31776506483,
+      "Return": 0.20039521089389892,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -2934,9 +2934,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Big Winner",
-      "Cumulative_PnL": 112707.70821627561,
+      "Cumulative_PnL": 113059.24097051058,
       "Trade_Number": 139,
-      "Rolling_Avg_Return": 0.07067952170345462,
+      "Rolling_Avg_Return": 0.0714200662903144,
       "Rolling_Win_Rate": 0.6
     }
   ],
@@ -7928,10 +7928,10 @@
       "Avg Entry Price": 186.35000610351562,
       "Entry Fees": 94.93898422121129,
       "Exit Timestamp": null,
-      "Avg Exit Price": 223.19000244140625,
+      "Avg Exit Price": 223.8800048828125,
       "Exit Fees": 0.0,
-      "PnL": 18673.78501082986,
-      "Return": 0.1966924879596,
+      "PnL": 19025.31776506483,
+      "Return": 0.20039521089389892,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

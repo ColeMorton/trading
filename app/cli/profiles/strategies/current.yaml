@@ -16,3 +16,11 @@ config:
   name: 'current'
   ticker:
     - BTC-USD
+
+  # Performance filters (maps to CLI --min-* options)
+  minimums:
+    win_rate: 0.5
+    trades: 44
+    expectancy_per_trade: 0.5
+    profit_factor: 1.236
+    sortino_ratio: 0.5

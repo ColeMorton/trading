@@ -117,8 +117,8 @@ class ConcurrencyDefaults:
 
     # General Configuration
     # PORTFOLIO: str = "protected.csv"
-    # PORTFOLIO: str = "risk_on.csv"
-    PORTFOLIO: str = "live_signals.csv"
+    PORTFOLIO: str = "risk_on.csv"
+    # PORTFOLIO: str = "live_signals.csv"
     BASE_DIR: str = ""  # Will be set to project root
     REFRESH: bool = True
     VISUALIZATION: bool = False

@@ -75,9 +75,14 @@ def _detect_available_data_sources(portfolio: str) -> dict:
 
 @app.command()
 def analyze(
-    parameter: str = typer.Argument(
-        ...,
+    parameter: Optional[str] = typer.Argument(
+        None,
         help='Analysis parameter: portfolio file (e.g., "risk_on.csv"), ticker (e.g., "AMD"), strategy (e.g., "TSLA_SMA_15_25"), or position UUID (e.g., "TSLA_SMA_15_25_20250710")',
+    ),
+    portfolio: Optional[str] = typer.Option(
+        None,
+        "--portfolio",
+        help="Portfolio file name (e.g., 'protected', 'risk_on.csv')",
     ),
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
@@ -141,6 +146,8 @@ def analyze(
 
     Examples:
         trading-cli spds analyze risk_on.csv                            # Portfolio analysis (existing)
+        trading-cli spds analyze --portfolio protected                  # Portfolio analysis with flag
+        trading-cli spds analyze --portfolio risk_on.csv                # Portfolio analysis with flag
         trading-cli spds analyze AMD                                     # Asset distribution analysis
         trading-cli spds analyze NVDA,MSFT,QCOM                        # Multi-ticker parallel analysis
         trading-cli spds analyze TSLA_SMA_15_25                        # Strategy analysis
@@ -148,10 +155,35 @@ def analyze(
         trading-cli spds analyze TSLA_SMA_15_25_20250710               # Position UUID analysis
         trading-cli spds analyze TSLA_SMA_15_25_20250710,TPR_SMA_14_30_20250506,MA_SMA_78_82_20250701  # Multi-position parallel analysis
         trading-cli spds analyze risk_on,live_signals,protected         # Multi-portfolio parallel analysis
-        trading-cli spds analyze risk_on.csv --data-source both         # Force both data sources (portfolio)
+        trading-cli spds analyze --portfolio risk_on.csv --data-source both  # Portfolio with flag and data source
         trading-cli spds analyze NVDA,MSFT,QCOM --components risk,trend  # Multi-ticker with component scores (detailed is now default)
     """
     try:
+        # Parameter resolution: handle --portfolio flag or positional parameter
+        if portfolio and parameter:
+            rprint(
+                "[red]❌ Cannot specify both positional parameter and --portfolio flag[/red]"
+            )
+            rprint(
+                "[yellow]💡 Use either: 'trading-cli spds analyze risk_on.csv' OR 'trading-cli spds analyze --portfolio risk_on.csv'[/yellow]"
+            )
+            raise typer.Exit(1)
+        elif portfolio:
+            parameter = portfolio
+            if verbose:
+                rprint(f"[dim]Using portfolio flag: {portfolio}[/dim]")
+        elif not parameter:
+            rprint(
+                "[red]❌ Must specify either positional parameter or --portfolio flag[/red]"
+            )
+            rprint("[yellow]💡 Examples:[/yellow]")
+            rprint("[yellow]  trading-cli spds analyze risk_on.csv[/yellow]")
+            rprint(
+                "[yellow]  trading-cli spds analyze --portfolio risk_on.csv[/yellow]"
+            )
+            rprint("[yellow]  trading-cli spds analyze --portfolio protected[/yellow]")
+            raise typer.Exit(1)
+
         # Import enhanced parameter parsing and analysis components
         from ...tools.enhanced_test_analyzer import create_test_analyzer
         from ...tools.parameter_parser import ParameterType, parse_spds_parameter

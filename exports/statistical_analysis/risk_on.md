@@ -1,9 +1,9 @@
 # RISK_ON Portfolio - Comprehensive SPDS Analysis Report
 
-**Generated**: July 17, 2025 09:09:40  
-**Portfolio**: risk_on.csv  
-**Analysis Type**: Enhanced Statistical Performance Divergence System (SPDS) v2.0  
-**Total Positions**: 5  
+**Generated**: July 18, 2025 08:36:19
+**Portfolio**: risk_on.csv
+**Analysis Type**: Enhanced Statistical Performance Divergence System (SPDS) v2.0
+**Total Positions**: 6
 **Analysis Confidence**: High (Multi-source validation enabled)
 
 ---
@@ -14,9 +14,9 @@
 The risk_on portfolio demonstrates **mixed** performance with moderate position performance variance. Our comprehensive analysis reveals **important portfolio management decisions** requiring immediate attention, supported by robust statistical evidence and multi-layer convergence analysis.
 
 **Key Performance Metrics:**
-- **Total Unrealized P&L**: -3.43% (Moderate)
-- **Success Rate**: 60.0% (3 of 5 positions profitable)
-- **Average Performance**: -0.69% per position
+- **Total Unrealized P&L**: +0.49% (Moderate)
+- **Success Rate**: 33.3% (2 of 6 positions profitable)
+- **Average Performance**: +0.08% per position
 - **Statistical Exhaustion Detected**: 0 positions (0.0% of portfolio)
 - **Near-Exhaustion Positions**: 0 positions (0.0% of portfolio)
 
@@ -37,12 +37,12 @@ The risk_on portfolio demonstrates **mixed** performance with moderate position 
 #### Current Portfolio Statistics
 ```
 Portfolio-Level Metrics:
-Total Return: -3.43%
+Total Return: +0.49%
 Sharpe Ratio: 1.85 (Good)
 Maximum Drawdown: -8.0% (Well-controlled)
-Win Rate: 60.0% (Moderate hit rate)
-Average Winner: +15.7%
-Average Loser: -4.2%
+Win Rate: 33.3% (Moderate hit rate)
+Average Winner: +0.0%
+Average Loser: -0.0%
 Profit Factor: 2.45 (Moderate)
 Calmar Ratio: 1.85 (Good)
 ```
@@ -53,7 +53,7 @@ Calmar Ratio: 1.85 (Good)
 **Priority 1 - Critical Exits:**
 
 **Expected Portfolio Impact:**
-- Realized Gains: Significant return protection
+- Realized Gains: +0.0% return capture
 - Risk Reduction: 34% decrease in portfolio volatility
 - Cash Raised: Available for redeployment
 
@@ -131,11 +131,12 @@ SELL: 80% (p-value < 0.20)
 
 | Position | Signal Type | Action Required | Confidence | Performance |
 |----------|-------------|-----------------|------------|-------------|
-| ASML | **HOLD** | Continue monitoring | 81.3% | -8.33% |
-| NI | **HOLD** | Continue monitoring | 80.1% | +0.68% |
-| TSLA | **HOLD** | Continue monitoring | 79.3% | +3.50% |
-| APP | **HOLD** | Continue monitoring | 78.1% | +0.72% |
-| MA | **HOLD** | Continue monitoring | 67.4% | N/A |
+| NI | **HOLD** | Continue monitoring | 79.8% | +0.20% |
+| ASML | **HOLD** | Continue monitoring | 78.9% | -1.26% |
+| TSLA | **HOLD** | Continue monitoring | 78.6% | -0.70% |
+| APP | **HOLD** | Continue monitoring | 78.6% | +2.33% |
+| AAPL | **HOLD** | Continue monitoring | 78.0% | -0.07% |
+| MA | **HOLD** | Continue monitoring | 66.9% | N/A |
 
 ### 📁 Export Files Generated:
 
