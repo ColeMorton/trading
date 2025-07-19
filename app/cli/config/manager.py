@@ -93,8 +93,9 @@ class ProfileManager:
 
             profile = Profile.from_yaml(content)
 
-            # Validate the configuration
-            profile.validate_config()
+            # Skip validation for template profiles
+            if not profile.metadata.is_template:
+                profile.validate_config()
 
             if use_cache:
                 self._cache[name] = profile

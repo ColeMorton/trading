@@ -20,8 +20,8 @@ Expert assistant for the **Unified Trading CLI** (v2.0.0) - an enterprise-grade 
   - `health` - System health checks and dependency validation
   - `performance` - Performance optimization and memory management
 
-- `command`: Specific CLI command (optional: "strategy", "portfolio", "spds", "trade-history", "config", "tools", "concurrency")
-- `operation`: Subcommand operation (optional: "run", "analyze", "export", "validate", etc.)
+- `command`: Specific CLI command (optional: "strategy", "portfolio", "spds", "trade-history", "config", "tools", "concurrency", "positions")
+- `operation`: Subcommand operation (optional: "run", "analyze", "export", "validate", "optimize", "monte-carlo", "review", "health", "demo", etc.)
 - `profile`: Configuration profile name (optional, e.g., "ma_cross_crypto")
 - `format`: Output format preference (optional: "table", "json", "verbose")
 
@@ -56,7 +56,7 @@ from app.cli.main import cli_main
 
 ### **Command Structure**
 
-The CLI provides **7 main command groups** with comprehensive subcommands:
+The CLI provides **8 main command groups** with comprehensive subcommands:
 
 #### **1. strategy** - Strategy Analysis and Execution
 
@@ -224,19 +224,112 @@ The CLI provides **7 main command groups** with comprehensive subcommands:
 ./trading-cli tools validate --file portfolio.csv --comprehensive
 ```
 
-#### **7. concurrency** - Concurrency Analysis and Trade History
+#### **7. concurrency** - Advanced Concurrency Analysis and Strategy Optimization
 
 **Available subcommands:**
 
-- `analyze` - Concurrency analysis with trade history export
+- `analyze` - Comprehensive concurrency analysis with trade history export
+- `export` - Export trade history data from portfolio analysis
 - `review` - Portfolio interaction analysis with visualization
+- `optimize` - Find optimal strategy combinations using permutation analysis
+- `monte-carlo` - Run Monte Carlo simulations for risk analysis and forecasting
+- `health` - Check concurrency analysis system health and validate configurations
+- `demo` - Run demo analysis with sample portfolio data
 
 ```bash
-# Concurrency analysis with trade export
-./trading-cli concurrency analyze --export-trades
+# Basic concurrency analysis with default profile
+./trading-cli concurrency analyze portfolio.csv
 
-# Portfolio interaction analysis
-./trading-cli concurrency review --visualization --allocation-analysis
+# Advanced analysis with profile and comprehensive options
+./trading-cli concurrency analyze risk_on.csv \
+  --profile risk_on_concurrency \
+  --export-trade-history \
+  --visualization \
+  --memory-optimization \
+  --initial-value 25000 \
+  --target-var 0.08
+
+# Export trade history with custom settings
+./trading-cli concurrency export portfolio.csv \
+  --output-dir ./exports \
+  --format json \
+  --include-analytics
+
+# Portfolio review with detailed analysis
+./trading-cli concurrency review portfolio.csv \
+  --focus allocation \
+  --output-format json \
+  --save-report analysis.json
+
+# Strategy optimization with parallel processing
+./trading-cli concurrency optimize portfolio.csv \
+  --min-strategies 3 \
+  --max-permutations 5000 \
+  --allocation RISK_ADJUSTED \
+  --parallel \
+  --output results.json \
+  --visualize
+
+# Monte Carlo risk analysis with confidence intervals
+./trading-cli concurrency monte-carlo portfolio.csv \
+  --simulations 25000 \
+  --confidence 90,95,99 \
+  --horizon 252 \
+  --save-simulations \
+  --output-file monte_carlo_results.json \
+  --visualize
+
+# System health check and diagnostics
+./trading-cli concurrency health \
+  --check-dependencies \
+  --check-data \
+  --check-config \
+  --fix
+
+# Demo analysis with sample data
+./trading-cli concurrency demo \
+  --strategies 10 \
+  --output ./demo_results \
+  --analyze
+```
+
+#### **8. positions** - Position Equity Management and Validation
+
+**Available subcommands:**
+
+- `equity` - Generate equity curves from position-level data
+- `validate-equity` - Validate mathematical consistency between position P&L and equity curves
+- `validate` - Validate position data integrity and completeness
+- `list` - List available portfolios for analysis
+- `info` - Show detailed portfolio information and statistics
+
+```bash
+# Generate equity data for specific portfolio
+./trading-cli positions equity --portfolio protected
+
+# Generate equity data for multiple portfolios
+./trading-cli positions equity --portfolio live_signals,risk_on,protected
+
+# Generate with custom metric type and output directory
+./trading-cli positions equity --portfolio protected --metric-type mean --output-dir ./custom_equity/
+
+# Validate mathematical consistency of equity curves
+./trading-cli positions validate-equity --portfolio protected
+
+# Validate all portfolios with detailed reporting
+./trading-cli positions validate-equity --output-format json
+
+# Validate all portfolios with comprehensive error analysis
+./trading-cli positions validate-equity --verbose --detailed-errors
+
+# List available portfolios with status information
+./trading-cli positions list --with-stats --format table
+
+# Show detailed portfolio information
+./trading-cli positions info --portfolio protected --verbose --include-metrics
+
+# Batch validation with custom thresholds
+./trading-cli positions validate-equity --all-portfolios --error-threshold 5.0 --warning-threshold 10.0
 ```
 
 ### **Root Commands**
@@ -357,13 +450,44 @@ CLI_PROFILE=ma_cross_crypto ./trading-cli strategy run
 ├── config.yaml                    # Main profile configuration registry
 ├── default_strategy.yaml          # Base strategy defaults
 ├── default_portfolio.yaml         # Portfolio processing defaults
-├── default_concurrency.yaml       # Concurrency analysis defaults
 ├── ma_cross_crypto.yaml          # Crypto-focused configuration
-└── strategies/                    # Strategy-specific profiles
-    ├── current.yaml               # Production configuration
-    ├── ma_cross_crypto.yaml       # Crypto MA Cross optimized
-    └── ma_cross_dev.yaml          # Development configuration
+├── strategies/                    # Strategy-specific profiles
+│   ├── current.yaml               # Production configuration
+│   ├── ma_cross_crypto.yaml       # Crypto MA Cross optimized
+│   └── ma_cross_dev.yaml          # Development configuration
+└── concurrency/                   # Concurrency analysis profiles (optimized structure)
+    ├── base/                      # Base templates (75% duplication reduction)
+    │   ├── concurrency_base.yaml  # Core settings shared by all profiles
+    │   ├── conservative_base.yaml # Risk-averse configurations
+    │   ├── aggressive_base.yaml   # High-return configurations
+    │   └── optimized_base.yaml    # Performance-optimized settings
+    ├── portfolio_specific/        # Production-ready profiles
+    │   ├── risk_on.yaml          # Aggressive strategies (inherits aggressive_base)
+    │   ├── protected.yaml        # Conservative strategies (inherits conservative_base)
+    │   └── live_signals.yaml     # Live trading (inherits optimized_base)
+    ├── default.yaml              # Default concurrency configuration
+    ├── enhanced.yaml             # Full-featured demonstration profile
+    └── templates/                # Documentation and reference
+        └── complete_reference.yaml # Comprehensive options reference
 ```
+
+**Concurrency Profile Optimization:**
+
+The concurrency profiles use an advanced inheritance hierarchy that eliminates 75% of configuration duplication:
+
+- **Base Templates** (`/base/`): Contain 90% of common configuration, not used directly
+- **Portfolio-Specific** (`/portfolio_specific/`): Minimal 15-20 line profiles for production use
+- **Inheritance Chain**: `concurrency_base` → `{conservative|aggressive|optimized}_base` → `{portfolio}_specific`
+
+**Profile Selection Guide for Concurrency:**
+
+| Profile                    | Use Case              | Risk Level | Memory Usage | Key Features                        |
+| -------------------------- | --------------------- | ---------- | ------------ | ----------------------------------- |
+| `default_concurrency`      | General analysis      | Medium     | Low          | Basic features, standard settings   |
+| `risk_on_concurrency`      | Aggressive strategies | High       | Medium       | Monte Carlo, higher risk limits     |
+| `protected_concurrency`    | Conservative trading  | Low        | Low          | VaR calculation, strict limits      |
+| `live_signals_concurrency` | Production trading    | Medium     | High         | Real-time optimization, hourly data |
+| `enhanced_concurrency`     | Full demonstration    | Low        | High         | All features enabled                |
 
 ## Type-Safe Data Models
 
@@ -667,6 +791,160 @@ def validate_minimums(cls, v):
 
 # Profile inheritance and composition
 ./trading-cli config show ma_cross_crypto --resolve-inheritance --format yaml
+```
+
+### **Position Equity Management (Enterprise)**
+
+#### **Equity Generation and Mathematical Validation**
+
+```bash
+# Generate equity curves for single portfolio
+./trading-cli positions equity --portfolio protected --verbose
+
+# Batch equity generation for multiple portfolios
+./trading-cli positions equity \
+  --portfolio live_signals,risk_on,protected \
+  --metric-type mean \
+  --output-dir ./equity_analysis/ \
+  --parallel-processing
+
+# Advanced equity generation with custom parameters
+./trading-cli positions equity \
+  --portfolio protected \
+  --metric-type best \
+  --init-cash 50000 \
+  --memory-optimization \
+  --verbose
+
+# Mathematical consistency validation for specific portfolio
+./trading-cli positions validate-equity \
+  --portfolio protected \
+  --output-format json \
+  --detailed-analysis \
+  --error-threshold 5.0
+
+# Comprehensive validation of all portfolios
+./trading-cli positions validate-equity \
+  --all-portfolios \
+  --warning-threshold 10.0 \
+  --critical-threshold 15.0 \
+  --generate-report
+
+# Advanced validation with custom tolerance levels
+./trading-cli positions validate-equity \
+  --portfolio risk_on \
+  --size-adjustment-enabled \
+  --absolute-difference-threshold 100.0 \
+  --business-logic-validation
+```
+
+#### **Portfolio Information and Diagnostics**
+
+```bash
+# List all available portfolios with statistics
+./trading-cli positions list \
+  --with-stats \
+  --include-validation-status \
+  --format table \
+  --sort-by error-percentage
+
+# Detailed portfolio information and metrics
+./trading-cli positions info \
+  --portfolio protected \
+  --verbose \
+  --include-metrics \
+  --include-position-breakdown \
+  --output-format json
+
+# Portfolio health check with validation
+./trading-cli positions validate \
+  --portfolio protected \
+  --comprehensive \
+  --check-data-integrity \
+  --validate-timestamps \
+  --check-price-data
+
+# Batch portfolio analysis
+./trading-cli positions info \
+  --all-portfolios \
+  --summary-only \
+  --export-format csv \
+  --output ./portfolio_summary.csv
+```
+
+#### **Integration with SPDS and Performance Analysis**
+
+```bash
+# Position equity validation integrated with SPDS analysis
+./trading-cli positions validate-equity --portfolio risk_on && \
+./trading-cli spds analyze risk_on.csv --data-source equity-curves
+
+# Performance monitoring for equity generation
+./trading-cli positions equity \
+  --portfolio live_signals \
+  --memory-monitoring \
+  --performance-tracking \
+  --streaming
+
+# Mathematical consistency validation with error analysis
+./trading-cli positions validate-equity \
+  --portfolio protected \
+  --verbose \
+  --debug-calculations \
+  --export-detailed-report ./validation_report.json
+```
+
+### **Concurrency Analysis (Advanced Workflows)**
+
+```bash
+# Basic concurrency analysis workflow
+./trading-cli concurrency analyze risk_on.csv \
+  --profile risk_on_concurrency \
+  --export-trade-history \
+  --visualization
+
+# Complete optimization workflow with Monte Carlo
+./trading-cli concurrency optimize portfolio.csv \
+  --min-strategies 3 \
+  --max-permutations 10000 \
+  --parallel && \
+./trading-cli concurrency monte-carlo portfolio.csv \
+  --simulations 50000 \
+  --confidence 90,95,99 \
+  --visualize
+
+# Production analysis with custom parameters
+./trading-cli concurrency analyze live_signals.csv \
+  --profile live_signals_concurrency \
+  --hourly \
+  --initial-value 50000 \
+  --target-var 0.05 \
+  --max-risk-strategy 75 \
+  --memory-optimization
+
+# Comprehensive review and export workflow
+./trading-cli concurrency review portfolio.csv \
+  --focus all \
+  --save-report review.json && \
+./trading-cli concurrency export portfolio.csv \
+  --output-dir ./trade_history \
+  --format csv \
+  --include-analytics
+
+# Integration with position validation
+./trading-cli positions validate-equity --portfolio risk_on && \
+./trading-cli concurrency analyze risk_on.csv \
+  --profile risk_on_concurrency \
+  --export-trade-history
+
+# Demo workflow for testing
+./trading-cli concurrency demo \
+  --strategies 15 \
+  --output ./demo_concurrency \
+  --analyze && \
+./trading-cli concurrency optimize ./demo_concurrency/demo_portfolio.json \
+  --min-strategies 5 \
+  --visualize
 ```
 
 ### **System Tools (Comprehensive)**
@@ -1043,7 +1321,131 @@ du -h csv/ && ./trading-cli tools health --memory-analysis
 ./trading-cli strategy run --memory-threshold-mb 500 --gc-optimization
 ```
 
-#### **4. SPDS Dual-Source Issues**
+#### **4. Position Equity Management Issues**
+
+**Mathematical Consistency Validation Errors:**
+
+```bash
+ERROR: Position P&L ($606.16) vs Equity Change ($529.13) - 12.77% error exceeds threshold
+
+# Diagnosis
+./trading-cli positions validate-equity --portfolio protected --verbose --debug-calculations
+./trading-cli positions info --portfolio protected --include-metrics --detailed
+
+# Resolution
+./trading-cli positions equity --portfolio protected --memory-optimization --precision-mode
+./trading-cli positions validate-equity --portfolio protected --size-adjustment-enabled --tolerance 15.0
+```
+
+**Missing Position Data:**
+
+```bash
+ERROR: Position file not found: csv/positions/protected.csv
+
+# Diagnosis
+./trading-cli positions list --check-files --verbose
+./trading-cli tools health --check-position-data
+
+# Resolution
+./trading-cli strategy run --export-positions
+./trading-cli tools validate --position-files --comprehensive
+```
+
+**Equity Generation Failures:**
+
+```bash
+ERROR: Failed to generate equity curve - insufficient price data
+
+# Diagnosis
+./trading-cli positions validate --portfolio protected --check-price-data --verbose
+./trading-cli tools health --check-data-dependencies
+
+# Resolution
+./trading-cli positions equity --portfolio protected --memory-optimization --streaming
+./trading-cli tools health --fix-data-issues --backup
+```
+
+**Cash Flow Analysis Warnings:**
+
+```bash
+WARNING: Insufficient cash for position entry - chronological execution issue
+
+# Diagnosis
+./trading-cli positions info --portfolio protected --cash-flow-analysis --verbose
+./trading-cli positions validate --portfolio protected --check-timestamps
+
+# Resolution
+./trading-cli positions equity --portfolio protected --baseline-calculation --precision-buffer
+./trading-cli positions validate-equity --portfolio protected --absolute-difference-threshold 200.0
+```
+
+#### **5. Concurrency Analysis Issues**
+
+**Profile Loading Errors:**
+
+```bash
+ERROR: Profile 'risk_on_concurrency' not found
+
+# Diagnosis
+./trading-cli config list | grep concurrency
+./trading-cli concurrency health --check-config
+
+# Resolution
+./trading-cli concurrency analyze risk_on.csv --profile concurrency/portfolio_specific/risk_on
+./trading-cli config validate risk_on_concurrency --detailed
+```
+
+**Memory Optimization Issues:**
+
+```bash
+WARNING: Large portfolio exceeds memory threshold
+
+# Diagnosis
+./trading-cli concurrency health --verbose
+./trading-cli tools health --memory-analysis
+
+# Resolution
+./trading-cli concurrency analyze large_portfolio.csv \
+  --profile enhanced_concurrency \
+  --memory-optimization \
+  --memory-threshold 2000 \
+  --streaming
+```
+
+**Optimization Convergence Problems:**
+
+```bash
+ERROR: Optimization failed to converge after 1000 iterations
+
+# Diagnosis
+./trading-cli concurrency optimize portfolio.csv --verbose --dry-run
+
+# Resolution
+./trading-cli concurrency optimize portfolio.csv \
+  --min-strategies 5 \
+  --max-permutations 500 \
+  --convergence-threshold 0.005 \
+  --convergence-window 25
+```
+
+**Monte Carlo Simulation Errors:**
+
+```bash
+ERROR: Insufficient data for Monte Carlo analysis
+
+# Diagnosis
+./trading-cli concurrency monte-carlo portfolio.csv --verbose
+./trading-cli concurrency review portfolio.csv --focus metrics
+
+# Resolution
+./trading-cli concurrency monte-carlo portfolio.csv \
+  --simulations 5000 \
+  --confidence 95 \
+  --horizon 126 \
+  --bootstrap
+```
+
+#### **6. SPDS Dual-Source Issues**
 
 **Source Detection Problems:**
 
@@ -1079,6 +1481,8 @@ du -h csv/ && ./trading-cli tools health --memory-analysis
 # Individual subsystem health
 ./trading-cli spds health --convergence-analysis
 ./trading-cli trade-history health --data-validation
+./trading-cli positions validate-equity --all-portfolios --health-check
+./trading-cli concurrency health --check-dependencies --check-data --check-config
 ./trading-cli config validate --all-profiles --business-logic
 
 # Performance diagnostics
@@ -1093,6 +1497,10 @@ du -h csv/ && ./trading-cli tools health --memory-analysis
 
 # Portfolio-specific validation
 ./trading-cli portfolio process --validate --schema-check --fix-issues
+
+# Position equity validation
+./trading-cli positions validate --all-portfolios --comprehensive --report
+./trading-cli positions validate-equity --batch-validation --error-analysis
 
 # SPDS data validation
 ./trading-cli spds health --data-quality --source-validation
@@ -1247,9 +1655,21 @@ du -h csv/ && ./trading-cli tools health --memory-analysis
 # Trade history - Position management
 ./trading-cli trade-history close --strategy STRATEGY --portfolio PORTFOLIO --price PRICE
 
+# Concurrency analysis and optimization
+./trading-cli concurrency analyze portfolio.csv --profile risk_on_concurrency  # Strategy interaction analysis
+./trading-cli concurrency optimize portfolio.csv --min-strategies 3 --parallel # Optimization
+./trading-cli concurrency monte-carlo portfolio.csv --simulations 25000        # Risk analysis
+
+# Position equity management
+./trading-cli positions equity --portfolio protected          # Generate equity curves
+./trading-cli positions validate-equity --portfolio protected # Validate mathematical consistency
+./trading-cli positions list                                  # List available portfolios
+
 # System diagnostics
 ./trading-cli tools health --verbose --check-dependencies
 ./trading-cli spds health --convergence-analysis
+./trading-cli concurrency health --check-dependencies --check-data
+./trading-cli positions validate-equity --all-portfolios     # Position validation health check
 ```
 
 ### **Emergency Commands**
@@ -1260,6 +1680,14 @@ du -h csv/ && ./trading-cli tools health --memory-analysis
 ./trading-cli config create-defaults                # Recreate default profiles
 ./trading-cli tools health --verbose                # Comprehensive diagnostics
 ./trading-cli config validate --fix-issues          # Fix configuration issues
+
+# Position data recovery
+./trading-cli positions validate --all-portfolios --fix-issues  # Fix position data issues
+./trading-cli positions equity --all-portfolios --regenerate    # Regenerate equity curves
+
+# Concurrency system recovery
+./trading-cli concurrency health --check-dependencies --fix     # Fix concurrency issues
+./trading-cli config validate risk_on_concurrency --fix-issues  # Fix profile issues
 ```
 
 ### **Performance Commands**
@@ -1268,6 +1696,9 @@ du -h csv/ && ./trading-cli tools health --memory-analysis
 # Memory optimization for large operations
 ./trading-cli strategy run --memory-optimization --streaming
 ./trading-cli portfolio process --streaming --chunk-size 5000
+./trading-cli positions equity --memory-optimization --parallel-processing
+./trading-cli concurrency analyze --memory-optimization --streaming --memory-threshold 2000
+./trading-cli concurrency optimize --parallel --max-workers 8
 ./trading-cli tools health --memory-analysis --performance-test
 ```
 
@@ -1275,6 +1706,8 @@ du -h csv/ && ./trading-cli tools health --memory-analysis
 
 - **System Status**: Production-ready enterprise-grade CLI with comprehensive testing and validation
 - **SPDS Enhancement**: v2.0 with revolutionary dual-source analysis and triple-layer convergence
+- **Position Equity Management**: Mathematical consistency validation with precision fee calculations and cash flow analysis
+- **Concurrency Analysis**: Advanced strategy interaction analysis with optimization, Monte Carlo risk analysis, and optimized profile inheritance (75% duplication reduction)
 - **Type Safety**: Complete Pydantic validation with business logic enforcement
 - **Performance**: Optimized for large-scale operations with memory efficiency and parallel processing
 - **Rich Terminal**: Beautiful formatted output with progress tracking and interactive features

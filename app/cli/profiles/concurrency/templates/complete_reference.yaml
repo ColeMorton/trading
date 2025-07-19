@@ -1,0 +1,219 @@
+metadata:
+  name: complete_concurrency
+  description: Comprehensive concurrency analysis template with all configuration options
+  created_at: '2025-07-19T14:00:00.000000'
+  updated_at: '2025-07-19T14:00:00.000000'
+  version: '1.0'
+  tags:
+    - template
+    - comprehensive
+    - concurrency
+    - all-features
+  author: Claude Code Assistant
+inherits_from: null
+config_type: concurrency
+config:
+  # ======================================
+  # GENERAL CONFIGURATION
+  # ======================================
+  general:
+    # Portfolio file selection
+    portfolio: 'risk_on.csv' # Options: "protected.csv", "risk_on.csv", "live_signals.csv"
+
+    # Base directory for logs and outputs (empty = project root)
+    base_dir: ''
+
+    # Data refresh control
+    refresh: true
+
+    # Timeframe selection for CSV strategies
+    csv_use_hourly: false # true for hourly, false for daily
+
+    # Result sorting preference
+    sort_by: 'score' # Options: "score", "win_rate", "total_return", "sharpe_ratio", "allocation"
+
+    # Strategy validation
+    ensure_counterpart: true
+
+    # Portfolio initial value for position sizing
+    initial_value: 10000.0
+
+    # Target Value at Risk (VaR) threshold
+    target_var: 0.05 # 5% target VaR
+
+  # ======================================
+  # RISK MANAGEMENT CONFIGURATION
+  # ======================================
+  risk_management:
+    # Maximum risk percentage per individual strategy
+    max_risk_per_strategy: 100.0
+
+    # Maximum total portfolio risk percentage
+    max_risk_total: 100.0
+
+    # Risk calculation method
+    risk_calculation_method: 'standard' # Options: "standard", "monte_carlo", "bootstrap", "var"
+
+  # ======================================
+  # EXECUTION AND SIGNAL CONFIGURATION
+  # ======================================
+  # Signal execution timing mode
+  execution_mode: same_period # Options: same_period, next_period, delayed
+
+  # Signal definition approach
+  signal_definition_mode: complete_trade # Options: complete_trade, entry_only, exit_only, both
+
+  # ======================================
+  # PORTFOLIO ALLOCATION
+  # ======================================
+  # Enable ratio-based allocation
+  ratio_based_allocation: false
+
+  # ======================================
+  # VISUALIZATION
+  # ======================================
+  # Enable visualization of results
+  visualization: false
+
+  # ======================================
+  # REPORT CONFIGURATION
+  # ======================================
+  report_includes:
+    # Include ticker-level metrics in report
+    ticker_metrics: true
+
+    # Include detailed strategy information
+    strategies: true
+
+    # Include strategy relationship analysis
+    strategy_relationships: true
+
+    # Include allocation calculations and fields
+    allocation: true
+
+  # ======================================
+  # TRADE HISTORY EXPORT
+  # ======================================
+  trade_history:
+    # Enable trade history export (only available in concurrency analysis)
+    export_trade_history: false
+
+    # Export individual trades
+    export_trades: true
+
+    # Export order data
+    export_orders: true
+
+    # Export position data
+    export_positions: true
+
+    # Output format for trade history
+    output_format: json # Options: json, csv, parquet
+
+    # Optional output directory for trade history files
+    output_dir: null
+
+  # ======================================
+  # MEMORY OPTIMIZATION
+  # ======================================
+  memory_optimization:
+    # Enable memory optimization features
+    enable_memory_optimization: false
+
+    # Memory threshold for GC triggers (MB)
+    memory_threshold_mb: 1000.0
+
+    # File size threshold for streaming (MB)
+    streaming_threshold_mb: 5.0
+
+    # Enable DataFrame object pooling
+    enable_pooling: true
+
+    # Enable memory usage monitoring
+    enable_monitoring: true
+
+    # Chunk size for streaming operations
+    chunk_size_rows: 10000
+
+  # ======================================
+  # OPTIMIZATION CONFIGURATION
+  # ======================================
+  optimization:
+    # Enable strategy combination optimization
+    enable_optimization: false
+
+    # Minimum strategies per combination
+    min_strategies: 3
+
+    # Maximum permutations to evaluate
+    max_permutations: 1000
+
+    # Enable early stopping when convergence detected
+    enable_early_stopping: true
+
+    # Threshold for convergence detection
+    convergence_threshold: 0.001
+
+    # Window size for convergence detection
+    convergence_window: 50
+
+    # Enable parallel processing for optimization
+    parallel_processing: false
+
+    # Maximum worker threads/processes
+    max_workers: 4
+
+  # ======================================
+  # MONTE CARLO RISK ANALYSIS
+  # ======================================
+  risk_analysis:
+    # Enable Monte Carlo simulations
+    enable_monte_carlo: false
+
+    # Number of Monte Carlo simulations
+    n_simulations: 10000
+
+    # Confidence levels for risk metrics
+    confidence_levels: [95, 99]
+
+    # Forecast horizon in trading days
+    horizon_days: 252
+
+    # Use bootstrap resampling
+    use_bootstrap: true
+
+  # ======================================
+  # PERFORMANCE SETTINGS
+  # ======================================
+  # Enable result caching
+  enable_caching: false
+
+  # Cache time-to-live in hours
+  cache_ttl_hours: 24
+
+  # Enable data compression
+  enable_compression: false
+
+  # ======================================
+  # ADVANCED CONFIGURATION
+  # ======================================
+  # Correlation threshold for filtering strategies
+  correlation_threshold: null # null = disabled, range: -1.0 to 1.0
+
+  # Maximum number of concurrent positions
+  max_concurrent_positions: null # null = unlimited
+
+  # Maximum portfolio risk exposure
+  max_portfolio_risk: null # null = unlimited, range: 0.0 to 1.0
+
+  # Maximum concentration per sector
+  sector_concentration_limit: null # null = unlimited, range: 0.0 to 1.0
+
+  # Enable correlation-based strategy filtering
+  enable_correlation_filtering: false
+
+  # Enable concurrency limit enforcement
+  enable_concurrency_limits: false
+
+  # Enable advanced risk management rules
+  enable_risk_management: false

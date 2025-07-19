@@ -1,0 +1,74 @@
+metadata:
+  name: rapid_test
+  description: Rapid testing template for quick strategy validation (minimal settings)
+  created_at: '2025-01-19T00:00:00.000000'
+  updated_at: '2025-01-19T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - portfolio_review
+    - rapid_test
+    - minimal
+    - validation
+  author: system
+  is_template: true
+
+inherits_from: crypto_base
+config_type: portfolio_review
+
+config:
+  # Single strategy for rapid testing
+  strategies:
+    - ticker: '{{TICKER}}' # User should replace with actual ticker
+      short_window: '{{SHORT_WINDOW}}' # User should replace with actual value
+      long_window: '{{LONG_WINDOW}}' # User should replace with actual value
+      strategy_type: '{{STRATEGY_TYPE}}' # SMA or EMA
+      use_sma: '{{USE_SMA}}' # true for SMA, false for EMA
+      stop_loss: null
+
+  # Minimal date range for faster testing
+  start_date: '2023-01-01'
+  end_date: '2024-12-31'
+
+  # Reduced initial cash for faster computation
+  init_cash: 1000.0
+
+  # Minimal analysis settings (disable heavy computations)
+  calculate_risk_metrics: false
+  export_equity_curve: false
+  enable_plotting: false
+
+  # Disable memory optimization for speed
+  enable_memory_optimization: false
+  enable_parallel_processing: false
+
+  # No benchmark for fastest execution
+  benchmark:
+    symbol: null
+    benchmark_type: buy_and_hold
+
+  # Template usage instructions (will be ignored by parser)
+  __template_usage: |
+    Rapid Test Template - Optimized for Speed
+
+    This template is designed for quick strategy validation with:
+    - Short date range (2023-2024) for faster data loading
+    - Minimal initial cash for faster computation
+    - Disabled risk metrics, equity export, and plotting
+    - No benchmark comparison
+    - No memory optimization overhead
+
+    Perfect for:
+    - Testing strategy parameters quickly
+    - Validating strategy logic
+    - Parameter optimization loops
+    - CI/CD testing
+
+    To use this template:
+    1. Replace {{TICKER}} with your symbol (e.g., BTC-USD, AAPL)
+    2. Replace {{SHORT_WINDOW}} with short MA window (e.g., 10)
+    3. Replace {{LONG_WINDOW}} with long MA window (e.g., 30)
+    4. Replace {{STRATEGY_TYPE}} with "SMA" or "EMA"
+    5. Replace {{USE_SMA}} with true or false
+
+    Example command:
+    trading-cli portfolio review --profile rapid_test --ticker BTC-USD

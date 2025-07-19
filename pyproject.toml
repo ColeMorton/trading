@@ -4,7 +4,13 @@ version = "0.1.0"
 description = "Trading Strategy Platform with MA Cross, Portfolio Optimization, and GraphQL API"
 authors = ["Cole Morton"]
 readme = "README.md"
-package-mode = false
+package-mode = true
+packages = [
+    {include = "app"}
+]
+
+[tool.poetry.scripts]
+trading-cli = "app.cli.main:cli_main"
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
@@ -37,7 +43,7 @@ redis = "^5.0.1"
 prisma = "^0.11.0"
 pydantic-settings = "^2.9.1"
 vectorbt = "^0.28.0"
-jsonschema = ">=4.17.0,<4.23.0"
+jsonschema = "^4.25.0"
 pyarrow = "^20.0.0"
 cachetools = "^6.1.0"
 typer = "^0.9.0"

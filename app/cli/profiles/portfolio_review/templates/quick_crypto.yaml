@@ -1,0 +1,46 @@
+metadata:
+  name: quick_crypto
+  description: Quick template for single cryptocurrency strategy analysis
+  created_at: '2025-01-19T00:00:00.000000'
+  updated_at: '2025-01-19T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - portfolio_review
+    - crypto
+    - quick_template
+    - single_strategy
+  author: system
+  is_template: true
+
+inherits_from: crypto_base
+config_type: portfolio_review
+
+config:
+  # Template strategies (to be overridden by user)
+  strategies:
+    - ticker: '{{TICKER}}' # User should replace with actual ticker
+      short_window: '{{SHORT_WINDOW}}' # User should replace with actual value
+      long_window: '{{LONG_WINDOW}}' # User should replace with actual value
+      strategy_type: '{{STRATEGY_TYPE}}' # SMA or EMA
+      use_sma: '{{USE_SMA}}' # true for SMA, false for EMA
+      stop_loss: null
+
+  # Quick analysis settings (shorter timeframe for faster analysis)
+  start_date: '2022-01-01'
+
+  # Standard plot directory
+  plot_config:
+    output_dir: data/outputs/portfolio_review/plots/{{TICKER_SAFE}} # Replace {{TICKER_SAFE}} with ticker
+
+  # Template usage instructions (will be ignored by parser)
+  __template_usage: |
+    To use this template:
+    1. Replace {{TICKER}} with your cryptocurrency symbol (e.g., BTC-USD, ETH-USD)
+    2. Replace {{SHORT_WINDOW}} with your short moving average window (e.g., 10)
+    3. Replace {{LONG_WINDOW}} with your long moving average window (e.g., 30)
+    4. Replace {{STRATEGY_TYPE}} with either "SMA" or "EMA"
+    5. Replace {{USE_SMA}} with true for SMA or false for EMA
+    6. Replace {{TICKER_SAFE}} with a filesystem-safe version of ticker (e.g., BTC_USD)
+
+    Example command:
+    trading-cli portfolio review --profile quick_crypto --ticker BTC-USD

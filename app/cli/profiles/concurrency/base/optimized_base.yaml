@@ -1,0 +1,124 @@
+metadata:
+  name: optimized_base
+  description: Performance-optimized base template for large-scale concurrency analysis
+  created_at: '2025-01-19T12:00:00.000000'
+  updated_at: '2025-01-19T12:00:00.000000'
+  version: '1.0'
+  tags:
+    - base_template
+    - optimized
+    - performance
+    - memory_efficient
+    - concurrency
+  author: Claude Code Assistant
+  is_template: true
+
+inherits_from: concurrency_base
+config_type: concurrency
+
+config:
+  # ======================================
+  # PERFORMANCE OPTIMIZATION OVERRIDES
+  # ======================================
+
+  # General configuration for optimized processing
+  general:
+    # Balanced initial value
+    initial_value: 20000.0
+
+    # Balanced risk tolerance
+    target_var: 0.05
+
+    # Sort by score for balanced analysis
+    sort_by: 'score'
+
+  # Balanced risk management
+  risk_management:
+    max_risk_per_strategy: 75.0
+    max_risk_total: 100.0
+    risk_calculation_method: 'standard' # Faster than Monte Carlo
+
+  # Enable visualization for monitoring
+  visualization: true
+
+  # Enable comprehensive reporting
+  report_includes:
+    ticker_metrics: true
+    strategies: true
+    strategy_relationships: true
+    allocation: true
+
+  # Memory optimization enabled
+  memory_optimization:
+    # Enable all memory optimization features
+    enable_memory_optimization: true
+
+    # Standard memory threshold
+    memory_threshold_mb: 1000.0
+
+    # Medium streaming threshold
+    streaming_threshold_mb: 6.0
+
+    # Enable all optimization features
+    enable_pooling: true
+    enable_monitoring: true
+
+    # Optimized chunk size
+    chunk_size_rows: 12000
+
+  # Parallel optimization settings
+  optimization:
+    # Enable optimization
+    enable_optimization: true
+
+    # Standard minimum strategies
+    min_strategies: 3
+
+    # Moderate permutation limit
+    max_permutations: 3000
+
+    # Enable early stopping
+    enable_early_stopping: true
+
+    # Standard convergence settings
+    convergence_threshold: 0.001
+    convergence_window: 75
+
+    # Enable parallel processing
+    parallel_processing: true
+
+    # Optimized worker count
+    max_workers: 4
+
+  # Balanced Monte Carlo settings
+  risk_analysis:
+    # Enable Monte Carlo
+    enable_monte_carlo: true
+
+    # Moderate simulation count
+    n_simulations: 12000
+
+    # Standard confidence levels
+    confidence_levels: [90, 95, 99]
+
+    # 6-month horizon for faster analysis
+    horizon_days: 126
+
+    # Enable bootstrap
+    use_bootstrap: true
+
+  # Performance settings
+  enable_caching: true
+  cache_ttl_hours: 6 # Short cache for real-time analysis
+  enable_compression: true
+
+  # Balanced advanced settings
+  correlation_threshold: 0.8
+  max_concurrent_positions: 6
+  max_portfolio_risk: 0.12
+  sector_concentration_limit: 0.3
+
+  # Enable key features
+  enable_correlation_filtering: true
+  enable_concurrency_limits: true
+  enable_risk_management: true

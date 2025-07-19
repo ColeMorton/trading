@@ -132,6 +132,59 @@ def run_analysis(config: Dict[str, Any]) -> bool:
         # Get portfolio filename from validated config
         portfolio_filename = validated_config["PORTFOLIO"]
 
+        # Use the new ConcurrencyAnalysisEngine service
+        try:
+            from app.contexts.portfolio.services.concurrency_analysis_service import (
+                ConcurrencyAnalysisEngine,
+            )
+
+            # Configure engine based on settings
+            enable_memory_optimization = validated_config.get(
+                "ENABLE_MEMORY_OPTIMIZATION", False
+            )
+            enable_visualization = validated_config.get("VISUALIZATION", False)
+            enable_optimization = validated_config.get("OPTIMIZE", False)
+
+            log("Using ConcurrencyAnalysisEngine service", "info")
+            if enable_memory_optimization:
+                log("Memory optimization enabled", "info")
+
+            # Create and configure analysis engine
+            engine = ConcurrencyAnalysisEngine(
+                enable_memory_optimization=enable_memory_optimization,
+                enable_visualization=enable_visualization,
+                enable_optimization=enable_optimization,
+                log=log,
+            )
+
+            # Run analysis using the service
+            result = engine.analyze_portfolio(
+                portfolio_path=portfolio_filename,
+                config_overrides=validated_config,
+            )
+
+            if result:
+                log(
+                    "Concurrency analysis completed successfully using service!", "info"
+                )
+                return True
+            else:
+                log("Concurrency analysis failed", "error")
+                return False
+
+        except ImportError as e:
+            log(
+                f"ConcurrencyAnalysisEngine unavailable, falling back to legacy analysis: {e}",
+                "warning",
+            )
+            # Fall through to legacy analysis
+        except Exception as e:
+            log(
+                f"Service-based analysis failed, falling back to legacy analysis: {e}",
+                "warning",
+            )
+            # Fall through to legacy analysis
+
         # Use the enhanced portfolio loader via context manager
         with error_context(
             "Loading portfolio",

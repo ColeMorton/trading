@@ -1,0 +1,99 @@
+metadata:
+  name: live_signals_concurrency
+  description: Concurrency analysis configuration optimized for live_signals portfolio
+  created_at: '2025-07-19T14:30:00.000000'
+  updated_at: '2025-07-19T14:30:00.000000'
+  version: '1.0'
+  tags:
+    - live_signals
+    - production
+    - concurrency
+    - real-time
+  author: Claude Code Assistant
+inherits_from: default_concurrency
+config_type: concurrency
+config:
+  # General configuration for live_signals portfolio
+  general:
+    portfolio: 'live_signals.csv'
+    base_dir: ''
+    refresh: true # Always refresh for live signals
+    csv_use_hourly: true # Use hourly data for live trading
+    sort_by: 'score' # Balanced scoring for live trading
+    ensure_counterpart: true
+    initial_value: 20000.0 # Production-level initial value
+    target_var: 0.05 # Balanced risk tolerance
+
+  # Balanced risk management for live trading
+  risk_management:
+    max_risk_per_strategy: 75.0
+    max_risk_total: 100.0
+    risk_calculation_method: 'standard' # Reliable method for live trading
+
+  # Execution settings optimized for live trading
+  execution_mode: next_period # More realistic for live trading
+  signal_definition_mode: complete_trade
+
+  # Enable ratio-based allocation for live portfolio management
+  ratio_based_allocation: true
+
+  # Enable visualization for live monitoring
+  visualization: true
+
+  # Comprehensive reporting for live signals
+  report_includes:
+    ticker_metrics: true
+    strategies: true
+    strategy_relationships: true
+    allocation: true
+
+  # Trade history export for live tracking
+  trade_history:
+    export_trade_history: true
+    export_trades: true
+    export_orders: true
+    export_positions: true
+    output_format: json
+    output_dir: './live_signals_trades/' # Dedicated directory
+
+  # Enhanced memory optimization for real-time processing
+  memory_optimization:
+    enable_memory_optimization: true
+    memory_threshold_mb: 1000.0
+    streaming_threshold_mb: 6.0
+    enable_pooling: true
+    enable_monitoring: true
+    chunk_size_rows: 12000
+
+  # Real-time optimization settings
+  optimization:
+    enable_optimization: true
+    min_strategies: 3
+    max_permutations: 3000
+    enable_early_stopping: true
+    convergence_threshold: 0.001
+    convergence_window: 75
+    parallel_processing: true
+    max_workers: 4
+
+  # Monte Carlo for live risk assessment
+  risk_analysis:
+    enable_monte_carlo: true
+    n_simulations: 12000
+    confidence_levels: [90, 95, 99]
+    horizon_days: 126 # 6-month horizon for live trading
+    use_bootstrap: true
+
+  # Performance settings for live environment
+  enable_caching: true
+  cache_ttl_hours: 6 # Short cache for live signals
+  enable_compression: true
+
+  # Live trading risk settings
+  correlation_threshold: 0.8 # Moderate correlation control
+  max_concurrent_positions: 6 # Manageable concurrent positions
+  max_portfolio_risk: 0.12 # 12% max portfolio risk
+  sector_concentration_limit: 0.3 # 30% max sector concentration
+  enable_correlation_filtering: true
+  enable_concurrency_limits: true
+  enable_risk_management: true

@@ -5,6 +5,7 @@ import pandas as pd
 import polars as pl
 
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
+from app.tools.calculate_macd_and_signals import calculate_macd_and_signals
 
 
 def generate_signals(
@@ -63,14 +64,29 @@ def generate_signals(
 
             log(f"Strategy config for {strategy_name}: {strategy_config}")
 
-            # Calculate moving averages and initial signals
-            ma_signals = calculate_ma_and_signals(
-                price_df,
-                strategy["short_window"],
-                strategy["long_window"],
-                strategy_config,
-                log,
-            )
+            # Calculate signals based on strategy type
+            strategy_type = strategy.get("strategy_type", "SMA")
+
+            if strategy_type == "MACD":
+                # Use MACD signal calculation
+                signal_window = strategy.get("signal_window", 9)
+                ma_signals = calculate_macd_and_signals(
+                    price_df,
+                    strategy["short_window"],
+                    strategy["long_window"],
+                    signal_window,
+                    strategy_config,
+                    log,
+                )
+            else:
+                # Use MA signal calculation for SMA/EMA strategies
+                ma_signals = calculate_ma_and_signals(
+                    price_df,
+                    strategy["short_window"],
+                    strategy["long_window"],
+                    strategy_config,
+                    log,
+                )
 
             # Convert to numpy for easier manipulation
             close_np = df["Close"].to_numpy()

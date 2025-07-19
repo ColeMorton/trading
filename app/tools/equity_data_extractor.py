@@ -320,8 +320,11 @@ class EquityDataExtractor:
         initial_value = equity_curve[0] if len(equity_curve) > 0 else 1000.0
         indexed_equity = equity_curve - initial_value
 
-        # Calculate cumulative percentage change
-        equity_pct = ((equity_curve / initial_value) - 1.0) * 100.0
+        # Calculate cumulative percentage change (handle divide by zero)
+        if initial_value != 0:
+            equity_pct = ((equity_curve / initial_value) - 1.0) * 100.0
+        else:
+            equity_pct = np.zeros_like(equity_curve)
 
         # Calculate bar-to-bar changes
         equity_change = np.diff(equity_curve, prepend=equity_curve[0])

@@ -1,0 +1,82 @@
+metadata:
+  name: conservative_base
+  description: Conservative base template for risk-averse concurrency analysis
+  created_at: '2025-01-19T12:00:00.000000'
+  updated_at: '2025-01-19T12:00:00.000000'
+  version: '1.0'
+  tags:
+    - base_template
+    - conservative
+    - low_risk
+    - concurrency
+  author: Claude Code Assistant
+  is_template: true
+
+inherits_from: concurrency_base
+config_type: concurrency
+
+config:
+  # ======================================
+  # CONSERVATIVE OVERRIDES
+  # ======================================
+
+  # General configuration for conservative approach
+  general:
+    # Lower initial value for conservative strategies
+    initial_value: 15000.0
+
+    # Lower risk tolerance
+    target_var: 0.03
+
+    # Sort by risk-adjusted returns
+    sort_by: 'sharpe_ratio'
+
+  # Conservative risk management
+  risk_management:
+    # Lower individual strategy risk
+    max_risk_per_strategy: 50.0
+
+    # Conservative total risk
+    max_risk_total: 75.0
+
+    # Value at Risk method for conservative analysis
+    risk_calculation_method: 'var'
+
+  # Conservative execution mode
+  execution_mode: same_period
+
+  # Enable ratio-based allocation for better risk distribution
+  ratio_based_allocation: true
+
+  # Conservative optimization settings
+  optimization:
+    # Require more strategies for diversification
+    min_strategies: 3
+
+    # Limit permutation analysis
+    max_permutations: 2000
+
+    # Stricter convergence criteria
+    convergence_threshold: 0.0005
+
+    # Larger convergence window
+    convergence_window: 100
+
+  # Conservative Monte Carlo settings
+  risk_analysis:
+    # Moderate simulation count
+    n_simulations: 8000
+
+    # Higher confidence levels for conservative analysis
+    confidence_levels: [95, 99]
+
+  # Performance settings for stability
+  enable_caching: true
+  cache_ttl_hours: 48 # Longer cache for stable strategies
+  enable_compression: false
+
+  # Conservative advanced settings
+  correlation_threshold: 0.7 # Lower correlation tolerance
+  max_concurrent_positions: 5 # Fewer concurrent positions
+  max_portfolio_risk: 0.08 # 8% max portfolio risk
+  sector_concentration_limit: 0.25 # 25% max sector concentration

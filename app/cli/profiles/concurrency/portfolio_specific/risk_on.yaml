@@ -1,0 +1,19 @@
+metadata:
+  name: risk_on_concurrency
+  description: Concurrency analysis optimized for risk_on portfolio (aggressive strategies)
+  created_at: '2025-01-19T12:00:00.000000'
+  updated_at: '2025-01-19T12:00:00.000000'
+  version: '2.0'
+  tags:
+    - risk_on
+    - aggressive
+    - production
+  author: Claude Code Assistant
+
+inherits_from: ../base/aggressive_base
+config_type: concurrency
+
+config:
+  # Portfolio-specific overrides only
+  general:
+    portfolio: 'risk_on.csv'

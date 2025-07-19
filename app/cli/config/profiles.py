@@ -14,7 +14,11 @@ from pydantic import BaseModel, Field, validator
 
 from ..models.base import BaseConfig
 from ..models.concurrency import ConcurrencyAnalysisConfig, ConcurrencyConfig
-from ..models.portfolio import PortfolioConfig, PortfolioProcessingConfig
+from ..models.portfolio import (
+    PortfolioConfig,
+    PortfolioProcessingConfig,
+    PortfolioReviewConfig,
+)
 from ..models.strategy import MACDConfig, MACrossConfig, StrategyConfig
 
 
@@ -34,6 +38,9 @@ class ProfileMetadata(BaseModel):
         default_factory=list, description="Profile tags for organization"
     )
     author: Optional[str] = Field(default=None, description="Profile author")
+    is_template: bool = Field(
+        default=False, description="Whether this is a base template profile"
+    )
 
 
 class Profile(BaseModel):
@@ -58,6 +65,7 @@ class Profile(BaseModel):
             "macd",
             "portfolio",
             "portfolio_processing",
+            "portfolio_review",
             "concurrency",
             "concurrency_analysis",
         }
@@ -74,6 +82,7 @@ class Profile(BaseModel):
             "macd": MACDConfig,
             "portfolio": PortfolioConfig,
             "portfolio_processing": PortfolioProcessingConfig,
+            "portfolio_review": PortfolioReviewConfig,
             "concurrency": ConcurrencyConfig,
             "concurrency_analysis": ConcurrencyAnalysisConfig,
         }

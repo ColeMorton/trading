@@ -1,0 +1,71 @@
+metadata:
+  name: large_portfolio_concurrency
+  description: Optimized configuration for analyzing large portfolios with 100+ strategies
+  created_at: '2025-07-19T12:00:00.000000'
+  updated_at: '2025-07-19T12:00:00.000000'
+  version: '1.0'
+  tags:
+    - concurrency
+    - large-scale
+    - memory-efficient
+    - performance
+  author: Claude Code Assistant
+inherits_from: enhanced_concurrency
+config_type: concurrency
+config:
+  # Memory optimization for large portfolios
+  memory_optimization:
+    enable_memory_optimization: true
+    memory_threshold_mb: 2000.0
+    streaming_threshold_mb: 5.0
+    enable_pooling: true
+    enable_monitoring: true
+    chunk_size_rows: 25000
+
+  # Conservative parallel processing for stability
+  parallel_processing: true
+  max_workers: 6
+
+  # Reduced visualization for performance
+  visualization: false
+
+  # Optimized trade history export
+  trade_history:
+    export_trade_history: false # Disable for large portfolios
+    export_trades: false
+    export_orders: false
+    export_positions: false
+
+  # Essential reporting only
+  report_includes:
+    ticker_metrics: false # Disable to save memory
+    strategies: true
+    strategy_relationships: true
+    allocation: true
+
+  # Limited optimization for performance
+  optimization:
+    enable_optimization: true
+    min_strategies: 5
+    max_permutations: 5000 # Reduced for large portfolios
+    enable_early_stopping: true
+    convergence_threshold: 0.005 # Less strict for faster convergence
+    convergence_window: 25
+
+  # Reduced Monte Carlo for performance
+  risk_analysis:
+    enable_monte_carlo: false # Disable for large portfolios
+    n_simulations: 10000
+    confidence_levels: [95, 99]
+    horizon_days: 252
+    use_bootstrap: true
+
+  # Aggressive caching for large portfolios
+  enable_caching: true
+  cache_ttl_hours: 72
+  enable_compression: true
+
+  # Large portfolio specific settings
+  batch_processing: true
+  batch_size: 20
+  gc_frequency: 10 # More frequent garbage collection

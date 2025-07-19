@@ -18,8 +18,8 @@ python --version
 python3 --version
 
 # Initialize and test CLI
-python -m app.cli init
-python -m app.cli --help
+trading-cli init
+trading-cli --help
 ```
 
 ### Poetry Installation Issues
@@ -69,13 +69,13 @@ pip install -r requirements.txt
 
 ```bash
 # Initialize configuration
-python -m app.cli init
+trading-cli init
 
 # Check configuration directory
 ls -la app/cli/profiles/
 
 # Validate configuration
-python -m app.cli config validate
+trading-cli config validate
 ```
 
 ### Profile Loading Errors
@@ -86,13 +86,13 @@ python -m app.cli config validate
 
 ```bash
 # List available profiles
-python -m app.cli config list
+trading-cli config list
 
 # Validate specific profile
-python -m app.cli config validate --profile ma_cross_crypto
+trading-cli config validate --profile ma_cross_crypto
 
 # Reset to default profile
-python -m app.cli config reset --profile ma_cross_crypto
+trading-cli config reset --profile ma_cross_crypto
 ```
 
 ### Invalid Configuration Values
@@ -103,13 +103,13 @@ python -m app.cli config reset --profile ma_cross_crypto
 
 ```bash
 # Check configuration syntax
-python -m app.cli config validate --strict
+trading-cli config validate --strict
 
 # Review configuration file
 cat app/cli/profiles/your_profile.yaml
 
 # Use default values
-python -m app.cli strategy run --ticker AAPL --strategy SMA  # Without profile
+trading-cli strategy run --ticker AAPL --strategy SMA  # Without profile
 ```
 
 ## Data Issues
@@ -125,13 +125,13 @@ python -m app.cli strategy run --ticker AAPL --strategy SMA  # Without profile
 ping finance.yahoo.com
 
 # Use different date range
-python -m app.cli strategy run --ticker AAPL --strategy SMA --start-date 2023-01-01
+trading-cli strategy run --ticker AAPL --strategy SMA --start-date 2023-01-01
 
 # Try different ticker
-python -m app.cli strategy run --ticker MSFT --strategy SMA
+trading-cli strategy run --ticker MSFT --strategy SMA
 
 # Enable verbose logging
-python -m app.cli strategy run --ticker AAPL --strategy SMA --verbose
+trading-cli strategy run --ticker AAPL --strategy SMA --verbose
 ```
 
 ### Invalid Ticker Symbols
@@ -145,10 +145,10 @@ python -m app.cli strategy run --ticker AAPL --strategy SMA --verbose
 # Check Yahoo Finance directly: https://finance.yahoo.com/quote/AAPL
 
 # Use valid ticker symbols
-python -m app.cli strategy run --ticker AAPL,MSFT,GOOGL --strategy SMA
+trading-cli strategy run --ticker AAPL,MSFT,GOOGL --strategy SMA
 
 # Check ticker format for crypto
-python -m app.cli strategy run --ticker BTC-USD --strategy SMA
+trading-cli strategy run --ticker BTC-USD --strategy SMA
 ```
 
 ### Insufficient Data
@@ -159,13 +159,13 @@ python -m app.cli strategy run --ticker BTC-USD --strategy SMA
 
 ```bash
 # Extend data period
-python -m app.cli strategy run --ticker AAPL --strategy SMA --data-period 5Y
+trading-cli strategy run --ticker AAPL --strategy SMA --data-period 5Y
 
 # Reduce minimum trade requirements
-python -m app.cli strategy run --ticker AAPL --strategy SMA --min-trades 10
+trading-cli strategy run --ticker AAPL --strategy SMA --min-trades 10
 
 # Use different strategy parameters
-python -m app.cli strategy run --ticker AAPL --strategy SMA --fast-window 10 --slow-window 30
+trading-cli strategy run --ticker AAPL --strategy SMA --fast-window 10 --slow-window 30
 ```
 
 ## Strategy Analysis Issues
@@ -178,13 +178,13 @@ python -m app.cli strategy run --ticker AAPL --strategy SMA --fast-window 10 --s
 
 ```bash
 # Relax criteria
-python -m app.cli strategy run --ticker AAPL --strategy SMA --min-trades 10 --min-win-rate 0.3
+trading-cli strategy run --ticker AAPL --strategy SMA --min-trades 10 --min-win-rate 0.3
 
 # Check with dry run
-python -m app.cli strategy run --ticker AAPL --strategy SMA --dry-run
+trading-cli strategy run --ticker AAPL --strategy SMA --dry-run
 
 # Use different time period
-python -m app.cli strategy run --ticker AAPL --strategy SMA --start-date 2020-01-01
+trading-cli strategy run --ticker AAPL --strategy SMA --start-date 2020-01-01
 ```
 
 ### Strategy Execution Timeouts
@@ -195,13 +195,13 @@ python -m app.cli strategy run --ticker AAPL --strategy SMA --start-date 2020-01
 
 ```bash
 # Enable parallel processing
-python -m app.cli strategy run --ticker AAPL,MSFT --strategy SMA --parallel
+trading-cli strategy run --ticker AAPL,MSFT --strategy SMA --parallel
 
 # Reduce analysis scope
-python -m app.cli strategy run --ticker AAPL --strategy SMA --data-period 1Y
+trading-cli strategy run --ticker AAPL --strategy SMA --data-period 1Y
 
 # Enable memory optimization
-python -m app.cli strategy run --ticker AAPL --strategy SMA --optimize-memory
+trading-cli strategy run --ticker AAPL --strategy SMA --optimize-memory
 ```
 
 ### Memory Issues
@@ -212,13 +212,13 @@ python -m app.cli strategy run --ticker AAPL --strategy SMA --optimize-memory
 
 ```bash
 # Enable memory optimization
-python -m app.cli strategy run --ticker AAPL --strategy SMA --optimize-memory
+trading-cli strategy run --ticker AAPL --strategy SMA --optimize-memory
 
 # Process fewer tickers at once
-python -m app.cli strategy run --ticker AAPL --strategy SMA
+trading-cli strategy run --ticker AAPL --strategy SMA
 
 # Use streaming processing
-python -m app.cli strategy run --ticker AAPL --strategy SMA --stream-data
+trading-cli strategy run --ticker AAPL --strategy SMA --stream-data
 
 # Increase system memory or use smaller datasets
 ```
@@ -236,10 +236,10 @@ python -m app.cli strategy run --ticker AAPL --strategy SMA --stream-data
 ls -la csv/portfolios/
 
 # List available portfolios
-python -m app.cli portfolio list
+trading-cli portfolio list
 
 # Run strategy analysis first
-python -m app.cli strategy run --ticker AAPL --strategy SMA
+trading-cli strategy run --ticker AAPL --strategy SMA
 
 # Check file permissions
 ls -la csv/portfolios/AAPL_D_SMA.csv
@@ -256,10 +256,10 @@ ls -la csv/portfolios/AAPL_D_SMA.csv
 head csv/portfolios/AAPL_D_SMA.csv
 
 # Validate without strict mode
-python -m app.cli portfolio validate --portfolio AAPL_D_SMA.csv
+trading-cli portfolio validate --portfolio AAPL_D_SMA.csv
 
 # Regenerate portfolio
-python -m app.cli strategy run --ticker AAPL --strategy SMA
+trading-cli strategy run --ticker AAPL --strategy SMA
 ```
 
 ### Portfolio Update Issues
@@ -270,14 +270,14 @@ python -m app.cli strategy run --ticker AAPL --strategy SMA
 
 ```bash
 # Update without validation
-python -m app.cli portfolio update
+trading-cli portfolio update
 
 # Update specific portfolio
-python -m app.cli portfolio update --portfolio risk_on.csv
+trading-cli portfolio update --portfolio risk_on.csv
 
 # Clear and regenerate
 rm csv/portfolios_best/*
-python -m app.cli portfolio update --validate
+trading-cli portfolio update --validate
 ```
 
 ## Statistical Analysis Issues
@@ -290,16 +290,16 @@ python -m app.cli portfolio update --validate
 
 ```bash
 # Check system health
-python -m app.cli spds health
+trading-cli spds health
 
 # Try different data source
-python -m app.cli spds analyze risk_on.csv --data-source equity-curves
+trading-cli spds analyze risk_on.csv --data-source equity-curves
 
 # Use demo mode
-python -m app.cli spds demo
+trading-cli spds demo
 
 # Check portfolio exists
-python -m app.cli spds list-portfolios
+trading-cli spds list-portfolios
 ```
 
 ### Confidence Level Issues
@@ -310,13 +310,13 @@ python -m app.cli spds list-portfolios
 
 ```bash
 # Lower confidence level
-python -m app.cli spds analyze risk_on.csv --confidence-level 0.8
+trading-cli spds analyze risk_on.csv --confidence-level 0.8
 
 # Use different analysis method
-python -m app.cli spds analyze risk_on.csv --data-source both
+trading-cli spds analyze risk_on.csv --data-source both
 
 # Check data quality
-python -m app.cli trade-history validate --portfolio risk_on
+trading-cli trade-history validate --portfolio risk_on
 ```
 
 ### SPDS Data Source Warnings
@@ -339,16 +339,16 @@ python -m app.cli trade-history validate --portfolio risk_on
 
 ```bash
 # Check data source mapping with verbose output
-python -m app.cli spds analyze live_signals.csv --verbose
+trading-cli spds analyze live_signals.csv --verbose
 
 # Validate specific portfolio data sources
-python -m app.cli spds health
+trading-cli spds health
 
 # Force equity curve analysis (recommended for position-based portfolios)
-python -m app.cli spds analyze live_signals.csv --data-source equity-curves
+trading-cli spds analyze live_signals.csv --data-source equity-curves
 
 # Use comprehensive analysis when both sources are available
-python -m app.cli spds analyze live_signals.csv --data-source both
+trading-cli spds analyze live_signals.csv --data-source both
 ```
 
 **Understanding the Messages**:
@@ -381,7 +381,7 @@ Trade History:  CRWD_D_EMA_5_21.json
 
 ```bash
 # Check current mapping status
-python -m app.cli spds analyze live_signals.csv --verbose
+trading-cli spds analyze live_signals.csv --verbose
 
 # Validate data source mapping
 ls json/trade_history/ | grep CRWD
@@ -414,7 +414,7 @@ The system now correctly translates Position_UUIDs to trade history filenames:
 
 ```bash
 # Check analysis quality metrics
-python -m app.cli spds analyze live_signals.csv --output-format json
+trading-cli spds analyze live_signals.csv --output-format json
 
 # Look for these quality indicators in results:
 # - confidence_rate: 1.0 (all strategies analyzed)
@@ -439,16 +439,16 @@ python -m app.cli spds analyze live_signals.csv --output-format json
 
 ```bash
 # Enable parallel processing
-python -m app.cli strategy run --ticker AAPL,MSFT --strategy SMA --parallel
+trading-cli strategy run --ticker AAPL,MSFT --strategy SMA --parallel
 
 # Use memory optimization
-python -m app.cli strategy run --ticker AAPL --strategy SMA --optimize-memory
+trading-cli strategy run --ticker AAPL --strategy SMA --optimize-memory
 
 # Reduce analysis scope
-python -m app.cli strategy run --ticker AAPL --strategy SMA --data-period 1Y
+trading-cli strategy run --ticker AAPL --strategy SMA --data-period 1Y
 
 # Profile performance
-python -m app.cli strategy run --ticker AAPL --strategy SMA --verbose
+trading-cli strategy run --ticker AAPL --strategy SMA --verbose
 ```
 
 ### High Memory Usage
@@ -459,16 +459,16 @@ python -m app.cli strategy run --ticker AAPL --strategy SMA --verbose
 
 ```bash
 # Enable memory optimization
-python -m app.cli strategy run --ticker AAPL --strategy SMA --optimize-memory
+trading-cli strategy run --ticker AAPL --strategy SMA --optimize-memory
 
 # Process fewer tickers
-python -m app.cli strategy run --ticker AAPL --strategy SMA
+trading-cli strategy run --ticker AAPL --strategy SMA
 
 # Use streaming processing
-python -m app.cli strategy run --ticker AAPL --strategy SMA --stream-data
+trading-cli strategy run --ticker AAPL --strategy SMA --stream-data
 
 # Monitor memory usage
-python -m app.cli tools health --detailed
+trading-cli tools health --detailed
 ```
 
 ## File System Issues
@@ -489,7 +489,7 @@ chmod -R 755 csv/
 chmod -R 755 exports/
 
 # Run with appropriate user
-sudo python -m app.cli strategy run --ticker AAPL --strategy SMA
+sudo trading-cli strategy run --ticker AAPL --strategy SMA
 ```
 
 ### Disk Space Issues
@@ -521,11 +521,11 @@ export TRADING_EXPORT_PATH=/path/to/larger/disk
 python -c "import pandas as pd; print(pd.read_csv('csv/portfolios/AAPL_D_SMA.csv').head())"
 
 # Regenerate corrupted files
-python -m app.cli strategy run --ticker AAPL --strategy SMA
+trading-cli strategy run --ticker AAPL --strategy SMA
 
 # Clear cache and regenerate
 rm -rf /tmp/trading_cache/
-python -m app.cli strategy run --ticker AAPL --strategy SMA
+trading-cli strategy run --ticker AAPL --strategy SMA
 ```
 
 ## Network Issues
@@ -541,10 +541,10 @@ python -m app.cli strategy run --ticker AAPL --strategy SMA
 ping finance.yahoo.com
 
 # Use cached data if available
-python -m app.cli strategy run --ticker AAPL --strategy SMA --use-cache
+trading-cli strategy run --ticker AAPL --strategy SMA --use-cache
 
 # Retry with different time period
-python -m app.cli strategy run --ticker AAPL --strategy SMA --start-date 2023-01-01
+trading-cli strategy run --ticker AAPL --strategy SMA --start-date 2023-01-01
 
 # Use proxy if needed
 export HTTP_PROXY=http://proxy.example.com:8080
@@ -557,34 +557,34 @@ export HTTPS_PROXY=http://proxy.example.com:8080
 
 ```bash
 # Global verbose mode
-python -m app.cli --verbose strategy run --ticker AAPL --strategy SMA
+trading-cli --verbose strategy run --ticker AAPL --strategy SMA
 
 # Specific command verbose mode
-python -m app.cli strategy run --ticker AAPL --strategy SMA --verbose
+trading-cli strategy run --ticker AAPL --strategy SMA --verbose
 
 # Set log level
-python -m app.cli --log-level DEBUG strategy run --ticker AAPL --strategy SMA
+trading-cli --log-level DEBUG strategy run --ticker AAPL --strategy SMA
 ```
 
 ### Use Dry Run Mode
 
 ```bash
 # Preview without execution
-python -m app.cli strategy run --ticker AAPL --strategy SMA --dry-run
+trading-cli strategy run --ticker AAPL --strategy SMA --dry-run
 
 # Check configuration
-python -m app.cli config validate --profile ma_cross_crypto
+trading-cli config validate --profile ma_cross_crypto
 ```
 
 ### System Health Checks
 
 ```bash
 # Overall system health
-python -m app.cli tools health --detailed
+trading-cli tools health --detailed
 
 # Specific component health
-python -m app.cli spds health --detailed
-python -m app.cli trade-history health --detailed
+trading-cli spds health --detailed
+trading-cli trade-history health --detailed
 ```
 
 ### Manual Validation
@@ -606,25 +606,25 @@ python -c "import app.cli.main; print('CLI module loads successfully')"
 
 ```bash
 # General help
-python -m app.cli --help
+trading-cli --help
 
 # Command-specific help
-python -m app.cli strategy --help
-python -m app.cli portfolio --help
-python -m app.cli spds --help
+trading-cli strategy --help
+trading-cli portfolio --help
+trading-cli spds --help
 ```
 
 ### System Information
 
 ```bash
 # System health
-python -m app.cli tools health --detailed
+trading-cli tools health --detailed
 
 # Configuration status
-python -m app.cli config validate
+trading-cli config validate
 
 # Version information
-python -m app.cli --version
+trading-cli --version
 ```
 
 ### Log Files
@@ -660,7 +660,7 @@ grep ERROR logs/trading.log
 
 ### "ValueError: Invalid configuration parameter"
 
-**Solution**: Validate your configuration using `python -m app.cli config validate`.
+**Solution**: Validate your configuration using `trading-cli config validate`.
 
 ---
 

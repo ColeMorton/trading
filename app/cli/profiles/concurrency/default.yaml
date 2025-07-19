@@ -1,0 +1,18 @@
+metadata:
+  name: default_concurrency
+  description: Default concurrency analysis configuration
+  created_at: '2025-01-19T12:00:00.000000'
+  updated_at: '2025-01-19T12:00:00.000000'
+  version: '3.0'
+  tags:
+    - default
+    - concurrency
+  author: Claude Code Assistant
+
+inherits_from: base/concurrency_base
+config_type: concurrency
+
+config:
+  # Default overrides - minimal changes from base
+  general:
+    portfolio: 'risk_on.csv' # Default to risk_on portfolio

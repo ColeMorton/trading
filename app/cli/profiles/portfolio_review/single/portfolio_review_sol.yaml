@@ -1,0 +1,28 @@
+metadata:
+  name: portfolio_review_sol
+  description: Portfolio review for SOL-USD SMA strategy
+  created_at: '2025-01-19T00:00:00.000000'
+  updated_at: '2025-01-19T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - portfolio_review
+    - sol
+    - sma
+    - single_strategy
+  author: system
+
+inherits_from: crypto_base
+config_type: portfolio_review
+
+config:
+  # Strategy-specific configuration
+  strategies:
+    - ticker: SOL-USD
+      short_window: 14
+      long_window: 32
+      strategy_type: SMA
+      use_sma: true
+
+  # Custom plot directory
+  plot_config:
+    output_dir: data/outputs/portfolio_review/plots/sol

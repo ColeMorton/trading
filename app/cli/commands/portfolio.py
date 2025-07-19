@@ -15,7 +15,11 @@ from rich.console import Console
 from rich.table import Table
 
 from ..config import ConfigLoader
-from ..models.portfolio import PortfolioConfig, PortfolioProcessingConfig
+from ..models.portfolio import (
+    PortfolioConfig,
+    PortfolioProcessingConfig,
+    PortfolioReviewConfig,
+)
 from ..utils import resolve_portfolio_path
 
 # Create portfolio sub-app
@@ -555,6 +559,273 @@ def aggregate(
         raise typer.Exit(1)
 
 
+@app.command()
+def review(
+    profile: Optional[str] = typer.Option(
+        None, "--profile", "-p", help="Configuration profile name"
+    ),
+    strategy_name: Optional[str] = typer.Option(
+        None, "--strategy", help="Single strategy name (e.g., AAPL_SMA_20_50)"
+    ),
+    ticker: Optional[str] = typer.Option(None, "--ticker", help="Single ticker symbol"),
+    benchmark: Optional[str] = typer.Option(
+        None, "--benchmark", help="Benchmark symbol for comparison"
+    ),
+    output_format: str = typer.Option(
+        "standard", "--output-format", help="Output format: standard, detailed, json"
+    ),
+    save_plots: bool = typer.Option(
+        True, "--save-plots/--no-plots", help="Generate and save plots"
+    ),
+    export_stats: bool = typer.Option(
+        True, "--export-stats/--no-export", help="Export statistics and risk metrics"
+    ),
+    dry_run: bool = typer.Option(
+        False, "--dry-run", help="Preview configuration without executing"
+    ),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Enable verbose output"
+    ),
+    quiet: bool = typer.Option(
+        False, "--quiet", "-q", help="Suppress non-essential output"
+    ),
+):
+    """
+    Run comprehensive portfolio review analysis.
+
+    Supports both single and multi-strategy portfolio analysis with benchmark
+    comparison, risk metrics calculation, and comprehensive visualization.
+
+    Examples:
+        # Single strategy from profile
+        trading-cli portfolio review --profile portfolio_review_btc
+
+        # Multi-strategy analysis
+        trading-cli portfolio review --profile portfolio_review_multi_crypto
+
+        # Custom single strategy
+        trading-cli portfolio review --ticker BTC-USD --benchmark SPY
+
+        # Review with custom output
+        trading-cli portfolio review --profile portfolio_review_op --output-format detailed --save-plots
+    """
+    try:
+        # Load configuration
+        loader = ConfigLoader()
+
+        # Build configuration overrides from CLI arguments
+        overrides = {}
+
+        # Handle single strategy creation from CLI args
+        if ticker and not profile:
+            # Create single strategy config from CLI args
+            strategy_config = {
+                "ticker": ticker,
+                "short_window": 20,  # Default values
+                "long_window": 50,
+                "strategy_type": "SMA",
+                "direction": "long",
+                "position_size": 1.0,
+                "use_sma": True,
+                "use_hourly": False,
+            }
+
+            overrides["strategies"] = [strategy_config]
+
+            if benchmark:
+                overrides["benchmark"] = {
+                    "symbol": benchmark,
+                    "benchmark_type": "buy_and_hold",
+                }
+
+        # Plotting options
+        if not save_plots:
+            overrides["enable_plotting"] = False
+
+        if not export_stats:
+            overrides["calculate_risk_metrics"] = False
+            overrides["export_equity_curve"] = False
+
+        overrides["dry_run"] = dry_run
+
+        # Load configuration
+        if profile:
+            config = loader.load_from_profile(profile, PortfolioReviewConfig, overrides)
+        else:
+            if not ticker:
+                rprint("[red]Either --profile or --ticker must be specified[/red]")
+                raise typer.Exit(1)
+
+            # Create minimal config template for single ticker
+            template = {
+                "strategies": [overrides["strategies"][0]]
+                if "strategies" in overrides
+                else [],
+                "start_date": "2020-01-01",
+                "end_date": "2024-12-31",
+                "init_cash": 10000.0,
+                "fees": 0.001,
+                "calculate_risk_metrics": True,
+                "export_equity_curve": True,
+                "enable_plotting": True,
+            }
+            config = loader.load_from_dict(template, PortfolioReviewConfig, overrides)
+
+        if dry_run:
+            _show_portfolio_review_config_preview(config)
+            return
+
+        if verbose:
+            rprint("[dim]Loading portfolio review services...[/dim]")
+
+        # Import portfolio review services
+        from ...contexts.portfolio.services.benchmark_comparison_service import (
+            BenchmarkComparisonService,
+        )
+        from ...contexts.portfolio.services.benchmark_comparison_service import (
+            BenchmarkConfig as ServiceBenchmarkConfig,
+        )
+        from ...contexts.portfolio.services.portfolio_review_service import (
+            PortfolioReviewConfig as ServiceConfig,
+        )
+        from ...contexts.portfolio.services.portfolio_review_service import (
+            PortfolioReviewService,
+        )
+        from ...contexts.portfolio.services.portfolio_review_service import (
+            StrategyConfig as ServiceStrategyConfig,
+        )
+        from ...contexts.portfolio.services.portfolio_visualization_service import (
+            PlotConfig as ServicePlotConfig,
+        )
+        from ...contexts.portfolio.services.portfolio_visualization_service import (
+            PortfolioVisualizationService,
+        )
+        from ...contexts.portfolio.services.risk_metrics_calculator import (
+            RiskMetricsCalculator,
+        )
+
+        # Convert Pydantic models to service configuration
+        service_strategies = []
+        for strategy in config.strategies:
+            service_strategy = ServiceStrategyConfig(
+                ticker=strategy.ticker,
+                short_window=strategy.short_window,
+                long_window=strategy.long_window,
+                strategy_type=strategy.strategy_type.value,
+                direction=strategy.direction.value,
+                stop_loss=strategy.stop_loss,
+                position_size=strategy.position_size,
+                use_sma=strategy.use_sma,
+                use_hourly=strategy.use_hourly,
+                rsi_window=strategy.rsi_window,
+                rsi_threshold=strategy.rsi_threshold,
+                signal_window=strategy.signal_window,
+            )
+            service_strategies.append(service_strategy)
+
+        service_config = ServiceConfig(
+            strategies=service_strategies,
+            start_date=config.start_date,
+            end_date=config.end_date,
+            init_cash=config.init_cash,
+            fees=config.fees,
+            benchmark_symbol=config.benchmark.symbol if config.benchmark else None,
+            enable_plotting=config.enable_plotting,
+            export_equity_curve=config.export_equity_curve,
+            calculate_risk_metrics=config.calculate_risk_metrics,
+        )
+
+        # Initialize portfolio review service
+        review_service = PortfolioReviewService(service_config)
+
+        if not quiet:
+            rprint("[bold]Running portfolio review analysis...[/bold]")
+
+        # Run analysis based on strategy count
+        if config.is_single_strategy:
+            if not quiet:
+                rprint(
+                    f"[cyan]Analyzing single strategy: {config.strategies[0].ticker}[/cyan]"
+                )
+            results = review_service.run_single_strategy_review(service_strategies[0])
+        else:
+            if not quiet:
+                rprint(
+                    f"[cyan]Analyzing {len(config.strategies)} strategies across {len(config.unique_tickers)} tickers[/cyan]"
+                )
+            results = review_service.run_multi_strategy_review()
+
+        # Display results
+        _display_portfolio_review_results(results, config, output_format)
+
+        # Generate visualizations if enabled
+        if config.enable_plotting and save_plots:
+            if not quiet:
+                rprint("\n[bold]Generating visualizations...[/bold]")
+
+            plot_config = ServicePlotConfig(
+                output_dir=str(config.plot_config.output_dir),
+                width=config.plot_config.width,
+                height=config.plot_config.height,
+                save_html=config.plot_config.save_html,
+                save_png=config.plot_config.save_png,
+                include_benchmark=config.plot_config.include_benchmark,
+                include_risk_metrics=config.plot_config.include_risk_metrics,
+            )
+
+            viz_service = PortfolioVisualizationService(plot_config)
+            title_prefix = (
+                f"{config.strategies[0].ticker}"
+                if config.is_single_strategy
+                else "Multi-Strategy Portfolio"
+            )
+
+            # Handle risk metrics parameter for visualization
+            risk_metrics_param = None
+            if hasattr(results.risk_metrics, "var_95"):
+                risk_metrics_param = results.risk_metrics
+
+            viz_results = viz_service.create_comprehensive_portfolio_plots(
+                results.portfolio,
+                results.benchmark_portfolio,
+                risk_metrics_param,
+                title_prefix=title_prefix,
+            )
+
+            if viz_results.success:
+                if not quiet:
+                    rprint(
+                        f"[green]✓[/green] Generated {len(viz_results.plot_paths)} visualization files"
+                    )
+                if verbose:
+                    for plot_path in viz_results.plot_paths:
+                        rprint(f"  📊 {plot_path}")
+            else:
+                if not quiet:
+                    rprint(
+                        f"[yellow]⚠[/yellow] Visualization generation failed: {viz_results.error_message}"
+                    )
+
+        if not quiet:
+            rprint(f"\n[green]Portfolio review completed successfully![/green]")
+
+        if not quiet:
+            if config.is_single_strategy:
+                rprint(
+                    f"Analyzed strategy: {config.strategies[0].ticker} ({config.strategies[0].strategy_type.value})"
+                )
+            else:
+                rprint(
+                    f"Analyzed {len(config.strategies)} strategies across {len(config.unique_tickers)} tickers"
+                )
+
+    except Exception as e:
+        rprint(f"[red]Error in portfolio review: {e}[/red]")
+        if verbose:
+            raise
+        raise typer.Exit(1)
+
+
 def _show_portfolio_config_preview(config: PortfolioConfig):
     """Display portfolio configuration preview for dry run."""
     table = Table(title="Portfolio Configuration Preview", show_header=True)
@@ -1035,3 +1306,137 @@ def _save_aggregation_csv(aggregation_results: dict, output_path: Path):
     # Create DataFrame and save
     df = pd.DataFrame(rows)
     df.to_csv(output_path, index=False)
+
+
+def _show_portfolio_review_config_preview(config: PortfolioReviewConfig):
+    """Display portfolio review configuration preview for dry run."""
+    table = Table(title="Portfolio Review Configuration Preview", show_header=True)
+    table.add_column("Parameter", style="cyan", no_wrap=True)
+    table.add_column("Value", style="green")
+
+    # Basic configuration
+    table.add_row(
+        "Analysis Type",
+        "Single Strategy" if config.is_single_strategy else "Multi-Strategy",
+    )
+    table.add_row("Date Range", f"{config.start_date} to {config.end_date}")
+    table.add_row("Initial Cash", f"${config.init_cash:,.2f}")
+    table.add_row("Fees", f"{config.fees:.3%}")
+
+    # Strategy details
+    if config.is_single_strategy:
+        strategy = config.strategies[0]
+        table.add_row("Ticker", strategy.ticker)
+        table.add_row("Strategy Type", strategy.strategy_type.value)
+        table.add_row("Windows", f"{strategy.short_window}/{strategy.long_window}")
+        if strategy.stop_loss:
+            table.add_row("Stop Loss", f"{strategy.stop_loss:.2%}")
+    else:
+        table.add_row("Strategies Count", str(len(config.strategies)))
+        table.add_row("Unique Tickers", str(len(config.unique_tickers)))
+        table.add_row("Tickers", ", ".join(config.unique_tickers))
+
+    # Analysis options
+    table.add_row("Risk Metrics", "✓" if config.calculate_risk_metrics else "✗")
+    table.add_row("Export Equity", "✓" if config.export_equity_curve else "✗")
+    table.add_row("Generate Plots", "✓" if config.enable_plotting else "✗")
+
+    # Benchmark
+    if config.benchmark:
+        table.add_row(
+            "Benchmark",
+            config.benchmark.symbol
+            or f"Portfolio ({config.benchmark.benchmark_type.value})",
+        )
+    else:
+        table.add_row("Benchmark", "None")
+
+    console.print(table)
+    rprint("\n[yellow]This is a dry run. Use --no-dry-run to execute.[/yellow]")
+
+
+def _display_portfolio_review_results(
+    results, config: PortfolioReviewConfig, output_format: str
+):
+    """Display portfolio review results in specified format."""
+
+    # Statistics Table
+    stats_table = Table(title="Portfolio Performance Statistics", show_header=True)
+    stats_table.add_column("Metric", style="cyan", no_wrap=True)
+    stats_table.add_column("Value", style="green")
+
+    # Add key statistics
+    for key, value in results.statistics.items():
+        if isinstance(value, (int, float)):
+            if "%" in key or "rate" in key.lower():
+                stats_table.add_row(
+                    key, f"{value:.2%}" if abs(value) < 10 else f"{value:.2f}%"
+                )
+            elif "ratio" in key.lower():
+                stats_table.add_row(key, f"{value:.3f}")
+            elif "$" in str(value) or "cash" in key.lower():
+                stats_table.add_row(key, f"${value:,.2f}")
+            else:
+                stats_table.add_row(key, f"{value:,.2f}")
+        else:
+            stats_table.add_row(key, str(value))
+
+    console.print(stats_table)
+
+    # Risk Metrics Table (if available)
+    if results.risk_metrics and config.calculate_risk_metrics:
+        risk_table = Table(title="Risk Metrics", show_header=True)
+        risk_table.add_column("Metric", style="cyan", no_wrap=True)
+        risk_table.add_column("Value", style="red")
+
+        risk_metrics = results.risk_metrics
+        # Handle both dict and RiskMetrics object
+        if isinstance(risk_metrics, dict):
+            risk_table.add_row("VaR 95%", f"{risk_metrics.get('VaR 95%', 0):.2%}")
+            risk_table.add_row("VaR 99%", f"{risk_metrics.get('VaR 99%', 0):.2%}")
+            risk_table.add_row("CVaR 95%", f"{risk_metrics.get('CVaR 95%', 0):.2%}")
+            risk_table.add_row("CVaR 99%", f"{risk_metrics.get('CVaR 99%', 0):.2%}")
+        else:
+            # Assume RiskMetrics dataclass
+            risk_table.add_row("VaR 95%", f"{risk_metrics.var_95:.2%}")
+            risk_table.add_row("VaR 99%", f"{risk_metrics.var_99:.2%}")
+            risk_table.add_row("CVaR 95%", f"{risk_metrics.cvar_95:.2%}")
+            risk_table.add_row("CVaR 99%", f"{risk_metrics.cvar_99:.2%}")
+            risk_table.add_row("Max Drawdown", f"{risk_metrics.max_drawdown:.2%}")
+            risk_table.add_row("Sharpe Ratio", f"{risk_metrics.sharpe_ratio:.3f}")
+            risk_table.add_row("Sortino Ratio", f"{risk_metrics.sortino_ratio:.3f}")
+
+        console.print(risk_table)
+
+    # Open Positions (if any)
+    if results.open_positions:
+        positions_table = Table(title="Open Positions", show_header=True)
+        positions_table.add_column("Strategy", style="cyan")
+        positions_table.add_column("Position Size", style="yellow", justify="right")
+
+        for strategy_name, position_size in results.open_positions:
+            positions_table.add_row(strategy_name, f"{position_size:.2f}")
+
+        console.print(positions_table)
+
+    # Summary
+    if output_format == "detailed":
+        summary_table = Table(title="Analysis Summary", show_header=True)
+        summary_table.add_column("Component", style="cyan")
+        summary_table.add_column("Status", style="green")
+
+        summary_table.add_row("Portfolio Analysis", "✓ Complete")
+        summary_table.add_row("Statistics Calculated", "✓ Complete")
+
+        if config.calculate_risk_metrics:
+            summary_table.add_row("Risk Metrics", "✓ Complete")
+
+        if config.export_equity_curve and results.equity_curve_path:
+            summary_table.add_row(
+                "Equity Curve Export", f"✓ {results.equity_curve_path}"
+            )
+
+        if results.benchmark_portfolio:
+            summary_table.add_row("Benchmark Comparison", "✓ Complete")
+
+        console.print(summary_table)

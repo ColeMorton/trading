@@ -1,0 +1,93 @@
+metadata:
+  name: aggressive_base
+  description: Aggressive base template for high-return concurrency analysis
+  created_at: '2025-01-19T12:00:00.000000'
+  updated_at: '2025-01-19T12:00:00.000000'
+  version: '1.0'
+  tags:
+    - base_template
+    - aggressive
+    - high_risk
+    - concurrency
+  author: Claude Code Assistant
+  is_template: true
+
+inherits_from: concurrency_base
+config_type: concurrency
+
+config:
+  # ======================================
+  # AGGRESSIVE OVERRIDES
+  # ======================================
+
+  # General configuration for aggressive approach
+  general:
+    # Higher initial value for aggressive strategies
+    initial_value: 25000.0
+
+    # Higher risk tolerance
+    target_var: 0.08
+
+    # Sort by total returns
+    sort_by: 'total_return'
+
+  # Aggressive risk management
+  risk_management:
+    # Allow full risk per strategy
+    max_risk_per_strategy: 100.0
+
+    # Allow higher total risk
+    max_risk_total: 150.0
+
+    # Monte Carlo for advanced risk calculation
+    risk_calculation_method: 'monte_carlo'
+
+  # Enable ratio-based allocation for dynamic positioning
+  ratio_based_allocation: true
+
+  # Enable visualization for analysis
+  visualization: true
+
+  # Aggressive optimization settings
+  optimization:
+    # Enable optimization by default
+    enable_optimization: true
+
+    # Lower minimum for more combinations
+    min_strategies: 2
+
+    # More permutations to test
+    max_permutations: 5000
+
+    # Standard convergence criteria
+    convergence_threshold: 0.002
+
+    # Smaller convergence window
+    convergence_window: 30
+
+  # Aggressive Monte Carlo settings
+  risk_analysis:
+    # Enable Monte Carlo by default
+    enable_monte_carlo: true
+
+    # Higher simulation count
+    n_simulations: 15000
+
+    # Multiple confidence levels
+    confidence_levels: [90, 95, 99]
+
+  # Performance settings for speed
+  enable_caching: true
+  cache_ttl_hours: 12 # Shorter cache for dynamic strategies
+  enable_compression: true
+
+  # Aggressive advanced settings
+  correlation_threshold: 0.85 # Higher correlation tolerance
+  max_concurrent_positions: 8 # More concurrent positions
+  max_portfolio_risk: 0.15 # 15% max portfolio risk
+  sector_concentration_limit: 0.4 # 40% max sector concentration
+
+  # Enable advanced features
+  enable_correlation_filtering: true
+  enable_concurrency_limits: true
+  enable_risk_management: true

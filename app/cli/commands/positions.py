@@ -18,6 +18,13 @@ from app.tools.position_equity_generator import (
     PositionEquityGenerator,
     generate_position_equity,
 )
+from app.tools.position_equity_validator import (
+    PositionEquityValidator,
+    ValidationConfig,
+    ValidationStatus,
+    validate_all_portfolios,
+    validate_portfolio_equity,
+)
 from app.tools.project_utils import get_project_root
 
 # Create positions sub-app
@@ -354,6 +361,105 @@ def validate(
 
     except Exception as e:
         rprint(f"[red]Error in validation: {str(e)}[/red]")
+        raise typer.Exit(1)
+
+
+@app.command()
+def validate_equity(
+    portfolio: Optional[str] = typer.Option(
+        None, "--portfolio", "-p", help="Portfolio name to validate"
+    ),
+    all_portfolios: bool = typer.Option(
+        False, "--all", help="Validate all portfolio equity curves"
+    ),
+    output_format: str = typer.Option(
+        "console", "--format", help="Output format: console, json, csv"
+    ),
+    output_file: Optional[str] = typer.Option(
+        None, "--output", "-o", help="Output file path (for json/csv formats)"
+    ),
+    excellent_threshold: float = typer.Option(
+        1.0, "--excellent", help="Error percentage threshold for EXCELLENT status"
+    ),
+    good_threshold: float = typer.Option(
+        5.0, "--good", help="Error percentage threshold for GOOD status"
+    ),
+    warning_threshold: float = typer.Option(
+        10.0, "--warning", help="Error percentage threshold for WARNING status"
+    ),
+    enable_size_adjustment: bool = typer.Option(
+        True,
+        "--size-adjustment/--no-size-adjustment",
+        help="Enable size-based threshold adjustment",
+    ),
+) -> None:
+    """Validate mathematical consistency between position P&L and equity curves."""
+    try:
+        if not portfolio and not all_portfolios:
+            rprint("[red]Must specify either --portfolio or --all[/red]")
+            raise typer.Exit(1)
+
+        if portfolio and all_portfolios:
+            rprint("[red]Cannot specify both --portfolio and --all[/red]")
+            raise typer.Exit(1)
+
+        # Create validation config
+        config = ValidationConfig(
+            excellent_threshold=excellent_threshold,
+            good_threshold=good_threshold,
+            warning_threshold=warning_threshold,
+            enable_size_adjustment=enable_size_adjustment,
+        )
+
+        # Create validator
+        validator = PositionEquityValidator(config=config, log=_log_function)
+
+        # Perform validation
+        if all_portfolios:
+            results = validator.validate_all_portfolios()
+        else:
+            result = validator.validate_portfolio(portfolio)
+            results = {portfolio: result}
+
+        # Generate and display report
+        if output_format == "console":
+            validator.generate_validation_report(results, "console")
+        else:
+            report_content = validator.generate_validation_report(
+                results, output_format
+            )
+
+            if output_file:
+                with open(output_file, "w") as f:
+                    f.write(report_content)
+                rprint(f"[green]Report saved to: {output_file}[/green]")
+            else:
+                print(report_content)
+
+        # Exit with appropriate code based on worst status
+        worst_status = ValidationStatus.EXCELLENT
+        for result in results.values():
+            if result.status == ValidationStatus.CRITICAL:
+                worst_status = ValidationStatus.CRITICAL
+                break
+            elif (
+                result.status == ValidationStatus.WARNING
+                and worst_status != ValidationStatus.CRITICAL
+            ):
+                worst_status = ValidationStatus.WARNING
+            elif (
+                result.status == ValidationStatus.GOOD
+                and worst_status == ValidationStatus.EXCELLENT
+            ):
+                worst_status = ValidationStatus.GOOD
+
+        if worst_status == ValidationStatus.CRITICAL:
+            raise typer.Exit(2)  # Critical issues
+        elif worst_status == ValidationStatus.WARNING:
+            raise typer.Exit(1)  # Warning issues
+
+    except Exception as e:
+        rprint(f"[red]Error in equity validation: {str(e)}[/red]")
         raise typer.Exit(1)
 
 

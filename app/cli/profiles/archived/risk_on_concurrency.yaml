@@ -1,0 +1,98 @@
+metadata:
+  name: risk_on_concurrency
+  description: Concurrency analysis configuration optimized for risk_on portfolio
+  created_at: '2025-07-19T14:30:00.000000'
+  updated_at: '2025-07-19T14:30:00.000000'
+  version: '1.0'
+  tags:
+    - risk_on
+    - aggressive
+    - concurrency
+    - optimization
+  author: Claude Code Assistant
+inherits_from: default_concurrency
+config_type: concurrency
+config:
+  # General configuration for risk_on portfolio
+  general:
+    portfolio: 'risk_on.csv'
+    base_dir: ''
+    refresh: true
+    csv_use_hourly: false
+    sort_by: 'total_return' # Focus on returns for aggressive strategies
+    ensure_counterpart: true
+    initial_value: 25000.0 # Higher initial value for risk-on strategies
+    target_var: 0.08 # Higher risk tolerance
+
+  # Aggressive risk management
+  risk_management:
+    max_risk_per_strategy: 100.0
+    max_risk_total: 150.0 # Allow higher total risk
+    risk_calculation_method: 'monte_carlo' # Advanced risk calculation
+
+  # Execution settings
+  execution_mode: same_period
+  signal_definition_mode: complete_trade
+
+  # Enable ratio-based allocation for risk management
+  ratio_based_allocation: true
+
+  # Enable visualization for analysis
+  visualization: true
+
+  # Comprehensive reporting
+  report_includes:
+    ticker_metrics: true
+    strategies: true
+    strategy_relationships: true
+    allocation: true
+
+  # Trade history export enabled
+  trade_history:
+    export_trade_history: true
+    export_trades: true
+    export_orders: true
+    export_positions: true
+    output_format: json
+
+  # Memory optimization for larger portfolios
+  memory_optimization:
+    enable_memory_optimization: true
+    memory_threshold_mb: 1200.0
+    streaming_threshold_mb: 8.0
+    enable_pooling: true
+    enable_monitoring: true
+    chunk_size_rows: 15000
+
+  # Optimization settings for aggressive strategies
+  optimization:
+    enable_optimization: true
+    min_strategies: 2 # Lower minimum for more combinations
+    max_permutations: 5000
+    enable_early_stopping: true
+    convergence_threshold: 0.002
+    convergence_window: 30
+    parallel_processing: true
+    max_workers: 6
+
+  # Monte Carlo risk analysis
+  risk_analysis:
+    enable_monte_carlo: true
+    n_simulations: 15000
+    confidence_levels: [90, 95, 99]
+    horizon_days: 252
+    use_bootstrap: true
+
+  # Performance settings
+  enable_caching: true
+  cache_ttl_hours: 12 # Shorter cache for dynamic strategies
+  enable_compression: true
+
+  # Advanced risk settings for aggressive portfolio
+  correlation_threshold: 0.85 # Allow higher correlation
+  max_concurrent_positions: 8 # Allow more concurrent positions
+  max_portfolio_risk: 0.15 # 15% max portfolio risk
+  sector_concentration_limit: 0.4 # 40% max sector concentration
+  enable_correlation_filtering: true
+  enable_concurrency_limits: true
+  enable_risk_management: true

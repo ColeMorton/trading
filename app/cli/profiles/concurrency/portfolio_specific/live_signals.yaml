@@ -1,0 +1,32 @@
+metadata:
+  name: live_signals_concurrency
+  description: Concurrency analysis optimized for live_signals portfolio (production trading)
+  created_at: '2025-01-19T12:00:00.000000'
+  updated_at: '2025-01-19T12:00:00.000000'
+  version: '2.0'
+  tags:
+    - live_signals
+    - production
+    - real_time
+  author: Claude Code Assistant
+
+inherits_from: ../base/optimized_base
+config_type: concurrency
+
+config:
+  # Portfolio-specific overrides for live trading
+  general:
+    portfolio: 'live_signals.csv'
+
+    # Always refresh for live signals
+    refresh: true
+
+    # Use hourly data for live trading
+    csv_use_hourly: false
+
+  # Production-specific execution mode
+  # execution_mode: next_period  # More realistic for live trading
+
+  # Dedicated output directory for live trades
+  trade_history:
+    output_dir: './live_signals_trades/'

@@ -616,8 +616,8 @@ def convert_stats(
             else:
                 # Set default values if we can't calculate
                 log(
-                    "Expectancy per Trade not found and cannot be calculated",
-                    "warning",
+                    "Expectancy per Trade not found and cannot be calculated, using defaults",
+                    "debug",
                 )
                 stats["Expectancy per Trade"] = 0.0
                 stats["Expectancy per Month"] = 0.0
@@ -692,7 +692,7 @@ def convert_stats(
         if missing_metrics:
             log(
                 f"Risk metrics missing from stats for {ticker}: {', '.join(missing_metrics)}",
-                "warning",
+                "debug",
             )
 
         # Initialize converted dictionary before any processing
@@ -797,8 +797,8 @@ def _ensure_canonical_schema_compliance(
         from app.tools.portfolio.base_extended_schemas import CANONICAL_COLUMN_NAMES
     except ImportError:
         log(
-            "Warning: Could not import canonical schema, using existing stats",
-            "warning",
+            "Could not import canonical schema, using existing stats",
+            "debug",
         )
         return stats
 
@@ -909,10 +909,24 @@ def _get_default_value_for_column(
 
     default_value = column_defaults.get(column_name, None)
 
+    # Define columns that commonly missing and don't need warnings
+    commonly_missing = {
+        "Signal Entry",
+        "Signal Exit",
+        "_equity_data",
+        "Exit Signal",
+        "Stop Loss",
+        "Positions",
+        "Account_Value",
+        "Risk_Metric_VaR",
+    }
+
     if default_value is None:
+        # Use debug level for commonly missing columns to reduce noise
+        log_level = "debug" if column_name in commonly_missing else "warning"
         log(
-            f"Warning: No default value defined for column '{column_name}', using None",
-            "warning",
+            f"No default value defined for column '{column_name}', using None",
+            log_level,
         )
     else:
         log(

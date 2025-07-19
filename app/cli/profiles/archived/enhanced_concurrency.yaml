@@ -1,0 +1,91 @@
+metadata:
+  name: enhanced_concurrency
+  description: Enhanced concurrency analysis with memory optimization and parallel processing
+  created_at: '2025-07-19T12:00:00.000000'
+  updated_at: '2025-07-19T14:00:00.000000'
+  version: '3.0'
+  tags:
+    - concurrency
+    - optimization
+    - memory-efficient
+    - parallel
+  author: Claude Code Assistant
+inherits_from: default_concurrency
+config_type: concurrency
+config:
+  # General configuration (enhanced)
+  general:
+    portfolio: 'risk_on.csv'
+    base_dir: ''
+    refresh: true
+    csv_use_hourly: false
+    sort_by: 'score'
+    ensure_counterpart: true
+    initial_value: 50000.0 # Higher for enhanced analysis
+    target_var: 0.03 # Lower risk tolerance
+
+  # Enhanced risk management
+  risk_management:
+    max_risk_per_strategy: 75.0 # More conservative
+    max_risk_total: 100.0
+    risk_calculation_method: 'monte_carlo'
+
+  # Enhanced execution modes
+  execution_mode: same_period
+  signal_definition_mode: complete_trade
+
+  # Enhanced allocation
+  ratio_based_allocation: true
+
+  # Enhanced visualization
+  visualization: true
+
+  # Comprehensive reporting
+  report_includes:
+    ticker_metrics: true
+    strategies: true
+    strategy_relationships: true
+    allocation: true
+
+  # Trade history with optimization
+  trade_history:
+    export_trade_history: true
+    export_trades: true
+    export_orders: true
+    export_positions: true
+    output_format: json
+
+  # Memory optimization settings
+  memory_optimization:
+    enable_memory_optimization: true
+    memory_threshold_mb: 1500.0
+    streaming_threshold_mb: 10.0
+    enable_pooling: true
+    enable_monitoring: true
+    chunk_size_rows: 50000
+
+  # Parallel processing
+  parallel_processing: true
+  max_workers: 8
+
+  # Optimization settings
+  optimization:
+    enable_optimization: true
+    min_strategies: 3
+    max_permutations: 10000
+    enable_early_stopping: true
+    convergence_threshold: 0.001
+    convergence_window: 50
+
+  # Risk analysis (Monte Carlo)
+  risk_analysis:
+    enable_monte_carlo: true
+    n_simulations: 25000
+    confidence_levels: [90, 95, 99]
+    horizon_days: 252
+    use_bootstrap: true
+
+  # Performance settings
+  enable_caching: true
+  cache_ttl_hours: 24
+  enable_compression: true

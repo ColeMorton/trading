@@ -1,0 +1,64 @@
+metadata:
+  name: portfolio_review_risk_on
+  description: Multi-strategy portfolio review for risk-on/growth strategies
+  created_at: '2025-01-19T00:00:00.000000'
+  updated_at: '2025-01-19T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - portfolio_review
+    - multi_strategy
+    - risk_on
+    - growth
+  author: system
+
+inherits_from: multi_strategy_base
+config_type: portfolio_review
+
+config:
+  # Multiple strategies configuration (common fields inherited from multi_strategy_base)
+  strategies:
+    # MA Strategy
+    - ticker: MA
+      short_window: 78
+      long_window: 82
+      strategy_type: SMA
+      use_sma: true
+
+    # ASML Strategy
+    - ticker: ASML
+      short_window: 71
+      long_window: 80
+      strategy_type: SMA
+      use_sma: true
+
+    # AAPL Strategy
+    - ticker: AAPL
+      short_window: 46
+      long_window: 56
+      strategy_type: SMA
+      use_sma: true
+
+    # TSLA Strategy
+    - ticker: TSLA
+      short_window: 23
+      long_window: 31
+      strategy_type: SMA
+      use_sma: true
+
+    # NI Strategy
+    - ticker: NI
+      short_window: 66
+      long_window: 81
+      strategy_type: SMA
+      use_sma: true
+
+    # APP Strategy
+    - ticker: APP
+      short_window: 14
+      long_window: 15
+      strategy_type: SMA
+      use_sma: true
+
+  # Custom plot directory
+  plot_config:
+    output_dir: data/outputs/portfolio_review/plots/risk_on

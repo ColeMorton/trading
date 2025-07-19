@@ -202,11 +202,74 @@ def validate(
         for name in profiles_to_validate:
             try:
                 profile = config_manager.profile_manager.load_profile(name)
-                profile.validate_config()
-                rprint(f"✓ [green]{name}[/green] - Valid")
-                valid_count += 1
+
+                # Basic profile validation
+                try:
+                    profile.validate_config()
+                    validation_status = "✓ Valid configuration"
+                    status_color = "green"
+
+                    # Additional checks for portfolio review profiles
+                    if profile.config_type == "portfolio_review":
+                        warnings = []
+
+                        # Check for inheritance
+                        if profile.inherits_from:
+                            try:
+                                resolved_config = (
+                                    config_manager.profile_manager.resolve_inheritance(
+                                        profile
+                                    )
+                                )
+                                strategies = resolved_config.get("strategies", [])
+                            except Exception:
+                                warnings.append("inheritance resolution failed")
+                                strategies = profile.config.get("strategies", [])
+                        else:
+                            strategies = profile.config.get("strategies", [])
+
+                        # Check strategies
+                        if not strategies:
+                            warnings.append("no strategies defined")
+                        elif len(strategies) == 1:
+                            validation_status += " (single strategy)"
+                        else:
+                            validation_status += f" ({len(strategies)} strategies)"
+
+                        # Check for template placeholders
+                        config_str = str(profile.config)
+                        if "{{" in config_str:
+                            warnings.append("contains template placeholders")
+
+                        # Check date range validity
+                        start_date = profile.config.get("start_date")
+                        end_date = profile.config.get("end_date")
+                        if start_date and end_date and start_date >= end_date:
+                            warnings.append("invalid date range")
+
+                        # Check benchmark settings
+                        benchmark = profile.config.get("benchmark", {})
+                        if isinstance(benchmark, dict):
+                            if benchmark.get("symbol") == "null":
+                                validation_status += " (no benchmark)"
+
+                        if warnings:
+                            validation_status += f" - Warning: {', '.join(warnings)}"
+                            status_color = "yellow"
+
+                    rprint(
+                        f"✓ [{status_color}]{name}[/{status_color}] - {validation_status}"
+                    )
+                    valid_count += 1
+
+                except Exception as validation_error:
+                    rprint(
+                        f"✗ [red]{name}[/red] - Configuration invalid: {validation_error}"
+                    )
+                    invalid_count += 1
+
             except Exception as e:
-                rprint(f"✗ [red]{name}[/red] - Invalid: {e}")
+                rprint(f"✗ [red]{name}[/red] - Load failed: {e}")
                 invalid_count += 1
 
         rprint(

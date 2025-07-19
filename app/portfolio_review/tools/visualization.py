@@ -29,7 +29,7 @@ def create_portfolio_plots(
     configure_headless_backend()
 
     # Create output directory
-    output_dir = "csv/portfolio_review/plots"
+    output_dir = "data/outputs/portfolio_review/plots"
     os.makedirs(output_dir, exist_ok=True)
 
     try:

@@ -48,65 +48,65 @@ The SPDS v2.0 system supports **8 distinct analysis types** through advanced par
 
 ```bash
 # Portfolio file analysis with dual-layer convergence
-python -m app.cli spds analyze risk_on.csv --data-source auto
-python -m app.cli spds analyze conservative.csv --convergence-analysis
+trading-cli spds analyze risk_on.csv --data-source auto
+trading-cli spds analyze conservative.csv --convergence-analysis
 ```
 
 #### **2. Asset Distribution Analysis** (New v2.0)
 
 ```bash
 # Individual ticker analysis - statistical properties of asset returns
-python -m app.cli spds analyze AMD
-python -m app.cli spds analyze BTC-USD --detailed
-python -m app.cli spds analyze TSLA --components risk,momentum,trend
+trading-cli spds analyze AMD
+trading-cli spds analyze BTC-USD --detailed
+trading-cli spds analyze TSLA --components risk,momentum,trend
 ```
 
 #### **3. Multi-Ticker Analysis** (New v2.0)
 
 ```bash
 # Parallel analysis of multiple tickers
-python -m app.cli spds analyze NVDA,MSFT,QCOM
-python -m app.cli spds analyze BTC-USD,ETH-USD,ADA-USD --components risk,volume
+trading-cli spds analyze NVDA,MSFT,QCOM
+trading-cli spds analyze BTC-USD,ETH-USD,ADA-USD --components risk,volume
 ```
 
 #### **4. Strategy Analysis** (New v2.0)
 
 ```bash
 # Specific strategy configuration analysis
-python -m app.cli spds analyze TSLA_SMA_15_25
-python -m app.cli spds analyze BTC-USD_EMA_5_21 --detailed
-python -m app.cli spds analyze AAPL_MACD_12_26_9 --data-source equity-curves
+trading-cli spds analyze TSLA_SMA_15_25
+trading-cli spds analyze BTC-USD_EMA_5_21 --detailed
+trading-cli spds analyze AAPL_MACD_12_26_9 --data-source equity-curves
 ```
 
 #### **5. Multi-Strategy Analysis** (New v2.0)
 
 ```bash
 # Parallel analysis of multiple strategies
-python -m app.cli spds analyze TSLA_SMA_15_25,RJF_SMA_68_77,SMCI_SMA_58_60
-python -m app.cli spds analyze BTC-USD_EMA_5_21,ETH-USD_SMA_20_50 --output-format json
+trading-cli spds analyze TSLA_SMA_15_25,RJF_SMA_68_77,SMCI_SMA_58_60
+trading-cli spds analyze BTC-USD_EMA_5_21,ETH-USD_SMA_20_50 --output-format json
 ```
 
 #### **6. Position Analysis** (New v2.0)
 
 ```bash
 # Individual position UUID analysis with entry date
-python -m app.cli spds analyze TSLA_SMA_15_25_20250710
-python -m app.cli spds analyze BTC-USD_EMA_5_21_2025-07-14 --components risk,mean-rev
+trading-cli spds analyze TSLA_SMA_15_25_20250710
+trading-cli spds analyze BTC-USD_EMA_5_21_2025-07-14 --components risk,mean-rev
 ```
 
 #### **7. Multi-Position Analysis** (New v2.0)
 
 ```bash
 # Parallel analysis of multiple positions
-python -m app.cli spds analyze TSLA_SMA_15_25_20250710,TPR_SMA_14_30_20250506,MA_SMA_78_82_20250701
+trading-cli spds analyze TSLA_SMA_15_25_20250710,TPR_SMA_14_30_20250506,MA_SMA_78_82_20250701
 ```
 
 #### **8. Multi-Portfolio Analysis** (New v2.0)
 
 ```bash
 # Parallel analysis of multiple portfolios
-python -m app.cli spds analyze risk_on,live_signals,protected
-python -m app.cli spds analyze conservative,aggressive --data-source both
+trading-cli spds analyze risk_on,live_signals,protected
+trading-cli spds analyze conservative,aggressive --data-source both
 ```
 
 ### **🤖 Intelligent Parameter Detection**
@@ -123,19 +123,19 @@ python -m app.cli spds analyze conservative,aggressive --data-source both
 
 ```bash
 # Auto-detected as Asset Distribution Analysis
-python -m app.cli spds analyze AMD
+trading-cli spds analyze AMD
 
 # Auto-detected as Strategy Analysis
-python -m app.cli spds analyze TSLA_SMA_15_25
+trading-cli spds analyze TSLA_SMA_15_25
 
 # Auto-detected as Position Analysis
-python -m app.cli spds analyze TSLA_SMA_15_25_20250710
+trading-cli spds analyze TSLA_SMA_15_25_20250710
 
 # Auto-detected as Portfolio Analysis
-python -m app.cli spds analyze risk_on.csv
+trading-cli spds analyze risk_on.csv
 
 # Auto-detected as Multi-Strategy Analysis
-python -m app.cli spds analyze TSLA_SMA_15_25,RJF_SMA_68_77
+trading-cli spds analyze TSLA_SMA_15_25,RJF_SMA_68_77
 ```
 
 ### **📊 Data Source Optimization by Parameter Type**
@@ -259,32 +259,32 @@ Optimal Configuration:
 
 ```bash
 # 🎯 Dual-layer convergence analysis with auto-detection (RECOMMENDED)
-python -m app.cli spds analyze risk_on.csv --data-source auto
+trading-cli spds analyze risk_on.csv --data-source auto
 
 # 📊 Asset distribution analysis (NEW)
-python -m app.cli spds analyze AMD --detailed
+trading-cli spds analyze AMD --detailed
 
 # 🔄 Strategy analysis (NEW)
-python -m app.cli spds analyze TSLA_SMA_15_25 --convergence-analysis
+trading-cli spds analyze TSLA_SMA_15_25 --convergence-analysis
 
 # 📈 Enhanced exports with convergence details
-python -m app.cli spds export risk_on.csv --format all
+trading-cli spds export risk_on.csv --format all
 
 # 🔍 System diagnostics and health
-python -m app.cli spds health
-python -m app.cli spds list-portfolios
-python -m app.cli spds demo
+trading-cli spds health
+trading-cli spds list-portfolios
+trading-cli spds demo
 
 # 🌟 Legacy compatibility (v1.0 commands still work)
-python -m app.cli spds analyze risk_on.csv --trade-history
+trading-cli spds analyze risk_on.csv --trade-history
 ```
 
 **Trade History Analysis CLI:**
 
 ```bash
-python -m app.cli trade-history close {strategy_uuid e.g MA_SMA_78_82} --output report.md
-python -m app.cli trade-history list
-python -m app.cli trade-history health
+trading-cli trade-history close {strategy_uuid e.g MA_SMA_78_82} --output report.md
+trading-cli trade-history list
+trading-cli trade-history health
 ```
 
 ### **Dual-Layer Convergence Configuration (v2.0)**
@@ -364,7 +364,7 @@ Exit Signal Generation:
 **Example Analysis Output**:
 
 ```bash
-python -m app.cli spds analyze AMD --detailed --output-format json
+trading-cli spds analyze AMD --detailed --output-format json
 
 # Generates:
 {
@@ -421,7 +421,7 @@ Dual-Layer Integration:
 **Example Analysis Output**:
 
 ```bash
-python -m app.cli spds analyze TSLA_SMA_15_25 --convergence-analysis
+trading-cli spds analyze TSLA_SMA_15_25 --convergence-analysis
 
 # Generates dual-layer analysis with:
 # - Strategy performance percentiles
@@ -873,15 +873,15 @@ Convergence Requirement:
 
 ```bash
 # Entry opportunity analysis
-python -m app.cli spds analyze TSLA --components risk,momentum,trend
+trading-cli spds analyze TSLA --components risk,momentum,trend
 # Look for STRONG_BUY/BUY signals when assets are undervalued
 
 # Exit timing analysis
-python -m app.cli spds analyze overvalued_position --convergence-analysis
+trading-cli spds analyze overvalued_position --convergence-analysis
 # Monitor for SELL/STRONG_SELL/EXIT_IMMEDIATELY signals
 
 # Complete market cycle analysis
-python -m app.cli spds analyze AAPL --data-source auto
+trading-cli spds analyze AAPL --data-source auto
 # Receives appropriate signal based on current market conditions
 ```
 
@@ -945,7 +945,7 @@ Timeline Guidance:
 
 ```bash
 # Check convergence analysis capability
-python -m app.cli spds analyze risk_on.csv --convergence-analysis
+trading-cli spds analyze risk_on.csv --convergence-analysis
 
 # Verify file structure
 ls -la json/return_distribution/
@@ -953,20 +953,20 @@ ls -la json/trade_history/risk_on/
 ls -la csv/ma_cross/equity_data/
 
 # Test layer agreement analysis
-python -m app.cli spds health --convergence-analysis
+trading-cli spds health --convergence-analysis
 ```
 
 **Resolution:**
 
 ```bash
 # Use conservative mode for low convergence
-python -m app.cli spds analyze risk_on.csv --conservative-on-divergence
+trading-cli spds analyze risk_on.csv --conservative-on-divergence
 
 # Increase quality thresholds
-python -m app.cli spds analyze risk_on.csv --min-trade-count 30
+trading-cli spds analyze risk_on.csv --min-trade-count 30
 
 # Generate comprehensive diagnostics
-python -m app.cli spds export risk_on.csv --convergence-analysis --debug
+trading-cli spds export risk_on.csv --convergence-analysis --debug
 ```
 
 #### **Data Source Selection Issues**
@@ -977,7 +977,7 @@ python -m app.cli spds export risk_on.csv --convergence-analysis --debug
 
 ```bash
 # Check data source availability
-python -m app.cli spds list-portfolios
+trading-cli spds list-portfolios
 
 # Verify data source paths
 ls -la json/return_distribution/{asset}_returns.json
@@ -985,20 +985,20 @@ ls -la json/trade_history/{portfolio}/
 ls -la csv/ma_cross/equity_data/
 
 # Test auto-detection process
-python -m app.cli spds analyze risk_on.csv --data-source auto --debug
+trading-cli spds analyze risk_on.csv --data-source auto --debug
 ```
 
 **Resolution:**
 
 ```bash
 # Force specific data source if auto-detection fails
-python -m app.cli spds analyze risk_on.csv --data-source trade-history
+trading-cli spds analyze risk_on.csv --data-source trade-history
 
 # Adjust convergence thresholds for development
-python -m app.cli spds analyze risk_on.csv --convergence-threshold 0.6
+trading-cli spds analyze risk_on.csv --convergence-threshold 0.6
 
 # Debug data source detection process
-python -m app.cli spds analyze risk_on.csv --data-source auto --debug-sources
+trading-cli spds analyze risk_on.csv --data-source auto --debug-sources
 ```
 
 ### **Export Validation**
@@ -1027,24 +1027,24 @@ head -1 exports/statistical_analysis/{portfolio}.csv | grep -c "convergence"
 # ALWAYS run these in order:
 
 # 1. Verify system health
-python -m app.cli spds health
+trading-cli spds health
 
 # 2. Check available portfolios
-python -m app.cli spds list-portfolios
+trading-cli spds list-portfolios
 
 # 3. Run convergence analysis with export validation
-python -m app.cli spds analyze {portfolio} --data-source auto --output-format all
+trading-cli spds analyze {portfolio} --data-source auto --output-format all
 
 # 4. CRITICAL: Verify exports contain convergence data
 ls -la exports/statistical_analysis/{portfolio}.*
 grep -c "convergence_score" exports/statistical_analysis/{portfolio}.json
 
 # 5. Trade history system validation
-python -m app.cli trade-history health
+trading-cli trade-history health
 
 # 6. ENHANCED: Convergence-specific validation
-python -m app.cli spds validate-config --convergence-analysis
-python -m app.cli spds health --convergence-analysis
+trading-cli spds validate-config --convergence-analysis
+trading-cli spds health --convergence-analysis
 ```
 
 ## Best Practices
@@ -1171,26 +1171,26 @@ python -m app.tools.spds_health_check
 python -m app.tools.spds_health_check --fix
 
 # Verify SPDS CLI health
-python -m app.cli spds health
+trading-cli spds health
 
 # Test dual-layer convergence analysis with export validation
-python -m app.cli spds analyze live_signals.csv --data-source auto --output-format all
+trading-cli spds analyze live_signals.csv --data-source auto --output-format all
 
 # Test convergence analysis capability
-python -m app.cli spds analyze live_signals.csv --convergence-analysis
+trading-cli spds analyze live_signals.csv --convergence-analysis
 
 # Legacy compatibility test
-python -m app.cli spds analyze live_signals.csv --trade-history --output-format all
+trading-cli spds analyze live_signals.csv --trade-history --output-format all
 
 # CRITICAL: Always validate exports after analysis
 ls -la exports/statistical_analysis/live_signals.*
 ls -la exports/backtesting_parameters/live_signals.*
 
 # Check available portfolios
-python -m app.cli spds list-portfolios
+trading-cli spds list-portfolios
 
 # Verify trade history system
-python -m app.cli trade-history health
+trading-cli trade-history health
 ```
 
 **🎯 Enhanced Expected Results (v2.0):**
@@ -1243,10 +1243,10 @@ with open('exports/statistical_analysis/live_signals.json', 'r') as f:
 
 ```bash
 # Verify convergence analysis capability
-python -m app.cli spds analyze live_signals.csv --convergence-analysis
+trading-cli spds analyze live_signals.csv --convergence-analysis
 
 # Test convergence configuration
-python -m app.cli spds validate-config --convergence-analysis
+trading-cli spds validate-config --convergence-analysis
 
 # Verify enhanced export content
 python -c "

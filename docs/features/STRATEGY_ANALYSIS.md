@@ -30,36 +30,36 @@ The strategy analysis system provides comprehensive tools for analyzing trading 
 
 ```bash
 # Single strategy analysis
-python -m app.cli strategy run --ticker AAPL --strategy SMA
+trading-cli strategy run --ticker AAPL --strategy SMA
 
 # Multiple strategies
-python -m app.cli strategy run --ticker AAPL --strategy SMA,EMA,MACD
+trading-cli strategy run --ticker AAPL --strategy SMA,EMA,MACD
 
 # Multiple tickers
-python -m app.cli strategy run --ticker AAPL,MSFT,GOOGL --strategy SMA
+trading-cli strategy run --ticker AAPL,MSFT,GOOGL --strategy SMA
 ```
 
 ### Advanced Options
 
 ```bash
 # Custom parameters
-python -m app.cli strategy run --ticker AAPL --strategy SMA --fast-window 20 --slow-window 50
+trading-cli strategy run --ticker AAPL --strategy SMA --fast-window 20 --slow-window 50
 
 # Minimum requirements
-python -m app.cli strategy run --ticker AAPL --strategy SMA --min-trades 100 --min-win-rate 0.6
+trading-cli strategy run --ticker AAPL --strategy SMA --min-trades 100 --min-win-rate 0.6
 
 # Time constraints
-python -m app.cli strategy run --ticker AAPL --strategy SMA --start-date 2023-01-01 --end-date 2023-12-31
+trading-cli strategy run --ticker AAPL --strategy SMA --start-date 2023-01-01 --end-date 2023-12-31
 ```
 
 ### Parameter Sweeps
 
 ```bash
 # Comprehensive parameter sweep
-python -m app.cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50 --slow-min 20 --slow-max 200
+trading-cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50 --slow-min 20 --slow-max 200
 
 # Optimized sweep with constraints
-python -m app.cli strategy sweep --ticker AAPL --fast-min 10 --fast-max 30 --slow-min 40 --slow-max 100 --min-trades 50
+trading-cli strategy sweep --ticker AAPL --fast-min 10 --fast-max 30 --slow-min 40 --slow-max 100 --min-trades 50
 ```
 
 ## Configuration Profiles
@@ -88,10 +88,10 @@ config:
 
 ```bash
 # Run with profile
-python -m app.cli strategy run --profile my_ma_cross
+trading-cli strategy run --profile my_ma_cross
 
 # Override profile settings
-python -m app.cli strategy run --profile my_ma_cross --ticker TSLA --min-trades 50
+trading-cli strategy run --profile my_ma_cross --ticker TSLA --min-trades 50
 ```
 
 ## Performance Metrics
@@ -156,7 +156,7 @@ csv/portfolios/TICKER_TIMEFRAME_STRATEGY.csv
 
 ```bash
 # Export with JSON format
-python -m app.cli strategy run --ticker AAPL --strategy SMA --export-format json
+trading-cli strategy run --ticker AAPL --strategy SMA --export-format json
 ```
 
 ### Portfolio Aggregation
@@ -172,21 +172,21 @@ csv/portfolios_best/        # Best performing strategies
 
 ```bash
 # Analyze strategy results
-python -m app.cli spds analyze AAPL_D_SMA.csv
+trading-cli spds analyze AAPL_D_SMA.csv
 ```
 
 ### Portfolio Management
 
 ```bash
 # Update portfolio with new results
-python -m app.cli portfolio update --validate --export-format json
+trading-cli portfolio update --validate --export-format json
 ```
 
 ### Trade History
 
 ```bash
 # Export trade history
-python -m app.cli trade-history update --portfolio live_signals
+trading-cli trade-history update --portfolio live_signals
 ```
 
 ## Data Sources
@@ -209,20 +209,20 @@ python -m app.cli trade-history update --portfolio live_signals
 
 ```bash
 # Enable memory optimization
-python -m app.cli strategy run --ticker AAPL --strategy SMA --optimize-memory
+trading-cli strategy run --ticker AAPL --strategy SMA --optimize-memory
 
 # Streaming for large datasets
-python -m app.cli strategy run --ticker AAPL --strategy SMA --stream-data
+trading-cli strategy run --ticker AAPL --strategy SMA --stream-data
 ```
 
 ### Parallel Processing
 
 ```bash
 # Parallel execution
-python -m app.cli strategy run --ticker AAPL,MSFT,GOOGL --strategy SMA --parallel
+trading-cli strategy run --ticker AAPL,MSFT,GOOGL --strategy SMA --parallel
 
 # Batch processing
-python -m app.cli strategy run --batch-size 10 --ticker-file tickers.txt
+trading-cli strategy run --batch-size 10 --ticker-file tickers.txt
 ```
 
 ## Debugging and Validation
@@ -231,24 +231,24 @@ python -m app.cli strategy run --batch-size 10 --ticker-file tickers.txt
 
 ```bash
 # Preview without execution
-python -m app.cli strategy run --ticker AAPL --strategy SMA --dry-run
+trading-cli strategy run --ticker AAPL --strategy SMA --dry-run
 ```
 
 ### Verbose Output
 
 ```bash
 # Detailed logging
-python -m app.cli strategy run --ticker AAPL --strategy SMA --verbose
+trading-cli strategy run --ticker AAPL --strategy SMA --verbose
 ```
 
 ### Validation Checks
 
 ```bash
 # Validate strategy results
-python -m app.cli strategy validate --portfolio AAPL_D_SMA.csv
+trading-cli strategy validate --portfolio AAPL_D_SMA.csv
 
 # Health check
-python -m app.cli tools health
+trading-cli tools health
 ```
 
 ## Advanced Features
@@ -267,14 +267,14 @@ class CustomIndicator:
 
 ```bash
 # Combine multiple strategies
-python -m app.cli strategy run --ticker AAPL --strategy SMA,EMA --combine-signals
+trading-cli strategy run --ticker AAPL --strategy SMA,EMA --combine-signals
 ```
 
 ### Risk Management
 
 ```bash
 # Apply risk management rules
-python -m app.cli strategy run --ticker AAPL --strategy SMA --stop-loss 0.05 --take-profit 0.15
+trading-cli strategy run --ticker AAPL --strategy SMA --stop-loss 0.05 --take-profit 0.15
 ```
 
 ## Best Practices
@@ -309,26 +309,26 @@ python -m app.cli strategy run --ticker AAPL --strategy SMA --stop-loss 0.05 --t
 
 ```bash
 # Morning strategy update
-python -m app.cli strategy run --profile daily_analysis
-python -m app.cli portfolio update --validate
-python -m app.cli spds analyze live_signals.csv
+trading-cli strategy run --profile daily_analysis
+trading-cli portfolio update --validate
+trading-cli spds analyze live_signals.csv
 ```
 
 ### 2. Strategy Development
 
 ```bash
 # Parameter optimization
-python -m app.cli strategy sweep --ticker AAPL --strategy SMA
-python -m app.cli strategy validate --portfolio sweep_results.csv
-python -m app.cli portfolio optimize --portfolio validated_strategies.csv
+trading-cli strategy sweep --ticker AAPL --strategy SMA
+trading-cli strategy validate --portfolio sweep_results.csv
+trading-cli portfolio optimize --portfolio validated_strategies.csv
 ```
 
 ### 3. Performance Monitoring
 
 ```bash
 # Regular performance review
-python -m app.cli trade-history update --portfolio live_signals
-python -m app.cli portfolio health --portfolio live_signals.csv
+trading-cli trade-history update --portfolio live_signals
+trading-cli portfolio health --portfolio live_signals.csv
 ```
 
 ## Troubleshooting
@@ -339,27 +339,27 @@ python -m app.cli portfolio health --portfolio live_signals.csv
 
 ```bash
 # Check data availability
-python -m app.cli data check --ticker AAPL --start-date 2023-01-01
+trading-cli data check --ticker AAPL --start-date 2023-01-01
 
 # Extend data period
-python -m app.cli strategy run --ticker AAPL --strategy SMA --data-period 5Y
+trading-cli strategy run --ticker AAPL --strategy SMA --data-period 5Y
 ```
 
 **Poor Performance**:
 
 ```bash
 # Analyze strategy weaknesses
-python -m app.cli strategy analyze --portfolio AAPL_D_SMA.csv --detailed
+trading-cli strategy analyze --portfolio AAPL_D_SMA.csv --detailed
 
 # Optimize parameters
-python -m app.cli strategy sweep --ticker AAPL --strategy SMA --optimize
+trading-cli strategy sweep --ticker AAPL --strategy SMA --optimize
 ```
 
 **Memory Issues**:
 
 ```bash
 # Enable memory optimization
-python -m app.cli strategy run --ticker AAPL --strategy SMA --optimize-memory --stream-data
+trading-cli strategy run --ticker AAPL --strategy SMA --optimize-memory --stream-data
 ```
 
 ---

@@ -45,20 +45,20 @@ pip install -r requirements.txt
 
 ```bash
 # Initialize with default configuration
-python -m app.cli init
+trading-cli init
 
 # Verify installation
-python -m app.cli --help
+trading-cli --help
 ```
 
 ### 2. Run Your First Strategy Analysis
 
 ```bash
 # Quick analysis with default parameters
-python -m app.cli strategy run --ticker AAPL --strategy SMA
+trading-cli strategy run --ticker AAPL --strategy SMA
 
 # Preview with dry run
-python -m app.cli strategy run --ticker AAPL --strategy SMA --dry-run
+trading-cli strategy run --ticker AAPL --strategy SMA --dry-run
 ```
 
 ### 3. Check Results
@@ -68,7 +68,7 @@ python -m app.cli strategy run --ticker AAPL --strategy SMA --dry-run
 ls csv/portfolios/
 
 # View the latest results
-python -m app.cli portfolio list --recent
+trading-cli portfolio list --recent
 ```
 
 ## Basic Commands
@@ -77,33 +77,33 @@ python -m app.cli portfolio list --recent
 
 ```bash
 # Single ticker analysis
-python -m app.cli strategy run --ticker AAPL --strategy SMA
+trading-cli strategy run --ticker AAPL --strategy SMA
 
 # Multiple tickers
-python -m app.cli strategy run --ticker AAPL,MSFT,GOOGL --strategy SMA,EMA
+trading-cli strategy run --ticker AAPL,MSFT,GOOGL --strategy SMA,EMA
 
 # Using configuration profile
-python -m app.cli strategy run --profile ma_cross_crypto
+trading-cli strategy run --profile ma_cross_crypto
 ```
 
 ### Portfolio Management
 
 ```bash
 # Update portfolio results
-python -m app.cli portfolio update --validate
+trading-cli portfolio update --validate
 
 # Export portfolio data
-python -m app.cli portfolio export --format json --portfolio risk_on.csv
+trading-cli portfolio export --format json --portfolio risk_on.csv
 ```
 
 ### Statistical Analysis
 
 ```bash
 # Analyze portfolio performance
-python -m app.cli spds analyze risk_on.csv
+trading-cli spds analyze risk_on.csv
 
 # Interactive analysis mode
-python -m app.cli spds interactive
+trading-cli spds interactive
 ```
 
 ## Understanding the Output
@@ -129,30 +129,30 @@ exports/backtesting_parameters/   # Backtesting parameter exports
 
 ```bash
 # Morning routine: analyze key stocks
-python -m app.cli strategy run --ticker AAPL,MSFT,GOOGL,AMZN --strategy SMA,EMA
+trading-cli strategy run --ticker AAPL,MSFT,GOOGL,AMZN --strategy SMA,EMA
 
 # Update portfolios
-python -m app.cli portfolio update --validate --export-format json
+trading-cli portfolio update --validate --export-format json
 ```
 
 ### 2. Portfolio Performance Review
 
 ```bash
 # Analyze current positions
-python -m app.cli spds analyze live_signals.csv
+trading-cli spds analyze live_signals.csv
 
 # Generate comprehensive report
-python -m app.cli trade-history update --portfolio live_signals --refresh-prices
+trading-cli trade-history update --portfolio live_signals --refresh-prices
 ```
 
 ### 3. Strategy Optimization
 
 ```bash
 # Parameter sweep analysis
-python -m app.cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50
+trading-cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50
 
 # Validate results
-python -m app.cli portfolio validate --portfolio sweep_results.csv
+trading-cli portfolio validate --portfolio sweep_results.csv
 ```
 
 ## Configuration
@@ -180,7 +180,7 @@ config:
 Use the profile:
 
 ```bash
-python -m app.cli strategy run --profile my_strategy
+trading-cli strategy run --profile my_strategy
 ```
 
 ### Environment Variables
@@ -201,22 +201,22 @@ export TRADING_WIN_RATE=0.65
 
 ```bash
 # General help
-python -m app.cli --help
+trading-cli --help
 
 # Command-specific help
-python -m app.cli strategy --help
-python -m app.cli portfolio --help
-python -m app.cli spds --help
+trading-cli strategy --help
+trading-cli portfolio --help
+trading-cli spds --help
 ```
 
 ### System Health Check
 
 ```bash
 # Check system status
-python -m app.cli tools health
+trading-cli tools health
 
 # Validate configuration
-python -m app.cli config validate
+trading-cli config validate
 ```
 
 ## Next Steps
@@ -249,17 +249,17 @@ ls -la app/cli/
 
 ```bash
 # Validate configuration
-python -m app.cli config validate
+trading-cli config validate
 
 # Reset to defaults
-python -m app.cli config reset
+trading-cli config reset
 ```
 
 ### Getting Support
 
 1. Check the [troubleshooting guide](../troubleshooting/COMMON_ISSUES.md)
 2. Review the [error message reference](../troubleshooting/ERROR_MESSAGES.md)
-3. Use the system health check: `python -m app.cli tools health`
+3. Use the system health check: `trading-cli tools health`
 
 ---
 

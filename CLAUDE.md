@@ -17,7 +17,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Environment Setup
 
 ```bash
-poetry install  # Install dependencies
+poetry install  # Install dependencies and register trading-cli script
+```
+
+### Accessing the CLI
+
+The trading system uses a unified `trading-cli` interface. Access it via:
+
+**Option 1: Poetry shell (Recommended for development):**
+
+```bash
+poetry shell
+trading-cli --help
+```
+
+**Option 2: Poetry run (Direct execution):**
+
+```bash
+poetry run trading-cli --help
+```
+
+**Option 3: Direct execution (if Poetry environment is activated):**
+
+```bash
+trading-cli --help
 ```
 
 ### Strategy Execution
@@ -26,25 +49,89 @@ poetry install  # Install dependencies
 
 ```bash
 # Run MA Cross strategy analysis
-python -m app.cli strategy run --profile ma_cross_crypto
+poetry run trading-cli strategy run --profile ma_cross_crypto
 
 # Run MACD strategy analysis
-python -m app.cli strategy run --strategy MACD --ticker AAPL,MSFT,GOOGL
+poetry run trading-cli strategy run --strategy MACD --ticker AAPL,MSFT,GOOGL
 
 # Custom strategy execution with parameters
-python -m app.cli strategy run --ticker BTC-USD --strategy SMA --min-trades 50
+poetry run trading-cli strategy run --ticker BTC-USD --strategy SMA --min-trades 50
 
 # Parameter sweep analysis
-python -m app.cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50 --slow-min 20 --slow-max 200
+poetry run trading-cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50 --slow-min 20 --slow-max 200
 
 # Update and aggregate portfolio results
-python -m app.cli portfolio update --validate --export-format json
+poetry run trading-cli portfolio update --validate --export-format json
 
 # Run concurrency analysis with trade history export
-python -m app.cli concurrency analyze --export-trades
+poetry run trading-cli concurrency analyze --export-trades
+
+# NEW: Enhanced concurrency commands with optimization and analysis
+poetry run trading-cli concurrency optimize portfolio.json --parallel
+poetry run trading-cli concurrency monte-carlo portfolio.csv --simulations 50000
+poetry run trading-cli concurrency health --fix
+poetry run trading-cli concurrency demo --strategies 10
+
+# Memory-optimized analysis for large portfolios
+poetry run trading-cli concurrency analyze portfolio.json --memory-optimization --memory-threshold 2000
 ```
 
 **Important Note:** All functionality is now available through the unified CLI interface. Direct script execution is deprecated and will be removed in future versions. Always use the CLI commands shown above.
+
+### Enhanced Concurrency Analysis Commands
+
+**Strategy Optimization:**
+
+```bash
+# Find optimal strategy combinations using permutation analysis
+poetry run trading-cli concurrency optimize portfolio.json
+poetry run trading-cli concurrency optimize portfolio.csv --min-strategies 5 --parallel
+poetry run trading-cli concurrency optimize portfolio.json --allocation RISK_ADJUSTED --output results.json
+
+# Advanced optimization with parallel processing
+poetry run trading-cli concurrency optimize large_portfolio.json --parallel --max-permutations 10000
+```
+
+**Monte Carlo Risk Analysis:**
+
+```bash
+# Run Monte Carlo simulations for risk analysis and forecasting
+poetry run trading-cli concurrency monte-carlo portfolio.json
+poetry run trading-cli concurrency monte-carlo portfolio.csv --simulations 50000 --horizon 365
+poetry run trading-cli concurrency monte-carlo portfolio.json --confidence 90,95,99 --save-simulations
+
+# Generate probabilistic forecasts with bootstrap resampling
+poetry run trading-cli concurrency monte-carlo portfolio.json --bootstrap --visualize
+```
+
+**System Health and Diagnostics:**
+
+```bash
+# Comprehensive system health checks
+poetry run trading-cli concurrency health
+poetry run trading-cli concurrency health --fix  # Auto-fix issues
+poetry run trading-cli concurrency health --no-deps --data  # Check specific components
+```
+
+**Demo and Testing:**
+
+```bash
+# Generate sample portfolio and run analysis
+poetry run trading-cli concurrency demo
+poetry run trading-cli concurrency demo --strategies 10 --output ./demo_results
+poetry run trading-cli concurrency demo --no-analyze  # Generate only, don't analyze
+```
+
+**Memory Optimization Features:**
+
+```bash
+# Enable memory optimization for large portfolios
+poetry run trading-cli concurrency analyze portfolio.json --memory-optimization
+poetry run trading-cli concurrency analyze portfolio.json --memory-threshold 2000
+
+# Optimization with memory management
+poetry run trading-cli concurrency optimize large_portfolio.json --memory-optimization --parallel
+```
 
 ### Statistical Performance Divergence System (New Architecture)
 
@@ -52,27 +139,27 @@ python -m app.cli concurrency analyze --export-trades
 
 ```bash
 # NEW: Use updated CLI with modernized architecture
-python -m app.tools.spds_cli_updated analyze --portfolio risk_on.csv
+poetry run trading-cli spds analyze --portfolio risk_on.csv
 
 # Modern command structure with subcommands
-python -m app.tools.spds_cli_updated analyze --portfolio risk_on.csv --data-source trade-history
-python -m app.tools.spds_cli_updated analyze --strategy AAPL_SMA_20_50
-python -m app.tools.spds_cli_updated analyze --position AAPL_SMA_20_50_20250101
+poetry run trading-cli spds analyze --portfolio risk_on.csv --data-source trade-history
+poetry run trading-cli spds analyze --strategy AAPL_SMA_20_50
+poetry run trading-cli spds analyze --position AAPL_SMA_20_50_20250101
 
 # System health and management
-python -m app.tools.spds_cli_updated health
-python -m app.tools.spds_cli_updated list-portfolios
-python -m app.tools.spds_cli_updated demo
+poetry run trading-cli spds health
+poetry run trading-cli spds list-portfolios
+poetry run trading-cli spds demo
 
 # Interactive mode with new architecture
-python -m app.tools.spds_cli_updated interactive
+poetry run trading-cli spds interactive
 
 # Output formats
-python -m app.tools.spds_cli_updated analyze --portfolio risk_on.csv --output-format json
-python -m app.tools.spds_cli_updated analyze --portfolio risk_on.csv --save-results results.json
+poetry run trading-cli spds analyze --portfolio risk_on.csv --output-format json
+poetry run trading-cli spds analyze --portfolio risk_on.csv --save-results results.json
 
 # DEPRECATED (Phase 4 Cleanup): Old commands removed
-# python -m app.cli spds analyze (REMOVED - use spds_cli_updated)
+# trading-cli spds analyze (old interface - use updated commands above)
 # Complex service coordination (REMOVED - use unified engine)
 ```
 
@@ -84,38 +171,38 @@ python -m app.tools.spds_cli_updated analyze --portfolio risk_on.csv --save-resu
 
 ```bash
 # List all available strategies for analysis
-python -m app.cli trade-history list
+poetry run trading-cli trade-history list
 
 # Close position and update portfolio (primary use case)
-python -m app.cli trade-history close \
+poetry run trading-cli trade-history close \
   --strategy NFLX_SMA_82_83_20250616 \
   --portfolio risk_on \
   --price 1273.99
 
 # Generate comprehensive sell signal report
-python -m app.cli trade-history close MA_SMA_78_82
+poetry run trading-cli trade-history close MA_SMA_78_82
 
 # Enhanced analysis with market context and export
-python -m app.cli trade-history close CRWD_EMA_5_21 \
+poetry run trading-cli trade-history close CRWD_EMA_5_21 \
   --current-price 245.50 \
   --market-condition bearish \
   --output reports/CRWD_exit_analysis.md
 
 # Generate JSON format for programmatic use
-python -m app.cli trade-history close QCOM_SMA_49_66 \
+poetry run trading-cli trade-history close QCOM_SMA_49_66 \
   --format json \
   --include-raw-data \
   --output data/QCOM_analysis.json
 
 # Update positions with current market data and MFE/MAE calculations
-python -m app.cli trade-history update --portfolio live_signals
+poetry run trading-cli trade-history update --portfolio live_signals
 
 # Update other portfolios
-python -m app.cli trade-history update --portfolio risk_on
-python -m app.cli trade-history update --portfolio protected
+poetry run trading-cli trade-history update --portfolio risk_on
+poetry run trading-cli trade-history update --portfolio protected
 
 # Update with comprehensive options (dry run first to test)
-python -m app.cli trade-history update \
+poetry run trading-cli trade-history update \
   --portfolio live_signals \
   --refresh-prices \
   --recalculate \
@@ -123,11 +210,46 @@ python -m app.cli trade-history update \
   --dry-run
 
 # System health check and data validation
-python -m app.cli trade-history health
-python -m app.cli trade-history validate
-````
+poetry run trading-cli trade-history health
+poetry run trading-cli trade-history validate
+```
 
 **Important Note:** All trade history functionality is now integrated into the CLI. Direct module execution is deprecated and will be removed in future versions.
+
+### Position Equity Management
+
+**Primary Interface (Recommended):**
+
+```bash
+# Generate equity data for a specific portfolio
+trading-cli positions equity --portfolio protected
+
+# Generate equity data for multiple portfolios
+trading-cli positions equity --portfolio live_signals,risk_on,protected
+
+# Generate with custom metric type
+trading-cli positions equity --portfolio protected --metric-type mean
+
+# Validate mathematical consistency of equity curves
+trading-cli positions validate-equity --portfolio protected
+
+# Validate all portfolios
+trading-cli positions validate-equity
+
+# List available portfolios
+trading-cli positions list
+
+# Show detailed portfolio information
+trading-cli positions info --portfolio protected
+
+# Generate equity data with custom output directory
+trading-cli positions equity --portfolio protected --output-dir ./custom_equity/
+
+# Comprehensive validation with detailed reporting
+trading-cli positions validate-equity --portfolio protected --output-format json
+```
+
+**Important Note:** Position equity generation and validation are now integrated into the CLI. Direct function calls like `generate_position_equity()` are deprecated and will be removed in future versions.
 
 ## Architecture Overview
 
@@ -137,13 +259,16 @@ python -m app.cli trade-history validate
   - **Type-Safe Configuration**: YAML-based profiles with Pydantic validation
   - **Profile Management**: Inheritance, templates, and runtime overrides
   - **Rich Terminal Output**: Formatted tables, progress bars, and interactive features
-  - **Unified Commands**: Strategy execution, portfolio management, SPDS analysis, trade history
+  - **Unified Commands**: Strategy execution, portfolio management, SPDS analysis, trade history, concurrency analysis
   - **Backward Compatibility**: Legacy config conversion for existing implementations
 - **Modular Service Architecture** (`/app/contexts/`, `/app/tools/services/`): Decomposed service architecture with:
   - **StrategyExecutionEngine**: Strategy validation and execution logic
   - **PortfolioProcessingService**: Portfolio data processing and conversion
   - **ResultAggregationService**: Result formatting and task management
   - **ServiceCoordinator**: Orchestrates all services while maintaining interface compatibility
+  - **ConcurrencyAnalysisEngine**: Service for analyzing concurrent strategy exposure and efficiency
+  - **PermutationOptimizationService**: Service for finding optimal strategy combinations
+  - **Memory-Optimized Processing**: Integration with memory optimization framework for large portfolios
 - **MA Cross Strategy** (`/app/strategies/ma_cross/`): Moving average crossover implementation with core abstraction layer for programmatic and CLI usage
 - **MACD Strategy** (`/app/strategies/macd/`): MACD crossover strategy with comprehensive parameter analysis and multi-ticker support
 - **Portfolio Management** (`/app/strategies/`): Portfolio aggregation, filtering, and performance metrics calculation
@@ -469,10 +594,10 @@ The trading system has been standardized to use the **Unified Trading CLI** as t
 python app/strategies/ma_cross/1_get_portfolios.py
 
 # NEW: CLI with profile
-python -m app.cli strategy run --profile ma_cross_crypto
+trading-cli strategy run --profile ma_cross_crypto
 
 # NEW: CLI with custom parameters
-python -m app.cli strategy run --ticker AAPL,MSFT --strategy SMA --min-trades 50
+trading-cli strategy run --ticker AAPL,MSFT --strategy SMA --min-trades 50
 ```
 
 #### Portfolio Management
@@ -482,7 +607,7 @@ python -m app.cli strategy run --ticker AAPL,MSFT --strategy SMA --min-trades 50
 python app/strategies/update_portfolios.py
 
 # NEW: CLI with validation
-python -m app.cli portfolio update --validate --export-format json
+trading-cli portfolio update --validate --export-format json
 ```
 
 #### Trade History Analysis
@@ -492,7 +617,7 @@ python -m app.cli portfolio update --validate --export-format json
 python -m app.tools.generalized_trade_history_exporter --update-open-positions --portfolio live_signals
 
 # NEW: CLI command
-python -m app.cli trade-history update --portfolio live_signals --refresh-prices
+trading-cli trade-history update --portfolio live_signals --refresh-prices
 ```
 
 #### Parameter Sweeps
@@ -500,7 +625,7 @@ python -m app.cli trade-history update --portfolio live_signals --refresh-prices
 ```bash
 # OLD: Edit CONFIG dictionary in source code
 # NEW: CLI parameter sweep
-python -m app.cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50 --slow-min 20 --slow-max 200
+trading-cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50 --slow-min 20 --slow-max 200
 ```
 
 ### Configuration Migration
@@ -542,7 +667,7 @@ config:
 **Usage:**
 
 ```bash
-python -m app.cli strategy run --profile my_strategy
+trading-cli strategy run --profile my_strategy
 ```
 
 ### Performance Comparison
@@ -565,17 +690,17 @@ The CLI maintains **identical performance** to direct script execution because:
 
 ```bash
 # Initialize CLI system
-python -m app.cli init
+trading-cli init
 
 # List available profiles
-python -m app.cli config list
+trading-cli config list
 
 # Run strategy with profile
-python -m app.cli strategy run --profile ma_cross_crypto
+trading-cli strategy run --profile ma_cross_crypto
 
 # Get help for any command
-python -m app.cli strategy --help
-python -m app.cli --help
+trading-cli strategy --help
+trading-cli --help
 ```
 
 ### Error Handling and Troubleshooting
@@ -584,24 +709,24 @@ The CLI provides enhanced error handling:
 
 ```bash
 # Validate configuration
-python -m app.cli config validate
+trading-cli config validate
 
 # System health check
-python -m app.cli tools health
+trading-cli tools health
 
 # Run with dry-run to preview
-python -m app.cli strategy run --profile my_strategy --dry-run
+trading-cli strategy run --profile my_strategy --dry-run
 
 # Verbose output for debugging
-python -m app.cli strategy run --profile my_strategy --verbose
+trading-cli strategy run --profile my_strategy --verbose
 ```
 
 ### Best Practices
 
 1. **Use Profiles**: Create reusable configuration profiles instead of hardcoded values
 2. **Start with Dry Run**: Test configurations with `--dry-run` before execution
-3. **Validate Configs**: Use `python -m app.cli config validate` regularly
-4. **Health Checks**: Run `python -m app.cli tools health` for system diagnostics
+3. **Validate Configs**: Use `trading-cli config validate` regularly
+4. **Health Checks**: Run `trading-cli tools health` for system diagnostics
 5. **Help System**: Use `--help` flags for command-specific documentation
 
 ## Custom Commands
@@ -663,3 +788,4 @@ Strictly adhere to DRY, SOLID, KISS and YAGNI principles!
 Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.
+````

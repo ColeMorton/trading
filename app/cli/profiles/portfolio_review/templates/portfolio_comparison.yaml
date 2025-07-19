@@ -1,0 +1,79 @@
+metadata:
+  name: portfolio_comparison
+  description: Template for comparing multiple strategies across different assets
+  created_at: '2025-01-19T00:00:00.000000'
+  updated_at: '2025-01-19T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - portfolio_review
+    - multi_strategy
+    - comparison
+    - template
+  author: system
+  is_template: true
+
+inherits_from: multi_strategy_base
+config_type: portfolio_review
+
+config:
+  # Template strategies (to be customized by user)
+  strategies:
+    # Strategy 1: Conservative approach
+    - ticker: '{{TICKER_1}}'
+      short_window: 20
+      long_window: 50
+      strategy_type: SMA
+      use_sma: true
+
+    # Strategy 2: Aggressive approach
+    - ticker: '{{TICKER_1}}'
+      short_window: 5
+      long_window: 15
+      strategy_type: EMA
+      use_sma: false
+
+    # Strategy 3: Different asset, conservative
+    - ticker: '{{TICKER_2}}'
+      short_window: 20
+      long_window: 50
+      strategy_type: SMA
+      use_sma: true
+
+    # Strategy 4: Different asset, aggressive
+    - ticker: '{{TICKER_2}}'
+      short_window: 5
+      long_window: 15
+      strategy_type: EMA
+      use_sma: false
+
+  # Comparison-focused settings
+  start_date: '2020-01-01'
+
+  # Equal weighted benchmark for fair comparison
+  benchmark:
+    symbol: null
+    benchmark_type: equal_weighted_portfolio
+
+  # Enhanced plotting for comparison
+  plot_config:
+    output_dir: data/outputs/portfolio_review/plots/comparison_{{STRATEGY_NAME}}
+    height: 1200 # Taller for multiple panels
+    include_benchmark: true
+    include_risk_metrics: true
+
+  # Template usage instructions (will be ignored by parser)
+  __template_usage: |
+    To use this template:
+    1. Replace {{TICKER_1}} with your first asset symbol (e.g., BTC-USD, AAPL)
+    2. Replace {{TICKER_2}} with your second asset symbol (e.g., ETH-USD, MSFT)
+    3. Replace {{STRATEGY_NAME}} with a descriptive name (e.g., crypto_comparison, tech_stocks)
+    4. Optionally modify the strategy parameters (windows, types)
+    5. Add more strategies by copying the strategy block structure
+
+    This template compares:
+    - Conservative vs Aggressive approaches on same assets
+    - Performance across different assets
+    - SMA vs EMA strategy types
+
+    Example command:
+    trading-cli portfolio review --profile portfolio_comparison

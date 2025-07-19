@@ -1,0 +1,51 @@
+metadata:
+  name: quick_equity
+  description: Quick template for single equity strategy analysis
+  created_at: '2025-01-19T00:00:00.000000'
+  updated_at: '2025-01-19T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - portfolio_review
+    - equity
+    - quick_template
+    - single_strategy
+  author: system
+  is_template: true
+
+inherits_from: equity_base
+config_type: portfolio_review
+
+config:
+  # Template strategies (to be overridden by user)
+  strategies:
+    - ticker: '{{TICKER}}' # User should replace with actual ticker
+      short_window: '{{SHORT_WINDOW}}' # User should replace with actual value
+      long_window: '{{LONG_WINDOW}}' # User should replace with actual value
+      strategy_type: '{{STRATEGY_TYPE}}' # SMA or EMA
+      use_sma: '{{USE_SMA}}' # true for SMA, false for EMA
+      stop_loss: null
+
+  # Standard equity analysis period
+  start_date: '2015-01-01'
+
+  # Default benchmark for equity
+  benchmark:
+    symbol: SPY
+    benchmark_type: buy_and_hold
+
+  # Standard plot directory
+  plot_config:
+    output_dir: data/outputs/portfolio_review/plots/{{TICKER_SAFE}} # Replace {{TICKER_SAFE}} with ticker
+
+  # Template usage instructions (will be ignored by parser)
+  __template_usage: |
+    To use this template:
+    1. Replace {{TICKER}} with your equity symbol (e.g., AAPL, MSFT, GOOGL)
+    2. Replace {{SHORT_WINDOW}} with your short moving average window (e.g., 20)
+    3. Replace {{LONG_WINDOW}} with your long moving average window (e.g., 50)
+    4. Replace {{STRATEGY_TYPE}} with either "SMA" or "EMA"
+    5. Replace {{USE_SMA}} with true for SMA or false for EMA
+    6. Replace {{TICKER_SAFE}} with a filesystem-safe version of ticker (e.g., AAPL)
+
+    Example command:
+    trading-cli portfolio review --profile quick_equity --ticker AAPL

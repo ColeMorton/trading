@@ -1,0 +1,45 @@
+metadata:
+  name: enhanced_concurrency
+  description: Enhanced concurrency analysis with all features enabled
+  created_at: '2025-01-19T12:00:00.000000'
+  updated_at: '2025-01-19T12:00:00.000000'
+  version: '3.0'
+  tags:
+    - enhanced
+    - full_features
+    - demonstration
+  author: Claude Code Assistant
+
+inherits_from: base/optimized_base
+config_type: concurrency
+
+config:
+  # Enhanced configuration with all features
+  general:
+    portfolio: 'risk_on.csv'
+    initial_value: 50000.0 # Higher for demonstration
+    target_var: 0.03 # Lower risk for stability
+
+  # Enhanced risk management
+  risk_management:
+    risk_calculation_method: 'monte_carlo'
+
+  # Full optimization
+  optimization:
+    max_permutations: 10000
+    parallel_processing: true
+    max_workers: 8
+
+  # Enhanced Monte Carlo
+  risk_analysis:
+    n_simulations: 25000
+    horizon_days: 252 # Full year
+
+  # Maximum memory optimization
+  memory_optimization:
+    memory_threshold_mb: 1500.0
+    streaming_threshold_mb: 10.0
+    chunk_size_rows: 50000
+
+  # Enhanced performance
+  cache_ttl_hours: 24

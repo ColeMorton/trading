@@ -37,11 +37,11 @@ This guide covers development environment setup, coding standards, and contribut
 
    ```bash
    # Initialize CLI system (creates default profiles)
-   python -m app.cli init
+   trading-cli init
 
    # Verify CLI is working
-   python -m app.cli --help
-   python -m app.cli tools health
+   trading-cli --help
+   trading-cli tools health
    ```
 
 4. **Set Up Pre-commit Hooks**

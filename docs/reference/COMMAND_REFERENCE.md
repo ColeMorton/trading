@@ -23,7 +23,7 @@ All commands support these global options:
 Execute strategy analysis on specified tickers.
 
 ```bash
-python -m app.cli strategy run [OPTIONS]
+trading-cli strategy run [OPTIONS]
 ```
 
 **Options:**
@@ -44,16 +44,16 @@ python -m app.cli strategy run [OPTIONS]
 
 ```bash
 # Basic analysis
-python -m app.cli strategy run --ticker AAPL --strategy SMA
+trading-cli strategy run --ticker AAPL --strategy SMA
 
 # Multiple tickers and strategies
-python -m app.cli strategy run --ticker AAPL,MSFT,GOOGL --strategy SMA,EMA
+trading-cli strategy run --ticker AAPL,MSFT,GOOGL --strategy SMA,EMA
 
 # Using profile
-python -m app.cli strategy run --profile ma_cross_crypto
+trading-cli strategy run --profile ma_cross_crypto
 
 # Custom parameters
-python -m app.cli strategy run --ticker AAPL --strategy SMA --min-trades 50 --min-win-rate 0.6
+trading-cli strategy run --ticker AAPL --strategy SMA --min-trades 50 --min-win-rate 0.6
 ```
 
 ### `strategy sweep`
@@ -61,7 +61,7 @@ python -m app.cli strategy run --ticker AAPL --strategy SMA --min-trades 50 --mi
 Perform parameter sweep analysis.
 
 ```bash
-python -m app.cli strategy sweep [OPTIONS]
+trading-cli strategy sweep [OPTIONS]
 ```
 
 **Options:**
@@ -79,10 +79,10 @@ python -m app.cli strategy sweep [OPTIONS]
 
 ```bash
 # Basic parameter sweep
-python -m app.cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50
+trading-cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50
 
 # Comprehensive sweep with optimization
-python -m app.cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50 --slow-min 20 --slow-max 200 --optimize
+trading-cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50 --slow-min 20 --slow-max 200 --optimize
 ```
 
 ### `strategy validate`
@@ -90,7 +90,7 @@ python -m app.cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50 --slow
 Validate strategy results against criteria.
 
 ```bash
-python -m app.cli strategy validate [OPTIONS]
+trading-cli strategy validate [OPTIONS]
 ```
 
 **Options:**
@@ -103,10 +103,10 @@ python -m app.cli strategy validate [OPTIONS]
 
 ```bash
 # Validate portfolio
-python -m app.cli strategy validate --portfolio AAPL_D_SMA.csv
+trading-cli strategy validate --portfolio AAPL_D_SMA.csv
 
 # Strict validation
-python -m app.cli strategy validate --portfolio AAPL_D_SMA.csv --strict
+trading-cli strategy validate --portfolio AAPL_D_SMA.csv --strict
 ```
 
 ## Portfolio Management Commands
@@ -116,7 +116,7 @@ python -m app.cli strategy validate --portfolio AAPL_D_SMA.csv --strict
 Update portfolio aggregations and calculations.
 
 ```bash
-python -m app.cli portfolio update [OPTIONS]
+trading-cli portfolio update [OPTIONS]
 ```
 
 **Options:**
@@ -132,13 +132,13 @@ python -m app.cli portfolio update [OPTIONS]
 
 ```bash
 # Update with validation
-python -m app.cli portfolio update --validate
+trading-cli portfolio update --validate
 
 # Update specific portfolio
-python -m app.cli portfolio update --portfolio risk_on.csv --export-format json
+trading-cli portfolio update --portfolio risk_on.csv --export-format json
 
 # Update with equity export
-python -m app.cli portfolio update --export-equity --parallel
+trading-cli portfolio update --export-equity --parallel
 ```
 
 ### `portfolio list`
@@ -146,7 +146,7 @@ python -m app.cli portfolio update --export-equity --parallel
 List available portfolios.
 
 ```bash
-python -m app.cli portfolio list [OPTIONS]
+trading-cli portfolio list [OPTIONS]
 ```
 
 **Options:**
@@ -159,13 +159,13 @@ python -m app.cli portfolio list [OPTIONS]
 
 ```bash
 # List all portfolios
-python -m app.cli portfolio list
+trading-cli portfolio list
 
 # List recent portfolios
-python -m app.cli portfolio list --recent
+trading-cli portfolio list --recent
 
 # Filter portfolios
-python -m app.cli portfolio list --filter "risk_*"
+trading-cli portfolio list --filter "risk_*"
 ```
 
 ### `portfolio export`
@@ -173,7 +173,7 @@ python -m app.cli portfolio list --filter "risk_*"
 Export portfolio data in various formats.
 
 ```bash
-python -m app.cli portfolio export [OPTIONS]
+trading-cli portfolio export [OPTIONS]
 ```
 
 **Options:**
@@ -187,10 +187,10 @@ python -m app.cli portfolio export [OPTIONS]
 
 ```bash
 # Export to JSON
-python -m app.cli portfolio export --portfolio risk_on.csv --format json
+trading-cli portfolio export --portfolio risk_on.csv --format json
 
 # Export with metadata
-python -m app.cli portfolio export --portfolio risk_on.csv --format json --include-metadata
+trading-cli portfolio export --portfolio risk_on.csv --format json --include-metadata
 ```
 
 ### `portfolio optimize`
@@ -198,7 +198,7 @@ python -m app.cli portfolio export --portfolio risk_on.csv --format json --inclu
 Optimize portfolio allocation and parameters.
 
 ```bash
-python -m app.cli portfolio optimize [OPTIONS]
+trading-cli portfolio optimize [OPTIONS]
 ```
 
 **Options:**
@@ -212,10 +212,10 @@ python -m app.cli portfolio optimize [OPTIONS]
 
 ```bash
 # Optimize for Sharpe ratio
-python -m app.cli portfolio optimize --portfolio risk_on.csv --method sharpe
+trading-cli portfolio optimize --portfolio risk_on.csv --method sharpe
 
 # Optimize with constraints
-python -m app.cli portfolio optimize --portfolio risk_on.csv --method sharpe --constraints constraints.yaml
+trading-cli portfolio optimize --portfolio risk_on.csv --method sharpe --constraints constraints.yaml
 ```
 
 ## Statistical Analysis Commands
@@ -225,7 +225,7 @@ python -m app.cli portfolio optimize --portfolio risk_on.csv --method sharpe --c
 Perform Statistical Performance Divergence System analysis.
 
 ```bash
-python -m app.cli spds analyze [OPTIONS] PORTFOLIO
+trading-cli spds analyze [OPTIONS] PORTFOLIO
 ```
 
 **Options:**
@@ -239,13 +239,13 @@ python -m app.cli spds analyze [OPTIONS] PORTFOLIO
 
 ```bash
 # Basic analysis
-python -m app.cli spds analyze risk_on.csv
+trading-cli spds analyze risk_on.csv
 
 # Specify data source
-python -m app.cli spds analyze risk_on.csv --data-source trade-history
+trading-cli spds analyze risk_on.csv --data-source trade-history
 
 # Save results
-python -m app.cli spds analyze risk_on.csv --save-results analysis_results.json
+trading-cli spds analyze risk_on.csv --save-results analysis_results.json
 ```
 
 ### `spds interactive`
@@ -253,7 +253,7 @@ python -m app.cli spds analyze risk_on.csv --save-results analysis_results.json
 Launch interactive SPDS analysis mode.
 
 ```bash
-python -m app.cli spds interactive [OPTIONS]
+trading-cli spds interactive [OPTIONS]
 ```
 
 **Options:**
@@ -265,10 +265,10 @@ python -m app.cli spds interactive [OPTIONS]
 
 ```bash
 # Launch interactive mode
-python -m app.cli spds interactive
+trading-cli spds interactive
 
 # Start with specific portfolio
-python -m app.cli spds interactive --portfolio risk_on.csv
+trading-cli spds interactive --portfolio risk_on.csv
 ```
 
 ### `spds health`
@@ -276,7 +276,7 @@ python -m app.cli spds interactive --portfolio risk_on.csv
 Check SPDS system health and configuration.
 
 ```bash
-python -m app.cli spds health [OPTIONS]
+trading-cli spds health [OPTIONS]
 ```
 
 **Options:**
@@ -288,13 +288,13 @@ python -m app.cli spds health [OPTIONS]
 
 ```bash
 # Basic health check
-python -m app.cli spds health
+trading-cli spds health
 
 # Detailed health check
-python -m app.cli spds health --detailed
+trading-cli spds health --detailed
 
 # Health check with auto-fix
-python -m app.cli spds health --fix
+trading-cli spds health --fix
 ```
 
 ### `spds list-portfolios`
@@ -302,7 +302,7 @@ python -m app.cli spds health --fix
 List available portfolios for SPDS analysis.
 
 ```bash
-python -m app.cli spds list-portfolios [OPTIONS]
+trading-cli spds list-portfolios [OPTIONS]
 ```
 
 **Options:**
@@ -314,10 +314,10 @@ python -m app.cli spds list-portfolios [OPTIONS]
 
 ```bash
 # List all portfolios
-python -m app.cli spds list-portfolios
+trading-cli spds list-portfolios
 
 # Filter portfolios
-python -m app.cli spds list-portfolios --filter "*signals*"
+trading-cli spds list-portfolios --filter "*signals*"
 ```
 
 ### `spds demo`
@@ -325,7 +325,7 @@ python -m app.cli spds list-portfolios --filter "*signals*"
 Create demo portfolios and run example analysis.
 
 ```bash
-python -m app.cli spds demo [OPTIONS]
+trading-cli spds demo [OPTIONS]
 ```
 
 **Options:**
@@ -337,10 +337,10 @@ python -m app.cli spds demo [OPTIONS]
 
 ```bash
 # Run demo
-python -m app.cli spds demo
+trading-cli spds demo
 
 # Run with cleanup
-python -m app.cli spds demo --cleanup
+trading-cli spds demo --cleanup
 ```
 
 ## Trade History Commands
@@ -350,7 +350,7 @@ python -m app.cli spds demo --cleanup
 Update trade history with current market data.
 
 ```bash
-python -m app.cli trade-history update [OPTIONS]
+trading-cli trade-history update [OPTIONS]
 ```
 
 **Options:**
@@ -364,10 +364,10 @@ python -m app.cli trade-history update [OPTIONS]
 
 ```bash
 # Update live signals
-python -m app.cli trade-history update --portfolio live_signals
+trading-cli trade-history update --portfolio live_signals
 
 # Full update with price refresh
-python -m app.cli trade-history update --portfolio live_signals --refresh-prices --recalculate
+trading-cli trade-history update --portfolio live_signals --refresh-prices --recalculate
 ```
 
 ### `trade-history close`
@@ -375,7 +375,7 @@ python -m app.cli trade-history update --portfolio live_signals --refresh-prices
 Close position and generate exit analysis.
 
 ```bash
-python -m app.cli trade-history close [OPTIONS] STRATEGY
+trading-cli trade-history close [OPTIONS] STRATEGY
 ```
 
 **Options:**
@@ -390,13 +390,13 @@ python -m app.cli trade-history close [OPTIONS] STRATEGY
 
 ```bash
 # Close position
-python -m app.cli trade-history close MA_SMA_78_82
+trading-cli trade-history close MA_SMA_78_82
 
 # Close with specific price
-python -m app.cli trade-history close MA_SMA_78_82 --price 150.25 --portfolio risk_on
+trading-cli trade-history close MA_SMA_78_82 --price 150.25 --portfolio risk_on
 
 # Generate JSON report
-python -m app.cli trade-history close MA_SMA_78_82 --format json --output exit_analysis.json
+trading-cli trade-history close MA_SMA_78_82 --format json --output exit_analysis.json
 ```
 
 ### `trade-history list`
@@ -404,7 +404,7 @@ python -m app.cli trade-history close MA_SMA_78_82 --format json --output exit_a
 List available strategies for trade history analysis.
 
 ```bash
-python -m app.cli trade-history list [OPTIONS]
+trading-cli trade-history list [OPTIONS]
 ```
 
 **Options:**
@@ -417,13 +417,13 @@ python -m app.cli trade-history list [OPTIONS]
 
 ```bash
 # List all strategies
-python -m app.cli trade-history list
+trading-cli trade-history list
 
 # List active positions only
-python -m app.cli trade-history list --active-only
+trading-cli trade-history list --active-only
 
 # List for specific portfolio
-python -m app.cli trade-history list --portfolio risk_on
+trading-cli trade-history list --portfolio risk_on
 ```
 
 ### `trade-history health`
@@ -431,7 +431,7 @@ python -m app.cli trade-history list --portfolio risk_on
 Check trade history system health.
 
 ```bash
-python -m app.cli trade-history health [OPTIONS]
+trading-cli trade-history health [OPTIONS]
 ```
 
 **Options:**
@@ -443,10 +443,10 @@ python -m app.cli trade-history health [OPTIONS]
 
 ```bash
 # Basic health check
-python -m app.cli trade-history health
+trading-cli trade-history health
 
 # Detailed health check with auto-fix
-python -m app.cli trade-history health --detailed --fix
+trading-cli trade-history health --detailed --fix
 ```
 
 ### `trade-history validate`
@@ -454,7 +454,7 @@ python -m app.cli trade-history health --detailed --fix
 Validate trade history data integrity.
 
 ```bash
-python -m app.cli trade-history validate [OPTIONS]
+trading-cli trade-history validate [OPTIONS]
 ```
 
 **Options:**
@@ -467,10 +467,10 @@ python -m app.cli trade-history validate [OPTIONS]
 
 ```bash
 # Validate trade history
-python -m app.cli trade-history validate
+trading-cli trade-history validate
 
 # Strict validation with auto-fix
-python -m app.cli trade-history validate --strict --fix
+trading-cli trade-history validate --strict --fix
 ```
 
 ## Concurrency Analysis Commands
@@ -480,7 +480,7 @@ python -m app.cli trade-history validate --strict --fix
 Analyze concurrency and overlapping trades.
 
 ```bash
-python -m app.cli concurrency analyze [OPTIONS]
+trading-cli concurrency analyze [OPTIONS]
 ```
 
 **Options:**
@@ -493,13 +493,13 @@ python -m app.cli concurrency analyze [OPTIONS]
 
 ```bash
 # Basic concurrency analysis
-python -m app.cli concurrency analyze
+trading-cli concurrency analyze
 
 # Export trade history
-python -m app.cli concurrency analyze --export-trades
+trading-cli concurrency analyze --export-trades
 
 # Detailed analysis
-python -m app.cli concurrency analyze --detailed
+trading-cli concurrency analyze --detailed
 ```
 
 ## Configuration Commands
@@ -509,7 +509,7 @@ python -m app.cli concurrency analyze --detailed
 List available configuration profiles.
 
 ```bash
-python -m app.cli config list [OPTIONS]
+trading-cli config list [OPTIONS]
 ```
 
 **Options:**
@@ -521,10 +521,10 @@ python -m app.cli config list [OPTIONS]
 
 ```bash
 # List all profiles
-python -m app.cli config list
+trading-cli config list
 
 # List strategy profiles
-python -m app.cli config list --type strategy
+trading-cli config list --type strategy
 ```
 
 ### `config validate`
@@ -532,7 +532,7 @@ python -m app.cli config list --type strategy
 Validate configuration files.
 
 ```bash
-python -m app.cli config validate [OPTIONS]
+trading-cli config validate [OPTIONS]
 ```
 
 **Options:**
@@ -544,10 +544,10 @@ python -m app.cli config validate [OPTIONS]
 
 ```bash
 # Validate all configurations
-python -m app.cli config validate
+trading-cli config validate
 
 # Validate specific profile
-python -m app.cli config validate --profile ma_cross_crypto
+trading-cli config validate --profile ma_cross_crypto
 ```
 
 ### `config reset`
@@ -555,7 +555,7 @@ python -m app.cli config validate --profile ma_cross_crypto
 Reset configuration to defaults.
 
 ```bash
-python -m app.cli config reset [OPTIONS]
+trading-cli config reset [OPTIONS]
 ```
 
 **Options:**
@@ -567,10 +567,10 @@ python -m app.cli config reset [OPTIONS]
 
 ```bash
 # Reset all configurations
-python -m app.cli config reset
+trading-cli config reset
 
 # Reset specific profile
-python -m app.cli config reset --profile ma_cross_crypto --confirm
+trading-cli config reset --profile ma_cross_crypto --confirm
 ```
 
 ## Utility Commands
@@ -580,7 +580,7 @@ python -m app.cli config reset --profile ma_cross_crypto --confirm
 Check overall system health.
 
 ```bash
-python -m app.cli tools health [OPTIONS]
+trading-cli tools health [OPTIONS]
 ```
 
 **Options:**
@@ -592,10 +592,10 @@ python -m app.cli tools health [OPTIONS]
 
 ```bash
 # Basic health check
-python -m app.cli tools health
+trading-cli tools health
 
 # Detailed health check with auto-fix
-python -m app.cli tools health --detailed --fix
+trading-cli tools health --detailed --fix
 ```
 
 ### `init`
@@ -603,7 +603,7 @@ python -m app.cli tools health --detailed --fix
 Initialize the trading system.
 
 ```bash
-python -m app.cli init [OPTIONS]
+trading-cli init [OPTIONS]
 ```
 
 **Options:**
@@ -615,10 +615,10 @@ python -m app.cli init [OPTIONS]
 
 ```bash
 # Basic initialization
-python -m app.cli init
+trading-cli init
 
 # Force re-initialization
-python -m app.cli init --force
+trading-cli init --force
 ```
 
 ## Exit Codes
