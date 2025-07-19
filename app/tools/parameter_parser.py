@@ -504,7 +504,13 @@ class SPDSParameterParser:
                 ):
                     return False, "All strategies must have ticker, type, and windows"
 
-                if strategy.get("short_window", 0) >= strategy.get("long_window", 1):
+                short_window = strategy.get("short_window", 0)
+                long_window = strategy.get("long_window", 1)
+                if (
+                    isinstance(short_window, int)
+                    and isinstance(long_window, int)
+                    and short_window >= long_window
+                ):
                     return (
                         False,
                         "Short window must be less than long window for all strategies",
@@ -535,7 +541,13 @@ class SPDSParameterParser:
                         "All positions must have ticker, type, windows, and entry date",
                     )
 
-                if position.get("short_window", 0) >= position.get("long_window", 1):
+                short_window = position.get("short_window", 0)
+                long_window = position.get("long_window", 1)
+                if (
+                    isinstance(short_window, int)
+                    and isinstance(long_window, int)
+                    and short_window >= long_window
+                ):
                     return (
                         False,
                         "Short window must be less than long window for all positions",

@@ -5,7 +5,7 @@
       "stop_loss_pct": 8.0,
       "max_holding_days": 468,
       "min_holding_days": 21,
-      "trailing_stop_pct": 3.29,
+      "trailing_stop_pct": 3.31,
       "confidence_level": 0.9,
       "sample_size": 100,
       "statistical_validity": "LOW",
@@ -13,14 +13,14 @@
       "momentum_exit_threshold": 0.02,
       "trend_exit_threshold": 0.015,
       "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-18T08:55:33.216837"
+      "generation_timestamp": "2025-07-19T10:20:56.745892"
     },
     "WELL_SMA_67_88_WELL_D": {
       "take_profit_pct": 15.0,
       "stop_loss_pct": 8.0,
       "max_holding_days": 468,
       "min_holding_days": 21,
-      "trailing_stop_pct": 3.2,
+      "trailing_stop_pct": 3.17,
       "confidence_level": 0.9,
       "sample_size": 100,
       "statistical_validity": "LOW",
@@ -28,14 +28,14 @@
       "momentum_exit_threshold": 0.02,
       "trend_exit_threshold": 0.015,
       "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-18T08:55:33.218726"
+      "generation_timestamp": "2025-07-19T10:20:56.756515"
     },
     "SMCI_SMA_58_60_SMCI_D": {
       "take_profit_pct": 15.0,
       "stop_loss_pct": 8.0,
       "max_holding_days": 468,
       "min_holding_days": 21,
-      "trailing_stop_pct": 7.6,
+      "trailing_stop_pct": 7.7,
       "confidence_level": 0.9,
       "sample_size": 100,
       "statistical_validity": "LOW",
@@ -43,14 +43,14 @@
       "momentum_exit_threshold": 0.02,
       "trend_exit_threshold": 0.015,
       "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-18T08:55:33.220233"
+      "generation_timestamp": "2025-07-19T10:20:56.761430"
     },
     "GOOGL_EMA_9_46_GOOGL_D": {
       "take_profit_pct": 15.0,
       "stop_loss_pct": 8.0,
       "max_holding_days": 468,
       "min_holding_days": 21,
-      "trailing_stop_pct": 3.94,
+      "trailing_stop_pct": 3.89,
       "confidence_level": 0.9,
       "sample_size": 100,
       "statistical_validity": "LOW",
@@ -58,14 +58,14 @@
       "momentum_exit_threshold": 0.02,
       "trend_exit_threshold": 0.015,
       "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-18T08:55:33.225450"
+      "generation_timestamp": "2025-07-19T10:20:56.766503"
     },
     "DOV_SMA_45_86_DOV_D": {
       "take_profit_pct": 15.0,
       "stop_loss_pct": 8.0,
       "max_holding_days": 468,
       "min_holding_days": 21,
-      "trailing_stop_pct": 2.72,
+      "trailing_stop_pct": 2.76,
       "confidence_level": 0.9,
       "sample_size": 100,
       "statistical_validity": "LOW",
@@ -73,14 +73,14 @@
       "momentum_exit_threshold": 0.02,
       "trend_exit_threshold": 0.015,
       "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-18T08:55:33.226910"
+      "generation_timestamp": "2025-07-19T10:20:56.776103"
     },
     "AMZN_SMA_10_27_AMZN_D": {
       "take_profit_pct": 15.0,
       "stop_loss_pct": 8.0,
       "max_holding_days": 468,
       "min_holding_days": 21,
-      "trailing_stop_pct": 3.33,
+      "trailing_stop_pct": 3.27,
       "confidence_level": 0.9,
       "sample_size": 100,
       "statistical_validity": "LOW",
@@ -88,11 +88,11 @@
       "momentum_exit_threshold": 0.02,
       "trend_exit_threshold": 0.015,
       "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-18T08:55:33.234359"
+      "generation_timestamp": "2025-07-19T10:20:56.783057"
     }
   },
   "generation_metadata": {
-    "generation_timestamp": "2025-07-18T08:55:33.210208",
+    "generation_timestamp": "2025-07-19T10:20:56.736762",
     "confidence_level": 0.9,
     "total_strategies": 6,
     "spds_version": "1.0.0",

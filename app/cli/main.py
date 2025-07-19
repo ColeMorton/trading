@@ -18,6 +18,7 @@ from .commands import (
     concurrency,
     config,
     portfolio,
+    positions,
     spds,
     strategy,
     tools,
@@ -41,6 +42,9 @@ app.add_typer(
 )
 app.add_typer(
     portfolio.app, name="portfolio", help="Portfolio processing and aggregation"
+)
+app.add_typer(
+    positions.app, name="positions", help="Position management and equity generation"
 )
 app.add_typer(
     concurrency.app, name="concurrency", help="Concurrency analysis and trade history"
@@ -218,10 +222,10 @@ def cli_main():
         sys.exit(1)
 
 
-def main():
+def module_main():
     """Module execution entry point."""
     cli_main()
 
 
 if __name__ == "__main__":
-    main()
+    module_main()

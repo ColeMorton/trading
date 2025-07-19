@@ -10,6 +10,8 @@ from app.tools.get_data import get_data
 from app.tools.setup_logging import setup_logging
 from app.utils import backtest_strategy
 
+DEFAULT_STRATEGY_TYPE = "SMA"
+
 CONFIG_BTC = {
     "YEARS": 30,
     "USE_YEARS": False,
@@ -265,30 +267,14 @@ def run(config_dict=None, portfolio_file=None):
         equity_curve.write_csv(csv_path)
         log(f"Exported equity curve to {csv_path}")
 
-        fig = portfolio.plot(
-            subplots=[
-                "value",
-                "drawdowns",
-                "cum_returns",
-                "assets",
-                "orders",
-                "trades",
-                "trade_pnl",
-                "asset_flow",
-                "cash_flow",
-                "asset_value",
-                "cash",
-                "underwater",
-                "gross_exposure",
-                "net_exposure",
-            ],
-            show_titles=True,
-        )
+        # Generate portfolio plots and save to files
+        from app.tools.plotting import create_portfolio_plot_files
 
-        fig.update_layout(width=1200, height=10000, autosize=True)
-
-        fig.show()
-        log("Generated and displayed portfolio plots")
+        created_files = create_portfolio_plot_files(portfolio, config, log)
+        if created_files:
+            log(f"Generated portfolio plots: {', '.join(created_files)}")
+        else:
+            log("Portfolio plots generation completed (files saved to disk)", "warning")
 
         log_close()
         return True

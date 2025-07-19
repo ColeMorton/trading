@@ -9,7 +9,7 @@ from typing import Dict, List, cast
 
 import vectorbt as vbt
 
-from app.portfolio_review.config import Config
+from app.portfolio_review.config import Config, config
 from app.portfolio_review.tools.portfolio_analysis import (
     calculate_risk_metrics,
     check_open_positions,
