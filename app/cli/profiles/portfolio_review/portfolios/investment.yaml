@@ -1,132 +1,42 @@
 metadata:
-  name: portfolio_review_multi_crypto
-  description: Multi-strategy portfolio review for BTC and SOL
+  name: portfolio_review_investment
+  description: Portfolio review configuration for cryptocurrency investment portfolio
   created_at: '2025-01-19T00:00:00.000000'
   updated_at: '2025-01-19T00:00:00.000000'
   version: '1.0'
   tags:
     - portfolio_review
-    - multi_strategy
     - crypto
-    - btc
-    - mstr
+    - investment
+    - bitcoin
   author: system
 
 inherits_from: multi_strategy_base
 config_type: portfolio_review
 
 config:
-  # Multiple strategies configuration (common fields inherited from multi_strategy_base)
-  strategies:
-    # BTC Strategies
-    - ticker: BTC-USD
-      short_window: 11
-      long_window: 36
-      strategy_type: SMA
-      use_sma: true
+  # Reference to core portfolio definition
+  portfolio_reference: 'data/portfolios/investment.yaml'
 
-    - ticker: BTC-USD
-      short_window: 26
-      long_window: 38
-      strategy_type: SMA
-      use_sma: true
+  # Portfolio review specific configuration
 
-    - ticker: BTC-USD
-      short_window: 104
-      long_window: 105
-      strategy_type: SMA
-      use_sma: true
-
-    - ticker: BTC-USD
-      short_window: 14
-      long_window: 23
-      signal_window: 13
-      strategy_type: MACD
-      use_sma: true
-
-    - ticker: BTC-USD
-      short_window: 18
-      long_window: 29
-      signal_window: 18
-      strategy_type: MACD
-      use_sma: true
-
-    - ticker: BTC-USD
-      short_window: 27
-      long_window: 29
-      strategy_type: SMA
-      use_sma: true
-
-    - ticker: BTC-USD
-      short_window: 76
-      long_window: 78
-      strategy_type: SMA
-      use_sma: true
-
-    - ticker: BTC-USD
-      short_window: 8
-      long_window: 44
-      strategy_type: SMA
-      use_sma: true
-
-    - ticker: BTC-USD
-      short_window: 3
-      long_window: 47
-      strategy_type: EMA
-      use_sma: false
-
-    # MSTR Strategies
-    - ticker: MSTR
-      short_window: 52
-      long_window: 90
-      strategy_type: SMA
-      use_sma: true
-
-    - ticker: MSTR
-      short_window: 16
-      long_window: 82
-      strategy_type: SMA
-      use_sma: true
-
-    - ticker: MSTR
-      short_window: 6
-      long_window: 84
-      strategy_type: SMA
-      use_sma: true
-
-    - ticker: MSTR
-      short_window: 13
-      long_window: 21
-      signal_window: 32
-      strategy_type: MACD
-      use_sma: false
-
-    - ticker: MSTR
-      short_window: 18
-      long_window: 21
-      strategy_type: SMA
-      use_sma: true
-
-    - ticker: MSTR
-      short_window: 6
-      long_window: 27
-      strategy_type: SMA
-      use_sma: true
-
-    - ticker: MSTR
-      short_window: 13
-      long_window: 31
-      signal_window: 11
-      strategy_type: MACD
-      use_sma: false
-
-    - ticker: MSTR
-      short_window: 9
-      long_window: 13
-      signal_window: 5
-      strategy_type: MACD
-      use_sma: false
-
-  # Custom plot directory
+  # Review-specific plotting configuration
   plot_config:
-    output_dir: data/outputs/portfolio_review/plots/investment
+    output_dir: data/outputs/portfolio/investment
+    width: 1200
+    height: 1600
+    save_html: true
+    save_png: true
+    include_benchmark: true
+    include_risk_metrics: true
+
+  # Review-specific analysis settings
+  benchmark:
+    symbol: 'BTC-USD'
+    benchmark_type: 'buy_and_hold'
+
+  init_cash: 1000.0
+  fees: 0.001
+  calculate_risk_metrics: true
+  export_equity_curve: true
+  enable_plotting: true

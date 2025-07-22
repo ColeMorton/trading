@@ -20,7 +20,7 @@ class ExportValidator:
 
     def __init__(self, logger: Optional[logging.Logger] = None):
         self.logger = logger or logging.getLogger(__name__)
-        self.export_base = Path("exports")
+        self.export_base = Path("data/outputs/spds")
         self.statistical_dir = self.export_base / "statistical_analysis"
         self.backtesting_dir = self.export_base / "backtesting_parameters"
 
@@ -126,7 +126,7 @@ class ExportValidator:
 
             # Determine position data path
             if not position_data_path:
-                position_data_path = f"csv/positions/{portfolio_name}"
+                position_data_path = f"data/raw/positions/{portfolio_name}"
 
             # Load position data
             if not Path(position_data_path).exists():
@@ -548,9 +548,9 @@ class ExportValidator:
                 "",
                 "### 📁 Export Files Generated:",
                 "",
-                f"- **Statistical analysis**: `exports/statistical_analysis/{portfolio_base}.json`",
-                f"- **CSV export**: `exports/statistical_analysis/{portfolio_base}.csv`",
-                f"- **Backtesting parameters**: `exports/backtesting_parameters/{portfolio_base}.json` & `{portfolio_base}.csv`",
+                f"- **Statistical analysis**: `data/outputs/spds/statistical_analysis/{portfolio_base}.json`",
+                f"- **CSV export**: `data/outputs/spds/statistical_analysis/{portfolio_base}.csv`",
+                f"- **Backtesting parameters**: `data/outputs/spds/backtesting_parameters/{portfolio_base}.json` & `{portfolio_base}.csv`",
                 "",
                 "---",
                 "",

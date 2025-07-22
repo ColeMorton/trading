@@ -310,7 +310,7 @@ config:
 ```bash
 # Process multiple portfolios
 ./trading-cli portfolio process \
-  --input-dir ./csv/portfolios \
+  --input-dir ./data/outputs/portfolio_analysis \
   --output-dir ./processed \
   --format json \
   --validate
@@ -761,7 +761,7 @@ Process individual portfolio files with comprehensive validation.
 **Examples:**
 
 ```bash
-./trading-cli portfolio process --input-dir ./csv/portfolios --output-dir ./processed
+./trading-cli portfolio process --input-dir ./data/outputs/portfolio_analysis --output-dir ./processed
 ./trading-cli portfolio process --profile portfolio_processing --format json
 ```
 

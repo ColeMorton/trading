@@ -290,7 +290,7 @@ def export(
 
     Examples:
         trading-cli spds export risk_on.csv --format all                      # Auto-detects and uses all available data
-        trading-cli spds export conservative.csv --format json --output-dir ./exports/
+        trading-cli spds export conservative.csv --format json --output-dir ./data/outputs/spds/
         trading-cli spds export risk_on.csv --data-source both --format all  # Force both data sources
     """
     try:
@@ -1278,10 +1278,9 @@ def _check_spds_data_directories():
 
     project_root = Path.cwd()
     spds_dirs = [
-        "exports/statistical_analysis",
-        "exports/backtesting_parameters",
-        "csv/positions",
-        "json/trade_history",
+        "data/outputs/exports",
+        "data/raw/positions",
+        "data/raw/reports/trade_history",
     ]
 
     for dir_name in spds_dirs:
@@ -1396,7 +1395,7 @@ def _validate_data_source_mapping(portfolio: str, verbose: bool = False):
         rprint("[dim]🔍 Validating data source mapping...[/dim]")
 
         # Load position data
-        portfolio_path = Path(f"csv/positions/{portfolio}")
+        portfolio_path = Path(f"data/raw/positions/{portfolio}")
         if not portfolio_path.exists():
             rprint(f"[yellow]⚠️  Portfolio file not found: {portfolio_path}[/yellow]")
             return
@@ -1408,7 +1407,7 @@ def _validate_data_source_mapping(portfolio: str, verbose: bool = False):
             return
 
         # Check trade history directory
-        trade_history_dir = Path("./json/trade_history/")
+        trade_history_dir = Path("./data/raw/reports/trade_history/")
         if not trade_history_dir.exists():
             rprint(
                 f"[yellow]⚠️  Trade history directory not found: {trade_history_dir}[/yellow]"

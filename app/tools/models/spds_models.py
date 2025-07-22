@@ -215,7 +215,7 @@ class SPDSConfig:
 
     # Output configuration
     output_format: str = "json"
-    export_directory: str = "exports/spds_analysis"
+    export_directory: str = "data/outputs/spds"
     include_raw_data: bool = False
     verbose_logging: bool = False
 

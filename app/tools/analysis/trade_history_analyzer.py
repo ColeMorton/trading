@@ -184,7 +184,7 @@ class TradeHistoryAnalyzer:
             DataFrame with trade history or None if not found
         """
         # Enhanced file discovery with multiple naming patterns
-        trade_history_dir = Path("./json/trade_history/")
+        trade_history_dir = Path("./data/raw/reports/trade_history/")
 
         # First, parse the strategy_name to handle Position_UUID format
         parsed_strategy = self._parse_position_uuid(strategy_name, ticker)
@@ -259,7 +259,7 @@ class TradeHistoryAnalyzer:
         fallback_files = [
             Path(self.config.TRADE_HISTORY_PATH) / f"{ticker}_{strategy_name}.json",
             Path(self.config.TRADE_HISTORY_PATH) / f"{strategy_name}_{ticker}.json",
-            Path("./csv/positions/") / f"{strategy_name}_{ticker}_positions.csv",
+            Path("./data/raw/positions/") / f"{strategy_name}_{ticker}_positions.csv",
         ]
 
         for file_path in fallback_files:

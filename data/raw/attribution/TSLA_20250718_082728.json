@@ -1,0 +1,133 @@
+{
+  "ticker": "TSLA",
+  "timestamp": "2025-07-18T08:27:28.738545",
+  "overall_score": 2.3141065658348228,
+  "signal": "HOLD",
+  "confidence": 0.6115705328291741,
+  "factors": [
+    {
+      "name": "risk",
+      "contribution": -5.263124866004475,
+      "weight": 0.25,
+      "score": -21.0524994640179,
+      "performance_metrics": {
+        "avg_score": 0.0,
+        "score_volatility": 1.0,
+        "avg_contribution": 0.0,
+        "contribution_consistency": 0.5,
+        "score_trend": 0.0,
+        "contribution_trend": 0.0,
+        "factor_efficiency": 0.5,
+        "signal_accuracy": 0.5
+      }
+    },
+    {
+      "name": "momentum",
+      "contribution": 7.557927992325529,
+      "weight": 0.2,
+      "score": 37.78963996162764,
+      "performance_metrics": {
+        "avg_score": 0.0,
+        "score_volatility": 1.0,
+        "avg_contribution": 0.0,
+        "contribution_consistency": 0.5,
+        "score_trend": 0.0,
+        "contribution_trend": 0.0,
+        "factor_efficiency": 0.5,
+        "signal_accuracy": 0.5
+      }
+    },
+    {
+      "name": "trend",
+      "contribution": 0.010905307507131767,
+      "weight": 0.25,
+      "score": 0.04362123002852707,
+      "performance_metrics": {
+        "avg_score": 0.0,
+        "score_volatility": 1.0,
+        "avg_contribution": 0.0,
+        "contribution_consistency": 0.5,
+        "score_trend": 0.0,
+        "contribution_trend": 0.0,
+        "factor_efficiency": 0.5,
+        "signal_accuracy": 0.5
+      }
+    },
+    {
+      "name": "risk_adjusted",
+      "contribution": 0.22426973540744094,
+      "weight": 0.18,
+      "score": 1.245942974485783,
+      "performance_metrics": {
+        "avg_score": 0.0,
+        "score_volatility": 1.0,
+        "avg_contribution": 0.0,
+        "contribution_consistency": 0.5,
+        "score_trend": 0.0,
+        "contribution_trend": 0.0,
+        "factor_efficiency": 0.5,
+        "signal_accuracy": 0.5
+      }
+    },
+    {
+      "name": "mean_reversion",
+      "contribution": -0.9458881713238334,
+      "weight": 0.05,
+      "score": -18.917763426476668,
+      "performance_metrics": {
+        "avg_score": 0.0,
+        "score_volatility": 1.0,
+        "avg_contribution": 0.0,
+        "contribution_consistency": 0.5,
+        "score_trend": 0.0,
+        "contribution_trend": 0.0,
+        "factor_efficiency": 0.5,
+        "signal_accuracy": 0.5
+      }
+    },
+    {
+      "name": "volume_liquidity",
+      "contribution": 0.7300165679230296,
+      "weight": 0.07,
+      "score": 10.428808113186136,
+      "performance_metrics": {
+        "avg_score": 0.0,
+        "score_volatility": 1.0,
+        "avg_contribution": 0.0,
+        "contribution_consistency": 0.5,
+        "score_trend": 0.0,
+        "contribution_trend": 0.0,
+        "factor_efficiency": 0.5,
+        "signal_accuracy": 0.5
+      }
+    }
+  ],
+  "regime_info": {
+    "volatility_regime": "normal",
+    "current_vix": 16.520000457763672,
+    "threshold_adjustments": {
+      "strong_buy": 0,
+      "buy": 0,
+      "sell": 0,
+      "strong_sell": 0
+    },
+    "weight_adjustments": {
+      "risk": 1.0,
+      "momentum": 1.0,
+      "trend": 1.0,
+      "risk_adj": 1.0,
+      "mean_rev": 1.0,
+      "volume": 1.0
+    }
+  },
+  "performance_summary": {
+    "total_contribution": 14.73213264049144,
+    "positive_contribution": 8.523119603163131,
+    "negative_contribution": -6.209013037328308,
+    "contribution_balance": 0.5785001609052801,
+    "factor_diversification": 0.8037996721655638,
+    "weight_efficiency": 0.3714057560368579,
+    "factor_count": 6,
+    "dominant_factor": "momentum"
+  }
+}

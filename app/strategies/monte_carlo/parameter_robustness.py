@@ -581,7 +581,9 @@ def run_parameter_robustness_analysis(
             )
 
         # Export results
-        output_dir = f"csv/monte_carlo/parameter_robustness_{len(tickers)}_tickers"
+        output_dir = (
+            f"data/outputs/monte_carlo/parameter_robustness_{len(tickers)}_tickers"
+        )
         analyzer.export_results(output_dir)
 
         # Log summary statistics

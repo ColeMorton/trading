@@ -91,7 +91,9 @@ def plot_permutations(permutations: List[pl.DataFrame], original_trades: pl.Data
 def main():
     try:
         # Load the trade data
-        data = pl.read_csv(f"csv/monte_carlo/{TICKER}_trade_data_ema_cross.csv")
+        data = pl.read_csv(
+            f"data/outputs/monte_carlo/{TICKER}_trade_data_ema_cross.csv"
+        )
 
         # Generate random permutations
         permutations = get_random_permutations(data, NUM_PERMUTATIONS)

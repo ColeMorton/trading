@@ -33,7 +33,7 @@ async def test_smci_signal_generation():
     """Test the SMCI signal generation logic"""
 
     # Load positions data
-    positions_file = Path("csv/positions/live_signals.csv")
+    positions_file = Path("data/raw/positions/live_signals.csv")
     positions_df = pd.read_csv(positions_file)
 
     # Find SMCI position

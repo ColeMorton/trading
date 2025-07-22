@@ -124,7 +124,7 @@ def run(config: Dict[str, Any]) -> bool:
         log(str(trade_results))
 
         # Create output directory if needed
-        csv_dir = "csv/monte_carlo"
+        csv_dir = "data/outputs/monte_carlo"
         os.makedirs(csv_dir, exist_ok=True)
 
         # Export results

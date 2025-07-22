@@ -64,7 +64,7 @@ class TestSPDSAnalysisEngine:
     @pytest.fixture
     def create_test_portfolio(self, sample_portfolio_data):
         """Create test portfolio file."""
-        portfolio_dir = Path("csv/positions")
+        portfolio_dir = Path("data/raw/positions")
         portfolio_dir.mkdir(parents=True, exist_ok=True)
 
         portfolio_path = portfolio_dir / "test_integration.csv"
@@ -317,7 +317,7 @@ class TestSPDSAnalysisEnginePerformance:
     @pytest.fixture
     def create_large_portfolio(self, large_portfolio_data):
         """Create large test portfolio file."""
-        portfolio_dir = Path("csv/positions")
+        portfolio_dir = Path("data/raw/positions")
         portfolio_dir.mkdir(parents=True, exist_ok=True)
 
         portfolio_path = portfolio_dir / "test_large_integration.csv"
@@ -394,7 +394,7 @@ class TestSPDSAnalysisEnginePerformance:
 def setup_test_environment():
     """Set up test environment."""
     # Ensure test directories exist
-    Path("csv/positions").mkdir(parents=True, exist_ok=True)
+    Path("data/raw/positions").mkdir(parents=True, exist_ok=True)
     yield
     # Cleanup is handled by individual tests
 

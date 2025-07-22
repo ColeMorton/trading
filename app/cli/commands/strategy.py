@@ -332,7 +332,7 @@ def sweep(
                 )
 
                 # Show export location
-                portfolio_dir = legacy_config["BASE_DIR"] + "/csv/portfolios/"
+                portfolio_dir = "data/raw/strategies/"
                 rprint(f"[dim]Full results exported to: {portfolio_dir}[/dim]")
             else:
                 rprint("[yellow]No valid parameter combinations found[/yellow]")

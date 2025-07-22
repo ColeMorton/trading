@@ -19,11 +19,9 @@ class StrategyTypeConfig(TypedDict):
 
     Fields:
         strategy_type: The strategy type (SMA, EMA, MACD, ATR)
-        use_sma: Boolean derived from strategy_type (True for SMA, False otherwise)
     """
 
     strategy_type: StrategyTypeLiteral
-    use_sma: bool
 
 
 class StrategyConfig(TypedDict):
@@ -84,3 +82,16 @@ DEFAULT_VALUES = {
     "SIGNAL_WINDOW": 9,
     "DIRECTION": "Long",
 }
+
+
+def derive_use_sma(strategy_type: str) -> bool:
+    """
+    Derive use_sma boolean from strategy_type.
+
+    Args:
+        strategy_type: The strategy type string
+
+    Returns:
+        True if strategy_type is "SMA", False otherwise
+    """
+    return strategy_type == "SMA"

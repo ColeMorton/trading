@@ -22,15 +22,13 @@ config:
       short_window: '{{SHORT_WINDOW}}' # User should replace with actual value
       long_window: '{{LONG_WINDOW}}' # User should replace with actual value
       strategy_type: '{{STRATEGY_TYPE}}' # SMA or EMA
-      use_sma: '{{USE_SMA}}' # true for SMA, false for EMA
       stop_loss: null
 
   # Quick analysis settings (shorter timeframe for faster analysis)
-  start_date: '2022-01-01'
 
   # Standard plot directory
   plot_config:
-    output_dir: data/outputs/portfolio_review/plots/{{TICKER_SAFE}} # Replace {{TICKER_SAFE}} with ticker
+    output_dir: data/outputs/portfolio/{{TICKER_SAFE}} # Replace {{TICKER_SAFE}} with ticker
 
   # Template usage instructions (will be ignored by parser)
   __template_usage: |
@@ -39,8 +37,7 @@ config:
     2. Replace {{SHORT_WINDOW}} with your short moving average window (e.g., 10)
     3. Replace {{LONG_WINDOW}} with your long moving average window (e.g., 30)
     4. Replace {{STRATEGY_TYPE}} with either "SMA" or "EMA"
-    5. Replace {{USE_SMA}} with true for SMA or false for EMA
-    6. Replace {{TICKER_SAFE}} with a filesystem-safe version of ticker (e.g., BTC_USD)
+    5. Replace {{TICKER_SAFE}} with a filesystem-safe version of ticker (e.g., BTC_USD)
 
     Example command:
     trading-cli portfolio review --profile quick_crypto --ticker BTC-USD

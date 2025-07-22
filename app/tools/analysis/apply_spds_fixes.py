@@ -46,12 +46,13 @@ class SPDSFixApplicator:
         self.corrector = SPDSCalculationCorrector()
 
         # Define key file paths
-        self.positions_file = self.project_root / "csv/positions/live_signals.csv"
+        self.positions_file = self.project_root / "data/raw/positions/live_signals.csv"
         self.spds_report_file = (
-            self.project_root / "exports/statistical_analysis/live_signals.md"
+            self.project_root / "data/outputs/spds/statistical_analysis/live_signals.md"
         )
         self.corrected_report_file = (
-            self.project_root / "exports/statistical_analysis/live_signals_corrected.md"
+            self.project_root
+            / "data/outputs/spds/statistical_analysis/live_signals_corrected.md"
         )
 
     def load_positions_data(self) -> pd.DataFrame:
@@ -139,7 +140,9 @@ class SPDSFixApplicator:
         historical_returns = None
         try:
             # Try to load NFLX return distribution as a proxy for market returns
-            nflx_returns_file = self.project_root / "json/return_distribution/NFLX.json"
+            nflx_returns_file = (
+                self.project_root / "data/raw/reports/return_distribution/NFLX.json"
+            )
             if nflx_returns_file.exists():
                 with open(nflx_returns_file, "r") as f:
                     nflx_data = json.load(f)

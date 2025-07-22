@@ -50,7 +50,7 @@ filename = get_filename("csv", config)
 path = get_path("csv", "geometric_brownian_motion", config, "filtered_simulations")
 fullpath = f"{path}/{filename}"
 
-# df = pd.read_csv(f'csv/geometric_brownian_motion/{TICKER}_gbm_extracted_simulations.csv', index_col='timestamp', parse_dates=True)
+# df = pd.read_csv(f'data/outputs/geometric_brownian_motion/{TICKER}_gbm_extracted_simulations.csv', index_col='timestamp', parse_dates=True)
 df = pd.read_csv(fullpath, index_col="Date", parse_dates=True)
 
 print(f"Loaded DataFrame shape: {df.shape}")

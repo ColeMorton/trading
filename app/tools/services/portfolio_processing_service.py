@@ -172,13 +172,13 @@ class PortfolioProcessingService:
                 for strategy_type in strategy_types:
                     # Check for portfolio files
                     portfolio_pattern = (
-                        f"csv/portfolios/{ticker_formatted}_*_{strategy_type}.csv"
+                        f"data/raw/strategies/{ticker_formatted}_*_{strategy_type}.csv"
                     )
                     portfolio_files = glob.glob(portfolio_pattern)
                     export_paths["portfolios"].extend(portfolio_files)
 
                     # Check for filtered portfolio files
-                    filtered_pattern = f"csv/portfolios_filtered/{ticker_formatted}_*_{strategy_type}.csv"
+                    filtered_pattern = f"data/raw/strategies/filtered/{ticker_formatted}_*_{strategy_type}.csv"
                     filtered_files = glob.glob(filtered_pattern)
                     export_paths["portfolios_filtered"].extend(filtered_files)
 

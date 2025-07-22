@@ -168,7 +168,7 @@ class MACrossAnalyzer:
         for ticker in tickers:
             config = AnalysisConfig(
                 ticker=ticker,
-                use_sma=base_config.use_sma,
+                strategy_type=base_config.strategy_type,
                 use_hourly=base_config.use_hourly,
                 direction=base_config.direction,
                 short_window=base_config.short_window,

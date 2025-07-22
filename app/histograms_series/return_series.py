@@ -3,6 +3,15 @@ import numpy as np
 import yfinance as yf
 from scipy.stats import norm, percentileofscore
 
+# Complete Color Palette Constants
+PRIMARY_DATA = "#26c6da"  # Cyan - Primary data
+SECONDARY_DATA = "#7e57c2"  # Purple - Secondary data/negative
+TERTIARY_DATA = "#3179f5"  # Blue - Tertiary data/warnings
+BACKGROUND = "#fff"  # Pure white
+PRIMARY_TEXT = "#121212"  # Near black
+BODY_TEXT = "#444444"  # Dark gray
+MUTED_TEXT = "#717171"  # Medium gray
+
 # Constants
 TICKER = "BTC-USD"
 USE_PORTFOLIO = False
@@ -82,11 +91,11 @@ def plot_daily_returns(data_dict, ticker):
         kurtosis = returns.kurtosis()
 
         axs[i].axhline(
-            y=0, color="black", linestyle="-", linewidth=1, label="Zero Line"
+            y=0, color=PRIMARY_TEXT, linestyle="-", linewidth=1, label="Zero Line"
         )
         axs[i].axhline(
             y=mean,
-            color="green",
+            color=PRIMARY_DATA,
             linestyle="--",
             linewidth=1,
             alpha=1,
@@ -94,7 +103,7 @@ def plot_daily_returns(data_dict, ticker):
         )
         axs[i].axhline(
             y=median,
-            color="orange",
+            color=TERTIARY_DATA,
             linestyle="-.",
             linewidth=1,
             alpha=1,
@@ -102,7 +111,7 @@ def plot_daily_returns(data_dict, ticker):
         )
         axs[i].axhline(
             y=mean + std_dev,
-            color="blue",
+            color=TERTIARY_DATA,
             linestyle=":",
             linewidth=1,
             alpha=1,
@@ -110,7 +119,7 @@ def plot_daily_returns(data_dict, ticker):
         )
         axs[i].axhline(
             y=mean - std_dev,
-            color="blue",
+            color=TERTIARY_DATA,
             linestyle=":",
             linewidth=1,
             alpha=1,

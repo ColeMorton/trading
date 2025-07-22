@@ -112,11 +112,13 @@ def close(
             # Validate portfolio file exists
             from pathlib import Path
 
-            portfolio_file = Path(f"csv/positions/{resolve_portfolio_path(portfolio)}")
+            portfolio_file = Path(
+                f"data/raw/positions/{resolve_portfolio_path(portfolio)}"
+            )
             if not portfolio_file.exists():
                 rprint(f"[red]❌ Portfolio file not found: {portfolio_file}[/red]")
                 rprint("[yellow]Available portfolios:[/yellow]")
-                portfolios_dir = Path("csv/positions/")
+                portfolios_dir = Path("data/raw/positions/")
                 if portfolios_dir.exists():
                     for pf in portfolios_dir.glob("*.csv"):
                         rprint(f"  - {pf.stem}")
@@ -190,7 +192,7 @@ def close(
             try:
                 # Load portfolio CSV
                 portfolio_df = pd.read_csv(
-                    f"csv/positions/{resolve_portfolio_path(portfolio)}"
+                    f"data/raw/positions/{resolve_portfolio_path(portfolio)}"
                 )
 
                 # Find the position by UUID (strategy parameter should be Position_UUID)
@@ -259,7 +261,8 @@ def close(
 
                 # Save updated portfolio
                 portfolio_df.to_csv(
-                    f"csv/positions/{resolve_portfolio_path(portfolio)}", index=False
+                    f"data/raw/positions/{resolve_portfolio_path(portfolio)}",
+                    index=False,
                 )
 
                 # Display success message
@@ -374,7 +377,7 @@ def add(
         # Validate portfolio file exists
         import os
 
-        portfolio_path = f"csv/positions/{resolve_portfolio_path(portfolio)}"
+        portfolio_path = f"data/raw/positions/{resolve_portfolio_path(portfolio)}"
         if not os.path.exists(portfolio_path):
             rprint(
                 f"[red]❌ Portfolio '{portfolio}' not found at {portfolio_path}[/red]"
@@ -383,7 +386,7 @@ def add(
             try:
                 available_portfolios = [
                     f.replace(".csv", "")
-                    for f in os.listdir("csv/positions/")
+                    for f in os.listdir("data/raw/positions/")
                     if f.endswith(".csv")
                 ]
                 if available_portfolios:
@@ -391,7 +394,9 @@ def add(
                     for p in available_portfolios:
                         rprint(f"  - {p}")
                 else:
-                    rprint("[yellow]No portfolios found in csv/positions/[/yellow]")
+                    rprint(
+                        "[yellow]No portfolios found in data/raw/positions/[/yellow]"
+                    )
             except:
                 pass
             raise typer.Exit(1)
@@ -406,7 +411,7 @@ def add(
             from pathlib import Path
 
             # Look for strategy data in latest portfolio directories
-            portfolio_pattern = f"csv/portfolios/*/{ ticker}_{timeframe}_*.csv"
+            portfolio_pattern = f"data/raw/strategies/*/{ ticker}_{timeframe}_*.csv"
             portfolio_files = glob.glob(portfolio_pattern)
 
             if not portfolio_files:

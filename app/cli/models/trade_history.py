@@ -320,8 +320,16 @@ class TradeHistoryConfig(BaseConfig):
         """Get data directory paths."""
         base = self.effective_base_path
         return {
-            "statistical_analysis": base / "exports" / "statistical_analysis",
-            "backtesting_parameters": base / "exports" / "backtesting_parameters",
+            "statistical_analysis": base
+            / "data"
+            / "outputs"
+            / "spds"
+            / "statistical_analysis",
+            "backtesting_parameters": base
+            / "data"
+            / "outputs"
+            / "spds"
+            / "backtesting_parameters",
             "trade_history": base / "json" / "trade_history",
             "positions": base / "csv" / "positions",
             "portfolios": base / "csv" / "portfolios",

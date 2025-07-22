@@ -22,7 +22,6 @@ config:
       short_window: 81
       long_window: 83
       strategy_type: SMA
-      use_sma: true
 
   # Custom benchmark for OP analysis
   benchmark:
@@ -31,4 +30,4 @@ config:
 
   # Custom plot directory
   plot_config:
-    output_dir: data/outputs/portfolio_review/plots/op
+    output_dir: data/outputs/portfolio/op

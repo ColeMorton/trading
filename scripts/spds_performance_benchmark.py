@@ -164,7 +164,7 @@ class SPDSPerformanceBenchmark:
             # Copy the portfolio file to the correct location
             import shutil
 
-            positions_dir = Path("csv/positions")
+            positions_dir = Path("data/raw/positions")
             positions_dir.mkdir(parents=True, exist_ok=True)
 
             portfolio_filename = Path(portfolio_path).name
@@ -212,7 +212,7 @@ class SPDSPerformanceBenchmark:
         # Copy the portfolio file to the correct location
         import shutil
 
-        positions_dir = Path("csv/positions")
+        positions_dir = Path("data/raw/positions")
         positions_dir.mkdir(parents=True, exist_ok=True)
 
         portfolio_filename = Path(portfolio_path).name

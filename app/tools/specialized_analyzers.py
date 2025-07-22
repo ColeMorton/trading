@@ -143,8 +143,7 @@ class AssetDistributionAnalyzer:
         ]
 
         portfolio_dirs = [
-            Path("./csv/portfolios/"),
-            Path("./csv/strategies/"),
+            Path("./data/raw/strategies/"),
         ]
 
         found_files = []
@@ -216,7 +215,7 @@ class AssetDistributionAnalyzer:
 
         # Check for return distribution files
         return_dist_path = Path(
-            f"./json/return_distribution/{self.ticker}_returns.json"
+            f"./data/raw/reports/return_distribution/{self.ticker}_returns.json"
         )
 
         if return_dist_path.exists():
@@ -1164,9 +1163,7 @@ class StrategyAnalyzer:
 
         # Search in equity data directories
         equity_dirs = [
-            Path("./csv/ma_cross/equity_data/"),
-            Path("./csv/macd_cross/equity_data/"),
-            Path("./csv/equity_data/"),
+            Path("./data/raw/equity/"),
         ]
 
         for directory in equity_dirs:
@@ -1416,8 +1413,8 @@ class StrategyAnalyzer:
 
         # Search in various directories
         search_dirs = [
-            Path("./csv/portfolios/"),
-            Path("./csv/strategies/"),
+            Path("./data/outputs/portfolio_analysis/"),
+            Path("./data/outputs/strategies/"),
         ]
 
         for directory in search_dirs:
@@ -1492,9 +1489,7 @@ class StrategyAnalyzer:
         ]
 
         equity_dirs = [
-            Path("./csv/ma_cross/equity_data/"),
-            Path("./csv/macd_cross/equity_data/"),
-            Path("./csv/equity_data/"),
+            Path("./data/raw/equity/"),
         ]
 
         for directory in equity_dirs:
@@ -2057,8 +2052,7 @@ class PositionAnalyzer:
         """Find the specific position data."""
         # Search in position files
         position_dirs = [
-            Path("./csv/positions/"),
-            Path("./csv/trade_history/"),
+            Path("./data/raw/positions/"),
         ]
 
         for directory in position_dirs:

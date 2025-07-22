@@ -1,0 +1,9 @@
+{
+  "portfolio_type": "<class 'vectorbt.portfolio.base.Portfolio'>",
+  "shape": [3787],
+  "columns": [0],
+  "index_start": "0",
+  "index_end": "3786",
+  "init_cash": 1000.0,
+  "note": "VectorBT object could not be serialized. This file contains metadata only."
+}

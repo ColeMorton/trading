@@ -137,7 +137,7 @@ def high_performance_config():
     """Configuration optimized for high performance."""
     return StatisticalAnalysisConfig(
         USE_TRADE_HISTORY=True,
-        TRADE_HISTORY_PATH="./csv/positions/",
+        TRADE_HISTORY_PATH="./data/raw/positions/",
         FALLBACK_TO_EQUITY=True,
         PERCENTILE_THRESHOLD=95,
         DUAL_LAYER_THRESHOLD=0.85,

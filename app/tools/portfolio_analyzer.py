@@ -69,7 +69,7 @@ class PortfolioStatisticalAnalyzer:
         )
 
     def load_portfolio(self) -> pd.DataFrame:
-        """Load portfolio CSV from ./csv/strategies/"""
+        """Load portfolio CSV from ./data/outputs/strategies/"""
         if self._portfolio_data is not None:
             return self._portfolio_data
 
@@ -87,7 +87,7 @@ class PortfolioStatisticalAnalyzer:
         return self._portfolio_data
 
     def load_trade_history(self) -> Optional[pd.DataFrame]:
-        """Load trade history CSV from ./csv/positions/ (same filename as portfolio)"""
+        """Load trade history CSV from ./data/raw/positions/ (same filename as portfolio)"""
         if not self.use_trade_history:
             return None
 

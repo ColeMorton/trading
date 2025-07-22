@@ -20,8 +20,6 @@ config:
   strategies: []
 
   # Common equity settings (longer timeframe)
-  start_date: '2000-01-01'
-  end_date: '2024-12-31'
   init_cash: 10000.0
   fees: 0.001
 

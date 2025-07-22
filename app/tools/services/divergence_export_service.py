@@ -50,7 +50,7 @@ class DivergenceExportService:
         self.logger = logger or logging.getLogger(__name__)
 
         # Export path - single directory for all files
-        self.export_base_path = Path("./exports/statistical_analysis")
+        self.export_base_path = Path("./data/outputs/spds/statistical_analysis")
 
         # Create export directories
         self._ensure_export_directories()
@@ -1835,8 +1835,8 @@ class DivergenceExportService:
                     report_lines.append(f"- **CSV export**: `{clean_path}`")
 
         # Add backtesting parameters if they exist
-        backtesting_json = f"exports/backtesting_parameters/{file_base}.json"
-        backtesting_csv = f"exports/backtesting_parameters/{file_base}.csv"
+        backtesting_json = f"data/outputs/spds/backtesting_parameters/{file_base}.json"
+        backtesting_csv = f"data/outputs/spds/backtesting_parameters/{file_base}.csv"
         report_lines.extend(
             [
                 f"- **Backtesting parameters**: `{backtesting_json}` & `{backtesting_csv}`",

@@ -347,7 +347,7 @@ class SPDSConfig(BaseConfig):
         """Get the export directory path."""
         if self.output.output_dir:
             return Path(self.output.output_dir)
-        return self.base_dir / "exports" / "statistical_analysis"
+        return self.base_dir / "data" / "outputs" / "spds" / "statistical_analysis"
 
     def get_effective_sample_size_requirement(self) -> int:
         """Get effective sample size requirement based on confidence level."""

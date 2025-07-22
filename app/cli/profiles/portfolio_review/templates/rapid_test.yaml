@@ -22,12 +22,9 @@ config:
       short_window: '{{SHORT_WINDOW}}' # User should replace with actual value
       long_window: '{{LONG_WINDOW}}' # User should replace with actual value
       strategy_type: '{{STRATEGY_TYPE}}' # SMA or EMA
-      use_sma: '{{USE_SMA}}' # true for SMA, false for EMA
       stop_loss: null
 
   # Minimal date range for faster testing
-  start_date: '2023-01-01'
-  end_date: '2024-12-31'
 
   # Reduced initial cash for faster computation
   init_cash: 1000.0
@@ -68,7 +65,6 @@ config:
     2. Replace {{SHORT_WINDOW}} with short MA window (e.g., 10)
     3. Replace {{LONG_WINDOW}} with long MA window (e.g., 30)
     4. Replace {{STRATEGY_TYPE}} with "SMA" or "EMA"
-    5. Replace {{USE_SMA}} with true or false
 
     Example command:
     trading-cli portfolio review --profile rapid_test --ticker BTC-USD

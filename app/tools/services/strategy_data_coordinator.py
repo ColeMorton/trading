@@ -139,7 +139,7 @@ class StrategyDataCoordinator:
         self._warning_cache: Set[str] = set()
 
         # File paths
-        self.exports_path = self.base_path / "exports"
+        self.exports_path = self.base_path / "data" / "outputs" / "spds"
         self.statistical_csv = (
             self.exports_path / "statistical_analysis" / "live_signals.csv"
         )
@@ -152,7 +152,9 @@ class StrategyDataCoordinator:
         self.backtesting_csv = (
             self.exports_path / "backtesting_parameters" / "live_signals.csv"
         )
-        self.positions_csv = self.base_path / "csv" / "positions" / "live_signals.csv"
+        self.positions_csv = (
+            self.base_path / "data" / "raw" / "positions" / "live_signals.csv"
+        )
 
         # Initialize memory optimization if enabled
         if self.config.enable_memory_optimization:
@@ -880,7 +882,9 @@ class StrategyDataCoordinator:
         """Populate asset distribution analysis data from return distribution files"""
         try:
             # Construct path to asset distribution file
-            distribution_file = Path("json/return_distribution") / f"{ticker}.json"
+            distribution_file = (
+                Path("data/raw/reports/return_distribution") / f"{ticker}.json"
+            )
 
             if not distribution_file.exists():
                 logger.warning(

@@ -59,7 +59,7 @@ async def test_basic_functionality():
         ]
 
         # Ensure directory exists
-        portfolio_dir = Path("csv/positions")
+        portfolio_dir = Path("data/raw/positions")
         portfolio_dir.mkdir(parents=True, exist_ok=True)
 
         # Create test portfolio

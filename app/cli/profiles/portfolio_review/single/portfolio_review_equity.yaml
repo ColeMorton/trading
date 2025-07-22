@@ -22,7 +22,6 @@ config:
       short_window: 10
       long_window: 30
       strategy_type: EMA
-      use_sma: false
 
   # Custom benchmark for equity analysis
   benchmark:
@@ -31,4 +30,4 @@ config:
 
   # Custom plot directory
   plot_config:
-    output_dir: data/outputs/portfolio_review/plots/equity
+    output_dir: data/outputs/portfolio/equity

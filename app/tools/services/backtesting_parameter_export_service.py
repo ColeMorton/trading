@@ -53,7 +53,7 @@ class BacktestingParameterExportService:
         self.logger = logger or logging.getLogger(__name__)
 
         # Export path - single directory for all files
-        self.export_base_path = Path("./exports/backtesting_parameters")
+        self.export_base_path = Path("./data/outputs/spds/backtesting_parameters")
 
         # Create export directory
         self._ensure_export_directories()
@@ -768,7 +768,7 @@ class BacktestingParameterExportService:
             from ..calculate_atr import calculate_atr
 
             # Load price data for the ticker
-            price_data_path = Path(f"./csv/price_data/{ticker}_D.csv")
+            price_data_path = Path(f"./data/raw/prices/{ticker}_D.csv")
             if not price_data_path.exists():
                 self.logger.warning(
                     f"Price data not found for {ticker}: {price_data_path}"

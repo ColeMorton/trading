@@ -23,51 +23,43 @@ config:
       short_window: 27
       long_window: 29
       strategy_type: SMA
-      use_sma: true
 
     - ticker: BTC-USD
       short_window: 8
       long_window: 44
       strategy_type: SMA
-      use_sma: true
 
     - ticker: BTC-USD
       short_window: 3
       long_window: 11
       strategy_type: EMA
-      use_sma: false
 
     - ticker: BTC-USD
       short_window: 11
       long_window: 17
       strategy_type: EMA
-      use_sma: false
 
     # SOL Strategies
     - ticker: SOL-USD
       short_window: 14
       long_window: 32
       strategy_type: SMA
-      use_sma: true
 
     - ticker: SOL-USD
       short_window: 26
       long_window: 32
       strategy_type: SMA
-      use_sma: true
 
     - ticker: SOL-USD
       short_window: 27
       long_window: 30
       strategy_type: SMA
-      use_sma: true
 
     - ticker: SOL-USD
       short_window: 16
       long_window: 18
       strategy_type: EMA
-      use_sma: false
 
   # Custom plot directory
   plot_config:
-    output_dir: data/outputs/portfolio_review/plots/multi_crypto
+    output_dir: data/outputs/portfolio/multi_crypto

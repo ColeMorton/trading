@@ -129,8 +129,8 @@ def test_multi_ticker_execution():
 
                         # Check standard directory locations
                         locations = [
-                            Path("csv/portfolios") / expected_file,
-                            Path("csv/portfolios") / date_str / expected_file,
+                            Path("data/raw/strategies") / expected_file,
+                            Path("data/raw/strategies") / date_str / expected_file,
                         ]
 
                         found = False

@@ -124,8 +124,8 @@ def test_comprehensive_macd_functionality():
             )
             # Check both standard directory and dated subdirectory
             csv_paths = [
-                Path("csv/portfolios/MSFT_D_MACD.csv"),
-                Path("csv/portfolios")
+                Path("data/raw/strategies/MSFT_D_MACD.csv"),
+                Path("data/raw/strategies")
                 / datetime.now().strftime("%Y%m%d")
                 / "MSFT_D_MACD.csv",
             ]
@@ -193,8 +193,10 @@ def test_comprehensive_macd_functionality():
                     # Check filtered CSV path in standard directories
                     date_str = datetime.now().strftime("%Y%m%d")
                     filtered_paths = [
-                        Path(f"csv/portfolios_filtered/{ticker}_D_MACD.csv"),
-                        Path(f"csv/portfolios_filtered/{date_str}/{ticker}_D_MACD.csv"),
+                        Path(f"data/raw/strategies/filtered/{ticker}_D_MACD.csv"),
+                        Path(
+                            f"data/raw/strategies/filtered/{date_str}/{ticker}_D_MACD.csv"
+                        ),
                     ]
                     filtered_found = any(p.exists() for p in filtered_paths)
 
@@ -248,8 +250,8 @@ def test_comprehensive_macd_functionality():
                     # Check best portfolio path in standard directories
                     date_str = datetime.now().strftime("%Y%m%d")
                     best_paths = [
-                        Path("csv/portfolios_best"),
-                        Path(f"csv/portfolios_best/{date_str}"),
+                        Path("data/raw/strategies/best"),
+                        Path(f"data/raw/strategies/best/{date_str}"),
                     ]
                     best_found = any(
                         p.exists() and any(p.glob("*MACD*.csv")) for p in best_paths
@@ -300,9 +302,9 @@ def test_comprehensive_macd_functionality():
         # Test 6: Verify standard directory structure
         print("\nTest 6: Directory structure verification")
         expected_dirs = [
-            "csv/portfolios",
-            "csv/portfolios_filtered",
-            "csv/portfolios_best",
+            "data/raw/strategies",
+            "data/raw/strategies/filtered",
+            "data/raw/strategies/best",
         ]
 
         all_dirs_exist = all(Path(d).exists() for d in expected_dirs)

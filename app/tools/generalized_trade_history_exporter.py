@@ -63,27 +63,27 @@ class TradingSystemConfig:
     @property
     def price_data_dir(self) -> Path:
         """Directory containing price data files."""
-        return self.base_dir / "csv" / "price_data"
+        return self.base_dir / "data" / "raw" / "prices"
 
     @property
     def positions_dir(self) -> Path:
         """Directory for position-level CSV files."""
-        return self.base_dir / "csv" / "positions"
+        return self.base_dir / "data" / "raw" / "positions"
 
     @property
     def strategies_dir(self) -> Path:
         """Directory for strategy-level CSV files."""
-        return self.base_dir / "csv" / "strategies"
+        return self.base_dir / "data" / "outputs" / "strategies"
 
     @property
     def trade_history_dir(self) -> Path:
         """Directory for JSON trade history files."""
-        return self.base_dir / "json" / "trade_history"
+        return self.base_dir / "data" / "raw" / "reports" / "trade_history"
 
     @property
     def trade_history_csv_dir(self) -> Path:
         """Directory for exported trade history CSV files."""
-        return self.base_dir / "csv" / "trade_history"
+        return self.base_dir / "data" / "outputs" / "trade_history"
 
     def get_price_data_file(self, ticker: str, timeframe: str = "D") -> Path:
         """Get price data file path for any ticker and timeframe."""
@@ -983,7 +983,7 @@ Examples:
   python %(prog)s --verify-signal --ticker QCOM --strategy SMA --short-window 49 --long-window 66 --entry-date 20250624
 
   # Bulk add from CSV
-  python %(prog)s --bulk-add --strategy-csv csv/strategies/signals.csv --portfolio new_portfolio
+  python %(prog)s --bulk-add --strategy-csv data/outputs/strategies/signals.csv --portfolio new_portfolio
 
   # Calculate MFE/MAE
   python %(prog)s --calculate-mfe-mae --ticker AAPL --entry-date 20250101 --exit-date 20250201 --entry-price 150.00

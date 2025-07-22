@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-25T09:58:10.870538",
+    "export_timestamp": "2025-07-22T11:42:48.752269",
     "strategy_config": {
       "ticker": "BTC-USD",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 225.51886201732185,
+      "total_return": 249.80673434922593,
       "total_trades": "64",
-      "win_rate": 0.5625,
-      "sharpe_ratio": 1.1858243190629552,
+      "win_rate": 0.578125,
+      "sharpe_ratio": 1.1982650222881706,
       "max_drawdown": -0.6432719295811572
     }
   },
@@ -143,7 +143,7 @@
       "Trade_Type": "Winner",
       "Cumulative_PnL": -5.583728718414227,
       "Trade_Number": 6,
-      "Rolling_Avg_Return": -4.639776625985012e-5,
+      "Rolling_Avg_Return": -4.639776625985012e-05,
       "Rolling_Win_Rate": 0.6
     },
     {
@@ -1347,10 +1347,10 @@
       "Entry Timestamp": "2025-05-22 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 111673.28125,
-      "Avg Exit Price": 106021.4140625,
+      "Avg Exit Price": 117389.2734375,
       "Size": 2.13653877398568,
-      "PnL": -12314.027686919959,
-      "Return": -0.051610738076615724,
+      "PnL": 11973.844644984143,
+      "Return": 0.050184957794011276,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -1358,11 +1358,11 @@
       "Entry_Month": "2025-05",
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
-      "Trade_Type": "Big Loser",
-      "Cumulative_PnL": 225518.8620173218,
+      "Trade_Type": "Big Winner",
+      "Cumulative_PnL": 249806.7343492259,
       "Trade_Number": 64,
-      "Rolling_Avg_Return": -0.009508914189516117,
-      "Rolling_Win_Rate": 0.4
+      "Rolling_Avg_Return": 0.010850224984609283,
+      "Rolling_Win_Rate": 0.6
     }
   ],
   "orders": [
@@ -3653,15 +3653,15 @@
       "Avg Entry Price": 111673.28125,
       "Entry Fees": 238.59429540880956,
       "Exit Timestamp": null,
-      "Avg Exit Price": 106021.4140625,
+      "Avg Exit Price": 117389.2734375,
       "Exit Fees": 0.0,
-      "PnL": -12314.027686919959,
-      "Return": -0.051610738076615724,
+      "PnL": 11973.844644984143,
+      "Return": 0.050184957794011276,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
       "Duration_Days": null,
-      "Position_Type": "Big Loser"
+      "Position_Type": "Big Winner"
     }
   ],
   "analytics": {

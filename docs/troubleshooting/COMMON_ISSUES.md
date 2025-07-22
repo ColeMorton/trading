@@ -385,7 +385,7 @@ trading-cli spds analyze live_signals.csv --verbose
 
 # Validate data source mapping
 ls json/trade_history/ | grep CRWD
-ls csv/positions/ | head -5
+ls data/raw/positions/ | head -5
 
 # The system now automatically handles these mismatches
 # No manual intervention required - fallback analysis will be used

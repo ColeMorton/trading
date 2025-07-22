@@ -1,0 +1,23 @@
+metadata:
+  name: bitcoin_concurrency
+  description: Concurrency analysis optimized for bitcoin portfolio (cryptocurrency strategies)
+  created_at: '2025-01-19T12:00:00.000000'
+  updated_at: '2025-07-21T13:30:00.000000'
+  version: '2.1'
+  tags:
+    - bitcoin
+    - cryptocurrency
+    - aggressive
+    - production
+  author: Claude Code Assistant
+
+inherits_from: ../base/aggressive_base
+config_type: concurrency
+
+config:
+  # Portfolio-specific overrides only
+  general:
+    portfolio: 'bitcoin.csv'
+
+  start_date: '2016-11-18'
+  end_date: '2025-07-11'

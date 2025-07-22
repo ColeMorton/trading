@@ -119,8 +119,8 @@ class GeneralConfig(BaseModel):
     @validator("portfolio")
     def validate_portfolio_extension(cls, v):
         """Validate portfolio file has proper extension."""
-        if not v.endswith((".csv", ".json")):
-            raise ValueError("Portfolio file must have .csv or .json extension")
+        if not v.endswith((".csv", ".json", ".yaml")):
+            raise ValueError("Portfolio file must have .csv, .json, or .yaml extension")
         return v
 
     @validator("sort_by")

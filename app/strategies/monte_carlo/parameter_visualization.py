@@ -19,6 +19,15 @@ from scipy import stats
 
 from app.strategies.monte_carlo.parameter_robustness import ParameterStabilityResult
 
+# Complete Color Palette Constants
+PRIMARY_DATA = "#26c6da"  # Cyan - Primary data
+SECONDARY_DATA = "#7e57c2"  # Purple - Secondary data/negative
+TERTIARY_DATA = "#3179f5"  # Blue - Tertiary data/warnings
+BACKGROUND = "#fff"  # Pure white
+PRIMARY_TEXT = "#121212"  # Near black
+BODY_TEXT = "#444444"  # Dark gray
+MUTED_TEXT = "#717171"  # Medium gray
+
 # Try to import seaborn, use matplotlib fallback if not available
 try:
     import seaborn as sns
@@ -213,7 +222,12 @@ class ParameterStabilityVisualizer:
         )
 
         ax1.scatter(
-            x_pos, base_values, color="red", s=50, alpha=0.7, label="Base Performance"
+            x_pos,
+            base_values,
+            color=SECONDARY_DATA,
+            s=50,
+            alpha=0.7,
+            label="Base Performance",
         )
 
         ax1.set_xlabel("Parameter Combination (Short/Long Windows)")
@@ -235,14 +249,14 @@ class ParameterStabilityVisualizer:
         bars = ax2.bar(x_pos, stability_scores, color=colors, alpha=0.7)
         ax2.axhline(
             y=0.7,
-            color="green",
+            color=PRIMARY_DATA,
             linestyle="--",
             alpha=0.7,
             label="Stable Threshold (0.7)",
         )
         ax2.axhline(
             y=0.4,
-            color="orange",
+            color=TERTIARY_DATA,
             linestyle="--",
             alpha=0.7,
             label="Moderate Threshold (0.4)",
@@ -311,8 +325,8 @@ class ParameterStabilityVisualizer:
             bins=n_bins,
             density=True,
             alpha=0.7,
-            color="skyblue",
-            edgecolor="black",
+            color=TERTIARY_DATA,
+            edgecolor=PRIMARY_TEXT,
         )
 
         # Fit and plot normal distribution
@@ -329,7 +343,7 @@ class ParameterStabilityVisualizer:
         # Add base performance line
         ax1.axvline(
             base_value,
-            color="green",
+            color=PRIMARY_DATA,
             linestyle="--",
             linewidth=2,
             label=f"Base Performance: {base_value:.3f}",
@@ -339,14 +353,14 @@ class ParameterStabilityVisualizer:
         ci = result.confidence_intervals.get(performance_metric, (0, 0))
         ax1.axvline(
             ci[0],
-            color="orange",
+            color=TERTIARY_DATA,
             linestyle=":",
             alpha=0.7,
             label=f"95% CI Lower: {ci[0]:.3f}",
         )
         ax1.axvline(
             ci[1],
-            color="orange",
+            color=TERTIARY_DATA,
             linestyle=":",
             alpha=0.7,
             label=f"95% CI Upper: {ci[1]:.3f}",
@@ -370,8 +384,10 @@ class ParameterStabilityVisualizer:
         ax3 = fig.add_subplot(gs[1, 1])
         box_data = [values]
         bp = ax3.boxplot(box_data, patch_artist=True)
-        bp["boxes"][0].set_facecolor("lightblue")
-        ax3.axhline(base_value, color="green", linestyle="--", label="Base Performance")
+        bp["boxes"][0].set_facecolor(TERTIARY_DATA)
+        ax3.axhline(
+            base_value, color=PRIMARY_DATA, linestyle="--", label="Base Performance"
+        )
         ax3.set_ylabel(performance_metric)
         ax3.set_title("Distribution Summary")
         ax3.legend()
@@ -396,7 +412,7 @@ class ParameterStabilityVisualizer:
             stats_text,
             fontsize=9,
             verticalalignment="bottom",
-            bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.5),
+            bbox=dict(boxstyle="round", facecolor=BACKGROUND, alpha=0.5),
         )
 
         plt.tight_layout()
@@ -542,8 +558,8 @@ class ParameterStabilityVisualizer:
         ax1.grid(True, alpha=0.3)
 
         # Add quadrant lines
-        ax1.axhline(y=0.5, color="gray", linestyle="--", alpha=0.5)
-        ax1.axvline(x=0.7, color="gray", linestyle="--", alpha=0.5)
+        ax1.axhline(y=0.5, color=MUTED_TEXT, linestyle="--", alpha=0.5)
+        ax1.axvline(x=0.7, color=MUTED_TEXT, linestyle="--", alpha=0.5)
 
         # Plot 2: Combined score ranking
         combined_scores = [

@@ -203,11 +203,11 @@ class SPDSAnalysisEngine:
         try:
             if analysis_type == "portfolio":
                 # Check for portfolio file
-                portfolio_path = Path(f"csv/positions/{parameter}")
+                portfolio_path = Path(f"data/raw/positions/{parameter}")
                 data_sources["portfolio_file"] = portfolio_path.exists()
 
                 # Check for trade history directory
-                trade_history_dir = Path("json/trade_history")
+                trade_history_dir = Path("data/raw/reports/trade_history")
                 data_sources["trade_history"] = trade_history_dir.exists()
 
             elif analysis_type in ["strategy", "position"]:
@@ -219,12 +219,12 @@ class SPDSAnalysisEngine:
 
                     # Check for trade history file
                     trade_history_file = Path(
-                        f"json/trade_history/{ticker}_D_{strategy_type}.json"
+                        f"data/raw/reports/trade_history/{ticker}_D_{strategy_type}.json"
                     )
                     data_sources["trade_history"] = trade_history_file.exists()
 
                     # Check for price data
-                    price_data_file = Path(f"csv/price_data/{ticker}.csv")
+                    price_data_file = Path(f"data/raw/prices/{ticker}.csv")
                     data_sources["price_data"] = price_data_file.exists()
 
             # Check for equity data (generic check)
@@ -246,7 +246,7 @@ class SPDSAnalysisEngine:
         portfolio_file = context.request.parameter
 
         # Load portfolio data
-        portfolio_path = Path(f"csv/positions/{portfolio_file}")
+        portfolio_path = Path(f"data/raw/positions/{portfolio_file}")
         if not portfolio_path.exists():
             raise FileNotFoundError(f"Portfolio file not found: {portfolio_path}")
 
@@ -697,7 +697,7 @@ class SPDSAnalysisEngine:
         """Find position data by UUID across all portfolio files."""
 
         # Search in positions directory
-        positions_dir = Path("csv/positions")
+        positions_dir = Path("data/raw/positions")
         if not positions_dir.exists():
             return None
 
@@ -717,7 +717,7 @@ class SPDSAnalysisEngine:
         """Save analysis results to file."""
 
         # Create exports directory if it doesn't exist
-        exports_dir = Path("exports/spds_analysis")
+        exports_dir = Path("data/outputs/spds")
         exports_dir.mkdir(parents=True, exist_ok=True)
 
         # Prepare results for JSON serialization

@@ -6,11 +6,11 @@ Aggregates and processes all statistical data for a given strategy/Position_UUID
 from multiple export sources to enable comprehensive sell signal analysis.
 
 Source Integration:
-- exports/statistical_analysis/live_signals.csv
-- exports/statistical_analysis/live_signals.json
-- exports/backtesting_parameters/live_signals.json
-- exports/backtesting_parameters/live_signals.csv
-- exports/statistical_analysis/live_signals_export_summary.md
+- data/outputs/spds/statistical_analysis/live_signals.csv
+- data/outputs/spds/statistical_analysis/live_signals.json
+- data/outputs/spds/backtesting_parameters/live_signals.json
+- data/outputs/spds/backtesting_parameters/live_signals.csv
+- data/outputs/spds/statistical_analysis/live_signals_export_summary.md
 """
 
 import json
@@ -128,7 +128,7 @@ class SignalDataAggregator:
             )
 
         # Legacy file paths (kept for backward compatibility)
-        self.exports_path = self.base_path / "exports"
+        self.exports_path = self.base_path / "data" / "outputs" / "spds"
         self.statistical_csv = (
             self.exports_path / "statistical_analysis" / "live_signals.csv"
         )
@@ -611,7 +611,9 @@ class SignalDataAggregator:
         """Load trade history data including MFE and MAE from consolidated positions file"""
         try:
             # Check consolidated positions file
-            positions_file = self.base_path / "csv" / "positions" / "live_signals.csv"
+            positions_file = (
+                self.base_path / "data" / "raw" / "positions" / "live_signals.csv"
+            )
             if positions_file.exists():
                 df = pd.read_csv(positions_file)
 
@@ -1176,7 +1178,7 @@ class SignalDataAggregator:
 
                 # Try to get entry date from positions file data
                 positions_file = (
-                    self.base_path / "csv" / "positions" / "live_signals.csv"
+                    self.base_path / "data" / "raw" / "positions" / "live_signals.csv"
                 )
                 if not positions_file.exists():
                     logger.warning(f"Positions file not found: {positions_file}")

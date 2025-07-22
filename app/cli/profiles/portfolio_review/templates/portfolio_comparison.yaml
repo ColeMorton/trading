@@ -23,31 +23,26 @@ config:
       short_window: 20
       long_window: 50
       strategy_type: SMA
-      use_sma: true
 
     # Strategy 2: Aggressive approach
     - ticker: '{{TICKER_1}}'
       short_window: 5
       long_window: 15
       strategy_type: EMA
-      use_sma: false
 
     # Strategy 3: Different asset, conservative
     - ticker: '{{TICKER_2}}'
       short_window: 20
       long_window: 50
       strategy_type: SMA
-      use_sma: true
 
     # Strategy 4: Different asset, aggressive
     - ticker: '{{TICKER_2}}'
       short_window: 5
       long_window: 15
       strategy_type: EMA
-      use_sma: false
 
   # Comparison-focused settings
-  start_date: '2020-01-01'
 
   # Equal weighted benchmark for fair comparison
   benchmark:
@@ -56,7 +51,7 @@ config:
 
   # Enhanced plotting for comparison
   plot_config:
-    output_dir: data/outputs/portfolio_review/plots/comparison_{{STRATEGY_NAME}}
+    output_dir: data/outputs/portfolio/comparison_{{STRATEGY_NAME}}
     height: 1200 # Taller for multiple panels
     include_benchmark: true
     include_risk_metrics: true

@@ -1,0 +1,277 @@
+metadata:
+  name: investment_optimized
+  description: Optimized cryptocurrency and Bitcoin portfolio based on efficiency and signal quality analysis
+  created_at: '2025-07-22T00:00:00.000000'
+  updated_at: '2025-07-22T00:00:00.000000'
+  version: '2.0'
+  portfolio_type: crypto_investment_optimized
+  risk_profile: high
+  optimization_criteria:
+    - efficiency_score
+    - signal_quality
+    - independence_factor
+  tags:
+    - crypto
+    - bitcoin
+    - optimized
+    - efficiency_focused
+    - uncorrelated_signals
+    - high_performance
+  author: claude_optimization_analysis
+
+# Optimized strategy selection based on efficiency scores (>0.10), signal quality, and independence factors
+strategies:
+  # CORE TIER (60% allocation) - Maximum Efficiency Focus
+
+  # Primary Core - Elite Efficiency Strategies
+  - ticker: BTC-USD
+    short_window: 26
+    long_window: 38
+    strategy_type: SMA
+    allocation_weight: 0.20
+    tier: core_primary
+    efficiency_score: 0.146
+    win_rate: 0.660
+    profit_factor: 2.19
+    independence_factor: 0.103
+    alpha_contribution: 0.0026
+    rationale: 'Highest efficiency strategy with superior signal quality'
+
+  - ticker: BTC-USD
+    short_window: 76
+    long_window: 78
+    strategy_type: SMA
+    allocation_weight: 0.15
+    tier: core_primary
+    efficiency_score: 0.137
+    win_rate: 0.531
+    profit_factor: 1.14
+    independence_factor: 0.10
+    alpha_contribution: 0.007
+    rationale: 'Elite efficiency with complementary timeframe to 26/38'
+
+  # Secondary Core - High Efficiency with Diversification
+  - ticker: MSTR
+    short_window: 52
+    long_window: 90
+    strategy_type: SMA
+    allocation_weight: 0.15
+    tier: core_secondary
+    efficiency_score: 0.135
+    win_rate: 0.526
+    profit_factor: 1.40
+    independence_factor: 0.0063
+    alpha_contribution: 0.057
+    rationale: 'Highest alpha contributor with asset class diversification'
+
+  - ticker: BTC-USD
+    short_window: 14
+    long_window: 23
+    signal_window: 13
+    strategy_type: MACD
+    allocation_weight: 0.10
+    tier: core_secondary
+    efficiency_score: 0.114
+    win_rate: 0.579
+    profit_factor: 1.99
+    independence_factor: 0.10
+    alpha_contribution: 0.035
+    rationale: 'Mean-reversion overlay with excellent signal quality'
+
+  # DIVERSIFICATION TIER (25% allocation) - Independence Maximization
+
+  - ticker: MSTR
+    short_window: 9
+    long_window: 13
+    signal_window: 5
+    strategy_type: MACD
+    allocation_weight: 0.08
+    tier: diversification
+    efficiency_score: 0.127
+    win_rate: 0.509
+    profit_factor: 1.17
+    independence_factor: 0.105
+    alpha_contribution: -0.043
+    rationale: 'Highest independence factor with hedge characteristics'
+
+  - ticker: BTC-USD
+    short_window: 104
+    long_window: 105
+    strategy_type: SMA
+    allocation_weight: 0.07
+    tier: diversification
+    efficiency_score: 0.095
+    win_rate: 0.595
+    profit_factor: 2.61
+    independence_factor: 0.10
+    alpha_contribution: -0.020
+    rationale: 'Ultra-long signals for regime detection'
+
+  - ticker: BTC-USD
+    short_window: 8
+    long_window: 44
+    strategy_type: SMA
+    allocation_weight: 0.05
+    tier: diversification
+    efficiency_score: 0.106
+    win_rate: 0.489
+    profit_factor: 2.78
+    independence_factor: 0.10
+    alpha_contribution: 0.026
+    rationale: 'Strong profit factor with asymmetric windows'
+
+  - ticker: MSTR
+    short_window: 13
+    long_window: 31
+    signal_window: 11
+    strategy_type: MACD
+    allocation_weight: 0.05
+    tier: diversification
+    efficiency_score: 0.110
+    win_rate: 0.519
+    profit_factor: 1.20
+    independence_factor: 0.102
+    alpha_contribution: -0.013
+    rationale: 'MACD diversification with high independence'
+
+  # OPPORTUNISTIC TIER (15% allocation) - Specialized Alpha
+
+  - ticker: MSTR
+    short_window: 16
+    long_window: 82
+    strategy_type: SMA
+    allocation_weight: 0.08
+    tier: opportunistic
+    efficiency_score: 0.124
+    win_rate: 0.532
+    profit_factor: 2.66
+    independence_factor: 0.0063
+    alpha_contribution: -0.042
+    rationale: 'Extreme asymmetry for volatility capture'
+
+  - ticker: BTC-USD
+    short_window: 3
+    long_window: 47
+    strategy_type: SMA
+    allocation_weight: 0.07
+    tier: opportunistic
+    efficiency_score: 0.104
+    win_rate: 0.429
+    profit_factor: 2.62
+    independence_factor: 0.10
+    alpha_contribution: 0.028
+    rationale: 'Early trend detection with unique timing'
+
+# Efficiency-weighted allocation methodology
+allocation:
+  method: efficiency_weighted
+  rebalance_frequency: monthly
+  max_position_size: 0.20 # Reduced from 0.60 for better diversification
+  min_position_size: 0.05 # Reduced from 0.15 for precision
+
+  # Tier-based allocation constraints
+  tier_allocation:
+    core_primary: 0.35 # 35% to top 2 strategies
+    core_secondary: 0.25 # 25% to secondary core
+    diversification: 0.25 # 25% to independence-focused
+    opportunistic: 0.15 # 15% to specialized alpha
+
+  # Efficiency requirements
+  efficiency_requirements:
+    minimum_efficiency: 0.095 # Exclude strategies below this threshold
+    target_efficiency: 0.135 # Portfolio-level efficiency target
+    efficiency_weight: 0.60 # 60% weight on efficiency in allocation
+
+# Enhanced risk management with optimization focus
+risk_management:
+  max_portfolio_volatility: 0.35 # Reduced from 0.40
+  max_drawdown_threshold: 0.20 # Reduced from 0.25 for better risk control
+  correlation_limit: 0.60 # Reduced from 0.80 for independence
+
+  # Efficiency-based risk controls
+  efficiency_monitoring:
+    min_efficiency_threshold: 0.10 # Alert if strategy drops below
+    efficiency_review_trigger: 0.095 # Mandatory review threshold
+    portfolio_efficiency_target: 0.135 # Target portfolio efficiency
+
+  # Independence monitoring
+  independence_requirements:
+    target_independence: 0.65 # Target independence multiplier
+    correlation_spike_threshold: 0.70 # Trigger rebalancing
+    independence_review_frequency: monthly
+
+  # Signal quality requirements
+  signal_quality_thresholds:
+    minimum_win_rate: 0.45 # Exclude strategies below 45%
+    target_win_rate: 0.55 # Portfolio target 55%+
+    minimum_profit_factor: 1.10 # Exclude strategies below 1.1
+    target_profit_factor: 1.70 # Portfolio target 1.7+
+
+# Alpha management and monitoring
+alpha_management:
+  target_alpha: 0.035 # Target portfolio alpha
+  alpha_balance_threshold: 0.60 # 60% positive / 40% hedge allocation
+  hedge_allocation_limit: 0.25 # Maximum hedge strategy allocation
+
+  # Alpha attribution tracking
+  positive_alpha_targets:
+    - BTC-USD_SMA_26_38
+    - BTC-USD_SMA_76_78
+    - MSTR_SMA_52_90
+    - BTC-USD_SMA_8_44
+
+  hedge_strategies:
+    - MSTR_MACD_9_13_5
+    - MSTR_SMA_16_82
+    - BTC-USD_SMA_104_105
+
+# Optimization-specific configuration
+optimization_config:
+  source_analysis: efficiency_signal_quality_analysis_2025_07_22
+  optimization_objective: maximize_risk_adjusted_returns
+  constraints:
+    - minimum_efficiency_score
+    - maximum_correlation_limit
+    - signal_quality_thresholds
+
+  performance_targets:
+    efficiency_improvement: 0.15 # 15% improvement target
+    independence_improvement: 1.26 # 126% improvement target
+    win_rate_target: 0.55 # 55% portfolio win rate
+    risk_adjusted_return_improvement: 0.20 # 20% improvement
+
+  monitoring_schedule:
+    efficiency_review: monthly
+    correlation_analysis: bi_weekly
+    performance_attribution: quarterly
+    full_optimization_review: annually
+
+# Crypto-specific settings (inherited and enhanced)
+crypto_specific:
+  base_currency: USD
+  exposure_type: direct
+  volatility_target: 0.30 # Reduced from 0.35 for optimization
+
+  # Asset allocation limits
+  asset_allocation_limits:
+    BTC_USD_max: 0.65 # Maximum BTC-USD exposure
+    MSTR_max: 0.35 # Maximum MSTR exposure
+
+  # Leverage considerations (if applicable)
+  leverage_awareness: true
+  leverage_optimization: enabled
+  leverage_risk_monitoring: enhanced
+
+# Implementation roadmap
+implementation:
+  phase_1_duration: 3_months # Core implementation
+  phase_2_duration: 3_months # Diversification layer
+  phase_3_duration: 6_months # Full optimization
+
+  success_metrics:
+    phase_1_efficiency_target: 0.125
+    phase_1_independence_target: 0.45
+    phase_2_efficiency_target: 0.130
+    phase_2_independence_target: 0.55
+    phase_3_efficiency_target: 0.135
+    phase_3_independence_target: 0.65

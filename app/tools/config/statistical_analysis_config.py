@@ -37,18 +37,17 @@ class SPDSConfig:
     PORTFOLIO: str = ""  # Portfolio filename (e.g., "risk_on.csv")
 
     # Auto-derived paths based on PORTFOLIO
-    PORTFOLIO_PATH: str = "./csv/strategies/"
-    TRADE_HISTORY_PATH: str = "./csv/positions/"
+    PORTFOLIO_PATH: str = "./data/raw/strategies/"
+    TRADE_HISTORY_PATH: str = "./data/raw/positions/"
     FALLBACK_TO_EQUITY: bool = True
 
     # Data Source Paths
     EQUITY_DATA_PATHS: List[str] = field(
         default_factory=lambda: [
-            "./csv/ma_cross/equity_data/",
-            "./csv/macd_cross/equity_data/",
+            "./data/raw/equity/",
         ]
     )
-    RETURN_DISTRIBUTION_PATH: str = "./json/return_distribution/"
+    RETURN_DISTRIBUTION_PATH: str = "./data/raw/reports/return_distribution/"
 
     # Statistical Thresholds
     MIN_SAMPLE_SIZE: int = 15

@@ -41,6 +41,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Union
 
 import polars as pl
+import yaml
 
 from app.tools.portfolio.format import (
     convert_csv_to_strategy_config,
@@ -212,6 +213,115 @@ def load_portfolio_from_json(
     return valid_strategies
 
 
+def load_portfolio_from_yaml(
+    yaml_path: Union[str, Path], log: Callable[[str, str], None], config: Dict[str, Any]
+) -> List[StrategyConfig]:
+    """Load portfolio configuration from YAML portfolio definition file.
+
+    Args:
+        yaml_path: Path to the YAML file containing portfolio definition
+        log: Logging function for status updates
+        config: Configuration dictionary containing BASE_DIR, REFRESH, and CSV_USE_HOURLY settings
+
+    Returns:
+        List[StrategyConfig]: List of strategy configurations
+
+    Raises:
+        FileNotFoundError: If YAML file does not exist
+        ValueError: If YAML file is empty or missing required fields
+    """
+    path = Path(yaml_path) if isinstance(yaml_path, str) else yaml_path
+    log(f"Loading portfolio definition from {path}", "info")
+
+    if not path.exists():
+        log(f"Portfolio definition file not found: {path}", "error")
+        raise FileNotFoundError(f"Portfolio definition file not found: {path}")
+
+    # Read YAML file
+    try:
+        with open(path, "r") as f:
+            portfolio_def = yaml.safe_load(f)
+    except yaml.YAMLError as e:
+        log(f"Error parsing YAML file: {e}", "error")
+        raise ValueError(f"Error parsing YAML file: {e}")
+
+    if not portfolio_def:
+        log("YAML file is empty", "error")
+        raise ValueError("YAML file is empty")
+
+    # Extract strategies section
+    if "strategies" not in portfolio_def:
+        log("No 'strategies' section found in portfolio definition", "error")
+        raise ValueError("No 'strategies' section found in portfolio definition")
+
+    strategies_def = portfolio_def["strategies"]
+    if not strategies_def:
+        log("Strategies section is empty", "error")
+        raise ValueError("Strategies section is empty")
+
+    log(f"Found {len(strategies_def)} strategy definitions", "info")
+
+    # Convert YAML strategies to StrategyConfig format
+    strategies = []
+    for i, strategy_def in enumerate(strategies_def):
+        log(f"Processing strategy definition {i+1}", "info")
+
+        # Validate required fields
+        required_fields = ["ticker", "short_window", "long_window", "strategy_type"]
+        for field in required_fields:
+            if field not in strategy_def:
+                error_msg = f"Strategy {i+1} missing required field: {field}"
+                log(error_msg, "error")
+                raise ValueError(error_msg)
+
+        # Create StrategyConfig with required fields from config
+        strategy_config: StrategyConfig = {
+            "TICKER": strategy_def["ticker"],
+            "SHORT_WINDOW": strategy_def["short_window"],
+            "LONG_WINDOW": strategy_def["long_window"],
+            "STRATEGY_TYPE": strategy_def["strategy_type"].upper(),
+            # Required fields from config
+            "BASE_DIR": config.get("BASE_DIR", ""),
+            "REFRESH": config.get("REFRESH", True),
+            "USE_RSI": False,  # Default for portfolio definitions
+            "USE_HOURLY": config.get("CSV_USE_HOURLY", False),
+            "USE_SMA": strategy_def["strategy_type"].upper() == "SMA",
+            "DIRECTION": "Long",  # Default direction
+        }
+
+        # Add optional fields if present
+        if "signal_window" in strategy_def:
+            strategy_config["SIGNAL_WINDOW"] = strategy_def["signal_window"]
+
+        if "allocation" in strategy_def:
+            strategy_config["ALLOCATION"] = strategy_def["allocation"]
+        elif "allocation" in portfolio_def:
+            # Use portfolio-level allocation if available
+            if (
+                isinstance(portfolio_def["allocation"], dict)
+                and "default" in portfolio_def["allocation"]
+            ):
+                strategy_config["ALLOCATION"] = portfolio_def["allocation"]["default"]
+
+        if "stop_loss" in strategy_def:
+            strategy_config["STOP_LOSS"] = strategy_def["stop_loss"]
+
+        strategies.append(strategy_config)
+        log(
+            f"Added strategy: {strategy_config['TICKER']} {strategy_config['STRATEGY_TYPE']} {strategy_config['SHORT_WINDOW']}/{strategy_config['LONG_WINDOW']}",
+            "info",
+        )
+
+    # Validate strategy configurations
+    _, valid_strategies = validate_portfolio_configs(strategies, log)
+
+    log(
+        f"Successfully loaded {len(valid_strategies)} strategy configurations from portfolio definition",
+        "info",
+    )
+    return valid_strategies
+
+
 def load_portfolio(
     portfolio_name: str, log: Callable[[str, str], None], config: Dict[str, Any]
 ) -> List[StrategyConfig]:
@@ -246,8 +356,12 @@ def load_portfolio(
             return load_portfolio_from_json(path, log, config)
         elif extension == ".csv":
             return load_portfolio_from_csv(path, log, config)
+        elif extension == ".yaml":
+            return load_portfolio_from_yaml(path, log, config)
         else:
-            error_msg = f"Unsupported file type: {extension}. Must be .json or .csv"
+            error_msg = (
+                f"Unsupported file type: {extension}. Must be .json, .csv, or .yaml"
+            )
             log(error_msg, "error")
             raise ValueError(error_msg)
     except FileNotFoundError:

@@ -162,7 +162,7 @@ class TestPhase5ComprehensiveValidation:
         assert success, "Portfolio export should succeed"
 
         # Verify exported file exists and has correct schema
-        export_files = list(Path(tmp_path).glob("csv/portfolios_best/*.csv"))
+        export_files = list(Path(tmp_path).glob("data/raw/strategies/best/*.csv"))
         assert len(export_files) > 0, "No CSV files were exported"
 
         # Validate first exported file
@@ -389,7 +389,7 @@ class TestPhase5ComprehensiveValidation:
                 ), f"Risk metric '{metric}' missing from DataFrame"
 
         # Check in the exported CSV file
-        export_files = list(Path(tmp_path).glob("csv/portfolios_best/*.csv"))
+        export_files = list(Path(tmp_path).glob("data/raw/strategies/best/*.csv"))
         if export_files:
             with open(export_files[0], "r", newline="", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
@@ -484,7 +484,7 @@ class TestPhase5ComprehensiveValidation:
         assert success, "Complete pipeline should succeed"
 
         # Step 3: Verify end-to-end integrity
-        export_files = list(Path(tmp_path).glob("csv/strategies/*.csv"))
+        export_files = list(Path(tmp_path).glob("data/raw/strategies/*.csv"))
         assert len(export_files) > 0, "Pipeline should produce output files"
 
         # Verify output file schema compliance
@@ -530,7 +530,7 @@ class TestPhase5ComprehensiveValidation:
         ), f"Export took {execution_time:.2f}s, should be under 10s for 100 rows"
 
         # Verify output quality wasn't compromised for performance
-        export_files = list(Path(tmp_path).glob("csv/portfolios_best/*.csv"))
+        export_files = list(Path(tmp_path).glob("data/raw/strategies/best/*.csv"))
         with open(export_files[0], "r") as f:
             lines = f.readlines()
             assert (

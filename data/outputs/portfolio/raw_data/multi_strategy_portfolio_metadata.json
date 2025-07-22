@@ -1,0 +1,67 @@
+{
+  "portfolio_name": "multi_strategy_portfolio",
+  "export_timestamp": "2025-07-21T17:12:46.330109",
+  "export_config": {
+    "output_dir": "data/outputs/portfolio/raw_data",
+    "export_formats": ["csv", "json"],
+    "data_types": [
+      "portfolio_value",
+      "returns",
+      "trades",
+      "orders",
+      "positions",
+      "statistics",
+      "price_data",
+      "drawdowns",
+      "cumulative_returns"
+    ],
+    "include_vectorbt_object": false
+  },
+  "portfolio_info": {
+    "start_date": "2014-12-30 00:00:00",
+    "end_date": "2025-07-21 00:00:00",
+    "total_periods": 3857,
+    "columns": [
+      "BTC-USD_11_36_Strategy",
+      "BTC-USD_26_38_Strategy",
+      "BTC-USD_104_105_Strategy",
+      "BTC-USD_14_23_Strategy",
+      "BTC-USD_18_29_Strategy",
+      "BTC-USD_27_29_Strategy",
+      "BTC-USD_76_78_Strategy",
+      "BTC-USD_8_44_Strategy",
+      "BTC-USD_3_47_Strategy"
+    ]
+  },
+  "exported_files": {
+    "portfolio_value": [
+      "data/outputs/portfolio/raw_data/multi_strategy_portfolio_portfolio_value.csv",
+      "data/outputs/portfolio/raw_data/multi_strategy_portfolio_portfolio_value.json"
+    ],
+    "returns": [
+      "data/outputs/portfolio/raw_data/multi_strategy_portfolio_returns.csv",
+      "data/outputs/portfolio/raw_data/multi_strategy_portfolio_returns.json"
+    ],
+    "statistics": [
+      "data/outputs/portfolio/raw_data/multi_strategy_portfolio_statistics.csv",
+      "data/outputs/portfolio/raw_data/multi_strategy_portfolio_statistics.json"
+    ],
+    "price_data": [
+      "data/outputs/portfolio/raw_data/multi_strategy_portfolio_price_data.csv",
+      "data/outputs/portfolio/raw_data/multi_strategy_portfolio_price_data.json"
+    ],
+    "drawdowns": [
+      "data/outputs/portfolio/raw_data/multi_strategy_portfolio_drawdowns.csv",
+      "data/outputs/portfolio/raw_data/multi_strategy_portfolio_drawdowns.json"
+    ],
+    "cumulative_returns": [
+      "data/outputs/portfolio/raw_data/multi_strategy_portfolio_cumulative_returns.csv",
+      "data/outputs/portfolio/raw_data/multi_strategy_portfolio_cumulative_returns.json"
+    ],
+    "benchmark": [
+      "data/outputs/portfolio/raw_data/multi_strategy_portfolio_benchmark.csv",
+      "data/outputs/portfolio/raw_data/multi_strategy_portfolio_benchmark.json"
+    ]
+  },
+  "total_files_exported": 14
+}

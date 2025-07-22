@@ -650,7 +650,7 @@ class MonteCarloEnhancedAnalyzer:
         recommendations: List[Dict[str, Any]],
     ) -> None:
         """Export comprehensive analysis results."""
-        output_dir = "csv/ma_cross/monte_carlo_enhanced"
+        output_dir = "data/outputs/ma_cross/monte_carlo_enhanced"
         os.makedirs(output_dir, exist_ok=True)
 
         # Export recommendations

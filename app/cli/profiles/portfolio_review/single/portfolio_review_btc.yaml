@@ -21,11 +21,9 @@ config:
       short_window: 11
       long_window: 17
       strategy_type: EMA
-      use_sma: false
       stop_loss: 3.62
 
   # Override start date for BTC (longer history)
-  start_date: '2014-01-01'
 
   # Custom benchmark for BTC analysis
   benchmark:
@@ -34,4 +32,4 @@ config:
 
   # Custom plot directory
   plot_config:
-    output_dir: data/outputs/portfolio_review/plots/btc
+    output_dir: data/outputs/portfolio/btc

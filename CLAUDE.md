@@ -285,9 +285,9 @@ trading-cli positions validate-equity --portfolio protected --output-format json
 ### Data Flow
 
 1. **CLI Command** → Profile/config loading → Parameter validation
-2. **Market Data Acquisition** → yfinance → CSV storage (`/csv/price_data/`)
-3. **Strategy Analysis** → CLI execution → Portfolio CSVs (`/csv/portfolios/`)
-4. **Portfolio Processing** → Aggregation/filtering → Best portfolios (`/csv/portfolios_best/`, `/csv/portfolios_filtered/`)
+2. **Market Data Acquisition** → yfinance → CSV storage (`/data/raw/price_data/`)
+3. **Strategy Analysis** → CLI execution → Portfolio CSVs (`/data/outputs/portfolio_analysis/`)
+4. **Portfolio Processing** → Aggregation/filtering → Best portfolios (`/data/outputs/portfolio_analysis/best/`, `/data/outputs/portfolio_analysis/filtered/`)
 5. **Output Generation** → Rich formatted results → JSON/CSV exports
 
 ### Key Technologies
@@ -311,9 +311,9 @@ trading-cli positions validate-equity --portfolio protected --output-format json
   - **IMPORTANT**: Only available through `app/concurrency/review.py` to prevent generating thousands of files from parameter sweep strategies
   - Exports to `./json/trade_history/` with filenames like `BTC-USD_D_SMA_20_50.json`
 - **Standardized CSV Exports**: All strategies export to consistent directory structure
-  - Base portfolios: `/csv/portfolios/` (e.g., `NFLX_D_MACD.csv`, `AAPL_D_SMA.csv`)
-  - Filtered portfolios: `/csv/portfolios_filtered/`
-  - Best portfolios: `/csv/portfolios_best/`
+  - Base portfolios: `/data/outputs/portfolio_analysis/` (e.g., `NFLX_D_MACD.csv`, `AAPL_D_SMA.csv`)
+  - Filtered portfolios: `/data/outputs/portfolio_analysis/filtered/`
+  - Best portfolios: `/data/outputs/portfolio_analysis/best/`
   - Strategy type included in filename for easy identification
 
 ## Testing

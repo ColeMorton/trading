@@ -36,9 +36,9 @@ python -m app.tools.spds_cli_updated health
 The system automatically locates files based on the portfolio name:
 
 ```
-./csv/strategies/risk_on.csv     # Portfolio definition
-./csv/positions/risk_on.csv      # Trade history (same filename)
-./json/return_distribution/      # Asset return data (auto-loaded)
+./data/outputs/strategies/risk_on.csv     # Portfolio definition
+./data/raw/positions/risk_on.csv         # Trade history (same filename)
+./data/raw/reports/return_distribution/  # Asset return data (auto-loaded)
 ```
 
 ## Usage Examples
@@ -76,7 +76,7 @@ results = await engine.analyze(position_request)
 
 ### Portfolio CSV Format
 
-Your portfolio CSV should be in `./csv/strategies/` with columns:
+Your portfolio CSV should be in `./data/outputs/strategies/` with columns:
 
 ```csv
 strategy_name,ticker,allocation,risk_level
@@ -87,7 +87,7 @@ NVDA_SMA_15_35,NVDA,0.10,high
 
 ### Trade History CSV Format
 
-If using trade history (`use_trade_history=True`), place in `./csv/positions/` with same filename:
+If using trade history (`use_trade_history=True`), place in `./data/raw/positions/` with same filename:
 
 ```csv
 strategy_name,ticker,entry_date,exit_date,return,mfe,mae,duration_days
@@ -99,7 +99,7 @@ TSLA_EMA_12_26,TSLA,2024-02-01,2024-03-15,0.143,0.189,0.034,43
 
 ### Trade History Mode (`use_trade_history=True`)
 
-- **Primary**: Individual trade data from `./csv/positions/{portfolio}`
+- **Primary**: Individual trade data from `./data/raw/positions/{portfolio}`
 - **Fallback**: Equity curve data if trade history unavailable
 - **Benefits**: Individual trade-level statistical precision, MFE/MAE analysis
 
@@ -322,14 +322,14 @@ results, summary = await analyze_portfolio("my_strategies.csv", use_trade_histor
 
 ### Portfolio CSV Requirements
 
-- Must be in `./csv/strategies/` directory
+- Must be in `./data/outputs/strategies/` directory
 - Must have `.csv` extension
 - Should include `strategy_name` and `ticker` columns
 - Additional columns (allocation, risk_level, etc.) are preserved as metadata
 
 ### Trade History CSV Requirements
 
-- Must be in `./csv/positions/` directory
+- Must be in `./data/raw/positions/` directory
 - Must have same filename as portfolio CSV
 - Should include: `strategy_name`, `ticker`, `return`, `mfe`, `mae`, `duration_days`
 - Optional: `entry_date`, `exit_date`, `trade_quality`

@@ -116,7 +116,9 @@ class QuantitativeAnalyzer:
 
         self.strategies_dir = self.base_dir / "csv" / "strategies"
         self.json_dir = self.base_dir / "json"
-        self.trade_history_dir = self.json_dir / "trade_history"
+        self.trade_history_dir = (
+            self.base_dir / "data" / "raw" / "reports" / "trade_history"
+        )
         self.output_dir = self.base_dir / "reports"
         self.output_dir.mkdir(exist_ok=True)
 

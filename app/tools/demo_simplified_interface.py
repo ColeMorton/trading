@@ -8,8 +8,8 @@ to specify TWO parameters:
 2. USE_TRADE_HISTORY - whether to use trade history (True) or equity curves (False)
 
 Files are automatically located:
-- Portfolio: ./csv/strategies/{portfolio}
-- Trade History: ./csv/positions/{portfolio} (same filename)
+- Portfolio: ./data/raw/strategies/{portfolio}
+- Trade History: ./data/raw/positions/{portfolio} (same filename)
 """
 
 import asyncio
@@ -166,7 +166,7 @@ def demo_configuration():
     print(f"\n🔄 Interface Comparison:")
     print(f"   OLD (complex): StatisticalAnalysisService(config=SPDSConfig(")
     print(f"      USE_TRADE_HISTORY=True,")
-    print(f"      TRADE_HISTORY_PATH='./csv/positions/',")
+    print(f"      TRADE_HISTORY_PATH='./data/raw/positions/',")
     print(f"      PERCENTILE_THRESHOLD=95,")
     print(f"      DUAL_LAYER_THRESHOLD=0.85,")
     print(f"      ... 20+ more parameters")
@@ -183,8 +183,8 @@ def create_demo_portfolio_files():
     print("\n📁 Creating demo portfolio files...")
 
     # Ensure directories exist
-    Path("./csv/strategies/").mkdir(parents=True, exist_ok=True)
-    Path("./csv/positions/").mkdir(parents=True, exist_ok=True)
+    Path("./data/raw/strategies/").mkdir(parents=True, exist_ok=True)
+    Path("./data/raw/positions/").mkdir(parents=True, exist_ok=True)
 
     # Demo portfolio CSV content
     demo_portfolios = {
@@ -207,7 +207,7 @@ SOXL_BREAKOUT,SOXL,0.08,very_high""",
 
     # Create portfolio files
     for filename, content in demo_portfolios.items():
-        filepath = Path(f"./csv/strategies/{filename}")
+        filepath = Path(f"./data/raw/strategies/{filename}")
         with open(filepath, "w") as f:
             f.write(content)
         print(f"   Created: {filepath}")
@@ -219,7 +219,7 @@ TSLA_EMA_12_26,TSLA,2024-02-01,2024-03-15,0.143,0.189,0.034,43,good
 NVDA_SMA_15_35,NVDA,2024-03-01,2024-04-12,0.312,0.387,0.089,42,excellent"""
 
     # Create trade history file
-    trade_history_path = Path("./csv/positions/risk_on.csv")
+    trade_history_path = Path("./data/raw/positions/risk_on.csv")
     with open(trade_history_path, "w") as f:
         f.write(demo_trade_history)
     print(f"   Created: {trade_history_path}")
@@ -255,9 +255,9 @@ async def main():
     print("   2. USE_TRADE_HISTORY - True (trade history) or False (equity curves)")
     print("")
     print("📂 File locations are automatic:")
-    print("   - Portfolios: ./csv/strategies/{portfolio}")
-    print("   - Trade History: ./csv/positions/{portfolio}")
-    print("   - Return Distributions: ./json/return_distribution/")
+    print("   - Portfolios: ./data/raw/strategies/{portfolio}")
+    print("   - Trade History: ./data/raw/positions/{portfolio}")
+    print("   - Return Distributions: ./data/raw/reports/return_distribution/")
     print("")
     print("🚀 Usage is now incredibly simple:")
     print("   analyzer = PortfolioStatisticalAnalyzer('risk_on.csv', True)")

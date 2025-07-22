@@ -12,16 +12,16 @@ SAFETY FEATURES:
 - Use --auto-confirm to skip confirmation in automated environments
 
 Protected by design:
-- Root directory files (script only scans csv/ and json/ subdirectories)
+- Root directory files (script only scans data/outputs/ and json/ subdirectories)
 - Dot directories (.claude, .git, etc.) - completely skipped
-- csv/strategies/ directory (excluded by default)
+- data/outputs/strategies/ directory (excluded by default)
 - ALL files not explicitly whitelisted in .cleanupwhitelist
 
 Safe to clean (when explicitly whitelisted):
-- csv/price_data/ files (regenerated automatically)
-- csv/*/equity_data/ files (generated during analysis)
-- csv/cache/ directory (automatically generated)
-- csv/experimental/temp/ directory (temporary files)
+- data/raw/price_data/ files (regenerated automatically)
+- data/outputs/*/equity_data/ files (generated during analysis)
+- data/outputs/cache/ directory (automatically generated)
+- data/outputs/experimental/temp/ directory (temporary files)
 - Files with temp/tmp in name (temporary files)
 """
 
@@ -98,7 +98,7 @@ def is_whitelisted(file_path: Path, base_path: Path, whitelist_patterns: list) -
 def cleanup_old_files(
     base_path: str, exclude_dirs: list, max_age_days: int = 7, dry_run: bool = False
 ):
-    """Remove ONLY whitelisted files older than max_age_days from csv/ and json/ directories."""
+    """Remove ONLY whitelisted files older than max_age_days from data/outputs/ and json/ directories."""
     cutoff_time = time.time() - (max_age_days * 24 * 60 * 60)
     removed_count = 0
     total_size_removed = 0
@@ -113,7 +113,7 @@ def cleanup_old_files(
         print("⚠️  No whitelist patterns found. Exiting for safety.")
         return 0, 0
 
-    # Only scan csv/ and json/ directories (not root or other directories)
+    # Only scan data/outputs/ and json/ directories (not root or other directories)
     target_dirs = [base_path / "csv", base_path / "json"]
     target_dirs = [d for d in target_dirs if d.exists() and d.is_dir()]
 
@@ -196,8 +196,8 @@ def main():
     parser.add_argument(
         "--exclude",
         nargs="+",
-        default=["csv/strategies"],
-        help="Directories to exclude from cleanup (default: csv/strategies)",
+        default=["data/outputs/strategies"],
+        help="Directories to exclude from cleanup (default: data/outputs/strategies)",
     )
     parser.add_argument(
         "--max-age",

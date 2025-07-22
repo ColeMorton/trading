@@ -158,7 +158,6 @@ class ReviewStrategyConfig(BaseModel):
         default=None, gt=0, description="Stop loss percentage"
     )
     position_size: float = Field(default=1.0, gt=0, description="Position size")
-    use_sma: bool = Field(default=True, description="Use SMA instead of EMA")
     use_hourly: bool = Field(default=False, description="Use hourly timeframe")
     rsi_window: Optional[int] = Field(
         default=None, gt=0, description="RSI window period"
@@ -208,7 +207,7 @@ class PlotConfig(BaseModel):
     """Configuration for plot generation."""
 
     output_dir: Path = Field(
-        default=Path("data/outputs/portfolio_review/plots"),
+        default=Path("data/outputs/portfolio/plots"),
         description="Output directory for plots",
     )
     width: int = Field(default=1200, gt=0, description="Plot width in pixels")
@@ -223,6 +222,58 @@ class PlotConfig(BaseModel):
     )
 
 
+class RawDataExportFormat(str, Enum):
+    """Supported raw data export formats."""
+
+    CSV = "csv"
+    JSON = "json"
+    PARQUET = "parquet"
+    PICKLE = "pickle"
+
+
+class RawDataType(str, Enum):
+    """Available raw data types for export."""
+
+    PORTFOLIO_VALUE = "portfolio_value"
+    RETURNS = "returns"
+    TRADES = "trades"
+    ORDERS = "orders"
+    POSITIONS = "positions"
+    STATISTICS = "statistics"
+    PRICE_DATA = "price_data"
+    DRAWDOWNS = "drawdowns"
+    CUMULATIVE_RETURNS = "cumulative_returns"
+    ALL = "all"
+
+
+class RawDataExportConfig(BaseModel):
+    """Configuration for raw data export."""
+
+    enable: bool = Field(default=False, description="Enable raw data export")
+    output_dir: Path = Field(
+        default=Path("data/outputs/portfolio/raw_data"),
+        description="Output directory for raw data exports",
+    )
+    export_formats: List[RawDataExportFormat] = Field(
+        default=[RawDataExportFormat.CSV, RawDataExportFormat.JSON],
+        description="Export formats to generate",
+    )
+    data_types: List[RawDataType] = Field(
+        default=[RawDataType.ALL], description="Data types to export"
+    )
+    include_vectorbt_object: bool = Field(
+        default=False,
+        description="Export VectorBT portfolio objects for full functionality",
+    )
+    filename_prefix: str = Field(
+        default="", description="Prefix for exported filenames"
+    )
+    filename_suffix: str = Field(
+        default="", description="Suffix for exported filenames"
+    )
+    compress: bool = Field(default=False, description="Compress exported files")
+
+
 class PortfolioReviewConfig(BaseConfig):
     """Configuration for portfolio review operations."""
 
@@ -231,12 +282,14 @@ class PortfolioReviewConfig(BaseConfig):
         ..., min_items=1, description="List of strategies to analyze"
     )
 
-    # Date range
-    start_date: str = Field(
-        default="2020-01-01", description="Analysis start date (YYYY-MM-DD)"
+    # Date range (determined by data availability)
+    start_date: Optional[str] = Field(
+        default=None,
+        description="Analysis start date (YYYY-MM-DD) - determined by data intersection if not specified",
     )
-    end_date: str = Field(
-        default="2024-12-31", description="Analysis end date (YYYY-MM-DD)"
+    end_date: Optional[str] = Field(
+        default=None,
+        description="Analysis end date (YYYY-MM-DD) - determined by data intersection if not specified",
     )
 
     # Portfolio parameters
@@ -264,6 +317,11 @@ class PortfolioReviewConfig(BaseConfig):
     # Plotting configuration
     plot_config: PlotConfig = Field(
         default_factory=PlotConfig, description="Plot generation settings"
+    )
+
+    # Raw data export configuration
+    raw_data_export: RawDataExportConfig = Field(
+        default_factory=RawDataExportConfig, description="Raw data export settings"
     )
 
     # Advanced options

@@ -348,9 +348,9 @@ Examples:
             # Test data directories
             print("4. Data Directories:")
             directories = [
-                ("Portfolio Directory", Path("csv/positions")),
-                ("Price Data Directory", Path("csv/price_data")),
-                ("Export Directory", Path("exports")),
+                ("Portfolio Directory", Path("data/raw/positions")),
+                ("Price Data Directory", Path("data/raw/prices")),
+                ("Export Directory", Path("data/outputs/spds")),
             ]
 
             for name, path in directories:
@@ -384,17 +384,17 @@ Examples:
         print("=" * 30)
 
         # Check portfolio directory
-        portfolio_dir = Path("csv/positions")
+        portfolio_dir = Path("data/raw/positions")
         if not portfolio_dir.exists():
-            print("❌ Portfolio directory not found: csv/positions/")
-            print("💡 Create portfolio files in csv/positions/ directory")
+            print("❌ Portfolio directory not found: data/raw/positions/")
+            print("💡 Create portfolio files in data/raw/positions/ directory")
             return 1
 
         # List CSV files
         portfolio_files = list(portfolio_dir.glob("*.csv"))
 
         if not portfolio_files:
-            print("❌ No portfolio files found in csv/positions/")
+            print("❌ No portfolio files found in data/raw/positions/")
             return 1
 
         print(f"Found {len(portfolio_files)} portfolio(s):")
@@ -456,7 +456,7 @@ Examples:
             ]
 
             # Create demo portfolio file
-            portfolio_dir = Path("csv/positions")
+            portfolio_dir = Path("data/raw/positions")
             portfolio_dir.mkdir(parents=True, exist_ok=True)
 
             import pandas as pd

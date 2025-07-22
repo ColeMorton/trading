@@ -57,7 +57,7 @@ def main():
         sys.exit(1)
 
     # Test 1: Generate a new Pine script from CSV
-    run_generator("csv/strategies/BTC_d_20250427.csv")
+    run_generator("data/outputs/strategies/BTC_d_20250427.csv")
 
     # Test 2: Update an existing Pine script (create a temporary copy first)
     if os.path.exists("tradingview/strategy_breadth_refactored.pine"):
@@ -66,24 +66,24 @@ def main():
             temp_pine_path, "w"
         ) as f_out:
             f_out.write(f_in.read())
-        run_generator("csv/strategies/BTC_d_20250427.csv", temp_pine_path)
+        run_generator("data/outputs/strategies/BTC_d_20250427.csv", temp_pine_path)
 
     # Test 3: Filter for BTC-USD with proper output filename
     run_generator(
-        "csv/strategies/BTC_d_20250427.csv",
+        "data/outputs/strategies/BTC_d_20250427.csv",
         "tradingview/strategy_breadth_BTC-USD.pine",
         "BTC-USD",
     )
 
     # Test 4: Try with a different CSV file if available
-    if os.path.exists("csv/strategies/DAILY.csv"):
-        run_generator("csv/strategies/DAILY.csv")
+    if os.path.exists("data/outputs/strategies/DAILY.csv"):
+        run_generator("data/outputs/strategies/DAILY.csv")
 
     # Test 5: Try with a multi-asset CSV file if available
     multi_asset_files = [
-        "csv/strategies/crypto_d_20250427.csv",
-        "csv/strategies/portfolio_d_20250425.csv",
-        "csv/strategies/total_20250417.csv",
+        "data/outputs/strategies/crypto_d_20250427.csv",
+        "data/outputs/strategies/portfolio_d_20250425.csv",
+        "data/outputs/strategies/total_20250417.csv",
     ]
 
     for file_path in multi_asset_files:

@@ -21,8 +21,7 @@ config:
       short_window: 14
       long_window: 32
       strategy_type: SMA
-      use_sma: true
 
   # Custom plot directory
   plot_config:
-    output_dir: data/outputs/portfolio_review/plots/sol
+    output_dir: data/outputs/portfolio/sol

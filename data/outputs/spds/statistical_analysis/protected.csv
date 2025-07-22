@@ -1,0 +1,4 @@
+strategy_name,ticker,timeframe,analysis_timestamp,sample_size,sample_size_confidence,dual_layer_convergence_score,asset_layer_percentile,strategy_layer_percentile,exit_signal,signal_confidence,exit_recommendation,target_exit_timeframe,statistical_significance,p_value,z_score_divergence,iqr_divergence,rarity_score,current_return,mfe,mae,unrealized_pnl
+RJF_SMA_68_77,RJF,D,2025-07-22T12:05:01.271785,0,0.0,1.0,50.0,50.0,HOLD,100.0,,,MEDIUM,0.6774507193485446,-0.3717842846055881,,0.07435685692111761,-0.00796712778613462,0.0,0.0,
+HWM_SMA_7_9,HWM,D,2025-07-22T12:05:04.137276,0,0.0,1.0,50.0,50.0,HOLD,100.0,,,HIGH,0.9055194303357008,-0.6061921650671078,,0.12123843301342155,-0.013964006432898302,0.0,0.0,
+DOV_SMA_45_86,DOV,D,2025-07-22T12:05:05.324745,0,0.0,1.0,50.0,50.0,HOLD,37.17098063455298,,,MEDIUM,0.9000000000000001,-0.41106695607083427,,0.08221339121416685,,,,

@@ -2,6 +2,15 @@
 
 from typing import Callable, List
 
+# Complete Color Palette Constants
+PRIMARY_DATA = "#26c6da"  # Cyan - Primary data
+SECONDARY_DATA = "#7e57c2"  # Purple - Secondary data/negative
+TERTIARY_DATA = "#3179f5"  # Blue - Tertiary data/warnings
+BACKGROUND = "#fff"  # Pure white
+PRIMARY_TEXT = "#121212"  # Near black
+BODY_TEXT = "#444444"  # Dark gray
+MUTED_TEXT = "#717171"  # Medium gray
+
 import plotly.graph_objects as go
 import polars as pl
 from plotly.subplots import make_subplots
@@ -38,7 +47,7 @@ def create_strategy_traces(
                 x=data["Date"],
                 y=data["Close"],
                 name=f"{ticker} Price",
-                line=dict(color="black", width=1),
+                line=dict(color=PRIMARY_TEXT, width=1),
                 hovertemplate="%{x|%d/%m/%Y}, %{y:.4f}k<extra></extra>",
             )
         ]
@@ -128,7 +137,9 @@ def create_strategy_traces(
                                     x=valid_stops["Date"],
                                     y=valid_stops["ATR_Trailing_Stop"],
                                     name=f"{ticker} ATR Trailing Stop",
-                                    line=dict(color="red", width=1.5, dash="dot"),
+                                    line=dict(
+                                        color=SECONDARY_DATA, width=1.5, dash="dot"
+                                    ),
                                     hovertemplate="%{x|%d/%m/%Y}, Stop: %{y:.4f}k<extra></extra>",
                                     connectgaps=False,  # Don't connect across gaps
                                 )

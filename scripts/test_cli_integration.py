@@ -96,7 +96,7 @@ async def test_analysis_commands():
 
         # Test portfolio analysis (if demo file exists)
         print("\n2. Testing portfolio analysis...")
-        demo_file = Path("csv/positions/demo_new_architecture.csv")
+        demo_file = Path("data/raw/positions/demo_new_architecture.csv")
         if demo_file.exists():
             test_args = [
                 "analyze",

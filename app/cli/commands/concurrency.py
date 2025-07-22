@@ -27,6 +27,47 @@ app = typer.Typer(
 console = Console()
 
 
+def resolve_portfolio_from_profile(profile_name: str, loader) -> tuple[str, str]:
+    """Resolve portfolio definition from any profile type.
+
+    Args:
+        profile_name: Name of the profile to load
+        loader: ConfigLoader instance
+
+    Returns:
+        tuple: (portfolio_path, resolution_type)
+            portfolio_path: Path to portfolio file or definition
+            resolution_type: "concurrency" | "portfolio_reference" | "portfolio_definition"
+    """
+    try:
+        # Load the profile to check its type and configuration
+        profile = loader.profile_manager.load_profile(profile_name)
+
+        if profile.config_type == "concurrency":
+            # Direct concurrency profile - use as-is
+            return profile_name, "concurrency"
+
+        elif profile.config_type == "portfolio_review":
+            # Extract portfolio reference from portfolio_review profile
+            config_dict = loader.profile_manager.resolve_inheritance(profile)
+            portfolio_ref = config_dict.get("portfolio_reference")
+
+            if portfolio_ref:
+                # Use referenced portfolio with default concurrency config
+                return portfolio_ref, "portfolio_reference"
+            else:
+                # Fallback to profile name as portfolio definition
+                return f"{profile_name}.yaml", "portfolio_definition"
+
+        else:
+            # For other types, assume it's a portfolio name
+            return f"{profile_name}.yaml", "portfolio_definition"
+
+    except Exception as e:
+        # If profile loading fails, assume it's a portfolio name
+        return f"{profile_name}.yaml", "portfolio_definition"
+
+
 @app.command()
 def analyze(
     profile: Optional[str] = typer.Option(
@@ -194,9 +235,37 @@ def analyze(
         if signal_definition_mode is not None:
             overrides["signal_definition_mode"] = signal_definition_mode
 
-        # Load configuration
+        # Load configuration with smart portfolio resolution
         if profile:
-            config = loader.load_from_profile(profile, ConcurrencyConfig, overrides)
+            # Use smart portfolio resolution
+            portfolio_path, resolution_type = resolve_portfolio_from_profile(
+                profile, loader
+            )
+
+            if resolution_type == "concurrency":
+                # Direct concurrency profile - use as-is
+                config = loader.load_from_profile(profile, ConcurrencyConfig, overrides)
+            elif resolution_type in ["portfolio_reference", "portfolio_definition"]:
+                # Portfolio definition or reference - use default concurrency config with portfolio override
+                template = loader.get_config_template("concurrency")
+
+                # Add portfolio path to overrides
+                if "general" not in overrides:
+                    overrides["general"] = {}
+                # Extract filename from full path for portfolio field
+                from pathlib import Path as PathClass
+
+                portfolio_filename = PathClass(portfolio_path).name
+                overrides["general"]["portfolio"] = portfolio_filename
+
+                config = loader.load_from_dict(template, ConcurrencyConfig, overrides)
+
+                rprint(
+                    f"[dim]Using portfolio definition: {portfolio_path} (resolved from profile '{profile}')[/dim]"
+                )
+            else:
+                # Fallback to direct profile loading
+                config = loader.load_from_profile(profile, ConcurrencyConfig, overrides)
         else:
             template = loader.get_config_template("concurrency")
             config = loader.load_from_dict(template, ConcurrencyConfig, overrides)
@@ -255,6 +324,22 @@ def analyze(
                 else "",
                 "ENABLE_MEMORY_OPTIMIZATION": config.memory_optimization.enable_memory_optimization,
                 "MEMORY_THRESHOLD_MB": config.memory_optimization.memory_threshold_mb,
+                # Add missing optimization settings with safe attribute access
+                "OPTIMIZE": getattr(
+                    getattr(config, "optimization", None), "enable_optimization", False
+                ),
+                "OPTIMIZE_MIN_STRATEGIES": getattr(
+                    getattr(config, "optimization", None), "min_strategies", 3
+                ),
+                "OPTIMIZE_MAX_PERMUTATIONS": getattr(
+                    getattr(config, "optimization", None), "max_permutations", 1000
+                ),
+                "OPTIMIZE_PARALLEL_PROCESSING": getattr(
+                    getattr(config, "optimization", None), "parallel_processing", False
+                ),
+                "OPTIMIZE_MAX_WORKERS": getattr(
+                    getattr(config, "optimization", None), "max_workers", 4
+                ),
                 "REPORT_INCLUDES": {
                     "TICKER_METRICS": True,
                     "STRATEGIES": True,
@@ -1092,9 +1177,9 @@ def health(
         if check_data:
             rprint("📁 Checking data directories...")
             required_dirs = [
-                Path("json/concurrency"),
-                Path("json/trade_history"),
-                Path("csv/portfolios"),
+                Path("data/raw/reports/concurrency"),
+                Path("data/raw/reports/trade_history"),
+                Path("data/raw/strategies"),
                 Path("logs"),
             ]
 

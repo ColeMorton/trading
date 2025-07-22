@@ -295,11 +295,11 @@ download_ticker_data("AAPL", "1d", "2020-01-01", "2024-01-01")
 
 **CSV Export Locations:**
 
-- `csv/portfolios/` - All analyzed portfolios (59-column canonical schema)
-- `csv/portfolios_filtered/` - Filtered results (59-column canonical schema)
-- `csv/portfolios_best/` - Top performing strategies (59-column canonical schema)
-- `csv/strategies/` - Strategy export files (59-column canonical schema)
-- `csv/price_data/` - Historical price data (OHLCV format)
+- `data/outputs/portfolio_analysis/` - All analyzed portfolios (59-column canonical schema)
+- `data/outputs/portfolio_analysis/filtered/` - Filtered results (59-column canonical schema)
+- `data/outputs/portfolio_analysis/best/` - Top performing strategies (59-column canonical schema)
+- `data/outputs/strategies/` - Strategy export files (59-column canonical schema)
+- `data/raw/prices/` - Historical price data (OHLCV format)
 
 **CSV Schema Standardization:**
 

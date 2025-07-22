@@ -92,14 +92,14 @@ class TestMACrossConfig:
         assert config2.direction == "Short"
 
         # Test with different ticker values
-        config3 = AnalysisConfig(ticker="MSFT", use_sma=True)
+        config3 = AnalysisConfig(ticker="MSFT", strategy_type="SMA")
         assert config3.ticker == "MSFT"
 
     def test_config_defaults(self):
         """Test default configuration values."""
         config = AnalysisConfig(ticker="AAPL")
 
-        assert config.use_sma == False  # Default is EMA
+        assert config.use_sma == True  # Default is SMA
         assert config.use_hourly == False
         assert config.direction == "Long"
         assert config.use_years == False

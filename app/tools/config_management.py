@@ -723,16 +723,21 @@ def resolve_portfolio_filename(portfolio_name: str) -> str:
     Returns:
         Portfolio name with extension
     """
-    if portfolio_name.endswith(".json") or portfolio_name.endswith(".csv"):
+    if portfolio_name.endswith((".json", ".csv", ".yaml")):
         return portfolio_name
 
     # Try to determine the extension by checking file existence
     # Use normalized names to avoid double extensions
-    base_name = portfolio_name.replace(".csv", "").replace(".json", "")
-    csv_path = Path(f"csv/strategies/{base_name}.csv")
+    base_name = (
+        portfolio_name.replace(".csv", "").replace(".json", "").replace(".yaml", "")
+    )
+    csv_path = Path(f"data/outputs/strategies/{base_name}.csv")
     json_path = Path(f"json/portfolios/{base_name}.json")
+    yaml_path = Path(f"data/portfolios/{base_name}.yaml")
 
-    if csv_path.exists():
+    if yaml_path.exists():
+        return f"{base_name}.yaml"
+    elif csv_path.exists():
         return f"{base_name}.csv"
     elif json_path.exists():
         return f"{base_name}.json"

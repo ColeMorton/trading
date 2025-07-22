@@ -110,6 +110,6 @@ def visualize_performance(csv_file):
 
 if __name__ == "__main__":
     visualize_performance(
-        os.path.join(BASE_DIR, f"csv/monte_carlo/{TICKER}_performance.csv")
+        os.path.join(BASE_DIR, f"data/outputs/monte_carlo/{TICKER}_performance.csv")
     )
     print("Visualization complete. Check the output directory for the generated plots.")

@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-25T09:58:12.843136",
+    "export_timestamp": "2025-07-22T11:42:57.597410",
     "strategy_config": {
       "ticker": "MSTR",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 749.998295749384,
+      "total_return": 848.1209005464493,
       "total_trades": "64",
       "win_rate": 0.453125,
-      "sharpe_ratio": 0.8968134837387918,
+      "sharpe_ratio": 0.90595822406833,
       "max_drawdown": -0.8873526736933602
     }
   },
@@ -1347,10 +1347,10 @@
       "Entry Timestamp": "2025-04-22 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 343.0299987792969,
-      "Avg Exit Price": 377.0199890136719,
+      "Avg Exit Price": 426.2799987792969,
       "Size": 1991.9323050061164,
-      "PnL": 67022.46705853939,
-      "Return": 0.09808751524744626,
+      "PnL": 165145.07185560465,
+      "Return": 0.24169014458284319,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -1359,9 +1359,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
       "Trade_Type": "Big Winner",
-      "Cumulative_PnL": 749998.2957493841,
+      "Cumulative_PnL": 848120.9005464494,
       "Trade_Number": 64,
-      "Rolling_Avg_Return": 0.5598722612328749,
+      "Rolling_Avg_Return": 0.5885927870999542,
       "Rolling_Win_Rate": 0.8
     }
   ],
@@ -3653,10 +3653,10 @@
       "Avg Entry Price": 343.0299987792969,
       "Entry Fees": 683.2925361546222,
       "Exit Timestamp": null,
-      "Avg Exit Price": 377.0199890136719,
+      "Avg Exit Price": 426.2799987792969,
       "Exit Fees": 0.0,
-      "PnL": 67022.46705853939,
-      "Return": 0.09808751524744626,
+      "PnL": 165145.07185560465,
+      "Return": 0.24169014458284319,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

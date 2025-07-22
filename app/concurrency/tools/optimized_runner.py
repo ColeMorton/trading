@@ -436,8 +436,8 @@ class MemoryOptimizedConcurrencyRunner:
         base_dir = Path(config.get("BASE_DIR", "."))
         possible_paths = [
             base_dir / portfolio_file,
-            Path("json/concurrency") / portfolio_file,
-            Path("csv/portfolios") / portfolio_file,
+            Path("data/raw/reports/concurrency") / portfolio_file,
+            Path("data/raw/strategies") / portfolio_file,
             Path(portfolio_file),
         ]
 

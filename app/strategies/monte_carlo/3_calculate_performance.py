@@ -81,7 +81,7 @@ summary_stats = {
 for key, value in summary_stats.items():
     results_df = results_df.with_columns(pl.lit(value).alias(key))
 
-fullpath = f"csv/monte_carlo/{TICKER}_performance.csv"
+fullpath = f"data/outputs/monte_carlo/{TICKER}_performance.csv"
 
 # Save results to a CSV file
 results_df.write_csv(fullpath)

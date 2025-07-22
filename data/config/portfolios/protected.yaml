@@ -1,0 +1,44 @@
+metadata:
+  name: protected
+  description: Conservative protected portfolio with financial and industrial focus
+  created_at: '2025-01-19T00:00:00.000000'
+  updated_at: '2025-01-19T00:00:00.000000'
+  version: '1.0'
+  portfolio_type: conservative
+  risk_profile: moderate
+  tags:
+    - conservative
+    - financial
+    - protected
+    - industrial
+  author: system
+
+strategies:
+  # RJF Strategy
+  - ticker: RJF
+    short_window: 68
+    long_window: 77
+    strategy_type: SMA
+
+  # HWM Strategy
+  - ticker: HWM
+    short_window: 7
+    long_window: 9
+    strategy_type: SMA
+
+  # DOV Strategy
+  - ticker: DOV
+    short_window: 45
+    long_window: 86
+    strategy_type: SMA
+
+allocation:
+  method: risk_parity
+  rebalance_frequency: quarterly
+  max_position_size: 0.40
+  min_position_size: 0.20
+
+risk_management:
+  max_portfolio_volatility: 0.15
+  max_drawdown_threshold: 0.10
+  correlation_limit: 0.60

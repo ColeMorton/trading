@@ -1,0 +1,14 @@
+{
+  "summary": {
+    "portfolio": "live_signals.csv",
+    "total_strategies": 0,
+    "use_trade_history": true,
+    "signal_distribution": {},
+    "high_confidence_analyses": 0,
+    "confidence_rate": 0,
+    "immediate_exits": 0,
+    "strong_sells": 0,
+    "holds": 0
+  },
+  "results": {}
+}

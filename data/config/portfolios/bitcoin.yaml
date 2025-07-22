@@ -1,0 +1,79 @@
+metadata:
+  name: investment
+  description: Cryptocurrency and Bitcoin exposure investment portfolio
+  created_at: '2025-01-19T00:00:00.000000'
+  updated_at: '2025-01-19T00:00:00.000000'
+  version: '1.0'
+  portfolio_type: crypto_investment
+  risk_profile: high
+  tags:
+    - crypto
+    - bitcoin
+    - alternative_investment
+    - high_volatility
+  author: system
+
+strategies:
+  # BTC Strategies
+  - ticker: BTC-USD
+    short_window: 11
+    long_window: 36
+    strategy_type: SMA
+
+  - ticker: BTC-USD
+    short_window: 26
+    long_window: 38
+    strategy_type: SMA
+
+  - ticker: BTC-USD
+    short_window: 104
+    long_window: 105
+    strategy_type: SMA
+
+  - ticker: BTC-USD
+    short_window: 14
+    long_window: 23
+    signal_window: 13
+    strategy_type: MACD
+
+  - ticker: BTC-USD
+    short_window: 18
+    long_window: 29
+    signal_window: 18
+    strategy_type: MACD
+
+  - ticker: BTC-USD
+    short_window: 27
+    long_window: 29
+    strategy_type: SMA
+
+  - ticker: BTC-USD
+    short_window: 76
+    long_window: 78
+    strategy_type: SMA
+
+  - ticker: BTC-USD
+    short_window: 8
+    long_window: 44
+    strategy_type: SMA
+
+  - ticker: BTC-USD
+    short_window: 3
+    long_window: 47
+    strategy_type: EMA
+
+allocation:
+  method: volatility_weighted
+  rebalance_frequency: bi_weekly
+  max_position_size: 0.60
+  min_position_size: 0.15
+
+risk_management:
+  max_portfolio_volatility: 0.40
+  max_drawdown_threshold: 0.25
+  correlation_limit: 0.80
+
+crypto_specific:
+  base_currency: USD
+  exposure_type: direct
+  volatility_target: 0.35

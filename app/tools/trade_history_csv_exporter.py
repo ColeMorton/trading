@@ -205,7 +205,7 @@ def export_single_trade_history_to_csv(
     """Export single JSON trade history file to position-level CSV."""
 
     if output_dir is None:
-        output_dir = "/Users/colemorton/Projects/trading/csv/positions"
+        output_dir = "data/raw/positions"
 
     # Create output directory
     Path(output_dir).mkdir(parents=True, exist_ok=True)
@@ -258,10 +258,10 @@ def export_all_trade_histories_to_csv(
     """Export all JSON trade history files to position-level CSV files."""
 
     if json_dir is None:
-        json_dir = "/Users/colemorton/Projects/trading/json/trade_history"
+        json_dir = "data/raw/reports/trade_history"
 
     if output_dir is None:
-        output_dir = "/Users/colemorton/Projects/trading/csv/positions"
+        output_dir = "data/raw/positions"
 
     # Create output directory
     Path(output_dir).mkdir(parents=True, exist_ok=True)
@@ -363,10 +363,8 @@ def calculate_mfe_mae(
 def migrate_live_signals_to_trade_history():
     """Migrate live_signals.csv to new trade_history schema with position-level data."""
 
-    live_signals_file = (
-        "/Users/colemorton/Projects/trading/csv/strategies/live_signals.csv"
-    )
-    output_file = "/Users/colemorton/Projects/trading/csv/strategies/live_signals.csv"
+    live_signals_file = "data/raw/strategies/live_signals.csv"
+    output_file = "data/raw/strategies/live_signals.csv"
 
     # Read current live signals
     df = pd.read_csv(live_signals_file)
@@ -397,7 +395,7 @@ def migrate_live_signals_to_trade_history():
 
         # Look for corresponding JSON data
         json_files = list(
-            Path("/Users/colemorton/Projects/trading/json/trade_history").glob(
+            Path("data/raw/reports/trade_history").glob(
                 f"{ticker}_D_{strategy_type}_*.json"
             )
         )
@@ -559,7 +557,7 @@ def estimate_strategy_entry_date(
 
     try:
         # Load price data
-        price_file = f"/Users/colemorton/Projects/trading/csv/price_data/{ticker}_D.csv"
+        price_file = f"data/raw/prices/{ticker}_D.csv"
         if not Path(price_file).exists():
             logging.warning(f"Price data not found for {ticker}")
             return None, None
@@ -649,12 +647,8 @@ def assess_trade_quality(
 def convert_strategy_to_trade_history(strategy_name: str):
     """Convert strategy CSV data to position-level trade history CSV."""
 
-    strategy_file = (
-        f"/Users/colemorton/Projects/trading/csv/strategies/{strategy_name}.csv"
-    )
-    output_file = (
-        f"/Users/colemorton/Projects/trading/csv/positions/{strategy_name}.csv"
-    )
+    strategy_file = f"data/raw/strategies/{strategy_name}.csv"
+    output_file = f"data/raw/positions/{strategy_name}.csv"
 
     # Create output directory
     Path(output_file).parent.mkdir(parents=True, exist_ok=True)

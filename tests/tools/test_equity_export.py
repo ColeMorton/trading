@@ -69,7 +69,7 @@ class TestEquityExportDirectories:
         mock_project_root.return_value = Path("/test/project")
 
         export_dir = get_equity_export_directory("SMA")
-        expected = Path("/test/project/csv/ma_cross/equity_data")
+        expected = Path("/test/project/data/raw/equity")
         assert export_dir == expected
 
     @patch("app.tools.equity_export.get_project_root")
@@ -78,7 +78,7 @@ class TestEquityExportDirectories:
         mock_project_root.return_value = Path("/test/project")
 
         export_dir = get_equity_export_directory("EMA")
-        expected = Path("/test/project/csv/ma_cross/equity_data")
+        expected = Path("/test/project/data/raw/equity")
         assert export_dir == expected
 
     @patch("app.tools.equity_export.get_project_root")
@@ -87,7 +87,7 @@ class TestEquityExportDirectories:
         mock_project_root.return_value = Path("/test/project")
 
         export_dir = get_equity_export_directory("MACD")
-        expected = Path("/test/project/csv/macd_cross/equity_data")
+        expected = Path("/test/project/data/raw/equity")
         assert export_dir == expected
 
     def test_get_equity_export_directory_invalid_strategy(self):

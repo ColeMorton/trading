@@ -26,11 +26,10 @@ logger = logging.getLogger(__name__)
 def check_directory_structure() -> Tuple[bool, List[str]]:
     """Check that required directories exist."""
     required_dirs = [
-        "csv/positions",
-        "csv/strategies",
-        "exports/statistical_analysis",
-        "exports/backtesting_parameters",
-        "json/return_distribution",
+        "data/raw/positions",
+        "data/raw/strategies",
+        "data/outputs/exports",
+        "data/raw/reports",
     ]
 
     issues = []
@@ -47,12 +46,12 @@ def check_directory_structure() -> Tuple[bool, List[str]]:
 def check_portfolio_files() -> Tuple[bool, List[str]]:
     """Check that portfolio files exist and are readable."""
     portfolio_files = [
-        "csv/positions/live_signals.csv",
-        "csv/positions/protected.csv",
-        "csv/positions/risk_on.csv",
-        "csv/strategies/live_signals.csv",
-        "csv/strategies/protected.csv",
-        "csv/strategies/risk_on.csv",
+        "data/raw/positions/live_signals.csv",
+        "data/raw/positions/protected.csv",
+        "data/raw/positions/risk_on.csv",
+        "data/raw/strategies/live_signals.csv",
+        "data/raw/strategies/protected.csv",
+        "data/raw/strategies/risk_on.csv",
     ]
 
     issues = []
@@ -86,7 +85,7 @@ def check_export_functionality() -> Tuple[bool, List[str]]:
 
         # Test with live_signals if it exists
         test_portfolio = "live_signals.csv"
-        position_file = Path(f"csv/positions/{test_portfolio}")
+        position_file = Path(f"data/raw/positions/{test_portfolio}")
 
         if position_file.exists():
             success = validator.generate_fallback_exports(test_portfolio)
@@ -141,7 +140,7 @@ def check_data_quality() -> Tuple[bool, List[str]]:
     issues = []
 
     # Check live_signals portfolio specifically
-    position_file = Path("csv/positions/live_signals.csv")
+    position_file = Path("data/raw/positions/live_signals.csv")
     if position_file.exists():
         try:
             df = pd.read_csv(position_file)
@@ -245,11 +244,11 @@ def fix_common_issues():
 
     # Create missing directories
     required_dirs = [
-        "csv/positions",
-        "csv/strategies",
-        "exports/statistical_analysis",
-        "exports/backtesting_parameters",
-        "json/return_distribution",
+        "data/raw/positions",
+        "data/raw/strategies",
+        "data/outputs/spds/statistical_analysis",
+        "data/outputs/spds/backtesting_parameters",
+        "data/raw/reports/return_distribution",
     ]
 
     for dir_path in required_dirs:
@@ -265,7 +264,7 @@ def fix_common_issues():
         validator = ExportValidator()
 
         # If live_signals exists, regenerate exports
-        if Path("csv/positions/live_signals.csv").exists():
+        if Path("data/raw/positions/live_signals.csv").exists():
             success = validator.generate_fallback_exports("live_signals.csv")
             if success:
                 console.print("✅ Regenerated live_signals exports")

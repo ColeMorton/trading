@@ -15,10 +15,19 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 from app.tools.download_data import download_data
 from app.tools.setup_logging import setup_logging
 
+# Complete Color Palette Constants
+PRIMARY_DATA = "#26c6da"  # Cyan - Primary data
+SECONDARY_DATA = "#7e57c2"  # Purple - Secondary data/negative
+TERTIARY_DATA = "#3179f5"  # Blue - Tertiary data/warnings
+BACKGROUND = "#fff"  # Pure white
+PRIMARY_TEXT = "#121212"  # Near black
+BODY_TEXT = "#444444"  # Dark gray
+MUTED_TEXT = "#717171"  # Medium gray
+
 # TICKERS = ["ETH-USD", "MSTR"]
-TICKERS = "risk_on.csv"
+# TICKERS = "risk_on.csv"
 # TICKERS = "live_signals.csv"
-# TICKERS = "protected.csv"
+TICKERS = "protected.csv"
 INCLUDE_OPTION_STRATEGY = False
 
 # 09-05-25 @ 100000 SOL-USD
@@ -226,43 +235,47 @@ def plot_return_distribution(
     sns.histplot(returns, bins=50, kde=True, ax=ax, alpha=0.2)
     ax.axvline(
         x=std_pos,
-        color="blue",
+        color=TERTIARY_DATA,
         linestyle=":",
         linewidth=2,
         label=f"+1 Std Dev = {std_pos:.2%}",
     )
     ax.axvline(
         x=std_neg,
-        color="blue",
+        color=TERTIARY_DATA,
         linestyle=":",
         linewidth=2,
         label=f"-1 Std Dev = {std_neg:.2%}",
     )
     ax.axvline(
         x=var_95,
-        color="red",
+        color=SECONDARY_DATA,
         linestyle="--",
         linewidth=1,
         label=f"95% VaR = {var_95:.2%}",
     )
     ax.axvline(
         x=var_99,
-        color="red",
+        color=SECONDARY_DATA,
         linestyle="--",
         linewidth=1,
         label=f"99% VaR = {var_99:.2%}",
     )
     ax.axvline(
-        x=mean, color="green", linestyle="-", linewidth=1, label=f"Mean = {mean:.2%}"
+        x=mean,
+        color=PRIMARY_DATA,
+        linestyle="-",
+        linewidth=1,
+        label=f"Mean = {mean:.2%}",
     )
     ax.axvline(
         x=median,
-        color="orange",
+        color=TERTIARY_DATA,
         linestyle="-.",
         linewidth=1,
         label=f"Median = {median:.2%}",
     )
-    ax.axvline(0, color="k", linestyle="-", linewidth=1, label="Zero")
+    ax.axvline(0, color=PRIMARY_TEXT, linestyle="-", linewidth=1, label="Zero")
 
     # Calculate Rarity based on the sign of the current return
     # current_return = returns.iloc[-1]  # Use .iloc[-1] instead of [-1]
@@ -292,7 +305,7 @@ def plot_return_distribution(
 
     ax.axvline(
         x=current_return,
-        color="purple",
+        color=SECONDARY_DATA,
         linestyle="--",
         linewidth=2,
         label=f"Current Return = {current_return:.2%}",
@@ -305,7 +318,7 @@ def plot_return_distribution(
         # Add strike line
         ax.axvline(
             x=strike_return,
-            color="magenta",
+            color=SECONDARY_DATA,
             linestyle="--",
             linewidth=2,
             label=f"Strike (+{strike_return*100:.2f}%): {historical_prob:.2f}% hist vs {market_prob:.2f}% implied",
@@ -334,7 +347,7 @@ def plot_return_distribution(
             verticalalignment="top",
             horizontalalignment="right",
             fontsize=8,
-            bbox=dict(facecolor="white", alpha=0.7),
+            bbox=dict(facecolor=BACKGROUND, alpha=0.7),
         )
 
     ax.text(
@@ -356,7 +369,9 @@ def plot_return_distribution(
 
 
 def export_return_distribution_json(
-    ticker: str, data: pd.DataFrame, output_dir: str = "./json/return_distribution/"
+    ticker: str,
+    data: pd.DataFrame,
+    output_dir: str = "./data/raw/reports/return_distribution/",
 ):
     """
     Export comprehensive return distribution analysis to JSON format.
@@ -571,8 +586,8 @@ def export_return_distribution_json(
 
 
 def load_tickers_from_csv(csv_filename):
-    """Load unique tickers from a CSV file in ./csv/strategies directory."""
-    csv_path = Path("./csv/strategies") / csv_filename
+    """Load unique tickers from a CSV file in ./data/raw/strategies directory."""
+    csv_path = Path("./data/raw/strategies") / csv_filename
     log(f"Loading tickers from CSV file: {csv_path}")
 
     if not csv_path.exists():
@@ -752,7 +767,7 @@ def main():
         plt.tight_layout()
 
         # Create output directory if it doesn't exist
-        output_dir = Path("./png/return_distribution")
+        output_dir = Path("./data/outputs/images/return_distribution")
         output_dir.mkdir(parents=True, exist_ok=True)
 
         # Save the plot instead of showing it

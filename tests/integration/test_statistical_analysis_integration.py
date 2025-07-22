@@ -34,7 +34,7 @@ def sample_config():
     """Create sample configuration for testing."""
     return StatisticalAnalysisConfig(
         USE_TRADE_HISTORY=True,
-        TRADE_HISTORY_PATH="./csv/positions/",
+        TRADE_HISTORY_PATH="./data/outputs/positions/",
         FALLBACK_TO_EQUITY=True,
         PERCENTILE_THRESHOLD=95,
         DUAL_LAYER_THRESHOLD=0.85,

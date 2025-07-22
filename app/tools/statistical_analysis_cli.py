@@ -479,17 +479,17 @@ Examples:
         print("=" * 30)
 
         # Check portfolio directory
-        portfolio_dir = Path("./csv/strategies/")
+        portfolio_dir = Path("./data/raw/strategies/")
         if not portfolio_dir.exists():
-            print("❌ Portfolio directory not found: ./csv/strategies/")
-            print("💡 Create portfolio files in ./csv/strategies/ directory")
+            print("❌ Portfolio directory not found: ./data/raw/strategies/")
+            print("💡 Create portfolio files in ./data/raw/strategies/ directory")
             return 1
 
         # List CSV files
         portfolio_files = list(portfolio_dir.glob("*.csv"))
 
         if not portfolio_files:
-            print("❌ No portfolio files found in ./csv/strategies/")
+            print("❌ No portfolio files found in ./data/raw/strategies/")
             print("💡 Create portfolio CSV files with strategy definitions")
             return 1
 
@@ -498,7 +498,7 @@ Examples:
 
         for portfolio_file in sorted(portfolio_files):
             portfolio_name = portfolio_file.name
-            trade_history_file = Path(f"./csv/positions/{portfolio_name}")
+            trade_history_file = Path(f"./data/raw/positions/{portfolio_name}")
 
             print(f"📊 {portfolio_name}")
             print(f"   Portfolio: {'✅' if portfolio_file.exists() else '❌'}")

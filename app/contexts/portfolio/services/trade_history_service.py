@@ -56,7 +56,8 @@ class TradeHistoryService:
             # Get portfolio file path
             portfolio_file = (
                 self.base_dir
-                / "csv"
+                / "data"
+                / "raw"
                 / "positions"
                 / resolve_portfolio_path(portfolio_name)
             )
@@ -196,15 +197,18 @@ class TradeHistoryService:
             tuple: (DataFrame, error_message) - DataFrame is None if error occurred
         """
         try:
-            price_file = self.base_dir / "csv" / "price_data" / f"{ticker}_D.csv"
+            price_file = self.base_dir / "data" / "raw" / "prices" / f"{ticker}_D.csv"
 
             if not price_file.exists():
-                return None, f"Price data file not found: csv/price_data/{ticker}_D.csv"
+                return (
+                    None,
+                    f"Price data file not found: data/raw/prices/{ticker}_D.csv",
+                )
 
             df = pd.read_csv(price_file)
 
             if df.empty:
-                return None, f"Price data file is empty: csv/price_data/{ticker}_D.csv"
+                return None, f"Price data file is empty: data/raw/prices/{ticker}_D.csv"
 
             df["Date"] = pd.to_datetime(df["Date"])
             df.set_index("Date", inplace=True)

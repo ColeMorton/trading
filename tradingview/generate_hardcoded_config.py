@@ -247,8 +247,8 @@ plot(overboughtThreshold, "Overbought", color=color.new(#26c6da, 40), linewidth=
 plot(oversoldThreshold, "Oversold", color=color.new(#7e57c2, 40), linewidth=1)
 
 // Plot range bands
-hline(0, "Min", color=color.new(#787b86, 70), linestyle=hline.style_dotted)
-hline({{STRATEGY_COUNT}}, "Max", color=color.new(#787b86, 70), linestyle=hline.style_dotted)
+hline(0, "Min", color=color.new(#717171, 70), linestyle=hline.style_dotted)
+hline({{STRATEGY_COUNT}}, "Max", color=color.new(#717171, 70), linestyle=hline.style_dotted)
 
 // ================ Alerts ================
 // Create alerts for trading signals
@@ -266,10 +266,10 @@ alertcondition(crossingMADown, "Fast MA crossing down Slow MA", "{{ticker}} brea
 // Display aggregate statistics
 var table infoTable = table.new(position.bottom_right, 2, 2, border_width=1)
 if barstate.islast
-    table.cell(infoTable, 0, 0, "Active Strategies", bgcolor=color.new(#000000, 90), text_color=color.white)
-    table.cell(infoTable, 1, 0, str.tostring(strategiesActive) + " / " + str.tostring(totalStrategies), bgcolor=color.new(#000000, 90), text_color=oscillatorColor)
-    table.cell(infoTable, 0, 1, "Percentage", bgcolor=color.new(#000000, 90), text_color=color.white)
-    table.cell(infoTable, 1, 1, str.tostring(math.round(strategyPercentage)) + "%", bgcolor=color.new(#000000, 90), text_color=oscillatorColor)
+    table.cell(infoTable, 0, 0, "Active Strategies", bgcolor=color.new(#121212, 90), text_color=color.white)
+    table.cell(infoTable, 1, 0, str.tostring(strategiesActive) + " / " + str.tostring(totalStrategies), bgcolor=color.new(#121212, 90), text_color=oscillatorColor)
+    table.cell(infoTable, 0, 1, "Percentage", bgcolor=color.new(#121212, 90), text_color=color.white)
+    table.cell(infoTable, 1, 1, str.tostring(math.round(strategyPercentage)) + "%", bgcolor=color.new(#121212, 90), text_color=oscillatorColor)
 """
     else:
         with open(template_path, "r") as f:
@@ -429,14 +429,16 @@ def main():
         )
         print("\nExamples:")
         print("  # Generate a new Pine script from CSV:")
-        print("  python generate_hardcoded_config.py csv/strategies/BTC_d_20250427.csv")
+        print(
+            "  python generate_hardcoded_config.py data/outputs/strategies/BTC_d_20250427.csv"
+        )
         print("\n  # Update an existing Pine script:")
         print(
-            "  python generate_hardcoded_config.py csv/strategies/BTC_d_20250427.csv tradingview/strategy_breadth_refactored.pine"
+            "  python generate_hardcoded_config.py data/outputs/strategies/BTC_d_20250427.csv tradingview/strategy_breadth_refactored.pine"
         )
         print("\n  # Filter for a specific ticker:")
         print(
-            "  python generate_hardcoded_config.py csv/strategies/BTC_d_20250427.csv tradingview/strategy_breadth_refactored.pine BTC-USD"
+            "  python generate_hardcoded_config.py data/outputs/strategies/BTC_d_20250427.csv tradingview/strategy_breadth_refactored.pine BTC-USD"
         )
         sys.exit(1)
 

@@ -469,8 +469,8 @@ class StatisticalAnalysisReportGenerator:
 - **Significance Testing:** P-value based statistical validation
 
 ### Data Sources
-- **Asset Layer:** Return distribution database (./json/return_distribution/)
-- **Strategy Layer:** {'Trade history (./csv/positions/)' if self.config.USE_TRADE_HISTORY else 'Equity curves (./csv/portfolios/)'}
+- **Asset Layer:** Return distribution database (./data/raw/reports/return_distribution/)
+- **Strategy Layer:** {'Trade history (./data/raw/positions/)' if self.config.USE_TRADE_HISTORY else 'Equity curves (./data/outputs/portfolio_analysis/)'}
 - **Sample Sizes:** {np.mean([r.sample_size for r in analysis_results]):.1f} average observations
 
 ---

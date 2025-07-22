@@ -250,7 +250,7 @@ def validate(
 
     Examples:
         trading-cli tools validate --file portfolio.csv
-        trading-cli tools validate --directory ./csv/portfolios/
+        trading-cli tools validate --directory ./data/raw/strategies/
         trading-cli tools validate --file portfolio.csv --strict --save-report report.json
     """
     try:
@@ -594,7 +594,7 @@ def _check_file_system_health(verbose: bool) -> dict:
     result = {"status": "healthy", "issues": 0, "details": []}
 
     # Check critical directories
-    critical_dirs = ["csv", "logs", "json", "exports"]
+    critical_dirs = ["data", "logs"]
     project_root = Path.cwd()
 
     for dir_name in critical_dirs:
@@ -660,7 +660,7 @@ def _check_data_integrity(verbose: bool) -> dict:
     project_root = Path.cwd()
 
     # Check for portfolio files
-    portfolio_dir = project_root / "csv" / "portfolios"
+    portfolio_dir = project_root / "data" / "raw" / "strategies"
     if portfolio_dir.exists():
         csv_files = list(portfolio_dir.glob("*.csv"))
         if len(csv_files) == 0:
@@ -675,7 +675,7 @@ def _check_data_integrity(verbose: bool) -> dict:
         result["status"] = "warning"
 
     # Check for price data
-    price_data_dir = project_root / "csv" / "price_data"
+    price_data_dir = project_root / "data" / "raw" / "prices"
     if price_data_dir.exists():
         price_files = list(price_data_dir.glob("*.csv"))
         if len(price_files) == 0:

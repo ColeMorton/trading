@@ -15,7 +15,7 @@ class AnalysisConfig:
     """Configuration for MA Cross analysis."""
 
     ticker: str
-    use_sma: bool = False
+    strategy_type: str = "SMA"  # SMA, EMA, etc.
     use_hourly: bool = False
     direction: str = "Long"
 
@@ -34,11 +34,16 @@ class AnalysisConfig:
     ticker_2: Optional[str] | None = None
     use_gbm: bool = False
 
+    @property
+    def use_sma(self) -> bool:
+        """Derive use_sma from strategy_type for backward compatibility."""
+        return self.strategy_type == "SMA"
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary format compatible with existing tools."""
         config = {
             "TICKER": self.ticker,
-            "USE_SMA": self.use_sma,
+            "STRATEGY_TYPE": self.strategy_type,
             "USE_HOURLY": self.use_hourly,
             "DIRECTION": self.direction,
             "USE_YEARS": self.use_years,

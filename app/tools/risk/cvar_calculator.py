@@ -2,7 +2,7 @@
 CVaR Calculator for Position Sizing
 
 This module implements Excel B12/E11 CVaR calculations using @json/concurrency/ data
-and @csv/strategies/ backtests for validation.
+and @data/outputs/strategies/ backtests for validation.
 """
 
 import json
@@ -128,7 +128,7 @@ class CVaRCalculator:
         }
 
     def load_backtest_data(self, strategy_name: str) -> pl.DataFrame:
-        """Load corresponding backtest results from @csv/strategies/ for validation.
+        """Load corresponding backtest results from @data/outputs/strategies/ for validation.
 
         Args:
             strategy_name: Name of strategy (e.g., 'trades', 'portfolio')

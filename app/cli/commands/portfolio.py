@@ -5,6 +5,7 @@ This module provides CLI commands for portfolio processing, aggregation,
 and management operations.
 """
 
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -13,6 +14,8 @@ import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
+
+from app.tools.portfolio.strategy_types import derive_use_sma
 
 from ..config import ConfigLoader
 from ..models.portfolio import (
@@ -163,7 +166,7 @@ def process(
     validates schemas, normalizes data, and exports results in various formats.
 
     Examples:
-        trading-cli portfolio process --input-dir ./csv/portfolios --output-dir ./processed
+        trading-cli portfolio process --input-dir ./data/raw/strategies --output-dir ./processed
         trading-cli portfolio process --profile portfolio_processing --format json
     """
     try:
@@ -449,9 +452,9 @@ def aggregate(
 
         # Discover portfolio files from default locations
         portfolio_dirs = [
-            Path("csv/portfolios"),
-            Path("csv/portfolios_filtered"),
-            Path("csv/portfolios_best"),
+            Path("data/raw/strategies"),
+            Path("data/raw/strategies/filtered"),
+            Path("data/raw/strategies/best"),
         ]
 
         all_files = []
@@ -589,6 +592,29 @@ def review(
     quiet: bool = typer.Option(
         False, "--quiet", "-q", help="Suppress non-essential output"
     ),
+    export_raw_data: bool = typer.Option(
+        False, "--export-raw-data", help="Export raw data from VectorBT portfolios"
+    ),
+    raw_data_formats: Optional[str] = typer.Option(
+        None,
+        "--raw-data-formats",
+        help="Comma-separated export formats: csv,json,parquet,pickle",
+    ),
+    raw_data_types: Optional[str] = typer.Option(
+        None,
+        "--raw-data-types",
+        help="Comma-separated data types: portfolio_value,returns,trades,orders,positions,statistics,price_data,drawdowns,cumulative_returns,all",
+    ),
+    include_vectorbt_objects: bool = typer.Option(
+        False,
+        "--include-vectorbt",
+        help="Export VectorBT portfolio objects for full functionality",
+    ),
+    raw_data_output_dir: Optional[str] = typer.Option(
+        None,
+        "--raw-data-output-dir",
+        help="Custom output directory for raw data exports",
+    ),
 ):
     """
     Run comprehensive portfolio review analysis.
@@ -608,6 +634,15 @@ def review(
 
         # Review with custom output
         trading-cli portfolio review --profile portfolio_review_op --output-format detailed --save-plots
+
+        # Export raw data for external analysis
+        trading-cli portfolio review --profile portfolio_review_btc --export-raw-data
+
+        # Export specific data types and formats
+        trading-cli portfolio review --ticker AAPL --export-raw-data --raw-data-formats csv,json --raw-data-types portfolio_value,returns,trades
+
+        # Export with VectorBT objects for full functionality
+        trading-cli portfolio review --profile portfolio_review_multi_crypto --export-raw-data --include-vectorbt
     """
     try:
         # Load configuration
@@ -626,7 +661,6 @@ def review(
                 "strategy_type": "SMA",
                 "direction": "long",
                 "position_size": 1.0,
-                "use_sma": True,
                 "use_hourly": False,
             }
 
@@ -645,6 +679,26 @@ def review(
         if not export_stats:
             overrides["calculate_risk_metrics"] = False
             overrides["export_equity_curve"] = False
+
+        # Raw data export options
+        if export_raw_data:
+            raw_data_config = {"enable": True}
+
+            if raw_data_output_dir:
+                raw_data_config["output_dir"] = raw_data_output_dir
+
+            if raw_data_formats:
+                formats = [f.strip().lower() for f in raw_data_formats.split(",")]
+                raw_data_config["export_formats"] = formats
+
+            if raw_data_types:
+                types = [t.strip().lower() for t in raw_data_types.split(",")]
+                raw_data_config["data_types"] = types
+
+            if include_vectorbt_objects:
+                raw_data_config["include_vectorbt_object"] = True
+
+            overrides["raw_data_export"] = raw_data_config
 
         overrides["dry_run"] = dry_run
 
@@ -685,6 +739,11 @@ def review(
         from ...contexts.portfolio.services.benchmark_comparison_service import (
             BenchmarkConfig as ServiceBenchmarkConfig,
         )
+        from ...contexts.portfolio.services.portfolio_data_export_service import (
+            DataType,
+            ExportConfig,
+            ExportFormat,
+        )
         from ...contexts.portfolio.services.portfolio_review_service import (
             PortfolioReviewConfig as ServiceConfig,
         )
@@ -711,17 +770,47 @@ def review(
                 ticker=strategy.ticker,
                 short_window=strategy.short_window,
                 long_window=strategy.long_window,
-                strategy_type=strategy.strategy_type.value,
+                strategy_type=strategy.strategy_type.value
+                if hasattr(strategy.strategy_type, "value")
+                else strategy.strategy_type,
                 direction=strategy.direction.value,
                 stop_loss=strategy.stop_loss,
                 position_size=strategy.position_size,
-                use_sma=strategy.use_sma,
+                use_sma=derive_use_sma(
+                    strategy.strategy_type.value
+                    if hasattr(strategy.strategy_type, "value")
+                    else strategy.strategy_type
+                ),
                 use_hourly=strategy.use_hourly,
                 rsi_window=strategy.rsi_window,
                 rsi_threshold=strategy.rsi_threshold,
                 signal_window=strategy.signal_window,
             )
             service_strategies.append(service_strategy)
+
+        # Convert raw data export configuration
+        export_config = None
+        if config.raw_data_export.enable:
+            # Convert CLI enum strings to service enums
+            export_formats = []
+            for fmt_str in config.raw_data_export.export_formats:
+                if hasattr(ExportFormat, fmt_str.upper()):
+                    export_formats.append(getattr(ExportFormat, fmt_str.upper()))
+
+            data_types = []
+            for type_str in config.raw_data_export.data_types:
+                if hasattr(DataType, type_str.upper()):
+                    data_types.append(getattr(DataType, type_str.upper()))
+
+            export_config = ExportConfig(
+                output_dir=str(config.raw_data_export.output_dir),
+                export_formats=export_formats,
+                data_types=data_types,
+                include_vectorbt_object=config.raw_data_export.include_vectorbt_object,
+                filename_prefix=config.raw_data_export.filename_prefix,
+                filename_suffix=config.raw_data_export.filename_suffix,
+                compress=config.raw_data_export.compress,
+            )
 
         service_config = ServiceConfig(
             strategies=service_strategies,
@@ -733,6 +822,8 @@ def review(
             enable_plotting=config.enable_plotting,
             export_equity_curve=config.export_equity_curve,
             calculate_risk_metrics=config.calculate_risk_metrics,
+            export_raw_data=config.raw_data_export.enable,
+            raw_data_export_config=export_config,
         )
 
         # Initialize portfolio review service
@@ -1341,6 +1432,23 @@ def _show_portfolio_review_config_preview(config: PortfolioReviewConfig):
     table.add_row("Export Equity", "✓" if config.export_equity_curve else "✗")
     table.add_row("Generate Plots", "✓" if config.enable_plotting else "✗")
 
+    # Raw data export options
+    table.add_row("Export Raw Data", "✓" if config.raw_data_export.enable else "✗")
+    if config.raw_data_export.enable:
+        table.add_row(
+            "Export Formats",
+            ", ".join([f.value for f in config.raw_data_export.export_formats]),
+        )
+        table.add_row(
+            "Data Types",
+            ", ".join([t.value for t in config.raw_data_export.data_types]),
+        )
+        table.add_row(
+            "Include VectorBT",
+            "✓" if config.raw_data_export.include_vectorbt_object else "✗",
+        )
+        table.add_row("Output Directory", str(config.raw_data_export.output_dir))
+
     # Benchmark
     if config.benchmark:
         table.add_row(
@@ -1360,8 +1468,44 @@ def _display_portfolio_review_results(
 ):
     """Display portfolio review results in specified format."""
 
+    # Portfolio Composition Table (for multi-strategy portfolios)
+    if len(config.strategies) > 1:
+        composition_table = Table(title="Portfolio Composition", show_header=True)
+        composition_table.add_column("Strategy", style="cyan")
+        composition_table.add_column("Ticker", style="yellow")
+        composition_table.add_column("Type", style="magenta")
+        composition_table.add_column("Windows", style="green")
+        composition_table.add_column("Position Size", style="blue", justify="right")
+
+        for strategy in config.strategies:
+            strategy_type = (
+                strategy.strategy_type.value
+                if hasattr(strategy.strategy_type, "value")
+                else strategy.strategy_type
+            )
+            windows = f"{strategy.short_window}/{strategy.long_window}"
+            strategy_name = (
+                f"{strategy.ticker}_{strategy.short_window}_{strategy.long_window}"
+            )
+
+            composition_table.add_row(
+                strategy_name,
+                strategy.ticker,
+                strategy_type,
+                windows,
+                f"{strategy.position_size:.2f}",
+            )
+
+        console.print(composition_table)
+        console.print()  # Add spacing
+
     # Statistics Table
-    stats_table = Table(title="Portfolio Performance Statistics", show_header=True)
+    title = (
+        "Multi-Strategy Portfolio Statistics"
+        if len(config.strategies) > 1
+        else "Portfolio Performance Statistics"
+    )
+    stats_table = Table(title=title, show_header=True)
     stats_table.add_column("Metric", style="cyan", no_wrap=True)
     stats_table.add_column("Value", style="green")
 
@@ -1439,4 +1583,36 @@ def _display_portfolio_review_results(
         if results.benchmark_portfolio:
             summary_table.add_row("Benchmark Comparison", "✓ Complete")
 
+        if results.raw_data_export_results and results.raw_data_export_results.success:
+            summary_table.add_row(
+                "Raw Data Export",
+                f"✓ {results.raw_data_export_results.total_files} files exported",
+            )
+        elif config.raw_data_export.enable:
+            summary_table.add_row("Raw Data Export", "✗ Failed")
+
         console.print(summary_table)
+
+    # Raw Data Export Results (if available)
+    if results.raw_data_export_results and results.raw_data_export_results.success:
+        export_table = Table(title="Raw Data Export Results", show_header=True)
+        export_table.add_column("Data Type", style="cyan")
+        export_table.add_column("Files Exported", style="green", justify="right")
+        export_table.add_column("File Paths", style="dim")
+
+        for (
+            data_type,
+            file_paths,
+        ) in results.raw_data_export_results.exported_files.items():
+            # Show just the filename for brevity
+            filenames = [os.path.basename(fp) for fp in file_paths]
+            export_table.add_row(
+                data_type.replace("_", " ").title(),
+                str(len(file_paths)),
+                ", ".join(filenames[:3]) + ("..." if len(filenames) > 3 else ""),
+            )
+
+        console.print(export_table)
+        rprint(
+            f"\n[dim]Raw data exported to: {config.raw_data_export.output_dir}[/dim]"
+        )

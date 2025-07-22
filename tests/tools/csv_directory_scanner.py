@@ -31,16 +31,12 @@ class CSVDirectoryScanner:
 
         # Define CSV directories to scan
         self.csv_directories = [
-            "csv/portfolios",
-            "csv/portfolios_best",
-            "csv/portfolios_filtered",
-            "csv/strategies",
-            "csv/ma_cross",
-            "csv/macd",
-            "csv/mean_reversion",
-            "csv/mean_reversion_rsi",
-            "csv/mean_reversion_hammer",
-            "csv/range",
+            "data/raw/strategies",
+            "data/raw/strategies/best",
+            "data/raw/strategies/filtered",
+            "data/raw/positions",
+            "data/raw/equity",
+            "data/raw/prices",
         ]
 
     def scan_all_directories(self) -> Dict[str, Dict]:

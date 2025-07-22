@@ -398,8 +398,8 @@ Strategy Parameters:
 ```
 
 ### Appendix B: Data Sources
-- **Statistical Analysis**: exports/statistical_analysis/live_signals.csv
-- **Backtesting Parameters**: exports/backtesting_parameters/live_signals.json
+- **Statistical Analysis**: data/outputs/spds/statistical_analysis/live_signals.csv
+- **Backtesting Parameters**: data/outputs/spds/backtesting_parameters/live_signals.json
 - **Generation Timestamp**: {data.generation_timestamp}
 - **Analysis Framework**: SPDS v1.0.0"""
 

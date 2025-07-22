@@ -61,7 +61,7 @@ class PositionDataLoader:
 
     def __init__(self, log: Optional[Callable[[str, str], None]] = None):
         self.log = log or self._default_log
-        self.positions_dir = Path(get_project_root()) / "csv" / "positions"
+        self.positions_dir = Path(get_project_root()) / "data" / "raw" / "positions"
 
     def _default_log(self, message: str, level: str = "info") -> None:
         """Default logging function when none provided."""

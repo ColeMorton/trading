@@ -344,7 +344,7 @@ def create_strategy_object(
                 import os
 
                 # Try to find the CSV file
-                csv_path = os.path.join("csv/strategies", "DAILY_test.csv")
+                csv_path = os.path.join("data/outputs/strategies", "DAILY_test.csv")
                 if os.path.exists(csv_path):
                     with open(csv_path, "r") as f:
                         reader = csv.DictReader(f)

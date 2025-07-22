@@ -72,18 +72,31 @@ def resolve_portfolio_file_path(
     # First check if the name already has an extension
     if "." in portfolio_name:
         name, ext = portfolio_name.split(".", 1)
-        if ext.lower() in ["csv", "json"]:
+        if ext.lower() in ["csv", "json", "yaml"]:
             # Check CSV directory first
             if ext.lower() == "csv":
                 portfolio_path = base / "csv" / "strategies" / portfolio_name
                 if portfolio_path.exists():
                     return portfolio_path
 
+                # Also check data/raw/strategies for CSV backtest data
+                raw_strategies_path = (
+                    base / "data" / "raw" / "strategies" / portfolio_name
+                )
+                if raw_strategies_path.exists():
+                    return raw_strategies_path
+
             # Check JSON directory for JSON files
             if ext.lower() == "json":
                 portfolio_path = base / "json" / "portfolios" / portfolio_name
                 if portfolio_path.exists():
                     return portfolio_path
+
+            # Check data/portfolios for YAML portfolio definition files
+            if ext.lower() == "yaml":
+                portfolio_def_path = base / "data" / "portfolios" / portfolio_name
+                if portfolio_def_path.exists():
+                    return portfolio_def_path
     else:
         # Try CSV first
         portfolio_path = base / "csv" / "strategies" / f"{portfolio_name}.csv"
@@ -99,6 +112,18 @@ def resolve_portfolio_file_path(
         concurrency_path = base / "json" / "concurrency" / f"{portfolio_name}.json"
         if concurrency_path.exists():
             return concurrency_path
+
+        # Check data/raw/strategies for backtest data files
+        raw_strategies_path = (
+            base / "data" / "raw" / "strategies" / f"{portfolio_name}.csv"
+        )
+        if raw_strategies_path.exists():
+            return raw_strategies_path
+
+        # Check data/portfolios for portfolio definition files
+        portfolio_def_path = base / "data" / "portfolios" / f"{portfolio_name}.yaml"
+        if portfolio_def_path.exists():
+            return portfolio_def_path
 
     # If we get here, the file wasn't found
     raise FileNotFoundError(f"Portfolio file not found: {portfolio_name}")

@@ -17,6 +17,7 @@ from app.tools.portfolio.schema_detection import (
     ensure_allocation_sum_100_percent,
     normalize_portfolio_data,
 )
+from app.tools.portfolio.strategy_types import derive_use_sma
 
 
 def get_best_portfolio(
@@ -82,7 +83,7 @@ def get_best_portfolio(
         # Determine column names based on strategy type
         if strategy_type_present:
             strategy_type = portfolios.select("Strategy Type").row(0)[0]
-            use_sma = strategy_type == "SMA"
+            use_sma = derive_use_sma(strategy_type)
         else:
             use_sma = portfolios.select("Use SMA").row(0)[0]
 

@@ -156,9 +156,9 @@ print(simulations_df)
 
 # Save the simulations to a CSV file
 simulations_df.to_csv(
-    f"csv/geometric_brownian_motion/{config['TICKER']}_gbm_extracted_simulations.csv"
+    f"data/outputs/geometric_brownian_motion/{config['TICKER']}_gbm_extracted_simulations.csv"
 )
 print(
-    f"Simulations saved to csv/geometric_brownian_motion/{config['TICKER']}_gbm_extracted_simulations.csv"
+    f"Simulations saved to data/outputs/geometric_brownian_motion/{config['TICKER']}_gbm_extracted_simulations.csv"
 )
 print(f"Number of rows in extracted simulations: {len(simulations_df)}")

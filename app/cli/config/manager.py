@@ -78,11 +78,31 @@ class ProfileManager:
         if use_cache and name in self._cache:
             return self._cache[name]
 
-        # Search recursively for the profile
+        # Search recursively for the profile with priority order
         profile_path = None
-        for file_path in self.profiles_dir.rglob(f"{name}.yaml"):
-            profile_path = file_path
-            break
+
+        # Priority search paths (portfolio_review takes priority over concurrency)
+        priority_paths = [
+            "portfolio_review/portfolios",
+            "portfolio_review/single",
+            "portfolio_review/multi",
+            "portfolio_review/templates",
+            "strategy",
+            "concurrency",
+        ]
+
+        # First try priority paths
+        for priority_dir in priority_paths:
+            search_path = self.profiles_dir / priority_dir / f"{name}.yaml"
+            if search_path.exists():
+                profile_path = search_path
+                break
+
+        # If not found in priority paths, do general recursive search
+        if not profile_path:
+            for file_path in self.profiles_dir.rglob(f"{name}.yaml"):
+                profile_path = file_path
+                break
 
         if not profile_path:
             raise FileNotFoundError(f"Profile '{name}' not found")
@@ -93,8 +113,11 @@ class ProfileManager:
 
             profile = Profile.from_yaml(content)
 
-            # Skip validation for template profiles
-            if not profile.metadata.is_template:
+            # Skip validation for template profiles or profiles with portfolio_reference
+            if not profile.metadata.is_template and not (
+                profile.config_type == "portfolio_review"
+                and "portfolio_reference" in profile.config
+            ):
                 profile.validate_config()
 
             if use_cache:
@@ -176,41 +199,48 @@ class ProfileManager:
             ValidationError: If inheritance chain is invalid
         """
         if profile.inherits_from is None:
-            return profile.config.copy()
+            merged_config = profile.config.copy()
+        else:
+            # Prevent circular inheritance
+            visited = set()
+            inheritance_chain = []
+            current = profile
 
-        # Prevent circular inheritance
-        visited = set()
-        inheritance_chain = []
-        current = profile
+            while current.inherits_from is not None:
+                if current.metadata.name in visited:
+                    raise ValidationError(
+                        f"Circular inheritance detected: {' -> '.join(inheritance_chain)}",
+                        Profile,
+                    )
 
-        while current.inherits_from is not None:
-            if current.metadata.name in visited:
-                raise ValidationError(
-                    f"Circular inheritance detected: {' -> '.join(inheritance_chain)}",
-                    Profile,
-                )
+                visited.add(current.metadata.name)
+                inheritance_chain.append(current.metadata.name)
 
-            visited.add(current.metadata.name)
-            inheritance_chain.append(current.metadata.name)
+                try:
+                    current = self.load_profile(current.inherits_from)
+                except FileNotFoundError:
+                    raise ValidationError(
+                        f"Parent profile '{current.inherits_from}' not found", Profile
+                    )
 
-            try:
-                current = self.load_profile(current.inherits_from)
-            except FileNotFoundError:
-                raise ValidationError(
-                    f"Parent profile '{current.inherits_from}' not found", Profile
-                )
+            # Merge configurations from parent to child
+            merged_config = current.config.copy()
 
-        # Merge configurations from parent to child
-        merged_config = current.config.copy()
+            # Walk back through inheritance chain
+            for profile_name in reversed(inheritance_chain):
+                if profile_name == profile.metadata.name:
+                    child_profile = profile
+                else:
+                    child_profile = self.load_profile(profile_name)
 
-        # Walk back through inheritance chain
-        for profile_name in reversed(inheritance_chain):
-            if profile_name == profile.metadata.name:
-                child_profile = profile
-            else:
-                child_profile = self.load_profile(profile_name)
+                merged_config = self._merge_configs(merged_config, child_profile.config)
 
-            merged_config = self._merge_configs(merged_config, child_profile.config)
+        # Resolve portfolio_reference if present (for portfolio_review configs)
+        if (
+            profile.config_type == "portfolio_review"
+            and "portfolio_reference" in merged_config
+        ):
+            merged_config = self._resolve_portfolio_reference(merged_config)
 
         return merged_config
 
@@ -278,6 +308,59 @@ class ProfileManager:
         # Keep only the most recent backups
         for backup in backups[self.config.backup_count :]:
             backup.unlink()
+
+    def _resolve_portfolio_reference(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        """Resolve portfolio_reference by loading strategies from referenced portfolio file.
+
+        Args:
+            config: Configuration dictionary that may contain portfolio_reference
+
+        Returns:
+            Configuration with strategies merged from referenced portfolio file
+        """
+        portfolio_reference = config.get("portfolio_reference")
+        if not portfolio_reference:
+            return config
+
+        from pathlib import Path
+
+        import yaml
+
+        # Resolve portfolio reference path relative to project root
+        project_root = Path(__file__).parent.parent.parent.parent
+        portfolio_path = project_root / portfolio_reference
+
+        if not portfolio_path.exists():
+            raise ValidationError(
+                f"Portfolio reference file not found: {portfolio_path}",
+                Profile,
+            )
+
+        try:
+            with open(portfolio_path, "r") as f:
+                portfolio_data = yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            raise ValidationError(
+                f"Invalid YAML in portfolio reference {portfolio_path}: {e}",
+                Profile,
+            )
+
+        # Extract strategies from the referenced portfolio
+        strategies = portfolio_data.get("strategies", [])
+        if not strategies:
+            raise ValidationError(
+                f"No strategies found in portfolio reference: {portfolio_path}",
+                Profile,
+            )
+
+        # Create a copy of config and merge in the strategies
+        resolved_config = config.copy()
+        resolved_config["strategies"] = strategies
+
+        # Remove the portfolio_reference as it's been resolved
+        resolved_config.pop("portfolio_reference", None)
+
+        return resolved_config
 
     def _merge_configs(
         self, base: Dict[str, Any], override: Dict[str, Any]

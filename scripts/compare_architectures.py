@@ -48,7 +48,7 @@ class ArchitectureComparison:
 
     def __init__(self):
         self.results: List[BenchmarkComparison] = []
-        self.portfolio_dir = Path("csv/positions")
+        self.portfolio_dir = Path("data/raw/positions")
         self.portfolio_dir.mkdir(parents=True, exist_ok=True)
 
     def create_test_portfolio(self, size: int) -> str:

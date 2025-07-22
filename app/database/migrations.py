@@ -91,7 +91,7 @@ class DataMigrator:
 
     async def migrate_tickers(self):
         """Extract and migrate ticker information from price data files."""
-        price_data_dir = self.project_root / "csv" / "price_data"
+        price_data_dir = self.project_root / "data" / "raw" / "prices"
 
         if not price_data_dir.exists():
             logger.warning(f"Price data directory not found: {price_data_dir}")
@@ -160,7 +160,7 @@ class DataMigrator:
 
     async def migrate_price_data(self, batch_size: int = 1000):
         """Migrate price data from CSV files."""
-        price_data_dir = self.project_root / "csv" / "price_data"
+        price_data_dir = self.project_root / "data" / "raw" / "prices"
 
         if not price_data_dir.exists():
             logger.warning(f"Price data directory not found: {price_data_dir}")

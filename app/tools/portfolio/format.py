@@ -9,6 +9,7 @@ from typing import Any, Callable, Dict, List
 
 import polars as pl
 
+from app.tools.portfolio.strategy_types import derive_use_sma
 from app.tools.portfolio.strategy_utils import (
     create_strategy_type_fields,
     determine_strategy_type,
@@ -172,7 +173,12 @@ def convert_csv_to_strategy_config(
                 strategy_config["multiplier"] = float(row["MULTIPLIER"])
 
         # Determine if we should use SMA or EMA
-        use_sma = row.get("USE_SMA", True) if "USE_SMA" in row else True
+        if "STRATEGY_TYPE" in row and row["STRATEGY_TYPE"] is not None:
+            use_sma = derive_use_sma(row["STRATEGY_TYPE"])
+        elif "USE_SMA" in row:
+            use_sma = row.get("USE_SMA", True)
+        else:
+            use_sma = True  # Default to SMA
 
         # Add window parameters if available
         if "SHORT_WINDOW" in row and row["SHORT_WINDOW"] is not None:

@@ -39,7 +39,7 @@ class DataExportService:
         """Initialize the data export service."""
         self.config = config or get_spds_config()
         self.logger = logger or logging.getLogger(__name__)
-        self.base_export_path = base_export_path or Path("exports")
+        self.base_export_path = base_export_path or Path("data/outputs/spds")
 
         # Ensure export directory exists
         self.base_export_path.mkdir(parents=True, exist_ok=True)

@@ -108,7 +108,7 @@ def create_portfolio_plot_files(
     strategy_type = config.get("STRATEGY_TYPE", "SMA")
     strategy_type_dir = "macd" if strategy_type == "MACD" else "ma_cross"
 
-    output_dir = f'csv/{strategy_type_dir}/plots/{config["TICKER"]}'
+    output_dir = f'data/outputs/{strategy_type_dir}/plots/{config["TICKER"]}'
 
     try:
         created_files = save_portfolio_plots(

@@ -245,7 +245,7 @@ def export_portfolios(
     export_type: str,
     csv_filename: Optional[str] | None = None,
     log: Optional[Callable] | None = None,
-    feature_dir: str = "",  # Default to empty string for direct export to csv/portfolios/
+    feature_dir: str = "",  # Default to empty string for direct export to data/raw/strategies/
 ) -> Tuple[pl.DataFrame, bool]:
     """Convert portfolio dictionaries to Polars DataFrame and export to CSV.
 
@@ -255,7 +255,7 @@ def export_portfolios(
         export_type (str): Type of export (must be one of: portfolios, portfolios_scanner, portfolios_filtered, portfolios_best)
         csv_filename (Optional[str]): Optional custom filename for the CSV
         log (Optional[Callable]): Optional logging function
-        feature_dir (str): Directory to export to (default: "" for direct export to csv/portfolios/)
+        feature_dir (str): Directory to export to (default: "" for direct export to data/raw/strategies/)
                           Can be set to "ma_cross" or "strategies" for backward compatibility
 
     Returns:
@@ -770,7 +770,7 @@ def export_portfolios(
                 "warning",
             )
 
-        # Special case for strategies module: export directly to /csv/strategies/
+        # Special case for strategies module: export directly to /data/raw/strategies/
         if feature_dir == "strategies":
             # Skip the export_type (feature2) to avoid creating a subdirectory
             return export_csv(

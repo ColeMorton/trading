@@ -256,8 +256,8 @@ def create_test_csv_files(output_dir: Path) -> Dict[str, Path]:
 
 # Reference data from actual portfolio files
 REFERENCE_FILES = [
-    "/Users/colemorton/Projects/trading/csv/portfolios_best/20250605/20250605_2112_D.csv",
-    "/Users/colemorton/Projects/trading/csv/portfolios_best/USLM_20250605_0950_D.csv",
+    "/Users/colemorton/Projects/trading/data/outputs/portfolio_analysis/best/20250605/20250605_2112_D.csv",
+    "/Users/colemorton/Projects/trading/data/outputs/portfolio_analysis/best/USLM_20250605_0950_D.csv",
 ]
 
 

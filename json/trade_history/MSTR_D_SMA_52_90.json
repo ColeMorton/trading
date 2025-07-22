@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-06-25T09:58:01.684439",
+    "export_timestamp": "2025-07-22T11:43:03.800955",
     "strategy_config": {
       "ticker": "MSTR",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 96.14995325377733,
+      "total_return": 108.84319972734174,
       "total_trades": "39",
-      "win_rate": 0.5897435897435898,
-      "sharpe_ratio": 0.7119192055393537,
+      "win_rate": 0.6153846153846154,
+      "sharpe_ratio": 0.7215312348998049,
       "max_drawdown": -0.9258642735845724
     }
   },
@@ -822,10 +822,10 @@
       "Entry Timestamp": "2025-05-16 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 399.79998779296875,
-      "Avg Exit Price": 377.0199890136719,
+      "Avg Exit Price": 426.2799987792969,
       "Size": 257.67852125807144,
-      "PnL": -5972.936269363374,
-      "Return": -0.057978487931053126,
+      "PnL": 6720.310204201043,
+      "Return": 0.06523314606012572,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -833,11 +833,11 @@
       "Entry_Month": "2025-05",
       "Entry_Year": 2025.0,
       "Entry_Quarter": 2.0,
-      "Trade_Type": "Big Loser",
-      "Cumulative_PnL": 96149.95325377732,
+      "Trade_Type": "Big Winner",
+      "Cumulative_PnL": 108843.19972734174,
       "Trade_Number": 39,
-      "Rolling_Avg_Return": 0.3584222376959135,
-      "Rolling_Win_Rate": 0.6
+      "Rolling_Avg_Return": 0.3830645644941493,
+      "Rolling_Win_Rate": 0.8
     }
   ],
   "orders": [
@@ -2228,15 +2228,15 @@
       "Avg Entry Price": 399.79998779296875,
       "Entry Fees": 103.01986965347896,
       "Exit Timestamp": null,
-      "Avg Exit Price": 377.0199890136719,
+      "Avg Exit Price": 426.2799987792969,
       "Exit Fees": 0.0,
-      "PnL": -5972.936269363374,
-      "Return": -0.057978487931053126,
+      "PnL": 6720.310204201043,
+      "Return": 0.06523314606012572,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
       "Duration_Days": null,
-      "Position_Type": "Big Loser"
+      "Position_Type": "Big Winner"
     }
   ],
   "analytics": {

@@ -174,7 +174,7 @@ class StatisticalAnalysisService:
             # Determine position file path - ensure .csv extension
             if not portfolio_name.endswith(".csv"):
                 portfolio_name = f"{portfolio_name}.csv"
-            position_file_path = Path("csv/positions") / portfolio_name
+            position_file_path = Path("data/raw/positions") / portfolio_name
 
             if not position_file_path.exists():
                 self.logger.warning(f"Position file not found: {position_file_path}")

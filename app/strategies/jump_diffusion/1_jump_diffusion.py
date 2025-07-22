@@ -226,7 +226,7 @@ results_df = pl.DataFrame(
 )
 
 # Create directory if it doesn't exist
-os.makedirs("csv/jump_diffusion", exist_ok=True)
+os.makedirs("data/outputs/jump_diffusion", exist_ok=True)
 
-results_df.write_csv(f"csv/jump_diffusion/{TICKER}_model_comparison.csv")
-print(f"\nResults saved to csv/jump_diffusion/{TICKER}_model_comparison.csv")
+results_df.write_csv(f"data/outputs/jump_diffusion/{TICKER}_model_comparison.csv")
+print(f"\nResults saved to data/outputs/jump_diffusion/{TICKER}_model_comparison.csv")
