@@ -90,8 +90,11 @@ def schema(
         if profile:
             config = loader.load_from_profile(profile, SchemaConfig, overrides)
         else:
-            template = loader.get_config_template("schema")
-            config = loader.load_from_dict(template, SchemaConfig, overrides)
+            rprint(
+                "[red]Error: No profile specified. Schema tools require a configuration profile.[/red]"
+            )
+            rprint("Please specify a profile using --profile or -p option")
+            raise typer.Exit(1)
 
         if verbose:
             rprint("[dim]Loading schema detection modules...[/dim]")
@@ -278,8 +281,11 @@ def validate(
         if profile:
             config = loader.load_from_profile(profile, ValidationConfig, overrides)
         else:
-            template = loader.get_config_template("validation")
-            config = loader.load_from_dict(template, ValidationConfig, overrides)
+            rprint(
+                "[red]Error: No profile specified. Validation tools require a configuration profile.[/red]"
+            )
+            rprint("Please specify a profile using --profile or -p option")
+            raise typer.Exit(1)
 
         if verbose:
             rprint("[dim]Loading validation modules...[/dim]")
@@ -441,8 +447,11 @@ def health(
         if profile:
             config = loader.load_from_profile(profile, HealthConfig, overrides)
         else:
-            template = loader.get_config_template("health")
-            config = loader.load_from_dict(template, HealthConfig, overrides)
+            rprint(
+                "[red]Error: No profile specified. Health tools require a configuration profile.[/red]"
+            )
+            rprint("Please specify a profile using --profile or -p option")
+            raise typer.Exit(1)
 
         rprint("🔍 Running system health checks...")
 

@@ -88,18 +88,7 @@ CONFIG: Config = {
     "YEARS": 15,
     "USE_SYNTHETIC": False,
     "USE_CURRENT": True,
-    "MINIMUMS": {
-        "WIN_RATE": 0.5,
-        "TRADES": 44,
-        # "WIN_RATE": 0.50,
-        # "TRADES": 54,
-        # "WIN_RATE": 0.61,
-        "EXPECTANCY_PER_TRADE": 0.5,
-        "PROFIT_FACTOR": 1.236,
-        "SORTINO_RATIO": 0.5,
-        # "BEATS_BNH": 0
-        # "BEATS_BNH": 0.13
-    },
+    "MINIMUMS": {},
     "SORT_BY": "Score",
     "SORT_ASC": False,
     "USE_GBM": False,

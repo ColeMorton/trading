@@ -93,9 +93,10 @@ def run(
         if profile:
             config = loader.load_from_profile(profile, StrategyConfig, overrides)
         else:
-            # Use default strategy template
-            template = loader.get_config_template("strategy")
-            config = loader.load_from_dict(template, StrategyConfig, overrides)
+            # Use default strategy profile
+            config = loader.load_from_profile(
+                "default_strategy", StrategyConfig, overrides
+            )
 
         # Validate parameter relationships
         validate_parameter_relationships(config)
@@ -205,8 +206,10 @@ def sweep(
         if profile:
             config = loader.load_from_profile(profile, StrategyConfig, overrides)
         else:
-            template = loader.get_config_template("strategy")
-            config = loader.load_from_dict(template, StrategyConfig, overrides)
+            # Use default strategy profile
+            config = loader.load_from_profile(
+                "default_strategy", StrategyConfig, overrides
+            )
 
         # Validate parameter relationships
         validate_parameter_relationships(config)

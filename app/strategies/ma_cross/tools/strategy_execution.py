@@ -25,7 +25,10 @@ from app.tools.portfolio.schema_detection import (
     ensure_allocation_sum_100_percent,
     normalize_portfolio_data,
 )
-from app.tools.portfolio.selection import get_best_portfolio
+from app.tools.portfolio.selection import (
+    get_best_portfolio,
+    get_best_portfolios_per_strategy_type,
+)
 from app.tools.stats_converter import convert_stats
 from app.tools.strategy.export_portfolios import PortfolioExportError, export_portfolios
 from app.tools.strategy.filter_portfolios import filter_portfolios
@@ -182,12 +185,9 @@ def process_single_ticker(
     if progress_tracker:
         progress_tracker.update(message=f"Filtering portfolios for {ticker}")
 
-    from app.tools.portfolio.filtering_service import PortfolioFilterService
+    from app.tools.strategy.filter_portfolios import filter_portfolios
 
-    filter_service = PortfolioFilterService()
-    portfolios_df = filter_service.filter_portfolios_dataframe(
-        portfolios_df, ticker_config, log
-    )
+    portfolios_df = filter_portfolios(portfolios_df, ticker_config, log)
 
     # Check if any portfolios remain after filtering
     if portfolios_df is None or len(portfolios_df) == 0:
@@ -227,6 +227,7 @@ def process_single_ticker(
         return None
 
     # Filter portfolios for individual ticker
+    # Apply filtering to get filtered portfolios
     filtered_portfolios = filter_portfolios(portfolios_df, ticker_config, log)
     if filtered_portfolios is None:
         return None
@@ -269,11 +270,22 @@ def process_single_ticker(
             "error",
         )
 
-    # Get best portfolio
-    best_portfolio = get_best_portfolio(filtered_portfolios, ticker_config, log)
-    if best_portfolio is not None:
-        log(f"Best portfolio for {actual_ticker}:")
-        return best_portfolio
+    # Get best portfolios (one per strategy type if multiple exist)
+    best_portfolios = get_best_portfolios_per_strategy_type(
+        filtered_portfolios, ticker_config, log
+    )
+
+    if best_portfolios:
+        log(f"Found {len(best_portfolios)} best portfolio(s) for {actual_ticker}")
+
+        # For backward compatibility, return first portfolio if only one exists
+        # This preserves existing behavior for single-strategy scenarios
+        if len(best_portfolios) == 1:
+            return best_portfolios[0]
+        else:
+            # For multi-strategy scenarios, return all best portfolios
+            # The calling code will need to handle the list format
+            return best_portfolios
 
     return None
 

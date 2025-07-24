@@ -1,0 +1,59 @@
+metadata:
+  name: default_trade_history
+  description: Default configuration for trade history analysis and position management
+  created_at: '2025-07-24T16:30:00.000000'
+  updated_at: '2025-07-24T16:30:00.000000'
+  version: '1.0'
+  tags:
+    - default
+    - trade_history
+    - positions
+  author: Claude Code Assistant
+
+inherits_from: null
+config_type: portfolio
+
+config:
+  # Analysis configuration
+  analysis:
+    use_statistical_data: true
+    use_backtesting_data: true
+    use_trade_history: true
+    enable_risk_scoring: true
+    confidence_threshold: 70.0
+
+  # Output configuration
+  output:
+    output_format: markdown
+    show_progress: true
+    verbose: false
+    include_appendices: true
+
+  # Position configuration
+  position:
+    timeframe: D
+    use_auto_sizing: true
+    risk_per_trade: 0.02
+
+  # Listing configuration
+  listing:
+    show_signals: true
+    show_performance: true
+    sort_by: confidence
+    sort_descending: true
+
+  # Update configuration
+  update:
+    refresh_prices: true
+    recalculate_metrics: true
+    update_risk_assessment: true
+    update_signals: true
+    portfolio: live_signals
+    parallel_processing: true
+
+  # Validation configuration
+  validation:
+    check_data_integrity: true
+    check_file_existence: true
+    check_strategy_data: true
+    check_dependencies: true

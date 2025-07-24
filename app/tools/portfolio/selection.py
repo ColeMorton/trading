@@ -5,7 +5,7 @@ This module handles the selection of the best portfolio based on consistent
 Short Window/Long Window combinations in top performing portfolios.
 """
 
-from typing import Optional
+from typing import List, Optional
 
 import polars as pl
 
@@ -20,14 +20,13 @@ from app.tools.portfolio.schema_detection import (
 from app.tools.portfolio.strategy_types import derive_use_sma
 
 
-def get_best_portfolio(
+def get_best_portfolios_per_strategy_type(
     portfolios: pl.DataFrame, config: Config, log: callable
-) -> Optional[dict]:
+) -> List[dict]:
     """
-    Get the best portfolio based on Short Window/Long Window combination frequency in top performers.
+    Get the best portfolio for each strategy type based on consistent parameter combinations.
 
-    The function analyzes the top performing portfolios to find the most consistent
-    Short Window/Long Window combination using four criteria:
+    Groups portfolios by strategy type and finds the best configuration for each using:
     1. If the top 3 portfolios have the same combination
     2. If 3 out of top 5 portfolios have the same combination
     3. If 5 out of top 8 portfolios have the same combination
@@ -39,10 +38,108 @@ def get_best_portfolio(
         log (callable): Logging function
 
     Returns:
-        Optional[dict]: Best portfolio if found, None otherwise
+        List[dict]: Best portfolio for each strategy type, empty list if none found
 
     Raises:
         ValueError: If portfolios DataFrame is empty or missing required columns
+    """
+    try:
+        # Initial validation
+        if portfolios is None or portfolios.height == 0:
+            log("No portfolios provided for analysis", "error")
+            return []
+
+        # Check for strategy type column
+        strategy_type_present = "Strategy Type" in portfolios.columns
+        use_sma_present = "Use SMA" in portfolios.columns
+
+        if not (strategy_type_present or use_sma_present):
+            log("Missing strategy type information in portfolios DataFrame", "error")
+            return []
+
+        best_portfolios = []
+
+        if strategy_type_present:
+            # Group by strategy type and process each separately
+            unique_strategy_types = (
+                portfolios.select("Strategy Type").unique().to_series().to_list()
+            )
+            log(f"Found strategy types: {unique_strategy_types}", "info")
+
+            for strategy_type in unique_strategy_types:
+                strategy_portfolios = portfolios.filter(
+                    pl.col("Strategy Type") == strategy_type
+                )
+                log(
+                    f"Processing {len(strategy_portfolios)} portfolios for {strategy_type}",
+                    "info",
+                )
+
+                best_portfolio = _get_best_single_strategy_portfolio(
+                    strategy_portfolios, config, log
+                )
+                if best_portfolio:
+                    best_portfolios.append(best_portfolio)
+                    log(
+                        f"Found best {strategy_type} portfolio: {best_portfolio.get('Short Window', 'N/A')}/{best_portfolio.get('Long Window', 'N/A')}",
+                        "info",
+                    )
+        else:
+            # Legacy mode - use single strategy selection
+            best_portfolio = _get_best_single_strategy_portfolio(
+                portfolios, config, log
+            )
+            if best_portfolio:
+                best_portfolios.append(best_portfolio)
+
+        log(
+            f"Selected {len(best_portfolios)} best portfolios across all strategy types",
+            "info",
+        )
+        return best_portfolios
+
+    except Exception as e:
+        log(f"Error in get_best_portfolios_per_strategy_type: {str(e)}", "error")
+        return []
+
+
+def get_best_portfolio(
+    portfolios: pl.DataFrame, config: Config, log: callable
+) -> Optional[dict]:
+    """
+    Legacy compatibility function - returns single best portfolio.
+
+    For multi-strategy scenarios, use get_best_portfolios_per_strategy_type instead.
+    This function returns the first best portfolio found across all strategy types.
+
+    Args:
+        portfolios (pl.DataFrame): DataFrame containing portfolio results
+        config (Config): Configuration dictionary
+        log (callable): Logging function
+
+    Returns:
+        Optional[dict]: Best portfolio if found, None otherwise
+    """
+    best_portfolios = get_best_portfolios_per_strategy_type(portfolios, config, log)
+    return best_portfolios[0] if best_portfolios else None
+
+
+def _get_best_single_strategy_portfolio(
+    portfolios: pl.DataFrame, config: Config, log: callable
+) -> Optional[dict]:
+    """
+    Internal function to get best portfolio for a single strategy type.
+
+    This contains the original logic from get_best_portfolio but works on
+    portfolios of a single strategy type only.
+
+    Args:
+        portfolios (pl.DataFrame): DataFrame containing single strategy type portfolios
+        config (Config): Configuration dictionary
+        log (callable): Logging function
+
+    Returns:
+        Optional[dict]: Best portfolio if found, None otherwise
     """
     try:
         # Initial validation
@@ -80,17 +177,17 @@ def get_best_portfolio(
                 "info",
             )
 
-        # Determine column names based on strategy type
+        # Determine strategy type for logging
         if strategy_type_present:
             strategy_type = portfolios.select("Strategy Type").row(0)[0]
             use_sma = derive_use_sma(strategy_type)
+            log(f"Processing {strategy_type} strategy portfolios", "info")
         else:
             use_sma = portfolios.select("Use SMA").row(0)[0]
+            log(f"Using strategy type: {'SMA' if use_sma else 'EMA'}", "info")
 
         fast_col = "Short Window"
         slow_col = "Long Window"
-
-        log(f"Using strategy type: {'SMA' if use_sma else 'EMA'}", "info")
         log(f"Fast column: {fast_col}, Slow column: {slow_col}", "info")
 
         # Sort using centralized function

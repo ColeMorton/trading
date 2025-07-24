@@ -84,8 +84,9 @@ def update(
         if profile:
             config = loader.load_from_profile(profile, PortfolioConfig, overrides)
         else:
-            template = loader.get_config_template("portfolio")
-            config = loader.load_from_dict(template, PortfolioConfig, overrides)
+            config = loader.load_from_profile(
+                "default_portfolio", PortfolioConfig, overrides
+            )
 
         if dry_run:
             _show_portfolio_config_preview(config)
@@ -190,9 +191,8 @@ def process(
                 profile, PortfolioProcessingConfig, overrides
             )
         else:
-            template = loader.get_config_template("portfolio")
-            config = loader.load_from_dict(
-                template, PortfolioProcessingConfig, overrides
+            config = loader.load_from_profile(
+                "default_portfolio", PortfolioProcessingConfig, overrides
             )
 
         if dry_run:
@@ -418,9 +418,8 @@ def aggregate(
                 profile, PortfolioProcessingConfig, overrides
             )
         else:
-            template = loader.get_config_template("portfolio")
-            config = loader.load_from_dict(
-                template, PortfolioProcessingConfig, overrides
+            config = loader.load_from_profile(
+                "default_portfolio", PortfolioProcessingConfig, overrides
             )
 
         rprint("[bold]Aggregating portfolio results...[/bold]")

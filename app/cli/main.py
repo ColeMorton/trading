@@ -130,7 +130,7 @@ def status():
             table.add_row(
                 "Available Profiles",
                 "⚠ None",
-                "Use 'trading-cli config create-defaults' to create default profiles",
+                "Use 'trading-cli init' to verify default profiles",
             )
 
         console.print(table)
@@ -138,7 +138,7 @@ def status():
         # Show quick help
         rprint("\n[bold]Quick Start:[/bold]")
         rprint(
-            "• [cyan]trading-cli config create-defaults[/cyan] - Create default configuration profiles"
+            "• [cyan]trading-cli init[/cyan] - Initialize and verify default configuration profiles"
         )
         rprint("• [cyan]trading-cli config list[/cyan] - List available profiles")
         rprint(
@@ -165,17 +165,35 @@ def init():
         profiles_dir.mkdir(parents=True, exist_ok=True)
         rprint(f"✓ Created profiles directory: [cyan]{profiles_dir}[/cyan]")
 
-        # Create default profiles
-        with console.status("[bold green]Creating default profiles..."):
-            created_profiles = loader.create_default_profiles()
+        # Verify required default profiles exist
+        with console.status("[bold green]Verifying default profiles..."):
+            required_profiles = [
+                "default_strategy",
+                "default_portfolio",
+                "default_trade_history",
+                "ma_cross_crypto",
+            ]
 
-        for profile_name in created_profiles:
-            rprint(f"✓ Created profile: [green]{profile_name}[/green]")
+            verified_profiles = []
+            for profile_name in required_profiles:
+                try:
+                    # Try to load the profile to verify it exists and is valid
+                    profile = config_manager.profile_manager.load_profile(profile_name)
+                    verified_profiles.append(profile_name)
+                except Exception:
+                    rprint(
+                        f"⚠ Profile not found or invalid: [yellow]{profile_name}[/yellow]"
+                    )
+
+        for profile_name in verified_profiles:
+            rprint(f"✓ Verified profile: [green]{profile_name}[/green]")
 
         # Set default profile
-        if created_profiles:
-            config_manager.set_default_profile(created_profiles[0])
-            rprint(f"✓ Set default profile: [green]{created_profiles[0]}[/green]")
+        if verified_profiles:
+            config_manager.set_default_profile(verified_profiles[0])
+            rprint(f"✓ Set default profile: [green]{verified_profiles[0]}[/green]")
+        else:
+            rprint("[yellow]Warning: No valid default profiles found[/yellow]")
 
         rprint("\n[bold green]Initialization complete![/bold green]")
         rprint("Use [cyan]trading-cli status[/cyan] to check system status")

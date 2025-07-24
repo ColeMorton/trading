@@ -247,8 +247,6 @@ def analyze(
                 config = loader.load_from_profile(profile, ConcurrencyConfig, overrides)
             elif resolution_type in ["portfolio_reference", "portfolio_definition"]:
                 # Portfolio definition or reference - use default concurrency config with portfolio override
-                template = loader.get_config_template("concurrency")
-
                 # Add portfolio path to overrides
                 if "general" not in overrides:
                     overrides["general"] = {}
@@ -258,7 +256,9 @@ def analyze(
                 portfolio_filename = PathClass(portfolio_path).name
                 overrides["general"]["portfolio"] = portfolio_filename
 
-                config = loader.load_from_dict(template, ConcurrencyConfig, overrides)
+                config = loader.load_from_profile(
+                    "default_concurrency", ConcurrencyConfig, overrides
+                )
 
                 rprint(
                     f"[dim]Using portfolio definition: {portfolio_path} (resolved from profile '{profile}')[/dim]"
@@ -267,8 +267,9 @@ def analyze(
                 # Fallback to direct profile loading
                 config = loader.load_from_profile(profile, ConcurrencyConfig, overrides)
         else:
-            template = loader.get_config_template("concurrency")
-            config = loader.load_from_dict(template, ConcurrencyConfig, overrides)
+            config = loader.load_from_profile(
+                "default_concurrency", ConcurrencyConfig, overrides
+            )
 
         # Validate that we have a portfolio to analyze
         final_portfolio = config.general.portfolio

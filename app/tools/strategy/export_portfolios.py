@@ -351,17 +351,36 @@ def export_portfolios(
                 "info",
             )
 
-        # Phase 4: Special handling for portfolios_best with metric type aggregation
-        if export_type == "portfolios_best" and "Metric Type" in df.columns:
+        # Phase 4: Special handling for portfolios_best with metric type aggregation or multiple strategy types
+        has_metric_type = "Metric Type" in df.columns
+        has_multiple_strategy_types = (
+            "Strategy Type" in df.columns
+            and len(df.select("Strategy Type").unique()) > 1
+        )
+
+        if export_type == "portfolios_best" and (
+            has_metric_type or has_multiple_strategy_types
+        ):
             from app.tools.portfolio.collection import (
                 deduplicate_and_aggregate_portfolios,
             )
 
             if log:
-                log(
-                    "📊 DETECTED Metric Type column - applying aggregation for portfolios_best export",
-                    "info",
-                )
+                if has_metric_type and has_multiple_strategy_types:
+                    log(
+                        "📊 DETECTED Metric Type column AND multiple strategy types - applying aggregation for portfolios_best export",
+                        "info",
+                    )
+                elif has_metric_type:
+                    log(
+                        "📊 DETECTED Metric Type column - applying aggregation for portfolios_best export",
+                        "info",
+                    )
+                elif has_multiple_strategy_types:
+                    log(
+                        "📊 DETECTED multiple strategy types - applying aggregation for portfolios_best export",
+                        "info",
+                    )
 
                 # Log detailed pre-aggregation data
                 pre_agg_cbre = df.filter(pl.col("Ticker") == "CBRE")

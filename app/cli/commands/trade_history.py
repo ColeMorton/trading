@@ -148,8 +148,9 @@ def close(
         if profile:
             config = loader.load_from_profile(profile, TradeHistoryConfig, overrides)
         else:
-            template = loader.get_config_template("trade_history")
-            config = loader.load_from_dict(template, TradeHistoryConfig, overrides)
+            config = loader.load_from_profile(
+                "default_trade_history", TradeHistoryConfig, overrides
+            )
 
         if verbose:
             rprint(f"[dim]Generating sell signal report for: {strategy}[/dim]")

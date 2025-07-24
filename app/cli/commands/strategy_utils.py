@@ -168,8 +168,6 @@ def convert_to_legacy_config(
         "USE_YEARS": config.use_years,
         "YEARS": config.years,
         "REFRESH": config.refresh,
-        # Filtering minimums
-        "MINIMUMS": {},
         # Synthetic ticker support
         "USE_SYNTHETIC": config.synthetic.use_synthetic,
         # Additional features
@@ -182,21 +180,24 @@ def convert_to_legacy_config(
         "USE_CURRENT": config.filter.use_current,
     }
 
-    # Add minimums if they exist
+    # Add minimums if they exist - only add non-empty MINIMUMS dict to avoid unwanted filtering
+    minimums_dict = {}
     if config.minimums.win_rate is not None:
-        legacy_config["MINIMUMS"]["WIN_RATE"] = config.minimums.win_rate
+        minimums_dict["WIN_RATE"] = config.minimums.win_rate
     if config.minimums.trades is not None:
-        legacy_config["MINIMUMS"]["TRADES"] = config.minimums.trades
+        minimums_dict["TRADES"] = config.minimums.trades
     if config.minimums.expectancy_per_trade is not None:
-        legacy_config["MINIMUMS"][
-            "EXPECTANCY_PER_TRADE"
-        ] = config.minimums.expectancy_per_trade
+        minimums_dict["EXPECTANCY_PER_TRADE"] = config.minimums.expectancy_per_trade
     if config.minimums.profit_factor is not None:
-        legacy_config["MINIMUMS"]["PROFIT_FACTOR"] = config.minimums.profit_factor
+        minimums_dict["PROFIT_FACTOR"] = config.minimums.profit_factor
     if config.minimums.sortino_ratio is not None:
-        legacy_config["MINIMUMS"]["SORTINO_RATIO"] = config.minimums.sortino_ratio
+        minimums_dict["SORTINO_RATIO"] = config.minimums.sortino_ratio
     if config.minimums.beats_bnh is not None:
-        legacy_config["MINIMUMS"]["BEATS_BNH"] = config.minimums.beats_bnh
+        minimums_dict["BEATS_BNH"] = config.minimums.beats_bnh
+
+    # Only set MINIMUMS if there are actual minimum values to avoid unwanted filtering
+    if minimums_dict:
+        legacy_config["MINIMUMS"] = minimums_dict
 
     # Handle synthetic ticker configuration
     if config.synthetic.use_synthetic:

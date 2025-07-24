@@ -39,14 +39,37 @@ def analyze_parameter_sensitivity(
                         {"short_window": short_window, "long_window": long_window}
                     )
 
-        # Analyze all parameter combinations
-        portfolios = analyze_parameter_combinations(
-            data,
-            parameter_sets,
-            config,
-            log,
-            strategy_type=config.get("STRATEGY_TYPE", "SMA"),
+        # Handle multiple strategy types
+        strategy_types = config.get(
+            "strategy_types", [config.get("STRATEGY_TYPE", "SMA")]
         )
+        if isinstance(strategy_types, str):
+            strategy_types = [strategy_types]
+
+        log(f"Analyzing {len(strategy_types)} strategy type(s): {strategy_types}")
+
+        all_portfolios = []
+        for strategy_type in strategy_types:
+            log(f"Analyzing parameter combinations for {strategy_type} strategy")
+
+            # Analyze parameter combinations for this strategy type
+            strategy_portfolios = analyze_parameter_combinations(
+                data,
+                parameter_sets,
+                config,
+                log,
+                strategy_type=strategy_type,
+            )
+
+            if strategy_portfolios:
+                log(
+                    f"Generated {len(strategy_portfolios)} portfolios for {strategy_type}"
+                )
+                all_portfolios.extend(strategy_portfolios)
+            else:
+                log(f"No portfolios generated for {strategy_type}", "warning")
+
+        portfolios = all_portfolios
 
         if not portfolios:
             log("No valid portfolios generated", "warning")
