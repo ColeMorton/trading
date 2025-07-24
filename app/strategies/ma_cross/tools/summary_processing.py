@@ -332,8 +332,8 @@ def export_summary_results(
             except Exception as e:
                 log(f"Error during sorting: {str(e)}", "warning")
 
-        # Use empty string for feature_dir to export directly to /csv/portfolios/
-        # instead of /csv/ma_cross/portfolios/
+        # Use empty string for feature_dir to export directly to /data/raw/portfolios/
+        # instead of /data/raw/ma_cross/portfolios/
         # Import export_portfolios here to avoid circular imports
         from app.tools.strategy.export_portfolios import export_portfolios
 

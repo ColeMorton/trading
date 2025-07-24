@@ -32,7 +32,7 @@ This command uses **sub-commands** following the modern CLI pattern:
 ### Core Parameters
 
 - **portfolio** (optional): Portfolio name to operate on (default: "live_signals")
-  - Available portfolios: live_signals, protected, risk_on, or any custom portfolio in csv/positions/
+  - Available portfolios: live_signals, protected, risk_on, or any custom portfolio in data/raw/positions/
 
 ### Position Management Parameters (for `add` sub-command)
 
@@ -151,15 +151,15 @@ cat docs/Trade_History_Executive_Specification.md
 
 # Portfolio validation (for portfolio-specific actions)
 if [[ "$SUBCOMMAND" == "update" || "$SUBCOMMAND" == "add" ]]; then
-    if [ ! -f "csv/positions/${Portfolio}.csv" ]; then
-        echo "❌ PORTFOLIO NOT FOUND: csv/positions/${Portfolio}.csv"
+    if [ ! -f "data/raw/positions/${Portfolio}.csv" ]; then
+        echo "❌ PORTFOLIO NOT FOUND: data/raw/positions/${Portfolio}.csv"
         echo "Available portfolios:"
-        ls csv/positions/*.csv | xargs -n 1 basename | sed 's/.csv//' 2>/dev/null || echo "No portfolios found"
+        ls data/raw/positions/*.csv | xargs -n 1 basename | sed 's/.csv//' 2>/dev/null || echo "No portfolios found"
         exit 1
     fi
 
     echo "📂 TARGET PORTFOLIO: ${Portfolio}"
-    echo "📁 File: csv/positions/${Portfolio}.csv"
+    echo "📁 File: data/raw/positions/${Portfolio}.csv"
 fi
 ```
 
@@ -174,7 +174,7 @@ case "$SUBCOMMAND" in
         # Count open positions before update
         OPEN_COUNT=$(python -c "
 import pandas as pd
-df = pd.read_csv('csv/positions/${Portfolio}.csv')
+df = pd.read_csv('data/raw/positions/${Portfolio}.csv')
 open_positions = df[df['Status'] == 'Open']
 print(len(open_positions))
 ")
@@ -391,7 +391,7 @@ import yfinance as yf
 from datetime import datetime
 
 # Read portfolio
-df = pd.read_csv('csv/positions/${Portfolio}.csv')
+df = pd.read_csv('data/raw/positions/${Portfolio}.csv')
 open_positions = df[df['Status'] == 'Open']
 
 # Get unique tickers
@@ -404,7 +404,7 @@ for ticker in tickers:
         data = yf.download(ticker, period='5d', progress=False)
         if not data.empty:
             # Update price data file
-            data.to_csv(f'csv/price_data/{ticker}_D.csv')
+            data.to_csv(f'data/raw/price_data/{ticker}_D.csv')
             print(f'✅ Updated price data: {ticker}')
         else:
             print(f'⚠️  No data available: {ticker}')
@@ -454,7 +454,7 @@ import pandas as pd
 from datetime import datetime
 
 # Read updated portfolio
-df = pd.read_csv('csv/positions/${Portfolio}.csv')
+df = pd.read_csv('data/raw/positions/${Portfolio}.csv')
 
 # Validate open positions
 open_positions = df[df['Status'] == 'Open']
@@ -510,7 +510,7 @@ print('🔄 UPDATE TIMESTAMP:', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         echo "🔍 Verifying position addition..."
 
         if [[ -n "$Position_UUID" ]]; then
-            grep "$Position_UUID" "csv/positions/${Portfolio}.csv" > /dev/null
+            grep "$Position_UUID" "data/raw/positions/${Portfolio}.csv" > /dev/null
             if [ $? -eq 0 ]; then
                 echo "✅ POSITION VERIFICATION COMPLETE"
                 echo "📊 Position successfully added to ${Portfolio} portfolio"
@@ -564,7 +564,7 @@ esac
 ### **Portfolio Not Found**
 
 ```bash
-❌ PORTFOLIO NOT FOUND: csv/positions/invalid_portfolio.csv
+❌ PORTFOLIO NOT FOUND: data/raw/positions/invalid_portfolio.csv
 Available portfolios:
 live_signals
 protected
@@ -792,8 +792,8 @@ Closed positions (unchanged): 19
 
 ### **Data Dependencies**
 
-- **Price Data**: csv/price_data/{TICKER}\_D.csv (auto-updated across all actions)
-- **Portfolio Files**: csv/positions/{PORTFOLIO}.csv (live_signals, protected, risk_on, custom)
+- **Price Data**: data/raw/price_data/{TICKER}\_D.csv (auto-updated across all actions)
+- **Portfolio Files**: data/raw/positions/{PORTFOLIO}.csv (live_signals, protected, risk_on, custom)
 - **SPDS Exports**: exports/statistical_analysis/, exports/backtesting_parameters/
 - **Trade History JSON**: json/trade_history/ (for comprehensive analysis)
 

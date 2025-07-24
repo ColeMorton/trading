@@ -242,10 +242,10 @@
     - **100% Success Rate**: All 177 non-compliant CSV files successfully migrated with zero errors
     - **Schema Compliance**: Achieved 74.7% overall compliance (207/277 files) up from 36.1% (100/277)
     - **Directory Transformation**:
-      - `csv/portfolios/`: 107/107 files (100%) migrated to Base schema (58 columns)
-      - `csv/portfolios_filtered/`: 58/58 files (100%) migrated to Filtered schema (61 columns)
-      - `csv/portfolios_best/`: 12/12 files (100%) migrated to Filtered schema (61 columns)
-      - `csv/strategies/`: 100/100 files (100%) maintained compliant mixed schema
+      - `data/raw/portfolios/`: 107/107 files (100%) migrated to Base schema (58 columns)
+      - `data/raw/portfolios_filtered/`: 58/58 files (100%) migrated to Filtered schema (61 columns)
+      - `data/raw/portfolios_best/`: 12/12 files (100%) migrated to Filtered schema (61 columns)
+      - `data/raw/strategies/`: 100/100 files (100%) maintained compliant mixed schema
 
     **Key Accomplishments**:
     - **Data Integrity**: Zero data corruption during migration process

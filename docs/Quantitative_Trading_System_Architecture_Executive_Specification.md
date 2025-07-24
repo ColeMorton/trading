@@ -244,19 +244,19 @@ graph TB
 1. **Market Data Ingestion**
 
    - yfinance API integration for real-time and historical data
-   - Automated CSV storage in `/csv/price_data/` directory
+   - Automated CSV storage in `/data/raw/price_data/` directory
    - Price data validation and gap detection
 
 2. **Strategy Analysis Pipeline**
 
    - Multi-threaded strategy execution across parameter grids
-   - Portfolio CSV generation in `/csv/portfolios/` directory
+   - Portfolio CSV generation in `/data/raw/portfolios/` directory
    - Real-time progress tracking and error handling
 
 3. **Portfolio Aggregation**
 
    - Filtering and optimization pipeline
-   - Best portfolio selection in `/csv/portfolios_best/`
+   - Best portfolio selection in `/data/raw/portfolios_best/`
    - Performance ranking and risk adjustment
 
 4. **API Data Layer**

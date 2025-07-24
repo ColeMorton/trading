@@ -146,9 +146,9 @@ Each portfolio includes:
 
 Results are automatically saved to:
 
-- `csv/portfolios/` - All results
-- `csv/portfolios_filtered/` - Filtered results
-- `csv/portfolios_best/` - Daily best
+- `data/raw/portfolios/` - All results
+- `data/raw/portfolios_filtered/` - Filtered results
+- `data/raw/portfolios_best/` - Daily best
 
 ## Performance Tips
 

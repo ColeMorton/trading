@@ -10,7 +10,7 @@ Analyzes trading strategies from `incoming.csv` and calculates optimal position 
 
 ### **Input Parameters**
 
-- `incoming_csv`: Path to strategy candidates CSV (default: `./csv/strategies/incoming.csv`)
+- `incoming_csv`: Path to strategy candidates CSV (default: `./data/raw/strategies/incoming.csv`)
 - `total_capital`: Total capital available for allocation (default: auto-detect from account balances)
 - `min_trades`: Minimum number of trades required (default: `20`)
 
@@ -199,7 +199,7 @@ Average Win Rate: 56.7%          Conservative Approach: ENABLED
 /position_sizer kelly_multiplier:0.50 min_win_rate:0.45
 
 # Custom input file
-/position_sizer incoming_csv:./csv/strategies/custom_strategies.csv
+/position_sizer incoming_csv:./data/raw/strategies/custom_strategies.csv
 
 # Strict risk management
 /position_sizer max_drawdown_threshold:0.20 min_win_rate:0.60
@@ -238,7 +238,7 @@ Average Win Rate: 56.7%          Conservative Approach: ENABLED
 
 ### **Data Errors**
 
-- Missing CSV file → Use default path `./csv/strategies/incoming.csv`
+- Missing CSV file → Use default path `./data/raw/strategies/incoming.csv`
 - Invalid performance data → Skip strategy with warning
 - Insufficient trade count → Exclude from analysis
 - Missing required columns → Report error and exit
@@ -265,7 +265,7 @@ Average Win Rate: 56.7%          Conservative Approach: ENABLED
 
 ## Integration Points
 
-- **Strategy Input**: `./csv/strategies/incoming.csv` (strategy performance data)
+- **Strategy Input**: `./data/raw/strategies/incoming.csv` (strategy performance data)
 - **Position Output**: `./data/positions/` (JSON exports for implementation)
 - **Account Data**: Auto-detects available capital for allocation
 - **Risk Management**: Integrates with portfolio risk limits and constraints

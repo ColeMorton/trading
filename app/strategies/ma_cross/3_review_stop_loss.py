@@ -51,7 +51,7 @@ def export_stop_loss_sensitivity_csv(
         str: Path to exported CSV file
     """
     # Create output directory
-    output_dir = "./csv/stop_loss"
+    output_dir = "./data/raw/stop_loss"
     os.makedirs(output_dir, exist_ok=True)
 
     # Generate filename using consistent naming convention
@@ -136,7 +136,7 @@ def run(config: CacheConfig) -> bool:
     1. Setting up logging
     2. Loading cached results or preparing new data
     3. Running sensitivity analysis across stop loss parameters
-    4. Exporting comprehensive results to CSV in ./csv/stop_loss/
+    4. Exporting comprehensive results to CSV in ./data/raw/stop_loss/
     5. Displaying interactive heatmaps in browser
 
     Args:
@@ -151,7 +151,7 @@ def run(config: CacheConfig) -> bool:
         Exception: If data preparation or analysis fails
 
     CSV Export:
-        Exports sensitivity analysis to ./csv/stop_loss/ with naming convention:
+        Exports sensitivity analysis to ./data/raw/stop_loss/ with naming convention:
         [TICKER]_[TIMEFRAME]_[STRATEGY_TYPE]_[SHORT_WINDOW]_[LONG_WINDOW].csv
 
         Contains 300 rows of optimized stop loss analysis (0.01% to 15.0%) with metrics:

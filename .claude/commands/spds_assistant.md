@@ -322,10 +322,10 @@ trading-cli trade-history health
 
 **🔍 Enhanced File Resolution (Auto-Detection):**
 
-- **Portfolios**: `./csv/strategies/{portfolio}` or `./csv/positions/{portfolio}`
+- **Portfolios**: `./data/raw/strategies/{portfolio}` or `./data/raw/positions/{portfolio}`
 - **Asset Distribution**: `./json/return_distribution/` (asset statistical properties)
-- **Strategy Performance**: `./json/trade_history/{portfolio}` OR `./csv/ma_cross/equity_data/`
-- **Reference Data**: `./csv/positions/{portfolio}` (for comparison)
+- **Strategy Performance**: `./json/trade_history/{portfolio}` OR `./data/raw/ma_cross/equity_data/`
+- **Reference Data**: `./data/raw/positions/{portfolio}` (for comparison)
 
 ### **🔬 Detailed Analysis Type Specifications (v2.0)**
 
@@ -393,8 +393,8 @@ trading-cli spds analyze AMD --detailed --output-format json
 
 **Data Sources Used**:
 
-- **Strategy Files**: Strategy-specific portfolio data from `/csv/portfolios/`
-- **Equity Curves**: Strategy performance curves from `/csv/ma_cross/equity_data/`
+- **Strategy Files**: Strategy-specific portfolio data from `/data/raw/portfolios/`
+- **Equity Curves**: Strategy performance curves from `/data/raw/ma_cross/equity_data/`
 - **Market Data**: Underlying asset context for dual-layer analysis
 
 **Analysis Capabilities**:
@@ -559,7 +559,7 @@ grep -c "convergence_score" exports/statistical_analysis/{portfolio}.json
 **Required File Structure for Full Convergence Analysis:**
 
 ```
-./csv/
+./data/raw/
 ├── strategies/              # Portfolio files (primary source)
 │   ├── risk_on.csv
 │   ├── live_signals.csv
@@ -950,7 +950,7 @@ trading-cli spds analyze risk_on.csv --convergence-analysis
 # Verify file structure
 ls -la json/return_distribution/
 ls -la json/trade_history/risk_on/
-ls -la csv/ma_cross/equity_data/
+ls -la data/raw/ma_cross/equity_data/
 
 # Test layer agreement analysis
 trading-cli spds health --convergence-analysis
@@ -982,7 +982,7 @@ trading-cli spds list-portfolios
 # Verify data source paths
 ls -la json/return_distribution/{asset}_returns.json
 ls -la json/trade_history/{portfolio}/
-ls -la csv/ma_cross/equity_data/
+ls -la data/raw/ma_cross/equity_data/
 
 # Test auto-detection process
 trading-cli spds analyze risk_on.csv --data-source auto --debug

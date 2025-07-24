@@ -51,13 +51,13 @@ This specification documents the Position Sizing System that replaces Excel-base
 **Trading CVaR**:
 
 - Source: `json/concurrency/trades.json: portfolio_metrics.risk.combined_risk.cvar_95`
-- Cross-reference: `csv/strategies/trades.csv` for validation
+- Cross-reference: `data/raw/strategies/trades.csv` for validation
 - Current Value: -7.05% (displayed as 7.05%)
 
 **Investment CVaR**:
 
 - Source: `json/concurrency/portfolio.json: portfolio_metrics.risk.combined_risk.cvar_95`
-- Cross-reference: `csv/strategies/portfolio.csv` for validation
+- Cross-reference: `data/raw/strategies/portfolio.csv` for validation
 
 ### 2.2 Kelly Criterion Parameters
 

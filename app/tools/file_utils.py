@@ -155,7 +155,7 @@ def get_portfolio_path(config: dict) -> str:
     # Determine if this is for portfolios_best directory
     is_best_portfolio = config.get("USE_BEST_PORTFOLIO", False)
     base_dir = "portfolios_best" if is_best_portfolio else "portfolios"
-    path_components = [f"csv/{base_dir}/"]
+    path_components = [f"data/raw/{base_dir}/"]
 
     # Include date in path when USE_CURRENT is True
     if config.get("USE_CURRENT", False):

@@ -63,7 +63,7 @@ python -m app.cli portfolio update --portfolio protected.csv --verbose
 
 ```bash
 # Process multiple files with validation
-python -m app.cli portfolio process --input-dir ./csv/portfolios --output-dir ./processed
+python -m app.cli portfolio process --input-dir ./data/raw/portfolios --output-dir ./processed
 
 # Process with JSON export
 python -m app.cli portfolio process --format json --validate
@@ -72,7 +72,7 @@ python -m app.cli portfolio process --format json --validate
 python -m app.cli portfolio process --profile portfolio_processing
 
 # Dry run for batch processing
-python -m app.cli portfolio process --input-dir ./csv/strategies --dry-run
+python -m app.cli portfolio process --input-dir ./data/raw/strategies --dry-run
 ```
 
 **Portfolio Aggregation Operations:**
@@ -165,7 +165,7 @@ python -m app.strategies.update_portfolios
 **Export Locations:**
 
 ```
-./csv/
+./data/raw/
 ├── portfolios/          # Individual portfolio files
 ├── portfolios_filtered/ # Filtered portfolio results
 ├── portfolios_best/     # Best performing portfolios
@@ -314,7 +314,7 @@ python -m app.cli portfolio aggregate [--by-ticker] [--by-strategy] [--breadth] 
 
 ```bash
 # Check schema version
-python -c "from app.tools.portfolio.schema_detection import detect_schema_version_from_file; print(detect_schema_version_from_file('csv/strategies/portfolio.csv'))"
+python -c "from app.tools.portfolio.schema_detection import detect_schema_version_from_file; print(detect_schema_version_from_file('data/raw/strategies/portfolio.csv'))"
 
 # Manual schema conversion
 python -m app.tools.portfolio.schema_detection --convert portfolio.csv
@@ -354,7 +354,7 @@ python -c "from app.tools.synthetic_ticker import process_synthetic_ticker; prin
 python -m app.cli portfolio health
 
 # Validate portfolio files
-python -m app.cli portfolio validate --input-dir ./csv/portfolios
+python -m app.cli portfolio validate --input-dir ./data/raw/portfolios
 
 # Check configuration
 python -m app.cli portfolio config --show

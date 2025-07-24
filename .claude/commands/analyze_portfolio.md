@@ -10,12 +10,12 @@ Generates professional quantitative analysis reports from strategy backtest data
 
 - `csv_file`: Path to CSV file containing strategy backtest data (required)
   - Must contain columns: Ticker, Strategy Type, Score, Win Rate, Total Return, etc.
-  - CSV files are located in `./csv/strategies/` directory
+  - CSV files are located in `./data/raw/strategies/` directory
   - Can specify filename only (e.g., `trades.csv`) or full path
 - `incoming_csv`: Path to incoming CSV file for portfolio enhancement analysis (optional)
   - Only applicable when base file is `trades.csv`
   - Triggers specialized analysis of adding new positions to existing portfolio
-  - Also located in `./csv/strategies/` directory
+  - Also located in `./data/raw/strategies/` directory
 
 ## Process
 
@@ -45,14 +45,14 @@ Generates professional quantitative analysis reports from strategy backtest data
 ## Usage
 
 ```bash
-# Basic analysis (CSV files are automatically located in ./csv/strategies/)
+# Basic analysis (CSV files are automatically located in ./data/raw/strategies/)
 /project:analyze_portfolio trades.csv
 
 # Portfolio enhancement analysis
 /project:analyze_portfolio trades.csv incoming.csv
 
 # Analysis with full path
-/project:analyze_portfolio ./csv/strategies/trades.csv ./csv/strategies/incoming.csv
+/project:analyze_portfolio ./data/raw/strategies/trades.csv ./data/raw/strategies/incoming.csv
 ```
 
 ## Output Format
@@ -68,7 +68,7 @@ Generates professional quantitative analysis reports from strategy backtest data
 ## Dependencies
 
 - Existing concurrency analysis framework (`app/concurrency/`)
-- Strategy data in standardized CSV format (located in `./csv/strategies/`)
+- Strategy data in standardized CSV format (located in `./data/raw/strategies/`)
 - Optional: Corresponding JSON files for enhanced analysis (located in `./json/concurrency/`)
 
 ## Error Handling
@@ -80,7 +80,7 @@ Generates professional quantitative analysis reports from strategy backtest data
 
 ## File Locations
 
-- **CSV Files**: `./csv/strategies/` - Contains strategy backtest data files
+- **CSV Files**: `./data/raw/strategies/` - Contains strategy backtest data files
 - **JSON Files**: `./json/concurrency/` - Contains enhanced analysis data (optional)
 - **Output**: Analysis results are displayed in terminal
 
@@ -92,5 +92,5 @@ Generates professional quantitative analysis reports from strategy backtest data
 - Specialized logic for portfolio enhancement when base file is `trades.csv`
 - Analysis depth depends on available data (CSV + optional JSON)
 - Designed for quantitative traders requiring comprehensive portfolio assessment with statistical validation
-- Command automatically searches for CSV files in `./csv/strategies/` if only filename provided
+- Command automatically searches for CSV files in `./data/raw/strategies/` if only filename provided
 - JSON lookup performed automatically in `./json/concurrency/` based on CSV basename

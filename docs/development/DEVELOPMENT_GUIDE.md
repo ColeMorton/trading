@@ -68,7 +68,7 @@ trading/
 │   └── concurrency/            # Concurrency analysis
 ├── tests/                      # Test suite
 ├── docs/                       # Documentation
-├── csv/                        # Data files
+├── data/raw/                   # Data files
 ├── exports/                    # Export files
 └── config/                     # Configuration files
 ```

@@ -645,8 +645,8 @@ def validate_minimums(cls, v):
 
 # Batch processing with optimization
 ./trading-cli portfolio aggregate \
-  --input-dir csv/portfolios/ \
-  --output-dir csv/aggregated/ \
+  --input-dir data/raw/portfolios/ \
+  --output-dir data/raw/aggregated/ \
   --memory-optimization \
   --parallel-processing
 ```
@@ -1212,7 +1212,7 @@ AGGRESSIVE_MODE_ON_CONVERGENCE: true # Upgrade signals when sources agree strong
 **Required File Structure:**
 
 ```
-csv/
+data/raw/
 ├── strategies/          # Portfolio files
 │   └── risk_on.csv
 ├── trade_history/       # Trade history data (same filename)
@@ -1270,7 +1270,7 @@ Resolution:
 **Missing Dependencies:**
 
 ```bash
-ERROR: Required data file not found: csv/positions/risk_on.csv
+ERROR: Required data file not found: data/raw/positions/risk_on.csv
 
 Resolution:
 ./trading-cli tools health --check-dependencies
@@ -1314,7 +1314,7 @@ Resolution:
 
 ```bash
 # Diagnosis
-du -h csv/ && ./trading-cli tools health --memory-analysis
+du -h data/raw/ && ./trading-cli tools health --memory-analysis
 
 # Resolution
 ./trading-cli portfolio process --streaming --chunk-size 5000
@@ -1340,7 +1340,7 @@ ERROR: Position P&L ($606.16) vs Equity Change ($529.13) - 12.77% error exceeds 
 **Missing Position Data:**
 
 ```bash
-ERROR: Position file not found: csv/positions/protected.csv
+ERROR: Position file not found: data/raw/positions/protected.csv
 
 # Diagnosis
 ./trading-cli positions list --check-files --verbose

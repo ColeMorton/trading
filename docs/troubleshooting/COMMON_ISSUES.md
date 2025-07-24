@@ -233,7 +233,7 @@ trading-cli strategy run --ticker AAPL --strategy SMA --stream-data
 
 ```bash
 # Check portfolio directory
-ls -la csv/portfolios/
+ls -la data/raw/portfolios/
 
 # List available portfolios
 trading-cli portfolio list
@@ -242,7 +242,7 @@ trading-cli portfolio list
 trading-cli strategy run --ticker AAPL --strategy SMA
 
 # Check file permissions
-ls -la csv/portfolios/AAPL_D_SMA.csv
+ls -la data/raw/portfolios/AAPL_D_SMA.csv
 ```
 
 ### Portfolio Validation Failures
@@ -253,7 +253,7 @@ ls -la csv/portfolios/AAPL_D_SMA.csv
 
 ```bash
 # Check portfolio format
-head csv/portfolios/AAPL_D_SMA.csv
+head data/raw/portfolios/AAPL_D_SMA.csv
 
 # Validate without strict mode
 trading-cli portfolio validate --portfolio AAPL_D_SMA.csv
@@ -276,7 +276,7 @@ trading-cli portfolio update
 trading-cli portfolio update --portfolio risk_on.csv
 
 # Clear and regenerate
-rm csv/portfolios_best/*
+rm data/raw/portfolios_best/*
 trading-cli portfolio update --validate
 ```
 
@@ -518,7 +518,7 @@ export TRADING_EXPORT_PATH=/path/to/larger/disk
 
 ```bash
 # Check file integrity
-python -c "import pandas as pd; print(pd.read_csv('csv/portfolios/AAPL_D_SMA.csv').head())"
+python -c "import pandas as pd; print(pd.read_csv('data/raw/portfolios/AAPL_D_SMA.csv').head())"
 
 # Regenerate corrupted files
 trading-cli strategy run --ticker AAPL --strategy SMA
@@ -594,7 +594,7 @@ trading-cli trade-history health --detailed
 python -c "import yfinance as yf; print(yf.download('AAPL', period='1y').head())"
 
 # Validate file formats
-python -c "import pandas as pd; print(pd.read_csv('csv/portfolios/AAPL_D_SMA.csv').info())"
+python -c "import pandas as pd; print(pd.read_csv('data/raw/portfolios/AAPL_D_SMA.csv').info())"
 
 # Check dependencies
 python -c "import app.cli.main; print('CLI module loads successfully')"

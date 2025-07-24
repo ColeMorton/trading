@@ -19,7 +19,7 @@ The Strategy Breadth Oscillator tracks multiple trading strategies and displays 
 To generate a new Pine script from a CSV file:
 
 ```bash
-python tradingview/generate_hardcoded_config.py path/to/csv/file.csv
+python tradingview/generate_hardcoded_config.py path/to/data/raw/file.csv
 ```
 
 This will create a new Pine script with hardcoded strategy calls based on the CSV data.
@@ -29,7 +29,7 @@ This will create a new Pine script with hardcoded strategy calls based on the CS
 To update an existing Pine script with new strategies:
 
 ```bash
-python tradingview/generate_hardcoded_config.py path/to/csv/file.csv path/to/pine/script.pine
+python tradingview/generate_hardcoded_config.py path/to/data/raw/file.csv path/to/pine/script.pine
 ```
 
 ### Filtering by Ticker
@@ -37,7 +37,7 @@ python tradingview/generate_hardcoded_config.py path/to/csv/file.csv path/to/pin
 To filter strategies for a specific ticker:
 
 ```bash
-python tradingview/generate_hardcoded_config.py path/to/csv/file.csv path/to/pine/script.pine BTC-USD
+python tradingview/generate_hardcoded_config.py path/to/data/raw/file.csv path/to/pine/script.pine BTC-USD
 ```
 
 ### Testing the Generator
@@ -57,7 +57,7 @@ When the source CSV file changes (strategies are added/removed/improved), follow
 1. Run the generator script with the updated CSV file:
 
    ```bash
-   python tradingview/generate_hardcoded_config.py path/to/updated/csv/file.csv tradingview/strategy_breadth_refactored.pine
+   python tradingview/generate_hardcoded_config.py path/to/updated/data/raw/file.csv tradingview/strategy_breadth_refactored.pine
    ```
 
 2. The script will automatically:

@@ -107,7 +107,7 @@ graph TD
 **Functionality**:
 
 - Calculates Max Favourable Excursion (MFE) and Max Adverse Excursion (MAE)
-- Integrates real-time price data from `./csv/price_data/` directory
+- Integrates real-time price data from `./data/raw/price_data/` directory
 - Provides exit efficiency analysis for trade quality assessment
 - Supports both long and short position calculations
 
@@ -628,7 +628,7 @@ python app/tools/generalized_trade_history_exporter.py --add-position \
 
 # Add multiple positions from strategy CSV
 python app/tools/generalized_trade_history_exporter.py --bulk-add \
-  --strategy-csv csv/strategies/protected.csv \
+  --strategy-csv data/raw/strategies/protected.csv \
   --portfolio protected
 
 # Quick add position (uses defaults)
@@ -746,7 +746,7 @@ python app/tools/trade_history_utils.py --export-summary --portfolio live_signal
 ```bash
 # Bulk add from strategy CSV
 python app/tools/generalized_trade_history_exporter.py --bulk-add \
-  --strategy-csv "csv/strategies/new_signals.csv" \
+  --strategy-csv "data/raw/strategies/new_signals.csv" \
   --portfolio "new_portfolio"
 
 # Update trade quality for all positions

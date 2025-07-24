@@ -129,7 +129,7 @@ These CSV schemas form the backbone of the trading system's data flow, storing b
 The trading system organizes CSV files in a structured directory hierarchy:
 
 ```
-/csv/
+/data/raw/
   /strategies/           # Raw strategy results (e.g., trades_20250520.csv)
   /portfolios_filtered/  # Filtered strategy results by ticker and strategy type
   /portfolios_best/      # Best performing strategies organized by date

@@ -503,7 +503,7 @@ class TestConcurrencyIntegrationPhase5:
 
         # Save outputs
         json_path = Path("json/concurrency/test_portfolio.json")
-        csv_path = Path("csv/portfolios_best/test_portfolio.csv")
+        csv_path = Path("data/raw/portfolios_best/test_portfolio.csv")
 
         # Load and compare outputs
         if json_path.exists():

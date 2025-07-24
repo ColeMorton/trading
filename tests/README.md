@@ -154,7 +154,7 @@ pytest --timeout=300 tests/
 
 Test data files are located in:
 
-- `/csv/` - CSV test data
+- `/data/raw/` - CSV test data
 - `/json/` - JSON configuration files
 - Test fixtures in individual test files
 

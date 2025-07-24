@@ -92,7 +92,7 @@ def plot_rod_model(streak_data, rate_of_decay, output_path):
 
 def main():
     # Load trade data
-    trade_data = pd.read_csv("csv/monte_carlo/BTC-USD_trade_data_ema_cross.csv")
+    trade_data = pd.read_csv("data/raw/monte_carlo/BTC-USD_trade_data_ema_cross.csv")
 
     # Calculate win rate and average risk per trade
     win_rate = (trade_data["Return (%)"] > 0).mean()

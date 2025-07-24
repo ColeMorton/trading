@@ -60,7 +60,7 @@ from app.tools.export.unified_export import (
 
 ```python
 config = ExportConfig(
-    output_dir="csv/portfolios",
+    output_dir="data/raw/portfolios",
     schema_type=SchemaType.EXTENDED,
 
     # Phase 4: Advanced Caching
@@ -344,7 +344,7 @@ Phase 4 maintains full backward compatibility with Phase 3 code:
 ```python
 # Recommended production configuration
 production_config = ExportConfig(
-    output_dir="csv/production",
+    output_dir="data/raw/production",
     schema_type=SchemaType.EXTENDED,
 
     # Caching optimized for production
@@ -369,7 +369,7 @@ production_config = ExportConfig(
 ```python
 # Recommended development configuration
 dev_config = ExportConfig(
-    output_dir="csv/development",
+    output_dir="data/raw/development",
 
     # Aggressive caching for development speed
     cache_ttl_minutes=240,
@@ -389,7 +389,7 @@ dev_config = ExportConfig(
 ```python
 # Recommended testing configuration
 test_config = ExportConfig(
-    output_dir="csv/test",
+    output_dir="data/raw/test",
 
     # Minimal caching for test isolation
     cache_ttl_minutes=5,

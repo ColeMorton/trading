@@ -225,9 +225,9 @@ def stream_progress(execution_id):
   "total_portfolios_analyzed": 156,
   "total_portfolios_filtered": 12,
   "portfolio_exports": {
-    "portfolios": ["csv/portfolios/BTC-USD_D_SMA.csv"],
-    "portfolios_filtered": ["csv/portfolios_filtered/BTC-USD_D_SMA.csv"],
-    "portfolios_best": ["csv/portfolios_best/20250528_1234_D.csv"]
+    "portfolios": ["data/raw/portfolios/BTC-USD_D_SMA.csv"],
+    "portfolios_filtered": ["data/raw/portfolios_filtered/BTC-USD_D_SMA.csv"],
+    "portfolios_best": ["data/raw/portfolios_best/20250528_1234_D.csv"]
   },
   "execution_time": 15.234
 }
@@ -299,9 +299,9 @@ def analyze_with_retry(ticker, max_retries=3):
 
 Results are automatically exported to:
 
-- `csv/portfolios/` - All analyzed portfolios
-- `csv/portfolios_filtered/` - Portfolios meeting criteria
-- `csv/portfolios_best/` - Best portfolios by date
+- `data/raw/portfolios/` - All analyzed portfolios
+- `data/raw/portfolios_filtered/` - Portfolios meeting criteria
+- `data/raw/portfolios_best/` - Best portfolios by date
 
 ### 5. Use Progress Tracking for Long Operations
 

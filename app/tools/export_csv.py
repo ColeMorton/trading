@@ -218,7 +218,7 @@ def _get_export_path(feature1: str, config: ExportConfig, feature2: str = "") ->
     Returns:
         str: Full export path
     """
-    path_components = [config["BASE_DIR"], "csv", feature1]
+    path_components = [config["BASE_DIR"], "data/raw", feature1]
 
     if feature2:
         path_components.append(feature2)

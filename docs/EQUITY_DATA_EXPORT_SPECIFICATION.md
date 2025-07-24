@@ -67,9 +67,9 @@ Examples:
 
 Equity data files are exported to strategy-specific directories:
 
-- **SMA Strategies**: `./csv/ma_cross/equity_data/`
-- **EMA Strategies**: `./csv/ma_cross/equity_data/`
-- **MACD Strategies**: `./csv/macd_cross/equity_data/`
+- **SMA Strategies**: `./data/raw/ma_cross/equity_data/`
+- **EMA Strategies**: `./data/raw/ma_cross/equity_data/`
+- **MACD Strategies**: `./data/raw/macd_cross/equity_data/`
 
 Directories will be created automatically if they don't exist.
 

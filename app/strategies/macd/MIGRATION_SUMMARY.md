@@ -10,15 +10,15 @@ Successfully migrated the MACD strategy to export to standardized CSV directorie
 
 **Before:**
 
-- `csv/macd/portfolios/` → MACD-specific subdirectory
-- `csv/macd/portfolios_filtered/` → MACD-specific subdirectory
-- `csv/macd/portfolios_best/` → MACD-specific subdirectory
+- `data/raw/macd/portfolios/` → MACD-specific subdirectory
+- `data/raw/macd/portfolios_filtered/` → MACD-specific subdirectory
+- `data/raw/macd/portfolios_best/` → MACD-specific subdirectory
 
 **After:**
 
-- `csv/portfolios/` → Standard portfolios directory
-- `csv/portfolios_filtered/` → Standard filtered portfolios directory
-- `csv/portfolios_best/` → Standard best portfolios directory
+- `data/raw/portfolios/` → Standard portfolios directory
+- `data/raw/portfolios_filtered/` → Standard filtered portfolios directory
+- `data/raw/portfolios_best/` → Standard best portfolios directory
 
 ### 2. File Changes
 
@@ -70,9 +70,9 @@ Successfully migrated the MACD strategy to export to standardized CSV directorie
 
 3. **Export Functionality**
 
-   - ✅ Base portfolios: `csv/portfolios/{TICKER}_D_MACD.csv`
-   - ✅ Filtered portfolios: `csv/portfolios_filtered/{TICKER}_D_MACD.csv`
-   - ✅ Best portfolios: `csv/portfolios_best/{TICKER}_D_MACD.csv`
+   - ✅ Base portfolios: `data/raw/portfolios/{TICKER}_D_MACD.csv`
+   - ✅ Filtered portfolios: `data/raw/portfolios_filtered/{TICKER}_D_MACD.csv`
+   - ✅ Best portfolios: `data/raw/portfolios_best/{TICKER}_D_MACD.csv`
 
 4. **Schema Compliance**
    - ✅ 60-column canonical schema
@@ -147,7 +147,7 @@ csv/
 
 ## Backward Compatibility
 
-- Old MACD-specific directories (`csv/macd/`) may still contain historical files
+- Old MACD-specific directories (`data/raw/macd/`) may still contain historical files
 - New exports go to standard directories only
 - No breaking changes to API or configuration interfaces
 - All existing functionality preserved

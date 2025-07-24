@@ -98,7 +98,7 @@ def main():
     print("\nTests completed!")
     print("To use the generator with your own CSV file, run:")
     print(
-        "python tradingview/generate_hardcoded_config.py path/to/your/csv/file.csv [pine_script_path] [ticker_filter]"
+        "python tradingview/generate_hardcoded_config.py path/to/your/data/raw/file.csv [pine_script_path] [ticker_filter]"
     )
 
 

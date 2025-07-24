@@ -191,9 +191,9 @@ class SPDSConfig:
     use_trade_history: bool = True
     equity_data_paths: List[str] = field(
         default_factory=lambda: [
-            "csv/equity_data",
-            "csv/backtesting_results",
-            "csv/strategy_results",
+            "data/raw/equity_data",
+            "data/raw/backtesting_results",
+            "data/raw/strategy_results",
         ]
     )
 

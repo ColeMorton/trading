@@ -65,7 +65,7 @@ trading-cli strategy run --ticker AAPL --strategy SMA --dry-run
 
 ```bash
 # View generated portfolio files
-ls csv/portfolios/
+ls data/raw/portfolios/
 
 # View the latest results
 trading-cli portfolio list --recent
@@ -111,9 +111,9 @@ trading-cli spds interactive
 ### Strategy Analysis Results
 
 ```
-csv/portfolios/          # Individual strategy portfolios
-csv/portfolios_best/     # Best performing portfolios
-csv/portfolios_filtered/ # Filtered portfolios by criteria
+data/raw/portfolios/          # Individual strategy portfolios
+data/raw/portfolios_best/     # Best performing portfolios
+data/raw/portfolios_filtered/ # Filtered portfolios by criteria
 ```
 
 ### Statistical Analysis Results

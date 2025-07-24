@@ -1366,7 +1366,7 @@ def export_summary_results(
         )
 
         # Change feature_dir to "strategies" to export to /data/raw/strategies instead
-        # of legacy /csv/portfolios
+        # of legacy /data/raw/portfolios
         _, success = export_portfolios(
             spds_compatible_portfolios,
             export_config,

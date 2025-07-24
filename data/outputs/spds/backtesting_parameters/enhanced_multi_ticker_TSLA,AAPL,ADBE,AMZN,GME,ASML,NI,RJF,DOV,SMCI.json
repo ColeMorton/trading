@@ -1,0 +1,224 @@
+{
+  "strategy_parameters": {
+    "TSLA_ASSET_DISTRIBUTION_TSLA_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 8.57,
+      "confidence_level": 0.9,
+      "sample_size": 54,
+      "statistical_validity": "MEDIUM",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-24T12:25:04.409119"
+    },
+    "AAPL_ASSET_DISTRIBUTION_AAPL_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 3.22,
+      "confidence_level": 0.9,
+      "sample_size": 54,
+      "statistical_validity": "MEDIUM",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-24T12:25:04.421864"
+    },
+    "ADBE_ASSET_DISTRIBUTION_ADBE_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 4.03,
+      "confidence_level": 0.9,
+      "sample_size": 54,
+      "statistical_validity": "MEDIUM",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-24T12:25:04.432353"
+    },
+    "AMZN_ASSET_DISTRIBUTION_AMZN_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 3.2,
+      "confidence_level": 0.9,
+      "sample_size": 54,
+      "statistical_validity": "MEDIUM",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-24T12:25:04.441022"
+    },
+    "GME_ASSET_DISTRIBUTION_GME_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 8.66,
+      "confidence_level": 0.9,
+      "sample_size": 54,
+      "statistical_validity": "MEDIUM",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-24T12:25:04.448113"
+    },
+    "ASML_ASSET_DISTRIBUTION_ASML_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 4.34,
+      "confidence_level": 0.9,
+      "sample_size": 54,
+      "statistical_validity": "MEDIUM",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-24T12:25:04.456023"
+    },
+    "NI_ASSET_DISTRIBUTION_NI_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 2.49,
+      "confidence_level": 0.9,
+      "sample_size": 344,
+      "statistical_validity": "HIGH",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-24T12:25:04.469127"
+    },
+    "RJF_ASSET_DISTRIBUTION_RJF_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 2.9,
+      "confidence_level": 0.9,
+      "sample_size": 344,
+      "statistical_validity": "HIGH",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-24T12:25:04.479017"
+    },
+    "DOV_ASSET_DISTRIBUTION_DOV_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 2.78,
+      "confidence_level": 0.9,
+      "sample_size": 344,
+      "statistical_validity": "HIGH",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-24T12:25:04.490196"
+    },
+    "SMCI_ASSET_DISTRIBUTION_SMCI_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 7.7,
+      "confidence_level": 0.9,
+      "sample_size": 344,
+      "statistical_validity": "HIGH",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-24T12:25:04.496332"
+    }
+  },
+  "generation_metadata": {
+    "generation_timestamp": "2025-07-24T12:25:04.399805",
+    "confidence_level": 0.9,
+    "total_strategies": 10,
+    "spds_version": "1.0.0",
+    "statistical_validity": {
+      "TSLA_ASSET_DISTRIBUTION_TSLA_D": {
+        "sample_size": 54,
+        "confidence": 0.95,
+        "validity_level": "MEDIUM"
+      },
+      "AAPL_ASSET_DISTRIBUTION_AAPL_D": {
+        "sample_size": 54,
+        "confidence": 0.95,
+        "validity_level": "MEDIUM"
+      },
+      "ADBE_ASSET_DISTRIBUTION_ADBE_D": {
+        "sample_size": 54,
+        "confidence": 0.95,
+        "validity_level": "MEDIUM"
+      },
+      "AMZN_ASSET_DISTRIBUTION_AMZN_D": {
+        "sample_size": 54,
+        "confidence": 0.95,
+        "validity_level": "MEDIUM"
+      },
+      "GME_ASSET_DISTRIBUTION_GME_D": {
+        "sample_size": 54,
+        "confidence": 0.95,
+        "validity_level": "MEDIUM"
+      },
+      "ASML_ASSET_DISTRIBUTION_ASML_D": {
+        "sample_size": 54,
+        "confidence": 0.95,
+        "validity_level": "MEDIUM"
+      },
+      "NI_ASSET_DISTRIBUTION_NI_D": {
+        "sample_size": 344,
+        "confidence": 0.95,
+        "validity_level": "HIGH"
+      },
+      "RJF_ASSET_DISTRIBUTION_RJF_D": {
+        "sample_size": 344,
+        "confidence": 0.95,
+        "validity_level": "HIGH"
+      },
+      "DOV_ASSET_DISTRIBUTION_DOV_D": {
+        "sample_size": 344,
+        "confidence": 0.95,
+        "validity_level": "HIGH"
+      },
+      "SMCI_ASSET_DISTRIBUTION_SMCI_D": {
+        "sample_size": 344,
+        "confidence": 0.95,
+        "validity_level": "HIGH"
+      }
+    }
+  },
+  "framework_compatibility": {
+    "vectorbt": true,
+    "backtrader": true,
+    "zipline": true,
+    "custom": true
+  },
+  "usage_instructions": {
+    "description": "Statistical analysis-derived backtesting parameters",
+    "confidence_interpretation": "Higher confidence = more reliable parameters",
+    "sample_size_guidance": "Sample size \u226530 recommended for high reliability",
+    "parameter_derivation": "Parameters derived from percentile analysis of historical returns"
+  }
+}

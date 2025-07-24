@@ -67,7 +67,7 @@ checkParameter(param, paramName) =>
 // ================ Strategy Configuration ================
 // Strategy configuration - Hardcoded directly in calculateBreadth() function
 // Strategy configuration - Hardcoded directly in calculateBreadth() function
-// Source: csv/strategies/BTC_d_20250427.csv
+// Source: data/raw/strategies/BTC_d_20250427.csv
 // Generated: 2025-04-27 18:40:55
 // Total strategies: 11
 // Strategies for BTC-USD: 11

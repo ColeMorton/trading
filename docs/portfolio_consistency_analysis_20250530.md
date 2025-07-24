@@ -4,7 +4,7 @@
 **Files Analyzed**:
 
 - `json/concurrency/portfolio_d_20250530.json`
-- `csv/strategies/portfolio_d_20250530.csv`
+- `data/raw/strategies/portfolio_d_20250530.csv`
 
 ## Executive Summary
 

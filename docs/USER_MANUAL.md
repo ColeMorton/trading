@@ -313,7 +313,7 @@ All portfolio CSV exports now use a standardized 59-column canonical schema for 
 from app.tools.portfolio import load_portfolio_results
 
 # Load and analyze results
-results = load_portfolio_results("csv/portfolios/BTC-USD_D_SMA.csv")
+results = load_portfolio_results("data/raw/portfolios/BTC-USD_D_SMA.csv")
 ```
 
 **Filter Portfolios:**
@@ -2260,7 +2260,7 @@ poetry run python tests/run_unified_tests.py unit --parallel false
 
 ```bash
 # Check if price data exists
-ls csv/price_data/
+ls data/raw/price_data/
 
 # Download missing data
 poetry run python app/tools/download_data.py AAPL

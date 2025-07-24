@@ -7,8 +7,9 @@ Confidence Level: 0.9
 Total Strategies: 7
 """
 
-import backtrader as bt
 import datetime
+
+import backtrader as bt
 
 
 class TSLA_ASSET_DISTRIBUTION_TSLA_DExitStrategy(bt.Strategy):
@@ -20,15 +21,16 @@ class TSLA_ASSET_DISTRIBUTION_TSLA_DExitStrategy(bt.Strategy):
     Confidence: 0.9
     Validity: HIGH
     """
+
     params = (
-        ('take_profit_pct', 15.0),
-        ('stop_loss_pct', 8.0),
-        ('max_days', 30),
-        ('momentum_exit_threshold', 0.03571180555555555),
-        ('trend_exit_threshold', 0.015),
-        ('trailing_pct', 8.57),
-        ('min_days', 5),
-        ('statistical_validity', 'HIGH'),
+        ("take_profit_pct", 15.0),
+        ("stop_loss_pct", 8.0),
+        ("max_days", 30),
+        ("momentum_exit_threshold", 0.03571180555555555),
+        ("trend_exit_threshold", 0.015),
+        ("trailing_pct", 8.57),
+        ("min_days", 5),
+        ("statistical_validity", "HIGH"),
     )
 
     def __init__(self):
@@ -38,8 +40,10 @@ class TSLA_ASSET_DISTRIBUTION_TSLA_DExitStrategy(bt.Strategy):
         self.days_held = 0
 
         # Validate parameters
-        if self.params.statistical_validity == 'LOW':
-            print(f"Warning: Low reliability parameters for TSLA_ASSET_DISTRIBUTION_TSLA_D")
+        if self.params.statistical_validity == "LOW":
+            print(
+                f"Warning: Low reliability parameters for TSLA_ASSET_DISTRIBUTION_TSLA_D"
+            )
 
     def next(self):
         if self.position:
@@ -70,9 +74,12 @@ class TSLA_ASSET_DISTRIBUTION_TSLA_DExitStrategy(bt.Strategy):
             return
 
         # Trailing stop (only after minimum holding period)
-        if (self.days_held >= self.params.min_days and
-            self.highest_price and
-            current_price <= self.highest_price * (1 - self.params.trailing_pct / 100)):
+        if (
+            self.days_held >= self.params.min_days
+            and self.highest_price
+            and current_price
+            <= self.highest_price * (1 - self.params.trailing_pct / 100)
+        ):
             self.sell(exectype=bt.Order.Market)
             return
 
@@ -91,6 +98,7 @@ class TSLA_ASSET_DISTRIBUTION_TSLA_DExitStrategy(bt.Strategy):
                 self.entry_date = len(self.data)
                 self.highest_price = order.executed.price
                 self.days_held = 0
+
 
 class FANG_ASSET_DISTRIBUTION_FANG_DExitStrategy(bt.Strategy):
     """
@@ -101,15 +109,16 @@ class FANG_ASSET_DISTRIBUTION_FANG_DExitStrategy(bt.Strategy):
     Confidence: 0.9
     Validity: HIGH
     """
+
     params = (
-        ('take_profit_pct', 15.0),
-        ('stop_loss_pct', 8.0),
-        ('max_days', 30),
-        ('momentum_exit_threshold', 0.03571180555555555),
-        ('trend_exit_threshold', 0.015),
-        ('trailing_pct', 5.35),
-        ('min_days', 5),
-        ('statistical_validity', 'HIGH'),
+        ("take_profit_pct", 15.0),
+        ("stop_loss_pct", 8.0),
+        ("max_days", 30),
+        ("momentum_exit_threshold", 0.03571180555555555),
+        ("trend_exit_threshold", 0.015),
+        ("trailing_pct", 5.35),
+        ("min_days", 5),
+        ("statistical_validity", "HIGH"),
     )
 
     def __init__(self):
@@ -119,8 +128,10 @@ class FANG_ASSET_DISTRIBUTION_FANG_DExitStrategy(bt.Strategy):
         self.days_held = 0
 
         # Validate parameters
-        if self.params.statistical_validity == 'LOW':
-            print(f"Warning: Low reliability parameters for FANG_ASSET_DISTRIBUTION_FANG_D")
+        if self.params.statistical_validity == "LOW":
+            print(
+                f"Warning: Low reliability parameters for FANG_ASSET_DISTRIBUTION_FANG_D"
+            )
 
     def next(self):
         if self.position:
@@ -151,9 +162,12 @@ class FANG_ASSET_DISTRIBUTION_FANG_DExitStrategy(bt.Strategy):
             return
 
         # Trailing stop (only after minimum holding period)
-        if (self.days_held >= self.params.min_days and
-            self.highest_price and
-            current_price <= self.highest_price * (1 - self.params.trailing_pct / 100)):
+        if (
+            self.days_held >= self.params.min_days
+            and self.highest_price
+            and current_price
+            <= self.highest_price * (1 - self.params.trailing_pct / 100)
+        ):
             self.sell(exectype=bt.Order.Market)
             return
 
@@ -172,6 +186,7 @@ class FANG_ASSET_DISTRIBUTION_FANG_DExitStrategy(bt.Strategy):
                 self.entry_date = len(self.data)
                 self.highest_price = order.executed.price
                 self.days_held = 0
+
 
 class EXR_ASSET_DISTRIBUTION_EXR_DExitStrategy(bt.Strategy):
     """
@@ -182,15 +197,16 @@ class EXR_ASSET_DISTRIBUTION_EXR_DExitStrategy(bt.Strategy):
     Confidence: 0.9
     Validity: HIGH
     """
+
     params = (
-        ('take_profit_pct', 15.0),
-        ('stop_loss_pct', 8.0),
-        ('max_days', 30),
-        ('momentum_exit_threshold', 0.03571180555555555),
-        ('trend_exit_threshold', 0.015),
-        ('trailing_pct', 3.22),
-        ('min_days', 5),
-        ('statistical_validity', 'HIGH'),
+        ("take_profit_pct", 15.0),
+        ("stop_loss_pct", 8.0),
+        ("max_days", 30),
+        ("momentum_exit_threshold", 0.03571180555555555),
+        ("trend_exit_threshold", 0.015),
+        ("trailing_pct", 3.22),
+        ("min_days", 5),
+        ("statistical_validity", "HIGH"),
     )
 
     def __init__(self):
@@ -200,8 +216,10 @@ class EXR_ASSET_DISTRIBUTION_EXR_DExitStrategy(bt.Strategy):
         self.days_held = 0
 
         # Validate parameters
-        if self.params.statistical_validity == 'LOW':
-            print(f"Warning: Low reliability parameters for EXR_ASSET_DISTRIBUTION_EXR_D")
+        if self.params.statistical_validity == "LOW":
+            print(
+                f"Warning: Low reliability parameters for EXR_ASSET_DISTRIBUTION_EXR_D"
+            )
 
     def next(self):
         if self.position:
@@ -232,9 +250,12 @@ class EXR_ASSET_DISTRIBUTION_EXR_DExitStrategy(bt.Strategy):
             return
 
         # Trailing stop (only after minimum holding period)
-        if (self.days_held >= self.params.min_days and
-            self.highest_price and
-            current_price <= self.highest_price * (1 - self.params.trailing_pct / 100)):
+        if (
+            self.days_held >= self.params.min_days
+            and self.highest_price
+            and current_price
+            <= self.highest_price * (1 - self.params.trailing_pct / 100)
+        ):
             self.sell(exectype=bt.Order.Market)
             return
 
@@ -253,6 +274,7 @@ class EXR_ASSET_DISTRIBUTION_EXR_DExitStrategy(bt.Strategy):
                 self.entry_date = len(self.data)
                 self.highest_price = order.executed.price
                 self.days_held = 0
+
 
 class FRT_ASSET_DISTRIBUTION_FRT_DExitStrategy(bt.Strategy):
     """
@@ -263,15 +285,16 @@ class FRT_ASSET_DISTRIBUTION_FRT_DExitStrategy(bt.Strategy):
     Confidence: 0.9
     Validity: HIGH
     """
+
     params = (
-        ('take_profit_pct', 15.0),
-        ('stop_loss_pct', 8.0),
-        ('max_days', 30),
-        ('momentum_exit_threshold', 0.03571180555555555),
-        ('trend_exit_threshold', 0.015),
-        ('trailing_pct', 2.82),
-        ('min_days', 5),
-        ('statistical_validity', 'HIGH'),
+        ("take_profit_pct", 15.0),
+        ("stop_loss_pct", 8.0),
+        ("max_days", 30),
+        ("momentum_exit_threshold", 0.03571180555555555),
+        ("trend_exit_threshold", 0.015),
+        ("trailing_pct", 2.82),
+        ("min_days", 5),
+        ("statistical_validity", "HIGH"),
     )
 
     def __init__(self):
@@ -281,8 +304,10 @@ class FRT_ASSET_DISTRIBUTION_FRT_DExitStrategy(bt.Strategy):
         self.days_held = 0
 
         # Validate parameters
-        if self.params.statistical_validity == 'LOW':
-            print(f"Warning: Low reliability parameters for FRT_ASSET_DISTRIBUTION_FRT_D")
+        if self.params.statistical_validity == "LOW":
+            print(
+                f"Warning: Low reliability parameters for FRT_ASSET_DISTRIBUTION_FRT_D"
+            )
 
     def next(self):
         if self.position:
@@ -313,9 +338,12 @@ class FRT_ASSET_DISTRIBUTION_FRT_DExitStrategy(bt.Strategy):
             return
 
         # Trailing stop (only after minimum holding period)
-        if (self.days_held >= self.params.min_days and
-            self.highest_price and
-            current_price <= self.highest_price * (1 - self.params.trailing_pct / 100)):
+        if (
+            self.days_held >= self.params.min_days
+            and self.highest_price
+            and current_price
+            <= self.highest_price * (1 - self.params.trailing_pct / 100)
+        ):
             self.sell(exectype=bt.Order.Market)
             return
 
@@ -334,6 +362,7 @@ class FRT_ASSET_DISTRIBUTION_FRT_DExitStrategy(bt.Strategy):
                 self.entry_date = len(self.data)
                 self.highest_price = order.executed.price
                 self.days_held = 0
+
 
 class TFC_ASSET_DISTRIBUTION_TFC_DExitStrategy(bt.Strategy):
     """
@@ -344,15 +373,16 @@ class TFC_ASSET_DISTRIBUTION_TFC_DExitStrategy(bt.Strategy):
     Confidence: 0.9
     Validity: HIGH
     """
+
     params = (
-        ('take_profit_pct', 15.0),
-        ('stop_loss_pct', 8.0),
-        ('max_days', 30),
-        ('momentum_exit_threshold', 0.03571180555555555),
-        ('trend_exit_threshold', 0.015),
-        ('trailing_pct', 3.03),
-        ('min_days', 5),
-        ('statistical_validity', 'HIGH'),
+        ("take_profit_pct", 15.0),
+        ("stop_loss_pct", 8.0),
+        ("max_days", 30),
+        ("momentum_exit_threshold", 0.03571180555555555),
+        ("trend_exit_threshold", 0.015),
+        ("trailing_pct", 3.03),
+        ("min_days", 5),
+        ("statistical_validity", "HIGH"),
     )
 
     def __init__(self):
@@ -362,8 +392,10 @@ class TFC_ASSET_DISTRIBUTION_TFC_DExitStrategy(bt.Strategy):
         self.days_held = 0
 
         # Validate parameters
-        if self.params.statistical_validity == 'LOW':
-            print(f"Warning: Low reliability parameters for TFC_ASSET_DISTRIBUTION_TFC_D")
+        if self.params.statistical_validity == "LOW":
+            print(
+                f"Warning: Low reliability parameters for TFC_ASSET_DISTRIBUTION_TFC_D"
+            )
 
     def next(self):
         if self.position:
@@ -394,9 +426,12 @@ class TFC_ASSET_DISTRIBUTION_TFC_DExitStrategy(bt.Strategy):
             return
 
         # Trailing stop (only after minimum holding period)
-        if (self.days_held >= self.params.min_days and
-            self.highest_price and
-            current_price <= self.highest_price * (1 - self.params.trailing_pct / 100)):
+        if (
+            self.days_held >= self.params.min_days
+            and self.highest_price
+            and current_price
+            <= self.highest_price * (1 - self.params.trailing_pct / 100)
+        ):
             self.sell(exectype=bt.Order.Market)
             return
 
@@ -415,6 +450,7 @@ class TFC_ASSET_DISTRIBUTION_TFC_DExitStrategy(bt.Strategy):
                 self.entry_date = len(self.data)
                 self.highest_price = order.executed.price
                 self.days_held = 0
+
 
 class PKG_ASSET_DISTRIBUTION_PKG_DExitStrategy(bt.Strategy):
     """
@@ -425,15 +461,16 @@ class PKG_ASSET_DISTRIBUTION_PKG_DExitStrategy(bt.Strategy):
     Confidence: 0.9
     Validity: HIGH
     """
+
     params = (
-        ('take_profit_pct', 15.0),
-        ('stop_loss_pct', 8.0),
-        ('max_days', 30),
-        ('momentum_exit_threshold', 0.03571180555555555),
-        ('trend_exit_threshold', 0.015),
-        ('trailing_pct', 2.97),
-        ('min_days', 5),
-        ('statistical_validity', 'HIGH'),
+        ("take_profit_pct", 15.0),
+        ("stop_loss_pct", 8.0),
+        ("max_days", 30),
+        ("momentum_exit_threshold", 0.03571180555555555),
+        ("trend_exit_threshold", 0.015),
+        ("trailing_pct", 2.97),
+        ("min_days", 5),
+        ("statistical_validity", "HIGH"),
     )
 
     def __init__(self):
@@ -443,8 +480,10 @@ class PKG_ASSET_DISTRIBUTION_PKG_DExitStrategy(bt.Strategy):
         self.days_held = 0
 
         # Validate parameters
-        if self.params.statistical_validity == 'LOW':
-            print(f"Warning: Low reliability parameters for PKG_ASSET_DISTRIBUTION_PKG_D")
+        if self.params.statistical_validity == "LOW":
+            print(
+                f"Warning: Low reliability parameters for PKG_ASSET_DISTRIBUTION_PKG_D"
+            )
 
     def next(self):
         if self.position:
@@ -475,9 +514,12 @@ class PKG_ASSET_DISTRIBUTION_PKG_DExitStrategy(bt.Strategy):
             return
 
         # Trailing stop (only after minimum holding period)
-        if (self.days_held >= self.params.min_days and
-            self.highest_price and
-            current_price <= self.highest_price * (1 - self.params.trailing_pct / 100)):
+        if (
+            self.days_held >= self.params.min_days
+            and self.highest_price
+            and current_price
+            <= self.highest_price * (1 - self.params.trailing_pct / 100)
+        ):
             self.sell(exectype=bt.Order.Market)
             return
 
@@ -497,6 +539,7 @@ class PKG_ASSET_DISTRIBUTION_PKG_DExitStrategy(bt.Strategy):
                 self.highest_price = order.executed.price
                 self.days_held = 0
 
+
 class HBI_ASSET_DISTRIBUTION_HBI_DExitStrategy(bt.Strategy):
     """
     Statistical exit strategy for HBI_ASSET_DISTRIBUTION_HBI_D
@@ -506,15 +549,16 @@ class HBI_ASSET_DISTRIBUTION_HBI_DExitStrategy(bt.Strategy):
     Confidence: 0.9
     Validity: HIGH
     """
+
     params = (
-        ('take_profit_pct', 15.0),
-        ('stop_loss_pct', 8.0),
-        ('max_days', 30),
-        ('momentum_exit_threshold', 0.03571180555555555),
-        ('trend_exit_threshold', 0.015),
-        ('trailing_pct', 5.98),
-        ('min_days', 5),
-        ('statistical_validity', 'HIGH'),
+        ("take_profit_pct", 15.0),
+        ("stop_loss_pct", 8.0),
+        ("max_days", 30),
+        ("momentum_exit_threshold", 0.03571180555555555),
+        ("trend_exit_threshold", 0.015),
+        ("trailing_pct", 5.98),
+        ("min_days", 5),
+        ("statistical_validity", "HIGH"),
     )
 
     def __init__(self):
@@ -524,8 +568,10 @@ class HBI_ASSET_DISTRIBUTION_HBI_DExitStrategy(bt.Strategy):
         self.days_held = 0
 
         # Validate parameters
-        if self.params.statistical_validity == 'LOW':
-            print(f"Warning: Low reliability parameters for HBI_ASSET_DISTRIBUTION_HBI_D")
+        if self.params.statistical_validity == "LOW":
+            print(
+                f"Warning: Low reliability parameters for HBI_ASSET_DISTRIBUTION_HBI_D"
+            )
 
     def next(self):
         if self.position:
@@ -556,9 +602,12 @@ class HBI_ASSET_DISTRIBUTION_HBI_DExitStrategy(bt.Strategy):
             return
 
         # Trailing stop (only after minimum holding period)
-        if (self.days_held >= self.params.min_days and
-            self.highest_price and
-            current_price <= self.highest_price * (1 - self.params.trailing_pct / 100)):
+        if (
+            self.days_held >= self.params.min_days
+            and self.highest_price
+            and current_price
+            <= self.highest_price * (1 - self.params.trailing_pct / 100)
+        ):
             self.sell(exectype=bt.Order.Market)
             return
 
@@ -589,6 +638,7 @@ strategy_registry = {
     "PKG_ASSET_DISTRIBUTION_PKG_D": PKG_ASSET_DISTRIBUTION_PKG_DExitStrategy,
     "HBI_ASSET_DISTRIBUTION_HBI_D": HBI_ASSET_DISTRIBUTION_HBI_DExitStrategy,
 }
+
 
 # Usage example
 def create_strategy(strategy_key):

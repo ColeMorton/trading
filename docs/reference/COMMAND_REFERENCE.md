@@ -667,7 +667,7 @@ logging:
 paths:
   data: './data'
   exports: './exports'
-  csv: './csv'
+  csv: './data/raw'
 
 defaults:
   min_trades: 44

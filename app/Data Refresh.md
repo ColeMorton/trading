@@ -66,10 +66,10 @@ The system includes sophisticated mechanisms to determine if cached data is "fre
 
 The system uses a standardized approach to resolve file paths for cached data:
 
-1. For price data: `{BASE_DIR}/csv/price_data/{TICKER}_{D|H}.csv`
-2. For portfolio data: `{BASE_DIR}/csv/portfolios/{TICKER}_{D|H}_{SMA|EMA}.csv`
+1. For price data: `{BASE_DIR}/data/raw/price_data/{TICKER}_{D|H}.csv`
+2. For portfolio data: `{BASE_DIR}/data/raw/portfolios/{TICKER}_{D|H}_{SMA|EMA}.csv`
 
-> **Note**: There is a discrepancy in the codebase. In `app/tools/portfolio/processing.py` (line 38), the path is currently set to `csv/ma_cross/portfolios`. This should be updated to `csv/portfolios` for consistency.
+> **Note**: There is a discrepancy in the codebase. In `app/tools/portfolio/processing.py` (line 38), the path is currently set to `csv/ma_cross/portfolios`. This should be updated to `data/raw/portfolios` for consistency.
 
 ## Key Components Interaction
 

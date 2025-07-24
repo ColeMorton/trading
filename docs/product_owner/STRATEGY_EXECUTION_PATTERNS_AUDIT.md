@@ -53,8 +53,8 @@ CONFIG: Config = {
 
 #### Output Generation
 
-- Portfolio CSVs in `/csv/portfolios/`
-- Filtered portfolio CSVs in `/csv/portfolios_filtered/`
+- Portfolio CSVs in `/data/raw/portfolios/`
+- Filtered portfolio CSVs in `/data/raw/portfolios_filtered/`
 - Best portfolio selection and console display
 
 #### Error Handling

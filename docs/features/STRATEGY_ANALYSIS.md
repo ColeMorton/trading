@@ -147,10 +147,10 @@ MINIMUM_PROFIT_FACTOR = 1.0
 ### CSV Exports
 
 ```
-csv/portfolios/TICKER_TIMEFRAME_STRATEGY.csv
+data/raw/portfolios/TICKER_TIMEFRAME_STRATEGY.csv
 ```
 
-**Example**: `csv/portfolios/AAPL_D_SMA.csv`
+**Example**: `data/raw/portfolios/AAPL_D_SMA.csv`
 
 ### JSON Exports (Optional)
 
@@ -162,8 +162,8 @@ trading-cli strategy run --ticker AAPL --strategy SMA --export-format json
 ### Portfolio Aggregation
 
 ```
-csv/portfolios_filtered/    # Filtered by criteria
-csv/portfolios_best/        # Best performing strategies
+data/raw/portfolios_filtered/    # Filtered by criteria
+data/raw/portfolios_best/        # Best performing strategies
 ```
 
 ## Integration with Other Systems

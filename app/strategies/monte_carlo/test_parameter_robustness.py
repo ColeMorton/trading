@@ -153,7 +153,7 @@ def test_visualization_only():
 
     try:
         # Check if we have results from previous run
-        results_file = "csv/monte_carlo/parameter_robustness_1_tickers/parameter_robustness_summary.csv"
+        results_file = "data/raw/monte_carlo/parameter_robustness_1_tickers/parameter_robustness_summary.csv"
 
         if os.path.exists(results_file):
             print(f"Found existing results file: {results_file}")
@@ -204,7 +204,7 @@ def main():
         print("\nNext steps:")
         print("1. Review the generated visualizations in png/monte_carlo/test_results/")
         print(
-            "2. Check the detailed results in csv/monte_carlo/parameter_robustness_1_tickers/"
+            "2. Check the detailed results in data/raw/monte_carlo/parameter_robustness_1_tickers/"
         )
         print("3. Use the integration script for full pipeline testing")
     else:
