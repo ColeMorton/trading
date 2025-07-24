@@ -8,6 +8,13 @@ across all trading modules.
 from .base import AllocationConfig, BaseConfig, FilterConfig, StopLossConfig
 from .concurrency import ConcurrencyAnalysisConfig, ConcurrencyConfig
 from .portfolio import PortfolioConfig, PortfolioProcessingConfig
+from .seasonality import (
+    PatternType,
+    SeasonalityConfig,
+    SeasonalityExpectancyConfig,
+    SeasonalityPattern,
+    SeasonalityResult,
+)
 from .spds import (
     SPDSAnalyzeConfig,
     SPDSConfig,
@@ -54,4 +61,9 @@ __all__ = [
     "TradeHistoryUpdateConfig",
     "TradeHistoryValidateConfig",
     "TradeHistoryHealthConfig",
+    "SeasonalityConfig",
+    "SeasonalityExpectancyConfig",
+    "SeasonalityPattern",
+    "SeasonalityResult",
+    "PatternType",
 ]

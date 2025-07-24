@@ -10,6 +10,7 @@ from . import (
     config,
     portfolio,
     positions,
+    seasonality,
     spds,
     strategy,
     tools,
@@ -25,4 +26,5 @@ __all__ = [
     "tools",
     "spds",
     "trade_history",
+    "seasonality",
 ]
