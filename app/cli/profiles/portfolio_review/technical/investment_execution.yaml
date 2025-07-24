@@ -1,0 +1,182 @@
+metadata:
+  name: investment_execution
+  description: Technical execution parameters for investment (crypto) portfolio
+  created_at: '2025-01-22T00:00:00.000000'
+  updated_at: '2025-01-22T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - technical_execution
+    - portfolio_review
+    - investment
+    - crypto
+    - bitcoin
+  author: system
+
+inherits_from: portfolio_review_base
+config_type: portfolio_execution
+
+config:
+  # Reference to business portfolio definition
+  portfolio_reference: 'data/config/portfolios/investment.yaml'
+
+  # Technical execution parameters for multi-strategy approach
+  execution_strategies:
+    # Bitcoin - Multiple Strategy Diversification
+    BTC-USD:
+      strategies:
+        - name: "btc_sma_short"
+          strategy_type: SMA
+          short_window: 11
+          long_window: 36
+          weight: 0.125
+
+        - name: "btc_sma_medium1"
+          strategy_type: SMA
+          short_window: 26
+          long_window: 38
+          weight: 0.125
+
+        - name: "btc_sma_long"
+          strategy_type: SMA
+          short_window: 104
+          long_window: 105
+          weight: 0.10
+
+        - name: "btc_macd_1"
+          strategy_type: MACD
+          short_window: 14
+          long_window: 23
+          signal_window: 13
+          weight: 0.15
+
+        - name: "btc_macd_2"
+          strategy_type: MACD
+          short_window: 18
+          long_window: 29
+          signal_window: 18
+          weight: 0.125
+
+        - name: "btc_sma_medium2"
+          strategy_type: SMA
+          short_window: 27
+          long_window: 29
+          weight: 0.125
+
+        - name: "btc_sma_trend"
+          strategy_type: SMA
+          short_window: 76
+          long_window: 78
+          weight: 0.10
+
+        - name: "btc_sma_fast"
+          strategy_type: SMA
+          short_window: 8
+          long_window: 44
+          weight: 0.125
+
+        - name: "btc_ema_responsive"
+          strategy_type: EMA
+          short_window: 3
+          long_window: 47
+          weight: 0.10
+
+      execution_method: limit_order  # Crypto requires careful execution
+      position_sizing: volatility_adjusted
+
+    # MicroStrategy - Multiple Strategy Diversification
+    MSTR:
+      strategies:
+        - name: "mstr_sma_long1"
+          strategy_type: SMA
+          short_window: 52
+          long_window: 90
+          weight: 0.15
+
+        - name: "mstr_sma_wide"
+          strategy_type: SMA
+          short_window: 16
+          long_window: 82
+          weight: 0.15
+
+        - name: "mstr_sma_extreme"
+          strategy_type: SMA
+          short_window: 6
+          long_window: 84
+          weight: 0.10
+
+        - name: "mstr_macd_wide"
+          strategy_type: MACD
+          short_window: 13
+          long_window: 21
+          signal_window: 32
+          weight: 0.15
+
+        - name: "mstr_sma_tight"
+          strategy_type: SMA
+          short_window: 18
+          long_window: 21
+          weight: 0.125
+
+        - name: "mstr_sma_short"
+          strategy_type: SMA
+          short_window: 6
+          long_window: 27
+          weight: 0.125
+
+        - name: "mstr_macd_fast"
+          strategy_type: MACD
+          short_window: 13
+          long_window: 31
+          signal_window: 11
+          weight: 0.10
+
+        - name: "mstr_macd_quick"
+          strategy_type: MACD
+          short_window: 9
+          long_window: 13
+          signal_window: 5
+          weight: 0.075
+
+      execution_method: market_order  # Equity execution
+      position_sizing: volatility_adjusted
+
+  # Crypto-specific execution parameters
+  default_parameters:
+    commission:
+      crypto: $ref: "data/config/trading/market_parameters.yaml#trading_costs.commissions.crypto.per_trade"
+      equity: $ref: "data/config/trading/market_parameters.yaml#trading_costs.commissions.equities.per_trade"
+    slippage:
+      crypto: $ref: "data/config/trading/market_parameters.yaml#trading_costs.slippage.crypto.market_orders"
+      equity: $ref: "data/config/trading/market_parameters.yaml#trading_costs.slippage.equities.market_orders"
+
+  # High-risk portfolio execution parameters
+  risk_execution:
+    stop_loss_method: trailing
+    stop_loss_percentage: $ref: "data/config/trading/risk_management.yaml#asset_classes.crypto.stop_loss.default_percentage"
+    position_sizing_method: volatility_adjusted
+    rebalancing_trigger: volatility_based
+    max_deviation_threshold: 0.10  # Higher tolerance for crypto volatility
+    correlation_monitoring: true
+
+  # Portfolio review specific execution settings
+  review_execution:
+    benchmark: 'BTC-USD'  # Use Bitcoin as benchmark for crypto portfolio
+    benchmark_type: 'buy_and_hold'
+    init_cash: 10000.0
+    fees:
+      default: $ref: "data/config/trading/market_parameters.yaml#trading_costs.commissions.crypto.per_trade"
+    calculate_risk_metrics: true
+    export_equity_curve: true
+    enable_plotting: true
+
+  # Crypto-specific analysis execution parameters
+  analysis_execution:
+    timeframe: 'D'
+    lookback_periods:
+      short_term: 7    # Crypto moves fast
+      medium_term: 21
+      long_term: 90    # Shorter long term due to crypto volatility
+    volatility_window: 14
+    correlation_window: 30
+    risk_metrics: ['VaR', 'CVaR', 'maximum_drawdown', 'volatility']
+    crypto_specific_metrics: ['sharpe_ratio', 'sortino_ratio', 'calmar_ratio']

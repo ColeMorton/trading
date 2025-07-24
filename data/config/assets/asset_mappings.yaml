@@ -1,0 +1,319 @@
+metadata:
+  name: asset_mappings
+  description: Asset class definitions, mappings, and categorization rules
+  created_at: '2025-01-22T00:00:00.000000'
+  updated_at: '2025-01-22T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - asset_mapping
+    - categorization
+    - business_config
+    - classification
+  author: system
+
+# Asset class hierarchy and definitions
+asset_classes:
+  crypto:
+    name: 'Cryptocurrency'
+    description: 'Digital assets and cryptocurrencies'
+    config_file: 'crypto.yaml'
+    risk_level: 'high'
+    characteristics:
+      - '24/7_trading'
+      - 'high_volatility'
+      - 'emerging_asset_class'
+      - 'regulatory_uncertainty'
+
+  equities:
+    name: 'Equity Securities'
+    description: 'Common stocks and equity instruments'
+    config_file: 'equities.yaml'
+    risk_level: 'medium'
+    characteristics:
+      - 'market_hours_trading'
+      - 'dividend_potential'
+      - 'ownership_rights'
+      - 'regulated_markets'
+
+  fixed_income:
+    name: 'Fixed Income Securities'
+    description: 'Bonds and debt instruments'
+    config_file: 'bonds.yaml'
+    risk_level: 'low'
+    characteristics:
+      - 'income_generation'
+      - 'principal_protection'
+      - 'interest_rate_sensitivity'
+      - 'credit_risk'
+
+  commodities:
+    name: 'Commodity Instruments'
+    description: 'Physical commodities and futures'
+    config_file: 'commodities.yaml'
+    risk_level: 'medium_high'
+    characteristics:
+      - 'inflation_hedge'
+      - 'supply_demand_dynamics'
+      - 'geopolitical_sensitivity'
+      - 'storage_costs'
+
+# Symbol-to-asset-class mappings
+symbol_mappings:
+  # Cryptocurrencies
+  crypto:
+    major:
+      - 'BTC-USD'
+      - 'ETH-USD'
+    alternative:
+      - 'SOL-USD'
+      - 'ADA-USD'
+      - 'DOT-USD'
+      - 'AVAX-USD'
+      - 'MATIC-USD'
+    emerging:
+      - 'SUI20947-USD'
+    stablecoins:
+      - 'USDT-USD'
+      - 'USDC-USD'
+
+  # Equity Securities
+  equities:
+    # Technology Sector
+    technology:
+      large_cap:
+        - 'AAPL'
+        - 'MSFT'
+        - 'GOOGL'
+        - 'GOOG'
+        - 'AMZN'
+        - 'META'
+        - 'TSLA'
+        - 'NVDA'
+        - 'NFLX'
+        - 'ASML'
+      mid_cap:
+        - 'CRWD'
+        - 'COIN'
+        - 'PLTR'
+        - 'DOCU'
+        - 'DKNG'
+
+    # Financial Sector
+    financials:
+      - 'JPM'
+      - 'BAC'
+      - 'WFC'
+      - 'GS'
+      - 'MS'
+      - 'SCHW'
+      - 'BK'
+
+    # Healthcare Sector
+    healthcare:
+      - 'JNJ'
+      - 'PFE'
+      - 'UNH'
+      - 'ABT'
+      - 'TMO'
+      - 'DHR'
+
+    # Energy Sector
+    energy:
+      - 'XOM'
+      - 'CVX'
+      - 'COP'
+      - 'EOG'
+      - 'SLB'
+      - 'HAL'
+
+    # Industrial Sector
+    industrials:
+      - 'BA'
+      - 'CAT'
+      - 'GE'
+      - 'HON'
+      - 'UNP'
+      - 'LMT'
+      - 'RTX'
+      - 'NOC'
+
+    # Consumer Sector
+    consumer:
+      - 'AMZN'
+      - 'HD'
+      - 'MCD'
+      - 'SBUX'
+      - 'NKE'
+      - 'DIS'
+
+  # ETFs and Index Funds
+  etfs:
+    broad_market:
+      - 'SPY'
+      - 'QQQ'
+      - 'IWM'
+      - 'VTI'
+      - 'VTV'
+      - 'VUG'
+    sector:
+      - 'XLK' # Technology
+      - 'XLF' # Financials
+      - 'XLV' # Healthcare
+      - 'XLE' # Energy
+      - 'XLI' # Industrials
+      - 'XLU' # Utilities
+    international:
+      - 'EFA' # Developed markets
+      - 'EEM' # Emerging markets
+      - 'VEA' # Europe/Asia
+
+  # Commodities and Futures
+  commodities:
+    energy:
+      - 'CL=F' # Crude Oil
+      - 'NG=F' # Natural Gas
+    metals:
+      - 'GC=F' # Gold
+      - 'SI=F' # Silver
+      - 'HG=F' # Copper
+    agricultural:
+      - 'ZC=F' # Corn
+      - 'ZS=F' # Soybeans
+      - 'ZW=F' # Wheat
+
+# Dynamic classification rules
+classification_rules:
+  # Rules for programmatic classification
+  crypto_patterns:
+    - suffix: '-USD'
+      condition: 'crypto_exchange_listing'
+    - pattern: '.*BTC.*'
+      category: 'crypto_bitcoin_related'
+    - pattern: '.*ETH.*'
+      category: 'crypto_ethereum_related'
+
+  equity_patterns:
+    - length: [1, 5]
+      characters: 'alphabetic'
+      condition: 'stock_exchange_listing'
+    - pattern: '^[A-Z]{1,5}$'
+      category: 'us_equity'
+
+  etf_patterns:
+    - pattern: '^[A-Z]{3}$'
+      condition: 'etf_listing'
+    - suffix: ['SPY', 'QQQ', 'IWM']
+      category: 'major_index_etf'
+
+# Sector classifications
+sector_mappings:
+  # GICS Sector Classifications
+  technology:
+    code: '45'
+    industries:
+      - 'software'
+      - 'semiconductors'
+      - 'hardware'
+      - 'internet'
+    symbols: ['AAPL', 'MSFT', 'GOOGL', 'META', 'NVDA', 'TSLA']
+
+  financials:
+    code: '40'
+    industries:
+      - 'banks'
+      - 'insurance'
+      - 'capital_markets'
+      - 'real_estate'
+    symbols: ['JPM', 'BAC', 'WFC', 'GS', 'SCHW']
+
+  healthcare:
+    code: '35'
+    industries:
+      - 'pharmaceuticals'
+      - 'biotechnology'
+      - 'medical_devices'
+      - 'healthcare_services'
+    symbols: ['JNJ', 'PFE', 'UNH', 'ABT']
+
+  energy:
+    code: '10'
+    industries:
+      - 'oil_gas_exploration'
+      - 'oil_gas_refining'
+      - 'oil_gas_equipment'
+    symbols: ['XOM', 'CVX', 'COP', 'HAL']
+
+# Risk profile mappings
+risk_profiles:
+  conservative:
+    asset_classes: ['fixed_income', 'utilities', 'consumer_staples']
+    max_individual_allocation: 0.15
+    max_sector_allocation: 0.25
+
+  moderate:
+    asset_classes: ['equities', 'fixed_income', 'reits']
+    max_individual_allocation: 0.20
+    max_sector_allocation: 0.30
+
+  aggressive:
+    asset_classes: ['equities', 'growth_stocks', 'small_cap']
+    max_individual_allocation: 0.30
+    max_sector_allocation: 0.40
+
+  speculative:
+    asset_classes: ['crypto', 'growth_stocks', 'emerging_markets']
+    max_individual_allocation: 0.50
+    max_sector_allocation: 0.60
+
+# Currency and denomination mappings
+currencies:
+  base_currency: 'USD'
+
+  # Currency exposure by asset
+  currency_exposure:
+    crypto:
+      primary: 'USD'
+      alternatives: ['BTC', 'ETH']
+    us_equities:
+      primary: 'USD'
+    international_equities:
+      varies_by_region: true
+    commodities:
+      primary: 'USD'
+
+# Data source mappings
+data_sources:
+  primary_source: 'yahoo_finance'
+
+  # Source preferences by asset class
+  source_preferences:
+    crypto:
+      primary: 'yahoo_finance'
+      alternatives: ['coinbase', 'binance']
+    equities:
+      primary: 'yahoo_finance'
+      alternatives: ['alpha_vantage', 'iex']
+    etfs:
+      primary: 'yahoo_finance'
+    commodities:
+      primary: 'yahoo_finance'
+
+# Synthetic instrument definitions
+synthetic_instruments:
+  # Pair trading instruments
+  pairs:
+    crypto_equity_pair:
+      ticker_1: 'BTC-USD'
+      ticker_2: 'SPY'
+      description: 'Bitcoin vs S&P 500 synthetic pair'
+
+  # Custom composites
+  composites:
+    custom_crypto_index:
+      components:
+        - symbol: 'BTC-USD'
+          weight: 0.60
+        - symbol: 'ETH-USD'
+          weight: 0.30
+        - symbol: 'SOL-USD'
+          weight: 0.10

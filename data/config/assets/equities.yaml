@@ -1,0 +1,225 @@
+metadata:
+  name: equity_assets
+  description: Equity-specific business parameters and configurations
+  created_at: '2025-01-22T00:00:00.000000'
+  updated_at: '2025-01-22T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - equities
+    - stocks
+    - assets
+    - business_config
+  author: system
+
+# Default equity asset parameters
+defaults:
+  # Strategy parameters optimized for equity markets
+  strategy_parameters:
+    stop_loss: 2.5 # Conservative stop loss for equities
+    windows: 50 # Standard window for equity analysis
+    volatility_multiplier: 1.0 # Normal volatility adjustment
+
+  # Data collection defaults
+  data_collection:
+    default_period: 'max' # Use maximum available data
+    use_years: false # Prefer period over years
+    years_fallback: 10 # Shorter fallback for equities
+    use_hourly: false # Default to daily data
+
+  # Risk parameters for traditional equities
+  risk_parameters:
+    volatility_tolerance: 'medium'
+    correlation_threshold: 0.65
+    max_drawdown_tolerance: 0.15
+    min_win_rate: 0.50
+
+# Equity market categories
+categories:
+  large_cap:
+    description: 'S&P 500 and other large cap stocks'
+    market_cap_min: 10000000000 # $10B+
+    liquidity: 'high'
+    volatility: 'low_to_medium'
+    examples: ['AAPL', 'MSFT', 'GOOGL', 'AMZN']
+
+  mid_cap:
+    description: 'Mid-capitalization stocks'
+    market_cap_min: 2000000000 # $2B - $10B
+    market_cap_max: 10000000000
+    liquidity: 'medium'
+    volatility: 'medium'
+    examples: ['CRWD', 'COIN', 'PLTR']
+
+  small_cap:
+    description: 'Small-capitalization stocks'
+    market_cap_min: 300000000 # $300M - $2B
+    market_cap_max: 2000000000
+    liquidity: 'medium_to_low'
+    volatility: 'medium_to_high'
+
+  growth:
+    description: 'High-growth technology and innovation stocks'
+    characteristics: ['high_revenue_growth', 'high_volatility', 'high_beta']
+    examples: ['TSLA', 'NVDA', 'META', 'NFLX']
+    strategy_adjustments:
+      volatility_multiplier: 1.3
+      stop_loss: 3.0
+
+  value:
+    description: 'Value-oriented dividend-paying stocks'
+    characteristics: ['stable_dividends', 'low_volatility', 'low_beta']
+    examples: ['JPM', 'JNJ', 'PG', 'KO']
+    strategy_adjustments:
+      volatility_multiplier: 0.8
+      stop_loss: 2.0
+
+# Sector-specific configurations
+sectors:
+  technology:
+    volatility_expectation: 'medium_to_high'
+    correlation_within_sector: 0.70
+    benchmark: 'XLK'
+    strategy_defaults:
+      short_window: 15
+      long_window: 45
+      stop_loss: 3.0
+    risk_factors: ['tech_selloffs', 'interest_rate_sensitivity']
+
+  healthcare:
+    volatility_expectation: 'low_to_medium'
+    correlation_within_sector: 0.50
+    benchmark: 'XLV'
+    strategy_defaults:
+      short_window: 20
+      long_window: 60
+      stop_loss: 2.5
+    risk_factors: ['regulatory_risk', 'clinical_trial_risk']
+
+  financials:
+    volatility_expectation: 'medium'
+    correlation_within_sector: 0.75
+    benchmark: 'XLF'
+    strategy_defaults:
+      short_window: 25
+      long_window: 75
+      stop_loss: 3.5
+    risk_factors: ['interest_rate_risk', 'credit_risk', 'regulatory_risk']
+
+  energy:
+    volatility_expectation: 'high'
+    correlation_within_sector: 0.80
+    benchmark: 'XLE'
+    strategy_defaults:
+      short_window: 10
+      long_window: 30
+      stop_loss: 4.0
+    risk_factors: ['commodity_price_risk', 'geopolitical_risk']
+
+  utilities:
+    volatility_expectation: 'low'
+    correlation_within_sector: 0.60
+    benchmark: 'XLU'
+    strategy_defaults:
+      short_window: 30
+      long_window: 90
+      stop_loss: 2.0
+    risk_factors: ['interest_rate_sensitivity', 'regulatory_risk']
+
+# Equity market characteristics
+market_characteristics:
+  trading:
+    hours: '9:30-16:00 EST'
+    settlement: 'T+2'
+    weekends: false
+    holidays: false
+
+  volatility:
+    daily_volatility_range: [0.005, 0.05] # 0.5-5% daily moves
+    expected_annual_volatility: [0.15, 0.40] # 15-40% annual
+    volatility_clustering: true
+
+  correlation:
+    intra_market: 0.60 # Correlation within equity market
+    to_bonds: -0.20 # Negative correlation to bonds
+    to_commodities: 0.20 # Low positive correlation
+    to_crypto: 0.30 # Medium correlation to crypto
+
+  liquidity:
+    bid_ask_spread_range: [0.0001, 0.01] # 0.01-1% spread
+    market_impact_threshold: 0.002 # 0.2% for large orders
+
+# Benchmark configurations
+benchmarks:
+  broad_market:
+    primary: 'SPY' # S&P 500
+    alternatives: ['VTI', 'IVV']
+
+  growth:
+    primary: 'QQQ' # Nasdaq 100
+    alternatives: ['VUG', 'IWF']
+
+  value:
+    primary: 'VTV' # Vanguard Value
+    alternatives: ['IWD', 'VYM']
+
+  international:
+    developed: 'EFA' # MSCI EAFE
+    emerging: 'EEM' # MSCI Emerging Markets
+
+# Risk factor models
+risk_factors:
+  systematic:
+    market_risk: 'high' # Beta exposure
+    interest_rate_risk: 'medium' # Duration sensitivity
+    inflation_risk: 'medium' # Real return impact
+
+  style_factors:
+    size_factor: true # Small vs large cap
+    value_factor: true # Value vs growth
+    momentum_factor: true # Price momentum
+    quality_factor: true # Financial quality
+
+  sector_factors:
+    technology_exposure: true
+    financial_exposure: true
+    healthcare_exposure: true
+    energy_exposure: true
+
+# Performance expectations by asset type
+performance_expectations:
+  large_cap:
+    annual_return: 0.08 # 8% expected return
+    volatility: 0.16 # 16% volatility
+    sharpe_ratio: 0.50
+    max_drawdown: 0.12
+
+  growth_stocks:
+    annual_return: 0.12 # 12% expected return
+    volatility: 0.25 # 25% volatility
+    sharpe_ratio: 0.48
+    max_drawdown: 0.20
+
+  value_stocks:
+    annual_return: 0.09 # 9% expected return
+    volatility: 0.14 # 14% volatility
+    sharpe_ratio: 0.64
+    max_drawdown: 0.10
+
+# Equity-specific analysis parameters
+analysis_parameters:
+  # Timeframes relevant for equity analysis
+  preferred_timeframes: ['D', 'W', 'M']
+
+  # Fundamental analysis integration
+  consider_fundamentals: true
+  earnings_season_adjustments: true
+
+  # Corporate events consideration
+  dividend_adjustments: true
+  split_adjustments: true
+  merger_consideration: true
+
+  # Market regime considerations
+  bull_market_adjustments: true
+  bear_market_adjustments: true
+  recession_indicators: true

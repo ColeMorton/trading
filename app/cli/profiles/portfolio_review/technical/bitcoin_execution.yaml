@@ -1,0 +1,138 @@
+metadata:
+  name: bitcoin_execution
+  description: Technical execution parameters for bitcoin (pure BTC-USD) portfolio
+  created_at: '2025-01-22T00:00:00.000000'
+  updated_at: '2025-01-22T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - technical_execution
+    - portfolio_review
+    - bitcoin
+    - crypto
+    - single_asset
+    - multi_strategy
+  author: system
+
+inherits_from: portfolio_review_base
+config_type: portfolio_execution
+
+config:
+  # Reference to business portfolio definition
+  portfolio_reference: 'data/config/portfolios/bitcoin.yaml'
+
+  # Technical execution parameters for BTC-USD multi-strategy approach
+  execution_strategies:
+    # Short-term momentum strategies
+    - ticker: BTC-USD
+      strategy_type: SMA
+      short_window: 11
+      long_window: 36
+      execution_method: limit_order  # Crypto requires careful execution
+      position_sizing: volatility_adjusted
+      weight: 0.11
+
+    - ticker: BTC-USD
+      strategy_type: SMA
+      short_window: 26
+      long_window: 38
+      execution_method: limit_order
+      position_sizing: volatility_adjusted
+      weight: 0.11
+
+    - ticker: BTC-USD
+      strategy_type: SMA
+      short_window: 27
+      long_window: 29
+      execution_method: limit_order
+      position_sizing: volatility_adjusted
+      weight: 0.11
+
+    # Fast responsive strategies
+    - ticker: BTC-USD
+      strategy_type: SMA
+      short_window: 8
+      long_window: 44
+      execution_method: limit_order
+      position_sizing: volatility_adjusted
+      weight: 0.11
+
+    - ticker: BTC-USD
+      strategy_type: EMA
+      short_window: 3
+      long_window: 47
+      execution_method: limit_order  # EMA more sensitive
+      position_sizing: volatility_adjusted
+      weight: 0.11
+
+    # Medium-term trend strategies
+    - ticker: BTC-USD
+      strategy_type: SMA
+      short_window: 76
+      long_window: 78
+      execution_method: market_order  # Tight window, quick execution
+      position_sizing: equal_weight
+      weight: 0.11
+
+    # Long-term position strategies
+    - ticker: BTC-USD
+      strategy_type: SMA
+      short_window: 104
+      long_window: 105
+      execution_method: market_order  # Ultra-tight window
+      position_sizing: equal_weight
+      weight: 0.11
+
+    # MACD momentum strategies
+    - ticker: BTC-USD
+      strategy_type: MACD
+      short_window: 14
+      long_window: 23
+      signal_window: 13
+      execution_method: limit_order
+      position_sizing: momentum_weighted
+      weight: 0.11
+
+    - ticker: BTC-USD
+      strategy_type: MACD
+      short_window: 18
+      long_window: 29
+      signal_window: 18
+      execution_method: limit_order
+      position_sizing: momentum_weighted
+      weight: 0.12
+
+  # Crypto-specific execution parameters
+  default_parameters:
+    commission: $ref: "data/config/trading/market_parameters.yaml#trading_costs.commissions.crypto.per_trade"
+    slippage: $ref: "data/config/trading/market_parameters.yaml#trading_costs.slippage.crypto.market_orders"
+
+  # High-risk crypto execution parameters
+  risk_execution:
+    stop_loss_method: trailing
+    stop_loss_percentage: $ref: "data/config/trading/risk_management.yaml#asset_classes.crypto.stop_loss.default_percentage"
+    position_sizing_method: volatility_adjusted
+    rebalancing_trigger: volatility_based
+    max_deviation_threshold: 0.12  # Higher tolerance for crypto volatility
+    correlation_monitoring: true
+
+  # Portfolio review specific execution settings
+  review_execution:
+    benchmark: 'BTC-USD'  # Use Bitcoin itself as benchmark
+    benchmark_type: 'buy_and_hold'
+    init_cash: 10000.0
+    fees: $ref: "data/config/trading/market_parameters.yaml#trading_costs.commissions.crypto.per_trade"
+    calculate_risk_metrics: true
+    export_equity_curve: true
+    enable_plotting: true
+
+  # Crypto-specific analysis execution parameters
+  analysis_execution:
+    timeframe: 'D'
+    lookback_periods:
+      short_term: 7    # Crypto moves fast
+      medium_term: 21
+      long_term: 90    # Shorter long term due to crypto volatility
+    volatility_window: 14
+    correlation_window: 30
+    risk_metrics: ['VaR', 'CVaR', 'maximum_drawdown', 'volatility']
+    crypto_specific_metrics: ['sharpe_ratio', 'sortino_ratio', 'calmar_ratio']

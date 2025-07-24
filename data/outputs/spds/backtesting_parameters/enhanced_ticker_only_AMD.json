@@ -1,0 +1,44 @@
+{
+  "strategy_parameters": {
+    "AMD_ASSET_DISTRIBUTION_AMD_D": {
+      "take_profit_pct": 15.0,
+      "stop_loss_pct": 8.0,
+      "max_holding_days": 30,
+      "min_holding_days": 5,
+      "trailing_stop_pct": 5.44,
+      "confidence_level": 0.9,
+      "sample_size": 11429,
+      "statistical_validity": "HIGH",
+      "entry_signal": "STATISTICAL_DIVERGENCE",
+      "momentum_exit_threshold": 0.03571180555555555,
+      "trend_exit_threshold": 0.015,
+      "derivation_method": "advanced_quantitative_optimization",
+      "generation_timestamp": "2025-07-23T11:38:32.258759"
+    }
+  },
+  "generation_metadata": {
+    "generation_timestamp": "2025-07-23T11:38:32.240224",
+    "confidence_level": 0.9,
+    "total_strategies": 1,
+    "spds_version": "1.0.0",
+    "statistical_validity": {
+      "AMD_ASSET_DISTRIBUTION_AMD_D": {
+        "sample_size": 11429,
+        "confidence": 0.95,
+        "validity_level": "HIGH"
+      }
+    }
+  },
+  "framework_compatibility": {
+    "vectorbt": true,
+    "backtrader": true,
+    "zipline": true,
+    "custom": true
+  },
+  "usage_instructions": {
+    "description": "Statistical analysis-derived backtesting parameters",
+    "confidence_interpretation": "Higher confidence = more reliable parameters",
+    "sample_size_guidance": "Sample size \u226530 recommended for high reliability",
+    "parameter_derivation": "Parameters derived from percentile analysis of historical returns"
+  }
+}

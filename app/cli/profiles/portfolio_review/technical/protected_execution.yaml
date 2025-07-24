@@ -1,0 +1,79 @@
+metadata:
+  name: protected_execution
+  description: Technical execution parameters for protected portfolio
+  created_at: '2025-01-22T00:00:00.000000'
+  updated_at: '2025-01-22T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - technical_execution
+    - portfolio_review
+    - protected
+    - conservative
+  author: system
+
+inherits_from: portfolio_review_base
+config_type: portfolio_execution
+
+config:
+  # Reference to business portfolio definition
+  portfolio_reference: 'data/config/portfolios/protected.yaml'
+
+  # Technical execution parameters for each asset
+  execution_strategies:
+    # Financial Services - Raymond James Financial
+    - ticker: RJF
+      strategy_type: SMA
+      short_window: 68
+      long_window: 77
+      execution_method: market_order
+      position_sizing: equal_weight
+
+    # Industrial - Howmet Aerospace
+    - ticker: HWM
+      strategy_type: SMA
+      short_window: 7
+      long_window: 9
+      execution_method: market_order
+      position_sizing: equal_weight
+
+    # Industrial - Dover Corporation
+    - ticker: DOV
+      strategy_type: SMA
+      short_window: 45
+      long_window: 86
+      execution_method: market_order
+      position_sizing: equal_weight
+
+  # Conservative execution parameters from business configuration
+  default_parameters:
+    commission: $ref: "data/config/trading/market_parameters.yaml#trading_costs.commissions.equities.per_trade"
+    slippage: $ref: "data/config/trading/market_parameters.yaml#trading_costs.slippage.equities.market_orders"
+
+  # Conservative risk management execution parameters
+  risk_execution:
+    stop_loss_method: fixed
+    stop_loss_percentage: $ref: "data/config/trading/risk_management.yaml#asset_classes.equities.stop_loss.default_percentage"
+    position_sizing_method: equal_weight
+    rebalancing_trigger: time_based
+    max_deviation_threshold: 0.03  # Tighter controls for conservative portfolio
+
+  # Portfolio review specific execution settings
+  review_execution:
+    benchmark: 'SPY'
+    benchmark_type: 'buy_and_hold'
+    init_cash: 10000.0
+    fees: $ref: "data/config/trading/market_parameters.yaml#trading_costs.commissions.equities.per_trade"
+    calculate_risk_metrics: true
+    export_equity_curve: true
+    enable_plotting: true
+
+  # Conservative analysis execution parameters
+  analysis_execution:
+    timeframe: 'D'
+    lookback_periods:
+      short_term: 30   # Longer periods for stability
+      medium_term: 90
+      long_term: 365
+    volatility_window: 30
+    correlation_window: 90
+    risk_free_rate: $ref: "data/config/trading/market_parameters.yaml#benchmarks.risk_free_rate.default"

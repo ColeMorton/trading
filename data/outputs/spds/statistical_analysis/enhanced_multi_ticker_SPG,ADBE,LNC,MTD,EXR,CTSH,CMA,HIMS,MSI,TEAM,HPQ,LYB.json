@@ -1,0 +1,275 @@
+{
+  "export_metadata": {
+    "export_timestamp": "2025-07-23T11:39:32.454989",
+    "export_version": "1.0.0",
+    "total_results": 12,
+    "include_raw_data": true,
+    "config_version": "1.0.0"
+  },
+  "statistical_analysis_results": [
+    {
+      "strategy_name": "SPG_ASSET_DISTRIBUTION",
+      "ticker": "SPG",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-23T11:39:19.032795",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.0,
+      "asset_layer_percentile": 0.0,
+      "strategy_layer_percentile": 0.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 61.374404691483555,
+      "exit_recommendation": "",
+      "target_exit_timeframe": "",
+      "statistical_significance": "ENHANCED_ANALYSIS",
+      "p_value": 0.0,
+      "divergence_metrics": {
+        "asset_divergence": {},
+        "strategy_divergence": {}
+      },
+      "performance_metrics": {}
+    },
+    {
+      "strategy_name": "ADBE_ASSET_DISTRIBUTION",
+      "ticker": "ADBE",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-23T11:39:20.255117",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.0,
+      "asset_layer_percentile": 0.0,
+      "strategy_layer_percentile": 0.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 60.24333068686849,
+      "exit_recommendation": "",
+      "target_exit_timeframe": "",
+      "statistical_significance": "ENHANCED_ANALYSIS",
+      "p_value": 0.0,
+      "divergence_metrics": {
+        "asset_divergence": {},
+        "strategy_divergence": {}
+      },
+      "performance_metrics": {}
+    },
+    {
+      "strategy_name": "LNC_ASSET_DISTRIBUTION",
+      "ticker": "LNC",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-23T11:39:21.580054",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.0,
+      "asset_layer_percentile": 0.0,
+      "strategy_layer_percentile": 0.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 60.56753324982604,
+      "exit_recommendation": "",
+      "target_exit_timeframe": "",
+      "statistical_significance": "ENHANCED_ANALYSIS",
+      "p_value": 0.0,
+      "divergence_metrics": {
+        "asset_divergence": {},
+        "strategy_divergence": {}
+      },
+      "performance_metrics": {}
+    },
+    {
+      "strategy_name": "MTD_ASSET_DISTRIBUTION",
+      "ticker": "MTD",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-23T11:39:23.406062",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.0,
+      "asset_layer_percentile": 0.0,
+      "strategy_layer_percentile": 0.0,
+      "exit_signal": "BUY",
+      "signal_confidence": 71.2623134895082,
+      "exit_recommendation": "",
+      "target_exit_timeframe": "",
+      "statistical_significance": "ENHANCED_ANALYSIS",
+      "p_value": 0.0,
+      "divergence_metrics": {
+        "asset_divergence": {},
+        "strategy_divergence": {}
+      },
+      "performance_metrics": {}
+    },
+    {
+      "strategy_name": "EXR_ASSET_DISTRIBUTION",
+      "ticker": "EXR",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-23T11:39:24.468467",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.0,
+      "asset_layer_percentile": 0.0,
+      "strategy_layer_percentile": 0.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 61.343549647194585,
+      "exit_recommendation": "",
+      "target_exit_timeframe": "",
+      "statistical_significance": "ENHANCED_ANALYSIS",
+      "p_value": 0.0,
+      "divergence_metrics": {
+        "asset_divergence": {},
+        "strategy_divergence": {}
+      },
+      "performance_metrics": {}
+    },
+    {
+      "strategy_name": "CTSH_ASSET_DISTRIBUTION",
+      "ticker": "CTSH",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-23T11:39:25.514587",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.0,
+      "asset_layer_percentile": 0.0,
+      "strategy_layer_percentile": 0.0,
+      "exit_signal": "BUY",
+      "signal_confidence": 70.20762091449373,
+      "exit_recommendation": "",
+      "target_exit_timeframe": "",
+      "statistical_significance": "ENHANCED_ANALYSIS",
+      "p_value": 0.0,
+      "divergence_metrics": {
+        "asset_divergence": {},
+        "strategy_divergence": {}
+      },
+      "performance_metrics": {}
+    },
+    {
+      "strategy_name": "CMA_ASSET_DISTRIBUTION",
+      "ticker": "CMA",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-23T11:39:26.760417",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.0,
+      "asset_layer_percentile": 0.0,
+      "strategy_layer_percentile": 0.0,
+      "exit_signal": "BUY",
+      "signal_confidence": 70.89681679695703,
+      "exit_recommendation": "",
+      "target_exit_timeframe": "",
+      "statistical_significance": "ENHANCED_ANALYSIS",
+      "p_value": 0.0,
+      "divergence_metrics": {
+        "asset_divergence": {},
+        "strategy_divergence": {}
+      },
+      "performance_metrics": {}
+    },
+    {
+      "strategy_name": "HIMS_ASSET_DISTRIBUTION",
+      "ticker": "HIMS",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-23T11:39:27.499526",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.0,
+      "asset_layer_percentile": 0.0,
+      "strategy_layer_percentile": 0.0,
+      "exit_signal": "SELL",
+      "signal_confidence": 70.05156100724237,
+      "exit_recommendation": "",
+      "target_exit_timeframe": "",
+      "statistical_significance": "ENHANCED_ANALYSIS",
+      "p_value": 0.0,
+      "divergence_metrics": {
+        "asset_divergence": {},
+        "strategy_divergence": {}
+      },
+      "performance_metrics": {}
+    },
+    {
+      "strategy_name": "MSI_ASSET_DISTRIBUTION",
+      "ticker": "MSI",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-23T11:39:29.189310",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.0,
+      "asset_layer_percentile": 0.0,
+      "strategy_layer_percentile": 0.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 60.95244477879198,
+      "exit_recommendation": "",
+      "target_exit_timeframe": "",
+      "statistical_significance": "ENHANCED_ANALYSIS",
+      "p_value": 0.0,
+      "divergence_metrics": {
+        "asset_divergence": {},
+        "strategy_divergence": {}
+      },
+      "performance_metrics": {}
+    },
+    {
+      "strategy_name": "TEAM_ASSET_DISTRIBUTION",
+      "ticker": "TEAM",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-23T11:39:30.012096",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.0,
+      "asset_layer_percentile": 0.0,
+      "strategy_layer_percentile": 0.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 62.288335986425736,
+      "exit_recommendation": "",
+      "target_exit_timeframe": "",
+      "statistical_significance": "ENHANCED_ANALYSIS",
+      "p_value": 0.0,
+      "divergence_metrics": {
+        "asset_divergence": {},
+        "strategy_divergence": {}
+      },
+      "performance_metrics": {}
+    },
+    {
+      "strategy_name": "HPQ_ASSET_DISTRIBUTION",
+      "ticker": "HPQ",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-23T11:39:31.523995",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.0,
+      "asset_layer_percentile": 0.0,
+      "strategy_layer_percentile": 0.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 62.258461665078066,
+      "exit_recommendation": "",
+      "target_exit_timeframe": "",
+      "statistical_significance": "ENHANCED_ANALYSIS",
+      "p_value": 0.0,
+      "divergence_metrics": {
+        "asset_divergence": {},
+        "strategy_divergence": {}
+      },
+      "performance_metrics": {}
+    },
+    {
+      "strategy_name": "LYB_ASSET_DISTRIBUTION",
+      "ticker": "LYB",
+      "timeframe": "D",
+      "analysis_timestamp": "2025-07-23T11:39:32.426588",
+      "sample_size": 0,
+      "sample_size_confidence": 0.0,
+      "dual_layer_convergence_score": 0.0,
+      "asset_layer_percentile": 0.0,
+      "strategy_layer_percentile": 0.0,
+      "exit_signal": "HOLD",
+      "signal_confidence": 63.4113684679341,
+      "exit_recommendation": "",
+      "target_exit_timeframe": "",
+      "statistical_significance": "ENHANCED_ANALYSIS",
+      "p_value": 0.0,
+      "divergence_metrics": {
+        "asset_divergence": {},
+        "strategy_divergence": {}
+      },
+      "performance_metrics": {}
+    }
+  ]
+}

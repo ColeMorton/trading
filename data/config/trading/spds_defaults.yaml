@@ -1,0 +1,157 @@
+metadata:
+  name: spds_defaults
+  description: Statistical Performance Divergence System business defaults and thresholds
+  created_at: '2025-01-22T00:00:00.000000'
+  updated_at: '2025-01-22T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - spds
+    - business_config
+    - statistical_analysis
+    - thresholds
+  author: system
+
+# Core SPDS business parameters
+core_parameters:
+  # Sample size requirements for statistical confidence
+  sample_sizes:
+    min_sample_size: 15
+    preferred_sample_size: 30
+    optimal_sample_size: 50
+
+  # Statistical confidence levels
+  confidence_levels:
+    high: 0.95 # 95% for n >= 30
+    medium: 0.90 # 90% for 15 <= n < 30
+    low: 0.80 # 80% for n < 15
+
+# Exit signal thresholds (percentile-based)
+exit_signal_thresholds:
+  # Immediate action signals
+  exit_immediately: 95.0 # Top 5% = extremely overvalued
+  exit_soon: 85.0 # Top 15% = significantly overvalued
+
+  # Monitoring signals
+  monitor: 70.0 # Above 70% = watch closely
+
+  # Complete entry/exit signal system
+  entry_exit_signals:
+    # Entry signals (low percentiles = good entry opportunities)
+    strong_buy: 10.0 # Bottom 10% = excellent entry
+    buy: 20.0 # Bottom 20% = good entry
+
+    # Neutral range
+    hold: 70.0 # 20-70% = normal conditions
+
+    # Exit signals (high percentiles = overvalued conditions)
+    sell: 80.0 # Top 20% = overvalued
+    strong_sell: 90.0 # Top 10% = significantly overvalued
+    exit_immediately: 95.0 # Top 5% = extremely overvalued
+
+# Component scoring weights for overall SPDS score
+component_weights:
+  risk_score: 0.25
+  momentum_score: 0.20
+  trend_score: 0.20
+  risk_adjusted_score: 0.15
+  mean_reversion_score: 0.10
+  volume_score: 0.10
+
+# Multi-timeframe analysis configuration
+timeframe_analysis:
+  # Available timeframes for analysis
+  timeframes: ['D', '3D', 'W', '2W']
+
+  # Convergence thresholds
+  convergence_threshold: 0.85
+  layer_convergence_threshold: 0.7
+  layer_agreement_threshold: 0.75
+  source_agreement_threshold: 0.8
+  divergence_warning_threshold: 0.5
+
+# Dual-layer analysis weights
+dual_layer_weights:
+  asset_layer_weight: 0.5 # Weight for asset distribution analysis
+  strategy_layer_weight: 0.5 # Weight for strategy performance analysis
+
+# Required metrics for SPDS analysis
+required_metrics:
+  # Core statistical metrics
+  statistical_metrics:
+    - win_rate
+    - total_return
+    - total_trades
+    - sharpe_ratio
+    - max_drawdown
+    - current_price
+    - position_size
+    - unrealized_pnl
+
+  # Divergence-specific metrics
+  divergence_metrics:
+    - z_score_return
+    - percentile_return
+    - outlier_score
+    - convergence_score
+    - var_95
+    - var_99
+
+  # Component scores
+  component_scores:
+    - risk_score
+    - momentum_score
+    - trend_score
+    - risk_adjusted_score
+    - mean_reversion_score
+    - volume_liquidity_score
+    - overall_score
+
+# Data quality thresholds
+data_quality:
+  # Minimum data requirements
+  min_data_points: 100
+  max_missing_days: 5
+  min_liquidity_volume: 100000
+
+  # Quality scoring thresholds
+  excellent_quality: 0.95
+  good_quality: 0.85
+  acceptable_quality: 0.70
+  poor_quality: 0.50
+
+# Risk assessment thresholds
+risk_assessment:
+  # VaR thresholds
+  var_thresholds:
+    var_95: 0.05 # 5% VaR at 95% confidence
+    var_99: 0.02 # 2% VaR at 99% confidence
+
+  # Risk scoring bands
+  risk_bands:
+    very_low: 0.20
+    low: 0.40
+    moderate: 0.60
+    high: 0.80
+    very_high: 1.00
+
+  # Outlier detection
+  outlier_thresholds:
+    mild_outlier: 1.5 # 1.5 IQR
+    extreme_outlier: 3.0 # 3.0 IQR
+
+# Performance benchmarking
+benchmarks:
+  # Relative performance thresholds
+  relative_performance:
+    excellent: 0.15 # 15% outperformance
+    good: 0.05 # 5% outperformance
+    neutral: 0.00 # Market performance
+    poor: -0.05 # 5% underperformance
+    very_poor: -0.15 # 15% underperformance
+
+  # Risk-adjusted performance
+  risk_adjusted_thresholds:
+    excellent_sharpe: 1.50
+    good_sharpe: 1.00
+    acceptable_sharpe: 0.50
+    poor_sharpe: 0.00

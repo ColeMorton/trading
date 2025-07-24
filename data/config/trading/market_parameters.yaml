@@ -1,0 +1,159 @@
+metadata:
+  name: market_parameters
+  description: Market-specific business parameters and cost models
+  created_at: '2025-01-22T00:00:00.000000'
+  updated_at: '2025-01-22T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - market_config
+    - business_config
+    - costs
+    - parameters
+  author: system
+
+# Trading costs and fees
+trading_costs:
+  # Commission structures
+  commissions:
+    equities:
+      per_trade: 0.0005 # 0.05% per trade
+      minimum: 1.00 # Minimum $1.00 per trade
+      maximum: null # No maximum
+    crypto:
+      per_trade: 0.001 # 0.1% per trade
+      minimum: 0.50 # Minimum $0.50 per trade
+      maximum: null
+    options:
+      per_contract: 0.65 # $0.65 per options contract
+      per_trade: 0.0005 # Plus 0.05% of notional
+      minimum: 1.00
+    futures:
+      per_contract: 2.25 # $2.25 per futures contract
+      minimum: null
+      maximum: null
+
+  # Slippage assumptions
+  slippage:
+    equities:
+      market_orders: 0.0005 # 0.05% slippage for market orders
+      limit_orders: 0.0001 # 0.01% slippage for limit orders
+    crypto:
+      market_orders: 0.002 # 0.2% slippage for crypto
+      limit_orders: 0.0005 # 0.05% slippage for limit orders
+    low_liquidity:
+      market_orders: 0.005 # 0.5% for low liquidity assets
+      limit_orders: 0.002 # 0.2% for limit orders
+
+# Portfolio initialization parameters
+portfolio_initialization:
+  # Base portfolio values for backtesting
+  base_initial_value: 10000.0
+
+  # Portfolio size variations for testing
+  test_values:
+    small: 5000.0
+    medium: 10000.0
+    large: 50000.0
+    institutional: 1000000.0
+
+  # Cash management
+  cash_management:
+    min_cash_reserve: 0.02 # 2% minimum cash
+    max_cash_allocation: 0.10 # 10% maximum cash
+    default_cash_allocation: 0.05 # 5% default cash
+
+# Market data parameters
+market_data:
+  # Data refresh frequencies
+  refresh_intervals:
+    intraday: 300 # 5 minutes for intraday
+    daily: 86400 # 24 hours for daily
+    weekly: 604800 # 1 week
+
+  # Data quality thresholds
+  quality_thresholds:
+    min_data_points: 100 # Minimum data points for analysis
+    max_missing_days: 5 # Maximum consecutive missing days
+    min_liquidity_volume: 100000 # Minimum daily volume
+
+  # Market hours (UTC)
+  market_hours:
+    us_equities:
+      open: '14:30' # 9:30 AM EST
+      close: '21:00' # 4:00 PM EST
+    crypto:
+      open: '00:00' # 24/7
+      close: '23:59'
+    futures:
+      open: '23:00' # Sunday 6:00 PM EST
+      close: '22:00' # Friday 5:00 PM EST
+
+# Risk-free rate and benchmarks
+benchmarks:
+  # Risk-free rate sources
+  risk_free_rate:
+    default: 0.025 # 2.5% default risk-free rate
+    source: '^TNX' # 10-Year Treasury (Yahoo Finance symbol)
+
+  # Benchmark indices
+  equity_benchmarks:
+    us_large_cap: 'SPY' # S&P 500
+    us_mid_cap: 'MDY' # S&P MidCap 400
+    us_small_cap: 'SLY' # S&P SmallCap 600
+    international: 'EFA' # MSCI EAFE
+    emerging: 'EEM' # MSCI Emerging Markets
+
+  crypto_benchmarks:
+    bitcoin: 'BTC-USD'
+    ethereum: 'ETH-USD'
+    crypto_index: 'COIN' # Coinbase as crypto proxy
+
+  bond_benchmarks:
+    us_aggregate: 'AGG' # iShares Core U.S. Aggregate Bond
+    treasury: 'IEF' # iShares 7-10 Year Treasury
+    high_yield: 'HYG' # iShares High Yield Corporate
+
+# Exchange-specific parameters
+exchanges:
+  nyse:
+    trading_hours: 'us_equities'
+    tick_size: 0.01
+    lot_size: 1
+    settlement_days: 2
+
+  nasdaq:
+    trading_hours: 'us_equities'
+    tick_size: 0.01
+    lot_size: 1
+    settlement_days: 2
+
+  binance:
+    trading_hours: 'crypto'
+    tick_size: 0.00000001
+    lot_size: 0.00001
+    settlement_days: 0
+
+  coinbase:
+    trading_hours: 'crypto'
+    tick_size: 0.01
+    lot_size: 0.001
+    settlement_days: 0
+
+# Volatility and correlation parameters
+volatility:
+  # Lookback periods for volatility calculation
+  lookback_periods:
+    short_term: 21 # 1 month
+    medium_term: 63 # 3 months
+    long_term: 252 # 1 year
+
+  # Volatility scaling factors
+  scaling_factors:
+    daily_to_annual: 15.87 # sqrt(252)
+    hourly_to_annual: 131.14 # sqrt(252*24)
+
+  # Correlation thresholds
+  correlation_thresholds:
+    high_correlation: 0.70
+    medium_correlation: 0.50
+    low_correlation: 0.30

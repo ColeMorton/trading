@@ -1,0 +1,181 @@
+metadata:
+  name: crypto_assets
+  description: Cryptocurrency-specific business parameters and configurations
+  created_at: '2025-01-22T00:00:00.000000'
+  updated_at: '2025-01-22T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - crypto
+    - assets
+    - business_config
+    - digital_assets
+  author: system
+
+# Default crypto asset parameters
+defaults:
+  # Strategy parameters optimized for crypto volatility
+  strategy_parameters:
+    stop_loss: 3.62 # Default stop loss percentage for crypto
+    windows: 89 # Default window parameter for analysis
+    volatility_multiplier: 1.5 # Higher volatility adjustment
+
+  # Data collection defaults
+  data_collection:
+    default_period: 'max' # Use maximum available data
+    use_years: false # Prefer period over years
+    years_fallback: 30 # Fallback years if period not available
+    use_hourly: false # Default to daily data
+
+  # Risk parameters specific to crypto
+  risk_parameters:
+    higher_volatility_tolerance: true
+    correlation_threshold: 0.80
+    max_drawdown_tolerance: 0.30
+    min_win_rate: 0.45
+
+# Individual cryptocurrency configurations
+cryptocurrencies:
+  bitcoin:
+    symbol: 'BTC-USD'
+    name: 'Bitcoin'
+    category: 'major_crypto'
+    strategy_defaults:
+      short_window: 11
+      long_window: 17
+      stop_loss: 3.62
+      preferred_strategy: 'SMA'
+    risk_profile:
+      volatility_tier: 'high'
+      liquidity_tier: 'high'
+      correlation_group: 'crypto_majors'
+
+  ethereum:
+    symbol: 'ETH-USD'
+    name: 'Ethereum'
+    category: 'major_crypto'
+    strategy_defaults:
+      short_window: 12
+      long_window: 26
+      stop_loss: 4.2
+      preferred_strategy: 'EMA'
+    risk_profile:
+      volatility_tier: 'high'
+      liquidity_tier: 'high'
+      correlation_group: 'crypto_majors'
+
+  solana:
+    symbol: 'SOL-USD'
+    name: 'Solana'
+    category: 'alt_crypto'
+    strategy_defaults:
+      short_window: 14
+      long_window: 32
+      stop_loss: null # No stop loss by default
+      preferred_strategy: 'SMA'
+    risk_profile:
+      volatility_tier: 'very_high'
+      liquidity_tier: 'medium'
+      correlation_group: 'crypto_alts'
+
+  sui:
+    symbol: 'SUI20947-USD'
+    name: 'Sui Network'
+    category: 'emerging_crypto'
+    strategy_defaults:
+      short_window: 38
+      long_window: 59
+      stop_loss: null
+      preferred_strategy: 'SMA'
+    data_collection:
+      years: 1.5369 # Limited historical data
+      use_years: true
+    risk_profile:
+      volatility_tier: 'extreme'
+      liquidity_tier: 'low'
+      correlation_group: 'crypto_emerging'
+
+# Crypto asset categories and their characteristics
+categories:
+  major_crypto:
+    description: 'Large cap, highly liquid cryptocurrencies'
+    examples: ['BTC-USD', 'ETH-USD']
+    min_market_cap: 100000000000 # $100B
+    liquidity_requirement: 'high'
+    volatility_expectation: 'high'
+
+  alt_crypto:
+    description: 'Alternative cryptocurrencies with good liquidity'
+    examples: ['SOL-USD', 'ADA-USD', 'DOT-USD']
+    min_market_cap: 10000000000 # $10B
+    liquidity_requirement: 'medium'
+    volatility_expectation: 'very_high'
+
+  emerging_crypto:
+    description: 'Newer or smaller cryptocurrencies'
+    examples: ['SUI20947-USD']
+    min_market_cap: 1000000000 # $1B
+    liquidity_requirement: 'low'
+    volatility_expectation: 'extreme'
+    data_limitations: true
+
+# Crypto-specific market parameters
+market_characteristics:
+  trading:
+    hours: '24/7'
+    settlement: 'instant'
+    weekends: true
+    holidays: true
+
+  volatility:
+    daily_volatility_range: [0.02, 0.15] # 2-15% daily moves
+    expected_annual_volatility: [0.40, 1.20] # 40-120% annual
+    volatility_clustering: true
+
+  correlation:
+    crypto_to_crypto: 0.70 # High correlation within crypto
+    crypto_to_equities: 0.30 # Medium correlation to stocks
+    crypto_to_bonds: 0.10 # Low correlation to bonds
+
+  liquidity:
+    bid_ask_spread_range: [0.001, 0.02] # 0.1-2% spread
+    market_impact_threshold: 0.005 # 0.5% for large orders
+
+# Crypto-specific risk factors
+risk_factors:
+  regulatory:
+    regulatory_risk: 'high'
+    jurisdictional_differences: true
+    policy_sensitivity: 'extreme'
+
+  technical:
+    network_risk: true
+    smart_contract_risk: true # For DeFi tokens
+    upgrade_risk: true
+
+  market:
+    manipulation_risk: 'medium'
+    whale_influence: 'high'
+    news_sensitivity: 'extreme'
+    social_media_impact: 'high'
+
+# Performance benchmarks for crypto assets
+benchmarks:
+  primary: 'BTC-USD' # Bitcoin as primary crypto benchmark
+  secondary: 'ETH-USD' # Ethereum as secondary
+  index_proxies:
+    - 'COIN' # Coinbase as crypto exposure proxy
+    - 'MSTR' # MicroStrategy as Bitcoin proxy
+
+# Crypto-specific analysis parameters
+analysis_parameters:
+  # Timeframes more relevant for crypto
+  preferred_timeframes: ['1h', '4h', 'D', 'W']
+
+  # Volatility adjustments
+  volatility_lookback: 21 # Shorter lookback for volatile assets
+
+  # Performance thresholds adjusted for crypto
+  performance_expectations:
+    annual_return_target: 0.30 # 30% annual return expectation
+    sharpe_ratio_target: 0.80 # Lower Sharpe due to volatility
+    max_drawdown_tolerance: 0.50 # Higher drawdown tolerance

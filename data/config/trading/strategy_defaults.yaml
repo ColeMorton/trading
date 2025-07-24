@@ -1,0 +1,153 @@
+metadata:
+  name: strategy_defaults
+  description: Default business parameters for strategy analysis and execution
+  created_at: '2025-01-22T00:00:00.000000'
+  updated_at: '2025-01-22T00:00:00.000000'
+  version: '1.0'
+  tags:
+    - strategy_config
+    - business_config
+    - defaults
+  author: system
+
+# Global strategy defaults
+defaults:
+  # Moving average strategy parameters
+  moving_average:
+    windows:
+      short_min: 5
+      short_max: 50
+      long_min: 20
+      long_max: 200
+      default_short: 20
+      default_long: 50
+
+  # MACD strategy parameters
+  macd:
+    fast_period:
+      min: 8
+      max: 21
+      default: 12
+    slow_period:
+      min: 21
+      max: 35
+      default: 26
+    signal_period:
+      min: 5
+      max: 15
+      default: 9
+
+  # Performance thresholds for strategy validation
+  performance_thresholds:
+    min_win_rate: 0.50
+    min_trades: 50
+    min_profit_factor: 1.20
+    min_sharpe_ratio: 0.50
+    min_sortino_ratio: 0.60
+    min_expectancy_per_trade: 0.50
+    max_max_drawdown: 0.20
+    min_calmar_ratio: 0.30
+
+# Asset class specific strategy parameters
+asset_classes:
+  crypto:
+    moving_average:
+      windows:
+        short_min: 3
+        short_max: 50
+        long_min: 15
+        long_max: 200
+        default_short: 11
+        default_long: 36
+    performance_thresholds:
+      min_win_rate: 0.45 # More lenient for crypto volatility
+      min_trades: 30
+      min_profit_factor: 1.10
+      min_sharpe_ratio: 0.30
+      min_sortino_ratio: 0.30
+      min_expectancy_per_trade: 0.30
+      max_max_drawdown: 0.30 # Higher tolerance for crypto
+
+  equities:
+    moving_average:
+      windows:
+        short_min: 5
+        short_max: 50
+        long_min: 20
+        long_max: 200
+        default_short: 20
+        default_long: 50
+    performance_thresholds:
+      min_win_rate: 0.50
+      min_trades: 44
+      min_profit_factor: 1.20
+      min_sharpe_ratio: 0.50
+      min_sortino_ratio: 0.60
+      min_expectancy_per_trade: 0.50
+      max_max_drawdown: 0.15
+
+  commodities:
+    moving_average:
+      windows:
+        short_min: 10
+        short_max: 60
+        long_min: 30
+        long_max: 250
+        default_short: 25
+        default_long: 75
+    performance_thresholds:
+      min_win_rate: 0.48
+      min_trades: 40
+      min_profit_factor: 1.15
+      min_sharpe_ratio: 0.40
+      min_sortino_ratio: 0.50
+      min_expectancy_per_trade: 0.40
+      max_max_drawdown: 0.25
+
+# Strategy execution defaults
+execution:
+  # Initial portfolio values
+  initial_portfolio_value: 10000.0
+
+  # Data refresh settings
+  refresh_data: true
+
+  # Sorting and filtering
+  sort_by: 'Score'
+  sort_ascending: false
+
+  # Result filtering
+  filter:
+    use_current: true
+    enable_filtering: true
+
+  # Analysis timeframes
+  timeframes:
+    default: 'D' # Daily
+    available: ['1h', '4h', 'D', 'W']
+
+# Sector and industry specific parameters
+sectors:
+  technology:
+    performance_thresholds:
+      min_win_rate: 0.52
+      min_sharpe_ratio: 0.55
+      max_max_drawdown: 0.18
+
+  financials:
+    performance_thresholds:
+      min_win_rate: 0.48
+      min_sharpe_ratio: 0.45
+      max_max_drawdown: 0.22
+
+  healthcare:
+    performance_thresholds:
+      min_win_rate: 0.50
+      min_sharpe_ratio: 0.50
+      max_max_drawdown: 0.16
+
+  energy:
+    performance_thresholds:
+      min_win_rate: 0.46
+      min_sharpe_ratio: 0.40
+      max_max_drawdown: 0.28
