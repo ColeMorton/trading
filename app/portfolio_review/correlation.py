@@ -15,11 +15,11 @@ from plotly.subplots import make_subplots
 from scipy.cluster.hierarchy import dendrogram, leaves_list, linkage
 from scipy.spatial.distance import squareform
 
-PORTFOLIO = ["MSTR", "BTC-USD", "TSLA", "ALGN", "USB", "CLSK", "COR", "AMAT", "NFLX"]
+PORTFOLIO = ["MSTR", "BTC-USD", "TSLA", "AAPL", "AMZN", "ADBE", "GME", "ASML"]
 
 # PORTFOLIO = ['SPY', 'QQQ']
 
-NEXT = ["AMZN", "CEG", "CSCO", "DKNG", "GOOG", "IRM", "LYV", "META", "SCHW", "VRSN"]
+NEXT = ["FANG", "TFC", "PKG", "EXR"]
 
 # NEXT = [
 #     'BTC-USD',
@@ -30,7 +30,7 @@ NEXT = ["AMZN", "CEG", "CSCO", "DKNG", "GOOG", "IRM", "LYV", "META", "SCHW", "VR
 
 ASSETS = list(dict.fromkeys(PORTFOLIO + NEXT))  # Remove duplicates
 
-DAYS = 60
+DAYS = 55
 
 
 def create_dendrogram_trace(linkage_matrix, labels):

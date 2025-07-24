@@ -66,7 +66,9 @@ def analyze_parameter_combinations(
             strategy_type="MACD",
         )
 
-        if portfolios is None or (isinstance(portfolios, list) and len(portfolios) == 0):
+        if portfolios is None or (
+            isinstance(portfolios, list) and len(portfolios) == 0
+        ):
             log("No valid MACD portfolios generated", "warning")
             return None
 

@@ -3,8 +3,8 @@
 ## 📊 Analysis Framework
 
 - **Period**: July 24, 2025 - August 23, 2025 (30-day hold)
-- **Tickers Analyzed**: 354 tickers met quality criteria
-- **Top Opportunities**: 20 highest expectancy tickers shown
+- **Tickers Analyzed**: 6 tickers met quality criteria
+- **Top Opportunities**: 6 highest expectancy tickers shown
 - **Methodology**: Risk-adjusted expectancy with statistical significance filters
 - **Quality Filters**: Min sample size 50, min significance 0.5
 
@@ -14,45 +14,39 @@
 
 | Rank | Ticker | Expected Return | Asset Class | Win Rate | Confidence | Key Insight |
 |------|--------|-----------------|-------------|----------|------------|-------------|
-| **1** | **SUSHI-USD** | **+1.32%** | Crypto | 40.2% | High | 🚀 Strong crypto pattern - +1.32% expected |
-| **2** | **CARR** | **+0.49%** | Stock | 57.1% | High | 📈 Above-average returns with high confidence |
-| **3** | **COIN** | **+0.68%** | Stock | 45.5% | Medium | 📈 Above-average returns with medium confidence |
-| **4** | **SOL-USD** | **+0.71%** | Crypto | 48.0% | Medium | 🚀 Strong crypto pattern - +0.71% expected |
-| **5** | **DOT-USD** | **+0.60%** | Crypto | 47.4% | High | 🚀 Strong crypto pattern - +0.60% expected |
-| **6** | **PKG** | **+0.23%** | Stock | 53.0% | Very High | 📈 Above-average returns with very high confidence |
-| **7** | **HBI** | **+0.29%** | Stock | 52.1% | Very High | 📈 Above-average returns with very high confidence |
-| **8** | **RUNE-USD** | **+0.57%** | Crypto | 45.2% | Medium | 🚀 Strong crypto pattern - +0.57% expected |
-| **9** | **WDAY** | **+0.26%** | Stock | 55.6% | Very High | 📈 Above-average returns with very high confidence |
-| **10** | **PYPL** | **+0.26%** | Stock | 53.8% | Very High | 📈 Above-average returns with very high confidence |
+| **1** | **PKG** | **+0.23%** | Stock | 53.0% | Very High | 📈 Above-average returns with very high confidence |
+| **2** | **HBI** | **+0.29%** | Stock | 52.1% | Very High | 📈 Above-average returns with very high confidence |
+| **3** | **EXR** | **+0.08%** | Stock | 51.8% | Low | ⚖️ Balanced risk-return profile |
+| **4** | **FRT** | **-0.03%** | Stock | 43.6% | High | 🔒 High statistical confidence |
+| **5** | **TFC** | **-0.03%** | Stock | 42.1% | Medium | ⚖️ Balanced risk-return profile |
+| **6** | **FANG** | **-0.13%** | Stock | 48.8% | High | 🔒 High statistical confidence |
 
 ---
 
 ## 📈 KEY FINDINGS
 
-### 🥇 Top Performer: SUSHI-USD
+### 🥇 Top Performer: PKG
 
-- **Expected Return**: +1.32%
-- **Asset Class**: Crypto
-- **Win Rate**: 40.2%
-- **Confidence**: High
-- **Volatility**: 18.8%
+- **Expected Return**: +0.23%
+- **Asset Class**: Stock
+- **Win Rate**: 53.0%
+- **Confidence**: Very High
+- **Volatility**: 1.9%
 
 ### 📊 Market Insights
 
-- **Average Expected Return**: -0.04%
-- **Median Expected Return**: -0.06%
-- **Average Win Rate**: 47.2%
-- **Best Traditional Stock**: CARR (+0.49%)
+- **Average Expected Return**: +0.07%
+- **Median Expected Return**: +0.03%
+- **Average Win Rate**: 48.6%
+- **Best Traditional Stock**: PKG (+0.23%)
 
 ### 🏭 Asset Distribution
 
-- **Stock**: 15 tickers (75.0%)
-- **Crypto**: 4 tickers (20.0%)
-- **ETF**: 1 tickers (5.0%)
+- **Stock**: 6 tickers (100.0%)
 
 ### ⚠️ Risk Considerations
 
-- **Volatility Range**: 0.8% - 18.8%
+- **Volatility Range**: 1.5% - 2.8%
 - **Statistical Reliability**: Minimum 50 samples required
 - **Significance Filter**: Only patterns with ≥0.5 significance included
 
@@ -62,13 +56,11 @@
 
 ### 🎯 Primary Strategy
 
-**Focus on SUSHI-USD** for highest expectancy:
-- **Expected Return**: +1.32%
-- **Win Rate**: 40.2%
-- **Volatility**: 18.8% (adjust position size accordingly)
-- **Confidence**: High statistical confidence
-- **Risk Management**: Reduce position size due to higher volatility
-- **Entry Strategy**: Consider better entry timing given sub-50% win rate
+**Focus on PKG** for highest expectancy:
+- **Expected Return**: +0.23%
+- **Win Rate**: 53.0%
+- **Volatility**: 1.9% (adjust position size accordingly)
+- **Confidence**: Very High statistical confidence
 
 ### 🛡️ Risk Management
 
@@ -87,9 +79,9 @@
 
 ## 📋 ANALYSIS METADATA
 
-- **Generated**: 2025-07-24 08:59:51
-- **Total Tickers Processed**: 354
-- **Average Patterns Per Ticker**: 1.7
+- **Generated**: 2025-07-24 11:24:55
+- **Total Tickers Processed**: 6
+- **Average Patterns Per Ticker**: 1.3
 - **Configuration**: 30d hold, min_samples=50, min_sig=0.5
 
 **⚠️ Important Disclaimer**: Past performance does not guarantee future results. This analysis is based on historical patterns and should be combined with current market analysis, risk management, and proper position sizing.

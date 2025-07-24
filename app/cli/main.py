@@ -19,6 +19,7 @@ from .commands import (
     config,
     portfolio,
     positions,
+    seasonality,
     spds,
     strategy,
     tools,
@@ -60,6 +61,11 @@ app.add_typer(
     trade_history.app,
     name="trade-history",
     help="Trade History Analysis and Position Management",
+)
+app.add_typer(
+    seasonality.app,
+    name="seasonality",
+    help="Seasonality Analysis and Seasonal Pattern Detection",
 )
 
 # Initialize console for rich output
