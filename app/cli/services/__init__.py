@@ -1,0 +1,16 @@
+"""
+CLI Service Layer
+
+This module provides service layer abstractions for CLI commands,
+enabling strategy-agnostic execution and consistent interfaces.
+"""
+
+from .strategy_dispatcher import StrategyDispatcher
+from .strategy_services import BaseStrategyService, MAStrategyService, MACDStrategyService
+
+__all__ = [
+    "StrategyDispatcher",
+    "BaseStrategyService",
+    "MAStrategyService", 
+    "MACDStrategyService",
+]

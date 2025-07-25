@@ -15,6 +15,7 @@ from rich.table import Table
 
 from ..config import ConfigLoader
 from ..models.strategy import MACDConfig, MACrossConfig, StrategyConfig
+from ..services import StrategyDispatcher
 from .strategy_utils import (
     build_configuration_overrides,
     convert_to_legacy_config,
@@ -108,13 +109,13 @@ def run(
         if verbose:
             rprint("[dim]Loading strategy execution module...[/dim]")
 
-        # Use the same implementation as direct execution
-        import importlib
-
-        ma_cross_module = importlib.import_module(
-            "app.strategies.ma_cross.1_get_portfolios"
-        )
-        run = ma_cross_module.run
+        # Initialize strategy dispatcher
+        dispatcher = StrategyDispatcher()
+        
+        # Validate strategy compatibility
+        if not dispatcher.validate_strategy_compatibility(config.strategy_types):
+            rprint("[red]Invalid strategy type configuration[/red]")
+            return
 
         # Show execution progress
         tickers_to_process = (
@@ -124,17 +125,15 @@ def run(
             "Executing strategy analysis", ticker_count=len(tickers_to_process)
         )
 
-        # Convert Pydantic model to legacy config format using shared utility
-        legacy_config = convert_to_legacy_config(config)
-
         # Debug: Show all tickers that will be processed
+        strategy_types_str = ', '.join([st.value if hasattr(st, 'value') else str(st) for st in config.strategy_types])
         rprint(
-            f"[bold]Processing {len(tickers_to_process)} tickers:[/bold] {', '.join(tickers_to_process)}"
+            f"[bold]Processing {len(tickers_to_process)} tickers with {strategy_types_str} strategies:[/bold] {', '.join(tickers_to_process)}"
         )
 
-        # Execute using the same function as direct execution
-        # This ensures identical filtering, export, and aggregation behavior
-        success = run(legacy_config)
+        # Execute using strategy dispatcher
+        # This routes to the appropriate strategy service based on configuration
+        success = dispatcher.execute_strategy(config)
 
         if success:
             rprint(f"[green]Strategy analysis completed successfully![/green]")

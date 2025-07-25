@@ -13,6 +13,7 @@ from typing import Any, Callable, Dict, List, Optional, Union
 import polars as pl
 
 from app.tools.backtest_strategy import backtest_strategy
+from .signal_processing import _detect_strategy_type
 from app.tools.stats_converter import convert_stats
 
 # Get configuration
@@ -460,7 +461,7 @@ def analyze_parameter_combination(
         Portfolio statistics if successful, None if failed
     """
     if strategy_type is None:
-        strategy_type = config.get("STRATEGY_TYPE", "SMA")
+        strategy_type = _detect_strategy_type(config)
 
     analyzer = SensitivityAnalyzerFactory.create_analyzer(strategy_type)
     return analyzer.analyze_parameter_combination(data, config, log, **strategy_params)
@@ -486,7 +487,7 @@ def analyze_parameter_combinations(
         List of portfolio statistics
     """
     if strategy_type is None:
-        strategy_type = config.get("STRATEGY_TYPE", "SMA")
+        strategy_type = _detect_strategy_type(config)
 
     analyzer = SensitivityAnalyzerFactory.create_analyzer(strategy_type)
     return analyzer.analyze_parameter_combinations(data, parameter_sets, config, log)

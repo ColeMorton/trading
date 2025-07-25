@@ -321,8 +321,13 @@ def export_portfolios(
     if log:
         log(f"Exporting {len(portfolios)} portfolios as {export_type}...", "info")
 
-    # Only include MA suffix in filename for non-portfolios_best exports
-    config["USE_MA"] = export_type != "portfolios_best"
+    # Include strategy suffix for MACD strategies regardless of export type
+    # For MA strategies, only include suffix for non-portfolios_best exports
+    strategy_type = config.get("STRATEGY_TYPE", "SMA")
+    if strategy_type == "MACD":
+        config["USE_MA"] = True
+    else:
+        config["USE_MA"] = export_type != "portfolios_best"
 
     try:
         # Check if we have pre-sorted portfolios in the config

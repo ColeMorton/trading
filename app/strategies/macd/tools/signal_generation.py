@@ -170,6 +170,15 @@ def generate_macd_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataF
             f"Windows {short_window}, {long_window}, {signal_window}: Entry signal: {current_signal}, Exit signal: {exit_signal}"
         )
 
+        # Convert signals to positions using the standardized function
+        from app.tools.signal_conversion import convert_signals_to_positions
+        
+        # Create a simple log function if not provided
+        def simple_log(message, level="info"):
+            print(f"[{level.upper()}] {message}")
+        
+        data = convert_signals_to_positions(data, config, simple_log)
+
         return data
 
     except Exception as e:
