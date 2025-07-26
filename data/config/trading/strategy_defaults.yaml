@@ -22,19 +22,19 @@ defaults:
       default_short: 20
       default_long: 50
 
-  # MACD strategy parameters
+  # MACD strategy parameters (reduced ranges for testing)
   macd:
     fast_period:
-      min: 8
+      min: 3
       max: 21
       default: 12
     slow_period:
-      min: 21
-      max: 35
+      min: 5
+      max: 34
       default: 26
     signal_period:
       min: 5
-      max: 15
+      max: 21
       default: 9
 
   # Performance thresholds for strategy validation

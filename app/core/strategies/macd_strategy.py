@@ -76,12 +76,12 @@ class MACDStrategy(StrategyInterface):
     def get_parameter_ranges(self) -> Dict[str, Any]:
         """Get MACD strategy parameter ranges and defaults."""
         return {
-            "SHORT_WINDOW_START": {"min": 2, "max": 50, "default": 2},
-            "SHORT_WINDOW_END": {"min": 3, "max": 100, "default": 18},
-            "LONG_WINDOW_START": {"min": 4, "max": 100, "default": 4},
-            "LONG_WINDOW_END": {"min": 5, "max": 200, "default": 36},
-            "SIGNAL_WINDOW_START": {"min": 2, "max": 50, "default": 2},
-            "SIGNAL_WINDOW_END": {"min": 3, "max": 100, "default": 18},
+            "SHORT_WINDOW_START": {"min": 8, "max": 12, "default": 8},
+            "SHORT_WINDOW_END": {"min": 8, "max": 12, "default": 12},
+            "LONG_WINDOW_START": {"min": 21, "max": 26, "default": 21},
+            "LONG_WINDOW_END": {"min": 21, "max": 26, "default": 26},
+            "SIGNAL_WINDOW_START": {"min": 9, "max": 9, "default": 9},
+            "SIGNAL_WINDOW_END": {"min": 9, "max": 9, "default": 9},
             "STEP": {"min": 1, "max": 10, "default": 1},
             "DIRECTION": {"options": ["Long", "Short"], "default": "Long"},
             "USE_HOURLY": {"type": "boolean", "default": False},

@@ -13,8 +13,9 @@ from typing import Any, Callable, Dict, List, Optional, Union
 import polars as pl
 
 from app.tools.backtest_strategy import backtest_strategy
-from .signal_processing import _detect_strategy_type
 from app.tools.stats_converter import convert_stats
+
+from .signal_processing import _detect_strategy_type
 
 # Get configuration
 USE_FIXED_SIGNAL_PROC = os.getenv("USE_FIXED_SIGNAL_PROC", "true").lower() == "true"
@@ -566,3 +567,64 @@ def analyze_mean_reversion_combination(
     return analyzer.analyze_parameter_combination(
         data, config, log, change_pct=change_pct
     )
+
+
+def analyze_single_portfolio(
+    signal_data: pl.DataFrame, 
+    config: Dict[str, Any], 
+    log: Callable, 
+    strategy_type: str = None
+) -> Optional[Dict[str, Any]]:
+    """Analyze a single portfolio with pre-generated signals.
+
+    This function performs portfolio analysis on signal data that has already been generated,
+    typically used by strategy-specific modules that have their own signal generation logic.
+
+    Args:
+        signal_data: DataFrame containing pre-generated signals
+        config: Configuration dictionary
+        log: Logging function
+        strategy_type: Strategy type (auto-detected if not provided)
+
+    Returns:
+        Portfolio statistics if successful, None if failed
+    """
+    try:
+        # Validate input data
+        if signal_data is None or len(signal_data) == 0:
+            log("No signal data provided for portfolio analysis", "warning")
+            return None
+
+        # Auto-detect strategy type if not provided
+        if strategy_type is None:
+            strategy_type = _detect_strategy_type(config)
+
+        # Perform backtesting on the signal data
+        portfolio = backtest_strategy(signal_data, config, log)
+
+        # Convert statistics
+        stats = portfolio.stats()
+
+        # Add strategy information to stats
+        if "TICKER" in config:
+            stats["Ticker"] = config["TICKER"]
+        if strategy_type:
+            stats["Strategy Type"] = strategy_type
+
+        # Check signal currency (if signal data has the necessary structure)
+        current = False
+        try:
+            from app.tools.strategy.signal_utils import is_signal_current
+            current = is_signal_current(signal_data)
+        except (ImportError, Exception):
+            # Default to False if we can't determine signal currency
+            current = False
+
+        # Convert stats to standard format
+        converted_stats = convert_stats(stats, log, config, current)
+
+        return converted_stats
+
+    except Exception as e:
+        log(f"Failed to analyze single portfolio: {str(e)}", "error")
+        return None

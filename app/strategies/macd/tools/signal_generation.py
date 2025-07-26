@@ -172,11 +172,11 @@ def generate_macd_signals(data: pl.DataFrame, config: Dict) -> Optional[pl.DataF
 
         # Convert signals to positions using the standardized function
         from app.tools.signal_conversion import convert_signals_to_positions
-        
+
         # Create a simple log function if not provided
         def simple_log(message, level="info"):
             print(f"[{level.upper()}] {message}")
-        
+
         data = convert_signals_to_positions(data, config, simple_log)
 
         return data
@@ -202,16 +202,16 @@ def get_current_signals(
     try:
         signals = []
 
-        # Generate parameter combinations with STEP
-        step = config.get("STEP", 2)  # Default to 2 if not specified
+        # Generate parameter combinations with STEP (reduced for testing)
+        step = config.get("STEP", 1)  # Default to 1 for faster testing
 
-        # Use the specific config parameters with appropriate defaults
-        short_window_start = config.get("SHORT_WINDOW_START", 2)
-        short_window_end = config.get("SHORT_WINDOW_END", 18)
-        long_window_start = config.get("LONG_WINDOW_START", 4)
-        long_window_end = config.get("LONG_WINDOW_END", 36)
-        signal_window_start = config.get("SIGNAL_WINDOW_START", 2)
-        signal_window_end = config.get("SIGNAL_WINDOW_END", 18)
+        # Use the specific config parameters with reduced testing defaults
+        short_window_start = config.get("SHORT_WINDOW_START", 8)
+        short_window_end = config.get("SHORT_WINDOW_END", 12)
+        long_window_start = config.get("LONG_WINDOW_START", 21)
+        long_window_end = config.get("LONG_WINDOW_END", 26)
+        signal_window_start = config.get("SIGNAL_WINDOW_START", 9)
+        signal_window_end = config.get("SIGNAL_WINDOW_END", 9)
 
         for short_window in range(short_window_start, short_window_end + 1, step):
             for long_window in range(long_window_start, long_window_end + 1, step):

@@ -276,4 +276,15 @@ csv/
 *.parquet
 *.feather
 
+# Price data directories
+/data/raw/price_data/
+/data/raw/prices/
+
+# Trading signal and portfolio directories
+/data/raw/macd_cross/current_signals/
+/data/raw/ma_cross/current_signals/
+/data/raw/portfolios/
+/data/raw/portfolios_best/
+/data/raw/portfolios_filtered/
+
 attribution_data/

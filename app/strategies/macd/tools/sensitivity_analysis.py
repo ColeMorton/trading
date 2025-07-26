@@ -86,6 +86,68 @@ def analyze_parameter_combinations(
         return None
 
 
+def analyze_parameter_combination(
+    data: pl.DataFrame,
+    short_window: int,
+    long_window: int,
+    signal_window: int,
+    config: Dict[str, Any],
+    log: Callable,
+) -> Optional[Dict[str, Any]]:
+    """
+    Analyze a single MACD parameter combination.
+
+    Args:
+        data: Price data DataFrame
+        short_window: Short EMA window
+        long_window: Long EMA window
+        signal_window: Signal line window
+        config: Configuration dictionary
+        log: Logging function
+
+    Returns:
+        Optional[Dict[str, Any]]: Portfolio result dictionary or None if analysis fails
+    """
+    try:
+        # Import MACD signal generation
+        from app.strategies.macd.tools.signal_generation import generate_macd_signals
+
+        # Create temporary config for this parameter combination
+        temp_config = config.copy()
+        temp_config.update({
+            "short_window": short_window,
+            "long_window": long_window,
+            "signal_window": signal_window,
+        })
+
+        # Generate signals for this parameter combination
+        signal_data = generate_macd_signals(data.clone(), temp_config)
+        if signal_data is None or len(signal_data) == 0:
+            return None
+
+        # Import portfolio analysis from the unified framework
+        from app.tools.strategy.sensitivity_analysis import analyze_single_portfolio
+
+        # Analyze the portfolio using the centralized framework
+        result = analyze_single_portfolio(
+            signal_data, temp_config, log, strategy_type="MACD"
+        )
+
+        if result is not None:
+            # Add MACD-specific parameters to the result
+            result.update({
+                "Short Window": short_window,
+                "Long Window": long_window,
+                "Signal Window": signal_window,
+            })
+
+        return result
+
+    except Exception as e:
+        log(f"Failed to analyze MACD parameter combination {short_window}/{long_window}/{signal_window}: {str(e)}", "error")
+        return None
+
+
 def export_results(df: pl.DataFrame, config: Dict[str, Any], log: Callable) -> None:
     """
     Export MACD analysis results to CSV.

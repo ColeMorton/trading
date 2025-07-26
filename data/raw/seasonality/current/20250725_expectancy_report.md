@@ -3,8 +3,8 @@
 ## 📊 Analysis Framework
 
 - **Period**: July 25, 2025 - August 24, 2025 (30-day hold)
-- **Tickers Analyzed**: 354 tickers met quality criteria
-- **Top Opportunities**: 20 highest expectancy tickers shown
+- **Tickers Analyzed**: 2 tickers met quality criteria
+- **Top Opportunities**: 2 highest expectancy tickers shown
 - **Methodology**: Risk-adjusted expectancy with statistical significance filters
 - **Quality Filters**: Min sample size 50, min significance 0.5
 
@@ -14,45 +14,35 @@
 
 | Rank | Ticker | Expected Return | Asset Class | Win Rate | Confidence | Key Insight |
 |------|--------|-----------------|-------------|----------|------------|-------------|
-| **1** | **SUSHI-USD** | **+1.32%** | Crypto | 40.2% | High | 🚀 Strong crypto pattern - +1.32% expected |
-| **2** | **CARR** | **+0.49%** | Stock | 57.1% | High | 📈 Above-average returns with high confidence |
-| **3** | **SOL-USD** | **+0.71%** | Crypto | 48.0% | Medium | 🚀 Strong crypto pattern - +0.71% expected |
-| **4** | **COIN** | **+0.68%** | Stock | 45.5% | Medium | 📈 Above-average returns with medium confidence |
-| **5** | **DOT-USD** | **+0.60%** | Crypto | 47.4% | High | 🚀 Strong crypto pattern - +0.60% expected |
-| **6** | **PKG** | **+0.23%** | Stock | 53.0% | Very High | 📈 Above-average returns with very high confidence |
-| **7** | **HBI** | **+0.29%** | Stock | 52.1% | Very High | 📈 Above-average returns with very high confidence |
-| **8** | **RUNE-USD** | **+0.57%** | Crypto | 45.2% | Medium | 🚀 Strong crypto pattern - +0.57% expected |
-| **9** | **WDAY** | **+0.26%** | Stock | 55.6% | Very High | 📈 Above-average returns with very high confidence |
-| **10** | **PYPL** | **+0.26%** | Stock | 53.8% | Very High | 📈 Above-average returns with very high confidence |
+| **1** | **IR** | **+0.13%** | Stock | 49.5% | Low | 📈 Above-average returns with low confidence |
+| **2** | **FANG** | **-0.13%** | Stock | 48.8% | High | 🔒 High statistical confidence |
 
 ---
 
 ## 📈 KEY FINDINGS
 
-### 🥇 Top Performer: SUSHI-USD
+### 🥇 Top Performer: IR
 
-- **Expected Return**: +1.32%
-- **Asset Class**: Crypto
-- **Win Rate**: 40.2%
-- **Confidence**: High
-- **Volatility**: 18.8%
+- **Expected Return**: +0.13%
+- **Asset Class**: Stock
+- **Win Rate**: 49.5%
+- **Confidence**: Low
+- **Volatility**: 1.8%
 
 ### 📊 Market Insights
 
-- **Average Expected Return**: -0.04%
-- **Median Expected Return**: -0.06%
-- **Average Win Rate**: 47.2%
-- **Best Traditional Stock**: CARR (+0.49%)
+- **Average Expected Return**: +0.00%
+- **Median Expected Return**: +0.00%
+- **Average Win Rate**: 49.1%
+- **Best Traditional Stock**: IR (+0.13%)
 
 ### 🏭 Asset Distribution
 
-- **Stock**: 15 tickers (75.0%)
-- **Crypto**: 4 tickers (20.0%)
-- **ETF**: 1 tickers (5.0%)
+- **Stock**: 2 tickers (100.0%)
 
 ### ⚠️ Risk Considerations
 
-- **Volatility Range**: 0.8% - 18.8%
+- **Volatility Range**: 1.8% - 2.5%
 - **Statistical Reliability**: Minimum 50 samples required
 - **Significance Filter**: Only patterns with ≥0.5 significance included
 
@@ -62,12 +52,11 @@
 
 ### 🎯 Primary Strategy
 
-**Focus on SUSHI-USD** for highest expectancy:
-- **Expected Return**: +1.32%
-- **Win Rate**: 40.2%
-- **Volatility**: 18.8% (adjust position size accordingly)
-- **Confidence**: High statistical confidence
-- **Risk Management**: Reduce position size due to higher volatility
+**Focus on IR** for highest expectancy:
+- **Expected Return**: +0.13%
+- **Win Rate**: 49.5%
+- **Volatility**: 1.8% (adjust position size accordingly)
+- **Confidence**: Low statistical confidence
 - **Entry Strategy**: Consider better entry timing given sub-50% win rate
 
 ### 🛡️ Risk Management
@@ -87,9 +76,9 @@
 
 ## 📋 ANALYSIS METADATA
 
-- **Generated**: 2025-07-25 08:55:48
-- **Total Tickers Processed**: 354
-- **Average Patterns Per Ticker**: 1.7
+- **Generated**: 2025-07-25 15:36:32
+- **Total Tickers Processed**: 2
+- **Average Patterns Per Ticker**: 1.0
 - **Configuration**: 30d hold, min_samples=50, min_sig=0.5
 
 **⚠️ Important Disclaimer**: Past performance does not guarantee future results. This analysis is based on historical patterns and should be combined with current market analysis, risk management, and proper position sizing.

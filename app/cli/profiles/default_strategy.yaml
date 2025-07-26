@@ -24,6 +24,9 @@ config:
     - 89
   direction: Long
 
+  signal_window_start: 2
+  signal_window_end: 18
+
   # Data settings
   refresh: true
 

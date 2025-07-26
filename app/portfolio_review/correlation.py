@@ -19,7 +19,7 @@ PORTFOLIO = ["MSTR", "BTC-USD", "TSLA", "AAPL", "AMZN", "ADBE", "GME", "ASML"]
 
 # PORTFOLIO = ['SPY', 'QQQ']
 
-NEXT = ["FANG", "TFC", "PKG", "EXR"]
+NEXT = ["FANG", "PANW", "IR", "CDW"]
 
 # NEXT = [
 #     'BTC-USD',

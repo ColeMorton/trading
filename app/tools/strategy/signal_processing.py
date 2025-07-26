@@ -361,7 +361,9 @@ class MACDSignalProcessor(SignalProcessorBase):
     ) -> Optional[Any]:
         """Process full MACD ticker analysis."""
         try:
-            from app.strategies.macd.tools.portfolio_processing import process_single_ticker
+            from app.strategies.macd.tools.portfolio_processing import (
+                process_single_ticker,
+            )
 
             return process_single_ticker(ticker, config, log)
         except ImportError:
@@ -472,25 +474,26 @@ class SignalProcessorFactory:
 def _detect_strategy_type(config: Dict[str, Any]) -> str:
     """
     Detect strategy type from configuration parameters.
-    
+
     Args:
         config: Configuration dictionary
-        
+
     Returns:
         Strategy type string (MACD, SMA, etc.)
     """
     # Check if explicitly set
     if "STRATEGY_TYPE" in config and config["STRATEGY_TYPE"]:
         return config["STRATEGY_TYPE"]
-    
+
     # Detect MACD by presence of signal window parameters
-    has_signal_window = any(key in config for key in [
-        "SIGNAL_WINDOW_START", "SIGNAL_WINDOW_END", "signal_period"
-    ])
-    
+    has_signal_window = any(
+        key in config
+        for key in ["SIGNAL_WINDOW_START", "SIGNAL_WINDOW_END", "signal_period"]
+    )
+
     if has_signal_window:
         return "MACD"
-    
+
     # Default to SMA for backward compatibility
     return "SMA"
 

@@ -363,6 +363,23 @@ def export_portfolios(
             and len(df.select("Strategy Type").unique()) > 1
         )
 
+        # Apply minimum filtering for portfolios_best before any aggregation
+        if export_type == "portfolios_best":
+            from app.tools.portfolio.filtering_service import PortfolioFilterService
+            
+            # Apply MinimumsFilter to ensure YAML config criteria are enforced
+            filter_service = PortfolioFilterService()
+            filtered_df = filter_service.filter_portfolios_dataframe(df, config, log)
+            
+            if filtered_df is None or len(filtered_df) == 0:
+                if log:
+                    log("No portfolios remain after applying MINIMUMS filtering for portfolios_best", "warning")
+                return pl.DataFrame(), False
+            
+            df = filtered_df
+            if log:
+                log(f"Applied MINIMUMS filtering for portfolios_best: {len(df)} portfolios remain", "info")
+
         if export_type == "portfolios_best" and (
             has_metric_type or has_multiple_strategy_types
         ):

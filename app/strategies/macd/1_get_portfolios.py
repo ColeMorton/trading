@@ -23,12 +23,6 @@ project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from app.strategies.macd.config_types import DEFAULT_CONFIG, PortfolioConfig
-from app.tools.strategy.export_portfolios import (
-    PortfolioExportError,
-    export_portfolios,
-)
-from app.tools.strategy.filter_portfolios import filter_portfolios
-from app.tools.strategy.signal_processing import process_ticker_portfolios
 from app.tools.get_config import get_config
 from app.tools.setup_logging import setup_logging
 
@@ -39,6 +33,9 @@ from app.tools.strategy.error_handling import (
     create_error_handler,
     handle_strategy_error,
 )
+from app.tools.strategy.export_portfolios import PortfolioExportError, export_portfolios
+from app.tools.strategy.filter_portfolios import filter_portfolios
+from app.tools.strategy.signal_processing import process_ticker_portfolios
 
 
 def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:

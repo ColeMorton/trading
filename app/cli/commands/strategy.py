@@ -111,7 +111,7 @@ def run(
 
         # Initialize strategy dispatcher
         dispatcher = StrategyDispatcher()
-        
+
         # Validate strategy compatibility
         if not dispatcher.validate_strategy_compatibility(config.strategy_types):
             rprint("[red]Invalid strategy type configuration[/red]")
@@ -126,7 +126,12 @@ def run(
         )
 
         # Debug: Show all tickers that will be processed
-        strategy_types_str = ', '.join([st.value if hasattr(st, 'value') else str(st) for st in config.strategy_types])
+        strategy_types_str = ", ".join(
+            [
+                st.value if hasattr(st, "value") else str(st)
+                for st in config.strategy_types
+            ]
+        )
         rprint(
             f"[bold]Processing {len(tickers_to_process)} tickers with {strategy_types_str} strategies:[/bold] {', '.join(tickers_to_process)}"
         )

@@ -6,11 +6,15 @@ enabling strategy-agnostic execution and consistent interfaces.
 """
 
 from .strategy_dispatcher import StrategyDispatcher
-from .strategy_services import BaseStrategyService, MAStrategyService, MACDStrategyService
+from .strategy_services import (
+    BaseStrategyService,
+    MACDStrategyService,
+    MAStrategyService,
+)
 
 __all__ = [
     "StrategyDispatcher",
     "BaseStrategyService",
-    "MAStrategyService", 
+    "MAStrategyService",
     "MACDStrategyService",
 ]
