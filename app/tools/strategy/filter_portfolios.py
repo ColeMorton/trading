@@ -57,7 +57,7 @@ class PortfolioFilterConfig:
         self.display_preferences = {
             "SMA": {"sort_by": "Total Return [%]", "sort_asc": False},
             "EMA": {"sort_by": "Total Return [%]", "sort_asc": False},
-            "MACD": {"sort_by": "Total Return [%]", "sort_asc": False},
+            "MACD": {"sort_by": "Score", "sort_asc": False},
             "MEAN_REVERSION": {"sort_by": "Total Return [%]", "sort_asc": False},
             "RANGE": {"sort_by": "Total Return [%]", "sort_asc": False},
         }
@@ -338,19 +338,27 @@ def filter_portfolios(
         # Apply minimum filtering to ensure extreme value results meet YAML criteria
         if "MINIMUMS" in config and not result_df.is_empty():
             from app.tools.portfolio.filtering_service import PortfolioFilterService
-            
+
             filter_service = PortfolioFilterService()
-            filtered_result_df = filter_service.filter_portfolios_dataframe(result_df, config, log)
-            
+            filtered_result_df = filter_service.filter_portfolios_dataframe(
+                result_df, config, log
+            )
+
             if filtered_result_df is not None:
                 result_df = filtered_result_df
                 if log:
-                    log(f"Applied MINIMUMS filtering to extreme value results: {len(result_df)} portfolios remain", "info")
+                    log(
+                        f"Applied MINIMUMS filtering to extreme value results: {len(result_df)} portfolios remain",
+                        "info",
+                    )
             else:
                 # No portfolios remain after filtering
                 result_df = pl.DataFrame()
                 if log:
-                    log("No portfolios remain after applying MINIMUMS filtering to extreme value results", "warning")
+                    log(
+                        "No portfolios remain after applying MINIMUMS filtering to extreme value results",
+                        "warning",
+                    )
 
         if log:
             log(f"Generated {len(result_df)} filtered portfolio results")

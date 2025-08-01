@@ -7,8 +7,9 @@ Confidence Level: 0.9
 Total Strategies: 1
 """
 
-import backtrader as bt
 import datetime
+
+import backtrader as bt
 
 
 class CDW_ASSET_DISTRIBUTION_CDW_DExitStrategy(bt.Strategy):
@@ -20,15 +21,16 @@ class CDW_ASSET_DISTRIBUTION_CDW_DExitStrategy(bt.Strategy):
     Confidence: 0.9
     Validity: HIGH
     """
+
     params = (
-        ('take_profit_pct', 15.0),
-        ('stop_loss_pct', 8.0),
-        ('max_days', 30),
-        ('momentum_exit_threshold', 0.03571180555555555),
-        ('trend_exit_threshold', 0.015),
-        ('trailing_pct', 3.66),
-        ('min_days', 5),
-        ('statistical_validity', 'HIGH'),
+        ("take_profit_pct", 15.0),
+        ("stop_loss_pct", 8.0),
+        ("max_days", 30),
+        ("momentum_exit_threshold", 0.03571180555555555),
+        ("trend_exit_threshold", 0.015),
+        ("trailing_pct", 3.66),
+        ("min_days", 5),
+        ("statistical_validity", "HIGH"),
     )
 
     def __init__(self):
@@ -38,8 +40,10 @@ class CDW_ASSET_DISTRIBUTION_CDW_DExitStrategy(bt.Strategy):
         self.days_held = 0
 
         # Validate parameters
-        if self.params.statistical_validity == 'LOW':
-            print(f"Warning: Low reliability parameters for CDW_ASSET_DISTRIBUTION_CDW_D")
+        if self.params.statistical_validity == "LOW":
+            print(
+                f"Warning: Low reliability parameters for CDW_ASSET_DISTRIBUTION_CDW_D"
+            )
 
     def next(self):
         if self.position:
@@ -70,9 +74,12 @@ class CDW_ASSET_DISTRIBUTION_CDW_DExitStrategy(bt.Strategy):
             return
 
         # Trailing stop (only after minimum holding period)
-        if (self.days_held >= self.params.min_days and
-            self.highest_price and
-            current_price <= self.highest_price * (1 - self.params.trailing_pct / 100)):
+        if (
+            self.days_held >= self.params.min_days
+            and self.highest_price
+            and current_price
+            <= self.highest_price * (1 - self.params.trailing_pct / 100)
+        ):
             self.sell(exectype=bt.Order.Market)
             return
 
@@ -97,6 +104,7 @@ class CDW_ASSET_DISTRIBUTION_CDW_DExitStrategy(bt.Strategy):
 strategy_registry = {
     "CDW_ASSET_DISTRIBUTION_CDW_D": CDW_ASSET_DISTRIBUTION_CDW_DExitStrategy,
 }
+
 
 # Usage example
 def create_strategy(strategy_key):

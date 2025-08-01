@@ -1,11 +1,11 @@
-# MA Cross Portfolio Analysis Profile
-# CLI profile for running MA Cross portfolio analysis via trading-cli
+# MACD Strategy Analysis Profile
+# CLI profile for running MACD strategy analysis via trading-cli
 
 metadata:
   name: 'current'
-  description: 'MA Cross portfolio analysis with specific ticker list from 1_get_portfolios.py'
+  description: 'MACD strategy analysis with consistent parameter configuration'
   version: '1.0'
-  tags: ['ma_cross', 'portfolio', 'analysis', 'production']
+  tags: ['macd', 'portfolio', 'analysis', 'production']
   author: 'trading-cli'
 
 inherits_from: 'default_strategy_current'
@@ -17,23 +17,27 @@ config:
   ticker:
     - FANG
 
-  # MACD-specific parameter ranges for CLI  
-  fast_period_range: [5, 89]
-  slow_period_range: [8, 89]
-  signal_period: 9
-  
-  # MACD window ranges for signal generation
+  # MACD Core Parameters (single source of truth)
   short_window_start: 8
   short_window_end: 12
   long_window_start: 21
   long_window_end: 26
   signal_window_start: 9
   signal_window_end: 10
+  step: 1
+
+  # Strategy Configuration
+  direction: 'Long'
+  use_current: true
+  use_hourly: false
+  use_years: false
+  years: 15
+  refresh: true
 
   # Performance filters (maps to CLI --min-* options)
-  # minimums:
-  #   win_rate: 0.5
-  #   trades: 44
-  #   expectancy_per_trade: 0.5
-  #   profit_factor: 1.236
-  #   sortino_ratio: 0.5
+  minimums:
+    win_rate: 0.5
+    trades: 44
+    expectancy_per_trade: 0.5
+    profit_factor: 1.236
+    sortino_ratio: 0.5

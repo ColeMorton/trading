@@ -1,9 +1,9 @@
 # RISK_ON Portfolio - Comprehensive SPDS Analysis Report
 
-**Generated**: July 22, 2025 12:35:32
+**Generated**: July 31, 2025 12:35:16
 **Portfolio**: risk_on.csv
 **Analysis Type**: Enhanced Statistical Performance Divergence System (SPDS) v2.0
-**Total Positions**: 6
+**Total Positions**: 2
 **Analysis Confidence**: High (Multi-source validation enabled)
 
 ---
@@ -11,24 +11,21 @@
 ## 📋 Executive Summary
 
 ### Portfolio Assessment Overview
-
-The risk_on portfolio demonstrates **strong** performance with moderate position performance variance. Our comprehensive analysis reveals **important portfolio management decisions** requiring immediate attention, supported by robust statistical evidence and multi-layer convergence analysis.
+The risk_on portfolio demonstrates **mixed** performance with moderate position performance variance. Our comprehensive analysis reveals **important portfolio management decisions** requiring immediate attention, supported by robust statistical evidence and multi-layer convergence analysis.
 
 **Key Performance Metrics:**
-
-- **Total Unrealized P&L**: +1.07% (Moderate)
-- **Success Rate**: 66.7% (4 of 6 positions profitable)
-- **Average Performance**: +0.18% per position
+- **Total Unrealized P&L**: +0.41% (Moderate)
+- **Success Rate**: 50.0% (1 of 2 positions profitable)
+- **Average Performance**: +0.21% per position
 - **Statistical Exhaustion Detected**: 0 positions (0.0% of portfolio)
-- **Near-Exhaustion Positions**: 1 positions (16.7% of portfolio)
+- **Near-Exhaustion Positions**: 1 positions (50.0% of portfolio)
 
 ### Immediate Action Required
-
 **🚨 CRITICAL ALERTS**: 1 positions require immediate portfolio management decisions based on statistical performance exhaustion and risk-adjusted return optimization.
 
-| Priority | Ticker   | Signal          | Current Return | Statistical Evidence       | Recommended Action                  |
-| -------- | -------- | --------------- | -------------- | -------------------------- | ----------------------------------- |
-| **1**    | **ASML** | **STRONG_SELL** | -2.03%         | 90th+ percentile threshold | **Prepare immediate exit strategy** |
+| Priority | Ticker | Signal | Current Return | Statistical Evidence | Recommended Action |
+|----------|--------|--------|----------------|---------------------|-------------------|
+| **1** | **ASML** | **STRONG_SELL** | +0.41% | 90th+ percentile threshold | **Prepare immediate exit strategy** |
 
 ---
 
@@ -37,16 +34,14 @@ The risk_on portfolio demonstrates **strong** performance with moderate position
 ### 1. ASML - STRONG_SELL 📉
 
 #### Statistical Performance Analysis
-
-**Current Position**: -2.03% unrealized return
+**Current Position**: +0.41% unrealized return
 **Statistical Percentile**: 92.3th percentile (High exhaustion probability)
-**Confidence Level**: 79.1% (High confidence signal)
+**Confidence Level**: 78.4% (High confidence signal)
 **Strategy**: ASML_SMA_71_80
 
 #### Evidence-Based Exit Rationale
 
 **A. Statistical Warning Indicators:**
-
 - **92.3th percentile** performance approaching critical 95th percentile threshold
 - **Statistical Momentum**: Decelerating (3-month rolling percentile declining)
 - **Mean Reversion Probability**: 73.0% within 90 trading days
@@ -57,22 +52,19 @@ The risk_on portfolio demonstrates **strong** performance with moderate position
 **RECOMMENDED APPROACH - Staged Exit:**
 
 **Stage 1 (Immediate - Next 5 Trading Days):**
-
 - Reduce position by 45% at current levels
-- Target average exit price: -2.0% return
+- Target average exit price: 0.4% return
 - Use any intraday strength for execution
 
 **Stage 2 (Tactical - Next 10 Trading Days):**
-
 - Monitor for any quarterly guidance updates
 - Exit additional 30% if position approaches 93rd percentile
 - Implement collar strategy (protective put + covered call) on remaining position
 
 **Alternative Scenarios:**
-
-- **Bull Case**: Sector momentum continues, potential for -2% returns
+- **Bull Case**: Sector momentum continues, potential for 0% returns
 - **Bear Case**: Mean reversion could trigger 12-17% decline
-- **Base Case**: Mean reversion to -1--2% range within 60 days
+- **Base Case**: Mean reversion to 0-0% range within 60 days
 
 ---
 
@@ -81,41 +73,34 @@ The risk_on portfolio demonstrates **strong** performance with moderate position
 ### Risk-Adjusted Performance Metrics
 
 #### Current Portfolio Statistics
-
 ```
 Portfolio-Level Metrics:
-Total Return: +1.07%
+Total Return: +0.41%
 Sharpe Ratio: 1.85 (Good)
 Maximum Drawdown: -8.0% (Well-controlled)
-Win Rate: 66.7% (Moderate hit rate)
+Win Rate: 50.0% (Moderate hit rate)
 Average Winner: +0.0%
 Average Loser: -0.0%
-Profit Factor: 2.95 (Strong)
+Profit Factor: 2.45 (Moderate)
 Calmar Ratio: 1.85 (Good)
 ```
 
 ## 🎯 IMPLEMENTATION STRATEGY
 
 ### Phase 1: Immediate Actions (Days 1-3)
-
 **Priority 1 - Critical Exits:**
-
 - [ ] ASML: Execute 50% position exit
 
 **Expected Portfolio Impact:**
-
 - Realized Gains: +0.0% return capture
 - Risk Reduction: 34% decrease in portfolio volatility
 - Cash Raised: Available for redeployment
 
 ### Phase 2: Tactical Adjustments (Days 4-14)
-
 **Priority 2 - Risk Management:**
-
 - [ ] Implement protective strategies on remaining high performers
 
 **Expected Portfolio Impact:**
-
 - Further Risk Reduction: 18% additional volatility decrease
 - Diversification Improvement: Reduce concentration risk
 - Maintain Upside Exposure: Keep meaningful positions in winners
@@ -125,7 +110,6 @@ Calmar Ratio: 1.85 (Good)
 ### Downside Protection Measures
 
 #### Portfolio-Level Hedging
-
 ```
 Recommended Hedging Strategies:
 1. Index Put Options: SPY/QQQ puts (2-3% of portfolio)
@@ -135,7 +119,6 @@ Recommended Hedging Strategies:
 ```
 
 #### Position-Level Risk Controls
-
 ```
 Stop-Loss Framework:
 EXIT_IMMEDIATELY positions: 5% trailing stops
@@ -149,7 +132,6 @@ HOLD positions: 15% trailing stops
 ### Analysis Framework
 
 #### Data Sources & Validation
-
 ```
 Primary Data Sources:
 - Historical price data: 5+ years of daily OHLC
@@ -160,7 +142,6 @@ Primary Data Sources:
 ```
 
 #### Statistical Models Applied
-
 ```
 Performance Distribution Analysis:
 - Rolling window analysis (252-day periods)
@@ -171,7 +152,6 @@ Performance Distribution Analysis:
 ```
 
 #### Confidence Intervals & Significance Testing
-
 ```
 Statistical Significance Tests:
 - Kolmogorov-Smirnov test for distribution comparison
@@ -188,14 +168,10 @@ SELL: 80% (p-value < 0.20)
 
 ## 🚨 Exit Signal Summary
 
-| Position | Signal Type     | Action Required     | Confidence | Performance |
-| -------- | --------------- | ------------------- | ---------- | ----------- |
-| **ASML** | **STRONG_SELL** | Exit soon           | 79.1%      | -2.03%      |
-| MA       | **HOLD**        | Continue monitoring | 81.7%      | +0.36%      |
-| NI       | **HOLD**        | Continue monitoring | 80.9%      | +2.00%      |
-| TSLA     | **HOLD**        | Continue monitoring | 78.6%      | -0.35%      |
-| AAPL     | **HOLD**        | Continue monitoring | 78.3%      | +0.62%      |
-| APP      | **HOLD**        | Continue monitoring | 78.1%      | +0.47%      |
+| Position | Signal Type | Action Required | Confidence | Performance |
+|----------|-------------|-----------------|------------|-------------|
+| **ASML** | **STRONG_SELL** | Exit soon | 78.4% | +0.41% |
+| AMZN | **HOLD** | Continue monitoring | 67.6% | N/A |
 
 ### 📁 Export Files Generated:
 
@@ -215,14 +191,12 @@ The risk_on portfolio demonstrates strong performance with clear statistical evi
 ### Success Metrics for Implementation
 
 **30-Day Success Criteria:**
-
 - Realized gains: Target 65%+ of current unrealized returns
 - Portfolio volatility: Reduce by 35-40%
 - Maintain market exposure: Keep 60-70% of current positions
 - Alpha preservation: Maintain outperformance vs. benchmarks
 
 **Next Analysis Cycle:**
-
 - Full portfolio review in 30 days
 - Weekly monitoring of remaining high-conviction positions
 - Quarterly rebalancing based on statistical updates
@@ -230,6 +204,6 @@ The risk_on portfolio demonstrates strong performance with clear statistical evi
 
 ---
 
-_This comprehensive analysis was generated by the Enhanced Statistical Performance Divergence System (SPDS) v2.0. All recommendations are based on rigorous statistical analysis and should be considered in conjunction with individual risk tolerance, investment objectives, and market conditions._
+*This comprehensive analysis was generated by the Enhanced Statistical Performance Divergence System (SPDS) v2.0. All recommendations are based on rigorous statistical analysis and should be considered in conjunction with individual risk tolerance, investment objectives, and market conditions.*
 
 **Disclaimer**: This analysis is for informational purposes only and does not constitute investment advice. Past performance does not guarantee future results. Please consult with qualified financial professionals before making investment decisions.

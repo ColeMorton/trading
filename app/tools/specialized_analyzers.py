@@ -1414,7 +1414,7 @@ class StrategyAnalyzer:
         # Search in various directories
         search_dirs = [
             Path("./data/outputs/portfolio_analysis/"),
-            Path("./data/outputs/strategies/"),
+            Path("./data/raw/strategies/"),
         ]
 
         for directory in search_dirs:

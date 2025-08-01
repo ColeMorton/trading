@@ -95,19 +95,6 @@ strategies:
     rationale: 'Highest independence factor with hedge characteristics'
 
   - ticker: BTC-USD
-    short_window: 104
-    long_window: 105
-    strategy_type: SMA
-    allocation_weight: 0.07
-    tier: diversification
-    efficiency_score: 0.095
-    win_rate: 0.595
-    profit_factor: 2.61
-    independence_factor: 0.10
-    alpha_contribution: -0.020
-    rationale: 'Ultra-long signals for regime detection'
-
-  - ticker: BTC-USD
     short_window: 8
     long_window: 44
     strategy_type: SMA

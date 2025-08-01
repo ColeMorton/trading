@@ -285,7 +285,7 @@ class VolumeParameterSweepEngine:
         ema_period: int,
         rvol_threshold: float,
         volume_lookback: int,
-        price_data: pl.DataFrame,
+        prices: pl.DataFrame,
         log: callable,
     ) -> Optional[Dict[str, Any]]:
         """
@@ -297,7 +297,7 @@ class VolumeParameterSweepEngine:
             ema_period: EMA period for price exit condition
             rvol_threshold: RVOL threshold value
             volume_lookback: Volume lookback period
-            price_data: Price data DataFrame
+            prices: Price data DataFrame
             log: Logging function
 
         Returns:
@@ -316,7 +316,7 @@ class VolumeParameterSweepEngine:
                 return None
 
             # Convert to pandas for signal processing
-            pandas_data = price_data.to_pandas()
+            pandas_data = prices.to_pandas()
 
             # Generate hybrid MA+Volume signals
             signal_data = self.generate_hybrid_ma_volume_signals(
@@ -441,7 +441,7 @@ class VolumeParameterSweepEngine:
         ticker: str,
         ma_config: Dict[str, Any],
         parameter_chunk: List[Tuple[int, float, int]],
-        price_data: pl.DataFrame,
+        prices: pl.DataFrame,
         log: callable,
         chunk_index: int,
     ) -> List[Dict[str, Any]]:
@@ -452,7 +452,7 @@ class VolumeParameterSweepEngine:
             ticker: Ticker symbol
             ma_config: MA Cross configuration
             parameter_chunk: List of (ema_period, rvol_threshold, volume_lookback) tuples
-            price_data: Price data DataFrame
+            prices: Price data DataFrame
             log: Logging function
             chunk_index: Index of current chunk for progress tracking
 
@@ -540,9 +540,9 @@ class VolumeParameterSweepEngine:
                 price_data, synthetic_ticker = data_result
                 ma_config["TICKER"] = synthetic_ticker
             else:
-                price_data = data_result
+                prices = data_result
 
-            if price_data is None or len(price_data) == 0:
+            if prices is None or len(price_data) == 0:
                 raise ValueError(f"Failed to get price data for {ticker}")
 
             log(f"Retrieved {len(price_data)} data points for {ticker}", "info")
@@ -613,7 +613,7 @@ class VolumeParameterSweepEngine:
                 log("Starting sequential processing", "info")
                 for i, chunk in enumerate(parameter_chunks):
                     chunk_results = self.process_volume_parameter_chunk(
-                        ticker, ma_config, chunk, price_data, log, i
+                        ticker, ma_config, chunk, prices, log, i
                     )
                     all_results.extend(chunk_results)
 

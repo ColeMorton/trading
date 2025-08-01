@@ -188,9 +188,7 @@ class TradeHistoryService:
                 "errors": [str(e)],
             }
 
-    def _read_price_data(
-        self, ticker: str
-    ) -> tuple[Optional[pd.DataFrame], Optional[str]]:
+    def _read_prices(self, ticker: str) -> tuple[Optional[pd.DataFrame], Optional[str]]:
         """Read price data for a ticker.
 
         Returns:
@@ -240,23 +238,23 @@ class TradeHistoryService:
             tuple: (mfe, mae, current_excursion, error_message)
         """
         try:
-            price_data, error_msg = self._read_price_data(ticker)
+            price_data, error_msg = self._read_prices(ticker)
 
-            if price_data is None:
+            if prices is None:
                 return None, None, None, error_msg
 
             entry_date = pd.to_datetime(entry_date)
 
             # Handle entry date before data starts
-            if entry_date < price_data.index.min():
+            if entry_date < prices.index.min():
                 if verbose:
                     self.logger.info(
                         f"   📅 Entry date {entry_date.date()} before available data, "
-                        f"using {price_data.index.min().date()}"
+                        f"using {prices.index.min().date()}"
                     )
-                entry_date = price_data.index.min()
+                entry_date = prices.index.min()
 
-            position_data = price_data[entry_date:]
+            position_data = prices[entry_date:]
 
             if position_data.empty:
                 return (

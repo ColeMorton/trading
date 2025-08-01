@@ -24,10 +24,10 @@ PRIMARY_TEXT = "#121212"  # Near black
 BODY_TEXT = "#444444"  # Dark gray
 MUTED_TEXT = "#717171"  # Medium gray
 
-# TICKERS = ["ETH-USD", "MSTR"]
+TICKERS = ["BTC-USD", "MSTR", "NFLX"]
 # TICKERS = "risk_on.csv"
 # TICKERS = "live_signals.csv"
-TICKERS = "protected.csv"
+# TICKERS = "risk_on.csv"
 INCLUDE_OPTION_STRATEGY = False
 
 # 09-05-25 @ 100000 SOL-USD

@@ -36,7 +36,7 @@ python -m app.tools.spds_cli_updated health
 The system automatically locates files based on the portfolio name:
 
 ```
-./data/outputs/strategies/risk_on.csv     # Portfolio definition
+./data/raw/strategies/risk_on.csv     # Portfolio definition
 ./data/raw/positions/risk_on.csv         # Trade history (same filename)
 ./data/raw/reports/return_distribution/  # Asset return data (auto-loaded)
 ```
@@ -76,7 +76,7 @@ results = await engine.analyze(position_request)
 
 ### Portfolio CSV Format
 
-Your portfolio CSV should be in `./data/outputs/strategies/` with columns:
+Your portfolio CSV should be in `./data/raw/strategies/` with columns:
 
 ```csv
 strategy_name,ticker,allocation,risk_level
@@ -322,7 +322,7 @@ results, summary = await analyze_portfolio("my_strategies.csv", use_trade_histor
 
 ### Portfolio CSV Requirements
 
-- Must be in `./data/outputs/strategies/` directory
+- Must be in `./data/raw/strategies/` directory
 - Must have `.csv` extension
 - Should include `strategy_name` and `ticker` columns
 - Additional columns (allocation, risk_level, etc.) are preserved as metadata

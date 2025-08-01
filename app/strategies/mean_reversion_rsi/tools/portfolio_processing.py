@@ -12,11 +12,9 @@ import numpy as np
 import polars as pl
 
 from app.mean_reversion_rsi.config_types import validate_config
-from app.mean_reversion_rsi.tools.sensitivity_analysis import (
-    analyze_parameter_combinations,
-)
 from app.tools.file_utils import is_file_from_today
 from app.tools.get_data import get_data
+from app.tools.strategy.sensitivity_analysis import analyze_parameter_combinations
 
 
 def process_single_ticker(

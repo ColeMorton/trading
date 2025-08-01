@@ -35,8 +35,8 @@ class TradingSystemConfig:
         self.base_dir = Path(base_dir) if base_dir else Path.cwd()
 
     @property
-    def price_data_dir(self) -> Path:
-        return self.base_dir / "csv" / "price_data"
+    def prices_dir(self) -> Path:
+        return self.base_dir / "data" / "raw" / "prices"
 
     @property
     def positions_dir(self) -> Path:
@@ -54,9 +54,9 @@ class TradingSystemConfig:
     def trade_history_csv_dir(self) -> Path:
         return self.base_dir / "csv" / "trade_history"
 
-    def get_price_data_file(self, ticker: str, timeframe: str = "D") -> Path:
+    def get_prices_file(self, ticker: str, timeframe: str = "D") -> Path:
         """Get price data file path for any ticker and timeframe."""
-        return self.price_data_dir / f"{ticker}_{timeframe}.csv"
+        return self.prices_dir / f"{ticker}_{timeframe}.csv"
 
 
 # Global configuration instance
@@ -316,7 +316,7 @@ def calculate_mfe_mae(
 
     try:
         # Load price data using configuration
-        price_file = config.get_price_data_file(ticker, timeframe)
+        price_file = config.get_prices_file(ticker, timeframe)
         if not price_file.exists():
             logging.warning(f"Price data not found for {ticker} at {price_file}")
             return None, None, None, None

@@ -106,7 +106,7 @@ class ParameterRobustnessAnalyzer:
         self.log = log or print
         self.results: List[ParameterStabilityResult] = []
 
-    def bootstrap_price_data(
+    def bootstrap_prices(
         self, data: pl.DataFrame, seed: Optional[int] = None
     ) -> pl.DataFrame:
         """
@@ -329,7 +329,7 @@ class ParameterRobustnessAnalyzer:
         for simulation in range(self.mc_config.num_simulations):
             try:
                 # Create bootstrap sample
-                bootstrap_data = self.bootstrap_price_data(
+                bootstrap_data = self.bootstrap_prices(
                     original_data, seed=simulation
                 )
 

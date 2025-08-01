@@ -114,11 +114,13 @@ def analyze_parameter_combination(
 
         # Create temporary config for this parameter combination
         temp_config = config.copy()
-        temp_config.update({
-            "short_window": short_window,
-            "long_window": long_window,
-            "signal_window": signal_window,
-        })
+        temp_config.update(
+            {
+                "short_window": short_window,
+                "long_window": long_window,
+                "signal_window": signal_window,
+            }
+        )
 
         # Generate signals for this parameter combination
         signal_data = generate_macd_signals(data.clone(), temp_config)
@@ -135,16 +137,21 @@ def analyze_parameter_combination(
 
         if result is not None:
             # Add MACD-specific parameters to the result
-            result.update({
-                "Short Window": short_window,
-                "Long Window": long_window,
-                "Signal Window": signal_window,
-            })
+            result.update(
+                {
+                    "Short Window": short_window,
+                    "Long Window": long_window,
+                    "Signal Window": signal_window,
+                }
+            )
 
         return result
 
     except Exception as e:
-        log(f"Failed to analyze MACD parameter combination {short_window}/{long_window}/{signal_window}: {str(e)}", "error")
+        log(
+            f"Failed to analyze MACD parameter combination {short_window}/{long_window}/{signal_window}: {str(e)}",
+            "error",
+        )
         return None
 
 

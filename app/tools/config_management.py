@@ -731,7 +731,7 @@ def resolve_portfolio_filename(portfolio_name: str) -> str:
     base_name = (
         portfolio_name.replace(".csv", "").replace(".json", "").replace(".yaml", "")
     )
-    csv_path = Path(f"data/outputs/strategies/{base_name}.csv")
+    csv_path = Path(f"data/raw/strategies/{base_name}.csv")
     json_path = Path(f"json/portfolios/{base_name}.json")
     yaml_path = Path(f"data/portfolios/{base_name}.yaml")
 

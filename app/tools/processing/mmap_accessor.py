@@ -336,7 +336,7 @@ class MMapAccessor:
         self._open_files: Dict[Path, MemoryMappedFile] = {}
         self._csv_readers: Dict[Path, MMapCSVReader] = {}
 
-    def get_price_data(
+    def get_prices(
         self,
         file_path: Union[str, Path],
         start_date: Optional[str] = None,

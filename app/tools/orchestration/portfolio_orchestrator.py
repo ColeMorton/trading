@@ -100,13 +100,17 @@ class PortfolioOrchestrator:
 
             # Step 5: Process results if any
             if all_portfolios:
+                # Export raw portfolios first
+                self._export_raw_portfolios(all_portfolios, config)
+
                 # Filter and process portfolios
                 filtered_portfolios = self._filter_and_process_portfolios(
                     all_portfolios, config
                 )
 
-                # Export results
+                # Export filtered portfolios and final results
                 if filtered_portfolios:
+                    self._export_filtered_portfolios(filtered_portfolios, config)
                     self._export_results(filtered_portfolios, config)
             else:
                 self.log("No portfolios returned from strategies", "warning")
@@ -173,7 +177,14 @@ class PortfolioOrchestrator:
         Returns:
             List of strategy types
         """
-        return get_strategy_types(config, self.log, "SMA")
+        # Preserve the intended strategy type from config instead of always defaulting to SMA
+        intended_strategy = None
+        if "STRATEGY_TYPE" in config:
+            intended_strategy = config["STRATEGY_TYPE"]
+        elif "STRATEGY_TYPES" in config and config["STRATEGY_TYPES"]:
+            intended_strategy = config["STRATEGY_TYPES"][0]
+
+        return get_strategy_types(config, self.log, intended_strategy or "SMA")
 
     def _execute_strategies(
         self, config: Dict[str, Any], strategies: List[str]
@@ -279,11 +290,73 @@ class PortfolioOrchestrator:
 
             return filtered_portfolios
 
+    def _export_raw_portfolios(
+        self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]
+    ) -> None:
+        """
+        Export raw portfolios before filtering.
+
+        Args:
+            portfolios: List of raw portfolios to export
+            config: Configuration dictionary
+
+        Raises:
+            ExportError: If export fails
+        """
+        with error_context("Exporting raw portfolios", self.log, {Exception: ExportError}):
+            from app.tools.strategy.export_portfolios import export_portfolios
+
+            try:
+                _, success = export_portfolios(
+                    portfolios=portfolios,
+                    config=config,
+                    export_type="portfolios",
+                    log=self.log,
+                )
+                if success:
+                    self.log(f"Successfully exported {len(portfolios)} raw portfolios")
+                else:
+                    self.log("Failed to export raw portfolios", "warning")
+            except Exception as e:
+                self.log(f"Error exporting raw portfolios: {str(e)}", "error")
+                raise ExportError(f"Raw portfolio export failed: {str(e)}")
+
+    def _export_filtered_portfolios(
+        self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]
+    ) -> None:
+        """
+        Export filtered portfolios after processing.
+
+        Args:
+            portfolios: List of filtered portfolios to export
+            config: Configuration dictionary
+
+        Raises:
+            ExportError: If export fails
+        """
+        with error_context("Exporting filtered portfolios", self.log, {Exception: ExportError}):
+            from app.tools.strategy.export_portfolios import export_portfolios
+
+            try:
+                _, success = export_portfolios(
+                    portfolios=portfolios,
+                    config=config,
+                    export_type="portfolios_filtered",
+                    log=self.log,
+                )
+                if success:
+                    self.log(f"Successfully exported {len(portfolios)} filtered portfolios")
+                else:
+                    self.log("Failed to export filtered portfolios", "warning")
+            except Exception as e:
+                self.log(f"Error exporting filtered portfolios: {str(e)}", "error")
+                raise ExportError(f"Filtered portfolio export failed: {str(e)}")
+
     def _export_results(
         self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]
     ) -> None:
         """
-        Export portfolio results.
+        Export final portfolio results (best portfolios).
 
         Args:
             portfolios: List of portfolios to export
@@ -292,7 +365,7 @@ class PortfolioOrchestrator:
         Raises:
             ExportError: If export fails
         """
-        with error_context("Exporting portfolios", self.log, {Exception: ExportError}):
+        with error_context("Exporting best portfolios", self.log, {Exception: ExportError}):
             if self.use_new_export:
                 # Use new export system
                 self._export_with_manager(portfolios, config)

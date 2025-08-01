@@ -532,10 +532,25 @@ def process_ticker_portfolios(
         strategy_type: Strategy type (auto-detected if not provided)
 
     Returns:
-        DataFrame of portfolios or None
+        DataFrame of portfolios sorted by configured criteria or None
     """
     if strategy_type is None:
         strategy_type = _detect_strategy_type(config)
 
     processor = SignalProcessorFactory.create_processor(strategy_type)
-    return processor.process_ticker_portfolios(ticker, config, log)
+    portfolios_df = processor.process_ticker_portfolios(ticker, config, log)
+
+    if portfolios_df is not None and len(portfolios_df) > 0:
+        # Apply consistent sorting using configuration
+        sort_by = config.get("SORT_BY", "Score")
+        sort_asc = config.get("SORT_ASC", False)
+
+        if sort_by in portfolios_df.columns:
+            portfolios_df = portfolios_df.sort(sort_by, descending=not sort_asc)
+            if log:
+                log(f"Sorted portfolios by {sort_by} ({'ascending' if sort_asc else 'descending'})")
+        else:
+            if log:
+                log(f"Warning: Sort column '{sort_by}' not found in portfolios, skipping sort", "warning")
+
+    return portfolios_df

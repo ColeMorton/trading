@@ -359,14 +359,8 @@ def export(
         if profile:
             config = loader.load_from_profile(profile, SPDSConfig, overrides)
         else:
-            rprint(
-                "[red]Error: No profile specified. SPDS requires a configuration profile.[/red]"
-            )
-            rprint("Please specify a profile using --profile or -p option")
-            rprint(
-                "Example: trading-cli spds analyze portfolio.csv --profile my_spds_profile"
-            )
-            raise typer.Exit(1)
+            # Use default SPDS profile
+            config = loader.load_from_profile("spds_default", SPDSConfig, overrides)
 
         rprint(f"📤 Exporting Analysis Results: [cyan]{portfolio}[/cyan]")
         rprint(f"   Format: [yellow]{format}[/yellow]")
@@ -686,14 +680,8 @@ async def _analyze_portfolio_mode(
     if profile:
         config = loader.load_from_profile(profile, SPDSConfig, overrides)
     else:
-        rprint(
-            "[red]Error: No profile specified. SPDS requires a configuration profile.[/red]"
-        )
-        rprint("Please specify a profile using --profile or -p option")
-        rprint(
-            "Example: trading-cli spds analyze portfolio.csv --profile my_spds_profile"
-        )
-        raise typer.Exit(1)
+        # Use default SPDS profile
+        config = loader.load_from_profile("spds_default", SPDSConfig, overrides)
 
     if verbose:
         rprint(f"[dim]Analyzing portfolio: {portfolio}[/dim]")

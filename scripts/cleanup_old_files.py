@@ -14,7 +14,7 @@ SAFETY FEATURES:
 Protected by design:
 - Root directory files (script only scans data/outputs/ and json/ subdirectories)
 - Dot directories (.claude, .git, etc.) - completely skipped
-- data/outputs/strategies/ directory (excluded by default)
+- data/raw/strategies/ directory (active portfolio directory - protected)
 - ALL files not explicitly whitelisted in .cleanupwhitelist
 
 Safe to clean (when explicitly whitelisted):
@@ -196,8 +196,8 @@ def main():
     parser.add_argument(
         "--exclude",
         nargs="+",
-        default=["data/outputs/strategies"],
-        help="Directories to exclude from cleanup (default: data/outputs/strategies)",
+        default=["data/raw/strategies"],
+        help="Directories to exclude from cleanup (default: data/raw/strategies)",
     )
     parser.add_argument(
         "--max-age",

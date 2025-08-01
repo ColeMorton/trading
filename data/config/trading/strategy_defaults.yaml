@@ -23,30 +23,43 @@ defaults:
       default_long: 50
 
   # MACD strategy parameters (reduced ranges for testing)
-  macd:
-    fast_period:
-      min: 3
-      max: 21
-      default: 12
-    slow_period:
-      min: 5
-      max: 34
-      default: 26
-    signal_period:
-      min: 5
-      max: 21
-      default: 9
+  # macd:
+  #   fast_period:
+  #     min: 3
+  #     max: 21
+  #     default: 12
+  #   slow_period:
+  #     min: 5
+  #     max: 34
+  #     default: 26
+  #   signal_period:
+  #     min: 5
+  #     max: 21
+  #     default: 9
+    macd:
+      fast_period:
+        min: 3
+        max: 13
+        default: 12
+      slow_period:
+        min: 5
+        max: 21
+        default: 26
+      signal_period:
+        min: 5
+        max: 13
+        default: 9
 
   # Performance thresholds for strategy validation
-  performance_thresholds:
-    min_win_rate: 0.50
-    min_trades: 50
-    min_profit_factor: 1.20
-    min_sharpe_ratio: 0.50
-    min_sortino_ratio: 0.60
-    min_expectancy_per_trade: 0.50
-    max_max_drawdown: 0.20
-    min_calmar_ratio: 0.30
+  # performance_thresholds:
+  #   min_win_rate: 0.50
+  #   min_trades: 50
+  #   min_profit_factor: 1.20
+  #   min_sharpe_ratio: 0.50
+  #   min_sortino_ratio: 0.60
+  #   min_expectancy_per_trade: 0.50
+  #   max_max_drawdown: 0.20
+  #   min_calmar_ratio: 0.30
 
 # Asset class specific strategy parameters
 asset_classes:

@@ -126,6 +126,41 @@ class StrategyConfig(BaseConfig):
         default=False, description="Enable multi-ticker analysis"
     )
 
+    # MACD-specific parameters (direct from YAML)
+    short_window_start: Optional[int] = Field(
+        default=None, gt=0, description="MACD short window start"
+    )
+    short_window_end: Optional[int] = Field(
+        default=None, gt=0, description="MACD short window end"
+    )
+    long_window_start: Optional[int] = Field(
+        default=None, gt=0, description="MACD long window start"
+    )
+    long_window_end: Optional[int] = Field(
+        default=None, gt=0, description="MACD long window end"
+    )
+    signal_window_start: Optional[int] = Field(
+        default=None, gt=0, description="MACD signal window start"
+    )
+    signal_window_end: Optional[int] = Field(
+        default=None, gt=0, description="MACD signal window end"
+    )
+    step: Optional[int] = Field(
+        default=None, gt=0, description="MACD parameter step increment"
+    )
+    direction: Optional[str] = Field(
+        default=None, description="Trading direction (Long/Short)"
+    )
+    use_current: Optional[bool] = Field(
+        default=None, description="Use current market data"
+    )
+    use_hourly: Optional[bool] = Field(
+        default=None, description="Use hourly data instead of daily"
+    )
+    refresh: Optional[bool] = Field(
+        default=None, description="Force refresh of market data"
+    )
+
     @validator("ticker", pre=True)
     def validate_ticker(cls, v):
         """Validate ticker input."""

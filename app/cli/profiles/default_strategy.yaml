@@ -13,21 +13,21 @@ config_type: strategy
 config:
   ticker:
     - BTC-USD
-  strategy_types:
-    - SMA
-    - EMA
-  fast_period_range:
-    - 5
-    - 89
-  slow_period_range:
-    - 8
-    - 89
+
+  # MACD Core Parameters (single source of truth)
+  short_window_start: 5
+  short_window_end: 21
+  long_window_start: 8
+  long_window_end: 34
+  signal_window_start: 5
+  signal_window_end: 13
+  step: 1
+
+  # Strategy Configuration
   direction: Long
-
-  signal_window_start: 2
-  signal_window_end: 18
-
-  # Data settings
+  use_hourly: false
+  use_years: false
+  years: 15
   refresh: true
 
   # Result configuration
@@ -36,6 +36,3 @@ config:
 
   # Feature flags
   use_synthetic: false
-  use_hourly: false
-  use_years: false
-  years: 15

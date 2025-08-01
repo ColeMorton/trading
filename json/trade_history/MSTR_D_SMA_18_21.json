@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-07-22T11:42:56.178596",
+    "export_timestamp": "2025-08-01T10:49:48.069682",
     "strategy_config": {
       "ticker": "MSTR",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 1330.7371117652795,
+      "total_return": 1254.4467902755352,
       "total_trades": "244",
-      "win_rate": 0.47950819672131145,
-      "sharpe_ratio": 0.9232277941442593,
+      "win_rate": 0.47540983606557374,
+      "sharpe_ratio": 0.9177651877226342,
       "max_drawdown": -0.8596246173780181
     }
   },
@@ -5127,10 +5127,10 @@
       "Entry Timestamp": "2025-07-10 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 421.739990234375,
-      "Avg Exit Price": 426.2799987792969,
+      "Avg Exit Price": 401.8599853515625,
       "Size": 3124.0900712650505,
-      "PnL": 12865.84190250258,
-      "Return": 0.00976494676826576,
+      "PnL": -63424.47958724154,
+      "Return": -0.04813805980733392,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -5138,11 +5138,11 @@
       "Entry_Month": "2025-07",
       "Entry_Year": 2025.0,
       "Entry_Quarter": 3.0,
-      "Trade_Type": "Breakeven",
-      "Cumulative_PnL": 1330737.1117652794,
+      "Trade_Type": "Loser",
+      "Cumulative_PnL": 1254446.7902755353,
       "Trade_Number": 244,
-      "Rolling_Avg_Return": 0.019117625300469687,
-      "Rolling_Win_Rate": 0.8
+      "Rolling_Avg_Return": 0.007537023985349752,
+      "Rolling_Win_Rate": 0.6
     }
   ],
   "orders": [
@@ -13913,15 +13913,15 @@
       "Avg Entry Price": 421.739990234375,
       "Entry Fees": 1317.5537161463872,
       "Exit Timestamp": null,
-      "Avg Exit Price": 426.2799987792969,
+      "Avg Exit Price": 401.8599853515625,
       "Exit Fees": 0.0,
-      "PnL": 12865.84190250258,
-      "Return": 0.00976494676826576,
+      "PnL": -63424.47958724154,
+      "Return": -0.04813805980733392,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
       "Duration_Days": null,
-      "Position_Type": "Breakeven"
+      "Position_Type": "Loser"
     }
   ],
   "analytics": {

@@ -71,8 +71,8 @@ class StrategyDispatcher:
         for st in strategy_types:
             if hasattr(st, "value"):  # StrategyType enum
                 strategy_type_values.append(st.value)
-            else:  # String
-                strategy_type_values.append(str(st))
+            else:  # String - convert to uppercase for case-insensitive matching
+                strategy_type_values.append(str(st).upper())
 
         # Check for MACD strategy
         if StrategyType.MACD.value in strategy_type_values:

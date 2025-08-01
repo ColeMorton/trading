@@ -126,13 +126,12 @@ def process_single_ticker(
             config=config_copy,
             log=log,
         )
-        if not portfolios:
+        if portfolios is None or portfolios.is_empty():
             log(f"No valid portfolios generated for {ticker}", "warning")
             return None
 
         log(f"Generated {len(portfolios)} valid portfolios for {ticker}", "info")
-        return pl.DataFrame(portfolios)
-        return pl.DataFrame(portfolios)
+        return portfolios
 
     except Exception as e:
         log(f"Failed to process ticker {ticker}: {str(e)}", "error")

@@ -836,7 +836,7 @@ class SchemaTransformer:
             "Last Position Close Date": None,
             "ATR Stop Length": None,
             "ATR Stop Multiplier": None,
-            "Metric Type": "Most Total Return [%]",
+            "Metric Type": existing_data.get("Metric Type", "Most Total Return [%]"),
         }
 
     def transform_to_extended(

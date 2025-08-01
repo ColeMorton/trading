@@ -19,7 +19,7 @@ from app.portfolio_review.tools.portfolio_analysis import (
     calculate_risk_metrics,
     check_open_positions,
     create_benchmark_data,
-    create_price_dataframe,
+    create_pricesframe,
     find_common_dates,
     prepare_data,
 )
@@ -328,7 +328,7 @@ class PortfolioReviewService:
                 pandas_data_dict = aligned_pandas_data_dict
 
             # Create price DataFrame
-            price_df_pd = create_price_dataframe(
+            price_df_pd = create_pricesframe(
                 common_dates, data_dict, config_dict, self._log
             )
             if price_df_pd.empty:

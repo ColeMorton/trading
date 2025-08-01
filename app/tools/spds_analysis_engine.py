@@ -197,7 +197,7 @@ class SPDSAnalysisEngine:
             "portfolio_file": False,
             "trade_history": False,
             "equity_data": False,
-            "price_data": False,
+            "prices": False,
         }
 
         try:
@@ -224,8 +224,8 @@ class SPDSAnalysisEngine:
                     data_sources["trade_history"] = trade_history_file.exists()
 
                     # Check for price data
-                    price_data_file = Path(f"data/raw/prices/{ticker}.csv")
-                    data_sources["price_data"] = price_data_file.exists()
+                    prices_file = Path(f"data/raw/prices/{ticker}.csv")
+                    data_sources["prices"] = prices_file.exists()
 
             # Check for equity data (generic check)
             for equity_path in self.config.equity_data_paths:

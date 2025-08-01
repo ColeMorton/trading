@@ -66,7 +66,7 @@ def find_common_dates(data_dict: Dict[str, pl.DataFrame], log) -> List:
     return common_dates
 
 
-def create_price_dataframe(
+def create_pricesframe(
     common_dates: List, data_dict: Dict[str, pl.DataFrame], config: Dict, log
 ) -> pd.DataFrame:
     """Create aligned price DataFrame for all strategies."""

@@ -1,0 +1,26 @@
+# MA Cross Portfolio Analysis Profile
+# CLI profile for running MA Cross portfolio analysis via trading-cli
+
+metadata:
+  name: 'minimum'
+  description: 'MA Cross portfolio analysis with specific ticker list from 1_get_portfolios.py'
+  version: '1.0'
+  tags: ['ma_cross', 'portfolio', 'analysis', 'production']
+  author: 'trading-cli'
+
+inherits_from: 'default_strategy'
+
+config_type: 'strategy'
+
+config:
+  name: 'minimum'
+  ticker:
+    - BTC-USD
+
+  # Performance filters (maps to CLI --min-* options)
+  minimums:
+    win_rate: 0.5
+    trades: 44
+    expectancy_per_trade: 0.5
+    profit_factor: 1.236
+    sortino_ratio: 0.5

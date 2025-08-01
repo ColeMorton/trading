@@ -74,19 +74,19 @@ class MACDStrategy(StrategyInterface):
             return False
 
     def get_parameter_ranges(self) -> Dict[str, Any]:
-        """Get MACD strategy parameter ranges and defaults."""
+        """Get MACD strategy parameter validation ranges (no defaults)."""
         return {
-            "SHORT_WINDOW_START": {"min": 8, "max": 12, "default": 8},
-            "SHORT_WINDOW_END": {"min": 8, "max": 12, "default": 12},
-            "LONG_WINDOW_START": {"min": 21, "max": 26, "default": 21},
-            "LONG_WINDOW_END": {"min": 21, "max": 26, "default": 26},
-            "SIGNAL_WINDOW_START": {"min": 9, "max": 9, "default": 9},
-            "SIGNAL_WINDOW_END": {"min": 9, "max": 9, "default": 9},
-            "STEP": {"min": 1, "max": 10, "default": 1},
-            "DIRECTION": {"options": ["Long", "Short"], "default": "Long"},
-            "USE_HOURLY": {"type": "boolean", "default": False},
-            "USE_YEARS": {"type": "boolean", "default": False},
-            "YEARS": {"min": 1, "max": 50, "default": 15},
+            "SHORT_WINDOW_START": {"min": 1, "max": 50},
+            "SHORT_WINDOW_END": {"min": 1, "max": 50},
+            "LONG_WINDOW_START": {"min": 1, "max": 100},
+            "LONG_WINDOW_END": {"min": 1, "max": 100},
+            "SIGNAL_WINDOW_START": {"min": 1, "max": 50},
+            "SIGNAL_WINDOW_END": {"min": 1, "max": 50},
+            "STEP": {"min": 1, "max": 10},
+            "DIRECTION": {"options": ["Long", "Short"]},
+            "USE_HOURLY": {"type": "boolean"},
+            "USE_YEARS": {"type": "boolean"},
+            "YEARS": {"min": 1, "max": 50},
         }
 
     def execute(self, config: Dict[str, Any], log: Any) -> List[Dict[str, Any]]:
@@ -128,27 +128,27 @@ class MACDStrategy(StrategyInterface):
 
     def _convert_config_to_macd_format(self, config: Dict[str, Any]) -> Dict[str, Any]:
         """Convert API config format to MACD Next config format."""
-        # Get ticker(s)
-        ticker = config.get("TICKER", "BTC-USD")
+        # Get ticker(s) - required parameter
+        ticker = config["TICKER"]  # Fail fast if missing
         if isinstance(ticker, list):
             ticker = ticker[0]  # MACD Next handles single ticker
 
-        # Convert to MACD Next format
+        # Convert to MACD Next format - all parameters required from config
         macd_config = {
             "TICKER": ticker,
-            "TIMEFRAME": "D" if not config.get("USE_HOURLY", False) else "H",
+            "TIMEFRAME": "D" if not config["USE_HOURLY"] else "H",
             "TYPE": "MACD",
-            "DIRECTION": config.get("DIRECTION", "Long"),
-            "SHORT_WINDOW_START": config.get("SHORT_WINDOW_START", 2),
-            "SHORT_WINDOW_END": config.get("SHORT_WINDOW_END", 18),
-            "LONG_WINDOW_START": config.get("LONG_WINDOW_START", 4),
-            "LONG_WINDOW_END": config.get("LONG_WINDOW_END", 36),
-            "SIGNAL_WINDOW_START": config.get("SIGNAL_WINDOW_START", 2),
-            "SIGNAL_WINDOW_END": config.get("SIGNAL_WINDOW_END", 18),
-            "STEP": config.get("STEP", 1),
-            "USE_CURRENT": config.get("USE_CURRENT", True),
-            "USE_YEARS": config.get("USE_YEARS", False),
-            "YEARS": float(config.get("YEARS", 15)),
+            "DIRECTION": config["DIRECTION"],
+            "SHORT_WINDOW_START": config["SHORT_WINDOW_START"],
+            "SHORT_WINDOW_END": config["SHORT_WINDOW_END"],
+            "LONG_WINDOW_START": config["LONG_WINDOW_START"],
+            "LONG_WINDOW_END": config["LONG_WINDOW_END"],
+            "SIGNAL_WINDOW_START": config["SIGNAL_WINDOW_START"],
+            "SIGNAL_WINDOW_END": config["SIGNAL_WINDOW_END"],
+            "STEP": config["STEP"],
+            "USE_CURRENT": config["USE_CURRENT"],
+            "USE_YEARS": config["USE_YEARS"],
+            "YEARS": float(config["YEARS"]),
             "EXPORT_RESULTS": True,
             "FILTER_PORTFOLIOS": True,
             "SELECT_BEST": True,

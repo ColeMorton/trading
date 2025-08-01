@@ -122,7 +122,7 @@ class AllocationOptimizer:
 
         return allocation
 
-    def get_price_data(self, symbol: str, config: Optional[DataConfig] = None) -> float:
+    def get_prices(self, symbol: str, config: Optional[DataConfig] = None) -> float:
         """Fetch current price using existing @app/tools/get_data.py infrastructure.
 
         Args:
@@ -172,7 +172,7 @@ class AllocationOptimizer:
         prices = {}
         for symbol in symbols:
             try:
-                prices[symbol] = self.get_price_data(symbol)
+                prices[symbol] = self.get_prices(symbol)
             except Exception as e:
                 print(f"Warning: Could not fetch price for {symbol}: {e}")
                 prices[symbol] = 0.0

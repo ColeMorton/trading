@@ -82,7 +82,7 @@ def download_data(ticker: str, log: callable) -> pl.DataFrame:
         raise
 
 
-def combine_price_data(tickers: List[str], log: callable) -> pl.DataFrame:
+def combine_prices(tickers: List[str], log: callable) -> pl.DataFrame:
     """
     Combine price data for multiple tickers into a single DataFrame.
 
@@ -225,7 +225,7 @@ def main() -> None:
         }
 
         # Get and combine data
-        data = combine_price_data(TICKERS, log)
+        data = combine_prices(TICKERS, log)
 
         # Convert to pandas for skfolio compatibility
         data_pd = data.to_pandas()

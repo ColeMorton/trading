@@ -57,7 +57,7 @@ def main():
         sys.exit(1)
 
     # Test 1: Generate a new Pine script from CSV
-    run_generator("data/outputs/strategies/BTC_d_20250427.csv")
+    run_generator("data/raw/strategies/BTC_d_20250427.csv")
 
     # Test 2: Update an existing Pine script (create a temporary copy first)
     if os.path.exists("tradingview/strategy_breadth_refactored.pine"):
@@ -66,24 +66,24 @@ def main():
             temp_pine_path, "w"
         ) as f_out:
             f_out.write(f_in.read())
-        run_generator("data/outputs/strategies/BTC_d_20250427.csv", temp_pine_path)
+        run_generator("data/raw/strategies/BTC_d_20250427.csv", temp_pine_path)
 
     # Test 3: Filter for BTC-USD with proper output filename
     run_generator(
-        "data/outputs/strategies/BTC_d_20250427.csv",
+        "data/raw/strategies/BTC_d_20250427.csv",
         "tradingview/strategy_breadth_BTC-USD.pine",
         "BTC-USD",
     )
 
     # Test 4: Try with a different CSV file if available
-    if os.path.exists("data/outputs/strategies/DAILY.csv"):
-        run_generator("data/outputs/strategies/DAILY.csv")
+    if os.path.exists("data/raw/strategies/DAILY.csv"):
+        run_generator("data/raw/strategies/DAILY.csv")
 
     # Test 5: Try with a multi-asset CSV file if available
     multi_asset_files = [
-        "data/outputs/strategies/crypto_d_20250427.csv",
-        "data/outputs/strategies/portfolio_d_20250425.csv",
-        "data/outputs/strategies/total_20250417.csv",
+        "data/raw/strategies/crypto_d_20250427.csv",
+        "data/raw/strategies/portfolio_d_20250425.csv",
+        "data/raw/strategies/total_20250417.csv",
     ]
 
     for file_path in multi_asset_files:
@@ -98,7 +98,7 @@ def main():
     print("\nTests completed!")
     print("To use the generator with your own CSV file, run:")
     print(
-        "python tradingview/generate_hardcoded_config.py path/to/your/data/raw/file.csv [pine_script_path] [ticker_filter]"
+        "python tradingview/generate_hardcoded_config.py path/to/your/data/raw/strategies/file.csv [pine_script_path] [ticker_filter]"
     )
 
 

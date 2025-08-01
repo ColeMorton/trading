@@ -33,14 +33,16 @@ def sort_portfolios(
 
     Note:
         Uses config['SORT_BY'] to determine sort column, defaults to 'Total Return [%]'
+        Uses config['SORT_ASC'] to determine sort direction, defaults to False (descending)
     """
     # Convert to DataFrame if necessary
     input_is_list = isinstance(portfolios, list)
     df = pl.DataFrame(portfolios) if input_is_list else portfolios
 
-    # Sort using consistent logic
+    # Sort using consistent logic with proper direction handling
     sort_by = config.get("SORT_BY", "Total Return [%]")
-    sorted_df = df.sort(sort_by, descending=True)
+    sort_asc = config.get("SORT_ASC", False)
+    sorted_df = df.sort(sort_by, descending=not sort_asc)
 
     # Return in original format
     return sorted_df.to_dicts() if input_is_list else sorted_df

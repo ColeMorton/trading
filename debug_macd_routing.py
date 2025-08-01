@@ -18,7 +18,7 @@ spec = importlib.util.spec_from_file_location(
 )
 macd_portfolios = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(macd_portfolios)
-from app.strategies.macd.config_types import DEFAULT_CONFIG
+# from app.strategies.macd.config_types import DEFAULT_CONFIG  # Removed - using inline config
 from app.tools.setup_logging import setup_logging
 
 
@@ -26,10 +26,24 @@ def test_macd_routing():
     """Test MACD strategy routing and export flow"""
     print("=== MACD Routing Debug Test ===")
 
-    # Setup test config
-    test_config = DEFAULT_CONFIG.copy()
-    test_config["TICKER"] = "TSLA"
-    test_config["REFRESH"] = True  # Force fresh analysis
+    # Setup test config - inline configuration
+    test_config = {
+        "TICKER": "TSLA",
+        "SHORT_WINDOW_START": 8,
+        "SHORT_WINDOW_END": 12,
+        "LONG_WINDOW_START": 21,
+        "LONG_WINDOW_END": 26,
+        "SIGNAL_WINDOW_START": 9,
+        "SIGNAL_WINDOW_END": 9,
+        "DIRECTION": "Long",
+        "USE_CURRENT": True,
+        "USE_HOURLY": False,
+        "USE_YEARS": False,
+        "YEARS": 15,
+        "STEP": 1,
+        "BASE_DIR": ".",
+        "REFRESH": True
+    }
 
     print(f"Test config strategy types: {test_config.get('STRATEGY_TYPES', 'Not set')}")
     print(f"Test config direction: {test_config.get('DIRECTION', 'Not set')}")

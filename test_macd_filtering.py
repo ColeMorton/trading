@@ -10,7 +10,7 @@ sys.path.insert(0, str(project_root))
 
 import polars as pl
 
-from app.strategies.macd.config_types import DEFAULT_CONFIG
+# from app.strategies.macd.config_types import DEFAULT_CONFIG  # Removed - using inline config
 from app.tools.setup_logging import setup_logging
 from app.tools.strategy.filter_portfolios import filter_portfolios
 
@@ -39,9 +39,29 @@ def test_macd_filtering():
         print("\nFirst 3 rows:")
         print(portfolios_df.head(3))
 
-        # Setup config for filtering
-        test_config = DEFAULT_CONFIG.copy()
-        test_config["TICKER"] = "TSLA"
+        # Setup config for filtering - inline configuration
+        test_config = {
+            "TICKER": "TSLA",
+            "SHORT_WINDOW_START": 8,
+            "SHORT_WINDOW_END": 12,
+            "LONG_WINDOW_START": 21,
+            "LONG_WINDOW_END": 26,
+            "SIGNAL_WINDOW_START": 9,
+            "SIGNAL_WINDOW_END": 9,
+            "DIRECTION": "Long",
+            "USE_CURRENT": True,
+            "USE_HOURLY": False,
+            "USE_YEARS": False,
+            "YEARS": 15,
+            "STEP": 1,
+            "BASE_DIR": ".",
+            "MINIMUMS": {
+                "WIN_RATE": 0.44,
+                "TRADES": 34,
+                "EXPECTANCY_PER_TRADE": 0.236,
+                "PROFIT_FACTOR": 1.236,
+            }
+        }
 
         print(f"\nFiltering config MINIMUMS: {test_config.get('MINIMUMS', 'Not set')}")
 

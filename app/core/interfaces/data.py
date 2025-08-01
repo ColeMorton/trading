@@ -13,7 +13,7 @@ class DataAccessInterface(ABC):
     """Interface for data access operations."""
 
     @abstractmethod
-    def get_price_data(
+    def get_prices(
         self,
         ticker: str,
         start_date: Optional[datetime] | None = None,
@@ -23,7 +23,7 @@ class DataAccessInterface(ABC):
         """Get price data for a ticker."""
 
     @abstractmethod
-    def save_price_data(
+    def save_prices(
         self,
         data: Union[pd.DataFrame, pl.DataFrame],
         ticker: str,

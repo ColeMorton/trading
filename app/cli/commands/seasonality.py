@@ -115,15 +115,15 @@ def run(
 def list_tickers():
     """List available tickers for seasonality analysis."""
     try:
-        price_data_dir = Path("data/raw/prices")
+        prices_dir = Path("data/raw/prices")
 
-        if not price_data_dir.exists():
+        if not prices_dir.exists():
             rprint("[red]Price data directory not found[/red]")
             raise typer.Exit(1)
 
         # Get all available tickers
         tickers = []
-        for file_path in sorted(price_data_dir.glob("*_D.csv")):
+        for file_path in sorted(prices_dir.glob("*_D.csv")):
             ticker = file_path.stem.replace("_D", "")
             # Get file size and modification time
             stat = file_path.stat()

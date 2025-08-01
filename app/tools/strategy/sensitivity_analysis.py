@@ -570,10 +570,10 @@ def analyze_mean_reversion_combination(
 
 
 def analyze_single_portfolio(
-    signal_data: pl.DataFrame, 
-    config: Dict[str, Any], 
-    log: Callable, 
-    strategy_type: str = None
+    signal_data: pl.DataFrame,
+    config: Dict[str, Any],
+    log: Callable,
+    strategy_type: str = None,
 ) -> Optional[Dict[str, Any]]:
     """Analyze a single portfolio with pre-generated signals.
 
@@ -615,6 +615,7 @@ def analyze_single_portfolio(
         current = False
         try:
             from app.tools.strategy.signal_utils import is_signal_current
+
             current = is_signal_current(signal_data)
         except (ImportError, Exception):
             # Default to False if we can't determine signal currency

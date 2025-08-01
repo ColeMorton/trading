@@ -276,23 +276,23 @@ def validate(
                 unique_tickers = len(set(p.ticker for p in positions))
 
                 # Check for required price data
-                missing_price_data = []
-                price_data_dir = Path(get_project_root()) / "csv" / "price_data"
+                missing_prices = []
+                prices_dir = Path(get_project_root()) / "data" / "raw" / "prices"
 
                 for ticker in set(p.ticker for p in positions):
-                    price_file = price_data_dir / f"{ticker}_D.csv"
+                    price_file = prices_dir / f"{ticker}_D.csv"
                     if not price_file.exists():
-                        missing_price_data.append(ticker)
+                        missing_prices.append(ticker)
 
                 validation_results.append(
                     {
                         "portfolio": portfolio_name,
-                        "valid": len(missing_price_data) == 0,
+                        "valid": len(missing_prices) == 0,
                         "total_positions": total_positions,
                         "open_positions": open_positions,
                         "closed_positions": closed_positions,
                         "unique_tickers": unique_tickers,
-                        "missing_price_data": missing_price_data,
+                        "missing_prices": missing_prices,
                     }
                 )
 
@@ -329,9 +329,9 @@ def validate(
             else:
                 status_icon = "[green]✓[/green]" if result["valid"] else "[red]✗[/red]"
                 issues = ""
-                if result["missing_price_data"]:
+                if result["missing_prices"]:
                     issues = (
-                        f"Missing price data: {', '.join(result['missing_price_data'])}"
+                        f"Missing price data: {', '.join(result['missing_prices'])}"
                     )
 
                 table.add_row(

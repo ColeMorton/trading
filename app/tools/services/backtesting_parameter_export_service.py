@@ -768,15 +768,15 @@ class BacktestingParameterExportService:
             from ..calculate_atr import calculate_atr
 
             # Load price data for the ticker
-            price_data_path = Path(f"./data/raw/prices/{ticker}_D.csv")
-            if not price_data_path.exists():
+            prices_path = Path(f"./data/raw/prices/{ticker}_D.csv")
+            if not prices_path.exists():
                 self.logger.warning(
-                    f"Price data not found for {ticker}: {price_data_path}"
+                    f"Price data not found for {ticker}: {prices_path}"
                 )
                 return None
 
             # Load price data
-            price_df = pd.read_csv(price_data_path)
+            price_df = pd.read_csv(prices_path)
             if "Date" not in price_df.columns:
                 self.logger.warning(f"Date column not found in price data for {ticker}")
                 return None

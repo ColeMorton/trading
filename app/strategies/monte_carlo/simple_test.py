@@ -83,7 +83,7 @@ def test_bootstrap_sampling():
     original_length = len(data)
 
     for i in range(5):
-        bootstrap_sample = analyzer.bootstrap_price_data(data, seed=i)
+        bootstrap_sample = analyzer.bootstrap_prices(data, seed=i)
         sample_length = len(bootstrap_sample)
 
         print(f"  Bootstrap {i+1}: Original={original_length}, Sample={sample_length}")

@@ -430,15 +430,15 @@ def main():
         print("\nExamples:")
         print("  # Generate a new Pine script from CSV:")
         print(
-            "  python generate_hardcoded_config.py data/outputs/strategies/BTC_d_20250427.csv"
+            "  python generate_hardcoded_config.py data/raw/strategies/BTC_d_20250427.csv"
         )
         print("\n  # Update an existing Pine script:")
         print(
-            "  python generate_hardcoded_config.py data/outputs/strategies/BTC_d_20250427.csv tradingview/strategy_breadth_refactored.pine"
+            "  python generate_hardcoded_config.py data/raw/strategies/BTC_d_20250427.csv tradingview/strategy_breadth_refactored.pine"
         )
         print("\n  # Filter for a specific ticker:")
         print(
-            "  python generate_hardcoded_config.py data/outputs/strategies/BTC_d_20250427.csv tradingview/strategy_breadth_refactored.pine BTC-USD"
+            "  python generate_hardcoded_config.py data/raw/strategies/BTC_d_20250427.csv tradingview/strategy_breadth_refactored.pine BTC-USD"
         )
         sys.exit(1)
 

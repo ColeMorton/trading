@@ -54,66 +54,8 @@ class PortfolioConfig(TypedDict, total=False):
     MINIMUMS: NotRequired[Dict[str, Union[int, float]]]
 
 
-# Default configuration
-DEFAULT_CONFIG: PortfolioConfig = {
-    "TICKER": [
-        "APTV",
-        "SCHW",
-        "HUBB",
-        "NBIX",
-        "FTNT",
-        "DOC",
-        "NTAP",
-        "MNST",
-        "DDC",
-        "ZION",
-        "LVS",
-        "MDLZ",
-        "MET",
-        "CRWD",
-        "RVTY",
-        "LH",
-        "SWKS",
-        "RL",
-        "TT",
-        "META",
-        "REG",
-        "UNP",
-        "SYY",
-        "AXON",
-        "NBIS",
-        "NAKA",
-        "TSXV:MATA",
-        "XRAY",
-        "QCOM",
-        "SIRI",
-        "ROKU",
-        "TTD",
-    ],
-    # "TICKER": "GEV",
-    "BASE_DIR": ".",
-    "USE_HOURLY": False,
-    "REFRESH": True,
-    "USE_CURRENT": True,
-    "USE_YEARS": False,
-    "YEARS": 15,
-    "DIRECTION": "Long",
-    "SHORT_WINDOW_START": 8,
-    "SHORT_WINDOW_END": 12,
-    "LONG_WINDOW_START": 21,
-    "LONG_WINDOW_END": 26,
-    "SIGNAL_WINDOW_START": 9,
-    "SIGNAL_WINDOW_END": 9,
-    "STEP": 1,
-    "SORT_BY": "Score",
-    "SORT_ASC": False,
-    "MINIMUMS": {
-        "WIN_RATE": 0.44,
-        "TRADES": 34,
-        "EXPECTANCY_PER_TRADE": 0.236,
-        "PROFIT_FACTOR": 1.236,
-    },
-}
+# No default configuration - all parameters must come from YAML profiles
+# This ensures single source of truth in configuration files
 
 
 def validate_config(config: dict) -> bool:

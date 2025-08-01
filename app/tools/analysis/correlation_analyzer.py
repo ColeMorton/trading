@@ -759,7 +759,7 @@ class CorrelationAnalyzer:
         """Analyze correlation with underlying asset performance"""
         # Simplified implementation - would load actual asset price data
         return {
-            "asset_correlation_analysis": "requires_price_data_integration",
+            "asset_correlation_analysis": "requires_prices_integration",
             "note": "Implement with return distribution integration",
         }
 

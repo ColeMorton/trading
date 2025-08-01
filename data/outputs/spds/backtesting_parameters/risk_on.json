@@ -1,26 +1,26 @@
 {
   "strategy_parameters": {
-    "MA_SMA_78_82_MA_D": {
-      "take_profit_pct": 15.0,
-      "stop_loss_pct": 8.0,
-      "max_holding_days": 454,
-      "min_holding_days": 21,
-      "trailing_stop_pct": 3.3,
+    "AMZN_SMA_77_81_AMZN_D": {
+      "take_profit_pct": 15.09,
+      "stop_loss_pct": 8.05,
+      "max_holding_days": 83,
+      "min_holding_days": 11,
+      "trailing_stop_pct": 3.16,
       "confidence_level": 0.9,
-      "sample_size": 62,
-      "statistical_validity": "MEDIUM",
+      "sample_size": 100,
+      "statistical_validity": "LOW",
       "entry_signal": "STATISTICAL_DIVERGENCE",
       "momentum_exit_threshold": 0.02,
       "trend_exit_threshold": 0.015,
       "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-22T12:35:32.622382"
+      "generation_timestamp": "2025-07-31T12:35:16.847039"
     },
     "ASML_SMA_71_80_ASML_D": {
       "take_profit_pct": 15.0,
       "stop_loss_pct": 8.0,
-      "max_holding_days": 432,
+      "max_holding_days": 454,
       "min_holding_days": 21,
-      "trailing_stop_pct": 4.34,
+      "trailing_stop_pct": 4.54,
       "confidence_level": 0.9,
       "sample_size": 77,
       "statistical_validity": "MEDIUM",
@@ -28,102 +28,22 @@
       "momentum_exit_threshold": 0.02,
       "trend_exit_threshold": 0.015,
       "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-22T12:35:32.631406"
-    },
-    "AAPL_SMA_46_56_AAPL_D": {
-      "take_profit_pct": 15.0,
-      "stop_loss_pct": 8.0,
-      "max_holding_days": 456,
-      "min_holding_days": 21,
-      "trailing_stop_pct": 3.22,
-      "confidence_level": 0.9,
-      "sample_size": 126,
-      "statistical_validity": "HIGH",
-      "entry_signal": "STATISTICAL_DIVERGENCE",
-      "momentum_exit_threshold": 0.02,
-      "trend_exit_threshold": 0.015,
-      "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-22T12:35:32.642973"
-    },
-    "TSLA_SMA_23_31_TSLA_D": {
-      "take_profit_pct": 15.0,
-      "stop_loss_pct": 8.0,
-      "max_holding_days": 447,
-      "min_holding_days": 21,
-      "trailing_stop_pct": 8.57,
-      "confidence_level": 0.9,
-      "sample_size": 74,
-      "statistical_validity": "MEDIUM",
-      "entry_signal": "STATISTICAL_DIVERGENCE",
-      "momentum_exit_threshold": 0.02,
-      "trend_exit_threshold": 0.015,
-      "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-22T12:35:32.648139"
-    },
-    "NI_SMA_66_81_NI_D": {
-      "take_profit_pct": 11.79,
-      "stop_loss_pct": 7.86,
-      "max_holding_days": 180,
-      "min_holding_days": 32,
-      "trailing_stop_pct": 2.57,
-      "confidence_level": 0.9,
-      "sample_size": 112,
-      "statistical_validity": "HIGH",
-      "entry_signal": "STATISTICAL_DIVERGENCE",
-      "momentum_exit_threshold": 0.04853751288732967,
-      "trend_exit_threshold": 0.0030407314882599365,
-      "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-22T12:35:32.668983"
-    },
-    "APP_SMA_14_15_APP_D": {
-      "take_profit_pct": 15.0,
-      "stop_loss_pct": 8.0,
-      "max_holding_days": 455,
-      "min_holding_days": 21,
-      "trailing_stop_pct": 8.67,
-      "confidence_level": 0.9,
-      "sample_size": 61,
-      "statistical_validity": "MEDIUM",
-      "entry_signal": "STATISTICAL_DIVERGENCE",
-      "momentum_exit_threshold": 0.02,
-      "trend_exit_threshold": 0.015,
-      "derivation_method": "advanced_quantitative_optimization",
-      "generation_timestamp": "2025-07-22T12:35:32.671665"
+      "generation_timestamp": "2025-07-31T12:35:16.856793"
     }
   },
   "generation_metadata": {
-    "generation_timestamp": "2025-07-22T12:35:32.609206",
+    "generation_timestamp": "2025-07-31T12:35:16.836369",
     "confidence_level": 0.9,
-    "total_strategies": 6,
+    "total_strategies": 2,
     "spds_version": "1.0.0",
     "statistical_validity": {
-      "MA_SMA_78_82_MA_D": {
-        "sample_size": 62,
-        "confidence": 0.95,
-        "validity_level": "MEDIUM"
+      "AMZN_SMA_77_81_AMZN_D": {
+        "sample_size": 100,
+        "confidence": 0.7,
+        "validity_level": "LOW"
       },
       "ASML_SMA_71_80_ASML_D": {
         "sample_size": 77,
-        "confidence": 0.95,
-        "validity_level": "MEDIUM"
-      },
-      "AAPL_SMA_46_56_AAPL_D": {
-        "sample_size": 126,
-        "confidence": 0.95,
-        "validity_level": "HIGH"
-      },
-      "TSLA_SMA_23_31_TSLA_D": {
-        "sample_size": 74,
-        "confidence": 0.95,
-        "validity_level": "MEDIUM"
-      },
-      "NI_SMA_66_81_NI_D": {
-        "sample_size": 112,
-        "confidence": 0.95,
-        "validity_level": "HIGH"
-      },
-      "APP_SMA_14_15_APP_D": {
-        "sample_size": 61,
         "confidence": 0.95,
         "validity_level": "MEDIUM"
       }

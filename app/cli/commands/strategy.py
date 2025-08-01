@@ -58,6 +58,14 @@ def run(
     min_win_rate: Optional[float] = typer.Option(
         None, "--min-win-rate", help="Minimum win rate filter (0.0 to 1.0)"
     ),
+    use_years: bool = typer.Option(
+        False,
+        "--use-years",
+        help="Use years instead of period ranges for historical data",
+    ),
+    years: Optional[int] = typer.Option(
+        None, "--years", help="Number of years of historical data to analyze"
+    ),
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Preview configuration without executing"
     ),
@@ -87,6 +95,8 @@ def run(
             strategy_type=strategy_type,
             min_trades=min_trades,
             min_win_rate=min_win_rate,
+            use_years=use_years,
+            years=years,
             dry_run=dry_run,
         )
 

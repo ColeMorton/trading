@@ -55,7 +55,7 @@ def process_scanner(config: Dict[str, Any]) -> bool:
 
         # Use scanner adapter
         adapter = ScannerAdapter(log)
-        portfolio_path = f"./data/outputs/strategies/{config['PORTFOLIO']}"
+        portfolio_path = f"./data/raw/strategies/{config['PORTFOLIO']}"
 
         log(f"Processing portfolio: {config['PORTFOLIO']}")
 

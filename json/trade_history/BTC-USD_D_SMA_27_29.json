@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "export_timestamp": "2025-07-22T11:42:49.875519",
+    "export_timestamp": "2025-07-31T15:44:02.841832",
     "strategy_config": {
       "ticker": "BTC-USD",
       "timeframe": "D",
@@ -12,10 +12,10 @@
       }
     },
     "portfolio_summary": {
-      "total_return": 665.9625009765006,
+      "total_return": 671.5459903934446,
       "total_trades": "143",
       "win_rate": 0.5244755244755245,
-      "sharpe_ratio": 1.456502387222148,
+      "sharpe_ratio": 1.4562239293112198,
       "max_drawdown": -0.6484165645822194
     }
   },
@@ -3006,10 +3006,10 @@
       "Entry Timestamp": "2025-07-10 00:00:00",
       "Exit Timestamp": null,
       "Avg Entry Price": 115987.203125,
-      "Avg Exit Price": 117389.2734375,
+      "Avg Exit Price": 118372.0,
       "Size": 5.681630709909817,
-      "PnL": 7307.0492897214135,
-      "Return": 0.011088146577592706,
+      "PnL": 12890.53870666551,
+      "Return": 0.019560861980867914,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,
@@ -3018,9 +3018,9 @@
       "Entry_Year": 2025.0,
       "Entry_Quarter": 3.0,
       "Trade_Type": "Winner",
-      "Cumulative_PnL": 665962.5009765005,
+      "Cumulative_PnL": 671545.9903934445,
       "Trade_Number": 143,
-      "Rolling_Avg_Return": 0.021673749021712797,
+      "Rolling_Avg_Return": 0.02336829210236784,
       "Rolling_Win_Rate": 0.6
     }
   ],
@@ -8156,10 +8156,10 @@
       "Avg Entry Price": 115987.203125,
       "Entry Fees": 658.9964552314486,
       "Exit Timestamp": null,
-      "Avg Exit Price": 117389.2734375,
+      "Avg Exit Price": 118372.0,
       "Exit Fees": 0.0,
-      "PnL": 7307.0492897214135,
-      "Return": 0.011088146577592706,
+      "PnL": 12890.53870666551,
+      "Return": 0.019560861980867914,
       "Direction": "Long",
       "Status": "Open",
       "Duration": null,

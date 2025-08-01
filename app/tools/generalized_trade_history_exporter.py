@@ -61,7 +61,7 @@ class TradingSystemConfig:
         self.base_dir = Path(base_dir) if base_dir else Path.cwd()
 
     @property
-    def price_data_dir(self) -> Path:
+    def prices_dir(self) -> Path:
         """Directory containing price data files."""
         return self.base_dir / "data" / "raw" / "prices"
 
@@ -85,9 +85,9 @@ class TradingSystemConfig:
         """Directory for exported trade history CSV files."""
         return self.base_dir / "data" / "outputs" / "trade_history"
 
-    def get_price_data_file(self, ticker: str, timeframe: str = "D") -> Path:
+    def get_prices_file(self, ticker: str, timeframe: str = "D") -> Path:
         """Get price data file path for any ticker and timeframe."""
-        return self.price_data_dir / f"{ticker}_{timeframe}.csv"
+        return self.prices_dir / f"{ticker}_{timeframe}.csv"
 
     def get_portfolio_file(self, portfolio_name: str) -> Path:
         """Get portfolio positions file path."""
@@ -96,7 +96,7 @@ class TradingSystemConfig:
     def ensure_directories(self):
         """Create all required directories if they don't exist."""
         for directory in [
-            self.price_data_dir,
+            self.prices_dir,
             self.positions_dir,
             self.strategies_dir,
             self.trade_history_dir,
@@ -228,7 +228,7 @@ def calculate_mfe_mae(
 
     try:
         # Load price data using configuration
-        price_file = config.get_price_data_file(ticker, timeframe)
+        price_file = config.get_prices_file(ticker, timeframe)
         if not price_file.exists():
             logger.warning(f"Price data not found for {ticker} at {price_file}")
             return None, None, None, None
@@ -352,7 +352,7 @@ def verify_entry_signal(
 
     try:
         # Load price data using configuration
-        price_file = config.get_price_data_file(ticker, timeframe)
+        price_file = config.get_prices_file(ticker, timeframe)
         if not price_file.exists():
             return False, f"Price data not found for {ticker} at {price_file}", None
 
@@ -489,7 +489,7 @@ def estimate_strategy_entry_date(
 
     try:
         # Load price data using configuration
-        price_file = config.get_price_data_file(ticker, timeframe)
+        price_file = config.get_prices_file(ticker, timeframe)
         if not price_file.exists():
             logger.warning(f"Price data not found for {ticker} at {price_file}")
             return None, None
@@ -983,7 +983,7 @@ Examples:
   python %(prog)s --verify-signal --ticker QCOM --strategy SMA --short-window 49 --long-window 66 --entry-date 20250624
 
   # Bulk add from CSV
-  python %(prog)s --bulk-add --strategy-csv data/outputs/strategies/signals.csv --portfolio new_portfolio
+  python %(prog)s --bulk-add --strategy-csv data/raw/strategies/signals.csv --portfolio new_portfolio
 
   # Calculate MFE/MAE
   python %(prog)s --calculate-mfe-mae --ticker AAPL --entry-date 20250101 --exit-date 20250201 --entry-price 150.00
@@ -1114,7 +1114,7 @@ Examples:
             config = get_config()
             logger.info(f"Configuration valid:")
             logger.info(f"  Base dir: {config.base_dir}")
-            logger.info(f"  Price data: {config.price_data_dir}")
+            logger.info(f"  Price data: {config.prices_dir}")
             logger.info(f"  Positions: {config.positions_dir}")
             return 0
 
@@ -1366,9 +1366,9 @@ Examples:
             # Import the update logic used in the successful direct execution
             import numpy as np
 
-            def read_price_data_fixed(ticker):
+            def read_prices_fixed(ticker):
                 try:
-                    price_file = config.price_data_dir / f"{ticker}_D.csv"
+                    price_file = config.prices_dir / f"{ticker}_D.csv"
                     if not price_file.exists():
                         return None
 
@@ -1397,20 +1397,20 @@ Examples:
                 ticker, entry_date, entry_price, direction="Long"
             ):
                 try:
-                    price_data = read_price_data_fixed(ticker)
-                    if price_data is None:
+                    prices = read_prices_fixed(ticker)
+                    if prices is None:
                         return None, None, None
 
                     entry_date = pd.to_datetime(entry_date)
 
-                    if entry_date < price_data.index.min():
+                    if entry_date < prices.index.min():
                         if args.verbose:
                             print(
-                                f"   📅 Entry date {entry_date.date()} before available data, using {price_data.index.min().date()}"
+                                f"   📅 Entry date {entry_date.date()} before available data, using {prices.index.min().date()}"
                             )
-                        entry_date = price_data.index.min()
+                        entry_date = prices.index.min()
 
-                    position_data = price_data[entry_date:]
+                    position_data = prices[entry_date:]
 
                     if position_data.empty:
                         return None, None, None

@@ -12,12 +12,8 @@ from app.strategies.ma_cross.exceptions import (
     MACrossExecutionError,
     MACrossSyntheticTickerError,
 )
-from app.strategies.ma_cross.tools.strategy_execution import (
-    execute_strategy,
-    execute_strategy_concurrent,
-    process_single_ticker,
-)
 from app.tools.error_context import error_context
+from app.tools.strategy.signal_processing import process_ticker_portfolios
 
 
 class TickerProcessor:
@@ -68,21 +64,27 @@ class TickerProcessor:
             if isinstance(tickers, str):
                 tickers = [tickers]
 
-            # Use concurrent execution for 3+ tickers for better performance
-            if len(tickers) > 2:
-                self.log(
-                    f"Using concurrent execution for {len(tickers)} tickers", "info"
-                )
-                return execute_strategy_concurrent(
-                    config, strategy_type, self.log, progress_tracker
-                )
-            else:
-                self.log(
-                    f"Using sequential execution for {len(tickers)} tickers", "info"
-                )
-                return execute_strategy(
-                    config, strategy_type, self.log, progress_tracker
-                )
+            # Process each ticker using unified signal processing
+            all_portfolios = []
+            for ticker in tickers:
+                self.log(f"Processing ticker: {ticker}")
+
+                # Create ticker-specific config
+                ticker_config = config.copy()
+                ticker_config["TICKER"] = ticker
+
+                # Use unified signal processing that supports both MA and MACD
+                portfolios_df = process_ticker_portfolios(ticker, ticker_config, self.log)
+
+                if portfolios_df is not None and len(portfolios_df) > 0:
+                    # Convert to dictionaries and add to collection
+                    ticker_portfolios = portfolios_df.to_dicts()
+                    all_portfolios.extend(ticker_portfolios)
+                    self.log(f"Processed {len(ticker_portfolios)} portfolios for {ticker}")
+                else:
+                    self.log(f"No portfolios generated for {ticker}", "warning")
+
+            return all_portfolios
 
     def process_ticker(
         self,
@@ -110,7 +112,18 @@ class TickerProcessor:
             {Exception: MACrossDataError},
             reraise=True,
         ):
-            return process_single_ticker(ticker, config, self.log, progress_tracker)
+            # Create ticker-specific config
+            ticker_config = config.copy()
+            ticker_config["TICKER"] = ticker
+
+            # Use unified signal processing
+            portfolios_df = process_ticker_portfolios(ticker, ticker_config, self.log)
+
+            if portfolios_df is not None and len(portfolios_df) > 0:
+                # Return the first (best) portfolio as a dictionary
+                return portfolios_df.to_dicts()[0]
+            else:
+                return None
 
     def _format_ticker(self, ticker: str, use_synthetic: bool) -> str:
         """

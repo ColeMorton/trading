@@ -10,7 +10,6 @@ from typing import Callable, Dict, Optional
 import polars as pl
 
 from app.tools.export_csv import export_csv
-from app.tools.get_config import get_config
 from app.tools.get_data import get_data
 
 
@@ -287,8 +286,7 @@ def generate_current_signals(config: Dict, log: Callable) -> pl.DataFrame:
         DataFrame containing current signals with parameters
     """
     try:
-        config = get_config(config)
-
+        # Config is already processed by PortfolioOrchestrator
         data = get_data(config["TICKER"], config, log)
         if data is None:
             log("Failed to get price data", "error")

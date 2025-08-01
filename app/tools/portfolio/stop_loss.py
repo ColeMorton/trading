@@ -218,7 +218,7 @@ def calculate_stop_loss_levels(
 
 def apply_stop_loss_rules(
     strategy: Dict[str, Any],
-    price_data: Dict[str, List[Dict[str, Any]]],
+    prices: Dict[str, List[Dict[str, Any]]],
     use_candle_close: bool = True,
     log: Optional[Callable[[str, Optional[str]], None]] = None,
 ) -> Dict[str, Any]:
@@ -226,7 +226,7 @@ def apply_stop_loss_rules(
 
     Args:
         strategy: Dictionary representing a trading strategy
-        price_data: Dictionary mapping tickers to price data
+        prices: Dictionary mapping tickers to price data
         use_candle_close: Whether to use candle close for stop loss (vs. intracandle)
         log: Optional logging function
 
@@ -234,7 +234,7 @@ def apply_stop_loss_rules(
         Updated strategy dictionary with stop loss information
     """
     ticker = strategy.get("ticker") or strategy.get("Ticker")
-    if not ticker or ticker not in price_data:
+    if not ticker or ticker not in prices:
         return strategy
 
     # Get stop loss percentage
@@ -257,7 +257,7 @@ def apply_stop_loss_rules(
     direction = (strategy.get("direction") or "LONG").upper()
 
     # Get price data for the ticker
-    ticker_prices = price_data[ticker]
+    ticker_prices = prices[ticker]
     if not ticker_prices:
         return updated_strategy
 

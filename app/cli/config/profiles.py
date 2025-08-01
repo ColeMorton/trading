@@ -19,6 +19,7 @@ from ..models.portfolio import (
     PortfolioProcessingConfig,
     PortfolioReviewConfig,
 )
+from ..models.spds import SPDSConfig
 from ..models.strategy import MACDConfig, MACrossConfig, StrategyConfig
 
 
@@ -68,6 +69,7 @@ class Profile(BaseModel):
             "portfolio_review",
             "concurrency",
             "concurrency_analysis",
+            "spds",
         }
         if v not in valid_types:
             raise ValueError(f"Config type must be one of: {', '.join(valid_types)}")
@@ -85,6 +87,7 @@ class Profile(BaseModel):
             "portfolio_review": PortfolioReviewConfig,
             "concurrency": ConcurrencyConfig,
             "concurrency_analysis": ConcurrencyAnalysisConfig,
+            "spds": SPDSConfig,
         }
         return model_map[self.config_type]
 

@@ -36,7 +36,7 @@ class DataType(Enum):
     ORDERS = "orders"
     POSITIONS = "positions"
     STATISTICS = "statistics"
-    PRICE_DATA = "price_data"
+    PRICE_DATA = "prices"
     DRAWDOWNS = "drawdowns"
     CUMULATIVE_RETURNS = "cumulative_returns"
     ALL = "all"
@@ -152,7 +152,7 @@ class PortfolioDataExportService:
                     elif data_type == DataType.STATISTICS:
                         self._export_statistics(portfolio, base_filename, results)
                     elif data_type == DataType.PRICE_DATA:
-                        self._export_price_data(portfolio, base_filename, results)
+                        self._export_prices(portfolio, base_filename, results)
                     elif data_type == DataType.DRAWDOWNS:
                         self._export_drawdowns(portfolio, base_filename, results)
                     elif data_type == DataType.CUMULATIVE_RETURNS:
@@ -499,7 +499,7 @@ class PortfolioDataExportService:
         except Exception as e:
             self._log(f"Error exporting statistics: {str(e)}", "warning")
 
-    def _export_price_data(
+    def _export_prices(
         self, portfolio: "vbt.Portfolio", base_filename: str, results: ExportResults
     ):
         """Export underlying price data."""
@@ -518,7 +518,7 @@ class PortfolioDataExportService:
 
             # Export in requested formats
             for format_type in self.config.export_formats:
-                filename = f"{base_filename}_price_data.{format_type.value}"
+                filename = f"{base_filename}_prices.{format_type.value}"
                 file_path = os.path.join(self.config.output_dir, filename)
 
                 if format_type == ExportFormat.CSV:

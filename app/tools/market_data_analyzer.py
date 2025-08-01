@@ -38,7 +38,7 @@ class MarketDataAnalyzer:
         """Initialize market data analyzer."""
         self.ticker = ticker
         self.logger = logger or logging.getLogger(__name__)
-        self.price_data: Optional[pl.DataFrame] = None
+        self.prices: Optional[pl.DataFrame] = None
         self.returns: Optional[np.ndarray] = None
 
         # Initialize enhanced risk assessment components
@@ -86,7 +86,7 @@ class MarketDataAnalyzer:
                 self.logger.error(f"No data received for {self.ticker}")
                 return False
 
-            self.price_data = data
+            self.prices = data
             self.logger.info(
                 f"Successfully fetched {len(data)} data points for {self.ticker}"
             )
@@ -103,25 +103,25 @@ class MarketDataAnalyzer:
         Returns:
             True if returns calculated successfully, False otherwise
         """
-        if self.price_data is None:
+        if self.prices is None:
             self.logger.error("No price data available for return calculation")
             return False
 
         try:
             # Get closing prices
-            if "Close" in self.price_data.columns:
-                prices = self.price_data["Close"].to_numpy()
-            elif "close" in self.price_data.columns:
-                prices = self.price_data["close"].to_numpy()
+            if "Close" in self.prices.columns:
+                prices = self.prices["Close"].to_numpy()
+            elif "close" in self.prices.columns:
+                prices = self.prices["close"].to_numpy()
             else:
                 # Use first numeric column
-                numeric_cols = self.price_data.select(
+                numeric_cols = self.prices.select(
                     pl.col(pl.Float64, pl.Int64)
                 ).columns
                 if not numeric_cols:
                     self.logger.error("No numeric price columns found")
                     return False
-                prices = self.price_data[numeric_cols[0]].to_numpy()
+                prices = self.prices[numeric_cols[0]].to_numpy()
 
             # Calculate log returns
             self.returns = np.diff(np.log(prices))
@@ -368,11 +368,11 @@ class MarketDataAnalyzer:
             Dictionary with trend metrics
         """
         try:
-            if self.price_data is None or len(self.price_data) < 20:
+            if self.prices is None or len(self.prices) < 20:
                 return self._default_trend_metrics()
 
             # Convert polars dataframe to pandas for .values access
-            close_prices = self.price_data.select("Close").to_pandas()["Close"].values
+            close_prices = self.prices.select("Close").to_pandas()["Close"].values
 
             # Moving averages for trend detection
             ma_20 = (

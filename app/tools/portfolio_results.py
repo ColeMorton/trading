@@ -5,24 +5,9 @@ This module provides utilities for processing and displaying portfolio results.
 
 from typing import Any, Dict, List, Optional
 
+from app.tools.portfolio.collection import sort_portfolios
 
-def sort_portfolios(
-    portfolios: List[Dict[str, Any]], sort_by: str = "Score", ascending: bool = False
-) -> List[Dict[str, Any]]:
-    """Sort portfolios by a specified field.
-
-    Args:
-        portfolios: List of portfolio dictionaries
-        sort_by: Field to sort by
-        ascending: Whether to sort in ascending order
-
-    Returns:
-        Sorted list of portfolio dictionaries
-    """
-    if not portfolios:
-        return []
-
-    return sorted(portfolios, key=lambda x: x.get(sort_by, 0), reverse=not ascending)
+# Removed duplicate sort_portfolios function - using unified implementation
 
 
 def filter_open_trades(
@@ -56,7 +41,8 @@ def filter_open_trades(
     ]
 
     # Sort open trades by Score
-    open_trades = sort_portfolios(open_trades, "Score", False)
+    config = {"SORT_BY": "Score", "SORT_ASC": False}
+    open_trades = sort_portfolios(open_trades, config)
 
     if log_func:
         if open_trades:
@@ -116,7 +102,8 @@ def filter_signal_entries(
             p["open_trade_count"] = ticker_counts.get(ticker, 0)
 
     # Sort signal entry strategies by Score
-    signal_entries = sort_portfolios(signal_entries, "Score", False)
+    config = {"SORT_BY": "Score", "SORT_ASC": False}
+    signal_entries = sort_portfolios(signal_entries, config)
 
     if log_func:
         if signal_entries:

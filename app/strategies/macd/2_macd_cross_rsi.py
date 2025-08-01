@@ -11,7 +11,7 @@ from scipy.signal import find_peaks
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from app.strategies.macd.config_types import DEFAULT_CONFIG, PortfolioConfig
+from app.strategies.macd.config_types import PortfolioConfig
 from app.tools.calculate_macd import calculate_macd
 from app.tools.calculate_rsi import calculate_rsi
 from app.tools.get_data import get_data
@@ -204,7 +204,23 @@ def main():
     log("RSI Threshold Sensitivity Analysis - New Execution")
     rsi_range = np.arange(29, 79, 1)  # 30 to 80
 
-    config = DEFAULT_CONFIG.copy()
+    # Configuration must be provided from YAML profiles
+    config = {
+        "TICKER": "AAPL",
+        "SHORT_WINDOW_START": 8,
+        "SHORT_WINDOW_END": 12,
+        "LONG_WINDOW_START": 21,
+        "LONG_WINDOW_END": 26,
+        "SIGNAL_WINDOW_START": 9,
+        "SIGNAL_WINDOW_END": 9,
+        "DIRECTION": "Long",
+        "USE_CURRENT": True,
+        "USE_HOURLY": False,
+        "USE_YEARS": False,
+        "YEARS": 15,
+        "STEP": 1,
+        "BASE_DIR": "."
+    }
 
     data = get_data(config["TICKER"], config, log)
     data = calculate_macd(

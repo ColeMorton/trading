@@ -382,7 +382,7 @@ class PositionSizingSchema:
                 "risk_calculations": len(cls.RISK_CALCULATIONS),
                 "kelly_criterion": len(cls.KELLY_CRITERION),
                 "strategies_integration": len(cls.STRATEGIES_INTEGRATION),
-                "price_data": len(cls.PRICE_DATA),
+                "prices": len(cls.PRICE_DATA),
                 "efficient_frontier": len(cls.EFFICIENT_FRONTIER),
             },
         }

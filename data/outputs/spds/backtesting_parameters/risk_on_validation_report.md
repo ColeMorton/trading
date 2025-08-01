@@ -2,22 +2,22 @@
 
 ## Generation Summary
 
-- **Generation Date:** 2025-07-22T12:35:32.609206
-- **Total Strategies:** 6
+- **Generation Date:** 2025-07-31T12:35:16.836369
+- **Total Strategies:** 2
 - **Confidence Level:** 0.9
 - **SPDS Version:** 1.0.0
 
 ## Parameter Validity Assessment
 
 | Validity Level | Count | Percentage |
-| -------------- | ----- | ---------- |
-| HIGH           | 2     | 33.3%      |
-| MEDIUM         | 4     | 66.7%      |
-| LOW            | 0     | 0.0%       |
+|----------------|-------|------------|
+| HIGH | 0 | 0.0% |
+| MEDIUM | 1 | 50.0% |
+| LOW | 1 | 50.0% |
 
 ## Statistical Summary
 
-- **Average Sample Size:** 85.3
+- **Average Sample Size:** 88.5
 - **Average Confidence:** 90.0%
 
 ## Framework Compatibility
@@ -29,29 +29,24 @@
 
 ## Recommendations
 
-### High Validity Parameters (2 strategies)
-
+### High Validity Parameters (0 strategies)
 These parameters are derived from robust statistical analysis with sample sizes ≥30 and high confidence levels. Recommended for production backtesting.
 
-### Medium Validity Parameters (4 strategies)
-
+### Medium Validity Parameters (1 strategies)
 These parameters have moderate statistical support. Use with additional validation and consider paper trading before live deployment.
 
-### Low Validity Parameters (0 strategies)
-
+### Low Validity Parameters (1 strategies)
 These parameters have limited statistical support. Not recommended for production use without significant additional validation.
 
 ## Usage Guidelines
 
 1. **Parameter Interpretation:**
-
    - Take Profit %: Percentile-based profit target
    - Stop Loss %: Risk management threshold
    - Max Holding Days: Time-based exit criteria
    - Trailing Stop %: Volatility-adjusted trailing stop
 
 2. **Implementation Notes:**
-
    - Parameters are derived from historical statistical analysis
    - Consider market regime changes when applying parameters
    - Monitor parameter performance and adjust as needed

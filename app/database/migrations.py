@@ -39,7 +39,7 @@ class DataMigrator:
         await self.migrate_tickers()
 
         # Step 3: Migrate price data
-        await self.migrate_price_data()
+        await self.migrate_prices()
 
         # Step 4: Migrate portfolio configurations
         await self.migrate_portfolio_configurations()
@@ -91,15 +91,15 @@ class DataMigrator:
 
     async def migrate_tickers(self):
         """Extract and migrate ticker information from price data files."""
-        price_data_dir = self.project_root / "data" / "raw" / "prices"
+        prices_dir = self.project_root / "data" / "raw" / "prices"
 
-        if not price_data_dir.exists():
-            logger.warning(f"Price data directory not found: {price_data_dir}")
+        if not prices_dir.exists():
+            logger.warning(f"Price data directory not found: {prices_dir}")
             return
 
         tickers_created = 0
 
-        for csv_file in price_data_dir.glob("*.csv"):
+        for csv_file in prices_dir.glob("*.csv"):
             # Extract ticker symbol from filename (e.g., "BTC-USD_D.csv" -> "BTC-USD")
             filename = csv_file.stem
             if "_" in filename:
@@ -158,17 +158,17 @@ class DataMigrator:
         else:
             return "STOCK"
 
-    async def migrate_price_data(self, batch_size: int = 1000):
+    async def migrate_prices(self, batch_size: int = 1000):
         """Migrate price data from CSV files."""
-        price_data_dir = self.project_root / "data" / "raw" / "prices"
+        prices_dir = self.project_root / "data" / "raw" / "prices"
 
-        if not price_data_dir.exists():
-            logger.warning(f"Price data directory not found: {price_data_dir}")
+        if not prices_dir.exists():
+            logger.warning(f"Price data directory not found: {prices_dir}")
             return
 
         total_records = 0
 
-        for csv_file in price_data_dir.glob("*.csv"):
+        for csv_file in prices_dir.glob("*.csv"):
             filename = csv_file.stem
             if "_" in filename:
                 symbol = filename.rsplit("_", 1)[0]

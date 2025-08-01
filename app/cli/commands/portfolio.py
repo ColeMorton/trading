@@ -602,7 +602,7 @@ def review(
     raw_data_types: Optional[str] = typer.Option(
         None,
         "--raw-data-types",
-        help="Comma-separated data types: portfolio_value,returns,trades,orders,positions,statistics,price_data,drawdowns,cumulative_returns,all",
+        help="Comma-separated data types: portfolio_value,returns,trades,orders,positions,statistics,prices,drawdowns,cumulative_returns,all",
     ),
     include_vectorbt_objects: bool = typer.Option(
         False,

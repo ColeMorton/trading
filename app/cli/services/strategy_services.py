@@ -128,8 +128,12 @@ class MAStrategyService(BaseStrategyService):
         if config.slow_period:
             legacy_config["SLOW_PERIOD"] = config.slow_period
 
-        # Add USE_CURRENT configuration from filter settings
-        legacy_config["USE_CURRENT"] = config.filter.use_current
+        # Add USE_CURRENT configuration
+        legacy_config["USE_CURRENT"] = getattr(config, "use_current", False) or False
+
+        # Add sorting parameters to maintain consistency with MACD
+        legacy_config["SORT_BY"] = getattr(config, "sort_by", "Score")
+        legacy_config["SORT_ASC"] = getattr(config, "sort_ascending", False)
 
         return legacy_config
 
@@ -161,46 +165,64 @@ class MACDStrategyService(BaseStrategyService):
             return False
 
     def convert_config_to_legacy(self, config: StrategyConfig) -> Dict[str, Any]:
-        """Convert CLI config to MACD legacy format."""
+        """Convert CLI config to MACD legacy format with direct YAML parameter mapping."""
         # Convert ticker to list format
         ticker_list = (
             config.ticker if isinstance(config.ticker, list) else [config.ticker]
         )
 
-        # MACD-specific legacy config structure based on config_types.py
-        legacy_config = {
-            "TICKER": ticker_list,
-            "STRATEGY_TYPE": "MACD",  # Critical: This tells the strategy to use MACD analysis
-            "SHORT_WINDOW_START": config.fast_period or 2,
-            "SHORT_WINDOW_END": config.fast_period or 18,
-            "LONG_WINDOW_START": config.slow_period or 4,
-            "LONG_WINDOW_END": config.slow_period or 36,
-            "SIGNAL_WINDOW_START": getattr(config, 'signal_window_start', None) or config.signal_period or 2,
-            "SIGNAL_WINDOW_END": getattr(config, 'signal_window_end', None) or config.signal_period or 18,
-            "STEP": 1,
-            "DIRECTION": "Long",
-            "USE_CURRENT": config.filter.use_current,
-            "USE_HOURLY": False,
-            "USE_YEARS": config.use_years,
-            "YEARS": config.years or 15,
-            "REFRESH": False,
-            "MULTI_TICKER": config.multi_ticker,
-            "MINIMUMS": {},
-        }
+        # Direct mapping from YAML config to MACD parameters with fail-fast validation
+        required_params = [
+            "short_window_start",
+            "short_window_end",
+            "long_window_start",
+            "long_window_end",
+            "signal_window_start",
+            "signal_window_end",
+        ]
 
-        # Handle parameter ranges for MACD sweeps
-        if config.fast_period_range:
-            legacy_config["SHORT_WINDOW_START"] = config.fast_period_range[0]
-            legacy_config["SHORT_WINDOW_END"] = config.fast_period_range[1]
-        if config.slow_period_range:
-            legacy_config["LONG_WINDOW_START"] = config.slow_period_range[0]
-            legacy_config["LONG_WINDOW_END"] = config.slow_period_range[1]
-        
-        # Handle signal window ranges if specified
-        if hasattr(config, 'signal_window_start') and hasattr(config, 'signal_window_end'):
-            if config.signal_window_start and config.signal_window_end:
-                legacy_config["SIGNAL_WINDOW_START"] = config.signal_window_start
-                legacy_config["SIGNAL_WINDOW_END"] = config.signal_window_end
+        # Check for required parameters
+        missing_params = []
+        for param in required_params:
+            value = getattr(config, param, None)
+            if value is None:
+                missing_params.append(param)
+
+        if missing_params:
+            rprint(f"[red]Missing required MACD parameters: {missing_params}[/red]")
+            rprint(
+                f"[yellow]Ensure your profile contains: short_window_start, short_window_end, long_window_start, long_window_end, signal_window_start, signal_window_end[/yellow]"
+            )
+            raise ValueError(f"Incomplete MACD configuration: missing {missing_params}")
+
+        try:
+            legacy_config = {
+                "TICKER": ticker_list,
+                "STRATEGY_TYPE": "MACD",
+                "STRATEGY_TYPES": ["MACD"],
+                "SHORT_WINDOW_START": config.short_window_start,
+                "SHORT_WINDOW_END": config.short_window_end,
+                "LONG_WINDOW_START": config.long_window_start,
+                "LONG_WINDOW_END": config.long_window_end,
+                "SIGNAL_WINDOW_START": config.signal_window_start,
+                "SIGNAL_WINDOW_END": config.signal_window_end,
+                "SIGNAL_WINDOW": config.signal_window_start,  # For fallback detection
+                "STEP": getattr(config, "step", 1),
+                "DIRECTION": getattr(config, "direction", "Long"),
+                "USE_CURRENT": getattr(config, "use_current", False) or False,
+                "USE_HOURLY": getattr(config, "use_hourly", False),
+                "USE_YEARS": getattr(config, "use_years", False),
+                "YEARS": getattr(config, "years", 15),
+                "REFRESH": getattr(config, "refresh", True),
+                "MULTI_TICKER": config.multi_ticker,
+                "MINIMUMS": {},
+                # Add sorting parameters from YAML config
+                "SORT_BY": getattr(config, "sort_by", "Score"),
+                "SORT_ASC": getattr(config, "sort_ascending", False),
+            }
+        except AttributeError as e:
+            rprint(f"[red]Error accessing MACD parameters: {e}[/red]")
+            raise ValueError(f"MACD configuration error: {e}")
 
         # Add minimum criteria (same as MA Cross)
         if config.minimums.win_rate is not None:

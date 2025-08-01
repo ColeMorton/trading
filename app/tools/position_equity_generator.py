@@ -577,7 +577,7 @@ class DirectEquityCalculator:
             )
 
             # Create dummy price DataFrame for compatibility (not used)
-            dummy_price_data = pd.DataFrame(
+            dummy_prices = pd.DataFrame(
                 {"Close": [100.0] * len(daily_equity)},  # Dummy data
                 index=daily_equity.index,
             )
@@ -593,7 +593,7 @@ class DirectEquityCalculator:
                 "info",
             )
 
-            return combined_equity, dummy_price_data
+            return combined_equity, dummy_prices
 
         except Exception as e:
             error_msg = f"Failed to calculate portfolio equity: {str(e)}"
@@ -632,7 +632,7 @@ class DirectEquityCalculator:
 
         return ticker_cash_allocation
 
-    def _load_combined_price_data(
+    def _load_combined_prices(
         self, tickers: List[str], positions: List[PositionEntry]
     ) -> pd.DataFrame:
         """Load and combine price data for all tickers."""
@@ -645,23 +645,23 @@ class DirectEquityCalculator:
 
         # Load price data for first ticker to get the baseline timeline
         primary_ticker = tickers[0]
-        price_file = self.price_data_dir / f"{primary_ticker}_D.csv"
+        price_file = self.prices_dir / f"{primary_ticker}_D.csv"
 
         if not price_file.exists():
             raise TradingSystemError(
                 f"Price data not found for {primary_ticker}: {price_file}"
             )
 
-        price_data = pd.read_csv(price_file)
-        price_data["Date"] = pd.to_datetime(price_data["Date"])
-        price_data = price_data.set_index("Date")
+        prices = pd.read_csv(price_file)
+        prices["Date"] = pd.to_datetime(prices["Date"])
+        prices = prices.set_index("Date")
 
         # Filter to relevant date range
-        price_data = price_data[
-            (price_data.index >= start_date) & (price_data.index <= end_date)
+        prices = prices[
+            (prices.index >= start_date) & (prices.index <= end_date)
         ]
 
-        if price_data.empty:
+        if prices.empty:
             raise TradingSystemError(
                 f"No price data in date range {start_date} to {end_date}"
             )
@@ -670,10 +670,10 @@ class DirectEquityCalculator:
             f"Loaded price data from {start_date} to {end_date} ({len(price_data)} days)",
             "info",
         )
-        return price_data
+        return prices
 
     def _create_order_sequence(
-        self, positions: List[PositionEntry], price_data: pd.DataFrame
+        self, positions: List[PositionEntry], prices: pd.DataFrame
     ) -> pd.DataFrame:
         """Create chronological order sequence from positions."""
         orders = []
@@ -721,23 +721,23 @@ class DirectEquityCalculator:
         return orders_df
 
     def _create_vectorbt_portfolio(
-        self, orders_df: pd.DataFrame, price_data: pd.DataFrame, init_cash: float
+        self, orders_df: pd.DataFrame, prices: pd.DataFrame, init_cash: float
     ) -> vbt.Portfolio:
         """Create VectorBT portfolio from order sequence."""
         try:
             # Align orders with price data timeline
-            aligned_orders = self._align_orders_with_price_data(orders_df, price_data)
+            aligned_orders = self._align_orders_with_prices(orders_df, prices)
 
             # CRITICAL FIX: Override close prices on execution dates to match actual execution prices
             # VectorBT's price parameter doesn't work as expected - it still uses close prices for valuation
-            modified_close_prices = price_data["Close"].copy()
+            modified_close_prices = prices["Close"].copy()
 
             for date, row in aligned_orders.iterrows():
                 if row["size"] != 0 and pd.notna(row["price"]):
                     # Override the close price on this date to match our execution price
                     modified_close_prices[date] = row["price"]
                     self.log(
-                        f"Overriding close price on {date.date()}: ${price_data['Close'][date]:.2f} -> ${row['price']:.2f}",
+                        f"Overriding close price on {date.date()}: ${prices['Close'][date]:.2f} -> ${row['price']:.2f}",
                         "debug",
                     )
 
@@ -757,20 +757,20 @@ class DirectEquityCalculator:
                 f"Failed to create VectorBT portfolio: {str(e)}"
             ) from e
 
-    def _align_orders_with_price_data(
-        self, orders_df: pd.DataFrame, price_data: pd.DataFrame
+    def _align_orders_with_prices(
+        self, orders_df: pd.DataFrame, prices: pd.DataFrame
     ) -> pd.DataFrame:
         """Align orders with price data timeline."""
         # Create series aligned with price data index
-        size_series = pd.Series(0.0, index=price_data.index)
-        price_series = pd.Series(np.nan, index=price_data.index)
+        size_series = pd.Series(0.0, index=prices.index)
+        price_series = pd.Series(np.nan, index=prices.index)
 
         for _, order in orders_df.iterrows():
             order_date = pd.to_datetime(order["timestamp"]).date()
 
             # Find closest trading day
             matching_dates = [
-                idx for idx in price_data.index if idx.date() == order_date
+                idx for idx in prices.index if idx.date() == order_date
             ]
 
             if matching_dates:
@@ -786,10 +786,10 @@ class DirectEquityCalculator:
         """Create VectorBT portfolio for a single ticker."""
         try:
             # Load price data for this ticker
-            price_file = self.price_data_dir / f"{ticker}_D.csv"
-            price_data = pd.read_csv(price_file)
-            price_data["Date"] = pd.to_datetime(price_data["Date"])
-            price_data = price_data.set_index("Date")
+            price_file = self.prices_dir / f"{ticker}_D.csv"
+            prices = pd.read_csv(price_file)
+            prices["Date"] = pd.to_datetime(prices["Date"])
+            prices = prices.set_index("Date")
 
             # Determine date range from positions
             start_date = min(pos.entry_timestamp for pos in positions)
@@ -799,27 +799,27 @@ class DirectEquityCalculator:
             )
 
             # Filter price data to relevant range
-            price_data = price_data[
-                (price_data.index >= start_date) & (price_data.index <= end_date)
+            prices = prices[
+                (prices.index >= start_date) & (prices.index <= end_date)
             ]
 
-            if price_data.empty:
+            if prices.empty:
                 raise TradingSystemError(
                     f"No price data for {ticker} in date range {start_date} to {end_date}"
                 )
 
             # Create order sequence for this ticker
-            orders_df = self._create_ticker_order_sequence(positions, price_data)
+            orders_df = self._create_ticker_order_sequence(positions, prices)
 
             if orders_df.empty:
                 raise TradingSystemError(f"No valid orders for {ticker}")
 
             # Create VectorBT portfolio
             portfolio = self._create_vectorbt_portfolio(
-                orders_df, price_data, allocated_cash
+                orders_df, prices, allocated_cash
             )
 
-            return portfolio, price_data
+            return portfolio, prices
 
         except Exception as e:
             raise TradingSystemError(
@@ -827,7 +827,7 @@ class DirectEquityCalculator:
             ) from e
 
     def _create_ticker_order_sequence(
-        self, positions: List[PositionEntry], price_data: pd.DataFrame
+        self, positions: List[PositionEntry], prices: pd.DataFrame
     ) -> pd.DataFrame:
         """Create order sequence for a single ticker."""
         orders = []
@@ -872,7 +872,7 @@ class DirectEquityCalculator:
     def _combine_equity_curves(
         self,
         ticker_equity_curves: Dict[str, Dict],
-        all_price_data: Dict[str, pd.DataFrame],
+        all_prices: Dict[str, pd.DataFrame],
         ticker_position_data: Dict[str, Dict],
     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """Combine individual ticker equity curves into portfolio equity curve."""
@@ -951,12 +951,12 @@ class DirectEquityCalculator:
             )
 
             # Create combined price data using first ticker as reference, extended to full date range
-            first_ticker = list(all_price_data.keys())[0]
-            reference_price_data = all_price_data[first_ticker]
+            first_ticker = list(all_prices.keys())[0]
+            reference_prices = all_prices[first_ticker]
 
             # Reindex reference price data to union_index
-            combined_price_data = reference_price_data.reindex(union_index).ffill()
-            combined_price_data = combined_price_data.bfill()
+            combined_prices = reference_prices.reindex(union_index).ffill()
+            combined_prices = combined_prices.bfill()
 
             # Create equity DataFrame with Close prices for VectorBT compatibility
             # Use actual portfolio values since VectorBT expects absolute values
@@ -982,7 +982,7 @@ class DirectEquityCalculator:
                 f"Total change: ${total_change:.2f}",
                 "info",
             )
-            return combined_equity, combined_price_data
+            return combined_equity, combined_prices
 
         except Exception as e:
             raise TradingSystemError(
@@ -1004,7 +1004,7 @@ class PositionEquityGenerator:
         print(f"[{level.upper()}] {message}")
 
     def _create_mock_portfolio(
-        self, combined_equity: pd.DataFrame, price_data: pd.DataFrame
+        self, combined_equity: pd.DataFrame, prices: pd.DataFrame
     ):
         """Create a mock VectorBT portfolio from combined equity data."""
 
@@ -1101,7 +1101,7 @@ class PositionEquityGenerator:
             ) = self.equity_calculator.reconstruct_portfolio(positions, init_cash)
 
             # Create a mock VectorBT portfolio from combined equity data
-            mock_portfolio = self._create_mock_portfolio(combined_equity, price_data)
+            mock_portfolio = self._create_mock_portfolio(combined_equity, prices)
 
             # Extract equity data using existing infrastructure
             equity_data = self.equity_extractor.extract_equity_data(

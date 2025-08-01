@@ -14,7 +14,7 @@ def valid_data(ticker: str, config: DataConfig, log: Callable):
     if config.get("REFRESH", True) == False:
         # Construct file path using BASE_DIR
         file_name = f'{ticker}{"_H" if config.get("USE_HOURLY", False) else "_D"}'
-        directory = os.path.join(config["BASE_DIR"], "csv", "price_data")
+        directory = os.path.join(config["BASE_DIR"], "data", "raw", "prices")
 
         # Ensure directory exists
         os.makedirs(directory, exist_ok=True)

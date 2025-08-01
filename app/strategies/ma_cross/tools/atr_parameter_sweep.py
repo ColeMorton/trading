@@ -135,7 +135,7 @@ class ATRParameterSweepEngine:
         ma_config: Dict[str, Any],
         atr_length: int,
         atr_multiplier: float,
-        price_data: pl.DataFrame,
+        prices: pl.DataFrame,
         log: callable,
     ) -> Optional[Dict[str, Any]]:
         """
@@ -146,7 +146,7 @@ class ATRParameterSweepEngine:
             ma_config: MA Cross configuration
             atr_length: ATR period length
             atr_multiplier: ATR multiplier for stop distance
-            price_data: Price data DataFrame
+            prices: Price data DataFrame
             log: Logging function
 
         Returns:
@@ -163,7 +163,7 @@ class ATRParameterSweepEngine:
                 return None
 
             # Convert to pandas for signal processing
-            pandas_data = price_data.to_pandas()
+            pandas_data = prices.to_pandas()
 
             # Generate hybrid MA+ATR signals
             signal_data = generate_hybrid_ma_atr_signals(
@@ -275,7 +275,7 @@ class ATRParameterSweepEngine:
         ticker: str,
         ma_config: Dict[str, Any],
         parameter_chunk: List[Tuple[int, float]],
-        price_data: pl.DataFrame,
+        prices: pl.DataFrame,
         log: callable,
         chunk_index: int,
     ) -> List[Dict[str, Any]]:
@@ -286,7 +286,7 @@ class ATRParameterSweepEngine:
             ticker: Ticker symbol
             ma_config: MA Cross configuration
             parameter_chunk: List of (atr_length, atr_multiplier) tuples
-            price_data: Price data DataFrame
+            prices: Price data DataFrame
             log: Logging function
             chunk_index: Index of current chunk for progress tracking
 
@@ -311,7 +311,7 @@ class ATRParameterSweepEngine:
 
             # Process single combination
             result = self.process_single_atr_combination(
-                ticker, ma_config, atr_length, atr_multiplier, price_data, log
+                ticker, ma_config, atr_length, atr_multiplier, prices, log
             )
 
             if result is not None:
@@ -373,9 +373,9 @@ class ATRParameterSweepEngine:
                 price_data, synthetic_ticker = data_result
                 ma_config["TICKER"] = synthetic_ticker
             else:
-                price_data = data_result
+                prices = data_result
 
-            if price_data is None or len(price_data) == 0:
+            if prices is None or len(price_data) == 0:
                 raise ValueError(f"Failed to get price data for {ticker}")
 
             log(f"Retrieved {len(price_data)} data points for {ticker}", "info")
@@ -451,7 +451,7 @@ class ATRParameterSweepEngine:
                 log("Starting sequential processing", "info")
                 for i, chunk in enumerate(parameter_chunks):
                     chunk_results = self.process_atr_parameter_chunk(
-                        ticker, ma_config, chunk, price_data, log, i
+                        ticker, ma_config, chunk, prices, log, i
                     )
                     all_results.extend(chunk_results)
 

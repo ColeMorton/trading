@@ -624,7 +624,7 @@ Examples:
             print("System Health Check:")
             print(f"✓ Base directory: {config.base_dir}")
             print(
-                f"✓ Price data directory: {config.price_data_dir} ({'exists' if config.price_data_dir.exists() else 'missing'})"
+                f"✓ Price data directory: {config.prices_dir} ({'exists' if config.prices_dir.exists() else 'missing'})"
             )
             print(
                 f"✓ Positions directory: {config.positions_dir} ({'exists' if config.positions_dir.exists() else 'missing'})"

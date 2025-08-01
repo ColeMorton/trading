@@ -15,30 +15,40 @@ Short:
 It includes functionality for parameter sensitivity analysis and portfolio filtering.
 """
 
-import sys
-from pathlib import Path
+from typing import Any, Dict, List
 
-# Add the project root to Python path when running directly
-project_root = Path(__file__).parent.parent.parent.parent
-sys.path.insert(0, str(project_root))
-
-from app.strategies.macd.config_types import DEFAULT_CONFIG, PortfolioConfig
-from app.tools.get_config import get_config
-from app.tools.setup_logging import setup_logging
-
-# Use centralized error handling
-from app.tools.strategy.error_handling import (
-    ErrorSeverity,
-    StrategyErrorCode,
-    create_error_handler,
-    handle_strategy_error,
+from app.strategies.macd.config_types import PortfolioConfig
+from app.strategies.macd.exceptions import (
+    MACDConfigurationError,
+    MACDError,
+    MACDExecutionError,
+    MACDPortfolioError,
 )
-from app.tools.strategy.export_portfolios import PortfolioExportError, export_portfolios
-from app.tools.strategy.filter_portfolios import filter_portfolios
-from app.tools.strategy.signal_processing import process_ticker_portfolios
+from app.tools.entry_point import run_from_command_line
+from app.tools.error_decorators import handle_errors
+from app.tools.exceptions import (
+    ConfigurationError,
+    PortfolioLoadError,
+    StrategyProcessingError,
+)
+
+# New imports for standardized logging and error handling
+from app.tools.logging_context import logging_context
+from app.tools.orchestration import PortfolioOrchestrator
 
 
-def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
+@handle_errors(
+    "MACD portfolio analysis",
+    {
+        ValueError: MACDExecutionError,
+        KeyError: MACDConfigurationError,
+        ConfigurationError: MACDConfigurationError,
+        PortfolioLoadError: MACDPortfolioError,
+        StrategyProcessingError: MACDExecutionError,
+        Exception: MACDError,
+    },
+)
+def run(config: PortfolioConfig = None) -> bool:
     """Run portfolio analysis for single or multiple tickers using the MACD cross strategy.
 
     This function handles the main workflow of portfolio analysis:
@@ -56,170 +66,104 @@ def run(config: PortfolioConfig = DEFAULT_CONFIG) -> bool:
         config (PortfolioConfig): Configuration dictionary containing analysis parameters
 
     Returns:
-        bool: True if execution successful
+        bool: True if execution successful, False otherwise
 
     Raises:
-        Exception: If portfolio analysis fails
+        MACDConfigurationError: If the configuration is invalid
+        MACDExecutionError: If there's an error processing a strategy
+        MACDPortfolioError: If the portfolio cannot be loaded
+        ExportError: If results cannot be exported
+        MACDError: For other unexpected errors
     """
-    log, log_close, _, _ = setup_logging(
-        module_name="macd", log_file="1_get_portfolios.log"
-    )
-
-    try:
-        # Initialize configuration and tickers
-        config = get_config(config)
-        tickers = (
-            [config["TICKER"]]
-            if isinstance(config["TICKER"], str)
-            else config["TICKER"]
-        )
-        # Process each ticker
-        all_portfolios = []  # Collect all portfolios for best portfolios export
-        best_portfolios = []  # Collect best portfolios from each ticker
-
-        for ticker in tickers:
-            log(f"Processing ticker: {ticker}")
-            # Create a config copy with single ticker
-            ticker_config = config.copy()
-            ticker_config["TICKER"] = ticker
-
-            # Process portfolios for ticker
-            result = process_ticker_portfolios(ticker, ticker_config, log)
-            if result is None:
-                continue
-
-            # Set portfolios_df from result
-            portfolios_df = result
-
-            # Export unfiltered portfolios
-            try:
-                export_portfolios(
-                    portfolios=portfolios_df.to_dicts(),
-                    config=ticker_config,
-                    export_type="portfolios",
-                    log=log,
-                )
-            except (ValueError, PortfolioExportError) as e:
-                log(f"Failed to export portfolios for {ticker}: {str(e)}", "error")
-                continue
-
-            # Filter portfolios for individual ticker
-            filtered_portfolios = filter_portfolios(portfolios_df, ticker_config, log)
-            if filtered_portfolios is not None:
-                log(f"Filtered results for {ticker}")
-                print(filtered_portfolios)
-
-                # Export filtered portfolios
-                try:
-                    export_portfolios(
-                        portfolios=filtered_portfolios.to_dicts(),
-                        config=ticker_config,
-                        export_type="portfolios_filtered",
-                        log=log,
-                    )
-
-                    # Always select best portfolio from filtered portfolios
-                    from app.strategies.macd.tools.portfolio_selection import (
-                        get_best_portfolio,
-                    )
-
-                    best_portfolio = get_best_portfolio(
-                        filtered_portfolios, ticker_config, log
-                    )
-                    if best_portfolio is not None:
-                        log(
-                            f"Found best portfolio for {ticker} from filtered portfolios"
-                        )
-                        best_portfolios.append(best_portfolio)
-                except (ValueError, PortfolioExportError) as e:
-                    log(
-                        f"Failed to export filtered portfolios for {ticker}: {str(e)}",
-                        "error",
-                    )
-
-            # Add portfolios to all_portfolios for best portfolios export
-            all_portfolios.extend(portfolios_df.to_dicts())
-
-        # We no longer export all portfolios to portfolios_best
-        # This avoids duplicate exports to the same directory
-        if all_portfolios:
-            log(f"Collected {len(all_portfolios)} portfolios across all tickers")
-
-        # Export best portfolio from each ticker
-        if best_portfolios:
+    with logging_context(module_name="macd", log_file="1_get_portfolios.log") as log:
+        # SAFEGUARD: Trade history export is not available for MACD strategy
+        # to prevent generating thousands of JSON files due to parameter sweep combinations.
+        # Trade history export is only available through app/concurrency/review.py
+        config_copy = config.copy() if config else {}
+        if "EXPORT_TRADE_HISTORY" in config_copy:
+            del config_copy["EXPORT_TRADE_HISTORY"]
+        if config_copy.get("EXPORT_TRADE_HISTORY", False):
             log(
-                f"Exporting {len(best_portfolios)} best portfolios (one from each ticker)"
+                "WARNING: Trade history export is not supported for MACD strategy. Use app/concurrency/review.py for trade history export.",
+                "warning",
             )
-            try:
-                # Export to portfolios_best directory only
-                export_portfolios(
-                    portfolios=best_portfolios,
-                    config=config,
-                    export_type="portfolios_best",
-                    log=log,
-                )
-            except (ValueError, PortfolioExportError) as e:
-                log(f"Failed to export best portfolios collection: {str(e)}", "error")
 
-        log_close()
-        return True
-
-    except Exception as e:
-        log(f"Execution failed: {str(e)}", "error")
-        log_close()
-        raise
+        # Use the PortfolioOrchestrator for clean workflow management
+        orchestrator = PortfolioOrchestrator(log)
+        return orchestrator.run(config_copy)
 
 
-def run_strategies() -> bool:
-    """Run analysis with strategies specified in configuration.
+@handle_errors(
+    "MACD strategies analysis",
+    {
+        ValueError: MACDExecutionError,
+        KeyError: MACDConfigurationError,
+        ConfigurationError: MACDConfigurationError,
+        PortfolioLoadError: MACDPortfolioError,
+        StrategyProcessingError: MACDExecutionError,
+        Exception: MACDError,
+    },
+)
+def run_strategies(config: Dict[str, Any] = None) -> bool:
+    """Run analysis with strategies specified in STRATEGY_TYPES in sequence.
 
     This function is similar to the run function in ma_cross/1_get_portfolios.py,
     providing a consistent interface across strategy modules.
 
     Returns:
-        bool: True if execution successful
+        bool: True if execution successful, False otherwise
+
+    Raises:
+        MACDConfigurationError: If the configuration is invalid
+        MACDExecutionError: If there's an error processing a strategy
+        MACDPortfolioError: If the portfolio cannot be loaded
+        ExportError: If results cannot be exported
+        MACDError: For other unexpected errors
     """
-    try:
-        # Initialize logging
-        log, log_close, _, _ = setup_logging(
-            module_name="macd", log_file="1_get_portfolios.log"
-        )
+    with logging_context(module_name="macd", log_file="1_get_portfolios.log") as log:
+        # Prepare config
+        config_copy = config.copy() if config else {}
+        config_copy[
+            "USE_MA"
+        ] = False  # Ensure USE_MA is set correctly for MACD filename suffix
 
-        # Initialize config
-        config_copy = DEFAULT_CONFIG.copy()
+        # SAFEGUARD: Trade history export is not available for MACD strategy
+        # to prevent generating thousands of JSON files due to parameter sweep combinations.
+        # Trade history export is only available through app/concurrency/review.py
+        if "EXPORT_TRADE_HISTORY" in config_copy:
+            del config_copy["EXPORT_TRADE_HISTORY"]
+        if config_copy.get("EXPORT_TRADE_HISTORY", False):
+            log(
+                "WARNING: Trade history export is not supported for MACD strategy. Use app/concurrency/review.py for trade history export.",
+                "warning",
+            )
 
-        # Use the direction from the configuration
-        direction = config_copy.get("DIRECTION", "Long")
-        log(f"Running {direction} MACD strategy as specified in configuration", "info")
-
-        # Run the main analysis function
-        result = run(config_copy)
-
-        log_close()
-        return result
-
-    except Exception as e:
-        print(f"Execution failed: {str(e)}")
-        raise
+        # Use the PortfolioOrchestrator for clean workflow management
+        orchestrator = PortfolioOrchestrator(log)
+        return orchestrator.run(config_copy)
 
 
 if __name__ == "__main__":
-    # DEPRECATION WARNING: Direct script execution is deprecated
-    # Use the CLI interface instead for better UX and features
     import warnings
 
+    # Show deprecation warning for direct script usage
     warnings.warn(
-        "Direct script execution is deprecated. Use the CLI interface instead:\n"
-        "python -m app.cli strategy run --strategy MACD --ticker AAPL,MSFT,GOOGL\n"
-        "python -m app.cli strategy run --strategy MACD --ticker BTC-USD --min-trades 30\n"
-        "For more information: python -m app.cli strategy --help",
+        "\n"
+        "⚠️  DEPRECATION WARNING: Direct execution of this script is deprecated.\n"
+        "   Use the unified CLI interface instead:\n"
+        "   \n"
+        "   Replace: python app/strategies/macd/1_get_portfolios.py\n"
+        "   With:    python -m app.cli strategy run --strategy MACD --ticker BTC-USD\n"
+        "   \n"
+        "   For more information: python -m app.cli strategy --help\n"
+        "   \n"
+        "   This script will be removed in a future version.\n",
         DeprecationWarning,
         stacklevel=2,
     )
 
-    try:
-        # Run analysis with the direction specified in the configuration
-        run_strategies()
-    except Exception as e:
-        print(f"Execution failed: {str(e)}")
-        raise
+    run_from_command_line(
+        run_strategies,
+        {},  # Empty config as run_strategies uses the default CONFIG
+        "MACD portfolio analysis",
+    )

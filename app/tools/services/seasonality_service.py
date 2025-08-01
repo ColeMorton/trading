@@ -41,7 +41,7 @@ class SeasonalityService:
             min_sample_size=config.min_sample_size,
         )
         self.console = Console()
-        self.price_data_dir = Path("data/raw/prices")
+        self.prices_dir = Path("data/raw/prices")
         self.output_dir = Path("data/raw/seasonality")
 
     def run_analysis(self) -> Dict[str, SeasonalityResult]:
@@ -103,7 +103,7 @@ class SeasonalityService:
         else:
             # Get all available tickers from price data directory
             tickers = []
-            for file_path in self.price_data_dir.glob("*_D.csv"):
+            for file_path in self.prices_dir.glob("*_D.csv"):
                 ticker = file_path.stem.replace("_D", "")
                 tickers.append(ticker)
             return sorted(tickers)
@@ -118,7 +118,7 @@ class SeasonalityService:
             Seasonality results or None if insufficient data
         """
         # Load price data
-        price_file = self.price_data_dir / f"{ticker}_D.csv"
+        price_file = self.prices_dir / f"{ticker}_D.csv"
         if not price_file.exists():
             self.console.print(f"[yellow]Price data not found for {ticker}[/yellow]")
             return None

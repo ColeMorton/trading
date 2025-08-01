@@ -72,7 +72,7 @@ class StrategyAnalyzer(StrategyAnalyzerInterface):
         """Analyze a strategy for a given ticker."""
         # Get data if not provided
         if data is None:
-            data = self._data_access.get_price_data(ticker)
+            data = self._data_access.get_prices(ticker)
 
         # Validate configuration
         if not self.validate_config(config):

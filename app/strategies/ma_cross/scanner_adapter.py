@@ -302,7 +302,7 @@ def run_scanner_with_config(config: Dict[str, Any]) -> List[Dict[str, Any]]:
     adapter = ScannerAdapter()
 
     try:
-        portfolio_path = os.path.join("./data/outputs/strategies", config["PORTFOLIO"])
+        portfolio_path = os.path.join("./data/raw/strategies", config["PORTFOLIO"])
         result = adapter.process_portfolio_file(portfolio_path, config)
 
         # Convert to list of dictionaries for compatibility

@@ -82,10 +82,10 @@ def _validate_canonical_ordering(
 
     if expected_schema == SchemaType.EXTENDED:
         expected_columns = ExtendedPortfolioSchema.get_column_names()
-        schema_name = "Extended (60-column)"
+        schema_name = "Extended (62-column)"
     elif expected_schema == SchemaType.FILTERED:
         expected_columns = FilteredPortfolioSchema.get_column_names()
-        schema_name = "Filtered (61-column)"
+        schema_name = "Filtered (63-column)"
     else:
         # For other schema types, use CANONICAL_COLUMN_NAMES
         expected_columns = CANONICAL_COLUMN_NAMES
@@ -145,25 +145,25 @@ class ExportTypeRouter:
     EXPORT_SCHEMA_CONFIG = {
         "portfolios_best": {
             "schema": SchemaType.FILTERED,
-            "description": "61 columns, Metric Type + Extended for best portfolios with aggregated metrics",
+            "description": "63 columns, Metric Type + Extended for best portfolios with aggregated metrics",
             "allocation_handling": "none",  # No allocation values for analysis
             "validation_level": "strict",
         },
         "portfolios_filtered": {
             "schema": SchemaType.FILTERED,
-            "description": "61 columns, Metric Type + Extended for filtered results",
+            "description": "63 columns, Metric Type + Extended for filtered results",
             "allocation_handling": "none",
             "validation_level": "strict",
         },
         "portfolios_scanner": {
             "schema": SchemaType.EXTENDED,
-            "description": "60 columns, canonical format for scanner results",
+            "description": "62 columns, canonical format for scanner results",
             "allocation_handling": "none",
             "validation_level": "strict",
         },
         "portfolios": {
             "schema": SchemaType.EXTENDED,
-            "description": "60 columns, canonical format (default)",
+            "description": "62 columns, canonical format (default)",
             "allocation_handling": "none",
             "validation_level": "strict",
         },
@@ -256,7 +256,7 @@ def export_portfolios(
         csv_filename (Optional[str]): Optional custom filename for the CSV
         log (Optional[Callable]): Optional logging function
         feature_dir (str): Directory to export to (default: "" for direct export to data/raw/strategies/)
-                          Can be set to "ma_cross" or "strategies" for backward compatibility
+                          Can be set to "ma_cross" for backward compatibility
 
     Returns:
         Tuple[pl.DataFrame, bool]: (DataFrame of exported data, success status)
@@ -321,13 +321,19 @@ def export_portfolios(
     if log:
         log(f"Exporting {len(portfolios)} portfolios as {export_type}...", "info")
 
-    # Include strategy suffix for MACD strategies regardless of export type
-    # For MA strategies, only include suffix for non-portfolios_best exports
-    strategy_type = config.get("STRATEGY_TYPE", "SMA")
-    if strategy_type == "MACD":
-        config["USE_MA"] = True
+    # Determine strategy type from STRATEGY_TYPES list for filename generation
+    strategy_types = config.get("STRATEGY_TYPES", ["SMA"])
+
+    # Set STRATEGY_TYPE for filename generation based on single vs multiple strategies
+    if len(strategy_types) == 1:
+        # Single strategy: use specific strategy type in filename
+        strategy_type = strategy_types[0]
+        config["STRATEGY_TYPE"] = strategy_type
+        config["USE_MA"] = True  # Always include strategy suffix for single strategies
     else:
-        config["USE_MA"] = export_type != "portfolios_best"
+        # Multiple strategies: use generic filename without strategy suffix
+        config["STRATEGY_TYPE"] = "Multi"
+        config["USE_MA"] = False
 
     try:
         # Check if we have pre-sorted portfolios in the config
@@ -366,23 +372,39 @@ def export_portfolios(
         # Apply minimum filtering for portfolios_best before any aggregation
         if export_type == "portfolios_best":
             from app.tools.portfolio.filtering_service import PortfolioFilterService
-            
+
             # Apply MinimumsFilter to ensure YAML config criteria are enforced
             filter_service = PortfolioFilterService()
             filtered_df = filter_service.filter_portfolios_dataframe(df, config, log)
-            
+
             if filtered_df is None or len(filtered_df) == 0:
                 if log:
-                    log("No portfolios remain after applying MINIMUMS filtering for portfolios_best", "warning")
+                    log(
+                        "No portfolios remain after applying MINIMUMS filtering for portfolios_best",
+                        "warning",
+                    )
                 return pl.DataFrame(), False
-            
+
             df = filtered_df
             if log:
-                log(f"Applied MINIMUMS filtering for portfolios_best: {len(df)} portfolios remain", "info")
+                log(
+                    f"Applied MINIMUMS filtering for portfolios_best: {len(df)} portfolios remain",
+                    "info",
+                )
+
+        # Check if portfolios already have compound metric types (indicating prior aggregation)
+        has_compound_metric_types = False
+        if has_metric_type:
+            metric_types = df["Metric Type"].unique().to_list()
+            compound_types = [mt for mt in metric_types if "," in str(mt)]
+            has_compound_metric_types = len(compound_types) > 0
+
+            if log and has_compound_metric_types:
+                log(f"📊 DETECTED compound metric types: {compound_types[:3]}{'...' if len(compound_types) > 3 else ''}", "info")
 
         if export_type == "portfolios_best" and (
             has_metric_type or has_multiple_strategy_types
-        ):
+        ) and not has_compound_metric_types:
             from app.tools.portfolio.collection import (
                 deduplicate_and_aggregate_portfolios,
             )
@@ -455,6 +477,9 @@ def export_portfolios(
                         "Metric Type",
                     ).to_dicts()
                     log(f"📊 POST-AGGREGATION CBRE DETAILS: {cbre_post_details}", "info")
+        elif export_type == "portfolios_best" and has_compound_metric_types:
+            if log:
+                log("📊 SKIPPING aggregation - portfolios already have compound metric types (previously aggregated)", "info")
 
         # Special handling for portfolios_best export type
         if export_type == "portfolios_best":
@@ -610,6 +635,8 @@ def export_portfolios(
                     df = df.drop("Ticker")
                 df = df.with_columns(pl.lit(ticker).alias("Ticker"))
 
+        # Schema normalization for FILTERED schema types (portfolios_best, portfolios_filtered)
+        if target_schema_type in [SchemaType.FILTERED, SchemaType.ATR_FILTERED]:
             # Use SchemaTransformer to normalize to target schema with mandatory validation
             # This replaces the custom column ordering logic and ensures proper allocation handling
             portfolios_normalized = []
@@ -712,7 +739,8 @@ def export_portfolios(
 
         # Use the provided feature_dir parameter for the feature1 value
         # This allows different scripts to export to different directories
-        feature1 = feature_dir
+        # If feature_dir is empty, use export_type to ensure correct directory structure
+        feature1 = feature_dir if feature_dir else export_type
 
         # Ensure all return metrics are included in the export
         # List of metrics that should be included in the export
@@ -811,8 +839,9 @@ def export_portfolios(
                 "warning",
             )
 
-        # Special case for strategies module: export directly to /data/raw/strategies/
-        if feature_dir == "strategies":
+        # Default behavior: when feature_dir is empty, use export_type as directory
+        # When feature_dir is "strategies", export directly to /data/raw/strategies/
+        if feature_dir == "" or feature_dir == "strategies":
             # Skip the export_type (feature2) to avoid creating a subdirectory
             return export_csv(
                 data=df,
@@ -821,9 +850,10 @@ def export_portfolios(
                 feature2="",  # Empty string to avoid creating a subdirectory
                 filename=csv_filename,
                 log=log,
+                target_schema=target_schema_type,
             )
         else:
-            # Normal case: use export_type as feature2
+            # Legacy case for other feature directories (e.g., ma_cross)
             return export_csv(
                 data=df,
                 feature1=feature1,
@@ -831,6 +861,7 @@ def export_portfolios(
                 feature2=export_type,  # Use original export_type to maintain correct subdirectories
                 filename=csv_filename,
                 log=log,
+                target_schema=target_schema_type,
             )
     except Exception as e:
         error_msg = f"Failed to export portfolios: {str(e)}"

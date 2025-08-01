@@ -9,11 +9,24 @@ and proper CSV formatting.
 import logging
 import os
 from datetime import datetime
-from typing import Callable, Dict, List, Literal, Optional, Tuple, TypedDict, Union
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+    TypedDict,
+    Union,
+)
 
 import pandas as pd
 import polars as pl
 from typing_extensions import NotRequired
+
+if TYPE_CHECKING:
+    from app.tools.portfolio.base_extended_schemas import SchemaType
 
 
 class ExportConfig(TypedDict):
@@ -238,6 +251,7 @@ def export_csv(
     feature2: str = "",
     filename: Optional[str] | None = None,
     log: Optional[Callable] | None = None,
+    target_schema: Optional["SchemaType"] = None,
 ) -> Tuple[pl.DataFrame, bool]:
     """Export data to CSV with proper formatting.
 
@@ -254,6 +268,7 @@ def export_csv(
         feature2: Secondary feature directory (optional)
         filename: Optional custom filename
         log: Optional logging function
+        target_schema: Target schema type for normalization (defaults to EXTENDED)
 
     Returns:
         Tuple of (DataFrame, success status)
@@ -312,7 +327,7 @@ def export_csv(
             "strategies",
         ]:
             # Validate schema compliance before export
-            validated_data = _validate_and_ensure_schema_compliance(data, log)
+            validated_data = _validate_and_ensure_schema_compliance(data, log, target_schema)
             # Use validated data for export
             data = validated_data
 
@@ -404,7 +419,7 @@ def export_csv(
 
 
 def _validate_and_ensure_schema_compliance(
-    data: Union[pl.DataFrame, pd.DataFrame], log: Optional[Callable] = None
+    data: Union[pl.DataFrame, pd.DataFrame], log: Optional[Callable] = None, target_schema: Optional["SchemaType"] = None
 ) -> Union[pl.DataFrame, pd.DataFrame]:
     """
     Validate and ensure schema compliance for export data.
@@ -412,9 +427,10 @@ def _validate_and_ensure_schema_compliance(
     Args:
         data: DataFrame to validate and potentially transform
         log: Optional logging function
+        target_schema: Target schema type for normalization (defaults to EXTENDED)
 
     Returns:
-        DataFrame with canonical schema compliance
+        DataFrame with target schema compliance
     """
     try:
         from app.tools.portfolio.base_extended_schemas import CANONICAL_COLUMN_NAMES
@@ -461,7 +477,7 @@ def _validate_and_ensure_schema_compliance(
             log(f"Schema validation failed: {str(e)}", "error")
 
     # Ensure canonical column order and completeness
-    canonical_df = _ensure_canonical_column_order(df_pandas, log)
+    canonical_df = _ensure_canonical_column_order(df_pandas, log, target_schema)
 
     # Convert back to original format
     if was_polars:
@@ -471,17 +487,18 @@ def _validate_and_ensure_schema_compliance(
 
 
 def _ensure_canonical_column_order(
-    df: pd.DataFrame, log: Optional[Callable] = None
+    df: pd.DataFrame, log: Optional[Callable] = None, target_schema: Optional["SchemaType"] = None
 ) -> pd.DataFrame:
     """
-    Ensure DataFrame has all canonical columns in the correct order using SchemaTransformer.
+    Ensure DataFrame has all columns in the correct order using SchemaTransformer.
 
     Args:
         df: Input DataFrame
         log: Optional logging function
+        target_schema: Target schema type for normalization (defaults to EXTENDED)
 
     Returns:
-        DataFrame with canonical column order and completeness
+        DataFrame with target schema column order and completeness
     """
     try:
         from app.tools.portfolio.base_extended_schemas import (
@@ -491,15 +508,21 @@ def _ensure_canonical_column_order(
 
         transformer = SchemaTransformer()
 
+        # Use target schema or default to EXTENDED for backward compatibility
+        schema_type = target_schema if target_schema is not None else SchemaType.EXTENDED
+
         # Convert DataFrame to list of dictionaries for SchemaTransformer processing
         portfolios = df.to_dict("records")
         normalized_portfolios = []
 
         for portfolio in portfolios:
             try:
-                # Normalize each portfolio to Extended schema with canonical ordering
+                # Preserve existing metric type if present
+                existing_metric_type = portfolio.get("Metric Type", "Most Total Return [%]")
+
+                # Normalize each portfolio to target schema with canonical ordering
                 normalized_portfolio = transformer.normalize_to_schema(
-                    portfolio, SchemaType.EXTENDED
+                    portfolio, schema_type, metric_type=existing_metric_type
                 )
                 normalized_portfolios.append(normalized_portfolio)
             except Exception as e:
@@ -517,8 +540,9 @@ def _ensure_canonical_column_order(
         if log:
             original_cols = len(df.columns)
             canonical_cols = len(canonical_df.columns)
+            schema_name = schema_type.name if schema_type else "EXTENDED"
             log(
-                f"SchemaTransformer normalization: {original_cols} -> {canonical_cols} columns",
+                f"SchemaTransformer normalization ({schema_name}): {original_cols} -> {canonical_cols} columns",
                 "info",
             )
 

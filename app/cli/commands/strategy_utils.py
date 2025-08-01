@@ -75,6 +75,8 @@ def build_configuration_overrides(
     slow_max: Optional[int] = None,
     fast_period: Optional[int] = None,
     slow_period: Optional[int] = None,
+    use_years: Optional[bool] = None,
+    years: Optional[int] = None,
     dry_run: bool = False,
     **additional_overrides,
 ) -> Dict[str, Any]:
@@ -92,6 +94,8 @@ def build_configuration_overrides(
         slow_max: Slow period maximum for sweep
         fast_period: Fast period for single analysis
         slow_period: Slow period for single analysis
+        use_years: Whether to use years instead of period ranges
+        years: Number of years of historical data to analyze
         dry_run: Dry run flag
         **additional_overrides: Additional override parameters
 
@@ -128,6 +132,14 @@ def build_configuration_overrides(
         overrides["fast_period"] = fast_period
     if slow_period:
         overrides["slow_period"] = slow_period
+
+    # Time configuration
+    if use_years is not None:
+        overrides["use_years"] = use_years
+    if years is not None:
+        if years <= 0:
+            raise ValueError("Years parameter must be a positive integer")
+        overrides["years"] = years
 
     # System flags
     overrides["dry_run"] = dry_run

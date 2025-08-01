@@ -113,9 +113,6 @@ def get_best_portfolio(
                 .to_dicts()[0]
             )
 
-            # Remove "Metric Type" column if it exists
-            if "Metric Type" in portfolio:
-                del portfolio["Metric Type"]
 
             return portfolio
 
@@ -134,9 +131,6 @@ def get_best_portfolio(
                 .to_dicts()[0]
             )
 
-            # Remove "Metric Type" column if it exists
-            if "Metric Type" in portfolio:
-                del portfolio["Metric Type"]
 
             return portfolio
 
@@ -155,9 +149,6 @@ def get_best_portfolio(
                 .to_dicts()[0]
             )
 
-            # Remove "Metric Type" column if it exists
-            if "Metric Type" in portfolio:
-                del portfolio["Metric Type"]
 
             return portfolio
 
@@ -177,9 +168,6 @@ def get_best_portfolio(
                 .to_dicts()[0]
             )
 
-            # Remove "Metric Type" column if it exists
-            if "Metric Type" in portfolio:
-                del portfolio["Metric Type"]
 
             return portfolio
 

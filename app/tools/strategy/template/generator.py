@@ -319,7 +319,7 @@ from app.strategies.{strategy_name}.tools.strategy_execution import (
 )
 
 # Custom workflow
-data = load_price_data("AAPL")
+data = load_prices("AAPL")
 data_with_indicators = calculate_indicators(data, config)
 signals = generate_signals(data_with_indicators, config)
 ```

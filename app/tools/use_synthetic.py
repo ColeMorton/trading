@@ -140,7 +140,7 @@ def use_synthetic(
         synthetic_ticker = f"{ticker1}_{ticker2}"
 
         # Export synthetic pair data directly with custom filename
-        export_path = os.path.join(config.get("BASE_DIR", "."), "csv", "price_data")
+        export_path = os.path.join(config.get("BASE_DIR", "."), "data", "raw", "prices")
         os.makedirs(export_path, exist_ok=True)
 
         # Create custom filename in format: {ticker1}_{ticker2}_{timeframe}.csv

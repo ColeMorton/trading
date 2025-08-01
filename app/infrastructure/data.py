@@ -25,13 +25,13 @@ class DataAccessService(DataAccessInterface):
     ):
         self._config = config
         self._logger = logger
-        self._base_path = Path(config.get("data.base_path", "csv"))
-        self._price_data_path = self._base_path / "price_data"
+        self._base_path = Path(config.get("data.base_path", "data/raw"))
+        self._prices_path = self._base_path / "prices"
 
         # Ensure directories exist
-        self._price_data_path.mkdir(parents=True, exist_ok=True)
+        self._prices_path.mkdir(parents=True, exist_ok=True)
 
-    def get_price_data(
+    def get_prices(
         self,
         ticker: str,
         start_date: Optional[datetime] | None = None,
@@ -58,7 +58,7 @@ class DataAccessService(DataAccessInterface):
             # Download if not cached
             return self.download_data(ticker, start_date, end_date, interval)
 
-    def save_price_data(
+    def save_prices(
         self,
         data: Union[pd.DataFrame, pl.DataFrame],
         ticker: str,
@@ -87,7 +87,7 @@ class DataAccessService(DataAccessInterface):
         """List all available tickers in storage."""
         tickers = set()
 
-        for file_path in self._price_data_path.glob("*_*.csv"):
+        for file_path in self._prices_path.glob("*_*.csv"):
             # Extract ticker from filename (format: TICKER_INTERVAL.csv)
             ticker = file_path.stem.split("_")[0]
             tickers.add(ticker)
@@ -120,7 +120,7 @@ class DataAccessService(DataAccessInterface):
             last_update = self.get_last_update_time(ticker)
             if last_update and (datetime.now() - last_update).days < 1:
                 # Use cached data if updated within last day
-                return self.get_price_data(ticker, start_date, end_date, interval)
+                return self.get_prices(ticker, start_date, end_date, interval)
 
         # Download from yfinance
         if self._logger:
@@ -141,7 +141,7 @@ class DataAccessService(DataAccessInterface):
                 raise ValueError(f"No data found for ticker {ticker}")
 
             # Save to cache
-            self.save_price_data(data, ticker, file_path)
+            self.save_prices(data, ticker, file_path)
 
             # Convert to polars if configured
             if self._use_polars():
@@ -196,7 +196,7 @@ class DataAccessService(DataAccessInterface):
 
                     # Get date range
                     try:
-                        data = self.get_price_data(ticker, interval=interval)
+                        data = self.get_prices(ticker, interval=interval)
                         if isinstance(data, pl.DataFrame):
                             info["data_range"] = {
                                 "start": data.select(pl.col("Date").min())[0, 0],
@@ -216,7 +216,7 @@ class DataAccessService(DataAccessInterface):
 
     def _get_price_file_path(self, ticker: str, interval: str) -> Path:
         """Get file path for price data."""
-        return self._price_data_path / f"{ticker}_{interval.upper()}.csv"
+        return self._prices_path / f"{ticker}_{interval.upper()}.csv"
 
     def _use_polars(self) -> bool:
         """Check if we should use polars."""

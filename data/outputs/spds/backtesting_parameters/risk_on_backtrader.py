@@ -2,9 +2,9 @@
 Backtrader Strategy Templates
 Generated from Statistical Performance Divergence System
 
-Generation Date: 2025-07-22T12:35:32.609206
+Generation Date: 2025-07-31T12:35:16.836369
 Confidence Level: 0.9
-Total Strategies: 6
+Total Strategies: 2
 """
 
 import datetime
@@ -12,25 +12,24 @@ import datetime
 import backtrader as bt
 
 
-class MA_SMA_78_82_MA_DExitStrategy(bt.Strategy):
+class AMZN_SMA_77_81_AMZN_DExitStrategy(bt.Strategy):
     """
-    Statistical exit strategy for MA_SMA_78_82_MA_D
+    Statistical exit strategy for AMZN_SMA_77_81_AMZN_D
     Generated from SPDS analysis
 
-    Sample Size: 62
+    Sample Size: 100
     Confidence: 0.9
-    Validity: MEDIUM
+    Validity: LOW
     """
-
     params = (
-        ("take_profit_pct", 15.0),
-        ("stop_loss_pct", 8.0),
-        ("max_days", 454),
-        ("momentum_exit_threshold", 0.02),
-        ("trend_exit_threshold", 0.015),
-        ("trailing_pct", 3.3),
-        ("min_days", 21),
-        ("statistical_validity", "MEDIUM"),
+        ('take_profit_pct', 15.09),
+        ('stop_loss_pct', 8.05),
+        ('max_days', 83),
+        ('momentum_exit_threshold', 0.02),
+        ('trend_exit_threshold', 0.015),
+        ('trailing_pct', 3.16),
+        ('min_days', 11),
+        ('statistical_validity', 'LOW'),
     )
 
     def __init__(self):
@@ -40,8 +39,8 @@ class MA_SMA_78_82_MA_DExitStrategy(bt.Strategy):
         self.days_held = 0
 
         # Validate parameters
-        if self.params.statistical_validity == "LOW":
-            print(f"Warning: Low reliability parameters for MA_SMA_78_82_MA_D")
+        if self.params.statistical_validity == 'LOW':
+            print(f"Warning: Low reliability parameters for AMZN_SMA_77_81_AMZN_D")
 
     def next(self):
         if self.position:
@@ -72,12 +71,9 @@ class MA_SMA_78_82_MA_DExitStrategy(bt.Strategy):
             return
 
         # Trailing stop (only after minimum holding period)
-        if (
-            self.days_held >= self.params.min_days
-            and self.highest_price
-            and current_price
-            <= self.highest_price * (1 - self.params.trailing_pct / 100)
-        ):
+        if (self.days_held >= self.params.min_days and
+            self.highest_price and
+            current_price <= self.highest_price * (1 - self.params.trailing_pct / 100)):
             self.sell(exectype=bt.Order.Market)
             return
 
@@ -97,7 +93,6 @@ class MA_SMA_78_82_MA_DExitStrategy(bt.Strategy):
                 self.highest_price = order.executed.price
                 self.days_held = 0
 
-
 class ASML_SMA_71_80_ASML_DExitStrategy(bt.Strategy):
     """
     Statistical exit strategy for ASML_SMA_71_80_ASML_D
@@ -107,16 +102,15 @@ class ASML_SMA_71_80_ASML_DExitStrategy(bt.Strategy):
     Confidence: 0.9
     Validity: MEDIUM
     """
-
     params = (
-        ("take_profit_pct", 15.0),
-        ("stop_loss_pct", 8.0),
-        ("max_days", 432),
-        ("momentum_exit_threshold", 0.02),
-        ("trend_exit_threshold", 0.015),
-        ("trailing_pct", 4.34),
-        ("min_days", 21),
-        ("statistical_validity", "MEDIUM"),
+        ('take_profit_pct', 15.0),
+        ('stop_loss_pct', 8.0),
+        ('max_days', 454),
+        ('momentum_exit_threshold', 0.02),
+        ('trend_exit_threshold', 0.015),
+        ('trailing_pct', 4.54),
+        ('min_days', 21),
+        ('statistical_validity', 'MEDIUM'),
     )
 
     def __init__(self):
@@ -126,7 +120,7 @@ class ASML_SMA_71_80_ASML_DExitStrategy(bt.Strategy):
         self.days_held = 0
 
         # Validate parameters
-        if self.params.statistical_validity == "LOW":
+        if self.params.statistical_validity == 'LOW':
             print(f"Warning: Low reliability parameters for ASML_SMA_71_80_ASML_D")
 
     def next(self):
@@ -158,356 +152,9 @@ class ASML_SMA_71_80_ASML_DExitStrategy(bt.Strategy):
             return
 
         # Trailing stop (only after minimum holding period)
-        if (
-            self.days_held >= self.params.min_days
-            and self.highest_price
-            and current_price
-            <= self.highest_price * (1 - self.params.trailing_pct / 100)
-        ):
-            self.sell(exectype=bt.Order.Market)
-            return
-
-    def buy_signal(self):
-        # Override this method with your entry logic
-        # For now, using placeholder
-        return False
-
-    def notify_order(self, order):
-        if order.status in [order.Submitted, order.Accepted]:
-            return
-
-        if order.status in [order.Completed]:
-            if order.isbuy():
-                self.entry_price = order.executed.price
-                self.entry_date = len(self.data)
-                self.highest_price = order.executed.price
-                self.days_held = 0
-
-
-class AAPL_SMA_46_56_AAPL_DExitStrategy(bt.Strategy):
-    """
-    Statistical exit strategy for AAPL_SMA_46_56_AAPL_D
-    Generated from SPDS analysis
-
-    Sample Size: 126
-    Confidence: 0.9
-    Validity: HIGH
-    """
-
-    params = (
-        ("take_profit_pct", 15.0),
-        ("stop_loss_pct", 8.0),
-        ("max_days", 456),
-        ("momentum_exit_threshold", 0.02),
-        ("trend_exit_threshold", 0.015),
-        ("trailing_pct", 3.22),
-        ("min_days", 21),
-        ("statistical_validity", "HIGH"),
-    )
-
-    def __init__(self):
-        self.entry_price = None
-        self.entry_date = None
-        self.highest_price = None
-        self.days_held = 0
-
-        # Validate parameters
-        if self.params.statistical_validity == "LOW":
-            print(f"Warning: Low reliability parameters for AAPL_SMA_46_56_AAPL_D")
-
-    def next(self):
-        if self.position:
-            self.days_held += 1
-            self.check_exit_conditions()
-
-    def check_exit_conditions(self):
-        current_price = self.data.close[0]
-        current_return = (current_price - self.entry_price) / self.entry_price * 100
-
-        # Update highest price for trailing stop
-        if self.highest_price is None or current_price > self.highest_price:
-            self.highest_price = current_price
-
-        # Take profit condition
-        if current_return >= self.params.take_profit_pct:
-            self.sell(exectype=bt.Order.Market)
-            return
-
-        # Stop loss condition
-        if current_return <= -self.params.stop_loss_pct:
-            self.sell(exectype=bt.Order.Market)
-            return
-
-        # Statistical failsafe time exit (after primary dynamic criteria)
-        if self.days_held >= self.params.max_days:
-            self.sell(exectype=bt.Order.Market)
-            return
-
-        # Trailing stop (only after minimum holding period)
-        if (
-            self.days_held >= self.params.min_days
-            and self.highest_price
-            and current_price
-            <= self.highest_price * (1 - self.params.trailing_pct / 100)
-        ):
-            self.sell(exectype=bt.Order.Market)
-            return
-
-    def buy_signal(self):
-        # Override this method with your entry logic
-        # For now, using placeholder
-        return False
-
-    def notify_order(self, order):
-        if order.status in [order.Submitted, order.Accepted]:
-            return
-
-        if order.status in [order.Completed]:
-            if order.isbuy():
-                self.entry_price = order.executed.price
-                self.entry_date = len(self.data)
-                self.highest_price = order.executed.price
-                self.days_held = 0
-
-
-class TSLA_SMA_23_31_TSLA_DExitStrategy(bt.Strategy):
-    """
-    Statistical exit strategy for TSLA_SMA_23_31_TSLA_D
-    Generated from SPDS analysis
-
-    Sample Size: 74
-    Confidence: 0.9
-    Validity: MEDIUM
-    """
-
-    params = (
-        ("take_profit_pct", 15.0),
-        ("stop_loss_pct", 8.0),
-        ("max_days", 447),
-        ("momentum_exit_threshold", 0.02),
-        ("trend_exit_threshold", 0.015),
-        ("trailing_pct", 8.57),
-        ("min_days", 21),
-        ("statistical_validity", "MEDIUM"),
-    )
-
-    def __init__(self):
-        self.entry_price = None
-        self.entry_date = None
-        self.highest_price = None
-        self.days_held = 0
-
-        # Validate parameters
-        if self.params.statistical_validity == "LOW":
-            print(f"Warning: Low reliability parameters for TSLA_SMA_23_31_TSLA_D")
-
-    def next(self):
-        if self.position:
-            self.days_held += 1
-            self.check_exit_conditions()
-
-    def check_exit_conditions(self):
-        current_price = self.data.close[0]
-        current_return = (current_price - self.entry_price) / self.entry_price * 100
-
-        # Update highest price for trailing stop
-        if self.highest_price is None or current_price > self.highest_price:
-            self.highest_price = current_price
-
-        # Take profit condition
-        if current_return >= self.params.take_profit_pct:
-            self.sell(exectype=bt.Order.Market)
-            return
-
-        # Stop loss condition
-        if current_return <= -self.params.stop_loss_pct:
-            self.sell(exectype=bt.Order.Market)
-            return
-
-        # Statistical failsafe time exit (after primary dynamic criteria)
-        if self.days_held >= self.params.max_days:
-            self.sell(exectype=bt.Order.Market)
-            return
-
-        # Trailing stop (only after minimum holding period)
-        if (
-            self.days_held >= self.params.min_days
-            and self.highest_price
-            and current_price
-            <= self.highest_price * (1 - self.params.trailing_pct / 100)
-        ):
-            self.sell(exectype=bt.Order.Market)
-            return
-
-    def buy_signal(self):
-        # Override this method with your entry logic
-        # For now, using placeholder
-        return False
-
-    def notify_order(self, order):
-        if order.status in [order.Submitted, order.Accepted]:
-            return
-
-        if order.status in [order.Completed]:
-            if order.isbuy():
-                self.entry_price = order.executed.price
-                self.entry_date = len(self.data)
-                self.highest_price = order.executed.price
-                self.days_held = 0
-
-
-class NI_SMA_66_81_NI_DExitStrategy(bt.Strategy):
-    """
-    Statistical exit strategy for NI_SMA_66_81_NI_D
-    Generated from SPDS analysis
-
-    Sample Size: 112
-    Confidence: 0.9
-    Validity: HIGH
-    """
-
-    params = (
-        ("take_profit_pct", 11.79),
-        ("stop_loss_pct", 7.86),
-        ("max_days", 180),
-        ("momentum_exit_threshold", 0.04853751288732967),
-        ("trend_exit_threshold", 0.0030407314882599365),
-        ("trailing_pct", 2.57),
-        ("min_days", 32),
-        ("statistical_validity", "HIGH"),
-    )
-
-    def __init__(self):
-        self.entry_price = None
-        self.entry_date = None
-        self.highest_price = None
-        self.days_held = 0
-
-        # Validate parameters
-        if self.params.statistical_validity == "LOW":
-            print(f"Warning: Low reliability parameters for NI_SMA_66_81_NI_D")
-
-    def next(self):
-        if self.position:
-            self.days_held += 1
-            self.check_exit_conditions()
-
-    def check_exit_conditions(self):
-        current_price = self.data.close[0]
-        current_return = (current_price - self.entry_price) / self.entry_price * 100
-
-        # Update highest price for trailing stop
-        if self.highest_price is None or current_price > self.highest_price:
-            self.highest_price = current_price
-
-        # Take profit condition
-        if current_return >= self.params.take_profit_pct:
-            self.sell(exectype=bt.Order.Market)
-            return
-
-        # Stop loss condition
-        if current_return <= -self.params.stop_loss_pct:
-            self.sell(exectype=bt.Order.Market)
-            return
-
-        # Statistical failsafe time exit (after primary dynamic criteria)
-        if self.days_held >= self.params.max_days:
-            self.sell(exectype=bt.Order.Market)
-            return
-
-        # Trailing stop (only after minimum holding period)
-        if (
-            self.days_held >= self.params.min_days
-            and self.highest_price
-            and current_price
-            <= self.highest_price * (1 - self.params.trailing_pct / 100)
-        ):
-            self.sell(exectype=bt.Order.Market)
-            return
-
-    def buy_signal(self):
-        # Override this method with your entry logic
-        # For now, using placeholder
-        return False
-
-    def notify_order(self, order):
-        if order.status in [order.Submitted, order.Accepted]:
-            return
-
-        if order.status in [order.Completed]:
-            if order.isbuy():
-                self.entry_price = order.executed.price
-                self.entry_date = len(self.data)
-                self.highest_price = order.executed.price
-                self.days_held = 0
-
-
-class APP_SMA_14_15_APP_DExitStrategy(bt.Strategy):
-    """
-    Statistical exit strategy for APP_SMA_14_15_APP_D
-    Generated from SPDS analysis
-
-    Sample Size: 61
-    Confidence: 0.9
-    Validity: MEDIUM
-    """
-
-    params = (
-        ("take_profit_pct", 15.0),
-        ("stop_loss_pct", 8.0),
-        ("max_days", 455),
-        ("momentum_exit_threshold", 0.02),
-        ("trend_exit_threshold", 0.015),
-        ("trailing_pct", 8.67),
-        ("min_days", 21),
-        ("statistical_validity", "MEDIUM"),
-    )
-
-    def __init__(self):
-        self.entry_price = None
-        self.entry_date = None
-        self.highest_price = None
-        self.days_held = 0
-
-        # Validate parameters
-        if self.params.statistical_validity == "LOW":
-            print(f"Warning: Low reliability parameters for APP_SMA_14_15_APP_D")
-
-    def next(self):
-        if self.position:
-            self.days_held += 1
-            self.check_exit_conditions()
-
-    def check_exit_conditions(self):
-        current_price = self.data.close[0]
-        current_return = (current_price - self.entry_price) / self.entry_price * 100
-
-        # Update highest price for trailing stop
-        if self.highest_price is None or current_price > self.highest_price:
-            self.highest_price = current_price
-
-        # Take profit condition
-        if current_return >= self.params.take_profit_pct:
-            self.sell(exectype=bt.Order.Market)
-            return
-
-        # Stop loss condition
-        if current_return <= -self.params.stop_loss_pct:
-            self.sell(exectype=bt.Order.Market)
-            return
-
-        # Statistical failsafe time exit (after primary dynamic criteria)
-        if self.days_held >= self.params.max_days:
-            self.sell(exectype=bt.Order.Market)
-            return
-
-        # Trailing stop (only after minimum holding period)
-        if (
-            self.days_held >= self.params.min_days
-            and self.highest_price
-            and current_price
-            <= self.highest_price * (1 - self.params.trailing_pct / 100)
-        ):
+        if (self.days_held >= self.params.min_days and
+            self.highest_price and
+            current_price <= self.highest_price * (1 - self.params.trailing_pct / 100)):
             self.sell(exectype=bt.Order.Market)
             return
 
@@ -530,14 +177,9 @@ class APP_SMA_14_15_APP_DExitStrategy(bt.Strategy):
 
 # Strategy registry for easy access
 strategy_registry = {
-    "MA_SMA_78_82_MA_D": MA_SMA_78_82_MA_DExitStrategy,
+    "AMZN_SMA_77_81_AMZN_D": AMZN_SMA_77_81_AMZN_DExitStrategy,
     "ASML_SMA_71_80_ASML_D": ASML_SMA_71_80_ASML_DExitStrategy,
-    "AAPL_SMA_46_56_AAPL_D": AAPL_SMA_46_56_AAPL_DExitStrategy,
-    "TSLA_SMA_23_31_TSLA_D": TSLA_SMA_23_31_TSLA_DExitStrategy,
-    "NI_SMA_66_81_NI_D": NI_SMA_66_81_NI_DExitStrategy,
-    "APP_SMA_14_15_APP_D": APP_SMA_14_15_APP_DExitStrategy,
 }
-
 
 # Usage example
 def create_strategy(strategy_key):

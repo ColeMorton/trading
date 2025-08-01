@@ -137,6 +137,8 @@ poetry run trading-cli concurrency optimize large_portfolio.json --memory-optimi
 
 **⚠️ Updated**: SPDS now uses simplified 3-layer architecture (Phase 4 Complete)
 
+**📋 Profile Support**: SPDS commands use `spds_default` profile by default. Specify custom profiles with `--profile` option as needed.
+
 ```bash
 # NEW: Use updated CLI with modernized architecture
 poetry run trading-cli spds analyze --portfolio risk_on.csv
@@ -145,6 +147,9 @@ poetry run trading-cli spds analyze --portfolio risk_on.csv
 poetry run trading-cli spds analyze --portfolio risk_on.csv --data-source trade-history
 poetry run trading-cli spds analyze --strategy AAPL_SMA_20_50
 poetry run trading-cli spds analyze --position AAPL_SMA_20_50_20250101
+
+# Custom profile usage (optional)
+poetry run trading-cli spds analyze --portfolio risk_on.csv --profile custom_spds_profile
 
 # System health and management
 poetry run trading-cli spds health

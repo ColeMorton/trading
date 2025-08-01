@@ -14,6 +14,8 @@ config_type: strategy
 config:
   ticker:
     - BTC-USD
+
+  use_current: true
   # Filter configuration
   filter:
     use_current: true

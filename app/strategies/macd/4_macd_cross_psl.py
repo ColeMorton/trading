@@ -12,7 +12,7 @@ import vectorbt as vbt
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from app.strategies.macd.config_types import DEFAULT_CONFIG, PortfolioConfig
+from app.strategies.macd.config_types import PortfolioConfig
 from app.tools.calculate_rsi import calculate_rsi
 from app.tools.get_data import get_data
 
@@ -50,9 +50,25 @@ def log_wrapper(message, level="info"):
 def main():
     logging.info("Starting main execution")
 
-    config = DEFAULT_CONFIG.copy()
+    # Configuration must be provided from YAML profiles
+    config = {
+        "TICKER": "AAPL",
+        "SHORT_WINDOW_START": 8,
+        "SHORT_WINDOW_END": 12,
+        "LONG_WINDOW_START": 21,
+        "LONG_WINDOW_END": 26,
+        "SIGNAL_WINDOW_START": 9,
+        "SIGNAL_WINDOW_END": 9,
+        "DIRECTION": "Long",
+        "USE_CURRENT": True,
+        "USE_HOURLY": False,
+        "USE_YEARS": False,
+        "YEARS": 15,
+        "STEP": 1,
+        "BASE_DIR": "."
+    }
 
-    # Configuration from DEFAULT_CONFIG with fallbacks
+    # Configuration loaded from inline definition
     YEARS = 30  # Set timeframe in years for daily data
     USE_HOURLY = config.get("USE_HOURLY", False)
     USE_SYNTHETIC = config.get("USE_SYNTHETIC", False)

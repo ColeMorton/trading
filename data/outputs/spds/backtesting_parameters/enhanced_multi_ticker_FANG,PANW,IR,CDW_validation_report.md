@@ -10,10 +10,10 @@
 ## Parameter Validity Assessment
 
 | Validity Level | Count | Percentage |
-|----------------|-------|------------|
-| HIGH | 4 | 100.0% |
-| MEDIUM | 0 | 0.0% |
-| LOW | 0 | 0.0% |
+| -------------- | ----- | ---------- |
+| HIGH           | 4     | 100.0%     |
+| MEDIUM         | 0     | 0.0%       |
+| LOW            | 0     | 0.0%       |
 
 ## Statistical Summary
 
@@ -30,23 +30,28 @@
 ## Recommendations
 
 ### High Validity Parameters (4 strategies)
+
 These parameters are derived from robust statistical analysis with sample sizes ≥30 and high confidence levels. Recommended for production backtesting.
 
 ### Medium Validity Parameters (0 strategies)
+
 These parameters have moderate statistical support. Use with additional validation and consider paper trading before live deployment.
 
 ### Low Validity Parameters (0 strategies)
+
 These parameters have limited statistical support. Not recommended for production use without significant additional validation.
 
 ## Usage Guidelines
 
 1. **Parameter Interpretation:**
+
    - Take Profit %: Percentile-based profit target
    - Stop Loss %: Risk management threshold
    - Max Holding Days: Time-based exit criteria
    - Trailing Stop %: Volatility-adjusted trailing stop
 
 2. **Implementation Notes:**
+
    - Parameters are derived from historical statistical analysis
    - Consider market regime changes when applying parameters
    - Monitor parameter performance and adjust as needed

@@ -240,7 +240,7 @@ class RawDataType(str, Enum):
     ORDERS = "orders"
     POSITIONS = "positions"
     STATISTICS = "statistics"
-    PRICE_DATA = "price_data"
+    PRICE_DATA = "prices"
     DRAWDOWNS = "drawdowns"
     CUMULATIVE_RETURNS = "cumulative_returns"
     ALL = "all"
