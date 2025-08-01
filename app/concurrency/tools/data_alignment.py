@@ -63,20 +63,29 @@ def prepare_dataframe(
             log("DataFrame missing Date column", "error")
             raise ValueError("DataFrame missing Date column")
 
-        # First check if Date is a string and convert to datetime if needed
-        if df.schema["Date"] == pl.String:
+        # Handle different Date column types
+        date_dtype = df.schema["Date"]
+
+        if date_dtype == pl.String:
             log("Converting Date column from string to datetime", "info")
             df = df.with_columns([pl.col("Date").str.to_datetime().alias("Date")])
-
-        # Now perform the timezone and truncation operations
-        df = df.with_columns(
-            [
-                pl.col("Date")
-                .dt.replace_time_zone(None)
-                .dt.truncate("1d")
-                .cast(pl.Datetime("ns"))
-            ]
-        )
+        elif date_dtype == pl.Date:
+            log("Converting Date column from date to datetime", "info")
+            df = df.with_columns([pl.col("Date").cast(pl.Datetime("ns")).alias("Date")])
+        elif isinstance(date_dtype, pl.Datetime):
+            log("Date column is already datetime, applying timezone operations", "info")
+            # Only apply timezone operations to datetime columns
+            df = df.with_columns(
+                [
+                    pl.col("Date")
+                    .dt.replace_time_zone(None)
+                    .dt.truncate("1d")
+                    .cast(pl.Datetime("ns"))
+                ]
+            )
+        else:
+            log("Converting Date column to datetime", "info")
+            df = df.with_columns([pl.col("Date").cast(pl.Datetime("ns")).alias("Date")])
         log("Dates standardized", "info")
 
         if is_hourly:

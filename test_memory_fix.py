@@ -17,6 +17,7 @@ from app.tools.setup_logging import setup_logging
 
 # Remove the non-existent import
 
+
 def test_memory_fix():
     # Set up logging
     log, log_close, _, _ = setup_logging(
@@ -44,7 +45,9 @@ def test_memory_fix():
 
             # Create DataFrame from the compound result
             test_df = pl.DataFrame([result_dict])
-            log(f"Input to export processing - Metric Type: '{test_df['Metric Type'][0]}'")
+            log(
+                f"Input to export processing - Metric Type: '{test_df['Metric Type'][0]}'"
+            )
 
             # Test the export processing function directly
             try:
@@ -53,11 +56,7 @@ def test_memory_fix():
                 from app.tools.strategy.export_portfolios import export_portfolios
 
                 # Simulate the export processing steps
-                config = {
-                    "TICKER": "CDW",
-                    "STRATEGY_TYPES": ["MACD"],
-                    "TIMEFRAME": "D"
-                }
+                config = {"TICKER": "CDW", "STRATEGY_TYPES": ["MACD"], "TIMEFRAME": "D"}
 
                 # Check if the export function would preserve the compound metric type
                 log("Checking export function logic...")
@@ -75,41 +74,55 @@ def test_memory_fix():
                     log(f"Has compound metric types: {has_compound_metric_types}")
 
                     if has_compound_metric_types:
-                        log("✅ SUCCESS: Export function correctly detects compound metric types!")
+                        log(
+                            "✅ SUCCESS: Export function correctly detects compound metric types!"
+                        )
                         log("✅ SUCCESS: Re-aggregation would be skipped!")
 
                         # Test schema transformation preserves compound type
                         from app.tools.portfolio.base_extended_schemas import (
                             SchemaTransformer,
                         )
+
                         transformer = SchemaTransformer()
 
                         portfolio_dict = test_df.to_dicts()[0]
-                        log(f"Before schema transformation: '{portfolio_dict.get('Metric Type', 'MISSING')}'")
+                        log(
+                            f"Before schema transformation: '{portfolio_dict.get('Metric Type', 'MISSING')}'"
+                        )
 
                         # Test the normalize function that was overriding the metric type
                         normalized = transformer.normalize_to_schema(
                             portfolio_dict,
                             SchemaType.FILTERED,
-                            metric_type=portfolio_dict.get("Metric Type", "Most Total Return [%]")
+                            metric_type=portfolio_dict.get(
+                                "Metric Type", "Most Total Return [%]"
+                            ),
                         )
 
                         final_metric_type = normalized.get("Metric Type", "MISSING")
                         log(f"After schema transformation: '{final_metric_type}'")
 
                         if final_metric_type == compound_metric_type:
-                            log("🎉 SUCCESS: Schema transformation preserves compound metric types!")
+                            log(
+                                "🎉 SUCCESS: Schema transformation preserves compound metric types!"
+                            )
                             return True
                         else:
-                            log("❌ FAILURE: Schema transformation lost compound metric type")
+                            log(
+                                "❌ FAILURE: Schema transformation lost compound metric type"
+                            )
                             return False
                     else:
-                        log("❌ FAILURE: Export function doesn't detect compound metric types")
+                        log(
+                            "❌ FAILURE: Export function doesn't detect compound metric types"
+                        )
                         return False
 
             except Exception as e:
                 log(f"Error during export processing test: {str(e)}", "error")
                 import traceback
+
                 log(f"Traceback: {traceback.format_exc()}", "error")
                 return False
         else:
@@ -119,10 +132,12 @@ def test_memory_fix():
     except Exception as e:
         log(f"Error in test: {str(e)}", "error")
         import traceback
+
         log(f"Traceback: {traceback.format_exc()}", "error")
         return False
     finally:
         log_close()
+
 
 if __name__ == "__main__":
     success = test_memory_fix()

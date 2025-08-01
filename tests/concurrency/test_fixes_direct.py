@@ -49,11 +49,14 @@ def test_risk_calc_fix():
         returns = np.random.normal(0.001, 0.02, n_periods)
         prices = 100 * np.cumprod(1 + returns)
 
+        from datetime import timedelta
+
+        start_date = datetime(2024, 1, 1)
+        end_date = start_date + timedelta(days=n_periods - 1)
+
         df = pl.DataFrame(
             {
-                "Date": pl.date_range(
-                    datetime(2024, 1, 1), periods=n_periods, interval="1d"
-                ),
+                "Date": pl.date_range(start_date, end_date, interval="1d", eager=True),
                 "Close": prices,
                 "Position": position_arrays[i],
             }

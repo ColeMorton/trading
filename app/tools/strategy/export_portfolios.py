@@ -400,11 +400,16 @@ def export_portfolios(
             has_compound_metric_types = len(compound_types) > 0
 
             if log and has_compound_metric_types:
-                log(f"📊 DETECTED compound metric types: {compound_types[:3]}{'...' if len(compound_types) > 3 else ''}", "info")
+                log(
+                    f"📊 DETECTED compound metric types: {compound_types[:3]}{'...' if len(compound_types) > 3 else ''}",
+                    "info",
+                )
 
-        if export_type == "portfolios_best" and (
-            has_metric_type or has_multiple_strategy_types
-        ) and not has_compound_metric_types:
+        if (
+            export_type == "portfolios_best"
+            and (has_metric_type or has_multiple_strategy_types)
+            and not has_compound_metric_types
+        ):
             from app.tools.portfolio.collection import (
                 deduplicate_and_aggregate_portfolios,
             )
@@ -479,7 +484,10 @@ def export_portfolios(
                     log(f"📊 POST-AGGREGATION CBRE DETAILS: {cbre_post_details}", "info")
         elif export_type == "portfolios_best" and has_compound_metric_types:
             if log:
-                log("📊 SKIPPING aggregation - portfolios already have compound metric types (previously aggregated)", "info")
+                log(
+                    "📊 SKIPPING aggregation - portfolios already have compound metric types (previously aggregated)",
+                    "info",
+                )
 
         # Special handling for portfolios_best export type
         if export_type == "portfolios_best":

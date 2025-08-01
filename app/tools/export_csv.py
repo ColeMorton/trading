@@ -327,7 +327,9 @@ def export_csv(
             "strategies",
         ]:
             # Validate schema compliance before export
-            validated_data = _validate_and_ensure_schema_compliance(data, log, target_schema)
+            validated_data = _validate_and_ensure_schema_compliance(
+                data, log, target_schema
+            )
             # Use validated data for export
             data = validated_data
 
@@ -419,7 +421,9 @@ def export_csv(
 
 
 def _validate_and_ensure_schema_compliance(
-    data: Union[pl.DataFrame, pd.DataFrame], log: Optional[Callable] = None, target_schema: Optional["SchemaType"] = None
+    data: Union[pl.DataFrame, pd.DataFrame],
+    log: Optional[Callable] = None,
+    target_schema: Optional["SchemaType"] = None,
 ) -> Union[pl.DataFrame, pd.DataFrame]:
     """
     Validate and ensure schema compliance for export data.
@@ -487,7 +491,9 @@ def _validate_and_ensure_schema_compliance(
 
 
 def _ensure_canonical_column_order(
-    df: pd.DataFrame, log: Optional[Callable] = None, target_schema: Optional["SchemaType"] = None
+    df: pd.DataFrame,
+    log: Optional[Callable] = None,
+    target_schema: Optional["SchemaType"] = None,
 ) -> pd.DataFrame:
     """
     Ensure DataFrame has all columns in the correct order using SchemaTransformer.
@@ -509,7 +515,9 @@ def _ensure_canonical_column_order(
         transformer = SchemaTransformer()
 
         # Use target schema or default to EXTENDED for backward compatibility
-        schema_type = target_schema if target_schema is not None else SchemaType.EXTENDED
+        schema_type = (
+            target_schema if target_schema is not None else SchemaType.EXTENDED
+        )
 
         # Convert DataFrame to list of dictionaries for SchemaTransformer processing
         portfolios = df.to_dict("records")
@@ -518,7 +526,9 @@ def _ensure_canonical_column_order(
         for portfolio in portfolios:
             try:
                 # Preserve existing metric type if present
-                existing_metric_type = portfolio.get("Metric Type", "Most Total Return [%]")
+                existing_metric_type = portfolio.get(
+                    "Metric Type", "Most Total Return [%]"
+                )
 
                 # Normalize each portfolio to target schema with canonical ordering
                 normalized_portfolio = transformer.normalize_to_schema(

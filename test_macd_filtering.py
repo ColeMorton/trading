@@ -60,7 +60,7 @@ def test_macd_filtering():
                 "TRADES": 34,
                 "EXPECTANCY_PER_TRADE": 0.236,
                 "PROFIT_FACTOR": 1.236,
-            }
+            },
         }
 
         print(f"\nFiltering config MINIMUMS: {test_config.get('MINIMUMS', 'Not set')}")

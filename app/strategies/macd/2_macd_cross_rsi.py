@@ -219,7 +219,7 @@ def main():
         "USE_YEARS": False,
         "YEARS": 15,
         "STEP": 1,
-        "BASE_DIR": "."
+        "BASE_DIR": ".",
     }
 
     data = get_data(config["TICKER"], config, log)

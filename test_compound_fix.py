@@ -31,7 +31,9 @@ def test_compound_fix():
         filtered_df = pl.read_csv(filtered_file)
 
         log(f"Filtered data shape: {filtered_df.shape}")
-        log(f"Number of unique metric types: {len(filtered_df['Metric Type'].unique())}")
+        log(
+            f"Number of unique metric types: {len(filtered_df['Metric Type'].unique())}"
+        )
 
         # Test aggregation to generate compound metric type
         log("Testing aggregation...")
@@ -55,7 +57,7 @@ def test_compound_fix():
                 test_config = {
                     "TICKER": "CDW",
                     "STRATEGY_TYPES": ["MACD"],
-                    "TIMEFRAME": "D"
+                    "TIMEFRAME": "D",
                 }
 
                 # Export using the same method as the individual ticker exports
@@ -77,11 +79,15 @@ def test_compound_fix():
                     log(f"Reading back exported file: {latest_file}")
                     exported_df = pl.read_csv(latest_file)
                     if exported_df.height > 0:
-                        exported_metric_type = exported_df.row(0, named=True)["Metric Type"]
+                        exported_metric_type = exported_df.row(0, named=True)[
+                            "Metric Type"
+                        ]
                         log(f"Exported Metric Type: '{exported_metric_type}'")
 
                         if exported_metric_type == compound_metric_type:
-                            log("🎉 SUCCESS: Compound metric type preserved through export!")
+                            log(
+                                "🎉 SUCCESS: Compound metric type preserved through export!"
+                            )
                             return True
                         else:
                             log("❌ FAILURE: Compound metric type lost during export")
@@ -101,10 +107,12 @@ def test_compound_fix():
     except Exception as e:
         log(f"Error in test: {str(e)}", "error")
         import traceback
+
         log(f"Traceback: {traceback.format_exc()}", "error")
         return False
     finally:
         log_close()
+
 
 if __name__ == "__main__":
     success = test_compound_fix()

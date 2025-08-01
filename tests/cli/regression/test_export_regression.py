@@ -47,7 +47,7 @@ class TestExportDirectoryRegression:
                 "Total Return [%]": 25.5,
                 "Sharpe Ratio": 1.2,
                 "Score": 8.5,
-                "Metric Type": "Most Total Return [%]"
+                "Metric Type": "Most Total Return [%]",
             }
         ]
 
@@ -60,10 +60,12 @@ class TestExportDirectoryRegression:
             "STRATEGY_TYPES": ["SMA"],
             "USE_HOURLY": False,
             "USE_MA": True,
-            "STRATEGY_TYPE": "SMA"
+            "STRATEGY_TYPE": "SMA",
         }
 
-    def test_portfolios_best_exports_to_correct_directory(self, sample_portfolios, base_config, temp_export_dir):
+    def test_portfolios_best_exports_to_correct_directory(
+        self, sample_portfolios, base_config, temp_export_dir
+    ):
         """
         REGRESSION TEST: portfolios_best files should export to data/raw/portfolios_best/
 
@@ -73,13 +75,13 @@ class TestExportDirectoryRegression:
         """
         config = base_config.copy()
 
-        with patch('app.tools.strategy.export_portfolios.logging_context'):
+        with patch("app.tools.strategy.export_portfolios.logging_context"):
             df, success = export_portfolios(
                 portfolios=sample_portfolios,
                 config=config,
                 export_type="portfolios_best",
                 feature_dir="",  # Empty feature_dir should use export_type
-                log=Mock()
+                log=Mock(),
             )
 
         assert success == True
@@ -94,23 +96,28 @@ class TestExportDirectoryRegression:
 
         # Verify no files were exported to wrong location (data/raw/ directly)
         wrong_path = Path(temp_export_dir) / "data" / "raw"
-        direct_csv_files = [f for f in wrong_path.glob("*.csv")
-                           if f.parent.name == "raw"]  # Direct children of raw/
-        assert len(direct_csv_files) == 0, "No CSV files should be directly in data/raw/"
+        direct_csv_files = [
+            f for f in wrong_path.glob("*.csv") if f.parent.name == "raw"
+        ]  # Direct children of raw/
+        assert (
+            len(direct_csv_files) == 0
+        ), "No CSV files should be directly in data/raw/"
 
-    def test_portfolios_filtered_exports_to_correct_directory(self, sample_portfolios, base_config, temp_export_dir):
+    def test_portfolios_filtered_exports_to_correct_directory(
+        self, sample_portfolios, base_config, temp_export_dir
+    ):
         """
         REGRESSION TEST: portfolios_filtered files should export to data/raw/portfolios_filtered/
         """
         config = base_config.copy()
 
-        with patch('app.tools.strategy.export_portfolios.logging_context'):
+        with patch("app.tools.strategy.export_portfolios.logging_context"):
             df, success = export_portfolios(
                 portfolios=sample_portfolios,
                 config=config,
                 export_type="portfolios_filtered",
                 feature_dir="",  # Empty feature_dir should use export_type
-                log=Mock()
+                log=Mock(),
             )
 
         assert success == True
@@ -122,25 +129,29 @@ class TestExportDirectoryRegression:
         csv_files = list(correct_path.glob("*.csv"))
         assert len(csv_files) > 0
 
-    def test_feature_dir_parameter_override(self, sample_portfolios, base_config, temp_export_dir):
+    def test_feature_dir_parameter_override(
+        self, sample_portfolios, base_config, temp_export_dir
+    ):
         """
         REGRESSION TEST: When feature_dir is provided, it should be used instead of export_type
         """
         config = base_config.copy()
 
-        with patch('app.tools.strategy.export_portfolios.logging_context'):
+        with patch("app.tools.strategy.export_portfolios.logging_context"):
             df, success = export_portfolios(
                 portfolios=sample_portfolios,
                 config=config,
                 export_type="portfolios_best",
                 feature_dir="ma_cross",  # Explicit feature_dir should be used
-                log=Mock()
+                log=Mock(),
             )
 
         assert success == True
 
         # Verify file was exported to feature_dir location
-        feature_path = Path(temp_export_dir) / "data" / "raw" / "ma_cross" / "portfolios_best"
+        feature_path = (
+            Path(temp_export_dir) / "data" / "raw" / "ma_cross" / "portfolios_best"
+        )
         assert feature_path.exists()
 
         csv_files = list(feature_path.glob("*.csv"))
@@ -170,7 +181,7 @@ class TestMetricTypeColumnRegression:
                 "Total Return [%]": 25.5,
                 "Sharpe Ratio": 1.2,
                 "Score": 8.5,
-                "Metric Type": "Most Total Return [%]"
+                "Metric Type": "Most Total Return [%]",
             },
             {
                 "Ticker": "MSFT",
@@ -182,7 +193,7 @@ class TestMetricTypeColumnRegression:
                 "Total Return [%]": 32.1,
                 "Sharpe Ratio": 1.4,
                 "Score": 9.0,
-                "Metric Type": "Most Sharpe Ratio"
+                "Metric Type": "Most Sharpe Ratio",
             },
             {
                 "Ticker": "GOOGL",
@@ -195,8 +206,8 @@ class TestMetricTypeColumnRegression:
                 "Total Return [%]": 35.8,
                 "Sharpe Ratio": 1.6,
                 "Score": 9.5,
-                "Metric Type": "Most Win Rate [%]"
-            }
+                "Metric Type": "Most Win Rate [%]",
+            },
         ]
 
     @pytest.fixture
@@ -208,10 +219,12 @@ class TestMetricTypeColumnRegression:
             "STRATEGY_TYPES": ["SMA", "EMA", "MACD"],
             "USE_HOURLY": False,
             "USE_MA": False,
-            "STRATEGY_TYPE": "Multi"
+            "STRATEGY_TYPE": "Multi",
         }
 
-    def test_portfolios_filtered_includes_metric_type_column(self, diverse_portfolios, base_config, temp_export_dir):
+    def test_portfolios_filtered_includes_metric_type_column(
+        self, diverse_portfolios, base_config, temp_export_dir
+    ):
         """
         REGRESSION TEST: portfolios_filtered exports should include Metric Type column
 
@@ -220,18 +233,20 @@ class TestMetricTypeColumnRegression:
         """
         config = base_config.copy()
 
-        with patch('app.tools.strategy.export_portfolios.logging_context'):
+        with patch("app.tools.strategy.export_portfolios.logging_context"):
             df, success = export_portfolios(
                 portfolios=diverse_portfolios,
                 config=config,
                 export_type="portfolios_filtered",
-                log=Mock()
+                log=Mock(),
             )
 
         assert success == True
 
         # CRITICAL: Verify Metric Type column is present
-        assert "Metric Type" in df.columns, "Metric Type column should be present in portfolios_filtered"
+        assert (
+            "Metric Type" in df.columns
+        ), "Metric Type column should be present in portfolios_filtered"
 
         # Verify it's the first column (filtered schema requirement)
         assert df.columns[0] == "Metric Type", "Metric Type should be the first column"
@@ -242,18 +257,20 @@ class TestMetricTypeColumnRegression:
             if len(strategy_rows) > 0:
                 assert "Metric Type" in strategy_rows.columns
 
-    def test_portfolios_best_includes_metric_type_column(self, diverse_portfolios, base_config, temp_export_dir):
+    def test_portfolios_best_includes_metric_type_column(
+        self, diverse_portfolios, base_config, temp_export_dir
+    ):
         """
         REGRESSION TEST: portfolios_best exports should include Metric Type column
         """
         config = base_config.copy()
 
-        with patch('app.tools.strategy.export_portfolios.logging_context'):
+        with patch("app.tools.strategy.export_portfolios.logging_context"):
             df, success = export_portfolios(
                 portfolios=diverse_portfolios,
                 config=config,
                 export_type="portfolios_best",
-                log=Mock()
+                log=Mock(),
             )
 
         assert success == True
@@ -262,7 +279,9 @@ class TestMetricTypeColumnRegression:
         assert "Metric Type" in df.columns
         assert df.columns[0] == "Metric Type"
 
-    def test_metric_type_values_are_preserved(self, diverse_portfolios, base_config, temp_export_dir):
+    def test_metric_type_values_are_preserved(
+        self, diverse_portfolios, base_config, temp_export_dir
+    ):
         """
         REGRESSION TEST: Metric Type values should not be overwritten with defaults
 
@@ -271,12 +290,12 @@ class TestMetricTypeColumnRegression:
         """
         config = base_config.copy()
 
-        with patch('app.tools.strategy.export_portfolios.logging_context'):
+        with patch("app.tools.strategy.export_portfolios.logging_context"):
             df, success = export_portfolios(
                 portfolios=diverse_portfolios,
                 config=config,
                 export_type="portfolios_filtered",
-                log=Mock()
+                log=Mock(),
             )
 
         assert success == True
@@ -285,7 +304,9 @@ class TestMetricTypeColumnRegression:
         metric_types = df["Metric Type"].unique().to_list()
 
         # Should have at least 3 different metric types
-        assert len(metric_types) >= 3, f"Expected at least 3 metric types, got: {metric_types}"
+        assert (
+            len(metric_types) >= 3
+        ), f"Expected at least 3 metric types, got: {metric_types}"
 
         # Verify specific metric types are preserved
         assert "Most Total Return [%]" in metric_types
@@ -293,11 +314,19 @@ class TestMetricTypeColumnRegression:
         assert "Most Win Rate [%]" in metric_types
 
         # Verify no metric type was lost/overwritten
-        expected_metrics = {"Most Total Return [%]", "Most Sharpe Ratio", "Most Win Rate [%]"}
+        expected_metrics = {
+            "Most Total Return [%]",
+            "Most Sharpe Ratio",
+            "Most Win Rate [%]",
+        }
         actual_metrics = set(metric_types)
-        assert expected_metrics.issubset(actual_metrics), f"Missing metric types: {expected_metrics - actual_metrics}"
+        assert expected_metrics.issubset(
+            actual_metrics
+        ), f"Missing metric types: {expected_metrics - actual_metrics}"
 
-    def test_no_dual_normalization_stripping(self, diverse_portfolios, base_config, temp_export_dir):
+    def test_no_dual_normalization_stripping(
+        self, diverse_portfolios, base_config, temp_export_dir
+    ):
         """
         REGRESSION TEST: Dual normalization should not strip Metric Type column
 
@@ -308,22 +337,26 @@ class TestMetricTypeColumnRegression:
 
         # Test that the dual normalization bug is fixed by verifying
         # the column survives the complete export pipeline
-        with patch('app.tools.strategy.export_portfolios.logging_context'):
+        with patch("app.tools.strategy.export_portfolios.logging_context"):
             df, success = export_portfolios(
                 portfolios=diverse_portfolios,
                 config=config,
                 export_type="portfolios_filtered",
-                log=Mock()
+                log=Mock(),
             )
 
         assert success == True
 
         # If dual normalization was occurring, the Metric Type column would be stripped
-        assert "Metric Type" in df.columns, "Metric Type column should survive normalization pipeline"
+        assert (
+            "Metric Type" in df.columns
+        ), "Metric Type column should survive normalization pipeline"
 
         # Verify the column has actual values, not just empty/null
         metric_type_values = df["Metric Type"].drop_nulls()
-        assert len(metric_type_values) > 0, "Metric Type column should have non-null values"
+        assert (
+            len(metric_type_values) > 0
+        ), "Metric Type column should have non-null values"
 
 
 class TestFilenameGenerationRegression:
@@ -349,11 +382,13 @@ class TestFilenameGenerationRegression:
                 "Total Return [%]": 25.5,
                 "Sharpe Ratio": 1.2,
                 "Score": 8.5,
-                "Metric Type": "Most Total Return [%]"
+                "Metric Type": "Most Total Return [%]",
             }
         ]
 
-    def test_single_sma_strategy_filename_generation(self, single_strategy_portfolio, temp_export_dir):
+    def test_single_sma_strategy_filename_generation(
+        self, single_strategy_portfolio, temp_export_dir
+    ):
         """
         REGRESSION TEST: Single SMA strategy should produce RJF_D_SMA.csv filename
 
@@ -366,16 +401,16 @@ class TestFilenameGenerationRegression:
             "STRATEGY_TYPES": ["SMA"],  # This should be used for detection
             "USE_HOURLY": False,
             "USE_MA": True,
-            "STRATEGY_TYPE": "SMA"
+            "STRATEGY_TYPE": "SMA",
         }
 
         # Test portfolios_best export
-        with patch('app.tools.strategy.export_portfolios.logging_context'):
+        with patch("app.tools.strategy.export_portfolios.logging_context"):
             df, success = export_portfolios(
                 portfolios=single_strategy_portfolio,
                 config=config,
                 export_type="portfolios_best",
-                log=Mock()
+                log=Mock(),
             )
 
         assert success == True
@@ -392,7 +427,9 @@ class TestFilenameGenerationRegression:
         assert "SMA" in filename
         assert filename.startswith("RJF_")  # Should start with ticker
 
-    def test_single_sma_strategy_filtered_filename(self, single_strategy_portfolio, temp_export_dir):
+    def test_single_sma_strategy_filtered_filename(
+        self, single_strategy_portfolio, temp_export_dir
+    ):
         """
         REGRESSION TEST: Single SMA strategy filtered should have correct filename
 
@@ -405,16 +442,16 @@ class TestFilenameGenerationRegression:
             "STRATEGY_TYPES": ["SMA"],  # Single strategy
             "USE_HOURLY": False,
             "USE_MA": True,
-            "STRATEGY_TYPE": "SMA"
+            "STRATEGY_TYPE": "SMA",
         }
 
         # Test portfolios_filtered export
-        with patch('app.tools.strategy.export_portfolios.logging_context'):
+        with patch("app.tools.strategy.export_portfolios.logging_context"):
             df, success = export_portfolios(
                 portfolios=single_strategy_portfolio,
                 config=config,
                 export_type="portfolios_filtered",
-                log=Mock()
+                log=Mock(),
             )
 
         assert success == True
@@ -445,7 +482,7 @@ class TestFilenameGenerationRegression:
                 "Total Return [%]": 25.5,
                 "Sharpe Ratio": 1.2,
                 "Score": 8.5,
-                "Metric Type": "Most Total Return [%]"
+                "Metric Type": "Most Total Return [%]",
             },
             {
                 "Ticker": "AAPL",
@@ -457,8 +494,8 @@ class TestFilenameGenerationRegression:
                 "Total Return [%]": 32.1,
                 "Sharpe Ratio": 1.4,
                 "Score": 9.0,
-                "Metric Type": "Most Sharpe Ratio"
-            }
+                "Metric Type": "Most Sharpe Ratio",
+            },
         ]
 
         config = {
@@ -467,15 +504,15 @@ class TestFilenameGenerationRegression:
             "STRATEGY_TYPES": ["SMA", "EMA"],  # Multiple strategies
             "USE_HOURLY": False,
             "USE_MA": False,  # Should be False for multiple strategies
-            "STRATEGY_TYPE": "Multi"
+            "STRATEGY_TYPE": "Multi",
         }
 
-        with patch('app.tools.strategy.export_portfolios.logging_context'):
+        with patch("app.tools.strategy.export_portfolios.logging_context"):
             df, success = export_portfolios(
                 portfolios=mixed_portfolios,
                 config=config,
                 export_type="portfolios",
-                log=Mock()
+                log=Mock(),
             )
 
         assert success == True
@@ -492,7 +529,9 @@ class TestFilenameGenerationRegression:
         # Should not contain specific strategy suffixes for multi-strategy
         # (This test allows for some flexibility in multi-strategy naming)
 
-    def test_strategy_type_config_key_usage(self, single_strategy_portfolio, temp_export_dir):
+    def test_strategy_type_config_key_usage(
+        self, single_strategy_portfolio, temp_export_dir
+    ):
         """
         REGRESSION TEST: Should use STRATEGY_TYPES (plural) for strategy detection
 
@@ -507,12 +546,12 @@ class TestFilenameGenerationRegression:
             # STRATEGY_TYPE should be set based on STRATEGY_TYPES
         }
 
-        with patch('app.tools.strategy.export_portfolios.logging_context'):
+        with patch("app.tools.strategy.export_portfolios.logging_context"):
             df, success = export_portfolios(
                 portfolios=single_strategy_portfolio,
                 config=config,
                 export_type="portfolios",
-                log=Mock()
+                log=Mock(),
             )
 
         assert success == True
@@ -547,7 +586,7 @@ class TestSortingConsistencyRegression:
                 "Total Return [%]": 25.5,
                 "Sharpe Ratio": 1.2,
                 "Score": 6.5,  # Lower score
-                "Metric Type": "Most Total Return [%]"
+                "Metric Type": "Most Total Return [%]",
             },
             {
                 "Ticker": "MSFT",
@@ -559,7 +598,7 @@ class TestSortingConsistencyRegression:
                 "Total Return [%]": 32.1,
                 "Sharpe Ratio": 1.4,
                 "Score": 9.0,  # Higher score
-                "Metric Type": "Most Sharpe Ratio"
+                "Metric Type": "Most Sharpe Ratio",
             },
             {
                 "Ticker": "GOOGL",
@@ -571,11 +610,13 @@ class TestSortingConsistencyRegression:
                 "Total Return [%]": 15.8,
                 "Sharpe Ratio": 1.0,
                 "Score": 7.8,  # Middle score
-                "Metric Type": "Most Win Rate [%]"
-            }
+                "Metric Type": "Most Win Rate [%]",
+            },
         ]
 
-    def test_sma_portfolios_sorted_by_score_descending(self, unsorted_portfolios, temp_export_dir):
+    def test_sma_portfolios_sorted_by_score_descending(
+        self, unsorted_portfolios, temp_export_dir
+    ):
         """
         REGRESSION TEST: SMA portfolios should be sorted by Score descending
 
@@ -590,29 +631,35 @@ class TestSortingConsistencyRegression:
             "USE_MA": False,
             "STRATEGY_TYPE": "SMA",
             "SORT_BY": "Score",
-            "SORT_ASC": False
+            "SORT_ASC": False,
         }
 
-        with patch('app.tools.strategy.export_portfolios.logging_context'):
+        with patch("app.tools.strategy.export_portfolios.logging_context"):
             df, success = export_portfolios(
                 portfolios=unsorted_portfolios,
                 config=config,
                 export_type="portfolios",
-                log=Mock()
+                log=Mock(),
             )
 
         assert success == True
 
         # CRITICAL: Verify portfolios are sorted by Score descending
         scores = df["Score"].to_list()
-        assert scores == sorted(scores, reverse=True), f"SMA portfolios should be sorted by Score descending: {scores}"
+        assert scores == sorted(
+            scores, reverse=True
+        ), f"SMA portfolios should be sorted by Score descending: {scores}"
 
         # Verify the order is specifically: MSFT (9.0), GOOGL (7.8), AAPL (6.5)
         tickers = df["Ticker"].to_list()
         expected_order = ["MSFT", "GOOGL", "AAPL"]  # Sorted by descending Score
-        assert tickers == expected_order, f"Expected ticker order {expected_order}, got {tickers}"
+        assert (
+            tickers == expected_order
+        ), f"Expected ticker order {expected_order}, got {tickers}"
 
-    def test_sorting_configuration_applied_to_ma_strategies(self, unsorted_portfolios, temp_export_dir):
+    def test_sorting_configuration_applied_to_ma_strategies(
+        self, unsorted_portfolios, temp_export_dir
+    ):
         """
         REGRESSION TEST: All MA strategies (SMA/EMA) should have consistent sorting
         """
@@ -631,22 +678,24 @@ class TestSortingConsistencyRegression:
             "USE_MA": False,
             "STRATEGY_TYPE": "EMA",
             "SORT_BY": "Score",
-            "SORT_ASC": False
+            "SORT_ASC": False,
         }
 
-        with patch('app.tools.strategy.export_portfolios.logging_context'):
+        with patch("app.tools.strategy.export_portfolios.logging_context"):
             df, success = export_portfolios(
                 portfolios=ema_portfolios,
                 config=config,
                 export_type="portfolios",
-                log=Mock()
+                log=Mock(),
             )
 
         assert success == True
 
         # Verify EMA portfolios are also sorted by Score descending
         scores = df["Score"].to_list()
-        assert scores == sorted(scores, reverse=True), f"EMA portfolios should be sorted by Score descending: {scores}"
+        assert scores == sorted(
+            scores, reverse=True
+        ), f"EMA portfolios should be sorted by Score descending: {scores}"
 
     def test_mixed_strategy_sorting_consistency(self, temp_export_dir):
         """
@@ -663,7 +712,7 @@ class TestSortingConsistencyRegression:
                 "Sharpe Ratio": 1.2,
                 "Short Window": 10,
                 "Long Window": 20,
-                "Metric Type": "Most Total Return [%]"
+                "Metric Type": "Most Total Return [%]",
             },
             {
                 "Ticker": "MSFT",
@@ -675,7 +724,7 @@ class TestSortingConsistencyRegression:
                 "Sharpe Ratio": 1.4,
                 "Short Window": 12,
                 "Long Window": 26,
-                "Metric Type": "Most Sharpe Ratio"
+                "Metric Type": "Most Sharpe Ratio",
             },
             {
                 "Ticker": "GOOGL",
@@ -688,8 +737,8 @@ class TestSortingConsistencyRegression:
                 "Short Window": 12,
                 "Long Window": 26,
                 "Signal Window": 9,
-                "Metric Type": "Most Win Rate [%]"
-            }
+                "Metric Type": "Most Win Rate [%]",
+            },
         ]
 
         config = {
@@ -700,15 +749,15 @@ class TestSortingConsistencyRegression:
             "USE_MA": False,
             "STRATEGY_TYPE": "Multi",
             "SORT_BY": "Score",
-            "SORT_ASC": False
+            "SORT_ASC": False,
         }
 
-        with patch('app.tools.strategy.export_portfolios.logging_context'):
+        with patch("app.tools.strategy.export_portfolios.logging_context"):
             df, success = export_portfolios(
                 portfolios=mixed_portfolios,
                 config=config,
                 export_type="portfolios_filtered",
-                log=Mock()
+                log=Mock(),
             )
 
         assert success == True
@@ -746,7 +795,7 @@ class TestCBREAggregationRegression:
                 "Total Return [%]": 25.5,
                 "Sharpe Ratio": 1.2,
                 "Score": 8.5,
-                "Metric Type": "Most Total Return [%]"
+                "Metric Type": "Most Total Return [%]",
             },
             {
                 "Ticker": "CBRE",
@@ -758,11 +807,13 @@ class TestCBREAggregationRegression:
                 "Total Return [%]": 32.1,
                 "Sharpe Ratio": 1.8,  # Different value for same ticker/strategy
                 "Score": 9.0,
-                "Metric Type": "Most Sharpe Ratio"  # Different metric type
-            }
+                "Metric Type": "Most Sharpe Ratio",  # Different metric type
+            },
         ]
 
-    def test_cbre_aggregation_preserves_metric_types(self, cbre_aggregation_data, temp_export_dir):
+    def test_cbre_aggregation_preserves_metric_types(
+        self, cbre_aggregation_data, temp_export_dir
+    ):
         """
         REGRESSION TEST: CBRE aggregation should preserve compound metric types
 
@@ -775,15 +826,15 @@ class TestCBREAggregationRegression:
             "STRATEGY_TYPES": ["SMA"],
             "USE_HOURLY": False,
             "USE_MA": True,
-            "STRATEGY_TYPE": "SMA"
+            "STRATEGY_TYPE": "SMA",
         }
 
-        with patch('app.tools.strategy.export_portfolios.logging_context'):
+        with patch("app.tools.strategy.export_portfolios.logging_context"):
             df, success = export_portfolios(
                 portfolios=cbre_aggregation_data,
                 config=config,
                 export_type="portfolios_best",
-                log=Mock()
+                log=Mock(),
             )
 
         assert success == True
@@ -800,9 +851,13 @@ class TestCBREAggregationRegression:
         has_diverse_metrics = len(set(cbre_metric_types)) > 1
 
         # At least one of these should be true (aggregation worked or individual metrics preserved)
-        assert has_compound_metrics or has_diverse_metrics, f"CBRE metric types not properly handled: {cbre_metric_types}"
+        assert (
+            has_compound_metrics or has_diverse_metrics
+        ), f"CBRE metric types not properly handled: {cbre_metric_types}"
 
-    def test_cbre_aggregation_numerical_consistency(self, cbre_aggregation_data, temp_export_dir):
+    def test_cbre_aggregation_numerical_consistency(
+        self, cbre_aggregation_data, temp_export_dir
+    ):
         """
         REGRESSION TEST: CBRE aggregation should maintain numerical consistency
         """
@@ -812,15 +867,15 @@ class TestCBREAggregationRegression:
             "STRATEGY_TYPES": ["SMA"],
             "USE_HOURLY": False,
             "USE_MA": True,
-            "STRATEGY_TYPE": "SMA"
+            "STRATEGY_TYPE": "SMA",
         }
 
-        with patch('app.tools.strategy.export_portfolios.logging_context'):
+        with patch("app.tools.strategy.export_portfolios.logging_context"):
             df, success = export_portfolios(
                 portfolios=cbre_aggregation_data,
                 config=config,
                 export_type="portfolios_best",
-                log=Mock()
+                log=Mock(),
             )
 
         assert success == True
@@ -855,7 +910,7 @@ class TestCBREAggregationRegression:
                 "Total Trades": 50,
                 "Win Rate [%]": 55.0,
                 "Total Return [%]": 25.5,
-                "Sharpe Ratio": 1.2
+                "Sharpe Ratio": 1.2,
             },
             {
                 "Ticker": "AAPL",
@@ -867,8 +922,8 @@ class TestCBREAggregationRegression:
                 "Total Trades": 45,
                 "Win Rate [%]": 62.0,
                 "Total Return [%]": 32.1,
-                "Sharpe Ratio": 1.8
-            }
+                "Sharpe Ratio": 1.8,
+            },
         ]
 
         config = {
@@ -877,15 +932,15 @@ class TestCBREAggregationRegression:
             "STRATEGY_TYPES": ["SMA"],
             "USE_HOURLY": False,
             "USE_MA": True,
-            "STRATEGY_TYPE": "SMA"
+            "STRATEGY_TYPE": "SMA",
         }
 
-        with patch('app.tools.strategy.export_portfolios.logging_context'):
+        with patch("app.tools.strategy.export_portfolios.logging_context"):
             df, success = export_portfolios(
                 portfolios=multi_ticker_data,
                 config=config,
                 export_type="portfolios_best",
-                log=Mock()
+                log=Mock(),
             )
 
         assert success == True

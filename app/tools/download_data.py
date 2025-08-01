@@ -122,9 +122,7 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
         }
 
         log("Exporting data to CSV")
-        df, export_path = export_csv(
-            data=df, feature1="prices", config=export_config
-        )
+        df, export_path = export_csv(data=df, feature1="prices", config=export_config)
         log(f"Data exported successfully to {export_path}")
 
         return df

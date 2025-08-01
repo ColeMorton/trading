@@ -113,7 +113,6 @@ def get_best_portfolio(
                 .to_dicts()[0]
             )
 
-
             return portfolio
 
         # 2. 3 out of top 5 have same combination
@@ -130,7 +129,6 @@ def get_best_portfolio(
                 .head(1)
                 .to_dicts()[0]
             )
-
 
             return portfolio
 
@@ -149,7 +147,6 @@ def get_best_portfolio(
                 .to_dicts()[0]
             )
 
-
             return portfolio
 
         # 4. 2 out of top 2 have same combination
@@ -167,7 +164,6 @@ def get_best_portfolio(
                 .head(1)
                 .to_dicts()[0]
             )
-
 
             return portfolio
 

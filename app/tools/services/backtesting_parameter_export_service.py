@@ -770,9 +770,7 @@ class BacktestingParameterExportService:
             # Load price data for the ticker
             prices_path = Path(f"./data/raw/prices/{ticker}_D.csv")
             if not prices_path.exists():
-                self.logger.warning(
-                    f"Price data not found for {ticker}: {prices_path}"
-                )
+                self.logger.warning(f"Price data not found for {ticker}: {prices_path}")
                 return None
 
             # Load price data

@@ -456,7 +456,9 @@ def run(portfolio: str) -> bool:
                 log("=== Strategy Summary ===")
 
                 # Sort portfolios by Score (descending) for main display
-                sorted_portfolios = sort_portfolios(portfolios, {"SORT_BY": "Score", "SORT_ASC": False})
+                sorted_portfolios = sort_portfolios(
+                    portfolios, {"SORT_BY": "Score", "SORT_ASC": False}
+                )
 
                 # Use standardized utility to filter and display open trades
                 open_trades_strategies = filter_open_trades(sorted_portfolios, log)

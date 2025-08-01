@@ -38,13 +38,17 @@ class TestMACrossE2EScenarios(unittest.TestCase):
         self.csv_dir = os.path.join(self.temp_dir, "csv")
         os.makedirs(self.csv_dir, exist_ok=True)
 
+        # Create expected subdirectories that tests expect
+        portfolios_dir = os.path.join(self.csv_dir, "portfolios")
+        os.makedirs(portfolios_dir, exist_ok=True)
+
     def tearDown(self):
         """Clean up test files."""
         import shutil
 
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    @patch("app.tools.download_data.download_data")
+    @patch("app.tools.strategy.signal_processing.get_data")
     def test_single_ticker_analysis_scenario(self, mock_fetch):
         """
         Test: User runs MA Cross analysis on single ticker
@@ -95,7 +99,7 @@ class TestMACrossE2EScenarios(unittest.TestCase):
                 len(matching_files), 0, f"Should create file matching {pattern}"
             )
 
-    @patch("app.tools.download_data.download_data")
+    @patch("app.tools.strategy.signal_processing.get_data")
     def test_current_signals_scenario(self, mock_fetch):
         """
         Test: User wants to see only current entry signals
@@ -158,7 +162,7 @@ class TestMACrossE2EScenarios(unittest.TestCase):
                 f"No current signals found for TSLA on {today} - this is expected behavior"
             )
 
-    @patch("app.tools.download_data.download_data")
+    @patch("app.tools.strategy.signal_processing.get_data")
     def test_multi_strategy_comparison_scenario(self, mock_fetch):
         """
         Test: User compares SMA vs EMA performance
@@ -203,7 +207,7 @@ class TestMACrossE2EScenarios(unittest.TestCase):
                 len(googl_filtered), 0, "Should create filtered portfolio files"
             )
 
-    @patch("app.tools.download_data.download_data")
+    @patch("app.tools.strategy.signal_processing.get_data")
     def test_short_strategy_scenario(self, mock_fetch):
         """
         Test: User runs short selling strategy
@@ -237,7 +241,7 @@ class TestMACrossE2EScenarios(unittest.TestCase):
         short_files = [f for f in bear_files if "SHORT" in f]
         self.assertGreater(len(short_files), 0, "Should create files with SHORT suffix")
 
-    @patch("app.tools.download_data.download_data")
+    @patch("app.tools.strategy.signal_processing.get_data")
     def test_filtering_scenario(self, mock_fetch):
         """
         Test: User applies strict filtering criteria

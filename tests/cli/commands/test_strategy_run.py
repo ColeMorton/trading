@@ -92,9 +92,16 @@ config:
   direction: Long
 """
 
-    @patch('app.cli.commands.strategy.StrategyDispatcher')
-    @patch('app.cli.commands.strategy.ConfigLoader')
-    def test_run_command_with_profile_sma_success(self, mock_config_loader, mock_dispatcher_class, cli_runner, temp_profile_dir, sample_sma_profile):
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_run_command_with_profile_sma_success(
+        self,
+        mock_config_loader,
+        mock_dispatcher_class,
+        cli_runner,
+        temp_profile_dir,
+        sample_sma_profile,
+    ):
         """Test successful run command with SMA profile."""
         # Setup mocks
         mock_config = Mock()
@@ -121,9 +128,16 @@ config:
         mock_dispatcher.execute_strategy.assert_called_once_with(mock_config)
         assert "Strategy analysis completed successfully" in result.stdout
 
-    @patch('app.cli.commands.strategy.StrategyDispatcher')
-    @patch('app.cli.commands.strategy.ConfigLoader')
-    def test_run_command_with_profile_macd_success(self, mock_config_loader, mock_dispatcher_class, cli_runner, temp_profile_dir, sample_macd_profile):
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_run_command_with_profile_macd_success(
+        self,
+        mock_config_loader,
+        mock_dispatcher_class,
+        cli_runner,
+        temp_profile_dir,
+        sample_macd_profile,
+    ):
         """Test successful run command with MACD profile."""
         # Setup mocks
         mock_config = Mock()
@@ -148,9 +162,11 @@ config:
         mock_dispatcher.execute_strategy.assert_called_once_with(mock_config)
         assert "Strategy analysis completed successfully" in result.stdout
 
-    @patch('app.cli.commands.strategy.StrategyDispatcher')
-    @patch('app.cli.commands.strategy.ConfigLoader')
-    def test_run_command_single_ticker_override(self, mock_config_loader, mock_dispatcher_class, cli_runner):
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_run_command_single_ticker_override(
+        self, mock_config_loader, mock_dispatcher_class, cli_runner
+    ):
         """Test run command with single ticker override."""
         # Setup mocks
         mock_config = Mock()
@@ -164,7 +180,9 @@ config:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command with ticker override
-        result = cli_runner.invoke(strategy_app, ["run", "--ticker", "TSLA", "--strategy", "SMA"])
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "TSLA", "--strategy", "SMA"]
+        )
 
         # Verify results
         assert result.exit_code == 0
@@ -174,9 +192,11 @@ config:
         assert "ticker" in overrides
         assert "strategy_type" in overrides
 
-    @patch('app.cli.commands.strategy.StrategyDispatcher')
-    @patch('app.cli.commands.strategy.ConfigLoader')
-    def test_run_command_multiple_tickers(self, mock_config_loader, mock_dispatcher_class, cli_runner):
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_run_command_multiple_tickers(
+        self, mock_config_loader, mock_dispatcher_class, cli_runner
+    ):
         """Test run command with multiple tickers."""
         # Setup mocks
         mock_config = Mock()
@@ -190,15 +210,19 @@ config:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command with multiple tickers
-        result = cli_runner.invoke(strategy_app, ["run", "--ticker", "AAPL,MSFT,GOOGL", "--strategy", "SMA"])
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "AAPL,MSFT,GOOGL", "--strategy", "SMA"]
+        )
 
         # Verify results
         assert result.exit_code == 0
         assert "Processing 3 tickers" in result.stdout
 
-    @patch('app.cli.commands.strategy.StrategyDispatcher')
-    @patch('app.cli.commands.strategy.ConfigLoader')
-    def test_run_command_multiple_strategies(self, mock_config_loader, mock_dispatcher_class, cli_runner):
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_run_command_multiple_strategies(
+        self, mock_config_loader, mock_dispatcher_class, cli_runner
+    ):
         """Test run command with multiple strategy types."""
         # Setup mocks
         mock_config = Mock()
@@ -212,15 +236,20 @@ config:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command with multiple strategies
-        result = cli_runner.invoke(strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA", "--strategy", "EMA"])
+        result = cli_runner.invoke(
+            strategy_app,
+            ["run", "--ticker", "AAPL", "--strategy", "SMA", "--strategy", "EMA"],
+        )
 
         # Verify results
         assert result.exit_code == 0
         assert "SMA, EMA" in result.stdout
 
-    @patch('app.cli.commands.strategy.StrategyDispatcher')
-    @patch('app.cli.commands.strategy.ConfigLoader')
-    def test_run_command_with_minimums_override(self, mock_config_loader, mock_dispatcher_class, cli_runner):
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_run_command_with_minimums_override(
+        self, mock_config_loader, mock_dispatcher_class, cli_runner
+    ):
         """Test run command with minimum criteria overrides."""
         # Setup mocks
         mock_config = Mock()
@@ -234,13 +263,20 @@ config:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command with minimum overrides
-        result = cli_runner.invoke(strategy_app, [
-            "run",
-            "--ticker", "AAPL",
-            "--strategy", "SMA",
-            "--min-trades", "50",
-            "--min-win-rate", "0.6"
-        ])
+        result = cli_runner.invoke(
+            strategy_app,
+            [
+                "run",
+                "--ticker",
+                "AAPL",
+                "--strategy",
+                "SMA",
+                "--min-trades",
+                "50",
+                "--min-win-rate",
+                "0.6",
+            ],
+        )
 
         # Verify results
         assert result.exit_code == 0
@@ -249,9 +285,11 @@ config:
         assert "min_trades" in overrides
         assert "min_win_rate" in overrides
 
-    @patch('app.cli.commands.strategy.StrategyDispatcher')
-    @patch('app.cli.commands.strategy.ConfigLoader')
-    def test_run_command_with_years_override(self, mock_config_loader, mock_dispatcher_class, cli_runner):
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_run_command_with_years_override(
+        self, mock_config_loader, mock_dispatcher_class, cli_runner
+    ):
         """Test run command with years configuration override."""
         # Setup mocks
         mock_config = Mock()
@@ -265,13 +303,19 @@ config:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command with years override
-        result = cli_runner.invoke(strategy_app, [
-            "run",
-            "--ticker", "AAPL",
-            "--strategy", "SMA",
-            "--use-years",
-            "--years", "5"
-        ])
+        result = cli_runner.invoke(
+            strategy_app,
+            [
+                "run",
+                "--ticker",
+                "AAPL",
+                "--strategy",
+                "SMA",
+                "--use-years",
+                "--years",
+                "5",
+            ],
+        )
 
         # Verify results
         assert result.exit_code == 0
@@ -280,7 +324,7 @@ config:
         assert "use_years" in overrides
         assert "years" in overrides
 
-    @patch('app.cli.commands.strategy.ConfigLoader')
+    @patch("app.cli.commands.strategy.ConfigLoader")
     def test_run_command_dry_run(self, mock_config_loader, cli_runner):
         """Test run command with dry-run flag."""
         # Setup mocks
@@ -290,17 +334,24 @@ config:
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         # Run command with dry-run
-        result = cli_runner.invoke(strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA", "--dry-run"])
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA", "--dry-run"]
+        )
 
         # Verify results
         assert result.exit_code == 0
         # Should show config preview but not execute
         # Dispatcher should not be called
-        assert "Strategy Configuration Preview" in result.stdout or "Configuration Preview" in result.stdout
+        assert (
+            "Strategy Configuration Preview" in result.stdout
+            or "Configuration Preview" in result.stdout
+        )
 
-    @patch('app.cli.commands.strategy.StrategyDispatcher')
-    @patch('app.cli.commands.strategy.ConfigLoader')
-    def test_run_command_verbose_output(self, mock_config_loader, mock_dispatcher_class, cli_runner):
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_run_command_verbose_output(
+        self, mock_config_loader, mock_dispatcher_class, cli_runner
+    ):
         """Test run command with verbose flag."""
         # Setup mocks
         mock_config = Mock()
@@ -314,16 +365,23 @@ config:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command with verbose flag
-        result = cli_runner.invoke(strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA", "--verbose"])
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA", "--verbose"]
+        )
 
         # Verify results
         assert result.exit_code == 0
         # Should show additional verbose output
-        assert "Loading strategy execution module" in result.stdout or "strategy execution" in result.stdout.lower()
+        assert (
+            "Loading strategy execution module" in result.stdout
+            or "strategy execution" in result.stdout.lower()
+        )
 
-    @patch('app.cli.commands.strategy.StrategyDispatcher')
-    @patch('app.cli.commands.strategy.ConfigLoader')
-    def test_run_command_execution_failure(self, mock_config_loader, mock_dispatcher_class, cli_runner):
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_run_command_execution_failure(
+        self, mock_config_loader, mock_dispatcher_class, cli_runner
+    ):
         """Test run command when strategy execution fails."""
         # Setup mocks
         mock_config = Mock()
@@ -337,15 +395,19 @@ config:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command
-        result = cli_runner.invoke(strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"])
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+        )
 
         # Verify results
         assert result.exit_code == 0  # Command succeeds but shows warning
         assert "No strategies found matching" in result.stdout
 
-    @patch('app.cli.commands.strategy.StrategyDispatcher')
-    @patch('app.cli.commands.strategy.ConfigLoader')
-    def test_run_command_incompatible_strategy(self, mock_config_loader, mock_dispatcher_class, cli_runner):
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_run_command_incompatible_strategy(
+        self, mock_config_loader, mock_dispatcher_class, cli_runner
+    ):
         """Test run command with incompatible strategy configuration."""
         # Setup mocks
         mock_config = Mock()
@@ -354,21 +416,27 @@ config:
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
-        mock_dispatcher.validate_strategy_compatibility.return_value = False  # Invalid strategy
+        mock_dispatcher.validate_strategy_compatibility.return_value = (
+            False  # Invalid strategy
+        )
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command
-        result = cli_runner.invoke(strategy_app, ["run", "--ticker", "AAPL", "--strategy", "INVALID_STRATEGY"])
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "INVALID_STRATEGY"]
+        )
 
         # Verify results
         assert result.exit_code == 0
         assert "Invalid strategy type configuration" in result.stdout
 
-    @patch('app.cli.commands.strategy.ConfigLoader')
+    @patch("app.cli.commands.strategy.ConfigLoader")
     def test_run_command_config_loading_error(self, mock_config_loader, cli_runner):
         """Test run command when configuration loading fails."""
         # Setup mock to raise exception
-        mock_config_loader.return_value.load_from_profile.side_effect = FileNotFoundError("Profile not found")
+        mock_config_loader.return_value.load_from_profile.side_effect = (
+            FileNotFoundError("Profile not found")
+        )
 
         # Run command
         result = cli_runner.invoke(strategy_app, ["run", "--profile", "nonexistent"])
@@ -376,9 +444,11 @@ config:
         # Verify error handling
         assert result.exit_code != 0 or "error" in result.stdout.lower()
 
-    @patch('app.cli.commands.strategy.StrategyDispatcher')
-    @patch('app.cli.commands.strategy.ConfigLoader')
-    def test_run_command_default_profile(self, mock_config_loader, mock_dispatcher_class, cli_runner):
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_run_command_default_profile(
+        self, mock_config_loader, mock_dispatcher_class, cli_runner
+    ):
         """Test run command uses default profile when none specified."""
         # Setup mocks
         mock_config = Mock()
@@ -392,7 +462,9 @@ config:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command without profile
-        result = cli_runner.invoke(strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"])
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+        )
 
         # Verify default profile is used
         mock_config_loader.return_value.load_from_profile.assert_called_once()
@@ -400,9 +472,11 @@ config:
         profile_name = call_args[0][0]
         assert profile_name == "default_strategy"
 
-    @patch('app.cli.commands.strategy.StrategyDispatcher')
-    @patch('app.cli.commands.strategy.ConfigLoader')
-    def test_run_command_string_ticker_input(self, mock_config_loader, mock_dispatcher_class, cli_runner):
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_run_command_string_ticker_input(
+        self, mock_config_loader, mock_dispatcher_class, cli_runner
+    ):
         """Test run command handles string ticker input correctly."""
         # Setup mocks
         mock_config = Mock()
@@ -416,16 +490,20 @@ config:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command
-        result = cli_runner.invoke(strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"])
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+        )
 
         # Verify string ticker is handled
         assert result.exit_code == 0
         # Should show "Processing 1 tickers" (converted to list)
         assert "Processing 1 tickers" in result.stdout
 
-    @patch('app.cli.commands.strategy.StrategyDispatcher')
-    @patch('app.cli.commands.strategy.ConfigLoader')
-    def test_run_command_multiple_ticker_formats(self, mock_config_loader, mock_dispatcher_class, cli_runner):
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_run_command_multiple_ticker_formats(
+        self, mock_config_loader, mock_dispatcher_class, cli_runner
+    ):
         """Test run command with different ticker input formats."""
         # Setup mocks
         mock_config = Mock()
@@ -439,16 +517,23 @@ config:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Test comma-separated format
-        result1 = cli_runner.invoke(strategy_app, ["run", "--ticker", "AAPL,MSFT", "--strategy", "SMA"])
+        result1 = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "AAPL,MSFT", "--strategy", "SMA"]
+        )
         assert result1.exit_code == 0
 
         # Test multiple --ticker arguments
-        result2 = cli_runner.invoke(strategy_app, ["run", "--ticker", "AAPL", "--ticker", "MSFT", "--strategy", "SMA"])
+        result2 = cli_runner.invoke(
+            strategy_app,
+            ["run", "--ticker", "AAPL", "--ticker", "MSFT", "--strategy", "SMA"],
+        )
         assert result2.exit_code == 0
 
-    @patch('app.cli.commands.strategy.StrategyDispatcher')
-    @patch('app.cli.commands.strategy.ConfigLoader')
-    def test_run_command_synthetic_tickers(self, mock_config_loader, mock_dispatcher_class, cli_runner):
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_run_command_synthetic_tickers(
+        self, mock_config_loader, mock_dispatcher_class, cli_runner
+    ):
         """Test run command with synthetic ticker format."""
         # Setup mocks
         mock_config = Mock()
@@ -462,16 +547,20 @@ config:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command with synthetic ticker
-        result = cli_runner.invoke(strategy_app, ["run", "--ticker", "STRK/MSTR", "--strategy", "SMA"])
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "STRK/MSTR", "--strategy", "SMA"]
+        )
 
         # Verify synthetic ticker is handled
         assert result.exit_code == 0
         assert "STRK/MSTR" in result.stdout
 
-    @patch('app.cli.commands.strategy.validate_parameter_relationships')
-    @patch('app.cli.commands.strategy.StrategyDispatcher')
-    @patch('app.cli.commands.strategy.ConfigLoader')
-    def test_run_command_parameter_validation_error(self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner):
+    @patch("app.cli.commands.strategy.validate_parameter_relationships")
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_run_command_parameter_validation_error(
+        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner
+    ):
         """Test run command when parameter validation fails."""
         # Setup mocks
         mock_config = Mock()
@@ -479,20 +568,28 @@ config:
         mock_validate.side_effect = ValueError("Invalid parameter combination")
 
         # Run command
-        result = cli_runner.invoke(strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"])
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+        )
 
         # Verify error handling
         assert result.exit_code != 0 or "error" in result.stdout.lower()
 
-    @patch('app.cli.commands.strategy.StrategyDispatcher')
-    @patch('app.cli.commands.strategy.ConfigLoader')
-    def test_run_command_exception_handling(self, mock_config_loader, mock_dispatcher_class, cli_runner):
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_run_command_exception_handling(
+        self, mock_config_loader, mock_dispatcher_class, cli_runner
+    ):
         """Test run command handles unexpected exceptions gracefully."""
         # Setup mock to raise unexpected exception
-        mock_config_loader.return_value.load_from_profile.side_effect = RuntimeError("Unexpected error")
+        mock_config_loader.return_value.load_from_profile.side_effect = RuntimeError(
+            "Unexpected error"
+        )
 
         # Run command
-        result = cli_runner.invoke(strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"])
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+        )
 
         # Verify error is handled gracefully
         assert "error" in result.stdout.lower() or result.exit_code != 0
@@ -515,21 +612,27 @@ class TestStrategyRunCommandEdgeCases:
 
     def test_run_command_empty_ticker(self, cli_runner):
         """Test run command with empty ticker."""
-        result = cli_runner.invoke(strategy_app, ["run", "--ticker", "", "--strategy", "SMA"])
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "", "--strategy", "SMA"]
+        )
 
         # Should handle empty ticker gracefully
         assert result.exit_code != 0 or "error" in result.stdout.lower()
 
     def test_run_command_empty_strategy(self, cli_runner):
         """Test run command with empty strategy."""
-        result = cli_runner.invoke(strategy_app, ["run", "--ticker", "AAPL", "--strategy", ""])
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", ""]
+        )
 
         # Should handle empty strategy gracefully
         assert result.exit_code != 0 or "error" in result.stdout.lower()
 
-    @patch('app.cli.commands.strategy.StrategyDispatcher')
-    @patch('app.cli.commands.strategy.ConfigLoader')
-    def test_run_command_very_large_ticker_list(self, mock_config_loader, mock_dispatcher_class, cli_runner):
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_run_command_very_large_ticker_list(
+        self, mock_config_loader, mock_dispatcher_class, cli_runner
+    ):
         """Test run command with very large ticker list."""
         # Create large ticker list
         large_ticker_list = [f"TICKER{i:04d}" for i in range(1000)]
@@ -546,8 +649,12 @@ class TestStrategyRunCommandEdgeCases:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command
-        ticker_string = ",".join(large_ticker_list[:100])  # Limit to first 100 for command line
-        result = cli_runner.invoke(strategy_app, ["run", "--ticker", ticker_string, "--strategy", "SMA"])
+        ticker_string = ",".join(
+            large_ticker_list[:100]
+        )  # Limit to first 100 for command line
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", ticker_string, "--strategy", "SMA"]
+        )
 
         # Should handle large list gracefully
         assert result.exit_code == 0
@@ -557,13 +664,17 @@ class TestStrategyRunCommandEdgeCases:
         special_tickers = ["BTC-USD", "STRK/MSTR", "TICKER.L", "TICKER^A"]
 
         for ticker in special_tickers:
-            result = cli_runner.invoke(strategy_app, ["run", "--ticker", ticker, "--strategy", "SMA"])
+            result = cli_runner.invoke(
+                strategy_app, ["run", "--ticker", ticker, "--strategy", "SMA"]
+            )
             # Should either succeed or fail gracefully (not crash)
             assert result.exit_code is not None  # Command completed
 
-    @patch('app.cli.commands.strategy.StrategyDispatcher')
-    @patch('app.cli.commands.strategy.ConfigLoader')
-    def test_run_command_extreme_parameter_values(self, mock_config_loader, mock_dispatcher_class, cli_runner):
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_run_command_extreme_parameter_values(
+        self, mock_config_loader, mock_dispatcher_class, cli_runner
+    ):
         """Test run command with extreme parameter values."""
         # Setup mocks
         mock_config = Mock()
@@ -577,30 +688,52 @@ class TestStrategyRunCommandEdgeCases:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Test extreme values
-        result = cli_runner.invoke(strategy_app, [
-            "run",
-            "--ticker", "AAPL",
-            "--strategy", "SMA",
-            "--min-trades", "999999",
-            "--min-win-rate", "0.999999",
-            "--years", "100"
-        ])
+        result = cli_runner.invoke(
+            strategy_app,
+            [
+                "run",
+                "--ticker",
+                "AAPL",
+                "--strategy",
+                "SMA",
+                "--min-trades",
+                "999999",
+                "--min-win-rate",
+                "0.999999",
+                "--years",
+                "100",
+            ],
+        )
 
         # Should handle extreme values gracefully
         assert result.exit_code == 0 or "error" in result.stdout.lower()
 
     def test_run_command_case_sensitivity(self, cli_runner):
         """Test run command case sensitivity for strategy types."""
-        strategy_variants = ["SMA", "sma", "Sma", "EMA", "ema", "Ema", "MACD", "macd", "Macd"]
+        strategy_variants = [
+            "SMA",
+            "sma",
+            "Sma",
+            "EMA",
+            "ema",
+            "Ema",
+            "MACD",
+            "macd",
+            "Macd",
+        ]
 
         for strategy in strategy_variants:
-            result = cli_runner.invoke(strategy_app, ["run", "--ticker", "AAPL", "--strategy", strategy])
+            result = cli_runner.invoke(
+                strategy_app, ["run", "--ticker", "AAPL", "--strategy", strategy]
+            )
             # Should handle case variations gracefully
             assert result.exit_code is not None
 
-    @patch('app.cli.commands.strategy.StrategyDispatcher')
-    @patch('app.cli.commands.strategy.ConfigLoader')
-    def test_run_command_unicode_tickers(self, mock_config_loader, mock_dispatcher_class, cli_runner):
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_run_command_unicode_tickers(
+        self, mock_config_loader, mock_dispatcher_class, cli_runner
+    ):
         """Test run command with Unicode characters in tickers."""
         # Setup mocks
         mock_config = Mock()
@@ -614,7 +747,9 @@ class TestStrategyRunCommandEdgeCases:
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Test Unicode ticker (though unlikely in real use)
-        result = cli_runner.invoke(strategy_app, ["run", "--ticker", "AAPL中文", "--strategy", "SMA"])
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "AAPL中文", "--strategy", "SMA"]
+        )
 
         # Should handle Unicode gracefully
         assert result.exit_code is not None
@@ -624,7 +759,9 @@ class TestStrategyRunCommandEdgeCases:
         # Create very long ticker name
         long_ticker = "A" * 1000
 
-        result = cli_runner.invoke(strategy_app, ["run", "--ticker", long_ticker, "--strategy", "SMA"])
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", long_ticker, "--strategy", "SMA"]
+        )
 
         # Should handle long arguments gracefully
         assert result.exit_code is not None

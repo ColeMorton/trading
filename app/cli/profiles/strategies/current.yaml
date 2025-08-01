@@ -17,15 +17,6 @@ config:
   ticker:
     - FANG
 
-  # MACD Core Parameters (single source of truth)
-  short_window_start: 8
-  short_window_end: 12
-  long_window_start: 21
-  long_window_end: 26
-  signal_window_start: 9
-  signal_window_end: 10
-  step: 1
-
   # Strategy Configuration
   direction: 'Long'
   use_current: true

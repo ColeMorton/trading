@@ -657,9 +657,7 @@ class DirectEquityCalculator:
         prices = prices.set_index("Date")
 
         # Filter to relevant date range
-        prices = prices[
-            (prices.index >= start_date) & (prices.index <= end_date)
-        ]
+        prices = prices[(prices.index >= start_date) & (prices.index <= end_date)]
 
         if prices.empty:
             raise TradingSystemError(
@@ -769,9 +767,7 @@ class DirectEquityCalculator:
             order_date = pd.to_datetime(order["timestamp"]).date()
 
             # Find closest trading day
-            matching_dates = [
-                idx for idx in prices.index if idx.date() == order_date
-            ]
+            matching_dates = [idx for idx in prices.index if idx.date() == order_date]
 
             if matching_dates:
                 order_idx = matching_dates[0]
@@ -799,9 +795,7 @@ class DirectEquityCalculator:
             )
 
             # Filter price data to relevant range
-            prices = prices[
-                (prices.index >= start_date) & (prices.index <= end_date)
-            ]
+            prices = prices[(prices.index >= start_date) & (prices.index <= end_date)]
 
             if prices.empty:
                 raise TradingSystemError(

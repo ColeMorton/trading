@@ -74,13 +74,17 @@ class TickerProcessor:
                 ticker_config["TICKER"] = ticker
 
                 # Use unified signal processing that supports both MA and MACD
-                portfolios_df = process_ticker_portfolios(ticker, ticker_config, self.log)
+                portfolios_df = process_ticker_portfolios(
+                    ticker, ticker_config, self.log
+                )
 
                 if portfolios_df is not None and len(portfolios_df) > 0:
                     # Convert to dictionaries and add to collection
                     ticker_portfolios = portfolios_df.to_dicts()
                     all_portfolios.extend(ticker_portfolios)
-                    self.log(f"Processed {len(ticker_portfolios)} portfolios for {ticker}")
+                    self.log(
+                        f"Processed {len(ticker_portfolios)} portfolios for {ticker}"
+                    )
                 else:
                     self.log(f"No portfolios generated for {ticker}", "warning")
 

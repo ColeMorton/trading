@@ -18,13 +18,12 @@ from unittest.mock import Mock, mock_open, patch
 import pytest
 
 from app.cli.config.loader import ConfigLoader
-from app.cli.config.profiles import ProfileManager
+from app.cli.config.manager import ProfileManager
 from app.cli.models.strategy import (
-    FilterConfig,
-    MinimumCriteria,
     StrategyConfig,
+    StrategyMinimums,
     StrategyType,
-    SyntheticConfig,
+    SyntheticTickerConfig,
 )
 
 
@@ -141,13 +140,17 @@ config:
     use_current: true
 """
 
-    def test_load_sma_profile_success(self, config_loader, temp_profile_dir, sample_sma_profile):
+    def test_load_sma_profile_success(
+        self, config_loader, temp_profile_dir, sample_sma_profile
+    ):
         """Test successful loading of SMA strategy profile."""
         # Create profile file
         profile_file = temp_profile_dir / "test_sma.yaml"
         profile_file.write_text(sample_sma_profile)
 
-        with patch.object(config_loader, '_get_profile_path', return_value=profile_file):
+        with patch.object(
+            config_loader, "_get_profile_path", return_value=profile_file
+        ):
             config = config_loader.load_from_profile("test_sma", StrategyConfig)
 
         assert isinstance(config, StrategyConfig)
@@ -162,13 +165,17 @@ config:
         assert config.fast_period_range == [5, 50]
         assert config.slow_period_range == [20, 200]
 
-    def test_load_macd_profile_success(self, config_loader, temp_profile_dir, sample_macd_profile):
+    def test_load_macd_profile_success(
+        self, config_loader, temp_profile_dir, sample_macd_profile
+    ):
         """Test successful loading of MACD strategy profile."""
         # Create profile file
         profile_file = temp_profile_dir / "test_macd.yaml"
         profile_file.write_text(sample_macd_profile)
 
-        with patch.object(config_loader, '_get_profile_path', return_value=profile_file):
+        with patch.object(
+            config_loader, "_get_profile_path", return_value=profile_file
+        ):
             config = config_loader.load_from_profile("test_macd", StrategyConfig)
 
         assert isinstance(config, StrategyConfig)
@@ -187,13 +194,17 @@ config:
         assert config.use_hourly == False
         assert config.refresh == True
 
-    def test_load_mixed_strategy_profile(self, config_loader, temp_profile_dir, sample_mixed_profile):
+    def test_load_mixed_strategy_profile(
+        self, config_loader, temp_profile_dir, sample_mixed_profile
+    ):
         """Test loading profile with mixed strategy types."""
         # Create profile file
         profile_file = temp_profile_dir / "test_mixed.yaml"
         profile_file.write_text(sample_mixed_profile)
 
-        with patch.object(config_loader, '_get_profile_path', return_value=profile_file):
+        with patch.object(
+            config_loader, "_get_profile_path", return_value=profile_file
+        ):
             config = config_loader.load_from_profile("test_mixed", StrategyConfig)
 
         assert isinstance(config, StrategyConfig)
@@ -201,7 +212,9 @@ config:
         assert config.strategy_types == [StrategyType.SMA, StrategyType.EMA]
         assert config.multi_ticker == True
 
-    def test_load_profile_with_overrides(self, config_loader, temp_profile_dir, sample_sma_profile):
+    def test_load_profile_with_overrides(
+        self, config_loader, temp_profile_dir, sample_sma_profile
+    ):
         """Test loading profile with runtime overrides."""
         # Create profile file
         profile_file = temp_profile_dir / "test_sma.yaml"
@@ -211,11 +224,15 @@ config:
             "ticker": ["TSLA"],
             "minimums": {"win_rate": 0.7, "trades": 50},
             "use_years": True,
-            "years": 5
+            "years": 5,
         }
 
-        with patch.object(config_loader, '_get_profile_path', return_value=profile_file):
-            config = config_loader.load_from_profile("test_sma", StrategyConfig, overrides)
+        with patch.object(
+            config_loader, "_get_profile_path", return_value=profile_file
+        ):
+            config = config_loader.load_from_profile(
+                "test_sma", StrategyConfig, overrides
+            )
 
         # Original values should be overridden
         assert config.ticker == ["TSLA"]
@@ -230,7 +247,11 @@ config:
 
     def test_load_profile_nonexistent_file(self, config_loader):
         """Test loading nonexistent profile file."""
-        with patch.object(config_loader, '_get_profile_path', return_value=Path("/nonexistent/profile.yaml")):
+        with patch.object(
+            config_loader,
+            "_get_profile_path",
+            return_value=Path("/nonexistent/profile.yaml"),
+        ):
             with pytest.raises(FileNotFoundError):
                 config_loader.load_from_profile("nonexistent", StrategyConfig)
 
@@ -240,11 +261,15 @@ config:
         profile_file = temp_profile_dir / "invalid.yaml"
         profile_file.write_text("invalid: yaml: content: [unclosed")
 
-        with patch.object(config_loader, '_get_profile_path', return_value=profile_file):
+        with patch.object(
+            config_loader, "_get_profile_path", return_value=profile_file
+        ):
             with pytest.raises(Exception):  # YAML parsing error
                 config_loader.load_from_profile("invalid", StrategyConfig)
 
-    def test_load_profile_missing_required_fields(self, config_loader, temp_profile_dir):
+    def test_load_profile_missing_required_fields(
+        self, config_loader, temp_profile_dir
+    ):
         """Test loading profile missing required fields."""
         incomplete_profile = """
 metadata:
@@ -257,7 +282,9 @@ config:
         profile_file = temp_profile_dir / "incomplete.yaml"
         profile_file.write_text(incomplete_profile)
 
-        with patch.object(config_loader, '_get_profile_path', return_value=profile_file):
+        with patch.object(
+            config_loader, "_get_profile_path", return_value=profile_file
+        ):
             with pytest.raises(Exception):  # Validation error
                 config_loader.load_from_profile("incomplete", StrategyConfig)
 
@@ -274,7 +301,9 @@ config:
         profile_file = temp_profile_dir / "wrong_type.yaml"
         profile_file.write_text(wrong_type_profile)
 
-        with patch.object(config_loader, '_get_profile_path', return_value=profile_file):
+        with patch.object(
+            config_loader, "_get_profile_path", return_value=profile_file
+        ):
             with pytest.raises(Exception):  # Type validation error
                 config_loader.load_from_profile("wrong_type", StrategyConfig)
 
@@ -294,7 +323,7 @@ class TestParameterValidation:
             "strategy_types": ["SMA"],
             "minimums": {},
             "synthetic": {},
-            "filter": {}
+            "filter": {},
         }
 
         config = StrategyConfig(**config_data)
@@ -308,7 +337,7 @@ class TestParameterValidation:
             "strategy_types": ["SMA", "EMA"],
             "minimums": {},
             "synthetic": {},
-            "filter": {}
+            "filter": {},
         }
         config = StrategyConfig(**valid_config)
         assert config.strategy_types == [StrategyType.SMA, StrategyType.EMA]
@@ -319,7 +348,7 @@ class TestParameterValidation:
             "strategy_types": ["INVALID_STRATEGY"],
             "minimums": {},
             "synthetic": {},
-            "filter": {}
+            "filter": {},
         }
         with pytest.raises(ValueError):
             StrategyConfig(**invalid_config)
@@ -335,10 +364,10 @@ class TestParameterValidation:
                 "expectancy_per_trade": 0.01,
                 "profit_factor": 1.0,
                 "sortino_ratio": 0.5,
-                "beats_bnh": 0.0
+                "beats_bnh": 0.0,
             },
             "synthetic": {},
-            "filter": {}
+            "filter": {},
         }
         config = StrategyConfig(**config_data)
         assert config.minimums.win_rate == 0.5
@@ -353,9 +382,9 @@ class TestParameterValidation:
             "synthetic": {
                 "use_synthetic": True,
                 "ticker_1": "STRK",
-                "ticker_2": "MSTR"
+                "ticker_2": "MSTR",
             },
-            "filter": {}
+            "filter": {},
         }
         config = StrategyConfig(**config_data)
         assert config.synthetic.use_synthetic == True
@@ -377,7 +406,7 @@ class TestParameterValidation:
             "signal_window_start": 5,
             "signal_window_end": 15,
             "step": 1,
-            "direction": "Long"
+            "direction": "Long",
         }
         config = StrategyConfig(**macd_config)
         assert config.short_window_start == 8
@@ -395,7 +424,7 @@ class TestParameterValidation:
             "fast_period_range": [5, 50],
             "slow_period_range": [20, 200],
             "fast_period": 12,
-            "slow_period": 26
+            "slow_period": 26,
         }
         config = StrategyConfig(**config_data)
         assert config.fast_period_range == [5, 50]
@@ -468,7 +497,9 @@ config:
     use_current: true  # Override base value
 """
 
-    def test_profile_inheritance_basic(self, config_loader, temp_profile_dir, base_template, derived_profile):
+    def test_profile_inheritance_basic(
+        self, config_loader, temp_profile_dir, base_template, derived_profile
+    ):
         """Test basic profile inheritance functionality."""
         # Create base template
         base_file = temp_profile_dir / "base_strategy_template.yaml"
@@ -478,8 +509,14 @@ config:
         derived_file = temp_profile_dir / "derived_sma_strategy.yaml"
         derived_file.write_text(derived_profile)
 
-        with patch.object(config_loader, '_get_profile_path', side_effect=lambda name: temp_profile_dir / f"{name}.yaml"):
-            config = config_loader.load_from_profile("derived_sma_strategy", StrategyConfig)
+        with patch.object(
+            config_loader,
+            "_get_profile_path",
+            side_effect=lambda name: temp_profile_dir / f"{name}.yaml",
+        ):
+            config = config_loader.load_from_profile(
+                "derived_sma_strategy", StrategyConfig
+            )
 
         # Check inherited values
         assert config.use_years == False  # From base
@@ -497,13 +534,19 @@ config:
         # Check base values that weren't overridden
         assert config.minimums.profit_factor == 1.0  # From base
 
-    def test_profile_inheritance_missing_base(self, config_loader, temp_profile_dir, derived_profile):
+    def test_profile_inheritance_missing_base(
+        self, config_loader, temp_profile_dir, derived_profile
+    ):
         """Test handling of missing base template."""
         # Create only derived profile (base template missing)
         derived_file = temp_profile_dir / "derived_sma_strategy.yaml"
         derived_file.write_text(derived_profile)
 
-        with patch.object(config_loader, '_get_profile_path', side_effect=lambda name: temp_profile_dir / f"{name}.yaml"):
+        with patch.object(
+            config_loader,
+            "_get_profile_path",
+            side_effect=lambda name: temp_profile_dir / f"{name}.yaml",
+        ):
             with pytest.raises(FileNotFoundError):
                 config_loader.load_from_profile("derived_sma_strategy", StrategyConfig)
 
@@ -548,10 +591,16 @@ config:
 
         # Create all files
         (temp_profile_dir / "base_template.yaml").write_text(base_template)
-        (temp_profile_dir / "intermediate_template.yaml").write_text(intermediate_template)
+        (temp_profile_dir / "intermediate_template.yaml").write_text(
+            intermediate_template
+        )
         (temp_profile_dir / "final_profile.yaml").write_text(final_profile)
 
-        with patch.object(config_loader, '_get_profile_path', side_effect=lambda name: temp_profile_dir / f"{name}.yaml"):
+        with patch.object(
+            config_loader,
+            "_get_profile_path",
+            side_effect=lambda name: temp_profile_dir / f"{name}.yaml",
+        ):
             config = config_loader.load_from_profile("final_profile", StrategyConfig)
 
         # Check final inheritance chain
@@ -573,12 +622,14 @@ class TestConfigurationEdgeCases:
 
     def test_empty_profile_file(self, config_loader, temp_dir=None):
         """Test handling of empty profile file."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write("")  # Empty file
             empty_file = Path(f.name)
 
         try:
-            with patch.object(config_loader, '_get_profile_path', return_value=empty_file):
+            with patch.object(
+                config_loader, "_get_profile_path", return_value=empty_file
+            ):
                 with pytest.raises(Exception):
                     config_loader.load_from_profile("empty", StrategyConfig)
         finally:
@@ -597,12 +648,14 @@ config:
   synthetic: {}
   filter: {}
 """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write(special_profile)
             special_file = Path(f.name)
 
         try:
-            with patch.object(config_loader, '_get_profile_path', return_value=special_file):
+            with patch.object(
+                config_loader, "_get_profile_path", return_value=special_file
+            ):
                 config = config_loader.load_from_profile("special", StrategyConfig)
                 assert config.ticker == ["AAPL"]
         finally:
@@ -623,12 +676,14 @@ config:
   synthetic: {{}}
   filter: {{}}
 """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write(large_profile)
             large_file = Path(f.name)
 
         try:
-            with patch.object(config_loader, '_get_profile_path', return_value=large_file):
+            with patch.object(
+                config_loader, "_get_profile_path", return_value=large_file
+            ):
                 config = config_loader.load_from_profile("large", StrategyConfig)
                 assert len(config.ticker) == 1000
                 assert config.ticker[0] == "TICKER0000"
@@ -650,12 +705,16 @@ config:
   synthetic: {}
   filter: {}
 """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False, encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".yaml", delete=False, encoding="utf-8"
+        ) as f:
             f.write(unicode_profile)
             unicode_file = Path(f.name)
 
         try:
-            with patch.object(config_loader, '_get_profile_path', return_value=unicode_file):
+            with patch.object(
+                config_loader, "_get_profile_path", return_value=unicode_file
+            ):
                 config = config_loader.load_from_profile("unicode", StrategyConfig)
                 assert config.ticker == ["AAPL"]
         finally:
@@ -687,7 +746,11 @@ config:
             (profile_dir / "profile_a.yaml").write_text(profile_a)
             (profile_dir / "profile_b.yaml").write_text(profile_b)
 
-            with patch.object(config_loader, '_get_profile_path', side_effect=lambda name: profile_dir / f"{name}.yaml"):
+            with patch.object(
+                config_loader,
+                "_get_profile_path",
+                side_effect=lambda name: profile_dir / f"{name}.yaml",
+            ):
                 with pytest.raises(Exception):  # Should detect circular inheritance
                     config_loader.load_from_profile("profile_a", StrategyConfig)
 
@@ -705,28 +768,30 @@ config:
   synthetic: {}
   filter: {}
 """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write(env_profile)
             env_file = Path(f.name)
 
         try:
             # Set environment variable
-            os.environ['TICKER_SYMBOL'] = 'TSLA'
-            os.environ['MIN_WIN_RATE'] = '0.7'
+            os.environ["TICKER_SYMBOL"] = "TSLA"
+            os.environ["MIN_WIN_RATE"] = "0.7"
 
-            with patch.object(config_loader, '_get_profile_path', return_value=env_file):
+            with patch.object(
+                config_loader, "_get_profile_path", return_value=env_file
+            ):
                 # Note: This test depends on whether the config loader supports env var substitution
                 # If not supported, it should handle gracefully
                 try:
                     config = config_loader.load_from_profile("env", StrategyConfig)
                     # If env vars are supported, check substitution
                     if isinstance(config.ticker, list) and len(config.ticker) > 0:
-                        assert config.ticker[0] in ['TSLA', '${TICKER_SYMBOL:-AAPL}']
+                        assert config.ticker[0] in ["TSLA", "${TICKER_SYMBOL:-AAPL}"]
                 except Exception:
                     # If env var substitution not supported, that's acceptable
                     pass
         finally:
             env_file.unlink()
             # Clean up environment
-            os.environ.pop('TICKER_SYMBOL', None)
-            os.environ.pop('MIN_WIN_RATE', None)
+            os.environ.pop("TICKER_SYMBOL", None)
+            os.environ.pop("MIN_WIN_RATE", None)

@@ -548,9 +548,14 @@ def process_ticker_portfolios(
         if sort_by in portfolios_df.columns:
             portfolios_df = portfolios_df.sort(sort_by, descending=not sort_asc)
             if log:
-                log(f"Sorted portfolios by {sort_by} ({'ascending' if sort_asc else 'descending'})")
+                log(
+                    f"Sorted portfolios by {sort_by} ({'ascending' if sort_asc else 'descending'})"
+                )
         else:
             if log:
-                log(f"Warning: Sort column '{sort_by}' not found in portfolios, skipping sort", "warning")
+                log(
+                    f"Warning: Sort column '{sort_by}' not found in portfolios, skipping sort",
+                    "warning",
+                )
 
     return portfolios_df

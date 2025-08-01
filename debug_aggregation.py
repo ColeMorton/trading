@@ -39,19 +39,25 @@ def debug_aggregation():
         log(f"Aggregation result type: {type(aggregated_result)}")
 
         if aggregated_result is not None:
-            if hasattr(aggregated_result, 'shape'):
+            if hasattr(aggregated_result, "shape"):
                 log(f"Aggregated data shape: {aggregated_result.shape}")
 
             # Convert to dict and check metric type
-            if hasattr(aggregated_result, 'to_dicts'):
+            if hasattr(aggregated_result, "to_dicts"):
                 result_dicts = aggregated_result.to_dicts()
                 if result_dicts:
                     log(f"Number of aggregated results: {len(result_dicts)}")
                     for i, result in enumerate(result_dicts):
-                        log(f"Result {i+1} Metric Type: '{result.get('Metric Type', 'NOT_FOUND')}'")
+                        log(
+                            f"Result {i+1} Metric Type: '{result.get('Metric Type', 'NOT_FOUND')}'"
+                        )
                         log(f"Result {i+1} Ticker: {result.get('Ticker', 'UNKNOWN')}")
-                        log(f"Result {i+1} Strategy Type: {result.get('Strategy Type', 'UNKNOWN')}")
-                        log(f"Result {i+1} Windows: {result.get('Short Window', '?')}/{result.get('Long Window', '?')}/{result.get('Signal Window', '?')}")
+                        log(
+                            f"Result {i+1} Strategy Type: {result.get('Strategy Type', 'UNKNOWN')}"
+                        )
+                        log(
+                            f"Result {i+1} Windows: {result.get('Short Window', '?')}/{result.get('Long Window', '?')}/{result.get('Signal Window', '?')}"
+                        )
         else:
             log("Aggregation returned None")
 
@@ -61,6 +67,7 @@ def debug_aggregation():
         log(f"Error in debug_aggregation: {str(e)}", "error")
         log_close()
         raise
+
 
 if __name__ == "__main__":
     debug_aggregation()

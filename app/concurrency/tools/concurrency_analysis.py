@@ -47,9 +47,7 @@ class ConcurrencyAnalysis:
             Dictionary with analysis statistics
         """
         # Pass configuration to analysis functions
-        stats = analyze_concurrency(
-            data_list, config_list, self.log, config=self.config
-        )
+        stats, _ = analyze_concurrency(data_list, config_list, self.log)
         return stats
 
     def run(self) -> Dict[str, Any]:
@@ -89,8 +87,6 @@ class ConcurrencyAnalysis:
             config_list.append(config)
 
         # Run analysis
-        stats = analyze_concurrency(
-            aligned_data, config_list, self.log, config=self.config
-        )
+        stats, _ = analyze_concurrency(aligned_data, config_list, self.log)
 
         return stats

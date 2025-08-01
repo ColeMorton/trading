@@ -120,23 +120,69 @@ class TestPermutationAnalysis(ConcurrencyTestCase, MockDataMixin):
 
     def test_find_optimal_permutation_basic(self):
         """Test finding optimal permutation."""
-        # Create test strategies
+        # Create test strategies with required fields for valid permutations
         strategies = [
-            {"ticker": "BTC", "id": 1},
-            {"ticker": "ETH", "id": 2},
-            {"ticker": "SOL", "id": 3},
+            {
+                "TICKER": "BTC",
+                "TIMEFRAME": "D",
+                "STRATEGY": "SMA",
+                "MA_FAST": 10,
+                "MA_SLOW": 20,
+                "EXPECTANCY_PER_TRADE": 0.02,
+                "PORTFOLIO_STATS": {
+                    "Score": 1.5,
+                    "Win Rate [%]": 55.0,
+                    "Total Trades": 25,
+                    "Profit Factor": 1.3,
+                },
+                "id": 1,
+            },
+            {
+                "TICKER": "ETH",
+                "TIMEFRAME": "D",
+                "STRATEGY": "SMA",
+                "MA_FAST": 15,
+                "MA_SLOW": 30,
+                "EXPECTANCY_PER_TRADE": 0.025,
+                "PORTFOLIO_STATS": {
+                    "Score": 1.8,
+                    "Win Rate [%]": 60.0,
+                    "Total Trades": 30,
+                    "Profit Factor": 1.5,
+                },
+                "id": 2,
+            },
+            {
+                "TICKER": "SOL",
+                "TIMEFRAME": "D",
+                "STRATEGY": "SMA",
+                "MA_FAST": 12,
+                "MA_SLOW": 25,
+                "EXPECTANCY_PER_TRADE": 0.018,
+                "PORTFOLIO_STATS": {
+                    "Score": 1.2,
+                    "Win Rate [%]": 50.0,
+                    "Total Trades": 20,
+                    "Profit Factor": 1.1,
+                },
+                "id": 3,
+            },
         ]
 
         # Mock functions to return different efficiency scores
         efficiency_scores = [0.7, 0.85, 0.6, 0.9]  # Last one is best
         call_count = 0
 
-        def mock_process(strats, log):
+        def mock_process(strats, log, config):
             return {"data": "processed"}, strats
 
         def mock_analyze(data, strats, log):
             nonlocal call_count
-            score = efficiency_scores[call_count]
+            score = (
+                efficiency_scores[call_count]
+                if call_count < len(efficiency_scores)
+                else 0.5
+            )
             call_count += 1
             return {"efficiency_score": score}, []
 
@@ -151,15 +197,33 @@ class TestPermutationAnalysis(ConcurrencyTestCase, MockDataMixin):
     def test_find_optimal_permutation_error_handling(self):
         """Test error handling during permutation analysis."""
         strategies = [
-            {"ticker": "BTC"},
-            {"ticker": "ETH"},
-            {"ticker": "SOL"},
+            {
+                "TICKER": "BTC",
+                "TIMEFRAME": "D",
+                "STRATEGY": "SMA",
+                "EXPECTANCY_PER_TRADE": 0.02,
+                "PORTFOLIO_STATS": {"Score": 1.5},
+            },
+            {
+                "TICKER": "ETH",
+                "TIMEFRAME": "D",
+                "STRATEGY": "SMA",
+                "EXPECTANCY_PER_TRADE": 0.025,
+                "PORTFOLIO_STATS": {"Score": 1.8},
+            },
+            {
+                "TICKER": "SOL",
+                "TIMEFRAME": "D",
+                "STRATEGY": "SMA",
+                "EXPECTANCY_PER_TRADE": 0.018,
+                "PORTFOLIO_STATS": {"Score": 1.2},
+            },
         ]
 
         # Mock functions - first two fail, third succeeds
         call_count = 0
 
-        def mock_process(strats, log):
+        def mock_process(strats, log, config):
             return {"data": "processed"}, strats
 
         def mock_analyze(data, strats, log):

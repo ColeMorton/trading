@@ -11,6 +11,7 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
+import polars as pl
 
 
 def create_realistic_price_data(
@@ -20,7 +21,7 @@ def create_realistic_price_data(
     start_date: Optional[datetime] = None,
     volatility: float = 0.02,
     trend: float = 0.0005,
-) -> pd.DataFrame:
+) -> pl.DataFrame:
     """
     Create realistic OHLCV price data that passes validation.
 
@@ -70,7 +71,7 @@ def create_realistic_price_data(
     volumes = np.random.normal(base_volume, base_volume * 0.3, days).astype(int)
     volumes = np.maximum(volumes, 10000)  # Minimum volume
 
-    return pd.DataFrame(
+    df = pd.DataFrame(
         {
             "Date": dates,
             "Open": opens,
@@ -81,11 +82,12 @@ def create_realistic_price_data(
             "Ticker": ticker,
         }
     )
+    return pl.from_pandas(df)
 
 
 def create_crossover_scenario_data(
     ticker: str = "TEST", crossover_day: int = 50
-) -> pd.DataFrame:
+) -> pl.DataFrame:
     """
     Create data with a clear MA crossover at specified day.
     Useful for testing signal generation logic.
@@ -116,7 +118,7 @@ def create_crossover_scenario_data(
     noise = np.random.normal(0, 0.005, days)
     prices = np.array(prices) * (1 + noise)
 
-    return pd.DataFrame(
+    df = pd.DataFrame(
         {
             "Date": dates,
             "Open": prices * 0.999,
@@ -127,6 +129,7 @@ def create_crossover_scenario_data(
             "Ticker": ticker,
         }
     )
+    return pl.from_pandas(df)
 
 
 def create_portfolio_test_data() -> list[dict]:
@@ -194,12 +197,13 @@ def create_portfolio_test_data() -> list[dict]:
     ]
 
 
-def create_invalid_test_data() -> pd.DataFrame:
+def create_invalid_test_data() -> pl.DataFrame:
     """Create data that should fail validation for negative testing."""
-    return pd.DataFrame(
+    df = pd.DataFrame(
         {
             "Date": ["invalid_date", "2023-01-02"],
             "Close": [None, "not_a_number"],
             "Volume": [-100, "negative_volume"],
         }
     )
+    return pl.from_pandas(df)

@@ -303,7 +303,9 @@ class PortfolioOrchestrator:
         Raises:
             ExportError: If export fails
         """
-        with error_context("Exporting raw portfolios", self.log, {Exception: ExportError}):
+        with error_context(
+            "Exporting raw portfolios", self.log, {Exception: ExportError}
+        ):
             from app.tools.strategy.export_portfolios import export_portfolios
 
             try:
@@ -334,7 +336,9 @@ class PortfolioOrchestrator:
         Raises:
             ExportError: If export fails
         """
-        with error_context("Exporting filtered portfolios", self.log, {Exception: ExportError}):
+        with error_context(
+            "Exporting filtered portfolios", self.log, {Exception: ExportError}
+        ):
             from app.tools.strategy.export_portfolios import export_portfolios
 
             try:
@@ -345,7 +349,9 @@ class PortfolioOrchestrator:
                     log=self.log,
                 )
                 if success:
-                    self.log(f"Successfully exported {len(portfolios)} filtered portfolios")
+                    self.log(
+                        f"Successfully exported {len(portfolios)} filtered portfolios"
+                    )
                 else:
                     self.log("Failed to export filtered portfolios", "warning")
             except Exception as e:
@@ -365,7 +371,9 @@ class PortfolioOrchestrator:
         Raises:
             ExportError: If export fails
         """
-        with error_context("Exporting best portfolios", self.log, {Exception: ExportError}):
+        with error_context(
+            "Exporting best portfolios", self.log, {Exception: ExportError}
+        ):
             if self.use_new_export:
                 # Use new export system
                 self._export_with_manager(portfolios, config)

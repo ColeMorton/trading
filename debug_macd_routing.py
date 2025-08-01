@@ -42,7 +42,7 @@ def test_macd_routing():
         "YEARS": 15,
         "STEP": 1,
         "BASE_DIR": ".",
-        "REFRESH": True
+        "REFRESH": True,
     }
 
     print(f"Test config strategy types: {test_config.get('STRATEGY_TYPES', 'Not set')}")

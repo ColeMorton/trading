@@ -85,7 +85,7 @@ def debug_export():
             "Allocation [%]": None,
             "Stop Loss [%]": None,
             "Last Position Open Date": None,
-            "Last Position Close Date": None
+            "Last Position Close Date": None,
         }
 
         log(f"Original Metric Type: '{test_portfolio['Metric Type']}'")
@@ -94,11 +94,7 @@ def debug_export():
         from app.tools.strategy.export_portfolios import export_portfolios
 
         # Create a simple config for testing
-        test_config = {
-            "TICKER": "CDW",
-            "STRATEGY_TYPES": ["MACD"],
-            "TIMEFRAME": "D"
-        }
+        test_config = {"TICKER": "CDW", "STRATEGY_TYPES": ["MACD"], "TIMEFRAME": "D"}
 
         log("Testing export process...")
 
@@ -107,7 +103,7 @@ def debug_export():
             portfolios=[test_portfolio],
             config=test_config,
             export_type="portfolios_best",
-            log=log
+            log=log,
         )
 
         log("Export completed - checking output file...")
@@ -118,6 +114,7 @@ def debug_export():
         from datetime import datetime
 
         import polars as pl
+
         pattern = "/Users/colemorton/Projects/trading/data/raw/portfolios_best/*/20250726_*_D_MACD.csv"
         files = glob.glob(pattern)
         if files:
@@ -142,9 +139,11 @@ def debug_export():
     except Exception as e:
         log(f"Error in debug_export: {str(e)}", "error")
         import traceback
+
         log(f"Traceback: {traceback.format_exc()}", "error")
         log_close()
         raise
+
 
 if __name__ == "__main__":
     debug_export()

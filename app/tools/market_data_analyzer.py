@@ -115,9 +115,7 @@ class MarketDataAnalyzer:
                 prices = self.prices["close"].to_numpy()
             else:
                 # Use first numeric column
-                numeric_cols = self.prices.select(
-                    pl.col(pl.Float64, pl.Int64)
-                ).columns
+                numeric_cols = self.prices.select(pl.col(pl.Float64, pl.Int64)).columns
                 if not numeric_cols:
                     self.logger.error("No numeric price columns found")
                     return False

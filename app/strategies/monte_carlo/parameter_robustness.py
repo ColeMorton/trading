@@ -329,9 +329,7 @@ class ParameterRobustnessAnalyzer:
         for simulation in range(self.mc_config.num_simulations):
             try:
                 # Create bootstrap sample
-                bootstrap_data = self.bootstrap_prices(
-                    original_data, seed=simulation
-                )
+                bootstrap_data = self.bootstrap_prices(original_data, seed=simulation)
 
                 # Add parameter noise
                 noisy_short, noisy_long = self.add_parameter_noise(

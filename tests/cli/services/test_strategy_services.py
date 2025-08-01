@@ -43,7 +43,7 @@ class TestMAStrategyService:
             scanner_list="",
             use_gbm=False,
             minimums=StrategyMinimums(),
-            synthetic=SyntheticTickerConfig()
+            synthetic=SyntheticTickerConfig(),
         )
 
     def test_get_supported_strategy_types(self, ma_service):
@@ -51,7 +51,9 @@ class TestMAStrategyService:
         supported = ma_service.get_supported_strategy_types()
         assert supported == ["SMA", "EMA"]
 
-    def test_convert_config_to_legacy_sma_single_ticker(self, ma_service, base_strategy_config):
+    def test_convert_config_to_legacy_sma_single_ticker(
+        self, ma_service, base_strategy_config
+    ):
         """Test config conversion for SMA with single ticker."""
         config = base_strategy_config
         config.strategy_types = [StrategyType.SMA]
@@ -71,7 +73,9 @@ class TestMAStrategyService:
         assert legacy_config["SORT_BY"] == "Score"
         assert legacy_config["SORT_ASC"] == False
 
-    def test_convert_config_to_legacy_ema_multiple_tickers(self, ma_service, base_strategy_config):
+    def test_convert_config_to_legacy_ema_multiple_tickers(
+        self, ma_service, base_strategy_config
+    ):
         """Test config conversion for EMA with multiple tickers."""
         config = base_strategy_config
         config.strategy_types = [StrategyType.EMA]
@@ -84,7 +88,9 @@ class TestMAStrategyService:
         assert legacy_config["STRATEGY_TYPES"] == ["EMA"]
         assert legacy_config["MULTI_TICKER"] == True
 
-    def test_convert_config_to_legacy_mixed_strategies(self, ma_service, base_strategy_config):
+    def test_convert_config_to_legacy_mixed_strategies(
+        self, ma_service, base_strategy_config
+    ):
         """Test config conversion with mixed SMA/EMA strategies."""
         config = base_strategy_config
         config.strategy_types = [StrategyType.SMA, StrategyType.EMA]
@@ -93,7 +99,9 @@ class TestMAStrategyService:
 
         assert legacy_config["STRATEGY_TYPES"] == ["SMA", "EMA"]
 
-    def test_convert_config_to_legacy_with_minimums(self, ma_service, base_strategy_config):
+    def test_convert_config_to_legacy_with_minimums(
+        self, ma_service, base_strategy_config
+    ):
         """Test config conversion with minimum criteria."""
         config = base_strategy_config
         config.minimums.win_rate = 0.6
@@ -112,7 +120,9 @@ class TestMAStrategyService:
         assert legacy_config["MINIMUMS"]["SORTINO_RATIO"] == 1.2
         assert legacy_config["MINIMUMS"]["BEATS_BNH"] == 0.1
 
-    def test_convert_config_to_legacy_with_synthetic(self, ma_service, base_strategy_config):
+    def test_convert_config_to_legacy_with_synthetic(
+        self, ma_service, base_strategy_config
+    ):
         """Test config conversion with synthetic ticker configuration."""
         config = base_strategy_config
         config.synthetic.use_synthetic = True
@@ -125,7 +135,9 @@ class TestMAStrategyService:
         assert legacy_config["TICKER_1"] == "STRK"
         assert legacy_config["TICKER_2"] == "MSTR"
 
-    def test_convert_config_to_legacy_with_parameter_ranges(self, ma_service, base_strategy_config):
+    def test_convert_config_to_legacy_with_parameter_ranges(
+        self, ma_service, base_strategy_config
+    ):
         """Test config conversion with parameter ranges for sweeps."""
         config = base_strategy_config
         config.fast_period_range = (5, 50)
@@ -140,7 +152,9 @@ class TestMAStrategyService:
         assert legacy_config["FAST_PERIOD"] == 12
         assert legacy_config["SLOW_PERIOD"] == 26
 
-    def test_convert_config_to_legacy_with_filter_settings(self, ma_service, base_strategy_config):
+    def test_convert_config_to_legacy_with_filter_settings(
+        self, ma_service, base_strategy_config
+    ):
         """Test config conversion with filter settings."""
         config = base_strategy_config
         config.use_current = True
@@ -149,8 +163,10 @@ class TestMAStrategyService:
 
         assert legacy_config["USE_CURRENT"] == True
 
-    @patch('app.cli.services.strategy_services.importlib')
-    def test_execute_strategy_success(self, mock_importlib, ma_service, base_strategy_config):
+    @patch("app.cli.services.strategy_services.importlib")
+    def test_execute_strategy_success(
+        self, mock_importlib, ma_service, base_strategy_config
+    ):
         """Test successful strategy execution."""
         # Mock the MA Cross module
         mock_module = Mock()
@@ -163,12 +179,16 @@ class TestMAStrategyService:
         result = ma_service.execute_strategy(config)
 
         assert result == True
-        mock_importlib.import_module.assert_called_once_with("app.strategies.ma_cross.1_get_portfolios")
+        mock_importlib.import_module.assert_called_once_with(
+            "app.strategies.ma_cross.1_get_portfolios"
+        )
         mock_run.assert_called_once()
 
-    @patch('app.cli.services.strategy_services.importlib')
-    @patch('app.cli.services.strategy_services.rprint')
-    def test_execute_strategy_failure(self, mock_rprint, mock_importlib, ma_service, base_strategy_config):
+    @patch("app.cli.services.strategy_services.importlib")
+    @patch("app.cli.services.strategy_services.rprint")
+    def test_execute_strategy_failure(
+        self, mock_rprint, mock_importlib, ma_service, base_strategy_config
+    ):
         """Test strategy execution failure handling."""
         # Mock import failure
         mock_importlib.import_module.side_effect = ImportError("Module not found")
@@ -181,8 +201,10 @@ class TestMAStrategyService:
         mock_rprint.assert_called_once()
         assert "Error executing MA Cross strategy" in str(mock_rprint.call_args)
 
-    @patch('app.cli.services.strategy_services.importlib')
-    def test_execute_strategy_with_string_ticker(self, mock_importlib, ma_service, base_strategy_config):
+    @patch("app.cli.services.strategy_services.importlib")
+    def test_execute_strategy_with_string_ticker(
+        self, mock_importlib, ma_service, base_strategy_config
+    ):
         """Test execution with string ticker (backwards compatibility)."""
         mock_module = Mock()
         mock_run = Mock(return_value=True)
@@ -222,7 +244,7 @@ class TestMACDStrategyService:
             scanner_list="",
             use_gbm=False,
             minimums=StrategyMinimums(),
-            synthetic=SyntheticTickerConfig()
+            synthetic=SyntheticTickerConfig(),
         )
         # Add MACD-specific parameters
         config.short_window_start = 8
@@ -243,7 +265,9 @@ class TestMACDStrategyService:
         supported = macd_service.get_supported_strategy_types()
         assert supported == ["MACD"]
 
-    def test_convert_config_to_legacy_macd_complete(self, macd_service, macd_strategy_config):
+    def test_convert_config_to_legacy_macd_complete(
+        self, macd_service, macd_strategy_config
+    ):
         """Test config conversion for MACD with complete parameters."""
         config = macd_strategy_config
 
@@ -276,7 +300,7 @@ class TestMACDStrategyService:
             ticker=["AAPL"],
             strategy_types=[StrategyType.MACD],
             minimums=StrategyMinimums(),
-            synthetic=SyntheticTickerConfig()
+            synthetic=SyntheticTickerConfig(),
         )
         # Missing MACD-specific parameters
 
@@ -285,7 +309,9 @@ class TestMACDStrategyService:
 
         assert "Incomplete MACD configuration" in str(exc_info.value)
 
-    def test_convert_config_to_legacy_with_minimums(self, macd_service, macd_strategy_config):
+    def test_convert_config_to_legacy_with_minimums(
+        self, macd_service, macd_strategy_config
+    ):
         """Test MACD config conversion with minimum criteria."""
         config = macd_strategy_config
         config.minimums.win_rate = 0.55
@@ -298,7 +324,9 @@ class TestMACDStrategyService:
         assert legacy_config["MINIMUMS"]["TRADES"] == 30
         assert legacy_config["MINIMUMS"]["PROFIT_FACTOR"] == 1.3
 
-    def test_convert_config_to_legacy_multiple_tickers(self, macd_service, macd_strategy_config):
+    def test_convert_config_to_legacy_multiple_tickers(
+        self, macd_service, macd_strategy_config
+    ):
         """Test MACD config conversion with multiple tickers."""
         config = macd_strategy_config
         config.ticker = ["AAPL", "MSFT", "GOOGL"]
@@ -309,8 +337,10 @@ class TestMACDStrategyService:
         assert legacy_config["TICKER"] == ["AAPL", "MSFT", "GOOGL"]
         assert legacy_config["MULTI_TICKER"] == True
 
-    @patch('app.cli.services.strategy_services.importlib')
-    def test_execute_strategy_success(self, mock_importlib, macd_service, macd_strategy_config):
+    @patch("app.cli.services.strategy_services.importlib")
+    def test_execute_strategy_success(
+        self, mock_importlib, macd_service, macd_strategy_config
+    ):
         """Test successful MACD strategy execution."""
         # Mock the MACD module
         mock_module = Mock()
@@ -323,12 +353,16 @@ class TestMACDStrategyService:
         result = macd_service.execute_strategy(config)
 
         assert result == True
-        mock_importlib.import_module.assert_called_once_with("app.strategies.macd.1_get_portfolios")
+        mock_importlib.import_module.assert_called_once_with(
+            "app.strategies.macd.1_get_portfolios"
+        )
         mock_run.assert_called_once()
 
-    @patch('app.cli.services.strategy_services.importlib')
-    @patch('app.cli.services.strategy_services.rprint')
-    def test_execute_strategy_import_failure(self, mock_rprint, mock_importlib, macd_service, macd_strategy_config):
+    @patch("app.cli.services.strategy_services.importlib")
+    @patch("app.cli.services.strategy_services.rprint")
+    def test_execute_strategy_import_failure(
+        self, mock_rprint, mock_importlib, macd_service, macd_strategy_config
+    ):
         """Test MACD strategy execution with import failure."""
         mock_importlib.import_module.side_effect = ImportError("MACD module not found")
 
@@ -340,9 +374,11 @@ class TestMACDStrategyService:
         mock_rprint.assert_called_once()
         assert "Error executing MACD strategy" in str(mock_rprint.call_args)
 
-    @patch('app.cli.services.strategy_services.importlib')
-    @patch('app.cli.services.strategy_services.rprint')
-    def test_execute_strategy_runtime_failure(self, mock_rprint, mock_importlib, macd_service, macd_strategy_config):
+    @patch("app.cli.services.strategy_services.importlib")
+    @patch("app.cli.services.strategy_services.rprint")
+    def test_execute_strategy_runtime_failure(
+        self, mock_rprint, mock_importlib, macd_service, macd_strategy_config
+    ):
         """Test MACD strategy execution with runtime failure."""
         mock_module = Mock()
         mock_run = Mock(side_effect=RuntimeError("Strategy execution failed"))
@@ -402,7 +438,7 @@ class TestStrategyServiceIntegration:
             ticker=["AAPL"],
             strategy_types=[StrategyType.SMA],  # Enum
             minimums=StrategyMinimums(),
-            synthetic=SyntheticTickerConfig()
+            synthetic=SyntheticTickerConfig(),
         )
         ma_legacy = ma_service.convert_config_to_legacy(ma_config)
         assert ma_legacy["STRATEGY_TYPES"] == ["SMA"]
@@ -412,7 +448,7 @@ class TestStrategyServiceIntegration:
             ticker=["AAPL"],
             strategy_types=[StrategyType.MACD],  # Enum
             minimums=StrategyMinimums(),
-            synthetic=SyntheticTickerConfig()
+            synthetic=SyntheticTickerConfig(),
         )
         # Add required MACD parameters
         macd_config.short_window_start = 8
@@ -434,7 +470,7 @@ class TestStrategyServiceIntegration:
             ticker="AAPL",  # String
             strategy_types=[StrategyType.SMA],
             minimums=StrategyMinimums(),
-            synthetic=SyntheticTickerConfig()
+            synthetic=SyntheticTickerConfig(),
         )
         legacy1 = ma_service.convert_config_to_legacy(config1)
         assert legacy1["TICKER"] == ["AAPL"]
@@ -444,7 +480,7 @@ class TestStrategyServiceIntegration:
             ticker=["AAPL", "MSFT"],  # List
             strategy_types=[StrategyType.SMA],
             minimums=StrategyMinimums(),
-            synthetic=SyntheticTickerConfig()
+            synthetic=SyntheticTickerConfig(),
         )
         legacy2 = ma_service.convert_config_to_legacy(config2)
         assert legacy2["TICKER"] == ["AAPL", "MSFT"]
@@ -469,7 +505,7 @@ class TestStrategyServiceIntegration:
             minimums=StrategyMinimums(win_rate=0.6, trades=25),
             synthetic=SyntheticTickerConfig(),
             use_current=True,
-            **base_config_fields
+            **base_config_fields,
         )
 
         # MACD config with required parameters
@@ -478,7 +514,7 @@ class TestStrategyServiceIntegration:
             minimums=StrategyMinimums(win_rate=0.6, trades=25),
             synthetic=SyntheticTickerConfig(),
             use_current=True,
-            **base_config_fields
+            **base_config_fields,
         )
         macd_config.short_window_start = 8
         macd_config.short_window_end = 16
@@ -494,7 +530,9 @@ class TestStrategyServiceIntegration:
         common_fields = ["TICKER", "USE_YEARS", "YEARS", "MULTI_TICKER", "USE_CURRENT"]
         for field in common_fields:
             if field in ma_legacy and field in macd_legacy:
-                assert ma_legacy[field] == macd_legacy[field], f"Field {field} inconsistent between services"
+                assert (
+                    ma_legacy[field] == macd_legacy[field]
+                ), f"Field {field} inconsistent between services"
 
         # Test minimums are consistent
         assert ma_legacy["MINIMUMS"]["WIN_RATE"] == macd_legacy["MINIMUMS"]["WIN_RATE"]

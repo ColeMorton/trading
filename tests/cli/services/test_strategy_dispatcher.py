@@ -44,7 +44,7 @@ class TestStrategyDispatcher:
             scanner_list="",
             use_gbm=False,
             minimums=StrategyMinimums(),
-            synthetic=SyntheticTickerConfig()
+            synthetic=SyntheticTickerConfig(),
         )
 
     def test_dispatcher_initialization(self, dispatcher):
@@ -102,8 +102,10 @@ class TestStrategyDispatcher:
         assert service is not None
         assert isinstance(service, MAStrategyService)
 
-    @patch('app.cli.services.strategy_dispatcher.rprint')
-    def test_determine_service_macd_with_other_strategies_warning(self, mock_rprint, dispatcher):
+    @patch("app.cli.services.strategy_dispatcher.rprint")
+    def test_determine_service_macd_with_other_strategies_warning(
+        self, mock_rprint, dispatcher
+    ):
         """Test service determination with MACD and other strategies shows warning."""
         strategy_types = [StrategyType.MACD, StrategyType.SMA]
         service = dispatcher._determine_service(strategy_types)
@@ -111,7 +113,9 @@ class TestStrategyDispatcher:
         assert service is not None
         assert isinstance(service, MACDStrategyService)
         mock_rprint.assert_called_once()
-        assert "Multiple strategy types specified with MACD" in str(mock_rprint.call_args)
+        assert "Multiple strategy types specified with MACD" in str(
+            mock_rprint.call_args
+        )
 
     def test_determine_service_string_strategy_types(self, dispatcher):
         """Test service determination with string strategy types."""
@@ -129,7 +133,7 @@ class TestStrategyDispatcher:
         assert service is not None
         assert isinstance(service, MAStrategyService)
 
-    @patch('app.cli.services.strategy_dispatcher.rprint')
+    @patch("app.cli.services.strategy_dispatcher.rprint")
     def test_determine_service_unsupported_strategy(self, mock_rprint, dispatcher):
         """Test service determination with unsupported strategy type."""
         strategy_types = ["INVALID_STRATEGY"]
@@ -137,8 +141,14 @@ class TestStrategyDispatcher:
 
         assert service is None
         assert mock_rprint.call_count == 2  # Two rprint calls for unsupported strategy
-        assert any("Unsupported strategy types" in str(call) for call in mock_rprint.call_args_list)
-        assert any("Supported: SMA, EMA, MACD" in str(call) for call in mock_rprint.call_args_list)
+        assert any(
+            "Unsupported strategy types" in str(call)
+            for call in mock_rprint.call_args_list
+        )
+        assert any(
+            "Supported: SMA, EMA, MACD" in str(call)
+            for call in mock_rprint.call_args_list
+        )
 
     def test_validate_strategy_compatibility_valid_sma(self, dispatcher):
         """Test strategy compatibility validation for valid SMA."""
@@ -182,7 +192,7 @@ class TestStrategyDispatcher:
 
         assert is_compatible == False
 
-    @patch.object(MAStrategyService, 'execute_strategy')
+    @patch.object(MAStrategyService, "execute_strategy")
     def test_execute_strategy_sma_success(self, mock_execute, dispatcher, base_config):
         """Test successful strategy execution for SMA."""
         mock_execute.return_value = True
@@ -194,7 +204,7 @@ class TestStrategyDispatcher:
         assert result == True
         mock_execute.assert_called_once_with(config)
 
-    @patch.object(MACDStrategyService, 'execute_strategy')
+    @patch.object(MACDStrategyService, "execute_strategy")
     def test_execute_strategy_macd_success(self, mock_execute, dispatcher, base_config):
         """Test successful strategy execution for MACD."""
         mock_execute.return_value = True
@@ -206,7 +216,7 @@ class TestStrategyDispatcher:
         assert result == True
         mock_execute.assert_called_once_with(config)
 
-    @patch.object(MAStrategyService, 'execute_strategy')
+    @patch.object(MAStrategyService, "execute_strategy")
     def test_execute_strategy_failure(self, mock_execute, dispatcher, base_config):
         """Test strategy execution failure."""
         mock_execute.return_value = False
@@ -218,7 +228,7 @@ class TestStrategyDispatcher:
         assert result == False
         mock_execute.assert_called_once_with(config)
 
-    @patch('app.cli.services.strategy_dispatcher.rprint')
+    @patch("app.cli.services.strategy_dispatcher.rprint")
     def test_execute_strategy_no_compatible_service(self, mock_rprint, dispatcher):
         """Test strategy execution with no compatible service."""
         # Instead of using config object, test dispatcher directly with invalid strategy
@@ -229,8 +239,10 @@ class TestStrategyDispatcher:
         is_compatible = dispatcher.validate_strategy_compatibility(["INVALID_STRATEGY"])
         assert is_compatible == False
 
-    @patch.object(MAStrategyService, 'execute_strategy')
-    def test_execute_strategy_mixed_ma_strategies(self, mock_execute, dispatcher, base_config):
+    @patch.object(MAStrategyService, "execute_strategy")
+    def test_execute_strategy_mixed_ma_strategies(
+        self, mock_execute, dispatcher, base_config
+    ):
         """Test strategy execution with mixed MA strategies."""
         mock_execute.return_value = True
         config = base_config
@@ -241,9 +253,11 @@ class TestStrategyDispatcher:
         assert result == True
         mock_execute.assert_called_once_with(config)
 
-    @patch.object(MACDStrategyService, 'execute_strategy')
-    @patch('app.cli.services.strategy_dispatcher.rprint')
-    def test_execute_strategy_macd_with_mixed_strategies(self, mock_rprint, mock_execute, dispatcher, base_config):
+    @patch.object(MACDStrategyService, "execute_strategy")
+    @patch("app.cli.services.strategy_dispatcher.rprint")
+    def test_execute_strategy_macd_with_mixed_strategies(
+        self, mock_rprint, mock_execute, dispatcher, base_config
+    ):
         """Test strategy execution with MACD mixed with other strategies."""
         mock_execute.return_value = True
         config = base_config
@@ -268,7 +282,10 @@ class TestStrategyDispatcher:
         assert isinstance(macd_service, MACDStrategyService)
 
         # Verify they have different supported strategy types
-        assert ma_service.get_supported_strategy_types() != macd_service.get_supported_strategy_types()
+        assert (
+            ma_service.get_supported_strategy_types()
+            != macd_service.get_supported_strategy_types()
+        )
 
 
 class TestStrategyDispatcherEdgeCases:
@@ -312,7 +329,9 @@ class TestStrategyDispatcherEdgeCases:
         try:
             service = dispatcher._determine_service(strategy_types)
             # Should either return a service or None, but not crash
-            assert service is None or isinstance(service, (MAStrategyService, MACDStrategyService))
+            assert service is None or isinstance(
+                service, (MAStrategyService, MACDStrategyService)
+            )
         except (AttributeError, TypeError):
             # This is acceptable - the function may not handle None gracefully
             pass
@@ -331,7 +350,7 @@ class TestStrategyDispatcherEdgeCases:
 
         assert service is None
 
-    @patch.object(MAStrategyService, 'execute_strategy')
+    @patch.object(MAStrategyService, "execute_strategy")
     def test_execute_strategy_service_exception(self, mock_execute, dispatcher):
         """Test strategy execution when service raises exception."""
         mock_execute.side_effect = RuntimeError("Service execution failed")
@@ -340,7 +359,7 @@ class TestStrategyDispatcherEdgeCases:
             ticker=["AAPL"],
             strategy_types=[StrategyType.SMA],
             minimums=StrategyMinimums(),
-            synthetic=SyntheticTickerConfig()
+            synthetic=SyntheticTickerConfig(),
         )
 
         # The dispatcher should let the exception propagate or handle it gracefully
@@ -372,6 +391,7 @@ class TestStrategyDispatcherEdgeCases:
 
     def test_strategy_type_with_custom_attributes(self, dispatcher):
         """Test handling of strategy types that might have custom attributes."""
+
         # Mock a strategy type that has a value attribute
         class MockStrategyType:
             def __init__(self, value):
@@ -427,7 +447,7 @@ class TestStrategyDispatcherPerformance:
         # Should complete in reasonable time
         assert (end_time - start_time) < 1.0
 
-    @patch.object(MAStrategyService, 'execute_strategy')
+    @patch.object(MAStrategyService, "execute_strategy")
     def test_execution_delegation_performance(self, mock_execute, dispatcher):
         """Test that execution delegation doesn't add significant overhead."""
         import time
@@ -437,7 +457,7 @@ class TestStrategyDispatcherPerformance:
             ticker=["AAPL"],
             strategy_types=[StrategyType.SMA],
             minimums=StrategyMinimums(),
-            synthetic=SyntheticTickerConfig()
+            synthetic=SyntheticTickerConfig(),
         )
 
         # Time multiple executions

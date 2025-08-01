@@ -37,13 +37,13 @@ class MockDataFactory:
         end_date: str = "2023-12-31",
         base_price: float = 100.0,
         volatility: float = 0.02,
-        trend: float = 0.0001
+        trend: float = 0.0001,
     ) -> pl.DataFrame:
         """Create realistic price data with trend and volatility."""
         dates = pl.date_range(
             start=pl.date(*map(int, start_date.split("-"))),
             end=pl.date(*map(int, end_date.split("-"))),
-            interval="1d"
+            interval="1d",
         )
 
         prices = []
@@ -51,31 +51,33 @@ class MockDataFactory:
 
         for i, date in enumerate(dates):
             # Add trend
-            current_price *= (1 + trend)
+            current_price *= 1 + trend
 
             # Add volatility (random-like but deterministic for testing)
             daily_change = volatility * ((i % 7 - 3) / 3)  # -1 to 1 range
-            current_price *= (1 + daily_change)
+            current_price *= 1 + daily_change
 
             # Ensure positive prices
             current_price = max(current_price, 0.01)
             prices.append(current_price)
 
-        return pl.DataFrame({
-            "Date": dates,
-            "Close": prices,
-            "High": [p * 1.02 for p in prices],
-            "Low": [p * 0.98 for p in prices],
-            "Open": [p * (1 + ((i % 5 - 2) * 0.005)) for i, p in enumerate(prices)],
-            "Volume": [1000000 + (i % 500000) for i in range(len(prices))]
-        })
+        return pl.DataFrame(
+            {
+                "Date": dates,
+                "Close": prices,
+                "High": [p * 1.02 for p in prices],
+                "Low": [p * 0.98 for p in prices],
+                "Open": [p * (1 + ((i % 5 - 2) * 0.005)) for i, p in enumerate(prices)],
+                "Volume": [1000000 + (i % 500000) for i in range(len(prices))],
+            }
+        )
 
     @staticmethod
     def create_crypto_price_data(
         ticker: str = "BTC-USD",
         start_date: str = "2023-01-01",
         end_date: str = "2023-12-31",
-        base_price: float = 45000.0
+        base_price: float = 45000.0,
     ) -> pl.DataFrame:
         """Create realistic crypto price data with higher volatility."""
         return MockDataFactory.create_price_data(
@@ -84,7 +86,7 @@ class MockDataFactory:
             end_date=end_date,
             base_price=base_price,
             volatility=0.05,  # Higher volatility for crypto
-            trend=0.0002
+            trend=0.0002,
         )
 
     @staticmethod
@@ -92,7 +94,7 @@ class MockDataFactory:
         ticker: str = "AAPL",
         strategy_type: str = "SMA",
         num_results: int = 10,
-        base_score: float = 8.0
+        base_score: float = 8.0,
     ) -> pl.DataFrame:
         """Create realistic strategy analysis results."""
         results = []
@@ -121,7 +123,7 @@ class MockDataFactory:
                 "Profit Factor": 1.2 + (i * 0.05),
                 "Sortino Ratio": sharpe_ratio * 1.1,
                 "Calmar Ratio": total_return / (5.0 + (i % 7)),
-                "Metric Type": MockDataFactory._get_metric_type(i)
+                "Metric Type": MockDataFactory._get_metric_type(i),
             }
 
             # Add MACD-specific columns if needed
@@ -134,9 +136,7 @@ class MockDataFactory:
 
     @staticmethod
     def create_multi_ticker_results(
-        tickers: List[str],
-        strategy_types: List[str],
-        results_per_combination: int = 3
+        tickers: List[str], strategy_types: List[str], results_per_combination: int = 3
     ) -> pl.DataFrame:
         """Create multi-ticker, multi-strategy results."""
         all_results = []
@@ -147,7 +147,7 @@ class MockDataFactory:
                     ticker=ticker,
                     strategy_type=strategy_type,
                     num_results=results_per_combination,
-                    base_score=7.0 + (len(ticker) % 3)  # Vary base score by ticker
+                    base_score=7.0 + (len(ticker) % 3),  # Vary base score by ticker
                 )
                 all_results.append(ticker_results)
 
@@ -156,27 +156,25 @@ class MockDataFactory:
     @staticmethod
     def create_empty_results() -> pl.DataFrame:
         """Create empty results DataFrame with correct schema."""
-        return pl.DataFrame({
-            "Ticker": [],
-            "Strategy Type": [],
-            "Score": []
-        })
+        return pl.DataFrame({"Ticker": [], "Strategy Type": [], "Score": []})
 
     @staticmethod
     def create_minimal_results(ticker: str = "TEST") -> pl.DataFrame:
         """Create minimal results (single row) for edge case testing."""
-        return pl.DataFrame({
-            "Ticker": [ticker],
-            "Strategy Type": ["SMA"],
-            "Short Window": [10],
-            "Long Window": [20],
-            "Total Trades": [25],
-            "Win Rate [%]": [55.0],
-            "Total Return [%]": [15.5],
-            "Sharpe Ratio": [1.2],
-            "Score": [7.5],
-            "Metric Type": ["Most Total Return [%]"]
-        })
+        return pl.DataFrame(
+            {
+                "Ticker": [ticker],
+                "Strategy Type": ["SMA"],
+                "Short Window": [10],
+                "Long Window": [20],
+                "Total Trades": [25],
+                "Win Rate [%]": [55.0],
+                "Total Return [%]": [15.5],
+                "Sharpe Ratio": [1.2],
+                "Score": [7.5],
+                "Metric Type": ["Most Total Return [%]"],
+            }
+        )
 
     @staticmethod
     def _get_metric_type(index: int) -> str:
@@ -186,7 +184,7 @@ class MockDataFactory:
             "Most Sharpe Ratio",
             "Most Win Rate [%]",
             "Most Profit Factor",
-            "Most Calmar Ratio"
+            "Most Calmar Ratio",
         ]
         return metric_types[index % len(metric_types)]
 
@@ -194,7 +192,7 @@ class MockDataFactory:
     def create_mock_config(
         ticker: Union[str, List[str]] = "AAPL",
         strategy_types: List[StrategyType] = None,
-        **kwargs
+        **kwargs,
     ) -> Mock:
         """Create mock strategy configuration."""
         if strategy_types is None:
@@ -206,17 +204,17 @@ class MockDataFactory:
         mock_config = Mock()
         mock_config.ticker = ticker
         mock_config.strategy_types = strategy_types
-        mock_config.use_years = kwargs.get('use_years', False)
-        mock_config.years = kwargs.get('years', 15)
-        mock_config.use_hourly = kwargs.get('use_hourly', False)
+        mock_config.use_years = kwargs.get("use_years", False)
+        mock_config.years = kwargs.get("years", 15)
+        mock_config.use_hourly = kwargs.get("use_hourly", False)
         mock_config.minimums = Mock()
-        mock_config.minimums.win_rate = kwargs.get('min_win_rate', 0.5)
-        mock_config.minimums.trades = kwargs.get('min_trades', 20)
-        mock_config.minimums.profit_factor = kwargs.get('min_profit_factor', 1.0)
+        mock_config.minimums.win_rate = kwargs.get("min_win_rate", 0.5)
+        mock_config.minimums.trades = kwargs.get("min_trades", 20)
+        mock_config.minimums.profit_factor = kwargs.get("min_profit_factor", 1.0)
 
         # Add parameter ranges for sweeps
-        mock_config.fast_period_range = kwargs.get('fast_period_range', [5, 50])
-        mock_config.slow_period_range = kwargs.get('slow_period_range', [20, 100])
+        mock_config.fast_period_range = kwargs.get("fast_period_range", [5, 50])
+        mock_config.slow_period_range = kwargs.get("slow_period_range", [20, 100])
 
         return mock_config
 
@@ -235,7 +233,7 @@ class CLITestRunner:
         strategy: str = "SMA",
         profile: Optional[str] = None,
         dry_run: bool = False,
-        **kwargs
+        **kwargs,
     ):
         """Run strategy command with common parameters."""
         cmd_args = ["run"]
@@ -246,15 +244,15 @@ class CLITestRunner:
         cmd_args.extend(["--ticker", ticker, "--strategy", strategy])
 
         # Add optional parameters
-        if kwargs.get('min_trades'):
-            cmd_args.extend(["--min-trades", str(kwargs['min_trades'])])
-        if kwargs.get('min_win_rate'):
-            cmd_args.extend(["--min-win-rate", str(kwargs['min_win_rate'])])
-        if kwargs.get('years'):
-            cmd_args.extend(["--years", str(kwargs['years'])])
-        if kwargs.get('use_years'):
+        if kwargs.get("min_trades"):
+            cmd_args.extend(["--min-trades", str(kwargs["min_trades"])])
+        if kwargs.get("min_win_rate"):
+            cmd_args.extend(["--min-win-rate", str(kwargs["min_win_rate"])])
+        if kwargs.get("years"):
+            cmd_args.extend(["--years", str(kwargs["years"])])
+        if kwargs.get("use_years"):
             cmd_args.append("--use-years")
-        if kwargs.get('verbose'):
+        if kwargs.get("verbose"):
             cmd_args.append("--verbose")
         if dry_run:
             cmd_args.append("--dry-run")
@@ -270,23 +268,28 @@ class CLITestRunner:
         slow_min: int = 20,
         slow_max: int = 100,
         max_results: Optional[int] = None,
-        **kwargs
+        **kwargs,
     ):
         """Run parameter sweep command with common parameters."""
         cmd_args = [
             "sweep",
-            "--ticker", ticker,
-            "--fast-min", str(fast_min),
-            "--fast-max", str(fast_max),
-            "--slow-min", str(slow_min),
-            "--slow-max", str(slow_max)
+            "--ticker",
+            ticker,
+            "--fast-min",
+            str(fast_min),
+            "--fast-max",
+            str(fast_max),
+            "--slow-min",
+            str(slow_min),
+            "--slow-max",
+            str(slow_max),
         ]
 
         if max_results:
             cmd_args.extend(["--max-results", str(max_results)])
 
-        if kwargs.get('profile'):
-            cmd_args.extend(["--profile", kwargs['profile']])
+        if kwargs.get("profile"):
+            cmd_args.extend(["--profile", kwargs["profile"]])
 
         return self.runner.invoke(app, cmd_args)
 
@@ -298,7 +301,7 @@ class CLITestRunner:
         ticker: str = "AAPL",
         strategy_types: List[StrategyType] = None,
         return_data: Optional[pl.DataFrame] = None,
-        execution_success: bool = True
+        execution_success: bool = True,
     ):
         """Setup common strategy execution mocks."""
         if strategy_types is None:
@@ -329,7 +332,7 @@ class CLITestRunner:
         get_data_mock,
         logging_mock,
         ticker: str = "AAPL",
-        return_results: Optional[pl.DataFrame] = None
+        return_results: Optional[pl.DataFrame] = None,
     ):
         """Setup common parameter sweep mocks."""
         if return_results is None:
@@ -378,9 +381,13 @@ class ExportValidator:
 
         # Check for required columns
         required_columns = ["Ticker", "Strategy Type", "Score"]
-        missing_columns = [col for col in required_columns if col not in df_pandas.columns]
+        missing_columns = [
+            col for col in required_columns if col not in df_pandas.columns
+        ]
         if missing_columns:
-            raise AssertionError(f"CSV file missing required columns {missing_columns}: {file_path}")
+            raise AssertionError(
+                f"CSV file missing required columns {missing_columns}: {file_path}"
+            )
 
         return {
             "path": file_path,
@@ -389,7 +396,7 @@ class ExportValidator:
             "column_names": df_pandas.columns.tolist(),
             "data_types": {col: str(dtype) for col, dtype in df_pandas.dtypes.items()},
             "pandas_df": df_pandas,
-            "polars_df": df_polars
+            "polars_df": df_polars,
         }
 
     @staticmethod
@@ -406,12 +413,14 @@ class ExportValidator:
         # Check for CSV files
         csv_files = list(expected_path.glob("*.csv"))
         if not csv_files:
-            raise AssertionError(f"No CSV files found in export directory: {expected_path}")
+            raise AssertionError(
+                f"No CSV files found in export directory: {expected_path}"
+            )
 
         return {
             "directory": expected_path,
             "csv_files": csv_files,
-            "file_count": len(csv_files)
+            "file_count": len(csv_files),
         }
 
     @staticmethod
@@ -420,7 +429,7 @@ class ExportValidator:
         required_schemas = {
             "portfolios": ["Ticker", "Strategy Type", "Score"],
             "portfolios_filtered": ["Metric Type", "Ticker", "Strategy Type", "Score"],
-            "portfolios_best": ["Metric Type", "Ticker", "Strategy Type", "Score"]
+            "portfolios_best": ["Metric Type", "Ticker", "Strategy Type", "Score"],
         }
 
         if schema_type not in required_schemas:
@@ -430,17 +439,23 @@ class ExportValidator:
         missing_columns = [col for col in required_columns if col not in df.columns]
 
         if missing_columns:
-            raise AssertionError(f"DataFrame missing required columns for {schema_type}: {missing_columns}")
+            raise AssertionError(
+                f"DataFrame missing required columns for {schema_type}: {missing_columns}"
+            )
 
         # Validate column ordering for filtered/best schemas
         if schema_type in ["portfolios_filtered", "portfolios_best"]:
             if df.columns[0] != "Metric Type":
-                raise AssertionError(f"First column should be 'Metric Type' for {schema_type}, got: {df.columns[0]}")
+                raise AssertionError(
+                    f"First column should be 'Metric Type' for {schema_type}, got: {df.columns[0]}"
+                )
 
         return True
 
     @staticmethod
-    def validate_metric_type_preservation(df: pl.DataFrame, expected_metric_types: List[str]):
+    def validate_metric_type_preservation(
+        df: pl.DataFrame, expected_metric_types: List[str]
+    ):
         """Validate that metric types are preserved correctly."""
         if "Metric Type" not in df.columns:
             raise AssertionError("DataFrame missing 'Metric Type' column")
@@ -457,7 +472,13 @@ class ExportValidator:
     @staticmethod
     def validate_numerical_data_integrity(df: pl.DataFrame):
         """Validate numerical data integrity."""
-        numerical_columns = ["Total Trades", "Win Rate [%]", "Total Return [%]", "Sharpe Ratio", "Score"]
+        numerical_columns = [
+            "Total Trades",
+            "Win Rate [%]",
+            "Total Return [%]",
+            "Sharpe Ratio",
+            "Score",
+        ]
 
         for col in numerical_columns:
             if col in df.columns:
@@ -470,12 +491,16 @@ class ExportValidator:
                 if col == "Win Rate [%]":
                     values = df[col].to_list()
                     if any(v < 0 or v > 100 for v in values):
-                        raise AssertionError(f"Win Rate values outside valid range [0,100]: {values}")
+                        raise AssertionError(
+                            f"Win Rate values outside valid range [0,100]: {values}"
+                        )
 
                 if col == "Total Trades":
                     values = df[col].to_list()
                     if any(v <= 0 for v in values):
-                        raise AssertionError(f"Total Trades has non-positive values: {values}")
+                        raise AssertionError(
+                            f"Total Trades has non-positive values: {values}"
+                        )
 
         return True
 
@@ -488,7 +513,7 @@ class ConfigBuilder:
         self.metadata = {
             "name": "test_config",
             "description": "Test configuration",
-            "version": "1.0"
+            "version": "1.0",
         }
 
     def with_tickers(self, tickers: Union[str, List[str]]):
@@ -509,12 +534,14 @@ class ConfigBuilder:
         self.config["use_years"] = use_years
         return self
 
-    def with_minimums(self, win_rate: float = 0.5, trades: int = 20, profit_factor: float = 1.0):
+    def with_minimums(
+        self, win_rate: float = 0.5, trades: int = 20, profit_factor: float = 1.0
+    ):
         """Add minimum criteria."""
         self.config["minimums"] = {
             "win_rate": win_rate,
             "trades": trades,
-            "profit_factor": profit_factor
+            "profit_factor": profit_factor,
         }
         return self
 
@@ -541,12 +568,13 @@ class ConfigBuilder:
         return {
             "metadata": self.metadata,
             "config_type": "strategy",
-            "config": self.config
+            "config": self.config,
         }
 
     def build_yaml_content(self) -> str:
         """Build YAML configuration content."""
         import yaml
+
         return yaml.dump(self.build_dict(), default_flow_style=False)
 
     def save_to_file(self, file_path: Path):
@@ -590,10 +618,14 @@ class AssertionHelpers:
             if any(not isinstance(score, (int, float)) for score in scores):
                 raise AssertionError("Score column contains non-numeric values")
             if any(score < 0 or score > 10 for score in scores):
-                raise AssertionError(f"Score values outside valid range [0,10]: {scores}")
+                raise AssertionError(
+                    f"Score values outside valid range [0,10]: {scores}"
+                )
 
     @staticmethod
-    def assert_export_file_naming_convention(file_path: Path, ticker: str, strategy: str = None):
+    def assert_export_file_naming_convention(
+        file_path: Path, ticker: str, strategy: str = None
+    ):
         """Assert export file follows naming convention."""
         filename = file_path.name
 
@@ -604,7 +636,9 @@ class AssertionHelpers:
         # Should contain strategy if single strategy
         if strategy and len([strategy]) == 1:
             if strategy not in filename:
-                raise AssertionError(f"Filename should contain strategy {strategy}: {filename}")
+                raise AssertionError(
+                    f"Filename should contain strategy {strategy}: {filename}"
+                )
 
         # Should have .csv extension
         if not filename.endswith(".csv"):
@@ -614,40 +648,56 @@ class AssertionHelpers:
     def assert_cli_command_success(result, expected_messages: List[str] = None):
         """Assert CLI command executed successfully."""
         if result.exit_code != 0:
-            raise AssertionError(f"CLI command failed with exit code {result.exit_code}. Output: {result.stdout}")
+            raise AssertionError(
+                f"CLI command failed with exit code {result.exit_code}. Output: {result.stdout}"
+            )
 
         if expected_messages:
             for message in expected_messages:
                 if message not in result.stdout:
-                    raise AssertionError(f"Expected message '{message}' not found in output: {result.stdout}")
+                    raise AssertionError(
+                        f"Expected message '{message}' not found in output: {result.stdout}"
+                    )
 
     @staticmethod
     def assert_cli_command_failure(result, expected_error_messages: List[str] = None):
         """Assert CLI command failed appropriately."""
         if result.exit_code == 0:
-            raise AssertionError(f"CLI command should have failed but succeeded. Output: {result.stdout}")
+            raise AssertionError(
+                f"CLI command should have failed but succeeded. Output: {result.stdout}"
+            )
 
         if expected_error_messages:
             output_lower = result.stdout.lower()
             for error_msg in expected_error_messages:
                 if error_msg.lower() not in output_lower:
-                    raise AssertionError(f"Expected error message '{error_msg}' not found in output: {result.stdout}")
+                    raise AssertionError(
+                        f"Expected error message '{error_msg}' not found in output: {result.stdout}"
+                    )
 
     @staticmethod
-    def assert_dataframe_equals_with_tolerance(df1: pl.DataFrame, df2: pl.DataFrame, tolerance: float = 1e-6):
+    def assert_dataframe_equals_with_tolerance(
+        df1: pl.DataFrame, df2: pl.DataFrame, tolerance: float = 1e-6
+    ):
         """Assert DataFrames are equal with numerical tolerance."""
         if df1.shape != df2.shape:
-            raise AssertionError(f"DataFrames have different shapes: {df1.shape} vs {df2.shape}")
+            raise AssertionError(
+                f"DataFrames have different shapes: {df1.shape} vs {df2.shape}"
+            )
 
         if df1.columns != df2.columns:
-            raise AssertionError(f"DataFrames have different columns: {df1.columns} vs {df2.columns}")
+            raise AssertionError(
+                f"DataFrames have different columns: {df1.columns} vs {df2.columns}"
+            )
 
         # Check numerical columns with tolerance
         for col in df1.columns:
             if df1[col].dtype in [pl.Float64, pl.Float32, pl.Int64, pl.Int32]:
                 diff = abs(df1[col] - df2[col]).max()
                 if diff > tolerance:
-                    raise AssertionError(f"Column {col} differs by more than tolerance {tolerance}: max diff = {diff}")
+                    raise AssertionError(
+                        f"Column {col} differs by more than tolerance {tolerance}: max diff = {diff}"
+                    )
             else:
                 if not df1[col].equals(df2[col]):
                     raise AssertionError(f"Column {col} values are not equal")
@@ -656,13 +706,17 @@ class AssertionHelpers:
     def assert_performance_within_bounds(execution_time: float, max_time: float):
         """Assert execution time is within performance bounds."""
         if execution_time > max_time:
-            raise AssertionError(f"Execution time {execution_time:.2f}s exceeds maximum {max_time:.2f}s")
+            raise AssertionError(
+                f"Execution time {execution_time:.2f}s exceeds maximum {max_time:.2f}s"
+            )
 
     @staticmethod
     def assert_memory_usage_reasonable(memory_usage_mb: float, max_memory_mb: float):
         """Assert memory usage is within reasonable bounds."""
         if memory_usage_mb > max_memory_mb:
-            raise AssertionError(f"Memory usage {memory_usage_mb:.2f}MB exceeds maximum {max_memory_mb:.2f}MB")
+            raise AssertionError(
+                f"Memory usage {memory_usage_mb:.2f}MB exceeds maximum {max_memory_mb:.2f}MB"
+            )
 
 
 # Convenience factory functions
@@ -672,14 +726,18 @@ def create_test_workspace() -> Path:
 
     # Create expected directories
     (temp_dir / "data" / "raw" / "portfolios").mkdir(parents=True, exist_ok=True)
-    (temp_dir / "data" / "raw" / "portfolios_filtered").mkdir(parents=True, exist_ok=True)
+    (temp_dir / "data" / "raw" / "portfolios_filtered").mkdir(
+        parents=True, exist_ok=True
+    )
     (temp_dir / "data" / "raw" / "portfolios_best").mkdir(parents=True, exist_ok=True)
     (temp_dir / "app" / "cli" / "profiles").mkdir(parents=True, exist_ok=True)
 
     return temp_dir
 
 
-def create_test_profile(workspace: Path, profile_name: str, config_builder: ConfigBuilder) -> Path:
+def create_test_profile(
+    workspace: Path, profile_name: str, config_builder: ConfigBuilder
+) -> Path:
     """Create test profile file in workspace."""
     profiles_dir = workspace / "app" / "cli" / "profiles"
     profile_file = profiles_dir / f"{profile_name}.yaml"
@@ -705,6 +763,7 @@ class TestingContext:
         # Cleanup workspace
         if self.workspace and self.workspace.exists():
             import shutil
+
             shutil.rmtree(self.workspace)
 
     def create_profile(self, name: str) -> ConfigBuilder:
