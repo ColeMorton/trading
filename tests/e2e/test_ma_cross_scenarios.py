@@ -14,6 +14,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+import polars as pl
+
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
@@ -110,13 +112,16 @@ class TestMACrossE2EScenarios(unittest.TestCase):
 
         # Engineer a clear buy signal on the last day
         # Make short MA cross above long MA
-        price_data.iloc[-5:, price_data.columns.get_loc("Close")] *= [
+        # Convert to pandas temporarily for easier manipulation, then back to Polars
+        price_data_pandas = price_data.to_pandas()
+        price_data_pandas.iloc[-5:, price_data_pandas.columns.get_loc("Close")] *= [
             1.02,
             1.03,
             1.05,
             1.07,
             1.10,
         ]
+        price_data = pl.from_pandas(price_data_pandas)
 
         mock_fetch.return_value = price_data
 

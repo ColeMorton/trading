@@ -43,6 +43,11 @@ def close(
         "--price",
         help="Closing price for position exit (required when portfolio specified)",
     ),
+    date: Optional[str] = typer.Option(
+        None,
+        "--date",
+        help="Exit date/timestamp (YYYY-MM-DD or 'YYYY-MM-DD HH:MM:SS') - defaults to current time",
+    ),
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
@@ -222,7 +227,31 @@ def close(
                 position_size = position_row["Position_Size"]
                 direction = position_row["Direction"]
                 entry_date = pd.to_datetime(position_row["Entry_Timestamp"])
-                exit_date = datetime.now()
+                
+                # Parse exit date from provided parameter or use current time
+                if date:
+                    try:
+                        # Try parsing full datetime format first
+                        if " " in date:
+                            exit_date = datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
+                        else:
+                            # Date only - use current time
+                            parsed_date = datetime.strptime(date, "%Y-%m-%d")
+                            current_time = datetime.now().time()
+                            exit_date = datetime.combine(parsed_date.date(), current_time)
+                            
+                        # Validate exit date is not before entry date
+                        if exit_date.date() < entry_date.date():
+                            rprint(f"[red]❌ Exit date ({exit_date.date()}) cannot be before entry date ({entry_date.date()})[/red]")
+                            raise typer.Exit(1)
+                            
+                    except ValueError as e:
+                        rprint(f"[red]❌ Invalid date format: {date}[/red]")
+                        rprint("[yellow]Expected formats: YYYY-MM-DD or 'YYYY-MM-DD HH:MM:SS'[/yellow]")
+                        rprint("[dim]Examples: 2025-07-30 or '2025-07-30 15:30:00'[/dim]")
+                        raise typer.Exit(1)
+                else:
+                    exit_date = datetime.now()
 
                 # Calculate P&L and return
                 if direction.upper() == "LONG":

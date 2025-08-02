@@ -1,8 +1,8 @@
 {
   "export_metadata": {
-    "export_timestamp": "2025-07-31T12:35:16.832784",
+    "export_timestamp": "2025-08-02T10:44:45.446286",
     "export_version": "1.0.0",
-    "total_results": 2,
+    "total_results": 1,
     "include_raw_data": true,
     "config_version": "1.0.0"
   },
@@ -11,13 +11,13 @@
       "strategy_name": "AMZN_SMA_77_81",
       "ticker": "AMZN",
       "timeframe": "D",
-      "analysis_timestamp": "2025-07-31T12:35:13.167816",
+      "analysis_timestamp": "2025-08-02T10:44:42.306338",
       "sample_size": 0,
       "sample_size_confidence": 0.0,
       "dual_layer_convergence_score": 1.0,
       "asset_layer_percentile": 50.0,
       "strategy_layer_percentile": 50.0,
-      "exit_signal": "HOLD",
+      "exit_signal": "STRONG_SELL",
       "signal_confidence": 36.39717258523641,
       "exit_recommendation": null,
       "target_exit_timeframe": null,
@@ -159,32 +159,32 @@
         ],
         "data_source": "trade_history",
         "component_scores": {
-          "risk_score": -16.215313416737743,
-          "momentum_score": -10.489939821280597,
-          "trend_score": 3.4960078106523684,
-          "risk_adjusted_score": -1.7352298610788408,
-          "mean_reversion_score": 7.465218947042015,
-          "volume_liquidity_score": 32.49824088768328,
-          "overall_score": -2.768018030281376,
-          "raw_risk_score": 66.21531341673774,
-          "volatility_score": 74.88406315680672,
-          "tail_risk_score": 76.91944720473242,
-          "distribution_score": 28.92173975814838,
-          "beta_risk_adjustment": 1.0991598579537587,
-          "volatility_regime": "low",
-          "current_vix": 15.479999542236328,
+          "risk_score": -16.60262668453852,
+          "momentum_score": -100.0,
+          "trend_score": -2.789390612637182,
+          "risk_adjusted_score": -1.8351651681733292,
+          "mean_reversion_score": 7.470554165343742,
+          "volume_liquidity_score": 80.31740535115897,
+          "overall_score": -19.18258797171681,
+          "raw_risk_score": 66.60262668453852,
+          "volatility_score": 74.90184721781247,
+          "tail_risk_score": 76.86564639273526,
+          "distribution_score": 28.879464903471643,
+          "beta_risk_adjustment": 1.1060683318291749,
+          "volatility_regime": "normal",
+          "current_vix": 20.3799991607666,
           "threshold_adjustments": {
-            "strong_buy": -5,
-            "buy": -3,
-            "sell": -1,
-            "strong_sell": -2
+            "strong_buy": 0,
+            "buy": 0,
+            "sell": 0,
+            "strong_sell": 0
           },
           "weight_adjustments": {
-            "risk": 0.9,
-            "momentum": 1.1,
-            "trend": 1.05,
-            "risk_adj": 0.95,
-            "mean_rev": 0.85,
+            "risk": 1.0,
+            "momentum": 1.0,
+            "trend": 1.0,
+            "risk_adj": 1.0,
+            "mean_rev": 1.0,
             "volume": 1.0
           },
           "base_weights": {
@@ -196,38 +196,38 @@
             "volume": 0.07
           },
           "normalized_weights": {
-            "risk": 0.22704339051463168,
-            "momentum": 0.2219979818365288,
-            "trend": 0.2648839556004036,
-            "risk_adj": 0.17255297679112006,
-            "mean_rev": 0.042885973763874874,
-            "volume": 0.07063572149344098
+            "risk": 0.25,
+            "momentum": 0.2,
+            "trend": 0.25,
+            "risk_adj": 0.18,
+            "mean_rev": 0.05,
+            "volume": 0.07
           },
-          "risk_contribution": -3.681579736393534,
-          "momentum_contribution": -2.3287454699109302,
-          "trend_contribution": 0.9260363776955062,
-          "risk_adjusted_contribution": -0.2994190779459957,
-          "mean_reversion_contribution": 0.32015318390442543,
-          "volume_contribution": 2.2955366923691525,
+          "risk_contribution": -4.15065667113463,
+          "momentum_contribution": -20.0,
+          "trend_contribution": -0.6973476531592955,
+          "risk_adjusted_contribution": -0.3303297302711992,
+          "mean_reversion_contribution": 0.3735277082671871,
+          "volume_contribution": 5.622218374581128,
           "transaction_cost_analysis": {
             "estimated_spread_bps": 1.0,
-            "market_impact_bps": 0.075,
+            "market_impact_bps": 0.09,
             "commission_bps": 0.5,
-            "total_cost_bps": 1.575,
+            "total_cost_bps": 1.59,
             "liquidity_penalty_bps": 0.0,
             "turnover_penalty_bps": 0.0,
             "cost_adjusted_confidence": 1.0,
-            "original_signal": "HOLD",
-            "cost_adjusted_signal": "HOLD",
+            "original_signal": "SELL",
+            "cost_adjusted_signal": "SELL",
             "confidence_impact": 0.0
           },
           "performance_attribution": {
             "factor_performance": [
               {
                 "factor": "risk",
-                "contribution": -3.681579736393534,
-                "weight": 0.22704339051463168,
-                "score": -16.215313416737743,
+                "contribution": -4.15065667113463,
+                "weight": 0.25,
+                "score": -16.60262668453852,
                 "performance_metrics": {
                   "avg_score": 0.0,
                   "score_volatility": 1.0,
@@ -241,9 +241,9 @@
               },
               {
                 "factor": "momentum",
-                "contribution": -2.3287454699109302,
-                "weight": 0.2219979818365288,
-                "score": -10.489939821280597,
+                "contribution": -20.0,
+                "weight": 0.2,
+                "score": -100.0,
                 "performance_metrics": {
                   "avg_score": 0.0,
                   "score_volatility": 1.0,
@@ -257,9 +257,9 @@
               },
               {
                 "factor": "trend",
-                "contribution": 0.9260363776955062,
-                "weight": 0.2648839556004036,
-                "score": 3.4960078106523684,
+                "contribution": -0.6973476531592955,
+                "weight": 0.25,
+                "score": -2.789390612637182,
                 "performance_metrics": {
                   "avg_score": 0.0,
                   "score_volatility": 1.0,
@@ -273,9 +273,9 @@
               },
               {
                 "factor": "risk_adjusted",
-                "contribution": -0.2994190779459957,
-                "weight": 0.17255297679112006,
-                "score": -1.7352298610788408,
+                "contribution": -0.3303297302711992,
+                "weight": 0.18,
+                "score": -1.8351651681733292,
                 "performance_metrics": {
                   "avg_score": 0.0,
                   "score_volatility": 1.0,
@@ -289,9 +289,9 @@
               },
               {
                 "factor": "mean_reversion",
-                "contribution": 0.32015318390442543,
-                "weight": 0.042885973763874874,
-                "score": 7.465218947042015,
+                "contribution": 0.3735277082671871,
+                "weight": 0.05,
+                "score": 7.470554165343742,
                 "performance_metrics": {
                   "avg_score": 0.0,
                   "score_volatility": 1.0,
@@ -305,9 +305,9 @@
               },
               {
                 "factor": "volume_liquidity",
-                "contribution": 2.2955366923691525,
-                "weight": 0.07063572149344098,
-                "score": 32.49824088768328,
+                "contribution": 5.622218374581128,
+                "weight": 0.07,
+                "score": 80.31740535115897,
                 "performance_metrics": {
                   "avg_score": 0.0,
                   "score_volatility": 1.0,
@@ -321,246 +321,16 @@
               }
             ],
             "performance_summary": {
-              "total_contribution": 9.851470538219544,
-              "positive_contribution": 3.541726253969084,
-              "negative_contribution": -6.30974428425046,
-              "contribution_balance": 0.35947595481052974,
-              "factor_diversification": 0.8748459089507565,
-              "weight_efficiency": 0.3007750836844186,
+              "total_contribution": 31.17408013741344,
+              "positive_contribution": 5.995746082848315,
+              "negative_contribution": -25.178334054565124,
+              "contribution_balance": 0.19232496136081384,
+              "factor_diversification": 0.7779113132324328,
+              "weight_efficiency": 0.14736097282593674,
               "factor_count": 6,
-              "dominant_factor": "risk"
+              "dominant_factor": "momentum"
             },
-            "attribution_timestamp": "2025-07-31T12:35:15.635888"
-          }
-        }
-      }
-    },
-    {
-      "strategy_name": "ASML_SMA_71_80",
-      "ticker": "ASML",
-      "timeframe": "D",
-      "analysis_timestamp": "2025-07-31T12:35:15.707136",
-      "sample_size": 0,
-      "sample_size_confidence": 0.0,
-      "dual_layer_convergence_score": 1.0,
-      "asset_layer_percentile": 50.0,
-      "strategy_layer_percentile": 50.0,
-      "exit_signal": "STRONG_SELL",
-      "signal_confidence": 35.554070367046556,
-      "exit_recommendation": "2-3 days",
-      "target_exit_timeframe": "2-3 days",
-      "statistical_significance": "LOW",
-      "p_value": 0.272044421686614,
-      "divergence_metrics": {
-        "asset_divergence": {
-          "z_score": 0.09592156837587516,
-          "iqr_position": 0.10041075375346342,
-          "percentile_rank": 50.0,
-          "rarity_score": 0.019184313675175032,
-          "is_outlier": false,
-          "outlier_method": "none",
-          "consecutive_periods_above_threshold": 0,
-          "trend_direction": "neutral"
-        },
-        "strategy_divergence": {
-          "z_score": -0.28189401744260384,
-          "iqr_position": -0.1822966192878281,
-          "percentile_rank": 50.0,
-          "rarity_score": 0.056378803488520764,
-          "is_outlier": false,
-          "outlier_method": "none",
-          "consecutive_periods_above_threshold": 0,
-          "trend_direction": "up"
-        }
-      },
-      "performance_metrics": {
-        "mean": 0.10976351876580805,
-        "std": 0.35478788813894596,
-        "min": -0.33020172637717654,
-        "max": 1.9596218055158674,
-        "count": 77,
-        "win_rate": 0.5844155844155844,
-        "profit_factor": 4.02498588760242,
-        "sharpe_ratio": 0.6926247698032233,
-        "max_drawdown": -1.0330337580052764,
-        "mfe": 0.0,
-        "mae": 0.0,
-        "current_return": 0.004119781782472298
-      },
-      "raw_analysis_data": {
-        "component_scores": {
-          "risk_score": -4.330245680060173,
-          "momentum_score": 1.2783033379975817,
-          "trend_score": -4.402532671878754,
-          "risk_adjusted_score": -5.127105141868358,
-          "mean_reversion_score": 4.591595404253212,
-          "volume_liquidity_score": 40.36513235642994,
-          "overall_score": 0.2979048641262616,
-          "raw_risk_score": 54.33024568006017,
-          "volatility_score": 68.36638161701285,
-          "tail_risk_score": 53.64870962584109,
-          "distribution_score": 18.43315651568761,
-          "beta_risk_adjustment": 1.16050388410964,
-          "volatility_regime": "low",
-          "current_vix": 15.479999542236328,
-          "threshold_adjustments": {
-            "strong_buy": -5,
-            "buy": -3,
-            "sell": -1,
-            "strong_sell": -2
-          },
-          "weight_adjustments": {
-            "risk": 0.9,
-            "momentum": 1.1,
-            "trend": 1.05,
-            "risk_adj": 0.95,
-            "mean_rev": 0.85,
-            "volume": 1.0
-          },
-          "base_weights": {
-            "risk": 0.25,
-            "momentum": 0.2,
-            "trend": 0.25,
-            "risk_adj": 0.18,
-            "mean_rev": 0.05,
-            "volume": 0.07
-          },
-          "normalized_weights": {
-            "risk": 0.22704339051463168,
-            "momentum": 0.2219979818365288,
-            "trend": 0.2648839556004036,
-            "risk_adj": 0.17255297679112006,
-            "mean_rev": 0.042885973763874874,
-            "volume": 0.07063572149344098
-          },
-          "risk_contribution": -0.9831536609621987,
-          "momentum_contribution": 0.2837807612103613,
-          "trend_contribution": -1.1661602687872583,
-          "risk_adjusted_contribution": -0.8846972545504431,
-          "mean_reversion_contribution": 0.1969150400411317,
-          "volume_contribution": 2.8512202471746684,
-          "transaction_cost_analysis": {
-            "estimated_spread_bps": 1.0,
-            "market_impact_bps": 0.075,
-            "commission_bps": 0.5,
-            "total_cost_bps": 1.575,
-            "liquidity_penalty_bps": 0.0,
-            "turnover_penalty_bps": 0.0,
-            "cost_adjusted_confidence": 1.0,
-            "original_signal": "HOLD",
-            "cost_adjusted_signal": "HOLD",
-            "confidence_impact": 0.0
-          },
-          "performance_attribution": {
-            "factor_performance": [
-              {
-                "factor": "risk",
-                "contribution": -0.9831536609621987,
-                "weight": 0.22704339051463168,
-                "score": -4.330245680060173,
-                "performance_metrics": {
-                  "avg_score": 0.0,
-                  "score_volatility": 1.0,
-                  "avg_contribution": 0.0,
-                  "contribution_consistency": 0.5,
-                  "score_trend": 0.0,
-                  "contribution_trend": 0.0,
-                  "factor_efficiency": 0.5,
-                  "signal_accuracy": 0.5
-                }
-              },
-              {
-                "factor": "momentum",
-                "contribution": 0.2837807612103613,
-                "weight": 0.2219979818365288,
-                "score": 1.2783033379975817,
-                "performance_metrics": {
-                  "avg_score": 0.0,
-                  "score_volatility": 1.0,
-                  "avg_contribution": 0.0,
-                  "contribution_consistency": 0.5,
-                  "score_trend": 0.0,
-                  "contribution_trend": 0.0,
-                  "factor_efficiency": 0.5,
-                  "signal_accuracy": 0.5
-                }
-              },
-              {
-                "factor": "trend",
-                "contribution": -1.1661602687872583,
-                "weight": 0.2648839556004036,
-                "score": -4.402532671878754,
-                "performance_metrics": {
-                  "avg_score": 0.0,
-                  "score_volatility": 1.0,
-                  "avg_contribution": 0.0,
-                  "contribution_consistency": 0.5,
-                  "score_trend": 0.0,
-                  "contribution_trend": 0.0,
-                  "factor_efficiency": 0.5,
-                  "signal_accuracy": 0.5
-                }
-              },
-              {
-                "factor": "risk_adjusted",
-                "contribution": -0.8846972545504431,
-                "weight": 0.17255297679112006,
-                "score": -5.127105141868358,
-                "performance_metrics": {
-                  "avg_score": 0.0,
-                  "score_volatility": 1.0,
-                  "avg_contribution": 0.0,
-                  "contribution_consistency": 0.5,
-                  "score_trend": 0.0,
-                  "contribution_trend": 0.0,
-                  "factor_efficiency": 0.5,
-                  "signal_accuracy": 0.5
-                }
-              },
-              {
-                "factor": "mean_reversion",
-                "contribution": 0.1969150400411317,
-                "weight": 0.042885973763874874,
-                "score": 4.591595404253212,
-                "performance_metrics": {
-                  "avg_score": 0.0,
-                  "score_volatility": 1.0,
-                  "avg_contribution": 0.0,
-                  "contribution_consistency": 0.5,
-                  "score_trend": 0.0,
-                  "contribution_trend": 0.0,
-                  "factor_efficiency": 0.5,
-                  "signal_accuracy": 0.5
-                }
-              },
-              {
-                "factor": "volume_liquidity",
-                "contribution": 2.8512202471746684,
-                "weight": 0.07063572149344098,
-                "score": 40.36513235642994,
-                "performance_metrics": {
-                  "avg_score": 0.0,
-                  "score_volatility": 1.0,
-                  "avg_contribution": 0.0,
-                  "contribution_consistency": 0.5,
-                  "score_trend": 0.0,
-                  "contribution_trend": 0.0,
-                  "factor_efficiency": 0.5,
-                  "signal_accuracy": 0.5
-                }
-              }
-            ],
-            "performance_summary": {
-              "total_contribution": 6.365927232726062,
-              "positive_contribution": 3.3319160484261614,
-              "negative_contribution": -3.0340111842999002,
-              "contribution_balance": 0.523316181673961,
-              "factor_diversification": 0.8623991722437447,
-              "weight_efficiency": 0.2381332617799685,
-              "factor_count": 6,
-              "dominant_factor": "volume_liquidity"
-            },
-            "attribution_timestamp": "2025-07-31T12:35:16.776670"
+            "attribution_timestamp": "2025-08-02T10:44:45.371691"
           }
         }
       }

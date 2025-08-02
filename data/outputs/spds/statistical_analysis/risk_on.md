@@ -1,9 +1,9 @@
 # RISK_ON Portfolio - Comprehensive SPDS Analysis Report
 
-**Generated**: July 31, 2025 12:35:16
-**Portfolio**: risk_on.csv
-**Analysis Type**: Enhanced Statistical Performance Divergence System (SPDS) v2.0
-**Total Positions**: 2
+**Generated**: August 02, 2025 10:44:45  
+**Portfolio**: risk_on.csv  
+**Analysis Type**: Enhanced Statistical Performance Divergence System (SPDS) v2.0  
+**Total Positions**: 1  
 **Analysis Confidence**: High (Multi-source validation enabled)
 
 ---
@@ -14,30 +14,30 @@
 The risk_on portfolio demonstrates **mixed** performance with moderate position performance variance. Our comprehensive analysis reveals **important portfolio management decisions** requiring immediate attention, supported by robust statistical evidence and multi-layer convergence analysis.
 
 **Key Performance Metrics:**
-- **Total Unrealized P&L**: +0.41% (Moderate)
-- **Success Rate**: 50.0% (1 of 2 positions profitable)
-- **Average Performance**: +0.21% per position
+- **Total Unrealized P&L**: +0.00% (Moderate)
+- **Success Rate**: 0.0% (0 of 1 positions profitable)
+- **Average Performance**: +0.00% per position
 - **Statistical Exhaustion Detected**: 0 positions (0.0% of portfolio)
-- **Near-Exhaustion Positions**: 1 positions (50.0% of portfolio)
+- **Near-Exhaustion Positions**: 1 positions (100.0% of portfolio)
 
 ### Immediate Action Required
 **🚨 CRITICAL ALERTS**: 1 positions require immediate portfolio management decisions based on statistical performance exhaustion and risk-adjusted return optimization.
 
 | Priority | Ticker | Signal | Current Return | Statistical Evidence | Recommended Action |
 |----------|--------|--------|----------------|---------------------|-------------------|
-| **1** | **ASML** | **STRONG_SELL** | +0.41% | 90th+ percentile threshold | **Prepare immediate exit strategy** |
+| **1** | **AMZN** | **STRONG_SELL** | N/A | 90th+ percentile threshold | **Prepare immediate exit strategy** |
 
 ---
 
 ## 🚨 CRITICAL EXIT ANALYSIS: IMMEDIATE ACTION REQUIRED
 
-### 1. ASML - STRONG_SELL 📉
+### 1. AMZN - STRONG_SELL 📉
 
 #### Statistical Performance Analysis
-**Current Position**: +0.41% unrealized return
-**Statistical Percentile**: 92.3th percentile (High exhaustion probability)
-**Confidence Level**: 78.4% (High confidence signal)
-**Strategy**: ASML_SMA_71_80
+**Current Position**: N/A unrealized return  
+**Statistical Percentile**: 92.3th percentile (High exhaustion probability)  
+**Confidence Level**: 67.6% (High confidence signal)  
+**Strategy**: AMZN_SMA_77_81  
 
 #### Evidence-Based Exit Rationale
 
@@ -53,7 +53,7 @@ The risk_on portfolio demonstrates **mixed** performance with moderate position 
 
 **Stage 1 (Immediate - Next 5 Trading Days):**
 - Reduce position by 45% at current levels
-- Target average exit price: 0.4% return
+- Target average exit price: Current market levels
 - Use any intraday strength for execution
 
 **Stage 2 (Tactical - Next 10 Trading Days):**
@@ -62,9 +62,9 @@ The risk_on portfolio demonstrates **mixed** performance with moderate position 
 - Implement collar strategy (protective put + covered call) on remaining position
 
 **Alternative Scenarios:**
-- **Bull Case**: Sector momentum continues, potential for 0% returns
+- **Bull Case**: Continued sector momentum possible
 - **Bear Case**: Mean reversion could trigger 12-17% decline
-- **Base Case**: Mean reversion to 0-0% range within 60 days
+- **Base Case**: Mean reversion expected within 60 days
 
 ---
 
@@ -75,12 +75,12 @@ The risk_on portfolio demonstrates **mixed** performance with moderate position 
 #### Current Portfolio Statistics
 ```
 Portfolio-Level Metrics:
-Total Return: +0.41%
+Total Return: +0.00%
 Sharpe Ratio: 1.85 (Good)
 Maximum Drawdown: -8.0% (Well-controlled)
-Win Rate: 50.0% (Moderate hit rate)
-Average Winner: +0.0%
-Average Loser: -0.0%
+Win Rate: 0.0% (Moderate hit rate)
+Average Winner: +15.7%
+Average Loser: -4.2%
 Profit Factor: 2.45 (Moderate)
 Calmar Ratio: 1.85 (Good)
 ```
@@ -89,10 +89,10 @@ Calmar Ratio: 1.85 (Good)
 
 ### Phase 1: Immediate Actions (Days 1-3)
 **Priority 1 - Critical Exits:**
-- [ ] ASML: Execute 50% position exit
+- [ ] AMZN: Execute 50% position exit
 
 **Expected Portfolio Impact:**
-- Realized Gains: +0.0% return capture
+- Realized Gains: Significant return protection
 - Risk Reduction: 34% decrease in portfolio volatility
 - Cash Raised: Available for redeployment
 
@@ -170,8 +170,7 @@ SELL: 80% (p-value < 0.20)
 
 | Position | Signal Type | Action Required | Confidence | Performance |
 |----------|-------------|-----------------|------------|-------------|
-| **ASML** | **STRONG_SELL** | Exit soon | 78.4% | +0.41% |
-| AMZN | **HOLD** | Continue monitoring | 67.6% | N/A |
+| **AMZN** | **STRONG_SELL** | Exit soon | 67.6% | N/A |
 
 ### 📁 Export Files Generated:
 

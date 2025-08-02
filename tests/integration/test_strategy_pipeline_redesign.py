@@ -12,6 +12,8 @@ import unittest
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
+import polars as pl
+
 from app.strategies.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.orchestration import PortfolioOrchestrator
 from tests.fixtures.market_data import (
@@ -109,7 +111,10 @@ class TestMACrossStrategyPipeline(unittest.TestCase):
         price_data = create_realistic_price_data("TSLA", days=50)
 
         # Manually set last price to create strong signal
-        price_data.iloc[-1, price_data.columns.get_loc("Close")] *= 1.1  # 10% jump
+        # Convert to pandas temporarily for easier manipulation, then back to Polars
+        price_data_pandas = price_data.to_pandas()
+        price_data_pandas.iloc[-1, price_data_pandas.columns.get_loc("Close")] *= 1.1  # 10% jump
+        price_data = pl.from_pandas(price_data_pandas)
 
         mock_fetch.return_value = price_data
 

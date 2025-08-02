@@ -1,3 +1,2 @@
 strategy_name,ticker,timeframe,analysis_timestamp,sample_size,sample_size_confidence,dual_layer_convergence_score,asset_layer_percentile,strategy_layer_percentile,exit_signal,signal_confidence,exit_recommendation,target_exit_timeframe,statistical_significance,p_value,z_score_divergence,iqr_divergence,rarity_score,current_return,mfe,mae,unrealized_pnl
-AMZN_SMA_77_81,AMZN,D,2025-07-31T12:35:13.167816,0,0.0,1.0,50.0,50.0,HOLD,36.39717258523641,,,MEDIUM,0.9000000000000001,-0.14975737367325417,,0.029951474734650832,,,,
-ASML_SMA_71_80,ASML,D,2025-07-31T12:35:15.707136,0,0.0,1.0,50.0,50.0,STRONG_SELL,35.554070367046556,2-3 days,2-3 days,LOW,0.272044421686614,0.09592156837587516,,0.019184313675175032,0.004119781782472298,0.0,0.0,
+AMZN_SMA_77_81,AMZN,D,2025-08-02T10:44:42.306338,0,0.0,1.0,50.0,50.0,STRONG_SELL,36.39717258523641,,,MEDIUM,0.9000000000000001,-0.14975737367325417,,0.029951474734650832,,,,
