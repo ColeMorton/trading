@@ -1,9 +1,9 @@
 # RISK_ON Portfolio - Comprehensive SPDS Analysis Report
 
-**Generated**: August 02, 2025 10:44:45  
-**Portfolio**: risk_on.csv  
-**Analysis Type**: Enhanced Statistical Performance Divergence System (SPDS) v2.0  
-**Total Positions**: 1  
+**Generated**: August 02, 2025 10:44:45
+**Portfolio**: risk_on.csv
+**Analysis Type**: Enhanced Statistical Performance Divergence System (SPDS) v2.0
+**Total Positions**: 1
 **Analysis Confidence**: High (Multi-source validation enabled)
 
 ---
@@ -34,10 +34,10 @@ The risk_on portfolio demonstrates **mixed** performance with moderate position 
 ### 1. AMZN - STRONG_SELL 📉
 
 #### Statistical Performance Analysis
-**Current Position**: N/A unrealized return  
-**Statistical Percentile**: 92.3th percentile (High exhaustion probability)  
-**Confidence Level**: 67.6% (High confidence signal)  
-**Strategy**: AMZN_SMA_77_81  
+**Current Position**: N/A unrealized return
+**Statistical Percentile**: 92.3th percentile (High exhaustion probability)
+**Confidence Level**: 67.6% (High confidence signal)
+**Strategy**: AMZN_SMA_77_81
 
 #### Evidence-Based Exit Rationale
 

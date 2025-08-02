@@ -227,7 +227,7 @@ def close(
                 position_size = position_row["Position_Size"]
                 direction = position_row["Direction"]
                 entry_date = pd.to_datetime(position_row["Entry_Timestamp"])
-                
+
                 # Parse exit date from provided parameter or use current time
                 if date:
                     try:
@@ -238,17 +238,25 @@ def close(
                             # Date only - use current time
                             parsed_date = datetime.strptime(date, "%Y-%m-%d")
                             current_time = datetime.now().time()
-                            exit_date = datetime.combine(parsed_date.date(), current_time)
-                            
+                            exit_date = datetime.combine(
+                                parsed_date.date(), current_time
+                            )
+
                         # Validate exit date is not before entry date
                         if exit_date.date() < entry_date.date():
-                            rprint(f"[red]❌ Exit date ({exit_date.date()}) cannot be before entry date ({entry_date.date()})[/red]")
+                            rprint(
+                                f"[red]❌ Exit date ({exit_date.date()}) cannot be before entry date ({entry_date.date()})[/red]"
+                            )
                             raise typer.Exit(1)
-                            
+
                     except ValueError as e:
                         rprint(f"[red]❌ Invalid date format: {date}[/red]")
-                        rprint("[yellow]Expected formats: YYYY-MM-DD or 'YYYY-MM-DD HH:MM:SS'[/yellow]")
-                        rprint("[dim]Examples: 2025-07-30 or '2025-07-30 15:30:00'[/dim]")
+                        rprint(
+                            "[yellow]Expected formats: YYYY-MM-DD or 'YYYY-MM-DD HH:MM:SS'[/yellow]"
+                        )
+                        rprint(
+                            "[dim]Examples: 2025-07-30 or '2025-07-30 15:30:00'[/dim]"
+                        )
                         raise typer.Exit(1)
                 else:
                     exit_date = datetime.now()

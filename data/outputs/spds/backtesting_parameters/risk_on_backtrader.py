@@ -7,8 +7,9 @@ Confidence Level: 0.9
 Total Strategies: 1
 """
 
-import backtrader as bt
 import datetime
+
+import backtrader as bt
 
 
 class AMZN_SMA_77_81_AMZN_DExitStrategy(bt.Strategy):
@@ -20,15 +21,16 @@ class AMZN_SMA_77_81_AMZN_DExitStrategy(bt.Strategy):
     Confidence: 0.9
     Validity: LOW
     """
+
     params = (
-        ('take_profit_pct', 15.09),
-        ('stop_loss_pct', 8.05),
-        ('max_days', 83),
-        ('momentum_exit_threshold', 0.02),
-        ('trend_exit_threshold', 0.015),
-        ('trailing_pct', 3.38),
-        ('min_days', 11),
-        ('statistical_validity', 'LOW'),
+        ("take_profit_pct", 15.09),
+        ("stop_loss_pct", 8.05),
+        ("max_days", 83),
+        ("momentum_exit_threshold", 0.02),
+        ("trend_exit_threshold", 0.015),
+        ("trailing_pct", 3.38),
+        ("min_days", 11),
+        ("statistical_validity", "LOW"),
     )
 
     def __init__(self):
@@ -38,7 +40,7 @@ class AMZN_SMA_77_81_AMZN_DExitStrategy(bt.Strategy):
         self.days_held = 0
 
         # Validate parameters
-        if self.params.statistical_validity == 'LOW':
+        if self.params.statistical_validity == "LOW":
             print(f"Warning: Low reliability parameters for AMZN_SMA_77_81_AMZN_D")
 
     def next(self):
@@ -70,9 +72,12 @@ class AMZN_SMA_77_81_AMZN_DExitStrategy(bt.Strategy):
             return
 
         # Trailing stop (only after minimum holding period)
-        if (self.days_held >= self.params.min_days and
-            self.highest_price and
-            current_price <= self.highest_price * (1 - self.params.trailing_pct / 100)):
+        if (
+            self.days_held >= self.params.min_days
+            and self.highest_price
+            and current_price
+            <= self.highest_price * (1 - self.params.trailing_pct / 100)
+        ):
             self.sell(exectype=bt.Order.Market)
             return
 
@@ -97,6 +102,7 @@ class AMZN_SMA_77_81_AMZN_DExitStrategy(bt.Strategy):
 strategy_registry = {
     "AMZN_SMA_77_81_AMZN_D": AMZN_SMA_77_81_AMZN_DExitStrategy,
 }
+
 
 # Usage example
 def create_strategy(strategy_key):
