@@ -570,6 +570,11 @@ def update(
     portfolio: str = typer.Option(
         "live_signals", "--portfolio", "-f", help="Portfolio name to update"
     ),
+    refresh: bool = typer.Option(
+        False,
+        "--refresh",
+        help="Force comprehensive recalculation of ALL positions (open and closed)",
+    ),
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
     ),
@@ -594,30 +599,49 @@ def update(
     """
     Update existing positions with current market data.
 
-    Updates open positions with current market prices, recalculates
+    By default, updates only open positions with current market prices, recalculates
     performance metrics, and refreshes risk assessments.
 
+    When --refresh is used, forces comprehensive recalculation of ALL positions
+    (both open and closed) with fresh price data and updated metrics.
+
     Examples:
+        # Default: update only open positions
         trading-cli trade-history update --portfolio live_signals
-        trading-cli trade-history update --refresh-prices --recalculate
+
+        # Comprehensive refresh: update ALL positions with fresh calculations
+        trading-cli trade-history update --portfolio live_signals --refresh
+
+        # Refresh all portfolios with comprehensive data updates
+        trading-cli trade-history update --portfolio protected --refresh
+        trading-cli trade-history update --portfolio risk_on --refresh
     """
     try:
         # Skip complex configuration for now and proceed directly
         # This can be enhanced later when configuration system is fully set up
 
         rprint(f"🔄 Updating Trade History: [cyan]{portfolio}[/cyan]")
+        if refresh:
+            rprint(
+                "   [yellow]📊 REFRESH MODE: Comprehensive recalculation of ALL positions[/yellow]"
+            )
         if dry_run:
             rprint("   [yellow]DRY RUN - No changes will be made[/yellow]")
         rprint("-" * 60)
 
         # Display update plan
         update_items = []
-        if refresh_prices:
-            update_items.append("✅ Refresh market prices")
-        if recalculate_metrics:
-            update_items.append("✅ Recalculate MFE/MAE metrics")
-        if update_risk_assessment:
-            update_items.append("✅ Update risk assessments")
+        if refresh:
+            update_items.append("✅ Force fresh price data download")
+            update_items.append("✅ Recalculate MFE/MAE for ALL positions")
+            update_items.append("✅ Update risk assessments for ALL positions")
+        else:
+            if refresh_prices:
+                update_items.append("✅ Refresh market prices")
+            if recalculate_metrics:
+                update_items.append("✅ Recalculate MFE/MAE metrics")
+            if update_risk_assessment:
+                update_items.append("✅ Update risk assessments")
 
         rprint("📋 Update Plan:")
         for item in update_items:
@@ -634,10 +658,17 @@ def update(
             # Create service instance
             service = TradeHistoryService()
 
-            # Execute the update
-            result = service.update_open_positions(
-                portfolio_name=portfolio, dry_run=dry_run, verbose=verbose
-            )
+            # Execute the update based on mode
+            if refresh:
+                # Refresh mode: update ALL positions
+                result = service.update_all_positions(
+                    portfolio_name=portfolio, dry_run=dry_run, verbose=verbose
+                )
+            else:
+                # Default mode: update only open positions
+                result = service.update_open_positions(
+                    portfolio_name=portfolio, dry_run=dry_run, verbose=verbose
+                )
 
             if result["success"]:
                 if dry_run:
@@ -648,9 +679,20 @@ def update(
                 # Display statistics
                 rprint(f"   Updated positions: [cyan]{result['updated_count']}[/cyan]")
                 rprint(f"   Total positions: [dim]{result['total_positions']}[/dim]")
-                rprint(
-                    f"   Open positions: [dim]{result.get('open_positions', 'N/A')}[/dim]"
-                )
+
+                if result.get("refresh_mode"):
+                    # Refresh mode shows additional statistics
+                    rprint(
+                        f"   Open positions: [green]{result.get('open_positions', 0)}[/green]"
+                    )
+                    rprint(
+                        f"   Closed positions: [yellow]{result.get('closed_positions', 0)}[/yellow]"
+                    )
+                else:
+                    # Default mode shows open positions only
+                    rprint(
+                        f"   Open positions: [dim]{result.get('open_positions', 'N/A')}[/dim]"
+                    )
 
                 # Show errors if any
                 if result.get("errors"):
