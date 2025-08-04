@@ -573,7 +573,17 @@ def update(
     refresh: bool = typer.Option(
         False,
         "--refresh",
-        help="Force comprehensive recalculation of ALL positions (open and closed)",
+        help="Force comprehensive recalculation of ALL positions using PositionCalculator",
+    ),
+    validate_calculations: bool = typer.Option(
+        True,
+        "--validate/--no-validate",
+        help="Validate P&L and Return calculations for consistency",
+    ),
+    auto_fix_errors: bool = typer.Option(
+        True,
+        "--fix-errors/--no-fix-errors",
+        help="Automatically fix calculation errors found during validation",
     ),
     profile: Optional[str] = typer.Option(
         None, "--profile", "-p", help="Configuration profile name"
@@ -597,24 +607,30 @@ def update(
     ),
 ):
     """
-    Update existing positions with current market data.
+    Update existing positions with current market data and comprehensive validation.
 
     By default, updates only open positions with current market prices, recalculates
     performance metrics, and refreshes risk assessments.
 
     When --refresh is used, forces comprehensive recalculation of ALL positions
-    (both open and closed) with fresh price data and updated metrics.
+    (both open and closed) using the centralized PositionCalculator with standardized
+    precision. Includes P&L validation and auto-correction of calculation errors.
 
     Examples:
         # Default: update only open positions
         trading-cli trade-history update --portfolio live_signals
 
-        # Comprehensive refresh: update ALL positions with fresh calculations
+        # Comprehensive refresh with validation and auto-fix
         trading-cli trade-history update --portfolio live_signals --refresh
 
-        # Refresh all portfolios with comprehensive data updates
-        trading-cli trade-history update --portfolio protected --refresh
-        trading-cli trade-history update --portfolio risk_on --refresh
+        # Comprehensive refresh without validation (faster)
+        trading-cli trade-history update --portfolio live_signals --refresh --no-validate
+
+        # Validation only without auto-fix
+        trading-cli trade-history update --portfolio live_signals --refresh --no-fix-errors
+
+        # Dry run to preview changes
+        trading-cli trade-history update --portfolio live_signals --refresh --dry-run --verbose
     """
     try:
         # Skip complex configuration for now and proceed directly
@@ -623,8 +639,16 @@ def update(
         rprint(f"🔄 Updating Trade History: [cyan]{portfolio}[/cyan]")
         if refresh:
             rprint(
-                "   [yellow]📊 REFRESH MODE: Comprehensive recalculation of ALL positions[/yellow]"
+                "   [yellow]📊 COMPREHENSIVE REFRESH: Using centralized PositionCalculator[/yellow]"
             )
+            if validate_calculations:
+                rprint(
+                    "   [green]🔍 Validation enabled: P&L and Return calculations[/green]"
+                )
+            if auto_fix_errors:
+                rprint(
+                    "   [blue]🔧 Auto-fix enabled: Correcting calculation errors[/blue]"
+                )
         if dry_run:
             rprint("   [yellow]DRY RUN - No changes will be made[/yellow]")
         rprint("-" * 60)
@@ -633,8 +657,19 @@ def update(
         update_items = []
         if refresh:
             update_items.append("✅ Force fresh price data download")
-            update_items.append("✅ Recalculate MFE/MAE for ALL positions")
-            update_items.append("✅ Update risk assessments for ALL positions")
+            update_items.append(
+                "✅ Recalculate ALL derived fields (P&L, Return, MFE/MAE)"
+            )
+            update_items.append(
+                "✅ Apply standardized precision across all calculations"
+            )
+            update_items.append(
+                "✅ Update Exit Efficiency and Trade Quality assessments"
+            )
+            if validate_calculations:
+                update_items.append("✅ Validate calculation consistency")
+            if auto_fix_errors:
+                update_items.append("✅ Auto-correct any calculation errors found")
         else:
             if refresh_prices:
                 update_items.append("✅ Refresh market prices")
@@ -660,9 +695,13 @@ def update(
 
             # Execute the update based on mode
             if refresh:
-                # Refresh mode: update ALL positions
+                # Comprehensive refresh mode: update ALL positions with validation
                 result = service.update_all_positions(
-                    portfolio_name=portfolio, dry_run=dry_run, verbose=verbose
+                    portfolio_name=portfolio,
+                    dry_run=dry_run,
+                    verbose=verbose,
+                    validate_calculations=validate_calculations,
+                    auto_fix_errors=auto_fix_errors,
                 )
             else:
                 # Default mode: update only open positions
@@ -681,23 +720,61 @@ def update(
                 rprint(f"   Total positions: [dim]{result['total_positions']}[/dim]")
 
                 if result.get("refresh_mode"):
-                    # Refresh mode shows additional statistics
+                    # Comprehensive refresh mode shows additional statistics
                     rprint(
                         f"   Open positions: [green]{result.get('open_positions', 0)}[/green]"
                     )
                     rprint(
                         f"   Closed positions: [yellow]{result.get('closed_positions', 0)}[/yellow]"
                     )
+
+                    # Show validation and fix results if available
+                    if result.get("refresh_mode") == "comprehensive":
+                        calculation_fixes = result.get("calculation_fixes", [])
+                        validation_errors = result.get("validation_errors", [])
+
+                        if calculation_fixes:
+                            rprint(
+                                f"   [blue]🔧 Calculation fixes applied: {len(calculation_fixes)}[/blue]"
+                            )
+                            if verbose:
+                                rprint("   [dim]Fixes made:[/dim]")
+                                for fix in calculation_fixes[:3]:  # Show first 3 fixes
+                                    rprint(f"      • {fix}")
+                                if len(calculation_fixes) > 3:
+                                    rprint(
+                                        f"      ... and {len(calculation_fixes) - 3} more fixes"
+                                    )
+
+                        if validation_errors:
+                            rprint(
+                                f"   [red]❌ Validation errors remaining: {len(validation_errors)}[/red]"
+                            )
+                            if verbose:
+                                for error in validation_errors[
+                                    :2
+                                ]:  # Show first 2 errors
+                                    rprint(f"      • {error}")
+                                if len(validation_errors) > 2:
+                                    rprint(
+                                        f"      ... and {len(validation_errors) - 2} more errors"
+                                    )
+
+                        if result.get("validation_enabled") and not validation_errors:
+                            rprint(
+                                "   [green]✅ All calculations validated successfully[/green]"
+                            )
+
                 else:
                     # Default mode shows open positions only
                     rprint(
                         f"   Open positions: [dim]{result.get('open_positions', 'N/A')}[/dim]"
                     )
 
-                # Show errors if any
+                # Show processing errors if any
                 if result.get("errors"):
                     rprint(
-                        f"\n[yellow]⚠️  Warnings ({len(result['errors'])}):[/yellow]"
+                        f"\n[yellow]⚠️  Processing warnings ({len(result['errors'])}):[/yellow]"
                     )
                     for error in result["errors"][:5]:  # Show first 5 errors
                         rprint(f"   - {error}")

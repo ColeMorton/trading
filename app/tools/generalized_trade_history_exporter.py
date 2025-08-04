@@ -1563,6 +1563,263 @@ Examples:
         return 1
 
 
+def validate_position_calculations(
+    entry_price: float,
+    exit_price: float,
+    position_size: float,
+    direction: str,
+    reported_pnl: float,
+    reported_return: float,
+    tolerance_pnl: float = 0.01,
+    tolerance_return: float = 0.0001,
+) -> Dict[str, any]:
+    """
+    Validate that PnL and Return calculations are mathematically correct.
+
+    Args:
+        entry_price: Position entry price
+        exit_price: Position exit price
+        position_size: Position size (number of shares/units)
+        direction: Position direction ('Long' or 'Short')
+        reported_pnl: Reported PnL value
+        reported_return: Reported return value
+        tolerance_pnl: Acceptable tolerance for PnL differences
+        tolerance_return: Acceptable tolerance for return differences
+
+    Returns:
+        Dict with validation results and expected values
+    """
+    # Calculate expected values
+    if direction.upper() == "LONG":
+        expected_pnl = (exit_price - entry_price) * position_size
+        expected_return = (exit_price - entry_price) / entry_price
+    else:  # SHORT
+        expected_pnl = (entry_price - exit_price) * position_size
+        expected_return = (entry_price - exit_price) / entry_price
+
+    # Check for errors
+    pnl_diff = abs(reported_pnl - expected_pnl)
+    return_diff = abs(reported_return - expected_return)
+
+    pnl_valid = pnl_diff <= tolerance_pnl
+    return_valid = return_diff <= tolerance_return
+
+    return {
+        "pnl_valid": pnl_valid,
+        "return_valid": return_valid,
+        "expected_pnl": expected_pnl,
+        "expected_return": expected_return,
+        "pnl_difference": pnl_diff,
+        "return_difference": return_diff,
+        "extreme_return": abs(expected_return) > 10.0,  # Flag returns > 1000%
+        "valid": pnl_valid and return_valid,
+    }
+
+
+def validate_portfolio_calculations(
+    portfolio_path: str, verbose: bool = False
+) -> Dict[str, any]:
+    """
+    Validate all position calculations in a portfolio CSV file.
+
+    Args:
+        portfolio_path: Path to portfolio CSV file
+        verbose: Print detailed validation results
+
+    Returns:
+        Dict with validation summary and error details
+    """
+    import pandas as pd
+
+    try:
+        df = pd.read_csv(portfolio_path)
+
+        errors = []
+        warnings = []
+        validated_count = 0
+
+        for idx, row in df.iterrows():
+            # Skip if missing critical data
+            if (
+                pd.isna(row["Avg_Entry_Price"])
+                or pd.isna(row["Avg_Exit_Price"])
+                or pd.isna(row["Position_Size"])
+            ):
+                continue
+
+            validation = validate_position_calculations(
+                entry_price=row["Avg_Entry_Price"],
+                exit_price=row["Avg_Exit_Price"],
+                position_size=row["Position_Size"],
+                direction=row["Direction"],
+                reported_pnl=row["PnL"],
+                reported_return=row["Return"],
+            )
+
+            validated_count += 1
+
+            if not validation["pnl_valid"]:
+                errors.append(
+                    {
+                        "position": row["Position_UUID"],
+                        "type": "PnL Mismatch",
+                        "expected": validation["expected_pnl"],
+                        "reported": row["PnL"],
+                        "difference": validation["pnl_difference"],
+                    }
+                )
+
+            if not validation["return_valid"]:
+                errors.append(
+                    {
+                        "position": row["Position_UUID"],
+                        "type": "Return Mismatch",
+                        "expected": validation["expected_return"],
+                        "reported": row["Return"],
+                        "difference": validation["return_difference"],
+                    }
+                )
+
+            if validation["extreme_return"]:
+                warnings.append(
+                    {
+                        "position": row["Position_UUID"],
+                        "type": "Extreme Return",
+                        "value": validation["expected_return"],
+                        "entry_price": row["Avg_Entry_Price"],
+                        "exit_price": row["Avg_Exit_Price"],
+                    }
+                )
+
+        results = {
+            "total_positions": len(df),
+            "validated_count": validated_count,
+            "error_count": len(errors),
+            "warning_count": len(warnings),
+            "errors": errors,
+            "warnings": warnings,
+            "valid": len(errors) == 0,
+        }
+
+        if verbose:
+            print(f"📊 Portfolio Validation Results:")
+            print(f"   Total positions: {results['total_positions']}")
+            print(f"   Validated: {results['validated_count']}")
+            print(f"   Errors: {results['error_count']}")
+            print(f"   Warnings: {results['warning_count']}")
+
+            if errors:
+                print("\n❌ CALCULATION ERRORS:")
+                for error in errors:
+                    print(
+                        f"   {error['position'][:30]}: {error['type']} - Expected: {error['expected']:.4f}, Reported: {error['reported']:.4f}"
+                    )
+
+            if warnings:
+                print("\n⚠️  WARNINGS:")
+                for warning in warnings:
+                    print(
+                        f"   {warning['position'][:30]}: {warning['type']} - {warning['value']:.1%}"
+                    )
+
+        return results
+
+    except Exception as e:
+        logger.error(f"Validation error: {e}")
+        return {"valid": False, "error": str(e)}
+
+
+def auto_fix_calculation_errors(
+    portfolio_path: str, backup: bool = True, verbose: bool = False
+) -> bool:
+    """
+    Automatically fix calculation errors in a portfolio CSV file.
+
+    Args:
+        portfolio_path: Path to portfolio CSV file
+        backup: Create backup before fixing
+        verbose: Print detailed fix results
+
+    Returns:
+        True if fixes were applied successfully
+    """
+    import shutil
+    from pathlib import Path
+
+    import pandas as pd
+
+    try:
+        # Create backup if requested
+        if backup:
+            backup_path = (
+                f"{portfolio_path}.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            )
+            shutil.copy2(portfolio_path, backup_path)
+            if verbose:
+                print(f"📋 Backup created: {backup_path}")
+
+        df = pd.read_csv(portfolio_path)
+        fixes_applied = 0
+
+        for idx, row in df.iterrows():
+            # Skip if missing critical data
+            if (
+                pd.isna(row["Avg_Entry_Price"])
+                or pd.isna(row["Avg_Exit_Price"])
+                or pd.isna(row["Position_Size"])
+            ):
+                continue
+
+            validation = validate_position_calculations(
+                entry_price=row["Avg_Entry_Price"],
+                exit_price=row["Avg_Exit_Price"],
+                position_size=row["Position_Size"],
+                direction=row["Direction"],
+                reported_pnl=row["PnL"],
+                reported_return=row["Return"],
+            )
+
+            if not validation["valid"]:
+                # Apply fixes
+                df.loc[idx, "PnL"] = round(validation["expected_pnl"], 6)
+                df.loc[idx, "Return"] = round(validation["expected_return"], 6)
+
+                # Update Current_Unrealized_PnL for consistency
+                if row["Status"] == "Open":
+                    df.loc[idx, "Current_Unrealized_PnL"] = validation[
+                        "expected_return"
+                    ]
+
+                # Recalculate Exit_Efficiency_Fixed if MFE is available
+                if (
+                    not pd.isna(row["Max_Favourable_Excursion"])
+                    and row["Max_Favourable_Excursion"] > 0
+                ):
+                    exit_efficiency = (
+                        validation["expected_return"] / row["Max_Favourable_Excursion"]
+                    )
+                    df.loc[idx, "Exit_Efficiency_Fixed"] = round(exit_efficiency, 6)
+
+                fixes_applied += 1
+
+                if verbose:
+                    print(
+                        f"🔧 Fixed {row['Position_UUID'][:30]}: PnL {row['PnL']:.2f} → {validation['expected_pnl']:.2f}, Return {row['Return']:.4f} → {validation['expected_return']:.4f}"
+                    )
+
+        # Save fixed data
+        df.to_csv(portfolio_path, index=False)
+
+        if verbose:
+            print(f"✅ Applied {fixes_applied} fixes to {portfolio_path}")
+
+        return True
+
+    except Exception as e:
+        logger.error(f"Auto-fix error: {e}")
+        return False
+
+
 if __name__ == "__main__":
     import sys
 

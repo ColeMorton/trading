@@ -2,17 +2,19 @@
 Trade History Service
 
 Focused service for trade history operations including updating open positions,
-calculating MFE/MAE metrics, and position management.
+calculating MFE/MAE metrics, and position management with comprehensive refresh
+capabilities using centralized PositionCalculator.
 """
 
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 
 from app.cli.utils import resolve_portfolio_path
+from app.tools.position_calculator import get_position_calculator
 from app.tools.utils.mfe_mae_calculator import get_mfe_mae_calculator
 
 
@@ -193,21 +195,25 @@ class TradeHistoryService:
         portfolio_name: str,
         dry_run: bool = False,
         verbose: bool = False,
+        validate_calculations: bool = True,
+        auto_fix_errors: bool = True,
     ) -> Dict[str, Any]:
         """
-        Update dynamic metrics for ALL positions in a portfolio (both open and closed).
+        Comprehensive refresh of ALL positions using centralized PositionCalculator.
 
-        This is the comprehensive refresh mode that recalculates MFE/MAE metrics,
-        P&L, and all dynamic fields for every position in the portfolio using
-        the latest price data.
+        This method recalculates ALL derived fields including P&L, Return, MFE/MAE,
+        Exit Efficiency, and Trade Quality with standardized precision. It also
+        validates calculations and auto-fixes any inconsistencies found.
 
         Args:
             portfolio_name: Name of the portfolio to update
             dry_run: If True, preview changes without saving
             verbose: Enable verbose logging
+            validate_calculations: If True, validate all calculations for consistency
+            auto_fix_errors: If True, auto-fix calculation errors found during validation
 
         Returns:
-            Dict containing update results and statistics
+            Dict containing update results, validation info, and statistics
         """
         try:
             # Get portfolio file path
@@ -234,147 +240,168 @@ class TradeHistoryService:
                 }
 
             self.logger.info(
-                f"Refreshing ALL positions: {len(df)} total positions in {portfolio_name}..."
+                f"COMPREHENSIVE REFRESH: {len(df)} total positions in {portfolio_name}..."
             )
 
+            # Initialize PositionCalculator
+            calculator = get_position_calculator(self.logger)
+
             updated_count = 0
+            validation_errors = []
+            calculation_fixes = []
             errors = []
 
-            # First, calculate the earliest date needed and force refresh price data
+            # First, refresh price data for all tickers
             unique_tickers = df["Ticker"].unique()
-            # Handle mixed date formats using 'mixed' format
             earliest_date = pd.to_datetime(df["Entry_Timestamp"], format="mixed").min()
 
             if verbose:
                 self.logger.info(
-                    f"Force refreshing price data for {len(unique_tickers)} tickers..."
+                    f"🔄 Refreshing price data for {len(unique_tickers)} tickers..."
                 )
-                self.logger.info(f"Earliest position date: {earliest_date.date()}")
 
-            # Download fresh price data with appropriate historical coverage
             self._refresh_price_data(unique_tickers, earliest_date, verbose)
 
-            # Process ALL positions (both open and closed)
+            # Process ALL positions with comprehensive refresh
             for idx, position in df.iterrows():
                 try:
                     ticker = position["Ticker"]
                     entry_date = position["Entry_Timestamp"]
                     entry_price = position["Avg_Entry_Price"]
+                    exit_price = position.get("Avg_Exit_Price")
+                    position_size = position.get("Position_Size", 1.0)
                     direction = position.get("Direction", "Long")
                     status = position.get("Status", "Unknown")
 
                     if verbose:
                         self.logger.info(
-                            f"Processing {ticker} ({status}) - Entry: {entry_date} @ ${entry_price:.2f}"
+                            f"🔍 Processing {ticker} ({status}) - Entry: {entry_date} @ ${entry_price:.2f}"
                         )
 
-                    # Calculate days since entry - handle mixed date formats
-                    entry_dt = pd.to_datetime(entry_date, format="mixed")
-                    days_since_entry = (datetime.now() - entry_dt).days
+                    # Convert position to dictionary for PositionCalculator
+                    position_data = position.to_dict()
 
-                    # For closed positions, use exit date if available
-                    if status == "Closed" and pd.notna(position.get("Exit_Timestamp")):
-                        exit_dt = pd.to_datetime(
-                            position["Exit_Timestamp"], format="mixed"
-                        )
-                        actual_duration = (exit_dt - entry_dt).days
-                        exit_date = position["Exit_Timestamp"]
-                    else:
-                        actual_duration = days_since_entry
-                        exit_date = None
-
-                    # Calculate MFE/MAE metrics (works for both open and closed positions)
+                    # Step 1: Calculate updated MFE/MAE using fresh price data
+                    exit_date = (
+                        position.get("Exit_Timestamp") if status == "Closed" else None
+                    )
                     (
-                        mfe,
-                        mae,
+                        updated_mfe,
+                        updated_mae,
                         current_excursion,
-                        error_msg,
+                        mfe_mae_error,
                     ) = self._calculate_position_metrics_comprehensive(
                         ticker, entry_date, entry_price, direction, exit_date, verbose
                     )
 
-                    if mfe is not None and mae is not None:
-                        # Update position metrics
-                        df.loc[idx, "Days_Since_Entry"] = days_since_entry
-                        df.loc[idx, "Max_Favourable_Excursion"] = mfe
-                        df.loc[idx, "Max_Adverse_Excursion"] = mae
-
-                        # Calculate MFE/MAE ratio
-                        if mae > 0:
-                            df.loc[idx, "MFE_MAE_Ratio"] = mfe / mae
-                        else:
-                            df.loc[idx, "MFE_MAE_Ratio"] = (
-                                float("inf") if mfe > 0 else 0
-                            )
-
-                        # Update excursion status and current P&L
-                        if status == "Open":
-                            df.loc[idx, "Current_Unrealized_PnL"] = current_excursion
-                            if current_excursion > 0:
-                                df.loc[idx, "Current_Excursion_Status"] = "Favorable"
-                            elif current_excursion < 0:
-                                df.loc[idx, "Current_Excursion_Status"] = "Adverse"
-                            else:
-                                df.loc[idx, "Current_Excursion_Status"] = "Neutral"
-                        else:
-                            # For closed positions, use the actual return
-                            if pd.notna(position.get("Return")):
-                                df.loc[idx, "Current_Unrealized_PnL"] = position[
-                                    "Return"
-                                ]
-                                if position["Return"] > 0:
-                                    df.loc[
-                                        idx, "Current_Excursion_Status"
-                                    ] = "Favorable"
-                                elif position["Return"] < 0:
-                                    df.loc[idx, "Current_Excursion_Status"] = "Adverse"
-                                else:
-                                    df.loc[idx, "Current_Excursion_Status"] = "Neutral"
-
-                        # Calculate exit efficiency for positions with MFE
-                        if mfe > 0 and pd.notna(position.get("Return")):
-                            exit_efficiency = position["Return"] / mfe
-                            df.loc[idx, "Exit_Efficiency_Fixed"] = round(
-                                exit_efficiency, 4
-                            )
-
-                        # Assess trade quality
-                        trade_quality = self._assess_trade_quality(
-                            mfe, mae, verbose, ticker
+                    # Step 2: Use PositionCalculator for comprehensive refresh
+                    if updated_mfe is not None and updated_mae is not None:
+                        refresh_result = calculator.comprehensive_position_refresh(
+                            position_data=position_data,
+                            mfe=updated_mfe,
+                            mae=updated_mae,
+                            current_excursion=current_excursion,
                         )
-                        df.loc[idx, "Trade_Quality"] = trade_quality
+
+                        # Apply all refreshed data
+                        refreshed_data = refresh_result["data"]
+                        changes = refresh_result["changes"]
+                        validation_result = refresh_result["validation"]
+
+                        # Update DataFrame with refreshed values
+                        for field, value in refreshed_data.items():
+                            if field in df.columns:
+                                df.loc[idx, field] = value
+
+                        # Track changes made
+                        if changes and verbose:
+                            self.logger.info(f"   📝 Changes made to {ticker}:")
+                            for change in changes:
+                                self.logger.info(f"      • {change}")
+                                calculation_fixes.append(f"{ticker}: {change}")
+
+                        # Track validation results
+                        if not validation_result.get("valid", True):
+                            validation_errors.extend(
+                                [
+                                    f"{ticker}: {error}"
+                                    for error in validation_result.get("errors", [])
+                                ]
+                            )
+                            if verbose:
+                                self.logger.warning(
+                                    f"   ⚠️  Validation issues found for {ticker}"
+                                )
+
+                        # Success
+                        updated_count += 1
 
                         if verbose:
                             self.logger.info(
-                                f"   ✅ MFE: {mfe:.4f}, MAE: {mae:.4f}, "
-                                f"Quality: {trade_quality}"
+                                f"   ✅ Updated: MFE {updated_mfe:.4f}, MAE {updated_mae:.4f}, "
+                                f"Quality: {refreshed_data.get('Trade_Quality', 'Unknown')}"
                             )
 
-                        updated_count += 1
                     else:
-                        if error_msg:
-                            full_error_msg = (
-                                f"Could not calculate metrics for {ticker}: {error_msg}"
-                            )
+                        # Could not calculate MFE/MAE - still try to refresh other calculations
+                        if exit_price is not None:
+                            # At least recalculate P&L and Return using PositionCalculator
+                            try:
+                                refresh_result = (
+                                    calculator.comprehensive_position_refresh(
+                                        position_data=position_data
+                                    )
+                                )
+
+                                refreshed_data = refresh_result["data"]
+                                changes = refresh_result["changes"]
+
+                                # Update basic calculations
+                                for field in ["PnL", "Return", "Days_Since_Entry"]:
+                                    if field in refreshed_data and field in df.columns:
+                                        df.loc[idx, field] = refreshed_data[field]
+
+                                if changes and verbose:
+                                    self.logger.info(
+                                        f"   📝 Basic refresh for {ticker}:"
+                                    )
+                                    for change in changes:
+                                        self.logger.info(f"      • {change}")
+
+                                updated_count += 1
+
+                            except Exception as calc_error:
+                                error_msg = f"Basic calculation refresh failed for {ticker}: {str(calc_error)}"
+                                errors.append(error_msg)
+                                if verbose:
+                                    self.logger.warning(f"   ⚠️  {error_msg}")
                         else:
-                            full_error_msg = f"Could not calculate metrics for {ticker}"
-                        errors.append(full_error_msg)
-                        if verbose:
-                            self.logger.warning(f"   ⚠️  {full_error_msg}")
+                            # No exit price and no MFE/MAE - record error
+                            error_msg = f"Insufficient data for {ticker}: {mfe_mae_error or 'No exit price available'}"
+                            errors.append(error_msg)
+                            if verbose:
+                                self.logger.warning(f"   ❌ {error_msg}")
 
                 except Exception as e:
                     error_msg = f"Error processing {ticker}: {str(e)}"
                     errors.append(error_msg)
                     self.logger.error(error_msg)
 
+            # Step 3: Final validation pass if requested
+            if validate_calculations and not dry_run:
+                self.logger.info("🔍 Running final validation pass...")
+                final_validation_results = self._validate_all_calculations(df, verbose)
+                validation_errors.extend(final_validation_results.get("errors", []))
+
             # Save results if not dry run
             if not dry_run:
                 df.to_csv(portfolio_file, index=False)
-                message = f"COMPREHENSIVE REFRESH COMPLETE: {updated_count} positions refreshed in {portfolio_name}"
+                message = f"COMPREHENSIVE REFRESH COMPLETE: {updated_count}/{len(df)} positions refreshed"
             else:
-                message = f"DRY RUN: Would refresh {updated_count} positions in {portfolio_name}"
+                message = f"DRY RUN: Would refresh {updated_count}/{len(df)} positions"
 
-            return {
+            # Prepare detailed results
+            result = {
                 "success": True,
                 "message": message,
                 "updated_count": updated_count,
@@ -383,17 +410,115 @@ class TradeHistoryService:
                 "closed_positions": len(df[df["Status"] == "Closed"]),
                 "errors": errors,
                 "dry_run": dry_run,
-                "refresh_mode": True,
+                "refresh_mode": "comprehensive",
+                "validation_enabled": validate_calculations,
+                "calculation_fixes": calculation_fixes,
+                "validation_errors": validation_errors,
             }
+
+            if verbose:
+                self.logger.info(
+                    f"📊 Summary: {updated_count} updated, {len(errors)} errors, {len(calculation_fixes)} fixes"
+                )
+
+            return result
 
         except Exception as e:
             self.logger.error(f"Failed to refresh all positions: {str(e)}")
             return {
                 "success": False,
-                "message": f"Refresh failed: {str(e)}",
+                "message": f"Comprehensive refresh failed: {str(e)}",
                 "updated_count": 0,
                 "errors": [str(e)],
-                "refresh_mode": True,
+                "refresh_mode": "comprehensive",
+            }
+
+    def _validate_all_calculations(
+        self, df: pd.DataFrame, verbose: bool = False
+    ) -> Dict[str, Any]:
+        """
+        Validate calculations for all positions in the DataFrame.
+
+        Args:
+            df: DataFrame containing position data
+            verbose: Enable verbose logging
+
+        Returns:
+            Dict containing validation results
+        """
+        try:
+            calculator = get_position_calculator(self.logger)
+            validation_errors = []
+            validation_warnings = []
+            corrected_count = 0
+
+            if verbose:
+                self.logger.info(
+                    f"🔍 Validating calculations for {len(df)} positions..."
+                )
+
+            for idx, position in df.iterrows():
+                try:
+                    position_data = position.to_dict()
+                    ticker = position.get("Ticker", "Unknown")
+
+                    validation_result = calculator.validate_calculation_consistency(
+                        position_data, tolerance_pnl=0.01, tolerance_return=0.0001
+                    )
+
+                    if not validation_result.get("valid", True):
+                        # Record validation errors
+                        for error in validation_result.get("errors", []):
+                            error_msg = f"{ticker}: {error['field']} - Expected {error['expected']}, Got {error['actual']}"
+                            validation_errors.append(error_msg)
+
+                            if verbose:
+                                self.logger.warning(f"   ❌ {error_msg}")
+
+                        # Apply corrections if available
+                        corrected_values = validation_result.get("corrected_values", {})
+                        if corrected_values:
+                            for field, corrected_value in corrected_values.items():
+                                if field in df.columns:
+                                    old_value = df.loc[idx, field]
+                                    df.loc[idx, field] = corrected_value
+                                    corrected_count += 1
+
+                                    if verbose:
+                                        self.logger.info(
+                                            f"   🔧 Auto-corrected {ticker}.{field}: {old_value} → {corrected_value}"
+                                        )
+
+                    # Record validation warnings
+                    for warning in validation_result.get("warnings", []):
+                        warning_msg = f"{ticker}: {warning['field'] if isinstance(warning, dict) else warning}"
+                        validation_warnings.append(warning_msg)
+
+                        if verbose:
+                            self.logger.info(f"   ⚠️  {warning_msg}")
+
+                except Exception as e:
+                    error_msg = f"Validation error for {ticker}: {str(e)}"
+                    validation_errors.append(error_msg)
+                    if verbose:
+                        self.logger.error(f"   ❌ {error_msg}")
+
+            return {
+                "success": True,
+                "errors": validation_errors,
+                "warnings": validation_warnings,
+                "corrected_count": corrected_count,
+                "total_validated": len(df),
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to validate calculations: {str(e)}")
+            return {
+                "success": False,
+                "errors": [f"Validation failed: {str(e)}"],
+                "warnings": [],
+                "corrected_count": 0,
+                "total_validated": 0,
             }
 
     def _refresh_price_data(
@@ -684,48 +809,22 @@ class TradeHistoryService:
         mae: float,
         verbose: bool = False,
         ticker: str = "",
+        final_return: Optional[float] = None,
     ) -> str:
-        """Assess trade quality based on MFE/MAE metrics."""
-        risk_reward_ratio = mfe / mae if mae > 0 else float("inf")
+        """Assess trade quality using centralized PositionCalculator."""
+        try:
+            calculator = get_position_calculator(self.logger)
+            trade_quality = calculator.assess_trade_quality(mfe, mae, final_return)
 
-        if verbose:
-            self.logger.debug(
-                f"   DEBUG: {ticker} - MFE: {mfe:.6f}, MAE: {mae:.6f}, "
-                f"Risk/Reward: {risk_reward_ratio:.2f}"
-            )
+            if verbose:
+                risk_reward_ratio = calculator.calculate_mfe_mae_ratio(mfe, mae)
+                self.logger.debug(
+                    f"   DEBUG: {ticker} - MFE: {mfe:.6f}, MAE: {mae:.6f}, "
+                    f"Risk/Reward: {risk_reward_ratio:.2f}, Quality: {trade_quality}"
+                )
 
-        if mfe < 0.02 and mae > 0.05:
-            trade_quality = "Poor Setup - High Risk, Low Reward"
-            if verbose:
-                self.logger.debug(
-                    f"   DEBUG: {ticker} - Condition 1 met (MFE < 0.02 and MAE > 0.05)"
-                )
-        elif risk_reward_ratio >= 3.0:
-            trade_quality = "Excellent"
-            if verbose:
-                self.logger.debug(
-                    f"   DEBUG: {ticker} - Condition 2 met (Risk/Reward >= 3.0)"
-                )
-        elif risk_reward_ratio >= 2.0:
-            trade_quality = "Excellent"
-            if verbose:
-                self.logger.debug(
-                    f"   DEBUG: {ticker} - Condition 3 met (Risk/Reward >= 2.0)"
-                )
-        elif risk_reward_ratio >= 1.5:
-            trade_quality = "Good"
-            if verbose:
-                self.logger.debug(
-                    f"   DEBUG: {ticker} - Condition 4 met (Risk/Reward >= 1.5)"
-                )
-        else:
-            trade_quality = "Poor"
-            if verbose:
-                self.logger.debug(f"   DEBUG: {ticker} - Default condition met (Poor)")
+            return trade_quality
 
-        if verbose:
-            self.logger.debug(
-                f"   DEBUG: {ticker} - Final trade quality: {trade_quality}"
-            )
-
-        return trade_quality
+        except Exception as e:
+            self.logger.error(f"Error assessing trade quality for {ticker}: {str(e)}")
+            return "Unknown"
