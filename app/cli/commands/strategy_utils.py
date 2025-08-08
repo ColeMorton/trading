@@ -66,6 +66,7 @@ def process_ticker_input(ticker: Optional[List[str]]) -> List[str]:
 
 def build_configuration_overrides(
     ticker: Optional[List[str]] = None,
+    ticker_2: Optional[str] = None,
     strategy_type: Optional[List[str]] = None,
     min_trades: Optional[int] = None,
     min_win_rate: Optional[float] = None,
@@ -75,7 +76,6 @@ def build_configuration_overrides(
     slow_max: Optional[int] = None,
     fast_period: Optional[int] = None,
     slow_period: Optional[int] = None,
-    use_years: Optional[bool] = None,
     years: Optional[int] = None,
     dry_run: bool = False,
     **additional_overrides,
@@ -85,6 +85,7 @@ def build_configuration_overrides(
 
     Args:
         ticker: Ticker symbols
+        ticker_2: Second ticker for synthetic pair analysis
         strategy_type: Strategy types
         min_trades: Minimum trades filter
         min_win_rate: Minimum win rate filter
@@ -94,8 +95,7 @@ def build_configuration_overrides(
         slow_max: Slow period maximum for sweep
         fast_period: Fast period for single analysis
         slow_period: Slow period for single analysis
-        use_years: Whether to use years instead of period ranges
-        years: Number of years of historical data to analyze
+        years: Number of years of historical data to analyze (enables year-based analysis when provided)
         dry_run: Dry run flag
         **additional_overrides: Additional override parameters
 
@@ -107,6 +107,20 @@ def build_configuration_overrides(
     # Process ticker input
     if ticker:
         overrides["ticker"] = process_ticker_input(ticker)
+
+    # Synthetic ticker configuration
+    if ticker_2:
+        # When ticker_2 is provided, automatically enable synthetic analysis
+        synthetic_config = {
+            "use_synthetic": True,
+            "ticker_2": ticker_2.strip().upper()
+        }
+        # If ticker is provided, use the first one as ticker_1
+        if ticker:
+            processed_tickers = process_ticker_input(ticker)
+            if processed_tickers:
+                synthetic_config["ticker_1"] = processed_tickers[0]
+        overrides["synthetic"] = synthetic_config
 
     # Strategy types
     if strategy_type:
@@ -134,12 +148,15 @@ def build_configuration_overrides(
         overrides["slow_period"] = slow_period
 
     # Time configuration
-    if use_years is not None:
-        overrides["use_years"] = use_years
     if years is not None:
         if years <= 0:
             raise ValueError("Years parameter must be a positive integer")
+        # When years is provided, enable year-based analysis
+        overrides["use_years"] = True
         overrides["years"] = years
+    else:
+        # When years is omitted, use complete history (disable year-based analysis)
+        overrides["use_years"] = False
 
     # System flags
     overrides["dry_run"] = dry_run

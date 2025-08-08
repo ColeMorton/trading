@@ -27,8 +27,8 @@ config:
   direction: Long
   use_hourly: false
   use_years: false
-  years: 15
   refresh: true
+  years: 50
 
   # Result configuration
   sort_by: 'Score'

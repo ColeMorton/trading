@@ -24,27 +24,16 @@ import pandas as pd
 # Add the parent directory to the Python path for imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
-try:
-    from app.tools.generalized_trade_history_exporter import (
-        TradingSystemConfig,
-        add_position_to_portfolio,
-        assess_trade_quality,
-        create_position_record,
-        get_config,
-        validate_strategy_type,
-        validate_ticker,
-    )
-except ImportError:
-    # Fallback for direct execution
-    from generalized_trade_history_exporter import (
-        TradingSystemConfig,
-        add_position_to_portfolio,
-        assess_trade_quality,
-        create_position_record,
-        get_config,
-        validate_strategy_type,
-        validate_ticker,
-    )
+# Import backward compatibility wrapper
+from app.tools.position_service_wrapper import (
+    TradingSystemConfig,
+    add_position_to_portfolio,
+    assess_trade_quality,
+    create_position_record,
+    get_config,
+    validate_strategy_type,
+    validate_ticker,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -598,27 +587,14 @@ Examples:
     try:
         # Set up configuration
         if args.base_dir:
-            try:
-                from app.tools.generalized_trade_history_exporter import (
-                    TradingSystemConfig,
-                    set_config,
-                )
-            except ImportError:
-                from generalized_trade_history_exporter import (
-                    TradingSystemConfig,
-                    set_config,
-                )
+            from app.tools.position_service_wrapper import TradingSystemConfig
             config = TradingSystemConfig(base_dir=args.base_dir)
-            set_config(config)
             config.ensure_directories()
             logger.info(f"Using base directory: {config.base_dir}")
 
         # Health check
         if args.health_check:
-            try:
-                from app.tools.generalized_trade_history_exporter import get_config
-            except ImportError:
-                from generalized_trade_history_exporter import get_config
+            from app.tools.position_service_wrapper import get_config
             config = get_config()
 
             print("System Health Check:")
@@ -809,10 +785,7 @@ Examples:
                 logger.error("Missing required argument: --portfolio")
                 return 1
 
-            try:
-                from app.tools.generalized_trade_history_exporter import get_config
-            except ImportError:
-                from generalized_trade_history_exporter import get_config
+            from app.tools.position_service_wrapper import get_config
             config = get_config()
             portfolio_file = config.get_portfolio_file(args.portfolio)
 
@@ -851,10 +824,7 @@ Examples:
                 logger.error("Missing required argument: --portfolio")
                 return 1
 
-            try:
-                from app.tools.generalized_trade_history_exporter import get_config
-            except ImportError:
-                from generalized_trade_history_exporter import get_config
+            from app.tools.position_service_wrapper import get_config
             config = get_config()
             portfolio_file = config.get_portfolio_file(args.portfolio)
 
@@ -899,10 +869,7 @@ Examples:
                 print(f"✓ Updated trade quality for {updated_quality} positions")
 
             # Normalize data
-            try:
-                from app.tools.generalized_trade_history_exporter import get_config
-            except ImportError:
-                from generalized_trade_history_exporter import get_config
+            from app.tools.position_service_wrapper import get_config
             config = get_config()
             portfolio_file = config.get_portfolio_file(args.portfolio)
 

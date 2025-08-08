@@ -1164,9 +1164,8 @@ class SignalDataAggregator:
 
             # Attempt to get fresh MFE/MAE calculation
             try:
-                from app.tools.generalized_trade_history_exporter import (
-                    calculate_mfe_mae,
-                )
+                from app.services import PositionService
+                position_service = PositionService()
 
                 # Extract position details from strategy data
                 parts = strategy_name.split("_")
@@ -1226,7 +1225,7 @@ class SignalDataAggregator:
                     return False
 
                 # Calculate fresh MFE/MAE using current market data
-                fresh_mfe, fresh_mae, _, _ = calculate_mfe_mae(
+                fresh_mfe, fresh_mae, _ = position_service.calculate_mfe_mae(
                     ticker=ticker,
                     entry_date=entry_date,
                     exit_date="",  # Open position
@@ -1273,7 +1272,7 @@ class SignalDataAggregator:
 
             except ImportError:
                 logger.warning(
-                    "Cannot import MFE calculation module - generalized_trade_history_exporter not available"
+                    "Cannot import MFE calculation module - PositionService not available"
                 )
             except Exception as calc_error:
                 logger.warning(

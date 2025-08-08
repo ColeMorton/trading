@@ -75,10 +75,10 @@ class StrategyConfig(BaseConfig):
     # Time configuration
     use_years: bool = Field(
         default=False,
-        description="Use years instead of period ranges for historical data",
+        description="Automatically set to True when years parameter is provided, False for complete history",
     )
     years: Optional[int] = Field(
-        default=15, gt=0, description="Number of years of historical data"
+        default=None, gt=0, description="Number of years of historical data (None for complete history)"
     )
 
     # Strategy-specific parameters

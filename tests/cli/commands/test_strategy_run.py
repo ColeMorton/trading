@@ -92,12 +92,14 @@ config:
   direction: Long
 """
 
+    @patch("app.cli.commands.strategy.validate_parameter_relationships")
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_run_command_with_profile_sma_success(
         self,
         mock_config_loader,
         mock_dispatcher_class,
+        mock_validate,
         cli_runner,
         temp_profile_dir,
         sample_sma_profile,
@@ -128,12 +130,14 @@ config:
         mock_dispatcher.execute_strategy.assert_called_once_with(mock_config)
         assert "Strategy analysis completed successfully" in result.stdout
 
+    @patch("app.cli.commands.strategy.validate_parameter_relationships")
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_run_command_with_profile_macd_success(
         self,
         mock_config_loader,
         mock_dispatcher_class,
+        mock_validate,
         cli_runner,
         temp_profile_dir,
         sample_macd_profile,
@@ -311,7 +315,6 @@ config:
                 "AAPL",
                 "--strategy",
                 "SMA",
-                "--use-years",
                 "--years",
                 "5",
             ],
@@ -765,3 +768,197 @@ class TestStrategyRunCommandEdgeCases:
 
         # Should handle long arguments gracefully
         assert result.exit_code is not None
+
+
+class TestYearsParameter:
+    """Test cases specifically for the years parameter functionality."""
+
+    @pytest.fixture
+    def cli_runner(self):
+        """Create CLI runner for testing."""
+        return CliRunner()
+
+    @patch("app.cli.commands.strategy.validate_parameter_relationships")
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_years_parameter_enables_year_based_analysis(
+        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner
+    ):
+        """Test that providing --years enables year-based analysis."""
+        # Setup mocks
+        mock_config = Mock()
+        mock_config.ticker = ["AAPL"]
+        mock_config.strategy_types = [StrategyType.SMA]
+        mock_config.use_years = True
+        mock_config.years = 5
+        mock_config_loader.return_value.load_from_profile.return_value = mock_config
+
+        mock_dispatcher = Mock()
+        mock_dispatcher.validate_strategy_compatibility.return_value = True
+        mock_dispatcher.execute_strategy.return_value = True
+        mock_dispatcher_class.return_value = mock_dispatcher
+
+        # Run command with years parameter
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "AAPL", "--years", "5", "--strategy", "SMA"]
+        )
+
+        # Verify results
+        assert result.exit_code == 0
+        
+        # Verify overrides were applied correctly
+        call_args = mock_config_loader.return_value.load_from_profile.call_args
+        overrides = call_args[0][2]  # Third argument is overrides
+        assert overrides["use_years"] is True
+        assert overrides["years"] == 5
+
+    @patch("app.cli.commands.strategy.validate_parameter_relationships")
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_years_shorthand_y_works(
+        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner
+    ):
+        """Test that -y shorthand works correctly."""
+        # Setup mocks
+        mock_config = Mock()
+        mock_config.ticker = ["AAPL"]
+        mock_config.strategy_types = [StrategyType.SMA]
+        mock_config.use_years = True
+        mock_config.years = 3
+        mock_config_loader.return_value.load_from_profile.return_value = mock_config
+
+        mock_dispatcher = Mock()
+        mock_dispatcher.validate_strategy_compatibility.return_value = True
+        mock_dispatcher.execute_strategy.return_value = True
+        mock_dispatcher_class.return_value = mock_dispatcher
+
+        # Run command with -y shorthand
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "AAPL", "-y", "3", "--strategy", "SMA"]
+        )
+
+        # Verify results
+        assert result.exit_code == 0
+        
+        # Verify overrides were applied correctly
+        call_args = mock_config_loader.return_value.load_from_profile.call_args
+        overrides = call_args[0][2]  # Third argument is overrides
+        assert overrides["use_years"] is True
+        assert overrides["years"] == 3
+
+    def test_years_validation_positive_integer(self, cli_runner):
+        """Test that years parameter validates positive integers."""
+        # Test negative years
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "AAPL", "--years", "-1", "--strategy", "SMA"]
+        )
+        assert result.exit_code != 0
+        assert "Years parameter must be a positive integer" in result.stdout
+
+        # Test zero years
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "AAPL", "--years", "0", "--strategy", "SMA"]
+        )
+        assert result.exit_code != 0
+        assert "Years parameter must be a positive integer" in result.stdout
+
+    @patch("app.cli.commands.strategy.validate_parameter_relationships")
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_years_omitted_uses_complete_history(
+        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner
+    ):
+        """Test that omitting --years uses complete history."""
+        # Setup mocks
+        mock_config = Mock()
+        mock_config.ticker = ["AAPL"]
+        mock_config.strategy_types = [StrategyType.SMA]
+        mock_config.use_years = False
+        mock_config.years = None
+        mock_config_loader.return_value.load_from_profile.return_value = mock_config
+
+        mock_dispatcher = Mock()
+        mock_dispatcher.validate_strategy_compatibility.return_value = True
+        mock_dispatcher.execute_strategy.return_value = True
+        mock_dispatcher_class.return_value = mock_dispatcher
+
+        # Run command without years parameter
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "AAPL", "--strategy", "SMA"]
+        )
+
+        # Verify results
+        assert result.exit_code == 0
+        
+        # Verify overrides were applied correctly for complete history
+        call_args = mock_config_loader.return_value.load_from_profile.call_args
+        overrides = call_args[0][2]  # Third argument is overrides
+        assert overrides["use_years"] is False
+
+    @patch("app.cli.commands.strategy.validate_parameter_relationships")
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_years_parameter_limits_data_history(
+        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner
+    ):
+        """Test that years parameter correctly limits data history."""
+        # Setup mocks
+        mock_config = Mock()
+        mock_config.ticker = ["AAPL"]
+        mock_config.strategy_types = [StrategyType.SMA]
+        mock_config.use_years = True
+        mock_config.years = 10
+        mock_config_loader.return_value.load_from_profile.return_value = mock_config
+
+        mock_dispatcher = Mock()
+        mock_dispatcher.validate_strategy_compatibility.return_value = True
+        mock_dispatcher.execute_strategy.return_value = True
+        mock_dispatcher_class.return_value = mock_dispatcher
+
+        # Run command with specific years
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "AAPL", "--years", "10", "--strategy", "SMA"]
+        )
+
+        # Verify results
+        assert result.exit_code == 0
+        
+        # Verify overrides contain correct configuration
+        call_args = mock_config_loader.return_value.load_from_profile.call_args
+        overrides = call_args[0][2]  # Third argument is overrides
+        assert overrides["use_years"] is True
+        assert overrides["years"] == 10
+
+    @patch("app.cli.commands.strategy.validate_parameter_relationships")
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_years_without_use_years_flag(
+        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner
+    ):
+        """Test that years parameter works without separate use_years flag."""
+        # Setup mocks
+        mock_config = Mock()
+        mock_config.ticker = ["AAPL"]
+        mock_config.strategy_types = [StrategyType.SMA]
+        mock_config.use_years = True
+        mock_config.years = 7
+        mock_config_loader.return_value.load_from_profile.return_value = mock_config
+
+        mock_dispatcher = Mock()
+        mock_dispatcher.validate_strategy_compatibility.return_value = True
+        mock_dispatcher.execute_strategy.return_value = True
+        mock_dispatcher_class.return_value = mock_dispatcher
+
+        # Run command with only years parameter (no use_years flag)
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "AAPL", "--years", "7", "--strategy", "SMA"]
+        )
+
+        # Verify results
+        assert result.exit_code == 0
+        
+        # Verify that use_years was automatically set to True
+        call_args = mock_config_loader.return_value.load_from_profile.call_args
+        overrides = call_args[0][2]  # Third argument is overrides
+        assert overrides["use_years"] is True
+        assert overrides["years"] == 7

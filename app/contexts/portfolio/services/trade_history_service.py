@@ -4,6 +4,9 @@ Trade History Service
 Focused service for trade history operations including updating open positions,
 calculating MFE/MAE metrics, and position management with comprehensive refresh
 capabilities using centralized PositionCalculator.
+
+This service now delegates core position operations to the unified PositionService
+while maintaining its existing interface for backward compatibility.
 """
 
 import logging
@@ -14,6 +17,8 @@ from typing import Any, Dict, List, Optional, Tuple
 import pandas as pd
 
 from app.cli.utils import resolve_portfolio_path
+from app.services import PositionService
+from app.services.position_service import TradingSystemConfig
 from app.tools.position_calculator import get_position_calculator
 from app.tools.utils.mfe_mae_calculator import get_mfe_mae_calculator
 
@@ -36,6 +41,10 @@ class TradeHistoryService:
         """Initialize the service."""
         self.logger = logger or logging.getLogger(__name__)
         self.base_dir = Path(base_dir) if base_dir else Path.cwd()
+        
+        # Create unified PositionService for delegation
+        config = TradingSystemConfig(str(self.base_dir))
+        self.position_service = PositionService(config, self.logger)
 
     def update_open_positions(
         self,
@@ -828,3 +837,63 @@ class TradeHistoryService:
         except Exception as e:
             self.logger.error(f"Error assessing trade quality for {ticker}: {str(e)}")
             return "Unknown"
+    
+    # Delegation methods to PositionService for unified operations
+    
+    def add_position_to_portfolio(
+        self,
+        ticker: str,
+        strategy_type: str,
+        short_window: int,
+        long_window: int,
+        signal_window: int = 0,
+        entry_date: str = None,
+        entry_price: float = None,
+        exit_date: str = None,
+        exit_price: float = None,
+        position_size: float = 1.0,
+        direction: str = "Long",
+        portfolio_name: str = "live_signals",
+        verify_signal: bool = True,
+    ) -> str:
+        """Delegate position addition to unified PositionService."""
+        return self.position_service.add_position_to_portfolio(
+            ticker=ticker,
+            strategy_type=strategy_type,
+            short_window=short_window,
+            long_window=long_window,
+            signal_window=signal_window,
+            entry_date=entry_date,
+            entry_price=entry_price,
+            exit_date=exit_date,
+            exit_price=exit_price,
+            position_size=position_size,
+            direction=direction,
+            portfolio_name=portfolio_name,
+            verify_signal=verify_signal,
+        )
+    
+    def close_position(
+        self,
+        position_uuid: str,
+        portfolio_name: str,
+        exit_price: float,
+        exit_date: str = None,
+    ) -> Dict[str, Any]:
+        """Delegate position closing to unified PositionService."""
+        return self.position_service.close_position(
+            position_uuid=position_uuid,
+            portfolio_name=portfolio_name,
+            exit_price=exit_price,
+            exit_date=exit_date,
+        )
+    
+    def list_positions(
+        self, portfolio_name: str, status_filter: str = None
+    ) -> List[Dict[str, Any]]:
+        """Delegate position listing to unified PositionService."""
+        return self.position_service.list_positions(portfolio_name, status_filter)
+    
+    def get_position(self, position_uuid: str, portfolio_name: str) -> Dict[str, Any]:
+        """Delegate position retrieval to unified PositionService."""
+        return self.position_service.get_position(position_uuid, portfolio_name)

@@ -77,6 +77,9 @@ class MAStrategyService(BaseStrategyService):
         ticker_list = (
             config.ticker if isinstance(config.ticker, list) else [config.ticker]
         )
+        
+        # Automatically detect multi-ticker based on ticker list length
+        is_multi_ticker = len(ticker_list) > 1
 
         # Base legacy config structure
         legacy_config = {
@@ -86,8 +89,8 @@ class MAStrategyService(BaseStrategyService):
                 for st in config.strategy_types
             ],
             "USE_YEARS": config.use_years,
-            "YEARS": config.years or 15,
-            "MULTI_TICKER": config.multi_ticker,
+            "YEARS": config.years,
+            "MULTI_TICKER": is_multi_ticker,
             "USE_SCANNER": config.use_scanner,
             "SCANNER_LIST": config.scanner_list,
             "USE_GBM": config.use_gbm,
@@ -212,9 +215,9 @@ class MACDStrategyService(BaseStrategyService):
                 "USE_CURRENT": getattr(config, "use_current", False) or False,
                 "USE_HOURLY": getattr(config, "use_hourly", False),
                 "USE_YEARS": getattr(config, "use_years", False),
-                "YEARS": getattr(config, "years", 15),
+                "YEARS": getattr(config, "years", None),
                 "REFRESH": getattr(config, "refresh", True),
-                "MULTI_TICKER": config.multi_ticker,
+                "MULTI_TICKER": len(ticker_list) > 1,
                 "MINIMUMS": {},
                 # Add sorting parameters from YAML config
                 "SORT_BY": getattr(config, "sort_by", "Score"),

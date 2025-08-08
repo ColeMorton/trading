@@ -43,8 +43,16 @@ def run(
     ticker: Optional[List[str]] = typer.Option(
         None,
         "--ticker",
+        "--ticker-1",
         "-t",
+        "-t1",
         help="Ticker symbols to analyze (multiple args or comma-separated: --ticker AAPL,MSFT or --ticker AAPL --ticker MSFT)",
+    ),
+    ticker_2: Optional[str] = typer.Option(
+        None,
+        "--ticker-2",
+        "-t2",
+        help="Second ticker for synthetic pair analysis (automatically enables synthetic mode)",
     ),
     strategy_type: Optional[List[str]] = typer.Option(
         None,
@@ -58,13 +66,8 @@ def run(
     min_win_rate: Optional[float] = typer.Option(
         None, "--min-win-rate", help="Minimum win rate filter (0.0 to 1.0)"
     ),
-    use_years: bool = typer.Option(
-        False,
-        "--use-years",
-        help="Use years instead of period ranges for historical data",
-    ),
     years: Optional[int] = typer.Option(
-        None, "--years", help="Number of years of historical data to analyze"
+        None, "--years", "-y", help="Number of years of historical data to analyze (omit for complete history)"
     ),
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Preview configuration without executing"
@@ -92,10 +95,10 @@ def run(
         # Build configuration overrides using shared utility
         overrides = build_configuration_overrides(
             ticker=ticker,
+            ticker_2=ticker_2,
             strategy_type=strategy_type,
             min_trades=min_trades,
             min_win_rate=min_win_rate,
-            use_years=use_years,
             years=years,
             dry_run=dry_run,
         )

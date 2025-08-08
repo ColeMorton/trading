@@ -10,7 +10,7 @@ metadata:
 
 config_type: 'strategy'
 
-inherits_from: 'default_strategy'
+inherits_from: 'default_strategy_current'
 
 config:
   # Crypto-focused ticker list
