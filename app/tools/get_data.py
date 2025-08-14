@@ -12,8 +12,15 @@ from app.tools.use_synthetic import use_synthetic
 
 def valid_data(ticker: str, config: DataConfig, log: Callable):
     if config.get("REFRESH", True) == False:
-        # Construct file path using BASE_DIR
-        file_name = f'{ticker}{"_H" if config.get("USE_HOURLY", False) else "_D"}'
+        # Determine file suffix based on timeframe
+        if config.get("USE_4HOUR", False):
+            file_suffix = "_4H"
+        elif config.get("USE_HOURLY", False):
+            file_suffix = "_H"
+        else:
+            file_suffix = "_D"
+
+        file_name = f"{ticker}{file_suffix}"
         directory = os.path.join(config["BASE_DIR"], "data", "raw", "prices")
 
         # Ensure directory exists
@@ -26,16 +33,21 @@ def valid_data(ticker: str, config: DataConfig, log: Callable):
 
         # Check if file exists and was created in the appropriate timeframe
         if os.path.exists(file_path):
-            is_valid = (
-                is_file_from_this_hour(file_path)
-                if config.get("USE_HOURLY", False)
-                else is_file_from_today(file_path)
-            )
+            # For 4-hour data, use hourly validation since it's derived from hourly data
+            if config.get("USE_4HOUR", False):
+                is_valid = is_file_from_this_hour(file_path)
+                timeframe = "4-hour"
+            elif config.get("USE_HOURLY", False):
+                is_valid = is_file_from_this_hour(file_path)
+                timeframe = "hour"
+            else:
+                is_valid = is_file_from_today(file_path)
+                timeframe = "day"
+
             if is_valid:
                 log(f"Loading existing data from {file_path}.")
                 return pl.read_csv(file_path)
             else:
-                timeframe = "hour" if config.get("USE_HOURLY", False) else "day"
                 log(
                     f"File exists but wasn't created this {timeframe}. Downloading new data."
                 )

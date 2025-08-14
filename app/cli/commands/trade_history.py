@@ -199,7 +199,7 @@ def close(
                     exit_price=price,
                     exit_date=date,
                 )
-                
+
                 # Display success message using service result
                 rprint("[green]✅ Position closed successfully![/green]")
                 rprint(f"   Exit Price: ${result['exit_price']:.2f}")
@@ -221,13 +221,17 @@ def close(
             if output:
                 rprint(f"   Output: [green]{output}[/green]")
             rprint("-" * 60)
-            
+
             # For now, provide a simplified report message
             # TODO: Integrate with proper report generation service in future
-            rprint("[yellow]⚠️  Advanced report generation temporarily unavailable[/yellow]")
+            rprint(
+                "[yellow]⚠️  Advanced report generation temporarily unavailable[/yellow]"
+            )
             rprint("[dim]Position closing functionality is fully operational[/dim]")
-            rprint("[dim]Advanced reporting features will be restored in a future update[/dim]")
-        
+            rprint(
+                "[dim]Advanced reporting features will be restored in a future update[/dim]"
+            )
+
         rprint("[green]✅ Command completed successfully![/green]")
 
     except Exception as e:
@@ -431,11 +435,14 @@ def add(
                 # Create unified position service
                 service_config = TradingSystemConfig()
                 position_service = PositionService(service_config)
-                
+
                 # Use current date if signal_date not provided
                 from datetime import datetime
-                entry_date = signal_date if signal_date else datetime.now().strftime("%Y-%m-%d")
-                
+
+                entry_date = (
+                    signal_date if signal_date else datetime.now().strftime("%Y-%m-%d")
+                )
+
                 position_uuid = position_service.add_position_to_portfolio(
                     ticker=ticker,
                     strategy_type=strategy_type,
@@ -742,29 +749,37 @@ def list(
         # Simplified list implementation using PositionService
         from ...services import PositionService
         from ...services.position_service import TradingSystemConfig
-        
+
         # For now, provide basic portfolio listing
         # TODO: Enhance with full strategy analysis in future
         try:
             service_config = TradingSystemConfig()
             position_service = PositionService(service_config)
-            
+
             # List available portfolios
             portfolios = ["live_signals", "protected", "risk_on"]
             for portfolio in portfolios:
                 try:
                     positions = position_service.list_positions(portfolio)
-                    rprint(f"\n[cyan]{portfolio.upper()} Portfolio:[/cyan] {len(positions)} positions")
+                    rprint(
+                        f"\n[cyan]{portfolio.upper()} Portfolio:[/cyan] {len(positions)} positions"
+                    )
                     if show_signals and positions:
                         for pos in positions[:limit] if limit else positions:
-                            status_color = "green" if pos.get("Status") == "Open" else "yellow"
-                            rprint(f"  • [{status_color}]{pos.get('Position_UUID', 'Unknown')}[/{status_color}]")
+                            status_color = (
+                                "green" if pos.get("Status") == "Open" else "yellow"
+                            )
+                            rprint(
+                                f"  • [{status_color}]{pos.get('Position_UUID', 'Unknown')}[/{status_color}]"
+                            )
                 except Exception:
                     rprint(f"  [dim]Portfolio {portfolio} not accessible[/dim]")
-                    
+
             rprint(f"\n[green]✅ Strategy listing completed![/green]")
-            rprint(f"[dim]Advanced filtering and signal analysis will be restored in future update[/dim]")
-            
+            rprint(
+                f"[dim]Advanced filtering and signal analysis will be restored in future update[/dim]"
+            )
+
         except Exception as e:
             rprint(f"[red]❌ Failed to list strategies: {e}[/red]")
             raise typer.Exit(1)
@@ -815,31 +830,35 @@ def validate(
 
         # Simplified validation using PositionService
         validation_results = {"checks_performed": [], "issues_found": 0, "warnings": 0}
-        
+
         rprint("[yellow]⚠️  Advanced validation temporarily simplified[/yellow]")
-        rprint("[dim]Basic validation available - full features will be restored in future update[/dim]")
+        rprint(
+            "[dim]Basic validation available - full features will be restored in future update[/dim]"
+        )
 
         if check_file_existence or check_data_integrity:
             from ...services import PositionService
             from ...services.position_service import TradingSystemConfig
-            
+
             try:
                 service_config = TradingSystemConfig()
                 position_service = PositionService(service_config)
-                
+
                 rprint("📁 Running basic system check...")
                 validation_results["checks_performed"].append("System Health Check")
-                
+
                 # Test basic service functionality
-                portfolios = ["live_signals", "protected", "risk_on"] 
+                portfolios = ["live_signals", "protected", "risk_on"]
                 for portfolio in portfolios:
                     try:
                         positions = position_service.list_positions(portfolio)
-                        rprint(f"  ✅ Portfolio {portfolio}: Accessible ({len(positions)} positions)")
+                        rprint(
+                            f"  ✅ Portfolio {portfolio}: Accessible ({len(positions)} positions)"
+                        )
                     except Exception as e:
                         rprint(f"  ⚠️  Portfolio {portfolio}: Issues detected")
                         validation_results["issues_found"] += 1
-                        
+
             except Exception as e:
                 rprint(f"  ❌ Service validation failed: {e}")
                 validation_results["issues_found"] += 1
@@ -878,14 +897,14 @@ def health():
         # Simplified health check using PositionService
         from ...services import PositionService
         from ...services.position_service import TradingSystemConfig
-        
+
         try:
             service_config = TradingSystemConfig()
             position_service = PositionService(service_config)
-            
+
             rprint("[green]✅ PositionService: Operational[/green]")
             rprint("[green]✅ Configuration: Loaded[/green]")
-            
+
             # Test basic functionality
             portfolios = ["live_signals", "protected", "risk_on"]
             accessible_portfolios = 0
@@ -893,14 +912,20 @@ def health():
                 try:
                     positions = position_service.list_positions(portfolio)
                     accessible_portfolios += 1
-                    rprint(f"[green]✅ Portfolio {portfolio}: {len(positions)} positions[/green]")
+                    rprint(
+                        f"[green]✅ Portfolio {portfolio}: {len(positions)} positions[/green]"
+                    )
                 except Exception as e:
-                    rprint(f"[yellow]⚠️  Portfolio {portfolio}: Not accessible ({str(e)[:50]}...)[/yellow]")
-            
-            rprint(f"\n[cyan]System Status: {accessible_portfolios}/{len(portfolios)} portfolios accessible[/cyan]")
+                    rprint(
+                        f"[yellow]⚠️  Portfolio {portfolio}: Not accessible ({str(e)[:50]}...)[/yellow]"
+                    )
+
+            rprint(
+                f"\n[cyan]System Status: {accessible_portfolios}/{len(portfolios)} portfolios accessible[/cyan]"
+            )
             rprint("[dim]Advanced diagnostics will be restored in future update[/dim]")
             result = 0
-            
+
         except Exception as e:
             rprint(f"[red]❌ Health check failed: {e}[/red]")
             result = 1

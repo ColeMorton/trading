@@ -77,7 +77,7 @@ class MAStrategyService(BaseStrategyService):
         ticker_list = (
             config.ticker if isinstance(config.ticker, list) else [config.ticker]
         )
-        
+
         # Automatically detect multi-ticker based on ticker list length
         is_multi_ticker = len(ticker_list) > 1
 
@@ -90,6 +90,8 @@ class MAStrategyService(BaseStrategyService):
             ],
             "USE_YEARS": config.use_years,
             "YEARS": config.years,
+            "USE_HOURLY": config.use_hourly,
+            "USE_4HOUR": config.use_4hour,
             "MULTI_TICKER": is_multi_ticker,
             "USE_SCANNER": config.use_scanner,
             "SCANNER_LIST": config.scanner_list,
@@ -214,6 +216,7 @@ class MACDStrategyService(BaseStrategyService):
                 "DIRECTION": getattr(config, "direction", "Long"),
                 "USE_CURRENT": getattr(config, "use_current", False) or False,
                 "USE_HOURLY": getattr(config, "use_hourly", False),
+                "USE_4HOUR": getattr(config, "use_4hour", False),
                 "USE_YEARS": getattr(config, "use_years", False),
                 "YEARS": getattr(config, "years", None),
                 "REFRESH": getattr(config, "refresh", True),

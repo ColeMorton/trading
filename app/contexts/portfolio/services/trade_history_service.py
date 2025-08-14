@@ -41,7 +41,7 @@ class TradeHistoryService:
         """Initialize the service."""
         self.logger = logger or logging.getLogger(__name__)
         self.base_dir = Path(base_dir) if base_dir else Path.cwd()
-        
+
         # Create unified PositionService for delegation
         config = TradingSystemConfig(str(self.base_dir))
         self.position_service = PositionService(config, self.logger)
@@ -837,9 +837,9 @@ class TradeHistoryService:
         except Exception as e:
             self.logger.error(f"Error assessing trade quality for {ticker}: {str(e)}")
             return "Unknown"
-    
+
     # Delegation methods to PositionService for unified operations
-    
+
     def add_position_to_portfolio(
         self,
         ticker: str,
@@ -872,7 +872,7 @@ class TradeHistoryService:
             portfolio_name=portfolio_name,
             verify_signal=verify_signal,
         )
-    
+
     def close_position(
         self,
         position_uuid: str,
@@ -887,13 +887,13 @@ class TradeHistoryService:
             exit_price=exit_price,
             exit_date=exit_date,
         )
-    
+
     def list_positions(
         self, portfolio_name: str, status_filter: str = None
     ) -> List[Dict[str, Any]]:
         """Delegate position listing to unified PositionService."""
         return self.position_service.list_positions(portfolio_name, status_filter)
-    
+
     def get_position(self, position_uuid: str, portfolio_name: str) -> Dict[str, Any]:
         """Delegate position retrieval to unified PositionService."""
         return self.position_service.get_position(position_uuid, portfolio_name)

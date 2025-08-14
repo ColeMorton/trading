@@ -86,6 +86,33 @@ class TestDefaultStrategyProfileIntegration:
         assert config.years > 0
         assert isinstance(config.years, int)
 
+    def test_default_strategy_profile_includes_all_strategy_types(self, config_loader):
+        """Test that default_strategy profile explicitly includes all strategy types."""
+        config = config_loader.load_from_profile("default_strategy", StrategyConfig)
+
+        # Verify that the profile explicitly defines all strategy types
+        assert config.strategy_types == [
+            StrategyType.SMA,
+            StrategyType.EMA,
+            StrategyType.MACD,
+        ]
+
+        # Verify this is explicit in the profile, not just model defaults
+        # by checking that the profile actually overrides the model behavior
+        assert hasattr(config, "strategy_types")
+        assert len(config.strategy_types) == 3
+
+        # Verify the specific types are included
+        # Handle both enum and string representations
+        if config.strategy_types and hasattr(config.strategy_types[0], "value"):
+            strategy_values = [st.value for st in config.strategy_types]
+        else:
+            strategy_values = [str(st) for st in config.strategy_types]
+
+        assert "SMA" in strategy_values
+        assert "EMA" in strategy_values
+        assert "MACD" in strategy_values
+
     @patch("app.cli.commands.strategy.get_data")
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")

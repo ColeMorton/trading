@@ -588,6 +588,7 @@ Examples:
         # Set up configuration
         if args.base_dir:
             from app.tools.position_service_wrapper import TradingSystemConfig
+
             config = TradingSystemConfig(base_dir=args.base_dir)
             config.ensure_directories()
             logger.info(f"Using base directory: {config.base_dir}")
@@ -595,6 +596,7 @@ Examples:
         # Health check
         if args.health_check:
             from app.tools.position_service_wrapper import get_config
+
             config = get_config()
 
             print("System Health Check:")
@@ -786,6 +788,7 @@ Examples:
                 return 1
 
             from app.tools.position_service_wrapper import get_config
+
             config = get_config()
             portfolio_file = config.get_portfolio_file(args.portfolio)
 
@@ -825,6 +828,7 @@ Examples:
                 return 1
 
             from app.tools.position_service_wrapper import get_config
+
             config = get_config()
             portfolio_file = config.get_portfolio_file(args.portfolio)
 
@@ -870,6 +874,7 @@ Examples:
 
             # Normalize data
             from app.tools.position_service_wrapper import get_config
+
             config = get_config()
             portfolio_file = config.get_portfolio_file(args.portfolio)
 

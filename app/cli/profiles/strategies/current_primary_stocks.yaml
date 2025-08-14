@@ -15,6 +15,10 @@ config_type: 'strategy'
 config:
   name: 'current_primary_stocks'
 
+  # Strategy types to analyze
+  strategy_types:
+    - SMA
+
   ticker:
     - NVDA
     - MSFT

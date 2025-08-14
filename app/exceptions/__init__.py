@@ -13,7 +13,7 @@ from .position_exceptions import (
 
 __all__ = [
     "PositionError",
-    "ValidationError", 
+    "ValidationError",
     "CalculationError",
     "DataNotFoundError",
     "PriceDataError",

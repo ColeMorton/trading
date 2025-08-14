@@ -17,10 +17,11 @@ from scipy.optimize import minimize
 # start_date = '2023-10-24'
 # end_date = '2024-11-02'
 
-start_date = "2020-01-28"
-end_date = "2025-07-28"
+start_date = "2020-02-12"
+end_date = "2025-08-12"
 
 HALF_RULE = True
+# HALF_RULE = False
 
 # ASSETS = ['BTC-USD', 'SPY']
 
@@ -30,9 +31,11 @@ HALF_RULE = True
 
 # ASSETS = ['PENDLE-USD', 'SUI20947-USD']
 
-ASSETS = ["GME", "TSLA", "ADBE", "AMZN", "MU", "PAYX", "DHR"]
+ASSETS = ["ADBE", "AMZN", "PAYX", "DHR", "IREN", "NFLX", "ASML", "QBTS"]
 
-# ASSETS = ["TSLA", "AMZN", "MU", "PAYX", "DHR", "BTC-USD", "MSTR"]
+# ASSETS = ["IREN", "TEM", "BBAI"]
+
+# ASSETS = ["ETH-USD", "SOL-USD", "ETHFI-USD", "SUI20947-USD"]
 
 # ASSETS = ['TRX-USD', 'FET-USD', 'AVAX-USD', 'SOL-USD']
 

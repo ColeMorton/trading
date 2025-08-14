@@ -24,7 +24,8 @@ PRIMARY_TEXT = "#121212"  # Near black
 BODY_TEXT = "#444444"  # Dark gray
 MUTED_TEXT = "#717171"  # Medium gray
 
-TICKERS = ["BTC-USD", "MSTR", "NFLX"]
+# TICKERS = ["IREN", "TEM", "BBAI"]
+TICKERS = ["SOL-USD", "ETH-USD", "ETHFI-USD", "SUI20947-USD"]
 # TICKERS = "risk_on.csv"
 # TICKERS = "live_signals.csv"
 # TICKERS = "risk_on.csv"

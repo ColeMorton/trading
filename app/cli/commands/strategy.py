@@ -14,7 +14,7 @@ from rich.console import Console
 from rich.table import Table
 
 from ..config import ConfigLoader
-from ..models.strategy import MACDConfig, MACrossConfig, StrategyConfig
+from ..models.strategy import MACDConfig, MACrossConfig, MarketType, StrategyConfig
 from ..services import StrategyDispatcher
 from .strategy_utils import (
     build_configuration_overrides,
@@ -67,10 +67,23 @@ def run(
         None, "--min-win-rate", help="Minimum win rate filter (0.0 to 1.0)"
     ),
     years: Optional[int] = typer.Option(
-        None, "--years", "-y", help="Number of years of historical data to analyze (omit for complete history)"
+        None,
+        "--years",
+        "-y",
+        help="Number of years of historical data to analyze (omit for complete history)",
     ),
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Preview configuration without executing"
+    ),
+    use_4hour: Optional[bool] = typer.Option(
+        None,
+        "--use-4hour",
+        help="Use 4-hour timeframe data (converted from 1-hour data)",
+    ),
+    market_type: Optional[str] = typer.Option(
+        None,
+        "--market-type",
+        help="Market type: crypto, us_stock, or auto (automatic detection)",
     ),
     verbose: bool = typer.Option(
         False, "--verbose", "-v", help="Enable verbose output"
@@ -87,6 +100,7 @@ def run(
         trading-cli strategy run --ticker AAPL,MSFT,GOOGL --strategy SMA EMA
         trading-cli strategy run --ticker AAPL --ticker MSFT --strategy SMA
         trading-cli strategy run --ticker BTC-USD --min-trades 20
+        trading-cli strategy run --ticker BTC-USD,ETH-USD --use-4hour
     """
     try:
         # Load configuration
@@ -100,7 +114,9 @@ def run(
             min_trades=min_trades,
             min_win_rate=min_win_rate,
             years=years,
+            market_type=market_type,
             dry_run=dry_run,
+            use_4hour=use_4hour,
         )
 
         # Load configuration

@@ -38,6 +38,7 @@ class ExportConfig(TypedDict):
     Optional Fields:
         TICKER (NotRequired[Union[str, list[str]]]): Ticker symbol(s)
         USE_HOURLY (NotRequired[bool]): Whether hourly data is used
+        USE_4HOUR (NotRequired[bool]): Whether 4-hour data is used
         STRATEGY_TYPE (NotRequired[str]): Strategy type (e.g., "SMA", "EMA")
         USE_SMA (NotRequired[bool]): Whether SMA is used instead of EMA (deprecated)
         USE_MA (NotRequired[bool]): Whether to include MA suffix in filename
@@ -50,6 +51,7 @@ class ExportConfig(TypedDict):
     BASE_DIR: str
     TICKER: NotRequired[Union[str, List[str]]]
     USE_HOURLY: NotRequired[bool]
+    USE_4HOUR: NotRequired[bool]
     STRATEGY_TYPE: NotRequired[str]
     USE_SMA: NotRequired[bool]
     USE_MA: NotRequired[bool]
@@ -100,7 +102,13 @@ def _get_filename_components(
 
     # For current_signals directory, use simplified naming
     if feature1 == "ma_cross" and feature2 == "current_signals":
-        components.append("H" if config.get("USE_HOURLY", False) else "D")
+        # Determine timeframe suffix
+        if config.get("USE_4HOUR", False):
+            components.append("4H")
+        elif config.get("USE_HOURLY", False):
+            components.append("H")
+        else:
+            components.append("D")
 
         # Add SHORT suffix if direction is Short
         if config.get("DIRECTION") == "Short":
@@ -125,11 +133,22 @@ def _get_filename_components(
     # Only include datetime in filename for portfolios_best directory
     if feature2 == "portfolios_best":
         timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-        components.append(
-            f"{timestamp}_H" if config.get("USE_HOURLY", False) else f"{timestamp}_D"
-        )
+        # Determine timeframe suffix
+        if config.get("USE_4HOUR", False):
+            timeframe_suffix = "4H"
+        elif config.get("USE_HOURLY", False):
+            timeframe_suffix = "H"
+        else:
+            timeframe_suffix = "D"
+        components.append(f"{timestamp}_{timeframe_suffix}")
     else:
-        components.append("H" if config.get("USE_HOURLY", False) else "D")
+        # Determine timeframe suffix
+        if config.get("USE_4HOUR", False):
+            components.append("4H")
+        elif config.get("USE_HOURLY", False):
+            components.append("H")
+        else:
+            components.append("D")
 
     # Add SHORT suffix if direction is Short
     if config.get("DIRECTION") == "Short":
@@ -163,6 +182,35 @@ def _get_filename_components(
     return components
 
 
+def _is_generic_filename(filename: str) -> bool:
+    """Check if filename matches problematic generic patterns.
+
+    Args:
+        filename: The filename to check
+
+    Returns:
+        bool: True if filename is generic and should get timestamp prefix
+    """
+    import re
+
+    # Convert to lowercase for case-insensitive matching
+    filename_lower = filename.lower()
+
+    # Pattern 1: Single letter + .csv (e.g., D.csv, H.csv)
+    if re.match(r"^[a-z]\.csv$", filename_lower):
+        return True
+
+    # Pattern 2: Single letter + _STRATEGY + .csv (e.g., D_MACD.csv, D_SMA.csv)
+    if re.match(r"^[a-z]_[a-z]+\.csv$", filename_lower):
+        return True
+
+    # Pattern 3: DAILY.csv specifically
+    if filename_lower == "daily.csv":
+        return True
+
+    return False
+
+
 def _get_filename(
     config: ExportConfig, feature1: str = "", feature2: str = "", extension: str = "csv"
 ) -> str:
@@ -178,7 +226,14 @@ def _get_filename(
         str: Generated filename with extension
     """
     components = _get_filename_components(config, feature1, feature2)
-    return f"{''.join(components)}.{extension}"
+    filename = f"{''.join(components)}.{extension}"
+
+    # Add timestamp prefix for problematic generic filenames
+    if _is_generic_filename(filename):
+        timestamp = datetime.now().strftime("%H%M%S")
+        filename = f"{timestamp}_{filename}"
+
+    return filename
 
 
 def _combine_with_custom_filename(
@@ -206,18 +261,33 @@ def _combine_with_custom_filename(
     # For strategies feature_dir, use the custom filename as-is (with extension)
     # This avoids adding unwanted prefixes from standard components
     if feature1 == "strategies":
-        return f"{name}{ext}"
+        filename = f"{name}{ext}"
+        # Still check for generic patterns and add timestamp if needed
+        if _is_generic_filename(filename):
+            timestamp = datetime.now().strftime("%H%M%S")
+            filename = f"{timestamp}_{filename}"
+        return filename
 
     # If custom filename is provided and already contains ticker prefix, use it directly
     ticker_prefix = _get_ticker_prefix(config)
     if ticker_prefix and custom_filename.startswith(ticker_prefix):
-        return f"{name}{ext}"
+        filename = f"{name}{ext}"
+        # Still check for generic patterns and add timestamp if needed
+        if _is_generic_filename(filename):
+            timestamp = datetime.now().strftime("%H%M%S")
+            filename = f"{timestamp}_{filename}"
+        return filename
 
     # Otherwise, combine with standard components
     components = _get_filename_components(config, feature1, feature2)
 
     # Insert custom name before the extension
-    return f"{''.join(components)}{name}{ext}"
+    filename = f"{''.join(components)}{name}{ext}"
+    # Check for generic patterns and add timestamp if needed
+    if _is_generic_filename(filename):
+        timestamp = datetime.now().strftime("%H%M%S")
+        filename = f"{timestamp}_{filename}"
+    return filename
 
 
 def _get_export_path(feature1: str, config: ExportConfig, feature2: str = "") -> str:

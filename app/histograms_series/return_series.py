@@ -14,9 +14,9 @@ MUTED_TEXT = "#717171"  # Medium gray
 
 # Constants
 TICKER = "BTC-USD"
-USE_PORTFOLIO = False
-PORTFOLIO = {"BTC-USD": 0.5, "MSTR": 0.5}
-# PORTFOLIO = {'LLY': 0.25, 'BLDR': 0.25, 'MPO': 0.25, 'EOG': 0.25}
+USE_PORTFOLIO = True
+# PORTFOLIO = {"BTC-USD": 0.5, "MSTR": 0.5}
+PORTFOLIO = {"ETH-USD": 0.25, "SOL-USD": 0.25, "ETHFI-USD": 0.25, "SUI20947-USD": 0.25}
 
 
 def download_stock_data(ticker, period="max"):

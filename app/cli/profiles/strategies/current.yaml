@@ -20,7 +20,7 @@ config:
   # Performance filters (maps to CLI --min-* options)
   minimums:
     win_rate: 0.5
-    trades: 55
+    trades: 54
     expectancy_per_trade: 0.5
     profit_factor: 1.236
-    sortino_ratio: 0.5
+    sortino_ratio: 0.678

@@ -1165,6 +1165,7 @@ class SignalDataAggregator:
             # Attempt to get fresh MFE/MAE calculation
             try:
                 from app.services import PositionService
+
                 position_service = PositionService()
 
                 # Extract position details from strategy data

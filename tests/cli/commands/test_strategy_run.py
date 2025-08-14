@@ -770,6 +770,241 @@ class TestStrategyRunCommandEdgeCases:
         assert result.exit_code is not None
 
 
+class TestDefaultStrategyTypesFeature:
+    """Test cases specifically for the default strategy types feature."""
+
+    @pytest.fixture
+    def cli_runner(self):
+        """Create CLI runner for testing."""
+        return CliRunner()
+
+    @patch("app.cli.commands.strategy.validate_parameter_relationships")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_no_strategy_specified_defaults_to_all_types_dry_run(
+        self, mock_config_loader, mock_validate, cli_runner
+    ):
+        """Test that omitting --strategy flag defaults to all strategy types in dry-run."""
+        # Setup mocks with more complete configuration
+        mock_config = Mock()
+        mock_config.ticker = ["CCJ"]
+        mock_config.strategy_types = [
+            StrategyType.SMA,
+            StrategyType.EMA,
+            StrategyType.MACD,
+        ]
+        mock_config.use_hourly = False
+        mock_config.use_4hour = None
+        mock_config.direction = "Long"
+        mock_config.minimums = Mock()
+        mock_config.minimums.win_rate = None
+        mock_config.minimums.trades = None
+        mock_config_loader.return_value.load_from_profile.return_value = mock_config
+
+        # Run command without --strategy flag
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "CCJ", "--dry-run"]
+        )
+
+        # Verify dry-run shows all three strategy types
+        assert result.exit_code == 0
+        assert "SMA, EMA, MACD" in result.stdout
+
+        # Verify default profile was used
+        mock_config_loader.return_value.load_from_profile.assert_called_once()
+        call_args = mock_config_loader.return_value.load_from_profile.call_args
+        profile_name = call_args[0][0]
+        assert profile_name == "default_strategy"
+
+    @patch("app.cli.commands.strategy.validate_parameter_relationships")
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_no_strategy_specified_defaults_to_all_types_execution(
+        self, mock_config_loader, mock_dispatcher_class, mock_validate, cli_runner
+    ):
+        """Test that omitting --strategy flag includes all strategy types in execution."""
+        # Setup mocks
+        mock_config = Mock()
+        mock_config.ticker = ["CCJ"]
+        mock_config.strategy_types = [
+            StrategyType.SMA,
+            StrategyType.EMA,
+            StrategyType.MACD,
+        ]
+        mock_config_loader.return_value.load_from_profile.return_value = mock_config
+
+        mock_dispatcher = Mock()
+        mock_dispatcher.validate_strategy_compatibility.return_value = True
+        mock_dispatcher.execute_strategy.return_value = True
+        mock_dispatcher_class.return_value = mock_dispatcher
+
+        # Run command without --strategy flag
+        result = cli_runner.invoke(strategy_app, ["run", "--ticker", "CCJ"])
+
+        # Verify execution
+        assert result.exit_code == 0
+        assert "SMA, EMA, MACD" in result.stdout
+
+        # Verify strategy execution was called with all three types
+        mock_dispatcher.execute_strategy.assert_called_once()
+        executed_config = mock_dispatcher.execute_strategy.call_args[0][0]
+        assert executed_config.strategy_types == [
+            StrategyType.SMA,
+            StrategyType.EMA,
+            StrategyType.MACD,
+        ]
+
+    @patch("app.cli.commands.strategy.validate_parameter_relationships")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_no_strategy_with_profile_preserves_profile_strategy_types(
+        self, mock_config_loader, mock_validate, cli_runner
+    ):
+        """Test that using a profile with specific strategy types overrides the defaults."""
+        # Setup mock for profile with only SMA
+        mock_config = Mock()
+        mock_config.ticker = ["CCJ"]
+        mock_config.strategy_types = [StrategyType.SMA]  # Profile specifies only SMA
+        mock_config_loader.return_value.load_from_profile.return_value = mock_config
+
+        # Run command with profile but no --strategy flag
+        result = cli_runner.invoke(
+            strategy_app,
+            ["run", "--profile", "custom_profile", "--ticker", "CCJ", "--dry-run"],
+        )
+
+        # Should use profile's strategy types, not defaults
+        assert result.exit_code == 0
+        assert "SMA" in result.stdout
+        # Should NOT show all three types since profile specifies only SMA
+        assert "SMA, EMA, MACD" not in result.stdout
+
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_explicit_strategy_overrides_defaults(
+        self, mock_config_loader, mock_dispatcher_class, cli_runner
+    ):
+        """Test that explicit --strategy flag overrides the defaults."""
+        # Setup mocks
+        mock_config = Mock()
+        mock_config.ticker = ["CCJ"]
+        mock_config.strategy_types = [StrategyType.MACD]  # Should be overridden
+        mock_config_loader.return_value.load_from_profile.return_value = mock_config
+
+        mock_dispatcher = Mock()
+        mock_dispatcher.validate_strategy_compatibility.return_value = True
+        mock_dispatcher.execute_strategy.return_value = True
+        mock_dispatcher_class.return_value = mock_dispatcher
+
+        # Run command WITH explicit --strategy flag
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "CCJ", "--strategy", "MACD"]
+        )
+
+        # Verify execution
+        assert result.exit_code == 0
+
+        # Verify override was applied in configuration loading
+        call_args = mock_config_loader.return_value.load_from_profile.call_args
+        overrides = call_args[0][2]  # Third argument is overrides
+        assert "strategy_type" in overrides
+        assert overrides["strategy_type"] == ["MACD"]
+
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_multiple_tickers_no_strategy_defaults_to_all_types(
+        self, mock_config_loader, cli_runner
+    ):
+        """Test that multiple tickers without strategy flag defaults to all strategy types."""
+        # Setup mocks
+        mock_config = Mock()
+        mock_config.ticker = ["CCJ", "AAPL", "MSFT"]
+        mock_config.strategy_types = [
+            StrategyType.SMA,
+            StrategyType.EMA,
+            StrategyType.MACD,
+        ]
+        mock_config_loader.return_value.load_from_profile.return_value = mock_config
+
+        # Run command with multiple tickers but no --strategy flag
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "CCJ,AAPL,MSFT", "--dry-run"]
+        )
+
+        # Verify all strategy types are included
+        assert result.exit_code == 0
+        assert "SMA, EMA, MACD" in result.stdout
+        assert "Processing 3 tickers" in result.stdout
+
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_regression_old_two_strategy_behavior_changed(
+        self, mock_config_loader, cli_runner
+    ):
+        """Regression test: Verify old behavior of only SMA+EMA is changed to include MACD."""
+        # Setup mocks to return the NEW expected behavior (all three strategies)
+        mock_config = Mock()
+        mock_config.ticker = ["TEST"]
+        mock_config.strategy_types = [
+            StrategyType.SMA,
+            StrategyType.EMA,
+            StrategyType.MACD,
+        ]
+        mock_config_loader.return_value.load_from_profile.return_value = mock_config
+
+        # Run command without strategy (should now include MACD, not just SMA+EMA)
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "TEST", "--dry-run"]
+        )
+
+        # REGRESSION CHECK: Ensure MACD is now included (was missing before)
+        assert result.exit_code == 0
+        assert "MACD" in result.stdout
+        assert "SMA, EMA, MACD" in result.stdout
+
+        # Ensure we're not using the old behavior of just "SMA, EMA"
+        assert result.stdout.count("SMA, EMA") == 0 or "MACD" in result.stdout
+
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_edge_case_string_strategy_types_in_profile(
+        self, mock_config_loader, cli_runner
+    ):
+        """Edge case: Test handling of string strategy types from profile."""
+        # Setup mock config with string strategy types (as they come from YAML)
+        mock_config = Mock()
+        mock_config.ticker = ["TEST"]
+        # Simulate how strategy types come from YAML parsing
+        mock_config.strategy_types = ["SMA", "EMA", "MACD"]
+        mock_config_loader.return_value.load_from_profile.return_value = mock_config
+
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "TEST", "--dry-run"]
+        )
+
+        # Should handle string types gracefully and display them
+        assert result.exit_code == 0
+        # Output should show the strategies (handling both enum and string representations)
+        strategy_output = result.stdout
+        assert any(strategy in strategy_output for strategy in ["SMA", "EMA", "MACD"])
+
+    @patch("app.cli.commands.strategy.ConfigLoader")
+    def test_edge_case_mixed_enum_string_strategy_types(
+        self, mock_config_loader, cli_runner
+    ):
+        """Edge case: Test handling of mixed enum/string strategy types."""
+        # Setup mock config with mixed types
+        mock_config = Mock()
+        mock_config.ticker = ["TEST"]
+        # Mix of enum and string types (edge case scenario)
+        mock_config.strategy_types = [StrategyType.SMA, "EMA", StrategyType.MACD]
+        mock_config_loader.return_value.load_from_profile.return_value = mock_config
+
+        result = cli_runner.invoke(
+            strategy_app, ["run", "--ticker", "TEST", "--dry-run"]
+        )
+
+        # Should handle mixed types gracefully
+        assert result.exit_code == 0
+        # Should show strategies regardless of type representation
+        assert any(strategy in result.stdout for strategy in ["SMA", "EMA", "MACD"])
+
+
 class TestYearsParameter:
     """Test cases specifically for the years parameter functionality."""
 
@@ -800,12 +1035,13 @@ class TestYearsParameter:
 
         # Run command with years parameter
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--years", "5", "--strategy", "SMA"]
+            strategy_app,
+            ["run", "--ticker", "AAPL", "--years", "5", "--strategy", "SMA"],
         )
 
         # Verify results
         assert result.exit_code == 0
-        
+
         # Verify overrides were applied correctly
         call_args = mock_config_loader.return_value.load_from_profile.call_args
         overrides = call_args[0][2]  # Third argument is overrides
@@ -839,7 +1075,7 @@ class TestYearsParameter:
 
         # Verify results
         assert result.exit_code == 0
-        
+
         # Verify overrides were applied correctly
         call_args = mock_config_loader.return_value.load_from_profile.call_args
         overrides = call_args[0][2]  # Third argument is overrides
@@ -850,14 +1086,16 @@ class TestYearsParameter:
         """Test that years parameter validates positive integers."""
         # Test negative years
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--years", "-1", "--strategy", "SMA"]
+            strategy_app,
+            ["run", "--ticker", "AAPL", "--years", "-1", "--strategy", "SMA"],
         )
         assert result.exit_code != 0
         assert "Years parameter must be a positive integer" in result.stdout
 
         # Test zero years
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--years", "0", "--strategy", "SMA"]
+            strategy_app,
+            ["run", "--ticker", "AAPL", "--years", "0", "--strategy", "SMA"],
         )
         assert result.exit_code != 0
         assert "Years parameter must be a positive integer" in result.stdout
@@ -889,7 +1127,7 @@ class TestYearsParameter:
 
         # Verify results
         assert result.exit_code == 0
-        
+
         # Verify overrides were applied correctly for complete history
         call_args = mock_config_loader.return_value.load_from_profile.call_args
         overrides = call_args[0][2]  # Third argument is overrides
@@ -917,12 +1155,13 @@ class TestYearsParameter:
 
         # Run command with specific years
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--years", "10", "--strategy", "SMA"]
+            strategy_app,
+            ["run", "--ticker", "AAPL", "--years", "10", "--strategy", "SMA"],
         )
 
         # Verify results
         assert result.exit_code == 0
-        
+
         # Verify overrides contain correct configuration
         call_args = mock_config_loader.return_value.load_from_profile.call_args
         overrides = call_args[0][2]  # Third argument is overrides
@@ -951,12 +1190,13 @@ class TestYearsParameter:
 
         # Run command with only years parameter (no use_years flag)
         result = cli_runner.invoke(
-            strategy_app, ["run", "--ticker", "AAPL", "--years", "7", "--strategy", "SMA"]
+            strategy_app,
+            ["run", "--ticker", "AAPL", "--years", "7", "--strategy", "SMA"],
         )
 
         # Verify results
         assert result.exit_code == 0
-        
+
         # Verify that use_years was automatically set to True
         call_args = mock_config_loader.return_value.load_from_profile.call_args
         overrides = call_args[0][2]  # Third argument is overrides

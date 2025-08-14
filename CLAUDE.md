@@ -57,6 +57,9 @@ poetry run trading-cli strategy run --strategy MACD --ticker AAPL,MSFT,GOOGL
 # Custom strategy execution with parameters
 poetry run trading-cli strategy run --ticker BTC-USD --strategy SMA --min-trades 50
 
+# NEW: 4-hour timeframe analysis (converted from 1-hour data)
+poetry run trading-cli strategy run --ticker BTC-USD,ETH-USD --use-4hour
+
 # Parameter sweep analysis
 poetry run trading-cli strategy sweep --ticker AAPL --fast-min 5 --fast-max 50 --slow-min 20 --slow-max 200
 
@@ -307,6 +310,10 @@ trading-cli positions validate-equity --portfolio protected --output-format json
 
 ### Notable Features
 
+- **4-Hour Timeframe Analysis**: Support for 4-hour OHLC analysis by converting 1-hour Yahoo Finance data
+  - **File Naming**: Data saved with `_4H` suffix (e.g., `BTC-USD_4H.csv`)
+  - **CLI Usage**: `--use-4hour` flag enables 4-hour timeframe analysis
+  - **Data Pipeline**: Downloads 1-hour data from Yahoo Finance and converts to 4-hour bars
 - Synthetic ticker support (e.g., STRK_MSTR pair analysis)
 - Allocation management with position sizing
 - Comprehensive risk management through stop-loss calculations
@@ -316,10 +323,11 @@ trading-cli positions validate-equity --portfolio protected --output-format json
   - **IMPORTANT**: Only available through `app/concurrency/review.py` to prevent generating thousands of files from parameter sweep strategies
   - Exports to `./json/trade_history/` with filenames like `BTC-USD_D_SMA_20_50.json`
 - **Standardized CSV Exports**: All strategies export to consistent directory structure
-  - Base portfolios: `/data/outputs/portfolio_analysis/` (e.g., `NFLX_D_MACD.csv`, `AAPL_D_SMA.csv`)
+  - Base portfolios: `/data/outputs/portfolio_analysis/` (e.g., `NFLX_D_MACD.csv`, `AAPL_D_SMA.csv`, `BTC-USD_4H_SMA.csv`)
   - Filtered portfolios: `/data/outputs/portfolio_analysis/filtered/`
   - Best portfolios: `/data/outputs/portfolio_analysis/best/`
-  - Strategy type included in filename for easy identification
+  - Strategy type and timeframe included in filename for easy identification
+  - **Timeframe Suffixes**: `_D` (daily), `_H` (hourly), `_4H` (4-hour)
 
 ## Testing
 

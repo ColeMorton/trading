@@ -14,11 +14,17 @@ config:
   ticker:
     - BTC-USD
 
+  # Strategy types - include all available strategies by default
+  strategy_types:
+    - SMA
+    - EMA
+    - MACD
+
   # MACD Core Parameters (single source of truth)
   short_window_start: 5
-  short_window_end: 34
+  short_window_end: 21
   long_window_start: 8
-  long_window_end: 55
+  long_window_end: 34
   signal_window_start: 5
   signal_window_end: 21
   step: 1

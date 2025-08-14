@@ -148,6 +148,14 @@ def run(portfolio: str) -> bool:
         # Get a normalized copy of the global config
         local_config = normalize_config(config.copy())
 
+        # Detect 4-hour timeframe from portfolio filename
+        if "4H" in portfolio.upper():
+            local_config["USE_4HOUR"] = True
+            log(
+                f"Detected 4H suffix in portfolio name '{portfolio}' - enabling 4-hour timeframe analysis",
+                "info",
+            )
+
         # Use the enhanced portfolio loader with standardized error handling
         daily_df = None
         with error_context(

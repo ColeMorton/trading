@@ -77,6 +77,7 @@ def build_configuration_overrides(
     fast_period: Optional[int] = None,
     slow_period: Optional[int] = None,
     years: Optional[int] = None,
+    market_type: Optional[str] = None,
     dry_run: bool = False,
     **additional_overrides,
 ) -> Dict[str, Any]:
@@ -96,6 +97,7 @@ def build_configuration_overrides(
         fast_period: Fast period for single analysis
         slow_period: Slow period for single analysis
         years: Number of years of historical data to analyze (enables year-based analysis when provided)
+        market_type: Market type for trading hours (crypto, us_stock, auto)
         dry_run: Dry run flag
         **additional_overrides: Additional override parameters
 
@@ -111,10 +113,7 @@ def build_configuration_overrides(
     # Synthetic ticker configuration
     if ticker_2:
         # When ticker_2 is provided, automatically enable synthetic analysis
-        synthetic_config = {
-            "use_synthetic": True,
-            "ticker_2": ticker_2.strip().upper()
-        }
+        synthetic_config = {"use_synthetic": True, "ticker_2": ticker_2.strip().upper()}
         # If ticker is provided, use the first one as ticker_1
         if ticker:
             processed_tickers = process_ticker_input(ticker)
@@ -158,11 +157,18 @@ def build_configuration_overrides(
         # When years is omitted, use complete history (disable year-based analysis)
         overrides["use_years"] = False
 
+    # Market type configuration
+    if market_type:
+        overrides["market_type"] = market_type
+
     # System flags
     overrides["dry_run"] = dry_run
 
-    # Add any additional overrides
-    overrides.update(additional_overrides)
+    # Add any additional overrides, but filter out None values for optional CLI parameters
+    filtered_overrides = {
+        k: v for k, v in additional_overrides.items() if v is not None
+    }
+    overrides.update(filtered_overrides)
 
     return overrides
 
@@ -194,6 +200,7 @@ def convert_to_legacy_config(
         "STRATEGY_TYPES": config.strategy_types,
         "DIRECTION": config.direction,
         "USE_HOURLY": config.use_hourly,
+        "USE_4HOUR": config.use_4hour,
         "USE_YEARS": config.use_years,
         "YEARS": config.years,
         "REFRESH": config.refresh,
@@ -281,6 +288,7 @@ def show_config_preview(
     table.add_row("Strategy Types", ", ".join(config.strategy_types))
     table.add_row("Direction", config.direction)
     table.add_row("Use Hourly", str(config.use_hourly))
+    table.add_row("Use 4-Hour", str(config.use_4hour))
 
     if config.minimums.win_rate:
         table.add_row("Min Win Rate", f"{config.minimums.win_rate:.2%}")

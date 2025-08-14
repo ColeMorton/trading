@@ -6,7 +6,7 @@ parallel implementations with a consolidated, well-structured service.
 
 This service consolidates functionality from:
 - generalized_trade_history_exporter.py
-- trade_history_csv_exporter.py  
+- trade_history_csv_exporter.py
 - trade_history_close_live_signal.py
 """
 
@@ -35,34 +35,34 @@ from ..tools.uuid_utils import generate_position_uuid
 
 class TradingSystemConfig:
     """Configuration for trading system file paths and settings."""
-    
+
     def __init__(self, base_dir: str = None):
         """Initialize configuration with base directory."""
         self.base_dir = Path(base_dir) if base_dir else Path.cwd()
-    
+
     @property
     def prices_dir(self) -> Path:
         """Directory containing price data files."""
         return self.base_dir / "data" / "raw" / "prices"
-    
+
     @property
     def positions_dir(self) -> Path:
         """Directory for position-level CSV files."""
         return self.base_dir / "data" / "raw" / "positions"
-    
+
     @property
     def trade_history_dir(self) -> Path:
         """Directory for JSON trade history files."""
         return self.base_dir / "data" / "raw" / "reports" / "trade_history"
-    
+
     def get_prices_file(self, ticker: str, timeframe: str = "D") -> Path:
         """Get price data file path for any ticker and timeframe."""
         return self.prices_dir / f"{ticker}_{timeframe}.csv"
-    
+
     def get_portfolio_file(self, portfolio_name: str) -> Path:
         """Get portfolio positions file path."""
         return self.positions_dir / resolve_portfolio_path(portfolio_name)
-    
+
     def ensure_directories(self):
         """Create all required directories if they don't exist."""
         for directory in [self.prices_dir, self.positions_dir, self.trade_history_dir]:
@@ -72,7 +72,7 @@ class TradingSystemConfig:
 class PositionService:
     """
     Unified service for all position-related operations.
-    
+
     Provides single entry point for:
     - Position creation and management
     - Portfolio operations
@@ -80,27 +80,29 @@ class PositionService:
     - Signal validation
     - Trade history analysis
     """
-    
-    def __init__(self, config: TradingSystemConfig = None, logger: logging.Logger = None):
+
+    def __init__(
+        self, config: TradingSystemConfig = None, logger: logging.Logger = None
+    ):
         """Initialize the position service."""
         self.config = config or TradingSystemConfig()
         self.logger = logger or logging.getLogger(__name__)
         self.calculator = get_position_calculator(self.logger)
         self.mfe_mae_calculator = get_mfe_mae_calculator(self.logger)
-        
+
         # Ensure required directories exist
         self.config.ensure_directories()
-    
+
     def validate_ticker(self, ticker: str) -> None:
         """Validate ticker symbol format."""
         if not ticker or not isinstance(ticker, str):
             raise ValidationError("Ticker must be a non-empty string")
-        
+
         # Basic validation - alphanumeric with optional separators
         clean_ticker = ticker.replace("-", "").replace(".", "").replace("_", "")
         if not clean_ticker.isalnum():
             raise ValidationError(f"Invalid ticker format: {ticker}")
-    
+
     def validate_strategy_type(self, strategy_type: str) -> None:
         """Validate strategy type."""
         valid_strategies = ["SMA", "EMA", "MACD", "RSI", "BOLLINGER", "STOCHASTIC"]
@@ -109,7 +111,7 @@ class PositionService:
                 f"Invalid strategy type: {strategy_type}. "
                 f"Valid types: {', '.join(valid_strategies)}"
             )
-    
+
     def validate_date_string(self, date_str: str) -> None:
         """Validate date string format."""
         try:
@@ -128,7 +130,7 @@ class PositionService:
                     datetime.strptime(date_str, "%Y-%m-%d")
         except ValueError:
             raise ValidationError(f"Invalid date format: {date_str}")
-    
+
     def calculate_mfe_mae(
         self,
         ticker: str,
@@ -140,7 +142,7 @@ class PositionService:
     ) -> Tuple[Optional[float], Optional[float], Optional[float]]:
         """
         Calculate Max Favourable Excursion and Max Adverse Excursion.
-        
+
         Args:
             ticker: Stock/asset ticker symbol
             entry_date: Position entry date
@@ -148,29 +150,31 @@ class PositionService:
             entry_price: Entry price for position
             direction: Position direction ('Long' or 'Short')
             timeframe: Price data timeframe
-            
+
         Returns:
             Tuple of (mfe, mae, mfe_mae_ratio)
         """
         # Validate inputs
         self.validate_ticker(ticker)
         self.validate_date_string(entry_date)
-        
+
         if exit_date and exit_date.strip():
             self.validate_date_string(exit_date)
-        
+
         if entry_price <= 0:
             raise ValidationError(f"Invalid entry price: {entry_price}")
-        
+
         try:
             # Load price data
             price_file = self.config.get_prices_file(ticker, timeframe)
             if not price_file.exists():
-                raise PriceDataError(f"Price data not found for {ticker} at {price_file}")
-            
+                raise PriceDataError(
+                    f"Price data not found for {ticker} at {price_file}"
+                )
+
             # Read price data
             df = pd.read_csv(price_file)
-            
+
             # Clean data: Remove ticker symbol row (row with string values instead of numeric data)
             # Price data files have format: header, ticker_symbols_row, actual_data...
             # Filter out rows where numeric columns contain string values
@@ -178,35 +182,39 @@ class PositionService:
             for col in numeric_cols:
                 if col in df.columns:
                     # Convert to numeric, coercing errors (strings) to NaN
-                    df[col] = pd.to_numeric(df[col], errors='coerce')
-            
+                    df[col] = pd.to_numeric(df[col], errors="coerce")
+
             # Remove rows with NaN values in High/Low (these are the ticker symbol rows)
             df = df.dropna(subset=["High", "Low"])
-            
+
             # Ensure we have valid data after cleaning
             if df.empty:
-                raise PriceDataError(f"No valid numeric price data found for {ticker} after cleaning")
-            
+                raise PriceDataError(
+                    f"No valid numeric price data found for {ticker} after cleaning"
+                )
+
             df["Date"] = pd.to_datetime(df["Date"])
-            
+
             # Convert dates
             entry_dt = pd.to_datetime(entry_date.split(" ")[0])
             exit_dt = pd.Timestamp.now()
-            
+
             if exit_date and exit_date.strip():
                 try:
                     exit_dt = pd.to_datetime(exit_date.split(" ")[0])
                 except (ValueError, AttributeError):
-                    self.logger.warning(f"Cannot parse exit date: {exit_date}, using current date")
-            
+                    self.logger.warning(
+                        f"Cannot parse exit date: {exit_date}, using current date"
+                    )
+
             # Filter to position period
             position_df = df[(df["Date"] >= entry_dt) & (df["Date"] <= exit_dt)].copy()
-            
+
             if position_df.empty:
                 raise PriceDataError(
                     f"No price data found for {ticker} between {entry_date} and {exit_date or 'now'}"
                 )
-            
+
             # Calculate MFE/MAE using centralized calculator
             mfe, mae = self.mfe_mae_calculator.calculate_from_ohlc(
                 entry_price=entry_price,
@@ -215,17 +223,17 @@ class PositionService:
                 high_col="High",
                 low_col="Low",
             )
-            
+
             # Calculate ratio
             mfe_mae_ratio = mfe / mae if mae != 0 else None
-            
+
             return mfe, mae, mfe_mae_ratio
-            
+
         except Exception as e:
             if isinstance(e, (ValidationError, PriceDataError)):
                 raise
             raise CalculationError(f"Error calculating MFE/MAE for {ticker}: {e}")
-    
+
     def verify_entry_signal(
         self,
         ticker: str,
@@ -238,16 +246,16 @@ class PositionService:
     ) -> Dict[str, Any]:
         """
         Verify that entry signal actually occurred on specified date.
-        
+
         Args:
             ticker: Stock/asset ticker symbol
             strategy_type: Strategy type ('SMA', 'EMA', etc.)
             short_window: Short period window
-            long_window: Long period window  
+            long_window: Long period window
             entry_date: Entry date to verify
             direction: Position direction
             timeframe: Price data timeframe
-            
+
         Returns:
             Dict with verification results and signal details
         """
@@ -255,63 +263,75 @@ class PositionService:
         self.validate_ticker(ticker)
         self.validate_strategy_type(strategy_type)
         self.validate_date_string(entry_date)
-        
+
         try:
             # Load price data
             price_file = self.config.get_prices_file(ticker, timeframe)
             if not price_file.exists():
                 raise PriceDataError(f"Price data not found for {ticker}")
-            
+
             df = pd.read_csv(price_file)
             df["Date"] = pd.to_datetime(df["Date"])
             df.set_index("Date", inplace=True)
-            
+
             # Calculate moving averages
             if strategy_type.upper() == "SMA":
-                df[f"MA_{short_window}"] = df["Close"].rolling(window=short_window).mean()
+                df[f"MA_{short_window}"] = (
+                    df["Close"].rolling(window=short_window).mean()
+                )
                 df[f"MA_{long_window}"] = df["Close"].rolling(window=long_window).mean()
             elif strategy_type.upper() == "EMA":
                 df[f"MA_{short_window}"] = df["Close"].ewm(span=short_window).mean()
                 df[f"MA_{long_window}"] = df["Close"].ewm(span=long_window).mean()
             else:
-                raise ValidationError(f"Signal verification not implemented for {strategy_type}")
-            
+                raise ValidationError(
+                    f"Signal verification not implemented for {strategy_type}"
+                )
+
             # Find entry date in data
             entry_dt = pd.to_datetime(entry_date.split(" ")[0])
-            
+
             if entry_dt not in df.index:
-                raise DataNotFoundError(f"Entry date {entry_date} not found in price data")
-            
+                raise DataNotFoundError(
+                    f"Entry date {entry_date} not found in price data"
+                )
+
             # Check for crossover signal
             entry_row = df.loc[entry_dt]
-            
+
             # Get previous day for crossover detection
             prev_dates = df.index[df.index < entry_dt]
             if len(prev_dates) == 0:
-                raise DataNotFoundError("No previous data available for crossover detection")
-            
+                raise DataNotFoundError(
+                    "No previous data available for crossover detection"
+                )
+
             prev_dt = prev_dates[-1]
             prev_row = df.loc[prev_dt]
-            
+
             current_short = entry_row[f"MA_{short_window}"]
             current_long = entry_row[f"MA_{long_window}"]
             prev_short = prev_row[f"MA_{short_window}"]
             prev_long = prev_row[f"MA_{long_window}"]
-            
+
             # Check crossover conditions
-            bullish_crossover = (current_short > current_long) and (prev_short <= prev_long)
-            bearish_crossover = (current_short < current_long) and (prev_short >= prev_long)
-            
+            bullish_crossover = (current_short > current_long) and (
+                prev_short <= prev_long
+            )
+            bearish_crossover = (current_short < current_long) and (
+                prev_short >= prev_long
+            )
+
             signal_verified = False
             signal_type = None
-            
+
             if direction.upper() == "LONG" and bullish_crossover:
                 signal_verified = True
                 signal_type = "Bullish Crossover"
             elif direction.upper() == "SHORT" and bearish_crossover:
                 signal_verified = True
                 signal_type = "Bearish Crossover"
-            
+
             return {
                 "verified": signal_verified,
                 "signal_type": signal_type,
@@ -323,12 +343,12 @@ class PositionService:
                 "spread": current_short - current_long,
                 "prev_spread": prev_short - prev_long,
             }
-            
+
         except Exception as e:
             if isinstance(e, (ValidationError, DataNotFoundError, PriceDataError)):
                 raise
             raise SignalValidationError(f"Error verifying signal for {ticker}: {e}")
-    
+
     def create_position_record(
         self,
         ticker: str,
@@ -345,7 +365,7 @@ class PositionService:
     ) -> Dict[str, Any]:
         """
         Create a complete position record with all calculated fields.
-        
+
         Args:
             ticker: Stock/asset ticker symbol
             strategy_type: Strategy type
@@ -358,7 +378,7 @@ class PositionService:
             exit_price: Exit price (None for open positions)
             position_size: Position size
             direction: Position direction
-            
+
         Returns:
             Dict containing complete position record
         """
@@ -371,7 +391,7 @@ class PositionService:
             signal_window=signal_window,
             entry_date=entry_date,
         )
-        
+
         # Basic position data
         position_data = {
             "Position_UUID": position_uuid,
@@ -389,7 +409,7 @@ class PositionService:
             "Trade_Type": "Signal",
             "Status": "Closed" if exit_date and exit_price else "Open",
         }
-        
+
         # Calculate basic metrics if we have exit data
         if exit_price is not None and entry_price is not None:
             pnl, return_pct = self.calculator.calculate_pnl_and_return(
@@ -400,36 +420,36 @@ class PositionService:
         else:
             position_data["PnL"] = 0.0
             position_data["Return"] = 0.0
-        
+
         # Calculate days since entry
         if entry_date:
             days_since = self.calculator.calculate_days_since_entry(entry_date)
             position_data["Days_Since_Entry"] = days_since
-        
+
         # Calculate MFE/MAE if we have price data
         try:
             mfe, mae, mfe_mae_ratio = self.calculate_mfe_mae(
                 ticker, entry_date, exit_date or "", entry_price, direction
             )
-            
+
             if mfe is not None and mae is not None:
                 position_data["Max_Favourable_Excursion"] = mfe
                 position_data["Max_Adverse_Excursion"] = mae
                 position_data["MFE_MAE_Ratio"] = mfe_mae_ratio
-                
+
                 # Calculate exit efficiency if closed position
                 if exit_price is not None:
                     exit_efficiency = self.calculator.calculate_exit_efficiency(
                         position_data["Return"], mfe
                     )
                     position_data["Exit_Efficiency_Fixed"] = exit_efficiency
-                
+
                 # Assess trade quality
                 trade_quality = self.calculator.assess_trade_quality(
                     mfe, mae, position_data.get("Return")
                 )
                 position_data["Trade_Quality"] = trade_quality
-        
+
         except (PriceDataError, CalculationError) as e:
             self.logger.warning(f"Could not calculate MFE/MAE for {position_uuid}: {e}")
             position_data["Max_Favourable_Excursion"] = None
@@ -437,9 +457,9 @@ class PositionService:
             position_data["MFE_MAE_Ratio"] = None
             position_data["Exit_Efficiency_Fixed"] = None
             position_data["Trade_Quality"] = "Unknown"
-        
+
         return position_data
-    
+
     def add_position_to_portfolio(
         self,
         ticker: str,
@@ -458,7 +478,7 @@ class PositionService:
     ) -> str:
         """
         Add a position to an existing portfolio CSV file.
-        
+
         Args:
             ticker: Stock/asset ticker symbol
             strategy_type: Strategy type
@@ -473,25 +493,30 @@ class PositionService:
             direction: Position direction
             portfolio_name: Portfolio name
             verify_signal: Whether to verify entry signal
-            
+
         Returns:
             Position UUID of added position
         """
         # Validate inputs
         self.validate_ticker(ticker)
         self.validate_strategy_type(strategy_type)
-        
+
         if entry_date:
             self.validate_date_string(entry_date)
-        
+
         if exit_date:
             self.validate_date_string(exit_date)
-        
+
         # Verify signal if requested
         if verify_signal and entry_date:
             try:
                 verification = self.verify_entry_signal(
-                    ticker, strategy_type, short_window, long_window, entry_date, direction
+                    ticker,
+                    strategy_type,
+                    short_window,
+                    long_window,
+                    entry_date,
+                    direction,
                 )
                 if not verification["verified"]:
                     raise SignalValidationError(
@@ -500,7 +525,7 @@ class PositionService:
                 self.logger.info(f"✓ Signal verified: {verification['signal_type']}")
             except (DataNotFoundError, PriceDataError) as e:
                 self.logger.warning(f"Could not verify signal: {e}")
-        
+
         # Create position record
         position_data = self.create_position_record(
             ticker=ticker,
@@ -515,31 +540,38 @@ class PositionService:
             position_size=position_size,
             direction=direction,
         )
-        
+
         # Load or create portfolio file
         portfolio_file = self.config.get_portfolio_file(portfolio_name)
-        
+
         if portfolio_file.exists():
             df = pd.read_csv(portfolio_file)
         else:
             # Create new portfolio with proper columns
             df = pd.DataFrame(columns=list(position_data.keys()))
-        
+
         # Check for duplicate position
         position_uuid = position_data["Position_UUID"]
-        if "Position_UUID" in df.columns and position_uuid in df["Position_UUID"].values:
-            raise PortfolioError(f"Position {position_uuid} already exists in portfolio {portfolio_name}")
-        
+        if (
+            "Position_UUID" in df.columns
+            and position_uuid in df["Position_UUID"].values
+        ):
+            raise PortfolioError(
+                f"Position {position_uuid} already exists in portfolio {portfolio_name}"
+            )
+
         # Add position to dataframe
         new_row = pd.DataFrame([position_data])
         df = pd.concat([df, new_row], ignore_index=True)
-        
+
         # Save updated portfolio
         df.to_csv(portfolio_file, index=False)
-        
-        self.logger.info(f"✅ Added position {position_uuid} to portfolio {portfolio_name}")
+
+        self.logger.info(
+            f"✅ Added position {position_uuid} to portfolio {portfolio_name}"
+        )
         return position_uuid
-    
+
     def close_position(
         self,
         position_uuid: str,
@@ -549,51 +581,53 @@ class PositionService:
     ) -> Dict[str, Any]:
         """
         Close an open position in a portfolio.
-        
+
         Args:
             position_uuid: Position UUID to close
-            portfolio_name: Portfolio containing the position  
+            portfolio_name: Portfolio containing the position
             exit_price: Exit price
             exit_date: Exit date (defaults to current timestamp)
-            
+
         Returns:
             Dict with closing results and updated position data
         """
         if exit_date is None:
             exit_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
+
         # Load portfolio
         portfolio_file = self.config.get_portfolio_file(portfolio_name)
         if not portfolio_file.exists():
             raise PortfolioError(f"Portfolio file not found: {portfolio_file}")
-        
+
         df = pd.read_csv(portfolio_file)
-        
+
         # Find position
         position_mask = df["Position_UUID"] == position_uuid
         if not position_mask.any():
-            raise DataNotFoundError(f"Position {position_uuid} not found in portfolio {portfolio_name}")
-        
+            raise DataNotFoundError(
+                f"Position {position_uuid} not found in portfolio {portfolio_name}"
+            )
+
         position_idx = df.index[position_mask][0]
         position = df.loc[position_idx]
-        
+
         # Update position with exit data
         df.loc[position_idx, "Exit_Timestamp"] = exit_date
         df.loc[position_idx, "Avg_Exit_Price"] = exit_price
         df.loc[position_idx, "Status"] = "Closed"
-        
+
         # Recalculate metrics using PositionCalculator
         entry_price = position["Avg_Entry_Price"]
         position_size = position["Position_Size"]
         direction = position["Direction"]
-        
+
         pnl, return_pct = self.calculator.calculate_pnl_and_return(
             entry_price, exit_price, position_size, direction
         )
-        
+
         df.loc[position_idx, "PnL"] = pnl
         df.loc[position_idx, "Return"] = return_pct
-        
+
         # Recalculate MFE/MAE with final exit date
         try:
             mfe, mae, mfe_mae_ratio = self.calculate_mfe_mae(
@@ -603,31 +637,37 @@ class PositionService:
                 entry_price,
                 direction,
             )
-            
+
             if mfe is not None and mae is not None:
                 df.loc[position_idx, "Max_Favourable_Excursion"] = mfe
                 df.loc[position_idx, "Max_Adverse_Excursion"] = mae
                 df.loc[position_idx, "MFE_MAE_Ratio"] = mfe_mae_ratio
-                
+
                 # Calculate exit efficiency
-                exit_efficiency = self.calculator.calculate_exit_efficiency(return_pct, mfe)
+                exit_efficiency = self.calculator.calculate_exit_efficiency(
+                    return_pct, mfe
+                )
                 df.loc[position_idx, "Exit_Efficiency_Fixed"] = exit_efficiency
-                
+
                 # Assess trade quality
-                trade_quality = self.calculator.assess_trade_quality(mfe, mae, return_pct)
+                trade_quality = self.calculator.assess_trade_quality(
+                    mfe, mae, return_pct
+                )
                 df.loc[position_idx, "Trade_Quality"] = trade_quality
-        
+
         except (PriceDataError, CalculationError) as e:
-            self.logger.warning(f"Could not recalculate MFE/MAE for closed position: {e}")
-        
+            self.logger.warning(
+                f"Could not recalculate MFE/MAE for closed position: {e}"
+            )
+
         # Save updated portfolio
         df.to_csv(portfolio_file, index=False)
-        
+
         # Return closing results
         updated_position = df.loc[position_idx].to_dict()
-        
+
         self.logger.info(f"✅ Closed position {position_uuid} at ${exit_price:.2f}")
-        
+
         return {
             "success": True,
             "position_uuid": position_uuid,
@@ -638,49 +678,51 @@ class PositionService:
             "return": return_pct,
             "position_data": updated_position,
         }
-    
+
     def list_positions(
         self, portfolio_name: str, status_filter: str = None
     ) -> List[Dict[str, Any]]:
         """
         List all positions in a portfolio.
-        
+
         Args:
             portfolio_name: Portfolio name
             status_filter: Filter by status ('Open', 'Closed', or None for all)
-            
+
         Returns:
             List of position dictionaries
         """
         portfolio_file = self.config.get_portfolio_file(portfolio_name)
         if not portfolio_file.exists():
             raise PortfolioError(f"Portfolio file not found: {portfolio_file}")
-        
+
         df = pd.read_csv(portfolio_file)
-        
+
         if status_filter:
             df = df[df["Status"] == status_filter]
-        
+
         return df.to_dict("records")
-    
+
     def get_position(self, position_uuid: str, portfolio_name: str) -> Dict[str, Any]:
         """
         Get a specific position by UUID.
-        
+
         Args:
             position_uuid: Position UUID
             portfolio_name: Portfolio name
-            
+
         Returns:
             Position data dictionary
         """
         positions = self.list_positions(portfolio_name)
-        
+
         for position in positions:
             if position.get("Position_UUID") == position_uuid:
                 return position
-        
-        raise DataNotFoundError(f"Position {position_uuid} not found in portfolio {portfolio_name}")
+
+        raise DataNotFoundError(
+            f"Position {position_uuid} not found in portfolio {portfolio_name}"
+        )
 
 
 # Global service instance for backward compatibility

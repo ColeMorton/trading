@@ -119,6 +119,7 @@ def update(
             },
             "BASE_DIR": str(config.base_dir),
             "USE_HOURLY": config.use_hourly,
+            "USE_4HOUR": config.use_4hour,
         }
 
         # Normalize the configuration

@@ -21,6 +21,14 @@ class StrategyType(str, Enum):
     MACD = "MACD"
 
 
+class MarketType(str, Enum):
+    """Market types for data processing optimization."""
+
+    CRYPTO = "crypto"  # 24/7 cryptocurrency markets
+    US_STOCK = "us_stock"  # NYSE/NASDAQ traditional stock markets
+    AUTO = "auto"  # Automatic detection based on ticker
+
+
 class SyntheticTickerConfig(BaseModel):
     """Configuration for synthetic ticker processing."""
 
@@ -68,7 +76,7 @@ class StrategyConfig(BaseConfig):
 
     # Strategy types
     strategy_types: List[StrategyType] = Field(
-        default=[StrategyType.SMA, StrategyType.EMA],
+        default=[StrategyType.SMA, StrategyType.EMA, StrategyType.MACD],
         description="List of strategy types to execute",
     )
 
@@ -78,7 +86,9 @@ class StrategyConfig(BaseConfig):
         description="Automatically set to True when years parameter is provided, False for complete history",
     )
     years: Optional[int] = Field(
-        default=None, gt=0, description="Number of years of historical data (None for complete history)"
+        default=None,
+        gt=0,
+        description="Number of years of historical data (None for complete history)",
     )
 
     # Strategy-specific parameters
@@ -157,8 +167,16 @@ class StrategyConfig(BaseConfig):
     use_hourly: Optional[bool] = Field(
         default=None, description="Use hourly data instead of daily"
     )
+    use_4hour: Optional[bool] = Field(
+        default=None,
+        description="Use 4-hour data instead of daily (converted from 1-hour data)",
+    )
     refresh: Optional[bool] = Field(
         default=None, description="Force refresh of market data"
+    )
+    market_type: MarketType = Field(
+        default=MarketType.AUTO,
+        description="Market type for trading hours and data processing",
     )
 
     @validator("ticker", pre=True)
@@ -198,6 +216,28 @@ class StrategyConfig(BaseConfig):
         ):
             if v <= values["fast_period"]:
                 raise ValueError("Slow period must be greater than fast period")
+        return v
+
+    @validator("use_4hour")
+    def validate_timeframe_exclusivity(cls, v, values):
+        """Ensure only one timeframe option is used at a time."""
+        if v is True and values.get("use_hourly") is True:
+            raise ValueError(
+                "Cannot use both use_hourly and use_4hour options simultaneously. Choose one timeframe."
+            )
+        return v
+
+    @validator("market_type", pre=True)
+    def validate_market_type(cls, v):
+        """Validate and normalize market type input."""
+        if isinstance(v, str):
+            v = v.lower()
+            if v in ["crypto", "cryptocurrency"]:
+                return MarketType.CRYPTO
+            elif v in ["stock", "us_stock", "equity"]:
+                return MarketType.US_STOCK
+            elif v in ["auto", "automatic", "detect"]:
+                return MarketType.AUTO
         return v
 
 

@@ -612,6 +612,86 @@ config:
         assert config.strategy_types == [StrategyType.SMA]  # From final
 
 
+class TestStrategyConfigModelDefaults:
+    """Test StrategyConfig model default values and behavior."""
+
+    def test_strategy_config_default_strategy_types(self):
+        """Test that StrategyConfig defaults to all strategy types when none specified."""
+        # Create minimal config without specifying strategy_types
+        minimal_config = {
+            "ticker": ["AAPL"],
+            "minimums": {},
+            "synthetic": {},
+            "filter": {},
+        }
+
+        config = StrategyConfig(**minimal_config)
+
+        # Should default to all three strategy types
+        assert config.strategy_types == [
+            StrategyType.SMA,
+            StrategyType.EMA,
+            StrategyType.MACD,
+        ]
+
+    def test_strategy_config_explicit_strategy_types_override(self):
+        """Test that explicit strategy_types override the defaults."""
+        # Test with single strategy type
+        single_config = {
+            "ticker": ["AAPL"],
+            "strategy_types": [StrategyType.SMA],
+            "minimums": {},
+            "synthetic": {},
+            "filter": {},
+        }
+
+        config = StrategyConfig(**single_config)
+        assert config.strategy_types == [StrategyType.SMA]
+
+        # Test with multiple strategy types
+        multi_config = {
+            "ticker": ["AAPL"],
+            "strategy_types": [StrategyType.EMA, StrategyType.MACD],
+            "minimums": {},
+            "synthetic": {},
+            "filter": {},
+        }
+
+        config = StrategyConfig(**multi_config)
+        assert config.strategy_types == [StrategyType.EMA, StrategyType.MACD]
+
+    def test_strategy_config_default_includes_all_supported_types(self):
+        """Test that the default strategy_types includes all currently supported strategy types."""
+        config = StrategyConfig(
+            ticker=["TEST"],
+            minimums={},
+            synthetic={},
+            filter={},
+        )
+
+        # Verify all supported strategy types are included
+        expected_strategies = {StrategyType.SMA, StrategyType.EMA, StrategyType.MACD}
+        actual_strategies = set(config.strategy_types)
+
+        assert (
+            actual_strategies == expected_strategies
+        ), f"Default strategy types {actual_strategies} don't match expected {expected_strategies}"
+
+    def test_strategy_config_empty_strategy_types_validation(self):
+        """Test validation behavior with empty strategy types list."""
+        config_data = {
+            "ticker": ["AAPL"],
+            "strategy_types": [],  # Empty list
+            "minimums": {},
+            "synthetic": {},
+            "filter": {},
+        }
+
+        # Should be valid (empty list is allowed, though unusual)
+        config = StrategyConfig(**config_data)
+        assert config.strategy_types == []
+
+
 class TestConfigurationEdgeCases:
     """Test edge cases and error scenarios for configuration loading."""
 
