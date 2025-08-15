@@ -178,6 +178,10 @@ class StrategyConfig(BaseConfig):
         default=MarketType.AUTO,
         description="Market type for trading hours and data processing",
     )
+    skip_analysis: bool = Field(
+        default=False,
+        description="Skip data download and analysis, assume portfolio files exist in data/raw/portfolios/",
+    )
 
     @validator("ticker", pre=True)
     def validate_ticker(cls, v):

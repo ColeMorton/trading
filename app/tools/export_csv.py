@@ -40,7 +40,6 @@ class ExportConfig(TypedDict):
         USE_HOURLY (NotRequired[bool]): Whether hourly data is used
         USE_4HOUR (NotRequired[bool]): Whether 4-hour data is used
         STRATEGY_TYPE (NotRequired[str]): Strategy type (e.g., "SMA", "EMA")
-        USE_SMA (NotRequired[bool]): Whether SMA is used instead of EMA (deprecated)
         USE_MA (NotRequired[bool]): Whether to include MA suffix in filename
         USE_GBM (NotRequired[bool]): Whether GBM simulation is used
         SHOW_LAST (NotRequired[bool]): Whether to include date in filename
@@ -53,7 +52,6 @@ class ExportConfig(TypedDict):
     USE_HOURLY: NotRequired[bool]
     USE_4HOUR: NotRequired[bool]
     STRATEGY_TYPE: NotRequired[str]
-    USE_SMA: NotRequired[bool]
     USE_MA: NotRequired[bool]
     USE_GBM: NotRequired[bool]
     SHOW_LAST: NotRequired[bool]
@@ -116,7 +114,7 @@ def _get_filename_components(
 
         # Add MA suffix if USE_MA is True
         if config.get("USE_MA", False):
-            # Use STRATEGY_TYPE if available, otherwise fall back to USE_SMA
+            # Use STRATEGY_TYPE - required for proper strategy identification
             if "STRATEGY_TYPE" in config:
                 strategy_type = config["STRATEGY_TYPE"]
                 # Clean up strategy type if it has enum prefix
@@ -126,7 +124,10 @@ def _get_filename_components(
                     strategy_type = strategy_type.replace("StrategyTypeEnum.", "")
                 components.append(f"_{strategy_type}")
             else:
-                components.append("_SMA" if config.get("USE_SMA", False) else "_EMA")
+                # No fallback - STRATEGY_TYPE is required for proper file naming
+                raise ValueError(
+                    "STRATEGY_TYPE must be specified in config for proper file naming"
+                )
 
         return components
 
@@ -156,7 +157,7 @@ def _get_filename_components(
 
     # Add MA suffix if USE_MA is True
     if config.get("USE_MA", False):
-        # Use STRATEGY_TYPE if available, otherwise fall back to USE_SMA
+        # Use STRATEGY_TYPE - required for proper strategy identification
         if "STRATEGY_TYPE" in config:
             strategy_type = config["STRATEGY_TYPE"]
             # Clean up strategy type if it has enum prefix
@@ -166,7 +167,10 @@ def _get_filename_components(
                 strategy_type = strategy_type.replace("StrategyTypeEnum.", "")
             components.append(f"_{strategy_type}")
         else:
-            components.append("_SMA" if config.get("USE_SMA", False) else "_EMA")
+            # No fallback - STRATEGY_TYPE is required for proper file naming
+            raise ValueError(
+                "STRATEGY_TYPE must be specified in config for proper file naming"
+            )
 
     components.extend(
         [
@@ -589,33 +593,90 @@ def _ensure_canonical_column_order(
             target_schema if target_schema is not None else SchemaType.EXTENDED
         )
 
-        # Convert DataFrame to list of dictionaries for SchemaTransformer processing
-        portfolios = df.to_dict("records")
-        normalized_portfolios = []
-
-        for portfolio in portfolios:
-            try:
-                # Preserve existing metric type if present
-                existing_metric_type = portfolio.get(
-                    "Metric Type", "Most Total Return [%]"
+        # Special handling for empty DataFrames to preserve column structure
+        if len(df) == 0:
+            if log:
+                log(
+                    f"Handling empty DataFrame: preserving {schema_type.name} schema column structure",
+                    "info",
                 )
 
-                # Normalize each portfolio to target schema with canonical ordering
-                normalized_portfolio = transformer.normalize_to_schema(
-                    portfolio, schema_type, metric_type=existing_metric_type
+            # Get the proper column names for the target schema
+            if schema_type == SchemaType.BASE:
+                from app.tools.portfolio.base_extended_schemas import (
+                    BasePortfolioSchema,
                 )
-                normalized_portfolios.append(normalized_portfolio)
-            except Exception as e:
-                if log:
-                    log(
-                        f"Schema normalization failed for portfolio: {str(e)}",
-                        "warning",
+
+                target_columns = BasePortfolioSchema.get_column_names()
+            elif schema_type == SchemaType.EXTENDED:
+                from app.tools.portfolio.base_extended_schemas import (
+                    ExtendedPortfolioSchema,
+                )
+
+                target_columns = ExtendedPortfolioSchema.get_column_names()
+            elif schema_type == SchemaType.ATR_EXTENDED:
+                from app.tools.portfolio.base_extended_schemas import (
+                    ATRExtendedPortfolioSchema,
+                )
+
+                target_columns = ATRExtendedPortfolioSchema.get_column_names()
+            elif schema_type == SchemaType.FILTERED:
+                from app.tools.portfolio.base_extended_schemas import (
+                    FilteredPortfolioSchema,
+                )
+
+                target_columns = FilteredPortfolioSchema.get_column_names()
+            elif schema_type == SchemaType.ATR_FILTERED:
+                from app.tools.portfolio.base_extended_schemas import (
+                    ATRFilteredPortfolioSchema,
+                )
+
+                target_columns = ATRFilteredPortfolioSchema.get_column_names()
+            else:
+                # Default to Extended schema for unknown types
+                from app.tools.portfolio.base_extended_schemas import (
+                    ExtendedPortfolioSchema,
+                )
+
+                target_columns = ExtendedPortfolioSchema.get_column_names()
+
+            # Create empty DataFrame with proper schema columns
+            canonical_df = pd.DataFrame({col: [] for col in target_columns})
+
+            if log:
+                log(
+                    f"Created empty DataFrame with {len(target_columns)} {schema_type.name} schema columns",
+                    "info",
+                )
+        else:
+            # Normal processing for non-empty DataFrames
+            # Convert DataFrame to list of dictionaries for SchemaTransformer processing
+            portfolios = df.to_dict("records")
+            normalized_portfolios = []
+
+            for portfolio in portfolios:
+                try:
+                    # Preserve existing metric type if present
+                    existing_metric_type = portfolio.get(
+                        "Metric Type", "Most Total Return [%]"
                     )
-                # Fall back to original portfolio if normalization fails
-                normalized_portfolios.append(portfolio)
 
-        # Create new DataFrame from normalized portfolios
-        canonical_df = pd.DataFrame(normalized_portfolios)
+                    # Normalize each portfolio to target schema with canonical ordering
+                    normalized_portfolio = transformer.normalize_to_schema(
+                        portfolio, schema_type, metric_type=existing_metric_type
+                    )
+                    normalized_portfolios.append(normalized_portfolio)
+                except Exception as e:
+                    if log:
+                        log(
+                            f"Schema normalization failed for portfolio: {str(e)}",
+                            "warning",
+                        )
+                    # Fall back to original portfolio if normalization fails
+                    normalized_portfolios.append(portfolio)
+
+            # Create new DataFrame from normalized portfolios
+            canonical_df = pd.DataFrame(normalized_portfolios)
 
         if log:
             original_cols = len(df.columns)

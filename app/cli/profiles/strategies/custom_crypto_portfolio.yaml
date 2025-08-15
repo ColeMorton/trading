@@ -16,22 +16,20 @@ config:
   # Specific crypto tickers for portfolio
   ticker:
     # - SUI20947-USD
-    # - ETH-USD
+    - ETH-USD
     # - SOL-USD
     # - ETHFI-USD
     # - UNI7083-USD
-    - AAVE-USD
+    # - AAVE-USD
+    # - HYPE32196-USD
 
   # Strategy types to analyze
   strategy_types:
     - SMA
-    # - EMA
-    # - MACD
+    - EMA
+    - MACD
 
   # use_4hour: true
-
-  # Optimized for crypto volatility
-  windows: 89
 
   # Performance filters (maps to CLI --min-* options)
   minimums:

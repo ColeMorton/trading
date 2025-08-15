@@ -140,6 +140,9 @@ class MAStrategyService(BaseStrategyService):
         legacy_config["SORT_BY"] = getattr(config, "sort_by", "Score")
         legacy_config["SORT_ASC"] = getattr(config, "sort_ascending", False)
 
+        # Add skip_analysis flag
+        legacy_config["SKIP_ANALYSIS"] = getattr(config, "skip_analysis", False)
+
         return legacy_config
 
     def get_supported_strategy_types(self) -> List[str]:
@@ -225,6 +228,8 @@ class MACDStrategyService(BaseStrategyService):
                 # Add sorting parameters from YAML config
                 "SORT_BY": getattr(config, "sort_by", "Score"),
                 "SORT_ASC": getattr(config, "sort_ascending", False),
+                # Add skip_analysis flag
+                "SKIP_ANALYSIS": getattr(config, "skip_analysis", False),
             }
         except AttributeError as e:
             rprint(f"[red]Error accessing MACD parameters: {e}[/red]")

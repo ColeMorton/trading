@@ -221,7 +221,10 @@ def create_migration_wrapper(
 # Convenience functions for common migration scenarios
 def migrate_ma_cross_execution(config: Dict[str, Any], log: Callable[[str, str], None]):
     """Migrate MA Cross strategy execution to unified framework."""
-    strategy_type = "SMA" if config.get("USE_SMA", True) else "EMA"
+    # Strategy type must be explicitly specified - no defaults or USE_SMA fallbacks
+    strategy_type = config.get(
+        "STRATEGY_TYPE", "SMA"
+    )  # Default to SMA for backward compatibility
     return migrate_strategy_execution(
         strategy_type, config, log, "app.strategies.ma_cross.tools.strategy_execution"
     )

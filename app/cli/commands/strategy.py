@@ -88,6 +88,11 @@ def run(
     verbose: bool = typer.Option(
         False, "--verbose", "-v", help="Enable verbose output"
     ),
+    skip_analysis: Optional[bool] = typer.Option(
+        None,
+        "--skip-analysis",
+        help="Skip data download and analysis, assume portfolio files exist in data/raw/portfolios/",
+    ),
 ):
     """
     Execute strategy analysis with specified parameters.
@@ -101,6 +106,7 @@ def run(
         trading-cli strategy run --ticker AAPL --ticker MSFT --strategy SMA
         trading-cli strategy run --ticker BTC-USD --min-trades 20
         trading-cli strategy run --ticker BTC-USD,ETH-USD --use-4hour
+        trading-cli strategy run --profile ma_cross_crypto --skip-analysis
     """
     try:
         # Load configuration
@@ -117,6 +123,7 @@ def run(
             market_type=market_type,
             dry_run=dry_run,
             use_4hour=use_4hour,
+            skip_analysis=skip_analysis,
         )
 
         # Load configuration

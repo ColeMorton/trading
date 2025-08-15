@@ -45,7 +45,6 @@ class HeatmapConfig(TypedDict, total=False):
     Optional Fields:
         USE_CURRENT (NotRequired[bool]): Whether to emphasize current window combinations
         USE_BEST_PORTFOLIO (NotRequired[bool]): Whether to use best portfolios directory
-        USE_SMA (NotRequired[bool]): Whether to use Simple Moving Average instead of EMA
         TICKER_1 (NotRequired[str]): First ticker for synthetic pairs
         TICKER_2 (NotRequired[str]): Second ticker for synthetic pairs
         USE_HOURLY (NotRequired[bool]): Whether to use hourly data
@@ -59,7 +58,6 @@ class HeatmapConfig(TypedDict, total=False):
     BASE_DIR: str
     USE_CURRENT: NotRequired[bool]
     USE_BEST_PORTFOLIO: NotRequired[bool]
-    USE_SMA: NotRequired[bool]
     TICKER_1: NotRequired[str]
     TICKER_2: NotRequired[str]
     USE_HOURLY: NotRequired[bool]
@@ -77,7 +75,6 @@ class StrategyConfig(TypedDict, total=False):
     Optional Fields:
         WINDOWS (NotRequired[int]): Maximum window size to test
         DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
-        USE_SMA (NotRequired[bool]): Whether to use SMA instead of EMA
         USE_HOURLY (NotRequired[bool]): Whether to use hourly data
         USE_YEARS (NotRequired[bool]): Whether to limit data by years
         YEARS (NotRequired[float]): Number of years of data to use
@@ -104,7 +101,6 @@ class StrategyConfig(TypedDict, total=False):
     TICKER: Union[str, List[str]]
     WINDOWS: NotRequired[int]
     DIRECTION: NotRequired[str]
-    USE_SMA: NotRequired[bool]
     USE_HOURLY: NotRequired[bool]
     USE_YEARS: NotRequired[bool]
     YEARS: NotRequired[float]

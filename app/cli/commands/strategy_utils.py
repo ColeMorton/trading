@@ -79,6 +79,7 @@ def build_configuration_overrides(
     years: Optional[int] = None,
     market_type: Optional[str] = None,
     dry_run: bool = False,
+    skip_analysis: bool = False,
     **additional_overrides,
 ) -> Dict[str, Any]:
     """
@@ -99,6 +100,7 @@ def build_configuration_overrides(
         years: Number of years of historical data to analyze (enables year-based analysis when provided)
         market_type: Market type for trading hours (crypto, us_stock, auto)
         dry_run: Dry run flag
+        skip_analysis: Skip data download and analysis, assume portfolio files exist
         **additional_overrides: Additional override parameters
 
     Returns:
@@ -163,6 +165,8 @@ def build_configuration_overrides(
 
     # System flags
     overrides["dry_run"] = dry_run
+    if skip_analysis is not None:
+        overrides["skip_analysis"] = skip_analysis
 
     # Add any additional overrides, but filter out None values for optional CLI parameters
     filtered_overrides = {
@@ -289,6 +293,7 @@ def show_config_preview(
     table.add_row("Direction", config.direction)
     table.add_row("Use Hourly", str(config.use_hourly))
     table.add_row("Use 4-Hour", str(config.use_4hour))
+    table.add_row("Skip Analysis", str(config.skip_analysis))
 
     if config.minimums.win_rate:
         table.add_row("Min Win Rate", f"{config.minimums.win_rate:.2%}")

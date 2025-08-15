@@ -12,6 +12,9 @@ import polars as pl
 from app.tools.export_csv import ExportConfig, export_csv
 from app.tools.portfolio.base_extended_schemas import (
     CANONICAL_COLUMN_NAMES,
+    ATRExtendedPortfolioSchema,
+    ATRFilteredPortfolioSchema,
+    BasePortfolioSchema,
     ExtendedPortfolioSchema,
     FilteredPortfolioSchema,
     PortfolioSchemaValidationError,
@@ -227,6 +230,31 @@ def _get_target_schema_type(export_type: str) -> SchemaType:
     return ExportTypeRouter.get_target_schema_type(export_type)
 
 
+def _get_schema_column_names(schema_type: SchemaType) -> List[str]:
+    """
+    Get column names for the specified schema type.
+
+    Args:
+        schema_type: The schema type to get column names for
+
+    Returns:
+        List of column names for the schema type
+    """
+    if schema_type == SchemaType.BASE:
+        return BasePortfolioSchema.get_column_names()
+    elif schema_type == SchemaType.EXTENDED:
+        return ExtendedPortfolioSchema.get_column_names()
+    elif schema_type == SchemaType.ATR_EXTENDED:
+        return ATRExtendedPortfolioSchema.get_column_names()
+    elif schema_type == SchemaType.FILTERED:
+        return FilteredPortfolioSchema.get_column_names()
+    elif schema_type == SchemaType.ATR_FILTERED:
+        return ATRFilteredPortfolioSchema.get_column_names()
+    else:
+        # Default to Extended schema for unknown types
+        return ExtendedPortfolioSchema.get_column_names()
+
+
 class PortfolioExportError(Exception):
     """Custom exception for portfolio export errors."""
 
@@ -265,11 +293,6 @@ def export_portfolios(
         PortfolioExportError: If export fails or invalid export type provided
         ValueError: If portfolios list is empty
     """
-    if not portfolios:
-        if log:
-            log("No portfolios to export", "warning")
-        raise ValueError("Cannot export empty portfolio list")
-
     # Enhanced export type validation using ExportTypeRouter (Phase 3)
     if not ExportTypeRouter.validate_export_type(export_type):
         supported_types = list(ExportTypeRouter.EXPORT_SCHEMA_CONFIG.keys())
@@ -277,6 +300,41 @@ def export_portfolios(
         if log:
             log(error_msg, "error")
         raise PortfolioExportError(error_msg)
+
+    # Determine target schema type early so it can be used for empty files
+    target_schema_type = _get_target_schema_type(export_type)
+
+    if not portfolios:
+        if log:
+            log(
+                "No portfolios to export - creating empty CSV with headers only", "info"
+            )
+            log(
+                f"Using {target_schema_type.name} schema for empty file headers", "info"
+            )
+
+        # Get schema-specific column names instead of generic CANONICAL_COLUMN_NAMES
+        schema_column_names = _get_schema_column_names(target_schema_type)
+
+        # Create empty DataFrame with proper schema headers based on export type
+        empty_df = pl.DataFrame({col: [] for col in schema_column_names})
+
+        # Use export_type for directory structure when feature_dir is empty
+        # This ensures empty files are created in the correct location (e.g., portfolios_filtered/)
+        export_feature1 = feature_dir if feature_dir else export_type
+
+        # Export the empty DataFrame to create a file with headers only
+        success = export_csv(
+            empty_df,
+            export_feature1,
+            config,
+            "",
+            csv_filename,
+            log,
+            target_schema=target_schema_type,
+        )
+
+        return empty_df, success
 
     # Get export configuration with schema routing details
     export_config = ExportTypeRouter.get_export_config(export_type)
@@ -354,7 +412,6 @@ def export_portfolios(
 
         # Initialize SchemaTransformer for unified schema handling
         transformer = SchemaTransformer()
-        target_schema_type = _get_target_schema_type(export_type)
 
         if log:
             log(
@@ -523,14 +580,6 @@ def export_portfolios(
                             .otherwise(pl.col("EMA_FAST"))
                             .alias("Short Window")
                         )
-                    elif "Use SMA" in df.columns:
-                        # Legacy support for Use SMA
-                        expressions.append(
-                            pl.when(pl.col("Use SMA").eq(True))
-                            .then(pl.col("SMA_FAST"))
-                            .otherwise(pl.col("EMA_FAST"))
-                            .alias("Short Window")
-                        )
                     else:
                         # Default to EMA if no strategy type information
                         expressions.append(pl.col("EMA_FAST").alias("Short Window"))
@@ -556,14 +605,6 @@ def export_portfolios(
                     if "Strategy Type" in df.columns:
                         expressions.append(
                             pl.when(pl.col("Strategy Type").eq("SMA"))
-                            .then(pl.col("SMA_SLOW"))
-                            .otherwise(pl.col("EMA_SLOW"))
-                            .alias("Long Window")
-                        )
-                    elif "Use SMA" in df.columns:
-                        # Legacy support for Use SMA
-                        expressions.append(
-                            pl.when(pl.col("Use SMA").eq(True))
                             .then(pl.col("SMA_SLOW"))
                             .otherwise(pl.col("EMA_SLOW"))
                             .alias("Long Window")
@@ -618,11 +659,7 @@ def export_portfolios(
                         "info",
                     )
 
-            # Remove Use SMA field from export as it's now redundant
-            if "Use SMA" in df.columns:
-                df = df.drop("Use SMA")
-                if log:
-                    log("Removed redundant 'Use SMA' field from export", "info")
+            # Use SMA field is no longer supported - all strategy types are equal
 
             # Get ticker from config
             ticker = config["TICKER"]

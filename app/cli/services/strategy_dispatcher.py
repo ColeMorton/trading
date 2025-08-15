@@ -5,7 +5,7 @@ This module provides unified strategy dispatch functionality, routing
 CLI commands to appropriate strategy services based on configuration.
 """
 
-from typing import Dict, List, Type, Union
+from typing import Any, Dict, List, Type, Union
 
 from rich import print as rprint
 
@@ -36,23 +36,148 @@ class StrategyDispatcher:
         """
         Execute strategy analysis using appropriate service.
 
+        For mixed strategy types, executes each strategy sequentially to ensure
+        all requested strategies generate their respective CSV files.
+
         Args:
             config: Strategy configuration model
 
         Returns:
-            True if execution successful, False otherwise
+            True if all strategy executions successful, False otherwise
         """
-        # Determine which service to use based on strategy types
-        strategy_service = self._determine_service(config.strategy_types)
+        # Check if we should skip analysis and run portfolio processing only
+        if config.skip_analysis:
+            rprint(
+                "[blue]Skip analysis mode enabled - processing existing portfolios[/blue]"
+            )
+            return self._execute_skip_analysis_mode(config)
+
+        # Handle mixed strategy types by executing each strategy individually
+        if len(config.strategy_types) > 1:
+            return self._execute_mixed_strategies(config)
+
+        # Single strategy: use original logic
+        strategy_service = self._determine_single_service(config.strategy_types[0])
 
         if not strategy_service:
-            rprint(
-                "[red]No compatible service found for specified strategy types[/red]"
-            )
+            rprint("[red]No compatible service found for specified strategy type[/red]")
             return False
 
         # Execute using the determined service
         return strategy_service.execute_strategy(config)
+
+    def _execute_mixed_strategies(self, config: StrategyConfig) -> bool:
+        """
+        Execute multiple strategy types sequentially.
+
+        This ensures that each strategy type (SMA, EMA, MACD) generates
+        its own separate CSV files as required.
+
+        Args:
+            config: Strategy configuration with multiple strategy types
+
+        Returns:
+            True if all strategies executed successfully, False otherwise
+        """
+        results = []
+
+        rprint(
+            f"[blue]Executing {len(config.strategy_types)} strategies sequentially...[/blue]"
+        )
+
+        for strategy_type in config.strategy_types:
+            rprint(f"[dim]Running {strategy_type} strategy...[/dim]")
+
+            # Create single-strategy config
+            single_config = self._create_single_strategy_config(config, strategy_type)
+
+            # Get appropriate service for this strategy type
+            service = self._determine_single_service(strategy_type)
+
+            if not service:
+                rprint(
+                    f"[red]No service found for strategy type: {strategy_type}[/red]"
+                )
+                results.append(False)
+                continue
+
+            # Execute strategy
+            success = service.execute_strategy(single_config)
+            results.append(success)
+
+            if success:
+                rprint(
+                    f"[green]✓ {strategy_type} strategy completed successfully[/green]"
+                )
+            else:
+                rprint(f"[red]✗ {strategy_type} strategy failed[/red]")
+
+        total_success = all(results)
+        successful_count = sum(results)
+
+        rprint(
+            f"[blue]Mixed strategy execution complete: {successful_count}/{len(results)} successful[/blue]"
+        )
+
+        return total_success
+
+    def _create_single_strategy_config(
+        self, original_config: StrategyConfig, strategy_type: Union[StrategyType, str]
+    ) -> StrategyConfig:
+        """
+        Create a single-strategy configuration from a multi-strategy config.
+
+        Args:
+            original_config: Original configuration with multiple strategies
+            strategy_type: Single strategy type to create config for
+
+        Returns:
+            New StrategyConfig with only the specified strategy type
+        """
+        # Import here to avoid circular imports
+        from copy import deepcopy
+
+        # Create a deep copy of the original config
+        single_config = deepcopy(original_config)
+
+        # Ensure strategy_type is a StrategyType enum
+        if isinstance(strategy_type, str):
+            # Convert string to StrategyType enum
+            strategy_enum = StrategyType(strategy_type.upper())
+        else:
+            strategy_enum = strategy_type
+
+        # Set strategy_types to contain only the current strategy
+        single_config.strategy_types = [strategy_enum]
+
+        return single_config
+
+    def _determine_single_service(
+        self, strategy_type: Union[StrategyType, str]
+    ) -> Union[BaseStrategyService, None]:
+        """
+        Determine service for a single strategy type.
+
+        Args:
+            strategy_type: Single strategy type
+
+        Returns:
+            Appropriate service or None if not found
+        """
+        # Convert to string value
+        if hasattr(strategy_type, "value"):
+            strategy_value = strategy_type.value
+        else:
+            strategy_value = str(strategy_type).upper()
+
+        # Route to appropriate service
+        if strategy_value == StrategyType.MACD.value:
+            return self._services["MACD"]
+        elif strategy_value in [StrategyType.SMA.value, StrategyType.EMA.value]:
+            return self._services["MA"]
+        else:
+            rprint(f"[red]Unsupported strategy type: {strategy_value}[/red]")
+            return None
 
     def _determine_service(
         self, strategy_types: List[Union[StrategyType, str]]
@@ -109,10 +234,100 @@ class StrategyDispatcher:
         """
         Validate that strategy types are compatible with available services.
 
+        For mixed strategies, validates that each individual strategy type
+        is supported by an available service.
+
         Args:
             strategy_types: List of strategy types to validate
 
         Returns:
-            True if compatible, False otherwise
+            True if all strategy types are compatible, False otherwise
         """
+        # For mixed strategies, validate each one individually
+        if len(strategy_types) > 1:
+            return all(
+                self._determine_single_service(strategy_type) is not None
+                for strategy_type in strategy_types
+            )
+
+        # For single strategy, use original logic
         return self._determine_service(strategy_types) is not None
+
+    def _execute_skip_analysis_mode(self, config: StrategyConfig) -> bool:
+        """
+        Execute skip analysis mode - load existing portfolios and process them.
+
+        Args:
+            config: Strategy configuration model
+
+        Returns:
+            True if portfolio processing successful, False otherwise
+        """
+        try:
+            from app.tools.logging_context import logging_context
+            from app.tools.orchestration import PortfolioOrchestrator
+
+            # Convert config to legacy format for PortfolioOrchestrator
+            legacy_config = self._convert_config_to_legacy_for_skip_mode(config)
+
+            # Create PortfolioOrchestrator and run in skip mode
+            with logging_context("strategy_dispatcher", "skip_analysis.log") as log:
+                orchestrator = PortfolioOrchestrator(log)
+                return orchestrator.run(legacy_config)
+
+        except Exception as e:
+            rprint(f"[red]Error in skip analysis mode: {e}[/red]")
+            return False
+
+    def _convert_config_to_legacy_for_skip_mode(
+        self, config: StrategyConfig
+    ) -> Dict[str, Any]:
+        """
+        Convert StrategyConfig to legacy format for PortfolioOrchestrator in skip mode.
+
+        Args:
+            config: Strategy configuration model
+
+        Returns:
+            Dictionary in legacy config format with skip_analysis enabled
+        """
+        # Convert ticker to list format
+        ticker_list = (
+            config.ticker if isinstance(config.ticker, list) else [config.ticker]
+        )
+
+        # Create minimal legacy config for skip mode
+        legacy_config = {
+            "TICKER": ticker_list,
+            "STRATEGY_TYPES": [
+                st.value if hasattr(st, "value") else str(st)
+                for st in config.strategy_types
+            ],
+            "BASE_DIR": str(config.base_dir),  # Required for CSV export
+            "skip_analysis": True,  # Ensure skip mode is enabled
+            "USE_YEARS": config.use_years,
+            "YEARS": config.years,
+            "USE_HOURLY": config.use_hourly,
+            "USE_4HOUR": config.use_4hour,
+            "MINIMUMS": {},
+            "SORT_BY": "Score",
+            "SORT_ASC": False,
+        }
+
+        # Add minimum criteria
+        if config.minimums.win_rate is not None:
+            legacy_config["MINIMUMS"]["WIN_RATE"] = config.minimums.win_rate
+        if config.minimums.trades is not None:
+            legacy_config["MINIMUMS"]["TRADES"] = config.minimums.trades
+        if config.minimums.expectancy_per_trade is not None:
+            legacy_config["MINIMUMS"][
+                "EXPECTANCY_PER_TRADE"
+            ] = config.minimums.expectancy_per_trade
+        if config.minimums.profit_factor is not None:
+            legacy_config["MINIMUMS"]["PROFIT_FACTOR"] = config.minimums.profit_factor
+        if config.minimums.sortino_ratio is not None:
+            legacy_config["MINIMUMS"]["SORTINO_RATIO"] = config.minimums.sortino_ratio
+        if config.minimums.beats_bnh is not None:
+            legacy_config["MINIMUMS"]["BEATS_BNH"] = config.minimums.beats_bnh
+
+        return legacy_config

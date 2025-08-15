@@ -20,6 +20,8 @@ config:
     - EMA
     - MACD
 
+  windows: 89
+
   # MACD Core Parameters (single source of truth)
   short_window_start: 5
   short_window_end: 21

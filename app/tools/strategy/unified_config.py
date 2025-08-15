@@ -111,8 +111,7 @@ class MAConfig(BasePortfolioConfig):
     inheriting all common configuration fields.
     """
 
-    # MA-specific parameters
-    USE_SMA: NotRequired[bool]  # Whether to use SMA instead of EMA
+    # MA-specific parameters - all strategy types are now treated equally
 
 
 class MACDConfig(BasePortfolioConfig):
@@ -408,12 +407,10 @@ class ConfigFactory:
             "SMA": {
                 "SHORT_WINDOW": 10,
                 "LONG_WINDOW": 50,
-                "USE_SMA": True,
             },
             "EMA": {
                 "SHORT_WINDOW": 10,
                 "LONG_WINDOW": 50,
-                "USE_SMA": False,
             },
             "MACD": {
                 "SHORT_WINDOW": 12,

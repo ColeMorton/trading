@@ -27,11 +27,13 @@ HALF_RULE = True
 
 # ASSETS = ['BTC-USD', 'MSTR']
 
+# ASSETS = ['BTC-USD', 'MSTR', 'SOL-USD', 'ETH-USD']
+
 # ASSETS = ['QQQ', 'MSTR']
 
 # ASSETS = ['PENDLE-USD', 'SUI20947-USD']
 
-ASSETS = ["ADBE", "AMZN", "PAYX", "DHR", "IREN", "NFLX", "ASML", "QBTS"]
+ASSETS = ["TEM", "MU", "TSLA", "DHR", "IREN", "NFLX", "QBTS", "GLD"]
 
 # ASSETS = ["IREN", "TEM", "BBAI"]
 

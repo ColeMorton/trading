@@ -1,0 +1,79 @@
+metadata:
+  name: 'asia_top_50'
+  description: 'Asia Top 50'
+  version: '1.0'
+  tags: ['asia', 'portfolio', 'custom']
+  author: 'trading-cli'
+
+config_type: 'strategy'
+
+inherits_from: 'default_strategy'
+
+config:
+  ticker:
+    - TSM
+    - BABA
+    - TM
+    - HDB
+    - MUFG
+    - SONY
+    - PDD
+    - NTDOY
+    - SFTBY
+    - IBN
+    - SE
+    - SMFG
+    - MFG
+    - INFY
+    - NTES
+    - JD
+    - HMC
+    - TAK
+    - TCOM
+    - BIDU
+    - WIT
+    - LI
+    - BEKE
+    - KB
+    - BGNE
+    - CAJ
+    - TTM
+    - TME
+    - XPEV
+    - ASX
+    - GRAB
+    - YUMC
+    - UMC
+    - ZTO
+    - PKX
+    - YMM
+    - HTHT
+    - RDY
+    - BILI
+    - NIO
+    - VIPS
+    - SKM
+    - TAL
+    - EDU
+    - ZK
+    - BZ
+    - GDS
+    - QFIN
+    - MNSO
+    - PONY
+
+  # Strategy types to analyze
+  strategy_types:
+    - SMA
+    - EMA
+    - MACD
+
+  # Performance filters
+  minimums:
+    win_rate: 0.5
+    trades: 54
+    expectancy_per_trade: 0.256
+    profit_factor: 1.236
+    sortino_ratio: 0.618
+
+  skip_analysis: true

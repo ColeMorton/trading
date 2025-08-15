@@ -86,23 +86,31 @@ class PortfolioOrchestrator:
             ExportError: If result export fails
         """
         try:
-            # Step 1: Initialize configuration
-            config = self._initialize_configuration(config)
+            # Check if we should skip analysis and load existing portfolios
+            if config.get("skip_analysis", False):
+                self.log(
+                    "Skip analysis mode enabled - loading existing portfolios", "info"
+                )
+                all_portfolios = self._load_existing_portfolios(config)
+            else:
+                # Step 1: Initialize configuration
+                config = self._initialize_configuration(config)
 
-            # Step 2: Process synthetic configuration if needed
-            config = self._process_synthetic_configuration(config)
+                # Step 2: Process synthetic configuration if needed
+                config = self._process_synthetic_configuration(config)
 
-            # Step 3: Get strategy types
-            strategies = self._get_strategies(config)
+                # Step 3: Get strategy types
+                strategies = self._get_strategies(config)
 
-            # Step 4: Execute strategies
-            all_portfolios = self._execute_strategies(config, strategies)
+                # Step 4: Execute strategies
+                all_portfolios = self._execute_strategies(config, strategies)
+
+                # Export raw portfolios first
+                if all_portfolios:
+                    self._export_raw_portfolios(all_portfolios, config)
 
             # Step 5: Process results if any
             if all_portfolios:
-                # Export raw portfolios first
-                self._export_raw_portfolios(all_portfolios, config)
-
                 # Filter and process portfolios
                 filtered_portfolios = self._filter_and_process_portfolios(
                     all_portfolios, config
@@ -113,7 +121,13 @@ class PortfolioOrchestrator:
                     self._export_filtered_portfolios(filtered_portfolios, config)
                     self._export_results(filtered_portfolios, config)
             else:
-                self.log("No portfolios returned from strategies", "warning")
+                if config.get("skip_analysis", False):
+                    self.log(
+                        "No existing portfolio files found in data/raw/portfolios/",
+                        "warning",
+                    )
+                else:
+                    self.log("No portfolios returned from strategies", "warning")
 
             return True
 
@@ -309,16 +323,26 @@ class PortfolioOrchestrator:
             from app.tools.strategy.export_portfolios import export_portfolios
 
             try:
-                _, success = export_portfolios(
-                    portfolios=portfolios,
-                    config=config,
-                    export_type="portfolios",
-                    log=self.log,
-                )
-                if success:
-                    self.log(f"Successfully exported {len(portfolios)} raw portfolios")
+                # Check if we're in skip analysis mode and have multiple tickers
+                if config.get("skip_analysis", False) and self._has_multiple_tickers(
+                    portfolios
+                ):
+                    # Group portfolios by ticker+strategy and export individually
+                    self._export_grouped_portfolios(portfolios, config, "portfolios")
                 else:
-                    self.log("Failed to export raw portfolios", "warning")
+                    # Normal export for single ticker or non-skip mode
+                    _, success = export_portfolios(
+                        portfolios=portfolios,
+                        config=config,
+                        export_type="portfolios",
+                        log=self.log,
+                    )
+                    if success:
+                        self.log(
+                            f"Successfully exported {len(portfolios)} raw portfolios"
+                        )
+                    else:
+                        self.log("Failed to export raw portfolios", "warning")
             except Exception as e:
                 self.log(f"Error exporting raw portfolios: {str(e)}", "error")
                 raise ExportError(f"Raw portfolio export failed: {str(e)}")
@@ -342,18 +366,42 @@ class PortfolioOrchestrator:
             from app.tools.strategy.export_portfolios import export_portfolios
 
             try:
-                _, success = export_portfolios(
-                    portfolios=portfolios,
-                    config=config,
-                    export_type="portfolios_filtered",
-                    log=self.log,
+                skip_analysis = config.get("skip_analysis", False)
+                has_multiple_tickers = self._has_multiple_tickers(portfolios)
+
+                self.log(
+                    f"Export conditions - skip_analysis: {skip_analysis}, has_multiple_tickers: {has_multiple_tickers}",
+                    "debug",
                 )
-                if success:
+
+                # Always use grouped export in skip analysis mode for individual ticker+strategy files
+                if skip_analysis:
                     self.log(
-                        f"Successfully exported {len(portfolios)} filtered portfolios"
+                        "Using grouped export for portfolios_filtered (skip analysis mode)",
+                        "info",
+                    )
+                    # Group portfolios by ticker+strategy and export individually
+                    self._export_grouped_portfolios(
+                        portfolios, config, "portfolios_filtered"
                     )
                 else:
-                    self.log("Failed to export filtered portfolios", "warning")
+                    self.log(
+                        "Using normal export for portfolios_filtered (standard mode)",
+                        "info",
+                    )
+                    # Normal export for single ticker or non-skip mode
+                    _, success = export_portfolios(
+                        portfolios=portfolios,
+                        config=config,
+                        export_type="portfolios_filtered",
+                        log=self.log,
+                    )
+                    if success:
+                        self.log(
+                            f"Successfully exported {len(portfolios)} filtered portfolios"
+                        )
+                    else:
+                        self.log("Failed to export filtered portfolios", "warning")
             except Exception as e:
                 self.log(f"Error exporting filtered portfolios: {str(e)}", "error")
                 raise ExportError(f"Filtered portfolio export failed: {str(e)}")
@@ -378,8 +426,31 @@ class PortfolioOrchestrator:
                 # Use new export system
                 self._export_with_manager(portfolios, config)
             else:
-                # Use legacy export system
-                export_best_portfolios(portfolios, config, self.log)
+                skip_analysis = config.get("skip_analysis", False)
+                has_multiple_tickers = self._has_multiple_tickers(portfolios)
+
+                self.log(
+                    f"Export results conditions - skip_analysis: {skip_analysis}, has_multiple_tickers: {has_multiple_tickers}",
+                    "debug",
+                )
+
+                # Always use grouped export in skip analysis mode for individual ticker+strategy files
+                if skip_analysis:
+                    self.log(
+                        "Using grouped export for portfolios_best (skip analysis mode)",
+                        "info",
+                    )
+                    # Group portfolios by ticker+strategy and export individually
+                    self._export_grouped_portfolios(
+                        portfolios, config, "portfolios_best"
+                    )
+                else:
+                    self.log(
+                        "Using legacy export for portfolios_best (standard mode)",
+                        "info",
+                    )
+                    # Use legacy export system for normal mode
+                    export_best_portfolios(portfolios, config, self.log)
 
     def _export_with_manager(
         self, portfolios: List[Dict[str, Any]], config: Dict[str, Any]
@@ -424,3 +495,292 @@ class PortfolioOrchestrator:
             )
         else:
             raise ExportError(f"Export failed: {result.error_message}")
+
+    def _extract_ticker_from_filename(self, filename: str) -> str:
+        """
+        Extract ticker symbol from portfolio filename.
+
+        Args:
+            filename: Portfolio filename (e.g., "TSLA_D_MACD.csv", "AAVE-USD_D_EMA.csv")
+
+        Returns:
+            Ticker symbol (e.g., "TSLA", "AAVE-USD")
+
+        Examples:
+            TSLA_D_MACD.csv → TSLA
+            AAVE-USD_D_EMA.csv → AAVE-USD
+            UNI7083-USD_D.csv → UNI7083-USD
+            BTC-USD_4H_SMA.csv → BTC-USD
+        """
+        # Remove .csv extension first if present
+        filename = filename.replace(".csv", "")
+
+        # Extract ticker - everything before the first underscore
+        ticker = filename.split("_")[0]
+
+        return ticker
+
+    def _has_multiple_tickers(self, portfolios: List[Dict[str, Any]]) -> bool:
+        """
+        Check if portfolios contain multiple different tickers.
+
+        Args:
+            portfolios: List of portfolio dictionaries
+
+        Returns:
+            True if multiple tickers are present, False otherwise
+        """
+        if not portfolios:
+            self.log("_has_multiple_tickers: No portfolios provided", "debug")
+            return False
+
+        tickers = set()
+        for portfolio in portfolios:
+            ticker = portfolio.get("Ticker")
+            if ticker:
+                tickers.add(ticker)
+
+        self.log(
+            f"_has_multiple_tickers: Found {len(tickers)} unique tickers: {list(tickers)[:5]}{'...' if len(tickers) > 5 else ''}",
+            "debug",
+        )
+        return len(tickers) > 1
+
+    def _export_grouped_portfolios(
+        self, portfolios: List[Dict[str, Any]], config: Dict[str, Any], export_type: str
+    ) -> None:
+        """
+        Group portfolios by ticker+strategy combination and export each group individually.
+
+        Args:
+            portfolios: List of portfolios to group and export
+            config: Configuration dictionary
+            export_type: Type of export (e.g., "portfolios_filtered")
+
+        Raises:
+            ExportError: If any export fails
+        """
+        from collections import defaultdict
+
+        from app.tools.strategy.export_portfolios import export_portfolios
+
+        # Group portfolios by ticker+strategy combination
+        groups = defaultdict(list)
+
+        for portfolio in portfolios:
+            ticker = portfolio.get("Ticker", "UNKNOWN")
+            # Robust strategy extraction - check multiple possible field names
+            strategy = (
+                portfolio.get("Strategy Type")
+                or portfolio.get("Strategy")
+                or portfolio.get("strategy_type")
+                or "UNKNOWN"
+            )
+
+            if strategy == "UNKNOWN":
+                self.log(
+                    f"Warning: Portfolio missing strategy type data: {portfolio.keys()}",
+                    "warning",
+                )
+
+            group_key = f"{ticker}_{strategy}"
+            groups[group_key].append(portfolio)
+
+        self.log(
+            f"Grouped {len(portfolios)} portfolios into {len(groups)} ticker+strategy combinations",
+            "info",
+        )
+
+        # Add empty groups for configured strategies that have no qualifying portfolios
+        configured_strategies = config.get("STRATEGY_TYPES", [])
+        configured_tickers = config.get("TICKER", [])
+        if isinstance(configured_tickers, str):
+            configured_tickers = [configured_tickers]
+
+        for strategy in configured_strategies:
+            for ticker in configured_tickers:
+                group_key = f"{ticker}_{strategy}"
+                if group_key not in groups:
+                    # Create empty group for this ticker+strategy combination
+                    groups[group_key] = []
+                    self.log(
+                        f"Creating empty group for {ticker} {strategy} (no qualifying portfolios)",
+                        "info",
+                    )
+
+        # Export each group individually
+        export_count = 0
+        for group_key, group_portfolios in groups.items():
+            try:
+                # Handle empty groups (for strategies with no qualifying portfolios)
+                if not group_portfolios:
+                    # Extract ticker and strategy from group key
+                    ticker, strategy = group_key.split("_", 1)
+                else:
+                    # Extract ticker and strategy from group key - use robust extraction
+                    ticker = group_portfolios[0].get("Ticker")
+                    strategy = (
+                        group_portfolios[0].get("Strategy Type")
+                        or group_portfolios[0].get("Strategy")
+                        or group_portfolios[0].get("strategy_type")
+                        or "SMA"  # Only as last resort for backward compatibility
+                    )
+
+                # Create individual config for this ticker+strategy
+                group_config = config.copy()
+                group_config["TICKER"] = ticker
+                group_config["STRATEGY_TYPE"] = strategy
+                group_config["STRATEGY_TYPES"] = [strategy]
+                group_config[
+                    "USE_MA"
+                ] = True  # Explicitly ensure strategy suffix is included
+
+                self.log(
+                    f"Exporting {len(group_portfolios)} portfolios for {ticker} {strategy}",
+                    "info",
+                )
+
+                # Export this group
+                _, success = export_portfolios(
+                    portfolios=group_portfolios,
+                    config=group_config,
+                    export_type=export_type,
+                    log=self.log,
+                )
+
+                if success:
+                    export_count += len(group_portfolios)
+                    self.log(
+                        f"Successfully exported {ticker}_{strategy} group to individual file",
+                        "info",
+                    )
+                else:
+                    self.log(f"Failed to export {ticker}_{strategy} group", "warning")
+
+            except Exception as e:
+                self.log(f"Error exporting group {group_key}: {str(e)}", "error")
+                raise ExportError(f"Group export failed for {group_key}: {str(e)}")
+
+        self.log(
+            f"Successfully exported {export_count} total portfolios in {len(groups)} individual files",
+            "info",
+        )
+
+    def _load_existing_portfolios(self, config: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """
+        Load existing portfolio files from data/raw/portfolios/ directory.
+
+        Args:
+            config: Configuration dictionary
+
+        Returns:
+            List of portfolio dictionaries loaded from CSV files
+
+        Raises:
+            MACrossPortfolioError: If no portfolio files are found or loading fails
+        """
+        from pathlib import Path
+
+        import polars as pl
+
+        from app.tools.project_utils import get_project_root
+
+        with error_context(
+            "Loading existing portfolios",
+            self.log,
+            {Exception: MACrossPortfolioError},
+            reraise=True,
+        ):
+            # Determine portfolio directory
+            project_root = Path(get_project_root())
+            portfolio_dir = project_root / "data" / "raw" / "portfolios"
+
+            if not portfolio_dir.exists():
+                raise MACrossPortfolioError(
+                    f"Portfolio directory does not exist: {portfolio_dir}"
+                )
+
+            # Get configured ticker list for filtering
+            configured_tickers = config.get("TICKER", [])
+            if isinstance(configured_tickers, str):
+                configured_tickers = [configured_tickers]
+
+            # Find all CSV files in the portfolio directory
+            all_csv_files = list(portfolio_dir.glob("*.csv"))
+
+            if not all_csv_files:
+                raise MACrossPortfolioError(f"No CSV files found in {portfolio_dir}")
+
+            # Filter CSV files to only include those matching configured tickers
+            csv_files = []
+            for csv_file in all_csv_files:
+                ticker = self._extract_ticker_from_filename(csv_file.name)
+                if ticker in configured_tickers:
+                    csv_files.append(csv_file)
+
+            if not csv_files:
+                self.log(
+                    f"No portfolio files found matching configured tickers: {configured_tickers}",
+                    "warning",
+                )
+                raise MACrossPortfolioError(
+                    f"No portfolio files found for configured tickers: {configured_tickers}"
+                )
+
+            self.log(
+                f"Found {len(all_csv_files)} total portfolio files, {len(csv_files)} match configured tickers",
+                "info",
+            )
+
+            all_portfolios = []
+
+            # Load each CSV file
+            for csv_file in csv_files:
+                try:
+                    self.log(f"Loading portfolio file: {csv_file.name}", "info")
+
+                    # Load CSV using polars
+                    df = pl.read_csv(csv_file)
+
+                    # Convert to list of dictionaries
+                    portfolios = df.to_dicts()
+                    all_portfolios.extend(portfolios)
+
+                    self.log(
+                        f"Loaded {len(portfolios)} portfolios from {csv_file.name}",
+                        "info",
+                    )
+
+                except Exception as e:
+                    self.log(f"Failed to load {csv_file.name}: {str(e)}", "error")
+                    raise MACrossPortfolioError(
+                        f"Failed to load portfolio file {csv_file.name}: {str(e)}"
+                    )
+
+            self.log(
+                f"Successfully loaded {len(all_portfolios)} total portfolios from {len(csv_files)} files",
+                "info",
+            )
+
+            # Apply MINIMUMS filtering to loaded portfolios if configuration exists
+            if "MINIMUMS" in config and all_portfolios:
+                self.log("Applying MINIMUMS filtering to loaded portfolios", "info")
+                from app.tools.portfolio.filtering_service import PortfolioFilterService
+
+                # Use the filtering service to apply MINIMUMS
+                filter_service = PortfolioFilterService()
+                filtered_portfolios = filter_service.filter_portfolios_list(
+                    all_portfolios, config, self.log
+                )
+
+                if filtered_portfolios:
+                    self.log(
+                        f"MINIMUMS filtering: {len(all_portfolios)} -> {len(filtered_portfolios)} portfolios remain",
+                        "info",
+                    )
+                    return filtered_portfolios
+                else:
+                    self.log("No portfolios remain after MINIMUMS filtering", "warning")
+                    return []
+
+            return all_portfolios
