@@ -8,6 +8,7 @@ and MACD strategies with various configuration options.
 from pathlib import Path
 from typing import List, Optional, Union
 
+import pandas as pd
 import typer
 from rich import print as rprint
 from rich.console import Console
@@ -153,24 +154,51 @@ def run(
             rprint("[red]Invalid strategy type configuration[/red]")
             return
 
-        # Show execution progress
-        tickers_to_process = (
-            config.ticker if isinstance(config.ticker, list) else [config.ticker]
-        )
-        show_execution_progress(
-            "Executing strategy analysis", ticker_count=len(tickers_to_process)
-        )
+        # Show execution progress - handle synthetic mode differently
+        if config.synthetic.use_synthetic:
+            # Synthetic mode: show synthetic ticker name
+            synthetic_ticker = (
+                f"{config.synthetic.ticker_1}_{config.synthetic.ticker_2}"
+            )
+            tickers_to_process = [synthetic_ticker]
+            show_execution_progress(
+                "Executing synthetic ticker analysis", ticker_count=1
+            )
 
-        # Debug: Show all tickers that will be processed
-        strategy_types_str = ", ".join(
-            [
-                st.value if hasattr(st, "value") else str(st)
-                for st in config.strategy_types
-            ]
-        )
-        rprint(
-            f"[bold]Processing {len(tickers_to_process)} tickers with {strategy_types_str} strategies:[/bold] {', '.join(tickers_to_process)}"
-        )
+            strategy_types_str = ", ".join(
+                [
+                    st.value if hasattr(st, "value") else str(st)
+                    for st in config.strategy_types
+                ]
+            )
+            rprint(
+                f"[bold]Processing synthetic pair with {strategy_types_str} strategies:[/bold] {synthetic_ticker}"
+            )
+        else:
+            # Normal mode: show individual tickers
+            if config.ticker is None or (
+                isinstance(config.ticker, list) and len(config.ticker) == 0
+            ):
+                tickers_to_process = []
+            else:
+                tickers_to_process = (
+                    config.ticker
+                    if isinstance(config.ticker, list)
+                    else [config.ticker]
+                )
+            show_execution_progress(
+                "Executing strategy analysis", ticker_count=len(tickers_to_process)
+            )
+
+            strategy_types_str = ", ".join(
+                [
+                    st.value if hasattr(st, "value") else str(st)
+                    for st in config.strategy_types
+                ]
+            )
+            rprint(
+                f"[bold]Processing {len(tickers_to_process)} tickers with {strategy_types_str} strategies:[/bold] {', '.join(tickers_to_process)}"
+            )
 
         # Execute using strategy dispatcher
         # This routes to the appropriate strategy service based on configuration
@@ -382,3 +410,338 @@ def sweep(
 
     except Exception as e:
         handle_command_error(e, "strategy sweep", verbose=False)
+
+
+@app.command()
+def analyze(
+    profile: Optional[str] = typer.Option(
+        None, "--profile", "-p", help="Configuration profile name"
+    ),
+    ticker: Optional[List[str]] = typer.Option(
+        None,
+        "--ticker",
+        "-t",
+        help="Filter analysis to specific ticker symbols (multiple args or comma-separated: --ticker AAPL,MSFT or --ticker AAPL --ticker MSFT)",
+    ),
+    best: bool = typer.Option(
+        False, "--best", help="Analyze portfolios_best files specifically"
+    ),
+    current: bool = typer.Option(
+        False,
+        "--current",
+        help="Analyze current day signals from date-specific directory",
+    ),
+    top_n: int = typer.Option(
+        50, "--top-n", "-n", help="Number of top results to display in table"
+    ),
+    output_format: str = typer.Option(
+        "table",
+        "--output-format",
+        "-f",
+        help="Output format: table (with raw CSV) or raw (CSV only)",
+    ),
+    sort_by: str = typer.Option(
+        "Score", "--sort-by", "-s", help="Column to sort by (default: Score)"
+    ),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Enable verbose output"
+    ),
+):
+    """
+    Analyze and aggregate portfolio data from CSV files (dry-run analysis).
+
+    This command aggregates portfolio data for tickers defined in a profile,
+    removes the Metric Type column, sorts the results, and displays them
+    in both table format and raw CSV format ready for copy/paste.
+
+    Examples:
+        trading-cli strategy analyze --profile asia_top_50 --best
+        trading-cli strategy analyze --profile asia_top_50 --best --current
+        trading-cli strategy analyze --profile asia_top_50 --best --current --top-n 25
+        trading-cli strategy analyze --profile asia_top_50 --best --output-format raw
+        trading-cli strategy analyze --profile asia_top_50 --best --sort-by "Total Return [%]"
+        trading-cli strategy analyze --best --current --ticker AAPL,MSFT,GOOGL
+        trading-cli strategy analyze --profile asia_top_50 --best --ticker TAL,META,SYF
+    """
+    try:
+        # Process ticker input if provided
+        if ticker:
+            from .strategy_utils import process_ticker_input
+
+            ticker_list = process_ticker_input(ticker)
+            ticker_filtering_active = True
+
+            if verbose:
+                rprint(
+                    f"[dim]Ticker filtering enabled with {len(ticker_list)} tickers: {', '.join(ticker_list)}[/dim]"
+                )
+        else:
+            ticker_filtering_active = False
+
+        # Allow auto-discovery mode when both --best and --current are provided
+        if not profile and not (best and current) and not ticker_filtering_active:
+            rprint(
+                "[red]Error: --profile is required unless using --best --current for auto-discovery or --ticker for filtering[/red]"
+            )
+            rprint("[dim]Examples:[/dim]")
+            rprint(
+                "[dim]  Profile mode: trading-cli strategy analyze --profile asia_top_50 --best[/dim]"
+            )
+            rprint(
+                "[dim]  Auto-discovery: trading-cli strategy analyze --best --current[/dim]"
+            )
+            rprint(
+                "[dim]  Ticker filtering: trading-cli strategy analyze --best --current --ticker AAPL,MSFT[/dim]"
+            )
+            raise typer.Exit(1)
+
+        if not best:
+            rprint(
+                "[red]Error: --best flag is required (only portfolios_best analysis is currently supported)[/red]"
+            )
+            rprint(
+                "[dim]Example: trading-cli strategy analyze --profile asia_top_50 --best[/dim]"
+            )
+            raise typer.Exit(1)
+
+        # Handle profile loading vs auto-discovery mode vs ticker filtering
+        if ticker_filtering_active:
+            # Ticker filtering mode - use provided ticker list regardless of profile
+            if verbose:
+                rprint(
+                    f"[dim]Ticker filtering mode: analyzing {len(ticker_list)} specific tickers[/dim]"
+                )
+        elif profile:
+            # Profile-based mode
+            loader = ConfigLoader()
+
+            try:
+                config = loader.load_from_profile(profile, StrategyConfig, {})
+            except Exception as e:
+                rprint(f"[red]Error loading profile '{profile}': {e}[/red]")
+                raise typer.Exit(1)
+
+            # Get ticker list from config
+            ticker_list = (
+                config.ticker if isinstance(config.ticker, list) else [config.ticker]
+            )
+
+            if verbose:
+                rprint(
+                    f"[dim]Loaded profile '{profile}' with {len(ticker_list)} tickers[/dim]"
+                )
+        else:
+            # Auto-discovery mode (profile is None, best=True, current=True)
+            ticker_list = ["Auto-discovered"]  # For display purposes
+
+            if verbose:
+                rprint(
+                    f"[dim]Auto-discovery mode enabled - will scan current day directory[/dim]"
+                )
+
+        # Display configuration
+        rprint("\n[bold cyan]📊 Portfolio Analysis Configuration:[/bold cyan]")
+        rprint("=" * 50)
+
+        # Show mode and profile information
+        if ticker_filtering_active:
+            if profile:
+                rprint(f"📋 [white]Mode: Ticker Filtering (Profile: {profile})[/white]")
+            else:
+                rprint(f"📋 [white]Mode: Ticker Filtering[/white]")
+        elif profile:
+            rprint(f"📋 [white]Profile: {profile}[/white]")
+        else:
+            rprint(f"📋 [white]Mode: Auto-Discovery[/white]")
+
+        # Show analysis type with current date if applicable
+        from datetime import datetime
+
+        if current:
+            current_date = datetime.now().strftime("%Y%m%d")
+            if ticker_filtering_active:
+                rprint(
+                    f"📊 [white]Analysis Type: portfolios_best (current: {current_date}, filtered)[/white]"
+                )
+            elif profile:
+                rprint(
+                    f"📊 [white]Analysis Type: portfolios_best (current: {current_date})[/white]"
+                )
+            else:
+                rprint(
+                    f"📊 [white]Analysis Type: portfolios_best (current: {current_date}, auto-discovery)[/white]"
+                )
+        else:
+            rprint(f"📊 [white]Analysis Type: portfolios_best[/white]")
+
+        # Show tickers
+        if ticker_filtering_active:
+            rprint(
+                f"🎯 [white]Tickers: Filtered to {len(ticker_list)} tickers: {', '.join(ticker_list)}[/white]"
+            )
+        elif profile:
+            rprint(f"🎯 [white]Tickers: {', '.join(ticker_list)}[/white]")
+        else:
+            rprint(f"🎯 [white]Tickers: Auto-discovered from current day files[/white]")
+
+        rprint(f"📈 [white]Display: Top {top_n} results[/white]")
+        rprint(f"🔢 [white]Sort By: {sort_by}[/white]")
+        rprint()
+
+        # Initialize analysis service
+        from ..services.portfolio_analysis_service import PortfolioAnalysisService
+
+        analysis_service = PortfolioAnalysisService(use_current=current)
+
+        # Aggregate portfolio data
+        rprint("[bold]🔍 Searching for portfolio files...[/bold]")
+
+        if ticker_filtering_active:
+            # Ticker filtering mode - always use specific ticker list
+            combined_df = analysis_service.aggregate_portfolios_best(ticker_list)
+        elif profile:
+            # Profile-based analysis
+            combined_df = analysis_service.aggregate_portfolios_best(ticker_list)
+        else:
+            # Auto-discovery analysis
+            combined_df = analysis_service.aggregate_all_current_portfolios()
+
+        if combined_df.empty:
+            rprint(
+                "[yellow]❌ No portfolio data found for the specified tickers[/yellow]"
+            )
+            rprint(
+                "[dim]Make sure portfolios_best files exist in data/raw/portfolios_best/[/dim]"
+            )
+            raise typer.Exit(1)
+
+        # Remove Metric Type column and sort
+        rprint(f"[bold]📝 Processing {len(combined_df)} portfolios...[/bold]")
+        processed_df = analysis_service.remove_metric_type_column(combined_df)
+        sorted_df = analysis_service.sort_portfolios(processed_df, sort_by=sort_by)
+
+        # Format for display
+        display_data = analysis_service.format_for_display(sorted_df, top_n=top_n)
+
+        if output_format == "raw":
+            # Raw CSV output only
+            rprint("\n[bold cyan]📋 Raw CSV Data (Ready for Copy/Paste):[/bold cyan]")
+            csv_output = analysis_service.generate_csv_output(
+                display_data["all_results"]
+            )
+            rprint(csv_output)
+        else:
+            # Table format with raw CSV
+            _display_portfolio_table(
+                display_data["top_results"], analysis_service.get_display_columns()
+            )
+
+            # Summary statistics
+            stats = display_data["stats"]
+            rprint(f"\n[bold green]✨ Analysis Complete![/bold green]")
+            rprint(
+                f"📈 [cyan]{stats['total_portfolios']} portfolios analyzed successfully[/cyan]"
+            )
+
+            if stats["total_portfolios"] > 0:
+                rprint(f"\n💡 [bold yellow]Key Insights:[/bold yellow]")
+                rprint(
+                    f"🏆 [white]Best Opportunity: {stats['best_ticker']} ({stats['best_return']:+.2f}%)[/white]"
+                )
+                rprint(f"📊 [white]Average Score: {stats['avg_score']:.3f}[/white]")
+                rprint(
+                    f"🎯 [white]Win Rate Range: {stats['win_rate_range'][0]:.1f}% - {stats['win_rate_range'][1]:.1f}%[/white]"
+                )
+
+            # Raw CSV output section
+            rprint(f"\n[bold cyan]📋 Raw CSV Data (Ready for Copy/Paste):[/bold cyan]")
+            csv_output = analysis_service.generate_csv_output(
+                display_data["all_results"]
+            )
+
+            # Use print() instead of rprint() to avoid Rich's line wrapping
+            # Each CSV line should be displayed as one complete line for proper copy/paste
+            csv_lines = csv_output.split("\n")
+            for line in csv_lines:
+                print(line)  # Plain print without Rich formatting/wrapping
+
+    except Exception as e:
+        handle_command_error(e, "strategy analyze", verbose)
+
+
+def _display_portfolio_table(df, display_columns):
+    """Display portfolio analysis results in a formatted table."""
+    if df.empty:
+        rprint("[yellow]No data to display[/yellow]")
+        return
+
+    table = Table(
+        title="📊 Top Portfolio Analysis Results",
+        show_header=True,
+        header_style="bold magenta",
+    )
+
+    # Add rank column
+    table.add_column("Rank", style="cyan", no_wrap=True, justify="center")
+
+    # Add columns that exist in the dataframe
+    available_columns = []
+    for col in display_columns:
+        if col in df.columns:
+            available_columns.append(col)
+
+            # Customize column styling based on content
+            if "Rate" in col or "%" in col:
+                table.add_column(col, style="yellow", justify="right")
+            elif "Return" in col:
+                table.add_column(col, style="green", justify="right")
+            elif "Score" in col or "Ratio" in col:
+                table.add_column(col, style="white", justify="right")
+            elif "Drawdown" in col:
+                table.add_column(col, style="red", justify="right")
+            elif "Ticker" in col:
+                table.add_column(col, style="bold white", no_wrap=True)
+            else:
+                table.add_column(col, style="blue")
+
+    # Add rows to table
+    for idx, (_, row) in enumerate(df.head(50).iterrows(), 1):
+        row_data = [str(idx)]  # Rank
+
+        for col in available_columns:
+            value = row[col]
+
+            # Format specific column types
+            if col == "Win Rate [%]" and pd.notna(value):
+                try:
+                    row_data.append(f"{float(value):.1f}%")
+                except:
+                    row_data.append(str(value))
+            elif "Return" in col and pd.notna(value):
+                try:
+                    color = "green" if float(value) > 0 else "red"
+                    row_data.append(f"[{color}]{float(value):+.2f}%[/{color}]")
+                except:
+                    row_data.append(str(value))
+            elif col == "Max Drawdown [%]" and pd.notna(value):
+                try:
+                    row_data.append(f"[red]{float(value):.2f}%[/red]")
+                except:
+                    row_data.append(str(value))
+            elif col in [
+                "Score",
+                "Sharpe Ratio",
+                "Profit Factor",
+                "Expectancy per Trade",
+                "Sortino Ratio",
+            ] and pd.notna(value):
+                try:
+                    row_data.append(f"{float(value):.3f}")
+                except:
+                    row_data.append(str(value))
+            else:
+                row_data.append(str(value) if pd.notna(value) else "N/A")
+
+        table.add_row(*row_data)
+
+    console.print(table)

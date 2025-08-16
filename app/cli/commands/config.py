@@ -6,7 +6,7 @@ settings, and system configuration.
 """
 
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 import typer
 from rich import print as rprint
@@ -176,25 +176,138 @@ def set_default(
 
 
 @app.command()
-def edit(profile_name: str = typer.Argument(help="Profile name to edit")):
+def edit(
+    profile_name: str = typer.Argument(help="Profile name to edit"),
+    set_field: List[str] = typer.Option(
+        [], "--set-field", help="Set field value (format: field.path value)"
+    ),
+    interactive: bool = typer.Option(
+        False, "--interactive", help="Use interactive editor"
+    ),
+):
     """Edit a configuration profile."""
+    from ..services.profile_editor_service import ProfileEditorService
+
     try:
-        # TODO: Implement profile editing functionality
-        rprint(f"[yellow]Profile editing for '{profile_name}' coming soon![/yellow]")
-        rprint("For now, you can manually edit profile files in:")
-
         config_manager = ConfigManager()
-        profiles_dir = config_manager.profile_manager.profiles_dir
-        profile_path = profiles_dir / f"{profile_name}.yaml"
+        editor_service = ProfileEditorService(config_manager)
 
-        if profile_path.exists():
-            rprint(f"[cyan]{profile_path}[/cyan]")
+        # Load existing profile
+        try:
+            profile_data = editor_service.load_profile(profile_name)
+            rprint(f"[green]Profile loaded successfully: {profile_name}[/green]")
+            rprint("[dim]Current configuration:[/dim]")
+            _display_profile_summary(profile_data)
+
+        except (FileNotFoundError, ValueError) as e:
+            rprint(f"[red]{e}[/red]")
+            raise typer.Exit(1)
+
+        # Create backup before editing
+        try:
+            backup_path = editor_service.create_backup(profile_name)
+            rprint(f"[dim]Backup created: {backup_path}[/dim]")
+        except Exception as e:
+            rprint(f"[yellow]Warning: Could not create backup: {e}[/yellow]")
+
+        # Handle field modifications
+        if set_field:
+            modified_profile = profile_data.copy()
+            for field_spec in set_field:
+                parts = field_spec.split()
+                if len(parts) < 2:
+                    rprint(f"[red]Invalid field specification: {field_spec}[/red]")
+                    rprint("[red]Format: --set-field field.path value[/red]")
+                    raise typer.Exit(1)
+
+                field_path = parts[0]
+                field_value = " ".join(parts[1:])
+
+                # Apply field modification with validation
+                try:
+                    editor_service.set_field_value(
+                        modified_profile, field_path, field_value
+                    )
+                except ValueError as e:
+                    rprint(f"[red]Invalid value for {field_path}: {e}[/red]")
+                    raise typer.Exit(1)
+
+            # Save modified profile
+            editor_service.save_profile(profile_name, modified_profile)
+            rprint(f"[green]Profile updated successfully: {profile_name}[/green]")
+
+        # Handle interactive editing
+        elif interactive:
+            rprint("[bold cyan]Interactive Profile Editor[/bold cyan]")
+            _run_interactive_editor(profile_data, editor_service, profile_name)
+
         else:
-            rprint(f"[red]Profile file not found: {profile_path}[/red]")
+            # Just display current profile for viewing
+            rprint(
+                f"[yellow]Use --set-field or --interactive to edit {profile_name}[/yellow]"
+            )
 
+    except typer.Exit:
+        raise
     except Exception as e:
         rprint(f"[red]Error editing profile: {e}[/red]")
         raise typer.Exit(1)
+
+
+def _display_profile_summary(profile_data: dict) -> None:
+    """Display a summary of the profile configuration."""
+    import json
+
+    # Simple display for now
+    rprint("[dim]Profile data loaded and ready for editing[/dim]")
+
+
+def _run_interactive_editor(
+    profile_data: dict, editor_service, profile_name: str
+) -> None:
+    """Run interactive profile editor."""
+    rprint("\n[bold cyan]Interactive Profile Editor[/bold cyan]")
+
+    editable_fields = editor_service.get_editable_fields(profile_data)
+
+    while True:
+        rprint("\nSelect field to edit:")
+        for i, (field, value) in enumerate(editable_fields, 1):
+            rprint(f"[{i}] {field}: {value}")
+        rprint(f"[{len(editable_fields) + 1}] Save and exit")
+
+        try:
+            choice = input("Enter choice: ").strip()
+            choice_num = int(choice)
+
+            if choice_num == len(editable_fields) + 1:
+                # Save and exit
+                editor_service.save_profile(profile_name, profile_data)
+                rprint(f"[green]Profile saved successfully: {profile_name}[/green]")
+                break
+            elif 1 <= choice_num <= len(editable_fields):
+                # Edit selected field
+                field_name, current_value = editable_fields[choice_num - 1]
+                new_value = input(
+                    f"Enter new value for {field_name} (current: {current_value}): "
+                ).strip()
+
+                if new_value:
+                    try:
+                        editor_service.set_field_value(
+                            profile_data, f"config.{field_name}", new_value
+                        )
+                        # Update the display list
+                        editable_fields[choice_num - 1] = (field_name, new_value)
+                        rprint(f"[green]Updated {field_name} = {new_value}[/green]")
+                    except ValueError as e:
+                        rprint(f"[red]Invalid value: {e}[/red]")
+            else:
+                rprint("[red]Invalid choice[/red]")
+
+        except (ValueError, KeyboardInterrupt):
+            rprint("\n[yellow]Exiting without saving[/yellow]")
+            break
 
 
 @app.command()

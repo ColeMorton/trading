@@ -62,21 +62,57 @@ def process_synthetic_config(config: Dict[str, Any], log_func=None) -> Dict[str,
             log_func(f"Processing strategy for ticker: {config['TICKER']}")
         return config.copy()
 
+    # Check if synthetic processing has already been done
+    if config.get("SYNTHETIC_PROCESSED"):
+        if log_func:
+            log_func("Synthetic ticker already processed, skipping double processing")
+        return config.copy()
+
+    # Additional check: if TICKER is already a synthetic ticker format and contains TICKER_2,
+    # this might be a second processing attempt
+    if "TICKER" in config and isinstance(config["TICKER"], str):
+        ticker = config["TICKER"]
+        ticker_2 = config.get("TICKER_2", "")
+        if "_" in ticker and ticker_2 and ticker.endswith(f"_{ticker_2}"):
+            if log_func:
+                log_func(
+                    f"TICKER {ticker} appears to already contain {ticker_2}, likely already processed. Skipping to prevent double processing."
+                )
+            # Mark as processed and return as-is
+            result = config.copy()
+            result["SYNTHETIC_PROCESSED"] = True
+            return result
+
     result = config.copy()
 
-    # Check if this is a global config without a specific ticker
-    # (e.g., in app/concurrency/review.py main config)
+    # Check if this is a config without a specific TICKER field
+    # In this case, create the synthetic ticker from TICKER_1 and TICKER_2
     if "TICKER" not in config:
         if log_func:
-            log_func("Processing global synthetic ticker configuration")
+            log_func(
+                "Processing synthetic ticker configuration from TICKER_1 and TICKER_2"
+            )
 
-        # For global configs, we just need to ensure TICKER_1 and TICKER_2 are present
+        # Ensure TICKER_1 and TICKER_2 are present
         if "TICKER_1" not in config or "TICKER_2" not in config:
             raise SyntheticTickerError(
                 "TICKER_1 and TICKER_2 must be specified when USE_SYNTHETIC is True"
             )
 
-        # No need to modify the config further for global configs
+        # Create synthetic ticker from TICKER_1 and TICKER_2
+        synthetic_ticker = create_synthetic_ticker(
+            config["TICKER_1"], config["TICKER_2"]
+        )
+
+        if log_func:
+            log_func(f"Created synthetic ticker: {synthetic_ticker}")
+
+        result["TICKER"] = synthetic_ticker
+        result["ORIGINAL_TICKERS"] = [config["TICKER_1"]]
+
+        # Mark as processed to prevent double processing, but keep USE_SYNTHETIC for data download
+        result["SYNTHETIC_PROCESSED"] = True
+
         return result
 
     # Process configs with specific tickers
@@ -102,6 +138,9 @@ def process_synthetic_config(config: Dict[str, Any], log_func=None) -> Dict[str,
             else [config["TICKER"]]
         )
 
+        # Mark as processed to prevent double processing, but keep USE_SYNTHETIC for data download
+        result["SYNTHETIC_PROCESSED"] = True
+
     elif isinstance(config["TICKER"], str):
         # Process single synthetic ticker
         if "TICKER_2" not in config:
@@ -109,13 +148,18 @@ def process_synthetic_config(config: Dict[str, Any], log_func=None) -> Dict[str,
                 "TICKER_2 must be specified when USE_SYNTHETIC is True"
             )
 
-        synthetic_ticker = create_synthetic_ticker(config["TICKER"], config["TICKER_2"])
+        # Create synthetic ticker from the provided ticker and TICKER_2
+        ticker = config["TICKER"]
+        synthetic_ticker = create_synthetic_ticker(ticker, config["TICKER_2"])
 
         if log_func:
             log_func(f"Processing strategy for synthetic pair: {synthetic_ticker}")
 
         result["TICKER"] = synthetic_ticker
         result["ORIGINAL_TICKERS"] = [config["TICKER"]]
+
+        # Mark as processed to prevent double processing, but keep USE_SYNTHETIC for data download
+        result["SYNTHETIC_PROCESSED"] = True
 
     else:
         raise SyntheticTickerError(

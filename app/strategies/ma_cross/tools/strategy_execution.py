@@ -169,7 +169,11 @@ def process_single_ticker(
             ticker.replace("/", "_") if isinstance(ticker, str) else ticker
         )
         ticker_config["TICKER"] = formatted_ticker
-    ticker_config["USE_MA"] = True  # Ensure USE_MA is set for proper filename suffix
+    # Set strategy-specific configuration for proper filename generation
+    ticker_config["USE_MA"] = True  # Enable strategy suffix in filename
+    # Ensure STRATEGY_TYPE is set for accurate strategy identification
+    if "STRATEGY_TYPE" not in ticker_config:
+        ticker_config["STRATEGY_TYPE"] = config.get("STRATEGY_TYPE", "SMA")
 
     # Process portfolios for ticker
     # Get the actual ticker from config (which may be synthetic)

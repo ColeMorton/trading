@@ -14,10 +14,11 @@ config_type: 'strategy'
 
 config:
   name: 'current'
+
   ticker:
     - FANG
 
-  # Performance filters (maps to CLI --min-* options)
+  # Performance filters
   minimums:
     win_rate: 0.5
     trades: 54

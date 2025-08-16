@@ -77,8 +77,17 @@ def get_data(
     try:
         log(f"Initiating data retrieval for {ticker}", "info")
 
-        # Check if this is a synthetic ticker (either by config flag or by ticker name)
-        is_synthetic = config.get("USE_SYNTHETIC", False) or "_" in ticker
+        # Check if this is a synthetic ticker
+        # Primary check: USE_SYNTHETIC flag is explicitly True
+        is_synthetic = config.get("USE_SYNTHETIC", False)
+
+        # Fallback check: Detect synthetic ticker by name pattern (contains underscore)
+        # This ensures synthetic tickers work even if the flag is not set properly
+        if not is_synthetic and "_" in ticker and len(ticker.split("_")) == 2:
+            # Looks like a synthetic ticker (TICKER1_TICKER2 format)
+            log(f"Detected potential synthetic ticker by name pattern: {ticker}")
+            is_synthetic = True
+            config["USE_SYNTHETIC"] = True  # Set the flag for proper processing
 
         if config.get("USE_GBM", False):
             log("Using Geometric Brownian Motion simulation")

@@ -167,7 +167,7 @@ def get_filename(type: str, config: Dict[str, Any], path: str = "") -> str:
     components = [
         ticker_prefix,
         "H" if config.get("USE_HOURLY", False) else "D",
-        "_SMA" if config.get("USE_SMA", False) else "_EMA",
+        f"_{config.get('STRATEGY_TYPE', 'EMA')}" if config.get("USE_MA", False) else "",
         "_GBM" if config.get("USE_GBM", False) else "",
         f"_{datetime.now().strftime('%Y%m%d')}" if include_datetime else "",
     ]

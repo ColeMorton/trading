@@ -22,6 +22,39 @@ from app.cli.commands.strategy import app as strategy_app
 from app.cli.models.strategy import StrategyType
 
 
+def create_mock_strategy_config(ticker=None, strategy_types=None, **kwargs):
+    """
+    Create a properly configured mock strategy config for testing.
+
+    This helper ensures all Mock objects have the attributes needed for
+    validation functions like validate_parameter_relationships.
+    """
+    mock_config = Mock()
+
+    # Core required attributes
+    mock_config.ticker = ticker or ["AAPL"]
+    mock_config.strategy_types = strategy_types or [StrategyType.SMA]
+
+    # Validation-friendly attributes for parameter validation
+    mock_config.fast_period_range = [5, 50]
+    mock_config.slow_period_range = [20, 200]
+    mock_config.fast_period = None
+    mock_config.slow_period = None
+    mock_config.skip_analysis = False
+
+    # Mock minimums object with proper values
+    mock_minimums = Mock()
+    mock_minimums.win_rate = 0.55
+    mock_minimums.trades = 30
+    mock_config.minimums = mock_minimums
+
+    # Apply any additional kwargs
+    for key, value in kwargs.items():
+        setattr(mock_config, key, value)
+
+    return mock_config
+
+
 class TestStrategyRunCommand:
     """Test cases for strategy run command."""
 
@@ -105,10 +138,10 @@ config:
         sample_sma_profile,
     ):
         """Test successful run command with SMA profile."""
-        # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["AAPL"]
-        mock_config.strategy_types = [StrategyType.SMA]
+        # Setup mocks using helper function
+        mock_config = create_mock_strategy_config(
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA]
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
@@ -143,10 +176,10 @@ config:
         sample_macd_profile,
     ):
         """Test successful run command with MACD profile."""
-        # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["BTC-USD"]
-        mock_config.strategy_types = [StrategyType.MACD]
+        # Setup mocks using helper function
+        mock_config = create_mock_strategy_config(
+            ticker=["BTC-USD"], strategy_types=[StrategyType.MACD]
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
@@ -172,10 +205,10 @@ config:
         self, mock_config_loader, mock_dispatcher_class, cli_runner
     ):
         """Test run command with single ticker override."""
-        # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["TSLA"]
-        mock_config.strategy_types = [StrategyType.SMA]
+        # Setup mocks using helper function
+        mock_config = create_mock_strategy_config(
+            ticker=["TSLA"], strategy_types=[StrategyType.SMA]
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
@@ -194,7 +227,9 @@ config:
         call_args = mock_config_loader.return_value.load_from_profile.call_args
         overrides = call_args[0][2]  # Third argument is overrides
         assert "ticker" in overrides
-        assert "strategy_type" in overrides
+        assert (
+            "strategy_types" in overrides
+        )  # Fixed: plural form matches implementation
 
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
@@ -202,10 +237,10 @@ config:
         self, mock_config_loader, mock_dispatcher_class, cli_runner
     ):
         """Test run command with multiple tickers."""
-        # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["AAPL", "MSFT", "GOOGL"]
-        mock_config.strategy_types = [StrategyType.SMA]
+        # Setup mocks using helper function
+        mock_config = create_mock_strategy_config(
+            ticker=["AAPL", "MSFT", "GOOGL"], strategy_types=[StrategyType.SMA]
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
@@ -228,10 +263,10 @@ config:
         self, mock_config_loader, mock_dispatcher_class, cli_runner
     ):
         """Test run command with multiple strategy types."""
-        # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["AAPL"]
-        mock_config.strategy_types = [StrategyType.SMA, StrategyType.EMA]
+        # Setup mocks using helper function
+        mock_config = create_mock_strategy_config(
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA, StrategyType.EMA]
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
@@ -255,10 +290,10 @@ config:
         self, mock_config_loader, mock_dispatcher_class, cli_runner
     ):
         """Test run command with minimum criteria overrides."""
-        # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["AAPL"]
-        mock_config.strategy_types = [StrategyType.SMA]
+        # Setup mocks using helper function
+        mock_config = create_mock_strategy_config(
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA]
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
@@ -286,8 +321,10 @@ config:
         assert result.exit_code == 0
         call_args = mock_config_loader.return_value.load_from_profile.call_args
         overrides = call_args[0][2]
-        assert "min_trades" in overrides
-        assert "min_win_rate" in overrides
+        # Check that minimums are stored in nested structure
+        assert "minimums" in overrides
+        assert overrides["minimums"]["trades"] == 50
+        assert overrides["minimums"]["win_rate"] == 0.6
 
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
@@ -295,10 +332,10 @@ config:
         self, mock_config_loader, mock_dispatcher_class, cli_runner
     ):
         """Test run command with years configuration override."""
-        # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["AAPL"]
-        mock_config.strategy_types = [StrategyType.SMA]
+        # Setup mocks using helper function
+        mock_config = create_mock_strategy_config(
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA]
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
@@ -330,10 +367,10 @@ config:
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_run_command_dry_run(self, mock_config_loader, cli_runner):
         """Test run command with dry-run flag."""
-        # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["AAPL"]
-        mock_config.strategy_types = [StrategyType.SMA]
+        # Setup mocks using helper function
+        mock_config = create_mock_strategy_config(
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA]
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         # Run command with dry-run
@@ -356,10 +393,10 @@ config:
         self, mock_config_loader, mock_dispatcher_class, cli_runner
     ):
         """Test run command with verbose flag."""
-        # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["AAPL"]
-        mock_config.strategy_types = [StrategyType.SMA]
+        # Setup mocks using helper function
+        mock_config = create_mock_strategy_config(
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA]
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
@@ -386,10 +423,10 @@ config:
         self, mock_config_loader, mock_dispatcher_class, cli_runner
     ):
         """Test run command when strategy execution fails."""
-        # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["AAPL"]
-        mock_config.strategy_types = [StrategyType.SMA]
+        # Setup mocks using helper function
+        mock_config = create_mock_strategy_config(
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA]
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
@@ -453,10 +490,10 @@ config:
         self, mock_config_loader, mock_dispatcher_class, cli_runner
     ):
         """Test run command uses default profile when none specified."""
-        # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["AAPL"]
-        mock_config.strategy_types = [StrategyType.SMA]
+        # Setup mocks using helper function
+        mock_config = create_mock_strategy_config(
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA]
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
@@ -481,10 +518,10 @@ config:
         self, mock_config_loader, mock_dispatcher_class, cli_runner
     ):
         """Test run command handles string ticker input correctly."""
-        # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = "AAPL"  # String ticker
-        mock_config.strategy_types = [StrategyType.SMA]
+        # Setup mocks using helper function
+        mock_config = create_mock_strategy_config(
+            ticker="AAPL", strategy_types=[StrategyType.SMA]  # String ticker
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
@@ -679,10 +716,10 @@ class TestStrategyRunCommandEdgeCases:
         self, mock_config_loader, mock_dispatcher_class, cli_runner
     ):
         """Test run command with extreme parameter values."""
-        # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["AAPL"]
-        mock_config.strategy_types = [StrategyType.SMA]
+        # Setup mocks using helper function
+        mock_config = create_mock_strategy_config(
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA]
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
@@ -738,10 +775,10 @@ class TestStrategyRunCommandEdgeCases:
         self, mock_config_loader, mock_dispatcher_class, cli_runner
     ):
         """Test run command with Unicode characters in tickers."""
-        # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["AAPL"]
-        mock_config.strategy_types = [StrategyType.SMA]
+        # Setup mocks using helper function
+        mock_config = create_mock_strategy_config(
+            ticker=["AAPL"], strategy_types=[StrategyType.SMA]
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()

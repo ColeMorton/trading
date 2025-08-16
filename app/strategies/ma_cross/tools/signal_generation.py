@@ -142,7 +142,7 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
                 data, [short_window], [long_window], config, log
             )
         else:
-            # Use window permutations from explicit ranges
+            # Use window permutations from explicit ranges for full analysis
             fast_range = config.get("FAST_PERIOD_RANGE")
             slow_range = config.get("SLOW_PERIOD_RANGE")
 

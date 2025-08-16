@@ -83,7 +83,6 @@ class MAStrategyService(BaseStrategyService):
 
         # Base legacy config structure
         legacy_config = {
-            "TICKER": ticker_list,
             "STRATEGY_TYPES": [
                 st.value if hasattr(st, "value") else str(st)
                 for st in config.strategy_types
@@ -98,6 +97,16 @@ class MAStrategyService(BaseStrategyService):
             "USE_GBM": config.use_gbm,
             "MINIMUMS": {},
         }
+
+        # Handle ticker configuration based on synthetic mode
+        if config.synthetic.use_synthetic:
+            # For synthetic mode, don't set TICKER here - let process_synthetic_config handle it
+            legacy_config["USE_SYNTHETIC"] = True
+            legacy_config["TICKER_1"] = config.synthetic.ticker_1
+            legacy_config["TICKER_2"] = config.synthetic.ticker_2
+        else:
+            # For normal mode, set TICKER as usual
+            legacy_config["TICKER"] = ticker_list
 
         # Add minimum criteria
         if config.minimums.win_rate is not None:
@@ -114,12 +123,6 @@ class MAStrategyService(BaseStrategyService):
             legacy_config["MINIMUMS"]["SORTINO_RATIO"] = config.minimums.sortino_ratio
         if config.minimums.beats_bnh is not None:
             legacy_config["MINIMUMS"]["BEATS_BNH"] = config.minimums.beats_bnh
-
-        # Add synthetic ticker configuration
-        if config.synthetic.use_synthetic:
-            legacy_config["USE_SYNTHETIC"] = True
-            legacy_config["TICKER_1"] = config.synthetic.ticker_1
-            legacy_config["TICKER_2"] = config.synthetic.ticker_2
 
         # Add parameter ranges for sweeps if specified
         if config.fast_period_range:
@@ -205,7 +208,6 @@ class MACDStrategyService(BaseStrategyService):
 
         try:
             legacy_config = {
-                "TICKER": ticker_list,
                 "STRATEGY_TYPE": "MACD",
                 "STRATEGY_TYPES": ["MACD"],
                 "SHORT_WINDOW_START": config.short_window_start,
@@ -223,7 +225,6 @@ class MACDStrategyService(BaseStrategyService):
                 "USE_YEARS": getattr(config, "use_years", False),
                 "YEARS": getattr(config, "years", None),
                 "REFRESH": getattr(config, "refresh", True),
-                "MULTI_TICKER": len(ticker_list) > 1,
                 "MINIMUMS": {},
                 # Add sorting parameters from YAML config
                 "SORT_BY": getattr(config, "sort_by", "Score"),
@@ -231,6 +232,20 @@ class MACDStrategyService(BaseStrategyService):
                 # Add skip_analysis flag
                 "SKIP_ANALYSIS": getattr(config, "skip_analysis", False),
             }
+
+            # Handle ticker configuration based on synthetic mode (same as MA Cross service)
+            if config.synthetic.use_synthetic:
+                # For synthetic mode, don't set TICKER here - let process_synthetic_config handle it
+                legacy_config["USE_SYNTHETIC"] = True
+                legacy_config["TICKER_1"] = config.synthetic.ticker_1
+                legacy_config["TICKER_2"] = config.synthetic.ticker_2
+                legacy_config[
+                    "MULTI_TICKER"
+                ] = False  # Synthetic pairs are treated as single ticker
+            else:
+                # For normal mode, set TICKER as usual
+                legacy_config["TICKER"] = ticker_list
+                legacy_config["MULTI_TICKER"] = len(ticker_list) > 1
         except AttributeError as e:
             rprint(f"[red]Error accessing MACD parameters: {e}[/red]")
             raise ValueError(f"MACD configuration error: {e}")

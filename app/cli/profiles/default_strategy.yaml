@@ -22,6 +22,14 @@ config:
 
   windows: 89
 
+  fast_period_range:
+    - 5
+    - 88
+
+  slow_period_range:
+    - 8
+    - 89
+
   # MACD Core Parameters (single source of truth)
   short_window_start: 5
   short_window_end: 21
@@ -36,6 +44,7 @@ config:
   use_hourly: false
   use_years: false
   refresh: true
+  skip_analysis: false
   years: 50
 
   # Result configuration

@@ -108,13 +108,12 @@ def build_configuration_overrides(
     """
     overrides = {}
 
-    # Process ticker input
-    if ticker:
-        overrides["ticker"] = process_ticker_input(ticker)
-
-    # Synthetic ticker configuration
+    # Handle ticker input - different behavior for synthetic vs normal mode
     if ticker_2:
-        # When ticker_2 is provided, automatically enable synthetic analysis
+        # Synthetic mode: explicitly clear ticker field and set synthetic configuration
+        overrides[
+            "ticker"
+        ] = []  # Override any default ticker from profile with empty list
         synthetic_config = {"use_synthetic": True, "ticker_2": ticker_2.strip().upper()}
         # If ticker is provided, use the first one as ticker_1
         if ticker:
@@ -122,6 +121,9 @@ def build_configuration_overrides(
             if processed_tickers:
                 synthetic_config["ticker_1"] = processed_tickers[0]
         overrides["synthetic"] = synthetic_config
+    elif ticker:
+        # Normal mode: process ticker input as usual
+        overrides["ticker"] = process_ticker_input(ticker)
 
     # Strategy types
     if strategy_type:

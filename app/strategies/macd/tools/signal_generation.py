@@ -201,55 +201,73 @@ def get_current_signals(
     try:
         signals = []
 
-        # Generate parameter combinations with STEP (reduced for testing)
-        step = config.get("STEP", 1)  # Default to 1 for faster testing
+        # Check if specific windows are provided
+        specific_short = config.get("short_window")
+        specific_long = config.get("long_window")
+        specific_signal = config.get("signal_window")
 
-        # Use the specific config parameters with reduced testing defaults
-        short_window_start = config.get("SHORT_WINDOW_START", 8)
-        short_window_end = config.get("SHORT_WINDOW_END", 12)
-        long_window_start = config.get("LONG_WINDOW_START", 21)
-        long_window_end = config.get("LONG_WINDOW_END", 26)
-        signal_window_start = config.get("SIGNAL_WINDOW_START", 9)
-        signal_window_end = config.get("SIGNAL_WINDOW_END", 9)
+        if (
+            specific_short is not None
+            and specific_long is not None
+            and specific_signal is not None
+        ):
+            # Use specific windows from config
+            parameter_combinations = [(specific_short, specific_long, specific_signal)]
+        else:
+            # Generate parameter combinations with STEP (for full analysis)
+            step = config.get("STEP", 1)  # Default to 1 for faster testing
 
-        for short_window in range(short_window_start, short_window_end + 1, step):
-            for long_window in range(long_window_start, long_window_end + 1, step):
-                if long_window <= short_window:
-                    continue
+            # Use the specific config parameters with reduced testing defaults
+            short_window_start = config.get("SHORT_WINDOW_START", 8)
+            short_window_end = config.get("SHORT_WINDOW_END", 12)
+            long_window_start = config.get("LONG_WINDOW_START", 21)
+            long_window_end = config.get("LONG_WINDOW_END", 26)
+            signal_window_start = config.get("SIGNAL_WINDOW_START", 9)
+            signal_window_end = config.get("SIGNAL_WINDOW_END", 9)
 
-                for signal_window in range(
-                    signal_window_start, signal_window_end + 1, step
-                ):
-                    try:
-                        temp_config = config.copy()
-                        temp_config.update(
+            parameter_combinations = []
+            for short_window in range(short_window_start, short_window_end + 1, step):
+                for long_window in range(long_window_start, long_window_end + 1, step):
+                    if long_window <= short_window:
+                        continue
+                    for signal_window in range(
+                        signal_window_start, signal_window_end + 1, step
+                    ):
+                        parameter_combinations.append(
+                            (short_window, long_window, signal_window)
+                        )
+
+        for short_window, long_window, signal_window in parameter_combinations:
+            try:
+                temp_config = config.copy()
+                temp_config.update(
+                    {
+                        "short_window": short_window,
+                        "long_window": long_window,
+                        "signal_window": signal_window,
+                    }
+                )
+
+                temp_data = generate_macd_signals(data.clone(), temp_config)
+
+                if temp_data is not None and len(temp_data) > 0:
+                    last_signal = temp_data.tail(1).select("Signal").item()
+                    if last_signal != 0:  # If there's an active signal
+                        signals.append(
                             {
-                                "short_window": short_window,
-                                "long_window": long_window,
-                                "signal_window": signal_window,
+                                "Short Window": short_window,
+                                "Long Window": long_window,
+                                "Signal Window": signal_window,
+                                "Signal": last_signal,
                             }
                         )
 
-                        temp_data = generate_macd_signals(data.clone(), temp_config)
-
-                        if temp_data is not None and len(temp_data) > 0:
-                            last_signal = temp_data.tail(1).select("Signal").item()
-                            if last_signal != 0:  # If there's an active signal
-                                signals.append(
-                                    {
-                                        "Short Window": short_window,
-                                        "Long Window": long_window,
-                                        "Signal Window": signal_window,
-                                        "Signal": last_signal,
-                                    }
-                                )
-
-                    except Exception as e:
-                        log(
-                            f"Failed to process parameters {short_window}/{long_window}/{signal_window}: {str(e)}",
-                            "warning",
-                        )
-                        continue
+            except Exception as e:
+                log(
+                    f"Failed to process parameters {short_window}/{long_window}/{signal_window}: {str(e)}",
+                    "warning",
+                )
+                continue
 
         # Create DataFrame with explicit schema
         if signals:
@@ -287,7 +305,11 @@ def generate_current_signals(config: Dict, log: Callable) -> pl.DataFrame:
     """
     try:
         # Config is already processed by PortfolioOrchestrator
-        data = get_data(config["TICKER"], config, log)
+        data_result = get_data(config["TICKER"], config, log)
+        if isinstance(data_result, tuple):
+            data, _ = data_result
+        else:
+            data = data_result
         if data is None:
             log("Failed to get price data", "error")
             return pl.DataFrame(

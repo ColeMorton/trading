@@ -109,18 +109,20 @@ class PortfolioOrchestrator:
                 if all_portfolios:
                     self._export_raw_portfolios(all_portfolios, config)
 
-            # Step 5: Process results if any
+            # Step 5: Process results - always export to ensure empty files are created
             if all_portfolios:
                 # Filter and process portfolios
                 filtered_portfolios = self._filter_and_process_portfolios(
                     all_portfolios, config
                 )
 
-                # Export filtered portfolios and final results
-                if filtered_portfolios:
-                    self._export_filtered_portfolios(filtered_portfolios, config)
-                    self._export_results(filtered_portfolios, config)
+                # Always export, even if filtered_portfolios is empty, to ensure all configured
+                # ticker+strategy combinations get files (header-only when no qualifying portfolios)
+                self._export_filtered_portfolios(filtered_portfolios or [], config)
+                self._export_results(filtered_portfolios or [], config)
             else:
+                # Even when no portfolios are generated, create empty files for all configured combinations
+                # This handles USE_CURRENT mode where no current signals exist for today
                 if config.get("skip_analysis", False):
                     self.log(
                         "No existing portfolio files found in data/raw/portfolios/",
@@ -128,6 +130,17 @@ class PortfolioOrchestrator:
                     )
                 else:
                     self.log("No portfolios returned from strategies", "warning")
+
+                # Create empty files for all configured ticker+strategy combinations
+                use_current = config.get("USE_CURRENT", False)
+                if use_current:
+                    self.log(
+                        "USE_CURRENT mode: Creating empty files for all configured ticker+strategy combinations",
+                        "info",
+                    )
+                    # Export empty portfolios to create header-only files
+                    self._export_filtered_portfolios([], config)
+                    self._export_results([], config)
 
             return True
 
@@ -276,12 +289,35 @@ class PortfolioOrchestrator:
             # Convert portfolios list to DataFrame for filtering
             import polars as pl
 
-            if portfolios:
-                portfolios_df = pl.DataFrame(portfolios)
+            # Apply MINIMUMS filtering first using PortfolioFilterService
+            filtered_portfolios_list = portfolios
+            if portfolios and "MINIMUMS" in config:
+                self.log(
+                    "Applying MINIMUMS filtering during portfolio processing", "info"
+                )
+                from app.tools.portfolio.filtering_service import PortfolioFilterService
+
+                filter_service = PortfolioFilterService()
+                filtered_portfolios_list = filter_service.filter_portfolios_list(
+                    portfolios, config, self.log
+                )
+
+                if filtered_portfolios_list:
+                    self.log(
+                        f"MINIMUMS filtering: {len(portfolios)} -> {len(filtered_portfolios_list)} portfolios remain",
+                        "info",
+                    )
+                else:
+                    self.log("No portfolios remain after MINIMUMS filtering", "warning")
+                    filtered_portfolios_list = []
+
+            # Convert filtered portfolios to DataFrame for extreme value analysis
+            if filtered_portfolios_list:
+                portfolios_df = pl.DataFrame(filtered_portfolios_list)
             else:
                 portfolios_df = pl.DataFrame()
 
-            # Filter portfolios with strategy filtering enabled for portfolios_filtered export
+            # Apply extreme value filtering to MINIMUMS-filtered portfolios
             filtered_portfolios_df = filter_portfolios(portfolios_df, config, self.log)
 
             # Convert DataFrame back to list of dictionaries
@@ -374,10 +410,14 @@ class PortfolioOrchestrator:
                     "debug",
                 )
 
-                # Always use grouped export in skip analysis mode for individual ticker+strategy files
-                if skip_analysis:
+                # Use grouped export for skip analysis mode OR USE_CURRENT mode for individual ticker+strategy files
+                use_current = config.get("USE_CURRENT", False)
+                if skip_analysis or use_current:
+                    mode_reason = (
+                        "skip analysis mode" if skip_analysis else "USE_CURRENT mode"
+                    )
                     self.log(
-                        "Using grouped export for portfolios_filtered (skip analysis mode)",
+                        f"Using grouped export for portfolios_filtered ({mode_reason})",
                         "info",
                     )
                     # Group portfolios by ticker+strategy and export individually
@@ -434,10 +474,14 @@ class PortfolioOrchestrator:
                     "debug",
                 )
 
-                # Always use grouped export in skip analysis mode for individual ticker+strategy files
-                if skip_analysis:
+                # Use grouped export for skip analysis mode OR USE_CURRENT mode for individual ticker+strategy files
+                use_current = config.get("USE_CURRENT", False)
+                if skip_analysis or use_current:
+                    mode_reason = (
+                        "skip analysis mode" if skip_analysis else "USE_CURRENT mode"
+                    )
                     self.log(
-                        "Using grouped export for portfolios_best (skip analysis mode)",
+                        f"Using grouped export for portfolios_best ({mode_reason})",
                         "info",
                     )
                     # Group portfolios by ticker+strategy and export individually
@@ -591,12 +635,14 @@ class PortfolioOrchestrator:
             "info",
         )
 
-        # Add empty groups for configured strategies that have no qualifying portfolios
+        # Ensure ALL configured ticker+strategy combinations have groups, even if no portfolios were generated
+        # This handles cases where strategies fail to complete or all portfolios are filtered out
         configured_strategies = config.get("STRATEGY_TYPES", [])
         configured_tickers = config.get("TICKER", [])
         if isinstance(configured_tickers, str):
             configured_tickers = [configured_tickers]
 
+        # Create groups for every configured combination to ensure consistent file creation
         for strategy in configured_strategies:
             for ticker in configured_tickers:
                 group_key = f"{ticker}_{strategy}"
@@ -604,9 +650,16 @@ class PortfolioOrchestrator:
                     # Create empty group for this ticker+strategy combination
                     groups[group_key] = []
                     self.log(
-                        f"Creating empty group for {ticker} {strategy} (no qualifying portfolios)",
+                        f"Creating empty group for {ticker} {strategy} (no portfolios generated or all filtered out)",
                         "info",
                     )
+
+        # Log the final group count to verify all combinations are included
+        expected_combinations = len(configured_strategies) * len(configured_tickers)
+        self.log(
+            f"Export will create {len(groups)} files for {expected_combinations} expected ticker+strategy combinations",
+            "info",
+        )
 
         # Export each group individually
         export_count = 0
@@ -700,10 +753,25 @@ class PortfolioOrchestrator:
                     f"Portfolio directory does not exist: {portfolio_dir}"
                 )
 
-            # Get configured ticker list for filtering
-            configured_tickers = config.get("TICKER", [])
-            if isinstance(configured_tickers, str):
-                configured_tickers = [configured_tickers]
+            # Get configured ticker list for filtering - handle synthetic mode
+            if config.get("USE_SYNTHETIC", False):
+                # In synthetic mode, create synthetic ticker name for file matching
+                ticker_1 = config.get("TICKER_1", "")
+                ticker_2 = config.get("TICKER_2", "")
+                if ticker_1 and ticker_2:
+                    synthetic_ticker = f"{ticker_1}_{ticker_2}"
+                    configured_tickers = [synthetic_ticker]
+                    self.log(
+                        f"Synthetic mode: looking for portfolio files matching {synthetic_ticker}",
+                        "info",
+                    )
+                else:
+                    configured_tickers = []
+            else:
+                # Normal mode: use TICKER field
+                configured_tickers = config.get("TICKER", [])
+                if isinstance(configured_tickers, str):
+                    configured_tickers = [configured_tickers]
 
             # Find all CSV files in the portfolio directory
             all_csv_files = list(portfolio_dir.glob("*.csv"))

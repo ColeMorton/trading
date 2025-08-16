@@ -76,7 +76,11 @@ def process_single_ticker(
         )
 
         log(f"Getting data for {ticker}...")
-        data = get_data(ticker, config_copy, log)
+        data_result = get_data(ticker, config_copy, log)
+        if isinstance(data_result, tuple):
+            data, _ = data_result
+        else:
+            data = data_result
         if data is None:
             log(f"Failed to get data for {ticker}", "error")
             return None
