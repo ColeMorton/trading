@@ -43,7 +43,8 @@ class ExportConfig(TypedDict):
         USE_MA (NotRequired[bool]): Whether to include MA suffix in filename
         USE_GBM (NotRequired[bool]): Whether GBM simulation is used
         SHOW_LAST (NotRequired[bool]): Whether to include date in filename
-        USE_CURRENT (NotRequired[bool]): Whether to use date subdirectory
+        USE_CURRENT (NotRequired[bool]): Whether to use current date subdirectory
+        USE_DATE (NotRequired[str]): Specific date for subdirectory (YYYYMMDD format, overrides USE_CURRENT)
         DIRECTION (NotRequired[str]): Trading direction ("Long" or "Short")
     """
 
@@ -56,6 +57,7 @@ class ExportConfig(TypedDict):
     USE_GBM: NotRequired[bool]
     SHOW_LAST: NotRequired[bool]
     USE_CURRENT: NotRequired[bool]
+    USE_DATE: NotRequired[str]
     DIRECTION: NotRequired[str]
 
 
@@ -310,8 +312,11 @@ def _get_export_path(feature1: str, config: ExportConfig, feature2: str = "") ->
     if feature2:
         path_components.append(feature2)
 
-    # If USE_CURRENT is True, add date subdirectory
-    if config.get("USE_CURRENT", False):
+    # Add date subdirectory if USE_DATE is specified (overrides USE_CURRENT)
+    if config.get("USE_DATE"):
+        target_date = config.get("USE_DATE")
+        path_components.append(target_date)
+    elif config.get("USE_CURRENT", False):
         today = datetime.now().strftime("%Y%m%d")
         path_components.append(today)
 

@@ -20,7 +20,12 @@ from app.strategies.ma_cross.tools.signal_utils import is_signal_current
 from app.tools.config_service import ConfigService
 from app.tools.portfolio_transformation import reorder_columns
 from app.tools.stats_converter import convert_stats
-from app.tools.strategy.signal_utils import calculate_signal_unconfirmed
+from app.tools.strategy.signal_utils import (
+    calculate_signal_unconfirmed,
+    calculate_signal_unconfirmed_realtime,
+    is_exit_signal_current,
+    is_signal_current,
+)
 
 
 def process_ticker_portfolios(
@@ -147,9 +152,28 @@ def process_ticker_portfolios(
                             "info",
                         )
 
-                        # Calculate unconfirmed signal
-                        signal_unconfirmed = calculate_signal_unconfirmed(
-                            signal_data, config
+                        # Check if there's a current exit signal
+                        exit_signal = is_exit_signal_current(signal_data, config)
+                        log(
+                            f"Current MACD exit signal for {ticker}: {exit_signal}",
+                            "info",
+                        )
+
+                        # Get total open trades from portfolio stats
+                        portfolio_stats = portfolio.stats()
+                        total_open_trades = portfolio_stats.get("Total Open Trades", 0)
+                        
+                        # Calculate unconfirmed signal using real-time data
+                        signal_unconfirmed = calculate_signal_unconfirmed_realtime(
+                            ticker=ticker,
+                            strategy_type="MACD",
+                            fast_period=fast_period,
+                            slow_period=slow_period,
+                            signal_entry=current_signal,
+                            signal_exit=exit_signal,
+                            total_open_trades=total_open_trades,
+                            config=config,
+                            signal_period=signal_period,
                         )
                         log(
                             f"Signal Unconfirmed for {ticker} MACD: {signal_unconfirmed}",
@@ -218,9 +242,28 @@ def process_ticker_portfolios(
                             f"Current SMA signal for {ticker}: {current_signal}", "info"
                         )
 
-                        # Calculate unconfirmed signal
-                        signal_unconfirmed = calculate_signal_unconfirmed(
-                            sma_data, config
+                        # Check if there's a current exit signal
+                        exit_signal = is_exit_signal_current(sma_data, config)
+                        log(
+                            f"Current SMA exit signal for {ticker}: {exit_signal}",
+                            "info",
+                        )
+
+                        # Get total open trades from portfolio stats
+                        sma_portfolio_stats = sma_portfolio.stats()
+                        total_open_trades = sma_portfolio_stats.get("Total Open Trades", 0)
+                        
+                        # Calculate unconfirmed signal using real-time data
+                        signal_unconfirmed = calculate_signal_unconfirmed_realtime(
+                            ticker=ticker,
+                            strategy_type="SMA",
+                            fast_period=fast_period,
+                            slow_period=slow_period,
+                            signal_entry=current_signal,
+                            signal_exit=exit_signal,
+                            total_open_trades=total_open_trades,
+                            config=config,
+                            signal_period=None,
                         )
                         log(
                             f"Signal Unconfirmed for {ticker} SMA: {signal_unconfirmed}",
@@ -262,9 +305,28 @@ def process_ticker_portfolios(
                             f"Current EMA signal for {ticker}: {current_signal}", "info"
                         )
 
-                        # Calculate unconfirmed signal
-                        signal_unconfirmed = calculate_signal_unconfirmed(
-                            ema_data, config
+                        # Check if there's a current exit signal
+                        exit_signal = is_exit_signal_current(ema_data, config)
+                        log(
+                            f"Current EMA exit signal for {ticker}: {exit_signal}",
+                            "info",
+                        )
+
+                        # Get total open trades from portfolio stats
+                        ema_portfolio_stats = ema_portfolio.stats()
+                        total_open_trades = ema_portfolio_stats.get("Total Open Trades", 0)
+                        
+                        # Calculate unconfirmed signal using real-time data
+                        signal_unconfirmed = calculate_signal_unconfirmed_realtime(
+                            ticker=ticker,
+                            strategy_type="EMA",
+                            fast_period=fast_period,
+                            slow_period=slow_period,
+                            signal_entry=current_signal,
+                            signal_exit=exit_signal,
+                            total_open_trades=total_open_trades,
+                            config=config,
+                            signal_period=None,
                         )
                         log(
                             f"Signal Unconfirmed for {ticker} EMA: {signal_unconfirmed}",

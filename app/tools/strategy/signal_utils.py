@@ -6,6 +6,7 @@ including functions for checking signal currency and matching signals.
 """
 
 from datetime import date, timedelta
+from pathlib import Path
 from typing import Dict, List
 
 import polars as pl
@@ -204,6 +205,126 @@ def calculate_signal_unconfirmed(
 
         return "None"
 
+    except Exception:
+        # If any error occurs, return None
+        return "None"
+
+
+def calculate_signal_unconfirmed_realtime(
+    ticker: str,
+    strategy_type: str,
+    fast_period: int,
+    slow_period: int,
+    signal_entry: bool,
+    signal_exit: bool,
+    total_open_trades: int,
+    config: dict | None = None,
+    signal_period: int | None = None,
+) -> str:
+    """
+    Calculate what signal would be produced if the current price bar closes at the current price.
+    
+    This function uses real-time price data to calculate current MA values and determine
+    if a crossover signal would be triggered.
+    
+    Args:
+        ticker: Trading symbol (e.g., "SOL-USD")
+        strategy_type: Strategy type ("SMA", "EMA", or "MACD")
+        fast_period: Fast MA period
+        slow_period: Slow MA period
+        signal_entry: Whether entry signal is already confirmed
+        signal_exit: Whether exit signal is already confirmed
+        total_open_trades: Number of currently open trades
+        config: Configuration dictionary containing direction information
+        signal_period: Signal period for MACD strategies (ignored for SMA/EMA)
+        
+    Returns:
+        str: "Entry" if entry signal would be produced, "Exit" if exit signal would be produced, "None" otherwise
+    """
+    try:
+        # Check if signals are already confirmed - if so, return None
+        if signal_entry or signal_exit:
+            return "None"
+            
+        # Get current price data
+        price_data_path = Path(f"data/raw/prices/{ticker}_D.csv")
+        if not price_data_path.exists():
+            return "None"
+            
+        # Read price data
+        price_data = pl.read_csv(price_data_path)
+        if len(price_data) < max(fast_period, slow_period):
+            return "None"
+            
+        # Calculate current MA values based on strategy type
+        if strategy_type == "SMA":
+            current_data = price_data.with_columns([
+                pl.col("Close").cast(pl.Float64).rolling_mean(window_size=fast_period).alias("MA_FAST"),
+                pl.col("Close").cast(pl.Float64).rolling_mean(window_size=slow_period).alias("MA_SLOW"),
+            ])
+        elif strategy_type == "EMA":
+            current_data = price_data.with_columns([
+                pl.col("Close").cast(pl.Float64).ewm_mean(span=fast_period, adjust=False).alias("MA_FAST"),
+                pl.col("Close").cast(pl.Float64).ewm_mean(span=slow_period, adjust=False).alias("MA_SLOW"),
+            ])
+        elif strategy_type == "MACD":
+            # For MACD, use provided signal_period or default to 9
+            actual_signal_period = signal_period if signal_period is not None else 9
+            
+            # Calculate MACD components
+            current_data = price_data.with_columns([
+                # Fast and Slow EMAs
+                pl.col("Close").cast(pl.Float64).ewm_mean(span=fast_period, adjust=False).alias("EMA_FAST"),
+                pl.col("Close").cast(pl.Float64).ewm_mean(span=slow_period, adjust=False).alias("EMA_SLOW"),
+            ]).with_columns([
+                # MACD Line = Fast EMA - Slow EMA
+                (pl.col("EMA_FAST") - pl.col("EMA_SLOW")).alias("MACD_LINE"),
+            ]).with_columns([
+                # Signal Line = EMA of MACD Line
+                pl.col("MACD_LINE").ewm_mean(span=actual_signal_period, adjust=False).alias("MACD_SIGNAL"),
+            ]).with_columns([
+                # For consistency with MA logic, use MACD line as MA_FAST and Signal line as MA_SLOW
+                pl.col("MACD_LINE").alias("MA_FAST"),
+                pl.col("MACD_SIGNAL").alias("MA_SLOW"),
+            ])
+        else:
+            # For other strategies, return None
+            return "None"
+            
+        # Get the latest MA values (current bar)
+        last_row = current_data.tail(1)
+        fast_ma = last_row.get_column("MA_FAST").item()
+        slow_ma = last_row.get_column("MA_SLOW").item()
+        
+        # Check for valid MA values
+        if fast_ma is None or slow_ma is None:
+            return "None"
+            
+        # Determine current position from total_open_trades
+        position = 1 if total_open_trades > 0 else 0
+        
+        # Get direction (default to Long)
+        direction = config.get("DIRECTION", "Long") if config else "Long"
+        
+        # For Long positions
+        if direction == "Long":
+            # Entry signal: fast MA crosses above slow MA and no current position
+            if fast_ma > slow_ma and position == 0:
+                return "Entry"
+            # Exit signal: fast MA crosses below slow MA and currently in position
+            elif fast_ma < slow_ma and position == 1:
+                return "Exit"
+        # For Short positions
+        else:
+            # Entry signal: fast MA crosses below slow MA and no current position
+            if fast_ma < slow_ma and position == 0:
+                return "Entry"
+            # Exit signal: fast MA crosses above slow MA and currently in position
+            elif fast_ma > slow_ma and position == -1:
+                return "Exit"
+                
+        return "None"
+        
     except Exception:
         # If any error occurs, return None
         return "None"

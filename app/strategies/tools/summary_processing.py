@@ -40,6 +40,7 @@ from app.tools.project_utils import get_project_root
 from app.tools.stats_converter import convert_stats
 from app.tools.strategy.signal_utils import (
     calculate_signal_unconfirmed,
+    calculate_signal_unconfirmed_realtime,
     is_exit_signal_current,
     is_signal_current,
 )
@@ -303,9 +304,21 @@ def process_ticker_portfolios(
                             "info",
                         )
 
-                        # Calculate unconfirmed signal
-                        signal_unconfirmed = calculate_signal_unconfirmed(
-                            signal_data, config
+                        # Get total open trades from portfolio stats
+                        portfolio_stats = portfolio.stats()
+                        total_open_trades = portfolio_stats.get("Total Open Trades", 0)
+                        
+                        # Calculate unconfirmed signal using real-time data
+                        signal_unconfirmed = calculate_signal_unconfirmed_realtime(
+                            ticker=ticker,
+                            strategy_type="MACD",
+                            fast_period=fast_period,
+                            slow_period=slow_period,
+                            signal_entry=current_signal,
+                            signal_exit=exit_signal,
+                            total_open_trades=total_open_trades,
+                            config=config,
+                            signal_period=signal_period,
                         )
                         log(
                             f"Signal Unconfirmed for {ticker}: {signal_unconfirmed}",
@@ -572,9 +585,21 @@ def process_ticker_portfolios(
                             "info",
                         )
 
-                        # Calculate unconfirmed signal
-                        signal_unconfirmed = calculate_signal_unconfirmed(
-                            sma_data, config
+                        # Get total open trades from portfolio stats
+                        sma_portfolio_stats = sma_portfolio.stats()
+                        total_open_trades = sma_portfolio_stats.get("Total Open Trades", 0)
+                        
+                        # Calculate unconfirmed signal using real-time data
+                        signal_unconfirmed = calculate_signal_unconfirmed_realtime(
+                            ticker=ticker,
+                            strategy_type="SMA",
+                            fast_period=fast_period,
+                            slow_period=slow_period,
+                            signal_entry=current_signal,
+                            signal_exit=exit_signal,
+                            total_open_trades=total_open_trades,
+                            config=config,
+                            signal_period=None,
                         )
                         log(
                             f"Signal Unconfirmed for {ticker} SMA: {signal_unconfirmed}",
@@ -817,9 +842,21 @@ def process_ticker_portfolios(
                             "info",
                         )
 
-                        # Calculate unconfirmed signal
-                        signal_unconfirmed = calculate_signal_unconfirmed(
-                            ema_data, config
+                        # Get total open trades from portfolio stats
+                        ema_portfolio_stats = ema_portfolio.stats()
+                        total_open_trades = ema_portfolio_stats.get("Total Open Trades", 0)
+                        
+                        # Calculate unconfirmed signal using real-time data
+                        signal_unconfirmed = calculate_signal_unconfirmed_realtime(
+                            ticker=ticker,
+                            strategy_type="EMA",
+                            fast_period=fast_period,
+                            slow_period=slow_period,
+                            signal_entry=current_signal,
+                            signal_exit=exit_signal,
+                            total_open_trades=total_open_trades,
+                            config=config,
+                            signal_period=None,
                         )
                         log(
                             f"Signal Unconfirmed for {ticker} EMA: {signal_unconfirmed}",

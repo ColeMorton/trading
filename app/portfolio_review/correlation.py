@@ -15,13 +15,13 @@ from plotly.subplots import make_subplots
 from scipy.cluster.hierarchy import dendrogram, leaves_list, linkage
 from scipy.spatial.distance import squareform
 
-PORTFOLIO = ["MSTR", "BTC-USD", "TSLA", "MU", "GLD", "IREN", "TEM", "NFLX", "QBTS"]
+PORTFOLIO = ["MSTR", "BTC-USD", "TSLA", "MU", "GLD", "IREN", "TEM", "NFLX", "DHR", "COP"]
 
 # PORTFOLIO = ["ETH-USD", "SOL-USD", "ETHFI-USD", "SUI20947-USD"]
 
 # PORTFOLIO = ['SPY', 'QQQ']
 
-NEXT = ["DHR", "ASML"]
+NEXT = ["ROKU", "AMZN", "MRK", "TMO"]
 
 # NEXT = ["IREN", "TEM", "BBAI", "COPX"]
 
