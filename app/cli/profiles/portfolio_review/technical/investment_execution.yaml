@@ -24,120 +24,120 @@ config:
     # Bitcoin - Multiple Strategy Diversification
     BTC-USD:
       strategies:
-        - name: "btc_sma_short"
+        - name: 'btc_sma_short'
           strategy_type: SMA
           fast_period: 11
           slow_period: 36
           weight: 0.125
 
-        - name: "btc_sma_medium1"
+        - name: 'btc_sma_medium1'
           strategy_type: SMA
           fast_period: 26
           slow_period: 38
           weight: 0.125
 
-        - name: "btc_sma_long"
+        - name: 'btc_sma_long'
           strategy_type: SMA
           fast_period: 104
           slow_period: 105
           weight: 0.10
 
-        - name: "btc_macd_1"
+        - name: 'btc_macd_1'
           strategy_type: MACD
           fast_period: 14
           slow_period: 23
           signal_period: 13
           weight: 0.15
 
-        - name: "btc_macd_2"
+        - name: 'btc_macd_2'
           strategy_type: MACD
           fast_period: 18
           slow_period: 29
           signal_period: 18
           weight: 0.125
 
-        - name: "btc_sma_medium2"
+        - name: 'btc_sma_medium2'
           strategy_type: SMA
           fast_period: 27
           slow_period: 29
           weight: 0.125
 
-        - name: "btc_sma_trend"
+        - name: 'btc_sma_trend'
           strategy_type: SMA
           fast_period: 76
           slow_period: 78
           weight: 0.10
 
-        - name: "btc_sma_fast"
+        - name: 'btc_sma_fast'
           strategy_type: SMA
           fast_period: 8
           slow_period: 44
           weight: 0.125
 
-        - name: "btc_ema_responsive"
+        - name: 'btc_ema_responsive'
           strategy_type: EMA
           fast_period: 3
           slow_period: 47
           weight: 0.10
 
-      execution_method: limit_order  # Crypto requires careful execution
+      execution_method: limit_order # Crypto requires careful execution
       position_sizing: volatility_adjusted
 
     # MicroStrategy - Multiple Strategy Diversification
     MSTR:
       strategies:
-        - name: "mstr_sma_long1"
+        - name: 'mstr_sma_long1'
           strategy_type: SMA
           fast_period: 52
           slow_period: 90
           weight: 0.15
 
-        - name: "mstr_sma_wide"
+        - name: 'mstr_sma_wide'
           strategy_type: SMA
           fast_period: 16
           slow_period: 82
           weight: 0.15
 
-        - name: "mstr_sma_extreme"
+        - name: 'mstr_sma_extreme'
           strategy_type: SMA
           fast_period: 6
           slow_period: 84
           weight: 0.10
 
-        - name: "mstr_macd_wide"
+        - name: 'mstr_macd_wide'
           strategy_type: MACD
           fast_period: 13
           slow_period: 21
           signal_period: 32
           weight: 0.15
 
-        - name: "mstr_sma_tight"
+        - name: 'mstr_sma_tight'
           strategy_type: SMA
           fast_period: 18
           slow_period: 21
           weight: 0.125
 
-        - name: "mstr_sma_short"
+        - name: 'mstr_sma_short'
           strategy_type: SMA
           fast_period: 6
           slow_period: 27
           weight: 0.125
 
-        - name: "mstr_macd_fast"
+        - name: 'mstr_macd_fast'
           strategy_type: MACD
           fast_period: 13
           slow_period: 31
           signal_period: 11
           weight: 0.10
 
-        - name: "mstr_macd_quick"
+        - name: 'mstr_macd_quick'
           strategy_type: MACD
           fast_period: 9
           slow_period: 13
           signal_period: 5
           weight: 0.075
 
-      execution_method: market_order  # Equity execution
+      execution_method: market_order # Equity execution
       position_sizing: volatility_adjusted
 
   # Crypto-specific execution parameters
@@ -155,12 +155,12 @@ config:
     # TODO: Configure actual values instead of references
     position_sizing_method: volatility_adjusted
     rebalancing_trigger: volatility_based
-    max_deviation_threshold: 0.10  # Higher tolerance for crypto volatility
+    max_deviation_threshold: 0.10 # Higher tolerance for crypto volatility
     correlation_monitoring: true
 
   # Portfolio review specific execution settings
   review_execution:
-    benchmark: 'BTC-USD'  # Use Bitcoin as benchmark for crypto portfolio
+    benchmark: 'BTC-USD' # Use Bitcoin as benchmark for crypto portfolio
     benchmark_type: 'buy_and_hold'
     init_cash: 10000.0
     fees:
@@ -173,9 +173,9 @@ config:
   analysis_execution:
     timeframe: 'D'
     lookback_periods:
-      short_term: 7    # Crypto moves fast
+      short_term: 7 # Crypto moves fast
       medium_term: 21
-      long_term: 90    # Shorter long term due to crypto volatility
+      long_term: 90 # Shorter long term due to crypto volatility
     volatility_window: 14
     correlation_window: 30
     risk_metrics: ['VaR', 'CVaR', 'maximum_drawdown', 'volatility']

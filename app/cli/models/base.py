@@ -77,7 +77,8 @@ class FilterConfig(BaseModel):
         default=False, description="Filter for current signal entries only"
     )
     date_filter: Optional[str] = Field(
-        default=None, description="Filter for entry signals triggered on specific date (YYYYMMDD format)"
+        default=None,
+        description="Filter for entry signals triggered on specific date (YYYYMMDD format)",
     )
     min_win_rate: Optional[float] = Field(
         default=None, ge=0, le=1, description="Minimum win rate filter"
@@ -94,14 +95,17 @@ class FilterConfig(BaseModel):
     min_sortino_ratio: Optional[float] = Field(
         default=None, description="Minimum Sortino ratio filter"
     )
-    
+
     @validator("date_filter")
     def validate_date_filter(cls, v):
         """Validate date_filter format."""
         if v is not None:
             import re
+
             if not re.match(r"^\d{8}$", v):
-                raise ValueError("Date filter must be in YYYYMMDD format (e.g., 20250811)")
+                raise ValueError(
+                    "Date filter must be in YYYYMMDD format (e.g., 20250811)"
+                )
         return v
 
 

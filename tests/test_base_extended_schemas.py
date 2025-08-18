@@ -37,7 +37,7 @@ class TestSchemaDefinitions:
         assert "Total Return [%]" in column_names
         assert "Score" in column_names
         assert "Signal Unconfirmed" in column_names
-        
+
         # Verify Signal Unconfirmed position (after Signal Exit)
         assert column_names.index("Signal Unconfirmed") == 7
         assert column_names[6] == "Signal Exit"

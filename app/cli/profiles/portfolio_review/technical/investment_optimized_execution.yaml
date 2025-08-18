@@ -38,7 +38,7 @@ config:
       strategy_type: SMA
       fast_period: 76
       slow_period: 78
-      execution_method: market_order  # Tight window needs quick execution
+      execution_method: market_order # Tight window needs quick execution
       position_sizing: efficiency_weighted
       tier: core_primary
       weight: 0.15
@@ -62,7 +62,7 @@ config:
       strategy_type: SMA
       fast_period: 104
       slow_period: 105
-      execution_method: market_order  # Ultra-tight window
+      execution_method: market_order # Ultra-tight window
       position_sizing: equal_weight
       tier: diversification
       weight: 0.07
@@ -85,7 +85,7 @@ config:
       strategy_type: SMA
       fast_period: 3
       slow_period: 47
-      execution_method: limit_order  # Early trend detection needs precision
+      execution_method: limit_order # Early trend detection needs precision
       position_sizing: momentum_weighted
       tier: opportunistic
       weight: 0.07
@@ -134,7 +134,7 @@ config:
       strategy_type: SMA
       fast_period: 16
       slow_period: 82
-      execution_method: limit_order  # Extreme asymmetry needs careful execution
+      execution_method: limit_order # Extreme asymmetry needs careful execution
       position_sizing: volatility_adjusted
       tier: opportunistic
       weight: 0.08
@@ -168,7 +168,7 @@ config:
 
   # Portfolio review specific execution settings
   review_execution:
-    benchmark: 'BTC-USD'  # Use Bitcoin as crypto benchmark
+    benchmark: 'BTC-USD' # Use Bitcoin as crypto benchmark
     benchmark_type: 'buy_and_hold'
     init_cash: 10000.0
     fees:
@@ -181,11 +181,12 @@ config:
   analysis_execution:
     timeframe: 'D'
     lookback_periods:
-      short_term: 14   # Efficiency analysis period
-      medium_term: 30  # Independence analysis period
-      long_term: 90    # Full cycle analysis
+      short_term: 14 # Efficiency analysis period
+      medium_term: 30 # Independence analysis period
+      long_term: 90 # Full cycle analysis
     volatility_window: 14
     correlation_window: 30
     efficiency_window: 60
     risk_metrics: ['VaR', 'CVaR', 'maximum_drawdown', 'efficiency_ratio']
-    optimization_metrics: ['efficiency_score', 'independence_factor', 'alpha_contribution']
+    optimization_metrics:
+      ['efficiency_score', 'independence_factor', 'alpha_contribution']

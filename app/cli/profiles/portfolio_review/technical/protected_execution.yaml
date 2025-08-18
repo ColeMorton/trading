@@ -55,7 +55,7 @@ config:
     # TODO: Configure actual values instead of references
     position_sizing_method: equal_weight
     rebalancing_trigger: time_based
-    max_deviation_threshold: 0.03  # Tighter controls for conservative portfolio
+    max_deviation_threshold: 0.03 # Tighter controls for conservative portfolio
 
   # Portfolio review specific execution settings
   review_execution:
@@ -71,7 +71,7 @@ config:
   analysis_execution:
     timeframe: 'D'
     lookback_periods:
-      short_term: 30   # Longer periods for stability
+      short_term: 30 # Longer periods for stability
       medium_term: 90
       long_term: 365
     volatility_window: 30

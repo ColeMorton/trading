@@ -48,7 +48,7 @@ config:
       strategy_type: SMA
       fast_period: 23
       slow_period: 31
-      execution_method: limit_order  # More volatile, use limit orders
+      execution_method: limit_order # More volatile, use limit orders
       position_sizing: risk_weighted
 
     # Industrial - National Instruments
@@ -64,7 +64,7 @@ config:
       strategy_type: SMA
       fast_period: 14
       slow_period: 15
-      execution_method: limit_order  # High volatility, use limit orders
+      execution_method: limit_order # High volatility, use limit orders
       position_sizing: risk_weighted
 
   # Default execution parameters from business configuration

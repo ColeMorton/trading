@@ -15,12 +15,12 @@ from app.strategies.ma_cross.tools.process_strategy_portfolios import (
     process_macd_strategy,
 )
 from app.strategies.ma_cross.tools.signal_utils import is_signal_current
-from app.tools.strategy.signal_utils import calculate_signal_unconfirmed
 
 # Import export_portfolios inside functions to avoid circular imports
 from app.tools.config_service import ConfigService
 from app.tools.portfolio_transformation import reorder_columns
 from app.tools.stats_converter import convert_stats
+from app.tools.strategy.signal_utils import calculate_signal_unconfirmed
 
 
 def process_ticker_portfolios(
@@ -148,7 +148,9 @@ def process_ticker_portfolios(
                         )
 
                         # Calculate unconfirmed signal
-                        signal_unconfirmed = calculate_signal_unconfirmed(signal_data, config)
+                        signal_unconfirmed = calculate_signal_unconfirmed(
+                            signal_data, config
+                        )
                         log(
                             f"Signal Unconfirmed for {ticker} MACD: {signal_unconfirmed}",
                             "info",
@@ -217,7 +219,9 @@ def process_ticker_portfolios(
                         )
 
                         # Calculate unconfirmed signal
-                        signal_unconfirmed = calculate_signal_unconfirmed(sma_data, config)
+                        signal_unconfirmed = calculate_signal_unconfirmed(
+                            sma_data, config
+                        )
                         log(
                             f"Signal Unconfirmed for {ticker} SMA: {signal_unconfirmed}",
                             "info",
@@ -231,7 +235,12 @@ def process_ticker_portfolios(
 
                         # Convert stats with current signal status
                         sma_converted_stats = convert_stats(
-                            sma_stats, log, config, current_signal, None, signal_unconfirmed
+                            sma_stats,
+                            log,
+                            config,
+                            current_signal,
+                            None,
+                            signal_unconfirmed,
                         )
                         portfolios.append(sma_converted_stats)
                     except Exception as e:
@@ -254,7 +263,9 @@ def process_ticker_portfolios(
                         )
 
                         # Calculate unconfirmed signal
-                        signal_unconfirmed = calculate_signal_unconfirmed(ema_data, config)
+                        signal_unconfirmed = calculate_signal_unconfirmed(
+                            ema_data, config
+                        )
                         log(
                             f"Signal Unconfirmed for {ticker} EMA: {signal_unconfirmed}",
                             "info",
@@ -268,7 +279,12 @@ def process_ticker_portfolios(
 
                         # Convert stats with current signal status
                         ema_converted_stats = convert_stats(
-                            ema_stats, log, config, current_signal, None, signal_unconfirmed
+                            ema_stats,
+                            log,
+                            config,
+                            current_signal,
+                            None,
+                            signal_unconfirmed,
                         )
                         portfolios.append(ema_converted_stats)
                     except Exception as e:

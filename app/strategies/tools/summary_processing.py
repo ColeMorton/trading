@@ -38,7 +38,11 @@ from app.tools.get_config import get_config
 from app.tools.portfolio_transformation import reorder_columns
 from app.tools.project_utils import get_project_root
 from app.tools.stats_converter import convert_stats
-from app.tools.strategy.signal_utils import is_exit_signal_current, is_signal_current, calculate_signal_unconfirmed
+from app.tools.strategy.signal_utils import (
+    calculate_signal_unconfirmed,
+    is_exit_signal_current,
+    is_signal_current,
+)
 
 
 def _extract_equity_data_if_enabled(
@@ -300,7 +304,9 @@ def process_ticker_portfolios(
                         )
 
                         # Calculate unconfirmed signal
-                        signal_unconfirmed = calculate_signal_unconfirmed(signal_data, config)
+                        signal_unconfirmed = calculate_signal_unconfirmed(
+                            signal_data, config
+                        )
                         log(
                             f"Signal Unconfirmed for {ticker}: {signal_unconfirmed}",
                             "info",
@@ -495,7 +501,12 @@ def process_ticker_portfolios(
 
                         # Convert stats with current signal status
                         converted_stats = convert_stats(
-                            stats, log, config, current_signal, exit_signal, signal_unconfirmed
+                            stats,
+                            log,
+                            config,
+                            current_signal,
+                            exit_signal,
+                            signal_unconfirmed,
                         )
                         portfolios.append(converted_stats)
                     except Exception as e:
@@ -562,7 +573,9 @@ def process_ticker_portfolios(
                         )
 
                         # Calculate unconfirmed signal
-                        signal_unconfirmed = calculate_signal_unconfirmed(sma_data, config)
+                        signal_unconfirmed = calculate_signal_unconfirmed(
+                            sma_data, config
+                        )
                         log(
                             f"Signal Unconfirmed for {ticker} SMA: {signal_unconfirmed}",
                             "info",
@@ -763,7 +776,12 @@ def process_ticker_portfolios(
 
                         # Convert stats with current signal status
                         sma_converted_stats = convert_stats(
-                            sma_stats, log, config, current_signal, exit_signal, signal_unconfirmed
+                            sma_stats,
+                            log,
+                            config,
+                            current_signal,
+                            exit_signal,
+                            signal_unconfirmed,
                         )
 
                         # Debug: Check if equity data survived conversion
@@ -800,7 +818,9 @@ def process_ticker_portfolios(
                         )
 
                         # Calculate unconfirmed signal
-                        signal_unconfirmed = calculate_signal_unconfirmed(ema_data, config)
+                        signal_unconfirmed = calculate_signal_unconfirmed(
+                            ema_data, config
+                        )
                         log(
                             f"Signal Unconfirmed for {ticker} EMA: {signal_unconfirmed}",
                             "info",
@@ -997,7 +1017,12 @@ def process_ticker_portfolios(
 
                         # Convert stats with current signal status
                         ema_converted_stats = convert_stats(
-                            ema_stats, log, config, current_signal, exit_signal, signal_unconfirmed
+                            ema_stats,
+                            log,
+                            config,
+                            current_signal,
+                            exit_signal,
+                            signal_unconfirmed,
                         )
                         portfolios.append(ema_converted_stats)
                     except Exception as e:

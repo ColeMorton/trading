@@ -27,7 +27,7 @@ config:
       strategy_type: SMA
       fast_period: 11
       slow_period: 36
-      execution_method: limit_order  # Crypto requires careful execution
+      execution_method: limit_order # Crypto requires careful execution
       position_sizing: volatility_adjusted
       weight: 0.11
 
@@ -60,7 +60,7 @@ config:
       strategy_type: EMA
       fast_period: 3
       slow_period: 47
-      execution_method: limit_order  # EMA more sensitive
+      execution_method: limit_order # EMA more sensitive
       position_sizing: volatility_adjusted
       weight: 0.11
 
@@ -69,7 +69,7 @@ config:
       strategy_type: SMA
       fast_period: 76
       slow_period: 78
-      execution_method: market_order  # Tight window, quick execution
+      execution_method: market_order # Tight window, quick execution
       position_sizing: equal_weight
       weight: 0.11
 
@@ -78,7 +78,7 @@ config:
       strategy_type: SMA
       fast_period: 104
       slow_period: 105
-      execution_method: market_order  # Ultra-tight window
+      execution_method: market_order # Ultra-tight window
       position_sizing: equal_weight
       weight: 0.11
 
@@ -112,12 +112,12 @@ config:
     # TODO: Configure actual values instead of references
     position_sizing_method: volatility_adjusted
     rebalancing_trigger: volatility_based
-    max_deviation_threshold: 0.12  # Higher tolerance for crypto volatility
+    max_deviation_threshold: 0.12 # Higher tolerance for crypto volatility
     correlation_monitoring: true
 
   # Portfolio review specific execution settings
   review_execution:
-    benchmark: 'BTC-USD'  # Use Bitcoin itself as benchmark
+    benchmark: 'BTC-USD' # Use Bitcoin itself as benchmark
     benchmark_type: 'buy_and_hold'
     init_cash: 10000.0
     # TODO: Configure actual values instead of references
@@ -129,9 +129,9 @@ config:
   analysis_execution:
     timeframe: 'D'
     lookback_periods:
-      short_term: 7    # Crypto moves fast
+      short_term: 7 # Crypto moves fast
       medium_term: 21
-      long_term: 90    # Shorter long term due to crypto volatility
+      long_term: 90 # Shorter long term due to crypto volatility
     volatility_window: 14
     correlation_window: 30
     risk_metrics: ['VaR', 'CVaR', 'maximum_drawdown', 'volatility']

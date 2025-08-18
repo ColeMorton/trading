@@ -193,7 +193,9 @@ class MAStrategyService(BaseStrategyService):
             legacy_config["SLOW_PERIOD"] = config.slow_period
 
         # Add USE_CURRENT and USE_DATE configuration
-        legacy_config["USE_CURRENT"] = getattr(config.filter, "use_current", False) or False
+        legacy_config["USE_CURRENT"] = (
+            getattr(config.filter, "use_current", False) or False
+        )
         legacy_config["USE_DATE"] = getattr(config.filter, "date_filter", None)
 
         # Add sorting parameters to maintain consistency with MACD

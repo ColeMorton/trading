@@ -147,8 +147,9 @@ def run(portfolio: str) -> bool:
         module_name="strategies", log_file="update_portfolios.log"
     ) as log:
         import time
+
         start_time = time.time()
-        
+
         # Get a normalized copy of the global config
         local_config = normalize_config(config.copy())
 

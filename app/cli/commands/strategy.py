@@ -146,14 +146,14 @@ def run(
         # Validate date parameter if provided
         if date:
             import re
-            
+
             # Validate YYYYMMDD format
             if not re.match(r"^\d{8}$", date):
                 rprint(
                     "[red]Error: Date must be in YYYYMMDD format (e.g., 20250811)[/red]"
                 )
                 raise typer.Exit(1)
-        
+
         # Load configuration
         loader = ConfigLoader()
 

@@ -92,9 +92,7 @@ def process_heatmap_data(config: dict, log) -> bool:
                     right_on=right_cols,
                     how="inner",
                 )
-                log(
-                    f"Filtered portfolio data to {len(raw_data)} signal combinations"
-                )
+                log(f"Filtered portfolio data to {len(raw_data)} signal combinations")
             else:
                 log(f"Warning: Signals file not found: {signals_file}")
 
